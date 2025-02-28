@@ -1,0 +1,59 @@
+import { NestFactory } from '@nestjs/core';
+import { ValidationPipe, Logger, BadRequestException } from '@nestjs/common';
+import { AppModule } from './app.module';
+import * as morgan from 'morgan';
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule, {
+    logger: ['error', 'warn', 'debug', 'log', 'verbose'],
+    bufferLogs: true,
+  });
+
+  // Enable CORS
+  app.enableCors();
+
+  // Add request logging middleware
+  app.use(morgan('dev'));
+
+  // Custom logging middleware
+  app.use((req: any, res: any, next: any) => {
+    Logger.debug(
+      `Incoming ${req.method} ${req.url} request with query:`,
+      JSON.stringify(req.query),
+      JSON.stringify(req.body),
+      JSON.stringify(req.params),
+      JSON.stringify(req.error),
+      JSON.stringify(req.cookies),
+    );
+    next();
+  });
+
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      enableDebugMessages: true,
+      transformOptions: {
+        enableImplicitConversion: true,
+        exposeDefaultValues: true,
+      },
+      whitelist: true,
+      validationError: {
+        target: false,
+        value: true,
+      },
+      exceptionFactory: (errors) => {
+        const result = errors.map((error) => ({
+          property: error.property,
+          message: error.constraints
+            ? Object.values(error.constraints)[0]
+            : 'Invalid value',
+          value: error.value,
+        }));
+        return new BadRequestException(result);
+      },
+    }),
+  );
+
+  await app.listen(process.env.PORT ?? 3000);
+}
+bootstrap();

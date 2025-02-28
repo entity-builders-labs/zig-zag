@@ -1,0 +1,1 @@
+const { PrismaClient } = require('@prisma/client'); const prisma = new PrismaClient(); async function main() { const types = await prisma.`SELECT type, COUNT(*) FROM \"activity\" GROUP BY type ORDER BY COUNT(*) DESC`; console.log(types); } main().then(() => prisma.()).catch(e => { console.error(e); process.exit(1); });
