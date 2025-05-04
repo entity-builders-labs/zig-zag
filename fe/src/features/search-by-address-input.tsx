@@ -48,6 +48,9 @@ export const SearchByAddressInput = () => {
         onChangeText={setTerm}
         onClear={clearSearch}
         onSelectItem={handleOnSelectItem}
+        textInputProps={{
+          placeholder: 'Search by address',
+        }}
       />
     </View>
   );
