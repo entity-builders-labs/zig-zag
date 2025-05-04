@@ -1,27 +1,14 @@
 import { enableScreens } from 'react-native-screens';
 import { NavigationContainer } from '@react-navigation/native';
-import { useEffect, useState, useRef } from 'react';
-import {
-  ActivityIndicator,
-  StyleSheet,
-  Dimensions,
-  useWindowDimensions,
-  FlatList,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-  ScrollView,
-} from 'react-native';
+import { StyleSheet, Dimensions } from 'react-native';
 import { GluestackUIProvider, Box, Text, View } from '@gluestack-ui/themed';
 import { ErrorBoundary } from 'react-error-boundary';
-import { useApi } from './src/api/hooks/useApi';
-import axiosInstance from './src/api/config/axios';
-// import { Map, Marker } from './src/components/Map';
-import { requestForegroundPermissionsAsync } from 'expo-location';
-import HomeScreen from './src/screens/HomeScreen';
 import AppNavigator from './src/navigation/AppNavigator';
 import { AutocompleteDropdownContextProvider } from 'react-native-autocomplete-dropdown';
-import { AddressProvider } from './src/context/address-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { AppProvider } from './src/context/app';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { config } from '@gluestack-ui/config';
 
 enableScreens();
 
@@ -36,19 +23,21 @@ function ErrorFallback({ error }: { error: Error }) {
 
 export default function App() {
   return (
-    <ErrorBoundary FallbackComponent={ErrorFallback}>
-      <GluestackUIProvider>
-        <GestureHandlerRootView>
-          <AddressProvider>
-            <AutocompleteDropdownContextProvider>
-              <NavigationContainer>
-                <AppNavigator />
-              </NavigationContainer>
-            </AutocompleteDropdownContextProvider>
-          </AddressProvider>
-        </GestureHandlerRootView>
-      </GluestackUIProvider>
-    </ErrorBoundary>
+    <SafeAreaProvider>
+      <ErrorBoundary FallbackComponent={ErrorFallback}>
+        <GluestackUIProvider config={config}>
+          <GestureHandlerRootView style={{ flex: 1 }}>
+            <AppProvider>
+              <AutocompleteDropdownContextProvider>
+                <NavigationContainer>
+                  <AppNavigator />
+                </NavigationContainer>
+              </AutocompleteDropdownContextProvider>
+            </AppProvider>
+          </GestureHandlerRootView>
+        </GluestackUIProvider>
+      </ErrorBoundary>
+    </SafeAreaProvider>
   );
 }
 

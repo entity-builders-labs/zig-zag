@@ -1,17 +1,15 @@
 import { useGoogleAutocomplete } from '@appandflow/react-native-google-autocomplete';
 import { View } from '@gluestack-ui/themed';
-import { useState } from 'react';
-import { TextInput, TouchableOpacity, Text } from 'react-native';
 import {
   AutocompleteDropdown,
   AutocompleteDropdownItem,
 } from 'react-native-autocomplete-dropdown';
-import { useAddress } from '../context/address-context';
+import { useAddress } from '../context/app';
 
 const GOOGLE_PLACES_API_KEY = 'AIzaSyA9nKk8SB6GVvUZmhAhRCLJzT8iNVgZC48';
 
 export const SearchByAddressInput = () => {
-  const { setSelectedAddress } = useAddress();
+  const { setAddress } = useAddress();
 
   const { locationResults, setTerm, clearSearch, searchDetails, term } =
     useGoogleAutocomplete(GOOGLE_PLACES_API_KEY, {
@@ -21,7 +19,7 @@ export const SearchByAddressInput = () => {
 
   const handleOnSelectItem = async (item: AutocompleteDropdownItem | null) => {
     if (item === null) {
-      setSelectedAddress(null);
+      setAddress(null);
       return;
     }
     const locationId = locationResults.find(
@@ -30,7 +28,13 @@ export const SearchByAddressInput = () => {
 
     if (locationId) {
       const details = await searchDetails(locationId);
-      setSelectedAddress(details);
+      setAddress({
+        lat: details.geometry.location.lat,
+        lng: details.geometry.location.lng,
+        street: details.formatted_address,
+        city: details.address_components[0].long_name,
+        country: details.address_components[2].long_name,
+      });
     }
   };
 

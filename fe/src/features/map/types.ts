@@ -17,7 +17,6 @@ export interface Marker {
 }
 
 export interface MapProps {
-  initialRegion?: Region;
   markers?: Marker[];
   onRegionChange?: (region: Region) => void;
   focusCoordinate?: {

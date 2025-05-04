@@ -1,14 +1,11 @@
 import React from 'react';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../navigation/AppNavigator';
 import { StyleSheet, Dimensions } from 'react-native';
 import { GluestackUIProvider, Box, Text, VStack } from '@gluestack-ui/themed';
 import { ErrorBoundary } from 'react-error-boundary';
 import { config } from '@gluestack-ui/config';
 import { SearchByAddressInput } from '../features/search-by-address-input';
-import { Tours } from '../features/tours/tours';
 import { Activities } from '../features/activities';
-
+import { Map } from '../features/map';
 function ErrorFallback({ error }: { error: Error }) {
   return (
     <Box style={styles.container}>
@@ -18,15 +15,6 @@ function ErrorFallback({ error }: { error: Error }) {
   );
 }
 
-type HomeScreenNavigationProp = NativeStackNavigationProp<
-  RootStackParamList,
-  'Home'
->;
-
-type Props = {
-  navigation?: HomeScreenNavigationProp;
-};
-
 export default function HomeScreen() {
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
@@ -34,6 +22,7 @@ export default function HomeScreen() {
         <Box style={styles.container}>
           <VStack style={styles.contentContainer}>
             <SearchByAddressInput />
+            <Map />
             <Activities />
           </VStack>
         </Box>

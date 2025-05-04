@@ -1,12 +1,12 @@
 import { View, Text } from '@gluestack-ui/themed';
 import { FlatList } from 'react-native';
 import { useTours } from './use-tours';
-import { useAddress } from '../../context/address-context';
+import { useAddress } from '../../context/app';
 import { Tour } from '../../components/types';
 
 export const Tours = () => {
-  const { addressCoordinates } = useAddress();
-  const { tours, toursError, toursLoading } = useTours(addressCoordinates);
+  const { address } = useAddress();
+  const { tours, toursError, toursLoading } = useTours(address ?? undefined);
 
   return (
     <View>

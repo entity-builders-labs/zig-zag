@@ -1,8 +1,7 @@
-import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import HomeScreen from '../screens/HomeScreen';
 import ProfileScreen from '../screens/ProfileScreen';
-import { ToursScreen } from '../screens/ToursScreen';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export type RootStackParamList = {
   Home: undefined;
@@ -15,9 +14,15 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function AppNavigator() {
   return (
-    <Stack.Navigator>
-      <Stack.Screen name='Home' component={HomeScreen} />
-      <Stack.Screen name='Profile' component={ProfileScreen} />
-    </Stack.Navigator>
+    <SafeAreaView style={{ flex: 1 }}>
+      <Stack.Navigator>
+        <Stack.Screen
+          name='Home'
+          component={HomeScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen name='Profile' component={ProfileScreen} />
+      </Stack.Navigator>
+    </SafeAreaView>
   );
 }
