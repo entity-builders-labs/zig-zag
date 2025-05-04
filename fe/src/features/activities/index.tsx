@@ -1,5 +1,4 @@
 import { SectionList, StyleSheet } from 'react-native';
-import { useActivities } from './use-activities';
 import { Activity } from './types';
 import {
   BottomSheetPortal,
@@ -9,11 +8,12 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Box, Text } from '@gluestack-ui/themed';
 import { useState } from 'react';
+import { useActivities } from '../../context/app';
 export const Activities = () => {
   const { activities } = useActivities();
   const insets = useSafeAreaInsets();
   const [expandedId, setExpandedId] = useState<string | null>(null);
-
+  console.log('$$$ activities:', activities);
   const sections = Object.entries(
     activities.reduce(
       (acc, activity) => {

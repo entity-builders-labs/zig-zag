@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-interface ApiError {
+export interface ApiError {
   message: string;
   code?: string;
   status?: number;

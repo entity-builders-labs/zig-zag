@@ -9,6 +9,10 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { AppProvider } from './src/context/app';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { config } from '@gluestack-ui/config';
+import {
+  configureReanimatedLogger,
+  ReanimatedLogLevel,
+} from 'react-native-reanimated';
 
 enableScreens();
 
@@ -22,6 +26,11 @@ function ErrorFallback({ error }: { error: Error }) {
 }
 
 export default function App() {
+  configureReanimatedLogger({
+    level: ReanimatedLogLevel.warn,
+    strict: true, // Reanimated runs in strict mode by default
+  });
+
   return (
     <SafeAreaProvider>
       <ErrorBoundary FallbackComponent={ErrorFallback}>
