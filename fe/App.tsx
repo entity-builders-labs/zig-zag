@@ -21,6 +21,7 @@ import HomeScreen from './src/screens/HomeScreen';
 import AppNavigator from './src/navigation/AppNavigator';
 import { AutocompleteDropdownContextProvider } from 'react-native-autocomplete-dropdown';
 import { AddressProvider } from './src/context/address-context';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 enableScreens();
 
@@ -37,13 +38,15 @@ export default function App() {
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
       <GluestackUIProvider>
-        <AddressProvider>
-          <AutocompleteDropdownContextProvider>
-            <NavigationContainer>
-              <AppNavigator />
-            </NavigationContainer>
-          </AutocompleteDropdownContextProvider>
-        </AddressProvider>
+        <GestureHandlerRootView>
+          <AddressProvider>
+            <AutocompleteDropdownContextProvider>
+              <NavigationContainer>
+                <AppNavigator />
+              </NavigationContainer>
+            </AutocompleteDropdownContextProvider>
+          </AddressProvider>
+        </GestureHandlerRootView>
       </GluestackUIProvider>
     </ErrorBoundary>
   );
