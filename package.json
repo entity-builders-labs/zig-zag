@@ -8,7 +8,8 @@
   "scripts": {
     "start:be": "cd be && yarn start:dev",
     "start:fe": "cd fe && yarn start",
-    "start": "concurrently \"yarn start:be\" \"yarn start:fe\""
+    "start": "concurrently \"yarn start:be\" \"yarn start:fe\"",
+    "prisma:generate": "cd be && yarn prisma:generate"
   },
   "devDependencies": {
     "concurrently": "^8.2.0"

@@ -6,13 +6,8 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateTourDto } from './dto/create-tour.dto';
 import { UpdateTourDto } from './dto/update-tour.dto';
-import { ConfigService } from '@nestjs/config';
-import { ChatOpenAI, OpenAIEmbeddings } from '@langchain/openai';
-import { MemoryVectorStore } from 'langchain/vectorstores/memory';
-import { Document } from 'langchain/document';
-import { Activity, TourActivity } from '@prisma/client';
+import { Activity } from '@prisma/client';
 import { ActivitiesService } from '../activities/activities.service';
-import { BufferMemory } from 'langchain/memory';
 import { LangChainService } from '../shared/ai/langchain.service';
 import {
   ChatPromptTemplate,
@@ -24,8 +19,6 @@ import { JsonOutputFunctionsParser } from 'langchain/output_parsers';
 
 @Injectable()
 export class ToursService {
-  private vectorStore: MemoryVectorStore;
-
   constructor(
     private readonly prisma: PrismaService,
     private readonly activitiesService: ActivitiesService,
