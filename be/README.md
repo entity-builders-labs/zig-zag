@@ -61,3 +61,15 @@ pnpm run start:dev
 - LangChain - AI framework
 - OpenAI - GPT-4 integration
 - TypeScript - Programming language
+
+## Use Prisma Studio
+
+To view and manage your database with a graphical interface, run:
+
+```bash
+yarn prisma studio
+```
+
+This will open Prisma Studio in your browser at `http://localhost:5555`, where you can view, create, edit, and delete database records.
+
+Note: Make sure your database is running before starting Prisma Studio.
