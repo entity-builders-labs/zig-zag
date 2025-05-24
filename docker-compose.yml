@@ -10,8 +10,17 @@ services:
       - '27017:27017'
     volumes:
       - mongodb_data:/data/db
+      - ./mongodb-keyfile:/etc/mongodb-keyfile:ro
+      - ./be/mongodb-init:/docker-entrypoint-initdb.d
     networks:
       - app-network
+    command: mongod --replSet rs0 --bind_ip_all --keyFile /etc/mongodb-keyfile --auth
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
 
   backend:
     build:
@@ -21,14 +30,16 @@ services:
       - '3000:3000'
     environment:
       - NODE_ENV=development
-      - MONGODB_URI=mongodb://root:example@mongodb:27017/zigzag?authSource=admin
+      - MONGODB_URI=mongodb://root:example@mongodb:27017/zigzag?authSource=admin&replicaSet=rs0
     volumes:
       - ./be:/app/be
       - /app/node_modules
     depends_on:
-      - mongodb
+      mongodb:
+        condition: service_healthy
     networks:
       - app-network
+    command: sh /usr/local/bin/wait-for-mongo.sh mongodb npm run start:dev
 
   frontend:
     build:

@@ -14,6 +14,25 @@ import {
 } from 'react-native-reanimated';
 import { config } from './config';
 
+// ✅ Configuración para Hot Module Reload en Web
+if (__DEV__ && typeof window !== 'undefined') {
+  // Habilitar Fast Refresh para React
+  if (typeof module !== 'undefined' && module.hot) {
+    module.hot.accept();
+  }
+
+  // Configurar WebSocket para hot reload
+  if (window.location && window.location.hostname === 'localhost') {
+    window.addEventListener('beforeunload', () => {
+      // Limpiar conexiones antes de recargar
+      if (window.WebSocket) {
+        const ws = new WebSocket('ws://localhost:8081/hot');
+        ws.onopen = () => ws.close();
+      }
+    });
+  }
+}
+
 enableScreens();
 
 function ErrorFallback({ error }: { error: Error }) {

@@ -28,4 +28,8 @@ RUN npx nest build
 EXPOSE 3000
 
 # Command to run the application
-CMD ["yarn", "start:dev"] 
+CMD ["yarn", "start:dev"]
+
+# Copiar el script de espera
+COPY be/wait-for-mongo.sh /usr/local/bin/wait-for-mongo.sh
+RUN chmod +x /usr/local/bin/wait-for-mongo.sh

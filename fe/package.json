@@ -58,8 +58,10 @@
     "@types/google.maps": "^3.58.1",
     "@types/react": "~18.3.12",
     "jscodeshift": "^0.15.2",
+    "react-native-dotenv": "^3.4.11",
     "react-native-svg-transformer": "^1.5.0",
-    "typescript": "^5.7.3"
+    "typescript": "^5.7.3",
+    "react-native-community/cli": "latest"
   },
   "private": true
 }

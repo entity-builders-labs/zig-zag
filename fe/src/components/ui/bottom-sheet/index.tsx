@@ -223,9 +223,6 @@ export const BottomSheetContent = ({ ...props }: IBottomSheetContent) => {
         {...props}
         // @ts-ignore
         {...keyDownHandlers}
-        className={bottomSheetContentStyle({
-          className: props.className,
-        })}
       >
         {visible && (
           <FocusScope contain={visible} autoFocus={true} restoreFocus={true}>
@@ -250,7 +247,6 @@ cssInterop(GorhomBottomSheetView, { className: 'style' });
 
 export const BottomSheetItem = ({
   children,
-  className,
   closeOnSelect = true,
   ...props
 }: PressableProps & {
@@ -260,9 +256,6 @@ export const BottomSheetItem = ({
   return (
     <Pressable
       {...props}
-      className={bottomSheetItemStyle({
-        className: className,
-      })}
       onPress={(e) => {
         if (closeOnSelect) {
           handleClose();

@@ -7,8 +7,9 @@
   ],
   "scripts": {
     "start:be": "cd be && yarn start:dev",
-    "start:fe": "cd fe && yarn start",
-    "start": "concurrently \"yarn start:be\" \"yarn start:fe\"",
+    "start:fe": "cd fe && FAST_REFRESH=true yarn web",
+    "start": "cd fe && FAST_REFRESH=true expo start",
+    "web": "cd fe && FAST_REFRESH=true expo start --web",
     "prisma:generate": "cd be && yarn prisma:generate"
   },
   "devDependencies": {
