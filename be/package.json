@@ -22,7 +22,8 @@
     "crawl": "npx ts-node src/cli.ts crawl -lat 20.6502284 -lng -87.390293 -r 50000 -p 10 -k 'things to do'",
     "chroma": "chroma run --path ./getting-started",
     "script": "ts-node -r tsconfig-paths/register src/scripts/cli.ts",
-    "prisma:generate": "prisma generate"
+    "prisma:generate": "prisma generate",
+    "prisma:studio": "prisma studio"
   },
   "dependencies": {
     "@googlemaps/google-maps-services-js": "^3.4.0",

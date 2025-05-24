@@ -23,7 +23,7 @@ export const Map: React.FC<MapProps> = () => {
         showsUserLocation={true}
         toolbarEnabled
         zoomControlEnabled
-      ></MapView>
+      />
     </View>
   );
 };

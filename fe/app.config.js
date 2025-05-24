@@ -2,9 +2,7 @@ module.exports = {
   name: 'zig-zag',
   version: '1.0.0',
   extra: {
-    googleMapsApiKey:
-      process.env.GOOGLE_MAPS_API_KEY ||
-      'AIzaSyA9nKk8SB6GVvUZmhAhRCLJzT8iNVgZC48',
+    googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY,
     eas: {
       projectId: '34a46d03-0540-481a-8326-ea123a330635',
     },
@@ -13,13 +11,13 @@ module.exports = {
     url: 'https://u.expo.dev/34a46d03-0540-481a-8326-ea123a330635',
   },
   runtimeVersion: '1.0.0',
+  assetBundlePatterns: ['**/*'],
   web: {
+    bundler: 'metro',
     config: {
-      googleMaps: {
-        apiKey:
-          process.env.GOOGLE_MAPS_API_KEY ||
-          'AIzaSyA9nKk8SB6GVvUZmhAhRCLJzT8iNVgZC48',
-      },
+      googleMapsApiKey:
+        process.env.GOOGLE_MAPS_API_KEY ||
+        'AIzaSyA9nKk8SB6GVvUZmhAhRCLJzT8iNVgZC48',
     },
   },
   ios: {

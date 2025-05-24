@@ -4,6 +4,9 @@
       "eas": {
         "projectId": "c32c5ec6-46af-4479-a493-e19993160a57"
       }
+    },
+    "web": {
+      "bundler": "metro"
     }
   }
 }

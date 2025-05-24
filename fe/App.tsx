@@ -8,11 +8,11 @@ import { AutocompleteDropdownContextProvider } from 'react-native-autocomplete-d
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { AppProvider } from './src/context/app';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { config } from '@gluestack-ui/config';
 import {
   configureReanimatedLogger,
   ReanimatedLogLevel,
 } from 'react-native-reanimated';
+import { config } from './config';
 
 enableScreens();
 
@@ -32,9 +32,9 @@ export default function App() {
   });
 
   return (
-    <SafeAreaProvider>
-      <ErrorBoundary FallbackComponent={ErrorFallback}>
-        <GluestackUIProvider config={config}>
+    <GluestackUIProvider config={config}>
+      <SafeAreaProvider>
+        <ErrorBoundary FallbackComponent={ErrorFallback}>
           <GestureHandlerRootView style={{ flex: 1 }}>
             <AppProvider>
               <AutocompleteDropdownContextProvider>
@@ -44,9 +44,9 @@ export default function App() {
               </AutocompleteDropdownContextProvider>
             </AppProvider>
           </GestureHandlerRootView>
-        </GluestackUIProvider>
-      </ErrorBoundary>
-    </SafeAreaProvider>
+        </ErrorBoundary>
+      </SafeAreaProvider>
+    </GluestackUIProvider>
   );
 }
 

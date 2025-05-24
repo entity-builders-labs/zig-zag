@@ -1,20 +1,19 @@
-import { useGoogleAutocomplete } from '@appandflow/react-native-google-autocomplete';
 import { View } from '@gluestack-ui/themed';
 import {
   AutocompleteDropdown,
   AutocompleteDropdownItem,
 } from 'react-native-autocomplete-dropdown';
 import { useAddress } from '../context/app';
-
-const GOOGLE_PLACES_API_KEY = 'AIzaSyA9nKk8SB6GVvUZmhAhRCLJzT8iNVgZC48';
+import { useGoogleAutocomplete } from '@appandflow/react-native-google-autocomplete';
 
 export const SearchByAddressInput = () => {
   const { setAddress } = useAddress();
 
   const { locationResults, setTerm, clearSearch, searchDetails, term } =
-    useGoogleAutocomplete(GOOGLE_PLACES_API_KEY, {
+    useGoogleAutocomplete(process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY, {
       language: 'es',
       debounce: 300,
+      proxyUrl: 'https://corsproxy.io/?',
     });
 
   const handleOnSelectItem = async (item: AutocompleteDropdownItem | null) => {
