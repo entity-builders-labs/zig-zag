@@ -6,6 +6,7 @@ WORKDIR /app
 
 # Copy package files
 COPY package.json yarn.lock ./
+COPY be/package.json ./be/
 
 # Install dependencies
 RUN yarn install
@@ -20,6 +21,7 @@ RUN yarn global add prisma @nestjs/cli
 RUN yarn prisma:generate
 
 # Build the application (using nest build directly)
+WORKDIR /app/be
 RUN npx nest build
 
 # Expose the port the app runs on

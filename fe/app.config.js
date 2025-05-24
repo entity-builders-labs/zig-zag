@@ -15,9 +15,7 @@ module.exports = {
   web: {
     bundler: 'metro',
     config: {
-      googleMapsApiKey:
-        process.env.GOOGLE_MAPS_API_KEY ||
-        'AIzaSyA9nKk8SB6GVvUZmhAhRCLJzT8iNVgZC48',
+      googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY,
     },
   },
   ios: {
