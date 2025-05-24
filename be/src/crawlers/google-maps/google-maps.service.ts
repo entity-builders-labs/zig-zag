@@ -299,19 +299,52 @@ export class GoogleMapsService implements OnModuleInit {
   private async ensureKnownActivityTypes() {
     try {
       // Asegurar que todos los tipos conocidos existan en la base de datos
-      for (const [key, type] of Object.entries(ActivityTypes)) {
-        await this.prisma.knownActivityType.upsert({
-          where: { name: type.name },
-          update: {
-            icon: type.icon,
-            description: type.description,
-          },
-          create: {
-            name: type.name,
-            icon: type.icon,
-            description: type.description,
-          },
-        });
+      for (const [_, type] of Object.entries(ActivityTypes)) {
+        try {
+          const existingType = await this.prisma.knownActivityType.findUnique({
+            where: { name: type.name },
+          });
+
+          if (existingType) {
+            await this.prisma.knownActivityType.update({
+              where: { id: existingType.id },
+              data: {
+                icon: type.icon,
+                description: type.description,
+                category: type.name || null,
+                updatedAt: new Date(),
+              },
+            });
+          } else {
+            try {
+              await this.prisma.knownActivityType.create({
+                data: {
+                  name: type.name,
+                  icon: type.icon,
+                  description: type.description,
+                  category: type.name || null,
+                  createdAt: new Date(),
+                  updatedAt: new Date(),
+                },
+              });
+            } catch (createError) {
+              // If we get a duplicate key error, the type was created by another process
+              if (createError.code === 'P2002') {
+                this.logger.debug(
+                  `Activity type ${type.name} was created by another process`,
+                );
+                continue;
+              }
+              throw createError;
+            }
+          }
+        } catch (error) {
+          // Log error but continue with other types
+          this.logger.error(
+            `Error processing activity type ${type.name}:`,
+            error,
+          );
+        }
       }
       this.logger.log('KnownActivityTypes initialized successfully');
     } catch (error) {
@@ -468,12 +501,40 @@ export class GoogleMapsService implements OnModuleInit {
     }
   }
 
+  private async ensureGoogleMapsSource(): Promise<string> {
+    try {
+      const existingSource = await this.prisma.source.findUnique({
+        where: { name: 'google-maps' },
+      });
+
+      if (existingSource) {
+        return existingSource.id;
+      }
+
+      const newSource = await this.prisma.source.create({
+        data: {
+          name: 'google-maps',
+          type: 'crawler',
+          baseUrl: 'https://maps.google.com',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      });
+
+      return newSource.id;
+    } catch (error) {
+      this.logger.error('Error ensuring Google Maps source:', error);
+      throw error;
+    }
+  }
+
   async crawlAndSaveActivities(dto: CrawlLocationDto): Promise<{
-    activitiesIds: number[];
+    activitiesIds: string[];
     fromCache: boolean;
   }> {
     try {
       await this.ensureKnownActivityTypes();
+      const sourceId = await this.ensureGoogleMapsSource();
       const allPlaces: Array<CreateActivityDto> = [];
 
       for (const categoryGroup of placesToSearch.map((group) => group)) {
@@ -518,7 +579,7 @@ export class GoogleMapsService implements OnModuleInit {
                 location: place.location,
                 createdAt: new Date(),
                 updatedAt: new Date(),
-                sourceId: 'google-maps',
+                sourceId: sourceId,
                 externalId: place.placeId,
                 metadata: {
                   activityId: place.placeId,
@@ -541,7 +602,7 @@ export class GoogleMapsService implements OnModuleInit {
         const placeExist = await this.prisma.activity.findUnique({
           where: {
             sourceId_externalId: {
-              sourceId: 'google-maps',
+              sourceId: sourceId,
               externalId: place.externalId,
             },
           },
@@ -552,22 +613,17 @@ export class GoogleMapsService implements OnModuleInit {
         }
 
         const result = await this.activitiesService.create(place);
-        // save the activity embedding
         activities.push(result);
       }
 
       this.logger.debug(`Saved ${activities.length} activities to database`);
 
-      // Save the crawler search
-      // await this.saveCrawlerSearch(dto.latitude, dto.longitude);
-
       if (activities.length > 0) {
-        // save the activity embedding
         await this.aiService.saveActivityEmbedding(activities);
       }
 
       return {
-        activitiesIds: activities.map((activity) => activity.id),
+        activitiesIds: activities.map((activity) => activity.id.toString()),
         fromCache: false,
       };
     } catch (error) {

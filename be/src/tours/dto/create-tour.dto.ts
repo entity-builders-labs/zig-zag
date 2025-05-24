@@ -31,7 +31,7 @@ export class CreateTourDto {
   @IsArray()
   @IsOptional()
   activities?: {
-    activityId: number;
+    activityId: string;
     duration: string;
     startTime: Date;
     notes: string;
@@ -44,7 +44,7 @@ export class CreateTourDto {
 
 export class CreateTourActivityDto {
   @IsNumber()
-  activityId: number;
+  activityId: string;
 
   @IsString()
   duration: string;

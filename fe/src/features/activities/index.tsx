@@ -13,7 +13,7 @@ export const Activities = () => {
   const { activities } = useActivities();
   const insets = useSafeAreaInsets();
   const [expandedId, setExpandedId] = useState<string | null>(null);
-  console.log('$$$ activities:', activities);
+
   const sections = Object.entries(
     activities.reduce(
       (acc, activity) => {

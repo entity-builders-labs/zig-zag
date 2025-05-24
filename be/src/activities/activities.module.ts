@@ -5,7 +5,8 @@ import { ActivityMetadataService } from './activity-metadata.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { AiModule } from '../shared/ai/ai.module';
 import { ActivityRelationshipService } from './activity-relationship.service';
-import { ToursService } from 'src/tours/tours.service';
+import { ToursService } from '../tours/tours.service';
+
 @Module({
   imports: [AiModule],
   controllers: [ActivitiesController],

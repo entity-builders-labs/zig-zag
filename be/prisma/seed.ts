@@ -1,57 +1,91 @@
-import { PrismaClient } from "@prisma/client";
-
+import { PrismaClient, Difficulty } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log("Starting seeding...");
-
-  // Create sources
-  const sources = [
+  // First create known activity types
+  const knownActivityTypes = [
     {
-      id: "google-maps",
-      name: "Google Maps",
-      type: "API",
-      baseUrl: "https://maps.googleapis.com/",
+      name: 'Hiking',
+      description: 'Outdoor walking and trekking activities',
     },
     {
-      id: "manual",
-      name: "Manual Entry",
-      type: "MANUAL",
-      baseUrl: null,
+      name: 'Mountain Biking',
+      description: 'Off-road cycling on mountain trails',
     },
     {
-      id: "tripadvisor",
-      name: "TripAdvisor",
-      type: "CRAWLED",
-      baseUrl: "https://www.tripadvisor.com/",
-    }
+      name: 'Rock Climbing',
+      description: 'Climbing natural rock formations or artificial walls',
+    },
+    { name: 'Kayaking', description: 'Paddling through waters in a kayak' },
+    {
+      name: 'Camping',
+      description: 'Overnight stays in nature with basic equipment',
+    },
+    { name: 'Surfing', description: 'Riding ocean waves on a surfboard' },
+    {
+      name: 'Scuba Diving',
+      description: 'Underwater exploration with breathing equipment',
+    },
   ];
 
-  for (const source of sources) {
-    await prisma.source.upsert({
-      where: { id: source.id },
-      update: {
-        ...source,
-        updatedAt: new Date(),
-      },
-      create: {
-        ...source,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-    });
-    console.log(`Source created: ${source.name} (${source.id})`);
+  // Create activities one by one to handle duplicates
+  for (const type of knownActivityTypes) {
+    try {
+      await prisma.knownActivityType.create({
+        data: type,
+      });
+    } catch (error) {
+      if (error.code !== 'P2002') {
+        // Skip unique constraint violations
+        throw error;
+      }
+    }
   }
 
-  console.log("Seeding completed!");
+  // Create a default source
+  const defaultSource = await prisma.source.create({
+    data: {
+      name: 'Default Source',
+      type: 'MANUAL',
+    },
+  });
+
+  // Now you can create activities that reference this source
+  // Example activity creation:
+  try {
+    await prisma.activity.create({
+      data: {
+        name: 'Sample Hiking Trail',
+        description: 'A beautiful hiking trail',
+        difficulty: Difficulty.EASY,
+        type: 'Hiking',
+        duration: 2.5,
+        price: 0,
+        maxGroupSize: 10,
+        latitude: 40.7128,
+        longitude: -74.006,
+        location: {
+          type: 'Point',
+          coordinates: [-74.006, 40.7128],
+        },
+        sourceId: defaultSource.id,
+        externalId: 'sample-1',
+      },
+    });
+  } catch (error) {
+    if (error.code !== 'P2002') {
+      throw error;
+    }
+  }
+
+  console.log('Seeding completed successfully');
 }
 
 main()
-  .then(async () => {
-    await prisma.$disconnect();
-  })
-  .catch(async (e) => {
+  .catch((e) => {
     console.error(e);
-    await prisma.$disconnect();
     process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
   });

@@ -17,7 +17,7 @@ function ErrorFallback({ error }: { error: Error }) {
 }
 
 export default function HomeScreen() {
-  console.log('HomeScreen');
+  console.log('HomeScreen 2');
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
       <GluestackUIProvider config={config}>

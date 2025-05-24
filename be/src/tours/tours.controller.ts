@@ -29,17 +29,17 @@ export class ToursController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: number) {
+  findOne(@Param('id') id: string) {
     return this.toursService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: number, @Body() updateTourDto: UpdateTourDto) {
+  update(@Param('id') id: string, @Body() updateTourDto: UpdateTourDto) {
     return this.toursService.update(id, updateTourDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: number) {
+  remove(@Param('id') id: string) {
     return this.toursService.remove(id);
   }
 }

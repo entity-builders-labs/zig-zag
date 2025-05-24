@@ -196,4 +196,9 @@ export class CreateActivityDto {
   @IsString()
   @IsNotEmpty()
   knownActivityTypeName: string;
+
+  @ApiProperty({ description: 'ID of the activity' })
+  @IsString()
+  @IsOptional()
+  id?: string;
 }

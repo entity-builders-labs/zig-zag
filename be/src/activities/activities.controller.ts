@@ -56,38 +56,29 @@ export class ActivitiesController {
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Get an activity by id' })
-  @ApiResponse({
-    status: 200,
-    description: 'Return the activity.',
-  })
-  @ApiResponse({ status: 404, description: 'Activity not found.' })
-  findOne(@Param('id', ParseIntPipe) id: number) {
+  @ApiOperation({ summary: 'Get an activity by ID' })
+  @ApiResponse({ status: 200, description: 'Returns the activity' })
+  @ApiResponse({ status: 404, description: 'Activity not found' })
+  async findOne(@Param('id') id: string) {
     return this.activitiesService.findOne(id);
   }
 
   @Patch(':id')
   @ApiOperation({ summary: 'Update an activity' })
-  @ApiResponse({
-    status: 200,
-    description: 'The activity has been successfully updated.',
-  })
-  @ApiResponse({ status: 404, description: 'Activity not found.' })
-  update(
-    @Param('id', ParseIntPipe) id: number,
-    @Body(ValidationPipe) updateActivityDto: UpdateActivityDto,
+  @ApiResponse({ status: 200, description: 'Activity has been updated' })
+  @ApiResponse({ status: 404, description: 'Activity not found' })
+  async update(
+    @Param('id') id: string,
+    @Body() updateActivityDto: UpdateActivityDto,
   ) {
     return this.activitiesService.update(id, updateActivityDto);
   }
 
   @Delete(':id')
   @ApiOperation({ summary: 'Delete an activity' })
-  @ApiResponse({
-    status: 200,
-    description: 'The activity has been successfully deleted.',
-  })
-  @ApiResponse({ status: 404, description: 'Activity not found.' })
-  remove(@Param('id', ParseIntPipe) id: number) {
+  @ApiResponse({ status: 200, description: 'Activity has been deleted' })
+  @ApiResponse({ status: 404, description: 'Activity not found' })
+  async remove(@Param('id') id: string) {
     return this.activitiesService.remove(id);
   }
 
@@ -114,7 +105,7 @@ export class ActivitiesController {
     description: 'Returns the metadata for the activity',
   })
   @ApiResponse({ status: 404, description: 'Activity not found' })
-  async getActivityMetadata(@Param('id', ParseIntPipe) id: number) {
+  async getActivityMetadata(@Param('id') id: string) {
     return this.activitiesService.getActivityMetadata(id);
   }
 
@@ -122,10 +113,9 @@ export class ActivitiesController {
   @ApiOperation({ summary: 'Refresh metadata for an activity' })
   @ApiResponse({
     status: 200,
-    description: 'The metadata has been successfully refreshed',
+    description: 'Metadata has been refreshed',
   })
-  @ApiResponse({ status: 404, description: 'Activity not found' })
-  async refreshMetadata(@Param('id', ParseIntPipe) id: number) {
+  async refreshMetadata(@Param('id') id: string) {
     return this.activitiesService.refreshMetadata(id);
   }
 
@@ -135,17 +125,17 @@ export class ActivitiesController {
     status: 200,
     description: 'The relationships have been successfully generated',
   })
-  async generateRelationships(@Param('id', ParseIntPipe) id: number) {
-    return this.activityRelationshipService.analyzeRelationship(id.toString());
+  async generateRelationships(@Param('id') id: string) {
+    return this.activityRelationshipService.analyzeRelationship(id);
   }
 
-  @Post(':id/metadata')
+  @Post(':id/generate-metadata')
   @ApiOperation({ summary: 'Generate metadata for an activity' })
   @ApiResponse({
     status: 200,
-    description: 'The metadata has been successfully generated',
+    description: 'Metadata has been generated',
   })
-  async generateMetadata(@Param('id', ParseIntPipe) id: number) {
+  async generateMetadata(@Param('id') id: string) {
     return this.activitiesService.generateMetadata(id);
   }
 
@@ -155,7 +145,7 @@ export class ActivitiesController {
     status: 200,
     description: 'Metadata has been generated for the provided activities',
   })
-  async batchGenerateMetadata(@Body() data: { activityIds: number[] }) {
+  async batchGenerateMetadata(@Body() data: { activityIds: string[] }) {
     if (!data.activityIds || !Array.isArray(data.activityIds)) {
       throw new BadRequestException(
         'activityIds must be an array of activity IDs',
@@ -164,31 +154,28 @@ export class ActivitiesController {
     return this.activitiesService.batchGenerateMetadata(data.activityIds);
   }
 
-  @Get(':id/tour-suggestion')
-  @ApiOperation({ summary: 'Generate a tour suggestion for an activity' })
+  @Post(':id/generate-tour-suggestion')
+  @ApiOperation({
+    summary: 'Generate tour suggestion starting from this activity',
+  })
   @ApiResponse({
     status: 200,
-    description: 'The tour suggestion has been successfully generated',
+    description: 'Tour suggestion has been generated',
   })
   async generateTourSuggestion(
-    @Param('id', ParseIntPipe) id: number,
-    @Query('numberOfActivities', new ParseIntPipe({ optional: true }))
-    numberOfActivities = 5,
+    @Param('id') id: string,
+    @Query('numberOfActivities') numberOfActivities: number = 5,
   ) {
     return this.toursService.generateTourSuggestion(id, numberOfActivities);
   }
 
-  @Get(':id/next')
-  @ApiOperation({ summary: 'Generate a next activity for an activity' })
+  @Get(':id/next-activity')
+  @ApiOperation({ summary: 'Get next suggested activity' })
   @ApiResponse({
     status: 200,
-    description: 'The next activity has been successfully generated',
+    description: 'Returns the next suggested activity',
   })
-  async generateNextActivity(
-    @Param('id', ParseIntPipe) id: number,
-    @Query('numberOfActivities', new ParseIntPipe({ optional: true }))
-    numberOfActivities = 5,
-  ) {
+  async getNextActivity(@Param('id') id: string) {
     return this.toursService.getNextActivity(id);
   }
 }

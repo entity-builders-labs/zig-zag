@@ -1,6 +1,18 @@
 version: '3.8'
 
 services:
+  mongodb:
+    image: mongo:latest
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - app-network
+
   backend:
     build:
       context: .
@@ -9,9 +21,12 @@ services:
       - '3000:3000'
     environment:
       - NODE_ENV=development
+      - MONGODB_URI=mongodb://root:example@mongodb:27017/zigzag?authSource=admin
     volumes:
       - ./be:/app/be
       - /app/node_modules
+    depends_on:
+      - mongodb
     networks:
       - app-network
 
@@ -23,7 +38,7 @@ services:
       - '19006:19006'
     environment:
       - NODE_ENV=development
-      - REACT_APP_API_URL=http://localhost:8081
+      - REACT_APP_API_URL=http://localhost:3000
       - EXPO_DEVTOOLS_LISTEN_ADDRESS=localhost
     volumes:
       - ./fe:/app/fe
@@ -36,3 +51,6 @@ services:
 networks:
   app-network:
     driver: bridge
+
+volumes:
+  mongodb_data:

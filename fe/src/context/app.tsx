@@ -55,7 +55,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   > => {
     setActivitiesLoading(true);
     try {
-      console.log('$$$ getting activities');
       const coordinates = address || center;
       const response = (await axiosInstance.get(
         `/activities?latitude=${coordinates.lat}&longitude=${coordinates.lng}`

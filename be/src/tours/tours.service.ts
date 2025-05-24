@@ -115,7 +115,7 @@ export class ToursService {
     ]);
   }
 
-  async getNextActivity(activityId: number) {
+  async getNextActivity(activityId: string) {
     const activity = await this.prisma.activity.findUnique({
       where: { id: activityId },
     });
@@ -201,7 +201,7 @@ export class ToursService {
     };
   }
 
-  async findOne(id: number) {
+  async findOne(id: string) {
     const tour = await this.prisma.tour.findUnique({
       where: { id },
       include: {
@@ -223,7 +223,7 @@ export class ToursService {
     return tour;
   }
 
-  async update(id: number, updateTourDto: UpdateTourDto) {
+  async update(id: string, updateTourDto: UpdateTourDto) {
     const { activities, ...tourData } = updateTourDto;
 
     try {
@@ -289,7 +289,7 @@ export class ToursService {
     }
   }
 
-  async remove(id: number) {
+  async remove(id: string) {
     try {
       return await this.prisma.$transaction(async (tx) => {
         // First delete all associated activities
@@ -319,7 +319,7 @@ export class ToursService {
   }
 
   async generateTourSuggestion(
-    startingActivityId: number,
+    startingActivityId: string,
     numberOfActivities: number = 5,
     preferences: {
       timeOfDay?: string[];

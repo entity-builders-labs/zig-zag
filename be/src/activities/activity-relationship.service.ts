@@ -50,7 +50,7 @@ export class ActivityRelationshipService {
   public async analyzeRelationship(sourceActivityId: string): Promise<any> {
     const sourceActivity = await this.prisma.activity.findUnique({
       where: {
-        id: parseInt(sourceActivityId),
+        id: sourceActivityId,
       },
     });
 

@@ -1,55 +1,49 @@
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["postgresqlExtensions"]
-  seedCommand     = "npm run seed"
+  provider    = "prisma-client-js"
+  seedCommand = "npm run seed"
 }
 
 datasource db {
-  provider   = "postgresql"
-  url        = env("DATABASE_URL")
-  extensions = [postgis]
+  provider = "mongodb"
+  url      = env("MONGODB_URI")
 }
 
 model Activity {
-  id           Int        @id @default(autoincrement())
-  name         String     @db.VarChar(255)
+  id           String     @id @default(auto()) @map("_id") @db.ObjectId
+  name         String
   description  String?
   difficulty   Difficulty @default(EASY)
-  type         String // Changed from enum to string
+  type         String
   duration     Float
   price        Float
   maxGroupSize Int
   // Geolocation fields
   latitude     Float
   longitude    Float
-  location     Json // Structured location data
+  location     Json
   // Source relationship
-  sourceId     String
+  sourceId     String     @db.ObjectId
   source       Source     @relation(fields: [sourceId], references: [id])
-  // External identifier from the source system
-  externalId   String // Unique identifier within the source
+  externalId   String
 
-  // the geometry column itself
-  coords           Unsupported("geometry(Point, 4326)")?
   // Google Places additional fields
-  rating           Float? // Average rating (0-5)
-  ratingCount      Int? // Number of reviews
-  formattedAddress String? // Formatted address
-  phoneNumber      String? // Contact phone number
-  website          String? // Official website
-  businessStatus   String? // Operational status
-  priceLevel       Int? // Price level (0-4)
-  photos           Json? // Photo references
-  openingHours     Json? // Opening hours
-  metadata         Json? // AI-generated metadata
+  rating           Float?
+  ratingCount      Int?
+  formattedAddress String?
+  phoneNumber      String?
+  website          String?
+  businessStatus   String?
+  priceLevel       Int?
+  photos           Json?
+  openingHours     Json?
+  metadata         Json?
 
   // Timestamps
   createdAt             DateTime           @default(now())
   updatedAt             DateTime           @updatedAt
-  KnownActivityType     KnownActivityType? @relation(fields: [knownActivityTypeName], references: [name])
   knownActivityTypeName String?
+  KnownActivityType     KnownActivityType? @relation(fields: [knownActivityTypeName], references: [name])
   TourActivity          TourActivity[]
-  // Spatial index for faster geographic queries
 
   sourceRelations ActivityRelationship[] @relation("SourceActivities")
   targetRelations ActivityRelationship[] @relation("TargetActivities")
@@ -59,7 +53,8 @@ model Activity {
 }
 
 model KnownActivityType {
-  name        String     @id
+  id          String     @id @default(auto()) @map("_id") @db.ObjectId
+  name        String     @unique
   description String?
   icon        String?
   category    String?
@@ -71,7 +66,7 @@ model KnownActivityType {
 }
 
 model Tour {
-  id           Int        @id @default(autoincrement())
+  id           String     @id @default(auto()) @map("_id") @db.ObjectId
   name         String
   description  String?
   price        Float
@@ -87,17 +82,17 @@ model Tour {
 }
 
 model TourActivity {
-  tourId     Int
-  activityId Int
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  tourId     String    @db.ObjectId
+  activityId String    @db.ObjectId
   startTime  DateTime?
   notes      String?
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
-  order      Int       @default(autoincrement()) // Position in tour sequence
+  order      Int       @default(1)
   tour       Tour      @relation(fields: [tourId], references: [id])
   activity   Activity  @relation(fields: [activityId], references: [id])
 
-  @@id([tourId, activityId])
   @@index([tourId])
   @@index([activityId])
   @@map("tour_activity")
@@ -110,7 +105,7 @@ enum Difficulty {
 }
 
 model CrawlerSearch {
-  id          String   @id @default(uuid())
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
   latitude    Float
   longitude   Float
   deviceToken String?
@@ -122,10 +117,10 @@ model CrawlerSearch {
 }
 
 model Source {
-  id         String     @id @default(cuid())
-  name       String     @unique // "GOOGLE", "TRIPADVISOR", "MANUAL", etc.
-  type       String // "API", "CRAWLED", "MANUAL"
-  baseUrl    String? // URL base para APIs o sitios crawleados
+  id         String     @id @default(auto()) @map("_id") @db.ObjectId
+  name       String     @unique
+  type       String
+  baseUrl    String?
   activities Activity[]
   createdAt  DateTime   @default(now())
   updatedAt  DateTime   @updatedAt
@@ -134,36 +129,28 @@ model Source {
 }
 
 enum RelationType {
-  SEQUENTIAL // Una actividad es buena para hacer después de otra
-  SIMILAR // Actividades similares (para evitar redundancia)
-  COMPLEMENTARY // Actividades que se complementan bien
+  SEQUENTIAL
+  SIMILAR
+  COMPLEMENTARY
 }
 
 model ActivityRelationship {
-  sourceActivityId Int          @map("source_activity_id")
-  targetActivityId Int          @map("target_activity_id")
-  relationType     RelationType @map("relation_type")
+  id                     String       @id @default(auto()) @map("_id") @db.ObjectId
+  sourceActivityId       String       @db.ObjectId
+  targetActivityId       String       @db.ObjectId
+  relationType           RelationType
+  compatibilityScore     Int
+  timeCompatibilityScore Int
+  distanceScore          Int
+  varietyScore           Int
+  timeGapRecommended     Int?
+  reasoning              String?
+  metadata               Json?
+  createdAt              DateTime     @default(now())
+  updatedAt              DateTime     @updatedAt
+  sourceActivity         Activity     @relation("SourceActivities", fields: [sourceActivityId], references: [id])
+  targetActivity         Activity     @relation("TargetActivities", fields: [targetActivityId], references: [id])
 
-  // Scores (0-100)
-  compatibilityScore     Int @map("compatibility_score")
-  timeCompatibilityScore Int @map("time_compatibility_score")
-  distanceScore          Int @map("distance_score")
-  varietyScore           Int @map("variety_score")
-
-  // Metadata
-  timeGapRecommended Int?    @map("time_gap_recommended")
-  reasoning          String? @map("reasoning")
-  metadata           Json?   @map("metadata")
-
-  // Timestamps
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  // Relations
-  sourceActivity Activity @relation("SourceActivities", fields: [sourceActivityId], references: [id], onDelete: Cascade)
-  targetActivity Activity @relation("TargetActivities", fields: [targetActivityId], references: [id], onDelete: Cascade)
-
-  @@id([sourceActivityId, targetActivityId])
   @@index([sourceActivityId])
   @@index([targetActivityId])
   @@index([compatibilityScore, timeCompatibilityScore, distanceScore, varietyScore])

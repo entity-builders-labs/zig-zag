@@ -10,12 +10,9 @@ export const Map: React.FC<MapProps> = () => {
     id: 'google-map-script',
     googleMapsApiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY,
   });
-  console.log('$$$ isLoaded:', isLoaded);
   if (!isLoaded) {
     return <View style={styles.container} />;
   }
-
-  console.log('$$$ center:', center);
 
   return (
     <View style={styles.container}>

@@ -65,7 +65,7 @@ export class ActivitiesService {
     }
   }
 
-  async generateMetadata(id: number): Promise<ActivityMetadataDto> {
+  async generateMetadata(id: string): Promise<ActivityMetadataDto> {
     const activity = await this.findOne(id);
     return this.metadataService.generateMetadata(activity);
   }
@@ -96,32 +96,38 @@ export class ActivitiesService {
     }
 
     try {
-      const activities = await this.prisma.activity.createMany({
-        data: createActivityDto.map((dto) => ({
-          ...dto,
-          location: {
-            createOrConnect: {
-              where: {
-                id: dto.location,
+      // Create activities one by one to handle duplicates properly
+      const createdActivities: Activity[] = [];
+      let duplicates = 0;
+      let errors = 0;
+
+      for (const dto of createActivityDto) {
+        try {
+          const activity = await this.prisma.activity.create({
+            data: {
+              ...dto,
+              location: {
+                createOrConnect: {
+                  where: {
+                    id: dto.location,
+                  },
+                  create: dto.location,
+                },
               },
-              create: dto.location,
             },
-          },
-        })),
-        skipDuplicates: true,
-      });
+          });
+          createdActivities.push(activity);
+        } catch (error) {
+          if (error.code === 'P2002') {
+            // Unique constraint violation
+            duplicates++;
+          } else {
+            errors++;
+          }
+        }
+      }
 
-      // Obtener las actividades recién creadas
-      const createdActivities = await this.prisma.activity.findMany({
-        where: {
-          OR: createActivityDto.map((dto) => ({
-            AND: [{ name: dto.name }, { sourceId: dto.sourceId }],
-          })),
-        },
-        orderBy: { createdAt: 'desc' },
-        take: activities.count,
-      });
-
+      // Generate metadata for created activities
       for (const activity of createdActivities) {
         const metadata = await this.metadataService.generateMetadata(activity);
         await this.prisma.activity.update({
@@ -131,24 +137,14 @@ export class ActivitiesService {
       }
 
       return {
-        created: activities.count,
-        duplicates: 0,
-        errors: 0,
-        activities: createdActivities as Activity[],
+        created: createdActivities.length,
+        duplicates,
+        errors,
+        activities: createdActivities,
       };
     } catch (error) {
-      // Handle transaction-level errors
-      if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        throw new BadRequestException(`Database error: ${error.message}`);
-      }
-
-      // If there's a transaction-level error, return an error response
-      return {
-        created: 0,
-        duplicates: 0,
-        errors: createActivityDto.length,
-        activities: [],
-      };
+      this.logger.error(`Failed to create activities: ${error.message}`);
+      throw error;
     }
   }
 
@@ -177,66 +173,46 @@ export class ActivitiesService {
       this.logger.debug(`Retrieving activities near (${lat}, ${long})`);
 
       // Convert radius from kilometers to degrees
-      const radiusInDegrees = radius / 111.32; // 111.32 km per degree at the equator
+      const radiusInDegrees = radius / 111.32;
 
-      // Using Haversine formula in Prisma query for more accurate results
-      const activities = await this.prisma.$queryRaw<
-        (Activity & { distance: number })[]
-      >`
-       SELECT 
-        a.id,
-        a.name,
-        a.description,
-        a.difficulty,
-        a.type,
-        a.duration,
-        a.price,
-        a."maxGroupSize",
-        a.latitude,
-        a.longitude,
-        ST_AsText(a.coords) as coords,
-        a.rating,
-        a."ratingCount",
-        a."formattedAddress",
-        a."phoneNumber",
-        a.website,
-        a."businessStatus",
-        a."priceLevel",
-        a.photos,
-        a."openingHours",
-        a."createdAt",
-        a."updatedAt",
-        a."knownActivityTypeName",
-        a."externalId",
-        a.metadata,
-        ST_Distance(
-          ST_SetSRID(ST_MakePoint(a.longitude::float8, a.latitude::float8), 4326)::geography,
-          ST_SetSRID(ST_MakePoint(${long}::float8, ${lat}::float8), 4326)::geography
-        ) / 1000 as distance
-      FROM activity a
-      WHERE ST_DWithin(
-        ST_SetSRID(ST_MakePoint(a.longitude::float8, a.latitude::float8), 4326)::geography,
-        ST_SetSRID(ST_MakePoint(${long}::float8, ${lat}::float8), 4326)::geography,
-        ${radiusInDegrees * 1000}
-      )
-      ORDER BY distance
-      LIMIT ${Number(limit)}
-      `;
+      // Using MongoDB's $geoNear for geospatial queries
+      const activities = await this.prisma.activity.findMany({
+        where: {
+          AND: [
+            { latitude: { gte: lat - radiusInDegrees } },
+            { latitude: { lte: lat + radiusInDegrees } },
+            { longitude: { gte: long - radiusInDegrees } },
+            { longitude: { lte: long + radiusInDegrees } },
+          ],
+        },
+        take: Number(limit),
+      });
 
-      /*       await this.aiService.saveActivityEmbedding(activities);
-      const activityEmbeddings = await this.aiService.findSimilarActivities(
-        'places to know about the culture of the country',
-      ); */
+      // Calculate distances and sort
+      const activitiesWithDistance = activities
+        .map((activity) => {
+          const distance = this.calculateDistance(
+            lat,
+            long,
+            activity.latitude,
+            activity.longitude,
+          );
+          return { ...activity, distance };
+        })
+        .filter((activity) => activity.distance <= radius)
+        .sort((a, b) => a.distance - b.distance);
 
-      this.logger.debug(`Retrieved ${activities.length} activities`);
-      return activities;
+      this.logger.debug(
+        `Retrieved ${activitiesWithDistance.length} activities`,
+      );
+      return activitiesWithDistance;
     } catch (error) {
       this.logger.error('Error retrieving activities', error.stack);
       throw error;
     }
   }
 
-  async findOne(id: number): Promise<Activity> {
+  async findOne(id: string): Promise<Activity> {
     try {
       this.logger.debug(`Retrieving activity with id: ${id}`);
 
@@ -289,7 +265,7 @@ export class ActivitiesService {
   }
 
   async update(
-    id: number,
+    id: string,
     updateActivityDto: UpdateActivityDto,
   ): Promise<Activity> {
     try {
@@ -319,7 +295,7 @@ export class ActivitiesService {
     }
   }
 
-  async remove(id: number): Promise<Activity> {
+  async remove(id: string): Promise<Activity> {
     try {
       this.logger.debug(`Removing activity with id: ${id}`);
 
@@ -409,13 +385,13 @@ export class ActivitiesService {
     lon2: number,
   ): number {
     const R = 6371; // Earth's radius in kilometers
-    const dLat = this.toRadians(lat2 - lat1);
-    const dLon = this.toRadians(lon2 - lon1);
+    const dLat = this.toRad(lat2 - lat1);
+    const dLon = this.toRad(lon2 - lon1);
 
     const a =
       Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(this.toRadians(lat1)) *
-        Math.cos(this.toRadians(lat2)) *
+      Math.cos(this.toRad(lat1)) *
+        Math.cos(this.toRad(lat2)) *
         Math.sin(dLon / 2) *
         Math.sin(dLon / 2);
 
@@ -423,7 +399,7 @@ export class ActivitiesService {
     return R * c;
   }
 
-  private toRadians(degrees: number): number {
+  private toRad(degrees: number): number {
     return degrees * (Math.PI / 180);
   }
 
@@ -432,7 +408,7 @@ export class ActivitiesService {
    * @param id Activity ID to refresh metadata for
    * @returns Updated activity with refreshed metadata
    */
-  async refreshMetadata(id: number): Promise<Activity> {
+  async refreshMetadata(id: string): Promise<Activity> {
     try {
       this.logger.debug(`Refreshing metadata for activity with id: ${id}`);
 
@@ -464,7 +440,7 @@ export class ActivitiesService {
    * @param activityIds Array of activity IDs to generate metadata for
    * @returns Array of updated activities with metadata
    */
-  async batchGenerateMetadata(activityIds: number[]): Promise<Activity[]> {
+  async batchGenerateMetadata(activityIds: string[]): Promise<Activity[]> {
     try {
       this.logger.debug(
         `Batch generating metadata for ${activityIds.length} activities`,
@@ -502,7 +478,7 @@ export class ActivitiesService {
    * @param id Activity ID to get metadata for
    * @returns Activity metadata
    */
-  async getActivityMetadata(id: number): Promise<ActivityMetadataDto> {
+  async getActivityMetadata(id: string): Promise<ActivityMetadataDto> {
     try {
       const activity = await this.findOne(id);
       // If activity has metadata field, parse and return it

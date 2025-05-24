@@ -1,23 +1,13 @@
-import { Module, forwardRef } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { PrismaModule } from '../prisma/prisma.module';
-import { GoogleMapsController } from './google-maps/google-maps.controller';
 import { GoogleMapsService } from './google-maps/google-maps.service';
-import { CommandsModule } from './commands/commands.module';
-import { ActivitiesModule } from 'src/activities/activities.module';
-import { AiModule } from 'src/shared/ai/ai.module';
+import { PrismaService } from '../prisma/prisma.service';
+import { ActivitiesModule } from '../activities/activities.module';
+import { AiModule } from '../shared/ai/ai.module';
+
 @Module({
-  imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-    }),
-    PrismaModule,
-    forwardRef(() => CommandsModule),
-    ActivitiesModule,
-    AiModule,
-  ],
-  controllers: [GoogleMapsController],
-  providers: [GoogleMapsService],
+  imports: [ConfigModule, ActivitiesModule, AiModule],
+  providers: [GoogleMapsService, PrismaService],
   exports: [GoogleMapsService],
 })
 export class CrawlersModule {}
