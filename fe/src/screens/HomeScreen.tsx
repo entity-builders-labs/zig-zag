@@ -6,6 +6,7 @@ import { config } from '@gluestack-ui/config';
 import { SearchByAddressInput } from '../features/search-by-address-input';
 import { Activities } from '../features/activities';
 import { Map } from '../features/map';
+
 function ErrorFallback({ error }: { error: Error }) {
   return (
     <Box style={styles.container}>
@@ -16,6 +17,7 @@ function ErrorFallback({ error }: { error: Error }) {
 }
 
 export default function HomeScreen() {
+  console.log('HomeScreen');
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
       <GluestackUIProvider config={config}>
