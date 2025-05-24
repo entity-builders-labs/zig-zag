@@ -9,54 +9,68 @@ The project is divided into two main parts:
 - `be/` - Backend service (NestJS)
 - `fe/` - Frontend mobile application (React Native with Expo)
 
-## Backend (NestJS)
-
-### Prerequisites
+## Prerequisites
 
 - Node.js (v18 or higher)
 - Yarn package manager
-- PostgreSQL database
+- Docker and Docker Compose
+- AWS DynamoDB (local or cloud)
 - Google Maps API key
 - OpenAI API key
+- Expo CLI
+- iOS Simulator (for iOS development)
+- Android Studio (for Android development)
 
 ### Setup
 
-1. Navigate to the backend directory:
-
-```bash
-cd be
-```
-
-2. Install dependencies:
+1. Install dependencies from the root directory:
 
 ```bash
 yarn install
 ```
 
-3. Set up environment variables:
-   Create a `.env` file with the following variables:
+2. Set up environment variables:
+   Create a `.env` file in the root directory with the following variables:
 
 ```env
-DATABASE_URL="postgresql://user:password@localhost:5432/zigzag"
+DYNAMODB_ENDPOINT="http://localhost:8000"  # For local development
+AWS_REGION="us-east-1"
+AWS_ACCESS_KEY_ID="your_access_key"
+AWS_SECRET_ACCESS_KEY="your_secret_key"
 GOOGLE_MAPS_API_KEY="your_google_maps_api_key"
 OPENAI_API_KEY="your_openai_api_key"
+```
+
+3. Start the local DynamoDB container:
+
+```bash
+docker-compose up -d
 ```
 
 4. Initialize the database:
 
 ```bash
-npx prisma migrate dev
 yarn seed
 ```
 
 ### Available Scripts
 
-- `yarn start` - Start the server
-- `yarn start:dev` - Start the server in development mode with hot-reload
-- `yarn build` - Build the application
-- `yarn test` - Run tests
+From the root directory:
+
+- `yarn start` - Start both backend and frontend in development mode
+- `yarn start:be` - Start only the backend server
+- `yarn start:fe` - Start only the frontend development server
+- `yarn build` - Build both backend and frontend
+- `yarn test` - Run tests for both backend and frontend
 - `yarn crawl` - Run the crawler script to gather location data
 - `yarn seed` - Seed the database with initial data
+
+Frontend specific scripts:
+
+- `yarn ios` - Run on iOS simulator
+- `yarn android` - Run on Android emulator
+- `yarn web` - Run in web browser
+- `yarn eas-build` - Build for iOS development
 
 ### Features
 
@@ -66,55 +80,6 @@ yarn seed
 - Vector database integration with ChromaDB
 - Data crawling capabilities
 - Swagger API documentation
-
-## Frontend (React Native)
-
-### Prerequisites
-
-- Node.js (v18 or higher)
-- Yarn package manager
-- Expo CLI
-- iOS Simulator (for iOS development)
-- Android Studio (for Android development)
-
-### Setup
-
-1. Navigate to the frontend directory:
-
-```bash
-cd fe
-```
-
-2. Install dependencies:
-
-```bash
-yarn install
-```
-
-3. Start the development server:
-
-```bash
-yarn start
-```
-
-### Available Scripts
-
-- `yarn start` - Start the Expo development server
-- `yarn ios` - Run on iOS simulator
-- `yarn android` - Run on Android emulator
-- `yarn web` - Run in web browser
-- `yarn eas-build` - Build for iOS development
-
-### Features
-
-- Modern UI with Gluestack UI components
-- Native maps integration
-- Location services
-- Bottom sheet navigation
-- Carousel components
-- Google Places autocomplete
-- Offline support with AsyncStorage
-- Tailwind CSS styling
 
 ## Development
 
