@@ -4,12 +4,13 @@ FROM node:20-alpine
 # Set working directory
 WORKDIR /app
 
-# Copy package files
+# Copy root package files
 COPY package.json yarn.lock ./
+COPY fe/package.json ./fe/
 
 # Install dependencies including TypeScript types
-RUN yarn install
-RUN yarn add --dev @types/react-native
+RUN yarn install --frozen-lockfile
+RUN yarn workspace fe add --dev @types/react-native
 
 # Install Expo CLI globally
 RUN yarn global add expo-cli
@@ -18,7 +19,7 @@ RUN yarn global add expo-cli
 COPY . .
 
 # Expose the port the app runs on
-EXPOSE 19006
+EXPOSE 8081
 
 # Command to run the application
-CMD ["yarn", "web"] 
+CMD ["yarn", "workspace", "fe", "start", "--web", "--host", "localhost"] 

@@ -3,29 +3,30 @@ version: '3.8'
 services:
   backend:
     build:
-      context: ./be
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: be/Dockerfile
     ports:
       - '3000:3000'
     environment:
-      - NODE_ENV=production
+      - NODE_ENV=development
     volumes:
-      - ./be:/app
+      - ./be:/app/be
       - /app/node_modules
     networks:
       - app-network
 
   frontend:
     build:
-      context: ./fe
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: fe/Dockerfile
     ports:
       - '19006:19006'
     environment:
-      - NODE_ENV=production
-      - REACT_APP_API_URL=http://backend:3000
+      - NODE_ENV=development
+      - REACT_APP_API_URL=http://localhost:8081
+      - EXPO_DEVTOOLS_LISTEN_ADDRESS=localhost
     volumes:
-      - ./fe:/app
+      - ./fe:/app/fe
       - /app/node_modules
     depends_on:
       - backend
