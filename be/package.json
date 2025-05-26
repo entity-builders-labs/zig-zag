@@ -20,13 +20,19 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "seed": "npx ts-node prisma/seed.ts",
     "crawl": "npx ts-node src/cli.ts crawl -lat 20.6502284 -lng -87.390293 -r 50000 -p 10 -k 'things to do'",
-    "chroma": "chroma run --path ./getting-started",
+    "chroma": "chroma run --path ./chroma-db",
     "script": "ts-node -r tsconfig-paths/register src/scripts/cli.ts",
     "prisma:generate": "prisma generate",
     "prisma:studio": "prisma studio",
     "prisma:push": "prisma db push",
     "prisma:setup": "prisma generate && prisma db push",
-    "prisma:seed": "prisma db push && npm run seed"
+    "prisma:seed": "prisma db push && npm run seed",
+    "match:init": "yarn script 'check-embeddings --initialize-store",
+    "match:cinema": "yarn script 'check-embeddings --activity-name 'Cinema'",
+    "match:museum": "yarn script 'check-embeddings --search-prompt 'outdoor relaxing activities perfect after watching a movie'",
+    "match:restaurants": "yarn script 'check-embeddings --category 'restaurants'",
+    "match:outdoor": "yarn script 'check-embeddings --search-prompt 'outdoor activities'",
+    "match:complementary": "yarn script 'check-embeddings --search-prompt 'indoor and outdoor activities that complement each other'"
   },
   "dependencies": {
     "@googlemaps/google-maps-services-js": "^3.4.0",

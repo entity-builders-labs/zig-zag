@@ -46,7 +46,7 @@ services:
       context: .
       dockerfile: fe/Dockerfile
     ports:
-      - '19006:19006'
+      - '19006:8081'
     environment:
       - NODE_ENV=development
       - REACT_APP_API_URL=http://localhost:3000

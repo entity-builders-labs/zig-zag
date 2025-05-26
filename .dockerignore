@@ -1,0 +1,137 @@
+# Dependencies
+node_modules
+*/node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Logs
+logs
+*.log
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage
+*.lcov
+
+# Dependency directories
+jspm_packages/
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Microbundle cache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# dotenv environment variables file
+.env
+.env.test
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# parcel-bundler cache
+.cache
+.parcel-cache
+
+# Build outputs
+dist
+build
+.next
+.nuxt
+
+# Expo
+.expo/
+*/expo/
+web-build/
+*/web-build/
+
+# Native
+*.orig.*
+
+# macOS
+.DS_Store
+
+# Git
+.git
+.gitignore
+README.md
+
+# CI
+.circleci
+.github
+
+# Tests
+__tests__
+**/*.test.*
+**/*.spec.*
+
+# VSCode
+.vscode/
+
+# Vim
+*.swp
+*.swo
+
+# Emacs
+*~
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Atom
+.atom/
+
+# Docker
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# Development files
+*.md
+LICENSE
+
+# IDE files
+.idea/
+*.iml
+
+# OS generated files
+Thumbs.db
+ehthumbs.db
+
+# Temporary files
+tmp/
+temp/
+
+# Android/iOS specific
+android/
+ios/
+*.keystore
+!debug.keystore
+
+# Backend specific (if building frontend)
+be/node_modules/
+be/dist/
+be/build/ 
