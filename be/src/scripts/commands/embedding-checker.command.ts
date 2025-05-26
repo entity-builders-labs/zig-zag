@@ -5,7 +5,7 @@ import { LangChainService } from '../../shared/ai/langchain.service';
 
 @Injectable()
 @Command({
-  name: 'check-embeddings',
+  name: 'match-activities',
   description: 'Check and update embeddings for all activities',
 })
 export class EmbeddingCheckerCommand extends CommandRunner {
@@ -64,6 +64,36 @@ export class EmbeddingCheckerCommand extends CommandRunner {
       } catch (error) {
         this.logger.error('Error performing test search:', error);
       }
+
+      this.logger.log('📖 Activity Matcher - Usage Examples:');
+      this.logger.log('');
+      this.logger.log('🎯 Find compatible activities by ID:');
+      this.logger.log(
+        '   yarn script match-activities --activity-id 676c7df01234567890123456',
+      );
+      this.logger.log('');
+      this.logger.log('🏷️  Find activities by name:');
+      this.logger.log(
+        '   yarn script match-activities --activity-name "Cinema"',
+      );
+      this.logger.log('');
+      this.logger.log('🔍 Search with custom prompt:');
+      this.logger.log(
+        '   yarn script match-activities --search-prompt "outdoor activities perfect after visiting a museum"',
+      );
+      this.logger.log('');
+      this.logger.log('📂 Find by category:');
+      this.logger.log(
+        '   yarn script match-activities --category "restaurants"',
+      );
+      this.logger.log('');
+      this.logger.log('⚙️  Initialize vector store first:');
+      this.logger.log('   yarn script match-activities --initialize-store');
+      this.logger.log('');
+      this.logger.log('🎛️  Advanced options:');
+      this.logger.log(
+        '   yarn script match-activities --activity-id ID --number-of-results 5 --max-distance 10',
+      );
     } catch (error) {
       this.logger.error('Error during embedding check:', error);
       throw error;

@@ -16,6 +16,23 @@ import { Activity } from '@prisma/client';
 import { Chroma } from '@langchain/community/vectorstores/chroma';
 import { Where } from 'chromadb';
 import { PrismaService } from '../../prisma/prisma.service';
+
+// At the top of the file, add interface
+interface ActivityMetadata {
+  timeOfDayPreference?: string[];
+  physicalIntensity?: number;
+  enhancedDescription?: string;
+  targetAudience?: string;
+  bestTimeToVisit?: string;
+  tags?: string[];
+  complementaryActivities?: {
+    before?: string[];
+    after?: string[];
+  };
+  seasonalityScore?: any;
+  combinationScore?: any;
+}
+
 @Injectable()
 export class LangChainService {
   private readonly logger = new Logger(LangChainService.name);
@@ -67,39 +84,50 @@ export class LangChainService {
   }
 
   async addActivityToVectorStore(activity: Activity) {
+    let metadata: ActivityMetadata = {};
     // Parse the metadata if it's stored as a string
-    const metadata =
-      typeof activity.metadata === 'string'
-        ? JSON.parse(activity.metadata)
-        : activity.metadata;
+    try {
+      metadata =
+        typeof activity.metadata === 'string'
+          ? JSON.parse(activity.metadata)
+          : activity.metadata || {};
+    } catch (error) {
+      console.warn(
+        `Error parsing metadata for activity ${activity.id}:`,
+        error,
+      );
+      metadata = {};
+    }
 
-    // Create a rich text representation that includes semantic information
+    // Create a rich text representation
     const activityText = `Activity Details:
-  ${activity.name} is a ${metadata.physicalIntensity || ''} intensity activity.
-  About this activity: ${activity.description}
-  ${metadata.enhancedDescription || ''}
-  This activity is ideal for ${metadata.targetAudience || 'all audiences'} and is best experienced ${metadata.bestTimeToVisit || 'any time'}.
-  It can be done during ${metadata.timeOfDayPreference ? metadata.timeOfDayPreference.join(', ') : 'any time of day'}.
-  Activity type: ${metadata.indoorOutdoor || ''}.
-  Keywords: ${metadata.tags ? metadata.tags.join(', ') : ''}.
-  
-  Related Activities:
-  Before this activity, consider: ${metadata.complementaryActivities?.before ? metadata.complementaryActivities.before.join(', ') : 'flexible'}.
-  After this activity, you can try: ${metadata.complementaryActivities?.after ? metadata.complementaryActivities.after.join(', ') : 'flexible'}.
+${activity.name} is a ${metadata.physicalIntensity || 3} intensity activity.
+About this activity: ${activity.description || 'No description available'}
+${metadata.enhancedDescription || ''}
+This activity is ideal for ${metadata.targetAudience || 'all audiences'} and is best experienced ${metadata.bestTimeToVisit || 'any time'}.
+It can be done during ${metadata.timeOfDayPreference ? metadata.timeOfDayPreference.join(', ') : 'any time of day'}.
+Activity type: ${activity.type}.
+Keywords: ${metadata.tags ? metadata.tags.join(', ') : ''}.
+
+Related Activities:
+Before this activity, consider: ${metadata.complementaryActivities?.before ? metadata.complementaryActivities.before.join(', ') : 'flexible'}.
+After this activity, you can try: ${metadata.complementaryActivities?.after ? metadata.complementaryActivities.after.join(', ') : 'flexible'}.
 `;
 
     await this.vectorStore.addDocuments([
       {
         pageContent: activityText,
-        id: activity.id.toString(),
+        id: activity.id, // Usar el ID como string (ObjectId)
         metadata: {
-          activityId: activity.id,
+          activityId: activity.id, // CRÍTICO: Siempre string
+          activityName: activity.name,
+          activityType: activity.type,
           activityMetadata: activity.metadata,
-          // Add specific metadata fields for filtering
+          // Campos específicos para filtrado
           tags: metadata.tags || [],
           timeOfDay: metadata.timeOfDayPreference || [],
           seasonality: metadata.seasonalityScore || {},
-          physicalIntensity: metadata.physicalIntensity || 0,
+          physicalIntensity: metadata.physicalIntensity || 3,
           combinationScore: metadata.combinationScore || {},
           complementaryBefore: metadata.complementaryActivities?.before || [],
           complementaryAfter: metadata.complementaryActivities?.after || [],
@@ -347,6 +375,60 @@ Response format:
     } catch (error) {
       console.error('Error analyzing activity relationship:', error);
       throw new Error('Failed to analyze activity relationship');
+    }
+  }
+
+  async resetVectorStore() {
+    try {
+      console.log('Resetting vector store...');
+
+      // Opción B: Reinicializar completamente
+      this.vectorStore = await Chroma.fromDocuments(
+        [], // Empezar vacío
+        this.embeddings,
+        {
+          collectionName: 'activities', // Nuevo nombre para evitar conflictos
+        },
+      );
+
+      console.log('Vector store reset successfully');
+    } catch (error) {
+      console.error('Error resetting vector store:', error);
+      throw error;
+    }
+  }
+
+  async rebuildVectorStore() {
+    try {
+      // 1. Reset vector store
+      await this.resetVectorStore();
+
+      // 2. Get all activities from database
+      const activities = await this.prisma.activity.findMany({
+        where: {
+          metadata: { not: null }, // Solo actividades con metadata
+        },
+      });
+
+      console.log(
+        `Rebuilding vector store with ${activities.length} activities...`,
+      );
+
+      // 3. Add all activities to vector store with consistent IDs
+      for (const activity of activities) {
+        try {
+          await this.addActivityToVectorStore(activity);
+          console.log(`Added activity ${activity.id}: ${activity.name}`);
+        } catch (error) {
+          console.error(`Error adding activity ${activity.id}:`, error);
+        }
+      }
+
+      console.log('Vector store rebuilt successfully');
+      return { success: true, count: activities.length };
+    } catch (error) {
+      console.error('Error rebuilding vector store:', error);
+      throw error;
     }
   }
 }

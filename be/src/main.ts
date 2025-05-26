@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe, Logger, BadRequestException } from '@nestjs/common';
 import { AppModule } from './app.module';
 import * as morgan from 'morgan';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -11,6 +12,18 @@ async function bootstrap() {
 
   // Enable CORS
   app.enableCors();
+
+  // Swagger configuration
+  const config = new DocumentBuilder()
+    .setTitle('Zig Zag API')
+    .setDescription('API for activities and tours management')
+    .setVersion('1.0')
+    .addTag('activities')
+    .addTag('tours')
+    .build();
+
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api', app, document);
 
   // Add request logging middleware
   app.use(morgan('dev'));

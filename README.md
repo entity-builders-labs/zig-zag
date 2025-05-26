@@ -45,6 +45,9 @@ OPENAI_API_KEY="your_openai_api_key"
 
 ```bash
 docker-compose up -d
+
+// Execute the first crawl of places manually
+docker-compose exec backend yarn crawl
 ```
 
 4. Initialize the database:

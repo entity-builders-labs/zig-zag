@@ -28,7 +28,6 @@ export class ActivitiesController {
 
   constructor(
     private readonly activitiesService: ActivitiesService,
-    private readonly prisma: PrismaService,
     private readonly activityRelationshipService: ActivityRelationshipService,
     private readonly toursService: ToursService,
   ) {}
@@ -173,9 +172,11 @@ export class ActivitiesController {
   @ApiOperation({ summary: 'Get next suggested activity' })
   @ApiResponse({
     status: 200,
-    description: 'Returns the next suggested activity',
+    description: 'Returns the next suggested activity with reasoning',
   })
   async getNextActivity(@Param('id') id: string) {
-    return this.toursService.getNextActivity(id);
+    const options = {};
+
+    return this.toursService.getNextActivity(id, options);
   }
 }

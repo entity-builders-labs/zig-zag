@@ -205,6 +205,13 @@ export class ActivitiesService {
       this.logger.debug(
         `Retrieved ${activitiesWithDistance.length} activities`,
       );
+
+      if (!activitiesWithDistance) {
+        this.logger.debug('No activities found');
+
+        return [];
+      }
+
       return activitiesWithDistance;
     } catch (error) {
       this.logger.error('Error retrieving activities', error.stack);

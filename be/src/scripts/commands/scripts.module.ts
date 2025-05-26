@@ -5,6 +5,7 @@ import { PrismaModule } from '../../prisma/prisma.module';
 import { AiModule } from '../../shared/ai/ai.module';
 import { ActivitiesModule } from '../../activities/activities.module';
 import { CrawlersModule } from '../../crawlers/crawlers.module';
+import { EmbeddingCheckerCommand } from './embedding-checker.command';
 
 @Module({
   imports: [
@@ -14,6 +15,6 @@ import { CrawlersModule } from '../../crawlers/crawlers.module';
     ActivitiesModule,
     CrawlersModule,
   ],
-  providers: [MetadataCheckerCommand],
+  providers: [MetadataCheckerCommand, EmbeddingCheckerCommand],
 })
 export class ScriptsModule {}
