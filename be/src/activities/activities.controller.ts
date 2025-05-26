@@ -20,6 +20,8 @@ import { UpdateActivityDto } from './dto/update-activity.dto';
 import { FindNearbyDto } from './dto/find-nearby.dto';
 import { ActivityRelationshipService } from './activity-relationship.service';
 import { ToursService } from '../tours/tours.service';
+import { HybridSearchService } from './hybrid-search.service';
+import { HybridSearchDto } from './dto/hybrid-search.dto';
 
 @ApiTags('activities')
 @Controller('activities')
@@ -30,6 +32,7 @@ export class ActivitiesController {
     private readonly activitiesService: ActivitiesService,
     private readonly activityRelationshipService: ActivityRelationshipService,
     private readonly toursService: ToursService,
+    private readonly hybridSearchService: HybridSearchService,
   ) {}
 
   @Post()
@@ -178,5 +181,30 @@ export class ActivitiesController {
     const options = {};
 
     return this.toursService.getNextActivity(id, options);
+  }
+
+  @Post('search-hybrid')
+  @ApiOperation({ summary: 'Search activities with background crawling' })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns activities with crawling status',
+  })
+  @ApiResponse({ status: 400, description: 'Invalid request parameters' })
+  async searchWithCrawling(@Body(ValidationPipe) searchDto: HybridSearchDto) {
+    return this.hybridSearchService.searchActivitiesWithCrawling(searchDto);
+  }
+
+  @Post('search-updated')
+  @ApiOperation({ summary: 'Get updated results after crawling' })
+  @ApiResponse({ status: 200, description: 'Returns updated activities' })
+  @ApiResponse({ status: 400, description: 'Invalid request parameters' })
+  async getUpdatedResults(@Body(ValidationPipe) searchDto: HybridSearchDto) {
+    const { latitude, longitude, radius, limit } = searchDto;
+    return this.hybridSearchService.getUpdatedResults({
+      latitude,
+      longitude,
+      radius,
+      limit,
+    });
   }
 }

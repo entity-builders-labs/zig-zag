@@ -1,12 +1,29 @@
 import React from 'react';
-
-import { StyleSheet, Dimensions, View } from 'react-native';
-import MapView, { Region } from 'react-native-maps';
+import { StyleSheet, Dimensions, View, Text } from 'react-native';
+import MapView, { Region, Marker } from 'react-native-maps';
 import { useMap } from '../../context/app';
+import { useActivities } from '../../context/app';
 import { MapProps } from './types';
+import { Activity } from '../activities/types';
+import { Marker as MarkerType } from './types';
 
-export const Map: React.FC<MapProps> = () => {
+// Function to create markers from activities
+const createMarkersFromActivities = (activities: Activity[]): MarkerType[] => {
+  return activities.map((activity) => ({
+    id: activity.id,
+    coordinate: {
+      latitude: activity.latitude,
+      longitude: activity.longitude,
+    },
+    title: activity.name,
+    description: activity.description,
+    order: activity.order,
+  }));
+};
+
+export const Map: React.FC<MapProps> = ({ markers: propMarkers }) => {
   const { center } = useMap();
+  const { activities } = useActivities();
 
   const region: Region = {
     latitude: center.lat,
@@ -14,6 +31,9 @@ export const Map: React.FC<MapProps> = () => {
     latitudeDelta: 0.0922,
     longitudeDelta: 0.0421,
   };
+
+  // Create markers from activities if no markers are provided via props
+  const markers = propMarkers || createMarkersFromActivities(activities);
 
   return (
     <View style={styles.container}>
@@ -23,7 +43,24 @@ export const Map: React.FC<MapProps> = () => {
         showsUserLocation={true}
         toolbarEnabled
         zoomControlEnabled
-      />
+      >
+        {markers.map((marker) => (
+          <Marker
+            key={marker.id}
+            coordinate={marker.coordinate}
+            title={marker.title}
+            description={marker.description}
+          >
+            {marker.order && (
+              <View style={styles.markerContainer}>
+                <View style={styles.orderCircle}>
+                  <Text style={styles.orderText}>{marker.order}</Text>
+                </View>
+              </View>
+            )}
+          </Marker>
+        ))}
+      </MapView>
     </View>
   );
 };
