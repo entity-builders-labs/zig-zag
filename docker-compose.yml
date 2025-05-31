@@ -31,6 +31,7 @@ services:
     environment:
       - NODE_ENV=development
       - MONGODB_URI=mongodb://root:example@mongodb:27017/zigzag?authSource=admin&replicaSet=rs0
+      - CHROMA_URL=http://chroma:8000
     volumes:
       - ./be:/app/be
       - /app/node_modules
@@ -53,6 +54,7 @@ services:
       - EXPO_PUBLIC_API_URL=http://localhost:4000
       - EXPO_PUBLIC_GOOGLE_MAPS_API_KEY=AIzaSyA9nKk8SB6GVvUZmhAhRCLJzT8iNVgZC48
       - EXPO_PUBLIC_CORS_PROXY_URL=http://localhost:8080
+    volumes:
       - ./fe:/app/fe
       - /app/node_modules
     depends_on:
@@ -76,9 +78,31 @@ services:
     restart: unless-stopped
     command: npx nodemon cors-proxy.js
 
+  chroma:
+    image: chromadb/chroma:latest
+    ports:
+      - '8001:8000'
+    environment:
+      - CHROMA_HOST=0.0.0.0
+      - CHROMA_PORT=8000
+      - PERSIST_DIRECTORY=/data
+    volumes:
+      - chroma_data:/data
+    networks:
+      - app-network
+    restart: unless-stopped
+    healthcheck:
+      test:
+        ['CMD', '/bin/bash', '-c', 'cat < /dev/null > /dev/tcp/localhost/8000']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
 networks:
   app-network:
     driver: bridge
 
 volumes:
   mongodb_data:
+  chroma_data:
