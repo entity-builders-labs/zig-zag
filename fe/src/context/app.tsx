@@ -15,7 +15,13 @@ export type AppContextType = {
   activitiesData: PaginatedResponseActivity | null;
   activitiesError: ApiError | null;
   activitiesLoading: boolean;
-  getActivities: () => Promise<ApiResponse<PaginatedResponseActivity>>;
+  getActivities: (coordinatesProps?: {
+    lat?: number;
+    lng?: number;
+    radius?: number;
+    limit?: number;
+    forceRefresh?: boolean;
+  }) => Promise<ApiResponse<PaginatedResponseActivity>>;
 };
 
 const AppContext = createContext<AppContextType>({
@@ -50,24 +56,58 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const [activitiesError, setActivitiesError] = useState<ApiError | null>(null);
   const [activitiesLoading, setActivitiesLoading] = useState<boolean>(false);
 
-  const getActivities = async (): Promise<
-    ApiResponse<PaginatedResponseActivity>
-  > => {
+  const getActivities = async (coordinatesProps?: {
+    lat?: number;
+    lng?: number;
+    radius?: number;
+    limit?: number;
+    forceRefresh?: boolean;
+  }): Promise<ApiResponse<PaginatedResponseActivity>> => {
     setActivitiesLoading(true);
     try {
-      const coordinates = address || center;
-      const response = (await axiosInstance.get(
-        `/activities?latitude=${coordinates.lat}&longitude=${coordinates.lng}`
-      )) as PaginatedResponseActivity;
+      const coordinates = coordinatesProps || address || center;
 
-      setActivities(response);
+      if (
+        !coordinates ||
+        typeof coordinates.lat !== 'number' ||
+        typeof coordinates.lng !== 'number'
+      ) {
+        console.log('$$$ Invalid coordinates:', coordinates);
+        setActivitiesError({ message: 'Invalid coordinates' });
+        return {
+          data: null,
+          success: false,
+          error: { message: 'Invalid coordinates' },
+        };
+      }
+
+      console.log('$$$ getActivities:', coordinates);
+      const response = await axiosInstance.post<PaginatedResponseActivity>(
+        '/activities/search-hybrid',
+        {
+          latitude: coordinates.lat,
+          longitude: coordinates.lng,
+          radius: coordinatesProps?.radius || 50000,
+          limit: coordinatesProps?.limit || 100,
+          forceRefresh: coordinatesProps?.forceRefresh || false,
+        }
+      );
+
+      console.log('$$$ response:', response.data);
+
+      // El endpoint search-hybrid retorna un objeto con estructura diferente
+      // { activities: Activity[], fromCache: boolean, crawlingTriggered: boolean, message: string }
+      const activitiesData = response.data.activities;
+      console.log('$$$ activitiesData:', activitiesData);
+      setActivities(activitiesData);
       setActivitiesError(null);
       return {
-        data: response,
+        data: response.data,
         success: true,
         error: undefined,
       };
     } catch (error) {
+      console.log('$$$ getActivities error:', error);
       setActivitiesError(error as ApiError);
       return {
         data: null,
@@ -83,7 +123,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     if (center) {
-      getActivities();
+      console.log('$$$ center:', center);
+      getActivities(center);
     }
   }, [address]);
 
@@ -113,19 +154,17 @@ export const useMap = () => {
     setCenter(center);
   };
 
-  return { center, setCenter: handleCenterChange };
+  return { center, handleCenterChange };
 };
 
 export const useAddress = () => {
   const { address, setAddress, getActivities } = useContext(AppContext);
-  const { setCenter } = useMap();
+  const { handleCenterChange } = useMap();
   const { handleOpen } = useContext(BottomSheetContext);
   const handleAddressChange = (address: Address | null) => {
     setAddress(address);
     if (address) {
-      setCenter({ lat: address.lat, lng: address.lng });
-      //  handleOpen();
-      getActivities();
+      handleCenterChange({ lat: address.lat, lng: address.lng });
     }
   };
 

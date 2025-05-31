@@ -27,7 +27,7 @@ services:
       context: .
       dockerfile: be/Dockerfile
     ports:
-      - '3000:3000'
+      - '4000:3000'
     environment:
       - NODE_ENV=development
       - MONGODB_URI=mongodb://root:example@mongodb:27017/zigzag?authSource=admin&replicaSet=rs0
@@ -46,18 +46,35 @@ services:
       context: .
       dockerfile: fe/Dockerfile
     ports:
-      - '19006:8081'
+      - '4001:8081'
     environment:
       - NODE_ENV=development
-      - REACT_APP_API_URL=http://localhost:3000
-      - EXPO_DEVTOOLS_LISTEN_ADDRESS=localhost
-    volumes:
+      - REACT_APP_API_URL=http://localhost:4000
+      - EXPO_PUBLIC_API_URL=http://localhost:4000
+      - EXPO_PUBLIC_GOOGLE_MAPS_API_KEY=AIzaSyA9nKk8SB6GVvUZmhAhRCLJzT8iNVgZC48
+      - EXPO_PUBLIC_CORS_PROXY_URL=http://localhost:8080
       - ./fe:/app/fe
       - /app/node_modules
     depends_on:
       - backend
+      - cors-proxy
     networks:
       - app-network
+
+  cors-proxy:
+    build:
+      context: .
+      dockerfile: cors-proxy.Dockerfile
+    ports:
+      - '8080:8080'
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - ./cors-proxy.js:/app/cors-proxy.js
+    networks:
+      - app-network
+    restart: unless-stopped
+    command: npx nodemon cors-proxy.js
 
 networks:
   app-network:

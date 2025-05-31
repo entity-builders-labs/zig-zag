@@ -20,7 +20,12 @@ export interface PaginatedResponseTour {
   };
 }
 
-export type PaginatedResponseActivity = Activity[];
+export type PaginatedResponseActivity = {
+  activities: Activity[];
+  fromCache: boolean;
+  crawlingTriggered: boolean;
+  message: string;
+};
 
 export interface TourCardProps {
   tour: Tour;
