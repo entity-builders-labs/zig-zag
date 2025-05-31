@@ -1,5 +1,4 @@
-const axios = require('axios');
-
+import axios from 'axios';
 // Center point coordinates
 const CENTER_LAT = -34.509615;
 const CENTER_LNG = -58.4029432;
