@@ -1,8 +1,5 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { ActivitiesService } from './activities.service';
-import { PrismaService } from '../prisma/prisma.service';
-import { CreateActivityDto } from './dto/create-activity.dto';
-import { NotFoundException } from '@nestjs/common';
+import { PrismaService } from '../../../core/database/prisma.service';
+import { CreateActivityDto } from '../dto/create-activity.dto';
 
 describe('ActivitiesService', () => {
   let service: ActivitiesService;

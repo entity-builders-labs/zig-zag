@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ActivitiesService } from './activities.service';
-import { GoogleMapsService } from '../crawlers/google-maps/google-maps.service';
-import { PrismaService } from '../prisma/prisma.service';
+import { GoogleMapsService } from '../../crawlers/google-maps/google-maps.service';
+import { PrismaService } from '../../../core/database/prisma.service';
 
 @Injectable()
 export class HybridSearchService {

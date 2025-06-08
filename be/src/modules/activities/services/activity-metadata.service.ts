@@ -1,8 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { LangChainService } from '../shared/ai/langchain.service';
-import { ActivityMetadataDto } from './dto/activity-metadata.dto';
+import { LangChainService } from '../../../shared/ai/langchain.service';
+import { ActivityMetadataDto } from '../dto/activity-metadata.dto';
 import { PromptTemplate } from '@langchain/core/prompts';
-import { CreateActivityDto } from './dto/create-activity.dto';
+import { CreateActivityDto } from '../dto/create-activity.dto';
 import { Activity } from '@prisma/client';
 
 @Injectable()

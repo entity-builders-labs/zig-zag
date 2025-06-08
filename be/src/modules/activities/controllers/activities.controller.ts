@@ -13,15 +13,15 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { ActivitiesService } from './activities.service';
-import { PrismaService } from '../prisma/prisma.service';
-import { CreateActivityDto } from './dto/create-activity.dto';
-import { UpdateActivityDto } from './dto/update-activity.dto';
-import { FindNearbyDto } from './dto/find-nearby.dto';
-import { ActivityRelationshipService } from './activity-relationship.service';
-import { ToursService } from '../tours/tours.service';
-import { HybridSearchService } from './hybrid-search.service';
-import { HybridSearchDto } from './dto/hybrid-search.dto';
+import { ActivitiesService } from '../services/activities.service';
+import { PrismaService } from '../../../core/database/prisma.service';
+import { CreateActivityDto } from '../dto/create-activity.dto';
+import { UpdateActivityDto } from '../dto/update-activity.dto';
+import { FindNearbyDto } from '../dto/find-nearby.dto';
+import { ActivityRelationshipService } from '../services/activity-relationship.service';
+import { ToursService } from '../../tours/services/tours.service';
+import { HybridSearchService } from '../services/hybrid-search.service';
+import { HybridSearchDto } from '../dto/hybrid-search.dto';
 
 @ApiTags('activities')
 @Controller('activities')
@@ -45,7 +45,7 @@ export class ActivitiesController {
     return this.activitiesService.create(createActivityDto);
   }
 
-  @Get()
+  @Get('/all')
   @ApiOperation({ summary: 'Get all activities' })
   @ApiResponse({ status: 200, description: 'Return all activities.' })
   findAll(

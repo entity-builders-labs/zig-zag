@@ -4,15 +4,15 @@ import {
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
-import { CreateActivityDto } from './dto/create-activity.dto';
-import { UpdateActivityDto } from './dto/update-activity.dto';
-import { FindNearbyDto } from './dto/find-nearby.dto';
+import { PrismaService } from '../../../core/database/prisma.service';
+import { CreateActivityDto } from '../dto/create-activity.dto';
+import { UpdateActivityDto } from '../dto/update-activity.dto';
+import { FindNearbyDto } from '../dto/find-nearby.dto';
 import { Prisma, Activity } from '@prisma/client';
-import { ActivityMetadataService } from './activity-metadata.service';
-import { ActivityMetadataDto } from './dto/activity-metadata.dto';
+import { ActivityMetadataDto } from '../dto/activity-metadata.dto';
 import { JsonValue } from '@prisma/client/runtime/library';
-import { LangChainService } from '../shared/ai/langchain.service';
+import { LangChainService } from '../../../shared/ai/langchain.service';
+import { ActivityMetadataService } from './activity-metadata.service';
 
 @Injectable()
 export class ActivitiesService {

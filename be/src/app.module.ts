@@ -1,29 +1,46 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { ActivitiesModule } from './activities/activities.module';
-import { ToursModule } from './tours/tours.module';
-import { CrawlersModule } from './crawlers/crawlers.module';
-import { CommandsModule } from './crawlers/commands/commands.module';
-import { CrawlLocationsCommand } from './crawlers/commands/crawl-locations.command';
+
+// Core modules
+import { PrismaModule } from './core/database/database.module';
+import { ConfigModule } from './core/config/config.module';
+
+// Shared modules
 import { AiModule } from './shared/ai/ai.module';
-import { ScriptsModule } from './scripts/commands/scripts.module';
+
+// Domain modules
+import { ActivitiesModule } from './modules/activities/activities.module';
+import { ToursModule } from './modules/tours/tours.module';
+import { CrawlersModule } from './modules/crawlers/crawlers.module';
+
+// Commands globales
+import { CommandsModule } from './commands/commands.module';
+import { ScriptsModule } from './commands/scripts/commands/scripts.module';
+
+// Health
+// import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-      envFilePath: '.env', // Busca en la raíz del proyecto
-    }),
+    // Core (always first)
+    PrismaModule,
+    ConfigModule,
+    
+    // Shared
+    AiModule,
+    
+    // Domain (estos módulos ya incluyen sus commands)
     ActivitiesModule,
     ToursModule,
     CrawlersModule,
+    
+    // Commands globales únicamente
     CommandsModule,
-    AiModule,
     ScriptsModule,
+    // HealthModule,
   ],
   controllers: [AppController],
-  providers: [AppService, CrawlLocationsCommand],
+  providers: [AppService],
 })
 export class AppModule {}

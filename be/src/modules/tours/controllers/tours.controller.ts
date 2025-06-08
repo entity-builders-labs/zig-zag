@@ -8,9 +8,9 @@ import {
   Delete,
   Query,
 } from '@nestjs/common';
-import { ToursService } from './tours.service';
-import { CreateTourDto } from './dto/create-tour.dto';
-import { UpdateTourDto } from './dto/update-tour.dto';
+import { ToursService } from '../services/tours.service';
+import { CreateTourDto } from '../dto/create-tour.dto';
+import { UpdateTourDto } from '../dto/update-tour.dto';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 
 @ApiTags('tours')

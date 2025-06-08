@@ -1,6 +1,6 @@
 import { Command, CommandRunner, Option } from 'nest-commander';
 import { Injectable, Logger } from '@nestjs/common';
-import { GoogleMapsService } from '../../crawlers/google-maps/google-maps.service';
+import { GoogleMapsService } from '../../../modules/crawlers/google-maps/google-maps.service';
 
 interface CrawlOptions {
   startLat: number;

@@ -1,7 +1,7 @@
 import { Command, CommandRunner } from 'nest-commander';
 import { Injectable, Logger } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service';
-import { LangChainService } from '../../shared/ai/langchain.service';
+import { PrismaService } from '../../../core/database/prisma.service';
+import { LangChainService } from '../../../shared/ai/langchain.service';
 
 @Injectable()
 @Command({

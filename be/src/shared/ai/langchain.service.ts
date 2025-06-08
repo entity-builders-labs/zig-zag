@@ -15,7 +15,7 @@ import aiConfig from './ai.config';
 import { Activity } from '@prisma/client';
 import { Chroma } from '@langchain/community/vectorstores/chroma';
 import { Where } from 'chromadb';
-import { PrismaService } from '../../prisma/prisma.service';
+import { PrismaService } from '../../core/database/prisma.service';
 
 // At the top of the file, add interface
 interface ActivityMetadata {

@@ -1,7 +1,7 @@
 import { Command, CommandRunner } from 'nest-commander';
 import { Injectable, Logger } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service';
-import { ActivitiesService } from '../../activities/activities.service';
+import { PrismaService } from '../../../core/database/prisma.service';
+import { ActivitiesService } from 'src/modules/activities/services/activities.service';
 
 @Injectable()
 @Command({

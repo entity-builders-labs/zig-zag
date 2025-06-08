@@ -25,7 +25,7 @@ export const useActivities = () => {
 
     try {
       const activitiesResponse = (await axiosInstance.get(
-        `/activities?latitude=${address?.lat}&longitude=${address?.lng}`
+        `/activities/all?latitude=${address?.lat}&longitude=${address?.lng}`
       )) as PaginatedResponseActivity;
       if (activitiesResponse.length > 0) {
         setActivities(activitiesResponse);

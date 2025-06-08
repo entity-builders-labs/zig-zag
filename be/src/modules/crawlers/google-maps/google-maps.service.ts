@@ -9,12 +9,12 @@ import {
   LatLng,
 } from '@googlemaps/google-maps-services-js';
 import { CrawlLocationDto } from './dto/crawl-location.dto';
-import { PrismaService } from '../../prisma/prisma.service';
 import { Activity } from '@prisma/client';
 import { GooglePlaceDetails } from '../../activities/interfaces/google-places.interface';
-import { ActivitiesService } from '../../activities/activities.service';
+import { ActivitiesService } from '../../activities/services/activities.service';
 import { CreateActivityDto } from '../../activities/dto/create-activity.dto';
-import { LangChainService } from '../../shared/ai/langchain.service';
+import { LangChainService } from '../../../shared/ai/langchain.service';
+import { PrismaService } from '../../../core/database/prisma.service';
 
 const placesToSearch = [
   {
