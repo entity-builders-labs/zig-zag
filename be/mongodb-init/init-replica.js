@@ -9,6 +9,20 @@ sleep = function (millis) {
 
 print('Starting MongoDB replica set initialization...');
 
+// Wait a bit for MongoDB to be ready
+sleep(5000);
+
+// Get environment variables
+var database = process.env.MONGODB_DATABASE;
+var rootUser = process.env.MONGO_INITDB_ROOT_USERNAME;
+var rootPassword = process.env.MONGO_INITDB_ROOT_PASSWORD;
+
+print('Environment variables loaded');
+print('Database:', database);
+
+// First, authenticate as root to initialize replica set
+db = db.getSiblingDB('admin');
+
 // Try to initiate the replica set
 try {
   // Check if replica set is already initialized
@@ -19,7 +33,14 @@ try {
   try {
     rs.initiate({
       _id: 'rs0',
-      members: [{ _id: 0, host: 'mongodb:27017', priority: 1 }],
+      members: [
+        { 
+          _id: 0, 
+          host: 'mongodb:27017',
+          priority: 1,
+          votes: 1
+        }
+      ]
     });
     print('Replica set initialized successfully');
 
@@ -28,20 +49,36 @@ try {
     while (attempts < 30) {
       try {
         var status = rs.status();
-        if (status.myState === 1) {
+        if (status.ok === 1 && status.myState === 1) {
           print('Replica set is now PRIMARY');
           break;
         }
-        print(
-          'Waiting for replica set to become PRIMARY... attempt',
-          attempts + 1,
-        );
-        sleep(1000);
+        print('Waiting for replica set to become PRIMARY... attempt', attempts + 1);
+        sleep(2000);
         attempts++;
       } catch (e) {
         print('Waiting for replica set status... attempt', attempts + 1);
-        sleep(1000);
+        sleep(2000);
         attempts++;
+      }
+    }
+
+    // Create root user if it doesn't exist
+    try {
+      db.createUser({
+        user: rootUser,
+        pwd: rootPassword,
+        roles: [
+          { role: 'root', db: 'admin' },
+          { role: 'dbOwner', db: database }
+        ]
+      });
+      print('Root user created successfully');
+    } catch (userError) {
+      if (userError.code === 51003) {
+        print('Root user already exists');
+      } else {
+        throw userError;
       }
     }
   } catch (initError) {
@@ -49,28 +86,4 @@ try {
   }
 }
 
-// Wait a bit more for the replica set to stabilize
-sleep(3000);
-
-// Create admin user if it doesn't exist
-try {
-  db = db.getSiblingDB('admin');
-  try {
-    var user = db.getUser('root');
-    if (user) {
-      print('Admin user already exists');
-    }
-  } catch (userError) {
-    print('Creating admin user...');
-    db.createUser({
-      user: 'root',
-      pwd: 'example',
-      roles: [{ role: 'root', db: 'admin' }],
-    });
-    print('Admin user created successfully');
-  }
-} catch (error) {
-  print('Error with admin user:', error);
-}
-
-print('MongoDB initialization completed');
+print('MongoDB replica set initialization completed');

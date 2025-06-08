@@ -298,7 +298,6 @@ export class GoogleMapsService implements OnModuleInit {
 
   private async ensureKnownActivityTypes() {
     try {
-      // Asegurar que todos los tipos conocidos existan en la base de datos
       for (const [_, type] of Object.entries(ActivityTypes)) {
         try {
           const existingType = await this.prisma.knownActivityType.findUnique({
@@ -306,50 +305,44 @@ export class GoogleMapsService implements OnModuleInit {
           });
 
           if (existingType) {
-            await this.prisma.knownActivityType.update({
-              where: { id: existingType.id },
-              data: {
-                icon: type.icon,
-                description: type.description,
-                category: type.name || null,
-                updatedAt: new Date(),
-              },
-            });
-          } else {
-            try {
-              await this.prisma.knownActivityType.create({
+            if (
+              existingType.icon !== type.icon ||
+              existingType.description !== type.description ||
+              existingType.category !== type.name
+            ) {
+              await this.prisma.knownActivityType.update({
+                where: { id: existingType.id },
                 data: {
-                  name: type.name,
                   icon: type.icon,
                   description: type.description,
                   category: type.name || null,
-                  createdAt: new Date(),
                   updatedAt: new Date(),
                 },
               });
-            } catch (createError) {
-              // If we get a duplicate key error, the type was created by another process
-              if (createError.code === 'P2002') {
-                this.logger.debug(
-                  `Activity type ${type.name} was created by another process`,
-                );
-                continue;
-              }
-              throw createError;
             }
+          } else {
+            await this.prisma.knownActivityType.create({
+              data: {
+                name: type.name,
+                icon: type.icon,
+                description: type.description,
+                category: type.name || null,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+              },
+            });
           }
         } catch (error) {
-          // Log error but continue with other types
-          this.logger.error(
-            `Error processing activity type ${type.name}:`,
-            error,
+          this.logger.warn(
+            `Warning processing activity type ${type.name}:`,
+            error.message,
           );
+          continue;
         }
       }
       this.logger.log('KnownActivityTypes initialized successfully');
     } catch (error) {
       this.logger.error('Error initializing KnownActivityTypes:', error);
-      throw error;
     }
   }
 

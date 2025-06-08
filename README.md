@@ -136,3 +136,38 @@ This project is private and unlicensed.
 ## Support
 
 For support, please open an issue in the repository.
+
+# 1. Crear el archivo .env con las variables
+
+# 2. Aplicar los cambios al script init-replica.js
+
+# 3. Ejecutar el setup:
+
+chmod +x setup.sh
+./setup.sh
+
+# O manualmente:
+
+docker-compose down
+docker-compose up -d mongodb
+
+# Esperar 30-60 segundos
+
+docker-compose up -d
+
+# Ver logs de MongoDB
+
+docker-compose logs mongodb
+
+# Verificar que los usuarios se crearon
+
+docker-compose exec mongodb mongosh --authenticationDatabase admin -u admin -p password123
+
+# En mongosh:
+
+use zigzag
+db.getUsers()
+
+# Probar conexión desde el backend
+
+docker-compose exec backend env | grep MONGO

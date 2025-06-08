@@ -1,46 +1,90 @@
-version: '3.8'
-
 services:
   mongodb:
-    image: mongo:latest
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: example
+    image: mongo:7.0
+    container_name: zigzag-mongodb
     ports:
       - '27018:27017'
     volumes:
       - mongodb_data:/data/db
-      - ./mongodb-keyfile:/etc/mongodb-keyfile:ro
-      - ./be/mongodb-init:/docker-entrypoint-initdb.d
     networks:
       - app-network
-    command: mongod --replSet rs0 --bind_ip_all --keyFile /etc/mongodb-keyfile --auth
+    command: ['--replSet', 'rs0']
     healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
       interval: 10s
-      timeout: 10s
+      timeout: 5s
       retries: 5
-      start_period: 40s
+      start_period: 30s
 
-  backend:
-    build:
-      context: .
-      dockerfile: be/Dockerfile
-    ports:
-      - '4000:3000'
-    environment:
-      - NODE_ENV=development
-      - MONGODB_URI=mongodb://root:example@mongodb:27017/zigzag?authSource=admin&replicaSet=rs0
-      - CHROMA_URL=http://chroma:8000
-    volumes:
-      - ./be:/app/be
-      - /app/node_modules
+  mongodb-setup:
+    image: mongo:7.0
+    container_name: zigzag-mongodb-setup
     depends_on:
       mongodb:
         condition: service_healthy
     networks:
       - app-network
-    command: sh /usr/local/bin/wait-for-mongo.sh mongodb npm run start:dev
+    command: >
+      bash -c "
+        echo 'Waiting for MongoDB to be ready...'
+        sleep 10
+        
+        echo 'Checking if replica set is already initialized...'
+        if mongosh --host mongodb:27017 --quiet --eval 'rs.status()' 2>/dev/null; then
+          echo 'Replica set already initialized'
+        else
+          echo 'Initializing replica set...'
+          mongosh --host mongodb:27017 --quiet --eval '
+            rs.initiate({
+              _id: \"rs0\",
+              members: [{ _id: 0, host: \"mongodb:27017\" }]
+            })
+          '
+          
+          echo 'Waiting for replica set to become primary...'
+          until mongosh --host mongodb:27017 --quiet --eval 'rs.isMaster().ismaster' | grep -q true; do
+            echo 'Waiting...'
+            sleep 2
+          done
+        fi
+        
+        echo 'MongoDB setup completed successfully'
+      "
+    restart: "no"
+
+  backend:
+    build:
+      context: .
+      dockerfile: be/Dockerfile
+    container_name: zigzag-backend
+    ports:
+      - '4000:3000'
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - MONGODB_URI=${MONGODB_URI}
+      - CHROMA_URL=${CHROMA_URL}
+      - MONGODB_DATABASE=${MONGODB_DATABASE}
+      - GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_DEFAULT_MODEL=${OPENAI_DEFAULT_MODEL}
+      - OPENAI_TEMPERATURE=${OPENAI_TEMPERATURE}
+      - OPENAI_TIMEOUT=${OPENAI_TIMEOUT}
+      - PORT=${PORT}
+    volumes:
+      - ./be:/app/be
+      - /app/node_modules
+    depends_on:
+      mongodb-setup:
+        condition: service_completed_successfully
+    networks:
+      - app-network
+    restart: unless-stopped
+    command: >
+      sh -c "
+        echo 'Starting backend application...' &&
+        npx prisma db push &&
+        yarn start:dev
+      "
 
   frontend:
     build:
@@ -48,15 +92,28 @@ services:
       dockerfile: fe/Dockerfile
     ports:
       - '4001:8081'
+      - '19000:19000'
+      - '19001:19001'
+      - '19002:19002'
     environment:
-      - NODE_ENV=development
-      - REACT_APP_API_URL=http://localhost:4000
-      - EXPO_PUBLIC_API_URL=http://localhost:4000
-      - EXPO_PUBLIC_GOOGLE_MAPS_API_KEY=AIzaSyA9nKk8SB6GVvUZmhAhRCLJzT8iNVgZC48
-      - EXPO_PUBLIC_CORS_PROXY_URL=http://localhost:8080
+      - NODE_ENV=${NODE_ENV}
+      - REACT_APP_API_URL=${REACT_APP_API_URL}
+      - EXPO_PUBLIC_API_URL=${EXPO_PUBLIC_API_URL}
+      - EXPO_PUBLIC_GOOGLE_MAPS_API_KEY=${EXPO_PUBLIC_GOOGLE_MAPS_API_KEY}
+      - EXPO_PUBLIC_CORS_PROXY_URL=${EXPO_PUBLIC_CORS_PROXY_URL}
+      - GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY}
+      - WATCHPACK_POLLING=${WATCHPACK_POLLING}
+      - CHOKIDAR_USEPOLLING=${CHOKIDAR_USEPOLLING}
+      - CHOKIDAR_INTERVAL=${CHOKIDAR_INTERVAL}
+      - FAST_REFRESH=${FAST_REFRESH}
+      - EXPO_USE_FAST_REFRESH=${EXPO_USE_FAST_REFRESH}
+      - WDS_SOCKET_PORT=${WDS_SOCKET_PORT}
+      - EXPO_DEVTOOLS_LISTEN_ADDRESS=${EXPO_DEVTOOLS_LISTEN_ADDRESS}
+      - REACT_NATIVE_PACKAGER_HOSTNAME=${REACT_NATIVE_PACKAGER_HOSTNAME}
     volumes:
       - ./fe:/app/fe
       - /app/node_modules
+      - /app/fe/node_modules
     depends_on:
       - backend
       - cors-proxy
@@ -70,7 +127,7 @@ services:
     ports:
       - '8080:8080'
     environment:
-      - NODE_ENV=development
+      - NODE_ENV=${NODE_ENV}
     volumes:
       - ./cors-proxy.js:/app/cors-proxy.js
     networks:
@@ -83,9 +140,9 @@ services:
     ports:
       - '8001:8000'
     environment:
-      - CHROMA_HOST=0.0.0.0
-      - CHROMA_PORT=8000
-      - PERSIST_DIRECTORY=/data
+      - CHROMA_HOST=${CHROMA_HOST}
+      - CHROMA_PORT=${CHROMA_PORT}
+      - PERSIST_DIRECTORY=${PERSIST_DIRECTORY}
     volumes:
       - chroma_data:/data
     networks:

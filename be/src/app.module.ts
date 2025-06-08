@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ActivitiesModule } from './activities/activities.module';
@@ -8,8 +9,13 @@ import { CommandsModule } from './crawlers/commands/commands.module';
 import { CrawlLocationsCommand } from './crawlers/commands/crawl-locations.command';
 import { AiModule } from './shared/ai/ai.module';
 import { ScriptsModule } from './scripts/commands/scripts.module';
+
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: '.env', // Busca en la raíz del proyecto
+    }),
     ActivitiesModule,
     ToursModule,
     CrawlersModule,
