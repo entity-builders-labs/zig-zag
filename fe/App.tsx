@@ -45,10 +45,13 @@ function ErrorFallback({ error }: { error: Error }) {
 }
 
 export default function App() {
-  configureReanimatedLogger({
-    level: ReanimatedLogLevel.warn,
-    strict: true, // Reanimated runs in strict mode by default
-  });
+  // Reanimated logger config can be undefined in some environments (Expo Go, bridgeless)
+  if (typeof configureReanimatedLogger === 'function' && ReanimatedLogLevel) {
+    configureReanimatedLogger({
+      level: (ReanimatedLogLevel as any).warn,
+      strict: true,
+    });
+  }
 
   return (
     <GluestackUIProvider config={config}>
