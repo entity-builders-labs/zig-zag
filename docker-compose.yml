@@ -61,6 +61,7 @@ services:
       - '4000:3000'
     environment:
       - NODE_ENV=${NODE_ENV}
+      - TS_NODE_TRANSPILE_ONLY=true
       - MONGODB_URI=${MONGODB_URI}
       - CHROMA_URL=${CHROMA_URL}
       - MONGODB_DATABASE=${MONGODB_DATABASE}

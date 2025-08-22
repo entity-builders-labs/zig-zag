@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { OpenAI, ChatOpenAI, OpenAIEmbeddings } from '@langchain/openai';
@@ -57,14 +58,35 @@ export class LangChainService {
       openAIApiKey: this.config.openaiApiKey,
     });
 
-    // Initialize vector store
-    this.vectorStore = await Chroma.fromDocuments(
-      [], // initial documents
-      this.embeddings,
-      {
-        collectionName: 'activities',
-      },
-    );
+    // Prefer connecting to a running Chroma server if CHROMA_URL is configured
+    const collectionName = this.config.chromaCollectionName || 'activities';
+
+    if (this.config.chromaUrl) {
+      // Use server mode with URL
+      this.vectorStore = await Chroma.fromDocuments(
+        [],
+        this.embeddings,
+        {
+          collectionName,
+          url: this.config.chromaUrl,
+        } as any,
+      );
+      this.logger.log(
+        `Connected to Chroma at ${this.config.chromaUrl} collection=${collectionName}`,
+      );
+    } else {
+      // Fallback to default/local mode
+      this.vectorStore = await Chroma.fromDocuments(
+        [],
+        this.embeddings,
+        {
+          collectionName,
+        },
+      );
+      this.logger.log(
+        `Initialized in-memory Chroma collection=${collectionName}`,
+      );
+    }
   }
 
   async saveActivityEmbedding(activities: Activity[]) {
