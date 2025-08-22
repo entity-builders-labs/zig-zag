@@ -6,11 +6,12 @@
     "fe"
   ],
   "scripts": {
-    "start:be": "cd be && yarn start:dev",
-    "start:fe": "cd fe && FAST_REFRESH=true yarn web",
-    "start": "cd fe && FAST_REFRESH=true expo start",
+    "start:be": "cd be && TS_NODE_TRANSPILE_ONLY=1 yarn start:dev",
+    "start:fe": "cd fe && FAST_REFRESH=true expo start --dev-client",
+    "start": "cd fe && FAST_REFRESH=true expo start --dev-client",
     "web": "cd fe && FAST_REFRESH=true expo start --web",
-    "prisma:generate": "cd be && yarn prisma:generate"
+    "prisma:generate": "cd be && yarn prisma:generate",
+    "preview:example": "node tools/site-preview/example.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
