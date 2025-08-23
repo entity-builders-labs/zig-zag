@@ -8,6 +8,7 @@ import {
   PlacesNearbyRanking,
   LatLng,
 } from '@googlemaps/google-maps-services-js';
+import axios from 'axios';
 import { CrawlLocationDto } from './dto/crawl-location.dto';
 import { Activity } from '@prisma/client';
 import { GooglePlaceDetails } from '../../activities/interfaces/google-places.interface';
@@ -375,79 +376,67 @@ export class GoogleMapsService implements OnModuleInit {
       JSON.stringify(searchConfig, null, 2),
     );
 
-    const apiParams = {
-      location: { lat: dto.latitude, lng: dto.longitude } as LatLng,
-      rankby: PlacesNearbyRanking.distance,
-      type: searchConfig.type as PlaceType1,
-      language: (dto.language as Language) || Language.es,
-      key: this.configService.get<string>('GOOGLE_MAPS_API_KEY'),
-      pagetoken: dto.pageToken,
-      keyword: searchConfig.keyword,
-      opennow: dto.openNow,
-      fields: [
-        'name',
-        'place_id',
-        'types',
-        'geometry',
-        'vicinity',
-        'rating',
-        'user_ratings_total',
-        'price_level',
-        'business_status',
-        'photos',
-        'formatted_phone_number',
-        'website',
-        'opening_hours',
-        'price_level',
-        'price',
-        'max_group_size',
-        'latitude',
-        'longitude',
-        'placeId',
-        'rating',
-        'ratingCount',
-        'formattedAddress',
-        'phoneNumber',
-        'url',
-      ],
-    };
+    const apiKey = this.configService.get<string>('GOOGLE_MAPS_API_KEY');
 
     try {
-      const { data } = await this.client.placesNearby({ params: apiParams });
+      // NEW Places API (v1) nearby search
+      const nearbyResp = await axios.post(
+        'https://places.googleapis.com/v1/places:searchNearby',
+        {
+          maxResultCount: 20,
+          includedPrimaryTypes: [searchConfig.type],
+          locationRestriction: {
+            circle: {
+              center: { latitude: dto.latitude, longitude: dto.longitude },
+              radius: dto.radius || this.SEARCH_RADIUS,
+            },
+          },
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Goog-Api-Key': apiKey!,
+            'X-Goog-FieldMask': [
+              'places.id',
+              'places.displayName',
+              'places.formattedAddress',
+              'places.location',
+              'places.rating',
+              'places.userRatingCount',
+              'places.nationalPhoneNumber',
+              'places.websiteUri',
+              'places.types',
+            ].join(','),
+          },
+        },
+      );
 
-      if (data.status !== 'OK') {
-        this.logger.warn(`API response status: ${data.status}`);
-        this.logger.warn(
-          `API error message: ${data.error_message || 'No error message provided'}`,
-        );
-        return { places: [], nextPageToken: null };
-      }
-
-      const filteredResults = data.results.filter(
-        (place) => (place.rating || 0) >= searchConfig.minRating,
+      const filteredResults = (nearbyResp.data.places || []).filter(
+        (p: any) => (p.rating || 0) >= searchConfig.minRating,
       );
 
       const places = await Promise.all(
-        filteredResults.map(async (place) => {
+        filteredResults.map(async (place: any) => {
+          // For v1 we can use fields already returned; extra details optional
           const details = dto.fetchDetails
-            ? await this.getPlaceDetails(place.place_id)
+            ? await this.getPlaceDetails(place.id)
             : null;
 
           // Separar los datos de la API de Google de nuestros datos personalizados
           const googlePlaceData = {
-            name: place.name,
-            placeId: place.place_id,
-            types: place.types,
+            name: place.displayName?.text || place.displayName || '',
+            placeId: place.id,
+            types: place.types || [],
             location: {
-              latitude: place.geometry.location.lat,
-              longitude: place.geometry.location.lng,
+              latitude: place.location?.latitude,
+              longitude: place.location?.longitude,
             },
-            address: place.vicinity,
+            address: place.formattedAddress,
             rating: place.rating,
-            reviews: place.user_ratings_total,
-            priceLevel: place.price_level,
-            businessStatus: place.business_status,
-            photos: place.photos?.map((photo) => photo.photo_reference) || [],
+            reviews: place.userRatingCount,
+            priceLevel: undefined,
+            businessStatus: undefined,
+            photos: [],
             ...(details || {}),
           };
 
@@ -475,22 +464,23 @@ export class GoogleMapsService implements OnModuleInit {
 
   async getPlaceDetails(placeId: string): Promise<Partial<GooglePlaceDetails>> {
     try {
-      const { data } = await this.client.placeDetails({
-        params: {
-          place_id: placeId,
-          key: this.configService.get<string>('GOOGLE_MAPS_API_KEY'),
-          language: Language.es,
+      const apiKey = this.configService.get<string>('GOOGLE_MAPS_API_KEY');
+      const resp = await axios.get(
+        `https://places.googleapis.com/v1/places/${placeId}?fields=id,nationalPhoneNumber,websiteUri`,
+        {
+          headers: {
+            'X-Goog-Api-Key': apiKey!,
+          },
         },
-      });
-
-      const result = data.result;
+      );
+      const result = resp.data || {};
       return {
-        phoneNumber: result.formatted_phone_number,
-        website: result.website,
+        phoneNumber: result.nationalPhoneNumber,
+        website: result.websiteUri,
       };
     } catch (error) {
       this.logger.error(`Error fetching place details for ${placeId}:`, error);
-      throw error;
+      return {};
     }
   }
 
