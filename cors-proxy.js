@@ -20,7 +20,14 @@ app.use(
     ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'X-Requested-With',
+      // New Places API headers
+      'X-Goog-Api-Key',
+      'X-Goog-FieldMask',
+    ],
   })
 );
 
@@ -76,6 +83,28 @@ app.use(
     },
     onError: (err, req, res) => {
       console.error('Proxy error:', err);
+      res.status(500).json({ error: 'Proxy error', details: err.message });
+    },
+  })
+);
+
+// Proxy for Google Places API (New)
+app.use(
+  '/gplaces',
+  createProxyMiddleware({
+    target: 'https://places.googleapis.com',
+    changeOrigin: true,
+    pathRewrite: (path) => {
+      // strip /gplaces prefix
+      const rewritten = path.replace(/^\/gplaces\/?/, '/');
+      console.log(`[GPLACES] Rewritten path: ${rewritten}`);
+      return rewritten;
+    },
+    onProxyReq: (proxyReq, req) => {
+      console.log(`[GPLACES] ${req.method} https://places.googleapis.com${proxyReq.path}`);
+    },
+    onError: (err, req, res) => {
+      console.error('[GPLACES] Proxy error:', err);
       res.status(500).json({ error: 'Proxy error', details: err.message });
     },
   })
