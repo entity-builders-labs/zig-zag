@@ -2,6 +2,8 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { OpenAI, ChatOpenAI, OpenAIEmbeddings } from '@langchain/openai';
+import { ChatGroq } from '@langchain/groq';
+import { OllamaEmbeddings, ChatOllama } from '@langchain/ollama';
 import {
   ChatPromptTemplate,
   HumanMessagePromptTemplate,
@@ -37,10 +39,10 @@ interface ActivityMetadata {
 @Injectable()
 export class LangChainService {
   private readonly logger = new Logger(LangChainService.name);
-  private chatModel: ChatOpenAI;
-  private completionModel: OpenAI;
+  private chatModel: any;
+  private completionModel: any;
 
-  private embeddings: OpenAIEmbeddings;
+  private embeddings: any;
   private vectorStore: Chroma; // or FaissStore
 
   constructor(
@@ -54,9 +56,23 @@ export class LangChainService {
   }
 
   async initializeVectorStore() {
-    this.embeddings = new OpenAIEmbeddings({
-      openAIApiKey: this.config.openaiApiKey,
-    });
+    // Prefer local embeddings by default to avoid paid usage
+    if (this.config.provider === 'ollama') {
+      this.embeddings = new OllamaEmbeddings({
+        baseUrl: this.config.ollamaBaseUrl,
+        model: this.config.embeddingsModel || 'nomic-embed-text',
+      } as any);
+    } else if (this.config.provider === 'groq') {
+      // Groq no tiene embeddings propios; usa embedders locales
+      this.embeddings = new OllamaEmbeddings({
+        baseUrl: this.config.ollamaBaseUrl,
+        model: this.config.embeddingsModel || 'nomic-embed-text',
+      } as any);
+    } else {
+      this.embeddings = new OpenAIEmbeddings({
+        openAIApiKey: this.config.openaiApiKey,
+      });
+    }
 
     // Prefer connecting to a running Chroma server if CHROMA_URL is configured
     const collectionName = this.config.chromaCollectionName || 'activities';
@@ -167,21 +183,42 @@ After this activity, you can try: ${metadata.complementaryActivities?.after ? me
 
   private initializeModels(): void {
     try {
-      const commonOptions = {
-        openAIApiKey: this.config.openaiApiKey,
-        temperature: this.config.temperature,
-        timeout: this.config.timeout,
-      };
+      const provider = this.config.provider;
+      if (!this.config.enableAi) {
+        this.logger.warn('AI disabled via ENABLE_AI=false');
+        return;
+      }
 
-      this.chatModel = new ChatOpenAI({
-        ...commonOptions,
-        modelName: this.config.defaultModel,
-      });
-
-      this.completionModel = new OpenAI({
-        ...commonOptions,
-        modelName: 'text-davinci-003', // Default completion model
-      });
+      if (provider === 'groq') {
+        this.chatModel = new ChatGroq({
+          apiKey: this.config.groqApiKey,
+          model: this.config.defaultModel || 'llama-3.1-70b-versatile',
+          temperature: this.config.temperature,
+          timeout: this.config.timeout,
+        } as any);
+        this.completionModel = this.chatModel;
+      } else if (provider === 'ollama') {
+        this.chatModel = new ChatOllama({
+          baseUrl: this.config.ollamaBaseUrl,
+          model: this.config.defaultModel || 'llama3.1',
+          temperature: this.config.temperature,
+        } as any);
+        this.completionModel = this.chatModel;
+      } else {
+        const commonOptions = {
+          openAIApiKey: this.config.openaiApiKey,
+          temperature: this.config.temperature,
+          timeout: this.config.timeout,
+        };
+        this.chatModel = new ChatOpenAI({
+          ...commonOptions,
+          modelName: this.config.defaultModel,
+        });
+        this.completionModel = new OpenAI({
+          ...commonOptions,
+          modelName: 'gpt-3.5-turbo-instruct',
+        });
+      }
 
       this.logger.log('AI models initialized successfully');
     } catch (error) {

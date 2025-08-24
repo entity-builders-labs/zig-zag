@@ -55,7 +55,13 @@ export class ActivityMetadataService {
       }
     } catch (error) {
       this.logger.error(`Error generating activity metadata: ${error.message}`);
-      return {} as ActivityMetadataDto;
+      // Fallback minimal metadata so creation does not fail when AI is disabled or errors
+      return {
+        enhancedDescription: activity.description || '',
+        tags: [],
+        targetAudience: 'General',
+        bestTimeToVisit: 'any time',
+      } as any;
     }
   }
 
