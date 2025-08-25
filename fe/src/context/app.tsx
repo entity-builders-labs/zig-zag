@@ -21,6 +21,7 @@ export type AppContextType = {
     radius?: number;
     limit?: number;
     forceRefresh?: boolean;
+    types?: string[];
   }) => Promise<ApiResponse<PaginatedResponseActivity>>;
 };
 
@@ -62,6 +63,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     radius?: number;
     limit?: number;
     forceRefresh?: boolean;
+    types?: string[];
   }): Promise<ApiResponse<PaginatedResponseActivity>> => {
     setActivitiesLoading(true);
     try {
@@ -87,9 +89,11 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         {
           latitude: coordinates.lat,
           longitude: coordinates.lng,
-          radius: coordinatesProps?.radius || 50000,
+          // radius in meters
+          radius: coordinatesProps?.radius ?? 3000,
           limit: coordinatesProps?.limit || 100,
           forceRefresh: coordinatesProps?.forceRefresh || false,
+          types: coordinatesProps?.types || undefined,
         }
       );
 
@@ -119,14 +123,10 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const { data, error, loading } = useApi(getActivities, true, [address]);
+  // No dispares búsquedas automáticas; el user debe elegir dirección primero
+  const { data, error, loading } = useApi(getActivities, false, [address]);
 
-  useEffect(() => {
-    if (center) {
-      console.log('$$$ center:', center);
-      getActivities(center);
-    }
-  }, [address]);
+  // Cuando cambia la dirección, no busques automáticamente; deja que el user pulse el botón
 
   return (
     <AppContext.Provider

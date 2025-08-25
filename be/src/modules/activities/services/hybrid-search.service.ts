@@ -21,6 +21,7 @@ export class HybridSearchService {
     radius: number;
     limit?: number;
     forceRefresh?: boolean;
+    types?: string[];
   }) {
     const {
       latitude,
@@ -28,14 +29,30 @@ export class HybridSearchService {
       radius,
       limit = 50,
       forceRefresh = false,
+      types,
     } = params;
 
-    const dbActivities = await this.activitiesService.findAll(
+    // Base query por proximidad
+    // Use default radius from env if not provided
+    const effectiveRadius = typeof radius === 'number' ? radius : Number(process.env.BACKEND_DEFAULT_RADIUS_METERS ?? 3000);
+
+    let dbActivities = await this.activitiesService.findAll(
       latitude.toString(),
       longitude.toString(),
-      radius,
+      effectiveRadius,
       limit,
+      types,
     );
+
+    // Filtro por tipo si viene especificado
+    if (types && types.length > 0) {
+      const typeSet = new Set(types.map((t) => t.toLowerCase()));
+      dbActivities = dbActivities.filter((a: any) =>
+        a.knownActivityTypeName
+          ? typeSet.has(String(a.knownActivityTypeName).toLowerCase())
+          : false,
+      );
+    }
 
     const shouldCrawl = await this.shouldTriggerCrawling(
       latitude,
@@ -44,7 +61,7 @@ export class HybridSearchService {
     );
 
     if (shouldCrawl) {
-      this.triggerBackgroundCrawling(latitude, longitude, radius).catch(
+      this.triggerBackgroundCrawling(latitude, longitude, effectiveRadius).catch(
         (error) => {
           this.logger.error('Background crawling failed:', error);
         },

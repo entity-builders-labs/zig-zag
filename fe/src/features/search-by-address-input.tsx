@@ -1,10 +1,11 @@
-import { View } from '@gluestack-ui/themed';
+import { View, Text } from '@gluestack-ui/themed';
 import {
   AutocompleteDropdown,
   AutocompleteDropdownItem,
 } from 'react-native-autocomplete-dropdown';
 import { useAddress } from '../context/app';
 import { useEffect, useMemo, useState } from 'react';
+import * as ExpoLocation from 'expo-location';
 
 // NEW Places API calls via proxy
 async function placesAutocomplete(input: string) {
@@ -99,13 +100,40 @@ export const SearchByAddressInput = () => {
 
   return (
     <View>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+        <Text style={{ fontWeight: '600' }}>Dirección</Text>
+        <Text
+          onPress={async () => {
+            try {
+              const { status } = await ExpoLocation.requestForegroundPermissionsAsync();
+              if (status !== 'granted') return;
+              const pos = await ExpoLocation.getCurrentPositionAsync({});
+              setAddress({
+                lat: pos.coords.latitude,
+                lng: pos.coords.longitude,
+                street: 'Ubicación actual',
+                city: '',
+                country: '',
+              });
+            } catch (e) {
+              // ignore
+            }
+          }}
+          style={{ color: '#007AFF' }}
+        >
+          Usar ubicación actual
+        </Text>
+      </View>
       <AutocompleteDropdown
         dataSet={locationResults.map((el) => ({
           id: el.place_id,
           title: el.structured_formatting.main_text,
         }))}
         onChangeText={setTerm}
-        onClear={clearSearch}
+        onClear={() => {
+          setTerm('');
+          setLocationResults([]);
+        }}
         onSelectItem={handleOnSelectItem}
         textInputProps={{
           placeholder: 'Search by address',

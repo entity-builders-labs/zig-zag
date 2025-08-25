@@ -21,6 +21,8 @@ import { FindNearbyDto } from '../dto/find-nearby.dto';
 import { ActivityRelationshipService } from '../services/activity-relationship.service';
 import { ToursService } from '../../tours/services/tours.service';
 import { HybridSearchService } from '../services/hybrid-search.service';
+import { AiProspectorService } from '../services/ai-prospector.service';
+import { AiDiscoverDto } from '../dto/ai-discover.dto';
 import { HybridSearchDto } from '../dto/hybrid-search.dto';
 
 @ApiTags('activities')
@@ -33,6 +35,7 @@ export class ActivitiesController {
     private readonly activityRelationshipService: ActivityRelationshipService,
     private readonly toursService: ToursService,
     private readonly hybridSearchService: HybridSearchService,
+    private readonly aiProspector: AiProspectorService,
   ) {}
 
   @Post()
@@ -183,6 +186,16 @@ export class ActivitiesController {
     return this.toursService.getNextActivity(id, options);
   }
 
+  @Get(':id/similar')
+  @ApiOperation({ summary: 'Get similar activities by vector similarity' })
+  @ApiResponse({ status: 200, description: 'Returns similar activities' })
+  async getSimilar(
+    @Param('id') id: string,
+    @Query('limit') limit: number = 10,
+  ) {
+    return this.activitiesService.findSimilar(id, Number(limit));
+  }
+
   @Post('search-hybrid')
   @ApiOperation({ summary: 'Search activities with background crawling' })
   @ApiResponse({
@@ -206,5 +219,12 @@ export class ActivitiesController {
       radius,
       limit,
     });
+  }
+
+  @Post('discover-ai')
+  @ApiOperation({ summary: 'Discover activities using LLM then validate via Places' })
+  @ApiResponse({ status: 200, description: 'Returns created/duplicate/rejected counts' })
+  async discoverWithAI(@Body(ValidationPipe) dto: AiDiscoverDto) {
+    return this.aiProspector.discover(dto);
   }
 }
