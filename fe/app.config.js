@@ -20,9 +20,14 @@ module.exports = {
   },
   ios: {
     bundleIdentifier: 'com.juanobrach.zig-zag',
+    infoPlist: {
+      NSLocationWhenInUseUsageDescription:
+        'Usamos tu ubicación para mostrar actividades cercanas a vos.',
+    },
   },
   android: {
     package: 'com.juanobrach.zigzag',
+    permissions: ['ACCESS_COARSE_LOCATION', 'ACCESS_FINE_LOCATION'],
   },
-  newArchEnabled: true,
+  newArchEnabled: false,
 };

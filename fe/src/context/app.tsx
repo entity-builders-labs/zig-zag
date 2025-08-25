@@ -23,6 +23,8 @@ export type AppContextType = {
     forceRefresh?: boolean;
     types?: string[];
   }) => Promise<ApiResponse<PaginatedResponseActivity>>;
+  selectedRadiusMeters: number;
+  setSelectedRadiusMeters: (meters: number) => void;
 };
 
 const AppContext = createContext<AppContextType>({
@@ -42,6 +44,8 @@ const AppContext = createContext<AppContextType>({
         message: 'No address coordinates',
       },
     }),
+  selectedRadiusMeters: 3000,
+  setSelectedRadiusMeters: (_m: number) => {},
 });
 
 // Buenos aires coordinates
@@ -56,6 +60,9 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [activitiesError, setActivitiesError] = useState<ApiError | null>(null);
   const [activitiesLoading, setActivitiesLoading] = useState<boolean>(false);
+  const [selectedRadiusMeters, setSelectedRadiusMeters] = useState<number>(
+    Number(process.env.EXPO_PUBLIC_DEFAULT_RADIUS_METERS ?? 3000)
+  );
 
   const getActivities = async (coordinatesProps?: {
     lat?: number;
@@ -90,7 +97,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
           latitude: coordinates.lat,
           longitude: coordinates.lng,
           // radius in meters
-          radius: coordinatesProps?.radius ?? 3000,
+          radius: coordinatesProps?.radius ?? selectedRadiusMeters,
           limit: coordinatesProps?.limit || 100,
           forceRefresh: coordinatesProps?.forceRefresh || false,
           types: coordinatesProps?.types || undefined,
@@ -140,6 +147,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         activitiesError: error,
         activitiesLoading: loading || activitiesLoading,
         getActivities,
+        selectedRadiusMeters,
+        setSelectedRadiusMeters,
       }}
     >
       {children}
@@ -186,5 +195,13 @@ export const useActivities = () => {
     activitiesError,
     activitiesLoading,
     getActivities,
+  };
+};
+
+export const useSearchRadius = () => {
+  const { selectedRadiusMeters, setSelectedRadiusMeters } = useContext(AppContext);
+  return {
+    radiusMeters: selectedRadiusMeters,
+    setRadiusMeters: setSelectedRadiusMeters,
   };
 };

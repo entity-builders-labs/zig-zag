@@ -26,8 +26,9 @@ export default registerAs('ai', (): AiConfig => {
     provider: (process.env.AI_PROVIDER as any) || 'openai',
     defaultModel:
       process.env.AI_MODEL ||
-      process.env.OPENAI_DEFAULT_MODEL ||
-      'gpt-3.5-turbo',
+      (process.env.AI_PROVIDER === 'openai'
+        ? process.env.OPENAI_DEFAULT_MODEL || 'gpt-3.5-turbo'
+        : 'llama3.1'),
     temperature: process.env.OPENAI_TEMPERATURE
       ? parseFloat(process.env.OPENAI_TEMPERATURE)
       : 0.7,

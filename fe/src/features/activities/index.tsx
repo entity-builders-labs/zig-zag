@@ -17,6 +17,7 @@ import { Box, Text } from '@gluestack-ui/themed';
 import { useState } from 'react';
 import { useActivities } from '../../context/app';
 import { useMap } from '../../context/app';
+import { useSearchRadius } from '../../context/app';
 import { fetchSimilarActivities } from '../../api/activities';
 export const Activities = () => {
   const { activities, activitiesLoading, getActivities } = useActivities();
@@ -28,7 +29,7 @@ export const Activities = () => {
   const [typeFilter, setTypeFilter] = useState<string[]>([]);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const defaultRadius = Number(process.env.EXPO_PUBLIC_DEFAULT_RADIUS_METERS ?? 3000);
-  const [radiusMeters, setRadiusMeters] = useState<number>(defaultRadius);
+  const { radiusMeters, setRadiusMeters } = useSearchRadius();
 
   const toggleType = (t: string) => {
     setTypeFilter((prev) =>
