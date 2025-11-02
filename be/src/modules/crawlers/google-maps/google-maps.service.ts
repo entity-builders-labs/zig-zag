@@ -592,12 +592,11 @@ export class GoogleMapsService implements OnModuleInit {
 
       const activities = [];
       for (const place of allPlaces) {
-        const placeExist = await this.prisma.activity.findUnique({
+        // Since sourceId and externalId are now optional, check if activity exists differently
+        const placeExist = await this.prisma.activity.findFirst({
           where: {
-            sourceId_externalId: {
-              sourceId: sourceId,
-              externalId: place.externalId,
-            },
+            sourceId: sourceId,
+            externalId: place.externalId,
           },
         });
 

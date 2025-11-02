@@ -16,20 +16,7 @@ import { Prisma } from '@prisma/client';
 import { Difficulty } from '@prisma/client';
 
 export class CreateActivityDto {
-  @ApiProperty({ description: 'ID of the source of this activity' })
-  @IsString()
-  @IsNotEmpty()
-  sourceId: string;
-
-  @ApiProperty({
-    description:
-      'External ID from the source system (unique identifier in the source)',
-  })
-  @IsString()
-  @IsNotEmpty()
-  externalId: string;
-
-  @ApiProperty({ description: 'The name of the activity' })
+  @ApiProperty({ description: 'The name of the activity', required: true })
   @IsString()
   @IsNotEmpty()
   name: string;
@@ -46,38 +33,75 @@ export class CreateActivityDto {
     description:
       'The type of activity (e.g., "Hiking", "Swimming", "Climbing")',
     example: 'Hiking',
-    required: true,
+    required: false,
   })
   @IsString()
-  @IsNotEmpty()
-  type: string;
+  @IsOptional()
+  type?: string;
 
+  @ApiProperty({ description: 'Difficulty level', required: false })
   @IsEnum(Difficulty)
   @IsOptional()
   difficulty?: Difficulty;
 
-  @ApiProperty({ description: 'The location of the activity' })
-  @IsString()
-  @IsNotEmpty()
+  @ApiProperty({
+    description: 'Duration in minutes/hours',
+    required: false,
+  })
+  @IsNumber()
+  @IsOptional()
+  @Min(0)
+  duration?: number;
+
+  @ApiProperty({
+    description: 'Price in local currency',
+    required: false,
+  })
+  @IsNumber()
+  @IsOptional()
+  @Min(0)
+  price?: number;
+
+  @ApiProperty({
+    description: 'Maximum group size',
+    required: false,
+  })
+  @IsNumber()
+  @IsOptional()
+  @Min(1)
+  maxGroupSize?: number;
+
   @ApiProperty({
     description: 'Latitude of the activity location',
     minimum: -90,
     maximum: 90,
+    required: false,
   })
   @IsNumber()
+  @IsOptional()
   @Min(-90)
   @Max(90)
-  latitude: number;
+  latitude?: number;
 
   @ApiProperty({
     description: 'Longitude of the activity location',
     minimum: -180,
     maximum: 180,
+    required: false,
   })
   @IsNumber()
+  @IsOptional()
   @Min(-180)
   @Max(180)
-  longitude: number;
+  longitude?: number;
+
+  @ApiProperty({
+    description: 'Simple address string',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  address?: string;
 
   @ApiProperty({
     description: 'Structured location information',
@@ -177,27 +201,43 @@ export class CreateActivityDto {
   @IsString({ each: true })
   photos?: string[];
 
-  @ApiProperty()
-  @IsNumber()
-  @IsNotEmpty()
-  duration: number;
-
-  @ApiProperty()
-  @IsNumber()
-  @IsNotEmpty()
-  price: number;
-
-  @ApiProperty()
-  @IsNumber()
-  @IsNotEmpty()
-  maxGroupSize: number;
-
-  @ApiProperty()
+  @ApiProperty({
+    description: 'ID of the source of this activity (optional)',
+    required: false,
+  })
   @IsString()
-  @IsNotEmpty()
-  knownActivityTypeName: string;
+  @IsOptional()
+  sourceId?: string;
 
-  @ApiProperty({ description: 'ID of the activity' })
+  @ApiProperty({
+    description:
+      'External ID from the source system (optional for AI-generated activities)',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  externalId?: string;
+
+  @ApiProperty({
+    description: 'Known activity type name (optional)',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  knownActivityTypeName?: string;
+
+  @ApiProperty({
+    description: 'Flexible metadata (JSON) for storing AI-generated data',
+    required: false,
+  })
+  @IsObject()
+  @IsOptional()
+  metadata?: Prisma.JsonValue;
+
+  @ApiProperty({
+    description: 'ID of the activity (for updates)',
+    required: false,
+  })
   @IsString()
   @IsOptional()
   id?: string;

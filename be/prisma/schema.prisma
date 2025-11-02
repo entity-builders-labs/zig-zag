@@ -9,22 +9,27 @@ datasource db {
 }
 
 model Activity {
-  id           String     @id @default(auto()) @map("_id") @db.ObjectId
-  name         String
-  description  String?
-  difficulty   Difficulty @default(EASY)
-  type         String
-  duration     Float
-  price        Float
-  maxGroupSize Int
-  // Geolocation fields
-  latitude     Float
-  longitude    Float
-  location     Json
-  // Source relationship
-  sourceId     String     @db.ObjectId
-  source       Source     @relation(fields: [sourceId], references: [id])
-  externalId   String
+  id          String  @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  description String?
+
+  // Core fields - all optional for flexibility
+  type         String?
+  difficulty   Difficulty?
+  duration     Float?
+  price        Float?
+  maxGroupSize Int?
+
+  // Geolocation - optional but recommended
+  latitude  Float?
+  longitude Float?
+  location  Json? // Flexible location data
+  address   String? // Simple address string
+
+  // Source relationship - optional (AI-generated might not have source)
+  sourceId   String? @db.ObjectId
+  source     Source? @relation(fields: [sourceId], references: [id])
+  externalId String? // Optional for AI-generated activities
 
   // Google Places additional fields
   rating           Float?
@@ -36,11 +41,15 @@ model Activity {
   priceLevel       Int?
   photos           Json?
   openingHours     Json?
-  metadata         Json?
+
+  // Flexible metadata - store anything from AI prompts
+  metadata Json? // Store AI-generated data, tags, recommendations, etc.
 
   // Timestamps
-  createdAt             DateTime           @default(now())
-  updatedAt             DateTime           @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Optional relationships
   knownActivityTypeName String?
   KnownActivityType     KnownActivityType? @relation(fields: [knownActivityTypeName], references: [name])
   TourActivity          TourActivity[]
@@ -48,7 +57,7 @@ model Activity {
   sourceRelations ActivityRelationship[] @relation("SourceActivities")
   targetRelations ActivityRelationship[] @relation("TargetActivities")
 
-  @@unique([sourceId, externalId])
+  @@index([latitude, longitude]) // For location queries
   @@map("activity")
 }
 
@@ -66,15 +75,32 @@ model KnownActivityType {
 }
 
 model Tour {
-  id           String     @id @default(auto()) @map("_id") @db.ObjectId
-  name         String
-  description  String?
-  price        Float
-  duration     Float
-  maxGroupSize Int
-  startDates   DateTime[]
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+  id          String  @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  description String?
+
+  // Core fields - all optional for flexibility
+  price        Float?
+  duration     Float? // Duration in hours/days
+  maxGroupSize Int?
+  startDates   DateTime[] @default([]) // Empty array allowed
+
+  // Additional flexible fields
+  totalDays            Int? // Total days of the tour
+  totalDistance        Float? // Total distance in km
+  estimatedBudget      Float? // Estimated budget
+  recommendedGroupSize Int?
+
+  // Store prompt/query that generated this tour
+  prompt String? // The original prompt used
+  query  String? // Search query if applicable
+
+  // Flexible metadata
+  metadata Json? // Store any additional data from AI
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   activities TourActivity[]
 
@@ -82,16 +108,29 @@ model Tour {
 }
 
 model TourActivity {
-  id         String    @id @default(auto()) @map("_id") @db.ObjectId
-  tourId     String    @db.ObjectId
-  activityId String    @db.ObjectId
-  startTime  DateTime?
-  notes      String?
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
-  order      Int       @default(1)
-  tour       Tour      @relation(fields: [tourId], references: [id])
-  activity   Activity  @relation(fields: [activityId], references: [id])
+  id               String    @id @default(auto()) @map("_id") @db.ObjectId
+  tourId           String    @db.ObjectId
+  activityId       String?   @db.ObjectId // Optional - might be creating activity inline
+  startTime        DateTime?
+  duration         Float? // Duration for this activity in the tour context
+  notes            String? // Detailed notes from AI
+  dayNumber        Int? // Which day of the tour
+  travelTimeToNext Float? // Travel time to next activity
+  distanceToNext   Float? // Distance to next activity
+  order            Int       @default(1)
+
+  // Inline activity data - for when activity doesn't exist yet
+  activityName      String?
+  activityType      String?
+  activityLatitude  Float?
+  activityLongitude Float?
+  activityData      Json? // Store full activity data if creating inline
+
+  tour     Tour      @relation(fields: [tourId], references: [id])
+  activity Activity? @relation(fields: [activityId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([tourId])
   @@index([activityId])
@@ -119,7 +158,7 @@ model CrawlerSearch {
 model Source {
   id         String     @id @default(auto()) @map("_id") @db.ObjectId
   name       String     @unique
-  type       String
+  type       String     @default("external") // "external", "ai", "manual"
   baseUrl    String?
   activities Activity[]
   createdAt  DateTime   @default(now())

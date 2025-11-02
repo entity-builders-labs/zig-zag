@@ -30,26 +30,58 @@ export class ActivitiesService {
         `Creating new activity: ${JSON.stringify(createActivityDto)}`,
       );
 
-      // Generate metadata for the activity
-      const metadata =
-        await this.metadataService.generateMetadata(createActivityDto);
+      // Prepare data - only include fields that exist
+      const activityData: any = {
+        name: createActivityDto.name,
+        description: createActivityDto.description,
+        type: createActivityDto.type,
+        difficulty: createActivityDto.difficulty,
+        duration: createActivityDto.duration,
+        price: createActivityDto.price,
+        maxGroupSize: createActivityDto.maxGroupSize,
+        latitude: createActivityDto.latitude,
+        longitude: createActivityDto.longitude,
+        address: createActivityDto.address,
+        location: createActivityDto.location,
+        photos: createActivityDto.photos,
+        sourceId: createActivityDto.sourceId,
+        externalId: createActivityDto.externalId,
+        knownActivityTypeName: createActivityDto.knownActivityTypeName,
+        metadata: createActivityDto.metadata,
+        // Google Places fields
+        rating: createActivityDto.rating,
+        ratingCount: createActivityDto.ratingCount,
+        formattedAddress: createActivityDto.formattedAddress,
+        phoneNumber: createActivityDto.phoneNumber,
+        website: createActivityDto.website,
+        businessStatus: createActivityDto.businessStatus,
+        priceLevel: createActivityDto.priceLevel,
+      };
 
-      // Create activity with metadata
+      // Remove undefined values
+      Object.keys(activityData).forEach(
+        (key) => activityData[key] === undefined && delete activityData[key],
+      );
+
+      // Optionally generate metadata if not provided
+      if (!activityData.metadata && createActivityDto.name) {
+        try {
+          const metadata =
+            await this.metadataService.generateMetadata(createActivityDto);
+          activityData.metadata = metadata as unknown as JsonValue;
+          if (metadata.enhancedDescription && !activityData.description) {
+            activityData.description = metadata.enhancedDescription;
+          }
+        } catch (error) {
+          this.logger.warn(
+            `Failed to generate metadata, continuing without it: ${error.message}`,
+          );
+        }
+      }
+
+      // Create activity
       const activity = await this.prisma.activity.create({
-        data: {
-          ...createActivityDto,
-          location: {
-            create: createActivityDto.location,
-          },
-          photos: {
-            create: createActivityDto.photos,
-          },
-          // Add enhanced description if available
-          description:
-            metadata.enhancedDescription || createActivityDto.description,
-          // Store the complete metadata as JSON in a metadata field (assuming this field exists in Prisma schema)
-          metadata: metadata as unknown as JsonValue,
-        },
+        data: activityData,
       });
 
       this.logger.debug(
@@ -280,8 +312,8 @@ export class ActivitiesService {
         `Updating activity ${id} with: ${JSON.stringify(updateActivityDto)}`,
       );
 
-      // Check if activity exists
-      const existingActivity = await this.findOne(id);
+      // Check if activity exists (throws if not found)
+      await this.findOne(id);
 
       const activity = await this.prisma.activity.update({
         where: { id },

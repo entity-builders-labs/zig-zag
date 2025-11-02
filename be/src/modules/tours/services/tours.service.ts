@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../../../core/database/prisma.service';
@@ -19,6 +20,8 @@ import { JsonOutputFunctionsParser } from 'langchain/output_parsers';
 
 @Injectable()
 export class ToursService {
+  private readonly logger = new Logger(ToursService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly activitiesService: ActivitiesService,
@@ -698,33 +701,121 @@ Provide a concise, engaging explanation (2-3 sentences) that highlights the main
     return R * c;
   }
 
+  /**
+   * Create a tour - flexible method that accepts partial data
+   */
   async create(createTourDto: CreateTourDto) {
     const { activities, ...tourData } = createTourDto;
 
+    // Validate activity IDs if provided
     if (activities?.length) {
-      const activityIds = activities.map((a) => a.activityId);
-      const existingActivities = await this.prisma.activity.findMany({
-        where: { id: { in: activityIds } },
-      });
+      // Helper function to validate MongoDB ObjectID
+      const isValidObjectId = (id: any): id is string => {
+        if (!id || typeof id !== 'string') return false;
+        // MongoDB ObjectID is 24 hex characters
+        return /^[0-9a-fA-F]{24}$/.test(id);
+      };
 
-      if (existingActivities.length !== activityIds.length) {
-        throw new BadRequestException('Some activity ids are invalid');
+      const activityIds = activities
+        .map((a) => a.activityId)
+        .filter((id): id is string => isValidObjectId(id));
+
+      if (activityIds.length > 0) {
+        try {
+          const existingActivities = await this.prisma.activity.findMany({
+            where: { id: { in: activityIds } },
+          });
+
+          if (existingActivities.length !== activityIds.length) {
+            this.logger.warn(
+              `Some activity IDs are invalid. Expected ${activityIds.length}, found ${existingActivities.length}`,
+            );
+          }
+        } catch (error) {
+          this.logger.error(`Error validating activity IDs: ${error.message}`);
+          // Don't throw, just log the error and continue
+        }
       }
     }
+
+    // Prepare tour data - only include defined fields
+    const tourDataClean: any = {
+      name: tourData.name,
+      description: tourData.description,
+      price: tourData.price,
+      duration: tourData.duration,
+      maxGroupSize: tourData.maxGroupSize,
+      startDates: tourData.startDates || [],
+      totalDays: tourData.totalDays,
+      totalDistance: tourData.totalDistance,
+      estimatedBudget: tourData.estimatedBudget,
+      recommendedGroupSize: tourData.recommendedGroupSize,
+      prompt: tourData.prompt,
+      query: tourData.query,
+      metadata: tourData.metadata,
+    };
+
+    // Remove undefined values
+    Object.keys(tourDataClean).forEach(
+      (key) => tourDataClean[key] === undefined && delete tourDataClean[key],
+    );
 
     return this.prisma.$transaction(async (tx) => {
       const tour = await tx.tour.create({
         data: {
-          ...tourData,
+          ...tourDataClean,
           activities: {
             create:
-              activities?.map((activity, index) => ({
-                activityId: activity.activityId,
-                duration: activity.duration,
-                startTime: activity.startTime,
-                notes: activity.notes,
-                order: index + 1,
-              })) || [],
+              activities?.map((activityDto, index) => {
+                const activityData: any = {
+                  order: activityDto.order || index + 1,
+                  activityId: activityDto.activityId,
+                  activityName: activityDto.activityName,
+                  activityType: activityDto.activityType,
+                  activityLatitude: activityDto.activityLatitude,
+                  activityLongitude: activityDto.activityLongitude,
+                  activityData: activityDto.activityData,
+                  duration: activityDto.duration,
+                  notes: activityDto.notes,
+                  dayNumber: activityDto.dayNumber,
+                  travelTimeToNext: activityDto.travelTimeToNext,
+                  distanceToNext: activityDto.distanceToNext,
+                };
+
+                // Parse startTime if it's a string
+                // Handle time strings like "09:00" vs full ISO dates
+                if (activityDto.startTime) {
+                  if (typeof activityDto.startTime === 'string') {
+                    // Check if it's just a time string (HH:MM format) or a full date
+                    const timePattern = /^\d{1,2}:\d{2}(:\d{2})?$/;
+                    if (timePattern.test(activityDto.startTime)) {
+                      // It's just a time string, don't convert to Date
+                      // Store as string or null (Prisma DateTime needs full date)
+                      activityData.startTime = undefined; // Skip for now, or implement date + time combination
+                    } else {
+                      // Try to parse as ISO date
+                      const parsedDate = new Date(activityDto.startTime);
+                      if (!isNaN(parsedDate.getTime())) {
+                        activityData.startTime = parsedDate;
+                      } else {
+                        // Invalid date, skip
+                        activityData.startTime = undefined;
+                      }
+                    }
+                  } else if (activityDto.startTime instanceof Date) {
+                    // Already a Date object
+                    activityData.startTime = activityDto.startTime;
+                  }
+                }
+
+                // Remove undefined values
+                Object.keys(activityData).forEach(
+                  (key) =>
+                    activityData[key] === undefined && delete activityData[key],
+                );
+
+                return activityData;
+              }) || [],
           },
         },
         include: {
@@ -737,6 +828,258 @@ Provide a concise, engaging explanation (2-3 sentences) that highlights the main
       });
       return tour;
     });
+  }
+
+  /**
+   * Generate a tour from a prompt using LangChain and AI
+   * This method uses the LangChain service to generate structured tour data from a natural language prompt
+   */
+  async createFromPrompt(
+    prompt: string,
+    options?: {
+      latitude?: number;
+      longitude?: number;
+      radius?: number; // in meters, default 50000 (50km)
+      includeExistingActivities?: boolean; // Whether to search for existing activities in DB
+    },
+  ) {
+    this.logger.log(
+      `Generating tour from prompt: ${prompt.substring(0, 100)}...`,
+    );
+
+    try {
+      // Step 1: If location provided, search for existing activities
+      let availableActivitiesText = '';
+      if (options?.latitude && options?.longitude) {
+        const radius = options.radius || 50000; // 50km default
+        const nearbyActivities = await this.activitiesService.findAll(
+          options.latitude.toString(),
+          options.longitude.toString(),
+          radius,
+          50, // limit to 50 activities
+        );
+
+        if (nearbyActivities.length > 0) {
+          availableActivitiesText = `\n\nAvailable activities in the area (within ${radius / 1000}km):\n${nearbyActivities
+            .map(
+              (act, idx) =>
+                `${idx + 1}. ${act.name} (${act.type || 'Activity'}) - ${act.description || 'No description'} - Location: ${act.latitude}, ${act.longitude} - Duration: ${act.duration || 'Unknown'} minutes`,
+            )
+            .join('\n')}`;
+        } else if (options.includeExistingActivities) {
+          // Try semantic search if no nearby activities found
+          try {
+            const semanticResults =
+              await this.langChainService.findSimilarActivities(
+                `Activities in ${options.latitude}, ${options.longitude}: ${prompt}`,
+                10,
+              );
+
+            if (semanticResults.length > 0) {
+              availableActivitiesText = `\n\nRelevant activities found:\n${semanticResults
+                .map(
+                  (result: any, idx: number) =>
+                    `${idx + 1}. ${result.metadata?.activityName || 'Activity'} - ${result.pageContent.substring(0, 100)}...`,
+                )
+                .join('\n')}`;
+            }
+          } catch (error) {
+            this.logger.warn(`Semantic search failed: ${error.message}`);
+          }
+        }
+      }
+
+      // Step 2: Create the tour using LangChain
+      const tourChain = this.createTourChain();
+
+      // Prepare the input with available activities context
+      const fullPrompt = prompt + availableActivitiesText;
+
+      this.logger.debug(
+        `Invoking tour chain with prompt: ${fullPrompt.substring(0, 200)}...`,
+      );
+
+      const aiResponse = (await tourChain.invoke({
+        input: fullPrompt,
+        activities:
+          availableActivitiesText ||
+          'No specific activities provided. Create a general tour.',
+      })) as any; // Type assertion for AI response
+
+      this.logger.debug(
+        `AI generated tour response: ${JSON.stringify(aiResponse).substring(0, 200)}...`,
+      );
+
+      // Step 3: Convert AI response to CreateTourDto format
+      const tourData: CreateTourDto = {
+        name: aiResponse.title || 'Untitled Tour',
+        description: aiResponse.description || aiResponse.title,
+        duration: aiResponse.estimatedDuration,
+        totalDays: aiResponse.totalDays,
+        totalDistance: aiResponse.totalDistance,
+        estimatedBudget: aiResponse.estimatedBudget,
+        recommendedGroupSize: aiResponse.recommendedGroupSize,
+        prompt: prompt,
+        metadata: {
+          ...(aiResponse as object),
+          generatedAt: new Date().toISOString(),
+          options: options,
+        }, // Store full AI response in metadata
+        activities: aiResponse.activities?.map((act: any, index: number) => {
+          // Validate activityId if provided
+          const isValidObjectId = (id: any): id is string => {
+            if (!id || typeof id !== 'string') return false;
+            return /^[0-9a-fA-F]{24}$/.test(id);
+          };
+
+          const validActivityId =
+            act.activityId && isValidObjectId(act.activityId)
+              ? act.activityId
+              : undefined;
+
+          // Parse startTime - handle time strings vs full dates
+          let parsedStartTime: Date | string | undefined = act.startTime;
+          if (act.startTime && typeof act.startTime === 'string') {
+            const timePattern = /^\d{1,2}:\d{2}(:\d{2})?$/;
+            if (timePattern.test(act.startTime)) {
+              // It's just a time string, we'll store it as-is in activityData
+              // For startTime field, we'll skip it or try to combine with a date
+              parsedStartTime = undefined; // Skip for now since we don't have a base date
+            } else {
+              // Try to parse as ISO date
+              const parsedDate = new Date(act.startTime);
+              parsedStartTime = !isNaN(parsedDate.getTime())
+                ? parsedDate
+                : undefined;
+            }
+          }
+
+          return {
+            activityId: validActivityId,
+            activityName: act.activityName || act.type || 'Activity',
+            activityType: act.type || act.activityType,
+            activityLatitude: act.latitude,
+            activityLongitude: act.longitude,
+            duration: act.duration,
+            startTime: parsedStartTime,
+            notes: act.notes,
+            dayNumber: act.dayNumber,
+            travelTimeToNext: act.travelTimeToNext,
+            distanceToNext: act.distanceToNext,
+            order: index + 1,
+            // Store full activity data if activityId is not valid or not provided
+            activityData: validActivityId
+              ? undefined
+              : ({
+                  name: act.activityName || act.type,
+                  type: act.type,
+                  latitude: act.latitude,
+                  longitude: act.longitude,
+                  startTime: act.startTime, // Store original startTime string in activityData
+                  ...act,
+                } as any),
+          };
+        }),
+      };
+
+      // Step 4: Create and return the tour
+      const tour = await this.create(tourData);
+      this.logger.log(`Tour created successfully with ID: ${tour.id}`);
+
+      return tour;
+    } catch (error) {
+      this.logger.error(
+        `Error generating tour from prompt: ${error.message}`,
+        error.stack,
+      );
+      throw new BadRequestException(
+        `Failed to generate tour from prompt: ${error.message}`,
+      );
+    }
+  }
+
+  /**
+   * Legacy method: Create a tour from a pre-formatted AI response
+   * This accepts the raw AI response and saves it flexibly
+   * @deprecated Use createFromPrompt with prompt string instead
+   */
+  async createFromPromptResponse(
+    prompt: string,
+    aiResponse: {
+      title?: string;
+      description?: string;
+      estimatedDuration?: number;
+      totalDays?: number;
+      totalDistance?: number;
+      estimatedBudget?: number;
+      recommendedGroupSize?: number;
+      activities?: Array<{
+        activityId?: string;
+        activityName?: string;
+        activityType?: string;
+        latitude?: number;
+        longitude?: number;
+        dayNumber?: number;
+        startTime?: string;
+        duration?: number;
+        travelTimeToNext?: number;
+        distanceToNext?: number;
+        notes?: string;
+        [key: string]: any; // Allow additional fields
+      }>;
+      [key: string]: any; // Allow additional fields in response
+    },
+  ) {
+    const tourData: CreateTourDto = {
+      name: aiResponse.title || 'Untitled Tour',
+      description: aiResponse.description,
+      duration: aiResponse.estimatedDuration,
+      totalDays: aiResponse.totalDays,
+      totalDistance: aiResponse.totalDistance,
+      estimatedBudget: aiResponse.estimatedBudget,
+      recommendedGroupSize: aiResponse.recommendedGroupSize,
+      prompt: prompt,
+      metadata: aiResponse, // Store full AI response in metadata
+      activities: aiResponse.activities?.map((act, index) => {
+        // Validate activityId if provided
+        const isValidObjectId = (id: any): id is string => {
+          if (!id || typeof id !== 'string') return false;
+          return /^[0-9a-fA-F]{24}$/.test(id);
+        };
+
+        const validActivityId =
+          act.activityId && isValidObjectId(act.activityId)
+            ? act.activityId
+            : undefined;
+
+        return {
+          activityId: validActivityId,
+          activityName: act.activityName,
+          activityType: act.activityType,
+          activityLatitude: act.latitude,
+          activityLongitude: act.longitude,
+          duration: act.duration,
+          startTime: act.startTime,
+          notes: act.notes,
+          dayNumber: act.dayNumber,
+          travelTimeToNext: act.travelTimeToNext,
+          distanceToNext: act.distanceToNext,
+          order: index + 1,
+          // Store full activity data if activityId is not valid or not provided
+          activityData: validActivityId
+            ? undefined
+            : ({
+                name: act.activityName,
+                type: act.activityType,
+                latitude: act.latitude,
+                longitude: act.longitude,
+                ...act,
+              } as any),
+        };
+      }),
+    };
+
+    return this.create(tourData);
   }
 
   async findAll(page = 1, limit = 100) {

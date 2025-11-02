@@ -7,11 +7,13 @@ import {
   Param,
   Delete,
   Query,
+  ValidationPipe,
 } from '@nestjs/common';
 import { ToursService } from '../services/tours.service';
 import { CreateTourDto } from '../dto/create-tour.dto';
 import { UpdateTourDto } from '../dto/update-tour.dto';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { CreateTourFromPromptDto } from '../dto/create-tour-from-prompt.dto';
+import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 
 @ApiTags('tours')
 @Controller('tours')
@@ -24,10 +26,36 @@ export class ToursController {
     status: 201,
     description: 'The tour has been successfully created.',
   })
-  create(
-    @Body() { latitude, longitude }: { latitude: number; longitude: number },
+  @ApiBody({ type: CreateTourDto })
+  create(@Body(ValidationPipe) createTourDto: CreateTourDto) {
+    return this.toursService.create(createTourDto);
+  }
+
+  @Post('from-prompt')
+  @ApiOperation({
+    summary: 'Generate a tour from a natural language prompt using AI',
+    description:
+      'Uses LangChain and OpenAI to generate a structured tour from a natural language prompt. Optionally searches for existing activities based on location.',
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'The tour has been successfully generated and created.',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid input data or AI generation failed.',
+  })
+  @ApiBody({ type: CreateTourFromPromptDto })
+  createFromPrompt(
+    @Body(ValidationPipe) createTourFromPromptDto: CreateTourFromPromptDto,
   ) {
-    return;
+    return this.toursService.createFromPrompt(createTourFromPromptDto.prompt, {
+      latitude: createTourFromPromptDto.latitude,
+      longitude: createTourFromPromptDto.longitude,
+      radius: createTourFromPromptDto.radius,
+      includeExistingActivities:
+        createTourFromPromptDto.includeExistingActivities !== false, // default true
+    });
   }
 
   @Get()
