@@ -8,17 +8,15 @@ import { AutocompleteDropdownContextProvider } from 'react-native-autocomplete-d
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { AppProvider } from './src/context/app';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import {
-  configureReanimatedLogger,
-  ReanimatedLogLevel,
-} from 'react-native-reanimated';
+import * as Reanimated from 'react-native-reanimated';
 import { config } from './config';
 
 // ✅ Configuración para Hot Module Reload en Web
 if (__DEV__ && typeof window !== 'undefined') {
   // Habilitar Fast Refresh para React
-  if (typeof module !== 'undefined' && module.hot) {
-    module.hot.accept();
+  // @ts-ignore - hot may not be typed in RN
+  if (typeof module !== 'undefined' && (module as any)?.hot?.accept) {
+    (module as any).hot.accept();
   }
 
   // Configurar WebSocket para hot reload
@@ -45,10 +43,15 @@ function ErrorFallback({ error }: { error: Error }) {
 }
 
 export default function App() {
-  configureReanimatedLogger({
-    level: ReanimatedLogLevel.warn,
-    strict: true, // Reanimated runs in strict mode by default
-  });
+  // Reanimated logger config (guarded - optional in some environments)
+  const { configureReanimatedLogger, ReanimatedLogLevel } =
+    (Reanimated as any) ?? {};
+  if (typeof configureReanimatedLogger === 'function') {
+    configureReanimatedLogger({
+      level: ReanimatedLogLevel?.warn,
+      strict: true,
+    });
+  }
 
   return (
     <GluestackUIProvider config={config}>

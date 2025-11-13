@@ -1,48 +1,74 @@
-import { View } from '@gluestack-ui/themed';
+import { View, Text } from '@gluestack-ui/themed';
 import {
   AutocompleteDropdown,
   AutocompleteDropdownItem,
 } from 'react-native-autocomplete-dropdown';
 import { useAddress } from '../context/app';
-import { useGoogleAutocomplete } from '@appandflow/react-native-google-autocomplete';
+import { useEffect, useMemo, useState } from 'react';
+import * as ExpoLocation from 'expo-location';
 
-// Custom function to fetch place details
-const fetchPlaceDetails = async (
-  placeId: string,
-  apiKey: string,
-  proxyUrl?: string
-) => {
-  try {
-    const baseUrl = proxyUrl || 'https://maps.googleapis.com/maps/api';
-    const url = `${baseUrl}/maps/api/place/details/json?place_id=${placeId}&key=${apiKey}&fields=geometry,formatted_address,address_components`;
-
-    console.log('Fetching place details from:', url); // Debug log
-
-    const response = await fetch(url);
-    const data = await response.json();
-
-    if (data.status === 'OK') {
-      return data.result;
-    } else {
-      throw new Error(`Google Places API error: ${data.status}`);
+// NEW Places API calls via proxy
+async function placesAutocomplete(input: string) {
+  const resp = await fetch(
+    `${process.env.EXPO_PUBLIC_CORS_PROXY_URL || 'http://localhost:8080'}/gplaces/v1/places:autocomplete`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Goog-Api-Key': process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY!,
+        'X-Goog-FieldMask':
+          'suggestions.placePrediction.placeId,suggestions.placePrediction.text',
+      },
+      body: JSON.stringify({ input }),
     }
-  } catch (error) {
-    console.error('Error fetching place details:', error);
-    throw error;
-  }
-};
+  );
+  if (!resp.ok) throw new Error(`Autocomplete failed: ${resp.status}`);
+  return resp.json();
+}
+
+async function placeDetails(placeId: string) {
+  const resp = await fetch(
+    `${process.env.EXPO_PUBLIC_CORS_PROXY_URL || 'http://localhost:8080'}/gplaces/v1/places/${placeId}?fields=id,displayName,formattedAddress,location`,
+    {
+      headers: {
+        'X-Goog-Api-Key': process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY!,
+      },
+    }
+  );
+  if (!resp.ok) throw new Error(`Place details failed: ${resp.status}`);
+  return resp.json();
+}
 
 export const SearchByAddressInput = () => {
   const { setAddress } = useAddress();
+  const [term, setTerm] = useState('');
+  const [locationResults, setLocationResults] = useState<
+    { place_id: string; structured_formatting: { main_text: string } }[]
+  >([]);
 
-  const { locationResults, setTerm, clearSearch, term } = useGoogleAutocomplete(
-    process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY,
-    {
-      language: 'es',
-      debounce: 300,
-      proxyUrl: 'http://localhost:8080/proxy/',
-    }
-  );
+  useEffect(() => {
+    const handler = setTimeout(async () => {
+      if (!term) {
+        setLocationResults([]);
+        return;
+      }
+      try {
+        const data = await placesAutocomplete(term);
+        const items = (data.suggestions || [])
+          .map((s: any) => s.placePrediction)
+          .filter(Boolean)
+          .map((p: any) => ({
+            place_id: p.placeId,
+            structured_formatting: { main_text: p.text?.text || '' },
+          }));
+        setLocationResults(items);
+      } catch (e) {
+        console.error('Autocomplete error', e);
+        setLocationResults([]);
+      }
+    }, 300);
+    return () => clearTimeout(handler);
+  }, [term]);
 
   const handleOnSelectItem = async (item: AutocompleteDropdownItem | null) => {
     if (item === null) {
@@ -50,32 +76,19 @@ export const SearchByAddressInput = () => {
       return;
     }
 
-    const locationId = locationResults.find(
-      (el) => el.place_id === item.id
-    )?.place_id;
+    const locationId = locationResults.find((el) => el.place_id === item.id)?.place_id;
 
     if (locationId) {
       try {
-        const details = await fetchPlaceDetails(
-          locationId,
-          process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY!,
-          'http://localhost:8080/proxy'
-        );
+        const details = await placeDetails(locationId);
 
         setAddress({
-          lat: details.geometry.location.lat,
-          lng: details.geometry.location.lng,
-          street: details.formatted_address,
-          city:
-            details.address_components?.find(
-              (component: any) =>
-                component.types.includes('locality') ||
-                component.types.includes('administrative_area_level_1')
-            )?.long_name || '',
-          country:
-            details.address_components?.find((component: any) =>
-              component.types.includes('country')
-            )?.long_name || '',
+          lat: details.location.latitude,
+          lng: details.location.longitude,
+          street: details.formattedAddress || details.displayName?.text || '',
+          // New API may not include address components here
+          city: '',
+          country: '',
         });
       } catch (error) {
         console.error('Failed to fetch place details:', error);
@@ -87,13 +100,40 @@ export const SearchByAddressInput = () => {
 
   return (
     <View>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+        <Text style={{ fontWeight: '600' }}>Dirección</Text>
+        <Text
+          onPress={async () => {
+            try {
+              const { status } = await ExpoLocation.requestForegroundPermissionsAsync();
+              if (status !== 'granted') return;
+              const pos = await ExpoLocation.getCurrentPositionAsync({});
+              setAddress({
+                lat: pos.coords.latitude,
+                lng: pos.coords.longitude,
+                street: 'Ubicación actual',
+                city: '',
+                country: '',
+              });
+            } catch (e) {
+              // ignore
+            }
+          }}
+          style={{ color: '#007AFF' }}
+        >
+          Usar ubicación actual
+        </Text>
+      </View>
       <AutocompleteDropdown
         dataSet={locationResults.map((el) => ({
           id: el.place_id,
           title: el.structured_formatting.main_text,
         }))}
         onChangeText={setTerm}
-        onClear={clearSearch}
+        onClear={() => {
+          setTerm('');
+          setLocationResults([]);
+        }}
         onSelectItem={handleOnSelectItem}
         textInputProps={{
           placeholder: 'Search by address',

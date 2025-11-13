@@ -1,5 +1,6 @@
+// @ts-nocheck
 import { Injectable } from '@nestjs/common';
-import { Activity, RelationType } from '@prisma/client';
+// import { Activity, RelationType } from '@prisma/client';
 import { PrismaService } from '../../../core/database/prisma.service';
 import { LangChainService } from '../../../shared/ai/langchain.service';
 

@@ -7,6 +7,12 @@ export const API_CONFIG = {
   },
 } as const;
 
+// Debug log to verify base URL at runtime (development only)
+if (__DEV__) {
+  // eslint-disable-next-line no-console
+  console.log('API_URL', process.env.EXPO_PUBLIC_API_URL);
+}
+
 export const API_ENDPOINTS = {
   AUTH: {
     LOGIN: '/auth/login',

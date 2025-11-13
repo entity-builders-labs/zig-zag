@@ -7,6 +7,11 @@ export interface Activity {
   order: number;
   formattedAddress: string;
   knownActivityTypeName: string;
+  rating?: number;
+  ratingCount?: number;
+  priceLevel?: number;
+  distance?: number; // computed in backend (km)
+  weightedScore?: number; // bayesian weighted rating, computed in backend
 }
 
 export type PaginatedResponseActivity = Activity[];

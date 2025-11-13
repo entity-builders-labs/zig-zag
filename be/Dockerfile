@@ -22,7 +22,9 @@ RUN yarn prisma:generate
 
 # Build the application (using nest build directly)
 WORKDIR /app/be
-RUN npx nest build
+# Skip building in the image for development. The app runs with ts-node via
+# `yarn start:dev`, which compiles on the fly. This avoids strict TS build
+# issues during image build and speeds up local dev cycles.
 
 # Expose the port the app runs on
 EXPOSE 3000

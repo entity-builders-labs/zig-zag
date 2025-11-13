@@ -1,7 +1,9 @@
 import React from 'react';
 import { StyleSheet, Dimensions, View, Text } from 'react-native';
-import MapView, { Region, Marker } from 'react-native-maps';
+import MapView, { Region, Marker, Circle } from 'react-native-maps';
 import { useMap } from '../../context/app';
+import { useAddress } from '../../context/app';
+import { useSearchRadius } from '../../context/app';
 import { useActivities } from '../../context/app';
 import { MapProps } from './types';
 import { Activity } from '../activities/types';
@@ -23,7 +25,9 @@ const createMarkersFromActivities = (activities: Activity[]): MarkerType[] => {
 
 export const Map: React.FC<MapProps> = ({ markers: propMarkers }) => {
   const { center } = useMap();
+  const { address } = useAddress();
   const { activities } = useActivities();
+  const { radiusMeters } = useSearchRadius();
 
   const region: Region = {
     latitude: center.lat,
@@ -40,10 +44,25 @@ export const Map: React.FC<MapProps> = ({ markers: propMarkers }) => {
       <MapView
         style={styles.map}
         region={region}
-        showsUserLocation={true}
+        // Mostrar la ubicación real solo como referencia, pero marcamos el centro elegido
+        showsUserLocation={false}
         toolbarEnabled
         zoomControlEnabled
       >
+        {/* Pin del centro seleccionado (dirección o current location) */}
+        <Marker
+          coordinate={{ latitude: center.lat, longitude: center.lng }}
+          title={address?.street || 'Centro seleccionado'}
+          description={address ? `${address.lat.toFixed(4)}, ${address.lng.toFixed(4)}` : ''}
+          pinColor="#007AFF"
+        />
+        {/* Círculo del radio seleccionado */}
+        <Circle
+          center={{ latitude: center.lat, longitude: center.lng }}
+          radius={radiusMeters}
+          strokeColor="rgba(0,122,255,0.6)"
+          fillColor="rgba(0,122,255,0.15)"
+        />
         {markers.map((marker) => (
           <Marker
             key={marker.id}

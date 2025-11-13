@@ -1,4 +1,13 @@
-import { IsNumber, Min, Max, IsOptional, IsBoolean } from 'class-validator';
+import {
+  IsNumber,
+  Min,
+  Max,
+  IsOptional,
+  IsBoolean,
+  IsArray,
+  IsString,
+  ArrayNotEmpty,
+} from 'class-validator';
 import { Transform } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -73,4 +82,14 @@ export class HybridSearchDto {
   })
   @IsBoolean({ message: 'ForceRefresh must be a boolean value' })
   forceRefresh?: boolean;
+
+  @ApiProperty({
+    description: 'Filter by known activity type names',
+    required: false,
+    example: ['cultural', 'food', 'outdoor'],
+  })
+  @IsOptional()
+  @IsArray({ message: 'types must be an array of strings' })
+  @IsString({ each: true, message: 'each type must be a string' })
+  types?: string[];
 }

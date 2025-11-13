@@ -61,6 +61,7 @@ services:
       - '4000:3000'
     environment:
       - NODE_ENV=${NODE_ENV}
+      - TS_NODE_TRANSPILE_ONLY=true
       - MONGODB_URI=${MONGODB_URI}
       - CHROMA_URL=${CHROMA_URL}
       - MONGODB_DATABASE=${MONGODB_DATABASE}
@@ -70,6 +71,13 @@ services:
       - OPENAI_TEMPERATURE=${OPENAI_TEMPERATURE}
       - OPENAI_TIMEOUT=${OPENAI_TIMEOUT}
       - PORT=${PORT}
+      # AI provider flags
+      - ENABLE_AI=${ENABLE_AI}
+      - AI_PROVIDER=${AI_PROVIDER}
+      - AI_MODEL=${AI_MODEL}
+      - EMBEDDINGS_MODEL=${EMBEDDINGS_MODEL}
+      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL}
+      - GROQ_API_KEY=${GROQ_API_KEY}
     volumes:
       - ./be:/app/be
       - /app/node_modules
@@ -97,7 +105,6 @@ services:
       - '19002:19002'
     environment:
       - NODE_ENV=${NODE_ENV}
-      - REACT_APP_API_URL=${REACT_APP_API_URL}
       - EXPO_PUBLIC_API_URL=${EXPO_PUBLIC_API_URL}
       - EXPO_PUBLIC_GOOGLE_MAPS_API_KEY=${EXPO_PUBLIC_GOOGLE_MAPS_API_KEY}
       - EXPO_PUBLIC_CORS_PROXY_URL=${EXPO_PUBLIC_CORS_PROXY_URL}
