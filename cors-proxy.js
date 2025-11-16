@@ -3,7 +3,7 @@ const { createProxyMiddleware } = require('http-proxy-middleware');
 const cors = require('cors');
 
 const app = express();
-const PORT = 8080;
+const PORT = process.env.PORT || 8080;
 
 // Enable CORS for all routes with specific origins
 app.use(
@@ -17,7 +17,10 @@ app.use(
       'http://localhost:3000', // Add if using web
       'http://127.0.0.1:19006', // Add this
       'http://localhost:4001',
-    ],
+      // Cloud Run URLs - actualizar con tus URLs reales
+      process.env.FRONTEND_URL,
+      process.env.EXPO_PUBLIC_API_URL,
+    ].filter(Boolean), // Remove undefined values
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: [

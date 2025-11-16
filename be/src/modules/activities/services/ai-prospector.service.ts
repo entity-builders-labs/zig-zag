@@ -19,13 +19,12 @@ export class AiProspectorService {
   ) {}
 
   private buildPrompt(dto: AiDiscoverDto) {
-    const cats = (dto.types && dto.types.length ? dto.types : ['cultural','outdoor','entertainment','food','nightlife']).join(', ');
     return `Devuelve una lista JSON de hasta ${dto.limit ?? 20} lugares (nombre y categoria) relevantes para turismo/ocio cerca de (lat: ${dto.latitude}, lng: ${dto.longitude}) en un radio de ${dto.radius ?? 5000}m.
 Categorias permitidas: cultural | outdoor | entertainment | food | nightlife.
 ${dto.seedQuery ? `Contexto: ${dto.seedQuery}\n` : ''}
 Formato estricto (solo JSON, sin texto extra):
 [
-  { "name": "string", "category": "cultural|outdoor|entertainment|food|nightlife", "notes": "string" }
+  {{ "name": "string", "category": "cultural|outdoor|entertainment|food|nightlife", "notes": "string" }}
 ]
 `;
   }
@@ -101,7 +100,8 @@ Formato estricto (solo JSON, sin texto extra):
       Math.sin(dLat / 2) * Math.sin(dLat / 2) +
       Math.cos((lat1 * Math.PI) / 180) *
         Math.cos((lat2 * Math.PI) / 180) *
-        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c;
   }
@@ -143,7 +143,13 @@ Formato estricto (solo JSON, sin texto extra):
 
         // Category: prefer LLM category else default
         const category = (item.category || '').toLowerCase();
-        const knownCategory = ['cultural','outdoor','entertainment','food','nightlife'].includes(category)
+        const knownCategory = [
+          'cultural',
+          'outdoor',
+          'entertainment',
+          'food',
+          'nightlife',
+        ].includes(category)
           ? category
           : undefined;
 
@@ -183,17 +189,27 @@ Formato estricto (solo JSON, sin texto extra):
     }
 
     if (createdActivities.length > 0) {
-      try { await this.ai.saveActivityEmbedding(createdActivities as any); } catch {}
+      try {
+        await this.ai.saveActivityEmbedding(createdActivities as any);
+      } catch {}
     }
 
     return { created, duplicates, rejected, activities: createdActivities };
   }
 
   private async ensureAiSource(): Promise<string> {
-    const existing = await this.prisma.source.findUnique({ where: { name: 'ai-seeded' } });
+    const existing = await this.prisma.source.findUnique({
+      where: { name: 'ai-seeded' },
+    });
     if (existing) return existing.id;
     const created = await this.prisma.source.create({
-      data: { name: 'ai-seeded', type: 'prospector', baseUrl: 'local-llm', createdAt: new Date(), updatedAt: new Date() },
+      data: {
+        name: 'ai-seeded',
+        type: 'prospector',
+        baseUrl: 'local-llm',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
     });
     return created.id;
   }

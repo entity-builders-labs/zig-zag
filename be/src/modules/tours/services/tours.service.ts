@@ -11,6 +11,7 @@ import { UpdateTourDto } from '../dto/update-tour.dto';
 // import { Activity } from '@prisma/client';
 import { ActivitiesService } from '../../activities/services/activities.service';
 import { LangChainService } from '../../../shared/ai/langchain.service';
+import { isValidId } from '../../../shared/utils/id-validator';
 import {
   ChatPromptTemplate,
   HumanMessagePromptTemplate,
@@ -30,6 +31,102 @@ export class ToursService {
   ) {}
 
   private createTourChain() {
+    const chatModel = this.langChainService.getChatModel();
+
+    // If chatModel is null (non-OpenAI providers), return a custom chain
+    // that uses generateChatResponse with JSON format instructions
+    if (!chatModel) {
+      return {
+        invoke: async (input: { input: string; activities: string }) => {
+          const systemPrompt = `You are a tour planning expert. Create well-organized tour itineraries by:
+- Following a logical geographical sequence
+- Progressing naturally throughout the day
+- Considering operational hours
+- Including reasonable transition times
+- Creating balanced activity type mixes
+
+For each activity, provide detailed notes that include:
+- What visitors can expect to see or experience
+- Key highlights and points of interest
+- Practical tips (best photo spots, recommended items to bring, etc.)
+- Any relevant historical or cultural context
+- Specific recommendations based on the activity type
+
+IMPORTANT: You must return ONLY valid JSON, no markdown, no code blocks, just pure JSON.
+
+Return a JSON object with this exact structure:
+{{
+  "title": "string",
+  "description": "string",
+  "estimatedDuration": number,
+  "activities": [
+    {{
+      "activityId": "string (optional)",
+      "activityName": "string",
+      "type": "string",
+      "dayNumber": number,
+      "startTime": "string (HH:MM format)",
+      "duration": number,
+      "travelTimeToNext": number,
+      "distanceToNext": number,
+      "notes": "string (detailed notes about the activity)",
+      "latitude": number,
+      "longitude": number
+    }}
+  ],
+  "totalDays": number,
+  "totalDistance": number,
+  "estimatedBudget": number,
+  "recommendedGroupSize": number,
+  "activitiesLatLng": [
+    {{
+      "lat": number,
+      "lng": number
+    }}
+  ]
+}}`;
+
+          const userPrompt = `${input.input}
+
+Available activities: ${input.activities || 'No specific activities provided. Create a general tour.'}
+
+Remember: Return ONLY valid JSON, no markdown formatting, no code blocks.`;
+
+          const response = await this.langChainService.generateChatResponse(
+            systemPrompt,
+            userPrompt,
+            {},
+            {},
+          );
+
+          // Clean the response - remove markdown code blocks if present
+          let cleanedResponse = response.trim();
+          if (cleanedResponse.startsWith('```json')) {
+            cleanedResponse = cleanedResponse.replace(/^```json\s*/, '');
+          }
+          if (cleanedResponse.startsWith('```')) {
+            cleanedResponse = cleanedResponse.replace(/^```\s*/, '');
+          }
+          if (cleanedResponse.endsWith('```')) {
+            cleanedResponse = cleanedResponse.replace(/\s*```$/, '');
+          }
+
+          try {
+            return JSON.parse(cleanedResponse);
+          } catch (parseError) {
+            this.logger.error(
+              `Failed to parse AI response as JSON: ${parseError.message}`,
+            );
+            this.logger.debug(`Raw response: ${cleanedResponse}`);
+            throw new BadRequestException(
+              `AI returned invalid JSON format: ${parseError.message}`,
+            );
+          }
+        },
+      };
+    }
+
+    // OpenAI provider - use function calling
     const tourSchema = {
       name: 'tour',
       description:
@@ -111,7 +208,7 @@ export class ToursService {
 
     return RunnableSequence.from([
       prompt,
-      this.langChainService.getChatModel().bind({
+      chatModel.bind({
         functions: [tourSchema],
         function_call: { name: 'tour' },
       }),
@@ -710,16 +807,10 @@ Provide a concise, engaging explanation (2-3 sentences) that highlights the main
 
     // Validate activity IDs if provided
     if (activities?.length) {
-      // Helper function to validate MongoDB ObjectID
-      const isValidObjectId = (id: any): id is string => {
-        if (!id || typeof id !== 'string') return false;
-        // MongoDB ObjectID is 24 hex characters
-        return /^[0-9a-fA-F]{24}$/.test(id);
-      };
-
+      // Validate activity IDs (supports both UUID and ObjectId for migration)
       const activityIds = activities
         .map((a) => a.activityId)
-        .filter((id): id is string => isValidObjectId(id));
+        .filter((id): id is string => isValidId(id));
 
       if (activityIds.length > 0) {
         try {
@@ -927,14 +1018,10 @@ Provide a concise, engaging explanation (2-3 sentences) that highlights the main
           options: options,
         }, // Store full AI response in metadata
         activities: aiResponse.activities?.map((act: any, index: number) => {
-          // Validate activityId if provided
-          const isValidObjectId = (id: any): id is string => {
-            if (!id || typeof id !== 'string') return false;
-            return /^[0-9a-fA-F]{24}$/.test(id);
-          };
+          // Validate activityId if provided (supp  orts UUID and ObjectId)
 
           const validActivityId =
-            act.activityId && isValidObjectId(act.activityId)
+            act.activityId && isValidId(act.activityId)
               ? act.activityId
               : undefined;
 
@@ -1042,14 +1129,9 @@ Provide a concise, engaging explanation (2-3 sentences) that highlights the main
       prompt: prompt,
       metadata: aiResponse, // Store full AI response in metadata
       activities: aiResponse.activities?.map((act, index) => {
-        // Validate activityId if provided
-        const isValidObjectId = (id: any): id is string => {
-          if (!id || typeof id !== 'string') return false;
-          return /^[0-9a-fA-F]{24}$/.test(id);
-        };
-
+        // Validate activityId if provided (supports UUID and ObjectId)
         const validActivityId =
-          act.activityId && isValidObjectId(act.activityId)
+          act.activityId && isValidId(act.activityId)
             ? act.activityId
             : undefined;
 
