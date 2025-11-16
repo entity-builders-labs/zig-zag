@@ -1,56 +1,24 @@
 services:
-  mongodb:
-    image: mongo:7.0
-    container_name: zigzag-mongodb
+  postgres:
+    image: postgres:15-alpine
+    container_name: zigzag-postgres
     ports:
-      - '27018:27017'
+      - '5432:5432'
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+      - POSTGRES_DB=${POSTGRES_DB:-zigzag}
     volumes:
-      - mongodb_data:/data/db
+      - postgres_data:/var/lib/postgresql/data
     networks:
       - app-network
-    command: ['--replSet', 'rs0']
     healthcheck:
-      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-postgres}']
       interval: 10s
       timeout: 5s
       retries: 5
-      start_period: 30s
-
-  mongodb-setup:
-    image: mongo:7.0
-    container_name: zigzag-mongodb-setup
-    depends_on:
-      mongodb:
-        condition: service_healthy
-    networks:
-      - app-network
-    command: >
-      bash -c "
-        echo 'Waiting for MongoDB to be ready...'
-        sleep 10
-        
-        echo 'Checking if replica set is already initialized...'
-        if mongosh --host mongodb:27017 --quiet --eval 'rs.status()' 2>/dev/null; then
-          echo 'Replica set already initialized'
-        else
-          echo 'Initializing replica set...'
-          mongosh --host mongodb:27017 --quiet --eval '
-            rs.initiate({
-              _id: \"rs0\",
-              members: [{ _id: 0, host: \"mongodb:27017\" }]
-            })
-          '
-          
-          echo 'Waiting for replica set to become primary...'
-          until mongosh --host mongodb:27017 --quiet --eval 'rs.isMaster().ismaster' | grep -q true; do
-            echo 'Waiting...'
-            sleep 2
-          done
-        fi
-        
-        echo 'MongoDB setup completed successfully'
-      "
-    restart: "no"
+      start_period: 10s
+    restart: unless-stopped
 
   backend:
     build:
@@ -62,9 +30,10 @@ services:
     environment:
       - NODE_ENV=${NODE_ENV}
       - TS_NODE_TRANSPILE_ONLY=true
-      - MONGODB_URI=${MONGODB_URI}
+      # Force postgres hostname for Docker network (hardcoded to override .env)
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/zigzag
+      - DIRECT_URL=postgresql://postgres:postgres@postgres:5432/zigzag
       - CHROMA_URL=${CHROMA_URL}
-      - MONGODB_DATABASE=${MONGODB_DATABASE}
       - GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY}
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - OPENAI_DEFAULT_MODEL=${OPENAI_DEFAULT_MODEL}
@@ -77,20 +46,39 @@ services:
       - AI_MODEL=${AI_MODEL}
       - EMBEDDINGS_MODEL=${EMBEDDINGS_MODEL}
       - OLLAMA_BASE_URL=${OLLAMA_BASE_URL}
+      - OLLAMA_API_KEY=${OLLAMA_API_KEY}
       - GROQ_API_KEY=${GROQ_API_KEY}
     volumes:
       - ./be:/app/be
       - /app/node_modules
     depends_on:
-      mongodb-setup:
-        condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
     networks:
       - app-network
     restart: unless-stopped
     command: >
       sh -c "
         echo 'Starting backend application...' &&
-        npx prisma db push &&
+        echo 'DATABASE_URL from env: $DATABASE_URL' &&
+        # Export to ensure it's available, then unset any .env interference
+        export DATABASE_URL='postgresql://postgres:postgres@postgres:5432/zigzag' &&
+        export DIRECT_URL='postgresql://postgres:postgres@postgres:5432/zigzag' &&
+        # Remove .env files from be directory to prevent Prisma from reading them
+        rm -f /app/be/.env /app/.env 2>/dev/null || true &&
+        echo 'Using DATABASE_URL: $DATABASE_URL' &&
+        cd /app/be &&
+        echo 'Generating Prisma Client...' &&
+        npx prisma generate &&
+        echo 'Syncing database schema (development mode)...' &&
+        if [ -d "prisma/migrations" ] && [ "$(ls -A prisma/migrations 2>/dev/null)" ]; then
+          echo 'Migrations found, applying...' &&
+          npx prisma migrate deploy
+        else
+          echo 'No migrations found, using db push (development only)...' &&
+          npx prisma db push --skip-generate --accept-data-loss || true
+        fi &&
+        echo 'Starting application...' &&
         yarn start:dev
       "
 
@@ -168,5 +156,5 @@ networks:
     driver: bridge
 
 volumes:
-  mongodb_data:
+  postgres_data:
   chroma_data:

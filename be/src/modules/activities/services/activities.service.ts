@@ -27,7 +27,10 @@ export class ActivitiesService {
 
   async create(createActivityDto: CreateActivityDto): Promise<any> {
     // Fast-path: avoid duplicate error by checking the composite unique first
-    if ((createActivityDto as any).sourceId && (createActivityDto as any).externalId) {
+    if (
+      (createActivityDto as any).sourceId &&
+      (createActivityDto as any).externalId
+    ) {
       const existing = await this.prisma.activity.findUnique({
         where: {
           sourceId_externalId: {
@@ -258,7 +261,8 @@ export class ActivitiesService {
           const R = Number(activity.rating ?? 0);
           const m = PRIOR_WEIGHT;
           const C = PRIOR_MEAN;
-          const weightedScore = v + m > 0 ? (v / (v + m)) * R + (m / (v + m)) * C : 0;
+          const weightedScore =
+            v + m > 0 ? (v / (v + m)) * R + (m / (v + m)) * C : 0;
           return { ...activity, distance, weightedScore };
         })
         .filter((activity) => activity.distance <= radiusKm)
@@ -338,10 +342,7 @@ export class ActivitiesService {
     }
   }
 
-  async update(
-    id: string,
-    updateActivityDto: UpdateActivityDto,
-  ): Promise<any> {
+  async update(id: string, updateActivityDto: UpdateActivityDto): Promise<any> {
     try {
       this.logger.debug(
         `Updating activity ${id} with: ${JSON.stringify(updateActivityDto)}`,
@@ -418,13 +419,14 @@ export class ActivitiesService {
     for (const doc of results) {
       const meta = (doc.metadata ?? {}) as any;
       const candidateId = meta.activityId || meta.id || (doc as any).id;
-      if (candidateId && candidateId !== id) candidateIds.push(String(candidateId));
+      if (candidateId && candidateId !== id)
+        candidateIds.push(String(candidateId));
       if (candidateIds.length >= limit) break;
     }
 
     if (candidateIds.length === 0) return [];
 
-    // Fetch activities by IDs (Mongo ObjectId strings)
+    // Fetch activities by IDs (UUID or ObjectId strings - supports both during migration)
     const activities = await this.prisma.activity.findMany({
       where: { id: { in: candidateIds } },
     });
@@ -435,9 +437,7 @@ export class ActivitiesService {
     );
   }
 
-  async findNearbyActivities(
-    findNearbyDto: FindNearbyDto,
-  ): Promise<any[]> {
+  async findNearbyActivities(findNearbyDto: FindNearbyDto): Promise<any[]> {
     try {
       const { latitude, longitude, radius, limit = 10 } = findNearbyDto;
 
@@ -446,7 +446,8 @@ export class ActivitiesService {
       );
 
       // Interpret incoming radius in meters in this DTO as well if needed
-      const radiusKm = Number(radius) > 100 ? Number(radius) / 1000 : Number(radius);
+      const radiusKm =
+        Number(radius) > 100 ? Number(radius) / 1000 : Number(radius);
       const radiusInDegrees = radiusKm / 111.32;
 
       // Calculate bounding box

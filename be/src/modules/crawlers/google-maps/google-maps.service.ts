@@ -376,7 +376,13 @@ export class GoogleMapsService implements OnModuleInit {
   }): Promise<string | null> {
     try {
       // If AI is not configured or fails, we'll just return null and let callers default
-      const categories = ['cultural', 'outdoor', 'entertainment', 'food', 'nightlife'];
+      const categories = [
+        'cultural',
+        'outdoor',
+        'entertainment',
+        'food',
+        'nightlife',
+      ];
       const prompt = `Given the following place data, choose the single best category from this exact set: cultural | outdoor | entertainment | food | nightlife.
 
 Place JSON:
@@ -384,19 +390,22 @@ Place JSON:
 
 Answer ONLY with one word from the set above, no punctuation, no explanation.`;
 
-      const response = await this.aiService.generateCompletionResponse(
-        prompt,
-        { placeJson: JSON.stringify(place) } as any,
-      );
+      const response = await this.aiService.generateCompletionResponse(prompt, {
+        placeJson: JSON.stringify(place),
+      } as any);
 
-      const normalized = String(response || '').trim().toLowerCase();
+      const normalized = String(response || '')
+        .trim()
+        .toLowerCase();
       if (categories.includes(normalized)) return normalized;
       // Sometimes models add quotes or periods
       const cleaned = normalized.replace(/[^a-z]/g, '');
       if (categories.includes(cleaned)) return cleaned;
       return null;
     } catch (err) {
-      this.logger.warn('AI category classification failed; falling back to defaults');
+      this.logger.warn(
+        'AI category classification failed; falling back to defaults',
+      );
       return null;
     }
   }
@@ -465,7 +474,8 @@ Answer ONLY with one word from the set above, no punctuation, no explanation.`;
         placesData = nearbyResp.data.places || [];
       } else {
         // Fallback: searchText with keyword, biased to location
-        const query = `${searchConfig.type.replace('_', ' ')} ${searchConfig.keyword}`.trim();
+        const query =
+          `${searchConfig.type.replace('_', ' ')} ${searchConfig.keyword}`.trim();
         const textResp = await axios.post(
           'https://places.googleapis.com/v1/places:searchText',
           {
@@ -663,7 +673,10 @@ Answer ONLY with one word from the set above, no punctuation, no explanation.`;
                   nightlife: ActivityTypes.NIGHTLIFE.defaultDuration,
                 } as const;
 
-                const duration = mapped?.duration ?? defaultDurationsByCategory[categoryName] ?? 2.0;
+                const duration =
+                  mapped?.duration ??
+                  defaultDurationsByCategory[categoryName] ??
+                  2.0;
 
                 return {
                   name: place.name,
@@ -727,7 +740,14 @@ Answer ONLY with one word from the set above, no punctuation, no explanation.`;
       this.logger.debug(`Saved ${activities.length} activities to database`);
 
       if (activities.length > 0) {
-        await this.aiService.saveActivityEmbedding(activities);
+        try {
+          await this.aiService.saveActivityEmbedding(activities);
+        } catch (error) {
+          // Log error but don't fail the entire crawling process
+          this.logger.error(
+            `Failed to save embeddings, but activities were saved: ${error.message}`,
+          );
+        }
       }
 
       return {

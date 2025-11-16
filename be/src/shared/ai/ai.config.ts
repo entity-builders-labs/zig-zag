@@ -16,6 +16,7 @@ export interface AiConfig {
   groqApiKey?: string;
   // Ollama
   ollamaBaseUrl?: string;
+  ollamaApiKey?: string;
   // Embeddings
   embeddingsModel?: string;
 }
@@ -40,7 +41,7 @@ export default registerAs('ai', (): AiConfig => {
     openaiApiKey: process.env.OPENAI_API_KEY,
     groqApiKey: process.env.GROQ_API_KEY,
     ollamaBaseUrl: process.env.OLLAMA_BASE_URL || 'http://localhost:11434',
-    embeddingsModel:
-      process.env.EMBEDDINGS_MODEL || 'nomic-embed-text',
+    ollamaApiKey: process.env.OLLAMA_API_KEY,
+    embeddingsModel: process.env.EMBEDDINGS_MODEL || 'nomic-embed-text',
   };
 });

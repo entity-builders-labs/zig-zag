@@ -4,12 +4,12 @@ generator client {
 }
 
 datasource db {
-  provider = "mongodb"
-  url      = env("MONGODB_URI")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model Activity {
-  id          String  @id @default(auto()) @map("_id") @db.ObjectId
+  id          String  @id @default(uuid())
   name        String
   description String?
 
@@ -27,8 +27,8 @@ model Activity {
   address   String? // Simple address string
 
   // Source relationship - optional (AI-generated might not have source)
-  sourceId   String? @db.ObjectId
-  source     Source? @relation(fields: [sourceId], references: [id])
+  sourceId   String?
+  source     Source? @relation(fields: [sourceId], references: [id], onDelete: SetNull)
   externalId String? // Optional for AI-generated activities
 
   // Google Places additional fields
@@ -51,18 +51,20 @@ model Activity {
 
   // Optional relationships
   knownActivityTypeName String?
-  KnownActivityType     KnownActivityType? @relation(fields: [knownActivityTypeName], references: [name])
+  KnownActivityType     KnownActivityType? @relation(fields: [knownActivityTypeName], references: [name], onDelete: SetNull)
   TourActivity          TourActivity[]
 
   sourceRelations ActivityRelationship[] @relation("SourceActivities")
   targetRelations ActivityRelationship[] @relation("TargetActivities")
 
+  @@unique([sourceId, externalId])
   @@index([latitude, longitude]) // For location queries
+  @@index([sourceId])
   @@map("activity")
 }
 
 model KnownActivityType {
-  id          String     @id @default(auto()) @map("_id") @db.ObjectId
+  id          String     @id @default(uuid())
   name        String     @unique
   description String?
   icon        String?
@@ -75,7 +77,7 @@ model KnownActivityType {
 }
 
 model Tour {
-  id          String  @id @default(auto()) @map("_id") @db.ObjectId
+  id          String  @id @default(uuid())
   name        String
   description String?
 
@@ -83,7 +85,7 @@ model Tour {
   price        Float?
   duration     Float? // Duration in hours/days
   maxGroupSize Int?
-  startDates   DateTime[] @default([]) // Empty array allowed
+  startDates   DateTime[] @default([]) // Empty array allowed - PostgreSQL supports arrays
 
   // Additional flexible fields
   totalDays            Int? // Total days of the tour
@@ -108,9 +110,9 @@ model Tour {
 }
 
 model TourActivity {
-  id               String    @id @default(auto()) @map("_id") @db.ObjectId
-  tourId           String    @db.ObjectId
-  activityId       String?   @db.ObjectId // Optional - might be creating activity inline
+  id               String    @id @default(uuid())
+  tourId           String
+  activityId       String? // Optional - might be creating activity inline
   startTime        DateTime?
   duration         Float? // Duration for this activity in the tour context
   notes            String? // Detailed notes from AI
@@ -126,8 +128,8 @@ model TourActivity {
   activityLongitude Float?
   activityData      Json? // Store full activity data if creating inline
 
-  tour     Tour      @relation(fields: [tourId], references: [id])
-  activity Activity? @relation(fields: [activityId], references: [id])
+  tour     Tour      @relation(fields: [tourId], references: [id], onDelete: Cascade)
+  activity Activity? @relation(fields: [activityId], references: [id], onDelete: SetNull)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -144,7 +146,7 @@ enum Difficulty {
 }
 
 model CrawlerSearch {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  id          String   @id @default(uuid())
   latitude    Float
   longitude   Float
   deviceToken String?
@@ -156,7 +158,7 @@ model CrawlerSearch {
 }
 
 model Source {
-  id         String     @id @default(auto()) @map("_id") @db.ObjectId
+  id         String     @id @default(uuid())
   name       String     @unique
   type       String     @default("external") // "external", "ai", "manual"
   baseUrl    String?
@@ -174,9 +176,9 @@ enum RelationType {
 }
 
 model ActivityRelationship {
-  id                     String       @id @default(auto()) @map("_id") @db.ObjectId
-  sourceActivityId       String       @db.ObjectId
-  targetActivityId       String       @db.ObjectId
+  id                     String       @id @default(uuid())
+  sourceActivityId       String
+  targetActivityId       String
   relationType           RelationType
   compatibilityScore     Int
   timeCompatibilityScore Int
@@ -187,8 +189,8 @@ model ActivityRelationship {
   metadata               Json?
   createdAt              DateTime     @default(now())
   updatedAt              DateTime     @updatedAt
-  sourceActivity         Activity     @relation("SourceActivities", fields: [sourceActivityId], references: [id])
-  targetActivity         Activity     @relation("TargetActivities", fields: [targetActivityId], references: [id])
+  sourceActivity         Activity     @relation("SourceActivities", fields: [sourceActivityId], references: [id], onDelete: Cascade)
+  targetActivity         Activity     @relation("TargetActivities", fields: [targetActivityId], references: [id], onDelete: Cascade)
 
   @@index([sourceActivityId])
   @@index([targetActivityId])
