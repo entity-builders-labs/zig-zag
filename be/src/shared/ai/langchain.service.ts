@@ -53,30 +53,110 @@ export class LangChainService {
     this.initializeVectorStore();
   }
 
+  // Helper to get Ollama request headers with authentication if configured
+  private getOllamaHeaders(): Record<string, string> {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+    // Only add auth header if API key is explicitly set and non-empty
+    if (
+      this.config.ollamaApiKey &&
+      this.config.ollamaApiKey.trim().length > 0
+    ) {
+      headers['Authorization'] = `Bearer ${this.config.ollamaApiKey.trim()}`;
+    }
+    return headers;
+  }
+
   // Minimal HTTP adapter for Ollama embeddings API
   private createOllamaEmbeddingsAdapter(baseUrl: string, model: string) {
+    const makeRequest = async (
+      url: string,
+      body: any,
+      withAuth: boolean,
+    ): Promise<Response> => {
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      if (
+        withAuth &&
+        this.config.ollamaApiKey &&
+        this.config.ollamaApiKey.trim().length > 0
+      ) {
+        headers['Authorization'] = `Bearer ${this.config.ollamaApiKey.trim()}`;
+      }
+      return fetch(url, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(body),
+      } as any);
+    };
+
     return {
       embedDocuments: async (texts: string[]) => {
         const vectors: number[][] = [];
+        const hasAuth =
+          this.config.ollamaApiKey &&
+          this.config.ollamaApiKey.trim().length > 0;
+
         for (const text of texts) {
-          const resp = await fetch(`${baseUrl}/api/embeddings`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ model, input: text }),
-          } as any);
-          if (!resp.ok) throw new Error(`Ollama embeddings error ${resp.status}`);
+          let resp = await makeRequest(
+            `${baseUrl}/api/embed`,
+            { model, input: text },
+            hasAuth,
+          );
+
+          // If 401 with auth, try without auth (for local Ollama instances)
+          if (!resp.ok && resp.status === 401 && hasAuth) {
+            this.logger.warn(
+              'Ollama embeddings: 401 with auth, retrying without authentication',
+            );
+            resp = await makeRequest(
+              `${baseUrl}/api/embed`,
+              { model, input: text },
+              false,
+            );
+          }
+
+          if (!resp.ok) {
+            const errorText = await resp.text().catch(() => 'Unknown error');
+            throw new Error(
+              `Ollama embeddings error ${resp.status}: ${errorText}`,
+            );
+          }
           const data = await resp.json();
           vectors.push(data.embedding || data.data?.[0]?.embedding);
         }
         return vectors;
       },
       embedQuery: async (text: string) => {
-        const resp = await fetch(`${baseUrl}/api/embeddings`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ model, input: text }),
-        } as any);
-        if (!resp.ok) throw new Error(`Ollama embeddings error ${resp.status}`);
+        const hasAuth =
+          this.config.ollamaApiKey &&
+          this.config.ollamaApiKey.trim().length > 0;
+        let resp = await makeRequest(
+          `${baseUrl}/api/embed`,
+          { model, prompt: text },
+          hasAuth,
+        );
+
+        // If 401 with auth, try without auth (for local Ollama instances)
+        if (!resp.ok && resp.status === 401 && hasAuth) {
+          this.logger.warn(
+            'Ollama embeddings: 401 with auth, retrying without authentication',
+          );
+          resp = await makeRequest(
+            `${baseUrl}/api/embed`,
+            { model, prompt: text },
+            false,
+          );
+        }
+
+        if (!resp.ok) {
+          const errorText = await resp.text().catch(() => 'Unknown error');
+          throw new Error(
+            `Ollama embeddings error ${resp.status}: ${errorText}`,
+          );
+        }
         const data = await resp.json();
         return data.embedding || data.data?.[0]?.embedding;
       },
@@ -94,28 +174,34 @@ export class LangChainService {
         this.embeddings = this.createOllamaEmbeddingsAdapter(baseUrl, model);
 
         if (this.config.chromaUrl) {
-          this.vectorStore = await Chroma.fromDocuments(
-            [],
-            this.embeddings,
-            { collectionName, url: this.config.chromaUrl } as any,
-          );
+          this.vectorStore = await Chroma.fromDocuments([], this.embeddings, {
+            collectionName,
+            url: this.config.chromaUrl,
+          } as any);
         } else {
-          this.vectorStore = await Chroma.fromDocuments([], this.embeddings, { collectionName });
+          this.vectorStore = await Chroma.fromDocuments([], this.embeddings, {
+            collectionName,
+          });
         }
-        this.logger.log(`Chroma initialized with Ollama embeddings (model=${model}).`);
+        this.logger.log(
+          `Chroma initialized with Ollama embeddings (model=${model}).`,
+        );
         return;
       }
 
       if (provider === 'openai' && this.config.openaiApiKey) {
-        this.embeddings = new OpenAIEmbeddings({ openAIApiKey: this.config.openaiApiKey });
+        this.embeddings = new OpenAIEmbeddings({
+          openAIApiKey: this.config.openaiApiKey,
+        });
         if (this.config.chromaUrl) {
-          this.vectorStore = await Chroma.fromDocuments(
-            [],
-            this.embeddings,
-            { collectionName, url: this.config.chromaUrl } as any,
-          );
+          this.vectorStore = await Chroma.fromDocuments([], this.embeddings, {
+            collectionName,
+            url: this.config.chromaUrl,
+          } as any);
         } else {
-          this.vectorStore = await Chroma.fromDocuments([], this.embeddings, { collectionName });
+          this.vectorStore = await Chroma.fromDocuments([], this.embeddings, {
+            collectionName,
+          });
         }
         this.logger.log('Chroma initialized with OpenAI embeddings.');
         return;
@@ -127,14 +213,20 @@ export class LangChainService {
           this.config.ollamaBaseUrl!,
           this.config.embeddingsModel || 'nomic-embed-text',
         );
-        this.vectorStore = await Chroma.fromDocuments([], this.embeddings, { collectionName });
-        this.logger.log('Chroma initialized with Ollama embeddings (provider=groq).');
+        this.vectorStore = await Chroma.fromDocuments([], this.embeddings, {
+          collectionName,
+        });
+        this.logger.log(
+          'Chroma initialized with Ollama embeddings (provider=groq).',
+        );
         return;
       }
 
       this.embeddings = null;
       this.vectorStore = null;
-      this.logger.warn('Embeddings disabled (no compatible provider configured).');
+      this.logger.warn(
+        'Embeddings disabled (no compatible provider configured).',
+      );
     } catch (e) {
       this.logger.error('Failed to initialize vector store', e);
       this.embeddings = null;
@@ -143,20 +235,37 @@ export class LangChainService {
   }
 
   async saveActivityEmbedding(activities: Activity[]) {
-    const docs = activities.map((activity) => {
-      return new Document({
-        pageContent: `Name: ${activity.name}. Description: ${activity.description}. Metadata: ${activity.metadata}`,
-        metadata: activity,
-      });
-    });
+    if (!this.embeddings || !this.vectorStore) {
+      this.logger.warn(
+        'Embeddings or vector store not initialized, skipping embedding save',
+      );
+      return;
+    }
 
-    if (!this.embeddings || !this.vectorStore) return;
-    const embedding = await this.embeddings.embedDocuments(
-      docs.map((doc) => doc.pageContent),
-    );
-    await this.vectorStore.addVectors(embedding, docs, {
-      ids: activities.map((activity) => activity.id.toString()),
-    });
+    try {
+      const docs = activities.map((activity) => {
+        return new Document({
+          pageContent: `Name: ${activity.name}. Description: ${activity.description}. Metadata: ${activity.metadata}`,
+          metadata: activity,
+        });
+      });
+
+      const embedding = await this.embeddings.embedDocuments(
+        docs.map((doc) => doc.pageContent),
+      );
+      await this.vectorStore.addVectors(embedding, docs, {
+        ids: activities.map((activity) => activity.id.toString()),
+      });
+      this.logger.debug(
+        `Successfully saved embeddings for ${activities.length} activities`,
+      );
+    } catch (error) {
+      this.logger.error(
+        `Failed to save embeddings for activities: ${error.message}`,
+        error.stack,
+      );
+      // Don't throw - allow the crawling process to continue even if embeddings fail
+    }
   }
 
   async addActivityToVectorStore(activity: Activity) {
@@ -194,7 +303,7 @@ After this activity, you can try: ${metadata.complementaryActivities?.after ? me
     await this.vectorStore.addDocuments([
       {
         pageContent: activityText,
-        id: activity.id, // Usar el ID como string (ObjectId)
+        id: activity.id, // Usar el ID como string (UUID o ObjectId durante migración)
         metadata: {
           activityId: activity.id, // CRÍTICO: Siempre string
           activityName: activity.name,
@@ -331,11 +440,14 @@ After this activity, you can try: ${metadata.complementaryActivities?.after ? me
       const provider = this.config.provider;
       if (provider === 'ollama') {
         // Format combined prompt
-        const combined = PromptTemplate.fromTemplate(`${systemPrompt}\n${userPrompt}`);
+        const combined = PromptTemplate.fromTemplate(
+          `${systemPrompt}\n${userPrompt}`,
+        );
         const promptText = await combined.format(variables as any);
+        const headers = this.getOllamaHeaders();
         const resp = await fetch(`${this.config.ollamaBaseUrl}/api/generate`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers,
           body: JSON.stringify({
             model: this.config.defaultModel || 'llama3.1',
             prompt: promptText,
@@ -351,33 +463,42 @@ After this activity, you can try: ${metadata.complementaryActivities?.after ? me
       if (provider === 'groq') {
         const userTmpl = PromptTemplate.fromTemplate(userPrompt);
         const userText = await userTmpl.format(variables as any);
-        const resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${this.config.groqApiKey}`,
-          },
-          body: JSON.stringify({
-            model: this.config.defaultModel || 'llama-3.1-70b-versatile',
-            messages: [
-              { role: 'system', content: systemPrompt },
-              { role: 'user', content: userText },
-            ],
-            temperature: this.config.temperature,
-          }),
-        } as any);
+        const resp = await fetch(
+          'https://api.groq.com/openai/v1/chat/completions',
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${this.config.groqApiKey}`,
+            },
+            body: JSON.stringify({
+              model: this.config.defaultModel || 'llama-3.1-70b-versatile',
+              messages: [
+                { role: 'system', content: systemPrompt },
+                { role: 'user', content: userText },
+              ],
+              temperature: this.config.temperature,
+            }),
+          } as any,
+        );
         if (!resp.ok) throw new Error(`Groq error ${resp.status}`);
         const data = await resp.json();
         return data.choices?.[0]?.message?.content || '';
       }
 
       // Default: OpenAI via LangChain
-      const model = customOptions ? this.getChatModel(customOptions) : this.chatModel;
+      const model = customOptions
+        ? this.getChatModel(customOptions)
+        : this.chatModel;
       const chatPrompt = ChatPromptTemplate.fromMessages([
         SystemMessagePromptTemplate.fromTemplate(systemPrompt),
         HumanMessagePromptTemplate.fromTemplate(userPrompt),
       ]);
-      const chain = RunnableSequence.from([chatPrompt, model, new StringOutputParser()]);
+      const chain = RunnableSequence.from([
+        chatPrompt,
+        model,
+        new StringOutputParser(),
+      ]);
       return await chain.invoke(variables);
     } catch (error) {
       this.logger.error(`Error generating chat response: ${error.message}`);
@@ -398,9 +519,10 @@ After this activity, you can try: ${metadata.complementaryActivities?.after ? me
       if (provider === 'ollama') {
         const tmpl = PromptTemplate.fromTemplate(promptText);
         const text = await tmpl.format(variables as any);
+        const headers = this.getOllamaHeaders();
         const resp = await fetch(`${this.config.ollamaBaseUrl}/api/generate`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers,
           body: JSON.stringify({
             model: this.config.defaultModel || 'llama3.1',
             prompt: text,
@@ -433,7 +555,9 @@ After this activity, you can try: ${metadata.complementaryActivities?.after ? me
         return data.choices?.[0]?.text || '';
       }
 
-      const model = customOptions ? this.getCompletionModel(customOptions) : this.completionModel;
+      const model = customOptions
+        ? this.getCompletionModel(customOptions)
+        : this.completionModel;
       const prompt = PromptTemplate.fromTemplate(promptText);
       const chain = this.createChain(prompt, model);
       return await chain.invoke(variables);
