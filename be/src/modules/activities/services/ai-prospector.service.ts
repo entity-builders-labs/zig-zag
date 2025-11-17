@@ -19,14 +19,26 @@ export class AiProspectorService {
   ) {}
 
   private buildPrompt(dto: AiDiscoverDto) {
-    return `Devuelve una lista JSON de hasta ${dto.limit ?? 20} lugares (nombre y categoria) relevantes para turismo/ocio cerca de (lat: ${dto.latitude}, lng: ${dto.longitude}) en un radio de ${dto.radius ?? 5000}m.
-Categorias permitidas: cultural | outdoor | entertainment | food | nightlife.
-${dto.seedQuery ? `Contexto: ${dto.seedQuery}\n` : ''}
-Formato estricto (solo JSON, sin texto extra):
+    // Use single braces in examples to avoid template variable conflicts
+    // The double braces {{ }} are interpreted as template variables by PromptTemplate
+    return `You are a tourism expert. Return a JSON array of up to ${dto.limit ?? 20} tourist/leisure places near coordinates (lat: ${dto.latitude}, lng: ${dto.longitude}) within ${dto.radius ?? 5000}m radius.
+
+Allowed categories: cultural | outdoor | entertainment | food | nightlife
+${dto.seedQuery ? `Context: ${dto.seedQuery}\n` : ''}
+
+CRITICAL: Return ONLY valid JSON array, no markdown, no code blocks, no explanations, just pure JSON.
+
+Required format (JSON array):
 [
-  {{ "name": "string", "category": "cultural|outdoor|entertainment|food|nightlife", "notes": "string" }}
+  { "name": "Place Name", "category": "cultural|outdoor|entertainment|food|nightlife", "notes": "Brief description" }
 ]
-`;
+
+Example:
+[
+  { "name": "string", "category": "cultural|outdoor|entertainment|food|nightlife", "notes": "string" }
+]
+
+Return the JSON array now:`;
   }
 
   private async resolveWithPlaces(name: string, dto: AiDiscoverDto) {
@@ -109,12 +121,92 @@ Formato estricto (solo JSON, sin texto extra):
   async discover(dto: AiDiscoverDto) {
     const prompt = this.buildPrompt(dto);
     const raw = await this.ai.generateCompletionResponse(prompt);
+
+    // Clean the response - remove markdown code blocks if present
+    let cleanedResponse = raw.trim();
+    if (cleanedResponse.startsWith('```json')) {
+      cleanedResponse = cleanedResponse.replace(/^```json\s*/i, '');
+    }
+    if (cleanedResponse.startsWith('```')) {
+      cleanedResponse = cleanedResponse.replace(/^```\s*/, '');
+    }
+    if (cleanedResponse.endsWith('```')) {
+      cleanedResponse = cleanedResponse.replace(/\s*```$/, '');
+    }
+    // Remove any leading/trailing whitespace
+    cleanedResponse = cleanedResponse.trim();
+
+    // Extract JSON array more precisely - find balanced brackets
+    const extractJsonArray = (text: string): string | null => {
+      const startIdx = text.indexOf('[');
+      if (startIdx === -1) return null;
+
+      let depth = 0;
+      let inString = false;
+      let escapeNext = false;
+
+      for (let i = startIdx; i < text.length; i++) {
+        const char = text[i];
+
+        if (escapeNext) {
+          escapeNext = false;
+          continue;
+        }
+
+        if (char === '\\') {
+          escapeNext = true;
+          continue;
+        }
+
+        if (char === '"' && !escapeNext) {
+          inString = !inString;
+          continue;
+        }
+
+        if (!inString) {
+          if (char === '[') {
+            depth++;
+          } else if (char === ']') {
+            depth--;
+            if (depth === 0) {
+              // Found the complete array
+              return text.substring(startIdx, i + 1);
+            }
+          }
+        }
+      }
+
+      return null;
+    };
+
+    // Try to extract JSON array
+    const extractedJson = extractJsonArray(cleanedResponse);
+    if (extractedJson) {
+      cleanedResponse = extractedJson;
+    } else {
+      // Fallback: try simple regex match
+      const jsonMatch = cleanedResponse.match(/\[[\s\S]*\]/);
+      if (jsonMatch) {
+        cleanedResponse = jsonMatch[0];
+      }
+    }
+
     let items: Array<{ name: string; category?: string; notes?: string }> = [];
     try {
-      items = JSON.parse(raw);
-      if (!Array.isArray(items)) throw new Error('LLM did not return an array');
+      items = JSON.parse(cleanedResponse);
+      if (!Array.isArray(items)) {
+        throw new Error('LLM did not return an array');
+      }
     } catch (e) {
-      this.logger.warn('AI response not valid JSON list; aborting');
+      this.logger.warn(
+        `AI response not valid JSON list; aborting. Error: ${e.message}`,
+      );
+      this.logger.debug(
+        `Raw response (first 500 chars): ${raw.substring(0, 500)}`,
+      );
+      this.logger.debug(
+        `Cleaned response (first 500 chars): ${cleanedResponse.substring(0, 500)}`,
+      );
       return { created: 0, duplicates: 0, rejected: 0, activities: [] };
     }
 

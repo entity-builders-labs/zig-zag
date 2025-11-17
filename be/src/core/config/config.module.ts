@@ -2,6 +2,7 @@ import { Global, Module } from '@nestjs/common';
 import { ConfigModule as NestConfigModule } from '@nestjs/config';
 import { databaseConfig } from './database.config';
 import { appConfig } from './app.config';
+import aiConfig from '../../shared/ai/ai.config';
 import * as path from 'path';
 
 @Global()
@@ -14,8 +15,8 @@ import * as path from 'path';
         path.join(__dirname, '../../..', '.env'), // Root monorepo .env
         '.env', // Local .env in be/ directory
       ],
-      load: [appConfig, databaseConfig],
+      load: [appConfig, databaseConfig, aiConfig],
     }),
   ],
 })
-export class ConfigModule {} 
+export class ConfigModule {}

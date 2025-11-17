@@ -1,9 +1,9 @@
-// @ts-nocheck
 import {
   BadRequestException,
   Injectable,
   Logger,
   NotFoundException,
+  ServiceUnavailableException,
 } from '@nestjs/common';
 import { PrismaService } from '../../../core/database/prisma.service';
 import { CreateTourDto } from '../dto/create-tour.dto';
@@ -19,6 +19,7 @@ import {
 } from '@langchain/core/prompts';
 import { RunnableSequence } from '@langchain/core/runnables';
 import { JsonOutputFunctionsParser } from 'langchain/output_parsers';
+import { Activity } from '@prisma/client';
 
 @Injectable()
 export class ToursService {
@@ -99,28 +100,36 @@ Remember: Return ONLY valid JSON, no markdown formatting, no code blocks.`;
             {},
           );
 
-          // Clean the response - remove markdown code blocks if present
-          let cleanedResponse = response.trim();
-          if (cleanedResponse.startsWith('```json')) {
-            cleanedResponse = cleanedResponse.replace(/^```json\s*/, '');
-          }
-          if (cleanedResponse.startsWith('```')) {
-            cleanedResponse = cleanedResponse.replace(/^```\s*/, '');
-          }
-          if (cleanedResponse.endsWith('```')) {
-            cleanedResponse = cleanedResponse.replace(/\s*```$/, '');
-          }
+          // Clean and extract JSON from response
+          const cleanedResponse = this.extractAndCleanJson(response);
 
           try {
             return JSON.parse(cleanedResponse);
-          } catch (parseError) {
+          } catch (parseError: any) {
             this.logger.error(
               `Failed to parse AI response as JSON: ${parseError.message}`,
             );
-            this.logger.debug(`Raw response: ${cleanedResponse}`);
-            throw new BadRequestException(
-              `AI returned invalid JSON format: ${parseError.message}`,
+            this.logger.debug(
+              `Cleaned response (first 500 chars): ${cleanedResponse.substring(0, 500)}`,
             );
+            this.logger.debug(
+              `Error position: ${parseError.message.match(/position (\d+)/)?.[1] || 'unknown'}`,
+            );
+
+            // Try to repair common JSON issues
+            try {
+              const repaired = this.repairJson(cleanedResponse);
+              this.logger.warn('Attempting to use repaired JSON');
+              return JSON.parse(repaired);
+            } catch (repairError) {
+              this.logger.error(
+                `JSON repair also failed: ${repairError.message}`,
+              );
+              throw new BadRequestException(
+                `AI returned invalid JSON format: ${parseError.message}. ` +
+                  `Please try again or simplify your prompt.`,
+              );
+            }
           }
         },
       };
@@ -931,10 +940,11 @@ Provide a concise, engaging explanation (2-3 sentences) that highlights the main
     options?: {
       latitude?: number;
       longitude?: number;
-      radius?: number; // in meters, default 50000 (50km)
+      radius?: number; // in meters, default 25000 (25km)
       includeExistingActivities?: boolean; // Whether to search for existing activities in DB
     },
   ) {
+    const startTime = Date.now();
     this.logger.log(
       `Generating tour from prompt: ${prompt.substring(0, 100)}...`,
     );
@@ -943,45 +953,87 @@ Provide a concise, engaging explanation (2-3 sentences) that highlights the main
       // Step 1: If location provided, search for existing activities
       let availableActivitiesText = '';
       if (options?.latitude && options?.longitude) {
-        const radius = options.radius || 50000; // 50km default
-        const nearbyActivities = await this.activitiesService.findAll(
-          options.latitude.toString(),
-          options.longitude.toString(),
-          radius,
-          50, // limit to 50 activities
-        );
+        const searchStartTime = Date.now();
+        const radius = options.radius || 25000; // 25km default (reduced from 50km)
+        const activityLimit = 20; // Reduced from 50 to improve performance
 
-        if (nearbyActivities.length > 0) {
-          availableActivitiesText = `\n\nAvailable activities in the area (within ${radius / 1000}km):\n${nearbyActivities
-            .map(
-              (act, idx) =>
-                `${idx + 1}. ${act.name} (${act.type || 'Activity'}) - ${act.description || 'No description'} - Location: ${act.latitude}, ${act.longitude} - Duration: ${act.duration || 'Unknown'} minutes`,
-            )
-            .join('\n')}`;
-        } else if (options.includeExistingActivities) {
-          // Try semantic search if no nearby activities found
-          try {
-            const semanticResults =
-              await this.langChainService.findSimilarActivities(
-                `Activities in ${options.latitude}, ${options.longitude}: ${prompt}`,
-                10,
+        try {
+          const nearbyActivities = await Promise.race([
+            this.activitiesService.findAll(
+              options.latitude.toString(),
+              options.longitude.toString(),
+              radius,
+              activityLimit,
+            ),
+            new Promise<any[]>(
+              (_, reject) =>
+                setTimeout(
+                  () => reject(new Error('Activity search timeout')),
+                  10000,
+                ), // 10s timeout
+            ),
+          ]);
+
+          const searchTime = Date.now() - searchStartTime;
+          this.logger.debug(`Activity search completed in ${searchTime}ms`);
+
+          if (nearbyActivities.length > 0) {
+            // Limit description length to avoid huge prompts
+            availableActivitiesText = `\n\nAvailable activities in the area (within ${radius / 1000}km):\n${nearbyActivities
+              .slice(0, 15) // Limit to top 15 for prompt size
+              .map(
+                (act, idx) =>
+                  `${idx + 1}. ${act.name} (${act.type || 'Activity'}) - ${(act.description || 'No description').substring(0, 100)} - Location: ${act.latitude}, ${act.longitude} - Duration: ${act.duration || 'Unknown'} minutes`,
+              )
+              .join('\n')}`;
+          } else if (options.includeExistingActivities) {
+            // Try semantic search if no nearby activities found (with timeout)
+            try {
+              const semanticStartTime = Date.now();
+              const semanticResults = await Promise.race([
+                this.langChainService.findSimilarActivities(
+                  `Activities in ${options.latitude}, ${options.longitude}: ${prompt}`,
+                  5, // Reduced from 10 to improve performance
+                ),
+                new Promise<any[]>(
+                  (_, reject) =>
+                    setTimeout(
+                      () => reject(new Error('Semantic search timeout')),
+                      5000,
+                    ), // 5s timeout
+                ),
+              ]);
+
+              const semanticTime = Date.now() - semanticStartTime;
+              this.logger.debug(
+                `Semantic search completed in ${semanticTime}ms`,
               );
 
-            if (semanticResults.length > 0) {
-              availableActivitiesText = `\n\nRelevant activities found:\n${semanticResults
-                .map(
-                  (result: any, idx: number) =>
-                    `${idx + 1}. ${result.metadata?.activityName || 'Activity'} - ${result.pageContent.substring(0, 100)}...`,
-                )
-                .join('\n')}`;
+              if (semanticResults.length > 0) {
+                availableActivitiesText = `\n\nRelevant activities found:\n${semanticResults
+                  .map(
+                    (result: any, idx: number) =>
+                      `${idx + 1}. ${result.metadata?.activityName || 'Activity'} - ${result.pageContent.substring(0, 80)}...`,
+                  )
+                  .join('\n')}`;
+              }
+            } catch (error) {
+              this.logger.warn(
+                `Semantic search failed or timed out: ${error.message}`,
+              );
+              // Continue without semantic results
             }
-          } catch (error) {
-            this.logger.warn(`Semantic search failed: ${error.message}`);
           }
+        } catch (error) {
+          this.logger.warn(
+            `Activity search failed or timed out: ${error.message}`,
+          );
+          // Continue without activity context
         }
       }
 
       // Step 2: Create the tour using LangChain
+      const chainStartTime = Date.now();
       const tourChain = this.createTourChain();
 
       // Prepare the input with available activities context
@@ -991,15 +1043,34 @@ Provide a concise, engaging explanation (2-3 sentences) that highlights the main
         `Invoking tour chain with prompt: ${fullPrompt.substring(0, 200)}...`,
       );
 
-      const aiResponse = (await tourChain.invoke({
-        input: fullPrompt,
-        activities:
-          availableActivitiesText ||
-          'No specific activities provided. Create a general tour.',
-      })) as any; // Type assertion for AI response
-
+      // Add timeout to AI chain invocation
+      // Use provider-aware timeout (longer for Ollama, which is slower)
+      const generationTimeout = this.langChainService.getGenerationTimeout();
       this.logger.debug(
-        `AI generated tour response: ${JSON.stringify(aiResponse).substring(0, 200)}...`,
+        `Using ${generationTimeout}ms timeout for AI generation (provider-aware)`,
+      );
+
+      const aiResponse = (await Promise.race([
+        tourChain.invoke({
+          input: fullPrompt,
+          activities:
+            availableActivitiesText ||
+            'No specific activities provided. Create a general tour.',
+        }),
+        new Promise<any>((_, reject) =>
+          setTimeout(
+            () =>
+              reject(
+                new Error(`AI generation timeout after ${generationTimeout}ms`),
+              ),
+            generationTimeout,
+          ),
+        ),
+      ])) as any; // Type assertion for AI response
+
+      const chainTime = Date.now() - chainStartTime;
+      this.logger.debug(
+        `AI generated tour response in ${chainTime}ms: ${JSON.stringify(aiResponse).substring(0, 200)}...`,
       );
 
       // Step 3: Convert AI response to CreateTourDto format
@@ -1071,17 +1142,46 @@ Provide a concise, engaging explanation (2-3 sentences) that highlights the main
       };
 
       // Step 4: Create and return the tour
+      const createStartTime = Date.now();
       const tour = await this.create(tourData);
-      this.logger.log(`Tour created successfully with ID: ${tour.id}`);
+      const createTime = Date.now() - createStartTime;
+
+      const totalTime = Date.now() - startTime;
+      this.logger.log(
+        `Tour created successfully with ID: ${tour.id} (Total time: ${totalTime}ms, AI: ${chainTime}ms, DB: ${createTime}ms)`,
+      );
 
       return tour;
     } catch (error) {
+      const totalTime = Date.now() - startTime;
+      const errorMessage = error?.message || String(error);
+
       this.logger.error(
-        `Error generating tour from prompt: ${error.message}`,
+        `Error generating tour from prompt after ${totalTime}ms: ${errorMessage}`,
         error.stack,
       );
+
+      // Detect memory/resource errors from Ollama
+      const isMemoryError =
+        errorMessage.includes('memory') ||
+        errorMessage.includes('Memory error') ||
+        errorMessage.includes('requires more system memory') ||
+        errorMessage.includes('unable to load full model');
+
+      // Detect timeout errors
+      const isTimeoutError = errorMessage.includes('timeout');
+
+      // Use ServiceUnavailableException (503) for resource/memory issues
+      // This indicates the service is temporarily unavailable due to resource constraints
+      if (isMemoryError || isTimeoutError) {
+        throw new ServiceUnavailableException(
+          `Failed to generate tour from prompt: ${errorMessage}`,
+        );
+      }
+
+      // Use BadRequestException (400) for other errors (invalid input, etc.)
       throw new BadRequestException(
-        `Failed to generate tour from prompt: ${error.message}`,
+        `Failed to generate tour from prompt: ${errorMessage}`,
       );
     }
   }
@@ -1354,9 +1454,17 @@ Provide a concise, engaging explanation (2-3 sentences) that highlights the main
     // Use your existing tour creation logic or the AI-based tour chain
     const tourChain = this.createTourChain();
 
+    // Convert activities array to a formatted string
+    const activitiesString = activities
+      .map(
+        (a) =>
+          `${a.name} (${a.type}) - ${a.description || 'No description'}. Location: ${a.latitude}, ${a.longitude}. Duration: ${a.duration}min. Price: $${a.price}`,
+      )
+      .join('\n');
+
     const result = await tourChain.invoke({
       input: `Create a tour with these activities: ${activities.map((a) => a.name).join(', ')}`,
-      activities: activities,
+      activities: activitiesString,
     });
 
     return result;
@@ -1478,5 +1586,151 @@ Return as a valid JSON array with these exact field names.`;
       console.error('Raw response was:', error); // Para debug
       return [];
     }
+  }
+
+  /**
+   * Extract and clean JSON from AI response text
+   * Handles markdown code blocks, extra text, and common formatting issues
+   */
+  private extractAndCleanJson(text: string): string {
+    let cleaned = text.trim();
+
+    // Remove markdown code blocks
+    cleaned = cleaned.replace(/^```json\s*/i, '');
+    cleaned = cleaned.replace(/^```\s*/, '');
+    cleaned = cleaned.replace(/\s*```$/g, '');
+
+    // Try to find JSON object boundaries using balanced braces
+    const extractJsonObject = (text: string): string | null => {
+      const startIdx = text.indexOf('{');
+      if (startIdx === -1) return null;
+
+      let depth = 0;
+      let inString = false;
+      let escapeNext = false;
+
+      for (let i = startIdx; i < text.length; i++) {
+        const char = text[i];
+
+        if (escapeNext) {
+          escapeNext = false;
+          continue;
+        }
+
+        if (char === '\\') {
+          escapeNext = true;
+          continue;
+        }
+
+        if (char === '"' && !escapeNext) {
+          inString = !inString;
+          continue;
+        }
+
+        if (!inString) {
+          if (char === '{') {
+            depth++;
+          } else if (char === '}') {
+            depth--;
+            if (depth === 0) {
+              // Found the complete object
+              return text.substring(startIdx, i + 1);
+            }
+          }
+        }
+      }
+
+      return null;
+    };
+
+    // Try to extract JSON object
+    const extractedJson = extractJsonObject(cleaned);
+    if (extractedJson) {
+      cleaned = extractedJson;
+    } else {
+      // Fallback: simple boundary detection
+      const jsonStart = cleaned.indexOf('{');
+      const jsonEnd = cleaned.lastIndexOf('}');
+      if (jsonStart !== -1 && jsonEnd !== -1 && jsonEnd > jsonStart) {
+        cleaned = cleaned.substring(jsonStart, jsonEnd + 1);
+      }
+    }
+
+    // Remove any leading/trailing whitespace
+    cleaned = cleaned.trim();
+
+    // Remove common prefixes/suffixes that models sometimes add
+    cleaned = cleaned.replace(
+      /^Here's? (the|your|a) (JSON|json|response):\s*/i,
+      '',
+    );
+    cleaned = cleaned.replace(/^(JSON|json):\s*/i, '');
+    cleaned = cleaned.replace(
+      /\s*This is (the|your|a) (JSON|json|response)\.?\s*$/i,
+      '',
+    );
+
+    return cleaned;
+  }
+
+  /**
+   * Attempt to repair common JSON formatting issues
+   */
+  private repairJson(jsonString: string): string {
+    let repaired = jsonString;
+
+    // Fix trailing commas before closing brackets/braces (most common issue)
+    repaired = repaired.replace(/,(\s*[}\]])/g, '$1');
+
+    // Remove comments (JSON doesn't support comments)
+    repaired = repaired.replace(/\/\*[\s\S]*?\*\//g, '');
+    repaired = repaired.replace(/\/\/.*$/gm, '');
+
+    // Fix unescaped newlines and carriage returns in string values
+    // This is safer than the previous approach - only fix within string contexts
+    let inString = false;
+    let escapeNext = false;
+    let result = '';
+
+    for (let i = 0; i < repaired.length; i++) {
+      const char = repaired[i];
+
+      if (escapeNext) {
+        result += char;
+        escapeNext = false;
+        continue;
+      }
+
+      if (char === '\\') {
+        result += char;
+        escapeNext = true;
+        continue;
+      }
+
+      if (char === '"') {
+        inString = !inString;
+        result += char;
+        continue;
+      }
+
+      if (inString) {
+        // Inside a string - escape newlines and carriage returns
+        if (char === '\n') {
+          result += '\\n';
+        } else if (char === '\r') {
+          result += '\\r';
+        } else if (char === '\t') {
+          result += '\\t';
+        } else {
+          result += char;
+        }
+      } else {
+        result += char;
+      }
+    }
+
+    repaired = result;
+
+    return repaired;
   }
 }

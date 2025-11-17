@@ -45,6 +45,11 @@ export class ToursController {
     status: 400,
     description: 'Invalid input data or AI generation failed.',
   })
+  @ApiResponse({
+    status: 503,
+    description:
+      'Service temporarily unavailable due to resource constraints (e.g., insufficient memory for AI model).',
+  })
   @ApiBody({ type: CreateTourFromPromptDto })
   createFromPrompt(
     @Body(ValidationPipe) createTourFromPromptDto: CreateTourFromPromptDto,

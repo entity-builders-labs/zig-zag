@@ -24,17 +24,17 @@ import { ScriptsModule } from './commands/scripts/commands/scripts.module';
 @Module({
   imports: [
     // Core (always first)
+    ConfigModule, // Must be imported before PrismaModule for ConfigService
     PrismaModule,
-    ConfigModule,
-    
+
     // Shared
     AiModule,
-    
+
     // Domain (estos módulos ya incluyen sus commands)
     ActivitiesModule,
     ToursModule,
     CrawlersModule,
-    
+
     // Commands globales únicamente
     CommandsModule,
     ScriptsModule,
