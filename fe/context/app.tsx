@@ -48,10 +48,12 @@ export const AppContext = createContext<AppContextType>({
   setSelectedRadiusMeters: (_m: number) => {},
 });
 
+import { DEFAULT_LOCATION } from '../api/config/constants';
+
 // Buenos aires coordinates
 const defaultCenter = {
-  lat: -34.603722,
-  lng: -58.381592,
+  lat: DEFAULT_LOCATION.LATITUDE,
+  lng: DEFAULT_LOCATION.LONGITUDE,
 };
 
 export const AppProvider = ({ children }: { children: React.ReactNode }) => {

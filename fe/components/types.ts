@@ -7,6 +7,8 @@ export interface TourActivity {
 
 export interface Tour {
   id: string;
+  name: string;
+  description?: string;
   activities: TourActivity[];
 }
 
