@@ -11,6 +11,7 @@ import { UpdateTourDto } from '../dto/update-tour.dto';
 // import { Activity } from '@prisma/client';
 import { ActivitiesService } from '../../activities/services/activities.service';
 import { LangChainService } from '../../../shared/ai/langchain.service';
+import { ImageGenerationService } from '../../../shared/ai/image-generation.service';
 import { isValidId } from '../../../shared/utils/id-validator';
 import {
   ChatPromptTemplate,
@@ -29,6 +30,7 @@ export class ToursService {
     private readonly prisma: PrismaService,
     private readonly activitiesService: ActivitiesService,
     private readonly langChainService: LangChainService,
+    private readonly imageGenerationService: ImageGenerationService,
   ) {}
 
   private createTourChain() {
@@ -930,6 +932,50 @@ Provide a concise, engaging explanation (2-3 sentences) that highlights the main
   }
 
   /**
+   * Generate a cover image for a tour
+   */
+  async generateTourCoverImage(tourId: string): Promise<string | null> {
+    try {
+      const tour = await this.prisma.tour.findUnique({
+        where: { id: tourId },
+        include: { activities: true },
+      });
+
+      if (!tour) return null;
+
+      this.logger.debug(`Generating cover image for tour: ${tour.name}`);
+
+      // Create a rich prompt based on tour details
+      const activityNames = tour.activities
+        .slice(0, 3)
+        .map((a) => a.activityName)
+        .join(', ');
+
+      const prompt = `A breathtaking, high-quality travel cover image for a tour named "${tour.name}".
+      Description: ${tour.description || tour.name}.
+      Key highlights: ${activityNames || 'scenic locations'}.
+      Style: Professional travel photography, vibrant, inviting, wide angle, cinematic lighting.
+      No text, no watermarks, no collages, no labels.`;
+
+      const imageUrl = await this.imageGenerationService.generateImage(prompt);
+
+      if (imageUrl) {
+        // Save to DB
+        await this.prisma.tour.update({
+          where: { id: tour.id },
+          data: { coverImage: imageUrl },
+        });
+        this.logger.log(`Generated and saved cover image for tour ${tourId}`);
+      }
+
+      return imageUrl;
+    } catch (error) {
+      this.logger.error(`Error generating tour cover image: ${error.message}`);
+      return null;
+    }
+  }
+
+  /**
    * Generate a tour from a prompt using LangChain and AI
    * This method uses the LangChain service to generate structured tour data from a natural language prompt
    */
@@ -1143,6 +1189,14 @@ Provide a concise, engaging explanation (2-3 sentences) that highlights the main
       const createStartTime = Date.now();
       const tour = await this.create(tourData);
       const createTime = Date.now() - createStartTime;
+
+      // Generate cover image (asynchronously to not block too long, or await if critical)
+      // We'll await it to ensure the user gets a complete tour
+      try {
+        await this.generateTourCoverImage(tour.id);
+      } catch (imgError) {
+        this.logger.warn(`Failed to generate cover image: ${imgError.message}`);
+      }
 
       const totalTime = Date.now() - startTime;
       this.logger.log(

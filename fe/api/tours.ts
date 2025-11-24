@@ -4,6 +4,7 @@ export interface Tour {
   id: string;
   name: string;
   description?: string;
+  coverImage?: string;
   duration?: number;
   price?: number;
   totalDistance?: number;

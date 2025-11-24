@@ -21,7 +21,7 @@
     "seed": "npx ts-node prisma/seed.ts",
     "crawl": "npx ts-node src/cli.ts crawl -lat 20.6502284 -lng -87.390293 -r 50000 -p 10 -k 'things to do'",
     "chroma": "chroma run --path ./chroma-db",
-    "script": "ts-node -r tsconfig-paths/register src/scripts/cli.ts",
+    "script": "ts-node -r tsconfig-paths/register src/commands/scripts/cli.ts",
     "prisma:generate": "prisma generate",
     "prisma:studio": "prisma studio",
     "prisma:push": "prisma db push",

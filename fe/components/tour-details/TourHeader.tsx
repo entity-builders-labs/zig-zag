@@ -21,7 +21,7 @@ const SCREEN_HEIGHT = Dimensions.get('window').height;
 export const TourHeader = ({ tour }: { tour: Tour }) => {
   const router = useRouter();
   const firstActivity = tour.activities?.[0]?.activity;
-  const imageUri = getImage(firstActivity?.photos);
+  const imageUri = tour.coverImage || getImage(firstActivity?.photos);
 
   // Get tags from metadata or fallback to first activity type
   const tags =

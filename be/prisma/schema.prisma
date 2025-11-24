@@ -92,6 +92,9 @@ model Tour {
   estimatedBudget      Float? // Estimated budget
   recommendedGroupSize Int?
 
+  // Visual content
+  coverImage String? // URL to cover image
+
   // Store prompt/query that generated this tour
   prompt String? // The original prompt used
   query  String? // Search query if applicable

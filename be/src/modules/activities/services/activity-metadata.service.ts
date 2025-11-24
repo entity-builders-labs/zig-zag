@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { LangChainService } from '../../../shared/ai/langchain.service';
+import { ImageGenerationService } from '../../../shared/ai/image-generation.service';
 import { ActivityMetadataDto } from '../dto/activity-metadata.dto';
 import { PromptTemplate } from '@langchain/core/prompts';
 import { CreateActivityDto } from '../dto/create-activity.dto';
@@ -10,14 +11,51 @@ import { CreateActivityDto } from '../dto/create-activity.dto';
 export class ActivityMetadataService {
   private readonly logger = new Logger(ActivityMetadataService.name);
 
-  constructor(private readonly langChainService: LangChainService) {}
+  constructor(
+    private readonly langChainService: LangChainService,
+    private readonly imageGenerationService: ImageGenerationService,
+  ) {}
+
+  /**
+   * Generate an image for an activity
+   */
+  async generateActivityImage(activity: any): Promise<string | null> {
+    try {
+      this.logger.log(
+        `🖼️  Generating image for activity: ${activity.name} (${activity.id})`,
+      );
+
+      const prompt = `A high quality, photorealistic travel photography image of ${activity.name}. 
+      Activity type: ${activity.type}. 
+      Description: ${activity.description || activity.name}. 
+      The image should be inviting, vibrant, professional, and suitable for a travel website. 
+      No text, no watermarks, no collages.`;
+
+      this.logger.log(`📝 Prompt: ${prompt.substring(0, 100)}...`);
+      const imageUrl = await this.imageGenerationService.generateImage(prompt);
+
+      if (imageUrl) {
+        this.logger.log(
+          `✅ Successfully generated image URL: ${imageUrl.substring(0, 50)}...`,
+        );
+      } else {
+        this.logger.warn(
+          `⚠️  Image generation returned null for activity ${activity.id}`,
+        );
+      }
+
+      return imageUrl;
+    } catch (error: any) {
+      this.logger.error(`❌ Error generating activity image: ${error.message}`);
+      this.logger.error(error.stack);
+      return null;
+    }
+  }
 
   /**
    * Generate complete metadata for an activity
    */
-  async generateMetadata(
-    activity: any,
-  ): Promise<ActivityMetadataDto> {
+  async generateMetadata(activity: any): Promise<ActivityMetadataDto> {
     try {
       this.logger.debug(`Generating metadata for activity: ${activity.name}`);
 
@@ -69,9 +107,7 @@ export class ActivityMetadataService {
   /**
    * Generate only enhanced description for an activity
    */
-  async generateEnhancedDescription(
-    activity: any,
-  ): Promise<string> {
+  async generateEnhancedDescription(activity: any): Promise<string> {
     try {
       this.logger.debug(
         `Generating enhanced description for activity: ${activity.name}`,
@@ -107,9 +143,7 @@ export class ActivityMetadataService {
   /**
    * Generate tags for an activity
    */
-  async generateTags(
-    activity: any,
-  ): Promise<string[]> {
+  async generateTags(activity: any): Promise<string[]> {
     try {
       this.logger.debug(`Generating tags for activity: ${activity.name}`);
 
@@ -146,9 +180,7 @@ export class ActivityMetadataService {
   /**
    * Generate target audience information for an activity
    */
-  async generateTargetAudience(
-    activity: any,
-  ): Promise<string> {
+  async generateTargetAudience(activity: any): Promise<string> {
     try {
       this.logger.debug(
         `Generating target audience for activity: ${activity.name}`,

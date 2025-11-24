@@ -96,6 +96,26 @@ export class ActivitiesService {
         }
       }
 
+      // Optionally generate image if photos are empty
+      if (
+        (!activityData.photos ||
+          (Array.isArray(activityData.photos) &&
+            activityData.photos.length === 0)) &&
+        createActivityDto.name
+      ) {
+        try {
+          const imageUrl =
+            await this.metadataService.generateActivityImage(createActivityDto);
+          if (imageUrl) {
+            activityData.photos = [imageUrl];
+          }
+        } catch (error) {
+          this.logger.warn(
+            `Failed to generate activity image: ${error.message}`,
+          );
+        }
+      }
+
       // Create activity
       const activity = await this.prisma.activity.create({
         data: activityData,
