@@ -32,8 +32,8 @@ module.exports = (() => {
     path.resolve(workspaceRoot, 'node_modules'),
   ];
 
-  // Solo vigilar el directorio del proyecto
-  config.watchFolders = [projectRoot];
+  // Solo vigilar el directorio del proyecto y el workspace root
+  config.watchFolders = [projectRoot, workspaceRoot];
 
   return config;
 })();

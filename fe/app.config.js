@@ -22,5 +22,6 @@ module.exports = {
     package: 'com.juanobrach.zigzag',
     permissions: ['ACCESS_COARSE_LOCATION', 'ACCESS_FINE_LOCATION'],
   },
+  plugins: ['expo-router'],
   newArchEnabled: false,
 };

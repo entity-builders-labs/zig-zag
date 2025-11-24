@@ -2,20 +2,25 @@ import React, { useState, useEffect } from 'react';
 import {
   Box,
   Button,
-  FormControl,
   Heading,
-  Input,
-  Modal,
-  TextArea,
   VStack,
   HStack,
   Text,
   Spinner,
   AlertCircleIcon,
 } from '@gluestack-ui/themed';
-import axiosInstance from '../api/config/axios';
-import 'leaflet/dist/leaflet.css';
-import { useApi } from '../api/hooks/useApi';
+import axiosInstance from '@/api/config/axios';
+import { useApi } from '@/api/hooks/useApi';
+
+// Leaflet CSS usually requires special handling in React Native Web or might cause issues in Native.
+// Assuming this is web-compatible or handled.
+if (typeof window !== 'undefined') {
+  try {
+    require('leaflet/dist/leaflet.css');
+  } catch (e) {
+    // ignore if not available
+  }
+}
 
 interface PaginatedResponse {
   tours: Tour[];
@@ -35,18 +40,9 @@ interface Tour {
   longitude: number;
 }
 
-interface Activity {
-  id: string;
-  name: string;
-  tourId: string;
-  latitude: number;
-  longitude: number;
-}
-
-export const ToursScreen: React.FC = () => {
+export default function ToursScreen() {
   const [tours, setTours] = useState<Tour[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [showModal, setShowModal] = useState(false);
@@ -89,24 +85,39 @@ export const ToursScreen: React.FC = () => {
 
   const { data, error, loading } = useApi<PaginatedResponse>(getTours);
 
-  return (
-    <Box display='flex' flexDirection='row' height='$12'>
-      <Box
-        width='$1/2'
-        bg='$backgroundLight100'
-        p='$4'
-        borderRightWidth={1}
-        borderColor='$borderLight200'
-      >
-        <VStack space='md'>
-          <Button onPress={() => setShowModal(true)}>Create New Tour</Button>
+  // Effect to update local state when data changes
+  useEffect(() => {
+    if (data?.tours) {
+      setTours(data.tours);
+      if (data.meta) {
+        setTotalPages(data.meta.totalPages);
+        setTotalTours(data.meta.total);
+      }
+    }
+  }, [data]);
 
-          {isLoading && <Spinner size='large' />}
+  return (
+    <Box
+      display='flex'
+      flexDirection='row'
+      height='$full'
+      p='$4'
+      bg='$backgroundLight100'
+    >
+      <Box width='$full' bg='$backgroundLight100'>
+        <VStack space='md'>
+          <Heading>Tours</Heading>
+          <Button onPress={() => setShowModal(true)}>
+            <Text color='$white'>Create New Tour</Text>
+          </Button>
+
+          {loading && <Spinner size='large' />}
 
           {error && (
             <Box bg='$errorLight100' p='$3' borderRadius='$md'>
               <HStack space='sm' alignItems='center'>
                 <AlertCircleIcon color='$errorLight500' />
+                <Text color='$errorLight500'>{error.message}</Text>
               </HStack>
             </Box>
           )}
@@ -132,7 +143,7 @@ export const ToursScreen: React.FC = () => {
               onPress={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
               isDisabled={currentPage === 1}
             >
-              Previous
+              <Text>Previous</Text>
             </Button>
             <Text>
               Page {currentPage} of {totalPages}
@@ -144,12 +155,11 @@ export const ToursScreen: React.FC = () => {
               }
               isDisabled={currentPage === totalPages}
             >
-              Next
+              <Text>Next</Text>
             </Button>
           </HStack>
         </VStack>
       </Box>
-      <Box flex={1} bg='$backgroundLight100'></Box>
     </Box>
   );
-};
+}
