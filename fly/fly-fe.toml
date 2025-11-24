@@ -7,7 +7,7 @@ app = "zig-zag-frontend"
 primary_region = "iad"
 
 [build]
-  dockerfile = "fe/Dockerfile.prod"
+  dockerfile = "../fe/Dockerfile.prod"
   context = ".."
   
   # IMPORTANTE: Los secrets de Fly.io NO están disponibles automáticamente durante el build
