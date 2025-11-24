@@ -1,5 +1,5 @@
-import React from 'react';
-import { Dimensions, ScrollView } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Dimensions, ScrollView, ActivityIndicator } from 'react-native';
 import {
   Box,
   VStack,
@@ -13,8 +13,9 @@ import {
   Badge,
   BadgeText,
   Pressable,
+  Center,
 } from '@gluestack-ui/themed';
-import { Stack, useRouter } from 'expo-router';
+import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
 import {
   ArrowLeft,
   Clock,
@@ -26,86 +27,61 @@ import {
   Info,
   ChevronRight,
 } from 'lucide-react-native';
-
-// --- Mock Data ---
+import { fetchTourById, Tour } from '../../api/tours';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 
-const TOUR_DATA = {
-  id: '1',
-  title: 'Joyas Ocultas de Palermo',
-  image:
-    'https://images.unsplash.com/photo-1612287230217-969d69820d60?q=80&w=2836&auto=format&fit=crop',
-  stats: {
-    duration: '2h 30m',
-    distance: '3.5 km',
-    price: '$5000',
-  },
-  tags: ['Arte', 'Arquitectura', 'Café'],
-  stops: [
-    {
-      type: 'location',
-      id: 'l1',
-      title: 'Museo MALBA',
-      image:
-        'https://images.unsplash.com/photo-1554232682-b9ef9c92f8de?q=80&w=2940&auto=format&fit=crop',
-      badges: [
-        { text: '$$', action: 'info' },
-        { text: 'Abierto', action: 'success' },
-      ],
-      description: 'Icono del arte latinoamericano moderno.',
-    },
-    {
-      type: 'transport',
-      id: 't1',
-      mode: 'bus',
-      label: 'Bus 152',
-      duration: '15 min',
-    },
-    {
-      type: 'location',
-      id: 'l2',
-      title: 'Jardín Japonés',
-      image:
-        'https://images.unsplash.com/photo-1613328829839-91b293d9a2d9?q=80&w=2671&auto=format&fit=crop',
-      badges: [
-        { text: '$$$', action: 'info' },
-        { text: 'Cierra pronto', action: 'warning' },
-      ],
-      description: 'Un oasis de calma y belleza tradicional.',
-    },
-    {
-      type: 'transport',
-      id: 't2',
-      mode: 'walk',
-      label: 'Caminata',
-      duration: '10 min',
-    },
-    {
-      type: 'location',
-      id: 'l3',
-      title: 'Planetario Galileo Galilei',
-      image:
-        'https://images.unsplash.com/photo-1518182170546-0766de6f6a56?q=80&w=2000&auto=format&fit=crop', // Generic space/night img
-      badges: [{ text: 'Gratis', action: 'success' }],
-      description: 'Observatorio icónico con espectáculos de luces.',
-    },
-  ],
+// --- Helper Functions ---
+
+const getImage = (photos: any) => {
+  if (Array.isArray(photos) && photos.length > 0) {
+    const first = photos[0];
+    return typeof first === 'string'
+      ? first
+      : first?.url || first?.photo_reference;
+  }
+  if (typeof photos === 'string') {
+    return photos;
+  }
+  return 'https://images.unsplash.com/photo-1612287230217-969d69820d60?q=80&w=2836&auto=format&fit=crop'; // fallback
+};
+
+const getBadges = (activity: any) => {
+  if (!activity) return [];
+  const badges = [];
+  if (activity.price) {
+    badges.push({ text: `$${activity.price}`, action: 'info' });
+  }
+  if (activity.type) {
+    badges.push({ text: activity.type, action: 'success' });
+  }
+  return badges;
 };
 
 // --- Components ---
 
-const TourHeader = () => {
+const TourHeader = ({ tour }: { tour: Tour }) => {
   const router = useRouter();
+  const firstActivity = tour.activities?.[0]?.activity;
+  const imageUri = getImage(firstActivity?.photos);
+
+  // Get tags from metadata or fallback to first activity type
+  const tags =
+    tour.metadata?.tags ||
+    (firstActivity?.type
+      ? [firstActivity.type]
+      : tour.activities?.[0]?.activityType
+        ? [tour.activities[0].activityType]
+        : ['Tour']);
 
   return (
     <Box height={SCREEN_HEIGHT * 0.4} width='$full' position='relative'>
       {/* Background Image */}
       <Image
-        source={{ uri: TOUR_DATA.image }}
-        alt={TOUR_DATA.title}
-        width='$full'
-        height='$full'
+        source={{ uri: imageUri }}
+        alt={tour.name}
+        w='$full'
+        h='$full'
         resizeMode='cover'
       />
 
@@ -138,7 +114,7 @@ const TourHeader = () => {
       {/* Title & Tags */}
       <VStack position='absolute' bottom={20} left={20} right={20} space='xs'>
         <HStack space='sm' flexWrap='wrap'>
-          {TOUR_DATA.tags.map((tag) => (
+          {tags.map((tag: string) => (
             <Badge
               key={tag}
               size='md'
@@ -155,14 +131,14 @@ const TourHeader = () => {
           ))}
         </HStack>
         <Heading color='$white' size='3xl' fontWeight='$bold' mt='$2'>
-          {TOUR_DATA.title}
+          {tour.name}
         </Heading>
       </VStack>
     </Box>
   );
 };
 
-const QuickStatsBar = () => {
+const QuickStatsBar = ({ tour }: { tour: Tour }) => {
   return (
     <HStack
       bg='$white'
@@ -181,21 +157,21 @@ const QuickStatsBar = () => {
       <HStack alignItems='center' space='xs'>
         <Icon as={Clock} size='sm' color='$textLight500' />
         <Text size='sm' fontWeight='$bold' color='$textLight900'>
-          {TOUR_DATA.stats.duration}
+          {tour.duration ? `${Math.round(tour.duration)}h` : 'N/A'}
         </Text>
       </HStack>
       <Box w={1} h={20} bg='$borderLight200' />
       <HStack alignItems='center' space='xs'>
         <Icon as={Footprints} size='sm' color='$textLight500' />
         <Text size='sm' fontWeight='$bold' color='$textLight900'>
-          {TOUR_DATA.stats.distance}
+          {tour.totalDistance ? `${tour.totalDistance.toFixed(1)} km` : 'N/A'}
         </Text>
       </HStack>
       <Box w={1} h={20} bg='$borderLight200' />
       <HStack alignItems='center' space='xs'>
         <Icon as={Banknote} size='sm' color='$textLight500' />
         <Text size='sm' fontWeight='$bold' color='$textLight900'>
-          {TOUR_DATA.stats.price}
+          {tour.price ? `$${tour.price}` : 'Free'}
         </Text>
       </HStack>
     </HStack>
@@ -341,6 +317,101 @@ const TourStopCard = ({ data, isLast }: { data: any; isLast: boolean }) => {
 // --- Main Screen ---
 
 export default function TourDetailScreen() {
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const [tour, setTour] = useState<Tour | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [stops, setStops] = useState<any[]>([]);
+
+  useEffect(() => {
+    const loadTour = async () => {
+      if (!id) return;
+      console.log('$$$ id:', id);
+      try {
+        setLoading(true);
+        const data = await fetchTourById(id);
+        console.log('$$$ data:', data);
+        setTour(data);
+
+        // Transform activities to stops
+        const transformedStops: any[] = [];
+        const activities = data.activities || [];
+
+        activities.forEach((item, index) => {
+          // Handle potentially null activity (if relation is missing but inline data exists)
+          const activity = item.activity;
+          const activityId = activity?.id || `inline-${index}`;
+          const activityName =
+            activity?.name || item.activityName || 'Unknown Activity';
+          const activityPhotos = activity?.photos;
+          const activityDescription = activity?.description || item.notes;
+
+          // Only add if we have at least a name
+          if (!activityName) return;
+
+          // Add Location
+          transformedStops.push({
+            type: 'location',
+            id: activityId,
+            title: activityName,
+            image: getImage(activityPhotos),
+            description: activityDescription,
+            badges: getBadges(activity || { type: item.activityType }), // basic fallback for badges
+          });
+
+          // Add Transport if not last and we have info or just default
+          if (index < activities.length - 1) {
+            // Check if we have travel time info, otherwise generic walk
+            const duration = item.travelTimeToNext
+              ? `${Math.round(item.travelTimeToNext)} min`
+              : '10 min'; // Default assumption
+
+            transformedStops.push({
+              type: 'transport',
+              id: `t-${index}`,
+              mode: 'walk',
+              label: 'Caminata',
+              duration: duration,
+            });
+          }
+        });
+        console.log('$$$ activities:', activities.length);
+        setStops(transformedStops);
+      } catch (error) {
+        console.error('Failed to fetch tour:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadTour();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <Box
+        flex={1}
+        bg='$backgroundLight50'
+        justifyContent='center'
+        alignItems='center'
+      >
+        <ActivityIndicator size='large' color='#0000ff' />
+      </Box>
+    );
+  }
+
+  if (!tour) {
+    return (
+      <Box
+        flex={1}
+        bg='$backgroundLight50'
+        justifyContent='center'
+        alignItems='center'
+      >
+        <Text>Tour not found</Text>
+      </Box>
+    );
+  }
+
   return (
     <>
       <Stack.Screen options={{ headerShown: false }} />
@@ -350,10 +421,10 @@ export default function TourDetailScreen() {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 100 }}
         >
-          <TourHeader />
+          <TourHeader tour={tour} />
 
           <Box position='relative' zIndex={10}>
-            <QuickStatsBar />
+            <QuickStatsBar tour={tour} />
           </Box>
 
           <VStack mt='$6' px='$4'>
@@ -362,13 +433,13 @@ export default function TourDetailScreen() {
             </Heading>
 
             <VStack>
-              {TOUR_DATA.stops.map((item, index) => {
+              {stops.map((item, index) => {
                 if (item.type === 'location') {
                   return (
                     <TourStopCard
                       key={item.id}
                       data={item}
-                      isLast={index === TOUR_DATA.stops.length - 1}
+                      isLast={index === stops.length - 1}
                     />
                   );
                 } else {
