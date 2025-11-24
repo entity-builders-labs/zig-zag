@@ -1,136 +1,360 @@
-# Deploy en Fly.io
+# Deploy on Fly.io
 
-Este documento explica cómo hacer deploy del backend en Fly.io.
+This document explains how to deploy the backend on Fly.io.
 
-## Prerrequisitos
+## Prerequisites
 
-1. Instalar Fly CLI:
+1. Install Fly CLI:
 
 ```bash
 curl -L https://fly.io/install.sh | sh
 ```
 
-2. Iniciar sesión en Fly.io:
+2. Log in to Fly.io:
 
 ```bash
 fly auth login
 ```
 
-## Configuración inicial
+## Initial Configuration
 
-1. Crear una nueva aplicación en Fly.io (si no existe):
+1. Create a new application on Fly.io (if it doesn't exist):
 
 ```bash
 fly apps create zig-zag-backend
 ```
 
-## Configuración de Base de Datos
+## Chroma Deployment (Vector Database)
 
-Tienes dos opciones para la base de datos:
+Chroma is the vector database used for semantic search and embeddings. You can deploy it as a separate application on Fly.io.
 
-### Opción A: Supabase (Recomendado para empezar)
+### Prerequisites
 
-**Ventajas:**
+- Fly CLI installed and authenticated (see "Prerequisites" section above)
 
-- Plan gratuito generoso (500 MB de base de datos)
-- Dashboard visual muy útil para desarrollo
-- Configuración más simple
-- Incluye autenticación, storage y funciones edge
+### Create the Chroma application
 
-**Pasos:**
+**⚠️ IMPORTANT:** You must create the application BEFORE creating the volume. The volume requires the application to exist to be attached.
 
-1. Crear cuenta en [Supabase](https://supabase.com) (si no tienes una)
-
-2. Crear un nuevo proyecto:
-
-   - Ve a https://supabase.com/dashboard
-   - Click en "New Project"
-   - Elige un nombre (ej: `zig-zag`)
-   - Elige una región cercana (ej: `US East`)
-   - Espera a que se cree el proyecto (~2 minutos)
-
-3. Obtener la connection string:
-
-   - En el dashboard de Supabase, ve a **Settings** → **Database**
-   - Busca la sección "Connection string"
-   - Copia la URI que dice "URI" (formato: `postgresql://postgres:[YOUR-PASSWORD]@db.xxxxx.supabase.co:5432/postgres`)
-   - Reemplaza `[YOUR-PASSWORD]` con la contraseña que configuraste al crear el proyecto
-
-4. Configurar la variable en Fly.io:
+1. Create a new application for Chroma:
 
 ```bash
-fly secrets set DATABASE_URL="postgresql://postgres:TU_PASSWORD@db.xxxxx.supabase.co:5432/postgres" --app zig-zag-backend
+fly apps create zig-zag-chroma
 ```
 
-**Nota:** También puedes usar el script `fly-secrets-import.sh` y agregar `DATABASE_URL` a tu archivo `.env.fly`
+2. Create one or more persistent volumes for Chroma data:
 
-### Opción B: Fly.io Postgres (Todo en un solo proveedor)
+**Option A: Single volume (for development/testing)**
 
-**Ventajas:**
+```bash
+fly volumes create chroma_data --size 1 --region iad --app zig-zag-chroma
+```
 
-- Todo en Fly.io (app + base de datos)
-- Latencia más baja si tu app está en Fly.io
-- Más control sobre la configuración
+**Option B: Multiple volumes (recommended for production)**
 
-**Pasos:**
+Fly.io recommends creating at least 2 volumes to avoid downtime. If a host fails, the application can continue running with the other volume:
 
-1. Crear una base de datos PostgreSQL en Fly.io:
+```bash
+# Create the first volume
+fly volumes create chroma_data --size 1 --region iad --app zig-zag-chroma
+
+# Create a second volume (optional but recommended)
+fly volumes create chroma_data_2 --size 1 --region iad --app zig-zag-chroma
+```
+
+**Notes:**
+
+- Adjust the size (`--size`) according to your needs. The minimum volume is 1GB.
+- Make sure to create the volumes in the same region where you will deploy the application (in this case `iad`).
+- Volumes will be automatically attached when you deploy the application according to the configuration in `fly-chroma.toml`.
+- If you create multiple volumes, you will need to update `fly-chroma.toml` to include all mounts (see troubleshooting section).
+
+### Chroma Deploy
+
+1. Use the `fly-chroma.toml` configuration file:
+
+```bash
+fly deploy --config fly-chroma.toml
+```
+
+2. Verify that Chroma is running:
+
+```bash
+fly status --app zig-zag-chroma
+```
+
+3. View logs:
+
+```bash
+fly logs --app zig-zag-chroma
+```
+
+### Get Chroma URL
+
+Once deployed, get the public URL of your Chroma instance:
+
+```bash
+# Get the full URL
+fly status --app zig-zag-chroma | grep "Hostname"
+
+# Or the direct URL will be:
+# https://zig-zag-chroma.fly.dev
+```
+
+### Configure CHROMA_URL in backend
+
+After deploying Chroma, configure the `CHROMA_URL` variable in your backend application:
+
+```bash
+# Use the public URL of your Chroma instance
+fly secrets set CHROMA_URL="https://zig-zag-chroma.fly.dev" --app zig-zag-backend
+```
+
+**Note:** Make sure to use the full URL with `https://` and without the port (Fly.io handles routing automatically).
+
+### Verify connection
+
+You can verify that Chroma is working correctly:
+
+```bash
+# Verify health check
+curl https://zig-zag-chroma.fly.dev/api/v1/heartbeat
+```
+
+You should receive a JSON response with the Chroma status.
+
+### Useful commands for Chroma
+
+- View app info: `fly info --app zig-zag-chroma`
+- View real-time logs: `fly logs --app zig-zag-chroma`
+- Open SSH console: `fly ssh console --app zig-zag-chroma`
+- View metrics: `fly metrics --app zig-zag-chroma`
+- Restart application: `fly apps restart zig-zag-chroma`
+
+### Chroma Troubleshooting
+
+**Chroma does not start:**
+
+- Check logs: `fly logs --app zig-zag-chroma`
+- Verify volume exists: `fly volumes list --app zig-zag-chroma`
+
+**Connection error from backend:**
+
+- Verify `CHROMA_URL` is configured correctly: `fly secrets list --app zig-zag-backend`
+- Ensure you use the full URL with `https://`
+- Verify both applications are in the same region for lower latency
+
+**Data does not persist:**
+
+- Verify volume is mounted: `fly volumes list --app zig-zag-chroma`
+- Volume must be at `/data` according to configuration
+- If you created multiple volumes, Chroma will only use one by default. To use multiple volumes, you would need to configure replication in Chroma or use a distributed file system
+
+**Health check fails:**
+
+- If the endpoint `/api/v1/heartbeat` does not work, you can change the health check in `fly-chroma.toml` to use `tcp_checks` instead of `http_checks`, or change the path to `/`
+- You can also temporarily disable the health check for debugging
+
+**Error creating volume: "is not a valid answer" or "zig-zag-chroma is not a valid answer":**
+
+- **IMPORTANT:** You must create the application FIRST before creating the volume
+- Run: `fly apps create zig-zag-chroma` before creating the volume
+- The volume requires the application to exist before it can be created
+- When Fly.io asks "Do you still want to use the volumes feature? (y/N)", answer `y` to continue
+
+## Ollama Cloud Configuration (AI)
+
+For production, it is recommended to use **Ollama Cloud** instead of running Ollama locally. This saves resources and simplifies deployment.
+
+### Prerequisites
+
+1. Create account at [Ollama Cloud](https://ollama.com/cloud)
+2. Get your API key from the dashboard
+
+### Configuration on Fly.io
+
+**Recommended method: Use configuration script**
+
+```bash
+./configure-ollama-cloud.sh
+```
+
+This script will guide you step by step to configure Ollama Cloud.
+
+**Alternative method: Manual configuration**
+
+1. Configure environment variables:
+
+```bash
+# Configure Ollama Cloud
+fly secrets set OLLAMA_BASE_URL="https://api.ollama.com" --app zig-zag-backend
+fly secrets set OLLAMA_API_KEY="your-ollama-cloud-api-key" --app zig-zag-backend
+
+# Configure AI provider
+fly secrets set AI_PROVIDER="ollama" --app zig-zag-backend
+fly secrets set AI_MODEL="llama3.2:3b" --app zig-zag-backend
+fly secrets set ENABLE_AI="true" --app zig-zag-backend
+
+# Optional configuration
+fly secrets set OLLAMA_TIMEOUT="240000" --app zig-zag-backend  # 4 minutes (240 seconds)
+fly secrets set EMBEDDINGS_MODEL="nomic-embed-text" --app zig-zag-backend
+```
+
+2. Verify configuration:
+
+```bash
+fly secrets list --app zig-zag-backend | grep OLLAMA
+```
+
+### Important notes
+
+- **Ollama Cloud** uses `https://api.ollama.com` as base URL
+- You need a valid **API key** from Ollama Cloud
+- Default timeout is 4x base timeout (240 seconds) for large models
+- **Embeddings** may require additional configuration if using Ollama Cloud (some embedding models may not be available on Cloud)
+
+### Alternative: Use OpenAI or Groq
+
+If you prefer to use another AI provider:
+
+```bash
+# For OpenAI
+fly secrets set AI_PROVIDER="openai" --app zig-zag-backend
+fly secrets set OPENAI_API_KEY="your-api-key" --app zig-zag-backend
+fly secrets set OPENAI_DEFAULT_MODEL="gpt-3.5-turbo" --app zig-zag-backend
+
+# For Groq
+fly secrets set AI_PROVIDER="groq" --app zig-zag-backend
+fly secrets set GROQ_API_KEY="your-api-key" --app zig-zag-backend
+```
+
+## Database Configuration
+
+### 🏗️ Database Architecture
+
+**Local Development (Docker):**
+
+- ✅ Uses **Local PostgreSQL** in Docker Compose (automatic)
+- ✅ No need to configure `DATABASE_URL` - used automatically
+- ✅ Database: `postgresql://postgres:postgres@postgres:5432/zigzag`
+
+**Production (Fly.io):**
+
+- ✅ Uses **Supabase** (recommended)
+- ✅ Configure `DATABASE_URL` and `DIRECT_URL` in Fly.io secrets
+- ✅ Uses Session Pooler (port 6543) for IPv4 compatibility
+
+### Production Configuration (Supabase - Recommended)
+
+**Advantages:**
+
+- Generous free plan (500 MB database)
+- Very useful visual dashboard for development
+- Simpler configuration
+- Includes authentication, storage, and edge functions
+
+**Steps:**
+
+1. Create account at [Supabase](https://supabase.com) (if you don't have one)
+
+2. Create a new project:
+
+   - Go to https://supabase.com/dashboard
+   - Click on "New Project"
+   - Choose a name (e.g., `zig-zag`)
+   - Choose a nearby region (e.g., `US East`)
+   - Wait for the project to be created (~2 minutes)
+
+3. Get connection string:
+
+   - In Supabase Dashboard, go to **Settings** → **Database**
+   - Find "Connection string" section
+   - **IMPORTANT:** Select:
+     - **Type:** URI
+     - **Source:** Primary Database
+     - **Method:** Session Pooler (⚠️ NOT Direct connection)
+   - Copy URI (must have port **6543**, not 5432)
+   - Format: `postgresql://postgres:[YOUR-PASSWORD]@aws-0-[region].pooler.supabase.com:6543/postgres`
+   - Replace `[YOUR-PASSWORD]` with the password you set when creating the project
+
+4. Configure variables in Fly.io:
+
+```bash
+# IMPORTANT: Use Session Pooler (port 6543), NOT Direct connection (5432)
+# Direct connection does NOT work with IPv4 on Fly.io
+fly secrets set DATABASE_URL="postgresql://postgres:YOUR_PASSWORD@aws-0-[region].pooler.supabase.com:6543/postgres" --app zig-zag-backend
+fly secrets set DIRECT_URL="postgresql://postgres:YOUR_PASSWORD@aws-0-[region].pooler.supabase.com:6543/postgres" --app zig-zag-backend
+```
+
+**Note:** You can also use `fly-secrets-import.sh` script and add `DATABASE_URL` to your `.env.fly` file
+
+### Option B: Fly.io Postgres (All in one provider)
+
+**Advantages:**
+
+- All in Fly.io (app + database)
+- Lower latency if your app is on Fly.io
+- More control over configuration
+
+**Steps:**
+
+1. Create a PostgreSQL database on Fly.io:
 
 ```bash
 fly postgres create --name zig-zag-db --region iad
 ```
 
-2. Conectar la base de datos a la aplicación:
+2. Connect database to application:
 
 ```bash
 fly postgres attach --app zig-zag-backend zig-zag-db
 ```
 
-Esto automáticamente configurará la variable `DATABASE_URL` en tu aplicación.
+This will automatically configure the `DATABASE_URL` variable in your application.
 
-## Configurar variables de entorno
+## Configure Environment Variables
 
-### Opción 1: Usar archivo .env.fly (Recomendado)
+### Option 1: Use .env.fly file (Recommended)
 
-1. Crea un archivo `.env.fly` en la raíz del proyecto con todas las variables necesarias:
+1. Create a `.env.fly` file in the project root with all necessary variables:
 
 ```bash
-# Copia el archivo de ejemplo y edítalo
+# Copy example file and edit it
 cp cloud-run/env/backend.env.example .env.fly
 ```
 
-2. Edita `.env.fly` y completa los valores (especialmente las API keys y DATABASE_URL)
+2. Edit `.env.fly` and fill in values (especially API keys and DATABASE_URL)
 
-3. Importa todas las variables de una vez:
+3. Import all variables at once:
 
-**Método recomendado: Usar el script helper**
+**Recommended method: Use helper script**
 
 ```bash
-# Usa el script incluido (más fácil y seguro)
+# Use included script (easier and safer)
 ./fly-secrets-import.sh zig-zag-backend
 ```
 
-**Método alternativo: Script manual**
+**Alternative method: Manual script**
 
-Si prefieres hacerlo manualmente, puedes usar este script:
+If you prefer to do it manually, you can use this script:
 
 ```bash
-# Lee el archivo .env.fly y configura cada variable
+# Read .env.fly file and configure each variable
 while IFS= read -r line || [ -n "$line" ]; do
-  # Ignora comentarios y líneas vacías
+  # Ignore comments and empty lines
   [[ "$line" =~ ^[[:space:]]*# ]] && continue
   [[ -z "${line// }" ]] && continue
 
-  # Separa key y value
+  # Separate key and value
   if [[ "$line" =~ ^([^=]+)=(.*)$ ]]; then
     key="${BASH_REMATCH[1]}"
     value="${BASH_REMATCH[2]}"
 
-    # Elimina espacios y comillas
+    # Remove spaces and quotes
     key=$(echo "$key" | xargs)
     value=$(echo "$value" | xargs | sed 's/^"//;s/"$//')
 
-    # Configura el secreto
+    # Configure secret
     if [ -n "$key" ] && [ -n "$value" ]; then
       fly secrets set "${key}=${value}" --app zig-zag-backend
     fi
@@ -138,178 +362,334 @@ while IFS= read -r line || [ -n "$line" ]; do
 done < .env.fly
 ```
 
-**Nota:** El archivo `.env.fly` debe contener solo las variables que quieres configurar en formato `KEY=VALUE` (una por línea). Puedes excluir `DATABASE_URL` si ya la configuraste al conectar PostgreSQL, o incluirla si quieres sobrescribirla. Las líneas que empiezan con `#` se ignoran.
+**Note:** The `.env.fly` file should contain only variables you want to configure in `KEY=VALUE` format (one per line). You can exclude `DATABASE_URL` if you already configured it when connecting PostgreSQL, or include it if you want to overwrite it. Lines starting with `#` are ignored.
 
-### Opción 2: Configurar variables individualmente
+### Option 2: Configure variables individually
 
-Si prefieres configurar variables una por una:
+If you prefer to configure variables one by one:
 
 ```bash
-# Variables requeridas
+# Required variables
 fly secrets set DATABASE_URL="postgresql://..." --app zig-zag-backend
 fly secrets set DIRECT_URL="postgresql://..." --app zig-zag-backend
 
-# Variables opcionales pero recomendadas
-fly secrets set OPENAI_API_KEY="tu-api-key" --app zig-zag-backend
-fly secrets set GOOGLE_MAPS_API_KEY="tu-api-key" --app zig-zag-backend
-fly secrets set CHROMA_URL="http://tu-chroma-instance:8000" --app zig-zag-backend
+# Optional but recommended variables
+fly secrets set OPENAI_API_KEY="your-api-key" --app zig-zag-backend
+fly secrets set GOOGLE_MAPS_API_KEY="your-api-key" --app zig-zag-backend
+# If you deployed Chroma on Fly.io, use public URL:
+fly secrets set CHROMA_URL="https://zig-zag-chroma.fly.dev" --app zig-zag-backend
 
-# Variables de configuración
+# Configuration variables
 fly secrets set NODE_ENV="production" --app zig-zag-backend
 fly secrets set CORS_ENABLED="true" --app zig-zag-backend
 fly secrets set CORS_ORIGIN="*" --app zig-zag-backend
 fly secrets set SWAGGER_ENABLED="true" --app zig-zag-backend
 
-# Variables de AI (opcionales)
+# AI variables (optional)
 fly secrets set ENABLE_AI="true" --app zig-zag-backend
-fly secrets set AI_PROVIDER="openai" --app zig-zag-backend
-fly secrets set AI_MODEL="gpt-3.5-turbo" --app zig-zag-backend
-fly secrets set OPENAI_DEFAULT_MODEL="gpt-3.5-turbo" --app zig-zag-backend
-fly secrets set OPENAI_TEMPERATURE="0.7" --app zig-zag-backend
-fly secrets set OPENAI_TIMEOUT="60000" --app zig-zag-backend
+fly secrets set AI_PROVIDER="ollama" --app zig-zag-backend
+fly secrets set AI_MODEL="llama3.2:3b" --app zig-zag-backend
 fly secrets set EMBEDDINGS_MODEL="nomic-embed-text" --app zig-zag-backend
+
+# Ollama Cloud configuration (for production)
+# Get your API key from https://ollama.com/cloud
+fly secrets set OLLAMA_BASE_URL="https://api.ollama.com" --app zig-zag-backend
+fly secrets set OLLAMA_API_KEY="your-ollama-cloud-api-key" --app zig-zag-backend
+fly secrets set OLLAMA_TIMEOUT="240000" --app zig-zag-backend  # 4 minutes for large models
+
+# Alternative: OpenAI (if you prefer to use OpenAI instead of Ollama)
+# fly secrets set AI_PROVIDER="openai" --app zig-zag-backend
+# fly secrets set OPENAI_API_KEY="your-api-key" --app zig-zag-backend
+# fly secrets set OPENAI_DEFAULT_MODEL="gpt-3.5-turbo" --app zig-zag-backend
+# fly secrets set OPENAI_TEMPERATURE="0.7" --app zig-zag-backend
+# fly secrets set OPENAI_TIMEOUT="60000" --app zig-zag-backend
 ```
 
-### Verificar variables configuradas
+### Verify configured variables
 
-Para ver todas las variables de entorno configuradas:
+To view all configured environment variables:
 
 ```bash
 fly secrets list --app zig-zag-backend
 ```
 
-## Migraciones de base de datos
+## Database Migrations
 
-Antes del primer deploy, necesitas crear las tablas en la base de datos. El proyecto incluye un script de setup automatizado que detecta si hay migraciones y aplica la estrategia correcta.
+Before the first deploy, you need to create the tables in the database. The project includes an automated setup script that detects if there are migrations and applies the correct strategy.
 
-### Setup Automático (Recomendado)
+### Automatic Setup (Recommended)
 
-El script `be/scripts/setup-db.sh` se ejecuta automáticamente cuando usas Docker Compose. También puedes ejecutarlo manualmente:
+The `be/scripts/setup-db.sh` script runs automatically when you use Docker Compose. You can also run it manually:
 
-**Con Docker Compose:**
+**With Docker Compose:**
 
-El setup se ejecuta automáticamente al iniciar el contenedor. Solo asegúrate de tener `DATABASE_URL` configurada:
+The setup runs automatically when starting the container. Just make sure you have `DATABASE_URL` configured:
 
 ```bash
-# Si usas Supabase, configura DATABASE_URL en tu .env o docker-compose.yml
+# If using Supabase, configure DATABASE_URL in your .env or docker-compose.yml
 docker-compose up backend
 ```
 
-**Manualmente (dentro del contenedor o localmente):**
+**Manually (inside container or locally):**
 
 ```bash
 cd be
-# Configura DATABASE_URL según tu caso
-export DATABASE_URL="postgresql://postgres:TU_PASSWORD@db.xxxxx.supabase.co:5432/postgres"
+# Configure DATABASE_URL according to your case
+export DATABASE_URL="postgresql://postgres:YOUR_PASSWORD@db.xxxxx.supabase.co:5432/postgres"
 yarn prisma:setup
-# O directamente:
+# Or directly:
 sh scripts/setup-db.sh
 ```
 
-El script:
+The script:
 
-- ✅ Genera el Prisma Client
-- ✅ Si hay migraciones en `prisma/migrations`, aplica `prisma migrate deploy`
-- ✅ Si no hay migraciones, usa `prisma db push` (útil para desarrollo)
+- ✅ Generates Prisma Client
+- ✅ If migrations exist in `prisma/migrations`, applies `prisma migrate deploy`
+- ✅ If no migrations, uses `prisma db push` (useful for development)
 
-### Setup Manual (Si prefieres control total)
+### Manual Setup (If you prefer full control)
 
-#### Opción A: Usar `prisma db push` (Rápido para empezar)
+#### Option A: Use `prisma db push` (Fast to start)
 
-Esta opción crea las tablas directamente desde el schema sin crear archivos de migración. Útil para desarrollo o cuando no tienes migraciones aún.
+This option creates tables directly from schema without creating migration files. Useful for development or when you don't have migrations yet.
 
-**Si usas Supabase:**
+**If using Supabase:**
 
 ```bash
 cd be
-# Obtén la DATABASE_URL desde Supabase Dashboard → Settings → Database
-DATABASE_URL="postgresql://postgres:TU_PASSWORD@db.xxxxx.supabase.co:5432/postgres" npx prisma db push
+# Get DATABASE_URL from Supabase Dashboard → Settings → Database
+DATABASE_URL="postgresql://postgres:YOUR_PASSWORD@db.xxxxx.supabase.co:5432/postgres" npx prisma db push
 ```
 
-**Si usas Fly.io Postgres:**
+**If using Fly.io Postgres:**
 
 ```bash
 cd be
 DATABASE_URL="$(fly secrets list --app zig-zag-backend | grep DATABASE_URL | awk '{print $2}')" npx prisma db push
 ```
 
-#### Opción B: Crear migraciones primero (Recomendado para producción)
+#### Option B: Create migrations first (Recommended for production)
 
-Esta opción crea archivos de migración que puedes versionar y aplicar en diferentes ambientes.
+This option creates migration files that you can version and apply in different environments.
 
-**Paso 1: Crear las migraciones iniciales (desde tu máquina local)**
+**Step 1: Create initial migrations (from local machine)**
 
 ```bash
 cd be
-# Obtén la DATABASE_URL desde Supabase Dashboard → Settings → Database
-DATABASE_URL="postgresql://postgres:TU_PASSWORD@db.xxxxx.supabase.co:5432/postgres" yarn prisma:migrate --name init
+# Get DATABASE_URL from Supabase Dashboard → Settings → Database
+DATABASE_URL="postgresql://postgres:YOUR_PASSWORD@db.xxxxx.supabase.co:5432/postgres" yarn prisma:migrate --name init
 ```
 
-Esto creará un directorio `prisma/migrations` con las migraciones y aplicará los cambios a la base de datos.
+This will create a `prisma/migrations` directory with migrations and apply changes to database.
 
-**Paso 2: Aplicar migraciones en producción (desde Fly.io)**
+**Step 2: Apply migrations in production (from Fly.io)**
 
 ```bash
 fly ssh console --app zig-zag-backend
-# Dentro del contenedor:
+# Inside container:
 cd be
 yarn prisma:deploy
 ```
 
-**Nota:** Si `prisma migrate deploy` no hace nada, significa que:
+**Note:** If `prisma migrate deploy` does nothing, it means that:
 
-- No hay migraciones en `prisma/migrations` (usa la Opción A o crea las migraciones primero)
-- O todas las migraciones ya están aplicadas (verifica con `npx prisma migrate status`)
+- There are no migrations in `prisma/migrations` (use Option A or create migrations first)
+- Or all migrations are already applied (verify with `npx prisma migrate status`)
 
 ## Deploy
 
-1. Hacer deploy de la aplicación:
+1. Deploy the application:
 
 ```bash
 fly deploy
 ```
 
-2. Verificar el estado:
+2. Verify status:
 
 ```bash
 fly status
 ```
 
-3. Ver los logs:
+3. View logs:
 
 ```bash
 fly logs
 ```
 
-## Comandos útiles
+## Useful commands
 
-- Ver información de la app: `fly info`
-- Ver variables de entorno: `fly secrets list`
-- Abrir una consola SSH: `fly ssh console`
-- Ver métricas: `fly metrics`
-- Escalar la aplicación: `fly scale count 2` (para 2 instancias)
+- View app info: `fly info`
+- View environment variables: `fly secrets list`
+- Open SSH console: `fly ssh console`
+- View metrics: `fly metrics`
+- Scale application: `fly scale count 2` (for 2 instances)
 
 ## Troubleshooting
 
-### La aplicación no inicia
+### Application does not start
 
-- Revisa los logs: `fly logs`
-- Verifica las variables de entorno: `fly secrets list`
-- Asegúrate de que la base de datos esté accesible
+- Check logs: `fly logs`
+- Verify environment variables: `fly secrets list`
+- Make sure database is accessible
 
-### Error de conexión a la base de datos
+### Database connection error
 
-- Verifica que la base de datos esté conectada: `fly postgres list`
-- Revisa la variable `DATABASE_URL`: `fly secrets list`
+- Verify database is connected: `fly postgres list`
+- Check `DATABASE_URL` variable: `fly secrets list`
 
-### Error en las migraciones
+### Migration error
 
-- Ejecuta las migraciones manualmente desde SSH: `fly ssh console`
-- Verifica que Prisma esté instalado: `npx prisma --version`
+- Run migrations manually from SSH: `fly ssh console`
+- Verify Prisma is installed: `npx prisma --version`
 
-## Notas
+### Ollama Cloud connection error
 
-- El puerto se configura automáticamente a través de la variable `PORT` (fly.io usa 3000)
-- La aplicación se construye usando el Dockerfile en `be/Dockerfile`
-- El contexto de build es la raíz del proyecto (monorepo)
-- Las variables de entorno se configuran como secrets en Fly.io para mayor seguridad
+- Verify API key is correct: `fly secrets list --app zig-zag-backend | grep OLLAMA_API_KEY`
+- Verify `OLLAMA_BASE_URL` is configured as `https://api.ollama.com`
+- Check logs for specific error: `fly logs --app zig-zag-backend`
+- Make sure selected model is available in Ollama Cloud
+- If timeout is too short, increase `OLLAMA_TIMEOUT` (default 240000ms = 4 minutes)
+
+## Frontend Deployment
+
+### Prerequisites
+
+1. Create frontend application on Fly.io:
+
+```bash
+fly apps create zig-zag-frontend
+```
+
+### Configure Environment Variables
+
+The frontend needs the Google Maps API key to work. **IMPORTANT**: Fly.io secrets are NOT available automatically during Docker build, only at runtime. Since Expo needs the variable during build, you must pass it explicitly.
+
+#### Option 1: Use deploy script (Recommended)
+
+The `deploy-fe.sh` script handles everything automatically:
+
+```bash
+# Pass API key as argument
+./deploy-fe.sh "your-google-maps-api-key"
+
+# Or export it first
+export EXPO_PUBLIC_GOOGLE_MAPS_API_KEY="your-google-maps-api-key"
+./deploy-fe.sh
+```
+
+The script:
+
+- ✅ Configures secret in Fly.io automatically
+- ✅ Passes API key as build arg during build
+- ✅ Verifies everything is configured correctly
+
+#### Option 2: Manual deploy with build arg
+
+```bash
+# 1. Configure secret in Fly.io (for runtime)
+fly secrets set EXPO_PUBLIC_GOOGLE_MAPS_API_KEY="your-api-key" --app zig-zag-frontend
+
+# 2. Export variable locally (for build)
+export EXPO_PUBLIC_GOOGLE_MAPS_API_KEY="your-api-key"
+
+# 3. Deploy with build arg
+fly deploy --config fly-fe.toml --build-arg EXPO_PUBLIC_GOOGLE_MAPS_API_KEY="$EXPO_PUBLIC_GOOGLE_MAPS_API_KEY"
+```
+
+#### Option 3: Use [env] in fly-fe.toml (Development only)
+
+⚠️ **DO NOT version file with secret included**
+
+Edit `fly-fe.toml` and add in `[env]` section:
+
+```toml
+[env]
+  NODE_ENV = "production"
+  EXPO_PUBLIC_GOOGLE_MAPS_API_KEY = "your-api-key-here"
+```
+
+Then deploy normally:
+
+```bash
+fly deploy --config fly-fe.toml
+```
+
+**⚠️ IMPORTANT:**
+
+- `EXPO_PUBLIC_*` variables are embedded at build-time, not runtime
+- If you change the secret later, you need to do a new deploy
+- Verify in build logs: you should see "Building with EXPO_PUBLIC_GOOGLE_MAPS_API_KEY set: YES"
+
+### Deploy
+
+**Recommended method (using script):**
+
+```bash
+./deploy-fe.sh "your-api-key"
+```
+
+**Manual method:**
+
+```bash
+fly deploy --config fly-fe.toml --build-arg EXPO_PUBLIC_GOOGLE_MAPS_API_KEY="your-api-key"
+```
+
+2. Verify that frontend is running:
+
+```bash
+fly status --app zig-zag-frontend
+```
+
+3. View logs:
+
+```bash
+fly logs --app zig-zag-frontend
+```
+
+### Verify configured variables
+
+To view all configured environment variables:
+
+```bash
+fly secrets list --app zig-zag-frontend
+```
+
+### Frontend Troubleshooting
+
+#### Map does not load / useJsApiLoader Error
+
+**Cause:** The `EXPO_PUBLIC_GOOGLE_MAPS_API_KEY` variable is not configured or not available.
+
+**Solution:**
+
+1. Verify that the secret is configured:
+
+   ```bash
+   fly secrets list --app zig-zag-frontend | grep GOOGLE_MAPS
+   ```
+
+2. If not configured, configure it:
+
+   ```bash
+   fly secrets set EXPO_PUBLIC_GOOGLE_MAPS_API_KEY="your-api-key" --app zig-zag-frontend
+   ```
+
+3. Do a new deploy so the variable is embedded in the build:
+
+   ```bash
+   fly deploy --config fly-fe.toml
+   ```
+
+4. Verify in build logs that the variable is available:
+   ```bash
+   fly logs --app zig-zag-frontend
+   ```
+   You should see: "Building with EXPO_PUBLIC_GOOGLE_MAPS_API_KEY set: YES"
+
+## Notes
+
+- The port is configured automatically via `PORT` variable (fly.io uses 3000)
+- The application is built using the Dockerfile at `be/Dockerfile`
+- The build context is the project root (monorepo)
+- Environment variables are configured as secrets in Fly.io for greater security
+- **Frontend:** `EXPO_PUBLIC_*` variables are embedded in the bundle during build, so they must be configured as secrets before deploy

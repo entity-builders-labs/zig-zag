@@ -1,5 +1,4 @@
 import {
-  SectionList,
   StyleSheet,
   TouchableOpacity,
   ActivityIndicator,
@@ -11,6 +10,7 @@ import {
   BottomSheetPortal,
   BottomSheetDragIndicator,
   BottomSheetContent,
+  BottomSheetSectionList,
 } from '../../components/ui/bottom-sheet';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Box, Text } from '@gluestack-ui/themed';
@@ -28,12 +28,14 @@ export const Activities = () => {
   const [similarById, setSimilarById] = useState<Record<string, any[]>>({});
   const [typeFilter, setTypeFilter] = useState<string[]>([]);
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const defaultRadius = Number(process.env.EXPO_PUBLIC_DEFAULT_RADIUS_METERS ?? 3000);
+  const defaultRadius = Number(
+    process.env.EXPO_PUBLIC_DEFAULT_RADIUS_METERS ?? 3000
+  );
   const { radiusMeters, setRadiusMeters } = useSearchRadius();
 
   const toggleType = (t: string) => {
     setTypeFilter((prev) =>
-      prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t],
+      prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]
     );
   };
 
@@ -53,7 +55,7 @@ export const Activities = () => {
     ? activities.filter(
         (a: any) =>
           a.knownActivityTypeName &&
-          typeFilter.includes(String(a.knownActivityTypeName).toLowerCase()),
+          typeFilter.includes(String(a.knownActivityTypeName).toLowerCase())
       )
     : activities;
 
@@ -76,7 +78,7 @@ export const Activities = () => {
       enablePanDownToClose={false}
       index={1}
     >
-      <BottomSheetContent>
+      <BottomSheetContent style={{ flex: 1 }}>
         <Box
           style={{
             paddingVertical: 10,
@@ -116,20 +118,36 @@ export const Activities = () => {
               borderRadius: 6,
             }}
           >
-            <Text style={{ color: '#fff', fontWeight: 'bold' }}>Buscar actividades</Text>
+            <Text style={{ color: '#fff', fontWeight: 'bold' }}>
+              Buscar actividades
+            </Text>
           </TouchableOpacity>
         </Box>
 
         {/* Modal de filtros */}
-        <Modal visible={filtersOpen} transparent animationType="fade">
+        <Modal visible={filtersOpen} transparent animationType='fade'>
           <View style={styles.modalBackdrop}>
             <View style={styles.modalCard}>
-              <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 12 }}>Filtrar por tipo</Text>
-              {['cultural', 'food', 'outdoor', 'nightlife', 'entertainment'].map((t) => (
+              <Text
+                style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 12 }}
+              >
+                Filtrar por tipo
+              </Text>
+              {[
+                'cultural',
+                'food',
+                'outdoor',
+                'nightlife',
+                'entertainment',
+              ].map((t) => (
                 <TouchableOpacity
                   key={t}
                   onPress={() => toggleType(t)}
-                  style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 8 }}
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    paddingVertical: 8,
+                  }}
                 >
                   <View
                     style={{
@@ -139,7 +157,9 @@ export const Activities = () => {
                       borderWidth: 1,
                       borderColor: '#333',
                       marginRight: 8,
-                      backgroundColor: typeFilter.includes(t) ? '#000' : 'transparent',
+                      backgroundColor: typeFilter.includes(t)
+                        ? '#000'
+                        : 'transparent',
                     }}
                   />
                   <Text style={{ textTransform: 'capitalize' }}>{t}</Text>
@@ -148,7 +168,9 @@ export const Activities = () => {
 
               {/* Radius selector */}
               <View style={{ marginTop: 12 }}>
-                <Text style={{ marginBottom: 6, fontWeight: '600' }}>Radio de búsqueda</Text>
+                <Text style={{ marginBottom: 6, fontWeight: '600' }}>
+                  Radio de búsqueda
+                </Text>
                 <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
                   {[
                     { label: '500 m', value: 500 },
@@ -168,28 +190,63 @@ export const Activities = () => {
                         borderColor: '#333',
                         marginRight: 8,
                         marginBottom: 8,
-                        backgroundColor: radiusMeters === opt.value ? '#000' : 'transparent',
+                        backgroundColor:
+                          radiusMeters === opt.value ? '#000' : 'transparent',
                       }}
                     >
-                      <Text style={{ color: radiusMeters === opt.value ? '#fff' : '#000' }}>
+                      <Text
+                        style={{
+                          color: radiusMeters === opt.value ? '#fff' : '#000',
+                        }}
+                      >
                         {opt.label}
                       </Text>
                     </TouchableOpacity>
                   ))}
                 </View>
                 <Text style={{ color: '#666', marginTop: 4 }}>
-                  Dentro de {radiusMeters >= 1000 ? `${(radiusMeters / 1000).toFixed(1)} km` : `${radiusMeters} m`}
+                  Dentro de{' '}
+                  {radiusMeters >= 1000
+                    ? `${(radiusMeters / 1000).toFixed(1)} km`
+                    : `${radiusMeters} m`}
                 </Text>
               </View>
 
-              <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginTop: 16 }}>
-                <TouchableOpacity onPress={() => setFiltersOpen(false)} style={{ paddingHorizontal: 12, paddingVertical: 8 }}>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'flex-end',
+                  marginTop: 16,
+                }}
+              >
+                <TouchableOpacity
+                  onPress={() => setFiltersOpen(false)}
+                  style={{ paddingHorizontal: 12, paddingVertical: 8 }}
+                >
                   <Text>Cancelar</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => setFiltersOpen(false)} style={{ backgroundColor: '#000', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 6, marginLeft: 8 }}>
+                <TouchableOpacity
+                  onPress={() => setFiltersOpen(false)}
+                  style={{
+                    backgroundColor: '#000',
+                    paddingHorizontal: 12,
+                    paddingVertical: 8,
+                    borderRadius: 6,
+                    marginLeft: 8,
+                  }}
+                >
                   <Text style={{ color: '#fff' }}>Aplicar</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => setTypeFilter([])} style={{ backgroundColor: '#eee', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 6, marginLeft: 8 }}>
+                <TouchableOpacity
+                  onPress={() => setTypeFilter([])}
+                  style={{
+                    backgroundColor: '#eee',
+                    paddingHorizontal: 12,
+                    paddingVertical: 8,
+                    borderRadius: 6,
+                    marginLeft: 8,
+                  }}
+                >
                   <Text>Limpiar</Text>
                 </TouchableOpacity>
               </View>
@@ -200,16 +257,20 @@ export const Activities = () => {
         {activitiesLoading ? (
           <Box style={{ alignItems: 'center', paddingVertical: 16 }}>
             <ActivityIndicator size='small' />
-            <Text style={{ marginTop: 8, color: '#666' }}>Buscando actividades…</Text>
+            <Text style={{ marginTop: 8, color: '#666' }}>
+              Buscando actividades…
+            </Text>
           </Box>
         ) : sections.length === 0 ? (
           <Box style={{ alignItems: 'center', paddingVertical: 16 }}>
             <Text style={{ color: '#666' }}>
-              No hay actividades aún. Busca una dirección o toca “Buscar actividades”.
+              No hay actividades aún. Busca una dirección o toca “Buscar
+              actividades”.
             </Text>
           </Box>
         ) : (
-          <SectionList
+          <BottomSheetSectionList
+            style={{ flex: 1 }}
             sections={sections}
             keyExtractor={(item) => item.id}
             contentContainerStyle={{ paddingBottom: insets.bottom }}
@@ -231,7 +292,7 @@ export const Activities = () => {
                 </Text>
               </Box>
             )}
-          renderItem={({ item }) => (
+            renderItem={({ item }) => (
               <Box
                 style={[styles.container]}
                 onTouchEnd={() => {
@@ -256,49 +317,55 @@ export const Activities = () => {
                 <Text style={{ fontSize: 12, color: '#333', marginTop: 4 }}>
                   {`⭐ ${item.rating?.toFixed?.(1) ?? '–'} (${item.ratingCount ?? 0}) · Ponderado ${
                     item.weightedScore !== undefined
-                      ? (Math.round((item.weightedScore + Number.EPSILON) * 10) / 10).toFixed(1)
+                      ? (
+                          Math.round(
+                            (item.weightedScore + Number.EPSILON) * 10
+                          ) / 10
+                        ).toFixed(1)
                       : '–'
                   } · ${item.distance !== undefined ? item.distance.toFixed(1) : '–'} km`}
                 </Text>
 
-              {expandedId === item.id && (
-                <Box style={{ marginTop: 8 }}>
-                  <TouchableOpacity
-                    onPress={() => handleLoadSimilar(item.id)}
-                    style={{
-                      backgroundColor: '#f0f0f0',
-                      paddingHorizontal: 10,
-                      paddingVertical: 6,
-                      borderRadius: 6,
-                      alignSelf: 'flex-start',
-                    }}
-                  >
-                    <Text>Ver similares</Text>
-                  </TouchableOpacity>
+                {expandedId === item.id && (
+                  <Box style={{ marginTop: 8 }}>
+                    <TouchableOpacity
+                      onPress={() => handleLoadSimilar(item.id)}
+                      style={{
+                        backgroundColor: '#f0f0f0',
+                        paddingHorizontal: 10,
+                        paddingVertical: 6,
+                        borderRadius: 6,
+                        alignSelf: 'flex-start',
+                      }}
+                    >
+                      <Text>Ver similares</Text>
+                    </TouchableOpacity>
 
-                  {similarLoadingId === item.id && (
-                    <Box style={{ paddingVertical: 8 }}>
-                      <Text style={{ color: '#666' }}>Buscando similares…</Text>
-                    </Box>
-                  )}
+                    {similarLoadingId === item.id && (
+                      <Box style={{ paddingVertical: 8 }}>
+                        <Text style={{ color: '#666' }}>
+                          Buscando similares…
+                        </Text>
+                      </Box>
+                    )}
 
-                  {similarById[item.id]?.length > 0 && (
-                    <Box style={{ marginTop: 8 }}>
-                      <Text style={{ fontWeight: 'bold', marginBottom: 4 }}>
-                        Similares
-                      </Text>
-                      {similarById[item.id].map((s) => (
-                        <Box key={s.id} style={{ paddingVertical: 4 }}>
-                          <Text style={{ fontWeight: '600' }}>{s.name}</Text>
-                          <Text numberOfLines={1} ellipsizeMode='tail'>
-                            {s.formattedAddress}
-                          </Text>
-                        </Box>
-                      ))}
-                    </Box>
-                  )}
-                </Box>
-              )}
+                    {similarById[item.id]?.length > 0 && (
+                      <Box style={{ marginTop: 8 }}>
+                        <Text style={{ fontWeight: 'bold', marginBottom: 4 }}>
+                          Similares
+                        </Text>
+                        {similarById[item.id].map((s) => (
+                          <Box key={s.id} style={{ paddingVertical: 4 }}>
+                            <Text style={{ fontWeight: '600' }}>{s.name}</Text>
+                            <Text numberOfLines={1} ellipsizeMode='tail'>
+                              {s.formattedAddress}
+                            </Text>
+                          </Box>
+                        ))}
+                      </Box>
+                    )}
+                  </Box>
+                )}
               </Box>
             )}
             stickySectionHeadersEnabled={true}

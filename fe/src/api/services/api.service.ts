@@ -17,7 +17,9 @@ export class ApiService<T> {
   private handleError(error: AxiosError): ApiResponse<T> {
     return {
       data: null as T,
-      error: error.response?.data?.message || 'An error occurred',
+      error:
+        (error.response?.data as { message: string })?.message ||
+        'An error occurred',
       status: error.response?.status || 500,
     };
   }
@@ -25,7 +27,7 @@ export class ApiService<T> {
   async getAll(): Promise<ApiResponse<T[]>> {
     try {
       const response = await axiosInstance.get<T[]>(this.endpoint);
-      return { data: response, error: null, status: 200 };
+      return { data: response.data, error: null, status: 200 };
     } catch (error) {
       return this.handleError(error as AxiosError);
     }
@@ -34,7 +36,7 @@ export class ApiService<T> {
   async getById(id: string | number): Promise<ApiResponse<T>> {
     try {
       const response = await axiosInstance.get<T>(`${this.endpoint}/${id}`);
-      return { data: response, error: null, status: 200 };
+      return { data: response.data, error: null, status: 200 };
     } catch (error) {
       return this.handleError(error as AxiosError);
     }
@@ -55,7 +57,7 @@ export class ApiService<T> {
         `${this.endpoint}/${id}`,
         data
       );
-      return { data: response, error: null, status: 200 };
+      return { data: response.data, error: null, status: 200 };
     } catch (error) {
       return this.handleError(error as AxiosError);
     }

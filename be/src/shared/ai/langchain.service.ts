@@ -1,8 +1,7 @@
-// @ts-nocheck
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { OpenAI, ChatOpenAI, OpenAIEmbeddings } from '@langchain/openai';
-import * as fs from 'fs';
+import { ChatOllama } from '@langchain/ollama';
 import {
   ChatPromptTemplate,
   HumanMessagePromptTemplate,
@@ -16,7 +15,7 @@ import { Document } from '@langchain/core/documents';
 import aiConfig from './ai.config';
 import { Activity } from '@prisma/client';
 import { Chroma } from '@langchain/community/vectorstores/chroma';
-import { Where } from 'chromadb';
+import { Where, ChromaClient } from 'chromadb';
 import { PrismaService } from '../../core/database/prisma.service';
 
 // At the top of the file, add interface
@@ -64,163 +63,125 @@ export class LangChainService {
     });
   }
 
-  // Helper to detect if a URL points to a local instance
-  private isLocalOllamaInstance(url: string): boolean {
-    const urlLower = url.toLowerCase();
-    const localhostPatterns = [
-      'localhost',
-      '127.0.0.1',
-      'host.docker.internal',
-      '0.0.0.0',
-      '::1', // IPv6 localhost
-    ];
-
-    // Check if URL contains any localhost pattern
-    const containsLocalhost = localhostPatterns.some((pattern) =>
-      urlLower.includes(pattern),
-    );
-
-    // Also check for local IP ranges (192.168.x.x, 10.x.x.x, 172.16-31.x.x)
-    const localIpPattern =
-      /https?:\/\/(192\.168\.|10\.|172\.(1[6-9]|2[0-9]|3[01])\.)/i;
-    const isLocalIp = localIpPattern.test(url);
-
-    return containsLocalhost || isLocalIp;
+  // Helper to detect if we're running in production (Fly.io)
+  private isProduction(): boolean {
+    return process.env.NODE_ENV === 'production';
   }
 
-  // Helper to detect if we're running in Docker
-  private isRunningInDocker(): boolean {
-    // Check multiple indicators that we're in Docker
-    if (process.env.DOCKER_CONTAINER === 'true') {
-      return true;
-    }
+  // Helper to create Chroma client configuration
+  private async getChromaConfig(): Promise<any> {
+    const collectionName = this.config.chromaCollectionName || 'activities';
 
-    // Check environment variables that indicate Docker
-    if (process.env.NODE_ENV === 'production' && process.platform === 'linux') {
-      // In production on Linux, assume Docker unless proven otherwise
-      return true;
-    }
+    // Check if Chroma Cloud credentials are provided
+    const isChromaCloud =
+      this.config.chromaApiKey &&
+      this.config.chromaTenant &&
+      this.config.chromaDatabase;
 
-    // Check hostname patterns
-    if (
-      process.env.HOSTNAME?.includes('container') ||
-      process.env.HOSTNAME?.includes('docker')
-    ) {
-      return true;
-    }
+    if (isChromaCloud) {
+      // Use Chroma Cloud with authentication
+      this.logger.log(
+        `Configuring Chroma Cloud (tenant: ${this.config.chromaTenant}, database: ${this.config.chromaDatabase})...`,
+      );
 
-    // Check /proc/1/cgroup for docker (Linux only, with safe error handling)
-    if (process.platform === 'linux') {
+      // Debug log for troubleshooting connection issues
+      this.logger.debug(
+        `Chroma Config: URL=${this.config.chromaUrl}, Tenant=${this.config.chromaTenant}, DB=${this.config.chromaDatabase}, APIKey present=${!!this.config.chromaApiKey}`,
+      );
+
+      // Create Chroma Cloud client with authentication headers
+      // We use ChromaClient directly instead of CloudClient to allow for custom URLs (e.g. local with auth)
+      // CloudClient forces specific host/port logic that ignores the full URL
+      let chromaUrl = this.config.chromaUrl || 'https://api.trychroma.com';
+      // Ensure protocol is present
+      if (
+        !chromaUrl.startsWith('http://') &&
+        !chromaUrl.startsWith('https://')
+      ) {
+        chromaUrl = `https://${chromaUrl}`;
+      }
+
+      this.logger.log(`Connecting to Chroma Cloud at ${chromaUrl}`);
+      // Cast to any to bypass type restriction if the library types are outdated or strict
+      // We need to ensure the header is sent as 'X-Chroma-Token', not 'X_CHROMA_TOKEN'
+      const tokenHeaderType: any = 'X-Chroma-Token';
+
+      const chromaClient = new ChromaClient({
+        path: chromaUrl,
+        auth: {
+          provider: 'token',
+          credentials: this.config.chromaApiKey!,
+          tokenHeaderType,
+        },
+        tenant: this.config.chromaTenant!,
+        database: this.config.chromaDatabase!,
+      });
+
+      // Test client connection before passing to LangChain
       try {
-        if (fs.existsSync('/proc/1/cgroup')) {
-          const cgroup = fs.readFileSync('/proc/1/cgroup', 'utf8');
-          if (cgroup.includes('docker')) {
-            return true;
-          }
-        }
-      } catch {
-        // Ignore errors reading cgroup
-      }
-    }
-
-    return false;
-  }
-
-  // Unified helper to find a working Ollama URL with retries
-  private async findWorkingOllamaUrl(
-    maxRetries: number = 10,
-    endpoint: string = '/api/tags',
-  ): Promise<string> {
-    const isDocker = this.isRunningInDocker();
-
-    // Prioritize Docker service name if in Docker, localhost otherwise
-    const tryUrls = isDocker
-      ? ['http://ollama:11434', 'http://localhost:11434']
-      : ['http://localhost:11434', 'http://ollama:11434'];
-
-    this.logger.log(
-      `Attempting to connect to Ollama (environment: ${isDocker ? 'Docker' : 'local'}, trying: ${tryUrls.join(', ')})...`,
-    );
-
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
-      for (const url of tryUrls) {
-        try {
-          const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout per attempt
-
-          const resp = await fetch(`${url}${endpoint}`, {
-            method: 'GET',
-            signal: controller.signal,
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          } as any);
-
-          clearTimeout(timeoutId);
-
-          if (resp.ok) {
-            this.logger.log(`✓ Ollama accessible at ${url}`);
-            return url;
-          } else {
-            this.logger.debug(
-              `Ollama at ${url} returned status ${resp.status} ${resp.statusText}`,
-            );
-          }
-        } catch (error: any) {
-          const errorMsg = error?.message || String(error);
-          const isTimeout =
-            errorMsg.includes('aborted') ||
-            errorMsg.includes('timeout') ||
-            error.name === 'AbortError';
-          const isConnectionError =
-            errorMsg.includes('ECONNREFUSED') ||
-            errorMsg.includes('ENOTFOUND') ||
-            errorMsg.includes('getaddrinfo') ||
-            errorMsg.includes('fetch failed');
-
-          // Only log on last attempt or for connection errors (not timeouts)
-          if (attempt === maxRetries || (!isTimeout && isConnectionError)) {
-            this.logger.debug(
-              `Connection to ${url} failed (attempt ${attempt}/${maxRetries}): ${errorMsg}`,
-            );
-          }
-          // Continue to next URL
-          continue;
-        }
-      }
-
-      // Wait before retrying (except on last attempt)
-      if (attempt < maxRetries) {
-        // Exponential backoff: 2s, 4s, 6s, 8s, 10s, 12s, 14s, 16s, 18s
-        const waitTime = 2000 + (attempt - 1) * 2000;
-        this.logger.log(
-          `⏳ Ollama not ready yet, waiting ${waitTime}ms before retry (attempt ${attempt}/${maxRetries})...`,
+        await chromaClient.heartbeat();
+        this.logger.debug(
+          '✓ Chroma Cloud client connection verified (heartbeat)',
         );
-        await new Promise((resolve) => setTimeout(resolve, waitTime));
+      } catch (hbError: any) {
+        this.logger.error(
+          `⚠️  Chroma Cloud client connection failed during config: ${hbError.message}`,
+          hbError.stack,
+        );
       }
+
+      return {
+        collectionName,
+        index: chromaClient, // LangChain expects 'index' not 'client' for pre-configured client
+        url: chromaUrl,
+        // Pass explicit collection creation options to work around LangChain's limitations
+        // LangChain's Chroma wrapper sometimes struggles with authenticated cloud instances
+        // We'll rely on the client's global auth configuration
+        collectionMetadata: {
+          'hnsw:space': 'cosine',
+        },
+        // Also pass clientParams in case LangChain needs to create a new client internally
+        // This ensures tenant/database are preserved
+        clientParams: {
+          auth: {
+            provider: 'token',
+            credentials: this.config.chromaApiKey!,
+            tokenHeaderType: 'X-Chroma-Token' as any,
+          },
+          tenant: this.config.chromaTenant!,
+          database: this.config.chromaDatabase!,
+        },
+      };
+    } else if (this.config.chromaUrl) {
+      // Use remote Chroma instance (self-hosted or Fly.io)
+      let url = this.config.chromaUrl;
+      // Ensure protocol is present
+      if (!url.startsWith('http://') && !url.startsWith('https://')) {
+        url = `http://${url}`; // Default to http for self-hosted
+      }
+
+      this.logger.log(`Configuring Chroma at ${url}...`);
+      return {
+        collectionName,
+        url: url,
+      };
+    } else {
+      // Use local Chroma instance
+      // In Docker, use service name 'chroma'. Locally, use 'localhost'.
+      const isDocker = process.env.DOCKER_CONTAINER === 'true';
+      // Port 8000 is standard for Chroma, but Docker Compose maps it to 8001 on host
+      const defaultUrl = isDocker
+        ? 'http://chroma:8000'
+        : 'http://localhost:8001';
+
+      this.logger.log(
+        `Configuring local Chroma instance (defaulting to ${defaultUrl})...`,
+      );
+      return {
+        collectionName,
+        url: defaultUrl,
+      };
     }
-
-    // If we get here, neither URL worked after all retries
-    throw new Error(
-      `Could not connect to Ollama at any of: ${tryUrls.join(', ')} after ${maxRetries} attempts. ` +
-        `Please ensure Ollama is running: docker-compose up -d ollama (or ollama serve if running locally)`,
-    );
-  }
-
-  // Helper to get the actual Ollama base URL (handles Docker networking)
-  private getOllamaBaseUrl(): string {
-    const configuredUrl = this.config.ollamaBaseUrl || 'http://localhost:11434';
-    const isLocalhost = this.isLocalOllamaInstance(configuredUrl);
-
-    // For remote instances (Ollama Cloud), use configured URL
-    if (!isLocalhost) {
-      return configuredUrl;
-    }
-
-    // For local instances, try Docker service name first, then localhost
-    // This works both in Docker (ollama:11434) and outside Docker (localhost:11434)
-    // We'll try both URLs in createOllamaEmbeddingsAdapter
-    return 'http://ollama:11434'; // Will fallback to localhost if this fails
   }
 
   // Helper to get Ollama request headers with authentication if configured
@@ -229,14 +190,9 @@ export class LangChainService {
       'Content-Type': 'application/json',
     };
 
-    // Check if this is a localhost instance (local Ollama typically doesn't require auth)
-    const baseUrl = this.getOllamaBaseUrl();
-    const isLocalhost = this.isLocalOllamaInstance(baseUrl);
-
-    // Only add Bearer token auth header for remote instances with API key
-    // Local Ollama instances don't require authentication
+    // Add Bearer token auth header if API key is configured
+    // (Ollama Cloud requires API key, local instances typically don't)
     if (
-      !isLocalhost &&
       this.config.ollamaApiKey &&
       this.config.ollamaApiKey.trim().length > 0
     ) {
@@ -244,6 +200,57 @@ export class LangChainService {
     }
 
     return headers;
+  }
+
+  // Helper to get Ollama base URL
+  private getOllamaBaseUrl(): string {
+    return this.config.ollamaBaseUrl || 'http://localhost:11434';
+  }
+
+  // Helper to find a working Ollama URL by trying multiple endpoints
+  private async findWorkingOllamaUrl(
+    maxRetries: number = 10,
+    endpoint: string = '/api/tags',
+  ): Promise<string> {
+    const urlsToTry = [
+      this.config.ollamaBaseUrl,
+      'http://ollama:11434', // Docker service name
+      'http://localhost:11434', // Local development
+    ].filter((url): url is string => url !== undefined);
+
+    // Remove duplicates
+    const uniqueUrls = [...new Set(urlsToTry)];
+
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+      for (const url of uniqueUrls) {
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 5000);
+          const resp = await fetch(`${url}${endpoint}`, {
+            method: 'GET',
+            signal: controller.signal,
+            headers: this.getOllamaHeaders(),
+          } as any);
+          clearTimeout(timeoutId);
+
+          if (resp.ok) {
+            this.logger.debug(`Found working Ollama URL: ${url}`);
+            return url;
+          }
+        } catch {
+          // Continue to next URL
+          continue;
+        }
+      }
+      // Wait a bit before retrying
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+    }
+
+    throw new Error(
+      `Could not find working Ollama instance after ${maxRetries} attempts. ` +
+        `Tried URLs: ${uniqueUrls.join(', ')}. ` +
+        `Please ensure Ollama is running and accessible.`,
+    );
   }
 
   // Minimal HTTP adapter for Ollama embeddings API
@@ -287,18 +294,16 @@ export class LangChainService {
       }
     };
 
-    // FORCE local instance for embeddings (Ollama Cloud doesn't support /api/embed)
-    // Always use local instance, ignoring any remote Ollama Cloud configuration
+    // In production, use configured URL directly if provided
+    // Otherwise, try local instance for embeddings (Ollama Cloud doesn't support /api/embed)
     const configuredUrl =
       baseUrl || this.config.ollamaBaseUrl || 'http://localhost:11434';
-    const isConfiguredRemote = !this.isLocalOllamaInstance(configuredUrl);
+    const isConfiguredRemote = configuredUrl.startsWith('https://');
+    const isProd = this.isProduction();
 
-    // Try Docker service name first (works in Docker Compose), then fallback to localhost
-    // This automatically works in both Docker and non-Docker environments
-    let actualBaseUrl: string | null = null;
-
-    // Warn if user configured a remote instance
-    if (isConfiguredRemote) {
+    // In production, use configured URL directly (even if remote)
+    // In development, warn if user configured a remote instance for embeddings
+    if (isConfiguredRemote && !isProd) {
       this.logger.warn(
         `⚠️  Ollama embeddings: Detected remote Ollama configuration (${configuredUrl}), ` +
           `but embeddings require a local Ollama instance. ` +
@@ -308,44 +313,21 @@ export class LangChainService {
       );
     }
 
-    // Helper to find working Ollama URL by trying both options with retries
-    // Uses the unified connection helper
-    const findWorkingUrl = async (maxRetries: number = 10): Promise<string> => {
-      if (actualBaseUrl) {
-        return actualBaseUrl; // Already found a working URL
-      }
-
-      try {
-        actualBaseUrl = await this.findWorkingOllamaUrl(
-          maxRetries,
-          '/api/tags',
-        );
-        this.logger.log(
-          `✓ Ollama embeddings: Found working instance at ${actualBaseUrl} (embeddings always use local Ollama).`,
-        );
-        return actualBaseUrl;
-      } catch (error: any) {
-        throw new Error(
-          `Ollama embeddings: ${error.message}. ` +
-            `Please ensure Ollama is running (either as Docker service or locally). ` +
-            `Check with: docker ps | grep ollama or curl http://localhost:11434/api/tags`,
-        );
-      }
-    };
-
-    // Helper to make embedding request (always local, no auth needed)
+    // Helper to make embedding request
     const makeEmbeddingRequest = async (
       url: string,
       body: any,
     ): Promise<Response> => {
-      // Always use local instance without authentication
+      // In production, use auth if configured; in development, local instances don't need auth
+      const needsAuth =
+        isProd && this.config.ollamaApiKey && isConfiguredRemote;
       let resp: Response;
       try {
-        resp = await makeRequest(url, body, false);
+        resp = await makeRequest(url, body, needsAuth);
       } catch {
         // If makeRequest throws (network error), try to find working URL
-        const workingUrl = await findWorkingUrl();
-        resp = await makeRequest(`${workingUrl}/api/embed`, body, false);
+        const workingUrl = await this.getOllamaBaseUrl();
+        resp = await makeRequest(`${workingUrl}/api/embed`, body, needsAuth);
       }
 
       // If we get an error, provide helpful local instance troubleshooting
@@ -372,6 +354,11 @@ export class LangChainService {
       }
 
       return resp;
+    };
+
+    // Helper function to find working URL (local to this adapter)
+    const findWorkingUrl = async (): Promise<string> => {
+      return await this.findWorkingOllamaUrl(10, '/api/tags');
     };
 
     return {
@@ -479,14 +466,207 @@ export class LangChainService {
   async initializeVectorStore() {
     try {
       const provider = this.config.provider;
-      const collectionName = this.config.chromaCollectionName || 'activities';
 
       if (provider === 'ollama') {
+        // Detect if using Ollama Cloud (remote URL with https)
+        // Ollama Cloud doesn't support /api/embed endpoint, only chat/completions
+        const isOllamaCloud =
+          this.config.ollamaBaseUrl?.startsWith('https://') ||
+          this.config.ollamaBaseUrl?.includes('ollama.com') ||
+          this.config.ollamaBaseUrl?.includes('api.ollama.com');
+
+        // When using Chroma Cloud, prefer OpenAI embeddings if available
+        // This is more reliable than Ollama embeddings for cloud deployments
+        const isChromaCloud =
+          this.config.chromaApiKey &&
+          this.config.chromaTenant &&
+          this.config.chromaDatabase;
+
+        // Ollama Cloud doesn't support embeddings - use OpenAI if available
+        if (isOllamaCloud && this.config.openaiApiKey) {
+          this.logger.log(
+            `⚠️  Ollama Cloud detected. Ollama Cloud doesn't support embeddings endpoint (/api/embed). ` +
+              `Using OpenAI embeddings as fallback (Ollama Cloud will be used for chat/completions only)...`,
+          );
+
+          this.embeddings = new OpenAIEmbeddings({
+            openAIApiKey: this.config.openaiApiKey,
+          });
+
+          // Initialize Chroma with timeout
+          const chromaConfig = await this.getChromaConfig();
+          const chromaLocation = this.config.chromaApiKey
+            ? `Chroma Cloud (${this.config.chromaTenant}/${this.config.chromaDatabase})`
+            : this.config.chromaUrl
+              ? `at ${this.config.chromaUrl}`
+              : '(local)';
+
+          this.logger.log(
+            `Initializing Chroma vector store ${chromaLocation} with OpenAI embeddings...`,
+          );
+          const initStartTime = Date.now();
+
+          const initPromise = Chroma.fromDocuments(
+            [],
+            this.embeddings,
+            chromaConfig as any,
+          );
+
+          const CHROMA_TIMEOUT = 120000; // 120 seconds
+          const timeoutPromise: Promise<never> = new Promise((_, reject) =>
+            setTimeout(
+              () =>
+                reject(
+                  new Error(
+                    `Chroma initialization timeout (${CHROMA_TIMEOUT / 1000}s)`,
+                  ),
+                ),
+              CHROMA_TIMEOUT,
+            ),
+          );
+
+          try {
+            this.vectorStore = await Promise.race([
+              initPromise,
+              timeoutPromise,
+            ]);
+
+            const initTime = Date.now() - initStartTime;
+            this.logger.log(
+              `✓ Chroma initialized with OpenAI embeddings in ${initTime}ms.`,
+            );
+            return;
+          } catch (initError: any) {
+            if (
+              initError?.message?.includes('Chroma initialization timeout') ||
+              initError?.message?.includes('Chroma') ||
+              initError?.message?.includes('ECONNREFUSED') ||
+              initError?.message?.includes('ENOTFOUND') ||
+              initError?.message?.includes('ETIMEDOUT') ||
+              initError?.message?.includes('Unauthorized') ||
+              initError?.message?.includes('401') ||
+              initError?.message?.includes('default_tenant')
+            ) {
+              this.logger.warn(
+                `⚠️  Chroma vector store initialization failed: ${initError.message}. ` +
+                  `The application will continue to work, but semantic search features will be unavailable. ` +
+                  `To enable semantic search: ensure Chroma is running and accessible and restart the backend.`,
+              );
+              this.embeddings = null;
+              this.vectorStore = null;
+              this.embeddingsDisabled = true;
+              return;
+            }
+            throw initError;
+          }
+        }
+
+        // Ollama Cloud but no OpenAI key - disable embeddings gracefully
+        if (isOllamaCloud && !this.config.openaiApiKey) {
+          this.logger.warn(
+            `⚠️  Ollama Cloud detected, but OpenAI API key is not configured. ` +
+              `Ollama Cloud doesn't support embeddings endpoint (/api/embed). ` +
+              `Embeddings will be disabled. ` +
+              `To enable embeddings: configure OPENAI_API_KEY in your .env file, ` +
+              `or use a local Ollama instance (docker-compose up -d ollama) for embeddings.`,
+          );
+          this.embeddings = null;
+          this.vectorStore = null;
+          this.embeddingsDisabled = true;
+          return;
+        }
+
+        // When using Chroma Cloud with local Ollama, prefer OpenAI embeddings if available
+        if (isChromaCloud && this.config.openaiApiKey) {
+          this.logger.log(
+            `Using Chroma Cloud with OpenAI embeddings (Ollama will be used for chat/completions only)...`,
+          );
+
+          this.embeddings = new OpenAIEmbeddings({
+            openAIApiKey: this.config.openaiApiKey,
+          });
+
+          // Initialize Chroma with timeout
+          const chromaConfig = await this.getChromaConfig();
+          this.logger.log(
+            `Initializing Chroma Cloud vector store (${this.config.chromaTenant}/${this.config.chromaDatabase})...`,
+          );
+          const initStartTime = Date.now();
+
+          const initPromise = Chroma.fromDocuments(
+            [],
+            this.embeddings,
+            chromaConfig as any,
+          );
+
+          const CHROMA_TIMEOUT = 120000; // 120 seconds
+          const timeoutPromise: Promise<never> = new Promise((_, reject) =>
+            setTimeout(
+              () =>
+                reject(
+                  new Error(
+                    `Chroma initialization timeout (${CHROMA_TIMEOUT / 1000}s)`,
+                  ),
+                ),
+              CHROMA_TIMEOUT,
+            ),
+          );
+
+          try {
+            this.vectorStore = await Promise.race([
+              initPromise,
+              timeoutPromise,
+            ]);
+
+            const initTime = Date.now() - initStartTime;
+            this.logger.log(
+              `✓ Chroma Cloud initialized with OpenAI embeddings in ${initTime}ms.`,
+            );
+            return;
+          } catch (initError: any) {
+            if (
+              initError?.message?.includes('Chroma initialization timeout') ||
+              initError?.message?.includes('Chroma') ||
+              initError?.message?.includes('ECONNREFUSED') ||
+              initError?.message?.includes('ENOTFOUND') ||
+              initError?.message?.includes('ETIMEDOUT') ||
+              initError?.message?.includes('Unauthorized') ||
+              initError?.message?.includes('401') ||
+              initError?.message?.includes('default_tenant')
+            ) {
+              this.logger.warn(
+                `⚠️  Chroma Cloud vector store initialization failed: ${initError.message}. ` +
+                  `The application will continue to work, but semantic search features will be unavailable. ` +
+                  `To enable semantic search: ensure Chroma Cloud credentials are correct and restart the backend.`,
+              );
+              this.embeddings = null;
+              this.vectorStore = null;
+              this.embeddingsDisabled = true;
+              return;
+            }
+            throw initError;
+          }
+        }
+
+        // Fallback to Ollama embeddings (for local deployments only)
+        // Skip if using Ollama Cloud (already handled above)
+        if (isOllamaCloud) {
+          // Should not reach here, but just in case
+          this.logger.warn(
+            `⚠️  Skipping Ollama embeddings initialization for Ollama Cloud. ` +
+              `Ollama Cloud doesn't support embeddings.`,
+          );
+          this.embeddings = null;
+          this.vectorStore = null;
+          this.embeddingsDisabled = true;
+          return;
+        }
+
         const model = this.config.embeddingsModel || 'nomic-embed-text';
 
         // Verify Ollama is accessible and model is available before proceeding
         this.logger.log(
-          `Initializing embeddings with Ollama (model=${model})...`,
+          `Initializing embeddings with local Ollama instance (model=${model})...`,
         );
 
         // Use unified connection helper to find working Ollama URL
@@ -552,24 +732,28 @@ export class LangChainService {
           );
 
           // Initialize Chroma with timeout
+          const chromaConfig = await this.getChromaConfig();
+          const chromaLocation = this.config.chromaApiKey
+            ? `Chroma Cloud (${this.config.chromaTenant}/${this.config.chromaDatabase})`
+            : this.config.chromaUrl
+              ? `at ${this.config.chromaUrl}`
+              : '(local)';
+
           this.logger.log(
-            `Initializing Chroma vector store${this.config.chromaUrl ? ` at ${this.config.chromaUrl}` : ' (local)'}...`,
+            `Initializing Chroma vector store ${chromaLocation}...`,
           );
           const initStartTime = Date.now();
 
-          const initPromise = this.config.chromaUrl
-            ? Chroma.fromDocuments([], this.embeddings, {
-                collectionName,
-                url: this.config.chromaUrl,
-              } as any)
-            : Chroma.fromDocuments([], this.embeddings, {
-                collectionName,
-              });
+          const initPromise = Chroma.fromDocuments(
+            [],
+            this.embeddings,
+            chromaConfig as any,
+          );
 
           // Increase timeout to 120 seconds for Chroma initialization
           // Chroma can be slow on first initialization or if connecting to remote server
           const CHROMA_TIMEOUT = 120000; // 120 seconds
-          const timeoutPromise = new Promise((_, reject) =>
+          const timeoutPromise: Promise<never> = new Promise((_, reject) =>
             setTimeout(
               () =>
                 reject(
@@ -595,7 +779,10 @@ export class LangChainService {
             initError?.message?.includes('Chroma') ||
             initError?.message?.includes('ECONNREFUSED') ||
             initError?.message?.includes('ENOTFOUND') ||
-            initError?.message?.includes('ETIMEDOUT')
+            initError?.message?.includes('ETIMEDOUT') ||
+            initError?.message?.includes('Unauthorized') ||
+            initError?.message?.includes('401') ||
+            initError?.message?.includes('default_tenant')
           ) {
             this.logger.warn(
               `⚠️  Chroma vector store initialization failed: ${initError.message}. ` +
@@ -608,7 +795,42 @@ export class LangChainService {
             return; // Exit gracefully instead of throwing
           }
 
-          // If initialization fails due to Ollama connection, disable embeddings gracefully
+          // If initialization fails due to Ollama connection, try OpenAI as fallback if available
+          if (
+            (initError?.message?.includes('Ollama not available') ||
+              initError?.message?.includes('Could not connect to Ollama')) &&
+            this.config.openaiApiKey
+          ) {
+            this.logger.warn(
+              `⚠️  Ollama not available for embeddings. Falling back to OpenAI embeddings...`,
+            );
+            try {
+              this.embeddings = new OpenAIEmbeddings({
+                openAIApiKey: this.config.openaiApiKey,
+              });
+              const chromaConfig = await this.getChromaConfig();
+              this.vectorStore = await Chroma.fromDocuments(
+                [],
+                this.embeddings,
+                chromaConfig as any,
+              );
+              this.logger.log(
+                `✓ Chroma initialized with OpenAI embeddings (fallback from Ollama).`,
+              );
+              return;
+            } catch (fallbackError: any) {
+              this.logger.warn(
+                `⚠️  OpenAI fallback also failed: ${fallbackError.message}. Embeddings will be disabled. ` +
+                  `The application will continue to work, but semantic search features will be unavailable.`,
+              );
+              this.embeddings = null;
+              this.vectorStore = null;
+              this.embeddingsDisabled = true;
+              return;
+            }
+          }
+
+          // If no fallback available, disable embeddings gracefully
           if (
             initError?.message?.includes('Ollama not available') ||
             initError?.message?.includes('Could not connect to Ollama')
@@ -616,7 +838,7 @@ export class LangChainService {
             this.logger.warn(
               `⚠️  Ollama not available for embeddings. Embeddings will be disabled. ` +
                 `The application will continue to work, but semantic search features will be unavailable. ` +
-                `To enable embeddings: ensure Ollama is running (docker-compose up -d ollama) and restart the backend.`,
+                `To enable embeddings: ensure Ollama is running (docker-compose up -d ollama) or configure OPENAI_API_KEY for fallback.`,
             );
             this.embeddings = null;
             this.vectorStore = null;
@@ -634,23 +856,27 @@ export class LangChainService {
         });
 
         // Initialize Chroma with timeout
+        const chromaConfig = await this.getChromaConfig();
+        const chromaLocation = this.config.chromaApiKey
+          ? `Chroma Cloud (${this.config.chromaTenant}/${this.config.chromaDatabase})`
+          : this.config.chromaUrl
+            ? `at ${this.config.chromaUrl}`
+            : '(local)';
+
         this.logger.log(
-          `Initializing Chroma vector store${this.config.chromaUrl ? ` at ${this.config.chromaUrl}` : ' (local)'}...`,
+          `Initializing Chroma vector store ${chromaLocation}...`,
         );
         const initStartTime = Date.now();
 
-        const initPromise = this.config.chromaUrl
-          ? Chroma.fromDocuments([], this.embeddings, {
-              collectionName,
-              url: this.config.chromaUrl,
-            } as any)
-          : Chroma.fromDocuments([], this.embeddings, {
-              collectionName,
-            });
+        const initPromise = Chroma.fromDocuments(
+          [],
+          this.embeddings,
+          chromaConfig as any,
+        );
 
         // Increase timeout to 120 seconds for Chroma initialization
         const CHROMA_TIMEOUT = 120000; // 120 seconds
-        const timeoutPromise = new Promise((_, reject) =>
+        const timeoutPromise: Promise<never> = new Promise((_, reject) =>
           setTimeout(
             () =>
               reject(
@@ -677,7 +903,10 @@ export class LangChainService {
             initError?.message?.includes('Chroma') ||
             initError?.message?.includes('ECONNREFUSED') ||
             initError?.message?.includes('ENOTFOUND') ||
-            initError?.message?.includes('ETIMEDOUT')
+            initError?.message?.includes('ETIMEDOUT') ||
+            initError?.message?.includes('Unauthorized') ||
+            initError?.message?.includes('401') ||
+            initError?.message?.includes('default_tenant')
           ) {
             this.logger.warn(
               `⚠️  Chroma vector store initialization failed: ${initError.message}. ` +
@@ -702,18 +931,27 @@ export class LangChainService {
         );
 
         // Initialize Chroma with timeout
+        const chromaConfig = await this.getChromaConfig();
+        const chromaLocation = this.config.chromaApiKey
+          ? `Chroma Cloud (${this.config.chromaTenant}/${this.config.chromaDatabase})`
+          : this.config.chromaUrl
+            ? `at ${this.config.chromaUrl}`
+            : '(local)';
+
         this.logger.log(
-          `Initializing Chroma vector store${this.config.chromaUrl ? ` at ${this.config.chromaUrl}` : ' (local)'}...`,
+          `Initializing Chroma vector store ${chromaLocation}...`,
         );
         const initStartTime = Date.now();
 
-        const initPromise = Chroma.fromDocuments([], this.embeddings, {
-          collectionName,
-        });
+        const initPromise = Chroma.fromDocuments(
+          [],
+          this.embeddings,
+          chromaConfig as any,
+        );
 
         // Increase timeout to 120 seconds for Chroma initialization
         const CHROMA_TIMEOUT = 120000; // 120 seconds
-        const timeoutPromise = new Promise((_, reject) =>
+        const timeoutPromise: Promise<never> = new Promise((_, reject) =>
           setTimeout(
             () =>
               reject(
@@ -740,7 +978,10 @@ export class LangChainService {
             initError?.message?.includes('Chroma') ||
             initError?.message?.includes('ECONNREFUSED') ||
             initError?.message?.includes('ENOTFOUND') ||
-            initError?.message?.includes('ETIMEDOUT')
+            initError?.message?.includes('ETIMEDOUT') ||
+            initError?.message?.includes('Unauthorized') ||
+            initError?.message?.includes('401') ||
+            initError?.message?.includes('default_tenant')
           ) {
             this.logger.warn(
               `⚠️  Chroma vector store initialization failed: ${initError.message}. ` +
@@ -809,8 +1050,9 @@ export class LangChainService {
         this.logger.error(
           `⚠️  ChromaDB connection issue. Possible causes:` +
             `\n  1. ChromaDB service not running: docker ps | grep chroma` +
-            `\n  2. Wrong CHROMA_URL: current value = ${this.config.chromaUrl || 'default (local)'}` +
-            `\n  3. Network connectivity: curl http://localhost:8001/api/v1/heartbeat`,
+            `\n  2. Wrong CHROMA_URL: current value = ${this.config.chromaUrl || 'default (local/internal)'}` +
+            `\n  3. Network connectivity: curl http://localhost:8001/api/v1/heartbeat` +
+            `\n  4. If on Fly.io, ensure 'zig-zag-chroma' is deployed and CHROMA_URL is set if using a custom name.`,
         );
       }
 
@@ -834,9 +1076,26 @@ export class LangChainService {
 
     try {
       const docs = activities.map((activity) => {
+        // Sanitize metadata for ChromaDB (only string, number, boolean allowed)
+        const sanitizedMetadata: Record<string, string | number | boolean> = {};
+
+        for (const [key, value] of Object.entries(activity)) {
+          if (value === null || value === undefined) continue;
+
+          if (value instanceof Date) {
+            sanitizedMetadata[key] = value.toISOString();
+          } else if (typeof value === 'object') {
+            sanitizedMetadata[key] = JSON.stringify(value);
+          } else {
+            sanitizedMetadata[key] = value as string | number | boolean;
+          }
+        }
+
         return new Document({
-          pageContent: `Name: ${activity.name}. Description: ${activity.description}. Metadata: ${activity.metadata}`,
-          metadata: activity,
+          pageContent: `Name: ${activity.name}. Description: ${activity.description}. Metadata: ${JSON.stringify(
+            activity.metadata,
+          )}`,
+          metadata: sanitizedMetadata,
         });
       });
 
@@ -918,16 +1177,23 @@ After this activity, you can try: ${metadata.complementaryActivities?.after ? me
         metadata: {
           activityId: activity.id, // CRÍTICO: Siempre string
           activityName: activity.name,
-          activityType: activity.type,
-          activityMetadata: activity.metadata,
+          activityType: activity.type || '',
+          activityMetadata:
+            typeof activity.metadata === 'string'
+              ? activity.metadata
+              : JSON.stringify(activity.metadata || {}),
           // Campos específicos para filtrado
-          tags: metadata.tags || [],
-          timeOfDay: metadata.timeOfDayPreference || [],
-          seasonality: metadata.seasonalityScore || {},
+          tags: (metadata.tags || []).join(','), // Flatten arrays to strings for better compatibility
+          timeOfDay: (metadata.timeOfDayPreference || []).join(','),
+          seasonality: JSON.stringify(metadata.seasonalityScore || {}),
           physicalIntensity: metadata.physicalIntensity || 3,
-          combinationScore: metadata.combinationScore || {},
-          complementaryBefore: metadata.complementaryActivities?.before || [],
-          complementaryAfter: metadata.complementaryActivities?.after || [],
+          combinationScore: JSON.stringify(metadata.combinationScore || {}),
+          complementaryBefore: (
+            metadata.complementaryActivities?.before || []
+          ).join(','),
+          complementaryAfter: (
+            metadata.complementaryActivities?.after || []
+          ).join(','),
         },
       },
     ]);
@@ -979,8 +1245,34 @@ After this activity, you can try: ${metadata.complementaryActivities?.after ? me
           ...commonOptions,
           modelName: 'gpt-3.5-turbo-instruct',
         });
+      } else if (provider === 'ollama') {
+        // Use ChatOllama from @langchain/ollama
+        const model = this.config.defaultModel || 'llama3.2';
+        const baseUrl = this.getOllamaBaseUrl();
+        const headers = this.getOllamaHeaders();
+
+        const ollamaConfig: any = {
+          baseUrl,
+          model,
+          temperature: this.config.temperature,
+          timeout: this.config.ollamaTimeout || this.config.timeout * 4,
+        };
+
+        // Add authentication headers if configured
+        if (headers['Authorization']) {
+          ollamaConfig.headers = headers;
+        }
+
+        // Add num_ctx if configured (Ollama-specific option)
+        if (this.config.ollamaNumCtx) {
+          ollamaConfig.numCtx = this.config.ollamaNumCtx;
+        }
+
+        this.chatModel = new ChatOllama(ollamaConfig);
+        // For completions, we can use ChatOllama as well (it supports both chat and completion)
+        this.completionModel = new ChatOllama(ollamaConfig);
       } else {
-        // For ollama/groq we use HTTP endpoints in generateChatResponse/generateCompletionResponse
+        // For groq we use HTTP endpoints in generateChatResponse/generateCompletionResponse
         this.chatModel = null;
         this.completionModel = null;
       }
@@ -1086,7 +1378,7 @@ After this activity, you can try: ${metadata.complementaryActivities?.after ? me
     if (isEmbeddingModel) {
       throw new Error(
         `Invalid model "${model}" for chat/generation. This is an embedding model and cannot be used for chat. ` +
-          `Please set AI_MODEL to a chat model like "llama3.2:3b", "llama3.2:1b", or "gpt-oss:20b". ` +
+          `Please set AI_MODEL to a chat model like "llama3.2", "llama3.2:1b", or "gpt-oss:20b". ` +
           `Embedding models (like "nomic-embed-text") should only be set in EMBEDDINGS_MODEL.`,
       );
     }
@@ -1101,81 +1393,96 @@ After this activity, you can try: ${metadata.complementaryActivities?.after ? me
     try {
       const provider = this.config.provider;
       if (provider === 'ollama') {
-        const model = this.config.defaultModel || 'llama3.2:3b';
-        // Validate that we're not using an embedding model for chat
-        this.validateChatModel(model);
+        // Use ChatOllama from @langchain/ollama
+        const model = this.chatModel;
+        if (!model) {
+          throw new Error(
+            'Ollama chat model not initialized. Please check your Ollama configuration.',
+          );
+        }
 
-        // Format combined prompt
-        const combined = PromptTemplate.fromTemplate(
-          `${systemPrompt}\n${userPrompt}`,
-        );
-        const promptText = await combined.format(variables as any);
-        const headers = this.getOllamaHeaders();
-        const baseUrl = this.getOllamaBaseUrl();
+        // Format prompts using ChatPromptTemplate
+        const chatPrompt = ChatPromptTemplate.fromMessages([
+          SystemMessagePromptTemplate.fromTemplate(systemPrompt),
+          HumanMessagePromptTemplate.fromTemplate(userPrompt),
+        ]);
 
-        // Add timeout to Ollama fetch (Ollama can be slow, especially for complex prompts)
-        // Use dedicated Ollama timeout (defaults to 4x base timeout = 240s)
-        const timeoutMs = this.config.ollamaTimeout || this.config.timeout * 4;
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+        const chain = RunnableSequence.from([
+          chatPrompt,
+          model,
+          new StringOutputParser(),
+        ]);
 
         try {
-          const options: Record<string, any> = {
-            temperature: this.config.temperature,
-          };
-          if (this.config.ollamaNumCtx) {
-            options.num_ctx = this.config.ollamaNumCtx;
-          }
-
-          const resp = await fetch(`${baseUrl}/api/generate`, {
-            method: 'POST',
-            headers,
-            body: JSON.stringify({
-              model,
-              prompt: promptText,
-              stream: false,
-              options,
-            }),
-            signal: controller.signal,
-          } as any);
-          clearTimeout(timeoutId);
-
-          if (!resp.ok) {
-            const errorText = await resp.text().catch(() => 'Unknown error');
-            let errorMessage = `Ollama error ${resp.status} (${baseUrl}): ${errorText}`;
-
-            // Provide helpful suggestions for common errors
-            if (errorText.includes('does not support generate')) {
-              errorMessage +=
-                `\n⚠️  Model "${model}" does not support generation. ` +
-                `This appears to be an embedding model. ` +
-                `Please set AI_MODEL to a chat model like "llama3.2:3b" or "llama3.2:1b" in your .env file. ` +
-                `Embedding models should only be set in EMBEDDINGS_MODEL.`;
-            } else if (resp.status === 500 && errorText.includes('memory')) {
-              errorMessage +=
-                `\n⚠️  Memory error detected. Solutions:` +
-                `\n1) Use a smaller model: Set AI_MODEL=llama3.2:3b or AI_MODEL=llama3.2:1b in your .env` +
-                `\n2) Increase Docker Desktop memory: Settings > Resources > Memory (recommended: 16GB+)` +
-                `\n3) Current model "${model}" may be too large for available memory.`;
-            }
-
-            throw new Error(errorMessage);
-          }
-          const data = await resp.json();
-          return data.response as string;
+          return await chain.invoke(variables);
         } catch (error: any) {
-          clearTimeout(timeoutId);
-          // Handle timeout errors
+          // Handle errors with helpful messages
+          const errorMsg = error?.message || String(error);
+          const modelName = this.config.defaultModel || 'llama3.2';
+
+          // Provide helpful suggestions for common errors
           if (
-            error.name === 'AbortError' ||
-            error.message?.includes('aborted')
+            errorMsg.includes('does not support generate') ||
+            errorMsg.includes('embedding model')
           ) {
             throw new Error(
-              `Ollama request timeout after ${timeoutMs}ms. ` +
-                `The model may be processing a complex prompt. ` +
-                `Try: 1) Using a smaller model (e.g., llama3.2:1b), 2) Simplifying the prompt, or 3) Increasing OLLAMA_TIMEOUT environment variable (current: ${timeoutMs}ms).`,
+              `Model "${modelName}" does not support generation. ` +
+                `This appears to be an embedding model. ` +
+                `Please set AI_MODEL to a chat model like "llama3.2" or "llama3.2:1b" in your .env file. ` +
+                `Embedding models should only be set in EMBEDDINGS_MODEL.`,
             );
+          } else if (errorMsg.includes('memory')) {
+            throw new Error(
+              `Memory error detected. Solutions:` +
+                `\n1) Use a smaller model: Set AI_MODEL=llama3.2 or AI_MODEL=llama3.2:1b in your .env` +
+                `\n2) Increase Docker Desktop memory: Settings > Resources > Memory (recommended: 16GB+)` +
+                `\n3) Current model "${modelName}" may be too large for available memory.`,
+            );
+          } else if (
+            errorMsg.includes('fetch failed') ||
+            errorMsg.includes('ECONNREFUSED') ||
+            errorMsg.includes('ENOTFOUND') ||
+            errorMsg.includes('network') ||
+            errorMsg.includes('connection')
+          ) {
+            const baseUrl = this.getOllamaBaseUrl();
+            const isRemote = baseUrl.startsWith('https://');
+            let diagnosticMessage = `Network error connecting to Ollama at ${baseUrl}. `;
+
+            if (isRemote) {
+              diagnosticMessage +=
+                `\n⚠️  This appears to be a remote Ollama instance (Ollama Cloud). ` +
+                `Possible causes:` +
+                `\n1) Network connectivity issue from Fly.io to Ollama Cloud` +
+                `\n2) DNS resolution failure - verify the URL is correct: ${baseUrl}` +
+                `\n3) SSL/TLS certificate issue` +
+                `\n4) Firewall or network policy blocking the connection` +
+                `\n5) Ollama Cloud service may be temporarily unavailable` +
+                `\n\nTroubleshooting:` +
+                `\n- Verify OLLAMA_BASE_URL is set correctly: ${baseUrl}` +
+                `\n- Check if OLLAMA_API_KEY is set (required for Ollama Cloud)` +
+                `\n- Test connectivity: curl -v ${baseUrl}/api/tags` +
+                `\n- Check Fly.io logs for network errors` +
+                `\n- Verify Ollama Cloud status at https://status.ollama.com`;
+            } else {
+              diagnosticMessage +=
+                `\n⚠️  This appears to be a local Ollama instance. ` +
+                `Possible causes:` +
+                `\n1) Ollama service is not running` +
+                `\n2) Ollama is not accessible at ${baseUrl}` +
+                `\n3) Network configuration issue in Docker/Fly.io` +
+                `\n\nTroubleshooting:` +
+                `\n- Verify Ollama is running: docker ps | grep ollama` +
+                `\n- Test connectivity: curl ${baseUrl}/api/tags` +
+                `\n- In production, consider using Ollama Cloud instead of local instance` +
+                `\n- Set OLLAMA_BASE_URL to https://api.ollama.com for Ollama Cloud`;
+            }
+
+            this.logger.error(diagnosticMessage);
+            throw new Error(diagnosticMessage);
           }
+
+          this.logger.error(`Error generating chat response: ${errorMsg}`);
           throw error;
         }
       }
@@ -1285,89 +1592,91 @@ After this activity, you can try: ${metadata.complementaryActivities?.after ? me
     try {
       const provider = this.config.provider;
       if (provider === 'ollama') {
-        const model = this.config.defaultModel || 'llama3.2:3b';
-        // Validate that we're not using an embedding model for completion
-        this.validateChatModel(model);
-
-        // If no variables, use prompt directly to avoid template parsing issues
-        // Otherwise, use template with escaped braces
-        let text: string;
-        if (Object.keys(variables).length === 0) {
-          text = promptText;
-        } else {
-          // Escape double braces in prompt to avoid template variable conflicts
-          const escapedPrompt = promptText
-            .replace(/\{\{/g, '{{{{')
-            .replace(/\}\}/g, '}}}}');
-          const tmpl = PromptTemplate.fromTemplate(escapedPrompt);
-          text = await tmpl.format(variables as any);
+        // Use ChatOllama from @langchain/ollama for completions
+        const model = this.completionModel;
+        if (!model) {
+          throw new Error(
+            'Ollama completion model not initialized. Please check your Ollama configuration.',
+          );
         }
-        const headers = this.getOllamaHeaders();
-        const baseUrl = this.getOllamaBaseUrl();
 
-        // Add timeout to Ollama fetch (Ollama can be slow, especially for complex prompts)
-        // Use dedicated Ollama timeout (defaults to 4x base timeout = 240s)
-        const timeoutMs = this.config.ollamaTimeout || this.config.timeout * 4;
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+        // Format prompt template
+        const prompt = PromptTemplate.fromTemplate(promptText);
+        const chain = this.createChain(prompt, model);
 
         try {
-          const options: Record<string, any> = {
-            temperature: this.config.temperature,
-          };
-          if (this.config.ollamaNumCtx) {
-            options.num_ctx = this.config.ollamaNumCtx;
-          }
-
-          const resp = await fetch(`${baseUrl}/api/generate`, {
-            method: 'POST',
-            headers,
-            body: JSON.stringify({
-              model,
-              prompt: text,
-              stream: false,
-              options,
-            }),
-            signal: controller.signal,
-          } as any);
-          clearTimeout(timeoutId);
-
-          if (!resp.ok) {
-            const errorText = await resp.text().catch(() => 'Unknown error');
-            let errorMessage = `Ollama error ${resp.status} (${baseUrl}): ${errorText}`;
-
-            // Provide helpful suggestions for common errors
-            if (errorText.includes('does not support generate')) {
-              errorMessage +=
-                `\n⚠️  Model "${model}" does not support generation. ` +
-                `This appears to be an embedding model. ` +
-                `Please set AI_MODEL to a chat model like "llama3.2:3b" or "llama3.2:1b" in your .env file. ` +
-                `Embedding models should only be set in EMBEDDINGS_MODEL.`;
-            } else if (resp.status === 500 && errorText.includes('memory')) {
-              errorMessage +=
-                `\n⚠️  Memory error detected. Solutions:` +
-                `\n1) Use a smaller model: Set AI_MODEL=llama3.2:3b or AI_MODEL=llama3.2:1b in your .env` +
-                `\n2) Increase Docker Desktop memory: Settings > Resources > Memory (recommended: 16GB+)` +
-                `\n3) Current model "${model}" may be too large for available memory (6.3 GiB).`;
-            }
-
-            throw new Error(errorMessage);
-          }
-          const data = await resp.json();
-          return data.response as string;
+          return await chain.invoke(variables);
         } catch (error: any) {
-          clearTimeout(timeoutId);
-          // Handle timeout errors
+          // Handle errors with helpful messages
+          const errorMsg = error?.message || String(error);
+          const modelName = this.config.defaultModel || 'llama3.2';
+
+          // Provide helpful suggestions for common errors
           if (
-            error.name === 'AbortError' ||
-            error.message?.includes('aborted')
+            errorMsg.includes('does not support generate') ||
+            errorMsg.includes('embedding model')
           ) {
             throw new Error(
-              `Ollama request timeout after ${timeoutMs}ms. ` +
-                `The model may be processing a complex prompt. ` +
-                `Try: 1) Using a smaller model (e.g., llama3.2:1b), 2) Simplifying the prompt, or 3) Increasing OLLAMA_TIMEOUT environment variable (current: ${timeoutMs}ms).`,
+              `Model "${modelName}" does not support generation. ` +
+                `This appears to be an embedding model. ` +
+                `Please set AI_MODEL to a chat model like "llama3.2" or "llama3.2:1b" in your .env file. ` +
+                `Embedding models should only be set in EMBEDDINGS_MODEL.`,
             );
+          } else if (errorMsg.includes('memory')) {
+            throw new Error(
+              `Memory error detected. Solutions:` +
+                `\n1) Use a smaller model: Set AI_MODEL=llama3.2 or AI_MODEL=llama3.2:1b in your .env` +
+                `\n2) Increase Docker Desktop memory: Settings > Resources > Memory (recommended: 16GB+)` +
+                `\n3) Current model "${modelName}" may be too large for available memory.`,
+            );
+          } else if (
+            errorMsg.includes('fetch failed') ||
+            errorMsg.includes('ECONNREFUSED') ||
+            errorMsg.includes('ENOTFOUND') ||
+            errorMsg.includes('network') ||
+            errorMsg.includes('connection')
+          ) {
+            const baseUrl = this.getOllamaBaseUrl();
+            const isRemote = baseUrl.startsWith('https://');
+            let diagnosticMessage = `Network error connecting to Ollama at ${baseUrl}. `;
+
+            if (isRemote) {
+              diagnosticMessage +=
+                `\n⚠️  This appears to be a remote Ollama instance (Ollama Cloud). ` +
+                `Possible causes:` +
+                `\n1) Network connectivity issue from Fly.io to Ollama Cloud` +
+                `\n2) DNS resolution failure - verify the URL is correct: ${baseUrl}` +
+                `\n3) SSL/TLS certificate issue` +
+                `\n4) Firewall or network policy blocking the connection` +
+                `\n5) Ollama Cloud service may be temporarily unavailable` +
+                `\n\nTroubleshooting:` +
+                `\n- Verify OLLAMA_BASE_URL is set correctly: ${baseUrl}` +
+                `\n- Check if OLLAMA_API_KEY is set (required for Ollama Cloud)` +
+                `\n- Test connectivity: curl -v ${baseUrl}/api/tags` +
+                `\n- Check Fly.io logs for network errors` +
+                `\n- Verify Ollama Cloud status at https://status.ollama.com`;
+            } else {
+              diagnosticMessage +=
+                `\n⚠️  This appears to be a local Ollama instance. ` +
+                `Possible causes:` +
+                `\n1) Ollama service is not running` +
+                `\n2) Ollama is not accessible at ${baseUrl}` +
+                `\n3) Network configuration issue in Docker/Fly.io` +
+                `\n\nTroubleshooting:` +
+                `\n- Verify Ollama is running: docker ps | grep ollama` +
+                `\n- Test connectivity: curl ${baseUrl}/api/tags` +
+                `\n- In production, consider using Ollama Cloud instead of local instance` +
+                `\n- Set OLLAMA_BASE_URL to https://api.ollama.com for Ollama Cloud`;
+            }
+
+            this.logger.error(diagnosticMessage);
+            throw new Error(diagnosticMessage);
           }
+
+          this.logger.error(
+            `Error generating completion response: ${errorMsg}`,
+            error.stack,
+          );
           throw error;
         }
       }
@@ -1550,13 +1859,12 @@ Response format:
     try {
       console.log('Resetting vector store...');
 
-      // Opción B: Reinicializar completamente
+      // Reinicializar completamente usando la configuración de Chroma
+      const chromaConfig = await this.getChromaConfig();
       this.vectorStore = await Chroma.fromDocuments(
         [], // Empezar vacío
         this.embeddings,
-        {
-          collectionName: 'activities', // Nuevo nombre para evitar conflictos
-        },
+        chromaConfig as any,
       );
 
       console.log('Vector store reset successfully');
@@ -1597,6 +1905,94 @@ Response format:
     } catch (error) {
       console.error('Error rebuilding vector store:', error);
       throw error;
+    }
+  }
+
+  async testChromaConnection(): Promise<any> {
+    const result: any = {
+      status: 'unknown',
+      timestamp: new Date().toISOString(),
+      config: {},
+      error: null,
+    };
+
+    try {
+      const config = await this.getChromaConfig();
+      // Mask sensitive data
+      result.config = {
+        ...config,
+        index: config.index ? 'ChromaClient instance' : undefined,
+        client: config.client ? 'ChromaClient instance' : undefined, // Keep for backward compat
+        auth: config.index || config.client ? 'configured' : undefined,
+      };
+
+      // 1. Check basic connectivity
+      // Prefer using the index/client if available, otherwise use URL
+      const chromaClient = config.index || config.client;
+      if (chromaClient) {
+        result.checkType = 'client-list-collections';
+        try {
+          const collections = await chromaClient.listCollections();
+          result.status = 'connected';
+          result.collectionsCount = collections.length;
+          result.collections = collections.map((c: any) => c.name);
+        } catch (e: any) {
+          result.status = 'error';
+          result.error = `Client failed to list collections: ${e.message}`;
+        }
+      } else if (config.url) {
+        result.checkType = 'http-heartbeat';
+        const heartbeatUrl = `${config.url}/api/v2/heartbeat`;
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 5000);
+          const resp = await fetch(heartbeatUrl, {
+            signal: controller.signal,
+          } as any);
+          clearTimeout(timeoutId);
+
+          if (resp.ok) {
+            result.status = 'connected';
+            result.heartbeat = await resp.json();
+          } else {
+            result.status = 'error';
+            result.error = `HTTP ${resp.status} from ${heartbeatUrl}`;
+          }
+        } catch (e: any) {
+          result.status = 'error';
+          result.error = `Connection failed to ${heartbeatUrl}: ${e.message}`;
+        }
+      }
+
+      // 2. Check VectorStore initialization and operation status
+      result.vectorStoreInitialized = !!this.vectorStore;
+      if (this.vectorStore) {
+        try {
+          // Test a simple read operation to verify tenant/collection access
+          // This triggers ensureCollection internally if not already done
+          await this.vectorStore.similaritySearch('test', 1);
+          result.vectorStoreStatus = 'operational';
+        } catch (vsError: any) {
+          result.vectorStoreStatus = 'error';
+          result.vectorStoreError = vsError.message;
+          // If unauthorized, it suggests the fix didn't propagate to the vectorStore instance
+          if (
+            vsError.message.includes('Unauthorized') ||
+            vsError.message.includes('default_tenant')
+          ) {
+            result.vectorStoreHint =
+              'LangChain VectorStore might not be using the correct tenant configuration.';
+          }
+        }
+      }
+
+      return result;
+    } catch (error: any) {
+      return {
+        status: 'fatal_error',
+        error: error.message,
+        stack: error.stack,
+      };
     }
   }
 }

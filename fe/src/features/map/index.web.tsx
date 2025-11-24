@@ -1,5 +1,5 @@
-import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import React, { useRef } from 'react';
+import { StyleSheet, View, Text } from 'react-native';
 import { GoogleMap, useJsApiLoader, Marker } from '@react-google-maps/api';
 import { useMap } from '../../context/app';
 import { useActivities } from '../../context/app';
@@ -22,13 +22,34 @@ const createMarkersFromActivities = (activities: Activity[]): MarkerType[] => {
 };
 
 export const Map: React.FC<MapProps> = ({ markers: propMarkers }) => {
-  const { center } = useMap();
+  const { center, handleCenterChange } = useMap();
   const { activities } = useActivities();
+  const mapRef = useRef<google.maps.Map | null>(null);
 
-  const { isLoaded } = useJsApiLoader({
+  const apiKey = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY;
+
+  // Debug: log if API key is missing (only in development)
+  if (__DEV__ && !apiKey) {
+    console.warn('EXPO_PUBLIC_GOOGLE_MAPS_API_KEY is not set!');
+  }
+
+  const { isLoaded, loadError } = useJsApiLoader({
     id: 'google-map-script',
-    googleMapsApiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY,
+    googleMapsApiKey: apiKey,
   });
+
+  if (loadError) {
+    console.error('Google Maps load error:', loadError);
+    return (
+      <View style={styles.container}>
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>
+            Error loading Google Maps: {loadError.message}
+          </Text>
+        </View>
+      </View>
+    );
+  }
 
   // Create markers from activities if no markers are provided via props
   const markers = propMarkers || createMarkersFromActivities(activities);
@@ -37,12 +58,28 @@ export const Map: React.FC<MapProps> = ({ markers: propMarkers }) => {
     return <View style={styles.container} />;
   }
 
+  const handleMapDragEnd = () => {
+    if (mapRef.current) {
+      const newCenter = mapRef.current.getCenter();
+      if (newCenter) {
+        handleCenterChange({
+          lat: newCenter.lat(),
+          lng: newCenter.lng(),
+        });
+      }
+    }
+  };
+
   return (
     <View style={styles.container}>
       <GoogleMap
         mapContainerStyle={styles.map}
         center={{ lat: center.lat, lng: center.lng }}
         zoom={15}
+        onLoad={(map) => {
+          mapRef.current = map;
+        }}
+        onDragEnd={handleMapDragEnd}
       >
         {markers.map((marker) => (
           <Marker
@@ -69,5 +106,17 @@ const styles = StyleSheet.create({
   map: {
     width: '100%',
     height: '100%',
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+    backgroundColor: '#f5f5f5',
+  },
+  errorText: {
+    color: '#d32f2f',
+    fontSize: 16,
+    textAlign: 'center',
   },
 });

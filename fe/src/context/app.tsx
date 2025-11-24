@@ -27,7 +27,7 @@ export type AppContextType = {
   setSelectedRadiusMeters: (meters: number) => void;
 };
 
-const AppContext = createContext<AppContextType>({
+export const AppContext = createContext<AppContextType>({
   center: { lat: 0, lng: 0 },
   setCenter: (center: { lat: number; lng: number }) => {},
   address: null,
@@ -75,13 +75,11 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     setActivitiesLoading(true);
     try {
       const coordinates = coordinatesProps || address || center;
-
       if (
         !coordinates ||
         typeof coordinates.lat !== 'number' ||
         typeof coordinates.lng !== 'number'
       ) {
-        console.log('$$$ Invalid coordinates:', coordinates);
         setActivitiesError({ message: 'Invalid coordinates' });
         return {
           data: null,
@@ -90,7 +88,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         };
       }
 
-      console.log('$$$ getActivities:', coordinates);
       const response = await axiosInstance.post<PaginatedResponseActivity>(
         '/activities/search-hybrid',
         {
@@ -104,12 +101,9 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         }
       );
 
-      console.log('$$$ response:', response.data);
-
       // El endpoint search-hybrid retorna un objeto con estructura diferente
       // { activities: Activity[], fromCache: boolean, crawlingTriggered: boolean, message: string }
       const activitiesData = response.data.activities;
-      console.log('$$$ activitiesData:', activitiesData);
       setActivities(activitiesData);
       setActivitiesError(null);
       return {
@@ -118,7 +112,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         error: undefined,
       };
     } catch (error) {
-      console.log('$$$ getActivities error:', error);
       setActivitiesError(error as ApiError);
       return {
         data: null,
@@ -130,10 +123,15 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  // No dispares búsquedas automáticas; el user debe elegir dirección primero
   const { data, error, loading } = useApi(getActivities, false, [address]);
 
-  // Cuando cambia la dirección, no busques automáticamente; deja que el user pulse el botón
+  // Only get activities once when the component mounts.
+  useEffect(() => {
+    const coordinates = center || address;
+    if (coordinates) {
+      getActivities({ lat: coordinates.lat, lng: coordinates.lng });
+    }
+  }, []);
 
   return (
     <AppContext.Provider
@@ -167,7 +165,7 @@ export const useMap = () => {
 };
 
 export const useAddress = () => {
-  const { address, setAddress, getActivities } = useContext(AppContext);
+  const { address, setAddress, getActivities, center } = useContext(AppContext);
   const { handleCenterChange } = useMap();
   const { handleOpen } = useContext(BottomSheetContext);
   const handleAddressChange = (address: Address | null) => {
@@ -199,7 +197,8 @@ export const useActivities = () => {
 };
 
 export const useSearchRadius = () => {
-  const { selectedRadiusMeters, setSelectedRadiusMeters } = useContext(AppContext);
+  const { selectedRadiusMeters, setSelectedRadiusMeters } =
+    useContext(AppContext);
   return {
     radiusMeters: selectedRadiusMeters,
     setRadiusMeters: setSelectedRadiusMeters,
