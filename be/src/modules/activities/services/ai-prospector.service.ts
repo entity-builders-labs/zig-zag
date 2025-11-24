@@ -19,8 +19,8 @@ export class AiProspectorService {
   ) {}
 
   private buildPrompt(dto: AiDiscoverDto) {
-    // Use single braces in examples to avoid template variable conflicts
-    // The double braces {{ }} are interpreted as template variables by PromptTemplate
+    // We use double braces {{ }} for literal braces in the prompt because
+    // LangChain interprets single braces { } as template variables.
     return `You are a tourism expert. Return a JSON array of up to ${dto.limit ?? 20} tourist/leisure places near coordinates (lat: ${dto.latitude}, lng: ${dto.longitude}) within ${dto.radius ?? 5000}m radius.
 
 Allowed categories: cultural | outdoor | entertainment | food | nightlife
@@ -30,12 +30,12 @@ CRITICAL: Return ONLY valid JSON array, no markdown, no code blocks, no explanat
 
 Required format (JSON array):
 [
-  { "name": "Place Name", "category": "cultural|outdoor|entertainment|food|nightlife", "notes": "Brief description" }
+  {{ "name": "Place Name", "category": "cultural|outdoor|entertainment|food|nightlife", "notes": "Brief description" }}
 ]
 
 Example:
 [
-  { "name": "string", "category": "cultural|outdoor|entertainment|food|nightlife", "notes": "string" }
+  {{ "name": "string", "category": "cultural|outdoor|entertainment|food|nightlife", "notes": "string" }}
 ]
 
 Return the JSON array now:`;

@@ -6,6 +6,8 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaClient } from '@prisma/client';
+import { Pool } from 'pg';
+import { PrismaPg } from '@prisma/adapter-pg';
 
 @Injectable()
 export class PrismaService
@@ -13,19 +15,39 @@ export class PrismaService
   implements OnModuleInit, OnModuleDestroy
 {
   private readonly logger = new Logger(PrismaService.name);
+  private pool: Pool;
 
   constructor(private configService: ConfigService) {
+    // Get database URL from config service or fallback to environment variable
+    const databaseUrl =
+      configService.get<string>('database.url') || process.env.DATABASE_URL;
+
+    if (!databaseUrl) {
+      throw new Error(
+        'DATABASE_URL is not configured. Please set DATABASE_URL environment variable or configure it in your config module.',
+      );
+    }
+
+    // Set DATABASE_URL environment variable for PrismaClient to read
+    if (!process.env.DATABASE_URL) {
+      process.env.DATABASE_URL = databaseUrl;
+    }
+
+    // Create PostgreSQL pool and adapter for Prisma 7
+    // Must create before calling super()
+    const pool = new Pool({ connectionString: databaseUrl });
+    const adapter = new PrismaPg(pool);
+
     super({
-      datasources: {
-        db: {
-          url: configService.get<string>('database.url'),
-        },
-      },
+      adapter,
       log:
         process.env.NODE_ENV === 'development'
           ? ['query', 'error', 'warn']
           : ['error'],
     });
+
+    // Assign pool to instance property after super()
+    this.pool = pool;
   }
 
   async onModuleInit() {
@@ -51,6 +73,7 @@ export class PrismaService
 
   async onModuleDestroy() {
     await this.$disconnect();
+    await this.pool.end();
     this.logger.log('Disconnected from database');
   }
 

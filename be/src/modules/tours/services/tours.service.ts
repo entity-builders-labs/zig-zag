@@ -33,10 +33,11 @@ export class ToursService {
 
   private createTourChain() {
     const chatModel = this.langChainService.getChatModel();
+    const provider = this.langChainService['config']?.provider || 'openai'; // Access provider config
 
-    // If chatModel is null (non-OpenAI providers), return a custom chain
-    // that uses generateChatResponse with JSON format instructions
-    if (!chatModel) {
+    // If chatModel is null OR provider is Ollama/Groq (which don't support function calling)
+    // use a custom chain that uses generateChatResponse with JSON format instructions
+    if (!chatModel || provider === 'ollama' || provider === 'groq') {
       return {
         invoke: async (input: { input: string; activities: string }) => {
           const systemPrompt = `You are a tour planning expert. Create well-organized tour itineraries by:
@@ -263,8 +264,6 @@ Remember: Return ONLY valid JSON, no markdown formatting, no code blocks.`;
       3,
     );
 
-    console.log('$$$ AI ACTIVITIES:', aiActivities.length);
-
     if (!activity) {
       throw new NotFoundException('Activity not found');
     }
@@ -342,7 +341,6 @@ Remember: Return ONLY valid JSON, no markdown formatting, no code blocks.`;
       );
 
       if (aiActivities.length > 0) {
-        console.log('$$$ aiActivities:', aiActivities);
         candidateActivities.push(...aiActivities);
       }
 

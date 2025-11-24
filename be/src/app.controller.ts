@@ -3,6 +3,7 @@ import { Inject } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { AppService } from './app.service';
 import aiConfig from './shared/ai/ai.config';
+import { LangChainService } from './shared/ai/langchain.service';
 
 @Controller()
 export class AppController {
@@ -10,6 +11,7 @@ export class AppController {
     private readonly appService: AppService,
     @Inject(aiConfig.KEY)
     private readonly aiConfiguration: ConfigType<typeof aiConfig>,
+    private readonly langChainService: LangChainService,
   ) {}
 
   @Get()
@@ -20,6 +22,11 @@ export class AppController {
   @Get('health')
   health() {
     return { status: 'ok', service: 'backend' };
+  }
+
+  @Get('test/chroma')
+  async testChroma() {
+    return this.langChainService.testChromaConnection();
   }
 
   @Get('test/ollama')

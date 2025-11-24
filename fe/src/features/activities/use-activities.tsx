@@ -1,16 +1,16 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import axiosInstance from '../../api/config/axios';
 import { Activity, PaginatedResponseActivity } from './types';
 import { useApi } from '../../api/hooks/useApi';
-import { useAddress } from '../../context/app';
+import { AppContext, useAddress, useMap } from '../../context/app';
 
 export const useActivities = () => {
   const [currentActivityIndex, setCurrentActivityIndex] = useState<number>(0);
-  const { address } = useAddress();
-
+  const { address, center } = useContext(AppContext);
   const [activities, setActivities] = useState<Activity[]>([]);
   const [radius, setRadius] = useState<number>(50000);
   const [limit, setLimit] = useState<number>(100);
+  const location = address || center;
 
   const getActivities = async () => {
     if (!address?.lat || !address?.lng) {
@@ -72,10 +72,10 @@ export const useActivities = () => {
   }, [activitiesData]);
 
   useEffect(() => {
-    if (!activitiesLoading && !activities.length && address) {
+    if (!activitiesLoading && !activities.length && location) {
       getActivities();
     }
-  }, [address]);
+  }, [location]);
 
   return {
     currentActivityIndex,

@@ -10,6 +10,10 @@ export interface AiConfig {
   // Optional Chroma vector store configuration
   chromaUrl?: string;
   chromaCollectionName?: string;
+  // Chroma Cloud configuration (for managed Chroma service)
+  chromaApiKey?: string;
+  chromaTenant?: string;
+  chromaDatabase?: string;
   // OpenAI
   openaiApiKey?: string;
   // Groq
@@ -45,7 +49,7 @@ export default registerAs('ai', (): AiConfig => {
     process.env.AI_MODEL ||
     (provider === 'openai'
       ? process.env.OPENAI_DEFAULT_MODEL || 'gpt-3.5-turbo'
-      : 'llama3.2:3b');
+      : 'llama3.2');
 
   // Validate that AI_MODEL is not an embedding model
   // If it is, use a default chat model and log a warning
@@ -53,12 +57,12 @@ export default registerAs('ai', (): AiConfig => {
     const fallbackModel =
       provider === 'openai'
         ? process.env.OPENAI_DEFAULT_MODEL || 'gpt-3.5-turbo'
-        : 'llama3.2:3b';
+        : 'llama3.2';
 
     console.warn(
       `⚠️  Configuration warning: AI_MODEL is set to "${process.env.AI_MODEL}" which is an embedding model. ` +
         `Using "${fallbackModel}" for chat/generation instead. ` +
-        `Please set AI_MODEL to a chat model (e.g., "llama3.2:3b", "gpt-3.5-turbo") and use EMBEDDINGS_MODEL for embedding models.`,
+        `Please set AI_MODEL to a chat model (e.g., "llama3.2", "gpt-3.5-turbo") and use EMBEDDINGS_MODEL for embedding models.`,
     );
     defaultModel = fallbackModel;
   }
@@ -77,9 +81,13 @@ export default registerAs('ai', (): AiConfig => {
     timeout: baseTimeout,
     chromaUrl: process.env.CHROMA_URL || undefined,
     chromaCollectionName: process.env.CHROMA_COLLECTION_NAME || 'activities',
+    // Chroma Cloud credentials (optional, only needed for Chroma Cloud)
+    chromaApiKey: process.env.CHROMA_API_KEY,
+    chromaTenant: process.env.CHROMA_TENANT,
+    chromaDatabase: process.env.CHROMA_DATABASE,
     openaiApiKey: process.env.OPENAI_API_KEY,
     groqApiKey: process.env.GROQ_API_KEY,
-    ollamaBaseUrl: process.env.OLLAMA_BASE_URL || 'http://localhost:11434',
+    ollamaBaseUrl: process.env.OLLAMA_BASE_URL,
     ollamaApiKey: process.env.OLLAMA_API_KEY,
     ollamaNumCtx: process.env.OLLAMA_NUM_CTX
       ? parseInt(process.env.OLLAMA_NUM_CTX, 10)

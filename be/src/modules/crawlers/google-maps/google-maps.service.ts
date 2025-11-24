@@ -1,14 +1,7 @@
 // @ts-nocheck
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Prisma } from '@prisma/client';
-import {
-  Client,
-  Language,
-  PlaceType1,
-  PlacesNearbyRanking,
-  LatLng,
-} from '@googlemaps/google-maps-services-js';
+import { Client } from '@googlemaps/google-maps-services-js';
 import axios from 'axios';
 import { CrawlLocationDto } from './dto/crawl-location.dto';
 import { Activity } from '@prisma/client';
@@ -293,7 +286,9 @@ export class GoogleMapsService implements OnModuleInit {
   async onModuleInit() {
     const apiKey = this.configService.get<string>('GOOGLE_MAPS_API_KEY');
     if (!apiKey) {
-      throw new Error('Google Maps API key is required');
+      this.logger.warn(
+        'Google Maps API key is not configured. Google Maps functionality will not be available.',
+      );
     }
     await this.ensureKnownActivityTypes();
   }
@@ -643,71 +638,70 @@ Answer ONLY with one word from the set above, no punctuation, no explanation.`;
                 search,
               );
 
-            const processedPlaces = await Promise.all(
-              places.map(async (place) => {
-                // 1) Try static mapping from Google types
-                const mapped = this.findMatchingActivityType(place.types || []);
+            const processedPlaces = [];
+            for (const place of places) {
+              // 1) Try static mapping from Google types
+              const mapped = this.findMatchingActivityType(place.types || []);
 
-                // 2) If not mapped, ask AI to classify into canonical category
-                let categoryName = mapped?.name;
-                if (!categoryName) {
-                  categoryName = await this.classifyActivityCategoryWithAI({
-                    name: place.name,
-                    types: place.types,
-                    formattedAddress: place.address,
-                    website: place.website,
-                    rating: place.rating,
-                  });
-                }
-
-                // 3) Final fallback: use the configured search group category
-                if (!categoryName) {
-                  categoryName = String(categoryGroup.category).toLowerCase();
-                }
-
-                const defaultDurationsByCategory: Record<string, number> = {
-                  cultural: ActivityTypes.CULTURAL.defaultDuration,
-                  outdoor: ActivityTypes.OUTDOOR.defaultDuration,
-                  entertainment: ActivityTypes.ENTERTAINMENT.defaultDuration,
-                  food: ActivityTypes.FOOD.defaultDuration,
-                  nightlife: ActivityTypes.NIGHTLIFE.defaultDuration,
-                } as const;
-
-                const duration =
-                  mapped?.duration ??
-                  defaultDurationsByCategory[categoryName] ??
-                  2.0;
-
-                return {
+              // 2) If not mapped, ask AI to classify into canonical category
+              let categoryName = mapped?.name;
+              if (!categoryName) {
+                categoryName = await this.classifyActivityCategoryWithAI({
                   name: place.name,
-                  description: place.website,
-                  type: categoryName,
-                  duration,
-                  price: place.priceLevel ? place.priceLevel * 10 : 0,
-                  maxGroupSize: 15,
-                  latitude: place.location.latitude,
-                  longitude: place.location.longitude,
-                  rating: place.rating,
-                  ratingCount: place.reviews,
+                  types: place.types,
                   formattedAddress: place.address,
-                  phoneNumber: place.phoneNumber,
                   website: place.website,
-                  businessStatus: place.businessStatus,
-                  priceLevel: place.priceLevel,
-                  knownActivityTypeName: categoryName,
-                  location: place.location,
-                  createdAt: new Date(),
-                  updatedAt: new Date(),
-                  sourceId: sourceId,
-                  externalId: place.placeId,
-                  metadata: {
-                    activityId: place.placeId,
-                    googleTypes: place.types || [],
-                    preferredTime: (place as any).metadata?.preferredTime,
-                  },
-                } as CreateActivityDto;
-              }),
-            );
+                  rating: place.rating,
+                });
+              }
+
+              // 3) Final fallback: use the configured search group category
+              if (!categoryName) {
+                categoryName = String(categoryGroup.category).toLowerCase();
+              }
+
+              const defaultDurationsByCategory: Record<string, number> = {
+                cultural: ActivityTypes.CULTURAL.defaultDuration,
+                outdoor: ActivityTypes.OUTDOOR.defaultDuration,
+                entertainment: ActivityTypes.ENTERTAINMENT.defaultDuration,
+                food: ActivityTypes.FOOD.defaultDuration,
+                nightlife: ActivityTypes.NIGHTLIFE.defaultDuration,
+              } as const;
+
+              const duration =
+                mapped?.duration ??
+                defaultDurationsByCategory[categoryName] ??
+                2.0;
+
+              processedPlaces.push({
+                name: place.name,
+                description: place.website,
+                type: categoryName,
+                duration,
+                price: place.priceLevel ? place.priceLevel * 10 : 0,
+                maxGroupSize: 15,
+                latitude: place.location.latitude,
+                longitude: place.location.longitude,
+                rating: place.rating,
+                ratingCount: place.reviews,
+                formattedAddress: place.address,
+                phoneNumber: place.phoneNumber,
+                website: place.website,
+                businessStatus: place.businessStatus,
+                priceLevel: place.priceLevel,
+                knownActivityTypeName: categoryName,
+                location: place.location,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+                sourceId: sourceId,
+                externalId: place.placeId,
+                metadata: {
+                  activityId: place.placeId,
+                  googleTypes: place.types || [],
+                  preferredTime: (place as any).metadata?.preferredTime,
+                },
+              } as CreateActivityDto);
+            }
 
             allPlaces.push(...processedPlaces);
             nextPageToken = newNextPageToken;
