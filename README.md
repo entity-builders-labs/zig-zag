@@ -14,9 +14,8 @@ The project is divided into two main parts:
 - Node.js (v18 or higher)
 - Yarn package manager
 - Docker and Docker Compose
-- AWS DynamoDB (local or cloud)
 - Google Maps API key
-- OpenAI API key
+- OpenAI API key (optional, for AI features)
 - Expo CLI
 - iOS Simulator (for iOS development)
 - Android Studio (for Android development)
@@ -29,31 +28,48 @@ The project is divided into two main parts:
 yarn install
 ```
 
-2. Set up environment variables:
+2. Set up environment variables (optional for local development):
    Create a `.env` file in the root directory with the following variables:
 
 ```env
-DYNAMODB_ENDPOINT="http://localhost:8000"  # For local development
-AWS_REGION="us-east-1"
-AWS_ACCESS_KEY_ID="your_access_key"
-AWS_SECRET_ACCESS_KEY="your_secret_key"
-GOOGLE_MAPS_API_KEY="your_google_maps_api_key"
-OPENAI_API_KEY="your_openai_api_key"
+# Database: PostgreSQL local is used automatically in Docker Compose
+# Only set these if you want to use Supabase locally
+# DATABASE_URL=postgresql://postgres:password@localhost:5432/zigzag
+
+# ChromaDB (local Docker container)
+CHROMA_URL=http://localhost:8001
+
+# Google Maps
+GOOGLE_MAPS_API_KEY=your_google_maps_api_key
+
+# OpenAI (optional)
+OPENAI_API_KEY=your_openai_api_key
 ```
 
-3. Start the local DynamoDB container:
+**Note:** For local development, Docker Compose automatically uses a local PostgreSQL container. You don't need to configure `DATABASE_URL` unless you want to use Supabase locally.
+
+3. Start the services:
 
 ```bash
+# Start all services (PostgreSQL, Backend, Frontend, ChromaDB, Ollama)
 docker-compose up -d
 
-// Execute the first crawl of places manually
-docker-compose exec backend yarn crawl
+# Or start in foreground to see logs
+docker-compose up
 ```
 
-4. Initialize the database:
+4. Initialize the database (runs automatically on first start):
+
+The database setup script runs automatically when the backend starts. If you need to run it manually:
 
 ```bash
-yarn seed
+docker-compose exec backend yarn prisma:setup
+```
+
+5. (Optional) Execute the first crawl of places manually:
+
+```bash
+docker-compose exec backend yarn crawl
 ```
 
 ### Available Scripts
@@ -83,6 +99,7 @@ Frontend specific scripts:
 - Vector database integration with ChromaDB
 - Data crawling capabilities
 - Swagger API documentation
+- PostgreSQL database (local in development, Supabase in production)
 
 ## Development
 
@@ -101,17 +118,25 @@ Frontend specific scripts:
 
 ### Backend
 
-1. Build the application:
+For detailed deployment instructions, see [DEPLOY.md](./DEPLOY.md)
 
-```bash
-yarn build
-```
+**Quick summary:**
+- **Development:** Uses local PostgreSQL in Docker Compose (automatic)
+- **Production (Fly.io):** Uses Supabase (configure `DATABASE_URL` in Fly.io secrets)
 
-2. Start in production mode:
+**Deploy to Fly.io:**
 
-```bash
-yarn start:prod
-```
+1. Configure Supabase and set environment variables:
+   ```bash
+   fly secrets set DATABASE_URL="postgresql://..." --app zig-zag-backend
+   ```
+
+2. Deploy:
+   ```bash
+   fly deploy
+   ```
+
+See [DEPLOY.md](./DEPLOY.md) and [ENVIRONMENTS.md](./ENVIRONMENTS.md) for complete instructions.
 
 ### Frontend
 

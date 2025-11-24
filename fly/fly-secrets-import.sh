@@ -6,7 +6,7 @@
 set -e
 
 APP_NAME="${1:-zig-zag-backend}"
-ENV_FILE="${2:-.env.fly}"
+ENV_FILE="${2:-.env}"
 
 if [ ! -f "$ENV_FILE" ]; then
   echo "❌ Error: Archivo $ENV_FILE no encontrado"
