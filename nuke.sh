@@ -14,9 +14,6 @@ rm -rf be/node_modules
 rm -rf fe/node_modules
 
 echo "🗂️ Removing build directories..."
-rm -rf be/.next
-rm -rf fe/.next
-rm -rf .turbo
 rm -rf be/dist
 rm -rf fe/dist
 

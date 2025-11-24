@@ -1,5 +1,38 @@
+# ============================================================================
+# ENVIRONMENT VARIABLES
+# ============================================================================
+# Docker Compose gets environment variables from:
+# 1. .env file in the project root (if it exists)
+# 2. System environment variables
+# 3. ${VARIABLE:-default} syntax allows default values
+#
+# RECOMMENDED STRUCTURE:
+# - Development: .env in project root (for docker-compose)
+# - Production: .env.prod in project root (for deploy scripts)
+#
+# USAGE:
+# - Development (default): docker-compose up
+#   Uses .env file automatically
+#
+# - Production (local testing): ./scripts/docker-compose.prod.sh up
+#   Uses .env.prod file to test production configuration locally
+#   Example: ./docker-compose.prod.sh up -d
+#            ./docker-compose.prod.sh logs -f backend
+#            ./docker-compose.prod.sh down
+#
+# The deploy scripts (deploy-be.sh, deploy-fe.sh) will:
+# 1. First look for .env.prod in project root
+# 2. Fallback to be/.env.prod or fe/.env.prod (backward compatibility)
+# 3. Last resort: .env (development file)
+# ============================================================================
+
 services:
+  # PostgreSQL service - ONLY for local development
+  # In production, Supabase is used (configured via DATABASE_URL)
+  # To use this service: docker-compose --profile dev up
   postgres:
+    profiles:
+      - dev
     image: postgres:15-alpine
     container_name: zigzag-postgres
     ports:
@@ -30,15 +63,22 @@ services:
     environment:
       - NODE_ENV=${NODE_ENV}
       - TS_NODE_TRANSPILE_ONLY=true
+      # Docker detection flag - helps backend detect it's running in Docker
+      - DOCKER_CONTAINER=${DOCKER_CONTAINER}
       # Force postgres hostname for Docker network (hardcoded to override .env)
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/zigzag
-      - DIRECT_URL=postgresql://postgres:postgres@postgres:5432/zigzag
+      - DATABASE_URL=${DATABASE_URL}
+      - DIRECT_URL=${DIRECT_URL}
       - CHROMA_URL=${CHROMA_URL}
+      - CHROMA_API_KEY=${CHROMA_API_KEY}
+      - CHROMA_TENANT=${CHROMA_TENANT}
+      - CHROMA_DATABASE=${CHROMA_DATABASE}
+      - CHROMA_COLLECTION_NAME=${CHROMA_COLLECTION_NAME}
       - GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY}
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - OPENAI_DEFAULT_MODEL=${OPENAI_DEFAULT_MODEL}
       - OPENAI_TEMPERATURE=${OPENAI_TEMPERATURE}
       - OPENAI_TIMEOUT=${OPENAI_TIMEOUT}
+      - OLLAMA_TIMEOUT=${OLLAMA_TIMEOUT}
       - PORT=${PORT}
       # AI provider flags
       - ENABLE_AI=${ENABLE_AI}
@@ -47,40 +87,23 @@ services:
       - EMBEDDINGS_MODEL=${EMBEDDINGS_MODEL}
       - OLLAMA_BASE_URL=${OLLAMA_BASE_URL}
       - OLLAMA_API_KEY=${OLLAMA_API_KEY}
+      - OLLAMA_NUM_CTX=${OLLAMA_NUM_CTX}
       - GROQ_API_KEY=${GROQ_API_KEY}
     volumes:
       - ./be:/app/be
       - /app/node_modules
     depends_on:
-      postgres:
+      # PostgreSQL is only required in development (profile: dev)
+      # In production, Supabase is used (DATABASE_URL)
+      # Note: The startup script handles waiting for postgres if needed
+      # We don't include postgres in depends_on because it uses the 'dev' profile
+      # and would cause errors when running without --profile dev
+      ollama:
         condition: service_healthy
     networks:
       - app-network
     restart: unless-stopped
-    command: >
-      sh -c "
-        echo 'Starting backend application...' &&
-        echo 'DATABASE_URL from env: $DATABASE_URL' &&
-        # Export to ensure it's available, then unset any .env interference
-        export DATABASE_URL='postgresql://postgres:postgres@postgres:5432/zigzag' &&
-        export DIRECT_URL='postgresql://postgres:postgres@postgres:5432/zigzag' &&
-        # Remove .env files from be directory to prevent Prisma from reading them
-        rm -f /app/be/.env /app/.env 2>/dev/null || true &&
-        echo 'Using DATABASE_URL: $DATABASE_URL' &&
-        cd /app/be &&
-        echo 'Generating Prisma Client...' &&
-        npx prisma generate &&
-        echo 'Syncing database schema (development mode)...' &&
-        if [ -d "prisma/migrations" ] && [ "$(ls -A prisma/migrations 2>/dev/null)" ]; then
-          echo 'Migrations found, applying...' &&
-          npx prisma migrate deploy
-        else
-          echo 'No migrations found, using db push (development only)...' &&
-          npx prisma db push --skip-generate --accept-data-loss || true
-        fi &&
-        echo 'Starting application...' &&
-        yarn start:dev
-      "
+    command: sh /app/be/scripts/start-dev.sh
 
   frontend:
     build:
@@ -102,9 +125,6 @@ services:
       - CHOKIDAR_INTERVAL=${CHOKIDAR_INTERVAL}
       - FAST_REFRESH=${FAST_REFRESH}
       - EXPO_USE_FAST_REFRESH=${EXPO_USE_FAST_REFRESH}
-      - WDS_SOCKET_PORT=${WDS_SOCKET_PORT}
-      - EXPO_DEVTOOLS_LISTEN_ADDRESS=${EXPO_DEVTOOLS_LISTEN_ADDRESS}
-      - REACT_NATIVE_PACKAGER_HOSTNAME=${REACT_NATIVE_PACKAGER_HOSTNAME}
     volumes:
       - ./fe:/app/fe
       - /app/node_modules
@@ -114,6 +134,7 @@ services:
       - cors-proxy
     networks:
       - app-network
+    restart: unless-stopped
 
   cors-proxy:
     build:
@@ -151,6 +172,62 @@ services:
       retries: 3
       start_period: 40s
 
+  ollama:
+    image: ollama/ollama:latest
+    container_name: zigzag-ollama
+    ports:
+      - '11434:11434'
+    environment:
+      # Set context size for Ollama models (default: 4096, can be increased up to model's training context)
+      # For models trained with 131k context, set OLLAMA_NUM_CTX=131072 to utilize full capacity
+      - OLLAMA_NUM_CTX=${OLLAMA_NUM_CTX:-}
+      # Control GPU usage: set to 0 to force CPU-only mode (uses less VRAM, more RAM)
+      # Set to -1 to use all available GPUs, or a number to use specific GPU count
+      - OLLAMA_NUM_GPU=${OLLAMA_NUM_GPU:-}
+      # Force CPU mode if GPU memory is insufficient (set to "1" to enable)
+      - OLLAMA_CPU_ONLY=${OLLAMA_CPU_ONLY:-}
+      # Limit number of models loaded simultaneously (default: 1, helps reduce memory usage)
+      - OLLAMA_MAX_LOADED_MODELS=${OLLAMA_MAX_LOADED_MODELS:-1}
+      # Limit parallel requests (default: 1, helps prevent memory spikes)
+      - OLLAMA_NUM_PARALLEL=${OLLAMA_NUM_PARALLEL:-1}
+      # Models to download on startup
+      - AI_MODEL=${AI_MODEL:-llama3.2}
+      - EMBEDDINGS_MODEL=${EMBEDDINGS_MODEL:-nomic-embed-text}
+    volumes:
+      - ollama_data:/root/.ollama
+      - ./scripts/ollama-entrypoint.sh:/usr/local/bin/ollama-entrypoint.sh:ro
+    networks:
+      - app-network
+    restart: unless-stopped
+    entrypoint: ['/bin/sh', '/usr/local/bin/ollama-entrypoint.sh']
+    # Memory and resource limits
+    # IMPORTANT: These limits must be less than Docker Desktop's total memory allocation
+    # To increase Docker Desktop memory: Settings > Resources > Memory
+    deploy:
+      resources:
+        limits:
+          # Adjust based on your model size and available memory
+          # llama3.2 needs ~2-4GB, llama3.2:1b needs ~1-2GB
+          # For larger models (7b+), increase to 8GB-16GB or more
+          memory: ${OLLAMA_MEMORY_LIMIT:-4G}
+        reservations:
+          memory: ${OLLAMA_MEMORY_RESERVATION:-2G}
+    # Note: If you get "model requires more system memory" errors:
+    # 1. Increase Docker Desktop memory: Settings > Resources > Memory (16GB+ recommended)
+    # 2. Use a smaller model: AI_MODEL=llama3.2:1b (instead of llama3.2)
+    # 3. Force CPU mode: OLLAMA_CPU_ONLY=1 (uses more RAM but less VRAM)
+    # 4. Reduce context size: OLLAMA_NUM_CTX=2048 (instead of 4096 or higher)
+    # 5. Increase OLLAMA_MEMORY_LIMIT in your .env file
+    healthcheck:
+      # Test the HTTP API endpoint to ensure it's actually ready
+      # Use ollama list instead of curl (curl not available in container)
+      # Note: Healthcheck runs after entrypoint script downloads models
+      test: ['CMD-SHELL', 'ollama list > /dev/null 2>&1 || exit 1']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 120s
+
 networks:
   app-network:
     driver: bridge
@@ -158,3 +235,4 @@ networks:
 volumes:
   postgres_data:
   chroma_data:
+  ollama_data:

@@ -3,11 +3,13 @@
   "version": "1.0.0",
   "main": "index.ts",
   "scripts": {
-    "start": "expo start",
+    "start": "expo start --dev-client",
+    "start:web": "expo start --web",
     "android": "expo run:android",
     "ios": "expo run:ios",
+    "ios:device": "expo run:ios --device",
     "web": "expo start --web",
-    "eas-build": "eas build --profile development --platform ios"
+    "build:web": "expo export --platform web"
   },
   "dependencies": {
     "@appandflow/react-native-google-autocomplete": "^2.1.0",
@@ -34,6 +36,7 @@
     "expo-location": "~18.0.10",
     "expo-status-bar": "~2.0.1",
     "expo-updates": "~0.27.4",
+    "lucide-react-native": "^0.554.0",
     "nativewind": "^4.1.23",
     "react": "18.3.1",
     "react-dom": "18.3.1",
@@ -50,6 +53,7 @@
     "react-native-screens": "~4.4.0",
     "react-native-snap-carousel": "^3.9.1",
     "react-native-svg": "15.8.0",
+    "react-native-svg-transformer": "^1.5.0",
     "react-native-web": "~0.19.13",
     "react-native-web-maps": "^0.3.0",
     "tailwindcss": "^3.4.17"
@@ -62,7 +66,6 @@
     "@types/react": "~18.3.12",
     "jscodeshift": "^0.15.2",
     "react-native-dotenv": "^3.4.11",
-    "react-native-svg-transformer": "^1.5.0",
     "typescript": "^5.7.3"
   },
   "private": true

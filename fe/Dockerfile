@@ -33,4 +33,4 @@ ENV EXPO_DEVTOOLS_LISTEN_ADDRESS=0.0.0.0
 ENV REACT_NATIVE_PACKAGER_HOSTNAME=0.0.0.0
 
 # Command to run the application
-CMD ["yarn", "workspace", "fe", "start", "--web", "--host", "lan", "--dev-client"]
+CMD ["yarn", "workspace", "fe", "start", "--web", "--host", "lan"]
