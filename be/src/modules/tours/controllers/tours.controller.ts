@@ -13,7 +13,14 @@ import { ToursService } from '../services/tours.service';
 import { CreateTourDto } from '../dto/create-tour.dto';
 import { UpdateTourDto } from '../dto/update-tour.dto';
 import { CreateTourFromPromptDto } from '../dto/create-tour-from-prompt.dto';
-import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBody,
+  ApiQuery,
+} from '@nestjs/swagger';
+import { appConfig } from 'src/core/config/app.config';
 
 @ApiTags('tours')
 @Controller('tours')
@@ -61,6 +68,53 @@ export class ToursController {
       includeExistingActivities:
         createTourFromPromptDto.includeExistingActivities !== false, // default true
     });
+  }
+
+  @Get('nearby')
+  @ApiOperation({
+    summary: 'Get nearby tours by category',
+    description:
+      'Finds existing tours or generates new ones near a location matching a category (e.g. walking)',
+  })
+  @ApiQuery({
+    name: 'lat',
+    required: true,
+    type: Number,
+    description: 'Latitude',
+    example: appConfig().defaults.location.latitude,
+  })
+  @ApiQuery({
+    name: 'lng',
+    required: true,
+    type: Number,
+    description: 'Longitude',
+    example: appConfig().defaults.location.longitude,
+  })
+  @ApiQuery({
+    name: 'category',
+    required: false,
+    type: String,
+    description: 'Tour category (e.g. history, food)',
+  })
+  @ApiQuery({
+    name: 'radius',
+    required: false,
+    type: Number,
+    description: 'Search radius in meters',
+    schema: { default: 5000 },
+  })
+  getNearby(
+    @Query('lat') lat: number,
+    @Query('lng') lng: number,
+    @Query('category') category?: string,
+    @Query('radius') radius?: number,
+  ) {
+    return this.toursService.getNearbyTours(
+      +lat,
+      +lng,
+      category,
+      radius ? +radius : undefined,
+    );
   }
 
   @Get()

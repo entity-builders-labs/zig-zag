@@ -9,8 +9,10 @@ import {
   Spinner,
   AlertCircleIcon,
 } from '@gluestack-ui/themed';
+import { FlatList } from 'react-native';
 import axiosInstance from '@/api/config/axios';
 import { useApi } from '@/api/hooks/useApi';
+import { PaginatedResponseTour } from '@/components/types';
 
 // Leaflet CSS usually requires special handling in React Native Web or might cause issues in Native.
 // Assuming this is web-compatible or handled.
@@ -23,26 +25,10 @@ if (typeof window !== 'undefined') {
 }
 
 interface PaginatedResponse {
-  tours: Tour[];
-  meta: {
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-  };
-}
-
-interface Tour {
-  id: string;
-  name: string;
-  description: string;
-  latitude: number;
-  longitude: number;
+  data: PaginatedResponseTour | null;
 }
 
 export default function ToursScreen() {
-  const [tours, setTours] = useState<Tour[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [showModal, setShowModal] = useState(false);
@@ -54,11 +40,13 @@ export default function ToursScreen() {
         `/tours?page=${currentPage}`
       )) as PaginatedResponse;
 
-      if (!response.tours) {
+      console.log('$$$ response:', response);
+
+      if (!response.data) {
         throw new Error('No data returned from API');
       }
 
-      const { tours, meta } = response;
+      const { tours, meta } = response.data;
       setTotalPages(meta?.totalPages || 1);
       setTotalTours(tours.length);
       return {
@@ -83,61 +71,52 @@ export default function ToursScreen() {
     }
   };
 
-  const { data, error, loading } = useApi<PaginatedResponse>(getTours);
+  const { data, error, loading } = useApi<PaginatedResponseTour>(getTours);
 
   // Effect to update local state when data changes
   useEffect(() => {
-    if (data?.tours) {
-      setTours(data.tours);
-      if (data.meta) {
-        setTotalPages(data.meta.totalPages);
-        setTotalTours(data.meta.total);
-      }
+    if (loading) return;
+    if (data) {
+      setTotalPages(data.meta?.totalPages || 1);
+      setTotalTours(data.tours.length);
     }
   }, [data]);
 
   return (
-    <Box
-      display='flex'
-      flexDirection='row'
-      height='$full'
-      p='$4'
-      bg='$backgroundLight100'
-    >
-      <Box width='$full' bg='$backgroundLight100'>
-        <VStack space='md'>
-          <Heading>Tours</Heading>
-          <Button onPress={() => setShowModal(true)}>
-            <Text color='$white'>Create New Tour</Text>
-          </Button>
+    <Box height='$full' bg='$backgroundLight100'>
+      <FlatList
+        data={data?.tours || []}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={{ padding: 16 }}
+        ListHeaderComponent={
+          <VStack space='md' mb='$4'>
+            <Heading>Tours</Heading>
+            <Button onPress={() => setShowModal(true)}>
+              <Text color='$white'>Create New Tour</Text>
+            </Button>
 
-          {loading && <Spinner size='large' />}
+            {loading && <Spinner size='large' />}
 
-          {error && (
-            <Box bg='$errorLight100' p='$3' borderRadius='$md'>
-              <HStack space='sm' alignItems='center'>
-                <AlertCircleIcon color='$errorLight500' />
-                <Text color='$errorLight500'>{error.message}</Text>
-              </HStack>
-            </Box>
-          )}
-
-          {tours.map((tour) => (
-            <Box
-              key={tour.id}
-              bg='$white'
-              p='$4'
-              borderRadius='$md'
-              shadowRadius={2}
-            >
-              <VStack space='sm'>
-                <Heading size='sm'>{tour.name}</Heading>
-                <Text>{tour.description}</Text>
-              </VStack>
-            </Box>
-          ))}
-
-          <HStack space='sm' justifyContent='center' mt='$4'>
+            {error && (
+              <Box bg='$errorLight100' p='$3' borderRadius='$md'>
+                <HStack space='sm' alignItems='center'>
+                  <AlertCircleIcon color='$errorLight500' />
+                  <Text color='$errorLight500'>{error.message}</Text>
+                </HStack>
+              </Box>
+            )}
+          </VStack>
+        }
+        renderItem={({ item: tour }) => (
+          <Box bg='$white' p='$4' borderRadius='$md' shadowRadius={2} mb='$4'>
+            <VStack space='sm'>
+              <Heading size='sm'>{tour.name}</Heading>
+              <Text>{tour.description}</Text>
+            </VStack>
+          </Box>
+        )}
+        ListFooterComponent={
+          <HStack space='sm' justifyContent='center' mt='$4' mb='$8'>
             <Button
               variant='outline'
               onPress={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
@@ -158,8 +137,8 @@ export default function ToursScreen() {
               <Text>Next</Text>
             </Button>
           </HStack>
-        </VStack>
-      </Box>
+        }
+      />
     </Box>
   );
 }

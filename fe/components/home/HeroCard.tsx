@@ -1,6 +1,9 @@
 import React from 'react';
 import { Box, Image, VStack, Text, Heading } from '@gluestack-ui/themed';
 
+const HERO_CARD_IMAGE =
+  'https://lh3.googleusercontent.com/gps-cs-s/AG0ilSzQp2oIICWexnmDApBuLjKa_BraOYa16ccgP86FaMFX3wE7OmsfW4N10nR1K8pQ1Bh33tiYMDxbCAhA_PIF1oFpRY56NJmrjerRIHuidg-oa9V7nT70ZY-IE8aQ-_6WdYavUR53HQ=s680-w680-h510-rw';
+
 export const HeroCard = () => {
   return (
     <Box px='$4'>
@@ -13,7 +16,7 @@ export const HeroCard = () => {
       >
         <Image
           source={{
-            uri: 'https://images.unsplash.com/photo-1583478446437-76752a5a6372?q=80&w=1000&auto=format&fit=crop', // Palacio Barolo feel
+            uri: HERO_CARD_IMAGE,
           }}
           alt='Palacio Barolo'
           w='$full'
@@ -57,4 +60,3 @@ export const HeroCard = () => {
     </Box>
   );
 };
-

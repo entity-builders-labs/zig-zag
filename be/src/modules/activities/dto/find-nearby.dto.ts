@@ -2,10 +2,12 @@ import { IsNumber, Min, Max, IsOptional } from 'class-validator';
 import { Transform } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 
+import { appConfig } from '../../../core/config/app.config';
+
 export class FindNearbyDto {
   @ApiProperty({
     description: 'Latitude coordinate',
-    example: 40.7128,
+    example: appConfig().defaults.location.latitude,
     minimum: -90,
     maximum: 90,
   })
@@ -14,7 +16,7 @@ export class FindNearbyDto {
 
   @ApiProperty({
     description: 'Longitude coordinate',
-    example: -74.006,
+    example: appConfig().defaults.location.longitude,
   })
   @IsNumber({}, { message: 'Longitude must be a number' })
   @Min(-180)

@@ -7,6 +7,11 @@ export const API_CONFIG = {
   },
 } as const;
 
+export const DEFAULT_LOCATION = {
+  LATITUDE: -34.5209462,
+  LONGITUDE: -58.4972602,
+} as const;
+
 // Debug log to verify base URL at runtime (development only)
 if (__DEV__) {
   // eslint-disable-next-line no-console
