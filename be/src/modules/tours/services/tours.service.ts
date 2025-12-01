@@ -1019,8 +1019,11 @@ Provide a concise, engaging explanation (2-3 sentences) that highlights the main
     const startTime = Date.now();
 
     // Build prompt from options
+    // Use destination as name if name is not provided
+    const promptName = options?.name || options?.destination;
+
     const finalPrompt = this.buildPromptFromParams({
-      name: options?.name,
+      name: promptName,
       description: options?.description,
       days: options?.days,
       totalDistance: options?.totalDistance,
@@ -1078,8 +1081,11 @@ Provide a concise, engaging explanation (2-3 sentences) that highlights the main
       }
 
       // Create basic tour structure (without activities)
+      // Use destination as name if name is not provided
+      const tourName = options?.name || options?.destination || 'Nuevo Tour';
+
       const tourData: CreateTourDto = {
-        name: options?.name || 'Nuevo Tour',
+        name: tourName,
         description: options?.description || 'Tour personalizado',
         duration: undefined,
         totalDays: options?.days,
