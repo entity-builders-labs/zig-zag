@@ -47,7 +47,12 @@ export interface GenerateTourDto {
   days?: number;
   budgetLevel?: 'low' | 'medium' | 'high';
   interests?: string[];
-  transportationMode?: 'walking' | 'driving' | 'public_transport' | 'cycling';
+  transportationMode?:
+    | 'walking'
+    | 'driving'
+    | 'public_transport'
+    | 'cycling'
+    | 'mixed';
   groupType?: 'solo' | 'couple' | 'family' | 'friends';
   travelPace?: 'relaxed' | 'moderate' | 'fast';
   dietaryRestrictions?: string[];

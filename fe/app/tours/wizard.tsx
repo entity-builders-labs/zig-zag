@@ -63,22 +63,20 @@ export default function TourWizardScreen() {
         options={{
           title: 'Nuevo Tour',
           presentation: 'modal',
-          headerShown: true,
+          headerShown: false,
         }}
       />
-      <Box flex={1} bg='$white'>
-        <TourWizardForm
-          onSubmit={handleSubmit}
-          onCancel={handleCancel}
-          initialLocation={
-            address?.lat && address?.lng
-              ? { lat: address.lat, lng: address.lng }
-              : latParam && lngParam
-                ? { lat: parseFloat(latParam), lng: parseFloat(lngParam) }
-                : undefined
-          }
-        />
-      </Box>
+      <TourWizardForm
+        onSubmit={handleSubmit}
+        onCancel={handleCancel}
+        initialLocation={
+          address?.lat && address?.lng
+            ? { lat: address.lat, lng: address.lng }
+            : latParam && lngParam
+              ? { lat: parseFloat(latParam), lng: parseFloat(lngParam) }
+              : undefined
+        }
+      />
     </>
   );
 }
