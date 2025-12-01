@@ -29,7 +29,14 @@ export class ImageGenerationService {
   async generateImage(
     prompt: string,
     size: '256x256' | '512x512' | '1024x1024' = '1024x1024',
+    bypass: boolean = false,
   ): Promise<string | null> {
+    if (bypass) {
+      return null;
+    }
+
+    console.log('generateImage', prompt, size);
+
     if (!this.config.enableAi) {
       this.logger.warn('AI is disabled, skipping image generation');
       return null;

@@ -74,6 +74,17 @@ export class CreateTourDto {
   @IsOptional()
   query?: string;
 
+  @ApiProperty({
+    description: 'Tour categories (e.g., walking, history, food)',
+    required: false,
+    type: [String],
+    example: ['walking', 'history'],
+  })
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
+  categories?: string[];
+
   @ApiProperty({ description: 'Flexible metadata (JSON)', required: false })
   @IsObject()
   @IsOptional()

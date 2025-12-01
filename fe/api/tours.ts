@@ -8,6 +8,7 @@ export interface Tour {
   duration?: number;
   price?: number;
   totalDistance?: number;
+  categories?: string[];
   activities?: {
     activity?: {
       id: string;
@@ -34,11 +35,34 @@ export interface Tour {
   metadata?: any;
 }
 
+export interface GenerateTourDto {
+  prompt?: string;
+  destination?: string;
+  destinationLatitude?: number;
+  destinationLongitude?: number;
+  latitude?: number;
+  longitude?: number;
+  radius?: number;
+  includeExistingActivities?: boolean;
+  days?: number;
+  budgetLevel?: 'low' | 'medium' | 'high';
+  interests?: string[];
+  transportationMode?: 'walking' | 'driving' | 'public_transport' | 'cycling';
+  groupType?: 'solo' | 'couple' | 'family' | 'friends';
+  travelPace?: 'relaxed' | 'moderate' | 'fast';
+  dietaryRestrictions?: string[];
+  startDates?: string[];
+  skipImageGeneration?: boolean;
+  skipActivities?: boolean;
+  excludeTours?: string[];
+  categories?: string[];
+}
+
 export async function fetchNearbyTours(
   lat: number,
   lng: number,
   category: string = 'walking',
-  radius: number = 5000
+  radius: number = 1000
 ) {
   const { data } = await axiosInstance.get<Tour[]>('/tours/nearby', {
     params: { lat, lng, category, radius },
@@ -48,5 +72,23 @@ export async function fetchNearbyTours(
 
 export async function fetchTourById(id: string) {
   const { data } = await axiosInstance.get<Tour>(`/tours/${id}`);
+  return data;
+}
+
+export async function generateTour(dataOrPrompt: string | GenerateTourDto) {
+  const payload =
+    typeof dataOrPrompt === 'string' ? { prompt: dataOrPrompt } : dataOrPrompt;
+  const { data } = await axiosInstance.post<Tour>(
+    '/tours/generate-tour',
+    payload
+  );
+  return data;
+}
+
+// This endpoint is still available for manual triggering if needed
+export async function generateTourActivities(tourId: string) {
+  const { data } = await axiosInstance.post<Tour>(
+    `/tours/${tourId}/generate-activities`
+  );
   return data;
 }

@@ -8,6 +8,12 @@ import {
 import { PrismaService } from '../../../core/database/prisma.service';
 import { CreateTourDto } from '../dto/create-tour.dto';
 import { UpdateTourDto } from '../dto/update-tour.dto';
+import {
+  BudgetLevel,
+  TransportationMode,
+  GroupType,
+  TravelPace,
+} from '../dto/create-tour-from-prompt.dto';
 // import { Activity } from '@prisma/client';
 import { ActivitiesService } from '../../activities/services/activities.service';
 import { LangChainService } from '../../../shared/ai/langchain.service';
@@ -21,6 +27,36 @@ import {
 import { RunnableSequence } from '@langchain/core/runnables';
 import { JsonOutputFunctionsParser } from 'langchain/output_parsers';
 import { Activity } from '@prisma/client';
+
+export interface GenerateTourOptions {
+  latitude?: number;
+  longitude?: number;
+  radius?: number; // in meters, default 25000 (25km)
+  includeExistingActivities?: boolean; // Whether to search for existing activities in DB
+  days?: number;
+  budgetLevel?: BudgetLevel;
+  interests?: string[];
+  transportationMode?: TransportationMode;
+  groupType?: GroupType;
+  travelPace?: TravelPace;
+  dietaryRestrictions?: string[];
+  destination?: string;
+  destinationLatitude?: number;
+  destinationLongitude?: number;
+  skipImageGeneration?: boolean;
+  skipActivities?: boolean; // If true, create tour without activities
+  // New fields for auto-prompt generation
+  name?: string;
+  description?: string;
+  totalDistance?: number;
+  price?: number;
+  estimatedBudget?: number;
+  maxGroupSize?: number;
+  recommendedGroupSize?: number;
+  startDates?: string[];
+  categories?: string[];
+  excludeTours?: string[];
+}
 
 @Injectable()
 export class ToursService {
@@ -437,8 +473,8 @@ Current activity details:
 - Energy level after: ${energyAfter}/5
 - Complementary activity types: ${complementaryAfter}
 - Strong combination areas: ${Object.entries(combinationScores)
-      .filter(([_, score]: [string, number]) => score >= 4)
-      .map(([type, _]) => type)
+      .filter(([, score]: [string, number]) => score >= 4)
+      .map(([type]) => type)
       .join(', ')}
 
 ${contextualInfo}
@@ -976,24 +1012,224 @@ Provide a concise, engaging explanation (2-3 sentences) that highlights the main
   }
 
   /**
-   * Generate a tour from a prompt using LangChain and AI
-   * This method uses the LangChain service to generate structured tour data from a natural language prompt
+   * Create a basic tour from wizard preferences
+   * This creates the tour structure first, then generates activities in background
    */
-  async createFromPrompt(
-    prompt: string,
-    options?: {
-      latitude?: number;
-      longitude?: number;
-      radius?: number; // in meters, default 25000 (25km)
-      includeExistingActivities?: boolean; // Whether to search for existing activities in DB
-    },
-  ) {
+  async createTourFromWizard(options: GenerateTourOptions) {
     const startTime = Date.now();
+
+    // Build prompt from options
+    const finalPrompt = this.buildPromptFromParams({
+      name: options?.name,
+      description: options?.description,
+      days: options?.days,
+      totalDistance: options?.totalDistance,
+      price: options?.price,
+      estimatedBudget: options?.estimatedBudget,
+      maxGroupSize: options?.maxGroupSize,
+      recommendedGroupSize: options?.recommendedGroupSize,
+      startDates: options?.startDates,
+      categories: options?.categories,
+      interests: options?.interests,
+      budgetLevel: options?.budgetLevel,
+      transportationMode: options?.transportationMode,
+      groupType: options?.groupType,
+      latitude: options?.latitude,
+      longitude: options?.longitude,
+      destination: options?.destination,
+    });
+
     this.logger.log(
-      `Generating tour from prompt: ${prompt.substring(0, 100)}...`,
+      `Creating tour from wizard with prompt: ${finalPrompt.substring(0, 100)}...`,
     );
 
     try {
+      // Build preferences object from options
+      const preferences: any = {};
+      if (options?.destination) {
+        preferences.destination = options.destination;
+      }
+      if (options?.destinationLatitude !== undefined) {
+        preferences.destinationLatitude = options.destinationLatitude;
+      }
+      if (options?.destinationLongitude !== undefined) {
+        preferences.destinationLongitude = options.destinationLongitude;
+      }
+      if (options?.interests?.length) {
+        preferences.interests = options.interests;
+      }
+      if (options?.transportationMode) {
+        preferences.transportationMode = options.transportationMode;
+      }
+      if (options?.travelPace) {
+        preferences.travelPace = options.travelPace;
+      }
+      if (options?.dietaryRestrictions?.length) {
+        preferences.dietaryRestrictions = options.dietaryRestrictions;
+      }
+      if (options?.budgetLevel) {
+        preferences.budgetLevel = options.budgetLevel;
+      }
+      if (options?.groupType) {
+        preferences.groupType = options.groupType;
+      }
+      if (options?.startDates?.length) {
+        preferences.startDates = options.startDates;
+      }
+
+      // Create basic tour structure (without activities)
+      const tourData: CreateTourDto = {
+        name: options?.name || 'Nuevo Tour',
+        description: options?.description || 'Tour personalizado',
+        duration: undefined,
+        totalDays: options?.days,
+        totalDistance: options?.totalDistance,
+        estimatedBudget: options?.estimatedBudget,
+        recommendedGroupSize: options?.recommendedGroupSize,
+        prompt: finalPrompt,
+        categories: options?.categories || [],
+        metadata: {
+          generatedAt: new Date().toISOString(),
+          options: options as any,
+          originalPrompt: finalPrompt,
+          preferences:
+            Object.keys(preferences).length > 0 ? preferences : undefined,
+          generationStatus: 'pending',
+        },
+        activities: [], // No activities yet
+      };
+
+      // Create the tour
+      const createStartTime = Date.now();
+      const tour = await this.create(tourData);
+      const createTime = Date.now() - createStartTime;
+
+      this.logger.log(
+        `Tour created successfully with ID: ${tour.id} (DB time: ${createTime}ms). Starting activity generation in background...`,
+      );
+
+      // Start activity generation in background (don't await)
+      this.generateTourActivities(tour.id).catch((error) => {
+        this.logger.error(
+          `Background activity generation failed for tour ${tour.id}: ${error.message}`,
+        );
+      });
+
+      const totalTime = Date.now() - startTime;
+      this.logger.log(
+        `Tour creation completed in ${totalTime}ms. Activities generating in background.`,
+      );
+
+      return tour;
+    } catch (error) {
+      const totalTime = Date.now() - startTime;
+      const errorMessage = error?.message || String(error);
+
+      this.logger.error(
+        `Error creating tour from wizard after ${totalTime}ms: ${errorMessage}`,
+        error.stack,
+      );
+
+      throw new BadRequestException(`Failed to create tour: ${errorMessage}`);
+    }
+  }
+
+  /**
+   * Generate a tour from a prompt using LangChain and AI
+   * This method uses the LangChain service to generate structured tour data from a natural language prompt
+   * @deprecated Use createTourFromWizard for new tours. This method generates everything at once.
+   */
+  async generateTour(
+    prompt: string | undefined,
+    options?: GenerateTourOptions,
+  ) {
+    const startTime = Date.now();
+
+    // Build prompt automatically if not provided
+    let finalPrompt = prompt;
+    if (!finalPrompt || finalPrompt.trim() === '') {
+      finalPrompt = this.buildPromptFromParams({
+        name: options?.name,
+        description: options?.description,
+        days: options?.days,
+        totalDistance: options?.totalDistance,
+        price: options?.price,
+        estimatedBudget: options?.estimatedBudget,
+        maxGroupSize: options?.maxGroupSize,
+        recommendedGroupSize: options?.recommendedGroupSize,
+        startDates: options?.startDates,
+        categories: options?.categories,
+        interests: options?.interests,
+        budgetLevel: options?.budgetLevel,
+        transportationMode: options?.transportationMode,
+        groupType: options?.groupType,
+        latitude: options?.latitude,
+        longitude: options?.longitude,
+      });
+      this.logger.log(
+        `Auto-generated prompt: ${finalPrompt.substring(0, 100)}...`,
+      );
+    } else {
+      this.logger.log(
+        `Using provided prompt: ${finalPrompt.substring(0, 100)}...`,
+      );
+    }
+
+    try {
+      // Enhance prompt with options
+      let enhancedPrompt = finalPrompt;
+      const constraints: string[] = [];
+
+      if (options?.destination)
+        constraints.push(`Destination: ${options.destination}`);
+      if (options?.days)
+        constraints.push(`Target Duration: ${options.days} days`);
+      if (options?.budgetLevel)
+        constraints.push(`Budget Level: ${options.budgetLevel}`);
+      if (options?.interests?.length)
+        constraints.push(`Interests: ${options.interests.join(', ')}`);
+      if (options?.transportationMode)
+        constraints.push(`Transportation Mode: ${options.transportationMode}`);
+      if (options?.groupType)
+        constraints.push(`Group Type: ${options.groupType}`);
+      if (options?.travelPace)
+        constraints.push(`Travel Pace: ${options.travelPace}`);
+      if (options?.dietaryRestrictions?.length)
+        constraints.push(
+          `Dietary Restrictions: ${options.dietaryRestrictions.join(', ')}`,
+        );
+      if (options?.startDates?.length)
+        constraints.push(`Start Dates: ${options.startDates.join(', ')}`);
+
+      // Handle excluded tours to ensure variety
+      if (options?.excludeTours?.length) {
+        try {
+          const excludedTours = await this.prisma.tour.findMany({
+            where: { id: { in: options.excludeTours } },
+            select: { name: true, description: true },
+          });
+
+          if (excludedTours.length > 0) {
+            constraints.push(
+              `CRITICAL: The user has already seen/rejected the following tours. You MUST generate a completely DIFFERENT tour experience (different theme, activities, or focus):`,
+            );
+            excludedTours.forEach((t) => {
+              constraints.push(
+                `- Avoid: "${t.name}" (${(t.description || '').substring(0, 100)}...)`,
+              );
+            });
+            constraints.push(
+              `Focus on uncovering hidden gems or alternative themes not covered above.`,
+            );
+          }
+        } catch (err) {
+          this.logger.warn(`Failed to fetch excluded tours: ${err.message}`);
+        }
+      }
+
+      if (constraints.length > 0) {
+        enhancedPrompt += `\n\nAdditional Constraints & Preferences:\n- ${constraints.join('\n- ')}`;
+      }
       // Step 1: If location provided, search for existing activities
       let availableActivitiesText = '';
       if (options?.latitude && options?.longitude) {
@@ -1036,7 +1272,7 @@ Provide a concise, engaging explanation (2-3 sentences) that highlights the main
               const semanticStartTime = Date.now();
               const semanticResults = await Promise.race([
                 this.langChainService.findSimilarActivities(
-                  `Activities in ${options.latitude}, ${options.longitude}: ${prompt}`,
+                  `Activities in ${options.latitude}, ${options.longitude}: ${finalPrompt}`,
                   5, // Reduced from 10 to improve performance
                 ),
                 new Promise<any[]>(
@@ -1081,7 +1317,7 @@ Provide a concise, engaging explanation (2-3 sentences) that highlights the main
       const tourChain = this.createTourChain();
 
       // Prepare the input with available activities context
-      const fullPrompt = prompt + availableActivitiesText;
+      const fullPrompt = enhancedPrompt + availableActivitiesText;
 
       this.logger.debug(
         `Invoking tour chain with prompt: ${fullPrompt.substring(0, 200)}...`,
@@ -1118,6 +1354,39 @@ Provide a concise, engaging explanation (2-3 sentences) that highlights the main
       );
 
       // Step 3: Convert AI response to CreateTourDto format
+      // Build preferences object from options
+      const preferences: any = {};
+      if (options?.destination) {
+        preferences.destination = options.destination;
+      }
+      if (options?.destinationLatitude !== undefined) {
+        preferences.destinationLatitude = options.destinationLatitude;
+      }
+      if (options?.destinationLongitude !== undefined) {
+        preferences.destinationLongitude = options.destinationLongitude;
+      }
+      if (options?.interests?.length) {
+        preferences.interests = options.interests;
+      }
+      if (options?.transportationMode) {
+        preferences.transportationMode = options.transportationMode;
+      }
+      if (options?.travelPace) {
+        preferences.travelPace = options.travelPace;
+      }
+      if (options?.dietaryRestrictions?.length) {
+        preferences.dietaryRestrictions = options.dietaryRestrictions;
+      }
+      if (options?.budgetLevel) {
+        preferences.budgetLevel = options.budgetLevel;
+      }
+      if (options?.groupType) {
+        preferences.groupType = options.groupType;
+      }
+      if (options?.startDates?.length) {
+        preferences.startDates = options.startDates;
+      }
+
       const tourData: CreateTourDto = {
         name: aiResponse.title || 'Untitled Tour',
         description: aiResponse.description || aiResponse.title,
@@ -1126,63 +1395,74 @@ Provide a concise, engaging explanation (2-3 sentences) that highlights the main
         totalDistance: aiResponse.totalDistance,
         estimatedBudget: aiResponse.estimatedBudget,
         recommendedGroupSize: aiResponse.recommendedGroupSize,
-        prompt: prompt,
+        prompt: finalPrompt,
+        categories: options?.categories || [],
         metadata: {
           ...(aiResponse as object),
           generatedAt: new Date().toISOString(),
-          options: options,
+          options: options as any,
+          originalPrompt: prompt,
+          enhancedPrompt: enhancedPrompt,
+          // Store preferences in a structured way
+          preferences:
+            Object.keys(preferences).length > 0 ? preferences : undefined,
+          // Track generation status
+          generationStatus: 'pending',
+          generationMessage: 'Preparando generación de actividades...',
         }, // Store full AI response in metadata
-        activities: aiResponse.activities?.map((act: any, index: number) => {
-          // Validate activityId if provided (supp  orts UUID and ObjectId)
+        activities: options?.skipActivities
+          ? [] // Skip activities if flag is set
+          : aiResponse.activities?.map((act: any, index: number) => {
+              // Validate activityId if provided (supp  orts UUID and ObjectId)
 
-          const validActivityId =
-            act.activityId && isValidId(act.activityId)
-              ? act.activityId
-              : undefined;
+              const validActivityId =
+                act.activityId && isValidId(act.activityId)
+                  ? act.activityId
+                  : undefined;
 
-          // Parse startTime - handle time strings vs full dates
-          let parsedStartTime: Date | string | undefined = act.startTime;
-          if (act.startTime && typeof act.startTime === 'string') {
-            const timePattern = /^\d{1,2}:\d{2}(:\d{2})?$/;
-            if (timePattern.test(act.startTime)) {
-              // It's just a time string, we'll store it as-is in activityData
-              // For startTime field, we'll skip it or try to combine with a date
-              parsedStartTime = undefined; // Skip for now since we don't have a base date
-            } else {
-              // Try to parse as ISO date
-              const parsedDate = new Date(act.startTime);
-              parsedStartTime = !isNaN(parsedDate.getTime())
-                ? parsedDate
-                : undefined;
-            }
-          }
+              // Parse startTime - handle time strings vs full dates
+              let parsedStartTime: Date | string | undefined = act.startTime;
+              if (act.startTime && typeof act.startTime === 'string') {
+                const timePattern = /^\d{1,2}:\d{2}(:\d{2})?$/;
+                if (timePattern.test(act.startTime)) {
+                  // It's just a time string, we'll store it as-is in activityData
+                  // For startTime field, we'll skip it or try to combine with a date
+                  parsedStartTime = undefined; // Skip for now since we don't have a base date
+                } else {
+                  // Try to parse as ISO date
+                  const parsedDate = new Date(act.startTime);
+                  parsedStartTime = !isNaN(parsedDate.getTime())
+                    ? parsedDate
+                    : undefined;
+                }
+              }
 
-          return {
-            activityId: validActivityId,
-            activityName: act.activityName || act.type || 'Activity',
-            activityType: act.type || act.activityType,
-            activityLatitude: act.latitude,
-            activityLongitude: act.longitude,
-            duration: act.duration,
-            startTime: parsedStartTime,
-            notes: act.notes,
-            dayNumber: act.dayNumber,
-            travelTimeToNext: act.travelTimeToNext,
-            distanceToNext: act.distanceToNext,
-            order: index + 1,
-            // Store full activity data if activityId is not valid or not provided
-            activityData: validActivityId
-              ? undefined
-              : ({
-                  name: act.activityName || act.type,
-                  type: act.type,
-                  latitude: act.latitude,
-                  longitude: act.longitude,
-                  startTime: act.startTime, // Store original startTime string in activityData
-                  ...act,
-                } as any),
-          };
-        }),
+              return {
+                activityId: validActivityId,
+                activityName: act.activityName || act.type || 'Activity',
+                activityType: act.type || act.activityType,
+                activityLatitude: act.latitude,
+                activityLongitude: act.longitude,
+                duration: act.duration,
+                startTime: parsedStartTime,
+                notes: act.notes,
+                dayNumber: act.dayNumber,
+                travelTimeToNext: act.travelTimeToNext,
+                distanceToNext: act.distanceToNext,
+                order: index + 1,
+                // Store full activity data if activityId is not valid or not provided
+                activityData: validActivityId
+                  ? undefined
+                  : ({
+                      name: act.activityName || act.type,
+                      type: act.type,
+                      latitude: act.latitude,
+                      longitude: act.longitude,
+                      startTime: act.startTime, // Store original startTime string in activityData
+                      ...act,
+                    } as any),
+              };
+            }),
       };
 
       // Step 4: Create and return the tour
@@ -1190,17 +1470,23 @@ Provide a concise, engaging explanation (2-3 sentences) that highlights the main
       const tour = await this.create(tourData);
       const createTime = Date.now() - createStartTime;
 
-      // Generate cover image (asynchronously to not block too long, or await if critical)
-      // We'll await it to ensure the user gets a complete tour
-      try {
-        await this.generateTourCoverImage(tour.id);
-      } catch (imgError) {
-        this.logger.warn(`Failed to generate cover image: ${imgError.message}`);
+      // If skipActivities is true, don't generate activities now
+      // They will be generated later via generateTourActivities endpoint
+      if (!options?.skipActivities) {
+        // Generate cover image (asynchronously to not block too long, or await if critical)
+        // We'll await it to ensure the user gets a complete tour
+        try {
+          await this.generateTourCoverImage(tour.id);
+        } catch (imgError) {
+          this.logger.warn(
+            `Failed to generate cover image: ${imgError.message}`,
+          );
+        }
       }
 
       const totalTime = Date.now() - startTime;
       this.logger.log(
-        `Tour created successfully with ID: ${tour.id} (Total time: ${totalTime}ms, AI: ${chainTime}ms, DB: ${createTime}ms)`,
+        `Tour created successfully with ID: ${tour.id} (Total time: ${totalTime}ms, AI: ${chainTime}ms, DB: ${createTime}ms, Activities: ${options?.skipActivities ? 'skipped' : 'generated'})`,
       );
 
       return tour;
@@ -1234,6 +1520,331 @@ Provide a concise, engaging explanation (2-3 sentences) that highlights the main
       // Use BadRequestException (400) for other errors (invalid input, etc.)
       throw new BadRequestException(
         `Failed to generate tour from prompt: ${errorMessage}`,
+      );
+    }
+  }
+
+  /**
+   * Helper method to update generation status and message
+   */
+  private async updateGenerationStatus(
+    tourId: string,
+    status: string,
+    message?: string,
+  ) {
+    const tour = await this.findOne(tourId);
+    const metadata = tour.metadata as any;
+    await this.prisma.tour.update({
+      where: { id: tourId },
+      data: {
+        metadata: {
+          ...metadata,
+          generationStatus: status,
+          generationMessage: message,
+          ...(status === 'generating' && !metadata?.generationStartedAt
+            ? { generationStartedAt: new Date().toISOString() }
+            : {}),
+        },
+      },
+    });
+  }
+
+  /**
+   * Generate activities for an existing tour
+   * This method generates activities in the background for a tour that was created with skipActivities=true
+   */
+  async generateTourActivities(tourId: string) {
+    const tour = await this.findOne(tourId);
+    if (!tour) {
+      throw new NotFoundException(`Tour with ID ${tourId} not found`);
+    }
+
+    // Check if activities are already being generated or completed
+    const metadata = tour.metadata as any;
+    if (metadata?.generationStatus === 'generating') {
+      throw new BadRequestException(
+        'Activities are already being generated for this tour',
+      );
+    }
+    if (
+      metadata?.generationStatus === 'completed' &&
+      tour.activities.length > 0
+    ) {
+      throw new BadRequestException('Activities have already been generated');
+    }
+
+    // Update status to generating
+    await this.updateGenerationStatus(
+      tourId,
+      'generating',
+      'Iniciando generación de actividades...',
+    );
+
+    try {
+      // Get options from metadata
+      const options = metadata?.options as GenerateTourOptions;
+      if (!options) {
+        throw new BadRequestException(
+          'Tour does not have generation options stored',
+        );
+      }
+
+      // Rebuild the prompt and generate activities
+      const prompt = metadata?.originalPrompt || metadata?.enhancedPrompt;
+      if (!prompt) {
+        throw new BadRequestException('Tour does not have a prompt stored');
+      }
+
+      // Call the internal generation logic but only for activities
+      // We'll reuse the logic from generateTour but only create activities
+      const enhancedPrompt = metadata?.enhancedPrompt || prompt;
+      let availableActivitiesText = '';
+
+      // Search for existing activities if location provided
+      if (options?.latitude && options?.longitude) {
+        const radius = options.radius || 25000;
+        const activityLimit = 20;
+
+        // Update status: searching for activities
+        await this.updateGenerationStatus(
+          tourId,
+          'generating',
+          `Buscando actividades en la zona (radio ${Math.round(radius / 1000)}km)...`,
+        );
+
+        try {
+          const nearbyActivities = await Promise.race([
+            this.activitiesService.findAll(
+              options.latitude.toString(),
+              options.longitude.toString(),
+              radius,
+              activityLimit,
+            ),
+            new Promise<any[]>((_, reject) =>
+              setTimeout(
+                () => reject(new Error('Activity search timeout')),
+                10000,
+              ),
+            ),
+          ]);
+
+          if (nearbyActivities.length > 0) {
+            // Update status: activities found, processing
+            await this.updateGenerationStatus(
+              tourId,
+              'generating',
+              `${nearbyActivities.length} actividades encontradas. Ordenando según tus preferencias...`,
+            );
+
+            availableActivitiesText = `\n\nAvailable activities in the area (within ${radius / 1000}km):\n${nearbyActivities
+              .slice(0, 15)
+              .map(
+                (act: any, idx: number) =>
+                  `${idx + 1}. ${act.name} (${act.type || 'Activity'}) - ${(act.description || 'No description').substring(0, 100)} - Location: ${act.latitude}, ${act.longitude} - Duration: ${act.duration || 'Unknown'} minutes`,
+              )
+              .join('\n')}`;
+          } else {
+            // Update status: no activities found, will generate new ones
+            await this.updateGenerationStatus(
+              tourId,
+              'generating',
+              'No se encontraron actividades existentes. Generando nuevas actividades con IA...',
+            );
+          }
+        } catch (error) {
+          this.logger.warn(
+            `Activity search failed or timed out: ${error.message}`,
+          );
+          await this.updateGenerationStatus(
+            tourId,
+            'generating',
+            'Búsqueda de actividades completada. Generando itinerario con IA...',
+          );
+        }
+      } else {
+        // No location provided, generate directly
+        await this.updateGenerationStatus(
+          tourId,
+          'generating',
+          'Generando itinerario personalizado con IA...',
+        );
+      }
+
+      // Generate activities using AI
+      await this.updateGenerationStatus(
+        tourId,
+        'generating',
+        'Creando itinerario optimizado con inteligencia artificial...',
+      );
+
+      const tourChain = this.createTourChain();
+      const fullPrompt = enhancedPrompt + availableActivitiesText;
+      const generationTimeout = this.langChainService.getGenerationTimeout();
+
+      const aiResponse = (await Promise.race([
+        tourChain.invoke({
+          input: fullPrompt,
+          activities:
+            availableActivitiesText ||
+            'No specific activities provided. Create a general tour.',
+        }),
+        new Promise<any>((_, reject) =>
+          setTimeout(
+            () =>
+              reject(
+                new Error(`AI generation timeout after ${generationTimeout}ms`),
+              ),
+            generationTimeout,
+          ),
+        ),
+      ])) as any;
+
+      // Update status: AI response received, processing activities
+      await this.updateGenerationStatus(
+        tourId,
+        'generating',
+        'Itinerario generado. Guardando actividades...',
+      );
+
+      // Transform AI response activities to CreateTourDto format
+      const activities =
+        aiResponse.activities?.map((act: any, index: number) => {
+          const validActivityId =
+            act.activityId && isValidId(act.activityId)
+              ? act.activityId
+              : undefined;
+
+          let parsedStartTime: Date | string | undefined = act.startTime;
+          if (act.startTime && typeof act.startTime === 'string') {
+            const timePattern = /^\d{1,2}:\d{2}(:\d{2})?$/;
+            if (timePattern.test(act.startTime)) {
+              parsedStartTime = undefined;
+            } else {
+              const parsedDate = new Date(act.startTime);
+              parsedStartTime = !isNaN(parsedDate.getTime())
+                ? parsedDate
+                : undefined;
+            }
+          }
+
+          return {
+            activityId: validActivityId,
+            activityName: act.activityName || act.type || 'Activity',
+            activityType: act.type || act.activityType,
+            activityLatitude: act.latitude,
+            activityLongitude: act.longitude,
+            duration: act.duration,
+            startTime: parsedStartTime,
+            notes: act.notes,
+            dayNumber: act.dayNumber,
+            travelTimeToNext: act.travelTimeToNext,
+            distanceToNext: act.distanceToNext,
+            order: index + 1,
+            activityData: validActivityId
+              ? undefined
+              : ({
+                  name: act.activityName || act.type,
+                  type: act.type,
+                  latitude: act.latitude,
+                  longitude: act.longitude,
+                  startTime: act.startTime,
+                  ...act,
+                } as any),
+          };
+        }) || [];
+
+      // Update tour with activities
+      await this.prisma.$transaction(async (tx) => {
+        // Delete any existing activities (should be none, but just in case)
+        await tx.tourActivity.deleteMany({
+          where: { tourId },
+        });
+
+        // Create new activities
+        await tx.tourActivity.createMany({
+          data: activities.map((activity: any) => ({
+            tourId,
+            activityId: activity.activityId,
+            activityName: activity.activityName,
+            activityType: activity.activityType,
+            activityLatitude: activity.activityLatitude,
+            activityLongitude: activity.activityLongitude,
+            activityData: activity.activityData,
+            duration: activity.duration,
+            startTime: activity.startTime,
+            notes: activity.notes,
+            dayNumber: activity.dayNumber,
+            travelTimeToNext: activity.travelTimeToNext,
+            distanceToNext: activity.distanceToNext,
+            order: activity.order,
+          })),
+        });
+
+        // Update tour metadata to mark as completed
+        await tx.tour.update({
+          where: { id: tourId },
+          data: {
+            metadata: {
+              ...metadata,
+              generationStatus: 'completed',
+              generationMessage: `¡Listo! ${activities.length} actividades generadas exitosamente.`,
+              generationCompletedAt: new Date().toISOString(),
+            },
+          },
+        });
+      });
+
+      this.logger.log(
+        `Activities generated successfully for tour ${tourId} (${activities.length} activities)`,
+      );
+
+      // Generate cover image (optional, don't block on this)
+      try {
+        await this.updateGenerationStatus(
+          tourId,
+          'generating',
+          'Generando imagen de portada...',
+        );
+        await this.generateTourCoverImage(tourId);
+      } catch (imgError) {
+        this.logger.warn(`Failed to generate cover image: ${imgError.message}`);
+      } finally {
+        // Always update status to completed after image generation (even if bypassed or failed)
+        // This ensures the frontend knows generation is complete
+        await this.updateGenerationStatus(
+          tourId,
+          'completed',
+          `¡Listo! ${activities.length} actividades generadas exitosamente.`,
+        );
+      }
+
+      // Return updated tour
+      return this.findOne(tourId);
+    } catch (error) {
+      // Update status to failed
+      await this.updateGenerationStatus(
+        tourId,
+        'failed',
+        `Error: ${error?.message || 'No se pudo generar el itinerario'}`,
+      );
+      await this.prisma.tour.update({
+        where: { id: tourId },
+        data: {
+          metadata: {
+            ...metadata,
+            generationError: error?.message || String(error),
+            generationFailedAt: new Date().toISOString(),
+          },
+        },
+      });
+
+      this.logger.error(
+        `Failed to generate activities for tour ${tourId}: ${error.message}`,
+        error.stack,
+      );
+
+      throw new BadRequestException(
+        `Failed to generate activities: ${error.message}`,
       );
     }
   }
@@ -1403,7 +2014,7 @@ Provide a concise, engaging explanation (2-3 sentences) that highlights the main
       const prompt = `Create a ${category} tour near this location.`;
 
       // Generate tour (this saves it to DB)
-      const generatedTour = await this.createFromPrompt(prompt, {
+      const generatedTour = await this.generateTour(prompt, {
         latitude,
         longitude,
         radius: radius * 2, // Search slightly wider for activities
@@ -1422,12 +2033,61 @@ Provide a concise, engaging explanation (2-3 sentences) that highlights the main
     }
   }
 
-  async findAll(page = 1, limit = 100) {
+  async findAll(
+    page = 1,
+    limit = 100,
+    category?: string,
+    latitude?: number,
+    longitude?: number,
+    radius?: number,
+  ) {
     const skip = (page - 1) * limit;
 
+    // If lat/lng/radius provided, use nearby search logic if no category or combined
+    // But if category is provided, we filter by category
+    // The previous implementation of findAll just paginated everything.
+    // We need to support the filters passed from controller.
+
+    const where: any = {};
+
+    if (category) {
+      where.categories = {
+        has: category,
+      };
+    }
+
+    if (
+      latitude !== undefined &&
+      longitude !== undefined &&
+      radius !== undefined
+    ) {
+      where.activities = {
+        some: {
+          activityLatitude: {
+            gte: latitude - radius,
+            lte: latitude + radius,
+          },
+          activityLongitude: {
+            gte: longitude - radius,
+            lte: longitude + radius,
+          },
+        },
+      };
+    }
+
+    // Note: Prisma doesn't support geospatial queries directly on standard fields easily without raw queries
+    // or extensions. For now, we'll filter by category and simple pagination.
+    // If latitude/longitude is provided, we might want to use findNearby logic instead?
+    // However, findNearby returns an array, not a paginated result with meta.
+    // Let's stick to basic filtering for now.
+
     const [total, tours] = await this.prisma.$transaction([
-      this.prisma.tour.count(),
+      this.prisma.tour.count({
+        where,
+      }),
+
       this.prisma.tour.findMany({
+        where,
         take: limit,
         skip: skip,
         include: {
@@ -1436,6 +2096,9 @@ Provide a concise, engaging explanation (2-3 sentences) that highlights the main
               activity: true,
             },
           },
+        },
+        orderBy: {
+          createdAt: 'desc',
         },
       }),
     ]);
@@ -1571,12 +2234,12 @@ Provide a concise, engaging explanation (2-3 sentences) that highlights the main
   async generateTourSuggestion(
     startingActivityId: string,
     numberOfActivities: number = 5,
-    preferences: {
-      timeOfDay?: string[];
-      physicalIntensity?: number;
-      indoorOutdoor?: number;
-      tags?: string[];
-    } = {},
+    // preferences: {
+    //   timeOfDay?: string[];
+    //   physicalIntensity?: number;
+    //   indoorOutdoor?: number;
+    //   tags?: string[];
+    // } = {},
   ) {
     // Get the starting activity
     const startActivity = await this.prisma.activity.findUnique({
@@ -1601,8 +2264,7 @@ Provide a concise, engaging explanation (2-3 sentences) that highlights the main
     );
 
     // Initialize tour with starting activity
-    const tourActivities = [startActivity];
-
+    // const tourActivities = [startActivity];
     // Create a tour with the selected activities
     return nextActivity;
   }
@@ -1828,6 +2490,28 @@ Return as a valid JSON array with these exact field names.`;
     );
 
     return cleaned;
+  }
+
+  private buildPromptFromParams(params: any): string {
+    const parts: string[] = [];
+
+    if (params.name) parts.push(`Tour Name: ${params.name}`);
+    if (params.description) parts.push(`Description: ${params.description}`);
+    if (params.categories?.length)
+      parts.push(`Categories: ${params.categories.join(', ')}`);
+    if (params.interests?.length)
+      parts.push(`Interests: ${params.interests.join(', ')}`);
+
+    if (params.latitude && params.longitude) {
+      parts.push(`Location: ${params.latitude}, ${params.longitude}`);
+    }
+
+    // Add other params as needed for the base prompt
+    if (parts.length === 0) {
+      return 'Create a general tour itinerary';
+    }
+
+    return `Create a tour based on: ${parts.join('; ')}`;
   }
 
   /**
