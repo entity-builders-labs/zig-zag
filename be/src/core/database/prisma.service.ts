@@ -40,10 +40,7 @@ export class PrismaService
 
     super({
       adapter,
-      log:
-        process.env.NODE_ENV === 'development'
-          ? ['query', 'error', 'warn']
-          : ['error'],
+      log: ['error', 'warn'], // Only log errors and warnings, not queries
     });
 
     // Assign pool to instance property after super()

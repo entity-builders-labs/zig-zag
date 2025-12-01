@@ -1,0 +1,4 @@
+-- This is a baseline migration for an existing database.
+-- The database schema already matches the Prisma schema.
+-- This migration is marked as applied to establish the migration history baseline.
+-- No SQL changes are needed as the database is already in the correct state.

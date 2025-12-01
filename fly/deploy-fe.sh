@@ -1,8 +1,8 @@
 #!/bin/bash
-# Script para deploy del frontend con el secret de Google Maps API
-# Uso: ./deploy-fe.sh [api-key]
-#   Si pasas la API key como argumento, se usará para el build
-#   Si no, intentará leerla del entorno o de fly-fe.toml
+# Script to deploy the frontend with the Google Maps API secret 
+# Usage: ./deploy-fe.sh [api-key]
+#   If you pass the API key as an argument, it will be used for the build
+#   If not, it will try to read it from the environment or fly-fe.toml
 
 set -e
 
@@ -139,19 +139,19 @@ import_env_to_fly() {
   fi
 }
 
-# Try to import only missing frontend variables from .env file
+# Try to import only missing frontend variables from .env file (if not found, continue script)  
 ENV_FILE_FOUND=$(find_env_file)
 if [ -n "$ENV_FILE_FOUND" ]; then
   echo "📋 Checking for missing frontend variables in $ENV_FILE_FOUND..."
-  import_env_to_fly "$ENV_FILE_FOUND" || true  # Don't fail if all are already configured
+  import_env_to_fly "$ENV_FILE_FOUND" || true  # Don't fail if all are already configured (continue script)
 fi
 
-# Determinar de dónde obtener las variables
+# Determine where to get the variables from
 API_KEY=""
 API_URL=""
 ENV_FILE="${ENV_FILE_FOUND:-.env.prod}"
 
-# Función para leer variable del .env
+# Function to read variable from .env file
 read_env_var() {
   local var_name="$1"
   if [ -f "$ENV_FILE" ]; then
@@ -159,18 +159,18 @@ read_env_var() {
   fi
 }
 
-# Opción 1: Del archivo .env (prioridad más alta)
+# Opción 1: From .env file (highest priority)
 if [ -f "$ENV_FILE" ]; then
   # Lee la API key del archivo .env
   API_KEY=$(read_env_var "EXPO_PUBLIC_GOOGLE_MAPS_API_KEY")
   if [ -n "$API_KEY" ]; then
-    echo "✅ Usando API key del archivo .env"
+    echo "✅ Using API key from .env"
   fi
   
   # Lee la API URL del archivo .env
   API_URL=$(read_env_var "EXPO_PUBLIC_API_URL")
   if [ -n "$API_URL" ]; then
-    echo "✅ Usando API URL del archivo .env: $API_URL"
+    echo "✅ Using API URL from .env: $API_URL"
   else
     # Si no está en .env, usar la URL por defecto del backend en Fly.io
     API_URL="https://zig-zag-backend.fly.dev"
@@ -181,17 +181,18 @@ fi
 # Opción 2: Pasada como argumento (sobrescribe .env)
 if [ -z "$API_KEY" ] && [ -n "$1" ]; then
   API_KEY="$1"
-  echo "✅ Usando API key pasada como argumento"
+  echo "✅ Using API key passed as argument"
 # Opción 3: Del entorno local
 elif [ -z "$API_KEY" ] && [ -n "$EXPO_PUBLIC_GOOGLE_MAPS_API_KEY" ]; then
   API_KEY="$EXPO_PUBLIC_GOOGLE_MAPS_API_KEY"
-  echo "✅ Usando API key del entorno local (EXPO_PUBLIC_GOOGLE_MAPS_API_KEY)"
+  echo "✅ Using API key from local environment (EXPO_PUBLIC_GOOGLE_MAPS_API_KEY)"
 # Opción 4: Verificar si está en fly-fe.toml
 elif [ -z "$API_KEY" ] && grep -q "^[[:space:]]*EXPO_PUBLIC_GOOGLE_MAPS_API_KEY[[:space:]]*=" "$CONFIG_FILE" 2>/dev/null; then
   echo "✅ API key encontrada en $CONFIG_FILE"
   echo "📦 Deployando (el secret se tomará de [env] en $CONFIG_FILE)..."
+  echo "   Using Fly.io's remote builder for faster builds..."
   # Context in fly-fe.toml is set to ".", dockerfile is "fe/Dockerfile.prod" relative to project root
-  fly deploy --config "$CONFIG_FILE" --app "$APP_NAME"
+  fly deploy --config "$CONFIG_FILE" --app "$APP_NAME" --remote-only
   echo ""
   echo "✅ Deploy completado!"
   exit 0
@@ -243,10 +244,13 @@ echo ""
 echo "📦 Iniciando deploy con build args..."
 echo "   EXPO_PUBLIC_GOOGLE_MAPS_API_KEY: [configurado]"
 echo "   EXPO_PUBLIC_API_URL: $API_URL"
+echo "   Usando remote builder para builds más rápidos..."
 # Context in fly-fe.toml is set to ".", dockerfile is "fe/Dockerfile.prod" relative to project root
+# --remote-only: Use Fly.io's remote builder (faster than local)
 fly deploy --config "$CONFIG_FILE" --app "$APP_NAME" \
   --build-arg EXPO_PUBLIC_GOOGLE_MAPS_API_KEY="$API_KEY" \
-  --build-arg EXPO_PUBLIC_API_URL="$API_URL"
+  --build-arg EXPO_PUBLIC_API_URL="$API_URL" \
+  --remote-only
 
 echo ""
 echo "✅ Deploy completado!"

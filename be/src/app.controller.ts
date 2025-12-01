@@ -21,7 +21,11 @@ export class AppController {
 
   @Get('health')
   health() {
-    return { status: 'ok', service: 'backend' };
+    return {
+      status: 'ok',
+      service: 'backend',
+      timestamp: new Date().toISOString(),
+    };
   }
 
   @Get('test/chroma')

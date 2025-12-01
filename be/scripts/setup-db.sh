@@ -9,8 +9,18 @@ echo "🔧 Setting up database..."
 # Verificar que DATABASE_URL esté configurada
 if [ -z "$DATABASE_URL" ]; then
   echo "❌ ERROR: DATABASE_URL no está configurada"
+  echo "   En Fly.io, asegúrate de que DATABASE_URL esté configurada como secret:"
+  echo "   fly secrets set DATABASE_URL=\"postgresql://...\" --app zig-zag-backend"
   exit 1
 fi
+
+# Verificar que DATABASE_URL no esté vacía
+if [ "$DATABASE_URL" = "" ]; then
+  echo "❌ ERROR: DATABASE_URL está vacía"
+  exit 1
+fi
+
+echo "✅ DATABASE_URL configurada (${#DATABASE_URL} caracteres)"
 
 # Detectar si es Supabase
 IS_SUPABASE=false
@@ -118,10 +128,50 @@ handle_db_error() {
 
 # Verificar si existen migraciones
 if [ -d "prisma/migrations" ] && [ "$(ls -A prisma/migrations 2>/dev/null)" ]; then
-  echo "📋 Migraciones encontradas, aplicando migraciones..."
+  MIGRATION_COUNT=$(ls -1 prisma/migrations 2>/dev/null | wc -l)
+  echo "📋 Migraciones encontradas ($MIGRATION_COUNT), aplicando migraciones..."
+  echo "   Migraciones disponibles: $(ls -1 prisma/migrations 2>/dev/null | tr '\n' ' ')"
+  # Verificar que DATABASE_URL esté disponible antes de ejecutar migrate deploy
+  if [ -z "$DATABASE_URL" ]; then
+    echo "❌ ERROR: DATABASE_URL no está disponible para prisma migrate deploy"
+    exit 1
+  fi
+  
+  # Exportar DATABASE_URL explícitamente para asegurar que Prisma la vea
+  export DATABASE_URL
+  if [ -n "$DIRECT_URL" ]; then
+    export DIRECT_URL
+  fi
+  
   OUTPUT=$(npx prisma migrate deploy 2>&1) || {
     EXIT_CODE=$?
     echo "$OUTPUT"
+    # Check for datasource configuration errors
+    if echo "$OUTPUT" | grep -q "datasource property is required\|The datasource property"; then
+      echo ""
+      echo "❌ ERROR: Problema con la configuración del datasource en prisma.config.ts"
+      echo "   DATABASE_URL disponible: $([ -n "$DATABASE_URL" ] && echo "Sí (${#DATABASE_URL} chars)" || echo "No")"
+      echo ""
+      echo "💡 SOLUCIÓN: Verifica que DATABASE_URL esté configurada correctamente en Fly.io:"
+      echo "   fly secrets list --app zig-zag-backend"
+      echo ""
+    fi
+    # Check if there's a schema drift (schema has changes not in migrations)
+    if echo "$OUTPUT" | grep -q "drift\|Drift\|migration history"; then
+      echo ""
+      echo "⚠️  ADVERTENCIA: Se detectó drift entre el schema y las migraciones"
+      echo "   Esto significa que el schema tiene cambios que no están en las migraciones"
+      echo ""
+      echo "💡 SOLUCIÓN: Necesitas crear una migración para los cambios:"
+      echo "   1. Conecta a la base de datos de producción"
+      echo "   2. Ejecuta: cd be && npx prisma migrate dev --name add_missing_columns"
+      echo "   3. Esto creará una migración con los cambios faltantes"
+      echo "   4. Luego despliega nuevamente"
+      echo ""
+      echo "   O temporalmente, puedes usar db push (NO recomendado para producción):"
+      echo "   npx prisma db push --accept-data-loss"
+      echo ""
+    fi
     if echo "$OUTPUT" | grep -q "P1001\|Can't reach database server"; then
       echo ""
       echo "❌ ERROR P1001: No se puede conectar al servidor de base de datos"
@@ -152,7 +202,15 @@ if [ -d "prisma/migrations" ] && [ "$(ls -A prisma/migrations 2>/dev/null)" ]; t
   echo "✅ Migraciones aplicadas exitosamente"
 else
   echo "⚠️  No se encontraron migraciones, usando db push..."
-  echo "   (Esto es normal en desarrollo. Para producción, crea migraciones primero)"
+  if [ "$NODE_ENV" = "production" ]; then
+    echo "   ⚠️  ADVERTENCIA: Estás en PRODUCCIÓN sin migraciones!"
+    echo "   Esto puede causar problemas si el schema cambió."
+    echo "   💡 RECOMENDACIÓN: Crea migraciones antes de deployar a producción:"
+    echo "      cd be && yarn prisma:migrate --name init"
+    echo ""
+  else
+    echo "   (Esto es normal en desarrollo. Para producción, crea migraciones primero)"
+  fi
   
   # Mostrar información de diagnóstico
   echo "🔍 Información de conexión:"

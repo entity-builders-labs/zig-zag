@@ -430,8 +430,12 @@ echo ""
 
 # Deploy
 echo "📦 Starting deployment..."
+echo "   Using remote builder for faster builds..."
 # Context in fly-be.toml is set to "..", dockerfile is "be/Dockerfile" relative to project root
-fly deploy --config "$CONFIG_FILE" --app "$APP_NAME"
+# --remote-only: Use Fly.io's remote builder (faster than local)
+# --build-only: Build image without deploying (useful for testing)
+# --no-cache: Force rebuild without cache (use only if needed)
+fly deploy --config "$CONFIG_FILE" --app "$APP_NAME" --remote-only
 
 echo ""
 echo "✅ Deploy completed!"

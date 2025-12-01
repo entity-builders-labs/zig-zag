@@ -4,17 +4,19 @@ FROM node:20-alpine AS builder
 # Set working directory
 WORKDIR /app
 
-# Copy package files
+# Copy package files first (for better cache)
 COPY package.json yarn.lock ./
 COPY fe/package.json ./fe/
 
-# Install dependencies
-RUN yarn install --frozen-lockfile --production=false
+# Install dependencies with cache mount for faster rebuilds
+RUN --mount=type=cache,target=/root/.yarn \
+    yarn install --frozen-lockfile --production=false --prefer-offline
 
-# Install Expo CLI globally
-RUN yarn global add @expo/cli
+# Install Expo CLI globally (cache this layer)
+RUN --mount=type=cache,target=/root/.yarn \
+    yarn global add @expo/cli
 
-# Copy frontend source files
+# Copy frontend source files (this changes most frequently)
 COPY fe/ ./fe/
 
 # Build the web app
@@ -31,10 +33,10 @@ ENV EXPO_PUBLIC_GOOGLE_MAPS_API_KEY=$EXPO_PUBLIC_GOOGLE_MAPS_API_KEY
 ARG EXPO_PUBLIC_API_URL
 ENV EXPO_PUBLIC_API_URL=$EXPO_PUBLIC_API_URL
 
-# Debug: print if variables are available (will be empty in logs for security)
-RUN echo "Building with EXPO_PUBLIC_GOOGLE_MAPS_API_KEY set: $([ -n "$EXPO_PUBLIC_GOOGLE_MAPS_API_KEY" ] && echo 'YES' || echo 'NO')"
-RUN echo "Building with EXPO_PUBLIC_API_URL set: $([ -n "$EXPO_PUBLIC_API_URL" ] && echo 'YES' || echo 'NO')"
-RUN npx expo export --platform web
+# Build (combine debug and build in one layer)
+RUN echo "Building with EXPO_PUBLIC_GOOGLE_MAPS_API_KEY set: $([ -n "$EXPO_PUBLIC_GOOGLE_MAPS_API_KEY" ] && echo 'YES' || echo 'NO')" && \
+    echo "Building with EXPO_PUBLIC_API_URL set: $([ -n "$EXPO_PUBLIC_API_URL" ] && echo 'YES' || echo 'NO')" && \
+    npx expo export --platform web
 
 # Production stage with nginx
 FROM nginx:alpine

@@ -11,6 +11,8 @@ if (!process.env.DATABASE_URL) {
 }
 
 // Build datasource config
+// DATABASE_URL must be available for Prisma to work
+// In Fly.io, this is set as an environment variable
 const datasource: { url: string; shadowDatabaseUrl?: string } = {
   url: process.env.DATABASE_URL || '',
 };
