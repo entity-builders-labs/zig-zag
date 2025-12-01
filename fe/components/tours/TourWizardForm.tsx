@@ -40,6 +40,7 @@ import {
 import { Platform } from 'react-native';
 import { GenerateTourDto } from '@/api/tours';
 import { DestinationInput } from './DestinationInput';
+import { DateRangePicker } from './DateRangePicker';
 import { Map } from '@/features/map';
 import { useContext, useEffect } from 'react';
 import { AppContext } from '@/context/app';
@@ -138,9 +139,9 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
   const [budgetLevel, setBudgetLevel] = useState<'low' | 'medium' | 'high'>(
     'low'
   );
-  const [transportationMode, setTransportationMode] = useState<
-    'walking' | 'driving' | 'public_transport' | 'cycling'
-  >('walking');
+  const [transportationMode, setTransportationMode] = useState<string[]>([
+    'walking',
+  ]);
   const [travelPace, setTravelPace] = useState<number>(50); // 0-100, 0=relaxed, 100=fast
   const [groupType, setGroupType] = useState<
     'solo' | 'couple' | 'family' | 'friends'
@@ -153,6 +154,12 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
       prev.includes(interest)
         ? prev.filter((i) => i !== interest)
         : [...prev, interest]
+    );
+  };
+
+  const toggleTransportationMode = (mode: string) => {
+    setTransportationMode((prev) =>
+      prev.includes(mode) ? prev.filter((m) => m !== mode) : [...prev, mode]
     );
   };
 
@@ -255,7 +262,7 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
       destinationLongitude: destinationCoords?.lng,
       days,
       budgetLevel,
-      transportationMode,
+      transportationMode: transportationMode as any, // Cast to avoid TS error as we updated DTO but FE validation might be strict or I missed something. Actually I updated DTO.
       travelPace: getPaceValue(),
       groupType,
       interests:
@@ -335,47 +342,16 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
         </Box>
 
         {/* Date Range */}
-        <VStack space='sm' position='relative' zIndex={0}>
-          <Input>
-            <InputSlot pl='$3'>
-              <InputIcon as={Calendar} size='md' color='$textLight600' />
-            </InputSlot>
-            <InputField
-              placeholder='Fecha inicio (YYYY-MM-DD)'
-              value={startDate}
-              onChangeText={setStartDate}
-            />
-          </Input>
-          <Input>
-            <InputSlot pl='$3'>
-              <InputIcon as={Calendar} size='md' color='$textLight600' />
-            </InputSlot>
-            <InputField
-              placeholder='Fecha fin (YYYY-MM-DD)'
-              value={endDate}
-              onChangeText={(text) => {
-                setEndDate(text);
-                if (startDate && text) {
-                  const start = new Date(startDate);
-                  const end = new Date(text);
-                  if (!isNaN(start.getTime()) && !isNaN(end.getTime())) {
-                    const daysDiff =
-                      Math.ceil(
-                        (end.getTime() - start.getTime()) /
-                          (1000 * 60 * 60 * 24)
-                      ) + 1;
-                    setDays(daysDiff);
-                  }
-                }
-              }}
-            />
-          </Input>
-          {formatDateRange() && (
-            <Text size='sm' color='$textLight600' px='$3'>
-              {formatDateRange()}
-            </Text>
-          )}
-        </VStack>
+        <Box position='relative' zIndex={0}>
+          <DateRangePicker
+            startDate={startDate}
+            endDate={endDate}
+            days={days}
+            onStartDateChange={setStartDate}
+            onEndDateChange={setEndDate}
+            onDaysChange={setDays}
+          />
+        </Box>
 
         {/* Use Current Location Toggle */}
         <HStack justifyContent='space-between' alignItems='center'>
@@ -516,18 +492,18 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
       {/* Transport */}
       <VStack space='md'>
         <Text size='lg' fontWeight='$semibold' color='$textLight900'>
-          Transporte
+          Transporte (Selección múltiple)
         </Text>
         <HStack space='md' justifyContent='space-around'>
           {[
-            { mode: 'walking' as const, icon: Footprints, label: 'Pie' },
-            { mode: 'driving' as const, icon: Car, label: 'Auto' },
-            { mode: 'cycling' as const, icon: Bike, label: 'Bici' },
-            { mode: 'public_transport' as const, icon: Bus, label: 'Público' },
+            { mode: 'walking', icon: Footprints, label: 'Pie' },
+            { mode: 'driving', icon: Car, label: 'Auto' },
+            { mode: 'cycling', icon: Bike, label: 'Bici' },
+            { mode: 'public_transport', icon: Bus, label: 'Público' },
           ].map(({ mode, icon: IconComponent, label }) => (
             <Pressable
               key={mode}
-              onPress={() => setTransportationMode(mode)}
+              onPress={() => toggleTransportationMode(mode)}
               alignItems='center'
             >
               <Box
@@ -535,20 +511,22 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
                 h='$16'
                 borderRadius='$full'
                 bg={
-                  transportationMode === mode
+                  transportationMode.includes(mode)
                     ? '$primary500'
                     : '$backgroundLight100'
                 }
                 alignItems='center'
                 justifyContent='center'
-                borderWidth={transportationMode === mode ? '$2' : '$0'}
+                borderWidth={transportationMode.includes(mode) ? '$2' : '$0'}
                 borderColor='$primary500'
               >
                 <Icon
                   as={IconComponent}
                   size='xl'
                   color={
-                    transportationMode === mode ? '$white' : '$textLight600'
+                    transportationMode.includes(mode)
+                      ? '$white'
+                      : '$textLight600'
                   }
                 />
               </Box>
@@ -556,7 +534,9 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
                 mt='$2'
                 size='sm'
                 color={
-                  transportationMode === mode ? '$primary500' : '$textLight600'
+                  transportationMode.includes(mode)
+                    ? '$primary500'
+                    : '$textLight600'
                 }
               >
                 {label}

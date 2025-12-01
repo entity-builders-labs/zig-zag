@@ -1,5 +1,6 @@
 import React from 'react';
 import { Dimensions } from 'react-native';
+import { Map } from '../../features/map';
 import {
   Box,
   Image,
@@ -22,7 +23,25 @@ export const TourHeader = ({ tour }: { tour: Tour }) => {
   const router = useRouter();
   const firstActivity = tour.activities?.[0]?.activity;
   const imageUri = tour.coverImage || getImage(firstActivity?.photos);
+  console.log('$$$ tour:', tour);
 
+  const getFirstLocation = () => {
+    if (tour.metadata?.options?.latitude && tour.metadata?.options?.longitude) {
+      return {
+        latitude: tour.metadata?.options?.latitude,
+        longitude: tour.metadata.options.longitude,
+      };
+    } else if (firstActivity?.latitude && firstActivity?.longitude) {
+      return {
+        latitude: firstActivity.latitude,
+        longitude: firstActivity.longitude,
+      };
+    }
+  };
+
+  const firstLocation = getFirstLocation();
+
+  console.log('$$$ firstLocation 2:', firstLocation);
   // Get tags from metadata or fallback to first activity type
   const tags =
     tour.metadata?.tags ||
@@ -30,18 +49,35 @@ export const TourHeader = ({ tour }: { tour: Tour }) => {
       ? [firstActivity.type]
       : tour.activities?.[0]?.activityType
         ? [tour.activities[0].activityType]
-        : ['Tour']);
-
+        : ['']);
   return (
     <Box height={SCREEN_HEIGHT * 0.4} width='$full' position='relative'>
-      {/* Background Image */}
-      <Image
-        source={{ uri: imageUri }}
-        alt={tour.name}
-        w='$full'
-        h='$full'
-        resizeMode='cover'
-      />
+      {/* Background Image or Static Map */}
+      {firstLocation ? (
+        <Map
+          isStatic
+          initialRegion={{
+            ...firstLocation,
+            latitudeDelta: 0.005,
+            longitudeDelta: 0.005,
+          }}
+          markers={[
+            {
+              id: 'tour-location',
+              coordinate: firstLocation,
+              title: tour.name,
+            },
+          ]}
+        />
+      ) : (
+        <Image
+          source={{ uri: imageUri }}
+          alt={tour.name}
+          w='$full'
+          h='$full'
+          resizeMode='cover'
+        />
+      )}
 
       {/* Gradient Overlay (Simulated) */}
       <Box

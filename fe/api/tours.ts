@@ -33,6 +33,12 @@ export interface Tour {
     notes?: string;
   }[];
   metadata?: any;
+  options?: {
+    latitude?: number;
+    longitude?: number;
+    radius?: number;
+    includeExistingActivities?: boolean;
+  };
 }
 
 export interface GenerateTourDto {
@@ -52,7 +58,7 @@ export interface GenerateTourDto {
     | 'driving'
     | 'public_transport'
     | 'cycling'
-    | 'mixed';
+    | ('walking' | 'driving' | 'public_transport' | 'cycling')[];
   groupType?: 'solo' | 'couple' | 'family' | 'friends';
   travelPace?: 'relaxed' | 'moderate' | 'fast';
   dietaryRestrictions?: string[];

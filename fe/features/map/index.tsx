@@ -23,19 +23,25 @@ const createMarkersFromActivities = (activities: Activity[]): MarkerType[] => {
   }));
 };
 
-export const Map: React.FC<MapProps> = ({ markers: propMarkers }) => {
+export const Map: React.FC<MapProps> = ({
+  markers: propMarkers,
+  isStatic = false,
+  initialRegion,
+}) => {
   const { center } = useMap();
   const { address } = useAddress();
   const { activities } = useActivities();
   const { radiusMeters } = useSearchRadius();
 
-  const region: Region = {
+  const contextRegion: Region = {
     latitude: center.lat,
     longitude: center.lng,
     latitudeDelta: 0.0922,
     longitudeDelta: 0.0421,
   };
 
+  const region = initialRegion || contextRegion;
+  console.log('$$$ region:', initialRegion, contextRegion);
   // Create markers from activities if no markers are provided via props
   const markers = propMarkers || createMarkersFromActivities(activities);
 
@@ -46,23 +52,35 @@ export const Map: React.FC<MapProps> = ({ markers: propMarkers }) => {
         region={region}
         // Mostrar la ubicación real solo como referencia, pero marcamos el centro elegido
         showsUserLocation={false}
-        toolbarEnabled
-        zoomControlEnabled
+        toolbarEnabled={!isStatic}
+        zoomControlEnabled={!isStatic}
+        scrollEnabled={!isStatic}
+        zoomEnabled={!isStatic}
+        pitchEnabled={!isStatic}
+        rotateEnabled={!isStatic}
       >
-        {/* Pin del centro seleccionado (dirección o current location) */}
-        <Marker
-          coordinate={{ latitude: center.lat, longitude: center.lng }}
-          title={address?.street || 'Centro seleccionado'}
-          description={address ? `${address.lat.toFixed(4)}, ${address.lng.toFixed(4)}` : ''}
-          pinColor="#007AFF"
-        />
-        {/* Círculo del radio seleccionado */}
-        <Circle
-          center={{ latitude: center.lat, longitude: center.lng }}
-          radius={radiusMeters}
-          strokeColor="rgba(0,122,255,0.6)"
-          fillColor="rgba(0,122,255,0.15)"
-        />
+        {!isStatic && (
+          <>
+            {/* Pin del centro seleccionado (dirección o current location) */}
+            <Marker
+              coordinate={{ latitude: center.lat, longitude: center.lng }}
+              title={address?.street || 'Centro seleccionado'}
+              description={
+                address
+                  ? `${address.lat.toFixed(4)}, ${address.lng.toFixed(4)}`
+                  : ''
+              }
+              pinColor='#007AFF'
+            />
+            {/* Círculo del radio seleccionado */}
+            <Circle
+              center={{ latitude: center.lat, longitude: center.lng }}
+              radius={radiusMeters}
+              strokeColor='rgba(0,122,255,0.6)'
+              fillColor='rgba(0,122,255,0.15)'
+            />
+          </>
+        )}
         {markers.map((marker) => (
           <Marker
             key={marker.id}

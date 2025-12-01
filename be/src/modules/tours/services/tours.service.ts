@@ -27,6 +27,23 @@ import {
 import { RunnableSequence } from '@langchain/core/runnables';
 import { JsonOutputFunctionsParser } from 'langchain/output_parsers';
 import { Activity } from '@prisma/client';
+import { GoogleMapsService } from '../../../modules/crawlers/google-maps/google-maps.service';
+import {
+  CREATE_TOUR_JSON_SYSTEM_PROMPT,
+  CREATE_TOUR_SYSTEM_PROMPT,
+  createTourJsonUserPrompt,
+} from '../prompts/create-tour.prompt';
+import {
+  buildComplementaryPrompt,
+  generateRecommendationReasoningPrompt,
+  RECOMMENDATION_SYSTEM_PROMPT,
+} from '../prompts/activity-recommendation.prompt';
+import {
+  CONTEXTUAL_ACTIVITIES_SYSTEM_PROMPT,
+  generateContextualActivitiesPrompt,
+} from '../prompts/contextual-activities.prompt';
+import { generateCoverImagePrompt } from '../prompts/media-generation.prompt';
+import { generateNearbyTourPrompt } from '../prompts/nearby-tour.prompt';
 
 export interface GenerateTourOptions {
   latitude?: number;
@@ -36,7 +53,7 @@ export interface GenerateTourOptions {
   days?: number;
   budgetLevel?: BudgetLevel;
   interests?: string[];
-  transportationMode?: TransportationMode;
+  transportationMode?: TransportationMode[];
   groupType?: GroupType;
   travelPace?: TravelPace;
   dietaryRestrictions?: string[];
@@ -67,6 +84,7 @@ export class ToursService {
     private readonly activitiesService: ActivitiesService,
     private readonly langChainService: LangChainService,
     private readonly imageGenerationService: ImageGenerationService,
+    private readonly googleMapsService: GoogleMapsService,
   ) {}
 
   private createTourChain() {
@@ -78,59 +96,12 @@ export class ToursService {
     if (!chatModel || provider === 'ollama' || provider === 'groq') {
       return {
         invoke: async (input: { input: string; activities: string }) => {
-          const systemPrompt = `You are a tour planning expert. Create well-organized tour itineraries by:
-- Following a logical geographical sequence
-- Progressing naturally throughout the day
-- Considering operational hours
-- Including reasonable transition times
-- Creating balanced activity type mixes
+          const systemPrompt = CREATE_TOUR_JSON_SYSTEM_PROMPT;
 
-For each activity, provide detailed notes that include:
-- What visitors can expect to see or experience
-- Key highlights and points of interest
-- Practical tips (best photo spots, recommended items to bring, etc.)
-- Any relevant historical or cultural context
-- Specific recommendations based on the activity type
-
-IMPORTANT: You must return ONLY valid JSON, no markdown, no code blocks, just pure JSON.
-
-Return a JSON object with this exact structure:
-{{
-  "title": "string",
-  "description": "string",
-  "estimatedDuration": number,
-  "activities": [
-    {{
-      "activityId": "string (optional)",
-      "activityName": "string",
-      "type": "string",
-      "dayNumber": number,
-      "startTime": "string (HH:MM format)",
-      "duration": number,
-      "travelTimeToNext": number,
-      "distanceToNext": number,
-      "notes": "string (detailed notes about the activity)",
-      "latitude": number,
-      "longitude": number
-    }}
-  ],
-  "totalDays": number,
-  "totalDistance": number,
-  "estimatedBudget": number,
-  "recommendedGroupSize": number,
-  "activitiesLatLng": [
-    {{
-      "lat": number,
-      "lng": number
-    }}
-  ]
-}}`;
-
-          const userPrompt = `${input.input}
-
-Available activities: ${input.activities || 'No specific activities provided. Create a general tour.'}
-
-Remember: Return ONLY valid JSON, no markdown formatting, no code blocks.`;
+          const userPrompt = createTourJsonUserPrompt(
+            input.input,
+            input.activities,
+          );
 
           const response = await this.langChainService.generateChatResponse(
             systemPrompt,
@@ -234,23 +205,7 @@ Remember: Return ONLY valid JSON, no markdown formatting, no code blocks.`;
     };
 
     const prompt = ChatPromptTemplate.fromMessages([
-      SystemMessagePromptTemplate.fromTemplate(
-        `You are a tour planning expert. Create well-organized tour itineraries by:
-    - Following a logical geographical sequence
-    - Progressing naturally throughout the day
-    - Considering operational hours
-    - Including reasonable transition times
-    - Creating balanced activity type mixes
-    
-    For each activity, provide detailed notes that include:
-    - What visitors can expect to see or experience
-    - Key highlights and points of interest
-    - Practical tips (best photo spots, recommended items to bring, etc.)
-    - Any relevant historical or cultural context
-    - Specific recommendations based on the activity type
-    
-    Available activities: {activities}`,
-      ),
+      SystemMessagePromptTemplate.fromTemplate(CREATE_TOUR_SYSTEM_PROMPT),
       HumanMessagePromptTemplate.fromTemplate('{input}'),
     ]);
 
@@ -451,42 +406,7 @@ Remember: Return ONLY valid JSON, no markdown formatting, no code blocks.`;
     metadata: any,
     options: any,
   ): string {
-    const timeOfDay = metadata.timeOfDayPreference?.join(', ') || 'flexible';
-    const complementaryAfter =
-      metadata.complementaryActivities?.after?.join(', ') || '';
-    const energyAfter = metadata.energyLevel?.after || 3;
-    const physicalIntensity = metadata.physicalIntensity || 3;
-    const combinationScores = metadata.combinationScore || {};
-
-    // Build contextual hints
-    const contextualInfo =
-      options.contextualHints?.length > 0
-        ? `Additional context: ${options.contextualHints.join(', ')}.`
-        : '';
-
-    return `Find activities that complement and flow well after "${activity.name}".
-
-Current activity details:
-- Type: ${activity.type}
-- Physical intensity: ${physicalIntensity}/5
-- Best time: ${timeOfDay}
-- Energy level after: ${energyAfter}/5
-- Complementary activity types: ${complementaryAfter}
-- Strong combination areas: ${Object.entries(combinationScores)
-      .filter(([, score]: [string, number]) => score >= 4)
-      .map(([type]) => type)
-      .join(', ')}
-
-${contextualInfo}
-
-Looking for activities that:
-1. Create a natural progression from the current activity
-2. Match the energy level and flow expectations
-3. Offer complementary experiences (different but harmonious)
-4. Consider transition time and logistics
-5. Provide variety while maintaining coherence
-
-Prioritize activities that would make someone think "this is the perfect next thing to do".`;
+    return buildComplementaryPrompt(activity, metadata, options);
   }
 
   private async extractActivitiesFromSearchResults(
@@ -783,18 +703,14 @@ Prioritize activities that would make someone think "this is the perfect next th
     candidateActivity: any,
     scores: any,
   ): Promise<string> {
-    const prompt = `Explain why "${candidateActivity.name}" is a great follow-up activity after "${sourceActivity.name}".
-
-Scoring breakdown:
-- Complementarity: ${scores.complementarityScore}/100
-- Diversity: ${scores.diversityScore}/100  
-- Proximity: ${scores.proximityScore}/100
-- Time compatibility: ${scores.timeCompatibilityScore}/100
-
-Provide a concise, engaging explanation (2-3 sentences) that highlights the main reasons why this combination works well, focusing on the flow, experience, and practical benefits.`;
+    const prompt = generateRecommendationReasoningPrompt(
+      sourceActivity.name,
+      candidateActivity.name,
+      scores,
+    );
 
     return this.langChainService.generateChatResponse(
-      'You are a travel experience designer who creates seamless activity transitions.',
+      RECOMMENDATION_SYSTEM_PROMPT,
       prompt,
       {},
       { temperature: 0.7, maxTokens: 150 },
@@ -987,11 +903,11 @@ Provide a concise, engaging explanation (2-3 sentences) that highlights the main
         .map((a) => a.activityName)
         .join(', ');
 
-      const prompt = `A breathtaking, high-quality travel cover image for a tour named "${tour.name}".
-      Description: ${tour.description || tour.name}.
-      Key highlights: ${activityNames || 'scenic locations'}.
-      Style: Professional travel photography, vibrant, inviting, wide angle, cinematic lighting.
-      No text, no watermarks, no collages, no labels.`;
+      const prompt = generateCoverImagePrompt(
+        tour.name,
+        tour.description || tour.name,
+        activityNames,
+      );
 
       const imageUrl = await this.imageGenerationService.generateImage(prompt);
 
@@ -1194,8 +1110,10 @@ Provide a concise, engaging explanation (2-3 sentences) that highlights the main
         constraints.push(`Budget Level: ${options.budgetLevel}`);
       if (options?.interests?.length)
         constraints.push(`Interests: ${options.interests.join(', ')}`);
-      if (options?.transportationMode)
-        constraints.push(`Transportation Mode: ${options.transportationMode}`);
+      if (options?.transportationMode?.length)
+        constraints.push(
+          `Transportation Mode: ${options.transportationMode.join(', ')}`,
+        );
       if (options?.groupType)
         constraints.push(`Group Type: ${options.groupType}`);
       if (options?.travelPace)
@@ -1650,12 +1568,61 @@ Provide a concise, engaging explanation (2-3 sentences) that highlights the main
               )
               .join('\n')}`;
           } else {
-            // Update status: no activities found, will generate new ones
+            // Update status: no activities found, triggering Google Maps crawl
             await this.updateGenerationStatus(
               tourId,
               'generating',
-              'No se encontraron actividades existentes. Generando nuevas actividades con IA...',
+              'No se encontraron actividades locales. Buscando en Google Maps...',
             );
+
+            try {
+              // Trigger Google Maps crawling
+              await this.googleMapsService.crawlAndSaveActivities({
+                latitude: options.latitude,
+                longitude: options.longitude,
+                radius: Math.min(radius, 5000), // Cap radius for Google Maps
+              });
+
+              // Try searching again after crawling
+              const refreshedActivities = await this.activitiesService.findAll(
+                options.latitude.toString(),
+                options.longitude.toString(),
+                radius,
+                activityLimit,
+              );
+
+              if (refreshedActivities.length > 0) {
+                await this.updateGenerationStatus(
+                  tourId,
+                  'generating',
+                  `¡Encontrados ${refreshedActivities.length} lugares nuevos en Google Maps! Analizando...`,
+                );
+
+                availableActivitiesText = `\n\nAvailable activities in the area (within ${radius / 1000}km):\n${refreshedActivities
+                  .slice(0, 15)
+                  .map(
+                    (act: any, idx: number) =>
+                      `${idx + 1}. ${act.name} (${act.type || 'Activity'}) - ${(act.description || 'No description').substring(0, 100)} - Location: ${act.latitude}, ${act.longitude} - Duration: ${act.duration || 'Unknown'} minutes`,
+                  )
+                  .join('\n')}`;
+              } else {
+                await this.updateGenerationStatus(
+                  tourId,
+                  'generating',
+                  'No se encontraron actividades en Google Maps. Generando con IA creativa...',
+                );
+              }
+            } catch (crawlError) {
+              this.logger.error(
+                `Google Maps crawling failed: ${crawlError.message}`,
+              );
+              // Continue with creative AI generation if crawling fails
+              await this.updateGenerationStatus(
+                tourId,
+                'generating',
+                'Búsqueda en mapas falló. Usando generación creativa...',
+              );
+            }
           }
         } catch (error) {
           this.logger.warn(
@@ -2017,7 +1984,7 @@ Provide a concise, engaging explanation (2-3 sentences) that highlights the main
     // 3. If not enough tours, generate a new one using AI
     // We'll generate one tour to add to the collection
     try {
-      const prompt = `Create a ${category} tour near this location.`;
+      const prompt = generateNearbyTourPrompt(category);
 
       // Generate tour (this saves it to DB)
       const generatedTour = await this.generateTour(prompt, {
@@ -2319,43 +2286,16 @@ Provide a concise, engaging explanation (2-3 sentences) that highlights the main
       .map((a) => `${a.name} (${a.type})`)
       .join(', ');
 
-    const prompt = `You are generating complementary activities near "${sourceActivity.name}" in this area.
-
-LOCATION CONTEXT:
-- Coordinates: ${sourceActivity.latitude}, ${sourceActivity.longitude}
-- Address: ${sourceActivity.formattedAddress}
-- Nearby existing activities: ${localContext}
-
-CURRENT ACTIVITY:
-- Name: ${sourceActivity.name}
-- Type: ${sourceActivity.type}
-- Description: ${sourceActivity.description}
-- Duration: ${sourceActivity.duration} minutes
-- Energy level after: ${sourceMetadata.energyLevel?.after || 3}/5
-
-REQUIREMENTS:
-Generate ${count} realistic activities that:
-1. Actually exist or could realistically exist in this specific area
-2. Are within 2-5km of the source location
-3. Complement the energy flow and experience type
-4. Avoid duplicating nearby existing activities: ${localContext}
-
-For each activity, provide these fields:
-- name: Specific, realistic business/location name
-- type: Activity category
-- description: Detailed description with local context
-- latitude: realistic latitude nearby
-- longitude: realistic longitude nearby
-- duration: duration in minutes
-- formattedAddress: Realistic street address
-- localTips: Specific tips for this location
-- whyNext: Why this works well after the source activity
-
-Return as a valid JSON array with these exact field names.`;
+    const prompt = generateContextualActivitiesPrompt(
+      sourceActivity,
+      sourceMetadata,
+      localContext,
+      count,
+    );
 
     try {
       const response = await this.langChainService.generateChatResponse(
-        'You are a local tourism expert with access to real-time location data and deep knowledge of what activities exist in specific geographic areas.',
+        CONTEXTUAL_ACTIVITIES_SYSTEM_PROMPT,
         prompt,
         {},
         { temperature: 0.7, maxTokens: 3000 },

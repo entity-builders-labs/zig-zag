@@ -5,9 +5,10 @@ import { ToursService } from './services/tours.service';
 import { ActivitiesModule } from '../activities/activities.module';
 import { AiModule } from '../../shared/ai/ai.module';
 import { PrismaModule } from '../../core/database/database.module';
+import { CrawlersModule } from '../crawlers/crawlers.module';
 
 @Module({
-  imports: [PrismaModule, ActivitiesModule, AiModule],
+  imports: [PrismaModule, ActivitiesModule, AiModule, CrawlersModule],
   controllers: [ToursController],
   providers: [ToursService],
   exports: [ToursService],

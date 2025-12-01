@@ -324,12 +324,14 @@ export class CreateTourFromPromptDto {
   @ApiProperty({
     description: 'Preferred mode of transportation',
     enum: TransportationMode,
+    isArray: true,
     required: false,
-    default: TransportationMode.WALKING,
+    default: [TransportationMode.WALKING],
   })
-  @IsEnum(TransportationMode)
+  @IsEnum(TransportationMode, { each: true })
+  @IsArray()
   @IsOptional()
-  transportationMode?: TransportationMode;
+  transportationMode?: TransportationMode[];
 
   @ApiProperty({
     description: 'Type of group traveling',
