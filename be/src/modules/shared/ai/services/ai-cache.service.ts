@@ -22,9 +22,6 @@ export class AiCacheService {
 
     if (this.mode !== 'off') {
       this.ensureCacheDir();
-      this.logger.log(
-        `⚠️  AI Cache is ENABLED (mode=${this.mode}, dir=${this.cacheDir})`,
-      );
     }
   }
 

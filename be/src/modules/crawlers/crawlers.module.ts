@@ -1,38 +1,41 @@
-import { Module, forwardRef } from '@nestjs/common';
+import { Module, forwardRef, Logger } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { GoogleMapsService } from './google-maps/google-maps.service';
 import { CrawlLocationsCommand } from './commands/crawl-locations.command';
 import { PrismaService } from '../../core/database/prisma.service';
 import { ActivitiesModule } from '../activities/activities.module';
 import { AiModule } from '../../shared/ai/ai.module';
-import { GooglePlacesApiServiceImpl } from './google-maps/services/google-places-api.service';
-import { CachedPlacesApiServiceImpl } from './google-maps/services/cached-places-api.service';
+import { GooglePlacesApiService } from './google-maps/services/google-places-api.service';
+import { CachedPlacesApiService } from './google-maps/services/cached-places-api.service';
 
 @Module({
   imports: [ConfigModule, forwardRef(() => ActivitiesModule), AiModule],
   providers: [
     PrismaService,
     CrawlLocationsCommand,
-    GooglePlacesApiServiceImpl,
-    CachedPlacesApiServiceImpl,
+    GooglePlacesApiService,
+    CachedPlacesApiService,
     {
-      provide: 'IPlacesApiService',
+      provide: 'PlacesApiService',
       useFactory: (
         configService: ConfigService,
-        real: GooglePlacesApiServiceImpl,
-        cached: CachedPlacesApiServiceImpl,
+        real: GooglePlacesApiService,
+        cached: CachedPlacesApiService,
       ) => {
         const useMock = configService.get('USE_MOCK_MAPS') === 'true';
+        if (useMock) {
+          const logger = new Logger('CrawlersModule');
+          const mode = configService.get('MOCK_MAPS_MODE') || 'read';
+          logger.log(
+            `⚠️  Using MOCK Places API (USE_MOCK_MAPS=true, mode=${mode})`,
+          );
+        }
         return useMock ? cached : real;
       },
-      inject: [
-        ConfigService,
-        GooglePlacesApiServiceImpl,
-        CachedPlacesApiServiceImpl,
-      ],
+      inject: [ConfigService, GooglePlacesApiService, CachedPlacesApiService],
     },
     GoogleMapsService,
   ],
-  exports: [GoogleMapsService, CrawlLocationsCommand, 'IPlacesApiService'],
+  exports: [GoogleMapsService, CrawlLocationsCommand, 'PlacesApiService'],
 })
 export class CrawlersModule {}

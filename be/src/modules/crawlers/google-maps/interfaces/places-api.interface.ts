@@ -8,7 +8,6 @@ export interface PlaceData {
   types?: string[];
   websiteUri?: string;
   nationalPhoneNumber?: string;
-  // Added to support flatter structures if needed, though keeping close to Google API response is better for refactor
   name?: string;
 }
 
@@ -32,4 +31,5 @@ export interface PlacesSearchTextParams {
 export interface IPlacesApiService {
   searchNearby(params: PlacesSearchNearbyParams): Promise<PlaceData[]>;
   searchText(params: PlacesSearchTextParams): Promise<PlaceData[]>;
+  getPlaceDetails(placeId: string): Promise<Partial<PlaceData>>;
 }

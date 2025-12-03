@@ -202,7 +202,7 @@ export class GoogleMapsService implements OnModuleInit {
     private readonly prisma: PrismaService,
     private readonly activitiesService: ActivitiesService,
     private readonly aiService: LangChainService,
-    @Inject('IPlacesApiService') private readonly placesApi: IPlacesApiService,
+    @Inject('PlacesApiService') private readonly placesApi: IPlacesApiService,
   ) {
     this.client = new Client({});
   }
@@ -432,16 +432,7 @@ Answer ONLY with one word from the set above, no punctuation, no explanation.`;
 
   async getPlaceDetails(placeId: string): Promise<Partial<GooglePlaceDetails>> {
     try {
-      const apiKey = this.configService.get<string>('GOOGLE_MAPS_API_KEY');
-      const resp = await axios.get(
-        `https://places.googleapis.com/v1/places/${placeId}?fields=id,nationalPhoneNumber,websiteUri`,
-        {
-          headers: {
-            'X-Goog-Api-Key': apiKey!,
-          },
-        },
-      );
-      const result = resp.data || {};
+      const result = await this.placesApi.getPlaceDetails(placeId);
       return {
         phoneNumber: result.nationalPhoneNumber,
         website: result.websiteUri,
