@@ -1,13 +1,34 @@
 import React from 'react';
-import { Box, HStack, Pressable, Icon, Text } from '@gluestack-ui/themed';
-import { Home, Bookmark, Map as MapIcon, User } from 'lucide-react-native';
+import {
+  Box,
+  HStack,
+  Pressable,
+  Icon,
+  Text,
+  Button,
+  ButtonIcon,
+} from '@gluestack-ui/themed';
+import {
+  Home,
+  Bookmark,
+  Map as MapIcon,
+  User,
+  Sparkles,
+} from 'lucide-react-native';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
+import { useRouter } from 'expo-router';
 
 export const BottomTabBar = ({
   state,
   descriptors,
   navigation,
 }: BottomTabBarProps) => {
+  const router = useRouter();
+
+  const handleCreateTour = () => {
+    router.push('/tours/wizard');
+  };
+
   return (
     <Box
       position='absolute'
@@ -25,7 +46,11 @@ export const BottomTabBar = ({
       shadowRadius={10}
       elevation={10}
     >
-      <HStack justifyContent='space-around' alignItems='center'>
+      <HStack
+        justifyContent='space-around'
+        alignItems='center'
+        position='relative'
+      >
         {state.routes.map((route, index) => {
           const { options } = descriptors[route.key];
           const isFocused = state.index === index;
@@ -62,7 +87,12 @@ export const BottomTabBar = ({
           }
 
           return (
-            <Pressable key={route.key} alignItems='center' onPress={onPress}>
+            <Pressable
+              key={route.key}
+              alignItems='center'
+              onPress={onPress}
+              flex={1}
+            >
               <Icon
                 as={icon}
                 size='xl'
@@ -80,6 +110,25 @@ export const BottomTabBar = ({
           );
         })}
       </HStack>
+
+      {/* FAB Button in the center - positioned absolutely over the tab bar */}
+      <Box position='absolute' bottom={16} alignSelf='center' zIndex={10}>
+        <Button
+          onPress={handleCreateTour}
+          size='lg'
+          borderRadius='$full'
+          bg='$primary500'
+          width={56}
+          height={56}
+          shadowColor='#000'
+          shadowOffset={{ width: 0, height: 4 }}
+          shadowOpacity={0.3}
+          shadowRadius={8}
+          elevation={8}
+        >
+          <ButtonIcon as={Sparkles} size='xl' color='$white' />
+        </Button>
+      </Box>
     </Box>
   );
 };

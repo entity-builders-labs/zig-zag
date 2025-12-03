@@ -8,6 +8,7 @@ import {
   ButtonText,
   Icon,
   Text,
+  Spinner,
 } from '@gluestack-ui/themed';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { MapPin } from 'lucide-react-native';
@@ -24,6 +25,8 @@ export default function TourDetailScreen() {
   const [tour, setTour] = useState<Tour | null>(null);
   const [loading, setLoading] = useState(true);
   const [stops, setStops] = useState<TourStop[]>([]);
+  const [isGeneratingActivities, setIsGeneratingActivities] = useState(false);
+  const [generationMessage, setGenerationMessage] = useState<string>('');
 
   useEffect(() => {
     const loadTour = async () => {
@@ -35,9 +38,21 @@ export default function TourDetailScreen() {
         console.log('$$$ data:', data);
         setTour(data);
 
+        // Check generation status
+        const metadata = data.metadata as any;
+        const generationStatus = metadata?.generationStatus;
+        const activities = data.activities || [];
+        
+        // Only show loading if status is generating/pending AND no activities yet
+        // If activities exist, even if status is still generating, show them
+        setIsGeneratingActivities(
+          (generationStatus === 'generating' || generationStatus === 'pending') &&
+          activities.length === 0
+        );
+        setGenerationMessage(metadata?.generationMessage || '');
+
         // Transform activities to stops
         const transformedStops: TourStop[] = [];
-        const activities = data.activities || [];
 
         activities.forEach((item, index) => {
           // Handle potentially null activity (if relation is missing but inline data exists)
@@ -89,6 +104,70 @@ export default function TourDetailScreen() {
     loadTour();
   }, [id]);
 
+  // Poll for updates if activities are being generated
+  useEffect(() => {
+    if (!id) return;
+
+    const pollInterval = setInterval(async () => {
+      try {
+        const data = await fetchTourById(id);
+        const metadata = data.metadata as any;
+        const generationStatus = metadata?.generationStatus;
+        const activities = data.activities || [];
+
+        // Update generation status
+        const stillGenerating =
+          (generationStatus === 'generating' || generationStatus === 'pending') &&
+          activities.length === 0;
+        setIsGeneratingActivities(stillGenerating);
+        setGenerationMessage(metadata?.generationMessage || '');
+
+        // If we have activities or generation completed, update the tour data
+        if (activities.length > 0 || generationStatus === 'completed') {
+          setTour(data);
+          // Transform activities
+          const transformedStops: TourStop[] = [];
+          activities.forEach((item, index) => {
+            const activity = item.activity;
+            const activityId = activity?.id || `inline-${index}`;
+            const activityName =
+              activity?.name || item.activityName || 'Unknown Activity';
+            const activityPhotos = activity?.photos;
+            const activityDescription = activity?.description || item.notes;
+            if (!activityName) return;
+            transformedStops.push({
+              type: 'location',
+              id: activityId,
+              title: activityName,
+              image: getImage(activityPhotos),
+              description: activityDescription,
+              badges: getBadges(activity || { type: item.activityType }),
+            });
+            if (index < activities.length - 1) {
+              const duration = item.travelTimeToNext
+                ? `${Math.round(item.travelTimeToNext)} min`
+                : '10 min';
+              transformedStops.push({
+                type: 'transport',
+                id: `t-${index}`,
+                mode: 'walk',
+                label: 'Caminata',
+                duration: duration,
+              });
+            }
+          });
+          setStops(transformedStops);
+        }
+      } catch (error) {
+        console.error('Failed to poll tour status:', error);
+      }
+    }, 3000); // Poll every 3 seconds
+
+    return () => {
+      clearInterval(pollInterval);
+    };
+  }, [id]);
+
   if (loading) {
     return (
       <Box
@@ -135,21 +214,56 @@ export default function TourDetailScreen() {
               Tu Recorrido
             </Heading>
 
-            <VStack>
-              {stops.map((item, index) => {
-                if (item.type === 'location') {
-                  return (
-                    <TourStopCard
-                      key={item.id}
-                      data={item}
-                      isLast={index === stops.length - 1}
-                    />
-                  );
-                } else {
-                  return <SmartConnector key={item.id} data={item} />;
-                }
-              })}
-            </VStack>
+            {isGeneratingActivities ? (
+              <Box
+                p='$8'
+                alignItems='center'
+                justifyContent='center'
+                bg='$backgroundLight100'
+                borderRadius='$md'
+              >
+                <Spinner size='large' color='$primary500' mb='$4' />
+                <Text
+                  color='$textLight600'
+                  textAlign='center'
+                  fontWeight='$medium'
+                  mb='$2'
+                >
+                  {generationMessage || 'Generando actividades para tu tour...'}
+                </Text>
+                <Text size='sm' color='$textLight500' textAlign='center'>
+                  Esto puede tomar unos momentos
+                </Text>
+              </Box>
+            ) : stops.length === 0 ? (
+              <Box
+                p='$8'
+                alignItems='center'
+                justifyContent='center'
+                bg='$backgroundLight100'
+                borderRadius='$md'
+              >
+                <Text color='$textLight600' textAlign='center'>
+                  No hay actividades disponibles para este tour
+                </Text>
+              </Box>
+            ) : (
+              <VStack>
+                {stops.map((item, index) => {
+                  if (item.type === 'location') {
+                    return (
+                      <TourStopCard
+                        key={item.id}
+                        data={item}
+                        isLast={index === stops.length - 1}
+                      />
+                    );
+                  } else {
+                    return <SmartConnector key={item.id} data={item} />;
+                  }
+                })}
+              </VStack>
+            )}
           </VStack>
         </ScrollView>
 

@@ -9,8 +9,10 @@ import {
   Icon,
   Text,
   Spinner,
+  Pressable,
 } from '@gluestack-ui/themed';
-import { MapPin } from 'lucide-react-native';
+import { MapPin, ChevronRight } from 'lucide-react-native';
+import { Link } from 'expo-router';
 import { useMap } from '../../context/app';
 import { fetchNearbyTours, Tour } from '../../api/tours';
 
@@ -21,7 +23,15 @@ const DEFAULT_THUMB_1 =
 const DEFAULT_THUMB_2 =
   'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?q=80&w=200&auto=format&fit=crop';
 
-export const RoutesSection = () => {
+interface RoutesSectionProps {
+  category?: string;
+  categoryTitle?: string;
+}
+
+export const RoutesSection = ({
+  category = 'walking',
+  categoryTitle = 'Rutas a pie cercanas',
+}: RoutesSectionProps) => {
   const { center } = useMap();
   const [tours, setTours] = useState<Tour[]>([]);
   const [loading, setLoading] = useState(false);
@@ -32,7 +42,11 @@ export const RoutesSection = () => {
 
       setLoading(true);
       try {
-        const fetchedTours = await fetchNearbyTours(center.lat, center.lng);
+        const fetchedTours = await fetchNearbyTours(
+          center.lat,
+          center.lng,
+          category
+        );
         if (fetchedTours && fetchedTours.length > 0) {
           setTours(fetchedTours);
         }
@@ -44,7 +58,7 @@ export const RoutesSection = () => {
     };
 
     loadTours();
-  }, [center]);
+  }, [center, category]);
 
   // If loading, maybe show a spinner or skeleton (keeping it simple for now)
 
@@ -79,9 +93,26 @@ export const RoutesSection = () => {
 
   return (
     <VStack space='lg'>
-      <Heading px='$4' size='lg' color='#1A1A1A'>
-        Rutas a pie cercanas
-      </Heading>
+      <HStack
+        px='$4'
+        justifyContent='space-between'
+        alignItems='center'
+        w='$full'
+      >
+        <Heading size='lg' color='#1A1A1A' flex={1}>
+          {categoryTitle}
+        </Heading>
+        <Link href={`/tours?category=${encodeURIComponent(category)}`} asChild>
+          <Pressable>
+            <HStack space='xs' alignItems='center'>
+              <Text size='sm' color='#2E4038' fontWeight='$medium'>
+                Ver todo
+              </Text>
+              <Icon as={ChevronRight} size='sm' color='#2E4038' />
+            </HStack>
+          </Pressable>
+        </Link>
+      </HStack>
 
       {loading ? (
         <Box h={200} justifyContent='center' alignItems='center'>
@@ -96,65 +127,73 @@ export const RoutesSection = () => {
           {tours.map((tour) => {
             const images = getTourImages(tour);
             return (
-              <Box
-                key={tour.id}
-                w={300}
-                bg='$white'
-                rounded='$2xl'
-                overflow='hidden'
-                shadowColor='#000'
-                shadowOffset={{ width: 0, height: 2 }}
-                shadowOpacity={0.05}
-                shadowRadius={8}
-                elevation={2}
-              >
-                {/* Card Images */}
-                <HStack h={180}>
-                  <Box flex={2} bg='$gray100'>
-                    <Image
-                      source={{ uri: images.map }}
-                      alt='Map Route'
-                      w='$full'
-                      h='$full'
-                      resizeMode='cover'
-                    />
-                  </Box>
-                  <VStack flex={1} borderLeftWidth={1} borderColor='$white'>
-                    <Box flex={1} borderBottomWidth={1} borderColor='$white'>
-                      <Image
-                        source={{ uri: images.thumb1 }}
-                        alt='Stop 1'
-                        w='$full'
-                        h='$full'
-                        resizeMode='cover'
-                      />
-                    </Box>
-                    <Box flex={1}>
-                      <Image
-                        source={{ uri: images.thumb2 }}
-                        alt='Stop 2'
-                        w='$full'
-                        h='$full'
-                        resizeMode='cover'
-                      />
-                    </Box>
-                  </VStack>
-                </HStack>
+              <Link href={`/tours/${tour.id}`} asChild>
+                <Pressable>
+                  <Box
+                    key={tour.id}
+                    w={300}
+                    bg='$white'
+                    rounded='$2xl'
+                    overflow='hidden'
+                    shadowColor='#000'
+                    shadowOffset={{ width: 0, height: 2 }}
+                    shadowOpacity={0.05}
+                    shadowRadius={8}
+                    elevation={2}
+                  >
+                    {/* Card Images */}
+                    <HStack h={180}>
+                      <Box flex={2} bg='$gray100'>
+                        <Image
+                          source={{ uri: images.map }}
+                          alt='Map Route'
+                          w='$full'
+                          h='$full'
+                          resizeMode='cover'
+                        />
+                      </Box>
+                      <VStack flex={1} borderLeftWidth={1} borderColor='$white'>
+                        <Box
+                          flex={1}
+                          borderBottomWidth={1}
+                          borderColor='$white'
+                        >
+                          <Image
+                            source={{ uri: images.thumb1 }}
+                            alt='Stop 1'
+                            w='$full'
+                            h='$full'
+                            resizeMode='cover'
+                          />
+                        </Box>
+                        <Box flex={1}>
+                          <Image
+                            source={{ uri: images.thumb2 }}
+                            alt='Stop 2'
+                            w='$full'
+                            h='$full'
+                            resizeMode='cover'
+                          />
+                        </Box>
+                      </VStack>
+                    </HStack>
 
-                {/* Card Content */}
-                <VStack p='$4' space='xs'>
-                  <Heading size='md' color='#1A1A1A'>
-                    {tour.name}
-                  </Heading>
-                  <HStack space='sm' alignItems='center'>
-                    <Icon as={MapPin} size='xs' color='#6B7280' />
-                    <Text size='sm' color='#6B7280'>
-                      {tour.activities?.length || 0} paradas •{' '}
-                      {(tour.duration || 0).toFixed(1)} hrs
-                    </Text>
-                  </HStack>
-                </VStack>
-              </Box>
+                    {/* Card Content */}
+                    <VStack p='$4' space='xs'>
+                      <Heading size='md' color='#1A1A1A'>
+                        {tour.name}
+                      </Heading>
+                      <HStack space='sm' alignItems='center'>
+                        <Icon as={MapPin} size='xs' color='#6B7280' />
+                        <Text size='sm' color='#6B7280'>
+                          {tour.activities?.length || 0} paradas •{' '}
+                          {(tour.duration || 0).toFixed(1)} hrs
+                        </Text>
+                      </HStack>
+                    </VStack>
+                  </Box>
+                </Pressable>
+              </Link>
             );
           })}
         </ScrollView>

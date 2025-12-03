@@ -38,36 +38,77 @@ export class ToursController {
     return this.toursService.create(createTourDto);
   }
 
-  @Post('from-prompt')
+  @Post('generate-tour')
   @ApiOperation({
-    summary: 'Generate a tour from a natural language prompt using AI',
+    summary: 'Create a tour from wizard preferences',
     description:
-      'Uses LangChain and OpenAI to generate a structured tour from a natural language prompt. Optionally searches for existing activities based on location.',
+      'Creates a basic tour structure from wizard preferences and automatically starts generating activities in the background.',
   })
   @ApiResponse({
     status: 201,
-    description: 'The tour has been successfully generated and created.',
+    description:
+      'The tour has been successfully created. Activities are being generated in the background.',
   })
   @ApiResponse({
     status: 400,
-    description: 'Invalid input data or AI generation failed.',
-  })
-  @ApiResponse({
-    status: 503,
-    description:
-      'Service temporarily unavailable due to resource constraints (e.g., insufficient memory for AI model).',
+    description: 'Invalid input data.',
   })
   @ApiBody({ type: CreateTourFromPromptDto })
-  createFromPrompt(
+  generateTour(
     @Body(ValidationPipe) createTourFromPromptDto: CreateTourFromPromptDto,
   ) {
-    return this.toursService.createFromPrompt(createTourFromPromptDto.prompt, {
+    return this.toursService.createTourFromWizard({
       latitude: createTourFromPromptDto.latitude,
       longitude: createTourFromPromptDto.longitude,
       radius: createTourFromPromptDto.radius,
       includeExistingActivities:
         createTourFromPromptDto.includeExistingActivities !== false, // default true
+      days: createTourFromPromptDto.days,
+      budgetLevel: createTourFromPromptDto.budgetLevel,
+      interests: createTourFromPromptDto.interests,
+      transportationMode: createTourFromPromptDto.transportationMode,
+      groupType: createTourFromPromptDto.groupType,
+      travelPace: createTourFromPromptDto.travelPace,
+      dietaryRestrictions: createTourFromPromptDto.dietaryRestrictions,
+      destination: createTourFromPromptDto.destination,
+      destinationLatitude: createTourFromPromptDto.destinationLatitude,
+      destinationLongitude: createTourFromPromptDto.destinationLongitude,
+      skipImageGeneration:
+        createTourFromPromptDto.skipImageGeneration !== false, // default true
+      // New fields for auto-prompt generation
+      name: createTourFromPromptDto.name,
+      description: createTourFromPromptDto.description,
+      totalDistance: createTourFromPromptDto.totalDistance,
+      price: createTourFromPromptDto.price,
+      estimatedBudget: createTourFromPromptDto.estimatedBudget,
+      maxGroupSize: createTourFromPromptDto.maxGroupSize,
+      recommendedGroupSize: createTourFromPromptDto.recommendedGroupSize,
+      startDates: createTourFromPromptDto.startDates,
+      categories: createTourFromPromptDto.categories,
+      excludeTours: createTourFromPromptDto.excludeTours,
     });
+  }
+
+  @Post(':id/generate-activities')
+  @ApiOperation({
+    summary: 'Generate activities for an existing tour',
+    description:
+      'Generates activities in the background for a tour that was created with skipActivities=true',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Activities have been successfully generated.',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid request or activities already generated.',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Tour not found.',
+  })
+  generateActivities(@Param('id') id: string) {
+    return this.toursService.generateTourActivities(id);
   }
 
   @Get('nearby')
@@ -123,8 +164,46 @@ export class ToursController {
     status: 200,
     description: 'The tours have been successfully retrieved.',
   })
-  findAll(@Query('page') page = 1, @Query('limit') limit = 10) {
-    return this.toursService.findAll(+page, +limit);
+  @ApiQuery({
+    name: 'category',
+    required: false,
+    type: String,
+    description: 'Filter tours by category (e.g., walking, history, food)',
+  })
+  @ApiQuery({
+    name: 'latitude',
+    required: false,
+    type: Number,
+    description: 'Filter tours by latitude',
+  })
+  @ApiQuery({
+    name: 'longitude',
+    required: false,
+    type: Number,
+    description: 'Filter tours by longitude',
+  })
+  @ApiQuery({
+    name: 'radius',
+    required: false,
+    type: Number,
+    description: 'Search radius in meters',
+  })
+  findAll(
+    @Query('page') page = 1,
+    @Query('limit') limit = 10,
+    @Query('category') category?: string,
+    @Query('latitude') latitude?: number,
+    @Query('longitude') longitude?: number,
+    @Query('radius') radius?: number,
+  ) {
+    return this.toursService.findAll(
+      +page,
+      +limit,
+      category,
+      latitude ? +latitude : undefined,
+      longitude ? +longitude : undefined,
+      radius ? +radius : undefined,
+    );
   }
 
   @Get(':id')

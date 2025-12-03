@@ -11,11 +11,13 @@ import {
   Pressable,
 } from '@gluestack-ui/themed';
 import { FlatList } from 'react-native';
-import { Link } from 'expo-router';
+import { Link, useLocalSearchParams, router } from 'expo-router';
 import axiosInstance from '@/api/config/axios';
 import { useApi } from '@/api/hooks/useApi';
+import { generateTour } from '@/api/tours';
 import { PaginatedResponseTour } from '@/components/types';
-
+import { AppContext } from '@/context/app';
+import { useContext } from 'react';
 // Leaflet CSS usually requires special handling in React Native Web or might cause issues in Native.
 // Assuming this is web-compatible or handled.
 if (typeof window !== 'undefined') {
@@ -31,15 +33,70 @@ interface PaginatedResponse {
 }
 
 export default function ToursScreen() {
+  const {
+    category,
+    latitude: latParam,
+    longitude: lngParam,
+  } = useLocalSearchParams<{
+    category?: string;
+    latitude?: string;
+    longitude?: string;
+  }>();
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [showModal, setShowModal] = useState(false);
   const [totalTours, setTotalTours] = useState<number>(0);
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  const { address } = useContext(AppContext);
+
+  const handleGenerateUniqueTour = async () => {
+    setIsGenerating(true);
+    try {
+      const existingTourIds = data?.tours.map((t) => t.id) || [];
+      const lat = latParam ? parseFloat(latParam) : address?.lat;
+      const lng = lngParam ? parseFloat(lngParam) : address?.lng;
+
+      const newTour = await generateTour({
+        prompt: category
+          ? `Create a unique tour about ${category}`
+          : 'Create a unique tour based on hidden gems',
+        excludeTours: existingTourIds,
+        categories: category ? [category] : [],
+        latitude: lat,
+        longitude: lng,
+      });
+
+      if (newTour && newTour.id) {
+        router.push(`/tours/${newTour.id}`);
+      }
+    } catch (err) {
+      console.error('Failed to generate tour', err);
+      alert('Failed to generate a new tour. Please try again.');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   const getTours = async () => {
     try {
+      const params = new URLSearchParams({
+        page: currentPage.toString(),
+      });
+      if (category) {
+        params.append('category', category);
+      }
+
+      const lat = latParam || address?.lat.toString();
+      const lng = lngParam || address?.lng.toString();
+
+      if (lat && lng) {
+        params.append('latitude', lat);
+        params.append('longitude', lng);
+        params.append('radius', '10000');
+      }
+
       const response = (await axiosInstance.get(
-        `/tours?page=${currentPage}`
+        `/tours?${params.toString()}`
       )) as PaginatedResponse;
 
       console.log('$$$ response:', response);
@@ -84,6 +141,11 @@ export default function ToursScreen() {
     }
   }, [data]);
 
+  // Reset page when category changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [category]);
+
   return (
     <Box height='$full' bg='$backgroundLight100'>
       <FlatList
@@ -92,9 +154,30 @@ export default function ToursScreen() {
         contentContainerStyle={{ padding: 16 }}
         ListHeaderComponent={
           <VStack space='md' mb='$4'>
-            <Heading>Tours</Heading>
-            <Button onPress={() => setShowModal(true)}>
+            <Heading>{category ? `Tours - ${category}` : 'Tours'}</Heading>
+            {category && (
+              <Text size='sm' color='$gray600'>
+                Mostrando tours de la categoría: {category}
+              </Text>
+            )}
+            <Button
+              onPress={() => router.push('/tours/wizard')}
+              isDisabled={isGenerating}
+            >
               <Text color='$white'>Create New Tour</Text>
+            </Button>
+
+            <Button
+              onPress={handleGenerateUniqueTour}
+              isDisabled={isGenerating}
+              variant='outline'
+              borderColor='$primary500'
+            >
+              {isGenerating ? (
+                <Spinner color='$primary500' />
+              ) : (
+                <Text color='$primary500'>Generate Unique AI Tour 🪄</Text>
+              )}
             </Button>
 
             {loading && <Spinner size='large' />}

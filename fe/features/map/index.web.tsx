@@ -21,7 +21,11 @@ const createMarkersFromActivities = (activities: Activity[]): MarkerType[] => {
   }));
 };
 
-export const Map: React.FC<MapProps> = ({ markers: propMarkers }) => {
+export const Map: React.FC<MapProps> = ({
+  markers: propMarkers,
+  isStatic = false,
+  initialRegion,
+}) => {
   const { center, handleCenterChange } = useMap();
   const { activities } = useActivities();
   const mapRef = useRef<google.maps.Map | null>(null);
@@ -54,11 +58,16 @@ export const Map: React.FC<MapProps> = ({ markers: propMarkers }) => {
   // Create markers from activities if no markers are provided via props
   const markers = propMarkers || createMarkersFromActivities(activities);
 
+  const mapCenter = initialRegion
+    ? { lat: initialRegion.latitude, lng: initialRegion.longitude }
+    : { lat: center.lat, lng: center.lng };
+
   if (!isLoaded) {
     return <View style={styles.container} />;
   }
 
   const handleMapDragEnd = () => {
+    if (isStatic) return;
     if (mapRef.current) {
       const newCenter = mapRef.current.getCenter();
       if (newCenter) {
@@ -70,16 +79,31 @@ export const Map: React.FC<MapProps> = ({ markers: propMarkers }) => {
     }
   };
 
+  const mapOptions: google.maps.MapOptions = isStatic
+    ? {
+        disableDefaultUI: true,
+        draggable: false,
+        zoomControl: false,
+        scrollwheel: false,
+        disableDoubleClickZoom: true,
+        clickableIcons: false,
+      }
+    : {
+        disableDefaultUI: false,
+        zoomControl: true,
+      };
+
   return (
     <View style={styles.container}>
       <GoogleMap
         mapContainerStyle={styles.map}
-        center={{ lat: center.lat, lng: center.lng }}
+        center={mapCenter}
         zoom={15}
         onLoad={(map) => {
           mapRef.current = map;
         }}
         onDragEnd={handleMapDragEnd}
+        options={mapOptions}
       >
         {markers.map((marker) => (
           <Marker

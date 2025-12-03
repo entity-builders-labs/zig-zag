@@ -30,4 +30,6 @@ export interface MapProps {
       longitude: number;
     }[];
   }[];
+  isStatic?: boolean;
+  initialRegion?: Region;
 }
