@@ -1,0 +1,43 @@
+name: Link Issue to PR
+
+on:
+  pull_request:
+    types: [opened]
+
+jobs:
+  link-issue:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Link Issue from Branch Name
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const branchName = context.payload.pull_request.head.ref;
+            // Matches "123-description" or "type/123-description"
+            const issueRegex = /(?:^|\/)(\d+)-/;
+            const match = branchName.match(issueRegex);
+
+            if (match && match[1]) {
+              const issueNumber = match[1];
+              const pr = context.payload.pull_request;
+              let body = pr.body || '';
+              
+              const templatePlaceholder = 'Fixes # (issue)';
+              const issueLink = `Fixes #${issueNumber}`;
+              
+              if (body.includes(templatePlaceholder)) {
+                body = body.replace(templatePlaceholder, issueLink);
+                
+                await github.rest.pulls.update({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  pull_number: pr.number,
+                  body: body
+                });
+                console.log(`Updated PR description to link issue #${issueNumber}`);
+              }
+            } else {
+              console.log('No issue number found in branch name');
+            }
