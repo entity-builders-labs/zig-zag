@@ -22,7 +22,7 @@ jobs:
             // Matches "123-description", "type/123-description", "issue/123", or just "123"
             const branchRegex = /(?:^|\/)(\d+)(?:-|$)/;
             const branchMatch = branchName.match(branchRegex);
-
+            
             if (branchMatch && branchMatch[1]) {
               issueNumber = branchMatch[1];
               console.log(`Found issue #${issueNumber} in branch name.`);
@@ -54,23 +54,37 @@ jobs:
             // 3. Update PR description if issue found
             if (issueNumber) {
               let body = pr.body || '';
-              const templatePlaceholder = 'Fixes # (issue)';
-              const issueLink = `Fixes #${issueNumber}`;
               
-              // Check if we still have the placeholder or if we haven't linked it yet
-              if (body.includes(templatePlaceholder)) {
-                body = body.replace(templatePlaceholder, issueLink);
-                
-                await github.rest.pulls.update({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  pull_number: pr.number,
-                  body: body
-                });
-                console.log(`Updated PR description to link issue #${issueNumber}`);
+              // Check for the new URL-based placeholder
+              const repoUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/issues/`;
+              const templatePlaceholderUrl = `Fixes ${repoUrl}`;
+              const issueLinkUrl = `Fixes ${repoUrl}${issueNumber}`;
+              
+              // Check for the old placeholder (backward compatibility)
+              const templatePlaceholderOld = 'Fixes # (issue)';
+              const issueLinkOld = `Fixes #${issueNumber}`;
+
+              if (body.includes(templatePlaceholderUrl)) {
+                // User hasn't typed the number yet, just the base URL
+                 body = body.replace(templatePlaceholderUrl, issueLinkUrl);
+                 await updatePr(body, issueNumber);
+              } else if (body.includes(templatePlaceholderOld)) {
+                // Old template style
+                 body = body.replace(templatePlaceholderOld, issueLinkOld);
+                 await updatePr(body, issueNumber);
               } else {
-                console.log('PR description does not contain the placeholder "Fixes # (issue)" or is already updated.');
+                 console.log('PR description does not contain a recognizable placeholder or is already updated.');
               }
             } else {
               console.log('No issue number found in branch name or commit messages.');
+            }
+            
+            async function updatePr(body, issueNumber) {
+              await github.rest.pulls.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: context.payload.pull_request.number,
+                body: body
+              });
+              console.log(`Updated PR description to link issue #${issueNumber}`);
             }
