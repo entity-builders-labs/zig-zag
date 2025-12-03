@@ -1,11 +1,10 @@
-// @ts-nocheck
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { LangChainService } from '../../../shared/ai/langchain.service';
 import { ConfigService } from '@nestjs/config';
-import axios from 'axios';
 import { ActivitiesService } from './activities.service';
 import { PrismaService } from '../../../core/database/prisma.service';
 import { AiDiscoverDto } from '../dto/ai-discover.dto';
+import { IPlacesApiService } from '../../crawlers/google-maps/interfaces/places-api.interface';
 
 @Injectable()
 export class AiProspectorService {
@@ -16,6 +15,7 @@ export class AiProspectorService {
     private readonly config: ConfigService,
     private readonly activities: ActivitiesService,
     private readonly prisma: PrismaService,
+    @Inject('IPlacesApiService') private readonly placesApi: IPlacesApiService,
   ) {}
 
   private buildPrompt(dto: AiDiscoverDto) {
@@ -42,41 +42,19 @@ Return the JSON array now:`;
   }
 
   private async resolveWithPlaces(name: string, dto: AiDiscoverDto) {
-    const apiKey = this.config.get<string>('GOOGLE_MAPS_API_KEY');
     const text = `${name}`;
-    const resp = await axios.post(
-      'https://places.googleapis.com/v1/places:searchText',
-      {
-        textQuery: text,
-        maxResultCount: 5,
-        locationBias: {
-          circle: {
-            center: { latitude: dto.latitude, longitude: dto.longitude },
-            radius: dto.radius ?? 5000,
-          },
-        },
-      },
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Goog-Api-Key': apiKey!,
-          'X-Goog-FieldMask': [
-            'places.id',
-            'places.displayName',
-            'places.formattedAddress',
-            'places.location',
-            'places.rating',
-            'places.userRatingCount',
-            'places.types',
-            'places.websiteUri',
-          ].join(','),
-        },
-      },
-    );
 
-    const candidates = (resp.data?.places || []).map((p: any) => ({
+    const places = await this.placesApi.searchText({
+      textQuery: text,
+      maxResultCount: 5,
+      latitude: dto.latitude,
+      longitude: dto.longitude,
+      radius: dto.radius ?? 5000,
+    });
+
+    const candidates = places.map((p: any) => ({
       id: p.id,
-      name: p.displayName?.text || p.displayName || '',
+      name: p.name,
       address: p.formattedAddress,
       lat: p.location?.latitude,
       lng: p.location?.longitude,

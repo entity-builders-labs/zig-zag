@@ -6,7 +6,6 @@ import {
   Patch,
   Param,
   Delete,
-  ParseIntPipe,
   ValidationPipe,
   Query,
   Logger,
@@ -14,7 +13,6 @@ import {
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { ActivitiesService } from '../services/activities.service';
-import { PrismaService } from '../../../core/database/prisma.service';
 import { CreateActivityDto } from '../dto/create-activity.dto';
 import { UpdateActivityDto } from '../dto/update-activity.dto';
 import { FindNearbyDto } from '../dto/find-nearby.dto';
@@ -222,8 +220,13 @@ export class ActivitiesController {
   }
 
   @Post('discover-ai')
-  @ApiOperation({ summary: 'Discover activities using LLM then validate via Places' })
-  @ApiResponse({ status: 200, description: 'Returns created/duplicate/rejected counts' })
+  @ApiOperation({
+    summary: 'Discover activities using LLM then validate via Places',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns created/duplicate/rejected counts',
+  })
   async discoverWithAI(@Body(ValidationPipe) dto: AiDiscoverDto) {
     return this.aiProspector.discover(dto);
   }
