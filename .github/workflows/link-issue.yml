@@ -2,42 +2,113 @@ name: Link Issue to PR
 
 on:
   pull_request:
-    types: [opened]
+    types: [opened, synchronize, reopened]
 
 jobs:
   link-issue:
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
+      issues: read
     steps:
-      - name: Link Issue from Branch Name
+      - name: Link Issue from Branch or Commits
         uses: actions/github-script@v6
         with:
           script: |
-            const branchName = context.payload.pull_request.head.ref;
-            // Matches "123-description" or "type/123-description"
-            const issueRegex = /(?:^|\/)(\d+)-/;
-            const match = branchName.match(issueRegex);
+            const pr = context.payload.pull_request;
+            let issueNumber = null;
 
-            if (match && match[1]) {
-              const issueNumber = match[1];
-              const pr = context.payload.pull_request;
-              let body = pr.body || '';
+            // 1. Try to find issue in branch name
+            const branchName = pr.head.ref;
+            // Matches "123-description", "type/123-description", "issue/123", or just "123"
+            const branchRegex = /(?:^|\/)(\d+)(?:-|$)/;
+            const branchMatch = branchName.match(branchRegex);
+
+            if (branchMatch && branchMatch[1]) {
+              issueNumber = branchMatch[1];
+              console.log(`Found issue #${issueNumber} in branch name.`);
+            }
+
+            // 2. If not found, look in commit messages
+            if (!issueNumber) {
+              console.log('No issue in branch name, checking commits...');
+              const commits = await github.rest.pulls.listCommits({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: pr.number,
+                per_page: 100
+              });
+
+              // Regex to match "type(#123):" or just "(#123)" pattern
+              const commitRegex = /\(#(\d+)\)/;
               
-              const templatePlaceholder = 'Fixes # (issue)';
-              const issueLink = `Fixes #${issueNumber}`;
-              
-              if (body.includes(templatePlaceholder)) {
-                body = body.replace(templatePlaceholder, issueLink);
-                
-                await github.rest.pulls.update({
+              for (const commit of commits.data) {
+                const match = commit.commit.message.match(commitRegex);
+                if (match && match[1]) {
+                  issueNumber = match[1];
+                  console.log(`Found issue #${issueNumber} in commit: "${commit.commit.message}"`);
+                  break; // Use the first one found
+                }
+              }
+            }
+
+            // 3. Update PR description and Title if issue found
+            if (issueNumber) {
+              try {
+                // Fetch issue details
+                const issue = await github.rest.issues.get({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
-                  pull_number: pr.number,
-                  body: body
+                  issue_number: issueNumber
                 });
-                console.log(`Updated PR description to link issue #${issueNumber}`);
+
+                // Update PR title with issue title if needed
+                // This ensures the commit title (on squash) matches the issue title
+                if (issue.data.title && pr.title !== issue.data.title) {
+                   await github.rest.pulls.update({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    pull_number: pr.number,
+                    title: issue.data.title
+                  });
+                  console.log(`Updated PR title to: ${issue.data.title}`);
+                }
+              } catch (error) {
+                console.log(`Could not fetch issue details or update title: ${error.message}`);
+              }
+
+              let body = pr.body || '';
+              
+              // Check for the new URL-based placeholder
+              const repoUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/issues/`;
+              const templatePlaceholderUrl = `Fixes ${repoUrl}`;
+              const issueLinkUrl = `Fixes ${repoUrl}${issueNumber}`;
+              
+              // Check for the old placeholder (backward compatibility)
+              const templatePlaceholderOld = 'Fixes # (issue)';
+              const issueLinkOld = `Fixes #${issueNumber}`;
+
+              if (body.includes(templatePlaceholderUrl)) {
+                // User hasn't typed the number yet, just the base URL
+                 body = body.replace(templatePlaceholderUrl, issueLinkUrl);
+                 await updatePr(body, issueNumber);
+              } else if (body.includes(templatePlaceholderOld)) {
+                // Old template style
+                 body = body.replace(templatePlaceholderOld, issueLinkOld);
+                 await updatePr(body, issueNumber);
+              } else {
+                 console.log('PR description does not contain a recognizable placeholder or is already updated.');
               }
             } else {
-              console.log('No issue number found in branch name');
+              console.log('No issue number found in branch name or commit messages.');
+            }
+
+            async function updatePr(body, issueNumber) {
+              await github.rest.pulls.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: context.payload.pull_request.number,
+                body: body
+              });
+              console.log(`Updated PR description to link issue #${issueNumber}`);
             }

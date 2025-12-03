@@ -1,0 +1,138 @@
+name: Move Closed Issue to Done in Project
+
+on:
+  issues:
+    types: [closed]
+
+jobs:
+  move-to-done:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get Project Data
+        env:
+          GITHUB_TOKEN: ${{ secrets.PROJECT_PAT }} # Requires a PAT with 'project' scope
+          USER: juanobrach
+          PROJECT_NUMBER: 1 # UPDATE THIS with your Project Number
+        run: |
+          gh api graphql -f query='
+            query($user: String!, $number: Int!) {
+              user(login: $user) {
+                projectV2(number: $number) {
+                  id
+                  fields(first: 20) {
+                    nodes {
+                      ... on ProjectV2Field {
+                        id
+                        name
+                      }
+                      ... on ProjectV2SingleSelectField {
+                        id
+                        name
+                        options {
+                          id
+                          name
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }' -f user=$USER -F number=$PROJECT_NUMBER > project_data.json
+
+      - name: Move Issue to Done
+        uses: actions/github-script@v6
+        env:
+          PROJECT_PAT: ${{ secrets.PROJECT_PAT }} # Requires a PAT with 'project' scope
+          USER: juanobrach
+          PROJECT_NUMBER: 1 # UPDATE THIS with your Project Number
+        with:
+          github-token: ${{ secrets.PROJECT_PAT }}
+          script: |
+            const fs = require('fs');
+            const projectData = JSON.parse(fs.readFileSync('project_data.json', 'utf8'));
+            const project = projectData.data.user.projectV2;
+            const projectId = project.id;
+            
+            // Find the "Status" field
+            const statusField = project.fields.nodes.find(f => f.name === 'Status');
+            if (!statusField) {
+              console.log('Status field not found');
+              return;
+            }
+            
+            // Find the "Done" option
+            const doneOption = statusField.options.find(o => o.name === 'Done');
+            if (!doneOption) {
+               console.log('Done option not found in Status field');
+               return;
+            }
+
+            // Get the Issue Node ID
+            const issueNodeId = context.payload.issue.node_id;
+
+            // 1. Find the item in the project associated with this issue
+            // We might need to add it first if it's not there, but usually it is.
+            // This query finds the project item ID for the issue
+            const issueQuery = `
+              query($id: ID!) {
+                node(id: $id) {
+                  ... on Issue {
+                    projectItems(first: 10) {
+                      nodes {
+                        id
+                        project {
+                          id
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            `;
+            
+            const issueData = await github.graphql(issueQuery, { id: issueNodeId });
+            const projectItem = issueData.node.projectItems.nodes.find(item => item.project.id === projectId);
+            
+            let itemId;
+            
+            if (!projectItem) {
+              console.log('Issue is not in the project. Adding it...');
+              const addQuery = `
+                mutation($projectId: ID!, $contentId: ID!) {
+                  addProjectV2ItemById(input: {projectId: $projectId, contentId: $contentId}) {
+                    item {
+                      id
+                    }
+                  }
+                }
+              `;
+              const addData = await github.graphql(addQuery, { projectId: projectId, contentId: issueNodeId });
+              itemId = addData.addProjectV2ItemById.item.id;
+            } else {
+              itemId = projectItem.id;
+            }
+
+            // 2. Update the status to Done
+            console.log(`Updating item ${itemId} to status Done`);
+            const updateQuery = `
+              mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $value: String!) {
+                updateProjectV2ItemFieldValue(input: {
+                  projectId: $projectId
+                  itemId: $itemId
+                  fieldId: $fieldId
+                  value: { singleSelectOptionId: $value }
+                }) {
+                  projectV2Item {
+                    id
+                  }
+                }
+              }
+            `;
+            
+            await github.graphql(updateQuery, {
+              projectId: projectId,
+              itemId: itemId,
+              fieldId: statusField.id,
+              value: doneOption.id
+            });
+
