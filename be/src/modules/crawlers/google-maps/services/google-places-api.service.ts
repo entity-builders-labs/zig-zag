@@ -9,21 +9,40 @@ import {
 } from '../interfaces/places-api.interface';
 
 @Injectable()
-export class GooglePlacesApiServiceImpl implements IPlacesApiService {
-  private readonly logger = new Logger(GooglePlacesApiServiceImpl.name);
+export class GooglePlacesApiService implements IPlacesApiService {
+  private readonly logger = new Logger(GooglePlacesApiService.name);
+  private readonly baseUrl = 'https://places.googleapis.com/v1/places';
 
   constructor(private readonly configService: ConfigService) {}
 
-  async searchNearby(params: PlacesSearchNearbyParams): Promise<PlaceData[]> {
-    const apiKey = this.configService.get<string>('GOOGLE_MAPS_API_KEY');
-    if (!apiKey) {
-      throw new Error('GOOGLE_MAPS_API_KEY is not defined');
+  private getApiKey(): string {
+    const key = this.configService.get<string>('GOOGLE_MAPS_API_KEY');
+    if (!key) {
+      throw new Error('GOOGLE_MAPS_API_KEY is not configured');
     }
+    return key;
+  }
 
-    const url = 'https://places.googleapis.com/v1/places:searchNearby';
+  private getFieldMask(): string {
+    return [
+      'places.id',
+      'places.displayName',
+      'places.formattedAddress',
+      'places.location',
+      'places.rating',
+      'places.userRatingCount',
+      'places.types',
+      'places.websiteUri',
+      'places.nationalPhoneNumber',
+    ].join(',');
+  }
 
-    const requestBody: any = {
+  async searchNearby(params: PlacesSearchNearbyParams): Promise<PlaceData[]> {
+    const apiKey = this.getApiKey();
+
+    const body: any = {
       maxResultCount: params.maxResultCount || 20,
+      rankPreference: params.rankPreference || 'DISTANCE',
       locationRestriction: {
         circle: {
           center: {
@@ -36,36 +55,22 @@ export class GooglePlacesApiServiceImpl implements IPlacesApiService {
     };
 
     if (params.includedTypes && params.includedTypes.length > 0) {
-      requestBody.includedTypes = params.includedTypes;
-    }
-
-    if (params.rankPreference) {
-      requestBody.rankPreference = params.rankPreference;
+      body.includedTypes = params.includedTypes;
     }
 
     try {
-      const resp = await axios.post(url, requestBody, {
+      const response = await axios.post(`${this.baseUrl}:searchNearby`, body, {
         headers: {
           'Content-Type': 'application/json',
           'X-Goog-Api-Key': apiKey,
-          'X-Goog-FieldMask': [
-            'places.id',
-            'places.displayName',
-            'places.formattedAddress',
-            'places.location',
-            'places.rating',
-            'places.userRatingCount',
-            'places.nationalPhoneNumber',
-            'places.websiteUri',
-            'places.types',
-          ].join(','),
+          'X-Goog-FieldMask': this.getFieldMask(),
         },
       });
 
-      return (resp.data.places || []).map(this.mapGooglePlaceToPlaceData);
+      return this.mapResponse(response.data?.places || []);
     } catch (error) {
       this.logger.error(
-        `Google Places API searchNearby failed: ${error.message}`,
+        `Error in searchNearby: ${error.message}`,
         error.response?.data,
       );
       throw error;
@@ -73,20 +78,15 @@ export class GooglePlacesApiServiceImpl implements IPlacesApiService {
   }
 
   async searchText(params: PlacesSearchTextParams): Promise<PlaceData[]> {
-    const apiKey = this.configService.get<string>('GOOGLE_MAPS_API_KEY');
-    if (!apiKey) {
-      throw new Error('GOOGLE_MAPS_API_KEY is not defined');
-    }
+    const apiKey = this.getApiKey();
 
-    const url = 'https://places.googleapis.com/v1/places:searchText';
-
-    const requestBody: any = {
+    const body: any = {
       textQuery: params.textQuery,
       maxResultCount: params.maxResultCount || 5,
     };
 
-    if (params.latitude !== undefined && params.longitude !== undefined) {
-      requestBody.locationBias = {
+    if (params.latitude && params.longitude) {
+      body.locationBias = {
         circle: {
           center: {
             latitude: params.latitude,
@@ -98,36 +98,53 @@ export class GooglePlacesApiServiceImpl implements IPlacesApiService {
     }
 
     try {
-      const resp = await axios.post(url, requestBody, {
+      const response = await axios.post(`${this.baseUrl}:searchText`, body, {
         headers: {
           'Content-Type': 'application/json',
           'X-Goog-Api-Key': apiKey,
-          'X-Goog-FieldMask': [
-            'places.id',
-            'places.displayName',
-            'places.formattedAddress',
-            'places.location',
-            'places.rating',
-            'places.userRatingCount',
-            'places.nationalPhoneNumber',
-            'places.websiteUri',
-            'places.types',
-          ].join(','),
+          'X-Goog-FieldMask': this.getFieldMask(),
         },
       });
 
-      return (resp.data.places || []).map(this.mapGooglePlaceToPlaceData);
+      return this.mapResponse(response.data?.places || []);
     } catch (error) {
       this.logger.error(
-        `Google Places API searchText failed: ${error.message}`,
+        `Error in searchText: ${error.message}`,
         error.response?.data,
       );
       throw error;
     }
   }
 
-  private mapGooglePlaceToPlaceData(p: any): PlaceData {
-    return {
+  async getPlaceDetails(placeId: string): Promise<Partial<PlaceData>> {
+    const apiKey = this.getApiKey();
+    try {
+      const response = await axios.get(
+        `${this.baseUrl}/${placeId}?fields=id,nationalPhoneNumber,websiteUri,displayName,formattedAddress`,
+        {
+          headers: {
+            'X-Goog-Api-Key': apiKey,
+          },
+        },
+      );
+
+      const p = response.data;
+      return {
+        id: p.id,
+        nationalPhoneNumber: p.nationalPhoneNumber,
+        websiteUri: p.websiteUri,
+        displayName: p.displayName,
+        formattedAddress: p.formattedAddress,
+        name: p.displayName?.text || p.displayName,
+      };
+    } catch (error) {
+      this.logger.error(`Error fetching place details for ${placeId}:`, error);
+      throw error;
+    }
+  }
+
+  private mapResponse(places: any[]): PlaceData[] {
+    return places.map((p) => ({
       id: p.id,
       displayName: p.displayName,
       formattedAddress: p.formattedAddress,
@@ -137,7 +154,7 @@ export class GooglePlacesApiServiceImpl implements IPlacesApiService {
       types: p.types,
       websiteUri: p.websiteUri,
       nationalPhoneNumber: p.nationalPhoneNumber,
-      name: p.displayName?.text || p.displayName, // Helper flattened field
-    };
+      name: p.displayName?.text || p.displayName,
+    }));
   }
 }

@@ -1393,10 +1393,9 @@ After this activity, you can try: ${metadata.complementaryActivities?.after ? me
     customOptions?: Partial<ConstructorParameters<typeof ChatOpenAI>[0]>,
   ): Promise<string> {
     // Check cache first
-    const cached = this.aiCache.get(
+    const cached = await this.aiCache.getCachedResponse(
       systemPrompt + '|' + userPrompt,
-      'chat',
-      variables,
+      { type: 'chat', variables },
     );
     if (cached) return cached;
 
@@ -1587,11 +1586,10 @@ After this activity, you can try: ${metadata.complementaryActivities?.after ? me
       }
 
       // Save to cache
-      this.aiCache.save(
+      await this.aiCache.cacheResponse(
         systemPrompt + '|' + userPrompt,
-        'chat',
-        variables,
         response,
+        { type: 'chat', variables },
       );
       return response;
     } catch (error) {
@@ -1609,7 +1607,10 @@ After this activity, you can try: ${metadata.complementaryActivities?.after ? me
     customOptions?: Partial<ConstructorParameters<typeof OpenAI>[0]>,
   ): Promise<string> {
     // Check cache first
-    const cached = this.aiCache.get(promptText, 'completion', variables);
+    const cached = await this.aiCache.getCachedResponse(promptText, {
+      type: 'completion',
+      variables,
+    });
     if (cached) return cached;
 
     try {
@@ -1781,7 +1782,10 @@ After this activity, you can try: ${metadata.complementaryActivities?.after ? me
       }
 
       // Save to cache
-      this.aiCache.save(promptText, 'completion', variables, response);
+      await this.aiCache.cacheResponse(promptText, response, {
+        type: 'completion',
+        variables,
+      });
       return response;
     } catch (error) {
       this.logger.error(

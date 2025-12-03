@@ -15,7 +15,7 @@ export class AiProspectorService {
     private readonly config: ConfigService,
     private readonly activities: ActivitiesService,
     private readonly prisma: PrismaService,
-    @Inject('IPlacesApiService') private readonly placesApi: IPlacesApiService,
+    @Inject('PlacesApiService') private readonly placesApi: IPlacesApiService,
   ) {}
 
   private buildPrompt(dto: AiDiscoverDto) {

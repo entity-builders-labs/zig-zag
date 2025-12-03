@@ -89,6 +89,11 @@ services:
       - OLLAMA_API_KEY=${OLLAMA_API_KEY}
       - OLLAMA_NUM_CTX=${OLLAMA_NUM_CTX}
       - GROQ_API_KEY=${GROQ_API_KEY}
+      - STORAGE_PATH=${STORAGE_PATH}
+      - AI_CACHE_MODE=${AI_CACHE_MODE}
+      - MOCK_MAPS_MODE=${MOCK_MAPS_MODE}
+      - ALLOW_API_FALLBACK=${ALLOW_API_FALLBACK}
+      - USE_MOCK_MAPS=${USE_MOCK_MAPS}
     volumes:
       - ./be:/app/be
       - /app/node_modules
@@ -125,6 +130,8 @@ services:
       - CHOKIDAR_INTERVAL=${CHOKIDAR_INTERVAL}
       - FAST_REFRESH=${FAST_REFRESH}
       - EXPO_USE_FAST_REFRESH=${EXPO_USE_FAST_REFRESH}
+      - STORAGE_PATH=${STORAGE_PATH}
+      - AI_CACHE_MODE=${AI_CACHE_MODE}
     volumes:
       - ./fe:/app/fe
       - /app/node_modules
