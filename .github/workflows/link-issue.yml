@@ -2,13 +2,14 @@ name: Link Issue to PR
 
 on:
   pull_request:
-    types: [opened, synchronize]
+    types: [opened, synchronize, reopened]
 
 jobs:
   link-issue:
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
+      issues: read
     steps:
       - name: Link Issue from Branch or Commits
         uses: actions/github-script@v6
@@ -22,7 +23,7 @@ jobs:
             // Matches "123-description", "type/123-description", "issue/123", or just "123"
             const branchRegex = /(?:^|\/)(\d+)(?:-|$)/;
             const branchMatch = branchName.match(branchRegex);
-            
+
             if (branchMatch && branchMatch[1]) {
               issueNumber = branchMatch[1];
               console.log(`Found issue #${issueNumber} in branch name.`);
@@ -51,8 +52,31 @@ jobs:
               }
             }
 
-            // 3. Update PR description if issue found
+            // 3. Update PR description and Title if issue found
             if (issueNumber) {
+              try {
+                // Fetch issue details
+                const issue = await github.rest.issues.get({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issueNumber
+                });
+
+                // Update PR title with issue title if needed
+                // This ensures the commit title (on squash) matches the issue title
+                if (issue.data.title && pr.title !== issue.data.title) {
+                   await github.rest.pulls.update({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    pull_number: pr.number,
+                    title: issue.data.title
+                  });
+                  console.log(`Updated PR title to: ${issue.data.title}`);
+                }
+              } catch (error) {
+                console.log(`Could not fetch issue details or update title: ${error.message}`);
+              }
+
               let body = pr.body || '';
               
               // Check for the new URL-based placeholder
@@ -78,7 +102,7 @@ jobs:
             } else {
               console.log('No issue number found in branch name or commit messages.');
             }
-            
+
             async function updatePr(body, issueNumber) {
               await github.rest.pulls.update({
                 owner: context.repo.owner,
