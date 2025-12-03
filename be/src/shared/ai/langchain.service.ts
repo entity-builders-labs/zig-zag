@@ -17,6 +17,7 @@ import { Activity } from '@prisma/client';
 import { Chroma } from '@langchain/community/vectorstores/chroma';
 import { Where, ChromaClient } from 'chromadb';
 import { PrismaService } from '../../core/database/prisma.service';
+import { AiCacheService } from './services/ai-cache.service';
 
 // At the top of the file, add interface
 interface ActivityMetadata {
@@ -50,6 +51,7 @@ export class LangChainService {
     @Inject(aiConfig.KEY)
     private readonly config: ConfigType<typeof aiConfig>,
     private readonly prisma: PrismaService,
+    private readonly aiCache: AiCacheService,
   ) {
     // Initialize models
     this.initializeModels();
@@ -1390,8 +1392,18 @@ After this activity, you can try: ${metadata.complementaryActivities?.after ? me
     variables: Record<string, string> = {},
     customOptions?: Partial<ConstructorParameters<typeof ChatOpenAI>[0]>,
   ): Promise<string> {
+    // Check cache first
+    const cached = this.aiCache.get(
+      systemPrompt + '|' + userPrompt,
+      'chat',
+      variables,
+    );
+    if (cached) return cached;
+
     try {
+      let response = '';
       const provider = this.config.provider;
+
       if (provider === 'ollama') {
         // Use ChatOllama from @langchain/ollama
         const model = this.chatModel;
@@ -1414,7 +1426,7 @@ After this activity, you can try: ${metadata.complementaryActivities?.after ? me
         ]);
 
         try {
-          return await chain.invoke(variables);
+          response = await chain.invoke(variables);
         } catch (error: any) {
           // Handle errors with helpful messages
           const errorMsg = error?.message || String(error);
@@ -1485,9 +1497,7 @@ After this activity, you can try: ${metadata.complementaryActivities?.after ? me
           this.logger.error(`Error generating chat response: ${errorMsg}`);
           throw error;
         }
-      }
-
-      if (provider === 'groq') {
+      } else if (provider === 'groq') {
         const userTmpl = PromptTemplate.fromTemplate(userPrompt);
         const userText = await userTmpl.format(variables as any);
         const model = this.config.defaultModel || 'llama-3.1-8b-instant';
@@ -1558,23 +1568,32 @@ After this activity, you can try: ${metadata.complementaryActivities?.after ? me
         }
 
         const data = await resp.json();
-        return data.choices?.[0]?.message?.content || '';
+        response = data.choices?.[0]?.message?.content || '';
+      } else {
+        // Default: OpenAI via LangChain
+        const model = customOptions
+          ? this.getChatModel(customOptions)
+          : this.chatModel;
+        const chatPrompt = ChatPromptTemplate.fromMessages([
+          SystemMessagePromptTemplate.fromTemplate(systemPrompt),
+          HumanMessagePromptTemplate.fromTemplate(userPrompt),
+        ]);
+        const chain = RunnableSequence.from([
+          chatPrompt,
+          model,
+          new StringOutputParser(),
+        ]);
+        response = await chain.invoke(variables);
       }
 
-      // Default: OpenAI via LangChain
-      const model = customOptions
-        ? this.getChatModel(customOptions)
-        : this.chatModel;
-      const chatPrompt = ChatPromptTemplate.fromMessages([
-        SystemMessagePromptTemplate.fromTemplate(systemPrompt),
-        HumanMessagePromptTemplate.fromTemplate(userPrompt),
-      ]);
-      const chain = RunnableSequence.from([
-        chatPrompt,
-        model,
-        new StringOutputParser(),
-      ]);
-      return await chain.invoke(variables);
+      // Save to cache
+      this.aiCache.save(
+        systemPrompt + '|' + userPrompt,
+        'chat',
+        variables,
+        response,
+      );
+      return response;
     } catch (error) {
       this.logger.error(`Error generating chat response: ${error.message}`);
       throw error;
@@ -1589,8 +1608,14 @@ After this activity, you can try: ${metadata.complementaryActivities?.after ? me
     variables: Record<string, string> = {},
     customOptions?: Partial<ConstructorParameters<typeof OpenAI>[0]>,
   ): Promise<string> {
+    // Check cache first
+    const cached = this.aiCache.get(promptText, 'completion', variables);
+    if (cached) return cached;
+
     try {
+      let response = '';
       const provider = this.config.provider;
+
       if (provider === 'ollama') {
         // Use ChatOllama from @langchain/ollama for completions
         const model = this.completionModel;
@@ -1605,7 +1630,7 @@ After this activity, you can try: ${metadata.complementaryActivities?.after ? me
         const chain = this.createChain(prompt, model);
 
         try {
-          return await chain.invoke(variables);
+          response = await chain.invoke(variables);
         } catch (error: any) {
           // Handle errors with helpful messages
           const errorMsg = error?.message || String(error);
@@ -1679,9 +1704,7 @@ After this activity, you can try: ${metadata.complementaryActivities?.after ? me
           );
           throw error;
         }
-      }
-
-      if (provider === 'groq') {
+      } else if (provider === 'groq') {
         const tmpl = PromptTemplate.fromTemplate(promptText);
         const text = await tmpl.format(variables as any);
         const model = this.config.defaultModel || 'llama-3.1-8b-instant';
@@ -1747,15 +1770,19 @@ After this activity, you can try: ${metadata.complementaryActivities?.after ? me
         }
 
         const data = await resp.json();
-        return data.choices?.[0]?.text || '';
+        response = data.choices?.[0]?.text || '';
+      } else {
+        const model = customOptions
+          ? this.getCompletionModel(customOptions)
+          : this.completionModel;
+        const prompt = PromptTemplate.fromTemplate(promptText);
+        const chain = this.createChain(prompt, model);
+        response = await chain.invoke(variables);
       }
 
-      const model = customOptions
-        ? this.getCompletionModel(customOptions)
-        : this.completionModel;
-      const prompt = PromptTemplate.fromTemplate(promptText);
-      const chain = this.createChain(prompt, model);
-      return await chain.invoke(variables);
+      // Save to cache
+      this.aiCache.save(promptText, 'completion', variables, response);
+      return response;
     } catch (error) {
       this.logger.error(
         `Error generating completion response: ${error.message}`,

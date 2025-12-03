@@ -1,15 +1,15 @@
 // @ts-nocheck
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit, Inject } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Client } from '@googlemaps/google-maps-services-js';
 import axios from 'axios';
 import { CrawlLocationDto } from './dto/crawl-location.dto';
-import { Activity } from '@prisma/client';
 import { GooglePlaceDetails } from '../../activities/interfaces/google-places.interface';
 import { ActivitiesService } from '../../activities/services/activities.service';
 import { CreateActivityDto } from '../../activities/dto/create-activity.dto';
 import { LangChainService } from '../../../shared/ai/langchain.service';
 import { PrismaService } from '../../../core/database/prisma.service';
+import { IPlacesApiService } from './interfaces/places-api.interface';
 
 const placesToSearch = [
   {
@@ -194,83 +194,6 @@ export class GoogleMapsService implements OnModuleInit {
   private readonly COORDINATES_THRESHOLD = 0.01; // Approximately 1km threshold
   private readonly SEARCH_RADIUS = 5000; // 5km radius for finding activities
 
-  private async findExistingSearch(
-    latitude: number,
-    longitude: number,
-  ): Promise<boolean> {
-    try {
-      const existingSearch = await this.prisma.crawlerSearch.findFirst({
-        where: {
-          AND: [
-            { latitude: { gte: latitude - this.COORDINATES_THRESHOLD } },
-            { latitude: { lte: latitude + this.COORDINATES_THRESHOLD } },
-            { longitude: { gte: longitude - this.COORDINATES_THRESHOLD } },
-            { longitude: { lte: longitude + this.COORDINATES_THRESHOLD } },
-          ],
-        },
-      });
-      return !!existingSearch;
-    } catch (error) {
-      this.logger.error('Error finding existing crawler search:', error);
-      return false;
-    }
-  }
-
-  private async findActivitiesNearCoordinates(
-    latitude: number,
-    longitude: number,
-  ): Promise<Activity[]> {
-    try {
-      const activities = await this.prisma.activity.findMany({
-        where: {
-          AND: [
-            { latitude: { gte: latitude - this.COORDINATES_THRESHOLD } },
-            { latitude: { lte: latitude + this.COORDINATES_THRESHOLD } },
-            { longitude: { gte: longitude - this.COORDINATES_THRESHOLD } },
-            { longitude: { lte: longitude + this.COORDINATES_THRESHOLD } },
-          ],
-        },
-        orderBy: {
-          createdAt: 'desc',
-        },
-        take: 100,
-      });
-      return activities;
-    } catch (error) {
-      this.logger.error('Error finding activities near coordinates:', error);
-      return [];
-    }
-  }
-
-  private async saveCrawlerSearch(
-    latitude: number,
-    longitude: number,
-  ): Promise<void> {
-    try {
-      await this.prisma.crawlerSearch.create({
-        data: {
-          latitude,
-          longitude,
-        },
-      });
-      this.logger.debug(
-        `Saved crawler search for coordinates: ${latitude}, ${longitude}`,
-      );
-    } catch (error) {
-      this.logger.error('Error saving crawler search:', error);
-      throw error;
-    }
-  }
-
-  private buildGoogleMapsUrls(
-    placeId: string,
-    location: { latitude: number; longitude: number },
-  ) {
-    return {
-      googleMapsUrl: `https://www.google.com/maps/place/?q=place_id:${placeId}`,
-      googleMapsDirectionsUrl: `https://www.google.com/maps/dir/?api=1&destination=${location.latitude},${location.longitude}&destination_place_id=${placeId}`,
-    };
-  }
   private readonly logger = new Logger(GoogleMapsService.name);
   private readonly client: Client;
 
@@ -279,6 +202,7 @@ export class GoogleMapsService implements OnModuleInit {
     private readonly prisma: PrismaService,
     private readonly activitiesService: ActivitiesService,
     private readonly aiService: LangChainService,
+    @Inject('IPlacesApiService') private readonly placesApi: IPlacesApiService,
   ) {
     this.client = new Client({});
   }
@@ -295,7 +219,7 @@ export class GoogleMapsService implements OnModuleInit {
 
   private async ensureKnownActivityTypes() {
     try {
-      for (const [_, type] of Object.entries(ActivityTypes)) {
+      for (const [, type] of Object.entries(ActivityTypes)) {
         try {
           const existingType = await this.prisma.knownActivityType.findUnique({
             where: { name: type.name },
@@ -348,7 +272,7 @@ export class GoogleMapsService implements OnModuleInit {
     duration: number;
   } | null {
     for (const googleType of googleTypes) {
-      for (const [key, type] of Object.entries(ActivityTypes)) {
+      for (const [, type] of Object.entries(ActivityTypes)) {
         if (type.includes.includes(googleType)) {
           return { name: type.name, duration: type.defaultDuration };
         }
@@ -397,7 +321,7 @@ Answer ONLY with one word from the set above, no punctuation, no explanation.`;
       const cleaned = normalized.replace(/[^a-z]/g, '');
       if (categories.includes(cleaned)) return cleaned;
       return null;
-    } catch (err) {
+    } catch {
       this.logger.warn(
         'AI category classification failed; falling back to defaults',
       );
@@ -420,8 +344,6 @@ Answer ONLY with one word from the set above, no punctuation, no explanation.`;
       JSON.stringify(searchConfig, null, 2),
     );
 
-    const apiKey = this.configService.get<string>('GOOGLE_MAPS_API_KEY');
-
     try {
       const unsupportedTypes = new Set<string>([
         'point_of_interest',
@@ -434,74 +356,26 @@ Answer ONLY with one word from the set above, no punctuation, no explanation.`;
       let placesData: any[] = [];
 
       if (!useTextSearch) {
-        // NEW Places API (v1) nearby search using includedTypes
-        const nearbyResp = await axios.post(
-          'https://places.googleapis.com/v1/places:searchNearby',
-          {
-            maxResultCount: 20,
-            includedTypes: [searchConfig.type],
-            rankPreference: 'DISTANCE',
-            locationRestriction: {
-              circle: {
-                center: { latitude: dto.latitude, longitude: dto.longitude },
-                radius: dto.radius || this.SEARCH_RADIUS,
-              },
-            },
-          },
-          {
-            headers: {
-              'Content-Type': 'application/json',
-              'X-Goog-Api-Key': apiKey!,
-              'X-Goog-FieldMask': [
-                'places.id',
-                'places.displayName',
-                'places.formattedAddress',
-                'places.location',
-                'places.rating',
-                'places.userRatingCount',
-                'places.nationalPhoneNumber',
-                'places.websiteUri',
-                'places.types',
-              ].join(','),
-            },
-          },
-        );
-        placesData = nearbyResp.data.places || [];
+        // NEW Places API (v1) nearby search using includedTypes via IPlacesApiService
+        placesData = await this.placesApi.searchNearby({
+          maxResultCount: 20,
+          includedTypes: [searchConfig.type],
+          rankPreference: 'DISTANCE',
+          latitude: dto.latitude,
+          longitude: dto.longitude,
+          radius: dto.radius || this.SEARCH_RADIUS,
+        });
       } else {
         // Fallback: searchText with keyword, biased to location
         const query =
           `${searchConfig.type.replace('_', ' ')} ${searchConfig.keyword}`.trim();
-        const textResp = await axios.post(
-          'https://places.googleapis.com/v1/places:searchText',
-          {
-            textQuery: query,
-            maxResultCount: 20,
-            locationBias: {
-              circle: {
-                center: { latitude: dto.latitude, longitude: dto.longitude },
-                radius: dto.radius || this.SEARCH_RADIUS,
-              },
-            },
-          },
-          {
-            headers: {
-              'Content-Type': 'application/json',
-              'X-Goog-Api-Key': apiKey!,
-              'X-Goog-FieldMask': [
-                'places.id',
-                'places.displayName',
-                'places.formattedAddress',
-                'places.location',
-                'places.rating',
-                'places.userRatingCount',
-                'places.nationalPhoneNumber',
-                'places.websiteUri',
-                'places.types',
-              ].join(','),
-            },
-          },
-        );
-        placesData = textResp.data.places || [];
+        placesData = await this.placesApi.searchText({
+          textQuery: query,
+          maxResultCount: 20,
+          latitude: dto.latitude,
+          longitude: dto.longitude,
+          radius: dto.radius || this.SEARCH_RADIUS,
+        });
       }
 
       const filteredResults = placesData.filter(
@@ -511,13 +385,14 @@ Answer ONLY with one word from the set above, no punctuation, no explanation.`;
       const places = await Promise.all(
         filteredResults.map(async (place: any) => {
           // For v1 we can use fields already returned; extra details optional
+          // TODO: Refactor getPlaceDetails to use abstraction if strictly needed, but it's a simple GET
           const details = dto.fetchDetails
             ? await this.getPlaceDetails(place.id)
             : null;
 
           // Separar los datos de la API de Google de nuestros datos personalizados
           const googlePlaceData = {
-            name: place.displayName?.text || place.displayName || '',
+            name: place.name || place.displayName?.text || '',
             placeId: place.id,
             types: place.types || [],
             location: {
@@ -550,15 +425,7 @@ Answer ONLY with one word from the set above, no punctuation, no explanation.`;
         nextPageToken: null,
       };
     } catch (error: any) {
-      if (axios.isAxiosError(error)) {
-        this.logger.error(
-          `Error searching nearby places: ${error.response?.status} ${JSON.stringify(
-            error.response?.data,
-          )}`,
-        );
-      } else {
-        this.logger.error('Error searching nearby places:', error);
-      }
+      this.logger.error('Error searching nearby places:', error);
       throw error;
     }
   }
