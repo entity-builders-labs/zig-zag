@@ -34,7 +34,10 @@ export class HybridSearchService {
 
     // Base query por proximidad
     // Use default radius from env if not provided
-    const effectiveRadius = typeof radius === 'number' ? radius : Number(process.env.BACKEND_DEFAULT_RADIUS_METERS ?? 3000);
+    const effectiveRadius =
+      typeof radius === 'number'
+        ? radius
+        : Number(process.env.BACKEND_DEFAULT_RADIUS_METERS ?? 3000);
 
     let dbActivities = await this.activitiesService.findAll(
       latitude.toString(),
@@ -61,11 +64,13 @@ export class HybridSearchService {
     );
 
     if (shouldCrawl) {
-      this.triggerBackgroundCrawling(latitude, longitude, effectiveRadius).catch(
-        (error) => {
-          this.logger.error('Background crawling failed:', error);
-        },
-      );
+      this.triggerBackgroundCrawling(
+        latitude,
+        longitude,
+        effectiveRadius,
+      ).catch((error) => {
+        this.logger.error('Background crawling failed:', error);
+      });
     }
 
     return {

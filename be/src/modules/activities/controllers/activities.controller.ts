@@ -17,10 +17,7 @@ import { CreateActivityDto } from '../dto/create-activity.dto';
 import { UpdateActivityDto } from '../dto/update-activity.dto';
 import { FindNearbyDto } from '../dto/find-nearby.dto';
 import { ActivityRelationshipService } from '../services/activity-relationship.service';
-import { ToursService } from '../../tours/services/tours.service';
 import { HybridSearchService } from '../services/hybrid-search.service';
-import { AiProspectorService } from '../services/ai-prospector.service';
-import { AiDiscoverDto } from '../dto/ai-discover.dto';
 import { HybridSearchDto } from '../dto/hybrid-search.dto';
 
 @ApiTags('activities')
@@ -31,9 +28,7 @@ export class ActivitiesController {
   constructor(
     private readonly activitiesService: ActivitiesService,
     private readonly activityRelationshipService: ActivityRelationshipService,
-    private readonly toursService: ToursService,
     private readonly hybridSearchService: HybridSearchService,
-    private readonly aiProspector: AiProspectorService,
   ) {}
 
   @Post()
@@ -157,33 +152,6 @@ export class ActivitiesController {
     return this.activitiesService.batchGenerateMetadata(data.activityIds);
   }
 
-  @Post(':id/generate-tour-suggestion')
-  @ApiOperation({
-    summary: 'Generate tour suggestion starting from this activity',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Tour suggestion has been generated',
-  })
-  async generateTourSuggestion(
-    @Param('id') id: string,
-    @Query('numberOfActivities') numberOfActivities: number = 5,
-  ) {
-    return this.toursService.generateTourSuggestion(id, numberOfActivities);
-  }
-
-  @Get(':id/next-activity')
-  @ApiOperation({ summary: 'Get next suggested activity' })
-  @ApiResponse({
-    status: 200,
-    description: 'Returns the next suggested activity with reasoning',
-  })
-  async getNextActivity(@Param('id') id: string) {
-    const options = {};
-
-    return this.toursService.getNextActivity(id, options);
-  }
-
   @Get(':id/similar')
   @ApiOperation({ summary: 'Get similar activities by vector similarity' })
   @ApiResponse({ status: 200, description: 'Returns similar activities' })
@@ -217,17 +185,5 @@ export class ActivitiesController {
       radius,
       limit,
     });
-  }
-
-  @Post('discover-ai')
-  @ApiOperation({
-    summary: 'Discover activities using LLM then validate via Places',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Returns created/duplicate/rejected counts',
-  })
-  async discoverWithAI(@Body(ValidationPipe) dto: AiDiscoverDto) {
-    return this.aiProspector.discover(dto);
   }
 }

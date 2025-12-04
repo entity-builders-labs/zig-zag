@@ -5,9 +5,7 @@ import { ActivityMetadataService } from './services/activity-metadata.service';
 import { PrismaService } from '../../core/database/prisma.service';
 import { AiModule } from '../../shared/ai/ai.module';
 import { ActivityRelationshipService } from './services/activity-relationship.service';
-import { ToursService } from '../tours/services/tours.service';
 import { HybridSearchService } from './services/hybrid-search.service';
-import { AiProspectorService } from './services/ai-prospector.service';
 import { CrawlersModule } from '../crawlers/crawlers.module';
 
 @Module({
@@ -18,9 +16,7 @@ import { CrawlersModule } from '../crawlers/crawlers.module';
     ActivityMetadataService,
     PrismaService,
     ActivityRelationshipService,
-    ToursService,
     HybridSearchService,
-    AiProspectorService,
   ],
   exports: [ActivitiesService, ActivityMetadataService],
 })

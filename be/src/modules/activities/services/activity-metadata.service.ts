@@ -3,9 +3,6 @@ import { LangChainService } from '../../../shared/ai/langchain.service';
 import { ImageGenerationService } from '../../../shared/ai/image-generation.service';
 import { ActivityMetadataDto } from '../dto/activity-metadata.dto';
 import { PromptTemplate } from '@langchain/core/prompts';
-import { CreateActivityDto } from '../dto/create-activity.dto';
-// @ts-nocheck
-// import { Activity } from '@prisma/client';
 
 @Injectable()
 export class ActivityMetadataService {
