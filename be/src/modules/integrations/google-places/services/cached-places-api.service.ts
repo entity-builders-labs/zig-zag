@@ -58,7 +58,9 @@ export class CachedPlacesApiService implements IPlacesApiService {
     const cachePath = this.getCachePath(key);
 
     if (fs.existsSync(cachePath)) {
-      this.logger.debug(`Cache hit for ${method} (${key})`);
+      this.logger.log(
+        `[CachedPlacesApiService] Cache hit for ${method} (${key})`,
+      );
       const content = fs.readFileSync(cachePath, 'utf-8');
       return JSON.parse(content);
     }
@@ -69,14 +71,18 @@ export class CachedPlacesApiService implements IPlacesApiService {
       );
     }
 
-    this.logger.log(`Cache miss for ${method} (${key}). Calling real API...`);
+    this.logger.log(
+      `[CachedPlacesApiService] Cache miss for ${method} (${key}). Calling real API...`,
+    );
     const result = await executor();
 
     if (this.mode === 'write') {
       // Save to cache
       try {
         fs.writeFileSync(cachePath, JSON.stringify(result, null, 2));
-        this.logger.debug(`Cached response for ${method} (${key})`);
+        this.logger.log(
+          `[CachedPlacesApiService] Cached response for ${method} (${key})`,
+        );
       } catch (err) {
         this.logger.error(`Failed to write cache: ${err.message}`);
       }
