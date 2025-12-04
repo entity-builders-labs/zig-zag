@@ -29,11 +29,6 @@ export class LangChainService {
     this.initializeModels();
   }
 
-  // Helper to detect if we're running in production (Fly.io)
-  private isProduction(): boolean {
-    return process.env.NODE_ENV === 'production';
-  }
-
   // Helper to get Ollama request headers with authentication if configured
   private getOllamaHeaders(): Record<string, string> {
     const headers: Record<string, string> = {

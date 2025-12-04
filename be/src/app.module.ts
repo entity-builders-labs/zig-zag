@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
-import { AppService } from './app.service';
 
 // Core modules
 import { PrismaModule } from './core/database/database.module';
@@ -41,6 +40,6 @@ import { ScriptsModule } from './commands/scripts/commands/scripts.module';
     // HealthModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [],
 })
 export class AppModule {}
