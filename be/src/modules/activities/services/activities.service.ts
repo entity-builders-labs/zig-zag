@@ -12,10 +12,26 @@ import { Prisma, Activity } from '@prisma/client';
 import { ActivityMetadataDto } from '../dto/activity-metadata.dto';
 import { ActivityMetadataService } from './activity-metadata.service';
 import { VectorStoreService } from '../../../shared/ai/services/vector-store.service';
+import {
+  ActivityWithDistance,
+  CreateManyResult,
+} from '../interfaces/activity.interface';
 
 @Injectable()
 export class ActivitiesService {
   private readonly logger = new Logger(ActivitiesService.name);
+
+  // Constants for weighted rating calculation
+  private readonly PRIOR_MEAN = 4.0; // Prior average rating C
+  private readonly PRIOR_WEIGHT = 50; // Minimum ratings to offset small v
+
+  // Constants for distance calculations
+  private readonly EARTH_RADIUS_KM = 6371; // Earth's radius in kilometers
+  private readonly DEGREES_PER_KM = 111.32; // Approximate degrees per kilometer
+  private readonly SCORE_COMPARISON_EPSILON = 1e-9; // Epsilon for floating point comparison
+
+  // Constants for radius conversion
+  private readonly METERS_TO_KM_THRESHOLD = 100; // Threshold to determine if radius is in meters
 
   constructor(
     private readonly prisma: PrismaService,
@@ -23,17 +39,19 @@ export class ActivitiesService {
     private readonly vectorStore: VectorStoreService,
   ) {}
 
-  async create(createActivityDto: CreateActivityDto): Promise<any> {
+  /**
+   * Create a new activity
+   * @param createActivityDto Activity data to create
+   * @returns Created activity
+   */
+  async create(createActivityDto: CreateActivityDto): Promise<Activity> {
     // Fast-path: avoid duplicate error by checking the composite unique first
-    if (
-      (createActivityDto as any).sourceId &&
-      (createActivityDto as any).externalId
-    ) {
+    if (createActivityDto.sourceId && createActivityDto.externalId) {
       const existing = await this.prisma.activity.findUnique({
         where: {
           sourceId_externalId: {
-            sourceId: (createActivityDto as any).sourceId,
-            externalId: (createActivityDto as any).externalId,
+            sourceId: createActivityDto.sourceId,
+            externalId: createActivityDto.externalId,
           },
         },
       });
@@ -46,7 +64,7 @@ export class ActivitiesService {
       );
 
       // Prepare data - only include fields that exist
-      const activityData: any = {
+      const activityData: Prisma.ActivityCreateInput = {
         name: createActivityDto.name,
         description: createActivityDto.description,
         type: createActivityDto.type,
@@ -59,9 +77,17 @@ export class ActivitiesService {
         address: createActivityDto.address,
         location: createActivityDto.location,
         photos: createActivityDto.photos,
-        sourceId: createActivityDto.sourceId,
+        source: {
+          connect: {
+            id: createActivityDto.sourceId,
+          },
+        },
         externalId: createActivityDto.externalId,
-        knownActivityTypeName: createActivityDto.knownActivityTypeName,
+        KnownActivityType: {
+          connect: {
+            name: createActivityDto.knownActivityTypeName,
+          },
+        },
         metadata: createActivityDto.metadata,
         // Google Places fields
         rating: createActivityDto.rating,
@@ -73,10 +99,12 @@ export class ActivitiesService {
         priceLevel: createActivityDto.priceLevel,
       };
 
-      // Remove undefined values
-      Object.keys(activityData).forEach(
-        (key) => activityData[key] === undefined && delete activityData[key],
-      );
+      // Remove undefined values to avoid Prisma errors
+      Object.keys(activityData).forEach((key) => {
+        if (activityData[key as keyof typeof activityData] === undefined) {
+          delete activityData[key as keyof typeof activityData];
+        }
+      });
 
       // Optionally generate metadata if not provided
       if (!activityData.metadata && createActivityDto.name) {
@@ -89,7 +117,7 @@ export class ActivitiesService {
           }
         } catch (error) {
           this.logger.warn(
-            `Failed to generate metadata, continuing without it: ${error.message}`,
+            `Failed to generate metadata, continuing without it: ${error instanceof Error ? error.message : 'Unknown error'}`,
           );
         }
       }
@@ -109,7 +137,7 @@ export class ActivitiesService {
           }
         } catch (error) {
           this.logger.warn(
-            `Failed to generate activity image: ${error.message}`,
+            `Failed to generate activity image: ${error instanceof Error ? error.message : 'Unknown error'}`,
           );
         }
       }
@@ -132,6 +160,12 @@ export class ActivitiesService {
     }
   }
 
+  /**
+   * Generate metadata for an activity
+   * @param id Activity ID
+   * @returns Generated metadata
+   * @throws NotFoundException if activity not found
+   */
   async generateMetadata(id: string): Promise<ActivityMetadataDto> {
     const activity = await this.findOne(id);
     return this.metadataService.generateMetadata(activity);
@@ -142,12 +176,9 @@ export class ActivitiesService {
    * @param createActivityDto Array of activities to create
    * @returns Object with counts of created, duplicate, and error activities
    */
-  async createMany(createActivityDto: CreateActivityDto[]): Promise<{
-    created: number;
-    duplicates: number;
-    errors: number;
-    activities: any[];
-  }> {
+  async createMany(
+    createActivityDto: CreateActivityDto[],
+  ): Promise<CreateManyResult> {
     this.logger.debug(
       `Attempting to create ${createActivityDto.length} activities`,
     );
@@ -164,32 +195,52 @@ export class ActivitiesService {
 
     try {
       // Create activities one by one to handle duplicates properly
-      const createdActivities: any[] = [];
+      const createdActivities: Activity[] = [];
       let duplicates = 0;
       let errors = 0;
 
       for (const dto of createActivityDto) {
         try {
-          const activity = await this.prisma.activity.create({
-            data: {
-              ...dto,
-              location: {
-                createOrConnect: {
-                  where: {
-                    id: dto.location,
-                  },
-                  create: dto.location,
+          const activityData: Prisma.ActivityCreateInput = {
+            ...dto,
+          };
+
+          if (dto.location) {
+            activityData.location = {
+              createOrConnect: {
+                where: {
+                  id:
+                    typeof dto.location === 'string'
+                      ? dto.location
+                      : (dto.location as any).id,
                 },
+                create:
+                  typeof dto.location === 'object' ? dto.location : undefined,
               },
-            },
+            };
+          }
+
+          const activity = await this.prisma.activity.create({
+            data: activityData,
           });
           createdActivities.push(activity);
-        } catch (error) {
-          if (error.code === 'P2002') {
+        } catch (error: unknown) {
+          if (
+            error &&
+            typeof error === 'object' &&
+            'code' in error &&
+            error.code === 'P2002'
+          ) {
             // Unique constraint violation
             duplicates++;
+            this.logger.debug(
+              `Duplicate activity skipped: ${JSON.stringify(dto)}`,
+            );
           } else {
             errors++;
+            this.logger.warn(
+              `Error creating activity: ${error instanceof Error ? error.message : 'Unknown error'}`,
+            );
           }
         }
       }
@@ -215,17 +266,27 @@ export class ActivitiesService {
     }
   }
 
+  /**
+   * Find all activities near a location with optional filtering
+   * @param latitude Latitude coordinate (string or number)
+   * @param longitude Longitude coordinate (string or number)
+   * @param radius Search radius in meters
+   * @param limit Maximum number of results
+   * @param types Optional array of activity types to filter by
+   * @returns Array of activities with distance and weighted score
+   */
   async findAll(
-    latitude = '-34.5748341',
-    longitude = '-58.4084219',
-    radius = 50000,
-    limit = 100,
+    latitude: string | number = '-34.5748341',
+    longitude: string | number = '-58.4084219',
+    radius: number = 50000,
+    limit: number = 100,
     types?: string[],
-  ): Promise<any[]> {
+  ): Promise<ActivityWithDistance[]> {
     try {
       this.logger.debug(
-        `Retrieving activities near (${latitude}, ${longitude}) within ${radius}km, limit: ${limit}`,
+        `Retrieving activities near (${latitude}, ${longitude}) within ${radius}m, limit: ${limit}`,
       );
+
       // Normalize coordinates by replacing commas with decimal points
       const normalizedLat = String(latitude).replace(',', '.');
       const normalizedLong = String(longitude).replace(',', '.');
@@ -242,11 +303,11 @@ export class ActivitiesService {
 
       // Interpret incoming radius in meters; convert to km and degrees
       const radiusKm = Number(radius) / 1000;
-      const radiusInDegrees = radiusKm / 111.32;
+      const radiusInDegrees = radiusKm / this.DEGREES_PER_KM;
 
-      // Build where with optional type filtering
+      // Build where clause with optional type filtering
       const lowerTypes = (types || []).map((t) => String(t).toLowerCase());
-      const where: any = {
+      const whereClause: Prisma.ActivityWhereInput = {
         AND: [
           { latitude: { gte: lat - radiusInDegrees } },
           { latitude: { lte: lat + radiusInDegrees } },
@@ -254,20 +315,22 @@ export class ActivitiesService {
           { longitude: { lte: long + radiusInDegrees } },
         ],
       };
+
       if (lowerTypes.length > 0) {
-        where.AND.push({ knownActivityTypeName: { in: lowerTypes } });
+        if (Array.isArray(whereClause.AND)) {
+          whereClause.AND.push({ knownActivityTypeName: { in: lowerTypes } });
+        } else {
+          whereClause.AND = [{ knownActivityTypeName: { in: lowerTypes } }];
+        }
       }
 
       const activities = await this.prisma.activity.findMany({
-        where,
+        where: whereClause,
         take: Number(limit),
       });
 
       // Calculate distances, compute weighted Google rating, and sort
-      const PRIOR_MEAN = 4.0; // prior average rating C
-      const PRIOR_WEIGHT = 50; // m: minimum ratings to offset small v
-
-      const activitiesWithDistance = activities
+      const activitiesWithDistance: ActivityWithDistance[] = activities
         .map((activity) => {
           const distance = this.calculateDistance(
             lat,
@@ -277,17 +340,20 @@ export class ActivitiesService {
           );
           const v = Number(activity.ratingCount ?? 0);
           const R = Number(activity.rating ?? 0);
-          const m = PRIOR_WEIGHT;
-          const C = PRIOR_MEAN;
           const weightedScore =
-            v + m > 0 ? (v / (v + m)) * R + (m / (v + m)) * C : 0;
+            v + this.PRIOR_WEIGHT > 0
+              ? (v / (v + this.PRIOR_WEIGHT)) * R +
+                (this.PRIOR_WEIGHT / (v + this.PRIOR_WEIGHT)) * this.PRIOR_MEAN
+              : 0;
           return { ...activity, distance, weightedScore };
         })
         .filter((activity) => activity.distance <= radiusKm)
         .sort((a, b) => {
           // Primary: weighted score desc; Secondary: distance asc
           const scoreDiff = (b.weightedScore ?? 0) - (a.weightedScore ?? 0);
-          if (Math.abs(scoreDiff) > 1e-9) return scoreDiff;
+          if (Math.abs(scoreDiff) > this.SCORE_COMPARISON_EPSILON) {
+            return scoreDiff;
+          }
           return a.distance - b.distance;
         });
 
@@ -295,80 +361,61 @@ export class ActivitiesService {
         `Retrieved ${activitiesWithDistance.length} activities`,
       );
 
-      if (!activitiesWithDistance) {
-        this.logger.debug('No activities found');
-
-        return [];
-      }
-
       return activitiesWithDistance;
     } catch (error) {
-      this.logger.error('Error retrieving activities', error.stack);
-      throw error;
-    }
-  }
-
-  async findOne(id: string): Promise<Activity> {
-    try {
-      this.logger.debug(`Retrieving activity with id: ${id}`);
-
-      const activity = await this.prisma.activity.findUnique({
-        where: { id },
-      });
-
-      /**
-       *  
-       *  await this.aiService.initializeVectorStore();
-       *  const activities = await this.prisma.activity.findMany({
-       *    where: {
-       *      id: {
-       *        not: id,
-       *      },
-       *    },
-       *  });
-       *  TODO: use this AI in another service/place
-       *  for (const activity of activities) {
-       *    await this.aiService.addActivityToVectorStore(activity);
-       *  }
-      const activityEmbeddings = await this.aiService.findSimilarActivities(
-        'places to eat argentinian food',
-      );
-      const activityRelated = await this.prisma.activity.findUnique({
-        where: {
-          id: Number(
-            activityEmbeddings[activityEmbeddings.length - 1].metadata
-              .activityId,
-          ),
-        },
-      });
-      
-      return activityRelated;
- */
-
-      if (!activity) {
-        this.logger.debug(`Activity with id ${id} not found`);
-        throw new NotFoundException(`Activity with ID ${id} not found`);
-      }
-
-      return activity;
-    } catch (error) {
-      if (error instanceof NotFoundException) {
+      if (error instanceof BadRequestException) {
         throw error;
       }
-      this.logger.error(`Failed to retrieve activity: ${error.message}`);
-      throw error;
+      this.logger.error(
+        'Error retrieving activities',
+        error instanceof Error ? error.stack : error,
+      );
+      throw new BadRequestException(
+        `Failed to retrieve activities: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
     }
   }
 
-  async update(id: string, updateActivityDto: UpdateActivityDto): Promise<any> {
+  /**
+   * Find a single activity by ID
+   * @param id Activity ID
+   * @returns Activity if found
+   * @throws NotFoundException if activity not found
+   */
+  async findOne(id: string): Promise<Activity> {
+    this.logger.debug(`Retrieving activity with id: ${id}`);
+
+    const activity = await this.prisma.activity.findUnique({
+      where: { id },
+    });
+
+    if (!activity) {
+      this.logger.debug(`Activity with id ${id} not found`);
+      throw new NotFoundException(`Activity with ID ${id} not found`);
+    }
+
+    return activity;
+  }
+
+  /**
+   * Update an existing activity
+   * @param id Activity ID
+   * @param updateActivityDto Activity data to update
+   * @returns Updated activity
+   * @throws NotFoundException if activity not found
+   */
+  async update(
+    id: string,
+    updateActivityDto: UpdateActivityDto,
+  ): Promise<Activity> {
+    this.logger.debug(
+      `Updating activity ${id} with: ${JSON.stringify(updateActivityDto)}`,
+    );
+
+    // Check if activity exists (throws if not found)
+    await this.findOne(id);
+
     try {
-      this.logger.debug(
-        `Updating activity ${id} with: ${JSON.stringify(updateActivityDto)}`,
-      );
-
-      // Check if activity exists (throws if not found)
-      await this.findOne(id);
-
       const activity = await this.prisma.activity.update({
         where: { id },
         data: updateActivityDto,
@@ -377,10 +424,9 @@ export class ActivitiesService {
       this.logger.debug(`Activity ${id} updated successfully`);
       return activity;
     } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
-      this.logger.error(`Failed to update activity: ${error.message}`);
+      this.logger.error(
+        `Failed to update activity: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         throw new BadRequestException(`Database error: ${error.message}`);
       }
@@ -388,30 +434,32 @@ export class ActivitiesService {
     }
   }
 
-  async remove(id: string): Promise<any> {
-    try {
-      this.logger.debug(`Removing activity with id: ${id}`);
+  /**
+   * Delete an activity
+   * @param id Activity ID
+   * @returns Deleted activity
+   * @throws NotFoundException if activity not found
+   */
+  async remove(id: string): Promise<Activity> {
+    this.logger.debug(`Removing activity with id: ${id}`);
 
-      // Check if activity exists
-      await this.findOne(id);
+    // Check if activity exists (throws if not found)
+    await this.findOne(id);
 
-      const activity = await this.prisma.activity.delete({
-        where: { id },
-      });
+    const activity = await this.prisma.activity.delete({
+      where: { id },
+    });
 
-      this.logger.debug(`Activity ${id} removed successfully`);
-      return activity;
-    } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
-      this.logger.error(`Failed to remove activity: ${error.message}`);
-      throw error;
-    }
+    this.logger.debug(`Activity ${id} removed successfully`);
+    return activity;
   }
 
   /**
    * Find similar activities using vector similarity in Chroma
+   * @param id Activity ID to find similar activities for
+   * @param limit Maximum number of similar activities to return
+   * @returns Array of similar activities
+   * @throws NotFoundException if activity not found
    */
   async findSimilar(id: string, limit: number = 10): Promise<Activity[]> {
     // Get the source activity
@@ -425,20 +473,24 @@ export class ActivitiesService {
     }`;
 
     // Query vector store
-    const results = (await this.vectorStore.findSimilarActivities(
+    const results = await this.vectorStore.findSimilarActivities(
       baseText,
       limit + 1,
-    )) as any[];
+    );
 
     if (!results || results.length === 0) return [];
 
     // Extract candidate IDs from metadata or document id
     const candidateIds: string[] = [];
     for (const doc of results) {
-      const meta = (doc.metadata ?? {}) as any;
-      const candidateId = meta.activityId || meta.id || (doc as any).id;
-      if (candidateId && candidateId !== id)
+      const meta = (doc.metadata ?? {}) as Record<string, unknown>;
+      const candidateId =
+        (meta.activityId as string) ||
+        (meta.id as string) ||
+        ((doc as { id?: string }).id as string);
+      if (candidateId && candidateId !== id) {
         candidateIds.push(String(candidateId));
+      }
       if (candidateIds.length >= limit) break;
     }
 
@@ -455,18 +507,27 @@ export class ActivitiesService {
     );
   }
 
-  async findNearbyActivities(findNearbyDto: FindNearbyDto): Promise<any[]> {
+  /**
+   * Find activities near a location
+   * @param findNearbyDto Search parameters
+   * @returns Array of activities with distance
+   */
+  async findNearbyActivities(
+    findNearbyDto: FindNearbyDto,
+  ): Promise<ActivityWithDistance[]> {
+    const { latitude, longitude, radius, limit = 10 } = findNearbyDto;
+
+    this.logger.debug(
+      `Finding nearby activities at (${latitude}, ${longitude}) within ${radius}km, limit: ${limit}`,
+    );
+
     try {
-      const { latitude, longitude, radius, limit = 10 } = findNearbyDto;
-
-      this.logger.debug(
-        `Finding nearby activities at (${latitude}, ${longitude}) within ${radius}km, limit: ${limit}`,
-      );
-
-      // Interpret incoming radius in meters in this DTO as well if needed
+      // Interpret incoming radius - if > 100, assume it's in meters, otherwise km
       const radiusKm =
-        Number(radius) > 100 ? Number(radius) / 1000 : Number(radius);
-      const radiusInDegrees = radiusKm / 111.32;
+        Number(radius) > this.METERS_TO_KM_THRESHOLD
+          ? Number(radius) / 1000
+          : Number(radius);
+      const radiusInDegrees = radiusKm / this.DEGREES_PER_KM;
 
       // Calculate bounding box
       const minLat = Number(latitude) - radiusInDegrees;
@@ -491,7 +552,7 @@ export class ActivitiesService {
       });
 
       // Calculate exact distances and filter
-      const activitiesWithDistance = activities
+      const activitiesWithDistance: ActivityWithDistance[] = activities
         .map((activity) => {
           const distance = this.calculateDistance(
             Number(latitude),
@@ -509,20 +570,29 @@ export class ActivitiesService {
       );
       return activitiesWithDistance;
     } catch (error) {
-      this.logger.error(`Failed to find nearby activities: ${error.message}`);
+      this.logger.error(
+        `Failed to find nearby activities: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
       throw new BadRequestException(
-        `Failed to find nearby activities: ${error.message}`,
+        `Failed to find nearby activities: ${error instanceof Error ? error.message : 'Unknown error'}`,
       );
     }
   }
 
+  /**
+   * Calculate distance between two coordinates using Haversine formula
+   * @param lat1 Latitude of first point
+   * @param lon1 Longitude of first point
+   * @param lat2 Latitude of second point
+   * @param lon2 Longitude of second point
+   * @returns Distance in kilometers
+   */
   private calculateDistance(
     lat1: number,
     lon1: number,
     lat2: number,
     lon2: number,
   ): number {
-    const R = 6371; // Earth's radius in kilometers
     const dLat = this.toRad(lat2 - lat1);
     const dLon = this.toRad(lon2 - lon1);
 
@@ -534,9 +604,14 @@ export class ActivitiesService {
         Math.sin(dLon / 2);
 
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c;
+    return this.EARTH_RADIUS_KM * c;
   }
 
+  /**
+   * Convert degrees to radians
+   * @param degrees Angle in degrees
+   * @returns Angle in radians
+   */
   private toRad(degrees: number): number {
     return degrees * (Math.PI / 180);
   }
@@ -620,23 +695,25 @@ export class ActivitiesService {
     try {
       const activity = await this.findOne(id);
       // If activity has metadata field, parse and return it
-      if (activity['metadata']) {
+      if (activity.metadata) {
         try {
           // Check if metadata is already an object or if it's a string that needs parsing
           if (
-            typeof activity['metadata'] === 'object' &&
-            activity['metadata'] !== null
+            typeof activity.metadata === 'object' &&
+            activity.metadata !== null
           ) {
-            return activity['metadata'] as ActivityMetadataDto;
-          } else if (typeof activity['metadata'] === 'string') {
-            return JSON.parse(activity['metadata']);
+            return activity.metadata as ActivityMetadataDto;
+          } else if (typeof activity.metadata === 'string') {
+            return JSON.parse(activity.metadata) as ActivityMetadataDto;
           } else {
             // Handle other types by attempting to stringify then parse
-            return JSON.parse(JSON.stringify(activity['metadata']));
+            return JSON.parse(
+              JSON.stringify(activity.metadata),
+            ) as ActivityMetadataDto;
           }
         } catch (error) {
           this.logger.error(
-            `Failed to parse existing metadata: ${error.message}`,
+            `Failed to parse existing metadata: ${error instanceof Error ? error.message : 'Unknown error'}`,
           );
         }
       }
@@ -644,7 +721,9 @@ export class ActivitiesService {
       // Generate new metadata if none exists or parsing failed
       return await this.metadataService.generateMetadata(activity);
     } catch (error) {
-      this.logger.error(`Failed to get activity metadata: ${error.message}`);
+      this.logger.error(
+        `Failed to get activity metadata: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
       throw error;
     }
   }
