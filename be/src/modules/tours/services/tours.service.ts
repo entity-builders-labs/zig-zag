@@ -5,7 +5,7 @@ import {
   NotFoundException,
   ServiceUnavailableException,
 } from '@nestjs/common';
-import { PrismaService } from '../../../core/database/prisma.service';
+import { PrismaService } from '@core/database/prisma.service';
 import { CreateTourDto } from '../dto/create-tour.dto';
 import { UpdateTourDto } from '../dto/update-tour.dto';
 import {
@@ -14,12 +14,10 @@ import {
   GroupType,
   TravelPace,
 } from '../dto/create-tour-from-prompt.dto';
-// import { Activity } from '@prisma/client';
-import { ActivitiesService } from '../../activities/services/activities.service';
-import { LangChainService } from '../../../shared/ai/langchain.service';
-import { VectorStoreService } from '../../../shared/ai/services/vector-store.service';
-import { ImageGenerationService } from '../../../shared/ai/image-generation.service';
-import { isValidId } from '../../../shared/utils/id-validator';
+import { LangChainService } from '@shared/ai/langchain.service';
+import { VectorStoreService } from '@shared/ai/services/vector-store.service';
+import { ImageGenerationService } from '@shared/ai/image-generation.service';
+import { isValidId } from '@shared/utils/id-validator';
 import {
   ChatPromptTemplate,
   HumanMessagePromptTemplate,
@@ -27,7 +25,6 @@ import {
 } from '@langchain/core/prompts';
 import { RunnableSequence } from '@langchain/core/runnables';
 import { JsonOutputFunctionsParser } from 'langchain/output_parsers';
-import { Activity } from '@prisma/client';
 import { GoogleMapsService } from '../../../modules/crawlers/google-maps/google-maps.service';
 import {
   CREATE_TOUR_JSON_SYSTEM_PROMPT,
@@ -36,6 +33,7 @@ import {
 } from '../prompts/create-tour.prompt';
 import { generateCoverImagePrompt } from '../prompts/media-generation.prompt';
 import { generateNearbyTourPrompt } from '../prompts/nearby-tour.prompt';
+import { ActivitiesService } from '@activities/services/activities.service';
 
 export interface GenerateTourOptions {
   latitude?: number;
