@@ -24,7 +24,7 @@
       "@shared/*": ["src/shared/*"],
       "@activities/*": ["src/modules/activities/*"],
       "@tours/*": ["src/modules/tours/*"],
-      "@crawlers/*": ["src/modules/crawlers/*"]
+      "@integrations/*": ["src/modules/integrations/*"]
     }
   }
 }

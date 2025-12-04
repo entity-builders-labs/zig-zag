@@ -1,15 +1,15 @@
-export interface GoogleMapsLocation {
+export interface GooglePlacesLocation {
   latitude: number;
   longitude: number;
   address: string;
   placeId?: string;
 }
 
-export interface GoogleMapsActivity {
+export interface GooglePlacesActivity {
   placeId: string;
   name: string;
   description?: string;
-  location: GoogleMapsLocation;
+  location: GooglePlacesLocation;
   rating?: number;
   userRatingsTotal?: number;
   priceLevel?: number;
@@ -31,8 +31,8 @@ export interface TimeOfDay {
   time: string;
 }
 
-export interface GoogleMapsApiResponse {
-  results: GoogleMapsActivity[];
+export interface GooglePlacesApiResponse {
+  results: GooglePlacesActivity[];
   status: string;
   nextPageToken?: string;
 }

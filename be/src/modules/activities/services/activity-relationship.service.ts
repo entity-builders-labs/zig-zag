@@ -1,8 +1,8 @@
-// @ts-nocheck
 import { Injectable } from '@nestjs/common';
 // import { Activity, RelationType } from '@prisma/client';
-import { PrismaService } from '../../../core/database/prisma.service';
-import { LangChainService } from '../../../shared/ai/langchain.service';
+import { PrismaService } from '@core/database/prisma.service';
+import { LangChainService } from '@shared/ai/langchain.service';
+import { Activity, RelationType } from '@prisma/client';
 
 /**
  * Interface for geographic coordinates

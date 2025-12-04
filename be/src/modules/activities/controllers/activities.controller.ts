@@ -16,7 +16,6 @@ import { ActivitiesService } from '../services/activities.service';
 import { CreateActivityDto } from '../dto/create-activity.dto';
 import { UpdateActivityDto } from '../dto/update-activity.dto';
 import { FindNearbyDto } from '../dto/find-nearby.dto';
-import { ActivityRelationshipService } from '../services/activity-relationship.service';
 import { HybridSearchService } from '../services/hybrid-search.service';
 import { HybridSearchDto } from '../dto/hybrid-search.dto';
 
@@ -27,7 +26,6 @@ export class ActivitiesController {
 
   constructor(
     private readonly activitiesService: ActivitiesService,
-    private readonly activityRelationshipService: ActivityRelationshipService,
     private readonly hybridSearchService: HybridSearchService,
   ) {}
 
@@ -96,62 +94,6 @@ export class ActivitiesController {
     }
   }
 
-  @Get(':id/metadata')
-  @ApiOperation({ summary: 'Get metadata for an activity' })
-  @ApiResponse({
-    status: 200,
-    description: 'Returns the metadata for the activity',
-  })
-  @ApiResponse({ status: 404, description: 'Activity not found' })
-  async getActivityMetadata(@Param('id') id: string) {
-    return this.activitiesService.getActivityMetadata(id);
-  }
-
-  @Post(':id/refresh-metadata')
-  @ApiOperation({ summary: 'Refresh metadata for an activity' })
-  @ApiResponse({
-    status: 200,
-    description: 'Metadata has been refreshed',
-  })
-  async refreshMetadata(@Param('id') id: string) {
-    return this.activitiesService.refreshMetadata(id);
-  }
-
-  @Post(':id/generate-relationships')
-  @ApiOperation({ summary: 'Generate relationships for an activity' })
-  @ApiResponse({
-    status: 200,
-    description: 'The relationships have been successfully generated',
-  })
-  async generateRelationships(@Param('id') id: string) {
-    return this.activityRelationshipService.analyzeRelationship(id);
-  }
-
-  @Post(':id/generate-metadata')
-  @ApiOperation({ summary: 'Generate metadata for an activity' })
-  @ApiResponse({
-    status: 200,
-    description: 'Metadata has been generated',
-  })
-  async generateMetadata(@Param('id') id: string) {
-    return this.activitiesService.generateMetadata(id);
-  }
-
-  @Post('batch-metadata')
-  @ApiOperation({ summary: 'Batch generate metadata for multiple activities' })
-  @ApiResponse({
-    status: 200,
-    description: 'Metadata has been generated for the provided activities',
-  })
-  async batchGenerateMetadata(@Body() data: { activityIds: string[] }) {
-    if (!data.activityIds || !Array.isArray(data.activityIds)) {
-      throw new BadRequestException(
-        'activityIds must be an array of activity IDs',
-      );
-    }
-    return this.activitiesService.batchGenerateMetadata(data.activityIds);
-  }
-
   @Get(':id/similar')
   @ApiOperation({ summary: 'Get similar activities by vector similarity' })
   @ApiResponse({ status: 200, description: 'Returns similar activities' })
@@ -171,19 +113,5 @@ export class ActivitiesController {
   @ApiResponse({ status: 400, description: 'Invalid request parameters' })
   async searchWithCrawling(@Body(ValidationPipe) searchDto: HybridSearchDto) {
     return this.hybridSearchService.searchActivitiesWithCrawling(searchDto);
-  }
-
-  @Post('search-updated')
-  @ApiOperation({ summary: 'Get updated results after crawling' })
-  @ApiResponse({ status: 200, description: 'Returns updated activities' })
-  @ApiResponse({ status: 400, description: 'Invalid request parameters' })
-  async getUpdatedResults(@Body(ValidationPipe) searchDto: HybridSearchDto) {
-    const { latitude, longitude, radius, limit } = searchDto;
-    return this.hybridSearchService.getUpdatedResults({
-      latitude,
-      longitude,
-      radius,
-      limit,
-    });
   }
 }

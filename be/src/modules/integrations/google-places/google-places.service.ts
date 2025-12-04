@@ -1,8 +1,5 @@
-// @ts-nocheck
 import { Injectable, Logger, OnModuleInit, Inject } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Client } from '@googlemaps/google-maps-services-js';
-import axios from 'axios';
 import { CrawlLocationDto } from './dto/crawl-location.dto';
 import { GooglePlaceDetails } from '../../activities/interfaces/google-places.interface';
 import { ActivitiesService } from '../../activities/services/activities.service';
@@ -10,6 +7,21 @@ import { CreateActivityDto } from '../../activities/dto/create-activity.dto';
 import { LangChainService } from '../../../shared/ai/langchain.service';
 import { PrismaService } from '../../../core/database/prisma.service';
 import { IPlacesApiService } from './interfaces/places-api.interface';
+import { VectorStoreService } from 'src/shared/ai/services/vector-store.service';
+
+interface PlaceWithMetadata extends GooglePlaceDetails {
+  name: string;
+  types: string[];
+  address: string;
+  location: {
+    latitude: number;
+    longitude: number;
+  };
+  reviews?: number;
+  metadata: {
+    preferredTime: string;
+  };
+}
 
 const placesToSearch = [
   {
@@ -190,22 +202,19 @@ const ActivityTypes = {
 };
 
 @Injectable()
-export class GoogleMapsService implements OnModuleInit {
-  private readonly COORDINATES_THRESHOLD = 0.01; // Approximately 1km threshold
+export class GooglePlacesService implements OnModuleInit {
   private readonly SEARCH_RADIUS = 5000; // 5km radius for finding activities
 
-  private readonly logger = new Logger(GoogleMapsService.name);
-  private readonly client: Client;
+  private readonly logger = new Logger(GooglePlacesService.name);
 
   constructor(
     private readonly configService: ConfigService,
     private readonly prisma: PrismaService,
     private readonly activitiesService: ActivitiesService,
     private readonly aiService: LangChainService,
+    private readonly vectorStoreService: VectorStoreService,
     @Inject('PlacesApiService') private readonly placesApi: IPlacesApiService,
-  ) {
-    this.client = new Client({});
-  }
+  ) {}
 
   async onModuleInit() {
     const apiKey = this.configService.get<string>('GOOGLE_MAPS_API_KEY');
@@ -391,38 +400,36 @@ Answer ONLY with one word from the set above, no punctuation, no explanation.`;
             : null;
 
           // Separar los datos de la API de Google de nuestros datos personalizados
-          const googlePlaceData = {
-            name: place.name || place.displayName?.text || '',
+          const placeName = place.name || place.displayName?.text || '';
+          const googlePlaceData: PlaceWithMetadata = {
             placeId: place.id,
+            formattedAddress: place.formattedAddress || '',
+            name: placeName,
             types: place.types || [],
             location: {
-              latitude: place.location?.latitude,
-              longitude: place.location?.longitude,
+              latitude: place.location?.latitude || 0,
+              longitude: place.location?.longitude || 0,
             },
-            address: place.formattedAddress,
+            address: place.formattedAddress || '',
             rating: place.rating,
             reviews: place.userRatingCount,
             priceLevel: undefined,
             businessStatus: undefined,
             photos: [],
-            ...(details || {}),
+            phoneNumber: details?.phoneNumber,
+            website: details?.website,
+            metadata: {
+              preferredTime: searchConfig.preferredTime,
+            },
           };
 
-          // Agregar nuestros datos personalizados en un objeto separado
-          const customData = {
-            preferredTime: searchConfig.preferredTime,
-          };
-
-          return {
-            ...googlePlaceData,
-            metadata: customData,
-          };
+          return googlePlaceData;
         }),
       );
 
       return {
         places,
-        nextPageToken: null,
+        nextPageToken: null as any,
       };
     } catch (error: any) {
       this.logger.error('Error searching nearby places:', error);
@@ -443,7 +450,7 @@ Answer ONLY with one word from the set above, no punctuation, no explanation.`;
     }
   }
 
-  private async ensureGoogleMapsSource(): Promise<string> {
+  private async ensureGooglePlacesSource(): Promise<string> {
     try {
       const existingSource = await this.prisma.source.findUnique({
         where: { name: 'google-maps' },
@@ -456,7 +463,7 @@ Answer ONLY with one word from the set above, no punctuation, no explanation.`;
       const newSource = await this.prisma.source.create({
         data: {
           name: 'google-maps',
-          type: 'crawler',
+          type: 'api',
           baseUrl: 'https://maps.google.com',
           createdAt: new Date(),
           updatedAt: new Date(),
@@ -465,7 +472,7 @@ Answer ONLY with one word from the set above, no punctuation, no explanation.`;
 
       return newSource.id;
     } catch (error) {
-      this.logger.error('Error ensuring Google Maps source:', error);
+      this.logger.error('Error ensuring Google Places source:', error);
       throw error;
     }
   }
@@ -476,7 +483,7 @@ Answer ONLY with one word from the set above, no punctuation, no explanation.`;
   }> {
     try {
       await this.ensureKnownActivityTypes();
-      const sourceId = await this.ensureGoogleMapsSource();
+      const sourceId = await this.ensureGooglePlacesSource();
       const allPlaces: Array<CreateActivityDto> = [];
 
       for (const categoryGroup of placesToSearch.map((group) => group)) {
@@ -593,7 +600,7 @@ Answer ONLY with one word from the set above, no punctuation, no explanation.`;
 
       if (activities.length > 0) {
         try {
-          await this.aiService.saveActivityEmbedding(activities);
+          await this.vectorStoreService.saveActivityEmbedding(activities);
         } catch (error) {
           // Log error but don't fail the entire crawling process
           this.logger.error(

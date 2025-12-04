@@ -1,5 +1,4 @@
 import { ApiProperty } from '@nestjs/swagger';
-// @ts-nocheck
 import {
   IsString,
   IsNumber,

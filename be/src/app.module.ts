@@ -11,7 +11,7 @@ import { AiModule } from './shared/ai/ai.module';
 // Domain modules
 import { ActivitiesModule } from './modules/activities/activities.module';
 import { ToursModule } from './modules/tours/tours.module';
-import { CrawlersModule } from './modules/crawlers/crawlers.module';
+import { IntegrationsModule } from './modules/integrations/integrations.module';
 
 // Commands globales
 import { CommandsModule } from './commands/commands.module';
@@ -32,7 +32,7 @@ import { ScriptsModule } from './commands/scripts/commands/scripts.module';
     // Domain (estos módulos ya incluyen sus commands)
     ActivitiesModule,
     ToursModule,
-    CrawlersModule,
+    IntegrationsModule,
 
     // Commands globales únicamente
     CommandsModule,

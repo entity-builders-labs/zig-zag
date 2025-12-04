@@ -25,7 +25,7 @@ import {
 } from '@langchain/core/prompts';
 import { RunnableSequence } from '@langchain/core/runnables';
 import { JsonOutputFunctionsParser } from 'langchain/output_parsers';
-import { GoogleMapsService } from '../../../modules/crawlers/google-maps/google-maps.service';
+import { GooglePlacesService } from '@integrations/google-places/google-places.service';
 import {
   CREATE_TOUR_JSON_SYSTEM_PROMPT,
   CREATE_TOUR_SYSTEM_PROMPT,
@@ -75,7 +75,7 @@ export class ToursService {
     private readonly langChainService: LangChainService,
     private readonly vectorStoreService: VectorStoreService,
     private readonly imageGenerationService: ImageGenerationService,
-    private readonly googleMapsService: GoogleMapsService,
+    private readonly googlePlacesService: GooglePlacesService,
   ) {}
 
   private createTourChain() {
@@ -1027,7 +1027,7 @@ export class ToursService {
 
             try {
               // Trigger Google Maps crawling
-              await this.googleMapsService.crawlAndSaveActivities({
+              await this.googlePlacesService.crawlAndSaveActivities({
                 latitude: options.latitude,
                 longitude: options.longitude,
                 radius: Math.min(radius, 5000), // Cap radius for Google Maps

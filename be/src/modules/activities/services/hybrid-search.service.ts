@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ActivitiesService } from './activities.service';
-import { GoogleMapsService } from '../../crawlers/google-maps/google-maps.service';
+import { GooglePlacesService } from '../../integrations/google-places/google-places.service';
 import { PrismaService } from '../../../core/database/prisma.service';
 
 @Injectable()
@@ -11,7 +11,7 @@ export class HybridSearchService {
 
   constructor(
     private readonly activitiesService: ActivitiesService,
-    private readonly googleMapsService: GoogleMapsService,
+    private readonly googlePlacesService: GooglePlacesService,
     private readonly prisma: PrismaService,
   ) {}
 
@@ -121,7 +121,7 @@ export class HybridSearchService {
     );
 
     try {
-      await this.googleMapsService.crawlAndSaveActivities({
+      await this.googlePlacesService.crawlAndSaveActivities({
         latitude,
         longitude,
         radius: Math.min(radius, 5000),
