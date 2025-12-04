@@ -5,14 +5,14 @@ import { ToursService } from './services/tours.service';
 import { ActivitiesModule } from '../activities/activities.module';
 import { AiModule } from '../../shared/ai/ai.module';
 import { PrismaModule } from '../../core/database/database.module';
-import { CrawlersModule } from '../crawlers/crawlers.module';
+import { IntegrationsModule } from '../integrations/integrations.module';
 
 @Module({
   imports: [
     PrismaModule,
     forwardRef(() => ActivitiesModule),
     AiModule,
-    CrawlersModule,
+    IntegrationsModule,
   ],
   controllers: [ToursController],
   providers: [ToursService],

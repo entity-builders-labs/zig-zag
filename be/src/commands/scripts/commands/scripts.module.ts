@@ -5,7 +5,6 @@ import { PrismaModule } from '@core/database/database.module';
 import { AiModule } from '@shared/ai/ai.module';
 import { ActivitiesModule } from '@activities/activities.module';
 import { ToursModule } from '@tours/tours.module';
-import { CrawlersModule } from '@crawlers/crawlers.module';
 import { EmbeddingCheckerCommand } from './embedding-checker.command';
 import { ImageAuditCommand } from './image-audit.command';
 
@@ -16,7 +15,6 @@ import { ImageAuditCommand } from './image-audit.command';
     AiModule,
     ActivitiesModule,
     ToursModule,
-    CrawlersModule,
   ],
   providers: [
     MetadataCheckerCommand,
