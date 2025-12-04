@@ -1,4 +1,4 @@
-name: Move Closed Issue to Done in Project
+name: Move Closed Issue to Done in Project.
 
 on:
   issues:
