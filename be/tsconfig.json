@@ -19,7 +19,12 @@
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
-      "src/*": ["src/*"]
+      "src/*": ["src/*"],
+      "@core/*": ["src/core/*"],
+      "@shared/*": ["src/shared/*"],
+      "@activities/*": ["src/modules/activities/*"],
+      "@tours/*": ["src/modules/tours/*"],
+      "@crawlers/*": ["src/modules/crawlers/*"]
     }
   }
 }

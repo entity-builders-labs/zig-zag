@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { ToursController } from './controllers/tours.controller';
 import { ToursService } from './services/tours.service';
 
@@ -8,7 +8,12 @@ import { PrismaModule } from '../../core/database/database.module';
 import { CrawlersModule } from '../crawlers/crawlers.module';
 
 @Module({
-  imports: [PrismaModule, ActivitiesModule, AiModule, CrawlersModule],
+  imports: [
+    PrismaModule,
+    forwardRef(() => ActivitiesModule),
+    AiModule,
+    CrawlersModule,
+  ],
   controllers: [ToursController],
   providers: [ToursService],
   exports: [ToursService],

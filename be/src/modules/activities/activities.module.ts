@@ -7,9 +7,14 @@ import { AiModule } from '../../shared/ai/ai.module';
 import { ActivityRelationshipService } from './services/activity-relationship.service';
 import { HybridSearchService } from './services/hybrid-search.service';
 import { CrawlersModule } from '../crawlers/crawlers.module';
+import { ToursModule } from '../tours/tours.module';
 
 @Module({
-  imports: [AiModule, forwardRef(() => CrawlersModule)],
+  imports: [
+    AiModule,
+    forwardRef(() => CrawlersModule),
+    forwardRef(() => ToursModule),
+  ],
   controllers: [ActivitiesController],
   providers: [
     ActivitiesService,
