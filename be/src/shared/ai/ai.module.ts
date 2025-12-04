@@ -5,10 +5,24 @@ import { ImageGenerationService } from './image-generation.service';
 import { PrismaModule } from '../../core/database/database.module';
 import aiConfig from './ai.config';
 import { AiCacheService } from './services/ai-cache.service';
+import { AiEmbeddingService } from './services/ai-embedding.service';
+import { VectorStoreService } from './services/vector-store.service';
 
 @Module({
   imports: [ConfigModule.forFeature(aiConfig), PrismaModule],
-  providers: [LangChainService, ImageGenerationService, AiCacheService],
-  exports: [LangChainService, ImageGenerationService, AiCacheService],
+  providers: [
+    LangChainService,
+    ImageGenerationService,
+    AiCacheService,
+    AiEmbeddingService,
+    VectorStoreService,
+  ],
+  exports: [
+    LangChainService,
+    ImageGenerationService,
+    AiCacheService,
+    AiEmbeddingService,
+    VectorStoreService,
+  ],
 })
 export class AiModule {}

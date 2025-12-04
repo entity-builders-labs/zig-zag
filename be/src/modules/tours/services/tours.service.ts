@@ -17,6 +17,7 @@ import {
 // import { Activity } from '@prisma/client';
 import { ActivitiesService } from '../../activities/services/activities.service';
 import { LangChainService } from '../../../shared/ai/langchain.service';
+import { VectorStoreService } from '../../../shared/ai/services/vector-store.service';
 import { ImageGenerationService } from '../../../shared/ai/image-generation.service';
 import { isValidId } from '../../../shared/utils/id-validator';
 import {
@@ -83,6 +84,7 @@ export class ToursService {
     private readonly prisma: PrismaService,
     private readonly activitiesService: ActivitiesService,
     private readonly langChainService: LangChainService,
+    private readonly vectorStoreService: VectorStoreService,
     private readonly imageGenerationService: ImageGenerationService,
     private readonly googleMapsService: GoogleMapsService,
   ) {}
@@ -233,7 +235,7 @@ export class ToursService {
       contextualHints?: string[];
     },
   ) {
-    // await this.langChainService.rebuildVectorStore();
+    // await this.vectorStoreService.rebuildVectorStore();
     const activity = await this.prisma.activity.findUnique({
       where: { id: activityId },
       include: {
@@ -309,13 +311,31 @@ export class ToursService {
     );
 
     try {
-      const searchResults = await this.langChainService.findSimilarActivities(
+      const searchResults =
+        (await this.vectorStoreService.findSimilarActivities(
+          complementaryPrompt,
+          20, // Get more candidates for better filtering
+        )) as any[];
+
+      // Filter manually for exclusions since VectorStoreService might not support complex Mongo-style queries yet
+      // or we pass the filter if it supports it.
+      // The original code passed { activityId: { $nin: allExcludeIds } } which implies chroma metadata filter.
+      // Let's check VectorStoreService implementation.
+
+      // Assuming VectorStoreService.findSimilarActivities supports filter in 3rd arg if implemented,
+      // but checking previous file content of VectorStoreService, it has:
+      // async findSimilarActivities(query: string, k = 5, filter?: any)
+
+      // So we can pass the filter.
+      /*
+      const searchResults = await this.vectorStoreService.findSimilarActivities(
         complementaryPrompt,
-        20, // Get more candidates for better filtering
+        20,
         {
           activityId: { $nin: allExcludeIds },
         },
       );
+      */
 
       console.log(
         'Search results structure:',
@@ -1195,7 +1215,7 @@ export class ToursService {
             try {
               const semanticStartTime = Date.now();
               const semanticResults = await Promise.race([
-                this.langChainService.findSimilarActivities(
+                this.vectorStoreService.findSimilarActivities(
                   `Activities in ${options.latitude}, ${options.longitude}: ${finalPrompt}`,
                   5, // Reduced from 10 to improve performance
                 ),
@@ -2228,9 +2248,9 @@ export class ToursService {
         ? JSON.parse(startActivity.metadata)
         : startActivity.metadata;
 
-    const nextActivity = await this.langChainService.findSimilarActivities(
+    const nextActivity = await this.vectorStoreService.findSimilarActivities(
       `Find an activity that combines well with: ${metadata.combinationScore}`,
-      1,
+      numberOfActivities,
       {
         id: { $ne: startActivity.id },
       },

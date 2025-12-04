@@ -3,7 +3,7 @@ import { Inject } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { AppService } from './app.service';
 import aiConfig from './shared/ai/ai.config';
-import { LangChainService } from './shared/ai/langchain.service';
+import { VectorStoreService } from './shared/ai/services/vector-store.service';
 
 @Controller()
 export class AppController {
@@ -11,7 +11,7 @@ export class AppController {
     private readonly appService: AppService,
     @Inject(aiConfig.KEY)
     private readonly aiConfiguration: ConfigType<typeof aiConfig>,
-    private readonly langChainService: LangChainService,
+    private readonly vectorStoreService: VectorStoreService,
   ) {}
 
   @Get()
@@ -30,7 +30,7 @@ export class AppController {
 
   @Get('test/chroma')
   async testChroma() {
-    return this.langChainService.testChromaConnection();
+    return this.vectorStoreService.testChromaConnection();
   }
 
   @Get('test/ollama')
