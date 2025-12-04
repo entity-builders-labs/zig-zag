@@ -1,8 +1,7 @@
 import { Command, CommandRunner } from 'nest-commander';
 import { Injectable, Logger } from '@nestjs/common';
-import { PrismaService } from '../../../core/database/prisma.service';
-import { ActivitiesService } from '../../../modules/activities/services/activities.service';
-
+import { PrismaService } from '@core/database/prisma.service';
+import { ActivitiesService } from '@activities/services/activities.service';
 @Injectable()
 @Command({
   name: 'check-metadata',

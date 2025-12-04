@@ -130,7 +130,6 @@ services:
       - CHOKIDAR_INTERVAL=${CHOKIDAR_INTERVAL}
       - FAST_REFRESH=${FAST_REFRESH}
       - EXPO_USE_FAST_REFRESH=${EXPO_USE_FAST_REFRESH}
-      - STORAGE_PATH=${STORAGE_PATH}
       - AI_CACHE_MODE=${AI_CACHE_MODE}
     volumes:
       - ./fe:/app/fe
