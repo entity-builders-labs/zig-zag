@@ -25,6 +25,7 @@ export interface AiConfig {
   ollamaTimeout?: number; // Separate timeout for Ollama (defaults to 4x base timeout)
   // Embeddings
   embeddingsModel?: string;
+  embeddingProvider: 'openai' | 'ollama';
 }
 
 // Helper to detect if a model is an embedding model
@@ -98,5 +99,8 @@ export default registerAs('ai', (): AiConfig => {
       ? parseInt(process.env.OLLAMA_TIMEOUT, 10)
       : baseTimeout * 4,
     embeddingsModel: process.env.EMBEDDINGS_MODEL || 'nomic-embed-text',
+    embeddingProvider:
+      (process.env.EMBEDDING_PROVIDER as 'openai' | 'ollama') ||
+      (process.env.NODE_ENV === 'production' ? 'openai' : 'ollama'),
   };
 });

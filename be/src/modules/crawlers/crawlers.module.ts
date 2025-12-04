@@ -29,6 +29,7 @@ import { CachedPlacesApiService } from './google-maps/services/cached-places-api
           logger.log(
             `⚠️  Using MOCK Places API (USE_MOCK_MAPS=true, mode=${mode})`,
           );
+          console.log('$$$ cached:', cached);
         }
         return useMock ? cached : real;
       },

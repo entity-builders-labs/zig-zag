@@ -1,7 +1,7 @@
 import { Command, CommandRunner } from 'nest-commander';
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../../../core/database/prisma.service';
-import { LangChainService } from '../../../shared/ai/langchain.service';
+import { VectorStoreService } from 'src/shared/ai/services/vector-store.service';
 
 @Injectable()
 @Command({
@@ -13,7 +13,7 @@ export class EmbeddingCheckerCommand extends CommandRunner {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly langchainService: LangChainService,
+    private readonly vectorStoreService: VectorStoreService,
   ) {
     super();
   }
@@ -31,7 +31,7 @@ export class EmbeddingCheckerCommand extends CommandRunner {
           this.logger.log(
             `Processing embeddings for activity ${activity.id}: ${activity.name}`,
           );
-          await this.langchainService.addActivityToVectorStore(activity);
+          await this.vectorStoreService.addActivityToVectorStore(activity);
           updated++;
           this.logger.log(
             `Successfully updated embeddings for activity ${activity.id}`,
@@ -54,7 +54,7 @@ export class EmbeddingCheckerCommand extends CommandRunner {
       // Verify embeddings
       try {
         this.logger.log('Performing test search to verify embeddings...');
-        const testResults = await this.langchainService.findSimilarActivities(
+        const testResults = await this.vectorStoreService.findSimilarActivities(
           'outdoor activities',
           5,
         );

@@ -5,6 +5,7 @@ import { ActivitiesService } from './activities.service';
 import { PrismaService } from '../../../core/database/prisma.service';
 import { AiDiscoverDto } from '../dto/ai-discover.dto';
 import { IPlacesApiService } from '../../crawlers/google-maps/interfaces/places-api.interface';
+import { VectorStoreService } from '../../../shared/ai/services/vector-store.service';
 
 @Injectable()
 export class AiProspectorService {
@@ -16,6 +17,7 @@ export class AiProspectorService {
     private readonly activities: ActivitiesService,
     private readonly prisma: PrismaService,
     @Inject('PlacesApiService') private readonly placesApi: IPlacesApiService,
+    private readonly vectorStore: VectorStoreService,
   ) {}
 
   private buildPrompt(dto: AiDiscoverDto) {
@@ -260,7 +262,7 @@ Return the JSON array now:`;
 
     if (createdActivities.length > 0) {
       try {
-        await this.ai.saveActivityEmbedding(createdActivities as any);
+        await this.vectorStore.saveActivityEmbedding(createdActivities as any);
       } catch {}
     }
 

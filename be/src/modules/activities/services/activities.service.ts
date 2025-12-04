@@ -1,4 +1,3 @@
-// @ts-nocheck
 import {
   Injectable,
   Logger,
@@ -9,11 +8,10 @@ import { PrismaService } from '../../../core/database/prisma.service';
 import { CreateActivityDto } from '../dto/create-activity.dto';
 import { UpdateActivityDto } from '../dto/update-activity.dto';
 import { FindNearbyDto } from '../dto/find-nearby.dto';
-import { Prisma } from '@prisma/client';
+import { Prisma, Activity } from '@prisma/client';
 import { ActivityMetadataDto } from '../dto/activity-metadata.dto';
-import { JsonValue } from '@prisma/client/runtime/library';
 import { ActivityMetadataService } from './activity-metadata.service';
-import { LangChainService } from '../../../shared/ai/langchain.service';
+import { VectorStoreService } from '../../../shared/ai/services/vector-store.service';
 
 @Injectable()
 export class ActivitiesService {
@@ -22,7 +20,7 @@ export class ActivitiesService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly metadataService: ActivityMetadataService,
-    private readonly aiService: LangChainService,
+    private readonly vectorStore: VectorStoreService,
   ) {}
 
   async create(createActivityDto: CreateActivityDto): Promise<any> {
@@ -85,7 +83,7 @@ export class ActivitiesService {
         try {
           const metadata =
             await this.metadataService.generateMetadata(createActivityDto);
-          activityData.metadata = metadata as unknown as JsonValue;
+          activityData.metadata = metadata as unknown as Prisma.InputJsonValue;
           if (metadata.enhancedDescription && !activityData.description) {
             activityData.description = metadata.enhancedDescription;
           }
@@ -427,7 +425,7 @@ export class ActivitiesService {
     }`;
 
     // Query vector store
-    const results = (await this.aiService.findSimilarActivities(
+    const results = (await this.vectorStore.findSimilarActivities(
       baseText,
       limit + 1,
     )) as any[];
