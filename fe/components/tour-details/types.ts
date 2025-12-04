@@ -20,4 +20,11 @@ export interface TourStopTransport {
   duration: string;
 }
 
-export type TourStop = TourStopLocation | TourStopTransport;
+export interface TourStopDayHeader {
+  type: 'day-header';
+  id: string;
+  dayNumber: number;
+  title: string;
+}
+
+export type TourStop = TourStopLocation | TourStopTransport | TourStopDayHeader;

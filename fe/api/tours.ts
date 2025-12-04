@@ -8,6 +8,7 @@ export interface Tour {
   duration?: number;
   price?: number;
   totalDistance?: number;
+  totalDays?: number;
   categories?: string[];
   activities?: {
     activity?: {
@@ -28,6 +29,7 @@ export interface Tour {
     activityLongitude?: number;
 
     order: number;
+    dayNumber?: number;
     travelTimeToNext?: number;
     distanceToNext?: number;
     notes?: string;
