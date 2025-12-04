@@ -2,7 +2,7 @@ import { Command, CommandRunner, Option } from 'nest-commander';
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../../../core/database/prisma.service';
 import { ActivityMetadataService } from '../../../modules/activities/services/activity-metadata.service';
-import { ToursService } from '../../../modules/tours/services/tours.service';
+import { TourImageService } from '../../../modules/tours/services/tour-image.service';
 
 interface ImageAuditOptions {
   fix?: boolean;
@@ -19,7 +19,7 @@ export class ImageAuditCommand extends CommandRunner {
   constructor(
     private readonly prisma: PrismaService,
     private readonly activityMetadataService: ActivityMetadataService,
-    private readonly toursService: ToursService,
+    private readonly tourImageService: TourImageService,
   ) {
     super();
   }
@@ -113,7 +113,7 @@ export class ImageAuditCommand extends CommandRunner {
               this.logger.log(
                 `Generating cover image for Tour ${tour.id} (${tour.name})...`,
               );
-              const result = await this.toursService.generateTourCoverImage(
+              const result = await this.tourImageService.generateTourCoverImage(
                 tour.id,
               );
               if (result) {

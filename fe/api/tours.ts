@@ -95,11 +95,3 @@ export async function generateTour(dataOrPrompt: string | GenerateTourDto) {
   );
   return data;
 }
-
-// This endpoint is still available for manual triggering if needed
-export async function generateTourActivities(tourId: string) {
-  const { data } = await axiosInstance.post<Tour>(
-    `/tours/${tourId}/generate-activities`
-  );
-  return data;
-}

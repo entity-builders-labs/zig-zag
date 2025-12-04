@@ -10,6 +10,9 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { ToursService } from '../services/tours.service';
+import { TourGenerationService } from '../services/tour-generation.service';
+import { TourActivityGenerationService } from '../services/tour-activity-generation.service';
+import { TourLocationService } from '../services/tour-location.service';
 import { CreateTourDto } from '../dto/create-tour.dto';
 import { UpdateTourDto } from '../dto/update-tour.dto';
 import { CreateTourFromPromptDto } from '../dto/create-tour-from-prompt.dto';
@@ -25,7 +28,12 @@ import { appConfig } from 'src/core/config/app.config';
 @ApiTags('tours')
 @Controller('tours')
 export class ToursController {
-  constructor(private readonly toursService: ToursService) {}
+  constructor(
+    private readonly toursService: ToursService,
+    private readonly tourGenerationService: TourGenerationService,
+    private readonly tourActivityGenerationService: TourActivityGenerationService,
+    private readonly tourLocationService: TourLocationService,
+  ) {}
 
   @Post()
   @ApiOperation({ summary: 'Create a new tour' })
@@ -57,7 +65,7 @@ export class ToursController {
   generateTour(
     @Body(ValidationPipe) createTourFromPromptDto: CreateTourFromPromptDto,
   ) {
-    return this.toursService.createTourFromWizard({
+    return this.tourGenerationService.createTourFromWizard({
       latitude: createTourFromPromptDto.latitude,
       longitude: createTourFromPromptDto.longitude,
       radius: createTourFromPromptDto.radius,
@@ -108,7 +116,7 @@ export class ToursController {
     description: 'Tour not found.',
   })
   generateActivities(@Param('id') id: string) {
-    return this.toursService.generateTourActivities(id);
+    return this.tourActivityGenerationService.generateTourActivities(id);
   }
 
   @Get('nearby')
@@ -150,7 +158,7 @@ export class ToursController {
     @Query('category') category?: string,
     @Query('radius') radius?: number,
   ) {
-    return this.toursService.getNearbyTours(
+    return this.tourLocationService.getNearbyTours(
       +lat,
       +lng,
       category,
