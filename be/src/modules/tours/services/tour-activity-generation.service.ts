@@ -26,6 +26,7 @@ import {
 } from '../prompts/create-tour.prompt';
 import { extractAndCleanJson, repairJson } from '../utils/json-parser.util';
 import { transformAiActivitiesToDto } from '../utils/activity-transformer.util';
+import { updateTravelTimesForActivities } from '../utils/travel-time-calculator.util';
 
 @Injectable()
 export class TourActivityGenerationService {
@@ -405,9 +406,30 @@ export class TourActivityGenerationService {
       );
 
       // Transform AI response activities to CreateTourDto format
-      const activities = transformAiActivitiesToDto(
-        aiResponse.activities || [],
-      );
+      let activities = transformAiActivitiesToDto(aiResponse.activities || []);
+
+      // Calculate travel times using real coordinates
+      // First, get all activity entities from database if they have activityId
+      const activityIds = activities
+        .map((a) => a.activityId)
+        .filter((id): id is string => !!id);
+
+      let activitiesMap: Map<string, any> | undefined;
+      if (activityIds.length > 0) {
+        const activityEntities = await this.prisma.activity.findMany({
+          where: { id: { in: activityIds } },
+          select: {
+            id: true,
+            latitude: true,
+            longitude: true,
+          },
+        });
+
+        activitiesMap = new Map(activityEntities.map((act) => [act.id, act]));
+      }
+
+      // Update travel times and distances using real coordinates
+      activities = updateTravelTimesForActivities(activities, activitiesMap);
 
       // Update tour with activities
       await this.prisma.$transaction(async (tx) => {

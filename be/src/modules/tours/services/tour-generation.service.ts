@@ -28,6 +28,7 @@ import {
   buildPreferencesObject,
 } from '../utils/prompt-builder.util';
 import { transformAiActivitiesToDto } from '../utils/activity-transformer.util';
+import { updateTravelTimesForActivities } from '../utils/travel-time-calculator.util';
 import { ToursService } from './tours.service';
 import { TourImageService } from './tour-image.service';
 import { TourActivityGenerationService } from './tour-activity-generation.service';
@@ -503,6 +504,36 @@ export class TourGenerationService {
       // Step 3: Convert AI response to CreateTourDto format
       const preferences = buildPreferencesObject(options);
 
+      // Transform activities and calculate travel times if not skipping
+      let activities = options?.skipActivities
+        ? [] // Skip activities if flag is set
+        : transformAiActivitiesToDto(aiResponse.activities || []);
+
+      // Calculate travel times using real coordinates if activities exist
+      if (activities.length > 0) {
+        // Get all activity entities from database if they have activityId
+        const activityIds = activities
+          .map((a) => a.activityId)
+          .filter((id): id is string => !!id);
+
+        let activitiesMap: Map<string, any> | undefined;
+        if (activityIds.length > 0) {
+          const activityEntities = await this.prisma.activity.findMany({
+            where: { id: { in: activityIds } },
+            select: {
+              id: true,
+              latitude: true,
+              longitude: true,
+            },
+          });
+
+          activitiesMap = new Map(activityEntities.map((act) => [act.id, act]));
+        }
+
+        // Update travel times and distances using real coordinates
+        activities = updateTravelTimesForActivities(activities, activitiesMap);
+      }
+
       const tourData: CreateTourDto = {
         name: aiResponse.title || 'Untitled Tour',
         description: aiResponse.description || aiResponse.title,
@@ -526,9 +557,7 @@ export class TourGenerationService {
           generationStatus: 'pending',
           generationMessage: 'Preparando generación de actividades...',
         }, // Store full AI response in metadata
-        activities: options?.skipActivities
-          ? [] // Skip activities if flag is set
-          : transformAiActivitiesToDto(aiResponse.activities || []),
+        activities,
       };
 
       // Step 4: Create and return the tour
