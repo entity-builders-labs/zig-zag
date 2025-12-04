@@ -88,3 +88,14 @@ yarn-error.log*
 *.temp
 .cache/
 
+# Cache directories (generated at runtime)
+be/storage/maps-cache/
+be/storage/ai-cache/
+be/storage/ai_cache/
+be/storage/places_cache/
+be/storage/key_value_stores/
+be/storage/request_queues/
+# Keep storage directory structure but ignore cache files
+be/storage/**/*.json
+!be/storage/**/.gitkeep
+
