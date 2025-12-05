@@ -2,6 +2,25 @@
 
 This guide explains how to validate that the cache system is working correctly in Docker.
 
+## Where is the cache stored?
+
+**The cache is stored inside the Docker container, but it persists on your local machine.**
+
+This works thanks to the volume mounts in `docker-compose.yml`:
+
+```yaml
+volumes:
+  - ./be:/app/be # Mounts ./be from host into /app/be in container
+```
+
+**What does this mean?**
+
+- **Inside the container**: Cache is stored at `/app/be/storage/maps-cache`
+- **On your machine**: Files are stored at `./be/storage/maps-cache` (relative to project root)
+- **Benefit**: If you delete the container, cache files **remain** on your machine
+
+**Important**: The `STORAGE_PATH` directory must be writable both in the container and on your local machine.
+
 ## Quick Validation
 
 Run the validation script:
@@ -28,9 +47,9 @@ docker exec zigzag-backend sh -c 'echo "MOCK_MAPS_MODE: $MOCK_MAPS_MODE"'
 docker exec zigzag-backend sh -c 'echo "STORAGE_PATH: $STORAGE_PATH"'
 ```
 
-Expected:
+**Expected values:**
 
-- `USE_MOCK_MAPS=true` (to enable caching)
+- `USE_MOCK_MAPS=true` (enables caching)
 - `MOCK_MAPS_MODE=read` or `write` or `strict`
 - `STORAGE_PATH` (optional, defaults to `/app/be/storage`)
 
@@ -170,6 +189,8 @@ volumes:
   - ./be:/app/be # This should include storage directory
 ```
 
+**Why this matters**: Without this volume mount, cache files would only exist inside the container and be lost when the container is removed.
+
 ### Cache directory not found
 
 The directory is created automatically on first use. If it doesn't exist:
@@ -182,7 +203,7 @@ docker exec zigzag-backend mkdir -p ${STORAGE_PATH:-/app/be/storage}/maps-cache
 
 1. Verify `USE_MOCK_MAPS=true` is set
 2. Check logs for errors
-3. Verify `STORAGE_PATH` is writable
+3. Verify `STORAGE_PATH` is writable (both in container and on host machine)
 4. Check file permissions in container
 
 ## Cache File Naming
