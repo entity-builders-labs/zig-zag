@@ -15,14 +15,23 @@
     "deploy:be": "./fly/deploy-be.sh --force-update DATABASE_URL,DIRECT_URL,SUPABASE_PASSWORD",
     "deploy": "yarn deploy:be && yarn deploy:fe",
     "prisma:generate": "cd be && yarn prisma:generate",
-    "preview:example": "node tools/site-preview/example.js"
+    "preview:example": "node tools/site-preview/example.js",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
+    "docker:fe:dev": "BUILD_TARGET=dev docker-compose build frontend && docker-compose up frontend",
+    "docker:fe:web": "BUILD_TARGET=web docker-compose build frontend && BUILD_TARGET=web docker-compose up frontend",
+    "docker:fe:ios": "BUILD_TARGET=ios docker-compose build frontend && BUILD_TARGET=ios docker-compose up frontend"
   },
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^5.1.0",
-    "http-proxy-middleware": "^3.0.5"
+    "http-proxy-middleware": "^3.0.5",
+    "expo": "~54.0.25",
+    "react": "19.1.0",
+    "react-native": "0.81.5"
   },
   "devDependencies": {
     "concurrently": "^8.2.0"
-  }
+  },
+  "version": "1.0.0"
 }

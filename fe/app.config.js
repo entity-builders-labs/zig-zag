@@ -1,6 +1,7 @@
 module.exports = {
   name: 'zig-zag',
   version: '1.0.0',
+  runtimeVersion: '1.0.0',
   extra: {
     googleMapsApiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY,
   },
@@ -12,7 +13,7 @@ module.exports = {
     },
   },
   ios: {
-    bundleIdentifier: 'com.juanobrach.zig-zag',
+    bundleIdentifier: 'com.entitiybuilders.zig-zag',
     infoPlist: {
       NSLocationWhenInUseUsageDescription:
         'Usamos tu ubicación para mostrar actividades cercanas a vos.',
@@ -23,5 +24,5 @@ module.exports = {
     permissions: ['ACCESS_COARSE_LOCATION', 'ACCESS_FINE_LOCATION'],
   },
   plugins: ['expo-router'],
-  newArchEnabled: false,
+  newArchEnabled: true,
 };

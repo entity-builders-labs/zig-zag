@@ -24,6 +24,30 @@
 # 1. First look for .env.prod in project root
 # 2. Fallback to be/.env.prod or fe/.env.prod (backward compatibility)
 # 3. Last resort: .env (development file)
+#
+# ============================================================================
+# FRONTEND BUILD TARGETS
+# ============================================================================
+# The frontend service supports different build targets via BUILD_TARGET:
+#
+# 1. iOS development server (default):
+#    docker-compose up frontend
+#    - Runs expo start --dev-client --tunnel
+#    - Shows QR code for connecting iOS device
+#    - Use the dev client app on your iPhone to scan QR and connect
+#    - Works from any network (uses tunnel)
+#
+# 2. Development (with web):
+#    BUILD_TARGET=dev docker-compose build frontend
+#    BUILD_TARGET=dev docker-compose up frontend
+#    - Runs expo start with dev client, web, and tunnel
+#    - Full development server with hot reload
+#
+# 3. Web build with dev client:
+#    BUILD_TARGET=web docker-compose build frontend
+#    BUILD_TARGET=web docker-compose up frontend
+#    - Runs expo start --dev-client --web
+#    - Web development server with dev client enabled
 # ============================================================================
 
 services:
@@ -114,8 +138,15 @@ services:
     build:
       context: .
       dockerfile: fe/Dockerfile
+      # Build target: ios (default), dev, web, or lan
+      # - ios: iOS development server with dev client and tunnel (default)
+      # - lan: Development server with dev client using LAN IP (requires REACT_NATIVE_PACKAGER_HOSTNAME)
+      # - dev: Development server with dev client, web, and tunnel
+      # - web: Web build with dev client enabled
+      args:
+        BUILD_TARGET: ${BUILD_TARGET:-ios}
     ports:
-      - '4001:8081'
+      - '8082:8082'
       - '19000:19000'
       - '19001:19001'
       - '19002:19002'
@@ -131,6 +162,16 @@ services:
       - FAST_REFRESH=${FAST_REFRESH}
       - EXPO_USE_FAST_REFRESH=${EXPO_USE_FAST_REFRESH}
       - AI_CACHE_MODE=${AI_CACHE_MODE}
+      # Add these for iOS device access
+      - EXPO_DEVTOOLS_LISTEN_ADDRESS=0.0.0.0
+      # Use host LAN IP for device access (set in .env or shell: REACT_NATIVE_PACKAGER_HOSTNAME=192.168.1.5)
+      - REACT_NATIVE_PACKAGER_HOSTNAME=${REACT_NATIVE_PACKAGER_HOSTNAME}
+      - EXPO_NO_DOTENV=1
+      # Force Expo to show QR and URLs
+      - CI=false
+      - EXPO_NO_TELEMETRY=1
+      - FORCE_COLOR=1
+      - EXPO_NO_DOTENV=1
     volumes:
       - ./fe:/app/fe
       - /app/node_modules
@@ -141,6 +182,8 @@ services:
     networks:
       - app-network
     restart: unless-stopped
+    stdin_open: true
+    tty: true
 
   cors-proxy:
     build:

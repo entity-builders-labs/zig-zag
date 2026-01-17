@@ -99,3 +99,9 @@ be/storage/request_queues/
 be/storage/**/*.json
 !be/storage/**/.gitkeep
 
+# Expo and React Native
+.expo/
+ios/
+android/
+web-build/
+

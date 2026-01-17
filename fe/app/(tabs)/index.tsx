@@ -6,7 +6,7 @@ import { RoutesSection } from '@/components/home/RoutesSection';
 
 export default function HomeScreen() {
   return (
-    <Box flex={1} bg='#F2F5F3'>
+    <Box flex={1} bg='#000'>
       <ScrollView
         flex={1}
         showsVerticalScrollIndicator={false}
@@ -15,10 +15,6 @@ export default function HomeScreen() {
         <VStack space='2xl' pt='$4' pb='$8'>
           {/* Header Section */}
           <VStack space='md' px='$4' pt='$8'>
-            <Heading size='2xl' fontFamily='heading' color='#1A1A1A'>
-              Hola, ¿qué mood{'\n'}tienes hoy?
-            </Heading>
-
             <MoodsSection />
           </VStack>
 
