@@ -20,7 +20,9 @@
     "ios": "expo run:ios",
     "docker:fe:dev": "BUILD_TARGET=dev docker-compose build frontend && docker-compose up frontend",
     "docker:fe:web": "BUILD_TARGET=web docker-compose build frontend && BUILD_TARGET=web docker-compose up frontend",
-    "docker:fe:ios": "BUILD_TARGET=ios docker-compose build frontend && BUILD_TARGET=ios docker-compose up frontend"
+    "docker:fe:ios": "BUILD_TARGET=ios docker-compose build frontend && BUILD_TARGET=ios docker-compose up frontend",
+    "simulator": "./scripts/build-simulator.sh",
+    "simulator:android": "./scripts/build-simulator.sh android"
   },
   "dependencies": {
     "cors": "^2.8.5",
