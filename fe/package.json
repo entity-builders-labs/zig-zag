@@ -9,7 +9,9 @@
     "ios": "expo run:ios",
     "ios:device": "expo run:ios --device",
     "web": "expo start --web",
-    "build:web": "expo export --platform web"
+    "build:web": "expo export --platform web",
+    "build:eas": "npx eas-cli build",
+    "docker:compose": "docker-compose up -d"
   },
   "dependencies": {
     "@appandflow/react-native-google-autocomplete": "^2.1.0",

@@ -22,7 +22,9 @@
     "docker:fe:web": "BUILD_TARGET=web docker-compose build frontend && BUILD_TARGET=web docker-compose up frontend",
     "docker:fe:ios": "BUILD_TARGET=ios docker-compose build frontend && BUILD_TARGET=ios docker-compose up frontend",
     "simulator": "./scripts/build-simulator.sh",
-    "simulator:android": "./scripts/build-simulator.sh android"
+    "simulator:android": "./scripts/build-simulator.sh android",
+    "build:eas": "cd fe && yarn build:eas --profile development",
+    "build:eas:simulator": "cd fe && npx eas-cli build --profile development-simulator"
   },
   "dependencies": {
     "cors": "^2.8.5",

@@ -121,14 +121,7 @@ services:
     volumes:
       - ./be:/app/be
       - /app/node_modules
-    depends_on:
-      # PostgreSQL is only required in development (profile: dev)
-      # In production, Supabase is used (DATABASE_URL)
-      # Note: The startup script handles waiting for postgres if needed
-      # We don't include postgres in depends_on because it uses the 'dev' profile
-      # and would cause errors when running without --profile dev
-      ollama:
-        condition: service_healthy
+
     networks:
       - app-network
     restart: unless-stopped
@@ -226,6 +219,8 @@ services:
     container_name: zigzag-ollama
     ports:
       - '11434:11434'
+    profiles:
+      - local-ai
     environment:
       # Set context size for Ollama models (default: 4096, can be increased up to model's training context)
       # For models trained with 131k context, set OLLAMA_NUM_CTX=131072 to utilize full capacity

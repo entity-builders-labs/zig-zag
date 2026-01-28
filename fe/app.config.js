@@ -1,9 +1,13 @@
 module.exports = {
   name: 'zig-zag',
+  slug: 'zig-zag',
   version: '1.0.0',
   runtimeVersion: '1.0.0',
   extra: {
     googleMapsApiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY,
+    eas: {
+      projectId: '34a46d03-0540-481a-8326-ea123a330635',
+    },
   },
   assetBundlePatterns: ['**/*'],
   web: {

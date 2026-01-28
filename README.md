@@ -67,6 +67,10 @@ A modern travel and exploration application that helps users discover places and
 
    _Note: Standard `docker-compose up` works too, but you will need to manually install the app on your simulator or use Expo Go._
 
+   > **Tip:** You can download the build from the EAS URL to install directly to the simulator. This saves time and avoids potential start up errors.
+   >
+   > https://expo.dev/accounts/juanobrach/projects/zig-zag/builds > **Warning:** If you add a new library, you must generate a new build for it to take effect.
+
 5. **Initialize Database**
    Database migrations and setup are handled automatically when the backend starts.
 
@@ -74,6 +78,7 @@ A modern travel and exploration application that helps users discover places and
 
 - `yarn simulator` - **(Recommended)** Build for iOS Simulator + Start Stack
 - `yarn simulator:android` - Build for Android Emulator + Start Stack
+- `yarn ios` - Generate build for iOS Simulator
 - `yarn start` - Run full stack in development mode
 - `yarn start:be` - Run backend only
 - `yarn start:fe` - Run frontend only
