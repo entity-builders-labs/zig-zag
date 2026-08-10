@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -9,7 +9,6 @@ import {
   PlacesSearchNearbyParams,
   PlacesSearchTextParams,
 } from '../interfaces/places-api.interface';
-import { GooglePlacesApiService } from './google-places-api.service';
 
 @Injectable()
 export class CachedPlacesApiService implements IPlacesApiService {
@@ -19,7 +18,8 @@ export class CachedPlacesApiService implements IPlacesApiService {
 
   constructor(
     private readonly configService: ConfigService,
-    private readonly realService: GooglePlacesApiService,
+    @Inject('RealPlacesApiService')
+    private readonly realService: IPlacesApiService,
   ) {
     const storagePath =
       this.configService.get<string>('STORAGE_PATH') ||

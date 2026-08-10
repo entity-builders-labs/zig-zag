@@ -5,19 +5,40 @@ import { PrismaService } from '@core/database/prisma.service';
 import { ActivitiesModule } from '@activities/activities.module';
 import { AiModule } from '@shared/ai/ai.module';
 import { GooglePlacesApiService } from '@integrations/google-places/services/google-places-api.service';
+import { GeoapifyPlacesApiService } from '@integrations/google-places/services/geoapify-places-api.service';
 import { CachedPlacesApiService } from '@integrations/google-places/services/cached-places-api.service';
+import { IPlacesApiService } from '@integrations/google-places/interfaces/places-api.interface';
 
 @Module({
   imports: [ConfigModule, forwardRef(() => ActivitiesModule), AiModule],
   providers: [
     PrismaService,
     GooglePlacesApiService,
+    GeoapifyPlacesApiService,
     CachedPlacesApiService,
+    {
+      provide: 'RealPlacesApiService',
+      useFactory: (
+        configService: ConfigService,
+        google: GooglePlacesApiService,
+        geoapify: GeoapifyPlacesApiService,
+      ): IPlacesApiService => {
+        const provider = configService.get('PLACES_PROVIDER') || 'google';
+        if (provider === 'geoapify') {
+          new Logger('IntegrationsModule').log(
+            '🗺️  Using Geoapify as the Places API provider (PLACES_PROVIDER=geoapify)',
+          );
+          return geoapify;
+        }
+        return google;
+      },
+      inject: [ConfigService, GooglePlacesApiService, GeoapifyPlacesApiService],
+    },
     {
       provide: 'PlacesApiService',
       useFactory: (
         configService: ConfigService,
-        real: GooglePlacesApiService,
+        real: IPlacesApiService,
         cached: CachedPlacesApiService,
       ) => {
         const useMock = configService.get('USE_MOCK_MAPS') === 'true';
@@ -30,7 +51,7 @@ import { CachedPlacesApiService } from '@integrations/google-places/services/cac
         }
         return useMock ? cached : real;
       },
-      inject: [ConfigService, GooglePlacesApiService, CachedPlacesApiService],
+      inject: [ConfigService, 'RealPlacesApiService', CachedPlacesApiService],
     },
     GooglePlacesService,
   ],

@@ -387,8 +387,14 @@ Answer ONLY with one word from the set above, no punctuation, no explanation.`;
         });
       }
 
+      // A missing rating means the provider doesn't expose that data (e.g.
+      // Geoapify never returns rating/review counts) rather than the place
+      // being unrated — don't let it fail the minRating filter.
       const filteredResults = placesData.filter(
-        (p: any) => (p.rating || 0) >= searchConfig.minRating,
+        (p: any) =>
+          p.rating === undefined ||
+          p.rating === null ||
+          p.rating >= searchConfig.minRating,
       );
 
       const places = await Promise.all(
@@ -451,9 +457,17 @@ Answer ONLY with one word from the set above, no punctuation, no explanation.`;
   }
 
   private async ensureGooglePlacesSource(): Promise<string> {
+    // Track provenance per active provider so Geoapify-sourced activities
+    // don't get mixed under the 'google-maps' source name.
+    const provider = this.configService.get('PLACES_PROVIDER') || 'google';
+    const sourceInfo =
+      provider === 'geoapify'
+        ? { name: 'geoapify', baseUrl: 'https://www.geoapify.com' }
+        : { name: 'google-maps', baseUrl: 'https://maps.google.com' };
+
     try {
       const existingSource = await this.prisma.source.findUnique({
-        where: { name: 'google-maps' },
+        where: { name: sourceInfo.name },
       });
 
       if (existingSource) {
@@ -462,9 +476,9 @@ Answer ONLY with one word from the set above, no punctuation, no explanation.`;
 
       const newSource = await this.prisma.source.create({
         data: {
-          name: 'google-maps',
+          name: sourceInfo.name,
           type: 'api',
-          baseUrl: 'https://maps.google.com',
+          baseUrl: sourceInfo.baseUrl,
           createdAt: new Date(),
           updatedAt: new Date(),
         },
@@ -472,7 +486,7 @@ Answer ONLY with one word from the set above, no punctuation, no explanation.`;
 
       return newSource.id;
     } catch (error) {
-      this.logger.error('Error ensuring Google Places source:', error);
+      this.logger.error('Error ensuring Places source:', error);
       throw error;
     }
   }
