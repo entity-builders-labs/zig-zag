@@ -7,6 +7,221 @@ A modern travel and exploration application that helps users discover places and
 - `be/` - Backend service (NestJS)
 - `fe/` - Frontend mobile application (React Native with Expo)
 
+## Arquitectura y Casos de Uso
+
+Esta sección explica cómo colaboran frontend y backend en los flujos principales, con diagramas de secuencia. Para el detalle de cada módulo backend hay READMEs dentro de `be/src/modules/*` y `be/src/shared/ai/`; para el frontend, `fe/api/README.md`, `fe/features/README.md` y `fe/context/README.md`.
+
+### Componentes principales
+
+**Frontend (`fe/`)**
+
+- `context/app.tsx` (`AppProvider`): estado global de la app — centro del mapa, actividades cacheadas, radio de búsqueda. Dispara `POST /activities/search-hybrid` cada vez que cambia el centro o la dirección buscada.
+- `features/tours/use-create-tour.ts`: hook que arma el `GenerateTourDto` con las preferencias del wizard, llama a `POST /tours/generate-tour` y navega a `tours/[id]` con el tour recién creado (todavía sin actividades).
+- `app/tours/[id].tsx`: pantalla de detalle. Al montar pide el tour por id; mientras `metadata.generationStatus` sea `pending`/`generating` y no haya actividades, hace polling cada 3s hasta que el backend termine (o falle).
+
+**Backend (`be/src/`)**
+
+- `modules/activities/services/hybrid-search.service.ts` (`HybridSearchService`): busca actividades existentes en PostgreSQL por proximidad y decide si dispara un crawling en background (si no se rastreó esa zona en las últimas 24h).
+- `modules/integrations/google-places/google-places.service.ts` (`GooglePlacesService`): orquesta las búsquedas a Google Places (o al mock si `USE_MOCK_MAPS=true`), clasifica categorías con IA como fallback, guarda actividades nuevas y dispara la generación de sus embeddings.
+- `modules/tours/services/tour-generation.service.ts` (`TourGenerationService`): crea el registro básico del tour (sin actividades) y dispara la generación en background sin esperar la respuesta (`createTourFromWizard`), o genera todo de una sola vez de forma síncrona (`generateTour`, usado por el descubrimiento de tours cercanos).
+- `modules/tours/services/tour-activity-generation.service.ts` (`TourActivityGenerationService`): el "trabajador" en background — busca actividades existentes, dispara crawling si no hay, arma el prompt para el LLM (vía `AI_PROVIDER`), guarda las `TourActivity` generadas y va actualizando `metadata.generationStatus`.
+- `modules/tours/services/tour-location.service.ts` (`TourLocationService`): busca tours existentes cerca de una ubicación con cierta categoría; si encuentra menos de 3, genera uno nuevo de forma síncrona vía `TourGenerationService.generateTour()`.
+- `shared/ai/langchain.service.ts` (`LangChainService`): abstrae el proveedor de IA activo (OpenAI/Groq/Ollama) para chat y completions.
+- `shared/ai/services/vector-store.service.ts` (`VectorStoreService`): guarda y busca embeddings de actividades en ChromaDB para similitud semántica.
+
+**Infraestructura (`docker-compose.yml`)** — los componentes "de verdad" detrás de los servicios de arriba:
+
+- **PostgreSQL** (`postgres`): la única fuente de verdad relacional — `activity`, `tour`, `tour_activity`, `crawler_search`, etc. Accedida siempre vía Prisma (`PrismaService`), nunca directo.
+- **ChromaDB** (`chroma`): base de datos vectorial. Guarda el embedding (vector numérico) de cada actividad para poder buscar "actividades parecidas a X" por significado, no por texto exacto. La escribe/lee `VectorStoreService`.
+- **Ollama** (`ollama`, perfil `local-ai`): sirve modelos LLM localmente. Se usa para generar embeddings (`nomic-embed-text`) por defecto en desarrollo, y opcionalmente para chat si `AI_PROVIDER=ollama`.
+- **Groq / OpenAI** (APIs externas, no corren en Docker): proveedores de chat/LLM alternativos a Ollama, seleccionados con `AI_PROVIDER`. OpenAI además es el fallback de embeddings si Ollama no está disponible, y genera las imágenes de portada (DALL-E).
+- **Google Places API** (externa, o *mock* si `USE_MOCK_MAPS=true`): fuente de datos reales de lugares/restaurantes/atracciones que alimenta la tabla `activity`.
+- **cors-proxy**: proxy HTTP simple para que el frontend web esquive CORS al pegarle al backend.
+
+### Diagrama de infraestructura (quién habla con quién)
+
+```mermaid
+flowchart LR
+    FE["App Móvil / Web<br/>(Expo + React Native)"]
+    CORS["cors-proxy<br/>(Express)"]
+    BE["Backend<br/>(NestJS)"]
+    PG[("PostgreSQL")]
+    CHROMA[("ChromaDB")]
+    OLLAMA["Ollama<br/>(LLM + embeddings local)"]
+    GROQ["Groq API<br/>(chat/LLM)"]
+    OPENAI["OpenAI API<br/>(embeddings fallback + DALL-E)"]
+    GMAPS["Google Places API"]
+
+    FE -- "HTTP (web)" --> CORS --> BE
+    FE -- "HTTP (mobile)" --> BE
+    BE -- "Prisma / SQL" --> PG
+    BE -- "HTTP" --> CHROMA
+    BE -- "HTTP" --> OLLAMA
+    BE -- "HTTPS" --> GROQ
+    BE -- "HTTPS" --> OPENAI
+    BE -- "HTTPS" --> GMAPS
+```
+
+Todo lo que sigue son "zooms" a pedazos específicos de este mapa, mostrando en qué momento entra cada una de estas piezas.
+
+### 1. Búsqueda de actividades (Home / Mapa)
+
+El flujo más frecuente: cada vez que el mapa cambia de centro o el usuario busca una dirección.
+
+```mermaid
+sequenceDiagram
+    participant U as Usuario
+    participant Home as Home/Map Screen
+    participant Ctx as AppContext.getActivities
+    participant API as ActivitiesController
+    participant Hybrid as HybridSearchService
+    participant DB as PostgreSQL (activity)
+    participant Crawl as GooglePlacesService
+
+    U->>Home: Mueve el mapa / busca dirección
+    Home->>Ctx: getActivities({lat, lng, radius})
+    Ctx->>API: POST /activities/search-hybrid
+    API->>Hybrid: searchActivitiesWithCrawling()
+    Hybrid->>DB: findAll() por proximidad (Haversine)
+    DB-->>Hybrid: actividades existentes
+    Hybrid->>DB: shouldTriggerCrawling()? (CrawlerSearch < 24h)
+    alt No se crawleó esta zona en 24h
+        Hybrid-->>API: activities + crawlingTriggered=true
+        API-->>Ctx: 200 OK (respuesta inmediata)
+        Hybrid--)Crawl: crawlAndSaveActivities() [fire-and-forget]
+        Note over Crawl: Ver diagrama 3 "Pipeline de Crawling"
+    else Ya se crawleó recientemente
+        Hybrid-->>API: activities + fromCache=true
+        API-->>Ctx: 200 OK
+    end
+    Ctx-->>Home: activities[]
+    Home-->>U: Renderiza markers / lista
+```
+
+Punto clave: la request del usuario **nunca espera** al crawling — siempre devuelve lo que ya hay en la base, y el crawling (si corresponde) corre en background enriqueciendo la base para la próxima búsqueda.
+
+### 2. Generación de tour desde el Wizard
+
+Crear un tour completo puede tardar (llamada al LLM + búsqueda de actividades + crawling opcional), así que se resuelve de forma asíncrona con polling desde el frontend.
+
+```mermaid
+sequenceDiagram
+    participant U as Usuario
+    participant Wiz as TourWizardForm
+    participant Hook as use-create-tour.ts
+    participant API as ToursController
+    participant Gen as TourGenerationService
+    participant BgGen as TourActivityGenerationService
+    participant Acts as ActivitiesService
+    participant PG as PostgreSQL
+    participant Crawl as GooglePlacesService
+    participant AI as LangChainService
+    participant ChatLLM as Groq / OpenAI / Ollama<br/>(chat, según AI_PROVIDER)
+    participant Detail as tours/[id].tsx
+
+    U->>Wiz: Completa preferencias (destino, días, intereses...)
+    Wiz->>Hook: createTour(preferences)
+    Hook->>API: POST /tours/generate-tour
+    API->>Gen: createTourFromWizard(options)
+    Gen->>PG: INSERT tour (metadata.generationStatus="pending")
+    Gen--)BgGen: generateTourActivities(tour.id) [fire-and-forget]
+    Gen-->>API: tour (sin actividades)
+    API-->>Hook: 201 Created {tour.id}
+    Hook->>Detail: router.replace(/tours/:id)
+
+    activate BgGen
+    BgGen->>Acts: findAll() actividades cercanas existentes
+    Acts->>PG: SELECT ... WHERE distancia < radio
+    PG-->>Acts: actividades
+    alt No hay actividades cercanas
+        BgGen->>Crawl: crawlAndSaveActivities()
+        Note over Crawl: Ver diagrama 3 "Pipeline de Crawling"
+        Crawl-->>BgGen: nuevas actividades guardadas
+    end
+    BgGen->>AI: generar itinerario (prompt + actividades disponibles)
+    AI->>ChatLLM: chat completion (prompt)
+    ChatLLM-->>AI: texto/JSON con itinerario
+    AI-->>BgGen: JSON parseado (actividades/orden/notas)
+    BgGen->>PG: INSERT TourActivity[] (transacción)
+    BgGen->>PG: UPDATE tour.metadata.generationStatus="completed"
+    deactivate BgGen
+
+    loop Cada 3 segundos
+        Detail->>API: GET /tours/:id
+        API-->>Detail: tour actual
+    end
+    Detail-->>U: Cuando activities.length > 0: muestra itinerario y corta el polling
+```
+
+Nota sobre un bug real que encontramos y arreglamos: si `BgGen` falla (por ej. la API key de Groq inválida), marca `generationStatus="failed"` y guarda `generationError`, pero **no hay reintento automático** — hay que llamar manualmente a `POST /tours/:id/generate-activities` para reintentar. Además, el polling del frontend originalmente no se detenía nunca (bug corregido); ahora corta el `setInterval` apenas `generationStatus` deja de ser `generating`/`pending`.
+
+### 3. Pipeline de Crawling de Google Places
+
+Disparado en background tanto por la búsqueda híbrida (#1) como por la generación de actividades del tour (#2) cuando no hay suficientes actividades locales.
+
+```mermaid
+sequenceDiagram
+    participant Caller as HybridSearchService /<br/>TourActivityGenerationService
+    participant GP as GooglePlacesService
+    participant GMaps as Google Places API<br/>(o Mock si USE_MOCK_MAPS=true)
+    participant AI as LangChainService
+    participant ChatLLM as Groq / OpenAI / Ollama<br/>(chat, según AI_PROVIDER)
+    participant DB as PostgreSQL
+    participant Vec as VectorStoreService
+    participant EmbedLLM as Ollama / OpenAI<br/>(embeddings, según EMBEDDING_PROVIDER)
+    participant Chroma as ChromaDB
+
+    Caller--)GP: crawlAndSaveActivities({lat, lng, radius})
+    loop Por cada categoría (cultural, outdoor, food, nightlife, entertainment)
+        GP->>GMaps: searchNearby() / searchText()
+        GMaps-->>GP: lugares encontrados
+        GP->>GP: filtra por rating mínimo
+        alt El tipo de Google mapea a una categoría conocida
+            GP->>GP: findMatchingActivityType() (mapeo estático)
+        else No hay mapeo estático
+            GP->>AI: classifyActivityCategoryWithAI(place)
+            AI->>ChatLLM: "¿qué categoría es este lugar?"
+            ChatLLM-->>AI: cultural/outdoor/food/nightlife/entertainment
+            AI-->>GP: categoría
+        end
+    end
+    GP->>DB: SELECT — chequea duplicados (sourceId + externalId)
+    GP->>DB: INSERT Activity[] nuevas
+    GP->>Vec: saveActivityEmbedding(activities)
+    Note over Vec,EmbedLLM: Independiente del chat: usa EMBEDDING_PROVIDER<br/>(ollama por defecto en dev, openai en prod/fallback) — nunca Groq
+    Vec->>EmbedLLM: genera embedding (vector) por actividad
+    EmbedLLM-->>Vec: vector[]
+    Vec->>Chroma: upsert embeddings
+    Note over DB: La próxima búsqueda en esta zona<br/>verá un CrawlerSearch reciente y no re-crawleará
+```
+
+### 4. Descubrimiento de tours cercanos
+
+```mermaid
+sequenceDiagram
+    participant U as Usuario
+    participant Home as Home Screen (RoutesSection)
+    participant API as ToursController
+    participant Loc as TourLocationService
+    participant DB as PostgreSQL (tour, tour_activity)
+    participant Gen as TourGenerationService
+
+    U->>Home: Abre Home / cambia filtro de categoría
+    Home->>API: GET /tours/nearby?lat&lng&category
+    API->>Loc: getNearbyTours(lat, lng, category)
+    Loc->>DB: busca tours con actividades en el radio + categoría en nombre/descripción
+    alt Encontró 3 o más tours
+        Loc-->>API: tours existentes
+    else Encontró menos de 3
+        Loc->>Gen: generateTour(prompt, {lat, lng}) — bloqueante, espera la respuesta
+        Note over Gen: Toca PostgreSQL, ChromaDB y el proveedor de IA<br/>igual que el diagrama 2, pero de forma síncrona<br/>(sin background) e incluye imagen de portada (DALL-E)
+        Gen-->>Loc: tour nuevo completo
+        Loc-->>API: tours existentes + tour nuevo
+    end
+    API-->>Home: tours[]
+    Home-->>U: Carrusel de tours cercanos
+```
+
 ## Prerequisites
 
 - Node.js (v18+)
@@ -36,6 +251,12 @@ A modern travel and exploration application that helps users discover places and
 
    ```bash
    docker-compose up -d
+   ```
+
+   Requires a `.env` file (step 2). It sets `COMPOSE_PROFILES=dev`, which starts the local **PostgreSQL** container. Without it, use:
+
+   ```bash
+   docker-compose --profile dev up -d
    ```
 
    This command starts the following services:
