@@ -124,6 +124,10 @@ services:
 
     networks:
       - app-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+        required: false
     restart: unless-stopped
     command: sh /app/be/scripts/start-dev.sh
 

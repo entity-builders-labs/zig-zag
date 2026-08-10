@@ -1,5 +1,5 @@
 # Use Node.js LTS version
-FROM node:20-alpine
+FROM node:22.23.1-alpine
 
 # Install 'yes' command for auto-answering prompts
 RUN apk add --no-cache coreutils
