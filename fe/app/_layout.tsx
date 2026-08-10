@@ -39,6 +39,7 @@ export default function RootLayout() {
                 <Stack screenOptions={{ headerShown: false }}>
                   <Stack.Screen name='(tabs)' />
                   <Stack.Screen name='tours' />
+                  <Stack.Screen name='activities' />
                 </Stack>
               </AutocompleteDropdownContextProvider>
             </AppProvider>

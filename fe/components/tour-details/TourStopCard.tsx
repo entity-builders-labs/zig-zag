@@ -12,6 +12,7 @@ import {
   ButtonText,
   Icon,
 } from '@gluestack-ui/themed';
+import { useRouter } from 'expo-router';
 import { ChevronRight } from 'lucide-react-native';
 import { TourStopLocation } from './types';
 
@@ -22,6 +23,11 @@ export const TourStopCard = ({
   data: TourStopLocation;
   isLast: boolean;
 }) => {
+  const router = useRouter();
+  // Activities that only exist inline on the tour (no linked Activity record)
+  // get a synthetic `inline-...` id and have no detail page to navigate to.
+  const hasActivityDetail = !data.id.startsWith('inline-');
+
   return (
     <HStack flex={1}>
       {/* Timeline Node */}
@@ -100,12 +106,20 @@ export const TourStopCard = ({
                 </HStack>
 
                 {/* Action Button */}
-                <Button size='xs' variant='link' action='primary' p='$0'>
-                  <ButtonText size='xs' fontWeight='$bold'>
-                    Ver
-                  </ButtonText>
-                  <Icon as={ChevronRight} size='xs' ml='$1' />
-                </Button>
+                {hasActivityDetail && (
+                  <Button
+                    size='xs'
+                    variant='link'
+                    action='primary'
+                    p='$0'
+                    onPress={() => router.push(`/activities/${data.id}`)}
+                  >
+                    <ButtonText size='xs' fontWeight='$bold'>
+                      Ver
+                    </ButtonText>
+                    <Icon as={ChevronRight} size='xs' ml='$1' />
+                  </Button>
+                )}
               </HStack>
             </VStack>
           </HStack>
