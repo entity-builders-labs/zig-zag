@@ -226,7 +226,8 @@ export default function TourDetailScreen() {
         const generationStatus = metadata?.generationStatus;
         const activities = data.activities || [];
 
-        // Update generation status
+        // Still actively generating means: backend reports generating/pending
+        // AND we don't have activities yet.
         const stillGenerating =
           (generationStatus === 'generating' ||
             generationStatus === 'pending') &&
@@ -243,6 +244,13 @@ export default function TourDetailScreen() {
             data.totalDays
           );
           setStops(transformedStops);
+        }
+
+        // Stop polling once generation is no longer in progress — nothing
+        // left to wait for, whether it succeeded, failed, or was never
+        // triggered (e.g. a manually created tour with no generation flow).
+        if (!stillGenerating) {
+          clearInterval(pollInterval);
         }
       } catch (error) {
         console.error('Failed to poll tour status:', error);

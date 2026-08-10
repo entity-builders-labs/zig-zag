@@ -127,10 +127,9 @@ export const RoutesSection = ({
           {tours.map((tour) => {
             const images = getTourImages(tour);
             return (
-              <Link href={`/tours/${tour.id}`} asChild>
+              <Link key={tour.id} href={`/tours/${tour.id}`} asChild>
                 <Pressable>
                   <Box
-                    key={tour.id}
                     w={300}
                     bg='$white'
                     rounded='$2xl'
