@@ -4,7 +4,6 @@ import { PrismaService } from '../../../core/database/prisma.service';
 
 describe('ToursService', () => {
   let service: ToursService;
-  let prisma: PrismaService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -26,7 +25,6 @@ describe('ToursService', () => {
     }).compile();
 
     service = module.get<ToursService>(ToursService);
-    prisma = module.get<PrismaService>(PrismaService);
   });
 
   it('should be defined', () => {

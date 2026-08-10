@@ -114,6 +114,14 @@
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
     },
+    "moduleNameMapper": {
+      "^src/(.*)$": "<rootDir>/$1",
+      "^@core/(.*)$": "<rootDir>/core/$1",
+      "^@shared/(.*)$": "<rootDir>/shared/$1",
+      "^@activities/(.*)$": "<rootDir>/modules/activities/$1",
+      "^@tours/(.*)$": "<rootDir>/modules/tours/$1",
+      "^@integrations/(.*)$": "<rootDir>/modules/integrations/$1"
+    },
     "collectCoverageFrom": [
       "**/*.(t|j)s"
     ],

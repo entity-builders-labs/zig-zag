@@ -2,6 +2,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from '../../../core/database/prisma.service';
 import { CreateActivityDto } from '../dto/create-activity.dto';
 import { ActivitiesService } from './activities.service';
+import { ActivityMetadataService } from './activity-metadata.service';
+import { VectorStoreService } from '../../../shared/ai/services/vector-store.service';
 
 describe('ActivitiesService', () => {
   let service: ActivitiesService;
@@ -9,7 +11,10 @@ describe('ActivitiesService', () => {
   const mockPrismaService = {
     activity: {
       findMany: jest.fn(),
-      create: jest.fn(),
+      create: jest.fn().mockImplementation(async ({ data }: { data: any }) => ({
+        id: 'generated-id',
+        ...data,
+      })),
       findUnique: jest.fn(),
       findFirst: jest.fn(),
       update: jest.fn(),
@@ -60,6 +65,16 @@ describe('ActivitiesService', () => {
           provide: PrismaService,
           useValue: mockPrismaService,
         },
+        {
+          provide: ActivityMetadataService,
+          useValue: {
+            generateMetadata: jest.fn().mockResolvedValue({}),
+          },
+        },
+        {
+          provide: VectorStoreService,
+          useValue: {},
+        },
       ],
     }).compile();
 
@@ -74,112 +89,32 @@ describe('ActivitiesService', () => {
   });
 
   describe('createMany', () => {
-    it('should handle duplicate activities gracefully', async () => {
-      // Setup - Create test data
-      const sourceId = 'test-source-id';
-      const externalId = 'test-external-id';
+    const activityDto: CreateActivityDto = {
+      name: 'Test Activity',
+      description: 'Test Description',
+      latitude: 40.712776,
+      longitude: -74.005974,
+      sourceId: 'test-source-id',
+      externalId: 'test-external-id',
+    };
 
-      const activityDto: CreateActivityDto = {
-        name: 'Test Activity',
-        description: 'Test Description',
-        latitude: 40.712776,
-        longitude: -74.005974,
-        sourceId,
-        externalId,
-        // Add any other required fields here
-      };
-
-      // First, simulate that no activities exist in the database
-      (mockPrismaService.activity.findMany as jest.Mock).mockResolvedValueOnce(
-        [],
-      );
-
-      // Mock successful creation for the first batch
-      (mockPrismaService.$transaction as jest.Mock).mockImplementationOnce(
-        async (callback: (prisma: any) => Promise<any>) => {
-          return await callback(mockPrismaService);
-        },
-      );
-
-      // Execute - First creation should succeed
-      const firstResult = await service.createMany([activityDto]);
-
-      // Simulate that the activity now exists in the database for the second call
-      (mockPrismaService.activity.findMany as jest.Mock).mockResolvedValueOnce([
-        {
-          id: 'some-id',
-          sourceId,
-          externalId,
-          name: 'Test Activity',
-          // Add other fields as needed
-        },
-      ]);
-
-      // Execute - Second creation with the same activity
-      const secondResult = await service.createMany([activityDto]);
-
-      // Assertions
-
-      // Verify the findMany was called twice with sourceId and externalId filter
-      expect(mockPrismaService.activity.findMany).toHaveBeenCalledTimes(2);
-      expect(mockPrismaService.activity.findMany).toHaveBeenCalledWith({
-        where: {
-          OR: [
-            {
-              AND: [{ sourceId: sourceId }, { externalId: externalId }],
-            },
-          ],
-        },
-        select: {
-          sourceId: true,
-          externalId: true,
-        },
-      });
-
-      // Verify the transaction was used
-      expect(mockPrismaService.$transaction).toHaveBeenCalledTimes(2);
-
-      // The second call should have filtered out the duplicate activity
-      // (actual implementation might vary, but duplicates should be handled)
-      expect(secondResult.created).toBeLessThanOrEqual(firstResult.created);
-      expect(secondResult.duplicates).toBeGreaterThanOrEqual(1);
-    });
-
-    it('should handle duplicate activities during database constraint violation', async () => {
-      // Setup - Create test data
-      const sourceId = 'test-source-id';
-      const externalId = 'test-external-id';
-
-      const activityDto: CreateActivityDto = {
-        name: 'Test Activity',
-        description: 'Test Description',
-        latitude: 40.712776,
-        longitude: -74.005974,
-        sourceId,
-        externalId,
-        // Add any other required fields here
-      };
-
-      // Simulate that no activities exist in the database (so our check doesn't catch it)
-      (mockPrismaService.activity.findMany as jest.Mock).mockResolvedValueOnce(
-        [],
-      );
-
-      // Mock a unique constraint violation during transaction
-      (mockPrismaService.$transaction as jest.Mock).mockImplementationOnce(
-        async () => {
-          const error: any = new Error('Unique constraint violation');
-          error.name = 'PrismaClientKnownRequestError';
-          error.code = 'P2002';
-          error.meta = { target: ['sourceId', 'externalId'] };
-          throw error;
-        },
-      );
-
-      // Execute - The service should handle the constraint violation gracefully
+    it('should create an activity successfully', async () => {
       const result = await service.createMany([activityDto]);
 
-      // Assertions
+      expect(mockPrismaService.activity.create).toHaveBeenCalledTimes(1);
+      expect(result.created).toBe(1);
+      expect(result.duplicates).toBe(0);
+      expect(result.errors).toBe(0);
+    });
+
+    it('should count a unique constraint violation (P2002) as a duplicate, not an error', async () => {
+      (mockPrismaService.activity.create as jest.Mock).mockRejectedValueOnce({
+        code: 'P2002',
+        meta: { target: ['sourceId', 'externalId'] },
+      });
+
+      const result = await service.createMany([activityDto]);
+
       expect(result.created).toBe(0);
       expect(result.duplicates).toBe(1);
       expect(result.errors).toBe(0);

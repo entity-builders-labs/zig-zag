@@ -228,7 +228,7 @@ export class VectorStoreService implements OnModuleInit {
         typeof activity.metadata === 'string'
           ? JSON.parse(activity.metadata)
           : activity.metadata || {};
-    } catch (error) {
+    } catch {
       metadata = {};
     }
 
