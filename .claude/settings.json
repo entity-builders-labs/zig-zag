@@ -1,0 +1,42 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git checkout *)",
+      "Bash(yarn test *)",
+      "Bash(yarn lint *)",
+      "Bash(yarn check *)",
+      "Bash(yarn run *)",
+      "Bash(npx tsc *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(docker info *)",
+      "Bash(xcrun simctl *)",
+      "Bash(yarn simulator *)",
+      "Bash(python3 *)",
+      "Bash(curl *)",
+      "Bash(docker logs *)",
+      "Bash(docker ps *)",
+      "Bash(docker exec *)",
+      "Bash(docker-compose *)",
+      "Bash(node *)",
+      "Bash(npx expo export *)",
+      "Bash(npx expo start *)",
+      "Bash(npx playwright *)",
+      "Bash(npx serve *)",
+      "Bash(npx --yes serve *)",
+      "Bash(tee *)",
+      "Bash(pkill -f *)",
+      "Bash(lsof *)",
+      "Bash(sleep *)",
+      "Bash(grep *)",
+      "Bash(rg *)",
+      "Bash(find *)",
+      "Bash(ls *)",
+      "Bash(cat *)",
+      "Bash(pwd)",
+      "Bash(git status *)",
+      "Bash(git diff *)",
+      "Bash(git log *)"
+    ]
+  }
+}
