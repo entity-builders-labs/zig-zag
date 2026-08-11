@@ -4,6 +4,7 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '@core/database/prisma.service';
 import { ActivitiesService } from '@activities/services/activities.service';
 import { LangChainService } from '@shared/ai/langchain.service';
@@ -27,6 +28,8 @@ import {
 import { extractAndCleanJson, repairJson } from '../utils/json-parser.util';
 import { transformAiActivitiesToDto } from '../utils/activity-transformer.util';
 import { updateTravelTimesForActivities } from '../utils/travel-time-calculator.util';
+import { optimizeActivityOrder } from '../utils/route-optimizer.util';
+import { verifyAndDedupeActivities } from '../utils/activity-verification.util';
 
 @Injectable()
 export class TourActivityGenerationService {
@@ -40,6 +43,7 @@ export class TourActivityGenerationService {
     private readonly vectorStoreService: VectorStoreService,
     private readonly googlePlacesService: GooglePlacesService,
     private readonly tourImageService: TourImageService,
+    private readonly configService: ConfigService,
   ) {}
 
   private createTourChain() {
@@ -249,6 +253,10 @@ export class TourActivityGenerationService {
       // We'll reuse the logic from generateTour but only create activities
       const enhancedPrompt = metadata?.enhancedPrompt || prompt;
       let availableActivitiesText = '';
+      // Real activity ids we actually offered the model — anything it
+      // returns outside this set gets dropped as a hallucination, since
+      // every stop must be a real, verified place.
+      const candidateActivityIds = new Set<string>();
 
       // Search for existing activities if location provided
       if (options?.latitude && options?.longitude) {
@@ -286,11 +294,14 @@ export class TourActivityGenerationService {
               `${nearbyActivities.length} actividades encontradas. Ordenando según tus preferencias...`,
             );
 
-            availableActivitiesText = `\n\nAvailable activities in the area (within ${radius / 1000}km):\n${nearbyActivities
-              .slice(0, 15)
+            const nearbyActivitiesSample = nearbyActivities.slice(0, 15);
+            nearbyActivitiesSample.forEach((act: any) =>
+              candidateActivityIds.add(act.id),
+            );
+            availableActivitiesText = `\n\nAvailable activities in the area (within ${radius / 1000}km):\n${nearbyActivitiesSample
               .map(
-                (act: any, idx: number) =>
-                  `${idx + 1}. ${act.name} (${act.type || 'Activity'}) - ${(act.description || 'No description').substring(0, 100)} - Location: ${act.latitude}, ${act.longitude} - Duration: ${act.duration || 'Unknown'} minutes`,
+                (act: any) =>
+                  `id: ${act.id} - ${act.name} (${act.type || 'Activity'}) - ${(act.description || 'No description').substring(0, 100)} - Location: ${act.latitude}, ${act.longitude} - Duration: ${act.duration || 'Unknown'} minutes`,
               )
               .join('\n')}`;
           } else {
@@ -324,29 +335,34 @@ export class TourActivityGenerationService {
                   `¡Encontrados ${refreshedActivities.length} lugares nuevos en Google Maps! Analizando...`,
                 );
 
-                availableActivitiesText = `\n\nAvailable activities in the area (within ${radius / 1000}km):\n${refreshedActivities
-                  .slice(0, 15)
+                const refreshedActivitiesSample = refreshedActivities.slice(
+                  0,
+                  15,
+                );
+                refreshedActivitiesSample.forEach((act: any) =>
+                  candidateActivityIds.add(act.id),
+                );
+                availableActivitiesText = `\n\nAvailable activities in the area (within ${radius / 1000}km):\n${refreshedActivitiesSample
                   .map(
-                    (act: any, idx: number) =>
-                      `${idx + 1}. ${act.name} (${act.type || 'Activity'}) - ${(act.description || 'No description').substring(0, 100)} - Location: ${act.latitude}, ${act.longitude} - Duration: ${act.duration || 'Unknown'} minutes`,
+                    (act: any) =>
+                      `id: ${act.id} - ${act.name} (${act.type || 'Activity'}) - ${(act.description || 'No description').substring(0, 100)} - Location: ${act.latitude}, ${act.longitude} - Duration: ${act.duration || 'Unknown'} minutes`,
                   )
                   .join('\n')}`;
               } else {
                 await this.updateGenerationStatus(
                   tourId,
                   'generating',
-                  'No se encontraron actividades en Google Maps. Generando con IA creativa...',
+                  'No se encontraron lugares reales cerca de esta ubicación.',
                 );
               }
             } catch (crawlError) {
               this.logger.error(
                 `Google Maps crawling failed: ${crawlError.message}`,
               );
-              // Continue with creative AI generation if crawling fails
               await this.updateGenerationStatus(
                 tourId,
                 'generating',
-                'Búsqueda en mapas falló. Usando generación creativa...',
+                'La búsqueda en Google Maps falló.',
               );
             }
           }
@@ -360,12 +376,15 @@ export class TourActivityGenerationService {
             'Búsqueda de actividades completada. Generando itinerario con IA...',
           );
         }
-      } else {
-        // No location provided, generate directly
-        await this.updateGenerationStatus(
-          tourId,
-          'generating',
-          'Generando itinerario personalizado con IA...',
+      }
+
+      // Never let the AI invent activities out of thin air — every stop must
+      // come from real places found in our database or crawled from
+      // Google/Geoapify. If neither search nor crawl turned up anything
+      // real for this location, fail loudly instead of hallucinating a tour.
+      if (!availableActivitiesText) {
+        throw new Error(
+          'No se encontraron lugares reales para esta ubicación. Probá con otro destino o un radio de búsqueda más amplio.',
         );
       }
 
@@ -383,9 +402,7 @@ export class TourActivityGenerationService {
       const aiResponse = (await Promise.race([
         tourChain.invoke({
           input: fullPrompt,
-          activities:
-            availableActivitiesText ||
-            'No specific activities provided. Create a general tour.',
+          activities: availableActivitiesText,
         }),
         new Promise<any>((_, reject) =>
           setTimeout(
@@ -405,8 +422,47 @@ export class TourActivityGenerationService {
         'Itinerario generado. Guardando actividades...',
       );
 
+      // Hard safety net: drop any activity the model returned that doesn't
+      // match one of the real candidates we offered it (prompt instructions
+      // alone aren't reliable enough to stop hallucination), and any repeat
+      // visit to the same place.
+      const rawActivities: any[] = aiResponse.activities || [];
+      const {
+        verified: uniqueActivities,
+        hallucinatedCount,
+        duplicateCount,
+      } = verifyAndDedupeActivities(rawActivities, candidateActivityIds);
+      if (hallucinatedCount > 0) {
+        this.logger.warn(
+          `Dropped ${hallucinatedCount} activity/activities for tour ${tourId} that did not match a real candidate (model ignored the provided list).`,
+        );
+      }
+      if (duplicateCount > 0) {
+        this.logger.warn(
+          `Dropped ${duplicateCount} duplicate activity/activities for tour ${tourId} (model repeated the same place).`,
+        );
+      }
+      if (uniqueActivities.length === 0) {
+        throw new Error(
+          'No se encontraron lugares reales para esta ubicación. Probá con otro destino o un radio de búsqueda más amplio.',
+        );
+      }
+
+      // The AI has no real geographic reasoning — it just lists activities
+      // in whatever order seemed plausible. Reorder them with Google's own
+      // route optimizer (real streets, not crow-flies distance) so the
+      // itinerary doesn't zigzag back and forth across the search area.
+      let orderedActivities = uniqueActivities;
+      if (options?.latitude && options?.longitude) {
+        orderedActivities = await optimizeActivityOrder(
+          { latitude: options.latitude, longitude: options.longitude },
+          uniqueActivities,
+          this.configService.get<string>('GOOGLE_MAPS_API_KEY'),
+        );
+      }
+
       // Transform AI response activities to CreateTourDto format
-      let activities = transformAiActivitiesToDto(aiResponse.activities || []);
+      let activities = transformAiActivitiesToDto(orderedActivities);
 
       // Calculate travel times using real coordinates
       // First, get all activity entities from database if they have activityId
@@ -499,17 +555,17 @@ export class TourActivityGenerationService {
       // Return updated tour
       return this.toursService.findOne(tourId);
     } catch (error) {
-      // Update status to failed
-      await this.updateGenerationStatus(
-        tourId,
-        'failed',
-        `Error: ${error?.message || 'No se pudo generar el itinerario'}`,
-      );
+      // Update status to failed, and record the error alongside it in the
+      // same write — a separate update spreading the pre-generation metadata
+      // would clobber the 'failed' status back to whatever it was before.
+      const latestTour = await this.toursService.findOne(tourId);
       await this.prisma.tour.update({
         where: { id: tourId },
         data: {
           metadata: {
-            ...metadata,
+            ...(latestTour.metadata as any),
+            generationStatus: 'failed',
+            generationMessage: `Error: ${error?.message || 'No se pudo generar el itinerario'}`,
             generationError: error?.message || String(error),
             generationFailedAt: new Date().toISOString(),
           },
