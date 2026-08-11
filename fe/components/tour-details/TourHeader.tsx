@@ -1,6 +1,9 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Dimensions } from 'react-native';
-import { Map } from '../../features/map';
+import { Map as MapView } from '../../features/map';
+import { Marker as MapMarker } from '../../features/map/types';
+import { getRegionForCoordinates } from '../../features/map/utils';
+import { fetchWalkingRoute } from '../../features/map/directions';
 import {
   Box,
   Image,
@@ -11,6 +14,7 @@ import {
   Badge,
   BadgeText,
   Heading,
+  Spinner,
 } from '@gluestack-ui/themed';
 import { useRouter } from 'expo-router';
 import { ArrowLeft } from 'lucide-react-native';
@@ -18,12 +22,27 @@ import { Tour } from '../../api/tours';
 import { getImage } from './utils';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
+const COLLAPSED_HEIGHT = SCREEN_HEIGHT * 0.4;
+const EXPANDED_HEIGHT = SCREEN_HEIGHT * 0.75;
 
-export const TourHeader = ({ tour }: { tour: Tour }) => {
+interface StopWithLocation {
+  latitude: number;
+  longitude: number;
+  title: string;
+  order: number;
+  dayNumber: number;
+}
+
+export const TourHeader = ({
+  tour,
+  expanded = false,
+}: {
+  tour: Tour;
+  expanded?: boolean;
+}) => {
   const router = useRouter();
   const firstActivity = tour.activities?.[0]?.activity;
   const imageUri = tour.coverImage || getImage(firstActivity?.photos);
-  console.log('$$$ tour:', tour);
 
   const getFirstLocation = () => {
     if (tour.metadata?.options?.latitude && tour.metadata?.options?.longitude) {
@@ -41,7 +60,92 @@ export const TourHeader = ({ tour }: { tour: Tour }) => {
 
   const firstLocation = getFirstLocation();
 
-  console.log('$$$ firstLocation 2:', firstLocation);
+  // All stops with resolvable coordinates, to plot the full itinerary
+  // instead of a single pin at the tour's destination.
+  const stops: StopWithLocation[] = (tour.activities || [])
+    .map((stop) => {
+      const latitude = stop.activity?.latitude ?? stop.activityLatitude;
+      const longitude = stop.activity?.longitude ?? stop.activityLongitude;
+      if (latitude == null || longitude == null) return null;
+      return {
+        latitude,
+        longitude,
+        title: stop.activity?.name || stop.activityName || 'Actividad',
+        order: stop.order,
+        dayNumber: stop.dayNumber ?? 1,
+      };
+    })
+    .filter((stop): stop is StopWithLocation => stop !== null);
+
+  const stopMarkers: MapMarker[] = stops.map((stop, index) => ({
+    id: `stop-${index}`,
+    coordinate: { latitude: stop.latitude, longitude: stop.longitude },
+    title: stop.title,
+    order: stop.order,
+  }));
+
+  const mapRegion = getRegionForCoordinates(stops, firstLocation);
+  const mapMarkers: MapMarker[] =
+    stopMarkers.length > 0
+      ? stopMarkers
+      : firstLocation
+        ? [{ id: 'tour-location', coordinate: firstLocation, title: tour.name }]
+        : [];
+
+  // One connected line per day, starting from the tour's destination point
+  // and passing through that day's stops in order.
+  const straightRoutes = React.useMemo(() => {
+    const stopsByDay = new Map<number, StopWithLocation[]>();
+    stops.forEach((stop) => {
+      const dayStops = stopsByDay.get(stop.dayNumber) || [];
+      dayStops.push(stop);
+      stopsByDay.set(stop.dayNumber, dayStops);
+    });
+
+    return Array.from(stopsByDay.entries())
+      .sort(([dayA], [dayB]) => dayA - dayB)
+      .map(([, dayStops]) => {
+        const orderedStops = [...dayStops].sort((a, b) => a.order - b.order);
+        const coordinates = firstLocation
+          ? [firstLocation, ...orderedStops]
+          : orderedStops;
+        return coordinates;
+      })
+      .filter((coordinates) => coordinates.length > 1);
+  }, [tour.id]);
+
+  const [routes, setRoutes] = useState<{ coordinates: typeof straightRoutes[number] }[]>(
+    straightRoutes.map((coordinates) => ({ coordinates }))
+  );
+  const [loadingDirections, setLoadingDirections] = useState(false);
+
+  // Fetch the real walking route regardless of collapsed/expanded — the
+  // recorrido should be visible everywhere, not just once the map view is
+  // opened.
+  useEffect(() => {
+    if (straightRoutes.length === 0) {
+      setRoutes([]);
+      return;
+    }
+
+    let cancelled = false;
+    setLoadingDirections(true);
+    Promise.all(straightRoutes.map((coordinates) => fetchWalkingRoute(coordinates)))
+      .then((resolvedRoutes) => {
+        if (!cancelled) {
+          setRoutes(resolvedRoutes.map((coordinates) => ({ coordinates })));
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingDirections(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tour.id]);
+
   // Get tags from metadata or fallback to first activity type
   const tags =
     tour.metadata?.tags ||
@@ -51,23 +155,19 @@ export const TourHeader = ({ tour }: { tour: Tour }) => {
         ? [tour.activities[0].activityType]
         : ['']);
   return (
-    <Box height={SCREEN_HEIGHT * 0.4} width='$full' position='relative'>
+    <Box
+      height={expanded ? EXPANDED_HEIGHT : COLLAPSED_HEIGHT}
+      width='$full'
+      position='relative'
+    >
       {/* Background Image or Static Map */}
-      {firstLocation ? (
-        <Map
+      {mapRegion ? (
+        <MapView
           isStatic
-          initialRegion={{
-            ...firstLocation,
-            latitudeDelta: 0.005,
-            longitudeDelta: 0.005,
-          }}
-          markers={[
-            {
-              id: 'tour-location',
-              coordinate: firstLocation,
-              title: tour.name,
-            },
-          ]}
+          zoomable={expanded}
+          initialRegion={mapRegion}
+          markers={mapMarkers}
+          routes={routes}
         />
       ) : (
         <Image
@@ -79,16 +179,32 @@ export const TourHeader = ({ tour }: { tour: Tour }) => {
         />
       )}
 
-      {/* Gradient Overlay (Simulated) */}
-      <Box
-        position='absolute'
-        bottom={0}
-        left={0}
-        right={0}
-        height='50%'
-        bg='$black'
-        opacity={0.6}
-      />
+      {loadingDirections && (
+        <Box
+          position='absolute'
+          top={50}
+          right={20}
+          bg='rgba(255,255,255,0.9)'
+          borderRadius='$full'
+          p='$2'
+        >
+          <Spinner size='small' color='$primary500' />
+        </Box>
+      )}
+
+      {/* Gradient overlay + full title/tags — only when collapsed, so it
+          doesn't shade half of a map the user is trying to actually read */}
+      {!expanded && (
+        <Box
+          position='absolute'
+          bottom={0}
+          left={0}
+          right={0}
+          height='50%'
+          bg='$black'
+          opacity={0.6}
+        />
+      )}
 
       {/* Back Button */}
       <Box position='absolute' top={50} left={20} zIndex={10}>
@@ -105,29 +221,44 @@ export const TourHeader = ({ tour }: { tour: Tour }) => {
         </Button>
       </Box>
 
-      {/* Title & Tags */}
-      <VStack position='absolute' bottom={20} left={20} right={20} space='xs'>
-        <HStack space='sm' flexWrap='wrap'>
-          {tags.map((tag: string) => (
-            <Badge
-              key={tag}
-              size='md'
-              variant='solid'
-              borderRadius='$full'
-              action='info'
-              bg='rgba(255,255,255,0.2)'
-              borderColor='transparent'
-            >
-              <BadgeText color='$white' fontWeight='$medium'>
-                {tag}
-              </BadgeText>
-            </Badge>
-          ))}
-        </HStack>
-        <Heading color='$white' size='3xl' fontWeight='$bold' mt='$2'>
-          {tour.name}
-        </Heading>
-      </VStack>
+      {expanded ? (
+        <Box
+          position='absolute'
+          bottom={0}
+          left={0}
+          right={0}
+          bg='rgba(0,0,0,0.85)'
+          px='$4'
+          py='$3'
+        >
+          <Heading color='$white' size='md' fontWeight='$bold' numberOfLines={1}>
+            {tour.name}
+          </Heading>
+        </Box>
+      ) : (
+        <VStack position='absolute' bottom={20} left={20} right={20} space='xs'>
+          <HStack space='sm' flexWrap='wrap'>
+            {tags.map((tag: string) => (
+              <Badge
+                key={tag}
+                size='md'
+                variant='solid'
+                borderRadius='$full'
+                action='info'
+                bg='rgba(255,255,255,0.2)'
+                borderColor='transparent'
+              >
+                <BadgeText color='$white' fontWeight='$medium'>
+                  {tag}
+                </BadgeText>
+              </Badge>
+            ))}
+          </HStack>
+          <Heading color='$white' size='3xl' fontWeight='$bold' mt='$2'>
+            {tour.name}
+          </Heading>
+        </VStack>
+      )}
     </Box>
   );
 };

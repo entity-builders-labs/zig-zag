@@ -32,4 +32,8 @@ export interface MapProps {
   }[];
   isStatic?: boolean;
   initialRegion?: Region;
+  // Controls pan/zoom/pinch UI independently of isStatic — isStatic still
+  // decides whether dragging updates the global search center. Defaults to
+  // !isStatic when omitted.
+  zoomable?: boolean;
 }

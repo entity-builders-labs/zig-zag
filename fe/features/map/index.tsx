@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, Dimensions, View, Text } from 'react-native';
-import MapView, { Region, Marker, Circle } from 'react-native-maps';
+import MapView, { Region, Marker, Circle, Polyline } from 'react-native-maps';
 import { useMap } from '../../context/app';
 import { useAddress } from '../../context/app';
 import { useSearchRadius } from '../../context/app';
@@ -27,6 +27,8 @@ export const Map: React.FC<MapProps> = ({
   markers: propMarkers,
   isStatic = false,
   initialRegion,
+  routes,
+  zoomable,
 }) => {
   const { center } = useMap();
   const { address } = useAddress();
@@ -41,9 +43,9 @@ export const Map: React.FC<MapProps> = ({
   };
 
   const region = initialRegion || contextRegion;
-  console.log('$$$ region:', initialRegion, contextRegion);
   // Create markers from activities if no markers are provided via props
   const markers = propMarkers || createMarkersFromActivities(activities);
+  const interactive = zoomable ?? !isStatic;
 
   return (
     <View style={styles.container}>
@@ -52,12 +54,12 @@ export const Map: React.FC<MapProps> = ({
         region={region}
         // Mostrar la ubicación real solo como referencia, pero marcamos el centro elegido
         showsUserLocation={false}
-        toolbarEnabled={!isStatic}
-        zoomControlEnabled={!isStatic}
-        scrollEnabled={!isStatic}
-        zoomEnabled={!isStatic}
-        pitchEnabled={!isStatic}
-        rotateEnabled={!isStatic}
+        toolbarEnabled={interactive}
+        zoomControlEnabled={interactive}
+        scrollEnabled={interactive}
+        zoomEnabled={interactive}
+        pitchEnabled={interactive}
+        rotateEnabled={interactive}
       >
         {!isStatic && (
           <>
@@ -81,6 +83,14 @@ export const Map: React.FC<MapProps> = ({
             />
           </>
         )}
+        {routes?.map((route, index) => (
+          <Polyline
+            key={index}
+            coordinates={route.coordinates}
+            strokeColor='#3B82F6'
+            strokeWidth={3}
+          />
+        ))}
         {markers.map((marker) => (
           <Marker
             key={marker.id}

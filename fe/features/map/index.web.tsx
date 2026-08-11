@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet, View, Text } from 'react-native';
 import { GoogleMap, useJsApiLoader, Marker } from '@react-google-maps/api';
 import { useMap } from '../../context/app';
@@ -25,10 +25,18 @@ export const Map: React.FC<MapProps> = ({
   markers: propMarkers,
   isStatic = false,
   initialRegion,
+  routes,
+  zoomable,
 }) => {
   const { center, handleCenterChange } = useMap();
   const { activities } = useActivities();
   const mapRef = useRef<google.maps.Map | null>(null);
+  const polylinesRef = useRef<google.maps.Polyline[]>([]);
+  // A ref doesn't trigger a re-render/effect-run when it's populated, so
+  // effects that need the live map instance (fitBounds, drawing polylines)
+  // watch this state instead — it's set from onLoad, once the map actually
+  // exists, not just once the JS API script has loaded.
+  const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null);
 
   const apiKey = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY;
 
@@ -42,6 +50,75 @@ export const Map: React.FC<MapProps> = ({
     googleMapsApiKey: apiKey,
   });
 
+  const markers = propMarkers || createMarkersFromActivities(activities);
+
+  // Frame every marker and route point instead of a fixed zoom level, which
+  // ignored initialRegion's delta entirely and often left the map zoomed way
+  // out (or in) relative to how spread out the actual points are.
+  useEffect(() => {
+    if (!mapInstance) return;
+
+    const points: { lat: number; lng: number }[] = [
+      ...markers.map((m) => ({
+        lat: m.coordinate.latitude,
+        lng: m.coordinate.longitude,
+      })),
+      ...(routes?.flatMap((r) =>
+        r.coordinates.map((c) => ({ lat: c.latitude, lng: c.longitude }))
+      ) || []),
+    ];
+
+    if (points.length === 0) return;
+    if (points.length === 1) {
+      mapInstance.setCenter(points[0]);
+      mapInstance.setZoom(15);
+      return;
+    }
+
+    const bounds = new google.maps.LatLngBounds();
+    points.forEach((p) => bounds.extend(p));
+    mapInstance.fitBounds(bounds, 40);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mapInstance, JSON.stringify(markers), JSON.stringify(routes)]);
+
+  // Polylines are managed imperatively against the map instance rather than
+  // via @react-google-maps/api's <Polyline> component — that component is a
+  // class relying on legacy React context, which doesn't reliably render
+  // under this app's React 19 / react-dom 19.1.0 (Marker uses a newer
+  // pattern and is unaffected).
+  useEffect(() => {
+    if (!mapInstance) return;
+
+    polylinesRef.current.forEach((polyline) => polyline.setMap(null));
+    polylinesRef.current = (routes || []).map(
+      (route) =>
+        new google.maps.Polyline({
+          path: route.coordinates.map((c) => ({
+            lat: c.latitude,
+            lng: c.longitude,
+          })),
+          strokeColor: '#3B82F6',
+          strokeOpacity: 0.8,
+          strokeWeight: 3,
+          map: mapInstance,
+        })
+    );
+
+    // Google's modern vector maps render polylines via WebGL/canvas, not
+    // SVG DOM nodes, so there's nothing to query for in the page — expose
+    // the live Polyline instances for E2E tests (see fe/e2e/) to assert
+    // against instead.
+    if (typeof window !== 'undefined') {
+      (window as any).__zigzagPolylines = polylinesRef.current;
+    }
+
+    return () => {
+      polylinesRef.current.forEach((polyline) => polyline.setMap(null));
+      polylinesRef.current = [];
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mapInstance, JSON.stringify(routes)]);
+
   if (loadError) {
     console.error('Google Maps load error:', loadError);
     return (
@@ -54,9 +131,6 @@ export const Map: React.FC<MapProps> = ({
       </View>
     );
   }
-
-  // Create markers from activities if no markers are provided via props
-  const markers = propMarkers || createMarkersFromActivities(activities);
 
   const mapCenter = initialRegion
     ? { lat: initialRegion.latitude, lng: initialRegion.longitude }
@@ -79,18 +153,28 @@ export const Map: React.FC<MapProps> = ({
     }
   };
 
-  const mapOptions: google.maps.MapOptions = isStatic
+  const interactive = zoomable ?? !isStatic;
+  // google.maps.Map#setOptions() shallow-merges — a key omitted from a new
+  // options object is left at whatever it was previously set to. Both
+  // branches must set every flag explicitly, or toggling between them
+  // leaves stale restrictions (e.g. draggable: false survives a switch to
+  // "interactive" if that branch never mentions draggable at all).
+  const mapOptions: google.maps.MapOptions = interactive
     ? {
+        disableDefaultUI: false,
+        draggable: true,
+        zoomControl: true,
+        scrollwheel: true,
+        disableDoubleClickZoom: false,
+        clickableIcons: true,
+      }
+    : {
         disableDefaultUI: true,
         draggable: false,
         zoomControl: false,
         scrollwheel: false,
         disableDoubleClickZoom: true,
         clickableIcons: false,
-      }
-    : {
-        disableDefaultUI: false,
-        zoomControl: true,
       };
 
   return (
@@ -101,6 +185,7 @@ export const Map: React.FC<MapProps> = ({
         zoom={15}
         onLoad={(map) => {
           mapRef.current = map;
+          setMapInstance(map);
         }}
         onDragEnd={handleMapDragEnd}
         options={mapOptions}

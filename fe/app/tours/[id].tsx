@@ -3,6 +3,7 @@ import { ScrollView, ActivityIndicator } from 'react-native';
 import {
   Box,
   VStack,
+  HStack,
   Heading,
   Button,
   ButtonText,
@@ -173,6 +174,8 @@ export default function TourDetailScreen() {
   const [stops, setStops] = useState<TourStop[]>([]);
   const [isGeneratingActivities, setIsGeneratingActivities] = useState(false);
   const [generationMessage, setGenerationMessage] = useState<string>('');
+  const [generationError, setGenerationError] = useState<string>('');
+  const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
 
   useEffect(() => {
     const loadTour = async () => {
@@ -197,6 +200,9 @@ export default function TourDetailScreen() {
             activities.length === 0
         );
         setGenerationMessage(metadata?.generationMessage || '');
+        setGenerationError(
+          generationStatus === 'failed' ? metadata?.generationError || '' : ''
+        );
 
         // Transform activities to stops (with day grouping if needed)
         const transformedStops = transformActivitiesToStops(
@@ -234,6 +240,9 @@ export default function TourDetailScreen() {
           activities.length === 0;
         setIsGeneratingActivities(stillGenerating);
         setGenerationMessage(metadata?.generationMessage || '');
+        setGenerationError(
+          generationStatus === 'failed' ? metadata?.generationError || '' : ''
+        );
 
         // If we have activities or generation completed, update the tour data
         if (activities.length > 0 || generationStatus === 'completed') {
@@ -297,16 +306,61 @@ export default function TourDetailScreen() {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 100 }}
         >
-          <TourHeader tour={tour} />
+          <TourHeader tour={tour} expanded={viewMode === 'map'} />
 
           <Box position='relative' zIndex={10}>
             <QuickStatsBar tour={tour} />
           </Box>
 
           <VStack mt='$6' px='$4'>
-            <Heading size='md' mb='$4' color='$textLight800'>
-              Tu Recorrido
-            </Heading>
+            <HStack justifyContent='space-between' alignItems='center' mb='$4'>
+              <Heading size='md' color='$textLight800'>
+                Tu Recorrido
+              </Heading>
+              {!isGeneratingActivities &&
+                !generationError &&
+                stops.length > 0 && (
+                  <HStack
+                    bg='$backgroundLight100'
+                    borderRadius='$full'
+                    p='$1'
+                    space='xs'
+                  >
+                    <Button
+                      testID='view-toggle-list'
+                      size='xs'
+                      variant={viewMode === 'list' ? 'solid' : 'link'}
+                      action='primary'
+                      borderRadius='$full'
+                      px='$3'
+                      onPress={() => setViewMode('list')}
+                    >
+                      <ButtonText
+                        size='xs'
+                        color={viewMode === 'list' ? '$white' : '$textLight600'}
+                      >
+                        Lista
+                      </ButtonText>
+                    </Button>
+                    <Button
+                      testID='view-toggle-map'
+                      size='xs'
+                      variant={viewMode === 'map' ? 'solid' : 'link'}
+                      action='primary'
+                      borderRadius='$full'
+                      px='$3'
+                      onPress={() => setViewMode('map')}
+                    >
+                      <ButtonText
+                        size='xs'
+                        color={viewMode === 'map' ? '$white' : '$textLight600'}
+                      >
+                        Mapa
+                      </ButtonText>
+                    </Button>
+                  </HStack>
+                )}
+            </HStack>
 
             {isGeneratingActivities ? (
               <Box
@@ -329,6 +383,26 @@ export default function TourDetailScreen() {
                   Esto puede tomar unos momentos
                 </Text>
               </Box>
+            ) : generationError ? (
+              <Box
+                p='$8'
+                alignItems='center'
+                justifyContent='center'
+                bg='$backgroundLight100'
+                borderRadius='$md'
+              >
+                <Text
+                  color='$error600'
+                  textAlign='center'
+                  fontWeight='$medium'
+                  mb='$2'
+                >
+                  No pudimos generar este tour
+                </Text>
+                <Text size='sm' color='$textLight600' textAlign='center'>
+                  {generationError}
+                </Text>
+              </Box>
             ) : stops.length === 0 ? (
               <Box
                 p='$8'
@@ -339,6 +413,12 @@ export default function TourDetailScreen() {
               >
                 <Text color='$textLight600' textAlign='center'>
                   No hay actividades disponibles para este tour
+                </Text>
+              </Box>
+            ) : viewMode === 'map' ? (
+              <Box p='$4' alignItems='center'>
+                <Text size='sm' color='$textLight500' textAlign='center'>
+                  ↑ El mapa con el recorrido está arriba
                 </Text>
               </Box>
             ) : (
