@@ -18,8 +18,53 @@ interface DestinationInputProps {
   value?: string;
   onDestinationChange: (
     destination: string,
-    coordinates?: { lat: number; lng: number }
+    coordinates?: { lat: number; lng: number },
+    // Search radius (meters) derived from the selected place's actual
+    // extent — a neighborhood yields a small radius, a whole city a large
+    // one — instead of one fixed radius for every kind of destination.
+    radiusMeters?: number
   ) => void;
+  // Called whenever the visible text stops matching a resolved selection —
+  // true while the user has typed something that hasn't been confirmed by
+  // picking a suggestion, so the caller can block submission until resolved.
+  onDirtyChange?: (isDirty: boolean) => void;
+}
+
+const EARTH_RADIUS_METERS = 6371000;
+const MIN_RADIUS_METERS = 500;
+const MAX_RADIUS_METERS = 25000;
+
+function haversineMeters(
+  a: { lat: number; lng: number },
+  b: { lat: number; lng: number }
+): number {
+  const toRad = (deg: number) => (deg * Math.PI) / 180;
+  const dLat = toRad(b.lat - a.lat);
+  const dLng = toRad(b.lng - a.lng);
+  const sinDLat = Math.sin(dLat / 2);
+  const sinDLng = Math.sin(dLng / 2);
+  const h =
+    sinDLat * sinDLat +
+    Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * sinDLng * sinDLng;
+  return 2 * EARTH_RADIUS_METERS * Math.asin(Math.min(1, Math.sqrt(h)));
+}
+
+// Google's place-details viewport is a bounding box sized to fit the actual
+// place (a neighborhood gets a tight box, a city a wide one). Deriving the
+// search radius from it — half the box's diagonal — keeps "search near X"
+// proportional to how big X actually is, instead of one fixed radius for
+// both a neighborhood and an entire city.
+function radiusFromViewport(viewport: {
+  low: { latitude: number; longitude: number };
+  high: { latitude: number; longitude: number };
+}): number {
+  const center = {
+    lat: (viewport.low.latitude + viewport.high.latitude) / 2,
+    lng: (viewport.low.longitude + viewport.high.longitude) / 2,
+  };
+  const corner = { lat: viewport.high.latitude, lng: viewport.high.longitude };
+  const radius = haversineMeters(center, corner);
+  return Math.min(Math.max(radius, MIN_RADIUS_METERS), MAX_RADIUS_METERS);
 }
 
 // NEW Places API calls via proxy
@@ -43,7 +88,7 @@ async function placesAutocomplete(input: string) {
 
 async function placeDetails(placeId: string) {
   const resp = await fetch(
-    `${process.env.EXPO_PUBLIC_CORS_PROXY_URL || 'http://localhost:8080'}/gplaces/v1/places/${placeId}?fields=id,displayName,formattedAddress,location`,
+    `${process.env.EXPO_PUBLIC_CORS_PROXY_URL || 'http://localhost:8080'}/gplaces/v1/places/${placeId}?fields=id,displayName,formattedAddress,location,viewport`,
     {
       headers: {
         'X-Goog-Api-Key': process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY!,
@@ -57,6 +102,7 @@ async function placeDetails(placeId: string) {
 export const DestinationInput: React.FC<DestinationInputProps> = ({
   value,
   onDestinationChange,
+  onDirtyChange,
 }) => {
   const [term, setTerm] = useState(value || '');
   const [locationResults, setLocationResults] = useState<
@@ -110,19 +156,30 @@ export const DestinationInput: React.FC<DestinationInputProps> = ({
         details.displayName?.text ||
         item.structured_formatting.main_text;
 
-      onDestinationChange(destinationName, {
-        lat: details.location.latitude,
-        lng: details.location.longitude,
-      });
+      const radiusMeters = details.viewport
+        ? radiusFromViewport(details.viewport)
+        : undefined;
+
+      onDestinationChange(
+        destinationName,
+        {
+          lat: details.location.latitude,
+          lng: details.location.longitude,
+        },
+        radiusMeters
+      );
       setTerm(destinationName);
       setLocationResults([]);
       setIsFocused(false);
+      onDirtyChange?.(false);
     } catch (error) {
       console.error('Failed to fetch place details:', error);
-      onDestinationChange(item.structured_formatting.main_text);
+      // No coordinates available — leave the field dirty rather than
+      // silently accepting a name with no location behind it.
       setTerm(item.structured_formatting.main_text);
       setLocationResults([]);
       setIsFocused(false);
+      onDirtyChange?.(true);
     }
   };
 
@@ -131,6 +188,7 @@ export const DestinationInput: React.FC<DestinationInputProps> = ({
     setLocationResults([]);
     onDestinationChange('');
     setIsFocused(false);
+    onDirtyChange?.(false);
   };
 
   const showResults =
@@ -155,6 +213,9 @@ export const DestinationInput: React.FC<DestinationInputProps> = ({
             if (!text) {
               onDestinationChange('');
               setLocationResults([]);
+              onDirtyChange?.(false);
+            } else {
+              onDirtyChange?.(true);
             }
           }}
           onFocus={() => setIsFocused(true)}

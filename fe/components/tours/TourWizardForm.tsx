@@ -89,6 +89,15 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
   const [destinationCoords, setDestinationCoords] = useState<
     { lat: number; lng: number } | undefined
   >(initialLocation);
+  // Search radius derived from the selected destination's real extent (a
+  // neighborhood vs. a whole city) — undefined until a suggestion is picked.
+  const [destinationRadius, setDestinationRadius] = useState<
+    number | undefined
+  >(undefined);
+  // True while the user has typed a destination that hasn't been confirmed
+  // by picking a suggestion — blocks advancing past step 1 so a mistyped or
+  // unselected destination doesn't silently fall back to the current location.
+  const [destinationIsDirty, setDestinationIsDirty] = useState(false);
 
   // Get current location on mount if useCurrentLocation is enabled
   useEffect(() => {
@@ -164,6 +173,9 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
   };
 
   const handleNext = () => {
+    if (currentStep === 1 && destinationIsDirty) {
+      return;
+    }
     if (currentStep < 3) {
       setCurrentStep(currentStep + 1);
     } else {
@@ -272,6 +284,7 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
       startDates: startDates.length > 0 ? startDates : undefined,
       latitude: destinationCoords?.lat || initialLocation?.lat,
       longitude: destinationCoords?.lng || initialLocation?.lng,
+      radius: destinationRadius,
       includeExistingActivities: true,
       skipImageGeneration: true,
     };
@@ -332,13 +345,20 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
         <Box position='relative' zIndex={1}>
           <DestinationInput
             value={destination}
-            onDestinationChange={(dest, coords) => {
+            onDestinationChange={(dest, coords, radiusMeters) => {
               setDestination(dest);
               if (coords) {
                 setDestinationCoords(coords);
               }
+              setDestinationRadius(radiusMeters);
             }}
+            onDirtyChange={setDestinationIsDirty}
           />
+          {destinationIsDirty && (
+            <Text color='$error600' size='sm' mt='$1'>
+              Elegí una opción de la lista para confirmar el destino
+            </Text>
+          )}
         </Box>
 
         {/* Date Range */}
@@ -655,7 +675,12 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
         p='$4'
         pb='$8'
       >
-        <Button onPress={handleNext} bg='$primary500' borderRadius='$md'>
+        <Button
+          onPress={handleNext}
+          bg='$primary500'
+          borderRadius='$md'
+          isDisabled={currentStep === 1 && destinationIsDirty}
+        >
           <ButtonText color='$white' fontWeight='$semibold'>
             {currentStep === 3 ? 'Generar ZigZag ✨' : 'Siguiente →'}
           </ButtonText>
