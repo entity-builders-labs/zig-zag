@@ -112,7 +112,12 @@ export const TourHeader = ({
         return coordinates;
       })
       .filter((coordinates) => coordinates.length > 1);
-  }, [tour.id]);
+    // tour.activities is included deliberately: when this header is shown
+    // for a tour that's still generating (e.g. navigated to straight from
+    // the wizard), activities starts at [] and arrives later via polling.
+    // Keying only on tour.id meant this never recomputed once real stops
+    // showed up — the route stayed empty forever for that render's tour.
+  }, [tour.id, tour.activities]);
 
   const [routes, setRoutes] = useState<{ coordinates: typeof straightRoutes[number] }[]>(
     straightRoutes.map((coordinates) => ({ coordinates }))
@@ -144,7 +149,7 @@ export const TourHeader = ({
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tour.id]);
+  }, [straightRoutes]);
 
   // Get tags from metadata or fallback to first activity type
   const tags =
