@@ -263,6 +263,7 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
                   return (
                     <Pressable
                       key={dayIndex}
+                      testID={`date-picker-day-${dateStr}`}
                       onPress={() => handleDateSelect(date)}
                     >
                       <Box

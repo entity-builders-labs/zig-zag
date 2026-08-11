@@ -115,6 +115,7 @@ export const BottomTabBar = ({
       <Box position='absolute' bottom={16} alignSelf='center' zIndex={10}>
         <Button
           onPress={handleCreateTour}
+          testID='create-tour-fab'
           size='lg'
           borderRadius='$full'
           bg='$primary500'

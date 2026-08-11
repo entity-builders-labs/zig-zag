@@ -11,7 +11,8 @@
     "web": "expo start --web",
     "build:web": "expo export --platform web",
     "build:eas": "npx eas-cli build",
-    "docker:compose": "docker-compose up -d"
+    "docker:compose": "docker-compose up -d",
+    "test:e2e": "playwright test --config e2e/playwright.config.ts"
   },
   "dependencies": {
     "@appandflow/react-native-google-autocomplete": "^2.1.0",
@@ -65,6 +66,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
+    "@playwright/test": "^1.55.0",
     "@react-google-maps/api": "^2.20.6",
     "@react-native-community/cli": "^13.6.9",
     "@types/google.maps": "^3.58.1",
