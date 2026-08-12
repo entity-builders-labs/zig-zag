@@ -341,26 +341,33 @@ export class LangChainService {
         const chain = this.createChain(prompt, model);
         response = await chain.invoke(variables);
       } else if (provider === 'groq') {
-        // Groq implementation
+        // Groq only serves its models through /v1/chat/completions — the
+        // legacy /v1/completions endpoint this used to call 404s for every
+        // request, silently falling back further downstream (e.g. crawl
+        // category classification just uses its own default on failure)
+        // rather than actually failing generation outright.
         const tmpl = PromptTemplate.fromTemplate(promptText);
         const text = await tmpl.format(variables as any);
         const model = this.config.defaultModel || 'llama-3.1-8b-instant';
 
-        const resp = await fetch('https://api.groq.com/openai/v1/completions', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${this.config.groqApiKey}`,
-          },
-          body: JSON.stringify({
-            model,
-            prompt: text,
-            temperature: this.config.temperature,
-          }),
-        } as any);
+        const resp = await fetch(
+          'https://api.groq.com/openai/v1/chat/completions',
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${this.config.groqApiKey}`,
+            },
+            body: JSON.stringify({
+              model,
+              messages: [{ role: 'user', content: text }],
+              temperature: this.config.temperature,
+            }),
+          } as any,
+        );
         if (!resp.ok) throw new Error(`Groq error ${resp.status}`);
         const data = await resp.json();
-        response = data.choices?.[0]?.text || '';
+        response = data.choices?.[0]?.message?.content || '';
       } else {
         const model = customOptions
           ? this.getCompletionModel(customOptions)
