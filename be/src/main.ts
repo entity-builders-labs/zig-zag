@@ -1,5 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe, Logger, BadRequestException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { AppModule } from './app.module';
 import * as morgan from 'morgan';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
@@ -10,31 +11,47 @@ async function bootstrap() {
     bufferLogs: true,
   });
 
-  const allowedOrigins = (process.env.CORS_ORIGIN || '')
-    .split(',')
-    .map((origin) => origin.trim())
-    .filter(Boolean);
+  const configService = app.get(ConfigService);
+  const isProduction =
+    configService.get<string>('app.environment') === 'production';
+
+  const corsOrigin = configService.get<string>('cors.origin');
+  if (!corsOrigin) {
+    throw new Error(
+      'CORS_ORIGIN must be set in production (comma-separated origins, or "*" to allow any).',
+    );
+  }
   app.enableCors({
-    origin: allowedOrigins.length > 0 ? allowedOrigins : true,
+    // '*' as a literal string enables the cors package's wildcard handling —
+    // passing it inside an array (['*']) does not, it's matched literally
+    // against the Origin header and blocks everything.
+    origin:
+      corsOrigin === '*'
+        ? true
+        : corsOrigin
+            .split(',')
+            .map((origin) => origin.trim())
+            .filter(Boolean),
     credentials: true,
   });
 
   // Swagger configuration
-  const config = new DocumentBuilder()
-    .setTitle('Zig Zag API')
-    .setDescription('API for activities and tours management')
-    .setVersion('1.0')
-    .addTag('activities')
-    .addTag('tours')
-    .build();
-
-  if (process.env.SWAGGER_ENABLED === 'true') {
-    const document = SwaggerModule.createDocument(app, config);
-    SwaggerModule.setup('api/docs', app, document);
+  const swagger = configService.get('swagger');
+  if (swagger.enabled) {
+    const document = SwaggerModule.createDocument(
+      app,
+      new DocumentBuilder()
+        .setTitle(swagger.title)
+        .setDescription(swagger.description)
+        .setVersion(swagger.version)
+        .addTag('activities')
+        .addTag('tours')
+        .build(),
+    );
+    SwaggerModule.setup(swagger.path, app, document);
   }
 
   // Add request logging middleware
-  const isProduction = process.env.NODE_ENV === 'production';
   app.use(morgan(isProduction ? 'combined' : 'dev'));
 
   // Custom logging middleware
