@@ -89,6 +89,7 @@ export const BottomTabBar = ({
           return (
             <Pressable
               key={route.key}
+              testID={`tab-${route.name}`}
               alignItems='center'
               onPress={onPress}
               flex={1}
