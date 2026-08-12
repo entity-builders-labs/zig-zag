@@ -1,5 +1,6 @@
 import { test, expect, Locator, Page } from '@playwright/test';
 import { API_URL } from './playwright.config';
+import { loginViaUI } from './auth-helper';
 
 // E2E_DEMO=1 trades speed for looking like an actual person clicking
 // through the app — a visible cursor, letter-by-letter typing, and pauses
@@ -72,8 +73,8 @@ test('creates a tour end-to-end through the wizard and views it in both list and
   const consoleErrors: string[] = [];
   page.on('pageerror', (err) => consoleErrors.push(err.message));
 
-  // --- Home -> wizard ---
-  await page.goto('/');
+  // --- Login -> Home -> wizard ---
+  await loginViaUI(page);
   await readingPause(page, 1200);
   await humanClick(page, page.getByTestId('create-tour-fab'));
   await expect(page).toHaveURL(/\/tours\/wizard/);

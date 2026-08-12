@@ -1,11 +1,19 @@
 import { test, expect, APIRequestContext } from '@playwright/test';
 import { API_URL } from './playwright.config';
+import { apiLogin, loginViaUI } from './auth-helper';
 
 // Generates a real tour (with real, crawled activities — see
 // be/src/modules/tours/services/tour-activity-generation.service.ts) near a
 // known-good location, then waits for background generation to finish.
-async function createTestTour(request: APIRequestContext): Promise<string> {
+// Tours are private per owner, so this needs the creating user's token.
+async function createTestTour(
+  request: APIRequestContext,
+  accessToken: string
+): Promise<string> {
+  const authHeaders = { Authorization: `Bearer ${accessToken}` };
+
   const createResp = await request.post(`${API_URL}/tours/generate-tour`, {
+    headers: authHeaders,
     data: {
       destination: 'Caminito, La Boca, Buenos Aires',
       destinationLatitude: -34.6393027,
@@ -27,7 +35,9 @@ async function createTestTour(request: APIRequestContext): Promise<string> {
   const { id } = await createResp.json();
 
   for (let attempt = 0; attempt < 20; attempt++) {
-    const tourResp = await request.get(`${API_URL}/tours/${id}`);
+    const tourResp = await request.get(`${API_URL}/tours/${id}`, {
+      headers: authHeaders,
+    });
     const tour = await tourResp.json();
     const status = tour.metadata?.generationStatus;
     if (status === 'completed' && tour.activities?.length > 1) return id;
@@ -43,7 +53,12 @@ test('tour detail map shows a real walking route between stops', async ({
   page,
   request,
 }) => {
-  const tourId = await createTestTour(request);
+  const { email, accessToken } = await apiLogin(request);
+  const tourId = await createTestTour(request, accessToken);
+
+  // The browser session must be authenticated as the same owner to view a
+  // private tour — logs in via the real login screen with the same email.
+  await loginViaUI(page, email);
 
   const consoleErrors: string[] = [];
   page.on('pageerror', (err) => consoleErrors.push(err.message));

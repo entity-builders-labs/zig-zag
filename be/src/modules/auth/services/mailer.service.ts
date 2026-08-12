@@ -5,21 +5,34 @@ import * as nodemailer from 'nodemailer';
 @Injectable()
 export class MailerService {
   private readonly logger = new Logger(MailerService.name);
-  private readonly transporter: nodemailer.Transporter;
+  private readonly transporter: nodemailer.Transporter | null;
   private readonly from: string;
 
   constructor(private readonly configService: ConfigService) {
     const smtp = this.configService.get('auth.emailOtp.smtp');
     this.from = smtp.from;
-    this.transporter = nodemailer.createTransport({
-      host: smtp.host,
-      port: smtp.port,
-      secure: smtp.secure,
-      auth: smtp.user ? { user: smtp.user, pass: smtp.pass } : undefined,
-    });
+    // No SMTP_HOST is the expected dev/test state — /auth/email/request-code
+    // already returns devCode outside production, so there's nothing to send
+    // to. Building a transporter against an empty host would just hang/error
+    // on every request instead of failing fast and readably.
+    this.transporter = smtp.host
+      ? nodemailer.createTransport({
+          host: smtp.host,
+          port: smtp.port,
+          secure: smtp.secure,
+          auth: smtp.user ? { user: smtp.user, pass: smtp.pass } : undefined,
+        })
+      : null;
   }
 
   async sendLoginCode(email: string, code: string): Promise<void> {
+    if (!this.transporter) {
+      this.logger.warn(
+        `SMTP not configured — skipping login code email to ${email}`,
+      );
+      return;
+    }
+
     try {
       await this.transporter.sendMail({
         from: this.from,
