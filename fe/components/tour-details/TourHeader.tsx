@@ -15,6 +15,8 @@ import {
   BadgeText,
   Heading,
   Spinner,
+  Pressable,
+  Text,
 } from '@gluestack-ui/themed';
 import { useRouter } from 'expo-router';
 import { ArrowLeft } from 'lucide-react-native';
@@ -77,14 +79,32 @@ export const TourHeader = ({
     })
     .filter((stop): stop is StopWithLocation => stop !== null);
 
-  const stopMarkers: MapMarker[] = stops.map((stop, index) => ({
+  // Multi-day tours mix every day's pins/route together unless narrowed down
+  // to one day at a time — otherwise a 3-day tour shows a tangle of 15
+  // stops with no way to tell which ones belong to which day.
+  const availableDays = React.useMemo(
+    () => Array.from(new Set(stops.map((stop) => stop.dayNumber))).sort((a, b) => a - b),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [tour.id, tour.activities]
+  );
+  const [selectedDay, setSelectedDay] = useState(1);
+  const visibleStops = React.useMemo(
+    () => stops.filter((stop) => stop.dayNumber === selectedDay),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [tour.id, tour.activities, selectedDay]
+  );
+
+  const stopMarkers: MapMarker[] = visibleStops.map((stop, index) => ({
     id: `stop-${index}`,
     coordinate: { latitude: stop.latitude, longitude: stop.longitude },
     title: stop.title,
     order: stop.order,
   }));
 
-  const mapRegion = getRegionForCoordinates(stops, firstLocation);
+  const mapRegion = getRegionForCoordinates(
+    visibleStops.length > 0 ? visibleStops : stops,
+    firstLocation
+  );
   const mapMarkers: MapMarker[] =
     stopMarkers.length > 0
       ? stopMarkers
@@ -92,32 +112,21 @@ export const TourHeader = ({
         ? [{ id: 'tour-location', coordinate: firstLocation, title: tour.name }]
         : [];
 
-  // One connected line per day, starting from the tour's destination point
-  // and passing through that day's stops in order.
+  // One connected line for the selected day, starting from the tour's
+  // destination point and passing through that day's stops in order.
   const straightRoutes = React.useMemo(() => {
-    const stopsByDay = new Map<number, StopWithLocation[]>();
-    stops.forEach((stop) => {
-      const dayStops = stopsByDay.get(stop.dayNumber) || [];
-      dayStops.push(stop);
-      stopsByDay.set(stop.dayNumber, dayStops);
-    });
-
-    return Array.from(stopsByDay.entries())
-      .sort(([dayA], [dayB]) => dayA - dayB)
-      .map(([, dayStops]) => {
-        const orderedStops = [...dayStops].sort((a, b) => a.order - b.order);
-        const coordinates = firstLocation
-          ? [firstLocation, ...orderedStops]
-          : orderedStops;
-        return coordinates;
-      })
-      .filter((coordinates) => coordinates.length > 1);
+    const orderedStops = [...visibleStops].sort((a, b) => a.order - b.order);
+    const coordinates = firstLocation
+      ? [firstLocation, ...orderedStops]
+      : orderedStops;
+    return coordinates.length > 1 ? [coordinates] : [];
     // tour.activities is included deliberately: when this header is shown
     // for a tour that's still generating (e.g. navigated to straight from
     // the wizard), activities starts at [] and arrives later via polling.
     // Keying only on tour.id meant this never recomputed once real stops
     // showed up — the route stayed empty forever for that render's tour.
-  }, [tour.id, tour.activities]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tour.id, tour.activities, selectedDay]);
 
   const [routes, setRoutes] = useState<{ coordinates: typeof straightRoutes[number] }[]>(
     straightRoutes.map((coordinates) => ({ coordinates }))
@@ -225,6 +234,39 @@ export const TourHeader = ({
           <Icon as={ArrowLeft} color='$white' size='xl' />
         </Button>
       </Box>
+
+      {/* Day selector — only worth showing once expanded (room to interact)
+          and only for multi-day tours (nothing to switch between otherwise) */}
+      {expanded && availableDays.length > 1 && (
+        <HStack
+          position='absolute'
+          top={50}
+          left={0}
+          right={0}
+          justifyContent='center'
+          space='sm'
+          zIndex={10}
+        >
+          {availableDays.map((day) => (
+            <Pressable key={day} onPress={() => setSelectedDay(day)} testID={`tour-day-${day}`}>
+              <Box
+                px='$3'
+                py='$1.5'
+                borderRadius='$full'
+                bg={day === selectedDay ? '$primary500' : 'rgba(255,255,255,0.9)'}
+              >
+                <Text
+                  color={day === selectedDay ? '$white' : '$textLight800'}
+                  fontWeight='$semibold'
+                  size='sm'
+                >
+                  Día {day}
+                </Text>
+              </Box>
+            </Pressable>
+          ))}
+        </HStack>
+      )}
 
       {expanded ? (
         <Box
