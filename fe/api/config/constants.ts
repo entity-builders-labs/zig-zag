@@ -20,11 +20,17 @@ if (__DEV__) {
 
 export const API_ENDPOINTS = {
   AUTH: {
-    LOGIN: '/auth/login',
-    REGISTER: '/auth/register',
+    GOOGLE: '/auth/google',
+    APPLE: '/auth/apple',
+    EMAIL_REQUEST_CODE: '/auth/email/request-code',
+    EMAIL_VERIFY: '/auth/email/verify',
+    REFRESH: '/auth/refresh',
+    LOGOUT: '/auth/logout',
+    ME: '/auth/me',
   },
 } as const;
 
 export const STORAGE_KEYS = {
-  AUTH_TOKEN: 'auth_token',
+  ACCESS_TOKEN: 'access_token',
+  REFRESH_TOKEN: 'refresh_token',
 } as const;
