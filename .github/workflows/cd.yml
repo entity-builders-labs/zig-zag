@@ -51,13 +51,40 @@ jobs:
           cache-to: type=gha,mode=max
       - name: Read public deployment configuration
         run: |
-          {
-            echo "FRONTEND_BUCKET=$(aws ssm get-parameter --name /zig-zag/prod/infra/frontend_bucket --query Parameter.Value --output text)"
-            echo "FRONTEND_DISTRIBUTION_ID=$(aws ssm get-parameter --name /zig-zag/prod/infra/frontend_distribution_id --query Parameter.Value --output text)"
-            echo "FRONTEND_URL=$(aws ssm get-parameter --name /zig-zag/prod/infra/frontend_url --query Parameter.Value --output text)"
-            echo "API_URL=$(aws ssm get-parameter --name /zig-zag/prod/infra/api_url --query Parameter.Value --output text)"
-            echo "BACKEND_INSTANCE_ID=$(aws ssm get-parameter --name /zig-zag/prod/infra/backend_instance_id --query Parameter.Value --output text)"
-          } >> "$GITHUB_ENV"
+          # A single batch call instead of 5 separate `get-parameter`s whose
+          # failures used to be swallowed: `echo "X=$(cmd_that_fails)"`
+          # doesn't trip `set -e` (only the enclosing `echo`'s own exit code
+          # does), so a failed lookup silently produced "X=" and the real
+          # error only surfaced later as a confusing downstream failure
+          # (e.g. `aws s3 sync` against an empty bucket name).
+          result=$(aws ssm get-parameters \
+            --names /zig-zag/prod/infra/frontend_bucket /zig-zag/prod/infra/frontend_distribution_id \
+              /zig-zag/prod/infra/frontend_url /zig-zag/prod/infra/api_url /zig-zag/prod/infra/backend_instance_id \
+            --output json)
+
+          missing=$(echo "$result" | jq -r '.InvalidParameters[]?')
+          if [ -n "$missing" ]; then
+            echo "Missing SSM parameters: $missing" >&2
+            exit 1
+          fi
+
+          get_value() {
+            echo "$result" | jq -r --arg n "$1" '.Parameters[] | select(.Name==$n) | .Value'
+          }
+
+          FRONTEND_BUCKET=$(get_value /zig-zag/prod/infra/frontend_bucket)
+          FRONTEND_DISTRIBUTION_ID=$(get_value /zig-zag/prod/infra/frontend_distribution_id)
+          FRONTEND_URL=$(get_value /zig-zag/prod/infra/frontend_url)
+          API_URL=$(get_value /zig-zag/prod/infra/api_url)
+          BACKEND_INSTANCE_ID=$(get_value /zig-zag/prod/infra/backend_instance_id)
+
+          for var in FRONTEND_BUCKET FRONTEND_DISTRIBUTION_ID FRONTEND_URL API_URL BACKEND_INSTANCE_ID; do
+            if [ -z "${!var}" ]; then
+              echo "ERROR: $var resolved to an empty value" >&2
+              exit 1
+            fi
+            echo "$var=${!var}" >> "$GITHUB_ENV"
+          done
       - name: Build frontend
         run: EXPO_PUBLIC_API_URL="$API_URL" yarn workspace fe build:web
         env:

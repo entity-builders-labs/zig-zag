@@ -8,8 +8,6 @@ on:
         type: choice
         options: [status, start, stop]
         default: status
-  schedule:
-    - cron: "17 3 * * *"
 
 permissions:
   id-token: write
@@ -25,6 +23,4 @@ jobs:
           role-to-assume: ${{ vars.AWS_GITHUB_CD_ROLE_ARN }}
           aws-region: us-east-1
       - name: Apply requested state
-        run: |
-          action="${{ github.event_name == 'schedule' && 'stop' || inputs.action }}"
-          make "aws-$action"
+        run: make "aws-${{ inputs.action }}"
