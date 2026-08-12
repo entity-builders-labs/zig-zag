@@ -16,8 +16,9 @@ export default defineConfig({
     baseURL: process.env.E2E_WEB_URL || 'http://localhost:19006',
     screenshot: 'only-on-failure',
     // Runs headless by default; the video is the evidence trail instead of
-    // a live window. 'retain-on-failure' skips saving one for passing runs.
-    video: 'retain-on-failure',
+    // a live window. 'retain-on-failure' skips saving one for passing runs —
+    // set E2E_VIDEO=on to always keep it (e.g. to watch a passing run back).
+    video: (process.env.E2E_VIDEO as any) || 'retain-on-failure',
     trace: 'retain-on-failure',
     // E2E_SLOWMO=1 (with --headed) paces every action so you can actually
     // watch the test drive the browser, instead of it flashing by in ~5s.
