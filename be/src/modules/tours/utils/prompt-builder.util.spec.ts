@@ -25,6 +25,16 @@ describe('buildPromptFromParams', () => {
     expect(result).toContain('Location: -34.6, -58.4');
   });
 
+  it('includes the number of days and start dates', () => {
+    const result = buildPromptFromParams({
+      days: 3,
+      startDates: ['2026-09-01', '2026-09-02'],
+    });
+
+    expect(result).toContain('Number of days: 3');
+    expect(result).toContain('Start dates: 2026-09-01, 2026-09-02');
+  });
+
   it('includes budget, transportation, pace, dietary restrictions, and group type', () => {
     const result = buildPromptFromParams({
       budgetLevel: 'medium',
@@ -64,12 +74,16 @@ describe('buildPreferencesObject', () => {
       travelPace: 'moderate' as any,
       dietaryRestrictions: ['vegan'],
       budgetLevel: 'high' as any,
+      days: 5,
+      startDates: ['2026-09-01'],
     });
 
     expect(result).toEqual({
       travelPace: 'moderate',
       dietaryRestrictions: ['vegan'],
       budgetLevel: 'high',
+      days: 5,
+      startDates: ['2026-09-01'],
     });
   });
 });

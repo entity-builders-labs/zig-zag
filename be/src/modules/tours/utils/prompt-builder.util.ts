@@ -28,6 +28,9 @@ export function buildPromptFromParams(params: {
 
   if (params.name) parts.push(`Tour Name: ${params.name}`);
   if (params.description) parts.push(`Description: ${params.description}`);
+  if (params.days) parts.push(`Number of days: ${params.days}`);
+  if (params.startDates?.length)
+    parts.push(`Start dates: ${params.startDates.join(', ')}`);
   if (params.categories?.length)
     parts.push(`Categories: ${params.categories.join(', ')}`);
   if (params.interests?.length)
@@ -93,6 +96,9 @@ export function buildPreferencesObject(
   }
   if (options.startDates?.length) {
     preferences.startDates = options.startDates;
+  }
+  if (options.days) {
+    preferences.days = options.days;
   }
 
   return preferences;
