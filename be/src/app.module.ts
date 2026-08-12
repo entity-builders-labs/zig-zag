@@ -12,6 +12,7 @@ import { AiModule } from './shared/ai/ai.module';
 import { ActivitiesModule } from './modules/activities/activities.module';
 import { ToursModule } from './modules/tours/tours.module';
 import { IntegrationsModule } from './modules/integrations/integrations.module';
+import { AuthModule } from './modules/auth/auth.module';
 
 // Commands globales
 import { CommandsModule } from './commands/commands.module';
@@ -30,6 +31,7 @@ import { ScriptsModule } from './commands/scripts/commands/scripts.module';
     AiModule,
 
     // Domain (estos módulos ya incluyen sus commands)
+    AuthModule,
     ActivitiesModule,
     ToursModule,
     IntegrationsModule,

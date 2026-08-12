@@ -96,6 +96,21 @@ model User {
 enum AuthProvider {
   GOOGLE
   APPLE
+  EMAIL
+}
+
+model EmailLoginCode {
+  id         String    @id @default(uuid())
+  email      String
+  codeHash   String
+  expiresAt  DateTime
+  attempts   Int       @default(0)
+  consumedAt DateTime?
+
+  createdAt DateTime @default(now())
+
+  @@index([email])
+  @@map("email_login_code")
 }
 
 model Tour {
