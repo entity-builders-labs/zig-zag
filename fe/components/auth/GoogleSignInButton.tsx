@@ -7,6 +7,12 @@ type Props = {
   onError: (message: string) => void;
 };
 
+// `onError` is part of Props (shared with the .web.tsx variant, which needs
+// it for failures that happen before onSignIn is ever called — loading the
+// Google script, missing client ID) but isn't read here: on native,
+// onSignIn IS the whole flow (GoogleSignin.signIn()), and its caller
+// (login.tsx's handleGoogle) already awaits and catches it internally, so
+// there's no failure path on this platform that onError would ever see.
 export function GoogleSignInButton({
   disabled,
   loading,
