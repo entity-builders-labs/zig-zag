@@ -99,9 +99,12 @@ export class GeoapifyPlacesApiService implements IPlacesApiService {
       // keeps working unchanged and doesn't fall back to an AI classification call
       // for every single Geoapify-sourced place.
       types,
-      // Geoapify doesn't expose rating/review-count data on any endpoint.
+      // Geoapify doesn't expose rating/review-count, structured price level,
+      // or opening hours data on any endpoint this integration calls.
       rating: undefined,
       userRatingCount: undefined,
+      priceLevel: undefined,
+      openingHoursWeekdayText: undefined,
     };
   }
 

@@ -8,6 +8,7 @@ import { LangChainService } from '../../../shared/ai/langchain.service';
 import { PrismaService } from '../../../core/database/prisma.service';
 import { IPlacesApiService } from './interfaces/places-api.interface';
 import { VectorStoreService } from 'src/shared/ai/services/vector-store.service';
+import { priceLevelToNumber } from './utils/price-level.util';
 
 interface PlaceWithMetadata extends GooglePlaceDetails {
   name: string;
@@ -419,9 +420,12 @@ Answer ONLY with one word from the set above, no punctuation, no explanation.`;
             address: place.formattedAddress || '',
             rating: place.rating,
             reviews: place.userRatingCount,
-            priceLevel: undefined,
+            priceLevel: priceLevelToNumber(place.priceLevel),
             businessStatus: undefined,
             photos: [],
+            openingHours: place.openingHoursWeekdayText?.length
+              ? { weekdayText: place.openingHoursWeekdayText }
+              : undefined,
             phoneNumber: details?.phoneNumber,
             website: details?.website,
             metadata: {
@@ -568,6 +572,7 @@ Answer ONLY with one word from the set above, no punctuation, no explanation.`;
                 website: place.website,
                 businessStatus: place.businessStatus,
                 priceLevel: place.priceLevel,
+                openingHours: place.openingHours,
                 knownActivityTypeName: categoryName,
                 location: place.location,
                 createdAt: new Date(),

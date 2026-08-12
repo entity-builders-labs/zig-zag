@@ -15,4 +15,5 @@ export interface GooglePlaceDetails {
   businessStatus?: string;
   priceLevel?: number;
   photos?: GooglePlacePhoto[];
+  openingHours?: { weekdayText: string[] };
 }

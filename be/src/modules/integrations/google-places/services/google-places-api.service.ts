@@ -34,6 +34,8 @@ export class GooglePlacesApiService implements IPlacesApiService {
       'places.types',
       'places.websiteUri',
       'places.nationalPhoneNumber',
+      'places.priceLevel',
+      'places.regularOpeningHours',
     ].join(',');
   }
 
@@ -155,6 +157,8 @@ export class GooglePlacesApiService implements IPlacesApiService {
       websiteUri: p.websiteUri,
       nationalPhoneNumber: p.nationalPhoneNumber,
       name: p.displayName?.text || p.displayName,
+      priceLevel: p.priceLevel,
+      openingHoursWeekdayText: p.regularOpeningHours?.weekdayDescriptions,
     }));
   }
 }

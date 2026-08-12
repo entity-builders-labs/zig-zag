@@ -202,6 +202,15 @@ export class CreateActivityDto {
   photos?: string[];
 
   @ApiProperty({
+    description:
+      'Opening hours, one human-readable line per weekday (e.g. { weekdayText: ["Monday: 9:00 AM – 6:00 PM", ...] })',
+    required: false,
+  })
+  @IsObject()
+  @IsOptional()
+  openingHours?: Prisma.JsonValue;
+
+  @ApiProperty({
     description: 'ID of the source of this activity (optional)',
     required: false,
   })
