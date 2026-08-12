@@ -49,14 +49,35 @@ export class AiEmbeddingService implements OnModuleInit {
       this.logger.log(`Initializing embeddings with provider: ${provider}`);
 
       if (provider === 'bedrock') {
-        this.embeddings = this.createBedrockEmbeddingsAdapter(
+        const bedrockEmbeddings = this.createBedrockEmbeddingsAdapter(
           this.config.awsRegion,
           this.config.embeddingsModel || 'amazon.titan-embed-text-v2:0',
           this.config.embeddingDimensions,
         );
-        this.logger.log(
-          `✓ Bedrock embeddings initialized (model: ${this.config.embeddingsModel}, dimensions: ${this.config.embeddingDimensions})`,
-        );
+
+        try {
+          // Fail fast with a clear cause (bad credentials, wrong region,
+          // model not enabled for this account, etc.) instead of only
+          // finding out on the first real embed call during a crawl.
+          await bedrockEmbeddings.embedQuery('connectivity check');
+          this.embeddings = bedrockEmbeddings;
+          this.logger.log(
+            `✓ Bedrock embeddings initialized (model: ${this.config.embeddingsModel}, dimensions: ${this.config.embeddingDimensions})`,
+          );
+        } catch (error) {
+          this.logger.error(
+            `Failed to initialize Bedrock embeddings: ${error.message}`,
+          );
+          this.embeddingsDisabled = true;
+
+          if (this.config.openaiApiKey) {
+            this.logger.warn('Falling back to OpenAI embeddings...');
+            this.embeddings = new OpenAIEmbeddings({
+              openAIApiKey: this.config.openaiApiKey,
+            });
+            this.embeddingsDisabled = false;
+          }
+        }
       } else if (provider === 'openai') {
         if (!this.config.openaiApiKey) {
           this.logger.warn(
@@ -131,13 +152,21 @@ export class AiEmbeddingService implements OnModuleInit {
       return payload.embedding;
     };
 
+    // Titan's InvokeModel API accepts one input per request. A small batch of
+    // concurrent requests keeps large crawls from being fully sequential
+    // without bursting through the account's RPM quota.
+    const BATCH_SIZE = 5;
+
     return {
-      // Titan's InvokeModel API accepts one input per request. Keeping this
-      // sequential avoids bursting through the account's RPM quota when a
-      // Places crawl inserts many activities at once.
       embedDocuments: async (texts: string[]) => {
         const vectors: number[][] = [];
-        for (const text of texts) vectors.push(await embed(text));
+        for (let i = 0; i < texts.length; i += BATCH_SIZE) {
+          const batch = texts.slice(i, i + BATCH_SIZE);
+          const batchVectors = await Promise.all(
+            batch.map((text) => embed(text)),
+          );
+          vectors.push(...batchVectors);
+        }
         return vectors;
       },
       embedQuery: embed,
