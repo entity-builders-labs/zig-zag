@@ -223,6 +223,7 @@ export class TourGenerationService {
       const tourName = options?.name || options?.destination || 'Nuevo Tour';
 
       const tourData: CreateTourDto = {
+        ownerId: options?.ownerId,
         name: tourName,
         description: options?.description || 'Tour personalizado',
         duration: undefined,

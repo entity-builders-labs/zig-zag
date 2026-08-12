@@ -6,6 +6,7 @@ import {
 } from '../dto/create-tour-from-prompt.dto';
 
 export interface GenerateTourOptions {
+  ownerId?: string;
   latitude?: number;
   longitude?: number;
   radius?: number; // in meters, default 25000 (25km)

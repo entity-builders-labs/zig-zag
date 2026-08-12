@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   Logger,
   NotFoundException,
@@ -49,6 +50,7 @@ export class ToursService {
 
     // Prepare tour data - only include defined fields
     const tourDataClean: any = {
+      ownerId: tourData.ownerId,
       name: tourData.name,
       description: tourData.description,
       price: tourData.price,
@@ -94,6 +96,7 @@ export class ToursService {
   }
 
   async findAll(
+    ownerId: string,
     page = 1,
     limit = 100,
     category?: string,
@@ -108,7 +111,9 @@ export class ToursService {
     // The previous implementation of findAll just paginated everything.
     // We need to support the filters passed from controller.
 
-    const where: any = {};
+    // Tours are private per owner for the MVP — always scoped to the
+    // authenticated caller, never a client-supplied filter.
+    const where: any = { ownerId };
 
     if (category) {
       where.categories = {
@@ -174,7 +179,12 @@ export class ToursService {
     };
   }
 
-  async findOne(id: string) {
+  /**
+   * `ownerId` is omitted by trusted internal callers (background activity
+   * generation, which runs without an HTTP/user context); the HTTP-facing
+   * controller always passes it to enforce that tours are private per owner.
+   */
+  async findOne(id: string, ownerId?: string) {
     const tour = await this.prisma.tour.findUnique({
       where: { id },
       include: {
@@ -193,13 +203,34 @@ export class ToursService {
       throw new NotFoundException(`Tour with ID ${id} not found`);
     }
 
+    if (ownerId !== undefined) {
+      this.assertOwnership(tour.ownerId, ownerId);
+    }
+
     return tour;
   }
 
-  async update(id: string, updateTourDto: UpdateTourDto) {
+  private assertOwnership(tourOwnerId: string | null, ownerId: string) {
+    if (tourOwnerId !== ownerId) {
+      throw new ForbiddenException('You do not have access to this tour');
+    }
+  }
+
+  async update(id: string, updateTourDto: UpdateTourDto, ownerId: string) {
     const { activities, ...tourData } = updateTourDto;
 
     try {
+      const existing = await this.prisma.tour.findUnique({
+        where: { id },
+        select: { ownerId: true },
+      });
+
+      if (!existing) {
+        throw new NotFoundException(`Tour with ID ${id} not found`);
+      }
+
+      this.assertOwnership(existing.ownerId, ownerId);
+
       // Validate activity IDs if provided
       if (activities?.length) {
         const activityIds = activities
@@ -250,6 +281,12 @@ export class ToursService {
         return updatedTour;
       });
     } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ForbiddenException
+      ) {
+        throw error;
+      }
       if (error.code === 'P2025') {
         throw new NotFoundException(`Tour with ID ${id} not found`);
       }
@@ -263,8 +300,19 @@ export class ToursService {
     }
   }
 
-  async remove(id: string) {
+  async remove(id: string, ownerId: string) {
     try {
+      const existing = await this.prisma.tour.findUnique({
+        where: { id },
+        select: { ownerId: true },
+      });
+
+      if (!existing) {
+        throw new NotFoundException(`Tour with ID ${id} not found`);
+      }
+
+      this.assertOwnership(existing.ownerId, ownerId);
+
       return await this.prisma.$transaction(async (tx) => {
         // First delete all associated activities
         await tx.tourActivity.deleteMany({
@@ -282,6 +330,12 @@ export class ToursService {
         return deletedTour;
       });
     } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ForbiddenException
+      ) {
+        throw error;
+      }
       if (error.code === 'P2025') {
         throw new NotFoundException(`Tour with ID ${id} not found`);
       }

@@ -10,6 +10,7 @@ import { ActivitiesModule } from '../activities/activities.module';
 import { AiModule } from '../../shared/ai/ai.module';
 import { PrismaModule } from '../../core/database/database.module';
 import { IntegrationsModule } from '../integrations/integrations.module';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { IntegrationsModule } from '../integrations/integrations.module';
     forwardRef(() => ActivitiesModule),
     AiModule,
     IntegrationsModule,
+    AuthModule,
   ],
   controllers: [ToursController],
   providers: [

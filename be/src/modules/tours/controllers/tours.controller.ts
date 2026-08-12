@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   Query,
+  UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
 import { ToursService } from '../services/tours.service';
@@ -22,8 +23,12 @@ import {
   ApiResponse,
   ApiBody,
   ApiQuery,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
 import { appConfig } from 'src/core/config/app.config';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { CurrentUser } from '../../auth/decorators/current-user.decorator';
+import { RequestUser } from '../../auth/interfaces/jwt-payload.interface';
 
 @ApiTags('tours')
 @Controller('tours')
@@ -36,17 +41,24 @@ export class ToursController {
   ) {}
 
   @Post()
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Create a new tour' })
   @ApiResponse({
     status: 201,
     description: 'The tour has been successfully created.',
   })
   @ApiBody({ type: CreateTourDto })
-  create(@Body(ValidationPipe) createTourDto: CreateTourDto) {
-    return this.toursService.create(createTourDto);
+  create(
+    @Body(ValidationPipe) createTourDto: CreateTourDto,
+    @CurrentUser() user: RequestUser,
+  ) {
+    return this.toursService.create({ ...createTourDto, ownerId: user.id });
   }
 
   @Post('generate-tour')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiOperation({
     summary: 'Create a tour from wizard preferences',
     description:
@@ -64,8 +76,10 @@ export class ToursController {
   @ApiBody({ type: CreateTourFromPromptDto })
   generateTour(
     @Body(ValidationPipe) createTourFromPromptDto: CreateTourFromPromptDto,
+    @CurrentUser() user: RequestUser,
   ) {
     return this.tourGenerationService.createTourFromWizard({
+      ownerId: user.id,
       latitude: createTourFromPromptDto.latitude,
       longitude: createTourFromPromptDto.longitude,
       radius: createTourFromPromptDto.radius,
@@ -98,6 +112,8 @@ export class ToursController {
   }
 
   @Post(':id/generate-activities')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiOperation({
     summary: 'Generate activities for an existing tour',
     description:
@@ -115,7 +131,13 @@ export class ToursController {
     status: 404,
     description: 'Tour not found.',
   })
-  generateActivities(@Param('id') id: string) {
+  async generateActivities(
+    @Param('id') id: string,
+    @CurrentUser() user: RequestUser,
+  ) {
+    // Confirms the tour exists and belongs to the caller before kicking off
+    // (re-)generation — throws NotFound/Forbidden otherwise.
+    await this.toursService.findOne(id, user.id);
     return this.tourActivityGenerationService.generateTourActivities(id);
   }
 
@@ -167,7 +189,13 @@ export class ToursController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Get all tours' })
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: "Get the current user's tours",
+    description:
+      "Tours are private per owner — this always returns only the authenticated user's own tours.",
+  })
   @ApiResponse({
     status: 200,
     description: 'The tours have been successfully retrieved.',
@@ -197,6 +225,7 @@ export class ToursController {
     description: 'Search radius in meters',
   })
   findAll(
+    @CurrentUser() user: RequestUser,
     @Query('page') page = 1,
     @Query('limit') limit = 10,
     @Query('category') category?: string,
@@ -205,6 +234,7 @@ export class ToursController {
     @Query('radius') radius?: number,
   ) {
     return this.toursService.findAll(
+      user.id,
       +page,
       +limit,
       category,
@@ -215,32 +245,42 @@ export class ToursController {
   }
 
   @Get(':id')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Get a tour by ID' })
   @ApiResponse({
     status: 200,
     description: 'The tour has been successfully retrieved.',
   })
-  findOne(@Param('id') id: string) {
-    return this.toursService.findOne(id);
+  findOne(@Param('id') id: string, @CurrentUser() user: RequestUser) {
+    return this.toursService.findOne(id, user.id);
   }
 
   @Patch(':id')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Update a tour' })
   @ApiResponse({
     status: 200,
     description: 'The tour has been successfully updated.',
   })
-  update(@Param('id') id: string, @Body() updateTourDto: UpdateTourDto) {
-    return this.toursService.update(id, updateTourDto);
+  update(
+    @Param('id') id: string,
+    @Body() updateTourDto: UpdateTourDto,
+    @CurrentUser() user: RequestUser,
+  ) {
+    return this.toursService.update(id, updateTourDto, user.id);
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Delete a tour' })
   @ApiResponse({
     status: 200,
     description: 'The tour has been successfully deleted.',
   })
-  remove(@Param('id') id: string) {
-    return this.toursService.remove(id);
+  remove(@Param('id') id: string, @CurrentUser() user: RequestUser) {
+    return this.toursService.remove(id, user.id);
   }
 }

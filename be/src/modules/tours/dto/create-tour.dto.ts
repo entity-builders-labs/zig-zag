@@ -10,6 +10,15 @@ import {
 import { Prisma } from '@prisma/client';
 
 export class CreateTourDto {
+  @ApiProperty({
+    description:
+      'Owning user id. Ignored on the public endpoint — the controller always overwrites it with the authenticated user.',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  ownerId?: string;
+
   @ApiProperty({ description: 'Tour name', required: true })
   @IsString()
   name: string;
