@@ -71,6 +71,18 @@ export interface GenerateTourDto {
   categories?: string[];
 }
 
+export interface PaginatedTours {
+  tours: Tour[];
+  meta: { total: number; page: number; limit: number; totalPages: number };
+}
+
+export async function fetchMyTours(page: number = 1, limit: number = 20) {
+  const { data } = await axiosInstance.get<PaginatedTours>('/tours', {
+    params: { page, limit },
+  });
+  return data;
+}
+
 export async function fetchNearbyTours(
   lat: number,
   lng: number,
