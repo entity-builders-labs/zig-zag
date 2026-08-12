@@ -30,6 +30,7 @@ import { transformAiActivitiesToDto } from '../utils/activity-transformer.util';
 import { updateTravelTimesForActivities } from '../utils/travel-time-calculator.util';
 import { optimizeActivityOrder } from '../utils/route-optimizer.util';
 import { verifyAndDedupeActivities } from '../utils/activity-verification.util';
+import { formatActivityForPrompt } from '../utils/activity-prompt-formatter.util';
 
 @Injectable()
 export class TourActivityGenerationService {
@@ -299,10 +300,7 @@ export class TourActivityGenerationService {
               candidateActivityIds.add(act.id),
             );
             availableActivitiesText = `\n\nAvailable activities in the area (within ${radius / 1000}km):\n${nearbyActivitiesSample
-              .map(
-                (act: any) =>
-                  `id: ${act.id} - ${act.name} (${act.type || 'Activity'}) - ${(act.description || 'No description').substring(0, 100)} - Location: ${act.latitude}, ${act.longitude} - Duration: ${act.duration || 'Unknown'} minutes`,
-              )
+              .map((act: any) => formatActivityForPrompt(act))
               .join('\n')}`;
           } else {
             // Update status: no activities found, triggering Google Maps crawl
@@ -343,10 +341,7 @@ export class TourActivityGenerationService {
                   candidateActivityIds.add(act.id),
                 );
                 availableActivitiesText = `\n\nAvailable activities in the area (within ${radius / 1000}km):\n${refreshedActivitiesSample
-                  .map(
-                    (act: any) =>
-                      `id: ${act.id} - ${act.name} (${act.type || 'Activity'}) - ${(act.description || 'No description').substring(0, 100)} - Location: ${act.latitude}, ${act.longitude} - Duration: ${act.duration || 'Unknown'} minutes`,
-                  )
+                  .map((act: any) => formatActivityForPrompt(act))
                   .join('\n')}`;
               } else {
                 await this.updateGenerationStatus(

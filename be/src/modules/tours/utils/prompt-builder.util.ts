@@ -17,6 +17,8 @@ export function buildPromptFromParams(params: {
   interests?: string[];
   budgetLevel?: string;
   transportationMode?: string[];
+  travelPace?: string;
+  dietaryRestrictions?: string[];
   groupType?: string;
   latitude?: number;
   longitude?: number;
@@ -30,6 +32,15 @@ export function buildPromptFromParams(params: {
     parts.push(`Categories: ${params.categories.join(', ')}`);
   if (params.interests?.length)
     parts.push(`Interests: ${params.interests.join(', ')}`);
+  if (params.budgetLevel) parts.push(`Budget level: ${params.budgetLevel}`);
+  if (params.transportationMode?.length)
+    parts.push(`Transportation: ${params.transportationMode.join(', ')}`);
+  if (params.travelPace) parts.push(`Travel pace: ${params.travelPace}`);
+  if (params.dietaryRestrictions?.length)
+    parts.push(
+      `Dietary restrictions: ${params.dietaryRestrictions.join(', ')}`,
+    );
+  if (params.groupType) parts.push(`Group type: ${params.groupType}`);
 
   if (params.latitude && params.longitude) {
     parts.push(`Location: ${params.latitude}, ${params.longitude}`);
