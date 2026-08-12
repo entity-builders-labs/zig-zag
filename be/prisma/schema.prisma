@@ -75,10 +75,39 @@ model KnownActivityType {
   @@map("known_activity_types")
 }
 
+model User {
+  id               String       @id @default(uuid())
+  email            String       @unique
+  name             String?
+  avatarUrl        String?
+  provider         AuthProvider
+  providerId       String
+  refreshTokenHash String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tours Tour[]
+
+  @@unique([provider, providerId])
+  @@map("user")
+}
+
+enum AuthProvider {
+  GOOGLE
+  APPLE
+}
+
 model Tour {
   id          String  @id @default(uuid())
   name        String
   description String?
+
+  // Nullable rather than required: tours created before auth existed (and
+  // any generated without a logged-in user) have no owner. New tours always
+  // get one — enforced by the auth guard on tour creation, not the schema.
+  ownerId String?
+  owner   User?   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
 
   // Core fields - all optional for flexibility
   price        Float?
@@ -112,6 +141,7 @@ model Tour {
   activities TourActivity[]
 
   @@index([categories]) // Index for category filtering
+  @@index([ownerId])
   @@map("tour")
 }
 
