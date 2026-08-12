@@ -1,6 +1,6 @@
 import { test, expect, APIRequestContext } from '@playwright/test';
 import { API_URL } from './playwright.config';
-import { apiLogin, loginViaUI } from './auth-helper';
+import { apiLogin, seedAuthSession } from './auth-helper';
 
 // Generates a real tour (with real, crawled activities — see
 // be/src/modules/tours/services/tour-activity-generation.service.ts) near a
@@ -53,12 +53,15 @@ test('tour detail map shows a real walking route between stops', async ({
   page,
   request,
 }) => {
-  const { email, accessToken } = await apiLogin(request);
-  const tourId = await createTestTour(request, accessToken);
+  const session = await apiLogin(request);
+  const tourId = await createTestTour(request, session.accessToken);
 
   // The browser session must be authenticated as the same owner to view a
-  // private tour — logs in via the real login screen with the same email.
-  await loginViaUI(page, email);
+  // private tour. Seeding tokens directly (rather than re-driving the login
+  // UI for the same email) avoids colliding with the email code's own
+  // resend cooldown — login itself is already covered end-to-end by the
+  // wizard flow spec.
+  await seedAuthSession(page, session);
 
   const consoleErrors: string[] = [];
   page.on('pageerror', (err) => consoleErrors.push(err.message));

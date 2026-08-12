@@ -45,7 +45,7 @@ export async function loginViaUI(
 export async function apiLogin(
   request: APIRequestContext,
   email: string = uniqueTestEmail()
-): Promise<{ email: string; accessToken: string }> {
+): Promise<{ email: string; accessToken: string; refreshToken: string }> {
   const requestResp = await request.post(`${API_URL}/auth/email/request-code`, {
     data: { email },
   });
@@ -63,5 +63,29 @@ export async function apiLogin(
   expect(verifyResp.ok()).toBeTruthy();
   const session = await verifyResp.json();
 
-  return { email, accessToken: session.accessToken as string };
+  return {
+    email,
+    accessToken: session.accessToken as string,
+    refreshToken: session.refreshToken as string,
+  };
+}
+
+/**
+ * Seeds an already-authenticated session into the browser page (web build
+ * stores tokens in localStorage — see fe/api/config/token-storage.ts), for
+ * tests that need a logged-in browser session for a user created via
+ * apiLogin without re-driving the login UI (which would trigger the same
+ * email's request-code cooldown twice in quick succession).
+ */
+export async function seedAuthSession(
+  page: Page,
+  session: { accessToken: string; refreshToken: string }
+): Promise<void> {
+  await page.addInitScript(
+    ({ accessToken, refreshToken }) => {
+      window.localStorage.setItem('access_token', accessToken);
+      window.localStorage.setItem('refresh_token', refreshToken);
+    },
+    { accessToken: session.accessToken, refreshToken: session.refreshToken }
+  );
 }
