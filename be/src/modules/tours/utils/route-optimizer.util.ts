@@ -1,64 +1,103 @@
-import axios from 'axios';
-import { Logger } from '@nestjs/common';
-
-const logger = new Logger('RouteOptimizer');
-
-// Google's Directions API supports up to 25 waypoints per request.
-const MAX_WAYPOINTS = 25;
+import {
+  calculateDistance,
+  Coordinates,
+} from '../../../shared/utils/distance.utils';
 
 /**
- * Reorders activities to minimize total real-street walking distance,
- * starting and ending near the tour's destination point — using Google's
- * own route-optimization (Directions API with waypoints=optimize:true)
- * instead of whatever order the AI happened to list them in, which has no
- * actual geographic reasoning behind it.
+ * Reorders activities into a short walking route using a free,
+ * dependency-free heuristic — nearest-neighbor construction followed by
+ * 2-opt local search — over straight-line (haversine) distance.
+ *
+ * The AI has no real geographic reasoning, so without this, stops end up in
+ * whatever order it happened to list them, zigzagging back and forth across
+ * the search area. This doesn't know about streets, one-way restrictions, or
+ * rivers — it's an approximation, not real routing — but it reliably fixes
+ * that failure mode, needs no API key, has no rate limit, and costs nothing.
+ * (Previously called Google's Directions API with waypoints=optimize:true;
+ * replaced to remove the paid/rate-limited dependency for a ~15-stop tour.)
  */
-export async function optimizeActivityOrder<
+export function optimizeActivityOrder<
   T extends { latitude: number; longitude: number },
->(
-  origin: { latitude: number; longitude: number },
-  points: T[],
-  apiKey: string | undefined,
-): Promise<T[]> {
-  if (points.length <= 1 || !apiKey) return points;
+>(origin: Coordinates, points: T[]): T[] {
+  if (points.length <= 1) return points;
 
-  const toOptimize = points.slice(0, MAX_WAYPOINTS);
-  const overflow = points.slice(MAX_WAYPOINTS);
+  const nearestNeighborOrder = buildNearestNeighborOrder(origin, points);
+  const order = improveWithTwoOpt(origin, points, nearestNeighborOrder);
 
-  const originStr = `${origin.latitude},${origin.longitude}`;
-  const waypointsStr = toOptimize
-    .map((p) => `${p.latitude},${p.longitude}`)
-    .join('|');
+  return order.map((i) => points[i]);
+}
 
-  try {
-    const { data } = await axios.get(
-      'https://maps.googleapis.com/maps/api/directions/json',
-      {
-        params: {
-          origin: originStr,
-          destination: originStr,
-          waypoints: `optimize:true|${waypointsStr}`,
-          mode: 'walking',
-          key: apiKey,
-        },
-        timeout: 8000,
-      },
-    );
+function buildNearestNeighborOrder(
+  origin: Coordinates,
+  points: Coordinates[],
+): number[] {
+  const remaining = new Set(points.map((_, i) => i));
+  const order: number[] = [];
+  let current: Coordinates = origin;
 
-    const order: number[] | undefined = data?.routes?.[0]?.waypoint_order;
-    if (data?.status !== 'OK' || !Array.isArray(order)) {
-      logger.warn(
-        `Route optimization returned no usable order (status: ${data?.status}), keeping original order.`,
-      );
-      return points;
+  while (remaining.size > 0) {
+    let nearestIndex = -1;
+    let nearestDistance = Infinity;
+
+    for (const i of remaining) {
+      const distance = calculateDistance(current, points[i]);
+      if (distance < nearestDistance) {
+        nearestDistance = distance;
+        nearestIndex = i;
+      }
     }
 
-    const optimized = order.map((i) => toOptimize[i]).filter(Boolean);
-    return [...optimized, ...overflow];
-  } catch (error) {
-    logger.warn(
-      `Route optimization request failed, keeping original order: ${error.message}`,
-    );
-    return points;
+    order.push(nearestIndex);
+    remaining.delete(nearestIndex);
+    current = points[nearestIndex];
   }
+
+  return order;
+}
+
+/** Total length of origin -> points[order[0]] -> ... -> points[order[last]] (an open path, no return leg to origin). */
+function routeLength(
+  origin: Coordinates,
+  points: Coordinates[],
+  order: number[],
+): number {
+  let total = 0;
+  let prev = origin;
+  for (const i of order) {
+    total += calculateDistance(prev, points[i]);
+    prev = points[i];
+  }
+  return total;
+}
+
+/** Repeatedly reverses segments when doing so shortens the route, until no improving swap remains. */
+function improveWithTwoOpt(
+  origin: Coordinates,
+  points: Coordinates[],
+  initialOrder: number[],
+): number[] {
+  let order = initialOrder;
+  let improved = true;
+
+  while (improved) {
+    improved = false;
+    for (let i = 0; i < order.length - 1; i++) {
+      for (let j = i + 1; j < order.length; j++) {
+        const candidate = [
+          ...order.slice(0, i),
+          ...order.slice(i, j + 1).reverse(),
+          ...order.slice(j + 1),
+        ];
+        if (
+          routeLength(origin, points, candidate) <
+          routeLength(origin, points, order)
+        ) {
+          order = candidate;
+          improved = true;
+        }
+      }
+    }
+  }
+
+  return order;
 }

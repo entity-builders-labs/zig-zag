@@ -4,7 +4,6 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '@core/database/prisma.service';
 import { ActivitiesService } from '@activities/services/activities.service';
 import { LangChainService } from '@shared/ai/langchain.service';
@@ -44,7 +43,6 @@ export class TourActivityGenerationService {
     private readonly vectorStoreService: VectorStoreService,
     private readonly googlePlacesService: GooglePlacesService,
     private readonly tourImageService: TourImageService,
-    private readonly configService: ConfigService,
   ) {}
 
   private createTourChain() {
@@ -444,15 +442,14 @@ export class TourActivityGenerationService {
       }
 
       // The AI has no real geographic reasoning — it just lists activities
-      // in whatever order seemed plausible. Reorder them with Google's own
-      // route optimizer (real streets, not crow-flies distance) so the
-      // itinerary doesn't zigzag back and forth across the search area.
+      // in whatever order seemed plausible. Reorder them with a free
+      // nearest-neighbor + 2-opt heuristic (straight-line distance, no
+      // external API) so the itinerary doesn't zigzag across the search area.
       let orderedActivities = uniqueActivities;
       if (options?.latitude && options?.longitude) {
-        orderedActivities = await optimizeActivityOrder(
+        orderedActivities = optimizeActivityOrder(
           { latitude: options.latitude, longitude: options.longitude },
           uniqueActivities,
-          this.configService.get<string>('GOOGLE_MAPS_API_KEY'),
         );
       }
 

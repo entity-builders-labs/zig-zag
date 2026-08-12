@@ -1,107 +1,90 @@
-import axios from 'axios';
 import { optimizeActivityOrder } from './route-optimizer.util';
+import { calculateDistance } from '../../../shared/utils/distance.utils';
 
-jest.mock('axios');
-const mockedAxios = axios as jest.Mocked<typeof axios>;
+function routeLength(
+  origin: { latitude: number; longitude: number },
+  order: { latitude: number; longitude: number }[],
+): number {
+  let total = 0;
+  let prev = origin;
+  for (const point of order) {
+    total += calculateDistance(prev, point);
+    prev = point;
+  }
+  return total;
+}
 
 describe('optimizeActivityOrder', () => {
-  const origin = { latitude: -34.6218351, longitude: -58.3713942 };
+  const origin = { latitude: 0, longitude: 0 };
 
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
-
-  it('returns the points unchanged when there is 0 or 1 of them', async () => {
-    expect(await optimizeActivityOrder(origin, [], 'key')).toEqual([]);
+  it('returns the same array when there are 0 or 1 points', () => {
+    const empty: { latitude: number; longitude: number }[] = [];
+    expect(optimizeActivityOrder(origin, empty)).toBe(empty);
 
     const single = [{ latitude: 1, longitude: 2 }];
-    expect(await optimizeActivityOrder(origin, single, 'key')).toBe(single);
-    expect(mockedAxios.get).not.toHaveBeenCalled();
+    expect(optimizeActivityOrder(origin, single)).toBe(single);
   });
 
-  it('returns the points unchanged when no API key is configured', async () => {
-    const points = [
-      { latitude: 1, longitude: 2 },
-      { latitude: 3, longitude: 4 },
-    ];
-    expect(await optimizeActivityOrder(origin, points, undefined)).toBe(points);
-    expect(mockedAxios.get).not.toHaveBeenCalled();
+  it('orders points from nearest to farthest from the origin when they lie on a line', () => {
+    const near = { latitude: 0, longitude: 1, name: 'near' };
+    const mid = { latitude: 0, longitude: 5, name: 'mid' };
+    const far = { latitude: 0, longitude: 10, name: 'far' };
+
+    const result = optimizeActivityOrder(origin, [far, near, mid]);
+
+    expect(result.map((p) => p.name)).toEqual(['near', 'mid', 'far']);
   });
 
-  it('reorders points according to the Directions API waypoint_order', async () => {
-    const points = [
-      { latitude: 1, longitude: 1, name: 'A' },
-      { latitude: 2, longitude: 2, name: 'B' },
-      { latitude: 3, longitude: 3, name: 'C' },
-    ];
-    mockedAxios.get.mockResolvedValueOnce({
-      data: {
-        status: 'OK',
-        routes: [{ waypoint_order: [2, 0, 1] }],
-      },
-    });
+  it('shortens a zigzagging input order (visiting opposite corners) into a non-crossing route', () => {
+    const ne = { latitude: 1, longitude: 1, name: 'NE' };
+    const se = { latitude: -1, longitude: 1, name: 'SE' };
+    const sw = { latitude: -1, longitude: -1, name: 'SW' };
+    const nw = { latitude: 1, longitude: -1, name: 'NW' };
+    // Worst-case input: hops between opposite corners instead of going around.
+    const zigzagInput = [ne, sw, nw, se];
 
-    const result = await optimizeActivityOrder(origin, points, 'test-key');
+    const result = optimizeActivityOrder(origin, zigzagInput);
 
-    expect(result.map((p) => p.name)).toEqual(['C', 'A', 'B']);
-    expect(mockedAxios.get).toHaveBeenCalledWith(
-      'https://maps.googleapis.com/maps/api/directions/json',
-      expect.objectContaining({
-        params: expect.objectContaining({
-          origin: '-34.6218351,-58.3713942',
-          destination: '-34.6218351,-58.3713942',
-          waypoints: 'optimize:true|1,1|2,2|3,3',
-          mode: 'walking',
-          key: 'test-key',
-        }),
-      }),
+    expect(routeLength(origin, result)).toBeLessThan(
+      routeLength(origin, zigzagInput),
     );
   });
 
-  it('keeps points beyond the 25-waypoint limit appended, unoptimized', async () => {
-    const points = Array.from({ length: 27 }, (_, i) => ({
-      latitude: i,
-      longitude: i,
-      name: `p${i}`,
-    }));
-    mockedAxios.get.mockResolvedValueOnce({
-      data: {
-        status: 'OK',
-        // identity order for the first 25
-        routes: [{ waypoint_order: Array.from({ length: 25 }, (_, i) => i) }],
-      },
-    });
+  it('returns a permutation of the input — same points, no drops or duplicates', () => {
+    const points = [
+      { latitude: 3, longitude: -2, name: 'a' },
+      { latitude: -1, longitude: 4, name: 'b' },
+      { latitude: 0, longitude: 0.5, name: 'c' },
+      { latitude: 2, longitude: 2, name: 'd' },
+    ];
 
-    const result = await optimizeActivityOrder(origin, points, 'test-key');
+    const result = optimizeActivityOrder(origin, points);
 
-    expect(result).toHaveLength(27);
-    expect(result[25].name).toBe('p25');
-    expect(result[26].name).toBe('p26');
+    expect(result).toHaveLength(points.length);
+    expect(new Set(result.map((p) => p.name))).toEqual(
+      new Set(points.map((p) => p.name)),
+    );
   });
 
-  it('falls back to the original order when the API responds with a non-OK status', async () => {
+  it('preserves extra fields on each point beyond latitude/longitude', () => {
     const points = [
-      { latitude: 1, longitude: 1 },
-      { latitude: 2, longitude: 2 },
+      { latitude: 1, longitude: 1, id: 'act-1', notes: 'hello' },
+      { latitude: 2, longitude: 2, id: 'act-2', notes: 'world' },
     ];
-    mockedAxios.get.mockResolvedValueOnce({
-      data: { status: 'ZERO_RESULTS' },
-    });
 
-    const result = await optimizeActivityOrder(origin, points, 'test-key');
+    const result = optimizeActivityOrder(origin, points);
 
-    expect(result).toEqual(points);
+    expect(result.find((p) => p.id === 'act-1')?.notes).toBe('hello');
+    expect(result.find((p) => p.id === 'act-2')?.notes).toBe('world');
   });
 
-  it('falls back to the original order when the request throws', async () => {
-    const points = [
-      { latitude: 1, longitude: 1 },
-      { latitude: 2, longitude: 2 },
-    ];
-    mockedAxios.get.mockRejectedValueOnce(new Error('network error'));
+  it('does not mutate the input array', () => {
+    const points = Object.freeze([
+      { latitude: 5, longitude: 5, name: 'x' },
+      { latitude: -5, longitude: -5, name: 'y' },
+      { latitude: 5, longitude: -5, name: 'z' },
+    ]);
 
-    const result = await optimizeActivityOrder(origin, points, 'test-key');
-
-    expect(result).toEqual(points);
+    expect(() => optimizeActivityOrder(origin, [...points])).not.toThrow();
   });
 });
