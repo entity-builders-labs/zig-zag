@@ -314,8 +314,6 @@ AWS es el destino principal: frontend privado en S3 + CloudFront, API vía Cloud
 
 El entorno de desarrollo remoto queda apagado por defecto para ahorrar: `make aws-start`, `make aws-status` y `make aws-stop`. Detener conserva RDS y el EBS de Chroma; ALB, CloudFront, S3, EBS y almacenamiento de RDS siguen existiendo y pueden tener costo residual.
 
-La configuración histórica de Fly.io se conserva como rollback en [DEPLOY.md](./DEPLOY.md), pero este cambio no despliega ni elimina nada en Fly.
-
 ## License
 
 Private and unlicensed.
