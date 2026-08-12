@@ -11,15 +11,36 @@ export DIRECT_URL="${DIRECT_URL:-$DATABASE_URL}"
 echo "Generating Prisma Client..."
 npx prisma generate
 
-if [ -d prisma/migrations ] && [ -n "$(ls -A prisma/migrations 2>/dev/null)" ]; then
-  echo "Applying Prisma migrations..."
-  npx prisma migrate deploy
-elif [ "${NODE_ENV:-development}" = "production" ]; then
-  echo "ERROR: production deployment requires committed Prisma migrations"
-  exit 1
-else
-  echo "No migrations found; synchronizing the development database schema..."
-  npx prisma db push
-fi
+apply_schema() {
+  if [ -d prisma/migrations ] && [ -n "$(ls -A prisma/migrations 2>/dev/null)" ]; then
+    echo "Applying Prisma migrations..."
+    npx prisma migrate deploy
+  elif [ "${NODE_ENV:-development}" = "production" ]; then
+    echo "ERROR: production deployment requires committed Prisma migrations"
+    exit 1
+  else
+    echo "No migrations found; synchronizing the development database schema..."
+    npx prisma db push
+  fi
+}
+
+# RDS can take a couple of minutes to start accepting connections after
+# aws-power (or an EC2/RDS reboot) brings it back up. Retrying here means the
+# container recovers on its own instead of crash-looping under
+# `restart: unless-stopped` while the DB is still coming online.
+MAX_ATTEMPTS=10
+attempt=1
+while true; do
+  if apply_schema; then
+    break
+  fi
+  if [ "$attempt" -ge "$MAX_ATTEMPTS" ]; then
+    echo "ERROR: could not apply the database schema after $MAX_ATTEMPTS attempts"
+    exit 1
+  fi
+  echo "Schema setup failed (attempt $attempt/$MAX_ATTEMPTS) — retrying in 15s..."
+  attempt=$((attempt + 1))
+  sleep 15
+done
 
 echo "Database schema is ready"
