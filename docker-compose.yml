@@ -20,10 +20,9 @@
 #            ./docker-compose.prod.sh logs -f backend
 #            ./docker-compose.prod.sh down
 #
-# The deploy scripts (deploy-be.sh, deploy-fe.sh) will:
-# 1. First look for .env.prod in project root
-# 2. Fallback to be/.env.prod or fe/.env.prod (backward compatibility)
-# 3. Last resort: .env (development file)
+# Production deploys run through GitHub Actions (.github/workflows/cd.yml),
+# not from this file locally. ./scripts/docker-compose.prod.sh is only for
+# testing the production Docker image on your own machine.
 #
 # ============================================================================
 # FRONTEND BUILD TARGETS
@@ -52,7 +51,7 @@
 
 services:
   # PostgreSQL service - ONLY for local development
-  # In production, Supabase is used (configured via DATABASE_URL)
+  # In production, AWS RDS is used (configured via DATABASE_URL)
   # To use this service: docker-compose --profile dev up
   postgres:
     profiles:
@@ -111,6 +110,9 @@ services:
       - AI_PROVIDER=${AI_PROVIDER}
       - AI_MODEL=${AI_MODEL}
       - EMBEDDINGS_MODEL=${EMBEDDINGS_MODEL}
+      - EMBEDDING_PROVIDER=${EMBEDDING_PROVIDER}
+      - EMBEDDING_DIMENSIONS=${EMBEDDING_DIMENSIONS}
+      - AWS_REGION=${AWS_REGION}
       - OLLAMA_BASE_URL=${OLLAMA_BASE_URL}
       - OLLAMA_API_KEY=${OLLAMA_API_KEY}
       - OLLAMA_NUM_CTX=${OLLAMA_NUM_CTX}
@@ -120,6 +122,25 @@ services:
       - MOCK_MAPS_MODE=${MOCK_MAPS_MODE}
       - ALLOW_API_FALLBACK=${ALLOW_API_FALLBACK}
       - USE_MOCK_MAPS=${USE_MOCK_MAPS}
+      # Security / API docs
+      - CORS_ORIGIN=${CORS_ORIGIN}
+      - SWAGGER_ENABLED=${SWAGGER_ENABLED}
+      # Auth (Google/Apple/email-OTP login)
+      - JWT_ACCESS_SECRET=${JWT_ACCESS_SECRET}
+      - JWT_ACCESS_EXPIRES_IN=${JWT_ACCESS_EXPIRES_IN}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
+      - JWT_REFRESH_EXPIRES_IN=${JWT_REFRESH_EXPIRES_IN}
+      - GOOGLE_CLIENT_IDS=${GOOGLE_CLIENT_IDS}
+      - APPLE_CLIENT_IDS=${APPLE_CLIENT_IDS}
+      - EMAIL_OTP_TTL_MINUTES=${EMAIL_OTP_TTL_MINUTES}
+      - EMAIL_OTP_MAX_ATTEMPTS=${EMAIL_OTP_MAX_ATTEMPTS}
+      - EMAIL_OTP_RESEND_COOLDOWN_SECONDS=${EMAIL_OTP_RESEND_COOLDOWN_SECONDS}
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_PORT=${SMTP_PORT}
+      - SMTP_SECURE=${SMTP_SECURE}
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_PASS=${SMTP_PASS}
+      - SMTP_FROM=${SMTP_FROM}
     volumes:
       - ./be:/app/be
       - /app/node_modules
