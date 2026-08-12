@@ -13,6 +13,7 @@ import {
 } from '@gluestack-ui/themed';
 import { Search, MapPin, X } from 'lucide-react-native';
 import * as ExpoLocation from 'expo-location';
+import { PlaceSuggestion, searchPlaces, resolvePlace } from '@/features/places-autocomplete';
 
 interface DestinationInputProps {
   value?: string;
@@ -30,84 +31,13 @@ interface DestinationInputProps {
   onDirtyChange?: (isDirty: boolean) => void;
 }
 
-const EARTH_RADIUS_METERS = 6371000;
-const MIN_RADIUS_METERS = 500;
-const MAX_RADIUS_METERS = 25000;
-
-function haversineMeters(
-  a: { lat: number; lng: number },
-  b: { lat: number; lng: number }
-): number {
-  const toRad = (deg: number) => (deg * Math.PI) / 180;
-  const dLat = toRad(b.lat - a.lat);
-  const dLng = toRad(b.lng - a.lng);
-  const sinDLat = Math.sin(dLat / 2);
-  const sinDLng = Math.sin(dLng / 2);
-  const h =
-    sinDLat * sinDLat +
-    Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * sinDLng * sinDLng;
-  return 2 * EARTH_RADIUS_METERS * Math.asin(Math.min(1, Math.sqrt(h)));
-}
-
-// Google's place-details viewport is a bounding box sized to fit the actual
-// place (a neighborhood gets a tight box, a city a wide one). Deriving the
-// search radius from it — half the box's diagonal — keeps "search near X"
-// proportional to how big X actually is, instead of one fixed radius for
-// both a neighborhood and an entire city.
-function radiusFromViewport(viewport: {
-  low: { latitude: number; longitude: number };
-  high: { latitude: number; longitude: number };
-}): number {
-  const center = {
-    lat: (viewport.low.latitude + viewport.high.latitude) / 2,
-    lng: (viewport.low.longitude + viewport.high.longitude) / 2,
-  };
-  const corner = { lat: viewport.high.latitude, lng: viewport.high.longitude };
-  const radius = haversineMeters(center, corner);
-  return Math.min(Math.max(radius, MIN_RADIUS_METERS), MAX_RADIUS_METERS);
-}
-
-// NEW Places API calls via proxy
-async function placesAutocomplete(input: string) {
-  const resp = await fetch(
-    `${process.env.EXPO_PUBLIC_CORS_PROXY_URL || 'http://localhost:8080'}/gplaces/v1/places:autocomplete`,
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Goog-Api-Key': process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY!,
-        'X-Goog-FieldMask':
-          'suggestions.placePrediction.placeId,suggestions.placePrediction.text',
-      },
-      body: JSON.stringify({ input }),
-    }
-  );
-  if (!resp.ok) throw new Error(`Autocomplete failed: ${resp.status}`);
-  return resp.json();
-}
-
-async function placeDetails(placeId: string) {
-  const resp = await fetch(
-    `${process.env.EXPO_PUBLIC_CORS_PROXY_URL || 'http://localhost:8080'}/gplaces/v1/places/${placeId}?fields=id,displayName,formattedAddress,location,viewport`,
-    {
-      headers: {
-        'X-Goog-Api-Key': process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY!,
-      },
-    }
-  );
-  if (!resp.ok) throw new Error(`Place details failed: ${resp.status}`);
-  return resp.json();
-}
-
 export const DestinationInput: React.FC<DestinationInputProps> = ({
   value,
   onDestinationChange,
   onDirtyChange,
 }) => {
   const [term, setTerm] = useState(value || '');
-  const [locationResults, setLocationResults] = useState<
-    { place_id: string; structured_formatting: { main_text: string } }[]
-  >([]);
+  const [locationResults, setLocationResults] = useState<PlaceSuggestion[]>([]);
   const [isFocused, setIsFocused] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -126,15 +56,7 @@ export const DestinationInput: React.FC<DestinationInputProps> = ({
       }
       setIsLoading(true);
       try {
-        const data = await placesAutocomplete(term);
-        const items = (data.suggestions || [])
-          .map((s: any) => s.placePrediction)
-          .filter(Boolean)
-          .map((p: any) => ({
-            place_id: p.placeId,
-            structured_formatting: { main_text: p.text?.text || '' },
-          }));
-        setLocationResults(items);
+        setLocationResults(await searchPlaces(term));
       } catch (e) {
         console.error('Autocomplete error', e);
         setLocationResults([]);
@@ -145,30 +67,17 @@ export const DestinationInput: React.FC<DestinationInputProps> = ({
     return () => clearTimeout(handler);
   }, [term]);
 
-  const handleSelectItem = async (item: {
-    place_id: string;
-    structured_formatting: { main_text: string };
-  }) => {
+  const handleSelectItem = async (item: PlaceSuggestion) => {
     try {
-      const details = await placeDetails(item.place_id);
-      const destinationName =
-        details.formattedAddress ||
-        details.displayName?.text ||
-        item.structured_formatting.main_text;
-
-      const radiusMeters = details.viewport
-        ? radiusFromViewport(details.viewport)
-        : undefined;
+      const details = await resolvePlace(item);
+      if (!details) throw new Error('No details returned for place');
 
       onDestinationChange(
-        destinationName,
-        {
-          lat: details.location.latitude,
-          lng: details.location.longitude,
-        },
-        radiusMeters
+        details.name,
+        { lat: details.lat, lng: details.lng },
+        details.radiusMeters
       );
-      setTerm(destinationName);
+      setTerm(details.name);
       setLocationResults([]);
       setIsFocused(false);
       onDirtyChange?.(false);
@@ -176,7 +85,7 @@ export const DestinationInput: React.FC<DestinationInputProps> = ({
       console.error('Failed to fetch place details:', error);
       // No coordinates available — leave the field dirty rather than
       // silently accepting a name with no location behind it.
-      setTerm(item.structured_formatting.main_text);
+      setTerm(item.label);
       setLocationResults([]);
       setIsFocused(false);
       onDirtyChange?.(true);
@@ -284,7 +193,7 @@ export const DestinationInput: React.FC<DestinationInputProps> = ({
               >
                 {locationResults.map((item) => (
                   <Pressable
-                    key={item.place_id}
+                    key={item.id}
                     onPress={() => handleSelectItem(item)}
                   >
                     {({ pressed }) => (
@@ -310,7 +219,7 @@ export const DestinationInput: React.FC<DestinationInputProps> = ({
                           <Icon as={MapPin} size='sm' color='$primary500' />
                         </Box>
                         <Text flex={1} size='md' color='$textLight900'>
-                          {item.structured_formatting.main_text}
+                          {item.label}
                         </Text>
                       </Box>
                     )}

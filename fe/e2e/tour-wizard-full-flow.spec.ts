@@ -83,7 +83,11 @@ test('creates a tour end-to-end through the wizard and views it in both list and
 
   // --- Step 1: destination + dates ---
   await humanType(page.getByPlaceholder('Buscar destino'), 'Caminito La Boca');
-  const suggestion = page.getByText('Caminito, La Boca, Buenos Aires, Argentina');
+  // Exact formatting differs by provider (Google omits the postcode Geoapify
+  // includes, e.g.) — match loosely so this doesn't hard-depend on either.
+  // Multiple real suggestions can match ("Caminito" the street vs. a nearby
+  // "Caminito, Avenida ..." landmark) — the first is fine, any real result works.
+  const suggestion = page.getByText(/Caminito.*La Boca.*Buenos Aires/).first();
   await expect(suggestion).toBeVisible({ timeout: 10_000 });
   await readingPause(page, 500);
   await humanClick(page, suggestion);
