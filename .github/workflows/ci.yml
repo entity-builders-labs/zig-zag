@@ -1,0 +1,132 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main-mvp]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: yarn
+      - run: yarn install --frozen-lockfile
+      - run: yarn workspace backend typecheck
+      - run: yarn workspace backend lint:check
+      - run: yarn workspace backend test --runInBand
+      - run: yarn workspace backend build
+
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: yarn
+      - run: yarn install --frozen-lockfile
+      - run: yarn workspace fe build:web
+        env:
+          EXPO_PUBLIC_API_URL: http://localhost:4000
+          EXPO_PUBLIC_GOOGLE_MAPS_API_KEY: test-key
+          EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID: test.apps.googleusercontent.com
+          EXPO_PUBLIC_GEOAPIFY_API_KEY: test-key
+          EXPO_PUBLIC_PLACES_PROVIDER: geoapify
+          EXPO_PUBLIC_DIRECTIONS_PROVIDER: geoapify
+
+  e2e-deterministic:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: zigzag
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: yarn
+      - run: yarn install --frozen-lockfile
+      - run: yarn workspace backend prisma:generate
+      - run: yarn workspace backend prisma:deploy
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/zigzag
+          DIRECT_URL: postgresql://postgres:postgres@localhost:5432/zigzag
+      - run: yarn workspace backend build
+      - name: Start backend
+        run: |
+          mkdir -p ci-logs
+          yarn workspace backend start:prod > ci-logs/backend.log 2>&1 &
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/zigzag
+          DIRECT_URL: postgresql://postgres:postgres@localhost:5432/zigzag
+          NODE_ENV: test
+          PORT: "4000"
+          ENABLE_AI: "false"
+          USE_MOCK_MAPS: "true"
+          JWT_ACCESS_SECRET: ci-access-secret-that-is-not-used-in-production
+          JWT_REFRESH_SECRET: ci-refresh-secret-that-is-not-used-in-production
+      - name: Build and serve web app
+        run: |
+          mkdir -p ci-logs
+          yarn workspace fe build:web
+          python3 -m http.server 19006 --directory fe/dist > ci-logs/frontend.log 2>&1 &
+        env:
+          EXPO_PUBLIC_API_URL: http://localhost:4000
+          EXPO_PUBLIC_GOOGLE_MAPS_API_KEY: test-key
+          EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID: test.apps.googleusercontent.com
+          EXPO_PUBLIC_GEOAPIFY_API_KEY: test-key
+          EXPO_PUBLIC_PLACES_PROVIDER: geoapify
+          EXPO_PUBLIC_DIRECTIONS_PROVIDER: geoapify
+      - run: npx playwright install --with-deps chromium
+        working-directory: fe
+      - name: Wait for services
+        run: |
+          for _ in {1..60}; do curl --fail --silent http://localhost:4000/health >/dev/null && break; sleep 1; done
+          curl --fail http://localhost:4000/health
+          curl --fail http://localhost:19006
+      - name: Backend E2E
+        run: yarn workspace backend test:e2e --runInBand
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/zigzag
+          DIRECT_URL: postgresql://postgres:postgres@localhost:5432/zigzag
+          NODE_ENV: test
+          ENABLE_AI: "false"
+          JWT_ACCESS_SECRET: ci-access-secret-that-is-not-used-in-production
+          JWT_REFRESH_SECRET: ci-refresh-secret-that-is-not-used-in-production
+      - name: Playwright deterministic suite
+        run: yarn workspace fe test:e2e --grep-invert @live
+        env:
+          E2E_WEB_URL: http://localhost:19006
+          E2E_API_URL: http://localhost:4000
+          E2E_VIDEO: retain-on-failure
+      - name: Upload Playwright evidence and service logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-results
+          path: |
+            fe/test-results
+            ci-logs
+          retention-days: 14

@@ -10,8 +10,14 @@ async function bootstrap() {
     bufferLogs: true,
   });
 
-  // Enable CORS
-  app.enableCors();
+  const allowedOrigins = (process.env.CORS_ORIGIN || '')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+  app.enableCors({
+    origin: allowedOrigins.length > 0 ? allowedOrigins : true,
+    credentials: true,
+  });
 
   // Swagger configuration
   const config = new DocumentBuilder()
@@ -22,24 +28,22 @@ async function bootstrap() {
     .addTag('tours')
     .build();
 
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
+  if (process.env.SWAGGER_ENABLED === 'true') {
+    const document = SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup('api/docs', app, document);
+  }
 
   // Add request logging middleware
-  app.use(morgan('dev'));
+  const isProduction = process.env.NODE_ENV === 'production';
+  app.use(morgan(isProduction ? 'combined' : 'dev'));
 
   // Custom logging middleware
-  app.use((req: any, res: any, next: any) => {
-    Logger.debug(
-      `Incoming ${req.method} ${req.url} request with query:`,
-      JSON.stringify(req.query),
-      JSON.stringify(req.body),
-      JSON.stringify(req.params),
-      JSON.stringify(req.error),
-      JSON.stringify(req.cookies),
-    );
-    next();
-  });
+  if (!isProduction) {
+    app.use((req: any, _res: any, next: any) => {
+      Logger.debug(`Incoming ${req.method} ${req.url}`);
+      next();
+    });
+  }
 
   app.useGlobalPipes(
     new ValidationPipe({

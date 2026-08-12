@@ -2,6 +2,10 @@ import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { OpenAIEmbeddings } from '@langchain/openai';
 import { Embeddings } from '@langchain/core/embeddings';
+import {
+  BedrockRuntimeClient,
+  InvokeModelCommand,
+} from '@aws-sdk/client-bedrock-runtime';
 import aiConfig from '../ai.config';
 
 @Injectable()
@@ -34,11 +38,26 @@ export class AiEmbeddingService implements OnModuleInit {
 
   private async initializeEmbeddings() {
     try {
+      if (!this.config.enableAi) {
+        this.logger.log('AI is disabled. Embeddings initialization skipped.');
+        this.embeddingsDisabled = true;
+        return;
+      }
+
       const provider = this.config.embeddingProvider;
 
       this.logger.log(`Initializing embeddings with provider: ${provider}`);
 
-      if (provider === 'openai') {
+      if (provider === 'bedrock') {
+        this.embeddings = this.createBedrockEmbeddingsAdapter(
+          this.config.awsRegion,
+          this.config.embeddingsModel || 'amazon.titan-embed-text-v2:0',
+          this.config.embeddingDimensions,
+        );
+        this.logger.log(
+          `✓ Bedrock embeddings initialized (model: ${this.config.embeddingsModel}, dimensions: ${this.config.embeddingDimensions})`,
+        );
+      } else if (provider === 'openai') {
         if (!this.config.openaiApiKey) {
           this.logger.warn(
             '⚠️  OpenAI API key missing. Embeddings disabled. Set OPENAI_API_KEY to enable.',
@@ -83,6 +102,46 @@ export class AiEmbeddingService implements OnModuleInit {
       this.logger.error(`Failed to initialize embeddings: ${error.message}`);
       this.embeddingsDisabled = true;
     }
+  }
+
+  private createBedrockEmbeddingsAdapter(
+    region: string,
+    model: string,
+    dimensions: 256 | 512 | 1024,
+  ): Embeddings {
+    const client = new BedrockRuntimeClient({ region });
+
+    const embed = async (inputText: string): Promise<number[]> => {
+      const response = await client.send(
+        new InvokeModelCommand({
+          modelId: model,
+          contentType: 'application/json',
+          accept: 'application/json',
+          body: JSON.stringify({
+            inputText,
+            dimensions,
+            normalize: true,
+          }),
+        }),
+      );
+      const payload = JSON.parse(new TextDecoder().decode(response.body));
+      if (!Array.isArray(payload.embedding)) {
+        throw new Error('Bedrock embeddings response did not include a vector');
+      }
+      return payload.embedding;
+    };
+
+    return {
+      // Titan's InvokeModel API accepts one input per request. Keeping this
+      // sequential avoids bursting through the account's RPM quota when a
+      // Places crawl inserts many activities at once.
+      embedDocuments: async (texts: string[]) => {
+        const vectors: number[][] = [];
+        for (const text of texts) vectors.push(await embed(text));
+        return vectors;
+      },
+      embedQuery: embed,
+    } as Embeddings;
   }
 
   // Helper to get Ollama request headers with authentication if configured

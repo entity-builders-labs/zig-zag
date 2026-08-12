@@ -1,0 +1,30 @@
+name: AWS Power
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "Encender o apagar el entorno"
+        type: choice
+        options: [status, start, stop]
+        default: status
+  schedule:
+    - cron: "17 3 * * *"
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  power:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_GITHUB_CD_ROLE_ARN }}
+          aws-region: us-east-1
+      - name: Apply requested state
+        run: |
+          action="${{ github.event_name == 'schedule' && 'stop' || inputs.action }}"
+          make "aws-$action"
