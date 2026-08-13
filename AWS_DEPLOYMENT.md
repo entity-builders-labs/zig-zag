@@ -62,7 +62,7 @@ Se necesita AWS CLI autenticado y Terraform 1.10 o superior.
 
    En Google Cloud, agregar la URL CloudFront del frontend como Authorized JavaScript Origin. El valor de `GOOGLE_WEB_CLIENT_ID` debe estar incluido también en `GOOGLE_CLIENT_IDS` dentro del parámetro SSM.
 
-6. Ejecutar `make aws-seed-secrets`. A partir de ahí, un CI exitoso en `main-mvp` dispara CD.
+6. Ejecutar `make aws-seed-secrets`. A partir de ahí, un CI exitoso en `main` dispara CD.
 
 Para un primer apply local, copiar `terraform/terraform.tfvars.example` a `terraform/terraform.tfvars`, inicializar el backend con el bucket del bootstrap y detener al finalizar:
 
@@ -86,18 +86,18 @@ make aws-start
 make aws-stop
 ```
 
-`aws-start` espera RDS, inicia Chroma y luego el backend. `aws-stop` detiene las EC2 y RDS sin borrar datos. También existe el workflow manual `AWS Power` con `status`, `start` y `stop`.
+`aws-start` espera RDS, inicia Chroma y luego el backend. `aws-stop` detiene las EC2 y RDS sin borrar datos. También existe el workflow manual `AWS Power` con `status`, `start` y `stop` — es 100% manual, sin cron: nadie apaga el entorno si no lo pedís explícitamente.
 
-AWS vuelve a iniciar automáticamente una instancia RDS detenida después de siete días. El workflow `AWS Power` corre diariamente con `stop` para volver a detenerla. Es un respaldo operativo: si GitHub Actions está deshabilitado, hay que detenerla manualmente.
+AWS vuelve a iniciar automáticamente una instancia RDS detenida después de siete días. Como no hay apagado automático, si te olvidás de correr `make aws-stop`/el workflow manual, esa RDS se puede quedar prendida indefinidamente — vale la pena chequear `make aws-status` de vez en cuando.
 
 Detener no lleva el costo a cero. Permanecen facturables el ALB, las IPv4 públicas reservadas mientras las EC2 están encendidas, EBS, almacenamiento/backups de RDS, S3 y CloudFront según uso. Hay un AWS Budget mensual de USD 10 con avisos al 50%, 80% y 100%; un presupuesto alerta, no impide gasto.
 
 ## Workflows
 
 - `CI`: backend typecheck/lint/unit/build, export web, backend E2E y dos Playwright determinísticos. Los artefactos fallidos conservan video, trace, screenshots y logs por 14 días.
-- `CD`: sólo después de CI verde en `main-mvp` (o manual). Construye una imagen inmutable, publica frontend, enciende la infraestructura, despliega por SSM, hace smoke test y siempre vuelve a apagarla.
+- `CD`: sólo después de CI verde en `main` (o manual). Construye una imagen inmutable, publica frontend, enciende la infraestructura, despliega por SSM, hace smoke test y siempre vuelve a apagarla.
 - `Terraform`: `fmt/validate` sin credenciales en PRs de infraestructura; plan/apply manuales con OIDC y apply protegido por environment.
-- `AWS Power`: encendido/apagado manual y apagado diario de seguridad.
+- `AWS Power`: encendido/apagado 100% manual, sin cron.
 
 Los cuatro Playwright marcados `@live` llaman a Groq y/o mapas reales y se excluyen del CI para no consumir cuota ni volverlo inestable. Se ejecutan deliberadamente desde una máquina local con los servicios encendidos:
 
@@ -111,6 +111,3 @@ Para ver el navegador y conservar todos los videos:
 E2E_VIDEO=on E2E_SLOWMO=1 yarn workspace fe test:e2e --grep @live --headed
 ```
 
-## Fly.io
-
-Los archivos de Fly.io se mantienen como rollback. Terraform y los workflows AWS no los modifican ni despliegan.

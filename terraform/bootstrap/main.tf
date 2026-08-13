@@ -20,12 +20,12 @@ variable "project_name" {
 
 variable "github_repo" {
   type    = string
-  default = "juanobrach/zig-zag"
+  default = "jiseruk/zig-zag"
 }
 
 variable "deploy_branch" {
   type    = string
-  default = "main-mvp"
+  default = "main"
 }
 
 provider "aws" { region = var.aws_region }

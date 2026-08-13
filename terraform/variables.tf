@@ -11,12 +11,12 @@ variable "aws_region" {
 variable "github_repo" {
   description = "GitHub repository in owner/name format."
   type        = string
-  default     = "juanobrach/zig-zag"
+  default     = "jiseruk/zig-zag"
 }
 
 variable "deploy_branch" {
   type    = string
-  default = "main-mvp"
+  default = "main"
 }
 
 variable "backend_instance_type" {

@@ -1,6 +1,6 @@
 aws_region         = "us-east-1"
-github_repo        = "juanobrach/zig-zag"
-deploy_branch      = "main-mvp"
+github_repo        = "jiseruk/zig-zag"
+deploy_branch      = "main"
 budget_alert_email = "you@example.com"
 
 # Deliberately kept at micro for the development/free-tier-oriented environment.

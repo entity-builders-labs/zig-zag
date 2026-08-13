@@ -112,4 +112,4 @@ Expo Router file-based routing under `fe/app/`: a `(tabs)` group (home/map/saved
 
 ## Deployment
 
-Production deploys target AWS — see `AWS_DEPLOYMENT.md` for details. Frontend: S3 + CloudFront. API: CloudFront + ALB in front of an EC2 instance. Chroma on its own EC2 instance. PostgreSQL on RDS. Deploys run through GitHub Actions (`.github/workflows/cd.yml`) after CI passes on `main-mvp`; there is no manual `yarn deploy` script. The environment is stopped by default to save cost — `make aws-start` / `make aws-status` / `make aws-stop`.
+Production deploys target AWS — see `AWS_DEPLOYMENT.md` for details. Frontend: S3 + CloudFront. API: CloudFront + ALB in front of an EC2 instance. Chroma on its own EC2 instance. PostgreSQL on RDS. Deploys run through GitHub Actions (`.github/workflows/cd.yml`) after CI passes on `main`; there is no manual `yarn deploy` script. The environment is stopped by default to save cost — `make aws-start` / `make aws-status` / `make aws-stop`.
