@@ -20,7 +20,12 @@ config=$(aws ssm get-parameter --region "$region" --name '${app_parameter}' --wi
 db_secret=$(aws secretsmanager get-secret-value --region "$region" --secret-id '${db_secret_arn}' --query SecretString --output text)
 db_user=$(jq -r '.username' <<<"$db_secret")
 db_password=$(jq -r '.password | @uri' <<<"$db_secret")
-database_url="postgresql://$db_user:$db_password@${db_host}:${db_port}/${db_name}"
+# rds.force_ssl=1 on this instance rejects plaintext connections outright.
+# sslmode=require would be nicer, but recent pg/pg-connection-string versions
+# treat it as an alias for verify-full, which fails here since RDS's cert
+# chains to Amazon's CA, not something Node trusts by default — no-verify
+# keeps the connection encrypted without needing to bundle that CA bundle.
+database_url="postgresql://$db_user:$db_password@${db_host}:${db_port}/${db_name}?sslmode=no-verify"
 
 jq -r --arg database_url "$database_url" --arg chroma_url '${chroma_url}' --arg cors_origin '${cors_origin}' --arg region "$region" '
   . + {
