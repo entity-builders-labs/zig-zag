@@ -41,6 +41,7 @@
     "match:complementary": "yarn script 'check-embeddings --search-prompt 'indoor and outdoor activities that complement each other'"
   },
   "dependencies": {
+    "@aws-sdk/client-bedrock-runtime": "^3.873.0",
     "@googlemaps/google-maps-services-js": "^3.4.0",
     "@googlemaps/places": "^1.8.0",
     "@langchain/community": "^0.3.33",

@@ -5,5 +5,13 @@
   "testRegex": ".e2e-spec.ts$",
   "transform": {
     "^.+\\.(t|j)s$": "ts-jest"
+  },
+  "moduleNameMapper": {
+    "^src/(.*)$": "<rootDir>/../src/$1",
+    "^@core/(.*)$": "<rootDir>/../src/core/$1",
+    "^@shared/(.*)$": "<rootDir>/../src/shared/$1",
+    "^@activities/(.*)$": "<rootDir>/../src/modules/activities/$1",
+    "^@tours/(.*)$": "<rootDir>/../src/modules/tours/$1",
+    "^@integrations/(.*)$": "<rootDir>/../src/modules/integrations/$1"
   }
 }

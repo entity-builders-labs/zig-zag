@@ -93,11 +93,7 @@ RUN echo '#!/bin/sh' > /app/be/start.sh && \
     echo '  else' >> /app/be/start.sh && \
     echo '    echo "⚠️  No migrations directory found"' >> /app/be/start.sh && \
     echo '  fi' >> /app/be/start.sh && \
-    echo '  sh scripts/setup-db.sh || {' >> /app/be/start.sh && \
-    echo '    EXIT_CODE=$?' >> /app/be/start.sh && \
-    echo '    echo "❌ Database setup failed with exit code $EXIT_CODE"' >> /app/be/start.sh && \
-    echo '    echo "⚠️  Continuing anyway, but application may not work correctly..."' >> /app/be/start.sh && \
-    echo '  }' >> /app/be/start.sh && \
+    echo '  sh scripts/setup-db.sh' >> /app/be/start.sh && \
     echo 'else' >> /app/be/start.sh && \
     echo '  echo "⚠️  Setup script not found, skipping..."' >> /app/be/start.sh && \
     echo 'fi' >> /app/be/start.sh && \

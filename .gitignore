@@ -7,7 +7,6 @@ yarn-error.log*
 .yarn
 .pnp.*
 package-lock.json
-yarn.lock
 
 # Python
 __pycache__/
@@ -76,6 +75,14 @@ target/
 secrets.*
 credentials.*
 
+# Terraform local state and generated plans
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+terraform.tfvars
+crash.log
+
 # Logs and temporary files
 logs/
 *.log
@@ -108,4 +115,3 @@ web-build/
 # Playwright E2E
 fe/test-results/
 fe/playwright-report/
-

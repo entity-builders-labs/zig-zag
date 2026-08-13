@@ -2,6 +2,10 @@ import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { OpenAIEmbeddings } from '@langchain/openai';
 import { Embeddings } from '@langchain/core/embeddings';
+import {
+  BedrockRuntimeClient,
+  InvokeModelCommand,
+} from '@aws-sdk/client-bedrock-runtime';
 import aiConfig from '../ai.config';
 
 @Injectable()
@@ -34,11 +38,47 @@ export class AiEmbeddingService implements OnModuleInit {
 
   private async initializeEmbeddings() {
     try {
+      if (!this.config.enableAi) {
+        this.logger.log('AI is disabled. Embeddings initialization skipped.');
+        this.embeddingsDisabled = true;
+        return;
+      }
+
       const provider = this.config.embeddingProvider;
 
       this.logger.log(`Initializing embeddings with provider: ${provider}`);
 
-      if (provider === 'openai') {
+      if (provider === 'bedrock') {
+        const bedrockEmbeddings = this.createBedrockEmbeddingsAdapter(
+          this.config.awsRegion,
+          this.config.embeddingsModel || 'amazon.titan-embed-text-v2:0',
+          this.config.embeddingDimensions,
+        );
+
+        try {
+          // Fail fast with a clear cause (bad credentials, wrong region,
+          // model not enabled for this account, etc.) instead of only
+          // finding out on the first real embed call during a crawl.
+          await bedrockEmbeddings.embedQuery('connectivity check');
+          this.embeddings = bedrockEmbeddings;
+          this.logger.log(
+            `✓ Bedrock embeddings initialized (model: ${this.config.embeddingsModel}, dimensions: ${this.config.embeddingDimensions})`,
+          );
+        } catch (error) {
+          this.logger.error(
+            `Failed to initialize Bedrock embeddings: ${error.message}`,
+          );
+          this.embeddingsDisabled = true;
+
+          if (this.config.openaiApiKey) {
+            this.logger.warn('Falling back to OpenAI embeddings...');
+            this.embeddings = new OpenAIEmbeddings({
+              openAIApiKey: this.config.openaiApiKey,
+            });
+            this.embeddingsDisabled = false;
+          }
+        }
+      } else if (provider === 'openai') {
         if (!this.config.openaiApiKey) {
           this.logger.warn(
             '⚠️  OpenAI API key missing. Embeddings disabled. Set OPENAI_API_KEY to enable.',
@@ -83,6 +123,54 @@ export class AiEmbeddingService implements OnModuleInit {
       this.logger.error(`Failed to initialize embeddings: ${error.message}`);
       this.embeddingsDisabled = true;
     }
+  }
+
+  private createBedrockEmbeddingsAdapter(
+    region: string,
+    model: string,
+    dimensions: 256 | 512 | 1024,
+  ): Embeddings {
+    const client = new BedrockRuntimeClient({ region });
+
+    const embed = async (inputText: string): Promise<number[]> => {
+      const response = await client.send(
+        new InvokeModelCommand({
+          modelId: model,
+          contentType: 'application/json',
+          accept: 'application/json',
+          body: JSON.stringify({
+            inputText,
+            dimensions,
+            normalize: true,
+          }),
+        }),
+      );
+      const payload = JSON.parse(new TextDecoder().decode(response.body));
+      if (!Array.isArray(payload.embedding)) {
+        throw new Error('Bedrock embeddings response did not include a vector');
+      }
+      return payload.embedding;
+    };
+
+    // Titan's InvokeModel API accepts one input per request. A small batch of
+    // concurrent requests keeps large crawls from being fully sequential
+    // without bursting through the account's RPM quota.
+    const BATCH_SIZE = 5;
+
+    return {
+      embedDocuments: async (texts: string[]) => {
+        const vectors: number[][] = [];
+        for (let i = 0; i < texts.length; i += BATCH_SIZE) {
+          const batch = texts.slice(i, i + BATCH_SIZE);
+          const batchVectors = await Promise.all(
+            batch.map((text) => embed(text)),
+          );
+          vectors.push(...batchVectors);
+        }
+        return vectors;
+      },
+      embedQuery: embed,
+    } as Embeddings;
   }
 
   // Helper to get Ollama request headers with authentication if configured

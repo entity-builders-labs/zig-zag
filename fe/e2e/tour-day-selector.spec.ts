@@ -56,7 +56,7 @@ async function createTwoDayTour(
   return id;
 }
 
-test('the map lets you switch between days on a multi-day tour', async ({
+test('@live the map lets you switch between days on a multi-day tour', async ({
   page,
   request,
 }) => {
@@ -102,7 +102,7 @@ test('the map lets you switch between days on a multi-day tour', async ({
   );
 });
 
-test('a single-day tour shows no day selector', async ({ page, request }) => {
+test('@live a single-day tour shows no day selector', async ({ page, request }) => {
   const session = await apiLogin(request);
   const resp = await request.post(`${API_URL}/tours`, {
     headers: { Authorization: `Bearer ${session.accessToken}` },

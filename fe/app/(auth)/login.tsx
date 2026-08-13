@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Platform } from 'react-native';
 import {
   Box,
@@ -19,6 +19,7 @@ import {
   AppleAuthenticationButtonStyle,
 } from 'expo-apple-authentication';
 import { useAuth } from '@/context/auth';
+import { GoogleSignInButton } from '@/components/auth/GoogleSignInButton';
 
 type Step = 'providers' | 'email' | 'code';
 
@@ -42,17 +43,21 @@ export default function LoginScreen() {
   const [loading, setLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const handleGoogle = async () => {
+  const handleGoogle = useCallback(async (webIdToken?: string) => {
     setError(null);
     setLoading('google');
     try {
-      await signInWithGoogle();
+      await signInWithGoogle(webIdToken);
     } catch (err) {
       setError(errorMessage(err));
     } finally {
       setLoading(null);
     }
-  };
+  }, [signInWithGoogle]);
+
+  const handleGoogleError = useCallback((message: string) => {
+    setError(message);
+  }, []);
 
   const handleApple = async () => {
     setError(null);
@@ -112,16 +117,12 @@ export default function LoginScreen() {
 
         {step === 'providers' && (
           <VStack space='md'>
-            <Button
-              size='lg'
-              variant='outline'
-              onPress={handleGoogle}
-              isDisabled={loading !== null}
-              testID='login-google-button'
-            >
-              {loading === 'google' && <ButtonSpinner mr='$2' />}
-              <ButtonText>Continuar con Google</ButtonText>
-            </Button>
+            <GoogleSignInButton
+              disabled={loading !== null}
+              loading={loading === 'google'}
+              onSignIn={handleGoogle}
+              onError={handleGoogleError}
+            />
 
             {Platform.OS === 'ios' && (
               <AppleAuthenticationButton

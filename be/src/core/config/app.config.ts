@@ -5,8 +5,13 @@ export const appConfig = () => ({
     name: process.env.APP_NAME || 'ZigZag API',
   },
   cors: {
-    enabled: process.env.CORS_ENABLED === 'true',
-    origin: process.env.CORS_ORIGIN || '*',
+    // No production default here on purpose — main.ts refuses to boot in
+    // production without an explicit CORS_ORIGIN instead of silently
+    // reflecting any Origin. Non-production keeps the permissive '*' default
+    // since local/dev callers vary (simulator, web, docker-compose).
+    origin:
+      process.env.CORS_ORIGIN ||
+      (process.env.NODE_ENV === 'production' ? '' : '*'),
   },
   swagger: {
     enabled: process.env.SWAGGER_ENABLED === 'true',

@@ -33,7 +33,7 @@ yarn start:be                # backend only (nest start --watch), from root
 yarn start:fe                # frontend only, alias of `yarn start`
 ```
 
-Backend runs on port 4000 (mapped from container port 3000) when using docker-compose; Swagger UI is at `/api`.
+Backend runs on port 4000 (mapped from container port 3000) when using docker-compose; Swagger UI is at `/api/docs` when `SWAGGER_ENABLED=true`.
 
 ### Backend (`cd be`)
 
@@ -112,4 +112,4 @@ Expo Router file-based routing under `fe/app/`: a `(tabs)` group (home/map/saved
 
 ## Deployment
 
-Production deploys target Fly.io — see `DEPLOY.md` for details. `yarn deploy:be` / `yarn deploy:fe` (root `package.json`) invoke `fly/deploy-be.sh` / `fly/deploy-fe.sh`.
+Production deploys target AWS — see `AWS_DEPLOYMENT.md` for details. Frontend: S3 + CloudFront. API: CloudFront + ALB in front of an EC2 instance. Chroma on its own EC2 instance. PostgreSQL on RDS. Deploys run through GitHub Actions (`.github/workflows/cd.yml`) after CI passes on `main-mvp`; there is no manual `yarn deploy` script. The environment is stopped by default to save cost — `make aws-start` / `make aws-status` / `make aws-stop`.

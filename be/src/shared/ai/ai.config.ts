@@ -25,7 +25,9 @@ export interface AiConfig {
   ollamaTimeout?: number; // Separate timeout for Ollama (defaults to 4x base timeout)
   // Embeddings
   embeddingsModel?: string;
-  embeddingProvider: 'openai' | 'ollama';
+  embeddingProvider: 'openai' | 'ollama' | 'bedrock';
+  awsRegion: string;
+  embeddingDimensions: 256 | 512 | 1024;
 }
 
 // Helper to detect if a model is an embedding model
@@ -98,9 +100,19 @@ export default registerAs('ai', (): AiConfig => {
     ollamaTimeout: process.env.OLLAMA_TIMEOUT
       ? parseInt(process.env.OLLAMA_TIMEOUT, 10)
       : baseTimeout * 4,
-    embeddingsModel: process.env.EMBEDDINGS_MODEL || 'nomic-embed-text',
+    embeddingsModel:
+      process.env.EMBEDDINGS_MODEL ||
+      (process.env.EMBEDDING_PROVIDER === 'bedrock'
+        ? 'amazon.titan-embed-text-v2:0'
+        : 'nomic-embed-text'),
     embeddingProvider:
-      (process.env.EMBEDDING_PROVIDER as 'openai' | 'ollama') ||
+      (process.env.EMBEDDING_PROVIDER as 'openai' | 'ollama' | 'bedrock') ||
       (process.env.NODE_ENV === 'production' ? 'openai' : 'ollama'),
+    awsRegion: process.env.AWS_REGION || 'us-east-1',
+    embeddingDimensions: ([256, 512, 1024].includes(
+      Number(process.env.EMBEDDING_DIMENSIONS),
+    )
+      ? Number(process.env.EMBEDDING_DIMENSIONS)
+      : 256) as 256 | 512 | 1024,
   };
 });

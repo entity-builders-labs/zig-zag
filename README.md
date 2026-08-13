@@ -27,14 +27,15 @@ Esta sección explica cómo colaboran frontend y backend en los flujos principal
 - `modules/tours/services/tour-activity-generation.service.ts` (`TourActivityGenerationService`): el "trabajador" en background — busca actividades existentes, dispara crawling si no hay, arma el prompt para el LLM (vía `AI_PROVIDER`), guarda las `TourActivity` generadas y va actualizando `metadata.generationStatus`.
 - `modules/tours/services/tour-location.service.ts` (`TourLocationService`): busca tours existentes cerca de una ubicación con cierta categoría; si encuentra menos de 3, genera uno nuevo de forma síncrona vía `TourGenerationService.generateTour()`.
 - `shared/ai/langchain.service.ts` (`LangChainService`): abstrae el proveedor de IA activo (OpenAI/Groq/Ollama) para chat y completions.
-- `shared/ai/services/vector-store.service.ts` (`VectorStoreService`): guarda y busca embeddings de actividades en ChromaDB para similitud semántica.
+- `shared/ai/services/vector-store.service.ts` (`VectorStoreService`): guarda y busca embeddings de actividades en ChromaDB para similitud semántica. En AWS los vectores los genera Bedrock Titan Text Embeddings V2 (256 dimensiones).
 
 **Infraestructura (`docker-compose.yml`)** — los componentes "de verdad" detrás de los servicios de arriba:
 
 - **PostgreSQL** (`postgres`): la única fuente de verdad relacional — `activity`, `tour`, `tour_activity`, `crawler_search`, etc. Accedida siempre vía Prisma (`PrismaService`), nunca directo.
 - **ChromaDB** (`chroma`): base de datos vectorial. Guarda el embedding (vector numérico) de cada actividad para poder buscar "actividades parecidas a X" por significado, no por texto exacto. La escribe/lee `VectorStoreService`.
 - **Ollama** (`ollama`, perfil `local-ai`): sirve modelos LLM localmente. Se usa para generar embeddings (`nomic-embed-text`) por defecto en desarrollo, y opcionalmente para chat si `AI_PROVIDER=ollama`.
-- **Groq / OpenAI** (APIs externas, no corren en Docker): proveedores de chat/LLM alternativos a Ollama, seleccionados con `AI_PROVIDER`. OpenAI además es el fallback de embeddings si Ollama no está disponible, y genera las imágenes de portada (DALL-E).
+- **Groq** (API externa): proveedor de chat/LLM usado en AWS (`llama-3.1-8b-instant`). Ollama queda disponible para desarrollo local.
+- **Amazon Bedrock** (API administrada de AWS): genera embeddings con Titan Text Embeddings V2 en producción. No requiere una cuenta ni tokens de OpenAI.
 - **Google Places API** (externa, o *mock* si `USE_MOCK_MAPS=true`): fuente de datos reales de lugares/restaurantes/atracciones que alimenta la tabla `activity`.
 - **cors-proxy**: proxy HTTP simple para que el frontend web esquive CORS al pegarle al backend.
 
@@ -49,7 +50,7 @@ flowchart LR
     CHROMA[("ChromaDB")]
     OLLAMA["Ollama<br/>(LLM + embeddings local)"]
     GROQ["Groq API<br/>(chat/LLM)"]
-    OPENAI["OpenAI API<br/>(embeddings fallback + DALL-E)"]
+    BEDROCK["Amazon Bedrock<br/>(embeddings en AWS)"]
     GMAPS["Google Places API"]
 
     FE -- "HTTP (web)" --> CORS --> BE
@@ -58,7 +59,7 @@ flowchart LR
     BE -- "HTTP" --> CHROMA
     BE -- "HTTP" --> OLLAMA
     BE -- "HTTPS" --> GROQ
-    BE -- "HTTPS" --> OPENAI
+    BE -- "AWS API" --> BEDROCK
     BE -- "HTTPS" --> GMAPS
 ```
 
@@ -168,7 +169,7 @@ sequenceDiagram
     participant ChatLLM as Groq / OpenAI / Ollama<br/>(chat, según AI_PROVIDER)
     participant DB as PostgreSQL
     participant Vec as VectorStoreService
-    participant EmbedLLM as Ollama / OpenAI<br/>(embeddings, según EMBEDDING_PROVIDER)
+    participant EmbedLLM as Ollama / Bedrock / OpenAI<br/>(embeddings, según EMBEDDING_PROVIDER)
     participant Chroma as ChromaDB
 
     Caller--)GP: crawlAndSaveActivities({lat, lng, radius})
@@ -188,7 +189,7 @@ sequenceDiagram
     GP->>DB: SELECT — chequea duplicados (sourceId + externalId)
     GP->>DB: INSERT Activity[] nuevas
     GP->>Vec: saveActivityEmbedding(activities)
-    Note over Vec,EmbedLLM: Independiente del chat: usa EMBEDDING_PROVIDER<br/>(ollama por defecto en dev, openai en prod/fallback) — nunca Groq
+    Note over Vec,EmbedLLM: Independiente del chat: usa EMBEDDING_PROVIDER<br/>(ollama por defecto en dev, Bedrock Titan en AWS) — nunca Groq
     Vec->>EmbedLLM: genera embedding (vector) por actividad
     EmbedLLM-->>Vec: vector[]
     Vec->>Chroma: upsert embeddings
@@ -214,7 +215,7 @@ sequenceDiagram
         Loc-->>API: tours existentes
     else Encontró menos de 3
         Loc->>Gen: generateTour(prompt, {lat, lng}) — bloqueante, espera la respuesta
-        Note over Gen: Toca PostgreSQL, ChromaDB y el proveedor de IA<br/>igual que el diagrama 2, pero de forma síncrona<br/>(sin background) e incluye imagen de portada (DALL-E)
+        Note over Gen: Toca PostgreSQL, ChromaDB y el proveedor de IA<br/>igual que el diagrama 2, pero de forma síncrona<br/>(sin background). La imagen generada está desactivada por defecto
         Gen-->>Loc: tour nuevo completo
         Loc-->>API: tours existentes + tour nuevo
     end
@@ -309,7 +310,9 @@ sequenceDiagram
 
 ## Deployment
 
-See [DEPLOY.md](./DEPLOY.md) for detailed production deployment instructions (Fly.io).
+AWS es el destino principal: frontend privado en S3 + CloudFront, API vía CloudFront + ALB, backend y Chroma en EC2 separadas, y PostgreSQL en RDS. Ver [AWS_DEPLOYMENT.md](./AWS_DEPLOYMENT.md).
+
+El entorno de desarrollo remoto queda apagado por defecto para ahorrar: `make aws-start`, `make aws-status` y `make aws-stop`. Detener conserva RDS y el EBS de Chroma; ALB, CloudFront, S3, EBS y almacenamiento de RDS siguen existiendo y pueden tener costo residual.
 
 ## License
 

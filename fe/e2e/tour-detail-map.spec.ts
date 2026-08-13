@@ -49,7 +49,7 @@ async function createTestTour(
   throw new Error('Tour generation did not complete in time');
 }
 
-test('tour detail map shows a real walking route between stops', async ({
+test('@live tour detail map shows a real walking route between stops', async ({
   page,
   request,
 }) => {
