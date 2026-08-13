@@ -79,6 +79,7 @@ data "aws_iam_policy_document" "github_cd" {
     actions = [
       "ec2:DescribeInstances", "rds:DescribeDBInstances",
       "elasticloadbalancing:DescribeTargetHealth", "elasticloadbalancing:DescribeRules",
+      "elasticloadbalancing:DescribeTargetGroups",
       "autoscaling:DescribeAutoScalingGroups", "autoscaling:DescribeAutoScalingInstances",
       "cloudwatch:DescribeAlarms",
     ]
