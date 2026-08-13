@@ -12,7 +12,9 @@ resource "aws_lb" "api" {
 }
 
 resource "aws_lb_target_group" "backend" {
-  name     = "${var.project_name}-backend"
+  for_each = toset(["blue", "green"])
+
+  name     = "${var.project_name}-backend-${each.key}"
   port     = 3000
   protocol = "HTTP"
   vpc_id   = aws_vpc.main.id
@@ -48,8 +50,21 @@ resource "aws_lb_listener_rule" "cloudfront_only" {
   priority     = 10
 
   action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.backend.arn
+    type = "forward"
+    forward {
+      # Steady-state baseline: all traffic to blue. canary-deploy.sh moves
+      # these weights directly via the API during a rollout/rollback — this
+      # HCL value is never live once a first deploy has happened, hence the
+      # ignore_changes below.
+      target_group {
+        arn    = aws_lb_target_group.backend["blue"].arn
+        weight = 100
+      }
+      target_group {
+        arn    = aws_lb_target_group.backend["green"].arn
+        weight = 0
+      }
+    }
   }
 
   condition {
@@ -58,6 +73,11 @@ resource "aws_lb_listener_rule" "cloudfront_only" {
       values           = [random_password.origin_verify.result]
     }
   }
+
+  # Migration to the weighted blue/green forward is confirmed live (see plan
+  # file) — canary-deploy.sh owns the actual weights from here on, ignore
+  # drift so its runtime changes don't show up as perpetual plan diffs.
+  lifecycle { ignore_changes = [action] }
 }
 
 resource "aws_cloudfront_distribution" "api" {

@@ -1,0 +1,39 @@
+name: Backend Canary Control
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "promote (salta al 100% ya) o rollback (vuelve al slot anterior)"
+        type: choice
+        options: [promote, rollback]
+        required: true
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: us-east-1
+  PROJECT_NAME: zig-zag
+
+jobs:
+  control:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_GITHUB_CD_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+      - name: Read listener rule ARN
+        run: |
+          arn=$(aws ssm get-parameter --name /zig-zag/prod/infra/backend_listener_rule_arn --query 'Parameter.Value' --output text)
+          if [ -z "$arn" ] || [ "$arn" = "None" ]; then
+            echo "ERROR: backend_listener_rule_arn resolved to an empty value" >&2
+            exit 1
+          fi
+          echo "BACKEND_LISTENER_RULE_ARN=$arn" >> "$GITHUB_ENV"
+      - name: Run ${{ inputs.action }}
+        run: scripts/canary-deploy.sh ${{ inputs.action }}

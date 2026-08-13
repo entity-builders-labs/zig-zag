@@ -34,8 +34,11 @@ data "aws_iam_policy_document" "backend" {
   }
 
   statement {
-    actions   = ["ssm:GetParameter"]
-    resources = ["arn:aws:ssm:${var.aws_region}:${data.aws_caller_identity.current.account_id}:parameter${var.app_config_parameter_name}"]
+    actions = ["ssm:GetParameter"]
+    resources = [
+      "arn:aws:ssm:${var.aws_region}:${data.aws_caller_identity.current.account_id}:parameter${var.app_config_parameter_name}",
+      "arn:aws:ssm:${var.aws_region}:${data.aws_caller_identity.current.account_id}:parameter${local.backend_image_tag_parameter}",
+    ]
   }
 
   statement {

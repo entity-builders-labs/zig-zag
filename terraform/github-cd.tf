@@ -67,29 +67,36 @@ data "aws_iam_policy_document" "github_cd" {
     resources = ["arn:aws:ssm:${var.aws_region}:${data.aws_caller_identity.current.account_id}:parameter/${var.project_name}/prod/infra/*"]
   }
   statement {
-    actions   = ["ssm:SendCommand"]
-    resources = ["arn:aws:ssm:${var.aws_region}::document/AWS-RunShellScript"]
-  }
-  statement {
-    actions   = ["ssm:SendCommand"]
-    resources = ["arn:aws:ec2:${var.aws_region}:${data.aws_caller_identity.current.account_id}:instance/*"]
-    condition {
-      test     = "StringEquals"
-      variable = "ssm:resourceTag/Project"
-      values   = [var.project_name]
-    }
+    # Written by canary-deploy.sh during a rollout/rollback/promote — the
+    # only two SSM values CD ever writes, as opposed to just reads.
+    actions = ["ssm:PutParameter"]
+    resources = [
+      "arn:aws:ssm:${var.aws_region}:${data.aws_caller_identity.current.account_id}:parameter${local.backend_active_slot_parameter}",
+      "arn:aws:ssm:${var.aws_region}:${data.aws_caller_identity.current.account_id}:parameter${local.backend_image_tag_parameter}",
+    ]
   }
   statement {
     actions = [
-      "ssm:GetCommandInvocation", "ssm:DescribeInstanceInformation",
       "ec2:DescribeInstances", "rds:DescribeDBInstances",
-      "elasticloadbalancing:DescribeTargetHealth",
+      "elasticloadbalancing:DescribeTargetHealth", "elasticloadbalancing:DescribeRules",
+      "autoscaling:DescribeAutoScalingGroups", "autoscaling:DescribeAutoScalingInstances",
+      "cloudwatch:DescribeAlarms",
     ]
     resources = ["*"]
   }
   statement {
+    # Blue/green rollout control: scale either backend slot up/down, and move
+    # traffic weight between their target groups on the listener rule.
+    actions   = ["autoscaling:UpdateAutoScalingGroup"]
+    resources = [for asg in aws_autoscaling_group.backend : asg.arn]
+  }
+  statement {
+    actions   = ["elasticloadbalancing:ModifyRule"]
+    resources = [aws_lb_listener_rule.cloudfront_only.arn]
+  }
+  statement {
     actions   = ["ec2:StartInstances", "ec2:StopInstances"]
-    resources = [aws_instance.backend.arn, aws_instance.chroma.arn]
+    resources = [aws_instance.chroma.arn]
   }
   statement {
     actions   = ["rds:StartDBInstance", "rds:StopDBInstance"]

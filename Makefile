@@ -5,7 +5,7 @@ AWS_PROJECT_TAG ?= zig-zag
 AWS_RDS_ID ?= zig-zag-postgres
 AWS_POWER_ENV := AWS_REGION=$(AWS_REGION) AWS_PROJECT_TAG=$(AWS_PROJECT_TAG) AWS_RDS_ID=$(AWS_RDS_ID)
 
-.PHONY: help aws-start aws-stop aws-status aws-seed-secrets
+.PHONY: help aws-start aws-stop aws-status aws-seed-secrets check-gh rollback_deploy finish_deploy
 
 help: ## Lista los comandos disponibles
 	@echo "Targets disponibles:"
@@ -27,3 +27,27 @@ aws-status: ## Muestra el estado y tipo de las EC2 y del RDS
 
 aws-seed-secrets: ## Copia los secretos de .env a SSM SecureString sin mostrarlos
 	@AWS_REGION=$(AWS_REGION) node scripts/aws-seed-parameters.mjs .env
+
+## --- Control del canary de backend (blue/green) ---
+## Corren vía GitHub Actions (workflow_dispatch), no con credenciales AWS
+## locales — así no dependen de tener el profile de AWS bien seteado acá,
+## solo de estar logueado con `gh`.
+
+check-gh: ## Verifica que gh esté instalado y logueado, lo resuelve si no
+	@command -v gh >/dev/null 2>&1 || { \
+		echo "gh no está instalado, instalando con Homebrew..."; \
+		command -v brew >/dev/null 2>&1 || { echo "Instalá Homebrew primero: https://brew.sh" >&2; exit 1; }; \
+		brew install gh; \
+	}
+	@gh auth status >/dev/null 2>&1 || { \
+		echo "gh no está autenticado, iniciando login..."; \
+		gh auth login; \
+	}
+
+rollback_deploy: check-gh ## Vuelve el backend al slot anterior (rollback instantáneo)
+	@gh workflow run backend-canary-control.yml -f action=rollback
+	@echo "Disparado. Seguilo en: gh run watch, o https://github.com/jiseruk/zig-zag/actions"
+
+finish_deploy: check-gh ## Salta el rollout en curso directo al 100%, sin esperar los escalones
+	@gh workflow run backend-canary-control.yml -f action=promote
+	@echo "Disparado. Seguilo en: gh run watch, o https://github.com/jiseruk/zig-zag/actions"

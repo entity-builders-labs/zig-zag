@@ -81,6 +81,15 @@ exit 1
 SCRIPT
 chmod 0755 /usr/local/bin/deploy-zigzag
 
-# The remote development environment is stopped by default. A deployment or
-# `make aws-start` will start it after bootstrap is safely complete.
-shutdown -h now
+# Blue/green via ASG: launching this instance (desired_capacity 0 -> 1 on
+# whichever slot is being deployed to) *is* the deploy trigger, so unlike a
+# manually-started dev box there's nothing to wait for — deploy immediately
+# using whichever image tag CD most recently wrote to SSM, then stay up and
+# serve traffic. The ALB target group health check is what tells the CD
+# workflow this instance is ready to receive canary traffic.
+for attempt in $(seq 1 30); do
+  image_tag=$(aws ssm get-parameter --region '${aws_region}' --name '${image_tag_parameter}' --query 'Parameter.Value' --output text 2>/dev/null || true)
+  [ -n "$image_tag" ] && [ "$image_tag" != "None" ] && break
+  sleep 5
+done
+/usr/local/bin/deploy-zigzag "$image_tag"
