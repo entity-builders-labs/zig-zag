@@ -29,7 +29,10 @@ listener_rule_arn="${BACKEND_LISTENER_RULE_ARN:?BACKEND_LISTENER_RULE_ARN is req
 # Override for a faster dry run, e.g. CANARY_STAGE_WEIGHTS="50" CANARY_BAKE_SECONDS=30.
 stage_weights=(${CANARY_STAGE_WEIGHTS:-10 50 100})
 bake_seconds="${CANARY_BAKE_SECONDS:-120}"
-health_timeout_seconds="${CANARY_HEALTH_TIMEOUT_SECONDS:-300}"
+# Matches the ASG's health_check_grace_period (see terraform/compute.tf) plus
+# room for the ALB's own consecutive-check threshold after the container
+# reports healthy — a live deploy measured ~353s end to end.
+health_timeout_seconds="${CANARY_HEALTH_TIMEOUT_SECONDS:-450}"
 
 other_slot() { [ "$1" = "blue" ] && echo green || echo blue; }
 
