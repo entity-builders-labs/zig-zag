@@ -45,6 +45,7 @@ import { Map } from '@/features/map';
 import { useContext, useEffect } from 'react';
 import { AppContext } from '@/context/app';
 import * as ExpoLocation from 'expo-location';
+import { parseLocalDate } from '@/utils/date';
 
 interface TourWizardFormProps {
   onSubmit: (preferences: GenerateTourDto) => void;
@@ -226,8 +227,8 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
 
   const formatDateRange = () => {
     if (!startDate && !endDate) return '';
-    const start = startDate ? new Date(startDate) : null;
-    const end = endDate ? new Date(endDate) : null;
+    const start = startDate ? parseLocalDate(startDate) : null;
+    const end = endDate ? parseLocalDate(endDate) : null;
 
     if (start && end) {
       const daysDiff =

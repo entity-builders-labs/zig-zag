@@ -22,6 +22,7 @@ import {
   ActionsheetDragIndicatorWrapper,
 } from '@gluestack-ui/themed';
 import { Calendar, ChevronLeft, ChevronRight } from 'lucide-react-native';
+import { parseLocalDate } from '@/utils/date';
 
 interface DateRangePickerProps {
   startDate: string;
@@ -44,13 +45,13 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
   const [tempStartDate, setTempStartDate] = useState(startDate);
   const [tempEndDate, setTempEndDate] = useState(endDate);
   const [currentMonth, setCurrentMonth] = useState(
-    startDate ? new Date(startDate) : new Date()
+    startDate ? parseLocalDate(startDate) : new Date()
   );
   const [selectionMode, setSelectionMode] = useState<'start' | 'end'>('start');
 
   const formatDate = (dateString: string): string => {
     if (!dateString) return '';
-    const date = new Date(dateString);
+    const date = parseLocalDate(dateString);
     if (isNaN(date.getTime())) return '';
     return date.toLocaleDateString('es-ES', {
       day: 'numeric',
@@ -60,8 +61,8 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
 
   const formatDateRange = (): string => {
     if (!startDate && !endDate) return '';
-    const start = startDate ? new Date(startDate) : null;
-    const end = endDate ? new Date(endDate) : null;
+    const start = startDate ? parseLocalDate(startDate) : null;
+    const end = endDate ? parseLocalDate(endDate) : null;
 
     if (start && end) {
       const daysDiff =
@@ -81,7 +82,11 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
     setTempStartDate(startDate);
     setTempEndDate(endDate);
     setCurrentMonth(
-      startDate ? new Date(startDate) : endDate ? new Date(endDate) : new Date()
+      startDate
+        ? parseLocalDate(startDate)
+        : endDate
+          ? parseLocalDate(endDate)
+          : new Date()
     );
     setSelectionMode(startDate && endDate ? 'start' : 'start');
     setIsOpen(true);
@@ -101,8 +106,8 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
     if (tempStartDate) onStartDateChange(tempStartDate);
     if (tempEndDate) onEndDateChange(tempEndDate);
     if (tempStartDate && tempEndDate) {
-      const start = new Date(tempStartDate);
-      const end = new Date(tempEndDate);
+      const start = parseLocalDate(tempStartDate);
+      const end = parseLocalDate(tempEndDate);
       const daysDiff =
         Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) +
         1;
@@ -118,14 +123,14 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
       setTempStartDate(dateStr);
       if (tempEndDate) {
         // Si hay fecha fin y la nueva inicio es posterior, limpiamos fin
-        if (new Date(dateStr) > new Date(tempEndDate)) {
+        if (parseLocalDate(dateStr) > parseLocalDate(tempEndDate)) {
           setTempEndDate('');
         }
       }
       setSelectionMode('end'); // Automáticamente pasar a seleccionar fin
     } else {
       // Modo fin
-      if (tempStartDate && new Date(dateStr) < new Date(tempStartDate)) {
+      if (tempStartDate && parseLocalDate(dateStr) < parseLocalDate(tempStartDate)) {
         // Si la fecha seleccionada es anterior a inicio, la hacemos inicio
         setTempStartDate(dateStr);
         setTempEndDate('');
@@ -171,8 +176,8 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
       currentMonth.getMonth(),
       day
     );
-    const start = new Date(tempStartDate);
-    const end = new Date(tempEndDate);
+    const start = parseLocalDate(tempStartDate);
+    const end = parseLocalDate(tempEndDate);
     return date >= start && date <= end;
   };
 
@@ -427,8 +432,8 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
                       {tempStartDate && tempEndDate
                         ? `${
                             Math.ceil(
-                              (new Date(tempEndDate).getTime() -
-                                new Date(tempStartDate).getTime()) /
+                              (parseLocalDate(tempEndDate).getTime() -
+                                parseLocalDate(tempStartDate).getTime()) /
                                 (1000 * 60 * 60 * 24)
                             ) + 1
                           } Días`
