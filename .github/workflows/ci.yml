@@ -23,6 +23,7 @@ jobs:
           node-version: "22"
           cache: yarn
       - run: yarn install --frozen-lockfile
+      - run: yarn workspace backend prisma:generate
       - run: yarn workspace backend typecheck
       - run: yarn workspace backend lint:check
       - run: yarn workspace backend test --runInBand
