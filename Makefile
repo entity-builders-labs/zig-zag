@@ -12,8 +12,9 @@ help: ## Lista los comandos disponibles
 	@grep -E '^[a-zA-Z0-9_-]+:.*##' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*##"}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
 ## --- AWS producción (apagada por defecto para desarrollo) ---
-## Detener conserva RDS y EBS. AWS reinicia RDS después de 7 días; el workflow
-## AWS Power ejecuta stop diariamente como resguardo.
+## Detener conserva RDS y EBS. AWS reinicia RDS automáticamente después de 7
+## días parada — no hay apagado automático, conviene chequear aws-status de
+## vez en cuando si no se usa seguido.
 
 aws-start: ## Enciende RDS, luego Chroma y finalmente el backend
 	@$(AWS_POWER_ENV) bash scripts/aws-power.sh start

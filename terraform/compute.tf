@@ -9,6 +9,12 @@ resource "aws_instance" "chroma" {
   subnet_id                   = aws_subnet.public[0].id
   vpc_security_group_ids      = [aws_security_group.chroma.id]
   associate_public_ip_address = true
+  # Fixed on purpose: the backend's user_data embeds this instance's private
+  # IP directly (see chroma_url below). A dynamically-assigned IP would
+  # change on every replacement of this instance, which would then cascade
+  # into forcing a replacement of the backend instance too (its user_data
+  # would differ). Pinning it breaks that chain.
+  private_ip                  = "10.20.0.100"
   iam_instance_profile        = aws_iam_instance_profile.chroma.name
   user_data_replace_on_change = true
   user_data = templatefile("${path.module}/templates/chroma-user-data.sh.tftpl", {
@@ -28,6 +34,14 @@ resource "aws_instance" "chroma" {
   }
 
   tags = { Name = "${var.project_name}-chroma", Role = "chroma" }
+
+  # associate_public_ip_address can't be read back reliably once an instance
+  # has been stopped — AWS reports whether a public IP is *currently*
+  # attached (false while stopped, since non-Elastic public IPs are released
+  # on stop), not the launch-time intent. Without this, every stop/start
+  # cycle makes Terraform think this drifted and wants to replace the
+  # instance.
+  lifecycle { ignore_changes = [associate_public_ip_address] }
 }
 
 resource "aws_ebs_volume" "chroma_data" {
@@ -80,6 +94,9 @@ resource "aws_instance" "backend" {
   }
 
   tags = { Name = "${var.project_name}-backend", Role = "backend" }
+
+  # See the matching comment on aws_instance.chroma — same reason.
+  lifecycle { ignore_changes = [associate_public_ip_address] }
 }
 
 resource "aws_lb_target_group_attachment" "backend" {
