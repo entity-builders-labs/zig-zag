@@ -48,6 +48,6 @@ rollback_deploy: check-gh ## Vuelve el backend al slot anterior (rollback instan
 	@gh workflow run backend-canary-control.yml -f action=rollback
 	@echo "Disparado. Seguilo en: gh run watch, o https://github.com/jiseruk/zig-zag/actions"
 
-finish_deploy: check-gh ## Salta el rollout en curso directo al 100%, sin esperar los escalones
-	@gh workflow run backend-canary-control.yml -f action=promote
+finish_deploy: check-gh ## Confirma el deploy activo y apaga el slot standby (deja de pagar 2 instancias)
+	@gh workflow run backend-canary-control.yml -f action=finish
 	@echo "Disparado. Seguilo en: gh run watch, o https://github.com/jiseruk/zig-zag/actions"

@@ -16,6 +16,18 @@
 #   canary-deploy.sh deploy <image-tag>   Full staged rollout to the inactive slot
 #   canary-deploy.sh promote              Jump whatever's mid-canary straight to 100%
 #   canary-deploy.sh rollback             Flip back to the slot NOT marked active
+#   canary-deploy.sh finish               Scale the idle standby slot to 0 after a
+#                                          completed deploy — it's left warm on
+#                                          purpose for a fast rollback, this is the
+#                                          explicit "I'm confident, stop paying for
+#                                          it" step. Safe to run any time after a
+#                                          deploy has finished; a no-op if the
+#                                          standby is already at 0. Deliberately NOT
+#                                          `promote` — that command assumes the SSM
+#                                          active-slot value is stale (mid-rollout),
+#                                          so running it after a deploy has already
+#                                          completed would flip traffic back to the
+#                                          old slot and scale down the new one.
 set -euo pipefail
 
 region="${AWS_REGION:-us-east-1}"
@@ -160,6 +172,22 @@ cmd_promote() {
   echo "Promoted. Active slot is now ${canary}."
 }
 
+cmd_finish() {
+  local active standby desired
+  active=$(active_slot)
+  standby=$(other_slot "$active")
+  desired=$(aws autoscaling describe-auto-scaling-groups --region "$region" \
+    --auto-scaling-group-names "$(asg_name "$standby")" \
+    --query 'AutoScalingGroups[0].DesiredCapacity' --output text)
+  if [ "$desired" = "0" ]; then
+    echo "${standby} is already scaled down. Nothing to do."
+    return 0
+  fi
+  echo "Confirming ${active} as active and scaling down the ${standby} standby."
+  scale_asg "$standby" 0
+  echo "Done. ${standby} is now scaled to 0."
+}
+
 cmd_rollback() {
   local active target
   active=$(active_slot)
@@ -183,8 +211,9 @@ case "${1:-}" in
   deploy) cmd_deploy "${2:-}" ;;
   promote) cmd_promote ;;
   rollback) cmd_rollback ;;
+  finish) cmd_finish ;;
   *)
-    echo "Usage: $0 {deploy <image-tag>|promote|rollback}" >&2
+    echo "Usage: $0 {deploy <image-tag>|promote|rollback|finish}" >&2
     exit 2
     ;;
 esac

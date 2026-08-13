@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       action:
-        description: "promote (salta al 100% ya) o rollback (vuelve al slot anterior)"
+        description: "finish (confirma y apaga el standby) / promote (salta al 100% ya) / rollback (vuelve al slot anterior)"
         type: choice
-        options: [promote, rollback]
+        options: [finish, promote, rollback]
         required: true
 
 permissions:
