@@ -215,7 +215,21 @@ export class VectorStoreService implements OnModuleInit {
       );
     } catch (error) {
       this.embeddingFailureCount++;
-      this.logger.error(`Failed to save embeddings: ${error.message}`);
+      if (/dimension/i.test(error.message || '')) {
+        // The collection was created with a different embedding provider's
+        // vector size (e.g. it already has OpenAI's 1536-dim vectors and the
+        // provider just switched to Bedrock at 256/512/1024). Every write
+        // will fail identically until the collection is recreated.
+        this.logger.error(
+          `Failed to save embeddings: dimension mismatch with the existing Chroma collection ` +
+            `"${this.config.chromaCollectionName || 'activities'}". This usually means the ` +
+            `embedding provider/model changed after the collection was created — set a new ` +
+            `CHROMA_COLLECTION_NAME (or run "yarn match:init" against a fresh one) to fix. ` +
+            `Original error: ${error.message}`,
+        );
+      } else {
+        this.logger.error(`Failed to save embeddings: ${error.message}`);
+      }
     }
   }
 

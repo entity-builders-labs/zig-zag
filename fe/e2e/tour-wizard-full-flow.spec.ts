@@ -62,7 +62,7 @@ async function readingPause(page: Page, ms: number) {
 // → generation → list view → map view — instead of creating a tour via the
 // API directly. This is the actual path a user follows, and it's the only
 // way to catch UI-wiring bugs (e.g. a field that's captured but never sent).
-test('creates a tour end-to-end through the wizard and views it in both list and map mode', async ({
+test('@live creates a tour end-to-end through the wizard and views it in both list and map mode', async ({
   page,
 }) => {
   test.setTimeout(180_000); // headroom for a possible rate-limit retry, see below

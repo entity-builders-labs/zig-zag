@@ -24,7 +24,7 @@ export type AuthContextType = {
   user: AuthUser | null;
   isLoading: boolean;
   isAuthenticated: boolean;
-  signInWithGoogle: () => Promise<void>;
+  signInWithGoogle: (webIdToken?: string) => Promise<void>;
   signInWithApple: () => Promise<void>;
   requestEmailCode: (email: string) => Promise<{ devCode?: string }>;
   signInWithEmailCode: (email: string, code: string) => Promise<void>;
@@ -87,7 +87,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     })();
   }, []);
 
-  const signInWithGoogle = useCallback(async () => {
+  const signInWithGoogle = useCallback(async (webIdToken?: string) => {
+    if (Platform.OS === 'web') {
+      if (!webIdToken) {
+        throw new Error('Google no devolvió un token de identidad');
+      }
+      const session = await authApi.loginWithGoogle(webIdToken);
+      await applySession(session);
+      return;
+    }
+
     GoogleSignin.configure({
       webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
     });
