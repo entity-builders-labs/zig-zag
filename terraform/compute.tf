@@ -64,11 +64,11 @@ resource "aws_autoscaling_group" "backend" {
   vpc_zone_identifier = [aws_subnet.public[0].id]
   target_group_arns   = [aws_lb_target_group.backend[each.key].arn]
   health_check_type   = "ELB"
-  # user_data's worst case is dnf install + up to 150s polling the image-tag
-  # SSM parameter + image pull + up to 150s polling the container's local
-  # health endpoint — comfortably over the previous 120s, which caused the
-  # ASG to kill and relaunch instances before they ever finished deploying.
-  health_check_grace_period = 300
+  # Measured live: a real deploy took ~353s end to end (dnf install + image
+  # pull + container start + local health poll), which briefly exceeded the
+  # previous 300s and caused the ASG to kill an instance moments before it
+  # would have gone healthy. Padded further for margin.
+  health_check_grace_period = 420
 
   # Starts at 0 for both — the active slot is scaled up by the first real
   # deploy through canary-deploy.sh, not by Terraform itself. Changes to
