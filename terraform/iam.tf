@@ -68,17 +68,3 @@ resource "aws_iam_instance_profile" "backend" {
   role = aws_iam_role.backend.name
 }
 
-resource "aws_iam_role" "chroma" {
-  name               = "${var.project_name}-chroma"
-  assume_role_policy = data.aws_iam_policy_document.ec2_assume.json
-}
-
-resource "aws_iam_role_policy_attachment" "chroma_ssm" {
-  role       = aws_iam_role.chroma.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
-}
-
-resource "aws_iam_instance_profile" "chroma" {
-  name = "${var.project_name}-chroma"
-  role = aws_iam_role.chroma.name
-}

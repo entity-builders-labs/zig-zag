@@ -143,3 +143,128 @@ describe('AiEmbeddingService Bedrock adapter', () => {
     expect(mockSend).toHaveBeenCalledTimes(texts.length + 1);
   });
 });
+
+describe('AiEmbeddingService Ollama adapter', () => {
+  const originalFetch = global.fetch;
+
+  afterEach(() => {
+    global.fetch = originalFetch;
+  });
+
+  // Mirrors the layer-norm -> truncate -> L2-normalize procedure Nomic
+  // documents for MRL truncation, so the test asserts against the same
+  // math the service is expected to perform, not just output shape.
+  function expectedTruncation(vector: number[], targetDim: number): number[] {
+    const n = vector.length;
+    const mean = vector.reduce((sum, v) => sum + v, 0) / n;
+    const variance = vector.reduce((sum, v) => sum + (v - mean) ** 2, 0) / n;
+    const layerNormed = vector.map(
+      (v) => (v - mean) / Math.sqrt(variance + 1e-5),
+    );
+    const truncated = layerNormed.slice(0, targetDim);
+    const norm = Math.sqrt(truncated.reduce((sum, v) => sum + v * v, 0));
+    return truncated.map((v) => v / norm);
+  }
+
+  function mockOllamaFetch(fullVector: number[]) {
+    return jest.fn(async (_url: string, init?: { method?: string }) => {
+      if (init?.method === 'GET') {
+        return {
+          ok: true,
+          headers: { get: () => 'application/json' },
+          json: async () => ({}),
+        } as any;
+      }
+      return {
+        ok: true,
+        // Ollama's real /api/embed shape: { embeddings: [[...]] }, plural,
+        // one vector per input - not a singular `embedding` key.
+        json: async () => ({ embeddings: [fullVector] }),
+      } as any;
+    });
+  }
+
+  it('truncates and renormalizes a 768-dim Ollama vector down to the configured dimension', async () => {
+    const fullVector = Array.from(
+      { length: 768 },
+      (_, i) => Math.sin(i) * 0.1 + 0.01,
+    );
+    global.fetch = mockOllamaFetch(fullVector) as any;
+
+    const service = new AiEmbeddingService({
+      enableAi: true,
+      provider: 'groq',
+      defaultModel: 'llama-3.1-8b-instant',
+      temperature: 0.7,
+      timeout: 60_000,
+      embeddingProvider: 'ollama',
+      embeddingsModel: 'nomic-embed-text',
+      ollamaBaseUrl: 'http://ollama-test:11434',
+      awsRegion: 'us-east-1',
+      embeddingDimensions: 256,
+    } as any);
+
+    await service.ensureInitialized();
+    const result = await service.getEmbeddings()!.embedQuery('museo de arte');
+
+    expect(result).toHaveLength(256);
+    const magnitude = Math.sqrt(result.reduce((sum, v) => sum + v * v, 0));
+    expect(magnitude).toBeCloseTo(1, 5);
+
+    const expected = expectedTruncation(fullVector, 256);
+    result.forEach((v, i) => expect(v).toBeCloseTo(expected[i], 5));
+  });
+
+  it('applies the same truncation to embedDocuments', async () => {
+    const fullVector = Array.from(
+      { length: 768 },
+      (_, i) => Math.cos(i) * 0.05,
+    );
+    global.fetch = mockOllamaFetch(fullVector) as any;
+
+    const service = new AiEmbeddingService({
+      enableAi: true,
+      provider: 'groq',
+      defaultModel: 'llama-3.1-8b-instant',
+      temperature: 0.7,
+      timeout: 60_000,
+      embeddingProvider: 'ollama',
+      embeddingsModel: 'nomic-embed-text',
+      ollamaBaseUrl: 'http://ollama-test:11434',
+      awsRegion: 'us-east-1',
+      embeddingDimensions: 256,
+    } as any);
+
+    await service.ensureInitialized();
+    const [vector] = await service
+      .getEmbeddings()!
+      .embedDocuments(['parque nacional']);
+
+    expect(vector).toHaveLength(256);
+    const magnitude = Math.sqrt(vector.reduce((sum, v) => sum + v * v, 0));
+    expect(magnitude).toBeCloseTo(1, 5);
+  });
+
+  it('leaves vectors already at or below the target dimension untouched', async () => {
+    const shortVector = [0.6, 0.8]; // already unit-norm, length 2 < target 256
+    global.fetch = mockOllamaFetch(shortVector) as any;
+
+    const service = new AiEmbeddingService({
+      enableAi: true,
+      provider: 'groq',
+      defaultModel: 'llama-3.1-8b-instant',
+      temperature: 0.7,
+      timeout: 60_000,
+      embeddingProvider: 'ollama',
+      embeddingsModel: 'nomic-embed-text',
+      ollamaBaseUrl: 'http://ollama-test:11434',
+      awsRegion: 'us-east-1',
+      embeddingDimensions: 256,
+    } as any);
+
+    await service.ensureInitialized();
+    const result = await service.getEmbeddings()!.embedQuery('faro');
+
+    expect(result).toEqual(shortVector);
+  });
+});

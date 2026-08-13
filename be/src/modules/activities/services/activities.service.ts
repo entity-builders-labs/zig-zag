@@ -455,7 +455,7 @@ export class ActivitiesService {
   }
 
   /**
-   * Find similar activities using vector similarity in Chroma
+   * Find similar activities using pgvector similarity search
    * @param id Activity ID to find similar activities for
    * @param limit Maximum number of similar activities to return
    * @returns Array of similar activities

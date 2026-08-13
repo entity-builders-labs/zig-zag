@@ -96,10 +96,6 @@ data "aws_iam_policy_document" "github_cd" {
     resources = [aws_lb_listener_rule.cloudfront_only.arn]
   }
   statement {
-    actions   = ["ec2:StartInstances", "ec2:StopInstances"]
-    resources = [aws_instance.chroma.arn]
-  }
-  statement {
     actions   = ["rds:StartDBInstance", "rds:StopDBInstance"]
     resources = [aws_db_instance.main.arn]
   }

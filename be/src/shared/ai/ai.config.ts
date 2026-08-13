@@ -7,13 +7,6 @@ export interface AiConfig {
   defaultModel: string;
   temperature: number;
   timeout: number;
-  // Optional Chroma vector store configuration
-  chromaUrl?: string;
-  chromaCollectionName?: string;
-  // Chroma Cloud configuration (for managed Chroma service)
-  chromaApiKey?: string;
-  chromaTenant?: string;
-  chromaDatabase?: string;
   // OpenAI
   openaiApiKey?: string;
   // Groq
@@ -82,12 +75,6 @@ export default registerAs('ai', (): AiConfig => {
       ? parseFloat(process.env.OPENAI_TEMPERATURE)
       : 0.7,
     timeout: baseTimeout,
-    chromaUrl: process.env.CHROMA_URL || undefined,
-    chromaCollectionName: process.env.CHROMA_COLLECTION_NAME || 'activities',
-    // Chroma Cloud credentials (optional, only needed for Chroma Cloud)
-    chromaApiKey: process.env.CHROMA_API_KEY,
-    chromaTenant: process.env.CHROMA_TENANT,
-    chromaDatabase: process.env.CHROMA_DATABASE,
     openaiApiKey: process.env.OPENAI_API_KEY,
     groqApiKey: process.env.GROQ_API_KEY,
     ollamaBaseUrl: process.env.OLLAMA_BASE_URL,

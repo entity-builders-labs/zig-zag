@@ -56,7 +56,7 @@ services:
   postgres:
     profiles:
       - dev
-    image: postgres:15-alpine
+    image: pgvector/pgvector:pg15
     container_name: zigzag-postgres
     ports:
       - '5432:5432'
@@ -91,11 +91,6 @@ services:
       # Force postgres hostname for Docker network (hardcoded to override .env)
       - DATABASE_URL=${DATABASE_URL}
       - DIRECT_URL=${DIRECT_URL}
-      - CHROMA_URL=${CHROMA_URL}
-      - CHROMA_API_KEY=${CHROMA_API_KEY}
-      - CHROMA_TENANT=${CHROMA_TENANT}
-      - CHROMA_DATABASE=${CHROMA_DATABASE}
-      - CHROMA_COLLECTION_NAME=${CHROMA_COLLECTION_NAME}
       - GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY}
       - GEOAPIFY_API_KEY=${GEOAPIFY_API_KEY}
       - PLACES_PROVIDER=${PLACES_PROVIDER}
@@ -220,27 +215,6 @@ services:
     restart: unless-stopped
     command: npx nodemon cors-proxy.js
 
-  chroma:
-    image: chromadb/chroma:latest
-    ports:
-      - '8001:8000'
-    environment:
-      - CHROMA_HOST=${CHROMA_HOST}
-      - CHROMA_PORT=${CHROMA_PORT}
-      - PERSIST_DIRECTORY=${PERSIST_DIRECTORY}
-    volumes:
-      - chroma_data:/data
-    networks:
-      - app-network
-    restart: unless-stopped
-    healthcheck:
-      test:
-        ['CMD', '/bin/bash', '-c', 'cat < /dev/null > /dev/tcp/localhost/8000']
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-
   ollama:
     image: ollama/ollama:latest
     container_name: zigzag-ollama
@@ -305,5 +279,4 @@ networks:
 
 volumes:
   postgres_data:
-  chroma_data:
   ollama_data:

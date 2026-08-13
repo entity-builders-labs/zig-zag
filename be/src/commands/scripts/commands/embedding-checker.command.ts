@@ -1,102 +1,64 @@
-import { Command, CommandRunner } from 'nest-commander';
+import { Command, CommandRunner, Option } from 'nest-commander';
 import { Injectable, Logger } from '@nestjs/common';
-import { PrismaService } from '../../../core/database/prisma.service';
 import { VectorStoreService } from 'src/shared/ai/services/vector-store.service';
+
+interface EmbeddingCheckerOptions {
+  searchPrompt?: string;
+}
 
 @Injectable()
 @Command({
   name: 'match-activities',
-  description: 'Check and update embeddings for all activities',
+  description: 'Rebuild pgvector embeddings for all activities',
 })
 export class EmbeddingCheckerCommand extends CommandRunner {
   private readonly logger = new Logger(EmbeddingCheckerCommand.name);
 
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly vectorStoreService: VectorStoreService,
-  ) {
+  constructor(private readonly vectorStoreService: VectorStoreService) {
     super();
   }
 
-  async run(): Promise<void> {
+  async run(
+    _inputs: string[],
+    options: EmbeddingCheckerOptions,
+  ): Promise<void> {
     try {
-      const activities = await this.prisma.activity.findMany();
-      this.logger.log(`Found ${activities.length} activities to process`);
+      const { count } = await this.vectorStoreService.rebuildVectorStore();
+      this.logger.log(`Rebuilt embeddings for ${count} activities`);
 
-      let updated = 0;
-      let failed = 0;
-
-      for (const activity of activities) {
-        try {
-          this.logger.log(
-            `Processing embeddings for activity ${activity.id}: ${activity.name}`,
-          );
-          await this.vectorStoreService.addActivityToVectorStore(activity);
-          updated++;
-          this.logger.log(
-            `Successfully updated embeddings for activity ${activity.id}`,
-          );
-          await new Promise((resolve) => setTimeout(resolve, 500));
-        } catch (error) {
-          failed++;
-          this.logger.error(
-            `Error processing embeddings for activity ${activity.id}: ${error.message}`,
-          );
-        }
-      }
-
-      this.logger.log(`Summary:
-        Total activities: ${activities.length}
-        Updated: ${updated}
-        Failed: ${failed}
-      `);
-
-      // Verify embeddings
-      try {
-        this.logger.log('Performing test search to verify embeddings...');
-        const testResults = await this.vectorStoreService.findSimilarActivities(
-          'outdoor activities',
-          5,
-        );
+      const searchPrompt = options.searchPrompt || 'outdoor activities';
+      this.logger.log(`Performing test search: "${searchPrompt}"...`);
+      const testResults = await this.vectorStoreService.findSimilarActivities(
+        searchPrompt,
+        5,
+      );
+      this.logger.log(`Test search found ${testResults.length} results`);
+      testResults.forEach((result, i) => {
         this.logger.log(
-          `Test search successful! Found ${testResults.length} results`,
+          `  ${i + 1}. ${result.metadata.activityName} (distance: ${result.metadata.distance})`,
         );
-      } catch (error) {
-        this.logger.error('Error performing test search:', error);
-      }
+      });
 
-      this.logger.log('📖 Activity Matcher - Usage Examples:');
       this.logger.log('');
-      this.logger.log('🎯 Find compatible activities by ID:');
+      this.logger.log('Usage:');
       this.logger.log(
-        '   yarn script match-activities --activity-id 676c7df01234567890123456',
+        '  yarn script match-activities                          # rebuild all embeddings',
       );
-      this.logger.log('');
-      this.logger.log('🏷️  Find activities by name:');
       this.logger.log(
-        '   yarn script match-activities --activity-name "Cinema"',
-      );
-      this.logger.log('');
-      this.logger.log('🔍 Search with custom prompt:');
-      this.logger.log(
-        '   yarn script match-activities --search-prompt "outdoor activities perfect after visiting a museum"',
-      );
-      this.logger.log('');
-      this.logger.log('📂 Find by category:');
-      this.logger.log(
-        '   yarn script match-activities --category "restaurants"',
-      );
-      this.logger.log('');
-      this.logger.log('⚙️  Initialize vector store first:');
-      this.logger.log('   yarn script match-activities --initialize-store');
-      this.logger.log('');
-      this.logger.log('🎛️  Advanced options:');
-      this.logger.log(
-        '   yarn script match-activities --activity-id ID --number-of-results 5 --max-distance 10',
+        '  yarn script match-activities --search-prompt "museums" # rebuild, then test-search with a custom prompt',
       );
     } catch (error) {
       this.logger.error('Error during embedding check:', error);
       throw error;
     }
+  }
+
+  @Option({
+    flags: '-s, --search-prompt <prompt>',
+    description:
+      'Run the post-rebuild test search with this prompt instead of the default "outdoor activities"',
+  })
+  parseSearchPrompt(val: string): string {
+    return val;
   }
 }

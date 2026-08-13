@@ -84,27 +84,6 @@ resource "aws_vpc_security_group_egress_rule" "backend_all" {
   cidr_ipv4         = "0.0.0.0/0"
 }
 
-resource "aws_security_group" "chroma" {
-  name        = "${var.project_name}-chroma"
-  description = "Chroma reachable only from the backend"
-  vpc_id      = aws_vpc.main.id
-  tags        = { Name = "${var.project_name}-chroma-sg" }
-}
-
-resource "aws_vpc_security_group_ingress_rule" "chroma_from_backend" {
-  security_group_id            = aws_security_group.chroma.id
-  referenced_security_group_id = aws_security_group.backend.id
-  from_port                    = 8000
-  to_port                      = 8000
-  ip_protocol                  = "tcp"
-}
-
-resource "aws_vpc_security_group_egress_rule" "chroma_all" {
-  security_group_id = aws_security_group.chroma.id
-  ip_protocol       = "-1"
-  cidr_ipv4         = "0.0.0.0/0"
-}
-
 resource "aws_security_group" "rds" {
   name        = "${var.project_name}-rds"
   description = "PostgreSQL reachable only from the backend"

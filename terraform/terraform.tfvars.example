@@ -5,5 +5,4 @@ budget_alert_email = "you@example.com"
 
 # Deliberately kept at micro for the development/free-tier-oriented environment.
 backend_instance_type = "t3.micro"
-chroma_instance_type  = "t3.micro"
 db_instance_class     = "db.t3.micro"

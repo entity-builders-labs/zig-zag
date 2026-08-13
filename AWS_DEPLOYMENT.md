@@ -1,18 +1,15 @@
 # AWS CI/CD y entorno apagable
 
-La infraestructura se administra con Terraform en `us-east-1` y está pensada para una etapa de desarrollo: conserva los datos, pero las dos EC2 y RDS permanecen detenidos salvo cuando se quiere usar o desplegar la app.
+La infraestructura se administra con Terraform en `us-east-1` y está pensada para una etapa de desarrollo: conserva los datos, pero la EC2 y RDS permanecen detenidos salvo cuando se quiere usar o desplegar la app.
 
 ## Arquitectura
 
 - Expo Web exportado a un bucket S3 privado y servido por CloudFront.
 - API pública en otra distribución CloudFront; el origen es un ALB que sólo acepta tráfico desde CloudFront y exige un header secreto de origen.
 - Backend NestJS en una EC2 `t3.micro`, sin SSH y administrada con SSM.
-- Chroma en otra EC2 `t3.micro`, con 1 GiB de swap y un EBS `gp3` de 8 GiB persistente.
-- PostgreSQL 16 en RDS `db.t3.micro`, Single-AZ y privado. AWS genera y rota la contraseña maestra en Secrets Manager.
-- Groq genera tours. Bedrock Titan Text Embeddings V2 genera vectores de 256 dimensiones y Chroma los guarda/busca.
-- No hay NAT Gateway. Las EC2 tienen IP pública sólo para salida; sus security groups no aceptan tráfico público.
-
-Chroma recomienda más memoria para cargas reales. `t3.micro` es una decisión consciente para este ambiente; si hay OOM o latencia sostenida, el primer cambio es `chroma_instance_type = "t3.small"`.
+- PostgreSQL 16 en RDS `db.t3.micro`, Single-AZ y privado, con la extensión `pgvector` habilitada. AWS genera y rota la contraseña maestra en Secrets Manager.
+- Groq genera tours. Bedrock Titan Text Embeddings V2 genera vectores de 256 dimensiones y pgvector (en la misma RDS) los guarda/busca — no hay una base de datos vectorial separada.
+- No hay NAT Gateway. La EC2 tiene IP pública sólo para salida; su security group no acepta tráfico público.
 
 ## Secretos
 
@@ -74,8 +71,6 @@ cd ..
 make aws-stop
 ```
 
-El volumen EBS de Chroma tiene `prevent_destroy`. Esto evita borrarlo accidentalmente y obliga a retirar esa protección explícitamente si alguna vez se quiere destruir junto con sus datos.
-
 ## Encender y apagar
 
 Con credenciales AWS locales:
@@ -86,11 +81,11 @@ make aws-start
 make aws-stop
 ```
 
-`aws-start` espera RDS, inicia Chroma y luego el backend. `aws-stop` detiene las EC2 y RDS sin borrar datos. También existe el workflow manual `AWS Power` con `status`, `start` y `stop` — es 100% manual, sin cron: nadie apaga el entorno si no lo pedís explícitamente.
+`aws-start` espera RDS y luego inicia el backend. `aws-stop` detiene la EC2 y RDS sin borrar datos. También existe el workflow manual `AWS Power` con `status`, `start` y `stop` — es 100% manual, sin cron: nadie apaga el entorno si no lo pedís explícitamente.
 
 AWS vuelve a iniciar automáticamente una instancia RDS detenida después de siete días. Como no hay apagado automático, si te olvidás de correr `make aws-stop`/el workflow manual, esa RDS se puede quedar prendida indefinidamente — vale la pena chequear `make aws-status` de vez en cuando.
 
-Detener no lleva el costo a cero. Permanecen facturables el ALB, las IPv4 públicas reservadas mientras las EC2 están encendidas, EBS, almacenamiento/backups de RDS, S3 y CloudFront según uso. Hay un AWS Budget mensual de USD 10 con avisos al 50%, 80% y 100%; un presupuesto alerta, no impide gasto.
+Detener no lleva el costo a cero. Permanecen facturables el ALB, la IPv4 pública reservada mientras la EC2 está encendida, EBS, almacenamiento/backups de RDS, S3 y CloudFront según uso. Hay un AWS Budget mensual de USD 10 con avisos al 50%, 80% y 100%; un presupuesto alerta, no impide gasto.
 
 ## Workflows
 

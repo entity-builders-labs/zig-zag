@@ -16,10 +16,10 @@ help: ## Lista los comandos disponibles
 ## días parada — no hay apagado automático, conviene chequear aws-status de
 ## vez en cuando si no se usa seguido.
 
-aws-start: ## Enciende RDS, luego Chroma y finalmente el backend
+aws-start: ## Enciende RDS y luego el backend
 	@$(AWS_POWER_ENV) bash scripts/aws-power.sh start
 
-aws-stop: ## Detiene backend, Chroma y RDS sin borrar sus datos
+aws-stop: ## Detiene backend y RDS sin borrar sus datos
 	@$(AWS_POWER_ENV) bash scripts/aws-power.sh stop
 
 aws-status: ## Muestra el estado y tipo de las EC2 y del RDS

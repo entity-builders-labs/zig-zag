@@ -74,6 +74,7 @@ export class AiEmbeddingService implements OnModuleInit {
             this.logger.warn('Falling back to OpenAI embeddings...');
             this.embeddings = new OpenAIEmbeddings({
               openAIApiKey: this.config.openaiApiKey,
+              dimensions: this.config.embeddingDimensions,
             });
             this.embeddingsDisabled = false;
           }
@@ -90,6 +91,7 @@ export class AiEmbeddingService implements OnModuleInit {
         this.embeddings = new OpenAIEmbeddings({
           openAIApiKey: this.config.openaiApiKey,
           modelName: 'text-embedding-3-small', // Cost-effective default
+          dimensions: this.config.embeddingDimensions,
         });
         this.logger.log('✓ OpenAI embeddings initialized');
       } else if (provider === 'ollama') {
@@ -102,6 +104,7 @@ export class AiEmbeddingService implements OnModuleInit {
           this.embeddings = this.createOllamaEmbeddingsAdapter(
             workingUrl,
             model,
+            this.config.embeddingDimensions,
           );
           this.logger.log(`✓ Ollama embeddings initialized (model: ${model})`);
         } catch (error) {
@@ -114,6 +117,7 @@ export class AiEmbeddingService implements OnModuleInit {
             this.logger.warn('Falling back to OpenAI embeddings...');
             this.embeddings = new OpenAIEmbeddings({
               openAIApiKey: this.config.openaiApiKey,
+              dimensions: this.config.embeddingDimensions,
             });
             this.embeddingsDisabled = false;
           }
@@ -243,10 +247,36 @@ export class AiEmbeddingService implements OnModuleInit {
     );
   }
 
+  // Ollama's `nomic-embed-text` tag resolves to nomic-embed-text-v1.5
+  // (confirmed against the Ollama library/HF model card), which is trained
+  // with Matryoshka Representation Learning specifically so its output can
+  // be shrunk to match our fixed-width pgvector column. Nomic's documented
+  // procedure is layer-norm -> truncate -> L2-normalize, in that order —
+  // skipping the layer-norm step produces *a* vector but not the one the
+  // model was actually trained to produce at reduced width.
+  private truncateAndRenormalize(
+    vector: number[],
+    targetDim: number,
+  ): number[] {
+    if (vector.length <= targetDim) return vector;
+
+    const n = vector.length;
+    const mean = vector.reduce((sum, v) => sum + v, 0) / n;
+    const variance = vector.reduce((sum, v) => sum + (v - mean) ** 2, 0) / n;
+    const layerNormed = vector.map(
+      (v) => (v - mean) / Math.sqrt(variance + 1e-5),
+    );
+
+    const truncated = layerNormed.slice(0, targetDim);
+    const norm = Math.sqrt(truncated.reduce((sum, v) => sum + v * v, 0));
+    return norm > 0 ? truncated.map((v) => v / norm) : truncated;
+  }
+
   // Minimal HTTP adapter for Ollama embeddings API
   private createOllamaEmbeddingsAdapter(
     baseUrl: string,
     model: string,
+    targetDim: number,
   ): Embeddings {
     const makeRequest = async (url: string, body: any): Promise<Response> => {
       const headers = this.getOllamaHeaders();
@@ -283,25 +313,26 @@ export class AiEmbeddingService implements OnModuleInit {
             throw new Error(`Ollama embeddings error ${resp.status}`);
           }
           const data = await resp.json();
-          vectors.push(data.embedding || data.data?.[0]?.embedding);
+          // Ollama's /api/embed returns { embeddings: [[...]] } (plural,
+          // one vector per input) - not the singular { embedding: [...] }
+          // this used to read, which silently produced `undefined`.
+          const vector = data.embeddings?.[0];
+          vectors.push(this.truncateAndRenormalize(vector, targetDim));
         }
         return vectors;
       },
       embedQuery: async (text: string) => {
         const resp = await makeRequest(`${baseUrl}/api/embed`, {
           model,
-          prompt: text, // /api/embed uses 'input' usually, but some versions used prompt? sticking to what worked in langchain service or better standard
-          // standard /api/embed uses 'input'. Let's check langchain.service.ts implementation
           input: text,
         });
 
         if (!resp.ok) {
-          // Fallback to generate endpoint if embed fails? No, let's assume /api/embed exists (newer ollama)
-          // Actually, let's look at the original implementation
           throw new Error(`Ollama embeddings error ${resp.status}`);
         }
         const data = await resp.json();
-        return data.embedding || data.data?.[0]?.embedding;
+        const vector = data.embeddings?.[0];
+        return this.truncateAndRenormalize(vector, targetDim);
       },
     } as any; // Type assertion to match Embeddings interface
   }

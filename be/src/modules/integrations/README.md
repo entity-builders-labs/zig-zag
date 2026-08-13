@@ -31,7 +31,7 @@ The crawling flow is triggered in background by `HybridSearchService` when a new
    - Falls back to **AI classification** if no static match (`classifyActivityCategoryWithAI()`)
    - Fetches detailed place info (photos, reviews, opening hours)
 4. Saves activities to PostgreSQL via `ActivitiesService.createMany()`
-5. Generates embeddings and stores in ChromaDB via `VectorStoreService`
+5. Generates embeddings and stores them via `VectorStoreService` (pgvector)
 6. Records a `CrawlerSearch` entry to prevent re-crawling the same area within 24h
 
 ## Caching Layer

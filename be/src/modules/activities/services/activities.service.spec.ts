@@ -57,6 +57,10 @@ describe('ActivitiesService', () => {
     }),
   } as unknown as PrismaService;
 
+  const mockVectorStoreService = {
+    findSimilarActivities: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -73,7 +77,7 @@ describe('ActivitiesService', () => {
         },
         {
           provide: VectorStoreService,
-          useValue: {},
+          useValue: mockVectorStoreService,
         },
       ],
     }).compile();
@@ -118,6 +122,52 @@ describe('ActivitiesService', () => {
       expect(result.created).toBe(0);
       expect(result.duplicates).toBe(1);
       expect(result.errors).toBe(0);
+    });
+  });
+
+  describe('findSimilar', () => {
+    it('excludes the source activity and preserves vector-search order', async () => {
+      const target = {
+        id: 'a1',
+        name: 'Museum',
+        description: 'Art museum',
+        metadata: {},
+      };
+      (mockPrismaService.activity.findUnique as jest.Mock).mockResolvedValue(
+        target,
+      );
+      mockVectorStoreService.findSimilarActivities.mockResolvedValue([
+        { pageContent: '...', metadata: { activityId: 'a2' } },
+        { pageContent: '...', metadata: { activityId: 'a1' } }, // self - excluded
+        { pageContent: '...', metadata: { activityId: 'a3' } },
+      ]);
+      (mockPrismaService.activity.findMany as jest.Mock).mockResolvedValue([
+        { id: 'a3', name: 'Park' },
+        { id: 'a2', name: 'Gallery' },
+      ]);
+
+      const result = await service.findSimilar('a1', 2);
+
+      expect(mockVectorStoreService.findSimilarActivities).toHaveBeenCalledWith(
+        expect.stringContaining('Museum'),
+        3,
+      );
+      expect(result.map((a) => a.id)).toEqual(['a2', 'a3']);
+    });
+
+    it('returns an empty array when no similarity results are found', async () => {
+      (mockPrismaService.activity.findUnique as jest.Mock).mockResolvedValue({
+        id: 'a1',
+        name: 'Museum',
+        description: null,
+        metadata: {},
+      });
+      mockVectorStoreService.findSimilarActivities.mockResolvedValue([]);
+
+      const result = await service.findSimilar('a1', 5);
+
+      expect(result).toEqual([]);
+      expect(mockPrismaService.activity.findMany).not.toHaveBeenCalled();
     });
   });
 });

@@ -1,10 +1,12 @@
 generator client {
-  provider    = "prisma-client-js"
-  seedCommand = "npm run seed"
+  provider        = "prisma-client-js"
+  seedCommand     = "npm run seed"
+  previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
-  provider = "postgresql"
+  provider   = "postgresql"
+  extensions = [vector]
 }
 
 model Activity {
@@ -43,6 +45,13 @@ model Activity {
 
   // Flexible metadata - store anything from AI prompts
   metadata Json? // Store AI-generated data, tags, recommendations, etc.
+
+  // Semantic search embedding (pgvector). Nullable: not every activity has
+  // embeddable metadata. The HNSW index on this column is raw-SQL-only (see
+  // the add_pgvector_embedding migration) and invisible here — always run
+  // `prisma migrate dev --create-only` and check for a stray
+  // `DROP INDEX activity_embedding_hnsw_idx` before applying future migrations.
+  embedding Unsupported("vector(256)")?
 
   // Timestamps
   createdAt DateTime @default(now())

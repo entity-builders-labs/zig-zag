@@ -24,20 +24,9 @@ variable "backend_instance_type" {
   default = "t3.micro"
 }
 
-variable "chroma_instance_type" {
-  type    = string
-  default = "t3.micro"
-}
-
 variable "db_instance_class" {
   type    = string
   default = "db.t3.micro"
-}
-
-variable "chroma_image" {
-  description = "Pinned multi-architecture Chroma image digest."
-  type        = string
-  default     = "chromadb/chroma@sha256:f9cef32d15ba51e15a7d288d0e0086607921c8761ed6717d722e2c055e04798b"
 }
 
 variable "budget_alert_email" {

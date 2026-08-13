@@ -49,7 +49,7 @@ The primary flow when a user creates a tour from the mobile app wizard:
 3. **`TourActivityGenerationService.generateTourActivities()`** (background):
    - Uses `LangChainService` to generate activity recommendations
    - Searches for existing nearby activities in the DB
-   - Enriches with vector similarity search (ChromaDB)
+   - Enriches with vector similarity search (pgvector)
    - Creates `TourActivity` records linking activities to the tour
    - Optionally generates a cover image via `TourImageService`
 
@@ -83,7 +83,7 @@ The `prompts/` folder contains structured prompt templates that:
 ## Dependencies
 
 - **`LangChainService`** — AI model interaction (from `shared/ai`)
-- **`VectorStoreService`** — ChromaDB similarity search (from `shared/ai`)
+- **`VectorStoreService`** — pgvector similarity search (from `shared/ai`)
 - **`ActivitiesService`** — Access to existing activities (from `modules/activities`)
 - **`ImageGenerationService`** — DALL-E cover images (from `shared/ai`)
 - **`PrismaService`** — Database access (from `core/database`)

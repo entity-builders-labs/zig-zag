@@ -6,65 +6,6 @@ project="${AWS_PROJECT_TAG:-zig-zag}"
 rds_id="${AWS_RDS_ID:-zig-zag-postgres}"
 action="${1:-status}"
 
-instance_ids() {
-  local role="$1"
-  aws ec2 describe-instances --region "$region" \
-    --filters "Name=tag:Project,Values=$project" "Name=tag:Role,Values=$role" \
-      "Name=instance-state-name,Values=pending,running,stopping,stopped" \
-    --query 'Reservations[].Instances[].InstanceId' --output text
-}
-
-start_instances() {
-  local role="$1" ids id state
-  local -a id_list
-  ids=$(instance_ids "$role")
-  if [ -z "$ids" ]; then
-    echo "No se encontraron instancias para $role."
-    return
-  fi
-
-  read -r -a id_list <<<"$ids"
-  for id in "${id_list[@]}"; do
-    state=$(aws ec2 describe-instances --region "$region" --instance-ids "$id" \
-      --query 'Reservations[0].Instances[0].State.Name' --output text)
-    if [ "$state" = "stopping" ]; then
-      echo "Esperando que $role $id termine de apagarse..."
-      aws ec2 wait instance-stopped --region "$region" --instance-ids "$id"
-      state=stopped
-    fi
-    if [ "$state" = "stopped" ]; then
-      echo "Iniciando $role: $id"
-      aws ec2 start-instances --region "$region" --instance-ids "$id" >/dev/null
-    fi
-  done
-  aws ec2 wait instance-running --region "$region" --instance-ids "${id_list[@]}"
-}
-
-stop_instances() {
-  local role="$1" ids running
-  local -a id_list running_list
-  # Only chroma goes through here now — backend is ASG-managed (see
-  # stop_backend) and must never be stopped by a direct ec2 stop-instances
-  # call, or its ASG health check would see it as unhealthy and try to
-  # replace it instead of leaving it stopped.
-  ids=$(aws ec2 describe-instances --region "$region" \
-    --filters "Name=tag:Project,Values=$project" "Name=tag:Role,Values=$role" \
-      "Name=instance-state-name,Values=pending,running,stopping" \
-    --query 'Reservations[].Instances[].InstanceId' --output text)
-  [ -z "$ids" ] && { echo "No hay instancias de $role encendidas."; return; }
-
-  read -r -a id_list <<<"$ids"
-  running=$(aws ec2 describe-instances --region "$region" --instance-ids "${id_list[@]}" \
-    --filters "Name=instance-state-name,Values=pending,running" \
-    --query 'Reservations[].Instances[].InstanceId' --output text)
-  if [ -n "$running" ]; then
-    read -r -a running_list <<<"$running"
-    echo "Deteniendo EC2: $running"
-    aws ec2 stop-instances --region "$region" --instance-ids "${running_list[@]}" >/dev/null
-  fi
-  aws ec2 wait instance-stopped --region "$region" --instance-ids "${id_list[@]}"
-}
-
 active_backend_slot() {
   aws ssm get-parameter --region "$region" --name "/$project/prod/infra/backend_active_slot" \
     --query 'Parameter.Value' --output text 2>/dev/null || echo blue
@@ -134,13 +75,11 @@ stop_rds() {
 case "$action" in
   start)
     start_rds
-    start_instances chroma
     start_backend
     echo 'Infra encendida. El ALB puede tardar unos minutos en marcar el backend como healthy.'
     ;;
   stop)
     stop_backend
-    stop_instances chroma
     stop_rds
     ;;
   status)

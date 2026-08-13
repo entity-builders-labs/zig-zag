@@ -52,7 +52,7 @@ This is the main search endpoint used by the mobile app on every map interaction
 
 ### Vector Similarity
 
-`ActivitiesService.findSimilar()` uses ChromaDB to find semantically similar activities based on embeddings of name + description + metadata.
+`ActivitiesService.findSimilar()` uses pgvector to find semantically similar activities based on embeddings of name + description + metadata.
 
 ### Metadata Generation
 
@@ -74,6 +74,6 @@ This is the main search endpoint used by the mobile app on every map interaction
 ## Dependencies
 
 - **`GooglePlacesService`** — Background crawling (from `modules/integrations`)
-- **`VectorStoreService`** — ChromaDB similarity (from `shared/ai`)
+- **`VectorStoreService`** — pgvector similarity search (from `shared/ai`)
 - **`LangChainService`** — AI metadata generation (from `shared/ai`)
 - **`PrismaService`** — Database (from `core/database`)

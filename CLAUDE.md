@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Zig-Zag is a travel/exploration app that generates AI-powered activity and tour recommendations. It's a yarn workspaces monorepo with two packages:
 
-- `be/` — NestJS backend (TypeScript, Prisma/PostgreSQL, LangChain, ChromaDB)
+- `be/` — NestJS backend (TypeScript, Prisma/PostgreSQL + pgvector, LangChain)
 - `fe/` — React Native mobile app (Expo Router, Gluestack UI, NativeWind)
 
 Detailed architecture docs already exist as README.md files inside most subdirectories (`be/src/modules/*/README.md`, `be/src/core/README.md`, `be/src/shared/ai/README.md`, `fe/app/README.md`, `fe/api/README.md`, `fe/features/README.md`, `fe/components/README.md`, `fe/context/README.md`, `be/prisma/README.md`, `be/src/commands/README.md`). Read the relevant one before working in that area — they cover architecture in more depth than is repeated here.
@@ -73,7 +73,7 @@ There is no configured test runner in `fe/package.json`.
 
 ```bash
 yarn script <command-name> [options]     # bootstraps a NestJS app context, no HTTP server
-yarn match:init                          # rebuild ChromaDB embeddings (check-embeddings --initialize-store)
+yarn match:init                          # rebuild pgvector embeddings for all activities (match-activities)
 yarn crawl                               # run the Google Places location crawler CLI
 ```
 
@@ -86,13 +86,13 @@ See `be/src/commands/README.md` for the full command list (embedding rebuild, im
 NestJS modules are organized in three layers, imported into `AppModule` in this order (order matters — `ConfigModule` must precede `PrismaModule`):
 
 1. **`core/`** — config (`@nestjs/config` via `registerAs`) and `PrismaService` (global). Foundational; everything else depends on it.
-2. **`shared/ai/`** — `LangChainService` (LLM chat/completion, supports OpenAI or Ollama via `AI_PROVIDER`), `VectorStoreService` (ChromaDB similarity search), `AiEmbeddingService`, `AiCacheService` (file-based response caching in `be/storage/ai-cache/`), `ImageGenerationService` (DALL-E covers).
+2. **`shared/ai/`** — `LangChainService` (LLM chat/completion, supports OpenAI or Ollama via `AI_PROVIDER`), `VectorStoreService` (pgvector similarity search), `AiEmbeddingService`, `AiCacheService` (file-based response caching in `be/storage/ai-cache/`), `ImageGenerationService` (DALL-E covers).
 3. **`modules/`** — domain modules: `activities`, `tours`, `integrations` (Google Places). Each follows controller → service → dto/interfaces layout.
 
 Key cross-cutting flows (see module READMEs for full detail):
 
 - **Hybrid search** (`POST /activities/search-hybrid`): queries PostgreSQL by proximity (Haversine), then non-blockingly triggers a Google Places background crawl if the area hasn't been crawled in the last 24h (tracked via `CrawlerSearch`).
-- **Tour generation** (`POST /tours/generate-tour`): creates a DB tour record immediately, then generates activities in the background using LangChain + existing DB activities + ChromaDB similarity search, optionally followed by a DALL-E cover image.
+- **Tour generation** (`POST /tours/generate-tour`): creates a DB tour record immediately, then generates activities in the background using LangChain + existing DB activities + pgvector similarity search, optionally followed by a DALL-E cover image.
 - AI provider (OpenAI/Groq/Ollama) and behavior toggles (`ENABLE_AI`, `AI_CACHE_MODE`, `USE_MOCK_MAPS`, `MOCK_MAPS_MODE`, `ALLOW_API_FALLBACK`) are all env-driven — check `.env.example` and `be/src/shared/ai/ai.config.ts` before assuming a given provider/behavior is active.
 
 Database: PostgreSQL via Prisma. Core models are `Activity`, `Tour`, `TourActivity` (join table with ordering/travel-time), `CrawlerSearch`, `Source`, `ActivityRelationship`, `KnownActivityType` — see `be/prisma/README.md` for field-level detail.
@@ -108,8 +108,8 @@ Expo Router file-based routing under `fe/app/`: a `(tabs)` group (home/map/saved
 
 ### Docker Compose services
 
-`docker-compose.yml` defines `postgres` (profile `dev`, local-only — production uses Supabase via `DATABASE_URL`), `backend`, `frontend` (build target controlled by `BUILD_TARGET`: `ios` default, `dev`, `web`, `lan`), `cors-proxy`, `chroma` (ChromaDB), and `ollama` (profile `local-ai`, for local LLM inference as an alternative to OpenAI/Groq).
+`docker-compose.yml` defines `postgres` (profile `dev`, local-only, image `pgvector/pgvector:pg15` — production uses AWS RDS via `DATABASE_URL`), `backend`, `frontend` (build target controlled by `BUILD_TARGET`: `ios` default, `dev`, `web`, `lan`), `cors-proxy`, and `ollama` (profile `local-ai`, for local LLM inference as an alternative to OpenAI/Groq).
 
 ## Deployment
 
-Production deploys target AWS — see `AWS_DEPLOYMENT.md` for details. Frontend: S3 + CloudFront. API: CloudFront + ALB in front of an EC2 instance. Chroma on its own EC2 instance. PostgreSQL on RDS. Deploys run through GitHub Actions (`.github/workflows/cd.yml`) after CI passes on `main`; there is no manual `yarn deploy` script. The environment is stopped by default to save cost — `make aws-start` / `make aws-status` / `make aws-stop`.
+Production deploys target AWS — see `AWS_DEPLOYMENT.md` for details. Frontend: S3 + CloudFront. API: CloudFront + ALB in front of an EC2 instance. PostgreSQL (with `pgvector`) on RDS. Deploys run through GitHub Actions (`.github/workflows/cd.yml`) after CI passes on `main`; there is no manual `yarn deploy` script. The environment is stopped by default to save cost — `make aws-start` / `make aws-status` / `make aws-stop`.

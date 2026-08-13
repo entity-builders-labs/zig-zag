@@ -20,19 +20,15 @@ commands/
 
 ### `match-activities` (Embedding Checker)
 
-Rebuilds ChromaDB embeddings for all activities in the database:
+Rebuilds pgvector embeddings (`Activity.embedding`) for every activity with non-null `metadata`:
 
 ```bash
 yarn script match-activities
 ```
 
-Usage examples:
+Options:
 
-- `--activity-id <ID>` — Find compatible activities by ID
-- `--activity-name "Cinema"` — Find activities by name
-- `--search-prompt "outdoor activities..."` — Search with custom prompt
-- `--category "restaurants"` — Find by category
-- `--initialize-store` — Initialize vector store first
+- `--search-prompt "outdoor activities..."` — after rebuilding, run a test similarity search with this prompt instead of the default `"outdoor activities"`
 
 ### `image-audit`
 
