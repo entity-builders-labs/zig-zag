@@ -9,11 +9,17 @@ prisma/
 ├── schema.prisma          # Database schema definition
 ├── seed.ts                # Database seeding script
 └── migrations/
-    ├── 20251125000830_baseline/
-    │   └── migration.sql
-    └── 20251125001608_add_categories_to_tour/
+    └── <timestamp>_baseline/
         └── migration.sql
 ```
+
+The migration history was squashed into a single baseline (previously the first
+migration was a no-op "assume this already exists" comment with no real SQL,
+which meant `prisma migrate deploy` failed on any genuinely empty database —
+CI's ephemeral Postgres, or a freshly created RDS instance). The baseline now
+contains the real `CREATE TABLE` SQL generated from the current schema via
+`prisma migrate diff --from-empty --to-schema prisma/schema.prisma --script`,
+so it applies cleanly from zero.
 
 ## Data Models
 
