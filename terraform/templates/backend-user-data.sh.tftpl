@@ -1,7 +1,11 @@
 #!/bin/bash
 set -euo pipefail
 
-dnf install -y docker jq awscli2
+# awscli2 deliberately not listed here: it's not a resolvable dnf package
+# name on Amazon Linux 2023 (dnf aborts the whole transaction when any one
+# package can't be found, which silently took docker/jq down with it too),
+# and the AL2023 AMI already ships the AWS CLI v2 preinstalled anyway.
+dnf install -y docker jq
 systemctl enable --now docker
 
 cat >/usr/local/bin/deploy-zigzag <<'SCRIPT'
