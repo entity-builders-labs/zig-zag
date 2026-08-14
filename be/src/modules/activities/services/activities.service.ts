@@ -324,9 +324,13 @@ export class ActivitiesService {
         }
       }
 
+      // No `take` here: the DB has no way to know weightedScore/distance
+      // ahead of time (those are computed below), so truncating at the query
+      // level would return an arbitrary subset of the bounding box instead
+      // of the actual top-`limit` results — e.g. a famous, highly-rated
+      // landmark could be excluded purely by chance of row order.
       const activities = await this.prisma.activity.findMany({
         where: whereClause,
-        take: Number(limit),
       });
 
       // Calculate distances, compute weighted Google rating, and sort
@@ -355,7 +359,8 @@ export class ActivitiesService {
             return scoreDiff;
           }
           return a.distance - b.distance;
-        });
+        })
+        .slice(0, Number(limit));
 
       this.logger.debug(
         `Retrieved ${activitiesWithDistance.length} activities`,

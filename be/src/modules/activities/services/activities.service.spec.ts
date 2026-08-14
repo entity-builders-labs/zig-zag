@@ -125,6 +125,47 @@ describe('ActivitiesService', () => {
     });
   });
 
+  describe('findAll', () => {
+    const buildActivity = (
+      id: string,
+      rating: number,
+      ratingCount: number,
+    ) => ({
+      id,
+      latitude: -34.6037,
+      longitude: -58.3816,
+      rating,
+      ratingCount,
+    });
+
+    it('queries without `take` so the DB can never truncate before ranking', async () => {
+      (mockPrismaService.activity.findMany as jest.Mock).mockResolvedValue([]);
+
+      await service.findAll(-34.6037, -58.3816, 5000, 3);
+
+      const callArgs = (mockPrismaService.activity.findMany as jest.Mock).mock
+        .calls[0][0];
+      expect(callArgs).not.toHaveProperty('take');
+    });
+
+    it('keeps the top-`limit` activities by weighted score, not DB row order', async () => {
+      // The best-scored activity (a5) is deliberately last in "DB order" —
+      // a `take` applied before scoring would have dropped it.
+      (mockPrismaService.activity.findMany as jest.Mock).mockResolvedValue([
+        buildActivity('a1', 3.0, 1000),
+        buildActivity('a2', 3.1, 1000),
+        buildActivity('a3', 3.2, 1000),
+        buildActivity('a4', 3.3, 1000),
+        buildActivity('a5', 4.9, 1000),
+      ]);
+
+      const result = await service.findAll(-34.6037, -58.3816, 5000, 3);
+
+      expect(result).toHaveLength(3);
+      expect(result.map((a) => a.id)).toEqual(['a5', 'a4', 'a3']);
+    });
+  });
+
   describe('findSimilar', () => {
     it('excludes the source activity and preserves vector-search order', async () => {
       const target = {

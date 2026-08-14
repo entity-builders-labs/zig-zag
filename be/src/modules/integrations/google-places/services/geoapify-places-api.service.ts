@@ -99,8 +99,11 @@ export class GeoapifyPlacesApiService implements IPlacesApiService {
       // keeps working unchanged and doesn't fall back to an AI classification call
       // for every single Geoapify-sourced place.
       types,
-      // Geoapify doesn't expose rating/review-count, structured price level,
-      // or opening hours data on any endpoint this integration calls.
+      // Geoapify never exposes rating/review-count or a structured price
+      // level, on any endpoint or plan (confirmed against their official
+      // docs). Opening hours DO exist, but only on Place Details
+      // (v2/place-details), not on this Places Search response — see
+      // getPlaceDetails() below.
       rating: undefined,
       userRatingCount: undefined,
       priceLevel: undefined,
@@ -210,6 +213,13 @@ export class GeoapifyPlacesApiService implements IPlacesApiService {
         name: p.name,
         nationalPhoneNumber: p.contact?.phone,
         websiteUri: p.website,
+        // Raw OSM-syntax string (e.g. "Mo-Fr 09:00-18:00; Sa 10:00-14:00").
+        // Wrapped in a single-element array to fit the `weekdayText`
+        // shape activity-prompt-formatter.util.ts already expects — the LLM
+        // can reasonably interpret the OSM format as-is.
+        openingHoursWeekdayText: p.opening_hours
+          ? [p.opening_hours]
+          : undefined,
       };
     } catch (error) {
       this.logger.error(

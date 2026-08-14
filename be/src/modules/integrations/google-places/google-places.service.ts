@@ -423,9 +423,11 @@ Answer ONLY with one word from the set above, no punctuation, no explanation.`;
             priceLevel: priceLevelToNumber(place.priceLevel),
             businessStatus: undefined,
             photos: [],
+            // Google returns hours on the initial search result; Geoapify
+            // only returns them on Place Details (`details`), not here.
             openingHours: place.openingHoursWeekdayText?.length
               ? { weekdayText: place.openingHoursWeekdayText }
-              : undefined,
+              : details?.openingHours,
             phoneNumber: details?.phoneNumber,
             website: details?.website,
             metadata: {
@@ -453,6 +455,9 @@ Answer ONLY with one word from the set above, no punctuation, no explanation.`;
       return {
         phoneNumber: result.nationalPhoneNumber,
         website: result.websiteUri,
+        openingHours: result.openingHoursWeekdayText?.length
+          ? { weekdayText: result.openingHoursWeekdayText }
+          : undefined,
       };
     } catch (error) {
       this.logger.error(`Error fetching place details for ${placeId}:`, error);

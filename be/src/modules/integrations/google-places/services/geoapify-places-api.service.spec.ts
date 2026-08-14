@@ -163,6 +163,28 @@ describe('GeoapifyPlacesApiService', () => {
       });
     });
 
+    it('wraps the raw OSM opening_hours string into weekdayText-shaped array', async () => {
+      mockedAxios.get.mockResolvedValueOnce({
+        data: {
+          features: [
+            {
+              properties: {
+                place_id: 'geoapify-place-1',
+                name: 'Museo Nacional',
+                opening_hours: 'Mo-Fr 09:00-18:00; Sa 10:00-14:00',
+              },
+            },
+          ],
+        },
+      });
+
+      const details = await service.getPlaceDetails('geoapify-place-1');
+
+      expect(details.openingHoursWeekdayText).toEqual([
+        'Mo-Fr 09:00-18:00; Sa 10:00-14:00',
+      ]);
+    });
+
     it('returns an empty object on request failure instead of throwing', async () => {
       mockedAxios.get.mockRejectedValueOnce(new Error('network error'));
 
