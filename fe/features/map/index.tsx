@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Dimensions, View, Text } from 'react-native';
+import { StyleSheet, View, Text } from 'react-native';
 import MapView, { Region, Marker, Circle, Polyline } from 'react-native-maps';
 import { useMap } from '../../context/app';
 import { useAddress } from '../../context/app';
@@ -115,6 +115,7 @@ export const Map: React.FC<MapProps> = ({
 const styles = StyleSheet.create({
   container: {
     position: 'relative',
+    flex: 1,
   },
   markerContainer: {
     alignItems: 'center',
@@ -139,8 +140,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   map: {
-    width: Dimensions.get('window').width,
-    height: Dimensions.get('window').height,
+    flex: 1,
   },
   refreshButton: {
     position: 'absolute',

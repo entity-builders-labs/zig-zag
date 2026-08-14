@@ -246,6 +246,13 @@ export const TourHeader = ({
           justifyContent='center'
           space='sm'
           zIndex={10}
+          // This row spans the full width at the same top offset as the back
+          // button (left:20). Without box-none, the row's own empty space —
+          // everywhere that isn't actually one of the day pills — swallows
+          // clicks meant for whatever's underneath, including the back
+          // button, since it ties the back button's zIndex and is declared
+          // later in the tree (later wins the tie).
+          pointerEvents='box-none'
         >
           {availableDays.map((day) => (
             <Pressable key={day} onPress={() => setSelectedDay(day)} testID={`tour-day-${day}`}>
