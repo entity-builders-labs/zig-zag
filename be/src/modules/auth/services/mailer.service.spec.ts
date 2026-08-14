@@ -32,8 +32,14 @@ describe('MailerService', () => {
     return module.get<MailerService>(MailerService);
   };
 
+  const originalNodeEnv = process.env.NODE_ENV;
+
   beforeEach(() => {
     jest.clearAllMocks();
+  });
+
+  afterEach(() => {
+    process.env.NODE_ENV = originalNodeEnv;
   });
 
   it('skips sending without throwing when SMTP is not configured (dev/test)', async () => {
@@ -46,7 +52,18 @@ describe('MailerService', () => {
     expect(mockSendMail).not.toHaveBeenCalled();
   });
 
-  it('sends the code by email when SMTP is configured', async () => {
+  it('skips sending outside production even when SMTP is configured — the single .env shared by local/CI carries real prod credentials', async () => {
+    process.env.NODE_ENV = 'test';
+    const service = await buildService('smtp.example.com');
+
+    await expect(
+      service.sendLoginCode('user@example.com', '123456'),
+    ).resolves.toBeUndefined();
+    expect(mockSendMail).not.toHaveBeenCalled();
+  });
+
+  it('sends the code by email when SMTP is configured in production', async () => {
+    process.env.NODE_ENV = 'production';
     mockSendMail.mockResolvedValue({});
     const service = await buildService('smtp.example.com');
 
@@ -60,7 +77,8 @@ describe('MailerService', () => {
     );
   });
 
-  it('propagates a real send failure when SMTP is configured', async () => {
+  it('propagates a real send failure when SMTP is configured in production', async () => {
+    process.env.NODE_ENV = 'production';
     mockSendMail.mockRejectedValue(new Error('connection refused'));
     const service = await buildService('smtp.example.com');
 

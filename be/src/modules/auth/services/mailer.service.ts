@@ -26,6 +26,18 @@ export class MailerService {
   }
 
   async sendLoginCode(email: string, code: string): Promise<void> {
+    // The single .env at the repo root feeds local dev and production alike
+    // (see CLAUDE.md), so SMTP_HOST being set doesn't mean it's safe to send
+    // — local/CI runs the same real production credentials. requestCode()
+    // already returns devCode outside production for exactly this reason;
+    // guard the real send the same way, regardless of what's configured.
+    if (process.env.NODE_ENV !== 'production') {
+      this.logger.warn(
+        `NODE_ENV is not 'production' — skipping the real login code email to ${email} (devCode is returned in the API response instead).`,
+      );
+      return;
+    }
+
     if (!this.transporter) {
       this.logger.warn(
         `SMTP not configured — skipping login code email to ${email}`,
