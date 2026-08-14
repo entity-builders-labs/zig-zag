@@ -1,0 +1,48 @@
+# mockery config for go-be — expecter pattern only (m.EXPECT().Method(...)),
+# not the classic string-based m.On("Method", ...). See the "Go testing
+# conventions" section of the migration plan for why: EXPECT() catches
+# renamed methods, wrong arg counts, and wrong return types at compile time,
+# which matters here since interfaces are still moving as services get ported.
+with-expecter: true
+dir: "{{.InterfaceDir}}/mocks"
+mockname: "{{.InterfaceName}}"
+outpkg: mocks
+packages:
+  # Entries are added here as each domain package grows an interface worth
+  # mocking (external clients, sqlc query sets, etc.) — run `mockery` from
+  # go-be/ after adding one to (re)generate.
+  github.com/juanobrach/zig-zag/go-be/internal/ai:
+    interfaces:
+      ChatModel:
+      Embedder:
+      VectorQuerier:
+      ImageClient:
+  github.com/juanobrach/zig-zag/go-be/internal/auth:
+    interfaces:
+      Querier:
+      GoogleVerifier:
+      AppleVerifier:
+      Mailer:
+  github.com/juanobrach/zig-zag/go-be/internal/places:
+    interfaces:
+      Querier:
+      Provider:
+      Categorizer:
+      ActivityCreator:
+      EmbeddingSaver:
+  github.com/juanobrach/zig-zag/go-be/internal/activities:
+    interfaces:
+      Querier:
+      VectorFinder:
+      Chatter:
+      ImageGenerator:
+      CrawlQuerier:
+      Crawler:
+  github.com/juanobrach/zig-zag/go-be/internal/tours:
+    interfaces:
+      Querier:
+      ActivityFinder:
+      Crawler:
+      Chatter:
+      ImageGenerator:
+      LocationQuerier:
