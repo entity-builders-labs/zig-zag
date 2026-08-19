@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ScrollView, ActivityIndicator } from 'react-native';
 import {
   Box,
@@ -11,164 +11,21 @@ import {
   Text,
   Spinner,
 } from '@gluestack-ui/themed';
-import { Stack, useLocalSearchParams } from 'expo-router';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { MapPin } from 'lucide-react-native';
 import { fetchTourById, Tour } from '../../api/tours';
 import { TourHeader } from '../../components/tour-details/TourHeader';
 import { QuickStatsBar } from '../../components/tour-details/QuickStatsBar';
 import { SmartConnector } from '../../components/tour-details/SmartConnector';
 import { TourStopCard } from '../../components/tour-details/TourStopCard';
+import { CompositeStopCard } from '../../components/tour-details/CompositeStopCard';
 import { DayHeader } from '../../components/tour-details/DayHeader';
-import { getImage, getBadges } from '../../components/tour-details/utils';
 import { TourStop } from '../../components/tour-details/types';
-
-// Helper function to transform activities to stops, grouping by day if needed
-function transformActivitiesToStops(
-  activities: Tour['activities'],
-  totalDays?: number
-): TourStop[] {
-  if (!activities || activities.length === 0) {
-    return [];
-  }
-
-  const shouldGroupByDay =
-    totalDays !== undefined && totalDays !== null && totalDays > 1;
-
-  // Check if we have dayNumber in activities
-  const hasDayNumbers = activities.some(
-    (item) => item.dayNumber !== undefined && item.dayNumber !== null
-  );
-
-  // If we shouldn't group by day or don't have day numbers, use original behavior
-  if (!shouldGroupByDay || !hasDayNumbers) {
-    const transformedStops: TourStop[] = [];
-    activities.forEach((item, index) => {
-      const activity = item.activity;
-      const activityId = activity?.id || `inline-${index}`;
-      const activityName =
-        activity?.name || item.activityName || 'Unknown Activity';
-      const activityPhotos = activity?.photos;
-      const activityDescription = activity?.description || item.notes;
-
-      if (!activityName) return;
-
-      transformedStops.push({
-        type: 'location',
-        id: activityId,
-        title: activityName,
-        image: getImage(activityPhotos),
-        description: activityDescription,
-        badges: getBadges(activity || { type: item.activityType }),
-      });
-
-      if (index < activities.length - 1) {
-        const duration = item.travelTimeToNext
-          ? `${Math.round(item.travelTimeToNext)} min`
-          : '10 min';
-
-        transformedStops.push({
-          type: 'transport',
-          id: `t-${index}`,
-          mode: 'walk',
-          label: 'Caminata',
-          duration: duration,
-        });
-      }
-    });
-    return transformedStops;
-  }
-
-  // Group by day
-  const stops: TourStop[] = [];
-  const activitiesByDay = new Map<number, typeof activities>();
-  const activitiesWithoutDay: typeof activities = [];
-
-  // Separate activities with and without dayNumber
-  activities.forEach((item) => {
-    if (item.dayNumber !== undefined && item.dayNumber !== null) {
-      const dayNumber = item.dayNumber;
-      if (!activitiesByDay.has(dayNumber)) {
-        activitiesByDay.set(dayNumber, []);
-      }
-      activitiesByDay.get(dayNumber)!.push(item);
-    } else {
-      activitiesWithoutDay.push(item);
-    }
-  });
-
-  // Helper function to add activities for a day
-  const addActivitiesForDay = (
-    dayActivities: typeof activities,
-    dayNumber: number | null,
-    dayLabel: string,
-  ) => {
-    dayActivities.forEach((item, index) => {
-      const activity = item.activity;
-      const activityId =
-        activity?.id || `inline-${dayNumber ?? 'extra'}-${index}`;
-      const activityName =
-        activity?.name || item.activityName || 'Unknown Activity';
-      const activityPhotos = activity?.photos;
-      const activityDescription = activity?.description || item.notes;
-
-      if (!activityName) return;
-
-      stops.push({
-        type: 'location',
-        id: activityId,
-        title: activityName,
-        image: getImage(activityPhotos),
-        description: activityDescription,
-        badges: getBadges(activity || { type: item.activityType }),
-      });
-
-      // Add transport only if not last activity of the day
-      if (index < dayActivities.length - 1) {
-        const duration = item.travelTimeToNext
-          ? `${Math.round(item.travelTimeToNext)} min`
-          : '10 min';
-
-        stops.push({
-          type: 'transport',
-          id: `t-${dayNumber ?? 'extra'}-${index}`,
-          mode: 'walk',
-          label: 'Caminata',
-          duration: duration,
-        });
-      }
-    });
-  };
-
-  // Sort days and add activities with dayNumber
-  const sortedDays = Array.from(activitiesByDay.keys()).sort((a, b) => a - b);
-
-  sortedDays.forEach((dayNumber) => {
-    const dayActivities = activitiesByDay.get(dayNumber)!;
-
-    // Add day header
-    stops.push({
-      type: 'day-header',
-      id: `day-${dayNumber}`,
-      dayNumber: dayNumber,
-      title: `Día ${dayNumber}`,
-    });
-
-    // Add activities for this day
-    addActivitiesForDay(dayActivities, dayNumber, `Día ${dayNumber}`);
-  });
-
-  // Add activities without dayNumber at the end
-  if (activitiesWithoutDay.length > 0) {
-    // Optionally add a header for activities without day
-    // For now, we'll add them without a header, but they'll be at the end
-    addActivitiesForDay(activitiesWithoutDay, null, 'Actividades adicionales');
-  }
-
-  return stops;
-}
+import { transformActivitiesToStops } from '../../components/tour-details/build-stops';
 
 export default function TourDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const router = useRouter();
   const [tour, setTour] = useState<Tour | null>(null);
   const [loading, setLoading] = useState(true);
   const [stops, setStops] = useState<TourStop[]>([]);
@@ -177,14 +34,20 @@ export default function TourDetailScreen() {
   const [generationError, setGenerationError] = useState<string>('');
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
 
+  // Whether THIS mount actually watched generation go from in-progress to
+  // completed (as opposed to loading an already-completed tour straight
+  // away, e.g. reopening it later from the tours list) — only in the former
+  // case do we redirect into the pre-confirmation review screen, and only
+  // once per mount.
+  const wasGeneratingOnLoadRef = useRef(false);
+  const redirectedToReviewRef = useRef(false);
+
   useEffect(() => {
     const loadTour = async () => {
       if (!id) return;
-      console.log('$$$ id:', id);
       try {
         setLoading(true);
         const data = await fetchTourById(id);
-        console.log('$$$ data:', data);
         setTour(data);
 
         // Check generation status
@@ -194,11 +57,12 @@ export default function TourDetailScreen() {
 
         // Only show loading if status is generating/pending AND no activities yet
         // If activities exist, even if status is still generating, show them
-        setIsGeneratingActivities(
+        const stillGenerating =
           (generationStatus === 'generating' ||
             generationStatus === 'pending') &&
-            activities.length === 0
-        );
+          activities.length === 0;
+        setIsGeneratingActivities(stillGenerating);
+        wasGeneratingOnLoadRef.current = stillGenerating;
         setGenerationMessage(metadata?.generationMessage || '');
         setGenerationError(
           generationStatus === 'failed' ? metadata?.generationError || '' : ''
@@ -209,7 +73,6 @@ export default function TourDetailScreen() {
           activities,
           data.totalDays
         );
-        console.log('$$$ activities:', activities.length);
         setStops(transformedStops);
       } catch (error) {
         console.error('Failed to fetch tour:', error);
@@ -253,6 +116,26 @@ export default function TourDetailScreen() {
             data.totalDays
           );
           setStops(transformedStops);
+
+          // We only just now watched this tour finish generating (this
+          // mount's initial load found it still in progress) — if it
+          // produced at least one composite stop worth reviewing, send the
+          // user to the pre-confirmation review screen instead of landing
+          // straight on the final detail view. Pure frontend navigation
+          // decision, no backend status change involved.
+          if (
+            generationStatus === 'completed' &&
+            wasGeneratingOnLoadRef.current &&
+            !redirectedToReviewRef.current
+          ) {
+            const hasReviewableComposite = transformedStops.some(
+              (stop) => stop.type === 'composite' && stop.waypoints.length > 0
+            );
+            if (hasReviewableComposite) {
+              redirectedToReviewRef.current = true;
+              router.replace(`/tours/${id}/review`);
+            }
+          }
         }
 
         // Stop polling once generation is no longer in progress — nothing
@@ -269,7 +152,7 @@ export default function TourDetailScreen() {
     return () => {
       clearInterval(pollInterval);
     };
-  }, [id]);
+  }, [id, router]);
 
   if (loading) {
     return (
@@ -423,19 +306,28 @@ export default function TourDetailScreen() {
               </Box>
             ) : (
               <VStack>
-                {stops.map((item, index) => {
-                  if (item.type === 'location') {
-                    // Find if this is the last location stop (not counting day headers)
-                    const locationStops = stops.filter(
-                      (s) => s.type === 'location'
+                {stops.map((item) => {
+                  if (item.type === 'location' || item.type === 'composite') {
+                    // Find if this is the last "real stop" (location or
+                    // composite) — not counting day headers/transport
+                    // connectors — so the timeline's bottom line only draws
+                    // between actual stops.
+                    const stopItems = stops.filter(
+                      (s) => s.type === 'location' || s.type === 'composite'
                     );
-                    const isLastLocation =
-                      locationStops[locationStops.length - 1]?.id === item.id;
-                    return (
+                    const isLastStop =
+                      stopItems[stopItems.length - 1]?.id === item.id;
+                    return item.type === 'composite' ? (
+                      <CompositeStopCard
+                        key={item.id}
+                        data={item}
+                        isLast={isLastStop}
+                      />
+                    ) : (
                       <TourStopCard
                         key={item.id}
                         data={item}
-                        isLast={isLastLocation}
+                        isLast={isLastStop}
                       />
                     );
                   } else if (item.type === 'day-header') {

@@ -1,6 +1,12 @@
 import React from 'react';
 import { StyleSheet, View, Text } from 'react-native';
-import MapView, { Region, Marker, Circle, Polyline } from 'react-native-maps';
+import MapView, {
+  Region,
+  Marker,
+  Circle,
+  Polyline,
+  Polygon,
+} from 'react-native-maps';
 import { useMap } from '../../context/app';
 import { useAddress } from '../../context/app';
 import { useSearchRadius } from '../../context/app';
@@ -28,6 +34,7 @@ export const Map: React.FC<MapProps> = ({
   isStatic = false,
   initialRegion,
   routes,
+  polygons,
   zoomable,
 }) => {
   const { center } = useMap();
@@ -89,6 +96,16 @@ export const Map: React.FC<MapProps> = ({
             coordinates={route.coordinates}
             strokeColor='#3B82F6'
             strokeWidth={3}
+          />
+        ))}
+        {polygons?.map((polygon, index) => (
+          <Polygon
+            key={index}
+            coordinates={polygon.coordinates}
+            holes={polygon.holes}
+            strokeColor={polygon.strokeColor || '#3B82F6'}
+            fillColor={polygon.fillColor || 'rgba(59,130,246,0.15)'}
+            strokeWidth={2}
           />
         ))}
         {markers.map((marker) => (

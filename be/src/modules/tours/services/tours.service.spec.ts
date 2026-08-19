@@ -79,6 +79,29 @@ describe('ToursService', () => {
 
       await expect(service.findOne('tour-1')).resolves.toBe(tour);
     });
+
+    it("includes each TourActivity's waypoint snapshot (with the real waypointActivity) so composite stops render without a second round-trip", async () => {
+      const tour = { id: 'tour-1', ownerId: 'user-1' };
+      mockPrismaService.tour.findUnique.mockResolvedValue(tour);
+
+      await service.findOne('tour-1', 'user-1');
+
+      expect(mockPrismaService.tour.findUnique).toHaveBeenCalledWith(
+        expect.objectContaining({
+          include: expect.objectContaining({
+            activities: expect.objectContaining({
+              include: expect.objectContaining({
+                activity: true,
+                waypoints: {
+                  include: { waypointActivity: true },
+                  orderBy: { order: 'asc' },
+                },
+              }),
+            }),
+          }),
+        }),
+      );
+    });
   });
 
   describe('findAll', () => {

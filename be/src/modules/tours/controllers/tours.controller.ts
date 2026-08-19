@@ -17,6 +17,7 @@ import { TourLocationService } from '../services/tour-location.service';
 import { CreateTourDto } from '../dto/create-tour.dto';
 import { UpdateTourDto } from '../dto/update-tour.dto';
 import { CreateTourFromPromptDto } from '../dto/create-tour-from-prompt.dto';
+import { UpdateTourActivityWaypointsDto } from '../dto/update-tour-activity-waypoints.dto';
 import {
   ApiTags,
   ApiOperation,
@@ -282,5 +283,30 @@ export class ToursController {
   })
   remove(@Param('id') id: string, @CurrentUser() user: RequestUser) {
     return this.toursService.remove(id, user.id);
+  }
+
+  @Patch(':tourId/activities/:tourActivityId/waypoints')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary:
+      'Adjust which waypoints of a composite tour stop are shown for this tour instance (the pre-confirmation review screen)',
+  })
+  @ApiResponse({
+    status: 200,
+    description:
+      'The TourActivityWaypoint snapshot was updated (or left as-is if the subset was invalid/too small).',
+  })
+  updateActivityWaypoints(
+    @Param('tourId') tourId: string,
+    @Param('tourActivityId') tourActivityId: string,
+    @Body(ValidationPipe)
+    updateTourActivityWaypointsDto: UpdateTourActivityWaypointsDto,
+  ) {
+    return this.tourActivityGenerationService.updateTourActivityWaypoints(
+      tourId,
+      tourActivityId,
+      updateTourActivityWaypointsDto.selectedWaypointActivityIds,
+    );
   }
 }

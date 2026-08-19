@@ -2,6 +2,7 @@ import { Module, forwardRef } from '@nestjs/common';
 import { ActivitiesController } from './controllers/activities.controller';
 import { ActivitiesService } from './services/activities.service';
 import { ActivityMetadataService } from './services/activity-metadata.service';
+import { CompositeActivityService } from './services/composite-activity.service';
 import { AiModule } from '../../shared/ai/ai.module';
 import { HybridSearchService } from './services/hybrid-search.service';
 import { IntegrationsModule } from '../integrations/integrations.module';
@@ -14,7 +15,16 @@ import { ToursModule } from '../tours/tours.module';
     forwardRef(() => ToursModule),
   ],
   controllers: [ActivitiesController],
-  providers: [ActivitiesService, ActivityMetadataService, HybridSearchService],
-  exports: [ActivitiesService, ActivityMetadataService],
+  providers: [
+    ActivitiesService,
+    ActivityMetadataService,
+    HybridSearchService,
+    CompositeActivityService,
+  ],
+  exports: [
+    ActivitiesService,
+    ActivityMetadataService,
+    CompositeActivityService,
+  ],
 })
 export class ActivitiesModule {}

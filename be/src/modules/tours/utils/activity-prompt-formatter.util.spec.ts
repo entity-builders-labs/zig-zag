@@ -1,4 +1,7 @@
-import { formatActivityForPrompt } from './activity-prompt-formatter.util';
+import {
+  formatActivityForPrompt,
+  formatOsmFeatureForPrompt,
+} from './activity-prompt-formatter.util';
 
 describe('formatActivityForPrompt', () => {
   const base = {
@@ -67,5 +70,28 @@ describe('formatActivityForPrompt', () => {
     expect(result).toBe(
       'id: act-2 - Mystery Spot (Activity) - No description - Location: 0, 0 - Duration: Unknown minutes',
     );
+  });
+});
+
+describe('formatOsmFeatureForPrompt', () => {
+  it('formats id/name/type without narrative context when none is available', () => {
+    const result = formatOsmFeatureForPrompt({
+      id: 'osm:way:1',
+      name: 'Defensa',
+      osmType: 'way',
+    });
+    expect(result).toBe('id: osm:way:1 - Defensa (way)');
+  });
+
+  it('appends narrative context when present, truncated to 200 chars', () => {
+    const longContext = 'a'.repeat(300);
+    const result = formatOsmFeatureForPrompt({
+      id: 'osm:relation:1',
+      name: 'San Telmo',
+      osmType: 'relation',
+      narrativeContext: longContext,
+    });
+    expect(result).toContain('id: osm:relation:1 - San Telmo (relation) - ');
+    expect(result.length).toBeLessThan(300);
   });
 });

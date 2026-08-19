@@ -91,4 +91,57 @@ describe('LangChainService', () => {
       expect(global.fetch).not.toHaveBeenCalled();
     });
   });
+
+  describe('generateChatResponse (Groq)', () => {
+    it('requests JSON mode at the API level, not just via prompt instructions', async () => {
+      (global.fetch as jest.Mock).mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          choices: [{ message: { content: '{"title":"Tour"}' } }],
+        }),
+      });
+
+      await service.generateChatResponse(
+        'You are a tour planner.',
+        'Plan a tour of {city}',
+        { city: 'Rosario' },
+      );
+
+      const [, options] = (global.fetch as jest.Mock).mock.calls[0];
+      const body = JSON.parse(options.body);
+      // Every caller of generateChatResponse parses the result as JSON —
+      // without response_format, Groq's chat models are free to return
+      // "pretty" JSON with unescaped characters that breaks JSON.parse on
+      // long responses (the actual bug this covers).
+      expect(body.response_format).toEqual({ type: 'json_object' });
+      expect(body.messages).toEqual([
+        { role: 'system', content: 'You are a tour planner.' },
+        { role: 'user', content: 'Plan a tour of Rosario' },
+      ]);
+    });
+
+    it('returns the message content from the chat-completions response', async () => {
+      (global.fetch as jest.Mock).mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          choices: [{ message: { content: '{"title":"Tour"}' } }],
+        }),
+      });
+
+      const result = await service.generateChatResponse(
+        'system',
+        'user prompt',
+      );
+
+      expect(result).toBe('{"title":"Tour"}');
+    });
+
+    it('throws a descriptive error when the request fails', async () => {
+      (global.fetch as jest.Mock).mockResolvedValue({ ok: false, status: 500 });
+
+      await expect(
+        service.generateChatResponse('system', 'user prompt'),
+      ).rejects.toThrow('Groq error 500');
+    });
+  });
 });

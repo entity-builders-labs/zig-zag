@@ -486,7 +486,7 @@ Answer ONLY with one word from the set above, no punctuation, no explanation.`;
       const newSource = await this.prisma.source.create({
         data: {
           name: sourceInfo.name,
-          type: 'api',
+          type: 'external',
           baseUrl: sourceInfo.baseUrl,
           createdAt: new Date(),
           updatedAt: new Date(),

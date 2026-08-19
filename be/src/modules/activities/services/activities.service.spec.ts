@@ -148,6 +148,18 @@ describe('ActivitiesService', () => {
       expect(callArgs).not.toHaveProperty('take');
     });
 
+    it('excludes AREA activities and archived activities by default (discovery-surface filter)', async () => {
+      (mockPrismaService.activity.findMany as jest.Mock).mockResolvedValue([]);
+
+      await service.findAll(-34.6037, -58.3816, 5000, 3);
+
+      const callArgs = (mockPrismaService.activity.findMany as jest.Mock).mock
+        .calls[0][0];
+      const andClauses = callArgs.where.AND as any[];
+      expect(andClauses).toContainEqual({ kind: { not: 'AREA' } });
+      expect(andClauses).toContainEqual({ isArchived: false });
+    });
+
     it('keeps the top-`limit` activities by weighted score, not DB row order', async () => {
       // The best-scored activity (a5) is deliberately last in "DB order" —
       // a `take` applied before scoring would have dropped it.

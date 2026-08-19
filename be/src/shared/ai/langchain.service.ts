@@ -283,6 +283,16 @@ export class LangChainService {
                 { role: 'user', content: userText },
               ],
               temperature: this.config.temperature,
+              // Every caller of generateChatResponse (tour generation,
+              // composite generation, activity metadata) parses the result
+              // as JSON — without this, Groq's chat models are free to
+              // return "pretty" JSON with unescaped characters (em-dashes,
+              // stray quotes) that reliably breaks JSON.parse on long
+              // responses. Forcing JSON mode at the API level, not just via
+              // prompt instructions, is what actually fixes it. Unlike
+              // generateCompletionResponse below, every current caller here
+              // expects JSON, so this is safe unconditionally.
+              response_format: { type: 'json_object' },
             }),
           } as any,
         );

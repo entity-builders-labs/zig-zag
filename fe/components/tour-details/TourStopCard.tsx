@@ -29,7 +29,7 @@ export const TourStopCard = ({
   const hasActivityDetail = !data.id.startsWith('inline-');
 
   return (
-    <HStack flex={1}>
+    <HStack flex={1} testID={`location-stop-${data.id}`}>
       {/* Timeline Node */}
       <Box width={40} alignItems='center' position='relative'>
         {/* Top Line */}

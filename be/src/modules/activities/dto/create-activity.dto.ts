@@ -8,9 +8,10 @@ import {
   Max,
   IsObject,
   IsEnum,
+  IsBoolean,
 } from 'class-validator';
 
-import { Prisma, Difficulty } from '@prisma/client';
+import { Prisma, Difficulty, ActivityKind, VariantTheme } from '@prisma/client';
 
 // Using the Prisma generated enum
 // import { Difficulty } from '@prisma/client';
@@ -250,4 +251,60 @@ export class CreateActivityDto {
   @IsString()
   @IsOptional()
   id?: string;
+
+  @ApiProperty({
+    description:
+      'Structural shape of the activity: a single point (POI, default), a multi-stop composite (NEIGHBORHOOD_WALK/EXPERIENCE), a themed path (ROUTE), or a geographic container (AREA). Orthogonal to `type`, which classifies subject matter (museum, restaurant, ...).',
+    enum: ActivityKind,
+    required: false,
+  })
+  @IsEnum(ActivityKind)
+  @IsOptional()
+  kind?: ActivityKind;
+
+  @ApiProperty({
+    description:
+      'Theme of a variant (kind NEIGHBORHOOD_WALK/ROUTE/EXPERIENCE only). Null for POI/AREA.',
+    enum: VariantTheme,
+    required: false,
+  })
+  @IsEnum(VariantTheme)
+  @IsOptional()
+  variantTheme?: VariantTheme;
+
+  @ApiProperty({
+    description:
+      'Real GeoJSON geometry sourced from OSM: Polygon/MultiPolygon when kind=AREA, LineString when kind=ROUTE and the trace itself is the content. Never authored by an LLM.',
+    required: false,
+  })
+  @IsObject()
+  @IsOptional()
+  boundary?: Prisma.JsonValue;
+
+  @ApiProperty({
+    description:
+      'True for variants pre-generated and validated offline, as opposed to ones assembled ad hoc during a live tour generation.',
+    required: false,
+  })
+  @IsBoolean()
+  @IsOptional()
+  isCurated?: boolean;
+
+  @ApiProperty({
+    description:
+      'True when this activity has been retired from circulation without being physically deleted. Excluded from discovery surfaces by default.',
+    required: false,
+  })
+  @IsBoolean()
+  @IsOptional()
+  isArchived?: boolean;
+
+  @ApiProperty({
+    description:
+      'ID of the ActivityFamily this variant belongs to. Only meaningful for variants (kind != POI/AREA).',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  familyId?: string;
 }
