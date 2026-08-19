@@ -3,7 +3,12 @@
 AWS_REGION ?= us-east-1
 AWS_PROJECT_TAG ?= zig-zag
 AWS_RDS_ID ?= zig-zag-postgres
-AWS_POWER_ENV := AWS_REGION=$(AWS_REGION) AWS_PROJECT_TAG=$(AWS_PROJECT_TAG) AWS_RDS_ID=$(AWS_RDS_ID)
+# Local commands use the project-specific profile instead of whichever account
+# happens to be configured as default. GitHub Actions uses OIDC credentials and
+# sets CI=true, so it must not receive a named local profile.
+AWS_PROFILE ?= $(if $(CI),,zig-zag)
+AWS_PROFILE_ENV := $(if $(AWS_PROFILE),AWS_PROFILE=$(AWS_PROFILE))
+AWS_POWER_ENV := $(AWS_PROFILE_ENV) AWS_REGION=$(AWS_REGION) AWS_PROJECT_TAG=$(AWS_PROJECT_TAG) AWS_RDS_ID=$(AWS_RDS_ID)
 
 .PHONY: help aws-start aws-stop aws-status aws-seed-secrets check-gh rollback_deploy finish_deploy dev-start dev-stop dev-build fe-web fe-web-e2e test-unit test-e2e test-e2e-headed test-e2e-watch
 
