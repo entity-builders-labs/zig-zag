@@ -1,4 +1,6 @@
-export interface Activity {
+import { CompositeActivityFields } from './composite';
+
+export interface Activity extends CompositeActivityFields {
   id: string;
   name: string;
   description: string;

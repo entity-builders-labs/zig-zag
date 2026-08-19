@@ -20,6 +20,7 @@ describe('ToursController', () => {
   const mockTourGenerationService = { createTourFromWizard: jest.fn() };
   const mockTourActivityGenerationService = {
     generateTourActivities: jest.fn(),
+    updateTourActivityWaypoints: jest.fn(),
   };
   const mockTourLocationService = { getNearbyTours: jest.fn() };
 
@@ -130,5 +131,15 @@ describe('ToursController', () => {
     controller.remove('tour-1', currentUser);
 
     expect(mockToursService.remove).toHaveBeenCalledWith('tour-1', 'user-1');
+  });
+
+  it('updateActivityWaypoints() delegates to the service with the tour/tourActivity ids and the requested subset', () => {
+    controller.updateActivityWaypoints('tour-1', 'ta-1', {
+      selectedWaypointActivityIds: ['wp-1', 'wp-2'],
+    });
+
+    expect(
+      mockTourActivityGenerationService.updateTourActivityWaypoints,
+    ).toHaveBeenCalledWith('tour-1', 'ta-1', ['wp-1', 'wp-2']);
   });
 });

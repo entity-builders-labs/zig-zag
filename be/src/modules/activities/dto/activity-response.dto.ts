@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { ActivityKind, VariantTheme } from '@prisma/client';
 import { ActivityMetadataDto } from './activity-metadata.dto';
 
 /**
@@ -16,6 +17,45 @@ export class ActivityResponseDto {
 
   @ApiProperty({ description: 'Activity type', required: false })
   type?: string;
+
+  @ApiProperty({
+    description: 'Structural kind of the activity',
+    enum: ActivityKind,
+  })
+  kind: ActivityKind;
+
+  @ApiProperty({
+    description:
+      'Theme of a variant (kind NEIGHBORHOOD_WALK/ROUTE/EXPERIENCE only)',
+    enum: VariantTheme,
+    required: false,
+  })
+  variantTheme?: VariantTheme;
+
+  @ApiProperty({
+    description:
+      'Real OSM geometry (Polygon/MultiPolygon for AREA, LineString for ROUTE)',
+    required: false,
+  })
+  boundary?: unknown;
+
+  @ApiProperty({
+    description: 'Pre-generated and curated offline',
+    required: false,
+  })
+  isCurated?: boolean;
+
+  @ApiProperty({
+    description: 'Retired from circulation without being deleted',
+    required: false,
+  })
+  isArchived?: boolean;
+
+  @ApiProperty({
+    description: 'ActivityFamily this variant belongs to',
+    required: false,
+  })
+  familyId?: string;
 
   @ApiProperty({ description: 'Activity metadata', required: false })
   metadata?: ActivityMetadataDto;

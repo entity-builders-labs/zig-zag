@@ -8,9 +8,17 @@ import { GooglePlacesApiService } from '@integrations/google-places/services/goo
 import { GeoapifyPlacesApiService } from '@integrations/google-places/services/geoapify-places-api.service';
 import { CachedPlacesApiService } from '@integrations/google-places/services/cached-places-api.service';
 import { IPlacesApiService } from '@integrations/google-places/interfaces/places-api.interface';
+import { OsmModule } from './osm/osm.module';
+import { WikidataModule } from './wikidata/wikidata.module';
 
 @Module({
-  imports: [ConfigModule, forwardRef(() => ActivitiesModule), AiModule],
+  imports: [
+    ConfigModule,
+    forwardRef(() => ActivitiesModule),
+    AiModule,
+    OsmModule,
+    WikidataModule,
+  ],
   providers: [
     PrismaService,
     GooglePlacesApiService,
@@ -55,6 +63,6 @@ import { IPlacesApiService } from '@integrations/google-places/interfaces/places
     },
     GooglePlacesService,
   ],
-  exports: [GooglePlacesService, 'PlacesApiService'],
+  exports: [GooglePlacesService, 'PlacesApiService', OsmModule, WikidataModule],
 })
 export class IntegrationsModule {}

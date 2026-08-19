@@ -80,6 +80,12 @@ services:
     build:
       context: .
       dockerfile: be/Dockerfile
+      # The final stage (`runner`) is a production-only image — its
+      # node_modules is installed with `--production`, so it never gets
+      # devDependencies like @nestjs/cli. `command:` below overrides it to
+      # run `nest start --watch` for local dev, which needs that CLI —
+      # `builder` is the earlier stage that still has the full install.
+      target: builder
     container_name: zigzag-backend
     ports:
       - '4000:3000'

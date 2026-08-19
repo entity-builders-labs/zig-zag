@@ -8,7 +8,7 @@ import { PrismaService } from '../../../core/database/prisma.service';
 import { CreateActivityDto } from '../dto/create-activity.dto';
 import { UpdateActivityDto } from '../dto/update-activity.dto';
 import { FindNearbyDto } from '../dto/find-nearby.dto';
-import { Prisma, Activity } from '@prisma/client';
+import { Prisma, Activity, ActivityKind } from '@prisma/client';
 import { ActivityMetadataDto } from '../dto/activity-metadata.dto';
 import { ActivityMetadataService } from './activity-metadata.service';
 import { VectorStoreService } from '../../../shared/ai/services/vector-store.service';
@@ -313,6 +313,16 @@ export class ActivitiesService {
           { latitude: { lte: lat + radiusInDegrees } },
           { longitude: { gte: long - radiusInDegrees } },
           { longitude: { lte: long + radiusInDegrees } },
+          // Discovery-surface filter shared by every candidate/browse query:
+          // AREA is a geographic container, not "something to do" — never a
+          // recommendation on its own. Archived activities (retired POIs,
+          // or variants that fell below their minimum viable waypoint
+          // count) are kept in the DB — tours that already reference them
+          // read their own TourActivityWaypoint snapshot unaffected — but
+          // stop surfacing here. POI and non-archived variants (curated or
+          // not) are included by default.
+          { kind: { not: ActivityKind.AREA } },
+          { isArchived: false },
         ],
       };
 

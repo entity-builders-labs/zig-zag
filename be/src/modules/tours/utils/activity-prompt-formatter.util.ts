@@ -1,3 +1,23 @@
+export interface OsmFeatureForPrompt {
+  id: string;
+  name: string;
+  osmType: string;
+  narrativeContext?: string;
+}
+
+/** One line of the "Available OSM features" list — real streets/boundaries
+ * from Overpass the LLM may reference by id in a compositeActivities
+ * proposal, optionally grounded with real Wikidata/Wikipedia context. */
+export function formatOsmFeatureForPrompt(
+  feature: OsmFeatureForPrompt,
+): string {
+  const parts = [`id: ${feature.id}`, `${feature.name} (${feature.osmType})`];
+  if (feature.narrativeContext) {
+    parts.push(feature.narrativeContext.substring(0, 200));
+  }
+  return parts.join(' - ');
+}
+
 export interface ActivityForPrompt {
   id: string;
   name: string;

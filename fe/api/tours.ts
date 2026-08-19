@@ -1,4 +1,8 @@
 import axiosInstance from './config/axios';
+import {
+  ActivityWaypointRef,
+  CompositeActivityFields,
+} from '../features/activities/composite';
 
 export interface Tour {
   id: string;
@@ -11,6 +15,10 @@ export interface Tour {
   totalDays?: number;
   categories?: string[];
   activities?: {
+    // The TourActivity join row's own id — distinct from `activity.id`
+    // (the underlying Activity/variant). Needed to target
+    // PATCH /tours/:tourId/activities/:tourActivityId/waypoints.
+    id: string;
     activity?: {
       id: string;
       name: string;
@@ -21,7 +29,7 @@ export interface Tour {
       longitude?: number;
       address?: string;
       price?: number;
-    };
+    } & CompositeActivityFields;
     // Inline fields in case activity relation is missing
     activityName?: string;
     activityType?: string;
@@ -33,6 +41,12 @@ export interface Tour {
     travelTimeToNext?: number;
     distanceToNext?: number;
     notes?: string;
+
+    // Snapshot of which waypoints of a composite `activity` were shown for
+    // THIS tour stop (TourActivityWaypoint) — frozen at generation time,
+    // not the variant's current/live content. Empty/absent for a plain POI
+    // stop.
+    waypoints?: ActivityWaypointRef[];
   }[];
   metadata?: any;
   options?: {
@@ -97,6 +111,22 @@ export async function fetchNearbyTours(
 
 export async function fetchTourById(id: string) {
   const { data } = await axiosInstance.get<Tour>(`/tours/${id}`);
+  return data;
+}
+
+// Rewrites which waypoints of a composite tour stop are shown for THIS tour
+// instance — the pre-confirmation review screen's "exclude a stop"
+// affordance. Never touches the shared variant's own content, nor any other
+// tour's snapshot (see be/.../update-tour-activity-waypoints.dto.ts).
+export async function updateTourActivityWaypoints(
+  tourId: string,
+  tourActivityId: string,
+  selectedWaypointActivityIds: string[]
+) {
+  const { data } = await axiosInstance.patch(
+    `/tours/${tourId}/activities/${tourActivityId}/waypoints`,
+    { selectedWaypointActivityIds }
+  );
   return data;
 }
 

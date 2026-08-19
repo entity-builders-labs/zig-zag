@@ -1,6 +1,7 @@
 import axiosInstance from './config/axios';
+import { CompositeActivityFields } from '../features/activities/composite';
 
-export interface ActivityDetail {
+export interface ActivityDetail extends CompositeActivityFields {
   id: string;
   name: string;
   description?: string;

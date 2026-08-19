@@ -5,6 +5,7 @@ export default function ToursLayout() {
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name='index' />
       <Stack.Screen name='[id]' />
+      <Stack.Screen name='[id]/review' />
       <Stack.Screen
         name='wizard'
         options={{

@@ -191,6 +191,15 @@ export class ToursService {
         activities: {
           include: {
             activity: true,
+            // The per-tour waypoint snapshot for a composite (kind !== POI)
+            // stop — see TourActivityWaypoint. Included here so the tour
+            // detail/review screens can render a composite stop's actual
+            // waypoints without a second round-trip, and so they show the
+            // frozen-in-time snapshot rather than the variant's live content.
+            waypoints: {
+              include: { waypointActivity: true },
+              orderBy: { order: 'asc' },
+            },
           },
           orderBy: {
             order: 'asc',
