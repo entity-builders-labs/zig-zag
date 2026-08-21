@@ -1,42 +1,99 @@
-import { ConfigService } from '@nestjs/config';
 import * as fs from 'fs';
+import * as os from 'os';
+import * as path from 'path';
+import { Test, TestingModule } from '@nestjs/testing';
+import { ConfigService } from '@nestjs/config';
 import { CachedNominatimApiService } from './cached-nominatim-api.service';
 import { INominatimApiService } from '../interfaces/nominatim.interface';
 
 describe('CachedNominatimApiService', () => {
+  let tempDir: string;
   let realService: jest.Mocked<INominatimApiService>;
-  let service: CachedNominatimApiService;
-  const cacheDir = fs.mkdtempSync('/tmp/nominatim-cache-test-');
 
   beforeEach(() => {
-    realService = { search: jest.fn() };
-    const configService = {
-      get: jest.fn((key: string) => {
-        if (key === 'STORAGE_PATH') return cacheDir.replace(/\/osm-cache$/, '');
-        if (key === 'MOCK_MAPS_MODE') return 'write';
-        return undefined;
-      }),
-    } as unknown as ConfigService;
-    service = new CachedNominatimApiService(configService, realService);
+    tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'nominatim-cache-test-'));
+    realService = {
+      search: jest.fn(),
+    };
   });
 
-  it('calls the real service and caches the result on a cache miss (write mode default)', async () => {
+  afterEach(() => {
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  });
+
+  const setup = async (mode: 'read' | 'write' | 'strict') => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        CachedNominatimApiService,
+        {
+          provide: ConfigService,
+          useValue: {
+            get: jest.fn((key: string) =>
+              key === 'STORAGE_PATH'
+                ? tempDir
+                : key === 'MOCK_MAPS_MODE'
+                  ? mode
+                  : undefined,
+            ),
+          },
+        },
+        { provide: 'RealNominatimApiService', useValue: realService },
+      ],
+    }).compile();
+    return module.get(CachedNominatimApiService);
+  };
+
+  it('write mode calls the real service on a miss and persists the result', async () => {
     realService.search.mockResolvedValue([
       { osmType: 'relation', osmId: 1, addresstype: 'city', displayName: 'Test City', importance: 0.9 },
     ]);
+    const service = await setup('write');
 
     const result = await service.search('Test City');
 
-    expect(realService.search).toHaveBeenCalledWith('Test City');
-    expect(result[0].addresstype).toBe('city');
+    expect(result).toEqual([
+      { osmType: 'relation', osmId: 1, addresstype: 'city', displayName: 'Test City', importance: 0.9 },
+    ]);
+    expect(realService.search).toHaveBeenCalledTimes(1);
+    expect(fs.readdirSync(path.join(tempDir, 'nominatim-cache'))).toHaveLength(1);
   });
 
-  it('does not call the real service twice for the same query', async () => {
-    realService.search.mockResolvedValue([]);
+  it('read mode returns a cached response without calling the real service again', async () => {
+    realService.search.mockResolvedValue([
+      { osmType: 'relation', osmId: 1, addresstype: 'city', displayName: 'Test City', importance: 0.9 },
+    ]);
+    const writer = await setup('write');
+    await writer.search('Test City');
 
-    await service.search('Repeated Query');
-    await service.search('Repeated Query');
+    realService.search.mockClear();
+    const reader = await setup('read');
+    const result = await reader.search('Test City');
 
+    expect(result).toEqual([
+      { osmType: 'relation', osmId: 1, addresstype: 'city', displayName: 'Test City', importance: 0.9 },
+    ]);
+    expect(realService.search).not.toHaveBeenCalled();
+  });
+
+  it('read mode falls back to the real service on a cache miss (without persisting)', async () => {
+    realService.search.mockResolvedValue([
+      { osmType: 'relation', osmId: 2, addresstype: 'city', displayName: 'Another City', importance: 0.8 },
+    ]);
+    const service = await setup('read');
+
+    const result = await service.search('Another City');
+
+    expect(result).toEqual([
+      { osmType: 'relation', osmId: 2, addresstype: 'city', displayName: 'Another City', importance: 0.8 },
+    ]);
     expect(realService.search).toHaveBeenCalledTimes(1);
+    expect(fs.readdirSync(path.join(tempDir, 'nominatim-cache'))).toHaveLength(0);
+  });
+
+  it('strict mode throws on a cache miss instead of calling the real service', async () => {
+    const service = await setup('strict');
+
+    await expect(service.search('Unknown City')).rejects.toThrow(/Strict mode/);
+    expect(realService.search).not.toHaveBeenCalled();
   });
 });
