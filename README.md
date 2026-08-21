@@ -11,6 +11,17 @@ A modern travel and exploration application that helps users discover places and
 
 Esta sección explica cómo colaboran frontend y backend en los flujos principales, con diagramas de secuencia. Para el detalle de cada módulo backend hay READMEs dentro de `be/src/modules/*` y `be/src/shared/ai/`; para el frontend, `fe/api/README.md`, `fe/features/README.md` y `fe/context/README.md`.
 
+### Documento canónico del Tour Engine
+
+Antes de modificar generación de tours o Activities, destination resolution,
+retrieval/ranking, embeddings, composites o integraciones Google Places/OSM,
+leer [Activity Discovery and Tour Generation](./docs/architecture/activity-discovery-and-tour-generation.md).
+El documento reúne los diagramas end-to-end, el rol de embeddings y Amazon
+Bedrock, el refill multi-anchor de Places, la factibilidad espacial según el
+transporte elegido y las invariantes que deben preservar tanto colaboradores
+como agentes de IA. Describe la arquitectura objetivo; el repositorio actual
+sigue siendo la fuente de verdad sobre qué partes ya están implementadas.
+
 ### Componentes principales
 
 **Frontend (`fe/`)**

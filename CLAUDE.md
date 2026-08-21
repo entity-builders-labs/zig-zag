@@ -11,6 +11,20 @@ Zig-Zag is a travel/exploration app that generates AI-powered activity and tour 
 
 Detailed architecture docs already exist as README.md files inside most subdirectories (`be/src/modules/*/README.md`, `be/src/core/README.md`, `be/src/shared/ai/README.md`, `fe/app/README.md`, `fe/api/README.md`, `fe/features/README.md`, `fe/components/README.md`, `fe/context/README.md`, `be/prisma/README.md`, `be/src/commands/README.md`). Read the relevant one before working in that area — they cover architecture in more depth than is repeated here.
 
+### Mandatory tour-engine architecture
+
+Before changing tour/activity generation, destination resolution, candidate
+retrieval or ranking, embeddings, transport-aware spatial feasibility, routing,
+travel-time calculation, itinerary scheduling, Google Places/OSM integrations,
+composite Activities, or the future Activity Discovery pipeline, read
+`docs/architecture/activity-discovery-and-tour-generation.md` completely.
+
+It documents the target flow and architectural invariants, including the
+separation between Destination Resolution, catalog refill, Activity Discovery,
+Entity Resolution, Validation, and Tour Generation. It does **not** mean every
+component in the diagrams is already implemented: inspect the current code and
+the linked implementation plan before acting.
+
 ## Commands
 
 ### Setup
