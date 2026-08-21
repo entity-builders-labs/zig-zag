@@ -16,6 +16,7 @@ Related documents:
 
 - [Destination-aware activity engine design](../superpowers/specs/2026-08-21-activity-engine-design.md)
 - [Destination-resolution implementation plan](../superpowers/plans/2026-08-21-activity-engine-destination-resolution.md)
+- [Candidate quality, discovery, and mobility implementation plan](../superpowers/plans/2026-08-21-activity-engine-quality-discovery-mobility.md)
 - [Generation bitacora design](../superpowers/specs/2026-08-20-generation-bitacora-design.md)
 
 ## Architectural invariants
@@ -231,6 +232,18 @@ flowchart LR
 Vectors from different embedding models are not interchangeable even if their
 dimensions match. Track provider/model/version and rebuild the full index when
 switching models. Do not silently mix Titan and OpenAI/Ollama vectors.
+
+`EMBEDDING_PROVIDER` is authoritative. An embedding-provider failure must
+never select another provider automatically, regardless of which API keys are
+present. The engine may retry the same provider under a bounded policy; if it
+still fails, embeddings become explicitly unavailable for that operation and
+retrieval degrades to the documented non-semantic signals. Changing provider
+or model is an operator action followed by a complete index rebuild.
+
+Local development uses Ollama with `nomic-embed-text`; production uses Bedrock
+Titan. Both store vectors in PostgreSQL with pgvector. ChromaDB is not part of
+the current architecture. Local Ollama tests validate the pipeline but do not
+claim numerical parity with Titan.
 
 The Prisma column is currently vector(256). Production configuration must stay
 at 256 dimensions unless a schema migration and complete index rebuild happen
