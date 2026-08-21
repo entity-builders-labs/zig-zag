@@ -308,6 +308,49 @@ describe('CompositeActivityService', () => {
       expect(materialized.kind).toBe(ActivityKind.ROUTE);
       expect(materialized.kind).not.toBe(ActivityKind.POI);
     });
+
+    it('materializes an "osm:node:…" POI token (Point geometry) without throwing', async () => {
+      const poi = await prisma.activity.create({
+        data: {
+          name: 'Plaza Dorrego',
+          kind: ActivityKind.POI,
+          latitude: -34.62,
+          longitude: -58.37,
+        },
+      });
+
+      const nodeCandidate = osmCandidate({
+        id: 'osm:node:123',
+        osmType: 'node',
+        osmId: 123,
+        name: 'Casa Mínima',
+        geometry: { type: 'Point', coordinates: [-58.371, -34.621] },
+        tags: { name: 'Casa Mínima', historic: 'yes' },
+      });
+
+      const variant = await service.createOrReuseComposite({
+        name: 'San Telmo Historic Walk',
+        kind: ActivityKind.NEIGHBORHOOD_WALK,
+        variantTheme: VariantTheme.HISTORY,
+        areaCandidate: osmCandidate(),
+        waypointIds: [poi.id, 'osm:node:123'],
+        candidateOsmFeaturesById: new Map([['osm:node:123', nodeCandidate]]),
+      });
+
+      const rows = await prisma.activityWaypoint.findMany({
+        where: { compositeActivityId: variant.id },
+      });
+      const materialized = await prisma.activity.findUnique({
+        where: {
+          id: rows.find((r: any) => r.waypointActivityId !== poi.id)
+            .waypointActivityId,
+        },
+      });
+
+      expect(materialized.kind).toBe(ActivityKind.ROUTE);
+      expect(materialized.latitude).toBeCloseTo(-34.621);
+      expect(materialized.longitude).toBeCloseTo(-58.371);
+    });
   });
 
   describe('area resolution', () => {

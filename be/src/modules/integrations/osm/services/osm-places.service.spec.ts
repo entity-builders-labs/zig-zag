@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
-import { OsmPlacesService } from './osm-places.service';
+import { OsmCandidate, OsmPlacesService } from './osm-places.service';
 import {
   IOverpassApiService,
   OverpassElement,
@@ -232,6 +232,216 @@ describe('OsmPlacesService', () => {
       const result = await service.findBoundaryByName('San Telmo', 0, 0, 1000);
 
       expect(result).toBeNull();
+    });
+  });
+
+  describe('getBoundaryById', () => {
+    it('maps a resolved relation into an OsmCandidate', async () => {
+      const relation: OverpassElement = {
+        type: 'relation',
+        id: 1224652,
+        tags: { name: 'Buenos Aires', admin_level: '8' },
+        members: [
+          {
+            type: 'way',
+            ref: 1,
+            role: 'outer',
+            geometry: [
+              { lat: 0, lon: 0 },
+              { lat: 0, lon: 1 },
+              { lat: 1, lon: 1 },
+              { lat: 0, lon: 0 },
+            ],
+          },
+        ],
+      };
+      overpassApi.queryBoundaryById.mockResolvedValue([relation]);
+
+      const result = await service.getBoundaryById('relation', 1224652);
+
+      expect(result?.id).toBe('osm:relation:1224652');
+      expect(result?.tags.admin_level).toBe('8');
+    });
+
+    it('returns null (not a throw) when Overpass fails', async () => {
+      overpassApi.queryBoundaryById.mockRejectedValue(new Error('down'));
+
+      const result = await service.getBoundaryById('relation', 1);
+
+      expect(result).toBeNull();
+    });
+
+    it('returns null when nothing is returned', async () => {
+      overpassApi.queryBoundaryById.mockResolvedValue([]);
+
+      const result = await service.getBoundaryById('relation', 1);
+
+      expect(result).toBeNull();
+    });
+  });
+
+  describe('findNeighborhoodsWithin', () => {
+    const cityBoundary: OsmCandidate = {
+      id: 'osm:relation:1224652',
+      name: 'Buenos Aires',
+      osmType: 'relation' as const,
+      osmId: 1224652,
+      geometry: {
+        type: 'Polygon' as const,
+        coordinates: [
+          [
+            [0, 0],
+            [1, 0],
+            [1, 1],
+            [0, 0],
+          ],
+        ],
+      },
+      tags: { name: 'Buenos Aires', admin_level: '8' },
+    };
+
+    it('filters to admin_level = city level + 1, relative, not a fixed absolute range', async () => {
+      // `out tags center` (buildAdminBoundariesWithinAreaQuery) — no
+      // members/geometry, only a lightweight centroid. See osm-geometry.util.ts's
+      // center fallback.
+      const sanTelmo: OverpassElement = {
+        type: 'relation',
+        id: 2223069,
+        tags: { name: 'San Telmo', admin_level: '9' },
+        center: { lat: -34.62, lon: -58.37 },
+      };
+      const comuna: OverpassElement = {
+        type: 'relation',
+        id: 4261029,
+        tags: { name: 'Comuna 1', admin_level: '5' },
+        center: { lat: -34.61, lon: -58.38 },
+      };
+      const country: OverpassElement = {
+        type: 'relation',
+        id: 286393,
+        tags: { name: 'Argentina', admin_level: '2' },
+        center: { lat: -34.0, lon: -64.0 },
+      };
+      overpassApi.queryAdminBoundariesWithinArea.mockResolvedValue([
+        sanTelmo,
+        comuna,
+        country,
+      ]);
+
+      const result = await service.findNeighborhoodsWithin(cityBoundary);
+
+      expect(result.map((c) => c.name)).toEqual(['San Telmo']);
+    });
+
+    it('returns an empty array (not a throw) when Overpass fails', async () => {
+      overpassApi.queryAdminBoundariesWithinArea.mockRejectedValue(
+        new Error('down'),
+      );
+
+      const result = await service.findNeighborhoodsWithin(cityBoundary);
+
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe('findStreetsWithin', () => {
+    const neighborhood: OsmCandidate = {
+      id: 'osm:relation:2223069',
+      name: 'San Telmo',
+      osmType: 'relation' as const,
+      osmId: 2223069,
+      geometry: {
+        type: 'Polygon' as const,
+        coordinates: [
+          [
+            [0, 0],
+            [1, 0],
+            [1, 1],
+            [0, 0],
+          ],
+        ],
+      },
+      tags: { name: 'San Telmo' },
+    };
+
+    it('maps named ways within the area into OsmCandidate[], falling back to their center (out tags center has no line geometry)', async () => {
+      overpassApi.queryStreetsWithinArea.mockResolvedValue([
+        {
+          type: 'way',
+          id: 47521387,
+          tags: { name: 'Defensa', highway: 'pedestrian' },
+          center: { lat: -34.621, lon: -58.371 },
+        },
+      ]);
+
+      const result = await service.findStreetsWithin(neighborhood);
+
+      expect(result).toEqual([
+        expect.objectContaining({
+          id: 'osm:way:47521387',
+          name: 'Defensa',
+          geometry: { type: 'Point', coordinates: [-58.371, -34.621] },
+        }),
+      ]);
+    });
+
+    it('returns an empty array (not a throw) when Overpass fails', async () => {
+      overpassApi.queryStreetsWithinArea.mockRejectedValue(new Error('down'));
+
+      const result = await service.findStreetsWithin(neighborhood);
+
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe('findPoisWithin', () => {
+    const neighborhood: OsmCandidate = {
+      id: 'osm:relation:2223069',
+      name: 'San Telmo',
+      osmType: 'relation' as const,
+      osmId: 2223069,
+      geometry: {
+        type: 'Polygon' as const,
+        coordinates: [
+          [
+            [0, 0],
+            [1, 0],
+            [1, 1],
+            [0, 0],
+          ],
+        ],
+      },
+      tags: { name: 'San Telmo' },
+    };
+
+    it('maps named tourism/historic/etc nodes within the area into OsmCandidate[]', async () => {
+      overpassApi.queryPoisWithinArea.mockResolvedValue([
+        {
+          type: 'node',
+          id: 123,
+          tags: { name: 'Casa Mínima', historic: 'yes' },
+          lat: -34.621,
+          lon: -58.371,
+        },
+      ]);
+
+      const result = await service.findPoisWithin(neighborhood);
+
+      expect(result).toEqual([
+        expect.objectContaining({
+          id: 'osm:node:123',
+          name: 'Casa Mínima',
+          geometry: { type: 'Point', coordinates: [-58.371, -34.621] },
+        }),
+      ]);
+    });
+
+    it('returns an empty array (not a throw) when Overpass fails', async () => {
+      overpassApi.queryPoisWithinArea.mockRejectedValue(new Error('down'));
+
+      const result = await service.findPoisWithin(neighborhood);
+
+      expect(result).toEqual([]);
     });
   });
 });

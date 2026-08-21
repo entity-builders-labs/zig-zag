@@ -8,7 +8,8 @@ type LonLat = [number, number];
 export type GeoJsonGeometry =
   | { type: 'Polygon'; coordinates: LonLat[][] }
   | { type: 'MultiPolygon'; coordinates: LonLat[][][] }
-  | { type: 'LineString'; coordinates: LonLat[] };
+  | { type: 'LineString'; coordinates: LonLat[] }
+  | { type: 'Point'; coordinates: LonLat };
 
 const COORD_EPSILON = 1e-9;
 
@@ -139,14 +140,33 @@ function wayToGeoJson(element: OverpassElement): GeoJsonGeometry | null {
 }
 
 /**
- * Converts a single Overpass `out geom` element (way or relation) into
- * GeoJSON. Returns null for anything without usable geometry (e.g. a node,
- * or a way with fewer than 2 points).
+ * Converts a single Overpass element (way, relation, or node) into GeoJSON.
+ * Returns null for anything without usable geometry (e.g. a way with fewer
+ * than 2 points and no center fallback).
  */
 export function overpassElementToGeoJson(
   element: OverpassElement,
 ): GeoJsonGeometry | null {
-  if (element.type === 'way') return wayToGeoJson(element);
-  if (element.type === 'relation') return relationToGeoJson(element);
+  if (element.type === 'node') {
+    if (element.lat == null || element.lon == null) return null;
+    return { type: 'Point', coordinates: [element.lon, element.lat] };
+  }
+
+  const detailed =
+    element.type === 'way' ? wayToGeoJson(element) : relationToGeoJson(element);
+  if (detailed) return detailed;
+
+  // A way/relation fetched with `out center` instead of `out geom` (see
+  // findNeighborhoodsWithin) carries no members/geometry — fall back to its
+  // lightweight centroid rather than dropping it. Only reached when the
+  // element genuinely has no detailed geometry (the `out geom` case above
+  // always wins when present, unchanged from today).
+  if (element.center) {
+    return {
+      type: 'Point',
+      coordinates: [element.center.lon, element.center.lat],
+    };
+  }
+
   return null;
 }

@@ -109,6 +109,13 @@ export class CompositeActivityService {
     latitude: number;
     longitude: number;
   } {
+    if (geometry.type === 'Point') {
+      return {
+        latitude: geometry.coordinates[1],
+        longitude: geometry.coordinates[0],
+      };
+    }
+
     const ring: [number, number][] =
       geometry.type === 'LineString'
         ? geometry.coordinates

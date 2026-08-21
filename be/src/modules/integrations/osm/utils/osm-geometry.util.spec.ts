@@ -4,9 +4,45 @@ import { OverpassElement } from '../interfaces/overpass.interface';
 const pt = (lat: number, lon: number) => ({ lat, lon });
 
 describe('overpassElementToGeoJson', () => {
-  it('returns null for a node (no line/area geometry)', () => {
-    const node: OverpassElement = { type: 'node', id: 1, lat: 0, lon: 0 };
+  it('maps a node to a Point (a POI, e.g. from findPoisWithin)', () => {
+    const node: OverpassElement = {
+      type: 'node',
+      id: 1,
+      lat: -34.621,
+      lon: -58.371,
+    };
+    expect(overpassElementToGeoJson(node)).toEqual({
+      type: 'Point',
+      coordinates: [-58.371, -34.621],
+    });
+  });
+
+  it('returns null for a node with no lat/lon', () => {
+    const node: OverpassElement = { type: 'node', id: 1 };
     expect(overpassElementToGeoJson(node)).toBeNull();
+  });
+
+  it('falls back to center for a way/relation fetched with `out center` (no members/geometry)', () => {
+    const relation: OverpassElement = {
+      type: 'relation',
+      id: 1,
+      center: { lat: -34.62, lon: -58.37 },
+    };
+    expect(overpassElementToGeoJson(relation)).toEqual({
+      type: 'Point',
+      coordinates: [-58.37, -34.62],
+    });
+  });
+
+  it('prefers detailed geometry over center when both are present', () => {
+    const way: OverpassElement = {
+      type: 'way',
+      id: 1,
+      geometry: [pt(0, 0), pt(0, 1), pt(1, 1)],
+      center: { lat: 99, lon: 99 },
+    };
+    const result = overpassElementToGeoJson(way);
+    expect(result?.type).toBe('LineString');
   });
 
   it('returns null for a way with fewer than 2 points', () => {
