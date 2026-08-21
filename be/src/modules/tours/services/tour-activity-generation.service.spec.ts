@@ -1453,6 +1453,133 @@ describe('TourActivityGenerationService', () => {
       expect(promptArg).toContain('San Telmo Street 1');
       expect(promptArg).toContain('Recoleta Street 1');
     });
+
+    it('reproduces the Barcelona scenario: a thin, off-topic DB pool for an area-scale destination triggers both a crawl and a neighborhood shortlist, and ranks the LLM candidates by interest', async () => {
+      toursService.findOne.mockResolvedValue(
+        buildTour({
+          metadata: {
+            options: {
+              latitude: 41.42,
+              longitude: 2.15,
+              radius: 11000,
+              destination: 'Barcelona',
+              interests: ['history', 'architecture'],
+            },
+            originalPrompt: 'A tour of Barcelona',
+          },
+        }),
+      );
+
+      const boundary = {
+        id: 'osm:relation:347950',
+        name: 'Barcelona',
+        osmType: 'relation' as const,
+        osmId: 347950,
+        geometry: {
+          type: 'Polygon' as const,
+          coordinates: [[[2.05, 41.32], [2.23, 41.32], [2.23, 41.47], [2.05, 41.47], [2.05, 41.32]]],
+        },
+        tags: { name: 'Barcelona', admin_level: '8' },
+      };
+      destinationResolutionService.resolveDestination.mockResolvedValue({
+        scale: 'area',
+        areaActivity: { id: 'area-bcn', kind: ActivityKind.AREA, name: 'Barcelona' },
+        boundary,
+      });
+
+      const ciutatVella = {
+        id: 'osm:relation:900001',
+        name: 'Ciutat Vella',
+        osmType: 'relation' as const,
+        osmId: 900001,
+        geometry: { type: 'Polygon' as const, coordinates: [[[0, 0], [1, 0], [1, 1], [0, 0]]] },
+        tags: { name: 'Ciutat Vella', admin_level: '9' },
+      };
+      osmPlacesService.findNeighborhoodsWithin.mockResolvedValue([ciutatVella]);
+      osmPlacesService.findPoisWithin.mockResolvedValue([]);
+      osmPlacesService.findStreetsWithin.mockResolvedValue([
+        {
+          id: 'osm:way:501',
+          name: 'La Rambla',
+          osmType: 'way',
+          osmId: 501,
+          geometry: { type: 'LineString', coordinates: [[0, 0], [0, 1]] },
+          tags: { name: 'La Rambla', highway: 'pedestrian' },
+        },
+      ]);
+
+      // Only a handful of low-relevance activities exist locally — same shape
+      // as the real Barcelona bug report (hiking trails near Collserola).
+      const hikingTrailId = testUuid();
+      const historicSiteId = testUuid();
+      activitiesService.findAll
+        .mockResolvedValueOnce([
+          { id: hikingTrailId, name: 'Collserola hiking trail', latitude: 41.42, longitude: 2.10, rating: 4.5, ratingCount: 300 },
+        ])
+        .mockResolvedValueOnce([
+          { id: hikingTrailId, name: 'Collserola hiking trail', latitude: 41.42, longitude: 2.10, rating: 4.5, ratingCount: 300 },
+          { id: historicSiteId, name: 'Barri Gòtic historic site', latitude: 41.38, longitude: 2.17, rating: 4.2, ratingCount: 50 },
+        ]);
+      vectorStoreService.getSimilarityScores.mockResolvedValue(
+        new Map([
+          [hikingTrailId, 0.05],
+          [historicSiteId, 0.9],
+        ]),
+      );
+      prisma.activity.findMany.mockResolvedValue([
+        { id: historicSiteId, latitude: 41.38, longitude: 2.17, kind: ActivityKind.POI },
+      ]);
+      langChainService.generateChatResponse.mockResolvedValue(
+        aiJsonResponse({
+          activities: [
+            {
+              activityId: historicSiteId,
+              activityName: 'Barri Gòtic historic site',
+              dayNumber: 1,
+              startTime: '10:00',
+              duration: 60,
+              notes: 'Visit it',
+              latitude: 41.38,
+              longitude: 2.17,
+            },
+          ],
+        }),
+      );
+
+      await service.generateTourActivities(TOUR_ID);
+
+      // 1. The thin pool (1 result) triggered a crawl refresh.
+      expect(googlePlacesService.crawlAndSaveActivities).toHaveBeenCalled();
+      // 2. The destination resolved to area-scale and explored a real neighborhood.
+      expect(osmPlacesService.findStreetsWithin).toHaveBeenCalledWith(ciutatVella);
+      // 3. The historically-relevant, lower-rated site outranked the irrelevant
+      //    higher-rated one in what the LLM was offered.
+      const [, promptArg] = langChainService.generateChatResponse.mock.calls[0];
+      expect(promptArg.indexOf('Barri Gòtic historic site')).toBeLessThan(
+        promptArg.indexOf('Collserola hiking trail'),
+      );
+      // 4. The bitácora records both new stages. tour.update is called with a
+      //    single { where, data } argument (see the $transaction block in
+      //    generateTourActivities), so each mock call is a one-element array.
+      // Two calls end up with generationStatus 'completed': the $transaction's
+      // own update (which carries the freshly-built generationTrace) and a
+      // second one from the post-transaction cover-image `finally` block,
+      // which re-reads metadata via toursService.findOne and would carry the
+      // trace forward too in production (a real DB read sees the just-
+      // persisted trace) — but this test's static toursService.findOne mock
+      // doesn't reflect intermediate prisma.tour.update calls, so that second
+      // call's spread metadata omits it. Locate the call that actually
+      // carries the trace rather than assuming it's the last one.
+      const [completedCall] = prisma.tour.update.mock.calls.find(
+        (call: any) => call[0].data.metadata.generationTrace,
+      );
+      const stages = completedCall.data.metadata.generationTrace.steps.map(
+        (s: any) => s.stage,
+      );
+      expect(stages).toEqual(
+        expect.arrayContaining(['destination_resolution', 'neighborhood_shortlist']),
+      );
+    });
   });
 
   describe('updateTourActivityWaypoints', () => {
