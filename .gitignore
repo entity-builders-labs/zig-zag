@@ -118,3 +118,6 @@ fe/playwright-report/
 
 # Claude Code superpowers scratch workspace (ledgers, briefs, review packages)
 .superpowers/
+
+# Local scratch/experiments, not part of the app
+playground/
