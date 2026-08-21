@@ -464,6 +464,16 @@ export class TourActivityGenerationService {
           );
           const shortlisted = shortlistNeighborhoods(scoringInputs);
 
+          // Per-neighborhood cap, not one global cap applied after
+          // flattening — a single dense neighborhood (the spike measured
+          // San Telmo at 178 streets + 50 POIs) would otherwise exhaust a
+          // flat slice(0, 20) on its own, starving every other shortlisted
+          // neighborhood of candidates despite paying for their Overpass
+          // queries. Each neighborhood gets an even share of the same
+          // total budget (Overpass/Groq payload limits), so the LLM
+          // actually sees content from every neighborhood the shortlist
+          // surfaced, not just the first.
+          const perNeighborhoodCap = Math.ceil(20 / shortlisted.length);
           const perNeighborhood = await Promise.all(
             shortlisted.map(async (neighborhood) => ({
               streets:
@@ -475,11 +485,10 @@ export class TourActivityGenerationService {
           // into the same candidate set the LLM sees as "Available OSM
           // features" — a POI node can be picked as a waypoint exactly like
           // a street (see composite-activity.service.ts's Point-geometry
-          // handling, this same task). Capped to 20 total, same rationale as
-          // the point-scale path below (Overpass/Groq payload limits).
-          streetCandidates = perNeighborhood
-            .flatMap((n) => [...n.streets, ...n.pois])
-            .slice(0, 20);
+          // handling, this same task).
+          streetCandidates = perNeighborhood.flatMap((n) =>
+            [...n.streets, ...n.pois].slice(0, perNeighborhoodCap),
+          );
 
           traceSteps.push(
             buildNeighborhoodShortlistStep(rawNeighborhoods, shortlisted),
@@ -555,16 +564,21 @@ export class TourActivityGenerationService {
       }
 
       // Never let the AI invent activities out of thin air — every stop must
-      // come from real places found in our database or crawled from
-      // Google/Geoapify. If neither search nor crawl turned up anything
-      // real for this location, fail loudly instead of hallucinating a
-      // tour. Point-scale only (exact original behavior) — an area-scale
-      // destination is allowed to come up empty at this stage (e.g. a real
-      // city resolved but its shortlisted neighborhoods had no flat DB/
-      // Google activities yet, only OSM streets/POIs): it still moves on to
-      // the LLM call with whatever real OSM candidates were found, and
-      // guard's the AI's own picks afterward instead (see below).
-      if (!isAreaScale && !availableActivitiesText) {
+      // come from real places found in our database, crawled from
+      // Google/Geoapify, or real OSM streets/POIs offered as composite
+      // candidates. An area-scale destination may have no flat DB/Google
+      // activities yet (a cold-DB city) but still have real OSM streets/
+      // POIs from its shortlisted neighborhoods — that's exactly what
+      // area-scale exploration is for, so it's allowed to proceed to the
+      // LLM call on OSM candidates alone. Point-scale keeps its original,
+      // stricter requirement (flat activities only). Either way, if
+      // NOTHING real was found — no flat activities and (for area-scale)
+      // no OSM candidates either — fail loudly instead of hallucinating a
+      // tour.
+      if (
+        !availableActivitiesText &&
+        (!isAreaScale || candidateOsmFeaturesById.size === 0)
+      ) {
         throw new Error(
           'No se encontraron lugares reales para esta ubicación. Probá con otro destino o un radio de búsqueda más amplio.',
         );
@@ -731,12 +745,7 @@ export class TourActivityGenerationService {
         startTime: p.startTime,
       }));
 
-      // Same point-scale-only hard failure as the guard above — an
-      // area-scale exploration that the LLM ultimately picked nothing real
-      // from is still a legitimate (if disappointing) outcome, fully
-      // captured in the bitácora trace above, not a hard error.
       if (
-        !isAreaScale &&
         uniqueActivities.length === 0 &&
         compositeGeneratedActivities.length === 0
       ) {

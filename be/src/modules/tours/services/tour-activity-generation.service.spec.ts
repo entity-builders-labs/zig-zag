@@ -1178,27 +1178,72 @@ describe('TourActivityGenerationService', () => {
         },
         tags: { name: 'San Telmo', admin_level: '9' },
       };
+      const defensa = {
+        id: 'osm:way:1',
+        name: 'Defensa',
+        osmType: 'way' as const,
+        osmId: 1,
+        geometry: {
+          type: 'LineString' as const,
+          coordinates: [
+            [0, 0],
+            [0, 1],
+          ] as [number, number][],
+        },
+        tags: { name: 'Defensa', highway: 'pedestrian' },
+      };
       osmPlacesService.findNeighborhoodsWithin.mockResolvedValue([sanTelmo]);
-      osmPlacesService.findStreetsWithin.mockResolvedValue([
+      osmPlacesService.findStreetsWithin.mockResolvedValue([defensa]);
+      osmPlacesService.findPoisWithin.mockResolvedValue([]);
+      // A realistic (not empty) DB pool — proves this isn't just testing
+      // that the LLM got called, but that the area-scale path can actually
+      // land a composite built from the real candidates it explored.
+      const poiId = testUuid();
+      activitiesService.findAll.mockResolvedValue([
         {
-          id: 'osm:way:1',
-          name: 'Defensa',
-          osmType: 'way',
-          osmId: 1,
-          geometry: {
-            type: 'LineString',
-            coordinates: [
-              [0, 0],
-              [0, 1],
-            ],
-          },
-          tags: { name: 'Defensa', highway: 'pedestrian' },
+          id: poiId,
+          name: 'Plaza Dorrego',
+          latitude: -34.62,
+          longitude: -58.37,
         },
       ]);
-      osmPlacesService.findPoisWithin.mockResolvedValue([]);
-      activitiesService.findAll.mockResolvedValue([]);
+      const variant = {
+        id: testUuid(),
+        name: 'San Telmo Route',
+        kind: ActivityKind.ROUTE,
+        latitude: -34.62,
+        longitude: -58.37,
+      };
+      compositeActivityService.createOrReuseComposite.mockResolvedValue(
+        variant,
+      );
+      prisma.activity.findMany.mockResolvedValue([
+        {
+          id: variant.id,
+          latitude: variant.latitude,
+          longitude: variant.longitude,
+          kind: variant.kind,
+        },
+      ]);
       langChainService.generateChatResponse.mockResolvedValue(
-        aiJsonResponse({}),
+        aiJsonResponse({
+          compositeActivities: [
+            {
+              name: 'San Telmo Route',
+              kind: 'ROUTE',
+              variantTheme: 'HISTORY',
+              themeReasoning: 'Walk down Defensa',
+              // Must exactly match the area-scale areaCandidate offered —
+              // the resolved CITY boundary, not the shortlisted
+              // neighborhood — since verifyAndDedupeCompositeActivities
+              // checks this against areaCandidate?.id.
+              areaId: boundary.id,
+              dayNumber: 1,
+              startTime: '10:00',
+              waypointIds: [defensa.id],
+            },
+          ],
+        }),
       );
 
       await service.generateTourActivities(TOUR_ID);
@@ -1212,6 +1257,20 @@ describe('TourActivityGenerationService', () => {
       expect(osmPlacesService.findStreetsWithin).toHaveBeenCalledWith(sanTelmo);
       const [, promptArg] = langChainService.generateChatResponse.mock.calls[0];
       expect(promptArg).toContain('Defensa');
+      expect(
+        compositeActivityService.createOrReuseComposite,
+      ).toHaveBeenCalledWith(
+        expect.objectContaining({
+          kind: 'ROUTE',
+          variantTheme: 'HISTORY',
+          waypointIds: [defensa.id],
+        }),
+      );
+      expect(prisma.tourActivity.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ activityId: variant.id }),
+        }),
+      );
     });
 
     it('bounds the POI search by the resolved area geometry instead of the tour options radius', async () => {
@@ -1249,12 +1308,150 @@ describe('TourActivityGenerationService', () => {
         aiJsonResponse({}),
       );
 
-      await service.generateTourActivities(TOUR_ID);
+      // Nothing real anywhere (no DB/Google activities, no neighborhoods,
+      // hence no OSM streets/POIs either) — the anti-hallucination guard
+      // correctly fails loudly rather than completing an empty tour.
+      await expect(service.generateTourActivities(TOUR_ID)).rejects.toThrow();
 
       const [, , radiusArg] = activitiesService.findAll.mock.calls[0];
       // The mock tour's own options.radius is 3000 — the area-bounded call
       // must use a different, geometry-derived radius, not that value.
       expect(radiusArg).not.toBe(3000);
+    });
+
+    it('gives every shortlisted neighborhood its own share of the candidate budget, instead of the first one exhausting the whole cap', async () => {
+      toursService.findOne.mockResolvedValue(
+        buildTour({
+          metadata: {
+            options: {
+              latitude: -34.62,
+              longitude: -58.37,
+              radius: 3000,
+              destination: 'Buenos Aires',
+            },
+            originalPrompt: 'A tour of Buenos Aires',
+          },
+        }),
+      );
+      const boundary = {
+        id: 'osm:relation:1224652',
+        name: 'Buenos Aires',
+        osmType: 'relation' as const,
+        osmId: 1224652,
+        geometry: {
+          type: 'Polygon' as const,
+          coordinates: [
+            [
+              [-58.53, -34.7],
+              [-58.33, -34.7],
+              [-58.33, -34.53],
+              [-58.53, -34.53],
+              [-58.53, -34.7],
+            ],
+          ],
+        },
+        tags: { name: 'Buenos Aires', admin_level: '8' },
+      };
+      destinationResolutionService.resolveDestination.mockResolvedValue({
+        scale: 'area',
+        areaActivity: {
+          id: 'area-ba',
+          kind: ActivityKind.AREA,
+          name: 'Buenos Aires',
+        },
+        boundary,
+      });
+      const sanTelmo = {
+        id: 'osm:relation:2223069',
+        name: 'San Telmo',
+        osmType: 'relation' as const,
+        osmId: 2223069,
+        geometry: {
+          type: 'Polygon' as const,
+          coordinates: [
+            [
+              [0, 0],
+              [1, 0],
+              [1, 1],
+              [0, 0],
+            ],
+          ],
+        },
+        tags: { name: 'San Telmo', admin_level: '9' },
+      };
+      const recoleta = {
+        id: 'osm:relation:2223070',
+        name: 'Recoleta',
+        osmType: 'relation' as const,
+        osmId: 2223070,
+        geometry: {
+          type: 'Polygon' as const,
+          coordinates: [
+            [
+              [2, 2],
+              [3, 2],
+              [3, 3],
+              [2, 2],
+            ],
+          ],
+        },
+        tags: { name: 'Recoleta', admin_level: '9' },
+      };
+      // Both neighborhoods are dense enough on their own to exhaust a
+      // naive global cap of 20 — the real-world failure mode this test
+      // guards against (the spike measured San Telmo alone at 178 streets
+      // + 50 POIs).
+      const sanTelmoStreets = Array.from({ length: 30 }, (_, i) => ({
+        id: `osm:way:st-${i + 1}`,
+        name: `San Telmo Street ${i + 1}`,
+        osmType: 'way' as const,
+        osmId: i + 1,
+        geometry: {
+          type: 'LineString' as const,
+          coordinates: [
+            [0, 0],
+            [0, 1],
+          ] as [number, number][],
+        },
+        tags: { name: `San Telmo Street ${i + 1}` },
+      }));
+      const recoletaStreets = Array.from({ length: 30 }, (_, i) => ({
+        id: `osm:way:rc-${i + 1}`,
+        name: `Recoleta Street ${i + 1}`,
+        osmType: 'way' as const,
+        osmId: i + 1,
+        geometry: {
+          type: 'LineString' as const,
+          coordinates: [
+            [2, 2],
+            [2, 3],
+          ] as [number, number][],
+        },
+        tags: { name: `Recoleta Street ${i + 1}` },
+      }));
+      osmPlacesService.findNeighborhoodsWithin.mockResolvedValue([
+        sanTelmo,
+        recoleta,
+      ]);
+      osmPlacesService.findStreetsWithin.mockImplementation(
+        async (neighborhood: any) =>
+          neighborhood.id === sanTelmo.id ? sanTelmoStreets : recoletaStreets,
+      );
+      osmPlacesService.findPoisWithin.mockResolvedValue([]);
+      activitiesService.findAll.mockResolvedValue([]);
+      langChainService.generateChatResponse.mockResolvedValue(
+        aiJsonResponse({}),
+      );
+
+      // Neither neighborhood has an existing curated family, and both have
+      // 0 POIs (tie), so shortlistNeighborhoods' stable sort keeps
+      // San Telmo first, Recoleta second — both survive the k=6 default
+      // shortlist size with only 2 candidates offered.
+      await expect(service.generateTourActivities(TOUR_ID)).rejects.toThrow();
+
+      const [, promptArg] = langChainService.generateChatResponse.mock.calls[0];
+      expect(promptArg).toContain('San Telmo Street 1');
+      expect(promptArg).toContain('Recoleta Street 1');
     });
   });
 
