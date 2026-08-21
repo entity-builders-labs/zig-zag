@@ -20,8 +20,10 @@ import { SmartConnector } from '../../components/tour-details/SmartConnector';
 import { TourStopCard } from '../../components/tour-details/TourStopCard';
 import { CompositeStopCard } from '../../components/tour-details/CompositeStopCard';
 import { DayHeader } from '../../components/tour-details/DayHeader';
+import { GenerationPipeline } from '../../components/tour-details/GenerationPipeline';
 import { TourStop } from '../../components/tour-details/types';
 import { transformActivitiesToStops } from '../../components/tour-details/build-stops';
+import { FONT_DISPLAY } from '@/constants/typography';
 
 export default function TourDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -162,7 +164,7 @@ export default function TourDetailScreen() {
         justifyContent='center'
         alignItems='center'
       >
-        <ActivityIndicator size='large' color='#0000ff' />
+        <ActivityIndicator size='large' color='#C89B3C' />
       </Box>
     );
   }
@@ -197,7 +199,11 @@ export default function TourDetailScreen() {
 
           <VStack mt='$6' px='$4'>
             <HStack justifyContent='space-between' alignItems='center' mb='$4'>
-              <Heading size='md' color='$textLight800'>
+              <Heading
+                size='md'
+                color='$textLight800'
+                style={{ fontFamily: FONT_DISPLAY }}
+              >
                 Tu Recorrido
               </Heading>
               {!isGeneratingActivities &&
@@ -251,20 +257,27 @@ export default function TourDetailScreen() {
                 alignItems='center'
                 justifyContent='center'
                 bg='$backgroundLight100'
-                borderRadius='$md'
+                borderRadius='$lg'
               >
                 <Spinner size='large' color='$primary500' mb='$4' />
+                <Heading
+                  size='sm'
+                  color='$textLight900'
+                  textAlign='center'
+                  style={{ fontFamily: FONT_DISPLAY }}
+                  mb='$1'
+                >
+                  Armando tu recorrido
+                </Heading>
                 <Text
                   color='$textLight600'
                   textAlign='center'
                   fontWeight='$medium'
-                  mb='$2'
+                  mb='$1'
                 >
-                  {generationMessage || 'Generando actividades para tu tour...'}
+                  Buscando lugares y relatos de tu destino
                 </Text>
-                <Text size='sm' color='$textLight500' textAlign='center'>
-                  Esto puede tomar unos momentos
-                </Text>
+                <GenerationPipeline message={generationMessage} />
               </Box>
             ) : generationError ? (
               <Box
@@ -341,14 +354,15 @@ export default function TourDetailScreen() {
           </VStack>
         </ScrollView>
 
-        {/* Floating CTA */}
+        {/* Floating CTA — brass commit action, dark ink text/icon for
+            contrast (matches the wizard's final-step button). */}
         <Box
           position='absolute'
           bottom={0}
           left={0}
           right={0}
           p='$4'
-          bg='$white'
+          bg='$backgroundLight50'
           borderTopWidth={1}
           borderTopColor='$borderLight100'
         >
@@ -363,8 +377,10 @@ export default function TourDetailScreen() {
             shadowRadius={8}
             elevation={5}
           >
-            <ButtonText fontWeight='$bold'>Comenzar Recorrido</ButtonText>
-            <Icon as={MapPin} color='$white' ml='$2' />
+            <ButtonText color='$secondary950' fontWeight='$bold'>
+              Comenzar Recorrido
+            </ButtonText>
+            <Icon as={MapPin} color='$secondary950' ml='$2' />
           </Button>
         </Box>
       </Box>

@@ -83,7 +83,7 @@ export class ActivitiesController {
   })
   @ApiResponse({ status: 404, description: 'Activity not found' })
   async findOne(@Param('id') id: string) {
-    return this.activitiesService.findOne(id);
+    return this.activitiesService.findOneWithWaypoints(id);
   }
 
   @Patch(':id')

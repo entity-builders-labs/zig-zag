@@ -1,5 +1,6 @@
 import React from 'react';
 import { Box, Image, VStack, Text, Heading } from '@gluestack-ui/themed';
+import { FONT_DISPLAY } from '@/constants/typography';
 
 const HERO_CARD_IMAGE =
   'https://lh3.googleusercontent.com/gps-cs-s/AG0ilSzQp2oIICWexnmDApBuLjKa_BraOYa16ccgP86FaMFX3wE7OmsfW4N10nR1K8pQ1Bh33tiYMDxbCAhA_PIF1oFpRY56NJmrjerRIHuidg-oa9V7nT70ZY-IE8aQ-_6WdYavUR53HQ=s680-w680-h510-rw';
@@ -52,7 +53,12 @@ export const HeroCard = () => {
           >
             Recomendado en tu zona:
           </Text>
-          <Heading color='$white' size='xl' fontWeight='$bold'>
+          <Heading
+            color='$white'
+            size='xl'
+            fontWeight='$bold'
+            style={{ fontFamily: FONT_DISPLAY }}
+          >
             Atardecer en el{'\n'}Palacio Barolo
           </Heading>
         </VStack>

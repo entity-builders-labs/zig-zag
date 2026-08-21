@@ -39,8 +39,8 @@ export const BottomTabBar = ({
       pt='$3'
       pb='$8' // Extra padding for bottom safe area
       borderTopWidth={1}
-      borderColor='$gray100'
-      shadowColor='#000'
+      borderColor='$borderLight100'
+      shadowColor='$black'
       shadowOffset={{ width: 0, height: -2 }}
       shadowOpacity={0.05}
       shadowRadius={10}
@@ -97,12 +97,12 @@ export const BottomTabBar = ({
               <Icon
                 as={icon}
                 size='xl'
-                color={isFocused ? '#2E4038' : '#9CA3AF'}
+                color={isFocused ? '$primary600' : '$textLight400'}
               />
               <Text
                 size='xs'
                 mt='$1'
-                color={isFocused ? '#2E4038' : '#9CA3AF'}
+                color={isFocused ? '$primary600' : '$textLight400'}
                 fontWeight={isFocused ? '$bold' : '$medium'}
               >
                 {label}
@@ -122,13 +122,13 @@ export const BottomTabBar = ({
           bg='$primary500'
           width={56}
           height={56}
-          shadowColor='#000'
+          shadowColor='$black'
           shadowOffset={{ width: 0, height: 4 }}
           shadowOpacity={0.3}
           shadowRadius={8}
           elevation={8}
         >
-          <ButtonIcon as={Sparkles} size='xl' color='$white' />
+          <ButtonIcon as={Sparkles} size='xl' color='$secondary950' />
         </Button>
       </Box>
     </Box>

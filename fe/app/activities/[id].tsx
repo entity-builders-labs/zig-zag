@@ -17,6 +17,8 @@ import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { ArrowLeft, MapPin, Phone, Globe, Star } from 'lucide-react-native';
 import { fetchActivityById, ActivityDetail } from '../../api/activities';
 import { getImage } from '../../components/tour-details/utils';
+import { isCompositeKind } from '../../features/activities/composite';
+import { CompositeActivityDetail } from '../../components/tour-details/CompositeActivityDetail';
 
 export default function ActivityDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -71,6 +73,13 @@ export default function ActivityDetailScreen() {
         </Button>
       </Box>
     );
+  }
+
+  // A composite variant (walk/route/experience) gets a materially different
+  // layout — boundary/route map, theme chip, ordered waypoint list — not
+  // the flat single-POI detail below (hero image + contact rows).
+  if (isCompositeKind(activity.kind)) {
+    return <CompositeActivityDetail activity={activity} />;
   }
 
   return (

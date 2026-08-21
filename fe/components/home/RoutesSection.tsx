@@ -15,6 +15,7 @@ import { MapPin, ChevronRight } from 'lucide-react-native';
 import { Link } from 'expo-router';
 import { useMap } from '../../context/app';
 import { fetchNearbyTours, Tour } from '../../api/tours';
+import { FONT_DISPLAY } from '@/constants/typography';
 
 const DEFAULT_MAP_IMAGE =
   'https://images.unsplash.com/photo-1569336415962-a4bd9f69cd83?q=80&w=1000&auto=format&fit=crop';
@@ -99,16 +100,21 @@ export const RoutesSection = ({
         alignItems='center'
         w='$full'
       >
-        <Heading size='lg' color='#1A1A1A' flex={1}>
+        <Heading
+          size='lg'
+          color='$textLight900'
+          flex={1}
+          style={{ fontFamily: FONT_DISPLAY }}
+        >
           {categoryTitle}
         </Heading>
         <Link href={`/tours?category=${encodeURIComponent(category)}`} asChild>
           <Pressable>
             <HStack space='xs' alignItems='center'>
-              <Text size='sm' color='#2E4038' fontWeight='$medium'>
+              <Text size='sm' color='$primary600' fontWeight='$medium'>
                 Ver todo
               </Text>
-              <Icon as={ChevronRight} size='sm' color='#2E4038' />
+              <Icon as={ChevronRight} size='sm' color='$primary600' />
             </HStack>
           </Pressable>
         </Link>
@@ -134,7 +140,7 @@ export const RoutesSection = ({
                     bg='$white'
                     rounded='$2xl'
                     overflow='hidden'
-                    shadowColor='#000'
+                    shadowColor='$black'
                     shadowOffset={{ width: 0, height: 2 }}
                     shadowOpacity={0.05}
                     shadowRadius={8}
@@ -179,12 +185,16 @@ export const RoutesSection = ({
 
                     {/* Card Content */}
                     <VStack p='$4' space='xs'>
-                      <Heading size='md' color='#1A1A1A'>
+                      <Heading
+                        size='md'
+                        color='$textLight900'
+                        style={{ fontFamily: FONT_DISPLAY }}
+                      >
                         {tour.name}
                       </Heading>
                       <HStack space='sm' alignItems='center'>
-                        <Icon as={MapPin} size='xs' color='#6B7280' />
-                        <Text size='sm' color='#6B7280'>
+                        <Icon as={MapPin} size='xs' color='$textLight500' />
+                        <Text size='sm' color='$textLight500'>
                           {tour.activities?.length || 0} paradas •{' '}
                           {(tour.duration || 0).toFixed(1)} hrs
                         </Text>

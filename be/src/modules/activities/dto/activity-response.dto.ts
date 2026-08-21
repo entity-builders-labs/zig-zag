@@ -57,6 +57,21 @@ export class ActivityResponseDto {
   })
   familyId?: string;
 
+  @ApiProperty({
+    description:
+      "This variant's current ordered waypoints (kind NEIGHBORHOOD_WALK/ROUTE/EXPERIENCE only) — empty for a POI",
+    required: false,
+  })
+  waypoints?: {
+    order: number;
+    waypointActivity: {
+      id: string;
+      name: string;
+      latitude: number | null;
+      longitude: number | null;
+    };
+  }[];
+
   @ApiProperty({ description: 'Activity metadata', required: false })
   metadata?: ActivityMetadataDto;
 

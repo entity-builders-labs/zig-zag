@@ -413,6 +413,43 @@ export class ActivitiesService {
   }
 
   /**
+   * Same lookup as findOne, but for the single-activity detail endpoint —
+   * also resolves this activity's own composite waypoints (a no-op include
+   * for a plain POI, which just comes back empty). Kept separate from
+   * findOne because that method is also used internally (update/delete/
+   * etc.) where the extra relation isn't wanted and would loosen its
+   * return type away from the plain Prisma `Activity` those call sites
+   * expect.
+   * @param id Activity ID
+   * @throws NotFoundException if activity not found
+   */
+  async findOneWithWaypoints(id: string) {
+    this.logger.debug(`Retrieving activity with waypoints, id: ${id}`);
+
+    const activity = await this.prisma.activity.findUnique({
+      where: { id },
+      include: {
+        compositeWaypoints: {
+          include: {
+            waypointActivity: {
+              select: { id: true, name: true, latitude: true, longitude: true },
+            },
+          },
+          orderBy: { order: 'asc' },
+        },
+      },
+    });
+
+    if (!activity) {
+      this.logger.debug(`Activity with id ${id} not found`);
+      throw new NotFoundException(`Activity with ID ${id} not found`);
+    }
+
+    const { compositeWaypoints, ...rest } = activity;
+    return { ...rest, waypoints: compositeWaypoints };
+  }
+
+  /**
    * Update an existing activity
    * @param id Activity ID
    * @param updateActivityDto Activity data to update

@@ -18,6 +18,7 @@ import { MapPin, Sparkles } from 'lucide-react-native';
 import { Link, useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
 import { fetchMyTours, Tour } from '@/api/tours';
+import { FONT_DISPLAY } from '@/constants/typography';
 
 const DEFAULT_COVER =
   'https://images.unsplash.com/photo-1569336415962-a4bd9f69cd83?q=80&w=1000&auto=format&fit=crop';
@@ -34,14 +35,14 @@ function TourCard({ tour }: { tour: Tour }) {
           bg='$white'
           rounded='$2xl'
           overflow='hidden'
-          shadowColor='#000'
+          shadowColor='$black'
           shadowOffset={{ width: 0, height: 2 }}
           shadowOpacity={0.05}
           shadowRadius={8}
           elevation={2}
           h={100}
         >
-          <Box w={100} bg='$gray100'>
+          <Box w={100} bg='$backgroundLight200'>
             <Image
               source={{ uri: tour.coverImage || DEFAULT_COVER }}
               alt={tour.name}
@@ -51,20 +52,25 @@ function TourCard({ tour }: { tour: Tour }) {
             />
           </Box>
           <VStack flex={1} p='$3' justifyContent='center' space='xs'>
-            <Heading size='sm' color='#1A1A1A' numberOfLines={1}>
+            <Heading
+              size='sm'
+              color='$textLight900'
+              numberOfLines={1}
+              style={{ fontFamily: FONT_DISPLAY }}
+            >
               {tour.name}
             </Heading>
             {isGenerating ? (
               <HStack space='xs' alignItems='center'>
                 <Spinner size='small' />
-                <Text size='xs' color='#6B7280'>
+                <Text size='xs' color='$textLight500'>
                   Generando actividades...
                 </Text>
               </HStack>
             ) : (
               <HStack space='sm' alignItems='center'>
-                <Icon as={MapPin} size='xs' color='#6B7280' />
-                <Text size='sm' color='#6B7280'>
+                <Icon as={MapPin} size='xs' color='$textLight500' />
+                <Text size='sm' color='$textLight500'>
                   {tour.activities?.length || 0} paradas
                 </Text>
               </HStack>
@@ -108,15 +114,15 @@ export default function SavedScreen() {
 
   if (loading) {
     return (
-      <Center flex={1}>
-        <Spinner size='large' />
+      <Center flex={1} bg='$backgroundLight50'>
+        <Spinner size='large' color='$primary500' />
       </Center>
     );
   }
 
   if (error) {
     return (
-      <Center flex={1} p='$4'>
+      <Center flex={1} p='$4' bg='$backgroundLight50'>
         <Text color='$red600'>{error}</Text>
       </Center>
     );
@@ -124,15 +130,17 @@ export default function SavedScreen() {
 
   if (tours.length === 0) {
     return (
-      <Center flex={1} p='$6'>
+      <Center flex={1} p='$6' bg='$backgroundLight50'>
         <VStack space='md' alignItems='center'>
-          <Heading size='lg'>Guardados</Heading>
+          <Heading size='lg' style={{ fontFamily: FONT_DISPLAY }}>
+            Guardados
+          </Heading>
           <Text color='$textLight500' textAlign='center'>
             Todavía no creaste ningún tour. Armá uno y va a aparecer acá.
           </Text>
           <Button onPress={() => router.push('/tours/wizard')} size='lg'>
-            <Icon as={Sparkles} size='sm' color='$white' mr='$2' />
-            <ButtonText>Crear tour</ButtonText>
+            <Icon as={Sparkles} size='sm' color='$secondary950' mr='$2' />
+            <ButtonText color='$secondary950'>Crear tour</ButtonText>
           </Button>
         </VStack>
       </Center>
@@ -142,7 +150,9 @@ export default function SavedScreen() {
   return (
     <ScrollView flex={1} bg='$backgroundLight50'>
       <VStack space='md' p='$4'>
-        <Heading size='xl'>Guardados</Heading>
+        <Heading size='xl' style={{ fontFamily: FONT_DISPLAY }}>
+          Guardados
+        </Heading>
         <VStack space='sm'>
           {tours.map((tour) => (
             <TourCard key={tour.id} tour={tour} />

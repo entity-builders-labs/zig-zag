@@ -108,6 +108,8 @@ export const DestinationInput: React.FC<DestinationInputProps> = ({
       <Input
         variant='outline'
         size='lg'
+        borderRadius='$lg'
+        borderColor='$borderLight200'
         isFocused={isFocused}
         isInvalid={false}
       >
@@ -203,7 +205,10 @@ export const DestinationInput: React.FC<DestinationInputProps> = ({
                         p='$3'
                         borderRadius='$sm'
                         style={{
-                          backgroundColor: pressed ? '#F3F4F6' : '#FFFFFF',
+                          // Paper tint on press ($secondary0 in fe/config.ts)
+                          // — matches the redesign palette instead of a
+                          // neutral gray.
+                          backgroundColor: pressed ? '#F6F3EA' : '#FFFFFF',
                           width: '100%',
                         }}
                       >

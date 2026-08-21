@@ -121,7 +121,12 @@ export const Map: React.FC<MapProps> = ({
       }
       const bounds = new google.maps.LatLngBounds();
       points.forEach((p) => bounds.extend(p));
-      mapInstance.fitBounds(bounds, 40);
+      // Asymmetric padding, not a flat 40 on every side: a short mini-map
+      // (e.g. CompositeStopCard's) has height as its scarce dimension —
+      // a big top/bottom padding eats a much larger fraction of the
+      // available height than the same padding eats of the width, forcing
+      // fitBounds to zoom out far more than the points actually need.
+      mapInstance.fitBounds(bounds, { top: 16, bottom: 16, left: 24, right: 24 });
     };
 
     applyFraming();

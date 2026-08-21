@@ -22,6 +22,7 @@ import { useRouter } from 'expo-router';
 import { ArrowLeft } from 'lucide-react-native';
 import { Tour } from '../../api/tours';
 import { getImage } from './utils';
+import { FONT_DISPLAY } from '@/constants/typography';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 const COLLAPSED_HEIGHT = SCREEN_HEIGHT * 0.4;
@@ -285,7 +286,13 @@ export const TourHeader = ({
           px='$4'
           py='$3'
         >
-          <Heading color='$white' size='md' fontWeight='$bold' numberOfLines={1}>
+          <Heading
+            color='$white'
+            size='md'
+            fontWeight='$bold'
+            numberOfLines={1}
+            style={{ fontFamily: FONT_DISPLAY }}
+          >
             {tour.name}
           </Heading>
         </Box>
@@ -308,7 +315,13 @@ export const TourHeader = ({
               </Badge>
             ))}
           </HStack>
-          <Heading color='$white' size='3xl' fontWeight='$bold' mt='$2'>
+          <Heading
+            color='$white'
+            size='3xl'
+            fontWeight='$bold'
+            mt='$2'
+            style={{ fontFamily: FONT_DISPLAY }}
+          >
             {tour.name}
           </Heading>
         </VStack>

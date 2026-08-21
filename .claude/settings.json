@@ -36,7 +36,20 @@
       "Bash(pwd)",
       "Bash(git status *)",
       "Bash(git diff *)",
-      "Bash(git log *)"
+      "Bash(git log *)",
+      "Bash(export AWS_PROFILE=zig-zag)",
+      "Bash(export PATH=*)",
+      "Bash(yarn typecheck)",
+      "Bash(gh run watch *)",
+      "Bash(yarn lint:check)",
+      "Bash(aws logs tail *)"
     ]
+  },
+  "enabledPlugins": {
+    "superpowers@claude-plugins-official": true,
+    "claude-md-management@claude-plugins-official": true,
+    "chrome-devtools-mcp@claude-plugins-official": true,
+    "github@claude-plugins-official": true,
+    "code-review@claude-plugins-official": true
   }
 }

@@ -5,7 +5,10 @@ import { TourStopTransport } from './types';
 
 export const SmartConnector = ({ data }: { data: TourStopTransport }) => {
   return (
-    <HStack flex={1}>
+    // No flex={1} on this row root — see TourStopCard.tsx's comment. The
+    // inner flex={1}s below are unaffected (they're horizontal/cross-axis
+    // fills within this row, not the list-level vertical sizing bug).
+    <HStack>
       {/* Timeline Line */}
       <Box width={40} alignItems='center'>
         <Box
@@ -14,7 +17,7 @@ export const SmartConnector = ({ data }: { data: TourStopTransport }) => {
           bg='$borderLight300'
           borderStyle='dashed'
           borderWidth={1}
-          borderColor='#E5E5E5'
+          borderColor='$borderLight200'
         />
       </Box>
 

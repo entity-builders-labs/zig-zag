@@ -20,14 +20,14 @@ export const MoodsSection = () => {
         <Button
           key={mood.id}
           variant='outline'
-          borderColor='#D1D5DB'
+          borderColor='$borderLight200'
           rounded='$full'
           size='sm'
           bg='$white'
           action='secondary'
         >
-          <Icon as={mood.icon} mr='$2' size='sm' color='#4B5563' />
-          <ButtonText color='#1A1A1A' fontWeight='$medium'>
+          <Icon as={mood.icon} mr='$2' size='sm' color='$textLight600' />
+          <ButtonText color='$textLight900' fontWeight='$medium'>
             {mood.label}
           </ButtonText>
         </Button>

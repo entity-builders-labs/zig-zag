@@ -20,21 +20,21 @@ export const QuickStatsBar = ({ tour }: { tour: Tour }) => {
       alignItems='center'
     >
       <HStack alignItems='center' space='xs'>
-        <Icon as={Clock} size='sm' color='$textLight500' />
+        <Icon as={Clock} size='sm' color='$primary600' />
         <Text size='sm' fontWeight='$bold' color='$textLight900'>
           {tour.duration ? `${Math.round(tour.duration)}h` : 'N/A'}
         </Text>
       </HStack>
       <Box w={1} h={20} bg='$borderLight200' />
       <HStack alignItems='center' space='xs'>
-        <Icon as={Footprints} size='sm' color='$textLight500' />
+        <Icon as={Footprints} size='sm' color='$primary600' />
         <Text size='sm' fontWeight='$bold' color='$textLight900'>
           {tour.totalDistance ? `${tour.totalDistance.toFixed(1)} km` : 'N/A'}
         </Text>
       </HStack>
       <Box w={1} h={20} bg='$borderLight200' />
       <HStack alignItems='center' space='xs'>
-        <Icon as={Banknote} size='sm' color='$textLight500' />
+        <Icon as={Banknote} size='sm' color='$primary600' />
         <Text size='sm' fontWeight='$bold' color='$textLight900'>
           {tour.price ? `$${tour.price}` : 'Free'}
         </Text>

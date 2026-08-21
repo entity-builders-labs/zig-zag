@@ -28,8 +28,14 @@ export const TourStopCard = ({
   // get a synthetic `inline-...` id and have no detail page to navigate to.
   const hasActivityDetail = !data.id.startsWith('inline-');
 
+  // No flex={1} on this row's root HStack — inside a VStack list of many
+  // rows with wildly different natural heights (a plain POI card vs. an
+  // 8-waypoint composite card), flex:1 forces every row into an equal
+  // slice of whatever height the ancestor chain resolves, instead of
+  // sizing to its own content — a tall card's real content then overflows
+  // past its own undersized box and paints over the next rows.
   return (
-    <HStack flex={1} testID={`location-stop-${data.id}`}>
+    <HStack testID={`location-stop-${data.id}`}>
       {/* Timeline Node */}
       <Box width={40} alignItems='center' position='relative'>
         {/* Top Line */}

@@ -37,7 +37,6 @@ import {
   Bus,
   Sparkles,
 } from 'lucide-react-native';
-import { Platform } from 'react-native';
 import { GenerateTourDto } from '@/api/tours';
 import { DestinationInput } from './DestinationInput';
 import { DateRangePicker } from './DateRangePicker';
@@ -46,6 +45,21 @@ import { useContext, useEffect } from 'react';
 import { AppContext } from '@/context/app';
 import * as ExpoLocation from 'expo-location';
 import { parseLocalDate } from '@/utils/date';
+import { FONT_DISPLAY } from '@/constants/typography';
+
+// Uppercase, letter-spaced, muted section label — the "field-label" pattern
+// from the redesign mockup, applied above every form control in the wizard.
+const FieldLabel: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  <Text
+    size='2xs'
+    fontWeight='$bold'
+    color='$textLight400'
+    textTransform='uppercase'
+    letterSpacing={1}
+  >
+    {children}
+  </Text>
+);
 
 interface TourWizardFormProps {
   onSubmit: (preferences: GenerateTourDto) => void;
@@ -382,7 +396,7 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
           <Switch
             value={useCurrentLocation}
             onToggle={handleLocationToggle}
-            trackColor={{ false: '#E5E7EB', true: '#3B82F6' }}
+            trackColor={{ false: '#E3DDCC', true: '#C89B3C' }}
             thumbColor='#FFFFFF'
           />
         </HStack>
@@ -392,12 +406,12 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
 
   const renderStep2 = () => (
     <VStack space='xl' flex={1}>
-      {/* Budget */}
+      {/* Budget — segmented control, matches the mockup's .segmented pattern:
+          neutral track, active segment lifts to a card surface with a
+          shadow instead of a color fill. */}
       <VStack space='md'>
-        <Text size='lg' fontWeight='$semibold' color='$textLight900'>
-          Presupuesto
-        </Text>
-        <HStack space='md'>
+        <FieldLabel>Presupuesto</FieldLabel>
+        <HStack bg='$backgroundLight200' borderRadius='$lg' p='$1' space='xs'>
           {(['low', 'medium', 'high'] as const).map((level) => (
             <Pressable
               key={level}
@@ -405,21 +419,23 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
               onPress={() => setBudgetLevel(level)}
             >
               <Box
-                bg={budgetLevel === level ? '$primary500' : '$white'}
-                borderWidth='$1'
-                borderColor={
-                  budgetLevel === level ? '$primary500' : '$backgroundLight300'
-                }
+                bg={budgetLevel === level ? '$backgroundLight50' : 'transparent'}
                 borderRadius='$md'
-                p='$4'
+                py='$3'
                 alignItems='center'
                 justifyContent='center'
-                h='$16'
+                shadowColor={budgetLevel === level ? '$black' : 'transparent'}
+                shadowOffset={{ width: 0, height: 1 }}
+                shadowOpacity={budgetLevel === level ? 0.12 : 0}
+                shadowRadius={4}
+                elevation={budgetLevel === level ? 2 : 0}
               >
                 <Text
-                  size='xl'
-                  fontWeight='$bold'
-                  color={budgetLevel === level ? '$white' : '$textLight900'}
+                  size='lg'
+                  fontWeight={budgetLevel === level ? '$bold' : '$medium'}
+                  color={
+                    budgetLevel === level ? '$textLight900' : '$textLight500'
+                  }
                 >
                   {'$'.repeat(level === 'low' ? 1 : level === 'medium' ? 2 : 3)}
                 </Text>
@@ -431,9 +447,7 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
 
       {/* Company */}
       <VStack space='md'>
-        <Text size='lg' fontWeight='$semibold' color='$textLight900'>
-          Compañía
-        </Text>
+        <FieldLabel>Compañía</FieldLabel>
         <HStack space='md' justifyContent='space-around'>
           {[
             { type: 'solo' as const, icon: User, label: 'Solo' },
@@ -476,9 +490,7 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
 
       {/* Pace */}
       <VStack space='md'>
-        <Text size='lg' fontWeight='$semibold' color='$textLight900'>
-          Ritmo
-        </Text>
+        <FieldLabel>Ritmo</FieldLabel>
         <VStack space='sm'>
           <Slider
             value={travelPace}
@@ -512,9 +524,7 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
 
       {/* Transport */}
       <VStack space='md'>
-        <Text size='lg' fontWeight='$semibold' color='$textLight900'>
-          Transporte (Selección múltiple)
-        </Text>
+        <FieldLabel>Transporte (selección múltiple)</FieldLabel>
         <HStack space='md' justifyContent='space-around'>
           {[
             { mode: 'walking', icon: Footprints, label: 'Pie' },
@@ -571,25 +581,25 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
 
   const renderStep3 = () => (
     <VStack space='xl' flex={1}>
-      {/* Interests */}
+      {/* Interests — pill chips, ink fill when selected (matches the
+          mockup's .chip.on: --chip-selected-bg is ink-900, not the brass
+          accent — brass is reserved for commit actions). */}
       <VStack space='md'>
-        <Text size='lg' fontWeight='$semibold' color='$textLight900'>
-          Intereses
-        </Text>
+        <FieldLabel>Intereses</FieldLabel>
         <Box flexDirection='row' flexWrap='wrap' gap='$2'>
           {INTEREST_OPTIONS.map((interest) => (
             <Pressable key={interest} onPress={() => toggleInterest(interest)}>
               <Box
                 bg={
                   selectedInterests.includes(interest)
-                    ? '$primary500'
-                    : '$white'
+                    ? '$secondary950'
+                    : '$backgroundLight100'
                 }
                 borderWidth='$1'
                 borderColor={
                   selectedInterests.includes(interest)
-                    ? '$primary500'
-                    : '$backgroundLight300'
+                    ? '$secondary950'
+                    : '$borderLight200'
                 }
                 borderRadius='$full'
                 px='$4'
@@ -597,10 +607,13 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
               >
                 <Text
                   size='sm'
+                  fontWeight={
+                    selectedInterests.includes(interest) ? '$semibold' : '$normal'
+                  }
                   color={
                     selectedInterests.includes(interest)
-                      ? '$white'
-                      : '$textLight900'
+                      ? '$backgroundLight50'
+                      : '$textLight700'
                   }
                 >
                   {interest}
@@ -613,10 +626,13 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
 
       {/* Special Notes */}
       <VStack space='md'>
-        <Text size='lg' fontWeight='$semibold' color='$textLight900'>
-          Algo especial?
-        </Text>
-        <Textarea size='lg' h='$32'>
+        <FieldLabel>¿Algo especial?</FieldLabel>
+        <Textarea
+          size='lg'
+          h='$32'
+          borderColor='$borderLight200'
+          borderRadius='$lg'
+        >
           <TextareaInput
             placeholder='Escribe aquí... (ej. Soy vegano...)'
             value={specialNotes}
@@ -627,32 +643,59 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
     </VStack>
   );
 
-  const getStepTitle = () => {
+  const getStepEyebrow = () => `Paso ${currentStep}/3`;
+
+  const getStepName = () => {
     switch (currentStep) {
       case 1:
-        return 'Paso 1/3: Destino y Fechas';
+        return 'Destino y Fechas';
       case 2:
-        return 'Paso 2/3: Define tu estilo';
+        return 'Define tu estilo';
       case 3:
-        return 'Paso 3/3: Personalización IA';
+        return 'Personalización IA';
       default:
         return '';
     }
   };
 
   return (
-    <Box flex={1} bg='$white'>
-      {/* Header */}
-      <Box bg='$primary500' pt='$12' pb='$4' px='$4'>
-        <HStack alignItems='center' space='md' mb='$2'>
+    <Box flex={1} bg='$backgroundLight50'>
+      {/* Header — transparent over the paper background, matches the
+          mockup's .topbar across every screen: a circular back button and a
+          serif title, no colored bar. */}
+      <Box bg='$backgroundLight50' pt='$12' pb='$3' px='$4'>
+        <HStack alignItems='center' space='md'>
           <Pressable onPress={handleBack}>
-            <Icon as={ArrowLeft} size='lg' color='$white' />
+            <Box
+              w='$8'
+              h='$8'
+              borderRadius='$full'
+              bg='$backgroundLight200'
+              alignItems='center'
+              justifyContent='center'
+            >
+              <Icon as={ArrowLeft} size='sm' color='$textLight800' />
+            </Box>
           </Pressable>
-          <Box w='$6' />
+          <VStack>
+            <Text
+              size='2xs'
+              fontWeight='$bold'
+              color='$primary600'
+              textTransform='uppercase'
+              letterSpacing={1}
+            >
+              {getStepEyebrow()}
+            </Text>
+            <Heading
+              size='md'
+              color='$textLight900'
+              style={{ fontFamily: FONT_DISPLAY }}
+            >
+              {getStepName()}
+            </Heading>
+          </VStack>
         </HStack>
-        <Text textAlign='center' size='sm' color='$white' opacity={0.9}>
-          {getStepTitle()}
-        </Text>
       </Box>
 
       {/* Content */}
@@ -664,29 +707,33 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
         </Box>
       </ScrollView>
 
-      {/* Bottom Button */}
+      {/* Bottom Button — ink for navigation (steps 1-2), brass for the
+          final commit action, consistent with every other screen. */}
       <Box
         position='absolute'
         bottom='$0'
         left='$0'
         right='$0'
-        bg='$white'
+        bg='$backgroundLight50'
         borderTopWidth='$1'
-        borderTopColor='$backgroundLight200'
+        borderTopColor='$borderLight100'
         p='$4'
         pb='$8'
       >
         <Button
           onPress={handleNext}
-          bg='$primary500'
-          borderRadius='$md'
+          bg={currentStep === 3 ? '$primary500' : '$secondary950'}
+          borderRadius='$full'
           isDisabled={currentStep === 1 && destinationIsDirty}
         >
-          <ButtonText color='$white' fontWeight='$semibold'>
+          <ButtonText
+            color={currentStep === 3 ? '$secondary950' : '$backgroundLight50'}
+            fontWeight='$bold'
+          >
             {currentStep === 3 ? 'Generar ZigZag ✨' : 'Siguiente →'}
           </ButtonText>
           {currentStep === 3 && (
-            <Icon as={Sparkles} size='md' color='$white' ml='$2' />
+            <Icon as={Sparkles} size='md' color='$secondary950' ml='$2' />
           )}
         </Button>
       </Box>

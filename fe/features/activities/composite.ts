@@ -45,6 +45,10 @@ export interface CompositeActivityFields {
   kind?: ActivityKind;
   variantTheme?: string;
   boundary?: ActivityBoundary;
+  // Only populated by GET /activities/:id — this variant's own current
+  // ordered waypoints (empty for a POI). Distinct from a TourStop's
+  // waypoints, which are a per-tour TourActivityWaypoint snapshot instead.
+  waypoints?: ActivityWaypointRef[];
 }
 
 // AREA is excluded too — it's a structural container (the geographic

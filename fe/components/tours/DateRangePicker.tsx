@@ -315,7 +315,13 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
   return (
     <>
       <Pressable onPress={handleOpen}>
-        <Input variant='outline' size='lg' isReadOnly>
+        <Input
+          variant='outline'
+          size='lg'
+          borderRadius='$lg'
+          borderColor='$borderLight200'
+          isReadOnly
+        >
           <InputSlot pl='$3'>
             <InputIcon as={Calendar} size='md' color='$textLight600' />
           </InputSlot>

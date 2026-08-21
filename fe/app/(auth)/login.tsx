@@ -20,6 +20,7 @@ import {
 } from 'expo-apple-authentication';
 import { useAuth } from '@/context/auth';
 import { GoogleSignInButton } from '@/components/auth/GoogleSignInButton';
+import { FONT_DISPLAY } from '@/constants/typography';
 
 type Step = 'providers' | 'email' | 'code';
 
@@ -100,10 +101,12 @@ export default function LoginScreen() {
   };
 
   return (
-    <Center flex={1} p='$6' bg='$backgroundLight0'>
+    <Center flex={1} p='$6' bg='$backgroundLight50'>
       <VStack space='xl' w='$full' maxWidth={360}>
         <VStack space='xs' alignItems='center'>
-          <Heading size='2xl'>Zig-Zag</Heading>
+          <Heading size='2xl' style={{ fontFamily: FONT_DISPLAY }}>
+            Zig-Zag
+          </Heading>
           <Text color='$textLight500'>Iniciá sesión para armar tu tour</Text>
         </VStack>
 
@@ -164,8 +167,10 @@ export default function LoginScreen() {
               isDisabled={loading !== null || !email.trim()}
               testID='login-request-code-button'
             >
-              {loading === 'email' && <ButtonSpinner mr='$2' />}
-              <ButtonText>Enviar código</ButtonText>
+              {loading === 'email' && (
+                <ButtonSpinner mr='$2' color='$secondary950' />
+              )}
+              <ButtonText color='$secondary950'>Enviar código</ButtonText>
             </Button>
             <Pressable onPress={() => setStep('providers')}>
               <Text color='$textLight500' textAlign='center' size='sm'>
@@ -203,8 +208,10 @@ export default function LoginScreen() {
               isDisabled={loading !== null || code.trim().length !== 6}
               testID='login-verify-code-button'
             >
-              {loading === 'code' && <ButtonSpinner mr='$2' />}
-              <ButtonText>Verificar</ButtonText>
+              {loading === 'code' && (
+                <ButtonSpinner mr='$2' color='$secondary950' />
+              )}
+              <ButtonText color='$secondary950'>Verificar</ButtonText>
             </Button>
             <Pressable onPress={handleRequestCode} disabled={loading !== null}>
               <Text color='$textLight500' textAlign='center' size='sm'>

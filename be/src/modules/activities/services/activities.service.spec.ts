@@ -178,6 +178,57 @@ describe('ActivitiesService', () => {
     });
   });
 
+  describe('findOneWithWaypoints', () => {
+    it("includes the activity's own composite waypoints, ordered, with the real waypointActivity", async () => {
+      const activity = {
+        id: 'variant-1',
+        kind: 'NEIGHBORHOOD_WALK',
+        compositeWaypoints: [
+          {
+            order: 1,
+            waypointActivity: { id: 'poi-1', name: 'Plaza Dorrego' },
+          },
+        ],
+      };
+      (mockPrismaService.activity.findUnique as jest.Mock).mockResolvedValue(
+        activity,
+      );
+
+      const result = await service.findOneWithWaypoints('variant-1');
+
+      expect(mockPrismaService.activity.findUnique).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: 'variant-1' },
+          include: expect.objectContaining({
+            compositeWaypoints: expect.objectContaining({
+              orderBy: { order: 'asc' },
+            }),
+          }),
+        }),
+      );
+      // The raw Prisma relation name (compositeWaypoints) is renamed to
+      // `waypoints` for the frontend — CompositeStopCard/ActivityWaypointRef
+      // already establish that shape for a variant's waypoint list.
+      expect(result).toEqual(
+        expect.objectContaining({
+          id: 'variant-1',
+          waypoints: activity.compositeWaypoints,
+        }),
+      );
+      expect((result as any).compositeWaypoints).toBeUndefined();
+    });
+
+    it('throws NotFoundException when the activity does not exist', async () => {
+      (mockPrismaService.activity.findUnique as jest.Mock).mockResolvedValue(
+        null,
+      );
+
+      await expect(service.findOneWithWaypoints('missing')).rejects.toThrow(
+        'Activity with ID missing not found',
+      );
+    });
+  });
+
   describe('findSimilar', () => {
     it('excludes the source activity and preserves vector-search order', async () => {
       const target = {

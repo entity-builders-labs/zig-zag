@@ -6,7 +6,7 @@ import { RoutesSection } from '@/components/home/RoutesSection';
 
 export default function HomeScreen() {
   return (
-    <Box flex={1} bg='#000'>
+    <Box flex={1} bg='$backgroundLight50'>
       <ScrollView
         flex={1}
         showsVerticalScrollIndicator={false}

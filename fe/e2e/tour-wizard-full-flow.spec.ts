@@ -78,7 +78,11 @@ test('@live creates a tour end-to-end through the wizard and views it in both li
   await readingPause(page, 1200);
   await humanClick(page, page.getByTestId('create-tour-fab'));
   await expect(page).toHaveURL(/\/tours\/wizard/);
-  await expect(page.getByText('Paso 1/3: Destino y Fechas')).toBeVisible();
+  // The step title is two separate text nodes now (a small "Paso 1/3"
+  // eyebrow above a serif "Destino y Fechas" heading), not one combined
+  // string — see TourWizardForm.tsx's redesigned header.
+  await expect(page.getByText('Paso 1/3')).toBeVisible();
+  await expect(page.getByText('Destino y Fechas')).toBeVisible();
   await readingPause(page, 800);
 
   // --- Step 1: destination + dates ---
@@ -114,7 +118,8 @@ test('@live creates a tour end-to-end through the wizard and views it in both li
   await humanClick(page, page.getByText('Siguiente →').first());
 
   // --- Step 2: budget, company, pace, transport ---
-  await expect(page.getByText('Paso 2/3: Define tu estilo')).toBeVisible();
+  await expect(page.getByText('Paso 2/3')).toBeVisible();
+  await expect(page.getByText('Define tu estilo')).toBeVisible();
   await readingPause(page, 900);
 
   await humanClick(page, page.getByText('$$', { exact: true }).first()); // budget: medium
@@ -135,7 +140,8 @@ test('@live creates a tour end-to-end through the wizard and views it in both li
   await humanClick(page, page.getByText('Siguiente →').first());
 
   // --- Step 3: interests + notes ---
-  await expect(page.getByText('Paso 3/3: Personalización IA')).toBeVisible();
+  await expect(page.getByText('Paso 3/3')).toBeVisible();
+  await expect(page.getByText('Personalización IA')).toBeVisible();
   await readingPause(page, 900);
 
   await humanClick(page, page.getByText('Historia', { exact: true }).last());
@@ -191,7 +197,12 @@ test('@live creates a tour end-to-end through the wizard and views it in both li
   await expect(page.getByText('No pudimos generar este tour')).toHaveCount(0);
 
   // --- List mode (default) ---
-  await expect(page.getByText('Tu Recorrido')).toBeVisible();
+  // `exact` disambiguates from the loading screen's "Armando tu recorrido"
+  // heading (getByText matches case-insensitively/substring by default, and
+  // "tu recorrido" is a substring of that too).
+  await expect(
+    page.getByText('Tu Recorrido', { exact: true })
+  ).toBeVisible();
   const stopCards = page.locator('text=Caminata').first();
   await expect(stopCards.or(page.getByText('Free'))).toBeVisible();
   await readingPause(page, 2500); // hold on list mode so it reads clearly on video

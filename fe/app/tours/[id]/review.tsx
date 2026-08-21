@@ -19,6 +19,7 @@ import { TourStop, TourStopComposite } from '../../../components/tour-details/ty
 import { transformActivitiesToStops } from '../../../components/tour-details/build-stops';
 import { TourStopCard } from '../../../components/tour-details/TourStopCard';
 import { CompositeStopCard } from '../../../components/tour-details/CompositeStopCard';
+import { FONT_DISPLAY } from '@/constants/typography';
 
 const MIN_SELECTED_WAYPOINTS = 2;
 
@@ -139,7 +140,7 @@ export default function TourReviewScreen() {
   if (loading) {
     return (
       <Box flex={1} bg='$backgroundLight50' justifyContent='center' alignItems='center'>
-        <ActivityIndicator size='large' color='#0000ff' />
+        <ActivityIndicator size='large' color='#C89B3C' />
       </Box>
     );
   }
@@ -153,7 +154,11 @@ export default function TourReviewScreen() {
           contentContainerStyle={{ paddingBottom: 140 }}
         >
           <VStack p='$4' space='xs'>
-            <Heading size='lg' color='$textLight800'>
+            <Heading
+              size='lg'
+              color='$textLight900'
+              style={{ fontFamily: FONT_DISPLAY }}
+            >
               Revisá tu recorrido
             </Heading>
             <Text size='sm' color='$textLight500'>
@@ -196,7 +201,7 @@ export default function TourReviewScreen() {
           left={0}
           right={0}
           p='$4'
-          bg='$white'
+          bg='$backgroundLight50'
           borderTopWidth={1}
           borderTopColor='$borderLight100'
         >
@@ -210,9 +215,11 @@ export default function TourReviewScreen() {
             onPress={handleConfirm}
           >
             {confirming ? (
-              <Spinner size='small' color='$white' />
+              <Spinner size='small' color='$secondary950' />
             ) : (
-              <ButtonText fontWeight='$bold'>Confirmar tour</ButtonText>
+              <ButtonText color='$secondary950' fontWeight='$bold'>
+                Confirmar tour
+              </ButtonText>
             )}
           </Button>
         </Box>
