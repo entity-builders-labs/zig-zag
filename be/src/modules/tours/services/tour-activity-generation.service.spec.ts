@@ -110,7 +110,25 @@ describe('TourActivityGenerationService', () => {
       getGenerationTimeout: jest.fn().mockReturnValue(50),
       config: { provider: 'groq' },
     };
-    googlePlacesService = { crawlAndSaveActivities: jest.fn() };
+    googlePlacesService = {
+      getProviderStatus: jest.fn().mockReturnValue({
+        provider: 'google',
+        available: true,
+        cacheEnabled: false,
+      }),
+      crawlAndSaveActivities: jest.fn().mockResolvedValue({
+        activitiesIds: [],
+        fromCache: false,
+        provenance: {
+          provider: 'google',
+          cacheStatus: 'miss-live',
+          requestedCount: 20,
+          receivedCount: 0,
+          acceptedCount: 0,
+          rejectedCountByReason: {},
+        },
+      }),
+    };
     osmPlacesService = {
       findStreetsNear: jest.fn().mockResolvedValue([]),
       findContainingBoundary: jest.fn().mockResolvedValue(null),
@@ -837,6 +855,69 @@ describe('TourActivityGenerationService', () => {
     expect(googlePlacesService.crawlAndSaveActivities).toHaveBeenCalled();
   });
 
+  it('records Geoapify provenance without calling it Google in the trace', async () => {
+    const thinPoiId = testUuid();
+    const thinActivity = {
+      id: thinPoiId,
+      name: 'Existing local place',
+      latitude: -34.62,
+      longitude: -58.37,
+    };
+    activitiesService.findAll
+      .mockResolvedValueOnce([thinActivity])
+      .mockResolvedValueOnce([thinActivity]);
+    prisma.activity.findMany.mockResolvedValue([
+      { ...thinActivity, kind: ActivityKind.POI },
+    ]);
+    googlePlacesService.getProviderStatus.mockReturnValue({
+      provider: 'geoapify',
+      available: true,
+      cacheEnabled: true,
+      cacheMode: 'strict',
+    });
+    googlePlacesService.crawlAndSaveActivities.mockResolvedValue({
+      activitiesIds: [],
+      fromCache: true,
+      provenance: {
+        provider: 'geoapify',
+        cacheStatus: 'hit',
+        requestedCount: 20,
+        receivedCount: 1,
+        acceptedCount: 0,
+        rejectedCountByReason: { existing_activity: 1 },
+      },
+    });
+    langChainService.generateChatResponse.mockResolvedValue(
+      aiJsonResponse({
+        activities: [
+          {
+            activityId: thinPoiId,
+            activityName: thinActivity.name,
+            dayNumber: 1,
+            startTime: '10:00',
+            duration: 60,
+            latitude: thinActivity.latitude,
+            longitude: thinActivity.longitude,
+          },
+        ],
+      }),
+    );
+
+    await service.generateTourActivities(TOUR_ID);
+
+    const completedUpdate = prisma.tour.update.mock.calls
+      .map(([input]: any[]) => input)
+      .find(
+        (input: any) => input.data.metadata?.generationStatus === 'completed',
+      );
+    const placesStep = completedUpdate.data.metadata.generationTrace.steps.find(
+      (step: any) => step.stage === 'places_crawl',
+    );
+    expect(placesStep.label).toContain('Geoapify');
+    expect(JSON.stringify(placesStep)).not.toContain('Google');
+    expect(placesStep.placesProvenance.cacheStatus).toBe('hit');
+  });
+
   it('does not trigger a crawl once the pool already meets the sufficiency threshold', async () => {
     const fifteenActivities = Array.from({ length: 15 }, (_, i) => ({
       id: testUuid(),
@@ -1477,13 +1558,25 @@ describe('TourActivityGenerationService', () => {
         osmId: 347950,
         geometry: {
           type: 'Polygon' as const,
-          coordinates: [[[2.05, 41.32], [2.23, 41.32], [2.23, 41.47], [2.05, 41.47], [2.05, 41.32]]],
+          coordinates: [
+            [
+              [2.05, 41.32],
+              [2.23, 41.32],
+              [2.23, 41.47],
+              [2.05, 41.47],
+              [2.05, 41.32],
+            ],
+          ],
         },
         tags: { name: 'Barcelona', admin_level: '8' },
       };
       destinationResolutionService.resolveDestination.mockResolvedValue({
         scale: 'area',
-        areaActivity: { id: 'area-bcn', kind: ActivityKind.AREA, name: 'Barcelona' },
+        areaActivity: {
+          id: 'area-bcn',
+          kind: ActivityKind.AREA,
+          name: 'Barcelona',
+        },
         boundary,
       });
 
@@ -1492,7 +1585,17 @@ describe('TourActivityGenerationService', () => {
         name: 'Ciutat Vella',
         osmType: 'relation' as const,
         osmId: 900001,
-        geometry: { type: 'Polygon' as const, coordinates: [[[0, 0], [1, 0], [1, 1], [0, 0]]] },
+        geometry: {
+          type: 'Polygon' as const,
+          coordinates: [
+            [
+              [0, 0],
+              [1, 0],
+              [1, 1],
+              [0, 0],
+            ],
+          ],
+        },
         tags: { name: 'Ciutat Vella', admin_level: '9' },
       };
       osmPlacesService.findNeighborhoodsWithin.mockResolvedValue([ciutatVella]);
@@ -1503,7 +1606,13 @@ describe('TourActivityGenerationService', () => {
           name: 'La Rambla',
           osmType: 'way',
           osmId: 501,
-          geometry: { type: 'LineString', coordinates: [[0, 0], [0, 1]] },
+          geometry: {
+            type: 'LineString',
+            coordinates: [
+              [0, 0],
+              [0, 1],
+            ],
+          },
           tags: { name: 'La Rambla', highway: 'pedestrian' },
         },
       ]);
@@ -1514,11 +1623,32 @@ describe('TourActivityGenerationService', () => {
       const historicSiteId = testUuid();
       activitiesService.findAll
         .mockResolvedValueOnce([
-          { id: hikingTrailId, name: 'Collserola hiking trail', latitude: 41.42, longitude: 2.10, rating: 4.5, ratingCount: 300 },
+          {
+            id: hikingTrailId,
+            name: 'Collserola hiking trail',
+            latitude: 41.42,
+            longitude: 2.1,
+            rating: 4.5,
+            ratingCount: 300,
+          },
         ])
         .mockResolvedValueOnce([
-          { id: hikingTrailId, name: 'Collserola hiking trail', latitude: 41.42, longitude: 2.10, rating: 4.5, ratingCount: 300 },
-          { id: historicSiteId, name: 'Barri Gòtic historic site', latitude: 41.38, longitude: 2.17, rating: 4.2, ratingCount: 50 },
+          {
+            id: hikingTrailId,
+            name: 'Collserola hiking trail',
+            latitude: 41.42,
+            longitude: 2.1,
+            rating: 4.5,
+            ratingCount: 300,
+          },
+          {
+            id: historicSiteId,
+            name: 'Barri Gòtic historic site',
+            latitude: 41.38,
+            longitude: 2.17,
+            rating: 4.2,
+            ratingCount: 50,
+          },
         ]);
       vectorStoreService.getSimilarityScores.mockResolvedValue(
         new Map([
@@ -1527,7 +1657,12 @@ describe('TourActivityGenerationService', () => {
         ]),
       );
       prisma.activity.findMany.mockResolvedValue([
-        { id: historicSiteId, latitude: 41.38, longitude: 2.17, kind: ActivityKind.POI },
+        {
+          id: historicSiteId,
+          latitude: 41.38,
+          longitude: 2.17,
+          kind: ActivityKind.POI,
+        },
       ]);
       langChainService.generateChatResponse.mockResolvedValue(
         aiJsonResponse({
@@ -1551,7 +1686,9 @@ describe('TourActivityGenerationService', () => {
       // 1. The thin pool (1 result) triggered a crawl refresh.
       expect(googlePlacesService.crawlAndSaveActivities).toHaveBeenCalled();
       // 2. The destination resolved to area-scale and explored a real neighborhood.
-      expect(osmPlacesService.findStreetsWithin).toHaveBeenCalledWith(ciutatVella);
+      expect(osmPlacesService.findStreetsWithin).toHaveBeenCalledWith(
+        ciutatVella,
+      );
       // 3. The historically-relevant, lower-rated site outranked the irrelevant
       //    higher-rated one in what the LLM was offered.
       const [, promptArg] = langChainService.generateChatResponse.mock.calls[0];
@@ -1577,7 +1714,10 @@ describe('TourActivityGenerationService', () => {
         (s: any) => s.stage,
       );
       expect(stages).toEqual(
-        expect.arrayContaining(['destination_resolution', 'neighborhood_shortlist']),
+        expect.arrayContaining([
+          'destination_resolution',
+          'neighborhood_shortlist',
+        ]),
       );
     });
   });

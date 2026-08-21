@@ -1,12 +1,20 @@
 import { Injectable, Logger, OnModuleInit, Inject } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { CrawlLocationDto } from './dto/crawl-location.dto';
 import { GooglePlaceDetails } from '../../activities/interfaces/google-places.interface';
 import { ActivitiesService } from '../../activities/services/activities.service';
 import { CreateActivityDto } from '../../activities/dto/create-activity.dto';
 import { LangChainService } from '../../../shared/ai/langchain.service';
 import { PrismaService } from '../../../core/database/prisma.service';
-import { IPlacesApiService } from './interfaces/places-api.interface';
+import {
+  IPlacesApiService,
+  PlacesApiRequestError,
+  PlacesCacheStatus,
+  PlacesCrawlError,
+  PlacesCrawlProvenance,
+  PlacesProviderStatus,
+  PlacesRequestProvenance,
+  placesProviderLabel,
+} from './interfaces/places-api.interface';
 import { VectorStoreService } from 'src/shared/ai/services/vector-store.service';
 import { priceLevelToNumber } from './utils/price-level.util';
 
@@ -22,6 +30,12 @@ interface PlaceWithMetadata extends GooglePlaceDetails {
   metadata: {
     preferredTime: string;
   };
+}
+
+export interface PlacesCrawlResult {
+  activitiesIds: string[];
+  fromCache: boolean;
+  provenance: PlacesCrawlProvenance;
 }
 
 const placesToSearch = [
@@ -209,7 +223,6 @@ export class GooglePlacesService implements OnModuleInit {
   private readonly logger = new Logger(GooglePlacesService.name);
 
   constructor(
-    private readonly configService: ConfigService,
     private readonly prisma: PrismaService,
     private readonly activitiesService: ActivitiesService,
     private readonly aiService: LangChainService,
@@ -218,13 +231,48 @@ export class GooglePlacesService implements OnModuleInit {
   ) {}
 
   async onModuleInit() {
-    const apiKey = this.configService.get<string>('GOOGLE_MAPS_API_KEY');
-    if (!apiKey) {
+    const status = this.getProviderStatus();
+    this.logger.log(
+      `Catalog refill provider: ${placesProviderLabel(status.provider)}; ` +
+        `available=${status.available}; cache=${
+          status.cacheEnabled ? status.cacheMode : 'disabled'
+        }`,
+    );
+    if (!status.available) {
       this.logger.warn(
-        'Google Maps API key is not configured. Google Maps functionality will not be available.',
+        `${placesProviderLabel(status.provider)} is unavailable because its API key is not configured.`,
       );
     }
     await this.ensureKnownActivityTypes();
+  }
+
+  getProviderStatus(): PlacesProviderStatus {
+    return this.placesApi.getStatus();
+  }
+
+  private mergeCacheStatus(
+    current: PlacesCacheStatus,
+    next: PlacesCacheStatus,
+  ): PlacesCacheStatus {
+    if (current === 'strict-miss' || next === 'strict-miss') {
+      return 'strict-miss';
+    }
+    if (current === 'miss-live' || next === 'miss-live') {
+      return 'miss-live';
+    }
+    return 'hit';
+  }
+
+  private addRequestProvenance(
+    crawl: PlacesCrawlProvenance,
+    request: PlacesRequestProvenance,
+  ): void {
+    crawl.cacheStatus = this.mergeCacheStatus(
+      crawl.cacheStatus,
+      request.cacheStatus,
+    );
+    crawl.requestedCount += request.requestedCount;
+    crawl.receivedCount += request.receivedCount;
   }
 
   private async ensureKnownActivityTypes() {
@@ -277,13 +325,13 @@ export class GooglePlacesService implements OnModuleInit {
     }
   }
 
-  private findMatchingActivityType(googleTypes: string[]): {
+  private findMatchingActivityType(providerTypes: string[]): {
     name: string;
     duration: number;
   } | null {
-    for (const googleType of googleTypes) {
+    for (const providerType of providerTypes) {
       for (const [, type] of Object.entries(ActivityTypes)) {
-        if (type.includes.includes(googleType)) {
+        if (type.includes.includes(providerType)) {
           return { name: type.name, duration: type.defaultDuration };
         }
       }
@@ -364,10 +412,11 @@ Answer ONLY with one word from the set above, no punctuation, no explanation.`;
       const useTextSearch = unsupportedTypes.has(searchConfig.type);
 
       let placesData: any[] = [];
+      let requestProvenance!: PlacesRequestProvenance;
 
       if (!useTextSearch) {
         // NEW Places API (v1) nearby search using includedTypes via IPlacesApiService
-        placesData = await this.placesApi.searchNearby({
+        const result = await this.placesApi.searchNearby({
           maxResultCount: 20,
           includedTypes: [searchConfig.type],
           rankPreference: 'DISTANCE',
@@ -375,17 +424,21 @@ Answer ONLY with one word from the set above, no punctuation, no explanation.`;
           longitude: dto.longitude,
           radius: dto.radius || this.SEARCH_RADIUS,
         });
+        placesData = result.data;
+        requestProvenance = result.provenance;
       } else {
         // Fallback: searchText with keyword, biased to location
         const query =
           `${searchConfig.type.replace('_', ' ')} ${searchConfig.keyword}`.trim();
-        placesData = await this.placesApi.searchText({
+        const result = await this.placesApi.searchText({
           textQuery: query,
           maxResultCount: 20,
           latitude: dto.latitude,
           longitude: dto.longitude,
           radius: dto.radius || this.SEARCH_RADIUS,
         });
+        placesData = result.data;
+        requestProvenance = result.provenance;
       }
 
       // A missing rating means the provider doesn't expose that data (e.g.
@@ -442,6 +495,10 @@ Answer ONLY with one word from the set above, no punctuation, no explanation.`;
       return {
         places,
         nextPageToken: null as any,
+        provenance: requestProvenance,
+        rejectedCountByReason: {
+          low_rating: placesData.length - filteredResults.length,
+        },
       };
     } catch (error: any) {
       this.logger.error('Error searching nearby places:', error);
@@ -453,10 +510,10 @@ Answer ONLY with one word from the set above, no punctuation, no explanation.`;
     try {
       const result = await this.placesApi.getPlaceDetails(placeId);
       return {
-        phoneNumber: result.nationalPhoneNumber,
-        website: result.websiteUri,
-        openingHours: result.openingHoursWeekdayText?.length
-          ? { weekdayText: result.openingHoursWeekdayText }
+        phoneNumber: result.data.nationalPhoneNumber,
+        website: result.data.websiteUri,
+        openingHours: result.data.openingHoursWeekdayText?.length
+          ? { weekdayText: result.data.openingHoursWeekdayText }
           : undefined,
       };
     } catch (error) {
@@ -465,10 +522,8 @@ Answer ONLY with one word from the set above, no punctuation, no explanation.`;
     }
   }
 
-  private async ensureGooglePlacesSource(): Promise<string> {
-    // Track provenance per active provider so Geoapify-sourced activities
-    // don't get mixed under the 'google-maps' source name.
-    const provider = this.configService.get('PLACES_PROVIDER') || 'google';
+  private async ensurePlacesSource(): Promise<string> {
+    const provider = this.placesApi.provider;
     const sourceInfo =
       provider === 'geoapify'
         ? { name: 'geoapify', baseUrl: 'https://www.geoapify.com' }
@@ -500,13 +555,22 @@ Answer ONLY with one word from the set above, no punctuation, no explanation.`;
     }
   }
 
-  async crawlAndSaveActivities(dto: CrawlLocationDto): Promise<{
-    activitiesIds: string[];
-    fromCache: boolean;
-  }> {
+  async crawlAndSaveActivities(
+    dto: CrawlLocationDto,
+  ): Promise<PlacesCrawlResult> {
+    const status = this.getProviderStatus();
+    const provenance: PlacesCrawlProvenance = {
+      provider: status.provider,
+      cacheStatus: status.cacheEnabled ? 'hit' : 'miss-live',
+      requestedCount: 0,
+      receivedCount: 0,
+      acceptedCount: 0,
+      rejectedCountByReason: {},
+    };
+
     try {
       await this.ensureKnownActivityTypes();
-      const sourceId = await this.ensureGooglePlacesSource();
+      const sourceId = await this.ensurePlacesSource();
       const allPlaces: Array<CreateActivityDto> = [];
 
       for (const categoryGroup of placesToSearch.map((group) => group)) {
@@ -517,14 +581,26 @@ Answer ONLY with one word from the set above, no punctuation, no explanation.`;
 
           let nextPageToken: string | null = null;
           do {
-            const { places, nextPageToken: newNextPageToken } =
-              await this.searchNearbyPlaces(
-                {
-                  ...dto,
-                  pageToken: nextPageToken,
-                },
-                search,
-              );
+            const {
+              places,
+              nextPageToken: newNextPageToken,
+              provenance: requestProvenance,
+              rejectedCountByReason,
+            } = await this.searchNearbyPlaces(
+              {
+                ...dto,
+                pageToken: nextPageToken,
+              },
+              search,
+            );
+
+            this.addRequestProvenance(provenance, requestProvenance);
+            for (const [reason, count] of Object.entries(
+              rejectedCountByReason,
+            )) {
+              provenance.rejectedCountByReason[reason] =
+                (provenance.rejectedCountByReason[reason] ?? 0) + count;
+            }
 
             const processedPlaces = [];
             for (const place of places) {
@@ -586,7 +662,8 @@ Answer ONLY with one word from the set above, no punctuation, no explanation.`;
                 externalId: place.placeId,
                 metadata: {
                   activityId: place.placeId,
-                  googleTypes: place.types || [],
+                  placesProvider: this.placesApi.provider,
+                  providerTypes: place.types || [],
                   preferredTime: (place as any).metadata?.preferredTime,
                 },
               } as CreateActivityDto);
@@ -613,6 +690,8 @@ Answer ONLY with one word from the set above, no punctuation, no explanation.`;
         });
 
         if (placeExist) {
+          provenance.rejectedCountByReason.existing_activity =
+            (provenance.rejectedCountByReason.existing_activity ?? 0) + 1;
           continue;
         }
 
@@ -621,6 +700,7 @@ Answer ONLY with one word from the set above, no punctuation, no explanation.`;
       }
 
       this.logger.debug(`Saved ${activities.length} activities to database`);
+      provenance.acceptedCount = activities.length;
 
       if (activities.length > 0) {
         try {
@@ -635,11 +715,19 @@ Answer ONLY with one word from the set above, no punctuation, no explanation.`;
 
       return {
         activitiesIds: activities.map((activity) => activity.id.toString()),
-        fromCache: false,
+        fromCache: provenance.cacheStatus === 'hit',
+        provenance,
       };
     } catch (error) {
       this.logger.error('Error in crawlAndSaveActivities:', error);
-      throw error;
+      if (error instanceof PlacesApiRequestError) {
+        this.addRequestProvenance(provenance, error.provenance);
+      }
+      throw new PlacesCrawlError(
+        `Catalog refill failed using ${placesProviderLabel(provenance.provider)}: ${error.message}`,
+        provenance,
+        error,
+      );
     }
   }
 }

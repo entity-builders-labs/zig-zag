@@ -27,7 +27,7 @@ Completar `.env` local y sembrar SSM sin imprimir valores:
 make aws-seed-secrets
 ```
 
-Valores requeridos: `GROQ_API_KEY`, `GEOAPIFY_API_KEY`, `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET`, `GOOGLE_CLIENT_IDS`, `SMTP_HOST`, `SMTP_USER` y `SMTP_PASS`.
+Valores requeridos: `GROQ_API_KEY`, `GOOGLE_MAPS_API_KEY`, `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET`, `GOOGLE_CLIENT_IDS`, `SMTP_HOST`, `SMTP_USER` y `SMTP_PASS`. `GEOAPIFY_API_KEY` sigue siendo opcional para superficies frontend que lo seleccionen explícitamente; el refill del catálogo backend usa Google Places.
 
 ## Bootstrap de una cuenta AWS nueva
 
@@ -105,4 +105,3 @@ Para ver el navegador y conservar todos los videos:
 ```bash
 E2E_VIDEO=on E2E_SLOWMO=1 yarn workspace fe test:e2e --grep @live --headed
 ```
-

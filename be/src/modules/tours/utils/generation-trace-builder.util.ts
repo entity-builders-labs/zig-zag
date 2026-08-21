@@ -3,6 +3,10 @@ import {
   GenerationTraceStep,
   TraceCandidate,
 } from '../interfaces/generation-trace.interface';
+import {
+  PlacesCrawlProvenance,
+  placesProviderLabel,
+} from '@integrations/google-places/interfaces/places-api.interface';
 
 // Loosely typed on purpose — mirrors the rest of this file's candidates
 // (ActivityWithDistance from ActivitiesService.findAll, whose Prisma Json
@@ -44,19 +48,33 @@ export function buildDbSearchStep(
   };
 }
 
-export function buildGooglePlacesCrawlStep(
+export function buildPlacesCrawlStep(
   candidates: any[],
+  provenance: PlacesCrawlProvenance,
+  failed = false,
 ): GenerationTraceStep {
+  const providerLabel = placesProviderLabel(provenance.provider);
+  const cacheLabel =
+    provenance.cacheStatus === 'hit'
+      ? 'cache hit'
+      : provenance.cacheStatus === 'strict-miss'
+        ? 'strict cache miss'
+        : 'live provider call';
+  const rejectedCount = Object.values(provenance.rejectedCountByReason).reduce(
+    (sum, count) => sum + count,
+    0,
+  );
+
   return {
-    stage: 'google_places_crawl',
-    label: 'Crawl de Google Maps',
-    summary:
-      candidates.length > 0
-        ? `La búsqueda local no encontró nada — el crawl a Google Maps encontró ${candidates.length} lugares nuevos.`
-        : 'La búsqueda local no encontró nada y el crawl a Google Maps tampoco.',
+    stage: 'places_crawl',
+    label: `Catalog refill · ${providerLabel}`,
+    summary: failed
+      ? `${providerLabel} falló (${cacheLabel}). Solicitados: ${provenance.requestedCount}; recibidos: ${provenance.receivedCount}; no se afirmó cobertura nueva.`
+      : `${providerLabel} (${cacheLabel}) recibió ${provenance.receivedCount} resultados, persistió ${provenance.acceptedCount} y rechazó ${rejectedCount}.`,
+    placesProvenance: provenance,
     candidates: candidates.map(
       (act): TraceCandidate => ({
-        source: 'google_places',
+        source: provenance.provider === 'google' ? 'google_places' : 'geoapify',
         id: act.id,
         name: act.name,
         detail: activityDetail(act),

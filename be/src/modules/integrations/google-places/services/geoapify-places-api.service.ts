@@ -4,6 +4,9 @@ import axios from 'axios';
 import {
   IPlacesApiService,
   PlaceData,
+  PlacesApiRequestError,
+  PlacesApiResult,
+  PlacesProviderStatus,
   PlacesSearchNearbyParams,
   PlacesSearchTextParams,
 } from '../interfaces/places-api.interface';
@@ -68,12 +71,50 @@ interface GeoapifyFeature {
 
 @Injectable()
 export class GeoapifyPlacesApiService implements IPlacesApiService {
+  readonly provider = 'geoapify' as const;
   private readonly logger = new Logger(GeoapifyPlacesApiService.name);
   private readonly placesUrl = 'https://api.geoapify.com/v2/places';
   private readonly placeDetailsUrl =
     'https://api.geoapify.com/v2/place-details';
 
   constructor(private readonly configService: ConfigService) {}
+
+  getStatus(): PlacesProviderStatus {
+    return {
+      provider: this.provider,
+      available: !!this.configService.get<string>('GEOAPIFY_API_KEY'),
+      cacheEnabled: false,
+    };
+  }
+
+  private result<T>(data: T, requestedCount: number): PlacesApiResult<T> {
+    return {
+      data,
+      provenance: {
+        provider: this.provider,
+        cacheStatus: 'miss-live',
+        requestedCount,
+        receivedCount: Array.isArray(data) ? data.length : data ? 1 : 0,
+      },
+    };
+  }
+
+  private requestError(
+    message: string,
+    requestedCount: number,
+    error: unknown,
+  ): PlacesApiRequestError {
+    return new PlacesApiRequestError(
+      message,
+      {
+        provider: this.provider,
+        cacheStatus: 'miss-live',
+        requestedCount,
+        receivedCount: 0,
+      },
+      error,
+    );
+  }
 
   private getApiKey(): string {
     const key = this.configService.get<string>('GEOAPIFY_API_KEY');
@@ -118,10 +159,9 @@ export class GeoapifyPlacesApiService implements IPlacesApiService {
     radius: number,
     maxResultCount: number,
     types: string[],
-  ): Promise<PlaceData[]> {
-    const apiKey = this.getApiKey();
-
+  ): Promise<PlacesApiResult<PlaceData[]>> {
     try {
+      const apiKey = this.getApiKey();
       const response = await axios.get(this.placesUrl, {
         params: {
           categories,
@@ -133,17 +173,26 @@ export class GeoapifyPlacesApiService implements IPlacesApiService {
       });
 
       const features: GeoapifyFeature[] = response.data?.features || [];
-      return features.map((f) => this.mapFeatureToPlaceData(f, types));
+      return this.result(
+        features.map((f) => this.mapFeatureToPlaceData(f, types)),
+        maxResultCount,
+      );
     } catch (error) {
       this.logger.error(
         `Error searching Geoapify places (categories=${categories}): ${error.message}`,
         error.response?.data,
       );
-      throw error;
+      throw this.requestError(
+        `Geoapify category search failed: ${error.message}`,
+        maxResultCount,
+        error,
+      );
     }
   }
 
-  async searchNearby(params: PlacesSearchNearbyParams): Promise<PlaceData[]> {
+  async searchNearby(
+    params: PlacesSearchNearbyParams,
+  ): Promise<PlacesApiResult<PlaceData[]>> {
     const requestedTypes = params.includedTypes || [];
     const categories = requestedTypes
       .map((t) => TYPE_TO_GEOAPIFY_CATEGORIES[t])
@@ -154,7 +203,7 @@ export class GeoapifyPlacesApiService implements IPlacesApiService {
       this.logger.warn(
         `No Geoapify category mapping found for types: ${requestedTypes.join(', ')}`,
       );
-      return [];
+      return this.result([], params.maxResultCount || 20);
     }
 
     return this.searchByCategory(
@@ -167,7 +216,9 @@ export class GeoapifyPlacesApiService implements IPlacesApiService {
     );
   }
 
-  async searchText(params: PlacesSearchTextParams): Promise<PlaceData[]> {
+  async searchText(
+    params: PlacesSearchTextParams,
+  ): Promise<PlacesApiResult<PlaceData[]>> {
     const normalizedQuery = params.textQuery
       .toLowerCase()
       .replace(/[^a-z]/g, '');
@@ -179,14 +230,14 @@ export class GeoapifyPlacesApiService implements IPlacesApiService {
       this.logger.warn(
         `Geoapify has no free-text search; no category approximation found for query: "${params.textQuery}"`,
       );
-      return [];
+      return this.result([], params.maxResultCount || 20);
     }
 
     if (params.latitude === undefined || params.longitude === undefined) {
       this.logger.warn(
         `searchText requires latitude/longitude for Geoapify (category-based approximation): "${params.textQuery}"`,
       );
-      return [];
+      return this.result([], params.maxResultCount || 20);
     }
 
     return this.searchByCategory(
@@ -199,34 +250,42 @@ export class GeoapifyPlacesApiService implements IPlacesApiService {
     );
   }
 
-  async getPlaceDetails(placeId: string): Promise<Partial<PlaceData>> {
-    const apiKey = this.getApiKey();
-
+  async getPlaceDetails(
+    placeId: string,
+  ): Promise<PlacesApiResult<Partial<PlaceData>>> {
     try {
+      const apiKey = this.getApiKey();
       const response = await axios.get(this.placeDetailsUrl, {
         params: { id: placeId, apiKey },
       });
 
       const p = response.data?.features?.[0]?.properties || {};
-      return {
-        id: p.place_id,
-        name: p.name,
-        nationalPhoneNumber: p.contact?.phone,
-        websiteUri: p.website,
-        // Raw OSM-syntax string (e.g. "Mo-Fr 09:00-18:00; Sa 10:00-14:00").
-        // Wrapped in a single-element array to fit the `weekdayText`
-        // shape activity-prompt-formatter.util.ts already expects — the LLM
-        // can reasonably interpret the OSM format as-is.
-        openingHoursWeekdayText: p.opening_hours
-          ? [p.opening_hours]
-          : undefined,
-      };
+      return this.result(
+        {
+          id: p.place_id,
+          name: p.name,
+          nationalPhoneNumber: p.contact?.phone,
+          websiteUri: p.website,
+          // Raw OSM-syntax string (e.g. "Mo-Fr 09:00-18:00; Sa 10:00-14:00").
+          // Wrapped in a single-element array to fit the `weekdayText`
+          // shape activity-prompt-formatter.util.ts already expects — the LLM
+          // can reasonably interpret the OSM format as-is.
+          openingHoursWeekdayText: p.opening_hours
+            ? [p.opening_hours]
+            : undefined,
+        },
+        1,
+      );
     } catch (error) {
       this.logger.error(
         `Error fetching Geoapify place details for ${placeId}:`,
         error.response?.data || error.message,
       );
-      return {};
+      throw this.requestError(
+        `Geoapify details failed for ${placeId}: ${error.message}`,
+        1,
+        error,
+      );
     }
   }
 }

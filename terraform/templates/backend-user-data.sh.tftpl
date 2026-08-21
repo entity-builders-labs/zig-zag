@@ -44,7 +44,7 @@ jq -r --arg database_url "$database_url" --arg cors_origin '${cors_origin}' --ar
     CORS_ORIGIN: $cors_origin,
     SWAGGER_ENABLED: "false",
     AI_CACHE_MODE: "off",
-    PLACES_PROVIDER: "geoapify",
+    PLACES_PROVIDER: "google",
     USE_MOCK_MAPS: "false"
   } | to_entries[] | "\(.key)=\(.value | tostring)"
 ' <<<"$config" >/opt/zigzag.env

@@ -110,8 +110,11 @@ because it compiles or its happy path works. The following gate applies to PRs
      affected service/serialization test when runtime behavior changes.
 3. **Automated local verification**
    - run the focused Jest unit suites while developing;
-   - before presenting the PR, run `yarn workspace backend test --runInBand`,
-     `yarn workspace backend check`, and `yarn workspace backend build`;
+   - before presenting the PR, run
+     `yarn workspace backend run test --runInBand`,
+     `yarn workspace backend run check`, and
+     `yarn workspace backend run build` (the explicit `run` matters for
+     Yarn 1's built-in `check` command);
    - run the relevant backend integration/E2E suite whenever the PR crosses a
      database, HTTP, provider-adapter, or tour-generation boundary;
    - run frontend checks/tests too when the persisted contract or UI changes.

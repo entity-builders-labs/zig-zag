@@ -40,7 +40,7 @@ import {
   buildDbSearchStep,
   buildDestinationResolutionStep,
   buildEmbeddingsStep,
-  buildGooglePlacesCrawlStep,
+  buildPlacesCrawlStep,
   buildLlmGenerationStep,
   buildNeighborhoodShortlistStep,
   buildOsmBoundaryStep,
@@ -52,6 +52,10 @@ import {
   GenerationTraceStep,
   TraceCandidate,
 } from '../interfaces/generation-trace.interface';
+import {
+  PlacesCrawlError,
+  placesProviderLabel,
+} from '@integrations/google-places/interfaces/places-api.interface';
 
 @Injectable()
 export class TourActivityGenerationService {
@@ -293,22 +297,30 @@ export class TourActivityGenerationService {
             traceSteps.push(dbSearchStep);
             traceCandidateLists.push(dbSearchStep.candidates ?? []);
           } else {
-            traceSteps.push(buildDbSearchStep(nearbyActivities, radius / 1000));
+            const dbSearchStep = buildDbSearchStep(
+              nearbyActivities,
+              radius / 1000,
+            );
+            traceSteps.push(dbSearchStep);
+            traceCandidateLists.push(dbSearchStep.candidates ?? []);
 
-            // Update status: pool is too thin, triggering Google Maps crawl
+            const placesStatus = this.googlePlacesService.getProviderStatus();
+            const placesLabel = placesProviderLabel(placesStatus.provider);
+
+            // Update status: pool is too thin, triggering catalog refill.
             const poolStatus =
               nearbyActivities.length > 0
-                ? `Se encontraron ${nearbyActivities.length} actividades pero insuficientes. Buscando más en Google Maps...`
-                : 'No se encontraron actividades locales. Buscando en Google Maps...';
+                ? `Se encontraron ${nearbyActivities.length} actividades pero insuficientes. Buscando más con ${placesLabel}...`
+                : `No se encontraron actividades locales. Buscando con ${placesLabel}...`;
             await this.updateGenerationStatus(tourId, 'generating', poolStatus);
 
             try {
-              // Trigger Google Maps crawling
-              await this.googlePlacesService.crawlAndSaveActivities({
-                latitude: searchArea.latitude,
-                longitude: searchArea.longitude,
-                radius: Math.min(radius, 5000), // Cap radius for Google Maps
-              });
+              const crawlResult =
+                await this.googlePlacesService.crawlAndSaveActivities({
+                  latitude: searchArea.latitude,
+                  longitude: searchArea.longitude,
+                  radius: Math.min(radius, 5000),
+                });
 
               // Try searching again after crawling
               const refreshedActivities = await this.activitiesService.findAll(
@@ -322,7 +334,7 @@ export class TourActivityGenerationService {
                 await this.updateGenerationStatus(
                   tourId,
                   'generating',
-                  `¡Encontrados ${refreshedActivities.length} lugares nuevos en Google Maps! Analizando...`,
+                  `¡Catálogo actualizado con ${placesLabel}! Analizando ${refreshedActivities.length} actividades...`,
                 );
 
                 const refreshedActivitiesSample =
@@ -337,13 +349,19 @@ export class TourActivityGenerationService {
                 availableActivitiesText = `\n\nAvailable activities in the area (within ${radius / 1000}km):\n${refreshedActivitiesSample
                   .map((act: any) => formatActivityForPrompt(act))
                   .join('\n')}`;
-                const crawlStep = buildGooglePlacesCrawlStep(
-                  refreshedActivitiesSample,
+                const newActivityIds = new Set(crawlResult.activitiesIds);
+                const crawlStep = buildPlacesCrawlStep(
+                  refreshedActivitiesSample.filter((activity: any) =>
+                    newActivityIds.has(activity.id),
+                  ),
+                  crawlResult.provenance,
                 );
                 traceSteps.push(crawlStep);
                 traceCandidateLists.push(crawlStep.candidates ?? []);
               } else {
-                traceSteps.push(buildGooglePlacesCrawlStep([]));
+                traceSteps.push(
+                  buildPlacesCrawlStep([], crawlResult.provenance),
+                );
                 // Crawl found nothing — but if we already had a thin local pool,
                 // fall back to using it rather than leaving candidateActivityIds empty.
                 // Same "degrade gracefully" pattern as OSM/Wikidata failures.
@@ -375,15 +393,31 @@ export class TourActivityGenerationService {
               }
             } catch (crawlError) {
               this.logger.error(
-                `Google Maps crawling failed: ${crawlError.message}`,
+                `${placesLabel} catalog refill failed: ${crawlError.message}`,
               );
+              const failedProvenance =
+                crawlError instanceof PlacesCrawlError
+                  ? crawlError.provenance
+                  : {
+                      provider: placesStatus.provider,
+                      cacheStatus:
+                        placesStatus.cacheEnabled &&
+                        placesStatus.cacheMode === 'strict'
+                          ? ('strict-miss' as const)
+                          : ('miss-live' as const),
+                      requestedCount: 0,
+                      receivedCount: 0,
+                      acceptedCount: 0,
+                      rejectedCountByReason: {},
+                    };
+              traceSteps.push(buildPlacesCrawlStep([], failedProvenance, true));
               // Crawl failed, but if we already had a thin local pool, use it
               // rather than leaving generation with empty candidates.
               if (nearbyActivities.length > 0) {
                 await this.updateGenerationStatus(
                   tourId,
                   'generating',
-                  `Google Maps indisponible. Usando ${nearbyActivities.length} actividades locales encontradas.`,
+                  `${placesLabel} indisponible. Usando ${nearbyActivities.length} actividades locales encontradas.`,
                 );
                 const nearbyActivitiesSample = nearbyActivities.slice(0, 15);
                 nearbyActivitiesSample.forEach((act: any) => {
@@ -393,13 +427,11 @@ export class TourActivityGenerationService {
                 availableActivitiesText = `\n\nAvailable activities in the area (within ${radius / 1000}km):\n${nearbyActivitiesSample
                   .map((act: any) => formatActivityForPrompt(act))
                   .join('\n')}`;
-                // Add crawl failure trace step showing we had candidates but couldn't expand
-                traceSteps.push(buildGooglePlacesCrawlStep([]));
               } else {
                 await this.updateGenerationStatus(
                   tourId,
                   'generating',
-                  'La búsqueda en Google Maps falló.',
+                  `La búsqueda con ${placesLabel} falló.`,
                 );
               }
             }
