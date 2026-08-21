@@ -49,4 +49,43 @@ describe('boundingBoxToCenterRadius', () => {
       expect(haversine(latitude, longitude, lat, lon)).toBeLessThanOrEqual(radiusMeters + 1);
     }
   });
+
+  it('covers all bounding box corners for non-rectangular geometries', () => {
+    // Diamond-shaped polygon where northernmost and easternmost points are different vertices
+    // The bbox corners can be farther than any single geometry vertex
+    const geometry: import('@integrations/osm/utils/osm-geometry.util').GeoJsonGeometry = {
+      type: 'Polygon',
+      coordinates: [[
+        [-58.40, -34.55], // west
+        [-58.35, -34.60], // south
+        [-58.30, -34.55], // east
+        [-58.35, -34.50], // north
+        [-58.40, -34.55], // close ring
+      ]],
+    };
+    const { latitude, longitude, radiusMeters } = boundingBoxToCenterRadius(geometry);
+
+    const toRad = (deg: number) => (deg * Math.PI) / 180;
+    const haversine = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+      const R = 6371000;
+      const dLat = toRad(lat2 - lat1);
+      const dLon = toRad(lon2 - lon1);
+      const a =
+        Math.sin(dLat / 2) ** 2 +
+        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+      return 2 * R * Math.asin(Math.sqrt(a));
+    };
+
+    // Test that all 4 bbox corners are covered
+    const bboxCorners = [
+      [-58.40, -34.60], // southwest
+      [-58.40, -34.50], // northwest
+      [-58.30, -34.60], // southeast
+      [-58.30, -34.50], // northeast
+    ];
+
+    for (const [lon, lat] of bboxCorners) {
+      expect(haversine(latitude, longitude, lat, lon)).toBeLessThanOrEqual(radiusMeters + 1);
+    }
+  });
 });

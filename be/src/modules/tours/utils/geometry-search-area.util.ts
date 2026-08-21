@@ -56,9 +56,22 @@ export function boundingBoxToCenterRadius(
   const maxLon = Math.max(...lons);
 
   const center = { lat: (minLat + maxLat) / 2, lon: (minLon + maxLon) / 2 };
-  const radiusMeters = Math.max(
+
+  // Compute distances to all geometry points AND the 4 bounding box corners.
+  // For non-rectangular geometries, the farthest point of the bbox from its
+  // center is always one of the 4 corners (geometric guarantee). Must include
+  // them to guarantee full bbox coverage, not just coverage of geometry vertices.
+  const bboxCorners = [
+    { lat: minLat, lon: minLon },
+    { lat: minLat, lon: maxLon },
+    { lat: maxLat, lon: minLon },
+    { lat: maxLat, lon: maxLon },
+  ];
+  const allDistances = [
     ...points.map((p) => haversineMeters(center, p)),
-  );
+    ...bboxCorners.map((corner) => haversineMeters(center, corner)),
+  ];
+  const radiusMeters = Math.max(...allDistances);
 
   return { latitude: center.lat, longitude: center.lon, radiusMeters };
 }
