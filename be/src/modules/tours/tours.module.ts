@@ -6,6 +6,7 @@ import { TourActivityGenerationService } from './services/tour-activity-generati
 import { TourImageService } from './services/tour-image.service';
 import { TourLocationService } from './services/tour-location.service';
 import { CompositeGenerationService } from './services/composite-generation.service';
+import { DestinationResolutionService } from './services/destination-resolution.service';
 
 import { ActivitiesModule } from '../activities/activities.module';
 import { AiModule } from '../../shared/ai/ai.module';
@@ -29,6 +30,7 @@ import { AuthModule } from '../auth/auth.module';
     TourImageService,
     TourLocationService,
     CompositeGenerationService,
+    DestinationResolutionService,
   ],
   exports: [
     ToursService,
