@@ -120,6 +120,47 @@ export function buildOsmBoundaryStep(
   };
 }
 
+export function buildDestinationResolutionStep(
+  destinationText: string | undefined,
+  resolution: { scale: 'point' } | { scale: 'area'; boundary: OsmCandidate },
+): GenerationTraceStep {
+  return {
+    stage: 'destination_resolution',
+    label: 'Resolución del destino',
+    summary:
+      resolution.scale === 'area'
+        ? `"${destinationText}" resolvió a un límite real de ciudad: ${resolution.boundary.name}. Se exploran sus barrios reales en vez de un único punto+radio.`
+        : destinationText
+          ? `"${destinationText}" no resolvió a un límite de ciudad/pueblo real — se usa el punto+radio de siempre.`
+          : 'No se especificó un destino de texto — se usa el punto+radio de siempre.',
+  };
+}
+
+export function buildNeighborhoodShortlistStep(
+  allNeighborhoods: OsmCandidate[],
+  shortlisted: OsmCandidate[],
+): GenerationTraceStep {
+  const shortlistedIds = new Set(shortlisted.map((c) => c.id));
+  return {
+    stage: 'neighborhood_shortlist',
+    label: 'Barrios explorados (destino a nivel ciudad)',
+    summary:
+      allNeighborhoods.length > 0
+        ? `${allNeighborhoods.length} barrios reales encontrados; ${shortlisted.length} explorados a fondo (con familia curada existente o más POIs cercanos).`
+        : '0 barrios reales encontrados dentro del límite de esta ciudad.',
+    candidates: allNeighborhoods.map(
+      (c): TraceCandidate => ({
+        source: 'osm',
+        id: c.id,
+        name: c.name,
+        detail: osmDetail(c),
+        offered: true,
+        chosen: shortlistedIds.has(c.id),
+      }),
+    ),
+  };
+}
+
 export function buildEmbeddingsStep(
   offeredCount: number,
   indexedCount: number,

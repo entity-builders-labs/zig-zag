@@ -2,15 +2,13 @@ import { GenerationAuditResult } from '../utils/generation-audit.util';
 
 // Chronological pipeline steps a live tour generation actually went
 // through — see docs/superpowers/specs/2026-08-20-generation-bitacora-design.md.
-// `embeddings` deliberately documents an absence rather than a real
-// candidate source: generateTourActivities selects candidates purely by
-// geographic proximity today, never by pgvector similarity (that only
-// happens in the deprecated TourGenerationService.generateTour()).
 export type TraceStage =
+  | 'destination_resolution'
   | 'db_search'
   | 'google_places_crawl'
   | 'osm_streets'
   | 'osm_boundary'
+  | 'neighborhood_shortlist'
   | 'embeddings'
   | 'wikidata_enrichment'
   | 'llm_generation'
