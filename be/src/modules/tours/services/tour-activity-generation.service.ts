@@ -212,11 +212,14 @@ export class TourActivityGenerationService {
           } else {
             traceSteps.push(buildDbSearchStep(nearbyActivities, radius / 1000));
 
-            // Update status: no activities found, triggering Google Maps crawl
+            // Update status: pool is too thin, triggering Google Maps crawl
+            const poolStatus = nearbyActivities.length > 0
+              ? `Se encontraron ${nearbyActivities.length} actividades pero insuficientes. Buscando más en Google Maps...`
+              : 'No se encontraron actividades locales. Buscando en Google Maps...';
             await this.updateGenerationStatus(
               tourId,
               'generating',
-              'No se encontraron actividades locales. Buscando en Google Maps...',
+              poolStatus,
             );
 
             try {
@@ -260,21 +263,64 @@ export class TourActivityGenerationService {
                 traceCandidateLists.push(crawlStep.candidates ?? []);
               } else {
                 traceSteps.push(buildGooglePlacesCrawlStep([]));
-                await this.updateGenerationStatus(
-                  tourId,
-                  'generating',
-                  'No se encontraron lugares reales cerca de esta ubicación.',
-                );
+                // Crawl found nothing — but if we already had a thin local pool,
+                // fall back to using it rather than leaving candidateActivityIds empty.
+                // Same "degrade gracefully" pattern as OSM/Wikidata failures.
+                if (nearbyActivities.length > 0) {
+                  const thinPoolMessage =
+                    nearbyActivities.length === 1
+                      ? '1 actividad local disponible.'
+                      : `${nearbyActivities.length} actividades locales disponibles.`;
+                  await this.updateGenerationStatus(
+                    tourId,
+                    'generating',
+                    thinPoolMessage,
+                  );
+                  const nearbyActivitiesSample = nearbyActivities.slice(0, 15);
+                  nearbyActivitiesSample.forEach((act: any) => {
+                    candidateActivityIds.add(act.id);
+                    candidateActivitiesById.set(act.id, act);
+                  });
+                  availableActivitiesText = `\n\nAvailable activities in the area (within ${radius / 1000}km):\n${nearbyActivitiesSample
+                    .map((act: any) => formatActivityForPrompt(act))
+                    .join('\n')}`;
+                } else {
+                  await this.updateGenerationStatus(
+                    tourId,
+                    'generating',
+                    'No se encontraron lugares reales cerca de esta ubicación.',
+                  );
+                }
               }
             } catch (crawlError) {
               this.logger.error(
                 `Google Maps crawling failed: ${crawlError.message}`,
               );
-              await this.updateGenerationStatus(
-                tourId,
-                'generating',
-                'La búsqueda en Google Maps falló.',
-              );
+              // Crawl failed, but if we already had a thin local pool, use it
+              // rather than leaving generation with empty candidates.
+              if (nearbyActivities.length > 0) {
+                await this.updateGenerationStatus(
+                  tourId,
+                  'generating',
+                  `Google Maps indisponible. Usando ${nearbyActivities.length} actividades locales encontradas.`,
+                );
+                const nearbyActivitiesSample = nearbyActivities.slice(0, 15);
+                nearbyActivitiesSample.forEach((act: any) => {
+                  candidateActivityIds.add(act.id);
+                  candidateActivitiesById.set(act.id, act);
+                });
+                availableActivitiesText = `\n\nAvailable activities in the area (within ${radius / 1000}km):\n${nearbyActivitiesSample
+                  .map((act: any) => formatActivityForPrompt(act))
+                  .join('\n')}`;
+                // Add crawl failure trace step showing we had candidates but couldn't expand
+                traceSteps.push(buildGooglePlacesCrawlStep([]));
+              } else {
+                await this.updateGenerationStatus(
+                  tourId,
+                  'generating',
+                  'La búsqueda en Google Maps falló.',
+                );
+              }
             }
           }
         } catch (error) {

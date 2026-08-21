@@ -839,6 +839,54 @@ describe('TourActivityGenerationService', () => {
     expect(googlePlacesService.crawlAndSaveActivities).not.toHaveBeenCalled();
   });
 
+  it('falls back to thin pool when Google Places crawl fails, instead of leaving candidates empty', async () => {
+    const thinActivities = Array.from({ length: 3 }, (_, i) => ({
+      id: testUuid(),
+      name: `Local Place ${i}`,
+      latitude: -34.62,
+      longitude: -58.37,
+    }));
+    // First call returns the thin pool, triggering crawl
+    activitiesService.findAll.mockResolvedValueOnce(thinActivities);
+    prisma.activity.findMany.mockResolvedValue(
+      thinActivities.map((a) => ({
+        id: a.id,
+        latitude: a.latitude,
+        longitude: a.longitude,
+        kind: ActivityKind.POI,
+      })),
+    );
+    // Crawl fails
+    googlePlacesService.crawlAndSaveActivities.mockRejectedValue(
+      new Error('Google API unavailable'),
+    );
+    langChainService.generateChatResponse.mockResolvedValue(
+      aiJsonResponse({
+        activities: [
+          {
+            activityId: thinActivities[0].id,
+            activityName: thinActivities[0].name,
+            dayNumber: 1,
+            startTime: '10:00',
+            duration: 60,
+            notes: 'Visit it',
+            latitude: -34.62,
+            longitude: -58.37,
+          },
+        ],
+      }),
+    );
+
+    await service.generateTourActivities(TOUR_ID);
+
+    // Should have created a tour activity using the thin pool, not failed empty
+    expect(prisma.tourActivity.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ activityId: thinActivities[0].id }),
+      }),
+    );
+  });
+
   describe('updateTourActivityWaypoints', () => {
     it('replaces the snapshot with a valid subset', async () => {
       prisma.tourActivity.findUnique
