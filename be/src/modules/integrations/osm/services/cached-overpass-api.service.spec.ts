@@ -16,6 +16,10 @@ describe('CachedOverpassApiService', () => {
       queryBoundaryByName: jest.fn(),
       queryContainingBoundary: jest.fn(),
       queryStreets: jest.fn(),
+      queryBoundaryById: jest.fn(),
+      queryAdminBoundariesWithinArea: jest.fn(),
+      queryStreetsWithinArea: jest.fn(),
+      queryPoisWithinArea: jest.fn(),
     };
   });
 
@@ -124,5 +128,45 @@ describe('CachedOverpassApiService', () => {
 
     // Same underlying data, different method+params -> two distinct cache entries.
     expect(fs.readdirSync(path.join(tempDir, 'osm-cache'))).toHaveLength(2);
+  });
+
+  it('delegates queryBoundaryById to the real service and caches by params', async () => {
+    realService.queryBoundaryById.mockResolvedValue([]);
+    const service = await setup('write');
+
+    await service.queryBoundaryById({ osmType: 'relation', osmId: 1224652 });
+    await service.queryBoundaryById({ osmType: 'relation', osmId: 1224652 });
+
+    expect(realService.queryBoundaryById).toHaveBeenCalledTimes(1);
+  });
+
+  it('delegates queryAdminBoundariesWithinArea to the real service and caches by params', async () => {
+    realService.queryAdminBoundariesWithinArea.mockResolvedValue([]);
+    const service = await setup('write');
+
+    await service.queryAdminBoundariesWithinArea({ osmType: 'relation', osmId: 1224652 });
+    await service.queryAdminBoundariesWithinArea({ osmType: 'relation', osmId: 1224652 });
+
+    expect(realService.queryAdminBoundariesWithinArea).toHaveBeenCalledTimes(1);
+  });
+
+  it('delegates queryStreetsWithinArea to the real service and caches by params', async () => {
+    realService.queryStreetsWithinArea.mockResolvedValue([]);
+    const service = await setup('write');
+
+    await service.queryStreetsWithinArea({ osmType: 'relation', osmId: 2223069 });
+    await service.queryStreetsWithinArea({ osmType: 'relation', osmId: 2223069 });
+
+    expect(realService.queryStreetsWithinArea).toHaveBeenCalledTimes(1);
+  });
+
+  it('delegates queryPoisWithinArea to the real service and caches by params', async () => {
+    realService.queryPoisWithinArea.mockResolvedValue([]);
+    const service = await setup('write');
+
+    await service.queryPoisWithinArea({ osmType: 'relation', osmId: 2223069 });
+    await service.queryPoisWithinArea({ osmType: 'relation', osmId: 2223069 });
+
+    expect(realService.queryPoisWithinArea).toHaveBeenCalledTimes(1);
   });
 });

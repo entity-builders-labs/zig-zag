@@ -7,11 +7,16 @@ import {
   QueryBoundaryByNameParams,
   QueryContainingBoundaryParams,
   QueryStreetsParams,
+  QueryByIdParams,
 } from '../interfaces/overpass.interface';
 import {
   buildBoundaryByNameQuery,
   buildContainingBoundaryQuery,
   buildStreetsQuery,
+  buildBoundaryByIdQuery,
+  buildAdminBoundariesWithinAreaQuery,
+  buildStreetsWithinAreaQuery,
+  buildPoisWithinAreaQuery,
 } from '../utils/overpass-query.util';
 import { OverpassConcurrencyLimiter } from '../utils/overpass-concurrency.util';
 
@@ -92,5 +97,21 @@ export class OverpassApiService implements IOverpassApiService {
 
   async queryStreets(params: QueryStreetsParams): Promise<OverpassElement[]> {
     return this.execute(buildStreetsQuery(params));
+  }
+
+  async queryBoundaryById(params: QueryByIdParams): Promise<OverpassElement[]> {
+    return this.execute(buildBoundaryByIdQuery(params));
+  }
+
+  async queryAdminBoundariesWithinArea(params: QueryByIdParams): Promise<OverpassElement[]> {
+    return this.execute(buildAdminBoundariesWithinAreaQuery(params));
+  }
+
+  async queryStreetsWithinArea(params: QueryByIdParams): Promise<OverpassElement[]> {
+    return this.execute(buildStreetsWithinAreaQuery(params));
+  }
+
+  async queryPoisWithinArea(params: QueryByIdParams): Promise<OverpassElement[]> {
+    return this.execute(buildPoisWithinAreaQuery(params));
   }
 }

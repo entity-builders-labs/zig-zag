@@ -15,6 +15,10 @@ describe('OsmPlacesService', () => {
       queryBoundaryByName: jest.fn(),
       queryContainingBoundary: jest.fn(),
       queryStreets: jest.fn(),
+      queryBoundaryById: jest.fn(),
+      queryAdminBoundariesWithinArea: jest.fn(),
+      queryStreetsWithinArea: jest.fn(),
+      queryPoisWithinArea: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
