@@ -2,6 +2,7 @@ import {
   QueryBoundaryByNameParams,
   QueryContainingBoundaryParams,
   QueryStreetsParams,
+  QueryByIdParams,
 } from '../interfaces/overpass.interface';
 
 const MAX_NAME_LENGTH = 200;
@@ -79,5 +80,51 @@ export function buildStreetsQuery({
     '[out:json][timeout:25];',
     `way["highway"]["name"](around:${radiusMeters},${latitude},${longitude});`,
     'out geom;',
+  ].join('\n');
+}
+
+export function buildBoundaryByIdQuery({ osmType, osmId }: QueryByIdParams): string {
+  return ['[out:json][timeout:25];', `${osmType}(${osmId});`, 'out geom;'].join('\n');
+}
+
+// All three "within area" queries below share the same map_to_area pattern —
+// validated live against Overpass in the spike (see docs/superpowers/specs/
+// 2026-08-21-activity-engine-design.md, "Spike validation"): a resolved
+// relation/way's own real polygon, never a radius guess.
+export function buildAdminBoundariesWithinAreaQuery({ osmType, osmId }: QueryByIdParams): string {
+  return [
+    '[out:json][timeout:30];',
+    `${osmType}(${osmId});`,
+    'map_to_area->.a;',
+    '(',
+    '  relation["boundary"="administrative"](area.a);',
+    '  way["boundary"="administrative"](area.a);',
+    ');',
+    'out tags center;',
+  ].join('\n');
+}
+
+export function buildStreetsWithinAreaQuery({ osmType, osmId }: QueryByIdParams): string {
+  return [
+    '[out:json][timeout:30];',
+    `${osmType}(${osmId});`,
+    'map_to_area->.a;',
+    'way["highway"]["name"](area.a);',
+    'out tags center;',
+  ].join('\n');
+}
+
+export function buildPoisWithinAreaQuery({ osmType, osmId }: QueryByIdParams): string {
+  return [
+    '[out:json][timeout:30];',
+    `${osmType}(${osmId});`,
+    'map_to_area->.a;',
+    '(',
+    '  node["tourism"]["name"](area.a);',
+    '  node["amenity"~"^(marketplace|place_of_worship)$"]["name"](area.a);',
+    '  node["historic"]["name"](area.a);',
+    '  node["leisure"~"^(park|square)$"]["name"](area.a);',
+    ');',
+    'out tags center;',
   ].join('\n');
 }

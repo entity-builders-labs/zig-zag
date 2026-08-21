@@ -21,6 +21,10 @@ export interface OverpassElement {
   geometry?: { lat: number; lon: number }[];
   // Present on relations.
   members?: OverpassRelationMember[];
+  // Present on a way/relation fetched with `out center` instead of
+  // `out geom` — a lightweight centroid in place of full polygon geometry.
+  // See osm-geometry.util.ts's fallback handling (Task 9).
+  center?: { lat: number; lon: number };
 }
 
 export interface QueryBoundaryByNameParams {
@@ -41,6 +45,11 @@ export interface QueryStreetsParams {
   radiusMeters: number;
 }
 
+export interface QueryByIdParams {
+  osmType: 'way' | 'relation';
+  osmId: number;
+}
+
 // Deliberately scoped to exactly these three queries — not a general
 // Overpass client. queryBoundaryByName is for an area already known by name
 // (the generate-templates CLI, Fase 5). queryContainingBoundary is for live
@@ -53,4 +62,8 @@ export interface IOverpassApiService {
     params: QueryContainingBoundaryParams,
   ): Promise<OverpassElement[]>;
   queryStreets(params: QueryStreetsParams): Promise<OverpassElement[]>;
+  queryBoundaryById(params: QueryByIdParams): Promise<OverpassElement[]>;
+  queryAdminBoundariesWithinArea(params: QueryByIdParams): Promise<OverpassElement[]>;
+  queryStreetsWithinArea(params: QueryByIdParams): Promise<OverpassElement[]>;
+  queryPoisWithinArea(params: QueryByIdParams): Promise<OverpassElement[]>;
 }
