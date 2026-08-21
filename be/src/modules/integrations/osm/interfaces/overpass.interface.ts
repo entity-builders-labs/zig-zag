@@ -50,10 +50,15 @@ export interface QueryByIdParams {
   osmId: number;
 }
 
-// Deliberately scoped to exactly these three queries — not a general
-// Overpass client. queryBoundaryByName is for an area already known by name
-// (the generate-templates CLI, Fase 5). queryContainingBoundary is for live
-// tour generation (Fase 4), where only a point is known, never a name.
+// Deliberately scoped to two families of queries — not a general Overpass
+// client. Point/name-based queries (queryBoundaryByName, queryContainingBoundary,
+// queryStreets) support area discovery: queryBoundaryByName is for an area
+// already known by name (the generate-templates CLI, Fase 5).
+// queryContainingBoundary is for live tour generation (Fase 4), where only a
+// point is known, never a name. Area-scoped queries (queryBoundaryById,
+// queryAdminBoundariesWithinArea, queryStreetsWithinArea, queryPoisWithinArea)
+// operate on an already-known boundary id to explore its administrative
+// subdivisions, streets, and POIs.
 export interface IOverpassApiService {
   queryBoundaryByName(
     params: QueryBoundaryByNameParams,
