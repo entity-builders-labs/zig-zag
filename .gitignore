@@ -115,3 +115,6 @@ web-build/
 # Playwright E2E
 fe/test-results/
 fe/playwright-report/
+
+# Claude Code superpowers scratch workspace (ledgers, briefs, review packages)
+.superpowers/
