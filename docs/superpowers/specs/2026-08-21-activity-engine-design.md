@@ -15,37 +15,42 @@ Four confirmed root causes, all in the candidate-sourcing/ranking layer that run
 
 The deeper issue behind #3 and #4 is conceptual, not just a ranking bug: the system treats every destination — "123 Main St" and "Barcelona" alike — as a point + a Haversine radius. That model is correct for a point-scale destination (an address, a specific POI, "near this hotel") but wrong for an area-scale destination (a city, a region): searching a real city was never "find what's within N km of one coordinate," it's "explore this place's real structure and bring back its best, most relevant experiences — POIs and multi-stop composites alike."
 
-Point+radius should become an implementation detail used *within* a real sub-area (e.g., a 2km walkable radius around a neighborhood's own centroid to call Google Places or Overpass for that neighborhood) — never the definition of "what is Barcelona" at the top level. Composite activities (`NEIGHBORHOOD_WALK`/`ROUTE`/`EXPERIENCE`/`VariantTheme`) already model exactly the kind of multi-stop, themed experience a real trip should be full of; Google Places has no equivalent concept and never will (it only returns points). The gap today is entirely in orchestration, not in the underlying source integrations (`GooglePlacesService`, `OsmPlacesService`, Wikidata enrichment, `CompositeGenerationService`, the `generate-templates` CLI) — those already exist and are reused as-is by this design.
+Point+radius should be reserved for genuinely point-scale destinations (an address, a specific POI, "near this hotel") — never the definition of "what is Barcelona" at the top level. Within a real sub-area (a neighborhood), a polygon-containment query against that neighborhood's own OSM boundary replaces a radius guess entirely (confirmed feasible in the spike below); Google Places remains the exception, since its API only accepts a point+radius call, so a neighborhood's own centroid is used there — but only as an implementation detail of *calling that one API*, not as how the destination itself is modeled. Composite activities (`NEIGHBORHOOD_WALK`/`ROUTE`/`EXPERIENCE`/`VariantTheme`) already model exactly the kind of multi-stop, themed experience a real trip should be full of; Google Places has no equivalent concept and never will (it only returns points). The gap today is entirely in orchestration, not in the underlying source integrations (`GooglePlacesService`, `OsmPlacesService`, Wikidata enrichment, `CompositeGenerationService`, the `generate-templates` CLI) — those already exist and are reused as-is by this design.
 
 ## Design
 
+This design was validated with a live spike before implementation — real calls to Nominatim, Overpass, and Groq (with the exact production prompt/schema), no mocks. See "Spike validation" below. Three refinements below (Nominatim for name resolution, `map_to_area` instead of radius, relative neighborhood admin_level) came directly out of that spike, replacing an earlier draft that assumed a fixed admin_level range and radius-based neighborhood queries — both of which the spike showed to be wrong.
+
 ### 1. Destination resolution: point-scale vs. area-scale
 
-New step at the start of `generateTourActivities`, before any candidate search: given the tour's destination coordinates (still supplied by the existing FE autocomplete flow as a lat/lng hint — Geoapify/Google remain the "what did the user mean by this text" lookup), attempt to resolve a real OSM administrative boundary via Overpass, reusing the existing `["boundary"="administrative"]` query pattern (`OsmPlacesService.findBoundaryByName`-style, or a name-optional variant keyed off the resolved place's name when the frontend has it, falling back to `findContainingBoundary` semantics when it doesn't).
+New step at the start of `generateTourActivities`, before any candidate search: given the destination text the user typed (not just the lat/lng hint the FE autocomplete already resolves it to), resolve it via **Nominatim's structured search** (`https://nominatim.openstreetmap.org/search`), not a raw Overpass name query. Nominatim returns an `addresstype` per result ranked by `importance` — this is what actually disambiguates "Buenos Aires the city" from "Buenos Aires the province" or a same-named place in another country, which a bare Overpass `["name"~"..."]` regex query cannot do (confirmed in the spike: querying Overpass directly for "Buenos Aires" returned the city, its containing province, *and* an unrelated comuna, indistinguishable by name or admin_level alone; Nominatim's top result by `importance` was correctly the city, tagged `addresstype: city`).
 
-- **Resolved to a city/region-level boundary** (`admin_level` typically 4-8, above the neighborhood range already reserved for `NEIGHBORHOOD_ADMIN_LEVEL_RANGE`): **area-scale**. Persist/reuse it as an `Activity.kind=AREA` row (the model already supports this — `boundary` field, existing `AREA` kind) and proceed to §2.
-- **No administrative boundary found** (a street address, a named POI, an ambiguous or very small place): **point-scale**. Fall back to exactly today's point+radius flow, unchanged. This keeps the existing behavior for "search near my hotel"-style destinations, which it already serves correctly.
+- **`addresstype` is `city`/`town`/`village`/similar**: **area-scale**. Take the result's OSM relation id, fetch its boundary via Overpass (`relation(<id>); out geom;`), persist/reuse it as an `Activity.kind=AREA` row (the model already supports this — `boundary` field, existing `AREA` kind), and proceed to §2.
+- **`addresstype` is `state`/`country`/or no usable result**: out of scope per this design (see "Explicitly out of scope") — falls back to point-scale.
+- **`addresstype` is a finer-grained type (`house`, `amenity`, a specific POI) or Nominatim returns nothing**: **point-scale**. Falls back to exactly today's point+radius flow using the FE's existing lat/lng hint, unchanged. This keeps today's behavior for "search near my hotel"-style destinations.
 
-Degradation: if Overpass is unavailable or times out, treat as point-scale (same defensive fallback pattern `OsmPlacesService` already uses everywhere — never block or fail generation on this).
+Degradation: if Nominatim or Overpass is unavailable or times out, treat as point-scale (same defensive fallback pattern `OsmPlacesService` already uses everywhere — never block or fail generation on this).
 
 ### 2. Area-scale exploration: real neighborhoods, not one lucky point
 
-New `OsmPlacesService` method, e.g. `findNeighborhoodsWithin(boundary: OsmCandidate): Promise<OsmCandidate[]>`, using Overpass's `map_to_area` pattern to query real `admin_level` 8-11 sub-boundaries contained within the resolved city polygon (a true polygon-containment query, not a radius guess):
+New `OsmPlacesService` method, e.g. `findNeighborhoodsWithin(boundary: OsmCandidate): Promise<OsmCandidate[]>`, using Overpass's `map_to_area` pattern to query real administrative sub-boundaries contained within the resolved city polygon — a true polygon-containment query, not a radius guess:
 
 ```
 [out:json][timeout:25];
 relation(<city_relation_id>);
 map_to_area->.city;
 (
-  relation["boundary"="administrative"]["admin_level"~"^(8|9|10|11)$"](area.city);
-  way["boundary"="administrative"]["admin_level"~"^(8|9|10|11)$"](area.city);
+  relation["boundary"="administrative"](area.city);
+  way["boundary"="administrative"](area.city);
 );
-out geom;
+out tags center;
 ```
+
+Filter the results to `admin_level` = the resolved city's own `admin_level` + 1 (**relative**, not a fixed absolute range like "8-11") — the spike showed `admin_level` semantics aren't consistent across countries: Buenos Aires' own city boundary is `admin_level=8`, and its 48 real barrios (San Telmo, La Boca, Recoleta, Palermo, etc., all confirmed by name in the spike) sit at `admin_level=9`, immediately adjacent to the city's own level, not inside a fixed 8-11 window a different country's tagging could easily violate.
 
 A city can return dozens of these — not all are explored. Prioritize a bounded shortlist (K≈6-8, tunable) by, in order: (a) neighborhoods that already have a curated `ActivityFamily` in the DB (near-zero marginal cost, reuses trusted content — same principle `generate-templates` was built for), (b) existing POI density/quality within each neighborhood from a cheap DB query (a proxy for "this is a real, interesting area" without an extra external call). No interest-text matching against neighborhood names in this pass — YAGNI; interest matching happens once at candidate-ranking time (§4), uniformly, rather than duplicated here.
 
-For each shortlisted neighborhood: reuse the existing per-area pipeline as-is — `findStreetsNear(neighborhood centroid, capped radius)`, Wikidata enrichment, and either surface its existing `ActivityFamily` variants directly (cheap, preferred) or synthesize new composite proposals via `CompositeGenerationService`'s existing propose→verify→persist chain (same code path `generate-templates` and today's single-point live flow both already use). No new LLM prompting logic — the same `createTourChain()`/verification/anti-hallucination guarantees apply unchanged.
+For each shortlisted neighborhood: query its streets and POIs the same `map_to_area` way — `way["highway"]["name"](area.neighborhood)` and the equivalent `tourism`/`amenity`/`historic`/`leisure` node queries — scoped to the neighborhood's own real polygon instead of a radius guess around its centroid. This replaces `findStreetsNear`'s current `OVERPASS_MAX_RADIUS_METERS`-capped radius query for the area-scale path (point-scale destinations keep using the radius-based query — a real address has no polygon of its own to query against). Confirmed live in the spike: San Telmo's polygon alone yielded 178 real named streets and 50 real named POIs, no radius tuning needed. Wikidata enrichment and composite synthesis then proceed exactly as today — either surface the neighborhood's existing `ActivityFamily` variants directly (cheap, preferred) or synthesize new composite proposals via `CompositeGenerationService`'s existing propose→verify→persist chain (same code path `generate-templates` and today's single-point live flow both already use). No new LLM prompting logic — the same `createTourChain()`/verification/anti-hallucination guarantees apply unchanged, and were exercised as-is in the spike (see below).
 
 ### 3. POI sourcing at area scale
 
@@ -69,6 +74,17 @@ If `interests` is empty, skip `interestSimilarity` and fall back to exactly toda
 
 `generation-trace-builder.util.ts` gains a step describing which destination-resolution branch was taken (point-scale vs. area-scale, and if area-scale, which neighborhoods were shortlisted and why) — extending the same per-step trace pattern the bitácora already uses, so this remains debuggable in-app exactly like every other stage today.
 
+## Spike validation
+
+Before writing an implementation plan, the core hypothesis — that a city-scale destination can be resolved to real neighborhoods and turned into a grounded, non-hallucinated composite walk, using only pieces that already exist — was tested with live API calls (Nominatim, Overpass, Groq with the exact `CREATE_TOUR_JSON_SYSTEM_PROMPT`/schema from `create-tour.prompt.ts`), independent of the app (`USE_MOCK_MAPS=true` in this environment, so the app itself wasn't exercised — these were direct calls replicating what the new code would do):
+
+1. Nominatim resolved "Buenos Aires" to the correct city relation (`addresstype: city`, highest `importance`), correctly distinct from the Province of Buenos Aires and an unrelated Costa Rican county with the same name.
+2. `map_to_area` + `admin_level`=city's own level + 1, scoped to that relation, returned all 48 real barrios of Buenos Aires, including San Telmo, La Boca, Recoleta, and Palermo — not a single arbitrary point's containing boundary.
+3. The same `map_to_area` pattern, scoped to San Telmo's own polygon, returned 178 real named streets (including "Defensa", the neighborhood's famous main street) and 50 real named POIs (monuments, museums, galleries) — no radius tuning needed.
+4. Feeding those real candidates into the production prompt/schema via a real Groq call produced a coherent `NEIGHBORHOOD_WALK` — "San Telmo Historic & Art Walk", themed HISTORY, 7 waypoints. Every waypoint id was cross-checked against the candidate set fed to the model: **all 7 were real, zero hallucinated** — the existing anti-hallucination contract held under this new sourcing path without any changes to the prompt or verification code.
+
+This validates the design's feasibility end-to-end before committing to an implementation plan, and is the source of the three refinements folded into §1-2 above (Nominatim over raw Overpass name search, `map_to_area` over radius, relative over absolute `admin_level`). No code from this spike is kept — it was throwaway scripts run directly against public APIs, not part of the codebase.
+
 ## Explicitly out of scope
 
 - Destinations larger than a city (a region, a country) — no evidence this is asked for today; YAGNI.
@@ -78,8 +94,8 @@ If `interests` is empty, skip `interestSimilarity` and fall back to exactly toda
 
 ## Testing
 
-- Unit tests for destination resolution: area-scale boundary found → `AREA` activity persisted/reused; no boundary found → falls back to point-scale unchanged; Overpass failure/timeout → falls back to point-scale, never throws.
-- Unit tests for `findNeighborhoodsWithin`: parses a multi-relation Overpass response into `OsmCandidate[]`, filters by admin_level range (reusing existing coverage patterns from `findContainingBoundary`'s tests).
+- Unit tests for destination resolution: Nominatim `addresstype: city`/`town` → area-scale, `AREA` activity persisted/reused; `state`/`country`/no result → point-scale; Nominatim or Overpass failure/timeout → falls back to point-scale, never throws.
+- Unit tests for `findNeighborhoodsWithin`: parses a multi-relation Overpass response into `OsmCandidate[]`, filters by admin_level = city's own level + 1 (not a fixed range — reusing existing coverage patterns from `findContainingBoundary`'s tests).
 - Unit tests for neighborhood shortlisting: prioritizes existing-`ActivityFamily` neighborhoods over cold ones given the same POI-density input.
 - Unit tests for the crawl-refresh threshold: triggers below `MIN_SUFFICIENT_ACTIVITIES` even when count > 0; skips when at/above it.
 - Unit tests for the unified relevance scorer: POI-vs-composite parity given matching interest similarity; empty `interests` reproduces today's exact sort; missing embedding degrades to `qualityBonus` only.
