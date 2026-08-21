@@ -66,13 +66,17 @@ describe('LangChainService', () => {
     });
 
     it('throws a descriptive error when the request fails', async () => {
-      (global.fetch as jest.Mock).mockResolvedValue({ ok: false, status: 404 });
+      (global.fetch as jest.Mock).mockResolvedValue({
+        ok: false,
+        status: 404,
+        text: async () => 'model not found',
+      });
 
       await expect(
         service.generateCompletionResponse('Classify: {name}', {
           name: 'x',
         }),
-      ).rejects.toThrow('Groq error 404');
+      ).rejects.toThrow('Groq error 404: model not found');
     });
 
     it('returns the cached response without calling fetch when present', async () => {
@@ -137,11 +141,15 @@ describe('LangChainService', () => {
     });
 
     it('throws a descriptive error when the request fails', async () => {
-      (global.fetch as jest.Mock).mockResolvedValue({ ok: false, status: 500 });
+      (global.fetch as jest.Mock).mockResolvedValue({
+        ok: false,
+        status: 500,
+        text: async () => 'internal error',
+      });
 
       await expect(
         service.generateChatResponse('system', 'user prompt'),
-      ).rejects.toThrow('Groq error 500');
+      ).rejects.toThrow('Groq error 500: internal error');
     });
   });
 });
