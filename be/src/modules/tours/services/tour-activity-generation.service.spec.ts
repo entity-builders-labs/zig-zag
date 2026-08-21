@@ -11,6 +11,7 @@ import { TourActivityGenerationService } from './tour-activity-generation.servic
 import { ToursService } from './tours.service';
 import { TourImageService } from './tour-image.service';
 import { CompositeGenerationService } from './composite-generation.service';
+import { DestinationResolutionService } from './destination-resolution.service';
 
 // transformAiActivitiesToDto only keeps `activityId` when it passes
 // isValidId() (a real UUID v4 or Mongo ObjectId) — real Activity rows
@@ -56,6 +57,7 @@ describe('TourActivityGenerationService', () => {
   let compositeActivityService: any;
   let tourImageService: any;
   let vectorStoreService: any;
+  let destinationResolutionService: any;
 
   const buildTour = (overrides: any = {}) => ({
     id: TOUR_ID,
@@ -70,7 +72,11 @@ describe('TourActivityGenerationService', () => {
 
   beforeEach(async () => {
     prisma = {
-      activity: { findMany: jest.fn().mockResolvedValue([]) },
+      activity: {
+        findMany: jest.fn().mockResolvedValue([]),
+        findFirst: jest.fn().mockResolvedValue(null),
+      },
+      activityFamily: { count: jest.fn().mockResolvedValue(0) },
       activityWaypoint: { findMany: jest.fn().mockResolvedValue([]) },
       tourActivity: {
         create: jest.fn(async ({ data }: any) => ({
@@ -108,6 +114,12 @@ describe('TourActivityGenerationService', () => {
     osmPlacesService = {
       findStreetsNear: jest.fn().mockResolvedValue([]),
       findContainingBoundary: jest.fn().mockResolvedValue(null),
+      findNeighborhoodsWithin: jest.fn().mockResolvedValue([]),
+      findStreetsWithin: jest.fn().mockResolvedValue([]),
+      findPoisWithin: jest.fn().mockResolvedValue([]),
+    };
+    destinationResolutionService = {
+      resolveDestination: jest.fn().mockResolvedValue({ scale: 'point' }),
     };
     wikidataApiService = {
       getEntitySummaries: jest.fn().mockResolvedValue(new Map()),
@@ -142,6 +154,10 @@ describe('TourActivityGenerationService', () => {
         {
           provide: CompositeActivityService,
           useValue: compositeActivityService,
+        },
+        {
+          provide: DestinationResolutionService,
+          useValue: destinationResolutionService,
         },
       ],
     }).compile();
@@ -267,6 +283,7 @@ describe('TourActivityGenerationService', () => {
     expect(trace.duplicateCount).toBe(0);
     expect(trace.auditFindings).toBeDefined();
     expect(trace.steps.map((s: any) => s.stage)).toEqual([
+      'destination_resolution',
       'db_search',
       'osm_streets',
       'osm_boundary',
@@ -1097,6 +1114,148 @@ describe('TourActivityGenerationService', () => {
     await service.generateTourActivities(TOUR_ID);
 
     expect(vectorStoreService.getSimilarityScores).not.toHaveBeenCalled();
+  });
+
+  describe('area-scale destinations', () => {
+    it('explores shortlisted neighborhoods and offers their real streets/POIs as composite candidates for an area-scale destination', async () => {
+      toursService.findOne.mockResolvedValue(
+        buildTour({
+          metadata: {
+            options: {
+              latitude: -34.62,
+              longitude: -58.37,
+              radius: 3000,
+              destination: 'Buenos Aires',
+            },
+            originalPrompt: 'A tour of San Telmo',
+          },
+        }),
+      );
+      const boundary = {
+        id: 'osm:relation:1224652',
+        name: 'Buenos Aires',
+        osmType: 'relation' as const,
+        osmId: 1224652,
+        geometry: {
+          type: 'Polygon' as const,
+          coordinates: [
+            [
+              [-58.53, -34.7],
+              [-58.33, -34.7],
+              [-58.33, -34.53],
+              [-58.53, -34.53],
+              [-58.53, -34.7],
+            ],
+          ],
+        },
+        tags: { name: 'Buenos Aires', admin_level: '8' },
+      };
+      const areaActivity = {
+        id: 'area-ba',
+        kind: ActivityKind.AREA,
+        name: 'Buenos Aires',
+      };
+      destinationResolutionService.resolveDestination.mockResolvedValue({
+        scale: 'area',
+        areaActivity,
+        boundary,
+      });
+      const sanTelmo = {
+        id: 'osm:relation:2223069',
+        name: 'San Telmo',
+        osmType: 'relation' as const,
+        osmId: 2223069,
+        geometry: {
+          type: 'Polygon' as const,
+          coordinates: [
+            [
+              [0, 0],
+              [1, 0],
+              [1, 1],
+              [0, 0],
+            ],
+          ],
+        },
+        tags: { name: 'San Telmo', admin_level: '9' },
+      };
+      osmPlacesService.findNeighborhoodsWithin.mockResolvedValue([sanTelmo]);
+      osmPlacesService.findStreetsWithin.mockResolvedValue([
+        {
+          id: 'osm:way:1',
+          name: 'Defensa',
+          osmType: 'way',
+          osmId: 1,
+          geometry: {
+            type: 'LineString',
+            coordinates: [
+              [0, 0],
+              [0, 1],
+            ],
+          },
+          tags: { name: 'Defensa', highway: 'pedestrian' },
+        },
+      ]);
+      osmPlacesService.findPoisWithin.mockResolvedValue([]);
+      activitiesService.findAll.mockResolvedValue([]);
+      langChainService.generateChatResponse.mockResolvedValue(
+        aiJsonResponse({}),
+      );
+
+      await service.generateTourActivities(TOUR_ID);
+
+      expect(
+        destinationResolutionService.resolveDestination,
+      ).toHaveBeenCalledWith('Buenos Aires');
+      expect(osmPlacesService.findNeighborhoodsWithin).toHaveBeenCalledWith(
+        boundary,
+      );
+      expect(osmPlacesService.findStreetsWithin).toHaveBeenCalledWith(sanTelmo);
+      const [, promptArg] = langChainService.generateChatResponse.mock.calls[0];
+      expect(promptArg).toContain('Defensa');
+    });
+
+    it('bounds the POI search by the resolved area geometry instead of the tour options radius', async () => {
+      const boundary = {
+        id: 'osm:relation:1224652',
+        name: 'Buenos Aires',
+        osmType: 'relation' as const,
+        osmId: 1224652,
+        geometry: {
+          type: 'Polygon' as const,
+          coordinates: [
+            [
+              [-58.53, -34.7],
+              [-58.33, -34.7],
+              [-58.33, -34.53],
+              [-58.53, -34.53],
+              [-58.53, -34.7],
+            ],
+          ],
+        },
+        tags: { name: 'Buenos Aires', admin_level: '8' },
+      };
+      destinationResolutionService.resolveDestination.mockResolvedValue({
+        scale: 'area',
+        areaActivity: {
+          id: 'area-ba',
+          kind: ActivityKind.AREA,
+          name: 'Buenos Aires',
+        },
+        boundary,
+      });
+      osmPlacesService.findNeighborhoodsWithin.mockResolvedValue([]);
+      activitiesService.findAll.mockResolvedValue([]);
+      langChainService.generateChatResponse.mockResolvedValue(
+        aiJsonResponse({}),
+      );
+
+      await service.generateTourActivities(TOUR_ID);
+
+      const [, , radiusArg] = activitiesService.findAll.mock.calls[0];
+      // The mock tour's own options.radius is 3000 — the area-bounded call
+      // must use a different, geometry-derived radius, not that value.
+      expect(radiusArg).not.toBe(3000);
+    });
   });
 
   describe('updateTourActivityWaypoints', () => {

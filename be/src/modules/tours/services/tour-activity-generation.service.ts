@@ -17,6 +17,9 @@ import {
 import { ToursService } from './tours.service';
 import { TourImageService } from './tour-image.service';
 import { CompositeGenerationService } from './composite-generation.service';
+import { DestinationResolutionService } from './destination-resolution.service';
+import { boundingBoxToCenterRadius } from '../utils/geometry-search-area.util';
+import { shortlistNeighborhoods } from '../utils/neighborhood-shortlist.util';
 import { GenerateTourOptions } from '../interfaces/tour-generation.interface';
 import { transformAiActivitiesToDto } from '../utils/activity-transformer.util';
 import { updateTravelTimesForActivities } from '../utils/travel-time-calculator.util';
@@ -35,9 +38,11 @@ import {
 import { auditGeneration } from '../utils/generation-audit.util';
 import {
   buildDbSearchStep,
+  buildDestinationResolutionStep,
   buildEmbeddingsStep,
   buildGooglePlacesCrawlStep,
   buildLlmGenerationStep,
+  buildNeighborhoodShortlistStep,
   buildOsmBoundaryStep,
   buildOsmStreetsStep,
   buildVerificationStep,
@@ -66,6 +71,7 @@ export class TourActivityGenerationService {
     private readonly tourImageService: TourImageService,
     private readonly osmPlacesService: OsmPlacesService,
     private readonly compositeGenerationService: CompositeGenerationService,
+    private readonly destinationResolutionService: DestinationResolutionService,
   ) {}
 
   /**
@@ -210,9 +216,32 @@ export class TourActivityGenerationService {
       const traceSteps: GenerationTraceStep[] = [];
       const traceCandidateLists: TraceCandidate[][] = [];
 
+      const destinationResolution =
+        await this.destinationResolutionService.resolveDestination(
+          options.destination,
+        );
+      traceSteps.push(
+        buildDestinationResolutionStep(
+          options.destination,
+          destinationResolution,
+        ),
+      );
+      const isAreaScale = destinationResolution.scale === 'area';
+
+      // Area-scale: the search area is the resolved boundary's own extent,
+      // never the FE-derived viewport radius. Point-scale: today's exact
+      // behavior, unchanged.
+      const searchArea = isAreaScale
+        ? boundingBoxToCenterRadius(destinationResolution.boundary.geometry)
+        : {
+            latitude: options.latitude,
+            longitude: options.longitude,
+            radiusMeters: options.radius || 25000,
+          };
+
       // Search for existing activities if location provided
       if (options?.latitude && options?.longitude) {
-        const radius = options.radius || 25000;
+        const radius = searchArea.radiusMeters;
         const activityLimit = 20;
 
         // Update status: searching for activities
@@ -225,8 +254,8 @@ export class TourActivityGenerationService {
         try {
           const nearbyActivities = await Promise.race([
             this.activitiesService.findAll(
-              options.latitude.toString(),
-              options.longitude.toString(),
+              searchArea.latitude.toString(),
+              searchArea.longitude.toString(),
               radius,
               activityLimit,
             ),
@@ -276,15 +305,15 @@ export class TourActivityGenerationService {
             try {
               // Trigger Google Maps crawling
               await this.googlePlacesService.crawlAndSaveActivities({
-                latitude: options.latitude,
-                longitude: options.longitude,
+                latitude: searchArea.latitude,
+                longitude: searchArea.longitude,
                 radius: Math.min(radius, 5000), // Cap radius for Google Maps
               });
 
               // Try searching again after crawling
               const refreshedActivities = await this.activitiesService.findAll(
-                options.latitude.toString(),
-                options.longitude.toString(),
+                searchArea.latitude.toString(),
+                searchArea.longitude.toString(),
                 radius,
                 activityLimit,
               );
@@ -391,25 +420,92 @@ export class TourActivityGenerationService {
         // a NEIGHBORHOOD_WALK/EXPERIENCE has a real ActivityFamily to
         // belong to, never one the LLM has to invent). Entirely optional —
         // OsmPlacesService never throws, it degrades to empty/null.
-        const [rawStreetCandidates, resolvedArea] = await Promise.all([
-          this.osmPlacesService.findStreetsNear(
-            options.latitude,
-            options.longitude,
-            radius,
-          ),
-          this.osmPlacesService.findContainingBoundary(
-            options.latitude,
-            options.longitude,
-          ),
-        ]);
-        // A dense neighborhood can have hundreds of named ways within the
-        // search radius — same cap pattern as the flat activities list
-        // above (activityLimit=20/slice(0,15)). Without one, a real
-        // Overpass response reliably blows past Groq's per-request payload
-        // limit (413) once every candidate's formatted line is in the
-        // prompt.
-        const streetCandidates = rawStreetCandidates.slice(0, 20);
-        areaCandidate = resolvedArea;
+        let streetCandidates: OsmCandidate[] = [];
+
+        if (isAreaScale) {
+          areaCandidate = destinationResolution.boundary;
+          const rawNeighborhoods =
+            await this.osmPlacesService.findNeighborhoodsWithin(
+              destinationResolution.boundary,
+            );
+          // findPoisWithin is called once per raw neighborhood here — its
+          // result doubles as the shortlisting signal (poiCount) AND, for
+          // whichever neighborhoods end up shortlisted below, the actual POI
+          // candidates offered to the LLM (no second fetch) — validated live
+          // in the spike, where a neighborhood's real POI nodes (monuments,
+          // museums) were legitimately chosen as composite waypoints
+          // alongside its streets, not merely a scoring input.
+          const poisByNeighborhoodId = new Map<string, OsmCandidate[]>();
+          const scoringInputs = await Promise.all(
+            rawNeighborhoods.map(async (neighborhood) => {
+              const neighborhoodActivity = await this.prisma.activity.findFirst(
+                {
+                  where: {
+                    externalId: `${neighborhood.osmType}/${neighborhood.osmId}`,
+                    kind: ActivityKind.AREA,
+                  },
+                  select: { id: true },
+                },
+              );
+              const existingFamilyCount = neighborhoodActivity
+                ? await this.prisma.activityFamily.count({
+                    where: { areaActivityId: neighborhoodActivity.id },
+                  })
+                : 0;
+              const pois =
+                await this.osmPlacesService.findPoisWithin(neighborhood);
+              poisByNeighborhoodId.set(neighborhood.id, pois);
+              return {
+                candidate: neighborhood,
+                hasExistingFamily: existingFamilyCount > 0,
+                poiCount: pois.length,
+              };
+            }),
+          );
+          const shortlisted = shortlistNeighborhoods(scoringInputs);
+
+          const perNeighborhood = await Promise.all(
+            shortlisted.map(async (neighborhood) => ({
+              streets:
+                await this.osmPlacesService.findStreetsWithin(neighborhood),
+              pois: poisByNeighborhoodId.get(neighborhood.id) ?? [],
+            })),
+          );
+          // Streets and POI nodes from every shortlisted neighborhood, merged
+          // into the same candidate set the LLM sees as "Available OSM
+          // features" — a POI node can be picked as a waypoint exactly like
+          // a street (see composite-activity.service.ts's Point-geometry
+          // handling, this same task). Capped to 20 total, same rationale as
+          // the point-scale path below (Overpass/Groq payload limits).
+          streetCandidates = perNeighborhood
+            .flatMap((n) => [...n.streets, ...n.pois])
+            .slice(0, 20);
+
+          traceSteps.push(
+            buildNeighborhoodShortlistStep(rawNeighborhoods, shortlisted),
+          );
+        } else {
+          const [rawStreetCandidates, resolvedArea] = await Promise.all([
+            this.osmPlacesService.findStreetsNear(
+              searchArea.latitude,
+              searchArea.longitude,
+              radius,
+            ),
+            this.osmPlacesService.findContainingBoundary(
+              searchArea.latitude,
+              searchArea.longitude,
+            ),
+          ]);
+          // A dense neighborhood can have hundreds of named ways within the
+          // search radius — same cap pattern as the flat activities list
+          // above (activityLimit=20/slice(0,15)). Without one, a real
+          // Overpass response reliably blows past Groq's per-request payload
+          // limit (413) once every candidate's formatted line is in the
+          // prompt.
+          streetCandidates = rawStreetCandidates.slice(0, 20);
+          areaCandidate = resolvedArea;
+        }
+
         candidateOsmFeaturesById = new Map(
           streetCandidates.map((c) => [c.id, c]),
         );
@@ -461,8 +557,14 @@ export class TourActivityGenerationService {
       // Never let the AI invent activities out of thin air — every stop must
       // come from real places found in our database or crawled from
       // Google/Geoapify. If neither search nor crawl turned up anything
-      // real for this location, fail loudly instead of hallucinating a tour.
-      if (!availableActivitiesText) {
+      // real for this location, fail loudly instead of hallucinating a
+      // tour. Point-scale only (exact original behavior) — an area-scale
+      // destination is allowed to come up empty at this stage (e.g. a real
+      // city resolved but its shortlisted neighborhoods had no flat DB/
+      // Google activities yet, only OSM streets/POIs): it still moves on to
+      // the LLM call with whatever real OSM candidates were found, and
+      // guard's the AI's own picks afterward instead (see below).
+      if (!isAreaScale && !availableActivitiesText) {
         throw new Error(
           'No se encontraron lugares reales para esta ubicación. Probá con otro destino o un radio de búsqueda más amplio.',
         );
@@ -629,7 +731,12 @@ export class TourActivityGenerationService {
         startTime: p.startTime,
       }));
 
+      // Same point-scale-only hard failure as the guard above — an
+      // area-scale exploration that the LLM ultimately picked nothing real
+      // from is still a legitimate (if disappointing) outcome, fully
+      // captured in the bitácora trace above, not a hard error.
       if (
+        !isAreaScale &&
         uniqueActivities.length === 0 &&
         compositeGeneratedActivities.length === 0
       ) {
