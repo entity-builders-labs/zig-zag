@@ -28,6 +28,10 @@ import {
   formatOsmFeatureForPrompt,
 } from '../utils/activity-prompt-formatter.util';
 import { verifySelectedWaypointSubset } from '../utils/composite-activity-verification.util';
+import {
+  rankCandidatesByRelevance,
+  RankableCandidate,
+} from '../utils/candidate-ranking.util';
 import { auditGeneration } from '../utils/generation-audit.util';
 import {
   buildDbSearchStep,
@@ -87,6 +91,53 @@ export class TourActivityGenerationService {
         },
       },
     });
+  }
+
+  /**
+   * Re-ranks a DB-proximity result set by interest relevance before slicing
+   * to the LLM's candidate window — see candidate-ranking.util.ts and
+   * docs/superpowers/specs/2026-08-21-activity-engine-design.md. No
+   * interests, or embeddings unavailable/failing: falls back to the DB's own
+   * weightedScore + distance order (today's exact behavior), sliced the
+   * same way.
+   */
+  private async rankAndSliceActivities(
+    activities: any[],
+    interests: string[] | undefined,
+  ): Promise<any[]> {
+    if (!interests || interests.length === 0) {
+      return activities.slice(0, 15);
+    }
+
+    let similarityById: Map<string, number> | null = null;
+    try {
+      similarityById = await this.vectorStoreService.getSimilarityScores(
+        activities.map((a) => a.id),
+        interests.join(', '),
+      );
+    } catch (error: any) {
+      this.logger.warn(
+        `Interest-similarity lookup failed, falling back to rating-only ranking: ${error.message}`,
+      );
+    }
+
+    // A row from ActivitiesService.findAll can itself be an existing
+    // composite variant (kind NEIGHBORHOOD_WALK/ROUTE/EXPERIENCE) — those
+    // must score as 'composite' (isCurated bonus), never 'poi'
+    // (weightedScore), or they'd keep inheriting the exact flat-prior
+    // unfairness this design set out to remove (spec root cause #3).
+    const rankable: (RankableCandidate & { original: any })[] = activities.map(
+      (a) => ({
+        id: a.id,
+        source: a.kind && a.kind !== 'POI' ? 'composite' : 'poi',
+        weightedScore: a.weightedScore,
+        isCurated: a.isCurated,
+        original: a,
+      }),
+    );
+    return rankCandidatesByRelevance(rankable, similarityById)
+      .slice(0, 15)
+      .map((r) => r.original);
   }
 
   /**
@@ -195,7 +246,10 @@ export class TourActivityGenerationService {
               `${nearbyActivities.length} actividades encontradas. Ordenando según tus preferencias...`,
             );
 
-            const nearbyActivitiesSample = nearbyActivities.slice(0, 15);
+            const nearbyActivitiesSample = await this.rankAndSliceActivities(
+              nearbyActivities,
+              options.interests,
+            );
             nearbyActivitiesSample.forEach((act: any) => {
               candidateActivityIds.add(act.id);
               candidateActivitiesById.set(act.id, act);
@@ -213,14 +267,11 @@ export class TourActivityGenerationService {
             traceSteps.push(buildDbSearchStep(nearbyActivities, radius / 1000));
 
             // Update status: pool is too thin, triggering Google Maps crawl
-            const poolStatus = nearbyActivities.length > 0
-              ? `Se encontraron ${nearbyActivities.length} actividades pero insuficientes. Buscando más en Google Maps...`
-              : 'No se encontraron actividades locales. Buscando en Google Maps...';
-            await this.updateGenerationStatus(
-              tourId,
-              'generating',
-              poolStatus,
-            );
+            const poolStatus =
+              nearbyActivities.length > 0
+                ? `Se encontraron ${nearbyActivities.length} actividades pero insuficientes. Buscando más en Google Maps...`
+                : 'No se encontraron actividades locales. Buscando en Google Maps...';
+            await this.updateGenerationStatus(tourId, 'generating', poolStatus);
 
             try {
               // Trigger Google Maps crawling
@@ -245,10 +296,11 @@ export class TourActivityGenerationService {
                   `¡Encontrados ${refreshedActivities.length} lugares nuevos en Google Maps! Analizando...`,
                 );
 
-                const refreshedActivitiesSample = refreshedActivities.slice(
-                  0,
-                  15,
-                );
+                const refreshedActivitiesSample =
+                  await this.rankAndSliceActivities(
+                    refreshedActivities,
+                    options.interests,
+                  );
                 refreshedActivitiesSample.forEach((act: any) => {
                   candidateActivityIds.add(act.id);
                   candidateActivitiesById.set(act.id, act);
@@ -397,7 +449,13 @@ export class TourActivityGenerationService {
           );
           indexedCount = Number(rows[0]?.count ?? 0);
         }
-        traceSteps.push(buildEmbeddingsStep(offeredIds.length, indexedCount));
+        traceSteps.push(
+          buildEmbeddingsStep(
+            offeredIds.length,
+            indexedCount,
+            !!options.interests?.length,
+          ),
+        );
       }
 
       // Never let the AI invent activities out of thin air — every stop must

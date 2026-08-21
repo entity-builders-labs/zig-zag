@@ -123,16 +123,17 @@ export function buildOsmBoundaryStep(
 export function buildEmbeddingsStep(
   offeredCount: number,
   indexedCount: number,
+  interestsUsedForRanking: boolean,
 ): GenerationTraceStep {
   return {
     stage: 'embeddings',
     label: 'Embeddings (pgvector)',
-    summary:
-      `${indexedCount} de ${offeredCount} candidatos ofrecidos tienen embedding indexado en pgvector, ` +
-      'pero no se usaron para la selección: la búsqueda de candidatos en este flujo es puramente por ' +
-      'proximidad geográfica (Haversine). La búsqueda por similitud semántica existe ' +
-      '(VectorStoreService.findSimilarActivities) pero solo se invoca hoy desde TourGenerationService.generateTour(), ' +
-      'un método deprecated que el wizard no usa.',
+    summary: interestsUsedForRanking
+      ? `${indexedCount} de ${offeredCount} candidatos ofrecidos tienen embedding indexado en pgvector, ` +
+        'usado junto con el rating para priorizar candidatos según los intereses declarados.'
+      : `${indexedCount} de ${offeredCount} candidatos ofrecidos tienen embedding indexado en pgvector, ` +
+        'pero no se usaron para la selección: esta generación no tenía intereses declarados, así que se ' +
+        'ordenó únicamente por rating y proximidad.',
   };
 }
 

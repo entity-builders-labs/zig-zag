@@ -55,6 +55,7 @@ describe('TourActivityGenerationService', () => {
   let wikidataApiService: any;
   let compositeActivityService: any;
   let tourImageService: any;
+  let vectorStoreService: any;
 
   const buildTour = (overrides: any = {}) => ({
     id: TOUR_ID,
@@ -115,6 +116,9 @@ describe('TourActivityGenerationService', () => {
     tourImageService = {
       generateTourCoverImage: jest.fn().mockResolvedValue(undefined),
     };
+    vectorStoreService = {
+      getSimilarityScores: jest.fn().mockResolvedValue(new Map()),
+    };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -130,7 +134,7 @@ describe('TourActivityGenerationService', () => {
         { provide: ToursService, useValue: toursService },
         { provide: ActivitiesService, useValue: activitiesService },
         { provide: LangChainService, useValue: langChainService },
-        { provide: VectorStoreService, useValue: {} },
+        { provide: VectorStoreService, useValue: vectorStoreService },
         { provide: GooglePlacesService, useValue: googlePlacesService },
         { provide: TourImageService, useValue: tourImageService },
         { provide: OsmPlacesService, useValue: osmPlacesService },
@@ -288,7 +292,7 @@ describe('TourActivityGenerationService', () => {
     const embeddingsStep = trace.steps.find(
       (s: any) => s.stage === 'embeddings',
     );
-    expect(embeddingsStep.summary).toContain('proximidad geográfica');
+    expect(embeddingsStep.summary).toContain('no tenía intereses declarados');
   });
 
   it('does not break POI generation when Overpass (streets/boundary) fails', async () => {
@@ -771,13 +775,28 @@ describe('TourActivityGenerationService', () => {
     const thinPoiId = testUuid();
     activitiesService.findAll
       .mockResolvedValueOnce([
-        { id: thinPoiId, name: 'Only one place', latitude: -34.62, longitude: -58.37 },
+        {
+          id: thinPoiId,
+          name: 'Only one place',
+          latitude: -34.62,
+          longitude: -58.37,
+        },
       ])
       .mockResolvedValueOnce([
-        { id: thinPoiId, name: 'Only one place', latitude: -34.62, longitude: -58.37 },
+        {
+          id: thinPoiId,
+          name: 'Only one place',
+          latitude: -34.62,
+          longitude: -58.37,
+        },
       ]);
     prisma.activity.findMany.mockResolvedValue([
-      { id: thinPoiId, latitude: -34.62, longitude: -58.37, kind: ActivityKind.POI },
+      {
+        id: thinPoiId,
+        latitude: -34.62,
+        longitude: -58.37,
+        kind: ActivityKind.POI,
+      },
     ]);
     langChainService.generateChatResponse.mockResolvedValue(
       aiJsonResponse({
@@ -885,6 +904,199 @@ describe('TourActivityGenerationService', () => {
         data: expect.objectContaining({ activityId: thinActivities[0].id }),
       }),
     );
+  });
+
+  it('ranks a lower-rated but more relevant POI ahead of a higher-rated irrelevant one when interests are given', async () => {
+    const relevantId = testUuid();
+    const irrelevantId = testUuid();
+    toursService.findOne.mockResolvedValue(
+      buildTour({
+        metadata: {
+          options: {
+            latitude: -34.62,
+            longitude: -58.37,
+            radius: 3000,
+            interests: ['history'],
+          },
+          originalPrompt: 'A tour',
+        },
+      }),
+    );
+    activitiesService.findAll.mockResolvedValue(
+      Array.from({ length: 16 }, (_, i) => ({
+        id: i === 0 ? irrelevantId : i === 1 ? relevantId : testUuid(),
+        name:
+          i === 0
+            ? 'Irrelevant but top-rated'
+            : i === 1
+              ? 'Relevant history site'
+              : `Filler ${i}`,
+        latitude: -34.62,
+        longitude: -58.37,
+        rating: i === 0 ? 4.9 : 3.5,
+        ratingCount: 100,
+      })),
+    );
+    vectorStoreService.getSimilarityScores.mockResolvedValue(
+      new Map([
+        [irrelevantId, 0.05],
+        [relevantId, 0.95],
+      ]),
+    );
+    prisma.activity.findMany.mockResolvedValue([
+      {
+        id: relevantId,
+        latitude: -34.62,
+        longitude: -58.37,
+        kind: ActivityKind.POI,
+      },
+    ]);
+    langChainService.generateChatResponse.mockResolvedValue(
+      aiJsonResponse({
+        activities: [
+          {
+            activityId: relevantId,
+            activityName: 'Relevant history site',
+            dayNumber: 1,
+            startTime: '10:00',
+            duration: 60,
+            notes: 'Visit it',
+            latitude: -34.62,
+            longitude: -58.37,
+          },
+        ],
+      }),
+    );
+
+    await service.generateTourActivities(TOUR_ID);
+
+    expect(vectorStoreService.getSimilarityScores).toHaveBeenCalledWith(
+      expect.arrayContaining([relevantId, irrelevantId]),
+      'history',
+    );
+    const [, callArgs] = langChainService.generateChatResponse.mock.calls[0];
+    // The prompt's "Available activities" text must list the relevant,
+    // lower-rated site ahead of the irrelevant, higher-rated one.
+    expect(callArgs.indexOf('Relevant history site')).toBeLessThan(
+      callArgs.indexOf('Irrelevant but top-rated'),
+    );
+  });
+
+  it('scores an existing curated composite variant from findAll by its curated bonus, not a fake rating', async () => {
+    const curatedWalkId = testUuid();
+    const mediocrePoiId = testUuid();
+    toursService.findOne.mockResolvedValue(
+      buildTour({
+        metadata: {
+          options: {
+            latitude: -34.62,
+            longitude: -58.37,
+            radius: 3000,
+            interests: ['history'],
+          },
+          originalPrompt: 'A tour',
+        },
+      }),
+    );
+    activitiesService.findAll.mockResolvedValue([
+      {
+        id: mediocrePoiId,
+        name: 'Mediocre plain POI',
+        latitude: -34.62,
+        longitude: -58.37,
+        rating: 3.0,
+        ratingCount: 50,
+        kind: 'POI',
+        weightedScore: 3.2,
+      },
+      {
+        id: curatedWalkId,
+        name: 'San Telmo Historic Walk',
+        latitude: -34.62,
+        longitude: -58.37,
+        kind: 'NEIGHBORHOOD_WALK',
+        isCurated: true,
+        weightedScore: 4.0, // the old flat PRIOR_MEAN default — must NOT be used for a composite
+      },
+    ]);
+    vectorStoreService.getSimilarityScores.mockResolvedValue(
+      new Map([
+        [mediocrePoiId, 0.5],
+        [curatedWalkId, 0.5],
+      ]),
+    );
+    prisma.activity.findMany.mockResolvedValue([
+      {
+        id: curatedWalkId,
+        latitude: -34.62,
+        longitude: -58.37,
+        kind: ActivityKind.NEIGHBORHOOD_WALK,
+      },
+    ]);
+    langChainService.generateChatResponse.mockResolvedValue(
+      aiJsonResponse({
+        activities: [
+          {
+            activityId: curatedWalkId,
+            activityName: 'San Telmo Historic Walk',
+            dayNumber: 1,
+            startTime: '10:00',
+            duration: 60,
+            notes: 'Walk it',
+            latitude: -34.62,
+            longitude: -58.37,
+          },
+        ],
+      }),
+    );
+
+    await service.generateTourActivities(TOUR_ID);
+
+    // Equal interest similarity (0.5): the curated composite's +0.15 bonus
+    // must be compared against the POI's weightedScore-derived bonus
+    // (3.2/5*0.2=0.128), not against the composite's own weightedScore field
+    // (which would wrongly put it at 4.0/5*0.2=0.16, an even bigger margin,
+    // masking whether the source-based branch actually ran instead of just
+    // falling through to the 'poi' formula).
+    const [, promptArg] = langChainService.generateChatResponse.mock.calls[0];
+    expect(promptArg.indexOf('San Telmo Historic Walk')).toBeLessThan(
+      promptArg.indexOf('Mediocre plain POI'),
+    );
+  });
+
+  it('does not call getSimilarityScores when the tour has no interests', async () => {
+    const poiId = testUuid();
+    activitiesService.findAll.mockResolvedValue([
+      { id: poiId, name: 'Museo', latitude: -34.62, longitude: -58.37 },
+    ]);
+    prisma.activity.findMany.mockResolvedValue([
+      {
+        id: poiId,
+        latitude: -34.62,
+        longitude: -58.37,
+        kind: ActivityKind.POI,
+      },
+    ]);
+    langChainService.generateChatResponse.mockResolvedValue(
+      aiJsonResponse({
+        activities: [
+          {
+            activityId: poiId,
+            activityName: 'Museo',
+            dayNumber: 1,
+            startTime: '10:00',
+            duration: 60,
+            notes: 'Visit it',
+            latitude: -34.62,
+            longitude: -58.37,
+          },
+        ],
+      }),
+    );
+
+    await service.generateTourActivities(TOUR_ID);
+
+    expect(vectorStoreService.getSimilarityScores).not.toHaveBeenCalled();
   });
 
   describe('updateTourActivityWaypoints', () => {
