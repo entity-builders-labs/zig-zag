@@ -46,9 +46,15 @@ export class DestinationResolutionService {
       if (!best || !AREA_SCALE_ADDRESS_TYPES.has(best.addresstype)) {
         return { scale: 'point' };
       }
+      // A bare node (no admin boundary polygon) can't back an AREA activity —
+      // small villages/hamlets are frequently tagged this way in OSM. Fall
+      // back to point-scale rather than persisting a broken Point "area".
+      if (best.osmType === 'node') {
+        return { scale: 'point' };
+      }
 
       const boundary = await this.osmPlacesService.getBoundaryById(
-        best.osmType as 'way' | 'relation',
+        best.osmType,
         best.osmId,
       );
       if (!boundary) return { scale: 'point' };

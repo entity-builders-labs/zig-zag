@@ -92,6 +92,23 @@ describe('DestinationResolutionService', () => {
     },
   );
 
+  it('falls back to point-scale for a village-addresstype result backed by a bare node (no boundary polygon)', async () => {
+    nominatimApi.search.mockResolvedValue([
+      {
+        osmType: 'node',
+        osmId: 42,
+        addresstype: 'village',
+        displayName: 'Tiny Hamlet',
+        importance: 0.5,
+      },
+    ]);
+
+    const result = await service.resolveDestination('Tiny Hamlet');
+
+    expect(result).toEqual({ scale: 'point' });
+    expect(osmPlacesService.getBoundaryById).not.toHaveBeenCalled();
+  });
+
   it('falls back to point-scale when Nominatim returns nothing', async () => {
     nominatimApi.search.mockResolvedValue([]);
 
