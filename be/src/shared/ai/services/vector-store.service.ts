@@ -1,5 +1,5 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { Activity } from '@prisma/client';
+import { Activity, Prisma } from '@prisma/client';
 import { AiEmbeddingService } from './ai-embedding.service';
 import { PrismaService } from '../../../core/database/prisma.service';
 
@@ -154,6 +154,33 @@ Keywords: ${metadata.tags ? metadata.tags.join(', ') : ''}.
           : {}),
       },
     }));
+  }
+
+  /**
+   * Cosine similarity (1 - cosine distance) between an embedding of
+   * `queryText` and each of `candidateIds`' own stored embedding — scoped to
+   * exactly this candidate set, unlike findSimilarActivities' open-ended
+   * top-k search. A candidate with no indexed embedding is simply absent
+   * from the returned map (callers treat a missing id as zero similarity),
+   * not defaulted to any particular value here.
+   */
+  async getSimilarityScores(
+    candidateIds: string[],
+    queryText: string,
+  ): Promise<Map<string, number>> {
+    const embeddings = this.embeddingService.getEmbeddings();
+    if (!embeddings || candidateIds.length === 0) return new Map();
+
+    const queryVector = await embeddings.embedQuery(queryText);
+    const literal = this.toVectorLiteral(queryVector);
+
+    const rows = await this.prisma.$queryRaw<{ id: string; distance: number }[]>`
+      SELECT id, embedding <=> ${literal}::vector AS distance
+      FROM "activity"
+      WHERE id IN (${Prisma.join(candidateIds)}) AND embedding IS NOT NULL
+    `;
+
+    return new Map(rows.map((row) => [row.id, 1 - row.distance]));
   }
 
   /** Clears every stored embedding without touching Activity rows themselves. */

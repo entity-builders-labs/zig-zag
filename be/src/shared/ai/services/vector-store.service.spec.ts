@@ -220,4 +220,50 @@ describe('VectorStoreService', () => {
       expect(result.error).toBe('connection refused');
     });
   });
+
+  describe('getSimilarityScores', () => {
+    it('returns an empty map without querying when embeddings are unavailable', async () => {
+      mockGetEmbeddings.mockReturnValue(null);
+
+      const result = await service.getSimilarityScores(['a', 'b'], 'history, art');
+
+      expect(result.size).toBe(0);
+      expect(mockQueryRaw).not.toHaveBeenCalled();
+    });
+
+    it('returns an empty map without querying when there are no candidate ids', async () => {
+      mockGetEmbeddings.mockReturnValue({ embedQuery: jest.fn() });
+
+      const result = await service.getSimilarityScores([], 'history, art');
+
+      expect(result.size).toBe(0);
+      expect(mockQueryRaw).not.toHaveBeenCalled();
+    });
+
+    it('embeds the query text and returns cosine similarity (1 - distance) per candidate id', async () => {
+      const embedQuery = jest.fn().mockResolvedValue([0.1, 0.2, 0.3]);
+      mockGetEmbeddings.mockReturnValue({ embedQuery });
+      mockQueryRaw.mockResolvedValue([
+        { id: 'a', distance: 0.2 },
+        { id: 'b', distance: 0.9 },
+      ]);
+
+      const result = await service.getSimilarityScores(['a', 'b'], 'history, art');
+
+      expect(embedQuery).toHaveBeenCalledWith('history, art');
+      expect(result.get('a')).toBeCloseTo(0.8);
+      expect(result.get('b')).toBeCloseTo(0.1);
+    });
+
+    it('omits candidates that have no indexed embedding rather than defaulting them', async () => {
+      const embedQuery = jest.fn().mockResolvedValue([0.1, 0.2, 0.3]);
+      mockGetEmbeddings.mockReturnValue({ embedQuery });
+      mockQueryRaw.mockResolvedValue([{ id: 'a', distance: 0.2 }]);
+
+      const result = await service.getSimilarityScores(['a', 'b'], 'history, art');
+
+      expect(result.has('a')).toBe(true);
+      expect(result.has('b')).toBe(false);
+    });
+  });
 });
