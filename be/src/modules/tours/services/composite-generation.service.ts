@@ -155,6 +155,11 @@ export class CompositeGenerationService {
         properties: {
           title: { type: 'string' },
           description: { type: 'string' },
+          reasoning: {
+            type: 'string',
+            description:
+              'Internal debugging note (3-5 sentences): how budget, transportation mode, travel pace, dietary restrictions, and group type were weighed when choosing and ordering activities, and why any candidates were left out. Not shown to the end user.',
+          },
           estimatedDuration: { type: 'number' },
           activities: {
             type: 'array',

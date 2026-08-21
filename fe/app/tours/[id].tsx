@@ -10,9 +10,10 @@ import {
   Icon,
   Text,
   Spinner,
+  Pressable,
 } from '@gluestack-ui/themed';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
-import { MapPin } from 'lucide-react-native';
+import { ChevronDown, ChevronUp, MapPin } from 'lucide-react-native';
 import { fetchTourById, Tour } from '../../api/tours';
 import { TourHeader } from '../../components/tour-details/TourHeader';
 import { QuickStatsBar } from '../../components/tour-details/QuickStatsBar';
@@ -21,6 +22,7 @@ import { TourStopCard } from '../../components/tour-details/TourStopCard';
 import { CompositeStopCard } from '../../components/tour-details/CompositeStopCard';
 import { DayHeader } from '../../components/tour-details/DayHeader';
 import { GenerationPipeline } from '../../components/tour-details/GenerationPipeline';
+import { GenerationBitacora } from '../../components/tour-details/GenerationBitacora';
 import { TourStop } from '../../components/tour-details/types';
 import { transformActivitiesToStops } from '../../components/tour-details/build-stops';
 import { FONT_DISPLAY } from '@/constants/typography';
@@ -35,6 +37,7 @@ export default function TourDetailScreen() {
   const [generationMessage, setGenerationMessage] = useState<string>('');
   const [generationError, setGenerationError] = useState<string>('');
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
+  const [showBitacora, setShowBitacora] = useState(false);
 
   // Whether THIS mount actually watched generation go from in-progress to
   // completed (as opposed to loading an already-completed tour straight
@@ -250,6 +253,35 @@ export default function TourDetailScreen() {
                   </HStack>
                 )}
             </HStack>
+
+            {/* Dev-only, inline accordion for the generation bitácora —
+                never shown outside __DEV__, and only once a trace actually
+                exists (older tours generated before this feature won't have
+                one). Expands/collapses in place, no navigation. */}
+            {__DEV__ && (tour.metadata as any)?.generationTrace && (
+              <Box mb='$4'>
+                <Pressable
+                  onPress={() => setShowBitacora((v) => !v)}
+                  testID='bitacora-toggle'
+                >
+                  <HStack alignItems='center' space='xs'>
+                    <Text size='xs' color='$tertiary600'>
+                      🐛 Bitácora de generación (dev)
+                    </Text>
+                    <Icon
+                      as={showBitacora ? ChevronUp : ChevronDown}
+                      size='xs'
+                      color='$tertiary600'
+                    />
+                  </HStack>
+                </Pressable>
+                {showBitacora && (
+                  <GenerationBitacora
+                    trace={(tour.metadata as any).generationTrace}
+                  />
+                )}
+              </Box>
+            )}
 
             {isGeneratingActivities ? (
               <Box

@@ -296,7 +296,11 @@ export class LangChainService {
             }),
           } as any,
         );
-        if (!resp.ok) throw new Error(`Groq error ${resp.status}`);
+        if (!resp.ok) {
+          const errorBody = await resp.text();
+          this.logger.error(`Groq error ${resp.status}: ${errorBody}`);
+          throw new Error(`Groq error ${resp.status}: ${errorBody}`);
+        }
         const data = await resp.json();
         response = data.choices?.[0]?.message?.content || '';
       } else {
@@ -375,7 +379,11 @@ export class LangChainService {
             }),
           } as any,
         );
-        if (!resp.ok) throw new Error(`Groq error ${resp.status}`);
+        if (!resp.ok) {
+          const errorBody = await resp.text();
+          this.logger.error(`Groq error ${resp.status}: ${errorBody}`);
+          throw new Error(`Groq error ${resp.status}: ${errorBody}`);
+        }
         const data = await resp.json();
         response = data.choices?.[0]?.message?.content || '';
       } else {

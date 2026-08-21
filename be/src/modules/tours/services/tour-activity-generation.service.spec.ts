@@ -85,6 +85,7 @@ describe('TourActivityGenerationService', () => {
       },
       tour: { update: jest.fn() },
       $transaction: jest.fn(async (cb: any) => cb(prisma)),
+      $queryRaw: jest.fn().mockResolvedValue([{ count: 0 }]),
     };
 
     toursService = { findOne: jest.fn().mockResolvedValue(buildTour()) };
@@ -192,6 +193,102 @@ describe('TourActivityGenerationService', () => {
     );
     // A plain POI never gets a waypoint snapshot.
     expect(prisma.tourActivityWaypoint.createMany).not.toHaveBeenCalled();
+  });
+
+  it('builds a step-by-step generation trace (bitácora) and persists it on the completed tour', async () => {
+    const poiId = testUuid();
+    activitiesService.findAll.mockResolvedValue([
+      {
+        id: poiId,
+        name: 'Museo',
+        latitude: -34.62,
+        longitude: -58.37,
+        rating: 4.5,
+        ratingCount: 100,
+      },
+    ]);
+    prisma.activity.findMany.mockResolvedValue([
+      {
+        id: poiId,
+        latitude: -34.62,
+        longitude: -58.37,
+        kind: ActivityKind.POI,
+      },
+    ]);
+    osmPlacesService.findStreetsNear.mockResolvedValue([
+      {
+        id: 'osm:way:1',
+        name: 'Defensa',
+        osmType: 'way',
+        osmId: 1,
+        geometry: {
+          type: 'LineString',
+          coordinates: [
+            [0, 0],
+            [1, 1],
+          ],
+        },
+        tags: { name: 'Defensa' },
+      },
+    ]);
+    osmPlacesService.findContainingBoundary.mockResolvedValue(AREA_CANDIDATE);
+    langChainService.generateChatResponse.mockResolvedValue(
+      aiJsonResponse({
+        reasoning: 'Picked Museo because it matched the requested interests.',
+        activities: [
+          {
+            activityId: poiId,
+            activityName: 'Museo',
+            dayNumber: 1,
+            startTime: '10:00',
+            duration: 60,
+            notes: 'Visit the museum',
+            latitude: -34.62,
+            longitude: -58.37,
+          },
+        ],
+      }),
+    );
+
+    await service.generateTourActivities(TOUR_ID);
+
+    const completedCall = prisma.tour.update.mock.calls.find(
+      (call: any) => call[0].data.metadata.generationStatus === 'completed',
+    );
+    expect(completedCall).toBeDefined();
+    const trace = completedCall[0].data.metadata.generationTrace;
+    expect(trace.aiReasoning).toBe(
+      'Picked Museo because it matched the requested interests.',
+    );
+    expect(trace.hallucinatedCount).toBe(0);
+    expect(trace.duplicateCount).toBe(0);
+    expect(trace.auditFindings).toBeDefined();
+    expect(trace.steps.map((s: any) => s.stage)).toEqual([
+      'db_search',
+      'osm_streets',
+      'osm_boundary',
+      'wikidata_enrichment',
+      'embeddings',
+      'llm_generation',
+      'verification',
+    ]);
+
+    const dbSearchStep = trace.steps.find((s: any) => s.stage === 'db_search');
+    expect(dbSearchStep.candidates).toEqual([
+      expect.objectContaining({ source: 'db', id: poiId, offered: true }),
+    ]);
+
+    const verificationStep = trace.steps.find(
+      (s: any) => s.stage === 'verification',
+    );
+    expect(verificationStep.candidates).toEqual([
+      expect.objectContaining({ id: poiId, chosen: true }),
+    ]);
+
+    const embeddingsStep = trace.steps.find(
+      (s: any) => s.stage === 'embeddings',
+    );
+    expect(embeddingsStep.summary).toContain('proximidad geográfica');
   });
 
   it('does not break POI generation when Overpass (streets/boundary) fails', async () => {

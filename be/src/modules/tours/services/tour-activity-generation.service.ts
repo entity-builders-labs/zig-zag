@@ -4,7 +4,7 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { ActivityKind, VariantTheme } from '@prisma/client';
+import { ActivityKind, Prisma, VariantTheme } from '@prisma/client';
 import { PrismaService } from '@core/database/prisma.service';
 import { ActivitiesService } from '@activities/services/activities.service';
 import { LangChainService } from '@shared/ai/langchain.service';
@@ -23,10 +23,26 @@ import { updateTravelTimesForActivities } from '../utils/travel-time-calculator.
 import { optimizeActivityOrder } from '../utils/route-optimizer.util';
 import { verifyAndDedupeActivities } from '../utils/activity-verification.util';
 import {
+  ActivityForPrompt,
   formatActivityForPrompt,
   formatOsmFeatureForPrompt,
 } from '../utils/activity-prompt-formatter.util';
 import { verifySelectedWaypointSubset } from '../utils/composite-activity-verification.util';
+import { auditGeneration } from '../utils/generation-audit.util';
+import {
+  buildDbSearchStep,
+  buildEmbeddingsStep,
+  buildGooglePlacesCrawlStep,
+  buildLlmGenerationStep,
+  buildOsmBoundaryStep,
+  buildOsmStreetsStep,
+  buildVerificationStep,
+  buildWikidataEnrichmentStep,
+} from '../utils/generation-trace-builder.util';
+import {
+  GenerationTraceStep,
+  TraceCandidate,
+} from '../interfaces/generation-trace.interface';
 
 @Injectable()
 export class TourActivityGenerationService {
@@ -129,6 +145,15 @@ export class TourActivityGenerationService {
       // breaks plain POI generation, it just means no composites this run.
       let candidateOsmFeaturesById = new Map<string, OsmCandidate>();
       let areaCandidate: OsmCandidate | null = null;
+      // Same db/Google candidates, keyed by id, keeping their real
+      // rating/priceLevel/openingHours — needed both for the trace's
+      // candidate `detail` and to audit the AI's picks against the actual
+      // data it saw.
+      const candidateActivitiesById = new Map<string, ActivityForPrompt>();
+      // The generation bitácora (docs/superpowers/specs/2026-08-20-generation-
+      // bitacora-design.md) — one step per pipeline stage, in order.
+      const traceSteps: GenerationTraceStep[] = [];
+      const traceCandidateLists: TraceCandidate[][] = [];
 
       // Search for existing activities if location provided
       if (options?.latitude && options?.longitude) {
@@ -167,13 +192,22 @@ export class TourActivityGenerationService {
             );
 
             const nearbyActivitiesSample = nearbyActivities.slice(0, 15);
-            nearbyActivitiesSample.forEach((act: any) =>
-              candidateActivityIds.add(act.id),
-            );
+            nearbyActivitiesSample.forEach((act: any) => {
+              candidateActivityIds.add(act.id);
+              candidateActivitiesById.set(act.id, act);
+            });
             availableActivitiesText = `\n\nAvailable activities in the area (within ${radius / 1000}km):\n${nearbyActivitiesSample
               .map((act: any) => formatActivityForPrompt(act))
               .join('\n')}`;
+            const dbSearchStep = buildDbSearchStep(
+              nearbyActivitiesSample,
+              radius / 1000,
+            );
+            traceSteps.push(dbSearchStep);
+            traceCandidateLists.push(dbSearchStep.candidates ?? []);
           } else {
+            traceSteps.push(buildDbSearchStep([], radius / 1000));
+
             // Update status: no activities found, triggering Google Maps crawl
             await this.updateGenerationStatus(
               tourId,
@@ -208,13 +242,20 @@ export class TourActivityGenerationService {
                   0,
                   15,
                 );
-                refreshedActivitiesSample.forEach((act: any) =>
-                  candidateActivityIds.add(act.id),
-                );
+                refreshedActivitiesSample.forEach((act: any) => {
+                  candidateActivityIds.add(act.id);
+                  candidateActivitiesById.set(act.id, act);
+                });
                 availableActivitiesText = `\n\nAvailable activities in the area (within ${radius / 1000}km):\n${refreshedActivitiesSample
                   .map((act: any) => formatActivityForPrompt(act))
                   .join('\n')}`;
+                const crawlStep = buildGooglePlacesCrawlStep(
+                  refreshedActivitiesSample,
+                );
+                traceSteps.push(crawlStep);
+                traceCandidateLists.push(crawlStep.candidates ?? []);
               } else {
+                traceSteps.push(buildGooglePlacesCrawlStep([]));
                 await this.updateGenerationStatus(
                   tourId,
                   'generating',
@@ -270,6 +311,10 @@ export class TourActivityGenerationService {
         candidateOsmFeaturesById = new Map(
           streetCandidates.map((c) => [c.id, c]),
         );
+        const streetsStep = buildOsmStreetsStep(streetCandidates);
+        traceSteps.push(streetsStep);
+        traceCandidateLists.push(streetsStep.candidates ?? []);
+        traceSteps.push(buildOsmBoundaryStep(areaCandidate));
 
         // Wikidata narrative context: one batch call for every QID found
         // across streets + area, not one call per candidate (see
@@ -288,6 +333,21 @@ export class TourActivityGenerationService {
             `Wikidata narrative context available for ${narrativeContextUsed} OSM candidate(s) for tour ${tourId}.`,
           );
         }
+        traceSteps.push(buildWikidataEnrichmentStep(allOsmCandidates));
+
+        // Real (not simulated) check of how many of the candidates offered
+        // this generation have a pgvector embedding indexed — documents that
+        // this flow doesn't consult it for candidate selection today, see
+        // docs/superpowers/specs/2026-08-20-generation-bitacora-design.md.
+        const offeredIds = Array.from(candidateActivityIds);
+        let indexedCount = 0;
+        if (offeredIds.length > 0) {
+          const rows = await this.prisma.$queryRaw<{ count: bigint }[]>(
+            Prisma.sql`SELECT count(*) AS count FROM "activity" WHERE id IN (${Prisma.join(offeredIds)}) AND embedding IS NOT NULL`,
+          );
+          indexedCount = Number(rows[0]?.count ?? 0);
+        }
+        traceSteps.push(buildEmbeddingsStep(offeredIds.length, indexedCount));
       }
 
       // Never let the AI invent activities out of thin air — every stop must
@@ -357,6 +417,8 @@ export class TourActivityGenerationService {
         'Itinerario generado. Guardando actividades...',
       );
 
+      traceSteps.push(buildLlmGenerationStep(aiResponse.reasoning));
+
       // Hard safety net: drop any activity the model returned that doesn't
       // match one of the real candidates we offered it (prompt instructions
       // alone aren't reliable enough to stop hallucination), and any repeat
@@ -377,6 +439,42 @@ export class TourActivityGenerationService {
           `Dropped ${duplicateCount} duplicate activity/activities for tour ${tourId} (model repeated the same place).`,
         );
       }
+
+      // Deterministic evidence for the bitácora — checks the AI's own picks
+      // against the real data it was given (opening hours, price level),
+      // rather than trusting its self-reported reasoning. Runs on the AI's
+      // raw startTime string (transformAiActivitiesToDto discards HH:MM-only
+      // times below, since it needs a real date to combine with).
+      const auditResult = auditGeneration(
+        uniqueActivities.map((act: any) => {
+          const candidate = act.activityId
+            ? candidateActivitiesById.get(act.activityId)
+            : undefined;
+          return {
+            activityId: act.activityId,
+            activityName: act.activityName || act.type || 'Activity',
+            startTime: act.startTime,
+            type: act.type,
+            notes: act.notes,
+            openingHoursWeekdayText: candidate?.openingHours?.weekdayText,
+            priceLevel: candidate?.priceLevel,
+          };
+        }),
+        {
+          budgetLevel: options?.budgetLevel,
+          dietaryRestrictions: options?.dietaryRestrictions,
+        },
+      );
+      traceSteps.push(
+        buildVerificationStep({
+          hallucinatedCount,
+          duplicateCount,
+          pickedActivityIds: uniqueActivities
+            .map((act: any) => act.activityId)
+            .filter((id: string | undefined): id is string => !!id),
+          candidatesByStage: traceCandidateLists,
+        }),
+      );
 
       // Instance-level waypoint customization ("adapt this variant for a
       // family with kids") lives on the flat activity pick, not on
@@ -575,6 +673,16 @@ export class TourActivityGenerationService {
               generationStatus: 'completed',
               generationMessage: `¡Listo! ${activities.length} actividades generadas exitosamente.`,
               generationCompletedAt: new Date().toISOString(),
+              // The bitácora — see docs/superpowers/specs/2026-08-20-
+              // generation-bitacora-design.md — a chronological, per-step
+              // trace of how this tour's activities got picked.
+              generationTrace: {
+                steps: traceSteps,
+                aiReasoning: aiResponse.reasoning,
+                hallucinatedCount,
+                duplicateCount,
+                auditFindings: auditResult,
+              },
             },
           },
         });

@@ -34,6 +34,13 @@ themes listed under "Available themes". "areaId" must be copied exactly from
 If no coherent composite can be assembled from real candidates, omit
 compositeActivities (or return it empty) — never fabricate one to fill it.
 
+Also provide a "reasoning" field (3-5 sentences) explaining how you weighed the
+requested budget, transportation mode, travel pace, dietary restrictions, and
+group type when choosing and ordering activities, and why any candidates were
+left out. This is for internal debugging only, not shown to the end user — be
+concrete and reference the actual preferences and candidates, not generic
+statements.
+
 Available activities: {activities}
 Available OSM features (streets/boundaries for composite walks): {osmFeatures}
 Available area: {area}
@@ -76,12 +83,19 @@ never invented, and composites must be omitted entirely if no area was
 offered. If no coherent composite can be assembled from real candidates,
 return an empty "compositeActivities" array — never fabricate one to fill it.
 
+Also fill "reasoning" (3-5 sentences) explaining how you weighed the requested
+budget, transportation mode, travel pace, dietary restrictions, and group type
+when choosing and ordering activities, and why any candidates were left out.
+This is for internal debugging only, not shown to the end user — be concrete
+and reference the actual preferences and candidates, not generic statements.
+
 IMPORTANT: You must return ONLY valid JSON, no markdown, no code blocks, just pure JSON.
 
 Return a JSON object with this exact structure:
 {{
   "title": "string",
   "description": "string",
+  "reasoning": "string (3-5 sentences, see instructions above)",
   "estimatedDuration": number,
   "activities": [
     {{
