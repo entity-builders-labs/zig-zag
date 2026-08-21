@@ -197,24 +197,23 @@ describe('TourActivityGenerationService', () => {
 
   it('builds a step-by-step generation trace (bitácora) and persists it on the completed tour', async () => {
     const poiId = testUuid();
-    activitiesService.findAll.mockResolvedValue([
-      {
-        id: poiId,
-        name: 'Museo',
-        latitude: -34.62,
-        longitude: -58.37,
-        rating: 4.5,
-        ratingCount: 100,
-      },
-    ]);
-    prisma.activity.findMany.mockResolvedValue([
-      {
-        id: poiId,
-        latitude: -34.62,
-        longitude: -58.37,
+    const fifteenActivities = Array.from({ length: 15 }, (_, i) => ({
+      id: i === 0 ? poiId : testUuid(),
+      name: i === 0 ? 'Museo' : `Place ${i}`,
+      latitude: -34.62,
+      longitude: -58.37,
+      rating: 4.5,
+      ratingCount: 100,
+    }));
+    activitiesService.findAll.mockResolvedValue(fifteenActivities);
+    prisma.activity.findMany.mockResolvedValue(
+      fifteenActivities.map((a) => ({
+        id: a.id,
+        latitude: a.latitude,
+        longitude: a.longitude,
         kind: ActivityKind.POI,
-      },
-    ]);
+      })),
+    );
     osmPlacesService.findStreetsNear.mockResolvedValue([
       {
         id: 'osm:way:1',
@@ -274,9 +273,10 @@ describe('TourActivityGenerationService', () => {
     ]);
 
     const dbSearchStep = trace.steps.find((s: any) => s.stage === 'db_search');
-    expect(dbSearchStep.candidates).toEqual([
+    expect(dbSearchStep.candidates).toHaveLength(15);
+    expect(dbSearchStep.candidates[0]).toEqual(
       expect.objectContaining({ source: 'db', id: poiId, offered: true }),
-    ]);
+    );
 
     const verificationStep = trace.steps.find(
       (s: any) => s.stage === 'verification',
@@ -765,6 +765,78 @@ describe('TourActivityGenerationService', () => {
         expect.objectContaining({ waypointActivityId: poiB }),
       ],
     });
+  });
+
+  it('triggers a Google Places crawl when the DB pool is thin but not empty', async () => {
+    const thinPoiId = testUuid();
+    activitiesService.findAll
+      .mockResolvedValueOnce([
+        { id: thinPoiId, name: 'Only one place', latitude: -34.62, longitude: -58.37 },
+      ])
+      .mockResolvedValueOnce([
+        { id: thinPoiId, name: 'Only one place', latitude: -34.62, longitude: -58.37 },
+      ]);
+    prisma.activity.findMany.mockResolvedValue([
+      { id: thinPoiId, latitude: -34.62, longitude: -58.37, kind: ActivityKind.POI },
+    ]);
+    langChainService.generateChatResponse.mockResolvedValue(
+      aiJsonResponse({
+        activities: [
+          {
+            activityId: thinPoiId,
+            activityName: 'Only one place',
+            dayNumber: 1,
+            startTime: '10:00',
+            duration: 60,
+            notes: 'Visit it',
+            latitude: -34.62,
+            longitude: -58.37,
+          },
+        ],
+      }),
+    );
+
+    await service.generateTourActivities(TOUR_ID);
+
+    expect(googlePlacesService.crawlAndSaveActivities).toHaveBeenCalled();
+  });
+
+  it('does not trigger a crawl once the pool already meets the sufficiency threshold', async () => {
+    const fifteenActivities = Array.from({ length: 15 }, (_, i) => ({
+      id: testUuid(),
+      name: `Place ${i}`,
+      latitude: -34.62,
+      longitude: -58.37,
+    }));
+    activitiesService.findAll.mockResolvedValue(fifteenActivities);
+    prisma.activity.findMany.mockResolvedValue(
+      fifteenActivities.map((a) => ({
+        id: a.id,
+        latitude: a.latitude,
+        longitude: a.longitude,
+        kind: ActivityKind.POI,
+      })),
+    );
+    langChainService.generateChatResponse.mockResolvedValue(
+      aiJsonResponse({
+        activities: [
+          {
+            activityId: fifteenActivities[0].id,
+            activityName: fifteenActivities[0].name,
+            dayNumber: 1,
+            startTime: '10:00',
+            duration: 60,
+            notes: 'Visit it',
+            latitude: -34.62,
+            longitude: -58.37,
+          },
+        ],
+      }),
+    );
+
+    await service.generateTourActivities(TOUR_ID);
+
+    expect(googlePlacesService.crawlAndSaveActivities).not.toHaveBeenCalled();
   });
 
   describe('updateTourActivityWaypoints', () => {

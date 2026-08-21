@@ -47,6 +47,10 @@ import {
 @Injectable()
 export class TourActivityGenerationService {
   private readonly logger = new Logger(TourActivityGenerationService.name);
+  // A pool below this size is treated the same as empty — worth a crawl
+  // refresh — because it can't fill the ~15-item candidate window the LLM
+  // sees. Matches the existing nearbyActivitiesSample.slice(0, 15) below.
+  private readonly MIN_SUFFICIENT_ACTIVITIES = 15;
 
   constructor(
     private readonly prisma: PrismaService,
@@ -183,7 +187,7 @@ export class TourActivityGenerationService {
             ),
           ]);
 
-          if (nearbyActivities.length > 0) {
+          if (nearbyActivities.length >= this.MIN_SUFFICIENT_ACTIVITIES) {
             // Update status: activities found, processing
             await this.updateGenerationStatus(
               tourId,
@@ -206,7 +210,7 @@ export class TourActivityGenerationService {
             traceSteps.push(dbSearchStep);
             traceCandidateLists.push(dbSearchStep.candidates ?? []);
           } else {
-            traceSteps.push(buildDbSearchStep([], radius / 1000));
+            traceSteps.push(buildDbSearchStep(nearbyActivities, radius / 1000));
 
             // Update status: no activities found, triggering Google Maps crawl
             await this.updateGenerationStatus(
