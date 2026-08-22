@@ -108,7 +108,10 @@ describe('buildStreetsQuery', () => {
 
 describe('buildBoundaryByIdQuery', () => {
   it('queries a specific relation by id and asks for full geometry', () => {
-    const query = buildBoundaryByIdQuery({ osmType: 'relation', osmId: 1224652 });
+    const query = buildBoundaryByIdQuery({
+      osmType: 'relation',
+      osmId: 1224652,
+    });
 
     expect(query).toContain('relation(1224652)');
     expect(query).toContain('out geom;');
@@ -145,7 +148,10 @@ describe('OverpassElement center field', () => {
 
 describe('buildAdminBoundariesWithinAreaQuery', () => {
   it('uses map_to_area on the given relation, not a radius', () => {
-    const query = buildAdminBoundariesWithinAreaQuery({ osmType: 'relation', osmId: 1224652 });
+    const query = buildAdminBoundariesWithinAreaQuery({
+      osmType: 'relation',
+      osmId: 1224652,
+    });
 
     expect(query).toContain('relation(1224652)');
     expect(query).toContain('map_to_area->.a');
@@ -157,7 +163,10 @@ describe('buildAdminBoundariesWithinAreaQuery', () => {
 
 describe('buildStreetsWithinAreaQuery', () => {
   it('uses map_to_area, filtering named highways, not a radius', () => {
-    const query = buildStreetsWithinAreaQuery({ osmType: 'relation', osmId: 2223069 });
+    const query = buildStreetsWithinAreaQuery({
+      osmType: 'relation',
+      osmId: 2223069,
+    });
 
     expect(query).toContain('relation(2223069)');
     expect(query).toContain('map_to_area->.a');
@@ -168,7 +177,10 @@ describe('buildStreetsWithinAreaQuery', () => {
 
 describe('buildPoisWithinAreaQuery', () => {
   it('uses map_to_area, filtering named tourism/amenity/historic/leisure nodes', () => {
-    const query = buildPoisWithinAreaQuery({ osmType: 'relation', osmId: 2223069 });
+    const query = buildPoisWithinAreaQuery({
+      osmType: 'relation',
+      osmId: 2223069,
+    });
 
     expect(query).toContain('map_to_area->.a');
     expect(query).toContain('node["tourism"]["name"](area.a)');

@@ -68,7 +68,9 @@ export interface IOverpassApiService {
   ): Promise<OverpassElement[]>;
   queryStreets(params: QueryStreetsParams): Promise<OverpassElement[]>;
   queryBoundaryById(params: QueryByIdParams): Promise<OverpassElement[]>;
-  queryAdminBoundariesWithinArea(params: QueryByIdParams): Promise<OverpassElement[]>;
+  queryAdminBoundariesWithinArea(
+    params: QueryByIdParams,
+  ): Promise<OverpassElement[]>;
   queryStreetsWithinArea(params: QueryByIdParams): Promise<OverpassElement[]>;
   queryPoisWithinArea(params: QueryByIdParams): Promise<OverpassElement[]>;
 }

@@ -83,15 +83,23 @@ export function buildStreetsQuery({
   ].join('\n');
 }
 
-export function buildBoundaryByIdQuery({ osmType, osmId }: QueryByIdParams): string {
-  return ['[out:json][timeout:25];', `${osmType}(${osmId});`, 'out geom;'].join('\n');
+export function buildBoundaryByIdQuery({
+  osmType,
+  osmId,
+}: QueryByIdParams): string {
+  return ['[out:json][timeout:25];', `${osmType}(${osmId});`, 'out geom;'].join(
+    '\n',
+  );
 }
 
 // All three "within area" queries below share the same map_to_area pattern —
 // validated live against Overpass in the spike (see docs/superpowers/specs/
 // 2026-08-21-activity-engine-design.md, "Spike validation"): a resolved
 // relation/way's own real polygon, never a radius guess.
-export function buildAdminBoundariesWithinAreaQuery({ osmType, osmId }: QueryByIdParams): string {
+export function buildAdminBoundariesWithinAreaQuery({
+  osmType,
+  osmId,
+}: QueryByIdParams): string {
   return [
     '[out:json][timeout:30];',
     `${osmType}(${osmId});`,
@@ -104,7 +112,10 @@ export function buildAdminBoundariesWithinAreaQuery({ osmType, osmId }: QueryByI
   ].join('\n');
 }
 
-export function buildStreetsWithinAreaQuery({ osmType, osmId }: QueryByIdParams): string {
+export function buildStreetsWithinAreaQuery({
+  osmType,
+  osmId,
+}: QueryByIdParams): string {
   return [
     '[out:json][timeout:30];',
     `${osmType}(${osmId});`,
@@ -114,7 +125,10 @@ export function buildStreetsWithinAreaQuery({ osmType, osmId }: QueryByIdParams)
   ].join('\n');
 }
 
-export function buildPoisWithinAreaQuery({ osmType, osmId }: QueryByIdParams): string {
+export function buildPoisWithinAreaQuery({
+  osmType,
+  osmId,
+}: QueryByIdParams): string {
   return [
     '[out:json][timeout:30];',
     `${osmType}(${osmId});`,
