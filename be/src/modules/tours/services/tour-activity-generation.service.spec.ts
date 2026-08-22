@@ -361,6 +361,10 @@ describe('TourActivityGenerationService', () => {
       (s: any) => s.stage === 'embeddings',
     );
     expect(embeddingsStep.summary).toContain('tenía intereses declarados');
+
+    const generatedUserPrompt =
+      langChainService.generateChatResponse.mock.calls[0][1];
+    expect(generatedUserPrompt.split(`id: ${poiId}`)).toHaveLength(2);
   });
 
   it('continues POI generation and records degraded OSM steps when Overpass fails', async () => {

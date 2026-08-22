@@ -687,12 +687,14 @@ export class TourActivityGenerationService {
       const themesText = Object.values(VariantTheme).join(', ');
 
       const tourChain = this.compositeGenerationService.createTourChain();
-      const fullPrompt = enhancedPrompt + availableActivitiesText;
       const generationTimeout = this.langChainService.getGenerationTimeout();
 
       const aiResponse = (await Promise.race([
         tourChain.invoke({
-          input: fullPrompt,
+          // activities is injected into its own prompt section by the chain;
+          // including it in input as well duplicates the complete candidate
+          // list and wastes the provider's token budget.
+          input: enhancedPrompt,
           activities: availableActivitiesText,
           osmFeatures: osmFeaturesText,
           area: areaText,

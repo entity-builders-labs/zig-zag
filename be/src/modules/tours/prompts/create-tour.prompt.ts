@@ -3,6 +3,13 @@
 // constraints of Groq's `strict: true` mode. Fields that are conceptually
 // optional are represented by empty arrays (for example selectedWaypointIds
 // and compositeActivities).
+// Groq's on-demand tier accounts for prompt + max completion tokens against
+// its TPM limit. Reserving 8192 completion tokens made every non-empty tour
+// request exceed an 8000 TPM allowance before generation even started. The
+// candidate windows are bounded and a normal structured tour fits inside this
+// output budget while leaving room for the system prompt and JSON schema.
+export const GROQ_TOUR_MAX_COMPLETION_TOKENS = 3000;
+
 export const CREATE_TOUR_RESPONSE_SCHEMA: Record<string, unknown> = {
   type: 'object',
   additionalProperties: false,

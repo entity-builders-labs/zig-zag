@@ -82,7 +82,7 @@ describe('CompositeGenerationService', () => {
         {},
         expect.objectContaining({
           groq: {
-            maxCompletionTokens: 8192,
+            maxCompletionTokens: 3000,
             reasoningEffort: 'low',
             includeReasoning: false,
           },

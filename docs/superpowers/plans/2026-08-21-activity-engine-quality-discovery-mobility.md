@@ -82,6 +82,10 @@ Provider success does not mean usable coverage.
   engine continues without semantic signals and reports that state truthfully.
   Other documented fallbacks may reduce functionality, but must not falsely
   report that a signal was applied.
+- LLM input windows and maximum-output reservations must fit the configured
+  provider's request/TPM budget. Candidate blocks are inserted exactly once;
+  increasing a provider limit is not a substitute for deterministic prompt
+  budgeting.
 - Do not mix embeddings from different provider/model/version combinations.
 - No free-form discovery output is persisted.
 - No QID is required for eligibility. Wikidata is optional narrative

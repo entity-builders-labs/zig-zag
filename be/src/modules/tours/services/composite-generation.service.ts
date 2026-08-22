@@ -16,6 +16,7 @@ import {
   CREATE_TOUR_JSON_SYSTEM_PROMPT,
   CREATE_TOUR_RESPONSE_SCHEMA,
   CREATE_TOUR_SYSTEM_PROMPT,
+  GROQ_TOUR_MAX_COMPLETION_TOKENS,
   createTourJsonUserPrompt,
 } from '../prompts/create-tour.prompt';
 import { extractAndCleanJson, repairJson } from '../utils/json-parser.util';
@@ -116,7 +117,7 @@ export class CompositeGenerationService {
             {},
             {
               groq: {
-                maxCompletionTokens: 8192,
+                maxCompletionTokens: GROQ_TOUR_MAX_COMPLETION_TOKENS,
                 reasoningEffort: 'low',
                 includeReasoning: false,
               },
