@@ -14,7 +14,9 @@ import { RunnableSequence } from '@langchain/core/runnables';
 import { JsonOutputFunctionsParser } from 'langchain/output_parsers';
 import {
   CREATE_TOUR_JSON_SYSTEM_PROMPT,
+  CREATE_TOUR_RESPONSE_SCHEMA,
   CREATE_TOUR_SYSTEM_PROMPT,
+  GROQ_TOUR_MAX_COMPLETION_TOKENS,
   createTourJsonUserPrompt,
 } from '../prompts/create-tour.prompt';
 import { extractAndCleanJson, repairJson } from '../utils/json-parser.util';
@@ -113,7 +115,21 @@ export class CompositeGenerationService {
             systemPrompt,
             userPrompt,
             {},
-            {},
+            {
+              groq: {
+                maxCompletionTokens: GROQ_TOUR_MAX_COMPLETION_TOKENS,
+                reasoningEffort: 'low',
+                includeReasoning: false,
+              },
+              responseFormat: {
+                type: 'json_schema',
+                json_schema: {
+                  name: 'tour_generation',
+                  strict: true,
+                  schema: CREATE_TOUR_RESPONSE_SCHEMA,
+                },
+              },
+            },
           );
 
           const cleanedResponse = extractAndCleanJson(response);

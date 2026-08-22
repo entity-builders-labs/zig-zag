@@ -76,7 +76,25 @@ describe('CompositeGenerationService', () => {
       });
 
       expect(result.title).toBe('Tour');
-      expect(langChainService.generateChatResponse).toHaveBeenCalled();
+      expect(langChainService.generateChatResponse).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.any(String),
+        {},
+        expect.objectContaining({
+          groq: {
+            maxCompletionTokens: 3000,
+            reasoningEffort: 'low',
+            includeReasoning: false,
+          },
+          responseFormat: expect.objectContaining({
+            type: 'json_schema',
+            json_schema: expect.objectContaining({
+              name: 'tour_generation',
+              strict: true,
+            }),
+          }),
+        }),
+      );
     });
 
     it('repairs and parses a malformed-but-recoverable JSON response', async () => {

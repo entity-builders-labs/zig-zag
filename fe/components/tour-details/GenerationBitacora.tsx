@@ -6,7 +6,7 @@ import { ChevronDown, ChevronUp } from 'lucide-react-native';
 // kept as a local, loosely-typed shape rather than a shared package, same
 // pattern as fe/features/activities/composite.ts.
 interface TraceCandidate {
-  source: 'db' | 'google_places' | 'osm' | 'wikidata';
+  source: 'db' | 'google_places' | 'geoapify' | 'osm' | 'wikidata';
   id: string;
   name: string;
   detail?: string;

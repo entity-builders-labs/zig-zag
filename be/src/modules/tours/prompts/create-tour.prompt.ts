@@ -1,3 +1,126 @@
+// Strict JSON Schema used by Groq GPT-OSS structured outputs. Every property
+// is required and every object forbids additional properties because those are
+// constraints of Groq's `strict: true` mode. Fields that are conceptually
+// optional are represented by empty arrays (for example selectedWaypointIds
+// and compositeActivities).
+// Groq's on-demand tier accounts for prompt + max completion tokens against
+// its TPM limit. Reserving 8192 completion tokens made every non-empty tour
+// request exceed an 8000 TPM allowance before generation even started. The
+// candidate windows are bounded and a normal structured tour fits inside this
+// output budget while leaving room for the system prompt and JSON schema.
+export const GROQ_TOUR_MAX_COMPLETION_TOKENS = 3000;
+
+export const CREATE_TOUR_RESPONSE_SCHEMA: Record<string, unknown> = {
+  type: 'object',
+  additionalProperties: false,
+  properties: {
+    title: { type: 'string' },
+    description: { type: 'string' },
+    reasoning: { type: 'string' },
+    estimatedDuration: { type: 'number' },
+    activities: {
+      type: 'array',
+      items: {
+        type: 'object',
+        additionalProperties: false,
+        properties: {
+          activityId: { type: 'string' },
+          activityName: { type: 'string' },
+          type: { type: 'string' },
+          dayNumber: { type: 'number' },
+          startTime: { type: 'string' },
+          duration: { type: 'number' },
+          travelTimeToNext: { type: 'number' },
+          distanceToNext: { type: 'number' },
+          notes: { type: 'string' },
+          latitude: { type: 'number' },
+          longitude: { type: 'number' },
+          selectedWaypointIds: {
+            type: 'array',
+            items: { type: 'string' },
+          },
+        },
+        required: [
+          'activityId',
+          'activityName',
+          'type',
+          'dayNumber',
+          'startTime',
+          'duration',
+          'travelTimeToNext',
+          'distanceToNext',
+          'notes',
+          'latitude',
+          'longitude',
+          'selectedWaypointIds',
+        ],
+      },
+    },
+    compositeActivities: {
+      type: 'array',
+      items: {
+        type: 'object',
+        additionalProperties: false,
+        properties: {
+          name: { type: 'string' },
+          kind: {
+            type: 'string',
+            enum: ['NEIGHBORHOOD_WALK', 'ROUTE', 'EXPERIENCE'],
+          },
+          variantTheme: { type: 'string' },
+          themeReasoning: { type: 'string' },
+          areaId: { type: 'string' },
+          dayNumber: { type: 'number' },
+          startTime: { type: 'string' },
+          waypointIds: {
+            type: 'array',
+            items: { type: 'string' },
+          },
+        },
+        required: [
+          'name',
+          'kind',
+          'variantTheme',
+          'themeReasoning',
+          'areaId',
+          'dayNumber',
+          'startTime',
+          'waypointIds',
+        ],
+      },
+    },
+    totalDays: { type: 'number' },
+    totalDistance: { type: 'number' },
+    estimatedBudget: { type: 'number' },
+    recommendedGroupSize: { type: 'number' },
+    activitiesLatLng: {
+      type: 'array',
+      items: {
+        type: 'object',
+        additionalProperties: false,
+        properties: {
+          lat: { type: 'number' },
+          lng: { type: 'number' },
+        },
+        required: ['lat', 'lng'],
+      },
+    },
+  },
+  required: [
+    'title',
+    'description',
+    'reasoning',
+    'estimatedDuration',
+    'activities',
+    'compositeActivities',
+    'totalDays',
+    'totalDistance',
+    'estimatedBudget',
+    'recommendedGroupSize',
+    'activitiesLatLng',
+  ],
+};
+
 export const CREATE_TOUR_SYSTEM_PROMPT = `You are a tour planning expert. Create well-organized tour itineraries by:
 - Following a logical geographical sequence
 - Progressing naturally throughout the day

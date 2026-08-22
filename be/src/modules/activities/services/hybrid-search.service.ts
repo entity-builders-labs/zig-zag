@@ -8,6 +8,7 @@ export class HybridSearchService {
   private readonly logger = new Logger(HybridSearchService.name);
   private readonly SEARCH_RADIUS_THRESHOLD = 0.01; // ~1km
   private readonly CACHE_EXPIRY_HOURS = 24;
+  private readonly inFlightCrawls = new Set<string>();
 
   constructor(
     private readonly activitiesService: ActivitiesService,
@@ -63,24 +64,42 @@ export class HybridSearchService {
       forceRefresh,
     );
 
-    if (shouldCrawl) {
-      this.triggerBackgroundCrawling(
-        latitude,
-        longitude,
-        effectiveRadius,
-      ).catch((error) => {
-        this.logger.error('Background crawling failed:', error);
-      });
-    }
+    const crawlingTriggered = shouldCrawl
+      ? this.startBackgroundCrawling(latitude, longitude, effectiveRadius)
+      : false;
 
     return {
       activities: dbActivities,
-      fromCache: !shouldCrawl,
-      crawlingTriggered: shouldCrawl,
-      message: shouldCrawl
+      fromCache: !crawlingTriggered,
+      crawlingTriggered,
+      message: crawlingTriggered
         ? 'Searching for new activities in background...'
         : 'Results from database',
     };
+  }
+
+  private crawlKey(latitude: number, longitude: number): string {
+    return `${latitude.toFixed(4)},${longitude.toFixed(4)}`;
+  }
+
+  private startBackgroundCrawling(
+    latitude: number,
+    longitude: number,
+    radius: number,
+  ): boolean {
+    const key = this.crawlKey(latitude, longitude);
+    if (this.inFlightCrawls.has(key)) {
+      this.logger.debug(`Background crawl already running for ${key}`);
+      return false;
+    }
+
+    this.inFlightCrawls.add(key);
+    this.triggerBackgroundCrawling(latitude, longitude, radius)
+      .catch((error) => {
+        this.logger.error('Background crawling failed:', error);
+      })
+      .finally(() => this.inFlightCrawls.delete(key));
+    return true;
   }
 
   private async shouldTriggerCrawling(
@@ -121,6 +140,13 @@ export class HybridSearchService {
     );
 
     try {
+      const attemptedAt = new Date();
+      await this.prisma.crawlerSearch.upsert({
+        where: { latitude_longitude: { latitude, longitude } },
+        create: { latitude, longitude, createdAt: attemptedAt },
+        update: { createdAt: attemptedAt },
+      });
+
       await this.googlePlacesService.crawlAndSaveActivities({
         latitude,
         longitude,

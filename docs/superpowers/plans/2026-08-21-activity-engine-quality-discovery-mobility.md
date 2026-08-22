@@ -82,6 +82,10 @@ Provider success does not mean usable coverage.
   engine continues without semantic signals and reports that state truthfully.
   Other documented fallbacks may reduce functionality, but must not falsely
   report that a signal was applied.
+- LLM input windows and maximum-output reservations must fit the configured
+  provider's request/TPM budget. Candidate blocks are inserted exactly once;
+  increasing a provider limit is not a substitute for deterministic prompt
+  budgeting.
 - Do not mix embeddings from different provider/model/version combinations.
 - No free-form discovery output is persisted.
 - No QID is required for eligibility. Wikidata is optional narrative
@@ -110,8 +114,11 @@ because it compiles or its happy path works. The following gate applies to PRs
      affected service/serialization test when runtime behavior changes.
 3. **Automated local verification**
    - run the focused Jest unit suites while developing;
-   - before presenting the PR, run `yarn workspace backend test --runInBand`,
-     `yarn workspace backend check`, and `yarn workspace backend build`;
+   - before presenting the PR, run
+     `yarn workspace backend run test --runInBand`,
+     `yarn workspace backend run check`, and
+     `yarn workspace backend run build` (the explicit `run` matters for
+     Yarn 1's built-in `check` command);
    - run the relevant backend integration/E2E suite whenever the PR crosses a
      database, HTTP, provider-adapter, or tour-generation boundary;
    - run frontend checks/tests too when the persisted contract or UI changes.
@@ -164,7 +171,7 @@ Merge approval: pending | approved
 
 ```text
 PR 1  Provider identity, cache isolation, and truthful trace
-  -> PR 2  Wikidata and Overpass reliability
+  -> PR 2  Destination normalization, Wikidata, and Overpass reliability
   -> PR 3  Google Places multi-anchor refill and validation
   -> PR 4  Embedding integrity and hybrid catalog retrieval
   -> PR 5  CoverageAnalyzer and candidate quality gate
@@ -239,17 +246,33 @@ was applied when it was unavailable.
 - `read` mode calls the selected real provider on a miss.
 - `strict` mode performs no external call.
 - The trace for a Geoapify run never says Google Maps.
+- A failed Overpass lookup is not reported as a successful empty streets or
+  boundary result; generation may continue, but the trace is degraded.
 - Startup fails clearly for `PLACES_PROVIDER=unknown`.
 - No test logs or snapshots expose API keys.
 
 ---
 
-## PR 2: Wikidata and Overpass reliability
+## PR 2: Destination normalization, Wikidata, and Overpass reliability
 
 ### Objective
 
-Make optional enrichment and OSM exploration fail predictably without turning
-provider pressure into arbitrary neighborhood selection.
+Make destination-area resolution, optional enrichment, and OSM exploration
+fail predictably without turning provider labels or provider pressure into
+arbitrary point fallbacks and neighborhood selection.
+
+### Destination normalization changes
+
+1. Do not use the frontend display label as the only Nominatim query. Build a
+   bounded fallback from structured locality and country components while
+   retaining the original query for auditability.
+2. Use the wizard's selected coordinates and country to disambiguate candidate
+   city/town/village results. Do not blindly accept `results[0]` and do not
+   strip arbitrary middle components from every comma-separated label.
+3. Record attempted query forms, selected result, and point-scale degradation
+   reason in the trace without exposing unrelated provider payloads.
+4. Preserve the point-scale behavior for actual hotels, addresses, and POIs;
+   normalization must not turn every selected place into a city-wide tour.
 
 ### Wikidata changes
 
@@ -300,6 +323,9 @@ provider pressure into arbitrary neighborhood selection.
 
 ### Likely files
 
+- `be/src/modules/tours/services/destination-resolution.service.ts`
+- the destination input/context contract used by tour generation
+- matching destination-resolution specs and Nominatim fixtures
 - `be/src/modules/integrations/wikidata/utils/wikidata-content-safety.util.ts`
 - `be/src/modules/integrations/osm/services/overpass-api.service.ts`
 - `be/src/modules/integrations/osm/services/cached-overpass-api.service.ts`
@@ -311,6 +337,12 @@ provider pressure into arbitrary neighborhood selection.
 
 ### Tests and acceptance
 
+- The provider label `Montevideo, Montevideo Department, Uruguay` resolves to
+  the real Montevideo city boundary when its structured locality/country and
+  selected coordinates identify OSM relation `2929054`.
+- A hotel/address selection remains point-scale after normalization.
+- An ambiguous locality candidate inconsistent with the selected coordinates
+  or country is rejected rather than accepted by result order.
 - Literal JSON in the safety prompt formats successfully.
 - Candidates without QIDs remain eligible.
 - A 429 is retried within budget and recorded as degraded if exhausted.
@@ -344,6 +376,14 @@ Google Places acquisition and validate results before catalog persistence.
 
 1. Search Google Places per anchor using categories relevant to missing catalog
    coverage, not an unbounded crawl of every category.
+   - use Nearby Search as the normal operation for supported typed POIs;
+   - use Google Text Search only for explicitly configured concepts that
+     Nearby does not support well, never as an automatic quota bypass;
+   - treat Geoapify `searchText` as a limited category-mapping compatibility
+     operation, not as semantically equivalent free-text search;
+   - never switch Google to Geoapify automatically after a provider failure;
+   - allow independent configured operations to return partial results, while
+     preserving the real degradation reason if no valid candidates remain.
 2. Union and deduplicate results by provider + external ID before persistence.
 3. Add `CatalogCandidateValidator` before `ActivitiesService.create`:
    - non-empty normalized name;
@@ -421,6 +461,10 @@ best-effort re-rank of a rating-truncated list.
    configured index identity mismatches stored vectors.
 7. Keep production on Bedrock Titan Text Embeddings V2 at 256 dimensions until
    a coordinated schema migration and full rebuild are approved.
+8. Record semantic ranking as `requested`, `applied`, or `unavailable` from the
+   actual query result. A nonzero indexed-row count reports availability only;
+   it does not prove that the query embedding provider responded or that a
+   similarity score affected ordering.
 
 ### Hybrid retrieval
 
@@ -537,6 +581,9 @@ interface CoverageReport {
 
 - Fifteen irrelevant/unrated candidates are insufficient.
 - A pool with 0 indexed candidates never claims semantic ranking was applied.
+- The Montevideo regression pool of fifteen mostly monument/culture candidates
+  is insufficient for `history + art + culture + architecture + beach` when
+  meaningful art, architecture, or beach coverage is absent.
 - A provider outage is `degraded`, not proof that a neighborhood has zero POIs.
 - Refill occurs before discovery.
 - Discovery receives only the reported deficits.
@@ -765,6 +812,22 @@ allowed transportation modes, days, pace, group, and time budget.
 - An infeasible LLM schedule is rejected and reselected/reduced.
 - Provider failure is visible and uses a documented conservative fallback.
 
+### Deferred follow-up: role-aware food and drink scheduling
+
+Do not add a simple global cap on restaurants or cafes as part of the current
+stabilization PRs. Food stops require a separate design that distinguishes
+schedule-support stops in a general tour from primary stops in an explicitly
+food-centric experience (for example, a tapas route). An interest list that
+contains `food` alongside history, culture, or architecture is not sufficient
+evidence that the whole tour is food-centric.
+
+The follow-up must define food-stop roles, meal/time windows, separation and
+repetition constraints, opening-hours and dietary checks, and how route
+optimization preserves those constraints. Add the observed Granada case—three
+consecutive cafe/coffee venues in a mixed tour—as a deterministic regression
+fixture. Until then, do not implement an ad-hoc type-count rule that could also
+break legitimate food tours.
+
 ---
 
 ## PR 10: MVP per-leg transport contract and Google Maps handoff
@@ -856,7 +919,15 @@ scenarios, and real manual smoke tests before `codex/main -> main`.
    - no city-wide exploration;
    - one bounded anchor;
    - current point-scale safety behavior remains intact.
-5. **Provider failures**
+5. **Montevideo, overqualified provider label and off-theme pool**
+   - `Montevideo, Montevideo Department, Uruguay` resolves to the real city
+     boundary through structured, coordinate-validated normalization;
+   - fifteen real monuments do not count as coverage for missing art,
+     architecture, and beach interests;
+   - zero indexed candidates is reported as semantic ranking unavailable;
+   - LLM statements about transit zones or opening hours are visibly
+     unverified unless deterministic evidence exists.
+6. **Provider failures**
    - Places strict cache miss;
    - embedding provider unavailable/mismatched;
    - Overpass 429/timeout;
@@ -904,6 +975,10 @@ server logs:
 - spatial groups, selected modes, travel budgets, and feasibility result;
 - hallucinated/duplicate IDs removed;
 - effective waypoint snapshots persisted.
+
+LLM reasoning may be displayed for debugging, but it must be labeled as an
+unverified model explanation. It cannot satisfy any trace requirement for
+opening hours, transport mode, travel time, schedule, or route feasibility.
 
 Do not put API keys, complete raw provider payloads, unsafe web text, or private
 user data in the trace.

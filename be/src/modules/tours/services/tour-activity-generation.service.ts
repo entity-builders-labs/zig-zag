@@ -40,7 +40,7 @@ import {
   buildDbSearchStep,
   buildDestinationResolutionStep,
   buildEmbeddingsStep,
-  buildGooglePlacesCrawlStep,
+  buildPlacesCrawlStep,
   buildLlmGenerationStep,
   buildNeighborhoodShortlistStep,
   buildOsmBoundaryStep,
@@ -52,6 +52,10 @@ import {
   GenerationTraceStep,
   TraceCandidate,
 } from '../interfaces/generation-trace.interface';
+import {
+  PlacesCrawlError,
+  placesProviderLabel,
+} from '@integrations/google-places/interfaces/places-api.interface';
 
 @Injectable()
 export class TourActivityGenerationService {
@@ -215,6 +219,7 @@ export class TourActivityGenerationService {
       // bitacora-design.md) — one step per pipeline stage, in order.
       const traceSteps: GenerationTraceStep[] = [];
       const traceCandidateLists: TraceCandidate[][] = [];
+      let placesRefillError: PlacesCrawlError | null = null;
 
       const destinationResolution =
         await this.destinationResolutionService.resolveDestination(
@@ -293,22 +298,30 @@ export class TourActivityGenerationService {
             traceSteps.push(dbSearchStep);
             traceCandidateLists.push(dbSearchStep.candidates ?? []);
           } else {
-            traceSteps.push(buildDbSearchStep(nearbyActivities, radius / 1000));
+            const dbSearchStep = buildDbSearchStep(
+              nearbyActivities,
+              radius / 1000,
+            );
+            traceSteps.push(dbSearchStep);
+            traceCandidateLists.push(dbSearchStep.candidates ?? []);
 
-            // Update status: pool is too thin, triggering Google Maps crawl
+            const placesStatus = this.googlePlacesService.getProviderStatus();
+            const placesLabel = placesProviderLabel(placesStatus.provider);
+
+            // Update status: pool is too thin, triggering catalog refill.
             const poolStatus =
               nearbyActivities.length > 0
-                ? `Se encontraron ${nearbyActivities.length} actividades pero insuficientes. Buscando más en Google Maps...`
-                : 'No se encontraron actividades locales. Buscando en Google Maps...';
+                ? `Se encontraron ${nearbyActivities.length} actividades pero insuficientes. Buscando más con ${placesLabel}...`
+                : `No se encontraron actividades locales. Buscando con ${placesLabel}...`;
             await this.updateGenerationStatus(tourId, 'generating', poolStatus);
 
             try {
-              // Trigger Google Maps crawling
-              await this.googlePlacesService.crawlAndSaveActivities({
-                latitude: searchArea.latitude,
-                longitude: searchArea.longitude,
-                radius: Math.min(radius, 5000), // Cap radius for Google Maps
-              });
+              const crawlResult =
+                await this.googlePlacesService.crawlAndSaveActivities({
+                  latitude: searchArea.latitude,
+                  longitude: searchArea.longitude,
+                  radius: Math.min(radius, 5000),
+                });
 
               // Try searching again after crawling
               const refreshedActivities = await this.activitiesService.findAll(
@@ -322,7 +335,7 @@ export class TourActivityGenerationService {
                 await this.updateGenerationStatus(
                   tourId,
                   'generating',
-                  `¡Encontrados ${refreshedActivities.length} lugares nuevos en Google Maps! Analizando...`,
+                  `¡Catálogo actualizado con ${placesLabel}! Analizando ${refreshedActivities.length} actividades...`,
                 );
 
                 const refreshedActivitiesSample =
@@ -337,13 +350,19 @@ export class TourActivityGenerationService {
                 availableActivitiesText = `\n\nAvailable activities in the area (within ${radius / 1000}km):\n${refreshedActivitiesSample
                   .map((act: any) => formatActivityForPrompt(act))
                   .join('\n')}`;
-                const crawlStep = buildGooglePlacesCrawlStep(
-                  refreshedActivitiesSample,
+                const newActivityIds = new Set(crawlResult.activitiesIds);
+                const crawlStep = buildPlacesCrawlStep(
+                  refreshedActivitiesSample.filter((activity: any) =>
+                    newActivityIds.has(activity.id),
+                  ),
+                  crawlResult.provenance,
                 );
                 traceSteps.push(crawlStep);
                 traceCandidateLists.push(crawlStep.candidates ?? []);
               } else {
-                traceSteps.push(buildGooglePlacesCrawlStep([]));
+                traceSteps.push(
+                  buildPlacesCrawlStep([], crawlResult.provenance),
+                );
                 // Crawl found nothing — but if we already had a thin local pool,
                 // fall back to using it rather than leaving candidateActivityIds empty.
                 // Same "degrade gracefully" pattern as OSM/Wikidata failures.
@@ -374,16 +393,35 @@ export class TourActivityGenerationService {
                 }
               }
             } catch (crawlError) {
+              if (crawlError instanceof PlacesCrawlError) {
+                placesRefillError = crawlError;
+              }
               this.logger.error(
-                `Google Maps crawling failed: ${crawlError.message}`,
+                `${placesLabel} catalog refill failed: ${crawlError.message}`,
               );
+              const failedProvenance =
+                crawlError instanceof PlacesCrawlError
+                  ? crawlError.provenance
+                  : {
+                      provider: placesStatus.provider,
+                      cacheStatus:
+                        placesStatus.cacheEnabled &&
+                        placesStatus.cacheMode === 'strict'
+                          ? ('strict-miss' as const)
+                          : ('miss-live' as const),
+                      requestedCount: 0,
+                      receivedCount: 0,
+                      acceptedCount: 0,
+                      rejectedCountByReason: {},
+                    };
+              traceSteps.push(buildPlacesCrawlStep([], failedProvenance, true));
               // Crawl failed, but if we already had a thin local pool, use it
               // rather than leaving generation with empty candidates.
               if (nearbyActivities.length > 0) {
                 await this.updateGenerationStatus(
                   tourId,
                   'generating',
-                  `Google Maps indisponible. Usando ${nearbyActivities.length} actividades locales encontradas.`,
+                  `${placesLabel} indisponible. Usando ${nearbyActivities.length} actividades locales encontradas.`,
                 );
                 const nearbyActivitiesSample = nearbyActivities.slice(0, 15);
                 nearbyActivitiesSample.forEach((act: any) => {
@@ -393,13 +431,11 @@ export class TourActivityGenerationService {
                 availableActivitiesText = `\n\nAvailable activities in the area (within ${radius / 1000}km):\n${nearbyActivitiesSample
                   .map((act: any) => formatActivityForPrompt(act))
                   .join('\n')}`;
-                // Add crawl failure trace step showing we had candidates but couldn't expand
-                traceSteps.push(buildGooglePlacesCrawlStep([]));
               } else {
                 await this.updateGenerationStatus(
                   tourId,
                   'generating',
-                  'La búsqueda en Google Maps falló.',
+                  `La búsqueda con ${placesLabel} falló.`,
                 );
               }
             }
@@ -419,8 +455,13 @@ export class TourActivityGenerationService {
         // "Pasear por Caminito") and the boundary containing this point (so
         // a NEIGHBORHOOD_WALK/EXPERIENCE has a real ActivityFamily to
         // belong to, never one the LLM has to invent). Entirely optional —
-        // OsmPlacesService never throws, it degrades to empty/null.
+        // provider failures degrade without aborting the tour and are kept
+        // distinct from successful empty results in the generation trace.
         let streetCandidates: OsmCandidate[] = [];
+        let osmStreetsFailure: string | undefined;
+        let osmBoundaryFailure: string | undefined;
+        let osmStreetsResponded: boolean | undefined;
+        let osmBoundaryResponded: boolean | undefined;
 
         if (isAreaScale) {
           areaCandidate = destinationResolution.boundary;
@@ -494,13 +535,13 @@ export class TourActivityGenerationService {
             buildNeighborhoodShortlistStep(rawNeighborhoods, shortlisted),
           );
         } else {
-          const [rawStreetCandidates, resolvedArea] = await Promise.all([
-            this.osmPlacesService.findStreetsNear(
+          const [streetsLookup, boundaryLookup] = await Promise.all([
+            this.osmPlacesService.lookupStreetsNear(
               searchArea.latitude,
               searchArea.longitude,
               radius,
             ),
-            this.osmPlacesService.findContainingBoundary(
+            this.osmPlacesService.lookupContainingBoundary(
               searchArea.latitude,
               searchArea.longitude,
             ),
@@ -511,17 +552,31 @@ export class TourActivityGenerationService {
           // Overpass response reliably blows past Groq's per-request payload
           // limit (413) once every candidate's formatted line is in the
           // prompt.
-          streetCandidates = rawStreetCandidates.slice(0, 20);
-          areaCandidate = resolvedArea;
+          streetCandidates = streetsLookup.value.slice(0, 20);
+          areaCandidate = boundaryLookup.value;
+          osmStreetsFailure = streetsLookup.failureReason;
+          osmBoundaryFailure = boundaryLookup.failureReason;
+          osmStreetsResponded = streetsLookup.status === 'success';
+          osmBoundaryResponded = boundaryLookup.status === 'success';
         }
 
         candidateOsmFeaturesById = new Map(
           streetCandidates.map((c) => [c.id, c]),
         );
-        const streetsStep = buildOsmStreetsStep(streetCandidates);
+        const streetsStep = buildOsmStreetsStep(
+          streetCandidates,
+          osmStreetsFailure,
+          osmStreetsResponded,
+        );
         traceSteps.push(streetsStep);
         traceCandidateLists.push(streetsStep.candidates ?? []);
-        traceSteps.push(buildOsmBoundaryStep(areaCandidate));
+        traceSteps.push(
+          buildOsmBoundaryStep(
+            areaCandidate,
+            osmBoundaryFailure,
+            osmBoundaryResponded,
+          ),
+        );
 
         // Wikidata narrative context: one batch call for every QID found
         // across streets + area, not one call per candidate (see
@@ -543,9 +598,9 @@ export class TourActivityGenerationService {
         traceSteps.push(buildWikidataEnrichmentStep(allOsmCandidates));
 
         // Real (not simulated) check of how many of the candidates offered
-        // this generation have a pgvector embedding indexed — documents that
-        // this flow doesn't consult it for candidate selection today, see
-        // docs/superpowers/specs/2026-08-20-generation-bitacora-design.md.
+        // this generation have a pgvector embedding indexed. This measures
+        // index availability only: it cannot by itself prove that the query
+        // embedding provider responded or that semantic scores were applied.
         const offeredIds = Array.from(candidateActivityIds);
         let indexedCount = 0;
         if (offeredIds.length > 0) {
@@ -579,6 +634,26 @@ export class TourActivityGenerationService {
         !availableActivitiesText &&
         (!isAreaScale || candidateOsmFeaturesById.size === 0)
       ) {
+        if (placesRefillError?.code === 'quota_exhausted') {
+          throw new Error(
+            'Google Places alcanzó su cuota diaria y no pudo buscar lugares reales para este destino. Volvé a intentar cuando se renueve la cuota del proveedor.',
+          );
+        }
+        if (placesRefillError?.code === 'rate_limited') {
+          throw new Error(
+            'Google Places limitó temporalmente las búsquedas y no pudo devolver lugares reales para este destino. Esperá un momento y volvé a intentar.',
+          );
+        }
+        if (placesRefillError?.code === 'strict_cache_miss') {
+          throw new Error(
+            'El modo estricto local no tiene datos cacheados de Google Places para este destino y no permite llamadas externas.',
+          );
+        }
+        if (placesRefillError?.code === 'provider_unavailable') {
+          throw new Error(
+            'Google Places no está configurado o disponible para buscar lugares reales en este destino.',
+          );
+        }
         throw new Error(
           'No se encontraron lugares reales para esta ubicación. Probá con otro destino o un radio de búsqueda más amplio.',
         );
@@ -612,12 +687,14 @@ export class TourActivityGenerationService {
       const themesText = Object.values(VariantTheme).join(', ');
 
       const tourChain = this.compositeGenerationService.createTourChain();
-      const fullPrompt = enhancedPrompt + availableActivitiesText;
       const generationTimeout = this.langChainService.getGenerationTimeout();
 
       const aiResponse = (await Promise.race([
         tourChain.invoke({
-          input: fullPrompt,
+          // activities is injected into its own prompt section by the chain;
+          // including it in input as well duplicates the complete candidate
+          // list and wastes the provider's token budget.
+          input: enhancedPrompt,
           activities: availableActivitiesText,
           osmFeatures: osmFeaturesText,
           area: areaText,

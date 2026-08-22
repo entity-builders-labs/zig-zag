@@ -1,6 +1,8 @@
 # Integrations Module
 
-External service integrations. Currently contains the **Google Places** integration for crawling and enriching activity data.
+External service integrations. The catalog-refill orchestrator uses a
+provider-neutral Places contract backed by Google Places (MVP default) or
+Geoapify (explicit alternative).
 
 ## Architecture
 
@@ -24,7 +26,7 @@ integrations/
 The crawling flow is triggered in background by `HybridSearchService` when a new area is searched:
 
 1. **`GooglePlacesService.crawlAndSaveActivities(dto)`**
-2. Searches Google Places API for various activity categories (restaurants, parks, museums, etc.)
+2. Searches the configured Places provider for activity categories (restaurants, parks, museums, etc.)
 3. For each place found:
    - Filters by minimum rating
    - Matches to known activity types (static mapping)
@@ -36,9 +38,13 @@ The crawling flow is triggered in background by `HybridSearchService` when a new
 
 ## Caching Layer
 
-`CachedPlacesApiService` implements `IPlacesApiService` and wraps `GooglePlacesApiService`:
+`CachedPlacesApiService` implements `IPlacesApiService` and wraps the selected
+real provider:
 
-- Caches API responses to reduce Google Places API costs
+- Cache keys include provider, schema version, method, and normalized params.
+- `read`: cache first, live provider on miss, without writing.
+- `write`: cache first, live provider on miss, then write.
+- `strict`: cache only; a miss fails without an external call.
 - Injected via NestJS provider token `'PlacesApiService'`
 
 ## Known Activity Types
@@ -47,4 +53,8 @@ On module init, `GooglePlacesService.ensureKnownActivityTypes()` seeds the DB wi
 
 ## Environment Variables
 
-- `GOOGLE_MAPS_API_KEY` — Google Places API key (required)
+- `PLACES_PROVIDER` — `google` (default) or `geoapify`; invalid values fail startup.
+- `GOOGLE_MAPS_API_KEY` — required when `PLACES_PROVIDER=google`.
+- `GEOAPIFY_API_KEY` — required when `PLACES_PROVIDER=geoapify`.
+- `USE_MOCK_MAPS` — enables the cached wrapper for legacy compatibility.
+- `MOCK_MAPS_MODE` — `read`, `write`, or `strict`.

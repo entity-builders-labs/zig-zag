@@ -19,7 +19,9 @@ import { RunnableSequence } from '@langchain/core/runnables';
 import { JsonOutputFunctionsParser } from 'langchain/output_parsers';
 import {
   CREATE_TOUR_JSON_SYSTEM_PROMPT,
+  CREATE_TOUR_RESPONSE_SCHEMA,
   CREATE_TOUR_SYSTEM_PROMPT,
+  GROQ_TOUR_MAX_COMPLETION_TOKENS,
   createTourJsonUserPrompt,
 } from '../prompts/create-tour.prompt';
 import { extractAndCleanJson, repairJson } from '../utils/json-parser.util';
@@ -67,7 +69,21 @@ export class TourGenerationService {
             systemPrompt,
             userPrompt,
             {},
-            {},
+            {
+              groq: {
+                maxCompletionTokens: GROQ_TOUR_MAX_COMPLETION_TOKENS,
+                reasoningEffort: 'low',
+                includeReasoning: false,
+              },
+              responseFormat: {
+                type: 'json_schema',
+                json_schema: {
+                  name: 'tour_generation',
+                  strict: true,
+                  schema: CREATE_TOUR_RESPONSE_SCHEMA,
+                },
+              },
+            },
           );
 
           // Clean and extract JSON from response
@@ -469,11 +485,8 @@ export class TourGenerationService {
       const chainStartTime = Date.now();
       const tourChain = this.createTourChain();
 
-      // Prepare the input with available activities context
-      const fullPrompt = enhancedPrompt + availableActivitiesText;
-
       this.logger.debug(
-        `Invoking tour chain with prompt: ${fullPrompt.substring(0, 200)}...`,
+        `Invoking tour chain with prompt: ${enhancedPrompt.substring(0, 200)}...`,
       );
 
       // Add timeout to AI chain invocation
@@ -485,7 +498,10 @@ export class TourGenerationService {
 
       const aiResponse = (await Promise.race([
         tourChain.invoke({
-          input: fullPrompt,
+          // activities is a separate createTourJsonUserPrompt section below;
+          // appending it to input too duplicates every candidate and can push
+          // the Groq request over its TPM budget.
+          input: enhancedPrompt,
           activities:
             availableActivitiesText ||
             'No specific activities provided. Create a general tour.',

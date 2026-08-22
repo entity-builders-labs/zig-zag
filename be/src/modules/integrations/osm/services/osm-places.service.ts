@@ -24,6 +24,12 @@ export interface OsmCandidate {
   narrativeContext?: string;
 }
 
+export interface OsmLookupResult<T> {
+  value: T;
+  status: 'success' | 'failed';
+  failureReason?: string;
+}
+
 // OSM's admin_level varies a lot by country, but 8-11 is the plausible
 // range for a city/neighborhood-level boundary in most tagging schemes.
 // When queryContainingBoundary returns multiple candidates for the same
@@ -87,6 +93,15 @@ export class OsmPlacesService {
     longitude: number,
     radiusMeters: number,
   ): Promise<OsmCandidate[]> {
+    return (await this.lookupStreetsNear(latitude, longitude, radiusMeters))
+      .value;
+  }
+
+  async lookupStreetsNear(
+    latitude: number,
+    longitude: number,
+    radiusMeters: number,
+  ): Promise<OsmLookupResult<OsmCandidate[]>> {
     const cappedRadiusMeters = Math.min(
       radiusMeters,
       this.maxStreetsRadiusMeters,
@@ -97,14 +112,21 @@ export class OsmPlacesService {
         longitude,
         radiusMeters: cappedRadiusMeters,
       });
-      return elements
-        .map((el) => this.toCandidate(el))
-        .filter((c): c is OsmCandidate => c !== null);
-    } catch (error) {
+      return {
+        status: 'success',
+        value: elements
+          .map((el) => this.toCandidate(el))
+          .filter((c): c is OsmCandidate => c !== null),
+      };
+    } catch (error: any) {
       this.logger.warn(
         `Overpass queryStreets failed, continuing without street candidates: ${error.message}`,
       );
-      return [];
+      return {
+        status: 'failed',
+        value: [],
+        failureReason: error.message || 'unknown Overpass error',
+      };
     }
   }
 
@@ -118,6 +140,13 @@ export class OsmPlacesService {
     latitude: number,
     longitude: number,
   ): Promise<OsmCandidate | null> {
+    return (await this.lookupContainingBoundary(latitude, longitude)).value;
+  }
+
+  async lookupContainingBoundary(
+    latitude: number,
+    longitude: number,
+  ): Promise<OsmLookupResult<OsmCandidate | null>> {
     try {
       const elements = await this.overpassApi.queryContainingBoundary({
         latitude,
@@ -139,12 +168,19 @@ export class OsmPlacesService {
         )
         .sort((a, b) => b.adminLevel - a.adminLevel);
 
-      return ranked[0]?.candidate ?? null;
-    } catch (error) {
+      return {
+        status: 'success',
+        value: ranked[0]?.candidate ?? null,
+      };
+    } catch (error: any) {
       this.logger.warn(
         `Overpass queryContainingBoundary failed, continuing without an area candidate: ${error.message}`,
       );
-      return null;
+      return {
+        status: 'failed',
+        value: null,
+        failureReason: error.message || 'unknown Overpass error',
+      };
     }
   }
 
