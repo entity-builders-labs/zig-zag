@@ -32,6 +32,8 @@ export interface GenerationTraceStep {
   summary: string;
   candidates?: TraceCandidate[];
   placesProvenance?: PlacesCrawlProvenance;
+  providerStatus?: 'success' | 'failed';
+  degradedReason?: string;
 }
 
 export interface GenerationTrace {

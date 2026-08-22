@@ -455,8 +455,13 @@ export class TourActivityGenerationService {
         // "Pasear por Caminito") and the boundary containing this point (so
         // a NEIGHBORHOOD_WALK/EXPERIENCE has a real ActivityFamily to
         // belong to, never one the LLM has to invent). Entirely optional —
-        // OsmPlacesService never throws, it degrades to empty/null.
+        // provider failures degrade without aborting the tour and are kept
+        // distinct from successful empty results in the generation trace.
         let streetCandidates: OsmCandidate[] = [];
+        let osmStreetsFailure: string | undefined;
+        let osmBoundaryFailure: string | undefined;
+        let osmStreetsResponded: boolean | undefined;
+        let osmBoundaryResponded: boolean | undefined;
 
         if (isAreaScale) {
           areaCandidate = destinationResolution.boundary;
@@ -530,13 +535,13 @@ export class TourActivityGenerationService {
             buildNeighborhoodShortlistStep(rawNeighborhoods, shortlisted),
           );
         } else {
-          const [rawStreetCandidates, resolvedArea] = await Promise.all([
-            this.osmPlacesService.findStreetsNear(
+          const [streetsLookup, boundaryLookup] = await Promise.all([
+            this.osmPlacesService.lookupStreetsNear(
               searchArea.latitude,
               searchArea.longitude,
               radius,
             ),
-            this.osmPlacesService.findContainingBoundary(
+            this.osmPlacesService.lookupContainingBoundary(
               searchArea.latitude,
               searchArea.longitude,
             ),
@@ -547,17 +552,31 @@ export class TourActivityGenerationService {
           // Overpass response reliably blows past Groq's per-request payload
           // limit (413) once every candidate's formatted line is in the
           // prompt.
-          streetCandidates = rawStreetCandidates.slice(0, 20);
-          areaCandidate = resolvedArea;
+          streetCandidates = streetsLookup.value.slice(0, 20);
+          areaCandidate = boundaryLookup.value;
+          osmStreetsFailure = streetsLookup.failureReason;
+          osmBoundaryFailure = boundaryLookup.failureReason;
+          osmStreetsResponded = streetsLookup.status === 'success';
+          osmBoundaryResponded = boundaryLookup.status === 'success';
         }
 
         candidateOsmFeaturesById = new Map(
           streetCandidates.map((c) => [c.id, c]),
         );
-        const streetsStep = buildOsmStreetsStep(streetCandidates);
+        const streetsStep = buildOsmStreetsStep(
+          streetCandidates,
+          osmStreetsFailure,
+          osmStreetsResponded,
+        );
         traceSteps.push(streetsStep);
         traceCandidateLists.push(streetsStep.candidates ?? []);
-        traceSteps.push(buildOsmBoundaryStep(areaCandidate));
+        traceSteps.push(
+          buildOsmBoundaryStep(
+            areaCandidate,
+            osmBoundaryFailure,
+            osmBoundaryResponded,
+          ),
+        );
 
         // Wikidata narrative context: one batch call for every QID found
         // across streets + area, not one call per candidate (see
@@ -579,9 +598,9 @@ export class TourActivityGenerationService {
         traceSteps.push(buildWikidataEnrichmentStep(allOsmCandidates));
 
         // Real (not simulated) check of how many of the candidates offered
-        // this generation have a pgvector embedding indexed — documents that
-        // this flow doesn't consult it for candidate selection today, see
-        // docs/superpowers/specs/2026-08-20-generation-bitacora-design.md.
+        // this generation have a pgvector embedding indexed. This measures
+        // index availability only: it cannot by itself prove that the query
+        // embedding provider responded or that semantic scores were applied.
         const offeredIds = Array.from(candidateActivityIds);
         let indexedCount = 0;
         if (offeredIds.length > 0) {

@@ -93,14 +93,25 @@ function osmDetail(c: OsmCandidate): string {
 
 export function buildOsmStreetsStep(
   candidates: OsmCandidate[],
+  providerFailure?: string,
+  providerResponded?: boolean,
 ): GenerationTraceStep {
   return {
     stage: 'osm_streets',
     label: 'Calles cercanas (OSM/Overpass)',
-    summary:
-      candidates.length > 0
+    summary: providerFailure
+      ? 'No se pudo consultar OSM/Overpass para obtener calles o vías; la ausencia de candidatos en esta generación no significa que no existan.'
+      : candidates.length > 0
         ? `${candidates.length} calles/vías reales encontradas, candidatas para un recorrido compuesto.`
-        : 'Sin calles/vías reales encontradas cerca de esta ubicación.',
+        : providerResponded
+          ? 'La consulta a OSM/Overpass respondió sin calles/vías reales utilizables cerca de esta ubicación.'
+          : 'No se obtuvieron calles/vías utilizables; esta etapa no registró si la consulta respondió vacía o se degradó.',
+    providerStatus: providerFailure
+      ? 'failed'
+      : providerResponded
+        ? 'success'
+        : undefined,
+    degradedReason: providerFailure,
     candidates: candidates.map(
       (c): TraceCandidate => ({
         source: 'osm',
@@ -116,13 +127,25 @@ export function buildOsmStreetsStep(
 
 export function buildOsmBoundaryStep(
   area: OsmCandidate | null,
+  providerFailure?: string,
+  providerResponded?: boolean,
 ): GenerationTraceStep {
   return {
     stage: 'osm_boundary',
     label: 'Barrio/límite contenedor (OSM/Overpass)',
-    summary: area
-      ? `Límite encontrado: ${area.name}.`
-      : 'Sin un límite de barrio real conteniendo esta ubicación — no se pudo generar un área para experiencias compuestas.',
+    summary: providerFailure
+      ? 'No se pudo consultar OSM/Overpass para resolver el límite contenedor; esta generación continuó degradada y no pudo construir experiencias compuestas basadas en el área.'
+      : area
+        ? `Límite encontrado: ${area.name}.`
+        : providerResponded
+          ? 'La consulta a OSM/Overpass respondió sin un límite de barrio utilizable para esta ubicación; no se pudo generar un área para experiencias compuestas.'
+          : 'No se obtuvo un límite contenedor utilizable; esta etapa no registró si la consulta respondió vacía o se degradó.',
+    providerStatus: providerFailure
+      ? 'failed'
+      : providerResponded
+        ? 'success'
+        : undefined,
+    degradedReason: providerFailure,
     candidates: area
       ? [
           {
@@ -182,17 +205,29 @@ export function buildNeighborhoodShortlistStep(
 export function buildEmbeddingsStep(
   offeredCount: number,
   indexedCount: number,
-  interestsUsedForRanking: boolean,
+  interestsRequested: boolean,
 ): GenerationTraceStep {
+  let summary: string;
+  if (indexedCount === 0) {
+    summary = interestsRequested
+      ? `0 de ${offeredCount} candidatos ofrecidos tienen embedding indexado en pgvector. ` +
+        'No hubo señal semántica disponible para aplicar a esta selección; el orden se degradó a rating y proximidad.'
+      : `0 de ${offeredCount} candidatos ofrecidos tienen embedding indexado en pgvector. ` +
+        'Esta generación tampoco tenía intereses declarados, por lo que se ordenó por rating y proximidad.';
+  } else if (interestsRequested) {
+    summary =
+      `${indexedCount} de ${offeredCount} candidatos ofrecidos tienen embedding indexado en pgvector ` +
+      'y estaban disponibles para el ranking solicitado por intereses. La disponibilidad por sí sola no prueba que el proveedor de la query embedding haya respondido.';
+  } else {
+    summary =
+      `${indexedCount} de ${offeredCount} candidatos ofrecidos tienen embedding indexado en pgvector, ` +
+      'pero no se solicitó ranking semántico porque esta generación no tenía intereses declarados; se ordenó por rating y proximidad.';
+  }
+
   return {
     stage: 'embeddings',
     label: 'Embeddings (pgvector)',
-    summary: interestsUsedForRanking
-      ? `${indexedCount} de ${offeredCount} candidatos ofrecidos tienen embedding indexado en pgvector, ` +
-        'usado junto con el rating para priorizar candidatos según los intereses declarados.'
-      : `${indexedCount} de ${offeredCount} candidatos ofrecidos tienen embedding indexado en pgvector, ` +
-        'pero no se usaron para la selección: esta generación no tenía intereses declarados, así que se ' +
-        'ordenó únicamente por rating y proximidad.',
+    summary,
   };
 }
 
@@ -229,9 +264,11 @@ export function buildLlmGenerationStep(
 ): GenerationTraceStep {
   return {
     stage: 'llm_generation',
-    label: 'Generación del itinerario con IA',
+    label: 'Explicación no verificada del itinerario generado por IA',
     summary:
-      reasoning ||
+      (reasoning
+        ? `Afirmaciones declaradas por el modelo; no constituyen verificación de transporte, horarios ni factibilidad: ${reasoning}`
+        : undefined) ||
       'El modelo no devolvió un campo de razonamiento para esta generación.',
   };
 }

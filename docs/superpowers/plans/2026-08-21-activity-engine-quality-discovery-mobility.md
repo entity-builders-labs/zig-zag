@@ -167,7 +167,7 @@ Merge approval: pending | approved
 
 ```text
 PR 1  Provider identity, cache isolation, and truthful trace
-  -> PR 2  Wikidata and Overpass reliability
+  -> PR 2  Destination normalization, Wikidata, and Overpass reliability
   -> PR 3  Google Places multi-anchor refill and validation
   -> PR 4  Embedding integrity and hybrid catalog retrieval
   -> PR 5  CoverageAnalyzer and candidate quality gate
@@ -242,17 +242,33 @@ was applied when it was unavailable.
 - `read` mode calls the selected real provider on a miss.
 - `strict` mode performs no external call.
 - The trace for a Geoapify run never says Google Maps.
+- A failed Overpass lookup is not reported as a successful empty streets or
+  boundary result; generation may continue, but the trace is degraded.
 - Startup fails clearly for `PLACES_PROVIDER=unknown`.
 - No test logs or snapshots expose API keys.
 
 ---
 
-## PR 2: Wikidata and Overpass reliability
+## PR 2: Destination normalization, Wikidata, and Overpass reliability
 
 ### Objective
 
-Make optional enrichment and OSM exploration fail predictably without turning
-provider pressure into arbitrary neighborhood selection.
+Make destination-area resolution, optional enrichment, and OSM exploration
+fail predictably without turning provider labels or provider pressure into
+arbitrary point fallbacks and neighborhood selection.
+
+### Destination normalization changes
+
+1. Do not use the frontend display label as the only Nominatim query. Build a
+   bounded fallback from structured locality and country components while
+   retaining the original query for auditability.
+2. Use the wizard's selected coordinates and country to disambiguate candidate
+   city/town/village results. Do not blindly accept `results[0]` and do not
+   strip arbitrary middle components from every comma-separated label.
+3. Record attempted query forms, selected result, and point-scale degradation
+   reason in the trace without exposing unrelated provider payloads.
+4. Preserve the point-scale behavior for actual hotels, addresses, and POIs;
+   normalization must not turn every selected place into a city-wide tour.
 
 ### Wikidata changes
 
@@ -303,6 +319,9 @@ provider pressure into arbitrary neighborhood selection.
 
 ### Likely files
 
+- `be/src/modules/tours/services/destination-resolution.service.ts`
+- the destination input/context contract used by tour generation
+- matching destination-resolution specs and Nominatim fixtures
 - `be/src/modules/integrations/wikidata/utils/wikidata-content-safety.util.ts`
 - `be/src/modules/integrations/osm/services/overpass-api.service.ts`
 - `be/src/modules/integrations/osm/services/cached-overpass-api.service.ts`
@@ -314,6 +333,12 @@ provider pressure into arbitrary neighborhood selection.
 
 ### Tests and acceptance
 
+- The provider label `Montevideo, Montevideo Department, Uruguay` resolves to
+  the real Montevideo city boundary when its structured locality/country and
+  selected coordinates identify OSM relation `2929054`.
+- A hotel/address selection remains point-scale after normalization.
+- An ambiguous locality candidate inconsistent with the selected coordinates
+  or country is rejected rather than accepted by result order.
 - Literal JSON in the safety prompt formats successfully.
 - Candidates without QIDs remain eligible.
 - A 429 is retried within budget and recorded as degraded if exhausted.
@@ -432,6 +457,10 @@ best-effort re-rank of a rating-truncated list.
    configured index identity mismatches stored vectors.
 7. Keep production on Bedrock Titan Text Embeddings V2 at 256 dimensions until
    a coordinated schema migration and full rebuild are approved.
+8. Record semantic ranking as `requested`, `applied`, or `unavailable` from the
+   actual query result. A nonzero indexed-row count reports availability only;
+   it does not prove that the query embedding provider responded or that a
+   similarity score affected ordering.
 
 ### Hybrid retrieval
 
@@ -548,6 +577,9 @@ interface CoverageReport {
 
 - Fifteen irrelevant/unrated candidates are insufficient.
 - A pool with 0 indexed candidates never claims semantic ranking was applied.
+- The Montevideo regression pool of fifteen mostly monument/culture candidates
+  is insufficient for `history + art + culture + architecture + beach` when
+  meaningful art, architecture, or beach coverage is absent.
 - A provider outage is `degraded`, not proof that a neighborhood has zero POIs.
 - Refill occurs before discovery.
 - Discovery receives only the reported deficits.
@@ -883,7 +915,15 @@ scenarios, and real manual smoke tests before `codex/main -> main`.
    - no city-wide exploration;
    - one bounded anchor;
    - current point-scale safety behavior remains intact.
-5. **Provider failures**
+5. **Montevideo, overqualified provider label and off-theme pool**
+   - `Montevideo, Montevideo Department, Uruguay` resolves to the real city
+     boundary through structured, coordinate-validated normalization;
+   - fifteen real monuments do not count as coverage for missing art,
+     architecture, and beach interests;
+   - zero indexed candidates is reported as semantic ranking unavailable;
+   - LLM statements about transit zones or opening hours are visibly
+     unverified unless deterministic evidence exists.
+6. **Provider failures**
    - Places strict cache miss;
    - embedding provider unavailable/mismatched;
    - Overpass 429/timeout;
@@ -931,6 +971,10 @@ server logs:
 - spatial groups, selected modes, travel budgets, and feasibility result;
 - hallucinated/duplicate IDs removed;
 - effective waypoint snapshots persisted.
+
+LLM reasoning may be displayed for debugging, but it must be labeled as an
+unverified model explanation. It cannot satisfy any trace requirement for
+opening hours, transport mode, travel time, schedule, or route feasibility.
 
 Do not put API keys, complete raw provider payloads, unsafe web text, or private
 user data in the trace.

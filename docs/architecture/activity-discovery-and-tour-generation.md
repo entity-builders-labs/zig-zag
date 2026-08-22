@@ -49,6 +49,10 @@ Related documents:
     a GeoFeature table without a demonstrated requirement.
 16. Waypoint lifecycle changes are explicit: merge, replace/remove, or archive
     rather than silently corrupting a composite.
+17. Provider/index availability and LLM reasoning are not verification. The
+    generation bitacora may claim a semantic, transport, opening-hours, or
+    feasibility signal was applied only when the corresponding deterministic
+    stage records evidence that it actually ran successfully.
 
 ## End-to-end flow
 
@@ -133,7 +137,7 @@ Tour Generation only selects verified Activities.
 | --- | --- | --- |
 | UserIntentBuilder | Normalize destination and preferences | Resolve external entities |
 | MobilityProfileBuilder | Convert allowed transport, pace, days, and accessibility needs into routing constraints | Treat every mode as walking or rely on prompt text |
-| DestinationResolutionService | Classify point vs area and build DestinationContext | Discover experiences |
+| DestinationResolutionService | Normalize structured locality/country context, classify point vs area, validate the result against destination coordinates, and build DestinationContext | Blindly trust a provider-specific display label or discover experiences |
 | ExistingActivityRetriever | Retrieve geographically valid catalog Activities | Call a discovery LLM |
 | Catalog Refill | Add conventional real POIs from Places when the catalog is thin | Invent composites |
 | SpatialFeasibilityAnalyzer | Build mode-aware travel-time relationships and viable per-day candidate groups | Use semantic similarity as a proxy for proximity |
@@ -145,6 +149,15 @@ Tour Generation only selects verified Activities.
 | Unified Ranking | Select coherent candidate sets using relevance, quality, diversity, and travel cost | Rank each Activity independently and ignore the resulting route |
 | Itinerary generation | Choose and schedule offered Activity IDs | Create entities |
 | Verification | Drop hallucinated IDs, duplicates, invalid subsets, and infeasible schedules | Trust prompt compliance |
+
+Destination resolution must not assume that the frontend display label is a
+canonical Nominatim query. For example, the provider label `Montevideo,
+Montevideo Department, Uruguay` can return no Nominatim result while the
+structured locality/country query `Montevideo, Uruguay` resolves the real city
+relation. A bounded fallback must be built from structured destination
+components and disambiguated with the selected coordinates and country; it
+must not remove arbitrary comma-separated components and accept the first
+result blindly.
 
 ## Deferred design topic: food and drink stops
 

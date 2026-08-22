@@ -1,5 +1,9 @@
 import {
+  buildEmbeddingsStep,
+  buildLlmGenerationStep,
   buildNeighborhoodShortlistStep,
+  buildOsmBoundaryStep,
+  buildOsmStreetsStep,
   buildPlacesCrawlStep,
 } from './generation-trace-builder.util';
 import { OsmCandidate } from '@integrations/osm/services/osm-places.service';
@@ -96,5 +100,56 @@ describe('buildPlacesCrawlStep', () => {
     expect(step.summary).toContain('falló');
     expect(step.summary).toContain('strict cache miss');
     expect(step.summary).not.toContain('encontró');
+  });
+});
+
+describe('buildEmbeddingsStep', () => {
+  it('does not claim semantic ranking was applied when no offered candidate is indexed', () => {
+    const step = buildEmbeddingsStep(15, 0, true);
+
+    expect(step.summary).toContain('No hubo señal semántica disponible');
+    expect(step.summary).toContain('rating y proximidad');
+    expect(step.summary).not.toContain('usado junto');
+  });
+
+  it('reports indexed embeddings conservatively without claiming the query provider responded', () => {
+    const step = buildEmbeddingsStep(15, 10, true);
+
+    expect(step.summary).toContain('estaban disponibles');
+    expect(step.summary).toContain('no prueba');
+  });
+});
+
+describe('OSM trace steps', () => {
+  it('distinguishes an Overpass failure from a successful empty street result', () => {
+    const failed = buildOsmStreetsStep([], 'timeout');
+    const empty = buildOsmStreetsStep([], undefined, true);
+
+    expect(failed.providerStatus).toBe('failed');
+    expect(failed.summary).toContain('no significa que no existan');
+    expect(empty.providerStatus).toBe('success');
+    expect(empty.summary).toContain('respondió sin calles');
+  });
+
+  it('does not claim there is no containing boundary when Overpass failed', () => {
+    const step = buildOsmBoundaryStep(null, 'rate limited');
+
+    expect(step.providerStatus).toBe('failed');
+    expect(step.degradedReason).toBe('rate limited');
+    expect(step.summary).toContain('No se pudo consultar');
+    expect(step.summary).not.toContain('Sin un límite');
+  });
+});
+
+describe('buildLlmGenerationStep', () => {
+  it('labels model reasoning as unverified rather than deterministic evidence', () => {
+    const step = buildLlmGenerationStep(
+      'All activities fit public-transport zones and opening hours.',
+    );
+
+    expect(step.label).toContain('no verificada');
+    expect(step.summary).toContain('no constituyen verificación');
+    expect(step.summary).toContain('transporte');
+    expect(step.summary).toContain('horarios');
   });
 });

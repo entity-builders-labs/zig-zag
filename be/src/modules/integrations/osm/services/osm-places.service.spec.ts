@@ -95,6 +95,21 @@ describe('OsmPlacesService', () => {
       expect(result).toEqual([]);
     });
 
+    it('exposes failure separately from a successful empty result for trace consumers', async () => {
+      overpassApi.queryStreets.mockRejectedValue(new Error('overpass down'));
+
+      const failed = await service.lookupStreetsNear(0, 0, 1000);
+      overpassApi.queryStreets.mockResolvedValue([]);
+      const empty = await service.lookupStreetsNear(0, 0, 1000);
+
+      expect(failed).toEqual({
+        status: 'failed',
+        value: [],
+        failureReason: 'overpass down',
+      });
+      expect(empty).toEqual({ status: 'success', value: [] });
+    });
+
     it('returns an empty array when there are no results', async () => {
       overpassApi.queryStreets.mockResolvedValue([]);
 
@@ -191,6 +206,16 @@ describe('OsmPlacesService', () => {
       const result = await service.findContainingBoundary(0, 0);
 
       expect(result).toBeNull();
+    });
+
+    it('exposes boundary lookup failure to trace consumers', async () => {
+      overpassApi.queryContainingBoundary.mockRejectedValue(new Error('down'));
+
+      await expect(service.lookupContainingBoundary(0, 0)).resolves.toEqual({
+        status: 'failed',
+        value: null,
+        failureReason: 'down',
+      });
     });
   });
 

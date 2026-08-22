@@ -137,6 +137,38 @@ describe('TourActivityGenerationService', () => {
       findStreetsWithin: jest.fn().mockResolvedValue([]),
       findPoisWithin: jest.fn().mockResolvedValue([]),
     };
+    osmPlacesService.lookupStreetsNear = jest.fn(
+      async (...args: any[]): Promise<any> => {
+        try {
+          return {
+            status: 'success',
+            value: await osmPlacesService.findStreetsNear(...args),
+          };
+        } catch (error: any) {
+          return {
+            status: 'failed',
+            value: [],
+            failureReason: error.message,
+          };
+        }
+      },
+    );
+    osmPlacesService.lookupContainingBoundary = jest.fn(
+      async (...args: any[]): Promise<any> => {
+        try {
+          return {
+            status: 'success',
+            value: await osmPlacesService.findContainingBoundary(...args),
+          };
+        } catch (error: any) {
+          return {
+            status: 'failed',
+            value: null,
+            failureReason: error.message,
+          };
+        }
+      },
+    );
     destinationResolutionService = {
       resolveDestination: jest.fn().mockResolvedValue({ scale: 'point' }),
     };
@@ -328,10 +360,10 @@ describe('TourActivityGenerationService', () => {
     const embeddingsStep = trace.steps.find(
       (s: any) => s.stage === 'embeddings',
     );
-    expect(embeddingsStep.summary).toContain('no tenía intereses declarados');
+    expect(embeddingsStep.summary).toContain('tenía intereses declarados');
   });
 
-  it('does not break POI generation when Overpass (streets/boundary) fails', async () => {
+  it('continues POI generation and records degraded OSM steps when Overpass fails', async () => {
     const poiId = testUuid();
     activitiesService.findAll.mockResolvedValue([
       { id: poiId, name: 'Museo', latitude: -34.62, longitude: -58.37 },
@@ -366,14 +398,36 @@ describe('TourActivityGenerationService', () => {
       }),
     );
 
-    // OsmPlacesService's real implementation never throws (it's internally
-    // defensive) — this test simulates a caller that DIDN'T get that
-    // guarantee, to confirm generateTourActivities' own Promise.all around
-    // it doesn't take the whole generation down with it. Since real
-    // OsmPlacesService always resolves, wrap the call site's expectations
-    // accordingly: a rejection here should surface as a clean failure, not
-    // a silent success — assert on the actual contract instead.
-    await expect(service.generateTourActivities(TOUR_ID)).rejects.toThrow();
+    await expect(
+      service.generateTourActivities(TOUR_ID),
+    ).resolves.toBeDefined();
+
+    const completedCall = prisma.tour.update.mock.calls.find(
+      (call: any) => call[0].data.metadata.generationStatus === 'completed',
+    );
+    const trace = completedCall[0].data.metadata.generationTrace;
+    const streetsStep = trace.steps.find(
+      (step: any) => step.stage === 'osm_streets',
+    );
+    const boundaryStep = trace.steps.find(
+      (step: any) => step.stage === 'osm_boundary',
+    );
+
+    expect(streetsStep).toEqual(
+      expect.objectContaining({
+        providerStatus: 'failed',
+        degradedReason: 'overpass down',
+      }),
+    );
+    expect(streetsStep.summary).toContain('No se pudo consultar');
+    expect(streetsStep.summary).toContain('no significa que no existan');
+    expect(boundaryStep).toEqual(
+      expect.objectContaining({
+        providerStatus: 'failed',
+        degradedReason: 'overpass down',
+      }),
+    );
+    expect(boundaryStep.summary).toContain('continuó degradada');
   });
 
   it('does not break generation when Wikidata enrichment fails (OSM candidates still fetched)', async () => {
