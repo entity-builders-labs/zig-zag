@@ -121,6 +121,9 @@ export class CachedPlacesApiService implements IPlacesApiService {
           requestedCount,
           receivedCount: 0,
         },
+        undefined,
+        'strict_cache_miss',
+        method as 'searchNearby' | 'searchText' | 'getPlaceDetails',
       );
     }
 

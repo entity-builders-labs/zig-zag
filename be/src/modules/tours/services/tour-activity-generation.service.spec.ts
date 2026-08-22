@@ -12,6 +12,7 @@ import { ToursService } from './tours.service';
 import { TourImageService } from './tour-image.service';
 import { CompositeGenerationService } from './composite-generation.service';
 import { DestinationResolutionService } from './destination-resolution.service';
+import { PlacesCrawlError } from '@integrations/google-places/interfaces/places-api.interface';
 
 // transformAiActivitiesToDto only keeps `activityId` when it passes
 // isValidId() (a real UUID v4 or Mongo ObjectId) — real Activity rows
@@ -1001,6 +1002,50 @@ describe('TourActivityGenerationService', () => {
       expect.objectContaining({
         data: expect.objectContaining({ activityId: thinActivities[0].id }),
       }),
+    );
+  });
+
+  it('reports provider quota exhaustion instead of claiming the destination has no places', async () => {
+    googlePlacesService.crawlAndSaveActivities.mockRejectedValue(
+      new PlacesCrawlError(
+        'Google Places daily quota exhausted',
+        {
+          provider: 'google',
+          cacheStatus: 'miss-live',
+          requestedCount: 20,
+          receivedCount: 0,
+          acceptedCount: 0,
+          rejectedCountByReason: {},
+        },
+        undefined,
+        'quota_exhausted',
+      ),
+    );
+
+    await expect(service.generateTourActivities(TOUR_ID)).rejects.toThrow(
+      'Google Places alcanzó su cuota diaria',
+    );
+  });
+
+  it('reports a temporary provider rate limit instead of claiming the destination has no places', async () => {
+    googlePlacesService.crawlAndSaveActivities.mockRejectedValue(
+      new PlacesCrawlError(
+        'Google Places rate limited',
+        {
+          provider: 'google',
+          cacheStatus: 'miss-live',
+          requestedCount: 20,
+          receivedCount: 0,
+          acceptedCount: 0,
+          rejectedCountByReason: {},
+        },
+        undefined,
+        'rate_limited',
+      ),
+    );
+
+    await expect(service.generateTourActivities(TOUR_ID)).rejects.toThrow(
+      'Google Places limitó temporalmente las búsquedas',
     );
   });
 

@@ -58,7 +58,21 @@ export interface PlacesProviderStatus {
   available: boolean;
   cacheEnabled: boolean;
   cacheMode?: PlacesCacheMode;
+  degradedReason?: PlacesApiErrorCode;
+  unavailableUntil?: string;
 }
+
+export type PlacesApiOperation =
+  | 'searchNearby'
+  | 'searchText'
+  | 'getPlaceDetails';
+
+export type PlacesApiErrorCode =
+  | 'quota_exhausted'
+  | 'rate_limited'
+  | 'provider_unavailable'
+  | 'strict_cache_miss'
+  | 'request_failed';
 
 export interface PlacesCrawlProvenance extends PlacesRequestProvenance {
   acceptedCount: number;
@@ -70,6 +84,8 @@ export class PlacesApiRequestError extends Error {
     message: string,
     readonly provenance: PlacesRequestProvenance,
     readonly originalError?: unknown,
+    readonly code: PlacesApiErrorCode = 'request_failed',
+    readonly operation?: PlacesApiOperation,
   ) {
     super(message);
     this.name = 'PlacesApiRequestError';
@@ -81,6 +97,7 @@ export class PlacesCrawlError extends Error {
     message: string,
     readonly provenance: PlacesCrawlProvenance,
     readonly originalError?: unknown,
+    readonly code: PlacesApiErrorCode = 'request_failed',
   ) {
     super(message);
     this.name = 'PlacesCrawlError';

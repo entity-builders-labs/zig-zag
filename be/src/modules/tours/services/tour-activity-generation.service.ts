@@ -219,6 +219,7 @@ export class TourActivityGenerationService {
       // bitacora-design.md) — one step per pipeline stage, in order.
       const traceSteps: GenerationTraceStep[] = [];
       const traceCandidateLists: TraceCandidate[][] = [];
+      let placesRefillError: PlacesCrawlError | null = null;
 
       const destinationResolution =
         await this.destinationResolutionService.resolveDestination(
@@ -392,6 +393,9 @@ export class TourActivityGenerationService {
                 }
               }
             } catch (crawlError) {
+              if (crawlError instanceof PlacesCrawlError) {
+                placesRefillError = crawlError;
+              }
               this.logger.error(
                 `${placesLabel} catalog refill failed: ${crawlError.message}`,
               );
@@ -611,6 +615,26 @@ export class TourActivityGenerationService {
         !availableActivitiesText &&
         (!isAreaScale || candidateOsmFeaturesById.size === 0)
       ) {
+        if (placesRefillError?.code === 'quota_exhausted') {
+          throw new Error(
+            'Google Places alcanzó su cuota diaria y no pudo buscar lugares reales para este destino. Volvé a intentar cuando se renueve la cuota del proveedor.',
+          );
+        }
+        if (placesRefillError?.code === 'rate_limited') {
+          throw new Error(
+            'Google Places limitó temporalmente las búsquedas y no pudo devolver lugares reales para este destino. Esperá un momento y volvé a intentar.',
+          );
+        }
+        if (placesRefillError?.code === 'strict_cache_miss') {
+          throw new Error(
+            'El modo estricto local no tiene datos cacheados de Google Places para este destino y no permite llamadas externas.',
+          );
+        }
+        if (placesRefillError?.code === 'provider_unavailable') {
+          throw new Error(
+            'Google Places no está configurado o disponible para buscar lugares reales en este destino.',
+          );
+        }
         throw new Error(
           'No se encontraron lugares reales para esta ubicación. Probá con otro destino o un radio de búsqueda más amplio.',
         );

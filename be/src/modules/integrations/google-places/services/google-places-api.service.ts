@@ -4,6 +4,8 @@ import axios from 'axios';
 import {
   IPlacesApiService,
   PlaceData,
+  PlacesApiErrorCode,
+  PlacesApiOperation,
   PlacesApiRequestError,
   PlacesApiResult,
   PlacesProviderStatus,
@@ -16,15 +18,85 @@ export class GooglePlacesApiService implements IPlacesApiService {
   readonly provider = 'google' as const;
   private readonly logger = new Logger(GooglePlacesApiService.name);
   private readonly baseUrl = 'https://places.googleapis.com/v1/places';
+  private readonly quotaUnavailableUntil = new Map<PlacesApiOperation, Date>();
 
   constructor(private readonly configService: ConfigService) {}
 
   getStatus(): PlacesProviderStatus {
+    const hasApiKey = !!this.configService.get<string>('GOOGLE_MAPS_API_KEY');
+    const unavailableUntil = this.getActiveQuotaBlock('searchNearby');
     return {
       provider: this.provider,
-      available: !!this.configService.get<string>('GOOGLE_MAPS_API_KEY'),
+      available: hasApiKey && !unavailableUntil,
       cacheEnabled: false,
+      ...(!hasApiKey
+        ? { degradedReason: 'provider_unavailable' as const }
+        : unavailableUntil
+          ? {
+              degradedReason: 'quota_exhausted' as const,
+              unavailableUntil: unavailableUntil.toISOString(),
+            }
+          : {}),
     };
+  }
+
+  private getActiveQuotaBlock(operation: PlacesApiOperation): Date | null {
+    const unavailableUntil = this.quotaUnavailableUntil.get(operation);
+    if (!unavailableUntil) return null;
+    if (unavailableUntil.getTime() <= Date.now()) {
+      this.quotaUnavailableUntil.delete(operation);
+      return null;
+    }
+    return unavailableUntil;
+  }
+
+  private getGoogleErrorMetadata(error: any): Record<string, string> {
+    const details = error?.response?.data?.error?.details;
+    if (!Array.isArray(details)) return {};
+    return details.find((detail: any) => detail?.metadata)?.metadata ?? {};
+  }
+
+  private classifyError(error: any): PlacesApiErrorCode {
+    if (!this.configService.get<string>('GOOGLE_MAPS_API_KEY')) {
+      return 'provider_unavailable';
+    }
+    if (error?.response?.status !== 429) return 'request_failed';
+
+    const metadata = this.getGoogleErrorMetadata(error);
+    const dailyQuota =
+      metadata.quota_unit?.includes('/d/') ||
+      metadata.quota_limit?.toLowerCase().includes('perday');
+    return dailyQuota ? 'quota_exhausted' : 'rate_limited';
+  }
+
+  private rememberQuotaBlock(operation: PlacesApiOperation, error: any): Date {
+    const metadata = this.getGoogleErrorMetadata(error);
+    const windowStartSeconds = Number(metadata.window_start_time);
+    const unavailableUntil = Number.isFinite(windowStartSeconds)
+      ? new Date((windowStartSeconds + 24 * 60 * 60) * 1000)
+      : new Date(Date.now() + 24 * 60 * 60 * 1000);
+    this.quotaUnavailableUntil.set(operation, unavailableUntil);
+    return unavailableUntil;
+  }
+
+  private assertOperationAvailable(
+    operation: PlacesApiOperation,
+    requestedCount: number,
+  ): void {
+    const unavailableUntil = this.getActiveQuotaBlock(operation);
+    if (!unavailableUntil) return;
+    throw new PlacesApiRequestError(
+      `Google Places ${operation} daily quota is exhausted until ${unavailableUntil.toISOString()}.`,
+      {
+        provider: this.provider,
+        cacheStatus: 'miss-live',
+        requestedCount,
+        receivedCount: 0,
+      },
+      undefined,
+      'quota_exhausted',
+      operation,
+    );
   }
 
   private result<T>(data: T, requestedCount: number): PlacesApiResult<T> {
@@ -43,7 +115,12 @@ export class GooglePlacesApiService implements IPlacesApiService {
     message: string,
     requestedCount: number,
     error: unknown,
+    operation: PlacesApiOperation,
   ): PlacesApiRequestError {
+    const code = this.classifyError(error);
+    if (code === 'quota_exhausted') {
+      this.rememberQuotaBlock(operation, error);
+    }
     return new PlacesApiRequestError(
       message,
       {
@@ -53,6 +130,8 @@ export class GooglePlacesApiService implements IPlacesApiService {
         receivedCount: 0,
       },
       error,
+      code,
+      operation,
     );
   }
 
@@ -84,6 +163,7 @@ export class GooglePlacesApiService implements IPlacesApiService {
     params: PlacesSearchNearbyParams,
   ): Promise<PlacesApiResult<PlaceData[]>> {
     const requestedCount = params.maxResultCount || 20;
+    this.assertOperationAvailable('searchNearby', requestedCount);
 
     const body: any = {
       maxResultCount: params.maxResultCount || 20,
@@ -126,6 +206,7 @@ export class GooglePlacesApiService implements IPlacesApiService {
         `Google Places searchNearby failed: ${error.message}`,
         requestedCount,
         error,
+        'searchNearby',
       );
     }
   }
@@ -134,6 +215,7 @@ export class GooglePlacesApiService implements IPlacesApiService {
     params: PlacesSearchTextParams,
   ): Promise<PlacesApiResult<PlaceData[]>> {
     const requestedCount = params.maxResultCount || 5;
+    this.assertOperationAvailable('searchText', requestedCount);
 
     const body: any = {
       textQuery: params.textQuery,
@@ -175,6 +257,7 @@ export class GooglePlacesApiService implements IPlacesApiService {
         `Google Places searchText failed: ${error.message}`,
         requestedCount,
         error,
+        'searchText',
       );
     }
   }
@@ -182,6 +265,7 @@ export class GooglePlacesApiService implements IPlacesApiService {
   async getPlaceDetails(
     placeId: string,
   ): Promise<PlacesApiResult<Partial<PlaceData>>> {
+    this.assertOperationAvailable('getPlaceDetails', 1);
     try {
       const apiKey = this.getApiKey();
       const response = await axios.get(
@@ -211,6 +295,7 @@ export class GooglePlacesApiService implements IPlacesApiService {
         `Google Places details failed for ${placeId}: ${error.message}`,
         1,
         error,
+        'getPlaceDetails',
       );
     }
   }

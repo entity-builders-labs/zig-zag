@@ -77,6 +77,50 @@ describe('GooglePlacesApiService', () => {
     });
   });
 
+  it('classifies daily quota exhaustion and short-circuits repeated requests', async () => {
+    mockedAxios.post.mockRejectedValueOnce({
+      message: 'Request failed with status code 429',
+      response: {
+        status: 429,
+        data: {
+          error: {
+            status: 'RESOURCE_EXHAUSTED',
+            details: [
+              {
+                metadata: {
+                  quota_unit: '1/d/{project}',
+                  quota_limit: 'SearchNearbyRequestPerDayPerProject',
+                  window_start_time: '1787295600',
+                },
+              },
+            ],
+          },
+        },
+      },
+    });
+    const service = new GooglePlacesApiService(config);
+    const params = { latitude: 1, longitude: 2, radius: 1000 };
+
+    await expect(service.searchNearby(params)).rejects.toMatchObject({
+      code: 'quota_exhausted',
+      operation: 'searchNearby',
+    });
+    expect(service.getStatus()).toEqual(
+      expect.objectContaining({
+        provider: 'google',
+        available: false,
+        degradedReason: 'quota_exhausted',
+        unavailableUntil: '2026-08-22T07:00:00.000Z',
+      }),
+    );
+
+    await expect(service.searchNearby(params)).rejects.toMatchObject({
+      code: 'quota_exhausted',
+      operation: 'searchNearby',
+    });
+    expect(mockedAxios.post).toHaveBeenCalledTimes(1);
+  });
+
   it('reports an unavailable configured provider without making a request', async () => {
     const missingKeyConfig = {
       get: jest.fn().mockReturnValue(undefined),

@@ -17,6 +17,7 @@ import {
 } from './interfaces/places-api.interface';
 import { VectorStoreService } from 'src/shared/ai/services/vector-store.service';
 import { priceLevelToNumber } from './utils/price-level.util';
+import { calculateDistance } from 'src/shared/utils/distance.utils';
 
 interface PlaceWithMetadata extends GooglePlaceDetails {
   name: string;
@@ -441,10 +442,28 @@ Answer ONLY with one word from the set above, no punctuation, no explanation.`;
         requestProvenance = result.provenance;
       }
 
+      const requestedRadiusMeters = dto.radius || this.SEARCH_RADIUS;
+      // Text Search only applies a location bias, not a hard geographic
+      // restriction. Defensively enforce the crawl contract for every
+      // provider/operation before a result can be transformed or persisted.
+      const geographicallyValidResults = placesData.filter((place: any) => {
+        const latitude = place.location?.latitude;
+        const longitude = place.location?.longitude;
+        if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+          return false;
+        }
+
+        const distanceKm = calculateDistance(
+          { latitude: dto.latitude, longitude: dto.longitude },
+          { latitude, longitude },
+        );
+        return distanceKm * 1000 <= requestedRadiusMeters;
+      });
+
       // A missing rating means the provider doesn't expose that data (e.g.
       // Geoapify never returns rating/review counts) rather than the place
       // being unrated — don't let it fail the minRating filter.
-      const filteredResults = placesData.filter(
+      const filteredResults = geographicallyValidResults.filter(
         (p: any) =>
           p.rating === undefined ||
           p.rating === null ||
@@ -497,7 +516,18 @@ Answer ONLY with one word from the set above, no punctuation, no explanation.`;
         nextPageToken: null as any,
         provenance: requestProvenance,
         rejectedCountByReason: {
-          low_rating: placesData.length - filteredResults.length,
+          ...(placesData.length - geographicallyValidResults.length > 0
+            ? {
+                out_of_area:
+                  placesData.length - geographicallyValidResults.length,
+              }
+            : {}),
+          ...(geographicallyValidResults.length - filteredResults.length > 0
+            ? {
+                low_rating:
+                  geographicallyValidResults.length - filteredResults.length,
+              }
+            : {}),
         },
       };
     } catch (error: any) {
@@ -572,6 +602,7 @@ Answer ONLY with one word from the set above, no punctuation, no explanation.`;
       await this.ensureKnownActivityTypes();
       const sourceId = await this.ensurePlacesSource();
       const allPlaces: Array<CreateActivityDto> = [];
+      let firstRequestError: PlacesApiRequestError | null = null;
 
       for (const categoryGroup of placesToSearch.map((group) => group)) {
         this.logger.debug(`Processing category: ${categoryGroup.category}`);
@@ -581,18 +612,35 @@ Answer ONLY with one word from the set above, no punctuation, no explanation.`;
 
           let nextPageToken: string | null = null;
           do {
+            let searchResult;
+            try {
+              searchResult = await this.searchNearbyPlaces(
+                {
+                  ...dto,
+                  pageToken: nextPageToken,
+                },
+                search,
+              );
+            } catch (error) {
+              if (!(error instanceof PlacesApiRequestError)) throw error;
+
+              firstRequestError ??= error;
+              this.addRequestProvenance(provenance, error.provenance);
+              provenance.rejectedCountByReason.provider_request_failed =
+                (provenance.rejectedCountByReason.provider_request_failed ??
+                  0) + 1;
+              this.logger.warn(
+                `Skipping failed ${error.operation ?? 'Places'} request (${error.code}) and continuing catalog refill.`,
+              );
+              break;
+            }
+
             const {
               places,
               nextPageToken: newNextPageToken,
               provenance: requestProvenance,
               rejectedCountByReason,
-            } = await this.searchNearbyPlaces(
-              {
-                ...dto,
-                pageToken: nextPageToken,
-              },
-              search,
-            );
+            } = searchResult;
 
             this.addRequestProvenance(provenance, requestProvenance);
             for (const [reason, count] of Object.entries(
@@ -679,6 +727,14 @@ Answer ONLY with one word from the set above, no punctuation, no explanation.`;
         }
       }
 
+      // A successful secondary operation with no geographically valid
+      // candidates does not erase the primary provider degradation. Preserve
+      // the real failure instead of later claiming that the destination has no
+      // places at all.
+      if (allPlaces.length === 0 && firstRequestError) {
+        throw firstRequestError;
+      }
+
       const activities = [];
       for (const place of allPlaces) {
         // Since sourceId and externalId are now optional, check if activity exists differently
@@ -720,13 +776,11 @@ Answer ONLY with one word from the set above, no punctuation, no explanation.`;
       };
     } catch (error) {
       this.logger.error('Error in crawlAndSaveActivities:', error);
-      if (error instanceof PlacesApiRequestError) {
-        this.addRequestProvenance(provenance, error.provenance);
-      }
       throw new PlacesCrawlError(
         `Catalog refill failed using ${placesProviderLabel(provenance.provider)}: ${error.message}`,
         provenance,
         error,
+        error instanceof PlacesApiRequestError ? error.code : 'request_failed',
       );
     }
   }
