@@ -7,11 +7,11 @@ ollama serve &
 OLLAMA_PID=$!
 
 # Function to check if model exists
-check_model_exists() {
-  local model=$1
-  ollama list 2>/dev/null | awk '{print $1}' | grep -q "^${model}" 2>/dev/null || return 1
+check_model_exists() (
+  model_to_check=$1
+  ollama list 2>/dev/null | awk '{print $1}' | grep -q "^${model_to_check}" 2>/dev/null || return 1
   return 0
-}
+)
 
 # Wait for Ollama API to be ready
 echo "⏳ Waiting for Ollama API to be ready..."
@@ -29,40 +29,53 @@ done
 
 echo "✅ Ollama server is ready"
 
-# Get models from environment variables
+# Get providers/models from environment variables. The Ollama container may
+# serve only embeddings while chat is handled by Groq (the common local
+# setup), so a remote provider's model name must never be pulled here.
+AI_PROVIDER=${AI_PROVIDER:-groq}
+EMBEDDING_PROVIDER=${EMBEDDING_PROVIDER:-ollama}
 AI_MODEL=${AI_MODEL:-llama3.2}
 EMBEDDINGS_MODEL=${EMBEDDINGS_MODEL:-nomic-embed-text}
 
 echo "📋 Checking for required models..."
-echo "   AI_MODEL: ${AI_MODEL}"
-echo "   EMBEDDINGS_MODEL: ${EMBEDDINGS_MODEL}"
+echo "   chat: ${AI_PROVIDER}/${AI_MODEL}"
+echo "   embeddings: ${EMBEDDING_PROVIDER}/${EMBEDDINGS_MODEL}"
 
-# Pull AI model if it doesn't exist
-if check_model_exists "${AI_MODEL}"; then
-  echo "✓ AI model ${AI_MODEL} already exists"
+require_model() {
+  model=$1
+  operation=$2
+  if check_model_exists "${model}"; then
+    echo "✓ ${operation} model ${model} already exists"
+    return 0
+  fi
+
+  echo "📥 Pulling ${operation} model: ${model}"
+  if ! ollama pull "${model}"; then
+    echo "❌ Failed to pull required ${operation} model ${model}"
+    exit 1
+  fi
+  if ! check_model_exists "${model}"; then
+    echo "❌ Required ${operation} model ${model} is still unavailable after pull"
+    exit 1
+  fi
+  echo "✅ ${operation} model ${model} ready"
+}
+
+if [ "${AI_PROVIDER}" = "ollama" ]; then
+  require_model "${AI_MODEL}" "chat"
 else
-  echo "📥 Pulling AI model: ${AI_MODEL}"
-  ollama pull "${AI_MODEL}" || {
-    echo "⚠️  Warning: Failed to pull AI model ${AI_MODEL}, continuing anyway..."
-  }
-  echo "✅ AI model ${AI_MODEL} ready"
+  echo "↪ Chat provider is ${AI_PROVIDER}; skipping Ollama chat-model pull"
 fi
 
-# Pull embeddings model if it doesn't exist
-if check_model_exists "${EMBEDDINGS_MODEL}"; then
-  echo "✓ Embeddings model ${EMBEDDINGS_MODEL} already exists"
+if [ "${EMBEDDING_PROVIDER}" = "ollama" ]; then
+  require_model "${EMBEDDINGS_MODEL}" "embeddings"
 else
-  echo "📥 Pulling embeddings model: ${EMBEDDINGS_MODEL}"
-  ollama pull "${EMBEDDINGS_MODEL}" || {
-    echo "⚠️  Warning: Failed to pull embeddings model ${EMBEDDINGS_MODEL}, continuing anyway..."
-  }
-  echo "✅ Embeddings model ${EMBEDDINGS_MODEL} ready"
+  echo "↪ Embedding provider is ${EMBEDDING_PROVIDER}; skipping Ollama embedding-model pull"
 fi
 
 echo "✅ All models are ready"
 
 # Keep the server running in foreground
 # Use trap to ensure we kill the background process on exit
-trap "kill $OLLAMA_PID 2>/dev/null || true" EXIT INT TERM
+trap 'kill "$OLLAMA_PID" 2>/dev/null || true' EXIT INT TERM
 wait $OLLAMA_PID
-

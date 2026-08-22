@@ -80,7 +80,31 @@ describe('OsmPlacesService', () => {
         tags: { name: 'Ghost street' },
         geometry: [],
       };
-      overpassApi.queryStreets.mockResolvedValue([noName, noGeometry]);
+      const placeholderNames: OverpassElement[] = [
+        {
+          type: 'way',
+          id: 3,
+          tags: { name: 'Sin Nombre' },
+          geometry: [
+            { lat: 0, lon: 0 },
+            { lat: 1, lon: 1 },
+          ],
+        },
+        {
+          type: 'way',
+          id: 4,
+          tags: { name: 'Unnamed Road' },
+          geometry: [
+            { lat: 0, lon: 0 },
+            { lat: 1, lon: 1 },
+          ],
+        },
+      ];
+      overpassApi.queryStreets.mockResolvedValue([
+        noName,
+        noGeometry,
+        ...placeholderNames,
+      ]);
 
       const result = await service.findStreetsNear(0, 0, 1000);
 
@@ -364,8 +388,14 @@ describe('OsmPlacesService', () => {
       );
 
       const result = await service.findNeighborhoodsWithin(cityBoundary);
+      const lookup = await service.lookupNeighborhoodsWithin(cityBoundary);
 
       expect(result).toEqual([]);
+      expect(lookup).toMatchObject({
+        status: 'failed',
+        value: [],
+        failureReason: 'down',
+      });
     });
   });
 
@@ -410,12 +440,33 @@ describe('OsmPlacesService', () => {
       ]);
     });
 
-    it('returns an empty array (not a throw) when Overpass fails', async () => {
-      overpassApi.queryStreetsWithinArea.mockRejectedValue(new Error('down'));
+    it('drops placeholder street names from area-scoped candidates', async () => {
+      overpassApi.queryStreetsWithinArea.mockResolvedValue([
+        {
+          type: 'way',
+          id: 47521388,
+          tags: { name: 'Sin Nombre', highway: 'living_street' },
+          center: { lat: -34.621, lon: -58.371 },
+        },
+      ]);
 
       const result = await service.findStreetsWithin(neighborhood);
 
       expect(result).toEqual([]);
+    });
+
+    it('returns an empty array (not a throw) when Overpass fails', async () => {
+      overpassApi.queryStreetsWithinArea.mockRejectedValue(new Error('down'));
+
+      const result = await service.findStreetsWithin(neighborhood);
+      const lookup = await service.lookupStreetsWithin(neighborhood);
+
+      expect(result).toEqual([]);
+      expect(lookup).toMatchObject({
+        status: 'failed',
+        value: [],
+        failureReason: 'down',
+      });
     });
   });
 
@@ -465,8 +516,14 @@ describe('OsmPlacesService', () => {
       overpassApi.queryPoisWithinArea.mockRejectedValue(new Error('down'));
 
       const result = await service.findPoisWithin(neighborhood);
+      const lookup = await service.lookupPoisWithin(neighborhood);
 
       expect(result).toEqual([]);
+      expect(lookup).toMatchObject({
+        status: 'failed',
+        value: [],
+        failureReason: 'down',
+      });
     });
   });
 });

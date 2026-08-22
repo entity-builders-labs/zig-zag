@@ -183,6 +183,12 @@ PR 1  Provider identity, cache isolation, and truthful trace
   -> PR 11 End-to-end acceptance, rollout, and cleanup
 ```
 
+An OSM infrastructure track may proceed after PR 2 without renumbering the
+domain PR chain. It is a production gate before PR 11: normal mass-production
+tour requests must not depend on the public Nominatim or Overpass community
+instances. The track covers an opt-in local Docker profile, a self-hosted or
+managed production query backend, and asynchronous destination refill.
+
 ---
 
 ## PR 1: Provider identity, cache isolation, and truthful trace
@@ -296,6 +302,9 @@ arbitrary point fallbacks and neighborhood selection.
    narrative context is absent.
 5. Never copy an unverified Wikidata extract directly into persisted Activity
    prose.
+6. Because content safety and itinerary generation can consume the same Groq
+   TPM window, retry one transient 429 using the provider's bounded delay.
+   Do not retry indefinitely or hide the final provider error.
 
 ### Overpass changes
 
@@ -304,9 +313,12 @@ arbitrary point fallbacks and neighborhood selection.
 2. Add a bounded shortlist-signal strategy, in priority order:
    - existing `ActivityFamily` coverage from PostgreSQL;
    - existing validated catalog POI coverage;
+   - normalized rating/review-backed prominence of those POIs;
+   - aggregate pgvector similarity of contained POIs to wizard interests;
    - one batched/cached Overpass count request for cold neighborhoods, if a
      spike proves it reliable;
-   - deterministic fallback that is explicit in the trace.
+   - deterministic fallback that is explicit in the trace and used only for
+     equal/no-evidence ties.
 3. Query detailed streets/POIs only for shortlisted neighborhoods.
 4. Add retry policy for 429/502/503/504 with bounded exponential backoff,
    jitter, `Retry-After` support, and a total request/time budget.
@@ -320,6 +332,35 @@ arbitrary point fallbacks and neighborhood selection.
    `unknown` separately from `0`.
 8. Preserve `map_to_area` containment and the relative
    `admin_level = city + 1` rule.
+9. When a composite variant is reused, backfill its embedding if the stored
+   pgvector value is missing; do not regenerate an already indexed vector on
+   every tour.
+10. Before interest ranking, lazily backfill only retrieved legacy catalog
+    candidates whose pgvector value is null (currently at most 20). Normal
+    provider ingestion remains the eager embedding path; this is a bounded
+    repair, not a full per-tour reindex.
+
+### Operational boundary and local OSM support
+
+PR 2 makes public-provider use bounded and honest; it does not turn a public
+community endpoint into production capacity. Add or plan an opt-in
+`osm-local` Docker Compose profile backed by a persistent volume and a small
+regional OSM extract. It must not run as part of the default developer stack
+or silently download a planet-scale database.
+
+Before mass-production rollout:
+
+1. Configure a self-hosted or managed Nominatim-compatible geocoder and
+   Overpass-compatible query backend with an operational SLA.
+2. Move cold-destination OSM acquisition into a deduplicated asynchronous job
+   keyed by destination OSM identity.
+3. Materialize validated OSM identities as reusable `Activity`,
+   `ActivityFamily`, and `ActivityWaypoint` rows; do not add `GeoFeature` for
+   this purpose.
+4. Make catalog reuse the normal request path. Per-tour Overpass exploration
+   is a cold-start/refill behavior, not the steady-state scaling strategy.
+5. Keep the public instances limited to development, spikes, and explicitly
+   bounded smoke tests.
 
 ### Likely files
 
@@ -350,6 +391,24 @@ arbitrary point fallbacks and neighborhood selection.
 - A Sevilla fixture cannot launch eleven simultaneous detailed POI searches.
 - Casco Antiguo/Triana candidates remain available when another neighborhood
   fails.
+- Placeholder OSM street names such as `Sin Nombre` and `Unnamed Road` never
+  reach composite proposal or persistence.
+- Places trace accounting separates rejected candidate results from provider
+  request failures, so rejected results cannot exceed received results.
+- Background activity generation uses a compact strict selection schema rather
+  than asking the LLM to repeat names, coordinates, travel values, and tour
+  totals already owned by the server. Verified IDs are rehydrated from the
+  exact offered catalog candidates before spatial ordering and persistence;
+  truncated or provider-rejected drafts are never salvaged.
+- A successful explicit generation retry clears the previous attempt's error
+  and failure timestamp instead of leaving contradictory completed+failed
+  metadata.
+- A live local-provider case creates an OSM-backed composite, persists its
+  effective `TourActivityWaypoint` snapshot, and renders it in the frontend;
+  mocked unit tests alone do not satisfy this acceptance item.
+- The default Docker stack does not download OSM data. An explicitly enabled
+  local OSM profile documents its extract, disk use, initialization state,
+  endpoint, and cleanup procedure.
 
 ---
 
@@ -642,6 +701,15 @@ interface EntityHint {
    not directly into catalog prose.
 7. AREA remains primarily resolution context. Do not start broad POI discovery
    until validated Google refill proves insufficient.
+8. Support a low-confidence neighborhood cold-start request: grounded
+   proposals may contribute ranked `entityHints` with `role: area`, but only
+   after the deterministic local shortlist reports insufficient evidence.
+   Resolve each hint against the finite set of real OSM neighborhoods inside
+   the destination before it can affect the shortlist. The model supplies
+   prominence evidence, never boundary geometry or identity.
+9. Treat aliases such as `Montserrat`/OSM `Monserrat` as an explicit,
+   destination-constrained resolution concern. Reject broad phrases such as
+   `downtown`, out-of-destination homonyms, and unmatched names.
 
 ### Likely files
 
@@ -658,6 +726,10 @@ interface EntityHint {
 - Provider output containing coordinates/IDs does not become trusted identity.
 - No Prisma create/update is reachable from discovery.
 - Switching adapters does not change downstream proposal types.
+- With an empty local catalog, grounded iconic-neighborhood hints affect the
+  shortlist only when they resolve to offered in-destination OSM boundaries.
+- An unresolved or ambiguous area hint is traced and rejected without causing
+  an `AREA`, family, or composite to be persisted.
 
 ---
 
@@ -927,7 +999,13 @@ scenarios, and real manual smoke tests before `codex/main -> main`.
    - zero indexed candidates is reported as semantic ranking unavailable;
    - LLM statements about transit zones or opening hours are visibly
      unverified unless deterministic evidence exists.
-6. **Provider failures**
+6. **Salta, misleading non-empty Nominatim results**
+   - far-away POIs/buildings that merely contain the word `Salta` do not count
+     as a coordinate-consistent destination match;
+   - settlement-level reverse normalization resolves the selected coordinates
+     to the real Salta city relation and enables area-scale exploration;
+   - a nearby hotel/address/POI still remains point-scale.
+7. **Provider failures**
    - Places strict cache miss;
    - embedding provider unavailable/mismatched;
    - Overpass 429/timeout;

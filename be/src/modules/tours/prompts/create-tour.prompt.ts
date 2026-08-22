@@ -121,6 +121,104 @@ export const CREATE_TOUR_RESPONSE_SCHEMA: Record<string, unknown> = {
   ],
 };
 
+// Compact contract used by the background activity-selection pipeline. The
+// Tour already exists at this point, and canonical activity identity,
+// coordinates, travel distance and travel time all come from verified server
+// data. Asking the LLM to repeat them wastes the bounded Groq completion budget
+// and can truncate long multi-day responses before required fields are closed.
+export const CREATE_TOUR_SELECTION_RESPONSE_SCHEMA: Record<string, unknown> = {
+  type: 'object',
+  additionalProperties: false,
+  properties: {
+    reasoning: { type: 'string', maxLength: 400 },
+    compositeActivities: {
+      type: 'array',
+      maxItems: 6,
+      items: {
+        type: 'object',
+        additionalProperties: false,
+        properties: {
+          name: { type: 'string', maxLength: 120 },
+          kind: {
+            type: 'string',
+            enum: ['NEIGHBORHOOD_WALK', 'ROUTE', 'EXPERIENCE'],
+          },
+          variantTheme: { type: 'string' },
+          themeReasoning: { type: 'string', maxLength: 200 },
+          areaId: { type: 'string' },
+          dayNumber: { type: 'number' },
+          startTime: { type: 'string' },
+          waypointIds: {
+            type: 'array',
+            maxItems: 12,
+            items: { type: 'string' },
+          },
+        },
+        required: [
+          'name',
+          'kind',
+          'variantTheme',
+          'themeReasoning',
+          'areaId',
+          'dayNumber',
+          'startTime',
+          'waypointIds',
+        ],
+      },
+    },
+    activities: {
+      type: 'array',
+      maxItems: 30,
+      items: {
+        type: 'object',
+        additionalProperties: false,
+        properties: {
+          activityId: { type: 'string' },
+          dayNumber: { type: 'number' },
+          startTime: { type: 'string' },
+          duration: { type: 'number' },
+          notes: { type: 'string', maxLength: 160 },
+          selectedWaypointIds: {
+            type: 'array',
+            maxItems: 12,
+            items: { type: 'string' },
+          },
+        },
+        required: [
+          'activityId',
+          'dayNumber',
+          'startTime',
+          'duration',
+          'notes',
+          'selectedWaypointIds',
+        ],
+      },
+    },
+  },
+  required: ['reasoning', 'compositeActivities', 'activities'],
+};
+
+export const CREATE_TOUR_SELECTION_JSON_SYSTEM_PROMPT = `You select and schedule only from verified candidates supplied by the user.
+
+Return exactly three top-level fields: reasoning, compositeActivities, and activities.
+
+For activities:
+- Copy activityId exactly from Available activities. Never invent or alter an ID.
+- Return only activityId, dayNumber, startTime, duration, notes, and selectedWaypointIds.
+- notes must be one short sentence (maximum 12 words) based only on supplied candidate data.
+- Do not return names, types, coordinates, distances, or travel times; the server owns those values.
+- selectedWaypointIds must be empty unless selecting a verified subset of an existing composite.
+
+For compositeActivities:
+- Every areaId and waypointId must be copied exactly from the offered candidates.
+- Never mix waypoint areaIds or invent a composite when evidence is insufficient.
+- themeReasoning must be one short sentence.
+- Return an empty array when no coherent composite is supported.
+
+reasoning must be at most two short sentences. Do not claim verified opening hours, prices, transport services, or facts absent from the candidates.
+
+Return only valid JSON matching the supplied schema.`;
+
 export const CREATE_TOUR_SYSTEM_PROMPT = `You are a tour planning expert. Create well-organized tour itineraries by:
 - Following a logical geographical sequence
 - Progressing naturally throughout the day
@@ -153,7 +251,9 @@ a composite must be copied exactly from the "Available activities" list or the
 "Available OSM features" list — never invented. "kind" must be one of
 NEIGHBORHOOD_WALK, ROUTE, or EXPERIENCE. "variantTheme" must be one of the
 themes listed under "Available themes". "areaId" must be copied exactly from
-"Available area" — never invented, and omitted entirely if no area was offered.
+"Available areas" — never invented, and omitted entirely if no area was
+offered. Every selected waypoint must show that same areaId in its candidate
+line; never mix waypoints from different neighborhoods into one composite.
 If no coherent composite can be assembled from real candidates, omit
 compositeActivities (or return it empty) — never fabricate one to fill it.
 
@@ -166,7 +266,7 @@ statements.
 
 Available activities: {activities}
 Available OSM features (streets/boundaries for composite walks): {osmFeatures}
-Available area: {area}
+Available areas: {area}
 Available themes: {themes}`;
 
 export const CREATE_TOUR_JSON_SYSTEM_PROMPT = `You are a tour planning expert. Create well-organized tour itineraries by:
@@ -201,9 +301,10 @@ scenic route, or a multi-stop experience) in "compositeActivities", alongside
 composite must be copied exactly from "Available activities" or "Available OSM
 features" in the user message — never invented. "kind" must be one of
 NEIGHBORHOOD_WALK, ROUTE, or EXPERIENCE. "variantTheme" must be one of
-"Available themes". "areaId" must be copied exactly from "Available area" —
-never invented, and composites must be omitted entirely if no area was
-offered. If no coherent composite can be assembled from real candidates,
+"Available themes". "areaId" must be copied exactly from "Available areas" —
+never invented. Every selected waypoint must show that same areaId in its
+candidate line; never mix neighborhoods in one composite. Composites must be
+omitted entirely if no area was offered. If no coherent composite can be assembled from real candidates,
 return an empty "compositeActivities" array — never fabricate one to fill it.
 
 Also fill "reasoning" (3-5 sentences) explaining how you weighed the requested
@@ -242,7 +343,7 @@ Return a JSON object with this exact structure:
       "kind": "NEIGHBORHOOD_WALK | ROUTE | EXPERIENCE",
       "variantTheme": "string (one of Available themes)",
       "themeReasoning": "string (why this composite makes sense here, 1-3 sentences)",
-      "areaId": "string (REQUIRED — must exactly match Available area)",
+      "areaId": "string (REQUIRED — must exactly match one Available area and every waypoint's areaId)",
       "dayNumber": number,
       "startTime": "string (HH:MM format)",
       "waypointIds": "string[] (REQUIRED — every id copied exactly from Available activities or Available OSM features)"
@@ -270,7 +371,7 @@ export const createTourJsonUserPrompt = (
 
 Available activities: ${activities || 'No specific activities provided. Create a general tour.'}
 Available OSM features (streets/boundaries for composite walks): ${osmFeatures || 'None available.'}
-Available area: ${area || 'None available — omit compositeActivities entirely if this is empty.'}
+Available areas: ${area || 'None available — omit compositeActivities entirely if this is empty.'}
 Available themes: ${themes || 'None available.'}
 
 Remember: Return ONLY valid JSON, no markdown formatting, no code blocks.`;

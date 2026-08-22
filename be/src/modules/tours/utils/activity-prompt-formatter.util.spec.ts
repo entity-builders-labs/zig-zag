@@ -94,4 +94,16 @@ describe('formatOsmFeatureForPrompt', () => {
     expect(result).toContain('id: osm:relation:1 - San Telmo (relation) - ');
     expect(result.length).toBeLessThan(300);
   });
+
+  it('includes the exact containing area for composite verification', () => {
+    expect(
+      formatOsmFeatureForPrompt({
+        id: 'osm:way:1',
+        name: 'Defensa',
+        osmType: 'way',
+        areaId: 'osm:relation:9',
+        areaName: 'San Telmo',
+      }),
+    ).toContain('areaId: osm:relation:9 (San Telmo)');
+  });
 });

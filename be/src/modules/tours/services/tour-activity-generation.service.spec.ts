@@ -77,7 +77,10 @@ describe('TourActivityGenerationService', () => {
         findMany: jest.fn().mockResolvedValue([]),
         findFirst: jest.fn().mockResolvedValue(null),
       },
-      activityFamily: { count: jest.fn().mockResolvedValue(0) },
+      activityFamily: {
+        count: jest.fn().mockResolvedValue(0),
+        findMany: jest.fn().mockResolvedValue([]),
+      },
       activityWaypoint: { findMany: jest.fn().mockResolvedValue([]) },
       tourActivity: {
         create: jest.fn(async ({ data }: any) => ({
@@ -169,17 +172,72 @@ describe('TourActivityGenerationService', () => {
         }
       },
     );
+    osmPlacesService.lookupNeighborhoodsWithin = jest.fn(
+      async (...args: any[]): Promise<any> => {
+        try {
+          return {
+            status: 'success',
+            value: await osmPlacesService.findNeighborhoodsWithin(...args),
+          };
+        } catch (error: any) {
+          return {
+            status: 'failed',
+            value: [],
+            failureReason: error.message,
+          };
+        }
+      },
+    );
+    osmPlacesService.lookupStreetsWithin = jest.fn(
+      async (...args: any[]): Promise<any> => {
+        try {
+          return {
+            status: 'success',
+            value: await osmPlacesService.findStreetsWithin(...args),
+          };
+        } catch (error: any) {
+          return {
+            status: 'failed',
+            value: [],
+            failureReason: error.message,
+          };
+        }
+      },
+    );
+    osmPlacesService.lookupPoisWithin = jest.fn(
+      async (...args: any[]): Promise<any> => {
+        try {
+          return {
+            status: 'success',
+            value: await osmPlacesService.findPoisWithin(...args),
+          };
+        } catch (error: any) {
+          return {
+            status: 'failed',
+            value: [],
+            failureReason: error.message,
+          };
+        }
+      },
+    );
     destinationResolutionService = {
       resolveDestination: jest.fn().mockResolvedValue({ scale: 'point' }),
     };
     wikidataApiService = {
       getEntitySummaries: jest.fn().mockResolvedValue(new Map()),
+      lookupEntitySummaries: jest.fn().mockResolvedValue({
+        summaries: new Map(),
+        status: 'success',
+        failedQids: new Set(),
+        extractFailedQids: new Set(),
+      }),
     };
     compositeActivityService = { createOrReuseComposite: jest.fn() };
     tourImageService = {
       generateTourCoverImage: jest.fn().mockResolvedValue(undefined),
     };
     vectorStoreService = {
+      backfillMissingActivityEmbeddings: jest.fn().mockResolvedValue(0),
       getSimilarityScores: jest.fn().mockResolvedValue(new Map()),
     };
 
@@ -228,7 +286,13 @@ describe('TourActivityGenerationService', () => {
   it('generates a plain POI tour successfully when there are no OSM/composite candidates at all', async () => {
     const poiId = testUuid();
     activitiesService.findAll.mockResolvedValue([
-      { id: poiId, name: 'Museo', latitude: -34.62, longitude: -58.37 },
+      {
+        id: poiId,
+        name: 'Museo canónico',
+        type: 'museum',
+        latitude: -34.62,
+        longitude: -58.37,
+      },
     ]);
     prisma.activity.findMany.mockResolvedValue([
       {
@@ -243,13 +307,19 @@ describe('TourActivityGenerationService', () => {
         activities: [
           {
             activityId: poiId,
-            activityName: 'Museo',
+            // These fields are not part of the compact production schema.
+            // Keeping malicious/stale values in the mock proves that the
+            // server rehydrates canonical catalog data instead of trusting
+            // generated identity or coordinates.
+            activityName: 'Museo inventado',
+            type: 'night_club',
             dayNumber: 1,
             startTime: '10:00',
             duration: 60,
             notes: 'Visit the museum',
-            latitude: -34.62,
-            longitude: -58.37,
+            latitude: 99,
+            longitude: 99,
+            selectedWaypointIds: [],
           },
         ],
       }),
@@ -259,11 +329,80 @@ describe('TourActivityGenerationService', () => {
 
     expect(prisma.tourActivity.create).toHaveBeenCalledWith(
       expect.objectContaining({
-        data: expect.objectContaining({ activityId: poiId }),
+        data: expect.objectContaining({
+          activityId: poiId,
+          activityName: 'Museo canónico',
+          activityType: 'museum',
+          activityLatitude: -34.62,
+          activityLongitude: -58.37,
+        }),
       }),
     );
     // A plain POI never gets a waypoint snapshot.
     expect(prisma.tourActivityWaypoint.createMany).not.toHaveBeenCalled();
+  });
+
+  it('clears failure metadata after a retry completes successfully', async () => {
+    const poiId = testUuid();
+    const failedTour = buildTour();
+    failedTour.metadata = {
+      ...failedTour.metadata,
+      generationStatus: 'failed',
+      generationError: 'Previous provider failure',
+      generationFailedAt: '2026-08-22T10:00:00.000Z',
+    };
+    toursService.findOne.mockResolvedValue(failedTour);
+    activitiesService.findAll.mockResolvedValue([
+      {
+        id: poiId,
+        name: 'Museo real',
+        type: 'museum',
+        latitude: -34.62,
+        longitude: -58.37,
+      },
+    ]);
+    prisma.activity.findMany.mockResolvedValue([
+      {
+        id: poiId,
+        latitude: -34.62,
+        longitude: -58.37,
+        kind: ActivityKind.POI,
+      },
+    ]);
+    langChainService.generateChatResponse.mockResolvedValue(
+      aiJsonResponse({
+        reasoning: 'Selected a verified museum.',
+        activities: [
+          {
+            activityId: poiId,
+            dayNumber: 1,
+            startTime: '10:00',
+            duration: 60,
+            notes: 'Visit the museum.',
+            selectedWaypointIds: [],
+          },
+        ],
+      }),
+    );
+
+    await service.generateTourActivities(TOUR_ID);
+
+    const nonFailedUpdates = prisma.tour.update.mock.calls
+      .map(([input]: any[]) => input.data.metadata)
+      .filter(
+        (updatedMetadata: any) => updatedMetadata.generationStatus !== 'failed',
+      );
+    expect(nonFailedUpdates.length).toBeGreaterThan(0);
+    for (const updatedMetadata of nonFailedUpdates) {
+      expect(updatedMetadata).not.toHaveProperty('generationError');
+      expect(updatedMetadata).not.toHaveProperty('generationFailedAt');
+    }
+    expect(
+      nonFailedUpdates.some(
+        (updatedMetadata: any) =>
+          updatedMetadata.generationStatus === 'completed',
+      ),
+    ).toBe(true);
   });
 
   it('builds a step-by-step generation trace (bitácora) and persists it on the completed tour', async () => {
@@ -464,7 +603,7 @@ describe('TourActivityGenerationService', () => {
       },
     ]);
     osmPlacesService.findContainingBoundary.mockResolvedValue(AREA_CANDIDATE);
-    wikidataApiService.getEntitySummaries.mockRejectedValue(
+    wikidataApiService.lookupEntitySummaries.mockRejectedValue(
       new Error('wikidata down'),
     );
     langChainService.generateChatResponse.mockResolvedValue(
@@ -1171,6 +1310,14 @@ describe('TourActivityGenerationService', () => {
 
     await service.generateTourActivities(TOUR_ID);
 
+    expect(
+      vectorStoreService.backfillMissingActivityEmbeddings,
+    ).toHaveBeenCalledWith(
+      expect.arrayContaining([
+        expect.objectContaining({ id: relevantId }),
+        expect.objectContaining({ id: irrelevantId }),
+      ]),
+    );
     expect(vectorStoreService.getSimilarityScores).toHaveBeenCalledWith(
       expect.arrayContaining([relevantId, irrelevantId]),
       'history',
@@ -1310,6 +1457,8 @@ describe('TourActivityGenerationService', () => {
               longitude: -58.37,
               radius: 3000,
               destination: 'Buenos Aires',
+              destinationLatitude: -34.62,
+              destinationLongitude: -58.37,
             },
             originalPrompt: 'A tour of San Telmo',
           },
@@ -1417,11 +1566,9 @@ describe('TourActivityGenerationService', () => {
               kind: 'ROUTE',
               variantTheme: 'HISTORY',
               themeReasoning: 'Walk down Defensa',
-              // Must exactly match the area-scale areaCandidate offered —
-              // the resolved CITY boundary, not the shortlisted
-              // neighborhood — since verifyAndDedupeCompositeActivities
-              // checks this against areaCandidate?.id.
-              areaId: boundary.id,
+              // Whole-city generation scopes each composite to the exact
+              // shortlisted neighborhood that supplied its waypoints.
+              areaId: sanTelmo.id,
               dayNumber: 1,
               startTime: '10:00',
               waypointIds: [defensa.id],
@@ -1434,7 +1581,10 @@ describe('TourActivityGenerationService', () => {
 
       expect(
         destinationResolutionService.resolveDestination,
-      ).toHaveBeenCalledWith('Buenos Aires');
+      ).toHaveBeenCalledWith('Buenos Aires', {
+        latitude: -34.62,
+        longitude: -58.37,
+      });
       expect(osmPlacesService.findNeighborhoodsWithin).toHaveBeenCalledWith(
         boundary,
       );
@@ -1445,8 +1595,10 @@ describe('TourActivityGenerationService', () => {
         compositeActivityService.createOrReuseComposite,
       ).toHaveBeenCalledWith(
         expect.objectContaining({
+          name: 'San Telmo Historic Route',
           kind: 'ROUTE',
           variantTheme: 'HISTORY',
+          areaCandidate: sanTelmo,
           waypointIds: [defensa.id],
         }),
       );
@@ -1636,6 +1788,152 @@ describe('TourActivityGenerationService', () => {
       const [, promptArg] = langChainService.generateChatResponse.mock.calls[0];
       expect(promptArg).toContain('San Telmo Street 1');
       expect(promptArg).toContain('Recoleta Street 1');
+    });
+
+    it('does not launch detailed POI queries for all eleven Sevilla neighborhoods and never queues more than one neighborhood pair', async () => {
+      toursService.findOne.mockResolvedValue(
+        buildTour({
+          metadata: {
+            options: {
+              latitude: 37.3891,
+              longitude: -5.9845,
+              radius: 12000,
+              destination: 'Seville, Spain',
+            },
+            originalPrompt: 'A tour of Sevilla',
+          },
+        }),
+      );
+      const boundary = {
+        id: 'osm:relation:342563',
+        name: 'Sevilla',
+        osmType: 'relation' as const,
+        osmId: 342563,
+        geometry: {
+          type: 'Polygon' as const,
+          coordinates: [
+            [
+              [-6.1, 37.3],
+              [-5.8, 37.3],
+              [-5.8, 37.5],
+              [-6.1, 37.3],
+            ],
+          ],
+        },
+        tags: { name: 'Sevilla', admin_level: '8' },
+      };
+      destinationResolutionService.resolveDestination.mockResolvedValue({
+        scale: 'area',
+        areaActivity: {
+          id: 'area-sevilla',
+          kind: ActivityKind.AREA,
+          name: 'Sevilla',
+        },
+        boundary,
+      });
+      const neighborhoodNames = [
+        'Casco Antiguo',
+        'Triana',
+        'Barrio con fallo',
+        'Distrito 04',
+        'Distrito 05',
+        'Distrito 06',
+        'Distrito 07',
+        'Distrito 08',
+        'Distrito 09',
+        'Distrito 10',
+        'Distrito 11',
+      ];
+      const neighborhoods = neighborhoodNames.map((name, index) => ({
+        id: `osm:relation:${9000 + index}`,
+        name,
+        osmType: 'relation' as const,
+        osmId: 9000 + index,
+        geometry: {
+          type: 'Polygon' as const,
+          coordinates: [
+            [
+              [-6, 37.35],
+              [-5.95, 37.35],
+              [-5.95, 37.4],
+              [-6, 37.35],
+            ],
+          ],
+        },
+        tags: { name, admin_level: '9' },
+      }));
+      osmPlacesService.findNeighborhoodsWithin.mockResolvedValue(neighborhoods);
+      prisma.activityFamily.findMany.mockResolvedValue([
+        { areaActivity: { externalId: 'relation/9000' } },
+        { areaActivity: { externalId: 'relation/9001' } },
+      ]);
+
+      let activeDetailedCalls = 0;
+      let maxActiveDetailedCalls = 0;
+      const detailedLookup = async (): Promise<void> => {
+        activeDetailedCalls++;
+        maxActiveDetailedCalls = Math.max(
+          maxActiveDetailedCalls,
+          activeDetailedCalls,
+        );
+        await new Promise((resolve) => setTimeout(resolve, 1));
+        activeDetailedCalls--;
+      };
+      osmPlacesService.findStreetsWithin.mockImplementation(
+        async (neighborhood: any) => {
+          await detailedLookup();
+          if (neighborhood.name === 'Barrio con fallo') {
+            throw new Error('one neighborhood failed');
+          }
+          if (!['Casco Antiguo', 'Triana'].includes(neighborhood.name)) {
+            return [];
+          }
+          return [
+            {
+              id: `osm:way:${neighborhood.osmId}`,
+              name: `${neighborhood.name} walkable street`,
+              osmType: 'way',
+              osmId: neighborhood.osmId,
+              geometry: {
+                type: 'LineString',
+                coordinates: [
+                  [-5.99, 37.38],
+                  [-5.98, 37.39],
+                ],
+              },
+              tags: { name: `${neighborhood.name} walkable street` },
+            },
+          ];
+        },
+      );
+      osmPlacesService.findPoisWithin.mockImplementation(
+        async (): Promise<any[]> => {
+          await detailedLookup();
+          return [];
+        },
+      );
+
+      const poiId = testUuid();
+      activitiesService.findAll.mockResolvedValue([
+        {
+          id: poiId,
+          name: 'Real catalog POI',
+          latitude: 37.3891,
+          longitude: -5.9845,
+        },
+      ]);
+      langChainService.generateChatResponse.mockResolvedValue(
+        aiJsonResponse({}),
+      );
+
+      await expect(service.generateTourActivities(TOUR_ID)).rejects.toThrow();
+
+      expect(osmPlacesService.findPoisWithin).toHaveBeenCalledTimes(6);
+      expect(osmPlacesService.findStreetsWithin).toHaveBeenCalledTimes(6);
+      expect(maxActiveDetailedCalls).toBeLessThanOrEqual(2);
+      const [, promptArg] = langChainService.generateChatResponse.mock.calls[0];
+      expect(promptArg).toContain('Casco Antiguo walkable street');
+      expect(promptArg).toContain('Triana walkable street');
     });
 
     it('reproduces the Barcelona scenario: a thin, off-topic DB pool for an area-scale destination triggers both a crawl and a neighborhood shortlist, and ranks the LLM candidates by interest', async () => {

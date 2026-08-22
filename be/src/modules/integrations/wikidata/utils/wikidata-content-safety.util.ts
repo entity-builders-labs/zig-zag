@@ -8,12 +8,17 @@ export interface WikidataExtractInput {
   extract: string;
 }
 
-const CONTENT_SAFETY_PROMPT = `You will review a list of short Wikipedia/Wikidata extracts about real-world places, identified by QID. For EACH one, decide if it is safe, on-topic encyclopedic content — no vandalism, hate speech, spam, or nonsense.
+export const CONTENT_SAFETY_PROMPT = `You will review a list of short Wikipedia/Wikidata extracts about real-world places, identified by QID. For EACH one, decide if it is safe, on-topic encyclopedic content — no vandalism, hate speech, spam, or nonsense.
 
 Extracts (JSON, QID -> text):
 {extractsJson}
 
-Respond ONLY with a JSON object mapping each QID to true (safe) or false (unsafe/vandalism/nonsense) — no other text, no markdown formatting. Example: {"Q1": true, "Q2": false}`;
+Respond ONLY with a JSON object mapping each QID to true (safe) or false (unsafe/vandalism/nonsense) — no other text, no markdown formatting. Example: {{"Q1": true, "Q2": false}}`;
+
+export interface WikidataSafetyAssessment {
+  safeQids: Set<string>;
+  status: 'success' | 'failed';
+}
 
 /**
  * Filters a batch of Wikidata/Wikipedia extracts down to the ones judged
@@ -35,7 +40,16 @@ export async function filterSafeWikidataExtracts(
   inputs: WikidataExtractInput[],
   langChainService: LangChainService,
 ): Promise<Set<string>> {
-  if (inputs.length === 0) return new Set();
+  return (await assessWikidataExtractSafety(inputs, langChainService)).safeQids;
+}
+
+export async function assessWikidataExtractSafety(
+  inputs: WikidataExtractInput[],
+  langChainService: LangChainService,
+): Promise<WikidataSafetyAssessment> {
+  if (inputs.length === 0) {
+    return { safeQids: new Set(), status: 'success' };
+  }
 
   try {
     const extractsJson = JSON.stringify(
@@ -52,12 +66,12 @@ export async function filterSafeWikidataExtracts(
     for (const { qid } of inputs) {
       if (parsed[qid] === true) safeQids.add(qid);
     }
-    return safeQids;
+    return { safeQids, status: 'success' };
   } catch (error) {
     logger.warn(
       `Content-safety check failed for a batch of ${inputs.length} extract(s), dropping all of them: ${error.message}`,
     );
-    return new Set();
+    return { safeQids: new Set(), status: 'failed' };
   }
 }
 

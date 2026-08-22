@@ -7,6 +7,8 @@ import {
   PlacesCrawlProvenance,
   placesProviderLabel,
 } from '@integrations/google-places/interfaces/places-api.interface';
+import { WikidataEnrichmentOutcome } from '@integrations/wikidata/interfaces/wikidata.interface';
+import type { NeighborhoodScoringInput } from './neighborhood-shortlist.util';
 
 // Loosely typed on purpose — mirrors the rest of this file's candidates
 // (ActivityWithDistance from ActivitiesService.findAll, whose Prisma Json
@@ -60,17 +62,25 @@ export function buildPlacesCrawlStep(
       : provenance.cacheStatus === 'strict-miss'
         ? 'strict cache miss'
         : 'live provider call';
-  const rejectedCount = Object.values(provenance.rejectedCountByReason).reduce(
-    (sum, count) => sum + count,
+  const providerRequestFailures =
+    provenance.rejectedCountByReason.provider_request_failed ?? 0;
+  const rejectedCandidateCount = Object.entries(
+    provenance.rejectedCountByReason,
+  ).reduce(
+    (sum, [reason, count]) =>
+      reason === 'provider_request_failed' ? sum : sum + count,
     0,
   );
+  const requestFailureSuffix = providerRequestFailures
+    ? ` Además, ${providerRequestFailures} consulta(s) al proveedor fallaron.`
+    : '';
 
   return {
     stage: 'places_crawl',
     label: `Catalog refill · ${providerLabel}`,
     summary: failed
       ? `${providerLabel} falló (${cacheLabel}). Solicitados: ${provenance.requestedCount}; recibidos: ${provenance.receivedCount}; no se afirmó cobertura nueva.`
-      : `${providerLabel} (${cacheLabel}) recibió ${provenance.receivedCount} resultados, persistió ${provenance.acceptedCount} y rechazó ${rejectedCount}.`,
+      : `${providerLabel} (${cacheLabel}) recibió ${provenance.receivedCount} resultados, persistió ${provenance.acceptedCount} y descartó ${rejectedCandidateCount}.${requestFailureSuffix}`,
     placesProvenance: provenance,
     candidates: candidates.map(
       (act): TraceCandidate => ({
@@ -98,14 +108,16 @@ export function buildOsmStreetsStep(
 ): GenerationTraceStep {
   return {
     stage: 'osm_streets',
-    label: 'Calles cercanas (OSM/Overpass)',
+    label: 'Elementos para experiencias compuestas (OSM/Overpass)',
     summary: providerFailure
-      ? 'No se pudo consultar OSM/Overpass para obtener calles o vías; la ausencia de candidatos en esta generación no significa que no existan.'
+      ? candidates.length > 0
+        ? `${candidates.length} calles, vías o POIs OSM reales conservados; una parte de las consultas a Overpass falló y la cobertura puede estar incompleta.`
+        : 'No se pudo consultar OSM/Overpass para obtener calles, vías o POIs; la ausencia de candidatos en esta generación no significa que no existan.'
       : candidates.length > 0
-        ? `${candidates.length} calles/vías reales encontradas, candidatas para un recorrido compuesto.`
+        ? `${candidates.length} calles, vías o POIs OSM reales encontrados, candidatos para una experiencia compuesta.`
         : providerResponded
-          ? 'La consulta a OSM/Overpass respondió sin calles/vías reales utilizables cerca de esta ubicación.'
-          : 'No se obtuvieron calles/vías utilizables; esta etapa no registró si la consulta respondió vacía o se degradó.',
+          ? 'La consulta a OSM/Overpass respondió sin calles, vías o POIs reales utilizables para una experiencia compuesta.'
+          : 'No se obtuvieron elementos OSM utilizables; esta etapa no registró si la consulta respondió vacía o se degradó.',
     providerStatus: providerFailure
       ? 'failed'
       : providerResponded
@@ -163,42 +175,102 @@ export function buildOsmBoundaryStep(
 
 export function buildDestinationResolutionStep(
   destinationText: string | undefined,
-  resolution: { scale: 'point' } | { scale: 'area'; boundary: OsmCandidate },
+  resolution:
+    | {
+        scale: 'point';
+        attemptedQueries?: string[];
+        degradationReason?: string;
+      }
+    | {
+        scale: 'area';
+        boundary: OsmCandidate;
+        attemptedQueries?: string[];
+        selectedResult?: { displayName: string };
+      },
 ): GenerationTraceStep {
+  const attempted = resolution.attemptedQueries?.length
+    ? ` Intentos: ${resolution.attemptedQueries.join(' → ')}.`
+    : '';
+  const degradationMessages: Record<string, string> = {
+    missing_destination: 'No se recibió un destino textual.',
+    no_area_candidate:
+      'Nominatim no devolvió una ciudad/pueblo con límite utilizable.',
+    candidate_mismatched_coordinates:
+      'Los candidatos de ciudad encontrados no coincidían con las coordenadas seleccionadas.',
+    boundary_unavailable:
+      'Se identificó la ciudad, pero no se pudo obtener su límite OSM.',
+    provider_failed: 'La resolución del destino falló y continuó degradada.',
+  };
+
   return {
     stage: 'destination_resolution',
     label: 'Resolución del destino',
     summary:
       resolution.scale === 'area'
-        ? `"${destinationText}" resolvió a un límite real de ciudad: ${resolution.boundary.name}. Se exploran sus barrios reales en vez de un único punto+radio.`
+        ? `"${destinationText}" resolvió a un límite real de ciudad: ${resolution.boundary.name}. Se exploran sus barrios reales en vez de un único punto+radio.${attempted}`
         : destinationText
-          ? `"${destinationText}" no resolvió a un límite de ciudad/pueblo real — se usa el punto+radio de siempre.`
+          ? `"${destinationText}" no resolvió a un límite de ciudad/pueblo real — se usa el punto+radio de siempre. ${degradationMessages[resolution.degradationReason || ''] || 'Motivo no registrado.'}${attempted}`
           : 'No se especificó un destino de texto — se usa el punto+radio de siempre.',
+    providerStatus:
+      resolution.scale === 'point' &&
+      resolution.degradationReason === 'provider_failed'
+        ? 'failed'
+        : undefined,
+    degradedReason:
+      resolution.scale === 'point' && resolution.degradationReason
+        ? degradationMessages[resolution.degradationReason]
+        : undefined,
   };
 }
 
 export function buildNeighborhoodShortlistStep(
   allNeighborhoods: OsmCandidate[],
   shortlisted: OsmCandidate[],
+  signals?: {
+    existingFamilyCount: number;
+    catalogCoveredCount: number;
+    scoringInputs?: NeighborhoodScoringInput[];
+    providerFailure?: string;
+  },
 ): GenerationTraceStep {
   const shortlistedIds = new Set(shortlisted.map((c) => c.id));
+  const scoringById = new Map(
+    (signals?.scoringInputs ?? []).map((input) => [input.candidate.id, input]),
+  );
   return {
     stage: 'neighborhood_shortlist',
     label: 'Barrios explorados (destino a nivel ciudad)',
     summary:
       allNeighborhoods.length > 0
-        ? `${allNeighborhoods.length} barrios reales encontrados; ${shortlisted.length} explorados a fondo (con familia curada existente o más POIs cercanos).`
-        : '0 barrios reales encontrados dentro del límite de esta ciudad.',
-    candidates: allNeighborhoods.map(
-      (c): TraceCandidate => ({
+        ? `${allNeighborhoods.length} barrios reales encontrados; ${shortlisted.length} explorados a fondo. Ranking por familia reutilizable, cobertura/prominencia de POIs validados y afinidad semántica disponible: ${signals?.existingFamilyCount ?? 0} con familia existente y ${signals?.catalogCoveredCount ?? 0} con POIs del catálogo. No se lanzaron consultas POI detalladas para puntuar barrios; los empates sin evidencia usan un orden determinista.`
+        : signals?.providerFailure
+          ? 'No se pudieron consultar los barrios del límite de esta ciudad; la generación continuó degradada.'
+          : '0 barrios reales encontrados dentro del límite de esta ciudad.',
+    providerStatus: signals?.providerFailure ? 'failed' : 'success',
+    degradedReason: signals?.providerFailure,
+    candidates: allNeighborhoods.map((c): TraceCandidate => {
+      const scoring = scoringById.get(c.id);
+      const scoringDetail = scoring
+        ? [
+            scoring.hasExistingFamily ? 'familia existente' : null,
+            `${scoring.catalogPoiCount} POI(s) de catálogo`,
+            `prominencia ${Number(scoring.catalogProminenceScore ?? 0).toFixed(2)}`,
+            scoring.interestSimilarity == null
+              ? 'afinidad semántica no disponible'
+              : `afinidad semántica ${scoring.interestSimilarity.toFixed(2)}`,
+          ]
+            .filter(Boolean)
+            .join(' · ')
+        : null;
+      return {
         source: 'osm',
         id: c.id,
         name: c.name,
-        detail: osmDetail(c),
+        detail: [osmDetail(c), scoringDetail].filter(Boolean).join(' · '),
         offered: true,
         chosen: shortlistedIds.has(c.id),
-      }),
-    ),
+      };
+    }),
   };
 }
 
@@ -233,29 +305,44 @@ export function buildEmbeddingsStep(
 
 export function buildWikidataEnrichmentStep(
   candidates: OsmCandidate[],
+  outcome: WikidataEnrichmentOutcome,
 ): GenerationTraceStep {
   const withQid = candidates.filter((c) => !!c.tags.wikidata);
+  const failed = outcome.providerFailed > 0 || outcome.safetyCheckFailed > 0;
   return {
     stage: 'wikidata_enrichment',
     label: 'Contexto narrativo (Wikidata/Wikipedia)',
-    summary:
-      withQid.length > 0
-        ? `${withQid.length} candidatos con QID de Wikidata; ${
-            withQid.filter((c) => !!c.narrativeContext).length
-          } pasaron el filtro de seguridad de contenido y aportaron contexto narrativo.`
-        : 'Ningún candidato de esta generación tenía un QID de Wikidata asociado.',
-    candidates: withQid.map(
-      (c): TraceCandidate => ({
+    summary: `${outcome.withoutQid} sin QID; ${outcome.fetched} obtenidos; ${outcome.acceptedSafe} aceptados como seguros; ${outcome.rejectedUnsafe} rechazados como inseguros; ${outcome.providerFailed} afectados por fallo del proveedor; ${outcome.safetyCheckFailed} afectados por fallo del control de seguridad. La falta de narrativa no elimina candidatos del tour.`,
+    providerStatus: failed ? 'failed' : 'success',
+    degradedReason: outcome.providerFailed
+      ? 'Falló el proveedor de Wikidata/Wikipedia.'
+      : outcome.safetyCheckFailed
+        ? 'Falló el control de seguridad; los extractos afectados no se usaron.'
+        : undefined,
+    candidates: withQid.map((c): TraceCandidate => {
+      const qid = c.tags.wikidata as string;
+      let detail = 'Wikidata no devolvió un extracto narrativo.';
+      if (c.narrativeContext) {
+        detail = c.narrativeContext.substring(0, 200);
+      } else if (outcome.providerFailed) {
+        detail = 'No se pudo consultar el proveedor de Wikidata.';
+      } else if (outcome.safetyCheckFailedQids.has(qid)) {
+        detail = 'El control de seguridad falló; el extracto no se usó.';
+      } else if (outcome.rejectedUnsafeQids.has(qid)) {
+        detail = 'El extracto fue rechazado por el control de seguridad.';
+      } else if (outcome.fetchedQids.has(qid)) {
+        detail =
+          'La entidad fue obtenida, pero no aportó un extracto utilizable.';
+      }
+      return {
         source: 'wikidata',
-        id: c.tags.wikidata,
+        id: qid,
         name: c.name,
-        detail: c.narrativeContext
-          ? c.narrativeContext.substring(0, 200)
-          : 'descartado por el filtro de seguridad de contenido',
+        detail,
         offered: !!c.narrativeContext,
         chosen: false,
-      }),
-    ),
+      };
+    }),
   };
 }
 

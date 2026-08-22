@@ -53,6 +53,12 @@ Related documents:
     generation bitacora may claim a semantic, transport, opening-hours, or
     feasibility signal was applied only when the corresponding deterministic
     stage records evidence that it actually ran successfully.
+18. Background itinerary generation uses a compact selection contract. The
+    LLM returns offered IDs plus scheduling intent, not duplicated names,
+    coordinates, distances, travel times, or tour totals. After ID
+    verification, the backend rehydrates canonical identity and geometry from
+    the exact offered catalog candidates. A provider's failed or truncated
+    draft is never salvaged as a verified itinerary.
 
 ## End-to-end flow
 
@@ -62,23 +68,24 @@ flowchart TD
     A --> B["UserIntentBuilder<br/>normalize preferences"]
     B --> MOB["MobilityProfileBuilder<br/>allowed modes + pace + days<br/>travel constraints"]
 
-    B --> C["DestinationResolutionService"]
+    B --> C["DestinationResolutionService<br/>Nominatim forward/reverse geocoding"]
     C --> C1{"Real bounded destination?"}
-    C1 -- "Yes: city/neighborhood" --> C2["AREA DestinationContext<br/>OSM boundary + bbox + centroid<br/>locality/country"]
+    C1 -- "Yes: city/neighborhood" --> C2["OSM boundary lookup<br/>Overpass query backend"]
+    C2 --> C2A["AREA DestinationContext<br/>OSM boundary + bbox + centroid<br/>locality/country"]
     C1 -- "No: hotel/POI/address" --> C3["POINT DestinationContext<br/>lat/lng + radius"]
     C1 -- "External failure" --> C3
 
-    C2 --> D["ExistingActivityRetriever"]
+    C2A --> D["ExistingActivityRetriever"]
     C3 --> D
-    D --> E["Query existing catalog<br/>POI + ROUTE + NEIGHBORHOOD_WALK + EXPERIENCE<br/>exclude AREA and archived"]
+    D --> E["PostgreSQL catalog query<br/>POI + ROUTE + NEIGHBORHOOD_WALK + EXPERIENCE<br/>exclude AREA and archived"]
 
     E --> F{"Pool too small?"}
-    F -- Yes --> G["Catalog Refill<br/>Places at destination anchors<br/>see Catalog Refill zoom below"]
+    F -- Yes --> G["Catalog Refill<br/>selected provider: Google Places or Geoapify<br/>see Catalog Refill zoom below"]
     G --> H["Persist and deduplicate real POIs"]
     H --> I["Re-query catalog"]
     F -- No --> I
 
-    I --> SEM["Semantic retrieval and individual ranking<br/>interest relevance + quality"]
+    I --> SEM["Semantic retrieval and individual ranking<br/>Bedrock Titan in production / Ollama locally<br/>PostgreSQL pgvector"]
     SEM --> SF["SpatialFeasibilityAnalyzer<br/>mode-aware travel-time matrix<br/>cluster viable candidates by day"]
     MOB --> SF
     SF --> J["CoverageAnalyzer<br/>quantity + themes + kinds<br/>+ feasible per-day groups"]
@@ -87,15 +94,17 @@ flowchart TD
 
     J1 -- No --> K["DiscoveryRequest<br/>only missing quantities/themes/kinds"]
     K --> L["ActivityDiscoveryService"]
-    L --> M["SearchGroundedDiscoveryProvider<br/>Gemini / OpenAI / other adapter"]
+    L --> M["SearchGroundedDiscoveryProvider<br/>planned: Gemini Search / OpenAI web search<br/>or another explicit adapter"]
     M --> N["ActivityProposal[] + evidence<br/>no invented coordinates or IDs"]
 
     N --> O["Schema validation<br/>kind, themes, hints, duration"]
     O --> P["ActivityProposalResolutionService"]
     P --> P1["POI / venue / museum / restaurant<br/>Google Places"]
-    P --> P2["Street / path / route / neighborhood<br/>OSM / Nominatim / Overpass"]
+    P --> P2["Street / path / route / neighborhood<br/>Nominatim + Overpass query backend"]
     P1 --> Q["ResolvedActivityProposal"]
-    P2 --> Q
+    P2 --> WIKI["Optional OSM narrative context<br/>Wikidata/Wikipedia API when QID exists"]
+    WIKI --> SAFE["Content-safety classification<br/>configured LLM; Groq in current local setup"]
+    SAFE --> Q
 
     Q --> V["ActivityValidator<br/>identity, type, geography,<br/>coherence, distance, duration,<br/>waypoints and transport"]
     V --> V1{"Valid proposal?"}
@@ -107,11 +116,12 @@ flowchart TD
 
     R --> S["Feasible candidate groups per day<br/>appropriate for allowed transport"]
     S --> T["Candidate window<br/>real IDs and feasible groups only"]
-    T --> U["Itinerary LLM<br/>select and organize Activities<br/>never create entities"]
+    T --> U["Itinerary LLM adapter<br/>Groq in current local setup<br/>compact selection: IDs + schedule only<br/>never create entities"]
     U --> Y["Anti-hallucination verification<br/>offered IDs, duplicates,<br/>waypoints and subsets"]
     Y --> Z{"Valid picks remain?"}
     Z -- No --> ERR["Explicit failure<br/>never invent Activities"]
-    Z -- Yes --> AA["Per-day route and schedule optimization<br/>mode-specific travel times<br/>opening hours + activity duration"]
+    Z -- Yes --> CANON["Canonical hydration from catalog<br/>name + type + coordinates<br/>ignore generated identity/geometry"]
+    CANON --> AA["Per-day route and schedule optimization<br/>mode-specific travel times<br/>opening hours + activity duration"]
     AA --> FEAS{"Schedule and mobility feasible?"}
     FEAS -- No --> RESELECT["Reselect or reduce stops<br/>never force an incoherent tour"]
     RESELECT --> R
@@ -121,6 +131,122 @@ flowchart TD
     AB1 --> AB2["TourActivityWaypoint<br/>effective ordered snapshot"]
     AB2 --> AC["Generated tour + bitacora<br/>resolution, coverage, discovery,<br/>ranking and verification"]
 ```
+
+Provider labels in this diagram are explicit calls, not automatic fallback
+chains. If Google is selected for Places, a failure does not invoke Geoapify.
+If Bedrock is selected for embeddings, a failure does not invoke Ollama or
+OpenAI. The configured LLM provider may change behind its adapter; the trace
+must record which provider actually handled the operation.
+
+### Provider-call zoom: current OSM composite path
+
+This is a zoom into destination resolution and composite candidate gathering
+in the end-to-end flow. It describes the implemented backend path after PR 2;
+Activity Discovery and deterministic mobility remain later stages.
+
+```mermaid
+flowchart TD
+    INPUT["Wizard destination label + selected coordinates"]
+    INPUT --> NF["Nominatim forward search<br/>original provider label"]
+    NF --> MATCH{"Usable city/town/village<br/>near selected coordinates?"}
+    MATCH -- "No: empty, ambiguous, or only far-away same-name results" --> NR["Nominatim reverse geocoding<br/>selected coordinates, settlement zoom"]
+    NR --> NS["Nominatim normalized search<br/>structured locality + country"]
+    MATCH -- Yes --> OB
+    NS --> OB["Overpass query backend<br/>authoritative boundary by OSM ID"]
+
+    OB --> ADMIN["Overpass query backend<br/>admin boundaries inside city<br/>map_to_area + city admin_level + 1"]
+    PG[("PostgreSQL + pgvector catalog")] --> REPAIR["Bounded legacy-vector repair<br/>retrieved candidates with embedding IS NULL"]
+    REPAIR --> SCORE["Local neighborhood shortlist<br/>reusable ActivityFamily + POI coverage<br/>rating/review prominence + wizard similarity<br/>deterministic no-evidence tie-break"]
+    ADMIN --> SCORE
+    SCORE --> DETAIL["Only shortlisted neighborhoods<br/>bounded street + POI detail queries<br/>Overpass query backend"]
+
+    DETAIL --> OSMQ["OSM candidate quality gate<br/>real name; reject placeholders<br/>such as Sin Nombre / Unnamed Road"]
+    OSMQ --> QID{"OSM candidate has<br/>tags.wikidata QID?"}
+    QID -- No --> OFFER["Candidate remains eligible<br/>without narrative"]
+    QID -- Yes --> WD["Wikidata/Wikipedia API<br/>batched entity summaries"]
+    WD --> SAFETY["Configured completion provider<br/>Groq in current local setup<br/>content-safety batch + bounded 429 retry"]
+    SAFETY -- safe --> OFFER
+    SAFETY -- "unsafe or provider failure" --> OFFER
+
+    REPAIR --> WINDOW["Verified catalog POIs"]
+    OFFER --> WINDOW["Verified OSM composite candidates"]
+    WINDOW --> LLM["Itinerary LLM adapter<br/>Groq in current local setup<br/>compact IDs + schedule schema<br/>bounded output; one provider-delay retry on 429"]
+    LLM --> VERIFY["Anti-hallucination verification<br/>offered IDs + exact neighborhood scope<br/>dedupe IDs and normalized street names"]
+    VERIFY --> HYDRATE["Canonical hydration of flat picks<br/>catalog name + type + coordinates"]
+    VERIFY --> PERSIST["CompositeActivityService<br/>Activity + ActivityWaypoint"]
+    PERSIST --> BACKFILL["Embedding provider<br/>index new composite or backfill reused variant"]
+    HYDRATE --> MERGE["Merge verified flat + composite picks<br/>spatial ordering uses real coordinates"]
+    BACKFILL --> MERGE
+    MERGE --> SNAPSHOT["TourActivityWaypoint snapshot<br/>effective waypoints for this tour"]
+```
+
+The JSON-mode activity-generation contract is intentionally smaller than the
+full schema used while initially creating the Tour shell. It requires only
+`reasoning`, `activities`, and `compositeActivities`; each flat pick carries an
+offered `activityId`, day/time/duration, a bounded short note, and an optional
+verified waypoint subset. Server-owned values are populated only after the
+anti-hallucination check. This prevents long multi-day responses from spending
+Groq's completion budget repeating candidate data and then truncating before
+the JSON object closes. A `json_validate_failed` draft does not enter the
+repair, verification, or persistence path. If a later explicit retry succeeds,
+its non-failed status removes the previous attempt's `generationError` and
+`generationFailedAt`; stale failure metadata must not survive a completed run.
+
+The implemented shortlist does **not** claim to know global tourism popularity.
+It selects at most six real OSM neighborhoods using only evidence already
+available for this request: a reusable family bonus, validated POI coverage,
+rating/review-backed POI prominence, and the strongest indexed POI similarities
+to the wizard interests. Detailed Overpass calls happen only after this
+shortlist. Alphabetical OSM name/ID ordering is only the final stable tie-break
+when neighborhoods have equal evidence; it is not treated as relevance.
+Street-name placeholders are not evidence for a reusable experience and are
+removed before prompting or persistence. This structural filter does not claim
+that the remaining named streets are touristically meaningful; that semantic
+gap belongs to grounded Activity Discovery and proposal resolution.
+
+Wikidata does not enrich every Google/Geoapify POI. In the current path it
+adds optional narrative grounding only to OSM candidates used while proposing
+a composite. A safe extract may be stored as a composite `narrativeSource`; it
+does not overwrite catalog POI prose. Missing QID, failed enrichment, or a
+failed safety check removes only the optional narrative, not the candidate.
+
+### Production topology: cold-destination OSM refill
+
+The public Nominatim and Overpass community endpoints are not a mass-production
+capacity layer. Retry, concurrency, and circuit-breaker logic protect the
+application and those services, but cannot provide an SLA. At production
+volume, normal tour requests should primarily reuse resolved OSM-backed
+Activities from Zig-Zag's catalog.
+
+```mermaid
+flowchart TD
+    REQ["Tour request"] --> CAT["PostgreSQL + pgvector<br/>query reusable Activities"]
+    CAT --> COVER{"Destination and theme<br/>coverage sufficient?"}
+    COVER -- Yes --> GEN["Generate from verified catalog<br/>no per-tour Overpass crawl"]
+    COVER -- No --> REGION["RegionResolver<br/>coordinates -> smallest supported extract<br/>for example Granada -> Andalucía"]
+    REGION --> REGISTRY{"RegionRegistry state<br/>missing / downloading / importing<br/>ready / failed"}
+    REGISTRY -- ready --> JOB["Deduplicated asynchronous destination refill<br/>keyed by destination OSM identity"]
+    REGISTRY -- "missing or failed retryable" --> IMPORT["One regional import job<br/>download PBF + build/update index"]
+    REGISTRY -- "downloading or importing" --> WAIT["Join existing job<br/>never duplicate the import"]
+    IMPORT --> REGISTRY
+    WAIT --> REGISTRY
+
+    JOB --> OSM["Production OSM query backend<br/>self-hosted or managed Overpass-compatible service"]
+    JOB --> NOM["Production geocoder<br/>self-hosted or managed Nominatim-compatible service"]
+    OSM --> VALIDATE["Resolve + validate identities, geometry and kinds"]
+    NOM --> VALIDATE
+    VALIDATE --> MATERIALIZE["Materialize reusable AREA / ROUTE / POI Activities<br/>and ActivityWaypoint references"]
+    MATERIALIZE --> EMBED["Embedding provider<br/>Bedrock Titan in production"]
+    EMBED --> CAT
+
+    JOB -. "development or spike only" .-> PUBLIC["Public Nominatim / overpass-api.de<br/>strictly bounded and observable"]
+```
+
+This production topology is a required gate before enabling OSM-backed
+composite generation at mass scale. It does not require a `GeoFeature` table:
+resolved entities continue to use `Activity`, `ActivityFamily`, and
+`ActivityWaypoint`. The refill worker and production OSM hosting/provider are
+not implemented by PR 2; the repository remains the source of truth.
 
 The critical boundary is:
 
@@ -157,7 +283,11 @@ structured locality/country query `Montevideo, Uruguay` resolves the real city
 relation. A bounded fallback must be built from structured destination
 components and disambiguated with the selected coordinates and country; it
 must not remove arbitrary comma-separated components and accept the first
-result blindly.
+result blindly. A non-empty forward response is not proof of a valid match:
+if all returned POIs/buildings are geographically inconsistent with the
+coordinates selected in the wizard, the flow treats the label as ambiguous
+and runs the same reverse normalization. A nearby hotel/address/POI remains
+point-scale and does not trigger city exploration.
 
 ## Deferred design topic: food and drink stops
 
@@ -501,6 +631,40 @@ Coverage is not a single candidate count. It should report:
 
 Discovery receives only missing coverage. It must not rediscover an entire
 destination for every tour.
+
+### Future Discovery zoom: iconic-neighborhood cold start
+
+This is deliberately **not implemented by PR 2**. It belongs to the
+provider-neutral Activity Discovery stage. It is the fallback for an
+area-scale destination where the local shortlist has insufficient evidence —
+for example, dozens of OSM neighborhoods but no families, no indexed catalog
+POIs, or a low-confidence tie. It must not run merely because a grounded model
+is available.
+
+```mermaid
+flowchart TD
+    OSM["OSM/Overpass<br/>real neighborhoods inside destination"] --> LOCAL["Deterministic local scoring<br/>families + catalog prominence + embeddings"]
+    LOCAL --> COVER{"CoverageAnalyzer:<br/>neighborhood confidence sufficient?"}
+    COVER -- Yes --> RANK["Final neighborhood shortlist"]
+    COVER -- No --> DISC["ActivityDiscoveryService<br/>missing iconic/theme area coverage only"]
+    DISC --> GROUND["SearchGroundedDiscoveryProvider<br/>Gemini Search / OpenAI web search / configured adapter"]
+    GROUND --> PROP["Structured ActivityProposal[]<br/>grounding evidence + entityHints role=area"]
+    PROP --> RESOLVE["Area hint resolver<br/>destination context + aliases"]
+    OSM --> RESOLVE
+    RESOLVE --> VALID{"Exact offered OSM neighborhood?<br/>inside destination and unambiguous?"}
+    VALID -- No --> DROP["Reject proposal/area hint<br/>never invent boundary or identity"]
+    VALID -- Yes --> MERGE["Grounded prominence signal<br/>merged with deterministic evidence"]
+    MERGE --> RANK
+    RANK --> DETAIL["Bounded detailed Overpass calls<br/>only for selected real neighborhoods"]
+```
+
+The grounded provider may propose `San Telmo`, `La Boca`, or `Recoleta`, but
+those strings have no geographic authority. `Montserrat` versus OSM
+`Monserrat` requires an explicit alias/fuzzy-name resolution constrained to
+the destination. A phrase such as `downtown area`, an out-of-city homonym, or
+an invented neighborhood is rejected unless it resolves unambiguously to one
+of the OSM boundaries already offered. Raw model text is trace evidence only;
+it is never persisted as an `AREA`, geometry, external ID, or catalog prose.
 
 ## Activity proposal boundary
 

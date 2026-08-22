@@ -5,6 +5,7 @@ import * as path from 'path';
 import {
   IWikidataApiService,
   WikidataEntitySummary,
+  WikidataLookupOutcome,
 } from '../interfaces/wikidata.interface';
 
 /**
@@ -66,6 +67,10 @@ export class CachedWikidataApiService implements IWikidataApiService {
   async getEntitySummaries(
     qids: string[],
   ): Promise<Map<string, WikidataEntitySummary>> {
+    return (await this.lookupEntitySummaries(qids)).summaries;
+  }
+
+  async lookupEntitySummaries(qids: string[]): Promise<WikidataLookupOutcome> {
     const uniqueQids = Array.from(new Set(qids)).filter(Boolean);
     const results = new Map<string, WikidataEntitySummary>();
     const missingQids: string[] = [];
@@ -81,7 +86,12 @@ export class CachedWikidataApiService implements IWikidataApiService {
     }
 
     if (missingQids.length === 0) {
-      return results;
+      return {
+        summaries: results,
+        status: 'success',
+        failedQids: new Set(),
+        extractFailedQids: new Set(),
+      };
     }
 
     if (this.mode === 'strict') {
@@ -93,15 +103,20 @@ export class CachedWikidataApiService implements IWikidataApiService {
     this.logger.log(
       `[CachedWikidataApiService] Cache miss for ${missingQids.length} QID(s). Calling real API...`,
     );
-    const fresh = await this.realService.getEntitySummaries(missingQids);
+    const freshOutcome =
+      await this.realService.lookupEntitySummaries(missingQids);
 
-    for (const [qid, summary] of fresh) {
+    for (const [qid, summary] of freshOutcome.summaries) {
       results.set(qid, summary);
-      if (this.mode === 'write') {
+      if (
+        this.mode === 'write' &&
+        !freshOutcome.failedQids.has(qid) &&
+        !freshOutcome.extractFailedQids.has(qid)
+      ) {
         this.writeCached(summary);
       }
     }
 
-    return results;
+    return { ...freshOutcome, summaries: results };
   }
 }

@@ -38,6 +38,13 @@ export interface OsmLookupResult<T> {
 // falls in range, we discard rather than guess.
 const NEIGHBORHOOD_ADMIN_LEVEL_RANGE = { min: 8, max: 11 };
 const DEFAULT_MAX_STREETS_RADIUS_METERS = 2500;
+const GENERIC_STREET_NAMES = new Set([
+  'sin nombre',
+  'unnamed',
+  'unnamed road',
+  'unknown',
+  's n',
+]);
 
 @Injectable()
 export class OsmPlacesService {
@@ -80,6 +87,19 @@ export class OsmPlacesService {
     };
   }
 
+  private toStreetCandidate(element: OverpassElement): OsmCandidate | null {
+    const candidate = this.toCandidate(element);
+    if (!candidate) return null;
+
+    const normalizedName = candidate.name
+      .normalize('NFKD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, ' ')
+      .trim();
+    return GENERIC_STREET_NAMES.has(normalizedName) ? null : candidate;
+  }
+
   /**
    * Named streets near a point — candidates for a ROUTE whose own trace is
    * the content of the experience (e.g. "walk through Caminito"), never for
@@ -115,7 +135,7 @@ export class OsmPlacesService {
       return {
         status: 'success',
         value: elements
-          .map((el) => this.toCandidate(el))
+          .map((el) => this.toStreetCandidate(el))
           .filter((c): c is OsmCandidate => c !== null),
       };
     } catch (error: any) {
@@ -225,6 +245,13 @@ export class OsmPlacesService {
     osmType: 'way' | 'relation',
     osmId: number,
   ): Promise<OsmCandidate | null> {
+    return (await this.lookupBoundaryById(osmType, osmId)).value;
+  }
+
+  async lookupBoundaryById(
+    osmType: 'way' | 'relation',
+    osmId: number,
+  ): Promise<OsmLookupResult<OsmCandidate | null>> {
     try {
       const elements = await this.overpassApi.queryBoundaryById({
         osmType,
@@ -233,12 +260,16 @@ export class OsmPlacesService {
       const candidates = elements
         .map((el) => this.toCandidate(el))
         .filter((c): c is OsmCandidate => c !== null);
-      return candidates[0] ?? null;
+      return { status: 'success', value: candidates[0] ?? null };
     } catch (error: any) {
       this.logger.warn(
         `Overpass queryBoundaryById failed for ${osmType}/${osmId}: ${error.message}`,
       );
-      return null;
+      return {
+        status: 'failed',
+        value: null,
+        failureReason: error.message || 'unknown Overpass error',
+      };
     }
   }
 
@@ -255,26 +286,39 @@ export class OsmPlacesService {
   async findNeighborhoodsWithin(
     boundary: OsmCandidate,
   ): Promise<OsmCandidate[]> {
+    return (await this.lookupNeighborhoodsWithin(boundary)).value;
+  }
+
+  async lookupNeighborhoodsWithin(
+    boundary: OsmCandidate,
+  ): Promise<OsmLookupResult<OsmCandidate[]>> {
     const cityAdminLevel = parseInt(boundary.tags.admin_level || '', 10);
-    if (isNaN(cityAdminLevel)) return [];
+    if (isNaN(cityAdminLevel)) return { status: 'success', value: [] };
 
     try {
       const elements = await this.overpassApi.queryAdminBoundariesWithinArea({
         osmType: boundary.osmType as 'way' | 'relation',
         osmId: boundary.osmId,
       });
-      return elements
-        .filter(
-          (el) =>
-            parseInt(el.tags?.admin_level || '', 10) === cityAdminLevel + 1,
-        )
-        .map((el) => this.toCandidate(el))
-        .filter((c): c is OsmCandidate => c !== null);
+      return {
+        status: 'success',
+        value: elements
+          .filter(
+            (el) =>
+              parseInt(el.tags?.admin_level || '', 10) === cityAdminLevel + 1,
+          )
+          .map((el) => this.toCandidate(el))
+          .filter((c): c is OsmCandidate => c !== null),
+      };
     } catch (error: any) {
       this.logger.warn(
         `Overpass queryAdminBoundariesWithinArea failed for ${boundary.id}: ${error.message}`,
       );
-      return [];
+      return {
+        status: 'failed',
+        value: [],
+        failureReason: error.message || 'unknown Overpass error',
+      };
     }
   }
 
@@ -285,19 +329,32 @@ export class OsmPlacesService {
    * own to query against). Never throws.
    */
   async findStreetsWithin(boundary: OsmCandidate): Promise<OsmCandidate[]> {
+    return (await this.lookupStreetsWithin(boundary)).value;
+  }
+
+  async lookupStreetsWithin(
+    boundary: OsmCandidate,
+  ): Promise<OsmLookupResult<OsmCandidate[]>> {
     try {
       const elements = await this.overpassApi.queryStreetsWithinArea({
         osmType: boundary.osmType as 'way' | 'relation',
         osmId: boundary.osmId,
       });
-      return elements
-        .map((el) => this.toCandidate(el))
-        .filter((c): c is OsmCandidate => c !== null);
+      return {
+        status: 'success',
+        value: elements
+          .map((el) => this.toStreetCandidate(el))
+          .filter((c): c is OsmCandidate => c !== null),
+      };
     } catch (error: any) {
       this.logger.warn(
         `Overpass queryStreetsWithinArea failed for ${boundary.id}: ${error.message}`,
       );
-      return [];
+      return {
+        status: 'failed',
+        value: [],
+        failureReason: error.message || 'unknown Overpass error',
+      };
     }
   }
 
@@ -306,19 +363,32 @@ export class OsmPlacesService {
    * own polygon. Never throws.
    */
   async findPoisWithin(boundary: OsmCandidate): Promise<OsmCandidate[]> {
+    return (await this.lookupPoisWithin(boundary)).value;
+  }
+
+  async lookupPoisWithin(
+    boundary: OsmCandidate,
+  ): Promise<OsmLookupResult<OsmCandidate[]>> {
     try {
       const elements = await this.overpassApi.queryPoisWithinArea({
         osmType: boundary.osmType as 'way' | 'relation',
         osmId: boundary.osmId,
       });
-      return elements
-        .map((el) => this.toCandidate(el))
-        .filter((c): c is OsmCandidate => c !== null);
+      return {
+        status: 'success',
+        value: elements
+          .map((el) => this.toCandidate(el))
+          .filter((c): c is OsmCandidate => c !== null),
+      };
     } catch (error: any) {
       this.logger.warn(
         `Overpass queryPoisWithinArea failed for ${boundary.id}: ${error.message}`,
       );
-      return [];
+      return {
+        status: 'failed',
+        value: [],
+        failureReason: error.message || 'unknown Overpass error',
+      };
     }
   }
 }

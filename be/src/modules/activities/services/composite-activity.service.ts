@@ -94,6 +94,27 @@ export class CompositeActivityService {
     return source.id;
   }
 
+  /**
+   * Old catalog variants can predate pgvector (or have been created while
+   * the embedding provider was unavailable). Reuse must not leave those
+   * trusted composites permanently invisible to semantic ranking. The raw
+   * check is required because Prisma omits Unsupported(vector) fields from
+   * the generated Activity type.
+   */
+  private async ensureActivityEmbedding(activity: Activity): Promise<void> {
+    try {
+      const rows = await this.prisma.$queryRaw<
+        { hasEmbedding: boolean }[]
+      >`SELECT embedding IS NOT NULL AS "hasEmbedding" FROM "activity" WHERE id = ${activity.id}`;
+      if (rows[0]?.hasEmbedding) return;
+    } catch (error: any) {
+      this.logger.warn(
+        `Could not inspect embedding for reused variant ${activity.id}; attempting to rebuild it: ${error.message}`,
+      );
+    }
+    await this.vectorStoreService.saveActivityEmbedding([activity]);
+  }
+
   private centroidOfPoints(points: { latitude: number; longitude: number }[]): {
     latitude: number;
     longitude: number;
@@ -312,6 +333,7 @@ export class CompositeActivityService {
         this.logger.debug(
           `Reusing existing variant ${existing.id} (${externalId}) — not overwriting its content.`,
         );
+        await this.ensureActivityEmbedding(existing);
         return existing;
       }
       this.logger.debug(

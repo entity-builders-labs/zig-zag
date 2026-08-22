@@ -2,6 +2,7 @@ import { TourGenerationService } from './tour-generation.service';
 
 describe('TourGenerationService Groq prompt budget', () => {
   it('offers each candidate once and uses a completion budget below the provider TPM limit', async () => {
+    jest.useFakeTimers();
     const uniqueCandidateName = 'UNIQUE_MONTEVIDEO_CANDIDATE';
     const prisma = {
       tour: { findMany: jest.fn().mockResolvedValue([]) },
@@ -52,16 +53,21 @@ describe('TourGenerationService Groq prompt budget', () => {
       { generateTourActivities: jest.fn() } as any,
     );
 
-    await service.generateTour('Plan a grounded tour', {
-      latitude: -34.9,
-      longitude: -56.18,
-      includeExistingActivities: true,
-      skipActivities: true,
-    });
+    try {
+      await service.generateTour('Plan a grounded tour', {
+        latitude: -34.9,
+        longitude: -56.18,
+        includeExistingActivities: true,
+        skipActivities: true,
+      });
 
-    const [, userPrompt, , generationOptions] =
-      langChainService.generateChatResponse.mock.calls[0];
-    expect(userPrompt.split(uniqueCandidateName)).toHaveLength(2);
-    expect(generationOptions.groq.maxCompletionTokens).toBe(3000);
+      const [, userPrompt, , generationOptions] =
+        langChainService.generateChatResponse.mock.calls[0];
+      expect(userPrompt.split(uniqueCandidateName)).toHaveLength(2);
+      expect(generationOptions.groq.maxCompletionTokens).toBe(3000);
+      expect(jest.getTimerCount()).toBe(0);
+    } finally {
+      jest.useRealTimers();
+    }
   });
 });
