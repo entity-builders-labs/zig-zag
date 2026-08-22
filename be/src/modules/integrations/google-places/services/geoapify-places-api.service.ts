@@ -42,18 +42,22 @@ const TYPE_TO_GEOAPIFY_CATEGORIES: Record<string, string> = {
 const TEXT_SEARCH_KEYWORD_CATEGORIES: Array<{
   match: string;
   categories: string;
+  types: string[];
 }> = [
   {
     match: 'hikingtrail',
     categories: TYPE_TO_GEOAPIFY_CATEGORIES.hiking_trail,
+    types: ['hiking_trail'],
   },
   {
     match: 'naturalfeature',
     categories: TYPE_TO_GEOAPIFY_CATEGORIES.natural_feature,
+    types: ['natural_feature'],
   },
   {
     match: 'pointofinterest',
     categories: TYPE_TO_GEOAPIFY_CATEGORIES.point_of_interest,
+    types: ['tourist_attraction'],
   },
 ];
 
@@ -76,6 +80,7 @@ export class GeoapifyPlacesApiService implements IPlacesApiService {
   private readonly placesUrl = 'https://api.geoapify.com/v2/places';
   private readonly placeDetailsUrl =
     'https://api.geoapify.com/v2/place-details';
+  private readonly requestTimeoutMs = 5_000;
 
   constructor(private readonly configService: ConfigService) {}
 
@@ -170,6 +175,7 @@ export class GeoapifyPlacesApiService implements IPlacesApiService {
           limit: maxResultCount,
           apiKey,
         },
+        timeout: this.requestTimeoutMs,
       });
 
       const features: GeoapifyFeature[] = response.data?.features || [];
@@ -246,7 +252,7 @@ export class GeoapifyPlacesApiService implements IPlacesApiService {
       params.longitude,
       params.radius || 5000,
       params.maxResultCount || 20,
-      [],
+      match.types,
     );
   }
 
@@ -257,6 +263,7 @@ export class GeoapifyPlacesApiService implements IPlacesApiService {
       const apiKey = this.getApiKey();
       const response = await axios.get(this.placeDetailsUrl, {
         params: { id: placeId, apiKey },
+        timeout: this.requestTimeoutMs,
       });
 
       const p = response.data?.features?.[0]?.properties || {};

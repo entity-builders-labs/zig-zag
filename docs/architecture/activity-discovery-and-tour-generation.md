@@ -561,6 +561,13 @@ new domain entity and is not persisted as an Activity. Point-scale destinations
 use their own point as the single anchor; area-scale destinations use a bounded
 number to control latency, quotas, and cost.
 
+For an area-scale destination, 4-8 is the target range when that many real,
+shortlisted neighborhoods exist. The engine does not fabricate grid points or
+fake neighborhoods merely to reach four: it uses the authoritative anchors it
+has, adds the selected destination point only when it is inside the boundary,
+and falls back to one boundary-derived anchor when no child neighborhood is
+available. Every case remains subject to the same call and radius caps.
+
 ### Provider-operation zoom inside each anchor search
 
 The following diagram is a second-level zoom: each `Places search near ...`
@@ -584,11 +591,11 @@ flowchart TD
     F --> J
     H --> J
 
-    J --> K["Hard geographic validation<br/>finite coordinates + requested radius<br/>and destination boundary when available"]
-    K --> L["CatalogCandidateValidator<br/>name + provider ID + supported type<br/>business/quality rules"]
-    L --> M["Union all anchor results"]
+    J --> K["Per-operation hard validation<br/>finite coordinates + requested anchor radius"]
+    K --> M["Union all anchor results"]
     M --> N["Deduplicate<br/>provider + external ID"]
-    N --> O["Persist accepted real POIs"]
+    N --> L["CatalogCandidateValidator<br/>identity + destination boundary<br/>type + business + quality rules"]
+    L --> O["Persist accepted new real POIs"]
     O --> P["Return to the end-to-end flow<br/>re-query catalog"]
 ```
 
@@ -607,9 +614,57 @@ Operation semantics are deliberately not presented as equivalent:
   through Text Search, and provider failure does not automatically switch
   Google to Geoapify. Independent configured operations may still produce a
   truthful partial result.
+- The total call budget is shared across geography and requested categories:
+  the scheduler gives each selected category one operation per anchor before
+  spending calls on a second query for the same category. A multi-anchor
+  `history + food` refill therefore cannot consume its whole budget on
+  cultural queries before attempting food coverage.
 - If no valid candidate remains, any provider quota, rate-limit, strict-cache,
   or availability failure must remain visible; the engine must not rewrite it
   as "the destination has no places."
+
+### Catalog candidate validation contract
+
+`CatalogCandidateValidator` is the write gate for provider results. Free-form
+LLM output never passes through this path and cannot be persisted as a POI.
+A candidate is accepted only when every applicable rule below succeeds.
+
+| Rule | Rejection reason | Exact meaning |
+| --- | --- | --- |
+| Non-empty normalized name | `empty_name` | Unicode accents, case, punctuation, and repeated whitespace are normalized before checking. |
+| Non-generic identity | `generic_name` | Exact placeholder-like names such as `Arquitectura`, `Edificio`, `Monumento`, `Point of Interest`, `Unnamed Road`, or `Sin nombre` are not useful catalog entities. A real specific name containing one of those words is not rejected by this rule. |
+| Provider identity | `missing_provider_id` | A stable Google Place ID or Geoapify place ID is required so the same real entity can be deduplicated and traced. |
+| Valid coordinates | `invalid_coordinates` | Latitude and longitude must be finite and inside the legal WGS84 ranges. |
+| Anchor circle | `out_of_area` | Every Nearby or Text result must be inside the hard radius of the anchor that produced it. Text Search location bias alone is never trusted. |
+| Destination boundary | `outside_destination_boundary` | For an area-scale destination, the point must also be inside the authoritative Polygon or MultiPolygon, including hole handling. A high rating does not override this rule. |
+| Operating status | `permanently_closed` | Reject only provider statuses meaning that the business ceased operating permanently: Google `CLOSED_PERMANENTLY` or its normalized equivalent `PERMANENTLY_CLOSED`. This does **not** mean closed now, outside opening hours, a holiday, or a temporary closure. Schedule feasibility is a later tour-planning concern, not catalog identity validation. |
+| Supported semantic type | `unsupported_type` | At least one provider type must map to a supported catalog POI type such as museum, landmark, place of worship, park, food venue, or entertainment venue. |
+| Not an address feature | `address_only` | Results whose types are only street address, route, premise, postal code, intersection, neighborhood, locality, administrative area, or country are not materialized as POIs. OSM streets and areas follow the composite-activity path instead. |
+| Provider-specific evidence | `insufficient_quality` | Google requires review evidence or a trusted institutional type. Geoapify does not expose equivalent review counts, so it requires a supported mapped type plus a formatted address. |
+| Query quality threshold | `low_rating` | When the selected category has a configured minimum rating, a provider result with a lower rating is filtered before canonical validation. Missing ratings are not interpreted as a zero rating. |
+
+Deduplication by `provider + external ID` happens after the per-anchor circle
+check and before canonical validation. A duplicate contributes
+`duplicate_result`; an already persisted valid entity contributes
+`existing_activity`. Neither is a new catalog row. Operational conditions such
+as `provider_request_failed` and `refill_budget_exhausted` describe acquisition
+degradation, not bad places, and therefore remain separately visible.
+
+The generation trace reports the stages with deliberately different counters:
+
+- `received`: raw results returned across provider operations;
+- `deduplicated`: repeated provider identities removed after the union;
+- `validated`: unique candidates that passed the complete validation contract;
+- `accepted`/persisted: validated candidates that were actually new rows;
+- `embedded`: newly persisted Activities whose embedding write succeeded;
+- `rejectedCountByReason`: the reasons above, including operational reasons.
+
+One candidate can have multiple validation reasons, so the sum of the
+per-reason counters may exceed the number of rejected candidates. A failed
+embedding is reported truthfully and does not pretend that semantic ranking
+was available. Legacy rows already present in a disposable local database are
+not proof that the write gate failed: PR 3 prevents new invalid persistence;
+the later read-side eligibility gate handles pre-existing catalog data.
 
 ```text
 Catalog Refill finds conventional real POIs through Google Places.

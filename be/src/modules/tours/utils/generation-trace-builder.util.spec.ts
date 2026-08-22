@@ -146,6 +146,45 @@ describe('buildPlacesCrawlStep', () => {
     expect(step.summary).toContain('13 consulta(s) al proveedor fallaron');
     expect(step.summary).not.toContain('descartó 60');
   });
+
+  it('reports anchors, bounded provider calls, validation, deduplication and embeddings', () => {
+    const step = buildPlacesCrawlStep([], {
+      provider: 'google',
+      cacheStatus: 'miss-live',
+      requestedCount: 20,
+      receivedCount: 12,
+      acceptedCount: 5,
+      rejectedCount: 7,
+      validatedCount: 6,
+      deduplicatedCount: 2,
+      embeddedCount: 5,
+      providerCallCount: 4,
+      anchors: [
+        {
+          id: 'casco',
+          label: 'Casco Antiguo',
+          latitude: 1,
+          longitude: 2,
+          radiusMeters: 2500,
+        },
+        {
+          id: 'triana',
+          label: 'Triana',
+          latitude: 1,
+          longitude: 3,
+          radiusMeters: 2500,
+        },
+      ],
+      rejectedCountByReason: { duplicate_result: 2, existing_activity: 1 },
+    });
+
+    expect(step.summary).toContain('2 anchor(s): Casco Antiguo, Triana');
+    expect(step.summary).toContain('4 consulta(s) acotadas');
+    expect(step.summary).toContain('Validó 6');
+    expect(step.summary).toContain('2 duplicado(s)');
+    expect(step.summary).toContain('5 embedding(s)');
+    expect(step.summary).toContain('descartó 7');
+  });
 });
 
 describe('buildEmbeddingsStep', () => {

@@ -18,6 +18,7 @@ export class GooglePlacesApiService implements IPlacesApiService {
   readonly provider = 'google' as const;
   private readonly logger = new Logger(GooglePlacesApiService.name);
   private readonly baseUrl = 'https://places.googleapis.com/v1/places';
+  private readonly requestTimeoutMs = 5_000;
   private readonly quotaUnavailableUntil = new Map<PlacesApiOperation, Date>();
 
   constructor(private readonly configService: ConfigService) {}
@@ -156,6 +157,7 @@ export class GooglePlacesApiService implements IPlacesApiService {
       'places.nationalPhoneNumber',
       'places.priceLevel',
       'places.regularOpeningHours',
+      'places.businessStatus',
     ].join(',');
   }
 
@@ -191,6 +193,7 @@ export class GooglePlacesApiService implements IPlacesApiService {
           'X-Goog-Api-Key': apiKey,
           'X-Goog-FieldMask': this.getFieldMask(),
         },
+        timeout: this.requestTimeoutMs,
       });
 
       return this.result(
@@ -242,6 +245,7 @@ export class GooglePlacesApiService implements IPlacesApiService {
           'X-Goog-Api-Key': apiKey,
           'X-Goog-FieldMask': this.getFieldMask(),
         },
+        timeout: this.requestTimeoutMs,
       });
 
       return this.result(
@@ -274,6 +278,7 @@ export class GooglePlacesApiService implements IPlacesApiService {
           headers: {
             'X-Goog-Api-Key': apiKey,
           },
+          timeout: this.requestTimeoutMs,
         },
       );
 
@@ -314,6 +319,7 @@ export class GooglePlacesApiService implements IPlacesApiService {
       name: p.displayName?.text || p.displayName,
       priceLevel: p.priceLevel,
       openingHoursWeekdayText: p.regularOpeningHours?.weekdayDescriptions,
+      businessStatus: p.businessStatus,
     }));
   }
 }

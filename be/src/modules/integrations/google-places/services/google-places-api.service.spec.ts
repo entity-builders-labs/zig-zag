@@ -37,6 +37,7 @@ describe('GooglePlacesApiService', () => {
             id: 'google-place-1',
             displayName: { text: 'Museo de Arte' },
             location: { latitude: 1, longitude: 2 },
+            businessStatus: 'CLOSED_PERMANENTLY',
           },
         ],
       },
@@ -51,7 +52,21 @@ describe('GooglePlacesApiService', () => {
     });
 
     expect(result.data[0]).toEqual(
-      expect.objectContaining({ id: 'google-place-1', name: 'Museo de Arte' }),
+      expect.objectContaining({
+        id: 'google-place-1',
+        name: 'Museo de Arte',
+        businessStatus: 'CLOSED_PERMANENTLY',
+      }),
+    );
+    expect(mockedAxios.post).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.any(Object),
+      expect.objectContaining({
+        timeout: 5000,
+        headers: expect.objectContaining({
+          'X-Goog-FieldMask': expect.stringContaining('places.businessStatus'),
+        }),
+      }),
     );
     expect(result.provenance).toEqual({
       provider: 'google',

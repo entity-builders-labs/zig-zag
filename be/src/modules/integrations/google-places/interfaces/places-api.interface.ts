@@ -9,6 +9,7 @@ export interface PlaceData {
   websiteUri?: string;
   nationalPhoneNumber?: string;
   name?: string;
+  businessStatus?: string;
   // Google's New Places API returns a string enum, not the old numeric 0-4
   // price level — see priceLevelToNumber() in google-places.service.ts.
   priceLevel?: string;
@@ -76,6 +77,18 @@ export type PlacesApiErrorCode =
 
 export interface PlacesCrawlProvenance extends PlacesRequestProvenance {
   acceptedCount: number;
+  rejectedCount?: number;
+  validatedCount?: number;
+  deduplicatedCount?: number;
+  embeddedCount?: number;
+  providerCallCount?: number;
+  anchors?: Array<{
+    id: string;
+    label: string;
+    latitude: number;
+    longitude: number;
+    radiusMeters: number;
+  }>;
   rejectedCountByReason: Record<string, number>;
 }
 

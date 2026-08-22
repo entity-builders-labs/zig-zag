@@ -3,6 +3,7 @@ import {
   IPlacesApiService,
   PlacesApiRequestError,
 } from './interfaces/places-api.interface';
+import { CatalogCandidateValidatorService } from '@activities/services/catalog-candidate-validator.service';
 
 function placesApi(provider: 'google' | 'geoapify'): IPlacesApiService {
   const provenance = {
@@ -42,15 +43,14 @@ function buildService(api: IPlacesApiService) {
     activity: { findFirst: jest.fn().mockResolvedValue(null) },
   };
   const activities = { create: jest.fn() };
-  const ai = { generateCompletionResponse: jest.fn() };
   const vectors = { saveActivityEmbedding: jest.fn() };
 
   return {
     service: new GooglePlacesService(
       prisma as any,
       activities as any,
-      ai as any,
       vectors as any,
+      new CatalogCandidateValidatorService(),
       api,
     ),
     prisma,
@@ -182,7 +182,7 @@ describe('GooglePlacesService provider provenance', () => {
     expect(result.fromCache).toBe(true);
   });
 
-  it('keeps successful Google Text Search results when Nearby quota is exhausted', async () => {
+  it('keeps an independent configured Text Search result when a Nearby operation exhausts quota', async () => {
     const api = placesApi('google');
     const quotaError = new PlacesApiRequestError(
       'daily quota exhausted',
@@ -204,6 +204,7 @@ describe('GooglePlacesService provider provenance', () => {
             id: 'google-landmark-1',
             name: 'Historic Landmark',
             rating: 4.8,
+            userRatingCount: 100,
             types: ['tourist_attraction'],
             location: { latitude: 1, longitude: 2 },
           },
@@ -243,7 +244,7 @@ describe('GooglePlacesService provider provenance', () => {
     );
   });
 
-  it('preserves the quota error when fallback searches return no valid candidates', async () => {
+  it('preserves the quota error when independent operations return no valid candidates', async () => {
     const api = placesApi('google');
     const quotaError = new PlacesApiRequestError(
       'daily quota exhausted',
@@ -268,5 +269,245 @@ describe('GooglePlacesService provider provenance', () => {
         radius: 1000,
       }),
     ).rejects.toMatchObject({ code: 'quota_exhausted' });
+  });
+
+  it('searches representative anchors and deduplicates the same provider identity before persistence', async () => {
+    const api = placesApi('google');
+    (api.searchNearby as jest.Mock).mockImplementation(async (params) => ({
+      data: [
+        {
+          id: 'shared-place',
+          name: 'Museo compartido',
+          rating: 4.8,
+          userRatingCount: 250,
+          types: ['museum'],
+          formattedAddress: 'Centro, Sevilla',
+          location: {
+            latitude: params.latitude,
+            longitude: params.longitude,
+          },
+        },
+      ],
+      provenance: {
+        provider: 'google',
+        cacheStatus: 'miss-live',
+        requestedCount: 5,
+        receivedCount: 1,
+      },
+    }));
+    const { service, activities } = buildService(api);
+    activities.create.mockResolvedValue({ id: 'activity-1' });
+
+    const result = await service.crawlAndSaveActivities(
+      { latitude: 37.39, longitude: -5.99, radius: 5000 },
+      {
+        requestedInterests: ['history'],
+        maxProviderCalls: 2,
+        maxResultsPerCall: 5,
+        anchors: [
+          {
+            id: 'casco',
+            label: 'Casco Antiguo',
+            latitude: 37.39,
+            longitude: -5.99,
+            radiusMeters: 2500,
+          },
+          {
+            id: 'triana',
+            label: 'Triana',
+            latitude: 37.39,
+            longitude: -6.0,
+            radiusMeters: 2500,
+          },
+        ],
+      },
+    );
+
+    expect(api.searchNearby).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({ latitude: 37.39, longitude: -5.99 }),
+    );
+    expect(api.searchNearby).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({ latitude: 37.39, longitude: -6.0 }),
+    );
+    expect(activities.create).toHaveBeenCalledTimes(1);
+    expect(result.provenance).toEqual(
+      expect.objectContaining({
+        providerCallCount: 2,
+        receivedCount: 2,
+        validatedCount: 1,
+        deduplicatedCount: 1,
+        acceptedCount: 1,
+        embeddedCount: 1,
+      }),
+    );
+    expect(result.provenance.rejectedCountByReason.duplicate_result).toBe(1);
+  });
+
+  it('rejects empty names and never sends them to ActivitiesService.create', async () => {
+    const api = placesApi('google');
+    (api.searchNearby as jest.Mock).mockResolvedValueOnce({
+      data: [
+        {
+          id: 'blank-name',
+          name: '   ',
+          types: ['museum'],
+          formattedAddress: 'Sevilla',
+          location: { latitude: 37.39, longitude: -5.99 },
+        },
+      ],
+      provenance: {
+        provider: 'google',
+        cacheStatus: 'miss-live',
+        requestedCount: 5,
+        receivedCount: 1,
+      },
+    });
+    const { service, activities } = buildService(api);
+
+    const result = await service.crawlAndSaveActivities(
+      { latitude: 37.39, longitude: -5.99, radius: 2000 },
+      { requestedInterests: ['history'], maxProviderCalls: 1 },
+    );
+
+    expect(activities.create).not.toHaveBeenCalled();
+    expect(result.provenance.rejectedCountByReason.empty_name).toBe(1);
+    expect(result.provenance.acceptedCount).toBe(0);
+  });
+
+  it('rejects a provider-confirmed permanent closure before persistence', async () => {
+    const api = placesApi('google');
+    (api.searchNearby as jest.Mock).mockResolvedValueOnce({
+      data: [
+        {
+          id: 'closed-museum',
+          name: 'Museo cerrado definitivamente',
+          types: ['museum'],
+          formattedAddress: 'Sevilla',
+          businessStatus: 'CLOSED_PERMANENTLY',
+          location: { latitude: 37.39, longitude: -5.99 },
+        },
+      ],
+      provenance: {
+        provider: 'google',
+        cacheStatus: 'miss-live',
+        requestedCount: 5,
+        receivedCount: 1,
+      },
+    });
+    const { service, activities } = buildService(api);
+
+    const result = await service.crawlAndSaveActivities(
+      { latitude: 37.39, longitude: -5.99, radius: 2000 },
+      { requestedInterests: ['history'], maxProviderCalls: 1 },
+    );
+
+    expect(activities.create).not.toHaveBeenCalled();
+    expect(result.provenance.rejectedCountByReason.permanently_closed).toBe(1);
+  });
+
+  it('rejects a high-rated result outside the destination boundary', async () => {
+    const api = placesApi('google');
+    (api.searchNearby as jest.Mock).mockResolvedValueOnce({
+      data: [
+        {
+          id: 'outside-city',
+          name: 'Famous Museum Outside',
+          rating: 5,
+          userRatingCount: 5000,
+          types: ['museum'],
+          formattedAddress: 'Outside',
+          location: { latitude: 1.01, longitude: 0.99 },
+        },
+      ],
+      provenance: {
+        provider: 'google',
+        cacheStatus: 'miss-live',
+        requestedCount: 5,
+        receivedCount: 1,
+      },
+    });
+    const { service, activities } = buildService(api);
+
+    const result = await service.crawlAndSaveActivities(
+      { latitude: 0.99, longitude: 0.99, radius: 5000 },
+      {
+        requestedInterests: ['history'],
+        maxProviderCalls: 1,
+        destinationBoundary: {
+          type: 'Polygon',
+          coordinates: [
+            [
+              [0, 0],
+              [1, 0],
+              [1, 1],
+              [0, 1],
+              [0, 0],
+            ],
+          ],
+        },
+      },
+    );
+
+    expect(activities.create).not.toHaveBeenCalled();
+    expect(
+      result.provenance.rejectedCountByReason.outside_destination_boundary,
+    ).toBe(1);
+  });
+
+  it('uses requested interests to avoid unrelated category calls', async () => {
+    const api = placesApi('google');
+    const { service } = buildService(api);
+
+    await service.crawlAndSaveActivities(
+      { latitude: 1, longitude: 2, radius: 1000 },
+      {
+        requestedInterests: ['food'],
+        maxProviderCalls: 2,
+      },
+    );
+
+    const requestedTypes = (api.searchNearby as jest.Mock).mock.calls.map(
+      ([params]) => params.includedTypes[0],
+    );
+    expect(requestedTypes).toEqual(['restaurant', 'cafe']);
+  });
+
+  it('shares a bounded multi-anchor budget across every requested category', async () => {
+    const api = placesApi('google');
+    const { service } = buildService(api);
+    const anchors = ['casco', 'triana', 'macarena', 'remedios'].map(
+      (id, index) => ({
+        id,
+        label: id,
+        latitude: 37.37 + index * 0.01,
+        longitude: -6,
+        radiusMeters: 2000,
+      }),
+    );
+
+    await service.crawlAndSaveActivities(
+      { latitude: 37.39, longitude: -5.99, radius: 5000 },
+      {
+        requestedInterests: ['history', 'food'],
+        anchors,
+        maxProviderCalls: 8,
+      },
+    );
+
+    const requestedTypes = (api.searchNearby as jest.Mock).mock.calls.map(
+      ([params]) => params.includedTypes[0],
+    );
+    expect(requestedTypes).toEqual([
+      'tourist_attraction',
+      'restaurant',
+      'tourist_attraction',
+      'restaurant',
+      'tourist_attraction',
+      'restaurant',
+      'tourist_attraction',
+      'restaurant',
+    ]);
   });
 });

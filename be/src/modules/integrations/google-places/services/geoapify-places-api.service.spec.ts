@@ -49,6 +49,7 @@ describe('GeoapifyPlacesApiService', () => {
             limit: 10,
             apiKey: 'test-api-key',
           },
+          timeout: 5000,
         },
       );
     });

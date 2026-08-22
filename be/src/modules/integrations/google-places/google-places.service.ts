@@ -3,7 +3,6 @@ import { CrawlLocationDto } from './dto/crawl-location.dto';
 import { GooglePlaceDetails } from '../../activities/interfaces/google-places.interface';
 import { ActivitiesService } from '../../activities/services/activities.service';
 import { CreateActivityDto } from '../../activities/dto/create-activity.dto';
-import { LangChainService } from '../../../shared/ai/langchain.service';
 import { PrismaService } from '../../../core/database/prisma.service';
 import {
   IPlacesApiService,
@@ -18,6 +17,8 @@ import {
 import { VectorStoreService } from 'src/shared/ai/services/vector-store.service';
 import { priceLevelToNumber } from './utils/price-level.util';
 import { calculateDistance } from 'src/shared/utils/distance.utils';
+import { CatalogCandidateValidatorService } from '@activities/services/catalog-candidate-validator.service';
+import { GeoJsonGeometry } from '@integrations/osm/utils/osm-geometry.util';
 
 interface PlaceWithMetadata extends GooglePlaceDetails {
   name: string;
@@ -39,10 +40,74 @@ export interface PlacesCrawlResult {
   provenance: PlacesCrawlProvenance;
 }
 
-const placesToSearch = [
+export interface PlacesCrawlAnchor {
+  id: string;
+  label: string;
+  latitude: number;
+  longitude: number;
+  radiusMeters: number;
+}
+
+export interface PlacesCrawlOptions {
+  anchors?: PlacesCrawlAnchor[];
+  destinationBoundary?: GeoJsonGeometry;
+  requestedInterests?: string[];
+  maxProviderCalls?: number;
+  maxResultsPerCall?: number;
+  totalBudgetMs?: number;
+}
+
+interface CatalogSearchConfig {
+  type: string;
+  keyword: string;
+  minRating: number;
+  preferredTime: string;
+}
+
+interface CatalogSearchGroup {
+  category: string;
+  searches: CatalogSearchConfig[];
+}
+
+const MAX_PROVIDER_CALLS = 12;
+const MAX_RESULTS_PER_CALL = 10;
+const TOTAL_REFILL_BUDGET_MS = 20_000;
+const MAX_ANCHORS = 8;
+
+const TEXT_SEARCH_TYPES = new Set([
+  'point_of_interest',
+  'natural_feature',
+  'hiking_trail',
+]);
+
+const INTEREST_CATEGORIES: Record<string, string> = {
+  history: 'cultural',
+  culture: 'cultural',
+  art: 'cultural',
+  architecture: 'cultural',
+  photography: 'cultural',
+  nature: 'outdoor',
+  outdoor: 'outdoor',
+  beach: 'outdoor',
+  hiking: 'outdoor',
+  food: 'food',
+  gastronomy: 'food',
+  nightlife: 'nightlife',
+  music: 'nightlife',
+  entertainment: 'entertainment',
+  family: 'entertainment',
+};
+
+const placesToSearch: CatalogSearchGroup[] = [
   {
     category: 'cultural',
     searches: [
+      {
+        type: 'tourist_attraction',
+        keyword: 'historic cultural landmark',
+        minRating: 4.0,
+        preferredTime: 'day',
+      },
       {
         type: 'museum',
         keyword: 'art history culture',
@@ -52,12 +117,6 @@ const placesToSearch = [
       {
         type: 'art_gallery',
         keyword: 'contemporary modern art',
-        minRating: 4.0,
-        preferredTime: 'day',
-      },
-      {
-        type: 'tourist_attraction',
-        keyword: 'historic cultural landmark',
         minRating: 4.0,
         preferredTime: 'day',
       },
@@ -177,6 +236,9 @@ const ActivityTypes = {
       'art_gallery',
       'tourist_attraction',
       'historical_landmark',
+      'historical_place',
+      'church',
+      'place_of_worship',
     ],
     defaultDuration: 2.5,
     icon: '🏛️',
@@ -226,8 +288,8 @@ export class GooglePlacesService implements OnModuleInit {
   constructor(
     private readonly prisma: PrismaService,
     private readonly activitiesService: ActivitiesService,
-    private readonly aiService: LangChainService,
     private readonly vectorStoreService: VectorStoreService,
+    private readonly catalogCandidateValidator: CatalogCandidateValidatorService,
     @Inject('PlacesApiService') private readonly placesApi: IPlacesApiService,
   ) {}
 
@@ -340,62 +402,10 @@ export class GooglePlacesService implements OnModuleInit {
     return null;
   }
 
-  /**
-   * Classify a place into a canonical activity category using AI as a fallback
-   * when the static Google-types mapping does not yield a match.
-   * Returns one of: "cultural", "outdoor", "entertainment", "food", "nightlife".
-   */
-  private async classifyActivityCategoryWithAI(place: {
-    name?: string;
-    types?: string[];
-    formattedAddress?: string;
-    website?: string;
-    rating?: number;
-  }): Promise<string | null> {
-    try {
-      // If AI is not configured or fails, we'll just return null and let callers default
-      const categories = [
-        'cultural',
-        'outdoor',
-        'entertainment',
-        'food',
-        'nightlife',
-      ];
-      const prompt = `Given the following place data, choose the single best category from this exact set: cultural | outdoor | entertainment | food | nightlife.
-
-Place JSON:
-{placeJson}
-
-Answer ONLY with one word from the set above, no punctuation, no explanation.`;
-
-      const response = await this.aiService.generateCompletionResponse(prompt, {
-        placeJson: JSON.stringify(place),
-      } as any);
-
-      const normalized = String(response || '')
-        .trim()
-        .toLowerCase();
-      if (categories.includes(normalized)) return normalized;
-      // Sometimes models add quotes or periods
-      const cleaned = normalized.replace(/[^a-z]/g, '');
-      if (categories.includes(cleaned)) return cleaned;
-      return null;
-    } catch {
-      this.logger.warn(
-        'AI category classification failed; falling back to defaults',
-      );
-      return null;
-    }
-  }
-
   async searchNearbyPlaces(
     dto: CrawlLocationDto,
-    searchConfig: {
-      type: string;
-      keyword: string;
-      minRating: number;
-      preferredTime: string;
-    },
+    searchConfig: CatalogSearchConfig,
+    maxResultCount = MAX_RESULTS_PER_CALL,
   ) {
     this.logger.debug('Iniciando búsqueda de lugares cercanos');
     this.logger.debug(
@@ -404,13 +414,7 @@ Answer ONLY with one word from the set above, no punctuation, no explanation.`;
     );
 
     try {
-      const unsupportedTypes = new Set<string>([
-        'point_of_interest',
-        'natural_feature',
-        'hiking_trail',
-      ]);
-
-      const useTextSearch = unsupportedTypes.has(searchConfig.type);
+      const useTextSearch = TEXT_SEARCH_TYPES.has(searchConfig.type);
 
       let placesData: any[] = [];
       let requestProvenance!: PlacesRequestProvenance;
@@ -418,7 +422,7 @@ Answer ONLY with one word from the set above, no punctuation, no explanation.`;
       if (!useTextSearch) {
         // NEW Places API (v1) nearby search using includedTypes via IPlacesApiService
         const result = await this.placesApi.searchNearby({
-          maxResultCount: 20,
+          maxResultCount,
           includedTypes: [searchConfig.type],
           rankPreference: 'DISTANCE',
           latitude: dto.latitude,
@@ -433,7 +437,7 @@ Answer ONLY with one word from the set above, no punctuation, no explanation.`;
           `${searchConfig.type.replace('_', ' ')} ${searchConfig.keyword}`.trim();
         const result = await this.placesApi.searchText({
           textQuery: query,
-          maxResultCount: 20,
+          maxResultCount,
           latitude: dto.latitude,
           longitude: dto.longitude,
           radius: dto.radius || this.SEARCH_RADIUS,
@@ -493,7 +497,7 @@ Answer ONLY with one word from the set above, no punctuation, no explanation.`;
             rating: place.rating,
             reviews: place.userRatingCount,
             priceLevel: priceLevelToNumber(place.priceLevel),
-            businessStatus: undefined,
+            businessStatus: place.businessStatus,
             photos: [],
             // Google returns hours on the initial search result; Geoapify
             // only returns them on Place Details (`details`), not here.
@@ -585,159 +589,304 @@ Answer ONLY with one word from the set above, no punctuation, no explanation.`;
     }
   }
 
+  private selectSearches(requestedInterests?: string[]): Array<{
+    category: string;
+    search: CatalogSearchConfig;
+  }> {
+    const requestedCategories = new Set(
+      (requestedInterests ?? [])
+        .map((interest) => INTEREST_CATEGORIES[interest.trim().toLowerCase()])
+        .filter((category): category is string => !!category),
+    );
+    const categories =
+      requestedCategories.size > 0
+        ? requestedCategories
+        : new Set(['cultural', 'outdoor', 'food']);
+
+    const seenOperations = new Set<string>();
+    const searches: Array<{
+      category: string;
+      search: CatalogSearchConfig;
+    }> = [];
+    for (const group of placesToSearch) {
+      if (!categories.has(group.category)) continue;
+      for (const search of group.searches) {
+        // Nearby ignores the keyword, so two restaurant keyword variants are
+        // the same provider operation. Text Search keeps its configured query.
+        const key = TEXT_SEARCH_TYPES.has(search.type)
+          ? `text:${search.type}:${search.keyword}`
+          : `nearby:${search.type}`;
+        if (seenOperations.has(key)) continue;
+        seenOperations.add(key);
+        searches.push({ category: group.category, search });
+      }
+    }
+    return searches;
+  }
+
+  private buildSearchOperations(
+    anchors: PlacesCrawlAnchor[],
+    requestedInterests: string[] | undefined,
+    maxProviderCalls: number,
+  ): Array<{
+    anchor: PlacesCrawlAnchor;
+    category: string;
+    search: CatalogSearchConfig;
+  }> {
+    const operations: Array<{
+      anchor: PlacesCrawlAnchor;
+      category: string;
+      search: CatalogSearchConfig;
+    }> = [];
+    const searchesByCategory = new Map<
+      string,
+      Array<{ category: string; search: CatalogSearchConfig }>
+    >();
+    for (const selected of this.selectSearches(requestedInterests)) {
+      const categorySearches = searchesByCategory.get(selected.category) ?? [];
+      categorySearches.push(selected);
+      searchesByCategory.set(selected.category, categorySearches);
+    }
+
+    const maxCategoryDepth = Math.max(
+      0,
+      ...Array.from(searchesByCategory.values()).map(
+        (searches) => searches.length,
+      ),
+    );
+    for (let depth = 0; depth < maxCategoryDepth; depth++) {
+      for (const anchor of anchors) {
+        for (const categorySearches of searchesByCategory.values()) {
+          const selected = categorySearches[depth];
+          if (!selected) continue;
+          if (operations.length >= maxProviderCalls) return operations;
+          operations.push({ anchor, ...selected });
+        }
+      }
+    }
+    return operations;
+  }
+
+  private incrementRejection(
+    provenance: PlacesCrawlProvenance,
+    reason: string,
+    count = 1,
+    countAsCandidate = true,
+  ): void {
+    provenance.rejectedCountByReason[reason] =
+      (provenance.rejectedCountByReason[reason] ?? 0) + count;
+    if (countAsCandidate) {
+      provenance.rejectedCount = (provenance.rejectedCount ?? 0) + count;
+    }
+  }
+
   async crawlAndSaveActivities(
     dto: CrawlLocationDto,
+    options: PlacesCrawlOptions = {},
   ): Promise<PlacesCrawlResult> {
     const status = this.getProviderStatus();
+    const anchors = (
+      options.anchors?.length
+        ? options.anchors
+        : [
+            {
+              id: 'destination-point',
+              label: 'Destination point',
+              latitude: dto.latitude,
+              longitude: dto.longitude,
+              radiusMeters: Math.min(dto.radius || this.SEARCH_RADIUS, 5_000),
+            },
+          ]
+    ).slice(0, MAX_ANCHORS);
     const provenance: PlacesCrawlProvenance = {
       provider: status.provider,
       cacheStatus: status.cacheEnabled ? 'hit' : 'miss-live',
       requestedCount: 0,
       receivedCount: 0,
       acceptedCount: 0,
+      rejectedCount: 0,
+      validatedCount: 0,
+      deduplicatedCount: 0,
+      embeddedCount: 0,
+      providerCallCount: 0,
+      anchors: anchors.map((anchor) => ({ ...anchor })),
       rejectedCountByReason: {},
     };
 
     try {
       await this.ensureKnownActivityTypes();
       const sourceId = await this.ensurePlacesSource();
-      const allPlaces: Array<CreateActivityDto> = [];
+      const allPlaces: Array<{
+        place: PlaceWithMetadata;
+        category: string;
+      }> = [];
       let firstRequestError: PlacesApiRequestError | null = null;
+      const maxProviderCalls = Math.max(
+        1,
+        Math.min(
+          options.maxProviderCalls ?? MAX_PROVIDER_CALLS,
+          MAX_PROVIDER_CALLS,
+        ),
+      );
+      const maxResultsPerCall = Math.max(
+        1,
+        Math.min(
+          options.maxResultsPerCall ?? MAX_RESULTS_PER_CALL,
+          MAX_RESULTS_PER_CALL,
+        ),
+      );
+      const totalBudgetMs = Math.max(
+        1_000,
+        Math.min(
+          options.totalBudgetMs ?? TOTAL_REFILL_BUDGET_MS,
+          TOTAL_REFILL_BUDGET_MS,
+        ),
+      );
+      const operations = this.buildSearchOperations(
+        anchors,
+        options.requestedInterests,
+        maxProviderCalls,
+      );
+      const startedAt = Date.now();
 
-      for (const categoryGroup of placesToSearch.map((group) => group)) {
-        this.logger.debug(`Processing category: ${categoryGroup.category}`);
-
-        for (const search of categoryGroup.searches) {
-          this.logger.debug(`Processing search type: ${search.type}`);
-
-          let nextPageToken: string | null = null;
-          do {
-            let searchResult;
-            try {
-              searchResult = await this.searchNearbyPlaces(
-                {
-                  ...dto,
-                  pageToken: nextPageToken,
-                },
-                search,
-              );
-            } catch (error) {
-              if (!(error instanceof PlacesApiRequestError)) throw error;
-
-              firstRequestError ??= error;
-              this.addRequestProvenance(provenance, error.provenance);
-              provenance.rejectedCountByReason.provider_request_failed =
-                (provenance.rejectedCountByReason.provider_request_failed ??
-                  0) + 1;
-              this.logger.warn(
-                `Skipping failed ${error.operation ?? 'Places'} request (${error.code}) and continuing catalog refill.`,
-              );
-              break;
-            }
-
-            const {
-              places,
-              nextPageToken: newNextPageToken,
-              provenance: requestProvenance,
-              rejectedCountByReason,
-            } = searchResult;
-
-            this.addRequestProvenance(provenance, requestProvenance);
-            for (const [reason, count] of Object.entries(
-              rejectedCountByReason,
-            )) {
-              provenance.rejectedCountByReason[reason] =
-                (provenance.rejectedCountByReason[reason] ?? 0) + count;
-            }
-
-            const processedPlaces = [];
-            for (const place of places) {
-              // 1) Try static mapping from Google types
-              const mapped = this.findMatchingActivityType(place.types || []);
-
-              // 2) If not mapped, ask AI to classify into canonical category
-              let categoryName = mapped?.name;
-              if (!categoryName) {
-                categoryName = await this.classifyActivityCategoryWithAI({
-                  name: place.name,
-                  types: place.types,
-                  formattedAddress: place.address,
-                  website: place.website,
-                  rating: place.rating,
-                });
-              }
-
-              // 3) Final fallback: use the configured search group category
-              if (!categoryName) {
-                categoryName = String(categoryGroup.category).toLowerCase();
-              }
-
-              const defaultDurationsByCategory: Record<string, number> = {
-                cultural: ActivityTypes.CULTURAL.defaultDuration,
-                outdoor: ActivityTypes.OUTDOOR.defaultDuration,
-                entertainment: ActivityTypes.ENTERTAINMENT.defaultDuration,
-                food: ActivityTypes.FOOD.defaultDuration,
-                nightlife: ActivityTypes.NIGHTLIFE.defaultDuration,
-              } as const;
-
-              const duration =
-                mapped?.duration ??
-                defaultDurationsByCategory[categoryName] ??
-                2.0;
-
-              processedPlaces.push({
-                name: place.name,
-                description: place.website,
-                type: categoryName,
-                duration,
-                price: place.priceLevel ? place.priceLevel * 10 : 0,
-                maxGroupSize: 15,
-                latitude: place.location.latitude,
-                longitude: place.location.longitude,
-                rating: place.rating,
-                ratingCount: place.reviews,
-                formattedAddress: place.address,
-                phoneNumber: place.phoneNumber,
-                website: place.website,
-                businessStatus: place.businessStatus,
-                priceLevel: place.priceLevel,
-                openingHours: place.openingHours,
-                knownActivityTypeName: categoryName,
-                location: place.location,
-                createdAt: new Date(),
-                updatedAt: new Date(),
-                sourceId: sourceId,
-                externalId: place.placeId,
-                metadata: {
-                  activityId: place.placeId,
-                  placesProvider: this.placesApi.provider,
-                  providerTypes: place.types || [],
-                  preferredTime: (place as any).metadata?.preferredTime,
-                },
-              } as CreateActivityDto);
-            }
-
-            allPlaces.push(...processedPlaces);
-            nextPageToken = newNextPageToken;
-
-            if (nextPageToken) {
-              await new Promise((resolve) => setTimeout(resolve, 2000));
-            }
-          } while (nextPageToken);
+      for (const operation of operations) {
+        if (Date.now() - startedAt >= totalBudgetMs) {
+          this.incrementRejection(
+            provenance,
+            'refill_budget_exhausted',
+            1,
+            false,
+          );
+          break;
+        }
+        provenance.providerCallCount = (provenance.providerCallCount ?? 0) + 1;
+        try {
+          const searchResult = await this.searchNearbyPlaces(
+            {
+              ...dto,
+              latitude: operation.anchor.latitude,
+              longitude: operation.anchor.longitude,
+              radius: operation.anchor.radiusMeters,
+            },
+            operation.search,
+            maxResultsPerCall,
+          );
+          this.addRequestProvenance(provenance, searchResult.provenance);
+          for (const [reason, count] of Object.entries(
+            searchResult.rejectedCountByReason,
+          )) {
+            this.incrementRejection(provenance, reason, count);
+          }
+          allPlaces.push(
+            ...searchResult.places.map((place) => ({
+              place,
+              category: operation.category,
+            })),
+          );
+        } catch (error) {
+          if (!(error instanceof PlacesApiRequestError)) throw error;
+          firstRequestError ??= error;
+          this.addRequestProvenance(provenance, error.provenance);
+          this.incrementRejection(
+            provenance,
+            'provider_request_failed',
+            1,
+            false,
+          );
+          this.logger.warn(
+            `Skipping failed ${error.operation ?? 'Places'} request (${error.code}) and continuing catalog refill.`,
+          );
         }
       }
 
-      // A successful secondary operation with no geographically valid
-      // candidates does not erase the primary provider degradation. Preserve
-      // the real failure instead of later claiming that the destination has no
-      // places at all.
-      if (allPlaces.length === 0 && firstRequestError) {
+      const uniquePlaces = new Map<
+        string,
+        { place: PlaceWithMetadata; category: string }
+      >();
+      for (const entry of allPlaces) {
+        const identity = `${this.placesApi.provider}:${entry.place.placeId}`;
+        if (uniquePlaces.has(identity)) {
+          provenance.deduplicatedCount =
+            (provenance.deduplicatedCount ?? 0) + 1;
+          this.incrementRejection(provenance, 'duplicate_result');
+          continue;
+        }
+        uniquePlaces.set(identity, entry);
+      }
+
+      const defaultDurationsByCategory: Record<string, number> = {
+        cultural: ActivityTypes.CULTURAL.defaultDuration,
+        outdoor: ActivityTypes.OUTDOOR.defaultDuration,
+        entertainment: ActivityTypes.ENTERTAINMENT.defaultDuration,
+        food: ActivityTypes.FOOD.defaultDuration,
+        nightlife: ActivityTypes.NIGHTLIFE.defaultDuration,
+      };
+
+      const validatedPlaces: CreateActivityDto[] = [];
+      for (const { place, category } of uniquePlaces.values()) {
+        const mapped = this.findMatchingActivityType(place.types || []);
+        const categoryName = mapped?.name ?? category;
+        const candidate: CreateActivityDto = {
+          name: place.name,
+          description: place.website,
+          type: categoryName,
+          duration:
+            mapped?.duration ?? defaultDurationsByCategory[categoryName] ?? 2.0,
+          price: place.priceLevel ? place.priceLevel * 10 : 0,
+          maxGroupSize: 15,
+          latitude: place.location.latitude,
+          longitude: place.location.longitude,
+          rating: place.rating,
+          ratingCount: place.reviews,
+          formattedAddress: place.address,
+          phoneNumber: place.phoneNumber,
+          website: place.website,
+          businessStatus: place.businessStatus,
+          priceLevel: place.priceLevel,
+          openingHours: place.openingHours,
+          knownActivityTypeName: categoryName,
+          location: place.location,
+          sourceId,
+          externalId: place.placeId,
+          metadata: {
+            activityId: place.placeId,
+            placesProvider: this.placesApi.provider,
+            providerTypes: place.types || [],
+            preferredTime: place.metadata?.preferredTime,
+          },
+        };
+        const validation = this.catalogCandidateValidator.validate(
+          {
+            provider: this.placesApi.provider,
+            externalId: candidate.externalId,
+            name: candidate.name,
+            latitude: candidate.latitude,
+            longitude: candidate.longitude,
+            providerTypes: place.types || [],
+            formattedAddress: candidate.formattedAddress,
+            businessStatus: candidate.businessStatus,
+            rating: candidate.rating,
+            ratingCount: candidate.ratingCount,
+          },
+          { destinationBoundary: options.destinationBoundary },
+        );
+        if (!validation.accepted) {
+          provenance.rejectedCount = (provenance.rejectedCount ?? 0) + 1;
+          for (const reason of validation.rejectionReasons) {
+            this.incrementRejection(provenance, reason, 1, false);
+          }
+          continue;
+        }
+        provenance.validatedCount = (provenance.validatedCount ?? 0) + 1;
+        validatedPlaces.push(candidate);
+      }
+
+      if (validatedPlaces.length === 0 && firstRequestError) {
         throw firstRequestError;
       }
 
       const activities = [];
-      for (const place of allPlaces) {
-        // Since sourceId and externalId are now optional, check if activity exists differently
+      for (const place of validatedPlaces) {
         const placeExist = await this.prisma.activity.findFirst({
           where: {
             sourceId: sourceId,
@@ -746,8 +895,7 @@ Answer ONLY with one word from the set above, no punctuation, no explanation.`;
         });
 
         if (placeExist) {
-          provenance.rejectedCountByReason.existing_activity =
-            (provenance.rejectedCountByReason.existing_activity ?? 0) + 1;
+          this.incrementRejection(provenance, 'existing_activity');
           continue;
         }
 
@@ -761,6 +909,7 @@ Answer ONLY with one word from the set above, no punctuation, no explanation.`;
       if (activities.length > 0) {
         try {
           await this.vectorStoreService.saveActivityEmbedding(activities);
+          provenance.embeddedCount = activities.length;
         } catch (error) {
           // Log error but don't fail the entire crawling process
           this.logger.error(

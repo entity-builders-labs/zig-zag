@@ -64,23 +64,36 @@ export function buildPlacesCrawlStep(
         : 'live provider call';
   const providerRequestFailures =
     provenance.rejectedCountByReason.provider_request_failed ?? 0;
-  const rejectedCandidateCount = Object.entries(
-    provenance.rejectedCountByReason,
-  ).reduce(
-    (sum, [reason, count]) =>
-      reason === 'provider_request_failed' ? sum : sum + count,
-    0,
-  );
+  const rejectedCandidateCount =
+    provenance.rejectedCount ??
+    Object.entries(provenance.rejectedCountByReason).reduce(
+      (sum, [reason, count]) =>
+        reason === 'provider_request_failed' ? sum : sum + count,
+      0,
+    );
   const requestFailureSuffix = providerRequestFailures
     ? ` Además, ${providerRequestFailures} consulta(s) al proveedor fallaron.`
     : '';
+  const anchorSummary = provenance.anchors?.length
+    ? ` Usó ${provenance.anchors.length} anchor(s): ${provenance.anchors
+        .map((anchor) => anchor.label)
+        .join(', ')}.`
+    : '';
+  const validationSummary =
+    provenance.validatedCount !== undefined
+      ? ` Validó ${provenance.validatedCount}, eliminó ${provenance.deduplicatedCount ?? 0} duplicado(s) e indexó ${provenance.embeddedCount ?? 0} embedding(s).`
+      : '';
+  const providerCalls =
+    provenance.providerCallCount !== undefined
+      ? ` Ejecutó ${provenance.providerCallCount} consulta(s) acotadas.`
+      : '';
 
   return {
     stage: 'places_crawl',
     label: `Catalog refill · ${providerLabel}`,
     summary: failed
       ? `${providerLabel} falló (${cacheLabel}). Solicitados: ${provenance.requestedCount}; recibidos: ${provenance.receivedCount}; no se afirmó cobertura nueva.`
-      : `${providerLabel} (${cacheLabel}) recibió ${provenance.receivedCount} resultados, persistió ${provenance.acceptedCount} y descartó ${rejectedCandidateCount}.${requestFailureSuffix}`,
+      : `${providerLabel} (${cacheLabel}) recibió ${provenance.receivedCount} resultados, persistió ${provenance.acceptedCount} y descartó ${rejectedCandidateCount}.${anchorSummary}${providerCalls}${validationSummary}${requestFailureSuffix}`,
     placesProvenance: provenance,
     candidates: candidates.map(
       (act): TraceCandidate => ({

@@ -12,6 +12,7 @@ import { ToursService } from './tours.service';
 import { TourImageService } from './tour-image.service';
 import { CompositeGenerationService } from './composite-generation.service';
 import { DestinationResolutionService } from './destination-resolution.service';
+import { DestinationAnchorService } from './destination-anchor.service';
 import { PlacesCrawlError } from '@integrations/google-places/interfaces/places-api.interface';
 
 // transformAiActivitiesToDto only keeps `activityId` when it passes
@@ -268,6 +269,7 @@ describe('TourActivityGenerationService', () => {
           provide: DestinationResolutionService,
           useValue: destinationResolutionService,
         },
+        DestinationAnchorService,
       ],
     }).compile();
 
@@ -1050,7 +1052,19 @@ describe('TourActivityGenerationService', () => {
 
     await service.generateTourActivities(TOUR_ID);
 
-    expect(googlePlacesService.crawlAndSaveActivities).toHaveBeenCalled();
+    expect(googlePlacesService.crawlAndSaveActivities).toHaveBeenCalledWith(
+      expect.any(Object),
+      expect.objectContaining({
+        anchors: [
+          expect.objectContaining({
+            id: 'destination-point',
+            source: 'destination_point',
+            latitude: -34.62,
+            longitude: -58.37,
+          }),
+        ],
+      }),
+    );
   });
 
   it('records Geoapify provenance without calling it Google in the trace', async () => {
@@ -1587,6 +1601,25 @@ describe('TourActivityGenerationService', () => {
       });
       expect(osmPlacesService.findNeighborhoodsWithin).toHaveBeenCalledWith(
         boundary,
+      );
+      expect(osmPlacesService.findNeighborhoodsWithin).toHaveBeenCalledTimes(1);
+      expect(googlePlacesService.crawlAndSaveActivities).toHaveBeenCalledWith(
+        expect.any(Object),
+        expect.objectContaining({
+          anchors: expect.arrayContaining([
+            expect.objectContaining({
+              id: sanTelmo.id,
+              label: 'San Telmo',
+              source: 'neighborhood',
+            }),
+            expect.objectContaining({
+              id: 'destination-point',
+              label: 'Buenos Aires',
+              source: 'destination_point',
+            }),
+          ]),
+          destinationBoundary: boundary.geometry,
+        }),
       );
       expect(osmPlacesService.findStreetsWithin).toHaveBeenCalledWith(sanTelmo);
       const [, promptArg] = langChainService.generateChatResponse.mock.calls[0];

@@ -1,4 +1,7 @@
 import { OsmCandidate } from '@integrations/osm/services/osm-places.service';
+import { geometryContainsPoint } from '@integrations/osm/utils/geojson-containment.util';
+
+export { geometryContainsPoint } from '@integrations/osm/utils/geojson-containment.util';
 
 export interface NeighborhoodScoringInput {
   candidate: OsmCandidate;
@@ -152,57 +155,4 @@ function catalogActivityProminence(activity: CatalogActivityLocation): number {
   // other local evidence in a dense neighborhood.
   const reviewConfidence = Math.min(1, Math.log10(reviewCount + 1) / 4);
   return rating * reviewConfidence;
-}
-
-export function geometryContainsPoint(
-  geometry: OsmCandidate['geometry'],
-  longitude: number,
-  latitude: number,
-): boolean {
-  if (geometry.type === 'Polygon') {
-    return polygonContainsPoint(geometry.coordinates, longitude, latitude);
-  }
-  if (geometry.type === 'MultiPolygon') {
-    return geometry.coordinates.some((polygon) =>
-      polygonContainsPoint(polygon, longitude, latitude),
-    );
-  }
-  return false;
-}
-
-function polygonContainsPoint(
-  rings: number[][][],
-  longitude: number,
-  latitude: number,
-): boolean {
-  if (!rings[0] || !ringContainsPoint(rings[0], longitude, latitude)) {
-    return false;
-  }
-  return !rings
-    .slice(1)
-    .some((hole) => ringContainsPoint(hole, longitude, latitude));
-}
-
-function ringContainsPoint(
-  ring: number[][],
-  longitude: number,
-  latitude: number,
-): boolean {
-  let inside = false;
-  for (
-    let current = 0, previous = ring.length - 1;
-    current < ring.length;
-    previous = current++
-  ) {
-    const [currentLongitude, currentLatitude] = ring[current];
-    const [previousLongitude, previousLatitude] = ring[previous];
-    const crossesLatitude =
-      currentLatitude > latitude !== previousLatitude > latitude;
-    const intersectionLongitude =
-      ((previousLongitude - currentLongitude) * (latitude - currentLatitude)) /
-        (previousLatitude - currentLatitude) +
-      currentLongitude;
-    if (crossesLatitude && longitude < intersectionLongitude) inside = !inside;
-  }
-  return inside;
 }

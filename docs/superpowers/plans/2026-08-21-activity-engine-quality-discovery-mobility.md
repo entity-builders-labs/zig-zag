@@ -427,6 +427,9 @@ Google Places acquisition and validate results before catalog persistence.
 3. Area-scale destinations derive 4-8 anchors from the shortlisted real
    neighborhoods. Prefer neighborhood geometry centroids and include the
    Nominatim destination point when it lies inside the authoritative boundary.
+   This is a target range, not permission to invent anchors: when fewer real
+   neighborhoods exist, use only the authoritative points available and one
+   boundary-derived fallback only when no child anchor can be produced.
 4. Do not use the city bounding-box center as the only Places origin.
 5. Bound anchor count, category count, results per anchor, total latency, and
    total provider calls.
@@ -435,6 +438,8 @@ Google Places acquisition and validate results before catalog persistence.
 
 1. Search Google Places per anchor using categories relevant to missing catalog
    coverage, not an unbounded crawl of every category.
+   - share the bounded call budget fairly across requested categories and
+     anchors before issuing deeper queries for one category;
    - use Nearby Search as the normal operation for supported typed POIs;
    - use Google Text Search only for explicitly configured concepts that
      Nearby does not support well, never as an automatic quota bypass;
@@ -449,10 +454,16 @@ Google Places acquisition and validate results before catalog persistence.
    - provider ID present;
    - finite coordinates;
    - inside the resolved destination boundary for area-scale;
-   - not permanently closed;
+   - not permanently closed (`CLOSED_PERMANENTLY` or normalized
+     `PERMANENTLY_CLOSED` only; do not confuse this with closed now, opening
+     hours, holidays, or a temporary closure);
    - supported/mappable type;
    - no obvious address-only or unnamed feature;
    - minimum confidence/quality policy appropriate to the provider.
+   The complete rule-to-rejection mapping is the canonical contract in
+   `docs/architecture/activity-discovery-and-tour-generation.md`, section
+   **Catalog candidate validation contract**. Keep code, unit tests, trace
+   labels, and that table synchronized when a rule changes.
 4. Preserve rejection reasons in the trace. Do not silently count rejected
    rows as catalog coverage.
 5. Persist only accepted real POIs and generate their canonical embeddings
@@ -476,7 +487,15 @@ Google Places acquisition and validate results before catalog persistence.
 - An empty name is rejected and never persisted.
 - Duplicate Places results from multiple anchors create one Activity.
 - A high-rated result outside the city boundary is rejected.
+- A permanently closed result is rejected, while a result that is merely
+  closed at the current time is not treated as permanently closed by the
+  catalog validator.
+- Address-only, unsupported-type, missing-ID, invalid-coordinate, generic-name,
+  and provider-specific insufficient-quality results are rejected with their
+  exact reason in the trace.
 - Point-scale behavior remains one point + bounded radius.
+- Mixed interests do not let the first category exhaust the provider-call
+  budget before every selected category has been attempted across the anchors.
 - The trace distinguishes fetched, accepted, deduplicated, rejected, and
   embedded counts.
 

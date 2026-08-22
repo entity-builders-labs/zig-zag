@@ -22,6 +22,7 @@ import { boundingBoxToCenterRadius } from '../utils/geometry-search-area.util';
 import {
   buildNeighborhoodCatalogSignals,
   geometryContainsPoint,
+  NeighborhoodScoringInput,
   shortlistNeighborhoods,
 } from '../utils/neighborhood-shortlist.util';
 import { GenerateTourOptions } from '../interfaces/tour-generation.interface';
@@ -60,6 +61,15 @@ import {
   PlacesCrawlError,
   placesProviderLabel,
 } from '@integrations/google-places/interfaces/places-api.interface';
+import { DestinationAnchorService } from './destination-anchor.service';
+
+interface AreaNeighborhoodContext {
+  rawNeighborhoods: OsmCandidate[];
+  shortlisted: OsmCandidate[];
+  scoringInputs: NeighborhoodScoringInput[];
+  providerFailure?: string;
+  providerResponded: boolean;
+}
 
 function withoutGenerationFailure(metadata: any): any {
   const cleanMetadata = { ...(metadata ?? {}) };
@@ -87,7 +97,68 @@ export class TourActivityGenerationService {
     private readonly osmPlacesService: OsmPlacesService,
     private readonly compositeGenerationService: CompositeGenerationService,
     private readonly destinationResolutionService: DestinationResolutionService,
+    private readonly destinationAnchorService: DestinationAnchorService,
   ) {}
+
+  private async resolveAreaNeighborhoodContext(
+    boundary: OsmCandidate,
+    catalogActivities: any[],
+    catalogInterestSimilarityById: Map<string, number> | null,
+    existingLookup?: Pick<
+      AreaNeighborhoodContext,
+      'rawNeighborhoods' | 'providerFailure' | 'providerResponded'
+    >,
+  ): Promise<AreaNeighborhoodContext> {
+    const lookup = existingLookup
+      ? {
+          value: existingLookup.rawNeighborhoods,
+          failureReason: existingLookup.providerFailure,
+          status: existingLookup.providerResponded ? 'success' : 'failed',
+        }
+      : await this.osmPlacesService.lookupNeighborhoodsWithin(boundary);
+    const rawNeighborhoods = lookup.value;
+    const neighborhoodExternalIds = rawNeighborhoods.map(
+      (neighborhood) => `${neighborhood.osmType}/${neighborhood.osmId}`,
+    );
+    const families = neighborhoodExternalIds.length
+      ? await this.prisma.activityFamily.findMany({
+          where: {
+            areaActivity: {
+              externalId: { in: neighborhoodExternalIds },
+              kind: ActivityKind.AREA,
+            },
+          },
+          select: {
+            areaActivity: { select: { externalId: true } },
+          },
+        })
+      : [];
+    const externalIdsWithFamily = new Set(
+      families
+        .map((family: any) => family.areaActivity.externalId)
+        .filter((externalId: any): externalId is string => !!externalId),
+    );
+    const scoringInputs = rawNeighborhoods.map((neighborhood) => ({
+      candidate: neighborhood,
+      hasExistingFamily: externalIdsWithFamily.has(
+        `${neighborhood.osmType}/${neighborhood.osmId}`,
+      ),
+      ...buildNeighborhoodCatalogSignals(
+        neighborhood,
+        catalogActivities,
+        catalogInterestSimilarityById,
+      ),
+      overpassPoiCount: null as number | null,
+    }));
+
+    return {
+      rawNeighborhoods,
+      shortlisted: shortlistNeighborhoods(scoringInputs),
+      scoringInputs,
+      providerFailure: lookup.failureReason,
+      providerResponded: lookup.status === 'success',
+    };
+  }
 
   private async withTimeout<T>(
     operation: Promise<T>,
@@ -309,6 +380,17 @@ export class TourActivityGenerationService {
             longitude: options.longitude,
             radiusMeters: options.radius || 25000,
           };
+      const destinationPoint = {
+        latitude:
+          options.destinationLatitude ??
+          options.latitude ??
+          searchArea.latitude,
+        longitude:
+          options.destinationLongitude ??
+          options.longitude ??
+          searchArea.longitude,
+      };
+      let areaNeighborhoodContext: AreaNeighborhoodContext | null = null;
 
       // Search for existing activities if location provided
       if (options?.latitude && options?.longitude) {
@@ -384,12 +466,47 @@ export class TourActivityGenerationService {
             await this.updateGenerationStatus(tourId, 'generating', poolStatus);
 
             try {
+              if (
+                isAreaScale &&
+                catalogInterestSimilarityById === null &&
+                nearbyActivities.length > 0
+              ) {
+                catalogInterestSimilarityById =
+                  await this.getInterestSimilarity(
+                    nearbyActivities,
+                    options.interests,
+                  );
+              }
+              if (isAreaScale) {
+                areaNeighborhoodContext =
+                  await this.resolveAreaNeighborhoodContext(
+                    destinationResolution.boundary,
+                    nearbyActivities,
+                    catalogInterestSimilarityById,
+                  );
+              }
+              const anchors = this.destinationAnchorService.buildAnchors({
+                destinationResolution,
+                destinationPoint,
+                pointRadiusMeters: Math.min(radius, 5_000),
+                shortlistedNeighborhoods:
+                  areaNeighborhoodContext?.shortlisted ?? [],
+              });
               const crawlResult =
-                await this.googlePlacesService.crawlAndSaveActivities({
-                  latitude: searchArea.latitude,
-                  longitude: searchArea.longitude,
-                  radius: Math.min(radius, 5000),
-                });
+                await this.googlePlacesService.crawlAndSaveActivities(
+                  {
+                    latitude: searchArea.latitude,
+                    longitude: searchArea.longitude,
+                    radius: Math.min(radius, 5000),
+                  },
+                  {
+                    anchors,
+                    requestedInterests: options.interests,
+                    destinationBoundary: isAreaScale
+                      ? destinationResolution.boundary.geometry
+                      : undefined,
+                  },
+                );
 
               // Try searching again after crawling
               const refreshedActivities = await this.activitiesService.findAll(
@@ -412,6 +529,15 @@ export class TourActivityGenerationService {
                     refreshedActivities,
                     options.interests,
                   );
+                if (isAreaScale && areaNeighborhoodContext) {
+                  areaNeighborhoodContext =
+                    await this.resolveAreaNeighborhoodContext(
+                      destinationResolution.boundary,
+                      refreshedActivities,
+                      catalogInterestSimilarityById,
+                      areaNeighborhoodContext,
+                    );
+                }
                 const refreshedActivitiesSample =
                   await this.rankAndSliceActivities(
                     refreshedActivities,
@@ -561,56 +687,24 @@ export class TourActivityGenerationService {
         if (isAreaScale) {
           areaCandidate = destinationResolution.boundary;
           osmBoundaryResponded = true;
-          const neighborhoodsLookup =
-            await this.osmPlacesService.lookupNeighborhoodsWithin(
-              destinationResolution.boundary,
-            );
-          const rawNeighborhoods = neighborhoodsLookup.value;
-          if (neighborhoodsLookup.status === 'failed') {
-            osmStreetsFailure = neighborhoodsLookup.failureReason;
+          areaNeighborhoodContext ??= await this.resolveAreaNeighborhoodContext(
+            destinationResolution.boundary,
+            catalogActivitiesForCoverage,
+            catalogInterestSimilarityById,
+          );
+          const {
+            rawNeighborhoods,
+            shortlisted,
+            scoringInputs,
+            providerFailure,
+            providerResponded,
+          } = areaNeighborhoodContext;
+          if (!providerResponded) {
+            osmStreetsFailure = providerFailure;
             osmStreetsResponded = false;
           } else {
             osmStreetsResponded = true;
           }
-
-          const neighborhoodExternalIds = rawNeighborhoods.map(
-            (neighborhood) => `${neighborhood.osmType}/${neighborhood.osmId}`,
-          );
-          const families = neighborhoodExternalIds.length
-            ? await this.prisma.activityFamily.findMany({
-                where: {
-                  areaActivity: {
-                    externalId: { in: neighborhoodExternalIds },
-                    kind: ActivityKind.AREA,
-                  },
-                },
-                select: {
-                  areaActivity: { select: { externalId: true } },
-                },
-              })
-            : [];
-          const externalIdsWithFamily = new Set(
-            families
-              .map((family: any) => family.areaActivity.externalId)
-              .filter((externalId: any): externalId is string => !!externalId),
-          );
-          const scoringInputs = rawNeighborhoods.map((neighborhood) => ({
-            candidate: neighborhood,
-            hasExistingFamily: externalIdsWithFamily.has(
-              `${neighborhood.osmType}/${neighborhood.osmId}`,
-            ),
-            ...buildNeighborhoodCatalogSignals(
-              neighborhood,
-              catalogActivitiesForCoverage,
-              catalogInterestSimilarityById,
-            ),
-            // Detailed Overpass counts are deliberately not requested for
-            // every raw neighborhood. Until a separate batched-count spike
-            // proves reliable, density is unknown and the stable fallback
-            // in shortlistNeighborhoods decides remaining ties.
-            overpassPoiCount: null as number | null,
-          }));
-          const shortlisted = shortlistNeighborhoods(scoringInputs);
           compositeAreaCandidatesById = new Map(
             shortlisted.map((neighborhood) => [neighborhood.id, neighborhood]),
           );
@@ -716,7 +810,7 @@ export class TourActivityGenerationService {
                 (input) => input.catalogPoiCount > 0,
               ).length,
               scoringInputs,
-              providerFailure: neighborhoodsLookup.failureReason,
+              providerFailure,
             }),
           );
         } else {
