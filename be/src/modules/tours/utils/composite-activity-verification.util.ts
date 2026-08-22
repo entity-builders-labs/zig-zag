@@ -30,6 +30,7 @@ export interface CompositeVerificationResult {
   verified: VerifiedCompositeActivity[];
   hallucinatedWaypointCount: number;
   invalidCompositeCount: number;
+  outOfAreaWaypointCount: number;
 }
 
 const VALID_VARIANT_KINDS = new Set<string>([
@@ -63,11 +64,19 @@ export function verifyAndDedupeCompositeActivities(
   rawComposites: RawCompositeActivity[],
   candidateActivityIds: Set<string>,
   candidateOsmFeatureIds: Set<string>,
-  offeredAreaId: string | null,
+  offeredAreaIds: string | null | Set<string>,
+  candidateAreaIdsByWaypointId?: Map<string, Set<string>>,
+  candidateWaypointNamesById?: Map<string, string>,
 ): CompositeVerificationResult {
   const verified: VerifiedCompositeActivity[] = [];
   let hallucinatedWaypointCount = 0;
   let invalidCompositeCount = 0;
+  let outOfAreaWaypointCount = 0;
+
+  const normalizedAreaIds =
+    offeredAreaIds instanceof Set
+      ? offeredAreaIds
+      : new Set(offeredAreaIds ? [offeredAreaIds] : []);
 
   const allRealIds = new Set([
     ...candidateActivityIds,
@@ -86,20 +95,31 @@ export function verifyAndDedupeCompositeActivities(
       invalidCompositeCount++;
       continue;
     }
-    if (!offeredAreaId || raw.areaId !== offeredAreaId) {
+    if (!raw.areaId || !normalizedAreaIds.has(raw.areaId)) {
       invalidCompositeCount++;
       continue;
     }
 
     const seen = new Set<string>();
+    const seenNames = new Set<string>();
     const validWaypointIds: string[] = [];
     for (const id of raw.waypointIds || []) {
       if (!allRealIds.has(id)) {
         hallucinatedWaypointCount++;
         continue;
       }
+      const allowedAreaIds = candidateAreaIdsByWaypointId?.get(id);
+      if (allowedAreaIds && !allowedAreaIds.has(raw.areaId)) {
+        outOfAreaWaypointCount++;
+        continue;
+      }
       if (seen.has(id)) continue; // silent dedupe, not a hallucination
+      const normalizedName = normalizeWaypointName(
+        candidateWaypointNamesById?.get(id),
+      );
+      if (normalizedName && seenNames.has(normalizedName)) continue;
       seen.add(id);
+      if (normalizedName) seenNames.add(normalizedName);
       validWaypointIds.push(id);
     }
 
@@ -128,7 +148,23 @@ export function verifyAndDedupeCompositeActivities(
     });
   }
 
-  return { verified, hallucinatedWaypointCount, invalidCompositeCount };
+  return {
+    verified,
+    hallucinatedWaypointCount,
+    invalidCompositeCount,
+    outOfAreaWaypointCount,
+  };
+}
+
+function normalizeWaypointName(name: string | undefined): string | null {
+  if (!name) return null;
+  const normalized = name
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
+  return normalized || null;
 }
 
 /**

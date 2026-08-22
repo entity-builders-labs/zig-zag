@@ -90,7 +90,7 @@ describe('AiEmbeddingService Bedrock adapter', () => {
     expect(service.isReady()).toBe(false);
   });
 
-  it('falls back to OpenAI when the Bedrock startup check fails and an OpenAI key is configured', async () => {
+  it('does not mix the index with OpenAI when Bedrock fails, even if an OpenAI key is configured', async () => {
     mockSend.mockRejectedValue(new Error('AccessDeniedException'));
 
     const service = new AiEmbeddingService({
@@ -108,8 +108,8 @@ describe('AiEmbeddingService Bedrock adapter', () => {
 
     await service.ensureInitialized();
 
-    expect(service.getEmbeddings()).not.toBeNull();
-    expect(service.isReady()).toBe(true);
+    expect(service.getEmbeddings()).toBeNull();
+    expect(service.isReady()).toBe(false);
   });
 
   it('embeds documents in small concurrent batches, preserving input order', async () => {
@@ -149,6 +149,7 @@ describe('AiEmbeddingService Ollama adapter', () => {
 
   afterEach(() => {
     global.fetch = originalFetch;
+    jest.useRealTimers();
   });
 
   // Mirrors the layer-norm -> truncate -> L2-normalize procedure Nomic
@@ -266,5 +267,30 @@ describe('AiEmbeddingService Ollama adapter', () => {
     const result = await service.getEmbeddings()!.embedQuery('faro');
 
     expect(result).toEqual(shortVector);
+  });
+
+  it('does not fall back to OpenAI when the configured Ollama service is unavailable', async () => {
+    jest.useFakeTimers();
+    global.fetch = jest.fn().mockRejectedValue(new Error('connection refused'));
+    const service = new AiEmbeddingService({
+      enableAi: true,
+      provider: 'groq',
+      defaultModel: 'llama-3.1-8b-instant',
+      temperature: 0.7,
+      timeout: 60_000,
+      embeddingProvider: 'ollama',
+      embeddingsModel: 'nomic-embed-text',
+      ollamaBaseUrl: 'http://ollama-test:11434',
+      openaiApiKey: 'sk-must-not-be-used',
+      awsRegion: 'us-east-1',
+      embeddingDimensions: 256,
+    } as any);
+
+    const initialization = service.ensureInitialized();
+    await jest.runAllTimersAsync();
+    await initialization;
+
+    expect(service.getEmbeddings()).toBeNull();
+    expect(service.isReady()).toBe(false);
   });
 });

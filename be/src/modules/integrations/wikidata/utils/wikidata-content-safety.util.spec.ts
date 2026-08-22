@@ -1,4 +1,9 @@
-import { filterSafeWikidataExtracts } from './wikidata-content-safety.util';
+import { PromptTemplate } from '@langchain/core/prompts';
+import {
+  assessWikidataExtractSafety,
+  CONTENT_SAFETY_PROMPT,
+  filterSafeWikidataExtracts,
+} from './wikidata-content-safety.util';
 import { LangChainService } from '@shared/ai/langchain.service';
 
 describe('filterSafeWikidataExtracts', () => {
@@ -6,6 +11,17 @@ describe('filterSafeWikidataExtracts', () => {
     response: string,
   ): jest.Mocked<Pick<LangChainService, 'generateCompletionResponse'>> => ({
     generateCompletionResponse: jest.fn().mockResolvedValue(response),
+  });
+
+  it('formats the real production prompt with literal JSON before any model mock runs', async () => {
+    const prompt = PromptTemplate.fromTemplate(CONTENT_SAFETY_PROMPT);
+
+    const formatted = await prompt.format({
+      extractsJson: JSON.stringify({ Q1: 'A real place.' }),
+    });
+
+    expect(formatted).toContain('{"Q1":"A real place."}');
+    expect(formatted).toContain('Example: {"Q1": true, "Q2": false}');
   });
 
   it('returns an empty set immediately without calling the LLM when there is nothing to check', async () => {
@@ -91,6 +107,27 @@ describe('filterSafeWikidataExtracts', () => {
     );
 
     expect(result.size).toBe(0);
+  });
+
+  it('reports a failed safety check separately from a successful unsafe classification', async () => {
+    const failedLangChain = {
+      generateCompletionResponse: jest
+        .fn()
+        .mockRejectedValue(new Error('groq down')),
+    };
+    const unsafeLangChain = buildLangChainService('{"Q1":false}');
+
+    const failed = await assessWikidataExtractSafety(
+      [{ qid: 'Q1', extract: 'a' }],
+      failedLangChain as any,
+    );
+    const unsafe = await assessWikidataExtractSafety(
+      [{ qid: 'Q1', extract: 'a' }],
+      unsafeLangChain as any,
+    );
+
+    expect(failed).toEqual({ safeQids: new Set(), status: 'failed' });
+    expect(unsafe).toEqual({ safeQids: new Set(), status: 'success' });
   });
 
   it('treats a QID absent from the response as unsafe (fails closed, not open)', async () => {

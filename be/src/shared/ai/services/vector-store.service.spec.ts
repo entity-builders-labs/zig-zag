@@ -116,6 +116,40 @@ describe('VectorStoreService', () => {
     });
   });
 
+  describe('backfillMissingActivityEmbeddings', () => {
+    it('embeds only missing rows from the bounded candidate set', async () => {
+      const activities = [
+        activity({ id: 'indexed' }),
+        activity({ id: 'missing' }),
+      ];
+      mockQueryRaw.mockResolvedValue([{ id: 'missing' }]);
+      mockEmbedDocuments.mockResolvedValue([[0.1, 0.2]]);
+
+      const count = await service.backfillMissingActivityEmbeddings(
+        activities as any,
+      );
+
+      expect(count).toBe(1);
+      expect(mockEmbedDocuments).toHaveBeenCalledWith([
+        expect.stringContaining('Museum of Art'),
+      ]);
+      expect(mockExecuteRaw).toHaveBeenCalledTimes(1);
+      expect(mockExecuteRaw.mock.calls[0][2]).toBe('missing');
+    });
+
+    it('does not query or backfill when the configured provider is unavailable', async () => {
+      mockGetEmbeddings.mockReturnValue(null);
+
+      const count = await service.backfillMissingActivityEmbeddings([
+        activity() as any,
+      ]);
+
+      expect(count).toBe(0);
+      expect(mockQueryRaw).not.toHaveBeenCalled();
+      expect(mockEmbedDocuments).not.toHaveBeenCalled();
+    });
+  });
+
   describe('findSimilarActivities', () => {
     it('returns an empty array when embeddings are not ready', async () => {
       mockGetEmbeddings.mockReturnValue(null);
@@ -225,7 +259,10 @@ describe('VectorStoreService', () => {
     it('returns an empty map without querying when embeddings are unavailable', async () => {
       mockGetEmbeddings.mockReturnValue(null);
 
-      const result = await service.getSimilarityScores(['a', 'b'], 'history, art');
+      const result = await service.getSimilarityScores(
+        ['a', 'b'],
+        'history, art',
+      );
 
       expect(result.size).toBe(0);
       expect(mockQueryRaw).not.toHaveBeenCalled();
@@ -248,7 +285,10 @@ describe('VectorStoreService', () => {
         { id: 'b', distance: 0.9 },
       ]);
 
-      const result = await service.getSimilarityScores(['a', 'b'], 'history, art');
+      const result = await service.getSimilarityScores(
+        ['a', 'b'],
+        'history, art',
+      );
 
       expect(embedQuery).toHaveBeenCalledWith('history, art');
       expect(result.get('a')).toBeCloseTo(0.8);
@@ -260,7 +300,10 @@ describe('VectorStoreService', () => {
       mockGetEmbeddings.mockReturnValue({ embedQuery });
       mockQueryRaw.mockResolvedValue([{ id: 'a', distance: 0.2 }]);
 
-      const result = await service.getSimilarityScores(['a', 'b'], 'history, art');
+      const result = await service.getSimilarityScores(
+        ['a', 'b'],
+        'history, art',
+      );
 
       expect(result.has('a')).toBe(true);
       expect(result.has('b')).toBe(false);

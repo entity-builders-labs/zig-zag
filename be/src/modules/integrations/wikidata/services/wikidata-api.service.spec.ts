@@ -117,16 +117,18 @@ describe('WikidataApiService', () => {
     expect(result.has('Q999999')).toBe(false);
   });
 
-  it('returns an empty Map (not a throw) when the wbgetentities request fails', async () => {
+  it('reports a failed lookup when the wbgetentities request fails', async () => {
     mockedAxios.get.mockRejectedValueOnce(new Error('wikidata down'));
 
     service = await setup();
-    const result = await service.getEntitySummaries(['Q1']);
+    const result = await service.lookupEntitySummaries(['Q1']);
 
-    expect(result.size).toBe(0);
+    expect(result.status).toBe('failed');
+    expect(result.summaries.size).toBe(0);
+    expect(result.failedQids).toEqual(new Set(['Q1']));
   });
 
-  it('keeps label/description even if the extracts request fails', async () => {
+  it('keeps label/description and reports partial degradation when the extracts request fails', async () => {
     mockedAxios.get
       .mockResolvedValueOnce(
         mockWbGetEntities({
@@ -140,10 +142,25 @@ describe('WikidataApiService', () => {
       .mockRejectedValueOnce(new Error('wikipedia down'));
 
     service = await setup();
-    const result = await service.getEntitySummaries(['Q1']);
+    const result = await service.lookupEntitySummaries(['Q1']);
 
-    expect(result.get('Q1')?.label).toBe('San Telmo');
-    expect(result.get('Q1')?.extract).toBeUndefined();
+    expect(result.status).toBe('partial');
+    expect(result.summaries.get('Q1')?.label).toBe('San Telmo');
+    expect(result.summaries.get('Q1')?.extract).toBeUndefined();
+    expect(result.extractFailedQids).toEqual(new Set(['Q1']));
+  });
+
+  it('reports only the failed chunk when a multi-batch lookup partially fails', async () => {
+    mockedAxios.get
+      .mockResolvedValueOnce(mockWbGetEntities({}))
+      .mockRejectedValueOnce(new Error('second batch down'));
+
+    service = await setup();
+    const manyQids = Array.from({ length: 51 }, (_, i) => `Q${i}`);
+    const result = await service.lookupEntitySummaries(manyQids);
+
+    expect(result.status).toBe('partial');
+    expect(result.failedQids).toEqual(new Set(['Q50']));
   });
 
   it('deduplicates repeated QIDs before calling the API', async () => {

@@ -9,8 +9,19 @@ export interface NominatimResult {
   addresstype: string;
   displayName: string;
   importance: number;
+  latitude?: number;
+  longitude?: number;
+  address?: {
+    city?: string;
+    town?: string;
+    village?: string;
+    municipality?: string;
+    country?: string;
+    countryCode?: string;
+  };
 }
 
 export interface INominatimApiService {
   search(query: string): Promise<NominatimResult[]>;
+  reverse(latitude: number, longitude: number): Promise<NominatimResult | null>;
 }

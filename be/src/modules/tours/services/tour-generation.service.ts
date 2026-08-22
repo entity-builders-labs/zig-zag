@@ -49,6 +49,24 @@ export class TourGenerationService {
     private readonly tourActivityGenerationService: TourActivityGenerationService,
   ) {}
 
+  private async withTimeout<T>(
+    operation: Promise<T>,
+    timeoutMs: number,
+    message: string,
+  ): Promise<T> {
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
+    try {
+      return await Promise.race([
+        operation,
+        new Promise<T>((_, reject) => {
+          timeoutId = setTimeout(() => reject(new Error(message)), timeoutMs);
+        }),
+      ]);
+    } finally {
+      if (timeoutId) clearTimeout(timeoutId);
+    }
+  }
+
   private createTourChain() {
     const chatModel = this.langChainService.getChatModel();
     const provider = this.langChainService['config']?.provider || 'openai'; // Access provider config
@@ -407,21 +425,16 @@ export class TourGenerationService {
         const activityLimit = 20; // Reduced from 50 to improve performance
 
         try {
-          const nearbyActivities = await Promise.race([
+          const nearbyActivities = await this.withTimeout(
             this.activitiesService.findAll(
               options.latitude.toString(),
               options.longitude.toString(),
               radius,
               activityLimit,
             ),
-            new Promise<any[]>(
-              (_, reject) =>
-                setTimeout(
-                  () => reject(new Error('Activity search timeout')),
-                  10000,
-                ), // 10s timeout
-            ),
-          ]);
+            10000,
+            'Activity search timeout',
+          );
 
           const searchTime = Date.now() - searchStartTime;
           this.logger.debug(`Activity search completed in ${searchTime}ms`);
@@ -439,19 +452,14 @@ export class TourGenerationService {
             // Try semantic search if no nearby activities found (with timeout)
             try {
               const semanticStartTime = Date.now();
-              const semanticResults = await Promise.race([
+              const semanticResults = await this.withTimeout(
                 this.vectorStoreService.findSimilarActivities(
                   `Activities in ${options.latitude}, ${options.longitude}: ${finalPrompt}`,
                   5, // Reduced from 10 to improve performance
                 ),
-                new Promise<any[]>(
-                  (_, reject) =>
-                    setTimeout(
-                      () => reject(new Error('Semantic search timeout')),
-                      5000,
-                    ), // 5s timeout
-                ),
-              ]);
+                5000,
+                'Semantic search timeout',
+              );
 
               const semanticTime = Date.now() - semanticStartTime;
               this.logger.debug(
@@ -496,7 +504,7 @@ export class TourGenerationService {
         `Using ${generationTimeout}ms timeout for AI generation (provider-aware)`,
       );
 
-      const aiResponse = (await Promise.race([
+      const aiResponse = (await this.withTimeout(
         tourChain.invoke({
           // activities is a separate createTourJsonUserPrompt section below;
           // appending it to input too duplicates every candidate and can push
@@ -506,16 +514,9 @@ export class TourGenerationService {
             availableActivitiesText ||
             'No specific activities provided. Create a general tour.',
         }),
-        new Promise<any>((_, reject) =>
-          setTimeout(
-            () =>
-              reject(
-                new Error(`AI generation timeout after ${generationTimeout}ms`),
-              ),
-            generationTimeout,
-          ),
-        ),
-      ])) as any; // Type assertion for AI response
+        generationTimeout,
+        `AI generation timeout after ${generationTimeout}ms`,
+      )) as any; // Type assertion for AI response
 
       const chainTime = Date.now() - chainStartTime;
       this.logger.debug(

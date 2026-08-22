@@ -1,4 +1,7 @@
-import { CREATE_TOUR_RESPONSE_SCHEMA } from './create-tour.prompt';
+import {
+  CREATE_TOUR_RESPONSE_SCHEMA,
+  CREATE_TOUR_SELECTION_RESPONSE_SCHEMA,
+} from './create-tour.prompt';
 
 function expectStrictObjects(schema: any): void {
   if (!schema || typeof schema !== 'object') return;
@@ -36,5 +39,32 @@ describe('CREATE_TOUR_RESPONSE_SCHEMA', () => {
       'ROUTE',
       'EXPERIENCE',
     ]);
+  });
+});
+
+describe('CREATE_TOUR_SELECTION_RESPONSE_SCHEMA', () => {
+  it('meets the recursive object constraints required by Groq strict mode', () => {
+    expectStrictObjects(CREATE_TOUR_SELECTION_RESPONSE_SCHEMA);
+  });
+
+  it('returns only selection fields and leaves canonical data to the server', () => {
+    const schema = CREATE_TOUR_SELECTION_RESPONSE_SCHEMA as any;
+    const activity = schema.properties.activities.items;
+
+    expect(schema.required).toEqual([
+      'reasoning',
+      'compositeActivities',
+      'activities',
+    ]);
+    expect(schema.properties).not.toHaveProperty('activitiesLatLng');
+    expect(schema.properties).not.toHaveProperty('totalDistance');
+    expect(activity.properties).toHaveProperty('activityId');
+    expect(activity.properties).toHaveProperty('selectedWaypointIds');
+    expect(activity.properties).not.toHaveProperty('activityName');
+    expect(activity.properties).not.toHaveProperty('latitude');
+    expect(activity.properties).not.toHaveProperty('travelTimeToNext');
+    expect(schema.properties.reasoning.maxLength).toBe(400);
+    expect(schema.properties.activities.maxItems).toBe(30);
+    expect(activity.properties.notes.maxLength).toBe(160);
   });
 });

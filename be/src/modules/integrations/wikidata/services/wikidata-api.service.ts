@@ -4,6 +4,7 @@ import axios from 'axios';
 import {
   IWikidataApiService,
   WikidataEntitySummary,
+  WikidataLookupOutcome,
 } from '../interfaces/wikidata.interface';
 
 const DEFAULT_WIKIDATA_API_URL = 'https://www.wikidata.org/w/api.php';
@@ -67,20 +68,51 @@ export class WikidataApiService implements IWikidataApiService {
   async getEntitySummaries(
     qids: string[],
   ): Promise<Map<string, WikidataEntitySummary>> {
+    return (await this.lookupEntitySummaries(qids)).summaries;
+  }
+
+  async lookupEntitySummaries(qids: string[]): Promise<WikidataLookupOutcome> {
     const uniqueQids = Array.from(new Set(qids)).filter(Boolean);
-    if (uniqueQids.length === 0) return new Map();
+    if (uniqueQids.length === 0) {
+      return {
+        summaries: new Map(),
+        status: 'success',
+        failedQids: new Set(),
+        extractFailedQids: new Set(),
+      };
+    }
 
     const summaries = new Map<string, WikidataEntitySummary>();
+    const failedQids = new Set<string>();
+    const extractFailedQids = new Set<string>();
     for (const batch of chunk(uniqueQids, MAX_IDS_PER_BATCH)) {
-      await this.resolveBatch(batch, summaries);
+      const batchOutcome = await this.resolveBatch(batch, summaries);
+      batchOutcome.failedQids.forEach((qid) => failedQids.add(qid));
+      batchOutcome.extractFailedQids.forEach((qid) =>
+        extractFailedQids.add(qid),
+      );
     }
-    return summaries;
+
+    const affectedCount = failedQids.size + extractFailedQids.size;
+    return {
+      summaries,
+      status:
+        failedQids.size === uniqueQids.length
+          ? 'failed'
+          : affectedCount > 0
+            ? 'partial'
+            : 'success',
+      failedQids,
+      extractFailedQids,
+    };
   }
 
   private async resolveBatch(
     qids: string[],
     summaries: Map<string, WikidataEntitySummary>,
-  ): Promise<void> {
+  ): Promise<Pick<WikidataLookupOutcome, 'failedQids' | 'extractFailedQids'>> {
+    const failedQids = new Set<string>();
+    const extractFailedQids = new Set<string>();
     let entities: WbGetEntitiesResponse['entities'];
     try {
       const response = await axios.get<WbGetEntitiesResponse>(this.apiUrl, {
@@ -97,9 +129,10 @@ export class WikidataApiService implements IWikidataApiService {
       entities = response.data?.entities;
     } catch (error) {
       this.logger.error(`wbgetentities batch failed: ${error.message}`);
-      return;
+      qids.forEach((qid) => failedQids.add(qid));
+      return { failedQids, extractFailedQids };
     }
-    if (!entities) return;
+    if (!entities) return { failedQids, extractFailedQids };
 
     // Maps the enwiki title back to its owning QID, so the second (extracts)
     // call's response — keyed by title, not QID — can be merged back in.
@@ -120,14 +153,16 @@ export class WikidataApiService implements IWikidataApiService {
     }
 
     if (titleToQid.size > 0) {
-      await this.resolveExtracts(titleToQid, summaries);
+      const failedExtracts = await this.resolveExtracts(titleToQid, summaries);
+      failedExtracts.forEach((qid) => extractFailedQids.add(qid));
     }
+    return { failedQids, extractFailedQids };
   }
 
   private async resolveExtracts(
     titleToQid: Map<string, string>,
     summaries: Map<string, WikidataEntitySummary>,
-  ): Promise<void> {
+  ): Promise<Set<string>> {
     try {
       const response = await axios.get<WikipediaExtractsResponse>(
         WIKIPEDIA_API_URL,
@@ -152,10 +187,12 @@ export class WikidataApiService implements IWikidataApiService {
         const existing = summaries.get(qid);
         if (existing) existing.extract = page.extract;
       }
+      return new Set();
     } catch (error) {
       // Extracts are additive on top of label/description (already stored)
       // — a failure here degrades gracefully instead of losing everything.
       this.logger.warn(`Wikipedia extracts batch failed: ${error.message}`);
+      return new Set(titleToQid.values());
     }
   }
 }

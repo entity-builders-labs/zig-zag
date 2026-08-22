@@ -3,6 +3,8 @@ export interface OsmFeatureForPrompt {
   name: string;
   osmType: string;
   narrativeContext?: string;
+  areaId?: string;
+  areaName?: string;
 }
 
 /** One line of the "Available OSM features" list — real streets/boundaries
@@ -12,6 +14,11 @@ export function formatOsmFeatureForPrompt(
   feature: OsmFeatureForPrompt,
 ): string {
   const parts = [`id: ${feature.id}`, `${feature.name} (${feature.osmType})`];
+  if (feature.areaId) {
+    parts.push(
+      `areaId: ${feature.areaId}${feature.areaName ? ` (${feature.areaName})` : ''}`,
+    );
+  }
   if (feature.narrativeContext) {
     parts.push(feature.narrativeContext.substring(0, 200));
   }
@@ -30,6 +37,8 @@ export interface ActivityForPrompt {
   ratingCount?: number | null;
   priceLevel?: number | null;
   openingHours?: { weekdayText?: string[] } | null;
+  areaId?: string;
+  areaName?: string;
 }
 
 /** One line of the "Available activities" list sent to the AI — every signal
@@ -47,6 +56,12 @@ export function formatActivityForPrompt(act: ActivityForPrompt): string {
     const reviews =
       act.ratingCount != null ? ` (${act.ratingCount} reviews)` : '';
     parts.push(`Rating: ${act.rating}/5${reviews}`);
+  }
+
+  if (act.areaId) {
+    parts.push(
+      `Composite areaId: ${act.areaId}${act.areaName ? ` (${act.areaName})` : ''}`,
+    );
   }
 
   if (act.priceLevel != null) {

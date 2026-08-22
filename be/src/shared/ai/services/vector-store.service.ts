@@ -110,6 +110,37 @@ Keywords: ${metadata.tags ? metadata.tags.join(', ') : ''}.
     }
   }
 
+  /**
+   * Lazily repairs legacy catalog rows in the bounded candidate window.
+   * Normal ingestion still writes embeddings eagerly; this path exists for
+   * rows created before pgvector or during a previous provider outage. It
+   * never re-embeds an already indexed row.
+   */
+  async backfillMissingActivityEmbeddings(
+    activities: Activity[],
+  ): Promise<number> {
+    if (!this.embeddingService.getEmbeddings() || activities.length === 0) {
+      return 0;
+    }
+
+    const uniqueById = new Map(
+      activities.map((activity) => [activity.id, activity]),
+    );
+    const candidateIds = Array.from(uniqueById.keys());
+    const missingRows = await this.prisma.$queryRaw<{ id: string }[]>`
+      SELECT id FROM "activity"
+      WHERE id IN (${Prisma.join(candidateIds)}) AND embedding IS NULL
+    `;
+    const missing = missingRows
+      .map((row) => uniqueById.get(row.id))
+      .filter((activity): activity is Activity => !!activity);
+
+    if (missing.length > 0) {
+      await this.saveActivityEmbedding(missing);
+    }
+    return missing.length;
+  }
+
   async addActivityToVectorStore(activity: Activity) {
     if (!this.embeddingService.getEmbeddings()) return;
 
@@ -174,7 +205,9 @@ Keywords: ${metadata.tags ? metadata.tags.join(', ') : ''}.
     const queryVector = await embeddings.embedQuery(queryText);
     const literal = this.toVectorLiteral(queryVector);
 
-    const rows = await this.prisma.$queryRaw<{ id: string; distance: number }[]>`
+    const rows = await this.prisma.$queryRaw<
+      { id: string; distance: number }[]
+    >`
       SELECT id, embedding <=> ${literal}::vector AS distance
       FROM "activity"
       WHERE id IN (${Prisma.join(candidateIds)}) AND embedding IS NOT NULL

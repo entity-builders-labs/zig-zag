@@ -206,6 +206,13 @@ function createFakePrisma() {
     activityWaypoint,
     tourActivityWaypoint,
     $transaction: jest.fn(async (cb: any) => cb(client)),
+    $queryRaw: jest.fn(async (_query: any, activityId: string) => [
+      {
+        hasEmbedding: Boolean(
+          activities.find((activity) => activity.id === activityId)?.embedding,
+        ),
+      },
+    ]),
   };
 
   // Test-only seam for arranging fixtures directly.
@@ -246,7 +253,11 @@ describe('CompositeActivityService', () => {
   beforeEach(async () => {
     prisma = createFakePrisma();
     vectorStoreService = {
-      saveActivityEmbedding: jest.fn().mockResolvedValue(undefined),
+      saveActivityEmbedding: jest.fn(async (activities: any[]) => {
+        activities.forEach((activity) => {
+          activity.embedding = [0.1];
+        });
+      }),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -431,6 +442,31 @@ describe('CompositeActivityService', () => {
       // The original 2-waypoint content survives untouched — the second
       // call's differing waypointIds were never persisted.
       expect(rows).toHaveLength(2);
+      // The first call indexed the new variant; reuse detects that stored
+      // vector and does not pay for a second embedding request.
+      expect(vectorStoreService.saveActivityEmbedding).toHaveBeenCalledTimes(1);
+    });
+
+    it('backfills a missing embedding when reusing a pre-existing variant', async () => {
+      const input = {
+        name: 'San Telmo Historic Walk',
+        kind: ActivityKind.NEIGHBORHOOD_WALK,
+        variantTheme: VariantTheme.HISTORY,
+        areaCandidate: osmCandidate(),
+        waypointIds: [poi1.id, poi2.id],
+        candidateOsmFeaturesById: new Map(),
+      };
+      const existing = await service.createOrReuseComposite(input);
+      (existing as any).embedding = null;
+      vectorStoreService.saveActivityEmbedding.mockClear();
+
+      const reused = await service.createOrReuseComposite(input);
+
+      expect(reused.id).toBe(existing.id);
+      expect(vectorStoreService.saveActivityEmbedding).toHaveBeenCalledTimes(1);
+      expect(vectorStoreService.saveActivityEmbedding).toHaveBeenCalledWith([
+        existing,
+      ]);
     });
 
     it('creates two separate Activities for the same familyId when variantTheme differs, even with identical waypoints', async () => {

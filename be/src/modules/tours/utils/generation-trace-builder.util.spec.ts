@@ -1,10 +1,12 @@
 import {
   buildEmbeddingsStep,
+  buildDestinationResolutionStep,
   buildLlmGenerationStep,
   buildNeighborhoodShortlistStep,
   buildOsmBoundaryStep,
   buildOsmStreetsStep,
   buildPlacesCrawlStep,
+  buildWikidataEnrichmentStep,
 } from './generation-trace-builder.util';
 import { OsmCandidate } from '@integrations/osm/services/osm-places.service';
 
@@ -61,6 +63,30 @@ describe('buildNeighborhoodShortlistStep', () => {
     expect(step.summary).toContain('0');
     expect(step.candidates).toEqual([]);
   });
+
+  it('explains the deterministic evidence used to shortlist each neighborhood', () => {
+    const sanTelmo = candidate('San Telmo');
+    const step = buildNeighborhoodShortlistStep([sanTelmo], [sanTelmo], {
+      existingFamilyCount: 1,
+      catalogCoveredCount: 1,
+      scoringInputs: [
+        {
+          candidate: sanTelmo,
+          hasExistingFamily: true,
+          catalogPoiCount: 3,
+          catalogProminenceScore: 1.234,
+          interestSimilarity: 0.876,
+          overpassPoiCount: null,
+        },
+      ],
+    });
+
+    expect(step.summary).toContain('prominencia');
+    expect(step.candidates?.[0].detail).toContain('familia existente');
+    expect(step.candidates?.[0].detail).toContain('3 POI(s)');
+    expect(step.candidates?.[0].detail).toContain('prominencia 1.23');
+    expect(step.candidates?.[0].detail).toContain('afinidad semántica 0.88');
+  });
 });
 
 describe('buildPlacesCrawlStep', () => {
@@ -101,6 +127,25 @@ describe('buildPlacesCrawlStep', () => {
     expect(step.summary).toContain('strict cache miss');
     expect(step.summary).not.toContain('encontró');
   });
+
+  it('reports provider request failures separately from rejected candidate results', () => {
+    const step = buildPlacesCrawlStep([], {
+      provider: 'google',
+      cacheStatus: 'miss-live',
+      requestedCount: 320,
+      receivedCount: 55,
+      acceptedCount: 8,
+      rejectedCountByReason: {
+        out_of_area: 46,
+        existing_activity: 1,
+        provider_request_failed: 13,
+      },
+    });
+
+    expect(step.summary).toContain('descartó 47');
+    expect(step.summary).toContain('13 consulta(s) al proveedor fallaron');
+    expect(step.summary).not.toContain('descartó 60');
+  });
 });
 
 describe('buildEmbeddingsStep', () => {
@@ -120,6 +165,44 @@ describe('buildEmbeddingsStep', () => {
   });
 });
 
+describe('destination and Wikidata trace steps', () => {
+  it('records normalized destination attempts and the coordinate mismatch reason', () => {
+    const step = buildDestinationResolutionStep('Montevideo', {
+      scale: 'point',
+      attemptedQueries: ['forward:Montevideo', 'reverse:-34.905900,-56.191300'],
+      degradationReason: 'candidate_mismatched_coordinates',
+    });
+
+    expect(step.summary).toContain('reverse:-34.905900,-56.191300');
+    expect(step.summary).toContain('no coincidían con las coordenadas');
+  });
+
+  it('distinguishes missing QIDs, unsafe extracts, and safety provider failure', () => {
+    const withQid = candidate('Defensa');
+    withQid.tags.wikidata = 'Q1';
+    const withoutQid = candidate('San Telmo');
+    const step = buildWikidataEnrichmentStep([withQid, withoutQid], {
+      withoutQid: 1,
+      withQid: 1,
+      fetched: 1,
+      acceptedSafe: 0,
+      rejectedUnsafe: 0,
+      providerFailed: 0,
+      safetyCheckFailed: 1,
+      fetchedQids: new Set(['Q1']),
+      safeQids: new Set(),
+      rejectedUnsafeQids: new Set(),
+      safetyCheckFailedQids: new Set(['Q1']),
+    });
+
+    expect(step.summary).toContain('1 sin QID');
+    expect(step.summary).toContain('1 afectados por fallo del control');
+    expect(step.providerStatus).toBe('failed');
+    expect(step.candidates?.[0].detail).toContain('control de seguridad falló');
+    expect(step.summary).toContain('no elimina candidatos');
+  });
+});
+
 describe('OSM trace steps', () => {
   it('distinguishes an Overpass failure from a successful empty street result', () => {
     const failed = buildOsmStreetsStep([], 'timeout');
@@ -128,7 +211,20 @@ describe('OSM trace steps', () => {
     expect(failed.providerStatus).toBe('failed');
     expect(failed.summary).toContain('no significa que no existan');
     expect(empty.providerStatus).toBe('success');
-    expect(empty.summary).toContain('respondió sin calles');
+    expect(empty.summary).toContain('respondió sin calles, vías o POIs');
+  });
+
+  it('preserves and reports real OSM candidates when only part of Overpass degraded', () => {
+    const step = buildOsmStreetsStep(
+      [candidate('San Telmo')],
+      'one neighborhood timed out',
+      false,
+    );
+
+    expect(step.providerStatus).toBe('failed');
+    expect(step.summary).toContain('1 calles, vías o POIs OSM reales');
+    expect(step.summary).toContain('cobertura puede estar incompleta');
+    expect(step.candidates?.[0].offered).toBe(true);
   });
 
   it('does not claim there is no containing boundary when Overpass failed', () => {

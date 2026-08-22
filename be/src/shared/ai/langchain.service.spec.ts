@@ -260,5 +260,48 @@ describe('LangChainService', () => {
         service.generateChatResponse('system', 'user prompt'),
       ).rejects.toThrow('Groq error 500: internal error');
     });
+
+    it('retries one transient Groq TPM limit using the provider delay', async () => {
+      (global.fetch as jest.Mock)
+        .mockResolvedValueOnce({
+          ok: false,
+          status: 429,
+          headers: { get: (): string | null => null },
+          text: async () =>
+            JSON.stringify({
+              error: {
+                message: 'Rate limit reached. Please try again in 0.001s.',
+              },
+            }),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({
+            choices: [{ message: { content: '{"title":"Tour"}' } }],
+          }),
+        });
+
+      const result = await service.generateChatResponse(
+        'system',
+        'user prompt',
+      );
+
+      expect(result).toBe('{"title":"Tour"}');
+      expect(global.fetch).toHaveBeenCalledTimes(2);
+    });
+
+    it('does not retry a Groq rate limit more than once', async () => {
+      (global.fetch as jest.Mock).mockResolvedValue({
+        ok: false,
+        status: 429,
+        headers: { get: () => '0' },
+        text: async () => 'still rate limited',
+      });
+
+      await expect(
+        service.generateChatResponse('system', 'user prompt'),
+      ).rejects.toThrow('Groq error 429: still rate limited');
+      expect(global.fetch).toHaveBeenCalledTimes(2);
+    });
   });
 });

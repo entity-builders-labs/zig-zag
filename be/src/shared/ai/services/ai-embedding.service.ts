@@ -69,15 +69,6 @@ export class AiEmbeddingService implements OnModuleInit {
             `Failed to initialize Bedrock embeddings: ${error.message}`,
           );
           this.embeddingsDisabled = true;
-
-          if (this.config.openaiApiKey) {
-            this.logger.warn('Falling back to OpenAI embeddings...');
-            this.embeddings = new OpenAIEmbeddings({
-              openAIApiKey: this.config.openaiApiKey,
-              dimensions: this.config.embeddingDimensions,
-            });
-            this.embeddingsDisabled = false;
-          }
         }
       } else if (provider === 'openai') {
         if (!this.config.openaiApiKey) {
@@ -112,15 +103,6 @@ export class AiEmbeddingService implements OnModuleInit {
             `Failed to initialize Ollama embeddings: ${error.message}`,
           );
           this.embeddingsDisabled = true;
-
-          if (this.config.openaiApiKey) {
-            this.logger.warn('Falling back to OpenAI embeddings...');
-            this.embeddings = new OpenAIEmbeddings({
-              openAIApiKey: this.config.openaiApiKey,
-              dimensions: this.config.embeddingDimensions,
-            });
-            this.embeddingsDisabled = false;
-          }
         }
       }
     } catch (error) {

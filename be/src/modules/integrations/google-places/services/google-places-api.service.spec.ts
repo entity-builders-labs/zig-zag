@@ -78,6 +78,10 @@ describe('GooglePlacesApiService', () => {
   });
 
   it('classifies daily quota exhaustion and short-circuits repeated requests', async () => {
+    const windowStartSeconds = Math.floor(Date.now() / 1000);
+    const expectedUnavailableUntil = new Date(
+      (windowStartSeconds + 24 * 60 * 60) * 1000,
+    ).toISOString();
     mockedAxios.post.mockRejectedValueOnce({
       message: 'Request failed with status code 429',
       response: {
@@ -90,7 +94,7 @@ describe('GooglePlacesApiService', () => {
                 metadata: {
                   quota_unit: '1/d/{project}',
                   quota_limit: 'SearchNearbyRequestPerDayPerProject',
-                  window_start_time: '1787295600',
+                  window_start_time: windowStartSeconds.toString(),
                 },
               },
             ],
@@ -110,7 +114,7 @@ describe('GooglePlacesApiService', () => {
         provider: 'google',
         available: false,
         degradedReason: 'quota_exhausted',
-        unavailableUntil: '2026-08-22T07:00:00.000Z',
+        unavailableUntil: expectedUnavailableUntil,
       }),
     );
 
