@@ -124,6 +124,115 @@ describe('LangChainService', () => {
       ]);
     });
 
+    it('uses strict JSON Schema output deterministically when requested', async () => {
+      (service as any).config.defaultModel = 'openai/gpt-oss-120b';
+      (global.fetch as jest.Mock).mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          choices: [{ message: { content: '{"title":"Tour"}' } }],
+        }),
+      });
+      const schema = {
+        type: 'object',
+        additionalProperties: false,
+        properties: { title: { type: 'string' } },
+        required: ['title'],
+      };
+
+      await service.generateChatResponse(
+        'system',
+        'user prompt',
+        {},
+        {
+          responseFormat: {
+            type: 'json_schema',
+            json_schema: {
+              name: 'tour_generation',
+              strict: true,
+              schema,
+            },
+          },
+        },
+      );
+
+      const [, options] = (global.fetch as jest.Mock).mock.calls[0];
+      const body = JSON.parse(options.body);
+      expect(body.temperature).toBe(0);
+      expect(body.response_format).toEqual({
+        type: 'json_schema',
+        json_schema: {
+          name: 'tour_generation',
+          strict: true,
+          schema,
+        },
+      });
+    });
+
+    it('passes explicit completion and reasoning limits for complex structured output', async () => {
+      (service as any).config.defaultModel = 'openai/gpt-oss-120b';
+      (global.fetch as jest.Mock).mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          choices: [{ message: { content: '{"title":"Tour"}' } }],
+        }),
+      });
+
+      await service.generateChatResponse(
+        'system',
+        'user prompt',
+        {},
+        {
+          groq: {
+            maxCompletionTokens: 8192,
+            reasoningEffort: 'low',
+            includeReasoning: false,
+          },
+          responseFormat: {
+            type: 'json_schema',
+            json_schema: {
+              name: 'tour_generation',
+              strict: true,
+              schema: {
+                type: 'object',
+                additionalProperties: false,
+                properties: { title: { type: 'string' } },
+                required: ['title'],
+              },
+            },
+          },
+        },
+      );
+
+      const [, options] = (global.fetch as jest.Mock).mock.calls[0];
+      const body = JSON.parse(options.body);
+      expect(body.max_completion_tokens).toBe(8192);
+      expect(body.reasoning_effort).toBe('low');
+      expect(body.include_reasoning).toBe(false);
+    });
+
+    it('rejects strict JSON Schema output for an unsupported Groq model', async () => {
+      (service as any).config.defaultModel = 'llama-3.3-70b-versatile';
+
+      await expect(
+        service.generateChatResponse(
+          'system',
+          'user prompt',
+          {},
+          {
+            responseFormat: {
+              type: 'json_schema',
+              json_schema: {
+                name: 'tour_generation',
+                strict: true,
+                schema: { type: 'object' },
+              },
+            },
+          },
+        ),
+      ).rejects.toThrow('does not support strict JSON Schema output');
+      expect(global.fetch).not.toHaveBeenCalled();
+    });
+
     it('returns the message content from the chat-completions response', async () => {
       (global.fetch as jest.Mock).mockResolvedValue({
         ok: true,
