@@ -69,7 +69,7 @@ flowchart TD
     D --> E["Query existing catalog<br/>POI + ROUTE + NEIGHBORHOOD_WALK + EXPERIENCE<br/>exclude AREA and archived"]
 
     E --> F{"Pool too small?"}
-    F -- Yes --> G["Catalog Refill<br/>Google Places at destination anchors"]
+    F -- Yes --> G["Catalog Refill<br/>Places at destination anchors<br/>see Catalog Refill zoom below"]
     G --> H["Persist and deduplicate real POIs"]
     H --> I["Re-query catalog"]
     F -- No --> I
@@ -145,6 +145,31 @@ Tour Generation only selects verified Activities.
 | Unified Ranking | Select coherent candidate sets using relevance, quality, diversity, and travel cost | Rank each Activity independently and ignore the resulting route |
 | Itinerary generation | Choose and schedule offered Activity IDs | Create entities |
 | Verification | Drop hallucinated IDs, duplicates, invalid subsets, and infeasible schedules | Trust prompt compliance |
+
+## Deferred design topic: food and drink stops
+
+Food and drink venues need role-aware scheduling; they must not be treated as
+interchangeable sightseeing POIs. This is intentionally deferred until the
+provider, catalog-quality, discovery, and mobility foundations are stable.
+
+The later design must distinguish at least:
+
+- a general or mixed tour, where a meal, coffee, or snack is a schedule-support
+  stop and repeated consecutive venues are normally invalid; and
+- an explicitly food-centric experience, such as a tapas, market, tasting, or
+  cafe walk, where multiple verified food venues are the primary experience.
+
+Merely including `food` among several wizard interests must not automatically
+make a tour food-centric. The design also needs to account for meal windows,
+opening hours, duration, budget and dietary constraints, geographic coherence,
+and the user's explicit intent. Route optimization must preserve those roles
+and schedule constraints rather than globally reordering all selected
+Activities only by geographic distance.
+
+The Granada regression case—three cafe/coffee venues selected consecutively in
+a mixed history, food, culture, and architecture tour—must become an acceptance
+fixture when this work is implemented. No ad-hoc per-type cap is part of the
+current provider/cache stabilization scope.
 
 ## Embeddings in the engine
 
@@ -357,9 +382,15 @@ consult the code for the current implementation state.
 
 ## Catalog Refill with destination anchors
 
-Google Places searches around a point and radius. A city-scale destination is
+This section is a **zoom into the `Catalog Refill` node of the end-to-end
+flow**. It does not introduce a parallel flow: its output returns to `Persist
+and deduplicate real POIs`, followed by catalog re-query, semantic/spatial
+analysis, and coverage evaluation.
+
+Places providers search around a point and radius. A city-scale destination is
 a polygon, so refill uses a bounded set of representative points called
-anchors.
+anchors. Google Places is the selected MVP provider; Geoapify remains an
+explicitly selected adapter, not an automatic fallback.
 
 ```mermaid
 flowchart TD
@@ -386,6 +417,56 @@ An anchor is an implementation point for calling a point-based API. It is not a
 new domain entity and is not persisted as an Activity. Point-scale destinations
 use their own point as the single anchor; area-scale destinations use a bounded
 number to control latency, quotas, and cost.
+
+### Provider-operation zoom inside each anchor search
+
+The following diagram is a second-level zoom: each `Places search near ...`
+node in the anchor diagram above executes this provider-operation subflow.
+
+```mermaid
+flowchart TD
+    A["One bounded DestinationAnchor<br/>point + radius"] --> B["Missing-coverage category query<br/>type + keywords + result budget"]
+    B --> C{"Explicitly selected<br/>Places provider"}
+
+    C -- Google --> D{"Type supported by<br/>Google Nearby Search?"}
+    D -- Yes --> E["Google Nearby Search<br/>included type + hard circle restriction"]
+    D -- No --> F["Google Text Search<br/>free text + location bias<br/>only for configured unsupported types"]
+
+    C -- Geoapify --> G{"Adapter operation"}
+    G -- searchNearby --> H["Geoapify Places category search<br/>hard circle filter"]
+    G -- searchText compatibility --> I["Map one of the configured query patterns<br/>to Geoapify categories"]
+    I --> H
+
+    E --> J["Normalized provider result<br/>PlaceData + truthful provenance"]
+    F --> J
+    H --> J
+
+    J --> K["Hard geographic validation<br/>finite coordinates + requested radius<br/>and destination boundary when available"]
+    K --> L["CatalogCandidateValidator<br/>name + provider ID + supported type<br/>business/quality rules"]
+    L --> M["Union all anchor results"]
+    M --> N["Deduplicate<br/>provider + external ID"]
+    N --> O["Persist accepted real POIs"]
+    O --> P["Return to the end-to-end flow<br/>re-query catalog"]
+```
+
+Operation semantics are deliberately not presented as equivalent:
+
+- Google `searchNearby` is the normal operation for conventional typed POIs
+  and enforces a circular location restriction at the provider request.
+- Google `searchText` is free-text retrieval with a location bias. It is used
+  only for explicitly configured concepts that Nearby does not support well;
+  every result still requires a hard backend geography check.
+- Geoapify Places has no equivalent free-text Places endpoint. Its
+  `searchText` adapter method is a compatibility mapping for the small set of
+  configured query patterns and executes a category search with a circle
+  filter. An arbitrary text query is not supported.
+- Exhausting or failing Nearby does not cause the same request to be retried
+  through Text Search, and provider failure does not automatically switch
+  Google to Geoapify. Independent configured operations may still produce a
+  truthful partial result.
+- If no valid candidate remains, any provider quota, rate-limit, strict-cache,
+  or availability failure must remain visible; the engine must not rewrite it
+  as "the destination has no places."
 
 ```text
 Catalog Refill finds conventional real POIs through Google Places.

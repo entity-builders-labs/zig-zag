@@ -347,6 +347,14 @@ Google Places acquisition and validate results before catalog persistence.
 
 1. Search Google Places per anchor using categories relevant to missing catalog
    coverage, not an unbounded crawl of every category.
+   - use Nearby Search as the normal operation for supported typed POIs;
+   - use Google Text Search only for explicitly configured concepts that
+     Nearby does not support well, never as an automatic quota bypass;
+   - treat Geoapify `searchText` as a limited category-mapping compatibility
+     operation, not as semantically equivalent free-text search;
+   - never switch Google to Geoapify automatically after a provider failure;
+   - allow independent configured operations to return partial results, while
+     preserving the real degradation reason if no valid candidates remain.
 2. Union and deduplicate results by provider + external ID before persistence.
 3. Add `CatalogCandidateValidator` before `ActivitiesService.create`:
    - non-empty normalized name;
@@ -767,6 +775,22 @@ allowed transportation modes, days, pace, group, and time budget.
 - Multi-day tours produce coherent per-day geographic groups.
 - An infeasible LLM schedule is rejected and reselected/reduced.
 - Provider failure is visible and uses a documented conservative fallback.
+
+### Deferred follow-up: role-aware food and drink scheduling
+
+Do not add a simple global cap on restaurants or cafes as part of the current
+stabilization PRs. Food stops require a separate design that distinguishes
+schedule-support stops in a general tour from primary stops in an explicitly
+food-centric experience (for example, a tapas route). An interest list that
+contains `food` alongside history, culture, or architecture is not sufficient
+evidence that the whole tour is food-centric.
+
+The follow-up must define food-stop roles, meal/time windows, separation and
+repetition constraints, opening-hours and dietary checks, and how route
+optimization preserves those constraints. Add the observed Granada case—three
+consecutive cafe/coffee venues in a mixed tour—as a deterministic regression
+fixture. Until then, do not implement an ad-hoc type-count rule that could also
+break legitimate food tours.
 
 ---
 
