@@ -1,8 +1,9 @@
 # Activity Engine: Candidate Quality, Discovery, and Mobility Implementation Plan
 
 > **Status:** Active incremental plan. PRs 1-2 are integrated in the local
-> `codex/main`; PR 3 is in progress and remains unmerged pending its revised
-> acceptance gate. The repository remains the source of truth.
+> `codex/main`; PR 3 is open as GitHub PR #19 and remains unmerged pending the
+> local acceptance gate and explicit maintainer approval. The repository
+> remains the source of truth.
 >
 > **Baseline:** local `codex/main` at `eacfaf7`, which includes the completed
 > destination-resolution work and the canonical architecture document.
@@ -144,6 +145,13 @@ Provider success does not mean usable coverage.
 No implementation PR in this plan may be merged into local `codex/main` merely
 because it compiles or its happy path works. The following gate applies to PRs
 1 through 12:
+
+> **Temporary CI operation (2026-08-23):** the repository's GitHub Actions
+> quota is exhausted, so remote checks are not awaited before merge. This does
+> not relax the gate below: the complete applicable test/check/build commands
+> must pass locally, the acceptance report must record their results, and the
+> maintainer must still approve the merge explicitly. Restore remote checks as
+> an additional gate when quota is available again.
 
 1. **Branch isolation**
    - create the PR branch from the latest accepted `codex/main`;
