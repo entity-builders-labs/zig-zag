@@ -1234,10 +1234,14 @@ best-effort re-rank of a rating-truncated list.
   `EMBEDDING_PROVIDER=openai` was explicitly selected.
 - Test the equivalent Bedrock failures with a mocked SDK and prove that Ollama
   and OpenAI are not invoked.
-- Before accepting PR 5, run one bounded live Bedrock smoke test from a local
-  machine or isolated AWS development environment with explicit credentials.
-  Use an isolated local index, clear it, and rebuild it entirely with Titan;
-  do not mix it with Ollama vectors.
+- Before deploying the embedding pipeline in Zig-Zag's AWS environment, run
+  one bounded live Bedrock smoke test there with the application's actual IAM
+  identity. A local invocation is also valid only when it explicitly assumes
+  that Zig-Zag identity; credentials belonging to another project provide no
+  evidence about Zig-Zag's Bedrock access. Use an isolated index, clear it,
+  and rebuild it entirely with Titan; do not mix it with Ollama vectors. This
+  AWS validation is a deployment gate, not a blocker for accepting PR 5 after
+  its mocked Bedrock tests and real local Ollama integration pass.
 - Model-dependent smoke tests assert vector width, persistence, indexed count,
   query execution, and broad semantic sanity. Exact cross-model scores or
   rankings are not expected to match.
