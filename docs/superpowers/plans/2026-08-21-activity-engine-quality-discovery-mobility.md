@@ -433,7 +433,7 @@ arbitrary point fallbacks and neighborhood selection.
    strip arbitrary middle components from every comma-separated label.
 3. Record attempted query forms, selected result, and point-scale degradation
    reason in the trace without exposing unrelated provider payloads.
-4. Preserve the point-scale behavior for actual hotels, addresses, and POIs;
+4. Preserve the point-scale behavior for selected addresses and specific POIs;
    normalization must not turn every selected place into a city-wide tour.
 
 ### Wikidata changes
@@ -527,7 +527,7 @@ Before mass-production rollout:
 - The provider label `Montevideo, Montevideo Department, Uruguay` resolves to
   the real Montevideo city boundary when its structured locality/country and
   selected coordinates identify OSM relation `2929054`.
-- A hotel/address selection remains point-scale after normalization.
+- A selected address/POI remains point-scale after normalization.
 - An ambiguous locality candidate inconsistent with the selected coordinates
   or country is rejected rather than accepted by result order.
 - Literal JSON in the safety prompt formats successfully.
@@ -758,7 +758,7 @@ Señora del Rosario` about 10 km from the selected city point. Fine-grained
   forward results now need tight point consistency before suppressing reverse
   normalization, while city boundaries keep the wider centroid tolerance. The
   normalized reverse path resolves the real Rosario city relation, and the
-  existing exact-hotel point-scale behavior remains covered.
+  existing exact-point behavior remains covered.
 
 #### Checkpoint C acceptance gap found in the Santa Fe smoke test (2026-08-23)
 
@@ -1028,6 +1028,7 @@ interface TourIntent {
     "point_visits" | "neighborhood_walks" | "thematic_routes" | "experiences"
   >;
   explorationStyle: "iconic" | "balanced" | "local_deep_dive";
+  additionalPreferences?: string;
 }
 
 interface MobilityPreferences {
@@ -1044,7 +1045,8 @@ the repository's naming conventions. `interests` remains the thematic signal
 used by embeddings. `experienceFormats` drives requested Activity kinds and
 Discovery/Coverage deficits. `transportationMode` says which modes a later
 route planner may choose. Walking limits are hard deterministic constraints,
-not prompt prose.
+not prompt prose. `additionalPreferences` is bounded supplemental intent, not
+an alternate raw prompt and not a source of trusted entity identity.
 
 ### Wizard behavior
 
@@ -1069,12 +1071,17 @@ not prompt prose.
 8. The wizard submits the new canonical contract only. Remove obsolete state,
    comments, casts, DTO aliases, prompt fields, and tests instead of keeping a
    parallel legacy payload.
-9. Preserve a provider-neutral destination-scale hint from the selected
-   autocomplete result: settlement versus specific point (POI, hotel, address,
-   or equivalent). Google/Geoapify response types are mapped at the adapter
-   boundary and do not leak into the tour domain. This fixes the observed live
-   case where Nominatim did not resolve a selected hotel and reverse
-   normalization could otherwise widen it into the containing city.
+9. Replace the currently disconnected `specialNotes` state with
+   `additionalPreferences` in the canonical payload. Trim it, enforce one
+   centrally defined length limit, persist it, and show it as `captured` in the
+   bitacora. Structured fields remain authoritative; free text cannot override
+   hard mobility/accessibility constraints or assert a trusted Activity.
+10. Preserve a provider-neutral destination-scale hint from the selected
+    autocomplete result: settlement versus specific point (POI, address, or
+    equivalent). Google/Geoapify response types are mapped at the adapter
+    boundary and do not leak into the tour domain. This prevents reverse
+    normalization from silently widening a selected point into its containing
+    city when Nominatim cannot resolve the same fine-grained label.
 
 ### Engine wiring in this PR
 
@@ -1084,6 +1091,10 @@ not prompt prose.
   PRs consume stable input.
 - Feed `interests` to current semantic/prompt behavior without claiming that
   new format or distance constraints are already enforced.
+- Include `additionalPreferences` exactly once in the canonical intent passed
+  to current itinerary selection. Persist and trace it now; PR 5 consumes it
+  in the semantic query and PR 7 consumes it only through explicit coverage or
+  discovery deficits. It never enters Places/OSM as authoritative identity.
 - Feed `experienceFormats` into a typed desired-kind requirement available to
   CoverageAnalyzer/Discovery in later PRs.
 - Feed walking budgets into a typed mobility profile available to spatial
@@ -1095,13 +1106,19 @@ not prompt prose.
 ### Tests and acceptance
 
 - Frontend interaction tests prove themes, experience formats, modes, daily
-  walking budget, continuous-leg limit, and pace serialize independently.
+  walking budget, continuous-leg limit, pace, and additional preferences
+  serialize independently.
 - Backend DTO/value-object tests reject empty modes, negative/NaN distances,
-  continuous limits above the daily limit, and unknown formats.
+  continuous limits above the daily limit, unknown formats, and over-limit
+  additional preferences.
+- A wizard note is present in the canonical request, stored generation intent,
+  bitacora, and final-selector input exactly once; removing it changes each of
+  those artifacts. It does not affect Places acquisition or entity identity in
+  this PR.
 - Selecting walking as transport does not automatically request a
   `NEIGHBORHOOD_WALK`.
 - Selecting a neighborhood walk does not increase the walking-distance budget.
-- A selected hotel/address/POI remains point-scale even when Nominatim cannot
+- A selected address/POI remains point-scale even when Nominatim cannot
   resolve the same fine-grained label; a settlement hint still requires a
   verified settlement identity and boundary rather than trusting autocomplete.
 - Changing from a one-day to a three-day tour does not multiply the per-day
@@ -1676,7 +1693,7 @@ scenarios, and real manual smoke tests before `codex/main -> main`.
      city AREA;
    - no candidate starvation from one dense neighborhood;
    - per-day groups avoid cross-city zigzags.
-4. **Point-scale hotel/address**
+4. **Point-scale address/POI**
    - no city-wide exploration;
    - one bounded anchor;
    - current point-scale safety behavior remains intact.
@@ -1702,7 +1719,7 @@ scenarios, and real manual smoke tests before `codex/main -> main`.
      as a coordinate-consistent destination match;
    - settlement-level reverse normalization resolves the selected coordinates
      to the real Salta city relation and enables area-scale exploration;
-   - a nearby hotel/address/POI still remains point-scale.
+   - a selected address/POI still remains point-scale.
 8. **Provider failures**
    - Places strict cache miss;
    - embedding provider unavailable/mismatched;

@@ -20,13 +20,15 @@ test('clicking the generation bitacora copies its complete text', async ({ conte
             {
               stage: 'places_crawl',
               label: 'Catalog refill · Google Places',
-              summary: 'Google Places recibió 1 resultado y persistió 1.',
+              summary:
+                'Google Places recibió 2 resultados y persistió 1. Rechazos totales registrados: 1. Motivos registrados (un candidato puede tener más de uno): generic_name=1.',
               candidates: [
                 {
                   source: 'google_places',
                   id: 'activity-1',
                   name: 'Museo Histórico Provincial',
-                  detail: 'rating 4.7/5 (240 reviews)',
+                  detail:
+                    'tipo proveedor museum · categoría cultural · rating 4.7/5 (240 reviews)',
                   offered: true,
                   chosen: true,
                 },
@@ -61,7 +63,10 @@ test('clicking the generation bitacora copies its complete text', async ({ conte
   const copiedText = await page.evaluate(() => navigator.clipboard.readText());
   expect(copiedText).toContain('🐛 Bitácora de generación (dev)');
   expect(copiedText).toContain('Resolución del destino');
+  expect(copiedText).toContain('generic_name=1');
   expect(copiedText).toContain('Museo Histórico Provincial');
-  expect(copiedText).toContain('(rating 4.7/5 (240 reviews))');
+  expect(copiedText).toContain(
+    '(tipo proveedor museum · categoría cultural · rating 4.7/5 (240 reviews))'
+  );
   expect(copiedText).toContain('Ofrecido\nElegido\nsin datos · OK');
 });

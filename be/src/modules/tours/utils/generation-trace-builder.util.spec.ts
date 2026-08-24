@@ -58,8 +58,42 @@ describe('buildPlacesCrawlStep', () => {
     });
 
     expect(step.summary).toContain('Rechazos totales registrados: 47');
+    expect(step.summary).toContain(
+      'Motivos registrados (un candidato puede tener más de uno): existing_activity=1; out_of_area=46',
+    );
     expect(step.summary).toContain('13 consulta(s) al proveedor fallaron');
+    expect(step.summary).not.toContain('provider_request_failed=13');
     expect(step.summary).not.toContain('Rechazos totales registrados: 60');
+  });
+
+  it('includes provider primary type and catalog category in candidate details', () => {
+    const step = buildPlacesCrawlStep(
+      [
+        {
+          id: 'place-1',
+          name: 'Museo de la Ciudad',
+          type: 'cultural',
+          rating: 4.6,
+          ratingCount: 125,
+          metadata: {
+            placesProvider: 'google',
+            providerPrimaryType: 'museum',
+          },
+        },
+      ],
+      {
+        provider: 'google',
+        cacheStatus: 'miss-live',
+        requestedCount: 1,
+        receivedCount: 1,
+        acceptedCount: 1,
+        rejectedCountByReason: {},
+      },
+    );
+
+    expect(step.candidates?.[0].detail).toBe(
+      'tipo proveedor museum · categoría cultural · rating 4.6/5 (125 reviews)',
+    );
   });
 
   it('reports anchors, bounded provider calls, validation, deduplication and embeddings', () => {
@@ -143,7 +177,11 @@ describe('buildPlacesCrawlStep', () => {
           rejectedCountByReason: {},
         },
       ],
-      rejectedCountByReason: { duplicate_result: 2, existing_activity: 1 },
+      rejectedCountByReason: {
+        duplicate_result: 2,
+        existing_activity: 1,
+        generic_name: 4,
+      },
     });
 
     expect(step.summary).toContain(
@@ -164,6 +202,10 @@ describe('buildPlacesCrawlStep', () => {
     expect(step.summary).toContain('persistió 5 nuevo(s)');
     expect(step.summary).toContain('indexó 5 embedding(s)');
     expect(step.summary).toContain('Rechazos totales registrados: 7');
+    expect(step.summary).toContain(
+      'Motivos registrados (un candidato puede tener más de uno): duplicate_result=2; existing_activity=1; generic_name=4',
+    );
+    expect(step.summary).not.toContain('consultar motivos');
   });
 });
 
@@ -217,6 +259,27 @@ describe('destination trace step', () => {
     expect(step.summary).toContain('se identificó como San Juan, Argentina');
     expect(step.summary).toContain('límite administrativo contenedor Capital');
     expect(step.summary).not.toContain('ciudad: Capital');
+  });
+
+  it('describes a direct city relation as a search boundary without claiming neighborhood exploration', () => {
+    const step = buildDestinationResolutionStep('La Rioja, Argentina', {
+      scale: 'area',
+      boundary: {
+        id: 'osm:relation:123',
+        name: 'La Rioja',
+        osmType: 'relation',
+        osmId: 123,
+        geometry: { type: 'Point', coordinates: [-66.85, -29.41] },
+        tags: { name: 'La Rioja', admin_level: '8' },
+      },
+      attemptedQueries: ['forward:La Rioja, Argentina'],
+    });
+
+    expect(step.summary).toContain(
+      'Se usa ese límite real para acotar la recuperación y adquisición de candidatos',
+    );
+    expect(step.summary).not.toContain('exploran');
+    expect(step.summary).not.toContain('barrios');
   });
 });
 

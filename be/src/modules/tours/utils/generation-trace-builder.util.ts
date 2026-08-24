@@ -13,6 +13,22 @@ import {
 // `openingHours` field doesn't structurally match a narrow interface).
 function activityDetail(act: any): string {
   const parts: string[] = [];
+  const metadata =
+    act.metadata &&
+    typeof act.metadata === 'object' &&
+    !Array.isArray(act.metadata)
+      ? act.metadata
+      : undefined;
+  const providerPrimaryType = metadata?.providerPrimaryType;
+  if (
+    typeof providerPrimaryType === 'string' &&
+    providerPrimaryType.trim().length > 0
+  ) {
+    parts.push(`tipo proveedor ${providerPrimaryType}`);
+  }
+  if (typeof act.type === 'string' && act.type.trim().length > 0) {
+    parts.push(`categoría ${act.type}`);
+  }
   if (act.rating != null) {
     const reviews =
       act.ratingCount != null ? ` (${act.ratingCount} reviews)` : '';
@@ -22,6 +38,21 @@ function activityDetail(act: any): string {
   const weekdayText = act.openingHours?.weekdayText;
   if (weekdayText?.length) parts.push(`horario: ${weekdayText[0]}`);
   return parts.length > 0 ? parts.join(' · ') : 'sin datos adicionales';
+}
+
+function rejectionReasonSummary(
+  rejectedCountByReason: Record<string, number>,
+): string {
+  const reasons = Object.entries(rejectedCountByReason)
+    .filter(
+      ([reason, count]) => reason !== 'provider_request_failed' && count > 0,
+    )
+    .sort(([left], [right]) => left.localeCompare(right))
+    .map(([reason, count]) => `${reason}=${count}`);
+
+  return reasons.length > 0
+    ? ` Motivos registrados (un candidato puede tener más de uno): ${reasons.join('; ')}.`
+    : '';
 }
 
 export function buildDbSearchStep(
@@ -72,6 +103,9 @@ export function buildPlacesCrawlStep(
   const requestFailureSuffix = providerRequestFailures
     ? ` Además, ${providerRequestFailures} consulta(s) al proveedor fallaron.`
     : '';
+  const rejectionReasons = rejectionReasonSummary(
+    provenance.rejectedCountByReason,
+  );
   const anchorSummary = provenance.anchors?.length
     ? ` Usó ${provenance.anchors.length} punto(s) de cobertura geográfica para distribuir las consultas; no implican relevancia turística ni selección para composites: ${provenance.anchors
         .map((anchor) => anchor.label)
@@ -111,7 +145,7 @@ export function buildPlacesCrawlStep(
     label: `Catalog refill · ${providerLabel}`,
     summary: failed
       ? `${providerLabel} falló (${cacheLabel}). Solicitados: ${provenance.requestedCount}; recibidos: ${provenance.receivedCount}; no se afirmó cobertura nueva.`
-      : `${providerLabel} (${cacheLabel}) recibió ${provenance.receivedCount} resultados brutos y persistió ${provenance.persistedCount ?? provenance.acceptedCount} actividad(es) nueva(s).${anchorSummary}${providerCalls}${operationSummary}${validationSummary}${rejectedCandidateCount ? ` Rechazos totales registrados: ${rejectedCandidateCount}; consultar motivos para distinguir geografía, validación, duplicados y existentes.` : ''}${requestFailureSuffix}`,
+      : `${providerLabel} (${cacheLabel}) recibió ${provenance.receivedCount} resultados brutos y persistió ${provenance.persistedCount ?? provenance.acceptedCount} actividad(es) nueva(s).${anchorSummary}${providerCalls}${operationSummary}${validationSummary}${rejectedCandidateCount ? ` Rechazos totales registrados: ${rejectedCandidateCount}.${rejectionReasons}` : ''}${requestFailureSuffix}`,
     placesProvenance: provenance,
     candidates: candidates.map(
       (act): TraceCandidate => ({
@@ -164,7 +198,7 @@ export function buildDestinationResolutionStep(
       resolution.scale === 'area'
         ? resolution.settlementResult
           ? `"${destinationText}" se identificó como ${resolution.settlementResult.displayName} y se validó con el límite administrativo contenedor ${resolution.boundary.name}. Se usa ese límite real en vez de un único punto+radio.${attempted}`
-          : `"${destinationText}" resolvió a un límite real de ciudad: ${resolution.boundary.name}. Se exploran sus barrios reales en vez de un único punto+radio.${attempted}`
+          : `"${destinationText}" resolvió a un límite real de ciudad: ${resolution.boundary.name}. Se usa ese límite real para acotar la recuperación y adquisición de candidatos en vez de un único punto+radio.${attempted}`
         : destinationText
           ? `"${destinationText}" no resolvió a un límite de ciudad/pueblo real — se usa el punto+radio de siempre. ${degradationMessages[resolution.degradationReason || ''] || 'Motivo no registrado.'}${attempted}`
           : 'No se especificó un destino de texto — se usa el punto+radio de siempre.',

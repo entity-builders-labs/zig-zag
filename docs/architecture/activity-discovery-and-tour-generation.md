@@ -86,8 +86,10 @@ flowchart LR
     U["Preferencias del usuario"] --> E["Formato de experiencia<br/>¿quiere caminatas, rutas<br/>o visitas puntuales?"]
     U --> M["Modos de traslado permitidos<br/>a pie, bici, auto,<br/>transporte público"]
     U --> F["Tolerancia física diaria<br/>distancia total a pie +<br/>máximo tramo continuo"]
+    U --> P["Preferencias adicionales<br/>texto libre complementario<br/>acotado y trazable"]
 
     E --> D["CoverageAnalyzer y Discovery<br/>qué kinds/themes deben existir"]
+    P --> D
     M --> S["Selección espacial<br/>qué conexiones son posibles"]
     F --> S
     S --> R["Ruta y agenda factibles por día"]
@@ -108,6 +110,10 @@ esfuerzo físico aceptado. El contrato canónico separa:
   peatonal;
 - `travelPace` y restricciones de accesibilidad/grupo: modificadores de
   duración y factibilidad, no sustitutos de las distancias máximas.
+- `additionalPreferences`: texto libre complementario para necesidades que el
+  wizard todavía no modela de forma estructurada. Se recorta, valida, persiste
+  y traza; nunca reemplaza restricciones tipadas ni convierte nombres o
+  afirmaciones del usuario en entidades verificadas.
 
 Para una primera UI conviene ofrecer perfiles comprensibles como “caminar lo
 mínimo”, “moderado” y “me gusta caminar”, mostrando su equivalencia aproximada
@@ -115,6 +121,13 @@ en kilómetros por día y permitiendo personalizarla. El valor se aplica por dí
 no al tour completo: un límite global sería ambiguo al comparar viajes de uno y
 cinco días. Los rangos concretos son configuración de producto versionada y no
 deben quedar ocultos dentro del prompt del LLM.
+
+El texto libre no es un prompt alternativo ni una vía para evitar el contrato
+canónico. Entra una sola vez al documento de intención que ve el selector de
+itinerario; PR 5 puede incorporarlo a la consulta semántica y PR 7 a los gaps
+de Discovery. Las preferencias estructuradas son autoritativas cuando existe
+un campo específico. Por ejemplo, una restricción alimentaria elegida en el
+wizard no puede ser anulada escribiendo lo contrario en texto libre.
 
 ### Qué ocurre cuando falta cobertura
 
@@ -893,6 +906,16 @@ embedding is reported truthfully and does not pretend that semantic ranking
 was available. Legacy rows already present in a disposable local database are
 not proof that the write gate failed: PR 3 prevents new invalid persistence;
 the later read-side eligibility gate handles pre-existing catalog data.
+
+The development bitacora must render the non-request-failure entries from
+`rejectedCountByReason` using their canonical codes; it must not tell a reader
+to consult details that the UI and copied trace do not expose. Provider request
+failures remain a separate operational count. Offered catalog candidates also
+show their provider primary type and Zig-Zag catalog category when available,
+so a real but unexpectedly ranked item can be audited without guessing from
+its name. Destination resolution describes an authoritative city boundary as
+the scope for retrieval/acquisition; it must not claim that neighborhoods were
+explored unless a later targeted proposal-resolution stage actually did so.
 
 ### Exact OSM membership inside proposal resolution
 
