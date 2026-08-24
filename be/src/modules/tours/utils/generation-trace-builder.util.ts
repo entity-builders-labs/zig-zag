@@ -7,6 +7,7 @@ import {
   PlacesCrawlProvenance,
   placesProviderLabel,
 } from '@integrations/google-places/interfaces/places-api.interface';
+import { TourGenerationRequest } from '../interfaces/tour-generation.interface';
 
 // Loosely typed on purpose — mirrors the rest of this file's candidates
 // (ActivityWithDistance from ActivitiesService.findAll, whose Prisma Json
@@ -53,6 +54,33 @@ function rejectionReasonSummary(
   return reasons.length > 0
     ? ` Motivos registrados (un candidato puede tener más de uno): ${reasons.join('; ')}.`
     : '';
+}
+
+export function buildTourIntentStep(
+  request: TourGenerationRequest,
+): GenerationTraceStep {
+  const themes =
+    request.intent.interests.length > 0
+      ? request.intent.interests.join(', ')
+      : 'sin temas específicos';
+  const accessibility =
+    request.mobility.accessibilityNeeds.length > 0
+      ? ` Accesibilidad: ${request.mobility.accessibilityNeeds.join(', ')}.`
+      : '';
+  const additional = request.intent.additionalPreferences
+    ? ` Preferencias adicionales capturadas: "${request.intent.additionalPreferences}".`
+    : ' Sin preferencias adicionales.';
+
+  return {
+    stage: 'tour_intent',
+    label: 'Intención y movilidad solicitadas',
+    summary:
+      `Temas: ${themes}. Formatos: ${request.intent.experienceFormats.join(', ')}. ` +
+      `Estilo: ${request.intent.explorationStyle}. Modos permitidos: ${request.mobility.allowedTransportationModes.join(', ')}. ` +
+      `Esfuerzo peatonal capturado: ${request.mobility.maxWalkingDistancePerDayMeters / 1000}km por día y ` +
+      `${request.mobility.maxContinuousWalkingDistanceMeters / 1000}km continuos; todavía no se aplica como restricción determinística hasta la etapa de factibilidad espacial. ` +
+      `Ritmo: ${request.mobility.travelPace}.${accessibility}${additional}`,
+  };
 }
 
 export function buildDbSearchStep(
@@ -167,6 +195,7 @@ export function buildDestinationResolutionStep(
         scale: 'point';
         attemptedQueries?: string[];
         degradationReason?: string;
+        pointReason?: string;
         settlementResult?: { displayName: string };
       }
     | {
@@ -199,9 +228,13 @@ export function buildDestinationResolutionStep(
         ? resolution.settlementResult
           ? `"${destinationText}" se identificó como ${resolution.settlementResult.displayName} y se validó con el límite administrativo contenedor ${resolution.boundary.name}. Se usa ese límite real en vez de un único punto+radio.${attempted}`
           : `"${destinationText}" resolvió a un límite real de ciudad: ${resolution.boundary.name}. Se usa ese límite real para acotar la recuperación y adquisición de candidatos en vez de un único punto+radio.${attempted}`
-        : destinationText
-          ? `"${destinationText}" no resolvió a un límite de ciudad/pueblo real — se usa el punto+radio de siempre. ${degradationMessages[resolution.degradationReason || ''] || 'Motivo no registrado.'}${attempted}`
-          : 'No se especificó un destino de texto — se usa el punto+radio de siempre.',
+        : resolution.pointReason === 'specific_point_hint'
+          ? destinationText
+            ? `"${destinationText}" fue seleccionado como un lugar o dirección específica — se conserva como destino puntual y no se amplía a la ciudad contenedora.`
+            : 'Se usa la ubicación puntual seleccionada y no se amplía a una ciudad contenedora.'
+          : destinationText
+            ? `"${destinationText}" no resolvió a un límite de ciudad/pueblo real — se usa el punto+radio de siempre. ${degradationMessages[resolution.degradationReason || ''] || 'Motivo no registrado.'}${attempted}`
+            : 'No se especificó un destino de texto — se usa el punto+radio de siempre.',
     providerStatus:
       resolution.scale === 'point' &&
       resolution.degradationReason === 'provider_failed'

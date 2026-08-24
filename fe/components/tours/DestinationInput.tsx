@@ -9,11 +9,16 @@ import {
   Pressable,
   Text,
   ScrollView,
-  Icon,
+  Icon
 } from '@gluestack-ui/themed';
 import { Search, MapPin, X } from 'lucide-react-native';
 import * as ExpoLocation from 'expo-location';
-import { PlaceSuggestion, searchPlaces, resolvePlace } from '@/features/places-autocomplete';
+import {
+  PlaceSuggestion,
+  searchPlaces,
+  resolvePlace
+} from '@/features/places-autocomplete';
+import { DestinationScaleHint } from '@/features/tours/tour-generation-contract';
 
 interface DestinationInputProps {
   value?: string;
@@ -23,7 +28,8 @@ interface DestinationInputProps {
     // Search radius (meters) derived from the selected place's actual
     // extent — a neighborhood yields a small radius, a whole city a large
     // one — instead of one fixed radius for every kind of destination.
-    radiusMeters?: number
+    radiusMeters?: number,
+    scaleHint?: DestinationScaleHint
   ) => void;
   // Called whenever the visible text stops matching a resolved selection —
   // true while the user has typed something that hasn't been confirmed by
@@ -34,7 +40,7 @@ interface DestinationInputProps {
 export const DestinationInput: React.FC<DestinationInputProps> = ({
   value,
   onDestinationChange,
-  onDirtyChange,
+  onDirtyChange
 }) => {
   const [term, setTerm] = useState(value || '');
   const [locationResults, setLocationResults] = useState<PlaceSuggestion[]>([]);
@@ -75,7 +81,8 @@ export const DestinationInput: React.FC<DestinationInputProps> = ({
       onDestinationChange(
         details.name,
         { lat: details.lat, lng: details.lng },
-        details.radiusMeters
+        details.radiusMeters,
+        details.scaleHint
       );
       setTerm(details.name);
       setLocationResults([]);
@@ -164,7 +171,7 @@ export const DestinationInput: React.FC<DestinationInputProps> = ({
           overflow='hidden'
           style={{
             backgroundColor: '#FFFFFF',
-            opacity: 1,
+            opacity: 1
           }}
           pointerEvents='box-none'
         >
@@ -172,7 +179,7 @@ export const DestinationInput: React.FC<DestinationInputProps> = ({
             style={{
               backgroundColor: '#FFFFFF',
               width: '100%',
-              height: '100%',
+              height: '100%'
             }}
             pointerEvents='auto'
           >
@@ -180,17 +187,17 @@ export const DestinationInput: React.FC<DestinationInputProps> = ({
               nestedScrollEnabled
               style={{
                 backgroundColor: '#FFFFFF',
-                width: '100%',
+                width: '100%'
               }}
               contentContainerStyle={{
-                backgroundColor: '#FFFFFF',
+                backgroundColor: '#FFFFFF'
               }}
             >
               <VStack
                 p='$2'
                 style={{
                   backgroundColor: '#FFFFFF',
-                  width: '100%',
+                  width: '100%'
                 }}
               >
                 {locationResults.map((item) => (
@@ -209,7 +216,7 @@ export const DestinationInput: React.FC<DestinationInputProps> = ({
                           // — matches the redesign palette instead of a
                           // neutral gray.
                           backgroundColor: pressed ? '#F6F3EA' : '#FFFFFF',
-                          width: '100%',
+                          width: '100%'
                         }}
                       >
                         <Box

@@ -5,7 +5,7 @@
     "jsx": "react-native",
     "module": "esnext",
     "target": "esnext",
-    "lib": ["esnext"],
+    "lib": ["esnext", "dom"],
     "allowJs": true,
     "skipLibCheck": true,
     "noEmit": true,
@@ -20,5 +20,5 @@
     }
   },
   "include": ["**/*", "types/**/*"],
-  "exclude": ["node_modules", "babel.config.js", "metro.config.js"]
+  "exclude": ["node_modules", "dist", "babel.config.js", "metro.config.js"]
 }

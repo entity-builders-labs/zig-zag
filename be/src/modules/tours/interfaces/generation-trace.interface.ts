@@ -4,6 +4,7 @@ import { PlacesCrawlProvenance } from '@integrations/google-places/interfaces/pl
 // Chronological pipeline steps a live tour generation actually went
 // through — see docs/superpowers/specs/2026-08-20-generation-bitacora-design.md.
 export type TraceStage =
+  | 'tour_intent'
   | 'destination_resolution'
   | 'db_search'
   // Kept so traces persisted before provider-neutral naming remain readable.

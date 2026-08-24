@@ -1,3 +1,5 @@
+import { DestinationScaleHint } from './tours/tour-generation-contract';
+
 export interface PlaceSuggestion {
   id: string;
   label: string;
@@ -12,6 +14,42 @@ export interface ResolvedPlace {
   lat: number;
   lng: number;
   radiusMeters?: number;
+  scaleHint: DestinationScaleHint;
+}
+
+const GOOGLE_SETTLEMENT_TYPES = new Set([
+  'locality',
+  'postal_town',
+  'neighborhood',
+  'sublocality',
+  'sublocality_level_1',
+  'sublocality_level_2',
+  'sublocality_level_3',
+  'sublocality_level_4',
+  'sublocality_level_5',
+  'administrative_area_level_3',
+  'administrative_area_level_4',
+  'administrative_area_level_5',
+  'administrative_area_level_6',
+  'administrative_area_level_7'
+]);
+
+export function destinationScaleFromGoogleTypes(
+  types: string[] | undefined
+): DestinationScaleHint {
+  return types?.some((type) => GOOGLE_SETTLEMENT_TYPES.has(type))
+    ? 'settlement'
+    : 'specific_point';
+}
+
+export function destinationScaleFromGeoapifyResultType(
+  resultType: string | undefined
+): DestinationScaleHint {
+  return resultType === 'city' ||
+    resultType === 'suburb' ||
+    resultType === 'district'
+    ? 'settlement'
+    : 'specific_point';
 }
 
 const EARTH_RADIUS_METERS = 6371000;
@@ -42,13 +80,18 @@ function radiusFromCorners(
   low: { lat: number; lng: number },
   high: { lat: number; lng: number }
 ): number {
-  const center = { lat: (low.lat + high.lat) / 2, lng: (low.lng + high.lng) / 2 };
+  const center = {
+    lat: (low.lat + high.lat) / 2,
+    lng: (low.lng + high.lng) / 2
+  };
   const radius = haversineMeters(center, high);
   return Math.min(Math.max(radius, MIN_RADIUS_METERS), MAX_RADIUS_METERS);
 }
 
 const PROVIDER: 'google' | 'geoapify' =
-  process.env.EXPO_PUBLIC_PLACES_PROVIDER === 'geoapify' ? 'geoapify' : 'google';
+  process.env.EXPO_PUBLIC_PLACES_PROVIDER === 'geoapify'
+    ? 'geoapify'
+    : 'google';
 
 // ---- Google Places API (New), proxied — the API doesn't send permissive
 // CORS headers for direct browser calls, unlike Geoapify below. ----
@@ -62,9 +105,9 @@ async function searchPlacesGoogle(input: string): Promise<PlaceSuggestion[]> {
         'Content-Type': 'application/json',
         'X-Goog-Api-Key': process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY!,
         'X-Goog-FieldMask':
-          'suggestions.placePrediction.placeId,suggestions.placePrediction.text',
+          'suggestions.placePrediction.placeId,suggestions.placePrediction.text'
       },
-      body: JSON.stringify({ input }),
+      body: JSON.stringify({ input })
     }
   );
   if (!resp.ok) throw new Error(`Autocomplete failed: ${resp.status}`);
@@ -76,10 +119,16 @@ async function searchPlacesGoogle(input: string): Promise<PlaceSuggestion[]> {
     .map((p: any) => ({ id: p.placeId, label: p.text?.text || '' }));
 }
 
-async function resolvePlaceGoogle(placeId: string): Promise<ResolvedPlace | null> {
+async function resolvePlaceGoogle(
+  placeId: string
+): Promise<ResolvedPlace | null> {
   const resp = await fetch(
-    `${process.env.EXPO_PUBLIC_CORS_PROXY_URL || 'http://localhost:8080'}/gplaces/v1/places/${placeId}?fields=id,displayName,formattedAddress,location,viewport`,
-    { headers: { 'X-Goog-Api-Key': process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY! } }
+    `${process.env.EXPO_PUBLIC_CORS_PROXY_URL || 'http://localhost:8080'}/gplaces/v1/places/${placeId}?fields=id,displayName,formattedAddress,location,viewport,types,primaryType`,
+    {
+      headers: {
+        'X-Goog-Api-Key': process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY!
+      }
+    }
   );
   if (!resp.ok) throw new Error(`Place details failed: ${resp.status}`);
   const details = await resp.json();
@@ -91,10 +140,17 @@ async function resolvePlaceGoogle(placeId: string): Promise<ResolvedPlace | null
     lng: details.location.longitude,
     radiusMeters: details.viewport
       ? radiusFromCorners(
-          { lat: details.viewport.low.latitude, lng: details.viewport.low.longitude },
-          { lat: details.viewport.high.latitude, lng: details.viewport.high.longitude }
+          {
+            lat: details.viewport.low.latitude,
+            lng: details.viewport.low.longitude
+          },
+          {
+            lat: details.viewport.high.latitude,
+            lng: details.viewport.high.longitude
+          }
         )
       : undefined,
+    scaleHint: destinationScaleFromGoogleTypes(details.types)
   };
 }
 
@@ -123,8 +179,12 @@ async function searchPlacesGeoapify(input: string): Promise<PlaceSuggestion[]> {
       lat: p.lat,
       lng: p.lon,
       radiusMeters: f.bbox
-        ? radiusFromCorners({ lat: minLat, lng: minLon }, { lat: maxLat, lng: maxLon })
+        ? radiusFromCorners(
+            { lat: minLat, lng: minLon },
+            { lat: maxLat, lng: maxLon }
+          )
         : undefined,
+      scaleHint: destinationScaleFromGeoapifyResultType(p.result_type)
     };
 
     return { id: p.place_id, label: name, resolved };
@@ -134,7 +194,9 @@ async function searchPlacesGeoapify(input: string): Promise<PlaceSuggestion[]> {
 // ---- Provider-agnostic surface used by the UI components ----
 
 export async function searchPlaces(input: string): Promise<PlaceSuggestion[]> {
-  return PROVIDER === 'geoapify' ? searchPlacesGeoapify(input) : searchPlacesGoogle(input);
+  return PROVIDER === 'geoapify'
+    ? searchPlacesGeoapify(input)
+    : searchPlacesGoogle(input);
 }
 
 export async function resolvePlace(

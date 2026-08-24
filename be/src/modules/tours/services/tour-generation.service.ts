@@ -6,7 +6,10 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '@core/database/prisma.service';
 import { CreateTourDto } from '../dto/create-tour.dto';
-import { GenerateTourOptions } from '../interfaces/tour-generation.interface';
+import {
+  GenerateTourOptions,
+  TourGenerationRequest,
+} from '../interfaces/tour-generation.interface';
 import { LangChainService } from '@shared/ai/langchain.service';
 import { VectorStoreService } from '@shared/ai/services/vector-store.service';
 import { ActivitiesService } from '@activities/services/activities.service';
@@ -28,6 +31,7 @@ import { extractAndCleanJson, repairJson } from '../utils/json-parser.util';
 import {
   buildPromptFromParams,
   buildPreferencesObject,
+  buildWizardSelectionInput,
 } from '../utils/prompt-builder.util';
 import { transformAiActivitiesToDto } from '../utils/activity-transformer.util';
 import { updateTravelTimesForActivities } from '../utils/travel-time-calculator.util';
@@ -217,64 +221,29 @@ export class TourGenerationService {
    * Create a basic tour from wizard preferences
    * This creates the tour structure first, then generates activities in background
    */
-  async createTourFromWizard(options: GenerateTourOptions) {
+  async createTourFromWizard(request: TourGenerationRequest, ownerId: string) {
     const startTime = Date.now();
-
-    // Build prompt from options
-    // Use destination as name if name is not provided
-    const promptName = options?.name || options?.destination;
-
-    const finalPrompt = buildPromptFromParams({
-      name: promptName,
-      description: options?.description,
-      days: options?.days,
-      totalDistance: options?.totalDistance,
-      price: options?.price,
-      estimatedBudget: options?.estimatedBudget,
-      maxGroupSize: options?.maxGroupSize,
-      recommendedGroupSize: options?.recommendedGroupSize,
-      startDates: options?.startDates,
-      categories: options?.categories,
-      interests: options?.interests,
-      budgetLevel: options?.budgetLevel,
-      transportationMode: options?.transportationMode,
-      travelPace: options?.travelPace,
-      dietaryRestrictions: options?.dietaryRestrictions,
-      groupType: options?.groupType,
-      latitude: options?.latitude,
-      longitude: options?.longitude,
-      destination: options?.destination,
-    });
+    const selectorInput = buildWizardSelectionInput(request);
 
     this.logger.log(
-      `Creating tour from wizard with prompt: ${finalPrompt.substring(0, 100)}...`,
+      `Creating tour from wizard with canonical intent: ${selectorInput.substring(0, 100)}...`,
     );
 
     try {
-      // Build preferences object from options
-      const preferences = buildPreferencesObject(options);
-
       // Create basic tour structure (without activities)
-      // Use destination as name if name is not provided
-      const tourName = options?.name || options?.destination || 'Nuevo Tour';
+      const tourName = request.destination.label || 'Nuevo Tour';
 
       const tourData: CreateTourDto = {
-        ownerId: options?.ownerId,
+        ownerId,
         name: tourName,
-        description: options?.description || 'Tour personalizado',
+        description: 'Tour personalizado',
         duration: undefined,
-        totalDays: options?.days,
-        totalDistance: options?.totalDistance,
-        estimatedBudget: options?.estimatedBudget,
-        recommendedGroupSize: options?.recommendedGroupSize,
-        prompt: finalPrompt,
-        categories: options?.categories || [],
+        totalDays: request.days,
+        prompt: selectorInput,
+        categories: request.categories,
         metadata: {
           generatedAt: new Date().toISOString(),
-          options: options as any,
-          originalPrompt: finalPrompt,
-          preferences:
-            Object.keys(preferences).length > 0 ? preferences : undefined,
+          generationRequest: request as any,
           generationStatus: 'pending',
         },
         activities: [], // No activities yet

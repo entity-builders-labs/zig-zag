@@ -1032,7 +1032,7 @@ interface TourIntent {
 }
 
 interface MobilityPreferences {
-  transportationMode: TransportationMode[]; // allowed modes
+  allowedTransportationModes: TransportationMode[];
   maxWalkingDistancePerDayMeters: number;
   maxContinuousWalkingDistanceMeters: number;
   travelPace: TravelPace;
@@ -1128,6 +1128,22 @@ an alternate raw prompt and not a source of trusted entity identity.
 - Browser smoke: create two otherwise identical requests, one with point visits
   only and one with neighborhood walks; the bitacora shows different requested
   kinds while clearly stating that route enforcement arrives in PR 10.
+
+### Implemented PR 4 checkpoint
+
+- The browser submits one nested provider-neutral contract. The old wizard
+  prompt/flat-coordinate payload and its unused DTO were removed.
+- Google and Geoapify autocomplete types map at the adapter boundary to
+  `settlement | specific_point`; a specific point bypasses city widening.
+- The backend validates and normalizes the contract once, persists it as
+  `metadata.generationRequest`, and background generation reads only that
+  value.
+- The bitacora has an explicit intent/mobility stage. Walking limits are
+  reported as captured, not deterministically enforced.
+- Additional preferences are bounded, trimmed, persisted, traced, and included
+  exactly once in selector input.
+- Backend DTO/service/trace tests and a browser request-capture test cover the
+  contract dimensions independently.
 
 ---
 

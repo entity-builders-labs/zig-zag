@@ -19,7 +19,7 @@ import { TourImageService } from './tour-image.service';
 import { CompositeGenerationService } from './composite-generation.service';
 import { DestinationResolutionService } from './destination-resolution.service';
 import { boundingBoxToCenterRadius } from '../utils/geometry-search-area.util';
-import { GenerateTourOptions } from '../interfaces/tour-generation.interface';
+import { TourGenerationRequest } from '../interfaces/tour-generation.interface';
 import { transformAiActivitiesToDto } from '../utils/activity-transformer.util';
 import { updateTravelTimesForActivities } from '../utils/travel-time-calculator.util';
 import { optimizeActivityOrder } from '../utils/route-optimizer.util';
@@ -38,6 +38,7 @@ import {
   buildDbSearchStep,
   buildDestinationResolutionStep,
   buildEmbeddingsStep,
+  buildTourIntentStep,
   buildPlacesCrawlStep,
   buildLlmGenerationStep,
   buildVerificationStep,
@@ -242,23 +243,20 @@ export class TourActivityGenerationService {
     );
 
     try {
-      // Get options from metadata
-      const options = metadata?.options as GenerateTourOptions;
-      if (!options) {
+      const request = metadata?.generationRequest as TourGenerationRequest;
+      if (!request || request.contractVersion !== 1) {
         throw new BadRequestException(
-          'Tour does not have generation options stored',
+          'Tour does not have a supported canonical generation request stored',
         );
       }
 
-      // Rebuild the prompt and generate activities
-      const prompt = metadata?.originalPrompt || metadata?.enhancedPrompt;
-      if (!prompt) {
-        throw new BadRequestException('Tour does not have a prompt stored');
+      const selectorInput = tour.prompt;
+      if (!selectorInput) {
+        throw new BadRequestException(
+          'Tour does not have canonical selector input stored',
+        );
       }
 
-      // Call the internal generation logic but only for activities
-      // We'll reuse the logic from generateTour but only create activities
-      const enhancedPrompt = metadata?.enhancedPrompt || prompt;
       let availableActivitiesText = '';
       // Real activity ids we actually offered the model — anything it
       // returns outside this set gets dropped as a hallucination, since
@@ -276,20 +274,20 @@ export class TourActivityGenerationService {
       let placesRefillError: PlacesCrawlError | null = null;
       let catalogInterestSimilarityById: Map<string, number> | null = null;
 
+      traceSteps.push(buildTourIntentStep(request));
+
       const destinationResolution =
         await this.destinationResolutionService.resolveDestination(
-          options.destination,
-          options.destinationLatitude !== undefined &&
-            options.destinationLongitude !== undefined
-            ? {
-                latitude: options.destinationLatitude,
-                longitude: options.destinationLongitude,
-              }
-            : undefined,
+          request.destination.label,
+          {
+            latitude: request.destination.latitude,
+            longitude: request.destination.longitude,
+          },
+          request.destination.scaleHint,
         );
       traceSteps.push(
         buildDestinationResolutionStep(
-          options.destination,
+          request.destination.label,
           destinationResolution,
         ),
       );
@@ -301,24 +299,21 @@ export class TourActivityGenerationService {
       const searchArea = isAreaScale
         ? boundingBoxToCenterRadius(destinationResolution.boundary.geometry)
         : {
-            latitude: options.latitude,
-            longitude: options.longitude,
-            radiusMeters: options.radius || 25000,
+            latitude: request.destination.latitude,
+            longitude: request.destination.longitude,
+            radiusMeters: request.destination.radiusMeters || 25000,
           };
       const destinationPoint = {
-        latitude:
-          options.destinationLatitude ??
-          options.latitude ??
-          searchArea.latitude,
-        longitude:
-          options.destinationLongitude ??
-          options.longitude ??
-          searchArea.longitude,
+        latitude: request.destination.latitude,
+        longitude: request.destination.longitude,
       };
       let coverageAreas: OsmCandidate[] = [];
 
       // Search for existing activities if location provided
-      if (options?.latitude && options?.longitude) {
+      if (
+        Number.isFinite(request.destination.latitude) &&
+        Number.isFinite(request.destination.longitude)
+      ) {
         const radius = searchArea.radiusMeters;
         const activityLimit = 20;
 
@@ -350,11 +345,11 @@ export class TourActivityGenerationService {
 
             catalogInterestSimilarityById = await this.getInterestSimilarity(
               nearbyActivities,
-              options.interests,
+              request.intent.interests,
             );
             const nearbyActivitiesSample = await this.rankAndSliceActivities(
               nearbyActivities,
-              options.interests,
+              request.intent.interests,
               catalogInterestSimilarityById,
             );
             nearbyActivitiesSample.forEach((act: any) => {
@@ -397,7 +392,7 @@ export class TourActivityGenerationService {
                 catalogInterestSimilarityById =
                   await this.getInterestSimilarity(
                     nearbyActivities,
-                    options.interests,
+                    request.intent.interests,
                   );
               }
               if (isAreaScale) {
@@ -423,8 +418,8 @@ export class TourActivityGenerationService {
                   },
                   {
                     anchors,
-                    destinationLabel: options.destination,
-                    requestedInterests: options.interests,
+                    destinationLabel: request.destination.label,
+                    requestedInterests: request.intent.interests,
                     destinationBoundary: isAreaScale
                       ? destinationResolution.boundary.geometry
                       : undefined,
@@ -448,12 +443,12 @@ export class TourActivityGenerationService {
                 catalogInterestSimilarityById =
                   await this.getInterestSimilarity(
                     refreshedActivities,
-                    options.interests,
+                    request.intent.interests,
                   );
                 const refreshedActivitiesSample =
                   await this.rankAndSliceActivities(
                     refreshedActivities,
-                    options.interests,
+                    request.intent.interests,
                     catalogInterestSimilarityById,
                   );
                 refreshedActivitiesSample.forEach((act: any) => {
@@ -492,12 +487,12 @@ export class TourActivityGenerationService {
                   catalogInterestSimilarityById =
                     await this.getInterestSimilarity(
                       nearbyActivities,
-                      options.interests,
+                      request.intent.interests,
                     );
                   const nearbyActivitiesSample =
                     await this.rankAndSliceActivities(
                       nearbyActivities,
-                      options.interests,
+                      request.intent.interests,
                       catalogInterestSimilarityById,
                     );
                   nearbyActivitiesSample.forEach((act: any) => {
@@ -549,12 +544,12 @@ export class TourActivityGenerationService {
                 catalogInterestSimilarityById =
                   await this.getInterestSimilarity(
                     nearbyActivities,
-                    options.interests,
+                    request.intent.interests,
                   );
                 const nearbyActivitiesSample =
                   await this.rankAndSliceActivities(
                     nearbyActivities,
-                    options.interests,
+                    request.intent.interests,
                     catalogInterestSimilarityById,
                   );
                 nearbyActivitiesSample.forEach((act: any) => {
@@ -600,7 +595,7 @@ export class TourActivityGenerationService {
           buildEmbeddingsStep(
             offeredIds.length,
             indexedCount,
-            !!options.interests?.length,
+            request.intent.interests.length > 0,
           ),
         );
       }
@@ -658,7 +653,7 @@ export class TourActivityGenerationService {
           // activities is injected into its own prompt section by the chain;
           // including it in input as well duplicates the complete candidate
           // list and wastes the provider's token budget.
-          input: enhancedPrompt,
+          input: selectorInput,
           activities: availableActivitiesText,
         }),
         generationTimeout,
@@ -732,8 +727,8 @@ export class TourActivityGenerationService {
           };
         }),
         {
-          budgetLevel: options?.budgetLevel,
-          dietaryRestrictions: options?.dietaryRestrictions,
+          budgetLevel: request.budgetLevel,
+          dietaryRestrictions: request.dietaryRestrictions,
         },
       );
       traceSteps.push(
@@ -774,12 +769,13 @@ export class TourActivityGenerationService {
       // Existing catalog composites are already represented by an Activity ID
       // and are ordered exactly like any other selected Activity.
       let orderedActivities = uniqueActivities;
-      if (options?.latitude && options?.longitude) {
-        orderedActivities = optimizeActivityOrder(
-          { latitude: options.latitude, longitude: options.longitude },
-          uniqueActivities,
-        );
-      }
+      orderedActivities = optimizeActivityOrder(
+        {
+          latitude: request.destination.latitude,
+          longitude: request.destination.longitude,
+        },
+        uniqueActivities,
+      );
 
       // Transform AI response activities to CreateTourDto format
       let activities = transformAiActivitiesToDto(orderedActivities);
@@ -928,14 +924,15 @@ export class TourActivityGenerationService {
         `Activities generated successfully for tour ${tourId} (${activities.length} activities)`,
       );
 
-      // Generate cover image (optional, don't block on this)
       try {
-        await this.updateGenerationStatus(
-          tourId,
-          'generating',
-          'Generando imagen de portada...',
-        );
-        await this.tourImageService.generateTourCoverImage(tourId);
+        if (!request.skipImageGeneration) {
+          await this.updateGenerationStatus(
+            tourId,
+            'generating',
+            'Generando imagen de portada...',
+          );
+          await this.tourImageService.generateTourCoverImage(tourId);
+        }
       } catch (imgError) {
         this.logger.warn(`Failed to generate cover image: ${imgError.message}`);
       } finally {

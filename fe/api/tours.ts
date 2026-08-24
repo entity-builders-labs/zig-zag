@@ -1,8 +1,11 @@
 import axiosInstance from './config/axios';
 import {
   ActivityWaypointRef,
-  CompositeActivityFields,
+  CompositeActivityFields
 } from '../features/activities/composite';
+import { GenerateTourDto } from '../features/tours/tour-generation-contract';
+
+export type { GenerateTourDto } from '../features/tours/tour-generation-contract';
 
 export interface Tour {
   id: string;
@@ -57,34 +60,6 @@ export interface Tour {
   };
 }
 
-export interface GenerateTourDto {
-  prompt?: string;
-  destination?: string;
-  destinationLatitude?: number;
-  destinationLongitude?: number;
-  latitude?: number;
-  longitude?: number;
-  radius?: number;
-  includeExistingActivities?: boolean;
-  days?: number;
-  budgetLevel?: 'low' | 'medium' | 'high';
-  interests?: string[];
-  transportationMode?:
-    | 'walking'
-    | 'driving'
-    | 'public_transport'
-    | 'cycling'
-    | ('walking' | 'driving' | 'public_transport' | 'cycling')[];
-  groupType?: 'solo' | 'couple' | 'family' | 'friends';
-  travelPace?: 'relaxed' | 'moderate' | 'fast';
-  dietaryRestrictions?: string[];
-  startDates?: string[];
-  skipImageGeneration?: boolean;
-  skipActivities?: boolean;
-  excludeTours?: string[];
-  categories?: string[];
-}
-
 export interface PaginatedTours {
   tours: Tour[];
   meta: { total: number; page: number; limit: number; totalPages: number };
@@ -92,7 +67,7 @@ export interface PaginatedTours {
 
 export async function fetchMyTours(page: number = 1, limit: number = 20) {
   const { data } = await axiosInstance.get<PaginatedTours>('/tours', {
-    params: { page, limit },
+    params: { page, limit }
   });
   return data;
 }
@@ -104,7 +79,7 @@ export async function fetchNearbyTours(
   radius: number = 1000
 ) {
   const { data } = await axiosInstance.get<Tour[]>('/tours/nearby', {
-    params: { lat, lng, category, radius },
+    params: { lat, lng, category, radius }
   });
   return data;
 }
@@ -130,9 +105,7 @@ export async function updateTourActivityWaypoints(
   return data;
 }
 
-export async function generateTour(dataOrPrompt: string | GenerateTourDto) {
-  const payload =
-    typeof dataOrPrompt === 'string' ? { prompt: dataOrPrompt } : dataOrPrompt;
+export async function generateTour(payload: GenerateTourDto) {
   const { data } = await axiosInstance.post<Tour>(
     '/tours/generate-tour',
     payload

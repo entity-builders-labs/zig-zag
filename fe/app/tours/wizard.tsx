@@ -12,7 +12,7 @@ export default function TourWizardScreen() {
   const {
     category,
     latitude: latParam,
-    longitude: lngParam,
+    longitude: lngParam
   } = useLocalSearchParams<{
     category?: string;
     latitude?: string;
@@ -22,9 +22,7 @@ export default function TourWizardScreen() {
 
   // Use the createTour hook
   const { createTour, isLoading, error } = useCreateTour({
-    category,
-    initialLatitude: latParam ? parseFloat(latParam) : address?.lat,
-    initialLongitude: lngParam ? parseFloat(lngParam) : address?.lng,
+    category
   });
 
   const handleSubmit = async (preferences: GenerateTourDto) => {
@@ -52,7 +50,7 @@ export default function TourWizardScreen() {
         options={{
           title: 'Nuevo Tour',
           presentation: 'modal',
-          headerShown: false,
+          headerShown: false
         }}
       />
       <TourWizardForm

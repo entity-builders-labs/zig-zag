@@ -30,6 +30,42 @@ function testUuid(): string {
 describe('TourActivityGenerationService', () => {
   const TOUR_ID = 'tour-1';
 
+  const buildGenerationRequest = (overrides: any = {}) => ({
+    contractVersion: 1,
+    days: 1,
+    budgetLevel: 'low',
+    groupType: 'solo',
+    dietaryRestrictions: [],
+    startDates: [],
+    includeExistingActivities: true,
+    skipImageGeneration: true,
+    excludeTours: [],
+    categories: [],
+    ...overrides,
+    destination: {
+      label: 'San Telmo, Buenos Aires, Argentina',
+      latitude: -34.62,
+      longitude: -58.37,
+      radiusMeters: 3000,
+      scaleHint: 'specific_point',
+      ...overrides.destination,
+    },
+    intent: {
+      interests: [],
+      experienceFormats: ['point_visits'],
+      explorationStyle: 'balanced',
+      ...overrides.intent,
+    },
+    mobility: {
+      allowedTransportationModes: ['walking'],
+      maxWalkingDistancePerDayMeters: 5000,
+      maxContinuousWalkingDistanceMeters: 1500,
+      travelPace: 'moderate',
+      accessibilityNeeds: [],
+      ...overrides.mobility,
+    },
+  });
+
   let service: TourActivityGenerationService;
   let prisma: any;
   let toursService: any;
@@ -45,10 +81,10 @@ describe('TourActivityGenerationService', () => {
 
   const buildTour = (overrides: any = {}) => ({
     id: TOUR_ID,
+    prompt: 'A tour of San Telmo',
     activities: [],
     metadata: {
-      options: { latitude: -34.62, longitude: -58.37, radius: 3000 },
-      originalPrompt: 'A tour of San Telmo',
+      generationRequest: buildGenerationRequest(),
       ...overrides.metadata,
     },
     ...overrides,
@@ -368,6 +404,7 @@ describe('TourActivityGenerationService', () => {
     expect(trace.duplicateCount).toBe(0);
     expect(trace.auditFindings).toBeDefined();
     expect(trace.steps.map((s: any) => s.stage)).toEqual([
+      'tour_intent',
       'destination_resolution',
       'db_search',
       'embeddings',
@@ -898,14 +935,11 @@ describe('TourActivityGenerationService', () => {
     toursService.findOne.mockResolvedValue(
       buildTour({
         metadata: {
-          options: {
-            latitude: -34.62,
-            longitude: -58.37,
-            radius: 3000,
-            interests: ['history'],
-          },
-          originalPrompt: 'A tour',
+          generationRequest: buildGenerationRequest({
+            intent: { interests: ['history'] },
+          }),
         },
+        prompt: 'A tour',
       }),
     );
     activitiesService.findAll.mockResolvedValue(
@@ -982,14 +1016,11 @@ describe('TourActivityGenerationService', () => {
     toursService.findOne.mockResolvedValue(
       buildTour({
         metadata: {
-          options: {
-            latitude: -34.62,
-            longitude: -58.37,
-            radius: 3000,
-            interests: ['history'],
-          },
-          originalPrompt: 'A tour',
+          generationRequest: buildGenerationRequest({
+            intent: { interests: ['history'] },
+          }),
         },
+        prompt: 'A tour',
       }),
     );
     activitiesService.findAll.mockResolvedValue([
@@ -1098,16 +1129,14 @@ describe('TourActivityGenerationService', () => {
       toursService.findOne.mockResolvedValue(
         buildTour({
           metadata: {
-            options: {
-              latitude: -34.62,
-              longitude: -58.37,
-              radius: 3000,
-              destination: 'Buenos Aires',
-              destinationLatitude: -34.62,
-              destinationLongitude: -58.37,
-            },
-            originalPrompt: 'A tour of San Telmo',
+            generationRequest: buildGenerationRequest({
+              destination: {
+                label: 'Buenos Aires',
+                scaleHint: 'settlement',
+              },
+            }),
           },
+          prompt: 'A tour of San Telmo',
         }),
       );
       const boundary = {
@@ -1194,10 +1223,14 @@ describe('TourActivityGenerationService', () => {
 
       expect(
         destinationResolutionService.resolveDestination,
-      ).toHaveBeenCalledWith('Buenos Aires', {
-        latitude: -34.62,
-        longitude: -58.37,
-      });
+      ).toHaveBeenCalledWith(
+        'Buenos Aires',
+        {
+          latitude: -34.62,
+          longitude: -58.37,
+        },
+        'settlement',
+      );
       expect(osmPlacesService.findNeighborhoodsWithin).toHaveBeenCalledWith(
         boundary,
       );
@@ -1285,14 +1318,14 @@ describe('TourActivityGenerationService', () => {
       toursService.findOne.mockResolvedValue(
         buildTour({
           metadata: {
-            options: {
-              latitude: -34.62,
-              longitude: -58.37,
-              radius: 3000,
-              destination: 'Buenos Aires',
-            },
-            originalPrompt: 'A tour of Buenos Aires',
+            generationRequest: buildGenerationRequest({
+              destination: {
+                label: 'Buenos Aires',
+                scaleHint: 'settlement',
+              },
+            }),
           },
+          prompt: 'A tour of Buenos Aires',
         }),
       );
       const boundary = {
@@ -1379,14 +1412,17 @@ describe('TourActivityGenerationService', () => {
       toursService.findOne.mockResolvedValue(
         buildTour({
           metadata: {
-            options: {
-              latitude: 37.3891,
-              longitude: -5.9845,
-              radius: 12000,
-              destination: 'Seville, Spain',
-            },
-            originalPrompt: 'A tour of Sevilla',
+            generationRequest: buildGenerationRequest({
+              destination: {
+                label: 'Seville, Spain',
+                latitude: 37.3891,
+                longitude: -5.9845,
+                radiusMeters: 12000,
+                scaleHint: 'settlement',
+              },
+            }),
           },
+          prompt: 'A tour of Sevilla',
         }),
       );
       const boundary = {
@@ -1471,15 +1507,18 @@ describe('TourActivityGenerationService', () => {
       toursService.findOne.mockResolvedValue(
         buildTour({
           metadata: {
-            options: {
-              latitude: 41.42,
-              longitude: 2.15,
-              radius: 11000,
-              destination: 'Barcelona',
-              interests: ['history', 'architecture'],
-            },
-            originalPrompt: 'A tour of Barcelona',
+            generationRequest: buildGenerationRequest({
+              destination: {
+                label: 'Barcelona',
+                latitude: 41.42,
+                longitude: 2.15,
+                radiusMeters: 11000,
+                scaleHint: 'settlement',
+              },
+              intent: { interests: ['history', 'architecture'] },
+            }),
           },
+          prompt: 'A tour of Barcelona',
         }),
       );
 
