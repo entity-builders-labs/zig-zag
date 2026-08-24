@@ -3,6 +3,7 @@ import { ActivityKind } from '@prisma/client';
 import { DestinationResolutionService } from './destination-resolution.service';
 import { OsmPlacesService } from '@integrations/osm/services/osm-places.service';
 import { CompositeActivityService } from '@activities/services/composite-activity.service';
+import { DestinationScaleHint } from '../interfaces/tour-generation.interface';
 
 describe('DestinationResolutionService', () => {
   let service: DestinationResolutionService;
@@ -39,6 +40,23 @@ describe('DestinationResolutionService', () => {
     }).compile();
 
     service = module.get(DestinationResolutionService);
+  });
+
+  it('keeps an autocomplete-selected POI point-scale without widening it through reverse geocoding', async () => {
+    const result = await service.resolveDestination(
+      'Caminito, Buenos Aires',
+      { latitude: -34.639, longitude: -58.362 },
+      DestinationScaleHint.SPECIFIC_POINT,
+    );
+
+    expect(result).toEqual({
+      scale: 'point',
+      attemptedQueries: [],
+      pointReason: 'specific_point_hint',
+    });
+    expect(nominatimApi.search).not.toHaveBeenCalled();
+    expect(nominatimApi.reverse).not.toHaveBeenCalled();
+    expect(osmPlacesService.lookupBoundaryById).not.toHaveBeenCalled();
   });
 
   it('resolves a city-addresstype result to area-scale and persists the AREA activity', async () => {

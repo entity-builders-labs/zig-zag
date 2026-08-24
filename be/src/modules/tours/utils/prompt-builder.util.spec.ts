@@ -1,7 +1,75 @@
 import {
   buildPromptFromParams,
   buildPreferencesObject,
+  buildWizardSelectionInput,
 } from './prompt-builder.util';
+
+const canonicalRequest = (overrides: any = {}) => ({
+  contractVersion: 1 as const,
+  destination: {
+    label: 'Córdoba, Argentina',
+    latitude: -31.42,
+    longitude: -64.18,
+    scaleHint: 'settlement' as const,
+  },
+  days: 2,
+  budgetLevel: 'low' as const,
+  groupType: 'family' as const,
+  intent: {
+    interests: ['history'],
+    experienceFormats: ['point_visits'] as any,
+    explorationStyle: 'balanced' as const,
+    ...overrides.intent,
+  },
+  mobility: {
+    allowedTransportationModes: ['walking'] as any,
+    maxWalkingDistancePerDayMeters: 5000,
+    maxContinuousWalkingDistanceMeters: 1500,
+    travelPace: 'moderate' as const,
+    accessibilityNeeds: [] as string[],
+    ...overrides.mobility,
+  },
+  dietaryRestrictions: [] as string[],
+  startDates: [] as string[],
+  includeExistingActivities: true,
+  skipImageGeneration: true,
+  excludeTours: [] as string[],
+  categories: [] as string[],
+});
+
+describe('buildWizardSelectionInput', () => {
+  it('expresses themes, formats and mobility as independent dimensions', () => {
+    const input = buildWizardSelectionInput(
+      canonicalRequest({
+        intent: {
+          interests: ['history'],
+          experienceFormats: ['neighborhood_walks'],
+        },
+        mobility: {
+          allowedTransportationModes: ['public_transport'],
+          maxWalkingDistancePerDayMeters: 2000,
+          maxContinuousWalkingDistanceMeters: 500,
+        },
+      }) as any,
+    );
+
+    expect(input).toContain('Interests: history');
+    expect(input).toContain('Experience formats: neighborhood_walks');
+    expect(input).toContain('Allowed transportation modes: public_transport');
+    expect(input).toContain('2000 meters per day; 500 meters maximum');
+  });
+
+  it('places additional preferences in selector input exactly once', () => {
+    const note = 'Focus on street photography';
+    const input = buildWizardSelectionInput(
+      canonicalRequest({
+        intent: { additionalPreferences: note },
+      }) as any,
+    );
+
+    expect(input.split(note)).toHaveLength(2);
+  });
+});
 
 describe('buildPromptFromParams', () => {
   it('returns a generic fallback when no params are given', () => {

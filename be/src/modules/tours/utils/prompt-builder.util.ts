@@ -1,4 +1,43 @@
-import { GenerateTourOptions } from '../interfaces/tour-generation.interface';
+import {
+  GenerateTourOptions,
+  TourGenerationRequest,
+} from '../interfaces/tour-generation.interface';
+
+export function buildWizardSelectionInput(
+  request: TourGenerationRequest,
+): string {
+  const lines = [
+    'Create a tour from this canonical wizard intent:',
+    `Destination: ${request.destination.label ?? `${request.destination.latitude}, ${request.destination.longitude}`}`,
+    `Number of days: ${request.days}`,
+    `Budget level: ${request.budgetLevel}`,
+    `Group type: ${request.groupType}`,
+    `Interests: ${request.intent.interests.length > 0 ? request.intent.interests.join(', ') : 'none specified'}`,
+    `Experience formats: ${request.intent.experienceFormats.join(', ')}`,
+    `Exploration style: ${request.intent.explorationStyle}`,
+    `Allowed transportation modes: ${request.mobility.allowedTransportationModes.join(', ')}`,
+    `Travel pace: ${request.mobility.travelPace}`,
+    `Walking limits captured (deterministic enforcement arrives in the spatial-feasibility stage): ${request.mobility.maxWalkingDistancePerDayMeters} meters per day; ${request.mobility.maxContinuousWalkingDistanceMeters} meters maximum continuous leg`,
+  ];
+
+  if (request.mobility.accessibilityNeeds.length > 0) {
+    lines.push(
+      `Accessibility needs: ${request.mobility.accessibilityNeeds.join(', ')}`,
+    );
+  }
+  if (request.dietaryRestrictions.length > 0) {
+    lines.push(
+      `Dietary restrictions: ${request.dietaryRestrictions.join(', ')}`,
+    );
+  }
+  if (request.intent.additionalPreferences) {
+    lines.push(
+      `Additional preferences: ${request.intent.additionalPreferences}`,
+    );
+  }
+
+  return lines.join('\n');
+}
 
 /**
  * Build a prompt from tour generation parameters

@@ -1,10 +1,96 @@
-import {
-  BudgetLevel,
-  TransportationMode,
-  GroupType,
-  TravelPace,
-} from '../dto/create-tour-from-prompt.dto';
+export enum BudgetLevel {
+  LOW = 'low',
+  MEDIUM = 'medium',
+  HIGH = 'high',
+}
 
+export enum TransportationMode {
+  WALKING = 'walking',
+  DRIVING = 'driving',
+  PUBLIC_TRANSPORT = 'public_transport',
+  CYCLING = 'cycling',
+}
+
+export enum GroupType {
+  SOLO = 'solo',
+  COUPLE = 'couple',
+  FAMILY = 'family',
+  FRIENDS = 'friends',
+}
+
+export enum TravelPace {
+  RELAXED = 'relaxed',
+  MODERATE = 'moderate',
+  FAST = 'fast',
+}
+
+export enum ExperienceFormat {
+  POINT_VISITS = 'point_visits',
+  NEIGHBORHOOD_WALKS = 'neighborhood_walks',
+  THEMATIC_ROUTES = 'thematic_routes',
+  EXPERIENCES = 'experiences',
+}
+
+export enum ExplorationStyle {
+  ICONIC = 'iconic',
+  BALANCED = 'balanced',
+  LOCAL_DEEP_DIVE = 'local_deep_dive',
+}
+
+export enum DestinationScaleHint {
+  SETTLEMENT = 'settlement',
+  SPECIFIC_POINT = 'specific_point',
+}
+
+export interface TourIntent {
+  interests: string[];
+  experienceFormats: ExperienceFormat[];
+  explorationStyle: ExplorationStyle;
+  additionalPreferences?: string;
+}
+
+export interface MobilityPreferences {
+  allowedTransportationModes: TransportationMode[];
+  maxWalkingDistancePerDayMeters: number;
+  maxContinuousWalkingDistanceMeters: number;
+  travelPace: TravelPace;
+  accessibilityNeeds: string[];
+}
+
+export interface TourDestinationSelection {
+  label?: string;
+  latitude: number;
+  longitude: number;
+  radiusMeters?: number;
+  scaleHint: DestinationScaleHint;
+}
+
+/**
+ * Canonical wizard request after validation and normalization. This is the
+ * only shape persisted for background generation; provider-specific
+ * autocomplete fields never cross this boundary.
+ */
+export interface TourGenerationRequest {
+  contractVersion: 1;
+  destination: TourDestinationSelection;
+  days: number;
+  budgetLevel: BudgetLevel;
+  groupType: GroupType;
+  intent: TourIntent;
+  mobility: MobilityPreferences;
+  dietaryRestrictions: string[];
+  startDates: string[];
+  includeExistingActivities: boolean;
+  skipImageGeneration: boolean;
+  excludeTours: string[];
+  categories: string[];
+}
+
+/**
+ * Legacy internal options used only by the deprecated nearby-tour generator.
+ * Wizard generation uses TourGenerationRequest and must not accept this flat
+ * shape.
+ */
 export interface GenerateTourOptions {
   ownerId?: string;
   latitude?: number;

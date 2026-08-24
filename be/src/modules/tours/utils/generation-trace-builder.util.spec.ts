@@ -3,7 +3,51 @@ import {
   buildDestinationResolutionStep,
   buildLlmGenerationStep,
   buildPlacesCrawlStep,
+  buildTourIntentStep,
 } from './generation-trace-builder.util';
+
+describe('buildTourIntentStep', () => {
+  it('traces supplemental intent once and labels walking limits as captured, not enforced', () => {
+    const note = 'Prefer street photography';
+    const step = buildTourIntentStep({
+      contractVersion: 1,
+      destination: {
+        label: 'Córdoba',
+        latitude: -31.42,
+        longitude: -64.18,
+        scaleHint: 'settlement' as any,
+      },
+      days: 1,
+      budgetLevel: 'low' as any,
+      groupType: 'solo' as any,
+      intent: {
+        interests: ['history'],
+        experienceFormats: ['neighborhood_walks' as any],
+        explorationStyle: 'balanced' as any,
+        additionalPreferences: note,
+      },
+      mobility: {
+        allowedTransportationModes: ['public_transport' as any],
+        maxWalkingDistancePerDayMeters: 2000,
+        maxContinuousWalkingDistanceMeters: 500,
+        travelPace: 'moderate' as any,
+        accessibilityNeeds: [],
+      },
+      dietaryRestrictions: [],
+      startDates: [],
+      includeExistingActivities: true,
+      skipImageGeneration: true,
+      excludeTours: [],
+      categories: [],
+    });
+
+    expect(step.stage).toBe('tour_intent');
+    expect(step.summary).toContain('neighborhood_walks');
+    expect(step.summary).toContain('public_transport');
+    expect(step.summary).toContain('todavía no se aplica');
+    expect(step.summary?.split(note)).toHaveLength(2);
+  });
+});
 describe('buildPlacesCrawlStep', () => {
   it('reports the actual Geoapify provider and cache provenance', () => {
     const step = buildPlacesCrawlStep([{ id: 'a1', name: 'Museo' }], {
@@ -227,6 +271,18 @@ describe('buildEmbeddingsStep', () => {
 });
 
 describe('destination trace step', () => {
+  it('reports that a selected specific point was deliberately not widened', () => {
+    const step = buildDestinationResolutionStep('Caminito, Buenos Aires', {
+      scale: 'point',
+      pointReason: 'specific_point_hint',
+      attemptedQueries: [],
+    });
+
+    expect(step.summary).toContain('lugar o dirección específica');
+    expect(step.summary).toContain('no se amplía');
+    expect(step.summary).not.toContain('no resolvió');
+  });
+
   it('records normalized destination attempts and the coordinate mismatch reason', () => {
     const step = buildDestinationResolutionStep('Montevideo', {
       scale: 'point',

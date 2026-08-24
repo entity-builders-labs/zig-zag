@@ -60,10 +60,44 @@ describe('ToursController', () => {
   });
 
   it('generateTour() passes the authenticated user as ownerId', () => {
-    controller.generateTour({} as any, currentUser);
+    controller.generateTour(
+      {
+        destination: {
+          label: 'Córdoba, Argentina',
+          latitude: -31.42,
+          longitude: -64.18,
+          scaleHint: 'settlement',
+        },
+        days: 1,
+        budgetLevel: 'low',
+        groupType: 'solo',
+        intent: {
+          interests: ['history'],
+          experienceFormats: ['point_visits'],
+          explorationStyle: 'balanced',
+        },
+        mobility: {
+          allowedTransportationModes: ['walking'],
+          maxWalkingDistancePerDayMeters: 5000,
+          maxContinuousWalkingDistanceMeters: 1500,
+          travelPace: 'moderate',
+          accessibilityNeeds: [],
+        },
+      } as any,
+      currentUser,
+    );
 
     expect(mockTourGenerationService.createTourFromWizard).toHaveBeenCalledWith(
-      expect.objectContaining({ ownerId: 'user-1' }),
+      expect.objectContaining({
+        contractVersion: 1,
+        intent: expect.objectContaining({
+          experienceFormats: ['point_visits'],
+        }),
+        mobility: expect.objectContaining({
+          allowedTransportationModes: ['walking'],
+        }),
+      }),
+      'user-1',
     );
   });
 

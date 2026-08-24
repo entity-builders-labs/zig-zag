@@ -16,7 +16,7 @@ import {
   Heading,
   Spinner,
   Pressable,
-  Text,
+  Text
 } from '@gluestack-ui/themed';
 import { useRouter } from 'expo-router';
 import { ArrowLeft } from 'lucide-react-native';
@@ -38,7 +38,7 @@ interface StopWithLocation {
 
 export const TourHeader = ({
   tour,
-  expanded = false,
+  expanded = false
 }: {
   tour: Tour;
   expanded?: boolean;
@@ -48,15 +48,19 @@ export const TourHeader = ({
   const imageUri = tour.coverImage || getImage(firstActivity?.photos);
 
   const getFirstLocation = () => {
-    if (tour.metadata?.options?.latitude && tour.metadata?.options?.longitude) {
+    const destination = tour.metadata?.generationRequest?.destination;
+    if (destination?.latitude != null && destination?.longitude != null) {
       return {
-        latitude: tour.metadata?.options?.latitude,
-        longitude: tour.metadata.options.longitude,
+        latitude: destination.latitude,
+        longitude: destination.longitude
       };
-    } else if (firstActivity?.latitude && firstActivity?.longitude) {
+    } else if (
+      firstActivity?.latitude != null &&
+      firstActivity?.longitude != null
+    ) {
       return {
         latitude: firstActivity.latitude,
-        longitude: firstActivity.longitude,
+        longitude: firstActivity.longitude
       };
     }
   };
@@ -75,7 +79,7 @@ export const TourHeader = ({
         longitude,
         title: stop.activity?.name || stop.activityName || 'Actividad',
         order: stop.order,
-        dayNumber: stop.dayNumber ?? 1,
+        dayNumber: stop.dayNumber ?? 1
       };
     })
     .filter((stop): stop is StopWithLocation => stop !== null);
@@ -84,7 +88,10 @@ export const TourHeader = ({
   // to one day at a time — otherwise a 3-day tour shows a tangle of 15
   // stops with no way to tell which ones belong to which day.
   const availableDays = React.useMemo(
-    () => Array.from(new Set(stops.map((stop) => stop.dayNumber))).sort((a, b) => a - b),
+    () =>
+      Array.from(new Set(stops.map((stop) => stop.dayNumber))).sort(
+        (a, b) => a - b
+      ),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [tour.id, tour.activities]
   );
@@ -99,7 +106,7 @@ export const TourHeader = ({
     id: `stop-${index}`,
     coordinate: { latitude: stop.latitude, longitude: stop.longitude },
     title: stop.title,
-    order: stop.order,
+    order: stop.order
   }));
 
   const mapRegion = getRegionForCoordinates(
@@ -129,9 +136,9 @@ export const TourHeader = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tour.id, tour.activities, selectedDay]);
 
-  const [routes, setRoutes] = useState<{ coordinates: typeof straightRoutes[number] }[]>(
-    straightRoutes.map((coordinates) => ({ coordinates }))
-  );
+  const [routes, setRoutes] = useState<
+    { coordinates: (typeof straightRoutes)[number] }[]
+  >(straightRoutes.map((coordinates) => ({ coordinates })));
   const [loadingDirections, setLoadingDirections] = useState(false);
 
   // Fetch the real walking route regardless of collapsed/expanded — the
@@ -145,7 +152,9 @@ export const TourHeader = ({
 
     let cancelled = false;
     setLoadingDirections(true);
-    Promise.all(straightRoutes.map((coordinates) => fetchWalkingRoute(coordinates)))
+    Promise.all(
+      straightRoutes.map((coordinates) => fetchWalkingRoute(coordinates))
+    )
       .then((resolvedRoutes) => {
         if (!cancelled) {
           setRoutes(resolvedRoutes.map((coordinates) => ({ coordinates })));
@@ -256,12 +265,18 @@ export const TourHeader = ({
           pointerEvents='box-none'
         >
           {availableDays.map((day) => (
-            <Pressable key={day} onPress={() => setSelectedDay(day)} testID={`tour-day-${day}`}>
+            <Pressable
+              key={day}
+              onPress={() => setSelectedDay(day)}
+              testID={`tour-day-${day}`}
+            >
               <Box
                 px='$3'
                 py='$1.5'
                 borderRadius='$full'
-                bg={day === selectedDay ? '$primary500' : 'rgba(255,255,255,0.9)'}
+                bg={
+                  day === selectedDay ? '$primary500' : 'rgba(255,255,255,0.9)'
+                }
               >
                 <Text
                   color={day === selectedDay ? '$white' : '$textLight800'}

@@ -8,13 +8,12 @@ import {
   Text,
   Spinner,
   AlertCircleIcon,
-  Pressable,
+  Pressable
 } from '@gluestack-ui/themed';
 import { FlatList } from 'react-native';
 import { Link, useLocalSearchParams, router } from 'expo-router';
 import axiosInstance from '@/api/config/axios';
 import { useApi } from '@/api/hooks/useApi';
-import { generateTour } from '@/api/tours';
 import { PaginatedResponseTour } from '@/components/types';
 import { AppContext } from '@/context/app';
 import { useContext } from 'react';
@@ -36,7 +35,7 @@ export default function ToursScreen() {
   const {
     category,
     latitude: latParam,
-    longitude: lngParam,
+    longitude: lngParam
   } = useLocalSearchParams<{
     category?: string;
     latitude?: string;
@@ -45,42 +44,26 @@ export default function ToursScreen() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalTours, setTotalTours] = useState<number>(0);
-  const [isGenerating, setIsGenerating] = useState(false);
 
   const { address } = useContext(AppContext);
 
-  const handleGenerateUniqueTour = async () => {
-    setIsGenerating(true);
-    try {
-      const existingTourIds = data?.tours.map((t) => t.id) || [];
-      const lat = latParam ? parseFloat(latParam) : address?.lat;
-      const lng = lngParam ? parseFloat(lngParam) : address?.lng;
-
-      const newTour = await generateTour({
-        prompt: category
-          ? `Create a unique tour about ${category}`
-          : 'Create a unique tour based on hidden gems',
-        excludeTours: existingTourIds,
-        categories: category ? [category] : [],
-        latitude: lat,
-        longitude: lng,
-      });
-
-      if (newTour && newTour.id) {
-        router.push(`/tours/${newTour.id}`);
+  const handleGenerateUniqueTour = () => {
+    const lat = latParam ? parseFloat(latParam) : address?.lat;
+    const lng = lngParam ? parseFloat(lngParam) : address?.lng;
+    router.push({
+      pathname: '/tours/wizard',
+      params: {
+        ...(category ? { category } : {}),
+        ...(lat !== undefined ? { latitude: String(lat) } : {}),
+        ...(lng !== undefined ? { longitude: String(lng) } : {})
       }
-    } catch (err) {
-      console.error('Failed to generate tour', err);
-      alert('Failed to generate a new tour. Please try again.');
-    } finally {
-      setIsGenerating(false);
-    }
+    });
   };
 
   const getTours = async () => {
     try {
       const params = new URLSearchParams({
-        page: currentPage.toString(),
+        page: currentPage.toString()
       });
       if (category) {
         params.append('category', category);
@@ -111,9 +94,9 @@ export default function ToursScreen() {
       return {
         data: {
           tours: tours,
-          meta: meta,
+          meta: meta
         },
-        success: true,
+        success: true
       };
     } catch (error) {
       return {
@@ -124,8 +107,8 @@ export default function ToursScreen() {
             error instanceof Error
               ? error.message
               : 'Failed to fetch activities',
-          code: 'API_ERROR',
-        },
+          code: 'API_ERROR'
+        }
       };
     }
   };
@@ -160,24 +143,16 @@ export default function ToursScreen() {
                 Mostrando tours de la categoría: {category}
               </Text>
             )}
-            <Button
-              onPress={() => router.push('/tours/wizard')}
-              isDisabled={isGenerating}
-            >
+            <Button onPress={() => router.push('/tours/wizard')}>
               <Text color='$white'>Create New Tour</Text>
             </Button>
 
             <Button
               onPress={handleGenerateUniqueTour}
-              isDisabled={isGenerating}
               variant='outline'
               borderColor='$primary500'
             >
-              {isGenerating ? (
-                <Spinner color='$primary500' />
-              ) : (
-                <Text color='$primary500'>Generate Unique AI Tour 🪄</Text>
-              )}
+              <Text color='$primary500'>Customize Unique AI Tour 🪄</Text>
             </Button>
 
             {loading && <Spinner size='large' />}

@@ -9,6 +9,7 @@ import {
   INominatimApiService,
   NominatimResult,
 } from '@integrations/osm/interfaces/nominatim.interface';
+import { DestinationScaleHint } from '../interfaces/tour-generation.interface';
 
 // Nominatim's own place classification for a destination big enough to have
 // internal structure worth exploring — see docs/superpowers/specs/
@@ -34,6 +35,7 @@ export type DestinationDegradationReason =
 
 export interface DestinationResolutionAudit {
   attemptedQueries: string[];
+  pointReason?: 'specific_point_hint';
   settlementResult?: {
     osmType: 'node' | 'way' | 'relation';
     osmId: number;
@@ -86,8 +88,16 @@ export class DestinationResolutionService {
   async resolveDestination(
     destinationText: string | undefined,
     coordinates?: DestinationCoordinates,
+    scaleHint?: DestinationScaleHint,
   ): Promise<DestinationResolution> {
     const attemptedQueries: string[] = [];
+    if (scaleHint === DestinationScaleHint.SPECIFIC_POINT) {
+      return {
+        scale: 'point',
+        attemptedQueries,
+        pointReason: 'specific_point_hint',
+      };
+    }
     if (!destinationText) {
       return {
         scale: 'point',

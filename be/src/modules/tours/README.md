@@ -10,10 +10,10 @@ tours/
 │   └── tours.controller.ts          # REST API endpoints
 ├── dto/
 │   ├── create-tour.dto.ts           # Manual tour creation
-│   ├── create-tour-from-prompt.dto.ts # Wizard-based generation
+│   ├── create-tour-from-wizard.dto.ts # Canonical wizard intent + mobility
 │   └── update-tour.dto.ts
 ├── interfaces/
-│   └── tour-generation.interface.ts # GenerateTourOptions type
+│   └── tour-generation.interface.ts # Canonical request and legacy internal options
 ├── prompts/                         # LangChain prompt templates
 │   ├── activity-recommendation.prompt.ts
 │   ├── contextual-activities.prompt.ts
@@ -43,15 +43,23 @@ The primary flow when a user creates a tour from the mobile app wizard:
 
 1. **`POST /tours/generate-tour`** → `ToursController.generateTour()`
 2. **`TourGenerationService.createTourFromWizard()`**:
-   - Creates a basic tour record in PostgreSQL
-   - Builds an AI prompt from wizard preferences (destination, days, interests, budget, etc.)
+   - Validates and normalizes one canonical `TourGenerationRequest`
+   - Creates a basic tour record and persists that request in PostgreSQL
+   - Builds selector input from typed intent and mobility preferences
    - Kicks off **background** activity generation (non-blocking)
 3. **`TourActivityGenerationService.generateTourActivities()`** (background):
+   - Reads only the persisted canonical generation request
    - Uses `LangChainService` to generate activity recommendations
    - Searches for existing nearby activities in the DB
    - Enriches with vector similarity search (pgvector)
    - Creates `TourActivity` records linking activities to the tour
    - Optionally generates a cover image via `TourImageService`
+
+The request distinguishes thematic interests, desired experience formats,
+exploration style, allowed transportation modes, daily/continuous walking
+limits, pace, accessibility, and bounded additional preferences. PR 4 captures
+and traces every dimension; deterministic walking and transport enforcement is
+deliberately deferred to the spatial-feasibility stage.
 
 ### Nearby Tours Discovery
 

@@ -412,6 +412,15 @@ Tour Generation only selects verified Activities.
 | Itinerary generation         | Choose and schedule offered Activity IDs                                                                                                                 | Create entities                                                         |
 | Verification                 | Drop hallucinated IDs, duplicates, invalid subsets, and infeasible schedules                                                                             | Trust prompt compliance                                                 |
 
+Here, **diversity means marginal non-redundancy within the selected set**, not
+random variety. Set-level selection rewards an uncovered requested theme or
+requested experience format and softly penalizes near-duplicate semantic
+content or excessive repetition of one normalized subtype. It must not spread
+stops across the city, require every Activity kind/provider, or select a weaker
+irrelevant place merely to satisfy a quota. Geographic coherence remains a
+separate feasibility constraint, and food/drink cadence remains the deferred
+role-aware design below.
+
 Destination resolution must not assume that the frontend display label is a
 canonical Nominatim query. For example, the provider label `Montevideo,
 Montevideo Department, Uruguay` can return no Nominatim result while the
@@ -724,13 +733,15 @@ approximate conservative range, reserve the upper bound in the schedule, and
 delegate the live route to Google Maps. Navigation is delegated; itinerary
 feasibility is not.
 
-### Current implementation gap
+### Current implementation checkpoint and remaining gap
 
-The current wizard captures `transportationMode`, interests, and a generic pace
-slider, then includes them in the LLM prompt. It does not capture desired
-experience formats, a per-day walking budget, or a maximum continuous walking
-leg, and deterministic post-processing does not yet implement the target
-architecture above. [route-optimizer.util.ts](../../be/src/modules/tours/utils/route-optimizer.util.ts)
+The wizard now submits one typed contract containing allowed transportation
+modes, interests, desired experience formats, exploration style, a per-day
+walking budget, maximum continuous walking leg, pace, accessibility, and
+bounded additional preferences. The normalized contract is persisted and the
+bitacora reports those values as captured. Deterministic post-processing does
+not yet implement the target mobility architecture above.
+[route-optimizer.util.ts](../../be/src/modules/tours/utils/route-optimizer.util.ts)
 uses nearest-neighbor plus 2-opt over straight-line Haversine distance for every
 request, and
 [travel-time-calculator.util.ts](../../be/src/modules/tours/utils/travel-time-calculator.util.ts)
@@ -739,6 +750,18 @@ selected stops but cannot reject, replace, cluster, or route them differently
 for cycling, driving, or public transport. Treat this section as required
 design input before extending candidate selection or route optimization;
 consult the code for the current implementation state.
+
+### Persisted draft versus user confirmation
+
+Asynchronous generation requires a persisted Tour ID before activities can be
+generated, so persistence itself is not user confirmation. The current schema
+tracks generation progress but has no independent lifecycle state; the review
+button only applies composite-waypoint edits and navigates to detail. A separate
+increment must introduce a domain lifecycle such as `DRAFT | CONFIRMED |
+ARCHIVED`, show review for every generated tour, expose an explicit confirm
+operation, and keep drafts separate from confirmed saved tours. Future prompt
+edits should operate on a draft revision rather than silently mutate a
+confirmed historical snapshot.
 
 ## Places acquisition: Text Search primary, Nearby coverage secondary
 
@@ -859,22 +882,22 @@ provider entity is structurally usable; admission requires enough evidence for
 it to enter Zig-Zag's reusable catalog. Admission does not guarantee later tour
 eligibility, which belongs to PR 6's read-side quality gate.
 
-| Rule                        | Rejection reason                      | Exact meaning                                                                                                                                                                                                                                                                                                                                             |
-| --------------------------- | ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Non-empty normalized name   | `empty_name`                          | Unicode accents, case, punctuation, and repeated whitespace are normalized before checking.                                                                                                                                                                                                                                                               |
-| Non-generic identity        | `generic_name`                        | Exact placeholder-like names such as `Arquitectura`, `Edificio`, `Monumento`, `Point of Interest`, `Unnamed Road`, or `Sin nombre` are not useful catalog entities. A real specific name containing one of those words is not rejected by this rule.                                                                                                      |
-| Provider identity           | `missing_provider_id`                 | A stable Google Place ID or Geoapify place ID is required so the same real entity can be deduplicated and traced.                                                                                                                                                                                                                                         |
-| Valid coordinates           | `invalid_coordinates`                 | Latitude and longitude must be finite and inside the legal WGS84 ranges.                                                                                                                                                                                                                                                                                  |
-| Operation geography         | `out_of_area`                         | Nearby results must be inside their hard anchor circle. Destination-seed Text results must satisfy their configured rectangle when used. Every area-scale result also receives the exact destination-polygon check. Provider bias alone is never trusted.                                                                                                 |
-| Destination boundary        | `outside_destination_boundary`        | For an area-scale destination, the point must also be inside the authoritative Polygon or MultiPolygon, including hole handling. A high rating does not override this rule.                                                                                                                                                                               |
-| Operating status            | `permanently_closed`                  | Reject only provider statuses meaning that the business ceased operating permanently: Google `CLOSED_PERMANENTLY` or its normalized equivalent `PERMANENTLY_CLOSED`. This does **not** mean closed now, outside opening hours, a holiday, or a temporary closure. Schedule feasibility is a later tour-planning concern, not catalog identity validation. |
-| Supported semantic type     | `unsupported_type`                    | At least one provider type must map to a supported catalog POI type such as museum, landmark, place of worship, park, food venue, or entertainment venue.                                                                                                                                                                                                 |
-| Supported primary type      | `unsupported_primary_type`            | Google admission requires the returned `primaryType` to match a controlled catalog mapping for the acquisition operation. A requested type or unrelated secondary type is not enough. Provider adapters without an equivalent primary type use their own explicit policy.                                                                                 |
+| Rule                        | Rejection reason                      | Exact meaning                                                                                                                                                                                                                                                                                                                                                                                   |
+| --------------------------- | ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Non-empty normalized name   | `empty_name`                          | Unicode accents, case, punctuation, and repeated whitespace are normalized before checking.                                                                                                                                                                                                                                                                                                     |
+| Non-generic identity        | `generic_name`                        | Exact placeholder-like names such as `Arquitectura`, `Edificio`, `Monumento`, `Point of Interest`, `Unnamed Road`, or `Sin nombre` are not useful catalog entities. A real specific name containing one of those words is not rejected by this rule.                                                                                                                                            |
+| Provider identity           | `missing_provider_id`                 | A stable Google Place ID or Geoapify place ID is required so the same real entity can be deduplicated and traced.                                                                                                                                                                                                                                                                               |
+| Valid coordinates           | `invalid_coordinates`                 | Latitude and longitude must be finite and inside the legal WGS84 ranges.                                                                                                                                                                                                                                                                                                                        |
+| Operation geography         | `out_of_area`                         | Nearby results must be inside their hard anchor circle. Destination-seed Text results must satisfy their configured rectangle when used. Every area-scale result also receives the exact destination-polygon check. Provider bias alone is never trusted.                                                                                                                                       |
+| Destination boundary        | `outside_destination_boundary`        | For an area-scale destination, the point must also be inside the authoritative Polygon or MultiPolygon, including hole handling. A high rating does not override this rule.                                                                                                                                                                                                                     |
+| Operating status            | `permanently_closed`                  | Reject only provider statuses meaning that the business ceased operating permanently: Google `CLOSED_PERMANENTLY` or its normalized equivalent `PERMANENTLY_CLOSED`. This does **not** mean closed now, outside opening hours, a holiday, or a temporary closure. Schedule feasibility is a later tour-planning concern, not catalog identity validation.                                       |
+| Supported semantic type     | `unsupported_type`                    | At least one provider type must map to a supported catalog POI type such as museum, landmark, place of worship, park, food venue, or entertainment venue.                                                                                                                                                                                                                                       |
+| Supported primary type      | `unsupported_primary_type`            | Google admission requires the returned `primaryType` to match a controlled catalog mapping for the acquisition operation. A requested type or unrelated secondary type is not enough. Provider adapters without an equivalent primary type use their own explicit policy.                                                                                                                       |
 | Internally consistent types | `conflicting_provider_types`          | A supported primary type is rejected when additional structured provider types contradict that identity under a narrow documented rule. Examples: `church`/`place_of_worship` combined with `school`/`educational_institution`, or generic `park` combined with `campground`/`lodging`, do not enter the corresponding visitor pool. This is type-based and does not use place-name blacklists. |
-| Not an address feature      | `address_only`                        | Results whose types are only street address, route, premise, postal code, intersection, neighborhood, locality, administrative area, or country are not materialized as POIs. OSM streets and areas follow the composite-activity path instead.                                                                                                           |
-| Review-backed admission     | `insufficient_review_confidence`      | A Google candidate using the review-evidence path must pass the explicit category policy. A perfect rating backed by one review is not sufficient. Policy parameters are centralized, traced, and tested at their boundaries.                                                                                                                             |
-| Institutional admission     | `missing_institutional_corroboration` | A supported institutional primary type without sufficient review confidence requires structured corroboration such as an official website, phone, or opening hours. A `museum`/`church` type alone is not evidence.                                                                                                                                       |
-| Provider-specific admission | `insufficient_provider_evidence`      | A provider without Google-equivalent review/primary-type data follows its own documented evidence contract. It must not inherit Google's fields or silently pass every mapped category.                                                                                                                                                                   |
+| Not an address feature      | `address_only`                        | Results whose types are only street address, route, premise, postal code, intersection, neighborhood, locality, administrative area, or country are not materialized as POIs. OSM streets and areas follow the composite-activity path instead.                                                                                                                                                 |
+| Review-backed admission     | `insufficient_review_confidence`      | A Google candidate using the review-evidence path must pass the explicit category policy. A perfect rating backed by one review is not sufficient. Policy parameters are centralized, traced, and tested at their boundaries.                                                                                                                                                                   |
+| Institutional admission     | `missing_institutional_corroboration` | A supported institutional primary type without sufficient review confidence requires structured corroboration such as an official website, phone, or opening hours. A `museum`/`church` type alone is not evidence.                                                                                                                                                                             |
+| Provider-specific admission | `insufficient_provider_evidence`      | A provider without Google-equivalent review/primary-type data follows its own documented evidence contract. It must not inherit Google's fields or silently pass every mapped category.                                                                                                                                                                                                         |
 
 Google review-confidence boundaries are centralized and inclusive:
 visitor landmarks `4.0/50`, museums and arts `4.0/20`, outdoor `4.1/50`, food
