@@ -409,18 +409,23 @@ must not remove arbitrary comma-separated components and accept the first
 result blindly. A non-empty forward response is not proof of a valid match:
 if all returned POIs/buildings are geographically inconsistent with the
 coordinates selected in the wizard, the flow treats the label as ambiguous
-and runs the same reverse normalization. A nearby hotel/address/POI remains
-point-scale and does not trigger city exploration.
+and runs the same reverse normalization. A selected address or specific POI
+remains point-scale and does not trigger city exploration.
 
 That last distinction cannot depend only on Nominatim successfully recognizing
 the same fine-grained entity. The autocomplete provider already knows whether
-the user selected a settlement or a specific POI/address/hotel, but the current
+the user selected a settlement or a specific POI/address, but the current
 frontend drops that structured type and sends only label, coordinates, and
 radius. The canonical intent contract must preserve a provider-neutral
 destination-scale hint. A verified point hint prevents reverse normalization
-from silently widening a selected hotel/POI into a city; a settlement hint
+from silently widening a selected address/POI into a city; a settlement hint
 still requires coordinate-validated Nominatim identity and authoritative OSM
 boundary hydration. Neither hint supplies trusted boundary geometry.
+
+Accommodation discovery and lodging recommendations are outside the current
+product scope. Lodging provider types must not become tour Activities merely
+because they are returned by a broad Places query; they require an explicit
+future product decision and a separate role in the domain.
 
 ## Deferred design topic: food and drink stops
 
