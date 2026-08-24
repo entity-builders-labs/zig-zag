@@ -37,6 +37,7 @@ export interface OsmLookupResult<T> {
 // most specific (highest) admin_level in this range wins — if nothing
 // falls in range, we discard rather than guess.
 const NEIGHBORHOOD_ADMIN_LEVEL_RANGE = { min: 8, max: 11 };
+const DESTINATION_BOUNDARY_ADMIN_LEVEL_RANGE = { min: 5, max: 12 };
 const DEFAULT_MAX_STREETS_RADIUS_METERS = 2500;
 const GENERIC_STREET_NAMES = new Set([
   'sin nombre',
@@ -205,6 +206,95 @@ export class OsmPlacesService {
   }
 
   /**
+   * Resolves the operational polygon for a settlement that Nominatim models
+   * as a node. Unlike lookupContainingBoundary (which intentionally chooses
+   * the most specific neighborhood), this method only accepts a containing
+   * administrative boundary whose name matches structured container data
+   * returned by Nominatim. It never guesses from admin_level alone.
+   */
+  async lookupDestinationBoundary(
+    latitude: number,
+    longitude: number,
+    expectedContainerNames: string[],
+  ): Promise<OsmLookupResult<OsmCandidate | null>> {
+    const normalizedExpectedNames = expectedContainerNames
+      .map((name) => this.normalizeBoundaryName(name))
+      .filter(Boolean);
+
+    if (normalizedExpectedNames.length === 0) {
+      return { status: 'success', value: null };
+    }
+
+    try {
+      const elements = await this.overpassApi.queryContainingBoundary({
+        latitude,
+        longitude,
+      });
+      const ranked = elements
+        .map((element) => this.toCandidate(element))
+        .filter(
+          (
+            candidate,
+          ): candidate is OsmCandidate & {
+            osmType: 'way' | 'relation';
+          } =>
+            candidate !== null &&
+            candidate.osmType !== 'node' &&
+            !candidate.tags.highway,
+        )
+        .map((candidate) => {
+          const adminLevel = Number.parseInt(
+            candidate.tags.admin_level || '',
+            10,
+          );
+          const candidateNames = [
+            candidate.name,
+            candidate.tags.official_name,
+            candidate.tags.short_name,
+            candidate.tags.alt_name,
+          ]
+            .filter((name): name is string => Boolean(name))
+            .map((name) => this.normalizeBoundaryName(name));
+          const expectedIndex = normalizedExpectedNames.findIndex((expected) =>
+            candidateNames.includes(expected),
+          );
+          return { candidate, adminLevel, expectedIndex };
+        })
+        .filter(
+          ({ adminLevel, expectedIndex }) =>
+            expectedIndex >= 0 &&
+            Number.isInteger(adminLevel) &&
+            adminLevel >= DESTINATION_BOUNDARY_ADMIN_LEVEL_RANGE.min &&
+            adminLevel <= DESTINATION_BOUNDARY_ADMIN_LEVEL_RANGE.max,
+        )
+        .sort(
+          (a, b) =>
+            a.expectedIndex - b.expectedIndex || b.adminLevel - a.adminLevel,
+        );
+
+      return { status: 'success', value: ranked[0]?.candidate ?? null };
+    } catch (error: any) {
+      this.logger.warn(
+        `Overpass destination-boundary lookup failed, continuing point-scale: ${error.message}`,
+      );
+      return {
+        status: 'failed',
+        value: null,
+        failureReason: error.message || 'unknown Overpass error',
+      };
+    }
+  }
+
+  private normalizeBoundaryName(name: string): string {
+    return name
+      .normalize('NFKD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLocaleLowerCase('en')
+      .replace(/[^a-z0-9]+/g, ' ')
+      .trim();
+  }
+
+  /**
    * Boundary for an area already known by name (the generate-templates CLI,
    * Fase 5) — as opposed to findContainingBoundary, which resolves the area
    * from a point alone for live generation.
@@ -292,23 +382,42 @@ export class OsmPlacesService {
   async lookupNeighborhoodsWithin(
     boundary: OsmCandidate,
   ): Promise<OsmLookupResult<OsmCandidate[]>> {
-    const cityAdminLevel = parseInt(boundary.tags.admin_level || '', 10);
-    if (isNaN(cityAdminLevel)) return { status: 'success', value: [] };
+    const cityAdminLevel = Number(boundary.tags.admin_level);
+    if (
+      !Number.isInteger(cityAdminLevel) ||
+      cityAdminLevel < 1 ||
+      cityAdminLevel >= 12
+    ) {
+      return {
+        status: 'failed',
+        value: [],
+        failureReason: `Boundary ${boundary.id} has no usable administrative level`,
+      };
+    }
 
     try {
       const elements = await this.overpassApi.queryAdminBoundariesWithinArea({
         osmType: boundary.osmType as 'way' | 'relation',
         osmId: boundary.osmId,
+        childAdminLevel: cityAdminLevel + 1,
       });
+      const seenIds = new Set<string>();
       return {
         status: 'success',
         value: elements
           .filter(
             (el) =>
-              parseInt(el.tags?.admin_level || '', 10) === cityAdminLevel + 1,
+              parseInt(el.tags?.admin_level || '', 10) === cityAdminLevel + 1 &&
+              (el.type === 'relation' ||
+                (el.type === 'way' && !el.tags?.highway)),
           )
           .map((el) => this.toCandidate(el))
-          .filter((c): c is OsmCandidate => c !== null),
+          .filter((c): c is OsmCandidate => c !== null)
+          .filter((candidate) => {
+            if (seenIds.has(candidate.id)) return false;
+            seenIds.add(candidate.id);
+            return true;
+          }),
       };
     } catch (error: any) {
       this.logger.warn(

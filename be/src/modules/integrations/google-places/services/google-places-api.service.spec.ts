@@ -37,6 +37,7 @@ describe('GooglePlacesApiService', () => {
             id: 'google-place-1',
             displayName: { text: 'Museo de Arte' },
             location: { latitude: 1, longitude: 2 },
+            primaryType: 'museum',
             businessStatus: 'CLOSED_PERMANENTLY',
           },
         ],
@@ -49,18 +50,30 @@ describe('GooglePlacesApiService', () => {
       longitude: 2,
       radius: 1000,
       maxResultCount: 10,
+      includedPrimaryTypes: ['museum', 'art_gallery'],
+      rankPreference: 'POPULARITY',
     });
 
     expect(result.data[0]).toEqual(
       expect.objectContaining({
         id: 'google-place-1',
         name: 'Museo de Arte',
+        primaryType: 'museum',
         businessStatus: 'CLOSED_PERMANENTLY',
       }),
     );
     expect(mockedAxios.post).toHaveBeenCalledWith(
       expect.any(String),
-      expect.any(Object),
+      expect.objectContaining({
+        includedPrimaryTypes: ['museum', 'art_gallery'],
+        rankPreference: 'POPULARITY',
+        locationRestriction: {
+          circle: {
+            center: { latitude: 1, longitude: 2 },
+            radius: 1000,
+          },
+        },
+      }),
       expect.objectContaining({
         timeout: 5000,
         headers: expect.objectContaining({
@@ -74,6 +87,39 @@ describe('GooglePlacesApiService', () => {
       requestedCount: 10,
       receivedCount: 1,
     });
+  });
+
+  it('sends a singular Text Search type with strictness and a destination rectangle', async () => {
+    mockedAxios.post.mockResolvedValueOnce({ data: { places: [] } });
+    const service = new GooglePlacesApiService(config);
+
+    await service.searchText({
+      textQuery: 'top tourist attractions in Rosario, Argentina',
+      includedType: 'tourist_attraction',
+      strictTypeFiltering: false,
+      locationRestriction: {
+        low: { latitude: -33.1, longitude: -60.8 },
+        high: { latitude: -32.8, longitude: -60.5 },
+      },
+      maxResultCount: 10,
+    });
+
+    expect(mockedAxios.post).toHaveBeenCalledWith(
+      expect.stringContaining(':searchText'),
+      {
+        textQuery: 'top tourist attractions in Rosario, Argentina',
+        includedType: 'tourist_attraction',
+        strictTypeFiltering: false,
+        locationRestriction: {
+          rectangle: {
+            low: { latitude: -33.1, longitude: -60.8 },
+            high: { latitude: -32.8, longitude: -60.5 },
+          },
+        },
+        maxResultCount: 10,
+      },
+      expect.any(Object),
+    );
   });
 
   it('attaches truthful provenance to provider failures', async () => {

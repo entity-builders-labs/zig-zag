@@ -151,13 +151,25 @@ describe('buildAdminBoundariesWithinAreaQuery', () => {
     const query = buildAdminBoundariesWithinAreaQuery({
       osmType: 'relation',
       osmId: 1224652,
+      childAdminLevel: 9,
     });
 
     expect(query).toContain('relation(1224652)');
     expect(query).toContain('map_to_area->.a');
-    expect(query).toContain('["boundary"="administrative"](area.a)');
+    expect(query).toContain('["admin_level"="9"](area.a)');
+    expect(query).toContain('[!"highway"](area.a)(if:is_closed())');
     expect(query).not.toContain('around:');
     expect(query).toContain('out tags center;');
+  });
+
+  it('rejects an invalid child admin level', () => {
+    expect(() =>
+      buildAdminBoundariesWithinAreaQuery({
+        osmType: 'relation',
+        osmId: 1224652,
+        childAdminLevel: 13,
+      }),
+    ).toThrow(RangeError);
   });
 });
 

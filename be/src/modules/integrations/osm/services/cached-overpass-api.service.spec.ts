@@ -147,10 +147,12 @@ describe('CachedOverpassApiService', () => {
     await service.queryAdminBoundariesWithinArea({
       osmType: 'relation',
       osmId: 1224652,
+      childAdminLevel: 9,
     });
     await service.queryAdminBoundariesWithinArea({
       osmType: 'relation',
       osmId: 1224652,
+      childAdminLevel: 9,
     });
 
     expect(realService.queryAdminBoundariesWithinArea).toHaveBeenCalledTimes(1);

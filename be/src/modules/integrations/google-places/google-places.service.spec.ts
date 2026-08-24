@@ -70,7 +70,7 @@ describe('GooglePlacesService provider provenance', () => {
     });
   });
 
-  it('reports raw and low-rating counts for a search request', async () => {
+  it('uses Nearby primary-type groups ranked by popularity and records the operation', async () => {
     const api = placesApi('google');
     (api.searchNearby as jest.Mock).mockResolvedValueOnce({
       data: [
@@ -78,12 +78,16 @@ describe('GooglePlacesService provider provenance', () => {
           id: 'low',
           name: 'Low rating',
           rating: 3,
+          userRatingCount: 10,
+          types: ['museum', 'tourist_attraction'],
           location: { latitude: 1, longitude: 2 },
         },
         {
           id: 'accepted',
           name: 'Accepted museum',
           rating: 4.8,
+          userRatingCount: 20,
+          types: ['museum'],
           location: { latitude: 1, longitude: 2 },
         },
       ],
@@ -94,81 +98,126 @@ describe('GooglePlacesService provider provenance', () => {
         receivedCount: 2,
       },
     });
-    const { service } = buildService(api);
+    const { service, activities } = buildService(api);
+    activities.create
+      .mockResolvedValueOnce({ id: 'activity-low' })
+      .mockResolvedValueOnce({ id: 'activity-accepted' });
 
-    const result = await service.searchNearbyPlaces(
+    const result = await service.crawlAndSaveActivities(
       { latitude: 1, longitude: 2, radius: 1000 },
-      {
-        type: 'museum',
-        keyword: 'museum',
-        minRating: 4,
-        preferredTime: 'day',
-      },
+      { requestedInterests: ['history'], maxProviderCalls: 1 },
     );
 
-    expect(result.places.map((place) => place.placeId)).toEqual(['accepted']);
+    expect(api.searchNearby).toHaveBeenCalledWith(
+      expect.objectContaining({
+        includedPrimaryTypes: expect.arrayContaining([
+          'tourist_attraction',
+          'historical_landmark',
+        ]),
+        rankPreference: 'POPULARITY',
+      }),
+    );
     expect(result.provenance.receivedCount).toBe(2);
-    expect(result.rejectedCountByReason).toEqual({ low_rating: 1 });
+    expect(result.provenance.operations).toEqual([
+      expect.objectContaining({
+        purpose: 'geographic_coverage',
+        providerOperation: 'nearby',
+        status: 'succeeded',
+        receivedCount: 2,
+      }),
+    ]);
   });
 
   it('rejects Text Search results outside the requested crawl radius', async () => {
     const api = placesApi('google');
-    (api.searchText as jest.Mock).mockResolvedValueOnce({
+    const firstResponse = {
       data: [
         {
           id: 'nearby-landmark',
           name: 'Nearby Landmark',
           rating: 4.8,
+          userRatingCount: 50,
+          types: ['tourist_attraction'],
           location: { latitude: 1.005, longitude: 2 },
         },
         {
           id: 'global-landmark',
           name: 'Global Landmark',
           rating: 4.9,
+          userRatingCount: 50,
+          types: ['tourist_attraction'],
           location: { latitude: 40.752, longitude: -111.816 },
         },
         {
           id: 'missing-location',
           name: 'Missing Location',
           rating: 4.9,
+          userRatingCount: 50,
+          types: ['tourist_attraction'],
         },
       ],
       provenance: {
-        provider: 'google',
-        cacheStatus: 'miss-live',
+        provider: 'google' as const,
+        cacheStatus: 'miss-live' as const,
         requestedCount: 20,
         receivedCount: 3,
       },
-    });
-    const { service } = buildService(api);
+    };
+    (api.searchText as jest.Mock)
+      .mockReset()
+      .mockResolvedValueOnce(firstResponse)
+      .mockResolvedValue({
+        data: [],
+        provenance: {
+          provider: 'google',
+          cacheStatus: 'miss-live',
+          requestedCount: 20,
+          receivedCount: 0,
+        },
+      });
+    const { service, activities } = buildService(api);
+    activities.create.mockResolvedValue({ id: 'activity-1' });
 
-    const result = await service.searchNearbyPlaces(
+    const result = await service.crawlAndSaveActivities(
       { latitude: 1, longitude: 2, radius: 1000 },
       {
-        type: 'point_of_interest',
-        keyword: 'historic landmark',
-        minRating: 4,
-        preferredTime: 'day',
+        destinationLabel: 'Test City',
+        requestedInterests: ['history'],
+        maxProviderCalls: 2,
       },
     );
 
-    expect(api.searchText).toHaveBeenCalled();
-    expect(result.places.map((place) => place.placeId)).toEqual([
-      'nearby-landmark',
-    ]);
+    expect(api.searchText).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({
+        textQuery: 'top tourist attractions in Test City',
+        includedType: 'tourist_attraction',
+        strictTypeFiltering: false,
+        locationBias: {
+          center: { latitude: 1, longitude: 2 },
+          radius: 1000,
+        },
+      }),
+    );
+    expect(activities.create).toHaveBeenCalledWith(
+      expect.objectContaining({ externalId: 'nearby-landmark' }),
+    );
     expect(result.provenance.receivedCount).toBe(3);
-    expect(result.rejectedCountByReason).toEqual({ out_of_area: 2 });
+    expect(result.provenance.rejectedCountByReason).toEqual({ out_of_area: 2 });
   });
 
   it('persists source provenance from the selected provider and aggregates cache hits', async () => {
     const api = placesApi('geoapify');
     const { service, prisma } = buildService(api);
 
-    const result = await service.crawlAndSaveActivities({
-      latitude: 1,
-      longitude: 2,
-      radius: 1000,
-    });
+    const result = await service.crawlAndSaveActivities(
+      {
+        latitude: 1,
+        longitude: 2,
+        radius: 1000,
+      },
+      { destinationLabel: 'Test City', maxProviderCalls: 3 },
+    );
 
     expect(prisma.source.create).toHaveBeenCalledWith({
       data: expect.objectContaining({
@@ -228,11 +277,10 @@ describe('GooglePlacesService provider provenance', () => {
     const { service, activities } = buildService(api);
     activities.create.mockResolvedValue({ id: 'activity-1' });
 
-    const result = await service.crawlAndSaveActivities({
-      latitude: 1,
-      longitude: 2,
-      radius: 1000,
-    });
+    const result = await service.crawlAndSaveActivities(
+      { latitude: 1, longitude: 2, radius: 1000 },
+      { destinationLabel: 'Test City', maxProviderCalls: 3 },
+    );
 
     expect(api.searchText).toHaveBeenCalled();
     expect(activities.create).toHaveBeenCalledWith(
@@ -280,7 +328,7 @@ describe('GooglePlacesService provider provenance', () => {
           name: 'Museo compartido',
           rating: 4.8,
           userRatingCount: 250,
-          types: ['museum'],
+          types: ['museum', 'tourist_attraction'],
           formattedAddress: 'Centro, Sevilla',
           location: {
             latitude: params.latitude,
@@ -336,13 +384,62 @@ describe('GooglePlacesService provider provenance', () => {
       expect.objectContaining({
         providerCallCount: 2,
         receivedCount: 2,
+        seedReceivedCount: 0,
+        coverageReceivedCount: 2,
+        operationGeographyRejectedCount: 0,
         validatedCount: 1,
         deduplicatedCount: 1,
         acceptedCount: 1,
+        persistedCount: 1,
+        existingCount: 0,
         embeddedCount: 1,
       }),
     );
     expect(result.provenance.rejectedCountByReason.duplicate_result).toBe(1);
+  });
+
+  it('reports admitted existing activities separately from newly persisted rows', async () => {
+    const api = placesApi('google');
+    (api.searchNearby as jest.Mock).mockResolvedValueOnce({
+      data: [
+        {
+          id: 'existing-museum',
+          name: 'Existing museum',
+          primaryType: 'tourist_attraction',
+          types: ['tourist_attraction'],
+          rating: 4.7,
+          userRatingCount: 200,
+          formattedAddress: 'San Juan, Argentina',
+          location: { latitude: -31.535, longitude: -68.538 },
+        },
+      ],
+      provenance: {
+        provider: 'google',
+        cacheStatus: 'miss-live',
+        requestedCount: 10,
+        receivedCount: 1,
+      },
+    });
+    const { service, prisma, activities } = buildService(api);
+    prisma.activity.findFirst.mockResolvedValue({ id: 'already-there' });
+
+    const result = await service.crawlAndSaveActivities(
+      { latitude: -31.535, longitude: -68.538, radius: 2000 },
+      { requestedInterests: ['history'], maxProviderCalls: 1 },
+    );
+
+    expect(activities.create).not.toHaveBeenCalled();
+    expect(result.provenance).toEqual(
+      expect.objectContaining({
+        receivedCount: 1,
+        identityValidCount: 1,
+        admittedCount: 1,
+        existingCount: 1,
+        persistedCount: 0,
+        embeddedCount: 0,
+      }),
+    );
+    expect(result.provenance.rejectedCountByReason.existing_activity).toBe(1);
   });
 
   it('rejects empty names and never sends them to ActivitiesService.create', async () => {
@@ -468,10 +565,10 @@ describe('GooglePlacesService provider provenance', () => {
       },
     );
 
-    const requestedTypes = (api.searchNearby as jest.Mock).mock.calls.map(
-      ([params]) => params.includedTypes[0],
+    const requestedTypeGroups = (api.searchNearby as jest.Mock).mock.calls.map(
+      ([params]) => params.includedPrimaryTypes,
     );
-    expect(requestedTypes).toEqual(['restaurant', 'cafe']);
+    expect(requestedTypeGroups).toEqual([['restaurant', 'cafe', 'food_court']]);
   });
 
   it('shares a bounded multi-anchor budget across every requested category', async () => {
@@ -496,18 +593,18 @@ describe('GooglePlacesService provider provenance', () => {
       },
     );
 
-    const requestedTypes = (api.searchNearby as jest.Mock).mock.calls.map(
-      ([params]) => params.includedTypes[0],
+    const requestedTypeGroups = (api.searchNearby as jest.Mock).mock.calls.map(
+      ([params]) => params.includedPrimaryTypes,
     );
-    expect(requestedTypes).toEqual([
-      'tourist_attraction',
-      'restaurant',
-      'tourist_attraction',
-      'restaurant',
-      'tourist_attraction',
-      'restaurant',
-      'tourist_attraction',
-      'restaurant',
+    expect(requestedTypeGroups).toEqual([
+      expect.arrayContaining(['tourist_attraction', 'historical_landmark']),
+      expect.arrayContaining(['museum', 'art_gallery']),
+      ['restaurant', 'cafe', 'food_court'],
+      expect.arrayContaining(['tourist_attraction', 'historical_landmark']),
+      expect.arrayContaining(['museum', 'art_gallery']),
+      ['restaurant', 'cafe', 'food_court'],
+      expect.arrayContaining(['tourist_attraction', 'historical_landmark']),
+      expect.arrayContaining(['museum', 'art_gallery']),
     ]);
   });
 });

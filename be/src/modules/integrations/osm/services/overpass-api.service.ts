@@ -8,6 +8,7 @@ import {
   QueryContainingBoundaryParams,
   QueryStreetsParams,
   QueryByIdParams,
+  QueryAdminBoundariesWithinAreaParams,
 } from '../interfaces/overpass.interface';
 import {
   buildBoundaryByNameQuery,
@@ -171,7 +172,7 @@ export class OverpassApiService implements IOverpassApiService {
   }
 
   async queryAdminBoundariesWithinArea(
-    params: QueryByIdParams,
+    params: QueryAdminBoundariesWithinAreaParams,
   ): Promise<OverpassElement[]> {
     return this.execute(buildAdminBoundariesWithinAreaQuery(params));
   }

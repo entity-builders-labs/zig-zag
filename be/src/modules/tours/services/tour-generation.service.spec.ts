@@ -31,7 +31,6 @@ describe('TourGenerationService Groq prompt budget', () => {
           reasoning: 'Grounded selection.',
           estimatedDuration: 2,
           activities: [],
-          compositeActivities: [],
           totalDays: 1,
           totalDistance: 0,
           estimatedBudget: 0,

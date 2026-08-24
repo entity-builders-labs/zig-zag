@@ -17,6 +17,13 @@ import {
 // scope per the design) falls back to point-scale.
 const AREA_SCALE_ADDRESS_TYPES = new Set(['city', 'town', 'village']);
 const MAX_DESTINATION_DISTANCE_METERS = 75_000;
+// A city boundary's representative point may be far from the coordinate the
+// user selected, especially for large municipalities. A fine-grained result
+// (hotel, road, amenity), however, must be close to that selected coordinate
+// before it can be treated as the intentional point destination. Keeping the
+// thresholds separate prevents a nearby same-name road/POI from suppressing
+// reverse normalization of a city-scale selection.
+const MAX_POINT_DESTINATION_DISTANCE_METERS = 2_000;
 
 export type DestinationDegradationReason =
   | 'missing_destination'
@@ -27,6 +34,11 @@ export type DestinationDegradationReason =
 
 export interface DestinationResolutionAudit {
   attemptedQueries: string[];
+  settlementResult?: {
+    osmType: 'node' | 'way' | 'relation';
+    osmId: number;
+    displayName: string;
+  };
   selectedResult?: {
     osmType: 'way' | 'relation';
     osmId: number;
@@ -51,6 +63,8 @@ interface DestinationCoordinates {
 type AreaNominatimResult = NominatimResult & {
   osmType: 'way' | 'relation';
 };
+
+type SettlementNominatimResult = NominatimResult;
 
 @Injectable()
 export class DestinationResolutionService {
@@ -86,10 +100,18 @@ export class DestinationResolutionService {
       attemptedQueries.push(`forward:${destinationText}`);
       const originalResults = await this.nominatimApi.search(destinationText);
       let candidates = originalResults;
+      let reverseResult: NominatimResult | null = null;
 
       let best = this.selectAreaCandidate(candidates, coordinates);
       const originalResultsMatchCoordinates = coordinates
         ? this.hasCoordinateConsistentCandidate(originalResults, coordinates)
+        : true;
+      const originalResultsContainSelectedPoint = coordinates
+        ? this.hasCoordinateConsistentCandidate(
+            originalResults,
+            coordinates,
+            MAX_POINT_DESTINATION_DISTANCE_METERS,
+          )
         : true;
       let hadCoordinateMismatch =
         originalResults.length > 0 && !originalResultsMatchCoordinates;
@@ -105,12 +127,13 @@ export class DestinationResolutionService {
         coordinates &&
         (originalResults.length === 0 ||
           this.hasAreaCandidate(originalResults) ||
-          !originalResultsMatchCoordinates)
+          this.hasSettlementCandidate(originalResults) ||
+          !originalResultsContainSelectedPoint)
       ) {
         attemptedQueries.push(
           `reverse:${coordinates.latitude.toFixed(6)},${coordinates.longitude.toFixed(6)}`,
         );
-        const reverseResult = await this.nominatimApi.reverse(
+        reverseResult = await this.nominatimApi.reverse(
           coordinates.latitude,
           coordinates.longitude,
         );
@@ -142,7 +165,7 @@ export class DestinationResolutionService {
               hadCoordinateMismatch ||
               (this.hasAreaCandidate(candidates) && !best);
           } else if (reverseResult) {
-            candidates = [reverseResult];
+            candidates = [reverseResult, ...originalResults];
             best = this.selectAreaCandidate(
               candidates,
               coordinates,
@@ -156,6 +179,19 @@ export class DestinationResolutionService {
       }
 
       if (!best) {
+        const settlement = this.selectSettlementCandidate(
+          candidates,
+          coordinates,
+          reverseResult?.address?.countryCode,
+        );
+        if (settlement) {
+          return this.resolveSettlementBoundary(
+            settlement,
+            reverseResult,
+            coordinates,
+            attemptedQueries,
+          );
+        }
         return {
           scale: 'point',
           attemptedQueries,
@@ -214,6 +250,12 @@ export class DestinationResolutionService {
     return results.some((result) => this.isAreaCandidate(result));
   }
 
+  private hasSettlementCandidate(
+    results: Awaited<ReturnType<INominatimApiService['search']>>,
+  ): boolean {
+    return results.some((result) => this.isSettlementCandidate(result));
+  }
+
   private selectAreaCandidate(
     results: Awaited<ReturnType<INominatimApiService['search']>>,
     coordinates?: DestinationCoordinates,
@@ -254,6 +296,112 @@ export class DestinationResolutionService {
     );
   }
 
+  private isSettlementCandidate(
+    result: NominatimResult,
+  ): result is SettlementNominatimResult {
+    return AREA_SCALE_ADDRESS_TYPES.has(result.addresstype);
+  }
+
+  private selectSettlementCandidate(
+    results: Awaited<ReturnType<INominatimApiService['search']>>,
+    coordinates?: DestinationCoordinates,
+    expectedCountryCode?: string,
+  ): SettlementNominatimResult | undefined {
+    return results
+      .filter((result) => this.isSettlementCandidate(result))
+      .filter(
+        (result) =>
+          !expectedCountryCode ||
+          !result.address?.countryCode ||
+          result.address.countryCode === expectedCountryCode,
+      )
+      .map((result) => ({
+        result,
+        distance: coordinates
+          ? this.distanceFromCoordinates(result, coordinates)
+          : 0,
+      }))
+      .filter(
+        ({ distance }) =>
+          !coordinates || distance <= MAX_DESTINATION_DISTANCE_METERS,
+      )
+      .sort(
+        (a, b) =>
+          a.distance - b.distance || b.result.importance - a.result.importance,
+      )[0]?.result;
+  }
+
+  private async resolveSettlementBoundary(
+    settlement: SettlementNominatimResult,
+    reverseResult: NominatimResult | null,
+    coordinates: DestinationCoordinates | undefined,
+    attemptedQueries: string[],
+  ): Promise<DestinationResolution> {
+    const settlementResult = {
+      osmType: settlement.osmType,
+      osmId: settlement.osmId,
+      displayName: settlement.displayName,
+    } as const;
+    const lookupCoordinates =
+      coordinates ??
+      (settlement.latitude !== undefined && settlement.longitude !== undefined
+        ? {
+            latitude: settlement.latitude,
+            longitude: settlement.longitude,
+          }
+        : undefined);
+    const expectedContainerNames = this.getStructuredContainerNames(
+      reverseResult ?? settlement,
+    );
+
+    if (!lookupCoordinates || expectedContainerNames.length === 0) {
+      return {
+        scale: 'point',
+        attemptedQueries,
+        settlementResult,
+        degradationReason: 'boundary_unavailable',
+      };
+    }
+
+    attemptedQueries.push(
+      `containing-boundary:${lookupCoordinates.latitude.toFixed(6)},${lookupCoordinates.longitude.toFixed(6)}`,
+    );
+    const boundaryLookup =
+      await this.osmPlacesService.lookupDestinationBoundary(
+        lookupCoordinates.latitude,
+        lookupCoordinates.longitude,
+        expectedContainerNames,
+      );
+    const boundary = boundaryLookup.value;
+    if (!boundary || boundary.osmType === 'node') {
+      return {
+        scale: 'point',
+        attemptedQueries,
+        settlementResult,
+        degradationReason:
+          boundaryLookup.status === 'failed'
+            ? 'provider_failed'
+            : 'boundary_unavailable',
+      };
+    }
+
+    const selectedResult = {
+      osmType: boundary.osmType,
+      osmId: boundary.osmId,
+      displayName: boundary.name,
+    } as const;
+    const areaActivity =
+      await this.compositeActivityService.resolveArea(boundary);
+    return {
+      scale: 'area',
+      areaActivity,
+      boundary,
+      attemptedQueries,
+      settlementResult,
+      selectedResult,
+    };
+  }
+
   private distanceFromCoordinates(
     result: Awaited<ReturnType<INominatimApiService['search']>>[number],
     coordinates: DestinationCoordinates,
@@ -276,11 +424,11 @@ export class DestinationResolutionService {
   private hasCoordinateConsistentCandidate(
     results: Awaited<ReturnType<INominatimApiService['search']>>,
     coordinates: DestinationCoordinates,
+    maxDistanceMeters = MAX_DESTINATION_DISTANCE_METERS,
   ): boolean {
     return results.some(
       (result) =>
-        this.distanceFromCoordinates(result, coordinates) <=
-        MAX_DESTINATION_DISTANCE_METERS,
+        this.distanceFromCoordinates(result, coordinates) <= maxDistanceMeters,
     );
   }
 
@@ -293,5 +441,17 @@ export class DestinationResolutionService {
       result.address?.village ||
       result.address?.municipality
     );
+  }
+
+  private getStructuredContainerNames(result: NominatimResult): string[] {
+    const names = [
+      result.address?.cityDistrict,
+      result.address?.borough,
+      result.address?.municipality,
+      result.address?.stateDistrict,
+      result.address?.county,
+    ].filter((name): name is string => Boolean(name?.trim()));
+
+    return [...new Set(names)];
   }
 }

@@ -80,7 +80,7 @@ describe('CachedPlacesApiService', () => {
     latitude: 37.389,
     longitude: -5.984,
     radius: 2000,
-    includedTypes: ['museum'],
+    includedPrimaryTypes: ['museum'],
     maxResultCount: 10,
   };
 
@@ -101,7 +101,7 @@ describe('CachedPlacesApiService', () => {
     });
     expect(geoapify.searchNearby).not.toHaveBeenCalled();
     expect(fs.readdirSync(path.join(storagePath, 'maps-cache'))[0]).toMatch(
-      /^google-v2-searchNearby-/,
+      /^google-v3-searchNearby-/,
     );
   });
 
@@ -112,7 +112,7 @@ describe('CachedPlacesApiService', () => {
     const strict = cachedService(storagePath, 'strict', real);
     const result = await strict.searchNearby({
       maxResultCount: 10,
-      includedTypes: ['museum'],
+      includedPrimaryTypes: ['museum'],
       radius: 2000,
       longitude: -5.984,
       latitude: 37.389,

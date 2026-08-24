@@ -3,6 +3,7 @@ import {
   QueryContainingBoundaryParams,
   QueryStreetsParams,
   QueryByIdParams,
+  QueryAdminBoundariesWithinAreaParams,
 } from '../interfaces/overpass.interface';
 
 const MAX_NAME_LENGTH = 200;
@@ -99,14 +100,22 @@ export function buildBoundaryByIdQuery({
 export function buildAdminBoundariesWithinAreaQuery({
   osmType,
   osmId,
-}: QueryByIdParams): string {
+  childAdminLevel,
+}: QueryAdminBoundariesWithinAreaParams): string {
+  if (
+    !Number.isInteger(childAdminLevel) ||
+    childAdminLevel < 1 ||
+    childAdminLevel > 12
+  ) {
+    throw new RangeError('Child admin level must be an integer from 1 to 12');
+  }
   return [
     '[out:json][timeout:30];',
     `${osmType}(${osmId});`,
     'map_to_area->.a;',
     '(',
-    '  relation["boundary"="administrative"](area.a);',
-    '  way["boundary"="administrative"](area.a);',
+    `  relation["boundary"="administrative"]["admin_level"="${childAdminLevel}"](area.a);`,
+    `  way["boundary"="administrative"]["admin_level"="${childAdminLevel}"][!"highway"](area.a)(if:is_closed());`,
     ');',
     'out tags center;',
   ].join('\n');

@@ -1,4 +1,5 @@
 import {
+  CREATE_COMPOSITE_PROPOSAL_RESPONSE_SCHEMA,
   CREATE_TOUR_RESPONSE_SCHEMA,
   CREATE_TOUR_SELECTION_RESPONSE_SCHEMA,
 } from './create-tour.prompt';
@@ -23,22 +24,14 @@ describe('CREATE_TOUR_RESPONSE_SCHEMA', () => {
     expectStrictObjects(CREATE_TOUR_RESPONSE_SCHEMA);
   });
 
-  it('keeps identity and anti-hallucination fields in the structured contract', () => {
+  it('keeps identity and waypoint-subset verification in the selection contract', () => {
     const schema = CREATE_TOUR_RESPONSE_SCHEMA as any;
     const activity = schema.properties.activities.items;
-    const composite = schema.properties.compositeActivities.items;
 
     expect(activity.required).toEqual(
       expect.arrayContaining(['activityId', 'selectedWaypointIds']),
     );
-    expect(composite.required).toEqual(
-      expect.arrayContaining(['areaId', 'waypointIds']),
-    );
-    expect(composite.properties.kind.enum).toEqual([
-      'NEIGHBORHOOD_WALK',
-      'ROUTE',
-      'EXPERIENCE',
-    ]);
+    expect(schema.properties).not.toHaveProperty('compositeActivities');
   });
 });
 
@@ -51,11 +44,8 @@ describe('CREATE_TOUR_SELECTION_RESPONSE_SCHEMA', () => {
     const schema = CREATE_TOUR_SELECTION_RESPONSE_SCHEMA as any;
     const activity = schema.properties.activities.items;
 
-    expect(schema.required).toEqual([
-      'reasoning',
-      'compositeActivities',
-      'activities',
-    ]);
+    expect(schema.required).toEqual(['reasoning', 'activities']);
+    expect(schema.properties).not.toHaveProperty('compositeActivities');
     expect(schema.properties).not.toHaveProperty('activitiesLatLng');
     expect(schema.properties).not.toHaveProperty('totalDistance');
     expect(activity.properties).toHaveProperty('activityId');
@@ -66,5 +56,19 @@ describe('CREATE_TOUR_SELECTION_RESPONSE_SCHEMA', () => {
     expect(schema.properties.reasoning.maxLength).toBe(400);
     expect(schema.properties.activities.maxItems).toBe(30);
     expect(activity.properties.notes.maxLength).toBe(160);
+  });
+});
+
+describe('CREATE_COMPOSITE_PROPOSAL_RESPONSE_SCHEMA', () => {
+  it('is isolated to the explicit offline curation contract', () => {
+    expectStrictObjects(CREATE_COMPOSITE_PROPOSAL_RESPONSE_SCHEMA);
+    const schema = CREATE_COMPOSITE_PROPOSAL_RESPONSE_SCHEMA as any;
+    expect(schema.required).toEqual([
+      'reasoning',
+      'compositeActivities',
+      'activities',
+    ]);
+    expect(schema.properties.activities.maxItems).toBe(0);
+    expect(schema.properties.compositeActivities.maxItems).toBe(1);
   });
 });

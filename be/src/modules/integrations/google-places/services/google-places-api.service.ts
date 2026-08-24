@@ -153,6 +153,7 @@ export class GooglePlacesApiService implements IPlacesApiService {
       'places.rating',
       'places.userRatingCount',
       'places.types',
+      'places.primaryType',
       'places.websiteUri',
       'places.nationalPhoneNumber',
       'places.priceLevel',
@@ -169,7 +170,7 @@ export class GooglePlacesApiService implements IPlacesApiService {
 
     const body: any = {
       maxResultCount: params.maxResultCount || 20,
-      rankPreference: params.rankPreference || 'DISTANCE',
+      rankPreference: params.rankPreference || 'POPULARITY',
       locationRestriction: {
         circle: {
           center: {
@@ -181,8 +182,8 @@ export class GooglePlacesApiService implements IPlacesApiService {
       },
     };
 
-    if (params.includedTypes && params.includedTypes.length > 0) {
-      body.includedTypes = params.includedTypes;
+    if (params.includedPrimaryTypes && params.includedPrimaryTypes.length > 0) {
+      body.includedPrimaryTypes = params.includedPrimaryTypes;
     }
 
     try {
@@ -225,16 +226,18 @@ export class GooglePlacesApiService implements IPlacesApiService {
       maxResultCount: params.maxResultCount || 5,
     };
 
-    if (params.latitude && params.longitude) {
-      body.locationBias = {
-        circle: {
-          center: {
-            latitude: params.latitude,
-            longitude: params.longitude,
-          },
-          radius: params.radius || 5000,
-        },
+    if (params.locationRestriction) {
+      body.locationRestriction = {
+        rectangle: params.locationRestriction,
       };
+    } else if (params.locationBias) {
+      body.locationBias = {
+        circle: params.locationBias,
+      };
+    }
+    if (params.includedType) body.includedType = params.includedType;
+    if (params.strictTypeFiltering !== undefined) {
+      body.strictTypeFiltering = params.strictTypeFiltering;
     }
 
     try {
@@ -314,6 +317,7 @@ export class GooglePlacesApiService implements IPlacesApiService {
       rating: p.rating,
       userRatingCount: p.userRatingCount,
       types: p.types,
+      primaryType: p.primaryType,
       websiteUri: p.websiteUri,
       nationalPhoneNumber: p.nationalPhoneNumber,
       name: p.displayName?.text || p.displayName,

@@ -12,7 +12,7 @@ import { ToursService } from './tours.service';
 import { TourImageService } from './tour-image.service';
 import { CompositeGenerationService } from './composite-generation.service';
 import { DestinationResolutionService } from './destination-resolution.service';
-import { DestinationAnchorService } from './destination-anchor.service';
+import { CatalogRefillAnchorPlanner } from './catalog-refill-anchor-planner.service';
 import { PlacesCrawlError } from '@integrations/google-places/interfaces/places-api.interface';
 
 // transformAiActivitiesToDto only keeps `activityId` when it passes
@@ -29,24 +29,6 @@ function testUuid(): string {
 
 describe('TourActivityGenerationService', () => {
   const TOUR_ID = 'tour-1';
-  const AREA_CANDIDATE = {
-    id: 'osm:relation:49518',
-    name: 'San Telmo',
-    osmType: 'relation' as const,
-    osmId: 49518,
-    geometry: {
-      type: 'Polygon' as const,
-      coordinates: [
-        [
-          [0, 0],
-          [1, 0],
-          [1, 1],
-          [0, 0],
-        ],
-      ],
-    },
-    tags: { name: 'San Telmo' },
-  };
 
   let service: TourActivityGenerationService;
   let prisma: any;
@@ -77,10 +59,6 @@ describe('TourActivityGenerationService', () => {
       activity: {
         findMany: jest.fn().mockResolvedValue([]),
         findFirst: jest.fn().mockResolvedValue(null),
-      },
-      activityFamily: {
-        count: jest.fn().mockResolvedValue(0),
-        findMany: jest.fn().mockResolvedValue([]),
       },
       activityWaypoint: { findMany: jest.fn().mockResolvedValue([]) },
       tourActivity: {
@@ -135,82 +113,18 @@ describe('TourActivityGenerationService', () => {
       }),
     };
     osmPlacesService = {
-      findStreetsNear: jest.fn().mockResolvedValue([]),
-      findContainingBoundary: jest.fn().mockResolvedValue(null),
       findNeighborhoodsWithin: jest.fn().mockResolvedValue([]),
+      // Regression tripwires: the live flow must never call detailed OSM
+      // discovery while selecting an itinerary.
       findStreetsWithin: jest.fn().mockResolvedValue([]),
       findPoisWithin: jest.fn().mockResolvedValue([]),
     };
-    osmPlacesService.lookupStreetsNear = jest.fn(
-      async (...args: any[]): Promise<any> => {
-        try {
-          return {
-            status: 'success',
-            value: await osmPlacesService.findStreetsNear(...args),
-          };
-        } catch (error: any) {
-          return {
-            status: 'failed',
-            value: [],
-            failureReason: error.message,
-          };
-        }
-      },
-    );
-    osmPlacesService.lookupContainingBoundary = jest.fn(
-      async (...args: any[]): Promise<any> => {
-        try {
-          return {
-            status: 'success',
-            value: await osmPlacesService.findContainingBoundary(...args),
-          };
-        } catch (error: any) {
-          return {
-            status: 'failed',
-            value: null,
-            failureReason: error.message,
-          };
-        }
-      },
-    );
     osmPlacesService.lookupNeighborhoodsWithin = jest.fn(
       async (...args: any[]): Promise<any> => {
         try {
           return {
             status: 'success',
             value: await osmPlacesService.findNeighborhoodsWithin(...args),
-          };
-        } catch (error: any) {
-          return {
-            status: 'failed',
-            value: [],
-            failureReason: error.message,
-          };
-        }
-      },
-    );
-    osmPlacesService.lookupStreetsWithin = jest.fn(
-      async (...args: any[]): Promise<any> => {
-        try {
-          return {
-            status: 'success',
-            value: await osmPlacesService.findStreetsWithin(...args),
-          };
-        } catch (error: any) {
-          return {
-            status: 'failed',
-            value: [],
-            failureReason: error.message,
-          };
-        }
-      },
-    );
-    osmPlacesService.lookupPoisWithin = jest.fn(
-      async (...args: any[]): Promise<any> => {
-        try {
-          return {
-            status: 'success',
-            value: await osmPlacesService.findPoisWithin(...args),
           };
         } catch (error: any) {
           return {
@@ -245,12 +159,9 @@ describe('TourActivityGenerationService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         TourActivityGenerationService,
-        // A real CompositeGenerationService, wired to the same mocked
-        // sub-services below — this exercises the actual delegation from
-        // TourActivityGenerationService through to chain-building/Wikidata/
-        // verify+persist, so every existing expectation here (e.g. on
-        // compositeActivityService.createOrReuseComposite) keeps working
-        // unchanged after the Fase 5 extraction.
+        // Exercise the real selection-chain boundary. Composite persistence
+        // remains wired only as a regression tripwire: live itinerary output
+        // must never reach it.
         CompositeGenerationService,
         { provide: PrismaService, useValue: prisma },
         { provide: ToursService, useValue: toursService },
@@ -269,7 +180,7 @@ describe('TourActivityGenerationService', () => {
           provide: DestinationResolutionService,
           useValue: destinationResolutionService,
         },
-        DestinationAnchorService,
+        CatalogRefillAnchorPlanner,
       ],
     }).compile();
 
@@ -281,7 +192,6 @@ describe('TourActivityGenerationService', () => {
       title: 'Tour',
       description: 'A tour',
       activities: [],
-      compositeActivities: [],
       ...payload,
     });
 
@@ -426,23 +336,6 @@ describe('TourActivityGenerationService', () => {
         kind: ActivityKind.POI,
       })),
     );
-    osmPlacesService.findStreetsNear.mockResolvedValue([
-      {
-        id: 'osm:way:1',
-        name: 'Defensa',
-        osmType: 'way',
-        osmId: 1,
-        geometry: {
-          type: 'LineString',
-          coordinates: [
-            [0, 0],
-            [1, 1],
-          ],
-        },
-        tags: { name: 'Defensa' },
-      },
-    ]);
-    osmPlacesService.findContainingBoundary.mockResolvedValue(AREA_CANDIDATE);
     langChainService.generateChatResponse.mockResolvedValue(
       aiJsonResponse({
         reasoning: 'Picked Museo because it matched the requested interests.',
@@ -477,9 +370,6 @@ describe('TourActivityGenerationService', () => {
     expect(trace.steps.map((s: any) => s.stage)).toEqual([
       'destination_resolution',
       'db_search',
-      'osm_streets',
-      'osm_boundary',
-      'wikidata_enrichment',
       'embeddings',
       'llm_generation',
       'verification',
@@ -508,10 +398,15 @@ describe('TourActivityGenerationService', () => {
     expect(generatedUserPrompt.split(`id: ${poiId}`)).toHaveLength(2);
   });
 
-  it('continues POI generation and records degraded OSM steps when Overpass fails', async () => {
+  it('never persists a composite returned outside the live selection contract', async () => {
     const poiId = testUuid();
     activitiesService.findAll.mockResolvedValue([
-      { id: poiId, name: 'Museo', latitude: -34.62, longitude: -58.37 },
+      {
+        id: poiId,
+        name: 'Plaza Dorrego',
+        latitude: -34.62,
+        longitude: -58.37,
+      },
     ]);
     prisma.activity.findMany.mockResolvedValue([
       {
@@ -521,12 +416,6 @@ describe('TourActivityGenerationService', () => {
         kind: ActivityKind.POI,
       },
     ]);
-    osmPlacesService.findStreetsNear.mockRejectedValue(
-      new Error('overpass down'),
-    );
-    osmPlacesService.findContainingBoundary.mockRejectedValue(
-      new Error('overpass down'),
-    );
     langChainService.generateChatResponse.mockResolvedValue(
       aiJsonResponse({
         activities: [
@@ -535,289 +424,32 @@ describe('TourActivityGenerationService', () => {
             dayNumber: 1,
             startTime: '10:00',
             duration: 60,
-            notes: 'note',
-            latitude: -34.62,
-            longitude: -58.37,
+            notes: 'Real catalog stop',
+            selectedWaypointIds: [],
           },
         ],
-      }),
-    );
-
-    await expect(
-      service.generateTourActivities(TOUR_ID),
-    ).resolves.toBeDefined();
-
-    const completedCall = prisma.tour.update.mock.calls.find(
-      (call: any) => call[0].data.metadata.generationStatus === 'completed',
-    );
-    const trace = completedCall[0].data.metadata.generationTrace;
-    const streetsStep = trace.steps.find(
-      (step: any) => step.stage === 'osm_streets',
-    );
-    const boundaryStep = trace.steps.find(
-      (step: any) => step.stage === 'osm_boundary',
-    );
-
-    expect(streetsStep).toEqual(
-      expect.objectContaining({
-        providerStatus: 'failed',
-        degradedReason: 'overpass down',
-      }),
-    );
-    expect(streetsStep.summary).toContain('No se pudo consultar');
-    expect(streetsStep.summary).toContain('no significa que no existan');
-    expect(boundaryStep).toEqual(
-      expect.objectContaining({
-        providerStatus: 'failed',
-        degradedReason: 'overpass down',
-      }),
-    );
-    expect(boundaryStep.summary).toContain('continuó degradada');
-  });
-
-  it('does not break generation when Wikidata enrichment fails (OSM candidates still fetched)', async () => {
-    const poiId = testUuid();
-    activitiesService.findAll.mockResolvedValue([
-      { id: poiId, name: 'Museo', latitude: -34.62, longitude: -58.37 },
-    ]);
-    prisma.activity.findMany.mockResolvedValue([
-      {
-        id: poiId,
-        latitude: -34.62,
-        longitude: -58.37,
-        kind: ActivityKind.POI,
-      },
-    ]);
-    osmPlacesService.findStreetsNear.mockResolvedValue([
-      {
-        id: 'osm:way:1',
-        name: 'Defensa',
-        osmType: 'way',
-        osmId: 1,
-        geometry: {
-          type: 'LineString',
-          coordinates: [
-            [0, 0],
-            [1, 1],
-          ],
-        },
-        tags: { name: 'Defensa', wikidata: 'Q123' },
-      },
-    ]);
-    osmPlacesService.findContainingBoundary.mockResolvedValue(AREA_CANDIDATE);
-    wikidataApiService.lookupEntitySummaries.mockRejectedValue(
-      new Error('wikidata down'),
-    );
-    langChainService.generateChatResponse.mockResolvedValue(
-      aiJsonResponse({
-        activities: [
+        // A non-conforming provider response cannot reopen the removed live
+        // composite-creation path.
+        compositeActivities: [
           {
-            activityId: poiId,
-            dayNumber: 1,
-            startTime: '10:00',
-            duration: 60,
-            notes: 'note',
-            latitude: -34.62,
-            longitude: -58.37,
+            name: 'Invented Walk',
+            kind: 'NEIGHBORHOOD_WALK',
+            waypointIds: ['invented'],
           },
         ],
       }),
     );
 
-    const result = await service.generateTourActivities(TOUR_ID);
+    await service.generateTourActivities(TOUR_ID);
 
-    expect(result).toBeDefined();
+    expect(
+      compositeActivityService.createOrReuseComposite,
+    ).not.toHaveBeenCalled();
     expect(prisma.tourActivity.create).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({ activityId: poiId }),
       }),
     );
-  });
-
-  it('caps real Overpass street candidates at 20 before building the prompt (a real neighborhood can return hundreds, which reliably 413s the LLM request)', async () => {
-    const poiId = testUuid();
-    activitiesService.findAll.mockResolvedValue([
-      { id: poiId, name: 'Museo', latitude: -34.62, longitude: -58.37 },
-    ]);
-    prisma.activity.findMany.mockResolvedValue([
-      {
-        id: poiId,
-        latitude: -34.62,
-        longitude: -58.37,
-        kind: ActivityKind.POI,
-      },
-    ]);
-    const manyStreets = Array.from({ length: 45 }, (_, i) => ({
-      id: `osm:way:${i + 1}`,
-      name: `Street ${i + 1}`,
-      osmType: 'way' as const,
-      osmId: i + 1,
-      geometry: {
-        type: 'LineString' as const,
-        coordinates: [
-          [0, 0],
-          [1, 1],
-        ] as [number, number][],
-      },
-      tags: { name: `Street ${i + 1}` },
-    }));
-    osmPlacesService.findStreetsNear.mockResolvedValue(manyStreets);
-    osmPlacesService.findContainingBoundary.mockResolvedValue(AREA_CANDIDATE);
-    langChainService.generateChatResponse.mockResolvedValue(
-      aiJsonResponse({
-        activities: [
-          {
-            activityId: poiId,
-            dayNumber: 1,
-            startTime: '10:00',
-            duration: 60,
-            notes: 'note',
-            latitude: -34.62,
-            longitude: -58.37,
-          },
-        ],
-      }),
-    );
-
-    await service.generateTourActivities(TOUR_ID);
-
-    // The exact wiring point that would blow past Groq's payload limit if
-    // uncapped — every candidate here becomes one line of prompt text.
-    const promptCall = langChainService.generateChatResponse.mock.calls[0];
-    const userPrompt: string = promptCall[1];
-    for (let i = 1; i <= 20; i++) {
-      expect(userPrompt).toContain(`osm:way:${i}`);
-    }
-    for (let i = 21; i <= 45; i++) {
-      expect(userPrompt).not.toContain(`osm:way:${i}`);
-    }
-  });
-
-  it('persists a verified composite via CompositeActivityService and snapshots its waypoints from the freshly created variant', async () => {
-    const poi1Id = testUuid();
-    const poi2Id = testUuid();
-    activitiesService.findAll.mockResolvedValue([
-      {
-        id: poi1Id,
-        name: 'Plaza Dorrego',
-        latitude: -34.62,
-        longitude: -58.37,
-      },
-      { id: poi2Id, name: 'Mercado', latitude: -34.621, longitude: -58.371 },
-    ]);
-    osmPlacesService.findContainingBoundary.mockResolvedValue(AREA_CANDIDATE);
-
-    const variant = {
-      id: testUuid(),
-      name: 'San Telmo Historic Walk',
-      kind: ActivityKind.NEIGHBORHOOD_WALK,
-      latitude: -34.6205,
-      longitude: -58.3705,
-    };
-    compositeActivityService.createOrReuseComposite.mockResolvedValue(variant);
-
-    // Lookups the wiring makes after the AI response: kind of every final
-    // pick, and the variant's own current waypoints (for the snapshot).
-    prisma.activity.findMany.mockResolvedValue([
-      {
-        id: variant.id,
-        latitude: variant.latitude,
-        longitude: variant.longitude,
-        kind: variant.kind,
-      },
-    ]);
-    prisma.activityWaypoint.findMany.mockResolvedValue([
-      { compositeActivityId: variant.id, waypointActivityId: poi1Id, order: 1 },
-      { compositeActivityId: variant.id, waypointActivityId: poi2Id, order: 2 },
-    ]);
-
-    langChainService.generateChatResponse.mockResolvedValue(
-      aiJsonResponse({
-        activities: [],
-        compositeActivities: [
-          {
-            name: 'San Telmo Historic Walk',
-            kind: 'NEIGHBORHOOD_WALK',
-            variantTheme: 'HISTORY',
-            themeReasoning: 'A historic walk',
-            areaId: AREA_CANDIDATE.id,
-            dayNumber: 1,
-            startTime: '10:00',
-            waypointIds: [poi1Id, poi2Id],
-          },
-        ],
-      }),
-    );
-
-    await service.generateTourActivities(TOUR_ID);
-
-    expect(
-      compositeActivityService.createOrReuseComposite,
-    ).toHaveBeenCalledWith(
-      expect.objectContaining({
-        kind: 'NEIGHBORHOOD_WALK',
-        variantTheme: 'HISTORY',
-        waypointIds: [poi1Id, poi2Id],
-      }),
-    );
-    expect(prisma.tourActivity.create).toHaveBeenCalledWith(
-      expect.objectContaining({
-        data: expect.objectContaining({ activityId: variant.id }),
-      }),
-    );
-    expect(prisma.tourActivityWaypoint.createMany).toHaveBeenCalledWith({
-      data: [
-        expect.objectContaining({ waypointActivityId: poi1Id, order: 1 }),
-        expect.objectContaining({ waypointActivityId: poi2Id, order: 2 }),
-      ],
-    });
-  });
-
-  it('drops a compositeActivities proposal whose waypointIds are hallucinated below the minimum, without calling CompositeActivityService', async () => {
-    activitiesService.findAll.mockResolvedValue([
-      {
-        id: 'poi-1',
-        name: 'Plaza Dorrego',
-        latitude: -34.62,
-        longitude: -58.37,
-      },
-    ]);
-    osmPlacesService.findContainingBoundary.mockResolvedValue(AREA_CANDIDATE);
-    prisma.activity.findMany.mockResolvedValue([]);
-
-    langChainService.generateChatResponse.mockResolvedValue(
-      aiJsonResponse({
-        activities: [
-          {
-            activityId: 'poi-1',
-            dayNumber: 1,
-            startTime: '10:00',
-            duration: 60,
-            notes: 'note',
-            latitude: -34.62,
-            longitude: -58.37,
-          },
-        ],
-        compositeActivities: [
-          {
-            name: 'Invented Walk',
-            kind: 'NEIGHBORHOOD_WALK',
-            variantTheme: 'HISTORY',
-            areaId: AREA_CANDIDATE.id,
-            waypointIds: ['poi-1', 'totally-invented-place'],
-          },
-        ],
-      }),
-    );
-
-    await service.generateTourActivities(TOUR_ID);
-
-    // Only 1 real waypoint survives verification (poi-1) — below the
-    // NEIGHBORHOOD_WALK minimum of 2 — so the whole composite is dropped
-    // and CompositeActivityService is never even called.
-    expect(
-      compositeActivityService.createOrReuseComposite,
-    ).not.toHaveBeenCalled();
   });
 
   it('snapshots the current waypoints of an EXISTING variant picked directly from the flat activities list (not just freshly-created composites)', async () => {
@@ -1462,7 +1094,7 @@ describe('TourActivityGenerationService', () => {
   });
 
   describe('area-scale destinations', () => {
-    it('explores shortlisted neighborhoods and offers their real streets/POIs as composite candidates for an area-scale destination', async () => {
+    it('uses child areas only as Places coverage anchors and never as live composite candidates', async () => {
       toursService.findOne.mockResolvedValue(
         buildTour({
           metadata: {
@@ -1516,35 +1148,16 @@ describe('TourActivityGenerationService', () => {
           type: 'Polygon' as const,
           coordinates: [
             [
-              [0, 0],
-              [1, 0],
-              [1, 1],
-              [0, 0],
+              [-58.39, -34.63],
+              [-58.36, -34.63],
+              [-58.36, -34.6],
+              [-58.39, -34.63],
             ],
           ],
         },
         tags: { name: 'San Telmo', admin_level: '9' },
       };
-      const defensa = {
-        id: 'osm:way:1',
-        name: 'Defensa',
-        osmType: 'way' as const,
-        osmId: 1,
-        geometry: {
-          type: 'LineString' as const,
-          coordinates: [
-            [0, 0],
-            [0, 1],
-          ] as [number, number][],
-        },
-        tags: { name: 'Defensa', highway: 'pedestrian' },
-      };
       osmPlacesService.findNeighborhoodsWithin.mockResolvedValue([sanTelmo]);
-      osmPlacesService.findStreetsWithin.mockResolvedValue([defensa]);
-      osmPlacesService.findPoisWithin.mockResolvedValue([]);
-      // A realistic (not empty) DB pool — proves this isn't just testing
-      // that the LLM got called, but that the area-scale path can actually
-      // land a composite built from the real candidates it explored.
       const poiId = testUuid();
       activitiesService.findAll.mockResolvedValue([
         {
@@ -1554,38 +1167,24 @@ describe('TourActivityGenerationService', () => {
           longitude: -58.37,
         },
       ]);
-      const variant = {
-        id: testUuid(),
-        name: 'San Telmo Route',
-        kind: ActivityKind.ROUTE,
-        latitude: -34.62,
-        longitude: -58.37,
-      };
-      compositeActivityService.createOrReuseComposite.mockResolvedValue(
-        variant,
-      );
       prisma.activity.findMany.mockResolvedValue([
         {
-          id: variant.id,
-          latitude: variant.latitude,
-          longitude: variant.longitude,
-          kind: variant.kind,
+          id: poiId,
+          latitude: -34.62,
+          longitude: -58.37,
+          kind: ActivityKind.POI,
         },
       ]);
       langChainService.generateChatResponse.mockResolvedValue(
         aiJsonResponse({
-          compositeActivities: [
+          activities: [
             {
-              name: 'San Telmo Route',
-              kind: 'ROUTE',
-              variantTheme: 'HISTORY',
-              themeReasoning: 'Walk down Defensa',
-              // Whole-city generation scopes each composite to the exact
-              // shortlisted neighborhood that supplied its waypoints.
-              areaId: sanTelmo.id,
+              activityId: poiId,
               dayNumber: 1,
               startTime: '10:00',
-              waypointIds: [defensa.id],
+              duration: 60,
+              notes: 'Visit Plaza Dorrego',
+              selectedWaypointIds: [],
             },
           ],
         }),
@@ -1610,7 +1209,7 @@ describe('TourActivityGenerationService', () => {
             expect.objectContaining({
               id: sanTelmo.id,
               label: 'San Telmo',
-              source: 'neighborhood',
+              source: 'child_area_center',
             }),
             expect.objectContaining({
               id: 'destination-point',
@@ -1621,23 +1220,17 @@ describe('TourActivityGenerationService', () => {
           destinationBoundary: boundary.geometry,
         }),
       );
-      expect(osmPlacesService.findStreetsWithin).toHaveBeenCalledWith(sanTelmo);
+      expect(osmPlacesService.findStreetsWithin).not.toHaveBeenCalled();
+      expect(osmPlacesService.findPoisWithin).not.toHaveBeenCalled();
       const [, promptArg] = langChainService.generateChatResponse.mock.calls[0];
-      expect(promptArg).toContain('Defensa');
+      expect(promptArg).toContain(`id: ${poiId} - Plaza Dorrego`);
+      expect(promptArg).not.toContain('Available OSM features');
       expect(
         compositeActivityService.createOrReuseComposite,
-      ).toHaveBeenCalledWith(
-        expect.objectContaining({
-          name: 'San Telmo Historic Route',
-          kind: 'ROUTE',
-          variantTheme: 'HISTORY',
-          areaCandidate: sanTelmo,
-          waypointIds: [defensa.id],
-        }),
-      );
+      ).not.toHaveBeenCalled();
       expect(prisma.tourActivity.create).toHaveBeenCalledWith(
         expect.objectContaining({
-          data: expect.objectContaining({ activityId: variant.id }),
+          data: expect.objectContaining({ activityId: poiId }),
         }),
       );
     });
@@ -1688,7 +1281,7 @@ describe('TourActivityGenerationService', () => {
       expect(radiusArg).not.toBe(3000);
     });
 
-    it('gives every shortlisted neighborhood its own share of the candidate budget, instead of the first one exhausting the whole cap', async () => {
+    it('does not turn coverage neighborhoods into an OSM candidate budget', async () => {
       toursService.findOne.mockResolvedValue(
         buildTour({
           metadata: {
@@ -1766,64 +1359,23 @@ describe('TourActivityGenerationService', () => {
         },
         tags: { name: 'Recoleta', admin_level: '9' },
       };
-      // Both neighborhoods are dense enough on their own to exhaust a
-      // naive global cap of 20 — the real-world failure mode this test
-      // guards against (the spike measured San Telmo alone at 178 streets
-      // + 50 POIs).
-      const sanTelmoStreets = Array.from({ length: 30 }, (_, i) => ({
-        id: `osm:way:st-${i + 1}`,
-        name: `San Telmo Street ${i + 1}`,
-        osmType: 'way' as const,
-        osmId: i + 1,
-        geometry: {
-          type: 'LineString' as const,
-          coordinates: [
-            [0, 0],
-            [0, 1],
-          ] as [number, number][],
-        },
-        tags: { name: `San Telmo Street ${i + 1}` },
-      }));
-      const recoletaStreets = Array.from({ length: 30 }, (_, i) => ({
-        id: `osm:way:rc-${i + 1}`,
-        name: `Recoleta Street ${i + 1}`,
-        osmType: 'way' as const,
-        osmId: i + 1,
-        geometry: {
-          type: 'LineString' as const,
-          coordinates: [
-            [2, 2],
-            [2, 3],
-          ] as [number, number][],
-        },
-        tags: { name: `Recoleta Street ${i + 1}` },
-      }));
       osmPlacesService.findNeighborhoodsWithin.mockResolvedValue([
         sanTelmo,
         recoleta,
       ]);
-      osmPlacesService.findStreetsWithin.mockImplementation(
-        async (neighborhood: any) =>
-          neighborhood.id === sanTelmo.id ? sanTelmoStreets : recoletaStreets,
-      );
-      osmPlacesService.findPoisWithin.mockResolvedValue([]);
       activitiesService.findAll.mockResolvedValue([]);
       langChainService.generateChatResponse.mockResolvedValue(
         aiJsonResponse({}),
       );
 
-      // Neither neighborhood has an existing curated family, and both have
-      // 0 POIs (tie), so shortlistNeighborhoods' stable sort keeps
-      // San Telmo first, Recoleta second — both survive the k=6 default
-      // shortlist size with only 2 candidates offered.
       await expect(service.generateTourActivities(TOUR_ID)).rejects.toThrow();
 
-      const [, promptArg] = langChainService.generateChatResponse.mock.calls[0];
-      expect(promptArg).toContain('San Telmo Street 1');
-      expect(promptArg).toContain('Recoleta Street 1');
+      expect(osmPlacesService.findStreetsWithin).not.toHaveBeenCalled();
+      expect(osmPlacesService.findPoisWithin).not.toHaveBeenCalled();
+      expect(langChainService.generateChatResponse).not.toHaveBeenCalled();
     });
 
-    it('does not launch detailed POI queries for all eleven Sevilla neighborhoods and never queues more than one neighborhood pair', async () => {
+    it('never launches detailed OSM neighborhood calls during live Sevilla generation', async () => {
       toursService.findOne.mockResolvedValue(
         buildTour({
           metadata: {
@@ -1896,56 +1448,6 @@ describe('TourActivityGenerationService', () => {
         tags: { name, admin_level: '9' },
       }));
       osmPlacesService.findNeighborhoodsWithin.mockResolvedValue(neighborhoods);
-      prisma.activityFamily.findMany.mockResolvedValue([
-        { areaActivity: { externalId: 'relation/9000' } },
-        { areaActivity: { externalId: 'relation/9001' } },
-      ]);
-
-      let activeDetailedCalls = 0;
-      let maxActiveDetailedCalls = 0;
-      const detailedLookup = async (): Promise<void> => {
-        activeDetailedCalls++;
-        maxActiveDetailedCalls = Math.max(
-          maxActiveDetailedCalls,
-          activeDetailedCalls,
-        );
-        await new Promise((resolve) => setTimeout(resolve, 1));
-        activeDetailedCalls--;
-      };
-      osmPlacesService.findStreetsWithin.mockImplementation(
-        async (neighborhood: any) => {
-          await detailedLookup();
-          if (neighborhood.name === 'Barrio con fallo') {
-            throw new Error('one neighborhood failed');
-          }
-          if (!['Casco Antiguo', 'Triana'].includes(neighborhood.name)) {
-            return [];
-          }
-          return [
-            {
-              id: `osm:way:${neighborhood.osmId}`,
-              name: `${neighborhood.name} walkable street`,
-              osmType: 'way',
-              osmId: neighborhood.osmId,
-              geometry: {
-                type: 'LineString',
-                coordinates: [
-                  [-5.99, 37.38],
-                  [-5.98, 37.39],
-                ],
-              },
-              tags: { name: `${neighborhood.name} walkable street` },
-            },
-          ];
-        },
-      );
-      osmPlacesService.findPoisWithin.mockImplementation(
-        async (): Promise<any[]> => {
-          await detailedLookup();
-          return [];
-        },
-      );
-
       const poiId = testUuid();
       activitiesService.findAll.mockResolvedValue([
         {
@@ -1961,15 +1463,11 @@ describe('TourActivityGenerationService', () => {
 
       await expect(service.generateTourActivities(TOUR_ID)).rejects.toThrow();
 
-      expect(osmPlacesService.findPoisWithin).toHaveBeenCalledTimes(6);
-      expect(osmPlacesService.findStreetsWithin).toHaveBeenCalledTimes(6);
-      expect(maxActiveDetailedCalls).toBeLessThanOrEqual(2);
-      const [, promptArg] = langChainService.generateChatResponse.mock.calls[0];
-      expect(promptArg).toContain('Casco Antiguo walkable street');
-      expect(promptArg).toContain('Triana walkable street');
+      expect(osmPlacesService.findPoisWithin).not.toHaveBeenCalled();
+      expect(osmPlacesService.findStreetsWithin).not.toHaveBeenCalled();
     });
 
-    it('reproduces the Barcelona scenario: a thin, off-topic DB pool for an area-scale destination triggers both a crawl and a neighborhood shortlist, and ranks the LLM candidates by interest', async () => {
+    it('reproduces Barcelona refill and semantic ranking without a global neighborhood-composite path', async () => {
       toursService.findOne.mockResolvedValue(
         buildTour({
           metadata: {
@@ -2033,23 +1531,6 @@ describe('TourActivityGenerationService', () => {
         tags: { name: 'Ciutat Vella', admin_level: '9' },
       };
       osmPlacesService.findNeighborhoodsWithin.mockResolvedValue([ciutatVella]);
-      osmPlacesService.findPoisWithin.mockResolvedValue([]);
-      osmPlacesService.findStreetsWithin.mockResolvedValue([
-        {
-          id: 'osm:way:501',
-          name: 'La Rambla',
-          osmType: 'way',
-          osmId: 501,
-          geometry: {
-            type: 'LineString',
-            coordinates: [
-              [0, 0],
-              [0, 1],
-            ],
-          },
-          tags: { name: 'La Rambla', highway: 'pedestrian' },
-        },
-      ]);
 
       // Only a handful of low-relevance activities exist locally — same shape
       // as the real Barcelona bug report (hiking trails near Collserola).
@@ -2119,17 +1600,17 @@ describe('TourActivityGenerationService', () => {
 
       // 1. The thin pool (1 result) triggered a crawl refresh.
       expect(googlePlacesService.crawlAndSaveActivities).toHaveBeenCalled();
-      // 2. The destination resolved to area-scale and explored a real neighborhood.
-      expect(osmPlacesService.findStreetsWithin).toHaveBeenCalledWith(
-        ciutatVella,
-      );
+      // 2. Child areas distribute Places coverage only; detailed OSM
+      // composite construction is not part of live generation.
+      expect(osmPlacesService.findStreetsWithin).not.toHaveBeenCalled();
       // 3. The historically-relevant, lower-rated site outranked the irrelevant
       //    higher-rated one in what the LLM was offered.
       const [, promptArg] = langChainService.generateChatResponse.mock.calls[0];
       expect(promptArg.indexOf('Barri Gòtic historic site')).toBeLessThan(
         promptArg.indexOf('Collserola hiking trail'),
       );
-      // 4. The bitácora records both new stages. tour.update is called with a
+      // 4. The bitácora records destination/refill stages but no speculative
+      // neighborhood candidate stage. tour.update is called with a
       //    single { where, data } argument (see the $transaction block in
       //    generateTourActivities), so each mock call is a one-element array.
       // Two calls end up with generationStatus 'completed': the $transaction's
@@ -2148,11 +1629,9 @@ describe('TourActivityGenerationService', () => {
         (s: any) => s.stage,
       );
       expect(stages).toEqual(
-        expect.arrayContaining([
-          'destination_resolution',
-          'neighborhood_shortlist',
-        ]),
+        expect.arrayContaining(['destination_resolution']),
       );
+      expect(stages).not.toContain('neighborhood_shortlist');
     });
   });
 

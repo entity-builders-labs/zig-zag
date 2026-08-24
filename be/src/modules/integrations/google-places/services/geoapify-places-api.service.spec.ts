@@ -36,7 +36,7 @@ describe('GeoapifyPlacesApiService', () => {
         latitude: -34.6037,
         longitude: -58.3816,
         radius: 2000,
-        includedTypes: ['museum'],
+        includedPrimaryTypes: ['museum'],
         maxResultCount: 10,
       });
 
@@ -75,7 +75,7 @@ describe('GeoapifyPlacesApiService', () => {
         latitude: -34.6037,
         longitude: -58.3816,
         radius: 2000,
-        includedTypes: ['museum'],
+        includedPrimaryTypes: ['museum'],
       });
 
       expect(results.data).toEqual([
@@ -103,7 +103,7 @@ describe('GeoapifyPlacesApiService', () => {
         latitude: -34.6037,
         longitude: -58.3816,
         radius: 2000,
-        includedTypes: ['unmapped_type'],
+        includedPrimaryTypes: ['unmapped_type'],
       });
 
       expect(results.data).toEqual([]);
@@ -112,31 +112,22 @@ describe('GeoapifyPlacesApiService', () => {
   });
 
   describe('searchText', () => {
-    it('approximates a category search for the hiking_trail fallback query', async () => {
-      mockedAxios.get.mockResolvedValueOnce({ data: { features: [] } });
-
-      await service.searchText({
+    it('does not silently approximate descriptive Text Search as a category call', async () => {
+      const result = await service.searchText({
         textQuery: 'hiking trail hiking trekking trail nature',
-        latitude: -34.6037,
-        longitude: -58.3816,
-        radius: 5000,
+        locationBias: {
+          center: { latitude: -34.6037, longitude: -58.3816 },
+          radius: 5000,
+        },
       });
 
-      expect(mockedAxios.get).toHaveBeenCalledWith(
-        'https://api.geoapify.com/v2/places',
-        expect.objectContaining({
-          params: expect.objectContaining({
-            categories: 'natural.forest,natural.protected_area',
-          }),
-        }),
-      );
+      expect(result.data).toEqual([]);
+      expect(mockedAxios.get).not.toHaveBeenCalled();
     });
 
     it('returns an empty array when no keyword approximation matches', async () => {
       const results = await service.searchText({
         textQuery: 'something completely unrelated',
-        latitude: -34.6037,
-        longitude: -58.3816,
       });
 
       expect(results.data).toEqual([]);

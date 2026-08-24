@@ -243,6 +243,87 @@ describe('OsmPlacesService', () => {
     });
   });
 
+  describe('lookupDestinationBoundary', () => {
+    const closedRing = [
+      { lat: -31.57, lon: -68.57 },
+      { lat: -31.57, lon: -68.5 },
+      { lat: -31.5, lon: -68.5 },
+      { lat: -31.57, lon: -68.57 },
+    ];
+
+    it('selects the structured administrative container instead of the most specific neighborhood', async () => {
+      const province: OverpassElement = {
+        type: 'relation',
+        id: 153539,
+        tags: { name: 'San Juan', admin_level: '4' },
+        members: [{ type: 'way', ref: 1, role: 'outer', geometry: closedRing }],
+      };
+      const capital: OverpassElement = {
+        type: 'relation',
+        id: 3465536,
+        tags: { name: 'Capital', admin_level: '5' },
+        members: [{ type: 'way', ref: 2, role: 'outer', geometry: closedRing }],
+      };
+      const suburb: OverpassElement = {
+        type: 'relation',
+        id: 19285517,
+        tags: { name: 'Desamparados', admin_level: '6' },
+        members: [{ type: 'way', ref: 3, role: 'outer', geometry: closedRing }],
+      };
+      overpassApi.queryContainingBoundary.mockResolvedValue([
+        province,
+        capital,
+        suburb,
+      ]);
+
+      const result = await service.lookupDestinationBoundary(
+        -31.535107,
+        -68.538594,
+        ['Capital'],
+      );
+
+      expect(result).toEqual({
+        status: 'success',
+        value: expect.objectContaining({
+          osmType: 'relation',
+          osmId: 3465536,
+          name: 'Capital',
+        }),
+      });
+    });
+
+    it('does not guess a destination boundary from admin level when no structured name matches', async () => {
+      overpassApi.queryContainingBoundary.mockResolvedValue([
+        {
+          type: 'relation',
+          id: 19285517,
+          tags: { name: 'Desamparados', admin_level: '6' },
+          members: [
+            { type: 'way', ref: 1, role: 'outer', geometry: closedRing },
+          ],
+        },
+      ]);
+
+      await expect(
+        service.lookupDestinationBoundary(-31.535107, -68.538594, ['Capital']),
+      ).resolves.toEqual({ status: 'success', value: null });
+    });
+
+    it('reports provider failure separately from a successful no-match', async () => {
+      overpassApi.queryContainingBoundary.mockRejectedValue(
+        new Error('overpass down'),
+      );
+
+      await expect(
+        service.lookupDestinationBoundary(-31.535107, -68.538594, ['Capital']),
+      ).resolves.toEqual({
+        status: 'failed',
+        value: null,
+        failureReason: 'overpass down',
+      });
+    });
+  });
+
   describe('findBoundaryByName', () => {
     it('returns the first matching candidate', async () => {
       const relation: OverpassElement = {
@@ -380,6 +461,58 @@ describe('OsmPlacesService', () => {
       const result = await service.findNeighborhoodsWithin(cityBoundary);
 
       expect(result.map((c) => c.name)).toEqual(['San Telmo']);
+      expect(overpassApi.queryAdminBoundariesWithinArea).toHaveBeenCalledWith({
+        osmType: 'relation',
+        osmId: 1224652,
+        childAdminLevel: 9,
+      });
+    });
+
+    it('rejects highway ways and duplicate OSM identities while retaining a genuine area way', async () => {
+      overpassApi.queryAdminBoundariesWithinArea.mockResolvedValue([
+        {
+          type: 'relation',
+          id: 1,
+          tags: { name: 'Centro', admin_level: '9' },
+          center: { lat: -34.61, lon: -58.38 },
+        },
+        {
+          type: 'relation',
+          id: 1,
+          tags: { name: 'Centro duplicate', admin_level: '9' },
+          center: { lat: -34.61, lon: -58.38 },
+        },
+        {
+          type: 'way',
+          id: 2,
+          tags: {
+            name: 'Administrative road',
+            admin_level: '9',
+            highway: 'residential',
+          },
+          center: { lat: -34.62, lon: -58.39 },
+        },
+        {
+          type: 'way',
+          id: 3,
+          tags: { name: 'Closed residential area', admin_level: '9' },
+          center: { lat: -34.63, lon: -58.4 },
+        },
+        {
+          type: 'node',
+          id: 4,
+          tags: { name: 'Not a boundary', admin_level: '9' },
+          lat: -34.64,
+          lon: -58.41,
+        },
+      ]);
+
+      const result = await service.findNeighborhoodsWithin(cityBoundary);
+
+      expect(result.map(({ id }) => id)).toEqual([
+        'osm:relation:1',
+        'osm:way:3',
+      ]);
     });
 
     it('returns an empty array (not a throw) when Overpass fails', async () => {
@@ -396,6 +529,20 @@ describe('OsmPlacesService', () => {
         value: [],
         failureReason: 'down',
       });
+    });
+
+    it('marks a missing parent admin level as unavailable instead of an empty success', async () => {
+      const lookup = await service.lookupNeighborhoodsWithin({
+        ...cityBoundary,
+        tags: { name: cityBoundary.name },
+      });
+
+      expect(lookup).toMatchObject({
+        status: 'failed',
+        value: [],
+        failureReason: expect.stringMatching(/administrative level/),
+      });
+      expect(overpassApi.queryAdminBoundariesWithinArea).not.toHaveBeenCalled();
     });
   });
 

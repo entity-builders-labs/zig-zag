@@ -30,12 +30,39 @@ describe('CatalogCandidateValidatorService', () => {
       ],
     ],
   };
+  const nearbyMuseumsOperation = {
+    operationId: 'coverage:center:museums_and_arts',
+    purpose: 'geographic_coverage' as const,
+    providerOperation: 'nearby' as const,
+    category: 'museums_and_arts',
+    requestedPrimaryTypes: [
+      'museum',
+      'history_museum',
+      'art_museum',
+      'art_gallery',
+    ],
+    rankPreference: 'POPULARITY' as const,
+    geographicConstraint: {
+      kind: 'circle' as const,
+      circle: {
+        center: { latitude: 2, longitude: 2 },
+        radius: 2_000,
+      },
+    },
+    resultBudget: 10,
+    anchorId: 'center',
+    preferredTime: 'day',
+    supported: true,
+  };
 
   it('accepts a supported, identified POI inside the destination boundary', () => {
     expect(
       service.validate(validCandidate, { destinationBoundary: boundary }),
     ).toEqual({
       accepted: true,
+      identityAccepted: true,
+      admissionAccepted: true,
+      admissionEvidence: 'review_confidence',
       normalizedName: 'museo de la ciudad',
       rejectionReasons: [],
     });
@@ -110,7 +137,7 @@ describe('CatalogCandidateValidatorService', () => {
     expect(result.rejectionReasons).not.toContain('permanently_closed');
   });
 
-  it('accepts a trusted Google institution without review evidence', () => {
+  it('rejects a Google institution without reviews or structured corroboration', () => {
     const result = service.validate({
       ...validCandidate,
       rating: undefined,
@@ -118,7 +145,27 @@ describe('CatalogCandidateValidatorService', () => {
       providerTypes: ['museum'],
     });
 
+    expect(result.accepted).toBe(false);
+    expect(result.rejectionReasons).toEqual(
+      expect.arrayContaining([
+        'insufficient_review_confidence',
+        'missing_institutional_corroboration',
+      ]),
+    );
+  });
+
+  it('admits a supported Google institution corroborated by provider data', () => {
+    const result = service.validate({
+      ...validCandidate,
+      rating: undefined,
+      ratingCount: undefined,
+      providerTypes: ['museum'],
+      providerPrimaryType: 'museum',
+      website: 'https://museum.example',
+    });
+
     expect(result.accepted).toBe(true);
+    expect(result.admissionEvidence).toBe('institutional_corroboration');
   });
 
   it('uses a provider-appropriate quality policy when Geoapify has no ratings', () => {
@@ -131,7 +178,7 @@ describe('CatalogCandidateValidatorService', () => {
     });
 
     expect(result.accepted).toBe(false);
-    expect(result.rejectionReasons).toContain('insufficient_quality');
+    expect(result.rejectionReasons).toContain('insufficient_provider_evidence');
   });
 
   it('accepts Geoapify evidence made of a mapped type and formatted address', () => {
@@ -143,5 +190,110 @@ describe('CatalogCandidateValidatorService', () => {
     });
 
     expect(result.accepted).toBe(true);
+  });
+
+  it('rejects a supported global type when it does not match the acquisition operation', () => {
+    const result = service.validate(
+      {
+        ...validCandidate,
+        name: 'Camping Sindicato de Televisión',
+        providerTypes: ['campground', 'lodging', 'point_of_interest'],
+        providerPrimaryType: 'campground',
+      },
+      { acquisitionOperation: nearbyMuseumsOperation },
+    );
+
+    expect(result.accepted).toBe(false);
+    expect(result.rejectionReasons).toContain('unsupported_primary_type');
+  });
+
+  it('admits a tourism-specific primary type returned by flexible Text Search', () => {
+    const result = service.validate(
+      {
+        ...validCandidate,
+        name: 'Monumento Nacional a la Bandera',
+        providerTypes: ['sculpture', 'historical_place', 'point_of_interest'],
+        providerPrimaryType: 'sculpture',
+      },
+      {
+        acquisitionOperation: {
+          operationId: 'seed:tourist-attractions',
+          purpose: 'destination_seed',
+          providerOperation: 'text',
+          category: 'visitor_landmarks',
+          textQuery: 'top tourist attractions in Rosario',
+          includedType: 'tourist_attraction',
+          strictTypeFiltering: false,
+          geographicConstraint: nearbyMuseumsOperation.geographicConstraint,
+          resultBudget: 10,
+          preferredTime: 'day',
+          supported: true,
+        },
+      },
+    );
+
+    expect(result.accepted).toBe(true);
+    expect(result.rejectionReasons).not.toContain('unsupported_primary_type');
+  });
+
+  it('rejects a school misclassified with a church primary type without relying on its name', () => {
+    const result = service.validate(
+      {
+        ...validCandidate,
+        name: 'Any provider-supplied institution name',
+        providerPrimaryType: 'church',
+        providerTypes: [
+          'church',
+          'place_of_worship',
+          'school',
+          'educational_institution',
+          'point_of_interest',
+        ],
+        rating: 4.8,
+        ratingCount: 500,
+      },
+      {
+        acquisitionOperation: {
+          ...nearbyMuseumsOperation,
+          operationId: 'coverage:center:visitor_landmarks',
+          category: 'visitor_landmarks',
+          requestedPrimaryTypes: ['church'],
+        },
+      },
+    );
+
+    expect(result.accepted).toBe(false);
+    expect(result.rejectionReasons).toContain('conflicting_provider_types');
+  });
+
+  it('rejects campground/lodging identity masked by a generic park primary type', () => {
+    const result = service.validate(
+      {
+        ...validCandidate,
+        name: 'Any provider-supplied outdoor venue name',
+        providerPrimaryType: 'park',
+        providerTypes: [
+          'park',
+          'campground',
+          'lodging',
+          'point_of_interest',
+          'establishment',
+        ],
+        rating: 4.8,
+        ratingCount: 600,
+      },
+      {
+        acquisitionOperation: {
+          ...nearbyMuseumsOperation,
+          operationId: 'coverage:center:outdoor',
+          category: 'outdoor',
+          requestedPrimaryTypes: ['park'],
+        },
+      },
+    );
+
+    expect(result.accepted).toBe(false);
+    expect(result.identityAccepted).toBe(false);
+    expect(result.rejectionReasons).toContain('conflicting_provider_types');
   });
 });

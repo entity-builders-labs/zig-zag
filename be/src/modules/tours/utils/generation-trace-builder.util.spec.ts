@@ -2,93 +2,8 @@ import {
   buildEmbeddingsStep,
   buildDestinationResolutionStep,
   buildLlmGenerationStep,
-  buildNeighborhoodShortlistStep,
-  buildOsmBoundaryStep,
-  buildOsmStreetsStep,
   buildPlacesCrawlStep,
-  buildWikidataEnrichmentStep,
 } from './generation-trace-builder.util';
-import { OsmCandidate } from '@integrations/osm/services/osm-places.service';
-
-function candidate(name: string): OsmCandidate {
-  return {
-    id: `osm:relation:${name}`,
-    name,
-    osmType: 'relation',
-    osmId: 1,
-    geometry: {
-      type: 'Polygon',
-      coordinates: [
-        [
-          [0, 0],
-          [1, 0],
-          [1, 1],
-          [0, 0],
-        ],
-      ],
-    },
-    tags: { name },
-  };
-}
-
-describe('buildNeighborhoodShortlistStep', () => {
-  it('lists every real neighborhood found, marking which ones were shortlisted', () => {
-    const sanTelmo = candidate('San Telmo');
-    const laBoca = candidate('La Boca');
-    const recoleta = candidate('Recoleta');
-
-    const step = buildNeighborhoodShortlistStep(
-      [sanTelmo, laBoca, recoleta],
-      [sanTelmo, laBoca],
-    );
-
-    expect(step.stage).toBe('neighborhood_shortlist');
-    expect(step.summary).toContain('3');
-    expect(step.summary).toContain('2');
-    const offeredNames = step.candidates?.map((c) => c.name);
-    expect(offeredNames).toEqual(['San Telmo', 'La Boca', 'Recoleta']);
-    const sanTelmoCandidate = step.candidates?.find(
-      (c) => c.name === 'San Telmo',
-    );
-    const recoletaCandidate = step.candidates?.find(
-      (c) => c.name === 'Recoleta',
-    );
-    expect(sanTelmoCandidate?.chosen).toBe(true);
-    expect(recoletaCandidate?.chosen).toBe(false);
-  });
-
-  it('summarizes finding zero neighborhoods without erroring', () => {
-    const step = buildNeighborhoodShortlistStep([], []);
-
-    expect(step.summary).toContain('0');
-    expect(step.candidates).toEqual([]);
-  });
-
-  it('explains the deterministic evidence used to shortlist each neighborhood', () => {
-    const sanTelmo = candidate('San Telmo');
-    const step = buildNeighborhoodShortlistStep([sanTelmo], [sanTelmo], {
-      existingFamilyCount: 1,
-      catalogCoveredCount: 1,
-      scoringInputs: [
-        {
-          candidate: sanTelmo,
-          hasExistingFamily: true,
-          catalogPoiCount: 3,
-          catalogProminenceScore: 1.234,
-          interestSimilarity: 0.876,
-          overpassPoiCount: null,
-        },
-      ],
-    });
-
-    expect(step.summary).toContain('prominencia');
-    expect(step.candidates?.[0].detail).toContain('familia existente');
-    expect(step.candidates?.[0].detail).toContain('3 POI(s)');
-    expect(step.candidates?.[0].detail).toContain('prominencia 1.23');
-    expect(step.candidates?.[0].detail).toContain('afinidad semántica 0.88');
-  });
-});
-
 describe('buildPlacesCrawlStep', () => {
   it('reports the actual Geoapify provider and cache provenance', () => {
     const step = buildPlacesCrawlStep([{ id: 'a1', name: 'Museo' }], {
@@ -142,9 +57,9 @@ describe('buildPlacesCrawlStep', () => {
       },
     });
 
-    expect(step.summary).toContain('descartó 47');
+    expect(step.summary).toContain('Rechazos totales registrados: 47');
     expect(step.summary).toContain('13 consulta(s) al proveedor fallaron');
-    expect(step.summary).not.toContain('descartó 60');
+    expect(step.summary).not.toContain('Rechazos totales registrados: 60');
   });
 
   it('reports anchors, bounded provider calls, validation, deduplication and embeddings', () => {
@@ -155,8 +70,15 @@ describe('buildPlacesCrawlStep', () => {
       receivedCount: 12,
       acceptedCount: 5,
       rejectedCount: 7,
+      seedReceivedCount: 4,
+      coverageReceivedCount: 8,
+      operationGeographyRejectedCount: 1,
       validatedCount: 6,
+      identityValidCount: 6,
+      admittedCount: 6,
       deduplicatedCount: 2,
+      existingCount: 1,
+      persistedCount: 5,
       embeddedCount: 5,
       providerCallCount: 4,
       anchors: [
@@ -175,15 +97,73 @@ describe('buildPlacesCrawlStep', () => {
           radiusMeters: 2500,
         },
       ],
+      operations: [
+        {
+          operationId: 'seed:tourist-attractions',
+          purpose: 'destination_seed',
+          providerOperation: 'text',
+          category: 'visitor_landmarks',
+          textQuery: 'top tourist attractions in Test City',
+          includedType: 'tourist_attraction',
+          strictTypeFiltering: false,
+          geographicConstraint: {
+            kind: 'circle',
+            circle: {
+              center: { latitude: 1, longitude: 2 },
+              radius: 2500,
+            },
+          },
+          resultBudget: 10,
+          preferredTime: 'day',
+          supported: true,
+          status: 'succeeded',
+          receivedCount: 4,
+          rejectedCountByReason: {},
+        },
+        {
+          operationId: 'coverage:casco:visitor_landmarks',
+          purpose: 'geographic_coverage',
+          providerOperation: 'nearby',
+          category: 'visitor_landmarks',
+          requestedPrimaryTypes: ['tourist_attraction'],
+          rankPreference: 'POPULARITY',
+          geographicConstraint: {
+            kind: 'circle',
+            circle: {
+              center: { latitude: 1, longitude: 2 },
+              radius: 2500,
+            },
+          },
+          resultBudget: 10,
+          anchorId: 'casco',
+          preferredTime: 'day',
+          supported: true,
+          status: 'succeeded',
+          receivedCount: 8,
+          rejectedCountByReason: {},
+        },
+      ],
       rejectedCountByReason: { duplicate_result: 2, existing_activity: 1 },
     });
 
-    expect(step.summary).toContain('2 anchor(s): Casco Antiguo, Triana');
+    expect(step.summary).toContain(
+      '2 punto(s) de cobertura geográfica para distribuir las consultas',
+    );
+    expect(step.summary).toContain('Casco Antiguo, Triana');
+    expect(step.summary).toContain('no implican relevancia turística');
     expect(step.summary).toContain('4 consulta(s) acotadas');
-    expect(step.summary).toContain('Validó 6');
-    expect(step.summary).toContain('2 duplicado(s)');
-    expect(step.summary).toContain('5 embedding(s)');
-    expect(step.summary).toContain('descartó 7');
+    expect(step.summary).toContain('1 Google Places Text Search');
+    expect(step.summary).toContain('1 Nearby Search');
+    expect(step.summary).toContain('semilla recibió 4');
+    expect(step.summary).toContain('cobertura recibió 8');
+    expect(step.summary).toContain('geografía de operación rechazó 1');
+    expect(step.summary).toContain('la unión eliminó 2 duplicado(s)');
+    expect(step.summary).toContain('identidad válida 6');
+    expect(step.summary).toContain('admisión aprobada 6');
+    expect(step.summary).toContain('1 ya existía(n)');
+    expect(step.summary).toContain('persistió 5 nuevo(s)');
+    expect(step.summary).toContain('indexó 5 embedding(s)');
+    expect(step.summary).toContain('Rechazos totales registrados: 7');
   });
 });
 
@@ -204,7 +184,7 @@ describe('buildEmbeddingsStep', () => {
   });
 });
 
-describe('destination and Wikidata trace steps', () => {
+describe('destination trace step', () => {
   it('records normalized destination attempts and the coordinate mismatch reason', () => {
     const step = buildDestinationResolutionStep('Montevideo', {
       scale: 'point',
@@ -216,63 +196,27 @@ describe('destination and Wikidata trace steps', () => {
     expect(step.summary).toContain('no coincidían con las coordenadas');
   });
 
-  it('distinguishes missing QIDs, unsafe extracts, and safety provider failure', () => {
-    const withQid = candidate('Defensa');
-    withQid.tags.wikidata = 'Q1';
-    const withoutQid = candidate('San Telmo');
-    const step = buildWikidataEnrichmentStep([withQid, withoutQid], {
-      withoutQid: 1,
-      withQid: 1,
-      fetched: 1,
-      acceptedSafe: 0,
-      rejectedUnsafe: 0,
-      providerFailed: 0,
-      safetyCheckFailed: 1,
-      fetchedQids: new Set(['Q1']),
-      safeQids: new Set(),
-      rejectedUnsafeQids: new Set(),
-      safetyCheckFailedQids: new Set(['Q1']),
+  it('distinguishes a matched settlement node from its hydrated administrative boundary', () => {
+    const step = buildDestinationResolutionStep('San Juan, Argentina', {
+      scale: 'area',
+      boundary: {
+        id: 'osm:relation:3465536',
+        name: 'Capital',
+        osmType: 'relation',
+        osmId: 3465536,
+        geometry: { type: 'Point', coordinates: [-68.53, -31.53] },
+        tags: { name: 'Capital', admin_level: '5' },
+      },
+      settlementResult: { displayName: 'San Juan, Argentina' },
+      attemptedQueries: [
+        'forward:San Juan, Argentina',
+        'containing-boundary:-31.535107,-68.538594',
+      ],
     });
 
-    expect(step.summary).toContain('1 sin QID');
-    expect(step.summary).toContain('1 afectados por fallo del control');
-    expect(step.providerStatus).toBe('failed');
-    expect(step.candidates?.[0].detail).toContain('control de seguridad falló');
-    expect(step.summary).toContain('no elimina candidatos');
-  });
-});
-
-describe('OSM trace steps', () => {
-  it('distinguishes an Overpass failure from a successful empty street result', () => {
-    const failed = buildOsmStreetsStep([], 'timeout');
-    const empty = buildOsmStreetsStep([], undefined, true);
-
-    expect(failed.providerStatus).toBe('failed');
-    expect(failed.summary).toContain('no significa que no existan');
-    expect(empty.providerStatus).toBe('success');
-    expect(empty.summary).toContain('respondió sin calles, vías o POIs');
-  });
-
-  it('preserves and reports real OSM candidates when only part of Overpass degraded', () => {
-    const step = buildOsmStreetsStep(
-      [candidate('San Telmo')],
-      'one neighborhood timed out',
-      false,
-    );
-
-    expect(step.providerStatus).toBe('failed');
-    expect(step.summary).toContain('1 calles, vías o POIs OSM reales');
-    expect(step.summary).toContain('cobertura puede estar incompleta');
-    expect(step.candidates?.[0].offered).toBe(true);
-  });
-
-  it('does not claim there is no containing boundary when Overpass failed', () => {
-    const step = buildOsmBoundaryStep(null, 'rate limited');
-
-    expect(step.providerStatus).toBe('failed');
-    expect(step.degradedReason).toBe('rate limited');
-    expect(step.summary).toContain('No se pudo consultar');
-    expect(step.summary).not.toContain('Sin un límite');
+    expect(step.summary).toContain('se identificó como San Juan, Argentina');
+    expect(step.summary).toContain('límite administrativo contenedor Capital');
+    expect(step.summary).not.toContain('ciudad: Capital');
   });
 });
 

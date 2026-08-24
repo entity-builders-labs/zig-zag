@@ -17,7 +17,9 @@ import {
 
 @Injectable()
 export class CachedPlacesApiService implements IPlacesApiService {
-  private static readonly CACHE_SCHEMA_VERSION = 'v2';
+  // v3 records primaryType and separates Nearby includedPrimaryTypes from
+  // Text Search's singular includedType/location contract.
+  private static readonly CACHE_SCHEMA_VERSION = 'v3';
   private readonly logger = new Logger(CachedPlacesApiService.name);
   private readonly cacheDir: string;
   private readonly mode: PlacesCacheMode;

@@ -6,6 +6,7 @@ export interface PlaceData {
   rating?: number;
   userRatingCount?: number;
   types?: string[];
+  primaryType?: string;
   websiteUri?: string;
   nationalPhoneNumber?: string;
   name?: string;
@@ -22,17 +23,33 @@ export interface PlacesSearchNearbyParams {
   latitude: number;
   longitude: number;
   radius: number;
-  includedTypes?: string[];
+  includedPrimaryTypes?: string[];
   maxResultCount?: number;
   rankPreference?: 'DISTANCE' | 'POPULARITY';
 }
 
 export interface PlacesSearchTextParams {
   textQuery: string;
-  latitude?: number;
-  longitude?: number;
-  radius?: number;
+  includedType?: string;
+  strictTypeFiltering?: boolean;
+  locationRestriction?: PlacesRectangle;
+  locationBias?: PlacesCircle;
   maxResultCount?: number;
+}
+
+export interface PlacesCoordinate {
+  latitude: number;
+  longitude: number;
+}
+
+export interface PlacesCircle {
+  center: PlacesCoordinate;
+  radius: number;
+}
+
+export interface PlacesRectangle {
+  low: PlacesCoordinate;
+  high: PlacesCoordinate;
 }
 
 export const PLACES_PROVIDERS = ['google', 'geoapify'] as const;
@@ -76,10 +93,19 @@ export type PlacesApiErrorCode =
   | 'request_failed';
 
 export interface PlacesCrawlProvenance extends PlacesRequestProvenance {
+  /** @deprecated Use persistedCount for newly created catalog rows. */
   acceptedCount: number;
   rejectedCount?: number;
+  seedReceivedCount?: number;
+  coverageReceivedCount?: number;
+  operationGeographyRejectedCount?: number;
   validatedCount?: number;
+  identityValidCount?: number;
+  admittedCount?: number;
+  admissionEvidenceCountByType?: Record<string, number>;
   deduplicatedCount?: number;
+  existingCount?: number;
+  persistedCount?: number;
   embeddedCount?: number;
   providerCallCount?: number;
   anchors?: Array<{
@@ -88,7 +114,43 @@ export interface PlacesCrawlProvenance extends PlacesRequestProvenance {
     latitude: number;
     longitude: number;
     radiusMeters: number;
+    source?: 'destination_point' | 'child_area_center' | 'boundary';
   }>;
+  operations?: CatalogAcquisitionOperationProvenance[];
+  rejectedCountByReason: Record<string, number>;
+}
+
+export type CatalogAcquisitionPurpose =
+  | 'destination_seed'
+  | 'geographic_coverage'
+  | 'missing_category';
+
+export type CatalogAcquisitionGeography =
+  | { kind: 'circle'; circle: PlacesCircle }
+  | { kind: 'rectangle'; rectangle: PlacesRectangle };
+
+export interface CatalogAcquisitionOperation {
+  operationId: string;
+  purpose: CatalogAcquisitionPurpose;
+  providerOperation: 'nearby' | 'text';
+  category: string;
+  requestedPrimaryTypes?: string[];
+  rankPreference?: 'POPULARITY';
+  textQuery?: string;
+  includedType?: string;
+  strictTypeFiltering?: boolean;
+  geographicConstraint: CatalogAcquisitionGeography;
+  resultBudget: number;
+  anchorId?: string;
+  preferredTime: string;
+  supported: boolean;
+  unsupportedReason?: 'provider_capability';
+}
+
+export interface CatalogAcquisitionOperationProvenance
+  extends CatalogAcquisitionOperation {
+  status: 'skipped' | 'succeeded' | 'failed';
+  receivedCount: number;
   rejectedCountByReason: Record<string, number>;
 }
 
