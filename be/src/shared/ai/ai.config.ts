@@ -1,4 +1,5 @@
 import { registerAs } from '@nestjs/config';
+import { EmbeddingProvider } from './interfaces/embedding-index.interface';
 
 export interface AiConfig {
   // General
@@ -18,9 +19,9 @@ export interface AiConfig {
   ollamaTimeout?: number; // Separate timeout for Ollama (defaults to 4x base timeout)
   // Embeddings
   embeddingsModel?: string;
-  embeddingProvider: 'openai' | 'ollama' | 'bedrock';
+  embeddingProvider: EmbeddingProvider;
   awsRegion: string;
-  embeddingDimensions: 256 | 512 | 1024;
+  embeddingDimensions: 256;
 }
 
 // Helper to detect if a model is an embedding model
@@ -67,6 +68,31 @@ export default registerAs('ai', (): AiConfig => {
     ? parseInt(process.env.OPENAI_TIMEOUT, 10)
     : 60000;
 
+  const configuredEmbeddingProvider =
+    process.env.EMBEDDING_PROVIDER ||
+    (process.env.NODE_ENV === 'production' ? 'bedrock' : 'ollama');
+  if (!['openai', 'ollama', 'bedrock'].includes(configuredEmbeddingProvider)) {
+    throw new Error(
+      `Unsupported EMBEDDING_PROVIDER "${configuredEmbeddingProvider}". Expected openai, ollama, or bedrock.`,
+    );
+  }
+  const embeddingProvider = configuredEmbeddingProvider as EmbeddingProvider;
+  const configuredEmbeddingDimensions = Number(
+    process.env.EMBEDDING_DIMENSIONS || 256,
+  );
+  if (configuredEmbeddingDimensions !== 256) {
+    throw new Error(
+      `Unsupported EMBEDDING_DIMENSIONS "${configuredEmbeddingDimensions}". ` +
+        'The current pgvector schema requires 256 dimensions; changing it requires a coordinated schema migration and full index rebuild.',
+    );
+  }
+  const defaultEmbeddingModel =
+    embeddingProvider === 'bedrock'
+      ? 'amazon.titan-embed-text-v2:0'
+      : embeddingProvider === 'openai'
+        ? 'text-embedding-3-small'
+        : 'nomic-embed-text';
+
   return {
     enableAi: process.env.ENABLE_AI !== 'false',
     provider,
@@ -87,19 +113,9 @@ export default registerAs('ai', (): AiConfig => {
     ollamaTimeout: process.env.OLLAMA_TIMEOUT
       ? parseInt(process.env.OLLAMA_TIMEOUT, 10)
       : baseTimeout * 4,
-    embeddingsModel:
-      process.env.EMBEDDINGS_MODEL ||
-      (process.env.EMBEDDING_PROVIDER === 'bedrock'
-        ? 'amazon.titan-embed-text-v2:0'
-        : 'nomic-embed-text'),
-    embeddingProvider:
-      (process.env.EMBEDDING_PROVIDER as 'openai' | 'ollama' | 'bedrock') ||
-      (process.env.NODE_ENV === 'production' ? 'openai' : 'ollama'),
+    embeddingsModel: process.env.EMBEDDINGS_MODEL || defaultEmbeddingModel,
+    embeddingProvider,
     awsRegion: process.env.AWS_REGION || 'us-east-1',
-    embeddingDimensions: ([256, 512, 1024].includes(
-      Number(process.env.EMBEDDING_DIMENSIONS),
-    )
-      ? Number(process.env.EMBEDDING_DIMENSIONS)
-      : 256) as 256 | 512 | 1024,
+    embeddingDimensions: 256,
   };
 });

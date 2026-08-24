@@ -29,6 +29,22 @@ function testUuid(): string {
 
 describe('TourActivityGenerationService', () => {
   const TOUR_ID = 'tour-1';
+  const embeddingIdentity = {
+    provider: 'ollama' as const,
+    model: 'nomic-embed-text',
+    dimensions: 256,
+    documentVersion: 1,
+  };
+  const similarityResult = (
+    scores: Map<string, number>,
+    requestedCandidateCount: number,
+  ) => ({
+    status: 'applied' as const,
+    scores,
+    requestedCandidateCount,
+    indexedCandidateCount: scores.size,
+    identity: embeddingIdentity,
+  });
 
   const buildGenerationRequest = (overrides: any = {}) => ({
     contractVersion: 1,
@@ -188,8 +204,10 @@ describe('TourActivityGenerationService', () => {
       generateTourCoverImage: jest.fn().mockResolvedValue(undefined),
     };
     vectorStoreService = {
-      backfillMissingActivityEmbeddings: jest.fn().mockResolvedValue(0),
-      getSimilarityScores: jest.fn().mockResolvedValue(new Map()),
+      getSimilarityScores: jest.fn(async (ids: string[]) =>
+        similarityResult(new Map(), ids.length),
+      ),
+      getCompatibleIndexCount: jest.fn().mockResolvedValue(0),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -428,7 +446,10 @@ describe('TourActivityGenerationService', () => {
     const embeddingsStep = trace.steps.find(
       (s: any) => s.stage === 'embeddings',
     );
-    expect(embeddingsStep.summary).toContain('tenía intereses declarados');
+    expect(embeddingsStep.summary).toContain(
+      'No se solicitó ranking semántico',
+    );
+    expect(embeddingsStep.semanticRanking.status).toBe('not_requested');
 
     const generatedUserPrompt =
       langChainService.generateChatResponse.mock.calls[0][1];
@@ -929,7 +950,7 @@ describe('TourActivityGenerationService', () => {
     );
   });
 
-  it('ranks a lower-rated but more relevant POI ahead of a higher-rated irrelevant one when interests are given', async () => {
+  it('retrieves a relevant POI beyond the old rating top 20 and ranks it into the candidate window', async () => {
     const relevantId = testUuid();
     const irrelevantId = testUuid();
     toursService.findOne.mockResolvedValue(
@@ -943,25 +964,30 @@ describe('TourActivityGenerationService', () => {
       }),
     );
     activitiesService.findAll.mockResolvedValue(
-      Array.from({ length: 16 }, (_, i) => ({
-        id: i === 0 ? irrelevantId : i === 1 ? relevantId : testUuid(),
+      Array.from({ length: 30 }, (_, i) => ({
+        id: i === 0 ? irrelevantId : i === 25 ? relevantId : testUuid(),
         name:
           i === 0
             ? 'Irrelevant but top-rated'
-            : i === 1
+            : i === 25
               ? 'Relevant history site'
               : `Filler ${i}`,
         latitude: -34.62,
         longitude: -58.37,
-        rating: i === 0 ? 4.9 : 3.5,
+        rating: i === 0 ? 4.9 : 3.5 - i * 0.01,
         ratingCount: 100,
+        weightedScore: i === 0 ? 4.9 : 3.5 - i * 0.01,
+        distance: i / 10,
       })),
     );
     vectorStoreService.getSimilarityScores.mockResolvedValue(
-      new Map([
-        [irrelevantId, 0.05],
-        [relevantId, 0.95],
-      ]),
+      similarityResult(
+        new Map([
+          [irrelevantId, 0.05],
+          [relevantId, 0.95],
+        ]),
+        30,
+      ),
     );
     prisma.activity.findMany.mockResolvedValue([
       {
@@ -990,17 +1016,19 @@ describe('TourActivityGenerationService', () => {
 
     await service.generateTourActivities(TOUR_ID);
 
-    expect(
-      vectorStoreService.backfillMissingActivityEmbeddings,
-    ).toHaveBeenCalledWith(
-      expect.arrayContaining([
-        expect.objectContaining({ id: relevantId }),
-        expect.objectContaining({ id: irrelevantId }),
-      ]),
+    expect(activitiesService.findAll).toHaveBeenCalledWith(
+      '-34.62',
+      '-58.37',
+      3000,
+      250,
     );
     expect(vectorStoreService.getSimilarityScores).toHaveBeenCalledWith(
       expect.arrayContaining([relevantId, irrelevantId]),
-      'history',
+      [
+        'Interests: history',
+        'Experience formats: point visits',
+        'Exploration style: balanced',
+      ].join('\n'),
     );
     const [, callArgs] = langChainService.generateChatResponse.mock.calls[0];
     // The prompt's "Available activities" text must list the relevant,
@@ -1045,10 +1073,13 @@ describe('TourActivityGenerationService', () => {
       },
     ]);
     vectorStoreService.getSimilarityScores.mockResolvedValue(
-      new Map([
-        [mediocrePoiId, 0.5],
-        [curatedWalkId, 0.5],
-      ]),
+      similarityResult(
+        new Map([
+          [mediocrePoiId, 0.5],
+          [curatedWalkId, 0.5],
+        ]),
+        2,
+      ),
     );
     prisma.activity.findMany.mockResolvedValue([
       {
@@ -1605,10 +1636,13 @@ describe('TourActivityGenerationService', () => {
           },
         ]);
       vectorStoreService.getSimilarityScores.mockResolvedValue(
-        new Map([
-          [hikingTrailId, 0.05],
-          [historicSiteId, 0.9],
-        ]),
+        similarityResult(
+          new Map([
+            [hikingTrailId, 0.05],
+            [historicSiteId, 0.9],
+          ]),
+          2,
+        ),
       );
       prisma.activity.findMany.mockResolvedValue([
         {

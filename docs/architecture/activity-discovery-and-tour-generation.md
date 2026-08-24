@@ -624,6 +624,39 @@ The Prisma column is currently vector(256). Production configuration must stay
 at 256 dimensions unless a schema migration and complete index rebuild happen
 together.
 
+### Current embedding/retrieval implementation checkpoint
+
+PR 5 implements the semantic retrieval portion of this architecture:
+
+- `SemanticActivityDocumentBuilder` is the only document builder used by
+  Activity embedding writes. It includes verified semantic fields and
+  composite waypoints, while excluding coordinates, provider IDs, ratings, and
+  review counts.
+- Each stored vector carries provider, model, dimensions, document version,
+  and generation time. Similarity queries use only an exact match with the
+  configured index identity; legacy or mixed vectors are explicitly missing.
+- `EMBEDDING_PROVIDER` is strict. Bedrock, Ollama, and OpenAI failures produce
+  an unavailable state and never activate another provider.
+- The current application rejects any configured vector width other than 256.
+  A failed full rebuild clears its partial batches, so a provider/model switch
+  cannot leave an incomplete index presented as authoritative.
+- Catalog retrieval first builds the geographically eligible pool (bounded at
+  250 rows for the current request path), then runs pgvector across that pool,
+  and only afterwards selects the 15 candidates offered to the itinerary LLM.
+  This replaces the old rating-top-20-then-embedding order.
+- Measured semantic candidates compete on relevance plus bounded quality,
+  proximity, kind, and subtype non-redundancy signals. Candidates without a
+  compatible embedding remain an explicit unknown tier ordered by quality and
+  proximity; they are not assigned a synthetic zero similarity.
+- The bitacora records `not_requested`, `applied`, or `unavailable` from the
+  actual similarity operation, together with eligible, compatible-indexed, and
+  offered counts.
+
+The 250/15 bounds are operational limits, not coverage policy. PR 6 still
+replaces the current raw minimum-count refill decision, and PRs 9–11 still own
+set-level diversity and deterministic transport feasibility. PR 5 does not
+claim that semantic relevance proves a day is geographically realizable.
+
 ## Transport-aware spatial feasibility
 
 Semantic ranking answers whether one Activity matches the user's interests.

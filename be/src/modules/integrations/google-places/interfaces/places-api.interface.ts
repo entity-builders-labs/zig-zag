@@ -107,6 +107,14 @@ export interface PlacesCrawlProvenance extends PlacesRequestProvenance {
   existingCount?: number;
   persistedCount?: number;
   embeddedCount?: number;
+  embeddingWriteStatus?: 'indexed' | 'unavailable' | 'no_work' | 'failed';
+  embeddingFailureReason?: string;
+  embeddingIdentity?: {
+    provider: string;
+    model: string;
+    dimensions: number;
+    documentVersion: number;
+  };
   providerCallCount?: number;
   anchors?: Array<{
     id: string;

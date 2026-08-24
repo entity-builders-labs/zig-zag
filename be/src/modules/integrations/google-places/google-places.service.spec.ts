@@ -43,7 +43,19 @@ function buildService(api: IPlacesApiService) {
     activity: { findFirst: jest.fn().mockResolvedValue(null) },
   };
   const activities = { create: jest.fn() };
-  const vectors = { saveActivityEmbedding: jest.fn() };
+  const vectors = {
+    saveActivityEmbedding: jest.fn(async (indexedActivities: any[]) => ({
+      status: 'indexed' as const,
+      requestedIds: indexedActivities.map(({ id }) => id),
+      indexedIds: indexedActivities.map(({ id }) => id),
+      identity: {
+        provider: 'ollama' as const,
+        model: 'nomic-embed-text',
+        dimensions: 256,
+        documentVersion: 1,
+      },
+    })),
+  };
 
   return {
     service: new GooglePlacesService(
@@ -55,6 +67,7 @@ function buildService(api: IPlacesApiService) {
     ),
     prisma,
     activities,
+    vectors,
   };
 }
 
@@ -396,6 +409,48 @@ describe('GooglePlacesService provider provenance', () => {
       }),
     );
     expect(result.provenance.rejectedCountByReason.duplicate_result).toBe(1);
+  });
+
+  it('persists a valid place but exposes a failed embedding write truthfully', async () => {
+    const api = placesApi('google');
+    (api.searchText as jest.Mock).mockResolvedValueOnce({
+      data: [
+        {
+          id: 'museum-1',
+          name: 'Museo histórico',
+          primaryType: 'tourist_attraction',
+          types: ['museum', 'tourist_attraction'],
+          rating: 4.7,
+          userRatingCount: 250,
+          formattedAddress: 'Centro, Córdoba',
+          location: { latitude: -31.42, longitude: -64.18 },
+        },
+      ],
+      provenance: {
+        provider: 'google',
+        cacheStatus: 'miss-live',
+        requestedCount: 5,
+        receivedCount: 1,
+      },
+    });
+    const { service, activities, vectors } = buildService(api);
+    activities.create.mockResolvedValue({ id: 'activity-1' });
+    vectors.saveActivityEmbedding.mockRejectedValue(
+      new Error('Ollama request failed'),
+    );
+
+    const result = await service.crawlAndSaveActivities(
+      { latitude: -31.42, longitude: -64.18, radius: 1000 },
+      { maxProviderCalls: 1, destinationLabel: 'Córdoba, Argentina' },
+    );
+
+    expect(result.activitiesIds).toEqual(['activity-1']);
+    expect(result.provenance).toMatchObject({
+      persistedCount: 1,
+      embeddedCount: 0,
+      embeddingWriteStatus: 'failed',
+      embeddingFailureReason: 'Ollama request failed',
+    });
   });
 
   it('reports admitted existing activities separately from newly persisted rows', async () => {

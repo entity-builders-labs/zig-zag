@@ -224,7 +224,10 @@ function createFakePrisma() {
 describe('CompositeActivityService', () => {
   let prisma: any;
   let vectorStoreService: jest.Mocked<
-    Pick<VectorStoreService, 'saveActivityEmbedding'>
+    Pick<
+      VectorStoreService,
+      'saveActivityEmbedding' | 'backfillMissingActivityEmbeddings'
+    >
   >;
   let service: CompositeActivityService;
 
@@ -252,11 +255,36 @@ describe('CompositeActivityService', () => {
 
   beforeEach(async () => {
     prisma = createFakePrisma();
+    const identity = {
+      provider: 'ollama' as const,
+      model: 'nomic-embed-text',
+      dimensions: 256,
+      documentVersion: 1,
+    };
     vectorStoreService = {
       saveActivityEmbedding: jest.fn(async (activities: any[]) => {
         activities.forEach((activity) => {
           activity.embedding = [0.1];
         });
+        return {
+          status: 'indexed' as const,
+          requestedIds: activities.map(({ id }) => id),
+          indexedIds: activities.map(({ id }) => id),
+          identity,
+        };
+      }),
+      backfillMissingActivityEmbeddings: jest.fn(async (activities: any[]) => {
+        const missing = activities.filter((activity) => !activity.embedding);
+        missing.forEach((activity) => {
+          activity.embedding = [0.1];
+        });
+        return {
+          status:
+            missing.length > 0 ? ('indexed' as const) : ('no_work' as const),
+          requestedIds: activities.map(({ id }) => id),
+          indexedIds: missing.map(({ id }) => id),
+          identity,
+        };
       }),
     };
 
@@ -459,14 +487,15 @@ describe('CompositeActivityService', () => {
       const existing = await service.createOrReuseComposite(input);
       (existing as any).embedding = null;
       vectorStoreService.saveActivityEmbedding.mockClear();
+      vectorStoreService.backfillMissingActivityEmbeddings.mockClear();
 
       const reused = await service.createOrReuseComposite(input);
 
       expect(reused.id).toBe(existing.id);
-      expect(vectorStoreService.saveActivityEmbedding).toHaveBeenCalledTimes(1);
-      expect(vectorStoreService.saveActivityEmbedding).toHaveBeenCalledWith([
-        existing,
-      ]);
+      expect(
+        vectorStoreService.backfillMissingActivityEmbeddings,
+      ).toHaveBeenCalledWith([existing]);
+      expect(vectorStoreService.saveActivityEmbedding).not.toHaveBeenCalled();
     });
 
     it('creates two separate Activities for the same familyId when variantTheme differs, even with identical waypoints', async () => {

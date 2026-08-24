@@ -31,6 +31,17 @@ export interface GenerationTraceStep {
   placesProvenance?: PlacesCrawlProvenance;
   providerStatus?: 'success' | 'failed';
   degradedReason?: string;
+  semanticRanking?: {
+    status: 'not_requested' | 'applied' | 'unavailable';
+    eligibleCandidateCount: number;
+    indexedCandidateCount: number;
+    offeredCandidateCount: number;
+    provider?: string;
+    model?: string;
+    dimensions?: number;
+    documentVersion?: number;
+    reason?: string;
+  };
 }
 
 export interface GenerationTrace {

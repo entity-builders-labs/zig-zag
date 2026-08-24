@@ -13,6 +13,7 @@ ai/
 └── services/
     ├── ai-cache.service.ts         # File-based response caching
     ├── ai-embedding.service.ts     # Text → vector embeddings
+    ├── semantic-activity-document-builder.service.ts # Canonical Activity text
     └── vector-store.service.ts     # pgvector similarity search
 ```
 
@@ -33,20 +34,33 @@ The primary AI service. Handles all LLM interactions:
 
 ### `VectorStoreService`
 
-Semantic similarity search over activities using **pgvector** — a `vector(256)` column + HNSW index on `Activity.embedding`, queried via raw SQL (`ORDER BY embedding <=> $1`). No separate vector database process; it rides on the same Postgres connection as everything else.
+Semantic similarity search over activities using **pgvector** — a `vector(256)` column + HNSW index on `Activity.embedding`. No separate vector database process is used.
 
-- **`addActivityToVectorStore()`**: Generates an embedding for an activity's rich text → writes it to `Activity.embedding`
-- **`saveActivityEmbedding()`**: Batch embedding for multiple activities
-- **`findSimilarActivities(prompt, k)`**: Semantic search by text query
-- **`rebuildVectorStore()`**: Re-embeds all activities with non-null `metadata` from PostgreSQL
-- **`resetVectorStore()`**: Clears every stored embedding (sets `embedding` to `NULL`)
+- Every write reloads the canonical Activity and uses `SemanticActivityDocumentBuilder`; callers cannot provide ad-hoc embedding prose.
+- Every vector stores its provider, model, width, document version, and timestamp. Queries exclude vectors whose identity does not exactly match the configured index.
+- `saveActivityEmbedding()` returns the exact indexed IDs, reports provider unavailability, or throws `EmbeddingWriteError`; it never swallows a failed write.
+- `getSimilarityScores()` returns `applied` or `unavailable` from the actual query operation, including compatible/missing candidate counts.
+- `rebuildVectorStore()` first clears all vectors and identity fields, then rebuilds every active recommendable Activity. If any batch fails, it clears the partial result before returning the error.
 
 ### `AiEmbeddingService`
 
-Generates text embeddings using the configured provider:
+Generates text embeddings using exactly the configured provider:
 
-- OpenAI: `text-embedding-3-small` model
-- Ollama: Local embedding model
+- production default: Amazon Bedrock Titan Text Embeddings V2, 256 dimensions;
+- local default: Ollama `nomic-embed-text`, truncated and normalized to 256 dimensions;
+- optional explicit provider: OpenAI `text-embedding-3-small`.
+
+`EMBEDDING_PROVIDER` is authoritative. Startup or runtime failure makes the
+service explicitly unavailable; the service never tries another provider even
+when unrelated credentials are present. Changing provider, model, dimensions,
+or the semantic document version requires the operator to run a full rebuild:
+
+```bash
+yarn workspace backend script match-activities
+```
+
+Local and production both use PostgreSQL + pgvector. ChromaDB is not part of
+this architecture.
 
 ### `AiCacheService`
 
@@ -68,14 +82,14 @@ Generates images via OpenAI DALL-E API:
 
 Key environment variables:
 
-| Variable               | Default                          | Description                                              |
-| ---------------------- | --------------------------------- | --------------------------------------------------------- |
-| `AI_PROVIDER`          | `openai`                          | Chat/completion provider (`openai`, `groq`, or `ollama`)   |
-| `OPENAI_API_KEY`       | —                                 | OpenAI API key                                            |
-| `AI_MODEL`             | `llama3.2`                        | Chat model name                                           |
-| `EMBEDDING_PROVIDER`   | `ollama` (dev) / `openai` (prod)  | Embedding provider (`openai`, `ollama`, or `bedrock`)      |
-| `EMBEDDINGS_MODEL`     | `nomic-embed-text`                | Embedding model name                                       |
-| `EMBEDDING_DIMENSIONS` | `256`                             | Output vector width (`256`, `512`, or `1024`) — must match the `vector(256)` column |
-| `OLLAMA_BASE_URL`      | `http://localhost:11434`          | Ollama server URL                                          |
-| `ENABLE_AI`            | `true`                            | Enable/disable AI features                                 |
-| `AI_TIMEOUT`           | `60000`                           | Request timeout in ms                                      |
+| Variable               | Default                           | Description                                                                                                  |
+| ---------------------- | --------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `AI_PROVIDER`          | `openai`                          | Chat/completion provider (`openai`, `groq`, or `ollama`)                                                     |
+| `OPENAI_API_KEY`       | —                                 | OpenAI API key                                                                                               |
+| `AI_MODEL`             | `llama3.2`                        | Chat model name                                                                                              |
+| `EMBEDDING_PROVIDER`   | `ollama` (dev) / `bedrock` (prod) | Authoritative embedding provider (`openai`, `ollama`, or `bedrock`)                                          |
+| `EMBEDDINGS_MODEL`     | provider-specific                 | Titan V2 / `nomic-embed-text` / `text-embedding-3-small`                                                     |
+| `EMBEDDING_DIMENSIONS` | `256`                             | Fixed output width; any other value is rejected until a coordinated pgvector schema migration is implemented |
+| `OLLAMA_BASE_URL`      | `http://localhost:11434`          | Ollama server URL                                                                                            |
+| `ENABLE_AI`            | `true`                            | Enable/disable AI features                                                                                   |
+| `AI_TIMEOUT`           | `60000`                           | Request timeout in ms                                                                                        |

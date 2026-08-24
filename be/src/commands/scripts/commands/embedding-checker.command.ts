@@ -23,8 +23,11 @@ export class EmbeddingCheckerCommand extends CommandRunner {
     options: EmbeddingCheckerOptions,
   ): Promise<void> {
     try {
-      const { count } = await this.vectorStoreService.rebuildVectorStore();
-      this.logger.log(`Rebuilt embeddings for ${count} activities`);
+      const { count, identity } =
+        await this.vectorStoreService.rebuildVectorStore();
+      this.logger.log(
+        `Rebuilt ${count} embeddings with ${identity.provider}/${identity.model}, ${identity.dimensions} dimensions, document v${identity.documentVersion}`,
+      );
 
       const searchPrompt = options.searchPrompt || 'outdoor activities';
       this.logger.log(`Performing test search: "${searchPrompt}"...`);

@@ -1249,6 +1249,32 @@ best-effort re-rank of a rating-truncated list.
 - New accepted Places POIs are indexed before semantic coverage is evaluated.
 - No-interests requests retain a deterministic quality/geography fallback.
 
+### Implemented PR 5 checkpoint
+
+- Activity vectors are generated only from the canonical semantic document;
+  every write stores provider/model/dimensions/document-version identity.
+- The configured provider is strict at startup and runtime. Failures are
+  returned or traced explicitly, and no unrelated credential activates a
+  fallback provider.
+- Provider/model/document switches require the explicit full rebuild command;
+  the migration invalidates legacy vectors whose identity cannot be proven.
+- The current `vector(256)` schema rejects other configured dimensions, and a
+  failed rebuild clears all partial batches before reporting the failure.
+- Tour retrieval asks `ActivitiesService` for a bounded pool of up to 250
+  geographically eligible, active, non-AREA Activities. pgvector scores that
+  full pool before the 15-item itinerary window is selected.
+- Missing/mismatched vectors remain an explicit unmeasured tier rather than a
+  zero-interest score. The measured tier combines semantic relevance with
+  bounded quality, proximity, kind, and subtype non-redundancy signals.
+- Places refill reports the exact number of embeddings written and preserves
+  write failure/unavailability in provenance.
+- The bitacora records the actual semantic operation as `not_requested`,
+  `applied`, or `unavailable`, with eligible/indexed/offered counts and active
+  index identity when applicable.
+- Unit coverage includes strict Bedrock/Ollama behavior, canonical documents,
+  mixed-index exclusion, typed writes, full rebuild, and recovery of a relevant
+  Activity beyond the old rating top 20.
+
 ---
 
 ## PR 6: CoverageAnalyzer and candidate quality gate

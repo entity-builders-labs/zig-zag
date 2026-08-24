@@ -94,25 +94,27 @@ export class CompositeActivityService {
     return source.id;
   }
 
-  /**
-   * Old catalog variants can predate pgvector (or have been created while
-   * the embedding provider was unavailable). Reuse must not leave those
-   * trusted composites permanently invisible to semantic ranking. The raw
-   * check is required because Prisma omits Unsupported(vector) fields from
-   * the generated Activity type.
-   */
   private async ensureActivityEmbedding(activity: Activity): Promise<void> {
-    try {
-      const rows = await this.prisma.$queryRaw<
-        { hasEmbedding: boolean }[]
-      >`SELECT embedding IS NOT NULL AS "hasEmbedding" FROM "activity" WHERE id = ${activity.id}`;
-      if (rows[0]?.hasEmbedding) return;
-    } catch (error: any) {
+    const result =
+      await this.vectorStoreService.backfillMissingActivityEmbeddings([
+        activity,
+      ]);
+    if (result.status === 'unavailable') {
       this.logger.warn(
-        `Could not inspect embedding for reused variant ${activity.id}; attempting to rebuild it: ${error.message}`,
+        `Embedding unavailable for reused variant ${activity.id}: ${result.reason}`,
       );
     }
-    await this.vectorStoreService.saveActivityEmbedding([activity]);
+  }
+
+  private async indexActivity(activity: Activity): Promise<void> {
+    const result = await this.vectorStoreService.saveActivityEmbedding([
+      activity,
+    ]);
+    if (result.status === 'unavailable') {
+      this.logger.warn(
+        `Embedding unavailable for composite ${activity.id}: ${result.reason}`,
+      );
+    }
   }
 
   private centroidOfPoints(points: { latitude: number; longitude: number }[]): {
@@ -415,7 +417,7 @@ export class CompositeActivityService {
         }),
     );
 
-    await this.vectorStoreService.saveActivityEmbedding([created]);
+    await this.indexActivity(created);
     return created;
   }
 
@@ -554,7 +556,7 @@ export class CompositeActivityService {
       });
     });
 
-    await this.vectorStoreService.saveActivityEmbedding([variant]);
+    await this.indexActivity(variant);
     return variant;
   }
 }
