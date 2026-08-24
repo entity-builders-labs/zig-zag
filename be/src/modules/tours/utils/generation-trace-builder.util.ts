@@ -143,6 +143,11 @@ export function buildPlacesCrawlStep(
     provenance.validatedCount !== undefined
       ? ` Flujo de candidatos: semilla recibió ${provenance.seedReceivedCount ?? 0}; cobertura recibió ${provenance.coverageReceivedCount ?? provenance.receivedCount}; geografía de operación rechazó ${provenance.operationGeographyRejectedCount ?? 0}; la unión eliminó ${provenance.deduplicatedCount ?? 0} duplicado(s); identidad válida ${provenance.identityValidCount ?? provenance.validatedCount}; admisión aprobada ${provenance.admittedCount ?? provenance.validatedCount}; ${provenance.existingCount ?? provenance.rejectedCountByReason.existing_activity ?? 0} ya existía(n); persistió ${provenance.persistedCount ?? provenance.acceptedCount} nuevo(s) e indexó ${provenance.embeddedCount ?? 0} embedding(s).`
       : '';
+  const embeddingFailureSummary =
+    provenance.embeddingWriteStatus === 'failed' ||
+    provenance.embeddingWriteStatus === 'unavailable'
+      ? ` La indexación semántica quedó ${provenance.embeddingWriteStatus === 'failed' ? 'fallida' : 'no disponible'}: ${provenance.embeddingFailureReason || 'motivo no registrado'}.`
+      : '';
   const providerCalls =
     provenance.providerCallCount !== undefined
       ? ` Ejecutó ${provenance.providerCallCount} consulta(s) acotadas.`
@@ -173,7 +178,7 @@ export function buildPlacesCrawlStep(
     label: `Catalog refill · ${providerLabel}`,
     summary: failed
       ? `${providerLabel} falló (${cacheLabel}). Solicitados: ${provenance.requestedCount}; recibidos: ${provenance.receivedCount}; no se afirmó cobertura nueva.`
-      : `${providerLabel} (${cacheLabel}) recibió ${provenance.receivedCount} resultados brutos y persistió ${provenance.persistedCount ?? provenance.acceptedCount} actividad(es) nueva(s).${anchorSummary}${providerCalls}${operationSummary}${validationSummary}${rejectedCandidateCount ? ` Rechazos totales registrados: ${rejectedCandidateCount}.${rejectionReasons}` : ''}${requestFailureSuffix}`,
+      : `${providerLabel} (${cacheLabel}) recibió ${provenance.receivedCount} resultados brutos y persistió ${provenance.persistedCount ?? provenance.acceptedCount} actividad(es) nueva(s).${anchorSummary}${providerCalls}${operationSummary}${validationSummary}${embeddingFailureSummary}${rejectedCandidateCount ? ` Rechazos totales registrados: ${rejectedCandidateCount}.${rejectionReasons}` : ''}${requestFailureSuffix}`,
     placesProvenance: provenance,
     candidates: candidates.map(
       (act): TraceCandidate => ({
@@ -248,31 +253,58 @@ export function buildDestinationResolutionStep(
 }
 
 export function buildEmbeddingsStep(
+  result: {
+    status: 'not_requested' | 'applied' | 'unavailable';
+    eligibleCandidateCount: number;
+    indexedCandidateCount: number;
+    identity?: {
+      provider: string;
+      model: string;
+      dimensions: number;
+      documentVersion: number;
+    };
+    reason?: string;
+  },
   offeredCount: number,
-  indexedCount: number,
-  interestsRequested: boolean,
 ): GenerationTraceStep {
   let summary: string;
-  if (indexedCount === 0) {
-    summary = interestsRequested
-      ? `0 de ${offeredCount} candidatos ofrecidos tienen embedding indexado en pgvector. ` +
-        'No hubo señal semántica disponible para aplicar a esta selección; el orden se degradó a rating y proximidad.'
-      : `0 de ${offeredCount} candidatos ofrecidos tienen embedding indexado en pgvector. ` +
-        'Esta generación tampoco tenía intereses declarados, por lo que se ordenó por rating y proximidad.';
-  } else if (interestsRequested) {
+  if (result.status === 'applied') {
+    const missingCount =
+      result.eligibleCandidateCount - result.indexedCandidateCount;
     summary =
-      `${indexedCount} de ${offeredCount} candidatos ofrecidos tienen embedding indexado en pgvector ` +
-      'y estaban disponibles para el ranking solicitado por intereses. La disponibilidad por sí sola no prueba que el proveedor de la query embedding haya respondido.';
+      `Ranking semántico solicitado y aplicado sobre ${result.eligibleCandidateCount} candidato(s) elegible(s) del destino: ` +
+      `${result.indexedCandidateCount} tenían un vector compatible con el índice activo y se ofrecieron ${offeredCount} al selector.` +
+      (missingCount > 0
+        ? ` ${missingCount} candidato(s) sin embedding compatible se conservaron explícitamente detrás del grupo medido y se ordenaron por calidad y proximidad.`
+        : ' Todos los candidatos elegibles tenían embedding compatible.');
+  } else if (result.status === 'unavailable') {
+    summary =
+      `Ranking semántico solicitado pero no aplicado sobre ${result.eligibleCandidateCount} candidato(s) elegible(s). ` +
+      `Se ofrecieron ${offeredCount} usando calidad y proximidad. Motivo: ${result.reason || 'proveedor o índice semántico no disponible'}.`;
   } else {
     summary =
-      `${indexedCount} de ${offeredCount} candidatos ofrecidos tienen embedding indexado en pgvector, ` +
-      'pero no se solicitó ranking semántico porque esta generación no tenía intereses declarados; se ordenó por rating y proximidad.';
+      `No se solicitó ranking semántico porque la intención no contenía intereses ni preferencias semánticas adicionales. ` +
+      `${result.indexedCandidateCount} de ${result.eligibleCandidateCount} candidato(s) elegible(s) tenían embedding compatible; ` +
+      `se ofrecieron ${offeredCount} por calidad y proximidad.`;
   }
 
   return {
     stage: 'embeddings',
     label: 'Embeddings (pgvector)',
     summary,
+    providerStatus: result.status === 'unavailable' ? 'failed' : undefined,
+    degradedReason: result.status === 'unavailable' ? result.reason : undefined,
+    semanticRanking: {
+      status: result.status,
+      eligibleCandidateCount: result.eligibleCandidateCount,
+      indexedCandidateCount: result.indexedCandidateCount,
+      offeredCandidateCount: offeredCount,
+      provider: result.identity?.provider,
+      model: result.identity?.model,
+      dimensions: result.identity?.dimensions,
+      documentVersion: result.identity?.documentVersion,
+      reason: result.reason,
+    },
   };
 }
 

@@ -4,7 +4,7 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { ActivityKind, Prisma } from '@prisma/client';
+import { ActivityKind } from '@prisma/client';
 import { PrismaService } from '@core/database/prisma.service';
 import { ActivitiesService } from '@activities/services/activities.service';
 import { LangChainService } from '@shared/ai/langchain.service';
@@ -52,12 +52,31 @@ import {
   placesProviderLabel,
 } from '@integrations/google-places/interfaces/places-api.interface';
 import { CatalogRefillAnchorPlanner } from './catalog-refill-anchor-planner.service';
+import { TourIntent } from '../interfaces/tour-generation.interface';
+import { buildSemanticTourQuery } from '../utils/semantic-tour-query-builder.util';
+import {
+  EmbeddingIndexIdentity,
+  SemanticSimilarityResult,
+} from '@shared/ai/interfaces/embedding-index.interface';
 
 function withoutGenerationFailure(metadata: any): any {
   const cleanMetadata = { ...(metadata ?? {}) };
   delete cleanMetadata.generationError;
   delete cleanMetadata.generationFailedAt;
   return cleanMetadata;
+}
+
+interface SemanticRankingOutcome {
+  status: 'not_requested' | 'applied' | 'unavailable';
+  eligibleCandidateCount: number;
+  indexedCandidateCount: number;
+  identity?: EmbeddingIndexIdentity;
+  reason?: string;
+}
+
+interface CandidateSelection {
+  activities: any[];
+  semanticRanking: SemanticRankingOutcome;
 }
 
 @Injectable()
@@ -143,27 +162,22 @@ export class TourActivityGenerationService {
     });
   }
 
-  /**
-   * Re-ranks a DB-proximity result set by interest relevance before slicing
-   * to the LLM's candidate window — see candidate-ranking.util.ts and
-   * docs/superpowers/specs/2026-08-21-activity-engine-design.md. No
-   * interests, or embeddings unavailable/failing: falls back to the DB's own
-   * weightedScore + distance order (today's exact behavior), sliced the
-   * same way.
-   */
+  private readonly CATALOG_RETRIEVAL_POOL_LIMIT = 250;
+  private readonly ITINERARY_CANDIDATE_LIMIT = 15;
+
   private async rankAndSliceActivities(
     activities: any[],
-    interests: string[] | undefined,
-    precomputedSimilarityById?: Map<string, number> | null,
-  ): Promise<any[]> {
-    if (!interests || interests.length === 0) {
-      return activities.slice(0, 15);
-    }
+    intent: TourIntent,
+  ): Promise<CandidateSelection> {
+    const semanticQuery = buildSemanticTourQuery(intent);
+    let semanticResult: SemanticSimilarityResult | null = null;
 
-    const similarityById =
-      precomputedSimilarityById === undefined
-        ? await this.getInterestSimilarity(activities, interests)
-        : precomputedSimilarityById;
+    if (semanticQuery) {
+      semanticResult = await this.vectorStoreService.getSimilarityScores(
+        activities.map((activity) => activity.id),
+        semanticQuery,
+      );
+    }
 
     // A row from ActivitiesService.findAll can itself be an existing
     // composite variant (kind NEIGHBORHOOD_WALK/ROUTE/EXPERIENCE) — those
@@ -174,41 +188,45 @@ export class TourActivityGenerationService {
       (a) => ({
         id: a.id,
         source: a.kind && a.kind !== 'POI' ? 'composite' : 'poi',
+        kind: a.kind,
+        subtype: a.knownActivityTypeName ?? a.type,
+        distanceKm: a.distance,
         weightedScore: a.weightedScore,
         isCurated: a.isCurated,
         original: a,
       }),
     );
-    return rankCandidatesByRelevance(rankable, similarityById)
-      .slice(0, 15)
-      .map((r) => r.original);
-  }
+    const ranked = rankCandidatesByRelevance(
+      rankable,
+      semanticResult?.status === 'applied' ? semanticResult.scores : null,
+    )
+      .slice(0, this.ITINERARY_CANDIDATE_LIMIT)
+      .map((candidate) => candidate.original);
 
-  private async getInterestSimilarity(
-    activities: any[],
-    interests: string[] | undefined,
-  ): Promise<Map<string, number> | null> {
-    if (!interests || interests.length === 0 || activities.length === 0) {
-      return null;
+    if (!semanticQuery) {
+      return {
+        activities: ranked,
+        semanticRanking: {
+          status: 'not_requested',
+          eligibleCandidateCount: activities.length,
+          indexedCandidateCount:
+            await this.vectorStoreService.getCompatibleIndexCount(
+              activities.map((activity) => activity.id),
+            ),
+        },
+      };
     }
-    try {
-      // Catalog ingestion normally embeds eagerly. This bounded repair makes
-      // legacy rows (or rows saved during an earlier provider outage)
-      // eligible before this very ranking, without rebuilding the catalog or
-      // touching activities outside the at-most-20 candidate window.
-      await this.vectorStoreService.backfillMissingActivityEmbeddings(
-        activities,
-      );
-      return await this.vectorStoreService.getSimilarityScores(
-        activities.map((activity) => activity.id),
-        interests.join(', '),
-      );
-    } catch (error: any) {
-      this.logger.warn(
-        `Interest-similarity lookup failed, falling back to rating-only ranking: ${error.message}`,
-      );
-      return null;
-    }
+
+    return {
+      activities: ranked,
+      semanticRanking: {
+        status: semanticResult!.status,
+        eligibleCandidateCount: semanticResult!.requestedCandidateCount,
+        indexedCandidateCount: semanticResult!.indexedCandidateCount,
+        identity: semanticResult!.identity,
+        reason: semanticResult!.reason,
+      },
+    };
   }
 
   /**
@@ -272,7 +290,11 @@ export class TourActivityGenerationService {
       const traceSteps: GenerationTraceStep[] = [];
       const traceCandidateLists: TraceCandidate[][] = [];
       let placesRefillError: PlacesCrawlError | null = null;
-      let catalogInterestSimilarityById: Map<string, number> | null = null;
+      let semanticRankingOutcome: SemanticRankingOutcome = {
+        status: 'not_requested',
+        eligibleCandidateCount: 0,
+        indexedCandidateCount: 0,
+      };
 
       traceSteps.push(buildTourIntentStep(request));
 
@@ -315,7 +337,7 @@ export class TourActivityGenerationService {
         Number.isFinite(request.destination.longitude)
       ) {
         const radius = searchArea.radiusMeters;
-        const activityLimit = 20;
+        const activityLimit = this.CATALOG_RETRIEVAL_POOL_LIMIT;
 
         // Update status: searching for activities
         await this.updateGenerationStatus(
@@ -343,15 +365,12 @@ export class TourActivityGenerationService {
               `${nearbyActivities.length} actividades encontradas. Ordenando según tus preferencias...`,
             );
 
-            catalogInterestSimilarityById = await this.getInterestSimilarity(
+            const selection = await this.rankAndSliceActivities(
               nearbyActivities,
-              request.intent.interests,
+              request.intent,
             );
-            const nearbyActivitiesSample = await this.rankAndSliceActivities(
-              nearbyActivities,
-              request.intent.interests,
-              catalogInterestSimilarityById,
-            );
+            const nearbyActivitiesSample = selection.activities;
+            semanticRankingOutcome = selection.semanticRanking;
             nearbyActivitiesSample.forEach((act: any) => {
               candidateActivityIds.add(act.id);
               candidateActivitiesById.set(act.id, act);
@@ -384,17 +403,6 @@ export class TourActivityGenerationService {
             await this.updateGenerationStatus(tourId, 'generating', poolStatus);
 
             try {
-              if (
-                isAreaScale &&
-                catalogInterestSimilarityById === null &&
-                nearbyActivities.length > 0
-              ) {
-                catalogInterestSimilarityById =
-                  await this.getInterestSimilarity(
-                    nearbyActivities,
-                    request.intent.interests,
-                  );
-              }
               if (isAreaScale) {
                 // Child-area centers are transient geographic coverage points
                 // for the point-based Nearby operation. They are not ranked as
@@ -440,17 +448,12 @@ export class TourActivityGenerationService {
                   `¡Catálogo actualizado con ${placesLabel}! Analizando ${refreshedActivities.length} actividades...`,
                 );
 
-                catalogInterestSimilarityById =
-                  await this.getInterestSimilarity(
-                    refreshedActivities,
-                    request.intent.interests,
-                  );
-                const refreshedActivitiesSample =
-                  await this.rankAndSliceActivities(
-                    refreshedActivities,
-                    request.intent.interests,
-                    catalogInterestSimilarityById,
-                  );
+                const selection = await this.rankAndSliceActivities(
+                  refreshedActivities,
+                  request.intent,
+                );
+                const refreshedActivitiesSample = selection.activities;
+                semanticRankingOutcome = selection.semanticRanking;
                 refreshedActivitiesSample.forEach((act: any) => {
                   candidateActivityIds.add(act.id);
                   candidateActivitiesById.set(act.id, act);
@@ -484,17 +487,12 @@ export class TourActivityGenerationService {
                     'generating',
                     thinPoolMessage,
                   );
-                  catalogInterestSimilarityById =
-                    await this.getInterestSimilarity(
-                      nearbyActivities,
-                      request.intent.interests,
-                    );
-                  const nearbyActivitiesSample =
-                    await this.rankAndSliceActivities(
-                      nearbyActivities,
-                      request.intent.interests,
-                      catalogInterestSimilarityById,
-                    );
+                  const selection = await this.rankAndSliceActivities(
+                    nearbyActivities,
+                    request.intent,
+                  );
+                  const nearbyActivitiesSample = selection.activities;
+                  semanticRankingOutcome = selection.semanticRanking;
                   nearbyActivitiesSample.forEach((act: any) => {
                     candidateActivityIds.add(act.id);
                     candidateActivitiesById.set(act.id, act);
@@ -541,17 +539,12 @@ export class TourActivityGenerationService {
                   'generating',
                   `${placesLabel} indisponible. Usando ${nearbyActivities.length} actividades locales encontradas.`,
                 );
-                catalogInterestSimilarityById =
-                  await this.getInterestSimilarity(
-                    nearbyActivities,
-                    request.intent.interests,
-                  );
-                const nearbyActivitiesSample =
-                  await this.rankAndSliceActivities(
-                    nearbyActivities,
-                    request.intent.interests,
-                    catalogInterestSimilarityById,
-                  );
+                const selection = await this.rankAndSliceActivities(
+                  nearbyActivities,
+                  request.intent,
+                );
+                const nearbyActivitiesSample = selection.activities;
+                semanticRankingOutcome = selection.semanticRanking;
                 nearbyActivitiesSample.forEach((act: any) => {
                   candidateActivityIds.add(act.id);
                   candidateActivitiesById.set(act.id, act);
@@ -579,24 +572,9 @@ export class TourActivityGenerationService {
           );
         }
 
-        // Real (not simulated) check of how many of the candidates offered
-        // this generation have a pgvector embedding indexed. This measures
-        // index availability only: it cannot by itself prove that the query
-        // embedding provider responded or that semantic scores were applied.
         const offeredIds = Array.from(candidateActivityIds);
-        let indexedCount = 0;
-        if (offeredIds.length > 0) {
-          const rows = await this.prisma.$queryRaw<{ count: bigint }[]>(
-            Prisma.sql`SELECT count(*) AS count FROM "activity" WHERE id IN (${Prisma.join(offeredIds)}) AND embedding IS NOT NULL`,
-          );
-          indexedCount = Number(rows[0]?.count ?? 0);
-        }
         traceSteps.push(
-          buildEmbeddingsStep(
-            offeredIds.length,
-            indexedCount,
-            request.intent.interests.length > 0,
-          ),
+          buildEmbeddingsStep(semanticRankingOutcome, offeredIds.length),
         );
       }
 

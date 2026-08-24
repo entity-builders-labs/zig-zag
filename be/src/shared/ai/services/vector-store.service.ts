@@ -1,38 +1,41 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { Activity, Prisma } from '@prisma/client';
-import { AiEmbeddingService } from './ai-embedding.service';
+import { Activity, ActivityKind, Prisma } from '@prisma/client';
+import {
+  EmbeddingIndexIdentity,
+  EmbeddingWriteResult,
+  SemanticSimilarityResult,
+} from '../interfaces/embedding-index.interface';
 import { PrismaService } from '../../../core/database/prisma.service';
-
-export interface ActivityMetadata {
-  timeOfDayPreference?: string[];
-  physicalIntensity?: number;
-  enhancedDescription?: string;
-  targetAudience?: string;
-  bestTimeToVisit?: string;
-  tags?: string[];
-  complementaryActivities?: {
-    before?: string[];
-    after?: string[];
-  };
-  seasonalityScore?: any;
-  combinationScore?: any;
-}
+import { AiEmbeddingService } from './ai-embedding.service';
+import {
+  SemanticActivityDocumentBuilder,
+  SemanticActivityRecord,
+} from './semantic-activity-document-builder.service';
 
 export interface SimilarActivityResult {
   pageContent: string;
   metadata: Record<string, unknown>;
 }
 
-interface ActivityContentFields {
+interface ActivitySimilarityRow {
+  id: string;
   name: string;
   description: string | null;
+  type: string | null;
   metadata: unknown;
+  distance: number;
 }
 
-interface ActivitySimilarityRow extends ActivityContentFields {
-  id: string;
-  type: string | null;
-  distance: number;
+export class EmbeddingWriteError extends Error {
+  constructor(
+    message: string,
+    readonly requestedIds: string[],
+    readonly identity: EmbeddingIndexIdentity,
+    readonly cause?: unknown,
+  ) {
+    super(message);
+    this.name = EmbeddingWriteError.name;
+  }
 }
 
 @Injectable()
@@ -42,6 +45,7 @@ export class VectorStoreService implements OnModuleInit {
   constructor(
     private readonly embeddingService: AiEmbeddingService,
     private readonly prisma: PrismaService,
+    private readonly documentBuilder: SemanticActivityDocumentBuilder,
   ) {}
 
   async onModuleInit() {
@@ -52,129 +56,230 @@ export class VectorStoreService implements OnModuleInit {
     return `[${vector.join(',')}]`;
   }
 
-  private buildActivityPageContent(activity: ActivityContentFields): string {
-    return `Name: ${activity.name}. Description: ${activity.description}. Metadata: ${JSON.stringify(
-      activity.metadata,
-    )}`;
+  private compatibleIdentitySql(identity: EmbeddingIndexIdentity) {
+    return Prisma.sql`
+      "embeddingProvider" = ${identity.provider}
+      AND "embeddingModel" = ${identity.model}
+      AND "embeddingDimensions" = ${identity.dimensions}
+      AND "embeddingDocumentVersion" = ${identity.documentVersion}
+    `;
   }
 
-  private buildRichActivityText(activity: Activity): string {
-    let metadata: ActivityMetadata = {};
-    try {
-      metadata =
-        typeof activity.metadata === 'string'
-          ? JSON.parse(activity.metadata)
-          : (activity.metadata as ActivityMetadata) || {};
-    } catch {
-      metadata = {};
-    }
-
-    return `Activity Details:
-${activity.name} is a ${metadata.physicalIntensity || 3} intensity activity.
-About this activity: ${activity.description || 'No description available'}
-${metadata.enhancedDescription || ''}
-This activity is ideal for ${metadata.targetAudience || 'all audiences'} and is best experienced ${metadata.bestTimeToVisit || 'any time'}.
-It can be done during ${metadata.timeOfDayPreference ? metadata.timeOfDayPreference.join(', ') : 'any time of day'}.
-Activity type: ${activity.type}.
-Keywords: ${metadata.tags ? metadata.tags.join(', ') : ''}.
-`;
+  private incompatibleIdentitySql(identity: EmbeddingIndexIdentity) {
+    return Prisma.sql`
+      "embeddingProvider" IS DISTINCT FROM ${identity.provider}
+      OR "embeddingModel" IS DISTINCT FROM ${identity.model}
+      OR "embeddingDimensions" IS DISTINCT FROM ${identity.dimensions}
+      OR "embeddingDocumentVersion" IS DISTINCT FROM ${identity.documentVersion}
+    `;
   }
 
-  async saveActivityEmbedding(activities: Activity[]) {
-    if (!this.embeddingService.getEmbeddings() || activities.length === 0) {
-      return;
+  private async loadSemanticRecords(
+    activityIds: string[],
+  ): Promise<SemanticActivityRecord[]> {
+    if (activityIds.length === 0) return [];
+
+    return this.prisma.activity.findMany({
+      where: { id: { in: activityIds } },
+      include: {
+        family: {
+          include: {
+            areaActivity: { select: { name: true } },
+          },
+        },
+        compositeWaypoints: {
+          orderBy: { order: 'asc' },
+          include: {
+            waypointActivity: {
+              select: {
+                name: true,
+                kind: true,
+                type: true,
+                knownActivityTypeName: true,
+              },
+            },
+          },
+        },
+      },
+    });
+  }
+
+  async saveActivityEmbedding(
+    activities: Array<Pick<Activity, 'id'>>,
+  ): Promise<EmbeddingWriteResult> {
+    const requestedIds = [...new Set(activities.map(({ id }) => id))];
+    const status = this.embeddingService.getStatus();
+
+    if (requestedIds.length === 0) {
+      return {
+        status: 'no_work',
+        requestedIds,
+        indexedIds: [],
+        identity: status.identity,
+      };
+    }
+
+    if (status.status === 'unavailable') {
+      return {
+        status: 'unavailable',
+        requestedIds,
+        indexedIds: [],
+        identity: status.identity,
+        reason: status.reason,
+      };
     }
 
     try {
-      const texts = activities.map((activity) =>
-        this.buildActivityPageContent(activity),
-      );
+      const records = await this.loadSemanticRecords(requestedIds);
+      const recordsById = new Map(records.map((record) => [record.id, record]));
+      const orderedRecords = requestedIds
+        .map((id) => recordsById.get(id))
+        .filter((record): record is SemanticActivityRecord => !!record);
+
+      if (orderedRecords.length !== requestedIds.length) {
+        const loadedIds = new Set(orderedRecords.map(({ id }) => id));
+        const missingIds = requestedIds.filter((id) => !loadedIds.has(id));
+        throw new Error(`Activity rows not found: ${missingIds.join(', ')}`);
+      }
+
       const vectors = await this.embeddingService
         .getEmbeddings()!
-        .embedDocuments(texts);
+        .embedDocuments(
+          orderedRecords.map((activity) =>
+            this.documentBuilder.build(activity),
+          ),
+        );
 
-      await Promise.all(
-        activities.map((activity, i) => {
-          const literal = this.toVectorLiteral(vectors[i]);
+      if (vectors.length !== orderedRecords.length) {
+        throw new Error(
+          `Embedding provider returned ${vectors.length} vectors for ${orderedRecords.length} documents`,
+        );
+      }
+
+      await this.prisma.$transaction(
+        orderedRecords.map((activity, index) => {
+          const literal = this.toVectorLiteral(vectors[index]);
           return this.prisma.$executeRaw`
-            UPDATE "activity" SET "embedding" = ${literal}::vector WHERE "id" = ${activity.id}
+            UPDATE "activity"
+            SET "embedding" = ${literal}::vector,
+                "embeddingProvider" = ${status.identity.provider},
+                "embeddingModel" = ${status.identity.model},
+                "embeddingDimensions" = ${status.identity.dimensions},
+                "embeddingDocumentVersion" = ${status.identity.documentVersion},
+                "embeddedAt" = NOW()
+            WHERE "id" = ${activity.id}
           `;
         }),
       );
 
+      const indexedIds = orderedRecords.map(({ id }) => id);
       this.logger.debug(
-        `Successfully saved embeddings for ${activities.length} activities`,
+        `Indexed ${indexedIds.length} activities with ${status.identity.provider}/${status.identity.model} document v${status.identity.documentVersion}`,
       );
+      return {
+        status: 'indexed',
+        requestedIds,
+        indexedIds,
+        identity: status.identity,
+      };
     } catch (error) {
-      this.logger.error(`Failed to save embeddings: ${error.message}`);
+      const message = error instanceof Error ? error.message : String(error);
+      throw new EmbeddingWriteError(
+        `Failed to index activity embeddings: ${message}`,
+        requestedIds,
+        status.identity,
+        error,
+      );
     }
   }
 
-  /**
-   * Lazily repairs legacy catalog rows in the bounded candidate window.
-   * Normal ingestion still writes embeddings eagerly; this path exists for
-   * rows created before pgvector or during a previous provider outage. It
-   * never re-embeds an already indexed row.
-   */
   async backfillMissingActivityEmbeddings(
-    activities: Activity[],
-  ): Promise<number> {
-    if (!this.embeddingService.getEmbeddings() || activities.length === 0) {
-      return 0;
+    activities: Array<Pick<Activity, 'id'>>,
+  ): Promise<EmbeddingWriteResult> {
+    const requestedIds = [...new Set(activities.map(({ id }) => id))];
+    const status = this.embeddingService.getStatus();
+
+    if (requestedIds.length === 0) {
+      return {
+        status: 'no_work',
+        requestedIds,
+        indexedIds: [],
+        identity: status.identity,
+      };
     }
 
-    const uniqueById = new Map(
-      activities.map((activity) => [activity.id, activity]),
-    );
-    const candidateIds = Array.from(uniqueById.keys());
-    const missingRows = await this.prisma.$queryRaw<{ id: string }[]>`
-      SELECT id FROM "activity"
-      WHERE id IN (${Prisma.join(candidateIds)}) AND embedding IS NULL
+    if (status.status === 'unavailable') {
+      return {
+        status: 'unavailable',
+        requestedIds,
+        indexedIds: [],
+        identity: status.identity,
+        reason: status.reason,
+      };
+    }
+
+    const incompatibleIdentity = this.incompatibleIdentitySql(status.identity);
+    const rows = await this.prisma.$queryRaw<{ id: string }[]>`
+      SELECT "id"
+      FROM "activity"
+      WHERE "id" IN (${Prisma.join(requestedIds)})
+        AND (
+          "embedding" IS NULL
+          OR (${incompatibleIdentity})
+        )
     `;
-    const missing = missingRows
-      .map((row) => uniqueById.get(row.id))
-      .filter((activity): activity is Activity => !!activity);
 
-    if (missing.length > 0) {
-      await this.saveActivityEmbedding(missing);
+    if (rows.length === 0) {
+      return {
+        status: 'no_work',
+        requestedIds,
+        indexedIds: [],
+        identity: status.identity,
+      };
     }
-    return missing.length;
+
+    return this.saveActivityEmbedding(rows);
   }
 
-  async addActivityToVectorStore(activity: Activity) {
-    if (!this.embeddingService.getEmbeddings()) return;
-
-    const activityText = this.buildRichActivityText(activity);
-    const vector = await this.embeddingService
-      .getEmbeddings()!
-      .embedQuery(activityText);
-    const literal = this.toVectorLiteral(vector);
-
-    await this.prisma.$executeRaw`
-      UPDATE "activity" SET "embedding" = ${literal}::vector WHERE "id" = ${activity.id}
-    `;
+  async addActivityToVectorStore(
+    activity: Pick<Activity, 'id'>,
+  ): Promise<EmbeddingWriteResult> {
+    return this.saveActivityEmbedding([activity]);
   }
 
   async findSimilarActivities(
     prompt: string,
     k: number = 10,
   ): Promise<SimilarActivityResult[]> {
-    const embeddings = this.embeddingService.getEmbeddings();
-    if (!embeddings) return [];
+    const status = this.embeddingService.getStatus();
+    if (status.status === 'unavailable') return [];
 
-    const queryVector = await embeddings.embedQuery(prompt);
+    const queryVector = await this.embeddingService
+      .getEmbeddings()!
+      .embedQuery(prompt);
     const literal = this.toVectorLiteral(queryVector);
+    const compatibleIdentity = this.compatibleIdentitySql(status.identity);
 
     const rows = await this.prisma.$queryRaw<ActivitySimilarityRow[]>`
-      SELECT id, name, description, type, metadata, embedding <=> ${literal}::vector AS distance
+      SELECT "id", "name", "description", "type", "metadata",
+             "embedding" <=> ${literal}::vector AS "distance"
       FROM "activity"
-      WHERE embedding IS NOT NULL
-      ORDER BY embedding <=> ${literal}::vector
+      WHERE "embedding" IS NOT NULL
+        AND "isArchived" = false
+        AND "kind" != ${ActivityKind.AREA}::"ActivityKind"
+        AND ${compatibleIdentity}
+      ORDER BY "embedding" <=> ${literal}::vector
       LIMIT ${k}
     `;
 
     return rows.map((row) => ({
-      pageContent: this.buildActivityPageContent(row),
+      pageContent: [
+        `Name: ${row.name}`,
+        row.description ? `Description: ${row.description}` : undefined,
+        row.type ? `Type: ${row.type}` : undefined,
+      ]
+        .filter(Boolean)
+        .join('\n'),
       metadata: {
         activityId: row.id,
         activityName: row.name,
@@ -187,77 +292,197 @@ Keywords: ${metadata.tags ? metadata.tags.join(', ') : ''}.
     }));
   }
 
-  /**
-   * Cosine similarity (1 - cosine distance) between an embedding of
-   * `queryText` and each of `candidateIds`' own stored embedding — scoped to
-   * exactly this candidate set, unlike findSimilarActivities' open-ended
-   * top-k search. A candidate with no indexed embedding is simply absent
-   * from the returned map (callers treat a missing id as zero similarity),
-   * not defaulted to any particular value here.
-   */
+  async findSimilarActivitiesForActivity(
+    activityId: string,
+    k: number = 10,
+  ): Promise<SimilarActivityResult[]> {
+    const [activity] = await this.loadSemanticRecords([activityId]);
+    if (!activity) return [];
+
+    return this.findSimilarActivities(this.documentBuilder.build(activity), k);
+  }
+
   async getSimilarityScores(
     candidateIds: string[],
     queryText: string,
-  ): Promise<Map<string, number>> {
-    const embeddings = this.embeddingService.getEmbeddings();
-    if (!embeddings || candidateIds.length === 0) return new Map();
+  ): Promise<SemanticSimilarityResult> {
+    const requestedIds = [...new Set(candidateIds)];
+    const status = this.embeddingService.getStatus();
 
-    const queryVector = await embeddings.embedQuery(queryText);
-    const literal = this.toVectorLiteral(queryVector);
+    if (requestedIds.length === 0) {
+      return {
+        status: 'applied',
+        scores: new Map(),
+        requestedCandidateCount: 0,
+        indexedCandidateCount: 0,
+        identity: status.identity,
+      };
+    }
 
-    const rows = await this.prisma.$queryRaw<
-      { id: string; distance: number }[]
-    >`
-      SELECT id, embedding <=> ${literal}::vector AS distance
-      FROM "activity"
-      WHERE id IN (${Prisma.join(candidateIds)}) AND embedding IS NOT NULL
-    `;
+    if (status.status === 'unavailable') {
+      return {
+        status: 'unavailable',
+        scores: new Map(),
+        requestedCandidateCount: requestedIds.length,
+        indexedCandidateCount: 0,
+        identity: status.identity,
+        reason: status.reason,
+      };
+    }
 
-    return new Map(rows.map((row) => [row.id, 1 - row.distance]));
-  }
-
-  /** Clears every stored embedding without touching Activity rows themselves. */
-  async resetVectorStore() {
-    this.logger.log('Clearing all activity embeddings...');
-    await this.prisma.$executeRaw`UPDATE "activity" SET "embedding" = NULL`;
-  }
-
-  async rebuildVectorStore() {
     try {
-      const activities = await this.prisma.activity.findMany({
-        where: { metadata: { not: null } },
-      });
+      const queryVector = await this.embeddingService
+        .getEmbeddings()!
+        .embedQuery(queryText);
+      const literal = this.toVectorLiteral(queryVector);
+      const compatibleIdentity = this.compatibleIdentitySql(status.identity);
+      const rows = await this.prisma.$queryRaw<
+        { id: string; distance: number }[]
+      >`
+        SELECT "id", "embedding" <=> ${literal}::vector AS "distance"
+        FROM "activity"
+        WHERE "id" IN (${Prisma.join(requestedIds)})
+          AND "embedding" IS NOT NULL
+          AND ${compatibleIdentity}
+      `;
 
-      this.logger.log(
-        `Rebuilding embeddings for ${activities.length} activities...`,
+      return {
+        status: 'applied',
+        scores: new Map(rows.map((row) => [row.id, 1 - row.distance])),
+        requestedCandidateCount: requestedIds.length,
+        indexedCandidateCount: rows.length,
+        identity: status.identity,
+      };
+    } catch (error) {
+      const reason = error instanceof Error ? error.message : String(error);
+      this.logger.warn(`Semantic ranking unavailable: ${reason}`);
+      return {
+        status: 'unavailable',
+        scores: new Map(),
+        requestedCandidateCount: requestedIds.length,
+        indexedCandidateCount: 0,
+        identity: status.identity,
+        reason,
+      };
+    }
+  }
+
+  async getCompatibleIndexCount(activityIds: string[]): Promise<number> {
+    if (activityIds.length === 0) return 0;
+
+    const identity = this.embeddingService.getIndexIdentity();
+    const compatibleIdentity = this.compatibleIdentitySql(identity);
+    const rows = await this.prisma.$queryRaw<{ count: bigint }[]>`
+      SELECT COUNT(*) AS "count"
+      FROM "activity"
+      WHERE "id" IN (${Prisma.join([...new Set(activityIds)])})
+        AND "embedding" IS NOT NULL
+        AND ${compatibleIdentity}
+    `;
+    return Number(rows[0]?.count ?? 0);
+  }
+
+  async invalidateActivityEmbedding(activityId: string): Promise<void> {
+    await this.prisma.$executeRaw`
+      UPDATE "activity"
+      SET "embedding" = NULL,
+          "embeddingProvider" = NULL,
+          "embeddingModel" = NULL,
+          "embeddingDimensions" = NULL,
+          "embeddingDocumentVersion" = NULL,
+          "embeddedAt" = NULL
+      WHERE "id" = ${activityId}
+    `;
+  }
+
+  async resetVectorStore(): Promise<void> {
+    this.logger.log('Clearing all activity embeddings and index identity...');
+    await this.prisma.$executeRaw`
+      UPDATE "activity"
+      SET "embedding" = NULL,
+          "embeddingProvider" = NULL,
+          "embeddingModel" = NULL,
+          "embeddingDimensions" = NULL,
+          "embeddingDocumentVersion" = NULL,
+          "embeddedAt" = NULL
+    `;
+  }
+
+  async rebuildVectorStore(): Promise<{
+    success: true;
+    count: number;
+    identity: EmbeddingIndexIdentity;
+  }> {
+    const status = this.embeddingService.getStatus();
+    if (status.status === 'unavailable') {
+      throw new EmbeddingWriteError(
+        `Cannot rebuild embeddings: ${status.reason}`,
+        [],
+        status.identity,
       );
+    }
 
-      let successCount = 0;
-      for (const activity of activities) {
-        try {
-          await this.addActivityToVectorStore(activity);
-          successCount++;
-        } catch (error) {
-          this.logger.error(
-            `Error embedding activity ${activity.id}: ${error.message}`,
+    await this.resetVectorStore();
+    const activities = await this.prisma.activity.findMany({
+      where: {
+        isArchived: false,
+        kind: { not: ActivityKind.AREA },
+      },
+      select: { id: true },
+      orderBy: { id: 'asc' },
+    });
+
+    this.logger.log(
+      `Rebuilding ${activities.length} embeddings with ${status.identity.provider}/${status.identity.model} document v${status.identity.documentVersion}...`,
+    );
+
+    let indexedCount = 0;
+    const batchSize = 50;
+    try {
+      for (let offset = 0; offset < activities.length; offset += batchSize) {
+        const result = await this.saveActivityEmbedding(
+          activities.slice(offset, offset + batchSize),
+        );
+        if (result.status !== 'indexed') {
+          throw new EmbeddingWriteError(
+            `Embedding rebuild stopped with status ${result.status}: ${result.reason ?? 'unknown reason'}`,
+            result.requestedIds,
+            result.identity,
           );
         }
+        indexedCount += result.indexedIds.length;
       }
-
-      this.logger.log(
-        `Vector store rebuilt: ${successCount}/${activities.length} succeeded`,
-      );
-      return { success: true, count: successCount };
     } catch (error) {
-      this.logger.error('Error rebuilding vector store:', error);
+      // A failed provider/model switch must not leave a partially rebuilt
+      // index looking authoritative. Reset any batches written by this run;
+      // callers receive the original error and semantic retrieval stays
+      // explicitly unavailable until a complete rebuild succeeds.
+      try {
+        await this.resetVectorStore();
+      } catch (cleanupError) {
+        const cleanupMessage =
+          cleanupError instanceof Error
+            ? cleanupError.message
+            : String(cleanupError);
+        this.logger.error(
+          `Failed to clear partial embedding rebuild: ${cleanupMessage}`,
+        );
+      }
       throw error;
     }
+
+    this.logger.log(
+      `Vector store rebuilt: ${indexedCount}/${activities.length} indexed`,
+    );
+    return { success: true, count: indexedCount, identity: status.identity };
   }
 
   async testVectorStoreConnection(): Promise<{
     status: string;
     timestamp: string;
-    embeddedCount?: number;
+    compatibleCount?: number;
+    incompatibleCount?: number;
+    identity?: EmbeddingIndexIdentity;
     error?: string;
   }> {
     const result = {
@@ -266,19 +491,35 @@ Keywords: ${metadata.tags ? metadata.tags.join(', ') : ''}.
     } as {
       status: string;
       timestamp: string;
-      embeddedCount?: number;
+      compatibleCount?: number;
+      incompatibleCount?: number;
+      identity?: EmbeddingIndexIdentity;
       error?: string;
     };
 
     try {
-      const rows = await this.prisma.$queryRaw<{ count: bigint }[]>`
-        SELECT count(*) AS count FROM "activity" WHERE embedding IS NOT NULL
+      const identity = this.embeddingService.getIndexIdentity();
+      const compatibleIdentity = this.compatibleIdentitySql(identity);
+      const incompatibleIdentity = this.incompatibleIdentitySql(identity);
+      const rows = await this.prisma.$queryRaw<
+        { compatibleCount: bigint; incompatibleCount: bigint }[]
+      >`
+        SELECT
+          COUNT(*) FILTER (
+            WHERE "embedding" IS NOT NULL AND ${compatibleIdentity}
+          ) AS "compatibleCount",
+          COUNT(*) FILTER (
+            WHERE "embedding" IS NOT NULL AND (${incompatibleIdentity})
+          ) AS "incompatibleCount"
+        FROM "activity"
       `;
       result.status = 'connected';
-      result.embeddedCount = Number(rows[0]?.count ?? 0);
-    } catch (e) {
+      result.identity = identity;
+      result.compatibleCount = Number(rows[0]?.compatibleCount ?? 0);
+      result.incompatibleCount = Number(rows[0]?.incompatibleCount ?? 0);
+    } catch (error) {
       result.status = 'error';
-      result.error = e.message;
+      result.error = error instanceof Error ? error.message : String(error);
     }
     return result;
   }

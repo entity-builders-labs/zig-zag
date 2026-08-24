@@ -48,7 +48,7 @@ describe('rankCandidatesByRelevance', () => {
     expect(result.map((c) => c.id)).toEqual(['curated-walk', 'adhoc-walk']);
   });
 
-  it('treats a candidate missing from similarityById as zero interest similarity, not an error', () => {
+  it('keeps a missing embedding explicit and after the measured semantic tier', () => {
     const candidates: RankableCandidate[] = [
       { id: 'has-embedding', source: 'poi', weightedScore: 3.0 },
       { id: 'no-embedding', source: 'poi', weightedScore: 3.0 },
@@ -58,6 +58,69 @@ describe('rankCandidatesByRelevance', () => {
     const result = rankCandidatesByRelevance(candidates, similarityById);
 
     expect(result.map((c) => c.id)).toEqual(['has-embedding', 'no-embedding']);
+  });
+
+  it('does not confuse an indexed zero similarity with a missing measurement', () => {
+    const candidates: RankableCandidate[] = [
+      { id: 'missing-high-rating', source: 'poi', weightedScore: 5 },
+      { id: 'measured-zero', source: 'poi', weightedScore: 3 },
+    ];
+
+    const result = rankCandidatesByRelevance(
+      candidates,
+      new Map([['measured-zero', 0]]),
+    );
+
+    expect(result.map((candidate) => candidate.id)).toEqual([
+      'measured-zero',
+      'missing-high-rating',
+    ]);
+  });
+
+  it('uses proximity as a bounded tie-breaker within the semantic tier', () => {
+    const candidates: RankableCandidate[] = [
+      {
+        id: 'far',
+        source: 'poi',
+        weightedScore: 4,
+        distanceKm: 10,
+      },
+      {
+        id: 'near',
+        source: 'poi',
+        weightedScore: 4,
+        distanceKm: 1,
+      },
+    ];
+    const similarityById = new Map([
+      ['far', 0.7],
+      ['near', 0.7],
+    ]);
+
+    expect(
+      rankCandidatesByRelevance(candidates, similarityById).map(
+        (candidate) => candidate.id,
+      ),
+    ).toEqual(['near', 'far']);
+  });
+
+  it('softly rewards a non-redundant subtype without overriding strong relevance', () => {
+    const candidates: RankableCandidate[] = [
+      { id: 'museum-1', source: 'poi', subtype: 'museum' },
+      { id: 'museum-2', source: 'poi', subtype: 'museum' },
+      { id: 'historic-site', source: 'poi', subtype: 'historic_site' },
+    ];
+    const similarityById = new Map([
+      ['museum-1', 0.8],
+      ['museum-2', 0.79],
+      ['historic-site', 0.78],
+    ]);
+
+    expect(
+      rankCandidatesByRelevance(candidates, similarityById).map(
+        (candidate) => candidate.id,
+      ),
+    ).toEqual(['museum-1', 'historic-site', 'museum-2']);
   });
 
   it('lets a POI and a composite compete on the same scale given equal interest similarity', () => {

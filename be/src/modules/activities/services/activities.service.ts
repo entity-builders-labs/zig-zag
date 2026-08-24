@@ -514,19 +514,10 @@ export class ActivitiesService {
    * @throws NotFoundException if activity not found
    */
   async findSimilar(id: string, limit: number = 10): Promise<Activity[]> {
-    // Get the source activity
-    const activity = await this.findOne(id);
+    await this.findOne(id);
 
-    // Build the same rich text used for embeddings
-    const baseText = `Activity Details:\n${activity.name}. ${activity.description ?? ''}. Metadata: ${
-      typeof activity.metadata === 'string'
-        ? activity.metadata
-        : JSON.stringify(activity.metadata ?? {})
-    }`;
-
-    // Query vector store
-    const results = await this.vectorStore.findSimilarActivities(
-      baseText,
+    const results = await this.vectorStore.findSimilarActivitiesForActivity(
+      id,
       limit + 1,
     );
 

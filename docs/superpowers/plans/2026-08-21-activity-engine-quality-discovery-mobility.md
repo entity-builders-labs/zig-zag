@@ -1234,10 +1234,14 @@ best-effort re-rank of a rating-truncated list.
   `EMBEDDING_PROVIDER=openai` was explicitly selected.
 - Test the equivalent Bedrock failures with a mocked SDK and prove that Ollama
   and OpenAI are not invoked.
-- Before accepting PR 5, run one bounded live Bedrock smoke test from a local
-  machine or isolated AWS development environment with explicit credentials.
-  Use an isolated local index, clear it, and rebuild it entirely with Titan;
-  do not mix it with Ollama vectors.
+- Before deploying the embedding pipeline in Zig-Zag's AWS environment, run
+  one bounded live Bedrock smoke test there with the application's actual IAM
+  identity. A local invocation is also valid only when it explicitly assumes
+  that Zig-Zag identity; credentials belonging to another project provide no
+  evidence about Zig-Zag's Bedrock access. Use an isolated index, clear it,
+  and rebuild it entirely with Titan; do not mix it with Ollama vectors. This
+  AWS validation is a deployment gate, not a blocker for accepting PR 5 after
+  its mocked Bedrock tests and real local Ollama integration pass.
 - Model-dependent smoke tests assert vector width, persistence, indexed count,
   query execution, and broad semantic sanity. Exact cross-model scores or
   rankings are not expected to match.
@@ -1248,6 +1252,32 @@ best-effort re-rank of a rating-truncated list.
 - A provider switch cannot happen without an explicit rebuild.
 - New accepted Places POIs are indexed before semantic coverage is evaluated.
 - No-interests requests retain a deterministic quality/geography fallback.
+
+### Implemented PR 5 checkpoint
+
+- Activity vectors are generated only from the canonical semantic document;
+  every write stores provider/model/dimensions/document-version identity.
+- The configured provider is strict at startup and runtime. Failures are
+  returned or traced explicitly, and no unrelated credential activates a
+  fallback provider.
+- Provider/model/document switches require the explicit full rebuild command;
+  the migration invalidates legacy vectors whose identity cannot be proven.
+- The current `vector(256)` schema rejects other configured dimensions, and a
+  failed rebuild clears all partial batches before reporting the failure.
+- Tour retrieval asks `ActivitiesService` for a bounded pool of up to 250
+  geographically eligible, active, non-AREA Activities. pgvector scores that
+  full pool before the 15-item itinerary window is selected.
+- Missing/mismatched vectors remain an explicit unmeasured tier rather than a
+  zero-interest score. The measured tier combines semantic relevance with
+  bounded quality, proximity, kind, and subtype non-redundancy signals.
+- Places refill reports the exact number of embeddings written and preserves
+  write failure/unavailability in provenance.
+- The bitacora records the actual semantic operation as `not_requested`,
+  `applied`, or `unavailable`, with eligible/indexed/offered counts and active
+  index identity when applicable.
+- Unit coverage includes strict Bedrock/Ollama behavior, canonical documents,
+  mixed-index exclusion, typed writes, full rebuild, and recovery of a relevant
+  Activity beyond the old rating top 20.
 
 ---
 

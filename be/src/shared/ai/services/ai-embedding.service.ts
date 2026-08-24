@@ -7,12 +7,18 @@ import {
   InvokeModelCommand,
 } from '@aws-sdk/client-bedrock-runtime';
 import aiConfig from '../ai.config';
+import {
+  EmbeddingIndexIdentity,
+  EmbeddingServiceStatus,
+} from '../interfaces/embedding-index.interface';
+import { SEMANTIC_ACTIVITY_DOCUMENT_VERSION } from './semantic-activity-document-builder.service';
 
 @Injectable()
 export class AiEmbeddingService implements OnModuleInit {
   private readonly logger = new Logger(AiEmbeddingService.name);
   private embeddings: Embeddings | null = null;
   private embeddingsDisabled = false;
+  private unavailableReason = 'Embedding provider has not initialized';
   private initPromise: Promise<void> | null = null;
 
   constructor(
@@ -36,11 +42,37 @@ export class AiEmbeddingService implements OnModuleInit {
     return this.embeddings;
   }
 
+  getIndexIdentity(): EmbeddingIndexIdentity {
+    return {
+      provider: this.config.embeddingProvider,
+      model: this.config.embeddingsModel!,
+      dimensions: this.config.embeddingDimensions,
+      documentVersion: SEMANTIC_ACTIVITY_DOCUMENT_VERSION,
+    };
+  }
+
+  getStatus(): EmbeddingServiceStatus {
+    const identity = this.getIndexIdentity();
+    return this.isReady()
+      ? { status: 'ready', identity }
+      : {
+          status: 'unavailable',
+          identity,
+          reason: this.unavailableReason,
+        };
+  }
+
+  private disable(reason: string): void {
+    this.embeddings = null;
+    this.embeddingsDisabled = true;
+    this.unavailableReason = reason;
+  }
+
   private async initializeEmbeddings() {
     try {
       if (!this.config.enableAi) {
         this.logger.log('AI is disabled. Embeddings initialization skipped.');
-        this.embeddingsDisabled = true;
+        this.disable('AI is disabled');
         return;
       }
 
@@ -49,10 +81,13 @@ export class AiEmbeddingService implements OnModuleInit {
       this.logger.log(`Initializing embeddings with provider: ${provider}`);
 
       if (provider === 'bedrock') {
-        const bedrockEmbeddings = this.createBedrockEmbeddingsAdapter(
-          this.config.awsRegion,
-          this.config.embeddingsModel || 'amazon.titan-embed-text-v2:0',
-          this.config.embeddingDimensions,
+        const bedrockEmbeddings = this.withRuntimeFailureTracking(
+          this.createBedrockEmbeddingsAdapter(
+            this.config.awsRegion,
+            this.config.embeddingsModel || 'amazon.titan-embed-text-v2:0',
+            this.config.embeddingDimensions,
+          ),
+          'Bedrock',
         );
 
         try {
@@ -68,23 +103,30 @@ export class AiEmbeddingService implements OnModuleInit {
           this.logger.error(
             `Failed to initialize Bedrock embeddings: ${error.message}`,
           );
-          this.embeddingsDisabled = true;
+          this.disable(`Bedrock initialization failed: ${error.message}`);
         }
       } else if (provider === 'openai') {
         if (!this.config.openaiApiKey) {
           this.logger.warn(
             '⚠️  OpenAI API key missing. Embeddings disabled. Set OPENAI_API_KEY to enable.',
           );
-          this.embeddingsDisabled = true;
+          this.disable('OpenAI API key is missing');
           return;
         }
 
-        this.embeddings = new OpenAIEmbeddings({
-          openAIApiKey: this.config.openaiApiKey,
-          modelName: 'text-embedding-3-small', // Cost-effective default
-          dimensions: this.config.embeddingDimensions,
-        });
-        this.logger.log('✓ OpenAI embeddings initialized');
+        this.embeddings = this.withRuntimeFailureTracking(
+          this.withVectorValidation(
+            new OpenAIEmbeddings({
+              openAIApiKey: this.config.openaiApiKey,
+              modelName: this.config.embeddingsModel,
+              dimensions: this.config.embeddingDimensions,
+            }),
+          ),
+          'OpenAI',
+        );
+        this.logger.log(
+          `✓ OpenAI embeddings initialized (model: ${this.config.embeddingsModel}, dimensions: ${this.config.embeddingDimensions})`,
+        );
       } else if (provider === 'ollama') {
         const model = this.config.embeddingsModel || 'nomic-embed-text';
 
@@ -92,23 +134,86 @@ export class AiEmbeddingService implements OnModuleInit {
           const workingUrl = await this.findWorkingOllamaUrl(5, '/api/tags');
           this.logger.log(`Using Ollama at ${workingUrl} for embeddings`);
 
-          this.embeddings = this.createOllamaEmbeddingsAdapter(
-            workingUrl,
-            model,
-            this.config.embeddingDimensions,
+          const ollamaEmbeddings = this.withRuntimeFailureTracking(
+            this.createOllamaEmbeddingsAdapter(
+              workingUrl,
+              model,
+              this.config.embeddingDimensions,
+            ),
+            'Ollama',
           );
+          await ollamaEmbeddings.embedQuery('connectivity check');
+          this.embeddings = ollamaEmbeddings;
           this.logger.log(`✓ Ollama embeddings initialized (model: ${model})`);
         } catch (error) {
           this.logger.error(
             `Failed to initialize Ollama embeddings: ${error.message}`,
           );
-          this.embeddingsDisabled = true;
+          this.disable(`Ollama initialization failed: ${error.message}`);
         }
       }
     } catch (error) {
       this.logger.error(`Failed to initialize embeddings: ${error.message}`);
-      this.embeddingsDisabled = true;
+      this.disable(`Embedding initialization failed: ${error.message}`);
     }
+  }
+
+  private validateVector(vector: unknown, source: string): number[] {
+    if (!Array.isArray(vector)) {
+      throw new Error(`${source} did not return an embedding vector`);
+    }
+    if (vector.length !== this.config.embeddingDimensions) {
+      throw new Error(
+        `${source} returned ${vector.length} dimensions; expected ${this.config.embeddingDimensions}`,
+      );
+    }
+    if (!vector.every((value) => Number.isFinite(value))) {
+      throw new Error(`${source} returned a vector with non-finite values`);
+    }
+    return vector as number[];
+  }
+
+  private withVectorValidation(embeddings: Embeddings): Embeddings {
+    return {
+      embedQuery: async (text: string) =>
+        this.validateVector(
+          await embeddings.embedQuery(text),
+          'Embedding provider',
+        ),
+      embedDocuments: async (texts: string[]) => {
+        const vectors = await embeddings.embedDocuments(texts);
+        if (vectors.length !== texts.length) {
+          throw new Error(
+            `Embedding provider returned ${vectors.length} vectors for ${texts.length} documents`,
+          );
+        }
+        return vectors.map((vector) =>
+          this.validateVector(vector, 'Embedding provider'),
+        );
+      },
+    } as Embeddings;
+  }
+
+  private withRuntimeFailureTracking(
+    embeddings: Embeddings,
+    providerLabel: string,
+  ): Embeddings {
+    const trackFailure = async <T>(operation: () => Promise<T>): Promise<T> => {
+      try {
+        return await operation();
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        this.disable(`${providerLabel} request failed: ${message}`);
+        throw error;
+      }
+    };
+
+    return {
+      embedQuery: (text: string) =>
+        trackFailure(() => embeddings.embedQuery(text)),
+      embedDocuments: (texts: string[]) =>
+        trackFailure(() => embeddings.embedDocuments(texts)),
+    } as Embeddings;
   }
 
   private createBedrockEmbeddingsAdapter(
@@ -132,10 +237,7 @@ export class AiEmbeddingService implements OnModuleInit {
         }),
       );
       const payload = JSON.parse(new TextDecoder().decode(response.body));
-      if (!Array.isArray(payload.embedding)) {
-        throw new Error('Bedrock embeddings response did not include a vector');
-      }
-      return payload.embedding;
+      return this.validateVector(payload.embedding, 'Bedrock');
     };
 
     // Titan's InvokeModel API accepts one input per request. A small batch of
@@ -240,7 +342,14 @@ export class AiEmbeddingService implements OnModuleInit {
     vector: number[],
     targetDim: number,
   ): number[] {
-    if (vector.length <= targetDim) return vector;
+    if (vector.length < targetDim) {
+      throw new Error(
+        `Ollama returned ${vector.length} dimensions; expected at least ${targetDim}`,
+      );
+    }
+    if (vector.length === targetDim) {
+      return this.validateVector(vector, 'Ollama');
+    }
 
     const n = vector.length;
     const mean = vector.reduce((sum, v) => sum + v, 0) / n;
@@ -251,7 +360,8 @@ export class AiEmbeddingService implements OnModuleInit {
 
     const truncated = layerNormed.slice(0, targetDim);
     const norm = Math.sqrt(truncated.reduce((sum, v) => sum + v * v, 0));
-    return norm > 0 ? truncated.map((v) => v / norm) : truncated;
+    const result = norm > 0 ? truncated.map((v) => v / norm) : truncated;
+    return this.validateVector(result, 'Ollama');
   }
 
   // Minimal HTTP adapter for Ollama embeddings API
@@ -285,21 +395,31 @@ export class AiEmbeddingService implements OnModuleInit {
     return {
       embedDocuments: async (texts: string[]) => {
         const vectors: number[][] = [];
-        for (const text of texts) {
+        const batchSize = 32;
+        for (let offset = 0; offset < texts.length; offset += batchSize) {
+          const batch = texts.slice(offset, offset + batchSize);
           const resp = await makeRequest(`${baseUrl}/api/embed`, {
             model,
-            input: text,
+            input: batch,
           });
 
           if (!resp.ok) {
             throw new Error(`Ollama embeddings error ${resp.status}`);
           }
           const data = await resp.json();
-          // Ollama's /api/embed returns { embeddings: [[...]] } (plural,
-          // one vector per input) - not the singular { embedding: [...] }
-          // this used to read, which silently produced `undefined`.
-          const vector = data.embeddings?.[0];
-          vectors.push(this.truncateAndRenormalize(vector, targetDim));
+          if (!Array.isArray(data.embeddings)) {
+            throw new Error('Ollama did not return an embeddings array');
+          }
+          if (data.embeddings.length !== batch.length) {
+            throw new Error(
+              `Ollama returned ${data.embeddings.length} vectors for ${batch.length} documents`,
+            );
+          }
+          vectors.push(
+            ...data.embeddings.map((vector: number[]) =>
+              this.truncateAndRenormalize(vector, targetDim),
+            ),
+          );
         }
         return vectors;
       },

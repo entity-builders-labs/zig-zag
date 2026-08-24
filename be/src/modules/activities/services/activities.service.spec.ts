@@ -58,7 +58,7 @@ describe('ActivitiesService', () => {
   } as unknown as PrismaService;
 
   const mockVectorStoreService = {
-    findSimilarActivities: jest.fn(),
+    findSimilarActivitiesForActivity: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -240,11 +240,13 @@ describe('ActivitiesService', () => {
       (mockPrismaService.activity.findUnique as jest.Mock).mockResolvedValue(
         target,
       );
-      mockVectorStoreService.findSimilarActivities.mockResolvedValue([
-        { pageContent: '...', metadata: { activityId: 'a2' } },
-        { pageContent: '...', metadata: { activityId: 'a1' } }, // self - excluded
-        { pageContent: '...', metadata: { activityId: 'a3' } },
-      ]);
+      mockVectorStoreService.findSimilarActivitiesForActivity.mockResolvedValue(
+        [
+          { pageContent: '...', metadata: { activityId: 'a2' } },
+          { pageContent: '...', metadata: { activityId: 'a1' } }, // self - excluded
+          { pageContent: '...', metadata: { activityId: 'a3' } },
+        ],
+      );
       (mockPrismaService.activity.findMany as jest.Mock).mockResolvedValue([
         { id: 'a3', name: 'Park' },
         { id: 'a2', name: 'Gallery' },
@@ -252,10 +254,9 @@ describe('ActivitiesService', () => {
 
       const result = await service.findSimilar('a1', 2);
 
-      expect(mockVectorStoreService.findSimilarActivities).toHaveBeenCalledWith(
-        expect.stringContaining('Museum'),
-        3,
-      );
+      expect(
+        mockVectorStoreService.findSimilarActivitiesForActivity,
+      ).toHaveBeenCalledWith('a1', 3);
       expect(result.map((a) => a.id)).toEqual(['a2', 'a3']);
     });
 
@@ -266,7 +267,9 @@ describe('ActivitiesService', () => {
         description: null,
         metadata: {},
       });
-      mockVectorStoreService.findSimilarActivities.mockResolvedValue([]);
+      mockVectorStoreService.findSimilarActivitiesForActivity.mockResolvedValue(
+        [],
+      );
 
       const result = await service.findSimilar('a1', 5);
 

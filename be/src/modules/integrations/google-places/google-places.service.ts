@@ -481,6 +481,7 @@ export class GooglePlacesService implements OnModuleInit {
       existingCount: 0,
       persistedCount: 0,
       embeddedCount: 0,
+      embeddingWriteStatus: 'no_work',
       providerCallCount: 0,
       anchors: anchors.map((anchor) => ({ ...anchor })),
       operations: [],
@@ -767,12 +768,18 @@ export class GooglePlacesService implements OnModuleInit {
 
       if (activities.length > 0) {
         try {
-          await this.vectorStoreService.saveActivityEmbedding(activities);
-          provenance.embeddedCount = activities.length;
+          const embeddingResult =
+            await this.vectorStoreService.saveActivityEmbedding(activities);
+          provenance.embeddingWriteStatus = embeddingResult.status;
+          provenance.embeddedCount = embeddingResult.indexedIds.length;
+          provenance.embeddingFailureReason = embeddingResult.reason;
+          provenance.embeddingIdentity = embeddingResult.identity;
         } catch (error) {
-          // Log error but don't fail the entire crawling process
+          provenance.embeddingWriteStatus = 'failed';
+          provenance.embeddingFailureReason =
+            error instanceof Error ? error.message : String(error);
           this.logger.error(
-            `Failed to save embeddings, but activities were saved: ${error.message}`,
+            `Failed to save embeddings, but activities were saved: ${provenance.embeddingFailureReason}`,
           );
         }
       }

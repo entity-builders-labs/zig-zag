@@ -254,19 +254,45 @@ describe('buildPlacesCrawlStep', () => {
 });
 
 describe('buildEmbeddingsStep', () => {
-  it('does not claim semantic ranking was applied when no offered candidate is indexed', () => {
-    const step = buildEmbeddingsStep(15, 0, true);
+  it('does not claim semantic ranking was applied when the provider failed', () => {
+    const step = buildEmbeddingsStep(
+      {
+        status: 'unavailable',
+        eligibleCandidateCount: 120,
+        indexedCandidateCount: 0,
+        reason: 'Ollama is offline',
+      },
+      15,
+    );
 
-    expect(step.summary).toContain('No hubo señal semántica disponible');
-    expect(step.summary).toContain('rating y proximidad');
-    expect(step.summary).not.toContain('usado junto');
+    expect(step.summary).toContain('solicitado pero no aplicado');
+    expect(step.summary).toContain('calidad y proximidad');
+    expect(step.semanticRanking?.status).toBe('unavailable');
   });
 
-  it('reports indexed embeddings conservatively without claiming the query provider responded', () => {
-    const step = buildEmbeddingsStep(15, 10, true);
+  it('reports actual query application and compatible index identity', () => {
+    const step = buildEmbeddingsStep(
+      {
+        status: 'applied',
+        eligibleCandidateCount: 120,
+        indexedCandidateCount: 100,
+        identity: {
+          provider: 'bedrock',
+          model: 'amazon.titan-embed-text-v2:0',
+          dimensions: 256,
+          documentVersion: 1,
+        },
+      },
+      15,
+    );
 
-    expect(step.summary).toContain('estaban disponibles');
-    expect(step.summary).toContain('no prueba');
+    expect(step.summary).toContain('solicitado y aplicado');
+    expect(step.summary).toContain('100 tenían un vector compatible');
+    expect(step.semanticRanking).toMatchObject({
+      status: 'applied',
+      provider: 'bedrock',
+      dimensions: 256,
+    });
   });
 });
 
