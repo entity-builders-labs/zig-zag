@@ -4,7 +4,15 @@ describe('boundingBoxToCenterRadius', () => {
   it('centers on the midpoint of a Polygon bounding box', () => {
     const result = boundingBoxToCenterRadius({
       type: 'Polygon',
-      coordinates: [[[-58.53, -34.70], [-58.33, -34.70], [-58.33, -34.53], [-58.53, -34.53], [-58.53, -34.70]]],
+      coordinates: [
+        [
+          [-58.53, -34.7],
+          [-58.33, -34.7],
+          [-58.33, -34.53],
+          [-58.53, -34.53],
+          [-58.53, -34.7],
+        ],
+      ],
     });
 
     expect(result.latitude).toBeCloseTo(-34.615, 2);
@@ -16,8 +24,24 @@ describe('boundingBoxToCenterRadius', () => {
     const result = boundingBoxToCenterRadius({
       type: 'MultiPolygon',
       coordinates: [
-        [[[-58.40, -34.60], [-58.39, -34.60], [-58.39, -34.59], [-58.40, -34.59], [-58.40, -34.60]]],
-        [[[-58.30, -34.50], [-58.29, -34.50], [-58.29, -34.49], [-58.30, -34.49], [-58.30, -34.50]]],
+        [
+          [
+            [-58.4, -34.6],
+            [-58.39, -34.6],
+            [-58.39, -34.59],
+            [-58.4, -34.59],
+            [-58.4, -34.6],
+          ],
+        ],
+        [
+          [
+            [-58.3, -34.5],
+            [-58.29, -34.5],
+            [-58.29, -34.49],
+            [-58.3, -34.49],
+            [-58.3, -34.5],
+          ],
+        ],
       ],
     });
 
@@ -28,14 +52,29 @@ describe('boundingBoxToCenterRadius', () => {
   });
 
   it('returns a radius large enough that every corner is actually inside it', () => {
-    const geometry: import('@integrations/osm/utils/osm-geometry.util').GeoJsonGeometry = {
-      type: 'Polygon',
-      coordinates: [[[-58.53, -34.70], [-58.33, -34.70], [-58.33, -34.53], [-58.53, -34.53], [-58.53, -34.70]]],
-    };
-    const { latitude, longitude, radiusMeters } = boundingBoxToCenterRadius(geometry);
+    const geometry: import('@integrations/osm/utils/osm-geometry.util').GeoJsonGeometry =
+      {
+        type: 'Polygon',
+        coordinates: [
+          [
+            [-58.53, -34.7],
+            [-58.33, -34.7],
+            [-58.33, -34.53],
+            [-58.53, -34.53],
+            [-58.53, -34.7],
+          ],
+        ],
+      };
+    const { latitude, longitude, radiusMeters } =
+      boundingBoxToCenterRadius(geometry);
 
     const toRad = (deg: number) => (deg * Math.PI) / 180;
-    const haversine = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+    const haversine = (
+      lat1: number,
+      lon1: number,
+      lat2: number,
+      lon2: number,
+    ) => {
       const R = 6371000;
       const dLat = toRad(lat2 - lat1);
       const dLon = toRad(lon2 - lon1);
@@ -46,27 +85,38 @@ describe('boundingBoxToCenterRadius', () => {
     };
 
     for (const [lon, lat] of geometry.coordinates[0]) {
-      expect(haversine(latitude, longitude, lat, lon)).toBeLessThanOrEqual(radiusMeters + 1);
+      expect(haversine(latitude, longitude, lat, lon)).toBeLessThanOrEqual(
+        radiusMeters + 1,
+      );
     }
   });
 
   it('covers all bounding box corners for non-rectangular geometries', () => {
     // Diamond-shaped polygon where northernmost and easternmost points are different vertices
     // The bbox corners can be farther than any single geometry vertex
-    const geometry: import('@integrations/osm/utils/osm-geometry.util').GeoJsonGeometry = {
-      type: 'Polygon',
-      coordinates: [[
-        [-58.40, -34.55], // west
-        [-58.35, -34.60], // south
-        [-58.30, -34.55], // east
-        [-58.35, -34.50], // north
-        [-58.40, -34.55], // close ring
-      ]],
-    };
-    const { latitude, longitude, radiusMeters } = boundingBoxToCenterRadius(geometry);
+    const geometry: import('@integrations/osm/utils/osm-geometry.util').GeoJsonGeometry =
+      {
+        type: 'Polygon',
+        coordinates: [
+          [
+            [-58.4, -34.55], // west
+            [-58.35, -34.6], // south
+            [-58.3, -34.55], // east
+            [-58.35, -34.5], // north
+            [-58.4, -34.55], // close ring
+          ],
+        ],
+      };
+    const { latitude, longitude, radiusMeters } =
+      boundingBoxToCenterRadius(geometry);
 
     const toRad = (deg: number) => (deg * Math.PI) / 180;
-    const haversine = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+    const haversine = (
+      lat1: number,
+      lon1: number,
+      lat2: number,
+      lon2: number,
+    ) => {
       const R = 6371000;
       const dLat = toRad(lat2 - lat1);
       const dLon = toRad(lon2 - lon1);
@@ -78,14 +128,16 @@ describe('boundingBoxToCenterRadius', () => {
 
     // Test that all 4 bbox corners are covered
     const bboxCorners = [
-      [-58.40, -34.60], // southwest
-      [-58.40, -34.50], // northwest
-      [-58.30, -34.60], // southeast
-      [-58.30, -34.50], // northeast
+      [-58.4, -34.6], // southwest
+      [-58.4, -34.5], // northwest
+      [-58.3, -34.6], // southeast
+      [-58.3, -34.5], // northeast
     ];
 
     for (const [lon, lat] of bboxCorners) {
-      expect(haversine(latitude, longitude, lat, lon)).toBeLessThanOrEqual(radiusMeters + 1);
+      expect(haversine(latitude, longitude, lat, lon)).toBeLessThanOrEqual(
+        radiusMeters + 1,
+      );
     }
   });
 });

@@ -9,11 +9,7 @@ export type TraceStage =
   // Kept so traces persisted before provider-neutral naming remain readable.
   | 'google_places_crawl'
   | 'places_crawl'
-  | 'osm_streets'
-  | 'osm_boundary'
-  | 'neighborhood_shortlist'
   | 'embeddings'
-  | 'wikidata_enrichment'
   | 'llm_generation'
   | 'verification';
 

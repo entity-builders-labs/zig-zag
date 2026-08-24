@@ -144,8 +144,16 @@ describe('CachedOverpassApiService', () => {
     realService.queryAdminBoundariesWithinArea.mockResolvedValue([]);
     const service = await setup('write');
 
-    await service.queryAdminBoundariesWithinArea({ osmType: 'relation', osmId: 1224652 });
-    await service.queryAdminBoundariesWithinArea({ osmType: 'relation', osmId: 1224652 });
+    await service.queryAdminBoundariesWithinArea({
+      osmType: 'relation',
+      osmId: 1224652,
+      childAdminLevel: 9,
+    });
+    await service.queryAdminBoundariesWithinArea({
+      osmType: 'relation',
+      osmId: 1224652,
+      childAdminLevel: 9,
+    });
 
     expect(realService.queryAdminBoundariesWithinArea).toHaveBeenCalledTimes(1);
   });
@@ -154,8 +162,14 @@ describe('CachedOverpassApiService', () => {
     realService.queryStreetsWithinArea.mockResolvedValue([]);
     const service = await setup('write');
 
-    await service.queryStreetsWithinArea({ osmType: 'relation', osmId: 2223069 });
-    await service.queryStreetsWithinArea({ osmType: 'relation', osmId: 2223069 });
+    await service.queryStreetsWithinArea({
+      osmType: 'relation',
+      osmId: 2223069,
+    });
+    await service.queryStreetsWithinArea({
+      osmType: 'relation',
+      osmId: 2223069,
+    });
 
     expect(realService.queryStreetsWithinArea).toHaveBeenCalledTimes(1);
   });

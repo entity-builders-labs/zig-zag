@@ -16,6 +16,12 @@ export interface NominatimResult {
     town?: string;
     village?: string;
     municipality?: string;
+    cityDistrict?: string;
+    stateDistrict?: string;
+    county?: string;
+    borough?: string;
+    suburb?: string;
+    state?: string;
     country?: string;
     countryCode?: string;
   };

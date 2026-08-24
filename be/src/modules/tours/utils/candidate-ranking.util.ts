@@ -24,7 +24,9 @@ const CURATED_COMPOSITE_BONUS = 0.15;
 
 function qualityBonus(candidate: RankableCandidate): number {
   if (candidate.source === 'poi') {
-    return ((candidate.weightedScore ?? 0) / MAX_WEIGHTED_SCORE) * POI_QUALITY_WEIGHT;
+    return (
+      ((candidate.weightedScore ?? 0) / MAX_WEIGHTED_SCORE) * POI_QUALITY_WEIGHT
+    );
   }
   return candidate.isCurated ? CURATED_COMPOSITE_BONUS : 0;
 }
@@ -42,13 +44,16 @@ export function rankCandidatesByRelevance<T extends RankableCandidate>(
   similarityById: Map<string, number> | null,
 ): T[] {
   if (!similarityById) {
-    return [...candidates].sort((a, b) => (b.weightedScore ?? 0) - (a.weightedScore ?? 0));
+    return [...candidates].sort(
+      (a, b) => (b.weightedScore ?? 0) - (a.weightedScore ?? 0),
+    );
   }
 
   return [...candidates]
     .map((candidate) => ({
       candidate,
-      relevance: (similarityById.get(candidate.id) ?? 0) + qualityBonus(candidate),
+      relevance:
+        (similarityById.get(candidate.id) ?? 0) + qualityBonus(candidate),
     }))
     .sort((a, b) => b.relevance - a.relevance)
     .map((s) => s.candidate);

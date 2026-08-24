@@ -4,7 +4,7 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { ActivityKind, Prisma, VariantTheme } from '@prisma/client';
+import { ActivityKind, Prisma } from '@prisma/client';
 import { PrismaService } from '@core/database/prisma.service';
 import { ActivitiesService } from '@activities/services/activities.service';
 import { LangChainService } from '@shared/ai/langchain.service';
@@ -19,11 +19,6 @@ import { TourImageService } from './tour-image.service';
 import { CompositeGenerationService } from './composite-generation.service';
 import { DestinationResolutionService } from './destination-resolution.service';
 import { boundingBoxToCenterRadius } from '../utils/geometry-search-area.util';
-import {
-  buildNeighborhoodCatalogSignals,
-  geometryContainsPoint,
-  shortlistNeighborhoods,
-} from '../utils/neighborhood-shortlist.util';
 import { GenerateTourOptions } from '../interfaces/tour-generation.interface';
 import { transformAiActivitiesToDto } from '../utils/activity-transformer.util';
 import { updateTravelTimesForActivities } from '../utils/travel-time-calculator.util';
@@ -32,7 +27,6 @@ import { verifyAndDedupeActivities } from '../utils/activity-verification.util';
 import {
   ActivityForPrompt,
   formatActivityForPrompt,
-  formatOsmFeatureForPrompt,
 } from '../utils/activity-prompt-formatter.util';
 import { verifySelectedWaypointSubset } from '../utils/composite-activity-verification.util';
 import {
@@ -46,11 +40,7 @@ import {
   buildEmbeddingsStep,
   buildPlacesCrawlStep,
   buildLlmGenerationStep,
-  buildNeighborhoodShortlistStep,
-  buildOsmBoundaryStep,
-  buildOsmStreetsStep,
   buildVerificationStep,
-  buildWikidataEnrichmentStep,
 } from '../utils/generation-trace-builder.util';
 import {
   GenerationTraceStep,
@@ -60,6 +50,7 @@ import {
   PlacesCrawlError,
   placesProviderLabel,
 } from '@integrations/google-places/interfaces/places-api.interface';
+import { CatalogRefillAnchorPlanner } from './catalog-refill-anchor-planner.service';
 
 function withoutGenerationFailure(metadata: any): any {
   const cleanMetadata = { ...(metadata ?? {}) };
@@ -87,7 +78,21 @@ export class TourActivityGenerationService {
     private readonly osmPlacesService: OsmPlacesService,
     private readonly compositeGenerationService: CompositeGenerationService,
     private readonly destinationResolutionService: DestinationResolutionService,
+    private readonly catalogRefillAnchorPlanner: CatalogRefillAnchorPlanner,
   ) {}
+
+  private async lookupCoverageAreas(
+    boundary: OsmCandidate,
+  ): Promise<OsmCandidate[]> {
+    const lookup =
+      await this.osmPlacesService.lookupNeighborhoodsWithin(boundary);
+    if (lookup.status === 'failed') {
+      this.logger.warn(
+        `OSM coverage-area lookup unavailable; Places refill will use the destination point only: ${lookup.failureReason ?? 'unknown failure'}`,
+      );
+    }
+    return lookup.value;
+  }
 
   private async withTimeout<T>(
     operation: Promise<T>,
@@ -259,14 +264,6 @@ export class TourActivityGenerationService {
       // returns outside this set gets dropped as a hallucination, since
       // every stop must be a real, verified place.
       const candidateActivityIds = new Set<string>();
-      // Real OSM street/boundary candidates for composite activities
-      // (neighborhood walks, routes, experiences) — populated below,
-      // defensively: a failed/unconfigured Overpass or Wikidata call never
-      // breaks plain POI generation, it just means no composites this run.
-      let candidateOsmFeaturesById = new Map<string, OsmCandidate>();
-      let areaCandidate: OsmCandidate | null = null;
-      let compositeAreaCandidatesById = new Map<string, OsmCandidate>();
-      const candidateAreaIdsByWaypointId = new Map<string, Set<string>>();
       // Same db/Google candidates, keyed by id, keeping their real
       // rating/priceLevel/openingHours — needed both for the trace's
       // candidate `detail` and to audit the AI's picks against the actual
@@ -277,7 +274,6 @@ export class TourActivityGenerationService {
       const traceSteps: GenerationTraceStep[] = [];
       const traceCandidateLists: TraceCandidate[][] = [];
       let placesRefillError: PlacesCrawlError | null = null;
-      let catalogActivitiesForCoverage: any[] = [];
       let catalogInterestSimilarityById: Map<string, number> | null = null;
 
       const destinationResolution =
@@ -309,6 +305,17 @@ export class TourActivityGenerationService {
             longitude: options.longitude,
             radiusMeters: options.radius || 25000,
           };
+      const destinationPoint = {
+        latitude:
+          options.destinationLatitude ??
+          options.latitude ??
+          searchArea.latitude,
+        longitude:
+          options.destinationLongitude ??
+          options.longitude ??
+          searchArea.longitude,
+      };
+      let coverageAreas: OsmCandidate[] = [];
 
       // Search for existing activities if location provided
       if (options?.latitude && options?.longitude) {
@@ -333,8 +340,6 @@ export class TourActivityGenerationService {
             10000,
             'Activity search timeout',
           );
-          catalogActivitiesForCoverage = nearbyActivities;
-
           if (nearbyActivities.length >= this.MIN_SUFFICIENT_ACTIVITIES) {
             // Update status: activities found, processing
             await this.updateGenerationStatus(
@@ -384,12 +389,47 @@ export class TourActivityGenerationService {
             await this.updateGenerationStatus(tourId, 'generating', poolStatus);
 
             try {
+              if (
+                isAreaScale &&
+                catalogInterestSimilarityById === null &&
+                nearbyActivities.length > 0
+              ) {
+                catalogInterestSimilarityById =
+                  await this.getInterestSimilarity(
+                    nearbyActivities,
+                    options.interests,
+                  );
+              }
+              if (isAreaScale) {
+                // Child-area centers are transient geographic coverage points
+                // for the point-based Nearby operation. They are not ranked as
+                // tourism areas and never enter composite generation.
+                coverageAreas = await this.lookupCoverageAreas(
+                  destinationResolution.boundary,
+                );
+              }
+              const anchors = this.catalogRefillAnchorPlanner.plan({
+                destinationResolution,
+                destinationPoint,
+                pointRadiusMeters: Math.min(radius, 5_000),
+                coverageAreas,
+              });
               const crawlResult =
-                await this.googlePlacesService.crawlAndSaveActivities({
-                  latitude: searchArea.latitude,
-                  longitude: searchArea.longitude,
-                  radius: Math.min(radius, 5000),
-                });
+                await this.googlePlacesService.crawlAndSaveActivities(
+                  {
+                    latitude: searchArea.latitude,
+                    longitude: searchArea.longitude,
+                    radius: Math.min(radius, 5000),
+                  },
+                  {
+                    anchors,
+                    destinationLabel: options.destination,
+                    requestedInterests: options.interests,
+                    destinationBoundary: isAreaScale
+                      ? destinationResolution.boundary.geometry
+                      : undefined,
+                  },
+                );
 
               // Try searching again after crawling
               const refreshedActivities = await this.activitiesService.findAll(
@@ -398,8 +438,6 @@ export class TourActivityGenerationService {
                 radius,
                 activityLimit,
               );
-              catalogActivitiesForCoverage = refreshedActivities;
-
               if (refreshedActivities.length > 0) {
                 await this.updateGenerationStatus(
                   tourId,
@@ -546,262 +584,6 @@ export class TourActivityGenerationService {
           );
         }
 
-        // Composite activity candidates: real OSM streets (for a ROUTE like
-        // "Pasear por Caminito") and the boundary containing this point (so
-        // a NEIGHBORHOOD_WALK/EXPERIENCE has a real ActivityFamily to
-        // belong to, never one the LLM has to invent). Entirely optional —
-        // provider failures degrade without aborting the tour and are kept
-        // distinct from successful empty results in the generation trace.
-        let streetCandidates: OsmCandidate[] = [];
-        let osmStreetsFailure: string | undefined;
-        let osmBoundaryFailure: string | undefined;
-        let osmStreetsResponded: boolean | undefined;
-        let osmBoundaryResponded: boolean | undefined;
-
-        if (isAreaScale) {
-          areaCandidate = destinationResolution.boundary;
-          osmBoundaryResponded = true;
-          const neighborhoodsLookup =
-            await this.osmPlacesService.lookupNeighborhoodsWithin(
-              destinationResolution.boundary,
-            );
-          const rawNeighborhoods = neighborhoodsLookup.value;
-          if (neighborhoodsLookup.status === 'failed') {
-            osmStreetsFailure = neighborhoodsLookup.failureReason;
-            osmStreetsResponded = false;
-          } else {
-            osmStreetsResponded = true;
-          }
-
-          const neighborhoodExternalIds = rawNeighborhoods.map(
-            (neighborhood) => `${neighborhood.osmType}/${neighborhood.osmId}`,
-          );
-          const families = neighborhoodExternalIds.length
-            ? await this.prisma.activityFamily.findMany({
-                where: {
-                  areaActivity: {
-                    externalId: { in: neighborhoodExternalIds },
-                    kind: ActivityKind.AREA,
-                  },
-                },
-                select: {
-                  areaActivity: { select: { externalId: true } },
-                },
-              })
-            : [];
-          const externalIdsWithFamily = new Set(
-            families
-              .map((family: any) => family.areaActivity.externalId)
-              .filter((externalId: any): externalId is string => !!externalId),
-          );
-          const scoringInputs = rawNeighborhoods.map((neighborhood) => ({
-            candidate: neighborhood,
-            hasExistingFamily: externalIdsWithFamily.has(
-              `${neighborhood.osmType}/${neighborhood.osmId}`,
-            ),
-            ...buildNeighborhoodCatalogSignals(
-              neighborhood,
-              catalogActivitiesForCoverage,
-              catalogInterestSimilarityById,
-            ),
-            // Detailed Overpass counts are deliberately not requested for
-            // every raw neighborhood. Until a separate batched-count spike
-            // proves reliable, density is unknown and the stable fallback
-            // in shortlistNeighborhoods decides remaining ties.
-            overpassPoiCount: null as number | null,
-          }));
-          const shortlisted = shortlistNeighborhoods(scoringInputs);
-          compositeAreaCandidatesById = new Map(
-            shortlisted.map((neighborhood) => [neighborhood.id, neighborhood]),
-          );
-
-          // Per-neighborhood cap, not one global cap applied after
-          // flattening — a single dense neighborhood (the spike measured
-          // San Telmo at 178 streets + 50 POIs) would otherwise exhaust a
-          // flat slice(0, 20) on its own, starving every other shortlisted
-          // neighborhood of candidates despite paying for their Overpass
-          // queries. Each neighborhood gets an even share of the same
-          // total budget (Overpass/Groq payload limits), so the LLM
-          // actually sees content from every neighborhood the shortlist
-          // surfaced, not just the first.
-          const perNeighborhoodCap = shortlisted.length
-            ? Math.ceil(20 / shortlisted.length)
-            : 20;
-          const perNeighborhood: Array<{
-            area: OsmCandidate;
-            streets: OsmCandidate[];
-            pois: OsmCandidate[];
-          }> = [];
-          let consecutiveDetailedFailures = 0;
-          for (const neighborhood of shortlisted) {
-            // At most this pair is queued at once. The shared limiter still
-            // controls in-flight requests across tours, but one generation
-            // no longer dumps twelve detailed calls into its queue.
-            const [streetsLookup, poisLookup] = await Promise.all([
-              this.osmPlacesService.lookupStreetsWithin(neighborhood),
-              this.osmPlacesService.lookupPoisWithin(neighborhood),
-            ]);
-            perNeighborhood.push({
-              area: neighborhood,
-              streets: streetsLookup.value,
-              pois: poisLookup.value,
-            });
-
-            if (
-              streetsLookup.status === 'failed' ||
-              poisLookup.status === 'failed'
-            ) {
-              consecutiveDetailedFailures++;
-              osmStreetsResponded = false;
-              osmStreetsFailure = [
-                osmStreetsFailure,
-                streetsLookup.failureReason,
-                poisLookup.failureReason,
-              ]
-                .filter(Boolean)
-                .join('; ');
-              // Per-generation circuit breaker: two consecutive degraded
-              // neighborhoods are enough evidence to stop pressuring the
-              // shared public instance. Candidates already fetched remain.
-              if (consecutiveDetailedFailures >= 2) break;
-            } else {
-              consecutiveDetailedFailures = 0;
-            }
-          }
-          // Streets and POI nodes from every shortlisted neighborhood, merged
-          // into the same candidate set the LLM sees as "Available OSM
-          // features" — a POI node can be picked as a waypoint exactly like
-          // a street (see composite-activity.service.ts's Point-geometry
-          // handling, this same task).
-          streetCandidates = perNeighborhood.flatMap((result) => {
-            const selected = [...result.streets, ...result.pois].slice(
-              0,
-              perNeighborhoodCap,
-            );
-            selected.forEach((candidate) =>
-              candidateAreaIdsByWaypointId.set(
-                candidate.id,
-                new Set([result.area.id]),
-              ),
-            );
-            return selected;
-          });
-
-          // Existing Google/catalog activities may also be used as stops in
-          // a composite, but only when their real coordinates fall inside
-          // the exact proposed neighborhood. Flat itinerary selection stays
-          // city-wide; this map scopes only composite membership.
-          for (const activity of candidateActivitiesById.values()) {
-            const containingArea = shortlisted.find((neighborhood) =>
-              geometryContainsPoint(
-                neighborhood.geometry,
-                activity.longitude,
-                activity.latitude,
-              ),
-            );
-            if (containingArea) {
-              candidateAreaIdsByWaypointId.set(
-                activity.id,
-                new Set([containingArea.id]),
-              );
-            }
-          }
-
-          traceSteps.push(
-            buildNeighborhoodShortlistStep(rawNeighborhoods, shortlisted, {
-              existingFamilyCount: scoringInputs.filter(
-                (input) => input.hasExistingFamily,
-              ).length,
-              catalogCoveredCount: scoringInputs.filter(
-                (input) => input.catalogPoiCount > 0,
-              ).length,
-              scoringInputs,
-              providerFailure: neighborhoodsLookup.failureReason,
-            }),
-          );
-        } else {
-          const [streetsLookup, boundaryLookup] = await Promise.all([
-            this.osmPlacesService.lookupStreetsNear(
-              searchArea.latitude,
-              searchArea.longitude,
-              radius,
-            ),
-            this.osmPlacesService.lookupContainingBoundary(
-              searchArea.latitude,
-              searchArea.longitude,
-            ),
-          ]);
-          // A dense neighborhood can have hundreds of named ways within the
-          // search radius — same cap pattern as the flat activities list
-          // above (activityLimit=20/slice(0,15)). Without one, a real
-          // Overpass response reliably blows past Groq's per-request payload
-          // limit (413) once every candidate's formatted line is in the
-          // prompt.
-          streetCandidates = streetsLookup.value.slice(0, 20);
-          areaCandidate = boundaryLookup.value;
-          osmStreetsFailure = streetsLookup.failureReason;
-          osmBoundaryFailure = boundaryLookup.failureReason;
-          osmStreetsResponded = streetsLookup.status === 'success';
-          osmBoundaryResponded = boundaryLookup.status === 'success';
-          if (areaCandidate) {
-            compositeAreaCandidatesById.set(areaCandidate.id, areaCandidate);
-            [
-              ...candidateActivityIds,
-              ...streetCandidates.map((c) => c.id),
-            ].forEach((id) =>
-              candidateAreaIdsByWaypointId.set(
-                id,
-                new Set([areaCandidate!.id]),
-              ),
-            );
-          }
-        }
-
-        candidateOsmFeaturesById = new Map(
-          streetCandidates.map((c) => [c.id, c]),
-        );
-        const streetsStep = buildOsmStreetsStep(
-          streetCandidates,
-          osmStreetsFailure,
-          osmStreetsResponded,
-        );
-        traceSteps.push(streetsStep);
-        traceCandidateLists.push(streetsStep.candidates ?? []);
-        traceSteps.push(
-          buildOsmBoundaryStep(
-            areaCandidate,
-            osmBoundaryFailure,
-            osmBoundaryResponded,
-          ),
-        );
-
-        // Wikidata narrative context: one batch call for every QID found
-        // across streets + area, not one call per candidate (see
-        // wikidata-api.service.ts) — and a content-safety pass before any
-        // of it is trusted, since tags.wikidata on OSM is crowd-sourced,
-        // editable data, not curated content.
-        const allOsmCandidates = Array.from(
-          new Map(
-            [
-              ...streetCandidates,
-              ...compositeAreaCandidatesById.values(),
-              ...(areaCandidate ? [areaCandidate] : []),
-            ].map((candidate) => [candidate.id, candidate]),
-          ).values(),
-        );
-        const wikidataOutcome =
-          await this.compositeGenerationService.enrichCandidatesWithWikidata(
-            allOsmCandidates,
-          );
-        if (wikidataOutcome.acceptedSafe > 0) {
-          this.logger.debug(
-            `Wikidata narrative context available for ${wikidataOutcome.acceptedSafe} OSM candidate(s) for tour ${tourId}.`,
-          );
-        }
-        traceSteps.push(
-          buildWikidataEnrichmentStep(allOsmCandidates, wikidataOutcome),
-        );
-
         // Real (not simulated) check of how many of the candidates offered
         // this generation have a pgvector embedding indexed. This measures
         // index availability only: it cannot by itself prove that the query
@@ -823,22 +605,10 @@ export class TourActivityGenerationService {
         );
       }
 
-      // Never let the AI invent activities out of thin air — every stop must
-      // come from real places found in our database, crawled from
-      // Google/Geoapify, or real OSM streets/POIs offered as composite
-      // candidates. An area-scale destination may have no flat DB/Google
-      // activities yet (a cold-DB city) but still have real OSM streets/
-      // POIs from its shortlisted neighborhoods — that's exactly what
-      // area-scale exploration is for, so it's allowed to proceed to the
-      // LLM call on OSM candidates alone. Point-scale keeps its original,
-      // stricter requirement (flat activities only). Either way, if
-      // NOTHING real was found — no flat activities and (for area-scale)
-      // no OSM candidates either — fail loudly instead of hallucinating a
-      // tour.
-      if (
-        !availableActivitiesText &&
-        (!isAreaScale || candidateOsmFeaturesById.size === 0)
-      ) {
+      // The itinerary model selects only reusable catalog Activity IDs.
+      // New composites are created by the separate grounded proposal resolver,
+      // never improvised from raw OSM streets during live generation.
+      if (!availableActivitiesText) {
         if (placesRefillError?.code === 'quota_exhausted') {
           throw new Error(
             'Google Places alcanzó su cuota diaria y no pudo buscar lugares reales para este destino. Volvé a intentar cuando se renueve la cuota del proveedor.',
@@ -871,57 +641,14 @@ export class TourActivityGenerationService {
         'Creando itinerario optimizado con inteligencia artificial...',
       );
 
-      // Reformat after neighborhood resolution so catalog POIs that are
-      // eligible as composite waypoints carry the exact real areaId. POIs
-      // outside the shortlisted areas remain valid flat tour candidates but
-      // cannot be smuggled into a neighborhood composite.
+      // Reformat from canonical catalog data immediately before selection.
       if (candidateActivitiesById.size > 0) {
         availableActivitiesText = `\n\nAvailable activities in the area:\n${Array.from(
           candidateActivitiesById.values(),
         )
-          .map((activity) => {
-            const areaId = Array.from(
-              candidateAreaIdsByWaypointId.get(activity.id) ?? [],
-            )[0];
-            return formatActivityForPrompt({
-              ...activity,
-              areaId,
-              areaName: areaId
-                ? compositeAreaCandidatesById.get(areaId)?.name
-                : undefined,
-            });
-          })
+          .map((activity) => formatActivityForPrompt(activity))
           .join('\n')}`;
       }
-
-      const osmFeaturesText = Array.from(candidateOsmFeaturesById.values())
-        .map((c) => {
-          const areaId = Array.from(
-            candidateAreaIdsByWaypointId.get(c.id) ?? [],
-          )[0];
-          return formatOsmFeatureForPrompt({
-            id: c.id,
-            name: c.name,
-            osmType: c.osmType,
-            narrativeContext: c.narrativeContext,
-            areaId,
-            areaName: areaId
-              ? compositeAreaCandidatesById.get(areaId)?.name
-              : undefined,
-          });
-        })
-        .join('\n');
-      const areaText = Array.from(compositeAreaCandidatesById.values())
-        .map((area) =>
-          formatOsmFeatureForPrompt({
-            id: area.id,
-            name: area.name,
-            osmType: area.osmType,
-            narrativeContext: area.narrativeContext,
-          }),
-        )
-        .join('\n');
-      const themesText = Object.values(VariantTheme).join(', ');
 
       const tourChain = this.compositeGenerationService.createTourChain();
       const generationTimeout = this.langChainService.getGenerationTimeout();
@@ -933,9 +660,6 @@ export class TourActivityGenerationService {
           // list and wastes the provider's token budget.
           input: enhancedPrompt,
           activities: availableActivitiesText,
-          osmFeatures: osmFeaturesText,
-          area: areaText,
-          themes: themesText,
         }),
         generationTimeout,
         `AI generation timeout after ${generationTimeout}ms`,
@@ -1024,9 +748,9 @@ export class TourActivityGenerationService {
       );
 
       // Instance-level waypoint customization ("adapt this variant for a
-      // family with kids") lives on the flat activity pick, not on
-      // compositeActivities — captured here (pre-transform, keyed by the
-      // real activityId) since transformAiActivitiesToDto doesn't carry it.
+      // family with kids") lives on the selected catalog activity. Capture it
+      // here, keyed by the real activityId, because the DTO transform does not
+      // carry it.
       const selectedWaypointIdsByActivityId = new Map<string, string[]>();
       for (const act of rawActivities) {
         if (act.activityId && Array.isArray(act.selectedWaypointIds)) {
@@ -1037,43 +761,7 @@ export class TourActivityGenerationService {
         }
       }
 
-      // Same hard-enforcement principle, one level deeper: every waypointId
-      // inside a compositeActivities proposal has to trace back to a real
-      // candidate too, not just the composite as a whole. Persist each
-      // survivor into a real, reusable Activity (Area -> Family -> Variant)
-      // — shared with the generate-templates CLI (Fase 5), see
-      // composite-generation.service.ts.
-      const rawComposites: any[] = aiResponse.compositeActivities || [];
-      const { persisted: persistedComposites } =
-        await this.compositeGenerationService.verifyAndPersistComposites({
-          rawComposites,
-          candidateActivityIds,
-          candidateOsmFeaturesById,
-          areaCandidate,
-          areaCandidatesById: compositeAreaCandidatesById,
-          candidateAreaIdsByWaypointId,
-          logContext: `tour ${tourId}`,
-        });
-
-      // Fold persisted composites into the same activities list as a flat
-      // pick — from here on a composite is indistinguishable from a POI to
-      // the rest of the pipeline (ordering, travel times, TourActivity
-      // creation).
-      const compositeGeneratedActivities = persistedComposites.map((p) => ({
-        activityId: p.variant.id,
-        activityName: p.variant.name,
-        type: p.variant.kind,
-        latitude: p.variant.latitude,
-        longitude: p.variant.longitude,
-        notes: p.themeReasoning,
-        dayNumber: p.dayNumber,
-        startTime: p.startTime,
-      }));
-
-      if (
-        uniqueActivities.length === 0 &&
-        compositeGeneratedActivities.length === 0
-      ) {
+      if (uniqueActivities.length === 0) {
         throw new Error(
           'No se encontraron lugares reales para esta ubicación. Probá con otro destino o un radio de búsqueda más amplio.',
         );
@@ -1083,14 +771,13 @@ export class TourActivityGenerationService {
       // in whatever order seemed plausible. Reorder them with a free
       // nearest-neighbor + 2-opt heuristic (straight-line distance, no
       // external API) so the itinerary doesn't zigzag across the search area.
-      // Composites are merged in first — from here on they're just points
-      // (their own centroid) like any other pick to this heuristic.
-      const allPicks = [...uniqueActivities, ...compositeGeneratedActivities];
-      let orderedActivities = allPicks;
+      // Existing catalog composites are already represented by an Activity ID
+      // and are ordered exactly like any other selected Activity.
+      let orderedActivities = uniqueActivities;
       if (options?.latitude && options?.longitude) {
         orderedActivities = optimizeActivityOrder(
           { latitude: options.latitude, longitude: options.longitude },
-          allPicks,
+          uniqueActivities,
         );
       }
 

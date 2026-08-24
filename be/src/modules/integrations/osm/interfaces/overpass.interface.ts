@@ -50,6 +50,10 @@ export interface QueryByIdParams {
   osmId: number;
 }
 
+export interface QueryAdminBoundariesWithinAreaParams extends QueryByIdParams {
+  childAdminLevel: number;
+}
+
 // Deliberately scoped to two families of queries — not a general Overpass
 // client. Point/name-based queries (queryBoundaryByName, queryContainingBoundary,
 // queryStreets) support area discovery: queryBoundaryByName is for an area
@@ -68,7 +72,9 @@ export interface IOverpassApiService {
   ): Promise<OverpassElement[]>;
   queryStreets(params: QueryStreetsParams): Promise<OverpassElement[]>;
   queryBoundaryById(params: QueryByIdParams): Promise<OverpassElement[]>;
-  queryAdminBoundariesWithinArea(params: QueryByIdParams): Promise<OverpassElement[]>;
+  queryAdminBoundariesWithinArea(
+    params: QueryAdminBoundariesWithinAreaParams,
+  ): Promise<OverpassElement[]>;
   queryStreetsWithinArea(params: QueryByIdParams): Promise<OverpassElement[]>;
   queryPoisWithinArea(params: QueryByIdParams): Promise<OverpassElement[]>;
 }

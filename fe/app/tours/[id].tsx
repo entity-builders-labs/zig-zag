@@ -22,10 +22,14 @@ import { TourStopCard } from '../../components/tour-details/TourStopCard';
 import { CompositeStopCard } from '../../components/tour-details/CompositeStopCard';
 import { DayHeader } from '../../components/tour-details/DayHeader';
 import { GenerationPipeline } from '../../components/tour-details/GenerationPipeline';
-import { GenerationBitacora } from '../../components/tour-details/GenerationBitacora';
+import {
+  formatGenerationBitacora,
+  GenerationBitacora,
+} from '../../components/tour-details/GenerationBitacora';
 import { TourStop } from '../../components/tour-details/types';
 import { transformActivitiesToStops } from '../../components/tour-details/build-stops';
 import { FONT_DISPLAY } from '@/constants/typography';
+import { copyTextToClipboard } from '@/utils/copy-to-clipboard';
 
 export default function TourDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -38,6 +42,27 @@ export default function TourDetailScreen() {
   const [generationError, setGenerationError] = useState<string>('');
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
   const [showBitacora, setShowBitacora] = useState(false);
+  const [bitacoraCopyStatus, setBitacoraCopyStatus] = useState<
+    'idle' | 'copied' | 'failed'
+  >('idle');
+
+  useEffect(() => {
+    if (bitacoraCopyStatus === 'idle') return;
+    const timeoutId = setTimeout(() => setBitacoraCopyStatus('idle'), 2000);
+    return () => clearTimeout(timeoutId);
+  }, [bitacoraCopyStatus]);
+
+  const handleBitacoraPress = async () => {
+    setShowBitacora((visible) => !visible);
+    try {
+      await copyTextToClipboard(
+        formatGenerationBitacora((tour?.metadata as any).generationTrace)
+      );
+      setBitacoraCopyStatus('copied');
+    } catch {
+      setBitacoraCopyStatus('failed');
+    }
+  };
 
   // Whether THIS mount actually watched generation go from in-progress to
   // completed (as opposed to loading an already-completed tour straight
@@ -261,12 +286,16 @@ export default function TourDetailScreen() {
             {__DEV__ && (tour.metadata as any)?.generationTrace && (
               <Box mb='$4'>
                 <Pressable
-                  onPress={() => setShowBitacora((v) => !v)}
+                  onPress={handleBitacoraPress}
                   testID='bitacora-toggle'
                 >
                   <HStack alignItems='center' space='xs'>
                     <Text size='xs' color='$tertiary600'>
-                      🐛 Bitácora de generación (dev)
+                      {bitacoraCopyStatus === 'copied'
+                        ? '✓ Bitácora copiada'
+                        : bitacoraCopyStatus === 'failed'
+                          ? 'No se pudo copiar la bitácora'
+                          : '🐛 Bitácora de generación (dev)'}
                     </Text>
                     <Icon
                       as={showBitacora ? ChevronUp : ChevronDown}

@@ -36,7 +36,9 @@ describe('GenerateTemplatesCommand', () => {
     });
     compositeGenerationService = {
       enrichCandidatesWithWikidata: jest.fn().mockResolvedValue(0),
-      createTourChain: jest.fn().mockReturnValue({ invoke: tourChainInvoke }),
+      createCompositeProposalChain: jest
+        .fn()
+        .mockReturnValue({ invoke: tourChainInvoke }),
       verifyAndPersistComposites: jest.fn().mockResolvedValue({
         persisted: [{ variant: { id: 'variant-1', name: 'San Telmo Walk' } }],
         hallucinatedWaypointCount: 0,
@@ -80,7 +82,9 @@ describe('GenerateTemplatesCommand', () => {
     });
 
     expect(activitiesService.findAll).not.toHaveBeenCalled();
-    expect(compositeGenerationService.createTourChain).not.toHaveBeenCalled();
+    expect(
+      compositeGenerationService.createCompositeProposalChain,
+    ).not.toHaveBeenCalled();
   });
 
   it('proposes and persists one variant per requested theme, each constrained to that theme in the prompt', async () => {

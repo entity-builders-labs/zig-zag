@@ -27,6 +27,12 @@ interface NominatimApiResponseItem {
     town?: string;
     village?: string;
     municipality?: string;
+    city_district?: string;
+    state_district?: string;
+    county?: string;
+    borough?: string;
+    suburb?: string;
+    state?: string;
     country?: string;
     country_code?: string;
   };
@@ -74,6 +80,12 @@ export class NominatimApiService implements INominatimApiService {
             town: item.address.town,
             village: item.address.village,
             municipality: item.address.municipality,
+            cityDistrict: item.address.city_district,
+            stateDistrict: item.address.state_district,
+            county: item.address.county,
+            borough: item.address.borough,
+            suburb: item.address.suburb,
+            state: item.address.state,
             country: item.address.country,
             countryCode: item.address.country_code?.toUpperCase(),
           }

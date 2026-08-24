@@ -18,7 +18,9 @@ function haversineMeters(
   return 2 * EARTH_RADIUS_METERS * Math.asin(Math.min(1, Math.sqrt(h)));
 }
 
-function collectAllPoints(geometry: GeoJsonGeometry): { lat: number; lon: number }[] {
+function collectAllPoints(
+  geometry: GeoJsonGeometry,
+): { lat: number; lon: number }[] {
   const points: { lat: number; lon: number }[] = [];
   const pushRing = (ring: [number, number][]) => {
     for (const [lon, lat] of ring) points.push({ lat, lon });
@@ -43,9 +45,11 @@ function collectAllPoints(geometry: GeoJsonGeometry): { lat: number; lon: number
  * guess. See docs/superpowers/specs/2026-08-21-activity-engine-design.md,
  * "POI sourcing at area scale".
  */
-export function boundingBoxToCenterRadius(
-  geometry: GeoJsonGeometry,
-): { latitude: number; longitude: number; radiusMeters: number } {
+export function boundingBoxToCenterRadius(geometry: GeoJsonGeometry): {
+  latitude: number;
+  longitude: number;
+  radiusMeters: number;
+} {
   const points = collectAllPoints(geometry);
   const lats = points.map((p) => p.lat);
   const lons = points.map((p) => p.lon);

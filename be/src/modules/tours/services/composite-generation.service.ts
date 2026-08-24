@@ -18,8 +18,11 @@ import { JsonOutputFunctionsParser } from 'langchain/output_parsers';
 import {
   CREATE_TOUR_SELECTION_JSON_SYSTEM_PROMPT,
   CREATE_TOUR_SELECTION_RESPONSE_SCHEMA,
+  CREATE_COMPOSITE_PROPOSAL_JSON_SYSTEM_PROMPT,
+  CREATE_COMPOSITE_PROPOSAL_RESPONSE_SCHEMA,
   CREATE_TOUR_SYSTEM_PROMPT,
   GROQ_TOUR_MAX_COMPLETION_TOKENS,
+  createCompositeProposalJsonUserPrompt,
   createTourJsonUserPrompt,
 } from '../prompts/create-tour.prompt';
 import { extractAndCleanJson, repairJson } from '../utils/json-parser.util';
@@ -28,16 +31,24 @@ import {
   verifyAndDedupeCompositeActivities,
 } from '../utils/composite-activity-verification.util';
 
-export interface TourChainInvokeInput {
+export interface TourSelectionChainInvokeInput {
   input: string;
   activities: string;
+}
+
+export interface CompositeProposalChainInvokeInput
+  extends TourSelectionChainInvokeInput {
   osmFeatures?: string;
   area?: string;
   themes?: string;
 }
 
-export interface TourChain {
-  invoke(input: TourChainInvokeInput): Promise<any>;
+export interface TourSelectionChain {
+  invoke(input: TourSelectionChainInvokeInput): Promise<any>;
+}
+
+export interface CompositeProposalChain {
+  invoke(input: CompositeProposalChainInvokeInput): Promise<any>;
 }
 
 export interface PersistedComposite {
@@ -104,14 +115,8 @@ function canonicalCompositeName(
 }
 
 /**
- * Shared "propose (LLM) -> verify -> persist" machinery for composite
- * activities (neighborhood walks, routes, experiences) — used both by live
- * tour generation (TourActivityGenerationService, one chain call producing
- * flat activities + compositeActivities together) and by the offline
- * `generate-templates` CLI command (one chain call per requested theme,
- * compositeActivities only). Candidate gathering (OSM streets/boundary) and
- * the flat-activities-specific logic stay in each caller — only the pieces
- * that are byte-for-byte identical between the two flows live here.
+ * Itinerary selection plus an explicitly separate offline composite-curation
+ * workflow. Live tour generation never receives the composite proposal schema.
  */
 @Injectable()
 export class CompositeGenerationService {
@@ -128,25 +133,20 @@ export class CompositeGenerationService {
    * Builds the tour-generation LLM chain — OpenAI function-calling when the
    * provider supports it, otherwise a JSON-mode fallback via
    * generateChatResponse (Ollama/Groq, or no chat model configured at all).
-   * The JSON-mode background path uses the compact selection contract; callers
-   * that only want compositeActivities (generate-templates) simply ignore the
-   * `activities` field.
+   * The JSON-mode background path uses the compact selection-only contract.
    */
-  createTourChain(): TourChain {
+  createTourChain(): TourSelectionChain {
     const chatModel = this.langChainService.getChatModel();
     const provider = this.langChainService['config']?.provider || 'openai';
 
     if (!chatModel || provider === 'ollama' || provider === 'groq') {
       return {
-        invoke: async (input: TourChainInvokeInput) => {
+        invoke: async (input: TourSelectionChainInvokeInput) => {
           const systemPrompt = CREATE_TOUR_SELECTION_JSON_SYSTEM_PROMPT;
 
           const userPrompt = createTourJsonUserPrompt(
             input.input,
             input.activities,
-            input.osmFeatures,
-            input.area,
-            input.themes,
           );
 
           const response = await this.langChainService.generateChatResponse(
@@ -250,47 +250,6 @@ export class CompositeGenerationService {
               ],
             },
           },
-          compositeActivities: {
-            type: 'array',
-            description:
-              'Themed multi-stop experiences (neighborhood walks, routes, or experiences) proposed alongside the flat activities list — never instead of it.',
-            items: {
-              type: 'object',
-              properties: {
-                name: { type: 'string' },
-                kind: {
-                  type: 'string',
-                  enum: ['NEIGHBORHOOD_WALK', 'ROUTE', 'EXPERIENCE'],
-                },
-                variantTheme: { type: 'string' },
-                themeReasoning: {
-                  type: 'string',
-                  description:
-                    'Why this composite makes sense here, 1-3 sentences.',
-                },
-                areaId: {
-                  type: 'string',
-                  description:
-                    "Must exactly match one Available area candidate and every selected waypoint's areaId — never invented or mixed across areas.",
-                },
-                dayNumber: { type: 'number' },
-                startTime: { type: 'string' },
-                waypointIds: {
-                  type: 'array',
-                  items: { type: 'string' },
-                  description:
-                    'Every id copied exactly from Available activities or Available OSM features — never invented.',
-                },
-              },
-              required: [
-                'name',
-                'kind',
-                'variantTheme',
-                'areaId',
-                'waypointIds',
-              ],
-            },
-          },
           totalDays: { type: 'number' },
           totalDistance: { type: 'number' },
           estimatedBudget: { type: 'number' },
@@ -322,7 +281,61 @@ export class CompositeGenerationService {
         function_call: { name: 'tour' },
       }),
       new JsonOutputFunctionsParser(),
-    ]) as unknown as TourChain;
+    ]) as unknown as TourSelectionChain;
+  }
+
+  /**
+   * Explicit offline curation chain for generate-templates. Keeping this
+   * separate makes it impossible for live itinerary generation to create a
+   * composite through prompt output.
+   */
+  createCompositeProposalChain(): CompositeProposalChain {
+    return {
+      invoke: async (input: CompositeProposalChainInvokeInput) => {
+        const response = await this.langChainService.generateChatResponse(
+          CREATE_COMPOSITE_PROPOSAL_JSON_SYSTEM_PROMPT,
+          createCompositeProposalJsonUserPrompt(
+            input.input,
+            input.activities,
+            input.osmFeatures ?? '',
+            input.area ?? '',
+            input.themes ?? '',
+          ),
+          {},
+          {
+            groq: {
+              maxCompletionTokens: GROQ_TOUR_MAX_COMPLETION_TOKENS,
+              reasoningEffort: 'low',
+              includeReasoning: false,
+            },
+            responseFormat: {
+              type: 'json_schema',
+              json_schema: {
+                name: 'composite_proposal',
+                strict: true,
+                schema: CREATE_COMPOSITE_PROPOSAL_RESPONSE_SCHEMA,
+              },
+            },
+          },
+        );
+
+        const cleanedResponse = extractAndCleanJson(response);
+        try {
+          return JSON.parse(cleanedResponse);
+        } catch (parseError: any) {
+          this.logger.error(
+            `Failed to parse composite proposal as JSON: ${parseError.message}`,
+          );
+          try {
+            return JSON.parse(repairJson(cleanedResponse));
+          } catch {
+            throw new Error(
+              `AI returned invalid composite proposal JSON: ${parseError.message}`,
+            );
+          }
+        }
+      },
+    };
   }
 
   /**
@@ -431,8 +444,8 @@ export class CompositeGenerationService {
    * candidates (hard hallucination guard, one level deeper than the flat
    * activities list) and persists each survivor via
    * CompositeActivityService.createOrReuseComposite — the exact same path
-   * whether the proposal came from a live tour generation call or a
-   * generate-templates CLI run.
+   * for the explicit generate-templates curation command. Live tour
+   * generation cannot call this persistence path from its LLM response.
    */
   async verifyAndPersistComposites(
     params: VerifyAndPersistCompositesParams,

@@ -1,7 +1,9 @@
 # Activity Engine: Candidate Quality, Discovery, and Mobility Implementation Plan
 
-> **Status:** Proposed implementation plan. No production code from this plan
-> has been implemented yet.
+> **Status:** Active incremental plan. PRs 1-2 are integrated in the local
+> `codex/main`; PR 3 is open as GitHub PR #19 and remains unmerged pending the
+> local acceptance gate and explicit maintainer approval. The repository
+> remains the source of truth.
 >
 > **Baseline:** local `codex/main` at `eacfaf7`, which includes the completed
 > destination-resolution work and the canonical architecture document.
@@ -16,12 +18,14 @@
 Turn the current grounded-but-low-quality tour pipeline into a provider-aware,
 quality-gated Activity Engine that:
 
-1. queries and improves the existing catalog before discovery;
+1. queries the existing catalog first and distinguishes reusable knowledge from
+   a new/stale destination that still needs bounded hybrid bootstrap;
 2. retrieves Activities that match the user's interests without losing hard
    geographic constraints;
 3. refuses to treat a large but irrelevant pool as sufficient coverage;
-4. discovers missing composite experiences through a replaceable,
-   search-grounded provider;
+4. discovers sourced must-see POIs, areas, routes, and composite experiences
+   through a replaceable search-grounded provider when destination knowledge
+   or an explicit coverage dimension is missing;
 5. resolves every proposed entity through Google Places or OSM before
    persistence;
 6. selects Activities that form transport-feasible groups per day; and
@@ -31,6 +35,45 @@ quality-gated Activity Engine that:
 This plan supersedes neither the completed destination-resolution plan nor its
 commits. It begins from that implementation and addresses the next set of
 problems exposed by a real local generation for Sevilla.
+
+## Architecture decision: hybrid destination knowledge (2026-08-23)
+
+The Santa Fe smoke test invalidated the assumption that a large, clean Places
+refill is sufficient evidence of tourism coverage. The run persisted 51 rows,
+yet only one item from a reasonable ten-place visitor benchmark existed in the
+local catalog. Conversely, a simple Google Search grounded answer identified
+the canonical museums, civic center, cultural venues, bridge, and historic
+sites immediately.
+
+The corrected design does **not** make grounded LLM output the universal entry
+point. It assigns explicit jobs:
+
+```text
+catalog           reuse verified knowledge and personalization
+Places Text       retrieve/resolve conventional POIs by intent or exact name
+Places Nearby     secondary bounded coverage for one missing type/zone
+grounded Discovery propose sourced must-see meaning, areas and experiences
+OSM/Overpass      resolve authoritative areas, streets, routes and membership
+```
+
+For an already-profiled healthy destination, the catalog remains first and no
+external provider is required. For a new or stale destination, one bounded
+bootstrap may contrast Places Text Search candidates with grounded
+`ActivityProposal` results even when the raw catalog count is high. The result
+is resolved, validated, cached/reused destination knowledge; discovery is not
+repeated for every tour. A later request may invoke only the operation matching
+its concrete deficit.
+
+Grounded proposals are never authoritative identity. Citations and raw output
+remain evidence; every POI/venue resolves through Places and every
+area/street/route through OSM with destination context before persistence.
+This decision removes global OSM-neighborhood enumeration/ranking and broad
+multi-anchor Nearby crawling from the **target discovery path**. Existing
+anchor and admission primitives remain useful for bounded Places coverage.
+Exact-membership and boundary-hydration primitives move to targeted proposal
+resolution and are introduced only with an immediate production consumer. The
+transitional global neighborhood selector is deleted; it must not survive as a
+hidden fallback or evolve into a hand-built tourism recommendation engine.
 
 ## Why this plan exists: the Sevilla failure
 
@@ -71,9 +114,11 @@ Provider success does not mean usable coverage.
 - Each PR is reviewed and tested independently. It remains on its feature
   branch until the local acceptance gate below is complete and the maintainer
   explicitly approves merging it into `codex/main`.
-- Do not start Activity Discovery until catalog acquisition, validation,
-  embeddings, and CoverageAnalyzer are reliable. Otherwise discovery will
-  compensate for infrastructure failures and pollute the catalog.
+- Do not let Activity Discovery persist or enter generation until entity
+  resolution, validation, and provenance are reliable. The provider-neutral
+  proposal/bootstrap contract may be implemented earlier, because an
+  unprofiled destination is itself a coverage state; raw output still cannot
+  compensate for provider failures or pollute the catalog.
 - Do not start transport-aware itinerary generation until CoverageAnalyzer can
   produce a stable eligible pool. Spatial optimization cannot repair bad
   entities.
@@ -90,12 +135,23 @@ Provider success does not mean usable coverage.
 - No free-form discovery output is persisted.
 - No QID is required for eligibility. Wikidata is optional narrative
   enrichment only.
+- Do not merge speculative or superseded code. A replacement PR must delete
+  the old execution path, obsolete tests/providers, and dependency wiring in
+  the same delivery sequence. Temporary loss of new composite creation is
+  acceptable while existing verified catalog composites remain reusable.
 
 ## Mandatory delivery and local acceptance gate for every PR
 
 No implementation PR in this plan may be merged into local `codex/main` merely
 because it compiles or its happy path works. The following gate applies to PRs
-1 through 11:
+1 through 12:
+
+> **Temporary CI operation (2026-08-23):** the repository's GitHub Actions
+> quota is exhausted, so remote checks are not awaited before merge. This does
+> not relax the gate below: the complete applicable test/check/build commands
+> must pass locally, the acceptance report must record their results, and the
+> maintainer must still approve the merge explicitly. Restore remote checks as
+> an additional gate when quota is available again.
 
 1. **Branch isolation**
    - create the PR branch from the latest accepted `codex/main`;
@@ -156,6 +212,75 @@ Known limitations:
 Merge approval: pending | approved
 ```
 
+## Incremental quality-delta protocol
+
+Every PR must state one falsifiable quality hypothesis before implementation
+and demonstrate its delta with the same request, catalog state, provider
+fixtures/cache, and configuration before and after the change. A different or
+already warmed catalog is not a valid comparison.
+
+For every benchmark case, retain these artifacts in the acceptance report or
+an explicitly referenced fixture/report:
+
+```text
+wizard input and resolved DestinationContext
+catalog precondition: cold | warm plus relevant row/embedding counts
+provider, cache schema/mode, and live call count by operation
+ordered eligible candidate IDs with score/evidence breakdown
+CoverageReport and degraded/unavailable signals
+generation bitacora
+final selected Activity IDs, day/order, and composite waypoints
+```
+
+Use three layers of evidence:
+
+1. **Deterministic regression fixture:** proves the decision and exact boundary
+   conditions without paid/live providers.
+2. **Controlled local integration case:** uses an isolated/scoped database
+   state and strict cached provider responses so before/after runs are
+   reproducible.
+3. **Bounded live smoke case:** records a new provider response once in cache,
+   then replays it strictly. Live calls are never run by the default automated
+   suite and remain within the PR's explicit provider budget.
+
+Quality includes correctness, relevance, feasibility, and truthful degradation.
+A foundational PR does not need to make the UI prettier, but it must improve an
+observable engine decision or remove a false claim. No PR may claim quality
+improvement from a final itinerary alone when its candidate pool, provider
+evidence, or trace contradicts that claim.
+
+### Expected visible quality ladder
+
+| PR  | Quality hypothesis that must be observable before merge                                                                                                                                                                                                        |
+| --- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 3   | Places acquisition produces geographically valid conventional POIs without weak one-review/type-only junk; Text Search and Nearby retain explicit roles, and anchors are never presented as tourism relevance. PR 3 does not claim complete must-see coverage. |
+| 4   | The wizard and backend distinguish themes, desired experience formats, allowed transport, and daily/continuous walking limits; changing one dimension changes only its intended engine constraint.                                                             |
+| 5   | Changing interests changes semantic ordering within the same eligible destination pool; provider/model mismatch or failure is visibly unavailable and never mixes vectors.                                                                                     |
+| 6   | A large irrelevant or spatially unusable pool no longer counts as sufficient; `CoverageReport` also distinguishes profiled/fresh from stale/unprofiled destination knowledge and names exact deficits.                                                         |
+| 7   | A new/stale destination bootstrap or explicit qualitative/experience deficit launches grounded Discovery; sourced proposals are traced but cannot persist directly. A healthy profiled destination makes no unnecessary grounded call.                         |
+| 8   | Resolved proposals become valid reusable Activities/composites; unresolved or incoherent hints are rejected with reasons and cannot pollute the catalog.                                                                                                       |
+| 9   | The generated tour can select from one verified catalog/discovery pool while unknown IDs, duplicates, and invalid waypoint subsets remain impossible.                                                                                                          |
+| 10  | The same candidates produce different coherent daily sets when walking, cycling, driving, or public transport or walking tolerance changes; distant semantic matches no longer form an infeasible day.                                                         |
+| 11  | Every same-day transition exposes an allowed selected mode and defensible time/distance estimate, while live navigation details remain a Maps handoff.                                                                                                         |
+| 12  | Cold and warm end-to-end scenarios preserve all prior improvements under success and degraded-provider conditions without hidden fallback, dead transitional flow, or catalog corruption.                                                                      |
+
+For PR 3, the fixed regression matrix starts with:
+
+- **Cordoba cold:** no alphabetical zero-evidence neighborhood selection and no
+  one-review/type-only junk in the admitted or offered pool;
+- **Sevilla cold:** central prominent attractions are not missed because one
+  arbitrary bounding-box-center circle sampled the east of the city;
+- **Mendoza cold:** empty/generic identities such as `Arquitectura` are not
+  newly persisted, and anchors are not described as relevant neighborhoods;
+- **warm repeat:** provider call count is zero when the admitted catalog
+  satisfies the refill precondition, with no duplicate Activities;
+- **OSM unavailable:** Google refill still succeeds, no approximate
+  neighborhood is invented, and no speculative composite is created.
+
+The deterministic fixtures cover the full matrix. Only a small explicitly
+selected subset needs a live recording; all browser repetitions use the saved
+cache or the warm catalog.
+
 ## Explicit non-goals for this sequence
 
 - turn-by-turn navigation inside Zig-Zag;
@@ -169,22 +294,52 @@ Merge approval: pending | approved
 
 ## Target PR chain
 
+The PR sequence implements one five-stage operating model. The stages are the
+stable product architecture; individual algorithms and providers remain
+replaceable implementation details:
+
+```text
+1. Resolve context
+   intent + mobility + authoritative destination
+
+2. Build a verified candidate pool
+   catalog first -> inspect destination-knowledge state -> choose direct
+   Places resolution, Text Search, bounded Nearby, grounded bootstrap, or
+   explicit gap Discovery -> resolve and validate before reuse
+
+3. Select coherent daily sets
+   semantic relevance + quality + diversity + mode-aware travel cost
+
+4. Route and schedule each day
+   deterministic travel time + activity duration + opening-hour constraints
+
+5. Verify, snapshot, persist, and respond
+   canonical IDs + tour legs + effective composite waypoints + bitacora
+```
+
+Catalog Refill, Activity Discovery, OSM composite construction, and narrative
+enrichment are conditional zooms into stage 2. They are not mandatory network
+calls on every generation. PRs 1-2 establish stage 1 and cross-cutting truth;
+PRs 3-9 establish the user-intent contract, stage 2, and the semantic part of
+stage 3; PRs 10-11 complete stages 3-5; PR 12 validates the full flow.
+
 ```text
 PR 1  Provider identity, cache isolation, and truthful trace
   -> PR 2  Destination normalization, Wikidata, and Overpass reliability
-  -> PR 3  Google Places multi-anchor refill and validation
-  -> PR 4  Embedding integrity and hybrid catalog retrieval
-  -> PR 5  CoverageAnalyzer and candidate quality gate
-  -> PR 6  Provider-neutral Activity Discovery
-  -> PR 7  Proposal entity resolution and safe persistence
-  -> PR 8  Unified pool selection and generation integration
-  -> PR 9  Transport-aware spatial feasibility
-  -> PR 10 MVP per-leg transport contract and Maps handoff
-  -> PR 11 End-to-end acceptance, rollout, and cleanup
+  -> PR 3  Safe Places acquisition/admission primitives (not tourism authority)
+  -> PR 4  Tour intent + mobility contract and wizard
+  -> PR 5  Embedding integrity and hybrid catalog retrieval
+  -> PR 6  CoverageAnalyzer, destination-knowledge state, and quality gate
+  -> PR 7  Provider-neutral grounded bootstrap and Activity Discovery
+  -> PR 8  Proposal entity resolution and safe persistence
+  -> PR 9  Unified pool selection and generation integration
+  -> PR 10 Transport-aware spatial feasibility
+  -> PR 11 MVP per-leg transport contract and Maps handoff
+  -> PR 12 End-to-end acceptance, rollout, and cleanup
 ```
 
 An OSM infrastructure track may proceed after PR 2 without renumbering the
-domain PR chain. It is a production gate before PR 11: normal mass-production
+domain PR chain. It is a production gate before PR 12: normal mass-production
 tour requests must not depend on the public Nominatim or Overpass community
 instances. The track covers an opt-in local Docker profile, a self-hosted or
 managed production query backend, and asynchronous destination refill.
@@ -215,6 +370,7 @@ was applied when it was unavailable.
 
    A Google response must never be returned from a Geoapify namespace or vice
    versa.
+
 4. Rename misleading runtime concepts where feasible:
    `buildGooglePlacesCrawlStep` should become provider-neutral, and the trace
    label should report `Google Places`, `Geoapify`, or `cache` explicitly.
@@ -277,7 +433,7 @@ arbitrary point fallbacks and neighborhood selection.
    strip arbitrary middle components from every comma-separated label.
 3. Record attempted query forms, selected result, and point-scale degradation
    reason in the trace without exposing unrelated provider payloads.
-4. Preserve the point-scale behavior for actual hotels, addresses, and POIs;
+4. Preserve the point-scale behavior for selected addresses and specific POIs;
    normalization must not turn every selected place into a city-wide tour.
 
 ### Wikidata changes
@@ -308,37 +464,28 @@ arbitrary point fallbacks and neighborhood selection.
 
 ### Overpass changes
 
-1. Stop issuing a full POI query for every raw neighborhood merely to compute
-   shortlist scores.
-2. Add a bounded shortlist-signal strategy, in priority order:
-   - existing `ActivityFamily` coverage from PostgreSQL;
-   - existing validated catalog POI coverage;
-   - normalized rating/review-backed prominence of those POIs;
-   - aggregate pgvector similarity of contained POIs to wizard interests;
-   - one batched/cached Overpass count request for cold neighborhoods, if a
-     spike proves it reliable;
-   - deterministic fallback that is explicit in the trace and used only for
-     equal/no-evidence ties.
-3. Query detailed streets/POIs only for shortlisted neighborhoods.
-4. Add retry policy for 429/502/503/504 with bounded exponential backoff,
+1. Limit live use in this phase to destination boundary resolution and
+   structurally valid child-area centers used as independent Places coverage
+   anchors. Do not enumerate streets/POIs or rank neighborhoods to invent
+   composites during itinerary generation.
+2. Add retry policy for 429/502/503/504 with bounded exponential backoff,
    jitter, `Retry-After` support, and a total request/time budget.
-5. Default the shared public instance to conservative concurrency. The current
+3. Default the shared public instance to conservative concurrency. The current
    limiter bounds in-flight calls but does not reduce the total queued burst or
    retry rate-limited calls.
-6. Add a circuit breaker for the current generation: after the budget is
-   exhausted, mark OSM degraded and continue with catalog candidates rather
-   than enqueueing more calls.
-7. Do not convert failed POI counts to trustworthy zero-density scores. Track
-   `unknown` separately from `0`.
-8. Preserve `map_to_area` containment and the relative
-   `admin_level = city + 1` rule.
-9. When a composite variant is reused, backfill its embedding if the stored
-   pgvector value is missing; do not regenerate an already indexed vector on
-   every tour.
-10. Before interest ranking, lazily backfill only retrieved legacy catalog
-    candidates whose pgvector value is null (currently at most 20). Normal
-    provider ingestion remains the eager embedding path; this is a bounded
-    repair, not a full per-tour reindex.
+4. Add a circuit breaker for the current generation: after the budget is
+   exhausted, mark OSM coverage unavailable and continue with catalog
+   candidates rather than enqueueing more calls.
+5. Preserve the relative `admin_level = city + 1` rule and reject highway ways
+   masquerading as administrative areas. An OSM center is only an anchor; it
+   is never treated as a containment polygon.
+6. Keep detailed street/POI and exact-membership queries out of the live path
+   until PR 8 has a grounded proposal and a concrete entity-resolution
+   consumer for them.
+7. Before interest ranking, lazily backfill only retrieved legacy catalog
+   candidates whose pgvector value is null (currently at most 20). Normal
+   provider ingestion remains the eager embedding path; this is a bounded
+   repair, not a full per-tour reindex.
 
 ### Operational boundary and local OSM support
 
@@ -373,7 +520,6 @@ Before mass-production rollout:
 - `be/src/modules/integrations/osm/utils/overpass-concurrency.util.ts`
 - `be/src/modules/integrations/osm/utils/overpass-query.util.ts`
 - `be/src/modules/tours/services/tour-activity-generation.service.ts`
-- `be/src/modules/tours/utils/neighborhood-shortlist.util.ts`
 - matching specs
 
 ### Tests and acceptance
@@ -381,17 +527,17 @@ Before mass-production rollout:
 - The provider label `Montevideo, Montevideo Department, Uruguay` resolves to
   the real Montevideo city boundary when its structured locality/country and
   selected coordinates identify OSM relation `2929054`.
-- A hotel/address selection remains point-scale after normalization.
+- A selected address/POI remains point-scale after normalization.
 - An ambiguous locality candidate inconsistent with the selected coordinates
   or country is rejected rather than accepted by result order.
 - Literal JSON in the safety prompt formats successfully.
 - Candidates without QIDs remain eligible.
 - A 429 is retried within budget and recorded as degraded if exhausted.
-- Unknown POI density does not outrank a known good neighborhood by accident.
-- A Sevilla fixture cannot launch eleven simultaneous detailed POI searches.
-- Casco Antiguo/Triana candidates remain available when another neighborhood
+- A Sevilla fixture cannot launch simultaneous detailed POI or street searches.
+- Casco Antiguo/Triana centers remain available as bounded coverage anchors when another neighborhood
   fails.
-- Placeholder OSM street names such as `Sin Nombre` and `Unnamed Road` never
+- In the explicitly separate `generate-templates` curation command,
+  placeholder OSM street names such as `Sin Nombre` and `Unnamed Road` never
   reach composite proposal or persistence.
 - Places trace accounting separates rejected candidate results from provider
   request failures, so rejected results cannot exceed received results.
@@ -403,86 +549,589 @@ Before mass-production rollout:
 - A successful explicit generation retry clears the previous attempt's error
   and failure timestamp instead of leaving contradictory completed+failed
   metadata.
-- A live local-provider case creates an OSM-backed composite, persists its
-  effective `TourActivityWaypoint` snapshot, and renders it in the frontend;
-  mocked unit tests alone do not satisfy this acceptance item.
+- A live tour cannot create an OSM-backed composite from itinerary-LLM output.
+  An existing verified catalog composite remains selectable and persists its
+  effective `TourActivityWaypoint` snapshot unchanged.
 - The default Docker stack does not download OSM data. An explicitly enabled
   local OSM profile documents its extract, disk use, initialization state,
   endpoint, and cleanup procedure.
 
 ---
 
-## PR 3: Google Places multi-anchor refill and catalog validation
+## PR 3: Safe Places acquisition, bounded coverage, and catalog admission
 
 ### Objective
 
-Replace the single bounding-box-center crawl with bounded, representative
-Google Places acquisition and validate results before catalog persistence.
+Replace the single bounding-box-center crawl with a bounded two-phase Google
+Places acquisition plan that can retrieve relevant conventional POIs, cover an
+explicit remaining type/zone gap, and admit only candidates with sufficient
+provider evidence. Correct the Córdoba regression without treating Places
+rank, OSM neighborhood names, distance to the center, or review count as proof
+of a complete must-see list. PR 3 supplies safe acquisition primitives; the
+grounded destination profile and experience-discovery role belongs to PR 7.
 
-### Anchor selection
+### Observed Córdoba regression and design correction
 
-1. Introduce a transient `DestinationAnchor` value object. It is not an
-   Activity and is not persisted.
-2. Point-scale destinations use their resolved/user point as one anchor.
-3. Area-scale destinations derive 4-8 anchors from the shortlisted real
-   neighborhoods. Prefer neighborhood geometry centroids and include the
-   Nominatim destination point when it lies inside the authoritative boundary.
-4. Do not use the city bounding-box center as the only Places origin.
-5. Bound anchor count, category count, results per anchor, total latency, and
-   total provider calls.
+The first PR 3 smoke test proved the call cap, deduplication, boundary check,
+persistence, and embedding path, but did not satisfy the product objective:
 
-### Retrieval and validation
+- `findNeighborhoodsWithin()` returned lightweight centers, while the
+  shortlist attempted Polygon containment. Catalog coverage, prominence, and
+  similarity therefore became false zeroes for every neighborhood.
+- The no-evidence tie selected six neighborhoods alphabetically and reused
+  them both as Places anchors and as composite areas.
+- Nearby Search ranked by `DISTANCE`, and secondary-type matching plus the
+  admission rule `one review OR trusted type` admitted user-generated or
+  weakly evidenced places.
+- The trace marked all 462 raw neighborhoods as offered even though only six
+  were explored.
 
-1. Search Google Places per anchor using categories relevant to missing catalog
-   coverage, not an unbounded crawl of every category.
-   - use Nearby Search as the normal operation for supported typed POIs;
-   - use Google Text Search only for explicitly configured concepts that
-     Nearby does not support well, never as an automatic quota bypass;
-   - treat Geoapify `searchText` as a limited category-mapping compatibility
-     operation, not as semantically equivalent free-text search;
-   - never switch Google to Geoapify automatically after a provider failure;
-   - allow independent configured operations to return partial results, while
-     preserving the real degradation reason if no valid candidates remain.
-2. Union and deduplicate results by provider + external ID before persistence.
-3. Add `CatalogCandidateValidator` before `ActivitiesService.create`:
+This is not fixed by a better tie-break. PR 3 must separate three decisions:
+
+1. **Catalog acquisition:** which bounded provider operations retrieve useful
+   conventional POIs.
+2. **Geographic coverage:** which transient points distribute point-based
+   Nearby calls across the destination.
+3. **Composite validation scope:** which finite proposed/reusable OSM areas and
+   waypoints can be proven to belong together. Transitional global area
+   selection must fail conservatively and is not the target discovery path.
+
+No service or value object may use one of these decisions as an undocumented
+proxy for another.
+
+### Responsibility boundaries and contracts
+
+1. Rename/refine the transient anchor responsibility as
+   `CatalogRefillAnchorPlanner`. `DestinationAnchor` remains a request value,
+   not an Activity or persisted domain entity.
+2. Add a provider-neutral `CatalogAcquisitionPlan` made of explicit operations:
+
+   ```text
+   operationId
+   purpose: destination_seed | geographic_coverage | missing_category
+   providerOperation: nearby | text
+   requested types/query
+   geographic constraint
+   result budget
+   ```
+
+3. Keep provider capability differences explicit. A Google-only descriptive
+   Text Search operation is skipped with truthful provenance when Geoapify is
+   selected; it is never approximated silently or used to switch providers.
+
+### Deferred from PR 3: targeted OSM membership
+
+The Córdoba spike proved that exact parent-constrained point-to-area membership
+is technically possible and that nearest-centroid/name matching is invalid.
+However, the global neighborhood selector that consumed it has been superseded.
+Therefore PR 3 does not ship an unused membership adapter or its fixture.
+Targeted batch membership and boundary hydration are reintroduced in proposal
+entity resolution, where a concrete grounded/reusable area supplies the finite
+scope and the code has an immediate production consumer.
+
+### Checkpoint B: structurally valid geography and independent anchors
+
+1. Point-scale destinations retain one user/resolved point with a bounded
+   radius.
+2. Area-scale destinations always put the selected destination point first
+   when it is inside the authoritative boundary.
+3. Remaining coverage anchors come from structurally valid, real OSM child-area
+   centers selected by a deterministic spatial-coverage algorithm. The
+   algorithm must be named and tested (for example, bounded farthest-first
+   k-center); it must not use alphabetical order, tourism claims, or fabricated
+   grid points.
+4. Exclude administrative ways that are also `highway=*`; accept a way boundary
+   only when it is a closed area. Deduplicate OSM identity before planning.
+5. Keep the target at 4-8 total anchors only when that many authoritative
+   points exist. Bound anchor radius, category count, results, total latency,
+   and total provider calls.
+6. These anchors mean geographic API coverage only. Their labels must never be
+   presented as "relevant", "touristic", or "chosen for a composite".
+
+#### Implemented Checkpoint B outcome (2026-08-23)
+
+- `DestinationAnchorService` was replaced by the responsibility-specific
+  `CatalogRefillAnchorPlanner`.
+- Point-scale destinations still produce one bounded origin. Area-scale plans
+  put the selected point first when it is inside the authoritative boundary.
+- Remaining origins come from the structurally valid raw child-area set, not
+  from a neighborhood relevance shortlist.
+  Bounded deterministic farthest-first k-center distributes them spatially;
+  input order and area name do not affect the plan.
+- OSM identity and coordinates are deduplicated before planning, centers
+  outside the authoritative parent are rejected, and the plan returns fewer
+  anchors when fewer authoritative points exist.
+- The parent-area Overpass query now requests only `parent admin_level + 1`.
+  Relations remain supported; ways require `boundary=administrative`, no
+  `highway=*`, and Overpass `is_closed()`.
+- The catalog-refill trace calls them geographic coverage points and explicitly
+  says they do not imply tourism relevance or composite selection.
+
+Unit coverage includes destination-first ordering, input-order-independent
+k-center selection, OSM/coordinate deduplication, out-of-boundary rejection,
+no fabricated quota, the eight-anchor cap, highway-way rejection, genuine
+closed-area way support, and invalid parent metadata reported as unavailable.
+
+### Checkpoint C: explicit tourism-oriented Google acquisition
+
+Run two explicit phases inside the same total provider budget:
+
+1. **Destination seed (Google capability):** one or more controlled Text Search
+   operations such as `best places to visit in {locality}, {country}` and one
+   controlled theme query selected from the requested interests. Use the
+   resolved structured destination, a rectangular `locationRestriction`
+   derived from its bounds where supported, and the exact backend
+   Polygon/MultiPolygon check afterward. Text Search uses its singular
+   `includedType` only when that one type is genuinely aligned with the whole
+   query. A broad `museums, historic sites and cultural landmarks` query must
+   not carry `includedType=museum`: Google documents that categorical Text
+   Search almost always applies that filter even when
+   `strictTypeFiltering=false`. It is a configured operation, never a Nearby
+   failure fallback.
+2. **Geographic coverage:** Nearby Search around the independent anchors using
+   `includedPrimaryTypes`, not broad secondary `includedTypes`, for high-signal
+   groups such as:
+   - visitor landmarks: `tourist_attraction`, `historical_landmark`,
+     `historical_place`, `cultural_landmark`, `monument`, `plaza`,
+     `observation_deck`;
+   - museums and arts: `museum`, `history_museum`, `art_museum`, `art_gallery`;
+     include visitor-relevant cultural venues such as `cultural_center` and
+     `performing_arts_theater` in the controlled cultural mapping;
+   - architectural/visitor landmarks include supported types such as `bridge`
+     when the current Places type table exposes them;
+   - explicitly requested outdoor/entertainment/food groups through their own
+     controlled mappings.
+3. Request and retain `primaryType` in addition to `types`. Use
+   `rankPreference=POPULARITY` for catalog acquisition unless an operation has
+   a documented reason to use distance.
+4. Group compatible primary types into one Nearby operation instead of spending
+   one request per type. The round-robin scheduler shares the remaining budget
+   across requested categories and anchors.
+5. Search terms, type groups, operation purpose, selected provider, requested
+   count, received count, and geographic rejection counts are typed provenance,
+   not strings inferred later from logs.
+6. Bump the Places cache schema when request/response semantics change. Old
+   cached responses without `primaryType` cannot masquerade as evidence for the
+   new policy.
+7. Separate the type requested from the provider from the primary types that a
+   flexible Text Search operation is allowed to admit. Nearby normally uses
+   the same controlled list for both. A broad Text Search seed may omit
+   `includedType` while carrying an explicit `admissiblePrimaryTypes` union;
+   the validator must read that typed operation field rather than infer a
+   broader contract from a category label.
+
+Google Nearby officially supports `includedPrimaryTypes` and `POPULARITY`;
+Google Text Search uses singular `includedType` plus optional
+`strictTypeFiltering` and geographic restriction/bias. Keep the adapter and
+tests aligned with those distinct APIs rather than exposing a misleading common
+"type filter". Primary references:
+[Nearby Search (New)](https://developers.google.com/maps/documentation/places/web-service/nearby-search),
+[Text Search (New)](https://developers.google.com/maps/documentation/places/web-service/text-search),
+and [Place Types (New)](https://developers.google.com/maps/documentation/places/web-service/place-types).
+
+#### Implemented Checkpoint C outcome (2026-08-23)
+
+- `CatalogAcquisitionPlan` now emits typed destination-seed and geographic-
+  coverage operations. Google runs two controlled Text Search seeds followed
+  by Nearby operations using grouped `includedPrimaryTypes` and `POPULARITY`.
+- Text Search uses singular `includedType`, explicit `strictTypeFiltering`, and
+  a destination rectangle when an authoritative boundary exists; otherwise it
+  uses the bounded first-anchor circle. Every response receives the backend
+  operation-geography check, and area-scale candidates still receive exact
+  destination Polygon/MultiPolygon validation before persistence.
+- The remaining call budget traverses the anchor-by-category matrix
+  diagonally, so tight budgets distribute work geographically and thematically
+  instead of exhausting the first anchor or category.
+- `primaryType`, provider contact fields, acquisition purpose, operation ID,
+  per-operation status, received counts, and geographic rejection reasons are
+  retained. The Places cache schema is `v3`, so older responses cannot provide
+  false primary-type evidence.
+- Geoapify records the Google-only Text seeds as unsupported and does not call
+  or approximate descriptive Text Search. Its supported category operations do
+  not consume budget for those skipped seeds.
+- Planner and validator consume one centralized catalog acquisition taxonomy;
+  a provider result cannot be admitted through a category different from the
+  operation that produced it.
+- The Rosario smoke test exposed a separate destination-normalization defect:
+  Nominatim matched the overqualified English provider label to `Puente Nuestra
+Señora del Rosario` about 10 km from the selected city point. Fine-grained
+  forward results now need tight point consistency before suppressing reverse
+  normalization, while city boundaries keep the wider centroid tolerance. The
+  normalized reverse path resolves the real Rosario city relation, and the
+  existing exact-point behavior remains covered.
+
+#### Checkpoint C acceptance gap found in the Santa Fe smoke test (2026-08-23)
+
+The first live Santa Fe run proved that operation count and clean persistence
+are not enough. Google Places persisted 51 rows, but only one of a reasonable
+ten-place visitor benchmark (Museo de la Constitución Nacional) existed in the
+local catalog. Plaza 25 de Mayo, Manzana Jesuítica, Convento de San Francisco,
+Museo Etnográfico Juan de Garay, Museo Rosa Galisteo, Teatro Municipal, El
+Molino, La Redonda, and Puente Colgante were absent rather than merely ranked
+below the top 15.
+
+This is not a production name allowlist. It is a live quality-evaluation set
+that exposed two general defects: the mixed culture/history seed was narrowed
+by `includedType=museum`, and the controlled type vocabulary did not cover
+important cultural-center, theater, and bridge identities. Before Checkpoint C
+is accepted as a **Places primitive**:
+
+- keep the same maximum of two seed calls and the same total provider-call
+  budget; improve query/type semantics rather than increasing calls;
+- add deterministic fixtures containing the relevant primary-type families
+  plus commercial/institutional distractors;
+- run bounded cold-catalog smoke reports for Santa Fe and at least two other
+  cities, recording which benchmark entities were returned, rejected, or
+  admitted and through which operation. PR 3 is not required to recover every
+  benchmark entity by itself; the later hybrid bootstrap acceptance compares
+  Places-only recall with the resolved union;
+- do not claim that Places alone establishes the definitive list of
+  “imperdibles”. Grounded recommendation belongs to Activity Discovery and
+  every resulting POI proposal still requires exact Places/OSM resolution.
+
+The generation trace now names Text Search and Nearby Search separately and
+reports succeeded, skipped-for-capability, and failed operations. It does not
+describe Text Search as a fallback.
+
+### Checkpoint D: union, admission, and persistence
+
+1. Union all seed and coverage results and deduplicate by provider + external
+   ID before persistence.
+2. Split admission into two explicit pure/testable policies coordinated by the
+   write gate:
+   - `CatalogIdentityValidator`: normalized name, provider ID, finite
+     coordinates, operation radius, destination boundary, operating status,
+     primary/supported type, and address-only rejection;
+   - `CatalogAdmissionPolicy`: sufficient evidence that the real provider
+     entity is useful enough to enter the reusable catalog.
+3. `CatalogAdmissionPolicy` must provide named evidence paths rather than
+   `reviewCount > 0 OR trusted type`:
+   - review-backed confidence evaluated by an explicit category policy; or
+   - a supported institutional primary type corroborated by structured provider
+     data such as official website, phone, or opening hours.
+     A requested type, Text Search rank, perfect one-review rating, or provider
+     type alone is not admission evidence.
+4. Keep policy parameters centralized, justified, included in the trace, and
+   covered by boundary-value fixtures. PR 3 defines write admission; PR 6 later
+   defines read-side tour eligibility and ranking, so persistence alone never
+   guarantees selection.
+5. The complete structural rules still include:
    - non-empty normalized name;
    - provider ID present;
    - finite coordinates;
    - inside the resolved destination boundary for area-scale;
-   - not permanently closed;
+   - not permanently closed (`CLOSED_PERMANENTLY` or normalized
+     `PERMANENTLY_CLOSED` only; do not confuse this with closed now, opening
+     hours, holidays, or a temporary closure);
    - supported/mappable type;
    - no obvious address-only or unnamed feature;
-   - minimum confidence/quality policy appropriate to the provider.
-4. Preserve rejection reasons in the trace. Do not silently count rejected
-   rows as catalog coverage.
-5. Persist only accepted real POIs and generate their canonical embeddings
+   - minimum admission evidence appropriate to the provider and category.
+     The complete rule-to-rejection mapping is the canonical contract in
+     `docs/architecture/activity-discovery-and-tour-generation.md`, section
+     **Catalog candidate validation contract**. Keep code, unit tests, trace
+     labels, and that table synchronized when a rule changes.
+6. Preserve structural and admission rejection reasons in the trace. Do not
+   collapse `unsupported_primary_type`, `insufficient_review_confidence`, and
+   `missing_institutional_corroboration` into an unauditable generic count.
+7. Do not silently count rejected rows as catalog coverage.
+8. Persist only admitted real POIs and generate their canonical embeddings
    before the catalog is re-queried.
-6. Keep provider provenance accurate on `Source` and `externalId`.
-7. Do not create POIs from streets, paths, or neighborhood boundaries.
+9. Keep provider provenance, `primaryType`, supporting provider fields, and
+   external identity accurate. Do not drop website/phone already returned by
+   the initial Places response merely because a separate Details call was not
+   requested.
+10. Do not create POIs from streets, paths, or neighborhood boundaries.
+
+#### Implemented Checkpoint D outcome (2026-08-23)
+
+- The write gate now coordinates two pure policies:
+  `CatalogIdentityValidator` owns structural truth, operation/destination
+  geography, status, supported type, and primary-type/category consistency;
+  `CatalogAdmissionPolicy` owns reusable-catalog evidence.
+- Google review-backed confidence uses centralized inclusive boundaries:
+  visitor landmarks `rating >= 4.0 && reviews >= 50`; museums/arts
+  `4.0 && 20`; outdoor `4.1 && 50`; food and nightlife `4.2 && 100`;
+  entertainment `4.0 && 100`.
+- A supported institution that misses its category review boundary is admitted
+  only when provider data corroborates it through website, phone, or opening
+  hours. A type alone is insufficient. Geoapify uses its explicit available-
+  evidence path: mapped operation category, provider types, and a formatted
+  address; it does not inherit Google ratings or primary types.
+- Exact rejection reasons include `unsupported_primary_type`,
+  `insufficient_review_confidence`,
+  `missing_institutional_corroboration`, and
+  `insufficient_provider_evidence`. Identity-valid and admitted counters are
+  distinct from persisted and embedded counts in provenance and trace.
+- Unit boundaries prove that a perfect one-review landmark, 49-review
+  landmark, and sub-threshold rating are rejected; the inclusive 4.0/50
+  visitor boundary passes. Review-sparse institutions require structured
+  corroboration.
+- Website, phone, opening hours, `primaryType`, provider types, operation ID,
+  purpose, and external identity are preserved from the initial Places result
+  when available; a Details call is not required merely to avoid dropping
+  fields already returned.
+
+#### San Juan corrective checkpoint outcome (2026-08-23)
+
+The cold San Juan run returned a materially better final set and exposed three
+contracts that are now implemented, while PR 3 remains unmerged pending its
+final browser smoke and maintainer acceptance:
+
+1. Nominatim may represent the correct nearby settlement as a `node` with
+   `addresstype=city` while its usable containment polygon is a separate
+   administrative relation. Destination identity and boundary geometry must
+   be resolved as two explicit steps: accept the coordinate-consistent city
+   identity, hydrate and validate one containing relation, and degrade as
+   `boundary_unavailable` when that cannot be proven. Do not globally promote
+   every `state_district` or pretend that a node is a polygon. The trace must
+   not report `candidate_mismatched_coordinates` when identity matched but
+   boundary hydration was the missing operation.
+2. The trace must implement the canonical counter contract already documented
+   in the architecture: raw seed/coverage receipts, operation-geography
+   rejection, result deduplication, identity-valid, admitted, existing,
+   newly persisted, and embedded. `admitted` must not read as though every
+   admitted candidate was a new insert.
+3. Type consistency must prevent a broad supported primary type from masking
+   a more specific unsupported identity. In particular, a result returned as
+   `park` but also typed as `campground`/`lodging` must not enter the generic
+   outdoor visitor pool unless that experience type is explicitly supported.
+   This remains a finite provider-type rule with fixtures, not a place-name
+   blacklist.
+
+Subtype diversity (for example many churches) and temporary-closure
+eligibility belong to PR 6's read-side quality gate. They are not reasons to
+erase an otherwise real reusable entity during PR 3 write admission, but they
+must prevent a saturated or unavailable candidate pool from being treated as
+a good tour.
+
+The corrective regression suite proves node-settlement boundary hydration,
+no-match/provider-failure degradation, structured Nominatim container mapping,
+unambiguous acquisition counters, admitted-existing versus newly persisted
+rows, and the generic-park/campground type conflict. A bounded live resolver
+check resolved San Juan's settlement node to the containing `Capital` relation,
+kept Rosario on its direct city relation, and preserved an exact Casa Rosada
+POI as point-scale without invoking Places.
+
+### Checkpoint E: remove speculative live composite creation
+
+PR 3 must not leave the old city-wide OSM neighborhood enumeration as a hidden
+fallback while the targeted discovery path is built:
+
+1. Remove `CompositeAreaSelector`, the legacy neighborhood relevance shortlist,
+   their dependency wiring, and tests that assert global barrio selection.
+2. Stop creating new composites by enumerating raw child areas and asking the
+   itinerary LLM to invent a walk from arbitrary streets.
+3. Remove the live itinerary prompt's `compositeActivities`, `osmFeatures`, and
+   `area` creation channel. The itinerary response selects existing Activity
+   IDs only, including existing verified composites.
+4. Continue querying and selecting existing verified catalog composites.
+5. Audit the explicit `generate-templates` CLI separately. Keep it only if it
+   remains a supported curation workflow with its own honest contract; it must
+   not leak back into live generation or masquerade as grounded Discovery.
+6. Do not ship the currently unused exact-membership batch adapter/fixture in
+   PR 3. Reintroduce that capability with the targeted proposal resolver.
+7. The trace states that composite discovery was not requested/available; it
+   does not expose hundreds of OSM barrios or fabricate a substitute walk.
+8. Remove obsolete methods, DTO fields, maps, mocks, and documentation in the
+   same change. No indefinite feature flag or unreachable compatibility branch
+   is an acceptable completion state.
+
+### Trace contract
+
+1. OSM child-area centers used for Places coverage are internal acquisition
+   inputs, not activity candidates; do not label them considered, offered,
+   explored, or touristically relevant.
+2. Report only their bounded aggregate use and provider status. Do not
+   serialize raw OSM neighborhoods into the candidate list.
+3. Distinguish acquisition purposes and counters:
+
+   ```text
+   seed operations / coverage operations
+   requested / received / outside operation geography
+   deduplicated / structurally valid / admitted / persisted / embedded
+   composite discovery not requested / unavailable
+   ```
+
+4. Semantic/provider failure is `unavailable`; absence of the removed global
+   selector is not presented as zero neighborhood evidence.
 
 ### Likely files
 
-- new `be/src/modules/tours/services/destination-anchor.service.ts`
-- new `be/src/modules/activities/services/catalog-candidate-validator.service.ts`
+- `be/src/modules/tours/services/catalog-refill-anchor-planner.service.ts`
+- `be/src/modules/activities/services/catalog-candidate-validator.service.ts`
+- new catalog admission policy and evidence types
 - `be/src/modules/integrations/google-places/google-places.service.ts`
+- Google/Geoapify provider interfaces, adapters, cache schema, and fixtures
 - `be/src/modules/tours/services/tour-activity-generation.service.ts`
-- geometry utilities for Point-in-Polygon/MultiPolygon containment
+- OSM query builder/service structural filtering used by destination and anchor
+  resolution only
 - trace builder and tests
 
 ### Tests and acceptance
 
-- Sevilla uses anchors representing Casco Antiguo, Triana, and other shortlisted
-  areas rather than one origin in Sevilla Este.
+- Córdoba cold-catalog acquisition never creates `2 de Abril`, `2 de mayo`,
+  `20 de Junio`, etc. as speculative composite areas.
+- The destination seed returns prominent central cultural candidates in its
+  deterministic Google fixture; Nearby coverage remains independently
+  distributed and bounded.
+- Nearby requests use tested primary-type groups and `POPULARITY`; Text Search
+  is a separately traced operation with singular `includedType` semantics.
+- A Geoapify run never executes or pretends to approximate the Google-only
+  descriptive Text Search seed.
+- An OSM center is never treated as a containment polygon. No unused batch
+  membership path remains in PR 3.
+- Administrative highway ways are rejected as neighborhoods; a fixture for a
+  genuinely closed administrative way remains supported.
+- No globally enumerated composite area appears as offered/explored in the
+  bitacora; existing catalog composites remain eligible.
 - An empty name is rejected and never persisted.
 - Duplicate Places results from multiple anchors create one Activity.
 - A high-rated result outside the city boundary is rejected.
+- A permanently closed result is rejected, while a result that is merely
+  closed at the current time is not treated as permanently closed by the
+  catalog validator.
+- Address-only, unsupported-type, missing-ID, invalid-coordinate, generic-name,
+  unsupported-primary-type, insufficient-review-confidence, and missing-
+  corroboration results are rejected with their exact reason in the trace.
+- A `museum` type with no reviews and no structured institutional evidence is
+  rejected; a real institutional fixture with corroborating official provider
+  fields is admitted.
+- A one-review user-created attraction is rejected without adding a
+  name-specific blacklist.
 - Point-scale behavior remains one point + bounded radius.
+- Mixed interests do not let the first category exhaust the provider-call
+  budget before every selected category has been attempted across the anchors.
 - The trace distinguishes fetched, accepted, deduplicated, rejected, and
   embedded counts.
+- The resulting Córdoba candidate window contains no blank names and excludes
+  the known weak smoke-test fixtures; the acceptance report records admitted
+  primary types and evidence paths.
 
 ---
 
-## PR 4: Embedding integrity and hybrid catalog retrieval
+## PR 4: Tour intent, mobility contract, and wizard
+
+### Objective
+
+Let the user state what kinds of experiences they want and how much physical
+travel they accept without overloading `interests`, `transportationMode`, or
+the generic pace slider. This PR changes the frontend and backend contract
+together; it does not add a second compatibility DTO or retain a legacy wizard
+submission path.
+
+### Canonical request dimensions
+
+```ts
+interface TourIntent {
+  interests: string[];
+  experienceFormats: Array<
+    "point_visits" | "neighborhood_walks" | "thematic_routes" | "experiences"
+  >;
+  explorationStyle: "iconic" | "balanced" | "local_deep_dive";
+  additionalPreferences?: string;
+}
+
+interface MobilityPreferences {
+  transportationMode: TransportationMode[]; // allowed modes
+  maxWalkingDistancePerDayMeters: number;
+  maxContinuousWalkingDistanceMeters: number;
+  travelPace: TravelPace;
+  accessibilityNeeds?: string[];
+}
+```
+
+The names above are the intended API semantics; final enum spelling must follow
+the repository's naming conventions. `interests` remains the thematic signal
+used by embeddings. `experienceFormats` drives requested Activity kinds and
+Discovery/Coverage deficits. `transportationMode` says which modes a later
+route planner may choose. Walking limits are hard deterministic constraints,
+not prompt prose. `additionalPreferences` is bounded supplemental intent, not
+an alternate raw prompt and not a source of trusted entity identity.
+
+### Wizard behavior
+
+1. Add an experience-format step with plain-language choices such as landmark
+   visits, neighborhood walks, thematic routes, and other experiences. Do not
+   present the internal `ActivityKind` enum directly.
+2. Keep themes/interests separate. “History” describes subject matter;
+   “neighborhood walk” describes delivery format.
+3. Replace the ambiguous physical meaning of the pace-only control with a
+   walking-effort profile: minimize walking, moderate, enjoys walking, or
+   custom. Show the resulting approximate kilometers per day.
+4. Capture a maximum continuous walking leg independently from the daily sum.
+   A user may accept 6 km spread across a day but reject one uninterrupted
+   3 km transfer.
+5. Apply distance limits per day, not across the whole tour. The same profile
+   must behave consistently for one-day and multi-day requests.
+6. Keep `travelPace` as the speed/density preference affecting visit duration
+   and schedule slack; do not reinterpret it as a distance budget.
+7. Define accessible, versioned product presets in one shared contract. Do not
+   duplicate magic kilometer values between React state, DTO defaults, prompts,
+   and route utilities.
+8. The wizard submits the new canonical contract only. Remove obsolete state,
+   comments, casts, DTO aliases, prompt fields, and tests instead of keeping a
+   parallel legacy payload.
+9. Replace the currently disconnected `specialNotes` state with
+   `additionalPreferences` in the canonical payload. Trim it, enforce one
+   centrally defined length limit, persist it, and show it as `captured` in the
+   bitacora. Structured fields remain authoritative; free text cannot override
+   hard mobility/accessibility constraints or assert a trusted Activity.
+10. Preserve a provider-neutral destination-scale hint from the selected
+    autocomplete result: settlement versus specific point (POI, address, or
+    equivalent). Google/Geoapify response types are mapped at the adapter
+    boundary and do not leak into the tour domain. This prevents reverse
+    normalization from silently widening a selected point into its containing
+    city when Nominatim cannot resolve the same fine-grained label.
+
+### Engine wiring in this PR
+
+- Normalize the request once into typed `TourIntent` and
+  `MobilityPreferences` value objects.
+- Persist/trace the normalized values with the Tour generation request so later
+  PRs consume stable input.
+- Feed `interests` to current semantic/prompt behavior without claiming that
+  new format or distance constraints are already enforced.
+- Include `additionalPreferences` exactly once in the canonical intent passed
+  to current itinerary selection. Persist and trace it now; PR 5 consumes it
+  in the semantic query and PR 7 consumes it only through explicit coverage or
+  discovery deficits. It never enters Places/OSM as authoritative identity.
+- Feed `experienceFormats` into a typed desired-kind requirement available to
+  CoverageAnalyzer/Discovery in later PRs.
+- Feed walking budgets into a typed mobility profile available to spatial
+  feasibility in PR 10.
+- The bitacora must distinguish `captured` from `enforced`. Until PR 10, it may
+  report that walking limits were captured but deterministic routing is not yet
+  active; it must not claim the final tour obeyed them.
+
+### Tests and acceptance
+
+- Frontend interaction tests prove themes, experience formats, modes, daily
+  walking budget, continuous-leg limit, pace, and additional preferences
+  serialize independently.
+- Backend DTO/value-object tests reject empty modes, negative/NaN distances,
+  continuous limits above the daily limit, unknown formats, and over-limit
+  additional preferences.
+- A wizard note is present in the canonical request, stored generation intent,
+  bitacora, and final-selector input exactly once; removing it changes each of
+  those artifacts. It does not affect Places acquisition or entity identity in
+  this PR.
+- Selecting walking as transport does not automatically request a
+  `NEIGHBORHOOD_WALK`.
+- Selecting a neighborhood walk does not increase the walking-distance budget.
+- A selected address/POI remains point-scale even when Nominatim cannot
+  resolve the same fine-grained label; a settlement hint still requires a
+  verified settlement identity and boundary rather than trusting autocomplete.
+- Changing from a one-day to a three-day tour does not multiply the per-day
+  value inside a single day's feasibility input.
+- The API/controller/service path has one canonical payload and no legacy
+  branch after the PR.
+- Browser smoke: create two otherwise identical requests, one with point visits
+  only and one with neighborhood walks; the bitacora shows different requested
+  kinds while clearly stating that route enforcement arrives in PR 10.
+
+---
+
+## PR 5: Embedding integrity and hybrid catalog retrieval
 
 ### Objective
 
@@ -541,6 +1190,10 @@ best-effort re-rank of a rating-truncated list.
    compete on a common score.
 6. Missing embeddings are represented explicitly; they do not silently become
    evidence of zero user interest.
+7. Consume PR 3 admission evidence as a quality input, not as semantic text.
+   `primaryType`, review confidence, and institutional corroboration must not
+   be embedded, and admission must not be interpreted as guaranteed tour
+   eligibility.
 
 ### Likely files and schema
 
@@ -565,7 +1218,7 @@ best-effort re-rank of a rating-truncated list.
   `EMBEDDING_PROVIDER=openai` was explicitly selected.
 - Test the equivalent Bedrock failures with a mocked SDK and prove that Ollama
   and OpenAI are not invoked.
-- Before accepting PR 4, run one bounded live Bedrock smoke test from a local
+- Before accepting PR 5, run one bounded live Bedrock smoke test from a local
   machine or isolated AWS development environment with explicit credentials.
   Use an isolated local index, clear it, and rebuild it entirely with Titan;
   do not mix it with Ollama vectors.
@@ -582,7 +1235,7 @@ best-effort re-rank of a rating-truncated list.
 
 ---
 
-## PR 5: CoverageAnalyzer and candidate quality gate
+## PR 6: CoverageAnalyzer and candidate quality gate
 
 ### Objective
 
@@ -594,7 +1247,7 @@ failure is appropriate.
 
 ```ts
 interface CoverageReport {
-  status: 'sufficient' | 'insufficient' | 'degraded';
+  status: "sufficient" | "insufficient" | "degraded";
   usableCandidateCount: number;
   requestedThemeCoverage: Record<string, number>;
   kindCoverage: Record<ActivityKind, number>;
@@ -606,6 +1259,11 @@ interface CoverageReport {
     degradedReason?: string;
   };
   providerHealth: ProviderHealthSummary;
+  destinationKnowledge: {
+    status: "profiled_fresh" | "profiled_stale" | "unprofiled";
+    profileVersion?: string;
+    degradedReason?: string;
+  };
   missing: CoverageDeficit[];
 }
 ```
@@ -619,14 +1277,24 @@ interface CoverageReport {
    overall match.
 4. Measure kind/source diversity without requiring every kind.
 5. Distinguish provider degradation from genuine destination scarcity.
-6. Run catalog refill first when conventional POI coverage is missing.
-7. Run Activity Discovery only when the post-refill catalog still lacks
-   quantities, themes, or composite kinds.
+6. Emit an acquisition decision, not one fixed fallback chain:
+   - direct Places resolution for a named entity;
+   - Places Text Search for a conventional POI deficit;
+   - bounded Nearby only for a concrete missing type/zone;
+   - grounded bootstrap when destination knowledge is unprofiled/stale;
+   - grounded gap discovery for qualitative must-see, theme, area, or
+     experience deficits.
+7. A high catalog count does not suppress a required first destination
+   bootstrap. A fresh healthy destination profile suppresses repeated grounded
+   calls; ordinary gap discovery receives only the missing coverage.
 8. Never send an unusable candidate pool to the itinerary LLM merely because
    every ID is real.
 9. Add a trace stage containing the report and exact decision.
 10. Keep the first spatial signal lightweight (distribution/density). Full
-    transport feasibility arrives in PR 9 and then becomes part of coverage.
+    transport feasibility arrives in PR 10 and then becomes part of coverage.
+11. Report low-confidence iconic/composite-area coverage as a specific deficit
+    that PR 7 may request from grounded discovery. Do not rerun geographic
+    anchor planning as a substitute.
 
 ### Likely files
 
@@ -644,28 +1312,34 @@ interface CoverageReport {
   is insufficient for `history + art + culture + architecture + beach` when
   meaningful art, architecture, or beach coverage is absent.
 - A provider outage is `degraded`, not proof that a neighborhood has zero POIs.
-- Refill occurs before discovery.
+- A conventional POI deficit chooses Places Text Search without forcing
+  grounded Discovery.
+- An unprofiled destination requests bounded hybrid bootstrap even when it has
+  many weak/partial catalog rows.
+- A fresh profiled destination with sufficient catalog coverage makes neither
+  Places nor grounded calls.
 - Discovery receives only the reported deficits.
 - With no usable candidates, generation fails explicitly before the LLM call.
 
 ---
 
-## PR 6: Provider-neutral Activity Discovery
+## PR 7: Provider-neutral Activity Discovery
 
 ### Objective
 
-Discover grounded experience concepts missing from the catalog without giving
-the discovery model authority to create identities or coordinates.
+Create a bounded sourced destination profile for new/stale destinations and
+discover missing POI, area, route, and experience concepts without giving the
+model authority to create identities or coordinates.
 
 ### Domain contracts
 
 ```ts
 type ProposalKind =
-  | 'POI'
-  | 'ROUTE'
-  | 'AREA'
-  | 'NEIGHBORHOOD_WALK'
-  | 'EXPERIENCE';
+  | "POI"
+  | "ROUTE"
+  | "AREA"
+  | "NEIGHBORHOOD_WALK"
+  | "EXPERIENCE";
 
 interface ActivityProposal {
   name: string;
@@ -680,7 +1354,7 @@ interface ActivityProposal {
 interface EntityHint {
   key: string;
   name: string;
-  role: 'area' | 'waypoint' | 'route' | 'venue';
+  role: "area" | "waypoint" | "route" | "venue";
   expectedType: string;
 }
 ```
@@ -691,22 +1365,25 @@ interface EntityHint {
    request and response.
 2. Implement one first grounded provider adapter behind configuration. Other
    adapters must not leak provider response shapes into the domain service.
-3. `ActivityDiscoveryService` receives a `DestinationContext` and only the
-   `CoverageDeficit[]` from CoverageAnalyzer.
+3. `ActivityDiscoveryService` receives a `DestinationContext` plus one explicit
+   mode from CoverageAnalyzer: bounded destination bootstrap, stale-profile
+   refresh, or the exact `CoverageDeficit[]`. It never decides on its own to
+   rediscover a healthy destination.
 4. Enforce schema validation, controlled enums, maximum proposal/hint counts,
    duration bounds, evidence presence, and prompt-injection-resistant handling
    of search content.
 5. `ActivityDiscoveryService` has no Prisma dependency and never persists.
 6. Raw provider output and evidence references go to the trace/audit record,
    not directly into catalog prose.
-7. AREA remains primarily resolution context. Do not start broad POI discovery
-   until validated Google refill proves insufficient.
-8. Support a low-confidence neighborhood cold-start request: grounded
-   proposals may contribute ranked `entityHints` with `role: area`, but only
-   after the deterministic local shortlist reports insufficient evidence.
-   Resolve each hint against the finite set of real OSM neighborhoods inside
-   the destination before it can affect the shortlist. The model supplies
-   prominence evidence, never boundary geometry or identity.
+7. Bootstrap and gap discovery may propose conventional POIs as well as
+   composites. A POI proposal still requires exact Places resolution; grounded
+   rank/citations are recommendation evidence, not a Place identity or catalog
+   admission shortcut.
+8. Grounded proposals may include `entityHints` with `role: area`. Resolve each
+   finite hint through destination-constrained Nominatim/OSM lookup and
+   authoritative boundary hydration. Do not enumerate/rank every raw city
+   neighborhood as a prerequisite. The model supplies prominence evidence,
+   never boundary geometry or identity.
 9. Treat aliases such as `Montserrat`/OSM `Monserrat` as an explicit,
    destination-constrained resolution concern. Reject broad phrases such as
    `downtown`, out-of-destination homonyms, and unmatched names.
@@ -721,7 +1398,11 @@ interface EntityHint {
 
 ### Tests and acceptance
 
-- A request missing architecture and food composites asks only for those gaps.
+- A fresh profiled request missing architecture and food composites asks only
+  for those gaps.
+- A new destination requests one bounded profile containing sourced must-see
+  POI and experience proposals even when a Places row-count threshold is met.
+- A healthy profiled destination makes no grounded call.
 - Invalid kind, role, duration, or missing evidence rejects the proposal.
 - Provider output containing coordinates/IDs does not become trusted identity.
 - No Prisma create/update is reachable from discovery.
@@ -733,7 +1414,7 @@ interface EntityHint {
 
 ---
 
-## PR 7: Proposal entity resolution and safe persistence
+## PR 8: Proposal entity resolution and safe persistence
 
 ### Objective
 
@@ -754,10 +1435,13 @@ is resolved, geographically disambiguated, and structurally validated.
    `ResolvedActivityProposal` or structured rejection reasons.
 2. Resolve each proposal's neighborhood AREA, not merely the parent city AREA.
    A San Telmo/Triana/Casco Antiguo family must belong to that real area.
-3. Keep candidates grouped by proposal and neighborhood. Do not flatten streets
+3. Introduce the bounded exact OSM membership adapter and deterministic fixture
+   here, with this resolver as its immediate consumer. Hydrate only the finite
+   proposed boundaries and preserve unresolved/ambiguous/unavailable outcomes.
+4. Keep candidates grouped by proposal and neighborhood. Do not flatten streets
    from multiple neighborhoods into one candidate bag that permits cross-area
    composites.
-4. Validate:
+5. Validate:
    - expected provider type;
    - destination containment;
    - required hint resolution;
@@ -766,13 +1450,13 @@ is resolved, geographically disambiguated, and structurally validated.
    - duration versus waypoint count/travel;
    - duplicate/repeated entities;
    - coherent area and theme.
-5. Perform exact external-ID dedupe first, then semantic duplicate detection
+6. Perform exact external-ID dedupe first, then semantic duplicate detection
    within the resolved destination as a review/reuse signal.
-6. Persist accepted composites through `CompositeActivityService`:
+7. Persist accepted composites through `CompositeActivityService`:
    `AREA -> ActivityFamily -> variant Activity -> ActivityWaypoint`.
-7. Reuse existing families/variants where identity matches. Waypoint content is
+8. Reuse existing families/variants where identity matches. Waypoint content is
    mutable content, not variant identity.
-8. Preserve `Restrict`, explicit merge/remove, archive-on-breakage, and
+9. Preserve `Restrict`, explicit merge/remove, archive-on-breakage, and
    `TourActivityWaypoint` snapshots.
 
 ### Tests and acceptance
@@ -789,7 +1473,7 @@ is resolved, geographically disambiguated, and structurally validated.
 
 ---
 
-## PR 8: Unified candidate pool and generation integration
+## PR 9: Unified candidate pool and generation integration
 
 ### Objective
 
@@ -830,24 +1514,29 @@ auditable pool without letting the itinerary model create entities.
 
 ---
 
-## PR 9: Transport-aware spatial feasibility
+## PR 10: Transport-aware spatial feasibility
 
 ### Objective
 
 Select sets of Activities that form a feasible itinerary for the user's
-allowed transportation modes, days, pace, group, and time budget.
+allowed transportation modes, per-day and continuous walking limits, days,
+pace, group, and time budget.
 
 ### Domain services
 
 1. `MobilityProfileBuilder`
    - allowed modes: walking, cycling, driving, public_transport;
-   - pace and daily time budget;
+   - pace, daily time budget, maximum walking distance per day, and maximum
+     continuous walking leg from the PR 4 contract;
    - group/accessibility constraints;
    - allowed mode changes and penalties.
 2. `TravelTimeProvider`
    - provider-neutral pairwise time/distance request;
    - mode-aware results and explicit unavailable/degraded states;
    - Haversine only as a coarse prefilter, never final public-transit routing.
+   - Overpass is an OSM data-query backend, not a routing implementation;
+     an OSM-backed implementation requires a real engine such as OSRM,
+     Valhalla, GraphHopper, or another reviewed adapter.
 3. `SpatialFeasibilityAnalyzer`
    - builds a bounded pairwise matrix;
    - clusters viable candidates by day;
@@ -874,6 +1563,18 @@ allowed transportation modes, days, pace, group, and time budget.
 4. Optimize order per day. Do not run one global route across multiple days.
 5. Validate the returned schedule against the deterministic matrix before
    persistence.
+6. Do not make K-Means with `K = requested days` an architecture contract. A
+   candidate algorithm must account for travel-time cost, daily capacity,
+   Activity duration, and hard constraints; it may return fewer natural areas
+   than days and reuse one coherent area across multiple days.
+7. Treat route construction as a scheduling problem, not pure TSP. The start
+   location, opening hours, duration, daily time budget, and optional end
+   location can make the shortest geometric order invalid.
+8. Google Routes waypoint optimization may be used only for operation/mode
+   combinations that the selected API contract supports. Google transit routes
+   do not support intermediate waypoints; public-transport feasibility therefore
+   uses supported pairwise legs/matrix data or an explicit conservative estimate
+   plus the Maps handoff, not a fictional optimized multi-stop transit request.
 
 ### Tests and acceptance
 
@@ -881,6 +1582,9 @@ allowed transportation modes, days, pace, group, and time budget.
   historic center in one short day.
 - A cycling/public-transport request may admit a broader set than walking.
 - Multi-day tours produce coherent per-day geographic groups.
+- The same walking-only candidates can be feasible for an “enjoys walking”
+  profile and infeasible for “minimize walking”; neither limit is inferred from
+  thematic walk preference.
 - An infeasible LLM schedule is rejected and reselected/reduced.
 - Provider failure is visible and uses a documented conservative fallback.
 
@@ -902,7 +1606,7 @@ break legitimate food tours.
 
 ---
 
-## PR 10: MVP per-leg transport contract and Google Maps handoff
+## PR 11: MVP per-leg transport contract and Google Maps handoff
 
 ### Objective
 
@@ -960,7 +1664,7 @@ of the modes the user allowed in the wizard.
 
 ---
 
-## PR 11: End-to-end acceptance, rollout, and cleanup
+## PR 12: End-to-end acceptance, rollout, and cleanup
 
 ### Objective
 
@@ -972,7 +1676,8 @@ scenarios, and real manual smoke tests before `codex/main -> main`.
 1. **Sevilla, cold catalog**
    - interests: history, art, food, culture, architecture;
    - family, low budget, walking + public transport;
-   - anchors include relevant central neighborhoods;
+   - bounded Places anchors provide geographic coverage without being called
+     relevant; the hybrid profile recovers central must-see knowledge;
    - no empty-name candidate is persisted/offered;
    - known central cultural fixtures outrank unrelated suburban bars/parks;
    - no semantic-ranking claim when embeddings are unavailable;
@@ -980,14 +1685,15 @@ scenarios, and real manual smoke tests before `codex/main -> main`.
 2. **Barcelona, thin/off-topic catalog**
    - refill runs;
    - relevant Gothic/architecture candidates outrank hiking-only candidates;
-   - neighborhood exploration remains bounded.
+   - a concrete grounded/reusable Gothic-area proposal is resolved and explored
+     within its boundary; no global barrio crawl runs.
 3. **Buenos Aires, multi-neighborhood**
-   - real neighborhoods are shortlisted;
+   - sourced San Telmo/La Boca/etc. proposals resolve to real neighborhoods;
    - San Telmo/Triana-style variants bind to their neighborhood AREA, not the
      city AREA;
    - no candidate starvation from one dense neighborhood;
    - per-day groups avoid cross-city zigzags.
-4. **Point-scale hotel/address**
+4. **Point-scale address/POI**
    - no city-wide exploration;
    - one bounded anchor;
    - current point-scale safety behavior remains intact.
@@ -999,13 +1705,22 @@ scenarios, and real manual smoke tests before `codex/main -> main`.
    - zero indexed candidates is reported as semantic ranking unavailable;
    - LLM statements about transit zones or opening hours are visibly
      unverified unless deterministic evidence exists.
-6. **Salta, misleading non-empty Nominatim results**
+6. **Córdoba, cold catalog and ambiguous OSM subdivisions**
+   - destination-level Google seed uses explicit tourism-oriented Text Search;
+   - Nearby coverage uses primary types and popularity independently from
+     composite discovery;
+   - administrative highway ways are not neighborhoods;
+   - weak one-review/user-created fixtures are not admitted;
+   - raw hundreds of neighborhoods are neither offered nor globally ranked;
+   - a finite discovered area uses exact membership in proposal resolution,
+     and provider failure rejects/degrades that proposal without guessing.
+7. **Salta, misleading non-empty Nominatim results**
    - far-away POIs/buildings that merely contain the word `Salta` do not count
      as a coordinate-consistent destination match;
    - settlement-level reverse normalization resolves the selected coordinates
      to the real Salta city relation and enables area-scale exploration;
-   - a nearby hotel/address/POI still remains point-scale.
-7. **Provider failures**
+   - a selected address/POI still remains point-scale.
+8. **Provider failures**
    - Places strict cache miss;
    - embedding provider unavailable/mismatched;
    - Overpass 429/timeout;
@@ -1021,14 +1736,18 @@ stage exists is not sufficient.
 
 ### Rollout
 
-1. Add feature flags for Activity Discovery and transport-aware selection.
+1. Capability rollout controls may gate Activity Discovery and transport-aware
+   selection, but they never route back to the removed global OSM composite
+   generator. Every temporary rollout control has an owner and removal gate.
 2. Deploy provider/cache/validation fixes before enabling discovery.
 3. Rebuild embeddings with one declared model identity.
 4. Run deterministic CI fixtures in strict cache mode.
 5. Run bounded manual live-provider smoke tests and capture sanitized fixtures.
 6. Compare old/new generation traces and quality metrics.
 7. Enable discovery gradually, then spatial feasibility, then transport legs.
-8. Prepare the final `codex/main -> main` PR with:
+8. Delete rollout controls once the acceptance matrix passes; verify that the
+   old selector, mocks, dependency wiring, and trace labels no longer exist.
+9. Prepare the final `codex/main -> main` PR with:
    - architecture compliance checklist;
    - migration/rollback notes;
    - provider/cost limits;
@@ -1087,3 +1806,37 @@ The plan is complete only when all of the following are true:
   local acceptance evidence, and explicit maintainer approval before merge;
 - the final `codex/main -> main` PR contains no known silent degradation that
   can produce a grounded-but-obviously-bad tour.
+
+## Deferred post-plan iteration: city-and-surroundings excursions
+
+Regional excursions are important but are intentionally outside PRs 1–12 so
+they do not weaken the urban containment and feasibility work currently being
+stabilized. The feature must build on the finished intent, discovery,
+entity-resolution, routing, and leg contracts instead of expanding the city
+radius as an implicit fallback.
+
+The later iteration must add:
+
+- an explicit wizard scope such as `city_only` versus
+  `city_and_surroundings`;
+- a maximum acceptable excursion travel time and/or half-day/full-day
+  preference, evaluated for the user's allowed transportation modes;
+- catalog-first regional retrieval plus grounded discovery only for missing
+  sourced excursion concepts;
+- exact Places/OSM resolution and a regional containment/travel envelope that
+  remains distinct from the authoritative city boundary;
+- outbound, activity, and return-time feasibility inside the selected day;
+- coherent excursion grouping so a remote attraction is not inserted as one
+  unexplained outlier among urban stops; and
+- truthful bitacora evidence for why an out-of-city Activity was eligible.
+
+The deterministic acceptance case is **San Juan + Dique de Ullum**:
+
+- `city_only` excludes the dique without calling that a provider failure;
+- `city_and_surroundings` may include it only when exact resolution succeeds
+  and the selected mode, outbound leg, visit duration, and return leg fit the
+  user's declared excursion/day budget;
+- semantic relevance to nature or outdoor interests can rank the resolved
+  Activity but cannot override travel or scope constraints; and
+- the reusable Activity is not duplicated merely to associate it with San
+  Juan.

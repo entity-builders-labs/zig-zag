@@ -3,6 +3,7 @@ import {
   QueryContainingBoundaryParams,
   QueryStreetsParams,
   QueryByIdParams,
+  QueryAdminBoundariesWithinAreaParams,
 } from '../interfaces/overpass.interface';
 
 const MAX_NAME_LENGTH = 200;
@@ -83,28 +84,47 @@ export function buildStreetsQuery({
   ].join('\n');
 }
 
-export function buildBoundaryByIdQuery({ osmType, osmId }: QueryByIdParams): string {
-  return ['[out:json][timeout:25];', `${osmType}(${osmId});`, 'out geom;'].join('\n');
+export function buildBoundaryByIdQuery({
+  osmType,
+  osmId,
+}: QueryByIdParams): string {
+  return ['[out:json][timeout:25];', `${osmType}(${osmId});`, 'out geom;'].join(
+    '\n',
+  );
 }
 
 // All three "within area" queries below share the same map_to_area pattern —
 // validated live against Overpass in the spike (see docs/superpowers/specs/
 // 2026-08-21-activity-engine-design.md, "Spike validation"): a resolved
 // relation/way's own real polygon, never a radius guess.
-export function buildAdminBoundariesWithinAreaQuery({ osmType, osmId }: QueryByIdParams): string {
+export function buildAdminBoundariesWithinAreaQuery({
+  osmType,
+  osmId,
+  childAdminLevel,
+}: QueryAdminBoundariesWithinAreaParams): string {
+  if (
+    !Number.isInteger(childAdminLevel) ||
+    childAdminLevel < 1 ||
+    childAdminLevel > 12
+  ) {
+    throw new RangeError('Child admin level must be an integer from 1 to 12');
+  }
   return [
     '[out:json][timeout:30];',
     `${osmType}(${osmId});`,
     'map_to_area->.a;',
     '(',
-    '  relation["boundary"="administrative"](area.a);',
-    '  way["boundary"="administrative"](area.a);',
+    `  relation["boundary"="administrative"]["admin_level"="${childAdminLevel}"](area.a);`,
+    `  way["boundary"="administrative"]["admin_level"="${childAdminLevel}"][!"highway"](area.a)(if:is_closed());`,
     ');',
     'out tags center;',
   ].join('\n');
 }
 
-export function buildStreetsWithinAreaQuery({ osmType, osmId }: QueryByIdParams): string {
+export function buildStreetsWithinAreaQuery({
+  osmType,
+  osmId,
+}: QueryByIdParams): string {
   return [
     '[out:json][timeout:30];',
     `${osmType}(${osmId});`,
@@ -114,7 +134,10 @@ export function buildStreetsWithinAreaQuery({ osmType, osmId }: QueryByIdParams)
   ].join('\n');
 }
 
-export function buildPoisWithinAreaQuery({ osmType, osmId }: QueryByIdParams): string {
+export function buildPoisWithinAreaQuery({
+  osmType,
+  osmId,
+}: QueryByIdParams): string {
   return [
     '[out:json][timeout:30];',
     `${osmType}(${osmId});`,

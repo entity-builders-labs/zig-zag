@@ -56,7 +56,11 @@ import { INominatimApiService } from './interfaces/nominatim.interface';
         const useMock = configService.get('USE_MOCK_MAPS') === 'true';
         return useMock ? cached : real;
       },
-      inject: [ConfigService, 'RealNominatimApiService', CachedNominatimApiService],
+      inject: [
+        ConfigService,
+        'RealNominatimApiService',
+        CachedNominatimApiService,
+      ],
     },
     OsmPlacesService,
   ],

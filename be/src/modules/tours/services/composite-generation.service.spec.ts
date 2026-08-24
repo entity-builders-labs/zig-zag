@@ -67,7 +67,6 @@ describe('CompositeGenerationService', () => {
         JSON.stringify({
           reasoning: 'Selected only verified candidates.',
           activities: [],
-          compositeActivities: [],
         }),
       );
 
@@ -94,7 +93,7 @@ describe('CompositeGenerationService', () => {
               name: 'tour_generation',
               strict: true,
               schema: expect.objectContaining({
-                required: ['reasoning', 'compositeActivities', 'activities'],
+                required: ['reasoning', 'activities'],
               }),
             }),
           }),
@@ -105,7 +104,7 @@ describe('CompositeGenerationService', () => {
     it('repairs and parses a malformed-but-recoverable JSON response', async () => {
       // A trailing comma is the kind of thing repairJson fixes.
       langChainService.generateChatResponse.mockResolvedValue(
-        '{"reasoning": "Verified picks.", "compositeActivities": [], "activities": [],}',
+        '{"reasoning": "Verified picks.", "activities": [],}',
       );
 
       const chain = service.createTourChain();
@@ -127,6 +126,40 @@ describe('CompositeGenerationService', () => {
       await expect(
         chain.invoke({ input: 'Plan a tour', activities: '' }),
       ).rejects.toThrow();
+    });
+  });
+
+  describe('createCompositeProposalChain (offline curation only)', () => {
+    it('uses the isolated composite schema and OSM evidence prompt', async () => {
+      langChainService.generateChatResponse.mockResolvedValue(
+        JSON.stringify({
+          reasoning: 'Enough verified evidence.',
+          compositeActivities: [],
+          activities: [],
+        }),
+      );
+
+      const chain = service.createCompositeProposalChain();
+      await chain.invoke({
+        input: 'Propose one walk',
+        activities: 'id: poi-1 - Museum',
+        osmFeatures: 'id: osm:way:1 - Defensa',
+        area: 'id: osm:relation:1 - San Telmo',
+        themes: 'HISTORY',
+      });
+
+      const [systemPrompt, userPrompt, , options] =
+        langChainService.generateChatResponse.mock.calls[0];
+      expect(systemPrompt).toContain('offline curation command');
+      expect(userPrompt).toContain('osm:way:1');
+      expect(userPrompt).toContain('osm:relation:1');
+      expect(options.responseFormat.json_schema).toMatchObject({
+        name: 'composite_proposal',
+        strict: true,
+        schema: expect.objectContaining({
+          required: ['reasoning', 'compositeActivities', 'activities'],
+        }),
+      });
     });
   });
 

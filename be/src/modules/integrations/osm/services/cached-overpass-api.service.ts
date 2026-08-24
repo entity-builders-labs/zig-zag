@@ -10,6 +10,7 @@ import {
   QueryContainingBoundaryParams,
   QueryStreetsParams,
   QueryByIdParams,
+  QueryAdminBoundariesWithinAreaParams,
 } from '../interfaces/overpass.interface';
 
 @Injectable()
@@ -120,19 +121,25 @@ export class CachedOverpassApiService implements IOverpassApiService {
     );
   }
 
-  async queryAdminBoundariesWithinArea(params: QueryByIdParams): Promise<OverpassElement[]> {
+  async queryAdminBoundariesWithinArea(
+    params: QueryAdminBoundariesWithinAreaParams,
+  ): Promise<OverpassElement[]> {
     return this.handleRequest('queryAdminBoundariesWithinArea', params, () =>
       this.realService.queryAdminBoundariesWithinArea(params),
     );
   }
 
-  async queryStreetsWithinArea(params: QueryByIdParams): Promise<OverpassElement[]> {
+  async queryStreetsWithinArea(
+    params: QueryByIdParams,
+  ): Promise<OverpassElement[]> {
     return this.handleRequest('queryStreetsWithinArea', params, () =>
       this.realService.queryStreetsWithinArea(params),
     );
   }
 
-  async queryPoisWithinArea(params: QueryByIdParams): Promise<OverpassElement[]> {
+  async queryPoisWithinArea(
+    params: QueryByIdParams,
+  ): Promise<OverpassElement[]> {
     return this.handleRequest('queryPoisWithinArea', params, () =>
       this.realService.queryPoisWithinArea(params),
     );

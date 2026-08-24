@@ -53,6 +53,12 @@ describe('NominatimApiService', () => {
           town: undefined,
           village: undefined,
           municipality: undefined,
+          cityDistrict: undefined,
+          stateDistrict: undefined,
+          county: undefined,
+          borough: undefined,
+          suburb: undefined,
+          state: undefined,
           country: 'Argentina',
           countryCode: 'AR',
         },
@@ -105,6 +111,7 @@ describe('NominatimApiService', () => {
         lon: '-56.1913',
         address: {
           city: 'Montevideo',
+          state_district: 'Montevideo Department',
           country: 'Uruguay',
           country_code: 'uy',
         },
@@ -128,7 +135,11 @@ describe('NominatimApiService', () => {
       osmId: 2929054,
       latitude: -34.9059,
       longitude: -56.1913,
-      address: { city: 'Montevideo', countryCode: 'UY' },
+      address: {
+        city: 'Montevideo',
+        stateDistrict: 'Montevideo Department',
+        countryCode: 'UY',
+      },
     });
   });
 

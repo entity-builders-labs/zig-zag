@@ -10,6 +10,7 @@ describe('DestinationResolutionService', () => {
   let osmPlacesService: {
     getBoundaryById: jest.Mock;
     lookupBoundaryById: jest.Mock;
+    lookupDestinationBoundary: jest.Mock;
   };
   let compositeActivityService: { resolveArea: jest.Mock };
 
@@ -21,6 +22,7 @@ describe('DestinationResolutionService', () => {
         status: 'success',
         value: await osmPlacesService.getBoundaryById(...args),
       })),
+      lookupDestinationBoundary: jest.fn(),
     };
     compositeActivityService = { resolveArea: jest.fn() };
 
@@ -115,7 +117,7 @@ describe('DestinationResolutionService', () => {
     },
   );
 
-  it('falls back to point-scale for a village-addresstype result backed by a bare node (no boundary polygon)', async () => {
+  it('reports a matched village node separately when no boundary can be hydrated', async () => {
     nominatimApi.search.mockResolvedValue([
       {
         osmType: 'node',
@@ -131,9 +133,177 @@ describe('DestinationResolutionService', () => {
     expect(result).toEqual({
       scale: 'point',
       attemptedQueries: ['forward:Tiny Hamlet'],
-      degradationReason: 'no_area_candidate',
+      settlementResult: {
+        osmType: 'node',
+        osmId: 42,
+        displayName: 'Tiny Hamlet',
+      },
+      degradationReason: 'boundary_unavailable',
     });
     expect(osmPlacesService.getBoundaryById).not.toHaveBeenCalled();
+  });
+
+  it('hydrates the administrative boundary for a coordinate-consistent San Juan city node', async () => {
+    nominatimApi.search
+      .mockResolvedValueOnce([
+        {
+          osmType: 'way',
+          osmId: 1,
+          addresstype: 'road',
+          displayName: 'San Juan, Mar del Plata, Argentina',
+          importance: 0.1,
+          latitude: -38.0,
+          longitude: -57.5,
+        },
+      ])
+      .mockResolvedValueOnce([
+        {
+          osmType: 'node',
+          osmId: 198421467,
+          addresstype: 'city',
+          displayName: 'San Juan, Capital, San Juan, Argentina',
+          importance: 0.62,
+          latitude: -31.53709,
+          longitude: -68.52518,
+          address: {
+            city: 'San Juan',
+            state: 'San Juan',
+            country: 'Argentina',
+            countryCode: 'AR',
+          },
+        },
+      ]);
+    nominatimApi.reverse.mockResolvedValue({
+      osmType: 'relation',
+      osmId: 19285517,
+      addresstype: 'suburb',
+      displayName: 'Desamparados, San Juan, Argentina',
+      importance: 0.4,
+      latitude: -31.5342681,
+      longitude: -68.5508917,
+      address: {
+        suburb: 'Desamparados',
+        city: 'San Juan',
+        stateDistrict: 'Capital',
+        state: 'San Juan',
+        country: 'Argentina',
+        countryCode: 'AR',
+      },
+    });
+    const boundary = {
+      id: 'osm:relation:3465536',
+      name: 'Capital',
+      osmType: 'relation' as const,
+      osmId: 3465536,
+      geometry: {
+        type: 'Polygon' as const,
+        coordinates: [
+          [
+            [-68.57, -31.57],
+            [-68.5, -31.57],
+            [-68.5, -31.5],
+            [-68.57, -31.57],
+          ],
+        ],
+      },
+      tags: { name: 'Capital', admin_level: '5' },
+    };
+    osmPlacesService.lookupDestinationBoundary.mockResolvedValue({
+      status: 'success',
+      value: boundary,
+    });
+    const areaActivity = {
+      id: 'area-san-juan',
+      kind: ActivityKind.AREA,
+      name: 'Capital',
+    };
+    compositeActivityService.resolveArea.mockResolvedValue(areaActivity);
+
+    const result = await service.resolveDestination(
+      'San Juan, San Juan Province, Argentina',
+      { latitude: -31.535107, longitude: -68.538594 },
+    );
+
+    expect(nominatimApi.search).toHaveBeenNthCalledWith(
+      2,
+      'San Juan, Argentina',
+    );
+    expect(osmPlacesService.lookupDestinationBoundary).toHaveBeenCalledWith(
+      -31.535107,
+      -68.538594,
+      ['Capital'],
+    );
+    expect(result).toEqual({
+      scale: 'area',
+      areaActivity,
+      boundary,
+      attemptedQueries: [
+        'forward:San Juan, San Juan Province, Argentina',
+        'reverse:-31.535107,-68.538594',
+        'forward:San Juan, Argentina',
+        'containing-boundary:-31.535107,-68.538594',
+      ],
+      settlementResult: {
+        osmType: 'node',
+        osmId: 198421467,
+        displayName: 'San Juan, Capital, San Juan, Argentina',
+      },
+      selectedResult: {
+        osmType: 'relation',
+        osmId: 3465536,
+        displayName: 'Capital',
+      },
+    });
+  });
+
+  it('does not misreport a matched settlement node as a coordinate mismatch when boundary hydration fails', async () => {
+    nominatimApi.search.mockResolvedValue([
+      {
+        osmType: 'node',
+        osmId: 198421467,
+        addresstype: 'city',
+        displayName: 'San Juan, Argentina',
+        importance: 0.62,
+        latitude: -31.53709,
+        longitude: -68.52518,
+        address: {
+          city: 'San Juan',
+          stateDistrict: 'Capital',
+          country: 'Argentina',
+          countryCode: 'AR',
+        },
+      },
+    ]);
+    nominatimApi.reverse.mockResolvedValue({
+      osmType: 'node',
+      osmId: 198421467,
+      addresstype: 'city',
+      displayName: 'San Juan, Argentina',
+      importance: 0.62,
+      latitude: -31.53709,
+      longitude: -68.52518,
+      address: {
+        city: 'San Juan',
+        stateDistrict: 'Capital',
+        country: 'Argentina',
+        countryCode: 'AR',
+      },
+    });
+    osmPlacesService.lookupDestinationBoundary.mockResolvedValue({
+      status: 'success',
+      value: null,
+    });
+
+    const result = await service.resolveDestination('San Juan, Argentina', {
+      latitude: -31.535107,
+      longitude: -68.538594,
+    });
+
+    expect(result).toMatchObject({
+      scale: 'point',
+      settlementResult: { osmId: 198421467 },
+      degradationReason: 'boundary_unavailable',
+    });
   });
 
   it('falls back to point-scale when Nominatim returns nothing', async () => {
@@ -386,6 +556,89 @@ describe('DestinationResolutionService', () => {
         'forward:Salta, Argentina',
       ],
       selectedResult: { osmId: 2722832 },
+    });
+  });
+
+  it('normalizes Rosario when a nearby same-name road is not the selected city point', async () => {
+    nominatimApi.search.mockResolvedValueOnce([
+      {
+        osmType: 'way',
+        osmId: 23633086,
+        addresstype: 'road',
+        displayName:
+          'Puente Nuestra Señora del Rosario, Municipio de Rosario, Entre Ríos, Argentina',
+        importance: 0.05,
+        latitude: -32.8680194,
+        longitude: -60.6698382,
+      },
+    ]);
+    nominatimApi.reverse.mockResolvedValue({
+      osmType: 'relation',
+      osmId: 3594027,
+      addresstype: 'city',
+      displayName: 'Rosario, Municipio de Rosario, Santa Fe, Argentina',
+      importance: 0.64,
+      latitude: -32.9593609,
+      longitude: -60.6617024,
+      address: { city: 'Rosario', country: 'Argentina', countryCode: 'AR' },
+    });
+    nominatimApi.search.mockResolvedValueOnce([
+      {
+        osmType: 'relation',
+        osmId: 3594027,
+        addresstype: 'city',
+        displayName: 'Rosario, Municipio de Rosario, Santa Fe, Argentina',
+        importance: 0.64,
+        latitude: -32.9593609,
+        longitude: -60.6617024,
+        address: { city: 'Rosario', country: 'Argentina', countryCode: 'AR' },
+      },
+    ]);
+    const boundary = {
+      id: 'osm:relation:3594027',
+      name: 'Rosario',
+      osmType: 'relation' as const,
+      osmId: 3594027,
+      geometry: {
+        type: 'Polygon' as const,
+        coordinates: [
+          [
+            [-60.8, -33.1],
+            [-60.5, -33.1],
+            [-60.5, -32.8],
+            [-60.8, -33.1],
+          ],
+        ],
+      },
+      tags: { name: 'Rosario', admin_level: '8' },
+    };
+    osmPlacesService.getBoundaryById.mockResolvedValue(boundary);
+    const areaActivity = {
+      id: 'area-rosario',
+      kind: ActivityKind.AREA,
+      name: 'Rosario',
+    };
+    compositeActivityService.resolveArea.mockResolvedValue(areaActivity);
+
+    const result = await service.resolveDestination(
+      'Rosario, Santa Fe Province, Argentina',
+      { latitude: -32.9587022, longitude: -60.6930416 },
+    );
+
+    expect(nominatimApi.reverse).toHaveBeenCalledWith(-32.9587022, -60.6930416);
+    expect(nominatimApi.search).toHaveBeenNthCalledWith(
+      2,
+      'Rosario, Argentina',
+    );
+    expect(result).toMatchObject({
+      scale: 'area',
+      boundary,
+      attemptedQueries: [
+        'forward:Rosario, Santa Fe Province, Argentina',
+        'reverse:-32.958702,-60.693042',
+        'forward:Rosario, Argentina',
+      ],
+      selectedResult: { osmId: 3594027 },
     });
   });
 

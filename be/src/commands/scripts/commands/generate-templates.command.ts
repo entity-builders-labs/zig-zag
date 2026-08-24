@@ -126,7 +126,8 @@ export class GenerateTemplatesCommand extends CommandRunner {
       .join('\n');
     const areaText = `id: ${areaCandidate.id} - ${areaCandidate.name} (${areaCandidate.osmType})`;
 
-    const tourChain = this.compositeGenerationService.createTourChain();
+    const tourChain =
+      this.compositeGenerationService.createCompositeProposalChain();
 
     for (const theme of themes) {
       this.logger.log(`Proposing a "${theme}" variant for "${name}"...`);

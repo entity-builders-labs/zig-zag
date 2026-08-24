@@ -7,6 +7,7 @@ import { AiModule } from '../../shared/ai/ai.module';
 import { HybridSearchService } from './services/hybrid-search.service';
 import { IntegrationsModule } from '../integrations/integrations.module';
 import { ToursModule } from '../tours/tours.module';
+import { CatalogCandidateValidatorService } from './services/catalog-candidate-validator.service';
 
 @Module({
   imports: [
@@ -20,11 +21,13 @@ import { ToursModule } from '../tours/tours.module';
     ActivityMetadataService,
     HybridSearchService,
     CompositeActivityService,
+    CatalogCandidateValidatorService,
   ],
   exports: [
     ActivitiesService,
     ActivityMetadataService,
     CompositeActivityService,
+    CatalogCandidateValidatorService,
   ],
 })
 export class ActivitiesModule {}

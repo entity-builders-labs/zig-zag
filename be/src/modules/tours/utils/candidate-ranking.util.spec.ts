@@ -1,4 +1,7 @@
-import { rankCandidatesByRelevance, RankableCandidate } from './candidate-ranking.util';
+import {
+  rankCandidatesByRelevance,
+  RankableCandidate,
+} from './candidate-ranking.util';
 
 describe('rankCandidatesByRelevance', () => {
   it('falls back to weightedScore-only order when similarityById is null (no interests supplied)', () => {
@@ -24,7 +27,10 @@ describe('rankCandidatesByRelevance', () => {
 
     const result = rankCandidatesByRelevance(candidates, similarityById);
 
-    expect(result.map((c) => c.id)).toEqual(['lower-rated-relevant', 'high-rated-irrelevant']);
+    expect(result.map((c) => c.id)).toEqual([
+      'lower-rated-relevant',
+      'high-rated-irrelevant',
+    ]);
   });
 
   it('gives a curated composite a fixed quality bonus instead of a fake rating', () => {
