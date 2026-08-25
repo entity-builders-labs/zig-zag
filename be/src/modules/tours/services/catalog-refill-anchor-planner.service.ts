@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { PrismaService } from '@core/database/prisma.service';
 import { OsmCandidate } from '@integrations/osm/services/osm-places.service';
 import { GeoJsonGeometry } from '@integrations/osm/utils/osm-geometry.util';
 import { geometryContainsPoint } from '@integrations/osm/utils/geojson-containment.util';
@@ -28,15 +29,30 @@ const MIN_ANCHOR_RADIUS_METERS = 1_000;
 const DEFAULT_CHILD_AREA_RADIUS_METERS = 2_500;
 
 /**
- * Plans transient origins for point-based catalog acquisition. For an area
- * destination, bounded farthest-first k-center spreads the available real
- * child-area centers across the authoritative destination geometry. This is
- * geographic coverage only: it neither ranks tourism relevance nor selects
- * an area for composite generation.
+ * Plans transient origins for point-based catalog acquisition.
+ *
+ * For an area destination, anchors are ordered by:
+ *  1. POI density (number of existing catalog POIs inside the candidate's
+ *     bounding box) — highest first, so dense central barrios like Palermo,
+ *     Recoleta, San Telmo are naturally selected before peripheral barrios.
+ *  2. Proximity to the destination center (tie-break within equal density).
+ *  3. Alphabetical ID (stable last-resort tie-break).
+ *
+ * This replaces the earlier farthest-first k-center approach, which maximised
+ * geometric spread at the expense of tourism relevance — producing anchors
+ * in peripheral, low-tourism barrios while skipping the central ones a
+ * visitor would care about.
+ *
+ * Anchors are always geographic coverage only: they neither rank tourism
+ * relevance nor select an area for composite generation.
  */
 @Injectable()
 export class CatalogRefillAnchorPlanner {
-  plan(input: CatalogRefillAnchorPlanInput): CatalogRefillAnchor[] {
+  constructor(private readonly prisma: PrismaService) {}
+
+  async plan(
+    input: CatalogRefillAnchorPlanInput,
+  ): Promise<CatalogRefillAnchor[]> {
     if (input.destinationResolution.scale === 'point') {
       return [this.destinationPointAnchor(input)];
     }
@@ -71,12 +87,12 @@ export class CatalogRefillAnchorPlanner {
       }
     }
 
-    const candidates = this.toCoverageCandidates(
+    const candidates = await this.toCoverageCandidates(
       input.coverageAreas ?? [],
       boundary,
       anchors,
     );
-    this.addFarthestFirst(anchors, candidates, input.destinationPoint);
+    this.selectByPOIDensity(anchors, candidates, input.destinationPoint);
 
     return this.deduplicateCoordinates(anchors).slice(0, MAX_ANCHORS);
   }
@@ -97,78 +113,94 @@ export class CatalogRefillAnchorPlanner {
     };
   }
 
-  private toCoverageCandidates(
+  private async toCoverageCandidates(
     coverageAreas: OsmCandidate[],
     boundary: GeoJsonGeometry,
     existingAnchors: CatalogRefillAnchor[],
-  ): CatalogRefillAnchor[] {
+  ): Promise<CatalogRefillAnchorWithDensity[]> {
     const uniqueAreas = new Map<string, OsmCandidate>();
     for (const area of coverageAreas) {
       if (!uniqueAreas.has(area.id)) uniqueAreas.set(area.id, area);
     }
-
     const seenCoordinates = new Set(
       existingAnchors.map((anchor) => this.coordinateKey(anchor)),
     );
-    return [...uniqueAreas.values()]
-      .sort((a, b) => a.id.localeCompare(b.id))
-      .flatMap((area) => {
-        const point = this.representativePoint(area.geometry);
-        if (
-          !point ||
-          !Number.isFinite(point.latitude) ||
-          !Number.isFinite(point.longitude) ||
-          !geometryContainsPoint(boundary, point.longitude, point.latitude) ||
-          seenCoordinates.has(this.coordinateKey(point))
-        ) {
-          return [];
-        }
-        seenCoordinates.add(this.coordinateKey(point));
-        return [
-          {
+
+    return Promise.all(
+      [...uniqueAreas.values()]
+        .sort((a, b) => a.id.localeCompare(b.id))
+        .map(async (area) => {
+          const point = this.representativePoint(area.geometry);
+          if (
+            !point ||
+            !Number.isFinite(point.latitude) ||
+            !Number.isFinite(point.longitude) ||
+            !geometryContainsPoint(boundary, point.longitude, point.latitude) ||
+            seenCoordinates.has(this.coordinateKey(point))
+          ) {
+            return null;
+          }
+          seenCoordinates.add(this.coordinateKey(point));
+          const poiCount = await this.countPOIsInGeometry(area.geometry);
+          return {
             id: area.id,
             label: area.name,
             ...point,
             radiusMeters: this.radiusForGeometry(area.geometry),
             source: 'child_area_center' as const,
-          },
-        ];
-      });
+            poiDensity: poiCount,
+          };
+        }),
+    ).then((results) =>
+      results.filter((r): r is NonNullable<typeof r> => r !== null),
+    );
   }
 
-  private addFarthestFirst(
+  private async countPOIsInGeometry(
+    geometry: GeoJsonGeometry,
+  ): Promise<number> {
+    if (geometry.type === 'Point') return 0;
+    const bbox = boundingBoxToCenterRadius(geometry);
+    const radiusKm = bbox.radiusMeters / 1000;
+    const lat = bbox.latitude;
+    const lon = bbox.longitude;
+    const degPerKm = 1 / 111.32;
+    const latDelta = radiusKm * degPerKm;
+    const lonDelta = (radiusKm * degPerKm) / Math.cos((lat * Math.PI) / 180);
+
+    const result = await this.prisma.$queryRawUnsafe<[{ count: bigint }]>(
+      `SELECT COUNT(*)::bigint AS count FROM activity
+       WHERE kind != 'AREA'
+         AND isArchived = false
+         AND latitude IS NOT NULL
+         AND longitude IS NOT NULL
+         AND latitude BETWEEN $1 AND $2
+         AND longitude BETWEEN $3 AND $4`,
+      lat - latDelta,
+      lat + latDelta,
+      lon - lonDelta,
+      lon + lonDelta,
+    );
+    return Number(result[0]?.count ?? 0);
+  }
+
+  private selectByPOIDensity(
     anchors: CatalogRefillAnchor[],
-    candidates: CatalogRefillAnchor[],
+    candidates: CatalogRefillAnchorWithDensity[],
     destinationPoint: { latitude: number; longitude: number },
   ): void {
-    const remaining = [...candidates];
-    if (anchors.length === 0 && remaining.length > 0) {
-      remaining.sort(
-        (a, b) =>
-          calculateDistance(a, destinationPoint) -
-            calculateDistance(b, destinationPoint) || a.id.localeCompare(b.id),
-      );
-      anchors.push(remaining.shift()!);
-    }
+    candidates.sort((a, b) => {
+      const densityDiff = (b.poiDensity ?? 0) - (a.poiDensity ?? 0);
+      if (densityDiff !== 0) return densityDiff;
+      const proximityDiff =
+        calculateDistance(a, destinationPoint) -
+        calculateDistance(b, destinationPoint);
+      return proximityDiff || a.id.localeCompare(b.id);
+    });
 
-    while (anchors.length < MAX_ANCHORS && remaining.length > 0) {
-      remaining.sort((a, b) => {
-        const distanceDifference =
-          this.distanceToClosestAnchor(b, anchors) -
-          this.distanceToClosestAnchor(a, anchors);
-        return distanceDifference || a.id.localeCompare(b.id);
-      });
-      anchors.push(remaining.shift()!);
+    while (anchors.length < MAX_ANCHORS && candidates.length > 0) {
+      anchors.push(candidates.shift()!);
     }
-  }
-
-  private distanceToClosestAnchor(
-    candidate: CatalogRefillAnchor,
-    anchors: CatalogRefillAnchor[],
-  ): number {
-    return Math.min(
-      ...anchors.map((anchor) => calculateDistance(candidate, anchor)),
-    );
   }
 
   private representativePoint(
@@ -239,4 +271,8 @@ export class CatalogRefillAnchorPlanner {
   }): string {
     return `${point.latitude.toFixed(5)}:${point.longitude.toFixed(5)}`;
   }
+}
+
+interface CatalogRefillAnchorWithDensity extends CatalogRefillAnchor {
+  poiDensity: number;
 }

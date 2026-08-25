@@ -35,6 +35,7 @@ import {
 } from '../utils/candidate-ranking.util';
 import { auditGeneration } from '../utils/generation-audit.util';
 import {
+  buildCoverageAnalysisStep,
   buildDbSearchStep,
   buildDestinationResolutionStep,
   buildEmbeddingsStep,
@@ -53,6 +54,7 @@ import {
 } from '@integrations/google-places/interfaces/places-api.interface';
 import { CatalogRefillAnchorPlanner } from './catalog-refill-anchor-planner.service';
 import { TourIntent } from '../interfaces/tour-generation.interface';
+import { CoverageAnalyzer } from './coverage-analyzer.service';
 import { buildSemanticTourQuery } from '../utils/semantic-tour-query-builder.util';
 import {
   EmbeddingIndexIdentity,
@@ -82,10 +84,6 @@ interface CandidateSelection {
 @Injectable()
 export class TourActivityGenerationService {
   private readonly logger = new Logger(TourActivityGenerationService.name);
-  // A pool below this size is treated the same as empty — worth a crawl
-  // refresh — because it can't fill the ~15-item candidate window the LLM
-  // sees. Matches the existing nearbyActivitiesSample.slice(0, 15) below.
-  private readonly MIN_SUFFICIENT_ACTIVITIES = 15;
 
   constructor(
     private readonly prisma: PrismaService,
@@ -99,7 +97,44 @@ export class TourActivityGenerationService {
     private readonly compositeGenerationService: CompositeGenerationService,
     private readonly destinationResolutionService: DestinationResolutionService,
     private readonly catalogRefillAnchorPlanner: CatalogRefillAnchorPlanner,
+    private readonly coverageAnalyzer: CoverageAnalyzer,
   ) {}
+
+  private buildCoverageReport(
+    activities: any[],
+    request: TourGenerationRequest,
+    offeredCandidateCount: number,
+    semanticRanking: SemanticRankingOutcome,
+    providerHealth?: {
+      status: 'healthy' | 'degraded' | 'unknown';
+      reason?: string;
+    },
+  ) {
+    return this.coverageAnalyzer.analyze({
+      candidates: activities.map((activity) => ({
+        id: activity.id,
+        name: activity.name,
+        kind: activity.kind,
+        source: activity.source || activity.sourceId || 'db',
+        type: activity.type,
+        knownActivityTypeName: activity.knownActivityTypeName,
+        weightedScore: activity.weightedScore,
+        distanceKm: activity.distance,
+        metadata: activity.metadata,
+      })),
+      requestedThemes: request.intent.interests,
+      days: request.days,
+      explorationStyle: request.intent.explorationStyle,
+      semanticCoverage: {
+        status: semanticRanking.status,
+        eligibleCandidateCount: semanticRanking.eligibleCandidateCount,
+        indexedCandidateCount: semanticRanking.indexedCandidateCount,
+        reason: semanticRanking.reason,
+      },
+      offeredCandidateCount,
+      providerHealth,
+    });
+  }
 
   private async lookupCoverageAreas(
     boundary: OsmCandidate,
@@ -357,20 +392,32 @@ export class TourActivityGenerationService {
             10000,
             'Activity search timeout',
           );
-          if (nearbyActivities.length >= this.MIN_SUFFICIENT_ACTIVITIES) {
+          // PR 6: replace the global MIN_SUFFICIENT_ACTIVITIES gate with the
+          // deterministic CoverageAnalyzer. Sufficiency now depends on the real
+          // eligible pool (requested themes, quantity by days/pace, kind spread),
+          // and the coverage report is traced truthfully before any decision.
+          const selection = await this.rankAndSliceActivities(
+            nearbyActivities,
+            request.intent,
+          );
+          const nearbyActivitiesSample = selection.activities;
+          semanticRankingOutcome = selection.semanticRanking;
+          const initialCoverageReport = this.buildCoverageReport(
+            nearbyActivities,
+            request,
+            nearbyActivitiesSample.length,
+            semanticRankingOutcome,
+            { status: 'healthy' },
+          );
+          traceSteps.push(buildCoverageAnalysisStep(initialCoverageReport));
+
+          if (initialCoverageReport.decision.action === 'none') {
             // Update status: activities found, processing
             await this.updateGenerationStatus(
               tourId,
               'generating',
               `${nearbyActivities.length} actividades encontradas. Ordenando según tus preferencias...`,
             );
-
-            const selection = await this.rankAndSliceActivities(
-              nearbyActivities,
-              request.intent,
-            );
-            const nearbyActivitiesSample = selection.activities;
-            semanticRankingOutcome = selection.semanticRanking;
             nearbyActivitiesSample.forEach((act: any) => {
               candidateActivityIds.add(act.id);
               candidateActivitiesById.set(act.id, act);
@@ -411,7 +458,7 @@ export class TourActivityGenerationService {
                   destinationResolution.boundary,
                 );
               }
-              const anchors = this.catalogRefillAnchorPlanner.plan({
+              const anchors = await this.catalogRefillAnchorPlanner.plan({
                 destinationResolution,
                 destinationPoint,
                 pointRadiusMeters: Math.min(radius, 5_000),
@@ -454,6 +501,24 @@ export class TourActivityGenerationService {
                 );
                 const refreshedActivitiesSample = selection.activities;
                 semanticRankingOutcome = selection.semanticRanking;
+                const refreshedCoverageReport = this.buildCoverageReport(
+                  refreshedActivities,
+                  request,
+                  refreshedActivitiesSample.length,
+                  semanticRankingOutcome,
+                  { status: 'healthy' },
+                );
+                traceSteps.push(
+                  buildCoverageAnalysisStep(refreshedCoverageReport),
+                );
+                if (
+                  refreshedCoverageReport.decision.reason ===
+                  'no_usable_candidates'
+                ) {
+                  throw new Error(
+                    'No se encontró un pool de actividades utilizable para armar un itinerario real con el catálogo actual.',
+                  );
+                }
                 refreshedActivitiesSample.forEach((act: any) => {
                   candidateActivityIds.add(act.id);
                   candidateActivitiesById.set(act.id, act);
@@ -531,6 +596,22 @@ export class TourActivityGenerationService {
                       rejectedCountByReason: {},
                     };
               traceSteps.push(buildPlacesCrawlStep([], failedProvenance, true));
+              // PR 6: report the provider degradation truthfully instead of
+              // treating it as proof of geographic scarcity, then reuse the
+              // thin local pool exactly as before when it exists.
+              const degradedCoverageReport = this.buildCoverageReport(
+                nearbyActivities,
+                request,
+                nearbyActivitiesSample.length,
+                semanticRankingOutcome,
+                {
+                  status: 'degraded',
+                  reason: placesStatus.degradedReason || 'provider_unavailable',
+                },
+              );
+              traceSteps.push(
+                buildCoverageAnalysisStep(degradedCoverageReport),
+              );
               // Crawl failed, but if we already had a thin local pool, use it
               // rather than leaving generation with empty candidates.
               if (nearbyActivities.length > 0) {

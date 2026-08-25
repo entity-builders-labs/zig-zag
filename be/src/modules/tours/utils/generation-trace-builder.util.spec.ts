@@ -1,4 +1,5 @@
 import {
+  buildCoverageAnalysisStep,
   buildEmbeddingsStep,
   buildDestinationResolutionStep,
   buildLlmGenerationStep,
@@ -293,6 +294,58 @@ describe('buildEmbeddingsStep', () => {
       provider: 'bedrock',
       dimensions: 256,
     });
+  });
+});
+
+describe('buildCoverageAnalysisStep', () => {
+  it('reports analyzed vs eligible vs offered counts and the explicit PR6 decision', () => {
+    const step = buildCoverageAnalysisStep({
+      status: 'insufficient',
+      analyzedCandidateCount: 15,
+      eligibleCandidateCount: 4,
+      offeredCandidateCount: 4,
+      usableCandidateCount: 4,
+      requiredCandidateCount: 8,
+      requestedThemeCoverage: [],
+      kindCoverage: [],
+      sourceCoverage: [],
+      geographicCoverage: {
+        distinctClusterCount: 1,
+        thresholdKilometers: 2,
+      },
+      semanticCoverage: {
+        status: 'unavailable',
+        eligibleCandidateCount: 4,
+        indexedCandidateCount: 0,
+        reason: 'Ollama is offline',
+      },
+      destinationKnowledge: {
+        status: 'unsupported_until_pr7',
+        deployableBoundary: 'catalog_quality_only_until_pr7',
+        reason: 'PR 6 boundary',
+      },
+      providerHealth: { status: 'healthy' },
+      deficits: [
+        {
+          reason: 'missing_requested_theme',
+          severity: 'blocking',
+          message: 'Falta cobertura para beach.',
+        },
+      ],
+      decision: {
+        action: 'places_text_search',
+        reason: 'missing_requested_theme',
+        deployableInPr6: true,
+        deficits: [],
+      },
+    });
+
+    expect(step.stage).toBe('coverage_analysis');
+    expect(step.summary).toContain('Analizados 15 candidatos');
+    expect(step.summary).toContain('elegibles 4');
+    expect(step.summary).toContain('ofrecidos al LLM 4');
+    expect(step.summary).toContain('places_text_search');
+    expect(step.coverageReport?.decision.action).toBe('places_text_search');
   });
 });
 

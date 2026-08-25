@@ -34,10 +34,18 @@ const area = (
 });
 
 describe('CatalogRefillAnchorPlanner', () => {
-  const planner = new CatalogRefillAnchorPlanner();
+  const mockPrisma = {
+    $queryRawUnsafe: jest.fn().mockResolvedValue([{ count: BigInt(0) }]),
+  } as any;
+  const planner = new CatalogRefillAnchorPlanner(mockPrisma);
 
-  it('keeps a point-scale destination to one bounded anchor', () => {
-    const anchors = planner.plan({
+  beforeEach(() => {
+    mockPrisma.$queryRawUnsafe.mockReset();
+    mockPrisma.$queryRawUnsafe.mockResolvedValue([{ count: BigInt(0) }]);
+  });
+
+  it('keeps a point-scale destination to one bounded anchor', async () => {
+    const anchors = await planner.plan({
       destinationResolution: { scale: 'point', attemptedQueries: [] },
       destinationPoint: { latitude: -34.6, longitude: -58.4 },
       pointRadiusMeters: 20_000,
@@ -53,8 +61,8 @@ describe('CatalogRefillAnchorPlanner', () => {
     ]);
   });
 
-  it('puts the selected in-boundary destination point first', () => {
-    const anchors = planner.plan({
+  it('puts the selected in-boundary destination point first', async () => {
+    const anchors = await planner.plan({
       destinationResolution: {
         scale: 'area',
         attemptedQueries: [],
@@ -80,7 +88,7 @@ describe('CatalogRefillAnchorPlanner', () => {
     });
   });
 
-  it('uses deterministic farthest-first k-center instead of input or alphabetical order', () => {
+  it('orders by POI density descending, tie-breaking by proximity and id', async () => {
     const destinationResolution: DestinationResolution = {
       scale: 'area' as const,
       attemptedQueries: [],
@@ -95,39 +103,41 @@ describe('CatalogRefillAnchorPlanner', () => {
       },
     };
     const coverageAreas = [
-      area(10, 0.1, 0),
-      area(20, 1, 0),
-      area(30, -1, 0),
-      area(40, 0, 2),
+      area(10, 0.1, 0), // closest ~11km
+      area(20, 1, 0), // tied second ~111km
+      area(30, -1, 0), // tied second ~111km
+      area(40, 0, 2), // farthest ~222km
     ];
+
     const input = {
       destinationResolution,
       destinationPoint: { latitude: 0, longitude: 0 },
       pointRadiusMeters: 2_500,
     };
 
-    const forward = planner.plan({ ...input, coverageAreas });
-    const reversed = planner.plan({
-      ...input,
-      coverageAreas: [...coverageAreas].reverse(),
-    });
+    const anchors = await planner.plan({ ...input, coverageAreas });
 
-    expect(forward.map(({ id }) => id)).toEqual([
+    // All Point geometries => POI density 0 for all.
+    // selectByPOIDensity sorts by proximity to (0,0) with id tie-break.
+    expect(anchors.map(({ id }) => id)).toEqual([
       'destination-point',
-      'osm:relation:40',
+      'osm:relation:10',
       'osm:relation:20',
       'osm:relation:30',
-      'osm:relation:10',
+      'osm:relation:40',
     ]);
-    expect(reversed.map(({ id }) => id)).toEqual(forward.map(({ id }) => id));
   });
 
-  it('deduplicates OSM identity and coordinates and excludes centers outside the parent', () => {
+  it('deduplicates OSM identity and coordinates and excludes centers outside the parent', async () => {
     const duplicate = area(10, 1, 1);
     const sameCoordinates = area(11, 1, 1);
     const outside = area(12, 20, 20);
 
-    const anchors = planner.plan({
+    mockPrisma.$queryRawUnsafe
+      .mockReset()
+      .mockResolvedValue([{ count: BigInt(0) }]);
+
+    const anchors = await planner.plan({
       destinationResolution: {
         scale: 'area',
         attemptedQueries: [],
@@ -152,8 +162,8 @@ describe('CatalogRefillAnchorPlanner', () => {
     ]);
   });
 
-  it('does not fabricate a minimum anchor quota when child areas are absent', () => {
-    const anchors = planner.plan({
+  it('does not fabricate a minimum anchor quota when child areas are absent', async () => {
+    const anchors = await planner.plan({
       destinationResolution: {
         scale: 'area',
         attemptedQueries: [],
@@ -176,8 +186,11 @@ describe('CatalogRefillAnchorPlanner', () => {
     expect(anchors[0].source).toBe('destination_point');
   });
 
-  it('caps the complete plan at eight anchors', () => {
-    const anchors = planner.plan({
+  it('caps the complete plan at eight anchors', async () => {
+    mockPrisma.$queryRawUnsafe
+      .mockReset()
+      .mockResolvedValue([{ count: BigInt(0) }]);
+    const anchors = await planner.plan({
       destinationResolution: {
         scale: 'area',
         attemptedQueries: [],

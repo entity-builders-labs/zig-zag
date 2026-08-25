@@ -397,6 +397,7 @@ was applied when it was unavailable.
 - `be/src/modules/integrations/integrations.module.ts`
 - `be/src/modules/integrations/google-places/services/cached-places-api.service.ts`
 - `be/src/modules/integrations/google-places/google-places.service.ts`
+
 - `be/src/modules/tours/utils/generation-trace-builder.util.ts`
 - `be/src/modules/tours/interfaces/generation-trace.interface.ts`
 - `.env.example`
@@ -636,10 +637,13 @@ scope and the code has an immediate production consumer.
 2. Area-scale destinations always put the selected destination point first
    when it is inside the authoritative boundary.
 3. Remaining coverage anchors come from structurally valid, real OSM child-area
-   centers selected by a deterministic spatial-coverage algorithm. The
-   algorithm must be named and tested (for example, bounded farthest-first
-   k-center); it must not use alphabetical order, tourism claims, or fabricated
-   grid points.
+   centers ordered by **POI density** (number of existing catalog POIs in each
+   candidate's bounding box), then by proximity to the destination center as
+   tie-break. This replaces the earlier farthest-first k-center algorithm,
+   which maximized geometric spread at the expense of tourism relevance —
+   producing anchors in peripheral, low-tourism areas while skipping central
+   ones. The algorithm must not use alphabetical order, tourism claims, or
+   fabricated grid points.
 4. Exclude administrative ways that are also `highway=*`; accept a way boundary
    only when it is a closed area. Deduplicate OSM identity before planning.
 5. Keep the target at 4-8 total anchors only when that many authoritative
@@ -656,7 +660,9 @@ scope and the code has an immediate production consumer.
   put the selected point first when it is inside the authoritative boundary.
 - Remaining origins come from the structurally valid raw child-area set, not
   from a neighborhood relevance shortlist.
-  Bounded deterministic farthest-first k-center distributes them spatially;
+  POI-density ordering (descending by number of existing catalog POIs per
+   candidate, tie-broken by proximity and id) selects them spatially rather
+   than by farthest-first; input order and area name do not affect the plan.
   input order and area name do not affect the plan.
 - OSM identity and coordinates are deduplicated before planning, centers
   outside the authoritative parent are rejected, and the plan returns fewer
@@ -668,7 +674,7 @@ scope and the code has an immediate production consumer.
   says they do not imply tourism relevance or composite selection.
 
 Unit coverage includes destination-first ordering, input-order-independent
-k-center selection, OSM/coordinate deduplication, out-of-boundary rejection,
+POI-density ordering, OSM/coordinate deduplication, out-of-boundary rejection,
 no fabricated quota, the eight-anchor cap, highway-way rejection, genuine
 closed-area way support, and invalid parent metadata reported as unavailable.
 
@@ -1288,6 +1294,18 @@ best-effort re-rank of a rating-truncated list.
 Replace `MIN_SUFFICIENT_ACTIVITIES = 15` as the definition of success with a
 typed coverage report that decides whether refill, discovery, or explicit
 failure is appropriate.
+
+### Deployable boundary (PR 6 vs PR 7)
+
+PR 6 owns the deterministic catalog-quality gate and the typed coverage report
+only. It does **not** persist destination-knowledge state and does **not**
+execute grounded bootstrap/discovery; both remain PR 7 responsibilities. Until
+PR 7 exists, destination knowledge is traced explicitly as unsupported in PR 6,
+and the runtime stays on one final code path: catalog retrieval -> semantic/
+quality ranking -> coverage analysis -> either proceed with a truthful
+sufficient pool, retry the existing Places refill path for deployable deficits,
+or fail explicitly before the itinerary LLM. No fake fresh profile, dormant
+fallback path, or dead grounded branch is introduced in PR 6.
 
 ### Proposed contract
 

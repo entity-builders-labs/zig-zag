@@ -202,12 +202,15 @@ consulta inicial sin volver a descubrirla.
     verification, the backend rehydrates canonical identity and geometry from
     the exact offered catalog candidates. A provider's failed or truncated
     draft is never salvaged as a verified itinerary.
-19. Catalog-refill anchors represent bounded geographic API coverage. They are
-    not evidence that a neighborhood is touristic or suitable for a composite.
-    Nearby/anchor acquisition is secondary gap filling, not the primary source
-    of must-see relevance. Composite-area exploration starts from a concrete
-    resolved proposal or reusable family, not from globally ranking every raw
-    OSM neighborhood.
+19. Catalog-refill anchors are ordered by POI density (number of existing
+    catalog POIs within each candidate's bounding box), then by proximity to
+    the destination center. This replaces the earlier farthest-first k-center
+    algorithm, which maximized geometric spread at the expense of tourism
+    relevance — producing anchors in peripheral, low-tourism areas while
+    skipping central ones. Anchors remain bounded geographic API coverage:
+    they are not evidence that a neighborhood is touristic or suitable for a
+    composite. Nearby/anchor acquisition is secondary gap filling, not the
+    primary source of must-see relevance.
 20. No provider is universally the discovery entry point. Existing catalog,
     Places Text Search, grounded Discovery, Places Nearby, and direct entity
     resolution have explicit triggers based on destination knowledge and user
