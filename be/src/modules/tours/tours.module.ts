@@ -8,6 +8,7 @@ import { TourLocationService } from './services/tour-location.service';
 import { CompositeGenerationService } from './services/composite-generation.service';
 import { DestinationResolutionService } from './services/destination-resolution.service';
 import { CatalogRefillAnchorPlanner } from './services/catalog-refill-anchor-planner.service';
+import { CoverageAnalyzer } from './services/coverage-analyzer.service';
 
 import { ActivitiesModule } from '../activities/activities.module';
 import { AiModule } from '../../shared/ai/ai.module';
@@ -33,6 +34,7 @@ import { AuthModule } from '../auth/auth.module';
     CompositeGenerationService,
     DestinationResolutionService,
     CatalogRefillAnchorPlanner,
+    CoverageAnalyzer,
   ],
   exports: [
     ToursService,

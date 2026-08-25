@@ -3,6 +3,7 @@ import {
   GenerationTraceStep,
   TraceCandidate,
 } from '../interfaces/generation-trace.interface';
+import { CoverageReport } from '../interfaces/coverage-analysis.interface';
 import {
   PlacesCrawlProvenance,
   placesProviderLabel,
@@ -305,6 +306,30 @@ export function buildEmbeddingsStep(
       documentVersion: result.identity?.documentVersion,
       reason: result.reason,
     },
+  };
+}
+
+export function buildCoverageAnalysisStep(
+  report: CoverageReport,
+): GenerationTraceStep {
+  const deficitsSummary =
+    report.deficits.length > 0
+      ? report.deficits.map((deficit) => deficit.message).join(' ')
+      : 'Sin déficits bloqueantes.';
+  const decisionSummary = report.decision.deployableInPr6
+    ? `Decisión ejecutable en PR 6: ${report.decision.action}.`
+    : `Decisión diferida a PR 7: ${report.decision.action}.`;
+
+  return {
+    stage: 'coverage_analysis',
+    label: 'Cobertura y calidad del pool candidato',
+    summary:
+      `Analizados ${report.analyzedCandidateCount} candidatos; elegibles ${report.eligibleCandidateCount}; ofrecidos al LLM ${report.offeredCandidateCount}; requeridos ${report.requiredCandidateCount}. ` +
+      `Estado ${report.status}. ${decisionSummary} ${deficitsSummary}`,
+    providerStatus: report.status === 'degraded' ? 'failed' : undefined,
+    degradedReason:
+      report.status === 'degraded' ? report.providerHealth.reason : undefined,
+    coverageReport: report,
   };
 }
 

@@ -13,6 +13,7 @@ import { TourImageService } from './tour-image.service';
 import { CompositeGenerationService } from './composite-generation.service';
 import { DestinationResolutionService } from './destination-resolution.service';
 import { CatalogRefillAnchorPlanner } from './catalog-refill-anchor-planner.service';
+import { CoverageAnalyzer } from './coverage-analyzer.service';
 import { PlacesCrawlError } from '@integrations/google-places/interfaces/places-api.interface';
 
 // transformAiActivitiesToDto only keeps `activityId` when it passes
@@ -128,6 +129,7 @@ describe('TourActivityGenerationService', () => {
       tour: { update: jest.fn() },
       $transaction: jest.fn(async (cb: any) => cb(prisma)),
       $queryRaw: jest.fn().mockResolvedValue([{ count: 0 }]),
+      $queryRawUnsafe: jest.fn().mockResolvedValue([{ count: BigInt(0) }]),
     };
 
     toursService = { findOne: jest.fn().mockResolvedValue(buildTour()) };
@@ -235,6 +237,7 @@ describe('TourActivityGenerationService', () => {
           useValue: destinationResolutionService,
         },
         CatalogRefillAnchorPlanner,
+        CoverageAnalyzer,
       ],
     }).compile();
 
@@ -424,6 +427,7 @@ describe('TourActivityGenerationService', () => {
     expect(trace.steps.map((s: any) => s.stage)).toEqual([
       'tour_intent',
       'destination_resolution',
+      'coverage_analysis',
       'db_search',
       'embeddings',
       'llm_generation',
