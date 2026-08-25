@@ -9,6 +9,7 @@ export type TraceStage =
   | 'destination_resolution'
   | 'db_search'
   | 'coverage_analysis'
+  | 'discovery'
   // Kept so traces persisted before provider-neutral naming remain readable.
   | 'google_places_crawl'
   | 'places_crawl'
@@ -17,7 +18,13 @@ export type TraceStage =
   | 'verification';
 
 export interface TraceCandidate {
-  source: 'db' | 'google_places' | 'geoapify' | 'osm' | 'wikidata';
+  source:
+    | 'db'
+    | 'google_places'
+    | 'geoapify'
+    | 'osm'
+    | 'wikidata'
+    | 'discovery';
   id: string;
   name: string;
   detail?: string;

@@ -333,6 +333,34 @@ export function buildCoverageAnalysisStep(
   };
 }
 
+export function buildDiscoveryStep(
+  result: import('../interfaces/activity-discovery.interface').DiscoveryResponse,
+): GenerationTraceStep {
+  return {
+    stage: 'discovery',
+    label: 'Descubrimiento fundamentado (PR 7)',
+    summary:
+      `Se descubrieron ${result.proposals.length} propuestas fundamentadas usando ${result.provider}.` +
+      (result.validationErrors?.length
+        ? ` ${result.validationErrors.length} propuesta(s) inválida(s) descartada(s).`
+        : ''),
+    candidates: result.proposals.map((p) => ({
+      source: 'discovery' as const,
+      id: p.name,
+      name: p.name,
+      detail: `${p.kind} · ${p.themes.join(', ')} · ${p.suggestedDurationMinutes} min · ${p.shortReason}`,
+      offered: false,
+      chosen: false,
+    })),
+    providerStatus: result.validationErrors?.length
+      ? ('failed' as const)
+      : undefined,
+    degradedReason: result.validationErrors?.length
+      ? result.validationErrors.join('; ')
+      : undefined,
+  };
+}
+
 export function buildLlmGenerationStep(
   reasoning?: string,
 ): GenerationTraceStep {

@@ -9,6 +9,9 @@ import { CompositeGenerationService } from './services/composite-generation.serv
 import { DestinationResolutionService } from './services/destination-resolution.service';
 import { CatalogRefillAnchorPlanner } from './services/catalog-refill-anchor-planner.service';
 import { CoverageAnalyzer } from './services/coverage-analyzer.service';
+import { ActivityDiscoveryService } from './services/activity-discovery.service';
+import { GroqDiscoveryProvider } from './services/groq-discovery.provider';
+import { DISCOVERY_PROVIDER } from './interfaces/activity-discovery.interface';
 
 import { ActivitiesModule } from '../activities/activities.module';
 import { AiModule } from '../../shared/ai/ai.module';
@@ -35,6 +38,12 @@ import { AuthModule } from '../auth/auth.module';
     DestinationResolutionService,
     CatalogRefillAnchorPlanner,
     CoverageAnalyzer,
+    ActivityDiscoveryService,
+    GroqDiscoveryProvider,
+    {
+      provide: DISCOVERY_PROVIDER,
+      useExisting: GroqDiscoveryProvider,
+    },
   ],
   exports: [
     ToursService,
@@ -43,6 +52,7 @@ import { AuthModule } from '../auth/auth.module';
     TourImageService,
     TourLocationService,
     CompositeGenerationService,
+    ActivityDiscoveryService,
   ],
 })
 export class ToursModule {}

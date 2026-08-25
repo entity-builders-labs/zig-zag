@@ -36,6 +36,7 @@ import {
 import { auditGeneration } from '../utils/generation-audit.util';
 import {
   buildCoverageAnalysisStep,
+  buildDiscoveryStep,
   buildDbSearchStep,
   buildDestinationResolutionStep,
   buildEmbeddingsStep,
@@ -54,6 +55,7 @@ import {
 } from '@integrations/google-places/interfaces/places-api.interface';
 import { CatalogRefillAnchorPlanner } from './catalog-refill-anchor-planner.service';
 import { TourIntent } from '../interfaces/tour-generation.interface';
+import { ActivityDiscoveryService } from './activity-discovery.service';
 import { CoverageAnalyzer } from './coverage-analyzer.service';
 import { buildSemanticTourQuery } from '../utils/semantic-tour-query-builder.util';
 import {
@@ -98,6 +100,7 @@ export class TourActivityGenerationService {
     private readonly destinationResolutionService: DestinationResolutionService,
     private readonly catalogRefillAnchorPlanner: CatalogRefillAnchorPlanner,
     private readonly coverageAnalyzer: CoverageAnalyzer,
+    private readonly activityDiscoveryService: ActivityDiscoveryService,
   ) {}
 
   private buildCoverageReport(
@@ -438,6 +441,42 @@ export class TourActivityGenerationService {
             );
             traceSteps.push(dbSearchStep);
             traceCandidateLists.push(dbSearchStep.candidates ?? []);
+
+            // PR 7: run grounded discovery for the detected deficits.
+            // Proposals are traced but not persisted (PR 7 contract).
+            // The tour still proceeds with Places refill (PR 8 will resolve
+            // discovery proposals into real Activities).
+            if (request.intent.interests.length > 0) {
+              const deficits = initialCoverageReport.deficits
+                .filter((d) => d.severity === 'blocking')
+                .map((d) => ({
+                  reason: d.reason as any,
+                  severity: d.severity as any,
+                  message: d.message,
+                  theme: d.theme,
+                  expectedCount: d.expectedCount,
+                  actualCount: d.actualCount,
+                }));
+
+              if (deficits.length > 0) {
+                try {
+                  const discoveryResult =
+                    await this.activityDiscoveryService.discoverGaps(
+                      request.destination.label,
+                      undefined,
+                      request.intent.interests,
+                      deficits,
+                    );
+                  if (discoveryResult.proposals.length > 0) {
+                    traceSteps.push(buildDiscoveryStep(discoveryResult));
+                  }
+                } catch (discoveryError) {
+                  this.logger.warn(
+                    `Grounded discovery failed (non-fatal): ${discoveryError.message}`,
+                  );
+                }
+              }
+            }
 
             const placesStatus = this.googlePlacesService.getProviderStatus();
             const placesLabel = placesProviderLabel(placesStatus.provider);
