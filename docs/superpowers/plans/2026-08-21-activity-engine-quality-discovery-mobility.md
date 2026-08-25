@@ -330,7 +330,7 @@ PR 1  Provider identity, cache isolation, and truthful trace
   -> PR 4  Tour intent + mobility contract and wizard
   -> PR 5  Embedding integrity and hybrid catalog retrieval
   -> PR 6  CoverageAnalyzer, destination-knowledge state, and quality gate
-  -> PR 7  Provider-neutral grounded bootstrap and Activity Discovery
+  -> PR 7  Provider-neutral grounded bootstrap and Activity Discovery (done)
   -> PR 8  Proposal entity resolution and safe persistence
   -> PR 9  Unified pool selection and generation integration
   -> PR 10 Transport-aware spatial feasibility
@@ -1389,6 +1389,8 @@ interface CoverageReport {
 
 ## PR 7: Provider-neutral Activity Discovery
 
+**Status: Implemented (PR #23, merged 2026-08-25).**
+
 ### Objective
 
 Create a bounded sourced destination profile for new/stale destinations and
@@ -1475,6 +1477,20 @@ interface EntityHint {
   shortlist only when they resolve to offered in-destination OSM boundaries.
 - An unresolved or ambiguous area hint is traced and rejected without causing
   an `AREA`, family, or composite to be persisted.
+
+### Implemented files
+
+```
+be/src/modules/tours/interfaces/activity-discovery.interface.ts  (new)
+be/src/modules/tours/services/activity-discovery.service.ts      (new)
+be/src/modules/tours/services/activity-discovery.service.spec.ts (new)
+be/src/modules/tours/services/groq-discovery.provider.ts          (new)
+be/src/modules/tours/services/groq-discovery.provider.spec.ts     (new)
+be/src/modules/tours/tours.module.ts                              (modified)
+be/src/modules/tours/services/tour-activity-generation.service.ts (modified)
+be/src/modules/tours/interfaces/generation-trace.interface.ts     (modified)
+be/src/modules/tours/utils/generation-trace-builder.util.ts       (modified)
+```
 
 ---
 
