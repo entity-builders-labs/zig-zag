@@ -10,8 +10,13 @@ import { DestinationResolutionService } from './services/destination-resolution.
 import { CatalogRefillAnchorPlanner } from './services/catalog-refill-anchor-planner.service';
 import { CoverageAnalyzer } from './services/coverage-analyzer.service';
 import { ActivityDiscoveryService } from './services/activity-discovery.service';
+import { GroqGroundedSearchService } from './services/groq-grounded-search.service';
+import { SerpApiGroundedSearchService } from './services/serpapi-grounded-search.service';
 import { GroqDiscoveryProvider } from './services/groq-discovery.provider';
-import { DISCOVERY_PROVIDER } from './interfaces/activity-discovery.interface';
+import {
+  DISCOVERY_PROVIDER,
+  GROUNDED_SEARCH_PROVIDER,
+} from './interfaces/activity-discovery.interface';
 
 import { ActivitiesModule } from '../activities/activities.module';
 import { AiModule } from '../../shared/ai/ai.module';
@@ -39,7 +44,19 @@ import { AuthModule } from '../auth/auth.module';
     CatalogRefillAnchorPlanner,
     CoverageAnalyzer,
     ActivityDiscoveryService,
+    GroqGroundedSearchService,
+    SerpApiGroundedSearchService,
     GroqDiscoveryProvider,
+    {
+      // SerpApi is the default grounded-search evidence provider: a plain
+      // search API, so it never competes with GroqDiscoveryProvider's own
+      // token/rate quota (unlike Groq's browser_search tool, which shares
+      // that budget with extraction). GroqGroundedSearchService stays
+      // registered above as the alternate implementation behind the same
+      // interface — swap back by pointing useExisting at it.
+      provide: GROUNDED_SEARCH_PROVIDER,
+      useExisting: SerpApiGroundedSearchService,
+    },
     {
       provide: DISCOVERY_PROVIDER,
       useExisting: GroqDiscoveryProvider,

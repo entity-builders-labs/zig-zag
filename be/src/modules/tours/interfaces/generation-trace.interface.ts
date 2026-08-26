@@ -52,6 +52,13 @@ export interface GenerationTraceStep {
     reason?: string;
   };
   coverageReport?: CoverageReport;
+  grounding?: {
+    status: 'applied' | 'unavailable' | 'failed' | 'no_usable_evidence';
+    provider?: string;
+    model?: string;
+    evidenceCount?: number;
+    reason?: string;
+  };
 }
 
 export interface GenerationTrace {

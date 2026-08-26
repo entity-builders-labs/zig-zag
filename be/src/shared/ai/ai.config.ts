@@ -12,6 +12,8 @@ export interface AiConfig {
   openaiApiKey?: string;
   // Groq
   groqApiKey?: string;
+  // SerpApi (grounded search evidence provider)
+  serpApiKey?: string;
   // Ollama
   ollamaBaseUrl?: string;
   ollamaApiKey?: string;
@@ -103,6 +105,7 @@ export default registerAs('ai', (): AiConfig => {
     timeout: baseTimeout,
     openaiApiKey: process.env.OPENAI_API_KEY,
     groqApiKey: process.env.GROQ_API_KEY,
+    serpApiKey: process.env.SERPAPI_API_KEY,
     ollamaBaseUrl: process.env.OLLAMA_BASE_URL,
     ollamaApiKey: process.env.OLLAMA_API_KEY,
     ollamaNumCtx: process.env.OLLAMA_NUM_CTX

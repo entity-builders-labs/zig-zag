@@ -18,6 +18,7 @@ Related documents:
 - [Destination-resolution implementation plan](../superpowers/plans/2026-08-21-activity-engine-destination-resolution.md)
 - [Candidate quality, discovery, and mobility implementation plan](../superpowers/plans/2026-08-21-activity-engine-quality-discovery-mobility.md)
 - [Generation bitacora design](../superpowers/specs/2026-08-20-generation-bitacora-design.md)
+- [Adquisición de candidatos: guía informal del flujo](./main-flow-for-dummies.md) — introducción intuitiva a "Verified pool" antes de leer las invariantes formales de este documento.
 
 ## Vista de negocio y producto
 
@@ -1029,13 +1030,27 @@ it runs for an unprofiled/stale destination or a concrete qualitative,
 must-see, theme, neighborhood, or experience gap. A conventional named POI can
 go directly to Places resolution without grounded discovery.
 
+**Implemented (PR 7, corrected by PR 7.1):** discovery is two separate
+providers, not one combined step. A `GroundedSearchProvider` gathers real
+search evidence first (`GroqGroundedSearchService` — Groq's `browser_search`
+tool — or the current default, `SerpApiGroundedSearchService`, a plain Google
+Search API decoupled from the extraction model's own token/rate quota); only
+if that step reports `groundingStatus: 'applied'` does a
+`SearchGroundedDiscoveryProvider` (`GroqDiscoveryProvider`) run structured
+extraction over the supplied evidence. The extraction step may never invent
+evidence: `ActivityProposal.evidenceKeys` and each `EntityHint.evidenceKeys`
+reference only keys the search step actually returned, checked at both
+granularities before a proposal is accepted.
+
 ```mermaid
 flowchart TD
     CAT["Catalog query + destination knowledge state"] --> COVER{"Profile fresh and requested<br/>coverage sufficient?"}
     COVER -- Yes --> POOL["Reuse verified catalog pool"]
     COVER -- "No: new/stale or qualitative gap" --> DISC["ActivityDiscoveryService<br/>bounded profile or explicit deficits"]
-    DISC --> GROUND["SearchGroundedDiscoveryProvider<br/>Gemini Search / OpenAI web search / configured adapter"]
-    GROUND --> PROP["Structured ActivityProposal[]<br/>POI / ROUTE / WALK / EXPERIENCE<br/>sources + entityHints"]
+    DISC --> SEARCH["GroundedSearchProvider<br/>real search evidence (SerpApi default)"]
+    SEARCH -- "not applied" --> EMPTY["No proposals — never fabricated"]
+    SEARCH -- applied --> GROUND["SearchGroundedDiscoveryProvider<br/>structured extraction (Groq)"]
+    GROUND --> PROP["Structured ActivityProposal[]<br/>POI / ROUTE / WALK / EXPERIENCE<br/>evidenceKeys + entityHints"]
     PROP --> RESOLVE["Entity resolution<br/>Places for POI/venue<br/>OSM for area/route/path"]
     RESOLVE --> VALID{"Exact identity, inside destination,<br/>unambiguous and structurally viable?"}
     VALID -- No --> DROP["Reject proposal/hint with reason"]
@@ -1061,8 +1076,8 @@ kind: POI | ROUTE | NEIGHBORHOOD_WALK | EXPERIENCE
 themes[]
 suggestedDurationMinutes
 shortReason
-entityHints[]
-groundingEvidence[]
+entityHints[]     // each hint: key, name, role, expectedType, required, evidenceKeys[]
+evidenceKeys[]    // keys into the search provider's evidence map
 ```
 
 Entity hints use stable keys and controlled role/expected-type vocabularies.
@@ -1070,6 +1085,13 @@ AREA is resolution context rather than a recommendable proposal kind. POI
 proposals are supported because grounded recommendation can identify missing
 must-see entities; each still requires exact Places resolution before it can
 be persisted.
+
+Evidence is owned by the search provider, never the extraction step:
+`evidenceKeys` at both the proposal level and the individual `entityHints[]`
+level reference that provider-supplied map — a required hint with no
+evidence, or one citing a key the search step never returned, rejects the
+proposal. The extraction step may cite evidence; it may never invent a
+snippet, source, or URL of its own.
 
 The short reason and raw provider output belong in the generation trace for
 auditability. They must not be copied directly into persisted catalog prose.
