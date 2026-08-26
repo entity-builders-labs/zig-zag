@@ -182,16 +182,33 @@ export function buildPlacesCrawlStep(
       ? `${providerLabel} falló (${cacheLabel}). Solicitados: ${provenance.requestedCount}; recibidos: ${provenance.receivedCount}; no se afirmó cobertura nueva.`
       : `${providerLabel} (${cacheLabel}) recibió ${provenance.receivedCount} resultados brutos y persistió ${provenance.persistedCount ?? provenance.acceptedCount} actividad(es) nueva(s).${anchorSummary}${providerCalls}${operationSummary}${validationSummary}${embeddingFailureSummary}${rejectedCandidateCount ? ` Rechazos totales registrados: ${rejectedCandidateCount}.${rejectionReasons}` : ''}${requestFailureSuffix}`,
     placesProvenance: provenance,
-    candidates: candidates.map(
-      (act): TraceCandidate => ({
-        source: provenance.provider === 'google' ? 'google_places' : 'geoapify',
-        id: act.id,
-        name: act.name,
-        detail: activityDetail(act),
-        offered: true,
-        chosen: false,
-      }),
-    ),
+    // Every real place the crawl touched, admitted or not — "why did X
+    // disappear" must be answerable from the bitácora alone, not just an
+    // aggregate rejection count.
+    candidates: [
+      ...candidates.map(
+        (act): TraceCandidate => ({
+          source:
+            provenance.provider === 'google' ? 'google_places' : 'geoapify',
+          id: act.id,
+          name: act.name,
+          detail: activityDetail(act),
+          offered: true,
+          chosen: false,
+        }),
+      ),
+      ...(provenance.rejectedCandidates ?? []).map(
+        (rejected): TraceCandidate => ({
+          source:
+            provenance.provider === 'google' ? 'google_places' : 'geoapify',
+          id: rejected.id,
+          name: rejected.name,
+          detail: `rechazado: ${rejected.reasons.join(', ')}`,
+          offered: false,
+          chosen: false,
+        }),
+      ),
+    ],
   };
 }
 

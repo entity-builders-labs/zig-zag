@@ -126,6 +126,10 @@ export interface PlacesCrawlProvenance extends PlacesRequestProvenance {
   }>;
   operations?: CatalogAcquisitionOperationProvenance[];
   rejectedCountByReason: Record<string, number>;
+  /** Per-candidate rejection detail — which real place got dropped and why,
+   * not just an aggregate count. Bounded (see MAX_REJECTED_CANDIDATES_IN_TRACE)
+   * so a pathological run can't blow up the persisted trace. */
+  rejectedCandidates?: Array<{ id: string; name: string; reasons: string[] }>;
 }
 
 export type CatalogAcquisitionPurpose =

@@ -1015,6 +1015,66 @@ fallback while the targeted discovery path is built:
   the known weak smoke-test fixtures; the acceptance report records admitted
   primary types and evidence paths.
 
+### Post-implementation fix: cross-category admission for multi-typed places (2026-08-26)
+
+**Found live-testing PR 7.2** against San Miguel de Tucumán: the city's single
+most iconic landmark, Casa Histórica - Museo Nacional de la Independencia
+(where Argentine independence was declared, 1816), never reached the real
+catalog despite Google Places returning it correctly (`primaryType:
+"history_museum"`, rating 4.7, 38,587 reviews — far above any candidate that
+was being admitted).
+
+**Root cause**: `CatalogIdentityValidator`'s `unsupported_primary_type` check
+compared a Text Search candidate's type only against the single acquisition
+category of whichever operation happened to return it first. Exact-`placeId`
+deduplication upstream (`google-places.service.ts`) keeps only one operation's
+copy of a place returned by multiple seed queries — an arbitrary,
+non-deterministic race, not a reflection of the place's real type. Casa
+Histórica's surviving copy was attributed to the broad `visitor_landmarks`
+Text Search (`tourist_attraction, historical_landmark, ..., church` — no
+`history_museum`), even though its real type is squarely accepted under
+`museums_and_arts`. A well-known place spanning multiple legitimate categories
+(the common case for genuinely important landmarks — exactly what makes them
+likely to surface in *several* seed queries at once) was penalized for which
+query happened to win the dedup race.
+
+**Fix**: `CatalogCandidateValidationContext` gained `requestedInterests?:
+string[]`. For Text Search operations, `CatalogIdentityValidator` now checks
+the candidate's type against the **union** of every acquisition category
+covered by the request's interests (`INTEREST_ACQUISITION_CATEGORIES`), not
+just the one operation's category — falling back to the original
+single-category check when no interests map to a known category (preserves
+prior behavior for untouched call sites, e.g. `CompositeGenerationService`'s
+OSM-street acquisition). Nearby Search operations are unaffected — they
+already carry their own explicit `requestedPrimaryTypes`, not a derived
+category.
+
+**Bitácora enhancement (same investigation)**: `PlacesCrawlProvenance` gained
+a bounded `rejectedCandidates?: Array<{ id, name, reasons }>` — the trace
+previously only aggregated rejections by reason count
+(`rejectedCountByReason`), with no way to answer "which specific place got
+dropped and why" without re-running the crawl with ad-hoc logging.
+`buildPlacesCrawlStep` now surfaces rejected candidates in the bitácora
+(`offered: false`) alongside admitted ones, capped at 50 entries
+(`MAX_REJECTED_CANDIDATES_IN_TRACE`) to bound trace size.
+
+**Live-verified**: reproduced end to end against the real local stack —
+deleted the local Tucumán catalog, re-crawled Google Places fresh, confirmed
+via the enhanced bitácora that Casa Histórica was rejected for
+`unsupported_primary_type` after surviving dedup under `visitor_landmarks`;
+applied the fix; re-crawled again; Casa Histórica was admitted; regenerated
+the tour; it was selected in the final itinerary alongside the museum and
+restaurant already found in earlier testing.
+
+Implemented files: `catalog-candidate-validation.interface.ts` (modified —
+`requestedInterests`), `catalog-identity-validator.service.ts` (modified —
+`resolveAcceptablePrimaryTypes`), `catalog-identity-validator.service.spec.ts`
+(new), `google-places.service.ts` (modified — `recordRejectedCandidate`,
+threads `requestedInterests` through), `google-places.service.spec.ts`
+(modified), `places-api.interface.ts` (modified — `rejectedCandidates`),
+`generation-trace-builder.util.ts` / `.spec.ts` (modified — surfaces rejected
+candidates in `buildPlacesCrawlStep`).
+
 ---
 
 ## PR 4: Tour intent, mobility contract, and wizard

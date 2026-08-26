@@ -113,6 +113,38 @@ describe('buildPlacesCrawlStep', () => {
     expect(step.placesProvenance?.acceptedCount).toBe(1);
   });
 
+  it('surfaces rejected candidates by name, not just an aggregate count', () => {
+    const step = buildPlacesCrawlStep([{ id: 'a1', name: 'Museo Admitido' }], {
+      provider: 'google',
+      cacheStatus: 'miss-live',
+      requestedCount: 5,
+      receivedCount: 2,
+      acceptedCount: 1,
+      rejectedCountByReason: { outside_destination_boundary: 1 },
+      rejectedCandidates: [
+        {
+          id: 'place-2',
+          name: 'Casa Histórica - Museo Nacional de la Independencia',
+          reasons: ['outside_destination_boundary'],
+        },
+      ],
+    });
+
+    const rejected = step.candidates?.find(
+      (c) => c.name === 'Casa Histórica - Museo Nacional de la Independencia',
+    );
+    expect(rejected).toEqual(
+      expect.objectContaining({
+        offered: false,
+        chosen: false,
+        detail: 'rechazado: outside_destination_boundary',
+      }),
+    );
+    expect(step.candidates?.find((c) => c.name === 'Museo Admitido')).toEqual(
+      expect.objectContaining({ offered: true }),
+    );
+  });
+
   it('reports a strict Google cache miss as a failure without claiming results', () => {
     const step = buildPlacesCrawlStep(
       [],
