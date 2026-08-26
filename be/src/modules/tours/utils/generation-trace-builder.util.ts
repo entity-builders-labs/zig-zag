@@ -352,12 +352,19 @@ export function buildDiscoveryStep(
       offered: false,
       chosen: false,
     })),
-    providerStatus: result.validationErrors?.length
-      ? ('failed' as const)
-      : undefined,
-    degradedReason: result.validationErrors?.length
-      ? result.validationErrors.join('; ')
-      : undefined,
+    providerStatus: result.groundingStatus === 'applied' ? 'success' : 'failed',
+    degradedReason:
+      result.groundingStatus !== 'applied'
+        ? `grounding_${result.groundingStatus}`
+        : result.validationErrors?.length
+          ? result.validationErrors.join('; ')
+          : undefined,
+    grounding: {
+      status: result.groundingStatus,
+      provider: result.groundingProvider,
+      model: result.groundingModel,
+      evidenceCount: result.groundingEvidence?.length ?? 0,
+    },
   };
 }
 

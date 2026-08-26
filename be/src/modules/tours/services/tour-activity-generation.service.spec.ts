@@ -14,6 +14,7 @@ import { CompositeGenerationService } from './composite-generation.service';
 import { DestinationResolutionService } from './destination-resolution.service';
 import { CatalogRefillAnchorPlanner } from './catalog-refill-anchor-planner.service';
 import { CoverageAnalyzer } from './coverage-analyzer.service';
+import { ActivityDiscoveryService } from './activity-discovery.service';
 import { PlacesCrawlError } from '@integrations/google-places/interfaces/places-api.interface';
 
 // transformAiActivitiesToDto only keeps `activityId` when it passes
@@ -238,6 +239,10 @@ describe('TourActivityGenerationService', () => {
         },
         CatalogRefillAnchorPlanner,
         CoverageAnalyzer,
+        {
+          provide: ActivityDiscoveryService,
+          useValue: { discoverGaps: jest.fn(), discoverBootstrap: jest.fn() },
+        },
       ],
     }).compile();
 

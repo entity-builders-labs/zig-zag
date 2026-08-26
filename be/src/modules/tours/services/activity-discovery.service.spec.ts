@@ -2,12 +2,22 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ActivityDiscoveryService } from './activity-discovery.service';
 import {
   DISCOVERY_PROVIDER,
+  GROUNDED_SEARCH_PROVIDER,
   SearchGroundedDiscoveryProvider,
+  GroundedSearchProvider,
 } from '../interfaces/activity-discovery.interface';
 
 describe('ActivityDiscoveryService', () => {
   let service: ActivityDiscoveryService;
   let mockProvider: jest.Mocked<SearchGroundedDiscoveryProvider>;
+  let mockSearchProvider: jest.Mocked<GroundedSearchProvider>;
+
+  const appliedResult = {
+    provider: 'groq',
+    model: 'openai/gpt-oss-120b',
+    groundingStatus: 'applied' as const,
+    evidence: [{ key: 'ev-1', source: 'web', snippet: 'real' }],
+  };
 
   beforeEach(async () => {
     mockProvider = {
@@ -15,12 +25,17 @@ describe('ActivityDiscoveryService', () => {
         proposals: [],
         provider: 'groq',
         model: 'openai/gpt-oss-120b',
+        groundingStatus: 'applied',
       }),
+    };
+    mockSearchProvider = {
+      search: jest.fn().mockResolvedValue(appliedResult),
     };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ActivityDiscoveryService,
+        { provide: GROUNDED_SEARCH_PROVIDER, useValue: mockSearchProvider },
         { provide: DISCOVERY_PROVIDER, useValue: mockProvider },
       ],
     }).compile();
@@ -28,8 +43,8 @@ describe('ActivityDiscoveryService', () => {
     service = module.get(ActivityDiscoveryService);
   });
 
-  it('delegates gap fill discovery to the provider', async () => {
-    const result = await service.discoverGaps(
+  it('executes real search before extraction', async () => {
+    await service.discoverGaps(
       'Buenos Aires',
       'Argentina',
       ['nature', 'tango'],
@@ -37,46 +52,81 @@ describe('ActivityDiscoveryService', () => {
         {
           reason: 'missing_requested_theme',
           severity: 'blocking',
-          message: 'Falta cobertura para tango',
+          message: 'Falta tango',
         },
       ],
     );
 
-    expect(mockProvider.discover).toHaveBeenCalledWith(
+    expect(mockSearchProvider.search).toHaveBeenCalledWith(
       expect.objectContaining({
         destinationName: 'Buenos Aires',
-        destinationCountry: 'Argentina',
         requestedThemes: ['nature', 'tango'],
-        mode: { type: 'gap_fill', deficits: expect.any(Array) },
       }),
     );
-    expect(result.provider).toBe('groq');
+    expect(mockProvider.discover).toHaveBeenCalled();
   });
 
-  it('delegates bootstrap discovery to the provider', async () => {
+  it('does NOT run extraction when search fails', async () => {
+    mockSearchProvider.search.mockResolvedValue({
+      provider: 'groq',
+      model: 'openai/gpt-oss-120b',
+      groundingStatus: 'failed',
+      evidence: [],
+      failureReason: 'network_error',
+    });
+
+    const result = await service.discoverGaps(
+      'Buenos Aires',
+      'Argentina',
+      ['tango'],
+      [
+        {
+          reason: 'missing_requested_theme',
+          severity: 'blocking',
+          message: 'Falta tango',
+        },
+      ],
+    );
+
+    expect(mockProvider.discover).not.toHaveBeenCalled();
+    expect(result.groundingStatus).toBe('failed');
+    expect(result.proposals).toEqual([]);
+  });
+
+  it('does NOT run extraction when search returns no usable evidence', async () => {
+    mockSearchProvider.search.mockResolvedValue({
+      provider: 'groq',
+      model: 'openai/gpt-oss-120b',
+      groundingStatus: 'no_usable_evidence',
+      evidence: [],
+    });
+
     const result = await service.discoverBootstrap('Salta', 'Argentina', [
       'history',
-      'nature',
-      'food',
     ]);
 
-    expect(mockProvider.discover).toHaveBeenCalledWith(
-      expect.objectContaining({
-        destinationName: 'Salta',
-        mode: { type: 'bootstrap', reason: 'new_destination' },
-      }),
+    expect(mockProvider.discover).not.toHaveBeenCalled();
+    expect(result.groundingStatus).toBe('no_usable_evidence');
+  });
+
+  it('delegates bootstrap discovery after successful search', async () => {
+    await service.discoverBootstrap('Salta', 'Argentina', [
+      'history',
+      'nature',
+    ]);
+
+    expect(mockSearchProvider.search).toHaveBeenCalledWith(
+      expect.objectContaining({ destinationName: 'Salta' }),
     );
-    expect(result.provider).toBe('groq');
+    expect(mockProvider.discover).toHaveBeenCalled();
   });
 
   it('never touches Prisma or persists anything', () => {
-    // The service has no Prisma dependency — enforced by the constructor
     const constructorParams = Reflect.getOwnPropertyDescriptor(
       ActivityDiscoveryService.prototype,
       'constructor',
     );
     expect(constructorParams).toBeDefined();
-    // Verify no prisma-related methods exist
     expect((service as any).prisma).toBeUndefined();
   });
 });

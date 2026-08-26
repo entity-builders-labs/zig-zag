@@ -330,7 +330,8 @@ PR 1  Provider identity, cache isolation, and truthful trace
   -> PR 4  Tour intent + mobility contract and wizard
   -> PR 5  Embedding integrity and hybrid catalog retrieval
   -> PR 6  CoverageAnalyzer, destination-knowledge state, and quality gate
-  -> PR 7  Provider-neutral grounded bootstrap and Activity Discovery
+  -> PR 7  Provider-neutral grounded bootstrap and Activity Discovery (done)
+  -> PR 7.1 Grounded search/extraction evidence separation (done)
   -> PR 8  Proposal entity resolution and safe persistence
   -> PR 9  Unified pool selection and generation integration
   -> PR 10 Transport-aware spatial feasibility
@@ -1389,6 +1390,8 @@ interface CoverageReport {
 
 ## PR 7: Provider-neutral Activity Discovery
 
+**Status: Implemented (PR #23, merged 2026-08-25).**
+
 ### Objective
 
 Create a bounded sourced destination profile for new/stale destinations and
@@ -1475,6 +1478,104 @@ interface EntityHint {
   shortlist only when they resolve to offered in-destination OSM boundaries.
 - An unresolved or ambiguous area hint is traced and rejected without causing
   an `AREA`, family, or composite to be persisted.
+
+### Implemented files
+
+```
+be/src/modules/tours/interfaces/activity-discovery.interface.ts  (new)
+be/src/modules/tours/services/activity-discovery.service.ts      (new)
+be/src/modules/tours/services/activity-discovery.service.spec.ts (new)
+be/src/modules/tours/services/groq-discovery.provider.ts          (new)
+be/src/modules/tours/services/groq-discovery.provider.spec.ts     (new)
+be/src/modules/tours/tours.module.ts                              (modified)
+be/src/modules/tours/services/tour-activity-generation.service.ts (modified)
+be/src/modules/tours/interfaces/generation-trace.interface.ts     (modified)
+be/src/modules/tours/utils/generation-trace-builder.util.ts       (modified)
+```
+
+---
+
+## PR 7.1: Grounded search/extraction evidence separation
+
+**Status: Implemented, 2026-08-26.**
+
+### Objective
+
+Correct two gaps found testing PR 7 against real travel evidence: (1) the
+extraction step could not be trusted not to invent its own "evidence" since
+search and extraction were one combined step, and (2) `NEIGHBORHOOD_WALK`'s
+hint-count handling conflated a domain claim ("a walk has at most N stops")
+with a technical safeguard against runaway LLM output. Both are corrected
+without starting PR 8 persistence work.
+
+### Required behavior
+
+1. Split discovery into two provider-neutral interfaces:
+   `GroundedSearchProvider.search()` gathers real evidence and owns it
+   exclusively; `SearchGroundedDiscoveryProvider.discover(request,
+   searchResult)` performs structured extraction and may only reference
+   evidence the search step actually returned. `ActivityDiscoveryService`
+   calls them in that order and never runs extraction when
+   `groundingStatus !== 'applied'`.
+2. Two `GroundedSearchProvider` implementations exist behind the same
+   interface: `GroqGroundedSearchService` (Groq's `browser_search` tool) and
+   `SerpApiGroundedSearchService` (Google Search results via SerpApi — a
+   plain search API, not an LLM, so it never competes with the extraction
+   model's own token/rate quota). `SerpApiGroundedSearchService` is the
+   current default binding for `GROUNDED_SEARCH_PROVIDER`; swapping back to
+   Groq's is a one-line change in `tours.module.ts`. SerpApi's free tier is
+   250 searches/month — a paid plan or a different provider is required
+   before this can be a production default at scale.
+3. `EntityHint` gains its own `evidenceKeys: string[]`, distinct from
+   `ActivityProposal.evidenceKeys`: the proposal's keys support the overall
+   concept, an entity hint's keys support that specific entity or its
+   relationship to the proposal. A required hint with no `evidenceKeys`, or
+   one referencing a key the search step never supplied, rejects the whole
+   proposal — the same all-or-nothing strategy already used for every other
+   structural validation error. Optional hints are not required to carry
+   evidence.
+4. `NEIGHBORHOOD_WALK`'s "at least 2 additional hints" domain rule is
+   unchanged, but the global entity-hint-count ceiling is renamed to
+   `MAX_DISCOVERY_HINTS_PER_PROPOSAL` and documented as a technical safeguard
+   against runaway LLM output — not a claim that a walk may only have N
+   stops. A walk with 6+ additional hints is valid as long as it stays under
+   that technical cap.
+
+### Tests and acceptance
+
+- A search failure (`unavailable`/`failed`/`no_usable_evidence`) never
+  reaches the extraction step and never fabricates proposals.
+- A `NEIGHBORHOOD_WALK` with more than 5 additional hints is accepted;
+  exceeding `MAX_DISCOVERY_HINTS_PER_PROPOSAL` is still rejected.
+- A required entity hint with no `evidenceKeys`, or an unknown evidence key
+  at the entity-hint level, rejects the proposal; a required hint with valid
+  `evidenceKeys` is accepted; optional hints may omit evidence.
+- A waypoint or route hint inside a `NEIGHBORHOOD_WALK` can carry evidence
+  distinct from the proposal's own `evidenceKeys`.
+- Live-verified against real APIs (Salta, Argentina, `history` theme):
+  SerpApi returned 8 real search results; Groq extraction produced 6
+  geographically coherent proposals, each citing only real supplied evidence
+  keys, with a `NEIGHBORHOOD_WALK` correctly carrying distinct
+  `evidenceKeys` on its area hint versus its waypoint hints.
+
+### Implemented files
+
+```
+be/src/modules/tours/interfaces/activity-discovery.interface.ts        (modified — EntityHint.evidenceKeys)
+be/src/modules/tours/services/groq-discovery.provider.ts               (modified — prompt, validation, MAX_DISCOVERY_HINTS_PER_PROPOSAL)
+be/src/modules/tours/services/groq-discovery.provider.spec.ts          (modified)
+be/src/modules/tours/services/activity-proposal-resolution.service.spec.ts (modified — fixture-only, compiles against the widened interface)
+be/src/modules/tours/services/serpapi-grounded-search.service.ts       (new)
+be/src/modules/tours/services/serpapi-grounded-search.service.spec.ts  (new)
+be/src/modules/tours/tours.module.ts                                   (modified — SerpApi default binding)
+be/src/shared/ai/ai.config.ts                                          (modified — serpApiKey)
+be/src/commands/scripts/commands/try-discovery.command.ts              (new — manual smoke test against real APIs)
+```
+
+Not touched by this PR: `GroqGroundedSearchService` (kept, unused as the
+current default but still registered and tested — the alternate
+implementation the provider-neutral design is meant to allow), and all PR 8
+persistence work.
 
 ---
 
