@@ -11,6 +11,7 @@ export type DestinationKnowledgeStatus =
 export type CoverageDeficitReason =
   | 'insufficient_usable_candidates'
   | 'missing_requested_theme'
+  | 'missing_requested_experience_format'
   | 'insufficient_kind_diversity'
   | 'insufficient_source_diversity'
   | 'insufficient_geographic_distribution'
@@ -49,6 +50,7 @@ export interface CoverageDeficit {
   severity: 'blocking' | 'warning';
   message: string;
   theme?: string;
+  experienceFormat?: string;
   expectedCount?: number;
   actualCount?: number;
 }
@@ -136,6 +138,9 @@ export interface CoverageCandidate {
 export interface CoverageAnalysisInput {
   candidates: CoverageCandidate[];
   requestedThemes: string[];
+  /** Experience formats explicitly requested in the wizard (neighborhood_walks,
+   * thematic_routes, experiences, point_visits) — see ExperienceFormat. */
+  requestedExperienceFormats?: string[];
   days: number;
   explorationStyle?: string;
   semanticCoverage: SemanticCoverageSummary;

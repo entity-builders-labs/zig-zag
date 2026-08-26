@@ -16,6 +16,8 @@ import { CatalogRefillAnchorPlanner } from './catalog-refill-anchor-planner.serv
 import { CoverageAnalyzer } from './coverage-analyzer.service';
 import { ActivityDiscoveryService } from './activity-discovery.service';
 import { TourCompletenessValidator } from './tour-completeness-validator.service';
+import { TourFormatCoverageValidator } from './tour-format-coverage-validator.service';
+import { PROPOSAL_RESOLVER } from '../interfaces/proposal-resolution.interface';
 import { PlacesCrawlError } from '@integrations/google-places/interfaces/places-api.interface';
 
 // transformAiActivitiesToDto only keeps `activityId` when it passes
@@ -97,6 +99,8 @@ describe('TourActivityGenerationService', () => {
   let tourImageService: any;
   let vectorStoreService: any;
   let destinationResolutionService: any;
+  let proposalResolver: any;
+  let activityDiscoveryService: any;
 
   const buildTour = (overrides: any = {}) => ({
     id: TOUR_ID,
@@ -194,6 +198,11 @@ describe('TourActivityGenerationService', () => {
     destinationResolutionService = {
       resolveDestination: jest.fn().mockResolvedValue({ scale: 'point' }),
     };
+    proposalResolver = { resolve: jest.fn() };
+    activityDiscoveryService = {
+      discoverGaps: jest.fn(),
+      discoverBootstrap: jest.fn(),
+    };
     wikidataApiService = {
       getEntitySummaries: jest.fn().mockResolvedValue(new Map()),
       lookupEntitySummaries: jest.fn().mockResolvedValue({
@@ -241,10 +250,12 @@ describe('TourActivityGenerationService', () => {
         CatalogRefillAnchorPlanner,
         CoverageAnalyzer,
         TourCompletenessValidator,
+        TourFormatCoverageValidator,
         {
           provide: ActivityDiscoveryService,
-          useValue: { discoverGaps: jest.fn(), discoverBootstrap: jest.fn() },
+          useValue: activityDiscoveryService,
         },
+        { provide: PROPOSAL_RESOLVER, useValue: proposalResolver },
       ],
     }).compile();
 
@@ -445,6 +456,7 @@ describe('TourActivityGenerationService', () => {
       'llm_generation',
       'verification',
       'tour_completeness',
+      'tour_format_coverage',
     ]);
 
     const dbSearchStep = trace.steps.find((s: any) => s.stage === 'db_search');
@@ -598,6 +610,561 @@ describe('TourActivityGenerationService', () => {
       );
       expect(completenessStep.providerStatus).toBe('failed');
       expect(completenessStep.degradedReason).toBe('underfilled_day');
+    });
+  });
+
+  describe('entity resolution (PR 8)', () => {
+    // Discovery only fires when interests are requested and the pool is
+    // insufficient (default activitiesService.findAll already returns []).
+    // The Places refill afterward still needs a real candidate for the LLM
+    // step to complete, so provide exactly one via mockResolvedValueOnce for
+    // the pre-refill lookup and a second for the post-refill re-lookup —
+    // same shape as the existing "records Geoapify provenance" test above.
+    const buildThinPoolTour = () =>
+      buildTour({
+        metadata: {
+          generationRequest: buildGenerationRequest({
+            intent: { interests: ['history'] },
+          }),
+        },
+      });
+
+    const discoveryProposal = {
+      name: 'Casa Histórica',
+      kind: 'POI' as any,
+      themes: ['history'],
+      entityHints: [] as any[],
+      suggestedDurationMinutes: 90,
+      shortReason: 'test proposal',
+      evidenceKeys: [] as string[],
+    };
+
+    const setUpSuccessfulRefillAndLlm = () => {
+      const poiId = testUuid();
+      const thinActivity = {
+        id: poiId,
+        name: 'Existing local place',
+        latitude: -34.62,
+        longitude: -58.37,
+      };
+      activitiesService.findAll
+        .mockResolvedValueOnce([])
+        .mockResolvedValueOnce([thinActivity]);
+      prisma.activity.findMany.mockResolvedValue([
+        { ...thinActivity, kind: ActivityKind.POI },
+      ]);
+      googlePlacesService.crawlAndSaveActivities.mockResolvedValue({
+        activitiesIds: [],
+        fromCache: false,
+        provenance: {
+          provider: 'google',
+          cacheStatus: 'miss-live',
+          requestedCount: 20,
+          receivedCount: 1,
+          acceptedCount: 1,
+          rejectedCountByReason: {},
+        },
+      });
+      langChainService.generateChatResponse.mockResolvedValue(
+        aiJsonResponse({
+          activities: [
+            {
+              activityId: poiId,
+              activityName: thinActivity.name,
+              dayNumber: 1,
+              startTime: '10:00',
+              duration: 60,
+              latitude: thinActivity.latitude,
+              longitude: thinActivity.longitude,
+            },
+          ],
+        }),
+      );
+      return poiId;
+    };
+
+    it('calls the resolver with discovery proposals and the destination boundary after a successful discovery', async () => {
+      toursService.findOne.mockResolvedValue(buildThinPoolTour());
+      setUpSuccessfulRefillAndLlm();
+      activityDiscoveryService.discoverGaps.mockResolvedValue({
+        proposals: [discoveryProposal],
+        provider: 'groq',
+        model: 'test-model',
+        groundingStatus: 'applied',
+      });
+      proposalResolver.resolve.mockResolvedValue({
+        resolved: [],
+        totalProposals: 1,
+        acceptedCount: 1,
+        rejectedCount: 0,
+      });
+
+      await service.generateTourActivities(TOUR_ID);
+
+      expect(proposalResolver.resolve).toHaveBeenCalledWith({
+        proposals: [discoveryProposal],
+        destinationName: 'San Telmo, Buenos Aires, Argentina',
+        destinationBoundary: undefined,
+      });
+    });
+
+    it('surfaces the resolution result as an entity_resolution trace step', async () => {
+      toursService.findOne.mockResolvedValue(buildThinPoolTour());
+      setUpSuccessfulRefillAndLlm();
+      activityDiscoveryService.discoverGaps.mockResolvedValue({
+        proposals: [discoveryProposal],
+        provider: 'groq',
+        model: 'test-model',
+        groundingStatus: 'applied',
+      });
+      proposalResolver.resolve.mockResolvedValue({
+        resolved: [
+          {
+            proposal: discoveryProposal,
+            status: 'accepted',
+            resolvedEntities: [],
+            rejectionReasons: [],
+            persistedActivityId: 'new-activity-1',
+          },
+        ],
+        totalProposals: 1,
+        acceptedCount: 1,
+        rejectedCount: 0,
+      });
+
+      await service.generateTourActivities(TOUR_ID);
+
+      const completedCall = prisma.tour.update.mock.calls.find(
+        (call: any) => call[0].data.metadata.generationStatus === 'completed',
+      );
+      const trace = completedCall[0].data.metadata.generationTrace;
+      const resolutionStep = trace.steps.find(
+        (s: any) => s.stage === 'entity_resolution',
+      );
+      expect(resolutionStep).toBeDefined();
+      expect(resolutionStep.providerStatus).toBe('success');
+      expect(resolutionStep.resolution.acceptedCount).toBe(1);
+    });
+
+    it('does not fail generation when entity resolution throws (non-fatal)', async () => {
+      toursService.findOne.mockResolvedValue(buildThinPoolTour());
+      setUpSuccessfulRefillAndLlm();
+      activityDiscoveryService.discoverGaps.mockResolvedValue({
+        proposals: [discoveryProposal],
+        provider: 'groq',
+        model: 'test-model',
+        groundingStatus: 'applied',
+      });
+      proposalResolver.resolve.mockRejectedValue(new Error('resolver down'));
+
+      await service.generateTourActivities(TOUR_ID);
+
+      const completedCall = prisma.tour.update.mock.calls.find(
+        (call: any) => call[0].data.metadata.generationStatus === 'completed',
+      );
+      expect(completedCall).toBeDefined();
+      const trace = completedCall[0].data.metadata.generationTrace;
+      expect(
+        trace.steps.find((s: any) => s.stage === 'entity_resolution'),
+      ).toBeUndefined();
+    });
+
+    it("never adds a newly resolved activity to this generation's own itinerary (PR 9 boundary)", async () => {
+      toursService.findOne.mockResolvedValue(buildThinPoolTour());
+      const poiId = setUpSuccessfulRefillAndLlm();
+      activityDiscoveryService.discoverGaps.mockResolvedValue({
+        proposals: [discoveryProposal],
+        provider: 'groq',
+        model: 'test-model',
+        groundingStatus: 'applied',
+      });
+      proposalResolver.resolve.mockResolvedValue({
+        resolved: [
+          {
+            proposal: discoveryProposal,
+            status: 'accepted',
+            resolvedEntities: [],
+            rejectionReasons: [],
+            persistedActivityId: 'new-activity-1',
+          },
+        ],
+        totalProposals: 1,
+        acceptedCount: 1,
+        rejectedCount: 0,
+      });
+
+      await service.generateTourActivities(TOUR_ID);
+
+      const createCalls = (
+        prisma.tourActivity.create as jest.Mock
+      ).mock.calls.map((call: any) => call[0].data.activityId);
+      expect(createCalls).toEqual([poiId]);
+      expect(createCalls).not.toContain('new-activity-1');
+    });
+
+    it('does not call the resolver when discovery returns zero proposals', async () => {
+      toursService.findOne.mockResolvedValue(buildThinPoolTour());
+      setUpSuccessfulRefillAndLlm();
+      activityDiscoveryService.discoverGaps.mockResolvedValue({
+        proposals: [],
+        provider: 'groq',
+        model: 'test-model',
+        groundingStatus: 'no_usable_evidence',
+      });
+
+      await service.generateTourActivities(TOUR_ID);
+
+      expect(proposalResolver.resolve).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('requested experience format coverage (PR 7.4)', () => {
+    const poiCandidate = (overrides: any = {}) => ({
+      id: testUuid(),
+      name: 'POI',
+      type: 'museum',
+      latitude: -34.62,
+      longitude: -58.37,
+      kind: ActivityKind.POI,
+      duration: 2,
+      ...overrides,
+    });
+
+    const walkCandidate = (overrides: any = {}) => ({
+      id: testUuid(),
+      name: 'Neighborhood Walk',
+      type: 'walk',
+      latitude: -34.62,
+      longitude: -58.37,
+      kind: ActivityKind.NEIGHBORHOOD_WALK,
+      duration: 3,
+      ...overrides,
+    });
+
+    // Discovery only fires on a blocking deficit. A thin, format-lacking
+    // pool with zero requested THEMES still needs to reach discoverGaps()
+    // today — before PR 7.4 this was silently swallowed by a stale
+    // `if (interests.length > 0)` guard.
+    it('calls discoverGaps for a format-only deficit even with zero requested themes', async () => {
+      const candidates = [
+        poiCandidate(),
+        poiCandidate(),
+        poiCandidate(),
+        poiCandidate(),
+      ];
+      activitiesService.findAll.mockResolvedValue(candidates);
+      prisma.activity.findMany.mockResolvedValue(
+        candidates.map((c) => ({
+          id: c.id,
+          latitude: c.latitude,
+          longitude: c.longitude,
+          kind: ActivityKind.POI,
+        })),
+      );
+      activityDiscoveryService.discoverGaps.mockResolvedValue({
+        proposals: [],
+        provider: 'groq',
+        model: 'test-model',
+        groundingStatus: 'no_usable_evidence',
+      });
+      langChainService.generateChatResponse.mockResolvedValue(
+        aiJsonResponse({
+          activities: [
+            {
+              activityId: candidates[0].id,
+              dayNumber: 1,
+              startTime: '10:00',
+              duration: 2,
+              notes: 'stop',
+              selectedWaypointIds: [],
+            },
+          ],
+        }),
+      );
+      toursService.findOne.mockResolvedValue(
+        buildTour({
+          metadata: {
+            generationRequest: buildGenerationRequest({
+              intent: {
+                interests: [],
+                experienceFormats: ['neighborhood_walks'],
+              },
+            }),
+          },
+        }),
+      );
+
+      await service.generateTourActivities(TOUR_ID);
+
+      expect(activityDiscoveryService.discoverGaps).toHaveBeenCalledWith(
+        expect.any(String),
+        undefined,
+        [],
+        expect.any(Array),
+        ['neighborhood_walks'],
+      );
+    });
+
+    it('retries once when a viable requested-format candidate was available but ignored, and succeeds when the retry includes it', async () => {
+      const pois = [poiCandidate(), poiCandidate(), poiCandidate()];
+      const walk = walkCandidate();
+      const candidates = [...pois, walk];
+      activitiesService.findAll.mockResolvedValue(candidates);
+      prisma.activity.findMany.mockResolvedValue(
+        candidates.map((c) => ({
+          id: c.id,
+          latitude: c.latitude,
+          longitude: c.longitude,
+          kind: c.kind,
+        })),
+      );
+      toursService.findOne.mockResolvedValue(
+        buildTour({
+          metadata: {
+            generationRequest: buildGenerationRequest({
+              intent: {
+                interests: [],
+                experienceFormats: ['neighborhood_walks'],
+              },
+            }),
+          },
+        }),
+      );
+
+      const ignoresWalk = aiJsonResponse({
+        reasoning: 'POIs only.',
+        activities: pois.map((c, i) => ({
+          activityId: c.id,
+          dayNumber: 1,
+          startTime: `${10 + i * 2}:00`,
+          duration: 2,
+          notes: `stop ${i}`,
+          selectedWaypointIds: [] as string[],
+        })),
+      });
+      const includesWalk = aiJsonResponse({
+        reasoning: 'Includes the walk.',
+        activities: [
+          {
+            activityId: walk.id,
+            dayNumber: 1,
+            startTime: '10:00',
+            duration: 3,
+            notes: 'walk',
+            selectedWaypointIds: [],
+          },
+          ...pois.slice(0, 2).map((c, i) => ({
+            activityId: c.id,
+            dayNumber: 1,
+            startTime: `${13 + i * 2}:00`,
+            duration: 2,
+            notes: `stop ${i}`,
+            selectedWaypointIds: [] as string[],
+          })),
+        ],
+      });
+      langChainService.generateChatResponse
+        .mockResolvedValueOnce(ignoresWalk)
+        .mockResolvedValueOnce(includesWalk);
+
+      await service.generateTourActivities(TOUR_ID);
+
+      expect(langChainService.generateChatResponse).toHaveBeenCalledTimes(2);
+      const completedCall = prisma.tour.update.mock.calls.find(
+        (call: any) => call[0].data.metadata.generationStatus === 'completed',
+      );
+      expect(completedCall).toBeDefined();
+      const trace = completedCall[0].data.metadata.generationTrace;
+      expect(trace.tourFormatCoverage).toEqual(
+        expect.objectContaining({ valid: true, retryAttempted: true }),
+      );
+      const formatStep = trace.steps.find(
+        (s: any) => s.stage === 'tour_format_coverage',
+      );
+      expect(formatStep.providerStatus).toBe('success');
+    });
+
+    it('does not retry a second time when the retry still omits the requested format', async () => {
+      const pois = [poiCandidate(), poiCandidate(), poiCandidate()];
+      const walk = walkCandidate();
+      const candidates = [...pois, walk];
+      activitiesService.findAll.mockResolvedValue(candidates);
+      prisma.activity.findMany.mockResolvedValue(
+        candidates.map((c) => ({
+          id: c.id,
+          latitude: c.latitude,
+          longitude: c.longitude,
+          kind: c.kind,
+        })),
+      );
+      toursService.findOne.mockResolvedValue(
+        buildTour({
+          metadata: {
+            generationRequest: buildGenerationRequest({
+              intent: {
+                interests: [],
+                experienceFormats: ['neighborhood_walks'],
+              },
+            }),
+          },
+        }),
+      );
+
+      const ignoresWalk = aiJsonResponse({
+        reasoning: 'POIs only, still.',
+        activities: pois.map((c, i) => ({
+          activityId: c.id,
+          dayNumber: 1,
+          startTime: `${10 + i * 2}:00`,
+          duration: 2,
+          notes: `stop ${i}`,
+          selectedWaypointIds: [] as string[],
+        })),
+      });
+      langChainService.generateChatResponse.mockResolvedValue(ignoresWalk);
+
+      await service.generateTourActivities(TOUR_ID);
+
+      // Bounded: exactly the initial call plus one retry, never a third.
+      expect(langChainService.generateChatResponse).toHaveBeenCalledTimes(2);
+      const completedCall = prisma.tour.update.mock.calls.find(
+        (call: any) => call[0].data.metadata.generationStatus === 'completed',
+      );
+      expect(completedCall).toBeDefined();
+      const trace = completedCall[0].data.metadata.generationTrace;
+      expect(trace.tourFormatCoverage).toEqual(
+        expect.objectContaining({ valid: false, retryAttempted: true }),
+      );
+      expect(trace.tourFormatCoverage.issues).toEqual([
+        expect.objectContaining({
+          code: 'REQUESTED_FORMAT_MISSING',
+          requestedFormat: 'neighborhood_walks',
+        }),
+      ]);
+    });
+
+    it('fires exactly one combined retry when both completeness and format coverage fail together', async () => {
+      const walk = walkCandidate();
+      const extraPois = [poiCandidate(), poiCandidate(), poiCandidate()];
+      const candidates = [walk, ...extraPois];
+      activitiesService.findAll.mockResolvedValue(candidates);
+      prisma.activity.findMany.mockResolvedValue(
+        candidates.map((c) => ({
+          id: c.id,
+          latitude: c.latitude,
+          longitude: c.longitude,
+          kind: c.kind,
+        })),
+      );
+      toursService.findOne.mockResolvedValue(
+        buildTour({
+          metadata: {
+            generationRequest: buildGenerationRequest({
+              intent: {
+                interests: [],
+                experienceFormats: ['neighborhood_walks'],
+              },
+            }),
+          },
+        }),
+      );
+
+      // First attempt: a single short POI — both under-filled AND ignores
+      // the available walk.
+      const thinAndOffFormat = aiJsonResponse({
+        reasoning: 'One short stop.',
+        activities: [
+          {
+            activityId: extraPois[0].id,
+            dayNumber: 1,
+            startTime: '10:00',
+            duration: 2,
+            notes: 'stop',
+            selectedWaypointIds: [],
+          },
+        ],
+      });
+      // Retry: includes the walk and is reasonably full.
+      const fixedResponse = aiJsonResponse({
+        reasoning: 'Fuller and includes the walk.',
+        activities: [
+          {
+            activityId: walk.id,
+            dayNumber: 1,
+            startTime: '10:00',
+            duration: 3,
+            notes: 'walk',
+            selectedWaypointIds: [],
+          },
+          ...extraPois.slice(0, 2).map((c, i) => ({
+            activityId: c.id,
+            dayNumber: 1,
+            startTime: `${13 + i * 2}:00`,
+            duration: 2,
+            notes: `stop ${i}`,
+            selectedWaypointIds: [] as string[],
+          })),
+        ],
+      });
+      langChainService.generateChatResponse
+        .mockResolvedValueOnce(thinAndOffFormat)
+        .mockResolvedValueOnce(fixedResponse);
+
+      await service.generateTourActivities(TOUR_ID);
+
+      // One combined retry, never a completeness retry followed by a
+      // separate format retry.
+      expect(langChainService.generateChatResponse).toHaveBeenCalledTimes(2);
+      const completedCall = prisma.tour.update.mock.calls.find(
+        (call: any) => call[0].data.metadata.generationStatus === 'completed',
+      );
+      const trace = completedCall[0].data.metadata.generationTrace;
+      expect(trace.tourCompleteness).toEqual(
+        expect.objectContaining({ complete: true, retryAttempted: true }),
+      );
+      expect(trace.tourFormatCoverage).toEqual(
+        expect.objectContaining({ valid: true, retryAttempted: true }),
+      );
+    });
+
+    it('does not retry and reports valid coverage when only point_visits was requested (no behavior change)', async () => {
+      const candidates = [
+        poiCandidate({ duration: 3 }),
+        poiCandidate({ duration: 3 }),
+        poiCandidate({ duration: 3 }),
+      ];
+      activitiesService.findAll.mockResolvedValue(candidates);
+      prisma.activity.findMany.mockResolvedValue(
+        candidates.map((c) => ({
+          id: c.id,
+          latitude: c.latitude,
+          longitude: c.longitude,
+          kind: c.kind,
+        })),
+      );
+      langChainService.generateChatResponse.mockResolvedValue(
+        aiJsonResponse({
+          activities: candidates.map((c, i) => ({
+            activityId: c.id,
+            dayNumber: 1,
+            startTime: `${10 + i * 3}:00`,
+            duration: 3,
+            notes: `stop ${i}`,
+            selectedWaypointIds: [] as string[],
+          })),
+        }),
+      );
+
+      await service.generateTourActivities(TOUR_ID);
+
+      expect(langChainService.generateChatResponse).toHaveBeenCalledTimes(1);
+      const completedCall = prisma.tour.update.mock.calls.find(
+        (call: any) => call[0].data.metadata.generationStatus === 'completed',
+      );
+      const trace = completedCall[0].data.metadata.generationTrace;
+      expect(trace.tourFormatCoverage).toEqual(
+        expect.objectContaining({ valid: true, retryAttempted: false }),
+      );
     });
   });
 

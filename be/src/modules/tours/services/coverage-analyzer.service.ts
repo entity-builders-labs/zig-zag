@@ -7,6 +7,8 @@ import {
   CoverageReport,
   ThemeCoverageSummary,
 } from '../interfaces/coverage-analysis.interface';
+import { ExperienceFormat } from '../interfaces/tour-generation.interface';
+import { EXPERIENCE_FORMAT_ACTIVITY_KIND } from '../utils/experience-format-kind.util';
 
 const THEME_KEYWORDS: Record<string, readonly string[]> = {
   history: ['history', 'historic', 'historical', 'monument', 'museum'],
@@ -63,6 +65,28 @@ export class CoverageAnalyzer {
           severity: 'blocking',
           message: `Falta cobertura significativa para el tema solicitado "${themeCoverage.theme}".`,
           theme: themeCoverage.theme,
+          expectedCount: 1,
+          actualCount: 0,
+        });
+      });
+
+    (input.requestedExperienceFormats ?? [])
+      .filter((format) => {
+        const kind =
+          EXPERIENCE_FORMAT_ACTIVITY_KIND[format as ExperienceFormat];
+        return (
+          kind != null &&
+          !kindCoverage.some((k) => k.kind === kind && k.count > 0)
+        );
+      })
+      .forEach((format) => {
+        const kind =
+          EXPERIENCE_FORMAT_ACTIVITY_KIND[format as ExperienceFormat];
+        deficits.push({
+          reason: 'missing_requested_experience_format',
+          severity: 'blocking',
+          message: `Falta cobertura para el formato de experiencia solicitado "${format}" (kind ${kind}).`,
+          experienceFormat: format,
           expectedCount: 1,
           actualCount: 0,
         });
@@ -164,6 +188,19 @@ export class CoverageAnalyzer {
           action: 'places_text_search',
           reason: 'missing_requested_theme',
           deployableInPr6: true,
+          deficits,
+        };
+      } else if (
+        blockingDeficits.some(
+          (deficit) => deficit.reason === 'missing_requested_experience_format',
+        )
+      ) {
+        status =
+          providerHealth.status === 'degraded' ? 'degraded' : 'insufficient';
+        decision = {
+          action: 'defer_to_pr7_grounded_gap',
+          reason: 'qualitative_gap_requires_activity_discovery',
+          deployableInPr6: false,
           deficits,
         };
       } else {

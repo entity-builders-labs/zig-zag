@@ -36,6 +36,7 @@ export class ActivityDiscoveryService {
     destinationCountry: string | undefined,
     requestedThemes: string[],
     deficits: CoverageDeficit[],
+    requestedExperienceFormats?: string[],
   ): Promise<DiscoveryResponse> {
     const mode: DiscoveryMode = { type: 'gap_fill', deficits };
 
@@ -43,6 +44,7 @@ export class ActivityDiscoveryService {
       destinationName,
       destinationCountry,
       requestedThemes,
+      requestedExperienceFormats,
       mode,
       maxProposals: 8,
     });

@@ -83,6 +83,27 @@ describe('shared TOUR_PLANNING_POLICY_PROMPT inclusion', () => {
     expect(TOUR_PLANNING_POLICY_PROMPT).toContain('moderate: typically 3-5');
     expect(TOUR_PLANNING_POLICY_PROMPT).toContain('fast: typically 4-7');
   });
+
+  it('carries requested experience format coverage semantics (PR 7.4), reaching every live prompt', () => {
+    expect(TOUR_PLANNING_POLICY_PROMPT).toContain(
+      'REQUESTED EXPERIENCE FORMAT COVERAGE',
+    );
+    expect(TOUR_PLANNING_POLICY_PROMPT).toContain(
+      'not only what themes they care about',
+    );
+    // Already covered by the verbatim-inclusion test above transitively,
+    // but assert directly too: the format-coverage semantics must reach
+    // Groq/Ollama (JSON-mode) and OpenAI (function-calling) identically.
+    expect(CREATE_TOUR_SELECTION_JSON_SYSTEM_PROMPT).toContain(
+      'REQUESTED EXPERIENCE FORMAT COVERAGE',
+    );
+    expect(CREATE_TOUR_JSON_SYSTEM_PROMPT).toContain(
+      'REQUESTED EXPERIENCE FORMAT COVERAGE',
+    );
+    expect(CREATE_TOUR_SYSTEM_PROMPT).toContain(
+      'REQUESTED EXPERIENCE FORMAT COVERAGE',
+    );
+  });
 });
 
 describe('CREATE_COMPOSITE_PROPOSAL_RESPONSE_SCHEMA', () => {

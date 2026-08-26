@@ -5,6 +5,7 @@ import { CachedOverpassApiService } from './services/cached-overpass-api.service
 import { NominatimApiService } from './services/nominatim-api.service';
 import { CachedNominatimApiService } from './services/cached-nominatim-api.service';
 import { OsmPlacesService } from './services/osm-places.service';
+import { OsmMembershipService } from './services/osm-membership.service';
 import { IOverpassApiService } from './interfaces/overpass.interface';
 import { INominatimApiService } from './interfaces/nominatim.interface';
 
@@ -63,6 +64,7 @@ import { INominatimApiService } from './interfaces/nominatim.interface';
       ],
     },
     OsmPlacesService,
+    OsmMembershipService,
   ],
   // 'NominatimApiService' is exported alongside OsmPlacesService (not
   // folded behind it) because DestinationResolutionService (tours module,
@@ -70,6 +72,6 @@ import { INominatimApiService } from './interfaces/nominatim.interface';
   // geometry/boundary lookups, not name resolution, so this keeps that
   // separation instead of growing OsmPlacesService a name-search method it
   // doesn't otherwise need.
-  exports: [OsmPlacesService, 'NominatimApiService'],
+  exports: [OsmPlacesService, OsmMembershipService, 'NominatimApiService'],
 })
 export class OsmModule {}

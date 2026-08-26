@@ -66,6 +66,47 @@ describe('ActivityDiscoveryService', () => {
     expect(mockProvider.discover).toHaveBeenCalled();
   });
 
+  it('forwards requestedExperienceFormats to the search provider when provided (PR 7.4)', async () => {
+    await service.discoverGaps(
+      'Buenos Aires',
+      'Argentina',
+      ['history'],
+      [
+        {
+          reason: 'missing_requested_experience_format',
+          severity: 'blocking',
+          message: 'Falta neighborhood_walks',
+        },
+      ],
+      ['neighborhood_walks'],
+    );
+
+    expect(mockSearchProvider.search).toHaveBeenCalledWith(
+      expect.objectContaining({
+        requestedExperienceFormats: ['neighborhood_walks'],
+      }),
+    );
+  });
+
+  it('still works when called without requestedExperienceFormats', async () => {
+    await service.discoverGaps(
+      'Buenos Aires',
+      'Argentina',
+      ['history'],
+      [
+        {
+          reason: 'missing_requested_theme',
+          severity: 'blocking',
+          message: 'Falta historia',
+        },
+      ],
+    );
+
+    expect(mockSearchProvider.search).toHaveBeenCalledWith(
+      expect.objectContaining({ requestedExperienceFormats: undefined }),
+    );
+  });
+
   it('does NOT run extraction when search fails', async () => {
     mockSearchProvider.search.mockResolvedValue({
       provider: 'groq',

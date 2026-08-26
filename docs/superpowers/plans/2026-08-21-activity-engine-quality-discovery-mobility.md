@@ -333,7 +333,7 @@ PR 1  Provider identity, cache isolation, and truthful trace
   -> PR 7  Provider-neutral grounded bootstrap and Activity Discovery (done)
   -> PR 7.1 Grounded search/extraction evidence separation (done)
   -> PR 7.2 Tour completeness validation and under-filled itinerary guard (done)
-  -> PR 8  Proposal entity resolution and safe persistence
+  -> PR 8  Proposal entity resolution and safe persistence (done)
   -> PR 9  Unified pool selection and generation integration
   -> PR 10 Transport-aware spatial feasibility
   -> PR 11 MVP per-leg transport contract and Maps handoff
@@ -1213,6 +1213,48 @@ an alternate raw prompt and not a source of trusted entity identity.
 - Backend DTO/service/trace tests and a browser request-capture test cover the
   contract dimensions independently.
 
+### Known weakness found live-testing PR 7.2 (2026-08-26): exclusion preferences in free text are unreliable across models
+
+`additionalPreferences` is free text with no structured way to express a hard
+exclusion ("no churches", "nothing religious") — it reaches the LLM as one
+more sentence in the user prompt, with no elevated priority over the rest of
+the intent. Tested the exact same request (San Miguel de Tucumán,
+history+food, moderate, `additionalPreferences: "No quiero nada de iglesias,
+nada religioso."`) against four provider/model combinations:
+
+| Model | Included a church anyway? | Notes |
+|---|---|---|
+| `llama3.2:3b` (Ollama, Docker CPU-only) | Yes | never completed — 5 min timeout |
+| `llama3.2:3b` (Ollama, native macOS/Metal) | Yes | completed, but also hit the duration-string bug below |
+| `qwen2.5:7b-instruct` (Ollama, native) | Yes | `aiReasoning` falsely claimed religious sites were excluded |
+| `openai/gpt-oss-120b` (Groq) | **No** | correctly excluded, `aiReasoning` matched the actual result |
+
+Only the largest model (Groq's 120B) reliably honored the exclusion; both
+local models (3B and 7B) included a church every time despite the explicit
+instruction, one of them while incorrectly asserting compliance. This is a
+model-capability-scale problem, not something PR 7.2's density/retry logic
+or the PR 3 admission fix can address — both of those worked correctly
+across all four combinations tested.
+
+**Deferred fix direction (not scheduled yet)**: give the wizard a dedicated,
+structured place for hard restrictions/exclusions, separate from open-ended
+`additionalPreferences` — something the deterministic pipeline (candidate
+filtering, `CoverageAnalyzer`, prompt composition) can actually act on
+instead of relying entirely on smaller models correctly parsing free-text
+negation. Needs its own design pass; not part of PR 7.2 or this PR 4
+checkpoint.
+
+**Also found in the same investigation, already fixed**: `transformAiActivitiesToDto`
+now coerces a unit-wrapped duration string (e.g. `"2.5 hours"`, observed from
+`llama3.2`) into the plain Float hours value `TourActivity.duration` expects,
+instead of crashing persistence — Groq's strict `json_schema` mode never hit
+this, but nothing guarantees every provider honors the schema equally.
+Native Ollama on Apple Silicon also needed `OLLAMA_BASE_URL=http://host.docker.internal:11434`
+(not `http://ollama:11434`, which stays correct for the Docker Compose
+`ollama` service) to reach Metal-accelerated inference from inside the
+backend container — Docker's CPU-only `ollama` service timed out on the same
+prompt that native Ollama completed in seconds.
+
 ---
 
 ## PR 5: Embedding integrity and hybrid catalog retrieval
@@ -1756,6 +1798,8 @@ new `ActivityKind`.
 
 ## PR 8: Proposal entity resolution and safe persistence
 
+**Status: Implemented, 2026-08-26.**
+
 ### Objective
 
 Turn valid concepts into reusable Activities only after every required entity
@@ -1810,6 +1854,55 @@ is resolved, geographically disambiguated, and structurally validated.
 - A bare OSM street is materialized as ROUTE or composite-only content, never
   POI.
 - Historical tour snapshots remain unchanged after variant edits.
+
+### Orchestration and PR 8/PR 9 boundary (clarified during implementation)
+
+Neither this section nor PR 9's originally named a caller for
+`ActivityProposalResolutionService` — the resolver, its OSM membership
+adapter, and their 19 tests existed correctly but unwired for a full
+session before this was noticed and closed. Confirmed the boundary from
+PR 9's own required behavior #1 ("Re-query the catalog **after accepted
+persistence**") — PR 9 assumes resolution+persistence already happened, so
+invoking the resolver on real discovery proposals is this PR's job, not
+PR 9's.
+
+`TourActivityGenerationService` now calls `proposalResolver.resolve()`
+immediately after a successful `discoverGaps()` call that returns at least
+one proposal, passing the destination's OSM boundary when the destination
+resolved to `scale: 'area'` (omitted for point-scale destinations, which
+the resolver correctly rejects with `missing_destination_boundary` — no
+new logic needed there, that's the resolver's existing, already-tested
+behavior). Accepted proposals get persisted as real Activities exactly as
+PR 8 specifies. A new `entity_resolution` bitácora step reports
+accepted/rejected counts and per-rejection reasons — resolution failures
+are non-fatal, mirroring how discovery's own failures never break
+generation.
+
+**Explicitly still not done (PR 9's job)**: a newly persisted Activity from
+this mechanism is never added to the *current* generation's offered
+candidate pool (`candidateActivityIds`/`candidateActivitiesById`) — it only
+becomes selectable by a *future* generation's ordinary geographic catalog
+query, once PR 9's re-query/ranking/windowing exists. Live-verified this
+exact boundary: a tour that triggers discovery+resolution does not include
+the newly resolved activity in its own itinerary, but a second generation
+for the same destination (no code change, no re-discovery) picks it up as
+a normal candidate.
+
+**Operational consideration**: `ActivityProposalResolutionService`'s venue
+resolution calls `placesApi.searchText` per venue-type entity hint — closing
+this PR adds real Google Places calls to generations that reach discovery
+(coverage insufficient + interests present + blocking deficit — already a
+narrow, gated path, not every generation). No new feature flag was added to
+gate this specifically; noted here for future cost/quota awareness rather
+than solved now.
+
+Implemented files: `tour-activity-generation.service.ts` (modified —
+`PROPOSAL_RESOLVER` injection + orchestration), `tour-activity-generation.service.spec.ts`
+(modified — 5 new tests), `generation-trace.interface.ts` (modified —
+`'entity_resolution'` stage + `resolution` field), `generation-trace-builder.util.ts`
+/ `.spec.ts` (modified — `buildEntityResolutionStep`). `activity-proposal-resolution.service.ts`,
+`osm-membership.service.ts`, their specs, and the OSM fixtures were already
+complete and are committed unchanged.
 
 ---
 

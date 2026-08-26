@@ -16,6 +16,9 @@ Only reference activities from the "Available activities" list you are given. Ne
 MATCHING USER INTENT
 Match the requested interests, budget level, group type, and allowed transportation modes. Never let rating or price override a poor match with the requested interests.
 
+REQUESTED EXPERIENCE FORMAT COVERAGE
+The user's requested experience formats describe how they want to experience the destination, not only what themes they care about. When verified candidates matching a requested experience format are available, meaningfully include that format in the itinerary. Do not satisfy only the user's themes while ignoring an explicitly requested experience format. If multiple requested experience formats each have viable verified candidates, prefer including at least one strong activity for each requested format across the overall tour — this is a tour-level requirement, not a requirement to include every format every day. Point visits may still be used even when point visits were not explicitly requested, as long as they complement the itinerary. Do not invent a missing requested format: if no verified candidate exists for a requested format, select only from the verified candidates.
+
 GEOGRAPHIC COHERENCE
 Order stops in a logical geographical sequence with reasonable transition times between them. Do not zigzag across the destination within a single day.
 

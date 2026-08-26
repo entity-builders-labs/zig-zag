@@ -40,6 +40,18 @@ export interface ActivityWaypointRef {
   };
 }
 
+// Mirrors be's NarrativeSource (composite-activity.service.ts) — a real
+// Wikidata extract tied to one of the variant's waypoints, set only when
+// that waypoint's OSM feature had a wikidata QID with safe content. `label`
+// is the waypoint's OSM name, not a waypoint id, so this isn't reliably
+// matchable back to a specific `ActivityWaypointRef` today — rendered as
+// its own section rather than inlined per-waypoint.
+export interface NarrativeSource {
+  qid: string;
+  label?: string;
+  extract?: string;
+}
+
 // Intersect this into an existing Activity/ActivityDetail type: `& CompositeActivityFields`.
 export interface CompositeActivityFields {
   kind?: ActivityKind;

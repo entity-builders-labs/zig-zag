@@ -1,3 +1,5 @@
+import { ActivityKind } from '@prisma/client';
+
 export interface OsmFeatureForPrompt {
   id: string;
   name: string;
@@ -28,6 +30,10 @@ export function formatOsmFeatureForPrompt(
 export interface ActivityForPrompt {
   id: string;
   name: string;
+  /** Real Prisma ActivityKind, already present at runtime on every candidate
+   * (a full row from prisma.activity.findMany) — declared here so callers
+   * can rely on it without an `any` cast, e.g. for format-coverage checks. */
+  kind?: ActivityKind;
   type?: string | null;
   description?: string | null;
   latitude: number;

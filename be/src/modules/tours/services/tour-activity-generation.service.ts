@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  Inject,
   Injectable,
   Logger,
   NotFoundException,
@@ -40,17 +41,29 @@ import {
   buildDbSearchStep,
   buildDestinationResolutionStep,
   buildEmbeddingsStep,
+  buildEntityResolutionStep,
   buildTourIntentStep,
   buildPlacesCrawlStep,
   buildLlmGenerationStep,
   buildTourCompletenessStep,
+  buildTourFormatCoverageStep,
   buildVerificationStep,
 } from '../utils/generation-trace-builder.util';
+import {
+  IProposalResolver,
+  PROPOSAL_RESOLVER,
+} from '../interfaces/proposal-resolution.interface';
 import { TourCompletenessValidator } from './tour-completeness-validator.service';
 import {
   TourCompletenessInput,
   TourCompletenessIssue,
 } from '../interfaces/tour-completeness.interface';
+import { TourFormatCoverageValidator } from './tour-format-coverage-validator.service';
+import {
+  TourFormatCoverageActivityRef,
+  TourFormatCoverageInput,
+  TourFormatCoverageIssue,
+} from '../interfaces/tour-format-coverage.interface';
 import {
   GenerationTraceStep,
   TraceCandidate,
@@ -108,29 +121,48 @@ export class TourActivityGenerationService {
     private readonly coverageAnalyzer: CoverageAnalyzer,
     private readonly activityDiscoveryService: ActivityDiscoveryService,
     private readonly tourCompletenessValidator: TourCompletenessValidator,
+    private readonly tourFormatCoverageValidator: TourFormatCoverageValidator,
+    @Inject(PROPOSAL_RESOLVER)
+    private readonly proposalResolver: IProposalResolver,
   ) {}
 
   /**
-   * Deterministic, real-data-only feedback for the one bounded completeness
-   * retry (PR 7.2) — never asserts anything the validator didn't actually
-   * measure.
+   * Deterministic, real-data-only feedback for the one bounded corrective
+   * retry (PR 7.2 completeness + PR 7.4 format coverage) — never asserts
+   * anything neither validator actually measured. Combined into a single
+   * message so both concerns share one retry, never two independent loops.
    */
-  private buildCompletenessFeedback(
-    issues: TourCompletenessIssue[],
+  private buildCorrectiveFeedback(
+    completenessIssues: TourCompletenessIssue[],
+    formatIssues: TourFormatCoverageIssue[],
     travelPace: TourGenerationRequest['mobility']['travelPace'],
   ): string {
-    const lines = [
-      'The previous itinerary materially under-filled the following requested day(s):',
-      ...issues.map(
-        (issue) =>
-          `- Day ${issue.dayNumber}: ${issue.selectedActivityCount} selected activity/activities, ` +
-          `approximately ${issue.selectedActivityHours} hours of activity time, with ` +
-          `${issue.viableUnusedCandidateCount} additional relevant viable candidate(s) still available.`,
-      ),
+    const lines: string[] = [];
+    if (completenessIssues.length > 0) {
+      lines.push(
+        'The previous itinerary materially under-filled the following requested day(s):',
+        ...completenessIssues.map(
+          (issue) =>
+            `- Day ${issue.dayNumber}: ${issue.selectedActivityCount} selected activity/activities, ` +
+            `approximately ${issue.selectedActivityHours} hours of activity time, with ` +
+            `${issue.viableUnusedCandidateCount} additional relevant viable candidate(s) still available.`,
+        ),
+      );
+    }
+    if (formatIssues.length > 0) {
+      lines.push(
+        'The previous itinerary ignored the following explicitly requested experience format(s), even though viable verified candidates existed:',
+        ...formatIssues.map(
+          (issue) =>
+            `- "${issue.requestedFormat}": ${issue.availableCandidateCount} viable candidate(s) available, 0 selected.`,
+        ),
+      );
+    }
+    lines.push(
       '',
-      `Regenerate the itinerary so each of these days is reasonably complete for the requested "${travelPace}" travel pace.`,
-      'Do not add irrelevant, repetitive, low-quality, or geographically inefficient activities merely to increase count.',
-    ];
+      `Regenerate the itinerary once: make each under-filled day reasonably complete for the requested "${travelPace}" travel pace, and include at least one strong candidate for each requested format that has viable candidates available.`,
+      'Do not add irrelevant, repetitive, low-quality, or geographically inefficient activities merely to increase count, and do not fabricate an activity to satisfy a requested format that has no real candidate.',
+    );
     return lines.join('\n');
   }
 
@@ -157,6 +189,7 @@ export class TourActivityGenerationService {
         metadata: activity.metadata,
       })),
       requestedThemes: request.intent.interests,
+      requestedExperienceFormats: request.intent.experienceFormats,
       days: request.days,
       explorationStyle: request.intent.explorationStyle,
       semanticCoverage: {
@@ -476,8 +509,12 @@ export class TourActivityGenerationService {
             // PR 7: run grounded discovery for the detected deficits.
             // Proposals are traced but not persisted (PR 7 contract).
             // The tour still proceeds with Places refill (PR 8 will resolve
-            // discovery proposals into real Activities).
-            if (request.intent.interests.length > 0) {
+            // discovery proposals into real Activities). Gated only on
+            // whether CoverageAnalyzer actually found a blocking deficit —
+            // not on interests being non-empty, since a user can request a
+            // composite experience format with zero themes selected and
+            // still deserve discovery for that (PR 7.4).
+            {
               const deficits = initialCoverageReport.deficits
                 .filter((d) => d.severity === 'blocking')
                 .map((d) => ({
@@ -497,9 +534,36 @@ export class TourActivityGenerationService {
                       undefined,
                       request.intent.interests,
                       deficits,
+                      request.intent.experienceFormats,
                     );
                   if (discoveryResult.proposals.length > 0) {
                     traceSteps.push(buildDiscoveryStep(discoveryResult));
+                    // PR 8: turn accepted proposals into real, persisted
+                    // Activities (AREA/composite via CompositeActivityService,
+                    // POI direct). This does NOT add them to this request's
+                    // own candidateActivityIds/candidateActivitiesById — a
+                    // newly persisted Activity only becomes selectable by a
+                    // future generation's ordinary geographic catalog query.
+                    // Combining freshly resolved discovery Activities into
+                    // *this* request's offered pool is PR 9's job.
+                    try {
+                      const resolutionResult =
+                        await this.proposalResolver.resolve({
+                          proposals: discoveryResult.proposals,
+                          destinationName: request.destination.label,
+                          destinationBoundary:
+                            destinationResolution.scale === 'area'
+                              ? destinationResolution.boundary
+                              : undefined,
+                        });
+                      traceSteps.push(
+                        buildEntityResolutionStep(resolutionResult),
+                      );
+                    } catch (resolutionError) {
+                      this.logger.warn(
+                        `Entity resolution failed (non-fatal): ${resolutionError.message}`,
+                      );
+                    }
                   }
                 } catch (discoveryError) {
                   this.logger.warn(
@@ -897,6 +961,30 @@ export class TourActivityGenerationService {
         };
       };
 
+      const buildFormatCoverageInput = (
+        sel: Awaited<ReturnType<typeof runItinerarySelection>>,
+      ): TourFormatCoverageInput => ({
+        requestedExperienceFormats: request.intent.experienceFormats,
+        selectedActivities: sel.uniqueActivities
+          .map((act: any): TourFormatCoverageActivityRef | null => {
+            const candidate = act.activityId
+              ? candidateActivitiesById.get(act.activityId)
+              : undefined;
+            return candidate?.kind
+              ? { activityId: act.activityId, kind: candidate.kind }
+              : null;
+          })
+          .filter((ref): ref is TourFormatCoverageActivityRef => ref !== null),
+        availableCandidateActivities: Array.from(
+          candidateActivitiesById.entries(),
+        )
+          .filter(([, candidate]) => candidate.kind)
+          .map(([activityId, candidate]) => ({
+            activityId,
+            kind: candidate.kind as ActivityKind,
+          })),
+      });
+
       let selection = await runItinerarySelection(selectorInput);
 
       // Update status: AI response received, processing activities
@@ -909,24 +997,29 @@ export class TourActivityGenerationService {
       let completeness = this.tourCompletenessValidator.validate(
         buildCompletenessInput(selection),
       );
-      let completenessRetryAttempted = false;
+      let formatCoverage = this.tourFormatCoverageValidator.validate(
+        buildFormatCoverageInput(selection),
+      );
+      let correctiveRetryAttempted = false;
 
-      // Bounded, single corrective regeneration (PR 7.2) — never looped.
+      // Bounded, single corrective regeneration (PR 7.2 completeness + PR 7.4
+      // format coverage) — never looped, and never two independent retries.
       // Coverage/refill/discovery already ran once for this request; this
       // only re-invokes the itinerary LLM with real, measured feedback about
-      // what it left unused.
-      if (!completeness.complete) {
-        completenessRetryAttempted = true;
+      // what it left unused or ignored.
+      if (!completeness.complete || !formatCoverage.valid) {
+        correctiveRetryAttempted = true;
         this.logger.warn(
-          `Tour ${tourId} under-filled after generation (${completeness.issues.length} day(s)); retrying itinerary selection once with completeness feedback.`,
+          `Tour ${tourId} needs correction (completeness=${completeness.complete}, formatCoverage=${formatCoverage.valid}); retrying itinerary selection once with combined feedback.`,
         );
         await this.updateGenerationStatus(
           tourId,
           'generating',
           'Ajustando el itinerario para aprovechar mejor el día...',
         );
-        const feedback = this.buildCompletenessFeedback(
+        const feedback = this.buildCorrectiveFeedback(
           completeness.issues,
+          formatCoverage.issues,
           request.mobility.travelPace,
         );
         selection = await runItinerarySelection(
@@ -934,6 +1027,9 @@ export class TourActivityGenerationService {
         );
         completeness = this.tourCompletenessValidator.validate(
           buildCompletenessInput(selection),
+        );
+        formatCoverage = this.tourFormatCoverageValidator.validate(
+          buildFormatCoverageInput(selection),
         );
         await this.updateGenerationStatus(
           tourId,
@@ -975,7 +1071,10 @@ export class TourActivityGenerationService {
         }),
       );
       traceSteps.push(
-        buildTourCompletenessStep(completeness, completenessRetryAttempted),
+        buildTourCompletenessStep(completeness, correctiveRetryAttempted),
+      );
+      traceSteps.push(
+        buildTourFormatCoverageStep(formatCoverage, correctiveRetryAttempted),
       );
 
       // Instance-level waypoint customization ("adapt this variant for a
@@ -1134,11 +1233,13 @@ export class TourActivityGenerationService {
 
         // 'completed' means the generation *process* finished end to end —
         // it does not mean every quality gate passed. A completeness
-        // shortfall (PR 7.2) that survives the one bounded retry is a real,
-        // known outcome, not an error: the tour still gets a valid, fully
-        // verified (non-hallucinated, non-duplicated) itinerary, and
-        // exactly how thin it is stays visible in generationTrace.tourCompleteness
-        // rather than being silently absorbed into a generic "completed".
+        // shortfall (PR 7.2) or an ignored requested experience format
+        // (PR 7.4) that survives the one bounded retry is a real, known
+        // outcome, not an error: the tour still gets a valid, fully
+        // verified (non-hallucinated, non-duplicated) itinerary, and exactly
+        // how thin/off-format it is stays visible in
+        // generationTrace.tourCompleteness/tourFormatCoverage rather than
+        // being silently absorbed into a generic "completed".
         await tx.tour.update({
           where: { id: tourId },
           data: {
@@ -1158,7 +1259,11 @@ export class TourActivityGenerationService {
                 auditFindings: auditResult,
                 tourCompleteness: {
                   ...completeness,
-                  retryAttempted: completenessRetryAttempted,
+                  retryAttempted: correctiveRetryAttempted,
+                },
+                tourFormatCoverage: {
+                  ...formatCoverage,
+                  retryAttempted: correctiveRetryAttempted,
                 },
               },
             },

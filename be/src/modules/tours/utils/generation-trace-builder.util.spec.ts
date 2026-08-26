@@ -2,9 +2,11 @@ import {
   buildCoverageAnalysisStep,
   buildEmbeddingsStep,
   buildDestinationResolutionStep,
+  buildEntityResolutionStep,
   buildLlmGenerationStep,
   buildPlacesCrawlStep,
   buildTourCompletenessStep,
+  buildTourFormatCoverageStep,
   buildTourIntentStep,
 } from './generation-trace-builder.util';
 
@@ -91,6 +93,104 @@ describe('buildTourCompletenessStep', () => {
     expect(step.summary).toContain('Día 1');
     expect(step.summary).toContain('reintentó');
     expect(step.tourCompleteness?.retryAttempted).toBe(true);
+  });
+});
+
+describe('buildTourFormatCoverageStep', () => {
+  it('reports success and no retry when every requested format with candidates was covered', () => {
+    const step = buildTourFormatCoverageStep(
+      { valid: true, issues: [] },
+      false,
+    );
+
+    expect(step.stage).toBe('tour_format_coverage');
+    expect(step.providerStatus).toBe('success');
+    expect(step.degradedReason).toBeUndefined();
+    expect(step.tourFormatCoverage).toEqual({
+      valid: true,
+      issues: [],
+      retryAttempted: false,
+    });
+  });
+
+  it('surfaces each missing format and marks the degraded reason', () => {
+    const step = buildTourFormatCoverageStep(
+      {
+        valid: false,
+        issues: [
+          {
+            code: 'REQUESTED_FORMAT_MISSING',
+            requestedFormat: 'neighborhood_walks' as any,
+            availableCandidateCount: 3,
+            selectedCandidateCount: 0,
+            message: 'ignored',
+          },
+        ],
+      },
+      true,
+    );
+
+    expect(step.providerStatus).toBe('failed');
+    expect(step.degradedReason).toBe('requested_format_missing');
+    expect(step.summary).toContain('neighborhood_walks');
+    expect(step.summary).toContain('reintentó');
+    expect(step.tourFormatCoverage?.retryAttempted).toBe(true);
+  });
+});
+
+describe('buildEntityResolutionStep', () => {
+  const proposal = (name: string) => ({
+    name,
+    kind: 'POI' as any,
+    themes: ['history'],
+    entityHints: [] as any[],
+    suggestedDurationMinutes: 90,
+    shortReason: 'test',
+    evidenceKeys: [] as string[],
+  });
+
+  it('reports accepted proposals as persisted, not offered to the current itinerary', () => {
+    const step = buildEntityResolutionStep({
+      resolved: [
+        {
+          proposal: proposal('Casa Histórica'),
+          status: 'accepted',
+          resolvedEntities: [],
+          rejectionReasons: [],
+          persistedActivityId: 'activity-1',
+        },
+      ],
+      totalProposals: 1,
+      acceptedCount: 1,
+      rejectedCount: 0,
+    });
+
+    expect(step.stage).toBe('entity_resolution');
+    expect(step.providerStatus).toBe('success');
+    expect(step.degradedReason).toBeUndefined();
+    expect(step.summary).toContain('1 de 1');
+    expect(step.summary).toContain('PR 9');
+    expect(step.resolution?.acceptedCount).toBe(1);
+  });
+
+  it('surfaces each rejected proposal with its reasons and marks the step degraded', () => {
+    const step = buildEntityResolutionStep({
+      resolved: [
+        {
+          proposal: proposal('Plaza Ambigua'),
+          status: 'rejected',
+          resolvedEntities: [],
+          rejectionReasons: ['area_ambiguous'],
+        },
+      ],
+      totalProposals: 1,
+      acceptedCount: 0,
+      rejectedCount: 1,
+    });
+
+    expect(step.providerStatus).toBe('failed');
+    expect(step.degradedReason).toBe('no_proposals_resolved');
+    expect(step.summary).toContain('Plaza Ambigua: area_ambiguous');
   });
 });
 

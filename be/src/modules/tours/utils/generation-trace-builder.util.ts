@@ -5,6 +5,8 @@ import {
 } from '../interfaces/generation-trace.interface';
 import { CoverageReport } from '../interfaces/coverage-analysis.interface';
 import { TourCompletenessResult } from '../interfaces/tour-completeness.interface';
+import { TourFormatCoverageResult } from '../interfaces/tour-format-coverage.interface';
+import { ProposalResolutionResponse } from '../interfaces/proposal-resolution.interface';
 import {
   PlacesCrawlProvenance,
   placesProviderLabel,
@@ -386,6 +388,35 @@ export function buildDiscoveryStep(
   };
 }
 
+export function buildEntityResolutionStep(
+  result: ProposalResolutionResponse,
+): GenerationTraceStep {
+  const rejected = result.resolved.filter((r) => r.status !== 'accepted');
+  const rejectedSummaries = rejected.map(
+    (r) =>
+      `${r.proposal.name}: ${r.rejectionReasons.join(', ') || 'sin motivo registrado'}`,
+  );
+
+  const summary =
+    `Se resolvieron ${result.acceptedCount} de ${result.totalProposals} ` +
+    `propuesta(s) fundamentada(s) como Activities reales y persistidas — ` +
+    `disponibles para futuras generaciones de este destino, no para el ` +
+    `itinerario actual (esa integración es PR 9).` +
+    (rejectedSummaries.length
+      ? ` Rechazadas: ${rejectedSummaries.join('; ')}.`
+      : '');
+
+  return {
+    stage: 'entity_resolution',
+    label: 'Resolución de entidades (PR 8)',
+    summary,
+    providerStatus: result.acceptedCount > 0 ? 'success' : 'failed',
+    degradedReason:
+      result.acceptedCount === 0 ? 'no_proposals_resolved' : undefined,
+    resolution: result,
+  };
+}
+
 export function buildTourCompletenessStep(
   result: TourCompletenessResult,
   retryAttempted: boolean,
@@ -412,6 +443,34 @@ export function buildTourCompletenessStep(
     providerStatus: result.complete ? 'success' : 'failed',
     degradedReason: result.complete ? undefined : 'underfilled_day',
     tourCompleteness: { ...result, retryAttempted },
+  };
+}
+
+export function buildTourFormatCoverageStep(
+  result: TourFormatCoverageResult,
+  retryAttempted: boolean,
+): GenerationTraceStep {
+  const summary = result.valid
+    ? 'El itinerario respetó los formatos de experiencia solicitados que tenían candidatos disponibles.' +
+      (retryAttempted ? ' (tras un reintento por cobertura de formato)' : '')
+    : result.issues
+        .map(
+          (issue) =>
+            `Formato "${issue.requestedFormat}": ${issue.availableCandidateCount} ` +
+            `candidato(s) viable(s) disponible(s), 0 seleccionado(s).`,
+        )
+        .join(' ') +
+      (retryAttempted
+        ? ' Se reintentó la generación una vez y el resultado siguió sin incluir el formato.'
+        : '');
+
+  return {
+    stage: 'tour_format_coverage',
+    label: 'Cobertura de formato de experiencia solicitado',
+    summary,
+    providerStatus: result.valid ? 'success' : 'failed',
+    degradedReason: result.valid ? undefined : 'requested_format_missing',
+    tourFormatCoverage: { ...result, retryAttempted },
   };
 }
 

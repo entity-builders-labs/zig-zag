@@ -1,5 +1,8 @@
 import axiosInstance from './config/axios';
-import { CompositeActivityFields } from '../features/activities/composite';
+import {
+  CompositeActivityFields,
+  NarrativeSource,
+} from '../features/activities/composite';
 
 export interface ActivityDetail extends CompositeActivityFields {
   id: string;
@@ -17,7 +20,10 @@ export interface ActivityDetail extends CompositeActivityFields {
   phoneNumber?: string;
   website?: string;
   photos?: any;
-  metadata?: any;
+  metadata?: {
+    narrativeSources?: NarrativeSource[];
+    [key: string]: any;
+  };
 }
 
 export async function fetchSimilarActivities(activityId: string, limit = 10) {

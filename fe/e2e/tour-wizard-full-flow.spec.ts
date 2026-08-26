@@ -220,7 +220,27 @@ test('@live creates a tour end-to-end through the wizard and views it in both li
   await expect(page.getByText('Tu Recorrido', { exact: true })).toBeVisible();
   const stopCards = page.locator('text=Caminata').first();
   await expect(stopCards.or(page.getByText('Free'))).toBeVisible();
-  await readingPause(page, 2500); // hold on list mode so it reads clearly on video
+  await readingPause(page, 1500);
+
+  if (DEMO) {
+    // Slow-scroll through the generated stops so they're actually readable
+    // on the recording, instead of only ever showing the first screenful.
+    for (let i = 0; i < 8; i++) {
+      await page.mouse.wheel(0, 280);
+      await page.waitForTimeout(450);
+    }
+    await readingPause(page, 1000);
+
+    // Open the dev-only bitácora accordion and hold on it — only present
+    // when __DEV__ and the tour actually has a trace (see tours/[id].tsx).
+    const bitacoraToggle = page.getByTestId('bitacora-toggle');
+    if (await bitacoraToggle.count()) {
+      await humanClick(page, bitacoraToggle);
+      await readingPause(page, 3500);
+    }
+  } else {
+    await readingPause(page, 2500); // hold on list mode so it reads clearly on video
+  }
 
   // --- Map mode ---
   await humanClick(page, page.getByTestId('view-toggle-map'));

@@ -10,14 +10,17 @@ import { DestinationResolutionService } from './services/destination-resolution.
 import { CatalogRefillAnchorPlanner } from './services/catalog-refill-anchor-planner.service';
 import { CoverageAnalyzer } from './services/coverage-analyzer.service';
 import { TourCompletenessValidator } from './services/tour-completeness-validator.service';
+import { TourFormatCoverageValidator } from './services/tour-format-coverage-validator.service';
 import { ActivityDiscoveryService } from './services/activity-discovery.service';
 import { GroqGroundedSearchService } from './services/groq-grounded-search.service';
 import { SerpApiGroundedSearchService } from './services/serpapi-grounded-search.service';
+import { ActivityProposalResolutionService } from './services/activity-proposal-resolution.service';
 import { GroqDiscoveryProvider } from './services/groq-discovery.provider';
 import {
   DISCOVERY_PROVIDER,
   GROUNDED_SEARCH_PROVIDER,
 } from './interfaces/activity-discovery.interface';
+import { PROPOSAL_RESOLVER } from './interfaces/proposal-resolution.interface';
 
 import { ActivitiesModule } from '../activities/activities.module';
 import { AiModule } from '../../shared/ai/ai.module';
@@ -45,9 +48,11 @@ import { AuthModule } from '../auth/auth.module';
     CatalogRefillAnchorPlanner,
     CoverageAnalyzer,
     TourCompletenessValidator,
+    TourFormatCoverageValidator,
     ActivityDiscoveryService,
     GroqGroundedSearchService,
     SerpApiGroundedSearchService,
+    ActivityProposalResolutionService,
     GroqDiscoveryProvider,
     {
       // SerpApi is the default grounded-search evidence provider: a plain
@@ -63,6 +68,10 @@ import { AuthModule } from '../auth/auth.module';
       provide: DISCOVERY_PROVIDER,
       useExisting: GroqDiscoveryProvider,
     },
+    {
+      provide: PROPOSAL_RESOLVER,
+      useExisting: ActivityProposalResolutionService,
+    },
   ],
   exports: [
     ToursService,
@@ -72,6 +81,7 @@ import { AuthModule } from '../auth/auth.module';
     TourLocationService,
     CompositeGenerationService,
     ActivityDiscoveryService,
+    ActivityProposalResolutionService,
   ],
 })
 export class ToursModule {}

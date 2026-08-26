@@ -1,4 +1,6 @@
+import { ActivityKind } from '@prisma/client';
 import { CoverageAnalyzer } from './coverage-analyzer.service';
+import { ExperienceFormat } from '../interfaces/tour-generation.interface';
 
 describe('CoverageAnalyzer', () => {
   let service: CoverageAnalyzer;
@@ -167,5 +169,138 @@ describe('CoverageAnalyzer', () => {
     expect(report.status).toBe('sufficient');
     expect(report.destinationKnowledge.status).toBe('unsupported_until_pr7');
     expect(report.destinationKnowledge.reason).toContain('PR 6');
+  });
+
+  describe('requested experience format coverage (PR 7.4)', () => {
+    function poiCandidate(id: string) {
+      return {
+        id,
+        name: `POI ${id}`,
+        kind: ActivityKind.POI,
+        source: 'google_places',
+        type: 'museum',
+        knownActivityTypeName: 'museum',
+        weightedScore: 4.5,
+        distanceKm: 1,
+      };
+    }
+
+    const baseInput = {
+      candidates: [
+        poiCandidate('poi-1'),
+        poiCandidate('poi-2'),
+        poiCandidate('poi-3'),
+        poiCandidate('poi-4'),
+      ],
+      requestedThemes: [] as string[],
+      days: 1,
+      explorationStyle: 'balanced',
+      semanticCoverage: {
+        status: 'applied' as const,
+        eligibleCandidateCount: 4,
+        indexedCandidateCount: 4,
+      },
+      offeredCandidateCount: 4,
+      providerHealth: { status: 'healthy' as const },
+    };
+
+    it('blocks when a composite format is requested and the pool has zero of that kind', () => {
+      const report = service.analyze({
+        ...baseInput,
+        requestedExperienceFormats: [ExperienceFormat.NEIGHBORHOOD_WALKS],
+      });
+
+      expect(report.deficits).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            reason: 'missing_requested_experience_format',
+            severity: 'blocking',
+            experienceFormat: 'neighborhood_walks',
+          }),
+        ]),
+      );
+      expect(report.decision).toEqual(
+        expect.objectContaining({
+          action: 'defer_to_pr7_grounded_gap',
+          reason: 'qualitative_gap_requires_activity_discovery',
+          deployableInPr6: false,
+        }),
+      );
+    });
+
+    it('does not add a deficit when no experience format was requested', () => {
+      const report = service.analyze({ ...baseInput });
+
+      expect(report.deficits).not.toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            reason: 'missing_requested_experience_format',
+          }),
+        ]),
+      );
+      expect(report.status).toBe('sufficient');
+    });
+
+    it('does not add a deficit for point_visits — it has no kind mapping', () => {
+      const report = service.analyze({
+        ...baseInput,
+        requestedExperienceFormats: [ExperienceFormat.POINT_VISITS],
+      });
+
+      expect(report.deficits).not.toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            reason: 'missing_requested_experience_format',
+          }),
+        ]),
+      );
+      expect(report.status).toBe('sufficient');
+    });
+
+    it('does not add a deficit when the pool already has a candidate of the matching kind', () => {
+      const report = service.analyze({
+        ...baseInput,
+        candidates: [
+          ...baseInput.candidates,
+          {
+            id: 'walk-1',
+            name: 'Neighborhood Walk',
+            kind: ActivityKind.NEIGHBORHOOD_WALK,
+            source: 'catalog',
+            weightedScore: 4.5,
+            distanceKm: 1,
+          },
+        ],
+        requestedExperienceFormats: [ExperienceFormat.NEIGHBORHOOD_WALKS],
+      });
+
+      expect(report.deficits).not.toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            reason: 'missing_requested_experience_format',
+          }),
+        ]),
+      );
+    });
+
+    it('keeps both reasons in the deficits array when a theme deficit coexists with a format deficit', () => {
+      const report = service.analyze({
+        ...baseInput,
+        requestedThemes: ['nightlife'],
+        requestedExperienceFormats: [ExperienceFormat.NEIGHBORHOOD_WALKS],
+      });
+
+      expect(report.deficits).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ reason: 'missing_requested_theme' }),
+          expect.objectContaining({
+            reason: 'missing_requested_experience_format',
+          }),
+        ]),
+      );
+      // Existing precedent wins the decision label — cosmetic only, since
+      // the orchestrator forwards the full deficits array either way.
+      expect(report.decision.reason).toBe('missing_requested_theme');
+    });
   });
 });
