@@ -39,6 +39,13 @@ export interface CatalogCandidate {
 export interface CatalogCandidateValidationContext {
   destinationBoundary?: GeoJsonGeometry;
   acquisitionOperation?: CatalogAcquisitionOperation;
+  /** The user's requested interests for this crawl — lets a Text Search
+   * candidate be validated against every acquisition category those
+   * interests actually cover, not only the single category of whichever
+   * operation happened to return it first (a real place can legitimately
+   * satisfy more than one category, e.g. a history_museum also counts as a
+   * visitor_landmarks match). */
+  requestedInterests?: string[];
 }
 
 export type CatalogAdmissionEvidence =

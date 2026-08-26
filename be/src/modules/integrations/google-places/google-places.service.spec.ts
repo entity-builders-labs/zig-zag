@@ -409,6 +409,15 @@ describe('GooglePlacesService provider provenance', () => {
       }),
     );
     expect(result.provenance.rejectedCountByReason.duplicate_result).toBe(1);
+    // The bitácora must be able to say *which* real place got deduplicated,
+    // not just that one was — "why did X disappear" needs a name.
+    expect(result.provenance.rejectedCandidates).toEqual([
+      expect.objectContaining({
+        id: 'shared-place',
+        name: 'Museo compartido',
+        reasons: ['duplicate_result'],
+      }),
+    ]);
   });
 
   it('persists a valid place but exposes a failed embedding write truthfully', async () => {
@@ -606,6 +615,16 @@ describe('GooglePlacesService provider provenance', () => {
     expect(
       result.provenance.rejectedCountByReason.outside_destination_boundary,
     ).toBe(1);
+    // A high rating/review count doesn't exempt a candidate from tracing —
+    // this is the exact shape of question the bitácora must answer: which
+    // real, well-reviewed place got dropped, and for which specific reason.
+    expect(result.provenance.rejectedCandidates).toEqual([
+      expect.objectContaining({
+        id: 'outside-city',
+        name: 'Famous Museum Outside',
+        reasons: expect.arrayContaining(['outside_destination_boundary']),
+      }),
+    ]);
   });
 
   it('uses requested interests to avoid unrelated category calls', async () => {

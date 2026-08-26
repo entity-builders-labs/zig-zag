@@ -49,7 +49,7 @@ export function formatActivityForPrompt(act: ActivityForPrompt): string {
     `${act.name} (${act.type || 'Activity'})`,
     (act.description || 'No description').substring(0, 100),
     `Location: ${act.latitude}, ${act.longitude}`,
-    `Duration: ${act.duration || 'Unknown'} minutes`,
+    `Duration: ${act.duration || 'Unknown'} hours`,
   ];
 
   if (act.rating != null) {

@@ -4,6 +4,7 @@ import {
   buildDestinationResolutionStep,
   buildLlmGenerationStep,
   buildPlacesCrawlStep,
+  buildTourCompletenessStep,
   buildTourIntentStep,
 } from './generation-trace-builder.util';
 
@@ -49,6 +50,50 @@ describe('buildTourIntentStep', () => {
     expect(step.summary?.split(note)).toHaveLength(2);
   });
 });
+describe('buildTourCompletenessStep', () => {
+  it('reports success and no retry when the itinerary is already complete', () => {
+    const step = buildTourCompletenessStep(
+      { complete: true, issues: [] },
+      false,
+    );
+
+    expect(step.stage).toBe('tour_completeness');
+    expect(step.providerStatus).toBe('success');
+    expect(step.degradedReason).toBeUndefined();
+    expect(step.tourCompleteness).toEqual({
+      complete: true,
+      issues: [],
+      retryAttempted: false,
+    });
+  });
+
+  it('surfaces each underfilled day and marks the degraded reason', () => {
+    const step = buildTourCompletenessStep(
+      {
+        complete: false,
+        issues: [
+          {
+            code: 'UNDERFILLED_DAY',
+            dayNumber: 1,
+            selectedActivityCount: 2,
+            selectedActivityHours: 2.5,
+            viableUnusedCandidateCount: 12,
+            travelPace: 'moderate' as any,
+            message: 'thin day',
+          },
+        ],
+      },
+      true,
+    );
+
+    expect(step.providerStatus).toBe('failed');
+    expect(step.degradedReason).toBe('underfilled_day');
+    expect(step.summary).toContain('Día 1');
+    expect(step.summary).toContain('reintentó');
+    expect(step.tourCompleteness?.retryAttempted).toBe(true);
+  });
+});
+
 describe('buildPlacesCrawlStep', () => {
   it('reports the actual Geoapify provider and cache provenance', () => {
     const step = buildPlacesCrawlStep([{ id: 'a1', name: 'Museo' }], {
@@ -66,6 +111,38 @@ describe('buildPlacesCrawlStep', () => {
     expect(step.summary).toContain('cache hit');
     expect(step.candidates?.[0].source).toBe('geoapify');
     expect(step.placesProvenance?.acceptedCount).toBe(1);
+  });
+
+  it('surfaces rejected candidates by name, not just an aggregate count', () => {
+    const step = buildPlacesCrawlStep([{ id: 'a1', name: 'Museo Admitido' }], {
+      provider: 'google',
+      cacheStatus: 'miss-live',
+      requestedCount: 5,
+      receivedCount: 2,
+      acceptedCount: 1,
+      rejectedCountByReason: { outside_destination_boundary: 1 },
+      rejectedCandidates: [
+        {
+          id: 'place-2',
+          name: 'Casa Histórica - Museo Nacional de la Independencia',
+          reasons: ['outside_destination_boundary'],
+        },
+      ],
+    });
+
+    const rejected = step.candidates?.find(
+      (c) => c.name === 'Casa Histórica - Museo Nacional de la Independencia',
+    );
+    expect(rejected).toEqual(
+      expect.objectContaining({
+        offered: false,
+        chosen: false,
+        detail: 'rechazado: outside_destination_boundary',
+      }),
+    );
+    expect(step.candidates?.find((c) => c.name === 'Museo Admitido')).toEqual(
+      expect.objectContaining({ offered: true }),
+    );
   });
 
   it('reports a strict Google cache miss as a failure without claiming results', () => {

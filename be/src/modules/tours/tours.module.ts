@@ -9,6 +9,7 @@ import { CompositeGenerationService } from './services/composite-generation.serv
 import { DestinationResolutionService } from './services/destination-resolution.service';
 import { CatalogRefillAnchorPlanner } from './services/catalog-refill-anchor-planner.service';
 import { CoverageAnalyzer } from './services/coverage-analyzer.service';
+import { TourCompletenessValidator } from './services/tour-completeness-validator.service';
 import { ActivityDiscoveryService } from './services/activity-discovery.service';
 import { GroqGroundedSearchService } from './services/groq-grounded-search.service';
 import { SerpApiGroundedSearchService } from './services/serpapi-grounded-search.service';
@@ -43,6 +44,7 @@ import { AuthModule } from '../auth/auth.module';
     DestinationResolutionService,
     CatalogRefillAnchorPlanner,
     CoverageAnalyzer,
+    TourCompletenessValidator,
     ActivityDiscoveryService,
     GroqGroundedSearchService,
     SerpApiGroundedSearchService,

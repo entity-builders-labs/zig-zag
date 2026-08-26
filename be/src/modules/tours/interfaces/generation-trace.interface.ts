@@ -1,6 +1,7 @@
 import { GenerationAuditResult } from '../utils/generation-audit.util';
 import { PlacesCrawlProvenance } from '@integrations/google-places/interfaces/places-api.interface';
 import { CoverageReport } from './coverage-analysis.interface';
+import { TourCompletenessResult } from './tour-completeness.interface';
 
 // Chronological pipeline steps a live tour generation actually went
 // through — see docs/superpowers/specs/2026-08-20-generation-bitacora-design.md.
@@ -15,7 +16,20 @@ export type TraceStage =
   | 'places_crawl'
   | 'embeddings'
   | 'llm_generation'
-  | 'verification';
+  | 'verification'
+  | 'tour_completeness';
+
+// PR 7.2: does the verified, non-duplicated result actually make reasonable
+// use of the requested day(s)? Independent of CoverageAnalyzer (which only
+// judges the candidate pool) and of anti-hallucination verification (which
+// only judges whether picks are real). `retryAttempted` records whether the
+// one bounded corrective regeneration ran — see
+// TourActivityGenerationService. `generationStatus` on the tour itself stays
+// 'completed' even when `complete` is false here: that status means the
+// generation process finished, not that every quality gate passed.
+export type TourCompletenessTraceResult = TourCompletenessResult & {
+  retryAttempted: boolean;
+};
 
 export interface TraceCandidate {
   source:
@@ -59,6 +73,7 @@ export interface GenerationTraceStep {
     evidenceCount?: number;
     reason?: string;
   };
+  tourCompleteness?: TourCompletenessTraceResult;
 }
 
 export interface GenerationTrace {
@@ -67,4 +82,5 @@ export interface GenerationTrace {
   hallucinatedCount: number;
   duplicateCount: number;
   auditFindings?: GenerationAuditResult;
+  tourCompleteness?: TourCompletenessTraceResult;
 }

@@ -432,6 +432,12 @@ export class GooglePlacesService implements OnModuleInit {
     }
   }
 
+  // Caps how many individual rejected candidates the trace records by name —
+  // the aggregate rejectedCountByReason has no such limit, this only bounds
+  // the richer per-candidate detail so a pathological run (thousands of raw
+  // results) can't blow up the persisted generationTrace JSON.
+  private readonly MAX_REJECTED_CANDIDATES_IN_TRACE = 50;
+
   private incrementRejection(
     provenance: PlacesCrawlProvenance,
     reason: string,
@@ -443,6 +449,27 @@ export class GooglePlacesService implements OnModuleInit {
     if (countAsCandidate) {
       provenance.rejectedCount = (provenance.rejectedCount ?? 0) + count;
     }
+  }
+
+  // Every filter/decision in the catalog acquisition pipeline should be
+  // traceable back to the specific real place it affected, not just an
+  // aggregate count — this is the core tours engine during active
+  // development, and "why did candidate X disappear" must be answerable
+  // from the bitácora alone.
+  private recordRejectedCandidate(
+    provenance: PlacesCrawlProvenance,
+    id: string,
+    name: string,
+    reasons: string[],
+  ): void {
+    if (!provenance.rejectedCandidates) provenance.rejectedCandidates = [];
+    if (
+      provenance.rejectedCandidates.length >=
+      this.MAX_REJECTED_CANDIDATES_IN_TRACE
+    ) {
+      return;
+    }
+    provenance.rejectedCandidates.push({ id, name, reasons });
   }
 
   async crawlAndSaveActivities(
@@ -486,6 +513,7 @@ export class GooglePlacesService implements OnModuleInit {
       anchors: anchors.map((anchor) => ({ ...anchor })),
       operations: [],
       rejectedCountByReason: {},
+      rejectedCandidates: [],
     };
 
     try {
@@ -639,6 +667,12 @@ export class GooglePlacesService implements OnModuleInit {
           provenance.deduplicatedCount =
             (provenance.deduplicatedCount ?? 0) + 1;
           this.incrementRejection(provenance, 'duplicate_result');
+          this.recordRejectedCandidate(
+            provenance,
+            entry.place.placeId,
+            entry.place.name,
+            ['duplicate_result'],
+          );
           continue;
         }
         uniquePlaces.set(identity, entry);
@@ -711,6 +745,7 @@ export class GooglePlacesService implements OnModuleInit {
           {
             destinationBoundary: options.destinationBoundary,
             acquisitionOperation: operation,
+            requestedInterests: options.requestedInterests,
           },
         );
         if (validation.identityAccepted) {
@@ -733,6 +768,12 @@ export class GooglePlacesService implements OnModuleInit {
           for (const reason of validation.rejectionReasons) {
             this.incrementRejection(provenance, reason, 1, false);
           }
+          this.recordRejectedCandidate(
+            provenance,
+            candidate.externalId ?? candidate.name,
+            candidate.name,
+            validation.rejectionReasons,
+          );
           continue;
         }
         provenance.validatedCount = (provenance.validatedCount ?? 0) + 1;

@@ -1,3 +1,5 @@
+import { TOUR_PLANNING_POLICY_PROMPT } from './tour-planning-policy.prompt';
+
 // Strict JSON Schema used by Groq GPT-OSS structured outputs. Every property
 // is required and every object forbids additional properties because those are
 // constraints of Groq's `strict: true` mode. Fields that are conceptually
@@ -128,7 +130,9 @@ export const CREATE_TOUR_SELECTION_RESPONSE_SCHEMA: Record<string, unknown> = {
   required: ['reasoning', 'activities'],
 };
 
-export const CREATE_TOUR_SELECTION_JSON_SYSTEM_PROMPT = `You select and schedule only from verified candidates supplied by the user.
+export const CREATE_TOUR_SELECTION_JSON_SYSTEM_PROMPT = `${TOUR_PLANNING_POLICY_PROMPT}
+
+OUTPUT CONTRACT (compact selection)
 
 Return exactly two top-level fields: reasoning and activities.
 
@@ -204,17 +208,9 @@ Return exactly three top-level fields: reasoning, compositeActivities, and activ
 
 Return only valid JSON matching the supplied schema.`;
 
-export const CREATE_TOUR_SYSTEM_PROMPT = `You are a tour planning expert. Create well-organized tour itineraries by:
-- Following a logical geographical sequence
-- Progressing naturally throughout the day
-- Scheduling each activity within its listed opening hours when available —
-  never schedule a visit at a time the place is marked closed
-- Including reasonable transition times
-- Creating balanced activity type mixes
-- Preferring higher-rated activities (and more reviews as a confidence signal)
-  when several options fit equally well, and using price level as a practical
-  tie-breaker — but never let rating or price override a poor match with the
-  requested interests
+export const CREATE_TOUR_SYSTEM_PROMPT = `${TOUR_PLANNING_POLICY_PROMPT}
+
+OUTPUT CONTRACT (OpenAI function-calling)
 
 For each activity, provide detailed notes that include:
 - What visitors can expect to see or experience
@@ -223,32 +219,19 @@ For each activity, provide detailed notes that include:
 - Any relevant historical or cultural context
 - Specific recommendations based on the activity type
 
-CRITICAL: Only use activities from the "Available activities" list below — every
-activity you include MUST be one of these, copied with its exact id, name, and
-coordinates. Do NOT invent, imagine, or add any place that is not in this list,
-even if the list is short or doesn't perfectly match every interest. If the list
-is empty, do not produce any activities.
+When citing an activity, copy its exact id, name, and coordinates from the
+Available activities list below.
 
 Also provide a "reasoning" field (3-5 sentences) explaining how you weighed the
 requested budget, transportation mode, travel pace, dietary restrictions, and
 group type when choosing and ordering activities, and why any candidates were
-left out. This is for internal debugging only, not shown to the end user — be
-concrete and reference the actual preferences and candidates, not generic
-statements.
+left out. This is for internal debugging only, not shown to the end user.
 
 Available activities: {activities}`;
 
-export const CREATE_TOUR_JSON_SYSTEM_PROMPT = `You are a tour planning expert. Create well-organized tour itineraries by:
-- Following a logical geographical sequence
-- Progressing naturally throughout the day
-- Scheduling each activity within its listed opening hours when available —
-  never schedule a visit at a time the place is marked closed
-- Including reasonable transition times
-- Creating balanced activity type mixes
-- Preferring higher-rated activities (and more reviews as a confidence signal)
-  when several options fit equally well, and using price level as a practical
-  tie-breaker — but never let rating or price override a poor match with the
-  requested interests
+export const CREATE_TOUR_JSON_SYSTEM_PROMPT = `${TOUR_PLANNING_POLICY_PROMPT}
+
+OUTPUT CONTRACT (full JSON, legacy /tours/nearby fallback)
 
 For each activity, provide detailed notes that include:
 - What visitors can expect to see or experience
@@ -257,12 +240,8 @@ For each activity, provide detailed notes that include:
 - Any relevant historical or cultural context
 - Specific recommendations based on the activity type
 
-CRITICAL: Only use activities from the "Available activities" list in the user
-message — every activity you include MUST be one of these, copied with its
-exact id (into "activityId"), name, and coordinates. Do NOT invent, imagine, or
-add any place that is not explicitly listed there, even if the list is short or
-doesn't perfectly match every interest. If the list is empty, return an empty
-"activities" array — never fabricate a place to fill it.
+When citing an activity in this schema, copy its exact id (into "activityId"),
+name, and coordinates from the Available activities list.
 
 Also fill "reasoning" (3-5 sentences) explaining how you weighed the requested
 budget, transportation mode, travel pace, dietary restrictions, and group type

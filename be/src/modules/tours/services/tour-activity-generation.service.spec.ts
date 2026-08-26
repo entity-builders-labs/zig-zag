@@ -15,6 +15,7 @@ import { DestinationResolutionService } from './destination-resolution.service';
 import { CatalogRefillAnchorPlanner } from './catalog-refill-anchor-planner.service';
 import { CoverageAnalyzer } from './coverage-analyzer.service';
 import { ActivityDiscoveryService } from './activity-discovery.service';
+import { TourCompletenessValidator } from './tour-completeness-validator.service';
 import { PlacesCrawlError } from '@integrations/google-places/interfaces/places-api.interface';
 
 // transformAiActivitiesToDto only keeps `activityId` when it passes
@@ -239,6 +240,7 @@ describe('TourActivityGenerationService', () => {
         },
         CatalogRefillAnchorPlanner,
         CoverageAnalyzer,
+        TourCompletenessValidator,
         {
           provide: ActivityDiscoveryService,
           useValue: { discoverGaps: jest.fn(), discoverBootstrap: jest.fn() },
@@ -388,6 +390,11 @@ describe('TourActivityGenerationService', () => {
       longitude: -58.37,
       rating: 4.5,
       ratingCount: 100,
+      // Long enough alone to satisfy the default 'moderate' pace's
+      // minMeaningfulHours, so this test's single-pick scenario exercises
+      // the plain non-retry path — the completeness retry loop itself is
+      // covered by its own dedicated tests below.
+      duration: 4,
     }));
     activitiesService.findAll.mockResolvedValue(fifteenActivities);
     prisma.activity.findMany.mockResolvedValue(
@@ -437,6 +444,7 @@ describe('TourActivityGenerationService', () => {
       'embeddings',
       'llm_generation',
       'verification',
+      'tour_completeness',
     ]);
 
     const dbSearchStep = trace.steps.find((s: any) => s.stage === 'db_search');
@@ -463,6 +471,134 @@ describe('TourActivityGenerationService', () => {
     const generatedUserPrompt =
       langChainService.generateChatResponse.mock.calls[0][1];
     expect(generatedUserPrompt.split(`id: ${poiId}`)).toHaveLength(2);
+    expect(langChainService.generateChatResponse).toHaveBeenCalledTimes(1);
+  });
+
+  describe('tour completeness retry (PR 7.2)', () => {
+    const buildCandidates = () =>
+      Array.from({ length: 15 }, (_, i) => ({
+        id: testUuid(),
+        name: `Place ${i}`,
+        type: 'cultural',
+        latitude: -34.62,
+        longitude: -58.37,
+        rating: 4.5,
+        ratingCount: 100,
+        duration: 2,
+      }));
+
+    it('retries exactly once and persists the fuller retry result when the first attempt under-fills the day', async () => {
+      const candidates = buildCandidates();
+      activitiesService.findAll.mockResolvedValue(candidates);
+      prisma.activity.findMany.mockResolvedValue(
+        candidates.map((c) => ({
+          id: c.id,
+          latitude: c.latitude,
+          longitude: c.longitude,
+          kind: ActivityKind.POI,
+        })),
+      );
+
+      const thinResponse = aiJsonResponse({
+        reasoning: 'A single pick.',
+        activities: [
+          {
+            activityId: candidates[0].id,
+            dayNumber: 1,
+            startTime: '10:00',
+            duration: 2,
+            notes: 'One stop',
+            selectedWaypointIds: [],
+          },
+        ],
+      });
+      const fullerResponse = aiJsonResponse({
+        reasoning: 'A fuller day.',
+        activities: [0, 1, 2].map((i) => ({
+          activityId: candidates[i].id,
+          dayNumber: 1,
+          startTime: `${10 + i * 2}:00`,
+          duration: 2,
+          notes: `Stop ${i}`,
+          selectedWaypointIds: [] as string[],
+        })),
+      });
+      langChainService.generateChatResponse
+        .mockResolvedValueOnce(thinResponse)
+        .mockResolvedValueOnce(fullerResponse);
+
+      await service.generateTourActivities(TOUR_ID);
+
+      expect(langChainService.generateChatResponse).toHaveBeenCalledTimes(2);
+
+      const completedCall = prisma.tour.update.mock.calls.find(
+        (call: any) => call[0].data.metadata.generationStatus === 'completed',
+      );
+      expect(completedCall).toBeDefined();
+      const trace = completedCall[0].data.metadata.generationTrace;
+      expect(trace.aiReasoning).toBe('A fuller day.');
+      expect(trace.tourCompleteness).toEqual(
+        expect.objectContaining({ complete: true, retryAttempted: true }),
+      );
+
+      const completenessStep = trace.steps.find(
+        (s: any) => s.stage === 'tour_completeness',
+      );
+      expect(completenessStep.providerStatus).toBe('success');
+    });
+
+    it('does not loop a second time when the retry itself is still under-filled', async () => {
+      const candidates = buildCandidates();
+      activitiesService.findAll.mockResolvedValue(candidates);
+      prisma.activity.findMany.mockResolvedValue(
+        candidates.map((c) => ({
+          id: c.id,
+          latitude: c.latitude,
+          longitude: c.longitude,
+          kind: ActivityKind.POI,
+        })),
+      );
+
+      const thinResponse = aiJsonResponse({
+        reasoning: 'Still thin.',
+        activities: [
+          {
+            activityId: candidates[0].id,
+            dayNumber: 1,
+            startTime: '10:00',
+            duration: 2,
+            notes: 'One stop',
+            selectedWaypointIds: [],
+          },
+        ],
+      });
+      langChainService.generateChatResponse.mockResolvedValue(thinResponse);
+
+      await service.generateTourActivities(TOUR_ID);
+
+      // Exactly one retry — not the initial call plus an unbounded loop.
+      expect(langChainService.generateChatResponse).toHaveBeenCalledTimes(2);
+
+      const completedCall = prisma.tour.update.mock.calls.find(
+        (call: any) => call[0].data.metadata.generationStatus === 'completed',
+      );
+      expect(completedCall).toBeDefined();
+      const trace = completedCall[0].data.metadata.generationTrace;
+      // 'completed' means the process finished, not that every gate
+      // passed — the shortfall stays visible in the trace instead.
+      expect(trace.tourCompleteness).toEqual(
+        expect.objectContaining({ complete: false, retryAttempted: true }),
+      );
+      expect(trace.tourCompleteness.issues).toEqual([
+        expect.objectContaining({ code: 'UNDERFILLED_DAY', dayNumber: 1 }),
+      ]);
+
+      const completenessStep = trace.steps.find(
+        (s: any) => s.stage === 'tour_completeness',
+      );
+      expect(completenessStep.providerStatus).toBe('failed');
+      expect(completenessStep.degradedReason).toBe('underfilled_day');
+    });
   });
 
   it('never persists a composite returned outside the live selection contract', async () => {

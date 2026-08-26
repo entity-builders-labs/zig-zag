@@ -414,7 +414,7 @@ export class TourGenerationService {
               .slice(0, 15) // Limit to top 15 for prompt size
               .map(
                 (act, idx) =>
-                  `${idx + 1}. ${act.name} (${act.type || 'Activity'}) - ${(act.description || 'No description').substring(0, 100)} - Location: ${act.latitude}, ${act.longitude} - Duration: ${act.duration || 'Unknown'} minutes`,
+                  `${idx + 1}. ${act.name} (${act.type || 'Activity'}) - ${(act.description || 'No description').substring(0, 100)} - Location: ${act.latitude}, ${act.longitude} - Duration: ${act.duration || 'Unknown'} hours`,
               )
               .join('\n')}`;
           } else if (options.includeExistingActivities) {

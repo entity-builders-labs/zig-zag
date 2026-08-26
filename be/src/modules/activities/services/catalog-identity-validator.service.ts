@@ -3,7 +3,10 @@ import {
   CatalogCandidateRejectionReason,
   CatalogCandidateValidationContext,
 } from '../interfaces/catalog-candidate-validation.interface';
-import { primaryTypesForAcquisitionCategory } from '@integrations/google-places/utils/catalog-place-taxonomy';
+import {
+  INTEREST_ACQUISITION_CATEGORIES,
+  primaryTypesForAcquisitionCategory,
+} from '@integrations/google-places/utils/catalog-place-taxonomy';
 import { geometryContainsPoint } from '@integrations/osm/utils/geojson-containment.util';
 
 export const SUPPORTED_CATALOG_PLACE_TYPES = new Set([
@@ -154,13 +157,7 @@ export class CatalogIdentityValidator {
       rejectionReasons.push('unsupported_type');
     }
 
-    const acquisitionTypes = context.acquisitionOperation
-      ? context.acquisitionOperation.providerOperation === 'nearby'
-        ? (context.acquisitionOperation.requestedPrimaryTypes ?? [])
-        : primaryTypesForAcquisitionCategory(
-            context.acquisitionOperation.category,
-          )
-      : [];
+    const acquisitionTypes = this.resolveAcceptablePrimaryTypes(context);
     if (acquisitionTypes.length > 0) {
       const returnedCategoryEvidence = candidate.providerPrimaryType
         ? [candidate.providerPrimaryType]
@@ -193,6 +190,38 @@ export class CatalogIdentityValidator {
       normalizedName,
       rejectionReasons: [...new Set(rejectionReasons)],
     };
+  }
+
+  // A Text Search candidate can legitimately satisfy more than one
+  // acquisition category (a history_museum is also a valid visitor_landmarks
+  // match). Exact-placeId dedup upstream keeps only one operation's copy of
+  // a place returned by several seed queries, so gating admission on that
+  // single winning operation's category penalizes a real place for which
+  // query happened to return it first — an arbitrary, non-deterministic
+  // race, not a reflection of the place's own type. When the caller supplies
+  // requestedInterests, validate against the union of every acquisition
+  // category those interests cover instead. Nearby operations are unaffected
+  // — they already carry their own explicit requestedPrimaryTypes, not a
+  // single derived category. Falls back to the operation's own category when
+  // no requestedInterests map to a known category, preserving prior behavior.
+  private resolveAcceptablePrimaryTypes(
+    context: CatalogCandidateValidationContext,
+  ): readonly string[] {
+    if (!context.acquisitionOperation) return [];
+    if (context.acquisitionOperation.providerOperation === 'nearby') {
+      return context.acquisitionOperation.requestedPrimaryTypes ?? [];
+    }
+    const categories = new Set<string>(
+      (context.requestedInterests ?? []).flatMap(
+        (interest) => INTEREST_ACQUISITION_CATEGORIES[interest] ?? [],
+      ),
+    );
+    if (categories.size === 0) {
+      categories.add(context.acquisitionOperation.category);
+    }
+    return Array.from(categories).flatMap((category) =>
+      primaryTypesForAcquisitionCategory(category),
+    );
   }
 
   private normalize(value: string): string {
