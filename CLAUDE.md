@@ -87,7 +87,7 @@ There is no unit test runner in `fe/package.json`. E2E is Playwright, against an
 yarn test:e2e                # playwright test --config e2e/playwright.config.ts
 ```
 
-Points at `E2E_WEB_URL` (default `http://localhost:19006`) and the backend's `API_URL`. Specs colocated in `fe/e2e/`, most tagged `@live` (they call real backend/AI endpoints — see `fe/e2e/auth-helper.ts` for the dev-mode email+code login flow used to authenticate, and `fe/e2e/composite-fixture-helper.ts` for seeding a composite-activity tour via the backend's `seed-e2e-composite` CLI command instead of a live generation).
+Points at `E2E_WEB_URL` (default `http://localhost:19006`) and the backend's `API_URL`. Two ways to serve the frontend for this, matched to the two Makefile targets: `make fe-web` (`expo start --web --port 19006` — Expo SDK 54's web dev server defaults to `:8081`, so the port is pinned explicitly; `:19006` is also the origin registered for Google Sign-In in Google Cloud Console) for interactive use, or `make fe-web-e2e` (static `build:web` export served via `python3 -m http.server 19006`, matching what `ci.yml` actually runs) before `test-e2e*` targets — the two can't run at once, they'd fight over the port. Specs colocated in `fe/e2e/`, most tagged `@live` (they call real backend/AI endpoints — see `fe/e2e/auth-helper.ts` for the dev-mode email+code login flow used to authenticate, and `fe/e2e/composite-fixture-helper.ts` for seeding a composite-activity tour via the backend's `seed-e2e-composite` CLI command instead of a live generation).
 
 ### Backend CLI scripts (from `be/`, via nest-commander)
 
