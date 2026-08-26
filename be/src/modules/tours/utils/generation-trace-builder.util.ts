@@ -4,6 +4,7 @@ import {
   TraceCandidate,
 } from '../interfaces/generation-trace.interface';
 import { CoverageReport } from '../interfaces/coverage-analysis.interface';
+import { TourCompletenessResult } from '../interfaces/tour-completeness.interface';
 import {
   PlacesCrawlProvenance,
   placesProviderLabel,
@@ -365,6 +366,35 @@ export function buildDiscoveryStep(
       model: result.groundingModel,
       evidenceCount: result.groundingEvidence?.length ?? 0,
     },
+  };
+}
+
+export function buildTourCompletenessStep(
+  result: TourCompletenessResult,
+  retryAttempted: boolean,
+): GenerationTraceStep {
+  const summary = result.complete
+    ? 'El itinerario generado hace un uso razonable de los días solicitados.' +
+      (retryAttempted ? ' (tras un reintento por completitud)' : '')
+    : result.issues
+        .map(
+          (issue) =>
+            `Día ${issue.dayNumber}: ${issue.selectedActivityCount} actividad(es), ` +
+            `~${issue.selectedActivityHours}h, ${issue.viableUnusedCandidateCount} ` +
+            `candidato(s) viable(s) sin usar (ritmo "${issue.travelPace}").`,
+        )
+        .join(' ') +
+      (retryAttempted
+        ? ' Se reintentó la generación una vez y el resultado siguió incompleto.'
+        : '');
+
+  return {
+    stage: 'tour_completeness',
+    label: 'Completitud del itinerario',
+    summary,
+    providerStatus: result.complete ? 'success' : 'failed',
+    degradedReason: result.complete ? undefined : 'underfilled_day',
+    tourCompleteness: { ...result, retryAttempted },
   };
 }
 

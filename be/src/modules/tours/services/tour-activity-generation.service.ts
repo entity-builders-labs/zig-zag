@@ -43,8 +43,14 @@ import {
   buildTourIntentStep,
   buildPlacesCrawlStep,
   buildLlmGenerationStep,
+  buildTourCompletenessStep,
   buildVerificationStep,
 } from '../utils/generation-trace-builder.util';
+import { TourCompletenessValidator } from './tour-completeness-validator.service';
+import {
+  TourCompletenessInput,
+  TourCompletenessIssue,
+} from '../interfaces/tour-completeness.interface';
 import {
   GenerationTraceStep,
   TraceCandidate,
@@ -101,7 +107,32 @@ export class TourActivityGenerationService {
     private readonly catalogRefillAnchorPlanner: CatalogRefillAnchorPlanner,
     private readonly coverageAnalyzer: CoverageAnalyzer,
     private readonly activityDiscoveryService: ActivityDiscoveryService,
+    private readonly tourCompletenessValidator: TourCompletenessValidator,
   ) {}
+
+  /**
+   * Deterministic, real-data-only feedback for the one bounded completeness
+   * retry (PR 7.2) — never asserts anything the validator didn't actually
+   * measure.
+   */
+  private buildCompletenessFeedback(
+    issues: TourCompletenessIssue[],
+    travelPace: TourGenerationRequest['mobility']['travelPace'],
+  ): string {
+    const lines = [
+      'The previous itinerary materially under-filled the following requested day(s):',
+      ...issues.map(
+        (issue) =>
+          `- Day ${issue.dayNumber}: ${issue.selectedActivityCount} selected activity/activities, ` +
+          `approximately ${issue.selectedActivityHours} hours of activity time, with ` +
+          `${issue.viableUnusedCandidateCount} additional relevant viable candidate(s) still available.`,
+      ),
+      '',
+      `Regenerate the itinerary so each of these days is reasonably complete for the requested "${travelPace}" travel pace.`,
+      'Do not add irrelevant, repetitive, low-quality, or geographically inefficient activities merely to increase count.',
+    ];
+    return lines.join('\n');
+  }
 
   private buildCoverageReport(
     activities: any[],
@@ -746,17 +777,127 @@ export class TourActivityGenerationService {
       const tourChain = this.compositeGenerationService.createTourChain();
       const generationTimeout = this.langChainService.getGenerationTimeout();
 
-      const aiResponse = (await this.withTimeout(
-        tourChain.invoke({
-          // activities is injected into its own prompt section by the chain;
-          // including it in input as well duplicates the complete candidate
-          // list and wastes the provider's token budget.
-          input: selectorInput,
-          activities: availableActivitiesText,
-        }),
-        generationTimeout,
-        `AI generation timeout after ${generationTimeout}ms`,
-      )) as any;
+      // Runs one full invoke + anti-hallucination verify/dedupe + audit
+      // pass. Factored out so the completeness retry below (PR 7.2) can run
+      // the exact same pipeline a second time with feedback appended to the
+      // prompt, instead of duplicating this logic.
+      const runItinerarySelection = async (promptInput: string) => {
+        const response = (await this.withTimeout(
+          tourChain.invoke({
+            // activities is injected into its own prompt section by the
+            // chain; including it in input as well duplicates the complete
+            // candidate list and wastes the provider's token budget.
+            input: promptInput,
+            activities: availableActivitiesText,
+          }),
+          generationTimeout,
+          `AI generation timeout after ${generationTimeout}ms`,
+        )) as any;
+
+        // Hard safety net: drop any activity the model returned that
+        // doesn't match one of the real candidates we offered it (prompt
+        // instructions alone aren't reliable enough to stop hallucination),
+        // and any repeat visit to the same place.
+        const rawActivities: any[] = response.activities || [];
+        const {
+          verified: verifiedSelections,
+          hallucinatedCount,
+          duplicateCount,
+        } = verifyAndDedupeActivities(rawActivities, candidateActivityIds);
+
+        // The model selects and schedules by id only. Identity, labels and
+        // coordinates always come back from the exact catalog candidates we
+        // offered, never from generated text. Besides shrinking the Groq
+        // response, this prevents a valid id from being paired with an
+        // altered name, type or location before spatial optimization.
+        const uniqueActivities = verifiedSelections.map((selection: any) => {
+          const candidate = candidateActivitiesById.get(selection.activityId);
+          return {
+            ...selection,
+            activityName: candidate?.name ?? 'Activity',
+            type: candidate?.type ?? 'Activity',
+            latitude: candidate?.latitude,
+            longitude: candidate?.longitude,
+          };
+        });
+
+        // Deterministic evidence for the bitácora — checks the AI's own
+        // picks against the real data it was given (opening hours, price
+        // level), rather than trusting its self-reported reasoning. Runs on
+        // the AI's raw startTime string (transformAiActivitiesToDto
+        // discards HH:MM-only times below, since it needs a real date to
+        // combine with).
+        const auditResult = auditGeneration(
+          uniqueActivities.map((act: any) => {
+            const candidate = act.activityId
+              ? candidateActivitiesById.get(act.activityId)
+              : undefined;
+            return {
+              activityId: act.activityId,
+              activityName: act.activityName || act.type || 'Activity',
+              startTime: act.startTime,
+              type: act.type,
+              notes: act.notes,
+              openingHoursWeekdayText: candidate?.openingHours?.weekdayText,
+              priceLevel: candidate?.priceLevel,
+            };
+          }),
+          {
+            budgetLevel: request.budgetLevel,
+            dietaryRestrictions: request.dietaryRestrictions,
+          },
+        );
+
+        return {
+          aiResponse: response,
+          rawActivities,
+          uniqueActivities,
+          hallucinatedCount,
+          duplicateCount,
+          auditResult,
+        };
+      };
+
+      // Real data the LLM's own free-text intent already carries as prose
+      // (buildWizardSelectionInput) — 'food' is a strict single-theme
+      // request, not merely one interest among several. See PR10's deferred
+      // "role-aware food and drink scheduling" note: a mixed interest list
+      // that happens to include food is not evidence of a food-centric
+      // trip, so this stays deliberately narrow.
+      const isFoodFocusedIntent =
+        request.intent.interests.length === 1 &&
+        request.intent.interests[0] === 'food';
+
+      const buildCompletenessInput = (
+        sel: Awaited<ReturnType<typeof runItinerarySelection>>,
+      ): TourCompletenessInput => {
+        const selectedIds = new Set<string>();
+        const selectedActivities = sel.uniqueActivities.map((act: any) => {
+          if (act.activityId) selectedIds.add(act.activityId);
+          const candidate = act.activityId
+            ? candidateActivitiesById.get(act.activityId)
+            : undefined;
+          return {
+            activityId: act.activityId,
+            dayNumber: act.dayNumber,
+            // Canonical duration always comes from the offered candidate,
+            // never from the model's own echoed value — same identity rule
+            // as name/type/coordinates above.
+            durationHours: candidate?.duration ?? 0,
+            isMeal: candidate?.type === 'food',
+          };
+        });
+        return {
+          requestedDays: request.days,
+          travelPace: request.mobility.travelPace,
+          isFoodFocusedIntent,
+          selectedActivities,
+          viableUnusedCandidateCount:
+            candidateActivitiesById.size - selectedIds.size,
+        };
+      };
+
+      let selection = await runItinerarySelection(selectorInput);
 
       // Update status: AI response received, processing activities
       await this.updateGenerationStatus(
@@ -765,34 +906,53 @@ export class TourActivityGenerationService {
         'Itinerario generado. Guardando actividades...',
       );
 
-      traceSteps.push(buildLlmGenerationStep(aiResponse.reasoning));
+      let completeness = this.tourCompletenessValidator.validate(
+        buildCompletenessInput(selection),
+      );
+      let completenessRetryAttempted = false;
 
-      // Hard safety net: drop any activity the model returned that doesn't
-      // match one of the real candidates we offered it (prompt instructions
-      // alone aren't reliable enough to stop hallucination), and any repeat
-      // visit to the same place.
-      const rawActivities: any[] = aiResponse.activities || [];
+      // Bounded, single corrective regeneration (PR 7.2) — never looped.
+      // Coverage/refill/discovery already ran once for this request; this
+      // only re-invokes the itinerary LLM with real, measured feedback about
+      // what it left unused.
+      if (!completeness.complete) {
+        completenessRetryAttempted = true;
+        this.logger.warn(
+          `Tour ${tourId} under-filled after generation (${completeness.issues.length} day(s)); retrying itinerary selection once with completeness feedback.`,
+        );
+        await this.updateGenerationStatus(
+          tourId,
+          'generating',
+          'Ajustando el itinerario para aprovechar mejor el día...',
+        );
+        const feedback = this.buildCompletenessFeedback(
+          completeness.issues,
+          request.mobility.travelPace,
+        );
+        selection = await runItinerarySelection(
+          `${selectorInput}\n\n${feedback}`,
+        );
+        completeness = this.tourCompletenessValidator.validate(
+          buildCompletenessInput(selection),
+        );
+        await this.updateGenerationStatus(
+          tourId,
+          'generating',
+          'Itinerario generado. Guardando actividades...',
+        );
+      }
+
       const {
-        verified: verifiedSelections,
+        aiResponse,
+        rawActivities,
+        uniqueActivities,
         hallucinatedCount,
         duplicateCount,
-      } = verifyAndDedupeActivities(rawActivities, candidateActivityIds);
+        auditResult,
+      } = selection;
 
-      // The model selects and schedules by id only. Identity, labels and
-      // coordinates always come back from the exact catalog candidates we
-      // offered, never from generated text. Besides shrinking the Groq
-      // response, this prevents a valid id from being paired with an altered
-      // name, type or location before spatial optimization.
-      const uniqueActivities = verifiedSelections.map((selection: any) => {
-        const candidate = candidateActivitiesById.get(selection.activityId);
-        return {
-          ...selection,
-          activityName: candidate?.name ?? 'Activity',
-          type: candidate?.type ?? 'Activity',
-          latitude: candidate?.latitude,
-          longitude: candidate?.longitude,
-        };
-      });
+      traceSteps.push(buildLlmGenerationStep(aiResponse.reasoning));
+
       if (hallucinatedCount > 0) {
         this.logger.warn(
           `Dropped ${hallucinatedCount} activity/activities for tour ${tourId} that did not match a real candidate (model ignored the provided list).`,
@@ -804,31 +964,6 @@ export class TourActivityGenerationService {
         );
       }
 
-      // Deterministic evidence for the bitácora — checks the AI's own picks
-      // against the real data it was given (opening hours, price level),
-      // rather than trusting its self-reported reasoning. Runs on the AI's
-      // raw startTime string (transformAiActivitiesToDto discards HH:MM-only
-      // times below, since it needs a real date to combine with).
-      const auditResult = auditGeneration(
-        uniqueActivities.map((act: any) => {
-          const candidate = act.activityId
-            ? candidateActivitiesById.get(act.activityId)
-            : undefined;
-          return {
-            activityId: act.activityId,
-            activityName: act.activityName || act.type || 'Activity',
-            startTime: act.startTime,
-            type: act.type,
-            notes: act.notes,
-            openingHoursWeekdayText: candidate?.openingHours?.weekdayText,
-            priceLevel: candidate?.priceLevel,
-          };
-        }),
-        {
-          budgetLevel: request.budgetLevel,
-          dietaryRestrictions: request.dietaryRestrictions,
-        },
-      );
       traceSteps.push(
         buildVerificationStep({
           hallucinatedCount,
@@ -838,6 +973,9 @@ export class TourActivityGenerationService {
             .filter((id: string | undefined): id is string => !!id),
           candidatesByStage: traceCandidateLists,
         }),
+      );
+      traceSteps.push(
+        buildTourCompletenessStep(completeness, completenessRetryAttempted),
       );
 
       // Instance-level waypoint customization ("adapt this variant for a
@@ -994,7 +1132,13 @@ export class TourActivityGenerationService {
           }
         }
 
-        // Update tour metadata to mark as completed
+        // 'completed' means the generation *process* finished end to end —
+        // it does not mean every quality gate passed. A completeness
+        // shortfall (PR 7.2) that survives the one bounded retry is a real,
+        // known outcome, not an error: the tour still gets a valid, fully
+        // verified (non-hallucinated, non-duplicated) itinerary, and
+        // exactly how thin it is stays visible in generationTrace.tourCompleteness
+        // rather than being silently absorbed into a generic "completed".
         await tx.tour.update({
           where: { id: tourId },
           data: {
@@ -1012,6 +1156,10 @@ export class TourActivityGenerationService {
                 hallucinatedCount,
                 duplicateCount,
                 auditFindings: auditResult,
+                tourCompleteness: {
+                  ...completeness,
+                  retryAttempted: completenessRetryAttempted,
+                },
               },
             },
           },

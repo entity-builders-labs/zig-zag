@@ -1,8 +1,12 @@
 import {
   CREATE_COMPOSITE_PROPOSAL_RESPONSE_SCHEMA,
+  CREATE_TOUR_JSON_SYSTEM_PROMPT,
   CREATE_TOUR_RESPONSE_SCHEMA,
+  CREATE_TOUR_SELECTION_JSON_SYSTEM_PROMPT,
   CREATE_TOUR_SELECTION_RESPONSE_SCHEMA,
+  CREATE_TOUR_SYSTEM_PROMPT,
 } from './create-tour.prompt';
+import { TOUR_PLANNING_POLICY_PROMPT } from './tour-planning-policy.prompt';
 
 function expectStrictObjects(schema: any): void {
   if (!schema || typeof schema !== 'object') return;
@@ -56,6 +60,28 @@ describe('CREATE_TOUR_SELECTION_RESPONSE_SCHEMA', () => {
     expect(schema.properties.reasoning.maxLength).toBe(400);
     expect(schema.properties.activities.maxItems).toBe(30);
     expect(activity.properties.notes.maxLength).toBe(160);
+  });
+});
+
+describe('shared TOUR_PLANNING_POLICY_PROMPT inclusion', () => {
+  it('is included verbatim in every live itinerary-generation system prompt', () => {
+    // Guards against a future edit pasting a divergent copy of the policy
+    // into one prompt instead of importing the shared constant — the three
+    // live paths (wizard compact selection, /tours/nearby JSON fallback,
+    // and the shared OpenAI function-calling contract) must never drift.
+    expect(CREATE_TOUR_SELECTION_JSON_SYSTEM_PROMPT).toContain(
+      TOUR_PLANNING_POLICY_PROMPT,
+    );
+    expect(CREATE_TOUR_JSON_SYSTEM_PROMPT).toContain(
+      TOUR_PLANNING_POLICY_PROMPT,
+    );
+    expect(CREATE_TOUR_SYSTEM_PROMPT).toContain(TOUR_PLANNING_POLICY_PROMPT);
+  });
+
+  it('states the real relaxed/moderate/fast pace density guidance', () => {
+    expect(TOUR_PLANNING_POLICY_PROMPT).toContain('relaxed: typically 2-4');
+    expect(TOUR_PLANNING_POLICY_PROMPT).toContain('moderate: typically 3-5');
+    expect(TOUR_PLANNING_POLICY_PROMPT).toContain('fast: typically 4-7');
   });
 });
 

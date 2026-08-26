@@ -11,12 +11,12 @@ describe('formatActivityForPrompt', () => {
     description: 'A colorful street in La Boca',
     latitude: -34.6393,
     longitude: -58.3628,
-    duration: 60,
+    duration: 1.5,
   };
 
   it('formats the base fields when no rating/price/hours are known', () => {
     expect(formatActivityForPrompt(base)).toBe(
-      'id: act-1 - Caminito (cultural) - A colorful street in La Boca - Location: -34.6393, -58.3628 - Duration: 60 minutes',
+      'id: act-1 - Caminito (cultural) - A colorful street in La Boca - Location: -34.6393, -58.3628 - Duration: 1.5 hours',
     );
   });
 
@@ -68,7 +68,7 @@ describe('formatActivityForPrompt', () => {
       longitude: 0,
     });
     expect(result).toBe(
-      'id: act-2 - Mystery Spot (Activity) - No description - Location: 0, 0 - Duration: Unknown minutes',
+      'id: act-2 - Mystery Spot (Activity) - No description - Location: 0, 0 - Duration: Unknown hours',
     );
   });
 });

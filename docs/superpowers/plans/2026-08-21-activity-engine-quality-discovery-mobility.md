@@ -332,6 +332,7 @@ PR 1  Provider identity, cache isolation, and truthful trace
   -> PR 6  CoverageAnalyzer, destination-knowledge state, and quality gate
   -> PR 7  Provider-neutral grounded bootstrap and Activity Discovery (done)
   -> PR 7.1 Grounded search/extraction evidence separation (done)
+  -> PR 7.2 Tour completeness validation and under-filled itinerary guard (done)
   -> PR 8  Proposal entity resolution and safe persistence
   -> PR 9  Unified pool selection and generation integration
   -> PR 10 Transport-aware spatial feasibility
@@ -1576,6 +1577,120 @@ Not touched by this PR: `GroqGroundedSearchService` (kept, unused as the
 current default but still registered and tested — the alternate
 implementation the provider-neutral design is meant to allow), and all PR 8
 persistence work.
+
+---
+
+## PR 7.2: Tour completeness validation and under-filled itinerary guard
+
+**Status: Implemented, 2026-08-26.**
+
+### Objective
+
+Close a real product gap found live-testing PR 7.1: a generated full-day
+tour could complete with only a couple of short activities even when a
+large, valid candidate pool remained mostly unused, because nothing in the
+pipeline asks "did the result make reasonable use of the requested day?".
+`CoverageAnalyzer` (PR 6) only judges whether the offered *candidate pool*
+is good enough; anti-hallucination verification only judges whether the
+LLM's picks are real and non-duplicated. Neither notices a valid,
+non-duplicated itinerary that is simply too thin.
+
+### Required behavior
+
+1. One shared, provider-independent `TOUR_PLANNING_POLICY_PROMPT`
+   (`prompts/tour-planning-policy.prompt.ts`) carries every live prompt's
+   planning semantics — verified-candidate-only selection, intent matching,
+   geographic coherence, opening hours, day-completeness/density guidance
+   (soft per-pace guidelines: relaxed 2-4, moderate 3-5, fast 4-7 substantial
+   activities), meal handling, multi-day balance, and "prefer an honest
+   lighter itinerary over padding" — composed into each of the three live
+   prompts (`CREATE_TOUR_SELECTION_JSON_SYSTEM_PROMPT`,
+   `CREATE_TOUR_JSON_SYSTEM_PROMPT`, `CREATE_TOUR_SYSTEM_PROMPT`) with only
+   its own output contract appended. No prompt hand-copies the policy text;
+   a test asserts all three literally contain the shared constant.
+2. A new deterministic `TourCompletenessValidator` runs after anti-
+   hallucination verification, independent of `CoverageAnalyzer` and of it.
+   For each requested day (1..`requestedDays`, including a day the LLM
+   omitted entirely), it sums "meaningful hours" and counts "substantial"
+   activities (duration >= 45 min), capping a non-food-focused meal's
+   contribution so a long lunch alone can't make a thin day look complete.
+   A day is flagged `UNDERFILLED_DAY` only when it clears neither the
+   per-pace hours nor count floor *and* the tour still has unused viable
+   candidates (a global count — the system has no deterministic per-day
+   candidate assignment yet, so a genuinely exhausted pool is never
+   flagged). `isFoodFocusedIntent` is deliberately narrow: only a single
+   `'food'` interest, not food-alongside-other-themes — full food-role
+   scheduling stays deferred to PR 10's existing "Deferred follow-up" note.
+3. An under-filled result triggers exactly one corrective regeneration:
+   the itinerary LLM is re-invoked with deterministic, real-data-only
+   feedback (day, activity count, hours, unused-candidate count) appended
+   to the prompt, then verification/audit/completeness all re-run on the
+   new response. Never looped further.
+4. `generationStatus` stays `'completed'` even if the retry is still
+   under-filled — that status means the generation *process* finished, not
+   that every quality gate passed (documented explicitly in code at the
+   point it's set). The shortfall stays visible via a new `tour_completeness`
+   trace step and a top-level `generationTrace.tourCompleteness` field
+   (`{ complete, issues, retryAttempted }`) — no new persisted status enum.
+5. Fixed a related, previously undiscovered bug: `Activity.duration` /
+   `TourActivity.duration` are hours (`prisma/schema.prisma`), but both live
+   candidate-formatting call sites (`activity-prompt-formatter.util.ts`,
+   `tour-generation.service.ts`'s `/tours/nearby` fallback) labeled the same
+   number "minutes" to the LLM. Corrected at both call sites — needed for
+   the density guidance and the validator to reason in consistent units.
+
+### Tests and acceptance
+
+- Pure unit coverage in `tour-completeness-validator.service.spec.ts`:
+  under-filled vs. complete via long composites, meal capping with and
+  without food-focused intent, relaxed vs. fast pace density, an exhausted
+  pool never flagged, multi-day issues isolated to the affected day, and a
+  fully-omitted day still flagged.
+- Retry-loop coverage in `tour-activity-generation.service.spec.ts`:
+  exactly one retry on an under-filled first attempt, the retry's result
+  (not the first attempt's) persisted, and no second retry when the retry
+  itself is still under-filled.
+- `create-tour.prompt.spec.ts` asserts all three live prompts literally
+  contain `TOUR_PLANNING_POLICY_PROMPT` and state the real
+  `relaxed`/`moderate`/`fast` density guidance.
+- Live-verified against the real local stack: the exact destination/intent
+  combination that originally reproduced the bug (San Miguel de Tucumán,
+  history+food, moderate, 1 day, 27 eligible candidates) went from a
+  2-activity itinerary to a 3-activity, 5.5-meaningful-hour itinerary on the
+  first attempt (no retry needed), with `tourCompleteness.complete: true`
+  in the persisted trace.
+
+### Implemented files
+
+```
+be/src/modules/tours/prompts/tour-planning-policy.prompt.ts            (new — shared policy)
+be/src/modules/tours/prompts/create-tour.prompt.ts                     (modified — 3 prompts recomposed)
+be/src/modules/tours/prompts/create-tour.prompt.spec.ts                (modified)
+be/src/modules/tours/utils/tour-density-policy.util.ts                 (new)
+be/src/modules/tours/interfaces/tour-completeness.interface.ts         (new)
+be/src/modules/tours/services/tour-completeness-validator.service.ts   (new)
+be/src/modules/tours/services/tour-completeness-validator.service.spec.ts (new)
+be/src/modules/tours/services/tour-activity-generation.service.ts      (modified — validator + bounded retry)
+be/src/modules/tours/services/tour-activity-generation.service.spec.ts (modified)
+be/src/modules/tours/interfaces/generation-trace.interface.ts          (modified — tour_completeness stage/fields)
+be/src/modules/tours/utils/generation-trace-builder.util.ts            (modified — buildTourCompletenessStep)
+be/src/modules/tours/utils/generation-trace-builder.util.spec.ts       (modified)
+be/src/modules/tours/utils/activity-prompt-formatter.util.ts           (modified — duration unit fix)
+be/src/modules/tours/services/tour-generation.service.ts               (modified — duration unit fix)
+be/src/modules/tours/tours.module.ts                                   (modified — TourCompletenessValidator binding)
+```
+
+Known issue recorded, not fixed here:
+`CoverageAnalyzer.requiredCandidateCount()` compares `explorationStyle`
+against `'relaxed'`/`'fast_paced'`, which match neither the real
+`ExplorationStyle` enum (`iconic|balanced|local_deep_dive`) nor
+`TravelPace` — the 3/5-stops-per-day branches can never trigger in
+practice, only the 4-stop default. Filed as a GitHub issue on the fork;
+fixing it is PR 6/CoverageAnalyzer territory, not PR 7.2.
+
+Not touched by this PR: PR 8 persistence, Activity Discovery/grounding
+semantics, `CoverageAnalyzer`'s own logic, PR 10 transport feasibility, any
+new `ActivityKind`.
 
 ---
 
