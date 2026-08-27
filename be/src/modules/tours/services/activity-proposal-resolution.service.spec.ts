@@ -17,6 +17,7 @@ import {
   OTHER_CITY_SAN_TELMO_BOUNDARY,
   POINT_IN_SAN_TELMO,
   POINT_IN_LA_BOCA,
+  POINT_IN_RECOLETA,
 } from '@integrations/osm/fixtures/osm-membership.fixture';
 
 describe('ActivityProposalResolutionService', () => {
@@ -44,6 +45,24 @@ describe('ActivityProposalResolutionService', () => {
       userRatingCount: 200,
       websiteUri: 'https://example.com',
       formattedAddress: 'Defensa 800, San Telmo, Buenos Aires',
+      ...overrides,
+    };
+  }
+
+  function street(overrides: any = {}) {
+    return {
+      id: 'osm:way:123',
+      name: 'Defensa',
+      osmType: 'way',
+      osmId: 123,
+      geometry: {
+        type: 'LineString',
+        coordinates: [
+          [-58.37, -34.62],
+          [-58.36, -34.62],
+        ],
+      },
+      tags: { name: 'Defensa', highway: 'residential' },
       ...overrides,
     };
   }
@@ -346,6 +365,36 @@ describe('ActivityProposalResolutionService', () => {
     };
   }
 
+  function routeProposal(
+    name: string,
+    hints: ActivityProposal['entityHints'],
+  ): ActivityProposal {
+    return {
+      name,
+      kind: 'ROUTE',
+      themes: ['photography'],
+      entityHints: hints,
+      suggestedDurationMinutes: 60,
+      shortReason: 'A photo route',
+      evidenceKeys: [],
+    };
+  }
+
+  function experienceProposal(
+    name: string,
+    hints: ActivityProposal['entityHints'],
+  ): ActivityProposal {
+    return {
+      name,
+      kind: 'EXPERIENCE',
+      themes: ['history'],
+      entityHints: hints,
+      suggestedDurationMinutes: 90,
+      shortReason: 'A coherent experience',
+      evidenceKeys: [],
+    };
+  }
+
   function req(proposals: ActivityProposal[]): ProposalResolutionRequest {
     return {
       proposals,
@@ -573,5 +622,385 @@ describe('ActivityProposalResolutionService', () => {
     );
     expect(r.resolved[0].status).toBe('rejected');
     expect(r.resolved[0].rejectionReasons).toContain('unresolvable_theme');
+  });
+
+  // ── PR 8 fix: kind-specific EntityHint requirements ─────────────────
+  // NEIGHBORHOOD_WALK + required area, ≥2 waypoints already regression-
+  // guarded above by "accepts a walk whose waypoints are inside its
+  // neighborhood" — it keeps resolving through the same code path.
+
+  it('rejects a NEIGHBORHOOD_WALK with no required area hint', async () => {
+    const r = await service.resolve(
+      req([
+        {
+          name: 'San Telmo Walk',
+          kind: 'NEIGHBORHOOD_WALK',
+          themes: ['history'],
+          entityHints: [
+            {
+              key: 'wp-1',
+              name: 'Museo de San Telmo',
+              role: 'waypoint',
+              expectedType: 'museum',
+              required: false,
+              evidenceKeys: [],
+            },
+          ],
+          suggestedDurationMinutes: 90,
+          shortReason: 'A walk',
+          evidenceKeys: [],
+        },
+      ]),
+    );
+    expect(r.resolved[0].status).toBe('rejected');
+    expect(r.resolved[0].rejectionReasons).toContain(
+      'missing_required_area_hint',
+    );
+  });
+
+  it('resolves a ROUTE with a route hint and no area hint, scoping streets to the destination', async () => {
+    osmPlacesService.findStreetsWithin.mockResolvedValue([street()]);
+    const r = await service.resolve(
+      req([
+        routeProposal('Defensa Street Route', [
+          {
+            key: 'route-1',
+            name: 'Defensa',
+            role: 'route',
+            expectedType: 'street',
+            required: true,
+            evidenceKeys: [],
+          },
+        ]),
+      ]),
+    );
+    expect(r.resolved[0].status).toBe('accepted');
+    expect(osmPlacesService.findStreetsWithin).toHaveBeenCalledWith(
+      BUENOS_AIRES_BOUNDARY,
+    );
+    expect(osmPlacesService.findNeighborhoodsWithin).not.toHaveBeenCalled();
+    expect(
+      compositeActivityService.createOrReuseComposite.mock.calls[0][0].kind,
+    ).toBe(ActivityKind.ROUTE);
+  });
+
+  it('rejects a ROUTE with no required route hint', async () => {
+    const r = await service.resolve(req([routeProposal('Some Route', [])]));
+    expect(r.resolved[0].status).toBe('rejected');
+    expect(r.resolved[0].rejectionReasons).toContain(
+      'missing_required_route_hint',
+    );
+  });
+
+  it('resolves a ROUTE with an optional area hint, scoping streets to the resolved area', async () => {
+    osmPlacesService.findNeighborhoodsWithin.mockResolvedValue([
+      SAN_TELMO_BOUNDARY,
+      LA_BOCA_BOUNDARY,
+    ]);
+    osmPlacesService.findStreetsWithin.mockResolvedValue([street()]);
+    const r = await service.resolve(
+      req([
+        routeProposal('Defensa Street Route', [
+          {
+            key: 'area-1',
+            name: 'San Telmo',
+            role: 'area',
+            expectedType: 'neighborhood',
+            required: false,
+            evidenceKeys: [],
+          },
+          {
+            key: 'route-1',
+            name: 'Defensa',
+            role: 'route',
+            expectedType: 'street',
+            required: true,
+            evidenceKeys: [],
+          },
+        ]),
+      ]),
+    );
+    expect(r.resolved[0].status).toBe('accepted');
+    expect(osmPlacesService.findStreetsWithin).toHaveBeenCalledWith(
+      SAN_TELMO_BOUNDARY,
+    );
+  });
+
+  it('rejects a ROUTE whose route hint does not resolve to any OSM candidate', async () => {
+    osmPlacesService.findStreetsWithin.mockResolvedValue([]);
+    const r = await service.resolve(
+      req([
+        routeProposal('Ghost Street Route', [
+          {
+            key: 'route-1',
+            name: 'Ghost Street',
+            role: 'route',
+            expectedType: 'street',
+            required: true,
+            evidenceKeys: [],
+          },
+        ]),
+      ]),
+    );
+    expect(r.resolved[0].status).toBe('rejected');
+    expect(r.resolved[0].rejectionReasons).toContain('route_geometry_missing');
+  });
+
+  it('resolves an EXPERIENCE with 2 required waypoint hints and no area hint', async () => {
+    placesApi.searchText.mockImplementation(
+      async ({ textQuery }: { textQuery: string }) => {
+        const n = textQuery.split(',')[0].trim();
+        return {
+          data: [
+            place({ id: `place-${n}`, displayName: { text: n }, name: n }),
+          ],
+          provenance: {
+            provider: 'google',
+            cacheStatus: 'miss-live',
+            requestedCount: 1,
+            receivedCount: 1,
+          },
+        };
+      },
+    );
+    const r = await service.resolve(
+      req([
+        experienceProposal('San Telmo Tasting Experience', [
+          {
+            key: 'wp-1',
+            name: 'Museo de San Telmo',
+            role: 'waypoint',
+            expectedType: 'museum',
+            required: true,
+            evidenceKeys: [],
+          },
+          {
+            key: 'wp-2',
+            name: 'Mercado de San Telmo',
+            role: 'waypoint',
+            expectedType: 'market',
+            required: true,
+            evidenceKeys: [],
+          },
+        ]),
+      ]),
+    );
+    expect(r.resolved[0].status).toBe('accepted');
+    expect(osmPlacesService.findNeighborhoodsWithin).not.toHaveBeenCalled();
+    expect(
+      r.resolved[0].resolvedEntities.filter((e) => e.role === 'area'),
+    ).toHaveLength(0);
+  });
+
+  it('resolves an EXPERIENCE with a single required venue hint and no area hint (venue-centric)', async () => {
+    placesApi.searchText.mockResolvedValue({
+      data: [place()],
+      provenance: {
+        provider: 'google',
+        cacheStatus: 'miss-live',
+        requestedCount: 1,
+        receivedCount: 1,
+      },
+    });
+    const r = await service.resolve(
+      req([
+        experienceProposal('Museo Tasting Experience', [
+          {
+            key: 'venue-1',
+            name: 'Museo de San Telmo',
+            role: 'venue',
+            expectedType: 'museum',
+            required: true,
+            evidenceKeys: [],
+          },
+        ]),
+      ]),
+    );
+    expect(r.resolved[0].status).toBe('accepted');
+  });
+
+  it('rejects an EXPERIENCE with only one non-venue-centric concrete hint', async () => {
+    placesApi.searchText.mockResolvedValue({
+      data: [place()],
+      provenance: {
+        provider: 'google',
+        cacheStatus: 'miss-live',
+        requestedCount: 1,
+        receivedCount: 1,
+      },
+    });
+    const r = await service.resolve(
+      req([
+        experienceProposal('Underspecified Experience', [
+          {
+            key: 'wp-1',
+            name: 'Museo de San Telmo',
+            role: 'waypoint',
+            expectedType: 'museum',
+            required: true,
+            evidenceKeys: [],
+          },
+        ]),
+      ]),
+    );
+    expect(r.resolved[0].status).toBe('rejected');
+    expect(r.resolved[0].rejectionReasons).toContain(
+      'insufficient_experience_entities',
+    );
+  });
+
+  it('scopes an EXPERIENCE optional area hint to venue membership, not the wider destination', async () => {
+    osmPlacesService.findNeighborhoodsWithin.mockResolvedValue([
+      SAN_TELMO_BOUNDARY,
+      LA_BOCA_BOUNDARY,
+    ]);
+    placesApi.searchText.mockResolvedValue({
+      data: [place({ location: POINT_IN_LA_BOCA })],
+      provenance: {
+        provider: 'google',
+        cacheStatus: 'miss-live',
+        requestedCount: 1,
+        receivedCount: 1,
+      },
+    });
+    const r = await service.resolve(
+      req([
+        experienceProposal('San Telmo Experience', [
+          {
+            key: 'area-1',
+            name: 'San Telmo',
+            role: 'area',
+            expectedType: 'neighborhood',
+            required: false,
+            evidenceKeys: [],
+          },
+          {
+            key: 'venue-1',
+            name: 'Museo de San Telmo',
+            role: 'venue',
+            expectedType: 'museum',
+            required: true,
+            evidenceKeys: [],
+          },
+        ]),
+      ]),
+    );
+    expect(r.resolved[0].status).toBe('rejected');
+    expect(r.resolved[0].rejectionReasons).toContain(
+      'waypoint_outside_neighborhood',
+    );
+  });
+
+  it('rejects an EXPERIENCE proposal entirely when a required hint fails to resolve (all-or-nothing)', async () => {
+    placesApi.searchText.mockImplementation(
+      async ({ textQuery }: { textQuery: string }) => {
+        const n = textQuery.split(',')[0].trim();
+        if (n === 'Nonexistent Place') {
+          return {
+            data: [],
+            provenance: {
+              provider: 'google',
+              cacheStatus: 'miss-live',
+              requestedCount: 1,
+              receivedCount: 0,
+            },
+          };
+        }
+        return {
+          data: [
+            place({ id: `place-${n}`, displayName: { text: n }, name: n }),
+          ],
+          provenance: {
+            provider: 'google',
+            cacheStatus: 'miss-live',
+            requestedCount: 1,
+            receivedCount: 1,
+          },
+        };
+      },
+    );
+    const r = await service.resolve(
+      req([
+        experienceProposal('Broken Experience', [
+          {
+            key: 'wp-1',
+            name: 'Museo de San Telmo',
+            role: 'waypoint',
+            expectedType: 'museum',
+            required: true,
+            evidenceKeys: [],
+          },
+          {
+            key: 'wp-2',
+            name: 'Nonexistent Place',
+            role: 'waypoint',
+            expectedType: 'landmark',
+            required: true,
+            evidenceKeys: [],
+          },
+        ]),
+      ]),
+    );
+    expect(r.resolved[0].status).toBe('rejected');
+    expect(r.resolved[0].rejectionReasons).toContain('unresolved_venue');
+  });
+
+  it('regression: an EXPERIENCE with 2 required waypoint hints and no area hint is not rejected for a missing area (Recoleta)', async () => {
+    placesApi.searchText.mockImplementation(
+      async ({ textQuery }: { textQuery: string }) => {
+        const n = textQuery.split(',')[0].trim();
+        return {
+          data: [
+            place({
+              id: `place-${n}`,
+              displayName: { text: n },
+              name: n,
+              location: POINT_IN_RECOLETA,
+            }),
+          ],
+          provenance: {
+            provider: 'google',
+            cacheStatus: 'miss-live',
+            requestedCount: 1,
+            receivedCount: 1,
+          },
+        };
+      },
+    );
+    const r = await service.resolve(
+      req([
+        experienceProposal(
+          'Historical & Architectural Highlights of Recoleta',
+          [
+            {
+              key: 'wp-1',
+              name: 'Recoleta Cemetery',
+              role: 'waypoint',
+              expectedType: 'cemetery',
+              required: true,
+              evidenceKeys: [],
+            },
+            {
+              key: 'wp-2',
+              name: 'Basilica del Pilar',
+              role: 'waypoint',
+              expectedType: 'church',
+              required: true,
+              evidenceKeys: [],
+            },
+          ],
+        ),
+      ]),
+    );
+    expect(r.resolved[0].status).toBe('accepted');
+    expect(r.resolved[0].rejectionReasons).not.toContain(
+      'missing_required_area_hint',
+    );
+    expect(r.resolved[0].rejectionReasons).not.toContain(
+      'missing_required_hint',
+    );
+    expect(
+      r.resolved[0].resolvedEntities.filter((e) => e.status === 'resolved'),
+    ).toHaveLength(2);
   });
 });

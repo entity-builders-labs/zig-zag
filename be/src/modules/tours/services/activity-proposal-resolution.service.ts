@@ -288,33 +288,53 @@ export class ActivityProposalResolutionService {
   ): Promise<ResolvedActivityProposal> {
     const resolvedEntities: ResolvedEntity[] = [];
     const rejectionReasons: string[] = [];
+    const kind = KIND_MAP[proposal.kind];
+
+    if (kind === ActivityKind.NEIGHBORHOOD_WALK) {
+      const hasRequiredArea = proposal.entityHints.some(
+        (h) => h.role === 'area' && h.required,
+      );
+      if (!hasRequiredArea) {
+        return this.reject(proposal, resolvedEntities, [
+          'missing_required_area_hint',
+        ]);
+      }
+    }
+    if (kind === ActivityKind.ROUTE) {
+      const hasRequiredRoute = proposal.entityHints.some(
+        (h) => h.role === 'route' && h.required,
+      );
+      if (!hasRequiredRoute) {
+        return this.reject(proposal, resolvedEntities, [
+          'missing_required_route_hint',
+        ]);
+      }
+    }
+    // EXPERIENCE has no upfront presence gate — its sufficiency depends on
+    // resolution results below, not just hint presence.
 
     const areaHint = proposal.entityHints.find((h) => h.role === 'area');
-    if (!areaHint) {
-      return this.reject(proposal, resolvedEntities, ['missing_required_hint']);
+    let resolvedArea: OsmCandidate | null = null;
+    if (areaHint) {
+      const areaResult = await this.resolveAreaHint(areaHint, destination);
+      resolvedEntities.push(areaResult.entity);
+      if (!areaResult.candidate) {
+        rejectionReasons.push(areaResult.entity.rejectionReason as string);
+        return this.reject(proposal, resolvedEntities, rejectionReasons);
+      }
+      resolvedArea = areaResult.candidate;
     }
-
-    const areaResult = await this.resolveAreaHint(areaHint, destination);
-    resolvedEntities.push(areaResult.entity);
-    if (!areaResult.candidate) {
-      rejectionReasons.push(areaResult.entity.rejectionReason as string);
-      return this.reject(proposal, resolvedEntities, rejectionReasons);
-    }
-    const neighborhood = areaResult.candidate;
+    const scopeBoundary = resolvedArea ?? destination;
 
     const otherHints = proposal.entityHints.filter((h) => h.role !== 'area');
-    if (otherHints.length === 0) {
-      return this.reject(proposal, resolvedEntities, ['missing_required_hint']);
-    }
 
-    const kind = KIND_MAP[proposal.kind];
     const waypointIds: string[] = [];
     const candidateOsmFeaturesById = new Map<string, OsmCandidate>();
     const seenExternalIds = new Set<string>();
 
     for (const hint of otherHints) {
       if (hint.role === 'route' || this.isStreetHint(hint)) {
-        const street = await this.resolveStreetHint(hint, neighborhood);
+        const street = await this.resolveStreetHint(hint, scopeBoundary);
         resolvedEntities.push(street.entity);
         if (!street.candidate) {
           rejectionReasons.push(street.entity.rejectionReason as string);
@@ -338,7 +358,7 @@ export class ActivityProposalResolutionService {
         const membership = this.osmMembershipService.membershipOf(
           venue.entity.latitude as number,
           venue.entity.longitude as number,
-          kind === ActivityKind.EXPERIENCE ? [destination] : [neighborhood],
+          [scopeBoundary],
         );
         if (membership.outcome !== 'inside') {
           rejectionReasons.push('waypoint_outside_neighborhood');
@@ -359,7 +379,17 @@ export class ActivityProposalResolutionService {
         candidateOsmFeaturesById.has(id),
       );
       if (waypointIds.length === 0 || !hasOsmGeometry) {
-        rejectionReasons.push('missing_route_geometry');
+        rejectionReasons.push('route_geometry_missing');
+        return this.reject(proposal, resolvedEntities, rejectionReasons);
+      }
+    } else if (kind === ActivityKind.EXPERIENCE) {
+      const requiredOtherHints = otherHints.filter((h) => h.required);
+      const isVenueCentric =
+        requiredOtherHints.length === 1 &&
+        requiredOtherHints[0].role === 'venue';
+      const minRequired = isVenueCentric ? 1 : MIN_WAYPOINTS_FOR_MULTI_STOP;
+      if (waypointIds.length < minRequired) {
+        rejectionReasons.push('insufficient_experience_entities');
         return this.reject(proposal, resolvedEntities, rejectionReasons);
       }
     } else {
@@ -378,14 +408,16 @@ export class ActivityProposalResolutionService {
       return this.reject(proposal, resolvedEntities, rejectionReasons);
     }
 
+    const areaForPersistence = resolvedArea ?? destination;
+
     try {
       const variant =
         await this.compositeActivityService.createOrReuseComposite({
-          name: this.canonicalName(neighborhood.name, variantTheme, kind),
+          name: this.canonicalName(areaForPersistence.name, variantTheme, kind),
           kind,
           variantTheme,
           themeReasoning: proposal.shortReason,
-          areaCandidate: neighborhood,
+          areaCandidate: areaForPersistence,
           waypointIds,
           candidateOsmFeaturesById,
         });

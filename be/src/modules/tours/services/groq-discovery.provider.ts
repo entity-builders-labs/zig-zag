@@ -138,6 +138,7 @@ ROUTE RULES
 - Must contain at least one required entity hint with role "route".
 - The primary route entity must plausibly resolve to route geometry.
 - Do not invent a route by connecting unrelated POIs.
+- An area hint is optional. Do not invent an area merely to satisfy structure.
 
 EXPERIENCE RULES
 
@@ -146,6 +147,8 @@ EXPERIENCE RULES
   around one identifiable venue.
 - The relationship between its entities must be explicit and geographically plausible.
 - Do not use EXPERIENCE as a catch-all for vague ideas.
+- An area hint is optional. Do not invent an area when the experience is
+  resolvable from its concrete entities and destination context.
 
 THEME RULES
 
