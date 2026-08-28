@@ -56,6 +56,7 @@ export default function TourWizardScreen() {
         }}
       />
       <TourWizardForm
+        isLoading={isLoading}
         onSubmit={handleSubmit}
         onCancel={handleCancel}
         initialLocation={
