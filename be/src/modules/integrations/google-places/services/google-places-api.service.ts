@@ -154,8 +154,6 @@ export class GooglePlacesApiService implements IPlacesApiService {
       'places.userRatingCount',
       'places.types',
       'places.primaryType',
-      'places.websiteUri',
-      'places.nationalPhoneNumber',
       'places.priceLevel',
       'places.regularOpeningHours',
       'places.businessStatus',
