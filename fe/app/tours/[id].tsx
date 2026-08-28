@@ -179,8 +179,27 @@ export default function TourDetailScreen() {
         bg='$backgroundLight50'
         justifyContent='center'
         alignItems='center'
+        p='$6'
       >
-        <Text>Tour not found</Text>
+        <VStack space='md' alignItems='center'>
+          <Text size='4xl'>🗺️</Text>
+          <Heading size='md' color='$textLight900' style={{ fontFamily: FONT_DISPLAY }}>
+            No pudimos encontrar este recorrido
+          </Heading>
+          <Text size='sm' color='$textLight500' textAlign='center'>
+            El tour puede haber sido eliminado o no tenés permisos para verlo.
+          </Text>
+          <Button
+            mt='$4'
+            bg='$primary500'
+            borderRadius='$2xl'
+            onPress={() => router.push('/(tabs)/saved')}
+          >
+            <ButtonText color='$white' fontWeight='$bold'>
+              Volver a Guardados
+            </ButtonText>
+          </Button>
+        </VStack>
       </Box>
     );
   }
