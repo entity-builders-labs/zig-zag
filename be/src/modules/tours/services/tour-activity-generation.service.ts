@@ -10,7 +10,10 @@ import { PrismaService } from '@core/database/prisma.service';
 import { ActivitiesService } from '@activities/services/activities.service';
 import { LangChainService } from '@shared/ai/langchain.service';
 import { VectorStoreService } from '@shared/ai/services/vector-store.service';
-import { GooglePlacesService } from '@integrations/google-places/google-places.service';
+import {
+  GooglePlacesService,
+  PlacesCrawlResult,
+} from '@integrations/google-places/google-places.service';
 import {
   OsmCandidate,
   OsmPlacesService,
@@ -320,6 +323,65 @@ export class TourActivityGenerationService {
 
   private readonly CATALOG_RETRIEVAL_POOL_LIMIT = 250;
   private readonly ITINERARY_CANDIDATE_LIMIT = 15;
+
+  /** Mirrors HybridSearchService's own crawl-dedup window — this refill
+   * path calls Google Places directly and previously had no memory of a
+   * recent crawl at all, unlike the map-search flow's CrawlerSearch gate. */
+  private readonly CATALOG_REFILL_RADIUS_THRESHOLD_DEG = 0.01;
+  private readonly CATALOG_REFILL_CACHE_EXPIRY_HOURS = 24;
+
+  private async wasCatalogRefillRecentlyAttempted(
+    latitude: number,
+    longitude: number,
+  ): Promise<boolean> {
+    const recentSearch = await this.prisma.crawlerSearch.findFirst({
+      where: {
+        AND: [
+          {
+            latitude: {
+              gte: latitude - this.CATALOG_REFILL_RADIUS_THRESHOLD_DEG,
+            },
+          },
+          {
+            latitude: {
+              lte: latitude + this.CATALOG_REFILL_RADIUS_THRESHOLD_DEG,
+            },
+          },
+          {
+            longitude: {
+              gte: longitude - this.CATALOG_REFILL_RADIUS_THRESHOLD_DEG,
+            },
+          },
+          {
+            longitude: {
+              lte: longitude + this.CATALOG_REFILL_RADIUS_THRESHOLD_DEG,
+            },
+          },
+          {
+            createdAt: {
+              gte: new Date(
+                Date.now() -
+                  this.CATALOG_REFILL_CACHE_EXPIRY_HOURS * 60 * 60 * 1000,
+              ),
+            },
+          },
+        ],
+      },
+    });
+    return !!recentSearch;
+  }
+
+  private async recordCatalogRefillAttempt(
+    latitude: number,
+    longitude: number,
+  ): Promise<void> {
+    const attemptedAt = new Date();
+    await this.prisma.crawlerSearch.upsert({
+      where: { latitude_longitude: { latitude, longitude } },
+      create: { latitude, longitude, createdAt: attemptedAt },
+      update: { createdAt: attemptedAt },
+    });
+  }
 
   private async rankAndSliceActivities(
     activities: any[],
@@ -720,28 +782,61 @@ export class TourActivityGenerationService {
                   destinationResolution.boundary,
                 );
               }
-              const anchors = await this.catalogRefillAnchorPlanner.plan({
-                destinationResolution,
-                destinationPoint,
-                pointRadiusMeters: Math.min(radius, 5_000),
-                coverageAreas,
-              });
-              const crawlResult =
-                await this.googlePlacesService.crawlAndSaveActivities(
-                  {
-                    latitude: searchArea.latitude,
-                    longitude: searchArea.longitude,
-                    radius: Math.min(radius, 5000),
-                  },
-                  {
-                    anchors,
-                    destinationLabel: request.destination.label,
-                    requestedInterests: request.intent.interests,
-                    destinationBoundary: isAreaScale
-                      ? destinationResolution.boundary.geometry
-                      : undefined,
-                  },
+
+              const skipRefill = await this.wasCatalogRefillRecentlyAttempted(
+                searchArea.latitude,
+                searchArea.longitude,
+              );
+
+              let crawlResult: PlacesCrawlResult;
+              if (skipRefill) {
+                this.logger.log(
+                  `Skipping catalog refill for ${searchArea.latitude}, ${searchArea.longitude}: already attempted within ${this.CATALOG_REFILL_CACHE_EXPIRY_HOURS}h.`,
                 );
+                crawlResult = {
+                  activitiesIds: [],
+                  fromCache: true,
+                  provenance: {
+                    provider: placesStatus.provider,
+                    cacheStatus: 'hit',
+                    requestedCount: 0,
+                    receivedCount: 0,
+                    acceptedCount: 0,
+                    rejectedCountByReason: {},
+                  },
+                };
+              } else {
+                // Written before the real call (not after) so a failed
+                // crawl still counts as attempted and isn't hammered again
+                // on every retry within the window — same as
+                // HybridSearchService's own gate.
+                await this.recordCatalogRefillAttempt(
+                  searchArea.latitude,
+                  searchArea.longitude,
+                );
+                const anchors = await this.catalogRefillAnchorPlanner.plan({
+                  destinationResolution,
+                  destinationPoint,
+                  pointRadiusMeters: Math.min(radius, 5_000),
+                  coverageAreas,
+                });
+                crawlResult =
+                  await this.googlePlacesService.crawlAndSaveActivities(
+                    {
+                      latitude: searchArea.latitude,
+                      longitude: searchArea.longitude,
+                      radius: Math.min(radius, 5000),
+                    },
+                    {
+                      anchors,
+                      destinationLabel: request.destination.label,
+                      requestedInterests: request.intent.interests,
+                      destinationBoundary: isAreaScale
+                        ? destinationResolution.boundary.geometry
+                        : undefined,
+                    },
+                  );
+              }
 
               // Try searching again after crawling
               const refreshedActivities = await this.activitiesService.findAll(

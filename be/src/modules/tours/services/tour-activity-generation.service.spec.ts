@@ -133,6 +133,10 @@ describe('TourActivityGenerationService', () => {
         deleteMany: jest.fn(),
       },
       tour: { update: jest.fn() },
+      crawlerSearch: {
+        findFirst: jest.fn().mockResolvedValue(null),
+        upsert: jest.fn().mockResolvedValue({}),
+      },
       $transaction: jest.fn(async (cb: any) => cb(prisma)),
       $queryRaw: jest.fn().mockResolvedValue([{ count: 0 }]),
       $queryRawUnsafe: jest.fn().mockResolvedValue([{ count: BigInt(0) }]),
@@ -1819,6 +1823,69 @@ describe('TourActivityGenerationService', () => {
         ],
       }),
     );
+    expect(prisma.crawlerSearch.upsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: {
+          latitude_longitude: { latitude: -34.62, longitude: -58.37 },
+        },
+      }),
+    );
+  });
+
+  it('skips the Google Places crawl when this area was already refilled within 24h', async () => {
+    const thinPoiId = testUuid();
+    activitiesService.findAll
+      .mockResolvedValueOnce([
+        {
+          id: thinPoiId,
+          name: 'Only one place',
+          latitude: -34.62,
+          longitude: -58.37,
+        },
+      ])
+      .mockResolvedValueOnce([
+        {
+          id: thinPoiId,
+          name: 'Only one place',
+          latitude: -34.62,
+          longitude: -58.37,
+        },
+      ]);
+    prisma.activity.findMany.mockResolvedValue([
+      {
+        id: thinPoiId,
+        latitude: -34.62,
+        longitude: -58.37,
+        kind: ActivityKind.POI,
+      },
+    ]);
+    prisma.crawlerSearch.findFirst.mockResolvedValue({
+      id: 'existing-search',
+      latitude: -34.62,
+      longitude: -58.37,
+      createdAt: new Date(),
+    });
+    langChainService.generateChatResponse.mockResolvedValue(
+      aiJsonResponse({
+        activities: [
+          {
+            activityId: thinPoiId,
+            activityName: 'Only one place',
+            dayNumber: 1,
+            startTime: '10:00',
+            duration: 60,
+            notes: 'Visit it',
+            latitude: -34.62,
+            longitude: -58.37,
+          },
+        ],
+      }),
+    );
+
+    await service.generateTourActivities(TOUR_ID);
+
+    expect(googlePlacesService.crawlAndSaveActivities).not.toHaveBeenCalled();
+    expect(prisma.crawlerSearch.upsert).not.toHaveBeenCalled();
   });
 
   it('records Geoapify provenance without calling it Google in the trace', async () => {
