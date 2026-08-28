@@ -4,6 +4,7 @@ import {
   PlacementContext,
 } from './daily-planning-placement.util';
 import {
+  NormalizedOpeningHours,
   PlanningActivityCandidate,
   TravelEstimateProvider,
 } from '../interfaces/daily-planning.interface';
@@ -24,6 +25,23 @@ function candidate(
     spatialFootprint: { type: 'POINT', centroid: { lat, lng } },
     semanticScore: 0.5,
     familyId,
+  };
+}
+
+function candidateWithOptions(
+  id: string,
+  lat: number,
+  lng: number,
+  opts: { durationMinutes?: number; openingHours?: NormalizedOpeningHours },
+): PlanningActivityCandidate {
+  return {
+    activityId: id,
+    kind: 'POI',
+    title: id,
+    durationMinutes: opts.durationMinutes ?? 60,
+    spatialFootprint: { type: 'POINT', centroid: { lat, lng } },
+    semanticScore: 0.5,
+    openingHours: opts.openingHours,
   };
 }
 
@@ -216,5 +234,72 @@ describe('runBoundedLocalImprovement', () => {
       tightContext,
     );
     expect(improved.get(1)!.assigned.length).toBe(3); // no move possible under the tight walking limit
+  });
+
+  it('does not false-accept a swap that would place a candidate before its opening hours (stale-total regression)', async () => {
+    // Same geographically-favorable pair as the compactness swap test above
+    // ('far-from-a' at (10,10) really belongs with (10,10.001); the incoming
+    // candidate at (0,0.001) really belongs with (0,0)) — the swap probe
+    // must remove 'far-from-a' (180 min) from day 1's totalActivityMinutes
+    // (180) before computing the incoming candidate's proposed start. Done
+    // correctly, the true post-removal total is 0, so the proposed start is
+    // 540 (9:00) — before the 11:00 opening, correctly infeasible. Before
+    // the withoutCandidate fix, the stale (un-subtracted) total of 180 would
+    // have placed the proposed start at 720 (12:00) — falsely inside the
+    // 11:00-18:00 window, a false ACCEPT of a swap that shouldn't happen.
+    const farFromA = candidateWithOptions('far-from-a', 10, 10, {
+      durationMinutes: 180,
+    });
+    const nearButClosedUntilEleven = candidateWithOptions(
+      'near-a-actually',
+      0,
+      0.001,
+      {
+        durationMinutes: 60,
+        openingHours: {
+          status: 'known',
+          rangesByWeekday: {
+            // Monday: opens 11:00 (660), closes 18:00 (1080).
+            1: [
+              { startMinutesFromMidnight: 660, endMinutesFromMidnight: 1080 },
+            ],
+          },
+        },
+      },
+    );
+
+    const days = new Map<number, DayAccumulator>([
+      [
+        1,
+        {
+          dayNumber: 1,
+          assigned: [candidate('a1', 0, 0), farFromA],
+          totalActivityMinutes: 180,
+          totalWalkingMeters: 0,
+        },
+      ],
+      [
+        2,
+        {
+          dayNumber: 2,
+          assigned: [candidate('b1', 10, 10.001), nearButClosedUntilEleven],
+          totalActivityMinutes: 120,
+          totalWalkingMeters: 0,
+        },
+      ],
+    ]);
+
+    const regressionContext: PlacementContext = {
+      ...context(),
+      startDates: ['2026-06-01'], // a Monday, so day 1 resolves to weekday 1
+    };
+
+    const { days: improved } = await runBoundedLocalImprovement(
+      days,
+      regressionContext,
+    );
+    const day1Ids = improved.get(1)!.assigned.map((a) => a.activityId);
+    expect(day1Ids).not.toContain('near-a-actually');
+    expect(day1Ids).toContain('far-from-a');
   });
 });

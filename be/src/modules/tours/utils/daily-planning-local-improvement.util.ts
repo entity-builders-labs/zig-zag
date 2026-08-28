@@ -31,6 +31,20 @@ function distanceToCentroid(
   });
 }
 
+/** Builds a hypothetical accumulator with `remove` taken out, for probing
+ * `checkHardConstraints` before committing a swap. Must also subtract
+ * `remove`'s own contribution to `totalActivityMinutes` (mirroring, in
+ * reverse, how `placeCandidates`/`tryMove` accumulate it) — not just filter
+ * `assigned`. The DAILY_TIME_CAPACITY_EXCEEDED/MAX_WALKING_PER_DAY_EXCEEDED
+ * checks are pure thresholds, so a stale (too-high) total there is only ever
+ * conservative. But the OPENING_HOURS_INCOMPATIBLE check reads
+ * `acc.totalActivityMinutes` to compute a proposed `[start, end)` instant,
+ * not a threshold — a stale, inflated total shifts that instant *later*,
+ * which can move a truly before-opening instant into a falsely-evaluated
+ * open window: a false ACCEPT, not a safe over-reject. `totalWalkingMeters`
+ * is deliberately left as-is: unlike `totalActivityMinutes`, it isn't read
+ * to resolve a point-in-time window anywhere in `checkHardConstraints`, so
+ * its threshold checks stay conservative-only either way. */
 function withoutCandidate(
   acc: DayAccumulator,
   remove: PlanningActivityCandidate,
@@ -38,6 +52,10 @@ function withoutCandidate(
   return {
     ...acc,
     assigned: acc.assigned.filter((a) => a.activityId !== remove.activityId),
+    totalActivityMinutes:
+      acc.totalActivityMinutes -
+      remove.durationMinutes -
+      (remove.mobility?.internalTravelMinutes ?? 0),
   };
 }
 
