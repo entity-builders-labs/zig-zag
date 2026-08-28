@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Keyboard } from 'react-native';
 import {
   Box,
@@ -11,6 +11,7 @@ import {
   Text,
   ScrollView,
   Icon,
+  Spinner,
 } from '@gluestack-ui/themed';
 import { Search, MapPin, X } from 'lucide-react-native';
 import { PlaceSuggestion, searchPlaces, resolvePlace } from '@/features/places-autocomplete';
@@ -32,32 +33,27 @@ export const DestinationInput: React.FC<DestinationInputProps> = ({
 }) => {
   const [term, setTerm] = useState(value || '');
   const [locationResults, setLocationResults] = useState<PlaceSuggestion[]>([]);
-  const [isFocused, setIsFocused] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  
-  // Track if term change was programmatic (e.g. user selected an item)
-  // to prevent re-opening the dropdown after selection
-  const skipSearchRef = useRef(false);
+  const [confirmedValue, setConfirmedValue] = useState(value || '');
 
   useEffect(() => {
-    if (value !== undefined && value !== term) {
-      skipSearchRef.current = true;
+    if (value !== undefined && value !== confirmedValue) {
+      setConfirmedValue(value);
       setTerm(value);
+      setLocationResults([]);
     }
   }, [value]);
 
   useEffect(() => {
-    if (skipSearchRef.current) {
-      skipSearchRef.current = false;
+    // If term matches what was already selected/confirmed, don't trigger search
+    if (term === confirmedValue) {
       setLocationResults([]);
-      setIsOpen(false);
+      setIsLoading(false);
       return;
     }
 
-    if (!term || term.length < 3) {
+    if (!term || term.trim().length < 3) {
       setLocationResults([]);
-      setIsOpen(false);
       setIsLoading(false);
       return;
     }
@@ -65,59 +61,51 @@ export const DestinationInput: React.FC<DestinationInputProps> = ({
     const handler = setTimeout(async () => {
       setIsLoading(true);
       try {
-        const results = await searchPlaces(term);
+        const results = await searchPlaces(term.trim());
         setLocationResults(results);
-        if (results.length > 0 && isFocused) {
-          setIsOpen(true);
-        }
       } catch (e) {
         console.error('Autocomplete error', e);
         setLocationResults([]);
-        setIsOpen(false);
       } finally {
         setIsLoading(false);
       }
-    }, 250);
+    }, 200);
 
     return () => clearTimeout(handler);
-  }, [term, isFocused]);
+  }, [term, confirmedValue]);
 
   const handleSelectItem = async (item: PlaceSuggestion) => {
-    skipSearchRef.current = true;
-    setIsOpen(false);
-    setLocationResults([]);
-    setIsFocused(false);
     Keyboard.dismiss();
+    setLocationResults([]);
 
     try {
       const details = await resolvePlace(item);
-      if (!details) throw new Error('No details returned for place');
+      const placeName = details?.name || item.label;
+      const coords = details ? { lat: details.lat, lng: details.lng } : undefined;
+      const radius = details?.radiusMeters;
 
-      setTerm(details.name);
-      onDestinationChange(
-        details.name,
-        { lat: details.lat, lng: details.lng },
-        details.radiusMeters
-      );
+      setConfirmedValue(placeName);
+      setTerm(placeName);
+      onDestinationChange(placeName, coords, radius);
       onDirtyChange?.(false);
     } catch (error) {
-      console.error('Failed to fetch place details:', error);
+      console.error('Failed to resolve place:', error);
+      setConfirmedValue(item.label);
       setTerm(item.label);
+      onDestinationChange(item.label);
       onDirtyChange?.(true);
     }
   };
 
   const handleClear = () => {
-    skipSearchRef.current = true;
+    setConfirmedValue('');
     setTerm('');
     setLocationResults([]);
-    setIsOpen(false);
     onDestinationChange('');
-    setIsFocused(false);
     onDirtyChange?.(false);
   };
 
-  const showDropdown = isOpen && locationResults.length > 0 && term.length >= 3;
+  const showDropdown = locationResults.length > 0 && term !== confirmedValue && term.length >= 3;
 
   return (
     <Box position='relative' w='$full' zIndex={showDropdown ? 1000 : 1}>
@@ -128,7 +116,6 @@ export const DestinationInput: React.FC<DestinationInputProps> = ({
         borderColor='$borderLight300'
         bg='$white'
         h={50}
-        isFocused={isFocused}
       >
         <InputSlot pl='$3.5'>
           <InputIcon as={Search} size='md' color='$textLight500' />
@@ -137,36 +124,30 @@ export const DestinationInput: React.FC<DestinationInputProps> = ({
           placeholder='Ej: Roma, Italia o Barcelona...'
           value={term}
           onChangeText={(text) => {
-            skipSearchRef.current = false;
             setTerm(text);
             if (!text) {
-              onDestinationChange('');
+              setConfirmedValue('');
               setLocationResults([]);
-              setIsOpen(false);
+              onDestinationChange('');
               onDirtyChange?.(false);
             } else {
               onDirtyChange?.(true);
             }
           }}
-          onFocus={() => {
-            setIsFocused(true);
-            if (locationResults.length > 0 && term.length >= 3) {
-              setIsOpen(true);
-            }
-          }}
-          onBlur={() => {
-            setIsFocused(false);
-          }}
           color='$textLight900'
           fontSize='$sm'
         />
-        {term.length > 0 && (
+        {isLoading ? (
+          <InputSlot pr='$3'>
+            <Spinner size='small' color='$primary500' />
+          </InputSlot>
+        ) : term.length > 0 ? (
           <InputSlot pr='$3'>
             <Pressable onPress={handleClear} hitSlop={10}>
               <InputIcon as={X} size='sm' color='$textLight400' />
             </Pressable>
           </InputSlot>
-        )}
+        ) : null}
       </Input>
 
       {/* Results Dropdown */}
