@@ -52,6 +52,8 @@ interface TourWizardFormProps {
   onSubmit: (preferences: GenerateTourDto) => void;
   onCancel: () => void;
   initialLocation?: { lat: number; lng: number };
+  initialDestination?: string;
+  initialInterests?: string[];
   isLoading?: boolean;
 }
 
@@ -93,11 +95,13 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
   onSubmit,
   onCancel,
   initialLocation,
+  initialDestination,
+  initialInterests,
   isLoading = false,
 }) => {
   const { setCenter } = useContext(AppContext);
   const [currentStep, setCurrentStep] = useState(1);
-  const [destination, setDestination] = useState<string>("");
+  const [destination, setDestination] = useState<string>(initialDestination || "");
   const [destinationCoords, setDestinationCoords] = useState<
     { lat: number; lng: number } | undefined
   >(initialLocation);
@@ -107,10 +111,14 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
   const [days, setDays] = useState<number>(3);
-  const [useCurrentLocation, setUseCurrentLocation] = useState(true);
+  const [useCurrentLocation, setUseCurrentLocation] = useState(!initialDestination);
 
   // Step 2 & 3 state
-  const [selectedInterests, setSelectedInterests] = useState<string[]>(["Historia", "Comida"]);
+  const [selectedInterests, setSelectedInterests] = useState<string[]>(
+    initialInterests && initialInterests.length > 0
+      ? initialInterests
+      : ["Historia", "Comida"]
+  );
   const [groupType, setGroupType] = useState<"solo" | "couple" | "family" | "friends">("solo");
   const [travelPace, setTravelPace] = useState<"relaxed" | "moderate" | "fast">("moderate");
   const [budgetLevel, setBudgetLevel] = useState<"low" | "medium" | "high">("medium");
@@ -297,7 +305,7 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
       : [];
 
     return (
-      <VStack space="xl" flex={1}>
+      <VStack space="xl">
         <VStack space="xs">
           <Heading size="lg" color="$textLight900" style={{ fontFamily: FONT_DISPLAY }}>
             ¿A dónde querés viajar?
@@ -409,7 +417,7 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
   // STEP 2: INTERESES & RITMO
   const renderStep2 = () => {
     return (
-      <VStack space="xl" flex={1}>
+      <VStack space="xl">
         <VStack space="xs">
           <Heading size="lg" color="$textLight900" style={{ fontFamily: FONT_DISPLAY }}>
             ¿Qué te apasiona explorar?
@@ -594,7 +602,7 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
   // STEP 3: MOVILIDAD, PRESUPUESTO Y NOTAS
   const renderStep3 = () => {
     return (
-      <VStack space="xl" flex={1}>
+      <VStack space="xl">
         <VStack space="xs">
           <Heading size="lg" color="$textLight900" style={{ fontFamily: FONT_DISPLAY }}>
             Movilidad y Preferencias
@@ -767,7 +775,7 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
   };
 
   return (
-    <Box flex={1} bg="$backgroundLight50">
+    <Box flex={1} h="$full" bg="$backgroundLight50">
       {/* Top Navigation Bar & Progress Indicator */}
       <Box bg="$backgroundLight50" pt="$12" pb="$3" px="$4" borderBottomWidth={1} borderBottomColor="$borderLight100">
         <HStack alignItems="center" justifyContent="space-between" mb="$3">
@@ -814,8 +822,13 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
       </Box>
 
       {/* Form Content */}
-      <ScrollView flex={1} showsVerticalScrollIndicator={false}>
-        <Box p="$5" pb="$28">
+      <ScrollView
+        flex={1}
+        showsVerticalScrollIndicator={true}
+        style={{ flex: 1 }}
+        contentContainerStyle={{ flexGrow: 1, paddingBottom: 160 }}
+      >
+        <Box p="$5">
           {currentStep === 1 && renderStep1()}
           {currentStep === 2 && renderStep2()}
           {currentStep === 3 && renderStep3()}

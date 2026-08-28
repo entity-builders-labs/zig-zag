@@ -11,10 +11,12 @@ export default function TourWizardScreen() {
   const router = useRouter();
   const {
     category,
+    destination,
     latitude: latParam,
     longitude: lngParam,
   } = useLocalSearchParams<{
     category?: string;
+    destination?: string;
     latitude?: string;
     longitude?: string;
   }>();
@@ -57,6 +59,7 @@ export default function TourWizardScreen() {
         isLoading={isLoading}
         onSubmit={handleSubmit}
         onCancel={handleCancel}
+        initialDestination={destination}
         initialLocation={
           address?.lat && address?.lng
             ? { lat: address.lat, lng: address.lng }

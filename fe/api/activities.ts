@@ -31,3 +31,17 @@ export async function fetchActivityById(id: string) {
   const { data } = await axiosInstance.get<ActivityDetail>(`/activities/${id}`);
   return data;
 }
+
+export async function fetchAllActivities(params?: {
+  latitude?: number;
+  longitude?: number;
+  radius?: number;
+  limit?: number;
+  types?: string[];
+}) {
+  const { data } = await axiosInstance.get<ActivityDetail[]>('/activities/all', {
+    params,
+  });
+  return data;
+}
+

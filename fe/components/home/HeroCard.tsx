@@ -11,7 +11,13 @@ export const HeroCard = () => {
   const router = useRouter();
 
   const handleCreateWithAI = () => {
-    router.push("/tours/wizard");
+    router.push({
+      pathname: "/tours/wizard",
+      params: {
+        destination: "Palacio Barolo, Buenos Aires",
+        category: "history",
+      },
+    });
   };
 
   return (

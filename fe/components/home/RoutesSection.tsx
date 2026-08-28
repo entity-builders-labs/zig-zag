@@ -11,48 +11,69 @@ import {
   Spinner,
   Pressable,
 } from "@gluestack-ui/themed";
-import { MapPin, ChevronRight, Clock, Footprints, Sparkles, Heart } from "lucide-react-native";
-import { Link, useRouter } from "expo-router";
+import { MapPin, ChevronRight, Clock, Footprints, Sparkles, Wand2 } from "lucide-react-native";
+import { useRouter } from "expo-router";
 import { useMap } from "@/context/app";
-import { fetchNearbyTours, Tour } from "@/api/tours";
+import { fetchNearbyTours, fetchMyTours, Tour } from "@/api/tours";
 import { FONT_DISPLAY } from "@/constants/typography";
 
-const FALLBACK_TOURS: Array<Partial<Tour> & { id: string; name: string; duration: number; coverImage: string; stopsCount: number; categoryTag: string; distanceKm: string }> = [
+interface TourItem extends Partial<Tour> {
+  id?: string;
+  name: string;
+  duration?: number;
+  coverImage?: string;
+  stopsCount?: number;
+  categoryTag?: string;
+  distanceKm?: string;
+  destination?: string;
+  category?: string;
+  isTemplate?: boolean;
+}
+
+const INSPIRATION_TEMPLATES: TourItem[] = [
   {
-    id: "tour-1",
     name: "Joyas Ocultas de San Telmo",
+    destination: "San Telmo, Buenos Aires",
+    category: "history",
+    categoryTag: "Historia & Bohemio",
     duration: 2.2,
     coverImage: "https://images.unsplash.com/photo-1589909202802-8f4aadce1849?q=80&w=600&auto=format&fit=crop",
     stopsCount: 4,
-    categoryTag: "Historia & Bohemio",
     distanceKm: "1.9 km",
+    isTemplate: true,
   },
   {
-    id: "tour-2",
     name: "Ruta de Cafés Notables & Literatura",
+    destination: "Avenida de Mayo, Buenos Aires",
+    category: "cafes",
+    categoryTag: "Cafés",
     duration: 1.8,
     coverImage: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?q=80&w=600&auto=format&fit=crop",
     stopsCount: 3,
-    categoryTag: "Cafés",
     distanceKm: "1.4 km",
+    isTemplate: true,
   },
   {
-    id: "tour-3",
     name: "Palermo Soho: Murales & Diseño",
+    destination: "Palermo Soho, Buenos Aires",
+    category: "art",
+    categoryTag: "Arte Urbano",
     duration: 2.5,
     coverImage: "https://images.unsplash.com/photo-1497935586351-b67a49e012bf?q=80&w=600&auto=format&fit=crop",
     stopsCount: 5,
-    categoryTag: "Arte Urbano",
     distanceKm: "2.3 km",
+    isTemplate: true,
   },
   {
-    id: "tour-4",
     name: "Arquitectura Clásica de Recoleta",
+    destination: "Recoleta, Buenos Aires",
+    category: "architecture",
+    categoryTag: "Arquitectura",
     duration: 3.0,
     coverImage: "https://images.unsplash.com/photo-1569336415962-a4bd9f69cd83?q=80&w=600&auto=format&fit=crop",
     stopsCount: 4,
-    categoryTag: "Arquitectura",
     distanceKm: "2.6 km",
+    isTemplate: true,
   },
 ];
 
@@ -63,38 +84,61 @@ interface RoutesSectionProps {
 
 export const RoutesSection = ({
   category = "walking",
-  categoryTitle = "Rutas a pie recomendadas",
+  categoryTitle = "Rutas recomendadas",
 }: RoutesSectionProps) => {
   const router = useRouter();
   const { center } = useMap();
-  const [tours, setTours] = useState<Tour[]>([]);
+  const [tours, setTours] = useState<TourItem[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    let isMounted = true;
     const loadTours = async () => {
-      if (!center) return;
-
       setLoading(true);
       try {
-        const fetchedTours = await fetchNearbyTours(
-          center.lat,
-          center.lng,
-          category === "all" ? "walking" : category
-        );
-        if (fetchedTours && fetchedTours.length > 0) {
-          setTours(fetchedTours);
+        let fetched: Tour[] = [];
+        if (center?.lat && center?.lng) {
+          fetched = await fetchNearbyTours(
+            center.lat,
+            center.lng,
+            category === "all" ? "walking" : category,
+            5000
+          );
+        }
+
+        // If no nearby tours, check user's existing tours
+        if (!fetched || fetched.length === 0) {
+          const myToursRes = await fetchMyTours().catch(() => ({ tours: [] }));
+          if (myToursRes?.tours && myToursRes.tours.length > 0) {
+            fetched = myToursRes.tours;
+          }
+        }
+
+        if (isMounted) {
+          if (fetched && fetched.length > 0) {
+            setTours(fetched);
+          } else {
+            setTours(INSPIRATION_TEMPLATES);
+          }
         }
       } catch (error) {
-        console.error("Failed to fetch tours:", error);
+        if (isMounted) {
+          setTours(INSPIRATION_TEMPLATES);
+        }
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
     loadTours();
+    return () => {
+      isMounted = false;
+    };
   }, [center, category]);
 
-  const displayTours = tours.length > 0 ? tours : (FALLBACK_TOURS as any as Tour[]);
+  const displayTours = tours.length > 0 ? tours : INSPIRATION_TEMPLATES;
 
   const getTourImage = (tour: any, index: number) => {
     if (tour.coverImage) return tour.coverImage;
@@ -110,6 +154,25 @@ export const RoutesSection = ({
     const hours = Math.floor(d);
     const mins = Math.round((d - hours) * 60);
     return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
+  };
+
+  const handleTourPress = (tour: TourItem) => {
+    if (
+      tour.isTemplate ||
+      !tour.id ||
+      tour.id.startsWith("template-") ||
+      tour.id.startsWith("tour-")
+    ) {
+      router.push({
+        pathname: "/tours/wizard",
+        params: {
+          destination: tour.destination || tour.name,
+          category: tour.category || "walking",
+        },
+      });
+    } else {
+      router.push(`/tours/${tour.id}`);
+    }
   };
 
   return (
@@ -157,11 +220,12 @@ export const RoutesSection = ({
             const imgUrl = getTourImage(tour, index);
             const stops = tour.activities?.length || tour.stopsCount || 4;
             const tag = tour.categoryTag || "Ruta a pie";
+            const isTemplate = tour.isTemplate || !tour.id || tour.id.startsWith("tour-");
 
             return (
               <Pressable
                 key={tour.id || index}
-                onPress={() => router.push(`/tours/${tour.id}`)}
+                onPress={() => handleTourPress(tour)}
               >
                 <Box
                   w={270}
@@ -194,13 +258,13 @@ export const RoutesSection = ({
                       right={0}
                       bottom={0}
                       bg="$black"
-                      opacity={0.2}
+                      opacity={0.25}
                     />
 
                     {/* Category Tag on Top Left */}
                     <Box position="absolute" top={10} left={10}>
                       <Box
-                        bg="rgba(0, 0, 0, 0.6)"
+                        bg="rgba(0, 0, 0, 0.65)"
                         px="$2.5"
                         py="$1"
                         borderRadius="$full"
@@ -211,22 +275,40 @@ export const RoutesSection = ({
                       </Box>
                     </Box>
 
-                    {/* Duration badge on Bottom Right */}
-                    <Box position="absolute" bottom={10} right={10}>
-                      <HStack
-                        bg="rgba(255, 255, 255, 0.95)"
-                        px="$2"
-                        py="$0.5"
-                        borderRadius="$full"
-                        alignItems="center"
-                        space="xs"
-                      >
-                        <Icon as={Clock} size="2xs" color="$textLight700" />
-                        <Text size="2xs" fontWeight="$bold" color="$textLight900">
-                          {getDurationString(tour)}
-                        </Text>
-                      </HStack>
-                    </Box>
+                    {/* Template Badge or Duration badge on Bottom */}
+                    {isTemplate ? (
+                      <Box position="absolute" bottom={10} right={10}>
+                        <HStack
+                          bg="$primary500"
+                          px="$2.5"
+                          py="$1"
+                          borderRadius="$full"
+                          alignItems="center"
+                          space="xs"
+                        >
+                          <Icon as={Wand2} size="2xs" color="$white" />
+                          <Text size="2xs" fontWeight="$bold" color="$white">
+                            Crear Tour
+                          </Text>
+                        </HStack>
+                      </Box>
+                    ) : (
+                      <Box position="absolute" bottom={10} right={10}>
+                        <HStack
+                          bg="rgba(255, 255, 255, 0.95)"
+                          px="$2"
+                          py="$0.5"
+                          borderRadius="$full"
+                          alignItems="center"
+                          space="xs"
+                        >
+                          <Icon as={Clock} size="2xs" color="$textLight700" />
+                          <Text size="2xs" fontWeight="$bold" color="$textLight900">
+                            {getDurationString(tour)}
+                          </Text>
+                        </HStack>
+                      </Box>
+                    )}
                   </Box>
 
                   {/* Card Details */}
