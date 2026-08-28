@@ -6,10 +6,6 @@ import {
   useState,
 } from 'react';
 import { Platform } from 'react-native';
-import {
-  GoogleSignin,
-  isSuccessResponse,
-} from '@react-native-google-signin/google-signin';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import * as authApi from '../api/auth';
 import { AuthSession, AuthUser } from '../api/auth';
@@ -19,6 +15,16 @@ import {
   clearTokens,
 } from '../api/config/token-storage';
 import { setSessionExpiredHandler } from '../api/config/axios';
+
+const getNativeGoogleSignin = () => {
+  try {
+    // Dynamic require so Expo Go doesn't crash on startup when native TurboModule isn't linked
+    const mod = require('@react-native-google-signin/google-signin');
+    return mod;
+  } catch {
+    return null;
+  }
+};
 
 export type AuthContextType = {
   user: AuthUser | null;
@@ -96,6 +102,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       await applySession(session);
       return;
     }
+
+    const googleMod = getNativeGoogleSignin();
+    if (!googleMod?.GoogleSignin) {
+      throw new Error('Google Sign-In nativo requiere un build de desarrollo.');
+    }
+
+    const { GoogleSignin, isSuccessResponse } = googleMod;
 
     GoogleSignin.configure({
       webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
