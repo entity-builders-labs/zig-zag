@@ -25,8 +25,8 @@ import { getImage } from './utils';
 import { FONT_DISPLAY } from '@/constants/typography';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
-const COLLAPSED_HEIGHT = SCREEN_HEIGHT * 0.4;
-const EXPANDED_HEIGHT = SCREEN_HEIGHT * 0.75;
+const COLLAPSED_HEIGHT = Math.min(320, Math.max(260, SCREEN_HEIGHT * 0.35));
+const EXPANDED_HEIGHT = Math.min(600, Math.max(450, SCREEN_HEIGHT * 0.65));
 
 interface StopWithLocation {
   latitude: number;
@@ -282,7 +282,7 @@ export const TourHeader = ({
 
       {/* Title & metadata in Collapsed Mode */}
       {!expanded ? (
-        <VStack position='absolute' bottom={28} left={16} right={16} space='xs'>
+        <VStack position='absolute' bottom={44} left={16} right={16} space='xs'>
           <HStack space='xs' flexWrap='wrap'>
             <Box
               bg='$primary500'

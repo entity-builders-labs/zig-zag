@@ -211,290 +211,303 @@ export default function TourDetailScreen() {
     <>
       <Stack.Screen options={{ headerShown: false }} />
 
-      <Box flex={1} bg='$backgroundLight50'>
-        {/* Sticky Top Segmented Control (Itinerario vs Mapa de Ruta) */}
+      <Box flex={1} bg='$backgroundLight100' alignItems='center'>
         <Box
-          px='$4'
-          py='$2.5'
-          bg='$white'
-          borderBottomWidth={1}
-          borderBottomColor='$borderLight100'
-          zIndex={20}
+          w='$full'
+          maxW={560}
+          flex={1}
+          bg='$backgroundLight50'
+          position='relative'
+          shadowColor='$black'
+          shadowOffset={{ width: 0, height: 4 }}
+          shadowOpacity={0.06}
+          shadowRadius={16}
+          elevation={4}
         >
-          <HStack
-            bg='$backgroundLight100'
-            p='$1'
-            borderRadius='$2xl'
-            alignItems='center'
+          {/* Sticky Top Segmented Control (Itinerario vs Mapa de Ruta) */}
+          <Box
+            px='$4'
+            py='$2.5'
+            bg='$white'
+            borderBottomWidth={1}
+            borderBottomColor='$borderLight100'
+            zIndex={20}
           >
-            <Pressable
-              flex={1}
-              py='$2'
-              borderRadius='$xl'
-              bg={viewMode === 'list' ? '$white' : 'transparent'}
-              shadowColor={viewMode === 'list' ? '$black' : 'transparent'}
-              shadowOffset={{ width: 0, height: 1 }}
-              shadowOpacity={viewMode === 'list' ? 0.08 : 0}
-              shadowRadius={3}
-              elevation={viewMode === 'list' ? 2 : 0}
-              onPress={() => setViewMode('list')}
-              testID='view-toggle-list'
+            <HStack
+              bg='$backgroundLight100'
+              p='$1'
+              borderRadius='$2xl'
+              alignItems='center'
             >
-              <HStack space='xs' justifyContent='center' alignItems='center'>
-                <Icon
-                  as={Footprints}
-                  size='xs'
-                  color={viewMode === 'list' ? '$primary600' : '$textLight500'}
-                />
-                <Text
-                  size='xs'
-                  fontWeight='$bold'
-                  color={viewMode === 'list' ? '$textLight900' : '$textLight500'}
-                >
-                  Itinerario ({stopCount} paradas)
-                </Text>
-              </HStack>
-            </Pressable>
-
-            <Pressable
-              flex={1}
-              py='$2'
-              borderRadius='$xl'
-              bg={viewMode === 'map' ? '$white' : 'transparent'}
-              shadowColor={viewMode === 'map' ? '$black' : 'transparent'}
-              shadowOffset={{ width: 0, height: 1 }}
-              shadowOpacity={viewMode === 'map' ? 0.08 : 0}
-              shadowRadius={3}
-              elevation={viewMode === 'map' ? 2 : 0}
-              onPress={() => setViewMode('map')}
-              testID='view-toggle-map'
-            >
-              <HStack space='xs' justifyContent='center' alignItems='center'>
-                <Icon
-                  as={MapPin}
-                  size='xs'
-                  color={viewMode === 'map' ? '$primary600' : '$textLight500'}
-                />
-                <Text
-                  size='xs'
-                  fontWeight='$bold'
-                  color={viewMode === 'map' ? '$textLight900' : '$textLight500'}
-                >
-                  Mapa de Ruta 🗺️
-                </Text>
-              </HStack>
-            </Pressable>
-          </HStack>
-        </Box>
-
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 110 }}
-        >
-          <TourHeader tour={tour} expanded={viewMode === 'map'} />
-
-          {viewMode === 'list' && (
-            <Box position='relative' zIndex={10}>
-              <QuickStatsBar tour={tour} />
-            </Box>
-          )}
-
-          <VStack mt={viewMode === 'map' ? '$4' : '$6'} px='$4'>
-            {/* Dev-only, inline accordion for the generation bitácora */}
-            {__DEV__ && (tour.metadata as any)?.generationTrace && (
-              <Box mb='$4'>
-                <Pressable
-                  onPress={() => setShowBitacora((v) => !v)}
-                  testID='bitacora-toggle'
-                >
-                  <HStack alignItems='center' space='xs'>
-                    <Text size='xs' color='$tertiary600'>
-                      🐛 Bitácora de generación (dev)
-                    </Text>
-                    <Icon
-                      as={showBitacora ? ChevronUp : ChevronDown}
-                      size='xs'
-                      color='$tertiary600'
-                    />
-                  </HStack>
-                </Pressable>
-                {showBitacora && (
-                  <GenerationBitacora
-                    trace={(tour.metadata as any).generationTrace}
+              <Pressable
+                flex={1}
+                py='$2'
+                borderRadius='$xl'
+                bg={viewMode === 'list' ? '$white' : 'transparent'}
+                shadowColor={viewMode === 'list' ? '$black' : 'transparent'}
+                shadowOffset={{ width: 0, height: 1 }}
+                shadowOpacity={viewMode === 'list' ? 0.08 : 0}
+                shadowRadius={3}
+                elevation={viewMode === 'list' ? 2 : 0}
+                onPress={() => setViewMode('list')}
+                testID='view-toggle-list'
+              >
+                <HStack space='xs' justifyContent='center' alignItems='center'>
+                  <Icon
+                    as={Footprints}
+                    size='xs'
+                    color={viewMode === 'list' ? '$primary600' : '$textLight500'}
                   />
-                )}
-              </Box>
-            )}
+                  <Text
+                    size='xs'
+                    fontWeight='$bold'
+                    color={viewMode === 'list' ? '$textLight900' : '$textLight500'}
+                  >
+                    Itinerario ({stopCount} paradas)
+                  </Text>
+                </HStack>
+              </Pressable>
 
-            {isGeneratingActivities ? (
-              <Box
-                p='$8'
-                alignItems='center'
-                justifyContent='center'
-                bg='$white'
-                borderRadius='$2xl'
-                borderWidth={1}
-                borderColor='$borderLight100'
+              <Pressable
+                flex={1}
+                py='$2'
+                borderRadius='$xl'
+                bg={viewMode === 'map' ? '$white' : 'transparent'}
+                shadowColor={viewMode === 'map' ? '$black' : 'transparent'}
+                shadowOffset={{ width: 0, height: 1 }}
+                shadowOpacity={viewMode === 'map' ? 0.08 : 0}
+                shadowRadius={3}
+                elevation={viewMode === 'map' ? 2 : 0}
+                onPress={() => setViewMode('map')}
+                testID='view-toggle-map'
               >
-                <Spinner size='large' color='$primary500' mb='$4' />
-                <Heading
-                  size='sm'
-                  color='$textLight900'
-                  textAlign='center'
-                  style={{ fontFamily: FONT_DISPLAY }}
-                  mb='$1'
-                >
-                  Armando tu recorrido
-                </Heading>
-                <Text
-                  color='$textLight600'
-                  textAlign='center'
-                  fontWeight='$medium'
-                  mb='$1'
-                >
-                  Buscando lugares y relatos de tu destino
-                </Text>
-                <GenerationPipeline message={generationMessage} />
-              </Box>
-            ) : generationError ? (
-              <Box
-                p='$8'
-                alignItems='center'
-                justifyContent='center'
-                bg='$white'
-                borderRadius='$2xl'
-                borderWidth={1}
-                borderColor='$borderLight100'
-              >
-                <Text
-                  color='$error600'
-                  textAlign='center'
-                  fontWeight='$medium'
-                  mb='$2'
-                >
-                  No pudimos generar este tour
-                </Text>
-                <Text size='sm' color='$textLight600' textAlign='center'>
-                  {generationError}
-                </Text>
-              </Box>
-            ) : stops.length === 0 ? (
-              <Box
-                p='$8'
-                alignItems='center'
-                justifyContent='center'
-                bg='$white'
-                borderRadius='$2xl'
-                borderWidth={1}
-                borderColor='$borderLight100'
-              >
-                <Text color='$textLight600' textAlign='center'>
-                  No hay actividades disponibles para este tour
-                </Text>
-              </Box>
-            ) : viewMode === 'map' ? (
-              <VStack space='sm'>
-                <Text size='xs' color='$textLight500' fontWeight='$semibold' mb='$2'>
-                  Paradas de este recorrido marcadas en el mapa:
-                </Text>
-                {(() => {
-                  let counter = 0;
-                  return stops.map((item) => {
-                    if (item.type === 'location' || item.type === 'composite') {
-                      counter++;
-                      const stopItems = stops.filter(
-                        (s) => s.type === 'location' || s.type === 'composite'
-                      );
-                      const isLastStop =
-                        stopItems[stopItems.length - 1]?.id === item.id;
-                      return item.type === 'composite' ? (
-                        <CompositeStopCard
-                          key={item.id}
-                          data={item}
-                          isLast={isLastStop}
-                          stopNumber={counter}
-                        />
-                      ) : (
-                        <TourStopCard
-                          key={item.id}
-                          data={item}
-                          isLast={isLastStop}
-                          stopNumber={counter}
-                        />
-                      );
-                    }
-                    return null;
-                  });
-                })()}
-              </VStack>
-            ) : (
-              <VStack>
-                {(() => {
-                  let counter = 0;
-                  return stops.map((item) => {
-                    if (item.type === 'location' || item.type === 'composite') {
-                      counter++;
-                      const stopItems = stops.filter(
-                        (s) => s.type === 'location' || s.type === 'composite'
-                      );
-                      const isLastStop =
-                        stopItems[stopItems.length - 1]?.id === item.id;
-                      return item.type === 'composite' ? (
-                        <CompositeStopCard
-                          key={item.id}
-                          data={item}
-                          isLast={isLastStop}
-                          stopNumber={counter}
-                        />
-                      ) : (
-                        <TourStopCard
-                          key={item.id}
-                          data={item}
-                          isLast={isLastStop}
-                          stopNumber={counter}
-                        />
-                      );
-                    } else if (item.type === 'day-header') {
-                      return <DayHeader key={item.id} data={item} />;
-                    } else {
-                      return <SmartConnector key={item.id} data={item} />;
-                    }
-                  });
-                })()}
-              </VStack>
-            )}
-          </VStack>
-        </ScrollView>
+                <HStack space='xs' justifyContent='center' alignItems='center'>
+                  <Icon
+                    as={MapPin}
+                    size='xs'
+                    color={viewMode === 'map' ? '$primary600' : '$textLight500'}
+                  />
+                  <Text
+                    size='xs'
+                    fontWeight='$bold'
+                    color={viewMode === 'map' ? '$textLight900' : '$textLight500'}
+                  >
+                    Mapa de Ruta 🗺️
+                  </Text>
+                </HStack>
+              </Pressable>
+            </HStack>
+          </Box>
 
-        {/* Floating CTA */}
-        <Box
-          position='absolute'
-          bottom={0}
-          left={0}
-          right={0}
-          p='$4'
-          bg='rgba(255, 255, 255, 0.95)'
-          borderTopWidth={1}
-          borderTopColor='$borderLight100'
-        >
-          <Button
-            size='lg'
-            variant='solid'
-            action='primary'
-            bg='$primary500'
-            borderRadius='$2xl'
-            shadowColor='$primary500'
-            shadowOffset={{ width: 0, height: 4 }}
-            shadowOpacity={0.3}
-            shadowRadius={8}
-            elevation={5}
-            h={52}
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: 110 }}
           >
-            <ButtonText color='$white' fontWeight='$bold' size='md'>
-              Comenzar Recorrido a Pie
-            </ButtonText>
-            <Icon as={MapPin} color='$white' ml='$2' />
-          </Button>
+            <TourHeader tour={tour} expanded={viewMode === 'map'} />
+
+            {viewMode === 'list' && (
+              <Box position='relative' zIndex={10}>
+                <QuickStatsBar tour={tour} />
+              </Box>
+            )}
+
+            <VStack mt={viewMode === 'map' ? '$4' : '$6'} px='$4'>
+              {/* Dev-only, inline accordion for the generation bitácora */}
+              {__DEV__ && (tour.metadata as any)?.generationTrace && (
+                <Box mb='$4'>
+                  <Pressable
+                    onPress={() => setShowBitacora((v) => !v)}
+                    testID='bitacora-toggle'
+                  >
+                    <HStack alignItems='center' space='xs'>
+                      <Text size='xs' color='$tertiary600'>
+                        🐛 Bitácora de generación (dev)
+                      </Text>
+                      <Icon
+                        as={showBitacora ? ChevronUp : ChevronDown}
+                        size='xs'
+                        color='$tertiary600'
+                      />
+                    </HStack>
+                  </Pressable>
+                  {showBitacora && (
+                    <GenerationBitacora
+                      trace={(tour.metadata as any).generationTrace}
+                    />
+                  )}
+                </Box>
+              )}
+
+              {isGeneratingActivities ? (
+                <Box
+                  p='$8'
+                  alignItems='center'
+                  justifyContent='center'
+                  bg='$white'
+                  borderRadius='$2xl'
+                  borderWidth={1}
+                  borderColor='$borderLight100'
+                >
+                  <Spinner size='large' color='$primary500' mb='$4' />
+                  <Heading
+                    size='sm'
+                    color='$textLight900'
+                    textAlign='center'
+                    style={{ fontFamily: FONT_DISPLAY }}
+                    mb='$1'
+                  >
+                    Armando tu recorrido
+                  </Heading>
+                  <Text
+                    color='$textLight600'
+                    textAlign='center'
+                    fontWeight='$medium'
+                    mb='$1'
+                  >
+                    Buscando lugares y relatos de tu destino
+                  </Text>
+                  <GenerationPipeline message={generationMessage} />
+                </Box>
+              ) : generationError ? (
+                <Box
+                  p='$8'
+                  alignItems='center'
+                  justifyContent='center'
+                  bg='$white'
+                  borderRadius='$2xl'
+                  borderWidth={1}
+                  borderColor='$borderLight100'
+                >
+                  <Text
+                    color='$error600'
+                    textAlign='center'
+                    fontWeight='$medium'
+                    mb='$2'
+                  >
+                    No pudimos generar este tour
+                  </Text>
+                  <Text size='sm' color='$textLight600' textAlign='center'>
+                    {generationError}
+                  </Text>
+                </Box>
+              ) : stops.length === 0 ? (
+                <Box
+                  p='$8'
+                  alignItems='center'
+                  justifyContent='center'
+                  bg='$white'
+                  borderRadius='$2xl'
+                  borderWidth={1}
+                  borderColor='$borderLight100'
+                >
+                  <Text color='$textLight600' textAlign='center'>
+                    No hay actividades disponibles para este tour
+                  </Text>
+                </Box>
+              ) : viewMode === 'map' ? (
+                <VStack space='sm'>
+                  <Text size='xs' color='$textLight500' fontWeight='$semibold' mb='$2'>
+                    Paradas de este recorrido marcadas en el mapa:
+                  </Text>
+                  {(() => {
+                    let counter = 0;
+                    return stops.map((item) => {
+                      if (item.type === 'location' || item.type === 'composite') {
+                        counter++;
+                        const stopItems = stops.filter(
+                          (s) => s.type === 'location' || s.type === 'composite'
+                        );
+                        const isLastStop =
+                          stopItems[stopItems.length - 1]?.id === item.id;
+                        return item.type === 'composite' ? (
+                          <CompositeStopCard
+                            key={item.id}
+                            data={item}
+                            isLast={isLastStop}
+                            stopNumber={counter}
+                          />
+                        ) : (
+                          <TourStopCard
+                            key={item.id}
+                            data={item}
+                            isLast={isLastStop}
+                            stopNumber={counter}
+                          />
+                        );
+                      }
+                      return null;
+                    });
+                  })()}
+                </VStack>
+              ) : (
+                <VStack>
+                  {(() => {
+                    let counter = 0;
+                    return stops.map((item) => {
+                      if (item.type === 'location' || item.type === 'composite') {
+                        counter++;
+                        const stopItems = stops.filter(
+                          (s) => s.type === 'location' || s.type === 'composite'
+                        );
+                        const isLastStop =
+                          stopItems[stopItems.length - 1]?.id === item.id;
+                        return item.type === 'composite' ? (
+                          <CompositeStopCard
+                            key={item.id}
+                            data={item}
+                            isLast={isLastStop}
+                            stopNumber={counter}
+                          />
+                        ) : (
+                          <TourStopCard
+                            key={item.id}
+                            data={item}
+                            isLast={isLastStop}
+                            stopNumber={counter}
+                          />
+                        );
+                      } else if (item.type === 'day-header') {
+                        return <DayHeader key={item.id} data={item} />;
+                      } else {
+                        return <SmartConnector key={item.id} data={item} />;
+                      }
+                    });
+                  })()}
+                </VStack>
+              )}
+            </VStack>
+          </ScrollView>
+
+          {/* Floating CTA */}
+          <Box
+            position='absolute'
+            bottom={0}
+            left={0}
+            right={0}
+            p='$4'
+            bg='rgba(255, 255, 255, 0.95)'
+            borderTopWidth={1}
+            borderTopColor='$borderLight100'
+          >
+            <Button
+              size='lg'
+              variant='solid'
+              action='primary'
+              bg='$primary500'
+              borderRadius='$2xl'
+              shadowColor='$primary500'
+              shadowOffset={{ width: 0, height: 4 }}
+              shadowOpacity={0.3}
+              shadowRadius={8}
+              elevation={5}
+              h={52}
+            >
+              <ButtonText color='$white' fontWeight='$bold' size='md'>
+                Comenzar Recorrido a Pie
+              </ButtonText>
+              <Icon as={MapPin} color='$white' ml='$2' />
+            </Button>
+          </Box>
         </Box>
       </Box>
     </>
