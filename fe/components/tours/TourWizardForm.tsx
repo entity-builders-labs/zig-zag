@@ -825,6 +825,7 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
       <ScrollView
         flex={1}
         showsVerticalScrollIndicator={true}
+        keyboardShouldPersistTaps='always'
         style={{ flex: 1 }}
         contentContainerStyle={{ flexGrow: 1, paddingBottom: 160 }}
       >

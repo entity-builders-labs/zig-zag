@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Keyboard } from 'react-native';
 import {
   Box,
   Input,
@@ -12,7 +13,6 @@ import {
   Icon,
 } from '@gluestack-ui/themed';
 import { Search, MapPin, X } from 'lucide-react-native';
-import * as ExpoLocation from 'expo-location';
 import { PlaceSuggestion, searchPlaces, resolvePlace } from '@/features/places-autocomplete';
 
 interface DestinationInputProps {
@@ -20,14 +20,8 @@ interface DestinationInputProps {
   onDestinationChange: (
     destination: string,
     coordinates?: { lat: number; lng: number },
-    // Search radius (meters) derived from the selected place's actual
-    // extent — a neighborhood yields a small radius, a whole city a large
-    // one — instead of one fixed radius for every kind of destination.
     radiusMeters?: number
   ) => void;
-  // Called whenever the visible text stops matching a resolved selection —
-  // true while the user has typed something that hasn't been confirmed by
-  // picking a suggestion, so the caller can block submission until resolved.
   onDirtyChange?: (isDirty: boolean) => void;
 }
 
@@ -42,7 +36,7 @@ export const DestinationInput: React.FC<DestinationInputProps> = ({
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (value) {
+    if (value !== undefined && value !== term) {
       setTerm(value);
     }
   }, [value]);
@@ -56,38 +50,37 @@ export const DestinationInput: React.FC<DestinationInputProps> = ({
       }
       setIsLoading(true);
       try {
-        setLocationResults(await searchPlaces(term));
+        const results = await searchPlaces(term);
+        setLocationResults(results);
       } catch (e) {
         console.error('Autocomplete error', e);
         setLocationResults([]);
       } finally {
         setIsLoading(false);
       }
-    }, 300);
+    }, 250);
     return () => clearTimeout(handler);
   }, [term]);
 
   const handleSelectItem = async (item: PlaceSuggestion) => {
+    Keyboard.dismiss();
+    setLocationResults([]);
+    setIsFocused(false);
+
     try {
       const details = await resolvePlace(item);
       if (!details) throw new Error('No details returned for place');
 
+      setTerm(details.name);
       onDestinationChange(
         details.name,
         { lat: details.lat, lng: details.lng },
         details.radiusMeters
       );
-      setTerm(details.name);
-      setLocationResults([]);
-      setIsFocused(false);
       onDirtyChange?.(false);
     } catch (error) {
       console.error('Failed to fetch place details:', error);
-      // No coordinates available — leave the field dirty rather than
-      // silently accepting a name with no location behind it.
       setTerm(item.label);
-      setLocationResults([]);
-      setIsFocused(false);
       onDirtyChange?.(true);
     }
   };
@@ -101,23 +94,26 @@ export const DestinationInput: React.FC<DestinationInputProps> = ({
   };
 
   const showResults =
-    isFocused && locationResults.length > 0 && term.length >= 3;
+    (isFocused || locationResults.length > 0) &&
+    locationResults.length > 0 &&
+    term.length >= 3;
 
   return (
     <Box position='relative' w='$full' zIndex={showResults ? 1000 : 1}>
       <Input
         variant='outline'
         size='lg'
-        borderRadius='$lg'
-        borderColor='$borderLight200'
+        borderRadius='$xl'
+        borderColor='$borderLight300'
+        bg='$white'
+        h={50}
         isFocused={isFocused}
-        isInvalid={false}
       >
-        <InputSlot pl='$3'>
-          <InputIcon as={Search} size='md' color='$textLight600' />
+        <InputSlot pl='$3.5'>
+          <InputIcon as={Search} size='md' color='$textLight500' />
         </InputSlot>
         <InputField
-          placeholder='Buscar destino'
+          placeholder='Ej: Roma, Italia o Barcelona...'
           value={term}
           onChangeText={(text) => {
             setTerm(text);
@@ -130,15 +126,13 @@ export const DestinationInput: React.FC<DestinationInputProps> = ({
             }
           }}
           onFocus={() => setIsFocused(true)}
-          onBlur={() => {
-            // Delay to allow item selection
-            setTimeout(() => setIsFocused(false), 200);
-          }}
+          color='$textLight900'
+          fontSize='$sm'
         />
         {term.length > 0 && (
           <InputSlot pr='$3'>
-            <Pressable onPress={handleClear}>
-              <InputIcon as={X} size='sm' color='$textLight600' />
+            <Pressable onPress={handleClear} hitSlop={10}>
+              <InputIcon as={X} size='sm' color='$textLight400' />
             </Pressable>
           </InputSlot>
         )}
@@ -148,91 +142,74 @@ export const DestinationInput: React.FC<DestinationInputProps> = ({
       {showResults && (
         <Box
           position='absolute'
-          top='$12'
-          left='$0'
-          right='$0'
-          zIndex={1001}
-          borderRadius='$md'
-          borderWidth='$1'
-          borderColor='$backgroundLight300'
+          top={56}
+          left={0}
+          right={0}
+          zIndex={9999}
+          borderRadius='$2xl'
+          borderWidth={1}
+          borderColor='$borderLight200'
+          bg='$white'
           shadowColor='$black'
-          shadowOffset={{ width: 0, height: 2 }}
-          shadowOpacity={0.1}
-          shadowRadius={8}
-          elevation={10}
-          maxHeight='$64'
+          shadowOffset={{ width: 0, height: 6 }}
+          shadowOpacity={0.12}
+          shadowRadius={16}
+          elevation={12}
+          maxHeight={260}
           overflow='hidden'
-          style={{
-            backgroundColor: '#FFFFFF',
-            opacity: 1,
-          }}
-          pointerEvents='box-none'
         >
-          <Box
-            style={{
-              backgroundColor: '#FFFFFF',
-              width: '100%',
-              height: '100%',
-            }}
-            pointerEvents='auto'
+          <ScrollView
+            nestedScrollEnabled={true}
+            keyboardShouldPersistTaps='always'
+            style={{ maxHeight: 260, backgroundColor: '#FFFFFF' }}
+            contentContainerStyle={{ padding: 6, backgroundColor: '#FFFFFF' }}
           >
-            <ScrollView
-              nestedScrollEnabled
-              style={{
-                backgroundColor: '#FFFFFF',
-                width: '100%',
-              }}
-              contentContainerStyle={{
-                backgroundColor: '#FFFFFF',
-              }}
-            >
-              <VStack
-                p='$2'
-                style={{
-                  backgroundColor: '#FFFFFF',
-                  width: '100%',
-                }}
-              >
-                {locationResults.map((item) => (
-                  <Pressable
-                    key={item.id}
-                    onPress={() => handleSelectItem(item)}
-                  >
-                    {({ pressed }) => (
+            <VStack space='xs'>
+              {locationResults.map((item) => (
+                <Pressable
+                  key={item.id}
+                  onPress={() => handleSelectItem(item)}
+                  borderRadius='$xl'
+                  p='$3'
+                  $hover-bg='$backgroundLight100'
+                  $active-bg='$backgroundLight100'
+                >
+                  {({ pressed }) => (
+                    <Box
+                      flexDirection='row'
+                      alignItems='center'
+                      style={{
+                        backgroundColor: pressed ? '#FEE2E2' : 'transparent',
+                        borderRadius: 12,
+                        padding: 4,
+                      }}
+                    >
                       <Box
-                        flexDirection='row'
+                        w={34}
+                        h={34}
+                        borderRadius='$full'
+                        bg='$primary50'
                         alignItems='center'
-                        p='$3'
-                        borderRadius='$sm'
-                        style={{
-                          // Paper tint on press ($secondary0 in fe/config.ts)
-                          // — matches the redesign palette instead of a
-                          // neutral gray.
-                          backgroundColor: pressed ? '#F6F3EA' : '#FFFFFF',
-                          width: '100%',
-                        }}
+                        justifyContent='center'
+                        mr='$3'
                       >
-                        <Box
-                          w='$8'
-                          h='$8'
-                          borderRadius='$full'
-                          bg='$primary50'
-                          alignItems='center'
-                          justifyContent='center'
-                          mr='$3'
-                        >
-                          <Icon as={MapPin} size='sm' color='$primary500' />
-                        </Box>
-                        <Text flex={1} size='md' color='$textLight900'>
-                          {item.label}
-                        </Text>
+                        <Icon as={MapPin} size='sm' color='$primary500' />
                       </Box>
-                    )}
-                  </Pressable>
-                ))}
-              </VStack>
-            </ScrollView>
-          </Box>
+                      <Text
+                        flex={1}
+                        size='sm'
+                        color='$textLight900'
+                        fontWeight='$semibold'
+                        numberOfLines={2}
+                      >
+                        {item.label}
+                      </Text>
+                    </Box>
+                  )}
+                </Pressable>
+              ))}
+            </VStack>
+          </ScrollView>
         </Box>
       )}
     </Box>
