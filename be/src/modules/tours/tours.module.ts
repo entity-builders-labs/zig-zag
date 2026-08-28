@@ -16,11 +16,14 @@ import { GroqGroundedSearchService } from './services/groq-grounded-search.servi
 import { SerpApiGroundedSearchService } from './services/serpapi-grounded-search.service';
 import { ActivityProposalResolutionService } from './services/activity-proposal-resolution.service';
 import { GroqDiscoveryProvider } from './services/groq-discovery.provider';
+import { GeminiDiscoveryProvider } from './services/gemini-discovery.provider';
 import {
   DISCOVERY_PROVIDER,
   GROUNDED_SEARCH_PROVIDER,
+  SearchGroundedDiscoveryProvider,
 } from './interfaces/activity-discovery.interface';
 import { PROPOSAL_RESOLVER } from './interfaces/proposal-resolution.interface';
+import aiConfig, { AiConfig } from '../../shared/ai/ai.config';
 
 import { ActivitiesModule } from '../activities/activities.module';
 import { AiModule } from '../../shared/ai/ai.module';
@@ -54,19 +57,42 @@ import { AuthModule } from '../auth/auth.module';
     SerpApiGroundedSearchService,
     ActivityProposalResolutionService,
     GroqDiscoveryProvider,
+    GeminiDiscoveryProvider,
     {
       // SerpApi is the default grounded-search evidence provider: a plain
-      // search API, so it never competes with GroqDiscoveryProvider's own
-      // token/rate quota (unlike Groq's browser_search tool, which shares
-      // that budget with extraction). GroqGroundedSearchService stays
-      // registered above as the alternate implementation behind the same
-      // interface — swap back by pointing useExisting at it.
+      // search API, so it never competes with the discovery-extraction
+      // provider's own token/rate quota (unlike Groq's browser_search tool,
+      // which shares that budget with extraction). GroqGroundedSearchService
+      // stays registered above as the alternate implementation behind the
+      // same interface — swap back by pointing useExisting at it.
       provide: GROUNDED_SEARCH_PROVIDER,
       useExisting: SerpApiGroundedSearchService,
     },
     {
+      // Config-driven (DISCOVERY_EXTRACTOR_PROVIDER), unlike
+      // GROUNDED_SEARCH_PROVIDER's static useExisting swap above — Gemini
+      // is the default (moves discovery extraction off Groq's shared
+      // TPM budget entirely), Groq stays available as a config-selected
+      // alternative. Fails fast on an unrecognized value rather than
+      // silently falling back.
       provide: DISCOVERY_PROVIDER,
-      useExisting: GroqDiscoveryProvider,
+      useFactory: (
+        config: AiConfig,
+        gemini: GeminiDiscoveryProvider,
+        groq: GroqDiscoveryProvider,
+      ): SearchGroundedDiscoveryProvider => {
+        switch (config.discoveryExtractor.provider) {
+          case 'gemini':
+            return gemini;
+          case 'groq':
+            return groq;
+          default:
+            throw new Error(
+              `Unsupported DISCOVERY_EXTRACTOR_PROVIDER: ${config.discoveryExtractor.provider}`,
+            );
+        }
+      },
+      inject: [aiConfig.KEY, GeminiDiscoveryProvider, GroqDiscoveryProvider],
     },
     {
       provide: PROPOSAL_RESOLVER,

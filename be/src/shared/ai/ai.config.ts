@@ -24,6 +24,16 @@ export interface AiConfig {
   embeddingProvider: EmbeddingProvider;
   awsRegion: string;
   embeddingDimensions: 256;
+  // Discovery extraction (ActivityProposal extraction from grounded evidence)
+  discoveryExtractor: DiscoveryExtractorConfig;
+}
+
+export type DiscoveryExtractorProvider = 'gemini' | 'groq';
+
+export interface DiscoveryExtractorConfig {
+  provider: DiscoveryExtractorProvider;
+  gemini: { apiKey?: string; model: string };
+  groq: { apiKey?: string; model: string };
 }
 
 // Helper to detect if a model is an embedding model
@@ -95,6 +105,14 @@ export default registerAs('ai', (): AiConfig => {
         ? 'text-embedding-3-small'
         : 'nomic-embed-text';
 
+  const discoveryExtractorProvider =
+    process.env.DISCOVERY_EXTRACTOR_PROVIDER || 'gemini';
+  if (!['gemini', 'groq'].includes(discoveryExtractorProvider)) {
+    throw new Error(
+      `Unsupported DISCOVERY_EXTRACTOR_PROVIDER "${discoveryExtractorProvider}". Expected gemini or groq.`,
+    );
+  }
+
   return {
     enableAi: process.env.ENABLE_AI !== 'false',
     provider,
@@ -120,5 +138,16 @@ export default registerAs('ai', (): AiConfig => {
     embeddingProvider,
     awsRegion: process.env.AWS_REGION || 'us-east-1',
     embeddingDimensions: 256,
+    discoveryExtractor: {
+      provider: discoveryExtractorProvider as DiscoveryExtractorProvider,
+      gemini: {
+        apiKey: process.env.GEMINI_API_KEY,
+        model: process.env.GEMINI_DISCOVERY_MODEL || 'gemini-3.5-flash-lite',
+      },
+      groq: {
+        apiKey: process.env.GROQ_API_KEY,
+        model: process.env.GROQ_DISCOVERY_MODEL || 'openai/gpt-oss-120b',
+      },
+    },
   };
 });

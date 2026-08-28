@@ -6,6 +6,8 @@ import {
   GroundedSearchProvider,
   GroundingEvidence,
 } from '../interfaces/activity-discovery.interface';
+import { EXPERIENCE_FORMAT_SEARCH_PHRASE } from '../utils/experience-format-kind.util';
+import { ExperienceFormat } from '../interfaces/tour-generation.interface';
 
 /** Browser search citation marker: 【N†LN-LN】 */
 const CITATION_RE = /【(\d+)†L\d+-L\d+】/g;
@@ -106,6 +108,9 @@ export class GroqGroundedSearchService implements GroundedSearchProvider {
     }
   }
 
+  // Deliberately ignores request.query/targetKind (SemanticDiscoveryQueryBuilder's
+  // output) — this alternate provider isn't wired into the semantic-search
+  // path, still builds its own combined browser_search prompt as before.
   private buildSearchQuery(request: GroundedSearchRequest): string {
     const parts: string[] = [];
     parts.push(
@@ -119,9 +124,16 @@ export class GroqGroundedSearchService implements GroundedSearchProvider {
       request.requestedExperienceFormats &&
       request.requestedExperienceFormats.length > 0
     ) {
-      parts.push(
-        `Experience formats: ${request.requestedExperienceFormats.join(', ')}.`,
-      );
+      // Real phrases (e.g. "walking tour"), never the raw enum slug
+      // ("neighborhood_walks") — same fix as SerpApiGroundedSearchService.
+      const phrases = request.requestedExperienceFormats
+        .map(
+          (format) =>
+            EXPERIENCE_FORMAT_SEARCH_PHRASE[format as ExperienceFormat] ??
+            format,
+        )
+        .join(', ');
+      parts.push(`Experience formats: ${phrases}.`);
     }
     if (request.explorationStyle) {
       parts.push(`Exploration style: ${request.explorationStyle}.`);

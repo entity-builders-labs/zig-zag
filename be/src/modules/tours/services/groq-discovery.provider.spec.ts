@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { LangChainService } from '@shared/ai/langchain.service';
+import aiConfig from '@shared/ai/ai.config';
 import { GroqDiscoveryProvider } from './groq-discovery.provider';
 import { GroundedSearchResult } from '../interfaces/activity-discovery.interface';
 
@@ -31,6 +32,16 @@ describe('GroqDiscoveryProvider', () => {
       providers: [
         GroqDiscoveryProvider,
         { provide: LangChainService, useValue: langChainService },
+        {
+          provide: aiConfig.KEY,
+          useValue: {
+            discoveryExtractor: {
+              provider: 'groq',
+              gemini: { model: 'gemini-3.5-flash-lite' },
+              groq: { model: 'openai/gpt-oss-120b' },
+            },
+          },
+        },
       ],
     }).compile();
     provider = module.get(GroqDiscoveryProvider);

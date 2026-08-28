@@ -13,6 +13,27 @@ export interface RankableCandidate {
   weightedScore?: number;
   /** Composite only — true for a pre-vetted generate-templates variant. */
   isCurated?: boolean;
+  /** Composite only — groups variants of the same area+experience-type, used for window-selection family diversity (candidate-window-selection.util.ts). */
+  familyId?: string | null;
+}
+
+// PR 9: exposes what actually drove a candidate's rank, so the generation
+// bitácora can show real per-candidate score components instead of an
+// opaque total — see docs/superpowers/plans/2026-08-21-activity-engine-
+// quality-discovery-mobility.md, "PR 9: Unified candidate pool".
+export interface CandidateScoreBreakdown {
+  /** null = missing-embedding tier; never a fake 0 (that would claim a measurement that didn't happen). */
+  semanticSimilarity: number | null;
+  qualityBonus: number;
+  proximityBonus: number;
+  /** Captured at the moment this candidate was selected in the greedy diversity pass, not recomputed afterward. */
+  diversityBonus: number;
+  totalScore: number;
+}
+
+export interface RankedCandidate<T extends RankableCandidate> {
+  candidate: T;
+  scoreBreakdown: CandidateScoreBreakdown;
 }
 
 const MAX_WEIGHTED_SCORE = 5;
@@ -30,7 +51,7 @@ const NEW_KIND_BONUS = 0.04;
 const NEW_SUBTYPE_BONUS = 0.03;
 const REPEATED_SUBTYPE_PENALTY = 0.02;
 
-function qualityBonus(candidate: RankableCandidate): number {
+export function qualityBonus(candidate: RankableCandidate): number {
   if (candidate.source === 'poi') {
     return (
       ((candidate.weightedScore ?? 0) / MAX_WEIGHTED_SCORE) * POI_QUALITY_WEIGHT
@@ -39,7 +60,7 @@ function qualityBonus(candidate: RankableCandidate): number {
   return candidate.isCurated ? CURATED_COMPOSITE_BONUS : 0;
 }
 
-function proximityBonus(
+export function proximityBonus(
   candidate: RankableCandidate,
   maximumDistanceKm: number,
 ): number {
@@ -65,10 +86,28 @@ function fallbackCompare(a: RankableCandidate, b: RankableCandidate): number {
   return a.id.localeCompare(b.id);
 }
 
+// Shared by the live comparator (re-evaluated every sort pass, current
+// state) and the post-shift capture (frozen at the exact moment a
+// candidate is selected) — factored out so the two can't drift apart.
+function diversityBonusFor(
+  candidate: RankableCandidate,
+  selectedKinds: Set<string>,
+  subtypeCounts: Map<string, number>,
+): number {
+  const kind = candidate.kind ?? candidate.source;
+  const subtype = candidate.subtype;
+  const subtypeCount = subtype ? (subtypeCounts.get(subtype) ?? 0) : 0;
+  return (
+    (selectedKinds.has(kind) ? 0 : NEW_KIND_BONUS) +
+    (subtype && subtypeCount === 0 ? NEW_SUBTYPE_BONUS : 0) -
+    Math.min(0.1, subtypeCount * REPEATED_SUBTYPE_PENALTY)
+  );
+}
+
 function rankKnownSemanticTier<T extends RankableCandidate>(
   candidates: T[],
   similarityById: Map<string, number>,
-): T[] {
+): RankedCandidate<T>[] {
   const maximumDistanceKm = Math.max(
     0,
     ...candidates
@@ -77,45 +116,81 @@ function rankKnownSemanticTier<T extends RankableCandidate>(
   );
   const remaining = candidates.map((candidate) => ({
     candidate,
+    semanticSimilarity: similarityById.get(candidate.id)!,
+    quality: qualityBonus(candidate),
+    proximity: proximityBonus(candidate, maximumDistanceKm),
     baseScore:
       similarityById.get(candidate.id)! +
       qualityBonus(candidate) +
       proximityBonus(candidate, maximumDistanceKm),
   }));
-  const selected: T[] = [];
+  const selected: RankedCandidate<T>[] = [];
   const selectedKinds = new Set<string>();
   const subtypeCounts = new Map<string, number>();
 
   while (remaining.length > 0) {
     remaining.sort((a, b) => {
-      const score = (entry: (typeof remaining)[number]) => {
-        const kind = entry.candidate.kind ?? entry.candidate.source;
-        const subtype = entry.candidate.subtype;
-        const subtypeCount = subtype ? (subtypeCounts.get(subtype) ?? 0) : 0;
-        return (
-          entry.baseScore +
-          (selectedKinds.has(kind) ? 0 : NEW_KIND_BONUS) +
-          (subtype && subtypeCount === 0 ? NEW_SUBTYPE_BONUS : 0) -
-          Math.min(0.1, subtypeCount * REPEATED_SUBTYPE_PENALTY)
-        );
-      };
+      const score = (entry: (typeof remaining)[number]) =>
+        entry.baseScore +
+        diversityBonusFor(entry.candidate, selectedKinds, subtypeCounts);
       const scoreDifference = score(b) - score(a);
       if (Math.abs(scoreDifference) > Number.EPSILON) return scoreDifference;
       return fallbackCompare(a.candidate, b.candidate);
     });
 
-    const next = remaining.shift()!.candidate;
-    selected.push(next);
-    selectedKinds.add(next.kind ?? next.source);
-    if (next.subtype) {
+    const next = remaining.shift()!;
+    // Capture diversityBonus from the state exactly as it stood at
+    // selection time, before this pick updates selectedKinds/subtypeCounts
+    // below — recomputing afterward would use every-candidate-but-the-last's
+    // wrong (post-mutation) state.
+    const diversityBonus = diversityBonusFor(
+      next.candidate,
+      selectedKinds,
+      subtypeCounts,
+    );
+    selected.push({
+      candidate: next.candidate,
+      scoreBreakdown: {
+        semanticSimilarity: next.semanticSimilarity,
+        qualityBonus: next.quality,
+        proximityBonus: next.proximity,
+        diversityBonus,
+        totalScore: next.baseScore + diversityBonus,
+      },
+    });
+    const kind = next.candidate.kind ?? next.candidate.source;
+    selectedKinds.add(kind);
+    if (next.candidate.subtype) {
       subtypeCounts.set(
-        next.subtype,
-        (subtypeCounts.get(next.subtype) ?? 0) + 1,
+        next.candidate.subtype,
+        (subtypeCounts.get(next.candidate.subtype) ?? 0) + 1,
       );
     }
   }
 
   return selected;
+}
+
+// Wraps a candidate that never went through the greedy semantic/diversity
+// pass — no interest signal at all, or absent from similarityById — with an
+// honest breakdown: diversityBonus is 0 because that pass never ran for it,
+// not because diversity genuinely contributed nothing.
+function wrapWithoutSemanticSignal<T extends RankableCandidate>(
+  candidate: T,
+  maximumDistanceKm: number,
+): RankedCandidate<T> {
+  const quality = qualityBonus(candidate);
+  const proximity = proximityBonus(candidate, maximumDistanceKm);
+  return {
+    candidate,
+    scoreBreakdown: {
+      semanticSimilarity: null,
+      qualityBonus: quality,
+      proximityBonus: proximity,
+      diversityBonus: 0,
+      totalScore: quality + proximity,
+    },
+  };
 }
 
 /**
@@ -131,9 +206,20 @@ function rankKnownSemanticTier<T extends RankableCandidate>(
 export function rankCandidatesByRelevance<T extends RankableCandidate>(
   candidates: T[],
   similarityById: Map<string, number> | null,
-): T[] {
+): RankedCandidate<T>[] {
+  const maximumDistanceKm = Math.max(
+    0,
+    ...candidates
+      .map((candidate) => candidate.distanceKm)
+      .filter((distance): distance is number => Number.isFinite(distance)),
+  );
+
   if (!similarityById) {
-    return [...candidates].sort(fallbackCompare);
+    return [...candidates]
+      .sort(fallbackCompare)
+      .map((candidate) =>
+        wrapWithoutSemanticSignal(candidate, maximumDistanceKm),
+      );
   }
 
   const semanticallyIndexed = candidates.filter((candidate) =>
@@ -145,6 +231,10 @@ export function rankCandidatesByRelevance<T extends RankableCandidate>(
 
   return [
     ...rankKnownSemanticTier(semanticallyIndexed, similarityById),
-    ...missingEmbedding.sort(fallbackCompare),
+    ...missingEmbedding
+      .sort(fallbackCompare)
+      .map((candidate) =>
+        wrapWithoutSemanticSignal(candidate, maximumDistanceKm),
+      ),
   ];
 }

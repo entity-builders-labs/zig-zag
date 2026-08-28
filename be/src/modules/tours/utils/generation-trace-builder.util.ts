@@ -12,6 +12,13 @@ import {
   placesProviderLabel,
 } from '@integrations/google-places/interfaces/places-api.interface';
 import { TourGenerationRequest } from '../interfaces/tour-generation.interface';
+import { CoverageCandidate } from '../interfaces/coverage-analysis.interface';
+import { CandidateScoreBreakdown } from './candidate-ranking.util';
+import { FormatAvailability } from './candidate-window-selection.util';
+import { matchedThemesFor } from './theme-matching.util';
+import { EXPERIENCE_FORMAT_ACTIVITY_KIND } from './experience-format-kind.util';
+import { ExperienceFormat } from '../interfaces/tour-generation.interface';
+import { ActivityKind } from '@prisma/client';
 
 // Loosely typed on purpose — mirrors the rest of this file's candidates
 // (ActivityWithDistance from ActivitiesService.findAll, whose Prisma Json
@@ -400,8 +407,8 @@ export function buildEntityResolutionStep(
   const summary =
     `Se resolvieron ${result.acceptedCount} de ${result.totalProposals} ` +
     `propuesta(s) fundamentada(s) como Activities reales y persistidas — ` +
-    `disponibles para futuras generaciones de este destino, no para el ` +
-    `itinerario actual (esa integración es PR 9).` +
+    `re-consultadas y combinadas en el pool unificado de este mismo pedido ` +
+    `(ver el paso "candidate_pool").` +
     (rejectedSummaries.length
       ? ` Rechazadas: ${rejectedSummaries.join('; ')}.`
       : '');
@@ -414,6 +421,104 @@ export function buildEntityResolutionStep(
     degradedReason:
       result.acceptedCount === 0 ? 'no_proposals_resolved' : undefined,
     resolution: result,
+  };
+}
+
+// PR 9: catalog + refill + newly discovery-resolved Activities merged into
+// one ranked, format-aware bounded window. This step covers the pre-LLM
+// half of auditability (full pool -> offered window, by kind/source/
+// requested-format); the existing tour_format_coverage step covers the
+// post-LLM half (window -> selected). Together they let a reader tell apart
+// a window-construction bug (format present in the pool but zero in the
+// window — asserted here), a selection bug (format offered but the LLM
+// ignored it — tour_format_coverage's job), and an acquisition/coverage
+// problem (format absent from the pool entirely — coverage_analysis's job).
+export function buildCandidatePoolStep(params: {
+  initialCatalogCount: number;
+  postAcquisitionCatalogCount: number;
+  eligibleCount: number;
+  offeredCandidates: Array<
+    CoverageCandidate & {
+      traceSource: 'db' | 'google_places' | 'geoapify' | 'discovery';
+      scoreBreakdown: CandidateScoreBreakdown;
+    }
+  >;
+  requestedThemes: string[];
+  formatAvailability: FormatAvailability[];
+  droppedForFamilyCapCount: number;
+}): GenerationTraceStep {
+  const bySource = { catalog: 0, refill: 0, discovery: 0 };
+  const byKind: Partial<Record<ActivityKind, number>> = {};
+  const experienceFormatByKind = new Map<ActivityKind, ExperienceFormat>(
+    Object.entries(EXPERIENCE_FORMAT_ACTIVITY_KIND).map(([format, kind]) => [
+      kind as ActivityKind,
+      format as ExperienceFormat,
+    ]),
+  );
+
+  const candidates: TraceCandidate[] = params.offeredCandidates.map((c) => {
+    const bucket =
+      c.traceSource === 'db'
+        ? 'catalog'
+        : c.traceSource === 'discovery'
+          ? 'discovery'
+          : 'refill';
+    bySource[bucket] += 1;
+    if (c.kind) byKind[c.kind] = (byKind[c.kind] ?? 0) + 1;
+
+    const themes = matchedThemesFor(c, params.requestedThemes);
+    const experienceFormat = c.kind
+      ? experienceFormatByKind.get(c.kind)
+      : undefined;
+
+    return {
+      source: c.traceSource,
+      id: c.id,
+      name: c.name,
+      detail:
+        `score total ${c.scoreBreakdown.totalScore.toFixed(3)} ` +
+        `(semántica ${c.scoreBreakdown.semanticSimilarity ?? 'n/d'}, ` +
+        `calidad ${c.scoreBreakdown.qualityBonus.toFixed(3)}, ` +
+        `proximidad ${c.scoreBreakdown.proximityBonus.toFixed(3)}, ` +
+        `diversidad ${c.scoreBreakdown.diversityBonus.toFixed(3)})`,
+      offered: true,
+      chosen: false,
+      scoreBreakdown: c.scoreBreakdown,
+      coverageContribution: { themes, experienceFormat },
+    };
+  });
+
+  const formatSummary = params.formatAvailability
+    .map(
+      (f) =>
+        `"${f.format}": ${f.fullPoolCount} en el pool completo, ${f.llmWindowCount} en la ventana ofrecida`,
+    )
+    .join('; ');
+
+  return {
+    stage: 'candidate_pool',
+    label: 'Pool unificado y ventana ofrecida (PR 9)',
+    summary:
+      `Ventana ofrecida al selector: ${candidates.length} candidato(s) reales ` +
+      `de ${params.eligibleCount} elegibles (${bySource.catalog} del catálogo, ` +
+      `${bySource.refill} de refill, ${bySource.discovery} recién resueltos ` +
+      `por discovery). Cada uno conserva su ID de Activity real; el modelo no ` +
+      `puede crear entidades.` +
+      (formatSummary ? ` Formatos solicitados: ${formatSummary}.` : '') +
+      (params.droppedForFamilyCapCount > 0
+        ? ` ${params.droppedForFamilyCapCount} variante(s) adicional(es) de una misma familia quedaron fuera de la ventana.`
+        : ''),
+    candidates,
+    candidatePool: {
+      initialCatalogCount: params.initialCatalogCount,
+      postAcquisitionCatalogCount: params.postAcquisitionCatalogCount,
+      eligibleCount: params.eligibleCount,
+      llmWindowCount: candidates.length,
+      byKind,
+      bySource,
+      requestedFormatAvailability: params.formatAvailability,
+      droppedForFamilyCapCount: params.droppedForFamilyCapCount,
+    },
   };
 }
 

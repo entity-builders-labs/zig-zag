@@ -1,3 +1,4 @@
+import { ActivityKind } from '@prisma/client';
 import { CoverageDeficit } from './coverage-analysis.interface';
 
 // ── Proposal kinds ──────────────────────────────────────────────────
@@ -33,7 +34,23 @@ export interface GroundingEvidence {
   key: string;
   source: string;
   snippet: string;
+  /** Item's own title/heading, when the provider supplies one — scanned
+   * alongside snippet by ROUTE evidence extraction (route names often
+   * appear in a heading before the descriptive snippet). */
+  title?: string;
   url?: string;
+}
+
+/**
+ * A provider's own running narrative text (e.g. SerpApi google_ai_mode's
+ * text_blocks), distinct from the structured GroundingEvidence[] list used
+ * for NEIGHBORHOOD_WALK/EXPERIENCE/AREA extraction. Only ROUTE's
+ * evidence-aware extraction reads this — a route name can appear anywhere
+ * in prose rather than in a predictable structured field.
+ */
+export interface GroundedTextBlock {
+  text: string;
+  evidenceKeys: string[];
 }
 
 // ── Activity proposal ──────────────────────────────────────────────
@@ -65,7 +82,18 @@ export interface GroundedSearchRequest {
   requestedExperienceFormats?: string[];
   explorationStyle?: string;
   additionalPreferences?: string;
+  /**
+   * A deterministic semantic query built by SemanticDiscoveryQueryBuilder
+   * for one missing ActivityKind. When present, SerpApiGroundedSearchService
+   * uses it verbatim on the semantic path (engine=google_ai_mode) instead of
+   * building its own keyword-concat query. Empty/unset falls back to the
+   * legacy general path (engine=google).
+   */
   query: string;
+  /** Which ActivityKind this search call targets, when issued from the
+   * semantic path — used for evidence tagging/traceability and to decide
+   * whether ROUTE evidence extraction should run over this call's result. */
+  targetKind?: ActivityKind;
 }
 
 export type GroundingStatus =
@@ -79,6 +107,9 @@ export interface GroundedSearchResult {
   model: string;
   groundingStatus: GroundingStatus;
   evidence: GroundingEvidence[];
+  /** Populated on the semantic (google_ai_mode) path only — the provider's
+   * own running narrative text, read by ROUTE evidence extraction. */
+  textBlocks?: GroundedTextBlock[];
   rawOutput?: unknown;
   failureReason?: string;
 }

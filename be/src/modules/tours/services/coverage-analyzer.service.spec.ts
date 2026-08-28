@@ -35,6 +35,48 @@ describe('CoverageAnalyzer', () => {
     expect(report.eligibleCandidateCount).toBe(15);
   });
 
+  it('scales required candidate count by travelPace, not explorationStyle (bug fix)', () => {
+    // Same 4-candidate pool, same explorationStyle — only travelPace differs.
+    // Previously required stops/day was hardcoded via a comparison against
+    // 'relaxed'/'fast_paced' fed with explorationStyle's real values
+    // ('iconic'/'balanced'/'local_deep_dive'), which never matched, so this
+    // pool was judged identically regardless of travelPace.
+    const buildInput = (travelPace?: string) => ({
+      candidates: Array.from({ length: 4 }, (_, index) => ({
+        id: `candidate-${index}`,
+        name: `Real place ${index}`,
+      })),
+      requestedThemes: [] as string[],
+      days: 1,
+      explorationStyle: 'balanced',
+      travelPace,
+      semanticCoverage: {
+        status: 'not_requested' as const,
+        eligibleCandidateCount: 4,
+        indexedCandidateCount: 0,
+      },
+      offeredCandidateCount: 4,
+      providerHealth: { status: 'healthy' as const },
+    });
+
+    const relaxed = service.analyze(buildInput('relaxed'));
+    expect(relaxed.requiredCandidateCount).toBe(3); // 1 day * 3 stops
+    expect(
+      relaxed.deficits.some(
+        (d) => d.reason === 'insufficient_usable_candidates',
+      ),
+    ).toBe(false);
+
+    const fast = service.analyze(buildInput('fast'));
+    expect(fast.requiredCandidateCount).toBe(5); // 1 day * 5 stops
+    expect(
+      fast.deficits.some((d) => d.reason === 'insufficient_usable_candidates'),
+    ).toBe(true);
+
+    const moderate = service.analyze(buildInput('moderate'));
+    expect(moderate.requiredCandidateCount).toBe(4); // 1 day * 4 stops (default)
+  });
+
   it('chooses Places Text Search for a conventional theme deficit', () => {
     const report = service.analyze({
       candidates: [

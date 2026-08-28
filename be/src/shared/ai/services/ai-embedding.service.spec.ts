@@ -43,6 +43,11 @@ describe('AiEmbeddingService Bedrock adapter', () => {
       embeddingsModel: 'amazon.titan-embed-text-v2:0',
       awsRegion: 'us-east-1',
       embeddingDimensions: 256,
+      discoveryExtractor: {
+        provider: 'gemini',
+        gemini: { model: 'gemini-3.5-flash-lite' },
+        groq: { model: 'openai/gpt-oss-120b' },
+      },
     });
 
     await service.ensureInitialized();
@@ -71,6 +76,11 @@ describe('AiEmbeddingService Bedrock adapter', () => {
       embeddingsModel: 'amazon.titan-embed-text-v2:0',
       awsRegion: 'us-east-1',
       embeddingDimensions: 256,
+      discoveryExtractor: {
+        provider: 'gemini',
+        gemini: { model: 'gemini-3.5-flash-lite' },
+        groq: { model: 'openai/gpt-oss-120b' },
+      },
     });
 
     await service.ensureInitialized();
@@ -120,6 +130,11 @@ describe('AiEmbeddingService Bedrock adapter', () => {
       embeddingsModel: 'amazon.titan-embed-text-v2:0',
       awsRegion: 'us-east-1',
       embeddingDimensions: 256,
+      discoveryExtractor: {
+        provider: 'gemini',
+        gemini: { model: 'gemini-3.5-flash-lite' },
+        groq: { model: 'openai/gpt-oss-120b' },
+      },
     });
 
     await service.ensureInitialized();

@@ -139,7 +139,10 @@ describe('TourActivityGenerationService', () => {
     };
 
     toursService = { findOne: jest.fn().mockResolvedValue(buildTour()) };
-    activitiesService = { findAll: jest.fn().mockResolvedValue([]) };
+    activitiesService = {
+      findAll: jest.fn().mockResolvedValue([]),
+      findManyByIds: jest.fn().mockResolvedValue([]),
+    };
     langChainService = {
       // Force the JSON-mode chain (no OpenAI function-calling machinery to
       // mock) — most of this codebase's dev/CI setup runs against
@@ -452,6 +455,7 @@ describe('TourActivityGenerationService', () => {
       'destination_resolution',
       'coverage_analysis',
       'db_search',
+      'candidate_pool',
       'embeddings',
       'llm_generation',
       'verification',
@@ -769,7 +773,7 @@ describe('TourActivityGenerationService', () => {
       ).toBeUndefined();
     });
 
-    it("never adds a newly resolved activity to this generation's own itinerary (PR 9 boundary)", async () => {
+    it("merges a newly resolved activity into this generation's own unified candidate pool (PR 9)", async () => {
       toursService.findOne.mockResolvedValue(buildThinPoolTour());
       const poiId = setUpSuccessfulRefillAndLlm();
       activityDiscoveryService.discoverGaps.mockResolvedValue({
@@ -792,14 +796,44 @@ describe('TourActivityGenerationService', () => {
         acceptedCount: 1,
         rejectedCount: 0,
       });
+      // PR 9: the re-query step fetches exactly the rows PR 8 just
+      // persisted, by id — a real row is needed here so it can compete in
+      // the same ranked window as the thin local pool.
+      activitiesService.findManyByIds = jest.fn().mockResolvedValue([
+        {
+          id: 'new-activity-1',
+          name: 'Casa Histórica',
+          kind: ActivityKind.POI,
+          latitude: -34.62,
+          longitude: -58.37,
+        },
+      ]);
 
       await service.generateTourActivities(TOUR_ID);
 
+      // The LLM mock in setUpSuccessfulRefillAndLlm only ever picks poiId —
+      // this test asserts the newly resolved activity was made available
+      // (offered) to this same request, not that the (separately mocked)
+      // LLM happened to choose it.
       const createCalls = (
         prisma.tourActivity.create as jest.Mock
       ).mock.calls.map((call: any) => call[0].data.activityId);
       expect(createCalls).toEqual([poiId]);
-      expect(createCalls).not.toContain('new-activity-1');
+
+      const completedCall = (prisma.tour.update as jest.Mock).mock.calls.find(
+        (call: any) => call[0].data.metadata.generationStatus === 'completed',
+      );
+      const trace = completedCall[0].data.metadata.generationTrace;
+      const candidatePoolStep = trace.steps.find(
+        (s: any) => s.stage === 'candidate_pool',
+      );
+      expect(candidatePoolStep.candidates).toContainEqual(
+        expect.objectContaining({
+          id: 'new-activity-1',
+          source: 'discovery',
+          offered: true,
+        }),
+      );
     });
 
     it('does not call the resolver when discovery returns zero proposals', async () => {
@@ -815,6 +849,322 @@ describe('TourActivityGenerationService', () => {
       await service.generateTourActivities(TOUR_ID);
 
       expect(proposalResolver.resolve).not.toHaveBeenCalled();
+    });
+
+    it('leaves a valid catalog-only tour possible when the discovery provider errors out (PR 9 acceptance)', async () => {
+      toursService.findOne.mockResolvedValue(buildThinPoolTour());
+      const poiId = setUpSuccessfulRefillAndLlm();
+      activityDiscoveryService.discoverGaps.mockRejectedValue(
+        new Error('grounded search provider outage'),
+      );
+
+      await service.generateTourActivities(TOUR_ID);
+
+      expect(proposalResolver.resolve).not.toHaveBeenCalled();
+      const createCalls = (
+        prisma.tourActivity.create as jest.Mock
+      ).mock.calls.map((call: any) => call[0].data.activityId);
+      expect(createCalls).toEqual([poiId]);
+    });
+  });
+
+  describe('unified candidate pool (PR 9)', () => {
+    const buildThinPoolTour = () =>
+      buildTour({
+        metadata: {
+          generationRequest: buildGenerationRequest({
+            intent: { interests: ['history'] },
+          }),
+        },
+      });
+
+    it('lets the itinerary LLM select a freshly discovery-resolved activity, traced as chosen', async () => {
+      toursService.findOne.mockResolvedValue(buildThinPoolTour());
+      const newActivityId = testUuid();
+      const thinActivity = {
+        id: testUuid(),
+        name: 'Existing local place',
+        latitude: -34.62,
+        longitude: -58.37,
+      };
+      activitiesService.findAll
+        .mockResolvedValueOnce([])
+        .mockResolvedValueOnce([thinActivity]);
+      // Persistence re-hydrates every picked id from the DB directly — must
+      // include the newly discovery-resolved activity too, not just the
+      // pre-existing thin-pool one.
+      prisma.activity.findMany.mockResolvedValue([
+        { ...thinActivity, kind: ActivityKind.POI },
+        {
+          id: newActivityId,
+          latitude: -34.62,
+          longitude: -58.37,
+          kind: ActivityKind.POI,
+        },
+      ]);
+      googlePlacesService.crawlAndSaveActivities.mockResolvedValue({
+        activitiesIds: [],
+        fromCache: false,
+        provenance: {
+          provider: 'google',
+          cacheStatus: 'miss-live',
+          requestedCount: 20,
+          receivedCount: 1,
+          acceptedCount: 1,
+          rejectedCountByReason: {},
+        },
+      });
+      activityDiscoveryService.discoverGaps.mockResolvedValue({
+        proposals: [
+          {
+            name: 'Casa Histórica',
+            kind: 'POI' as any,
+            themes: ['history'],
+            entityHints: [] as any[],
+            suggestedDurationMinutes: 90,
+            shortReason: 'test proposal',
+            evidenceKeys: [] as string[],
+          },
+        ],
+        provider: 'groq',
+        model: 'test-model',
+        groundingStatus: 'applied',
+      });
+      proposalResolver.resolve.mockResolvedValue({
+        resolved: [
+          {
+            proposal: {
+              name: 'Casa Histórica',
+              kind: 'POI' as any,
+              themes: ['history'],
+              entityHints: [] as any[],
+              suggestedDurationMinutes: 90,
+              shortReason: 'test proposal',
+              evidenceKeys: [] as string[],
+            },
+            status: 'accepted',
+            resolvedEntities: [],
+            rejectionReasons: [],
+            persistedActivityId: newActivityId,
+          },
+        ],
+        totalProposals: 1,
+        acceptedCount: 1,
+        rejectedCount: 0,
+      });
+      activitiesService.findManyByIds = jest.fn().mockResolvedValue([
+        {
+          id: newActivityId,
+          name: 'Casa Histórica',
+          kind: ActivityKind.POI,
+          latitude: -34.62,
+          longitude: -58.37,
+        },
+      ]);
+      // The LLM picks the newly discovery-resolved activity, not the thin
+      // pool's pre-existing one.
+      langChainService.generateChatResponse.mockResolvedValue(
+        aiJsonResponse({
+          activities: [
+            {
+              activityId: newActivityId,
+              activityName: 'Casa Histórica',
+              dayNumber: 1,
+              startTime: '10:00',
+              duration: 60,
+              latitude: -34.62,
+              longitude: -58.37,
+            },
+          ],
+        }),
+      );
+
+      await service.generateTourActivities(TOUR_ID);
+
+      const createCalls = (
+        prisma.tourActivity.create as jest.Mock
+      ).mock.calls.map((call: any) => call[0].data.activityId);
+      expect(createCalls).toEqual([newActivityId]);
+
+      const completedCall = (prisma.tour.update as jest.Mock).mock.calls.find(
+        (call: any) => call[0].data.metadata.generationStatus === 'completed',
+      );
+      const trace = completedCall[0].data.metadata.generationTrace;
+      const candidatePoolStep = trace.steps.find(
+        (s: any) => s.stage === 'candidate_pool',
+      );
+      expect(candidatePoolStep.candidates).toContainEqual(
+        expect.objectContaining({ id: newActivityId, source: 'discovery' }),
+      );
+      const verificationStep = trace.steps.find(
+        (s: any) => s.stage === 'verification',
+      );
+      expect(verificationStep.candidates).toContainEqual(
+        expect.objectContaining({
+          id: newActivityId,
+          source: 'discovery',
+          chosen: true,
+        }),
+      );
+    });
+
+    it('exposes a real semantic similarity score for a freshly discovery-resolved activity, confirming it was already embedded when re-queried', async () => {
+      toursService.findOne.mockResolvedValue(buildThinPoolTour());
+      const thinActivity = {
+        id: testUuid(),
+        name: 'Existing local place',
+        latitude: -34.62,
+        longitude: -58.37,
+      };
+      activitiesService.findAll
+        .mockResolvedValueOnce([])
+        .mockResolvedValueOnce([thinActivity]);
+      prisma.activity.findMany.mockResolvedValue([
+        { ...thinActivity, kind: ActivityKind.POI },
+      ]);
+      googlePlacesService.crawlAndSaveActivities.mockResolvedValue({
+        activitiesIds: [],
+        fromCache: false,
+        provenance: {
+          provider: 'google',
+          cacheStatus: 'miss-live',
+          requestedCount: 20,
+          receivedCount: 1,
+          acceptedCount: 1,
+          rejectedCountByReason: {},
+        },
+      });
+      activityDiscoveryService.discoverGaps.mockResolvedValue({
+        proposals: [
+          {
+            name: 'Casa Histórica',
+            kind: 'POI' as any,
+            themes: ['history'],
+            entityHints: [] as any[],
+            suggestedDurationMinutes: 90,
+            shortReason: 'test proposal',
+            evidenceKeys: [] as string[],
+          },
+        ],
+        provider: 'groq',
+        model: 'test-model',
+        groundingStatus: 'applied',
+      });
+      proposalResolver.resolve.mockResolvedValue({
+        resolved: [
+          {
+            proposal: {
+              name: 'Casa Histórica',
+              kind: 'POI' as any,
+              themes: ['history'],
+              entityHints: [] as any[],
+              suggestedDurationMinutes: 90,
+              shortReason: 'test proposal',
+              evidenceKeys: [] as string[],
+            },
+            status: 'accepted',
+            resolvedEntities: [],
+            rejectionReasons: [],
+            persistedActivityId: 'new-activity-1',
+          },
+        ],
+        totalProposals: 1,
+        acceptedCount: 1,
+        rejectedCount: 0,
+      });
+      activitiesService.findManyByIds = jest.fn().mockResolvedValue([
+        {
+          id: 'new-activity-1',
+          name: 'Casa Histórica',
+          kind: ActivityKind.POI,
+          latitude: -34.62,
+          longitude: -58.37,
+        },
+      ]);
+      langChainService.generateChatResponse.mockResolvedValue(
+        aiJsonResponse({
+          activities: [
+            {
+              activityId: thinActivity.id,
+              activityName: thinActivity.name,
+              dayNumber: 1,
+              startTime: '10:00',
+              duration: 60,
+              latitude: thinActivity.latitude,
+              longitude: thinActivity.longitude,
+            },
+          ],
+        }),
+      );
+      // A real embedding for the newly resolved composite/POI — already
+      // written by CompositeActivityService/indexResolvedVenues at
+      // persistence time (confirmed during PR 9 scoping), so it must
+      // compete in the measured semantic tier, not the missing-embedding
+      // fallback.
+      vectorStoreService.getSimilarityScores.mockResolvedValue({
+        status: 'applied',
+        scores: new Map([
+          [thinActivity.id, 0.4],
+          ['new-activity-1', 0.7],
+        ]),
+        requestedCandidateCount: 2,
+        indexedCandidateCount: 2,
+      });
+
+      await service.generateTourActivities(TOUR_ID);
+
+      const completedCall = (prisma.tour.update as jest.Mock).mock.calls.find(
+        (call: any) => call[0].data.metadata.generationStatus === 'completed',
+      );
+      const trace = completedCall[0].data.metadata.generationTrace;
+      const candidatePoolStep = trace.steps.find(
+        (s: any) => s.stage === 'candidate_pool',
+      );
+      const discovered = candidatePoolStep.candidates.find(
+        (c: any) => c.id === 'new-activity-1',
+      );
+      expect(discovered?.scoreBreakdown?.semanticSimilarity).toBe(0.7);
+    });
+
+    it('fails explicitly before any persistence when the merged pool has no usable candidates', async () => {
+      toursService.findOne.mockResolvedValue(buildThinPoolTour());
+      // A raw row with no real id — ineligible for coverage purposes
+      // (CoverageAnalyzer.isEligibleCandidate) even though the raw pool
+      // isn't empty, forcing the merged pool to be judged unusable.
+      activitiesService.findAll
+        .mockResolvedValueOnce([
+          {
+            id: '',
+            name: 'Malformed row',
+            latitude: -34.62,
+            longitude: -58.37,
+          },
+        ])
+        .mockResolvedValueOnce([]);
+      prisma.activity.findMany.mockResolvedValue([]);
+      googlePlacesService.crawlAndSaveActivities.mockResolvedValue({
+        activitiesIds: [],
+        fromCache: false,
+        provenance: {
+          provider: 'google',
+          cacheStatus: 'miss-live',
+          requestedCount: 20,
+          receivedCount: 0,
+          acceptedCount: 0,
+          rejectedCountByReason: {},
+        },
+      });
+      activityDiscoveryService.discoverGaps.mockResolvedValue({
+        proposals: [],
+        provider: 'groq',
+        model: 'test-model',
+        groundingStatus: 'no_usable_evidence',
+      });
+
+      await expect(service.generateTourActivities(TOUR_ID)).rejects.toThrow(
+        'sigue siendo insuficiente',
+      );
+      expect(prisma.tourActivity.create).not.toHaveBeenCalled();
     });
   });
 
@@ -902,6 +1252,8 @@ describe('TourActivityGenerationService', () => {
         [],
         expect.any(Array),
         ['neighborhood_walks'],
+        'balanced',
+        undefined,
       );
     });
 
@@ -1568,6 +1920,10 @@ describe('TourActivityGenerationService', () => {
     await service.generateTourActivities(TOUR_ID);
 
     expect(googlePlacesService.crawlAndSaveActivities).not.toHaveBeenCalled();
+    // PR 9 acceptance: existing catalog Activities are preferred over
+    // equivalent newly proposed ones — a sufficient catalog pool never
+    // even reaches Discovery, so there's nothing new to prefer over.
+    expect(activityDiscoveryService.discoverGaps).not.toHaveBeenCalled();
   });
 
   it('falls back to thin pool when Google Places crawl fails, instead of leaving candidates empty', async () => {
