@@ -12,6 +12,7 @@ import {
   placesProviderLabel,
 } from '@integrations/google-places/interfaces/places-api.interface';
 import { TourGenerationRequest } from '../interfaces/tour-generation.interface';
+import { DailyPlanningSolution } from '../interfaces/daily-planning.interface';
 import { CoverageCandidate } from '../interfaces/coverage-analysis.interface';
 import { CandidateScoreBreakdown } from './candidate-ranking.util';
 import { FormatAvailability } from './candidate-window-selection.util';
@@ -518,6 +519,56 @@ export function buildCandidatePoolStep(params: {
       bySource,
       requestedFormatAvailability: params.formatAvailability,
       droppedForFamilyCapCount: params.droppedForFamilyCapCount,
+    },
+  };
+}
+
+// PR 10: deterministic day assignment/ordering/feasibility over the
+// candidate_pool window. Reports which offered candidates the solver
+// actually placed into a day and why any of the rest were left unselected —
+// completeness/format-coverage now evaluate this planned result, not the
+// LLM's raw picks (see docs/superpowers/specs/2026-08-28-pr10-deterministic-
+// daily-planning-design.md).
+export function buildDailyPlanningStep(
+  solution: DailyPlanningSolution,
+): GenerationTraceStep {
+  const selectedCount = solution.days.reduce(
+    (sum, day) => sum + day.activities.length,
+    0,
+  );
+  const iterationsSummary =
+    solution.metadata.iterations !== undefined
+      ? ` con ${solution.metadata.iterations} iteración(es) de mejora local`
+      : '';
+  const travelSummary = solution.metadata.approximateTravel
+    ? ' Las estimaciones de traslado usadas son aproximadas.'
+    : ' Las estimaciones de traslado usadas son reales.';
+
+  return {
+    stage: 'daily_planning',
+    label: 'Planificación diaria determinística',
+    summary:
+      `Solver ${solution.metadata.solver} planificó ${solution.days.length} día(s)${iterationsSummary}: ` +
+      `${selectedCount} actividad(es) seleccionada(s), ${solution.unselected.length} sin seleccionar ` +
+      `(score total ${solution.score}).${travelSummary}`,
+    providerStatus: selectedCount === 0 ? 'failed' : undefined,
+    degradedReason: selectedCount === 0 ? 'no_activities_selected' : undefined,
+    dailyPlanning: {
+      solver: solution.metadata.solver,
+      dayCount: solution.days.length,
+      selectedCount,
+      unselectedCount: solution.unselected.length,
+      approximateTravel: solution.metadata.approximateTravel,
+      iterations: solution.metadata.iterations,
+      score: solution.score,
+      days: solution.days.map((day) => ({
+        dayNumber: day.dayNumber,
+        activityCount: day.activities.length,
+        totalActivityMinutes: day.totalActivityMinutes,
+        totalTravelMinutes: day.totalTravelMinutes,
+        totalWalkingMinutes: day.totalWalkingMinutes,
+        utilizationMinutes: day.utilizationMinutes,
+      })),
     },
   };
 }
