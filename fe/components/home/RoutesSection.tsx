@@ -146,7 +146,7 @@ export const RoutesSection = ({
       const p = tour.activities[0].activity.photos[0];
       return typeof p === "string" ? p : p.url;
     }
-    return FALLBACK_TOURS[index % FALLBACK_TOURS.length].coverImage;
+    return INSPIRATION_TEMPLATES[index % INSPIRATION_TEMPLATES.length].coverImage;
   };
 
   const getDurationString = (tour: any) => {
