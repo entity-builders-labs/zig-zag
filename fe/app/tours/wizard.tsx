@@ -23,8 +23,6 @@ export default function TourWizardScreen() {
   // Use the createTour hook
   const { createTour, isLoading, error } = useCreateTour({
     category,
-    initialLatitude: latParam ? parseFloat(latParam) : address?.lat,
-    initialLongitude: lngParam ? parseFloat(lngParam) : address?.lng,
   });
 
   const handleSubmit = async (preferences: GenerateTourDto) => {

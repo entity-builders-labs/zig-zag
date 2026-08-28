@@ -234,22 +234,44 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
       .map((id) => INTEREST_ITEMS.find((item) => item.id === id)?.api)
       .filter(Boolean) as string[];
 
+    const lat = destinationCoords?.lat ?? initialLocation?.lat ?? -34.6037;
+    const lng = destinationCoords?.lng ?? initialLocation?.lng ?? -58.3816;
+
+    const maxWalkPerDay =
+      travelPace === "relaxed" ? 3000 : travelPace === "fast" ? 10000 : 5000;
+    const maxContinuousWalk =
+      travelPace === "relaxed" ? 1000 : travelPace === "fast" ? 3000 : 1500;
+
     const preferences: GenerateTourDto = {
-      destination: destination || undefined,
-      destinationLatitude: destinationCoords?.lat,
-      destinationLongitude: destinationCoords?.lng,
+      destination: {
+        label: destination || (useCurrentLocation ? "Mi ubicación" : "Buenos Aires"),
+        latitude: lat,
+        longitude: lng,
+        radiusMeters: destinationRadius || 3000,
+        scaleHint: destinationRadius && destinationRadius < 1500 ? "specific_point" : "settlement",
+      },
       days,
       budgetLevel,
-      transportationMode: transportationMode as any,
-      travelPace,
       groupType,
-      interests: interestApis.length > 0 ? interestApis : undefined,
+      intent: {
+        interests: interestApis.length > 0 ? interestApis : ["history", "food"],
+        experienceFormats: ["point_visits", "neighborhood_walks"],
+        explorationStyle: "balanced",
+        additionalPreferences: specialNotes.trim() ? specialNotes.trim() : undefined,
+      },
+      mobility: {
+        allowedTransportationModes: transportationMode as any,
+        maxWalkingDistancePerDayMeters: maxWalkPerDay,
+        maxContinuousWalkingDistanceMeters: maxContinuousWalk,
+        travelPace,
+        accessibilityNeeds: [],
+      },
       startDates: startDates.length > 0 ? startDates : undefined,
-      latitude: destinationCoords?.lat || initialLocation?.lat,
-      longitude: destinationCoords?.lng || initialLocation?.lng,
-      radius: destinationRadius,
       includeExistingActivities: true,
       skipImageGeneration: true,
+      dietaryRestrictions: [],
+      excludeTours: [],
+      categories: [],
     };
 
     onSubmit(preferences);
