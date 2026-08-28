@@ -226,7 +226,7 @@ export const TourHeader = ({
       )}
 
       {/* Floating Back Button */}
-      <Box position='absolute' top={48} left={16} zIndex={10}>
+      <Box position='absolute' top={16} left={16} zIndex={10}>
         <Pressable onPress={() => router.back()}>
           <Box
             w={40}
