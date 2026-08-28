@@ -1,3 +1,10 @@
+// LEGACY: as of PR10, the wizard path (TourActivityGenerationService) no
+// longer calls this — travel times come directly from the deterministic
+// planning solution. This file survives only because the deprecated
+// /tours/nearby chain (tour-generation.service.ts) still calls it. Delete
+// this file once that path is retired or migrated (see
+// docs/superpowers/specs/2026-08-28-pr10-deterministic-daily-planning-design.md,
+// "Legacy utility fate").
 import { calculateDistance } from '@shared/utils/distance.utils';
 import { CreateTourActivityDto } from '../dto/create-tour.dto';
 import { Activity } from '@prisma/client';

@@ -8,7 +8,6 @@ import {
 import { ActivityKind } from '@prisma/client';
 import { PrismaService } from '@core/database/prisma.service';
 import { ActivitiesService } from '@activities/services/activities.service';
-import { LangChainService } from '@shared/ai/langchain.service';
 import { VectorStoreService } from '@shared/ai/services/vector-store.service';
 import {
   GooglePlacesService,
@@ -20,14 +19,9 @@ import {
 } from '@integrations/osm/services/osm-places.service';
 import { ToursService } from './tours.service';
 import { TourImageService } from './tour-image.service';
-import { CompositeGenerationService } from './composite-generation.service';
 import { DestinationResolutionService } from './destination-resolution.service';
 import { boundingBoxToCenterRadius } from '../utils/geometry-search-area.util';
 import { TourGenerationRequest } from '../interfaces/tour-generation.interface';
-import { transformAiActivitiesToDto } from '../utils/activity-transformer.util';
-import { updateTravelTimesForActivities } from '../utils/travel-time-calculator.util';
-import { optimizeActivityOrder } from '../utils/route-optimizer.util';
-import { verifyAndDedupeActivities } from '../utils/activity-verification.util';
 import {
   ActivityForPrompt,
   formatActivityForPrompt,
@@ -42,10 +36,10 @@ import {
   selectBoundedWindow,
   FormatAvailability,
 } from '../utils/candidate-window-selection.util';
-import { auditGeneration } from '../utils/generation-audit.util';
 import {
   buildCandidatePoolStep,
   buildCoverageAnalysisStep,
+  buildDailyPlanningStep,
   buildDiscoveryStep,
   buildDbSearchStep,
   buildDestinationResolutionStep,
@@ -53,30 +47,29 @@ import {
   buildEntityResolutionStep,
   buildTourIntentStep,
   buildPlacesCrawlStep,
-  buildLlmGenerationStep,
   buildTourCompletenessStep,
   buildTourFormatCoverageStep,
-  buildVerificationStep,
 } from '../utils/generation-trace-builder.util';
 import {
   IProposalResolver,
   PROPOSAL_RESOLVER,
 } from '../interfaces/proposal-resolution.interface';
 import { TourCompletenessValidator } from './tour-completeness-validator.service';
-import {
-  TourCompletenessInput,
-  TourCompletenessIssue,
-} from '../interfaces/tour-completeness.interface';
+import { TourCompletenessInput } from '../interfaces/tour-completeness.interface';
 import { TourFormatCoverageValidator } from './tour-format-coverage-validator.service';
 import {
   TourFormatCoverageActivityRef,
   TourFormatCoverageInput,
-  TourFormatCoverageIssue,
 } from '../interfaces/tour-format-coverage.interface';
+import { GenerationTraceStep } from '../interfaces/generation-trace.interface';
+import { PlanningCandidateNormalizerService } from './planning-candidate-normalizer.service';
 import {
-  GenerationTraceStep,
-  TraceCandidate,
-} from '../interfaces/generation-trace.interface';
+  DAILY_PLANNING_SOLVER,
+  DailyPlanningInput,
+  DailyPlanningSolver,
+  TOUR_PLANNING_FEASIBILITY_VALIDATOR,
+  TourPlanningFeasibilityValidator,
+} from '../interfaces/daily-planning.interface';
 import {
   PlacesCrawlError,
   placesProviderLabel,
@@ -122,12 +115,10 @@ export class TourActivityGenerationService {
     private readonly prisma: PrismaService,
     private readonly toursService: ToursService,
     private readonly activitiesService: ActivitiesService,
-    private readonly langChainService: LangChainService,
     private readonly vectorStoreService: VectorStoreService,
     private readonly googlePlacesService: GooglePlacesService,
     private readonly tourImageService: TourImageService,
     private readonly osmPlacesService: OsmPlacesService,
-    private readonly compositeGenerationService: CompositeGenerationService,
     private readonly destinationResolutionService: DestinationResolutionService,
     private readonly catalogRefillAnchorPlanner: CatalogRefillAnchorPlanner,
     private readonly coverageAnalyzer: CoverageAnalyzer,
@@ -136,46 +127,39 @@ export class TourActivityGenerationService {
     private readonly tourFormatCoverageValidator: TourFormatCoverageValidator,
     @Inject(PROPOSAL_RESOLVER)
     private readonly proposalResolver: IProposalResolver,
+    private readonly planningCandidateNormalizer: PlanningCandidateNormalizerService,
+    @Inject(DAILY_PLANNING_SOLVER)
+    private readonly dailyPlanningSolver: DailyPlanningSolver,
+    @Inject(TOUR_PLANNING_FEASIBILITY_VALIDATOR)
+    private readonly tourPlanningFeasibilityValidator: TourPlanningFeasibilityValidator,
   ) {}
 
-  /**
-   * Deterministic, real-data-only feedback for the one bounded corrective
-   * retry (PR 7.2 completeness + PR 7.4 format coverage) — never asserts
-   * anything neither validator actually measured. Combined into a single
-   * message so both concerns share one retry, never two independent loops.
+  /** PR10: no new Prisma columns. If a real base date exists, combine it
+   * with the planned day/minutes into a real Date; otherwise never invent
+   * one — dayNumber/order/duration alone carry the schedule, and full
+   * minutes-precise timing survives only in the planning trace/result.
+   *
+   * Day arithmetic is done in UTC on purpose: the wizard sends each start
+   * date as a UTC-midnight ISO string, so UTC arithmetic keeps day 1 on the
+   * exact calendar date the user picked, and produces the same value no
+   * matter which timezone the server runs in (local `setDate`/`setHours`
+   * would silently shift day 1 to the previous date for any negative UTC
+   * offset, e.g. Buenos Aires). The planned minutes are destination-local
+   * wall-clock time, which we cannot convert without the destination's own
+   * timezone — a known approximation, not a claim of exact instants.
    */
-  private buildCorrectiveFeedback(
-    completenessIssues: TourCompletenessIssue[],
-    formatIssues: TourFormatCoverageIssue[],
-    travelPace: TourGenerationRequest['mobility']['travelPace'],
-  ): string {
-    const lines: string[] = [];
-    if (completenessIssues.length > 0) {
-      lines.push(
-        'The previous itinerary materially under-filled the following requested day(s):',
-        ...completenessIssues.map(
-          (issue) =>
-            `- Day ${issue.dayNumber}: ${issue.selectedActivityCount} selected activity/activities, ` +
-            `approximately ${issue.selectedActivityHours} hours of activity time, with ` +
-            `${issue.viableUnusedCandidateCount} additional relevant viable candidate(s) still available.`,
-        ),
-      );
-    }
-    if (formatIssues.length > 0) {
-      lines.push(
-        'The previous itinerary ignored the following explicitly requested experience format(s), even though viable verified candidates existed:',
-        ...formatIssues.map(
-          (issue) =>
-            `- "${issue.requestedFormat}": ${issue.availableCandidateCount} viable candidate(s) available, 0 selected.`,
-        ),
-      );
-    }
-    lines.push(
-      '',
-      `Regenerate the itinerary once: make each under-filled day reasonably complete for the requested "${travelPace}" travel pace, and include at least one strong candidate for each requested format that has viable candidates available.`,
-      'Do not add irrelevant, repetitive, low-quality, or geographically inefficient activities merely to increase count, and do not fabricate an activity to satisfy a requested format that has no real candidate.',
-    );
-    return lines.join('\n');
+  private resolvePlannedStartTime(
+    startDates: string[],
+    dayNumber: number,
+    startMinutesFromMidnight: number,
+  ): Date | undefined {
+    if (!startDates || startDates.length === 0) return undefined;
+    const base = new Date(startDates[0]);
+    if (Number.isNaN(base.getTime())) return undefined;
+    const result = new Date(base);
+    result.setUTCDate(base.getUTCDate() + (dayNumber - 1));
+    result.setUTCHours(0, startMinutesFromMidnight, 0, 0);
+    return result;
   }
 
   private buildCoverageReport(
@@ -505,23 +489,32 @@ export class TourActivityGenerationService {
         );
       }
 
-      const selectorInput = tour.prompt;
-      if (!selectorInput) {
+      if (!tour.prompt) {
         throw new BadRequestException(
           'Tour does not have canonical selector input stored',
         );
       }
 
+      // PR10: no longer an LLM prompt section — the deterministic solver
+      // selects and schedules. Kept only as the "did any acquisition branch
+      // actually yield real candidates?" sentinel the explicit failure
+      // messages below branch on.
       let availableActivitiesText = '';
-      // Real activity ids we actually offered the model — anything it
-      // returns outside this set gets dropped as a hallucination, since
-      // every stop must be a real, verified place.
+      // Real activity ids offered to the planner for this request.
       const candidateActivityIds = new Set<string>();
       // Same db/Google candidates, keyed by id, keeping their real
       // rating/priceLevel/openingHours — needed both for the trace's
-      // candidate `detail` and to audit the AI's picks against the actual
-      // data it saw.
+      // candidate `detail` and as the canonical identity/coordinate source
+      // when the planned solution is turned into TourActivity rows.
       const candidateActivitiesById = new Map<string, ActivityForPrompt>();
+      // PR10: the score breakdown of exactly those offered candidates,
+      // carried out of whichever acquisition branch produced them, so the
+      // planning normalizer can hand the solver real semantic/quality
+      // signals instead of zeros.
+      const offeredScoreBreakdownById = new Map<
+        string,
+        CandidateScoreBreakdown
+      >();
       // PR 9: the true eligible superset across every acquisition branch
       // (initial query, post-crawl re-query, discovery re-fetch) — distinct
       // from candidateActivityIds/candidateActivitiesById, which only ever
@@ -537,8 +530,21 @@ export class TourActivityGenerationService {
       // The generation bitácora (docs/superpowers/specs/2026-08-20-generation-
       // bitacora-design.md) — one step per pipeline stage, in order.
       const traceSteps: GenerationTraceStep[] = [];
-      const traceCandidateLists: TraceCandidate[][] = [];
       let placesRefillError: PlacesCrawlError | null = null;
+
+      /** Whichever acquisition branch wins, the offered window it produced
+       * (and that window's score breakdowns) is what the deterministic
+       * planner is given. Recorded in one place so no branch can offer
+       * candidates without also carrying their real scores forward. */
+      const recordOfferedCandidates = (selection: CandidateSelection) => {
+        selection.activities.forEach((act: any) => {
+          candidateActivityIds.add(act.id);
+          candidateActivitiesById.set(act.id, act);
+          const breakdown = selection.scoreBreakdownById.get(act.id);
+          if (breakdown) offeredScoreBreakdownById.set(act.id, breakdown);
+        });
+      };
+
       let semanticRankingOutcome: SemanticRankingOutcome = {
         status: 'not_requested',
         eligibleCandidateCount: 0,
@@ -635,10 +641,7 @@ export class TourActivityGenerationService {
               'generating',
               `${nearbyActivities.length} actividades encontradas. Ordenando según tus preferencias...`,
             );
-            nearbyActivitiesSample.forEach((act: any) => {
-              candidateActivityIds.add(act.id);
-              candidateActivitiesById.set(act.id, act);
-            });
+            recordOfferedCandidates(selection);
             availableActivitiesText = `\n\nAvailable activities in the area (within ${radius / 1000}km):\n${nearbyActivitiesSample
               .map((act: any) => formatActivityForPrompt(act))
               .join('\n')}`;
@@ -647,11 +650,6 @@ export class TourActivityGenerationService {
               radius / 1000,
             );
             traceSteps.push(dbSearchStep);
-            // Not pushed into traceCandidateLists here: this branch's
-            // candidatePoolStep below lists the exact same offered set with
-            // richer per-candidate detail (score breakdown, coverage
-            // contribution) — pushing both would mark a picked candidate
-            // "chosen" twice for the same reason.
             const candidatePoolStep = this.buildCandidatePoolTraceStep(
               selection,
               discoveryResolvedActivityIds,
@@ -663,14 +661,12 @@ export class TourActivityGenerationService {
               nearbyActivities.length,
             );
             traceSteps.push(candidatePoolStep);
-            traceCandidateLists.push(candidatePoolStep.candidates ?? []);
           } else {
             const dbSearchStep = buildDbSearchStep(
               nearbyActivities,
               radius / 1000,
             );
             traceSteps.push(dbSearchStep);
-            traceCandidateLists.push(dbSearchStep.candidates ?? []);
 
             // PR 7: run grounded discovery for the detected deficits.
             // Proposals are traced but not persisted (PR 7 contract).
@@ -894,10 +890,7 @@ export class TourActivityGenerationService {
                     'No se encontró un pool de actividades utilizable para armar un itinerario real con el catálogo actual.',
                   );
                 }
-                refreshedActivitiesSample.forEach((act: any) => {
-                  candidateActivityIds.add(act.id);
-                  candidateActivitiesById.set(act.id, act);
-                });
+                recordOfferedCandidates(selection);
                 availableActivitiesText = `\n\nAvailable activities in the area (within ${radius / 1000}km):\n${refreshedActivitiesSample
                   .map((act: any) => formatActivityForPrompt(act))
                   .join('\n')}`;
@@ -909,7 +902,6 @@ export class TourActivityGenerationService {
                   crawlResult.provenance,
                 );
                 traceSteps.push(crawlStep);
-                traceCandidateLists.push(crawlStep.candidates ?? []);
 
                 const candidatePoolStep = this.buildCandidatePoolTraceStep(
                   selection,
@@ -924,7 +916,6 @@ export class TourActivityGenerationService {
                   mergedPool.length,
                 );
                 traceSteps.push(candidatePoolStep);
-                traceCandidateLists.push(candidatePoolStep.candidates ?? []);
               } else {
                 traceSteps.push(
                   buildPlacesCrawlStep([], crawlResult.provenance),
@@ -958,10 +949,7 @@ export class TourActivityGenerationService {
                   );
                   const nearbyActivitiesSample = selection.activities;
                   semanticRankingOutcome = selection.semanticRanking;
-                  nearbyActivitiesSample.forEach((act: any) => {
-                    candidateActivityIds.add(act.id);
-                    candidateActivitiesById.set(act.id, act);
-                  });
+                  recordOfferedCandidates(selection);
                   availableActivitiesText = `\n\nAvailable activities in the area (within ${radius / 1000}km):\n${nearbyActivitiesSample
                     .map((act: any) => formatActivityForPrompt(act))
                     .join('\n')}`;
@@ -976,7 +964,6 @@ export class TourActivityGenerationService {
                     mergedPool.length,
                   );
                   traceSteps.push(candidatePoolStep);
-                  traceCandidateLists.push(candidatePoolStep.candidates ?? []);
                 } else {
                   await this.updateGenerationStatus(
                     tourId,
@@ -1048,10 +1035,7 @@ export class TourActivityGenerationService {
                 );
                 const nearbyActivitiesSample = selection.activities;
                 semanticRankingOutcome = selection.semanticRanking;
-                nearbyActivitiesSample.forEach((act: any) => {
-                  candidateActivityIds.add(act.id);
-                  candidateActivitiesById.set(act.id, act);
-                });
+                recordOfferedCandidates(selection);
                 availableActivitiesText = `\n\nAvailable activities in the area (within ${radius / 1000}km):\n${nearbyActivitiesSample
                   .map((act: any) => formatActivityForPrompt(act))
                   .join('\n')}`;
@@ -1066,7 +1050,6 @@ export class TourActivityGenerationService {
                   mergedPool.length,
                 );
                 traceSteps.push(candidatePoolStep);
-                traceCandidateLists.push(candidatePoolStep.candidates ?? []);
               } else {
                 await this.updateGenerationStatus(
                   tourId,
@@ -1122,177 +1105,14 @@ export class TourActivityGenerationService {
         );
       }
 
-      // Generate activities using AI
-      await this.updateGenerationStatus(
-        tourId,
-        'generating',
-        'Creando itinerario optimizado con inteligencia artificial...',
-      );
-
-      // Reformat from canonical catalog data immediately before selection.
-      if (candidateActivitiesById.size > 0) {
-        availableActivitiesText = `\n\nAvailable activities in the area:\n${Array.from(
-          candidateActivitiesById.values(),
-        )
-          .map((activity) => formatActivityForPrompt(activity))
-          .join('\n')}`;
-      }
-
-      const tourChain = this.compositeGenerationService.createTourChain();
-      const generationTimeout = this.langChainService.getGenerationTimeout();
-
-      // Runs one full invoke + anti-hallucination verify/dedupe + audit
-      // pass. Factored out so the completeness retry below (PR 7.2) can run
-      // the exact same pipeline a second time with feedback appended to the
-      // prompt, instead of duplicating this logic.
-      const runItinerarySelection = async (promptInput: string) => {
-        const response = (await this.withTimeout(
-          tourChain.invoke({
-            // activities is injected into its own prompt section by the
-            // chain; including it in input as well duplicates the complete
-            // candidate list and wastes the provider's token budget.
-            input: promptInput,
-            activities: availableActivitiesText,
-          }),
-          generationTimeout,
-          `AI generation timeout after ${generationTimeout}ms`,
-        )) as any;
-
-        // Hard safety net: drop any activity the model returned that
-        // doesn't match one of the real candidates we offered it (prompt
-        // instructions alone aren't reliable enough to stop hallucination),
-        // and any repeat visit to the same place.
-        const rawActivities: any[] = response.activities || [];
-        const {
-          verified: verifiedSelections,
-          hallucinatedCount,
-          duplicateCount,
-        } = verifyAndDedupeActivities(rawActivities, candidateActivityIds);
-
-        // The model selects and schedules by id only. Identity, labels and
-        // coordinates always come back from the exact catalog candidates we
-        // offered, never from generated text. Besides shrinking the Groq
-        // response, this prevents a valid id from being paired with an
-        // altered name, type or location before spatial optimization.
-        const uniqueActivities = verifiedSelections.map((selection: any) => {
-          const candidate = candidateActivitiesById.get(selection.activityId);
-          return {
-            ...selection,
-            activityName: candidate?.name ?? 'Activity',
-            type: candidate?.type ?? 'Activity',
-            latitude: candidate?.latitude,
-            longitude: candidate?.longitude,
-          };
-        });
-
-        // Deterministic evidence for the bitácora — checks the AI's own
-        // picks against the real data it was given (opening hours, price
-        // level), rather than trusting its self-reported reasoning. Runs on
-        // the AI's raw startTime string (transformAiActivitiesToDto
-        // discards HH:MM-only times below, since it needs a real date to
-        // combine with).
-        const auditResult = auditGeneration(
-          uniqueActivities.map((act: any) => {
-            const candidate = act.activityId
-              ? candidateActivitiesById.get(act.activityId)
-              : undefined;
-            return {
-              activityId: act.activityId,
-              activityName: act.activityName || act.type || 'Activity',
-              startTime: act.startTime,
-              type: act.type,
-              notes: act.notes,
-              openingHoursWeekdayText: candidate?.openingHours?.weekdayText,
-              priceLevel: candidate?.priceLevel,
-            };
-          }),
-          {
-            budgetLevel: request.budgetLevel,
-            dietaryRestrictions: request.dietaryRestrictions,
-          },
-        );
-
-        return {
-          aiResponse: response,
-          rawActivities,
-          uniqueActivities,
-          hallucinatedCount,
-          duplicateCount,
-          auditResult,
-        };
-      };
-
-      // Real data the LLM's own free-text intent already carries as prose
-      // (buildWizardSelectionInput) — 'food' is a strict single-theme
-      // request, not merely one interest among several. See PR10's deferred
-      // "role-aware food and drink scheduling" note: a mixed interest list
-      // that happens to include food is not evidence of a food-centric
-      // trip, so this stays deliberately narrow.
-      const isFoodFocusedIntent =
-        request.intent.interests.length === 1 &&
-        request.intent.interests[0] === 'food';
-
-      const buildCompletenessInput = (
-        sel: Awaited<ReturnType<typeof runItinerarySelection>>,
-      ): TourCompletenessInput => {
-        const selectedIds = new Set<string>();
-        const selectedActivities = sel.uniqueActivities.map((act: any) => {
-          if (act.activityId) selectedIds.add(act.activityId);
-          const candidate = act.activityId
-            ? candidateActivitiesById.get(act.activityId)
-            : undefined;
-          return {
-            activityId: act.activityId,
-            dayNumber: act.dayNumber,
-            // Canonical duration always comes from the offered candidate,
-            // never from the model's own echoed value — same identity rule
-            // as name/type/coordinates above.
-            durationHours: candidate?.duration ?? 0,
-            isMeal: candidate?.type === 'food',
-          };
-        });
-        return {
-          requestedDays: request.days,
-          travelPace: request.mobility.travelPace,
-          isFoodFocusedIntent,
-          selectedActivities,
-          viableUnusedCandidateCount:
-            candidateActivitiesById.size - selectedIds.size,
-        };
-      };
-
-      const buildFormatCoverageInput = (
-        sel: Awaited<ReturnType<typeof runItinerarySelection>>,
-      ): TourFormatCoverageInput => ({
-        requestedExperienceFormats: request.intent.experienceFormats,
-        selectedActivities: sel.uniqueActivities
-          .map((act: any): TourFormatCoverageActivityRef | null => {
-            const candidate = act.activityId
-              ? candidateActivitiesById.get(act.activityId)
-              : undefined;
-            return candidate?.kind
-              ? { activityId: act.activityId, kind: candidate.kind }
-              : null;
-          })
-          .filter((ref): ref is TourFormatCoverageActivityRef => ref !== null),
-        availableCandidateActivities: Array.from(
-          candidateActivitiesById.entries(),
-        )
-          .filter(([, candidate]) => candidate.kind)
-          .map(([activityId, candidate]) => ({
-            activityId,
-            kind: candidate.kind as ActivityKind,
-          })),
-      });
-
-      // PR 9: a dedicated pre-LLM pool-sufficiency gate, layered alongside
-      // — not replacing — the existing post-LLM PR 7.2/7.4 single
-      // corrective retry (below) and the existing uniqueActivities.length
-      // === 0 throw (also below). This one judges the true eligible pool
+      // PR 9: a dedicated pre-planning pool-sufficiency gate, layered
+      // alongside — not replacing — the post-planning quality gates
+      // (PR 7.2 completeness, PR 7.4 format coverage) and the
+      // empty-solution throw below. This one judges the true eligible pool
       // (catalog + refill + discovery-resolved, before windowing) after
-      // every acquisition path has run; the other two judge the model's
-      // actual picks after it runs. Three independent, complementary
-      // layers — "reselect from the eligible pool or fail explicitly."
+      // every acquisition path has run; the others judge the planned
+      // itinerary after the solver runs. Independent, complementary
+      // layers — "plan from the eligible pool or fail explicitly."
       if (allEligibleActivitiesById.size > 0) {
         const finalCoverageReport = this.buildCoverageReport(
           Array.from(allEligibleActivitiesById.values()),
@@ -1307,7 +1127,7 @@ export class TourActivityGenerationService {
         // (effectively empty) pool — not 'insufficient_coverage_after_
         // catalog_analysis', which is a softer below-ideal-count deficiency
         // the rest of this method already tolerates on purpose (thin-pool
-        // fallbacks above, PR 7.2's completeness retry below). Matches the
+        // fallbacks above, PR 7.2's completeness reporting below). Matches the
         // existing post-crawl 'no_usable_candidates' check's own bar,
         // applied here as a uniform safety net across every branch.
         if (
@@ -1324,91 +1144,165 @@ export class TourActivityGenerationService {
         }
       }
 
-      let selection = await runItinerarySelection(selectorInput);
-
-      // Update status: AI response received, processing activities
+      // PR10: the deterministic daily-planning solver replaces the itinerary
+      // LLM on this critical path — it decides WHICH of the offered candidates
+      // make the tour AND their day/order/timing/travel, from the same ranked
+      // pool the model used to be shown. Composition is strictly
+      // normalize -> solve -> validate -> persist.
       await this.updateGenerationStatus(
         tourId,
         'generating',
-        'Itinerario generado. Guardando actividades...',
+        'Planificando el itinerario día a día...',
       );
 
-      let completeness = this.tourCompletenessValidator.validate(
-        buildCompletenessInput(selection),
-      );
-      let formatCoverage = this.tourFormatCoverageValidator.validate(
-        buildFormatCoverageInput(selection),
-      );
-      let correctiveRetryAttempted = false;
+      const planningCandidates =
+        await this.planningCandidateNormalizer.normalize(
+          Array.from(candidateActivitiesById.values()),
+          offeredScoreBreakdownById,
+        );
 
-      // Bounded, single corrective regeneration (PR 7.2 completeness + PR 7.4
-      // format coverage) — never looped, and never two independent retries.
-      // Coverage/refill/discovery already ran once for this request; this
-      // only re-invokes the itinerary LLM with real, measured feedback about
-      // what it left unused or ignored.
-      if (!completeness.complete || !formatCoverage.valid) {
-        correctiveRetryAttempted = true;
-        this.logger.warn(
-          `Tour ${tourId} needs correction (completeness=${completeness.complete}, formatCoverage=${formatCoverage.valid}); retrying itinerary selection once with combined feedback.`,
-        );
-        await this.updateGenerationStatus(
-          tourId,
-          'generating',
-          'Ajustando el itinerario para aprovechar mejor el día...',
-        );
-        const feedback = this.buildCorrectiveFeedback(
-          completeness.issues,
-          formatCoverage.issues,
-          request.mobility.travelPace,
-        );
-        selection = await runItinerarySelection(
-          `${selectorInput}\n\n${feedback}`,
-        );
-        completeness = this.tourCompletenessValidator.validate(
-          buildCompletenessInput(selection),
-        );
-        formatCoverage = this.tourFormatCoverageValidator.validate(
-          buildFormatCoverageInput(selection),
-        );
-        await this.updateGenerationStatus(
-          tourId,
-          'generating',
-          'Itinerario generado. Guardando actividades...',
+      const planningInput: DailyPlanningInput = {
+        destination: destinationResolution,
+        requestedDays: request.days,
+        candidates: planningCandidates,
+        mobility: request.mobility,
+        travelPace: request.mobility.travelPace,
+        planningWindow: {
+          startMinutesFromMidnight: 9 * 60,
+          endMinutesFromMidnight: 20 * 60,
+        },
+        requestedFormats: request.intent.experienceFormats,
+        startDates: request.startDates,
+      };
+
+      const planningSolution =
+        await this.dailyPlanningSolver.solve(planningInput);
+
+      const feasibilityResult = this.tourPlanningFeasibilityValidator.validate(
+        planningSolution,
+        planningInput,
+      );
+      if (!feasibilityResult.valid) {
+        throw new Error(
+          `Deterministic daily planning produced an infeasible solution: ${feasibilityResult.issues
+            .map((i) => `${i.code}: ${i.message}`)
+            .join('; ')}`,
         );
       }
 
-      const {
-        aiResponse,
-        rawActivities,
-        uniqueActivities,
-        hallucinatedCount,
-        duplicateCount,
-        auditResult,
-      } = selection;
-
-      traceSteps.push(buildLlmGenerationStep(aiResponse.reasoning));
-
-      if (hallucinatedCount > 0) {
-        this.logger.warn(
-          `Dropped ${hallucinatedCount} activity/activities for tour ${tourId} that did not match a real candidate (model ignored the provided list).`,
-        );
-      }
-      if (duplicateCount > 0) {
-        this.logger.warn(
-          `Dropped ${duplicateCount} duplicate activity/activities for tour ${tourId} (model repeated the same place).`,
-        );
-      }
-
-      traceSteps.push(
-        buildVerificationStep({
-          hallucinatedCount,
-          duplicateCount,
-          pickedActivityIds: uniqueActivities
-            .map((act: any) => act.activityId)
-            .filter((id: string | undefined): id is string => !!id),
-          candidatesByStage: traceCandidateLists,
-        }),
+      // Same explicit failure the old post-LLM `uniqueActivities.length === 0`
+      // check provided: a plan with nothing scheduled is never persisted as a
+      // "completed" empty tour.
+      const plannedActivityCount = planningSolution.days.reduce(
+        (total, day) => total + day.activities.length,
+        0,
       );
+      if (plannedActivityCount === 0) {
+        throw new Error(
+          'No se encontraron lugares reales para esta ubicación. Probá con otro destino o un radio de búsqueda más amplio.',
+        );
+      }
+
+      traceSteps.push(buildDailyPlanningStep(planningSolution));
+
+      await this.updateGenerationStatus(
+        tourId,
+        'generating',
+        'Itinerario planificado. Guardando actividades...',
+      );
+
+      // Real data the request's own intent already carries — 'food' is a
+      // strict single-theme request, not merely one interest among several.
+      // See PR10's deferred "role-aware food and drink scheduling" note: a
+      // mixed interest list that happens to include food is not evidence of a
+      // food-centric trip, so this stays deliberately narrow.
+      const isFoodFocusedIntent =
+        request.intent.interests.length === 1 &&
+        request.intent.interests[0] === 'food';
+
+      const selectedIds = new Set(
+        planningSolution.days.flatMap((day) =>
+          day.activities.map((a) => a.activityId),
+        ),
+      );
+      const completenessInput: TourCompletenessInput = {
+        requestedDays: request.days,
+        travelPace: request.mobility.travelPace,
+        isFoodFocusedIntent,
+        selectedActivities: planningSolution.days.flatMap((day) =>
+          day.activities.map((activity) => {
+            const candidate = candidateActivitiesById.get(activity.activityId);
+            return {
+              activityId: activity.activityId,
+              dayNumber: day.dayNumber,
+              durationHours:
+                (activity.endMinutesFromMidnight -
+                  activity.startMinutesFromMidnight) /
+                60,
+              isMeal: candidate?.type === 'food',
+            };
+          }),
+        ),
+        viableUnusedCandidateCount: planningSolution.unselected.length,
+      };
+      const completeness =
+        this.tourCompletenessValidator.validate(completenessInput);
+
+      // Physically-infeasible reasons never count as "available" for
+      // requested-format coverage — a pool candidate that couldn't fit any
+      // day under hard mobility constraints must not be treated as an
+      // ignored option, and must never be forced into the tour to satisfy
+      // the format (spec "Requested format coverage").
+      const physicallyInfeasibleReasons = new Set<string>([
+        'DAILY_TIME_CAPACITY_EXCEEDED',
+        'MAX_WALKING_PER_DAY_EXCEEDED',
+        'MAX_CONTINUOUS_WALKING_EXCEEDED',
+        'NO_ALLOWED_TRAVEL_MODE',
+        'OPENING_HOURS_INCOMPATIBLE',
+        'NO_FEASIBLE_DAY',
+        'INVALID_SPATIAL_FOOTPRINT',
+        'INVALID_COMPOSITE',
+      ]);
+      const infeasibleActivityIds = new Set(
+        planningSolution.unselected
+          .filter((u) =>
+            u.reasons.some((r) => physicallyInfeasibleReasons.has(r)),
+          )
+          .map((u) => u.activityId),
+      );
+      const formatCoverageInput: TourFormatCoverageInput = {
+        requestedExperienceFormats: request.intent.experienceFormats,
+        selectedActivities: Array.from(selectedIds)
+          .map((activityId): TourFormatCoverageActivityRef | null => {
+            const candidate = candidateActivitiesById.get(activityId);
+            return candidate?.kind
+              ? { activityId, kind: candidate.kind }
+              : null;
+          })
+          .filter((ref): ref is TourFormatCoverageActivityRef => ref !== null),
+        availableCandidateActivities: Array.from(
+          candidateActivitiesById.entries(),
+        )
+          .filter(
+            ([id, candidate]) =>
+              candidate.kind && !infeasibleActivityIds.has(id),
+          )
+          .map(([activityId, candidate]) => ({
+            activityId,
+            kind: candidate.kind as ActivityKind,
+          })),
+      };
+      const formatCoverage =
+        this.tourFormatCoverageValidator.validate(formatCoverageInput);
+
+      // No corrective LLM re-invocation: the deterministic solver already
+      // ran exhaustively over the same inputs it would be re-run with, and
+      // there is no more LLM selection call to retry with feedback. A
+      // completeness/format-coverage shortfall is still recorded in the
+      // trace below, not silently absorbed — same "completed != every gate
+      // passed" contract as before, just without the now-obsolete retry.
+      const correctiveRetryAttempted = false;
+
       traceSteps.push(
         buildTourCompletenessStep(completeness, correctiveRetryAttempted),
       );
@@ -1416,55 +1310,49 @@ export class TourActivityGenerationService {
         buildTourFormatCoverageStep(formatCoverage, correctiveRetryAttempted),
       );
 
-      // Instance-level waypoint customization ("adapt this variant for a
-      // family with kids") lives on the selected catalog activity. Capture it
-      // here, keyed by the real activityId, because the DTO transform does not
-      // carry it.
-      const selectedWaypointIdsByActivityId = new Map<string, string[]>();
-      for (const act of rawActivities) {
-        if (act.activityId && Array.isArray(act.selectedWaypointIds)) {
-          selectedWaypointIdsByActivityId.set(
-            act.activityId,
-            act.selectedWaypointIds,
-          );
-        }
-      }
-
-      if (uniqueActivities.length === 0) {
-        throw new Error(
-          'No se encontraron lugares reales para esta ubicación. Probá con otro destino o un radio de búsqueda más amplio.',
-        );
-      }
-
-      // The AI has no real geographic reasoning — it just lists activities
-      // in whatever order seemed plausible. Reorder them with a free
-      // nearest-neighbor + 2-opt heuristic (straight-line distance, no
-      // external API) so the itinerary doesn't zigzag across the search area.
-      // Existing catalog composites are already represented by an Activity ID
-      // and are ordered exactly like any other selected Activity.
-      let orderedActivities = uniqueActivities;
-      orderedActivities = optimizeActivityOrder(
-        {
-          latitude: request.destination.latitude,
-          longitude: request.destination.longitude,
-        },
-        uniqueActivities,
+      // PR10: day/order/timing/travel come directly from the deterministic
+      // solution — no route-optimizer, no post-hoc travel-time fill-in, no
+      // AI-shaped DTO transform (every activityId is already real, drawn
+      // straight from the offered candidate pool, so no hallucination check
+      // is needed either).
+      const activities = planningSolution.days.flatMap((day) =>
+        day.activities.map((planned, index) => {
+          const candidate = candidateActivitiesById.get(planned.activityId);
+          const nextInDay = day.activities[index + 1];
+          return {
+            activityId: planned.activityId,
+            activityName: candidate?.name ?? 'Activity',
+            activityType: candidate?.type ?? 'Activity',
+            activityLatitude: candidate?.latitude,
+            activityLongitude: candidate?.longitude,
+            activityData: undefined as any,
+            duration:
+              (planned.endMinutesFromMidnight -
+                planned.startMinutesFromMidnight) /
+              60,
+            startTime: this.resolvePlannedStartTime(
+              request.startDates,
+              day.dayNumber,
+              planned.startMinutesFromMidnight,
+            ),
+            notes: undefined as string | undefined,
+            dayNumber: day.dayNumber,
+            order: index + 1,
+            travelTimeToNext: nextInDay?.travelFromPrevious?.durationMinutes,
+            distanceToNext: nextInDay?.travelFromPrevious
+              ? nextInDay.travelFromPrevious.distanceMeters / 1000
+              : undefined,
+          };
+        }),
       );
 
-      // Transform AI response activities to CreateTourDto format
-      let activities = transformAiActivitiesToDto(orderedActivities);
-
-      // Calculate travel times using real coordinates
-      // First, get all activity entities from database if they have activityId
       const activityIds = activities
         .map((a) => a.activityId)
         .filter((id): id is string => !!id);
 
-      let activitiesMap: Map<string, any> | undefined;
       // kind of each real Activity picked — used below to decide which
       // TourActivity rows need a TourActivityWaypoint snapshot (any pick
-      // with kind !== POI, whether a composite just created above or an
-      // existing variant the model picked directly from the flat list).
+      // with kind !== POI).
       let kindByActivityId = new Map<string, ActivityKind>();
       // Current waypoints of each non-POI activity picked, in order —
       // fetched once here so the snapshot written per TourActivity below
@@ -1474,15 +1362,9 @@ export class TourActivityGenerationService {
       if (activityIds.length > 0) {
         const activityEntities = await this.prisma.activity.findMany({
           where: { id: { in: activityIds } },
-          select: {
-            id: true,
-            latitude: true,
-            longitude: true,
-            kind: true,
-          },
+          select: { id: true, latitude: true, longitude: true, kind: true },
         });
 
-        activitiesMap = new Map(activityEntities.map((act) => [act.id, act]));
         kindByActivityId = new Map(
           activityEntities.map((act) => [act.id, act.kind]),
         );
@@ -1503,9 +1385,6 @@ export class TourActivityGenerationService {
           }
         }
       }
-
-      // Update travel times and distances using real coordinates
-      activities = updateTravelTimesForActivities(activities, activitiesMap);
 
       // Update tour with activities
       await this.prisma.$transaction(async (tx) => {
@@ -1537,26 +1416,20 @@ export class TourActivityGenerationService {
             },
           });
 
-          // Snapshot the waypoints of any pick with kind !== POI — always,
-          // not only when the model asked to exclude a stop, and for ANY
-          // such pick (a composite just created above, or an existing
-          // variant the model picked directly by id from the flat list),
-          // so a generated tour stays stable in time even if the shared
-          // variant's own content changes later.
+          // Snapshot the waypoints of any pick with kind !== POI, so a
+          // generated tour stays stable in time even if the shared variant's
+          // own content changes later.
           const kind = activity.activityId
             ? kindByActivityId.get(activity.activityId)
             : undefined;
           if (kind && kind !== ActivityKind.POI) {
             const actualWaypointIds =
               waypointIdsByActivityId.get(activity.activityId as string) ?? [];
-            const requested = selectedWaypointIdsByActivityId.get(
-              activity.activityId as string,
-            );
-            const finalWaypointIds =
-              verifySelectedWaypointSubset(
-                requested,
-                new Set(actualWaypointIds),
-              ) ?? actualWaypointIds;
+            // PR10: no LLM-driven per-tour waypoint trimming anymore —
+            // every composite schedules with its full current waypoint set.
+            // Per-tour trimming still exists post-generation via the review
+            // screen (app/tours/[id]/review.tsx, outside this backend plan).
+            const finalWaypointIds = actualWaypointIds;
 
             if (finalWaypointIds.length > 0) {
               await tx.tourActivityWaypoint.createMany({
@@ -1573,12 +1446,11 @@ export class TourActivityGenerationService {
         // 'completed' means the generation *process* finished end to end —
         // it does not mean every quality gate passed. A completeness
         // shortfall (PR 7.2) or an ignored requested experience format
-        // (PR 7.4) that survives the one bounded retry is a real, known
-        // outcome, not an error: the tour still gets a valid, fully
-        // verified (non-hallucinated, non-duplicated) itinerary, and exactly
-        // how thin/off-format it is stays visible in
-        // generationTrace.tourCompleteness/tourFormatCoverage rather than
-        // being silently absorbed into a generic "completed".
+        // (PR 7.4) is a real, known outcome, not an error: the tour still
+        // gets a valid, fully feasible itinerary built only from real
+        // offered candidates, and exactly how thin/off-format it is stays
+        // visible in generationTrace.tourCompleteness/tourFormatCoverage
+        // rather than being silently absorbed into a generic "completed".
         await tx.tour.update({
           where: { id: tourId },
           data: {
@@ -1592,10 +1464,6 @@ export class TourActivityGenerationService {
               // trace of how this tour's activities got picked.
               generationTrace: {
                 steps: traceSteps,
-                aiReasoning: aiResponse.reasoning,
-                hallucinatedCount,
-                duplicateCount,
-                auditFindings: auditResult,
                 tourCompleteness: {
                   ...completeness,
                   retryAttempted: correctiveRetryAttempted,
