@@ -3,9 +3,64 @@ import {
   ActivityWaypointRef,
   CompositeActivityFields
 } from '../features/activities/composite';
-import { GenerateTourDto } from '../features/tours/tour-generation-contract';
-
-export type { GenerateTourDto } from '../features/tours/tour-generation-contract';
+export interface GenerateTourDto {
+  name?: string;
+  destination?:
+    | string
+    | {
+        label: string;
+        latitude: number;
+        longitude: number;
+        radiusMeters?: number;
+        scaleHint?: 'specific_point' | 'neighborhood' | 'settlement' | 'region';
+      };
+  destinationLatitude?: number;
+  destinationLongitude?: number;
+  latitude?: number;
+  longitude?: number;
+  radius?: number;
+  includeExistingActivities?: boolean;
+  days?: number;
+  budgetLevel?: 'low' | 'medium' | 'high';
+  interests?: string[];
+  intent?: {
+    interests?: string[];
+    experienceFormats?: string[];
+    explorationStyle?: string;
+    additionalPreferences?: string;
+  };
+  mobility?: {
+    allowedTransportationModes: (
+      | 'walking'
+      | 'driving'
+      | 'public_transport'
+      | 'cycling'
+    )[];
+    maxWalkingDistancePerDayMeters?: number;
+    maxContinuousWalkingDistanceMeters?: number;
+    travelPace?: 'relaxed' | 'moderate' | 'fast';
+    accessibilityNeeds?: string[];
+  };
+  transportationMode?:
+    | 'walking'
+    | 'driving'
+    | 'public_transport'
+    | 'cycling'
+    | ('walking' | 'driving' | 'public_transport' | 'cycling')[];
+  groupType?: 'solo' | 'couple' | 'family' | 'friends';
+  travelPace?: 'relaxed' | 'moderate' | 'fast';
+  dietaryRestrictions?: string[];
+  startDates?: string[];
+  totalDistance?: number;
+  price?: number;
+  estimatedBudget?: number;
+  maxGroupSize?: number;
+  recommendedGroupSize?: number;
+  skipImageGeneration?: boolean;
+  skipActivities?: boolean;
+  excludeTours?: string[];
+  categories?: string[];
+}
 
 export interface Tour {
   id: string;
