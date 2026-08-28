@@ -192,7 +192,7 @@ export default function TourDetailScreen() {
       <Box flex={1} bg='$backgroundLight50'>
         <ScrollView
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 100 }}
+          contentContainerStyle={{ paddingBottom: 110 }}
         >
           <TourHeader tour={tour} expanded={viewMode === 'map'} />
 
@@ -217,6 +217,8 @@ export default function TourDetailScreen() {
                     borderRadius='$full'
                     p='$1'
                     space='xs'
+                    borderWidth={1}
+                    borderColor='$borderLight200'
                   >
                     <Button
                       testID='view-toggle-list'
@@ -224,14 +226,17 @@ export default function TourDetailScreen() {
                       variant={viewMode === 'list' ? 'solid' : 'link'}
                       action='primary'
                       borderRadius='$full'
-                      px='$3'
+                      px='$3.5'
+                      py='$1'
+                      bg={viewMode === 'list' ? '$primary500' : 'transparent'}
                       onPress={() => setViewMode('list')}
                     >
                       <ButtonText
                         size='xs'
+                        fontWeight='$bold'
                         color={viewMode === 'list' ? '$white' : '$textLight600'}
                       >
-                        Lista
+                        Itinerario
                       </ButtonText>
                     </Button>
                     <Button
@@ -240,24 +245,24 @@ export default function TourDetailScreen() {
                       variant={viewMode === 'map' ? 'solid' : 'link'}
                       action='primary'
                       borderRadius='$full'
-                      px='$3'
+                      px='$3.5'
+                      py='$1'
+                      bg={viewMode === 'map' ? '$primary500' : 'transparent'}
                       onPress={() => setViewMode('map')}
                     >
                       <ButtonText
                         size='xs'
+                        fontWeight='$bold'
                         color={viewMode === 'map' ? '$white' : '$textLight600'}
                       >
-                        Mapa
+                        Mapa 🗺️
                       </ButtonText>
                     </Button>
                   </HStack>
                 )}
             </HStack>
 
-            {/* Dev-only, inline accordion for the generation bitácora —
-                never shown outside __DEV__, and only once a trace actually
-                exists (older tours generated before this feature won't have
-                one). Expands/collapses in place, no navigation. */}
+            {/* Dev-only, inline accordion for the generation bitácora */}
             {__DEV__ && (tour.metadata as any)?.generationTrace && (
               <Box mb='$4'>
                 <Pressable
@@ -288,8 +293,10 @@ export default function TourDetailScreen() {
                 p='$8'
                 alignItems='center'
                 justifyContent='center'
-                bg='$backgroundLight100'
-                borderRadius='$lg'
+                bg='$white'
+                borderRadius='$2xl'
+                borderWidth={1}
+                borderColor='$borderLight100'
               >
                 <Spinner size='large' color='$primary500' mb='$4' />
                 <Heading
@@ -316,8 +323,10 @@ export default function TourDetailScreen() {
                 p='$8'
                 alignItems='center'
                 justifyContent='center'
-                bg='$backgroundLight100'
-                borderRadius='$md'
+                bg='$white'
+                borderRadius='$2xl'
+                borderWidth={1}
+                borderColor='$borderLight100'
               >
                 <Text
                   color='$error600'
@@ -336,27 +345,48 @@ export default function TourDetailScreen() {
                 p='$8'
                 alignItems='center'
                 justifyContent='center'
-                bg='$backgroundLight100'
-                borderRadius='$md'
+                bg='$white'
+                borderRadius='$2xl'
+                borderWidth={1}
+                borderColor='$borderLight100'
               >
                 <Text color='$textLight600' textAlign='center'>
                   No hay actividades disponibles para este tour
                 </Text>
               </Box>
             ) : viewMode === 'map' ? (
-              <Box p='$4' alignItems='center'>
-                <Text size='sm' color='$textLight500' textAlign='center'>
-                  ↑ El mapa con el recorrido está arriba
+              <VStack space='sm'>
+                <Text size='xs' color='$textLight500' fontWeight='$medium' mb='$2'>
+                  Paradas de este recorrido marcadas en el mapa:
                 </Text>
-              </Box>
+                {stops.map((item) => {
+                  if (item.type === 'location' || item.type === 'composite') {
+                    const stopItems = stops.filter(
+                      (s) => s.type === 'location' || s.type === 'composite'
+                    );
+                    const isLastStop =
+                      stopItems[stopItems.length - 1]?.id === item.id;
+                    return item.type === 'composite' ? (
+                      <CompositeStopCard
+                        key={item.id}
+                        data={item}
+                        isLast={isLastStop}
+                      />
+                    ) : (
+                      <TourStopCard
+                        key={item.id}
+                        data={item}
+                        isLast={isLastStop}
+                      />
+                    );
+                  }
+                  return null;
+                })}
+              </VStack>
             ) : (
               <VStack>
                 {stops.map((item) => {
                   if (item.type === 'location' || item.type === 'composite') {
-                    // Find if this is the last "real stop" (location or
-                    // composite) — not counting day headers/transport
-                    // connectors — so the timeline's bottom line only draws
-                    // between actual stops.
                     const stopItems = stops.filter(
                       (s) => s.type === 'location' || s.type === 'composite'
                     );
@@ -386,15 +416,14 @@ export default function TourDetailScreen() {
           </VStack>
         </ScrollView>
 
-        {/* Floating CTA — brass commit action, dark ink text/icon for
-            contrast (matches the wizard's final-step button). */}
+        {/* Floating CTA */}
         <Box
           position='absolute'
           bottom={0}
           left={0}
           right={0}
           p='$4'
-          bg='$backgroundLight50'
+          bg='rgba(255, 255, 255, 0.95)'
           borderTopWidth={1}
           borderTopColor='$borderLight100'
         >
@@ -402,17 +431,19 @@ export default function TourDetailScreen() {
             size='lg'
             variant='solid'
             action='primary'
-            borderRadius='$full'
+            bg='$primary500'
+            borderRadius='$2xl'
             shadowColor='$primary500'
             shadowOffset={{ width: 0, height: 4 }}
             shadowOpacity={0.3}
             shadowRadius={8}
             elevation={5}
+            h={52}
           >
-            <ButtonText color='$secondary950' fontWeight='$bold'>
-              Comenzar Recorrido
+            <ButtonText color='$white' fontWeight='$bold' size='md'>
+              Comenzar Recorrido a Pie
             </ButtonText>
-            <Icon as={MapPin} color='$secondary950' ml='$2' />
+            <Icon as={MapPin} color='$white' ml='$2' />
           </Button>
         </Box>
       </Box>

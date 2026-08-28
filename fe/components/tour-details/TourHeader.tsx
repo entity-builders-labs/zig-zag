@@ -174,12 +174,13 @@ export const TourHeader = ({
       height={expanded ? EXPANDED_HEIGHT : COLLAPSED_HEIGHT}
       width='$full'
       position='relative'
+      bg='$backgroundDark900'
     >
-      {/* Background Image or Static Map */}
-      {mapRegion ? (
+      {/* Background: Map in expanded mode, Image in collapsed mode */}
+      {expanded && mapRegion ? (
         <MapView
-          isStatic
-          zoomable={expanded}
+          isStatic={false}
+          zoomable={true}
           initialRegion={mapRegion}
           markers={mapMarkers}
           routes={routes}
@@ -194,79 +195,82 @@ export const TourHeader = ({
         />
       )}
 
-      {loadingDirections && (
+      {loadingDirections && expanded && (
         <Box
           position='absolute'
           top={50}
           right={20}
-          bg='rgba(255,255,255,0.9)'
+          bg='rgba(255,255,255,0.95)'
           borderRadius='$full'
           p='$2'
+          shadowColor='$black'
+          shadowOffset={{ width: 0, height: 2 }}
+          shadowOpacity={0.1}
+          shadowRadius={4}
         >
           <Spinner size='small' color='$primary500' />
         </Box>
       )}
 
-      {/* Gradient overlay + full title/tags — only when collapsed, so it
-          doesn't shade half of a map the user is trying to actually read */}
+      {/* Dark gradient overlay for collapsed mode */}
       {!expanded && (
         <Box
           position='absolute'
           bottom={0}
           left={0}
           right={0}
-          height='50%'
+          top={0}
           bg='$black'
-          opacity={0.6}
+          opacity={0.4}
         />
       )}
 
-      {/* Back Button */}
-      <Box position='absolute' top={50} left={20} zIndex={10}>
-        <Button
-          size='sm'
-          variant='solid'
-          action='secondary'
-          bg='rgba(255,255,255,0.2)'
-          onPress={() => router.back()}
-          borderRadius='$full'
-          p='$2'
-        >
-          <Icon as={ArrowLeft} color='$white' size='xl' />
-        </Button>
+      {/* Floating Back Button */}
+      <Box position='absolute' top={48} left={16} zIndex={10}>
+        <Pressable onPress={() => router.back()}>
+          <Box
+            w={40}
+            h={40}
+            borderRadius='$full'
+            bg='rgba(0, 0, 0, 0.45)'
+            alignItems='center'
+            justifyContent='center'
+            borderWidth={1}
+            borderColor='rgba(255, 255, 255, 0.3)'
+          >
+            <Icon as={ArrowLeft} color='$white' size='md' />
+          </Box>
+        </Pressable>
       </Box>
 
-      {/* Day selector — only worth showing once expanded (room to interact)
-          and only for multi-day tours (nothing to switch between otherwise) */}
+      {/* Multi-day selector in expanded mode */}
       {expanded && availableDays.length > 1 && (
         <HStack
           position='absolute'
-          top={50}
+          top={48}
           left={0}
           right={0}
           justifyContent='center'
-          space='sm'
+          space='xs'
           zIndex={10}
-          // This row spans the full width at the same top offset as the back
-          // button (left:20). Without box-none, the row's own empty space —
-          // everywhere that isn't actually one of the day pills — swallows
-          // clicks meant for whatever's underneath, including the back
-          // button, since it ties the back button's zIndex and is declared
-          // later in the tree (later wins the tie).
           pointerEvents='box-none'
         >
           {availableDays.map((day) => (
             <Pressable key={day} onPress={() => setSelectedDay(day)} testID={`tour-day-${day}`}>
               <Box
-                px='$3'
+                px='$3.5'
                 py='$1.5'
                 borderRadius='$full'
-                bg={day === selectedDay ? '$primary500' : 'rgba(255,255,255,0.9)'}
+                bg={day === selectedDay ? '$primary500' : 'rgba(255,255,255,0.95)'}
+                shadowColor='$black'
+                shadowOffset={{ width: 0, height: 2 }}
+                shadowOpacity={0.1}
+                shadowRadius={4}
               >
                 <Text
                   color={day === selectedDay ? '$white' : '$textLight800'}
-                  fontWeight='$semibold'
-                  size='sm'
+                  fontWeight='$bold'
+                  size='xs'
                 >
                   Día {day}
                 </Text>
@@ -276,19 +280,59 @@ export const TourHeader = ({
         </HStack>
       )}
 
-      {expanded ? (
+      {/* Title & metadata in Collapsed Mode */}
+      {!expanded ? (
+        <VStack position='absolute' bottom={28} left={16} right={16} space='xs'>
+          <HStack space='xs' flexWrap='wrap'>
+            <Box
+              bg='$primary500'
+              px='$2.5'
+              py='$1'
+              borderRadius='$full'
+            >
+              <Text size='2xs' fontWeight='$bold' color='$white' textTransform='uppercase' letterSpacing={0.6}>
+                ✨ Tour Curado con IA
+              </Text>
+            </Box>
+            {tags.filter(Boolean).map((tag: string) => (
+              <Box
+                key={tag}
+                bg='rgba(255, 255, 255, 0.25)'
+                px='$2.5'
+                py='$1'
+                borderRadius='$full'
+              >
+                <Text size='2xs' fontWeight='$semibold' color='$white'>
+                  {tag}
+                </Text>
+              </Box>
+            ))}
+          </HStack>
+
+          <Heading
+            color='$white'
+            size='xl'
+            fontWeight='$bold'
+            mt='$1'
+            numberOfLines={2}
+            style={{ fontFamily: FONT_DISPLAY }}
+          >
+            {tour.name}
+          </Heading>
+        </VStack>
+      ) : (
         <Box
           position='absolute'
           bottom={0}
           left={0}
           right={0}
-          bg='rgba(0,0,0,0.85)'
+          bg='rgba(0,0,0,0.8)'
           px='$4'
           py='$3'
         >
           <Heading
             color='$white'
-            size='md'
+            size='sm'
             fontWeight='$bold'
             numberOfLines={1}
             style={{ fontFamily: FONT_DISPLAY }}
@@ -296,35 +340,6 @@ export const TourHeader = ({
             {tour.name}
           </Heading>
         </Box>
-      ) : (
-        <VStack position='absolute' bottom={20} left={20} right={20} space='xs'>
-          <HStack space='sm' flexWrap='wrap'>
-            {tags.map((tag: string) => (
-              <Badge
-                key={tag}
-                size='md'
-                variant='solid'
-                borderRadius='$full'
-                action='info'
-                bg='rgba(255,255,255,0.2)'
-                borderColor='transparent'
-              >
-                <BadgeText color='$white' fontWeight='$medium'>
-                  {tag}
-                </BadgeText>
-              </Badge>
-            ))}
-          </HStack>
-          <Heading
-            color='$white'
-            size='3xl'
-            fontWeight='$bold'
-            mt='$2'
-            style={{ fontFamily: FONT_DISPLAY }}
-          >
-            {tour.name}
-          </Heading>
-        </VStack>
       )}
     </Box>
   );

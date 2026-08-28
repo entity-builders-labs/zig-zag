@@ -125,58 +125,52 @@ export const CompositeStopCard = ({
   // (map + waypoint list), so it's the one that visibly overflowed.
   return (
     <HStack testID={`composite-stop-${data.tourActivityId}`}>
-      {/* Timeline Node — rose accent, distinguishing a composite/experience
-          stop from a plain POI's brass node (TourStopCard) at a glance. */}
-      <Box width={40} alignItems='center' position='relative'>
-        <Box height={20} width={2} bg='$borderLight300' />
+      {/* Timeline Node — rose accent, distinguishing a composite/experience */}
+      <Box width={36} alignItems='center' position='relative'>
+        <Box height={16} width={2} bg='$borderLight300' />
         <Box
-          width={16}
-          height={16}
+          width={22}
+          height={22}
           borderRadius='$full'
-          bg='$tertiary500'
-          borderWidth={3}
+          bg='$tertiary600'
+          borderWidth={2}
           borderColor='$white'
           zIndex={1}
+          alignItems='center'
+          justifyContent='center'
           shadowColor='$tertiary500'
-          shadowOffset={{ width: 0, height: 0 }}
-          shadowOpacity={0.5}
+          shadowOffset={{ width: 0, height: 2 }}
+          shadowOpacity={0.4}
           shadowRadius={4}
-        />
+          elevation={3}
+        >
+          <Icon as={KindIcon} size='2xs' color='$white' />
+        </Box>
         {!isLast && <Box flex={1} width={2} bg='$borderLight300' />}
       </Box>
 
       {/* Card Content */}
-      <Box flex={1} pb='$6' pr='$4'>
+      <Box flex={1} pb='$4' pl='$2' pr='$2'>
         <Box
           bg='$white'
-          borderRadius='$xl'
+          borderRadius='$2xl'
           overflow='hidden'
-          borderWidth={1}
-          borderColor='$borderLight100'
+          borderWidth={1.5}
+          borderColor='$tertiary200'
           shadowColor='$black'
-          shadowOffset={{ width: 0, height: 1 }}
-          shadowOpacity={0.05}
-          shadowRadius={3}
+          shadowOffset={{ width: 0, height: 2 }}
+          shadowOpacity={0.06}
+          shadowRadius={6}
           elevation={2}
         >
-          {/* Taller than a typical POI thumbnail — a walk's waypoints are
-              often spread north-south along streets more than east-west,
-              and fitBounds() must zoom out enough to fit that whole span
-              within whatever height it's given; a short box forces a much
-              more zoomed-out (and misleadingly wide) view than the walk's
-              actual footprint needs. */}
-          <Box height={200} width='100%' position='relative' overflow='hidden'>
+          {/* Mini-map view for composite boundary or waypoint route */}
+          <Box height={180} width='100%' position='relative' overflow='hidden' bg='$backgroundLight100'>
             {mapRegion ? (
               <MapView
                 isStatic
                 zoomable={false}
                 initialRegion={mapRegion}
                 instanceId={`composite-${data.tourActivityId}`}
-                // Without this, an unset `markers` prop falls back to
-                // *every* activity in the app's global search context (see
-                // features/map/index.web.tsx) — not this composite's own
-                // waypoints — which is what was blowing the fitBounds
-                // calculation out to cover the whole province.
                 markers={[]}
                 routes={
                   polygonParts.length === 0 && routeCoordinates.length > 1
@@ -189,82 +183,74 @@ export const CompositeStopCard = ({
                 }))}
               />
             ) : (
-              <Box flex={1} bg='$backgroundLight100' />
+              <Box flex={1} bg='$backgroundLight100' alignItems='center' justifyContent='center'>
+                <Icon as={KindIcon} size='xl' color='$tertiary400' />
+              </Box>
             )}
           </Box>
 
-          {/* Rose accent bar — marks this card as a composite/experience
-              stop, matches the mockup's .composite-card::before */}
-          <Box position='relative'>
-            <Box
-              position='absolute'
-              left={0}
-              top={8}
-              bottom={8}
-              width={3}
-              borderRadius='$full'
-              bg='$tertiary500'
-            />
-            <VStack p='$3' pl='$4'>
-              <HStack space='sm' alignItems='flex-start'>
+          <VStack p='$3.5'>
+            <HStack justifyContent='space-between' alignItems='center' mb='$1.5'>
+              <HStack space='xs' alignItems='center'>
                 <Box
-                  width={34}
-                  height={34}
-                  borderRadius='$md'
-                  bg='$tertiary500'
-                  alignItems='center'
-                  justifyContent='center'
+                  bg='$tertiary50'
+                  px='$2.5'
+                  py='$0.5'
+                  borderRadius='$full'
+                  borderWidth={1}
+                  borderColor='$tertiary200'
                 >
-                  <Icon as={KindIcon} size='sm' color='$white' />
+                  <Text size='2xs' fontWeight='$bold' color='$tertiary700'>
+                    ✨ {KIND_LABELS[data.kind] || data.kind}
+                  </Text>
                 </Box>
-                <VStack flex={1}>
-                  <Heading
-                    size='sm'
-                    numberOfLines={1}
-                    ellipsizeMode='tail'
-                    style={{ fontFamily: FONT_DISPLAY }}
+                {orderedWaypoints.length > 0 && (
+                  <Box
+                    bg='$backgroundLight100'
+                    px='$2'
+                    py='$0.5'
+                    borderRadius='$full'
                   >
-                    {data.title}
-                  </Heading>
-                  <Badge
-                    size='sm'
-                    variant='outline'
-                    borderRadius='$sm'
-                    borderColor='$tertiary300'
-                    bg='$tertiary50'
-                    alignSelf='flex-start'
-                    mt='$1'
-                  >
-                    <BadgeText fontSize='$2xs' color='$tertiary700'>
-                      {KIND_LABELS[data.kind] || data.kind}
-                    </BadgeText>
-                  </Badge>
-                </VStack>
+                    <Text size='2xs' fontWeight='$medium' color='$textLight600'>
+                      {orderedWaypoints.length} paradas
+                    </Text>
+                  </Box>
+                )}
               </HStack>
+            </HStack>
 
-              {data.themeReasoning && (
+            <Heading
+              size='sm'
+              numberOfLines={2}
+              color='$textLight900'
+              style={{ fontFamily: FONT_DISPLAY }}
+            >
+              {data.title}
+            </Heading>
+
+            {data.themeReasoning && (
+              <Box
+                mt='$2'
+                p='$2.5'
+                bg='$tertiary50'
+                borderRadius='$lg'
+                borderLeftWidth={3}
+                borderLeftColor='$tertiary500'
+              >
                 <Text
-                  size='xs'
-                  color='$textLight500'
+                  size='2xs'
+                  color='$tertiary900'
                   fontStyle='italic'
                   numberOfLines={3}
-                  mt='$2'
-                  pl='$2'
-                  borderLeftWidth={2}
-                  borderLeftColor='$borderLight200'
                 >
-                  {data.themeReasoning}
+                  💡 {data.themeReasoning}
                 </Text>
-              )}
+              </Box>
+            )}
 
+            {/* Waypoints Sub-List */}
             {orderedWaypoints.length > 0 && editable ? (
-              <VStack mt='$2' space='xs' testID={`composite-waypoints-${data.tourActivityId}`}>
-                {/* Custom rose checkbox, not Gluestack's <Checkbox> — its
-                    checked-state color is hardcoded to the primary (brass)
-                    token inside @gluestack-ui/config's theme with no
-                    per-instance override hook, and this checkbox is
-                    specifically the composite/experience accent (rose)
-                    everywhere else on this card. */}
+              <VStack mt='$3' space='xs' testID={`composite-waypoints-${data.tourActivityId}`}>
                 {orderedWaypoints.map((w, index) => {
                   const isChecked =
                     selectedWaypointIds?.has(w.waypointActivity.id) ?? true;
@@ -274,10 +260,18 @@ export const CompositeStopCard = ({
                       onPress={() => onToggleWaypoint?.(w.waypointActivity.id)}
                       testID={`waypoint-checkbox-${w.waypointActivity.id}`}
                     >
-                      <HStack space='sm' alignItems='center'>
+                      <HStack
+                        space='sm'
+                        alignItems='center'
+                        p='$2'
+                        bg='$backgroundLight50'
+                        borderRadius='$lg'
+                        borderWidth={1}
+                        borderColor='$borderLight100'
+                      >
                         <Box
-                          width={16}
-                          height={16}
+                          width={18}
+                          height={18}
                           borderRadius='$sm'
                           borderWidth={1.5}
                           borderColor='$tertiary500'
@@ -289,7 +283,7 @@ export const CompositeStopCard = ({
                             <Icon as={CheckIcon} size='2xs' color='$white' />
                           )}
                         </Box>
-                        <Text size='sm' color='$textLight800'>
+                        <Text size='xs' fontWeight='$medium' color='$textLight800' flex={1}>
                           {index + 1}. {w.waypointActivity.name}
                         </Text>
                       </HStack>
@@ -305,22 +299,37 @@ export const CompositeStopCard = ({
               </VStack>
             ) : (
               orderedWaypoints.length > 0 && (
-                <VStack mt='$2' space='xs'>
-                  {orderedWaypoints.map((w) => (
+                <VStack mt='$3' space='xs'>
+                  <Text size='2xs' fontWeight='$bold' color='$textLight400' textTransform='uppercase' letterSpacing={0.5} mb='$1'>
+                    Paradas de esta experiencia:
+                  </Text>
+                  {orderedWaypoints.map((w, index) => (
                     <HStack
                       key={w.waypointActivity.id}
-                      space='xs'
+                      space='sm'
                       alignItems='center'
+                      p='$2'
+                      bg='$backgroundLight50'
+                      borderRadius='$lg'
+                      borderWidth={1}
+                      borderColor='$borderLight100'
                     >
                       <Box
-                        width={5}
-                        height={5}
+                        width={18}
+                        height={18}
                         borderRadius='$full'
-                        bg='$tertiary500'
-                      />
+                        bg='$tertiary100'
+                        alignItems='center'
+                        justifyContent='center'
+                      >
+                        <Text size='2xs' fontWeight='$bold' color='$tertiary800'>
+                          {index + 1}
+                        </Text>
+                      </Box>
                       <Text
                         size='xs'
-                        color='$textLight700'
+                        fontWeight='$medium'
+                        color='$textLight800'
                         numberOfLines={1}
                         flex={1}
                       >
@@ -333,7 +342,7 @@ export const CompositeStopCard = ({
             )}
 
             {data.badges.length > 0 && (
-              <HStack space='xs' mt='$2'>
+              <HStack space='xs' mt='$2' flexWrap='wrap'>
                 {data.badges.map((badge, idx) => (
                   <Badge
                     key={idx}
@@ -351,18 +360,17 @@ export const CompositeStopCard = ({
             {!editable && (
               <Pressable
                 onPress={() => router.push(`/activities/${data.id}`)}
-                mt='$2'
+                mt='$3'
               >
-                <HStack alignItems='center' space='xs'>
-                  <Text size='xs' color='$tertiary600' fontWeight='$bold'>
-                    Ver recorrido completo
+                <HStack alignItems='center' justifyContent='flex-end' space='xs'>
+                  <Text size='2xs' color='$tertiary700' fontWeight='$bold'>
+                    Ver experiencia completa
                   </Text>
-                  <Icon as={ChevronRight} size='xs' color='$tertiary600' />
+                  <Icon as={ChevronRight} size='2xs' color='$tertiary700' />
                 </HStack>
               </Pressable>
             )}
-            </VStack>
-          </Box>
+          </VStack>
         </Box>
       </Box>
     </HStack>
