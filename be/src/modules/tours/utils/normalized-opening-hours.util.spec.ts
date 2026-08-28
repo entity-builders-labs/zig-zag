@@ -27,6 +27,8 @@ describe('parseOpeningHours', () => {
         startMinutesFromMidnight: 1200,
         endMinutesFromMidnight: 1440,
       });
+      // Verify no spurious entry on Tuesday (12:00 AM is end-of-midnight, not crossing).
+      expect(hours.rangesByWeekday[2]).toBeUndefined();
     }
   });
 

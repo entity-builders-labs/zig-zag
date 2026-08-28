@@ -109,8 +109,11 @@ export function parseOpeningHours(
 
     const sameDayRanges = rangesByWeekday[weekday] ?? [];
     for (const range of parsed) {
-      if (range.endMinutesFromMidnight <= range.startMinutesFromMidnight) {
-        // Crosses midnight: today gets [start, 24:00), tomorrow gets [00:00, end).
+      if (
+        range.endMinutesFromMidnight > 0 &&
+        range.endMinutesFromMidnight <= range.startMinutesFromMidnight
+      ) {
+        // Genuine crossing (e.g. "11:00 PM – 2:00 AM"): today gets [start, 24:00), tomorrow gets [00:00, end).
         sameDayRanges.push({
           startMinutesFromMidnight: range.startMinutesFromMidnight,
           endMinutesFromMidnight: 1440,
@@ -122,7 +125,14 @@ export function parseOpeningHours(
           endMinutesFromMidnight: range.endMinutesFromMidnight,
         });
         rangesByWeekday[nextWeekday] = nextDayRanges;
+      } else if (range.endMinutesFromMidnight === 0 && range.startMinutesFromMidnight > 0) {
+        // Ends at midnight (e.g. "8:00 PM – 12:00 AM"): close at 24:00 same day only, no next-day entry.
+        sameDayRanges.push({
+          startMinutesFromMidnight: range.startMinutesFromMidnight,
+          endMinutesFromMidnight: 1440,
+        });
       } else {
+        // Normal same-day range, push as-is.
         sameDayRanges.push(range);
       }
     }
