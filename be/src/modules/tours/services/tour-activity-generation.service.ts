@@ -33,9 +33,15 @@ import { verifySelectedWaypointSubset } from '../utils/composite-activity-verifi
 import {
   rankCandidatesByRelevance,
   RankableCandidate,
+  CandidateScoreBreakdown,
 } from '../utils/candidate-ranking.util';
+import {
+  selectBoundedWindow,
+  FormatAvailability,
+} from '../utils/candidate-window-selection.util';
 import { auditGeneration } from '../utils/generation-audit.util';
 import {
+  buildCandidatePoolStep,
   buildCoverageAnalysisStep,
   buildDiscoveryStep,
   buildDbSearchStep,
@@ -100,6 +106,9 @@ interface SemanticRankingOutcome {
 interface CandidateSelection {
   activities: any[];
   semanticRanking: SemanticRankingOutcome;
+  scoreBreakdownById: Map<string, CandidateScoreBreakdown>;
+  formatAvailability: FormatAvailability[];
+  droppedForFamilyCapCount: number;
 }
 
 @Injectable()
@@ -192,6 +201,7 @@ export class TourActivityGenerationService {
       requestedExperienceFormats: request.intent.experienceFormats,
       days: request.days,
       explorationStyle: request.intent.explorationStyle,
+      travelPace: request.mobility.travelPace,
       semanticCoverage: {
         status: semanticRanking.status,
         eligibleCandidateCount: semanticRanking.eligibleCandidateCount,
@@ -200,6 +210,50 @@ export class TourActivityGenerationService {
       },
       offeredCandidateCount,
       providerHealth,
+    });
+  }
+
+  /**
+   * PR 9: builds the candidate_pool trace step for whichever branch just
+   * produced a ranked/windowed selection — tags each offered candidate with
+   * its real provenance (discovery-resolved this request, freshly
+   * crawled/refilled, or pre-existing catalog) so the bitácora can show
+   * source, score components, and coverage contribution truthfully.
+   */
+  private buildCandidatePoolTraceStep(
+    selection: CandidateSelection,
+    discoveryResolvedActivityIds: Set<string>,
+    newlyCrawledActivityIds: Set<string>,
+    crawlProvider: 'google' | 'geoapify' | undefined,
+    request: TourGenerationRequest,
+    initialCatalogCount: number,
+    postAcquisitionCatalogCount: number,
+    eligibleCount: number,
+  ): GenerationTraceStep {
+    const offeredCandidates = selection.activities.map((act: any) => ({
+      id: act.id,
+      name: act.name,
+      kind: act.kind,
+      type: act.type,
+      knownActivityTypeName: act.knownActivityTypeName,
+      metadata: act.metadata,
+      traceSource: discoveryResolvedActivityIds.has(act.id)
+        ? ('discovery' as const)
+        : newlyCrawledActivityIds.has(act.id)
+          ? crawlProvider === 'google'
+            ? ('google_places' as const)
+            : ('geoapify' as const)
+          : ('db' as const),
+      scoreBreakdown: selection.scoreBreakdownById.get(act.id)!,
+    }));
+    return buildCandidatePoolStep({
+      initialCatalogCount,
+      postAcquisitionCatalogCount,
+      eligibleCount,
+      offeredCandidates,
+      requestedThemes: request.intent.interests,
+      formatAvailability: selection.formatAvailability,
+      droppedForFamilyCapCount: selection.droppedForFamilyCapCount,
     });
   }
 
@@ -295,19 +349,35 @@ export class TourActivityGenerationService {
         distanceKm: a.distance,
         weightedScore: a.weightedScore,
         isCurated: a.isCurated,
+        familyId: a.familyId,
         original: a,
       }),
     );
-    const ranked = rankCandidatesByRelevance(
+    const rankedFull = rankCandidatesByRelevance(
       rankable,
       semanticResult?.status === 'applied' ? semanticResult.scores : null,
-    )
-      .slice(0, this.ITINERARY_CANDIDATE_LIMIT)
-      .map((candidate) => candidate.original);
+    );
+    // PR 9: a plain slice(0, N) here can starve a requested experience
+    // format out of the window even when the full pool has real matches —
+    // selectBoundedWindow reserves for requested formats and caps repeated
+    // family variants before filling the remainder by rank.
+    const { window, formatAvailability, droppedForFamilyCapCount } =
+      selectBoundedWindow(
+        rankedFull,
+        intent.experienceFormats,
+        this.ITINERARY_CANDIDATE_LIMIT,
+      );
+    const ranked = window.map((r) => r.candidate.original);
+    const scoreBreakdownById = new Map(
+      window.map((r) => [r.candidate.id, r.scoreBreakdown]),
+    );
 
     if (!semanticQuery) {
       return {
         activities: ranked,
+        scoreBreakdownById,
+        formatAvailability,
+        droppedForFamilyCapCount,
         semanticRanking: {
           status: 'not_requested',
           eligibleCandidateCount: activities.length,
@@ -321,6 +391,9 @@ export class TourActivityGenerationService {
 
     return {
       activities: ranked,
+      scoreBreakdownById,
+      formatAvailability,
+      droppedForFamilyCapCount,
       semanticRanking: {
         status: semanticResult!.status,
         eligibleCandidateCount: semanticResult!.requestedCandidateCount,
@@ -387,6 +460,18 @@ export class TourActivityGenerationService {
       // candidate `detail` and to audit the AI's picks against the actual
       // data it saw.
       const candidateActivitiesById = new Map<string, ActivityForPrompt>();
+      // PR 9: the true eligible superset across every acquisition branch
+      // (initial query, post-crawl re-query, discovery re-fetch) — distinct
+      // from candidateActivityIds/candidateActivitiesById, which only ever
+      // hold the already-ranked-and-windowed offered subset. Used by the
+      // pool-sufficiency gate below, which needs the real eligible pool to
+      // judge coverage, not the narrower offered window.
+      const allEligibleActivitiesById = new Map<string, any>();
+      // Ids persisted by this request's own discovery resolution — tags
+      // them as 'discovery' provenance in the candidate_pool trace, and
+      // lets the merge step at each acquisition branch include them
+      // regardless of which branch happens to run.
+      const discoveryResolvedActivityIds = new Set<string>();
       // The generation bitácora (docs/superpowers/specs/2026-08-20-generation-
       // bitacora-design.md) — one step per pipeline stage, in order.
       const traceSteps: GenerationTraceStep[] = [];
@@ -459,6 +544,9 @@ export class TourActivityGenerationService {
             10000,
             'Activity search timeout',
           );
+          nearbyActivities.forEach((act: any) =>
+            allEligibleActivitiesById.set(act.id, act),
+          );
           // PR 6: replace the global MIN_SUFFICIENT_ACTIVITIES gate with the
           // deterministic CoverageAnalyzer. Sufficiency now depends on the real
           // eligible pool (requested themes, quantity by days/pace, kind spread),
@@ -497,7 +585,23 @@ export class TourActivityGenerationService {
               radius / 1000,
             );
             traceSteps.push(dbSearchStep);
-            traceCandidateLists.push(dbSearchStep.candidates ?? []);
+            // Not pushed into traceCandidateLists here: this branch's
+            // candidatePoolStep below lists the exact same offered set with
+            // richer per-candidate detail (score breakdown, coverage
+            // contribution) — pushing both would mark a picked candidate
+            // "chosen" twice for the same reason.
+            const candidatePoolStep = this.buildCandidatePoolTraceStep(
+              selection,
+              discoveryResolvedActivityIds,
+              new Set(),
+              undefined,
+              request,
+              nearbyActivities.length,
+              nearbyActivities.length,
+              nearbyActivities.length,
+            );
+            traceSteps.push(candidatePoolStep);
+            traceCandidateLists.push(candidatePoolStep.candidates ?? []);
           } else {
             const dbSearchStep = buildDbSearchStep(
               nearbyActivities,
@@ -522,6 +626,7 @@ export class TourActivityGenerationService {
                   severity: d.severity as any,
                   message: d.message,
                   theme: d.theme,
+                  experienceFormat: d.experienceFormat,
                   expectedCount: d.expectedCount,
                   actualCount: d.actualCount,
                 }));
@@ -535,17 +640,14 @@ export class TourActivityGenerationService {
                       request.intent.interests,
                       deficits,
                       request.intent.experienceFormats,
+                      request.intent.explorationStyle,
+                      request.intent.additionalPreferences,
                     );
                   if (discoveryResult.proposals.length > 0) {
                     traceSteps.push(buildDiscoveryStep(discoveryResult));
                     // PR 8: turn accepted proposals into real, persisted
                     // Activities (AREA/composite via CompositeActivityService,
-                    // POI direct). This does NOT add them to this request's
-                    // own candidateActivityIds/candidateActivitiesById — a
-                    // newly persisted Activity only becomes selectable by a
-                    // future generation's ordinary geographic catalog query.
-                    // Combining freshly resolved discovery Activities into
-                    // *this* request's offered pool is PR 9's job.
+                    // POI direct).
                     try {
                       const resolutionResult =
                         await this.proposalResolver.resolve({
@@ -559,6 +661,32 @@ export class TourActivityGenerationService {
                       traceSteps.push(
                         buildEntityResolutionStep(resolutionResult),
                       );
+
+                      // PR 9: re-query the catalog for exactly the rows PR 8
+                      // just persisted (a direct fetch-by-id, not reliance on
+                      // a later geographic re-query's own rank-then-cap,
+                      // which could lose a brand-new zero-review row before
+                      // it ever reaches ranking) and merge them into this
+                      // request's own eligible/offered pool below.
+                      const persistedDiscoveryActivityIds =
+                        resolutionResult.resolved
+                          .filter(
+                            (r) =>
+                              r.status === 'accepted' && r.persistedActivityId,
+                          )
+                          .map((r) => r.persistedActivityId as string);
+                      if (persistedDiscoveryActivityIds.length > 0) {
+                        const newlyResolvedActivities =
+                          await this.activitiesService.findManyByIds(
+                            persistedDiscoveryActivityIds,
+                            searchArea.latitude,
+                            searchArea.longitude,
+                          );
+                        newlyResolvedActivities.forEach((act: any) => {
+                          allEligibleActivitiesById.set(act.id, act);
+                          discoveryResolvedActivityIds.add(act.id);
+                        });
+                      }
                     } catch (resolutionError) {
                       this.logger.warn(
                         `Entity resolution failed (non-fatal): ${resolutionError.message}`,
@@ -622,6 +750,9 @@ export class TourActivityGenerationService {
                 radius,
                 activityLimit,
               );
+              refreshedActivities.forEach((act: any) =>
+                allEligibleActivitiesById.set(act.id, act),
+              );
               if (refreshedActivities.length > 0) {
                 await this.updateGenerationStatus(
                   tourId,
@@ -629,14 +760,29 @@ export class TourActivityGenerationService {
                   `¡Catálogo actualizado con ${placesLabel}! Analizando ${refreshedActivities.length} actividades...`,
                 );
 
+                // PR 9: merge in any discovery-resolved rows not already
+                // present, so they compete in the same ranked window rather
+                // than depending on this geographic re-query having
+                // incidentally caught them.
+                const discoveryResolvedActivities = Array.from(
+                  allEligibleActivitiesById.values(),
+                ).filter((a: any) => discoveryResolvedActivityIds.has(a.id));
+                const mergedPool = [
+                  ...refreshedActivities,
+                  ...discoveryResolvedActivities.filter(
+                    (a: any) =>
+                      !refreshedActivities.some((r: any) => r.id === a.id),
+                  ),
+                ];
+
                 const selection = await this.rankAndSliceActivities(
-                  refreshedActivities,
+                  mergedPool,
                   request.intent,
                 );
                 const refreshedActivitiesSample = selection.activities;
                 semanticRankingOutcome = selection.semanticRanking;
                 const refreshedCoverageReport = this.buildCoverageReport(
-                  refreshedActivities,
+                  mergedPool,
                   request,
                   refreshedActivitiesSample.length,
                   semanticRankingOutcome,
@@ -669,6 +815,21 @@ export class TourActivityGenerationService {
                 );
                 traceSteps.push(crawlStep);
                 traceCandidateLists.push(crawlStep.candidates ?? []);
+
+                const candidatePoolStep = this.buildCandidatePoolTraceStep(
+                  selection,
+                  discoveryResolvedActivityIds,
+                  newActivityIds,
+                  crawlResult.provenance.provider === 'google'
+                    ? 'google'
+                    : 'geoapify',
+                  request,
+                  nearbyActivities.length,
+                  mergedPool.length,
+                  mergedPool.length,
+                );
+                traceSteps.push(candidatePoolStep);
+                traceCandidateLists.push(candidatePoolStep.candidates ?? []);
               } else {
                 traceSteps.push(
                   buildPlacesCrawlStep([], crawlResult.provenance),
@@ -686,8 +847,18 @@ export class TourActivityGenerationService {
                     'generating',
                     thinPoolMessage,
                   );
+                  const discoveryResolvedActivities = Array.from(
+                    allEligibleActivitiesById.values(),
+                  ).filter((a: any) => discoveryResolvedActivityIds.has(a.id));
+                  const mergedPool = [
+                    ...nearbyActivities,
+                    ...discoveryResolvedActivities.filter(
+                      (a: any) =>
+                        !nearbyActivities.some((r: any) => r.id === a.id),
+                    ),
+                  ];
                   const selection = await this.rankAndSliceActivities(
-                    nearbyActivities,
+                    mergedPool,
                     request.intent,
                   );
                   const nearbyActivitiesSample = selection.activities;
@@ -699,6 +870,18 @@ export class TourActivityGenerationService {
                   availableActivitiesText = `\n\nAvailable activities in the area (within ${radius / 1000}km):\n${nearbyActivitiesSample
                     .map((act: any) => formatActivityForPrompt(act))
                     .join('\n')}`;
+                  const candidatePoolStep = this.buildCandidatePoolTraceStep(
+                    selection,
+                    discoveryResolvedActivityIds,
+                    new Set(),
+                    undefined,
+                    request,
+                    nearbyActivities.length,
+                    mergedPool.length,
+                    mergedPool.length,
+                  );
+                  traceSteps.push(candidatePoolStep);
+                  traceCandidateLists.push(candidatePoolStep.candidates ?? []);
                 } else {
                   await this.updateGenerationStatus(
                     tourId,
@@ -754,8 +937,18 @@ export class TourActivityGenerationService {
                   'generating',
                   `${placesLabel} indisponible. Usando ${nearbyActivities.length} actividades locales encontradas.`,
                 );
+                const discoveryResolvedActivities = Array.from(
+                  allEligibleActivitiesById.values(),
+                ).filter((a: any) => discoveryResolvedActivityIds.has(a.id));
+                const mergedPool = [
+                  ...nearbyActivities,
+                  ...discoveryResolvedActivities.filter(
+                    (a: any) =>
+                      !nearbyActivities.some((r: any) => r.id === a.id),
+                  ),
+                ];
                 const selection = await this.rankAndSliceActivities(
-                  nearbyActivities,
+                  mergedPool,
                   request.intent,
                 );
                 const nearbyActivitiesSample = selection.activities;
@@ -767,6 +960,18 @@ export class TourActivityGenerationService {
                 availableActivitiesText = `\n\nAvailable activities in the area (within ${radius / 1000}km):\n${nearbyActivitiesSample
                   .map((act: any) => formatActivityForPrompt(act))
                   .join('\n')}`;
+                const candidatePoolStep = this.buildCandidatePoolTraceStep(
+                  selection,
+                  discoveryResolvedActivityIds,
+                  new Set(),
+                  undefined,
+                  request,
+                  nearbyActivities.length,
+                  mergedPool.length,
+                  mergedPool.length,
+                );
+                traceSteps.push(candidatePoolStep);
+                traceCandidateLists.push(candidatePoolStep.candidates ?? []);
               } else {
                 await this.updateGenerationStatus(
                   tourId,
@@ -984,6 +1189,45 @@ export class TourActivityGenerationService {
             kind: candidate.kind as ActivityKind,
           })),
       });
+
+      // PR 9: a dedicated pre-LLM pool-sufficiency gate, layered alongside
+      // — not replacing — the existing post-LLM PR 7.2/7.4 single
+      // corrective retry (below) and the existing uniqueActivities.length
+      // === 0 throw (also below). This one judges the true eligible pool
+      // (catalog + refill + discovery-resolved, before windowing) after
+      // every acquisition path has run; the other two judge the model's
+      // actual picks after it runs. Three independent, complementary
+      // layers — "reselect from the eligible pool or fail explicitly."
+      if (allEligibleActivitiesById.size > 0) {
+        const finalCoverageReport = this.buildCoverageReport(
+          Array.from(allEligibleActivitiesById.values()),
+          request,
+          candidateActivityIds.size,
+          semanticRankingOutcome,
+          placesRefillError
+            ? { status: 'degraded', reason: placesRefillError.code }
+            : { status: 'healthy' },
+        );
+        // Narrowed to the two reasons that mean a genuinely unusable
+        // (effectively empty) pool — not 'insufficient_coverage_after_
+        // catalog_analysis', which is a softer below-ideal-count deficiency
+        // the rest of this method already tolerates on purpose (thin-pool
+        // fallbacks above, PR 7.2's completeness retry below). Matches the
+        // existing post-crawl 'no_usable_candidates' check's own bar,
+        // applied here as a uniform safety net across every branch.
+        if (
+          finalCoverageReport.decision.action === 'fail' &&
+          (finalCoverageReport.decision.reason === 'no_usable_candidates' ||
+            finalCoverageReport.decision.reason ===
+              'provider_degraded_without_usable_pool')
+        ) {
+          throw new Error(
+            'El pool combinado de catálogo, refill y discovery sigue siendo insuficiente ' +
+              'después de agotar todas las vías de adquisición disponibles para este destino; ' +
+              'no se genera un itinerario con datos incompletos.',
+          );
+        }
+      }
 
       let selection = await runItinerarySelection(selectorInput);
 

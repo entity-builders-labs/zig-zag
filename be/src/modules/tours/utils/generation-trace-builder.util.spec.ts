@@ -1,4 +1,5 @@
 import {
+  buildCandidatePoolStep,
   buildCoverageAnalysisStep,
   buildEmbeddingsStep,
   buildDestinationResolutionStep,
@@ -9,6 +10,8 @@ import {
   buildTourFormatCoverageStep,
   buildTourIntentStep,
 } from './generation-trace-builder.util';
+import { ActivityKind } from '@prisma/client';
+import { ExperienceFormat } from '../interfaces/tour-generation.interface';
 
 describe('buildTourIntentStep', () => {
   it('traces supplemental intent once and labels walking limits as captured, not enforced', () => {
@@ -149,7 +152,7 @@ describe('buildEntityResolutionStep', () => {
     evidenceKeys: [] as string[],
   });
 
-  it('reports accepted proposals as persisted, not offered to the current itinerary', () => {
+  it("reports accepted proposals as persisted and merged into this request's unified candidate pool", () => {
     const step = buildEntityResolutionStep({
       resolved: [
         {
@@ -169,7 +172,7 @@ describe('buildEntityResolutionStep', () => {
     expect(step.providerStatus).toBe('success');
     expect(step.degradedReason).toBeUndefined();
     expect(step.summary).toContain('1 de 1');
-    expect(step.summary).toContain('PR 9');
+    expect(step.summary).toContain('candidate_pool');
     expect(step.resolution?.acceptedCount).toBe(1);
   });
 
@@ -605,5 +608,106 @@ describe('buildLlmGenerationStep', () => {
     expect(step.summary).toContain('no constituyen verificación');
     expect(step.summary).toContain('transporte');
     expect(step.summary).toContain('horarios');
+  });
+});
+
+describe('buildCandidatePoolStep', () => {
+  function breakdown(overrides: Partial<Record<string, any>> = {}) {
+    return {
+      semanticSimilarity: 0.5,
+      qualityBonus: 0.1,
+      proximityBonus: 0.05,
+      diversityBonus: 0,
+      totalScore: 0.65,
+      ...overrides,
+    };
+  }
+
+  it('tags each candidate with its real source, counts by kind/source, and only the theme-matching candidate gets a coverage contribution', () => {
+    const step = buildCandidatePoolStep({
+      initialCatalogCount: 40,
+      postAcquisitionCatalogCount: 42,
+      eligibleCount: 42,
+      offeredCandidates: [
+        {
+          id: 'poi-catalog',
+          name: 'Museo Histórico',
+          kind: ActivityKind.POI,
+          type: 'museum',
+          traceSource: 'db',
+          scoreBreakdown: breakdown(),
+        },
+        {
+          id: 'poi-refill',
+          name: 'Plaza Central',
+          kind: ActivityKind.POI,
+          type: 'plaza',
+          traceSource: 'google_places',
+          scoreBreakdown: breakdown(),
+        },
+        {
+          id: 'walk-discovery',
+          name: 'San Telmo Historic Walk',
+          kind: ActivityKind.NEIGHBORHOOD_WALK,
+          type: 'walk',
+          traceSource: 'discovery',
+          scoreBreakdown: breakdown(),
+        },
+      ],
+      requestedThemes: ['history'],
+      formatAvailability: [
+        {
+          format: ExperienceFormat.NEIGHBORHOOD_WALKS,
+          fullPoolCount: 1,
+          llmWindowCount: 1,
+        },
+      ],
+      droppedForFamilyCapCount: 0,
+    });
+
+    expect(step.stage).toBe('candidate_pool');
+    expect(step.candidatePool?.bySource).toEqual({
+      catalog: 1,
+      refill: 1,
+      discovery: 1,
+    });
+    expect(step.candidatePool?.byKind).toEqual({
+      [ActivityKind.POI]: 2,
+      [ActivityKind.NEIGHBORHOOD_WALK]: 1,
+    });
+    expect(step.candidatePool?.llmWindowCount).toBe(3);
+
+    const byId = new Map(step.candidates?.map((c) => [c.id, c]));
+    expect(byId.get('poi-catalog')?.coverageContribution?.themes).toEqual([
+      'history',
+    ]);
+    expect(byId.get('poi-refill')?.coverageContribution?.themes).toEqual([]);
+    expect(byId.get('walk-discovery')?.source).toBe('discovery');
+    expect(
+      byId.get('walk-discovery')?.coverageContribution?.experienceFormat,
+    ).toBe(ExperienceFormat.NEIGHBORHOOD_WALKS);
+  });
+
+  it('surfaces a dropped-for-family-cap count in the summary when variants were capped', () => {
+    const step = buildCandidatePoolStep({
+      initialCatalogCount: 5,
+      postAcquisitionCatalogCount: 5,
+      eligibleCount: 5,
+      offeredCandidates: [
+        {
+          id: 'poi-1',
+          name: 'Museo',
+          kind: ActivityKind.POI,
+          traceSource: 'db',
+          scoreBreakdown: breakdown(),
+        },
+      ],
+      requestedThemes: [],
+      formatAvailability: [],
+      droppedForFamilyCapCount: 2,
+    });
+
+    expect(step.summary).toContain('2 variante(s) adicional(es)');
+    expect(step.candidatePool?.droppedForFamilyCapCount).toBe(2);
   });
 });

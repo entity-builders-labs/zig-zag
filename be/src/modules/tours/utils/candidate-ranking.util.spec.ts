@@ -12,7 +12,7 @@ describe('rankCandidatesByRelevance', () => {
 
     const result = rankCandidatesByRelevance(candidates, null);
 
-    expect(result.map((c) => c.id)).toEqual(['high', 'low']);
+    expect(result.map((r) => r.candidate.id)).toEqual(['high', 'low']);
   });
 
   it('ranks a lower-rated POI above a higher-rated one when its interest similarity is higher', () => {
@@ -27,7 +27,7 @@ describe('rankCandidatesByRelevance', () => {
 
     const result = rankCandidatesByRelevance(candidates, similarityById);
 
-    expect(result.map((c) => c.id)).toEqual([
+    expect(result.map((r) => r.candidate.id)).toEqual([
       'lower-rated-relevant',
       'high-rated-irrelevant',
     ]);
@@ -45,7 +45,10 @@ describe('rankCandidatesByRelevance', () => {
 
     const result = rankCandidatesByRelevance(candidates, similarityById);
 
-    expect(result.map((c) => c.id)).toEqual(['curated-walk', 'adhoc-walk']);
+    expect(result.map((r) => r.candidate.id)).toEqual([
+      'curated-walk',
+      'adhoc-walk',
+    ]);
   });
 
   it('keeps a missing embedding explicit and after the measured semantic tier', () => {
@@ -57,7 +60,10 @@ describe('rankCandidatesByRelevance', () => {
 
     const result = rankCandidatesByRelevance(candidates, similarityById);
 
-    expect(result.map((c) => c.id)).toEqual(['has-embedding', 'no-embedding']);
+    expect(result.map((r) => r.candidate.id)).toEqual([
+      'has-embedding',
+      'no-embedding',
+    ]);
   });
 
   it('does not confuse an indexed zero similarity with a missing measurement', () => {
@@ -71,7 +77,7 @@ describe('rankCandidatesByRelevance', () => {
       new Map([['measured-zero', 0]]),
     );
 
-    expect(result.map((candidate) => candidate.id)).toEqual([
+    expect(result.map((r) => r.candidate.id)).toEqual([
       'measured-zero',
       'missing-high-rating',
     ]);
@@ -99,7 +105,7 @@ describe('rankCandidatesByRelevance', () => {
 
     expect(
       rankCandidatesByRelevance(candidates, similarityById).map(
-        (candidate) => candidate.id,
+        (r) => r.candidate.id,
       ),
     ).toEqual(['near', 'far']);
   });
@@ -118,7 +124,7 @@ describe('rankCandidatesByRelevance', () => {
 
     expect(
       rankCandidatesByRelevance(candidates, similarityById).map(
-        (candidate) => candidate.id,
+        (r) => r.candidate.id,
       ),
     ).toEqual(['museum-1', 'historic-site', 'museum-2']);
   });
@@ -137,6 +143,40 @@ describe('rankCandidatesByRelevance', () => {
 
     // 0.5 + (3.0/5 * 0.2) = 0.62 for the POI vs 0.5 + 0.15 = 0.65 for the
     // curated composite — the composite wins on a mediocre-but-real rating.
-    expect(result.map((c) => c.id)).toEqual(['curated-walk', 'mediocre-poi']);
+    expect(result.map((r) => r.candidate.id)).toEqual([
+      'curated-walk',
+      'mediocre-poi',
+    ]);
+  });
+
+  it('exposes the diversity bonus actually applied at selection time, not recomputed after the fact', () => {
+    // Same fixture/order as the subtype test above: museum-1 selected 1st
+    // (first 'poi' kind seen + first 'museum' subtype seen), historic-site
+    // 2nd (kind already seen, but first 'historic_site' subtype), museum-2
+    // 3rd (kind already seen, 'museum' subtype now repeated -> penalty).
+    // Recomputing after the full loop finished (using final selectedKinds/
+    // subtypeCounts) would wrongly zero out museum-1's and historic-site's
+    // kind/subtype bonuses, since by then every kind/subtype looks "already
+    // seen".
+    const candidates: RankableCandidate[] = [
+      { id: 'museum-1', source: 'poi', subtype: 'museum' },
+      { id: 'museum-2', source: 'poi', subtype: 'museum' },
+      { id: 'historic-site', source: 'poi', subtype: 'historic_site' },
+    ];
+    const similarityById = new Map([
+      ['museum-1', 0.8],
+      ['museum-2', 0.79],
+      ['historic-site', 0.78],
+    ]);
+
+    const result = rankCandidatesByRelevance(candidates, similarityById);
+    const byId = new Map(result.map((r) => [r.candidate.id, r.scoreBreakdown]));
+
+    // First-of-its-kind AND first-of-its-subtype: both bonuses apply.
+    expect(byId.get('museum-1')?.diversityBonus).toBeCloseTo(0.04 + 0.03);
+    // Kind ('poi') already seen by now, but first 'historic_site' subtype.
+    expect(byId.get('historic-site')?.diversityBonus).toBeCloseTo(0.03);
+    // Kind already seen, and 'museum' subtype now repeated once -> penalty.
+    expect(byId.get('museum-2')?.diversityBonus).toBeCloseTo(-0.02);
   });
 });

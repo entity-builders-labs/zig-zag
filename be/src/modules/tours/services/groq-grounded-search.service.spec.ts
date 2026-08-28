@@ -42,6 +42,26 @@ describe('GroqGroundedSearchService', () => {
     expect(fetchSpy).toBeUndefined();
   });
 
+  it('translates requestedExperienceFormats into real phrases, never the raw enum slug', async () => {
+    configService.get.mockReturnValue('test-key');
+    mockFetchOk('No evidence found.');
+
+    await service.search({
+      destinationName: 'La Rioja',
+      destinationCountry: 'Argentina',
+      requestedThemes: ['history'],
+      requestedExperienceFormats: ['neighborhood_walks'],
+      query: 'unused by this provider',
+    });
+
+    const body = JSON.parse(fetchSpy.mock.calls[0][1].body);
+    const userMessage = body.messages.find(
+      (m: any) => m.role === 'user',
+    ).content;
+    expect(userMessage).toContain('walking tour');
+    expect(userMessage).not.toContain('neighborhood_walks');
+  });
+
   it('executes browser search and normalizes evidence', async () => {
     configService.get.mockReturnValue('test-key');
     mockFetchOk(

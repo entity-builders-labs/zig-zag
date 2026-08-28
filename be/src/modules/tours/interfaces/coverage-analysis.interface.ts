@@ -143,6 +143,8 @@ export interface CoverageAnalysisInput {
   requestedExperienceFormats?: string[];
   days: number;
   explorationStyle?: string;
+  /** TravelPace value ('relaxed'|'moderate'|'fast') — drives how many stops/day count as "enough" (requiredCandidateCount). Distinct from explorationStyle (iconic/balanced/local_deep_dive), which is advisory-only for the LLM today. */
+  travelPace?: string;
   semanticCoverage: SemanticCoverageSummary;
   offeredCandidateCount: number;
   providerHealth?: {

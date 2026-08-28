@@ -9,16 +9,10 @@ import {
 } from '../interfaces/coverage-analysis.interface';
 import { ExperienceFormat } from '../interfaces/tour-generation.interface';
 import { EXPERIENCE_FORMAT_ACTIVITY_KIND } from '../utils/experience-format-kind.util';
-
-const THEME_KEYWORDS: Record<string, readonly string[]> = {
-  history: ['history', 'historic', 'historical', 'monument', 'museum'],
-  art: ['art', 'gallery', 'museum', 'art_museum', 'art_gallery'],
-  culture: ['culture', 'cultural', 'museum', 'theater', 'heritage'],
-  architecture: ['architecture', 'architect', 'building', 'church'],
-  beach: ['beach', 'playa', 'coast', 'shore'],
-  food: ['food', 'restaurant', 'cafe', 'market', 'bakery'],
-  nightlife: ['nightlife', 'bar', 'club', 'night_club'],
-};
+import {
+  THEME_KEYWORDS,
+  matchesThemeKeywords,
+} from '../utils/theme-matching.util';
 
 @Injectable()
 export class CoverageAnalyzer {
@@ -28,7 +22,7 @@ export class CoverageAnalyzer {
     );
     const requiredCandidateCount = this.requiredCandidateCount(
       input.days,
-      input.explorationStyle,
+      input.travelPace,
     );
     const requestedThemeCoverage = input.requestedThemes.map((theme) =>
       this.buildThemeCoverage(theme, eligibleCandidates),
@@ -242,17 +236,20 @@ export class CoverageAnalyzer {
     };
   }
 
-  private requiredCandidateCount(
-    days: number,
-    explorationStyle?: string,
-  ): number {
+  /**
+   * Bug fix: this previously compared against 'relaxed'/'fast_paced' while
+   * being fed `explorationStyle` (real values: 'iconic'/'balanced'/
+   * 'local_deep_dive') — neither string ever matched, so every request
+   * silently fell through to the 4-stops/day default regardless of what
+   * the user picked. 'relaxed' does match TravelPace.RELAXED, and stop
+   * density per day is fundamentally a pace question (how much fits in a
+   * day), not an exploration-style one — so this now reads `travelPace`
+   * instead, with 'fast_paced' corrected to TravelPace.FAST's real value.
+   */
+  private requiredCandidateCount(days: number, travelPace?: string): number {
     const normalizedDays = Math.max(1, Math.min(days || 1, 14));
     const expectedStopsPerDay =
-      explorationStyle === 'relaxed'
-        ? 3
-        : explorationStyle === 'fast_paced'
-          ? 5
-          : 4;
+      travelPace === 'relaxed' ? 3 : travelPace === 'fast' ? 5 : 4;
     return normalizedDays * expectedStopsPerDay;
   }
 
@@ -263,34 +260,13 @@ export class CoverageAnalyzer {
     const normalizedTheme = theme.trim().toLowerCase();
     const keywords = THEME_KEYWORDS[normalizedTheme] ?? [normalizedTheme];
     const matchingCandidates = candidates.filter((candidate) =>
-      this.matchesTheme(candidate, keywords),
+      matchesThemeKeywords(candidate, keywords),
     );
     return {
       theme,
       matchedCandidateCount: matchingCandidates.length,
       strongMatchCount: matchingCandidates.length,
     };
-  }
-
-  private matchesTheme(
-    candidate: CoverageCandidate,
-    keywords: readonly string[],
-  ): boolean {
-    const metadataText =
-      candidate.metadata && typeof candidate.metadata === 'object'
-        ? JSON.stringify(candidate.metadata).toLowerCase()
-        : '';
-    const haystack = [
-      candidate.name,
-      candidate.type,
-      candidate.knownActivityTypeName,
-      candidate.source,
-      metadataText,
-    ]
-      .filter((value): value is string => typeof value === 'string')
-      .join(' ')
-      .toLowerCase();
-    return keywords.some((keyword) => haystack.includes(keyword));
   }
 
   private buildKindCoverage(candidates: CoverageCandidate[]) {

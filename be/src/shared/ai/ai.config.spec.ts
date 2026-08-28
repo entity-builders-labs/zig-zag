@@ -54,4 +54,46 @@ describe('aiConfig embedding index contract', () => {
 
     expect(loadConfig).toThrow('current pgvector schema requires 256');
   });
+
+  it('defaults discovery extraction to Gemini with the expected default model', () => {
+    delete process.env.DISCOVERY_EXTRACTOR_PROVIDER;
+    delete process.env.GEMINI_DISCOVERY_MODEL;
+    delete process.env.GROQ_DISCOVERY_MODEL;
+
+    expect(loadConfig()).toEqual(
+      expect.objectContaining({
+        discoveryExtractor: {
+          provider: 'gemini',
+          gemini: {
+            apiKey: process.env.GEMINI_API_KEY,
+            model: 'gemini-3.5-flash-lite',
+          },
+          groq: {
+            apiKey: process.env.GROQ_API_KEY,
+            model: 'openai/gpt-oss-120b',
+          },
+        },
+      }),
+    );
+  });
+
+  it('honors DISCOVERY_EXTRACTOR_PROVIDER=groq and model overrides', () => {
+    process.env.DISCOVERY_EXTRACTOR_PROVIDER = 'groq';
+    process.env.GROQ_DISCOVERY_MODEL = 'custom-groq-model';
+
+    expect(loadConfig()).toEqual(
+      expect.objectContaining({
+        discoveryExtractor: expect.objectContaining({
+          provider: 'groq',
+          groq: expect.objectContaining({ model: 'custom-groq-model' }),
+        }),
+      }),
+    );
+  });
+
+  it('rejects an unknown discovery extractor provider instead of falling back', () => {
+    process.env.DISCOVERY_EXTRACTOR_PROVIDER = 'mystery-provider';
+
+    expect(loadConfig).toThrow('Unsupported DISCOVERY_EXTRACTOR_PROVIDER');
+  });
 });
