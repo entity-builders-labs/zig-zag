@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Keyboard } from 'react-native';
 import {
   Box,
@@ -33,39 +33,61 @@ export const DestinationInput: React.FC<DestinationInputProps> = ({
   const [term, setTerm] = useState(value || '');
   const [locationResults, setLocationResults] = useState<PlaceSuggestion[]>([]);
   const [isFocused, setIsFocused] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  
+  // Track if term change was programmatic (e.g. user selected an item)
+  // to prevent re-opening the dropdown after selection
+  const skipSearchRef = useRef(false);
 
   useEffect(() => {
     if (value !== undefined && value !== term) {
+      skipSearchRef.current = true;
       setTerm(value);
     }
   }, [value]);
 
   useEffect(() => {
+    if (skipSearchRef.current) {
+      skipSearchRef.current = false;
+      setLocationResults([]);
+      setIsOpen(false);
+      return;
+    }
+
+    if (!term || term.length < 3) {
+      setLocationResults([]);
+      setIsOpen(false);
+      setIsLoading(false);
+      return;
+    }
+
     const handler = setTimeout(async () => {
-      if (!term || term.length < 3) {
-        setLocationResults([]);
-        setIsLoading(false);
-        return;
-      }
       setIsLoading(true);
       try {
         const results = await searchPlaces(term);
         setLocationResults(results);
+        if (results.length > 0 && isFocused) {
+          setIsOpen(true);
+        }
       } catch (e) {
         console.error('Autocomplete error', e);
         setLocationResults([]);
+        setIsOpen(false);
       } finally {
         setIsLoading(false);
       }
     }, 250);
+
     return () => clearTimeout(handler);
-  }, [term]);
+  }, [term, isFocused]);
 
   const handleSelectItem = async (item: PlaceSuggestion) => {
-    Keyboard.dismiss();
+    skipSearchRef.current = true;
+    setIsOpen(false);
     setLocationResults([]);
     setIsFocused(false);
+    Keyboard.dismiss();
 
     try {
       const details = await resolvePlace(item);
@@ -86,20 +108,19 @@ export const DestinationInput: React.FC<DestinationInputProps> = ({
   };
 
   const handleClear = () => {
+    skipSearchRef.current = true;
     setTerm('');
     setLocationResults([]);
+    setIsOpen(false);
     onDestinationChange('');
     setIsFocused(false);
     onDirtyChange?.(false);
   };
 
-  const showResults =
-    (isFocused || locationResults.length > 0) &&
-    locationResults.length > 0 &&
-    term.length >= 3;
+  const showDropdown = isOpen && locationResults.length > 0 && term.length >= 3;
 
   return (
-    <Box position='relative' w='$full' zIndex={showResults ? 1000 : 1}>
+    <Box position='relative' w='$full' zIndex={showDropdown ? 1000 : 1}>
       <Input
         variant='outline'
         size='lg'
@@ -116,16 +137,26 @@ export const DestinationInput: React.FC<DestinationInputProps> = ({
           placeholder='Ej: Roma, Italia o Barcelona...'
           value={term}
           onChangeText={(text) => {
+            skipSearchRef.current = false;
             setTerm(text);
             if (!text) {
               onDestinationChange('');
               setLocationResults([]);
+              setIsOpen(false);
               onDirtyChange?.(false);
             } else {
               onDirtyChange?.(true);
             }
           }}
-          onFocus={() => setIsFocused(true)}
+          onFocus={() => {
+            setIsFocused(true);
+            if (locationResults.length > 0 && term.length >= 3) {
+              setIsOpen(true);
+            }
+          }}
+          onBlur={() => {
+            setIsFocused(false);
+          }}
           color='$textLight900'
           fontSize='$sm'
         />
@@ -139,7 +170,7 @@ export const DestinationInput: React.FC<DestinationInputProps> = ({
       </Input>
 
       {/* Results Dropdown */}
-      {showResults && (
+      {showDropdown && (
         <Box
           position='absolute'
           top={56}
