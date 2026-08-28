@@ -44,12 +44,14 @@ const MIN_SELECTED_WAYPOINTS = 2;
 export const CompositeStopCard = ({
   data,
   isLast,
+  stopNumber,
   editable = false,
   selectedWaypointIds,
   onToggleWaypoint,
 }: {
   data: TourStopComposite;
   isLast: boolean;
+  stopNumber?: number;
   // Pre-confirmation review screen mode: renders a checklist instead of a
   // plain numbered list, letting the user exclude a stop for this tour
   // instance only (never the shared variant's own content).
@@ -129,8 +131,8 @@ export const CompositeStopCard = ({
       <Box width={36} alignItems='center' position='relative'>
         <Box height={16} width={2} bg='$borderLight300' />
         <Box
-          width={22}
-          height={22}
+          width={24}
+          height={24}
           borderRadius='$full'
           bg='$tertiary600'
           borderWidth={2}
@@ -144,7 +146,13 @@ export const CompositeStopCard = ({
           shadowRadius={4}
           elevation={3}
         >
-          <Icon as={KindIcon} size='2xs' color='$white' />
+          {stopNumber ? (
+            <Text size='2xs' fontWeight='$bold' color='$white'>
+              {stopNumber}
+            </Text>
+          ) : (
+            <Icon as={KindIcon} size='2xs' color='$white' />
+          )}
         </Box>
         {!isLast && <Box flex={1} width={2} bg='$borderLight300' />}
       </Box>

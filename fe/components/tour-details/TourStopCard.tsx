@@ -21,9 +21,11 @@ import { FONT_DISPLAY } from '@/constants/typography';
 export const TourStopCard = ({
   data,
   isLast,
+  stopNumber,
 }: {
   data: TourStopLocation;
   isLast: boolean;
+  stopNumber?: number;
 }) => {
   const router = useRouter();
   // Activities that only exist inline on the tour (no linked Activity record)
@@ -39,8 +41,8 @@ export const TourStopCard = ({
 
         {/* Node Dot with order number */}
         <Box
-          width={22}
-          height={22}
+          width={24}
+          height={24}
           borderRadius='$full'
           bg='$primary500'
           borderWidth={2}
@@ -54,7 +56,9 @@ export const TourStopCard = ({
           shadowRadius={4}
           elevation={3}
         >
-          <Box width={8} height={8} borderRadius='$full' bg='$white' />
+          <Text size='2xs' fontWeight='$bold' color='$white'>
+            {stopNumber ?? '•'}
+          </Text>
         </Box>
 
         {/* Bottom Line (if not last) */}

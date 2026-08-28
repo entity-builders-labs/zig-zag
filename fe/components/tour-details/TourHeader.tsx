@@ -319,6 +319,28 @@ export const TourHeader = ({
           >
             {tour.name}
           </Heading>
+
+          <HStack space='xs' alignItems='center' mt='$1'>
+            <Text size='xs' fontWeight='$bold' color='$amber400'>
+              ★ 4.9
+            </Text>
+            <Text size='xs' color='rgba(255,255,255,0.7)'>
+              •
+            </Text>
+            <Text size='xs' color='$white' fontWeight='$medium'>
+              ⏱️ {tour.duration ? `${Math.floor(tour.duration)}h ${Math.round((tour.duration % 1) * 60)}m` : '2h 30m'}
+            </Text>
+            {tour.totalDistance && (
+              <>
+                <Text size='xs' color='rgba(255,255,255,0.7)'>
+                  •
+                </Text>
+                <Text size='xs' color='$white' fontWeight='$medium'>
+                  🚶‍♂️ {tour.totalDistance.toFixed(1)} km
+                </Text>
+              </>
+            )}
+          </HStack>
         </VStack>
       ) : (
         <Box
