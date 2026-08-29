@@ -45,6 +45,30 @@ function candidateWithOptions(
   };
 }
 
+function candidateWithMobility(
+  id: string,
+  lat: number,
+  lng: number,
+  opts: {
+    durationMinutes: number;
+    internalTravelMinutes?: number;
+    internalWalkingDistanceMeters?: number;
+  },
+): PlanningActivityCandidate {
+  return {
+    activityId: id,
+    kind: 'POI',
+    title: id,
+    durationMinutes: opts.durationMinutes,
+    spatialFootprint: { type: 'POINT', centroid: { lat, lng } },
+    semanticScore: 0.5,
+    mobility: {
+      internalTravelMinutes: opts.internalTravelMinutes,
+      internalWalkingDistanceMeters: opts.internalWalkingDistanceMeters,
+    },
+  };
+}
+
 function stubTravelEstimateProvider(): TravelEstimateProvider {
   return {
     estimate: jest.fn().mockResolvedValue({
@@ -71,6 +95,7 @@ const policy: DailyPlanningPolicy = {
     carUrbanSpeedKmh: 25,
   },
   internalWalking: { unknownFallbackMinutes: 20 },
+  compositeDefaultDurationMinutes: 90,
   scoring: {
     semanticWeight: 1,
     qualityWeight: 0.5,
@@ -234,6 +259,117 @@ describe('runBoundedLocalImprovement', () => {
       tightContext,
     );
     expect(improved.get(1)!.assigned.length).toBe(3); // no move possible under the tight walking limit
+  });
+
+  it('re-prices both day totals exactly when a move relocates a candidate of a different duration', async () => {
+    // Fixtures deliberately differ in duration (and carry internal travel /
+    // internal walking) — with every candidate at a uniform 60 minutes and no
+    // mobility fields, a total that only ever moved `durationMinutes` looked
+    // correct by coincidence.
+    const a = candidateWithMobility('a', 0, 0, {
+      durationMinutes: 60,
+      internalTravelMinutes: 30,
+      internalWalkingDistanceMeters: 500,
+    });
+    const days = new Map<number, DayAccumulator>([
+      [
+        1,
+        {
+          dayNumber: 1,
+          // a = 60 + 30 internal travel, b = 180, c = 60 → 330 minutes.
+          assigned: [
+            a,
+            candidateWithMobility('b', 0, 0.001, {
+              durationMinutes: 180,
+            }),
+            candidateWithMobility('c', 0, 0.002, { durationMinutes: 60 }),
+          ],
+          totalActivityMinutes: 330,
+          totalWalkingMeters: 500,
+        },
+      ],
+      [
+        2,
+        {
+          dayNumber: 2,
+          assigned: [],
+          totalActivityMinutes: 0,
+          totalWalkingMeters: 0,
+        },
+      ],
+    ]);
+
+    const { days: improved } = await runBoundedLocalImprovement(
+      days,
+      context(),
+    );
+
+    expect(improved.get(2)!.assigned.map((x) => x.activityId)).toEqual(['a']);
+    expect(improved.get(1)!.assigned.map((x) => x.activityId)).toEqual([
+      'b',
+      'c',
+    ]);
+    // 330 - (60 duration + 30 internal travel) = 240, not 270: the omitted
+    // internal travel is exactly the drift this asserts against.
+    expect(improved.get(1)!.totalActivityMinutes).toBe(240);
+    expect(improved.get(2)!.totalActivityMinutes).toBe(90);
+    expect(improved.get(1)!.totalWalkingMeters).toBe(0);
+    expect(improved.get(2)!.totalWalkingMeters).toBe(500);
+  });
+
+  it('re-prices both day totals exactly when a swap exchanges candidates of different durations', async () => {
+    const a = candidateWithMobility('a', 0, 0, { durationMinutes: 60 });
+    const far = candidateWithMobility('far', 0, 0.03, {
+      durationMinutes: 180,
+    });
+    const b = candidateWithMobility('b', 0, 0.031, { durationMinutes: 60 });
+    const near = candidateWithMobility('near', 0, 0.002, {
+      durationMinutes: 120,
+      internalTravelMinutes: 30,
+      internalWalkingDistanceMeters: 400,
+    });
+
+    const days = new Map<number, DayAccumulator>([
+      [
+        1,
+        {
+          dayNumber: 1,
+          assigned: [a, far], // 60 + 180
+          totalActivityMinutes: 240,
+          totalWalkingMeters: 0,
+        },
+      ],
+      [
+        2,
+        {
+          dayNumber: 2,
+          assigned: [b, near], // 60 + (120 + 30 internal travel)
+          totalActivityMinutes: 210,
+          totalWalkingMeters: 400,
+        },
+      ],
+    ]);
+
+    const { days: improved } = await runBoundedLocalImprovement(
+      days,
+      context(),
+    );
+
+    // Geographic compactness swaps 'far' (180 min) with 'near' (150 min).
+    expect(improved.get(1)!.assigned.map((x) => x.activityId)).toEqual([
+      'a',
+      'near',
+    ]);
+    expect(improved.get(2)!.assigned.map((x) => x.activityId)).toEqual([
+      'b',
+      'far',
+    ]);
+    // Day 1 now holds a(60) + near(120+30) = 210; day 2 holds b(60) + far(180)
+    // = 240. Before the fix both days kept their pre-swap totals (240/210).
+    expect(improved.get(1)!.totalActivityMinutes).toBe(210);
+    expect(improved.get(2)!.totalActivityMinutes).toBe(240);
+    expect(improved.get(1)!.totalWalkingMeters).toBe(400);
+    expect(improved.get(2)!.totalWalkingMeters).toBe(0);
   });
 
   it('does not false-accept a swap that would place a candidate before its opening hours (stale-total regression)', async () => {

@@ -38,7 +38,9 @@ function isCompositeKind(kind: PlanningActivityCandidate['kind']): boolean {
 }
 
 /** Resolves the JS weekday (0=Sun..6=Sat) for a given planning day number,
- * from the tour's first confirmed start date. Deliberately parses the
+ * from the tour's first confirmed start date. Exported so the ordering pass
+ * resolves the weekday exactly the same way instead of reimplementing it.
+ * Deliberately parses the
  * `YYYY-MM-DD` components and constructs the Date with the local-time
  * constructor (`new Date(y, m, d)`) rather than `new Date(dateOnlyString)` —
  * a date-only ISO string parses as UTC midnight, while `Date#getDay()`
@@ -46,7 +48,7 @@ function isCompositeKind(kind: PlanningActivityCandidate['kind']): boolean {
  * silently reports the previous day's weekday. Adding `dayNumber - 1` days
  * via the constructor's day argument lets JS normalize month/year rollover
  * for multi-day tours for free. */
-function resolveWeekday(
+export function resolveWeekday(
   startDates: string[],
   dayNumber: number,
 ): number | undefined {
@@ -62,7 +64,22 @@ function resolveWeekday(
   return target.getDay();
 }
 
-function internalWalkingMeters(
+/** A candidate's own contribution to a day's `totalActivityMinutes`: its
+ * duration plus whatever internal travel it carries (a composite's own
+ * waypoint-to-waypoint time). Deliberately excludes inter-Activity leg
+ * travel, which depends on which stop precedes it and is therefore not a
+ * property of the candidate alone. Exported so Task 9's local improvement
+ * adds/removes exactly what `placeCandidates` accumulated, instead of
+ * re-deriving a partial formula that silently drifts. */
+export function candidateActivityMinutes(
+  candidate: PlanningActivityCandidate,
+): number {
+  return (
+    candidate.durationMinutes + (candidate.mobility?.internalTravelMinutes ?? 0)
+  );
+}
+
+export function internalWalkingMeters(
   candidate: PlanningActivityCandidate,
   policy: DailyPlanningPolicy,
 ): number {
@@ -93,11 +110,15 @@ export async function checkHardConstraints(
 ): Promise<{ feasible: boolean; reasons: PlanningRejectionReason[] }> {
   const reasons: PlanningRejectionReason[] = [];
 
+  // `Number.isFinite` rejects null, undefined, NaN and Infinity in one check
+  // and accepts every legitimate coordinate. `null` matters specifically:
+  // `Activity.latitude`/`longitude` are Prisma `Float?`, so a missing value
+  // arrives as `null`, which passes both an `=== undefined` and an isNaN
+  // check and is then silently coerced to 0 by the Haversine math — planning
+  // a real candidate at Null Island (0N 0E).
   if (
-    candidate.spatialFootprint.centroid.lat === undefined ||
-    candidate.spatialFootprint.centroid.lng === undefined ||
-    Number.isNaN(candidate.spatialFootprint.centroid.lat) ||
-    Number.isNaN(candidate.spatialFootprint.centroid.lng)
+    !Number.isFinite(candidate.spatialFootprint.centroid.lat) ||
+    !Number.isFinite(candidate.spatialFootprint.centroid.lng)
   ) {
     return { feasible: false, reasons: ['INVALID_SPATIAL_FOOTPRINT'] };
   }
@@ -123,8 +144,7 @@ export async function checkHardConstraints(
     context.planningWindow.startMinutesFromMidnight;
   const projectedActivityMinutes =
     acc.totalActivityMinutes +
-    candidate.durationMinutes +
-    (candidate.mobility?.internalTravelMinutes ?? 0) +
+    candidateActivityMinutes(candidate) +
     (travel?.durationMinutes ?? 0);
   if (projectedActivityMinutes > dayWindowMinutes) {
     reasons.push('DAILY_TIME_CAPACITY_EXCEEDED');
@@ -281,9 +301,7 @@ export async function placeCandidates(
 
     acc.assigned.push(candidate);
     acc.totalActivityMinutes +=
-      candidate.durationMinutes +
-      (candidate.mobility?.internalTravelMinutes ?? 0) +
-      (travel?.durationMinutes ?? 0);
+      candidateActivityMinutes(candidate) + (travel?.durationMinutes ?? 0);
     acc.totalWalkingMeters +=
       internalWalkingMeters(candidate, context.policy) +
       (travel?.walkingDistanceMeters ?? 0);

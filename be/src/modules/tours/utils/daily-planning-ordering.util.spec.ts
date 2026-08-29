@@ -51,6 +51,20 @@ function context(): OrderingContext {
       endMinutesFromMidnight: 1200,
     },
     allowedTransportationModes: [TransportationMode.WALKING],
+    startDates: [],
+  };
+}
+
+/** Monday-only window, in minutes from midnight (weekday 1). */
+function mondayHours(
+  startMinutesFromMidnight: number,
+  endMinutesFromMidnight: number,
+): PlanningActivityCandidate['openingHours'] {
+  return {
+    status: 'known',
+    rangesByWeekday: {
+      1: [{ startMinutesFromMidnight, endMinutesFromMidnight }],
+    },
   };
 }
 
@@ -102,6 +116,77 @@ describe('orderAndScheduleDay', () => {
     expect(day.activities[1].startMinutesFromMidnight).toBeGreaterThan(
       day.activities[0].endMinutesFromMidnight,
     );
+  });
+
+  it('prefers a reachable open candidate over a nearer one that is still closed at the cursor', async () => {
+    // 'start' (best score) opens the day at 9:00 and ends at 10:00. Pure
+    // nearest-neighbor would then take 'near-closed' (0, 0.001) — but it only
+    // opens at 11:00, so it would be scheduled an hour before opening. The
+    // hours-aware preference takes the reachable open candidate instead and
+    // comes back to 'near-closed' once the cursor is inside its window.
+    const nearClosed = candidate('near-closed', 0, 0.001);
+    nearClosed.openingHours = mondayHours(11 * 60, 18 * 60);
+
+    const day = await orderAndScheduleDay(
+      1,
+      [
+        nearClosed,
+        candidate('far-open', 0, 0.05),
+        candidate('start', 0, 0, 60, 0.9),
+      ],
+      { ...context(), startDates: ['2026-09-07'] }, // a real Monday
+    );
+
+    expect(day.activities.map((a) => a.activityId)).toEqual([
+      'start',
+      'far-open',
+      'near-closed',
+    ]);
+    const scheduledNearClosed = day.activities[2];
+    expect(scheduledNearClosed.startMinutesFromMidnight).toBeGreaterThanOrEqual(
+      11 * 60,
+    );
+    expect(scheduledNearClosed.endMinutesFromMidnight).toBeLessThanOrEqual(
+      18 * 60,
+    );
+  });
+
+  it('still orders purely by geography when every candidate is open at the cursor', async () => {
+    const near = candidate('near', 0, 0.001);
+    near.openingHours = mondayHours(9 * 60, 18 * 60); // already open at 10:00
+
+    const day = await orderAndScheduleDay(
+      1,
+      [near, candidate('far', 0, 1), candidate('start', 0, 0, 60, 0.9)],
+      { ...context(), startDates: ['2026-09-07'] },
+    );
+
+    expect(day.activities.map((a) => a.activityId)).toEqual([
+      'start',
+      'near',
+      'far',
+    ]);
+  });
+
+  it('falls back to pure nearest-neighbor when no base date resolves a weekday', async () => {
+    const nearClosed = candidate('near-closed', 0, 0.001);
+    nearClosed.openingHours = mondayHours(11 * 60, 18 * 60);
+
+    const day = await orderAndScheduleDay(
+      1,
+      [
+        nearClosed,
+        candidate('far-open', 0, 0.05),
+        candidate('start', 0, 0, 60, 0.9),
+      ],
+      context(), // no startDates — weekday unknown, hours cannot be evaluated
+    );
+
+    expect(day.activities.map((a) => a.activityId)).toEqual([
+      'start',
+      'near-closed',
+      'far-open',
+    ]);
   });
 
   it('reports total activity minutes independent of travel time', async () => {

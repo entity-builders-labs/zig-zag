@@ -55,6 +55,7 @@ export class GreedyDailyPlanningSolver implements DailyPlanningSolver {
         travelEstimateProvider: this.travelEstimateProvider,
         planningWindow: input.planningWindow,
         allowedTransportationModes: input.mobility.allowedTransportationModes,
+        startDates: input.startDates,
       });
       plannedDays.push(planned);
     }

@@ -5,6 +5,7 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
+import { ConfigType } from '@nestjs/config';
 import { ActivityKind } from '@prisma/client';
 import { PrismaService } from '@core/database/prisma.service';
 import { ActivitiesService } from '@activities/services/activities.service';
@@ -63,6 +64,7 @@ import {
 } from '../interfaces/tour-format-coverage.interface';
 import { GenerationTraceStep } from '../interfaces/generation-trace.interface';
 import { PlanningCandidateNormalizerService } from './planning-candidate-normalizer.service';
+import dailyPlanningPolicyConfig from '../config/daily-planning-policy.config';
 import {
   DAILY_PLANNING_SOLVER,
   DailyPlanningInput,
@@ -132,6 +134,10 @@ export class TourActivityGenerationService {
     private readonly dailyPlanningSolver: DailyPlanningSolver,
     @Inject(TOUR_PLANNING_FEASIBILITY_VALIDATOR)
     private readonly tourPlanningFeasibilityValidator: TourPlanningFeasibilityValidator,
+    @Inject(dailyPlanningPolicyConfig.KEY)
+    private readonly dailyPlanningPolicy: ConfigType<
+      typeof dailyPlanningPolicyConfig
+    >,
   ) {}
 
   /** PR10: no new Prisma columns. If a real base date exists, combine it
@@ -1167,10 +1173,10 @@ export class TourActivityGenerationService {
         candidates: planningCandidates,
         mobility: request.mobility,
         travelPace: request.mobility.travelPace,
-        planningWindow: {
-          startMinutesFromMidnight: 9 * 60,
-          endMinutesFromMidnight: 20 * 60,
-        },
+        // The daily window is policy, not a literal: `daily-planning-policy.config.ts`
+        // owns it (env-overridable) so the solver, its tests and this call site
+        // can never disagree about when a planning day starts and ends.
+        planningWindow: this.dailyPlanningPolicy.window,
         requestedFormats: request.intent.experienceFormats,
         startDates: request.startDates,
       };

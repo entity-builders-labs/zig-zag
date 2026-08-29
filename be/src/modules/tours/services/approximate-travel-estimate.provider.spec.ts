@@ -17,6 +17,7 @@ describe('ApproximateTravelEstimateProvider', () => {
       carUrbanSpeedKmh: 25,
     },
     internalWalking: { unknownFallbackMinutes: 20 },
+    compositeDefaultDurationMinutes: 90,
     scoring: {
       semanticWeight: 1,
       qualityWeight: 0.5,

@@ -91,7 +91,7 @@ export class PlanningCandidateNormalizerService {
       title: activity.name,
       // Persisted duration is hours — converted once, here, at the
       // normalization boundary. Never mixed with hours downstream.
-      durationMinutes: (activity.duration ?? 0) * 60,
+      durationMinutes: this.resolveDurationMinutes(activity, kind),
       spatialFootprint: buildPointFootprint(
         activity.latitude,
         activity.longitude,
@@ -110,6 +110,23 @@ export class PlanningCandidateNormalizerService {
         userRatingCount: activity.ratingCount,
       },
     };
+  }
+
+  /** Persisted `Activity.duration` is hours. Composites never get it
+   * populated anywhere in the codebase (`CompositeActivityService` and
+   * `ActivityProposalResolutionService` both leave it `null`), so without a
+   * fallback every composite would enter the solver at 0 minutes, costing no
+   * daily-time-capacity budget and later persisting a near-zero
+   * `TourActivity.duration`. The fallback is a policy constant, mirroring
+   * `internalWalking.unknownFallbackMinutes` — deliberately NOT derived from
+   * `duration` (that is the very value that is missing) nor from internal
+   * walking, which is an independent signal. POIs/AREA keep the plain `?? 0`
+   * fallback: a POI always has a real duration in practice. */
+  private resolveDurationMinutes(activity: any, kind: ActivityKind): number {
+    if (activity.duration == null && isCompositeKind(kind)) {
+      return this.policy.compositeDefaultDurationMinutes;
+    }
+    return (activity.duration ?? 0) * 60;
   }
 
   private async computeInternalWalking(

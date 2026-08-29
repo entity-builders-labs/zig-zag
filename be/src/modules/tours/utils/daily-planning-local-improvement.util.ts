@@ -5,7 +5,9 @@ import {
 import {
   DayAccumulator,
   PlacementContext,
+  candidateActivityMinutes,
   checkHardConstraints,
+  internalWalkingMeters,
 } from './daily-planning-placement.util';
 import { footprintDistanceMeters } from './spatial-footprint.util';
 
@@ -53,10 +55,34 @@ function withoutCandidate(
     ...acc,
     assigned: acc.assigned.filter((a) => a.activityId !== remove.activityId),
     totalActivityMinutes:
-      acc.totalActivityMinutes -
-      remove.durationMinutes -
-      (remove.mobility?.internalTravelMinutes ?? 0),
+      acc.totalActivityMinutes - candidateActivityMinutes(remove),
   };
+}
+
+/** Inter-Activity leg cost (travel minutes, leg walking distance) is a
+ * property of a *pair* of consecutive stops, not of a candidate, so neither
+ * move nor swap can re-price it without re-running the whole day's travel
+ * chain. Both operations therefore adjust only the candidate-owned part of a
+ * day's totals (duration + internal travel, internal walking) and leave the
+ * accumulated leg contribution in place. Deliberate: keeping the stale leg
+ * term over-counts slightly, which is the conservative direction for the
+ * capacity/walking thresholds, whereas recomputing the totals from `assigned`
+ * alone would silently DISCARD every leg the placement pass had already
+ * charged and bias the day low — the unsafe direction. Residual leg-level
+ * imprecision after reordering is a known, separately-tracked V1 limitation
+ * (the ordering pass recomputes real per-leg values for the persisted plan). */
+function transferCandidateTotals(
+  from: DayAccumulator,
+  to: DayAccumulator,
+  candidate: PlanningActivityCandidate,
+  context: PlacementContext,
+): void {
+  const minutes = candidateActivityMinutes(candidate);
+  const walkingMeters = internalWalkingMeters(candidate, context.policy);
+  from.totalActivityMinutes -= minutes;
+  to.totalActivityMinutes += minutes;
+  from.totalWalkingMeters -= walkingMeters;
+  to.totalWalkingMeters += walkingMeters;
 }
 
 /** Move: relocate one Activity from a day with meaningfully more assigned
@@ -81,9 +107,14 @@ async function tryMove(
         fromAcc.assigned = fromAcc.assigned.filter(
           (a) => a.activityId !== candidate.activityId,
         );
-        fromAcc.totalActivityMinutes -= candidate.durationMinutes;
         toAcc.assigned.push(candidate);
-        toAcc.totalActivityMinutes += candidate.durationMinutes;
+        // Must mirror exactly what `placeCandidates` charged for this
+        // candidate — duration AND its internal travel. Subtracting only
+        // `durationMinutes` left the source day's total drifting low by the
+        // omitted internal travel on every move, so later iterations probed
+        // `checkHardConstraints` against a day that looked emptier than it
+        // was (a false ACCEPT of a placement that actually overflows).
+        transferCandidateTotals(fromAcc, toAcc, candidate, context);
         return true;
       }
     }
@@ -132,6 +163,14 @@ async function trySwap(
           accB.assigned = accB.assigned.map((a) =>
             a.activityId === candidateB.activityId ? candidateA : a,
           );
+          // The swap previously left both days' totals describing their
+          // pre-swap composition — exchanging a 60-minute stop for a
+          // 180-minute one silently kept the old numbers, and every later
+          // iteration then evaluated hard constraints against a fictional
+          // baseline. Re-price both days by transferring each candidate's own
+          // contribution to the day that now holds it.
+          transferCandidateTotals(accA, accB, candidateA, context);
+          transferCandidateTotals(accB, accA, candidateB, context);
           return true;
         }
       }

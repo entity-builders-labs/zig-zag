@@ -25,6 +25,16 @@ import {
   DailyPlanningSolution,
   TOUR_PLANNING_FEASIBILITY_VALIDATOR,
 } from '../interfaces/daily-planning.interface';
+import dailyPlanningPolicyConfig, {
+  DailyPlanningPolicy,
+} from '../config/daily-planning-policy.config';
+
+// Deliberately NOT the 9:00-20:00 production default: the wizard must read
+// the planning window from policy, so a mocked window that differs from the
+// old hardcoded literals is what proves the value actually flows through.
+const dailyPlanningPolicy = {
+  window: { startMinutesFromMidnight: 8 * 60, endMinutesFromMidnight: 21 * 60 },
+} as DailyPlanningPolicy;
 
 // Real Activity rows always carry a UUID (Prisma @default(uuid())), while
 // hand-written fixtures like "poi-1" don't. This generates deterministic,
@@ -371,6 +381,10 @@ describe('TourActivityGenerationService', () => {
           provide: TOUR_PLANNING_FEASIBILITY_VALIDATOR,
           useValue: tourPlanningFeasibilityValidator,
         },
+        {
+          provide: dailyPlanningPolicyConfig.KEY,
+          useValue: dailyPlanningPolicy,
+        },
       ],
     }).compile();
 
@@ -606,9 +620,11 @@ describe('TourActivityGenerationService', () => {
       expect(input.requestedDays).toBe(2);
       expect(input.travelPace).toBe('relaxed');
       expect(input.startDates).toEqual(['2026-09-01T00:00:00.000Z']);
+      // Comes from `dailyPlanningPolicy.window`, never a literal at the call site.
+      expect(input.planningWindow).toEqual(dailyPlanningPolicy.window);
       expect(input.planningWindow).toEqual({
-        startMinutesFromMidnight: 9 * 60,
-        endMinutesFromMidnight: 20 * 60,
+        startMinutesFromMidnight: 8 * 60,
+        endMinutesFromMidnight: 21 * 60,
       });
       expect(input.mobility.allowedTransportationModes).toEqual(['walking']);
       expect(input.candidates.map((c) => c.activityId).sort()).toEqual(

@@ -60,6 +60,7 @@ const policy: DailyPlanningPolicy = {
     carUrbanSpeedKmh: 25,
   },
   internalWalking: { unknownFallbackMinutes: 20 },
+  compositeDefaultDurationMinutes: 90,
   scoring: {
     semanticWeight: 1,
     qualityWeight: 0.5,
@@ -206,6 +207,40 @@ describe('checkHardConstraints', () => {
         spatialFootprint: {
           type: 'POINT',
           centroid: { lat: NaN, lng: 0 },
+        },
+      }),
+      emptyDay(1),
+      baseContext(),
+    );
+    expect(result.feasible).toBe(false);
+    expect(result.reasons).toEqual(['INVALID_SPATIAL_FOOTPRINT']);
+  });
+
+  it('rejects a candidate with a null centroid coordinate as INVALID_SPATIAL_FOOTPRINT', async () => {
+    // `Activity.latitude`/`longitude` are Prisma `Float?`, so a missing value
+    // really arrives as `null` at runtime even though the TS type says
+    // `number`. Cast accordingly — a `null` that slipped through would be
+    // coerced to 0 by the Haversine math and planned at Null Island.
+    const result = await checkHardConstraints(
+      candidate({
+        spatialFootprint: {
+          type: 'POINT',
+          centroid: { lat: null as unknown as number, lng: 0 },
+        },
+      }),
+      emptyDay(1),
+      baseContext(),
+    );
+    expect(result.feasible).toBe(false);
+    expect(result.reasons).toEqual(['INVALID_SPATIAL_FOOTPRINT']);
+  });
+
+  it('rejects a candidate with a null centroid longitude as INVALID_SPATIAL_FOOTPRINT', async () => {
+    const result = await checkHardConstraints(
+      candidate({
+        spatialFootprint: {
+          type: 'POINT',
+          centroid: { lat: 0, lng: null as unknown as number },
         },
       }),
       emptyDay(1),

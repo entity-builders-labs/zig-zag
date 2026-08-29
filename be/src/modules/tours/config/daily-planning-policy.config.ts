@@ -20,6 +20,13 @@ export interface DailyPlanningPolicy {
      * unknown and mobility constraints are actively being checked. */
     unknownFallbackMinutes: number;
   };
+  /** Policy constant used as the planning duration of a composite Activity
+   * (`NEIGHBORHOOD_WALK`/`ROUTE`/`EXPERIENCE`) whose own `duration` is unset —
+   * which is every composite today, since nothing in the codebase populates
+   * it. Never derived from `duration` or from internal walking: it is an
+   * explicit, configurable product assumption about how long a multi-stop
+   * experience occupies the day, not an inference. */
+  compositeDefaultDurationMinutes: number;
   scoring: {
     semanticWeight: number;
     qualityWeight: number;
@@ -59,6 +66,9 @@ export default registerAs(
         process.env.DAILY_PLANNING_INTERNAL_WALKING_FALLBACK_MINUTES ?? 20,
       ),
     },
+    compositeDefaultDurationMinutes: Number(
+      process.env.DAILY_PLANNING_COMPOSITE_DEFAULT_DURATION_MINUTES ?? 90,
+    ),
     scoring: {
       semanticWeight: 1,
       qualityWeight: 0.5,
