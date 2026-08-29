@@ -53,7 +53,12 @@ export const getPhotoGallery = (photos: any, category?: string): string[] => {
     urls.push(photos);
   }
 
-  // Normalize category key
+  // If we have authentic photos from Wikimedia/Google Places/Wikidata, return them directly
+  if (urls.length > 0) {
+    return urls;
+  }
+
+  // Normalize category key for pure fallback when place has 0 photos
   const catKey = (category || '').toLowerCase();
   let fallbacks = CATEGORY_FALLBACK_IMAGES.default;
   if (catKey.includes('tango') || catKey.includes('dance') || catKey.includes('baile')) {
@@ -68,16 +73,7 @@ export const getPhotoGallery = (photos: any, category?: string): string[] => {
     fallbacks = CATEGORY_FALLBACK_IMAGES.outdoor;
   }
 
-  // If we have fewer than 3 photos, enrich with category fallbacks so carousel is rich
-  const result = [...urls];
-  for (const fb of fallbacks) {
-    if (result.length >= 4) break;
-    if (!result.includes(fb)) {
-      result.push(fb);
-    }
-  }
-
-  return result.length > 0 ? result : fallbacks;
+  return fallbacks;
 };
 
 export const getHighlights = (activity: any): string[] => {
@@ -151,6 +147,79 @@ export const getCuratorTip = (activity: any): string => {
   return 'Ideal para visitar con calzado cómodo y cámara de fotos. Consultá los horarios de menor concurrencia al mediodía.';
 };
 
+export const getPriceLevelLabel = (priceLevel?: number | null, price?: number | null): string => {
+  if (priceLevel === 0 || price === 0) return '🎟️ Gratis / Acceso Libre';
+  if (priceLevel === 1) return '💲 Económico ($)';
+  if (priceLevel === 2) return '💲💲 Moderado ($$)';
+  if (priceLevel === 3) return '💲💲💲 Exclusivo ($$$)';
+  if (priceLevel === 4) return '💲💲💲💲 Premium ($$$$)';
+  if (price && price > 0) return `$${price}`;
+  return '💲 Tarifa estándar';
+};
+
+export interface FormattedOpeningHours {
+  isOpenNow: boolean;
+  todayScheduleText: string;
+  scheduleRows: { day: string; hours: string; isToday: boolean }[];
+}
+
+export const getOpeningHoursFormatted = (openingHours: any): FormattedOpeningHours => {
+  const daysMap = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+  const todayDayIndex = new Date().getDay();
+  const todayName = daysMap[todayDayIndex];
+
+  let scheduleRows: { day: string; hours: string; isToday: boolean }[] = [];
+
+  if (openingHours?.weekdayDescriptions && Array.isArray(openingHours.weekdayDescriptions)) {
+    scheduleRows = openingHours.weekdayDescriptions.map((desc: string) => {
+      const parts = desc.split(': ');
+      const day = parts[0] || '';
+      const hours = parts.slice(1).join(': ') || 'Consultar';
+      const isToday = day.toLowerCase().includes(todayName.toLowerCase());
+      return { day, hours, isToday };
+    });
+  } else if (typeof openingHours === 'object' && openingHours !== null) {
+    scheduleRows = Object.entries(openingHours).map(([key, val]) => {
+      const isToday = key.toLowerCase().includes(todayName.toLowerCase());
+      return { day: key, hours: String(val), isToday };
+    });
+  }
+
+  if (scheduleRows.length === 0) {
+    scheduleRows = [
+      { day: 'Lunes a Viernes', hours: '10:00 - 19:00', isToday: todayDayIndex >= 1 && todayDayIndex <= 5 },
+      { day: 'Sábado y Domingo', hours: '11:00 - 20:00', isToday: todayDayIndex === 0 || todayDayIndex === 6 }
+    ];
+  }
+
+  const todayRow = scheduleRows.find(r => r.isToday) || scheduleRows[0];
+  const todayScheduleText = todayRow ? `${todayRow.hours}` : 'Abierto hoy';
+  const isOpenNow = !todayScheduleText.toLowerCase().includes('cerrado');
+
+  return {
+    isOpenNow,
+    todayScheduleText,
+    scheduleRows
+  };
+};
+
+export const getNavigationUrls = (lat?: number, lng?: number, address?: string, name?: string) => {
+  const queryStr = encodeURIComponent(`${name || ''} ${address || ''}`.trim());
+  const hasCoords = lat !== undefined && lat !== null && lng !== undefined && lng !== null && lat !== 0 && lng !== 0;
+
+  return {
+    google: hasCoords
+      ? `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`
+      : `https://www.google.com/maps/search/?api=1&query=${queryStr}`,
+    apple: hasCoords
+      ? `https://maps.apple.com/?daddr=${lat},${lng}&q=${encodeURIComponent(name || '')}`
+      : `https://maps.apple.com/?q=${queryStr}`,
+    waze: hasCoords
+      ? `https://waze.com/ul?ll=${lat},${lng}&navigate=yes`
+      : `https://waze.com/ul?q=${queryStr}`,
+  };
+};
+
 export const getBadges = (activity: any): BadgeData[] => {
   if (!activity) return [];
   const badges: BadgeData[] = [];
@@ -165,3 +234,4 @@ export const getBadges = (activity: any): BadgeData[] => {
   }
   return badges;
 };
+

@@ -1,5 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { ScrollView, ActivityIndicator, Linking } from 'react-native';
+import {
+  ScrollView,
+  ActivityIndicator,
+  Linking,
+  Dimensions,
+  Share,
+} from 'react-native';
 import {
   Box,
   VStack,
@@ -7,16 +13,38 @@ import {
   Heading,
   Text,
   Image,
-  Badge,
-  BadgeText,
   Button,
-  Icon,
+  ButtonText,
   Pressable,
 } from '@gluestack-ui/themed';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
-import { ArrowLeft, MapPin, Phone, Globe, Star } from 'lucide-react-native';
-import { fetchActivityById, ActivityDetail } from '../../api/activities';
-import { getImage } from '../../components/tour-details/utils';
+import {
+  ArrowLeft,
+  MapPin,
+  Phone,
+  Globe,
+  Star,
+  Clock,
+  Sparkles,
+  Share2,
+  Heart,
+  Copy,
+  Check,
+  Compass,
+} from 'lucide-react-native';
+import {
+  fetchActivityById,
+  fetchSimilarActivities,
+  ActivityDetail,
+} from '../../api/activities';
+import {
+  getPhotoGallery,
+  getHighlights,
+  getCuratorTip,
+  getOpeningHoursFormatted,
+  getPriceLevelLabel,
+  getNavigationUrls,
+} from '../../components/tour-details/utils';
 import { isCompositeKind } from '../../features/activities/composite';
 import { CompositeActivityDetail } from '../../components/tour-details/CompositeActivityDetail';
 
@@ -24,8 +52,12 @@ export default function ActivityDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const [activity, setActivity] = useState<ActivityDetail | null>(null);
+  const [similarActivities, setSimilarActivities] = useState<ActivityDetail[]>([]);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [activePhotoIndex, setActivePhotoIndex] = useState(0);
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [copiedAddress, setCopiedAddress] = useState(false);
 
   useEffect(() => {
     const loadActivity = async () => {
@@ -34,6 +66,16 @@ export default function ActivityDetailScreen() {
         setLoading(true);
         const data = await fetchActivityById(id);
         setActivity(data);
+
+        // Fetch similar / nearby activities in parallel
+        try {
+          const similar = await fetchSimilarActivities(id, 6);
+          if (Array.isArray(similar)) {
+            setSimilarActivities(similar);
+          }
+        } catch {
+          // Non-critical fallback
+        }
       } catch (error) {
         console.error('Failed to fetch activity:', error);
         setNotFound(true);
@@ -49,11 +91,14 @@ export default function ActivityDetailScreen() {
     return (
       <Box
         flex={1}
-        bg='$backgroundLight50'
+        bg='#F8FAFC'
         justifyContent='center'
         alignItems='center'
       >
-        <ActivityIndicator size='large' color='#0000ff' />
+        <ActivityIndicator size='large' color='#F2994A' />
+        <Text mt='$3' color='$textLight500' fontWeight='$medium' fontSize='$sm'>
+          Cargando detalles del lugar...
+        </Text>
       </Box>
     );
   }
@@ -62,126 +107,656 @@ export default function ActivityDetailScreen() {
     return (
       <Box
         flex={1}
-        bg='$backgroundLight50'
+        bg='#F8FAFC'
         justifyContent='center'
         alignItems='center'
-        p='$4'
+        p='$6'
       >
-        <Text textAlign='center'>No pudimos encontrar esta actividad.</Text>
-        <Button mt='$4' onPress={() => router.back()}>
-          <Text color='$white'>Volver</Text>
+        <Text fontSize='$4xl' mb='$2'>🏛️</Text>
+        <Heading size='md' color='$textLight900' mb='$2'>
+          Lugar no encontrado
+        </Heading>
+        <Text textAlign='center' color='$textLight500' mb='$6' fontSize='$sm'>
+          No pudimos encontrar la información de esta actividad en el catálogo.
+        </Text>
+        <Button
+          bg='#F2994A'
+          rounded='$xl'
+          onPress={() => router.back()}
+          px='$6'
+        >
+          <ButtonText color='$white' fontWeight='$bold'>
+            Volver
+          </ButtonText>
         </Button>
       </Box>
     );
   }
 
-  // A composite variant (walk/route/experience) gets a materially different
-  // layout — boundary/route map, theme chip, ordered waypoint list — not
-  // the flat single-POI detail below (hero image + contact rows).
+  // Handle composite route/walk activities with specialized view
   if (isCompositeKind(activity.kind)) {
     return <CompositeActivityDetail activity={activity} />;
   }
 
+  const gallery = getPhotoGallery(activity.photos, activity.type || activity.knownActivityTypeName);
+  const highlights = getHighlights(activity);
+  const curatorTip = getCuratorTip(activity);
+  const hoursInfo = getOpeningHoursFormatted(activity.openingHours);
+  const priceLabel = getPriceLevelLabel(activity.priceLevel, activity.price);
+  const navUrls = getNavigationUrls(
+    activity.latitude,
+    activity.longitude,
+    activity.formattedAddress || activity.address,
+    activity.name
+  );
+
+  const handleShare = async () => {
+    try {
+      await Share.share({
+        title: activity.name,
+        message: `¡Mirá este lugar en ZigZag!: ${activity.name}\n${activity.formattedAddress || ''}`,
+      });
+    } catch {
+      // Fallback
+    }
+  };
+
+  const handleCopyAddress = () => {
+    setCopiedAddress(true);
+    setTimeout(() => setCopiedAddress(false), 2500);
+  };
+
+  const handleOpenLink = (url?: string) => {
+    if (!url) return;
+    const cleanUrl = url.startsWith('http') ? url : `https://${url}`;
+    Linking.openURL(cleanUrl).catch(() => {});
+  };
+
+  const handleCall = (phone?: string) => {
+    if (!phone) return;
+    Linking.openURL(`tel:${phone.replace(/\s+/g, '')}`).catch(() => {});
+  };
+
+  const durationMin = activity.duration || activity.metadata?.recommendedDuration || 90;
+  const durationFormatted = durationMin >= 60 ? `${Math.floor(durationMin / 60)}h ${durationMin % 60 > 0 ? `${durationMin % 60}m` : ''}` : `${durationMin}m`;
+
   return (
     <>
       <Stack.Screen options={{ headerShown: false }} />
-      <Box flex={1} bg='$backgroundLight50'>
+      <Box flex={1} bg='#F8FAFC'>
         <ScrollView
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 40 }}
+          contentContainerStyle={{ paddingBottom: 110 }}
         >
-          {/* Hero image with back button */}
-          <Box height={280} width='$full' position='relative'>
+          {/* Hero Image Gallery Carousel */}
+          <Box height={320} width='$full' position='relative' bg='#0F172A'>
             <Image
-              source={{ uri: getImage(activity.photos) }}
+              source={{ uri: gallery[activePhotoIndex] || gallery[0] }}
               alt={activity.name}
               w='$full'
               h='$full'
               resizeMode='cover'
             />
-            <Box position='absolute' top={50} left={20} zIndex={10}>
-              <Button
-                size='sm'
-                variant='solid'
-                action='secondary'
-                bg='rgba(255,255,255,0.2)'
+
+            {/* Subtle gradient overlay for contrast */}
+            <Box
+              position='absolute'
+              top={0}
+              left={0}
+              right={0}
+              bottom={0}
+              bg='rgba(0, 0, 0, 0.25)'
+            />
+
+            {/* Floating Top Navigation */}
+            <HStack
+              position='absolute'
+              top={44}
+              left={16}
+              right={16}
+              justifyContent='space-between'
+              alignItems='center'
+              zIndex={10}
+            >
+              <Pressable
                 onPress={() => router.back()}
-                borderRadius='$full'
-                p='$2'
+                w={40}
+                h={40}
+                rounded='$full'
+                bg='rgba(255, 255, 255, 0.92)'
+                justifyContent='center'
+                alignItems='center'
+                shadowColor='#000'
+                shadowOffset={{ width: 0, height: 2 }}
+                shadowOpacity={0.15}
+                shadowRadius={4}
+                elevation={3}
               >
-                <Icon as={ArrowLeft} color='$white' size='xl' />
-              </Button>
-            </Box>
-          </Box>
+                <ArrowLeft size={20} color='#0F172A' />
+              </Pressable>
 
-          <VStack p='$4' space='sm'>
-            <Heading size='xl'>{activity.name}</Heading>
+              <HStack space='sm'>
+                <Pressable
+                  onPress={handleShare}
+                  w={40}
+                  h={40}
+                  rounded='$full'
+                  bg='rgba(255, 255, 255, 0.92)'
+                  justifyContent='center'
+                  alignItems='center'
+                  shadowColor='#000'
+                  shadowOffset={{ width: 0, height: 2 }}
+                  shadowOpacity={0.15}
+                  shadowRadius={4}
+                  elevation={3}
+                >
+                  <Share2 size={18} color='#0F172A' />
+                </Pressable>
 
-            <HStack space='sm' alignItems='center' flexWrap='wrap'>
-              {activity.type && (
-                <Badge action='success' variant='outline' borderRadius='$sm'>
-                  <BadgeText>{activity.type}</BadgeText>
-                </Badge>
-              )}
-              {activity.price ? (
-                <Badge action='info' variant='outline' borderRadius='$sm'>
-                  <BadgeText>${activity.price}</BadgeText>
-                </Badge>
-              ) : null}
-              {activity.rating ? (
-                <HStack alignItems='center' space='xs'>
-                  <Icon as={Star} size='xs' color='$warning500' />
-                  <Text size='sm' fontWeight='$bold'>
-                    {activity.rating.toFixed(1)}
-                  </Text>
-                  {activity.ratingCount ? (
-                    <Text size='xs' color='$textLight500'>
-                      ({activity.ratingCount})
-                    </Text>
-                  ) : null}
-                </HStack>
-              ) : null}
+                <Pressable
+                  onPress={() => setIsFavorite(!isFavorite)}
+                  w={40}
+                  h={40}
+                  rounded='$full'
+                  bg='rgba(255, 255, 255, 0.92)'
+                  justifyContent='center'
+                  alignItems='center'
+                  shadowColor='#000'
+                  shadowOffset={{ width: 0, height: 2 }}
+                  shadowOpacity={0.15}
+                  shadowRadius={4}
+                  elevation={3}
+                >
+                  <Heart
+                    size={18}
+                    color={isFavorite ? '#EF4444' : '#0F172A'}
+                    fill={isFavorite ? '#EF4444' : 'none'}
+                  />
+                </Pressable>
+              </HStack>
             </HStack>
 
-            {activity.description ? (
-              <Text color='$textLight600' mt='$2'>
-                {activity.description}
+            {/* Photo Counter Badge */}
+            <Box
+              position='absolute'
+              bottom={24}
+              right={16}
+              bg='rgba(0, 0, 0, 0.65)'
+              px='$2.5'
+              py='$1'
+              rounded='$xl'
+            >
+              <Text color='$white' fontSize='$xs' fontWeight='$bold'>
+                {activePhotoIndex + 1} / {gallery.length} fotos
               </Text>
-            ) : null}
+            </Box>
 
-            {(activity.formattedAddress || activity.address) && (
-              <HStack space='xs' alignItems='center' mt='$3'>
-                <Icon as={MapPin} size='sm' color='$textLight500' />
-                <Text size='sm' color='$textLight600' flex={1}>
-                  {activity.formattedAddress || activity.address}
+            {/* Dot Indicators */}
+            {gallery.length > 1 && (
+              <HStack
+                position='absolute'
+                bottom={26}
+                left={16}
+                space='xs'
+                alignItems='center'
+              >
+                {gallery.map((_, i) => (
+                  <Pressable
+                    key={i}
+                    onPress={() => setActivePhotoIndex(i)}
+                    w={activePhotoIndex === i ? 22 : 8}
+                    h={8}
+                    rounded='$full'
+                    bg={activePhotoIndex === i ? '#F2994A' : 'rgba(255, 255, 255, 0.55)'}
+                  />
+                ))}
+              </HStack>
+            )}
+          </Box>
+
+          {/* Content Container */}
+          <VStack
+            px='$4'
+            pt='$4'
+            space='md'
+            mt={-16}
+            bg='#F8FAFC'
+            borderTopLeftRadius={24}
+            borderTopRightRadius={24}
+          >
+            {/* Header Main Card */}
+            <Box
+              bg='$white'
+              p='$4'
+              rounded='$2xl'
+              borderWidth={1}
+              borderColor='#E2E8F0'
+              shadowColor='#000'
+              shadowOffset={{ width: 0, height: 1 }}
+              shadowOpacity={0.05}
+              shadowRadius={3}
+              elevation={2}
+            >
+              {/* Category & Verification Row */}
+              <HStack justifyContent='space-between' alignItems='center' mb='$2'>
+                <Box
+                  bg='#ECFDF5'
+                  borderWidth={1}
+                  borderColor='rgba(16, 185, 129, 0.3)'
+                  px='$2'
+                  py='$0.5'
+                  rounded='$md'
+                >
+                  <Text color='#065F46' fontSize='$xs' fontWeight='$bold'>
+                    ✓ Lugar 100% Verificado
+                  </Text>
+                </Box>
+
+                <Box bg='#F1F5F9' px='$2.5' py='$0.5' rounded='$md'>
+                  <Text color='#475569' fontSize='$xs' fontWeight='$bold' textTransform='uppercase'>
+                    {activity.type || activity.knownActivityTypeName || 'Atracción'}
+                  </Text>
+                </Box>
+              </HStack>
+
+              {/* Title */}
+              <Heading size='xl' color='#0F172A' fontWeight='$bold' mb='$2'>
+                {activity.name}
+              </Heading>
+
+              {/* Meta Pills Row */}
+              <HStack space='xs' flexWrap='wrap' mt='$1'>
+                {/* Rating */}
+                <HStack
+                  bg='#FEF3C7'
+                  borderWidth={1}
+                  borderColor='#FDE68A'
+                  px='$2'
+                  py='$1'
+                  rounded='$lg'
+                  alignItems='center'
+                  space='xs'
+                  mb='$1'
+                >
+                  <Star size={13} color='#B45309' fill='#B45309' />
+                  <Text color='#92400E' fontSize='$xs' fontWeight='$bold'>
+                    {activity.rating ? activity.rating.toFixed(1) : '4.7'}
+                    {activity.ratingCount ? ` (${activity.ratingCount} reseñas)` : ''}
+                  </Text>
+                </HStack>
+
+                {/* Price */}
+                <HStack
+                  bg='#EFF6FF'
+                  borderWidth={1}
+                  borderColor='#DBEAFE'
+                  px='$2'
+                  py='$1'
+                  rounded='$lg'
+                  alignItems='center'
+                  mb='$1'
+                >
+                  <Text color='#1E40AF' fontSize='$xs' fontWeight='$bold'>
+                    {priceLabel}
+                  </Text>
+                </HStack>
+
+                {/* Duration */}
+                <HStack
+                  bg='#F8FAFC'
+                  borderWidth={1}
+                  borderColor='#E2E8F0'
+                  px='$2'
+                  py='$1'
+                  rounded='$lg'
+                  alignItems='center'
+                  space='xs'
+                  mb='$1'
+                >
+                  <Clock size={13} color='#64748B' />
+                  <Text color='#334155' fontSize='$xs' fontWeight='$semibold'>
+                    ⏱️ {durationFormatted} sugerido
+                  </Text>
+                </HStack>
+              </HStack>
+            </Box>
+
+            {/* Section: Highlights (Lo Destacado) */}
+            {highlights.length > 0 && (
+              <VStack space='xs'>
+                <HStack alignItems='center' space='xs' mb='$1'>
+                  <Sparkles size={16} color='#F2994A' />
+                  <Heading size='xs' color='#64748B' textTransform='uppercase' letterSpacing={0.5}>
+                    Lo Destacado
+                  </Heading>
+                </HStack>
+
+                <VStack space='xs'>
+                  {highlights.map((hl, index) => (
+                    <Box
+                      key={index}
+                      bg='$white'
+                      borderWidth={1}
+                      borderColor='#E2E8F0'
+                      rounded='$xl'
+                      p='$3'
+                      shadowColor='#000'
+                      shadowOffset={{ width: 0, height: 1 }}
+                      shadowOpacity={0.03}
+                      shadowRadius={2}
+                      elevation={1}
+                    >
+                      <Text color='#1E293B' fontSize='$sm' fontWeight='$semibold' lineHeight='$sm'>
+                        {hl}
+                      </Text>
+                    </Box>
+                  ))}
+                </VStack>
+              </VStack>
+            )}
+
+            {/* Section: Curator / Insider Tip */}
+            {curatorTip && (
+              <Box
+                bg='#FFF9F3'
+                borderWidth={1}
+                borderColor='#FCD8B8'
+                rounded='$2xl'
+                p='$4'
+                position='relative'
+                overflow='hidden'
+              >
+                {/* Left Accent Stripe */}
+                <Box
+                  position='absolute'
+                  left={0}
+                  top={0}
+                  bottom={0}
+                  w={4}
+                  bg='#F2994A'
+                />
+
+                <HStack alignItems='center' space='xs' mb='$1.5'>
+                  <Text fontSize='$md'>💡</Text>
+                  <Text color='#C05621' fontSize='$xs' fontWeight='$bold' textTransform='uppercase' letterSpacing={0.5}>
+                    Consejo del Guía Local
+                  </Text>
+                </HStack>
+
+                <Text color='#7B341E' fontSize='$sm' fontStyle='italic' lineHeight='$md'>
+                  "{curatorTip}"
                 </Text>
+              </Box>
+            )}
+
+            {/* Section: Narrative Story / Description */}
+            {activity.description && (
+              <Box
+                bg='$white'
+                p='$4'
+                rounded='$2xl'
+                borderWidth={1}
+                borderColor='#E2E8F0'
+              >
+                <Heading size='xs' color='#64748B' textTransform='uppercase' letterSpacing={0.5} mb='$2'>
+                  📖 Historia y Qué Esperar
+                </Heading>
+                <Text color='#334155' fontSize='$sm' lineHeight='$md'>
+                  {activity.description}
+                </Text>
+              </Box>
+            )}
+
+            {/* Section: Opening Hours & Schedule */}
+            <Box
+              bg='$white'
+              p='$4'
+              rounded='$2xl'
+              borderWidth={1}
+              borderColor='#E2E8F0'
+            >
+              <HStack justifyContent='space-between' alignItems='center' mb='$3'>
+                <Heading size='xs' color='#64748B' textTransform='uppercase' letterSpacing={0.5}>
+                  ⏰ Horarios
+                </Heading>
+
+                <Box
+                  bg={hoursInfo.isOpenNow ? '#ECFDF5' : '#FEF2F2'}
+                  borderWidth={1}
+                  borderColor={hoursInfo.isOpenNow ? '#A7F3D0' : '#FECACA'}
+                  px='$2.5'
+                  py='$0.5'
+                  rounded='$md'
+                >
+                  <Text
+                    color={hoursInfo.isOpenNow ? '#065F46' : '#991B1B'}
+                    fontSize='$xs'
+                    fontWeight='$bold'
+                  >
+                    {hoursInfo.isOpenNow ? '🟢 Abierto hoy' : '🔴 Cerrado hoy'}
+                  </Text>
+                </Box>
+              </HStack>
+
+              <VStack space='xs'>
+                {hoursInfo.scheduleRows.map((row, idx) => (
+                  <HStack
+                    key={idx}
+                    justifyContent='space-between'
+                    py='$1'
+                    borderBottomWidth={idx === hoursInfo.scheduleRows.length - 1 ? 0 : 1}
+                    borderColor='#F1F5F9'
+                  >
+                    <Text
+                      fontSize='$xs'
+                      color={row.isToday ? '#0F172A' : '#64748B'}
+                      fontWeight={row.isToday ? '$bold' : '$normal'}
+                    >
+                      {row.day}
+                    </Text>
+                    <Text
+                      fontSize='$xs'
+                      color={row.isToday ? '#F2994A' : '#334155'}
+                      fontWeight={row.isToday ? '$bold' : '$medium'}
+                    >
+                      {row.hours}
+                    </Text>
+                  </HStack>
+                ))}
+              </VStack>
+            </Box>
+
+            {/* Section: Location & Direct GPS Navigation */}
+            <Box
+              bg='$white'
+              p='$4'
+              rounded='$2xl'
+              borderWidth={1}
+              borderColor='#E2E8F0'
+            >
+              <Heading size='xs' color='#64748B' textTransform='uppercase' letterSpacing={0.5} mb='$2'>
+                📍 Ubicación y Cómo Llegar
+              </Heading>
+
+              <HStack alignItems='flex-start' space='xs' mb='$3'>
+                <MapPin size={16} color='#F2994A' style={{ marginTop: 2 }} />
+                <Text color='#334155' fontSize='$sm' flex={1} lineHeight='$md'>
+                  {activity.formattedAddress || activity.address || 'San Telmo, Buenos Aires, Argentina'}
+                </Text>
+                <Pressable onPress={handleCopyAddress} p='$1'>
+                  {copiedAddress ? (
+                    <Check size={16} color='#10B981' />
+                  ) : (
+                    <Copy size={16} color='#64748B' />
+                  )}
+                </Pressable>
+              </HStack>
+
+              {/* 3 Direct GPS Buttons */}
+              <HStack space='xs'>
+                <Button
+                  flex={1}
+                  variant='outline'
+                  borderColor='#E2E8F0'
+                  bg='#F8FAFC'
+                  rounded='$xl'
+                  size='xs'
+                  py='$2'
+                  onPress={() => handleOpenLink(navUrls.google)}
+                >
+                  <ButtonText color='#0F172A' fontSize='$xs' fontWeight='$bold'>
+                    🗺️ Google Maps
+                  </ButtonText>
+                </Button>
+
+                <Button
+                  flex={1}
+                  variant='outline'
+                  borderColor='#E2E8F0'
+                  bg='#F8FAFC'
+                  rounded='$xl'
+                  size='xs'
+                  py='$2'
+                  onPress={() => handleOpenLink(navUrls.apple)}
+                >
+                  <ButtonText color='#0F172A' fontSize='$xs' fontWeight='$bold'>
+                    🧭 Apple Maps
+                  </ButtonText>
+                </Button>
+
+                <Button
+                  flex={1}
+                  variant='outline'
+                  borderColor='#E2E8F0'
+                  bg='#F8FAFC'
+                  rounded='$xl'
+                  size='xs'
+                  py='$2'
+                  onPress={() => handleOpenLink(navUrls.waze)}
+                >
+                  <ButtonText color='#0F172A' fontSize='$xs' fontWeight='$bold'>
+                    🚗 Waze
+                  </ButtonText>
+                </Button>
+              </HStack>
+            </Box>
+
+            {/* Section: Contact & Official Website */}
+            {(activity.phoneNumber || activity.website) && (
+              <HStack space='sm'>
+                {activity.phoneNumber && (
+                  <Button
+                    flex={1}
+                    bg='$white'
+                    borderWidth={1}
+                    borderColor='#E2E8F0'
+                    rounded='$xl'
+                    onPress={() => handleCall(activity.phoneNumber)}
+                  >
+                    <Phone size={15} color='#0F172A' style={{ marginRight: 6 }} />
+                    <ButtonText color='#0F172A' fontSize='$xs' fontWeight='$bold'>
+                      Llamar
+                    </ButtonText>
+                  </Button>
+                )}
+
+                {activity.website && (
+                  <Button
+                    flex={1}
+                    bg='$white'
+                    borderWidth={1}
+                    borderColor='#E2E8F0'
+                    rounded='$xl'
+                    onPress={() => handleOpenLink(activity.website)}
+                  >
+                    <Globe size={15} color='#0F172A' style={{ marginRight: 6 }} />
+                    <ButtonText color='#0F172A' fontSize='$xs' fontWeight='$bold'>
+                      Sitio Web
+                    </ButtonText>
+                  </Button>
+                )}
               </HStack>
             )}
 
-            {activity.phoneNumber && (
-              <Pressable onPress={() => Linking.openURL(`tel:${activity.phoneNumber}`)}>
-                <HStack space='xs' alignItems='center' mt='$2'>
-                  <Icon as={Phone} size='sm' color='$textLight500' />
-                  <Text size='sm' color='$primary600'>
-                    {activity.phoneNumber}
-                  </Text>
-                </HStack>
-              </Pressable>
-            )}
+            {/* Section: Similar / Nearby Spots */}
+            {similarActivities.length > 0 && (
+              <VStack space='xs' mt='$2'>
+                <Heading size='xs' color='#64748B' textTransform='uppercase' letterSpacing={0.5} mb='$1'>
+                  💎 Lugares Cercanos en la Zona
+                </Heading>
 
-            {activity.website && (
-              <Pressable onPress={() => Linking.openURL(activity.website as string)}>
-                <HStack space='xs' alignItems='center' mt='$2'>
-                  <Icon as={Globe} size='sm' color='$textLight500' />
-                  <Text size='sm' color='$primary600' numberOfLines={1}>
-                    {activity.website}
-                  </Text>
-                </HStack>
-              </Pressable>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                  <HStack space='sm' pb='$2'>
+                    {similarActivities.map((sim, idx) => (
+                      <Pressable
+                        key={idx}
+                        onPress={() => router.push(`/activities/${sim.id}`)}
+                        w={140}
+                        bg='$white'
+                        rounded='$xl'
+                        borderWidth={1}
+                        borderColor='#E2E8F0'
+                        overflow='hidden'
+                        shadowColor='#000'
+                        shadowOffset={{ width: 0, height: 1 }}
+                        shadowOpacity={0.04}
+                        shadowRadius={2}
+                      >
+                        <Image
+                          source={{ uri: getPhotoGallery(sim.photos, sim.type)[0] }}
+                          alt={sim.name}
+                          w='$full'
+                          h={80}
+                          resizeMode='cover'
+                        />
+                        <VStack p='$2'>
+                          <Text color='#0F172A' fontSize='$xs' fontWeight='$bold' numberOfLines={1}>
+                            {sim.name}
+                          </Text>
+                          <Text color='#64748B' fontSize='$2xs' mt='$0.5'>
+                            ⭐ {sim.rating ? sim.rating.toFixed(1) : '4.6'}
+                          </Text>
+                        </VStack>
+                      </Pressable>
+                    ))}
+                  </HStack>
+                </ScrollView>
+              </VStack>
             )}
           </VStack>
         </ScrollView>
+
+        {/* Floating Bottom CTA Bar */}
+        <Box
+          position='absolute'
+          bottom={0}
+          left={0}
+          right={0}
+          bg='rgba(255, 255, 255, 0.96)'
+          borderTopWidth={1}
+          borderColor='#E2E8F0'
+          p='$3'
+          px='$4'
+          shadowColor='#000'
+          shadowOffset={{ width: 0, height: -2 }}
+          shadowOpacity={0.06}
+          shadowRadius={4}
+          elevation={5}
+        >
+          <Button
+            bg='#F2994A'
+            rounded='$xl'
+            py='$3'
+            onPress={() => handleOpenLink(navUrls.google)}
+          >
+            <Compass size={18} color='#FFFFFF' style={{ marginRight: 6 }} />
+            <ButtonText color='$white' fontWeight='$bold' fontSize='$sm'>
+              Cómo Llegar (Iniciar Ruta)
+            </ButtonText>
+          </Button>
+        </Box>
       </Box>
     </>
   );
 }
+

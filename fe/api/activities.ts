@@ -6,8 +6,10 @@ export interface ActivityDetail extends CompositeActivityFields {
   name: string;
   description?: string;
   type?: string;
+  knownActivityTypeName?: string;
   duration?: number;
   price?: number;
+  priceLevel?: number;
   latitude?: number;
   longitude?: number;
   address?: string;
@@ -18,6 +20,8 @@ export interface ActivityDetail extends CompositeActivityFields {
   website?: string;
   photos?: any;
   metadata?: any;
+  openingHours?: any;
+  notes?: string;
 }
 
 export async function fetchSimilarActivities(activityId: string, limit = 10) {
