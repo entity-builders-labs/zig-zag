@@ -15,11 +15,34 @@ import aiConfig from './ai.config';
 import { Activity } from '@prisma/client';
 import { AiCacheService } from './services/ai-cache.service';
 
+export type GroqResponseFormat =
+  | { type: 'json_object' }
+  | {
+      type: 'json_schema';
+      json_schema: {
+        name: string;
+        strict: true;
+        schema: Record<string, unknown>;
+      };
+    };
+
+export type ChatResponseOptions = Partial<
+  ConstructorParameters<typeof ChatOpenAI>[0]
+> & {
+  responseFormat?: GroqResponseFormat;
+  groq?: {
+    maxCompletionTokens?: number;
+    reasoningEffort?: 'low' | 'medium' | 'high';
+    includeReasoning?: boolean;
+  };
+};
+
 @Injectable()
 export class LangChainService {
   private readonly logger = new Logger(LangChainService.name);
   private chatModel: any;
   private completionModel: any;
+  private readonly groqMaxRateLimitRetries = 1;
 
   constructor(
     @Inject(aiConfig.KEY)
@@ -46,6 +69,48 @@ export class LangChainService {
   // Helper to get Ollama base URL
   private getOllamaBaseUrl(): string {
     return this.config.ollamaBaseUrl || 'http://localhost:11434';
+  }
+
+  private groqRetryDelayMs(resp: Response, errorBody: string): number {
+    const retryAfter = resp.headers?.get?.('retry-after');
+    const retryAfterSeconds = retryAfter ? Number(retryAfter) : NaN;
+    if (Number.isFinite(retryAfterSeconds)) {
+      return Math.min(10_000, Math.max(250, retryAfterSeconds * 1000));
+    }
+
+    const messageDelay = errorBody.match(
+      /(?:try again|retry)\s+in\s+([\d.]+)\s*(ms|s)/i,
+    );
+    if (messageDelay) {
+      const value = Number(messageDelay[1]);
+      const milliseconds =
+        messageDelay[2].toLowerCase() === 'ms' ? value : value * 1000;
+      return Math.min(10_000, Math.max(250, Math.ceil(milliseconds) + 100));
+    }
+    return 1000;
+  }
+
+  private async fetchGroq(init: RequestInit): Promise<Response> {
+    for (let attempt = 0; ; attempt++) {
+      const resp = await fetch(
+        'https://api.groq.com/openai/v1/chat/completions',
+        init,
+      );
+      if (resp.ok) return resp;
+
+      const errorBody = await resp.text();
+      if (resp.status === 429 && attempt < this.groqMaxRateLimitRetries) {
+        const delayMs = this.groqRetryDelayMs(resp, errorBody);
+        this.logger.warn(
+          `Groq rate limited the request; retrying once in ${delayMs}ms.`,
+        );
+        await new Promise((resolve) => setTimeout(resolve, delayMs));
+        continue;
+      }
+
+      this.logger.error(`Groq error ${resp.status}: ${errorBody}`);
+      throw new Error(`Groq error ${resp.status}: ${errorBody}`);
+    }
   }
 
   private initializeModels(): void {
@@ -223,13 +288,26 @@ export class LangChainService {
     systemPrompt: string,
     userPrompt: string,
     variables: Record<string, string> = {},
-    customOptions?: Partial<ConstructorParameters<typeof ChatOpenAI>[0]>,
+    options: ChatResponseOptions = {},
   ): Promise<string> {
+    const {
+      responseFormat: requestedResponseFormat,
+      groq: groqOptions,
+      ...modelOptions
+    } = options;
+    const responseShapeOptions = {
+      responseFormat: requestedResponseFormat,
+      groq: groqOptions,
+    };
+    const cachePrompt =
+      requestedResponseFormat || groqOptions
+        ? `${systemPrompt}|${userPrompt}|${JSON.stringify(responseShapeOptions)}`
+        : `${systemPrompt}|${userPrompt}`;
     // Check cache first
-    const cached = await this.aiCache.getCachedResponse(
-      systemPrompt + '|' + userPrompt,
-      { type: 'chat', variables },
-    );
+    const cached = await this.aiCache.getCachedResponse(cachePrompt, {
+      type: 'chat',
+      variables,
+    });
     if (cached) return cached;
 
     try {
@@ -306,42 +384,66 @@ export class LangChainService {
       } else if (provider === 'groq') {
         const userTmpl = PromptTemplate.fromTemplate(userPrompt);
         const userText = await userTmpl.format(variables as any);
-        const model = this.config.defaultModel || 'llama-3.3-70b-versatile';
-
-        const effectiveSystemPrompt = systemPrompt;
-
-        const resp = await fetch(
-          'https://api.groq.com/openai/v1/chat/completions',
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${this.config.groqApiKey}`,
-            },
-            body: JSON.stringify({
-              model,
-              messages: [
-                { role: 'system', content: effectiveSystemPrompt },
-                { role: 'user', content: userText },
-              ],
-              temperature: this.config.temperature,
-              response_format: { type: 'json_object' },
-            }),
-          } as any,
-        );
-        if (!resp.ok) {
-          const errorBody =
-            typeof resp.text === 'function' ? await resp.text() : '';
-          this.logger.error(`Groq error ${resp.status}: ${errorBody}`);
-          throw new Error(`Groq error ${resp.status}: ${errorBody}`);
+        const model = this.config.defaultModel || 'llama-3.1-8b-instant';
+        const responseFormat = requestedResponseFormat ?? {
+          type: 'json_object' as const,
+        };
+        if (
+          responseFormat.type === 'json_schema' &&
+          !/^openai\/gpt-oss-(20b|120b)$/.test(model)
+        ) {
+          throw new Error(
+            `Groq model "${model}" does not support strict JSON Schema output. ` +
+              'Use openai/gpt-oss-20b or openai/gpt-oss-120b.',
+          );
         }
+
+        const resp = await this.fetchGroq({
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${this.config.groqApiKey}`,
+          },
+          body: JSON.stringify({
+            model,
+            messages: [
+              { role: 'system', content: systemPrompt },
+              { role: 'user', content: userText },
+            ],
+            temperature:
+              responseFormat.type === 'json_schema'
+                ? 0
+                : this.config.temperature,
+            ...(groqOptions?.maxCompletionTokens
+              ? {
+                  max_completion_tokens: groqOptions.maxCompletionTokens,
+                }
+              : {}),
+            ...(groqOptions?.reasoningEffort
+              ? { reasoning_effort: groqOptions.reasoningEffort }
+              : {}),
+            ...(groqOptions?.includeReasoning !== undefined
+              ? { include_reasoning: groqOptions.includeReasoning }
+              : {}),
+            // Every caller of generateChatResponse (tour generation,
+            // composite generation, activity metadata) parses the result
+            // as JSON — without this, Groq's chat models are free to
+            // return "pretty" JSON with unescaped characters (em-dashes,
+            // stray quotes) that reliably breaks JSON.parse on long
+            // responses. Forcing JSON mode at the API level, not just via
+            // prompt instructions, is what actually fixes it. Unlike
+            // generateCompletionResponse below, every current caller here
+            // expects JSON, so this is safe unconditionally.
+            response_format: responseFormat,
+          }),
+        } as any);
         const data = await resp.json();
         const rawContent = data.choices?.[0]?.message?.content || '';
         response = rawContent.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
       } else {
         // Default: OpenAI via LangChain
-        const model = customOptions
-          ? this.getChatModel(customOptions)
+        const model = Object.keys(modelOptions).length
+          ? this.getChatModel(modelOptions)
           : this.chatModel;
         const chatPrompt = ChatPromptTemplate.fromMessages([
           SystemMessagePromptTemplate.fromTemplate(systemPrompt),
@@ -356,11 +458,10 @@ export class LangChainService {
       }
 
       // Save to cache
-      await this.aiCache.cacheResponse(
-        systemPrompt + '|' + userPrompt,
-        response,
-        { type: 'chat', variables },
-      );
+      await this.aiCache.cacheResponse(cachePrompt, response, {
+        type: 'chat',
+        variables,
+      });
       return response;
     } catch (error) {
       this.logger.error(`Error generating chat response: ${error.message}`);
@@ -432,27 +533,18 @@ export class LangChainService {
         const text = await tmpl.format(variables as any);
         const model = this.config.defaultModel || 'llama-3.3-70b-versatile';
 
-        const resp = await fetch(
-          'https://api.groq.com/openai/v1/chat/completions',
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${this.config.groqApiKey}`,
-            },
-            body: JSON.stringify({
-              model,
-              messages: [{ role: 'user', content: text }],
-              temperature: this.config.temperature,
-            }),
-          } as any,
-        );
-        if (!resp.ok) {
-          const errorBody =
-            typeof resp.text === 'function' ? await resp.text() : '';
-          this.logger.error(`Groq error ${resp.status}: ${errorBody}`);
-          throw new Error(`Groq error ${resp.status}: ${errorBody}`);
-        }
+        const resp = await this.fetchGroq({
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${this.config.groqApiKey}`,
+          },
+          body: JSON.stringify({
+            model,
+            messages: [{ role: 'user', content: text }],
+            temperature: this.config.temperature,
+          }),
+        } as any);
         const data = await resp.json();
         const rawCompletion = data.choices?.[0]?.message?.content || '';
         response = rawCompletion.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();

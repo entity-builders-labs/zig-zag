@@ -44,7 +44,10 @@ App-wide constants:
 | `fetchTourById(id)`                            | GET    | `/tours/:id`           | Get tour detail             |
 | `generateTour(data)`                           | POST   | `/tours/generate-tour` | Generate tour from wizard   |
 
-Exports TypeScript interfaces: `Tour`, `GenerateTourDto`
+Exports `Tour` and the canonical `GenerateTourDto`; the latter is defined once
+in `features/tours/tour-generation-contract.ts` and contains nested
+`destination`, `intent`, and `mobility` values rather than a parallel prompt or
+flat legacy wizard fields.
 
 ### Activities (`activities.ts`)
 

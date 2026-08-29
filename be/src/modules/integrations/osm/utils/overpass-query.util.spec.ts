@@ -3,6 +3,10 @@ import {
   buildBoundaryByNameQuery,
   buildContainingBoundaryQuery,
   buildStreetsQuery,
+  buildBoundaryByIdQuery,
+  buildAdminBoundariesWithinAreaQuery,
+  buildStreetsWithinAreaQuery,
+  buildPoisWithinAreaQuery,
 } from './overpass-query.util';
 
 describe('sanitizeOverpassName', () => {
@@ -99,5 +103,100 @@ describe('buildStreetsQuery', () => {
 
     expect(query).toContain('["highway"]["name"]');
     expect(query).toContain('(around:2500,-34.6201,-58.3715)');
+  });
+});
+
+describe('buildBoundaryByIdQuery', () => {
+  it('queries a specific relation by id and asks for full geometry', () => {
+    const query = buildBoundaryByIdQuery({
+      osmType: 'relation',
+      osmId: 1224652,
+    });
+
+    expect(query).toContain('relation(1224652)');
+    expect(query).toContain('out geom;');
+  });
+
+  it('queries a specific way by id when the boundary is a way, not a relation', () => {
+    const query = buildBoundaryByIdQuery({ osmType: 'way', osmId: 42 });
+
+    expect(query).toContain('way(42)');
+    expect(query).toContain('out geom;');
+  });
+});
+
+describe('OverpassElement center field', () => {
+  it('is typed as optional on OverpassElement, for the out tags center response shape', () => {
+    // Compile-time check, not a runtime assertion: buildAdminBoundariesWithinAreaQuery
+    // and buildStreetsWithinAreaQuery/buildPoisWithinAreaQuery below all use
+    // `out tags center;`, not `out geom;` — deliberately (a city can have
+    // dozens of neighborhoods; fetching every one's full polygon would risk
+    // the same 413 payload problem street-candidate capping already guards
+    // against elsewhere). Overpass's `center` modifier adds a lightweight
+    // { lat, lon } to each way/relation instead of full geometry — see
+    // osm-geometry.util.ts's centroid fallback (Task 9) for how that's
+    // turned into a usable OsmCandidate despite having no polygon.
+    const el: import('../interfaces/overpass.interface').OverpassElement = {
+      type: 'relation',
+      id: 1,
+      tags: { name: 'San Telmo' },
+      center: { lat: -34.62, lon: -58.37 },
+    };
+    expect(el.center).toEqual({ lat: -34.62, lon: -58.37 });
+  });
+});
+
+describe('buildAdminBoundariesWithinAreaQuery', () => {
+  it('uses map_to_area on the given relation, not a radius', () => {
+    const query = buildAdminBoundariesWithinAreaQuery({
+      osmType: 'relation',
+      osmId: 1224652,
+      childAdminLevel: 9,
+    });
+
+    expect(query).toContain('relation(1224652)');
+    expect(query).toContain('map_to_area->.a');
+    expect(query).toContain('["admin_level"="9"](area.a)');
+    expect(query).toContain('[!"highway"](area.a)(if:is_closed())');
+    expect(query).not.toContain('around:');
+    expect(query).toContain('out tags center;');
+  });
+
+  it('rejects an invalid child admin level', () => {
+    expect(() =>
+      buildAdminBoundariesWithinAreaQuery({
+        osmType: 'relation',
+        osmId: 1224652,
+        childAdminLevel: 13,
+      }),
+    ).toThrow(RangeError);
+  });
+});
+
+describe('buildStreetsWithinAreaQuery', () => {
+  it('uses map_to_area, filtering named highways, not a radius', () => {
+    const query = buildStreetsWithinAreaQuery({
+      osmType: 'relation',
+      osmId: 2223069,
+    });
+
+    expect(query).toContain('relation(2223069)');
+    expect(query).toContain('map_to_area->.a');
+    expect(query).toContain('way["highway"]["name"](area.a)');
+    expect(query).not.toContain('around:');
+  });
+});
+
+describe('buildPoisWithinAreaQuery', () => {
+  it('uses map_to_area, filtering named tourism/amenity/historic/leisure nodes', () => {
+    const query = buildPoisWithinAreaQuery({
+      osmType: 'relation',
+      osmId: 2223069,
+    });
+
+    expect(query).toContain('map_to_area->.a');
+    expect(query).toContain('node["tourism"]["name"](area.a)');
+    expect(query).toContain('node["historic"]["name"](area.a)');
+    expect(query).not.toContain('around:');
   });
 });

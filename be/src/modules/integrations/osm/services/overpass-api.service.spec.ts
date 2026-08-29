@@ -88,6 +88,46 @@ describe('OverpassApiService', () => {
     ).rejects.toThrow('network down');
   });
 
+  it('retries a 429 within budget and honors Retry-After', async () => {
+    mockedAxios.post
+      .mockRejectedValueOnce({
+        message: 'rate limited',
+        response: { status: 429, headers: { 'retry-after': '0' } },
+      })
+      .mockResolvedValueOnce({ data: { elements: [{ type: 'node', id: 1 }] } });
+    service = await setup({
+      OVERPASS_MAX_RETRIES: '1',
+      OVERPASS_RETRY_BASE_MS: '1',
+      OVERPASS_TOTAL_BUDGET_MS: '1000',
+    });
+
+    const result = await service.queryContainingBoundary({
+      latitude: 0,
+      longitude: 0,
+    });
+
+    expect(result).toEqual([{ type: 'node', id: 1 }]);
+    expect(mockedAxios.post).toHaveBeenCalledTimes(2);
+  });
+
+  it('stops retrying a 503 after the bounded retry count is exhausted', async () => {
+    const error = {
+      message: 'unavailable',
+      response: { status: 503, headers: { 'retry-after': '0' } },
+    };
+    mockedAxios.post.mockRejectedValue(error);
+    service = await setup({
+      OVERPASS_MAX_RETRIES: '2',
+      OVERPASS_RETRY_BASE_MS: '1',
+      OVERPASS_TOTAL_BUDGET_MS: '1000',
+    });
+
+    await expect(
+      service.queryContainingBoundary({ latitude: 0, longitude: 0 }),
+    ).rejects.toBe(error);
+    expect(mockedAxios.post).toHaveBeenCalledTimes(3);
+  });
+
   it('respects OVERPASS_MAX_CONCURRENCY, not letting more than N requests run at once', async () => {
     let active = 0;
     let maxActive = 0;

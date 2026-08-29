@@ -57,7 +57,7 @@ const defaultCenter = {
 };
 
 export const AppProvider = ({ children }: { children: React.ReactNode }) => {
-  const [center, setCenter] = useState(defaultCenter);
+  const [center, setCenter] = useState<{ lat: number; lng: number }>(defaultCenter);
   const [address, setAddress] = useState<Address | null>(null);
   const [activities, setActivities] = useState<Activity[]>([]);
   const [activitiesError, setActivitiesError] = useState<ApiError | null>(null);

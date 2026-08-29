@@ -1,4 +1,4 @@
-import { BudgetLevel } from '../dto/create-tour-from-prompt.dto';
+import { BudgetLevel } from '../interfaces/tour-generation.interface';
 
 export interface AuditActivityInput {
   activityId?: string;

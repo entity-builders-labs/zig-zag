@@ -11,6 +11,17 @@ A modern travel and exploration application that helps users discover places and
 
 Esta sección explica cómo colaboran frontend y backend en los flujos principales, con diagramas de secuencia. Para el detalle de cada módulo backend hay READMEs dentro de `be/src/modules/*` y `be/src/shared/ai/`; para el frontend, `fe/api/README.md`, `fe/features/README.md` y `fe/context/README.md`.
 
+### Documento canónico del Tour Engine
+
+Antes de modificar generación de tours o Activities, destination resolution,
+retrieval/ranking, embeddings, composites o integraciones Google Places/OSM,
+leer [Activity Discovery and Tour Generation](./docs/architecture/activity-discovery-and-tour-generation.md).
+El documento reúne los diagramas end-to-end, el rol de embeddings y Amazon
+Bedrock, el refill multi-anchor de Places, la factibilidad espacial según el
+transporte elegido y las invariantes que deben preservar tanto colaboradores
+como agentes de IA. Describe la arquitectura objetivo; el repositorio actual
+sigue siendo la fuente de verdad sobre qué partes ya están implementadas.
+
 ### Componentes principales
 
 **Frontend (`fe/`)**
@@ -22,7 +33,7 @@ Esta sección explica cómo colaboran frontend y backend en los flujos principal
 **Backend (`be/src/`)**
 
 - `modules/activities/services/hybrid-search.service.ts` (`HybridSearchService`): busca actividades existentes en PostgreSQL por proximidad y decide si dispara un crawling en background (si no se rastreó esa zona en las últimas 24h).
-- `modules/integrations/google-places/google-places.service.ts` (`GooglePlacesService`): orquesta las búsquedas a Google Places (o al mock si `USE_MOCK_MAPS=true`), clasifica categorías con IA como fallback, guarda actividades nuevas y dispara la generación de sus embeddings.
+- `modules/integrations/google-places/google-places.service.ts` (`GooglePlacesService`): orquesta el refill mediante el proveedor configurado (`google` por defecto, `geoapify` explícito), con cache opcional por proveedor; guarda actividades nuevas y dispara la generación de sus embeddings.
 - `modules/tours/services/tour-generation.service.ts` (`TourGenerationService`): crea el registro básico del tour (sin actividades) y dispara la generación en background sin esperar la respuesta (`createTourFromWizard`), o genera todo de una sola vez de forma síncrona (`generateTour`, usado por el descubrimiento de tours cercanos).
 - `modules/tours/services/tour-activity-generation.service.ts` (`TourActivityGenerationService`): el "trabajador" en background — busca actividades existentes, dispara crawling si no hay, arma el prompt para el LLM (vía `AI_PROVIDER`), guarda las `TourActivity` generadas y va actualizando `metadata.generationStatus`.
 - `modules/tours/services/tour-location.service.ts` (`TourLocationService`): busca tours existentes cerca de una ubicación con cierta categoría; si encuentra menos de 3, genera uno nuevo de forma síncrona vía `TourGenerationService.generateTour()`.
@@ -35,7 +46,7 @@ Esta sección explica cómo colaboran frontend y backend en los flujos principal
 - **Ollama** (`ollama`, perfil `local-ai`): sirve modelos LLM localmente. Se usa para generar embeddings (`nomic-embed-text`) por defecto en desarrollo, y opcionalmente para chat si `AI_PROVIDER=ollama`.
 - **Groq** (API externa): proveedor de chat/LLM usado en AWS (`llama-3.1-8b-instant`). Ollama queda disponible para desarrollo local.
 - **Amazon Bedrock** (API administrada de AWS): genera embeddings con Titan Text Embeddings V2 en producción. No requiere una cuenta ni tokens de OpenAI.
-- **Google Places API** (externa, o *mock* si `USE_MOCK_MAPS=true`): fuente de datos reales de lugares/restaurantes/atracciones que alimenta la tabla `activity`.
+- **Places API** (Google Places como proveedor backend por defecto; Geoapify como alternativa explícita): fuente de datos reales de lugares/restaurantes/atracciones que alimenta la tabla `activity`. `USE_MOCK_MAPS=true` activa el wrapper de cache; `read` llama al proveedor real ante un miss y `strict` nunca lo hace.
 - **cors-proxy**: proxy HTTP simple para que el frontend web esquive CORS al pegarle al backend.
 
 ### Diagrama de infraestructura (quién habla con quién)
@@ -161,7 +172,7 @@ Disparado en background tanto por la búsqueda híbrida (#1) como por la generac
 sequenceDiagram
     participant Caller as HybridSearchService /<br/>TourActivityGenerationService
     participant GP as GooglePlacesService
-    participant GMaps as Google Places API<br/>(o Mock si USE_MOCK_MAPS=true)
+    participant GMaps as Places provider<br/>(Google por defecto + cache opcional)
     participant AI as LangChainService
     participant ChatLLM as Groq / OpenAI / Ollama<br/>(chat, según AI_PROVIDER)
     participant DB as PostgreSQL

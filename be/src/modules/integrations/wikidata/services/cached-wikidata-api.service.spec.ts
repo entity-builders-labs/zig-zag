@@ -15,7 +15,10 @@ describe('CachedWikidataApiService', () => {
 
   beforeEach(() => {
     tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'wikidata-cache-test-'));
-    realService = { getEntitySummaries: jest.fn() };
+    realService = {
+      getEntitySummaries: jest.fn(),
+      lookupEntitySummaries: jest.fn(),
+    };
   });
 
   afterEach(() => {
@@ -49,12 +52,21 @@ describe('CachedWikidataApiService', () => {
     label: `Label for ${qid}`,
   });
 
+  const successfulLookup = (summaries: Map<string, WikidataEntitySummary>) => ({
+    summaries,
+    status: 'success' as const,
+    failedQids: new Set<string>(),
+    extractFailedQids: new Set<string>(),
+  });
+
   it('write mode calls the real service for a miss and persists each summary under its own QID file', async () => {
-    realService.getEntitySummaries.mockResolvedValue(
-      new Map([
-        ['Q1', summary('Q1')],
-        ['Q2', summary('Q2')],
-      ]),
+    realService.lookupEntitySummaries.mockResolvedValue(
+      successfulLookup(
+        new Map([
+          ['Q1', summary('Q1')],
+          ['Q2', summary('Q2')],
+        ]),
+      ),
     );
     const service = await setup('write');
 
@@ -62,38 +74,41 @@ describe('CachedWikidataApiService', () => {
 
     expect(result.get('Q1')).toEqual(summary('Q1'));
     expect(result.get('Q2')).toEqual(summary('Q2'));
-    expect(realService.getEntitySummaries).toHaveBeenCalledWith(['Q1', 'Q2']);
+    expect(realService.lookupEntitySummaries).toHaveBeenCalledWith([
+      'Q1',
+      'Q2',
+    ]);
     const cachedFiles = fs.readdirSync(path.join(tempDir, 'wikidata-cache'));
     expect(cachedFiles.sort()).toEqual(['Q1.json', 'Q2.json']);
   });
 
   it('read mode returns cached QIDs without calling the real service again', async () => {
-    realService.getEntitySummaries.mockResolvedValue(
-      new Map([['Q1', summary('Q1')]]),
+    realService.lookupEntitySummaries.mockResolvedValue(
+      successfulLookup(new Map([['Q1', summary('Q1')]])),
     );
     const writer = await setup('write');
     await writer.getEntitySummaries(['Q1']);
 
-    realService.getEntitySummaries.mockClear();
+    realService.lookupEntitySummaries.mockClear();
     const reader = await setup('read');
     const result = await reader.getEntitySummaries(['Q1']);
 
     expect(result.get('Q1')).toEqual(summary('Q1'));
-    expect(realService.getEntitySummaries).not.toHaveBeenCalled();
+    expect(realService.lookupEntitySummaries).not.toHaveBeenCalled();
   });
 
   it('only fetches the QIDs that are actually missing from the cache, merging with what was already cached', async () => {
     // Q1 already cached from a previous run.
-    realService.getEntitySummaries.mockResolvedValue(
-      new Map([['Q1', summary('Q1')]]),
+    realService.lookupEntitySummaries.mockResolvedValue(
+      successfulLookup(new Map([['Q1', summary('Q1')]])),
     );
     const writer = await setup('write');
     await writer.getEntitySummaries(['Q1']);
 
     // Now request Q1 (cached) + Q2 (not cached) together.
-    realService.getEntitySummaries.mockClear();
-    realService.getEntitySummaries.mockResolvedValue(
-      new Map([['Q2', summary('Q2')]]),
+    realService.lookupEntitySummaries.mockClear();
+    realService.lookupEntitySummaries.mockResolvedValue(
+      successfulLookup(new Map([['Q2', summary('Q2')]])),
     );
     const service = await setup('write');
     const result = await service.getEntitySummaries(['Q1', 'Q2']);
@@ -102,7 +117,7 @@ describe('CachedWikidataApiService', () => {
     // whole point of caching per-QID instead of per-batch: changing the
     // candidate pool doesn't blow away the cache benefit for QIDs already
     // resolved.
-    expect(realService.getEntitySummaries).toHaveBeenCalledWith(['Q2']);
+    expect(realService.lookupEntitySummaries).toHaveBeenCalledWith(['Q2']);
     expect(result.get('Q1')).toEqual(summary('Q1'));
     expect(result.get('Q2')).toEqual(summary('Q2'));
   });
@@ -113,12 +128,12 @@ describe('CachedWikidataApiService', () => {
     await expect(service.getEntitySummaries(['Q1'])).rejects.toThrow(
       /Strict mode/,
     );
-    expect(realService.getEntitySummaries).not.toHaveBeenCalled();
+    expect(realService.lookupEntitySummaries).not.toHaveBeenCalled();
   });
 
   it('read mode falls back to the real service on a miss without persisting', async () => {
-    realService.getEntitySummaries.mockResolvedValue(
-      new Map([['Q1', summary('Q1')]]),
+    realService.lookupEntitySummaries.mockResolvedValue(
+      successfulLookup(new Map([['Q1', summary('Q1')]])),
     );
     const service = await setup('read');
 
@@ -134,13 +149,31 @@ describe('CachedWikidataApiService', () => {
   });
 
   it('deduplicates repeated QIDs in the request', async () => {
-    realService.getEntitySummaries.mockResolvedValue(
-      new Map([['Q1', summary('Q1')]]),
+    realService.lookupEntitySummaries.mockResolvedValue(
+      successfulLookup(new Map([['Q1', summary('Q1')]])),
     );
     const service = await setup('write');
 
     await service.getEntitySummaries(['Q1', 'Q1', 'Q1']);
 
-    expect(realService.getEntitySummaries).toHaveBeenCalledWith(['Q1']);
+    expect(realService.lookupEntitySummaries).toHaveBeenCalledWith(['Q1']);
+  });
+
+  it('does not cache a label-only summary when Wikipedia extracts failed', async () => {
+    realService.lookupEntitySummaries.mockResolvedValue({
+      summaries: new Map([['Q1', summary('Q1')]]),
+      status: 'partial',
+      failedQids: new Set(),
+      extractFailedQids: new Set(['Q1']),
+    });
+    const service = await setup('write');
+
+    const result = await service.lookupEntitySummaries(['Q1']);
+
+    expect(result.status).toBe('partial');
+    expect(result.extractFailedQids).toEqual(new Set(['Q1']));
+    expect(fs.existsSync(path.join(tempDir, 'wikidata-cache', 'Q1.json'))).toBe(
+      false,
+    );
   });
 });

@@ -6,7 +6,10 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '@core/database/prisma.service';
 import { CreateTourDto } from '../dto/create-tour.dto';
-import { GenerateTourOptions } from '../interfaces/tour-generation.interface';
+import {
+  GenerateTourOptions,
+  TourGenerationRequest,
+} from '../interfaces/tour-generation.interface';
 import { LangChainService } from '@shared/ai/langchain.service';
 import { VectorStoreService } from '@shared/ai/services/vector-store.service';
 import { ActivitiesService } from '@activities/services/activities.service';
@@ -19,13 +22,16 @@ import { RunnableSequence } from '@langchain/core/runnables';
 import { JsonOutputFunctionsParser } from 'langchain/output_parsers';
 import {
   CREATE_TOUR_JSON_SYSTEM_PROMPT,
+  CREATE_TOUR_RESPONSE_SCHEMA,
   CREATE_TOUR_SYSTEM_PROMPT,
+  GROQ_TOUR_MAX_COMPLETION_TOKENS,
   createTourJsonUserPrompt,
 } from '../prompts/create-tour.prompt';
 import { extractAndCleanJson, repairJson } from '../utils/json-parser.util';
 import {
   buildPromptFromParams,
   buildPreferencesObject,
+  buildWizardSelectionInput,
 } from '../utils/prompt-builder.util';
 import { transformAiActivitiesToDto } from '../utils/activity-transformer.util';
 import { updateTravelTimesForActivities } from '../utils/travel-time-calculator.util';
@@ -47,6 +53,24 @@ export class TourGenerationService {
     private readonly tourActivityGenerationService: TourActivityGenerationService,
   ) {}
 
+  private async withTimeout<T>(
+    operation: Promise<T>,
+    timeoutMs: number,
+    message: string,
+  ): Promise<T> {
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
+    try {
+      return await Promise.race([
+        operation,
+        new Promise<T>((_, reject) => {
+          timeoutId = setTimeout(() => reject(new Error(message)), timeoutMs);
+        }),
+      ]);
+    } finally {
+      if (timeoutId) clearTimeout(timeoutId);
+    }
+  }
+
   private createTourChain() {
     const chatModel = this.langChainService.getChatModel();
     const provider = this.langChainService['config']?.provider || 'openai'; // Access provider config
@@ -67,7 +91,21 @@ export class TourGenerationService {
             systemPrompt,
             userPrompt,
             {},
-            {},
+            {
+              groq: {
+                maxCompletionTokens: GROQ_TOUR_MAX_COMPLETION_TOKENS,
+                reasoningEffort: 'low',
+                includeReasoning: false,
+              },
+              responseFormat: {
+                type: 'json_schema',
+                json_schema: {
+                  name: 'tour_generation',
+                  strict: true,
+                  schema: CREATE_TOUR_RESPONSE_SCHEMA,
+                },
+              },
+            },
           );
 
           // Clean and extract JSON from response
@@ -183,64 +221,29 @@ export class TourGenerationService {
    * Create a basic tour from wizard preferences
    * This creates the tour structure first, then generates activities in background
    */
-  async createTourFromWizard(options: GenerateTourOptions) {
+  async createTourFromWizard(request: TourGenerationRequest, ownerId: string) {
     const startTime = Date.now();
-
-    // Build prompt from options
-    // Use destination as name if name is not provided
-    const promptName = options?.name || options?.destination;
-
-    const finalPrompt = buildPromptFromParams({
-      name: promptName,
-      description: options?.description,
-      days: options?.days,
-      totalDistance: options?.totalDistance,
-      price: options?.price,
-      estimatedBudget: options?.estimatedBudget,
-      maxGroupSize: options?.maxGroupSize,
-      recommendedGroupSize: options?.recommendedGroupSize,
-      startDates: options?.startDates,
-      categories: options?.categories,
-      interests: options?.interests,
-      budgetLevel: options?.budgetLevel,
-      transportationMode: options?.transportationMode,
-      travelPace: options?.travelPace,
-      dietaryRestrictions: options?.dietaryRestrictions,
-      groupType: options?.groupType,
-      latitude: options?.latitude,
-      longitude: options?.longitude,
-      destination: options?.destination,
-    });
+    const selectorInput = buildWizardSelectionInput(request);
 
     this.logger.log(
-      `Creating tour from wizard with prompt: ${finalPrompt.substring(0, 100)}...`,
+      `Creating tour from wizard with canonical intent: ${selectorInput.substring(0, 100)}...`,
     );
 
     try {
-      // Build preferences object from options
-      const preferences = buildPreferencesObject(options);
-
       // Create basic tour structure (without activities)
-      // Use destination as name if name is not provided
-      const tourName = options?.name || options?.destination || 'Nuevo Tour';
+      const tourName = request.destination.label || 'Nuevo Tour';
 
       const tourData: CreateTourDto = {
-        ownerId: options?.ownerId,
+        ownerId,
         name: tourName,
-        description: options?.description || 'Tour personalizado',
+        description: 'Tour personalizado',
         duration: undefined,
-        totalDays: options?.days,
-        totalDistance: options?.totalDistance,
-        estimatedBudget: options?.estimatedBudget,
-        recommendedGroupSize: options?.recommendedGroupSize,
-        prompt: finalPrompt,
-        categories: options?.categories || [],
+        totalDays: request.days,
+        prompt: selectorInput,
+        categories: request.categories,
         metadata: {
           generatedAt: new Date().toISOString(),
-          options: options as any,
-          originalPrompt: finalPrompt,
-          preferences:
-            Object.keys(preferences).length > 0 ? preferences : undefined,
+          generationRequest: request as any,
           generationStatus: 'pending',
         },
         activities: [], // No activities yet
@@ -391,21 +394,16 @@ export class TourGenerationService {
         const activityLimit = 20; // Reduced from 50 to improve performance
 
         try {
-          const nearbyActivities = await Promise.race([
+          const nearbyActivities = await this.withTimeout(
             this.activitiesService.findAll(
               options.latitude.toString(),
               options.longitude.toString(),
               radius,
               activityLimit,
             ),
-            new Promise<any[]>(
-              (_, reject) =>
-                setTimeout(
-                  () => reject(new Error('Activity search timeout')),
-                  10000,
-                ), // 10s timeout
-            ),
-          ]);
+            10000,
+            'Activity search timeout',
+          );
 
           const searchTime = Date.now() - searchStartTime;
           this.logger.debug(`Activity search completed in ${searchTime}ms`);
@@ -416,26 +414,21 @@ export class TourGenerationService {
               .slice(0, 15) // Limit to top 15 for prompt size
               .map(
                 (act, idx) =>
-                  `${idx + 1}. ${act.name} (${act.type || 'Activity'}) - ${(act.description || 'No description').substring(0, 100)} - Location: ${act.latitude}, ${act.longitude} - Duration: ${act.duration || 'Unknown'} minutes`,
+                  `${idx + 1}. ${act.name} (${act.type || 'Activity'}) - ${(act.description || 'No description').substring(0, 100)} - Location: ${act.latitude}, ${act.longitude} - Duration: ${act.duration || 'Unknown'} hours`,
               )
               .join('\n')}`;
           } else if (options.includeExistingActivities) {
             // Try semantic search if no nearby activities found (with timeout)
             try {
               const semanticStartTime = Date.now();
-              const semanticResults = await Promise.race([
+              const semanticResults = await this.withTimeout(
                 this.vectorStoreService.findSimilarActivities(
                   `Activities in ${options.latitude}, ${options.longitude}: ${finalPrompt}`,
                   5, // Reduced from 10 to improve performance
                 ),
-                new Promise<any[]>(
-                  (_, reject) =>
-                    setTimeout(
-                      () => reject(new Error('Semantic search timeout')),
-                      5000,
-                    ), // 5s timeout
-                ),
-              ]);
+                5000,
+                'Semantic search timeout',
+              );
 
               const semanticTime = Date.now() - semanticStartTime;
               this.logger.debug(
@@ -469,11 +462,8 @@ export class TourGenerationService {
       const chainStartTime = Date.now();
       const tourChain = this.createTourChain();
 
-      // Prepare the input with available activities context
-      const fullPrompt = enhancedPrompt + availableActivitiesText;
-
       this.logger.debug(
-        `Invoking tour chain with prompt: ${fullPrompt.substring(0, 200)}...`,
+        `Invoking tour chain with prompt: ${enhancedPrompt.substring(0, 200)}...`,
       );
 
       // Add timeout to AI chain invocation
@@ -483,23 +473,19 @@ export class TourGenerationService {
         `Using ${generationTimeout}ms timeout for AI generation (provider-aware)`,
       );
 
-      const aiResponse = (await Promise.race([
+      const aiResponse = (await this.withTimeout(
         tourChain.invoke({
-          input: fullPrompt,
+          // activities is a separate createTourJsonUserPrompt section below;
+          // appending it to input too duplicates every candidate and can push
+          // the Groq request over its TPM budget.
+          input: enhancedPrompt,
           activities:
             availableActivitiesText ||
             'No specific activities provided. Create a general tour.',
         }),
-        new Promise<any>((_, reject) =>
-          setTimeout(
-            () =>
-              reject(
-                new Error(`AI generation timeout after ${generationTimeout}ms`),
-              ),
-            generationTimeout,
-          ),
-        ),
-      ])) as any; // Type assertion for AI response
+        generationTimeout,
+        `AI generation timeout after ${generationTimeout}ms`,
+      )) as any; // Type assertion for AI response
 
       const chainTime = Date.now() - chainStartTime;
       this.logger.debug(

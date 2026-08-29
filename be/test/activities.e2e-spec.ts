@@ -16,6 +16,7 @@ describe('Activities similarity search (e2e)', () => {
   let app: INestApplication;
   let prisma: PrismaService;
   const activityIds: string[] = [];
+  let existingEmbeddedCount = 0;
 
   const queryVector = [1, ...Array(255).fill(0)];
   const closeVector = [1, ...Array(255).fill(0)]; // identical -> distance 0
@@ -40,6 +41,10 @@ describe('Activities similarity search (e2e)', () => {
     app = moduleFixture.createNestApplication();
     await app.init();
     prisma = app.get(PrismaService);
+    const existingEmbeddingRows = await prisma.$queryRaw<
+      { count: bigint }[]
+    >`SELECT count(*) AS count FROM "activity" WHERE "embedding" IS NOT NULL`;
+    existingEmbeddedCount = Number(existingEmbeddingRows[0]?.count ?? 0);
 
     const target = await prisma.activity.create({
       data: { name: 'Target Activity', metadata: { tags: ['test'] } },
@@ -70,7 +75,11 @@ describe('Activities similarity search (e2e)', () => {
 
     const response = await request(app.getHttpServer())
       .get(`/activities/${targetId}/similar`)
-      .query({ limit: 5 })
+      // This e2e may run against a developer database that already contains
+      // embedded catalog rows. Request enough results to include the two
+      // controlled fixtures; a fixed top-5 would legitimately omit the
+      // orthogonal fixture and would not test ordering at all.
+      .query({ limit: existingEmbeddedCount + 2 })
       .expect(200);
 
     const returnedIds = response.body.map((a: { id: string }) => a.id);

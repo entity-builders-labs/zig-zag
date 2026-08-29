@@ -16,8 +16,9 @@ import { TourActivityGenerationService } from '../services/tour-activity-generat
 import { TourLocationService } from '../services/tour-location.service';
 import { CreateTourDto } from '../dto/create-tour.dto';
 import { UpdateTourDto } from '../dto/update-tour.dto';
-import { CreateTourFromPromptDto } from '../dto/create-tour-from-prompt.dto';
+import { CreateTourFromWizardDto } from '../dto/create-tour-from-wizard.dto';
 import { UpdateTourActivityWaypointsDto } from '../dto/update-tour-activity-waypoints.dto';
+import { buildTourGenerationRequest } from '../utils/tour-generation-request.util';
 import {
   ApiTags,
   ApiOperation,
@@ -74,42 +75,15 @@ export class ToursController {
     status: 400,
     description: 'Invalid input data.',
   })
-  @ApiBody({ type: CreateTourFromPromptDto })
+  @ApiBody({ type: CreateTourFromWizardDto })
   generateTour(
-    @Body(ValidationPipe) createTourFromPromptDto: CreateTourFromPromptDto,
+    @Body(ValidationPipe) createTourFromWizardDto: CreateTourFromWizardDto,
     @CurrentUser() user: RequestUser,
   ) {
-    return this.tourGenerationService.createTourFromWizard({
-      ownerId: user.id,
-      latitude: createTourFromPromptDto.latitude,
-      longitude: createTourFromPromptDto.longitude,
-      radius: createTourFromPromptDto.radius,
-      includeExistingActivities:
-        createTourFromPromptDto.includeExistingActivities !== false, // default true
-      days: createTourFromPromptDto.days,
-      budgetLevel: createTourFromPromptDto.budgetLevel,
-      interests: createTourFromPromptDto.interests,
-      transportationMode: createTourFromPromptDto.transportationMode,
-      groupType: createTourFromPromptDto.groupType,
-      travelPace: createTourFromPromptDto.travelPace,
-      dietaryRestrictions: createTourFromPromptDto.dietaryRestrictions,
-      destination: createTourFromPromptDto.destination,
-      destinationLatitude: createTourFromPromptDto.destinationLatitude,
-      destinationLongitude: createTourFromPromptDto.destinationLongitude,
-      skipImageGeneration:
-        createTourFromPromptDto.skipImageGeneration !== false, // default true
-      // New fields for auto-prompt generation
-      name: createTourFromPromptDto.name,
-      description: createTourFromPromptDto.description,
-      totalDistance: createTourFromPromptDto.totalDistance,
-      price: createTourFromPromptDto.price,
-      estimatedBudget: createTourFromPromptDto.estimatedBudget,
-      maxGroupSize: createTourFromPromptDto.maxGroupSize,
-      recommendedGroupSize: createTourFromPromptDto.recommendedGroupSize,
-      startDates: createTourFromPromptDto.startDates,
-      categories: createTourFromPromptDto.categories,
-      excludeTours: createTourFromPromptDto.excludeTours,
-    });
+    return this.tourGenerationService.createTourFromWizard(
+      buildTourGenerationRequest(createTourFromWizardDto),
+      user.id,
+    );
   }
 
   @Post(':id/generate-activities')

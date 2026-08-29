@@ -392,6 +392,45 @@ export class ActivitiesService {
   }
 
   /**
+   * Fetch specific activities by id, shaped identically to findAll's
+   * distance/weightedScore output — used by PR 9's unified candidate pool
+   * to re-query rows just persisted by discovery resolution (a targeted
+   * fetch, not reliant on the geographic query's own rank-then-cap
+   * incidentally including them).
+   * @param ids Activity ids to fetch
+   * @param originLatitude Latitude to compute distance from
+   * @param originLongitude Longitude to compute distance from
+   */
+  async findManyByIds(
+    ids: string[],
+    originLatitude: number,
+    originLongitude: number,
+  ): Promise<ActivityWithDistance[]> {
+    if (ids.length === 0) return [];
+
+    const activities = await this.prisma.activity.findMany({
+      where: { id: { in: ids }, isArchived: false },
+    });
+
+    return activities.map((activity) => {
+      const distance = this.calculateDistance(
+        originLatitude,
+        originLongitude,
+        activity.latitude,
+        activity.longitude,
+      );
+      const v = Number(activity.ratingCount ?? 0);
+      const R = Number(activity.rating ?? 0);
+      const weightedScore =
+        v + this.PRIOR_WEIGHT > 0
+          ? (v / (v + this.PRIOR_WEIGHT)) * R +
+            (this.PRIOR_WEIGHT / (v + this.PRIOR_WEIGHT)) * this.PRIOR_MEAN
+          : 0;
+      return { ...activity, distance, weightedScore };
+    });
+  }
+
+  /**
    * Find a single activity by ID
    * @param id Activity ID
    * @returns Activity if found
@@ -514,19 +553,10 @@ export class ActivitiesService {
    * @throws NotFoundException if activity not found
    */
   async findSimilar(id: string, limit: number = 10): Promise<Activity[]> {
-    // Get the source activity
-    const activity = await this.findOne(id);
+    await this.findOne(id);
 
-    // Build the same rich text used for embeddings
-    const baseText = `Activity Details:\n${activity.name}. ${activity.description ?? ''}. Metadata: ${
-      typeof activity.metadata === 'string'
-        ? activity.metadata
-        : JSON.stringify(activity.metadata ?? {})
-    }`;
-
-    // Query vector store
-    const results = await this.vectorStore.findSimilarActivities(
-      baseText,
+    const results = await this.vectorStore.findSimilarActivitiesForActivity(
+      id,
       limit + 1,
     );
 

@@ -101,7 +101,16 @@ model Activity {
   // the add_pgvector_embedding migration) and invisible here — always run
   // `prisma migrate dev --create-only` and check for a stray
   // `DROP INDEX activity_embedding_hnsw_idx` before applying future migrations.
-  embedding Unsupported("vector(256)")?
+  embedding                Unsupported("vector(256)")?
+  // Identity of the exact provider/model/document contract that produced the
+  // vector above. A vector is queryable only when every field matches the
+  // active embedding configuration. Switching providers/models is therefore
+  // an explicit full-index rebuild, never an implicit mixed-vector fallback.
+  embeddingProvider        String?
+  embeddingModel           String?
+  embeddingDimensions      Int?
+  embeddingDocumentVersion Int?
+  embeddedAt               DateTime?
 
   // Timestamps
   createdAt DateTime @default(now())
@@ -109,7 +118,7 @@ model Activity {
 
   // Optional relationships
   knownActivityTypeName String?
-  KnownActivityType     KnownActivityType? @relation(fields: [knownActivityTypeName], references: [name], onDelete: SetNull)
+  KnownActivityType     KnownActivityType?     @relation(fields: [knownActivityTypeName], references: [name], onDelete: SetNull)
   TourActivity          TourActivity[]
   tourWaypointSnapshots TourActivityWaypoint[]
 
@@ -130,6 +139,7 @@ model Activity {
   @@index([sourceId])
   @@index([kind])
   @@index([familyId])
+  @@index([embeddingProvider, embeddingModel, embeddingDimensions, embeddingDocumentVersion])
   @@map("activity")
 }
 
@@ -167,7 +177,7 @@ enum VariantTheme {
 // kind]) keeps repeated generate-templates runs (or concurrent live
 // generations) from creating duplicate families for the same area.
 model ActivityFamily {
-  id             String @id @default(uuid())
+  id             String       @id @default(uuid())
   areaActivityId String // FK to the Activity with kind=AREA that contains this family
   name           String // e.g. "San Telmo Walk"
   kind           ActivityKind // the kind its variants typically have, e.g. NEIGHBORHOOD_WALK

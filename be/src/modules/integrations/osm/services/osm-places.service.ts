@@ -10,15 +10,24 @@ import {
 } from '../utils/osm-geometry.util';
 
 export interface OsmCandidate {
-  id: string; // "osm:way:829393" | "osm:relation:49518"
+  id: string; // "osm:way:829393" | "osm:relation:49518" | "osm:node:123"
   name: string;
-  osmType: 'way' | 'relation';
+  // A POI candidate from findPoisWithin is genuinely a node (a single
+  // point), not a way/relation boundary — its own centroid-free geometry
+  // (see osm-geometry.util.ts's node handling).
+  osmType: 'way' | 'relation' | 'node';
   osmId: number;
   geometry: GeoJsonGeometry;
   tags: Record<string, string>;
   // Populated in Fase 3, when the candidate carries a `wikidata` tag and
   // Wikidata content is available and passes the content-safety check.
   narrativeContext?: string;
+}
+
+export interface OsmLookupResult<T> {
+  value: T;
+  status: 'success' | 'failed';
+  failureReason?: string;
 }
 
 // OSM's admin_level varies a lot by country, but 8-11 is the plausible
@@ -28,7 +37,15 @@ export interface OsmCandidate {
 // most specific (highest) admin_level in this range wins — if nothing
 // falls in range, we discard rather than guess.
 const NEIGHBORHOOD_ADMIN_LEVEL_RANGE = { min: 8, max: 11 };
+const DESTINATION_BOUNDARY_ADMIN_LEVEL_RANGE = { min: 5, max: 12 };
 const DEFAULT_MAX_STREETS_RADIUS_METERS = 2500;
+const GENERIC_STREET_NAMES = new Set([
+  'sin nombre',
+  'unnamed',
+  'unnamed road',
+  'unknown',
+  's n',
+]);
 
 @Injectable()
 export class OsmPlacesService {
@@ -64,11 +81,24 @@ export class OsmPlacesService {
     return {
       id: `osm:${element.type}:${element.id}`,
       name: tags.name,
-      osmType: element.type as 'way' | 'relation',
+      osmType: element.type,
       osmId: element.id,
       geometry,
       tags,
     };
+  }
+
+  private toStreetCandidate(element: OverpassElement): OsmCandidate | null {
+    const candidate = this.toCandidate(element);
+    if (!candidate) return null;
+
+    const normalizedName = candidate.name
+      .normalize('NFKD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, ' ')
+      .trim();
+    return GENERIC_STREET_NAMES.has(normalizedName) ? null : candidate;
   }
 
   /**
@@ -84,6 +114,15 @@ export class OsmPlacesService {
     longitude: number,
     radiusMeters: number,
   ): Promise<OsmCandidate[]> {
+    return (await this.lookupStreetsNear(latitude, longitude, radiusMeters))
+      .value;
+  }
+
+  async lookupStreetsNear(
+    latitude: number,
+    longitude: number,
+    radiusMeters: number,
+  ): Promise<OsmLookupResult<OsmCandidate[]>> {
     const cappedRadiusMeters = Math.min(
       radiusMeters,
       this.maxStreetsRadiusMeters,
@@ -94,14 +133,21 @@ export class OsmPlacesService {
         longitude,
         radiusMeters: cappedRadiusMeters,
       });
-      return elements
-        .map((el) => this.toCandidate(el))
-        .filter((c): c is OsmCandidate => c !== null);
-    } catch (error) {
+      return {
+        status: 'success',
+        value: elements
+          .map((el) => this.toStreetCandidate(el))
+          .filter((c): c is OsmCandidate => c !== null),
+      };
+    } catch (error: any) {
       this.logger.warn(
         `Overpass queryStreets failed, continuing without street candidates: ${error.message}`,
       );
-      return [];
+      return {
+        status: 'failed',
+        value: [],
+        failureReason: error.message || 'unknown Overpass error',
+      };
     }
   }
 
@@ -115,6 +161,13 @@ export class OsmPlacesService {
     latitude: number,
     longitude: number,
   ): Promise<OsmCandidate | null> {
+    return (await this.lookupContainingBoundary(latitude, longitude)).value;
+  }
+
+  async lookupContainingBoundary(
+    latitude: number,
+    longitude: number,
+  ): Promise<OsmLookupResult<OsmCandidate | null>> {
     try {
       const elements = await this.overpassApi.queryContainingBoundary({
         latitude,
@@ -136,13 +189,109 @@ export class OsmPlacesService {
         )
         .sort((a, b) => b.adminLevel - a.adminLevel);
 
-      return ranked[0]?.candidate ?? null;
-    } catch (error) {
+      return {
+        status: 'success',
+        value: ranked[0]?.candidate ?? null,
+      };
+    } catch (error: any) {
       this.logger.warn(
         `Overpass queryContainingBoundary failed, continuing without an area candidate: ${error.message}`,
       );
-      return null;
+      return {
+        status: 'failed',
+        value: null,
+        failureReason: error.message || 'unknown Overpass error',
+      };
     }
+  }
+
+  /**
+   * Resolves the operational polygon for a settlement that Nominatim models
+   * as a node. Unlike lookupContainingBoundary (which intentionally chooses
+   * the most specific neighborhood), this method only accepts a containing
+   * administrative boundary whose name matches structured container data
+   * returned by Nominatim. It never guesses from admin_level alone.
+   */
+  async lookupDestinationBoundary(
+    latitude: number,
+    longitude: number,
+    expectedContainerNames: string[],
+  ): Promise<OsmLookupResult<OsmCandidate | null>> {
+    const normalizedExpectedNames = expectedContainerNames
+      .map((name) => this.normalizeBoundaryName(name))
+      .filter(Boolean);
+
+    if (normalizedExpectedNames.length === 0) {
+      return { status: 'success', value: null };
+    }
+
+    try {
+      const elements = await this.overpassApi.queryContainingBoundary({
+        latitude,
+        longitude,
+      });
+      const ranked = elements
+        .map((element) => this.toCandidate(element))
+        .filter(
+          (
+            candidate,
+          ): candidate is OsmCandidate & {
+            osmType: 'way' | 'relation';
+          } =>
+            candidate !== null &&
+            candidate.osmType !== 'node' &&
+            !candidate.tags.highway,
+        )
+        .map((candidate) => {
+          const adminLevel = Number.parseInt(
+            candidate.tags.admin_level || '',
+            10,
+          );
+          const candidateNames = [
+            candidate.name,
+            candidate.tags.official_name,
+            candidate.tags.short_name,
+            candidate.tags.alt_name,
+          ]
+            .filter((name): name is string => Boolean(name))
+            .map((name) => this.normalizeBoundaryName(name));
+          const expectedIndex = normalizedExpectedNames.findIndex((expected) =>
+            candidateNames.includes(expected),
+          );
+          return { candidate, adminLevel, expectedIndex };
+        })
+        .filter(
+          ({ adminLevel, expectedIndex }) =>
+            expectedIndex >= 0 &&
+            Number.isInteger(adminLevel) &&
+            adminLevel >= DESTINATION_BOUNDARY_ADMIN_LEVEL_RANGE.min &&
+            adminLevel <= DESTINATION_BOUNDARY_ADMIN_LEVEL_RANGE.max,
+        )
+        .sort(
+          (a, b) =>
+            a.expectedIndex - b.expectedIndex || b.adminLevel - a.adminLevel,
+        );
+
+      return { status: 'success', value: ranked[0]?.candidate ?? null };
+    } catch (error: any) {
+      this.logger.warn(
+        `Overpass destination-boundary lookup failed, continuing point-scale: ${error.message}`,
+      );
+      return {
+        status: 'failed',
+        value: null,
+        failureReason: error.message || 'unknown Overpass error',
+      };
+    }
+  }
+
+  private normalizeBoundaryName(name: string): string {
+    return name
+      .normalize('NFKD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLocaleLowerCase('en')
+      .replace(/[^a-z0-9]+/g, ' ')
+      .trim();
   }
 
   /**
@@ -172,6 +321,183 @@ export class OsmPlacesService {
         `Overpass queryBoundaryByName failed for "${name}": ${error.message}`,
       );
       return null;
+    }
+  }
+
+  /**
+   * A specific boundary already identified by id (e.g. from
+   * DestinationResolutionService's Nominatim lookup) — as opposed to
+   * findContainingBoundary (point-based) or findBoundaryByName (name-based
+   * search near a point). Never throws, same defensive fallback as its
+   * siblings.
+   */
+  async getBoundaryById(
+    osmType: 'way' | 'relation',
+    osmId: number,
+  ): Promise<OsmCandidate | null> {
+    return (await this.lookupBoundaryById(osmType, osmId)).value;
+  }
+
+  async lookupBoundaryById(
+    osmType: 'way' | 'relation',
+    osmId: number,
+  ): Promise<OsmLookupResult<OsmCandidate | null>> {
+    try {
+      const elements = await this.overpassApi.queryBoundaryById({
+        osmType,
+        osmId,
+      });
+      const candidates = elements
+        .map((el) => this.toCandidate(el))
+        .filter((c): c is OsmCandidate => c !== null);
+      return { status: 'success', value: candidates[0] ?? null };
+    } catch (error: any) {
+      this.logger.warn(
+        `Overpass queryBoundaryById failed for ${osmType}/${osmId}: ${error.message}`,
+      );
+      return {
+        status: 'failed',
+        value: null,
+        failureReason: error.message || 'unknown Overpass error',
+      };
+    }
+  }
+
+  /**
+   * Real named neighborhoods inside a resolved city boundary — a true
+   * polygon-containment query (map_to_area), not one arbitrary point's
+   * containing boundary. Filtered to admin_level = the city's own level + 1,
+   * relative rather than a fixed absolute range: the spike showed
+   * admin_level semantics vary by country (Buenos Aires' own city boundary
+   * is admin_level=8, immediately adjacent to its real barrios at
+   * admin_level=9) — see docs/superpowers/specs/2026-08-21-activity-engine-
+   * design.md. Never throws.
+   */
+  async findNeighborhoodsWithin(
+    boundary: OsmCandidate,
+  ): Promise<OsmCandidate[]> {
+    return (await this.lookupNeighborhoodsWithin(boundary)).value;
+  }
+
+  async lookupNeighborhoodsWithin(
+    boundary: OsmCandidate,
+  ): Promise<OsmLookupResult<OsmCandidate[]>> {
+    const cityAdminLevel = Number(boundary.tags.admin_level);
+    if (
+      !Number.isInteger(cityAdminLevel) ||
+      cityAdminLevel < 1 ||
+      cityAdminLevel >= 12
+    ) {
+      return {
+        status: 'failed',
+        value: [],
+        failureReason: `Boundary ${boundary.id} has no usable administrative level`,
+      };
+    }
+
+    try {
+      const elements = await this.overpassApi.queryAdminBoundariesWithinArea({
+        osmType: boundary.osmType as 'way' | 'relation',
+        osmId: boundary.osmId,
+        childAdminLevel: cityAdminLevel + 1,
+      });
+      const seenIds = new Set<string>();
+      return {
+        status: 'success',
+        value: elements
+          .filter(
+            (el) =>
+              parseInt(el.tags?.admin_level || '', 10) === cityAdminLevel + 1 &&
+              (el.type === 'relation' ||
+                (el.type === 'way' && !el.tags?.highway)),
+          )
+          .map((el) => this.toCandidate(el))
+          .filter((c): c is OsmCandidate => c !== null)
+          .filter((candidate) => {
+            if (seenIds.has(candidate.id)) return false;
+            seenIds.add(candidate.id);
+            return true;
+          }),
+      };
+    } catch (error: any) {
+      this.logger.warn(
+        `Overpass queryAdminBoundariesWithinArea failed for ${boundary.id}: ${error.message}`,
+      );
+      return {
+        status: 'failed',
+        value: [],
+        failureReason: error.message || 'unknown Overpass error',
+      };
+    }
+  }
+
+  /**
+   * Named streets within a resolved neighborhood's own polygon — replaces
+   * findStreetsNear's radius guess for the area-scale path (point-scale
+   * destinations still use findStreetsNear, which has no polygon of its
+   * own to query against). Never throws.
+   */
+  async findStreetsWithin(boundary: OsmCandidate): Promise<OsmCandidate[]> {
+    return (await this.lookupStreetsWithin(boundary)).value;
+  }
+
+  async lookupStreetsWithin(
+    boundary: OsmCandidate,
+  ): Promise<OsmLookupResult<OsmCandidate[]>> {
+    try {
+      const elements = await this.overpassApi.queryStreetsWithinArea({
+        osmType: boundary.osmType as 'way' | 'relation',
+        osmId: boundary.osmId,
+      });
+      return {
+        status: 'success',
+        value: elements
+          .map((el) => this.toStreetCandidate(el))
+          .filter((c): c is OsmCandidate => c !== null),
+      };
+    } catch (error: any) {
+      this.logger.warn(
+        `Overpass queryStreetsWithinArea failed for ${boundary.id}: ${error.message}`,
+      );
+      return {
+        status: 'failed',
+        value: [],
+        failureReason: error.message || 'unknown Overpass error',
+      };
+    }
+  }
+
+  /**
+   * Named tourism/historic/etc POI nodes within a resolved neighborhood's
+   * own polygon. Never throws.
+   */
+  async findPoisWithin(boundary: OsmCandidate): Promise<OsmCandidate[]> {
+    return (await this.lookupPoisWithin(boundary)).value;
+  }
+
+  async lookupPoisWithin(
+    boundary: OsmCandidate,
+  ): Promise<OsmLookupResult<OsmCandidate[]>> {
+    try {
+      const elements = await this.overpassApi.queryPoisWithinArea({
+        osmType: boundary.osmType as 'way' | 'relation',
+        osmId: boundary.osmId,
+      });
+      return {
+        status: 'success',
+        value: elements
+          .map((el) => this.toCandidate(el))
+          .filter((c): c is OsmCandidate => c !== null),
+      };
+    } catch (error: any) {
+      this.logger.warn(
+        `Overpass queryPoisWithinArea failed for ${boundary.id}: ${error.message}`,
+      );
+      return {
+        status: 'failed',
+        value: [],
+        failureReason: error.message || 'unknown Overpass error',
+      };
     }
   }
 }

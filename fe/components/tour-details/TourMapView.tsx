@@ -61,7 +61,7 @@ export const TourMapView = ({
   // Extract all stops with valid coordinates
   const stops: StopWithLocation[] = useMemo(() => {
     return (tour.activities || [])
-      .map((item, index) => {
+      .map((item, index): StopWithLocation | null => {
         const latitude = item.activity?.latitude ?? item.activityLatitude;
         const longitude = item.activity?.longitude ?? item.activityLongitude;
         if (latitude == null || longitude == null) return null;
@@ -274,7 +274,7 @@ export const TourMapView = ({
               alt={currentStop.title}
               w={64}
               h={64}
-              borderRadius='$2xl'
+              borderRadius={16}
               resizeMode='cover'
             />
 

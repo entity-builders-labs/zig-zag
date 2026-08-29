@@ -58,6 +58,12 @@ export const CompositeActivityDetail = ({
     () => [...(activity.waypoints || [])].sort((a, b) => a.order - b.order),
     [activity.waypoints]
   );
+  // Best-effort real Wikidata extracts (see composite-activity.service.ts) —
+  // often absent; only entries with actual body text are worth a card.
+  const narrativeSources = useMemo(
+    () => (activity.metadata?.narrativeSources || []).filter((s) => s.extract),
+    [activity.metadata]
+  );
 
   const isOwnRouteBoundary = activity.boundary?.type === 'LineString';
   const polygonParts = !isOwnRouteBoundary
@@ -208,6 +214,34 @@ export const CompositeActivityDetail = ({
                       {w.waypointActivity.name}
                     </Text>
                   </HStack>
+                ))}
+              </VStack>
+            )}
+
+            {narrativeSources.length > 0 && (
+              <VStack mt='$4' space='md'>
+                <Text
+                  size='2xs'
+                  fontWeight='$bold'
+                  color='$textLight400'
+                  textTransform='uppercase'
+                  letterSpacing={1}
+                >
+                  Datos destacados
+                </Text>
+                {narrativeSources.map((source) => (
+                  <VStack key={source.qid} space='xs'>
+                    {source.label && (
+                      <Text size='xs' fontWeight='$bold' color='$tertiary700'>
+                        {source.label}
+                      </Text>
+                    )}
+                    {source.extract && (
+                      <Text size='sm' color='$textLight700' lineHeight='$sm'>
+                        {source.extract}
+                      </Text>
+                    )}
+                  </VStack>
                 ))}
               </VStack>
             )}

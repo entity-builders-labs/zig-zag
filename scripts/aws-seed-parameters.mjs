@@ -53,7 +53,7 @@ const allowedKeys = [
 ];
 const requiredKeys = [
   'GROQ_API_KEY',
-  'GEOAPIFY_API_KEY',
+  'GOOGLE_MAPS_API_KEY',
   'JWT_ACCESS_SECRET',
   'JWT_REFRESH_SECRET',
   'GOOGLE_CLIENT_IDS',

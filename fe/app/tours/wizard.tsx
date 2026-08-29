@@ -13,7 +13,7 @@ export default function TourWizardScreen() {
     category,
     destination,
     latitude: latParam,
-    longitude: lngParam,
+    longitude: lngParam
   } = useLocalSearchParams<{
     category?: string;
     destination?: string;
@@ -52,7 +52,7 @@ export default function TourWizardScreen() {
         options={{
           title: 'Nuevo Tour',
           presentation: 'modal',
-          headerShown: false,
+          headerShown: false
         }}
       />
       <TourWizardForm

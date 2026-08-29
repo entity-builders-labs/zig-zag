@@ -75,6 +75,29 @@ describe('verifyAndDedupeCompositeActivities', () => {
     expect(hallucinatedWaypointCount).toBe(0);
   });
 
+  it('dedupes separate OSM segments that represent the same named street', () => {
+    const { verified, hallucinatedWaypointCount } =
+      verifyAndDedupeCompositeActivities(
+        [
+          base({
+            waypointIds: ['osm:way:1', 'osm:way:2', 'poi-1'],
+          }),
+        ],
+        activityIds,
+        osmFeatureIds,
+        AREA_ID,
+        undefined,
+        new Map([
+          ['osm:way:1', 'Carlos Calvo'],
+          ['osm:way:2', 'Cárlos-Calvo'],
+        ]),
+      );
+
+    expect(verified).toHaveLength(1);
+    expect(verified[0].waypointIds).toEqual(['osm:way:1', 'poi-1']);
+    expect(hallucinatedWaypointCount).toBe(0);
+  });
+
   it('rejects an invalid kind', () => {
     const { verified, invalidCompositeCount } =
       verifyAndDedupeCompositeActivities(
@@ -130,6 +153,24 @@ describe('verifyAndDedupeCompositeActivities', () => {
     );
 
     expect(invalidCompositeCount).toBe(1);
+  });
+
+  it('drops waypoints from a different neighborhood and rejects the composite when too few in-area stops remain', () => {
+    const otherAreaId = 'osm:relation:other';
+    const result = verifyAndDedupeCompositeActivities(
+      [base({ waypointIds: ['poi-1', 'poi-2'] })],
+      activityIds,
+      osmFeatureIds,
+      new Set([AREA_ID, otherAreaId]),
+      new Map([
+        ['poi-1', new Set([AREA_ID])],
+        ['poi-2', new Set([otherAreaId])],
+      ]),
+    );
+
+    expect(result.verified).toHaveLength(0);
+    expect(result.outOfAreaWaypointCount).toBe(1);
+    expect(result.invalidCompositeCount).toBe(1);
   });
 
   describe('kind: ROUTE — different validity rule', () => {

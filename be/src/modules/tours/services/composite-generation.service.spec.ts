@@ -40,7 +40,10 @@ describe('CompositeGenerationService', () => {
       generateCompletionResponse: jest.fn(),
       config: { provider: 'groq' },
     };
-    wikidataApiService = { getEntitySummaries: jest.fn() };
+    wikidataApiService = {
+      getEntitySummaries: jest.fn(),
+      lookupEntitySummaries: jest.fn(),
+    };
     compositeActivityService = { createOrReuseComposite: jest.fn() };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -62,10 +65,8 @@ describe('CompositeGenerationService', () => {
     it('parses the raw JSON response from generateChatResponse', async () => {
       langChainService.generateChatResponse.mockResolvedValue(
         JSON.stringify({
-          title: 'Tour',
-          description: 'A tour',
+          reasoning: 'Selected only verified candidates.',
           activities: [],
-          compositeActivities: [],
         }),
       );
 
@@ -75,14 +76,35 @@ describe('CompositeGenerationService', () => {
         activities: '',
       });
 
-      expect(result.title).toBe('Tour');
-      expect(langChainService.generateChatResponse).toHaveBeenCalled();
+      expect(result.reasoning).toBe('Selected only verified candidates.');
+      expect(langChainService.generateChatResponse).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.any(String),
+        {},
+        expect.objectContaining({
+          groq: {
+            maxCompletionTokens: 3000,
+            reasoningEffort: 'low',
+            includeReasoning: false,
+          },
+          responseFormat: expect.objectContaining({
+            type: 'json_schema',
+            json_schema: expect.objectContaining({
+              name: 'tour_generation',
+              strict: true,
+              schema: expect.objectContaining({
+                required: ['reasoning', 'activities'],
+              }),
+            }),
+          }),
+        }),
+      );
     });
 
     it('repairs and parses a malformed-but-recoverable JSON response', async () => {
       // A trailing comma is the kind of thing repairJson fixes.
       langChainService.generateChatResponse.mockResolvedValue(
-        '{"title": "Tour", "description": "A tour", "activities": [],}',
+        '{"reasoning": "Verified picks.", "activities": [],}',
       );
 
       const chain = service.createTourChain();
@@ -91,7 +113,7 @@ describe('CompositeGenerationService', () => {
         activities: '',
       });
 
-      expect(result.title).toBe('Tour');
+      expect(result.reasoning).toBe('Verified picks.');
     });
 
     it('throws when the response is not recoverable JSON', async () => {
@@ -107,14 +129,53 @@ describe('CompositeGenerationService', () => {
     });
   });
 
+  describe('createCompositeProposalChain (offline curation only)', () => {
+    it('uses the isolated composite schema and OSM evidence prompt', async () => {
+      langChainService.generateChatResponse.mockResolvedValue(
+        JSON.stringify({
+          reasoning: 'Enough verified evidence.',
+          compositeActivities: [],
+          activities: [],
+        }),
+      );
+
+      const chain = service.createCompositeProposalChain();
+      await chain.invoke({
+        input: 'Propose one walk',
+        activities: 'id: poi-1 - Museum',
+        osmFeatures: 'id: osm:way:1 - Defensa',
+        area: 'id: osm:relation:1 - San Telmo',
+        themes: 'HISTORY',
+      });
+
+      const [systemPrompt, userPrompt, , options] =
+        langChainService.generateChatResponse.mock.calls[0];
+      expect(systemPrompt).toContain('offline curation command');
+      expect(userPrompt).toContain('osm:way:1');
+      expect(userPrompt).toContain('osm:relation:1');
+      expect(options.responseFormat.json_schema).toMatchObject({
+        name: 'composite_proposal',
+        strict: true,
+        schema: expect.objectContaining({
+          required: ['reasoning', 'compositeActivities', 'activities'],
+        }),
+      });
+    });
+  });
+
   describe('enrichCandidatesWithWikidata', () => {
     it('returns 0 and makes no calls when no candidate carries a wikidata tag', async () => {
       const candidates = [osmCandidate({ tags: { name: 'San Telmo' } })];
 
-      const count = await service.enrichCandidatesWithWikidata(candidates);
+      const outcome = await service.enrichCandidatesWithWikidata(candidates);
 
-      expect(count).toBe(0);
-      expect(wikidataApiService.getEntitySummaries).not.toHaveBeenCalled();
+      expect(outcome).toMatchObject({
+        withoutQid: 1,
+        withQid: 0,
+        fetched: 0,
+        acceptedSafe: 0,
+      });
+      expect(wikidataApiService.lookupEntitySummaries).not.toHaveBeenCalled();
     });
 
     it('mutates narrativeContext onto candidates whose extract is available', async () => {
@@ -124,21 +185,32 @@ describe('CompositeGenerationService', () => {
           tags: { name: 'Defensa', wikidata: 'Q123' },
         }),
       ];
-      wikidataApiService.getEntitySummaries.mockResolvedValue(
-        new Map([
+      wikidataApiService.lookupEntitySummaries.mockResolvedValue({
+        summaries: new Map([
           [
             'Q123',
             { qid: 'Q123', label: 'Defensa', extract: 'A real street.' },
           ],
         ]),
-      );
+        status: 'success',
+        failedQids: new Set(),
+        extractFailedQids: new Set(),
+      });
       langChainService.generateCompletionResponse.mockResolvedValue(
         JSON.stringify({ Q123: true }),
       );
 
-      const count = await service.enrichCandidatesWithWikidata(candidates);
+      const outcome = await service.enrichCandidatesWithWikidata(candidates);
 
-      expect(count).toBe(1);
+      expect(outcome).toMatchObject({
+        withoutQid: 0,
+        withQid: 1,
+        fetched: 1,
+        acceptedSafe: 1,
+        rejectedUnsafe: 0,
+        providerFailed: 0,
+        safetyCheckFailed: 0,
+      });
       expect(candidates[0].narrativeContext).toBe('A real street.');
     });
 
@@ -146,14 +218,60 @@ describe('CompositeGenerationService', () => {
       const candidates = [
         osmCandidate({ tags: { name: 'Defensa', wikidata: 'Q123' } }),
       ];
-      wikidataApiService.getEntitySummaries.mockRejectedValue(
+      wikidataApiService.lookupEntitySummaries.mockRejectedValue(
         new Error('wikidata down'),
       );
 
-      const count = await service.enrichCandidatesWithWikidata(candidates);
+      const outcome = await service.enrichCandidatesWithWikidata(candidates);
 
-      expect(count).toBe(0);
+      expect(outcome).toMatchObject({
+        withQid: 1,
+        fetched: 0,
+        acceptedSafe: 0,
+        providerFailed: 1,
+      });
       expect(candidates[0].narrativeContext).toBeUndefined();
+    });
+
+    it('distinguishes an unsafe extract from a failed safety provider', async () => {
+      const unsafeCandidate = osmCandidate({
+        id: 'osm:way:unsafe',
+        tags: { name: 'Unsafe', wikidata: 'Q1' },
+      });
+      wikidataApiService.lookupEntitySummaries.mockResolvedValue({
+        summaries: new Map([
+          ['Q1', { qid: 'Q1', label: 'Unsafe', extract: 'An extract.' }],
+        ]),
+        status: 'success',
+        failedQids: new Set(),
+        extractFailedQids: new Set(),
+      });
+      langChainService.generateCompletionResponse.mockResolvedValue(
+        '{"Q1":false}',
+      );
+
+      const unsafe = await service.enrichCandidatesWithWikidata([
+        unsafeCandidate,
+      ]);
+
+      langChainService.generateCompletionResponse.mockRejectedValue(
+        new Error('safety provider down'),
+      );
+      const safetyFailed = await service.enrichCandidatesWithWikidata([
+        osmCandidate({
+          id: 'osm:way:failed',
+          tags: { name: 'Failed', wikidata: 'Q1' },
+        }),
+      ]);
+
+      expect(unsafe).toMatchObject({
+        rejectedUnsafe: 1,
+        safetyCheckFailed: 0,
+      });
+      expect(safetyFailed).toMatchObject({
+        rejectedUnsafe: 0,
+        safetyCheckFailed: 1,
+      });
     });
   });
 
@@ -200,10 +318,65 @@ describe('CompositeGenerationService', () => {
         compositeActivityService.createOrReuseComposite,
       ).toHaveBeenCalledWith(
         expect.objectContaining({
+          name: 'San Telmo Historic Walk',
           kind: ActivityKind.NEIGHBORHOOD_WALK,
           variantTheme: VariantTheme.HISTORY,
+          areaCandidate,
           waypointIds: ['poi-1', 'poi-2'],
           forceUpdateWaypoints: undefined,
+        }),
+      );
+    });
+
+    it('resolves the proposed area from multiple offered neighborhoods and never persists the free-form model name', async () => {
+      const laBoca = osmCandidate({
+        id: 'osm:relation:la-boca',
+        name: 'La Boca',
+        osmId: 2,
+      });
+      compositeActivityService.createOrReuseComposite.mockResolvedValue({
+        id: 'variant-la-boca',
+      });
+
+      await service.verifyAndPersistComposites({
+        rawComposites: [
+          {
+            name: 'Recoleta Architectural Walk',
+            kind: 'NEIGHBORHOOD_WALK',
+            variantTheme: 'ARCHITECTURE',
+            areaId: laBoca.id,
+            waypointIds: ['osm:way:1', 'osm:way:2'],
+          },
+        ],
+        candidateActivityIds: new Set(),
+        candidateOsmFeaturesById: new Map([
+          [
+            'osm:way:1',
+            osmCandidate({ id: 'osm:way:1', osmId: 1, name: 'Defensa' }),
+          ],
+          [
+            'osm:way:2',
+            osmCandidate({ id: 'osm:way:2', osmId: 2, name: 'Caminito' }),
+          ],
+        ]),
+        areaCandidate,
+        areaCandidatesById: new Map([
+          [areaCandidate.id, areaCandidate],
+          [laBoca.id, laBoca],
+        ]),
+        candidateAreaIdsByWaypointId: new Map([
+          ['osm:way:1', new Set([laBoca.id])],
+          ['osm:way:2', new Set([laBoca.id])],
+        ]),
+        logContext: 'test',
+      });
+
+      expect(
+        compositeActivityService.createOrReuseComposite,
+      ).toHaveBeenCalledWith(
+        expect.objectContaining({
+          name: 'La Boca Architecture Walk',
+          areaCandidate: laBoca,
         }),
       );
     });

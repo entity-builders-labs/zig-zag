@@ -37,7 +37,7 @@ async function humanClick(page: Page, locator: Locator) {
     const box = await locator.boundingBox();
     if (box) {
       await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2, {
-        steps: 20,
+        steps: 20
       });
       await page.waitForTimeout(150 + Math.random() * 150);
     }
@@ -63,11 +63,13 @@ async function readingPause(page: Page, ms: number) {
 // API directly. This is the actual path a user follows, and it's the only
 // way to catch UI-wiring bugs (e.g. a field that's captured but never sent).
 test('@live creates a tour end-to-end through the wizard and views it in both list and map mode', async ({
-  page,
+  page
 }) => {
   test.setTimeout(180_000); // headroom for a possible rate-limit retry, see below
   await page.context().grantPermissions(['geolocation']);
-  await page.context().setGeolocation({ latitude: -34.6037, longitude: -58.3816 });
+  await page
+    .context()
+    .setGeolocation({ latitude: -34.6037, longitude: -58.3816 });
   await showCursor(page);
 
   const consoleErrors: string[] = [];
@@ -108,18 +110,24 @@ test('@live creates a tour end-to-end through the wizard and views it in both li
   const tomorrow = new Date(today);
   tomorrow.setDate(today.getDate() + 1);
   const toDateStr = (d: Date) => d.toISOString().split('T')[0];
-  await humanClick(page, page.getByTestId(`date-picker-day-${toDateStr(today)}`));
+  await humanClick(
+    page,
+    page.getByTestId(`date-picker-day-${toDateStr(today)}`)
+  );
   await readingPause(page, 300);
-  await humanClick(page, page.getByTestId(`date-picker-day-${toDateStr(tomorrow)}`));
+  await humanClick(
+    page,
+    page.getByTestId(`date-picker-day-${toDateStr(tomorrow)}`)
+  );
   await readingPause(page, 400);
   await humanClick(page, page.getByText('Confirmar').first());
   await readingPause(page, 700);
 
   await humanClick(page, page.getByText('Siguiente →').first());
 
-  // --- Step 2: budget, company, pace, transport ---
+  // --- Step 2: budget, company, pace, transport and walking tolerance ---
   await expect(page.getByText('Paso 2/3')).toBeVisible();
-  await expect(page.getByText('Define tu estilo')).toBeVisible();
+  await expect(page.getByText('Movilidad y ritmo')).toBeVisible();
   await readingPause(page, 900);
 
   await humanClick(page, page.getByText('$$', { exact: true }).first()); // budget: medium
@@ -135,15 +143,22 @@ test('@live creates a tour end-to-end through the wizard and views it in both li
   await readingPause(page, 500);
 
   await humanClick(page, page.getByText('Público', { exact: true }).first()); // + public transport
+  await humanClick(page, page.getByText('Me gusta caminar', { exact: true }));
+  await humanClick(page, page.getByText('Evitar escaleras', { exact: true }));
   await readingPause(page, 800);
 
   await humanClick(page, page.getByText('Siguiente →').first());
 
-  // --- Step 3: interests + notes ---
+  // --- Step 3: experience formats, exploration style, interests + notes ---
   await expect(page.getByText('Paso 3/3')).toBeVisible();
-  await expect(page.getByText('Personalización IA')).toBeVisible();
+  await expect(page.getByText('Experiencias e intereses')).toBeVisible();
   await readingPause(page, 900);
 
+  await humanClick(
+    page,
+    page.getByText('Caminatas por barrios', { exact: true })
+  );
+  await humanClick(page, page.getByText('Icónicos', { exact: true }));
   await humanClick(page, page.getByText('Historia', { exact: true }).last());
   await readingPause(page, 250);
   await humanClick(page, page.getByText('Comida', { exact: true }).last());
@@ -151,7 +166,9 @@ test('@live creates a tour end-to-end through the wizard and views it in both li
   await humanClick(page, page.getByText('Cultura', { exact: true }).last());
   await readingPause(page, 500);
   await humanType(
-    page.getByPlaceholder('Escribe aquí... (ej. Soy vegano...)'),
+    page.getByPlaceholder(
+      'Ej. Prefiero fotografía urbana y evitar lugares muy concurridos'
+    ),
     'Me interesa la historia del tango'
   );
   await readingPause(page, 900);
@@ -200,12 +217,30 @@ test('@live creates a tour end-to-end through the wizard and views it in both li
   // `exact` disambiguates from the loading screen's "Armando tu recorrido"
   // heading (getByText matches case-insensitively/substring by default, and
   // "tu recorrido" is a substring of that too).
-  await expect(
-    page.getByText('Tu Recorrido', { exact: true })
-  ).toBeVisible();
+  await expect(page.getByText('Tu Recorrido', { exact: true })).toBeVisible();
   const stopCards = page.locator('text=Caminata').first();
   await expect(stopCards.or(page.getByText('Free'))).toBeVisible();
-  await readingPause(page, 2500); // hold on list mode so it reads clearly on video
+  await readingPause(page, 1500);
+
+  if (DEMO) {
+    // Slow-scroll through the generated stops so they're actually readable
+    // on the recording, instead of only ever showing the first screenful.
+    for (let i = 0; i < 8; i++) {
+      await page.mouse.wheel(0, 280);
+      await page.waitForTimeout(450);
+    }
+    await readingPause(page, 1000);
+
+    // Open the dev-only bitácora accordion and hold on it — only present
+    // when __DEV__ and the tour actually has a trace (see tours/[id].tsx).
+    const bitacoraToggle = page.getByTestId('bitacora-toggle');
+    if (await bitacoraToggle.count()) {
+      await humanClick(page, bitacoraToggle);
+      await readingPause(page, 3500);
+    }
+  } else {
+    await readingPause(page, 2500); // hold on list mode so it reads clearly on video
+  }
 
   // --- Map mode ---
   await humanClick(page, page.getByTestId('view-toggle-map'));

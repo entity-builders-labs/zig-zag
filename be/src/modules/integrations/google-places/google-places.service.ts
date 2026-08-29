@@ -1,18 +1,31 @@
 import { Injectable, Logger, OnModuleInit, Inject } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { CrawlLocationDto } from './dto/crawl-location.dto';
 import { GooglePlaceDetails } from '../../activities/interfaces/google-places.interface';
 import { ActivitiesService } from '../../activities/services/activities.service';
 import { CreateActivityDto } from '../../activities/dto/create-activity.dto';
-import { LangChainService } from '../../../shared/ai/langchain.service';
 import { PrismaService } from '../../../core/database/prisma.service';
-import { IPlacesApiService } from './interfaces/places-api.interface';
+import {
+  IPlacesApiService,
+  PlacesApiRequestError,
+  CatalogAcquisitionOperation,
+  PlacesCacheStatus,
+  PlacesCrawlError,
+  PlacesCrawlProvenance,
+  PlacesProviderStatus,
+  PlacesRequestProvenance,
+  placesProviderLabel,
+} from './interfaces/places-api.interface';
 import { VectorStoreService } from 'src/shared/ai/services/vector-store.service';
 import { priceLevelToNumber } from './utils/price-level.util';
+import { calculateDistance } from 'src/shared/utils/distance.utils';
+import { CatalogCandidateValidatorService } from '@activities/services/catalog-candidate-validator.service';
+import { GeoJsonGeometry } from '@integrations/osm/utils/osm-geometry.util';
+import { buildCatalogAcquisitionPlan } from './utils/catalog-acquisition-plan.util';
 
 interface PlaceWithMetadata extends GooglePlaceDetails {
   name: string;
   types: string[];
+  primaryType?: string;
   address: string;
   location: {
     latitude: number;
@@ -21,137 +34,40 @@ interface PlaceWithMetadata extends GooglePlaceDetails {
   reviews?: number;
   metadata: {
     preferredTime: string;
+    acquisitionOperationId: string;
+    acquisitionPurpose: CatalogAcquisitionOperation['purpose'];
   };
 }
 
-const placesToSearch = [
-  {
-    category: 'cultural',
-    searches: [
-      {
-        type: 'museum',
-        keyword: 'art history culture',
-        minRating: 4.0,
-        preferredTime: 'day',
-      },
-      {
-        type: 'art_gallery',
-        keyword: 'contemporary modern art',
-        minRating: 4.0,
-        preferredTime: 'day',
-      },
-      {
-        type: 'tourist_attraction',
-        keyword: 'historic cultural landmark',
-        minRating: 4.0,
-        preferredTime: 'day',
-      },
-    ],
-  },
-  {
-    category: 'cultural', // Religious/historical places are part of cultural category
-    searches: [
-      {
-        type: 'church',
-        keyword: 'cathedral temple historic',
-        minRating: 4.0,
-        preferredTime: 'day',
-      },
-      {
-        type: 'point_of_interest',
-        keyword: 'historic monument heritage',
-        minRating: 4.0,
-        preferredTime: 'day',
-      },
-    ],
-  },
-  {
-    category: 'outdoor',
-    searches: [
-      {
-        type: 'park',
-        keyword: 'national park nature reserve',
-        minRating: 4.0,
-        preferredTime: 'day',
-      },
-      {
-        type: 'natural_feature',
-        keyword: 'landscape scenic viewpoint',
-        minRating: 4.0,
-        preferredTime: 'day',
-      },
-      {
-        type: 'hiking_trail',
-        keyword: 'hiking trekking trail nature',
-        minRating: 4.0,
-        preferredTime: 'morning',
-      },
-      {
-        type: 'campground',
-        keyword: 'camping nature outdoor',
-        minRating: 3.5,
-        preferredTime: 'day',
-      },
-    ],
-  },
-  {
-    category: 'food',
-    searches: [
-      {
-        type: 'restaurant',
-        keyword: 'fine dining local cuisine traditional',
-        minRating: 4.2,
-        preferredTime: 'evening',
-      },
-      {
-        type: 'restaurant',
-        keyword: 'popular authentic food',
-        minRating: 4.0,
-        preferredTime: 'lunch',
-      },
-      {
-        type: 'cafe',
-        keyword: 'coffee breakfast brunch',
-        minRating: 4.0,
-        preferredTime: 'morning',
-      },
-    ],
-  },
-  {
-    category: 'nightlife',
-    searches: [
-      {
-        type: 'bar',
-        keyword: 'cocktail rooftop lounge',
-        minRating: 4.0,
-        preferredTime: 'night',
-      },
-      {
-        type: 'bar',
-        keyword: 'pub local beer craft',
-        minRating: 4.0,
-        preferredTime: 'night',
-      },
-    ],
-  },
-  {
-    category: 'entertainment',
-    searches: [
-      {
-        type: 'amusement_park',
-        keyword: 'theme park entertainment family',
-        minRating: 4.0,
-        preferredTime: 'day',
-      },
-      {
-        type: 'movie_theater',
-        keyword: 'cinema entertainment',
-        minRating: 4.0,
-        preferredTime: 'evening',
-      },
-    ],
-  },
-];
+export interface PlacesCrawlResult {
+  activitiesIds: string[];
+  fromCache: boolean;
+  provenance: PlacesCrawlProvenance;
+}
+
+export interface PlacesCrawlAnchor {
+  id: string;
+  label: string;
+  latitude: number;
+  longitude: number;
+  radiusMeters: number;
+  source?: 'destination_point' | 'child_area_center' | 'boundary';
+}
+
+export interface PlacesCrawlOptions {
+  anchors?: PlacesCrawlAnchor[];
+  destinationLabel?: string;
+  destinationBoundary?: GeoJsonGeometry;
+  requestedInterests?: string[];
+  maxProviderCalls?: number;
+  maxResultsPerCall?: number;
+  totalBudgetMs?: number;
+}
+
+const MAX_PROVIDER_CALLS = 12;
+const MAX_RESULTS_PER_CALL = 10;
+const TOTAL_REFILL_BUDGET_MS = 20_000;
+const MAX_ANCHORS = 8;
 
 // Definición de tipos de actividades conocidos y su mapeo con Google Places
 const ActivityTypes = {
@@ -162,6 +78,16 @@ const ActivityTypes = {
       'art_gallery',
       'tourist_attraction',
       'historical_landmark',
+      'historical_place',
+      'cultural_landmark',
+      'monument',
+      'sculpture',
+      'plaza',
+      'observation_deck',
+      'history_museum',
+      'art_museum',
+      'church',
+      'place_of_worship',
     ],
     defaultDuration: 2.5,
     icon: '🏛️',
@@ -170,7 +96,15 @@ const ActivityTypes = {
   },
   OUTDOOR: {
     name: 'outdoor',
-    includes: ['park', 'hiking_trail', 'natural_feature', 'campground'],
+    includes: [
+      'park',
+      'national_park',
+      'nature_preserve',
+      'hiking_area',
+      'beach',
+      'hiking_trail',
+      'natural_feature',
+    ],
     defaultDuration: 3.0,
     icon: '🌳',
     description: 'Outdoor and nature activities',
@@ -178,7 +112,13 @@ const ActivityTypes = {
   },
   ENTERTAINMENT: {
     name: 'entertainment',
-    includes: ['amusement_park', 'movie_theater', 'bowling_alley', 'casino'],
+    includes: [
+      'amusement_park',
+      'movie_theater',
+      'performing_arts_theater',
+      'bowling_alley',
+      'casino',
+    ],
     defaultDuration: 4.0,
     icon: '🎭',
     description: 'Entertainment and fun activities',
@@ -186,7 +126,7 @@ const ActivityTypes = {
   },
   FOOD: {
     name: 'food',
-    includes: ['restaurant', 'cafe', 'bakery', 'food_market'],
+    includes: ['restaurant', 'cafe', 'bakery', 'food_market', 'food_court'],
     defaultDuration: 1.5,
     icon: '🍽️',
     description: 'Food and dining experiences',
@@ -209,22 +149,56 @@ export class GooglePlacesService implements OnModuleInit {
   private readonly logger = new Logger(GooglePlacesService.name);
 
   constructor(
-    private readonly configService: ConfigService,
     private readonly prisma: PrismaService,
     private readonly activitiesService: ActivitiesService,
-    private readonly aiService: LangChainService,
     private readonly vectorStoreService: VectorStoreService,
+    private readonly catalogCandidateValidator: CatalogCandidateValidatorService,
     @Inject('PlacesApiService') private readonly placesApi: IPlacesApiService,
   ) {}
 
   async onModuleInit() {
-    const apiKey = this.configService.get<string>('GOOGLE_MAPS_API_KEY');
-    if (!apiKey) {
+    const status = this.getProviderStatus();
+    this.logger.log(
+      `Catalog refill provider: ${placesProviderLabel(status.provider)}; ` +
+        `available=${status.available}; cache=${
+          status.cacheEnabled ? status.cacheMode : 'disabled'
+        }`,
+    );
+    if (!status.available) {
       this.logger.warn(
-        'Google Maps API key is not configured. Google Maps functionality will not be available.',
+        `${placesProviderLabel(status.provider)} is unavailable because its API key is not configured.`,
       );
     }
     await this.ensureKnownActivityTypes();
+  }
+
+  getProviderStatus(): PlacesProviderStatus {
+    return this.placesApi.getStatus();
+  }
+
+  private mergeCacheStatus(
+    current: PlacesCacheStatus,
+    next: PlacesCacheStatus,
+  ): PlacesCacheStatus {
+    if (current === 'strict-miss' || next === 'strict-miss') {
+      return 'strict-miss';
+    }
+    if (current === 'miss-live' || next === 'miss-live') {
+      return 'miss-live';
+    }
+    return 'hit';
+  }
+
+  private addRequestProvenance(
+    crawl: PlacesCrawlProvenance,
+    request: PlacesRequestProvenance,
+  ): void {
+    crawl.cacheStatus = this.mergeCacheStatus(
+      crawl.cacheStatus,
+      request.cacheStatus,
+    );
+    crawl.requestedCount += request.requestedCount;
+    crawl.receivedCount += request.receivedCount;
   }
 
   private async ensureKnownActivityTypes() {
@@ -277,13 +251,13 @@ export class GooglePlacesService implements OnModuleInit {
     }
   }
 
-  private findMatchingActivityType(googleTypes: string[]): {
+  private findMatchingActivityType(providerTypes: string[]): {
     name: string;
     duration: number;
   } | null {
-    for (const googleType of googleTypes) {
+    for (const providerType of providerTypes) {
       for (const [, type] of Object.entries(ActivityTypes)) {
-        if (type.includes.includes(googleType)) {
+        if (type.includes.includes(providerType)) {
           return { name: type.name, duration: type.defaultDuration };
         }
       }
@@ -291,172 +265,132 @@ export class GooglePlacesService implements OnModuleInit {
     return null;
   }
 
-  /**
-   * Classify a place into a canonical activity category using AI as a fallback
-   * when the static Google-types mapping does not yield a match.
-   * Returns one of: "cultural", "outdoor", "entertainment", "food", "nightlife".
-   */
-  private async classifyActivityCategoryWithAI(place: {
-    name?: string;
-    types?: string[];
-    formattedAddress?: string;
-    website?: string;
-    rating?: number;
-  }): Promise<string | null> {
-    try {
-      // If AI is not configured or fails, we'll just return null and let callers default
-      const categories = [
-        'cultural',
-        'outdoor',
-        'entertainment',
-        'food',
-        'nightlife',
-      ];
-      const prompt = `Given the following place data, choose the single best category from this exact set: cultural | outdoor | entertainment | food | nightlife.
-
-Place JSON:
-{placeJson}
-
-Answer ONLY with one word from the set above, no punctuation, no explanation.`;
-
-      const response = await this.aiService.generateCompletionResponse(prompt, {
-        placeJson: JSON.stringify(place),
-      } as any);
-
-      const normalized = String(response || '')
-        .trim()
-        .toLowerCase();
-      if (categories.includes(normalized)) return normalized;
-      // Sometimes models add quotes or periods
-      const cleaned = normalized.replace(/[^a-z]/g, '');
-      if (categories.includes(cleaned)) return cleaned;
-      return null;
-    } catch {
-      this.logger.warn(
-        'AI category classification failed; falling back to defaults',
-      );
-      return null;
-    }
-  }
-
-  async searchNearbyPlaces(
+  private async executeAcquisitionOperation(
     dto: CrawlLocationDto,
-    searchConfig: {
-      type: string;
-      keyword: string;
-      minRating: number;
-      preferredTime: string;
-    },
-  ) {
-    this.logger.debug('Iniciando búsqueda de lugares cercanos');
-    this.logger.debug(
-      'Configuración de búsqueda:',
-      JSON.stringify(searchConfig, null, 2),
+    operation: CatalogAcquisitionOperation,
+  ): Promise<{
+    places: PlaceWithMetadata[];
+    provenance: PlacesRequestProvenance;
+    rejectedCountByReason: Record<string, number>;
+  }> {
+    let result;
+    if (operation.providerOperation === 'nearby') {
+      if (operation.geographicConstraint.kind !== 'circle') {
+        throw new Error(
+          `Nearby operation ${operation.operationId} requires a circle`,
+        );
+      }
+      const { center, radius } = operation.geographicConstraint.circle;
+      result = await this.placesApi.searchNearby({
+        latitude: center.latitude,
+        longitude: center.longitude,
+        radius,
+        includedPrimaryTypes: operation.requestedPrimaryTypes,
+        maxResultCount: operation.resultBudget,
+        rankPreference: operation.rankPreference ?? 'POPULARITY',
+      });
+    } else {
+      if (!operation.textQuery) {
+        throw new Error(`Text operation ${operation.operationId} has no query`);
+      }
+      result = await this.placesApi.searchText({
+        textQuery: operation.textQuery,
+        includedType: operation.includedType,
+        strictTypeFiltering: operation.strictTypeFiltering,
+        maxResultCount: operation.resultBudget,
+        ...(operation.geographicConstraint.kind === 'rectangle'
+          ? {
+              locationRestriction: operation.geographicConstraint.rectangle,
+            }
+          : { locationBias: operation.geographicConstraint.circle }),
+      });
+    }
+
+    // Provider geography is never the final authority. In particular, Text
+    // Search's bias/restriction semantics differ from Nearby. Enforce the
+    // acquisition operation's declared geometry before validation/persistence.
+    const geographicallyValidResults = result.data.filter((place) =>
+      this.isInsideAcquisitionGeography(place, operation),
+    );
+    const places = await Promise.all(
+      geographicallyValidResults.map(async (place) => {
+        const details = dto.fetchDetails
+          ? await this.getPlaceDetails(place.id)
+          : null;
+        return {
+          placeId: place.id,
+          formattedAddress: place.formattedAddress || '',
+          name: place.name || place.displayName?.text || '',
+          types: place.types || [],
+          primaryType: place.primaryType,
+          location: {
+            latitude: place.location!.latitude,
+            longitude: place.location!.longitude,
+          },
+          address: place.formattedAddress || '',
+          rating: place.rating,
+          reviews: place.userRatingCount,
+          priceLevel: priceLevelToNumber(place.priceLevel),
+          businessStatus: place.businessStatus,
+          photos: [] as GooglePlaceDetails['photos'],
+          openingHours: place.openingHoursWeekdayText?.length
+            ? { weekdayText: place.openingHoursWeekdayText }
+            : details?.openingHours,
+          phoneNumber:
+            details?.phoneNumber || place.nationalPhoneNumber || undefined,
+          website: details?.website || place.websiteUri || undefined,
+          metadata: {
+            preferredTime: operation.preferredTime,
+            acquisitionOperationId: operation.operationId,
+            acquisitionPurpose: operation.purpose,
+          },
+        } satisfies PlaceWithMetadata;
+      }),
     );
 
-    try {
-      const unsupportedTypes = new Set<string>([
-        'point_of_interest',
-        'natural_feature',
-        'hiking_trail',
-      ]);
+    const outOfArea = result.data.length - geographicallyValidResults.length;
+    return {
+      places,
+      provenance: result.provenance,
+      rejectedCountByReason: outOfArea > 0 ? { out_of_area: outOfArea } : {},
+    };
+  }
 
-      const useTextSearch = unsupportedTypes.has(searchConfig.type);
-
-      let placesData: any[] = [];
-
-      if (!useTextSearch) {
-        // NEW Places API (v1) nearby search using includedTypes via IPlacesApiService
-        placesData = await this.placesApi.searchNearby({
-          maxResultCount: 20,
-          includedTypes: [searchConfig.type],
-          rankPreference: 'DISTANCE',
-          latitude: dto.latitude,
-          longitude: dto.longitude,
-          radius: dto.radius || this.SEARCH_RADIUS,
-        });
-      } else {
-        // Fallback: searchText with keyword, biased to location
-        const query =
-          `${searchConfig.type.replace('_', ' ')} ${searchConfig.keyword}`.trim();
-        placesData = await this.placesApi.searchText({
-          textQuery: query,
-          maxResultCount: 20,
-          latitude: dto.latitude,
-          longitude: dto.longitude,
-          radius: dto.radius || this.SEARCH_RADIUS,
-        });
-      }
-
-      // A missing rating means the provider doesn't expose that data (e.g.
-      // Geoapify never returns rating/review counts) rather than the place
-      // being unrated — don't let it fail the minRating filter.
-      const filteredResults = placesData.filter(
-        (p: any) =>
-          p.rating === undefined ||
-          p.rating === null ||
-          p.rating >= searchConfig.minRating,
-      );
-
-      const places = await Promise.all(
-        filteredResults.map(async (place: any) => {
-          // For v1 we can use fields already returned; extra details optional
-          // TODO: Refactor getPlaceDetails to use abstraction if strictly needed, but it's a simple GET
-          const details = dto.fetchDetails
-            ? await this.getPlaceDetails(place.id)
-            : null;
-
-          // Separar los datos de la API de Google de nuestros datos personalizados
-          const placeName = place.name || place.displayName?.text || '';
-          const googlePlaceData: PlaceWithMetadata = {
-            placeId: place.id,
-            formattedAddress: place.formattedAddress || '',
-            name: placeName,
-            types: place.types || [],
-            location: {
-              latitude: place.location?.latitude || 0,
-              longitude: place.location?.longitude || 0,
-            },
-            address: place.formattedAddress || '',
-            rating: place.rating,
-            reviews: place.userRatingCount,
-            priceLevel: priceLevelToNumber(place.priceLevel),
-            businessStatus: undefined,
-            photos: [],
-            // Google returns hours on the initial search result; Geoapify
-            // only returns them on Place Details (`details`), not here.
-            openingHours: place.openingHoursWeekdayText?.length
-              ? { weekdayText: place.openingHoursWeekdayText }
-              : details?.openingHours,
-            phoneNumber: details?.phoneNumber,
-            website: details?.website,
-            metadata: {
-              preferredTime: searchConfig.preferredTime,
-            },
-          };
-
-          return googlePlaceData;
-        }),
-      );
-
-      return {
-        places,
-        nextPageToken: null as any,
-      };
-    } catch (error: any) {
-      this.logger.error('Error searching nearby places:', error);
-      throw error;
+  private isInsideAcquisitionGeography(
+    place: { location?: { latitude: number; longitude: number } },
+    operation: CatalogAcquisitionOperation,
+  ): boolean {
+    const location = place.location;
+    if (
+      !location ||
+      !Number.isFinite(location.latitude) ||
+      !Number.isFinite(location.longitude)
+    ) {
+      return false;
     }
+    const geography = operation.geographicConstraint;
+    if (geography.kind === 'rectangle') {
+      return (
+        location.latitude >= geography.rectangle.low.latitude &&
+        location.latitude <= geography.rectangle.high.latitude &&
+        location.longitude >= geography.rectangle.low.longitude &&
+        location.longitude <= geography.rectangle.high.longitude
+      );
+    }
+    return (
+      calculateDistance(geography.circle.center, location) * 1000 <=
+      geography.circle.radius
+    );
   }
 
   async getPlaceDetails(placeId: string): Promise<Partial<GooglePlaceDetails>> {
     try {
       const result = await this.placesApi.getPlaceDetails(placeId);
       return {
-        phoneNumber: result.nationalPhoneNumber,
-        website: result.websiteUri,
-        openingHours: result.openingHoursWeekdayText?.length
-          ? { weekdayText: result.openingHoursWeekdayText }
+        phoneNumber: result.data.nationalPhoneNumber,
+        website: result.data.websiteUri,
+        openingHours: result.data.openingHoursWeekdayText?.length
+          ? { weekdayText: result.data.openingHoursWeekdayText }
           : undefined,
       };
     } catch (error) {
@@ -465,10 +399,8 @@ Answer ONLY with one word from the set above, no punctuation, no explanation.`;
     }
   }
 
-  private async ensureGooglePlacesSource(): Promise<string> {
-    // Track provenance per active provider so Geoapify-sourced activities
-    // don't get mixed under the 'google-maps' source name.
-    const provider = this.configService.get('PLACES_PROVIDER') || 'google';
+  private async ensurePlacesSource(): Promise<string> {
+    const provider = this.placesApi.provider;
     const sourceInfo =
       provider === 'geoapify'
         ? { name: 'geoapify', baseUrl: 'https://www.geoapify.com' }
@@ -500,111 +432,360 @@ Answer ONLY with one word from the set above, no punctuation, no explanation.`;
     }
   }
 
-  async crawlAndSaveActivities(dto: CrawlLocationDto): Promise<{
-    activitiesIds: string[];
-    fromCache: boolean;
-  }> {
+  // Caps how many individual rejected candidates the trace records by name —
+  // the aggregate rejectedCountByReason has no such limit, this only bounds
+  // the richer per-candidate detail so a pathological run (thousands of raw
+  // results) can't blow up the persisted generationTrace JSON.
+  private readonly MAX_REJECTED_CANDIDATES_IN_TRACE = 50;
+
+  private incrementRejection(
+    provenance: PlacesCrawlProvenance,
+    reason: string,
+    count = 1,
+    countAsCandidate = true,
+  ): void {
+    provenance.rejectedCountByReason[reason] =
+      (provenance.rejectedCountByReason[reason] ?? 0) + count;
+    if (countAsCandidate) {
+      provenance.rejectedCount = (provenance.rejectedCount ?? 0) + count;
+    }
+  }
+
+  // Every filter/decision in the catalog acquisition pipeline should be
+  // traceable back to the specific real place it affected, not just an
+  // aggregate count — this is the core tours engine during active
+  // development, and "why did candidate X disappear" must be answerable
+  // from the bitácora alone.
+  private recordRejectedCandidate(
+    provenance: PlacesCrawlProvenance,
+    id: string,
+    name: string,
+    reasons: string[],
+  ): void {
+    if (!provenance.rejectedCandidates) provenance.rejectedCandidates = [];
+    if (
+      provenance.rejectedCandidates.length >=
+      this.MAX_REJECTED_CANDIDATES_IN_TRACE
+    ) {
+      return;
+    }
+    provenance.rejectedCandidates.push({ id, name, reasons });
+  }
+
+  async crawlAndSaveActivities(
+    dto: CrawlLocationDto,
+    options: PlacesCrawlOptions = {},
+  ): Promise<PlacesCrawlResult> {
+    const status = this.getProviderStatus();
+    const anchors = (
+      options.anchors?.length
+        ? options.anchors
+        : [
+            {
+              id: 'destination-point',
+              label: 'Destination point',
+              latitude: dto.latitude,
+              longitude: dto.longitude,
+              radiusMeters: Math.min(dto.radius || this.SEARCH_RADIUS, 5_000),
+            },
+          ]
+    ).slice(0, MAX_ANCHORS);
+    const provenance: PlacesCrawlProvenance = {
+      provider: status.provider,
+      cacheStatus: status.cacheEnabled ? 'hit' : 'miss-live',
+      requestedCount: 0,
+      receivedCount: 0,
+      acceptedCount: 0,
+      rejectedCount: 0,
+      seedReceivedCount: 0,
+      coverageReceivedCount: 0,
+      operationGeographyRejectedCount: 0,
+      validatedCount: 0,
+      identityValidCount: 0,
+      admittedCount: 0,
+      admissionEvidenceCountByType: {},
+      deduplicatedCount: 0,
+      existingCount: 0,
+      persistedCount: 0,
+      embeddedCount: 0,
+      embeddingWriteStatus: 'no_work',
+      providerCallCount: 0,
+      anchors: anchors.map((anchor) => ({ ...anchor })),
+      operations: [],
+      rejectedCountByReason: {},
+      rejectedCandidates: [],
+    };
+
     try {
       await this.ensureKnownActivityTypes();
-      const sourceId = await this.ensureGooglePlacesSource();
-      const allPlaces: Array<CreateActivityDto> = [];
+      const sourceId = await this.ensurePlacesSource();
+      const allPlaces: Array<{
+        place: PlaceWithMetadata;
+        category: string;
+        operation: CatalogAcquisitionOperation;
+      }> = [];
+      let firstRequestError: PlacesApiRequestError | null = null;
+      const maxProviderCalls = Math.max(
+        1,
+        Math.min(
+          options.maxProviderCalls ?? MAX_PROVIDER_CALLS,
+          MAX_PROVIDER_CALLS,
+        ),
+      );
+      const maxResultsPerCall = Math.max(
+        1,
+        Math.min(
+          options.maxResultsPerCall ?? MAX_RESULTS_PER_CALL,
+          MAX_RESULTS_PER_CALL,
+        ),
+      );
+      const totalBudgetMs = Math.max(
+        1_000,
+        Math.min(
+          options.totalBudgetMs ?? TOTAL_REFILL_BUDGET_MS,
+          TOTAL_REFILL_BUDGET_MS,
+        ),
+      );
+      const operations = buildCatalogAcquisitionPlan({
+        provider: this.placesApi.provider,
+        anchors,
+        requestedInterests: options.requestedInterests,
+        destinationLabel: options.destinationLabel,
+        destinationBoundary: options.destinationBoundary,
+        maxProviderCalls,
+        resultBudget: maxResultsPerCall,
+      });
+      const startedAt = Date.now();
 
-      for (const categoryGroup of placesToSearch.map((group) => group)) {
-        this.logger.debug(`Processing category: ${categoryGroup.category}`);
-
-        for (const search of categoryGroup.searches) {
-          this.logger.debug(`Processing search type: ${search.type}`);
-
-          let nextPageToken: string | null = null;
-          do {
-            const { places, nextPageToken: newNextPageToken } =
-              await this.searchNearbyPlaces(
-                {
-                  ...dto,
-                  pageToken: nextPageToken,
-                },
-                search,
-              );
-
-            const processedPlaces = [];
-            for (const place of places) {
-              // 1) Try static mapping from Google types
-              const mapped = this.findMatchingActivityType(place.types || []);
-
-              // 2) If not mapped, ask AI to classify into canonical category
-              let categoryName = mapped?.name;
-              if (!categoryName) {
-                categoryName = await this.classifyActivityCategoryWithAI({
-                  name: place.name,
-                  types: place.types,
-                  formattedAddress: place.address,
-                  website: place.website,
-                  rating: place.rating,
-                });
-              }
-
-              // 3) Final fallback: use the configured search group category
-              if (!categoryName) {
-                categoryName = String(categoryGroup.category).toLowerCase();
-              }
-
-              const defaultDurationsByCategory: Record<string, number> = {
-                cultural: ActivityTypes.CULTURAL.defaultDuration,
-                outdoor: ActivityTypes.OUTDOOR.defaultDuration,
-                entertainment: ActivityTypes.ENTERTAINMENT.defaultDuration,
-                food: ActivityTypes.FOOD.defaultDuration,
-                nightlife: ActivityTypes.NIGHTLIFE.defaultDuration,
-              } as const;
-
-              const duration =
-                mapped?.duration ??
-                defaultDurationsByCategory[categoryName] ??
-                2.0;
-
-              processedPlaces.push({
-                name: place.name,
-                description: place.website,
-                type: categoryName,
-                duration,
-                price: place.priceLevel ? place.priceLevel * 10 : 0,
-                maxGroupSize: 15,
-                latitude: place.location.latitude,
-                longitude: place.location.longitude,
-                rating: place.rating,
-                ratingCount: place.reviews,
-                formattedAddress: place.address,
-                phoneNumber: place.phoneNumber,
-                website: place.website,
-                businessStatus: place.businessStatus,
-                priceLevel: place.priceLevel,
-                openingHours: place.openingHours,
-                knownActivityTypeName: categoryName,
-                location: place.location,
-                createdAt: new Date(),
-                updatedAt: new Date(),
-                sourceId: sourceId,
-                externalId: place.placeId,
-                metadata: {
-                  activityId: place.placeId,
-                  googleTypes: place.types || [],
-                  preferredTime: (place as any).metadata?.preferredTime,
-                },
-              } as CreateActivityDto);
+      for (const operation of operations) {
+        if (!operation.supported) {
+          provenance.operations!.push({
+            ...operation,
+            status: 'skipped',
+            receivedCount: 0,
+            rejectedCountByReason: {
+              [operation.unsupportedReason ?? 'provider_capability']: 1,
+            },
+          });
+          continue;
+        }
+        if (Date.now() - startedAt >= totalBudgetMs) {
+          this.incrementRejection(
+            provenance,
+            'refill_budget_exhausted',
+            1,
+            false,
+          );
+          provenance.operations!.push({
+            ...operation,
+            status: 'skipped',
+            receivedCount: 0,
+            rejectedCountByReason: { refill_budget_exhausted: 1 },
+          });
+          continue;
+        }
+        provenance.providerCallCount = (provenance.providerCallCount ?? 0) + 1;
+        try {
+          const searchResult = await this.executeAcquisitionOperation(
+            dto,
+            operation,
+          );
+          this.addRequestProvenance(provenance, searchResult.provenance);
+          if (operation.purpose === 'destination_seed') {
+            provenance.seedReceivedCount =
+              (provenance.seedReceivedCount ?? 0) +
+              searchResult.provenance.receivedCount;
+          } else {
+            provenance.coverageReceivedCount =
+              (provenance.coverageReceivedCount ?? 0) +
+              searchResult.provenance.receivedCount;
+          }
+          for (const [reason, count] of Object.entries(
+            searchResult.rejectedCountByReason,
+          )) {
+            this.incrementRejection(provenance, reason, count);
+            if (reason === 'out_of_area') {
+              provenance.operationGeographyRejectedCount =
+                (provenance.operationGeographyRejectedCount ?? 0) + count;
             }
-
-            allPlaces.push(...processedPlaces);
-            nextPageToken = newNextPageToken;
-
-            if (nextPageToken) {
-              await new Promise((resolve) => setTimeout(resolve, 2000));
-            }
-          } while (nextPageToken);
+          }
+          allPlaces.push(
+            ...searchResult.places.map((place) => ({
+              place,
+              category: operation.category,
+              operation,
+            })),
+          );
+          provenance.operations!.push({
+            ...operation,
+            status: 'succeeded',
+            receivedCount: searchResult.provenance.receivedCount,
+            rejectedCountByReason: searchResult.rejectedCountByReason,
+          });
+        } catch (error) {
+          if (!(error instanceof PlacesApiRequestError)) throw error;
+          firstRequestError ??= error;
+          this.addRequestProvenance(provenance, error.provenance);
+          if (operation.purpose === 'destination_seed') {
+            provenance.seedReceivedCount =
+              (provenance.seedReceivedCount ?? 0) +
+              error.provenance.receivedCount;
+          } else {
+            provenance.coverageReceivedCount =
+              (provenance.coverageReceivedCount ?? 0) +
+              error.provenance.receivedCount;
+          }
+          this.incrementRejection(
+            provenance,
+            'provider_request_failed',
+            1,
+            false,
+          );
+          provenance.operations!.push({
+            ...operation,
+            status: 'failed',
+            receivedCount: error.provenance.receivedCount,
+            rejectedCountByReason: { provider_request_failed: 1 },
+          });
+          this.logger.warn(
+            `Skipping failed ${error.operation ?? 'Places'} request (${error.code}) and continuing catalog refill.`,
+          );
         }
       }
 
+      const uniquePlaces = new Map<
+        string,
+        {
+          place: PlaceWithMetadata;
+          category: string;
+          operation: CatalogAcquisitionOperation;
+        }
+      >();
+      for (const entry of allPlaces) {
+        const identity = `${this.placesApi.provider}:${entry.place.placeId}`;
+        if (uniquePlaces.has(identity)) {
+          provenance.deduplicatedCount =
+            (provenance.deduplicatedCount ?? 0) + 1;
+          this.incrementRejection(provenance, 'duplicate_result');
+          this.recordRejectedCandidate(
+            provenance,
+            entry.place.placeId,
+            entry.place.name,
+            ['duplicate_result'],
+          );
+          continue;
+        }
+        uniquePlaces.set(identity, entry);
+      }
+
+      const defaultDurationsByCategory: Record<string, number> = {
+        cultural: ActivityTypes.CULTURAL.defaultDuration,
+        outdoor: ActivityTypes.OUTDOOR.defaultDuration,
+        entertainment: ActivityTypes.ENTERTAINMENT.defaultDuration,
+        food: ActivityTypes.FOOD.defaultDuration,
+        nightlife: ActivityTypes.NIGHTLIFE.defaultDuration,
+      };
+
+      const validatedPlaces: CreateActivityDto[] = [];
+      for (const { place, category, operation } of uniquePlaces.values()) {
+        const mapped = this.findMatchingActivityType([
+          ...(place.primaryType ? [place.primaryType] : []),
+          ...(place.types || []),
+        ]);
+        const categoryName = mapped?.name ?? category;
+        const candidate: CreateActivityDto = {
+          name: place.name,
+          description: place.website,
+          type: categoryName,
+          duration:
+            mapped?.duration ?? defaultDurationsByCategory[categoryName] ?? 2.0,
+          price: place.priceLevel ? place.priceLevel * 10 : 0,
+          maxGroupSize: 15,
+          latitude: place.location.latitude,
+          longitude: place.location.longitude,
+          rating: place.rating,
+          ratingCount: place.reviews,
+          formattedAddress: place.address,
+          phoneNumber: place.phoneNumber,
+          website: place.website,
+          businessStatus: place.businessStatus,
+          priceLevel: place.priceLevel,
+          openingHours: place.openingHours,
+          knownActivityTypeName: categoryName,
+          location: place.location,
+          sourceId,
+          externalId: place.placeId,
+          metadata: {
+            activityId: place.placeId,
+            placesProvider: this.placesApi.provider,
+            providerTypes: place.types || [],
+            providerPrimaryType: place.primaryType,
+            preferredTime: place.metadata?.preferredTime,
+            acquisitionOperationId: operation.operationId,
+            acquisitionPurpose: operation.purpose,
+          },
+        };
+        const validation = this.catalogCandidateValidator.validate(
+          {
+            provider: this.placesApi.provider,
+            externalId: candidate.externalId,
+            name: candidate.name,
+            latitude: candidate.latitude,
+            longitude: candidate.longitude,
+            providerTypes: place.types || [],
+            providerPrimaryType: place.primaryType,
+            formattedAddress: candidate.formattedAddress,
+            businessStatus: candidate.businessStatus,
+            rating: candidate.rating,
+            ratingCount: candidate.ratingCount,
+            website: candidate.website,
+            phoneNumber: candidate.phoneNumber,
+            openingHours: candidate.openingHours,
+          },
+          {
+            destinationBoundary: options.destinationBoundary,
+            acquisitionOperation: operation,
+            requestedInterests: options.requestedInterests,
+          },
+        );
+        if (validation.identityAccepted) {
+          provenance.identityValidCount =
+            (provenance.identityValidCount ?? 0) + 1;
+        }
+        if (validation.admissionAccepted) {
+          provenance.admittedCount = (provenance.admittedCount ?? 0) + 1;
+          if (validation.admissionEvidence) {
+            provenance.admissionEvidenceCountByType![
+              validation.admissionEvidence
+            ] =
+              (provenance.admissionEvidenceCountByType![
+                validation.admissionEvidence
+              ] ?? 0) + 1;
+          }
+        }
+        if (!validation.accepted) {
+          provenance.rejectedCount = (provenance.rejectedCount ?? 0) + 1;
+          for (const reason of validation.rejectionReasons) {
+            this.incrementRejection(provenance, reason, 1, false);
+          }
+          this.recordRejectedCandidate(
+            provenance,
+            candidate.externalId ?? candidate.name,
+            candidate.name,
+            validation.rejectionReasons,
+          );
+          continue;
+        }
+        provenance.validatedCount = (provenance.validatedCount ?? 0) + 1;
+        validatedPlaces.push(candidate);
+      }
+
+      if (validatedPlaces.length === 0 && firstRequestError) {
+        throw firstRequestError;
+      }
+
       const activities = [];
-      for (const place of allPlaces) {
-        // Since sourceId and externalId are now optional, check if activity exists differently
+      for (const place of validatedPlaces) {
         const placeExist = await this.prisma.activity.findFirst({
           where: {
             sourceId: sourceId,
@@ -613,6 +794,8 @@ Answer ONLY with one word from the set above, no punctuation, no explanation.`;
         });
 
         if (placeExist) {
+          provenance.existingCount = (provenance.existingCount ?? 0) + 1;
+          this.incrementRejection(provenance, 'existing_activity');
           continue;
         }
 
@@ -621,25 +804,40 @@ Answer ONLY with one word from the set above, no punctuation, no explanation.`;
       }
 
       this.logger.debug(`Saved ${activities.length} activities to database`);
+      provenance.acceptedCount = activities.length;
+      provenance.persistedCount = activities.length;
 
       if (activities.length > 0) {
         try {
-          await this.vectorStoreService.saveActivityEmbedding(activities);
+          const embeddingResult =
+            await this.vectorStoreService.saveActivityEmbedding(activities);
+          provenance.embeddingWriteStatus = embeddingResult.status;
+          provenance.embeddedCount = embeddingResult.indexedIds.length;
+          provenance.embeddingFailureReason = embeddingResult.reason;
+          provenance.embeddingIdentity = embeddingResult.identity;
         } catch (error) {
-          // Log error but don't fail the entire crawling process
+          provenance.embeddingWriteStatus = 'failed';
+          provenance.embeddingFailureReason =
+            error instanceof Error ? error.message : String(error);
           this.logger.error(
-            `Failed to save embeddings, but activities were saved: ${error.message}`,
+            `Failed to save embeddings, but activities were saved: ${provenance.embeddingFailureReason}`,
           );
         }
       }
 
       return {
         activitiesIds: activities.map((activity) => activity.id.toString()),
-        fromCache: false,
+        fromCache: provenance.cacheStatus === 'hit',
+        provenance,
       };
     } catch (error) {
       this.logger.error('Error in crawlAndSaveActivities:', error);
-      throw error;
+      throw new PlacesCrawlError(
+        `Catalog refill failed using ${placesProviderLabel(provenance.provider)}: ${error.message}`,
+        provenance,
+        error,
+        error instanceof PlacesApiRequestError ? error.code : 'request_failed',
+      );
     }
   }
 }

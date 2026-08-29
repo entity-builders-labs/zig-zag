@@ -31,6 +31,29 @@ export function parseStartTime(
 }
 
 /**
+ * Coerces the AI's returned duration into the plain hours-as-Float value
+ * TourActivity.duration expects. Groq's strict json_schema mode guarantees a
+ * real number, but weaker models (e.g. small local Ollama models) sometimes
+ * echo it back with units attached (e.g. "2.5 hours") despite the schema —
+ * extracting the leading numeric value here is more robust than trusting
+ * every provider to honor the type, and failing persistence outright over a
+ * cosmetic string wrapper would be a worse outcome than a null duration.
+ */
+export function parseDuration(duration: unknown): number | undefined {
+  if (typeof duration === 'number') {
+    return Number.isFinite(duration) ? duration : undefined;
+  }
+  if (typeof duration === 'string') {
+    const match = duration.match(/-?\d+(\.\d+)?/);
+    if (match) {
+      const parsed = Number.parseFloat(match[0]);
+      return Number.isFinite(parsed) ? parsed : undefined;
+    }
+  }
+  return undefined;
+}
+
+/**
  * Validate activity IDs and return only valid ones
  */
 export async function validateActivityIds(
@@ -78,7 +101,7 @@ export function transformAiActivitiesToDto(
       activityType: act.type || act.activityType,
       activityLatitude: act.latitude,
       activityLongitude: act.longitude,
-      duration: act.duration,
+      duration: parseDuration(act.duration),
       startTime: parsedStartTime,
       notes: act.notes,
       dayNumber: act.dayNumber,

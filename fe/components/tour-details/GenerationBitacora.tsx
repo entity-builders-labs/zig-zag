@@ -313,6 +313,35 @@ function getSourceBadge(source: string) {
   }
 }
 
+export function formatGenerationBitacora(trace: GenerationTrace): string {
+  const auditByActivityId = new Map<string, AuditFinding>(
+    (trace.auditFindings?.perActivity ?? [])
+      .filter((finding) => !!finding.activityId)
+      .map((finding) => [finding.activityId as string, finding])
+  );
+  const lines = ['🐛 Bitácora de generación (dev)'];
+
+  for (const step of trace.steps) {
+    lines.push(step.label, step.summary);
+
+    for (const candidate of step.candidates ?? []) {
+      lines.push(candidate.name);
+      if (candidate.detail) lines.push(`(${candidate.detail})`);
+      if (candidate.offered) lines.push('Ofrecido');
+      if (candidate.chosen) lines.push('Elegido');
+
+      const audit = auditByActivityId.get(candidate.id);
+      if (audit) {
+        lines.push(
+          `${AUDIT_LABELS[audit.openingHoursCheck]} · ${AUDIT_LABELS[audit.priceLevelCheck]}`
+        );
+      }
+    }
+  }
+
+  return lines.join('\n');
+}
+
 function StepBlock({
   step,
   index,

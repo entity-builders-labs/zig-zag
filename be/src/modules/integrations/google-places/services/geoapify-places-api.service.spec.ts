@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 import { GeoapifyPlacesApiService } from './geoapify-places-api.service';
+import { PlacesApiRequestError } from '../interfaces/places-api.interface';
 
 jest.mock('axios');
 const mockedAxios = axios as jest.Mocked<typeof axios>;
@@ -35,7 +36,7 @@ describe('GeoapifyPlacesApiService', () => {
         latitude: -34.6037,
         longitude: -58.3816,
         radius: 2000,
-        includedTypes: ['museum'],
+        includedPrimaryTypes: ['museum'],
         maxResultCount: 10,
       });
 
@@ -48,6 +49,7 @@ describe('GeoapifyPlacesApiService', () => {
             limit: 10,
             apiKey: 'test-api-key',
           },
+          timeout: 5000,
         },
       );
     });
@@ -73,10 +75,10 @@ describe('GeoapifyPlacesApiService', () => {
         latitude: -34.6037,
         longitude: -58.3816,
         radius: 2000,
-        includedTypes: ['museum'],
+        includedPrimaryTypes: ['museum'],
       });
 
-      expect(results).toEqual([
+      expect(results.data).toEqual([
         {
           id: 'geoapify-place-1',
           name: 'Museo Nacional',
@@ -88,6 +90,12 @@ describe('GeoapifyPlacesApiService', () => {
           userRatingCount: undefined,
         },
       ]);
+      expect(results.provenance).toEqual({
+        provider: 'geoapify',
+        cacheStatus: 'miss-live',
+        requestedCount: 20,
+        receivedCount: 1,
+      });
     });
 
     it('returns an empty array when no category mapping exists for the requested type', async () => {
@@ -95,43 +103,34 @@ describe('GeoapifyPlacesApiService', () => {
         latitude: -34.6037,
         longitude: -58.3816,
         radius: 2000,
-        includedTypes: ['unmapped_type'],
+        includedPrimaryTypes: ['unmapped_type'],
       });
 
-      expect(results).toEqual([]);
+      expect(results.data).toEqual([]);
       expect(mockedAxios.get).not.toHaveBeenCalled();
     });
   });
 
   describe('searchText', () => {
-    it('approximates a category search for the hiking_trail fallback query', async () => {
-      mockedAxios.get.mockResolvedValueOnce({ data: { features: [] } });
-
-      await service.searchText({
+    it('does not silently approximate descriptive Text Search as a category call', async () => {
+      const result = await service.searchText({
         textQuery: 'hiking trail hiking trekking trail nature',
-        latitude: -34.6037,
-        longitude: -58.3816,
-        radius: 5000,
+        locationBias: {
+          center: { latitude: -34.6037, longitude: -58.3816 },
+          radius: 5000,
+        },
       });
 
-      expect(mockedAxios.get).toHaveBeenCalledWith(
-        'https://api.geoapify.com/v2/places',
-        expect.objectContaining({
-          params: expect.objectContaining({
-            categories: 'natural.forest,natural.protected_area',
-          }),
-        }),
-      );
+      expect(result.data).toEqual([]);
+      expect(mockedAxios.get).not.toHaveBeenCalled();
     });
 
     it('returns an empty array when no keyword approximation matches', async () => {
       const results = await service.searchText({
         textQuery: 'something completely unrelated',
-        latitude: -34.6037,
-        longitude: -58.3816,
       });
 
-      expect(results).toEqual([]);
+      expect(results.data).toEqual([]);
       expect(mockedAxios.get).not.toHaveBeenCalled();
     });
   });
@@ -155,7 +154,7 @@ describe('GeoapifyPlacesApiService', () => {
 
       const details = await service.getPlaceDetails('geoapify-place-1');
 
-      expect(details).toEqual({
+      expect(details.data).toEqual({
         id: 'geoapify-place-1',
         name: 'Museo Nacional',
         nationalPhoneNumber: '+54 11 1234-5678',
@@ -180,17 +179,24 @@ describe('GeoapifyPlacesApiService', () => {
 
       const details = await service.getPlaceDetails('geoapify-place-1');
 
-      expect(details.openingHoursWeekdayText).toEqual([
+      expect(details.data.openingHoursWeekdayText).toEqual([
         'Mo-Fr 09:00-18:00; Sa 10:00-14:00',
       ]);
     });
 
-    it('returns an empty object on request failure instead of throwing', async () => {
+    it('reports provider provenance on request failure', async () => {
       mockedAxios.get.mockRejectedValueOnce(new Error('network error'));
 
-      const details = await service.getPlaceDetails('geoapify-place-1');
-
-      expect(details).toEqual({});
+      await expect(
+        service.getPlaceDetails('geoapify-place-1'),
+      ).rejects.toMatchObject<Partial<PlacesApiRequestError>>({
+        provenance: {
+          provider: 'geoapify',
+          cacheStatus: 'miss-live',
+          requestedCount: 1,
+          receivedCount: 0,
+        },
+      });
     });
   });
 });

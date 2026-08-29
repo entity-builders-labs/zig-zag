@@ -1,4 +1,5 @@
 import { registerAs } from '@nestjs/config';
+import { EmbeddingProvider } from './interfaces/embedding-index.interface';
 
 export interface AiConfig {
   // General
@@ -13,6 +14,8 @@ export interface AiConfig {
   groqApiKey?: string;
   // Gemini
   geminiApiKey?: string;
+  // SerpApi (grounded search evidence provider)
+  serpApiKey?: string;
   // Ollama
   ollamaBaseUrl?: string;
   ollamaApiKey?: string;
@@ -20,9 +23,19 @@ export interface AiConfig {
   ollamaTimeout?: number; // Separate timeout for Ollama (defaults to 4x base timeout)
   // Embeddings
   embeddingsModel?: string;
-  embeddingProvider: 'openai' | 'ollama' | 'bedrock';
+  embeddingProvider: EmbeddingProvider;
   awsRegion: string;
-  embeddingDimensions: 256 | 512 | 1024;
+  embeddingDimensions: 256;
+  // Discovery extraction (ActivityProposal extraction from grounded evidence)
+  discoveryExtractor: DiscoveryExtractorConfig;
+}
+
+export type DiscoveryExtractorProvider = 'gemini' | 'groq';
+
+export interface DiscoveryExtractorConfig {
+  provider: DiscoveryExtractorProvider;
+  gemini: { apiKey?: string; model: string };
+  groq: { apiKey?: string; model: string };
 }
 
 // Helper to detect if a model is an embedding model
@@ -88,6 +101,39 @@ export default registerAs('ai', (): AiConfig => {
     ? parseInt(process.env.OPENAI_TIMEOUT, 10)
     : 60000;
 
+  const configuredEmbeddingProvider =
+    process.env.EMBEDDING_PROVIDER ||
+    (process.env.NODE_ENV === 'production' ? 'bedrock' : 'ollama');
+  if (!['openai', 'ollama', 'bedrock'].includes(configuredEmbeddingProvider)) {
+    throw new Error(
+      `Unsupported EMBEDDING_PROVIDER "${configuredEmbeddingProvider}". Expected openai, ollama, or bedrock.`,
+    );
+  }
+  const embeddingProvider = configuredEmbeddingProvider as EmbeddingProvider;
+  const configuredEmbeddingDimensions = Number(
+    process.env.EMBEDDING_DIMENSIONS || 256,
+  );
+  if (configuredEmbeddingDimensions !== 256) {
+    throw new Error(
+      `Unsupported EMBEDDING_DIMENSIONS "${configuredEmbeddingDimensions}". ` +
+        'The current pgvector schema requires 256 dimensions; changing it requires a coordinated schema migration and full index rebuild.',
+    );
+  }
+  const defaultEmbeddingModel =
+    embeddingProvider === 'bedrock'
+      ? 'amazon.titan-embed-text-v2:0'
+      : embeddingProvider === 'openai'
+        ? 'text-embedding-3-small'
+        : 'nomic-embed-text';
+
+  const discoveryExtractorProvider =
+    process.env.DISCOVERY_EXTRACTOR_PROVIDER || 'gemini';
+  if (!['gemini', 'groq'].includes(discoveryExtractorProvider)) {
+    throw new Error(
+      `Unsupported DISCOVERY_EXTRACTOR_PROVIDER "${discoveryExtractorProvider}". Expected gemini or groq.`,
+    );
+  }
+
   return {
     enableAi: process.env.ENABLE_AI !== 'false',
     provider,
@@ -99,6 +145,7 @@ export default registerAs('ai', (): AiConfig => {
     openaiApiKey: process.env.OPENAI_API_KEY,
     groqApiKey: process.env.GROQ_API_KEY,
     geminiApiKey: process.env.GEMINI_API_KEY,
+    serpApiKey: process.env.SERPAPI_API_KEY,
     ollamaBaseUrl: process.env.OLLAMA_BASE_URL,
     ollamaApiKey: process.env.OLLAMA_API_KEY,
     ollamaNumCtx: process.env.OLLAMA_NUM_CTX
@@ -109,19 +156,20 @@ export default registerAs('ai', (): AiConfig => {
     ollamaTimeout: process.env.OLLAMA_TIMEOUT
       ? parseInt(process.env.OLLAMA_TIMEOUT, 10)
       : baseTimeout * 4,
-    embeddingsModel:
-      process.env.EMBEDDINGS_MODEL ||
-      (process.env.EMBEDDING_PROVIDER === 'bedrock'
-        ? 'amazon.titan-embed-text-v2:0'
-        : 'nomic-embed-text'),
-    embeddingProvider:
-      (process.env.EMBEDDING_PROVIDER as 'openai' | 'ollama' | 'bedrock') ||
-      (process.env.NODE_ENV === 'production' ? 'openai' : 'ollama'),
+    embeddingsModel: process.env.EMBEDDINGS_MODEL || defaultEmbeddingModel,
+    embeddingProvider,
     awsRegion: process.env.AWS_REGION || 'us-east-1',
-    embeddingDimensions: ([256, 512, 1024].includes(
-      Number(process.env.EMBEDDING_DIMENSIONS),
-    )
-      ? Number(process.env.EMBEDDING_DIMENSIONS)
-      : 256) as 256 | 512 | 1024,
+    embeddingDimensions: 256,
+    discoveryExtractor: {
+      provider: discoveryExtractorProvider as DiscoveryExtractorProvider,
+      gemini: {
+        apiKey: process.env.GEMINI_API_KEY,
+        model: process.env.GEMINI_DISCOVERY_MODEL || 'gemini-3.5-flash-lite',
+      },
+      groq: {
+        apiKey: process.env.GROQ_API_KEY,
+        model: process.env.GROQ_DISCOVERY_MODEL || 'openai/gpt-oss-120b',
+      },
+    },
   };
 });

@@ -272,9 +272,9 @@ export const Activities = () => {
           <BottomSheetSectionList
             style={{ flex: 1 }}
             sections={sections}
-            keyExtractor={(item) => item.id}
+            keyExtractor={(item: any) => item.id}
             contentContainerStyle={{ paddingBottom: insets.bottom }}
-            renderSectionHeader={({ section: { title } }) => (
+            renderSectionHeader={({ section: { title } }: any) => (
               <Box
                 style={{
                   backgroundColor: 'black',
@@ -292,7 +292,7 @@ export const Activities = () => {
                 </Text>
               </Box>
             )}
-            renderItem={({ item }) => (
+            renderItem={({ item }: any) => (
               <Box
                 style={[styles.container]}
                 onTouchEnd={() => {

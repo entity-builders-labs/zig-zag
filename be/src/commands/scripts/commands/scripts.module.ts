@@ -10,6 +10,7 @@ import { EmbeddingCheckerCommand } from './embedding-checker.command';
 import { ImageAuditCommand } from './image-audit.command';
 import { GenerateTemplatesCommand } from './generate-templates.command';
 import { SeedE2eCompositeCommand } from './seed-e2e-composite.command';
+import { TryDiscoveryCommand } from './try-discovery.command';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { SeedE2eCompositeCommand } from './seed-e2e-composite.command';
     ImageAuditCommand,
     GenerateTemplatesCommand,
     SeedE2eCompositeCommand,
+    TryDiscoveryCommand,
   ],
 })
 export class ScriptsModule {}

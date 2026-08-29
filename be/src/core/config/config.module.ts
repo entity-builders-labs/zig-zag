@@ -4,6 +4,7 @@ import { databaseConfig } from './database.config';
 import { appConfig } from './app.config';
 import aiConfig from '../../shared/ai/ai.config';
 import authConfig from './auth.config';
+import dailyPlanningPolicyConfig from '../../modules/tours/config/daily-planning-policy.config';
 import * as path from 'path';
 
 @Global()
@@ -16,7 +17,13 @@ import * as path from 'path';
         path.join(__dirname, '../../..', '.env'), // Root monorepo .env
         '.env', // Local .env in be/ directory
       ],
-      load: [appConfig, databaseConfig, aiConfig, authConfig],
+      load: [
+        appConfig,
+        databaseConfig,
+        aiConfig,
+        authConfig,
+        dailyPlanningPolicyConfig,
+      ],
     }),
   ],
 })

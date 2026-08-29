@@ -91,7 +91,7 @@ export const TourStopCard = ({
                 alt={data.title}
                 width={84}
                 height={84}
-                borderRadius='$xl'
+                borderRadius={12}
                 resizeMode='cover'
               />
               <VStack flex={1} justifyContent='space-between'>

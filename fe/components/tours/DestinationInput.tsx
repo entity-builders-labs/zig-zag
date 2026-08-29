@@ -14,14 +14,20 @@ import {
   Spinner,
 } from '@gluestack-ui/themed';
 import { Search, MapPin, X } from 'lucide-react-native';
-import { PlaceSuggestion, searchPlaces, resolvePlace } from '@/features/places-autocomplete';
+import {
+  PlaceSuggestion,
+  searchPlaces,
+  resolvePlace,
+} from '@/features/places-autocomplete';
+import { DestinationScaleHint } from '@/features/tours/tour-generation-contract';
 
 interface DestinationInputProps {
   value?: string;
   onDestinationChange: (
     destination: string,
     coordinates?: { lat: number; lng: number },
-    radiusMeters?: number
+    radiusMeters?: number,
+    scaleHint?: DestinationScaleHint
   ) => void;
   onDirtyChange?: (isDirty: boolean) => void;
 }
@@ -83,10 +89,11 @@ export const DestinationInput: React.FC<DestinationInputProps> = ({
       const placeName = details?.name || item.label;
       const coords = details ? { lat: details.lat, lng: details.lng } : undefined;
       const radius = details?.radiusMeters;
+      const scale = details?.scaleHint;
 
       setConfirmedValue(placeName);
       setTerm(placeName);
-      onDestinationChange(placeName, coords, radius);
+      onDestinationChange(placeName, coords, radius, scale);
       onDirtyChange?.(false);
     } catch (error) {
       console.error('Failed to resolve place:', error);
@@ -182,7 +189,7 @@ export const DestinationInput: React.FC<DestinationInputProps> = ({
                   key={item.id}
                   onPress={() => handleSelectItem(item)}
                   borderRadius='$xl'
-                  p='$3'
+                  p='$2'
                   $hover-bg='$backgroundLight100'
                   $active-bg='$backgroundLight100'
                 >
@@ -191,9 +198,9 @@ export const DestinationInput: React.FC<DestinationInputProps> = ({
                       flexDirection='row'
                       alignItems='center'
                       style={{
-                        backgroundColor: pressed ? '#FEE2E2' : 'transparent',
+                        backgroundColor: pressed ? '#F6F3EA' : 'transparent',
                         borderRadius: 12,
-                        padding: 4,
+                        padding: 6,
                       }}
                     >
                       <Box

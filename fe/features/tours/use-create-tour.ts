@@ -32,35 +32,21 @@ export function useCreateTour(
   const validatePreferences = (
     preferences: GenerateTourDto
   ): { valid: boolean; errorMessage?: string } => {
-    const dest = preferences.destination;
-    const lat =
-      typeof dest === 'object' && dest !== null
-        ? dest.latitude
-        : preferences.destinationLatitude ?? preferences.latitude;
-    const lng =
-      typeof dest === 'object' && dest !== null
-        ? dest.longitude
-        : preferences.destinationLongitude ?? preferences.longitude;
+    const { latitude, longitude } = preferences.destination || {};
 
-    if (lat === undefined || lng === undefined) {
+    if (latitude === undefined || longitude === undefined) {
       return {
         valid: false,
         errorMessage: 'Se requiere un destino o coordenadas para crear el tour'
       };
     }
-    if (
-      preferences.mobility?.allowedTransportationModes &&
-      preferences.mobility.allowedTransportationModes.length === 0
-    ) {
+    if (preferences.mobility?.allowedTransportationModes?.length === 0) {
       return {
         valid: false,
         errorMessage: 'Elegí al menos un medio de transporte'
       };
     }
-    if (
-      preferences.intent?.experienceFormats &&
-      preferences.intent.experienceFormats.length === 0
-    ) {
+    if (preferences.intent?.experienceFormats?.length === 0) {
       return {
         valid: false,
         errorMessage: 'Elegí al menos un formato de experiencia'

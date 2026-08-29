@@ -21,6 +21,10 @@ export interface OverpassElement {
   geometry?: { lat: number; lon: number }[];
   // Present on relations.
   members?: OverpassRelationMember[];
+  // Present on a way/relation fetched with `out center` instead of
+  // `out geom` — a lightweight centroid in place of full polygon geometry.
+  // See osm-geometry.util.ts's fallback handling (Task 9).
+  center?: { lat: number; lon: number };
 }
 
 export interface QueryBoundaryByNameParams {
@@ -41,10 +45,24 @@ export interface QueryStreetsParams {
   radiusMeters: number;
 }
 
-// Deliberately scoped to exactly these three queries — not a general
-// Overpass client. queryBoundaryByName is for an area already known by name
-// (the generate-templates CLI, Fase 5). queryContainingBoundary is for live
-// tour generation (Fase 4), where only a point is known, never a name.
+export interface QueryByIdParams {
+  osmType: 'way' | 'relation';
+  osmId: number;
+}
+
+export interface QueryAdminBoundariesWithinAreaParams extends QueryByIdParams {
+  childAdminLevel: number;
+}
+
+// Deliberately scoped to two families of queries — not a general Overpass
+// client. Point/name-based queries (queryBoundaryByName, queryContainingBoundary,
+// queryStreets) support area discovery: queryBoundaryByName is for an area
+// already known by name (the generate-templates CLI, Fase 5).
+// queryContainingBoundary is for live tour generation (Fase 4), where only a
+// point is known, never a name. Area-scoped queries (queryBoundaryById,
+// queryAdminBoundariesWithinArea, queryStreetsWithinArea, queryPoisWithinArea)
+// operate on an already-known boundary id to explore its administrative
+// subdivisions, streets, and POIs.
 export interface IOverpassApiService {
   queryBoundaryByName(
     params: QueryBoundaryByNameParams,
@@ -53,4 +71,10 @@ export interface IOverpassApiService {
     params: QueryContainingBoundaryParams,
   ): Promise<OverpassElement[]>;
   queryStreets(params: QueryStreetsParams): Promise<OverpassElement[]>;
+  queryBoundaryById(params: QueryByIdParams): Promise<OverpassElement[]>;
+  queryAdminBoundariesWithinArea(
+    params: QueryAdminBoundariesWithinAreaParams,
+  ): Promise<OverpassElement[]>;
+  queryStreetsWithinArea(params: QueryByIdParams): Promise<OverpassElement[]>;
+  queryPoisWithinArea(params: QueryByIdParams): Promise<OverpassElement[]>;
 }

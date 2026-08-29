@@ -94,6 +94,29 @@ export class CompositeActivityService {
     return source.id;
   }
 
+  private async ensureActivityEmbedding(activity: Activity): Promise<void> {
+    const result =
+      await this.vectorStoreService.backfillMissingActivityEmbeddings([
+        activity,
+      ]);
+    if (result.status === 'unavailable') {
+      this.logger.warn(
+        `Embedding unavailable for reused variant ${activity.id}: ${result.reason}`,
+      );
+    }
+  }
+
+  private async indexActivity(activity: Activity): Promise<void> {
+    const result = await this.vectorStoreService.saveActivityEmbedding([
+      activity,
+    ]);
+    if (result.status === 'unavailable') {
+      this.logger.warn(
+        `Embedding unavailable for composite ${activity.id}: ${result.reason}`,
+      );
+    }
+  }
+
   private centroidOfPoints(points: { latitude: number; longitude: number }[]): {
     latitude: number;
     longitude: number;
@@ -109,6 +132,13 @@ export class CompositeActivityService {
     latitude: number;
     longitude: number;
   } {
+    if (geometry.type === 'Point') {
+      return {
+        latitude: geometry.coordinates[1],
+        longitude: geometry.coordinates[0],
+      };
+    }
+
     const ring: [number, number][] =
       geometry.type === 'LineString'
         ? geometry.coordinates
@@ -305,6 +335,7 @@ export class CompositeActivityService {
         this.logger.debug(
           `Reusing existing variant ${existing.id} (${externalId}) — not overwriting its content.`,
         );
+        await this.ensureActivityEmbedding(existing);
         return existing;
       }
       this.logger.debug(
@@ -386,7 +417,7 @@ export class CompositeActivityService {
         }),
     );
 
-    await this.vectorStoreService.saveActivityEmbedding([created]);
+    await this.indexActivity(created);
     return created;
   }
 
@@ -525,7 +556,7 @@ export class CompositeActivityService {
       });
     });
 
-    await this.vectorStoreService.saveActivityEmbedding([variant]);
+    await this.indexActivity(variant);
     return variant;
   }
 }

@@ -95,7 +95,7 @@ docker logs -f zigzag-backend 2>&1 | grep "Cache miss"
 # Restart container
 docker-compose restart backend
 
-# Make a request that uses Google Maps API
+# Make a request that uses the selected PLACES_PROVIDER
 # (e.g., search for activities, create a tour, etc.)
 
 # Check if cache file was created
@@ -132,7 +132,7 @@ docker logs zigzag-backend --tail 50 | grep -i "cache"
 
 ```bash
 # View a cache file
-docker exec zigzag-backend sh -c 'cat ${STORAGE_PATH:-/app/be/storage}/maps-cache/searchNearby-*.json | head -1 | jq .' 2>/dev/null
+docker exec zigzag-backend sh -c 'cat ${STORAGE_PATH:-/app/be/storage}/maps-cache/*-v2-searchNearby-*.json | head -1 | jq .' 2>/dev/null
 
 # List all cache keys
 docker exec zigzag-backend sh -c 'ls -1 ${STORAGE_PATH:-/app/be/storage}/maps-cache/*.json | xargs -n1 basename'
@@ -156,26 +156,26 @@ docker-compose restart backend
 ### Cache Hit
 
 ```
-[CachedPlacesApiService] Cache hit for searchNearby (searchNearby-abc123.json)
+[CachedPlacesApiService] Cache hit for searchNearby (google-v2-searchNearby-abc123.json)
 ```
 
 ### Cache Miss (Read Mode)
 
 ```
-[CachedPlacesApiService] Cache miss for searchNearby (searchNearby-abc123.json). Calling real API...
+[CachedPlacesApiService] Cache miss for searchNearby (google-v2-searchNearby-abc123.json). Calling real API...
 ```
 
 ### Cache Miss (Write Mode)
 
 ```
-[CachedPlacesApiService] Cache miss for searchNearby (searchNearby-abc123.json). Calling real API...
-[CachedPlacesApiService] Cached response for searchNearby (searchNearby-abc123.json)
+[CachedPlacesApiService] Cache miss for searchNearby (google-v2-searchNearby-abc123.json). Calling real API...
+[CachedPlacesApiService] Cached response for searchNearby (google-v2-searchNearby-abc123.json)
 ```
 
 ### Cache Miss (Strict Mode)
 
 ```
-Error: [CachedPlacesApiService] Strict mode: Cache miss for searchNearby (searchNearby-abc123.json) and real API calls are disabled.
+Error: [CachedPlacesApiService] Strict mode: cache miss for google.searchNearby (google-v2-searchNearby-abc123.json); live API calls are disabled.
 ```
 
 ## Troubleshooting

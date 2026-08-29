@@ -15,7 +15,8 @@ commands/
         ├── image-audit.command.ts        # Audit activity images
         ├── metadata-checker.command.ts   # Regenerate AI metadata
         ├── generate-templates.command.ts # Pre-generate curated composite activity variants
-        └── seed-e2e-composite.command.ts # Seed a composite-stop tour fixture for frontend e2e tests
+        ├── seed-e2e-composite.command.ts # Seed a composite-stop tour fixture for frontend e2e tests
+        └── try-discovery.command.ts      # Manual smoke test for grounded Activity Discovery against real APIs
 ```
 
 ## Available Commands
@@ -79,6 +80,20 @@ Options:
 - `--tour-name` — override the seeded tour's name
 
 Prints exactly one line to stdout, `E2E_FIXTURE_JSON:{...}`, with the created `tourId`/`tourActivityId`/etc — parsed by the Playwright-side helper.
+
+### `try-discovery`
+
+Runs the real two-step grounded Activity Discovery flow (`GROUNDED_SEARCH_PROVIDER` for evidence, then `GroqDiscoveryProvider` for structured extraction) against live APIs and prints the raw `DiscoveryResponse` to stdout for manual inspection. Unlike the unit specs, which mock both providers, this hits real APIs — useful whenever the discovery contract, prompt, or grounded-search provider changes and needs a real-API sanity check beyond mocks. Consumes real quota on whichever provider is bound to `GROUNDED_SEARCH_PROVIDER` (SerpApi by default — a limited free tier; see `tours.module.ts`).
+
+```bash
+yarn script try-discovery --destination="Salta" --country="Argentina" --themes=history,nature
+```
+
+Options:
+
+- `--destination` (required) — destination name (e.g. `"Salta"`)
+- `--country` — destination country (e.g. `"Argentina"`)
+- `--themes` — comma-separated themes (default: `history,culture`)
 
 ## Running Commands
 

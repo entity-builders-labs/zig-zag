@@ -206,6 +206,13 @@ function createFakePrisma() {
     activityWaypoint,
     tourActivityWaypoint,
     $transaction: jest.fn(async (cb: any) => cb(client)),
+    $queryRaw: jest.fn(async (_query: any, activityId: string) => [
+      {
+        hasEmbedding: Boolean(
+          activities.find((activity) => activity.id === activityId)?.embedding,
+        ),
+      },
+    ]),
   };
 
   // Test-only seam for arranging fixtures directly.
@@ -217,7 +224,10 @@ function createFakePrisma() {
 describe('CompositeActivityService', () => {
   let prisma: any;
   let vectorStoreService: jest.Mocked<
-    Pick<VectorStoreService, 'saveActivityEmbedding'>
+    Pick<
+      VectorStoreService,
+      'saveActivityEmbedding' | 'backfillMissingActivityEmbeddings'
+    >
   >;
   let service: CompositeActivityService;
 
@@ -245,8 +255,37 @@ describe('CompositeActivityService', () => {
 
   beforeEach(async () => {
     prisma = createFakePrisma();
+    const identity = {
+      provider: 'ollama' as const,
+      model: 'nomic-embed-text',
+      dimensions: 256,
+      documentVersion: 1,
+    };
     vectorStoreService = {
-      saveActivityEmbedding: jest.fn().mockResolvedValue(undefined),
+      saveActivityEmbedding: jest.fn(async (activities: any[]) => {
+        activities.forEach((activity) => {
+          activity.embedding = [0.1];
+        });
+        return {
+          status: 'indexed' as const,
+          requestedIds: activities.map(({ id }) => id),
+          indexedIds: activities.map(({ id }) => id),
+          identity,
+        };
+      }),
+      backfillMissingActivityEmbeddings: jest.fn(async (activities: any[]) => {
+        const missing = activities.filter((activity) => !activity.embedding);
+        missing.forEach((activity) => {
+          activity.embedding = [0.1];
+        });
+        return {
+          status:
+            missing.length > 0 ? ('indexed' as const) : ('no_work' as const),
+          requestedIds: activities.map(({ id }) => id),
+          indexedIds: missing.map(({ id }) => id),
+          identity,
+        };
+      }),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -307,6 +346,49 @@ describe('CompositeActivityService', () => {
 
       expect(materialized.kind).toBe(ActivityKind.ROUTE);
       expect(materialized.kind).not.toBe(ActivityKind.POI);
+    });
+
+    it('materializes an "osm:node:…" POI token (Point geometry) without throwing', async () => {
+      const poi = await prisma.activity.create({
+        data: {
+          name: 'Plaza Dorrego',
+          kind: ActivityKind.POI,
+          latitude: -34.62,
+          longitude: -58.37,
+        },
+      });
+
+      const nodeCandidate = osmCandidate({
+        id: 'osm:node:123',
+        osmType: 'node',
+        osmId: 123,
+        name: 'Casa Mínima',
+        geometry: { type: 'Point', coordinates: [-58.371, -34.621] },
+        tags: { name: 'Casa Mínima', historic: 'yes' },
+      });
+
+      const variant = await service.createOrReuseComposite({
+        name: 'San Telmo Historic Walk',
+        kind: ActivityKind.NEIGHBORHOOD_WALK,
+        variantTheme: VariantTheme.HISTORY,
+        areaCandidate: osmCandidate(),
+        waypointIds: [poi.id, 'osm:node:123'],
+        candidateOsmFeaturesById: new Map([['osm:node:123', nodeCandidate]]),
+      });
+
+      const rows = await prisma.activityWaypoint.findMany({
+        where: { compositeActivityId: variant.id },
+      });
+      const materialized = await prisma.activity.findUnique({
+        where: {
+          id: rows.find((r: any) => r.waypointActivityId !== poi.id)
+            .waypointActivityId,
+        },
+      });
+
+      expect(materialized.kind).toBe(ActivityKind.ROUTE);
+      expect(materialized.latitude).toBeCloseTo(-34.621);
+      expect(materialized.longitude).toBeCloseTo(-58.371);
     });
   });
 
@@ -388,6 +470,32 @@ describe('CompositeActivityService', () => {
       // The original 2-waypoint content survives untouched — the second
       // call's differing waypointIds were never persisted.
       expect(rows).toHaveLength(2);
+      // The first call indexed the new variant; reuse detects that stored
+      // vector and does not pay for a second embedding request.
+      expect(vectorStoreService.saveActivityEmbedding).toHaveBeenCalledTimes(1);
+    });
+
+    it('backfills a missing embedding when reusing a pre-existing variant', async () => {
+      const input = {
+        name: 'San Telmo Historic Walk',
+        kind: ActivityKind.NEIGHBORHOOD_WALK,
+        variantTheme: VariantTheme.HISTORY,
+        areaCandidate: osmCandidate(),
+        waypointIds: [poi1.id, poi2.id],
+        candidateOsmFeaturesById: new Map(),
+      };
+      const existing = await service.createOrReuseComposite(input);
+      (existing as any).embedding = null;
+      vectorStoreService.saveActivityEmbedding.mockClear();
+      vectorStoreService.backfillMissingActivityEmbeddings.mockClear();
+
+      const reused = await service.createOrReuseComposite(input);
+
+      expect(reused.id).toBe(existing.id);
+      expect(
+        vectorStoreService.backfillMissingActivityEmbeddings,
+      ).toHaveBeenCalledWith([existing]);
+      expect(vectorStoreService.saveActivityEmbedding).not.toHaveBeenCalled();
     });
 
     it('creates two separate Activities for the same familyId when variantTheme differs, even with identical waypoints', async () => {
