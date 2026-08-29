@@ -8,6 +8,12 @@ import {
 import { PlanningCandidateNormalizerService } from './services/planning-candidate-normalizer.service';
 
 describe('ToursModule DI wiring (PR10)', () => {
+  beforeAll(() => {
+    process.env.DATABASE_URL =
+      process.env.DATABASE_URL ||
+      'postgresql://postgres:postgres@localhost:5432/zigzag';
+  });
+
   it('resolves the new daily-planning providers without error', async () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],

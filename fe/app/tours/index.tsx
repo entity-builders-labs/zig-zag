@@ -130,38 +130,72 @@ export default function ToursScreen() {
   }, [category]);
 
   return (
-    <Box height='$full' bg='$backgroundLight100'>
+    <Box height='$full' bg='$backgroundLight50'>
       <FlatList
         data={data?.tours || []}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={{ padding: 16 }}
+        contentContainerStyle={{ padding: 16, paddingBottom: 60 }}
         ListHeaderComponent={
           <VStack space='md' mb='$4'>
-            <Heading>{category ? `Tours - ${category}` : 'Tours'}</Heading>
-            {category && (
-              <Text size='sm' color='$gray600'>
-                Mostrando tours de la categoría: {category}
-              </Text>
-            )}
-            <Button onPress={() => router.push('/tours/wizard')}>
-              <Text color='$white'>Create New Tour</Text>
-            </Button>
-
-            <Button
-              onPress={handleGenerateUniqueTour}
-              variant='outline'
-              borderColor='$primary500'
+            <Heading
+              size='xl'
+              color='$textLight900'
+              style={{ fontFamily: FONT_DISPLAY }}
             >
-              <Text color='$primary500'>Customize Unique AI Tour 🪄</Text>
-            </Button>
+              {category ? `Tours: ${category}` : 'Explorar Recorridos'}
+            </Heading>
+            <Text size='sm' color='$textLight500'>
+              {category
+                ? `Mostrando experiencias curadas para ${category}`
+                : 'Descubrí caminatas y recorridos creados con IA'}
+            </Text>
 
-            {loading && <Spinner size='large' />}
+            <HStack space='sm' mt='$2'>
+              <Button
+                flex={1}
+                bg='$primary500'
+                borderRadius='$2xl'
+                h={48}
+                onPress={() => router.push('/tours/wizard')}
+                isDisabled={isGenerating}
+              >
+                <ButtonText color='$white' fontWeight='$bold'>
+                  ✨ Crear Nuevo Tour
+                </ButtonText>
+              </Button>
+
+              <Button
+                onPress={handleGenerateUniqueTour}
+                isDisabled={isGenerating}
+                variant='outline'
+                borderColor='$primary500'
+                borderRadius='$2xl'
+                h={48}
+                px='$4'
+              >
+                {isGenerating ? (
+                  <Spinner color='$primary500' size='small' />
+                ) : (
+                  <ButtonText color='$primary600' fontWeight='$bold'>
+                    🪄 IA Sorpresa
+                  </ButtonText>
+                )}
+              </Button>
+            </HStack>
+
+            {loading && (
+              <Box py='$8' alignItems='center'>
+                <Spinner size='large' color='$primary500' />
+              </Box>
+            )}
 
             {error && (
-              <Box bg='$errorLight100' p='$3' borderRadius='$md'>
+              <Box bg='$errorLight100' p='$4' borderRadius='$xl'>
                 <HStack space='sm' alignItems='center'>
                   <AlertCircleIcon color='$errorLight500' />
-                  <Text color='$errorLight500'>{error.message}</Text>
+                  <Text color='$errorLight500' size='sm'>
+                    {error.message}
+                  </Text>
                 </HStack>
               </Box>
             )}
@@ -173,40 +207,72 @@ export default function ToursScreen() {
               <Box
                 bg='$white'
                 p='$4'
-                borderRadius='$md'
-                shadowRadius={2}
-                mb='$4'
+                borderRadius='$2xl'
+                borderWidth={1}
+                borderColor='$borderLight100'
+                shadowColor='$black'
+                shadowOffset={{ width: 0, height: 2 }}
+                shadowOpacity={0.04}
+                shadowRadius={6}
+                elevation={2}
+                mb='$3'
               >
-                <VStack space='sm'>
-                  <Heading size='sm'>{tour.name}</Heading>
-                  <Text>{tour.description}</Text>
+                <VStack space='xs'>
+                  <Heading
+                    size='sm'
+                    color='$textLight900'
+                    style={{ fontFamily: FONT_DISPLAY }}
+                  >
+                    {tour.name}
+                  </Heading>
+                  {tour.description && (
+                    <Text size='xs' color='$textLight500' numberOfLines={2}>
+                      {tour.description}
+                    </Text>
+                  )}
+                  <HStack space='md' mt='$2' alignItems='center'>
+                    <Text size='2xs' fontWeight='$bold' color='$primary600'>
+                      📍 {tour.activities?.length || 0} paradas
+                    </Text>
+                    {tour.totalDistance && (
+                      <Text size='2xs' color='$textLight500'>
+                        🚶‍♂️ {tour.totalDistance.toFixed(1)} km
+                      </Text>
+                    )}
+                  </HStack>
                 </VStack>
               </Box>
             </Pressable>
           </Link>
         )}
         ListFooterComponent={
-          <HStack space='sm' justifyContent='center' mt='$4' mb='$8'>
-            <Button
-              variant='outline'
-              onPress={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-              isDisabled={currentPage === 1}
-            >
-              <Text>Previous</Text>
-            </Button>
-            <Text>
-              Page {currentPage} of {totalPages}
-            </Text>
-            <Button
-              variant='outline'
-              onPress={() =>
-                setCurrentPage((prev) => Math.min(totalPages, prev + 1))
-              }
-              isDisabled={currentPage === totalPages}
-            >
-              <Text>Next</Text>
-            </Button>
-          </HStack>
+          totalPages > 1 ? (
+            <HStack space='sm' justifyContent='center' mt='$4' mb='$8'>
+              <Button
+                variant='outline'
+                borderRadius='$full'
+                onPress={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                isDisabled={currentPage === 1}
+              >
+                <ButtonText>Anterior</ButtonText>
+              </Button>
+              <Box px='$3' py='$2'>
+                <Text size='sm' color='$textLight700'>
+                  Página {currentPage} de {totalPages}
+                </Text>
+              </Box>
+              <Button
+                variant='outline'
+                borderRadius='$full'
+                onPress={() =>
+                  setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+                }
+                isDisabled={currentPage === totalPages}
+              >
+                <ButtonText>Siguiente</ButtonText>
+              </Button>
+            </HStack>
+          ) : null
         }
       />
     </Box>

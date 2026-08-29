@@ -110,6 +110,10 @@ services:
       - ENABLE_AI=${ENABLE_AI}
       - AI_PROVIDER=${AI_PROVIDER}
       - AI_MODEL=${AI_MODEL}
+      - GEMINI_MODEL=${GEMINI_MODEL}
+      - GROQ_MODEL=${GROQ_MODEL}
+      - OPENAI_MODEL=${OPENAI_MODEL}
+      - OLLAMA_MODEL=${OLLAMA_MODEL}
       - EMBEDDINGS_MODEL=${EMBEDDINGS_MODEL}
       - EMBEDDING_PROVIDER=${EMBEDDING_PROVIDER}
       - EMBEDDING_DIMENSIONS=${EMBEDDING_DIMENSIONS}
@@ -118,6 +122,7 @@ services:
       - OLLAMA_API_KEY=${OLLAMA_API_KEY}
       - OLLAMA_NUM_CTX=${OLLAMA_NUM_CTX}
       - GROQ_API_KEY=${GROQ_API_KEY}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
       - SERPAPI_API_KEY=${SERPAPI_API_KEY}
       - STORAGE_PATH=${STORAGE_PATH}
       - AI_CACHE_MODE=${AI_CACHE_MODE}
@@ -154,7 +159,7 @@ services:
       - SMTP_PASS=${SMTP_PASS}
       - SMTP_FROM=${SMTP_FROM}
     volumes:
-      - ./be:/app/be
+      - ${BACKEND_DIR:-./be}:/app/be
       - /app/node_modules
 
     networks:

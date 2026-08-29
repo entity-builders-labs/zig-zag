@@ -14,6 +14,8 @@ import { useActivities } from '../../context/app';
 import { MapProps } from './types';
 import { Activity } from '../activities/types';
 import { Marker as MarkerType } from './types';
+import { ZIGZAG_WARM_MAP_STYLE } from '../../constants/map-style';
+import { getCategoryEmoji } from './utils';
 
 // Function to create markers from activities
 const createMarkersFromActivities = (activities: Activity[]): MarkerType[] => {
@@ -59,6 +61,7 @@ export const Map: React.FC<MapProps> = ({
       <MapView
         style={styles.map}
         region={region}
+        customMapStyle={ZIGZAG_WARM_MAP_STYLE}
         // Mostrar la ubicación real solo como referencia, pero marcamos el centro elegido
         showsUserLocation={false}
         toolbarEnabled={interactive}
@@ -108,22 +111,29 @@ export const Map: React.FC<MapProps> = ({
             strokeWidth={2}
           />
         ))}
-        {markers.map((marker) => (
-          <Marker
-            key={marker.id}
-            coordinate={marker.coordinate}
-            title={marker.title}
-            description={marker.description}
-          >
-            {marker.order && (
-              <View style={styles.markerContainer}>
-                <View style={styles.orderCircle}>
-                  <Text style={styles.orderText}>{marker.order}</Text>
+        {markers.map((marker) => {
+          const emoji = marker.icon || (marker.order != null ? null : getCategoryEmoji(marker.category, marker.title));
+          const isSelected = marker.selected;
+
+          return (
+            <Marker
+              key={marker.id}
+              coordinate={marker.coordinate}
+              title={marker.title}
+              description={marker.description}
+              onPress={marker.onPress}
+            >
+              <View style={styles.customPinContainer}>
+                <View style={[styles.customPinBody, isSelected && styles.customPinBodySelected]}>
+                  <Text style={styles.customPinText}>
+                    {marker.order != null ? marker.order : (emoji || '★')}
+                  </Text>
                 </View>
+                <View style={[styles.customPinTriangle, isSelected && styles.customPinTriangleSelected]} />
               </View>
-            )}
-          </Marker>
-        ))}
+            </Marker>
+          );
+        })}
       </MapView>
     </View>
   );
@@ -134,26 +144,51 @@ const styles = StyleSheet.create({
     position: 'relative',
     flex: 1,
   },
-  markerContainer: {
+  customPinContainer: {
     alignItems: 'center',
     justifyContent: 'center',
   },
-  orderCircle: {
-    position: 'absolute',
-    backgroundColor: 'white',
-    borderRadius: 12,
-    width: 24,
-    height: 24,
+  customPinBody: {
+    backgroundColor: '#EA580C',
+    borderRadius: 20,
+    paddingHorizontal: 8,
+    paddingVertical: 5,
+    minWidth: 32,
+    height: 32,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
-    borderColor: '#000',
-    top: -32,
-    left: -12,
+    borderColor: '#FFFFFF',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 4,
   },
-  orderText: {
-    color: '#000',
-    fontSize: 12,
+  customPinBodySelected: {
+    backgroundColor: '#0F172A',
+    transform: [{ scale: 1.15 }],
+  },
+  customPinTriangle: {
+    width: 0,
+    height: 0,
+    backgroundColor: 'transparent',
+    borderStyle: 'solid',
+    borderLeftWidth: 5,
+    borderRightWidth: 5,
+    borderBottomWidth: 0,
+    borderTopWidth: 6,
+    borderLeftColor: 'transparent',
+    borderRightColor: 'transparent',
+    borderTopColor: '#EA580C',
+    marginTop: -1,
+  },
+  customPinTriangleSelected: {
+    borderTopColor: '#0F172A',
+  },
+  customPinText: {
+    color: '#FFFFFF',
+    fontSize: 13,
     fontWeight: 'bold',
   },
   map: {

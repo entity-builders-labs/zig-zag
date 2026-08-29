@@ -32,7 +32,7 @@ export function useCreateTour(
   const validatePreferences = (
     preferences: GenerateTourDto
   ): { valid: boolean; errorMessage?: string } => {
-    const { latitude, longitude } = preferences.destination;
+    const { latitude, longitude } = preferences.destination || {};
 
     if (latitude === undefined || longitude === undefined) {
       return {
@@ -40,13 +40,13 @@ export function useCreateTour(
         errorMessage: 'Se requiere un destino o coordenadas para crear el tour'
       };
     }
-    if (preferences.mobility.allowedTransportationModes.length === 0) {
+    if (preferences.mobility?.allowedTransportationModes?.length === 0) {
       return {
         valid: false,
         errorMessage: 'Elegí al menos un medio de transporte'
       };
     }
-    if (preferences.intent.experienceFormats.length === 0) {
+    if (preferences.intent?.experienceFormats?.length === 0) {
       return {
         valid: false,
         errorMessage: 'Elegí al menos un formato de experiencia'

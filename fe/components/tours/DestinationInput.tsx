@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Keyboard } from 'react-native';
 import {
   Box,
   Input,
@@ -9,14 +10,14 @@ import {
   Pressable,
   Text,
   ScrollView,
-  Icon
+  Icon,
+  Spinner,
 } from '@gluestack-ui/themed';
 import { Search, MapPin, X } from 'lucide-react-native';
-import * as ExpoLocation from 'expo-location';
 import {
   PlaceSuggestion,
   searchPlaces,
-  resolvePlace
+  resolvePlace,
 } from '@/features/places-autocomplete';
 import { DestinationScaleHint } from '@/features/tours/tour-generation-contract';
 
@@ -25,221 +26,209 @@ interface DestinationInputProps {
   onDestinationChange: (
     destination: string,
     coordinates?: { lat: number; lng: number },
-    // Search radius (meters) derived from the selected place's actual
-    // extent — a neighborhood yields a small radius, a whole city a large
-    // one — instead of one fixed radius for every kind of destination.
     radiusMeters?: number,
     scaleHint?: DestinationScaleHint
   ) => void;
-  // Called whenever the visible text stops matching a resolved selection —
-  // true while the user has typed something that hasn't been confirmed by
-  // picking a suggestion, so the caller can block submission until resolved.
   onDirtyChange?: (isDirty: boolean) => void;
 }
 
 export const DestinationInput: React.FC<DestinationInputProps> = ({
   value,
   onDestinationChange,
-  onDirtyChange
+  onDirtyChange,
 }) => {
   const [term, setTerm] = useState(value || '');
   const [locationResults, setLocationResults] = useState<PlaceSuggestion[]>([]);
-  const [isFocused, setIsFocused] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [confirmedValue, setConfirmedValue] = useState(value || '');
 
   useEffect(() => {
-    if (value) {
+    if (value !== undefined && value !== confirmedValue) {
+      setConfirmedValue(value);
       setTerm(value);
+      setLocationResults([]);
     }
   }, [value]);
 
   useEffect(() => {
+    // If term matches what was already selected/confirmed, don't trigger search
+    if (term === confirmedValue) {
+      setLocationResults([]);
+      setIsLoading(false);
+      return;
+    }
+
+    if (!term || term.trim().length < 3) {
+      setLocationResults([]);
+      setIsLoading(false);
+      return;
+    }
+
     const handler = setTimeout(async () => {
-      if (!term || term.length < 3) {
-        setLocationResults([]);
-        setIsLoading(false);
-        return;
-      }
       setIsLoading(true);
       try {
-        setLocationResults(await searchPlaces(term));
+        const results = await searchPlaces(term.trim());
+        setLocationResults(results);
       } catch (e) {
         console.error('Autocomplete error', e);
         setLocationResults([]);
       } finally {
         setIsLoading(false);
       }
-    }, 300);
+    }, 200);
+
     return () => clearTimeout(handler);
-  }, [term]);
+  }, [term, confirmedValue]);
 
   const handleSelectItem = async (item: PlaceSuggestion) => {
+    Keyboard.dismiss();
+    setLocationResults([]);
+
     try {
       const details = await resolvePlace(item);
-      if (!details) throw new Error('No details returned for place');
+      const placeName = details?.name || item.label;
+      const coords = details ? { lat: details.lat, lng: details.lng } : undefined;
+      const radius = details?.radiusMeters;
+      const scale = details?.scaleHint;
 
-      onDestinationChange(
-        details.name,
-        { lat: details.lat, lng: details.lng },
-        details.radiusMeters,
-        details.scaleHint
-      );
-      setTerm(details.name);
-      setLocationResults([]);
-      setIsFocused(false);
+      setConfirmedValue(placeName);
+      setTerm(placeName);
+      onDestinationChange(placeName, coords, radius, scale);
       onDirtyChange?.(false);
     } catch (error) {
-      console.error('Failed to fetch place details:', error);
-      // No coordinates available — leave the field dirty rather than
-      // silently accepting a name with no location behind it.
+      console.error('Failed to resolve place:', error);
+      setConfirmedValue(item.label);
       setTerm(item.label);
-      setLocationResults([]);
-      setIsFocused(false);
+      onDestinationChange(item.label);
       onDirtyChange?.(true);
     }
   };
 
   const handleClear = () => {
+    setConfirmedValue('');
     setTerm('');
     setLocationResults([]);
     onDestinationChange('');
-    setIsFocused(false);
     onDirtyChange?.(false);
   };
 
-  const showResults =
-    isFocused && locationResults.length > 0 && term.length >= 3;
+  const showDropdown = locationResults.length > 0 && term !== confirmedValue && term.length >= 3;
 
   return (
-    <Box position='relative' w='$full' zIndex={showResults ? 1000 : 1}>
+    <Box position='relative' w='$full' zIndex={showDropdown ? 1000 : 1}>
       <Input
         variant='outline'
         size='lg'
-        borderRadius='$lg'
-        borderColor='$borderLight200'
-        isFocused={isFocused}
-        isInvalid={false}
+        borderRadius='$xl'
+        borderColor='$borderLight300'
+        bg='$white'
+        h={50}
       >
-        <InputSlot pl='$3'>
-          <InputIcon as={Search} size='md' color='$textLight600' />
+        <InputSlot pl='$3.5'>
+          <InputIcon as={Search} size='md' color='$textLight500' />
         </InputSlot>
         <InputField
-          placeholder='Buscar destino'
+          placeholder='Ej: Roma, Italia o Barcelona...'
           value={term}
           onChangeText={(text) => {
             setTerm(text);
             if (!text) {
-              onDestinationChange('');
+              setConfirmedValue('');
               setLocationResults([]);
+              onDestinationChange('');
               onDirtyChange?.(false);
             } else {
               onDirtyChange?.(true);
             }
           }}
-          onFocus={() => setIsFocused(true)}
-          onBlur={() => {
-            // Delay to allow item selection
-            setTimeout(() => setIsFocused(false), 200);
-          }}
+          color='$textLight900'
+          fontSize='$sm'
         />
-        {term.length > 0 && (
+        {isLoading ? (
           <InputSlot pr='$3'>
-            <Pressable onPress={handleClear}>
-              <InputIcon as={X} size='sm' color='$textLight600' />
+            <Spinner size='small' color='$primary500' />
+          </InputSlot>
+        ) : term.length > 0 ? (
+          <InputSlot pr='$3'>
+            <Pressable onPress={handleClear} hitSlop={10}>
+              <InputIcon as={X} size='sm' color='$textLight400' />
             </Pressable>
           </InputSlot>
-        )}
+        ) : null}
       </Input>
 
       {/* Results Dropdown */}
-      {showResults && (
+      {showDropdown && (
         <Box
           position='absolute'
-          top='$12'
-          left='$0'
-          right='$0'
-          zIndex={1001}
-          borderRadius='$md'
-          borderWidth='$1'
-          borderColor='$backgroundLight300'
+          top={56}
+          left={0}
+          right={0}
+          zIndex={9999}
+          borderRadius='$2xl'
+          borderWidth={1}
+          borderColor='$borderLight200'
+          bg='$white'
           shadowColor='$black'
-          shadowOffset={{ width: 0, height: 2 }}
-          shadowOpacity={0.1}
-          shadowRadius={8}
-          elevation={10}
-          maxHeight='$64'
+          shadowOffset={{ width: 0, height: 6 }}
+          shadowOpacity={0.12}
+          shadowRadius={16}
+          elevation={12}
+          maxHeight={260}
           overflow='hidden'
-          style={{
-            backgroundColor: '#FFFFFF',
-            opacity: 1
-          }}
-          pointerEvents='box-none'
         >
-          <Box
-            style={{
-              backgroundColor: '#FFFFFF',
-              width: '100%',
-              height: '100%'
-            }}
-            pointerEvents='auto'
+          <ScrollView
+            nestedScrollEnabled={true}
+            keyboardShouldPersistTaps='always'
+            style={{ maxHeight: 260, backgroundColor: '#FFFFFF' }}
+            contentContainerStyle={{ padding: 6, backgroundColor: '#FFFFFF' }}
           >
-            <ScrollView
-              nestedScrollEnabled
-              style={{
-                backgroundColor: '#FFFFFF',
-                width: '100%'
-              }}
-              contentContainerStyle={{
-                backgroundColor: '#FFFFFF'
-              }}
-            >
-              <VStack
-                p='$2'
-                style={{
-                  backgroundColor: '#FFFFFF',
-                  width: '100%'
-                }}
-              >
-                {locationResults.map((item) => (
-                  <Pressable
-                    key={item.id}
-                    onPress={() => handleSelectItem(item)}
-                  >
-                    {({ pressed }) => (
+            <VStack space='xs'>
+              {locationResults.map((item) => (
+                <Pressable
+                  key={item.id}
+                  onPress={() => handleSelectItem(item)}
+                  borderRadius='$xl'
+                  p='$2'
+                  $hover-bg='$backgroundLight100'
+                  $active-bg='$backgroundLight100'
+                >
+                  {({ pressed }) => (
+                    <Box
+                      flexDirection='row'
+                      alignItems='center'
+                      style={{
+                        backgroundColor: pressed ? '#F6F3EA' : 'transparent',
+                        borderRadius: 12,
+                        padding: 6,
+                      }}
+                    >
                       <Box
-                        flexDirection='row'
+                        w={34}
+                        h={34}
+                        borderRadius='$full'
+                        bg='$primary50'
                         alignItems='center'
-                        p='$3'
-                        borderRadius='$sm'
-                        style={{
-                          // Paper tint on press ($secondary0 in fe/config.ts)
-                          // — matches the redesign palette instead of a
-                          // neutral gray.
-                          backgroundColor: pressed ? '#F6F3EA' : '#FFFFFF',
-                          width: '100%'
-                        }}
+                        justifyContent='center'
+                        mr='$3'
                       >
-                        <Box
-                          w='$8'
-                          h='$8'
-                          borderRadius='$full'
-                          bg='$primary50'
-                          alignItems='center'
-                          justifyContent='center'
-                          mr='$3'
-                        >
-                          <Icon as={MapPin} size='sm' color='$primary500' />
-                        </Box>
-                        <Text flex={1} size='md' color='$textLight900'>
-                          {item.label}
-                        </Text>
+                        <Icon as={MapPin} size='sm' color='$primary500' />
                       </Box>
-                    )}
-                  </Pressable>
-                ))}
-              </VStack>
-            </ScrollView>
-          </Box>
+                      <Text
+                        flex={1}
+                        size='sm'
+                        color='$textLight900'
+                        fontWeight='$semibold'
+                        numberOfLines={2}
+                      >
+                        {item.label}
+                      </Text>
+                    </Box>
+                  )}
+                </Pressable>
+              ))}
+            </VStack>
+          </ScrollView>
         </Box>
       )}
     </Box>

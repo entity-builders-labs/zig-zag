@@ -379,43 +379,67 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
     currentStep === 1
       ? 'Destino y Fechas'
       : currentStep === 2
-        ? 'Movilidad y ritmo'
-        : 'Experiencias e intereses';
+        ? 'Movilidad y Ritmo'
+        : 'Intereses y Estilo';
+
+  const getCtaText = () => {
+    if (currentStep === 1) return 'Siguiente: Movilidad & Ritmo →';
+    if (currentStep === 2) return 'Siguiente: Intereses & Estilo →';
+    return 'Generar Zig-Zag ✨';
+  };
 
   return (
     <Box flex={1} bg='$backgroundLight50'>
-      <Box bg='$backgroundLight50' pt='$12' pb='$3' px='$4'>
-        <HStack alignItems='center' space='md'>
-          <Pressable onPress={handleBack}>
-            <Box
-              w='$8'
-              h='$8'
-              borderRadius='$full'
-              bg='$backgroundLight200'
-              alignItems='center'
-              justifyContent='center'
-            >
-              <Icon as={ArrowLeft} size='sm' color='$textLight800' />
-            </Box>
-          </Pressable>
-          <VStack>
-            <Text
-              size='2xs'
-              fontWeight='$bold'
-              color='$primary600'
-              textTransform='uppercase'
-              letterSpacing={1}
-            >
-              Paso {currentStep}/3
-            </Text>
-            <Heading
-              size='md'
-              color='$textLight900'
-              style={{ fontFamily: FONT_DISPLAY }}
-            >
-              {stepName}
-            </Heading>
-          </VStack>
+      {/* Wizard Header with Progress Bar */}
+      <Box bg='$backgroundLight50' pt='$12' pb='$3' px='$4' borderBottomWidth={1} borderBottomColor='$borderLight100'>
+        <HStack alignItems='center' justifyContent='space-between'>
+          <HStack alignItems='center' space='md'>
+            <Pressable onPress={handleBack}>
+              <Box
+                w='$8'
+                h='$8'
+                borderRadius='$full'
+                bg='$backgroundLight100'
+                alignItems='center'
+                justifyContent='center'
+                borderWidth={1}
+                borderColor='$borderLight200'
+              >
+                <Icon as={ArrowLeft} size='sm' color='$textLight800' />
+              </Box>
+            </Pressable>
+            <VStack>
+              <Text
+                size='2xs'
+                fontWeight='$bold'
+                color='$primary600'
+                textTransform='uppercase'
+                letterSpacing={1}
+              >
+                Paso {currentStep} de 3
+              </Text>
+              <Heading
+                size='md'
+                color='$textLight900'
+                style={{ fontFamily: FONT_DISPLAY }}
+              >
+                {stepName}
+              </Heading>
+            </VStack>
+          </HStack>
+
+          {/* 3-Segment Progress Bar */}
+          <HStack space='xs' w='$20'>
+            {[1, 2, 3].map((step) => (
+              <Box
+                key={step}
+                flex={1}
+                h='$1.5'
+                borderRadius='$full'
+                bg={step <= currentStep ? '$primary500' : '$backgroundLight200'}
+              />
+            ))}
+          </HStack>
         </HStack>
       </Box>
 
@@ -464,6 +488,7 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
         </Box>
       </ScrollView>
 
+      {/* Floating Bottom CTA */}
       <Box
         position='absolute'
         bottom='$0'
@@ -474,24 +499,38 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
         borderTopColor='$borderLight100'
         p='$4'
         pb='$8'
+        shadowColor='$black'
+        shadowOffset={{ width: 0, height: -2 }}
+        shadowOpacity={0.06}
+        shadowRadius={4}
+        elevation={4}
       >
         <Button
           onPress={handleNext}
-          bg={currentStep === 3 ? '$primary500' : '$secondary950'}
-          borderRadius='$full'
+          bg='$primary500'
+          borderRadius='$xl'
+          py='$3.5'
           isDisabled={currentStep === 1 && destinationIsDirty}
+          shadowColor='$primary500'
+          shadowOffset={{ width: 0, height: 2 }}
+          shadowOpacity={0.3}
+          shadowRadius={4}
+          elevation={3}
         >
           <ButtonText
-            color={currentStep === 3 ? '$secondary950' : '$backgroundLight50'}
+            color='$secondary950'
             fontWeight='$bold'
+            size='md'
+            style={{ fontFamily: FONT_DISPLAY }}
           >
-            {currentStep === 3 ? 'Generar ZigZag ✨' : 'Siguiente →'}
+            {getCtaText()}
           </ButtonText>
           {currentStep === 3 && (
-            <Icon as={Sparkles} size='md' color='$secondary950' ml='$2' />
+            <Icon as={Sparkles} size='sm' color='$secondary950' ml='$2' />
           )}
         </Button>
       </Box>
     </Box>
   );
 };
+

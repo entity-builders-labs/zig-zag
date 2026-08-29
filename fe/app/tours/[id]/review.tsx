@@ -201,7 +201,7 @@ export default function TourReviewScreen() {
           left={0}
           right={0}
           p='$4'
-          bg='$backgroundLight50'
+          bg='rgba(255, 255, 255, 0.95)'
           borderTopWidth={1}
           borderTopColor='$borderLight100'
         >
@@ -210,15 +210,17 @@ export default function TourReviewScreen() {
             size='lg'
             variant='solid'
             action='primary'
-            borderRadius='$full'
+            bg='$primary500'
+            borderRadius='$2xl'
+            h={52}
             isDisabled={confirming}
             onPress={handleConfirm}
           >
             {confirming ? (
-              <Spinner size='small' color='$secondary950' />
+              <Spinner size='small' color='$white' />
             ) : (
-              <ButtonText color='$secondary950' fontWeight='$bold'>
-                Confirmar tour
+              <ButtonText color='$white' fontWeight='$bold'>
+                Confirmar Recorrido
               </ButtonText>
             )}
           </Button>

@@ -121,8 +121,8 @@ export class LangChainService {
         return;
       }
 
-      // Validate chat model is not an embedding model (for Ollama/Groq)
-      if (provider === 'ollama' || provider === 'groq') {
+      // Validate chat model is not an embedding model (for Ollama/Groq/Gemini)
+      if (provider === 'ollama' || provider === 'groq' || provider === 'gemini') {
         const model = this.config.defaultModel;
         try {
           this.validateChatModel(model);
@@ -175,7 +175,7 @@ export class LangChainService {
         this.chatModel = new ChatOllama(ollamaConfig);
         this.completionModel = new ChatOllama(ollamaConfig);
       } else {
-        // For groq we use HTTP endpoints in generateChatResponse/generateCompletionResponse
+        // For gemini and groq we use direct API calls in generateChatResponse/generateCompletionResponse
         this.chatModel = null;
         this.completionModel = null;
       }
@@ -339,9 +339,49 @@ export class LangChainService {
           // Handle errors (truncated for brevity, same as original)
           throw error;
         }
+      } else if (provider === 'gemini') {
+        const userTmpl = PromptTemplate.fromTemplate(userPrompt);
+        const userText = await userTmpl.format(variables as any);
+        const model = this.config.defaultModel || 'gemini-3.6-flash';
+
+        const payload: any = {
+          contents: [
+            {
+              role: 'user',
+              parts: [{ text: userText }],
+            },
+          ],
+          systemInstruction: {
+            parts: [{ text: systemPrompt }],
+          },
+          generationConfig: {
+            temperature: this.config.temperature,
+            responseMimeType: 'application/json',
+          },
+        };
+
+        const resp = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${this.config.geminiApiKey}`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload),
+          } as any,
+        );
+
+        if (!resp.ok) {
+          const errorBody = await resp.text();
+          this.logger.error(`Gemini error ${resp.status}: ${errorBody}`);
+          throw new Error(`Gemini error ${resp.status}: ${errorBody}`);
+        }
+
+        const data = await resp.json();
+        const candidateText =
+          data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+        response = candidateText.trim();
       } else if (provider === 'groq') {
-        // Groq HTTP implementation (truncated for brevity, same as original)
-        // Re-implementing minimal Groq support
         const userTmpl = PromptTemplate.fromTemplate(userPrompt);
         const userText = await userTmpl.format(variables as any);
         const model = this.config.defaultModel || 'llama-3.1-8b-instant';
@@ -398,7 +438,8 @@ export class LangChainService {
           }),
         } as any);
         const data = await resp.json();
-        response = data.choices?.[0]?.message?.content || '';
+        const rawContent = data.choices?.[0]?.message?.content || '';
+        response = rawContent.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
       } else {
         // Default: OpenAI via LangChain
         const model = Object.keys(modelOptions).length
@@ -449,15 +490,48 @@ export class LangChainService {
         const prompt = PromptTemplate.fromTemplate(promptText);
         const chain = this.createChain(prompt, model);
         response = await chain.invoke(variables);
-      } else if (provider === 'groq') {
-        // Groq only serves its models through /v1/chat/completions — the
-        // legacy /v1/completions endpoint this used to call 404s for every
-        // request, silently falling back further downstream (e.g. crawl
-        // category classification just uses its own default on failure)
-        // rather than actually failing generation outright.
+      } else if (provider === 'gemini') {
         const tmpl = PromptTemplate.fromTemplate(promptText);
         const text = await tmpl.format(variables as any);
-        const model = this.config.defaultModel || 'llama-3.1-8b-instant';
+        const model = this.config.defaultModel || 'gemini-3.6-flash';
+
+        const payload: any = {
+          contents: [
+            {
+              role: 'user',
+              parts: [{ text }],
+            },
+          ],
+          generationConfig: {
+            temperature: this.config.temperature,
+          },
+        };
+
+        const resp = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${this.config.geminiApiKey}`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload),
+          } as any,
+        );
+
+        if (!resp.ok) {
+          const errorBody = await resp.text();
+          this.logger.error(`Gemini completion error ${resp.status}: ${errorBody}`);
+          throw new Error(`Gemini completion error ${resp.status}: ${errorBody}`);
+        }
+
+        const data = await resp.json();
+        const candidateText =
+          data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+        response = candidateText.trim();
+      } else if (provider === 'groq') {
+        const tmpl = PromptTemplate.fromTemplate(promptText);
+        const text = await tmpl.format(variables as any);
+        const model = this.config.defaultModel || 'llama-3.3-70b-versatile';
 
         const resp = await this.fetchGroq({
           method: 'POST',
@@ -472,7 +546,8 @@ export class LangChainService {
           }),
         } as any);
         const data = await resp.json();
-        response = data.choices?.[0]?.message?.content || '';
+        const rawCompletion = data.choices?.[0]?.message?.content || '';
+        response = rawCompletion.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
       } else {
         const model = customOptions
           ? this.getCompletionModel(customOptions)

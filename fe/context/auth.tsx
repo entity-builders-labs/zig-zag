@@ -6,10 +6,6 @@ import {
   useState,
 } from 'react';
 import { Platform } from 'react-native';
-import {
-  GoogleSignin,
-  isSuccessResponse,
-} from '@react-native-google-signin/google-signin';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import * as authApi from '../api/auth';
 import { AuthSession, AuthUser } from '../api/auth';
@@ -97,20 +93,45 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       return;
     }
 
-    GoogleSignin.configure({
-      webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
-    });
-    if (Platform.OS === 'android') {
-      await GoogleSignin.hasPlayServices({
-        showPlayServicesUpdateDialog: true,
+    let googleMod: any = null;
+    try {
+      googleMod = require('@react-native-google-signin/google-signin');
+    } catch {
+      throw new Error(
+        'Google Sign-In nativo requiere un build de desarrollo (Dev Client) y no está incluido en Expo Go. En iPhone usá "Continuar con Apple" o "Ingresar con código por Email".',
+      );
+    }
+
+    if (!googleMod?.GoogleSignin) {
+      throw new Error(
+        'Google Sign-In nativo no está disponible en este entorno.',
+      );
+    }
+
+    try {
+      const { GoogleSignin, isSuccessResponse } = googleMod;
+      GoogleSignin.configure({
+        webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
       });
+      if (Platform.OS === 'android') {
+        await GoogleSignin.hasPlayServices({
+          showPlayServicesUpdateDialog: true,
+        });
+      }
+      const response = await GoogleSignin.signIn();
+      if (!isSuccessResponse(response) || !response.data?.idToken) {
+        throw new Error('No se pudo completar el login con Google');
+      }
+      const session = await authApi.loginWithGoogle(response.data.idToken);
+      await applySession(session);
+    } catch (err: any) {
+      if (err?.message && err.message.includes('RNGoogleSignin')) {
+        throw new Error(
+          'Google Sign-In nativo requiere un build de desarrollo. En Expo Go podés usar "Continuar con Apple" o "Ingresar con código por Email".',
+        );
+      }
+      throw err;
     }
-    const response = await GoogleSignin.signIn();
-    if (!isSuccessResponse(response) || !response.data.idToken) {
-      throw new Error('No se pudo completar el login con Google');
-    }
-    const session = await authApi.loginWithGoogle(response.data.idToken);
-    await applySession(session);
   }, [applySession]);
 
   const signInWithApple = useCallback(async () => {

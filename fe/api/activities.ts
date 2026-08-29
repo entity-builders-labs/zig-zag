@@ -9,8 +9,10 @@ export interface ActivityDetail extends CompositeActivityFields {
   name: string;
   description?: string;
   type?: string;
+  knownActivityTypeName?: string;
   duration?: number;
   price?: number;
+  priceLevel?: number;
   latitude?: number;
   longitude?: number;
   address?: string;
@@ -24,6 +26,8 @@ export interface ActivityDetail extends CompositeActivityFields {
     narrativeSources?: NarrativeSource[];
     [key: string]: any;
   };
+  openingHours?: any;
+  notes?: string;
 }
 
 export async function fetchSimilarActivities(activityId: string, limit = 10) {
@@ -37,3 +41,17 @@ export async function fetchActivityById(id: string) {
   const { data } = await axiosInstance.get<ActivityDetail>(`/activities/${id}`);
   return data;
 }
+
+export async function fetchAllActivities(params?: {
+  latitude?: number;
+  longitude?: number;
+  radius?: number;
+  limit?: number;
+  types?: string[];
+}) {
+  const { data } = await axiosInstance.get<ActivityDetail[]>('/activities/all', {
+    params,
+  });
+  return data;
+}
+
