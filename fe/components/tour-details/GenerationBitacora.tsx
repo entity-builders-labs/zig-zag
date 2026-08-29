@@ -668,8 +668,8 @@ export const GenerationBitacora = ({ trace }: { trace: GenerationTrace }) => {
 
             <Box flex={1} p='$2' bg='$white' borderRadius='$lg' borderWidth={1} borderColor='$borderLight100'>
               <Text size='2xs' color='$textLight500'>Duplicados</Text>
-              <HStack space='2xs' alignItems='center' mt='$0.5'>
-                <Icon as={CheckCircle2} size='2xs' color='$emerald600' />
+              <HStack space='xs' alignItems='center' mt='$0.5'>
+                <Icon as={CheckCircle2} size='xs' color='$emerald600' />
                 <Text size='xs' fontWeight='$bold' color='$emerald700'>
                   {trace.duplicateCount ?? 0}
                 </Text>
@@ -678,8 +678,8 @@ export const GenerationBitacora = ({ trace }: { trace: GenerationTrace }) => {
 
             <Box flex={1} p='$2' bg='$white' borderRadius='$lg' borderWidth={1} borderColor='$borderLight100'>
               <Text size='2xs' color='$textLight500'>Verificación</Text>
-              <HStack space='2xs' alignItems='center' mt='$0.5'>
-                <Icon as={ShieldCheck} size='2xs' color='$blue600' />
+              <HStack space='xs' alignItems='center' mt='$0.5'>
+                <Icon as={ShieldCheck} size='xs' color='$blue600' />
                 <Text size='xs' fontWeight='$bold' color='$blue700'>
                   100% Real
                 </Text>
