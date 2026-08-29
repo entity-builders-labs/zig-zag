@@ -453,7 +453,7 @@ function StepBlock({
                         Día {d.dayNumber}: {d.activityCount} paradas ({Math.round(d.totalActivityMinutes / 60)}h actividad)
                       </Text>
                       <HStack space='2xs' alignItems='center'>
-                        <Icon as={Footprints} size='2xs' color='$teal700' />
+                        <Icon as={Footprints} size='xs' color='$teal700' />
                         <Text size='2xs' color='$teal900' fontWeight='$bold'>
                           {d.totalWalkingMinutes} min caminata
                         </Text>
@@ -659,7 +659,7 @@ export const GenerationBitacora = ({ trace }: { trace: GenerationTrace }) => {
             <Box flex={1} p='$2' bg='$white' borderRadius='$lg' borderWidth={1} borderColor='$borderLight100'>
               <Text size='2xs' color='$textLight500'>Alucinaciones</Text>
               <HStack space='2xs' alignItems='center' mt='$0.5'>
-                <Icon as={CheckCircle2} size='2xs' color='$emerald600' />
+                <Icon as={CheckCircle2} size='xs' color='$emerald600' />
                 <Text size='xs' fontWeight='$bold' color='$emerald700'>
                   {trace.hallucinatedCount ?? 0}
                 </Text>

@@ -57,7 +57,6 @@ export const HeroCard = () => {
         <Box position="absolute" top={16} left={16} zIndex={2}>
           <HStack
             bg="rgba(255, 255, 255, 0.9)"
-            backdropBlur="md"
             px="$3"
             py="$1.5"
             borderRadius="$full"
