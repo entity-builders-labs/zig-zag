@@ -1,5 +1,11 @@
 import React, { useCallback, useState } from 'react';
-import { Platform } from 'react-native';
+import {
+  Platform,
+  KeyboardAvoidingView,
+  ScrollView,
+  TouchableWithoutFeedback,
+  Keyboard,
+} from 'react-native';
 import {
   Box,
   VStack,
@@ -81,6 +87,7 @@ export default function LoginScreen() {
 
   const handleRequestCode = async () => {
     if (!email.trim()) return;
+    Keyboard.dismiss();
     setError(null);
     setLoading('email');
     try {
@@ -94,12 +101,14 @@ export default function LoginScreen() {
     }
   };
 
-  const handleVerifyCode = async () => {
-    if (!code.trim()) return;
+  const handleVerifyCode = async (customCode?: string) => {
+    const targetCode = (customCode || code).trim();
+    if (targetCode.length !== 6) return;
+    Keyboard.dismiss();
     setError(null);
     setLoading('code');
     try {
-      await signInWithEmailCode(email.trim(), code.trim());
+      await signInWithEmailCode(email.trim(), targetCode);
     } catch (err) {
       setError(errorMessage(err));
     } finally {
@@ -108,7 +117,7 @@ export default function LoginScreen() {
   };
 
   return (
-    <Box flex={1} bg='$backgroundDark950' position='relative' alignItems='center' justifyContent='center'>
+    <Box flex={1} bg='$backgroundDark950' position='relative'>
       {/* Scenic Background with Gradient */}
       <Box position='absolute' top={0} left={0} right={0} bottom={0} zIndex={0}>
         <Image
@@ -128,15 +137,26 @@ export default function LoginScreen() {
         />
       </Box>
 
-      {/* Responsive Centered Shell */}
-      <Box
-        w='$full'
-        maxW={440}
-        flex={1}
-        p='$6'
-        zIndex={1}
-        justifyContent='space-between'
+      {/* Keyboard-aware scroll container */}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        style={{ flex: 1, width: '100%' }}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 40 : 0}
       >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+          <ScrollView
+            contentContainerStyle={{
+              flexGrow: 1,
+              justifyContent: 'center',
+              alignItems: 'center',
+              paddingHorizontal: 20,
+              paddingVertical: 32,
+            }}
+            keyboardShouldPersistTaps='handled'
+            showsVerticalScrollIndicator={false}
+          >
+            {/* Responsive Centered Shell */}
+            <Box w='$full' maxW={440} zIndex={1}>
         {/* Brand Header */}
         <VStack alignItems='center' mt='$10' space='xs'>
           <Box
@@ -294,6 +314,8 @@ export default function LoginScreen() {
                     onChangeText={setEmail}
                     autoCapitalize='none'
                     keyboardType='email-address'
+                    returnKeyType='send'
+                    onSubmitEditing={handleRequestCode}
                     testID='login-email-input'
                     fontSize='$xs'
                   />
@@ -357,25 +379,42 @@ export default function LoginScreen() {
               )}
 
               <VStack space='xs'>
-                <Text size='2xs' fontWeight='$bold' color='$textLight700' textTransform='uppercase' px='$1'>
-                  Código de 6 dígitos
-                </Text>
+                <HStack justifyContent='space-between' alignItems='center' px='$1'>
+                  <Text size='2xs' fontWeight='$bold' color='$textLight700' textTransform='uppercase'>
+                    Código de 6 dígitos
+                  </Text>
+                  {code.length > 0 && (
+                    <Pressable onPress={Keyboard.dismiss}>
+                      <Text size='2xs' color='$primary600' fontWeight='$bold'>
+                        Ocultar teclado
+                      </Text>
+                    </Pressable>
+                  )}
+                </HStack>
                 <Input
                   size='lg'
                   borderRadius='$2xl'
                   borderColor='$borderLight300'
                   bg='$backgroundLight50'
-                  h={50}
+                  h={52}
                 >
                   <InputField
                     placeholder='123456'
                     value={code}
-                    onChangeText={setCode}
+                    onChangeText={(val) => {
+                      const clean = val.replace(/[^0-9]/g, '');
+                      setCode(clean);
+                      if (clean.length === 6) {
+                        handleVerifyCode(clean);
+                      }
+                    }}
                     keyboardType='number-pad'
+                    returnKeyType='done'
+                    onSubmitEditing={() => handleVerifyCode()}
                     maxLength={6}
                     testID='login-code-input'
                     textAlign='center'
-                    fontSize='$lg'
+                    fontSize='$xl'
                     fontWeight='$bold'
                     letterSpacing='$xl'
                   />
@@ -389,7 +428,7 @@ export default function LoginScreen() {
                 bg='$primary500'
                 borderRadius='$2xl'
                 h={48}
-                onPress={handleVerifyCode}
+                onPress={() => handleVerifyCode()}
                 isDisabled={loading !== null || code.trim().length !== 6}
                 testID='login-verify-code-button'
               >
@@ -427,6 +466,9 @@ export default function LoginScreen() {
           </Text>
         </VStack>
       </Box>
-    </Box>
+    </ScrollView>
+  </TouchableWithoutFeedback>
+</KeyboardAvoidingView>
+</Box>
   );
 }
