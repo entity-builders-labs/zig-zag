@@ -1008,6 +1008,65 @@ describe('TourActivityGenerationService', () => {
         expect.objectContaining({ valid: true, retryAttempted: false }),
       );
     });
+
+    it('preserves a genuinely feasible requested-format candidate through to the planned, persisted tour', async () => {
+      // Mirror of the previous test's pool, but this time nothing makes the
+      // walk infeasible — the default solver stub (planAll) schedules every
+      // offered candidate, so the walk survives soft scoring and lands in
+      // the final plan, satisfying the requested format for real rather
+      // than by the validator merely declining to flag an absence.
+      const walk = {
+        id: testUuid(),
+        name: 'Neighborhood Walk',
+        type: 'walk',
+        latitude: -34.62,
+        longitude: -58.37,
+        kind: ActivityKind.NEIGHBORHOOD_WALK,
+        duration: 2,
+      };
+      const pois = buildCandidates();
+      const candidates = [...pois, walk];
+      activitiesService.findAll.mockResolvedValue(candidates);
+      prisma.activity.findMany.mockResolvedValue(
+        candidates.map((c: any) => ({
+          id: c.id,
+          latitude: c.latitude,
+          longitude: c.longitude,
+          kind: c.kind ?? ActivityKind.POI,
+        })),
+      );
+      toursService.findOne.mockResolvedValue(
+        buildTour({
+          metadata: {
+            generationRequest: buildGenerationRequest({
+              intent: {
+                interests: [],
+                experienceFormats: ['neighborhood_walks'],
+              },
+            }),
+          },
+        }),
+      );
+
+      await service.generateTourActivities(TOUR_ID);
+
+      const rows = prisma.tourActivity.create.mock.calls.map(
+        (call: any) => call[0].data,
+      );
+      expect(rows.map((r: any) => r.activityId)).toContain(walk.id);
+
+      const completedCall2 = prisma.tour.update.mock.calls.find(
+        (call: any) => call[0].data.metadata.generationStatus === 'completed',
+      );
+      const trace2 = completedCall2[0].data.metadata.generationTrace;
+      expect(trace2.tourFormatCoverage).toEqual(
+        expect.objectContaining({
+          valid: true,
+          issues: [],
+          retryAttempted: false,
+        }),
+      );
+    });
   });
 
   describe('entity resolution (PR 8)', () => {

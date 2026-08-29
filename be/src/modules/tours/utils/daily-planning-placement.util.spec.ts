@@ -200,6 +200,36 @@ describe('checkHardConstraints', () => {
     expect(result.reasons).toContain('OPENING_HOURS_INCOMPATIBLE');
   });
 
+  it('rejects a candidate with a NaN centroid as INVALID_SPATIAL_FOOTPRINT instead of crashing', async () => {
+    const result = await checkHardConstraints(
+      candidate({
+        spatialFootprint: {
+          type: 'POINT',
+          centroid: { lat: NaN, lng: 0 },
+        },
+      }),
+      emptyDay(1),
+      baseContext(),
+    );
+    expect(result.feasible).toBe(false);
+    expect(result.reasons).toEqual(['INVALID_SPATIAL_FOOTPRINT']);
+  });
+
+  it('rejects a candidate with an undefined centroid coordinate as INVALID_SPATIAL_FOOTPRINT instead of crashing', async () => {
+    const result = await checkHardConstraints(
+      candidate({
+        spatialFootprint: {
+          type: 'POINT',
+          centroid: { lat: 0, lng: undefined as unknown as number },
+        },
+      }),
+      emptyDay(1),
+      baseContext(),
+    );
+    expect(result.feasible).toBe(false);
+    expect(result.reasons).toEqual(['INVALID_SPATIAL_FOOTPRINT']);
+  });
+
   it('does not hard-reject on opening hours when no base date exists (unknown weekday policy)', async () => {
     const result = await checkHardConstraints(
       candidate({
