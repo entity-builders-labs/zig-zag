@@ -381,12 +381,24 @@ export class CompositeActivityService {
         }),
       () =>
         this.prisma.$transaction(async (tx) => {
+          const coverPhotos =
+            waypointActivities.find(
+              (wp) =>
+                wp.photos &&
+                (Array.isArray(wp.photos)
+                  ? wp.photos.length > 0
+                  : Boolean(wp.photos)),
+            )?.photos ?? undefined;
+
           const variant = await tx.activity.create({
             data: {
               name: input.name,
               description: input.themeReasoning,
               kind: input.kind,
               variantTheme: input.variantTheme,
+              photos: coverPhotos
+                ? (coverPhotos as unknown as Prisma.InputJsonValue)
+                : undefined,
               boundary: boundary
                 ? (boundary as unknown as Prisma.InputJsonValue)
                 : undefined,
