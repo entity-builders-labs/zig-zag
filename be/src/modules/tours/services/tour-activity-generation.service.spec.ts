@@ -792,6 +792,159 @@ describe('TourActivityGenerationService', () => {
       expect(completenessStep.degradedReason).toBe('underfilled_day');
     });
 
+    it('does not count physically infeasible rejections as viable unused candidates', async () => {
+      const candidates = setUpPool();
+      // One short stop out of four: the day is thin, but every candidate the
+      // solver left out was hard-rejected as physically infeasible, so there
+      // was nothing viable left to add — TourCompletenessValidator's own
+      // contract says such a day must not be flagged as under-filled.
+      dailyPlanningSolver.solve.mockImplementation(
+        async (input: DailyPlanningInput) => {
+          const solution = planSelecting(input, [candidates[0].id]);
+          return {
+            ...solution,
+            unselected: solution.unselected.map((u) => ({
+              activityId: u.activityId,
+              reasons: ['NO_FEASIBLE_DAY'],
+            })),
+          } as DailyPlanningSolution;
+        },
+      );
+
+      await service.generateTourActivities(TOUR_ID);
+
+      const completedCall = prisma.tour.update.mock.calls.find(
+        (call: any) => call[0].data.metadata.generationStatus === 'completed',
+      );
+      const trace = completedCall[0].data.metadata.generationTrace;
+      expect(trace.tourCompleteness).toEqual(
+        expect.objectContaining({ complete: true, issues: [] }),
+      );
+    });
+
+    it('still reports an under-filled day when a genuinely viable candidate went unused', async () => {
+      const candidates = setUpPool();
+      // Same thin day, but this time the leftovers were merely out-ranked —
+      // a real, addable option the plan did not use.
+      dailyPlanningSolver.solve.mockImplementation(
+        async (input: DailyPlanningInput) => {
+          const solution = planSelecting(input, [candidates[0].id]);
+          return {
+            ...solution,
+            unselected: [
+              solution.unselected[0],
+              {
+                activityId: solution.unselected[1].activityId,
+                reasons: ['NO_FEASIBLE_DAY'],
+              },
+              ...solution.unselected.slice(2),
+            ],
+          } as DailyPlanningSolution;
+        },
+      );
+
+      await service.generateTourActivities(TOUR_ID);
+
+      const completedCall = prisma.tour.update.mock.calls.find(
+        (call: any) => call[0].data.metadata.generationStatus === 'completed',
+      );
+      const trace = completedCall[0].data.metadata.generationTrace;
+      expect(trace.tourCompleteness.complete).toBe(false);
+      // 4 candidates, 1 selected, 3 unselected, of which 1 was infeasible.
+      expect(trace.tourCompleteness.issues).toEqual([
+        expect.objectContaining({
+          code: 'UNDERFILLED_DAY',
+          dayNumber: 1,
+          viableUnusedCandidateCount: 2,
+        }),
+      ]);
+    });
+
+    it("carries the refill branch's real score breakdowns into the planner", async () => {
+      // Regression guard for the per-branch score-breakdown hoisting: every
+      // acquisition branch must carry its offered candidates' real scores
+      // forward. A branch that forgot to would silently produce
+      // semanticScore: 0 — a valid-looking number, not an error, so nothing
+      // else in this suite would catch it.
+      toursService.findOne.mockResolvedValue(
+        buildTour({
+          metadata: {
+            generationRequest: buildGenerationRequest({
+              intent: { interests: ['history'] },
+            }),
+          },
+        }),
+      );
+      const thinActivity = {
+        id: testUuid(),
+        name: 'Existing local place',
+        latitude: -34.62,
+        longitude: -58.37,
+      };
+      const refilledActivity = {
+        id: testUuid(),
+        name: 'Crawled history museum',
+        latitude: -34.62,
+        longitude: -58.37,
+      };
+      // Thin pool first (forces the crawl), then the post-refill re-query
+      // that actually introduces the new row.
+      activitiesService.findAll
+        .mockResolvedValueOnce([thinActivity])
+        .mockResolvedValueOnce([thinActivity, refilledActivity]);
+      prisma.activity.findMany.mockResolvedValue([
+        { ...thinActivity, kind: ActivityKind.POI },
+        { ...refilledActivity, kind: ActivityKind.POI },
+      ]);
+      googlePlacesService.crawlAndSaveActivities.mockResolvedValue({
+        activitiesIds: [refilledActivity.id],
+        fromCache: false,
+        provenance: {
+          provider: 'google',
+          cacheStatus: 'miss-live',
+          requestedCount: 20,
+          receivedCount: 1,
+          acceptedCount: 1,
+          rejectedCountByReason: {},
+        },
+      });
+      activityDiscoveryService.discoverGaps.mockResolvedValue({
+        proposals: [],
+        provider: 'groq',
+        model: 'test-model',
+        groundingStatus: 'no_usable_evidence',
+      });
+      vectorStoreService.getSimilarityScores.mockResolvedValue(
+        similarityResult(
+          new Map([
+            [thinActivity.id, 0.1],
+            [refilledActivity.id, 0.82],
+          ]),
+          2,
+        ),
+      );
+
+      await service.generateTourActivities(TOUR_ID);
+
+      expect(planningCandidateNormalizer.normalize).toHaveBeenCalledTimes(1);
+      const [offeredActivities, breakdownById] =
+        planningCandidateNormalizer.normalize.mock.calls[0];
+      expect(offeredActivities.map((a: any) => a.id)).toEqual(
+        expect.arrayContaining([thinActivity.id, refilledActivity.id]),
+      );
+      expect(breakdownById.get(refilledActivity.id)?.semanticSimilarity).toBe(
+        0.82,
+      );
+      expect(breakdownById.get(thinActivity.id)?.semanticSimilarity).toBe(0.1);
+      // ...and the score survives all the way into the solver's input.
+      const input = dailyPlanningSolver.solve.mock
+        .calls[0][0] as DailyPlanningInput;
+      expect(
+        input.candidates.find((c) => c.activityId === refilledActivity.id)
+          ?.semanticScore,
+      ).toBe(0.82);
+    });
+
     it('does not count a physically infeasible candidate as an ignored requested format', async () => {
       const walk = {
         id: testUuid(),

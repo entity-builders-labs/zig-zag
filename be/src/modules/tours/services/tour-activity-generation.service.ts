@@ -1225,6 +1225,40 @@ export class TourActivityGenerationService {
           day.activities.map((a) => a.activityId),
         ),
       );
+
+      // A candidate the solver hard-rejected as physically infeasible was
+      // never an option it "left on the table": it could not fit any day
+      // under the request's own mobility/opening-hours constraints. Both
+      // post-planning gates depend on that distinction, so the reason list
+      // is defined exactly once and shared:
+      //   - TourCompletenessValidator only flags an under-filled day while
+      //     something viable remains to add ("never flag a day when there
+      //     is nothing viable left"), so counting infeasible rejections as
+      //     viable would falsely flag a day that physically could not be
+      //     filled any further.
+      //   - TourFormatCoverageValidator must not treat an infeasible
+      //     candidate as an ignored requested format, and must never force
+      //     it into the tour to satisfy that format (spec "Requested format
+      //     coverage").
+      const physicallyInfeasibleReasons = new Set<string>([
+        'DAILY_TIME_CAPACITY_EXCEEDED',
+        'MAX_WALKING_PER_DAY_EXCEEDED',
+        'MAX_CONTINUOUS_WALKING_EXCEEDED',
+        'NO_ALLOWED_TRAVEL_MODE',
+        'OPENING_HOURS_INCOMPATIBLE',
+        'NO_FEASIBLE_DAY',
+        'INVALID_SPATIAL_FOOTPRINT',
+        'INVALID_COMPOSITE',
+      ]);
+      const infeasiblyUnselected = planningSolution.unselected.filter((u) =>
+        u.reasons.some((r) => physicallyInfeasibleReasons.has(r)),
+      );
+      const infeasibleActivityIds = new Set(
+        infeasiblyUnselected.map((u) => u.activityId),
+      );
+      const viableUnusedCandidateCount =
+        planningSolution.unselected.length - infeasiblyUnselected.length;
+
       const completenessInput: TourCompletenessInput = {
         requestedDays: request.days,
         travelPace: request.mobility.travelPace,
@@ -1243,33 +1277,11 @@ export class TourActivityGenerationService {
             };
           }),
         ),
-        viableUnusedCandidateCount: planningSolution.unselected.length,
+        viableUnusedCandidateCount,
       };
       const completeness =
         this.tourCompletenessValidator.validate(completenessInput);
 
-      // Physically-infeasible reasons never count as "available" for
-      // requested-format coverage — a pool candidate that couldn't fit any
-      // day under hard mobility constraints must not be treated as an
-      // ignored option, and must never be forced into the tour to satisfy
-      // the format (spec "Requested format coverage").
-      const physicallyInfeasibleReasons = new Set<string>([
-        'DAILY_TIME_CAPACITY_EXCEEDED',
-        'MAX_WALKING_PER_DAY_EXCEEDED',
-        'MAX_CONTINUOUS_WALKING_EXCEEDED',
-        'NO_ALLOWED_TRAVEL_MODE',
-        'OPENING_HOURS_INCOMPATIBLE',
-        'NO_FEASIBLE_DAY',
-        'INVALID_SPATIAL_FOOTPRINT',
-        'INVALID_COMPOSITE',
-      ]);
-      const infeasibleActivityIds = new Set(
-        planningSolution.unselected
-          .filter((u) =>
-            u.reasons.some((r) => physicallyInfeasibleReasons.has(r)),
-          )
-          .map((u) => u.activityId),
-      );
       const formatCoverageInput: TourFormatCoverageInput = {
         requestedExperienceFormats: request.intent.experienceFormats,
         selectedActivities: Array.from(selectedIds)
