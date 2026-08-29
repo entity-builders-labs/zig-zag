@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ScrollView, ActivityIndicator } from 'react-native';
 import {
   Box,
@@ -23,7 +23,7 @@ import { TourStopCard } from '../../components/tour-details/TourStopCard';
 import { CompositeStopCard } from '../../components/tour-details/CompositeStopCard';
 import { DayHeader } from '../../components/tour-details/DayHeader';
 import { GenerationPipeline } from '../../components/tour-details/GenerationPipeline';
-import { GenerationBitacora } from '../../components/tour-details/GenerationBitacora';
+import { GenerationBitacora, GenerationTrace } from '../../components/tour-details/GenerationBitacora';
 import { TourStop } from '../../components/tour-details/types';
 import { transformActivitiesToStops } from '../../components/tour-details/build-stops';
 import { FONT_DISPLAY } from '@/constants/typography';
@@ -38,7 +38,19 @@ export default function TourDetailScreen() {
   const [generationMessage, setGenerationMessage] = useState<string>('');
   const [generationError, setGenerationError] = useState<string>('');
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
-  const [showBitacora, setShowBitacora] = useState(false);
+
+  const generationTrace: GenerationTrace | null = useMemo(() => {
+    if (!tour?.metadata) return null;
+    let meta = tour.metadata;
+    if (typeof meta === 'string') {
+      try {
+        meta = JSON.parse(meta);
+      } catch {
+        return null;
+      }
+    }
+    return (meta as any)?.generationTrace ?? null;
+  }, [tour?.metadata]);
 
   // Whether THIS mount actually watched generation go from in-progress to
   // completed (as opposed to loading an already-completed tour straight
@@ -318,29 +330,10 @@ export default function TourDetailScreen() {
                 </Box>
 
                 <VStack mt='$6' px='$4'>
-                  {/* Dev-only, inline accordion for the generation bitácora */}
-                  {__DEV__ && (tour.metadata as any)?.generationTrace && (
+                  {/* Generation Bitácora & Execution Trace */}
+                  {generationTrace && (
                     <Box mb='$4'>
-                      <Pressable
-                        onPress={() => setShowBitacora((v) => !v)}
-                        testID='bitacora-toggle'
-                      >
-                        <HStack alignItems='center' space='xs'>
-                          <Text size='xs' color='$tertiary600'>
-                            🐛 Bitácora de generación (dev)
-                          </Text>
-                          <Icon
-                            as={showBitacora ? ChevronUp : ChevronDown}
-                            size='xs'
-                            color='$tertiary600'
-                          />
-                        </HStack>
-                      </Pressable>
-                      {showBitacora && (
-                        <GenerationBitacora
-                          trace={(tour.metadata as any).generationTrace}
-                        />
-                      )}
+                      <GenerationBitacora trace={generationTrace} />
                     </Box>
                   )}
 

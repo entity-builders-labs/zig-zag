@@ -120,12 +120,31 @@ export async function fetchWalkingRoute(
 ): Promise<{ latitude: number; longitude: number }[]> {
   if (points.length < 2) return points;
 
-  try {
-    return process.env.EXPO_PUBLIC_DIRECTIONS_PROVIDER === 'geoapify'
-      ? await fetchWalkingRouteFromGeoapify(points)
-      : await fetchWalkingRouteFromGoogle(points);
-  } catch (error) {
-    console.error('Failed to fetch walking directions, using straight line:', error);
-    return points;
+  const provider = process.env.EXPO_PUBLIC_DIRECTIONS_PROVIDER || 'geoapify';
+
+  if (provider === 'geoapify') {
+    try {
+      return await fetchWalkingRouteFromGeoapify(points);
+    } catch (geoapifyError) {
+      console.warn('Geoapify directions failed, attempting Google fallback:', geoapifyError);
+      try {
+        return await fetchWalkingRouteFromGoogle(points);
+      } catch (googleError) {
+        console.error('All routing providers failed, using straight line:', googleError);
+        return points;
+      }
+    }
+  } else {
+    try {
+      return await fetchWalkingRouteFromGoogle(points);
+    } catch (googleError) {
+      console.warn('Google directions failed, attempting Geoapify fallback:', googleError);
+      try {
+        return await fetchWalkingRouteFromGeoapify(points);
+      } catch (geoapifyError) {
+        console.error('All routing providers failed, using straight line:', geoapifyError);
+        return points;
+      }
+    }
   }
 }

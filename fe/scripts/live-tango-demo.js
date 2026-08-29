@@ -26,15 +26,15 @@ async function humanType(page, locator, text) {
   await glideTo(page, locator);
   await locator.click();
   await sleep(150);
-  await locator.pressSequentially(text, { delay: 65 });
+  await locator.pressSequentially(text, { delay: 50 });
   await sleep(350);
 }
 
 async function main() {
-  console.log('🚀 Launching Chrome in headed mode...');
+  console.log('🚀 Launching Chrome in headed mode for Tango Experience Demo...');
   const browser = await chromium.launch({
     headless: false,
-    slowMo: 45,
+    slowMo: 40,
     args: ['--window-size=1280,920', '--disable-blink-features=AutomationControlled'],
   });
 
@@ -57,7 +57,7 @@ async function main() {
       'z-index:2147483647;transform:translate(-999px,-999px);transition:transform 0.04s ease;';
     
     const label = document.createElement('div');
-    label.innerText = 'ZigZag Bot';
+    label.innerText = 'ZigZag Tango Bot';
     label.style.cssText =
       'position:absolute;left:28px;top:2px;background:#0f172a;color:#fbbf24;font-size:11px;font-weight:bold;' +
       'padding:2px 8px;border-radius:6px;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,0.3);';
@@ -88,7 +88,7 @@ async function main() {
       await humanClick(page, emailLink);
     }
 
-    const testEmail = `demo-${Date.now()}@zigzag.travel`;
+    const testEmail = `tango-${Date.now()}@zigzag.travel`;
     const emailInput = page.getByTestId('login-email-input');
     await humanType(page, emailInput, testEmail);
 
@@ -96,7 +96,6 @@ async function main() {
     await humanClick(page, requestCodeBtn);
     await sleep(1500);
 
-    // Look for devCode in UI
     const devCodeBox = page.getByText(/Modo desarrollo — código: \d{6}/);
     await devCodeBox.waitFor({ state: 'visible', timeout: 10000 });
     const codeText = await devCodeBox.textContent();
@@ -116,40 +115,21 @@ async function main() {
   await page.goto(`${BASE_URL}/tours/wizard`);
   await sleep(2000);
 
-  // --- STEP 1: Destination & Dates (Argentina OSM Area: San Telmo, Buenos Aires) ---
+  // --- STEP 1: Destination & Dates (San Telmo, Buenos Aires) ---
   console.log('📝 Step 1: Searching for "San Telmo, Buenos Aires"...');
   const destinationInput = page.getByPlaceholder(/Roma, Italia o Barcelona|Buscar destino/i).first();
   await humanType(page, destinationInput, 'San Telmo, Buenos Aires');
   await sleep(1500);
 
-  // Explicitly pick San Telmo, Buenos Aires (Comuna 1)
   const suggestion = page.getByText(/San Telmo.*Buenos Aires|San Telmo.*Comuna 1/i).first();
   try {
     await suggestion.waitFor({ state: 'visible', timeout: 8000 });
     console.log('👉 Selecting "San Telmo, Buenos Aires" suggestion...');
     await humanClick(page, suggestion);
   } catch (e) {
-    console.log('⚠️ Specific suggestion not found, checking fallback...');
     const fallbackSuggestion = page.getByText(/San Telmo/i).first();
     if (await fallbackSuggestion.isVisible()) {
       await humanClick(page, fallbackSuggestion);
-    }
-  }
-  await sleep(1200);
-
-  // Select dates
-  console.log('📅 Selecting travel dates...');
-  const dateTrigger = page.getByText(/Seleccionar fechas/i).first();
-  if (await dateTrigger.isVisible()) {
-    await humanClick(page, dateTrigger);
-    await sleep(800);
-
-    const preset2Days = page.getByText(/Fin de Semana|2 Días|3 Días/i).first();
-    if (await preset2Days.isVisible()) {
-      await humanClick(page, preset2Days);
-    } else {
-      const confirmBtn = page.getByText(/Confirmar/i).first();
-      if (await confirmBtn.isVisible()) await humanClick(page, confirmBtn);
     }
   }
   await sleep(1200);
@@ -166,24 +146,9 @@ async function main() {
   if (await companyOption.isVisible()) await humanClick(page, companyOption);
   await sleep(600);
 
-  console.log('💰 Step 2: Selecting Budget ($$ Moderado)...');
-  const budgetOption = page.getByText('$$ Moderado', { exact: false }).first();
-  if (await budgetOption.isVisible()) await humanClick(page, budgetOption);
-  await sleep(600);
-
   console.log('⚡ Step 2: Selecting Pace (Equilibrado)...');
   const paceOption = page.getByText('Equilibrado', { exact: true }).first();
   if (await paceOption.isVisible()) await humanClick(page, paceOption);
-  await sleep(600);
-
-  console.log('🚶 Step 2: Selecting Max Distance (5 km)...');
-  const distanceOption = page.getByText('5 km', { exact: true }).first();
-  if (await distanceOption.isVisible()) await humanClick(page, distanceOption);
-  await sleep(600);
-
-  console.log('🚌 Step 2: Selecting Transport (Transporte público)...');
-  const transportOption = page.getByText('Transporte público', { exact: true }).first();
-  if (await transportOption.isVisible()) await humanClick(page, transportOption);
   await sleep(600);
 
   // Step 2 -> Step 3 ("Continuar")
@@ -193,44 +158,48 @@ async function main() {
   await sleep(1500);
 
   // --- STEP 3: Experiencias, Intereses y Notas ---
-  console.log('✨ Step 3: Selecting Experience Formats (Caminatas por barrios & Rutas temáticas)...');
+  console.log('✨ Step 3: Selecting Experience Formats (Experiencias + Caminatas por barrios)...');
+  const expFormat = page.getByText('Experiencias', { exact: false }).first();
+  if (await expFormat.isVisible()) await humanClick(page, expFormat);
+  await sleep(600);
+
   const walkFormat = page.getByText('Caminatas por barrios', { exact: false }).first();
   if (await walkFormat.isVisible()) await humanClick(page, walkFormat);
   await sleep(600);
 
-  const routeFormat = page.getByText('Rutas temáticas', { exact: false }).first();
-  if (await routeFormat.isVisible()) await humanClick(page, routeFormat);
-  await sleep(600);
-
-  console.log('🏛️ Step 3: Selecting Interests (Historia & Gastronomía)...');
-  const historyInterest = page.getByText('Historia', { exact: true }).first();
-  if (await historyInterest.isVisible()) await humanClick(page, historyInterest);
+  console.log('🏛️ Step 3: Selecting Interests (Cultura & Arte & Museos)...');
+  const cultureInterest = page.getByText('Cultura', { exact: true }).first();
+  if (await cultureInterest.isVisible()) await humanClick(page, cultureInterest);
   await sleep(500);
 
-  const foodInterest = page.getByText('Gastronomía', { exact: true }).first();
-  if (await foodInterest.isVisible()) await humanClick(page, foodInterest);
+  const artInterest = page.getByText('Arte & Museos', { exact: false }).first();
+  if (await artInterest.isVisible()) await humanClick(page, artInterest);
   await sleep(500);
 
-  console.log('📝 Step 3: Adding special prompt for AI...');
+  console.log('📝 Step 3: Adding special Tango prompt for AI...');
   const notesTextarea = page.getByPlaceholder(/Buscamos opciones pet friendly/i).first();
   if (await notesTextarea.isVisible()) {
-    await humanType(page, notesTextarea, 'Priorizar pasajes antiguos, bares notables y arquitectura colonial.');
+    await humanType(
+      page,
+      notesTextarea,
+      'Experiencia completa de Tango: circuito de milongas tradicionales, esquinas históricas, show de tango en vivo y música arrabalera en San Telmo.'
+    );
   }
-  await sleep(800);
+  await sleep(1000);
 
   // Generate Tour CTA!
   console.log('🚀 Clicking "Generar Itinerario Inteligente"...');
   const generateBtn = page.getByText(/Generar Itinerario Inteligente/i).first();
   await humanClick(page, generateBtn);
 
-  console.log('⏳ Generation initiated! Watching real-time progress in San Telmo...');
+  console.log('⏳ Generation initiated! Watching real-time composite activity generation...');
   await page.waitForURL(/\/tours\/[a-f0-9-]+/, { timeout: 30000 });
   const tourUrl = page.url();
   const tourId = tourUrl.split('/tours/')[1]?.split('?')[0];
   console.log(`🎉 Landed on Tour Page: ${tourUrl} (Tour ID: ${tourId})`);
 
   // Wait for generation to finish in backend and poll tour activities
-  console.log('⏳ Polling backend for completed activities and itinerary structure...');
+  console.log('⏳ Polling backend for completed activities and composite structures...');
   const token = await page.evaluate(() => {
     return localStorage.getItem('access_token') || localStorage.getItem('auth_token') || localStorage.getItem('token') || '';
   });
@@ -249,7 +218,9 @@ async function main() {
           console.log(`✅ Success! Generated ${actCount} activities for ${tourData?.name}:`);
           tourData.activities.forEach((item, idx) => {
             const act = item.activity || item;
-            console.log(`   ${idx + 1}. [Day ${item.dayNumber || 1}] ${act?.name || item.activityName || 'Actividad'} (${act?.type || item.activityType || 'POI'})`);
+            const kind = act?.kind || item.activity?.kind || act?.type || 'POI';
+            const waypoints = item.waypoints || act?.waypoints || [];
+            console.log(`   ${idx + 1}. [Day ${item.dayNumber || 1}] [${kind}] ${act?.name || item.activityName || 'Actividad'} ${waypoints.length > 0 ? `(${waypoints.length} waypoints)` : ''}`);
           });
           break;
         }
