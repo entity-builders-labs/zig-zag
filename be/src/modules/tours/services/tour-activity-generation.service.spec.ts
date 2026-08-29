@@ -10,7 +10,6 @@ import { ActivityKind } from '@prisma/client';
 import { TourActivityGenerationService } from './tour-activity-generation.service';
 import { ToursService } from './tours.service';
 import { TourImageService } from './tour-image.service';
-import { CompositeGenerationService } from './composite-generation.service';
 import { DestinationResolutionService } from './destination-resolution.service';
 import { CatalogRefillAnchorPlanner } from './catalog-refill-anchor-planner.service';
 import { CoverageAnalyzer } from './coverage-analyzer.service';
@@ -19,13 +18,27 @@ import { TourCompletenessValidator } from './tour-completeness-validator.service
 import { TourFormatCoverageValidator } from './tour-format-coverage-validator.service';
 import { PROPOSAL_RESOLVER } from '../interfaces/proposal-resolution.interface';
 import { PlacesCrawlError } from '@integrations/google-places/interfaces/places-api.interface';
+import { PlanningCandidateNormalizerService } from './planning-candidate-normalizer.service';
+import {
+  DAILY_PLANNING_SOLVER,
+  DailyPlanningInput,
+  DailyPlanningSolution,
+  TOUR_PLANNING_FEASIBILITY_VALIDATOR,
+} from '../interfaces/daily-planning.interface';
+import dailyPlanningPolicyConfig, {
+  DailyPlanningPolicy,
+} from '../config/daily-planning-policy.config';
 
-// transformAiActivitiesToDto only keeps `activityId` when it passes
-// isValidId() (a real UUID v4 or Mongo ObjectId) — real Activity rows
-// always have one (Prisma @default(uuid())), but hand-written test
-// fixtures like "poi-1" don't, and would silently get dropped exactly like
-// an unmatched candidate would. This generates deterministic, valid-looking
-// UUIDv4 strings so fixtures exercise the real code path.
+// Deliberately NOT the 9:00-20:00 production default: the wizard must read
+// the planning window from policy, so a mocked window that differs from the
+// old hardcoded literals is what proves the value actually flows through.
+const dailyPlanningPolicy = {
+  window: { startMinutesFromMidnight: 8 * 60, endMinutesFromMidnight: 21 * 60 },
+} as DailyPlanningPolicy;
+
+// Real Activity rows always carry a UUID (Prisma @default(uuid())), while
+// hand-written fixtures like "poi-1" don't. This generates deterministic,
+// valid-looking UUIDv4 strings so fixtures look like real catalog rows.
 let uuidCounter = 0;
 function testUuid(): string {
   uuidCounter += 1;
@@ -101,6 +114,74 @@ describe('TourActivityGenerationService', () => {
   let destinationResolutionService: any;
   let proposalResolver: any;
   let activityDiscoveryService: any;
+  let planningCandidateNormalizer: any;
+  let dailyPlanningSolver: any;
+  let tourPlanningFeasibilityValidator: any;
+
+  /**
+   * PR 10: the wizard path no longer asks an LLM which candidates to use —
+   * the deterministic solver both selects and schedules. This default stub
+   * stands in for the real GreedyDailyPlanningSolver by scheduling every
+   * offered candidate back to back on day 1 (and emitting the remaining
+   * requested days empty), which is what most of these tests need: a
+   * solution built strictly out of the pool the service actually offered.
+   * Tests that care about *which* candidate wins override `solve` with
+   * `planSelecting(...)`.
+   */
+  const planAll = (input: DailyPlanningInput): DailyPlanningSolution =>
+    planSelecting(
+      input,
+      input.candidates.map((c) => c.activityId),
+    );
+
+  const planSelecting = (
+    input: DailyPlanningInput,
+    activityIds: string[],
+  ): DailyPlanningSolution => {
+    const selected = input.candidates.filter((c) =>
+      activityIds.includes(c.activityId),
+    );
+    let cursor = input.planningWindow.startMinutesFromMidnight;
+    const activities = selected.map((candidate) => {
+      const startMinutesFromMidnight = cursor;
+      const endMinutesFromMidnight =
+        startMinutesFromMidnight + (candidate.durationMinutes || 60);
+      cursor = endMinutesFromMidnight;
+      return {
+        activityId: candidate.activityId,
+        startMinutesFromMidnight,
+        endMinutesFromMidnight,
+      };
+    });
+    const totalActivityMinutes = activities.reduce(
+      (sum, a) => sum + (a.endMinutesFromMidnight - a.startMinutesFromMidnight),
+      0,
+    );
+    return {
+      days: Array.from({ length: input.requestedDays }, (_, index) => ({
+        dayNumber: index + 1,
+        activities: index === 0 ? activities : [],
+        totalActivityMinutes: index === 0 ? totalActivityMinutes : 0,
+        totalTravelMinutes: 0,
+        totalWalkingMinutes: 0,
+        utilizationMinutes: index === 0 ? totalActivityMinutes : 0,
+      })),
+      unselected: input.candidates
+        .filter((c) => !activityIds.includes(c.activityId))
+        .map((c) => ({
+          activityId: c.activityId,
+          reasons: ['LOWER_RANKED_THAN_SELECTED' as const],
+        })),
+      score: totalActivityMinutes,
+      metadata: { solver: 'test-solver', approximateTravel: true },
+    };
+  };
+
+  /** The ids the service actually handed the solver, in offered order. */
+  const solvedCandidateIds = (): string[] =>
+    (
+      dailyPlanningSolver.solve.mock.calls[0][0] as DailyPlanningInput
+    ).candidates.map((c) => c.activityId);
 
   const buildTour = (overrides: any = {}) => ({
     id: TOUR_ID,
@@ -229,14 +310,42 @@ describe('TourActivityGenerationService', () => {
       ),
       getCompatibleIndexCount: jest.fn().mockResolvedValue(0),
     };
+    // Boundary adapter (Task 12) — stubbed to a faithful, order-preserving
+    // projection of the very rows the service offered, so assertions about
+    // *which* candidates reached the planner (and in what order) exercise
+    // the service's own ranking/windowing rather than the adapter's.
+    planningCandidateNormalizer = {
+      normalize: jest.fn(
+        async (activities: any[], scoreBreakdownById: Map<string, any>) =>
+          activities.map((activity) => ({
+            activityId: activity.id,
+            kind: activity.kind ?? ActivityKind.POI,
+            title: activity.name,
+            durationMinutes: (activity.duration ?? 1) * 60,
+            spatialFootprint: {
+              type: 'POINT' as const,
+              centroid: { lat: activity.latitude, lng: activity.longitude },
+            },
+            semanticScore:
+              scoreBreakdownById.get(activity.id)?.semanticSimilarity ?? 0,
+            qualityScore: scoreBreakdownById.get(activity.id)?.qualityBonus,
+          })),
+      ),
+    };
+    dailyPlanningSolver = {
+      solve: jest.fn(async (input: DailyPlanningInput) => planAll(input)),
+    };
+    tourPlanningFeasibilityValidator = {
+      validate: jest.fn().mockReturnValue({ valid: true, issues: [] }),
+    };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         TourActivityGenerationService,
-        // Exercise the real selection-chain boundary. Composite persistence
-        // remains wired only as a regression tripwire: live itinerary output
-        // must never reach it.
-        CompositeGenerationService,
+        // LangChainService and CompositeActivityService remain wired only as
+        // regression tripwires: as of PR 10 the wizard path is fully
+        // deterministic, so neither an itinerary LLM call nor live composite
+        // persistence may happen during generation.
         { provide: PrismaService, useValue: prisma },
         { provide: ToursService, useValue: toursService },
         { provide: ActivitiesService, useValue: activitiesService },
@@ -263,19 +372,24 @@ describe('TourActivityGenerationService', () => {
           useValue: activityDiscoveryService,
         },
         { provide: PROPOSAL_RESOLVER, useValue: proposalResolver },
+        {
+          provide: PlanningCandidateNormalizerService,
+          useValue: planningCandidateNormalizer,
+        },
+        { provide: DAILY_PLANNING_SOLVER, useValue: dailyPlanningSolver },
+        {
+          provide: TOUR_PLANNING_FEASIBILITY_VALIDATOR,
+          useValue: tourPlanningFeasibilityValidator,
+        },
+        {
+          provide: dailyPlanningPolicyConfig.KEY,
+          useValue: dailyPlanningPolicy,
+        },
       ],
     }).compile();
 
     service = module.get(TourActivityGenerationService);
   });
-
-  const aiJsonResponse = (payload: any) =>
-    JSON.stringify({
-      title: 'Tour',
-      description: 'A tour',
-      activities: [],
-      ...payload,
-    });
 
   it('generates a plain POI tour successfully when there are no OSM/composite candidates at all', async () => {
     const poiId = testUuid();
@@ -296,28 +410,6 @@ describe('TourActivityGenerationService', () => {
         kind: ActivityKind.POI,
       },
     ]);
-    langChainService.generateChatResponse.mockResolvedValue(
-      aiJsonResponse({
-        activities: [
-          {
-            activityId: poiId,
-            // These fields are not part of the compact production schema.
-            // Keeping malicious/stale values in the mock proves that the
-            // server rehydrates canonical catalog data instead of trusting
-            // generated identity or coordinates.
-            activityName: 'Museo inventado',
-            type: 'night_club',
-            dayNumber: 1,
-            startTime: '10:00',
-            duration: 60,
-            notes: 'Visit the museum',
-            latitude: 99,
-            longitude: 99,
-            selectedWaypointIds: [],
-          },
-        ],
-      }),
-    );
 
     await service.generateTourActivities(TOUR_ID);
 
@@ -363,21 +455,6 @@ describe('TourActivityGenerationService', () => {
         kind: ActivityKind.POI,
       },
     ]);
-    langChainService.generateChatResponse.mockResolvedValue(
-      aiJsonResponse({
-        reasoning: 'Selected a verified museum.',
-        activities: [
-          {
-            activityId: poiId,
-            dayNumber: 1,
-            startTime: '10:00',
-            duration: 60,
-            notes: 'Visit the museum.',
-            selectedWaypointIds: [],
-          },
-        ],
-      }),
-    );
 
     await service.generateTourActivities(TOUR_ID);
 
@@ -408,10 +485,6 @@ describe('TourActivityGenerationService', () => {
       longitude: -58.37,
       rating: 4.5,
       ratingCount: 100,
-      // Long enough alone to satisfy the default 'moderate' pace's
-      // minMeaningfulHours, so this test's single-pick scenario exercises
-      // the plain non-retry path — the completeness retry loop itself is
-      // covered by its own dedicated tests below.
       duration: 4,
     }));
     activitiesService.findAll.mockResolvedValue(fifteenActivities);
@@ -423,22 +496,8 @@ describe('TourActivityGenerationService', () => {
         kind: ActivityKind.POI,
       })),
     );
-    langChainService.generateChatResponse.mockResolvedValue(
-      aiJsonResponse({
-        reasoning: 'Picked Museo because it matched the requested interests.',
-        activities: [
-          {
-            activityId: poiId,
-            activityName: 'Museo',
-            dayNumber: 1,
-            startTime: '10:00',
-            duration: 60,
-            notes: 'Visit the museum',
-            latitude: -34.62,
-            longitude: -58.37,
-          },
-        ],
-      }),
+    dailyPlanningSolver.solve.mockImplementation(
+      async (input: DailyPlanningInput) => planSelecting(input, [poiId]),
     );
 
     await service.generateTourActivities(TOUR_ID);
@@ -448,12 +507,13 @@ describe('TourActivityGenerationService', () => {
     );
     expect(completedCall).toBeDefined();
     const trace = completedCall[0].data.metadata.generationTrace;
-    expect(trace.aiReasoning).toBe(
-      'Picked Museo because it matched the requested interests.',
-    );
-    expect(trace.hallucinatedCount).toBe(0);
-    expect(trace.duplicateCount).toBe(0);
-    expect(trace.auditFindings).toBeDefined();
+    // PR 10: no LLM in this path anymore, so no AI reasoning and no
+    // anti-hallucination bookkeeping is reported — a deterministic
+    // daily_planning step takes their place.
+    expect(trace.aiReasoning).toBeUndefined();
+    expect(trace.hallucinatedCount).toBeUndefined();
+    expect(trace.duplicateCount).toBeUndefined();
+    expect(trace.auditFindings).toBeUndefined();
     expect(trace.steps.map((s: any) => s.stage)).toEqual([
       'tour_intent',
       'destination_resolution',
@@ -461,8 +521,7 @@ describe('TourActivityGenerationService', () => {
       'db_search',
       'candidate_pool',
       'embeddings',
-      'llm_generation',
-      'verification',
+      'daily_planning',
       'tour_completeness',
       'tour_format_coverage',
     ]);
@@ -473,12 +532,16 @@ describe('TourActivityGenerationService', () => {
       expect.objectContaining({ source: 'db', id: poiId, offered: true }),
     );
 
-    const verificationStep = trace.steps.find(
-      (s: any) => s.stage === 'verification',
+    const dailyPlanningStep = trace.steps.find(
+      (s: any) => s.stage === 'daily_planning',
     );
-    expect(verificationStep.candidates).toEqual([
-      expect.objectContaining({ id: poiId, chosen: true }),
-    ]);
+    expect(dailyPlanningStep.dailyPlanning).toEqual(
+      expect.objectContaining({
+        solver: 'test-solver',
+        dayCount: 1,
+        selectedCount: 1,
+      }),
+    );
 
     const embeddingsStep = trace.steps.find(
       (s: any) => s.stage === 'embeddings',
@@ -488,15 +551,15 @@ describe('TourActivityGenerationService', () => {
     );
     expect(embeddingsStep.semanticRanking.status).toBe('not_requested');
 
-    const generatedUserPrompt =
-      langChainService.generateChatResponse.mock.calls[0][1];
-    expect(generatedUserPrompt.split(`id: ${poiId}`)).toHaveLength(2);
-    expect(langChainService.generateChatResponse).toHaveBeenCalledTimes(1);
+    // The planner is handed the offered window exactly once — every id in it
+    // real, and the picked one among them.
+    expect(dailyPlanningSolver.solve).toHaveBeenCalledTimes(1);
+    expect(solvedCandidateIds()).toContain(poiId);
   });
 
-  describe('tour completeness retry (PR 7.2)', () => {
+  describe('deterministic daily planning (PR 10)', () => {
     const buildCandidates = () =>
-      Array.from({ length: 15 }, (_, i) => ({
+      Array.from({ length: 4 }, (_, i) => ({
         id: testUuid(),
         name: `Place ${i}`,
         type: 'cultural',
@@ -507,7 +570,7 @@ describe('TourActivityGenerationService', () => {
         duration: 2,
       }));
 
-    it('retries exactly once and persists the fuller retry result when the first attempt under-fills the day', async () => {
+    const setUpPool = () => {
       const candidates = buildCandidates();
       activitiesService.findAll.mockResolvedValue(candidates);
       prisma.activity.findMany.mockResolvedValue(
@@ -518,116 +581,517 @@ describe('TourActivityGenerationService', () => {
           kind: ActivityKind.POI,
         })),
       );
+      return candidates;
+    };
 
-      const thinResponse = aiJsonResponse({
-        reasoning: 'A single pick.',
-        activities: [
-          {
-            activityId: candidates[0].id,
-            dayNumber: 1,
-            startTime: '10:00',
-            duration: 2,
-            notes: 'One stop',
-            selectedWaypointIds: [],
-          },
-        ],
-      });
-      const fullerResponse = aiJsonResponse({
-        reasoning: 'A fuller day.',
-        activities: [0, 1, 2].map((i) => ({
-          activityId: candidates[i].id,
-          dayNumber: 1,
-          startTime: `${10 + i * 2}:00`,
-          duration: 2,
-          notes: `Stop ${i}`,
-          selectedWaypointIds: [] as string[],
-        })),
-      });
-      langChainService.generateChatResponse
-        .mockResolvedValueOnce(thinResponse)
-        .mockResolvedValueOnce(fullerResponse);
+    it('selects and schedules through the solver instead of an itinerary LLM', async () => {
+      setUpPool();
 
       await service.generateTourActivities(TOUR_ID);
 
-      expect(langChainService.generateChatResponse).toHaveBeenCalledTimes(2);
-
-      const completedCall = prisma.tour.update.mock.calls.find(
-        (call: any) => call[0].data.metadata.generationStatus === 'completed',
+      expect(dailyPlanningSolver.solve).toHaveBeenCalledTimes(1);
+      // The itinerary LLM is gone from this critical path entirely — not
+      // called once, and never re-invoked with corrective feedback.
+      expect(langChainService.generateChatResponse).not.toHaveBeenCalled();
+      expect(planningCandidateNormalizer.normalize).toHaveBeenCalledTimes(1);
+      expect(tourPlanningFeasibilityValidator.validate).toHaveBeenCalledTimes(
+        1,
       );
-      expect(completedCall).toBeDefined();
-      const trace = completedCall[0].data.metadata.generationTrace;
-      expect(trace.aiReasoning).toBe('A fuller day.');
-      expect(trace.tourCompleteness).toEqual(
-        expect.objectContaining({ complete: true, retryAttempted: true }),
-      );
-
-      const completenessStep = trace.steps.find(
-        (s: any) => s.stage === 'tour_completeness',
-      );
-      expect(completenessStep.providerStatus).toBe('success');
     });
 
-    it('does not loop a second time when the retry itself is still under-filled', async () => {
-      const candidates = buildCandidates();
-      activitiesService.findAll.mockResolvedValue(candidates);
-      prisma.activity.findMany.mockResolvedValue(
-        candidates.map((c) => ({
-          id: c.id,
-          latitude: c.latitude,
-          longitude: c.longitude,
-          kind: ActivityKind.POI,
-        })),
-      );
-
-      const thinResponse = aiJsonResponse({
-        reasoning: 'Still thin.',
-        activities: [
-          {
-            activityId: candidates[0].id,
-            dayNumber: 1,
-            startTime: '10:00',
-            duration: 2,
-            notes: 'One stop',
-            selectedWaypointIds: [],
+    it('hands the solver the real request constraints and offered pool', async () => {
+      const candidates = setUpPool();
+      toursService.findOne.mockResolvedValue(
+        buildTour({
+          metadata: {
+            generationRequest: buildGenerationRequest({
+              days: 2,
+              startDates: ['2026-09-01T00:00:00.000Z'],
+              mobility: { travelPace: 'relaxed' },
+            }),
           },
-        ],
-      });
-      langChainService.generateChatResponse.mockResolvedValue(thinResponse);
+        }),
+      );
 
       await service.generateTourActivities(TOUR_ID);
 
-      // Exactly one retry — not the initial call plus an unbounded loop.
-      expect(langChainService.generateChatResponse).toHaveBeenCalledTimes(2);
+      const input = dailyPlanningSolver.solve.mock
+        .calls[0][0] as DailyPlanningInput;
+      expect(input.requestedDays).toBe(2);
+      expect(input.travelPace).toBe('relaxed');
+      expect(input.startDates).toEqual(['2026-09-01T00:00:00.000Z']);
+      // Comes from `dailyPlanningPolicy.window`, never a literal at the call site.
+      expect(input.planningWindow).toEqual(dailyPlanningPolicy.window);
+      expect(input.planningWindow).toEqual({
+        startMinutesFromMidnight: 8 * 60,
+        endMinutesFromMidnight: 21 * 60,
+      });
+      expect(input.mobility.allowedTransportationModes).toEqual(['walking']);
+      expect(input.candidates.map((c) => c.activityId).sort()).toEqual(
+        candidates.map((c) => c.id).sort(),
+      );
+    });
 
+    it('persists day, order, duration and travel straight from the planned solution', async () => {
+      const candidates = setUpPool();
+      toursService.findOne.mockResolvedValue(
+        buildTour({
+          metadata: {
+            generationRequest: buildGenerationRequest({
+              days: 2,
+              startDates: ['2026-09-01T00:00:00.000Z'],
+            }),
+          },
+        }),
+      );
+      dailyPlanningSolver.solve.mockResolvedValue({
+        days: [
+          {
+            dayNumber: 1,
+            activities: [
+              {
+                activityId: candidates[0].id,
+                startMinutesFromMidnight: 9 * 60,
+                endMinutesFromMidnight: 11 * 60,
+              },
+              {
+                activityId: candidates[1].id,
+                startMinutesFromMidnight: 11 * 60 + 30,
+                endMinutesFromMidnight: 13 * 60,
+                travelFromPrevious: {
+                  mode: 'walking',
+                  durationMinutes: 30,
+                  distanceMeters: 2000,
+                  walkingMinutes: 30,
+                  walkingDistanceMeters: 2000,
+                  approximate: true,
+                },
+              },
+            ],
+            totalActivityMinutes: 210,
+            totalTravelMinutes: 30,
+            totalWalkingMinutes: 30,
+            utilizationMinutes: 240,
+          },
+          {
+            dayNumber: 2,
+            activities: [
+              {
+                activityId: candidates[2].id,
+                startMinutesFromMidnight: 10 * 60,
+                endMinutesFromMidnight: 12 * 60,
+              },
+            ],
+            totalActivityMinutes: 120,
+            totalTravelMinutes: 0,
+            totalWalkingMinutes: 0,
+            utilizationMinutes: 120,
+          },
+        ],
+        unselected: [],
+        score: 10,
+        metadata: { solver: 'test-solver', approximateTravel: true },
+      } as DailyPlanningSolution);
+
+      await service.generateTourActivities(TOUR_ID);
+
+      const rows = prisma.tourActivity.create.mock.calls.map(
+        (call: any) => call[0].data,
+      );
+      expect(rows).toHaveLength(3);
+      expect(rows[0]).toEqual(
+        expect.objectContaining({
+          activityId: candidates[0].id,
+          dayNumber: 1,
+          order: 1,
+          duration: 2,
+          // The next stop's inbound leg is this stop's outbound travel.
+          travelTimeToNext: 30,
+          distanceToNext: 2,
+        }),
+      );
+      expect(rows[1]).toEqual(
+        expect.objectContaining({
+          activityId: candidates[1].id,
+          dayNumber: 1,
+          order: 2,
+          travelTimeToNext: undefined,
+          distanceToNext: undefined,
+        }),
+      );
+      // Order restarts per day, straight from the solution's own grouping.
+      expect(rows[2]).toEqual(
+        expect.objectContaining({
+          activityId: candidates[2].id,
+          dayNumber: 2,
+          order: 1,
+        }),
+      );
+      // A real base date exists, so the planned minutes become a real Date
+      // on the right day; no LLM-authored notes survive anymore.
+      // UTC day arithmetic: day 1 stays on exactly the picked calendar date
+      // regardless of the server's own timezone.
+      expect(rows[0].startTime.toISOString()).toBe('2026-09-01T09:00:00.000Z');
+      expect(rows[2].startTime.toISOString()).toBe('2026-09-02T10:00:00.000Z');
+      expect(rows[0].notes).toBeUndefined();
+    });
+
+    it('never invents a start date when the request has none', async () => {
+      setUpPool();
+
+      await service.generateTourActivities(TOUR_ID);
+
+      const rows = prisma.tourActivity.create.mock.calls.map(
+        (call: any) => call[0].data,
+      );
+      expect(rows.length).toBeGreaterThan(0);
+      for (const row of rows) {
+        expect(row.startTime).toBeUndefined();
+      }
+    });
+
+    it('fails without persisting anything when the feasibility validator rejects the solution', async () => {
+      setUpPool();
+      tourPlanningFeasibilityValidator.validate.mockReturnValue({
+        valid: false,
+        issues: [
+          {
+            code: 'DAY_COUNT_MISMATCH',
+            message: 'Expected 1 days, got 2.',
+          },
+        ],
+      });
+
+      await expect(service.generateTourActivities(TOUR_ID)).rejects.toThrow(
+        'infeasible solution',
+      );
+      expect(prisma.tourActivity.create).not.toHaveBeenCalled();
+    });
+
+    it('fails explicitly when the solver schedules nothing at all', async () => {
+      setUpPool();
+      dailyPlanningSolver.solve.mockImplementation(
+        async (input: DailyPlanningInput) => planSelecting(input, []),
+      );
+
+      await expect(service.generateTourActivities(TOUR_ID)).rejects.toThrow(
+        'No se encontraron lugares reales',
+      );
+      expect(prisma.tourActivity.create).not.toHaveBeenCalled();
+    });
+
+    it('records a completeness shortfall in the trace without any corrective retry', async () => {
+      const candidates = setUpPool();
+      dailyPlanningSolver.solve.mockImplementation(
+        async (input: DailyPlanningInput) =>
+          planSelecting(input, [candidates[0].id]),
+      );
+
+      await service.generateTourActivities(TOUR_ID);
+
+      // Bounded and non-blocking: one solve, no re-plan, shortfall visible.
+      expect(dailyPlanningSolver.solve).toHaveBeenCalledTimes(1);
       const completedCall = prisma.tour.update.mock.calls.find(
         (call: any) => call[0].data.metadata.generationStatus === 'completed',
       );
-      expect(completedCall).toBeDefined();
       const trace = completedCall[0].data.metadata.generationTrace;
-      // 'completed' means the process finished, not that every gate
-      // passed — the shortfall stays visible in the trace instead.
       expect(trace.tourCompleteness).toEqual(
-        expect.objectContaining({ complete: false, retryAttempted: true }),
+        expect.objectContaining({ complete: false, retryAttempted: false }),
       );
       expect(trace.tourCompleteness.issues).toEqual([
         expect.objectContaining({ code: 'UNDERFILLED_DAY', dayNumber: 1 }),
       ]);
-
       const completenessStep = trace.steps.find(
         (s: any) => s.stage === 'tour_completeness',
       );
       expect(completenessStep.providerStatus).toBe('failed');
       expect(completenessStep.degradedReason).toBe('underfilled_day');
     });
+
+    it('does not count physically infeasible rejections as viable unused candidates', async () => {
+      const candidates = setUpPool();
+      // One short stop out of four: the day is thin, but every candidate the
+      // solver left out was hard-rejected as physically infeasible, so there
+      // was nothing viable left to add — TourCompletenessValidator's own
+      // contract says such a day must not be flagged as under-filled.
+      dailyPlanningSolver.solve.mockImplementation(
+        async (input: DailyPlanningInput) => {
+          const solution = planSelecting(input, [candidates[0].id]);
+          return {
+            ...solution,
+            unselected: solution.unselected.map((u) => ({
+              activityId: u.activityId,
+              reasons: ['NO_FEASIBLE_DAY'],
+            })),
+          } as DailyPlanningSolution;
+        },
+      );
+
+      await service.generateTourActivities(TOUR_ID);
+
+      const completedCall = prisma.tour.update.mock.calls.find(
+        (call: any) => call[0].data.metadata.generationStatus === 'completed',
+      );
+      const trace = completedCall[0].data.metadata.generationTrace;
+      expect(trace.tourCompleteness).toEqual(
+        expect.objectContaining({ complete: true, issues: [] }),
+      );
+    });
+
+    it('still reports an under-filled day when a genuinely viable candidate went unused', async () => {
+      const candidates = setUpPool();
+      // Same thin day, but this time the leftovers were merely out-ranked —
+      // a real, addable option the plan did not use.
+      dailyPlanningSolver.solve.mockImplementation(
+        async (input: DailyPlanningInput) => {
+          const solution = planSelecting(input, [candidates[0].id]);
+          return {
+            ...solution,
+            unselected: [
+              solution.unselected[0],
+              {
+                activityId: solution.unselected[1].activityId,
+                reasons: ['NO_FEASIBLE_DAY'],
+              },
+              ...solution.unselected.slice(2),
+            ],
+          } as DailyPlanningSolution;
+        },
+      );
+
+      await service.generateTourActivities(TOUR_ID);
+
+      const completedCall = prisma.tour.update.mock.calls.find(
+        (call: any) => call[0].data.metadata.generationStatus === 'completed',
+      );
+      const trace = completedCall[0].data.metadata.generationTrace;
+      expect(trace.tourCompleteness.complete).toBe(false);
+      // 4 candidates, 1 selected, 3 unselected, of which 1 was infeasible.
+      expect(trace.tourCompleteness.issues).toEqual([
+        expect.objectContaining({
+          code: 'UNDERFILLED_DAY',
+          dayNumber: 1,
+          viableUnusedCandidateCount: 2,
+        }),
+      ]);
+    });
+
+    it("carries the refill branch's real score breakdowns into the planner", async () => {
+      // Regression guard for the per-branch score-breakdown hoisting: every
+      // acquisition branch must carry its offered candidates' real scores
+      // forward. A branch that forgot to would silently produce
+      // semanticScore: 0 — a valid-looking number, not an error, so nothing
+      // else in this suite would catch it.
+      toursService.findOne.mockResolvedValue(
+        buildTour({
+          metadata: {
+            generationRequest: buildGenerationRequest({
+              intent: { interests: ['history'] },
+            }),
+          },
+        }),
+      );
+      const thinActivity = {
+        id: testUuid(),
+        name: 'Existing local place',
+        latitude: -34.62,
+        longitude: -58.37,
+      };
+      const refilledActivity = {
+        id: testUuid(),
+        name: 'Crawled history museum',
+        latitude: -34.62,
+        longitude: -58.37,
+      };
+      // Thin pool first (forces the crawl), then the post-refill re-query
+      // that actually introduces the new row.
+      activitiesService.findAll
+        .mockResolvedValueOnce([thinActivity])
+        .mockResolvedValueOnce([thinActivity, refilledActivity]);
+      prisma.activity.findMany.mockResolvedValue([
+        { ...thinActivity, kind: ActivityKind.POI },
+        { ...refilledActivity, kind: ActivityKind.POI },
+      ]);
+      googlePlacesService.crawlAndSaveActivities.mockResolvedValue({
+        activitiesIds: [refilledActivity.id],
+        fromCache: false,
+        provenance: {
+          provider: 'google',
+          cacheStatus: 'miss-live',
+          requestedCount: 20,
+          receivedCount: 1,
+          acceptedCount: 1,
+          rejectedCountByReason: {},
+        },
+      });
+      activityDiscoveryService.discoverGaps.mockResolvedValue({
+        proposals: [],
+        provider: 'groq',
+        model: 'test-model',
+        groundingStatus: 'no_usable_evidence',
+      });
+      vectorStoreService.getSimilarityScores.mockResolvedValue(
+        similarityResult(
+          new Map([
+            [thinActivity.id, 0.1],
+            [refilledActivity.id, 0.82],
+          ]),
+          2,
+        ),
+      );
+
+      await service.generateTourActivities(TOUR_ID);
+
+      expect(planningCandidateNormalizer.normalize).toHaveBeenCalledTimes(1);
+      const [offeredActivities, breakdownById] =
+        planningCandidateNormalizer.normalize.mock.calls[0];
+      expect(offeredActivities.map((a: any) => a.id)).toEqual(
+        expect.arrayContaining([thinActivity.id, refilledActivity.id]),
+      );
+      expect(breakdownById.get(refilledActivity.id)?.semanticSimilarity).toBe(
+        0.82,
+      );
+      expect(breakdownById.get(thinActivity.id)?.semanticSimilarity).toBe(0.1);
+      // ...and the score survives all the way into the solver's input.
+      const input = dailyPlanningSolver.solve.mock
+        .calls[0][0] as DailyPlanningInput;
+      expect(
+        input.candidates.find((c) => c.activityId === refilledActivity.id)
+          ?.semanticScore,
+      ).toBe(0.82);
+    });
+
+    it('does not count a physically infeasible candidate as an ignored requested format', async () => {
+      const walk = {
+        id: testUuid(),
+        name: 'Neighborhood Walk',
+        type: 'walk',
+        latitude: -34.62,
+        longitude: -58.37,
+        kind: ActivityKind.NEIGHBORHOOD_WALK,
+        duration: 3,
+      };
+      const pois = buildCandidates();
+      const candidates = [...pois, walk];
+      activitiesService.findAll.mockResolvedValue(candidates);
+      prisma.activity.findMany.mockResolvedValue(
+        candidates.map((c: any) => ({
+          id: c.id,
+          latitude: c.latitude,
+          longitude: c.longitude,
+          kind: c.kind ?? ActivityKind.POI,
+        })),
+      );
+      toursService.findOne.mockResolvedValue(
+        buildTour({
+          metadata: {
+            generationRequest: buildGenerationRequest({
+              intent: {
+                interests: [],
+                experienceFormats: ['neighborhood_walks'],
+              },
+            }),
+          },
+        }),
+      );
+      // The walk was left out because it could not physically fit any day —
+      // not because the planner ignored the requested format.
+      dailyPlanningSolver.solve.mockImplementation(
+        async (input: DailyPlanningInput) => {
+          const solution = planSelecting(
+            input,
+            pois.map((p) => p.id),
+          );
+          return {
+            ...solution,
+            unselected: [
+              {
+                activityId: walk.id,
+                reasons: ['MAX_WALKING_PER_DAY_EXCEEDED'],
+              },
+            ],
+          } as DailyPlanningSolution;
+        },
+      );
+
+      await service.generateTourActivities(TOUR_ID);
+
+      const completedCall = prisma.tour.update.mock.calls.find(
+        (call: any) => call[0].data.metadata.generationStatus === 'completed',
+      );
+      const trace = completedCall[0].data.metadata.generationTrace;
+      expect(trace.tourFormatCoverage).toEqual(
+        expect.objectContaining({ valid: true, retryAttempted: false }),
+      );
+    });
+
+    it('preserves a genuinely feasible requested-format candidate through to the planned, persisted tour', async () => {
+      // Mirror of the previous test's pool, but this time nothing makes the
+      // walk infeasible — the default solver stub (planAll) schedules every
+      // offered candidate, so the walk survives soft scoring and lands in
+      // the final plan, satisfying the requested format for real rather
+      // than by the validator merely declining to flag an absence.
+      const walk = {
+        id: testUuid(),
+        name: 'Neighborhood Walk',
+        type: 'walk',
+        latitude: -34.62,
+        longitude: -58.37,
+        kind: ActivityKind.NEIGHBORHOOD_WALK,
+        duration: 2,
+      };
+      const pois = buildCandidates();
+      const candidates = [...pois, walk];
+      activitiesService.findAll.mockResolvedValue(candidates);
+      prisma.activity.findMany.mockResolvedValue(
+        candidates.map((c: any) => ({
+          id: c.id,
+          latitude: c.latitude,
+          longitude: c.longitude,
+          kind: c.kind ?? ActivityKind.POI,
+        })),
+      );
+      toursService.findOne.mockResolvedValue(
+        buildTour({
+          metadata: {
+            generationRequest: buildGenerationRequest({
+              intent: {
+                interests: [],
+                experienceFormats: ['neighborhood_walks'],
+              },
+            }),
+          },
+        }),
+      );
+
+      await service.generateTourActivities(TOUR_ID);
+
+      const rows = prisma.tourActivity.create.mock.calls.map(
+        (call: any) => call[0].data,
+      );
+      expect(rows.map((r: any) => r.activityId)).toContain(walk.id);
+
+      const completedCall2 = prisma.tour.update.mock.calls.find(
+        (call: any) => call[0].data.metadata.generationStatus === 'completed',
+      );
+      const trace2 = completedCall2[0].data.metadata.generationTrace;
+      expect(trace2.tourFormatCoverage).toEqual(
+        expect.objectContaining({
+          valid: true,
+          issues: [],
+          retryAttempted: false,
+        }),
+      );
+    });
   });
 
   describe('entity resolution (PR 8)', () => {
     // Discovery only fires when interests are requested and the pool is
     // insufficient (default activitiesService.findAll already returns []).
-    // The Places refill afterward still needs a real candidate for the LLM
-    // step to complete, so provide exactly one via mockResolvedValueOnce for
-    // the pre-refill lookup and a second for the post-refill re-lookup —
-    // same shape as the existing "records Geoapify provenance" test above.
+    // The Places refill afterward still needs a real candidate for the
+    // planning step to produce a tour, so provide exactly one via
+    // mockResolvedValueOnce for the pre-refill lookup and a second for the
+    // post-refill re-lookup.
     const buildThinPoolTour = () =>
       buildTour({
         metadata: {
@@ -647,7 +1111,7 @@ describe('TourActivityGenerationService', () => {
       evidenceKeys: [] as string[],
     };
 
-    const setUpSuccessfulRefillAndLlm = () => {
+    const setUpSuccessfulRefill = () => {
       const poiId = testUuid();
       const thinActivity = {
         id: poiId,
@@ -673,27 +1137,12 @@ describe('TourActivityGenerationService', () => {
           rejectedCountByReason: {},
         },
       });
-      langChainService.generateChatResponse.mockResolvedValue(
-        aiJsonResponse({
-          activities: [
-            {
-              activityId: poiId,
-              activityName: thinActivity.name,
-              dayNumber: 1,
-              startTime: '10:00',
-              duration: 60,
-              latitude: thinActivity.latitude,
-              longitude: thinActivity.longitude,
-            },
-          ],
-        }),
-      );
       return poiId;
     };
 
     it('calls the resolver with discovery proposals and the destination boundary after a successful discovery', async () => {
       toursService.findOne.mockResolvedValue(buildThinPoolTour());
-      setUpSuccessfulRefillAndLlm();
+      setUpSuccessfulRefill();
       activityDiscoveryService.discoverGaps.mockResolvedValue({
         proposals: [discoveryProposal],
         provider: 'groq',
@@ -718,7 +1167,7 @@ describe('TourActivityGenerationService', () => {
 
     it('surfaces the resolution result as an entity_resolution trace step', async () => {
       toursService.findOne.mockResolvedValue(buildThinPoolTour());
-      setUpSuccessfulRefillAndLlm();
+      setUpSuccessfulRefill();
       activityDiscoveryService.discoverGaps.mockResolvedValue({
         proposals: [discoveryProposal],
         provider: 'groq',
@@ -756,7 +1205,7 @@ describe('TourActivityGenerationService', () => {
 
     it('does not fail generation when entity resolution throws (non-fatal)', async () => {
       toursService.findOne.mockResolvedValue(buildThinPoolTour());
-      setUpSuccessfulRefillAndLlm();
+      setUpSuccessfulRefill();
       activityDiscoveryService.discoverGaps.mockResolvedValue({
         proposals: [discoveryProposal],
         provider: 'groq',
@@ -779,7 +1228,7 @@ describe('TourActivityGenerationService', () => {
 
     it("merges a newly resolved activity into this generation's own unified candidate pool (PR 9)", async () => {
       toursService.findOne.mockResolvedValue(buildThinPoolTour());
-      const poiId = setUpSuccessfulRefillAndLlm();
+      const poiId = setUpSuccessfulRefill();
       activityDiscoveryService.discoverGaps.mockResolvedValue({
         proposals: [discoveryProposal],
         provider: 'groq',
@@ -812,13 +1261,15 @@ describe('TourActivityGenerationService', () => {
           longitude: -58.37,
         },
       ]);
+      dailyPlanningSolver.solve.mockImplementation(
+        async (input: DailyPlanningInput) => planSelecting(input, [poiId]),
+      );
 
       await service.generateTourActivities(TOUR_ID);
 
-      // The LLM mock in setUpSuccessfulRefillAndLlm only ever picks poiId —
-      // this test asserts the newly resolved activity was made available
-      // (offered) to this same request, not that the (separately mocked)
-      // LLM happened to choose it.
+      // The solver is pinned to poiId here — this test asserts the newly
+      // resolved activity was made available (offered) to this same request,
+      // not that the (separately mocked) planner happened to choose it.
       const createCalls = (
         prisma.tourActivity.create as jest.Mock
       ).mock.calls.map((call: any) => call[0].data.activityId);
@@ -842,7 +1293,7 @@ describe('TourActivityGenerationService', () => {
 
     it('does not call the resolver when discovery returns zero proposals', async () => {
       toursService.findOne.mockResolvedValue(buildThinPoolTour());
-      setUpSuccessfulRefillAndLlm();
+      setUpSuccessfulRefill();
       activityDiscoveryService.discoverGaps.mockResolvedValue({
         proposals: [],
         provider: 'groq',
@@ -857,7 +1308,7 @@ describe('TourActivityGenerationService', () => {
 
     it('leaves a valid catalog-only tour possible when the discovery provider errors out (PR 9 acceptance)', async () => {
       toursService.findOne.mockResolvedValue(buildThinPoolTour());
-      const poiId = setUpSuccessfulRefillAndLlm();
+      const poiId = setUpSuccessfulRefill();
       activityDiscoveryService.discoverGaps.mockRejectedValue(
         new Error('grounded search provider outage'),
       );
@@ -882,7 +1333,7 @@ describe('TourActivityGenerationService', () => {
         },
       });
 
-    it('lets the itinerary LLM select a freshly discovery-resolved activity, traced as chosen', async () => {
+    it('lets the planner select a freshly discovery-resolved activity from this same request', async () => {
       toursService.findOne.mockResolvedValue(buildThinPoolTour());
       const newActivityId = testUuid();
       const thinActivity = {
@@ -965,22 +1416,11 @@ describe('TourActivityGenerationService', () => {
           longitude: -58.37,
         },
       ]);
-      // The LLM picks the newly discovery-resolved activity, not the thin
-      // pool's pre-existing one.
-      langChainService.generateChatResponse.mockResolvedValue(
-        aiJsonResponse({
-          activities: [
-            {
-              activityId: newActivityId,
-              activityName: 'Casa Histórica',
-              dayNumber: 1,
-              startTime: '10:00',
-              duration: 60,
-              latitude: -34.62,
-              longitude: -58.37,
-            },
-          ],
-        }),
+      // The planner picks the newly discovery-resolved activity, not the
+      // thin pool's pre-existing one.
+      dailyPlanningSolver.solve.mockImplementation(
+        async (input: DailyPlanningInput) =>
+          planSelecting(input, [newActivityId]),
       );
 
       await service.generateTourActivities(TOUR_ID);
@@ -999,16 +1439,6 @@ describe('TourActivityGenerationService', () => {
       );
       expect(candidatePoolStep.candidates).toContainEqual(
         expect.objectContaining({ id: newActivityId, source: 'discovery' }),
-      );
-      const verificationStep = trace.steps.find(
-        (s: any) => s.stage === 'verification',
-      );
-      expect(verificationStep.candidates).toContainEqual(
-        expect.objectContaining({
-          id: newActivityId,
-          source: 'discovery',
-          chosen: true,
-        }),
       );
     });
 
@@ -1085,21 +1515,6 @@ describe('TourActivityGenerationService', () => {
           longitude: -58.37,
         },
       ]);
-      langChainService.generateChatResponse.mockResolvedValue(
-        aiJsonResponse({
-          activities: [
-            {
-              activityId: thinActivity.id,
-              activityName: thinActivity.name,
-              dayNumber: 1,
-              startTime: '10:00',
-              duration: 60,
-              latitude: thinActivity.latitude,
-              longitude: thinActivity.longitude,
-            },
-          ],
-        }),
-      );
       // A real embedding for the newly resolved composite/POI — already
       // written by CompositeActivityService/indexResolvedVenues at
       // persistence time (confirmed during PR 9 scoping), so it must
@@ -1221,20 +1636,6 @@ describe('TourActivityGenerationService', () => {
         model: 'test-model',
         groundingStatus: 'no_usable_evidence',
       });
-      langChainService.generateChatResponse.mockResolvedValue(
-        aiJsonResponse({
-          activities: [
-            {
-              activityId: candidates[0].id,
-              dayNumber: 1,
-              startTime: '10:00',
-              duration: 2,
-              notes: 'stop',
-              selectedWaypointIds: [],
-            },
-          ],
-        }),
-      );
       toursService.findOne.mockResolvedValue(
         buildTour({
           metadata: {
@@ -1261,7 +1662,7 @@ describe('TourActivityGenerationService', () => {
       );
     });
 
-    it('retries once when a viable requested-format candidate was available but ignored, and succeeds when the retry includes it', async () => {
+    it('reports an ignored requested format without any corrective retry', async () => {
       const pois = [poiCandidate(), poiCandidate(), poiCandidate()];
       const walk = walkCandidate();
       const candidates = [...pois, walk];
@@ -1286,110 +1687,29 @@ describe('TourActivityGenerationService', () => {
           },
         }),
       );
-
-      const ignoresWalk = aiJsonResponse({
-        reasoning: 'POIs only.',
-        activities: pois.map((c, i) => ({
-          activityId: c.id,
-          dayNumber: 1,
-          startTime: `${10 + i * 2}:00`,
-          duration: 2,
-          notes: `stop ${i}`,
-          selectedWaypointIds: [] as string[],
-        })),
-      });
-      const includesWalk = aiJsonResponse({
-        reasoning: 'Includes the walk.',
-        activities: [
-          {
-            activityId: walk.id,
-            dayNumber: 1,
-            startTime: '10:00',
-            duration: 3,
-            notes: 'walk',
-            selectedWaypointIds: [],
-          },
-          ...pois.slice(0, 2).map((c, i) => ({
-            activityId: c.id,
-            dayNumber: 1,
-            startTime: `${13 + i * 2}:00`,
-            duration: 2,
-            notes: `stop ${i}`,
-            selectedWaypointIds: [] as string[],
-          })),
-        ],
-      });
-      langChainService.generateChatResponse
-        .mockResolvedValueOnce(ignoresWalk)
-        .mockResolvedValueOnce(includesWalk);
+      // The walk was offered and was schedulable, but the planner left it
+      // out for a non-physical reason — a real coverage shortfall.
+      dailyPlanningSolver.solve.mockImplementation(
+        async (input: DailyPlanningInput) =>
+          planSelecting(
+            input,
+            pois.map((p) => p.id),
+          ),
+      );
 
       await service.generateTourActivities(TOUR_ID);
 
-      expect(langChainService.generateChatResponse).toHaveBeenCalledTimes(2);
+      // PR 10: there is no LLM left to re-invoke with feedback, so the
+      // shortfall is reported, never retried — and never papered over by
+      // forcing the walk into the tour.
+      expect(dailyPlanningSolver.solve).toHaveBeenCalledTimes(1);
       const completedCall = prisma.tour.update.mock.calls.find(
         (call: any) => call[0].data.metadata.generationStatus === 'completed',
       );
       expect(completedCall).toBeDefined();
       const trace = completedCall[0].data.metadata.generationTrace;
       expect(trace.tourFormatCoverage).toEqual(
-        expect.objectContaining({ valid: true, retryAttempted: true }),
-      );
-      const formatStep = trace.steps.find(
-        (s: any) => s.stage === 'tour_format_coverage',
-      );
-      expect(formatStep.providerStatus).toBe('success');
-    });
-
-    it('does not retry a second time when the retry still omits the requested format', async () => {
-      const pois = [poiCandidate(), poiCandidate(), poiCandidate()];
-      const walk = walkCandidate();
-      const candidates = [...pois, walk];
-      activitiesService.findAll.mockResolvedValue(candidates);
-      prisma.activity.findMany.mockResolvedValue(
-        candidates.map((c) => ({
-          id: c.id,
-          latitude: c.latitude,
-          longitude: c.longitude,
-          kind: c.kind,
-        })),
-      );
-      toursService.findOne.mockResolvedValue(
-        buildTour({
-          metadata: {
-            generationRequest: buildGenerationRequest({
-              intent: {
-                interests: [],
-                experienceFormats: ['neighborhood_walks'],
-              },
-            }),
-          },
-        }),
-      );
-
-      const ignoresWalk = aiJsonResponse({
-        reasoning: 'POIs only, still.',
-        activities: pois.map((c, i) => ({
-          activityId: c.id,
-          dayNumber: 1,
-          startTime: `${10 + i * 2}:00`,
-          duration: 2,
-          notes: `stop ${i}`,
-          selectedWaypointIds: [] as string[],
-        })),
-      });
-      langChainService.generateChatResponse.mockResolvedValue(ignoresWalk);
-
-      await service.generateTourActivities(TOUR_ID);
-
-      // Bounded: exactly the initial call plus one retry, never a third.
-      expect(langChainService.generateChatResponse).toHaveBeenCalledTimes(2);
-      const completedCall = prisma.tour.update.mock.calls.find(
-        (call: any) => call[0].data.metadata.generationStatus === 'completed',
-      );
-      expect(completedCall).toBeDefined();
-      const trace = completedCall[0].data.metadata.generationTrace;
-      expect(trace.tourFormatCoverage).toEqual(
-        expect.objectContaining({ valid: false, retryAttempted: true }),
+        expect.objectContaining({ valid: false, retryAttempted: false }),
       );
       expect(trace.tourFormatCoverage.issues).toEqual([
         expect.objectContaining({
@@ -1397,9 +1717,13 @@ describe('TourActivityGenerationService', () => {
           requestedFormat: 'neighborhood_walks',
         }),
       ]);
+      const formatStep = trace.steps.find(
+        (s: any) => s.stage === 'tour_format_coverage',
+      );
+      expect(formatStep.providerStatus).toBe('failed');
     });
 
-    it('fires exactly one combined retry when both completeness and format coverage fail together', async () => {
+    it('reports completeness and format-coverage shortfalls together, still without retrying', async () => {
       const walk = walkCandidate();
       const extraPois = [poiCandidate(), poiCandidate(), poiCandidate()];
       const candidates = [walk, ...extraPois];
@@ -1424,66 +1748,29 @@ describe('TourActivityGenerationService', () => {
           },
         }),
       );
-
-      // First attempt: a single short POI — both under-filled AND ignores
-      // the available walk.
-      const thinAndOffFormat = aiJsonResponse({
-        reasoning: 'One short stop.',
-        activities: [
-          {
-            activityId: extraPois[0].id,
-            dayNumber: 1,
-            startTime: '10:00',
-            duration: 2,
-            notes: 'stop',
-            selectedWaypointIds: [],
-          },
-        ],
-      });
-      // Retry: includes the walk and is reasonably full.
-      const fixedResponse = aiJsonResponse({
-        reasoning: 'Fuller and includes the walk.',
-        activities: [
-          {
-            activityId: walk.id,
-            dayNumber: 1,
-            startTime: '10:00',
-            duration: 3,
-            notes: 'walk',
-            selectedWaypointIds: [],
-          },
-          ...extraPois.slice(0, 2).map((c, i) => ({
-            activityId: c.id,
-            dayNumber: 1,
-            startTime: `${13 + i * 2}:00`,
-            duration: 2,
-            notes: `stop ${i}`,
-            selectedWaypointIds: [] as string[],
-          })),
-        ],
-      });
-      langChainService.generateChatResponse
-        .mockResolvedValueOnce(thinAndOffFormat)
-        .mockResolvedValueOnce(fixedResponse);
+      // A single short POI — both under-filled AND ignoring the available
+      // walk. One solve, two independent shortfalls, zero retries.
+      dailyPlanningSolver.solve.mockImplementation(
+        async (input: DailyPlanningInput) =>
+          planSelecting(input, [extraPois[0].id]),
+      );
 
       await service.generateTourActivities(TOUR_ID);
 
-      // One combined retry, never a completeness retry followed by a
-      // separate format retry.
-      expect(langChainService.generateChatResponse).toHaveBeenCalledTimes(2);
+      expect(dailyPlanningSolver.solve).toHaveBeenCalledTimes(1);
       const completedCall = prisma.tour.update.mock.calls.find(
         (call: any) => call[0].data.metadata.generationStatus === 'completed',
       );
       const trace = completedCall[0].data.metadata.generationTrace;
       expect(trace.tourCompleteness).toEqual(
-        expect.objectContaining({ complete: true, retryAttempted: true }),
+        expect.objectContaining({ complete: false, retryAttempted: false }),
       );
       expect(trace.tourFormatCoverage).toEqual(
-        expect.objectContaining({ valid: true, retryAttempted: true }),
+        expect.objectContaining({ valid: false, retryAttempted: false }),
       );
     });
 
-    it('does not retry and reports valid coverage when only point_visits was requested (no behavior change)', async () => {
+    it('reports valid coverage when only point_visits was requested (no behavior change)', async () => {
       const candidates = [
         poiCandidate({ duration: 3 }),
         poiCandidate({ duration: 3 }),
@@ -1498,22 +1785,10 @@ describe('TourActivityGenerationService', () => {
           kind: c.kind,
         })),
       );
-      langChainService.generateChatResponse.mockResolvedValue(
-        aiJsonResponse({
-          activities: candidates.map((c, i) => ({
-            activityId: c.id,
-            dayNumber: 1,
-            startTime: `${10 + i * 3}:00`,
-            duration: 3,
-            notes: `stop ${i}`,
-            selectedWaypointIds: [] as string[],
-          })),
-        }),
-      );
 
       await service.generateTourActivities(TOUR_ID);
 
-      expect(langChainService.generateChatResponse).toHaveBeenCalledTimes(1);
+      expect(dailyPlanningSolver.solve).toHaveBeenCalledTimes(1);
       const completedCall = prisma.tour.update.mock.calls.find(
         (call: any) => call[0].data.metadata.generationStatus === 'completed',
       );
@@ -1524,7 +1799,9 @@ describe('TourActivityGenerationService', () => {
     });
   });
 
-  it('never persists a composite returned outside the live selection contract', async () => {
+  // PR 10: the deterministic planner can only schedule ids from the offered
+  // catalog pool, so live composite persistence must stay unreachable here.
+  it('never persists a composite during live generation', async () => {
     const poiId = testUuid();
     activitiesService.findAll.mockResolvedValue([
       {
@@ -1542,29 +1819,6 @@ describe('TourActivityGenerationService', () => {
         kind: ActivityKind.POI,
       },
     ]);
-    langChainService.generateChatResponse.mockResolvedValue(
-      aiJsonResponse({
-        activities: [
-          {
-            activityId: poiId,
-            dayNumber: 1,
-            startTime: '10:00',
-            duration: 60,
-            notes: 'Real catalog stop',
-            selectedWaypointIds: [],
-          },
-        ],
-        // A non-conforming provider response cannot reopen the removed live
-        // composite-creation path.
-        compositeActivities: [
-          {
-            name: 'Invented Walk',
-            kind: 'NEIGHBORHOOD_WALK',
-            waypointIds: ['invented'],
-          },
-        ],
-      }),
-    );
 
     await service.generateTourActivities(TOUR_ID);
 
@@ -1613,24 +1867,6 @@ describe('TourActivityGenerationService', () => {
       },
     ]);
 
-    langChainService.generateChatResponse.mockResolvedValue(
-      aiJsonResponse({
-        activities: [
-          {
-            // Picked directly by id, like any POI — no compositeActivities
-            // entry at all for this one.
-            activityId: existingVariant.id,
-            dayNumber: 1,
-            startTime: '10:00',
-            duration: 90,
-            notes: 'A historic walk',
-            latitude: existingVariant.latitude,
-            longitude: existingVariant.longitude,
-          },
-        ],
-      }),
-    );
-
     await service.generateTourActivities(TOUR_ID);
 
     expect(
@@ -1645,69 +1881,11 @@ describe('TourActivityGenerationService', () => {
     });
   });
 
-  it('honors a valid selectedWaypointIds override, persisting only that subset instead of the full snapshot', async () => {
-    const existingVariant = {
-      id: testUuid(),
-      kind: ActivityKind.NEIGHBORHOOD_WALK,
-      latitude: -34.62,
-      longitude: -58.37,
-    };
-    const [poiA, poiB, poiC] = [testUuid(), testUuid(), testUuid()];
-    activitiesService.findAll.mockResolvedValue([
-      {
-        id: existingVariant.id,
-        name: 'Walk',
-        latitude: -34.62,
-        longitude: -58.37,
-      },
-    ]);
-    prisma.activity.findMany.mockResolvedValue([existingVariant]);
-    prisma.activityWaypoint.findMany.mockResolvedValue([
-      {
-        compositeActivityId: existingVariant.id,
-        waypointActivityId: poiA,
-        order: 1,
-      },
-      {
-        compositeActivityId: existingVariant.id,
-        waypointActivityId: poiB,
-        order: 2,
-      },
-      {
-        compositeActivityId: existingVariant.id,
-        waypointActivityId: poiC,
-        order: 3,
-      },
-    ]);
-
-    langChainService.generateChatResponse.mockResolvedValue(
-      aiJsonResponse({
-        activities: [
-          {
-            activityId: existingVariant.id,
-            dayNumber: 1,
-            startTime: '10:00',
-            duration: 60,
-            notes: 'Shorter, for a family with kids',
-            latitude: existingVariant.latitude,
-            longitude: existingVariant.longitude,
-            selectedWaypointIds: [poiA, poiC],
-          },
-        ],
-      }),
-    );
-
-    await service.generateTourActivities(TOUR_ID);
-
-    expect(prisma.tourActivityWaypoint.createMany).toHaveBeenCalledWith({
-      data: [
-        expect.objectContaining({ waypointActivityId: poiA, order: 1 }),
-        expect.objectContaining({ waypointActivityId: poiC, order: 2 }),
-      ],
-    });
-  });
-
-  it('falls back to the full snapshot when selectedWaypointIds would drop below the minimum of 2', async () => {
+  // PR 10: per-tour waypoint trimming at generation time is gone with the
+  // LLM that used to request it — every composite is snapshotted with its
+  // full current waypoint set, and trimming now happens post-generation on
+  // the review screen instead.
+  it("persists a composite's full current waypoint set, never a generation-time subset", async () => {
     const existingVariant = {
       id: testUuid(),
       kind: ActivityKind.NEIGHBORHOOD_WALK,
@@ -1736,23 +1914,6 @@ describe('TourActivityGenerationService', () => {
         order: 2,
       },
     ]);
-
-    langChainService.generateChatResponse.mockResolvedValue(
-      aiJsonResponse({
-        activities: [
-          {
-            activityId: existingVariant.id,
-            dayNumber: 1,
-            startTime: '10:00',
-            duration: 60,
-            notes: 'note',
-            latitude: existingVariant.latitude,
-            longitude: existingVariant.longitude,
-            selectedWaypointIds: [poiA], // below the minimum of 2
-          },
-        ],
-      }),
-    );
 
     await service.generateTourActivities(TOUR_ID);
 
@@ -1791,22 +1952,6 @@ describe('TourActivityGenerationService', () => {
         kind: ActivityKind.POI,
       },
     ]);
-    langChainService.generateChatResponse.mockResolvedValue(
-      aiJsonResponse({
-        activities: [
-          {
-            activityId: thinPoiId,
-            activityName: 'Only one place',
-            dayNumber: 1,
-            startTime: '10:00',
-            duration: 60,
-            notes: 'Visit it',
-            latitude: -34.62,
-            longitude: -58.37,
-          },
-        ],
-      }),
-    );
 
     await service.generateTourActivities(TOUR_ID);
 
@@ -1865,22 +2010,6 @@ describe('TourActivityGenerationService', () => {
       longitude: -58.37,
       createdAt: new Date(),
     });
-    langChainService.generateChatResponse.mockResolvedValue(
-      aiJsonResponse({
-        activities: [
-          {
-            activityId: thinPoiId,
-            activityName: 'Only one place',
-            dayNumber: 1,
-            startTime: '10:00',
-            duration: 60,
-            notes: 'Visit it',
-            latitude: -34.62,
-            longitude: -58.37,
-          },
-        ],
-      }),
-    );
 
     await service.generateTourActivities(TOUR_ID);
 
@@ -1920,21 +2049,6 @@ describe('TourActivityGenerationService', () => {
         rejectedCountByReason: { existing_activity: 1 },
       },
     });
-    langChainService.generateChatResponse.mockResolvedValue(
-      aiJsonResponse({
-        activities: [
-          {
-            activityId: thinPoiId,
-            activityName: thinActivity.name,
-            dayNumber: 1,
-            startTime: '10:00',
-            duration: 60,
-            latitude: thinActivity.latitude,
-            longitude: thinActivity.longitude,
-          },
-        ],
-      }),
-    );
 
     await service.generateTourActivities(TOUR_ID);
 
@@ -1967,22 +2081,6 @@ describe('TourActivityGenerationService', () => {
         kind: ActivityKind.POI,
       })),
     );
-    langChainService.generateChatResponse.mockResolvedValue(
-      aiJsonResponse({
-        activities: [
-          {
-            activityId: fifteenActivities[0].id,
-            activityName: fifteenActivities[0].name,
-            dayNumber: 1,
-            startTime: '10:00',
-            duration: 60,
-            notes: 'Visit it',
-            latitude: -34.62,
-            longitude: -58.37,
-          },
-        ],
-      }),
-    );
 
     await service.generateTourActivities(TOUR_ID);
 
@@ -2013,22 +2111,6 @@ describe('TourActivityGenerationService', () => {
     // Crawl fails
     googlePlacesService.crawlAndSaveActivities.mockRejectedValue(
       new Error('Google API unavailable'),
-    );
-    langChainService.generateChatResponse.mockResolvedValue(
-      aiJsonResponse({
-        activities: [
-          {
-            activityId: thinActivities[0].id,
-            activityName: thinActivities[0].name,
-            dayNumber: 1,
-            startTime: '10:00',
-            duration: 60,
-            notes: 'Visit it',
-            latitude: -34.62,
-            longitude: -58.37,
-          },
-        ],
-      }),
     );
 
     await service.generateTourActivities(TOUR_ID);
@@ -2132,22 +2214,6 @@ describe('TourActivityGenerationService', () => {
         kind: ActivityKind.POI,
       },
     ]);
-    langChainService.generateChatResponse.mockResolvedValue(
-      aiJsonResponse({
-        activities: [
-          {
-            activityId: relevantId,
-            activityName: 'Relevant history site',
-            dayNumber: 1,
-            startTime: '10:00',
-            duration: 60,
-            notes: 'Visit it',
-            latitude: -34.62,
-            longitude: -58.37,
-          },
-        ],
-      }),
-    );
 
     await service.generateTourActivities(TOUR_ID);
 
@@ -2165,11 +2231,12 @@ describe('TourActivityGenerationService', () => {
         'Exploration style: balanced',
       ].join('\n'),
     );
-    const [, callArgs] = langChainService.generateChatResponse.mock.calls[0];
-    // The prompt's "Available activities" text must list the relevant,
+    // The offered window handed to the planner must rank the relevant,
     // lower-rated site ahead of the irrelevant, higher-rated one.
-    expect(callArgs.indexOf('Relevant history site')).toBeLessThan(
-      callArgs.indexOf('Irrelevant but top-rated'),
+    const offered = solvedCandidateIds();
+    expect(offered.indexOf(relevantId)).toBeGreaterThanOrEqual(0);
+    expect(offered.indexOf(relevantId)).toBeLessThan(
+      offered.indexOf(irrelevantId),
     );
   });
 
@@ -2224,22 +2291,6 @@ describe('TourActivityGenerationService', () => {
         kind: ActivityKind.NEIGHBORHOOD_WALK,
       },
     ]);
-    langChainService.generateChatResponse.mockResolvedValue(
-      aiJsonResponse({
-        activities: [
-          {
-            activityId: curatedWalkId,
-            activityName: 'San Telmo Historic Walk',
-            dayNumber: 1,
-            startTime: '10:00',
-            duration: 60,
-            notes: 'Walk it',
-            latitude: -34.62,
-            longitude: -58.37,
-          },
-        ],
-      }),
-    );
 
     await service.generateTourActivities(TOUR_ID);
 
@@ -2249,9 +2300,9 @@ describe('TourActivityGenerationService', () => {
     // (which would wrongly put it at 4.0/5*0.2=0.16, an even bigger margin,
     // masking whether the source-based branch actually ran instead of just
     // falling through to the 'poi' formula).
-    const [, promptArg] = langChainService.generateChatResponse.mock.calls[0];
-    expect(promptArg.indexOf('San Telmo Historic Walk')).toBeLessThan(
-      promptArg.indexOf('Mediocre plain POI'),
+    const offered = solvedCandidateIds();
+    expect(offered.indexOf(curatedWalkId)).toBeLessThan(
+      offered.indexOf(mediocrePoiId),
     );
   });
 
@@ -2268,22 +2319,6 @@ describe('TourActivityGenerationService', () => {
         kind: ActivityKind.POI,
       },
     ]);
-    langChainService.generateChatResponse.mockResolvedValue(
-      aiJsonResponse({
-        activities: [
-          {
-            activityId: poiId,
-            activityName: 'Museo',
-            dayNumber: 1,
-            startTime: '10:00',
-            duration: 60,
-            notes: 'Visit it',
-            latitude: -34.62,
-            longitude: -58.37,
-          },
-        ],
-      }),
-    );
 
     await service.generateTourActivities(TOUR_ID);
 
@@ -2370,20 +2405,6 @@ describe('TourActivityGenerationService', () => {
           kind: ActivityKind.POI,
         },
       ]);
-      langChainService.generateChatResponse.mockResolvedValue(
-        aiJsonResponse({
-          activities: [
-            {
-              activityId: poiId,
-              dayNumber: 1,
-              startTime: '10:00',
-              duration: 60,
-              notes: 'Visit Plaza Dorrego',
-              selectedWaypointIds: [],
-            },
-          ],
-        }),
-      );
 
       await service.generateTourActivities(TOUR_ID);
 
@@ -2421,9 +2442,9 @@ describe('TourActivityGenerationService', () => {
       );
       expect(osmPlacesService.findStreetsWithin).not.toHaveBeenCalled();
       expect(osmPlacesService.findPoisWithin).not.toHaveBeenCalled();
-      const [, promptArg] = langChainService.generateChatResponse.mock.calls[0];
-      expect(promptArg).toContain(`id: ${poiId} - Plaza Dorrego`);
-      expect(promptArg).not.toContain('Available OSM features');
+      // The real catalog POI is what reached the planner; raw OSM features
+      // never become live candidates.
+      expect(solvedCandidateIds()).toEqual([poiId]);
       expect(
         compositeActivityService.createOrReuseComposite,
       ).not.toHaveBeenCalled();
@@ -2465,13 +2486,10 @@ describe('TourActivityGenerationService', () => {
       });
       osmPlacesService.findNeighborhoodsWithin.mockResolvedValue([]);
       activitiesService.findAll.mockResolvedValue([]);
-      langChainService.generateChatResponse.mockResolvedValue(
-        aiJsonResponse({}),
-      );
 
       // Nothing real anywhere (no DB/Google activities, no neighborhoods,
-      // hence no OSM streets/POIs either) — the anti-hallucination guard
-      // correctly fails loudly rather than completing an empty tour.
+      // hence no OSM streets/POIs either) — generation fails loudly rather
+      // than completing an empty tour.
       await expect(service.generateTourActivities(TOUR_ID)).rejects.toThrow();
 
       const [, , radiusArg] = activitiesService.findAll.mock.calls[0];
@@ -2563,15 +2581,12 @@ describe('TourActivityGenerationService', () => {
         recoleta,
       ]);
       activitiesService.findAll.mockResolvedValue([]);
-      langChainService.generateChatResponse.mockResolvedValue(
-        aiJsonResponse({}),
-      );
 
       await expect(service.generateTourActivities(TOUR_ID)).rejects.toThrow();
 
       expect(osmPlacesService.findStreetsWithin).not.toHaveBeenCalled();
       expect(osmPlacesService.findPoisWithin).not.toHaveBeenCalled();
-      expect(langChainService.generateChatResponse).not.toHaveBeenCalled();
+      expect(dailyPlanningSolver.solve).not.toHaveBeenCalled();
     });
 
     it('never launches detailed OSM neighborhood calls during live Sevilla generation', async () => {
@@ -2659,14 +2674,14 @@ describe('TourActivityGenerationService', () => {
           longitude: -5.9845,
         },
       ]);
-      langChainService.generateChatResponse.mockResolvedValue(
-        aiJsonResponse({}),
-      );
 
-      await expect(service.generateTourActivities(TOUR_ID)).rejects.toThrow();
+      await service.generateTourActivities(TOUR_ID);
 
       expect(osmPlacesService.findPoisWithin).not.toHaveBeenCalled();
       expect(osmPlacesService.findStreetsWithin).not.toHaveBeenCalled();
+      // Only the real catalog row is planned — no neighborhood ever becomes
+      // a candidate of its own.
+      expect(solvedCandidateIds()).toEqual([poiId]);
     });
 
     it('reproduces Barcelona refill and semantic ranking without a global neighborhood-composite path', async () => {
@@ -2787,22 +2802,6 @@ describe('TourActivityGenerationService', () => {
           kind: ActivityKind.POI,
         },
       ]);
-      langChainService.generateChatResponse.mockResolvedValue(
-        aiJsonResponse({
-          activities: [
-            {
-              activityId: historicSiteId,
-              activityName: 'Barri Gòtic historic site',
-              dayNumber: 1,
-              startTime: '10:00',
-              duration: 60,
-              notes: 'Visit it',
-              latitude: 41.38,
-              longitude: 2.17,
-            },
-          ],
-        }),
-      );
 
       await service.generateTourActivities(TOUR_ID);
 
@@ -2811,11 +2810,11 @@ describe('TourActivityGenerationService', () => {
       // 2. Child areas distribute Places coverage only; detailed OSM
       // composite construction is not part of live generation.
       expect(osmPlacesService.findStreetsWithin).not.toHaveBeenCalled();
-      // 3. The historically-relevant, lower-rated site outranked the irrelevant
-      //    higher-rated one in what the LLM was offered.
-      const [, promptArg] = langChainService.generateChatResponse.mock.calls[0];
-      expect(promptArg.indexOf('Barri Gòtic historic site')).toBeLessThan(
-        promptArg.indexOf('Collserola hiking trail'),
+      // 3. The historically-relevant, lower-rated site outranked the
+      //    irrelevant higher-rated one in what the planner was offered.
+      const offered = solvedCandidateIds();
+      expect(offered.indexOf(historicSiteId)).toBeLessThan(
+        offered.indexOf(hikingTrailId),
       );
       // 4. The bitácora records destination/refill stages but no speculative
       // neighborhood candidate stage. tour.update is called with a

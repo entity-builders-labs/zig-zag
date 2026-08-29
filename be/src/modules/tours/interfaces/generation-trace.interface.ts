@@ -20,6 +20,10 @@ export type TraceStage =
   // PR 9: catalog + refill + newly discovery-resolved Activities merged
   // into one ranked, format-aware bounded window before llm_generation.
   | 'candidate_pool'
+  // PR 10: deterministic day assignment/ordering/feasibility over the
+  // candidate_pool window — runs before completeness/format-coverage, which
+  // now evaluate the planned tour rather than the LLM's raw picks.
+  | 'daily_planning'
   // Kept so traces persisted before provider-neutral naming remain readable.
   | 'google_places_crawl'
   | 'places_crawl'
@@ -115,6 +119,26 @@ export interface GenerationTraceStep {
       llmWindowCount: number;
     }>;
     droppedForFamilyCapCount: number;
+  };
+  /** PR 10 — deterministic daily-planning solver's own summary: solver
+   * identity, per-day utilization, and why any offered candidate was left
+   * unselected. See DailyPlanningSolution (daily-planning.interface.ts). */
+  dailyPlanning?: {
+    solver: string;
+    dayCount: number;
+    selectedCount: number;
+    unselectedCount: number;
+    approximateTravel: boolean;
+    iterations?: number;
+    score: number;
+    days: Array<{
+      dayNumber: number;
+      activityCount: number;
+      totalActivityMinutes: number;
+      totalTravelMinutes: number;
+      totalWalkingMinutes: number;
+      utilizationMinutes: number;
+    }>;
   };
 }
 

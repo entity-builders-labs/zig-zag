@@ -1,6 +1,7 @@
 import {
   buildCandidatePoolStep,
   buildCoverageAnalysisStep,
+  buildDailyPlanningStep,
   buildEmbeddingsStep,
   buildDestinationResolutionStep,
   buildEntityResolutionStep,
@@ -12,6 +13,7 @@ import {
 } from './generation-trace-builder.util';
 import { ActivityKind } from '@prisma/client';
 import { ExperienceFormat } from '../interfaces/tour-generation.interface';
+import { DailyPlanningSolution } from '../interfaces/daily-planning.interface';
 
 describe('buildTourIntentStep', () => {
   it('traces supplemental intent once and labels walking limits as captured, not enforced', () => {
@@ -138,6 +140,95 @@ describe('buildTourFormatCoverageStep', () => {
     expect(step.summary).toContain('neighborhood_walks');
     expect(step.summary).toContain('reintentó');
     expect(step.tourFormatCoverage?.retryAttempted).toBe(true);
+  });
+});
+
+describe('buildDailyPlanningStep', () => {
+  it('summarizes a solved solution into a trace step', () => {
+    const solution: DailyPlanningSolution = {
+      days: [
+        {
+          dayNumber: 1,
+          activities: [
+            {
+              activityId: 'a',
+              startMinutesFromMidnight: 540,
+              endMinutesFromMidnight: 600,
+            },
+          ],
+          totalActivityMinutes: 60,
+          totalTravelMinutes: 5,
+          totalWalkingMinutes: 5,
+          utilizationMinutes: 65,
+        },
+      ],
+      unselected: [
+        { activityId: 'b', reasons: ['DAILY_TIME_CAPACITY_EXCEEDED'] },
+      ],
+      score: 1,
+      metadata: {
+        solver: 'GreedyDailyPlanningSolver',
+        approximateTravel: true,
+        iterations: 3,
+      },
+    };
+
+    const step = buildDailyPlanningStep(solution);
+
+    expect(step.stage).toBe('daily_planning');
+    expect(step.summary).toContain('GreedyDailyPlanningSolver');
+    expect(step.summary).toContain('1'); // day count / selected count
+    expect(step.providerStatus).toBeUndefined();
+    expect(step.degradedReason).toBeUndefined();
+    expect(step.dailyPlanning).toEqual({
+      solver: 'GreedyDailyPlanningSolver',
+      dayCount: 1,
+      selectedCount: 1,
+      unselectedCount: 1,
+      approximateTravel: true,
+      iterations: 3,
+      score: 1,
+      days: [
+        {
+          dayNumber: 1,
+          activityCount: 1,
+          totalActivityMinutes: 60,
+          totalTravelMinutes: 5,
+          totalWalkingMinutes: 5,
+          utilizationMinutes: 65,
+        },
+      ],
+    });
+  });
+
+  it('flags a degraded outcome when no activities were selected across any day', () => {
+    const solution: DailyPlanningSolution = {
+      days: [
+        {
+          dayNumber: 1,
+          activities: [],
+          totalActivityMinutes: 0,
+          totalTravelMinutes: 0,
+          totalWalkingMinutes: 0,
+          utilizationMinutes: 0,
+        },
+      ],
+      unselected: [
+        { activityId: 'a', reasons: ['DAILY_TIME_CAPACITY_EXCEEDED'] },
+        { activityId: 'b', reasons: ['OPENING_HOURS_INCOMPATIBLE'] },
+      ],
+      score: 0,
+      metadata: {
+        solver: 'GreedyDailyPlanningSolver',
+        approximateTravel: false,
+      },
+    };
+
+    const step = buildDailyPlanningStep(solution);
+
+    expect(step.providerStatus).toBe('failed');
+    expect(step.degradedReason).toBe('no_activities_selected');
+    expect(step.dailyPlanning?.iterations).toBeUndefined();
   });
 });
 

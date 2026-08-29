@@ -17,12 +17,21 @@ import { SerpApiGroundedSearchService } from './services/serpapi-grounded-search
 import { ActivityProposalResolutionService } from './services/activity-proposal-resolution.service';
 import { GroqDiscoveryProvider } from './services/groq-discovery.provider';
 import { GeminiDiscoveryProvider } from './services/gemini-discovery.provider';
+import { GreedyDailyPlanningSolver } from './services/greedy-daily-planning.solver';
+import { ApproximateTravelEstimateProvider } from './services/approximate-travel-estimate.provider';
+import { PlanningCandidateNormalizerService } from './services/planning-candidate-normalizer.service';
+import { TourPlanningFeasibilityValidatorService } from './services/tour-planning-feasibility-validator.service';
 import {
   DISCOVERY_PROVIDER,
   GROUNDED_SEARCH_PROVIDER,
   SearchGroundedDiscoveryProvider,
 } from './interfaces/activity-discovery.interface';
 import { PROPOSAL_RESOLVER } from './interfaces/proposal-resolution.interface';
+import {
+  DAILY_PLANNING_SOLVER,
+  TRAVEL_ESTIMATE_PROVIDER,
+  TOUR_PLANNING_FEASIBILITY_VALIDATOR,
+} from './interfaces/daily-planning.interface';
 import aiConfig, { AiConfig } from '../../shared/ai/ai.config';
 
 import { ActivitiesModule } from '../activities/activities.module';
@@ -58,6 +67,25 @@ import { AuthModule } from '../auth/auth.module';
     ActivityProposalResolutionService,
     GroqDiscoveryProvider,
     GeminiDiscoveryProvider,
+    GreedyDailyPlanningSolver,
+    ApproximateTravelEstimateProvider,
+    PlanningCandidateNormalizerService,
+    TourPlanningFeasibilityValidatorService,
+    {
+      provide: TRAVEL_ESTIMATE_PROVIDER,
+      useExisting: ApproximateTravelEstimateProvider,
+    },
+    {
+      // Only one V1 implementation — swappable for a future OR-Tools solver
+      // without changing any caller, matching the existing
+      // GROUNDED_SEARCH_PROVIDER static-swap pattern.
+      provide: DAILY_PLANNING_SOLVER,
+      useExisting: GreedyDailyPlanningSolver,
+    },
+    {
+      provide: TOUR_PLANNING_FEASIBILITY_VALIDATOR,
+      useExisting: TourPlanningFeasibilityValidatorService,
+    },
     {
       // SerpApi is the default grounded-search evidence provider: a plain
       // search API, so it never competes with the discovery-extraction
