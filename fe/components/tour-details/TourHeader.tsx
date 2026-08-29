@@ -106,7 +106,8 @@ export const TourHeader = ({
     id: `stop-${index}`,
     coordinate: { latitude: stop.latitude, longitude: stop.longitude },
     title: stop.title,
-    order: stop.order
+    order: index + 1,
+    category: stop.category,
   }));
 
   const mapRegion = getRegionForCoordinates(

@@ -98,8 +98,11 @@ export const TourMapView = ({
       coordinate: { latitude: stop.latitude, longitude: stop.longitude },
       title: stop.title,
       order: index + 1,
+      category: stop.category,
+      selected: index === selectedStopIndex,
+      onPress: () => setSelectedStopIndex(index),
     }));
-  }, [visibleStops]);
+  }, [visibleStops, selectedStopIndex]);
 
   const straightRoutes = useMemo(() => {
     const orderedStops = [...visibleStops].sort((a, b) => a.order - b.order);

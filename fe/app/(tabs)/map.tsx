@@ -228,12 +228,15 @@ export default function MapScreen() {
       id: p.id,
       title: p.name,
       description: p.categoryLabel,
+      category: p.type,
+      selected: selectedPlace?.id === p.id,
       coordinate: {
         latitude: p.latitude,
         longitude: p.longitude,
       },
+      onPress: () => handleSelectPlace(p),
     }));
-  }, [filteredPlaces]);
+  }, [filteredPlaces, selectedPlace]);
 
   const handleSelectPlace = (place: MapPlace) => {
     setSelectedPlace(place);

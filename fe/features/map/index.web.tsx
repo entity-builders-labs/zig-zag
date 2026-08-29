@@ -7,6 +7,7 @@ import { MapProps } from './types';
 import { Activity } from '../activities/types';
 import { Marker as MarkerType } from './types';
 import { ZIGZAG_WARM_MAP_STYLE } from '../../constants/map-style';
+import { createSvgMarkerUrl } from './utils';
 
 // Exposes one Map instance's live polylines/polygons for E2E tests to assert
 // against (nothing renders to the DOM for a WebGL/canvas map, see the two
@@ -309,17 +310,33 @@ export const Map: React.FC<MapProps> = ({
         onDragEnd={handleMapDragEnd}
         options={mapOptions}
       >
-        {markers.map((marker) => (
-          <Marker
-            key={marker.id}
-            position={{
-              lat: marker.coordinate.latitude,
-              lng: marker.coordinate.longitude,
-            }}
-            title={marker.title}
-            label={marker.order ? marker.order.toString() : undefined}
-          />
-        ))}
+        {markers.map((marker) => {
+          const iconUrl = createSvgMarkerUrl({
+            order: marker.order,
+            icon: marker.icon,
+            category: marker.category,
+            title: marker.title,
+            color: marker.color,
+            selected: marker.selected,
+          });
+
+          return (
+            <Marker
+              key={marker.id}
+              position={{
+                lat: marker.coordinate.latitude,
+                lng: marker.coordinate.longitude,
+              }}
+              title={marker.title}
+              icon={{
+                url: iconUrl,
+                scaledSize: new google.maps.Size(38, 46),
+                anchor: new google.maps.Point(19, 44),
+              }}
+              onClick={marker.onPress}
+            />
+          );
+        })}
       </GoogleMap>
     </View>
   );

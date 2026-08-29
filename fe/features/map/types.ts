@@ -14,6 +14,11 @@ export interface Marker {
   title?: string;
   description?: string;
   order?: number;
+  category?: string;
+  icon?: string;
+  color?: string;
+  selected?: boolean;
+  onPress?: () => void;
 }
 
 export interface MapProps {
