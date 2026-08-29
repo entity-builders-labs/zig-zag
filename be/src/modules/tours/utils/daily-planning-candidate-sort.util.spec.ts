@@ -64,7 +64,11 @@ describe('sortCandidatesDeterministically', () => {
 
 describe('selectDailyAnchors', () => {
   it('picks the top N sorted candidates as anchors, one per day', () => {
-    const sorted = [candidate('a', 0.9), candidate('b', 0.8), candidate('c', 0.7)];
+    const sorted = [
+      candidate('a', 0.9),
+      candidate('b', 0.8),
+      candidate('c', 0.7),
+    ];
     expect(selectDailyAnchors(sorted, 2).map((c) => c.activityId)).toEqual([
       'a',
       'b',

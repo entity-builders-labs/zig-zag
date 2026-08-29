@@ -13,8 +13,11 @@ const WEEKDAY_NAMES: Record<string, number> = {
   saturday: 6,
 };
 
-
-function to12hMinutes(hourStr: string, minuteStr: string, meridiem: string): number {
+function to12hMinutes(
+  hourStr: string,
+  minuteStr: string,
+  meridiem: string,
+): number {
   let hour = parseInt(hourStr, 10) % 12;
   if (meridiem.toLowerCase() === 'pm') hour += 12;
   return hour * 60 + parseInt(minuteStr, 10);
@@ -28,9 +31,10 @@ function parseTimeRange(rangeStr: string): NormalizedOpeningHoursRange | null {
   let match: RegExpExecArray | null;
 
   // Try matching both times with explicit meridiem: "9:00 AM – 6:00 PM"
-  match = /(\d{1,2}):(\d{2})\s*([AaPp][Mm])\s*[–-]\s*(\d{1,2}):(\d{2})\s*([AaPp][Mm])/.exec(
-    rangeStr,
-  );
+  match =
+    /(\d{1,2}):(\d{2})\s*([AaPp][Mm])\s*[–-]\s*(\d{1,2}):(\d{2})\s*([AaPp][Mm])/.exec(
+      rangeStr,
+    );
   if (match) {
     return {
       startMinutesFromMidnight: to12hMinutes(match[1], match[2], match[3]),
@@ -39,7 +43,9 @@ function parseTimeRange(rangeStr: string): NormalizedOpeningHoursRange | null {
   }
 
   // Try matching only end time with meridiem: "12:00 – 3:00 PM"
-  match = /(\d{1,2}):(\d{2})\s*[–-]\s*(\d{1,2}):(\d{2})\s*([AaPp][Mm])/.exec(rangeStr);
+  match = /(\d{1,2}):(\d{2})\s*[–-]\s*(\d{1,2}):(\d{2})\s*([AaPp][Mm])/.exec(
+    rangeStr,
+  );
   if (match) {
     const meridiem = match[5];
     return {
@@ -125,7 +131,10 @@ export function parseOpeningHours(
           endMinutesFromMidnight: range.endMinutesFromMidnight,
         });
         rangesByWeekday[nextWeekday] = nextDayRanges;
-      } else if (range.endMinutesFromMidnight === 0 && range.startMinutesFromMidnight > 0) {
+      } else if (
+        range.endMinutesFromMidnight === 0 &&
+        range.startMinutesFromMidnight > 0
+      ) {
         // Ends at midnight (e.g. "8:00 PM – 12:00 AM"): close at 24:00 same day only, no next-day entry.
         sameDayRanges.push({
           startMinutesFromMidnight: range.startMinutesFromMidnight,

@@ -1,4 +1,7 @@
-import { parseOpeningHours, isOpenDuring } from './normalized-opening-hours.util';
+import {
+  parseOpeningHours,
+  isOpenDuring,
+} from './normalized-opening-hours.util';
 
 describe('parseOpeningHours', () => {
   it('parses a simple single range', () => {

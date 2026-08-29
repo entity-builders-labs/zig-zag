@@ -1,7 +1,10 @@
 import { calculateDistance } from '@shared/utils/distance.utils';
 import { SpatialFootprint } from '../interfaces/daily-planning.interface';
 
-export function buildPointFootprint(lat: number, lng: number): SpatialFootprint {
+export function buildPointFootprint(
+  lat: number,
+  lng: number,
+): SpatialFootprint {
   return { type: 'POINT', centroid: { lat, lng } };
 }
 

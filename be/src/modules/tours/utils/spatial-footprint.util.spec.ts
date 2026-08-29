@@ -1,4 +1,7 @@
-import { buildPointFootprint, footprintDistanceMeters } from './spatial-footprint.util';
+import {
+  buildPointFootprint,
+  footprintDistanceMeters,
+} from './spatial-footprint.util';
 
 describe('buildPointFootprint', () => {
   it('builds a POINT footprint from lat/lng', () => {

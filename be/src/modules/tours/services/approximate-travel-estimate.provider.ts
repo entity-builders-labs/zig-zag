@@ -10,7 +10,9 @@ import { TransportationMode } from '../interfaces/tour-generation.interface';
 import { footprintDistanceMeters } from '../utils/spatial-footprint.util';
 
 @Injectable()
-export class ApproximateTravelEstimateProvider implements TravelEstimateProvider {
+export class ApproximateTravelEstimateProvider
+  implements TravelEstimateProvider
+{
   constructor(
     @Inject(dailyPlanningPolicyConfig.KEY)
     private readonly policy: ConfigType<typeof dailyPlanningPolicyConfig>,
