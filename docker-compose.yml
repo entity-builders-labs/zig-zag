@@ -110,6 +110,10 @@ services:
       - ENABLE_AI=${ENABLE_AI}
       - AI_PROVIDER=${AI_PROVIDER}
       - AI_MODEL=${AI_MODEL}
+      - GEMINI_MODEL=${GEMINI_MODEL}
+      - GROQ_MODEL=${GROQ_MODEL}
+      - OPENAI_MODEL=${OPENAI_MODEL}
+      - OLLAMA_MODEL=${OLLAMA_MODEL}
       - EMBEDDINGS_MODEL=${EMBEDDINGS_MODEL}
       - EMBEDDING_PROVIDER=${EMBEDDING_PROVIDER}
       - EMBEDDING_DIMENSIONS=${EMBEDDING_DIMENSIONS}
@@ -118,11 +122,13 @@ services:
       - OLLAMA_API_KEY=${OLLAMA_API_KEY}
       - OLLAMA_NUM_CTX=${OLLAMA_NUM_CTX}
       - GROQ_API_KEY=${GROQ_API_KEY}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
       - STORAGE_PATH=${STORAGE_PATH}
       - AI_CACHE_MODE=${AI_CACHE_MODE}
       - MOCK_MAPS_MODE=${MOCK_MAPS_MODE}
       - ALLOW_API_FALLBACK=${ALLOW_API_FALLBACK}
       - USE_MOCK_MAPS=${USE_MOCK_MAPS}
+      - OVERPASS_API_URL=${OVERPASS_API_URL:-http://zigzag-overpass-argentina:80/api/interpreter}
       # Security / API docs
       - CORS_ORIGIN=${CORS_ORIGIN}
       - SWAGGER_ENABLED=${SWAGGER_ENABLED}
@@ -143,7 +149,7 @@ services:
       - SMTP_PASS=${SMTP_PASS}
       - SMTP_FROM=${SMTP_FROM}
     volumes:
-      - ./be:/app/be
+      - ${BACKEND_DIR:-./be}:/app/be
       - /app/node_modules
 
     networks:

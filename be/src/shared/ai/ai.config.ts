@@ -3,7 +3,7 @@ import { registerAs } from '@nestjs/config';
 export interface AiConfig {
   // General
   enableAi: boolean;
-  provider: 'openai' | 'groq' | 'ollama';
+  provider: 'openai' | 'groq' | 'ollama' | 'gemini';
   defaultModel: string;
   temperature: number;
   timeout: number;
@@ -11,6 +11,8 @@ export interface AiConfig {
   openaiApiKey?: string;
   // Groq
   groqApiKey?: string;
+  // Gemini
+  geminiApiKey?: string;
   // Ollama
   ollamaBaseUrl?: string;
   ollamaApiKey?: string;
@@ -38,27 +40,46 @@ function isEmbeddingModel(model: string): boolean {
 }
 
 export default registerAs('ai', (): AiConfig => {
-  const provider = (process.env.AI_PROVIDER as any) || 'openai';
+  const provider = (process.env.AI_PROVIDER as any) || 'gemini';
 
-  // Get the AI_MODEL from env or use defaults
-  let defaultModel =
-    process.env.AI_MODEL ||
-    (provider === 'openai'
-      ? process.env.OPENAI_DEFAULT_MODEL || 'gpt-3.5-turbo'
-      : 'llama3.2');
+  // Resolve model per provider with fallback to AI_MODEL override
+  let defaultModel = process.env.AI_MODEL;
+  if (!defaultModel) {
+    switch (provider) {
+      case 'gemini':
+        defaultModel = process.env.GEMINI_MODEL || 'gemini-3.6-flash';
+        break;
+      case 'groq':
+        defaultModel = process.env.GROQ_MODEL || 'openai/gpt-oss-20b';
+        break;
+      case 'ollama':
+        defaultModel = process.env.OLLAMA_MODEL || 'llama3.2';
+        break;
+      case 'openai':
+      default:
+        defaultModel =
+          process.env.OPENAI_MODEL ||
+          process.env.OPENAI_DEFAULT_MODEL ||
+          'gpt-4o-mini';
+        break;
+    }
+  }
 
-  // Validate that AI_MODEL is not an embedding model
-  // If it is, use a default chat model and log a warning
-  if (process.env.AI_MODEL && isEmbeddingModel(process.env.AI_MODEL)) {
+  // Validate that defaultModel is not an embedding model
+  if (defaultModel && isEmbeddingModel(defaultModel)) {
     const fallbackModel =
-      provider === 'openai'
-        ? process.env.OPENAI_DEFAULT_MODEL || 'gpt-3.5-turbo'
-        : 'llama3.2';
+      provider === 'gemini'
+        ? 'gemini-3.6-flash'
+        : provider === 'groq'
+          ? 'openai/gpt-oss-20b'
+          : provider === 'ollama'
+            ? 'llama3.2'
+            : 'gpt-4o-mini';
 
     console.warn(
-      `⚠️  Configuration warning: AI_MODEL is set to "${process.env.AI_MODEL}" which is an embedding model. ` +
+      `⚠️  Configuration warning: model "${defaultModel}" is an embedding model. ` +
         `Using "${fallbackModel}" for chat/generation instead. ` +
-        `Please set AI_MODEL to a chat model (e.g., "llama3.2", "gpt-3.5-turbo") and use EMBEDDINGS_MODEL for embedding models.`,
+        `Please set appropriate chat model and use EMBEDDINGS_MODEL for embeddings.`,
     );
     defaultModel = fallbackModel;
   }
@@ -77,6 +98,7 @@ export default registerAs('ai', (): AiConfig => {
     timeout: baseTimeout,
     openaiApiKey: process.env.OPENAI_API_KEY,
     groqApiKey: process.env.GROQ_API_KEY,
+    geminiApiKey: process.env.GEMINI_API_KEY,
     ollamaBaseUrl: process.env.OLLAMA_BASE_URL,
     ollamaApiKey: process.env.OLLAMA_API_KEY,
     ollamaNumCtx: process.env.OLLAMA_NUM_CTX
