@@ -6,6 +6,7 @@ import { useActivities } from '../../context/app';
 import { MapProps } from './types';
 import { Activity } from '../activities/types';
 import { Marker as MarkerType } from './types';
+import { ZIGZAG_WARM_MAP_STYLE } from '../../constants/map-style';
 
 // Exposes one Map instance's live polylines/polygons for E2E tests to assert
 // against (nothing renders to the DOM for a WebGL/canvas map, see the two
@@ -283,6 +284,7 @@ export const Map: React.FC<MapProps> = ({
         scrollwheel: true,
         disableDoubleClickZoom: false,
         clickableIcons: true,
+        styles: ZIGZAG_WARM_MAP_STYLE,
       }
     : {
         disableDefaultUI: true,
@@ -291,6 +293,7 @@ export const Map: React.FC<MapProps> = ({
         scrollwheel: false,
         disableDoubleClickZoom: true,
         clickableIcons: false,
+        styles: ZIGZAG_WARM_MAP_STYLE,
       };
 
   return (

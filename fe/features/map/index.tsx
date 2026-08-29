@@ -14,6 +14,7 @@ import { useActivities } from '../../context/app';
 import { MapProps } from './types';
 import { Activity } from '../activities/types';
 import { Marker as MarkerType } from './types';
+import { ZIGZAG_WARM_MAP_STYLE } from '../../constants/map-style';
 
 // Function to create markers from activities
 const createMarkersFromActivities = (activities: Activity[]): MarkerType[] => {
@@ -59,6 +60,7 @@ export const Map: React.FC<MapProps> = ({
       <MapView
         style={styles.map}
         region={region}
+        customMapStyle={ZIGZAG_WARM_MAP_STYLE}
         // Mostrar la ubicación real solo como referencia, pero marcamos el centro elegido
         showsUserLocation={false}
         toolbarEnabled={interactive}

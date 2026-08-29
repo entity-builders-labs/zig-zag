@@ -453,25 +453,44 @@ export default function MapScreen() {
               </VStack>
             </HStack>
 
-            <Button
-              onPress={() => handleGenerateTourFromPlace(selectedPlace)}
-              bg="$primary500"
-              borderRadius="$2xl"
-              h={42}
-              mt="$3"
-              shadowColor="$primary500"
-              shadowOffset={{ width: 0, height: 2 }}
-              shadowOpacity={0.25}
-              shadowRadius={4}
-              elevation={2}
-            >
-              <HStack space="xs" alignItems="center">
-                <Icon as={Sparkles} size="xs" color="$white" />
-                <ButtonText size="xs" fontWeight="$bold" color="$white">
-                  Diseñar Tour desde aquí con IA
-                </ButtonText>
-              </HStack>
-            </Button>
+            <HStack space="$2" mt="$3">
+              <Button
+                flex={1}
+                onPress={() => router.push(`/activities/${selectedPlace.id}`)}
+                bg="$backgroundLight100"
+                borderWidth={1}
+                borderColor="$borderLight200"
+                borderRadius="$2xl"
+                h={42}
+              >
+                <HStack space="xs" alignItems="center">
+                  <Icon as={Eye} size="xs" color="$textLight800" />
+                  <ButtonText size="xs" fontWeight="$bold" color="$textLight800">
+                    Ver Ficha
+                  </ButtonText>
+                </HStack>
+              </Button>
+
+              <Button
+                flex={2}
+                onPress={() => handleGenerateTourFromPlace(selectedPlace)}
+                bg="$primary500"
+                borderRadius="$2xl"
+                h={42}
+                shadowColor="$primary500"
+                shadowOffset={{ width: 0, height: 2 }}
+                shadowOpacity={0.25}
+                shadowRadius={4}
+                elevation={2}
+              >
+                <HStack space="xs" alignItems="center">
+                  <Icon as={Sparkles} size="xs" color="$secondary950" />
+                  <ButtonText size="xs" fontWeight="$bold" color="$secondary950">
+                    Crear Tour con IA ✨
+                  </ButtonText>
+                </HStack>
+              </Button>
+            </HStack>
           </Box>
         ) : (
           /* Place Carousel Preview */
