@@ -94,7 +94,7 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
   const [experienceFormats, setExperienceFormats] = useState<
     ExperienceFormat[]
-  >(['point_visits']);
+  >(['point_visits', 'neighborhood_walks']);
   const [explorationStyle, setExplorationStyle] =
     useState<ExplorationStyle>('balanced');
   const [walkingEffortProfile, setWalkingEffortProfile] =
