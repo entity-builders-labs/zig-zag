@@ -110,5 +110,7 @@ export class NotificationDeliveryService implements OnModuleInit {
         payload,
       );
     }
+    // Also broadcast to any active tour/user streams so open tour screens update instantly
+    this.sseHub.broadcastAll('activity.media.updated', payload);
   }
 }

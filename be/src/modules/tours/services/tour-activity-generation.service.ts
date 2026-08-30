@@ -1381,10 +1381,32 @@ export class TourActivityGenerationService {
       // doesn't need a query per row.
       const waypointIdsByActivityId = new Map<string, string[]>();
 
+      let activityEntities: Array<{
+        id: string;
+        name: string;
+        latitude: number;
+        longitude: number;
+        kind: ActivityKind;
+        type: string | null;
+        formattedAddress: string | null;
+        photos: any;
+        metadata: any;
+      }> = [];
+
       if (activityIds.length > 0) {
-        const activityEntities = await this.prisma.activity.findMany({
+        activityEntities = await this.prisma.activity.findMany({
           where: { id: { in: activityIds } },
-          select: { id: true, latitude: true, longitude: true, kind: true },
+          select: {
+            id: true,
+            name: true,
+            latitude: true,
+            longitude: true,
+            kind: true,
+            type: true,
+            formattedAddress: true,
+            photos: true,
+            metadata: true,
+          },
         });
 
         kindByActivityId = new Map(
@@ -1499,7 +1521,7 @@ export class TourActivityGenerationService {
           },
         });
 
-        // Enqueue TourCompleted event in outbox
+        // Enqueue TourCompleted and ActivityMediaEnrichmentRequested events in outbox
         if (this.outboxService) {
           try {
             await this.outboxService.createInTx(tx, {
@@ -1510,9 +1532,29 @@ export class TourActivityGenerationService {
                 totalActivities: activities.length,
               },
             });
+
+            for (const act of activityEntities) {
+              if (
+                !act.photos ||
+                (Array.isArray(act.photos) && act.photos.length === 0)
+              ) {
+                await this.outboxService.createInTx(tx, {
+                  eventType: 'ActivityMediaEnrichmentRequested',
+                  payload: {
+                    activityId: act.id,
+                    name: act.name,
+                    destinationLabel: request.destination?.label || act.formattedAddress,
+                    wikidataId: (act.metadata as any)?.wikidataId,
+                    latitude: act.latitude,
+                    longitude: act.longitude,
+                    category: act.type || act.kind,
+                  },
+                });
+              }
+            }
           } catch (outboxErr: any) {
             this.logger.warn(
-              `Failed to enqueue TourCompleted in outbox: ${outboxErr?.message}`,
+              `Failed to enqueue outbox events: ${outboxErr?.message}`,
             );
           }
         }

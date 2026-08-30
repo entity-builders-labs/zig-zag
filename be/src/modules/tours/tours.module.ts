@@ -24,6 +24,7 @@ import { TourPlanningFeasibilityValidatorService } from './services/tour-plannin
 import {
   DISCOVERY_PROVIDER,
   GROUNDED_SEARCH_PROVIDER,
+  GroundedSearchProvider,
   SearchGroundedDiscoveryProvider,
 } from './interfaces/activity-discovery.interface';
 import { PROPOSAL_RESOLVER } from './interfaces/proposal-resolution.interface';
@@ -89,14 +90,30 @@ import { OutboxModule } from '../outbox/outbox.module';
       useExisting: TourPlanningFeasibilityValidatorService,
     },
     {
-      // SerpApi is the default grounded-search evidence provider: a plain
-      // search API, so it never competes with the discovery-extraction
-      // provider's own token/rate quota (unlike Groq's browser_search tool,
-      // which shares that budget with extraction). GroqGroundedSearchService
-      // stays registered above as the alternate implementation behind the
-      // same interface — swap back by pointing useExisting at it.
       provide: GROUNDED_SEARCH_PROVIDER,
-      useExisting: SerpApiGroundedSearchService,
+      useFactory: (
+        config: AiConfig,
+        serpApi: SerpApiGroundedSearchService,
+        groq: GroqGroundedSearchService,
+      ): GroundedSearchProvider => {
+        const provider = (
+          process.env.GROUNDED_SEARCH_PROVIDER ||
+          (config.serpApiKey ? 'serpapi' : 'groq')
+        ).toLowerCase();
+
+        switch (provider) {
+          case 'groq':
+            return groq;
+          case 'serpapi':
+          default:
+            return serpApi;
+        }
+      },
+      inject: [
+        aiConfig.KEY,
+        SerpApiGroundedSearchService,
+        GroqGroundedSearchService,
+      ],
     },
     {
       // Config-driven (DISCOVERY_EXTRACTOR_PROVIDER), unlike

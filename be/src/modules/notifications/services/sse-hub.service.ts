@@ -77,4 +77,21 @@ export class SSEHubService {
     );
     return true;
   }
+
+  /**
+   * Broadcasts an event to all active channels.
+   */
+  broadcastAll(eventType: string, data: any): void {
+    for (const [channelId, subject] of this.streams.entries()) {
+      if (this.hasActiveClients(channelId)) {
+        subject.next({
+          type: eventType,
+          data,
+        });
+        this.logger.debug(
+          `[SSEHub] Broadcasted SSE "${eventType}" to channel "${channelId}".`,
+        );
+      }
+    }
+  }
 }
