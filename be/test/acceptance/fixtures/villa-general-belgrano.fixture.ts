@@ -1,10 +1,11 @@
+import { ActivityKind } from '@prisma/client';
 import { PlanningActivityCandidate } from 'src/modules/tours/interfaces/daily-planning.interface';
 import { ExperienceFormat } from 'src/modules/tours/interfaces/tour-generation.interface';
 
 export const VILLA_GENERAL_BELGRANO_CANDIDATES: PlanningActivityCandidate[] = [
   {
     activityId: 'vgb-paseo-arroyos',
-    kind: 'COMPOSITE',
+    kind: ActivityKind.NEIGHBORHOOD_WALK,
     title: 'Paseo de los Arroyos y Sendero Natural',
     durationMinutes: 90,
     semanticScore: 0.96,
@@ -57,6 +58,8 @@ export const VILLA_GENERAL_BELGRANO_CANDIDATES: PlanningActivityCandidate[] = [
     themes: ['nature', 'forest', 'hiking'],
   },
 ];
+
+export const VGB_CANDIDATES = VILLA_GENERAL_BELGRANO_CANDIDATES;
 
 export const ROSARIO_CANDIDATES: PlanningActivityCandidate[] = [
   {

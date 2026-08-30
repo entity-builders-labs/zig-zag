@@ -47,6 +47,10 @@ export class TourInputBuilder {
     return new TourInputBuilder();
   }
 
+  withDays(days: number): this {
+    return this.withRequestedDays(days);
+  }
+
   withRequestedDays(days: number): this {
     this.input.requestedDays = days;
     return this;
@@ -87,18 +91,39 @@ export class TourInputBuilder {
     return this;
   }
 
-  withPlanningWindow(window: DailyPlanningWindow): this {
-    this.input.planningWindow = window;
+  withPlanningWindow(
+    windowOrStart: DailyPlanningWindow | number,
+    end?: number,
+  ): this {
+    if (typeof windowOrStart === 'number' && typeof end === 'number') {
+      this.input.planningWindow = {
+        startMinutesFromMidnight: windowOrStart,
+        endMinutesFromMidnight: end,
+      };
+    } else if (typeof windowOrStart === 'object') {
+      this.input.planningWindow = windowOrStart;
+    }
     return this;
   }
 
-  withRequestedFormats(...formats: ExperienceFormat[]): this {
-    this.input.requestedFormats = formats;
+  withRequestedFormats(
+    formatsOrFirst: ExperienceFormat[] | ExperienceFormat,
+    ...rest: ExperienceFormat[]
+  ): this {
+    if (Array.isArray(formatsOrFirst)) {
+      this.input.requestedFormats = formatsOrFirst;
+    } else {
+      this.input.requestedFormats = [formatsOrFirst, ...rest];
+    }
     return this;
   }
 
-  withStartDates(...dates: string[]): this {
-    this.input.startDates = dates;
+  withStartDates(datesOrFirst: string[] | string, ...rest: string[]): this {
+    if (Array.isArray(datesOrFirst)) {
+      this.input.startDates = datesOrFirst;
+    } else {
+      this.input.startDates = [datesOrFirst, ...rest];
+    }
     return this;
   }
 

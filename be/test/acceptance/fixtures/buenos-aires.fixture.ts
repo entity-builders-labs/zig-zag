@@ -1,3 +1,4 @@
+import { ActivityKind } from '@prisma/client';
 import { PlanningActivityCandidate } from 'src/modules/tours/interfaces/daily-planning.interface';
 import { ExperienceFormat } from 'src/modules/tours/interfaces/tour-generation.interface';
 
@@ -61,7 +62,7 @@ export const BUENOS_AIRES_CANDIDATES: PlanningActivityCandidate[] = [
   },
   {
     activityId: 'ba-san-telmo-walk',
-    kind: 'COMPOSITE',
+    kind: ActivityKind.NEIGHBORHOOD_WALK,
     title: 'Paseo Histórico de Adoquines de San Telmo',
     durationMinutes: 90,
     semanticScore: 0.96,

@@ -1,3 +1,4 @@
+import { ActivityKind } from '@prisma/client';
 import { PlanningActivityCandidate } from 'src/modules/tours/interfaces/daily-planning.interface';
 import { ExperienceFormat } from 'src/modules/tours/interfaces/tour-generation.interface';
 
@@ -15,7 +16,7 @@ export const SAN_RAFAEL_CANDIDATES: PlanningActivityCandidate[] = [
       centroid: { lat: -34.618, lng: -68.397 },
     },
     formats: [ExperienceFormat.POINT_VISITS],
-    themes: ['wine', 'gastronomy', 'luxury'],
+    themes: ['wine', 'gastronomy', 'boutique'],
     openingHours: {
       status: 'known',
       rangesByWeekday: {
@@ -25,32 +26,43 @@ export const SAN_RAFAEL_CANDIDATES: PlanningActivityCandidate[] = [
         4: [{ startMinutesFromMidnight: 540, endMinutesFromMidnight: 1080 }],
         5: [{ startMinutesFromMidnight: 540, endMinutesFromMidnight: 1080 }],
         6: [{ startMinutesFromMidnight: 540, endMinutesFromMidnight: 1080 }],
-        0: [], // Cerrado domingos
+        0: [],
       },
     },
   },
   {
-    activityId: 'sr-bodega-suter',
+    activityId: 'sr-finca-los-alamos',
     kind: 'POI',
-    title: 'Bodega Suter',
-    durationMinutes: 75,
-    semanticScore: 0.92,
-    qualityScore: 0.9,
-    spatialFootprint: {
-      type: 'POINT',
-      centroid: { lat: -34.612, lng: -68.375 },
-    },
-    formats: [ExperienceFormat.POINT_VISITS],
-    themes: ['wine', 'history'],
-    openingHours: { status: 'unknown' },
-  },
-  {
-    activityId: 'sr-laberinto-borges',
-    kind: 'POI',
-    title: 'Laberinto de Borges',
+    title: 'Finca Los Álamos & Laberinto de Borges',
     durationMinutes: 90,
     semanticScore: 0.95,
-    qualityScore: 0.95,
+    qualityScore: 0.94,
+    spatialFootprint: {
+      type: 'POINT',
+      centroid: { lat: -34.632, lng: -68.375 },
+    },
+    formats: [ExperienceFormat.POINT_VISITS],
+    themes: ['literature', 'nature', 'wine'],
+    openingHours: {
+      status: 'known',
+      rangesByWeekday: {
+        1: [{ startMinutesFromMidnight: 600, endMinutesFromMidnight: 1140 }],
+        2: [{ startMinutesFromMidnight: 600, endMinutesFromMidnight: 1140 }],
+        3: [{ startMinutesFromMidnight: 600, endMinutesFromMidnight: 1140 }],
+        4: [{ startMinutesFromMidnight: 600, endMinutesFromMidnight: 1140 }],
+        5: [{ startMinutesFromMidnight: 600, endMinutesFromMidnight: 1140 }],
+        6: [{ startMinutesFromMidnight: 600, endMinutesFromMidnight: 1140 }],
+        0: [{ startMinutesFromMidnight: 600, endMinutesFromMidnight: 1140 }],
+      },
+    },
+  },
+  {
+    activityId: 'sr-plaza-francia',
+    kind: 'POI',
+    title: 'Parque Hipólito Yrigoyen y Plaza Francia',
+    durationMinutes: 60,
+    semanticScore: 0.91,
+    qualityScore: 0.9,
     spatialFootprint: {
       type: 'POINT',
       centroid: { lat: -34.655, lng: -68.278 },
@@ -63,7 +75,7 @@ export const SAN_RAFAEL_CANDIDATES: PlanningActivityCandidate[] = [
   // Cañón del Atuel & Valle Grande (Distancia de conducción)
   {
     activityId: 'sr-canon-del-atuel',
-    kind: 'COMPOSITE',
+    kind: ActivityKind.ROUTE,
     title: 'Ruta Escénica del Cañón del Atuel',
     durationMinutes: 180,
     semanticScore: 0.99,

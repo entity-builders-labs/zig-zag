@@ -27,8 +27,18 @@ export class CandidateBuilder {
     return new CandidateBuilder(id);
   }
 
+  withId(id: string): this {
+    this.candidate.activityId = id;
+    return this;
+  }
+
   withTitle(title: string): this {
     this.candidate.title = title;
+    return this;
+  }
+
+  withDuration(minutes: number): this {
+    this.candidate.durationMinutes = minutes;
     return this;
   }
 
@@ -42,6 +52,12 @@ export class CandidateBuilder {
       type: 'POINT',
       centroid: { lat, lng },
     };
+    return this;
+  }
+
+  withScores(semantic: number, quality: number): this {
+    this.candidate.semanticScore = semantic;
+    this.candidate.qualityScore = quality;
     return this;
   }
 
@@ -69,6 +85,10 @@ export class CandidateBuilder {
     this.candidate.familyId = familyId;
     this.candidate.variantKey = variantKey;
     return this;
+  }
+
+  withFamilyId(familyId: string, variantKey?: string): this {
+    return this.withFamily(familyId, variantKey);
   }
 
   withOpeningHours(hours: NormalizedOpeningHours): this {
