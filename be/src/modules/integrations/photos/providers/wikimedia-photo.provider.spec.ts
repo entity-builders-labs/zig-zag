@@ -12,7 +12,25 @@ describe("WikimediaPhotoProvider", () => {
     provider = new WikimediaPhotoProvider();
   });
 
-  it("should enrich activity from Wikipedia pageimages and extract", async () => {
+  it("should enrich activity from Wikipedia geosearch, page details, and extract", async () => {
+    // 1. Mock geosearch response
+    mockedAxios.get.mockResolvedValueOnce({
+      data: {
+        query: {
+          geosearch: [
+            {
+              pageid: 123,
+              title: "Palacio Barolo",
+              lat: -34.6096,
+              lon: -58.386,
+              dist: 12,
+            },
+          ],
+        },
+      },
+    });
+
+    // 2. Mock page details response
     mockedAxios.get.mockResolvedValueOnce({
       data: {
         query: {
@@ -37,9 +55,20 @@ describe("WikimediaPhotoProvider", () => {
       },
     });
 
+    // 3. Mock commons search response
+    mockedAxios.get.mockResolvedValueOnce({
+      data: {
+        query: {
+          pages: {},
+        },
+      },
+    });
+
     const result = await provider.enrichActivity({
       name: "Palacio Barolo",
       category: "cultural",
+      latitude: -34.6096,
+      longitude: -58.386,
     });
 
     expect(result.status).toBe("enriched");
@@ -55,6 +84,8 @@ describe("WikimediaPhotoProvider", () => {
 
     const result = await provider.enrichActivity({
       name: "Monumento Raro",
+      latitude: -34.6,
+      longitude: -58.38,
     });
 
     expect(result.status).toBe("failed");

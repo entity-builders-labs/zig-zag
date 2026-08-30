@@ -6,19 +6,6 @@ import {
 } from "../interfaces/photo-enrichment.interface";
 import { WikimediaPhotoProvider } from "./wikimedia-photo.provider";
 import { SerpApiPhotoProvider } from "./serpapi-photo.provider";
-import { MockPhotoProvider } from "./mock-photo.provider";
-
-const CULTURAL_CATEGORIES = new Set([
-  "cultural",
-  "history",
-  "museum",
-  "monument",
-  "architecture",
-  "park",
-  "outdoor",
-  "church",
-  "plaza",
-]);
 
 @Injectable()
 export class HybridPhotoProvider implements IPhotoEnrichmentProvider {
@@ -28,49 +15,41 @@ export class HybridPhotoProvider implements IPhotoEnrichmentProvider {
   constructor(
     private readonly wikimediaProvider: WikimediaPhotoProvider,
     private readonly serpApiProvider: SerpApiPhotoProvider,
-    private readonly mockProvider: MockPhotoProvider,
   ) {}
 
   async enrichActivity(
     query: PhotoEnrichmentQuery,
   ): Promise<ActivityEnrichmentResult> {
-    const categoryLower = (query.category || "").toLowerCase();
-    const isCultural =
-      Boolean(query.wikidataId) ||
-      CULTURAL_CATEGORIES.has(categoryLower) ||
-      categoryLower.includes("art") ||
-      categoryLower.includes("hist") ||
-      categoryLower.includes("cultur") ||
-      categoryLower.includes("monum");
-
-    // 1. If cultural, query Wikimedia first (Free / CC)
-    if (isCultural) {
+    // 1. If activity has coordinates or wikidataId, prioritize Wikimedia Commons verified photos
+    if (query.latitude != null && query.longitude != null || query.wikidataId) {
       this.logger.debug(
-        `[HybridPhotoProvider] Routing "${query.name}" to Wikimedia Commons (Cultural)`,
+        `[HybridPhotoProvider] Checking Wikimedia Commons for "${query.name}"`,
       );
       const wikiResult = await this.wikimediaProvider.enrichActivity(query);
       if (wikiResult.photos.length > 0) {
         return wikiResult;
       }
-      this.logger.debug(
-        `[HybridPhotoProvider] Wikimedia had no photos for "${query.name}", cascading to SerpApi`,
-      );
     }
 
-    // 2. Query SerpApi for commercial/gastronomy or cascade
+    // 2. Query SerpApi / Google Maps for verified business / place photos
     this.logger.debug(
-      `[HybridPhotoProvider] Routing "${query.name}" to SerpApi (Google Maps Engine)`,
+      `[HybridPhotoProvider] Checking SerpApi Google Maps for "${query.name}"`,
     );
     const serpResult = await this.serpApiProvider.enrichActivity(query);
     if (serpResult.photos.length > 0) {
       return serpResult;
     }
 
-    // 3. Fallback to mock provider to guarantee clean UI experience
+    // 3. Strict discard policy: If no verified photos are found, return empty array (NEVER inject fake/generic photos)
     this.logger.debug(
-      `[HybridPhotoProvider] Falling back to MockProvider for "${query.name}"`,
+      `[HybridPhotoProvider] No verified photos found for "${query.name}". Discarding to avoid incorrect photos.`,
     );
-    return this.mockProvider.enrichActivity(query);
+    return {
+      photos: [],
+      highlights: [],
+      status: "failed",
+      provider: this.providerName,
+    };
   }
 
   async enrichBatch(

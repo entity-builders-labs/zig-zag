@@ -180,6 +180,14 @@ export default function ActivityDetailScreen() {
   const durationMin = activity.duration || activity.metadata?.recommendedDuration || 90;
   const durationFormatted = durationMin >= 60 ? `${Math.floor(durationMin / 60)}h ${durationMin % 60 > 0 ? `${durationMin % 60}m` : ''}` : `${durationMin}m`;
 
+  const handleBack = () => {
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace('/(tabs)');
+    }
+  };
+
   return (
     <>
       <Stack.Screen options={{ headerShown: false }} />
@@ -219,7 +227,7 @@ export default function ActivityDetailScreen() {
               zIndex={10}
             >
               <Pressable
-                onPress={() => router.back()}
+                onPress={handleBack}
                 w={40}
                 h={40}
                 rounded='$full'
@@ -231,6 +239,7 @@ export default function ActivityDetailScreen() {
                 shadowOpacity={0.15}
                 shadowRadius={4}
                 elevation={3}
+                testID='activity-back-button'
               >
                 <ArrowLeft size={20} color='#0F172A' />
               </Pressable>

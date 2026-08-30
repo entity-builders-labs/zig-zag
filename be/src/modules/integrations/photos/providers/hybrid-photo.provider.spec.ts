@@ -1,13 +1,11 @@
 import { HybridPhotoProvider } from "./hybrid-photo.provider";
 import { WikimediaPhotoProvider } from "./wikimedia-photo.provider";
 import { SerpApiPhotoProvider } from "./serpapi-photo.provider";
-import { MockPhotoProvider } from "./mock-photo.provider";
 
 describe("HybridPhotoProvider", () => {
   let provider: HybridPhotoProvider;
   let mockWikimedia: jest.Mocked<WikimediaPhotoProvider>;
   let mockSerpApi: jest.Mocked<SerpApiPhotoProvider>;
-  let mockFallback: MockPhotoProvider;
 
   beforeEach(() => {
     mockWikimedia = {
@@ -22,12 +20,9 @@ describe("HybridPhotoProvider", () => {
       enrichBatch: jest.fn(),
     } as any;
 
-    mockFallback = new MockPhotoProvider();
-
     provider = new HybridPhotoProvider(
       mockWikimedia,
       mockSerpApi,
-      mockFallback,
     );
   });
 
@@ -66,6 +61,8 @@ describe("HybridPhotoProvider", () => {
     const result = await provider.enrichActivity({
       name: "Museo Poco Conocido",
       category: "museum",
+      latitude: -34.6,
+      longitude: -58.38,
     });
 
     expect(mockWikimedia.enrichActivity).toHaveBeenCalled();
@@ -73,7 +70,7 @@ describe("HybridPhotoProvider", () => {
     expect(result.provider).toBe("serpapi");
   });
 
-  it("should route food/cafe directly to SerpApi", async () => {
+  it("should route query without coords/wikidata directly to SerpApi", async () => {
     mockSerpApi.enrichActivity.mockResolvedValueOnce({
       photos: [{ url: "https://lh3.googleusercontent.com/p/cafe", sourceProvider: "serpapi" }],
       highlights: ["Café histórico"],
