@@ -93,6 +93,11 @@ model Activity {
   photos           Json?
   openingHours     Json?
 
+  // Media enrichment status
+  mediaStatus      MediaStatus @default(PENDING)
+  mediaUpdatedAt   DateTime?
+  mediaError       String?
+
   // Flexible metadata - store anything from AI prompts
   metadata Json? // Store AI-generated data, tags, recommendations, etc.
 
@@ -447,3 +452,53 @@ model ActivityRelationship {
   @@index([compatibilityScore, timeCompatibilityScore, distanceScore, varietyScore])
   @@map("activity_relationship")
 }
+
+enum MediaStatus {
+  PENDING
+  ENRICHED
+  FAILED
+}
+
+enum OutboxStatus {
+  PENDING
+  PROCESSING
+  PUBLISHED
+  FAILED
+}
+
+model OutboxEvent {
+  id            String       @id @default(uuid())
+  eventType     String
+  payload       Json
+  status        OutboxStatus @default(PENDING)
+  attemptCount  Int          @default(0)
+  maxAttempts   Int          @default(5)
+  nextAttemptAt DateTime?
+  lastError     String?
+  claimedAt     DateTime?
+  leaseUntil    DateTime?
+  publishedAt   DateTime?
+  failedAt      DateTime?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  @@index([status, nextAttemptAt, createdAt])
+  @@index([status, leaseUntil])
+  @@index([status, publishedAt])
+  @@index([status, failedAt])
+  @@map("outbox_event")
+}
+
+model NegativeMediaLookup {
+  id             String   @id @default(uuid())
+  provider       String
+  lookupStrategy String
+  lookupKey      String
+  negativeUntil  DateTime
+  createdAt      DateTime @default(now())
+
+  @@unique([provider, lookupStrategy, lookupKey])
+  @@index([provider, lookupStrategy, lookupKey, negativeUntil])
+  @@map("negative_media_lookup")
+}
+
