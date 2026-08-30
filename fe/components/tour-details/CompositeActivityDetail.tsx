@@ -131,7 +131,7 @@ export const CompositeActivityDetail = ({
                     setActivePhotoIndex(index);
                   }}
                 >
-                  {gallery.map((photo, index) => (
+                  {gallery.map((photoUrl, index) => (
                     <Box
                       key={index}
                       width={screenWidth}
@@ -139,27 +139,12 @@ export const CompositeActivityDetail = ({
                       position='relative'
                     >
                       <Image
-                        source={{ uri: photo.url }}
-                        alt={photo.caption || activity.name}
+                        source={{ uri: photoUrl }}
+                        alt={activity.name}
                         w='$full'
                         h='$full'
                         resizeMode='cover'
                       />
-                      {photo.author && (
-                        <Box
-                          position='absolute'
-                          bottom={8}
-                          right={8}
-                          bg='rgba(0,0,0,0.6)'
-                          px='$2'
-                          py='$0.5'
-                          rounded='$md'
-                        >
-                          <Text color='$white' fontSize={10}>
-                            📷 {photo.author}
-                          </Text>
-                        </Box>
-                      )}
                     </Box>
                   ))}
                 </ScrollView>
