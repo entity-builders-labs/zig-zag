@@ -163,4 +163,17 @@ export class ActivitiesController {
   async searchWithCrawling(@Body() searchDto: HybridSearchDto) {
     return this.hybridSearchService.searchActivitiesWithCrawling(searchDto);
   }
+
+  @Post(':id/enrich')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Enrich activity photos and highlights from configured provider' })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns the enriched activity',
+    type: ActivityResponseDto,
+  })
+  @ApiResponse({ status: 404, description: 'Activity not found' })
+  async enrichActivity(@Param('id') id: string) {
+    return this.activitiesService.enrichActivityPhotosAndHighlights(id);
+  }
 }

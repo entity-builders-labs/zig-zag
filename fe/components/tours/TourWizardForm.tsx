@@ -28,6 +28,7 @@ import {
 import { Map } from '@/features/map';
 import { AppContext } from '@/context/app';
 import { FONT_DISPLAY } from '@/constants/typography';
+import { DEFAULT_LOCATION } from '@/api/config/constants';
 import { DateRangePicker } from './DateRangePicker';
 import { DestinationInput } from './DestinationInput';
 import { TourWizardIntentStep } from './TourWizardIntentStep';
@@ -93,7 +94,7 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
   const [experienceFormats, setExperienceFormats] = useState<
     ExperienceFormat[]
-  >(['point_visits']);
+  >(['point_visits', 'neighborhood_walks']);
   const [explorationStyle, setExplorationStyle] =
     useState<ExplorationStyle>('balanced');
   const [walkingEffortProfile, setWalkingEffortProfile] =
@@ -236,9 +237,14 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
       if (!Number.isNaN(date.getTime())) startDates.push(date.toISOString());
     }
 
-    const latitude = destinationCoords?.lat ?? initialLocation?.lat;
-    const longitude = destinationCoords?.lng ?? initialLocation?.lng;
-    if (latitude === undefined || longitude === undefined) return;
+    const latitude =
+      destinationCoords?.lat ??
+      initialLocation?.lat ??
+      DEFAULT_LOCATION.LATITUDE;
+    const longitude =
+      destinationCoords?.lng ??
+      initialLocation?.lng ??
+      DEFAULT_LOCATION.LONGITUDE;
 
     onSubmit({
       destination: {

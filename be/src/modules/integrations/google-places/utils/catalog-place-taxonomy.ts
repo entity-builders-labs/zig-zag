@@ -21,7 +21,6 @@ export const CATALOG_ACQUISITION_TYPE_GROUPS = {
       'sculpture',
       'plaza',
       'observation_deck',
-      'church',
     ],
     preferredTime: 'day',
   },

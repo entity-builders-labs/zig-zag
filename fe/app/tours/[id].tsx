@@ -13,7 +13,8 @@ import {
   Pressable,
 } from '@gluestack-ui/themed';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
-import { ChevronDown, ChevronUp, MapPin, Footprints } from 'lucide-react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { ChevronDown, ChevronUp, MapPin, Footprints, ArrowLeft } from 'lucide-react-native';
 import { fetchTourById, Tour } from '../../api/tours';
 import { TourHeader } from '../../components/tour-details/TourHeader';
 import { TourMapView } from '../../components/tour-details/TourMapView';
@@ -36,6 +37,7 @@ import { copyTextToClipboard } from '@/utils/copy-to-clipboard';
 export default function TourDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const [tour, setTour] = useState<Tour | null>(null);
   const [loading, setLoading] = useState(true);
   const [stops, setStops] = useState<TourStop[]>([]);
@@ -43,6 +45,14 @@ export default function TourDetailScreen() {
   const [generationMessage, setGenerationMessage] = useState<string>('');
   const [generationError, setGenerationError] = useState<string>('');
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
+
+  const handleBack = () => {
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace('/(tabs)/saved');
+    }
+  };
 
   const generationTrace: GenerationTrace | null = useMemo(() => {
     if (!tour?.metadata) return null;
@@ -267,78 +277,96 @@ export default function TourDetailScreen() {
           shadowRadius={16}
           elevation={4}
         >
-          {/* Sticky Top Segmented Control (Itinerario vs Mapa de Ruta) */}
+          {/* Sticky Top Header with Safe Area, Back Button & Segmented Control */}
           <Box
-            px='$4'
-            py='$2.5'
+            pt={Math.max(insets.top, 12)}
+            pb='$2.5'
+            px='$3'
             bg='$white'
             borderBottomWidth={1}
             borderBottomColor='$borderLight100'
             zIndex={20}
           >
-            <HStack
-              bg='$backgroundLight100'
-              p='$1'
-              borderRadius='$2xl'
-              alignItems='center'
-            >
+            <HStack space='sm' alignItems='center'>
               <Pressable
-                flex={1}
-                py='$2'
-                borderRadius='$xl'
-                bg={viewMode === 'list' ? '$white' : 'transparent'}
-                shadowColor={viewMode === 'list' ? '$black' : 'transparent'}
-                shadowOffset={{ width: 0, height: 1 }}
-                shadowOpacity={viewMode === 'list' ? 0.08 : 0}
-                shadowRadius={3}
-                elevation={viewMode === 'list' ? 2 : 0}
-                onPress={() => setViewMode('list')}
-                testID='view-toggle-list'
+                onPress={handleBack}
+                w={40}
+                h={40}
+                borderRadius='$full'
+                bg='$backgroundLight100'
+                alignItems='center'
+                justifyContent='center'
+                testID='tour-header-back-button'
+                accessibilityLabel='Volver'
               >
-                <HStack space='xs' justifyContent='center' alignItems='center'>
-                  <Icon
-                    as={Footprints}
-                    size='xs'
-                    color={viewMode === 'list' ? '$primary600' : '$textLight500'}
-                  />
-                  <Text
-                    size='xs'
-                    fontWeight='$bold'
-                    color={viewMode === 'list' ? '$textLight900' : '$textLight500'}
-                  >
-                    Itinerario ({stopCount} paradas)
-                  </Text>
-                </HStack>
+                <Icon as={ArrowLeft} size='md' color='$textLight800' />
               </Pressable>
 
-              <Pressable
+              <HStack
                 flex={1}
-                py='$2'
-                borderRadius='$xl'
-                bg={viewMode === 'map' ? '$white' : 'transparent'}
-                shadowColor={viewMode === 'map' ? '$black' : 'transparent'}
-                shadowOffset={{ width: 0, height: 1 }}
-                shadowOpacity={viewMode === 'map' ? 0.08 : 0}
-                shadowRadius={3}
-                elevation={viewMode === 'map' ? 2 : 0}
-                onPress={() => setViewMode('map')}
-                testID='view-toggle-map'
+                bg='$backgroundLight100'
+                p='$1'
+                borderRadius='$2xl'
+                alignItems='center'
               >
-                <HStack space='xs' justifyContent='center' alignItems='center'>
-                  <Icon
-                    as={MapPin}
-                    size='xs'
-                    color={viewMode === 'map' ? '$primary600' : '$textLight500'}
-                  />
-                  <Text
-                    size='xs'
-                    fontWeight='$bold'
-                    color={viewMode === 'map' ? '$textLight900' : '$textLight500'}
-                  >
-                    Mapa de Ruta 🗺️
-                  </Text>
-                </HStack>
-              </Pressable>
+                <Pressable
+                  flex={1}
+                  py='$2'
+                  borderRadius='$xl'
+                  bg={viewMode === 'list' ? '$white' : 'transparent'}
+                  shadowColor={viewMode === 'list' ? '$black' : 'transparent'}
+                  shadowOffset={{ width: 0, height: 1 }}
+                  shadowOpacity={viewMode === 'list' ? 0.08 : 0}
+                  shadowRadius={3}
+                  elevation={viewMode === 'list' ? 2 : 0}
+                  onPress={() => setViewMode('list')}
+                  testID='view-toggle-list'
+                >
+                  <HStack space='xs' justifyContent='center' alignItems='center'>
+                    <Icon
+                      as={Footprints}
+                      size='xs'
+                      color={viewMode === 'list' ? '$primary600' : '$textLight500'}
+                    />
+                    <Text
+                      size='xs'
+                      fontWeight='$bold'
+                      color={viewMode === 'list' ? '$textLight900' : '$textLight500'}
+                    >
+                      Itinerario ({stopCount})
+                    </Text>
+                  </HStack>
+                </Pressable>
+
+                <Pressable
+                  flex={1}
+                  py='$2'
+                  borderRadius='$xl'
+                  bg={viewMode === 'map' ? '$white' : 'transparent'}
+                  shadowColor={viewMode === 'map' ? '$black' : 'transparent'}
+                  shadowOffset={{ width: 0, height: 1 }}
+                  shadowOpacity={viewMode === 'map' ? 0.08 : 0}
+                  shadowRadius={3}
+                  elevation={viewMode === 'map' ? 2 : 0}
+                  onPress={() => setViewMode('map')}
+                  testID='view-toggle-map'
+                >
+                  <HStack space='xs' justifyContent='center' alignItems='center'>
+                    <Icon
+                      as={MapPin}
+                      size='xs'
+                      color={viewMode === 'map' ? '$primary600' : '$textLight500'}
+                    />
+                    <Text
+                      size='xs'
+                      fontWeight='$bold'
+                      color={viewMode === 'map' ? '$textLight900' : '$textLight500'}
+                    >
+                      Mapa 🗺️
+                    </Text>
+                  </HStack>
+                </Pressable>
+              </HStack>
             </HStack>
           </Box>
 

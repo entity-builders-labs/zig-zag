@@ -17,6 +17,14 @@ export type ActivityKind =
   | 'AREA'
   | 'EXPERIENCE';
 
+export function isCompositeKind(kind?: ActivityKind | string | null): boolean {
+  return (
+    kind === 'NEIGHBORHOOD_WALK' ||
+    kind === 'ROUTE' ||
+    kind === 'EXPERIENCE'
+  );
+}
+
 // Mirrors be/prisma/schema.prisma's GeoJsonGeometry — only the two shapes
 // Activity.boundary ever actually takes (Polygon/MultiPolygon for kind:
 // area, LineString for a top-level kind: route). GeoJSON coordinates are
@@ -35,6 +43,9 @@ export interface ActivityWaypointRef {
   waypointActivity: {
     id: string;
     name: string;
+    type?: string;
+    formattedAddress?: string;
+    photos?: any;
     latitude?: number;
     longitude?: number;
   };
@@ -58,14 +69,8 @@ export interface CompositeActivityFields {
   variantTheme?: string;
   boundary?: ActivityBoundary;
   // Only populated by GET /activities/:id — this variant's own current
-  // ordered waypoints (empty for a POI). Distinct from a TourStop's
-  // waypoints, which are a per-tour TourActivityWaypoint snapshot instead.
+  // content (when kind is NEIGHBORHOOD_WALK/ROUTE/EXPERIENCE), not a tour
+  // snapshot. For a TourActivity's frozen snapshot, use the inline
+  // `waypoints` array on TourActivity instead.
   waypoints?: ActivityWaypointRef[];
-}
-
-// AREA is excluded too — it's a structural container (the geographic
-// boundary a family belongs to), never something a TourActivity should
-// itself render as a composite stop.
-export function isCompositeKind(kind?: ActivityKind): boolean {
-  return !!kind && kind !== 'POI' && kind !== 'AREA';
 }

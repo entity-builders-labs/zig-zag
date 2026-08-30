@@ -3,6 +3,8 @@ import {
   Logger,
   NotFoundException,
   BadRequestException,
+  Inject,
+  Optional,
 } from '@nestjs/common';
 import { PrismaService } from '../../../core/database/prisma.service';
 import { CreateActivityDto } from '../dto/create-activity.dto';
@@ -12,6 +14,8 @@ import { Prisma, Activity, ActivityKind } from '@prisma/client';
 import { ActivityMetadataDto } from '../dto/activity-metadata.dto';
 import { ActivityMetadataService } from './activity-metadata.service';
 import { VectorStoreService } from '../../../shared/ai/services/vector-store.service';
+import { IPhotoEnrichmentProvider } from '../../integrations/photos/interfaces/photo-enrichment.interface';
+import { OutboxService } from '../../outbox/services/outbox.service';
 import {
   ActivityWithDistance,
   CreateManyResult,
@@ -37,6 +41,11 @@ export class ActivitiesService {
     private readonly prisma: PrismaService,
     private readonly metadataService: ActivityMetadataService,
     private readonly vectorStore: VectorStoreService,
+    @Optional()
+    @Inject('PhotoEnrichmentProvider')
+    private readonly photoProvider?: IPhotoEnrichmentProvider,
+    @Optional()
+    private readonly outboxService?: OutboxService,
   ) {}
 
   /**
@@ -122,23 +131,78 @@ export class ActivitiesService {
         }
       }
 
-      // Optionally generate image if photos are empty
+      // Enrich photos and highlights via configured PhotoEnrichmentProvider
       if (
         (!activityData.photos ||
           (Array.isArray(activityData.photos) &&
             activityData.photos.length === 0)) &&
         createActivityDto.name
       ) {
-        try {
-          const imageUrl =
-            await this.metadataService.generateActivityImage(createActivityDto);
-          if (imageUrl) {
-            activityData.photos = [imageUrl];
+        if (this.photoProvider) {
+          try {
+            const enrichment = await this.photoProvider.enrichActivity({
+              name: createActivityDto.name,
+              category: createActivityDto.type,
+              latitude: createActivityDto.latitude,
+              longitude: createActivityDto.longitude,
+              formattedAddress: createActivityDto.formattedAddress,
+              placeId:
+                (createActivityDto as any).placeId ||
+                createActivityDto.externalId,
+            });
+
+            if (enrichment.photos && enrichment.photos.length > 0) {
+              activityData.photos =
+                enrichment.photos as unknown as Prisma.InputJsonValue;
+            }
+
+            if (enrichment.highlights?.length || enrichment.curatorTip) {
+              const existingMeta =
+                typeof activityData.metadata === 'object' &&
+                activityData.metadata !== null
+                  ? (activityData.metadata as Record<string, any>)
+                  : {};
+              activityData.metadata = {
+                ...existingMeta,
+                ...(enrichment.highlights?.length
+                  ? { highlights: enrichment.highlights }
+                  : {}),
+                ...(enrichment.curatorTip
+                  ? { curatorTip: enrichment.curatorTip }
+                  : {}),
+              } as unknown as Prisma.InputJsonValue;
+            }
+          } catch (error) {
+            this.logger.warn(
+              `Failed to enrich photos via PhotoEnrichmentProvider: ${error instanceof Error ? error.message : 'Unknown error'}`,
+            );
           }
-        } catch (error) {
-          this.logger.warn(
-            `Failed to generate activity image: ${error instanceof Error ? error.message : 'Unknown error'}`,
-          );
+        }
+
+        // Fallback to image generation if still no photos
+        if (
+          !activityData.photos ||
+          (Array.isArray(activityData.photos) &&
+            activityData.photos.length === 0)
+        ) {
+          try {
+            const imageUrl =
+              await this.metadataService.generateActivityImage(
+                createActivityDto,
+              );
+            if (imageUrl) {
+              activityData.photos = [
+                {
+                  url: imageUrl,
+                  sourceProvider: 'ai-generated',
+                },
+              ] as unknown as Prisma.InputJsonValue;
+            }
+          } catch (error) {
+            this.logger.warn(
+              `Failed to generate activity image fallback: ${error instanceof Error ? error.message : 'Unknown error'}`,
+            );
+          }
         }
       }
 
@@ -146,6 +210,30 @@ export class ActivitiesService {
       const activity = await this.prisma.activity.create({
         data: activityData,
       });
+
+      // Enqueue asynchronous media enrichment in outbox if needed
+      if (
+        this.outboxService &&
+        (!activityData.photos ||
+          (Array.isArray(activityData.photos) && activityData.photos.length === 0))
+      ) {
+        try {
+          await this.outboxService.create({
+            eventType: 'ActivityMediaEnrichmentRequested',
+            payload: {
+              activityId: activity.id,
+              name: activity.name,
+              destinationLabel: activity.formattedAddress || undefined,
+              latitude: activity.latitude,
+              longitude: activity.longitude,
+            },
+          });
+        } catch (err: any) {
+          this.logger.warn(
+            `Failed to enqueue ActivityMediaEnrichmentRequested event: ${err?.message}`,
+          );
+        }
+      }
 
       this.logger.debug(
         `Activity created successfully with id: ${activity.id}`,
@@ -808,5 +896,86 @@ export class ActivitiesService {
       );
       throw error;
     }
+  }
+
+  /**
+   * Enrich photos and highlights for an existing activity using the configured provider
+   * @param id Activity ID to enrich
+   * @returns Updated activity
+   */
+  async enrichActivityPhotosAndHighlights(id: string): Promise<Activity> {
+    const activity = await this.findOne(id);
+    if (!this.photoProvider) {
+      this.logger.warn('No PhotoEnrichmentProvider configured');
+      return activity;
+    }
+
+    try {
+      this.logger.debug(
+        `Enriching photos and highlights for activity ${activity.name} (${id})`,
+      );
+      const enrichment = await this.photoProvider.enrichActivity({
+        id: activity.id,
+        name: activity.name,
+        category: activity.type || undefined,
+        latitude: activity.latitude ? Number(activity.latitude) : undefined,
+        longitude: activity.longitude ? Number(activity.longitude) : undefined,
+        formattedAddress: activity.formattedAddress || undefined,
+        placeId: (activity as any).placeId || activity.externalId || undefined,
+      });
+
+      const updateData: Prisma.ActivityUpdateInput = {};
+
+      if (enrichment.photos && enrichment.photos.length > 0) {
+        updateData.photos = enrichment.photos as unknown as Prisma.InputJsonValue;
+      }
+
+      if (enrichment.highlights?.length || enrichment.curatorTip) {
+        const existingMeta =
+          typeof activity.metadata === 'object' && activity.metadata !== null
+            ? (activity.metadata as Record<string, any>)
+            : {};
+        updateData.metadata = {
+          ...existingMeta,
+          ...(enrichment.highlights?.length
+            ? { highlights: enrichment.highlights }
+            : {}),
+          ...(enrichment.curatorTip
+            ? { curatorTip: enrichment.curatorTip }
+            : {}),
+        } as unknown as Prisma.InputJsonValue;
+      }
+
+      if (Object.keys(updateData).length === 0) {
+        return activity;
+      }
+
+      return await this.prisma.activity.update({
+        where: { id },
+        data: updateData,
+      });
+    } catch (error) {
+      this.logger.error(
+        `Failed to enrich photos and highlights for ${id}: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
+      return activity;
+    }
+  }
+
+  /**
+   * Batch enrich photos and highlights for multiple activities
+   * @param activityIds List of IDs to enrich
+   */
+  async batchEnrichActivities(activityIds: string[]): Promise<Activity[]> {
+    const results: Activity[] = [];
+    for (const id of activityIds) {
+      try {
+        const updated = await this.enrichActivityPhotosAndHighlights(id);
+        results.push(updated);
+      } catch (err) {
+        this.logger.warn(`Failed to enrich activity ${id}: ${err}`);
+      }
+    }
+    return results;
   }
 }

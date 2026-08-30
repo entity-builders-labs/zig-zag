@@ -143,20 +143,20 @@ export default function LoginScreen() {
         style={{ flex: 1, width: '100%' }}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 40 : 0}
       >
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-          <ScrollView
-            contentContainerStyle={{
-              flexGrow: 1,
-              justifyContent: 'center',
-              alignItems: 'center',
-              paddingHorizontal: 20,
-              paddingVertical: 32,
-            }}
-            keyboardShouldPersistTaps='handled'
-            showsVerticalScrollIndicator={false}
-          >
-            {/* Responsive Centered Shell */}
-            <Box w='$full' maxW={440} zIndex={1}>
+        <ScrollView
+          contentContainerStyle={{
+            flexGrow: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            paddingHorizontal: 20,
+            paddingVertical: 32,
+          }}
+          keyboardShouldPersistTaps='handled'
+          keyboardDismissMode='interactive'
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Responsive Centered Shell */}
+          <Box w='$full' maxW={440} zIndex={1}>
         {/* Brand Header */}
         <VStack alignItems='center' mt='$10' space='xs'>
           <Box
@@ -466,9 +466,8 @@ export default function LoginScreen() {
           </Text>
         </VStack>
       </Box>
-    </ScrollView>
-  </TouchableWithoutFeedback>
-</KeyboardAvoidingView>
-</Box>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </Box>
   );
 }

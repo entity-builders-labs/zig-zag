@@ -34,6 +34,7 @@ interface StopWithLocation {
   title: string;
   order: number;
   dayNumber: number;
+  category?: string;
 }
 
 export const TourHeader = ({
@@ -179,6 +180,14 @@ export const TourHeader = ({
       : tour.activities?.[0]?.activityType
         ? [tour.activities[0].activityType]
         : ['']);
+  const handleBack = () => {
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace('/(tabs)/saved');
+    }
+  };
+
   return (
     <Box
       height={expanded ? EXPANDED_HEIGHT : COLLAPSED_HEIGHT}
@@ -234,24 +243,6 @@ export const TourHeader = ({
           opacity={0.4}
         />
       )}
-
-      {/* Floating Back Button */}
-      <Box position='absolute' top={16} left={16} zIndex={10}>
-        <Pressable onPress={() => router.back()}>
-          <Box
-            w={40}
-            h={40}
-            borderRadius='$full'
-            bg='rgba(0, 0, 0, 0.45)'
-            alignItems='center'
-            justifyContent='center'
-            borderWidth={1}
-            borderColor='rgba(255, 255, 255, 0.3)'
-          >
-            <Icon as={ArrowLeft} color='$white' size='md' />
-          </Box>
-        </Pressable>
-      </Box>
 
       {/* Multi-day selector in expanded mode */}
       {expanded && availableDays.length > 1 && (

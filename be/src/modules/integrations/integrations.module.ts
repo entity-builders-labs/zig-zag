@@ -14,6 +14,7 @@ import {
 } from '@integrations/google-places/interfaces/places-api.interface';
 import { OsmModule } from './osm/osm.module';
 import { WikidataModule } from './wikidata/wikidata.module';
+import { PhotosModule } from './photos/photos.module';
 
 export function createRealPlacesApiService(
   configService: ConfigService,
@@ -54,6 +55,7 @@ export function createPlacesApiService(
     AiModule,
     OsmModule,
     WikidataModule,
+    PhotosModule,
   ],
   providers: [
     PrismaService,
@@ -72,6 +74,12 @@ export function createPlacesApiService(
     },
     GooglePlacesService,
   ],
-  exports: [GooglePlacesService, 'PlacesApiService', OsmModule, WikidataModule],
+  exports: [
+    GooglePlacesService,
+    'PlacesApiService',
+    OsmModule,
+    WikidataModule,
+    PhotosModule,
+  ],
 })
 export class IntegrationsModule {}

@@ -4,11 +4,13 @@ import {
   Injectable,
   Logger,
   NotFoundException,
+  Optional,
 } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { ActivityKind } from '@prisma/client';
 import { PrismaService } from '@core/database/prisma.service';
 import { ActivitiesService } from '@activities/services/activities.service';
+import { OutboxService } from '../../outbox/services/outbox.service';
 import { VectorStoreService } from '@shared/ai/services/vector-store.service';
 import {
   GooglePlacesService,
@@ -138,6 +140,8 @@ export class TourActivityGenerationService {
     private readonly dailyPlanningPolicy: ConfigType<
       typeof dailyPlanningPolicyConfig
     >,
+    @Optional()
+    private readonly outboxService?: OutboxService,
   ) {}
 
   /** PR10: no new Prisma columns. If a real base date exists, combine it
@@ -1377,10 +1381,32 @@ export class TourActivityGenerationService {
       // doesn't need a query per row.
       const waypointIdsByActivityId = new Map<string, string[]>();
 
+      let activityEntities: Array<{
+        id: string;
+        name: string;
+        latitude: number;
+        longitude: number;
+        kind: ActivityKind;
+        type: string | null;
+        formattedAddress: string | null;
+        photos: any;
+        metadata: any;
+      }> = [];
+
       if (activityIds.length > 0) {
-        const activityEntities = await this.prisma.activity.findMany({
+        activityEntities = await this.prisma.activity.findMany({
           where: { id: { in: activityIds } },
-          select: { id: true, latitude: true, longitude: true, kind: true },
+          select: {
+            id: true,
+            name: true,
+            latitude: true,
+            longitude: true,
+            kind: true,
+            type: true,
+            formattedAddress: true,
+            photos: true,
+            metadata: true,
+          },
         });
 
         kindByActivityId = new Map(
@@ -1494,6 +1520,44 @@ export class TourActivityGenerationService {
             },
           },
         });
+
+        // Enqueue TourCompleted and ActivityMediaEnrichmentRequested events in outbox
+        if (this.outboxService) {
+          try {
+            await this.outboxService.createInTx(tx, {
+              eventType: 'TourCompleted',
+              payload: {
+                tourId,
+                status: 'COMPLETED',
+                totalActivities: activities.length,
+              },
+            });
+
+            for (const act of activityEntities) {
+              if (
+                !act.photos ||
+                (Array.isArray(act.photos) && act.photos.length === 0)
+              ) {
+                await this.outboxService.createInTx(tx, {
+                  eventType: 'ActivityMediaEnrichmentRequested',
+                  payload: {
+                    activityId: act.id,
+                    name: act.name,
+                    destinationLabel: request.destination?.label || act.formattedAddress,
+                    wikidataId: (act.metadata as any)?.wikidataId,
+                    latitude: act.latitude,
+                    longitude: act.longitude,
+                    category: act.type || act.kind,
+                  },
+                });
+              }
+            }
+          } catch (outboxErr: any) {
+            this.logger.warn(
+              `Failed to enqueue outbox events: ${outboxErr?.message}`,
+            );
+          }
+        }
       });
 
       this.logger.log(
