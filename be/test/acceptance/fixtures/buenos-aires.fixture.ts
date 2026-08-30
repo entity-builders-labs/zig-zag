@@ -1,0 +1,161 @@
+import { PlanningActivityCandidate } from 'src/modules/tours/interfaces/daily-planning.interface';
+import { ExperienceFormat } from 'src/modules/tours/interfaces/tour-generation.interface';
+
+export const BUENOS_AIRES_CANDIDATES: PlanningActivityCandidate[] = [
+  {
+    activityId: 'caba-teatro-colon',
+    kind: 'POI',
+    title: 'Teatro Colón',
+    durationMinutes: 90,
+    semanticScore: 0.98,
+    qualityScore: 0.95,
+    spatialFootprint: {
+      type: 'POINT',
+      centroid: { lat: -34.6011, lng: -58.3831 },
+    },
+    formats: [ExperienceFormat.POINT_VISITS],
+    openingHours: {
+      status: 'known',
+      rangesByWeekday: {
+        '1': [{ startMinutesFromMidnight: 10 * 60, endMinutesFromMidnight: 18 * 60 }],
+        '2': [{ startMinutesFromMidnight: 10 * 60, endMinutesFromMidnight: 18 * 60 }],
+        '3': [{ startMinutesFromMidnight: 10 * 60, endMinutesFromMidnight: 18 * 60 }],
+        '4': [{ startMinutesFromMidnight: 10 * 60, endMinutesFromMidnight: 18 * 60 }],
+        '5': [{ startMinutesFromMidnight: 10 * 60, endMinutesFromMidnight: 18 * 60 }],
+        '6': [{ startMinutesFromMidnight: 10 * 60, endMinutesFromMidnight: 18 * 60 }],
+        '0': [{ startMinutesFromMidnight: 10 * 60, endMinutesFromMidnight: 18 * 60 }],
+      },
+    },
+  },
+  {
+    activityId: 'caba-obelisco',
+    kind: 'POI',
+    title: 'Obelisco de Buenos Aires',
+    durationMinutes: 30,
+    semanticScore: 0.95,
+    qualityScore: 0.9,
+    spatialFootprint: {
+      type: 'POINT',
+      centroid: { lat: -34.6037, lng: -58.3816 },
+    },
+    formats: [ExperienceFormat.POINT_VISITS],
+    openingHours: { status: 'unknown' },
+  },
+  {
+    activityId: 'caba-palacio-barolo',
+    kind: 'POI',
+    title: 'Palacio Barolo',
+    durationMinutes: 75,
+    semanticScore: 0.92,
+    qualityScore: 0.93,
+    spatialFootprint: {
+      type: 'POINT',
+      centroid: { lat: -34.6096, lng: -58.386 },
+    },
+    formats: [ExperienceFormat.POINT_VISITS],
+    openingHours: {
+      status: 'known',
+      rangesByWeekday: {
+        '1': [{ startMinutesFromMidnight: 10 * 60, endMinutesFromMidnight: 20 * 60 }],
+        '2': [{ startMinutesFromMidnight: 10 * 60, endMinutesFromMidnight: 20 * 60 }],
+        '3': [{ startMinutesFromMidnight: 10 * 60, endMinutesFromMidnight: 20 * 60 }],
+        '4': [{ startMinutesFromMidnight: 10 * 60, endMinutesFromMidnight: 20 * 60 }],
+        '5': [{ startMinutesFromMidnight: 10 * 60, endMinutesFromMidnight: 20 * 60 }],
+        '6': [{ startMinutesFromMidnight: 10 * 60, endMinutesFromMidnight: 20 * 60 }],
+        '0': [], // Closed on Sunday
+      },
+    },
+  },
+  {
+    activityId: 'caba-san-telmo-walk',
+    kind: 'NEIGHBORHOOD_WALK',
+    title: 'Paseo Histórico por San Telmo',
+    durationMinutes: 120,
+    semanticScore: 0.94,
+    qualityScore: 0.91,
+    spatialFootprint: {
+      type: 'POINT',
+      centroid: { lat: -34.6195, lng: -58.3712 },
+    },
+    formats: [ExperienceFormat.NEIGHBORHOOD_WALKS],
+    openingHours: { status: 'unknown' },
+  },
+  {
+    activityId: 'caba-recoleta-cemetery',
+    kind: 'POI',
+    title: 'Cementerio de la Recoleta',
+    durationMinutes: 90,
+    semanticScore: 0.96,
+    qualityScore: 0.94,
+    spatialFootprint: {
+      type: 'POINT',
+      centroid: { lat: -34.5878, lng: -58.3934 },
+    },
+    formats: [ExperienceFormat.POINT_VISITS],
+    openingHours: {
+      status: 'known',
+      rangesByWeekday: {
+        '1': [{ startMinutesFromMidnight: 9 * 60, endMinutesFromMidnight: 17 * 60 }],
+        '2': [{ startMinutesFromMidnight: 9 * 60, endMinutesFromMidnight: 17 * 60 }],
+        '3': [{ startMinutesFromMidnight: 9 * 60, endMinutesFromMidnight: 17 * 60 }],
+        '4': [{ startMinutesFromMidnight: 9 * 60, endMinutesFromMidnight: 17 * 60 }],
+        '5': [{ startMinutesFromMidnight: 9 * 60, endMinutesFromMidnight: 17 * 60 }],
+        '6': [{ startMinutesFromMidnight: 9 * 60, endMinutesFromMidnight: 17 * 60 }],
+        '0': [{ startMinutesFromMidnight: 9 * 60, endMinutesFromMidnight: 17 * 60 }],
+      },
+    },
+  },
+  {
+    activityId: 'caba-malba',
+    kind: 'POI',
+    title: 'MALBA - Museo de Arte Latinoamericano',
+    durationMinutes: 100,
+    semanticScore: 0.93,
+    qualityScore: 0.96,
+    spatialFootprint: {
+      type: 'POINT',
+      centroid: { lat: -34.5772, lng: -58.4034 },
+    },
+    formats: [ExperienceFormat.POINT_VISITS],
+    openingHours: {
+      status: 'known',
+      rangesByWeekday: {
+        '1': [{ startMinutesFromMidnight: 12 * 60, endMinutesFromMidnight: 20 * 60 }],
+        '2': [], // Closed Tuesday
+        '3': [{ startMinutesFromMidnight: 12 * 60, endMinutesFromMidnight: 20 * 60 }],
+        '4': [{ startMinutesFromMidnight: 12 * 60, endMinutesFromMidnight: 20 * 60 }],
+        '5': [{ startMinutesFromMidnight: 12 * 60, endMinutesFromMidnight: 20 * 60 }],
+        '6': [{ startMinutesFromMidnight: 12 * 60, endMinutesFromMidnight: 20 * 60 }],
+        '0': [{ startMinutesFromMidnight: 12 * 60, endMinutesFromMidnight: 20 * 60 }],
+      },
+    },
+  },
+  {
+    activityId: 'caba-caminito',
+    kind: 'POI',
+    title: 'Caminito y La Boca',
+    durationMinutes: 90,
+    semanticScore: 0.91,
+    qualityScore: 0.88,
+    spatialFootprint: {
+      type: 'POINT',
+      centroid: { lat: -34.6393, lng: -58.3629 },
+    },
+    formats: [ExperienceFormat.POINT_VISITS, ExperienceFormat.THEMATIC_ROUTES],
+    openingHours: { status: 'unknown' },
+  },
+  {
+    activityId: 'caba-puerto-madero-walk',
+    kind: 'NEIGHBORHOOD_WALK',
+    title: 'Paseo Costero Puerto Madero & Puente de la Mujer',
+    durationMinutes: 80,
+    semanticScore: 0.89,
+    qualityScore: 0.92,
+    spatialFootprint: {
+      type: 'POINT',
+      centroid: { lat: -34.6074, lng: -58.3644 },
+    },
+    formats: [ExperienceFormat.NEIGHBORHOOD_WALKS],
+    openingHours: { status: 'unknown' },
+  },
+];
