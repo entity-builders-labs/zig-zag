@@ -107,7 +107,7 @@ export class WikimediaCommonsService {
   }
 
   /**
-   * Searches Wikimedia Commons by GPS coordinates (radius 100m).
+   * Searches Wikimedia Commons by GPS coordinates (radius 1000m).
    */
   private async searchByCoordinates(
     lat: number,
@@ -119,7 +119,7 @@ export class WikimediaCommonsService {
           action: 'query',
           generator: 'geosearch',
           ggscoord: `${lat}|${lon}`,
-          ggsradius: 150, // 150 meters
+          ggsradius: 1000, // 1000 meters radius
           ggsnamespace: 6, // File namespace
           ggslimit: 5,
           prop: 'imageinfo',
@@ -145,9 +145,14 @@ export class WikimediaCommonsService {
     if (!pages) return [];
 
     const photos: DocumentaryPhoto[] = [];
+    const nonImageExtensions = /\.(pdf|djvu|ogg|ogv|webm|mid|midi|wav|mp3|flac|tiff|tif)$/i;
 
     for (const pageId of Object.keys(pages)) {
       const page = pages[pageId];
+      if (page.title && nonImageExtensions.test(page.title)) {
+        continue; // Skip non-image files
+      }
+
       const imageinfo = page.imageinfo?.[0];
       if (!imageinfo || !imageinfo.thumburl) continue;
 

@@ -4,11 +4,13 @@ import {
   Injectable,
   Logger,
   NotFoundException,
+  Optional,
 } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { ActivityKind } from '@prisma/client';
 import { PrismaService } from '@core/database/prisma.service';
 import { ActivitiesService } from '@activities/services/activities.service';
+import { OutboxService } from '../../outbox/services/outbox.service';
 import { VectorStoreService } from '@shared/ai/services/vector-store.service';
 import {
   GooglePlacesService,
@@ -138,6 +140,8 @@ export class TourActivityGenerationService {
     private readonly dailyPlanningPolicy: ConfigType<
       typeof dailyPlanningPolicyConfig
     >,
+    @Optional()
+    private readonly outboxService?: OutboxService,
   ) {}
 
   /** PR10: no new Prisma columns. If a real base date exists, combine it
@@ -1494,6 +1498,24 @@ export class TourActivityGenerationService {
             },
           },
         });
+
+        // Enqueue TourCompleted event in outbox
+        if (this.outboxService) {
+          try {
+            await this.outboxService.createInTx(tx, {
+              eventType: 'TourCompleted',
+              payload: {
+                tourId,
+                status: 'COMPLETED',
+                totalActivities: activities.length,
+              },
+            });
+          } catch (outboxErr: any) {
+            this.logger.warn(
+              `Failed to enqueue TourCompleted in outbox: ${outboxErr?.message}`,
+            );
+          }
+        }
       });
 
       this.logger.log(

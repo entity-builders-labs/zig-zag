@@ -7,11 +7,13 @@ import { AiModule } from '../../shared/ai/ai.module';
 import { HybridSearchService } from './services/hybrid-search.service';
 import { IntegrationsModule } from '../integrations/integrations.module';
 import { ToursModule } from '../tours/tours.module';
+import { OutboxModule } from '../outbox/outbox.module';
 import { CatalogCandidateValidatorService } from './services/catalog-candidate-validator.service';
 
 @Module({
   imports: [
     AiModule,
+    OutboxModule,
     forwardRef(() => IntegrationsModule),
     forwardRef(() => ToursModule),
   ],

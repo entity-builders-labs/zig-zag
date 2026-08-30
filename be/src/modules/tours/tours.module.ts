@@ -39,10 +39,12 @@ import { AiModule } from '../../shared/ai/ai.module';
 import { PrismaModule } from '../../core/database/database.module';
 import { IntegrationsModule } from '../integrations/integrations.module';
 import { AuthModule } from '../auth/auth.module';
+import { OutboxModule } from '../outbox/outbox.module';
 
 @Module({
   imports: [
     PrismaModule,
+    OutboxModule,
     forwardRef(() => ActivitiesModule),
     AiModule,
     IntegrationsModule,

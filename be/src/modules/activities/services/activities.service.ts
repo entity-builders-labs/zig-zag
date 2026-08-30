@@ -15,6 +15,7 @@ import { ActivityMetadataDto } from '../dto/activity-metadata.dto';
 import { ActivityMetadataService } from './activity-metadata.service';
 import { VectorStoreService } from '../../../shared/ai/services/vector-store.service';
 import { IPhotoEnrichmentProvider } from '../../integrations/photos/interfaces/photo-enrichment.interface';
+import { OutboxService } from '../../outbox/services/outbox.service';
 import {
   ActivityWithDistance,
   CreateManyResult,
@@ -43,6 +44,8 @@ export class ActivitiesService {
     @Optional()
     @Inject('PhotoEnrichmentProvider')
     private readonly photoProvider?: IPhotoEnrichmentProvider,
+    @Optional()
+    private readonly outboxService?: OutboxService,
   ) {}
 
   /**
@@ -207,6 +210,30 @@ export class ActivitiesService {
       const activity = await this.prisma.activity.create({
         data: activityData,
       });
+
+      // Enqueue asynchronous media enrichment in outbox if needed
+      if (
+        this.outboxService &&
+        (!activityData.photos ||
+          (Array.isArray(activityData.photos) && activityData.photos.length === 0))
+      ) {
+        try {
+          await this.outboxService.create({
+            eventType: 'ActivityMediaEnrichmentRequested',
+            payload: {
+              activityId: activity.id,
+              name: activity.name,
+              destinationLabel: activity.formattedAddress || undefined,
+              latitude: activity.latitude,
+              longitude: activity.longitude,
+            },
+          });
+        } catch (err: any) {
+          this.logger.warn(
+            `Failed to enqueue ActivityMediaEnrichmentRequested event: ${err?.message}`,
+          );
+        }
+      }
 
       this.logger.debug(
         `Activity created successfully with id: ${activity.id}`,
