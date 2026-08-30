@@ -17,6 +17,14 @@ export type ActivityKind =
   | 'AREA'
   | 'EXPERIENCE';
 
+export function isCompositeKind(kind?: ActivityKind | string | null): boolean {
+  return (
+    kind === 'NEIGHBORHOOD_WALK' ||
+    kind === 'ROUTE' ||
+    kind === 'EXPERIENCE'
+  );
+}
+
 // Mirrors be/prisma/schema.prisma's GeoJsonGeometry — only the two shapes
 // Activity.boundary ever actually takes (Polygon/MultiPolygon for kind:
 // area, LineString for a top-level kind: route). GeoJSON coordinates are
