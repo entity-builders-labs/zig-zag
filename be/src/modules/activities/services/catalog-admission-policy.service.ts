@@ -34,8 +34,6 @@ const INSTITUTIONAL_PRIMARY_TYPES = new Set([
   'historical_landmark',
   'historical_place',
   'cultural_landmark',
-  'church',
-  'place_of_worship',
   'national_park',
   'nature_preserve',
 ]);
