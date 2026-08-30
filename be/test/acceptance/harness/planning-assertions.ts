@@ -1,5 +1,6 @@
 import {
   PlannedDay,
+  PlannedActivity,
   PlanningActivityCandidate,
 } from 'src/modules/tours/interfaces/daily-planning.interface';
 import { resolveWeekday } from 'src/modules/tours/utils/daily-planning-placement.util';
@@ -117,14 +118,8 @@ export function assertOpeningHoursComplied(
       const weekday = resolveWeekday([startDateIso], day.dayNumber);
       if (weekday === undefined) continue;
 
-      const rangesByWeekday = candidate.openingHours.rangesByWeekday;
-      if (!rangesByWeekday) continue;
-
-      const ranges =
-        rangesByWeekday[weekday] ??
-        (rangesByWeekday as Record<string, any>)[String(weekday)];
-
-      if (ranges && Array.isArray(ranges) && ranges.length === 0) {
+      const ranges = candidate.openingHours.rangesByWeekday[weekday];
+      if (ranges && ranges.length === 0) {
         // Hard constraint: explicitly closed that day
         throw new Error(
           `Activity ${act.activityId} scheduled on Day ${day.dayNumber} (${startDateIso}) but is explicitly closed on weekday ${weekday}`,

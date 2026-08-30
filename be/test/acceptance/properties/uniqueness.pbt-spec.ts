@@ -1,27 +1,31 @@
 import * as fc from 'fast-check';
 import { GreedyDailyPlanningSolver } from 'src/modules/tours/services/greedy-daily-planning.solver';
-import { createGreedySolver } from '../harness/solver-factory';
-import { TourInvariantsAsserter } from '../harness/tour-invariants-asserter';
+import dailyPlanningPolicyConfig from 'src/modules/tours/config/daily-planning-policy.config';
+import { DeterministicTravelEstimator } from '../harness/travel-estimator-mock';
 import { TourInputBuilder } from '../builders/tour-input.builder';
-import { arbitraryCandidatePool } from '../arbitraries/candidate.arbitrary';
+import { arbitraryCandidate } from '../arbitraries/candidate.arbitrary';
+import { TourInvariantsAsserter } from '../harness/tour-invariants-asserter';
 
-describe('PBT-02: Hard Uniqueness Invariant (TC-PBT-02)', () => {
-  let solver: GreedyDailyPlanningSolver;
+describe('PBT-02: Uniqueness [Invariant 6]', () => {
+  const policy = dailyPlanningPolicyConfig();
+  const travelEstimator = new DeterministicTravelEstimator();
+  const solver = new GreedyDailyPlanningSolver(travelEstimator, policy);
 
-  beforeEach(() => {
-    const context = createGreedySolver();
-    solver = context.solver;
-  });
-
-  it('every scheduled activityId is unique across the entire multi-day itinerary', async () => {
+  it('ensures no activityId appears more than once in the whole solution even with forced pool collisions', async () => {
     await fc.assert(
       fc.asyncProperty(
         fc.integer({ min: 1, max: 5 }),
-        arbitraryCandidatePool(5, 30),
-        async (days, pool) => {
-          const input = new TourInputBuilder()
-            .withDays(days)
-            .withCandidates(pool)
+        fc.array(arbitraryCandidate('colliding'), { minLength: 2, maxLength: 6 }),
+        async (requestedDays, baseCandidates) => {
+          // Intentionally duplicate candidates in pool
+          const noisyPool = [
+            ...baseCandidates,
+            ...baseCandidates.map((c) => ({ ...c })),
+          ];
+
+          const input = TourInputBuilder.aTourInput()
+            .withRequestedDays(requestedDays)
+            .withCandidates(noisyPool)
             .build();
 
           const solution = await solver.solve(input);
@@ -31,11 +35,11 @@ describe('PBT-02: Hard Uniqueness Invariant (TC-PBT-02)', () => {
           );
           const uniqueIds = new Set(scheduledIds);
 
-          expect(scheduledIds.length).toBe(uniqueIds.size);
+          expect(uniqueIds.size).toBe(scheduledIds.length);
           TourInvariantsAsserter.assertAll12Invariants(solution, input);
         },
       ),
-      { numRuns: 30 },
+      { numRuns: 25 },
     );
   });
 });

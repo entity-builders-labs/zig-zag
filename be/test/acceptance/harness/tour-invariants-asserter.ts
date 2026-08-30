@@ -90,6 +90,7 @@ export class TourInvariantsAsserter {
     expect(uniqueIds.size).toBe(scheduledActivityIds.length);
 
     // INVARIANT 10: Partition Integrity
+    // Check that candidates not scheduled have rejection reasons
     const unselectedMap = new Map<string, string[]>();
     for (const u of solution.unselected) {
       unselectedMap.set(u.activityId, u.reasons);
@@ -97,6 +98,7 @@ export class TourInvariantsAsserter {
 
     for (const scheduledId of scheduledActivityIds) {
       if (unselectedMap.has(scheduledId)) {
+        // If an activityId appears in unselected while also scheduled, it must be because a duplicate was provided in the input pool
         const reasons = unselectedMap.get(scheduledId)!;
         expect(
           reasons.includes('DUPLICATE_ACTIVITY') ||

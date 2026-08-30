@@ -1,45 +1,37 @@
 import * as fc from 'fast-check';
 import { GreedyDailyPlanningSolver } from 'src/modules/tours/services/greedy-daily-planning.solver';
-import { createGreedySolver } from '../harness/solver-factory';
+import dailyPlanningPolicyConfig from 'src/modules/tours/config/daily-planning-policy.config';
+import { DeterministicTravelEstimator } from '../harness/travel-estimator-mock';
 import { TourInputBuilder } from '../builders/tour-input.builder';
 import { arbitraryCandidatePool } from '../arbitraries/candidate.arbitrary';
 
-describe('PBT-07: Candidate Order Independence (TC-PBT-07)', () => {
-  let solver: GreedyDailyPlanningSolver;
+describe('PBT-07: Pool Order Independence [Invariant 11]', () => {
+  const policy = dailyPlanningPolicyConfig();
+  const travelEstimator = new DeterministicTravelEstimator();
+  const solver = new GreedyDailyPlanningSolver(travelEstimator, policy);
 
-  beforeEach(() => {
-    const context = createGreedySolver();
-    solver = context.solver;
-  });
-
-  it('shuffling input.candidates produces identical set of selected activities', async () => {
+  it('guarantees that shuffling the candidate pool produces the identical daily plan', async () => {
     await fc.assert(
       fc.asyncProperty(
         fc.integer({ min: 1, max: 3 }),
-        arbitraryCandidatePool(5, 15),
-        async (days, pool) => {
-          const inputOriginal = new TourInputBuilder()
-            .withDays(days)
-            .withCandidates(pool)
+        arbitraryCandidatePool(4, 12),
+        async (requestedDays, candidates) => {
+          const inputOriginal = TourInputBuilder.aTourInput()
+            .withRequestedDays(requestedDays)
+            .withCandidates(candidates)
             .build();
 
-          const shuffledPool = [...pool].reverse();
-          const inputShuffled = new TourInputBuilder()
-            .withDays(days)
-            .withCandidates(shuffledPool)
+          // Reverse or shuffle the array
+          const shuffledCandidates = [...candidates].reverse();
+          const inputShuffled = TourInputBuilder.aTourInput()
+            .withRequestedDays(requestedDays)
+            .withCandidates(shuffledCandidates)
             .build();
 
           const solution1 = await solver.solve(inputOriginal);
           const solution2 = await solver.solve(inputShuffled);
 
-          const ids1 = solution1.days
-            .flatMap((d) => d.activities.map((a) => a.activityId))
-            .sort();
-          const ids2 = solution2.days
-            .flatMap((d) => d.activities.map((a) => a.activityId))
-            .sort();
-
-          expect(ids1).toEqual(ids2);
+          expect(solution1.days).toEqual(solution2.days);
         },
       ),
       { numRuns: 20 },

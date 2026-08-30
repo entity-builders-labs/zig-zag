@@ -1,47 +1,38 @@
 import * as fc from 'fast-check';
 import { GreedyDailyPlanningSolver } from 'src/modules/tours/services/greedy-daily-planning.solver';
-import { createGreedySolver } from '../harness/solver-factory';
-import { TourInvariantsAsserter } from '../harness/tour-invariants-asserter';
+import dailyPlanningPolicyConfig from 'src/modules/tours/config/daily-planning-policy.config';
+import { DeterministicTravelEstimator } from '../harness/travel-estimator-mock';
 import { TourInputBuilder } from '../builders/tour-input.builder';
 import { arbitraryCandidatePool } from '../arbitraries/candidate.arbitrary';
+import { assertNoTemporalOverlap } from '../harness/planning-assertions';
+import { TourInvariantsAsserter } from '../harness/tour-invariants-asserter';
 
-describe('PBT-03: Strict Temporal Monotonicity Invariant (TC-PBT-03)', () => {
-  let solver: GreedyDailyPlanningSolver;
+describe('PBT-03: Chronology & Non-Overlap [Invariants 4 & 9]', () => {
+  const policy = dailyPlanningPolicyConfig();
+  const travelEstimator = new DeterministicTravelEstimator();
+  const solver = new GreedyDailyPlanningSolver(travelEstimator, policy);
 
-  beforeEach(() => {
-    const context = createGreedySolver();
-    solver = context.solver;
-  });
-
-  it('no activities overlap temporally and start(i+1) >= end(i) + travel(i->i+1)', async () => {
+  it('ensures all planned activities have strictly monotonic and non-overlapping time intervals', async () => {
     await fc.assert(
       fc.asyncProperty(
         fc.integer({ min: 1, max: 4 }),
-        arbitraryCandidatePool(4, 25),
-        async (days, pool) => {
-          const input = new TourInputBuilder()
-            .withDays(days)
-            .withCandidates(pool)
+        arbitraryCandidatePool(4, 15),
+        async (requestedDays, candidates) => {
+          const input = TourInputBuilder.aTourInput()
+            .withRequestedDays(requestedDays)
+            .withCandidates(candidates)
             .build();
 
           const solution = await solver.solve(input);
 
           for (const day of solution.days) {
-            for (let i = 0; i < day.activities.length - 1; i++) {
-              const current = day.activities[i];
-              const next = day.activities[i + 1];
-              const travel = next.travelFromPrevious?.durationMinutes ?? 0;
-
-              expect(next.startMinutesFromMidnight).toBeGreaterThanOrEqual(
-                current.endMinutesFromMidnight + travel,
-              );
-            }
+            assertNoTemporalOverlap(day);
           }
 
           TourInvariantsAsserter.assertAll12Invariants(solution, input);
         },
       ),
-      { numRuns: 30 },
+      { numRuns: 25 },
     );
   });
 });

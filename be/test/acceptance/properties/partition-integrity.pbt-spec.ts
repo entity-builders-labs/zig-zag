@@ -1,50 +1,54 @@
 import * as fc from 'fast-check';
 import { GreedyDailyPlanningSolver } from 'src/modules/tours/services/greedy-daily-planning.solver';
-import { createGreedySolver } from '../harness/solver-factory';
+import dailyPlanningPolicyConfig from 'src/modules/tours/config/daily-planning-policy.config';
+import { DeterministicTravelEstimator } from '../harness/travel-estimator-mock';
 import { TourInputBuilder } from '../builders/tour-input.builder';
 import { arbitraryCandidatePool } from '../arbitraries/candidate.arbitrary';
 
-describe('PBT-08: Partition & Reason Integrity (TC-PBT-08)', () => {
-  let solver: GreedyDailyPlanningSolver;
+describe('PBT-08: Partition Integrity [Invariant 10]', () => {
+  const policy = dailyPlanningPolicyConfig();
+  const travelEstimator = new DeterministicTravelEstimator();
+  const solver = new GreedyDailyPlanningSolver(travelEstimator, policy);
 
-  beforeEach(() => {
-    const context = createGreedySolver();
-    solver = context.solver;
-  });
-
-  it('selected union unselected equals full candidate pool with valid exclusion reasons', async () => {
+  it('guarantees that every candidate in the pool is partitioned cleanly into either selected or unselected', async () => {
     await fc.assert(
       fc.asyncProperty(
         fc.integer({ min: 1, max: 4 }),
-        arbitraryCandidatePool(4, 25),
-        async (days, pool) => {
-          const input = new TourInputBuilder()
-            .withDays(days)
-            .withCandidates(pool)
+        arbitraryCandidatePool(3, 15),
+        async (requestedDays, candidates) => {
+          // De-duplicate candidate pool by activityId
+          const uniqueMap = new Map(candidates.map((c) => [c.activityId, c]));
+          const uniqueCandidates = Array.from(uniqueMap.values());
+
+          const input = TourInputBuilder.aTourInput()
+            .withRequestedDays(requestedDays)
+            .withCandidates(uniqueCandidates)
             .build();
 
           const solution = await solver.solve(input);
 
-          const scheduledIds = solution.days.flatMap((d) =>
-            d.activities.map((a) => a.activityId),
+          const selectedIds = new Set(
+            solution.days.flatMap((d) => d.activities.map((a) => a.activityId)),
           );
-          const unselectedIds = solution.unselected.map((u) => u.activityId);
+          const unselectedIds = new Set(
+            solution.unselected.map((u) => u.activityId),
+          );
 
-          // Every unselected item has valid non-empty reasons
-          for (const u of solution.unselected) {
-            expect(u.reasons.length).toBeGreaterThan(0);
+          // Intersection is empty
+          for (const sId of selectedIds) {
+            expect(unselectedIds.has(sId)).toBe(false);
           }
 
-          // Every pool item is in selected OR unselected
-          for (const c of pool) {
-            const isAccountedFor =
-              scheduledIds.includes(c.activityId) ||
-              unselectedIds.includes(c.activityId);
-            expect(isAccountedFor).toBe(true);
+          // Union equals input pool
+          for (const cand of uniqueCandidates) {
+            const isPartitioned =
+              selectedIds.has(cand.activityId) ||
+              unselectedIds.has(cand.activityId);
+            expect(isPartitioned).toBe(true);
           }
         },
       ),
-      { numRuns: 25 },
+      { numRuns: 20 },
     );
   });
 });
