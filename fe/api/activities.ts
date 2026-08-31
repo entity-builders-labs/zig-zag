@@ -22,6 +22,7 @@ export interface ActivityDetail extends CompositeActivityFields {
   phoneNumber?: string;
   website?: string;
   photos?: any;
+  mediaUpdatedAt?: string;
   metadata?: {
     narrativeSources?: NarrativeSource[];
     [key: string]: any;
@@ -54,4 +55,3 @@ export async function fetchAllActivities(params?: {
   });
   return data;
 }
-

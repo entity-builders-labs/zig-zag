@@ -1,4 +1,10 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { ScrollView, ActivityIndicator } from 'react-native';
 import {
   Box,
@@ -16,6 +22,7 @@ import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ChevronDown, ChevronUp, MapPin, Footprints, ArrowLeft } from 'lucide-react-native';
 import { fetchTourById, Tour } from '../../api/tours';
+import { useSSE } from '../../api/hooks/useSSE';
 import { TourHeader } from '../../components/tour-details/TourHeader';
 import { TourMapView } from '../../components/tour-details/TourMapView';
 import { QuickStatsBar } from '../../components/tour-details/QuickStatsBar';
@@ -99,39 +106,84 @@ export default function TourDetailScreen() {
   // once per mount.
   const wasGeneratingOnLoadRef = useRef(false);
   const redirectedToReviewRef = useRef(false);
+  const refreshPromiseRef = useRef<Promise<Tour> | null>(null);
+  const refetchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const redirectAfterRefetchRef = useRef(false);
+
+  const applyTourData = useCallback(
+    (data: Tour, recordInitialState = false, redirectIfCompleted = false) => {
+      const metadata = data.metadata as any;
+      const generationStatus = metadata?.generationStatus;
+      const activities = data.activities || [];
+      const stillGenerating =
+        (generationStatus === 'generating' || generationStatus === 'pending') &&
+        activities.length === 0;
+
+      setTour(data);
+      setIsGeneratingActivities(stillGenerating);
+      setGenerationMessage(metadata?.generationMessage || '');
+      setGenerationError(
+        generationStatus === 'failed' ? metadata?.generationError || '' : '',
+      );
+      if (recordInitialState) wasGeneratingOnLoadRef.current = stillGenerating;
+
+      if (
+        redirectIfCompleted &&
+        wasGeneratingOnLoadRef.current &&
+        !redirectedToReviewRef.current &&
+        generationStatus !== 'generating' &&
+        generationStatus !== 'pending' &&
+        activities.length > 0
+      ) {
+        redirectedToReviewRef.current = true;
+        router.replace(`/tours/${id}/review`);
+      }
+    },
+    [id, router],
+  );
+
+  const refreshTour = useCallback(
+    async (recordInitialState = false, redirectIfCompleted = false) => {
+      if (!id) return null;
+      if (!refreshPromiseRef.current) {
+        refreshPromiseRef.current = fetchTourById(id).finally(() => {
+          refreshPromiseRef.current = null;
+        });
+      }
+      const data = await refreshPromiseRef.current;
+      applyTourData(data, recordInitialState, redirectIfCompleted);
+      return data;
+    },
+    [applyTourData, id],
+  );
+
+  const scheduleReconciliation = useCallback(
+    (redirectIfCompleted = false) => {
+      redirectAfterRefetchRef.current =
+        redirectAfterRefetchRef.current || redirectIfCompleted;
+      if (refetchTimerRef.current) return;
+      refetchTimerRef.current = setTimeout(() => {
+        refetchTimerRef.current = null;
+        const shouldRedirect = redirectAfterRefetchRef.current;
+        redirectAfterRefetchRef.current = false;
+        refreshTour(false, shouldRedirect).catch((error) =>
+          console.error('Failed to reconcile tour state:', error),
+        );
+      }, 150);
+    },
+    [refreshTour],
+  );
+
+  useEffect(() => {
+    setStops(transformActivitiesToStops(tour?.activities || [], tour?.totalDays));
+  }, [tour?.activities, tour?.totalDays]);
 
   useEffect(() => {
     const loadTour = async () => {
       if (!id) return;
       try {
         setLoading(true);
-        const data = await fetchTourById(id);
-        setTour(data);
-
-        // Check generation status
-        const metadata = data.metadata as any;
-        const generationStatus = metadata?.generationStatus;
-        const activities = data.activities || [];
-
-        // Only show loading if status is generating/pending AND no activities yet
-        // If activities exist, even if status is still generating, show them
-        const stillGenerating =
-          (generationStatus === 'generating' ||
-            generationStatus === 'pending') &&
-          activities.length === 0;
-        setIsGeneratingActivities(stillGenerating);
-        wasGeneratingOnLoadRef.current = stillGenerating;
-        setGenerationMessage(metadata?.generationMessage || '');
-        setGenerationError(
-          generationStatus === 'failed' ? metadata?.generationError || '' : ''
-        );
-
-        // Transform activities to stops (with day grouping if needed)
-        const transformedStops = transformActivitiesToStops(
-          activities,
-          data.totalDays
-        );
-        setStops(transformedStops);
+        await refreshTour(true, false);
       } catch (error) {
         console.error('Failed to fetch tour:', error);
       } finally {
@@ -139,75 +191,93 @@ export default function TourDetailScreen() {
       }
     };
 
-    loadTour();
-  }, [id]);
+    void loadTour();
+    return () => {
+      if (refetchTimerRef.current) clearTimeout(refetchTimerRef.current);
+    };
+  }, [id, refreshTour]);
 
-  // Poll for updates if activities are being generated
+  const { connectionState, isForeground } = useSSE(
+    id ? `/notifications/tours/${id}/stream` : null,
+    {
+    enabled: !!id,
+    onOpen: () => scheduleReconciliation(false),
+    onEvent: (eventName, payload) => {
+      if (eventName === 'tour.progress') {
+        if (payload.message) setGenerationMessage(payload.message);
+        if (payload.status === 'generating' || payload.status === 'pending') {
+          setIsGeneratingActivities(true);
+        }
+        scheduleReconciliation(false);
+      } else if (eventName === 'tour.completed') {
+        setIsGeneratingActivities(false);
+        setGenerationMessage(payload.message || 'Itinerario generado con éxito');
+        scheduleReconciliation(true);
+      } else if (eventName === 'tour.failed') {
+        setIsGeneratingActivities(false);
+        setGenerationError(payload.message || 'No se pudo generar el itinerario');
+        scheduleReconciliation(false);
+      } else if (eventName === 'activity.media.updated') {
+        const { activityId, mediaUpdatedAt, photos } = payload;
+        if (activityId && mediaUpdatedAt && Array.isArray(photos)) {
+          setTour((prevTour) => {
+            if (!prevTour || !prevTour.activities) return prevTour;
+            const updatedActivities = prevTour.activities.map((act) => {
+              const currentActivity = act.activity;
+              if (!currentActivity || currentActivity.id !== activityId) {
+                return act;
+              }
+              const currentUpdatedAt = currentActivity.mediaUpdatedAt;
+              if (
+                currentUpdatedAt &&
+                Date.parse(currentUpdatedAt) >= Date.parse(mediaUpdatedAt)
+              ) {
+                return act;
+              }
+              return {
+                ...act,
+                activity: { ...currentActivity, photos, mediaUpdatedAt },
+              };
+            });
+            return { ...prevTour, activities: updatedActivities };
+          });
+        } else {
+          scheduleReconciliation(false);
+        }
+      }
+    },
+    },
+  );
+
+  // Safety net polling fallback (only runs if actively generating)
   useEffect(() => {
-    if (!id) return;
+    if (
+      !id ||
+      !isGeneratingActivities ||
+      !isForeground ||
+      (connectionState !== 'failed' && connectionState !== 'disconnected')
+    ) {
+      return;
+    }
 
     const pollInterval = setInterval(async () => {
       try {
-        const data = await fetchTourById(id);
-        const metadata = data.metadata as any;
-        const generationStatus = metadata?.generationStatus;
-        const activities = data.activities || [];
-
-        // Still actively generating means: backend reports generating/pending
-        // AND we don't have activities yet.
-        const stillGenerating =
-          (generationStatus === 'generating' ||
-            generationStatus === 'pending') &&
-          activities.length === 0;
-        setIsGeneratingActivities(stillGenerating);
-        setGenerationMessage(metadata?.generationMessage || '');
-        setGenerationError(
-          generationStatus === 'failed' ? metadata?.generationError || '' : ''
-        );
-
-        // If we have activities or generation completed, update the tour data
-        if (activities.length > 0) {
-          setTour(data);
-          // Transform activities (with day grouping if needed)
-          const transformedStops = transformActivitiesToStops(
-            activities,
-            data.totalDays
-          );
-          setStops(transformedStops);
-
-          // If the tour JUST finished generating in this session (we saw it
-          // while it was pending and now it has activities), steer the user
-          // to the pre-confirmation review screen so they can review,
-          // customize waypoint exclusions on composite stops, and confirm.
-          if (
-            wasGeneratingOnLoadRef.current &&
-            !redirectedToReviewRef.current &&
-            generationStatus !== 'generating' &&
-            generationStatus !== 'pending'
-          ) {
-            redirectedToReviewRef.current = true;
-            router.replace(`/tours/${id}/review`);
-          }
-        }
-
-        // Stop polling once generation is no longer in progress — nothing
-        // left to wait for, whether it succeeded, failed, or was never
-        // triggered (e.g. a manually created tour with no generation flow).
-        if (
-          generationStatus !== 'generating' &&
-          generationStatus !== 'pending'
-        ) {
-          clearInterval(pollInterval);
-        }
+        await refreshTour(false, true);
       } catch (error) {
-        console.error('Polling error:', error);
+        console.error('Polling fallback error:', error);
       }
-    }, 2000); // Poll every 2 seconds
+    }, 5000);
 
     return () => {
       clearInterval(pollInterval);
     };
-  }, [id, router]);
+  }, [
+    connectionState,
+    id,
+    isForeground,
+    isGeneratingActivities,
+    refreshTour,
+  ]);
 
   if (loading) {
     return (

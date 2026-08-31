@@ -22,7 +22,7 @@ export class OutboxPublisherService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(OutboxPublisherService.name);
 
   private readonly config: Required<OutboxPublisherConfig>;
-  private pollTimer: NodeJS.Timeout | null = null;
+  private pollTimer: ReturnType<typeof setInterval> | null = null;
   private isProcessing = false;
 
   // Runtime counters for observability

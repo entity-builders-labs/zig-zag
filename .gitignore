@@ -121,3 +121,13 @@ fe/playwright-report/
 
 # Local scratch/experiments, not part of the app
 playground/
+
+# AI Agent metadata and local configs
+.antigravity/
+.claude/
+.codegraph/
+.codex/
+.cursor/
+.gemini/
+.mcp.json
+GEMINI.md

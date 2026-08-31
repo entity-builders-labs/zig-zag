@@ -287,7 +287,9 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  tours Tour[]
+  tours                Tour[]
+  devices              UserDevice[]
+  webPushSubscriptions WebPushSubscription[]
 
   @@unique([provider, providerId])
   @@map("user")
@@ -502,3 +504,37 @@ model NegativeMediaLookup {
   @@map("negative_media_lookup")
 }
 
+model UserDevice {
+  id            String   @id @default(uuid())
+  userId        String
+  expoPushToken String   @unique
+  platform      String   // "ios" | "android" | "web"
+  enabled       Boolean  @default(true)
+  lastSeenAt    DateTime @default(now())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([enabled])
+  @@map("user_device")
+}
+
+model WebPushSubscription {
+  id         String   @id @default(uuid())
+  userId     String
+  endpoint   String   @unique
+  p256dh     String
+  auth       String
+  enabled    Boolean  @default(true)
+  lastSeenAt DateTime @default(now())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([enabled])
+  @@map("web_push_subscription")
+}

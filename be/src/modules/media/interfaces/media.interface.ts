@@ -38,4 +38,6 @@ export interface ActivityMediaUpdatedPayload {
   activityId: string;
   mediaStatus: 'ENRICHED' | 'FAILED';
   photoCount: number;
+  mediaUpdatedAt: string;
+  photos?: DocumentaryPhoto[];
 }

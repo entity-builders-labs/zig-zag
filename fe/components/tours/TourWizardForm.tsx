@@ -37,6 +37,8 @@ import { TourWizardMobilityStep } from './TourWizardMobilityStep';
 interface TourWizardFormProps {
   onSubmit: (preferences: GenerateTourDto) => void;
   onCancel: () => void;
+  isLoading?: boolean;
+  initialDestination?: string;
   initialLocation?: { lat: number; lng: number };
 }
 
@@ -69,11 +71,13 @@ const INTEREST_MAP: Record<string, string> = {
 export const TourWizardForm: React.FC<TourWizardFormProps> = ({
   onSubmit,
   onCancel,
+  isLoading,
+  initialDestination,
   initialLocation
 }) => {
   const { setCenter } = useContext(AppContext);
   const [currentStep, setCurrentStep] = useState(1);
-  const [destination, setDestination] = useState('');
+  const [destination, setDestination] = useState(initialDestination || '');
   const [destinationCoords, setDestinationCoords] = useState<
     { lat: number; lng: number } | undefined
   >(initialLocation);
@@ -512,6 +516,7 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
         elevation={4}
       >
         <Button
+          testID='wizard-cta-button'
           onPress={handleNext}
           bg='$primary500'
           borderRadius='$xl'

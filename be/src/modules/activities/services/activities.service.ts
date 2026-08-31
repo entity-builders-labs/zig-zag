@@ -10,7 +10,7 @@ import { PrismaService } from '../../../core/database/prisma.service';
 import { CreateActivityDto } from '../dto/create-activity.dto';
 import { UpdateActivityDto } from '../dto/update-activity.dto';
 import { FindNearbyDto } from '../dto/find-nearby.dto';
-import { Prisma, Activity, ActivityKind } from '@prisma/client';
+import { Prisma, Activity, ActivityKind, MediaStatus } from '@prisma/client';
 import { ActivityMetadataDto } from '../dto/activity-metadata.dto';
 import { ActivityMetadataService } from './activity-metadata.service';
 import { VectorStoreService } from '../../../shared/ai/services/vector-store.service';
@@ -86,17 +86,25 @@ export class ActivitiesService {
         address: createActivityDto.address,
         location: createActivityDto.location,
         photos: createActivityDto.photos,
-        source: {
-          connect: {
-            id: createActivityDto.sourceId,
-          },
-        },
+        ...(createActivityDto.sourceId
+          ? {
+              source: {
+                connect: {
+                  id: createActivityDto.sourceId,
+                },
+              },
+            }
+          : {}),
         externalId: createActivityDto.externalId,
-        KnownActivityType: {
-          connect: {
-            name: createActivityDto.knownActivityTypeName,
-          },
-        },
+        ...(createActivityDto.knownActivityTypeName
+          ? {
+              KnownActivityType: {
+                connect: {
+                  name: createActivityDto.knownActivityTypeName,
+                },
+              },
+            }
+          : {}),
         metadata: createActivityDto.metadata,
         // Google Places fields
         rating: createActivityDto.rating,
@@ -206,34 +214,30 @@ export class ActivitiesService {
         }
       }
 
-      // Create activity
-      const activity = await this.prisma.activity.create({
-        data: activityData,
-      });
+      const needsMediaEnrichment =
+        !activityData.photos ||
+        (Array.isArray(activityData.photos) && activityData.photos.length === 0);
 
-      // Enqueue asynchronous media enrichment in outbox if needed
-      if (
-        this.outboxService &&
-        (!activityData.photos ||
-          (Array.isArray(activityData.photos) && activityData.photos.length === 0))
-      ) {
-        try {
-          await this.outboxService.create({
-            eventType: 'ActivityMediaEnrichmentRequested',
-            payload: {
-              activityId: activity.id,
-              name: activity.name,
-              destinationLabel: activity.formattedAddress || undefined,
-              latitude: activity.latitude,
-              longitude: activity.longitude,
-            },
-          });
-        } catch (err: any) {
-          this.logger.warn(
-            `Failed to enqueue ActivityMediaEnrichmentRequested event: ${err?.message}`,
-          );
-        }
-      }
+      // The row and its media-enrichment request are one atomic unit. A
+      // failed outbox insert rolls the activity creation back instead of
+      // leaving a permanently unannounced, unenriched row behind.
+      const activity =
+        this.outboxService && needsMediaEnrichment
+          ? await this.prisma.$transaction(async (tx) => {
+              const created = await tx.activity.create({ data: activityData });
+              await this.outboxService!.createInTx(tx, {
+                eventType: 'ActivityMediaEnrichmentRequested',
+                payload: {
+                  activityId: created.id,
+                  name: created.name,
+                  destinationLabel: created.formattedAddress || undefined,
+                  latitude: created.latitude,
+                  longitude: created.longitude,
+                },
+              });
+              return created;
+            })
+          : await this.prisma.activity.create({ data: activityData });
 
       this.logger.debug(
         `Activity created successfully with id: ${activity.id}`,
@@ -925,9 +929,13 @@ export class ActivitiesService {
       });
 
       const updateData: Prisma.ActivityUpdateInput = {};
+      const mediaUpdatedAt = new Date();
 
       if (enrichment.photos && enrichment.photos.length > 0) {
         updateData.photos = enrichment.photos as unknown as Prisma.InputJsonValue;
+        updateData.mediaStatus = MediaStatus.ENRICHED;
+        updateData.mediaUpdatedAt = mediaUpdatedAt;
+        updateData.mediaError = null;
       }
 
       if (enrichment.highlights?.length || enrichment.curatorTip) {
@@ -950,10 +958,31 @@ export class ActivitiesService {
         return activity;
       }
 
-      return await this.prisma.activity.update({
-        where: { id },
-        data: updateData,
-      });
+      const updatedActivity =
+        enrichment.photos?.length && this.outboxService
+          ? await this.prisma.$transaction(async (tx) => {
+              const updated = await tx.activity.update({
+                where: { id },
+                data: updateData,
+              });
+              await this.outboxService!.createInTx(tx, {
+                eventType: 'ActivityMediaUpdated',
+                payload: {
+                  activityId: id,
+                  mediaStatus: 'ENRICHED',
+                  photoCount: enrichment.photos!.length,
+                  mediaUpdatedAt: mediaUpdatedAt.toISOString(),
+                  photos: enrichment.photos,
+                },
+              });
+              return updated;
+            })
+          : await this.prisma.activity.update({
+              where: { id },
+              data: updateData,
+            });
+
+      return updatedActivity;
     } catch (error) {
       this.logger.error(
         `Failed to enrich photos and highlights for ${id}: ${error instanceof Error ? error.message : 'Unknown error'}`,

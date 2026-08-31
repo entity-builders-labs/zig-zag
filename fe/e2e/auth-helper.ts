@@ -15,8 +15,8 @@ export async function loginViaUI(
   page: Page,
   email: string = uniqueTestEmail()
 ): Promise<string> {
-  await page.goto('/');
-  await page.waitForURL(/\/login$/, { timeout: 15_000 });
+  await page.goto('/(auth)/login');
+  await page.waitForURL(/login/, { timeout: 15_000 });
 
   await page.getByTestId('login-email-link').click();
   await page.getByTestId('login-email-input').fill(email);

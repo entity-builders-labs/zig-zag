@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import {
   Box,
   Button,
+  ButtonText,
   Heading,
   VStack,
   HStack,
@@ -16,7 +17,8 @@ import axiosInstance from '@/api/config/axios';
 import { useApi } from '@/api/hooks/useApi';
 import { PaginatedResponseTour } from '@/components/types';
 import { AppContext } from '@/context/app';
-import { useContext } from 'react';
+import { FONT_DISPLAY } from '@/constants/typography';
+
 // Leaflet CSS usually requires special handling in React Native Web or might cause issues in Native.
 // Assuming this is web-compatible or handled.
 if (typeof window !== 'undefined') {
@@ -44,6 +46,7 @@ export default function ToursScreen() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalTours, setTotalTours] = useState<number>(0);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const { address } = useContext(AppContext);
 

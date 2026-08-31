@@ -8,8 +8,9 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ErrorBoundary } from 'react-error-boundary';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
-import { StyleSheet } from 'react-native';
+import * as Notifications from 'expo-notifications';
+import { useEffect, useRef, useState } from 'react';
+import { StyleSheet, Platform } from 'react-native';
 import 'react-native-reanimated';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -28,6 +29,59 @@ function RootNavigator() {
   const { isAuthenticated, isLoading } = useAuth();
   const segments = useSegments();
   const router = useRouter();
+  const [pendingNotificationResponse, setPendingNotificationResponse] =
+    useState<Notifications.NotificationResponse | null>(null);
+  const handledNotificationResponses = useRef(new Set<string>());
+
+  useEffect(() => {
+    if (Platform.OS === 'web') return;
+
+    const captureResponse = (response: Notifications.NotificationResponse) => {
+      setPendingNotificationResponse(response);
+    };
+    Notifications.getLastNotificationResponseAsync()
+      .then((response) => {
+        if (response) captureResponse(response);
+      })
+      .catch(() => {});
+    const subscription = Notifications.addNotificationResponseReceivedListener(
+      captureResponse,
+    );
+
+    return () => {
+      subscription.remove();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (
+      Platform.OS === 'web' ||
+      isLoading ||
+      !isAuthenticated ||
+      !pendingNotificationResponse
+    ) {
+      return;
+    }
+
+    const request = pendingNotificationResponse.notification.request;
+    const responseKey = `${request.identifier}:${pendingNotificationResponse.actionIdentifier}`;
+    if (handledNotificationResponses.current.has(responseKey)) {
+      setPendingNotificationResponse(null);
+      return;
+    }
+    handledNotificationResponses.current.add(responseKey);
+    const data = request.content.data as any;
+    const tourId = data?.tourId;
+    if (tourId) {
+      router.push(
+        data?.eventName === 'tour.completed'
+          ? `/tours/${tourId}/review`
+          : `/tours/${tourId}`,
+      );
+    }
+    setPendingNotificationResponse(null);
+    Notifications.clearLastNotificationResponseAsync().catch(() => {});
+  }, [isAuthenticated, isLoading, pendingNotificationResponse, router]);
 
   useEffect(() => {
     if (isLoading) return;
