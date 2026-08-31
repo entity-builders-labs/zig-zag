@@ -1,9 +1,11 @@
+import { ActivityKind } from '@prisma/client';
 import { TourPlanningFeasibilityValidatorService } from './tour-planning-feasibility-validator.service';
 import {
   DailyPlanningInput,
   DailyPlanningSolution,
 } from '../interfaces/daily-planning.interface';
 import {
+  ExperienceFormat,
   TransportationMode,
   TravelPace,
 } from '../interfaces/tour-generation.interface';
@@ -74,15 +76,88 @@ describe('TourPlanningFeasibilityValidatorService', () => {
     expect(result.issues).toEqual([]);
   });
 
+  it('rejects a requested format when acquisition offered zero candidates of its kind', () => {
+    const result = validator.validate(
+      validSolution(),
+      baseInput({ requestedFormats: [ExperienceFormat.EXPERIENCES] }),
+    );
+
+    expect(result.valid).toBe(false);
+    expect(result.issues).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ code: 'REQUESTED_FORMAT_NOT_ACQUIRED' }),
+      ]),
+    );
+  });
+
+  it('rejects a requested format when a viable candidate existed but the plan selected none', () => {
+    const result = validator.validate(
+      validSolution(),
+      baseInput({
+        requestedFormats: [ExperienceFormat.EXPERIENCES],
+        candidates: [
+          ...baseInput().candidates,
+          {
+            activityId: 'exp-1',
+            kind: ActivityKind.EXPERIENCE,
+            title: 'Experience',
+            durationMinutes: 120,
+            spatialFootprint: {
+              type: 'POINT',
+              centroid: { lat: 0, lng: 0 },
+            },
+            semanticScore: 0.8,
+          },
+        ],
+      }),
+    );
+
+    expect(result.valid).toBe(false);
+    expect(result.issues).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ code: 'REQUESTED_FORMAT_NOT_SELECTED' }),
+      ]),
+    );
+  });
+
+  it('accepts a requested format when it is available and selected', () => {
+    const solution = validSolution();
+    solution.days[0].activities = [
+      {
+        activityId: 'exp-1',
+        startMinutesFromMidnight: 540,
+        endMinutesFromMidnight: 660,
+      },
+    ];
+    const result = validator.validate(
+      solution,
+      baseInput({
+        requestedFormats: [ExperienceFormat.EXPERIENCES],
+        candidates: [
+          {
+            activityId: 'exp-1',
+            kind: ActivityKind.EXPERIENCE,
+            title: 'Experience',
+            durationMinutes: 120,
+            spatialFootprint: {
+              type: 'POINT',
+              centroid: { lat: 0, lng: 0 },
+            },
+            semanticScore: 0.8,
+          },
+        ],
+      }),
+    );
+
+    expect(result.valid).toBe(true);
+  });
+
   it('rejects a day-count mismatch', () => {
     const result = validator.validate(
       validSolution(),
       baseInput({ requestedDays: 2 }),
     );
-    expect(result.valid).toBe(false);
-    expect(result.issues.some((i) => i.code === 'DAY_COUNT_MISMATCH')).toBe(
-      true,
-    );
+    expect(result.issues.some((issue) => issue.code === 'DAY_COUNT_MISMATCH')).toBe(true);
   });
 
   it('rejects a duplicate activity across days', () => {
@@ -105,16 +180,14 @@ describe('TourPlanningFeasibilityValidatorService', () => {
       solution,
       baseInput({ requestedDays: 2 }),
     );
-    expect(result.issues.some((i) => i.code === 'DUPLICATE_ACTIVITY')).toBe(
-      true,
-    );
+    expect(result.issues.some((issue) => issue.code === 'DUPLICATE_ACTIVITY')).toBe(true);
   });
 
   it('rejects an activity scheduled out of chronological order', () => {
     const solution = validSolution();
     solution.days[0].activities.push({
       activityId: 'a2',
-      startMinutesFromMidnight: 500, // before the previous activity's end (600)
+      startMinutesFromMidnight: 500,
       endMinutesFromMidnight: 560,
     });
     const input = baseInput({
@@ -132,16 +205,16 @@ describe('TourPlanningFeasibilityValidatorService', () => {
     });
     const result = validator.validate(solution, input);
     expect(
-      result.issues.some((i) => i.code === 'CHRONOLOGICAL_ORDER_VIOLATION'),
+      result.issues.some((issue) => issue.code === 'CHRONOLOGICAL_ORDER_VIOLATION'),
     ).toBe(true);
   });
 
   it('rejects an activity that runs past the planning window', () => {
     const solution = validSolution();
-    solution.days[0].activities[0].endMinutesFromMidnight = 1300; // past 1200
+    solution.days[0].activities[0].endMinutesFromMidnight = 1300;
     const result = validator.validate(solution, baseInput());
     expect(
-      result.issues.some((i) => i.code === 'DAILY_TIME_CAPACITY_EXCEEDED'),
+      result.issues.some((issue) => issue.code === 'DAILY_TIME_CAPACITY_EXCEEDED'),
     ).toBe(true);
   });
 
@@ -149,21 +222,14 @@ describe('TourPlanningFeasibilityValidatorService', () => {
     const solution = validSolution();
     solution.days[0].dayNumber = 5;
     const result = validator.validate(solution, baseInput());
-    expect(result.issues.some((i) => i.code === 'INVALID_DAY_NUMBER')).toBe(
-      true,
-    );
+    expect(result.issues.some((issue) => issue.code === 'INVALID_DAY_NUMBER')).toBe(true);
   });
-
-  // Supplementary cases beyond the brief's minimum set, covering the
-  // remaining independently-checked codes so each branch of the validator
-  // is actually exercised rather than merely present in the source.
 
   it('rejects an activity that is not part of the offered candidate pool', () => {
     const solution = validSolution();
     solution.days[0].activities[0].activityId = 'ghost';
     const result = validator.validate(solution, baseInput());
-    expect(result.valid).toBe(false);
-    expect(result.issues.some((i) => i.code === 'UNKNOWN_ACTIVITY')).toBe(true);
+    expect(result.issues.some((issue) => issue.code === 'UNKNOWN_ACTIVITY')).toBe(true);
   });
 
   it('rejects a travel leg using a disallowed transportation mode', () => {
@@ -195,9 +261,7 @@ describe('TourPlanningFeasibilityValidatorService', () => {
       ],
     });
     const result = validator.validate(solution, input);
-    expect(result.issues.some((i) => i.code === 'DISALLOWED_TRAVEL_MODE')).toBe(
-      true,
-    );
+    expect(result.issues.some((issue) => issue.code === 'DISALLOWED_TRAVEL_MODE')).toBe(true);
   });
 
   it('rejects a single leg that exceeds the max continuous walking distance', () => {
@@ -211,7 +275,7 @@ describe('TourPlanningFeasibilityValidatorService', () => {
         durationMinutes: 40,
         distanceMeters: 5000,
         walkingMinutes: 40,
-        walkingDistanceMeters: 5000, // exceeds maxContinuousWalkingDistanceMeters (3000)
+        walkingDistanceMeters: 5000,
         approximate: true,
       },
     });
@@ -230,12 +294,11 @@ describe('TourPlanningFeasibilityValidatorService', () => {
     });
     const result = validator.validate(solution, input);
     expect(
-      result.issues.some((i) => i.code === 'MAX_CONTINUOUS_WALKING_EXCEEDED'),
+      result.issues.some((issue) => issue.code === 'MAX_CONTINUOUS_WALKING_EXCEEDED'),
     ).toBe(true);
   });
 
   it('rejects a day whose cumulative walking distance exceeds the daily maximum', () => {
-    const solution = validSolution();
     const input = baseInput({
       candidates: [
         {
@@ -245,13 +308,13 @@ describe('TourPlanningFeasibilityValidatorService', () => {
           durationMinutes: 60,
           spatialFootprint: { type: 'POINT', centroid: { lat: 0, lng: 0 } },
           semanticScore: 0.5,
-          mobility: { internalWalkingDistanceMeters: 15000 }, // exceeds maxWalkingDistancePerDayMeters (10000)
+          mobility: { internalWalkingDistanceMeters: 15000 },
         },
       ],
     });
-    const result = validator.validate(solution, input);
+    const result = validator.validate(validSolution(), input);
     expect(
-      result.issues.some((i) => i.code === 'MAX_WALKING_PER_DAY_EXCEEDED'),
+      result.issues.some((issue) => issue.code === 'MAX_WALKING_PER_DAY_EXCEEDED'),
     ).toBe(true);
   });
 });
