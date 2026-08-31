@@ -105,7 +105,14 @@ export class GroqDiscoveryProvider implements SearchGroundedDiscoveryProvider {
     );
     const evidenceMap = buildEvidenceMap(searchResult);
     const evidenceKeys = Array.from(evidenceMap.keys());
-    const userPrompt = buildUserPrompt(request, evidenceMap, maxProposals);
+    const targetKindInstruction = request.targetKind
+      ? `MANDATORY TARGET KIND: ${request.targetKind}. Every proposal in this extraction call MUST use kind=${request.targetKind}. Do not return POI or any other kind as a substitute for this missing structural format.\n\n`
+      : '';
+    const userPrompt = `${targetKindInstruction}${buildUserPrompt(
+      request,
+      evidenceMap,
+      maxProposals,
+    )}`;
 
     const raw = await this.langChainService.generateChatResponse(
       SYSTEM_PROMPT,
