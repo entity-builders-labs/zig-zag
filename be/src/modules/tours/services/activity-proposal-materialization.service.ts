@@ -326,14 +326,10 @@ export class ActivityProposalMaterializationService {
             type: primaryType,
             latitude: center.latitude,
             longitude: center.longitude,
-            boundary:
-              candidate.geometry.type === 'Point'
-                ? undefined
-                : (candidate.geometry as unknown as Prisma.InputJsonValue),
             source: { connect: { id: sourceId } },
             externalId,
             metadata: {
-              provider: 'osm',
+              placesProvider: 'osm',
               osmType: candidate.osmType,
               osmId: candidate.osmId,
               providerTags: candidate.tags,
