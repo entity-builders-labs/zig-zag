@@ -31,9 +31,6 @@ describe('sanitizeOverpassName', () => {
 
   it('escapes regex metacharacters instead of passing them through raw', () => {
     const sanitized = sanitizeOverpassName('San (Telmo)+');
-    // Every metacharacter must be preceded by a backslash — this is what
-    // stops the input being interpreted as a regex pattern (ReDoS surface)
-    // rather than literal text.
     expect(sanitized).toBe('San \\(Telmo\\)\\+');
   });
 
@@ -71,9 +68,6 @@ describe('buildBoundaryByNameQuery', () => {
       radiusMeters: 1000,
     });
 
-    // A name with embedded quotes must not add any extra quote characters
-    // to the query relative to an equivalent clean name — every quote in
-    // the dirty case has to come from the template, not from the input.
     const quoteCount = (str: string) => (str.match(/"/g) || []).length;
     expect(quoteCount(dirtyQuery)).toBe(quoteCount(cleanQuery));
     expect(dirtyQuery).toContain('San Telmo');
@@ -127,15 +121,6 @@ describe('buildBoundaryByIdQuery', () => {
 
 describe('OverpassElement center field', () => {
   it('is typed as optional on OverpassElement, for the out tags center response shape', () => {
-    // Compile-time check, not a runtime assertion: buildAdminBoundariesWithinAreaQuery
-    // and buildStreetsWithinAreaQuery/buildPoisWithinAreaQuery below all use
-    // `out tags center;`, not `out geom;` — deliberately (a city can have
-    // dozens of neighborhoods; fetching every one's full polygon would risk
-    // the same 413 payload problem street-candidate capping already guards
-    // against elsewhere). Overpass's `center` modifier adds a lightweight
-    // { lat, lon } to each way/relation instead of full geometry — see
-    // osm-geometry.util.ts's centroid fallback (Task 9) for how that's
-    // turned into a usable OsmCandidate despite having no polygon.
     const el: import('../interfaces/overpass.interface').OverpassElement = {
       type: 'relation',
       id: 1,
@@ -188,15 +173,17 @@ describe('buildStreetsWithinAreaQuery', () => {
 });
 
 describe('buildPoisWithinAreaQuery', () => {
-  it('uses map_to_area, filtering named tourism/amenity/historic/leisure nodes', () => {
+  it('uses map_to_area and includes named nodes/ways/relations relevant to travel experiences', () => {
     const query = buildPoisWithinAreaQuery({
       osmType: 'relation',
       osmId: 2223069,
     });
 
     expect(query).toContain('map_to_area->.a');
-    expect(query).toContain('node["tourism"]["name"](area.a)');
-    expect(query).toContain('node["historic"]["name"](area.a)');
+    expect(query).toContain('nwr["tourism"]["name"](area.a)');
+    expect(query).toContain('nwr["historic"]["name"](area.a)');
+    expect(query).toContain('nwr["leisure"~"^(park|square|beach_resort)$"]["name"](area.a)');
+    expect(query).toContain('nwr["natural"="beach"]["name"](area.a)');
     expect(query).not.toContain('around:');
   });
 });
