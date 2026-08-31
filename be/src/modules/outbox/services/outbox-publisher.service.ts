@@ -25,7 +25,6 @@ export class OutboxPublisherService implements OnModuleInit, OnModuleDestroy {
   private pollTimer: ReturnType<typeof setInterval> | null = null;
   private isProcessing = false;
 
-  // Runtime counters for observability
   private publishAttemptsTotal = 0;
   private publishSuccessTotal = 0;
   private publishFailuresTotal = 0;
@@ -41,7 +40,7 @@ export class OutboxPublisherService implements OnModuleInit, OnModuleDestroy {
       batchSize: 50,
       leaseDurationSeconds: 30,
       baseBackoffMs: 2000,
-      maxBackoffMs: 300000, // 5 minutes
+      maxBackoffMs: 300000,
       autoStart: true,
     };
   }
@@ -84,9 +83,9 @@ export class OutboxPublisherService implements OnModuleInit, OnModuleDestroy {
   }
 
   /**
-   * Main dispatch cycle:
-   * Phase 1: Atomically claims a batch using FOR UPDATE SKIP LOCKED and marks them PROCESSING with a lease.
-   * Phase 2: Dispatches events to the message broker outside the DB transaction.
+   * Claims durable database work, then dispatches it outside the claim
+   * transaction. A PUBLISHED transition happens only after the selected
+   * transport/consumer boundary has acknowledged completion.
    */
   async processNextBatch(): Promise<{
     claimedCount: number;
@@ -109,7 +108,7 @@ export class OutboxPublisherService implements OnModuleInit, OnModuleDestroy {
       }
 
       this.logger.debug(
-        `[OutboxPublisher] Successfully claimed ${claimedRows.length} outbox event(s). Dispatching to broker...`,
+        `[OutboxPublisher] Successfully claimed ${claimedRows.length} outbox event(s). Dispatching...`,
       );
 
       let publishedCount = 0;
@@ -118,10 +117,8 @@ export class OutboxPublisherService implements OnModuleInit, OnModuleDestroy {
       for (const event of claimedRows) {
         this.publishAttemptsTotal++;
         try {
-          // Broker publication outside DB transaction
-          await this.messageQueue.publish(event.eventType, event.payload);
+          await this.publishWithLeaseHeartbeat(event);
 
-          // Broker confirmed OK: transition to PUBLISHED
           await this.prisma.outboxEvent.update({
             where: { id: event.id },
             data: {
@@ -145,7 +142,6 @@ export class OutboxPublisherService implements OnModuleInit, OnModuleDestroy {
           const isTerminal = event.attemptCount >= event.maxAttempts;
 
           if (isTerminal) {
-            // Exceeded max attempts: move to terminal FAILED status (Dead Letter)
             await this.prisma.outboxEvent.update({
               where: { id: event.id },
               data: {
@@ -159,7 +155,6 @@ export class OutboxPublisherService implements OnModuleInit, OnModuleDestroy {
               `[OutboxPublisher] Event "${event.eventType}" (id: ${event.id}) reached max attempts (${event.attemptCount}/${event.maxAttempts}). Marked as FAILED. Error: ${truncatedError}`,
             );
           } else {
-            // Transient error: calculate exponential backoff and return to PENDING
             const backoffMs = Math.min(
               this.config.maxBackoffMs,
               this.config.baseBackoffMs *
@@ -190,17 +185,63 @@ export class OutboxPublisherService implements OnModuleInit, OnModuleDestroy {
   }
 
   /**
+   * Long-running consumers such as tour generation can exceed the initial
+   * lease. Renew it while the handler owns the row so another application
+   * instance cannot recover the same event as stale and execute it in
+   * parallel. If this process dies, heartbeat stops and normal stale-lease
+   * recovery becomes possible after leaseDurationSeconds.
+   */
+  private async publishWithLeaseHeartbeat(
+    event: ClaimedOutboxEventRow,
+  ): Promise<void> {
+    const leaseMs = this.config.leaseDurationSeconds * 1000;
+    const heartbeatMs = Math.max(1000, Math.floor(leaseMs / 3));
+    let heartbeatRunning = false;
+
+    const renew = async () => {
+      if (heartbeatRunning) return;
+      heartbeatRunning = true;
+      try {
+        const leaseUntil = new Date(Date.now() + leaseMs);
+        const updated = await this.prisma.outboxEvent.updateMany({
+          where: {
+            id: event.id,
+            status: OutboxStatus.PROCESSING,
+          },
+          data: { leaseUntil },
+        });
+        if (updated.count === 0) {
+          this.logger.warn(
+            `[OutboxPublisher] Lease heartbeat lost ownership of event ${event.id}.`,
+          );
+        }
+      } catch (error: any) {
+        this.logger.warn(
+          `[OutboxPublisher] Lease heartbeat failed for event ${event.id}: ${error?.message || error}`,
+        );
+      } finally {
+        heartbeatRunning = false;
+      }
+    };
+
+    const timer = setInterval(() => {
+      void renew();
+    }, heartbeatMs);
+    try {
+      await this.messageQueue.publish(event.eventType, event.payload);
+    } finally {
+      clearInterval(timer);
+    }
+  }
+
+  /**
    * Atomically claims eligible rows in a short DB transaction.
-   * Eligible criteria:
-   * 1. (status = 'PENDING' AND (nextAttemptAt IS NULL OR nextAttemptAt <= NOW()))
-   * 2. (status = 'PROCESSING' AND leaseUntil <= NOW()) [Stale Lease Recovery]
    */
   async claimBatch(
     batchSize: number,
     leaseSeconds: number,
   ): Promise<ClaimedOutboxEventRow[]> {
     return this.prisma.$transaction(async (tx) => {
-      // 1. Fetch and row-lock eligible events with SKIP LOCKED
       const claimed = await tx.$queryRaw<ClaimedOutboxEventRow[]>`
         SELECT 
           id,
@@ -226,8 +267,6 @@ export class OutboxPublisherService implements OnModuleInit, OnModuleDestroy {
       }
 
       const claimedIds = claimed.map((r) => r.id);
-
-      // Track stale lease recoveries
       const staleCount = claimed.filter(
         (r) => r.status === 'PROCESSING',
       ).length;
@@ -238,7 +277,6 @@ export class OutboxPublisherService implements OnModuleInit, OnModuleDestroy {
         );
       }
 
-      // 2. Mark claimed rows as PROCESSING with lease timestamp
       await tx.$executeRaw`
         UPDATE outbox_event
         SET 
@@ -250,7 +288,6 @@ export class OutboxPublisherService implements OnModuleInit, OnModuleDestroy {
         WHERE id = ANY(${claimedIds}::text[]);
       `;
 
-      // Return updated in-memory attempt counts
       return claimed.map((c) => ({
         ...c,
         attemptCount: c.attemptCount + 1,
@@ -258,9 +295,6 @@ export class OutboxPublisherService implements OnModuleInit, OnModuleDestroy {
     });
   }
 
-  /**
-   * Returns production-grade observability metrics.
-   */
   async getMetrics(): Promise<OutboxMetrics> {
     const [counts, oldestPending] = await Promise.all([
       this.prisma.outboxEvent.groupBy({
@@ -299,7 +333,7 @@ export class OutboxPublisherService implements OnModuleInit, OnModuleDestroy {
       publishSuccessTotal: this.publishSuccessTotal,
       publishFailuresTotal: this.publishFailuresTotal,
       staleLeaseRecoveriesTotal: this.staleLeaseRecoveriesTotal,
-      cleanupDeletedTotal: 0, // Managed by OutboxCleanerService
+      cleanupDeletedTotal: 0,
     };
   }
 }
