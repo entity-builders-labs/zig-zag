@@ -14,6 +14,7 @@ import { TourFormatCoverageValidator } from './services/tour-format-coverage-val
 import { ActivityDiscoveryService } from './services/activity-discovery.service';
 import { GroqGroundedSearchService } from './services/groq-grounded-search.service';
 import { SerpApiGroundedSearchService } from './services/serpapi-grounded-search.service';
+import { TavilyGroundedSearchService } from './services/tavily-grounded-search.service';
 import { ActivityProposalResolutionService } from './services/activity-proposal-resolution.service';
 import { GroqDiscoveryProvider } from './services/groq-discovery.provider';
 import { GeminiDiscoveryProvider } from './services/gemini-discovery.provider';
@@ -67,6 +68,7 @@ import { OutboxModule } from '../outbox/outbox.module';
     ActivityDiscoveryService,
     GroqGroundedSearchService,
     SerpApiGroundedSearchService,
+    TavilyGroundedSearchService,
     ActivityProposalResolutionService,
     GroqDiscoveryProvider,
     GeminiDiscoveryProvider,
@@ -95,6 +97,7 @@ import { OutboxModule } from '../outbox/outbox.module';
         config: AiConfig,
         serpApi: SerpApiGroundedSearchService,
         groq: GroqGroundedSearchService,
+        tavily: TavilyGroundedSearchService,
       ): GroundedSearchProvider => {
         const provider = (
           config.groundedSearchProvider ||
@@ -105,24 +108,27 @@ import { OutboxModule } from '../outbox/outbox.module';
         switch (provider) {
           case 'groq':
             return groq;
+          case 'tavily':
+            return tavily;
           case 'serpapi':
-          default:
             return serpApi;
+          default:
+            throw new Error(`Unsupported GROUNDED_SEARCH_PROVIDER: ${provider}`);
         }
       },
       inject: [
         aiConfig.KEY,
         SerpApiGroundedSearchService,
         GroqGroundedSearchService,
+        TavilyGroundedSearchService,
       ],
     },
     {
       // Config-driven (DISCOVERY_EXTRACTOR_PROVIDER), unlike
-      // GROUNDED_SEARCH_PROVIDER's static useExisting swap above — Gemini
-      // is the default (moves discovery extraction off Groq's shared
-      // TPM budget entirely), Groq stays available as a config-selected
-      // alternative. Fails fast on an unrecognized value rather than
-      // silently falling back.
+      // GROUNDED_SEARCH_PROVIDER — Gemini is the default (moves discovery
+      // extraction off Groq's shared TPM budget entirely), Groq stays
+      // available as a config-selected alternative. Fails fast on an
+      // unrecognized value rather than silently falling back.
       provide: DISCOVERY_PROVIDER,
       useFactory: (
         config: AiConfig,
