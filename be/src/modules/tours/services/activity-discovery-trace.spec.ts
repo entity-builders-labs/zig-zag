@@ -1,4 +1,5 @@
 import { ActivityKind } from '@prisma/client';
+import { DiscoveryResponse } from '../interfaces/activity-discovery.interface';
 import { ActivityDiscoveryService } from './activity-discovery.service';
 
 describe('ActivityDiscoveryService trace provenance', () => {
@@ -18,15 +19,17 @@ describe('ActivityDiscoveryService trace provenance', () => {
       })),
     };
     const extractionProvider = {
-      discover: jest.fn(async (_request: any, searchResult: any) => ({
-        proposals: [],
-        provider: 'gemini',
-        model: 'gemini-flash',
-        groundingStatus: 'applied' as const,
-        groundingProvider: searchResult.provider,
-        groundingModel: searchResult.model,
-        groundingEvidence: searchResult.evidence,
-      })),
+      discover: jest.fn(
+        async (_request: any, searchResult: any): Promise<DiscoveryResponse> => ({
+          proposals: [],
+          provider: 'gemini',
+          model: 'gemini-flash',
+          groundingStatus: 'applied',
+          groundingProvider: searchResult.provider,
+          groundingModel: searchResult.model,
+          groundingEvidence: searchResult.evidence,
+        }),
+      ),
     };
 
     const service = new ActivityDiscoveryService(
