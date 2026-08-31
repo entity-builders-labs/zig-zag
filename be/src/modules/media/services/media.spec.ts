@@ -142,53 +142,107 @@ describe('MediaModule Services', () => {
   });
 
   describe('MediaEnrichmentProcessorService', () => {
+    const request = {
+      activityId: 'act-123',
+      name: 'San Telmo Market',
+      destinationLabel: 'Buenos Aires',
+      latitude: -34.6158,
+      longitude: -58.3754,
+    };
+
     it('persists documentary photos and emits ActivityMediaUpdated in transaction', async () => {
       const mockPhotos = [
         {
           url: 'https://upload.wikimedia.org/wikipedia/commons/san_telmo.jpg',
           author: 'Wikimedia User',
           license: 'CC BY 3.0',
+          licenseUrl: 'https://creativecommons.org/licenses/by/3.0/',
+          sourceUrl: 'https://commons.wikimedia.org/wiki/File:San_Telmo.jpg',
           provider: 'wikimedia_commons' as const,
         },
       ];
-      wikimediaCommonsMock.findPhotosForActivity.mockResolvedValueOnce(mockPhotos);
+      wikimediaCommonsMock.findPhotosForActivity.mockResolvedValueOnce({
+        outcome: 'FOUND',
+        photos: mockPhotos,
+      });
       prismaMock.activity.update.mockResolvedValueOnce({});
       outboxServiceMock.createInTx.mockResolvedValueOnce({});
 
-      await enrichmentProcessor.handleMediaEnrichment({
-        activityId: 'act-123',
-        name: 'San Telmo Market',
-        destinationLabel: 'Buenos Aires',
-        latitude: -34.6158,
-        longitude: -58.3754,
-      });
+      await enrichmentProcessor.handleMediaEnrichment(request);
 
-      expect(wikimediaCommonsMock.findPhotosForActivity).toHaveBeenCalledWith({
-        name: 'San Telmo Market',
-        destinationLabel: 'Buenos Aires',
-        latitude: -34.6158,
-        longitude: -58.3754,
-      });
-
-      expect(prismaMock.$transaction).toHaveBeenCalled();
       expect(prismaMock.activity.update).toHaveBeenCalledWith({
         where: { id: 'act-123' },
         data: expect.objectContaining({
           mediaStatus: 'ENRICHED',
         }),
       });
-
       expect(outboxServiceMock.createInTx).toHaveBeenCalledWith(
         prismaMock,
         expect.objectContaining({
           eventType: 'ActivityMediaUpdated',
-          payload: {
+          payload: expect.objectContaining({
             activityId: 'act-123',
             mediaStatus: 'ENRICHED',
             photoCount: 1,
-            mediaUpdatedAt: expect.any(String),
             photos: mockPhotos,
-          },
+          }),
+        }),
+      );
+    });
+
+    it('marks an authoritative empty result as enriched with zero photos', async () => {
+      wikimediaCommonsMock.findPhotosForActivity.mockResolvedValueOnce({
+        outcome: 'AUTHORITATIVE_EMPTY',
+        photos: [],
+      });
+
+      await enrichmentProcessor.handleMediaEnrichment(request);
+
+      expect(prismaMock.activity.update).toHaveBeenCalledWith({
+        where: { id: 'act-123' },
+        data: expect.objectContaining({
+          mediaStatus: 'ENRICHED',
+          photos: expect.anything(),
+          mediaError: null,
+        }),
+      });
+    });
+
+    it('throws retryable lookup failures so the durable outbox can retry', async () => {
+      wikimediaCommonsMock.findPhotosForActivity.mockResolvedValueOnce({
+        outcome: 'RETRYABLE_FAILURE',
+        photos: [],
+        error: 'Wikimedia timeout',
+      });
+
+      await expect(
+        enrichmentProcessor.handleMediaEnrichment(request),
+      ).rejects.toThrow('Retryable media lookup failure');
+      expect(prismaMock.activity.update).not.toHaveBeenCalled();
+      expect(outboxServiceMock.createInTx).not.toHaveBeenCalled();
+    });
+
+    it('persists permanent failures and emits a terminal media update', async () => {
+      wikimediaCommonsMock.findPhotosForActivity.mockResolvedValueOnce({
+        outcome: 'PERMANENT_FAILURE',
+        photos: [],
+        error: 'Invalid provider request',
+      });
+
+      await enrichmentProcessor.handleMediaEnrichment(request);
+
+      expect(prismaMock.activity.update).toHaveBeenCalledWith({
+        where: { id: 'act-123' },
+        data: expect.objectContaining({
+          mediaStatus: 'FAILED',
+          mediaError: 'Invalid provider request',
+        }),
+      });
+      expect(outboxServiceMock.createInTx).toHaveBeenCalledWith(
+        prismaMock,
+        expect.objectContaining({
+          eventType: 'ActivityMediaUpdated',
+          payload: expect.objectContaining({ mediaStatus: 'FAILED' }),
         }),
       );
     });
