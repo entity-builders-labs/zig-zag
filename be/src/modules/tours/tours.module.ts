@@ -3,6 +3,7 @@ import { ToursController } from './controllers/tours.controller';
 import { ToursService } from './services/tours.service';
 import { TourGenerationService } from './services/tour-generation.service';
 import { TourActivityGenerationService } from './services/tour-activity-generation.service';
+import { TourGenerationProcessorService } from './services/tour-generation-processor.service';
 import { TourImageService } from './services/tour-image.service';
 import { TourLocationService } from './services/tour-location.service';
 import { CompositeGenerationService } from './services/composite-generation.service';
@@ -60,6 +61,7 @@ import { OutboxModule } from '../outbox/outbox.module';
     ToursService,
     TourGenerationService,
     TourActivityGenerationService,
+    TourGenerationProcessorService,
     TourImageService,
     TourLocationService,
     CompositeGenerationService,
