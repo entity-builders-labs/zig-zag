@@ -57,7 +57,9 @@ describe('GenerationTrace V2 decision audit coverage', () => {
     const step = buildDiscoveryStep(result);
 
     expect(step.component).toBe('ActivityDiscoveryService');
-    expect(step.rules?.find((rule) => rule.ruleId === 'DISC-GROUNDED-001')?.result).toBe('PASS');
+    expect(
+      step.rules?.find((rule) => rule.ruleId === 'DISC-GROUNDED-001')?.result,
+    ).toBe('PASS');
     expect(step.decision?.outcome).toBe('PROPOSALS_READY_FOR_RESOLUTION');
     expect(step.decision?.triggeredActions).toContain('RESOLVE_ENTITIES');
     expect(step.candidateDecisions?.[0]).toEqual(
@@ -117,7 +119,8 @@ describe('GenerationTrace V2 decision audit coverage', () => {
             selectedActivityHours: 1.5,
             viableUnusedCandidateCount: 2,
             travelPace: 'moderate' as any,
-            message: 'Day 2 is underfilled while viable unused candidates remain.',
+            message:
+              'Day 2 is underfilled while viable unused candidates remain.',
           },
         ],
       },
@@ -127,7 +130,9 @@ describe('GenerationTrace V2 decision audit coverage', () => {
     expect(step.status).toBe('WARN');
     expect(step.decision?.outcome).toBe('TOUR_UNDERFILLED');
     expect(step.decision?.reasonCodes).toContain('UNDERFILLED_DAY');
-    expect(step.rules?.find((rule) => rule.ruleId === 'COMP-DAY-USAGE-001')?.result).toBe('WARN');
+    expect(
+      step.rules?.find((rule) => rule.ruleId === 'COMP-DAY-USAGE-001')?.result,
+    ).toBe('WARN');
   });
 
   it('records missing requested format only when validator reports a real viable omission', () => {
@@ -140,7 +145,8 @@ describe('GenerationTrace V2 decision audit coverage', () => {
             requestedFormat: 'experiences' as any,
             availableCandidateCount: 2,
             selectedCandidateCount: 0,
-            message: 'Experience candidates were available but none were selected.',
+            message:
+              'Experience candidates were available but none were selected.',
           },
         ],
       },
@@ -150,6 +156,8 @@ describe('GenerationTrace V2 decision audit coverage', () => {
     expect(step.status).toBe('WARN');
     expect(step.decision?.outcome).toBe('REQUESTED_FORMAT_MISSING');
     expect(step.decision?.reasonCodes).toContain('REQUESTED_FORMAT_MISSING');
-    expect(step.rules?.find((rule) => rule.ruleId === 'FORMAT-COVERAGE-001')?.result).toBe('WARN');
+    expect(
+      step.rules?.find((rule) => rule.ruleId === 'FORMAT-COVERAGE-001')?.result,
+    ).toBe('WARN');
   });
 });

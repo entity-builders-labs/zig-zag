@@ -20,7 +20,10 @@ describe('ActivityDiscoveryService trace provenance', () => {
     };
     const extractionProvider = {
       discover: jest.fn(
-        async (_request: any, searchResult: any): Promise<DiscoveryResponse> => ({
+        async (
+          _request: any,
+          searchResult: any,
+        ): Promise<DiscoveryResponse> => ({
           proposals: [],
           provider: 'gemini',
           model: 'gemini-flash',

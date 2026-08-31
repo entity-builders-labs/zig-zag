@@ -29,10 +29,13 @@ import { EXPERIENCE_FORMAT_ACTIVITY_KIND } from './experience-format-kind.util';
 function activityDetail(act: any): string {
   const parts: string[] = [];
   const metadata =
-    act.metadata && typeof act.metadata === 'object' && !Array.isArray(act.metadata)
+    act.metadata &&
+    typeof act.metadata === 'object' &&
+    !Array.isArray(act.metadata)
       ? act.metadata
       : undefined;
-  if (metadata?.providerPrimaryType) parts.push(`tipo proveedor ${metadata.providerPrimaryType}`);
+  if (metadata?.providerPrimaryType)
+    parts.push(`tipo proveedor ${metadata.providerPrimaryType}`);
   if (act.type) parts.push(`categoría ${act.type}`);
   if (act.rating != null) {
     parts.push(
@@ -43,6 +46,21 @@ function activityDetail(act: any): string {
   const weekdayText = act.openingHours?.weekdayText;
   if (weekdayText?.length) parts.push(`horario: ${weekdayText[0]}`);
   return parts.length ? parts.join(' · ') : 'sin datos adicionales';
+}
+
+function rejectionReasonSummary(
+  rejectedCountByReason: Record<string, number>,
+): string {
+  const reasons = Object.entries(rejectedCountByReason)
+    .filter(
+      ([reason, count]) => reason !== 'provider_request_failed' && count > 0,
+    )
+    .sort(([left], [right]) => left.localeCompare(right))
+    .map(([reason, count]) => `${reason}=${count}`);
+
+  return reasons.length > 0
+    ? ` Motivos registrados (un candidato puede tener más de uno): ${reasons.join('; ')}.`
+    : '';
 }
 
 function rule(
@@ -60,13 +78,29 @@ function rule(
 export function buildTourIntentStep(
   request: TourGenerationRequest,
 ): GenerationTraceStep {
-  const hasAdditionalPreferences = Boolean(request.intent.additionalPreferences?.trim());
+  const hasAdditionalPreferences = Boolean(
+    request.intent.additionalPreferences?.trim(),
+  );
+  const themes = request.intent.interests.length
+    ? request.intent.interests.join(', ')
+    : 'sin temas específicos';
+  const accessibility = request.mobility.accessibilityNeeds.length
+    ? ` Accesibilidad: ${request.mobility.accessibilityNeeds.join(', ')}.`
+    : '';
+  const additional = hasAdditionalPreferences
+    ? ` Preferencias adicionales capturadas: "${request.intent.additionalPreferences}".`
+    : ' Sin preferencias adicionales.';
   return {
     stage: 'tour_intent',
     label: 'Intención y movilidad solicitadas',
     component: 'TourGenerationRequest',
     status: 'INFO',
-    summary: 'Se registró la intención canónica que condicionará adquisición, ranking y planificación.',
+    summary:
+      `Temas: ${themes}. Formatos: ${request.intent.experienceFormats.join(', ')}. ` +
+      `Estilo: ${request.intent.explorationStyle}. Modos permitidos: ${request.mobility.allowedTransportationModes.join(', ')}. ` +
+      `Esfuerzo peatonal capturado: ${request.mobility.maxWalkingDistancePerDayMeters / 1000}km por día y ` +
+      `${request.mobility.maxContinuousWalkingDistanceMeters / 1000}km continuos; todavía no se aplica como restricción determinística hasta la etapa de factibilidad espacial. ` +
+      `Ritmo: ${request.mobility.travelPace}.${accessibility}${additional}`,
     inputs: {
       destination: request.destination.label,
       days: request.days,
@@ -75,8 +109,10 @@ export function buildTourIntentStep(
       explorationStyle: request.intent.explorationStyle,
       additionalPreferences: request.intent.additionalPreferences ?? null,
       allowedTransportationModes: request.mobility.allowedTransportationModes,
-      maxWalkingDistancePerDayMeters: request.mobility.maxWalkingDistancePerDayMeters,
-      maxContinuousWalkingDistanceMeters: request.mobility.maxContinuousWalkingDistanceMeters,
+      maxWalkingDistancePerDayMeters:
+        request.mobility.maxWalkingDistancePerDayMeters,
+      maxContinuousWalkingDistanceMeters:
+        request.mobility.maxContinuousWalkingDistanceMeters,
       travelPace: request.mobility.travelPace,
       accessibilityNeeds: request.mobility.accessibilityNeeds,
     },
@@ -102,7 +138,8 @@ export function buildTourIntentStep(
     decision: {
       status: 'INFO',
       outcome: 'INTENT_ACCEPTED',
-      reason: 'La solicitud contiene el contrato canónico requerido por el motor.',
+      reason:
+        'La solicitud contiene el contrato canónico requerido por el motor.',
       reasonCodes: ['CANONICAL_REQUEST_AVAILABLE'],
       triggeredActions: ['RESOLVE_DESTINATION'],
     },
@@ -140,7 +177,9 @@ export function buildDbSearchStep(
     ],
     decision: {
       status: candidates.length ? 'PASS' : 'WARN',
-      outcome: candidates.length ? 'CATALOG_POOL_AVAILABLE' : 'CATALOG_POOL_EMPTY',
+      outcome: candidates.length
+        ? 'CATALOG_POOL_AVAILABLE'
+        : 'CATALOG_POOL_EMPTY',
       reason: candidates.length
         ? 'Hay candidatos persistidos para evaluar.'
         : 'No hay candidatos persistidos para este alcance.',
@@ -162,7 +201,8 @@ export function buildDbSearchStep(
       name: act.name,
       source: 'db',
       status: 'ELIGIBLE' as const,
-      reason: 'Candidato real recuperado del catálogo para evaluación posterior.',
+      reason:
+        'Candidato real recuperado del catálogo para evaluación posterior.',
       reasonCodes: ['CATALOG_MATCH'],
     })),
   };
@@ -175,14 +215,73 @@ export function buildPlacesCrawlStep(
 ): GenerationTraceStep {
   const providerLabel = placesProviderLabel(provenance.provider);
   const rejectedCandidates = provenance.rejectedCandidates ?? [];
+  const cacheLabel =
+    provenance.cacheStatus === 'hit'
+      ? 'cache hit'
+      : provenance.cacheStatus === 'strict-miss'
+        ? 'strict cache miss'
+        : 'live provider call';
+  const providerRequestFailures =
+    provenance.rejectedCountByReason.provider_request_failed ?? 0;
+  const rejectedCandidateCount =
+    provenance.rejectedCount ??
+    Object.entries(provenance.rejectedCountByReason).reduce(
+      (sum, [reason, count]) =>
+        reason === 'provider_request_failed' ? sum : sum + count,
+      0,
+    );
+  const requestFailureSuffix = providerRequestFailures
+    ? ` Además, ${providerRequestFailures} consulta(s) al proveedor fallaron.`
+    : '';
+  const rejectionReasons = rejectionReasonSummary(
+    provenance.rejectedCountByReason,
+  );
+  const anchorSummary = provenance.anchors?.length
+    ? ` Usó ${provenance.anchors.length} punto(s) de cobertura geográfica para distribuir las consultas; no implican relevancia turística ni selección para composites: ${provenance.anchors
+        .map((anchor) => anchor.label)
+        .join(', ')}.`
+    : '';
+  const validationSummary =
+    provenance.validatedCount !== undefined
+      ? ` Flujo de candidatos: semilla recibió ${provenance.seedReceivedCount ?? 0}; cobertura recibió ${provenance.coverageReceivedCount ?? provenance.receivedCount}; geografía de operación rechazó ${provenance.operationGeographyRejectedCount ?? 0}; la unión eliminó ${provenance.deduplicatedCount ?? 0} duplicado(s); identidad válida ${provenance.identityValidCount ?? provenance.validatedCount}; admisión aprobada ${provenance.admittedCount ?? provenance.validatedCount}; ${provenance.existingCount ?? provenance.rejectedCountByReason.existing_activity ?? 0} ya existía(n); persistió ${provenance.persistedCount ?? provenance.acceptedCount} nuevo(s) e indexó ${provenance.embeddedCount ?? 0} embedding(s).`
+      : '';
+  const embeddingFailureSummary =
+    provenance.embeddingWriteStatus === 'failed' ||
+    provenance.embeddingWriteStatus === 'unavailable'
+      ? ` La indexación semántica quedó ${provenance.embeddingWriteStatus === 'failed' ? 'fallida' : 'no disponible'}: ${provenance.embeddingFailureReason || 'motivo no registrado'}.`
+      : '';
+  const providerCalls =
+    provenance.providerCallCount !== undefined
+      ? ` Ejecutó ${provenance.providerCallCount} consulta(s) acotadas.`
+      : '';
+  const operationSummary = provenance.operations?.length
+    ? (() => {
+        const succeededText = provenance.operations.filter(
+          ({ providerOperation, status }) =>
+            providerOperation === 'text' && status === 'succeeded',
+        ).length;
+        const succeededNearby = provenance.operations.filter(
+          ({ providerOperation, status }) =>
+            providerOperation === 'nearby' && status === 'succeeded',
+        ).length;
+        const skippedUnsupported = provenance.operations.filter(
+          ({ status, unsupportedReason }) =>
+            status === 'skipped' && unsupportedReason === 'provider_capability',
+        ).length;
+        const failedOperations = provenance.operations.filter(
+          ({ status }) => status === 'failed',
+        ).length;
+        return ` Subflujo de adquisición: ${succeededText} ${providerLabel} Text Search de semilla turística; ${succeededNearby} Nearby Search de cobertura por tipos primarios; ${skippedUnsupported} omitida(s) por capacidad del proveedor; ${failedOperations} fallida(s).`;
+      })()
+    : '';
   return {
     stage: 'places_crawl',
     label: `Catalog refill · ${providerLabel}`,
     component: `${providerLabel}CatalogRefill`,
     status: failed ? 'FAIL' : 'PASS',
     summary: failed
-      ? `${providerLabel} no pudo completar el refill.`
-      : `${providerLabel} recibió ${provenance.receivedCount} resultado(s) y persistió ${provenance.persistedCount ?? provenance.acceptedCount} actividad(es) nueva(s).`,
+      ? `${providerLabel} falló (${cacheLabel}). Solicitados: ${provenance.requestedCount}; recibidos: ${provenance.receivedCount}; no se afirmó cobertura nueva.`
+      : `${providerLabel} (${cacheLabel}) recibió ${provenance.receivedCount} resultados brutos y persistió ${provenance.persistedCount ?? provenance.acceptedCount} actividad(es) nueva(s).${anchorSummary}${providerCalls}${operationSummary}${validationSummary}${embeddingFailureSummary}${rejectedCandidateCount ? ` Rechazos totales registrados: ${rejectedCandidateCount}.${rejectionReasons}` : ''}${requestFailureSuffix}`,
     inputs: {
       provider: provenance.provider,
       requestedCount: provenance.requestedCount,
@@ -194,7 +293,9 @@ export function buildPlacesCrawlStep(
         'ACQ-PROVIDER-001',
         'La adquisición debe informar salud y resultados del proveedor',
         failed ? 'FAIL' : 'PASS',
-        failed ? 'El proveedor falló durante el refill.' : 'El proveedor respondió y la admisión fue registrada.',
+        failed
+          ? 'El proveedor falló durante el refill.'
+          : 'El proveedor respondió y la admisión fue registrada.',
         failed ? 'failed' : 'success',
         'success',
       ),
@@ -212,8 +313,12 @@ export function buildPlacesCrawlStep(
       reason: failed
         ? 'No se puede afirmar que el refill haya agregado cobertura.'
         : 'Los candidatos admitidos se incorporan al catálogo y se reevalúa cobertura.',
-      reasonCodes: failed ? ['PROVIDER_REQUEST_FAILED'] : ['REFILL_RESULTS_ADMITTED'],
-      triggeredActions: failed ? ['DEGRADE_TO_EXISTING_POOL'] : ['REQUERY_CATALOG', 'ANALYZE_COVERAGE'],
+      reasonCodes: failed
+        ? ['PROVIDER_REQUEST_FAILED']
+        : ['REFILL_RESULTS_ADMITTED'],
+      triggeredActions: failed
+        ? ['DEGRADE_TO_EXISTING_POOL']
+        : ['REQUERY_CATALOG', 'ANALYZE_COVERAGE'],
     },
     outputs: {
       receivedCount: provenance.receivedCount,
@@ -224,22 +329,28 @@ export function buildPlacesCrawlStep(
     providerStatus: failed ? 'failed' : 'success',
     degradedReason: failed ? 'provider_request_failed' : undefined,
     candidates: [
-      ...candidates.map((act): TraceCandidate => ({
-        source: provenance.provider === 'google' ? 'google_places' : 'geoapify',
-        id: act.id,
-        name: act.name,
-        detail: activityDetail(act),
-        offered: true,
-        chosen: false,
-      })),
-      ...rejectedCandidates.map((rejected): TraceCandidate => ({
-        source: provenance.provider === 'google' ? 'google_places' : 'geoapify',
-        id: rejected.id,
-        name: rejected.name,
-        detail: `rechazado: ${rejected.reasons.join(', ')}`,
-        offered: false,
-        chosen: false,
-      })),
+      ...candidates.map(
+        (act): TraceCandidate => ({
+          source:
+            provenance.provider === 'google' ? 'google_places' : 'geoapify',
+          id: act.id,
+          name: act.name,
+          detail: activityDetail(act),
+          offered: true,
+          chosen: false,
+        }),
+      ),
+      ...rejectedCandidates.map(
+        (rejected): TraceCandidate => ({
+          source:
+            provenance.provider === 'google' ? 'google_places' : 'geoapify',
+          id: rejected.id,
+          name: rejected.name,
+          detail: `rechazado: ${rejected.reasons.join(', ')}`,
+          offered: false,
+          chosen: false,
+        }),
+      ),
     ],
     candidateDecisions: [
       ...candidates.map((act) => ({
@@ -281,15 +392,37 @@ export function buildDestinationResolutionStep(
       },
 ): GenerationTraceStep {
   const area = resolution.scale === 'area';
-  const providerFailed = !area && resolution.degradationReason === 'provider_failed';
+  const providerFailed =
+    !area && resolution.degradationReason === 'provider_failed';
+  const attempted = resolution.attemptedQueries?.length
+    ? ` Intentos: ${resolution.attemptedQueries.join(' → ')}.`
+    : '';
+  const degradationMessages: Record<string, string> = {
+    missing_destination: 'No se recibió un destino textual.',
+    no_area_candidate:
+      'Nominatim no devolvió una ciudad/pueblo con límite utilizable.',
+    candidate_mismatched_coordinates:
+      'Los candidatos de ciudad encontrados no coincidían con las coordenadas seleccionadas.',
+    boundary_unavailable:
+      'Se identificó la ciudad, pero no se pudo obtener su límite OSM.',
+    provider_failed: 'La resolución del destino falló y continuó degradada.',
+  };
   return {
     stage: 'destination_resolution',
     label: 'Resolución del destino',
     component: 'DestinationResolutionService',
     status: providerFailed ? 'WARN' : 'PASS',
     summary: area
-      ? `El destino se resolvió como área administrativa real: ${resolution.boundary.name}.`
-      : 'El destino se tratará como punto y usará alcance radial.',
+      ? resolution.settlementResult
+        ? `"${destinationText}" se identificó como ${resolution.settlementResult.displayName} y se validó con el límite administrativo contenedor ${resolution.boundary.name}. Se usa ese límite real en vez de un único punto+radio.${attempted}`
+        : `"${destinationText}" resolvió a un límite real de ciudad: ${resolution.boundary.name}. Se usa ese límite real para acotar la recuperación y adquisición de candidatos en vez de un único punto+radio.${attempted}`
+      : resolution.pointReason === 'specific_point_hint'
+        ? destinationText
+          ? `"${destinationText}" fue seleccionado como un lugar o dirección específica — se conserva como destino puntual y no se amplía a la ciudad contenedora.`
+          : 'Se usa la ubicación puntual seleccionada y no se amplía a una ciudad contenedora.'
+        : destinationText
+          ? `"${destinationText}" no resolvió a un límite de ciudad/pueblo real — se usa el punto+radio de siempre. ${degradationMessages[resolution.degradationReason || ''] || 'Motivo no registrado.'}${attempted}`
+          : 'No se especificó un destino de texto — se usa el punto+radio de siempre.',
     inputs: {
       destinationText: destinationText ?? null,
       attemptedQueries: resolution.attemptedQueries ?? [],
@@ -311,7 +444,13 @@ export function buildDestinationResolutionStep(
       reason: area
         ? 'El boundary real es más preciso que un radio artificial para recuperación local.'
         : `No se aplicará boundary de área; razón registrada: ${resolution.pointReason ?? resolution.degradationReason ?? 'point_destination'}.`,
-      reasonCodes: [area ? 'AREA_BOUNDARY_RESOLVED' : resolution.degradationReason ?? resolution.pointReason ?? 'POINT_DESTINATION'],
+      reasonCodes: [
+        area
+          ? 'AREA_BOUNDARY_RESOLVED'
+          : (resolution.degradationReason ??
+            resolution.pointReason ??
+            'POINT_DESTINATION'),
+      ],
       triggeredActions: ['RETRIEVE_CATALOG'],
     },
     outputs: {
@@ -341,17 +480,32 @@ export function buildEmbeddingsStep(
   const measuredRatio = result.eligibleCandidateCount
     ? result.indexedCandidateCount / result.eligibleCandidateCount
     : 0;
+  let summary: string;
+  if (result.status === 'applied') {
+    const missingCount =
+      result.eligibleCandidateCount - result.indexedCandidateCount;
+    summary =
+      `Ranking semántico solicitado y aplicado sobre ${result.eligibleCandidateCount} candidato(s) elegible(s) del destino: ` +
+      `${result.indexedCandidateCount} tenían un vector compatible con el índice activo y se ofrecieron ${offeredCount} al selector.` +
+      (missingCount > 0
+        ? ` ${missingCount} candidato(s) sin embedding compatible se conservaron explícitamente detrás del grupo medido y se ordenaron por calidad y proximidad.`
+        : ' Todos los candidatos elegibles tenían embedding compatible.');
+  } else if (result.status === 'unavailable') {
+    summary =
+      `Ranking semántico solicitado pero no aplicado sobre ${result.eligibleCandidateCount} candidato(s) elegible(s). ` +
+      `Se ofrecieron ${offeredCount} usando calidad y proximidad. Motivo: ${result.reason || 'proveedor o índice semántico no disponible'}.`;
+  } else {
+    summary =
+      `No se solicitó ranking semántico porque la intención no contenía intereses ni preferencias semánticas adicionales. ` +
+      `${result.indexedCandidateCount} de ${result.eligibleCandidateCount} candidato(s) elegible(s) tenían embedding compatible; ` +
+      `se ofrecieron ${offeredCount} por calidad y proximidad.`;
+  }
   return {
     stage: 'embeddings',
     label: 'Ranking semántico',
     component: 'VectorStoreService + pgvector',
     status: result.status === 'unavailable' ? 'WARN' : 'PASS',
-    summary:
-      result.status === 'applied'
-        ? `${result.indexedCandidateCount}/${result.eligibleCandidateCount} candidato(s) tuvieron similitud semántica medible.`
-        : result.status === 'unavailable'
-          ? `La similitud semántica no estuvo disponible; ranking degradado a señales determinísticas restantes.`
-          : 'No se solicitó señal semántica para esta intención.',
+    summary,
     inputs: {
       eligibleCandidateCount: result.eligibleCandidateCount,
       provider: result.identity?.provider ?? null,
@@ -361,12 +515,16 @@ export function buildEmbeddingsStep(
       rule(
         'RANK-SEMANTIC-001',
         'Usar similitud semántica solo cuando fue solicitada y está disponible',
-        result.status === 'unavailable' ? 'WARN' : result.status === 'not_requested' ? 'SKIPPED' : 'PASS',
+        result.status === 'unavailable'
+          ? 'WARN'
+          : result.status === 'not_requested'
+            ? 'SKIPPED'
+            : 'PASS',
         result.status === 'applied'
           ? 'La similitud se incorporó al ranking.'
           : result.status === 'not_requested'
             ? 'No había intención semántica que medir.'
-            : result.reason ?? 'Proveedor o índice semántico no disponible.',
+            : (result.reason ?? 'Proveedor o índice semántico no disponible.'),
         result.status,
       ),
       rule(
@@ -378,8 +536,15 @@ export function buildEmbeddingsStep(
     ],
     decision: {
       status: result.status === 'unavailable' ? 'WARN' : 'PASS',
-      outcome: result.status === 'applied' ? 'SEMANTIC_SIGNAL_APPLIED' : 'SEMANTIC_SIGNAL_NOT_APPLIED',
-      reason: result.reason ?? (result.status === 'applied' ? 'Índice semántico compatible disponible.' : 'No era requerido.'),
+      outcome:
+        result.status === 'applied'
+          ? 'SEMANTIC_SIGNAL_APPLIED'
+          : 'SEMANTIC_SIGNAL_NOT_APPLIED',
+      reason:
+        result.reason ??
+        (result.status === 'applied'
+          ? 'Índice semántico compatible disponible.'
+          : 'No era requerido.'),
       reasonCodes: [result.status.toUpperCase()],
       triggeredActions: ['BUILD_RANKED_WINDOW'],
     },
@@ -404,16 +569,26 @@ export function buildEmbeddingsStep(
   };
 }
 
-export function buildCoverageAnalysisStep(report: CoverageReport): GenerationTraceStep {
+export function buildCoverageAnalysisStep(
+  report: CoverageReport,
+): GenerationTraceStep {
   const blocking = report.deficits.filter((d) => d.severity === 'blocking');
   const warnings = report.deficits.filter((d) => d.severity === 'warning');
   const sufficient = report.status === 'sufficient';
+  const deficitsSummary = report.deficits.length
+    ? report.deficits.map((deficit) => deficit.message).join(' ')
+    : 'Sin déficits bloqueantes.';
+  const decisionSummary = report.decision.deployableInPr6
+    ? `Decisión ejecutable en PR 6: ${report.decision.action}.`
+    : `Decisión diferida a PR 7: ${report.decision.action}.`;
 
   const rules: TraceRuleEvaluation[] = [
     rule(
       'COV-QUANTITY-001',
       'Cantidad utilizable suficiente para días y ritmo solicitados',
-      report.usableCandidateCount >= report.requiredCandidateCount ? 'PASS' : 'FAIL',
+      report.usableCandidateCount >= report.requiredCandidateCount
+        ? 'PASS'
+        : 'FAIL',
       `${report.usableCandidateCount} utilizable(s) frente a ${report.requiredCandidateCount} requerido(s).`,
       report.usableCandidateCount,
       report.requiredCandidateCount,
@@ -445,7 +620,9 @@ export function buildCoverageAnalysisStep(report: CoverageReport): GenerationTra
     ),
   ];
 
-  for (const deficit of report.deficits.filter((d) => d.reason === 'missing_requested_experience_format')) {
+  for (const deficit of report.deficits.filter(
+    (d) => d.reason === 'missing_requested_experience_format',
+  )) {
     rules.push(
       rule(
         `COV-FORMAT-${(deficit.experienceFormat ?? 'UNKNOWN').toUpperCase().replace(/[^A-Z0-9]+/g, '_')}`,
@@ -462,10 +639,14 @@ export function buildCoverageAnalysisStep(report: CoverageReport): GenerationTra
     stage: 'coverage_analysis',
     label: 'Cobertura multidimensional del pool',
     component: 'CoverageAnalyzer',
-    status: sufficient ? 'PASS' : report.status === 'degraded' ? 'WARN' : 'FAIL',
-    summary: sufficient
-      ? `Pool suficiente: ${report.usableCandidateCount}/${report.requiredCandidateCount} candidatos utilizables y sin déficit bloqueante.`
-      : `Pool no suficiente: ${blocking.length} déficit(s) bloqueante(s), ${warnings.length} advertencia(s).`,
+    status: sufficient
+      ? 'PASS'
+      : report.status === 'degraded'
+        ? 'WARN'
+        : 'FAIL',
+    summary:
+      `Analizados ${report.analyzedCandidateCount} candidatos; elegibles ${report.eligibleCandidateCount}; ofrecidos al LLM ${report.offeredCandidateCount}; requeridos ${report.requiredCandidateCount}. ` +
+      `Estado ${report.status}. ${decisionSummary} ${deficitsSummary}`,
     inputs: {
       analyzedCandidateCount: report.analyzedCandidateCount,
       eligibleCandidateCount: report.eligibleCandidateCount,
@@ -475,18 +656,24 @@ export function buildCoverageAnalysisStep(report: CoverageReport): GenerationTra
     },
     rules,
     decision: {
-      status: sufficient ? 'PASS' : report.status === 'degraded' ? 'WARN' : 'FAIL',
+      status: sufficient
+        ? 'PASS'
+        : report.status === 'degraded'
+          ? 'WARN'
+          : 'FAIL',
       outcome: report.decision.action,
       reason: sufficient
         ? 'No hay déficit bloqueante que justifique adquisición adicional.'
-        : blocking.map((d) => d.message).join(' ') || 'La cobertura no alcanza el umbral requerido.',
+        : blocking.map((d) => d.message).join(' ') ||
+          'La cobertura no alcanza el umbral requerido.',
       reasonCodes: report.deficits.map((d) => d.reason),
       triggeredActions:
         report.decision.action === 'none'
           ? ['BUILD_CANDIDATE_POOL']
           : report.decision.action.includes('pr7')
             ? ['RUN_GROUNDED_DISCOVERY']
-            : report.decision.action === 'places_text_search' || report.decision.action === 'places_nearby_search'
+            : report.decision.action === 'places_text_search' ||
+                report.decision.action === 'places_nearby_search'
               ? ['RUN_CATALOG_REFILL']
               : ['DEGRADE_OR_FAIL'],
     },
@@ -497,7 +684,8 @@ export function buildCoverageAnalysisStep(report: CoverageReport): GenerationTra
       acquisitionDecision: report.decision,
     },
     providerStatus: report.status === 'degraded' ? 'failed' : undefined,
-    degradedReason: report.status === 'degraded' ? report.providerHealth.reason : undefined,
+    degradedReason:
+      report.status === 'degraded' ? report.providerHealth.reason : undefined,
     coverageReport: report,
   };
 }
@@ -523,7 +711,9 @@ export function buildDiscoveryStep(
         'DISC-GROUNDED-001',
         'Discovery debe estar respaldado por evidencia del proveedor de búsqueda',
         applied ? 'PASS' : 'FAIL',
-        applied ? 'La búsqueda devolvió evidencia grounded utilizable.' : `Grounding status: ${result.groundingStatus}.`,
+        applied
+          ? 'La búsqueda devolvió evidencia grounded utilizable.'
+          : `Grounding status: ${result.groundingStatus}.`,
         result.groundingStatus,
         'applied',
       ),
@@ -536,12 +726,18 @@ export function buildDiscoveryStep(
     ],
     decision: {
       status: applied ? 'PASS' : 'WARN',
-      outcome: result.proposals.length ? 'PROPOSALS_READY_FOR_RESOLUTION' : 'NO_USABLE_PROPOSALS',
+      outcome: result.proposals.length
+        ? 'PROPOSALS_READY_FOR_RESOLUTION'
+        : 'NO_USABLE_PROPOSALS',
       reason: result.proposals.length
         ? 'Hay conceptos grounded para intentar resolver como entidades reales.'
         : 'Discovery no produjo propuestas utilizables.',
-      reasonCodes: result.validationErrors?.length ? ['PROPOSALS_VALIDATION_REJECTED'] : ['GROUNDED_DISCOVERY_COMPLETED'],
-      triggeredActions: result.proposals.length ? ['RESOLVE_ENTITIES'] : ['CONTINUE_WITH_EXISTING_POOL'],
+      reasonCodes: result.validationErrors?.length
+        ? ['PROPOSALS_VALIDATION_REJECTED']
+        : ['GROUNDED_DISCOVERY_COMPLETED'],
+      triggeredActions: result.proposals.length
+        ? ['RESOLVE_ENTITIES']
+        : ['CONTINUE_WITH_EXISTING_POOL'],
     },
     outputs: {
       proposalCount: result.proposals.length,
@@ -560,7 +756,8 @@ export function buildDiscoveryStep(
       name: p.name,
       source: 'discovery',
       status: 'ELIGIBLE' as const,
-      reason: 'Concepto grounded listo para entity resolution; aún no es Activity canónica.',
+      reason:
+        'Concepto grounded listo para entity resolution; aún no es Activity canónica.',
       reasonCodes: ['PROPOSAL_PENDING_RESOLUTION'],
     })),
     providerStatus: applied ? 'success' : 'failed',
@@ -579,12 +776,24 @@ export function buildEntityResolutionStep(
 ): GenerationTraceStep {
   const accepted = result.resolved.filter((r) => r.status === 'accepted');
   const rejected = result.resolved.filter((r) => r.status !== 'accepted');
+  const rejectedSummaries = rejected.map(
+    (entry) =>
+      `${entry.proposal.name}: ${entry.rejectionReasons.join(', ') || 'sin motivo registrado'}`,
+  );
+  const summary =
+    `Se resolvieron ${result.acceptedCount} de ${result.totalProposals} ` +
+    `propuesta(s) fundamentada(s) como Activities reales y persistidas — ` +
+    `re-consultadas y combinadas en el pool unificado de este mismo pedido ` +
+    `(ver el paso "candidate_pool").` +
+    (rejectedSummaries.length
+      ? ` Rechazadas: ${rejectedSummaries.join('; ')}.`
+      : '');
   return {
     stage: 'entity_resolution',
     label: 'Resolución de entidades',
     component: 'ActivityProposalResolutionService',
     status: accepted.length ? 'PASS' : rejected.length ? 'WARN' : 'INFO',
-    summary: `${accepted.length}/${result.totalProposals} propuesta(s) se resolvieron y persistieron como Activities canónicas.`,
+    summary,
     inputs: { totalProposals: result.totalProposals },
     rules: [
       rule(
@@ -599,33 +808,47 @@ export function buildEntityResolutionStep(
         'Toda propuesta rechazada debe conservar razones explícitas',
         rejected.every((r) => r.rejectionReasons.length > 0) ? 'PASS' : 'WARN',
         rejected.length
-          ? rejected.map((r) => `${r.proposal.name}: ${r.rejectionReasons.join(', ') || 'sin motivo'}`).join('; ')
+          ? rejected
+              .map(
+                (r) =>
+                  `${r.proposal.name}: ${r.rejectionReasons.join(', ') || 'sin motivo'}`,
+              )
+              .join('; ')
           : 'No hubo rechazos.',
       ),
     ],
     decision: {
       status: accepted.length ? 'PASS' : 'WARN',
-      outcome: accepted.length ? 'CANONICAL_ACTIVITIES_PERSISTED' : 'NO_PROPOSALS_RESOLVED',
+      outcome: accepted.length
+        ? 'CANONICAL_ACTIVITIES_PERSISTED'
+        : 'NO_PROPOSALS_RESOLVED',
       reason: accepted.length
         ? 'Las entidades aceptadas pueden reingresar al pool canónico.'
         : 'Ninguna propuesta alcanzó los requisitos de resolución.',
       reasonCodes: rejected.flatMap((r) => r.rejectionReasons),
-      triggeredActions: accepted.length ? ['REQUERY_CANONICAL_CATALOG'] : ['CONTINUE_WITH_EXISTING_POOL'],
+      triggeredActions: accepted.length
+        ? ['REQUERY_CANONICAL_CATALOG']
+        : ['CONTINUE_WITH_EXISTING_POOL'],
     },
     outputs: {
       acceptedCount: accepted.length,
       rejectedCount: rejected.length,
-      persistedActivityIds: accepted.map((r) => r.persistedActivityId).filter(Boolean),
+      persistedActivityIds: accepted
+        .map((r) => r.persistedActivityId)
+        .filter(Boolean),
     },
     candidateDecisions: result.resolved.map((r) => ({
       id: r.persistedActivityId ?? r.proposal.name,
       name: r.proposal.name,
       source: 'discovery',
-      status: r.status === 'accepted' ? ('ELIGIBLE' as const) : ('REJECTED' as const),
-      reason: r.status === 'accepted'
-        ? 'Propuesta resuelta como Activity canónica.'
-        : r.rejectionReasons.join(', '),
-      reasonCodes: r.status === 'accepted' ? ['ENTITY_RESOLVED'] : r.rejectionReasons,
+      status:
+        r.status === 'accepted' ? ('ELIGIBLE' as const) : ('REJECTED' as const),
+      reason:
+        r.status === 'accepted'
+          ? 'Propuesta resuelta como Activity canónica.'
+          : r.rejectionReasons.join(', '),
+      reasonCodes:
+        r.status === 'accepted' ? ['ENTITY_RESOLVED'] : r.rejectionReasons,
     })),
     providerStatus: accepted.length ? 'success' : 'failed',
     degradedReason: accepted.length ? undefined : 'no_proposals_resolved',
@@ -657,16 +880,28 @@ export function buildCandidatePoolStep(params: {
   );
 
   const candidates: TraceCandidate[] = params.offeredCandidates.map((c) => {
-    const bucket = c.traceSource === 'db' ? 'catalog' : c.traceSource === 'discovery' ? 'discovery' : 'refill';
+    const bucket =
+      c.traceSource === 'db'
+        ? 'catalog'
+        : c.traceSource === 'discovery'
+          ? 'discovery'
+          : 'refill';
     bySource[bucket] += 1;
     if (c.kind) byKind[c.kind] = (byKind[c.kind] ?? 0) + 1;
     const themes = matchedThemesFor(c, params.requestedThemes);
-    const experienceFormat = c.kind ? experienceFormatByKind.get(c.kind) : undefined;
+    const experienceFormat = c.kind
+      ? experienceFormatByKind.get(c.kind)
+      : undefined;
     return {
       source: c.traceSource,
       id: c.id,
       name: c.name,
-      detail: `score total ${c.scoreBreakdown.totalScore.toFixed(3)}`,
+      detail:
+        `score total ${c.scoreBreakdown.totalScore.toFixed(3)} ` +
+        `(semántica ${c.scoreBreakdown.semanticSimilarity ?? 'n/d'}, ` +
+        `calidad ${c.scoreBreakdown.qualityBonus.toFixed(3)}, ` +
+        `proximidad ${c.scoreBreakdown.proximityBonus.toFixed(3)}, ` +
+        `diversidad ${c.scoreBreakdown.diversityBonus.toFixed(3)})`,
       offered: true,
       chosen: false,
       scoreBreakdown: c.scoreBreakdown,
@@ -678,7 +913,11 @@ export function buildCandidatePoolStep(params: {
     rule(
       `RANK-FORMAT-${f.format.toUpperCase().replace(/[^A-Z0-9]+/g, '_')}`,
       `Reservar representación del formato solicitado ${f.format} cuando existe en el pool`,
-      f.fullPoolCount === 0 ? 'SKIPPED' : f.llmWindowCount > 0 ? 'PASS' : 'FAIL',
+      f.fullPoolCount === 0
+        ? 'SKIPPED'
+        : f.llmWindowCount > 0
+          ? 'PASS'
+          : 'FAIL',
       f.fullPoolCount === 0
         ? 'No había candidato real de ese formato en el pool completo.'
         : `${f.llmWindowCount}/${f.fullPoolCount} llegó/llegaron a la ventana.`,
@@ -686,13 +925,28 @@ export function buildCandidatePoolStep(params: {
       f.fullPoolCount === 0 ? undefined : '> 0',
     ),
   );
+  const formatSummary = params.formatAvailability
+    .map(
+      (format) =>
+        `"${format.format}": ${format.fullPoolCount} en el pool completo, ${format.llmWindowCount} en la ventana ofrecida`,
+    )
+    .join('; ');
 
   return {
     stage: 'candidate_pool',
     label: 'Ranking y ventana canónica',
     component: 'CandidateRankingEngine + selectBoundedWindow',
     status: formatRules.some((r) => r.result === 'FAIL') ? 'FAIL' : 'PASS',
-    summary: `${candidates.length}/${params.eligibleCount} candidato(s) elegibles entraron a la ventana del planner.`,
+    summary:
+      `Ventana ofrecida al selector: ${candidates.length} candidato(s) reales ` +
+      `de ${params.eligibleCount} elegibles (${bySource.catalog} del catálogo, ` +
+      `${bySource.refill} de refill, ${bySource.discovery} recién resueltos ` +
+      `por discovery). Cada uno conserva su ID de Activity real; el modelo no ` +
+      `puede crear entidades.` +
+      (formatSummary ? ` Formatos solicitados: ${formatSummary}.` : '') +
+      (params.droppedForFamilyCapCount > 0
+        ? ` ${params.droppedForFamilyCapCount} variante(s) adicional(es) de una misma familia quedaron fuera de la ventana.`
+        : ''),
     inputs: {
       initialCatalogCount: params.initialCatalogCount,
       postAcquisitionCatalogCount: params.postAcquisitionCatalogCount,
@@ -722,8 +976,11 @@ export function buildCandidatePoolStep(params: {
     decision: {
       status: formatRules.some((r) => r.result === 'FAIL') ? 'FAIL' : 'PASS',
       outcome: 'PLANNING_WINDOW_BUILT',
-      reason: 'La ventana quedó ordenada por señales reales de relevancia y cobertura de formato.',
-      reasonCodes: formatRules.filter((r) => r.result === 'FAIL').map((r) => r.ruleId),
+      reason:
+        'La ventana quedó ordenada por señales reales de relevancia y cobertura de formato.',
+      reasonCodes: formatRules
+        .filter((r) => r.result === 'FAIL')
+        .map((r) => r.ruleId),
       triggeredActions: ['RUN_DAILY_PLANNING'],
     },
     outputs: {
@@ -757,7 +1014,17 @@ export function buildCandidatePoolStep(params: {
 export function buildDailyPlanningStep(
   solution: DailyPlanningSolution,
 ): GenerationTraceStep {
-  const selectedCount = solution.days.reduce((sum, day) => sum + day.activities.length, 0);
+  const selectedCount = solution.days.reduce(
+    (sum, day) => sum + day.activities.length,
+    0,
+  );
+  const iterationsSummary =
+    solution.metadata.iterations !== undefined
+      ? ` con ${solution.metadata.iterations} iteración(es) de mejora local`
+      : '';
+  const travelSummary = solution.metadata.approximateTravel
+    ? ' Las estimaciones de traslado usadas son aproximadas.'
+    : ' Las estimaciones de traslado usadas son reales.';
   const selected = solution.days.flatMap((day) =>
     day.activities.map((activity, order) => ({
       id: activity.activityId,
@@ -782,7 +1049,10 @@ export function buildDailyPlanningStep(
     label: 'Planificación diaria determinística',
     component: solution.metadata.solver,
     status: selectedCount ? 'PASS' : 'FAIL',
-    summary: `${selectedCount} actividad(es) asignada(s) en ${solution.days.length} día(s); ${solution.unselected.length} quedaron sin seleccionar.`,
+    summary:
+      `Solver ${solution.metadata.solver} planificó ${solution.days.length} día(s)${iterationsSummary}: ` +
+      `${selectedCount} actividad(es) seleccionada(s), ${solution.unselected.length} sin seleccionar ` +
+      `(score total ${solution.score}).${travelSummary}`,
     inputs: {
       solver: solution.metadata.solver,
       approximateTravel: solution.metadata.approximateTravel,
@@ -814,11 +1084,15 @@ export function buildDailyPlanningStep(
     ],
     decision: {
       status: selectedCount ? 'PASS' : 'FAIL',
-      outcome: selectedCount ? 'DAILY_PLAN_BUILT' : 'NO_FEASIBLE_ACTIVITIES_SELECTED',
+      outcome: selectedCount
+        ? 'DAILY_PLAN_BUILT'
+        : 'NO_FEASIBLE_ACTIVITIES_SELECTED',
       reason: selectedCount
         ? 'El solver produjo una asignación determinística y físicamente evaluable.'
         : 'Ningún candidato pudo ser seleccionado.',
-      reasonCodes: selectedCount ? ['PLANNING_COMPLETED'] : ['NO_ACTIVITIES_SELECTED'],
+      reasonCodes: selectedCount
+        ? ['PLANNING_COMPLETED']
+        : ['NO_ACTIVITIES_SELECTED'],
       triggeredActions: ['VALIDATE_COMPLETENESS', 'VALIDATE_FORMAT_COVERAGE'],
     },
     outputs: {
@@ -861,14 +1135,26 @@ export function buildTourCompletenessStep(
   result: TourCompletenessResult,
   retryAttempted: boolean,
 ): GenerationTraceStep {
+  const summary = result.complete
+    ? 'El itinerario generado hace un uso razonable de los días solicitados.' +
+      (retryAttempted ? ' (tras un reintento por completitud)' : '')
+    : result.issues
+        .map(
+          (issue) =>
+            `Día ${issue.dayNumber}: ${issue.selectedActivityCount} actividad(es), ` +
+            `~${issue.selectedActivityHours}h, ${issue.viableUnusedCandidateCount} ` +
+            `candidato(s) viable(s) sin usar (ritmo "${issue.travelPace}").`,
+        )
+        .join(' ') +
+      (retryAttempted
+        ? ' Se reintentó la generación una vez y el resultado siguió incompleto.'
+        : '');
   return {
     stage: 'tour_completeness',
     label: 'Completitud del itinerario',
     component: 'TourCompletenessValidator',
     status: result.complete ? 'PASS' : 'WARN',
-    summary: result.complete
-      ? 'El itinerario cumple la política de completitud.'
-      : `${result.issues.length} issue(s) de completitud permanecen.`,
+    summary,
     inputs: { retryAttempted },
     rules: [
       rule(
@@ -878,7 +1164,10 @@ export function buildTourCompletenessStep(
         result.complete
           ? 'No se detectaron días subutilizados con alternativas viables.'
           : result.issues
-              .map((i) => `Día ${i.dayNumber}: ${i.selectedActivityCount} seleccionada(s), ${i.viableUnusedCandidateCount} viable(s) sin usar.`)
+              .map(
+                (i) =>
+                  `Día ${i.dayNumber}: ${i.selectedActivityCount} seleccionada(s), ${i.viableUnusedCandidateCount} viable(s) sin usar.`,
+              )
               .join(' '),
       ),
     ],
@@ -889,7 +1178,8 @@ export function buildTourCompletenessStep(
         ? 'La política de completitud no detectó déficit accionable.'
         : 'Existen días que podrían estar mejor utilizados según la política actual.',
       reasonCodes: result.complete ? [] : ['UNDERFILLED_DAY'],
-      triggeredActions: !result.complete && !retryAttempted ? ['RETRY_ONCE'] : ['CONTINUE'],
+      triggeredActions:
+        !result.complete && !retryAttempted ? ['RETRY_ONCE'] : ['CONTINUE'],
     },
     outputs: { complete: result.complete, issues: result.issues },
     providerStatus: result.complete ? 'success' : 'failed',
@@ -902,14 +1192,25 @@ export function buildTourFormatCoverageStep(
   result: TourFormatCoverageResult,
   retryAttempted: boolean,
 ): GenerationTraceStep {
+  const summary = result.valid
+    ? 'El itinerario respetó los formatos de experiencia solicitados que tenían candidatos disponibles.' +
+      (retryAttempted ? ' (tras un reintento por cobertura de formato)' : '')
+    : result.issues
+        .map(
+          (issue) =>
+            `Formato "${issue.requestedFormat}": ${issue.availableCandidateCount} ` +
+            `candidato(s) viable(s) disponible(s), 0 seleccionado(s).`,
+        )
+        .join(' ') +
+      (retryAttempted
+        ? ' Se reintentó la generación una vez y el resultado siguió sin incluir el formato.'
+        : '');
   return {
     stage: 'tour_format_coverage',
     label: 'Cobertura de formatos solicitados',
     component: 'TourFormatCoverageValidator',
     status: result.valid ? 'PASS' : 'WARN',
-    summary: result.valid
-      ? 'El tour respeta los formatos solicitados que estaban realmente disponibles.'
-      : `${result.issues.length} issue(s) de formato permanecen.`,
+    summary,
     inputs: { retryAttempted },
     rules: [
       rule(
@@ -923,12 +1224,15 @@ export function buildTourFormatCoverageStep(
     ],
     decision: {
       status: result.valid ? 'PASS' : 'WARN',
-      outcome: result.valid ? 'FORMAT_COVERAGE_VALID' : 'REQUESTED_FORMAT_MISSING',
+      outcome: result.valid
+        ? 'FORMAT_COVERAGE_VALID'
+        : 'REQUESTED_FORMAT_MISSING',
       reason: result.valid
         ? 'La cobertura de formato es consistente con la disponibilidad real.'
         : 'Al menos un formato solicitado y disponible no sobrevivió al plan final.',
       reasonCodes: result.valid ? [] : ['REQUESTED_FORMAT_MISSING'],
-      triggeredActions: !result.valid && !retryAttempted ? ['RETRY_ONCE'] : ['CONTINUE'],
+      triggeredActions:
+        !result.valid && !retryAttempted ? ['RETRY_ONCE'] : ['CONTINUE'],
     },
     outputs: { valid: result.valid, issues: result.issues },
     providerStatus: result.valid ? 'success' : 'failed',
@@ -937,15 +1241,19 @@ export function buildTourFormatCoverageStep(
   };
 }
 
-export function buildLlmGenerationStep(reasoning?: string): GenerationTraceStep {
+export function buildLlmGenerationStep(
+  reasoning?: string,
+): GenerationTraceStep {
   return {
     stage: 'llm_generation',
-    label: 'Narrativa opcional del modelo',
+    label: 'Explicación no verificada del itinerario generado por IA',
     component: 'LLM narrative layer',
     status: 'INFO',
-    summary: reasoning
-      ? 'El modelo devolvió narrativa; no tiene autoridad estructural sobre selección, días u orden.'
-      : 'No hubo narrativa de modelo para esta generación.',
+    summary:
+      (reasoning
+        ? `Afirmaciones declaradas por el modelo; no constituyen verificación de transporte, horarios ni factibilidad: ${reasoning}`
+        : undefined) ||
+      'El modelo no devolvió un campo de razonamiento para esta generación.',
     inputs: { reasoningAvailable: Boolean(reasoning) },
     rules: [
       rule(

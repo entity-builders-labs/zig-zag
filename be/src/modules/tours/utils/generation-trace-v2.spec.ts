@@ -64,8 +64,12 @@ describe('GenerationTrace V2 audit contract', () => {
     expect(step.status).toBe('FAIL');
     expect(step.decision?.outcome).toBe('defer_to_pr7_grounded_gap');
     expect(step.decision?.triggeredActions).toContain('RUN_GROUNDED_DISCOVERY');
-    expect(step.rules?.find((rule) => rule.ruleId === 'COV-QUANTITY-001')?.result).toBe('PASS');
-    expect(step.rules?.find((rule) => rule.ruleId === 'COV-THEME-NATURE')?.result).toBe('FAIL');
+    expect(
+      step.rules?.find((rule) => rule.ruleId === 'COV-QUANTITY-001')?.result,
+    ).toBe('PASS');
+    expect(
+      step.rules?.find((rule) => rule.ruleId === 'COV-THEME-NATURE')?.result,
+    ).toBe('FAIL');
     expect(step.decision?.reasonCodes).toContain('missing_requested_theme');
   });
 
@@ -104,7 +108,9 @@ describe('GenerationTrace V2 audit contract', () => {
 
     expect(step.component).toBe('GreedyCapacitatedDailyPlanningSolver');
     expect(step.decision?.outcome).toBe('DAILY_PLAN_BUILT');
-    expect(step.rules?.find((rule) => rule.ruleId === 'PLAN-TRAVEL-001')?.result).toBe('WARN');
+    expect(
+      step.rules?.find((rule) => rule.ruleId === 'PLAN-TRAVEL-001')?.result,
+    ).toBe('WARN');
     expect(step.candidateDecisions).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
