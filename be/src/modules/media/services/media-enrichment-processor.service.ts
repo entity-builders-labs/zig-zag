@@ -14,6 +14,7 @@ import { OutboxService } from '../../outbox/services/outbox.service';
 import {
   ActivityMediaEnrichmentPayload,
   ActivityMediaUpdatedPayload,
+  MediaLookupResult,
 } from '../interfaces/media.interface';
 import { WikimediaCommonsService } from './wikimedia-commons.service';
 
@@ -47,81 +48,90 @@ export class MediaEnrichmentProcessorService implements OnModuleInit {
       `[MediaEnrichmentProcessor] Processing media enrichment for activity "${name}" (id: ${activityId})...`,
     );
 
-    try {
-      // 1. Fetch authentic documentary photos via Wikimedia Commons
-      const photos = await this.wikimediaCommons.findPhotosForActivity({
-        name,
-        destinationLabel,
-        latitude,
-        longitude,
-      });
+    const lookup = await this.wikimediaCommons.findPhotosForActivity({
+      name,
+      destinationLabel,
+      latitude,
+      longitude,
+    });
 
-      // 2. Persist in database and emit domain event in single transaction
-      await this.prisma.$transaction(async (tx) => {
-        const mediaUpdatedAt = new Date();
-        await tx.activity.update({
-          where: { id: activityId },
-          data: {
-            photos: photos.length > 0 ? (photos as any) : Prisma.JsonNull,
-            mediaStatus: MediaStatus.ENRICHED,
-            mediaUpdatedAt,
-            mediaError: null,
-          },
-        });
-
-        const updatedPayload: ActivityMediaUpdatedPayload = {
-          activityId,
-          mediaStatus: 'ENRICHED',
-          photoCount: photos.length,
-          mediaUpdatedAt: mediaUpdatedAt.toISOString(),
-          photos,
-        };
-
-        await this.outboxService.createInTx(tx, {
-          eventType: 'ActivityMediaUpdated',
-          payload: updatedPayload,
-        });
-      });
-
-      this.logger.log(
-        `[MediaEnrichmentProcessor] Enriched activity "${name}" with ${photos.length} authentic photo(s).`,
-      );
-    } catch (error) {
-      const errorMessage = String(error?.message || error);
-      this.logger.error(
-        `[MediaEnrichmentProcessor] Media enrichment failed for activity "${name}" (id: ${activityId}): ${errorMessage}`,
-        error?.stack,
-      );
-
-      try {
-        await this.prisma.$transaction(async (tx) => {
-          const mediaUpdatedAt = new Date();
-          await tx.activity.update({
-            where: { id: activityId },
-            data: {
-              mediaStatus: MediaStatus.FAILED,
-              mediaUpdatedAt,
-              mediaError: errorMessage.slice(0, 500),
-            },
-          });
-
-          const failedPayload: ActivityMediaUpdatedPayload = {
-            activityId,
-            mediaStatus: 'FAILED',
-            photoCount: 0,
-            mediaUpdatedAt: mediaUpdatedAt.toISOString(),
-          };
-
-          await this.outboxService.createInTx(tx, {
-            eventType: 'ActivityMediaUpdated',
-            payload: failedPayload,
-          });
-        });
-      } catch (txError) {
-        this.logger.error(
-          `[MediaEnrichmentProcessor] Failed to persist media failure state: ${txError?.message || txError}`,
-        );
-      }
+    if (lookup.outcome === 'RETRYABLE_FAILURE') {
+      // Let the durable outbox retry this request. Do not write FAILED and do
+      // not emit ActivityMediaUpdated for a transient upstream incident.
+      throw new Error(`Retryable media lookup failure: ${lookup.error}`);
     }
+
+    if (lookup.outcome === 'PERMANENT_FAILURE') {
+      await this.persistPermanentFailure(activityId, name, lookup);
+      return;
+    }
+
+    const photos = lookup.outcome === 'FOUND' ? lookup.photos : [];
+    await this.prisma.$transaction(async (tx) => {
+      const mediaUpdatedAt = new Date();
+      await tx.activity.update({
+        where: { id: activityId },
+        data: {
+          photos: photos.length > 0 ? (photos as any) : Prisma.JsonNull,
+          mediaStatus: MediaStatus.ENRICHED,
+          mediaUpdatedAt,
+          mediaError: null,
+        },
+      });
+
+      const updatedPayload: ActivityMediaUpdatedPayload = {
+        activityId,
+        mediaStatus: 'ENRICHED',
+        photoCount: photos.length,
+        mediaUpdatedAt: mediaUpdatedAt.toISOString(),
+        photos,
+      };
+
+      await this.outboxService.createInTx(tx, {
+        eventType: 'ActivityMediaUpdated',
+        payload: updatedPayload,
+      });
+    });
+
+    this.logger.log(
+      lookup.outcome === 'FOUND'
+        ? `[MediaEnrichmentProcessor] Enriched activity "${name}" with ${photos.length} authentic photo(s).`
+        : `[MediaEnrichmentProcessor] Wikimedia authoritatively returned no documentary photo for "${name}".`,
+    );
+  }
+
+  private async persistPermanentFailure(
+    activityId: string,
+    name: string,
+    lookup: Extract<MediaLookupResult, { outcome: 'PERMANENT_FAILURE' }>,
+  ): Promise<void> {
+    const errorMessage = lookup.error.slice(0, 500);
+    this.logger.error(
+      `[MediaEnrichmentProcessor] Permanent media enrichment failure for activity "${name}" (id: ${activityId}): ${errorMessage}`,
+    );
+
+    await this.prisma.$transaction(async (tx) => {
+      const mediaUpdatedAt = new Date();
+      await tx.activity.update({
+        where: { id: activityId },
+        data: {
+          mediaStatus: MediaStatus.FAILED,
+          mediaUpdatedAt,
+          mediaError: errorMessage,
+        },
+      });
+
+      const failedPayload: ActivityMediaUpdatedPayload = {
+        activityId,
+        mediaStatus: 'FAILED',
+        photoCount: 0,
+        mediaUpdatedAt: mediaUpdatedAt.toISOString(),
+      };
+
+      await this.outboxService.createInTx(tx, {
+        eventType: 'ActivityMediaUpdated',
+        payload: failedPayload,
+      });
+    });
   }
 }
