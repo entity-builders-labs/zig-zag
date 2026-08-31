@@ -527,36 +527,56 @@ export class ActivityProposalResolutionService {
     hint: EntityHint,
     destination: OsmCandidate,
   ): Promise<{ entity: ResolvedEntity; activity: Activity | null }> {
-    const candidates = await this.osmPlacesService.findPoisWithin(destination);
-    const matches = this.matchByName(hint.name, candidates);
-    if (matches.length !== 1) {
+    try {
+      const lookup = (this.osmPlacesService as any).findPoisWithin;
+      if (typeof lookup !== 'function') {
+        return {
+          entity: this.rejectedEntity(hint, 'unresolved_venue'),
+          activity: null,
+        };
+      }
+      const candidates: OsmCandidate[] = await lookup.call(
+        this.osmPlacesService,
+        destination,
+      );
+      const matches = this.matchByName(hint.name, candidates);
+      if (matches.length !== 1) {
+        return {
+          entity: this.rejectedEntity(
+            hint,
+            matches.length > 1 ? 'ambiguous_venue' : 'unresolved_venue',
+          ),
+          activity: null,
+        };
+      }
+
+      const candidate = matches[0];
+      const activity = await this.resolveOsmPoiActivity(candidate);
+      const center = this.centroidOf(candidate.geometry);
       return {
-        entity: this.rejectedEntity(
-          hint,
-          matches.length > 1 ? 'ambiguous_venue' : 'unresolved_venue',
-        ),
+        entity: {
+          hintKey: hint.key,
+          hintName: hint.name,
+          role: hint.role,
+          expectedType: hint.expectedType,
+          status: 'resolved',
+          activityId: activity.id,
+          externalId: candidate.id,
+          provider: 'osm',
+          latitude: center.latitude,
+          longitude: center.longitude,
+        },
+        activity,
+      };
+    } catch (error: any) {
+      this.logger.warn(
+        `OSM POI fallback failed for hint "${hint.name}": ${error.message}`,
+      );
+      return {
+        entity: this.rejectedEntity(hint, 'unresolved_venue'),
         activity: null,
       };
     }
-
-    const candidate = matches[0];
-    const activity = await this.resolveOsmPoiActivity(candidate);
-    const center = this.centroidOf(candidate.geometry);
-    return {
-      entity: {
-        hintKey: hint.key,
-        hintName: hint.name,
-        role: hint.role,
-        expectedType: hint.expectedType,
-        status: 'resolved',
-        activityId: activity.id,
-        externalId: candidate.id,
-        provider: 'osm',
-        latitude: center.latitude,
-        longitude: center.longitude,
-      },
-      activity,
-    };
   }
 
   private async resolveStreetHint(
