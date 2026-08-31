@@ -127,8 +127,9 @@ describe('CoverageAnalyzer', () => {
     );
     expect(report.decision).toEqual(
       expect.objectContaining({
-        action: 'defer_to_pr7_grounded_gap',
-        reason: 'qualitative_gap_requires_activity_discovery',
+        action: 'needs_additional_discovery',
+        reason: 'requested_coverage_is_missing',
+        requiresAdditionalDiscovery: true,
       }),
     );
   });
@@ -206,13 +207,11 @@ describe('CoverageAnalyzer', () => {
         }),
       ]),
     );
-    expect(report.decision.action).toBe('defer_to_pr7_grounded_gap');
-    expect(report.decision.reason).toBe(
-      'qualitative_gap_requires_activity_discovery',
-    );
+    expect(report.decision.action).toBe('needs_additional_discovery');
+    expect(report.decision.reason).toBe('requested_coverage_is_missing');
   });
 
-  it('does not gate point_visits because it has no composite kind mapping', () => {
+  it('maps point_visits to real POI candidates', () => {
     const report = service.analyze({
       candidates: [
         poiCandidate('1'),
@@ -231,5 +230,44 @@ describe('CoverageAnalyzer', () => {
 
     expect(report.status).toBe('sufficient');
     expect(report.decision.action).toBe('none');
+    expect(report.kindCoverage).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ kind: ActivityKind.POI, count: 4 }),
+      ]),
+    );
+  });
+
+  it('reports a point_visits deficit when no POI exists', () => {
+    const report = service.analyze({
+      candidates: [
+        {
+          id: 'route-1',
+          name: 'Route',
+          kind: ActivityKind.ROUTE,
+          source: 'catalog',
+          distanceKm: 1,
+        },
+      ],
+      requestedThemes: [],
+      requestedExperienceFormats: [ExperienceFormat.POINT_VISITS],
+      days: 1,
+      explorationStyle: 'balanced',
+      semanticCoverage: {
+        ...semantic,
+        eligibleCandidateCount: 1,
+        indexedCandidateCount: 1,
+      },
+      offeredCandidateCount: 1,
+      providerHealth: { status: 'healthy' },
+    });
+
+    expect(report.deficits).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          reason: 'missing_requested_experience_format',
+          experienceFormat: ExperienceFormat.POINT_VISITS,
+        }),
+      ]),
+    );
   });
 });
