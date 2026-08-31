@@ -484,6 +484,11 @@ export class TourActivityGenerationService {
       throw new BadRequestException('Activities have already been generated');
     }
 
+    // Keep the in-flight trace outside the try so failed generation can persist
+    // the exact acquisition history instead of discarding the most useful
+    // diagnostics when an explicit requested format cannot be acquired.
+    const traceSteps: GenerationTraceStep[] = [];
+
     // Update status to generating
     await this.updateGenerationStatus(
       tourId,
@@ -537,9 +542,6 @@ export class TourActivityGenerationService {
       // lets the merge step at each acquisition branch include them
       // regardless of which branch happens to run.
       const discoveryResolvedActivityIds = new Set<string>();
-      // The generation bitácora (docs/superpowers/specs/2026-08-20-generation-
-      // bitacora-design.md) — one step per pipeline stage, in order.
-      const traceSteps: GenerationTraceStep[] = [];
       let placesRefillError: PlacesCrawlError | null = null;
 
       /** Whichever acquisition branch wins, the offered window it produced
@@ -711,8 +713,11 @@ export class TourActivityGenerationService {
                       request.intent.explorationStyle,
                       request.intent.additionalPreferences,
                     );
+                  // Discovery is an auditable acquisition attempt even when
+                  // it returns zero proposals. Omitting the step hid exactly
+                  // the failure mode exposed by the Gualeguaychú live test.
+                  traceSteps.push(buildDiscoveryStep(discoveryResult));
                   if (discoveryResult.proposals.length > 0) {
-                    traceSteps.push(buildDiscoveryStep(discoveryResult));
                     // PR 8: turn accepted proposals into real, persisted
                     // Activities (AREA/composite via CompositeActivityService,
                     // POI direct).
@@ -1115,16 +1120,14 @@ export class TourActivityGenerationService {
         );
       }
 
-      // PR 9: a dedicated pre-planning pool-sufficiency gate, layered
-      // alongside — not replacing — the post-planning quality gates
-      // (PR 7.2 completeness, PR 7.4 format coverage) and the
-      // empty-solution throw below. This one judges the true eligible pool
-      // (catalog + refill + discovery-resolved, before windowing) after
-      // every acquisition path has run; the others judge the planned
-      // itinerary after the solver runs. Independent, complementary
-      // layers — "plan from the eligible pool or fail explicitly."
+      // Final acquisition reconciliation. The first discovery round runs from
+      // the initial catalog deficits; the catalog refill can materially change
+      // those deficits. Recompute them from the canonical combined pool and,
+      // only when a requested structural format is still missing, execute one
+      // bounded second discovery/resolution round before the planner is ever
+      // allowed to run.
       if (allEligibleActivitiesById.size > 0) {
-        const finalCoverageReport = this.buildCoverageReport(
+        let finalCoverageReport = this.buildCoverageReport(
           Array.from(allEligibleActivitiesById.values()),
           request,
           candidateActivityIds.size,
@@ -1133,13 +1136,115 @@ export class TourActivityGenerationService {
             ? { status: 'degraded', reason: placesRefillError.code }
             : { status: 'healthy' },
         );
+        const remainingStructuralDeficits = finalCoverageReport.deficits
+          .filter(
+            (d) =>
+              d.severity === 'blocking' &&
+              d.reason === 'missing_requested_experience_format',
+          )
+          .map((d) => ({
+            reason: d.reason as any,
+            severity: d.severity as any,
+            message: d.message,
+            theme: d.theme,
+            experienceFormat: d.experienceFormat,
+            expectedCount: d.expectedCount,
+            actualCount: d.actualCount,
+          }));
+
+        if (remainingStructuralDeficits.length > 0) {
+          try {
+            const discoveryResult =
+              await this.activityDiscoveryService.discoverGaps(
+                request.destination.label,
+                undefined,
+                request.intent.interests,
+                remainingStructuralDeficits,
+                request.intent.experienceFormats,
+                request.intent.explorationStyle,
+                request.intent.additionalPreferences,
+              );
+            traceSteps.push(buildDiscoveryStep(discoveryResult));
+
+            if (discoveryResult.proposals.length > 0) {
+              const resolutionResult = await this.proposalResolver.resolve({
+                proposals: discoveryResult.proposals,
+                destinationName: request.destination.label,
+                destinationBoundary:
+                  destinationResolution.scale === 'area'
+                    ? destinationResolution.boundary
+                    : undefined,
+              });
+              traceSteps.push(buildEntityResolutionStep(resolutionResult));
+
+              const persistedDiscoveryActivityIds = resolutionResult.resolved
+                .filter(
+                  (r) => r.status === 'accepted' && r.persistedActivityId,
+                )
+                .map((r) => r.persistedActivityId as string);
+              if (persistedDiscoveryActivityIds.length > 0) {
+                const newlyResolvedActivities =
+                  await this.activitiesService.findManyByIds(
+                    persistedDiscoveryActivityIds,
+                    searchArea.latitude,
+                    searchArea.longitude,
+                  );
+                newlyResolvedActivities.forEach((act: any) => {
+                  allEligibleActivitiesById.set(act.id, act);
+                  discoveryResolvedActivityIds.add(act.id);
+                });
+
+                // Mandatory canonical rerank after persistence: newly resolved
+                // composites must enter the same bounded candidate-selection
+                // logic as catalog/refill rows before planning.
+                const reconciledSelection = await this.rankAndSliceActivities(
+                  Array.from(allEligibleActivitiesById.values()),
+                  request.intent,
+                );
+                semanticRankingOutcome = reconciledSelection.semanticRanking;
+                recordOfferedCandidates(reconciledSelection);
+                availableActivitiesText = `\n\nAvailable activities in the area:\n${reconciledSelection.activities
+                  .map((act: any) => formatActivityForPrompt(act))
+                  .join('\n')}`;
+              }
+            }
+          } catch (discoveryError) {
+            this.logger.warn(
+              `Post-refill structural discovery failed (non-fatal until final acquisition gate): ${discoveryError.message}`,
+            );
+          }
+
+          finalCoverageReport = this.buildCoverageReport(
+            Array.from(allEligibleActivitiesById.values()),
+            request,
+            candidateActivityIds.size,
+            semanticRankingOutcome,
+            placesRefillError
+              ? { status: 'degraded', reason: placesRefillError.code }
+              : { status: 'healthy' },
+          );
+          traceSteps.push(buildCoverageAnalysisStep(finalCoverageReport));
+        }
+
+        const unresolvedRequestedFormats = finalCoverageReport.deficits.filter(
+          (d) =>
+            d.severity === 'blocking' &&
+            d.reason === 'missing_requested_experience_format',
+        );
+        if (unresolvedRequestedFormats.length > 0) {
+          throw new Error(
+            `Requested experience formats could not be acquired after catalog refill and grounded discovery: ${unresolvedRequestedFormats
+              .map(
+                (d) =>
+                  `${d.experienceFormat ?? 'unknown'} (${d.actualCount ?? 0}/${d.expectedCount ?? 1})`,
+              )
+              .join(', ')}.`,
+          );
+        }
+
         // Narrowed to the two reasons that mean a genuinely unusable
-        // (effectively empty) pool — not 'insufficient_coverage_after_
-        // catalog_analysis', which is a softer below-ideal-count deficiency
-        // the rest of this method already tolerates on purpose (thin-pool
-        // fallbacks above, PR 7.2's completeness reporting below). Matches the
-        // existing post-crawl 'no_usable_candidates' check's own bar,
-        // applied here as a uniform safety net across every branch.
+        // (effectively empty) pool — ordinary count/theme shortfalls remain
+        // quality signals handled by the later completeness reporting.
         if (
           finalCoverageReport.decision.action === 'fail' &&
           (finalCoverageReport.decision.reason === 'no_usable_candidates' ||
@@ -1543,7 +1648,8 @@ export class TourActivityGenerationService {
                   payload: {
                     activityId: act.id,
                     name: act.name,
-                    destinationLabel: request.destination?.label || act.formattedAddress,
+                    destinationLabel:
+                      request.destination?.label || act.formattedAddress,
                     wikidataId: (act.metadata as any)?.wikidataId,
                     latitude: act.latitude,
                     longitude: act.longitude,
@@ -1588,9 +1694,8 @@ export class TourActivityGenerationService {
       // Return updated tour
       return this.toursService.findOne(tourId);
     } catch (error) {
-      // Update status to failed, and record the error alongside it in the
-      // same write — a separate update spreading the pre-generation metadata
-      // would clobber the 'failed' status back to whatever it was before.
+      // Update status to failed, and preserve the in-flight bitácora alongside
+      // the error. Failed acquisition is exactly when the trace is most useful.
       const latestTour = await this.toursService.findOne(tourId);
       await this.prisma.tour.update({
         where: { id: tourId },
@@ -1601,6 +1706,10 @@ export class TourActivityGenerationService {
             generationMessage: `Error: ${error?.message || 'No se pudo generar el itinerario'}`,
             generationError: error?.message || String(error),
             generationFailedAt: new Date().toISOString(),
+            generationTrace: {
+              ...((latestTour.metadata as any)?.generationTrace ?? {}),
+              steps: traceSteps,
+            },
           },
         },
       });
