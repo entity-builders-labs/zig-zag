@@ -12,7 +12,7 @@ export class OutboxCleanerService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(OutboxCleanerService.name);
 
   private readonly config: Required<OutboxCleanerConfig>;
-  private cleanTimer: NodeJS.Timeout | null = null;
+  private cleanTimer: ReturnType<typeof setInterval> | null = null;
   private isCleaning = false;
   private cleanupDeletedTotal = 0;
 

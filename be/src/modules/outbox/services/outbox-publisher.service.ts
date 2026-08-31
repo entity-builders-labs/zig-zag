@@ -22,7 +22,7 @@ export class OutboxPublisherService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(OutboxPublisherService.name);
 
   private readonly config: Required<OutboxPublisherConfig>;
-  private pollTimer: NodeJS.Timeout | null = null;
+  private pollTimer: ReturnType<typeof setInterval> | null = null;
   private isProcessing = false;
 
   // Runtime counters for observability
@@ -228,7 +228,9 @@ export class OutboxPublisherService implements OnModuleInit, OnModuleDestroy {
       const claimedIds = claimed.map((r) => r.id);
 
       // Track stale lease recoveries
-      const staleCount = claimed.filter((r) => r.status === 'PROCESSING').length;
+      const staleCount = claimed.filter(
+        (r) => r.status === 'PROCESSING',
+      ).length;
       if (staleCount > 0) {
         this.staleLeaseRecoveriesTotal += staleCount;
         this.logger.warn(
