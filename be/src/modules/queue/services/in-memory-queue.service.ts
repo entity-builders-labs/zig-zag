@@ -7,10 +7,14 @@ import {
 /**
  * In-process transport used behind the durable database outbox.
  *
- * Durability lives in OutboxEvent, not in this adapter: publish must therefore
- * resolve only after every registered consumer has completed successfully.
- * If there is no consumer, or any consumer fails, the promise rejects and the
- * outbox row remains retryable instead of being falsely marked PUBLISHED.
+ * Durability lives in OutboxEvent, not in this adapter: when a local consumer
+ * exists, publish resolves only after every registered consumer has completed
+ * successfully. A consumer failure therefore keeps the outbox row retryable.
+ *
+ * Some outbox event types are integration notifications with no in-process
+ * subscriber (for example SSE/push-facing events). Preserve the historical
+ * no-op acknowledgement for those topics instead of poisoning the outbox with
+ * retries merely because this adapter has no local listener.
  */
 @Injectable()
 export class InMemoryQueueService implements IMessageQueueService {
@@ -20,9 +24,10 @@ export class InMemoryQueueService implements IMessageQueueService {
   async publish<T = any>(topic: string, payload: T): Promise<void> {
     const handlers = this.subscribers.get(topic);
     if (!handlers || handlers.size === 0) {
-      const message = `No subscribers registered for topic "${topic}"`;
-      this.logger.warn(`[InMemoryQueue] ${message}. Publication not acknowledged.`);
-      throw new Error(message);
+      this.logger.debug(
+        `[InMemoryQueue] No local subscribers registered for topic "${topic}". Publication acknowledged as a no-op.`,
+      );
+      return;
     }
 
     this.logger.debug(
@@ -40,9 +45,7 @@ export class InMemoryQueueService implements IMessageQueueService {
       this.logger.error(
         `[InMemoryQueue] ${failures.length}/${handlers.size} handler(s) failed for topic "${topic}": ${reasons}`,
       );
-      throw new Error(
-        `Consumer failure for topic "${topic}": ${reasons}`,
-      );
+      throw new Error(`Consumer failure for topic "${topic}": ${reasons}`);
     }
   }
 
