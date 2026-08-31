@@ -228,7 +228,9 @@ export class OutboxPublisherService implements OnModuleInit, OnModuleDestroy {
       const claimedIds = claimed.map((r) => r.id);
 
       // Track stale lease recoveries
-      const staleCount = claimed.filter((r) => r.status === 'PROCESSING').length;
+      const staleCount = claimed.filter(
+        (r) => r.status === 'PROCESSING',
+      ).length;
       if (staleCount > 0) {
         this.staleLeaseRecoveriesTotal += staleCount;
         this.logger.warn(

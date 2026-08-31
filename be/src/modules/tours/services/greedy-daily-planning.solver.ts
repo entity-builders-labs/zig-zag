@@ -17,11 +17,6 @@ import {
 import { runBoundedLocalImprovement } from '../utils/daily-planning-local-improvement.util';
 import { orderAndScheduleDay } from '../utils/daily-planning-ordering.util';
 
-/** Deterministic V1 daily-planning solver: sort candidates (Task 6), greedily
- * place them into requested-day buckets under hard constraints + soft
- * scoring (Task 7), run bounded local improvement across days (Task 9), then
- * order/schedule each day independently (Task 8). No randomization anywhere
- * in the pipeline, so identical input always yields a deep-equal solution. */
 @Injectable()
 export class GreedyDailyPlanningSolver implements DailyPlanningSolver {
   constructor(
@@ -61,9 +56,6 @@ export class GreedyDailyPlanningSolver implements DailyPlanningSolver {
     }
     plannedDays.sort((a, b) => a.dayNumber - b.dayNumber);
 
-    // Total scheduled activities across the whole solution — a simple,
-    // deterministic proxy for "how much of the requested itinerary got
-    // filled." Not a weighted quality score; V1 has no such concept yet.
     const score = plannedDays.reduce((sum, d) => sum + d.activities.length, 0);
 
     return {
@@ -74,6 +66,20 @@ export class GreedyDailyPlanningSolver implements DailyPlanningSolver {
         solver: 'GreedyDailyPlanningSolver',
         approximateTravel: true,
         iterations,
+        constraints: {
+          requestedDays: input.requestedDays,
+          planningWindow: input.planningWindow,
+          allowedTransportationModes: [
+            ...input.mobility.allowedTransportationModes,
+          ],
+          maxWalkingDistancePerDayMeters:
+            input.mobility.maxWalkingDistancePerDayMeters,
+          maxContinuousWalkingDistanceMeters:
+            input.mobility.maxContinuousWalkingDistanceMeters,
+          travelPace: input.travelPace,
+          requestedFormats: [...(input.requestedFormats ?? [])],
+          startDates: [...input.startDates],
+        },
       },
     };
   }

@@ -8,8 +8,6 @@ import { CandidateScoreBreakdown } from '../utils/candidate-ranking.util';
 import { ExperienceFormat } from './tour-generation.interface';
 import { ActivityKind } from '@prisma/client';
 
-// Chronological pipeline steps a live tour generation actually went
-// through — see docs/superpowers/specs/2026-08-20-generation-bitacora-design.md.
 export type TraceStage =
   | 'tour_intent'
   | 'destination_resolution'
@@ -17,14 +15,8 @@ export type TraceStage =
   | 'coverage_analysis'
   | 'discovery'
   | 'entity_resolution'
-  // PR 9: catalog + refill + newly discovery-resolved Activities merged
-  // into one ranked, format-aware bounded window before llm_generation.
   | 'candidate_pool'
-  // PR 10: deterministic day assignment/ordering/feasibility over the
-  // candidate_pool window — runs before completeness/format-coverage, which
-  // now evaluate the planned tour rather than the LLM's raw picks.
   | 'daily_planning'
-  // Kept so traces persisted before provider-neutral naming remain readable.
   | 'google_places_crawl'
   | 'places_crawl'
   | 'embeddings'
@@ -33,26 +25,65 @@ export type TraceStage =
   | 'tour_completeness'
   | 'tour_format_coverage';
 
-// PR 7.2: does the verified, non-duplicated result actually make reasonable
-// use of the requested day(s)? Independent of CoverageAnalyzer (which only
-// judges the candidate pool) and of anti-hallucination verification (which
-// only judges whether picks are real). `retryAttempted` records whether the
-// one bounded corrective regeneration ran — see
-// TourActivityGenerationService. `generationStatus` on the tour itself stays
-// 'completed' even when `complete` is false here: that status means the
-// generation process finished, not that every quality gate passed.
+export type TraceRuleResult = 'PASS' | 'FAIL' | 'WARN' | 'SKIPPED';
+export type TraceDecisionStatus = 'PASS' | 'FAIL' | 'WARN' | 'INFO';
+export type TraceCandidateStatus =
+  | 'ELIGIBLE'
+  | 'REJECTED'
+  | 'RANKED'
+  | 'SELECTED'
+  | 'UNSELECTED';
+
+/**
+ * GenerationTrace V2 is an audit contract, not UI copy. The backend records
+ * facts and decisions made by the engine; the frontend renders them without
+ * inventing motivations or reverse-engineering domain rules.
+ */
+export interface TraceRuleEvaluation {
+  ruleId: string;
+  rule: string;
+  result: TraceRuleResult;
+  reason: string;
+  inputs?: Record<string, unknown>;
+  expected?: unknown;
+  actual?: unknown;
+}
+
+export interface TraceDecision {
+  status: TraceDecisionStatus;
+  outcome: string;
+  reason: string;
+  reasonCodes?: string[];
+  triggeredActions?: string[];
+}
+
+export interface TraceTiming {
+  startedAt?: string;
+  durationMs?: number;
+}
+
+export interface TraceCandidateDecision {
+  id: string;
+  name: string;
+  source?: string;
+  status: TraceCandidateStatus;
+  reason?: string;
+  reasonCodes?: string[];
+  scoreBreakdown?: CandidateScoreBreakdown;
+  rules?: TraceRuleEvaluation[];
+  dayNumber?: number;
+  order?: number;
+}
+
 export type TourCompletenessTraceResult = TourCompletenessResult & {
   retryAttempted: boolean;
 };
 
-// PR 7.4: did the itinerary respect a requested experience format (walk,
-// route, experience) when viable candidates for it existed, not just the
-// requested themes? Shares the same bounded corrective retry as
-// TourCompletenessTraceResult — see TourActivityGenerationService.
 export type TourFormatCoverageTraceResult = TourFormatCoverageResult & {
   retryAttempted: boolean;
 };
 
+/** Legacy candidate shape kept so old persisted traces remain readable. */
 export interface TraceCandidate {
   source:
     | 'db'
@@ -66,9 +97,7 @@ export interface TraceCandidate {
   detail?: string;
   offered: boolean;
   chosen: boolean;
-  /** PR 9 — what actually drove this candidate's rank into the offered window. */
   scoreBreakdown?: CandidateScoreBreakdown;
-  /** PR 9 — which requested theme(s)/experience format this candidate contributes to, for auditing why a requested format did or didn't survive the window. */
   coverageContribution?: {
     themes: string[];
     experienceFormat?: ExperienceFormat;
@@ -79,6 +108,18 @@ export interface GenerationTraceStep {
   stage: TraceStage;
   label: string;
   summary: string;
+
+  /** V2 auditable fields. */
+  component?: string;
+  status?: TraceDecisionStatus;
+  inputs?: Record<string, unknown>;
+  rules?: TraceRuleEvaluation[];
+  decision?: TraceDecision;
+  outputs?: Record<string, unknown>;
+  candidateDecisions?: TraceCandidateDecision[];
+  timing?: TraceTiming;
+
+  /** Legacy/rich stage-specific data retained for compatibility and raw view. */
   candidates?: TraceCandidate[];
   placesProvenance?: PlacesCrawlProvenance;
   providerStatus?: 'success' | 'failed';
@@ -105,7 +146,6 @@ export interface GenerationTraceStep {
   tourCompleteness?: TourCompletenessTraceResult;
   tourFormatCoverage?: TourFormatCoverageTraceResult;
   resolution?: ProposalResolutionResponse;
-  /** PR 9 — pre-LLM auditability: full pool -> offered window, by kind/source/requested-format. Paired with the existing tour_format_coverage step (post-LLM: window -> selected) to distinguish a window-construction bug from a selection bug from an acquisition/coverage problem, without duplicating selectedCount tracking in two places. */
   candidatePool?: {
     initialCatalogCount: number;
     postAcquisitionCatalogCount: number;
@@ -120,9 +160,6 @@ export interface GenerationTraceStep {
     }>;
     droppedForFamilyCapCount: number;
   };
-  /** PR 10 — deterministic daily-planning solver's own summary: solver
-   * identity, per-day utilization, and why any offered candidate was left
-   * unselected. See DailyPlanningSolution (daily-planning.interface.ts). */
   dailyPlanning?: {
     solver: string;
     dayCount: number;
@@ -143,6 +180,8 @@ export interface GenerationTraceStep {
 }
 
 export interface GenerationTrace {
+  /** Version 1 traces omitted this field. */
+  version?: 1 | 2;
   steps: GenerationTraceStep[];
   aiReasoning?: string;
   hallucinatedCount: number;

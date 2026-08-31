@@ -38,9 +38,6 @@ export interface NormalizedOpeningHoursRange {
 
 export interface NormalizedOpeningHoursKnown {
   status: 'known';
-  /** 0 = Sunday .. 6 = Saturday (JS Date#getDay()). A present key with an
-   * empty array means genuinely closed that day; an absent key means no
-   * parseable data for that specific day (treated as unknown, not closed). */
   rangesByWeekday: Record<number, NormalizedOpeningHoursRange[]>;
 }
 
@@ -56,8 +53,6 @@ export interface PlanningActivityCandidate {
   activityId: string;
   kind: ActivityKind | 'POI';
   title: string;
-  /** Minutes — converted once from the persisted hours value at the
-   * normalization boundary. Never mixed with hours downstream. */
   durationMinutes: number;
   spatialFootprint: SpatialFootprint;
   openingHours?: NormalizedOpeningHours;
@@ -69,7 +64,6 @@ export interface PlanningActivityCandidate {
   familyId?: string;
   variantKey?: string;
   mobility?: {
-    /** undefined = unknown — never derived from durationMinutes. */
     internalWalkingMinutes?: number;
     internalWalkingDistanceMeters?: number;
     internalTravelMinutes?: number;
@@ -94,9 +88,6 @@ export interface DailyPlanningInput {
   travelPace: TravelPace;
   planningWindow: DailyPlanningWindow;
   requestedFormats?: ExperienceFormat[];
-  /** ISO date strings, in request order. Empty when the tour has no
-   * confirmed start date — opening-hours weekday checks are then skipped
-   * (unknown-day policy) rather than guessing a date. */
   startDates: string[];
 }
 
@@ -162,6 +153,18 @@ export interface DailyPlanningSolution {
     solver: string;
     approximateTravel: boolean;
     iterations?: number;
+    /** Snapshot of the actual constraints the solver evaluated. This is
+     * observability data only; it does not participate in the algorithm. */
+    constraints?: {
+      requestedDays: number;
+      planningWindow: DailyPlanningWindow;
+      allowedTransportationModes: TransportationMode[];
+      maxWalkingDistancePerDayMeters: number;
+      maxContinuousWalkingDistanceMeters: number;
+      travelPace: TravelPace;
+      requestedFormats: ExperienceFormat[];
+      startDates: string[];
+    };
   };
 }
 

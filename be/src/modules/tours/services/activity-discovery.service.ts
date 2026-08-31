@@ -12,6 +12,7 @@ import {
   SearchGroundedDiscoveryProvider,
   DiscoveryMode,
   EntityHint,
+  DiscoverySearchTrace,
 } from '../interfaces/activity-discovery.interface';
 import { CoverageDeficit } from '../interfaces/coverage-analysis.interface';
 import { EXPERIENCE_FORMAT_ACTIVITY_KIND } from '../utils/experience-format-kind.util';
@@ -25,14 +26,11 @@ import {
 } from '../utils/semantic-discovery-query-builder.util';
 import { extractRouteHints } from '../utils/route-evidence-extraction.util';
 
-/** Combined evidence cap across all search calls in one discoverGaps() run
- * — bounds the Groq extraction prompt regardless of how many missing kinds
- * triggered a semantic search call (SerpApi bills per request, not per
- * token, so multiplying search calls is cheap; Groq's TPM quota is not). */
 const EVIDENCE_BUDGET = 30;
 
 interface SearchOutcome {
   plan?: SemanticDiscoveryQueryPlan;
+  request: GroundedSearchRequest;
   result: GroundedSearchResult;
 }
 
@@ -48,22 +46,6 @@ export class ActivityDiscoveryService {
     private readonly provider: SearchGroundedDiscoveryProvider,
   ) {}
 
-  /**
-   * Run grounded discovery for a destination with specific coverage deficits.
-   *
-   * PR 7.1 contract:
-   * - Search provider owns evidence (never the extraction LLM)
-   * - Receives deficits from CoverageAnalyzer (never invents its own)
-   * - Never persists, never touches Prisma
-   * - Every proposal still requires Places/OSM resolution (PR 8) before use
-   *
-   * PR 9-follow-up: one semantic search call per missing ActivityKind
-   * (derived from deficits[].experienceFormat), each with its own
-   * SemanticDiscoveryQueryBuilder query, instead of one combined query that
-   * dilutes every requested format into a single blended search — live
-   * testing showed a combined query silently drops formats entirely rather
-   * than covering all of them.
-   */
   async discoverGaps(
     destinationName: string,
     destinationCountry: string | undefined,
@@ -113,25 +95,34 @@ export class ActivityDiscoveryService {
     const outcomes: SearchOutcome[] =
       plans.length > 0
         ? await Promise.all(
-            plans.map(async (plan) => ({
-              plan,
-              result: await this.searchProvider.search({
+            plans.map(async (plan) => {
+              const searchRequest: GroundedSearchRequest = {
                 ...baseSearchRequest,
                 query: plan.query,
                 targetKind: plan.kind,
-              } as GroundedSearchRequest),
-            })),
+              };
+              return {
+                plan,
+                request: searchRequest,
+                result: await this.searchProvider.search(searchRequest),
+              };
+            }),
           )
-        : [
-            {
-              result: await this.searchProvider.search({
-                ...baseSearchRequest,
-                query: '',
-              } as GroundedSearchRequest),
-            },
-          ];
+        : await (async () => {
+            const searchRequest: GroundedSearchRequest = {
+              ...baseSearchRequest,
+              query: '',
+            };
+            return [
+              {
+                request: searchRequest,
+                result: await this.searchProvider.search(searchRequest),
+              },
+            ];
+          })();
 
     const evidence = this.mergeEvidence(outcomes);
+    const searchTrace = this.toSearchTrace(outcomes);
 
     if (evidence.length === 0) {
       const primary = outcomes[0].result;
@@ -147,6 +138,7 @@ export class ActivityDiscoveryService {
         groundingModel: primary.model,
         groundingEvidence: [],
         validationErrors: [`Grounded search ${primary.groundingStatus}`],
+        searchTrace,
       };
     }
 
@@ -163,14 +155,9 @@ export class ActivityDiscoveryService {
       `Discovery response: ${response.proposals.length} valid proposals from ${response.provider}`,
     );
 
-    return response;
+    return { ...response, searchTrace };
   }
 
-  /**
-   * Bootstrap a new destination profile from scratch. No deficits exist yet
-   * for a brand-new destination, so there's nothing to derive missing kinds
-   * from — stays on the single general search call, unchanged.
-   */
   async discoverBootstrap(
     destinationName: string,
     destinationCountry: string | undefined,
@@ -197,12 +184,11 @@ export class ActivityDiscoveryService {
       `Discovery request: ${request.destinationName}, mode=${request.mode.type}, themes=${request.requestedThemes.join(',')}`,
     );
 
-    // Real grounding via search provider. If search fails or returns no
-    // usable evidence, discovery is unavailable — never fall back to model
-    // memory while claiming grounded output.
-    const searchResult = await this.searchProvider.search(
-      this.toSearchRequest(request),
-    );
+    const searchRequest = this.toSearchRequest(request);
+    const searchResult = await this.searchProvider.search(searchRequest);
+    const searchTrace = this.toSearchTrace([
+      { request: searchRequest, result: searchResult },
+    ]);
 
     if (searchResult.groundingStatus !== 'applied') {
       this.logger.warn(
@@ -217,6 +203,7 @@ export class ActivityDiscoveryService {
         groundingModel: searchResult.model,
         groundingEvidence: [],
         validationErrors: [`Grounded search ${searchResult.groundingStatus}`],
+        searchTrace,
       };
     }
 
@@ -226,7 +213,7 @@ export class ActivityDiscoveryService {
       `Discovery response: ${response.proposals.length} valid proposals from ${response.provider}`,
     );
 
-    return response;
+    return { ...response, searchTrace };
   }
 
   private toSearchRequest(request: DiscoveryRequest): GroundedSearchRequest {
@@ -237,11 +224,20 @@ export class ActivityDiscoveryService {
       requestedExperienceFormats: request.requestedExperienceFormats,
       explorationStyle: request.explorationStyle,
       additionalPreferences: request.additionalPreferences,
-      // Bootstrap has no coverage deficits to derive a missing kind from —
-      // empty query keeps SerpApiGroundedSearchService on its general
-      // (engine=google) path, unchanged from before this fix.
       query: '',
     };
+  }
+
+  private toSearchTrace(outcomes: SearchOutcome[]): DiscoverySearchTrace[] {
+    return outcomes.map(({ request, result }) => ({
+      query: request.query,
+      targetKind: request.targetKind,
+      provider: result.provider,
+      model: result.model,
+      groundingStatus: result.groundingStatus,
+      evidenceCount: result.evidence?.length ?? 0,
+      failureReason: result.failureReason,
+    }));
   }
 
   private deriveMissingKinds(deficits: CoverageDeficit[]): ActivityKind[] {
@@ -258,16 +254,6 @@ export class ActivityDiscoveryService {
     return [...kinds];
   }
 
-  /**
-   * Merges evidence from every search call into one bounded list. Semantic
-   * (per-kind) calls are prioritized over the general fallback call when
-   * trimming to budget — they're higher-signal (a query built for exactly
-   * one missing kind vs. a generic keyword-concat query). A ROUTE call's
-   * result also gets its evidence-aware extraction pass folded in here (see
-   * route-evidence-extraction.util.ts) as additional synthetic evidence
-   * entries the extraction step may cite — still just candidates; PR 8
-   * remains the sole identity authority.
-   */
   private mergeEvidence(outcomes: SearchOutcome[]): GroundingEvidence[] {
     const prioritized: GroundingEvidence[] = [];
     const deprioritized: GroundingEvidence[] = [];
