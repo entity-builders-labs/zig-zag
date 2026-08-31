@@ -1,7 +1,9 @@
 import { ActivityKind } from '@prisma/client';
 import { ExperienceFormat } from './tour-generation.interface';
 
-export type TourFormatCoverageIssueCode = 'REQUESTED_FORMAT_MISSING';
+export type TourFormatCoverageIssueCode =
+  | 'REQUESTED_FORMAT_MISSING'
+  | 'REQUESTED_FORMAT_UNAVAILABLE';
 
 export interface TourFormatCoverageIssue {
   code: TourFormatCoverageIssueCode;
@@ -19,10 +21,9 @@ export interface TourFormatCoverageActivityRef {
 export interface TourFormatCoverageInput {
   requestedExperienceFormats: ExperienceFormat[];
   selectedActivities: TourFormatCoverageActivityRef[];
-  /** The full offered candidate pool (not just what was selected) — used to
-   * tell "the LLM ignored an available format" apart from "the format was
-   * never acquired in the first place", which is CoverageAnalyzer's job to
-   * flag, not this validator's. */
+  /** The full offered candidate pool (not just what was selected). A requested
+   * mapped structural format with zero available candidates is NOT a valid
+   * coverage result: acquisition failed to satisfy that explicit user intent. */
   availableCandidateActivities: TourFormatCoverageActivityRef[];
 }
 
