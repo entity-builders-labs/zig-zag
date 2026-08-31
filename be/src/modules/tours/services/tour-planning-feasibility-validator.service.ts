@@ -6,16 +6,21 @@ import {
   PlanningFeasibilityResult,
   TourPlanningFeasibilityValidator,
 } from '../interfaces/daily-planning.interface';
+import { EXPERIENCE_FORMAT_ACTIVITY_KIND } from '../utils/experience-format-kind.util';
 
 /**
  * Independent safety-net cross-check for a `DailyPlanningSolution`.
  *
  * This deliberately re-derives feasibility from scratch by reading only the
  * plain data on the solution and its input — it must never call into the
- * solver's own hard-constraint/placement/scoring logic (Tasks 6-10) and must
- * never treat the solution's own `metadata` as evidence of validity. The
- * whole point is to catch a bug in the solver, not to re-run the solver's
- * own reasoning.
+ * solver's own hard-constraint/placement/scoring logic and must never treat
+ * the solution's own metadata as evidence of validity.
+ *
+ * Besides physical feasibility, this is the last pre-persistence guard for an
+ * explicit structural request: if acquisition never produced a requested
+ * ROUTE / EXPERIENCE / NEIGHBORHOOD_WALK, or the solver dropped every viable
+ * candidate of that kind, the tour must not be persisted as a successful
+ * POI-only itinerary.
  */
 @Injectable()
 export class TourPlanningFeasibilityValidatorService
@@ -32,6 +37,43 @@ export class TourPlanningFeasibilityValidatorService
         code: 'DAY_COUNT_MISMATCH',
         message: `Expected ${input.requestedDays} days, got ${solution.days.length}.`,
       });
+    }
+
+    const selectedActivityIds = new Set(
+      solution.days.flatMap((day) =>
+        day.activities.map((activity) => activity.activityId),
+      ),
+    );
+
+    for (const format of input.requestedFormats ?? []) {
+      const requiredKind = EXPERIENCE_FORMAT_ACTIVITY_KIND[format];
+      if (!requiredKind) continue;
+
+      const availableOfKind = input.candidates.filter(
+        (candidate) => candidate.kind === requiredKind,
+      );
+      if (availableOfKind.length === 0) {
+        issues.push({
+          code: 'REQUESTED_FORMAT_NOT_ACQUIRED',
+          message:
+            `Requested format "${format}" requires kind ${requiredKind}, ` +
+            'but acquisition offered zero viable candidates of that kind.',
+        });
+        continue;
+      }
+
+      if (
+        !availableOfKind.some((candidate) =>
+          selectedActivityIds.has(candidate.activityId),
+        )
+      ) {
+        issues.push({
+          code: 'REQUESTED_FORMAT_NOT_SELECTED',
+          message:
+            `Requested format "${format}" had ${availableOfKind.length} viable ` +
+            `candidate(s) of kind ${requiredKind}, but the final plan selected none.`,
+        });
+      }
     }
 
     const seenActivityIds = new Set<string>();
@@ -58,7 +100,7 @@ export class TourPlanningFeasibilityValidatorService
         cursor = activity.endMinutesFromMidnight;
 
         const candidate = input.candidates.find(
-          (c) => c.activityId === activity.activityId,
+          (candidate) => candidate.activityId === activity.activityId,
         );
         if (!candidate) {
           issues.push({
