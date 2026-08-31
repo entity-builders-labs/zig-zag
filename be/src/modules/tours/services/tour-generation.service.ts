@@ -37,7 +37,6 @@ import { transformAiActivitiesToDto } from '../utils/activity-transformer.util';
 import { updateTravelTimesForActivities } from '../utils/travel-time-calculator.util';
 import { ToursService } from './tours.service';
 import { TourImageService } from './tour-image.service';
-import { TourActivityGenerationService } from './tour-activity-generation.service';
 
 @Injectable()
 export class TourGenerationService {
@@ -50,7 +49,6 @@ export class TourGenerationService {
     private readonly vectorStoreService: VectorStoreService,
     private readonly toursService: ToursService,
     private readonly tourImageService: TourImageService,
-    private readonly tourActivityGenerationService: TourActivityGenerationService,
   ) {}
 
   private async withTimeout<T>(
@@ -73,15 +71,12 @@ export class TourGenerationService {
 
   private createTourChain() {
     const chatModel = this.langChainService.getChatModel();
-    const provider = this.langChainService['config']?.provider || 'openai'; // Access provider config
+    const provider = this.langChainService['config']?.provider || 'openai';
 
-    // If chatModel is null OR provider is Ollama/Groq (which don't support function calling)
-    // use a custom chain that uses generateChatResponse with JSON format instructions
     if (!chatModel || provider === 'ollama' || provider === 'groq') {
       return {
         invoke: async (input: { input: string; activities: string }) => {
           const systemPrompt = CREATE_TOUR_JSON_SYSTEM_PROMPT;
-
           const userPrompt = createTourJsonUserPrompt(
             input.input,
             input.activities,
@@ -108,7 +103,6 @@ export class TourGenerationService {
             },
           );
 
-          // Clean and extract JSON from response
           const cleanedResponse = extractAndCleanJson(response);
 
           try {
@@ -124,7 +118,6 @@ export class TourGenerationService {
               `Error position: ${parseError.message.match(/position (\d+)/)?.[1] || 'unknown'}`,
             );
 
-            // Try to repair common JSON issues
             try {
               const repaired = repairJson(cleanedResponse);
               this.logger.warn('Attempting to use repaired JSON');
@@ -143,7 +136,6 @@ export class TourGenerationService {
       };
     }
 
-    // OpenAI provider - use function calling
     const tourSchema = {
       name: 'tour',
       description:
@@ -218,8 +210,9 @@ export class TourGenerationService {
   }
 
   /**
-   * Create a basic tour from wizard preferences
-   * This creates the tour structure first, then generates activities in background
+   * Creates the canonical wizard Tour and its durable generation request.
+   * ToursService writes both records in one transaction; generation is owned by
+   * TourGenerationProcessorService, not by this HTTP request process.
    */
   async createTourFromWizard(request: TourGenerationRequest, ownerId: string) {
     const startTime = Date.now();
@@ -230,7 +223,6 @@ export class TourGenerationService {
     );
 
     try {
-      // Create basic tour structure (without activities)
       const tourName = request.destination.label || 'Nuevo Tour';
 
       const tourData: CreateTourDto = {
@@ -246,32 +238,17 @@ export class TourGenerationService {
           generationRequest: request as any,
           generationStatus: 'pending',
         },
-        activities: [], // No activities yet
+        activities: [],
       };
 
-      // Create the tour
       const createStartTime = Date.now();
       const tour = await this.toursService.create(tourData);
       const createTime = Date.now() - createStartTime;
-
-      this.logger.log(
-        `Tour created successfully with ID: ${tour.id} (DB time: ${createTime}ms). Starting activity generation in background...`,
-      );
-
-      // Start activity generation in background (don't await)
-      this.tourActivityGenerationService
-        .generateTourActivities(tour.id)
-        .catch((error) => {
-          this.logger.error(
-            `Background activity generation failed for tour ${tour.id}: ${error.message}`,
-          );
-        });
-
       const totalTime = Date.now() - startTime;
-      this.logger.log(
-        `Tour creation completed in ${totalTime}ms. Activities generating in background.`,
-      );
 
+      this.logger.log(
+        `Tour created with ID ${tour.id} and durable generation request (DB: ${createTime}ms, total: ${totalTime}ms).`,
+      );
       return tour;
     } catch (error) {
       const totalTime = Date.now() - startTime;
@@ -297,7 +274,6 @@ export class TourGenerationService {
   ) {
     const startTime = Date.now();
 
-    // Build prompt automatically if not provided
     let finalPrompt = prompt;
     if (!finalPrompt || finalPrompt.trim() === '') {
       finalPrompt = buildPromptFromParams({
@@ -330,7 +306,6 @@ export class TourGenerationService {
     }
 
     try {
-      // Enhance prompt with options
       let enhancedPrompt = finalPrompt;
       const constraints: string[] = [];
 
@@ -357,7 +332,6 @@ export class TourGenerationService {
       if (options?.startDates?.length)
         constraints.push(`Start Dates: ${options.startDates.join(', ')}`);
 
-      // Handle excluded tours to ensure variety
       if (options?.excludeTours?.length) {
         try {
           const excludedTours = await this.prisma.tour.findMany({
@@ -386,12 +360,11 @@ export class TourGenerationService {
       if (constraints.length > 0) {
         enhancedPrompt += `\n\nAdditional Constraints & Preferences:\n- ${constraints.join('\n- ')}`;
       }
-      // Step 1: If location provided, search for existing activities
       let availableActivitiesText = '';
       if (options?.latitude && options?.longitude) {
         const searchStartTime = Date.now();
-        const radius = options.radius || 25000; // 25km default (reduced from 50km)
-        const activityLimit = 20; // Reduced from 50 to improve performance
+        const radius = options.radius || 25000;
+        const activityLimit = 20;
 
         try {
           const nearbyActivities = await this.withTimeout(
@@ -409,22 +382,20 @@ export class TourGenerationService {
           this.logger.debug(`Activity search completed in ${searchTime}ms`);
 
           if (nearbyActivities.length > 0) {
-            // Limit description length to avoid huge prompts
             availableActivitiesText = `\n\nAvailable activities in the area (within ${radius / 1000}km):\n${nearbyActivities
-              .slice(0, 15) // Limit to top 15 for prompt size
+              .slice(0, 15)
               .map(
                 (act, idx) =>
                   `${idx + 1}. ${act.name} (${act.type || 'Activity'}) - ${(act.description || 'No description').substring(0, 100)} - Location: ${act.latitude}, ${act.longitude} - Duration: ${act.duration || 'Unknown'} hours`,
               )
               .join('\n')}`;
           } else if (options.includeExistingActivities) {
-            // Try semantic search if no nearby activities found (with timeout)
             try {
               const semanticStartTime = Date.now();
               const semanticResults = await this.withTimeout(
                 this.vectorStoreService.findSimilarActivities(
                   `Activities in ${options.latitude}, ${options.longitude}: ${finalPrompt}`,
-                  5, // Reduced from 10 to improve performance
+                  5,
                 ),
                 5000,
                 'Semantic search timeout',
@@ -447,18 +418,15 @@ export class TourGenerationService {
               this.logger.warn(
                 `Semantic search failed or timed out: ${error.message}`,
               );
-              // Continue without semantic results
             }
           }
         } catch (error) {
           this.logger.warn(
             `Activity search failed or timed out: ${error.message}`,
           );
-          // Continue without activity context
         }
       }
 
-      // Step 2: Create the tour using LangChain
       const chainStartTime = Date.now();
       const tourChain = this.createTourChain();
 
@@ -466,8 +434,6 @@ export class TourGenerationService {
         `Invoking tour chain with prompt: ${enhancedPrompt.substring(0, 200)}...`,
       );
 
-      // Add timeout to AI chain invocation
-      // Use provider-aware timeout (longer for Ollama, which is slower)
       const generationTimeout = this.langChainService.getGenerationTimeout();
       this.logger.debug(
         `Using ${generationTimeout}ms timeout for AI generation (provider-aware)`,
@@ -475,9 +441,6 @@ export class TourGenerationService {
 
       const aiResponse = (await this.withTimeout(
         tourChain.invoke({
-          // activities is a separate createTourJsonUserPrompt section below;
-          // appending it to input too duplicates every candidate and can push
-          // the Groq request over its TPM budget.
           input: enhancedPrompt,
           activities:
             availableActivitiesText ||
@@ -485,24 +448,20 @@ export class TourGenerationService {
         }),
         generationTimeout,
         `AI generation timeout after ${generationTimeout}ms`,
-      )) as any; // Type assertion for AI response
+      )) as any;
 
       const chainTime = Date.now() - chainStartTime;
       this.logger.debug(
         `AI generated tour response in ${chainTime}ms: ${JSON.stringify(aiResponse).substring(0, 200)}...`,
       );
 
-      // Step 3: Convert AI response to CreateTourDto format
       const preferences = buildPreferencesObject(options);
 
-      // Transform activities and calculate travel times if not skipping
       let activities = options?.skipActivities
-        ? [] // Skip activities if flag is set
+        ? []
         : transformAiActivitiesToDto(aiResponse.activities || []);
 
-      // Calculate travel times using real coordinates if activities exist
       if (activities.length > 0) {
-        // Get all activity entities from database if they have activityId
         const activityIds = activities
           .map((a) => a.activityId)
           .filter((id): id is string => !!id);
@@ -521,7 +480,6 @@ export class TourGenerationService {
           activitiesMap = new Map(activityEntities.map((act) => [act.id, act]));
         }
 
-        // Update travel times and distances using real coordinates
         activities = updateTravelTimesForActivities(activities, activitiesMap);
       }
 
@@ -541,26 +499,19 @@ export class TourGenerationService {
           options: options as any,
           originalPrompt: prompt,
           enhancedPrompt: enhancedPrompt,
-          // Store preferences in a structured way
           preferences:
             Object.keys(preferences).length > 0 ? preferences : undefined,
-          // Track generation status
           generationStatus: 'pending',
           generationMessage: 'Preparando generación de actividades...',
-        }, // Store full AI response in metadata
+        },
         activities,
       };
 
-      // Step 4: Create and return the tour
       const createStartTime = Date.now();
       const tour = await this.toursService.create(tourData);
       const createTime = Date.now() - createStartTime;
 
-      // If skipActivities is true, don't generate activities now
-      // They will be generated later via generateTourActivities endpoint
       if (!options?.skipActivities) {
-        // Generate cover image (asynchronously to not block too long, or await if critical)
-        // We'll await it to ensure the user gets a complete tour
         try {
           await this.tourImageService.generateTourCoverImage(tour.id);
         } catch (imgError) {
@@ -585,25 +536,20 @@ export class TourGenerationService {
         error.stack,
       );
 
-      // Detect memory/resource errors from Ollama
       const isMemoryError =
         errorMessage.includes('memory') ||
         errorMessage.includes('Memory error') ||
         errorMessage.includes('requires more system memory') ||
         errorMessage.includes('unable to load full model');
 
-      // Detect timeout errors
       const isTimeoutError = errorMessage.includes('timeout');
 
-      // Use ServiceUnavailableException (503) for resource/memory issues
-      // This indicates the service is temporarily unavailable due to resource constraints
       if (isMemoryError || isTimeoutError) {
         throw new ServiceUnavailableException(
           `Failed to generate tour from prompt: ${errorMessage}`,
         );
       }
 
-      // Use BadRequestException (400) for other errors (invalid input, etc.)
       throw new BadRequestException(
         `Failed to generate tour from prompt: ${errorMessage}`,
       );
