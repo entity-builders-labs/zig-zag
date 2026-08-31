@@ -83,6 +83,10 @@ export interface DiscoveryRequest {
   requestedExperienceFormats?: string[];
   explorationStyle?: string;
   additionalPreferences?: string;
+  /** When gap acquisition targets a missing structural format, extraction is
+   * constrained to this exact ActivityKind. Search owns evidence; the LLM may
+   * only propose this kind from that evidence. */
+  targetKind?: ActivityKind;
   mode: DiscoveryMode;
   maxProposals: number;
 }
