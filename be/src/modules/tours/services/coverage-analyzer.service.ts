@@ -148,7 +148,7 @@ export class CoverageAnalyzer {
     let decision: CoverageReport['decision'] = {
       action: 'none',
       reason: 'coverage_sufficient',
-      deployableInPr6: true,
+      requiresAdditionalDiscovery: false,
     };
 
     if (blockingDeficits.length > 0) {
@@ -160,7 +160,7 @@ export class CoverageAnalyzer {
         decision = {
           action: 'fail',
           reason: 'provider_degraded_without_usable_pool',
-          deployableInPr6: true,
+          requiresAdditionalDiscovery: false,
           deficits,
         };
       } else if (eligibleCandidates.length === 0) {
@@ -168,7 +168,7 @@ export class CoverageAnalyzer {
         decision = {
           action: 'fail',
           reason: 'no_usable_candidates',
-          deployableInPr6: true,
+          requiresAdditionalDiscovery: false,
           deficits,
         };
       } else if (
@@ -176,17 +176,12 @@ export class CoverageAnalyzer {
           (deficit) => deficit.reason === 'missing_requested_experience_format',
         )
       ) {
-        // Structural format gaps outrank conventional theme refill. If both
-        // coexist, the orchestrator still receives the complete deficits list
-        // and may run POI refill for the theme/quantity gap, but the decision
-        // must advertise the grounded-discovery obligation rather than hide it
-        // behind "places_text_search".
         status =
           providerHealth.status === 'degraded' ? 'degraded' : 'insufficient';
         decision = {
-          action: 'defer_to_pr7_grounded_gap',
-          reason: 'qualitative_gap_requires_activity_discovery',
-          deployableInPr6: false,
+          action: 'needs_additional_discovery',
+          reason: 'requested_coverage_is_missing',
+          requiresAdditionalDiscovery: true,
           deficits,
         };
       } else if (
@@ -199,7 +194,7 @@ export class CoverageAnalyzer {
         decision = {
           action: 'places_text_search',
           reason: 'missing_requested_theme',
-          deployableInPr6: true,
+          requiresAdditionalDiscovery: false,
           deficits,
         };
       } else {
@@ -211,7 +206,7 @@ export class CoverageAnalyzer {
             eligibleCandidates.length === 0
               ? 'no_usable_candidates'
               : 'insufficient_coverage_after_catalog_analysis',
-          deployableInPr6: true,
+          requiresAdditionalDiscovery: false,
           deficits,
         };
       }
@@ -230,10 +225,10 @@ export class CoverageAnalyzer {
       geographicCoverage,
       semanticCoverage: input.semanticCoverage,
       destinationKnowledge: {
-        status: 'unsupported_until_pr7',
-        deployableBoundary: 'catalog_quality_only_until_pr7',
+        status: 'discovery_supported',
+        coverageBoundary: 'catalog_and_grounded_discovery',
         reason:
-          'PR 6 mejora el quality gate del catálogo pero no toma ownership del destination knowledge persistido ni ejecuta grounded discovery; esa frontera se extiende en PR 7.',
+          'El catálogo se evalúa primero y, cuando faltan temas o formatos solicitados, el motor puede ampliar la cobertura mediante discovery grounded antes de planificar.',
       },
       providerHealth,
       deficits,
@@ -241,16 +236,6 @@ export class CoverageAnalyzer {
     };
   }
 
-  /**
-   * Bug fix: this previously compared against 'relaxed'/'fast_paced' while
-   * being fed `explorationStyle` (real values: 'iconic'/'balanced'/
-   * 'local_deep_dive') — neither string ever matched, so every request
-   * silently fell through to the 4-stops/day default regardless of what
-   * the user picked. 'relaxed' does match TravelPace.RELAXED, and stop
-   * density per day is fundamentally a pace question (how much fits in a
-   * day), not an exploration-style one — so this now reads `travelPace`
-   * instead, with 'fast_paced' corrected to TravelPace.FAST's real value.
-   */
   private requiredCandidateCount(days: number, travelPace?: string): number {
     const normalizedDays = Math.max(1, Math.min(days || 1, 14));
     const expectedStopsPerDay =
@@ -314,11 +299,6 @@ export class CoverageAnalyzer {
   }
 
   private isEligibleCandidate(candidate: CoverageCandidate): boolean {
-    // Catalog rows surfaced by ActivitiesService.findAll already exclude AREA
-    // and archived rows. A candidate is eligible for coverage analysis as long
-    // as it is a real, identifiable catalog entity (it has an id). Row-level
-    // junk filtering is a write-side concern for legacy rows; the coverage gate
-    // operates on the verified pool rather than an empty query.
     return typeof candidate.id === 'string' && candidate.id.trim().length > 0;
   }
 }
