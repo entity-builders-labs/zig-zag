@@ -1,6 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
-import axios from 'axios';
-import { DocumentaryPhoto } from '../interfaces/media.interface';
+import axios, { AxiosError } from 'axios';
+import {
+  DocumentaryPhoto,
+  MediaLookupResult,
+} from '../interfaces/media.interface';
 import { NegativeCacheService } from './negative-cache.service';
 
 const COMMONS_API_URL = 'https://commons.wikimedia.org/w/api.php';
@@ -18,20 +21,18 @@ export class WikimediaCommonsService {
   constructor(private readonly negativeCache: NegativeCacheService) {}
 
   /**
-   * Resolves authentic documentary photos for a given POI/activity.
-   * Uses multi-strategy lookup:
-   * Strategy 1: Search by exact name & destination label.
-   * Strategy 2: Geo-search around coordinates if title yields nothing.
+   * Resolves authentic documentary photos using two isolated strategies.
+   * A valid empty provider response is cacheable; provider failures are not.
    */
   async findPhotosForActivity(params: {
     name: string;
     destinationLabel?: string;
     latitude: number;
     longitude: number;
-  }): Promise<DocumentaryPhoto[]> {
+  }): Promise<MediaLookupResult> {
     const { name, destinationLabel, latitude, longitude } = params;
+    const failures: Array<Extract<MediaLookupResult, { error: string }>> = [];
 
-    // 1. Try Title Search Strategy
     const titleKey = `${name} ${destinationLabel || ''}`.trim();
     const isTitleNegative = await this.negativeCache.isNegative(
       'wikimedia_commons',
@@ -40,19 +41,19 @@ export class WikimediaCommonsService {
     );
 
     if (!isTitleNegative) {
-      const titlePhotos = await this.searchByTitle(titleKey);
-      if (titlePhotos.length > 0) {
-        return titlePhotos;
+      const titleResult = await this.searchByTitle(titleKey);
+      if (titleResult.outcome === 'FOUND') return titleResult;
+      if (titleResult.outcome === 'AUTHORITATIVE_EMPTY') {
+        await this.negativeCache.recordNegative(
+          'wikimedia_commons',
+          'title_search',
+          titleKey,
+        );
+      } else {
+        failures.push(titleResult);
       }
-      // Negative cache for title search
-      await this.negativeCache.recordNegative(
-        'wikimedia_commons',
-        'title_search',
-        titleKey,
-      );
     }
 
-    // 2. Try Geo-search Strategy
     const geoKey = `${latitude.toFixed(4)},${longitude.toFixed(4)}`;
     const isGeoNegative = await this.negativeCache.isNegative(
       'wikimedia_commons',
@@ -61,32 +62,40 @@ export class WikimediaCommonsService {
     );
 
     if (!isGeoNegative) {
-      const geoPhotos = await this.searchByCoordinates(latitude, longitude);
-      if (geoPhotos.length > 0) {
-        return geoPhotos;
+      const geoResult = await this.searchByCoordinates(latitude, longitude);
+      if (geoResult.outcome === 'FOUND') return geoResult;
+      if (geoResult.outcome === 'AUTHORITATIVE_EMPTY') {
+        await this.negativeCache.recordNegative(
+          'wikimedia_commons',
+          'geosearch',
+          geoKey,
+        );
+      } else {
+        failures.push(geoResult);
       }
-      // Negative cache for geosearch
-      await this.negativeCache.recordNegative(
-        'wikimedia_commons',
-        'geosearch',
-        geoKey,
-      );
     }
 
-    return [];
+    const retryable = failures.find(
+      (result) => result.outcome === 'RETRYABLE_FAILURE',
+    );
+    if (retryable) return retryable;
+
+    const permanent = failures.find(
+      (result) => result.outcome === 'PERMANENT_FAILURE',
+    );
+    if (permanent) return permanent;
+
+    return { outcome: 'AUTHORITATIVE_EMPTY', photos: [] };
   }
 
-  /**
-   * Searches Wikimedia Commons by title query.
-   */
-  private async searchByTitle(query: string): Promise<DocumentaryPhoto[]> {
+  private async searchByTitle(query: string): Promise<MediaLookupResult> {
     try {
       const response = await axios.get(COMMONS_API_URL, {
         params: {
           action: 'query',
           generator: 'search',
           gsrsearch: query,
-          gsrnamespace: 6, // File namespace
+          gsrnamespace: 6,
           gsrlimit: 5,
           prop: 'imageinfo',
           iiprop: 'url|size|extmetadata',
@@ -97,30 +106,24 @@ export class WikimediaCommonsService {
         timeout: 6000,
       });
 
-      return this.parseImageInfoResponse(response.data);
+      return this.resultFromPhotos(this.parseImageInfoResponse(response.data));
     } catch (error) {
-      this.logger.warn(
-        `[WikimediaCommons] Title search failed for "${query}": ${error?.message || error}`,
-      );
-      return [];
+      return this.failureResult(error, `title search "${query}"`);
     }
   }
 
-  /**
-   * Searches Wikimedia Commons by GPS coordinates (radius 1000m).
-   */
   private async searchByCoordinates(
     lat: number,
     lon: number,
-  ): Promise<DocumentaryPhoto[]> {
+  ): Promise<MediaLookupResult> {
     try {
       const response = await axios.get(COMMONS_API_URL, {
         params: {
           action: 'query',
           generator: 'geosearch',
           ggscoord: `${lat}|${lon}`,
-          ggsradius: 1000, // 1000 meters radius
-          ggsnamespace: 6, // File namespace
+          ggsradius: 1000,
+          ggsnamespace: 6,
           ggslimit: 5,
           prop: 'imageinfo',
           iiprop: 'url|size|extmetadata',
@@ -131,13 +134,37 @@ export class WikimediaCommonsService {
         timeout: 6000,
       });
 
-      return this.parseImageInfoResponse(response.data);
+      return this.resultFromPhotos(this.parseImageInfoResponse(response.data));
     } catch (error) {
-      this.logger.warn(
-        `[WikimediaCommons] Geo-search failed for [${lat}, ${lon}]: ${error?.message || error}`,
-      );
-      return [];
+      return this.failureResult(error, `geosearch [${lat}, ${lon}]`);
     }
+  }
+
+  private resultFromPhotos(photos: DocumentaryPhoto[]): MediaLookupResult {
+    return photos.length > 0
+      ? { outcome: 'FOUND', photos }
+      : { outcome: 'AUTHORITATIVE_EMPTY', photos: [] };
+  }
+
+  private failureResult(error: unknown, operation: string): MediaLookupResult {
+    const axiosError = error as AxiosError;
+    const status = axiosError.response?.status;
+    const code = axiosError.code;
+    const errorMessage = String(
+      axiosError.message || error || 'Unknown Wikimedia error',
+    );
+    const retryable =
+      status === 429 ||
+      (typeof status === 'number' && status >= 500) ||
+      code === 'ECONNABORTED' ||
+      code === 'ETIMEDOUT' ||
+      !status;
+    const outcome = retryable ? 'RETRYABLE_FAILURE' : 'PERMANENT_FAILURE';
+
+    this.logger.warn(
+      `[WikimediaCommons] ${operation} failed (${outcome}): ${errorMessage}`,
+    );
+    return { outcome, photos: [], error: errorMessage };
   }
 
   private parseImageInfoResponse(data: any): DocumentaryPhoto[] {
@@ -145,12 +172,13 @@ export class WikimediaCommonsService {
     if (!pages) return [];
 
     const photos: DocumentaryPhoto[] = [];
-    const nonImageExtensions = /\.(pdf|djvu|ogg|ogv|webm|mid|midi|wav|mp3|flac|tiff|tif)$/i;
+    const nonImageExtensions =
+      /\.(pdf|djvu|ogg|ogv|webm|mid|midi|wav|mp3|flac|tiff|tif)$/i;
 
     for (const pageId of Object.keys(pages)) {
       const page = pages[pageId];
       if (page.title && nonImageExtensions.test(page.title)) {
-        continue; // Skip non-image files
+        continue;
       }
 
       const imageinfo = page.imageinfo?.[0];
@@ -158,7 +186,9 @@ export class WikimediaCommonsService {
 
       const meta = imageinfo.extmetadata || {};
       const author = stripHtml(
-        meta.Artist?.value || meta.Credit?.value || 'Wikimedia Commons Contributor',
+        meta.Artist?.value ||
+          meta.Credit?.value ||
+          'Wikimedia Commons Contributor',
       );
       const license = meta.LicenseShortName?.value || 'Creative Commons';
       const licenseUrl = meta.LicenseUrl?.value;
