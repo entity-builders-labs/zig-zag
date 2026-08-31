@@ -238,6 +238,15 @@ export class ActivityDiscoveryService {
     this.logger.debug(
       `Discovery response: ${dedupedProposals.length} valid proposals across ${plans.length} missing kind(s)`,
     );
+    if (dedupedProposals.length === 0) {
+      this.logger.warn(
+        `Structural discovery produced zero valid proposals for ${destinationName}: ${JSON.stringify({
+          missingKinds,
+          searchTrace,
+          validationErrors,
+        })}`,
+      );
+    }
 
     return {
       proposals: dedupedProposals,
