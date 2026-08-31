@@ -353,11 +353,13 @@ export function validateKindRules(kind: ProposalKind, hints: any[]): string[] {
       break;
     }
     case 'EXPERIENCE': {
-      if (
-        hints.filter((h: any) =>
-          ['area', 'waypoint', 'route', 'venue'].includes(h.role),
-        ).length < 2
-      ) {
+      const requiredHints = hints.filter((h: any) => h.required === true);
+      const isVenueCentric =
+        requiredHints.length === 1 && requiredHints[0].role === 'venue';
+      const resolvableHintCount = hints.filter((h: any) =>
+        ['area', 'waypoint', 'route', 'venue'].includes(h.role),
+      ).length;
+      if (!isVenueCentric && resolvableHintCount < 2) {
         errors.push('EXPERIENCE must have at least 2 resolvable entities');
       }
       break;
