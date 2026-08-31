@@ -27,7 +27,7 @@ describe('GenerationTrace V2 audit contract', () => {
       },
       destinationKnowledge: {
         status: 'unprofiled',
-        deployableBoundary: 'catalog_quality_only_until_pr7',
+        coverageBoundary: 'catalog_and_grounded_discovery',
         reason: 'not profiled',
       },
       providerHealth: { status: 'healthy' },
@@ -42,9 +42,9 @@ describe('GenerationTrace V2 audit contract', () => {
         },
       ],
       decision: {
-        action: 'defer_to_pr7_grounded_gap',
-        reason: 'qualitative_gap_requires_activity_discovery',
-        deployableInPr6: false,
+        action: 'needs_additional_discovery',
+        reason: 'requested_coverage_is_missing',
+        requiresAdditionalDiscovery: true,
         deficits: [
           {
             reason: 'missing_requested_theme',
@@ -62,7 +62,7 @@ describe('GenerationTrace V2 audit contract', () => {
 
     expect(step.component).toBe('CoverageAnalyzer');
     expect(step.status).toBe('FAIL');
-    expect(step.decision?.outcome).toBe('defer_to_pr7_grounded_gap');
+    expect(step.decision?.outcome).toBe('needs_additional_discovery');
     expect(step.decision?.triggeredActions).toContain('RUN_GROUNDED_DISCOVERY');
     expect(
       step.rules?.find((rule) => rule.ruleId === 'COV-QUANTITY-001')?.result,
@@ -71,6 +71,8 @@ describe('GenerationTrace V2 audit contract', () => {
       step.rules?.find((rule) => rule.ruleId === 'COV-THEME-NATURE')?.result,
     ).toBe('FAIL');
     expect(step.decision?.reasonCodes).toContain('missing_requested_theme');
+    expect(step.summary).not.toContain('PR 6');
+    expect(step.summary).not.toContain('PR 7');
   });
 
   it('records selected and unselected planner candidates with real rejection reason codes', () => {
