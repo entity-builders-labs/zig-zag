@@ -4,6 +4,14 @@ import {
   MessageHandler,
 } from '../interfaces/message-queue.interface';
 
+/**
+ * In-process transport used behind the durable database outbox.
+ *
+ * Durability lives in OutboxEvent, not in this adapter: publish must therefore
+ * resolve only after every registered consumer has completed successfully.
+ * If there is no consumer, or any consumer fails, the promise rejects and the
+ * outbox row remains retryable instead of being falsely marked PUBLISHED.
+ */
 @Injectable()
 export class InMemoryQueueService implements IMessageQueueService {
   private readonly logger = new Logger(InMemoryQueueService.name);
@@ -12,28 +20,29 @@ export class InMemoryQueueService implements IMessageQueueService {
   async publish<T = any>(topic: string, payload: T): Promise<void> {
     const handlers = this.subscribers.get(topic);
     if (!handlers || handlers.size === 0) {
-      this.logger.debug(
-        `[InMemoryQueue] No subscribers registered for topic "${topic}". Message buffered/skipped.`,
-      );
-      return;
+      const message = `No subscribers registered for topic "${topic}"`;
+      this.logger.warn(`[InMemoryQueue] ${message}. Publication not acknowledged.`);
+      throw new Error(message);
     }
 
     this.logger.debug(
       `[InMemoryQueue] Dispatching topic "${topic}" to ${handlers.size} subscriber(s).`,
     );
 
-    // Execute handlers asynchronously (decoupled from caller)
-    for (const handler of handlers) {
-      setImmediate(async () => {
-        try {
-          await handler(payload);
-        } catch (error) {
-          this.logger.error(
-            `[InMemoryQueue] Handler failed for topic "${topic}": ${error?.message || error}`,
-            error?.stack,
-          );
-        }
-      });
+    const results = await Promise.allSettled(
+      Array.from(handlers, (handler) => handler(payload)),
+    );
+    const failures = results.filter(
+      (result): result is PromiseRejectedResult => result.status === 'rejected',
+    );
+    if (failures.length > 0) {
+      const reasons = failures.map((failure) => String(failure.reason)).join('; ');
+      this.logger.error(
+        `[InMemoryQueue] ${failures.length}/${handlers.size} handler(s) failed for topic "${topic}": ${reasons}`,
+      );
+      throw new Error(
+        `Consumer failure for topic "${topic}": ${reasons}`,
+      );
     }
   }
 
