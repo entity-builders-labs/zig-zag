@@ -16,6 +16,9 @@ import { GroqGroundedSearchService } from './services/groq-grounded-search.servi
 import { SerpApiGroundedSearchService } from './services/serpapi-grounded-search.service';
 import { TavilyGroundedSearchService } from './services/tavily-grounded-search.service';
 import { ActivityProposalResolutionService } from './services/activity-proposal-resolution.service';
+import { ActivityProposalMaterializationService } from './services/activity-proposal-materialization.service';
+import { ActivityProposalPipelineService } from './services/activity-proposal-pipeline.service';
+import { CompositeGeographicValidationService } from './services/composite-geographic-validation.service';
 import { GroqDiscoveryProvider } from './services/groq-discovery.provider';
 import { GeminiDiscoveryProvider } from './services/gemini-discovery.provider';
 import { GreedyDailyPlanningSolver } from './services/greedy-daily-planning.solver';
@@ -70,6 +73,12 @@ import { OutboxModule } from '../outbox/outbox.module';
     SerpApiGroundedSearchService,
     TavilyGroundedSearchService,
     ActivityProposalResolutionService,
+    ActivityProposalMaterializationService,
+    ActivityProposalPipelineService,
+    {
+      provide: CompositeGeographicValidationService,
+      useFactory: () => new CompositeGeographicValidationService(),
+    },
     GroqDiscoveryProvider,
     GeminiDiscoveryProvider,
     GreedyDailyPlanningSolver,
@@ -81,9 +90,6 @@ import { OutboxModule } from '../outbox/outbox.module';
       useExisting: ApproximateTravelEstimateProvider,
     },
     {
-      // Only one V1 implementation — swappable for a future OR-Tools solver
-      // without changing any caller, matching the existing
-      // GROUNDED_SEARCH_PROVIDER static-swap pattern.
       provide: DAILY_PLANNING_SOLVER,
       useExisting: GreedyDailyPlanningSolver,
     },
@@ -124,11 +130,6 @@ import { OutboxModule } from '../outbox/outbox.module';
       ],
     },
     {
-      // Config-driven (DISCOVERY_EXTRACTOR_PROVIDER), unlike
-      // GROUNDED_SEARCH_PROVIDER — Gemini is the default (moves discovery
-      // extraction off Groq's shared TPM budget entirely), Groq stays
-      // available as a config-selected alternative. Fails fast on an
-      // unrecognized value rather than silently falling back.
       provide: DISCOVERY_PROVIDER,
       useFactory: (
         config: AiConfig,
@@ -150,7 +151,7 @@ import { OutboxModule } from '../outbox/outbox.module';
     },
     {
       provide: PROPOSAL_RESOLVER,
-      useExisting: ActivityProposalResolutionService,
+      useExisting: ActivityProposalPipelineService,
     },
   ],
   exports: [
@@ -162,6 +163,8 @@ import { OutboxModule } from '../outbox/outbox.module';
     CompositeGenerationService,
     ActivityDiscoveryService,
     ActivityProposalResolutionService,
+    ActivityProposalMaterializationService,
+    CompositeGeographicValidationService,
   ],
 })
 export class ToursModule {}
