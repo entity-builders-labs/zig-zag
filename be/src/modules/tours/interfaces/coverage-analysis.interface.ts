@@ -3,7 +3,7 @@ import { ActivityKind } from '@prisma/client';
 export type CoverageReportStatus = 'sufficient' | 'insufficient' | 'degraded';
 
 export type DestinationKnowledgeStatus =
-  | 'unsupported_until_pr7'
+  | 'discovery_supported'
   | 'profiled_fresh'
   | 'profiled_stale'
   | 'unprofiled';
@@ -55,48 +55,52 @@ export interface CoverageDeficit {
   actualCount?: number;
 }
 
+interface CoverageDecisionBase {
+  requiresAdditionalDiscovery: boolean;
+}
+
 export type CoverageAcquisitionDecision =
-  | {
+  | (CoverageDecisionBase & {
       action: 'none';
       reason: 'coverage_sufficient';
-      deployableInPr6: true;
-    }
-  | {
+      requiresAdditionalDiscovery: false;
+    })
+  | (CoverageDecisionBase & {
       action: 'places_text_search';
       reason:
         | 'missing_requested_theme'
         | 'insufficient_kind_diversity'
         | 'insufficient_source_diversity';
-      deployableInPr6: true;
+      requiresAdditionalDiscovery: false;
       deficits: CoverageDeficit[];
-    }
-  | {
+    })
+  | (CoverageDecisionBase & {
       action: 'places_nearby_search';
       reason: 'insufficient_geographic_distribution';
-      deployableInPr6: true;
+      requiresAdditionalDiscovery: false;
       deficits: CoverageDeficit[];
-    }
-  | {
+    })
+  | (CoverageDecisionBase & {
       action: 'fail';
       reason:
         | 'no_usable_candidates'
         | 'provider_degraded_without_usable_pool'
         | 'insufficient_coverage_after_catalog_analysis';
-      deployableInPr6: true;
+      requiresAdditionalDiscovery: false;
       deficits: CoverageDeficit[];
-    }
-  | {
-      action: 'defer_to_pr7_grounded_bootstrap';
-      reason: 'destination_knowledge_not_owned_in_pr6';
-      deployableInPr6: false;
+    })
+  | (CoverageDecisionBase & {
+      action: 'needs_destination_discovery';
+      reason: 'destination_requires_grounded_discovery';
+      requiresAdditionalDiscovery: true;
       deficits: CoverageDeficit[];
-    }
-  | {
-      action: 'defer_to_pr7_grounded_gap';
-      reason: 'qualitative_gap_requires_activity_discovery';
-      deployableInPr6: false;
+    })
+  | (CoverageDecisionBase & {
+      action: 'needs_additional_discovery';
+      reason: 'requested_coverage_is_missing';
+      requiresAdditionalDiscovery: true;
       deficits: CoverageDeficit[];
-    };
+    });
 
 export interface CoverageReport {
   status: CoverageReportStatus;
@@ -112,7 +116,7 @@ export interface CoverageReport {
   semanticCoverage: SemanticCoverageSummary;
   destinationKnowledge: {
     status: DestinationKnowledgeStatus;
-    deployableBoundary: 'catalog_quality_only_until_pr7';
+    coverageBoundary: 'catalog_and_grounded_discovery';
     reason: string;
   };
   providerHealth: {
@@ -138,12 +142,11 @@ export interface CoverageCandidate {
 export interface CoverageAnalysisInput {
   candidates: CoverageCandidate[];
   requestedThemes: string[];
-  /** Experience formats explicitly requested in the wizard (neighborhood_walks,
-   * thematic_routes, experiences, point_visits) — see ExperienceFormat. */
+  /** Experience formats explicitly requested in the wizard. */
   requestedExperienceFormats?: string[];
   days: number;
   explorationStyle?: string;
-  /** TravelPace value ('relaxed'|'moderate'|'fast') — drives how many stops/day count as "enough" (requiredCandidateCount). Distinct from explorationStyle (iconic/balanced/local_deep_dive), which is advisory-only for the LLM today. */
+  /** TravelPace value ('relaxed'|'moderate'|'fast') drives how many stops/day count as enough. */
   travelPace?: string;
   semanticCoverage: SemanticCoverageSummary;
   offeredCandidateCount: number;
