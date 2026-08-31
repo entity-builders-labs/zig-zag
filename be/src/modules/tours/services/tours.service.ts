@@ -10,22 +10,29 @@ import { CreateTourDto } from '../dto/create-tour.dto';
 import { UpdateTourDto } from '../dto/update-tour.dto';
 import { isValidId } from '@shared/utils/id-validator';
 import { prepareActivityDataForCreate } from '../utils/activity-transformer.util';
+import { OutboxService } from '../../outbox/services/outbox.service';
 
 @Injectable()
 export class ToursService {
   private readonly logger = new Logger(ToursService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly outboxService: OutboxService,
+  ) {}
 
   /**
-   * Create a tour - flexible method that accepts partial data
+   * Create a tour - flexible method that accepts partial data.
+   *
+   * Canonical wizard-generated tours are created atomically with their
+   * TourGenerationRequested event. The database outbox is therefore the durable
+   * source of work; there is no crash window between committing the Tour and
+   * scheduling its generation.
    */
   async create(createTourDto: CreateTourDto) {
     const { activities, ...tourData } = createTourDto;
 
-    // Validate activity IDs if provided
     if (activities?.length) {
-      // Validate activity IDs (supports both UUID and ObjectId for migration)
       const activityIds = activities
         .map((a) => a.activityId)
         .filter((id): id is string => isValidId(id));
@@ -43,12 +50,10 @@ export class ToursService {
           }
         } catch (error) {
           this.logger.error(`Error validating activity IDs: ${error.message}`);
-          // Don't throw, just log the error and continue
         }
       }
     }
 
-    // Prepare tour data - only include defined fields
     const tourDataClean: any = {
       ownerId: tourData.ownerId,
       name: tourData.name,
@@ -67,7 +72,6 @@ export class ToursService {
       categories: tourData.categories,
     };
 
-    // Remove undefined values
     Object.keys(tourDataClean).forEach(
       (key) => tourDataClean[key] === undefined && delete tourDataClean[key],
     );
@@ -91,6 +95,23 @@ export class ToursService {
           },
         },
       });
+
+      const metadata = tourData.metadata as any;
+      const isCanonicalPendingGeneration =
+        metadata?.generationStatus === 'pending' &&
+        metadata?.generationRequest?.contractVersion === 1;
+      if (isCanonicalPendingGeneration) {
+        await this.outboxService.createInTx(tx, {
+          eventType: 'TourGenerationRequested',
+          payload: {
+            eventKey: `tour-generation:${tour.id}`,
+            tourId: tour.id,
+            userId: tour.ownerId ?? undefined,
+            requestedAt: new Date().toISOString(),
+          },
+        });
+      }
+
       return tour;
     });
   }
@@ -106,13 +127,6 @@ export class ToursService {
   ) {
     const skip = (page - 1) * limit;
 
-    // If lat/lng/radius provided, use nearby search logic if no category or combined
-    // But if category is provided, we filter by category
-    // The previous implementation of findAll just paginated everything.
-    // We need to support the filters passed from controller.
-
-    // Tours are private per owner for the MVP — always scoped to the
-    // authenticated caller, never a client-supplied filter.
     const where: any = { ownerId };
 
     if (category) {
@@ -139,12 +153,6 @@ export class ToursService {
         },
       };
     }
-
-    // Note: Prisma doesn't support geospatial queries directly on standard fields easily without raw queries
-    // or extensions. For now, we'll filter by category and simple pagination.
-    // If latitude/longitude is provided, we might want to use findNearby logic instead?
-    // However, findNearby returns an array, not a paginated result with meta.
-    // Let's stick to basic filtering for now.
 
     const [total, tours] = await this.prisma.$transaction([
       this.prisma.tour.count({
@@ -191,11 +199,6 @@ export class ToursService {
         activities: {
           include: {
             activity: true,
-            // The per-tour waypoint snapshot for a composite (kind !== POI)
-            // stop — see TourActivityWaypoint. Included here so the tour
-            // detail/review screens can render a composite stop's actual
-            // waypoints without a second round-trip, and so they show the
-            // frozen-in-time snapshot rather than the variant's live content.
             waypoints: {
               include: { waypointActivity: true },
               orderBy: { order: 'asc' },
@@ -240,7 +243,6 @@ export class ToursService {
 
       this.assertOwnership(existing.ownerId, ownerId);
 
-      // Validate activity IDs if provided
       if (activities?.length) {
         const activityIds = activities
           .map((a) => a.activityId)
@@ -258,12 +260,10 @@ export class ToursService {
       }
 
       return await this.prisma.$transaction(async (tx) => {
-        // First delete existing activities
         await tx.tourActivity.deleteMany({
           where: { tourId: id },
         });
 
-        // Update tour and create new activities
         const updatedTour = await tx.tour.update({
           where: { id },
           data: {
@@ -323,12 +323,10 @@ export class ToursService {
       this.assertOwnership(existing.ownerId, ownerId);
 
       return await this.prisma.$transaction(async (tx) => {
-        // First delete all associated activities
         await tx.tourActivity.deleteMany({
           where: { tourId: id },
         });
 
-        // Then delete the tour
         const deletedTour = await tx.tour.delete({
           where: { id },
           include: {
