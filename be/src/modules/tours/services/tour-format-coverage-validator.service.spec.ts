@@ -39,15 +39,22 @@ describe('TourFormatCoverageValidator', () => {
     ]);
   });
 
-  it('does not reject when the requested format has zero candidates in the pool at all', () => {
+  it('flags a requested structural format when acquisition produced zero candidates', () => {
     const result = service.validate({
       requestedExperienceFormats: [ExperienceFormat.NEIGHBORHOOD_WALKS],
       selectedActivities: [ref('poi-1', ActivityKind.POI)],
       availableCandidateActivities: [ref('poi-1', ActivityKind.POI)],
     });
 
-    expect(result.valid).toBe(true);
-    expect(result.issues).toEqual([]);
+    expect(result.valid).toBe(false);
+    expect(result.issues).toEqual([
+      expect.objectContaining({
+        code: 'REQUESTED_FORMAT_UNAVAILABLE',
+        requestedFormat: ExperienceFormat.NEIGHBORHOOD_WALKS,
+        availableCandidateCount: 0,
+        selectedCandidateCount: 0,
+      }),
+    ]);
   });
 
   it('accepts a requested format that was represented in the selection', () => {
@@ -67,7 +74,7 @@ describe('TourFormatCoverageValidator', () => {
     expect(result.issues).toEqual([]);
   });
 
-  it('flags only the format that was ignored when two are requested and both are available', () => {
+  it('flags only the ignored format when two are requested and both are available', () => {
     const result = service.validate({
       requestedExperienceFormats: [
         ExperienceFormat.NEIGHBORHOOD_WALKS,
@@ -87,6 +94,7 @@ describe('TourFormatCoverageValidator', () => {
     expect(result.valid).toBe(false);
     expect(result.issues).toEqual([
       expect.objectContaining({
+        code: 'REQUESTED_FORMAT_MISSING',
         requestedFormat: ExperienceFormat.EXPERIENCES,
         availableCandidateCount: 1,
         selectedCandidateCount: 0,
@@ -125,15 +133,13 @@ describe('TourFormatCoverageValidator', () => {
     expect(result.valid).toBe(false);
     expect(result.issues[0]).toEqual(
       expect.objectContaining({
+        code: 'REQUESTED_FORMAT_MISSING',
         requestedFormat: ExperienceFormat.NEIGHBORHOOD_WALKS,
       }),
     );
   });
 
-  it('evaluates coverage at tour level: a format present on only one of several days still satisfies it', () => {
-    // This validator has no dayNumber concept at all — selectedActivities is
-    // the whole tour's picks. A single NEIGHBORHOOD_WALK anywhere satisfies
-    // the requested format regardless of which day it landed on.
+  it('evaluates coverage at tour level', () => {
     const result = service.validate({
       requestedExperienceFormats: [ExperienceFormat.NEIGHBORHOOD_WALKS],
       selectedActivities: [
@@ -153,7 +159,7 @@ describe('TourFormatCoverageValidator', () => {
     expect(result.valid).toBe(true);
   });
 
-  it('never flags point_visits — it has no kind mapping and needs no coverage gate', () => {
+  it('never flags point_visits because it has no structural kind mapping', () => {
     const result = service.validate({
       requestedExperienceFormats: [ExperienceFormat.POINT_VISITS],
       selectedActivities: [ref('poi-1', ActivityKind.POI)],
