@@ -11,6 +11,27 @@ export interface DocumentaryPhoto {
   provider: 'wikimedia_commons' | 'google_places';
 }
 
+export type MediaLookupOutcome =
+  | 'FOUND'
+  | 'AUTHORITATIVE_EMPTY'
+  | 'RETRYABLE_FAILURE'
+  | 'PERMANENT_FAILURE';
+
+export type MediaLookupResult =
+  | {
+      outcome: 'FOUND';
+      photos: DocumentaryPhoto[];
+    }
+  | {
+      outcome: 'AUTHORITATIVE_EMPTY';
+      photos: [];
+    }
+  | {
+      outcome: 'RETRYABLE_FAILURE' | 'PERMANENT_FAILURE';
+      photos: [];
+      error: string;
+    };
+
 export interface MediaPresentation {
   photos: DocumentaryPhoto[];
   primaryPhoto: {
