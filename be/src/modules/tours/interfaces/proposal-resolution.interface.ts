@@ -2,6 +2,7 @@ import { ActivityProposal, EntityHint } from './activity-discovery.interface';
 import { OsmCandidate } from '@integrations/osm/services/osm-places.service';
 import { GeoJsonGeometry } from '@integrations/osm/utils/osm-geometry.util';
 import { PlaceData } from '@integrations/google-places/interfaces/places-api.interface';
+import type { GeographicValidationBatchResult } from './geographic-validation.interface';
 
 // ── Resolution result ──────────────────────────────────────────────
 
@@ -88,18 +89,31 @@ export interface ProposalResolutionRequest {
 
 // ── Resolution response ────────────────────────────────────────────
 
-export interface ProposalResolutionResponse {
-  resolved: ResolvedActivityProposal[];
-  totalProposals: number;
-  acceptedCount: number;
-  rejectedCount: number;
-}
-
 export interface ProposalMaterializationResponse {
   resolved: ResolvedActivityProposal[];
   totalProposals: number;
   materializedCount: number;
   rejectedCount: number;
+}
+
+/**
+ * The proposal pipeline returns the final materialized view in `resolved`, while
+ * preserving each intermediate decision so the Bitácora can render resolution,
+ * geographic validation and catalog materialization as distinct facts.
+ */
+export interface ProposalResolutionResponse {
+  resolved: ResolvedActivityProposal[];
+  totalProposals: number;
+  acceptedCount: number;
+  rejectedCount: number;
+  entityResolution?: {
+    resolved: ResolvedActivityProposal[];
+    totalProposals: number;
+    acceptedCount: number;
+    rejectedCount: number;
+  };
+  geographicValidation?: GeographicValidationBatchResult;
+  materialization?: ProposalMaterializationResponse;
 }
 
 export const PROPOSAL_RESOLVER = 'PROPOSAL_RESOLVER';
