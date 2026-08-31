@@ -2,9 +2,11 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { ToursService } from './tours.service';
 import { PrismaService } from '../../../core/database/prisma.service';
+import { OutboxService } from '../../outbox/services/outbox.service';
 
 describe('ToursService', () => {
   let service: ToursService;
+  let outboxService: { createInTx: jest.Mock };
 
   const mockPrismaService = {
     tour: {
@@ -25,18 +27,19 @@ describe('ToursService', () => {
   };
 
   beforeEach(async () => {
+    outboxService = { createInTx: jest.fn().mockResolvedValue({ id: 'evt-1' }) };
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ToursService,
         { provide: PrismaService, useValue: mockPrismaService },
+        { provide: OutboxService, useValue: outboxService },
       ],
     }).compile();
 
     service = module.get<ToursService>(ToursService);
     jest.clearAllMocks();
+    outboxService.createInTx.mockResolvedValue({ id: 'evt-1' });
 
-    // Support both the callback form (`$transaction(async (tx) => ...)`,
-    // used by create/update/remove) and the array form (used by findAll).
     mockPrismaService.$transaction.mockImplementation((arg) =>
       typeof arg === 'function' ? arg(mockPrismaService) : Promise.all(arg),
     );
@@ -44,6 +47,59 @@ describe('ToursService', () => {
 
   it('should be defined', () => {
     expect(service).toBeDefined();
+  });
+
+  describe('create', () => {
+    it('creates canonical wizard Tour and TourGenerationRequested in the same transaction', async () => {
+      mockPrismaService.tour.create.mockResolvedValue({
+        id: 'tour-1',
+        ownerId: 'user-1',
+        metadata: {},
+        activities: [],
+      });
+
+      await service.create({
+        ownerId: 'user-1',
+        name: 'Test',
+        categories: [],
+        metadata: {
+          generationStatus: 'pending',
+          generationRequest: { contractVersion: 1 },
+        } as any,
+        activities: [],
+      } as any);
+
+      expect(mockPrismaService.$transaction).toHaveBeenCalledTimes(1);
+      expect(outboxService.createInTx).toHaveBeenCalledWith(
+        mockPrismaService,
+        expect.objectContaining({
+          eventType: 'TourGenerationRequested',
+          payload: expect.objectContaining({
+            eventKey: 'tour-generation:tour-1',
+            tourId: 'tour-1',
+            userId: 'user-1',
+          }),
+        }),
+      );
+    });
+
+    it('does not enqueue generation for a non-canonical create', async () => {
+      mockPrismaService.tour.create.mockResolvedValue({
+        id: 'tour-legacy',
+        ownerId: 'user-1',
+        activities: [],
+      });
+
+      await service.create({
+        ownerId: 'user-1',
+        name: 'Legacy',
+        categories: [],
+        metadata: { generationStatus: 'pending' } as any,
+        activities: [],
+      } as any);
+
+      expect(outboxService.createInTx).not.toHaveBeenCalled();
+    });
   });
 
   describe('findOne', () => {
@@ -73,14 +129,14 @@ describe('ToursService', () => {
       await expect(service.findOne('tour-1', 'user-1')).resolves.toBe(tour);
     });
 
-    it('skips the ownership check for trusted internal callers (no ownerId passed)', async () => {
+    it('skips the ownership check for trusted internal callers', async () => {
       const tour = { id: 'tour-1', ownerId: 'someone-else' };
       mockPrismaService.tour.findUnique.mockResolvedValue(tour);
 
       await expect(service.findOne('tour-1')).resolves.toBe(tour);
     });
 
-    it("includes each TourActivity's waypoint snapshot (with the real waypointActivity) so composite stops render without a second round-trip", async () => {
+    it("includes each TourActivity's waypoint snapshot", async () => {
       const tour = { id: 'tour-1', ownerId: 'user-1' };
       mockPrismaService.tour.findUnique.mockResolvedValue(tour);
 
