@@ -22,6 +22,7 @@ export type GeographicValidationRejectionReason =
   | 'missing_coordinates'
   | 'geographic_incoherence'
   | 'destination_mismatch'
+  | 'grounded_evidence_missing'
   | 'unresolved_required_component'
   | 'ambiguous_component';
 
