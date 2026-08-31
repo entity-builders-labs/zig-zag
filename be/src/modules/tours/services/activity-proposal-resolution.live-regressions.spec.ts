@@ -1,15 +1,17 @@
 import { ActivityKind } from '@prisma/client';
 import { ActivityProposalResolutionService } from './activity-proposal-resolution.service';
 import { ActivityProposal } from '../interfaces/activity-discovery.interface';
+import { ProposalResolutionRequest } from '../interfaces/proposal-resolution.interface';
+import { OsmCandidate } from '@integrations/osm/services/osm-places.service';
 
-const DESTINATION = {
+const DESTINATION: OsmCandidate = {
   id: 'osm:relation:1',
   name: 'Gualeguaychú',
-  osmType: 'relation' as const,
+  osmType: 'relation',
   osmId: 1,
   tags: { name: 'Gualeguaychú', admin_level: '8' },
   geometry: {
-    type: 'Polygon' as const,
+    type: 'Polygon',
     coordinates: [
       [
         [-58.0, -33.2],
@@ -82,7 +84,7 @@ function createService() {
   };
 }
 
-function request(proposals: ActivityProposal[]) {
+function request(proposals: ActivityProposal[]): ProposalResolutionRequest {
   return {
     proposals,
     destinationName: 'Gualeguaychú',
@@ -145,7 +147,7 @@ describe('ActivityProposalResolutionService live regressions', () => {
     );
   });
 
-  it('resolves a named beach through OSM when Places has no exact match', async () => {
+  it('resolves a venue-centric named beach through OSM when Places has no exact match', async () => {
     const { service, placesApi, osmPlacesService, prisma } = createService();
     placesApi.searchText.mockResolvedValue({
       data: [
@@ -178,7 +180,7 @@ describe('ActivityProposalResolutionService live regressions', () => {
         {
           key: 'beach-1',
           name: 'Balneario Nandubaysal',
-          role: 'waypoint',
+          role: 'venue',
           expectedType: 'Beach',
           required: true,
           evidenceKeys: ['ev-1'],
