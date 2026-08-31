@@ -167,11 +167,6 @@ describe('discovery-extraction-shared.util', () => {
     });
 
     it('rejects NEIGHBORHOOD_WALK missing a required area hint (live semantic-omission regression)', () => {
-      // Reproduces a real Gemini response observed live: all hints returned
-      // as required=false, with the actual area (San Telmo) omitted
-      // entirely as a role="area" hint. JSON Schema alone can't catch this
-      // — only this business-rule check can, regardless of which provider
-      // extracted the proposal.
       const hints = [
         {
           key: 'plaza-dorrego',
@@ -231,9 +226,17 @@ describe('discovery-extraction-shared.util', () => {
       );
     });
 
-    it('requires at least 2 resolvable entities for EXPERIENCE', () => {
+    it('accepts a venue-centric EXPERIENCE with one required venue', () => {
       expect(
         validateKindRules('EXPERIENCE', [{ role: 'venue', required: true }]),
+      ).toEqual([]);
+    });
+
+    it('requires at least 2 resolvable entities for a non-venue-centric EXPERIENCE', () => {
+      expect(
+        validateKindRules('EXPERIENCE', [
+          { role: 'waypoint', required: true },
+        ]),
       ).toEqual(
         expect.arrayContaining([
           expect.stringContaining('at least 2 resolvable entities'),
