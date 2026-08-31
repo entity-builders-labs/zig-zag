@@ -3,7 +3,10 @@ import { Activity, ActivityKind, Prisma, VariantTheme } from '@prisma/client';
 import { PrismaService } from '@core/database/prisma.service';
 import { CompositeActivityService } from '@activities/services/composite-activity.service';
 import { OsmCandidate } from '@integrations/osm/services/osm-places.service';
-import { PlaceData } from '@integrations/google-places/interfaces/places-api.interface';
+import {
+  PlaceData,
+  PlacesProvider,
+} from '@integrations/google-places/interfaces/places-api.interface';
 import { VectorStoreService } from '@shared/ai/services/vector-store.service';
 import {
   GeographicValidationBatchResult,
@@ -168,7 +171,9 @@ export class ActivityProposalMaterializationService {
       throw new Error('Composite materialization requires destination boundary');
     }
 
-    const kind = ActivityKind[entry.proposal.kind as keyof typeof ActivityKind];
+    const kind = ActivityKind[
+      entry.proposal.kind as keyof typeof ActivityKind
+    ] as ActivityKind;
     const variantTheme = this.pickVariantTheme(entry.proposal.themes);
     if (!variantTheme) {
       throw new Error('unresolvable_theme');
@@ -177,7 +182,8 @@ export class ActivityProposalMaterializationService {
     const resolvedArea = entry.resolvedEntities.find(
       (entity) => entity.role === 'area' && entity.status === 'resolved',
     );
-    const areaCandidate = this.osmCandidate(resolvedArea) ?? request.destinationBoundary;
+    const areaCandidate =
+      this.osmCandidate(resolvedArea) ?? request.destinationBoundary;
     const waypointIds: string[] = [];
     const candidateOsmFeaturesById = new Map<string, OsmCandidate>();
     const activitiesToIndex: Activity[] = [];
@@ -232,7 +238,13 @@ export class ActivityProposalMaterializationService {
     }
 
     if (entity.materialization.kind === 'place') {
-      return this.materializePlace(entity.materialization.place);
+      if (entity.provider !== 'google' && entity.provider !== 'geoapify') {
+        throw new Error('Resolved Places entity is missing its provider');
+      }
+      return this.materializePlace(
+        entity.materialization.place,
+        entity.provider,
+      );
     }
     return this.materializeOsmComponent(
       entity.materialization.candidate,
@@ -240,12 +252,10 @@ export class ActivityProposalMaterializationService {
     );
   }
 
-  private async materializePlace(place: PlaceData): Promise<Activity> {
-    const provider =
-      place.id && place.id.startsWith('geoapify:') ? 'geoapify' : undefined;
-    // Resolution carries provider identity, but PlaceData itself does not. The
-    // configured source is selected from the provider id convention when
-    // available; otherwise Google is the canonical Places source.
+  private async materializePlace(
+    place: PlaceData,
+    provider: PlacesProvider,
+  ): Promise<Activity> {
     const sourceName = provider === 'geoapify' ? 'geoapify' : 'google-maps';
     const baseUrl =
       provider === 'geoapify'
@@ -274,6 +284,7 @@ export class ActivityProposalMaterializationService {
             source: { connect: { id: sourceId } },
             externalId,
             metadata: {
+              placesProvider: provider,
               providerTypes: place.types ?? [],
               providerPrimaryType: place.primaryType,
             } as unknown as Prisma.InputJsonValue,
