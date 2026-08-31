@@ -20,15 +20,6 @@ export const VALID_KINDS: ProposalKind[] = [
 ];
 export const VALID_ROLES = new Set(['area', 'waypoint', 'route', 'venue']);
 
-/**
- * Business semantics only — no provider-specific output-format instructions
- * (no "return ONLY valid JSON", no JSON shape description). Gemini enforces
- * response shape via JSON Schema (response_format) and doesn't need this
- * prose duplicated; Groq's own prompt prepends its own shape/format section
- * before this block. Both providers' extracted proposals still flow through
- * the same validateProposal()/validateKindRules() below regardless — shape
- * compliance from either provider is necessary, never sufficient.
- */
 export const DISCOVERY_SEMANTIC_RULES = `GENERAL RULES
 
 - Propose only activities supported by the supplied grounded search evidence.
@@ -97,6 +88,15 @@ EXPERIENCE RULES
 - Represents a concrete multi-part travel activity.
 - Should contain at least 2 concrete resolvable entities unless it clearly revolves
   around one identifiable venue.
+- Every required entity hint must name one specific real entity, not a category,
+  grouped description, synthesized collection, or plural placeholder.
+- Never create hints such as "Gualeguaychú Parks and Museums", "historic sites",
+  "local beaches", or "city landmarks". Use the exact concrete names supported
+  by evidence, or omit the proposal when evidence does not supply enough names.
+- Assign route-like entities (street, promenade, boardwalk, path, trail) role="route"
+  even when they are part of a broader experience; do not label them as venues.
+- Beaches, parks, museums, attractions, markets, and other named physical stops may
+  use role="waypoint" or "venue" as appropriate.
 - The relationship between its entities must be explicit and geographically plausible.
 - Do not use EXPERIENCE as a catch-all for vague ideas.
 - An area hint is optional. Do not invent an area when the experience is
@@ -132,14 +132,6 @@ ENTITY EVIDENCE RULES
 
 Return fewer proposals when evidence is weak.`;
 
-/**
- * Provider-neutral request framing (destination/themes/formats/style/
- * preferences/mode/evidence) — same content regardless of which provider
- * extracts from it. `includeJsonFormatInstruction` controls only the final
- * "return ONLY valid JSON" clause: Groq needs it (loose JSON mode, no
- * schema enforcement); Gemini doesn't (response_format/JSON Schema already
- * enforces shape, so asking for it again in prose is redundant).
- */
 export function buildUserPrompt(
   request: DiscoveryRequest,
   evidenceMap: Map<string, GroundingEvidence>,
