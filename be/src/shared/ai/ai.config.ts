@@ -14,10 +14,12 @@ export interface AiConfig {
   groqApiKey?: string;
   // Gemini
   geminiApiKey?: string;
-  // Grounded search evidence provider ('serpapi' | 'groq')
-  groundedSearchProvider?: 'serpapi' | 'groq';
+  // Grounded search evidence provider ('serpapi' | 'groq' | 'tavily')
+  groundedSearchProvider?: 'serpapi' | 'groq' | 'tavily';
   // SerpApi (grounded search evidence provider)
   serpApiKey?: string;
+  // Tavily (grounded search evidence provider)
+  tavilyApiKey?: string;
   // Ollama
   ollamaBaseUrl?: string;
   ollamaApiKey?: string;
@@ -136,6 +138,16 @@ export default registerAs('ai', (): AiConfig => {
     );
   }
 
+  const groundedSearchProvider = (
+    process.env.GROUNDED_SEARCH_PROVIDER ||
+    (process.env.SERPAPI_API_KEY ? 'serpapi' : 'groq')
+  ).toLowerCase();
+  if (!['serpapi', 'groq', 'tavily'].includes(groundedSearchProvider)) {
+    throw new Error(
+      `Unsupported GROUNDED_SEARCH_PROVIDER "${groundedSearchProvider}". Expected serpapi, groq, or tavily.`,
+    );
+  }
+
   return {
     enableAi: process.env.ENABLE_AI !== 'false',
     provider,
@@ -148,10 +160,11 @@ export default registerAs('ai', (): AiConfig => {
     groqApiKey: process.env.GROQ_API_KEY,
     geminiApiKey: process.env.GEMINI_API_KEY,
     serpApiKey: process.env.SERPAPI_API_KEY,
-    groundedSearchProvider: (
-      process.env.GROUNDED_SEARCH_PROVIDER ||
-      (process.env.SERPAPI_API_KEY ? 'serpapi' : 'groq')
-    ).toLowerCase() as 'serpapi' | 'groq',
+    tavilyApiKey: process.env.TAVILY_API_KEY,
+    groundedSearchProvider: groundedSearchProvider as
+      | 'serpapi'
+      | 'groq'
+      | 'tavily',
     ollamaBaseUrl: process.env.OLLAMA_BASE_URL,
     ollamaApiKey: process.env.OLLAMA_API_KEY,
     ollamaNumCtx: process.env.OLLAMA_NUM_CTX
