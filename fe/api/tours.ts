@@ -28,6 +28,7 @@ export interface Tour {
       description?: string;
       type: string;
       photos?: any;
+      mediaUpdatedAt?: string;
       latitude?: number;
       longitude?: number;
       address?: string;

@@ -26,16 +26,33 @@ import {
   Ruler,
   Sliders,
   Award,
+  Bell,
 } from 'lucide-react-native';
 import { useAuth } from '@/context/auth';
 import { fetchMyTours, Tour } from '@/api/tours';
 import { FONT_DISPLAY } from '@/constants/typography';
+import { enablePushNotifications } from '@/features/notifications/push-notifications';
 
 export default function ProfileScreen() {
   const router = useRouter();
   const { user, signOut } = useAuth();
   const [tours, setTours] = useState<Tour[]>([]);
   const [loading, setLoading] = useState(true);
+  const [notificationStatus, setNotificationStatus] = useState<
+    'idle' | 'enabling' | 'enabled' | 'denied' | 'error'
+  >('idle');
+
+  const handleEnableNotifications = async () => {
+    if (notificationStatus === 'enabling') return;
+    setNotificationStatus('enabling');
+    try {
+      setNotificationStatus(
+        (await enablePushNotifications()) ? 'enabled' : 'denied',
+      );
+    } catch {
+      setNotificationStatus('error');
+    }
+  };
 
   useFocusEffect(
     useCallback(() => {
@@ -316,6 +333,39 @@ export default function ProfileScreen() {
                     </Text>
                   </HStack>
                 </Box>
+
+                <Pressable
+                  onPress={handleEnableNotifications}
+                  p='$3.5'
+                  borderBottomWidth={1}
+                  borderBottomColor='$borderLight100'
+                  testID='enable-notifications-button'
+                >
+                  <HStack justifyContent='space-between' alignItems='center'>
+                    <HStack space='md' alignItems='center'>
+                      <Icon as={Bell} size='sm' color='$textLight600' />
+                      <VStack>
+                        <Text size='xs' fontWeight='$bold' color='$textLight900'>
+                          Notificaciones
+                        </Text>
+                        <Text size='2xs' color='$textLight500'>
+                          Avisos cuando tu itinerario esté listo
+                        </Text>
+                      </VStack>
+                    </HStack>
+                    <Text size='xs' fontWeight='$bold' color='$primary600'>
+                      {notificationStatus === 'enabling'
+                        ? 'Activando…'
+                        : notificationStatus === 'enabled'
+                          ? 'Activadas'
+                          : notificationStatus === 'denied'
+                            ? 'Sin permiso'
+                            : notificationStatus === 'error'
+                              ? 'Reintentar'
+                              : 'Activar'}
+                    </Text>
+                  </HStack>
+                </Pressable>
 
                 <Box p='$3.5'>
                   <HStack justifyContent='space-between' alignItems='center'>

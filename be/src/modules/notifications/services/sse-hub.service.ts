@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Subject, Observable } from 'rxjs';
+import { Subject, Observable, interval, merge, of } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 export interface MessageEvent {
   data: string | object;
@@ -10,9 +11,11 @@ export interface MessageEvent {
 
 @Injectable()
 export class SSEHubService {
+  private readonly heartbeatIntervalMs = 25_000;
   private readonly logger = new Logger(SSEHubService.name);
   private readonly streams = new Map<string, Subject<MessageEvent>>();
   private readonly clientCounts = new Map<string, number>();
+  private eventSequence = 0;
 
   /**
    * Returns an Observable stream for a given tourId or userId topic.
@@ -29,7 +32,25 @@ export class SSEHubService {
       `[SSEHub] Client connected to channel "${channelId}" (active clients: ${currentCount + 1}).`,
     );
 
-    return this.streams.get(channelId)!.asObservable();
+    const connected: MessageEvent = {
+      type: 'connected',
+      data: { channelId },
+      retry: 3000,
+    };
+    const heartbeat$ = interval(this.heartbeatIntervalMs).pipe(
+      map(
+        (): MessageEvent => ({
+          type: 'heartbeat',
+          data: { timestamp: new Date().toISOString() },
+        }),
+      ),
+    );
+
+    return merge(
+      of(connected),
+      this.streams.get(channelId)!.asObservable(),
+      heartbeat$,
+    );
   }
 
   /**
@@ -71,6 +92,7 @@ export class SSEHubService {
     subject.next({
       type: eventType,
       data,
+      id: `${Date.now()}-${++this.eventSequence}`,
     });
     this.logger.debug(
       `[SSEHub] Emitted SSE "${eventType}" to channel "${channelId}".`,
@@ -78,20 +100,4 @@ export class SSEHubService {
     return true;
   }
 
-  /**
-   * Broadcasts an event to all active channels.
-   */
-  broadcastAll(eventType: string, data: any): void {
-    for (const [channelId, subject] of this.streams.entries()) {
-      if (this.hasActiveClients(channelId)) {
-        subject.next({
-          type: eventType,
-          data,
-        });
-        this.logger.debug(
-          `[SSEHub] Broadcasted SSE "${eventType}" to channel "${channelId}".`,
-        );
-      }
-    }
-  }
 }

@@ -14,6 +14,8 @@ import {
   TourNotificationPayload,
   ActivityMediaNotificationPayload,
 } from '../interfaces/notification.interface';
+import { PrismaService } from '../../../core/database/prisma.service';
+import { notificationChannel } from '../utils/notification-channel.util';
 
 @Injectable()
 export class NotificationDeliveryService implements OnModuleInit {
@@ -24,6 +26,7 @@ export class NotificationDeliveryService implements OnModuleInit {
     private readonly messageQueue: IMessageQueueService,
     private readonly sseHub: SSEHubService,
     private readonly pushService: PushNotificationService,
+    private readonly prisma: PrismaService,
   ) {}
 
   onModuleInit(): void {
@@ -63,14 +66,9 @@ export class NotificationDeliveryService implements OnModuleInit {
     const { tourId, userId, message } = payload;
     let sseDelivered = false;
 
-    // Check SSE on tour channel
-    if (this.sseHub.hasActiveClients(tourId)) {
-      sseDelivered = this.sseHub.emit(tourId, eventName, payload);
-    }
-
-    // Check SSE on user channel
-    if (userId && this.sseHub.hasActiveClients(userId)) {
-      sseDelivered = this.sseHub.emit(userId, eventName, payload) || sseDelivered;
+    const tourChannel = notificationChannel.tour(tourId);
+    if (this.sseHub.hasActiveClients(tourChannel)) {
+      sseDelivered = this.sseHub.emit(tourChannel, eventName, payload);
     }
 
     // If SSE was not connected and it's a terminal state, deliver via Push Notification
@@ -103,14 +101,22 @@ export class NotificationDeliveryService implements OnModuleInit {
     payload: ActivityMediaNotificationPayload,
   ): Promise<void> {
     const { activityId } = payload;
-    if (this.sseHub.hasActiveClients(`activity_${activityId}`)) {
-      this.sseHub.emit(
-        `activity_${activityId}`,
-        'activity.media.updated',
-        payload,
-      );
+    const channels = new Set<string>([
+      notificationChannel.activity(activityId),
+    ]);
+    const relatedTours = await this.prisma.tourActivity.findMany({
+      where: { activityId },
+      select: { tourId: true },
+      distinct: ['tourId'],
+    });
+    for (const { tourId } of relatedTours) {
+      channels.add(notificationChannel.tour(tourId));
     }
-    // Also broadcast to any active tour/user streams so open tour screens update instantly
-    this.sseHub.broadcastAll('activity.media.updated', payload);
+
+    for (const channel of channels) {
+      if (this.sseHub.hasActiveClients(channel)) {
+        this.sseHub.emit(channel, 'activity.media.updated', payload);
+      }
+    }
   }
 }

@@ -58,12 +58,13 @@ export class MediaEnrichmentProcessorService implements OnModuleInit {
 
       // 2. Persist in database and emit domain event in single transaction
       await this.prisma.$transaction(async (tx) => {
+        const mediaUpdatedAt = new Date();
         await tx.activity.update({
           where: { id: activityId },
           data: {
             photos: photos.length > 0 ? (photos as any) : Prisma.JsonNull,
             mediaStatus: MediaStatus.ENRICHED,
-            mediaUpdatedAt: new Date(),
+            mediaUpdatedAt,
             mediaError: null,
           },
         });
@@ -72,6 +73,8 @@ export class MediaEnrichmentProcessorService implements OnModuleInit {
           activityId,
           mediaStatus: 'ENRICHED',
           photoCount: photos.length,
+          mediaUpdatedAt: mediaUpdatedAt.toISOString(),
+          photos,
         };
 
         await this.outboxService.createInTx(tx, {
@@ -92,11 +95,12 @@ export class MediaEnrichmentProcessorService implements OnModuleInit {
 
       try {
         await this.prisma.$transaction(async (tx) => {
+          const mediaUpdatedAt = new Date();
           await tx.activity.update({
             where: { id: activityId },
             data: {
               mediaStatus: MediaStatus.FAILED,
-              mediaUpdatedAt: new Date(),
+              mediaUpdatedAt,
               mediaError: errorMessage.slice(0, 500),
             },
           });
@@ -105,6 +109,7 @@ export class MediaEnrichmentProcessorService implements OnModuleInit {
             activityId,
             mediaStatus: 'FAILED',
             photoCount: 0,
+            mediaUpdatedAt: mediaUpdatedAt.toISOString(),
           };
 
           await this.outboxService.createInTx(tx, {

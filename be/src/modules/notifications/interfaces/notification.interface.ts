@@ -11,4 +11,6 @@ export interface ActivityMediaNotificationPayload {
   activityId: string;
   mediaStatus: string;
   photoCount: number;
+  mediaUpdatedAt: string;
+  photos?: unknown[];
 }

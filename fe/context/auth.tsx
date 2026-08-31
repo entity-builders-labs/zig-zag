@@ -15,6 +15,10 @@ import {
   clearTokens,
 } from '../api/config/token-storage';
 import { setSessionExpiredHandler } from '../api/config/axios';
+import {
+  disablePushNotifications,
+  syncPushNotifications,
+} from '../features/notifications/push-notifications';
 
 export type AuthContextType = {
   user: AuthUser | null;
@@ -45,9 +49,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const applySession = useCallback(async (session: AuthSession) => {
     await setTokens(session.accessToken, session.refreshToken);
     setUser(session.user);
+    syncPushNotifications().catch(() => {});
   }, []);
 
   const signOut = useCallback(async () => {
+    try {
+      await disablePushNotifications();
+    } catch {}
     try {
       await authApi.logout();
     } catch {
@@ -75,6 +83,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       try {
         const me = await authApi.fetchCurrentUser();
         setUser(me);
+        syncPushNotifications().catch(() => {});
       } catch {
         await clearTokens();
       } finally {

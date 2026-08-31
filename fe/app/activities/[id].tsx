@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   ScrollView,
   ActivityIndicator,
@@ -37,6 +37,7 @@ import {
   fetchSimilarActivities,
   ActivityDetail,
 } from '../../api/activities';
+import { useSSE } from '../../api/hooks/useSSE';
 import {
   getPhotoGallery,
   getHighlights,
@@ -58,6 +59,46 @@ export default function ActivityDetailScreen() {
   const [activePhotoIndex, setActivePhotoIndex] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
   const [copiedAddress, setCopiedAddress] = useState(false);
+
+  const refreshActivity = useCallback(async () => {
+    if (!id) return;
+    const data = await fetchActivityById(id);
+    setActivity(data);
+  }, [id]);
+
+  useSSE(id ? `/notifications/activities/${id}/stream` : null, {
+    enabled: !!id,
+    onOpen: () => {
+      refreshActivity().catch((error) =>
+        console.error('Failed to reconcile activity after SSE connect:', error),
+      );
+    },
+    onEvent: (eventName, payload) => {
+      if (eventName === 'activity.media.updated') {
+        const { activityId, mediaUpdatedAt, photos } = payload;
+        if (
+          activityId === id &&
+          mediaUpdatedAt &&
+          Array.isArray(photos)
+        ) {
+          setActivity((prev) => {
+            if (!prev) return prev;
+            if (
+              prev.mediaUpdatedAt &&
+              Date.parse(prev.mediaUpdatedAt) >= Date.parse(mediaUpdatedAt)
+            ) {
+              return prev;
+            }
+            return { ...prev, photos, mediaUpdatedAt };
+          });
+        } else {
+          refreshActivity().catch((error) =>
+            console.error('Failed to refresh activity media:', error),
+          );
+        }
+      }
+    },
+  });
 
   useEffect(() => {
     const loadActivity = async () => {
@@ -768,4 +809,3 @@ export default function ActivityDetailScreen() {
     </>
   );
 }
-

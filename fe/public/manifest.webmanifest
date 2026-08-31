@@ -1,0 +1,16 @@
+{
+  "name": "Zig-Zag",
+  "short_name": "Zig-Zag",
+  "description": "Itinerarios personalizados y recorridos urbanos",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}

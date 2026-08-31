@@ -143,14 +143,15 @@ describe('MediaModule Services', () => {
 
   describe('MediaEnrichmentProcessorService', () => {
     it('persists documentary photos and emits ActivityMediaUpdated in transaction', async () => {
-      wikimediaCommonsMock.findPhotosForActivity.mockResolvedValueOnce([
+      const mockPhotos = [
         {
           url: 'https://upload.wikimedia.org/wikipedia/commons/san_telmo.jpg',
           author: 'Wikimedia User',
           license: 'CC BY 3.0',
-          provider: 'wikimedia_commons',
+          provider: 'wikimedia_commons' as const,
         },
-      ]);
+      ];
+      wikimediaCommonsMock.findPhotosForActivity.mockResolvedValueOnce(mockPhotos);
       prismaMock.activity.update.mockResolvedValueOnce({});
       outboxServiceMock.createInTx.mockResolvedValueOnce({});
 
@@ -185,6 +186,8 @@ describe('MediaModule Services', () => {
             activityId: 'act-123',
             mediaStatus: 'ENRICHED',
             photoCount: 1,
+            mediaUpdatedAt: expect.any(String),
+            photos: mockPhotos,
           },
         }),
       );

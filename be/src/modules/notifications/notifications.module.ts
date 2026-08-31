@@ -4,12 +4,13 @@ import { SSEHubService } from './services/sse-hub.service';
 import { PushNotificationService } from './services/push-notification.service';
 import { NotificationDeliveryService } from './services/notification-delivery.service';
 import { SSEController } from './controllers/sse.controller';
+import { DevicesController } from './controllers/devices.controller';
 import { PrismaService } from '../../core/database/prisma.service';
 
 @Global()
 @Module({
   imports: [QueueModule],
-  controllers: [SSEController],
+  controllers: [SSEController, DevicesController],
   providers: [
     PrismaService,
     SSEHubService,

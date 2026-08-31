@@ -294,25 +294,40 @@ export class TourActivityGenerationService {
     message?: string,
   ) {
     const tour = await this.toursService.findOne(tourId);
-    const metadata = tour.metadata as any;
+    const metadata = tour?.metadata as any;
     // A successful retry must not keep presenting the previous attempt's
     // failure as current state. Failed metadata is added atomically in the
     // catch path below; every non-failed transition explicitly removes it.
     const nextMetadata = withoutGenerationFailure(metadata);
-    await this.prisma.tour.update({
-      where: { id: tourId },
-      data: {
-        metadata: {
-          ...nextMetadata,
-          generationStatus: status,
-          generationMessage: message,
-          ...(status === 'generating' &&
-          metadata?.generationStatus !== 'generating'
-            ? { generationStartedAt: new Date().toISOString() }
-            : {}),
-        },
+    const data = {
+      metadata: {
+        ...nextMetadata,
+        generationStatus: status,
+        generationMessage: message,
+        ...(status === 'generating' &&
+        metadata?.generationStatus !== 'generating'
+          ? { generationStartedAt: new Date().toISOString() }
+          : {}),
       },
-    });
+    };
+
+    if (this.outboxService && (status === 'generating' || status === 'pending')) {
+      await this.prisma.$transaction(async (tx) => {
+        await tx.tour.update({ where: { id: tourId }, data });
+        await this.outboxService.createInTx(tx, {
+          eventType: 'TourProgressUpdated',
+          payload: {
+            tourId,
+            userId: tour?.ownerId || undefined,
+            status,
+            message,
+          },
+        });
+      });
+      return;
+    }
+
+    await this.prisma.tour.update({ where: { id: tourId }, data });
   }
 
   private readonly CATALOG_RETRIEVAL_POOL_LIMIT = 250;
@@ -1430,6 +1445,18 @@ export class TourActivityGenerationService {
         }
       }
 
+      const generationTrace = {
+        steps: traceSteps,
+        tourCompleteness: {
+          ...completeness,
+          retryAttempted: correctiveRetryAttempted,
+        },
+        tourFormatCoverage: {
+          ...formatCoverage,
+          retryAttempted: correctiveRetryAttempted,
+        },
+      };
+
       // Update tour with activities
       await this.prisma.$transaction(async (tx) => {
         // Delete any existing activities (should be none, but just in case)
@@ -1500,62 +1527,43 @@ export class TourActivityGenerationService {
           data: {
             metadata: {
               ...withoutGenerationFailure(metadata),
-              generationStatus: 'completed',
-              generationMessage: `¡Listo! ${activities.length} actividades generadas exitosamente.`,
-              generationCompletedAt: new Date().toISOString(),
+              generationStatus: request.skipImageGeneration
+                ? 'finalizing'
+                : 'generating',
+              generationMessage: request.skipImageGeneration
+                ? 'Finalizando itinerario...'
+                : 'Generando imagen de portada...',
               // The bitácora — see docs/superpowers/specs/2026-08-20-
               // generation-bitacora-design.md — a chronological, per-step
               // trace of how this tour's activities got picked.
-              generationTrace: {
-                steps: traceSteps,
-                tourCompleteness: {
-                  ...completeness,
-                  retryAttempted: correctiveRetryAttempted,
-                },
-                tourFormatCoverage: {
-                  ...formatCoverage,
-                  retryAttempted: correctiveRetryAttempted,
-                },
-              },
+              generationTrace,
             },
           },
         });
 
-        // Enqueue TourCompleted and ActivityMediaEnrichmentRequested events in outbox
+        // Enqueue media work in the same transaction as the persisted tour.
+        // TourCompleted is intentionally emitted only after optional cover
+        // generation and the final status update below.
         if (this.outboxService) {
-          try {
-            await this.outboxService.createInTx(tx, {
-              eventType: 'TourCompleted',
-              payload: {
-                tourId,
-                status: 'COMPLETED',
-                totalActivities: activities.length,
-              },
-            });
-
-            for (const act of activityEntities) {
-              if (
-                !act.photos ||
-                (Array.isArray(act.photos) && act.photos.length === 0)
-              ) {
-                await this.outboxService.createInTx(tx, {
-                  eventType: 'ActivityMediaEnrichmentRequested',
-                  payload: {
-                    activityId: act.id,
-                    name: act.name,
-                    destinationLabel: request.destination?.label || act.formattedAddress,
-                    wikidataId: (act.metadata as any)?.wikidataId,
-                    latitude: act.latitude,
-                    longitude: act.longitude,
-                    category: act.type || act.kind,
-                  },
-                });
-              }
+          for (const act of activityEntities) {
+            if (
+              !act.photos ||
+              (Array.isArray(act.photos) && act.photos.length === 0)
+            ) {
+              await this.outboxService.createInTx(tx, {
+                eventType: 'ActivityMediaEnrichmentRequested',
+                payload: {
+                  activityId: act.id,
+                  name: act.name,
+                  destinationLabel:
+                    request.destination?.label || act.formattedAddress,
+                  wikidataId: (act.metadata as any)?.wikidataId,
+                  latitude: act.latitude,
+                  longitude: act.longitude,
+                  category: act.type || act.kind,
+                },
+              });
             }
-          } catch (outboxErr: any) {
-            this.logger.warn(
-              `Failed to enqueue outbox events: ${outboxErr?.message}`,
-            );
           }
         }
       });
@@ -1564,26 +1572,51 @@ export class TourActivityGenerationService {
         `Activities generated successfully for tour ${tourId} (${activities.length} activities)`,
       );
 
-      try {
-        if (!request.skipImageGeneration) {
+      if (!request.skipImageGeneration) {
+        try {
           await this.updateGenerationStatus(
             tourId,
             'generating',
             'Generando imagen de portada...',
           );
           await this.tourImageService.generateTourCoverImage(tourId);
+        } catch (imgError) {
+          this.logger.warn(
+            `Failed to generate cover image: ${imgError.message}`,
+          );
         }
-      } catch (imgError) {
-        this.logger.warn(`Failed to generate cover image: ${imgError.message}`);
-      } finally {
-        // Always update status to completed after image generation (even if bypassed or failed)
-        // This ensures the frontend knows generation is complete
-        await this.updateGenerationStatus(
-          tourId,
-          'completed',
-          `¡Listo! ${activities.length} actividades generadas exitosamente.`,
-        );
       }
+
+      const completedMessage = `¡Listo! ${activities.length} actividades generadas exitosamente.`;
+      const completedTour = await this.toursService.findOne(tourId);
+      const effectiveMetadata =
+        (completedTour?.metadata as any) || (metadata as any) || {};
+      await this.prisma.$transaction(async (tx) => {
+        await tx.tour.update({
+          where: { id: tourId },
+          data: {
+            metadata: {
+              ...withoutGenerationFailure(effectiveMetadata),
+              generationTrace,
+              generationStatus: 'completed',
+              generationMessage: completedMessage,
+              generationCompletedAt: new Date().toISOString(),
+            },
+          },
+        });
+        if (this.outboxService) {
+          await this.outboxService.createInTx(tx, {
+            eventType: 'TourCompleted',
+            payload: {
+              tourId,
+              userId: tour.ownerId || undefined,
+              status: 'COMPLETED',
+              totalActivities: activities.length,
+              message: completedMessage,
+            },
+          });
+        }
+      });
 
       // Return updated tour
       return this.toursService.findOne(tourId);
@@ -1591,19 +1624,45 @@ export class TourActivityGenerationService {
       // Update status to failed, and record the error alongside it in the
       // same write — a separate update spreading the pre-generation metadata
       // would clobber the 'failed' status back to whatever it was before.
-      const latestTour = await this.toursService.findOne(tourId);
-      await this.prisma.tour.update({
-        where: { id: tourId },
-        data: {
-          metadata: {
-            ...(latestTour.metadata as any),
-            generationStatus: 'failed',
-            generationMessage: `Error: ${error?.message || 'No se pudo generar el itinerario'}`,
-            generationError: error?.message || String(error),
-            generationFailedAt: new Date().toISOString(),
-          },
-        },
-      });
+      let latestTour: any = null;
+      try {
+        latestTour = await this.toursService.findOne(tourId);
+      } catch {}
+      const userId = latestTour?.ownerId || undefined;
+      const failureMessage = `Error: ${error?.message || 'No se pudo generar el itinerario'}`;
+
+      try {
+        await this.prisma.$transaction(async (tx) => {
+          await tx.tour.update({
+            where: { id: tourId },
+            data: {
+              metadata: {
+                ...(latestTour?.metadata as any),
+                generationStatus: 'failed',
+                generationMessage: failureMessage,
+                generationError: error?.message || String(error),
+                generationFailedAt: new Date().toISOString(),
+              },
+            },
+          });
+
+          if (this.outboxService) {
+            await this.outboxService.createInTx(tx, {
+              eventType: 'TourFailed',
+              payload: {
+                tourId,
+                userId,
+                status: 'FAILED',
+                message: failureMessage,
+              },
+            });
+          }
+        });
+      } catch (statusError: any) {
+        this.logger.error(
+          `Failed to persist terminal failure state for tour ${tourId}: ${statusError?.message || statusError}`,
+        );
+      }
 
       this.logger.error(
         `Failed to generate activities for tour ${tourId}: ${error.message}`,
