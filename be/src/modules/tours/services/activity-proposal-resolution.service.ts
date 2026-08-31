@@ -367,8 +367,7 @@ export class ActivityProposalResolutionService {
       const requiredOtherHints = otherHints.filter((h) => h.required);
       const isVenueCentric =
         requiredOtherHints.length === 1 &&
-        (requiredOtherHints[0].role === 'venue' ||
-          requiredOtherHints[0].role === 'waypoint');
+        requiredOtherHints[0].role === 'venue';
       const minRequired = isVenueCentric ? 1 : MIN_WAYPOINTS_FOR_MULTI_STOP;
       if (waypointIds.length < minRequired) {
         rejectionReasons.push('insufficient_experience_entities');
