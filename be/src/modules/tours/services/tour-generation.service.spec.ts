@@ -49,7 +49,6 @@ describe('TourGenerationService Groq prompt budget', () => {
       { findSimilarActivities: jest.fn() } as any,
       toursService as any,
       { generateTourCoverImage: jest.fn() } as any,
-      { generateTourActivities: jest.fn() } as any,
     );
 
     try {
@@ -69,17 +68,55 @@ describe('TourGenerationService Groq prompt budget', () => {
       jest.useRealTimers();
     }
   });
+
+  it('creates a wizard tour without directly invoking activity generation', async () => {
+    const toursService = {
+      create: jest.fn().mockResolvedValue({ id: 'tour-1' }),
+    };
+    const service = new TourGenerationService(
+      {} as any,
+      {} as any,
+      {} as any,
+      {} as any,
+      toursService as any,
+      {} as any,
+    );
+
+    await service.createTourFromWizard(
+      {
+        contractVersion: 1,
+        destination: { label: 'Mendoza' },
+        days: 2,
+        categories: [],
+        intent: {
+          interests: [],
+          experienceFormats: [],
+          explorationStyle: 'balanced',
+          additionalPreferences: '',
+        },
+        mobility: {
+          transportationModes: ['walking'],
+          maxWalkingDistancePerDayKm: 10,
+          maxContinuousWalkingDistanceKm: 3,
+          travelPace: 'moderate',
+        },
+      } as any,
+      'user-1',
+    );
+
+    expect(toursService.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        metadata: expect.objectContaining({
+          generationStatus: 'pending',
+          generationRequest: expect.objectContaining({ contractVersion: 1 }),
+        }),
+      }),
+    );
+  });
 });
 
-describe('TourGenerationService deprecated /tours/nearby chain (PR 10)', () => {
-  it('still calls updateTravelTimesForActivities to compute travel times, confirming this legacy path is untouched', async () => {
-    // PR 10 only integrates the deterministic planner into the wizard path
-    // (TourActivityGenerationService); the deprecated /tours/nearby chain
-    // (TourGenerationService.generateTour -> TourLocationService) keeps
-    // relying on the legacy travel-time-calculator.util.ts. This test's
-    // failure mode is real: if a future change removed this call site (the
-    // only remaining caller), travel-time-calculator.util.ts would be dead
-    // code, contradicting the "keep the file for /tours/nearby" plan intent.
+describe('TourGenerationService deprecated /tours/nearby chain', () => {
+  it('still calls updateTravelTimesForActivities to compute travel times', async () => {
     jest.useFakeTimers();
     const activityAId = '00000000-0000-4000-8000-000000000001';
     const activityBId = '00000000-0000-4000-8000-000000000002';
@@ -126,7 +163,6 @@ describe('TourGenerationService deprecated /tours/nearby chain (PR 10)', () => {
       { findSimilarActivities: jest.fn() } as any,
       toursService as any,
       tourImageService as any,
-      { generateTourActivities: jest.fn() } as any,
     );
 
     try {
@@ -143,9 +179,6 @@ describe('TourGenerationService deprecated /tours/nearby chain (PR 10)', () => {
         }),
       );
       const [tourData] = toursService.create.mock.calls[0];
-      // Both activities are within walking distance in this fixture, so the
-      // legacy calculator fills in travel time/distance for the first stop
-      // and leaves the last stop's outbound leg undefined.
       expect(tourData.activities[0].travelTimeToNext).toEqual(
         expect.any(Number),
       );
