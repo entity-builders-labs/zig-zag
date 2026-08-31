@@ -775,85 +775,328 @@ export function buildDiscoveryStep(
 export function buildEntityResolutionStep(
   result: ProposalResolutionResponse,
 ): GenerationTraceStep {
-  const accepted = result.resolved.filter((r) => r.status === 'accepted');
-  const rejected = result.resolved.filter((r) => r.status !== 'accepted');
+  const resolution = result.entityResolution ?? result;
+  const accepted = resolution.resolved.filter((entry) => entry.status === 'accepted');
+  const rejected = resolution.resolved.filter((entry) => entry.status !== 'accepted');
+  const resolvedEntityCount = resolution.resolved.reduce(
+    (sum, entry) =>
+      sum + entry.resolvedEntities.filter((entity) => entity.status === 'resolved').length,
+    0,
+  );
+  const coordinateCount = resolution.resolved.reduce(
+    (sum, entry) =>
+      sum +
+      entry.resolvedEntities.filter(
+        (entity) =>
+          entity.status === 'resolved' &&
+          Number.isFinite(entity.latitude) &&
+          Number.isFinite(entity.longitude),
+      ).length,
+    0,
+  );
   const rejectedSummaries = rejected.map(
     (entry) =>
       `${entry.proposal.name}: ${entry.rejectionReasons.join(', ') || 'sin motivo registrado'}`,
   );
-  const summary =
-    `Se resolvieron ${result.acceptedCount} de ${result.totalProposals} ` +
-    `propuesta(s) fundamentada(s) como Activities reales y persistidas — ` +
-    `re-consultadas y combinadas en el pool unificado de este mismo pedido ` +
-    `(ver el paso "candidate_pool").` +
-    (rejectedSummaries.length
-      ? ` Rechazadas: ${rejectedSummaries.join('; ')}.`
-      : '');
+
   return {
     stage: 'entity_resolution',
-    label: 'Resolución de entidades',
+    label: 'Resolución de entidades reales',
     component: 'ActivityProposalResolutionService',
     status: accepted.length ? 'PASS' : rejected.length ? 'WARN' : 'INFO',
-    summary,
-    inputs: { totalProposals: result.totalProposals },
+    summary:
+      `Entity resolution procesó ${resolution.totalProposals} propuesta(s): ` +
+      `${accepted.length} quedaron con entidades concretas suficientes para continuar y ` +
+      `${rejected.length} no pudieron resolverse. Se obtuvieron ${resolvedEntityCount} entidad(es) ` +
+      `provider-backed, ${coordinateCount} con coordenadas. Esta etapa no decide coherencia ` +
+      `geográfica ni persiste la composite.` +
+      (rejectedSummaries.length
+        ? ` Rechazadas: ${rejectedSummaries.join('; ')}.`
+        : ''),
+    inputs: { totalProposals: resolution.totalProposals },
     rules: [
       rule(
         'RES-IDENTITY-001',
-        'Solo una entidad verificable puede convertirse en Activity canónica',
+        'Resolver hints contra identidades geográficas independientes del LLM',
         accepted.length ? 'PASS' : 'WARN',
-        `${accepted.length} aceptada(s), ${rejected.length} rechazada(s).`,
-        accepted.length,
+        `${resolvedEntityCount} entidad(es) reales resueltas; ${coordinateCount} con coordenadas.`,
+        resolvedEntityCount,
+      ),
+      rule(
+        'RES-SEPARATION-001',
+        'No decidir coherencia geográfica ni persistencia durante entity resolution',
+        'PASS',
+        'La salida queda pendiente del GeographicValidationService.',
       ),
       rule(
         'RES-REJECTION-001',
-        'Toda propuesta rechazada debe conservar razones explícitas',
-        rejected.every((r) => r.rejectionReasons.length > 0) ? 'PASS' : 'WARN',
+        'Toda propuesta no resoluble debe conservar razones explícitas',
+        rejected.every((entry) => entry.rejectionReasons.length > 0)
+          ? 'PASS'
+          : 'WARN',
         rejected.length
           ? rejected
               .map(
-                (r) =>
-                  `${r.proposal.name}: ${r.rejectionReasons.join(', ') || 'sin motivo'}`,
+                (entry) =>
+                  `${entry.proposal.name}: ${entry.rejectionReasons.join(', ') || 'sin motivo'}`,
               )
               .join('; ')
-          : 'No hubo rechazos.',
+          : 'No hubo rechazos de resolución.',
       ),
     ],
     decision: {
       status: accepted.length ? 'PASS' : 'WARN',
       outcome: accepted.length
-        ? 'CANONICAL_ACTIVITIES_PERSISTED'
+        ? 'ENTITIES_READY_FOR_GEOGRAPHIC_VALIDATION'
         : 'NO_PROPOSALS_RESOLVED',
       reason: accepted.length
-        ? 'Las entidades aceptadas pueden reingresar al pool canónico.'
-        : 'Ninguna propuesta alcanzó los requisitos de resolución.',
-      reasonCodes: rejected.flatMap((r) => r.rejectionReasons),
+        ? 'Hay entidades reales resueltas; todavía falta validar existencia/coherencia de la actividad compuesta.'
+        : 'Ninguna propuesta produjo suficientes entidades reales para continuar.',
+      reasonCodes: rejected.flatMap((entry) => entry.rejectionReasons),
       triggeredActions: accepted.length
+        ? ['VALIDATE_GEOGRAPHIC_COHERENCE']
+        : ['CONTINUE_WITH_EXISTING_POOL'],
+    },
+    outputs: {
+      proposalCount: resolution.totalProposals,
+      resolutionReadyCount: accepted.length,
+      rejectedCount: rejected.length,
+      resolvedEntityCount,
+      entitiesWithCoordinates: coordinateCount,
+    },
+    candidateDecisions: resolution.resolved.map((entry) => ({
+      id: entry.proposal.name,
+      name: entry.proposal.name,
+      source: 'discovery',
+      status:
+        entry.status === 'accepted'
+          ? ('ELIGIBLE' as const)
+          : ('REJECTED' as const),
+      reason:
+        entry.status === 'accepted'
+          ? `${entry.resolvedEntities.filter((entity) => entity.status === 'resolved').length} entidad(es) provider-backed resueltas; pendiente validación geográfica.`
+          : entry.rejectionReasons.join(', '),
+      reasonCodes:
+        entry.status === 'accepted'
+          ? ['ENTITY_RESOLUTION_READY']
+          : entry.rejectionReasons,
+    })),
+    providerStatus: accepted.length ? 'success' : 'failed',
+    degradedReason: accepted.length ? undefined : 'no_proposals_resolved',
+    resolution,
+  };
+}
+
+export function buildGeographicValidationStep(
+  result: ProposalResolutionResponse,
+): GenerationTraceStep {
+  const validation = result.geographicValidation;
+  if (!validation) {
+    return {
+      stage: 'geographic_validation',
+      label: 'Validación geográfica',
+      component: 'CompositeGeographicValidationService',
+      status: 'INFO',
+      summary:
+        'No hay resultado de validación geográfica adjunto a esta respuesta legacy.',
+      rules: [
+        rule(
+          'GEO-AVAILABLE-001',
+          'Registrar el resultado determinístico de validación geográfica',
+          'SKIPPED',
+          'La respuesta no contiene GeographicValidationBatchResult.',
+        ),
+      ],
+      decision: {
+        status: 'INFO',
+        outcome: 'GEOGRAPHIC_VALIDATION_NOT_RECORDED',
+        reason: 'Trace legacy sin resultado geográfico separado.',
+        triggeredActions: ['CONTINUE'],
+      },
+    };
+  }
+
+  const accepted = validation.results.filter((entry) => entry.accepted);
+  const rejected = validation.results.filter((entry) => !entry.accepted);
+  const radiusValues = validation.results
+    .map((entry) => entry.coherence?.radiusMeters)
+    .filter((value): value is number => Number.isFinite(value));
+  const maxRadiusMeters = radiusValues.length ? Math.max(...radiusValues) : null;
+
+  return {
+    stage: 'geographic_validation',
+    label: 'Validación geográfica independiente',
+    component: 'CompositeGeographicValidationService',
+    status: accepted.length ? (rejected.length ? 'WARN' : 'PASS') : 'WARN',
+    summary:
+      `Validación geográfica determinística: ${accepted.length} propuesta(s) GEO_VERIFIED y ` +
+      `${rejected.length} rechazada(s). La decisión usa entidades ya resueltas, coordenadas, ` +
+      `boundary/destino y coherencia espacial; no usa al LLM como autoridad.`,
+    inputs: {
+      proposalCount: validation.results.length,
+      validatorVersions: Array.from(
+        new Set(validation.results.map((entry) => entry.validatorVersion)),
+      ),
+    },
+    rules: [
+      rule(
+        'GEO-INDEPENDENT-001',
+        'Grounded text por sí solo no prueba existencia geográfica',
+        'PASS',
+        'La aceptación requiere entidades resueltas independientemente del LLM.',
+      ),
+      rule(
+        'GEO-COMPONENTS-001',
+        'Las composites pueden validarse por componentes reales sin exact-name global',
+        'PASS',
+        'ROUTE/EXPERIENCE/WALK pueden usar anchors/componentes según su estrategia.',
+      ),
+      rule(
+        'GEO-RESULT-001',
+        'Conservar razones machine-readable para cada rechazo',
+        rejected.every((entry) => entry.rejectionReasons.length > 0)
+          ? 'PASS'
+          : 'WARN',
+        rejected.length
+          ? rejected
+              .map(
+                (entry) =>
+                  `${entry.proposalName}: ${entry.rejectionReasons.join(', ') || 'sin motivo'}`,
+              )
+              .join('; ')
+          : 'No hubo rechazos geográficos.',
+      ),
+    ],
+    decision: {
+      status: accepted.length ? (rejected.length ? 'WARN' : 'PASS') : 'WARN',
+      outcome: accepted.length
+        ? 'GEO_VERIFIED_PROPOSALS_READY'
+        : 'NO_GEO_VERIFIED_PROPOSALS',
+      reason: accepted.length
+        ? 'Solo las propuestas GEO_VERIFIED pueden avanzar a materialización.'
+        : 'Ninguna propuesta alcanzó verificación geográfica.',
+      reasonCodes: rejected.flatMap((entry) => entry.rejectionReasons),
+      triggeredActions: accepted.length
+        ? ['MATERIALIZE_VERIFIED_ACTIVITIES']
+        : ['CONTINUE_WITH_EXISTING_POOL'],
+    },
+    outputs: {
+      geoVerifiedCount: accepted.length,
+      rejectedCount: rejected.length,
+      maxComputedRadiusMeters: maxRadiusMeters,
+      results: validation.results.map((entry) => ({
+        proposalName: entry.proposalName,
+        kind: entry.kind,
+        status: entry.status,
+        strategy: entry.strategy ?? null,
+        anchorCount: entry.anchors.length,
+        canonicalEntity: entry.canonicalEntity
+          ? {
+              provider: entry.canonicalEntity.provider,
+              externalId: entry.canonicalEntity.externalId,
+              name:
+                entry.canonicalEntity.canonicalName ??
+                entry.canonicalEntity.hintName,
+            }
+          : null,
+        coherence: entry.coherence ?? null,
+        rejectionReasons: entry.rejectionReasons,
+      })),
+    },
+    candidateDecisions: validation.results.map((entry) => ({
+      id: entry.proposalName,
+      name: entry.proposalName,
+      source: 'discovery',
+      status: entry.accepted ? ('ELIGIBLE' as const) : ('REJECTED' as const),
+      reason: entry.accepted
+        ? `GEO_VERIFIED mediante ${entry.strategy ?? 'deterministic_validation'} con ${entry.anchors.length} anchor(s).`
+        : entry.rejectionReasons.join(', '),
+      reasonCodes: entry.accepted
+        ? ['GEO_VERIFIED']
+        : entry.rejectionReasons,
+    })),
+    providerStatus: accepted.length ? 'success' : 'failed',
+    degradedReason: accepted.length ? undefined : 'no_geo_verified_proposals',
+    geographicValidation: validation,
+  };
+}
+
+export function buildCatalogMaterializationStep(
+  result: ProposalResolutionResponse,
+): GenerationTraceStep {
+  const materialization = result.materialization;
+  const finalResolved = materialization?.resolved ?? result.resolved;
+  const materialized = finalResolved.filter(
+    (entry) => entry.status === 'accepted' && entry.persistedActivityId,
+  );
+  const rejected = finalResolved.filter((entry) => !entry.persistedActivityId);
+  const persistedActivityIds = materialized.map(
+    (entry) => entry.persistedActivityId as string,
+  );
+
+  return {
+    stage: 'catalog_materialization',
+    label: 'Materialización en catálogo',
+    component: 'ActivityProposalMaterializationService',
+    status: materialized.length ? (rejected.length ? 'WARN' : 'PASS') : 'WARN',
+    summary:
+      `${materialized.length} propuesta(s) geográficamente verificadas quedaron materializadas ` +
+      `como Activities canónicas; ${rejected.length} no produjeron Activity persistida. ` +
+      `La persistencia ocurre después de geographic_validation, nunca durante entity_resolution.`,
+    inputs: {
+      geoVerifiedCount:
+        result.geographicValidation?.acceptedCount ?? materialized.length,
+    },
+    rules: [
+      rule(
+        'MAT-GEO-GATE-001',
+        'Persistir composites solo después de GEO_VERIFIED',
+        'PASS',
+        'ActivityProposalMaterializationService consume el resultado del validador geográfico.',
+      ),
+      rule(
+        'MAT-CANONICAL-001',
+        'Exponer solo IDs canónicos persistidos al re-query/ranking',
+        materialized.length ? 'PASS' : 'WARN',
+        `${persistedActivityIds.length} Activity id(s) quedaron disponibles para re-query.`,
+        persistedActivityIds.length,
+      ),
+    ],
+    decision: {
+      status: materialized.length ? (rejected.length ? 'WARN' : 'PASS') : 'WARN',
+      outcome: materialized.length
+        ? 'CANONICAL_ACTIVITIES_MATERIALIZED'
+        : 'NO_ACTIVITIES_MATERIALIZED',
+      reason: materialized.length
+        ? 'Las Activities persistidas pueden reingresar al pool canónico del mismo pedido.'
+        : 'No hubo propuesta verificada que pudiera materializarse.',
+      reasonCodes: rejected.flatMap((entry) => entry.rejectionReasons),
+      triggeredActions: materialized.length
         ? ['REQUERY_CANONICAL_CATALOG']
         : ['CONTINUE_WITH_EXISTING_POOL'],
     },
     outputs: {
-      acceptedCount: accepted.length,
+      materializedCount: materialized.length,
       rejectedCount: rejected.length,
-      persistedActivityIds: accepted
-        .map((r) => r.persistedActivityId)
-        .filter(Boolean),
+      persistedActivityIds,
     },
-    candidateDecisions: result.resolved.map((r) => ({
-      id: r.persistedActivityId ?? r.proposal.name,
-      name: r.proposal.name,
+    candidateDecisions: finalResolved.map((entry) => ({
+      id: entry.persistedActivityId ?? entry.proposal.name,
+      name: entry.proposal.name,
       source: 'discovery',
-      status:
-        r.status === 'accepted' ? ('ELIGIBLE' as const) : ('REJECTED' as const),
-      reason:
-        r.status === 'accepted'
-          ? 'Propuesta resuelta como Activity canónica.'
-          : r.rejectionReasons.join(', '),
-      reasonCodes:
-        r.status === 'accepted' ? ['ENTITY_RESOLVED'] : r.rejectionReasons,
+      status: entry.persistedActivityId
+        ? ('ELIGIBLE' as const)
+        : ('REJECTED' as const),
+      reason: entry.persistedActivityId
+        ? 'Activity canónica materializada y lista para re-query.'
+        : entry.rejectionReasons.join(', '),
+      reasonCodes: entry.persistedActivityId
+        ? ['ACTIVITY_MATERIALIZED']
+        : entry.rejectionReasons,
     })),
-    providerStatus: accepted.length ? 'success' : 'failed',
-    degradedReason: accepted.length ? undefined : 'no_proposals_resolved',
-    resolution: result,
+    providerStatus: materialized.length ? 'success' : 'failed',
+    degradedReason: materialized.length ? undefined : 'no_activities_materialized',
+    materialization,
   };
 }
 
