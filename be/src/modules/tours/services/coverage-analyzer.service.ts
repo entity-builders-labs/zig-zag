@@ -173,6 +173,24 @@ export class CoverageAnalyzer {
         };
       } else if (
         blockingDeficits.some(
+          (deficit) => deficit.reason === 'missing_requested_experience_format',
+        )
+      ) {
+        // Structural format gaps outrank conventional theme refill. If both
+        // coexist, the orchestrator still receives the complete deficits list
+        // and may run POI refill for the theme/quantity gap, but the decision
+        // must advertise the grounded-discovery obligation rather than hide it
+        // behind "places_text_search".
+        status =
+          providerHealth.status === 'degraded' ? 'degraded' : 'insufficient';
+        decision = {
+          action: 'defer_to_pr7_grounded_gap',
+          reason: 'qualitative_gap_requires_activity_discovery',
+          deployableInPr6: false,
+          deficits,
+        };
+      } else if (
+        blockingDeficits.some(
           (deficit) => deficit.reason === 'missing_requested_theme',
         )
       ) {
@@ -182,19 +200,6 @@ export class CoverageAnalyzer {
           action: 'places_text_search',
           reason: 'missing_requested_theme',
           deployableInPr6: true,
-          deficits,
-        };
-      } else if (
-        blockingDeficits.some(
-          (deficit) => deficit.reason === 'missing_requested_experience_format',
-        )
-      ) {
-        status =
-          providerHealth.status === 'degraded' ? 'degraded' : 'insufficient';
-        decision = {
-          action: 'defer_to_pr7_grounded_gap',
-          reason: 'qualitative_gap_requires_activity_discovery',
-          deployableInPr6: false,
           deficits,
         };
       } else {
