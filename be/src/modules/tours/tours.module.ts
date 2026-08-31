@@ -50,7 +50,7 @@ import { OutboxModule } from '../outbox/outbox.module';
 @Module({
   imports: [
     PrismaModule,
-    forwardRef(() => OutboxModule),
+    OutboxModule,
     forwardRef(() => ActivitiesModule),
     AiModule,
     IntegrationsModule,
