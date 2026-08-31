@@ -93,6 +93,8 @@ const STREET_TYPES = new Set([
   'walkway',
   'lane',
   'highway',
+  'promenade',
+  'boardwalk',
 ]);
 
 const KIND_MAP: Record<ProposalKind, ActivityKind> = {
@@ -103,16 +105,6 @@ const KIND_MAP: Record<ProposalKind, ActivityKind> = {
   EXPERIENCE: ActivityKind.EXPERIENCE,
 };
 
-/**
- * PR 8: turns grounded `ActivityProposal` concepts into real, reusable
- * Activities only after every required entity is resolved through the
- * authoritative provider (Google Places for POIs/venues, OSM for
- * areas/routes/streets) and validated against the destination boundary.
- *
- * Discovery proposes meaning; this service supplies identity and authorizes
- * persistence through CompositeActivityService — it never trusts a free-text
- * name, an LLM coordinate, or embedding similarity as identity proof.
- */
 @Injectable()
 export class ActivityProposalResolutionService {
   private readonly logger = new Logger(ActivityProposalResolutionService.name);
@@ -152,14 +144,6 @@ export class ActivityProposalResolutionService {
     };
   }
 
-  /**
-   * POI venues persisted directly by this service (standalone POI proposals
-   * and composite waypoints) never go through CompositeActivityService's own
-   * embedding step, so without this they'd sit permanently un-embedded and
-   * get demoted behind the semantically-ranked group by candidate ranking,
-   * regardless of quality or relevance — found live-testing PR 8 (a real
-   * landmark never surfaced across three separate generations).
-   */
   private async indexResolvedVenues(
     resolved: ResolvedActivityProposal[],
   ): Promise<void> {
@@ -167,7 +151,7 @@ export class ActivityProposalResolutionService {
     for (const proposal of resolved) {
       for (const entity of proposal.resolvedEntities) {
         if (
-          entity.role === 'venue' &&
+          (entity.role === 'venue' || entity.role === 'waypoint') &&
           entity.status === 'resolved' &&
           entity.activityId
         ) {
@@ -216,8 +200,6 @@ export class ActivityProposalResolutionService {
     }
   }
 
-  // ── Proposal-level resolution ─────────────────────────────────────
-
   private async resolveAreaProposal(
     proposal: ActivityProposal,
     destination: OsmCandidate,
@@ -254,7 +236,9 @@ export class ActivityProposalResolutionService {
     destination: OsmCandidate,
     request: ProposalResolutionRequest,
   ): Promise<ResolvedActivityProposal> {
-    const venueHint = proposal.entityHints.find((h) => h.role === 'venue');
+    const venueHint = proposal.entityHints.find(
+      (h) => h.role === 'venue' || h.role === 'waypoint',
+    );
     if (!venueHint) {
       return this.reject(proposal, [], ['missing_required_hint']);
     }
@@ -310,8 +294,6 @@ export class ActivityProposalResolutionService {
         ]);
       }
     }
-    // EXPERIENCE has no upfront presence gate — its sufficiency depends on
-    // resolution results below, not just hint presence.
 
     const areaHint = proposal.entityHints.find((h) => h.role === 'area');
     let resolvedArea: OsmCandidate | null = null;
@@ -327,7 +309,6 @@ export class ActivityProposalResolutionService {
     const scopeBoundary = resolvedArea ?? destination;
 
     const otherHints = proposal.entityHints.filter((h) => h.role !== 'area');
-
     const waypointIds: string[] = [];
     const candidateOsmFeaturesById = new Map<string, OsmCandidate>();
     const seenExternalIds = new Set<string>();
@@ -386,7 +367,8 @@ export class ActivityProposalResolutionService {
       const requiredOtherHints = otherHints.filter((h) => h.required);
       const isVenueCentric =
         requiredOtherHints.length === 1 &&
-        requiredOtherHints[0].role === 'venue';
+        (requiredOtherHints[0].role === 'venue' ||
+          requiredOtherHints[0].role === 'waypoint');
       const minRequired = isVenueCentric ? 1 : MIN_WAYPOINTS_FOR_MULTI_STOP;
       if (waypointIds.length < minRequired) {
         rejectionReasons.push('insufficient_experience_entities');
@@ -437,8 +419,6 @@ export class ActivityProposalResolutionService {
     }
   }
 
-  // ── Hint resolution ───────────────────────────────────────────────
-
   private async resolveAreaHint(
     hint: EntityHint,
     destination: OsmCandidate,
@@ -450,9 +430,6 @@ export class ActivityProposalResolutionService {
       };
     }
 
-    // 1. Real neighborhoods inside the destination — the only place a
-    //    proposal's neighborhood may resolve. This is what prevents a Triana
-    //    proposal from resolving to a same-named area in another city.
     const neighborhoods =
       await this.osmPlacesService.findNeighborhoodsWithin(destination);
     const matches = this.matchByName(hint.name, neighborhoods);
@@ -469,7 +446,6 @@ export class ActivityProposalResolutionService {
       };
     }
 
-    // 2. Boundary-by-name fallback, then prove containment in the destination.
     const center = this.centroidOf(destination.geometry);
     const named = await this.osmPlacesService.findBoundaryByName(
       hint.name,
@@ -504,59 +480,83 @@ export class ActivityProposalResolutionService {
       });
 
       const candidates = result.data ?? [];
-      const best =
-        candidates.find((c) =>
-          this.fuzzyMatches(hint.name, c.displayName?.text ?? c.name ?? ''),
-        ) ?? candidates[0];
-
-      if (!best || !best.id) {
-        return {
-          entity: this.rejectedEntity(hint, 'unresolved_venue'),
-          activity: null,
-        };
-      }
-
-      const validation = this.catalogCandidateValidator.validate(
-        this.toCatalogCandidate(best),
-        { destinationBoundary: destination.geometry },
+      const best = candidates.find((c) =>
+        this.fuzzyMatches(hint.name, c.displayName?.text ?? c.name ?? ''),
       );
-      if (!validation.accepted) {
-        return {
-          entity: this.rejectedEntity(
-            hint,
-            validation.rejectionReasons.length > 0
-              ? `invalid_venue:${validation.rejectionReasons.join(',')}`
-              : 'invalid_venue',
-          ),
-          activity: null,
-        };
-      }
 
-      const activity = await this.resolvePoiActivity(best);
-      return {
-        entity: {
-          hintKey: hint.key,
-          hintName: hint.name,
-          role: hint.role,
-          expectedType: hint.expectedType,
-          status: 'resolved',
-          activityId: activity.id,
-          externalId: best.id,
-          provider: this.placesApi.provider,
-          latitude: best.location?.latitude,
-          longitude: best.location?.longitude,
-        },
-        activity,
-      };
+      if (best?.id) {
+        const validation = this.catalogCandidateValidator.validate(
+          this.toCatalogCandidate(best),
+          { destinationBoundary: destination.geometry },
+        );
+        if (validation.accepted) {
+          const activity = await this.resolvePoiActivity(best);
+          return {
+            entity: {
+              hintKey: hint.key,
+              hintName: hint.name,
+              role: hint.role,
+              expectedType: hint.expectedType,
+              status: 'resolved',
+              activityId: activity.id,
+              externalId: best.id,
+              provider: this.placesApi.provider,
+              latitude: best.location?.latitude,
+              longitude: best.location?.longitude,
+            },
+            activity,
+          };
+        }
+      }
     } catch (error: any) {
       this.logger.warn(
         `Places resolution failed for hint "${hint.name}": ${error.message}`,
       );
+    }
+
+    const osmFallback = await this.resolveOsmPoiHint(hint, destination);
+    if (osmFallback.activity) return osmFallback;
+
+    return {
+      entity: this.rejectedEntity(hint, 'unresolved_venue'),
+      activity: null,
+    };
+  }
+
+  private async resolveOsmPoiHint(
+    hint: EntityHint,
+    destination: OsmCandidate,
+  ): Promise<{ entity: ResolvedEntity; activity: Activity | null }> {
+    const candidates = await this.osmPlacesService.findPoisWithin(destination);
+    const matches = this.matchByName(hint.name, candidates);
+    if (matches.length !== 1) {
       return {
-        entity: this.rejectedEntity(hint, 'unresolved_venue'),
+        entity: this.rejectedEntity(
+          hint,
+          matches.length > 1 ? 'ambiguous_venue' : 'unresolved_venue',
+        ),
         activity: null,
       };
     }
+
+    const candidate = matches[0];
+    const activity = await this.resolveOsmPoiActivity(candidate);
+    const center = this.centroidOf(candidate.geometry);
+    return {
+      entity: {
+        hintKey: hint.key,
+        hintName: hint.name,
+        role: hint.role,
+        expectedType: hint.expectedType,
+        status: 'resolved',
+        activityId: activity.id,
+        externalId: candidate.id,
+        provider: 'osm',
+        latitude: center.latitude,
+        longitude: center.longitude,
+      },
+      activity,
+    };
   }
 
   private async resolveStreetHint(
@@ -584,8 +584,6 @@ export class ActivityProposalResolutionService {
       candidate: null,
     };
   }
-
-  // ── POI persistence ───────────────────────────────────────────────
 
   private async resolvePoiActivity(place: PlaceData): Promise<Activity> {
     const provider = this.placesApi.provider;
@@ -626,7 +624,47 @@ export class ActivityProposalResolutionService {
     );
   }
 
-  // ── Small persistence primitives ──────────────────────────────────
+  private async resolveOsmPoiActivity(candidate: OsmCandidate): Promise<Activity> {
+    const sourceId = await this.ensureSource(
+      'openstreetmap',
+      'external',
+      'https://www.openstreetmap.org',
+    );
+    const externalId = candidate.id;
+    const center = this.centroidOf(candidate.geometry);
+    const primaryType =
+      candidate.tags.tourism ??
+      candidate.tags.amenity ??
+      candidate.tags.historic ??
+      candidate.tags.leisure ??
+      candidate.tags.natural ??
+      'osm_poi';
+
+    return this.findOrCreateWithRace(
+      () =>
+        this.prisma.activity.findUnique({
+          where: { sourceId_externalId: { sourceId, externalId } },
+        }),
+      () =>
+        this.prisma.activity.create({
+          data: {
+            name: candidate.name,
+            kind: ActivityKind.POI,
+            type: primaryType,
+            latitude: center.latitude,
+            longitude: center.longitude,
+            source: { connect: { id: sourceId } },
+            externalId,
+            metadata: {
+              placesProvider: 'osm',
+              osmType: candidate.osmType,
+              osmId: candidate.osmId,
+              providerTags: candidate.tags,
+            } as unknown as Prisma.InputJsonValue,
+          },
+        }),
+    );
+  }
 
   private async findOrCreateWithRace<T>(
     find: () => Promise<T | null>,
@@ -656,8 +694,6 @@ export class ActivityProposalResolutionService {
     );
     return source.id;
   }
-
-  // ── Validation helpers ────────────────────────────────────────────
 
   private toCatalogCandidate(place: PlaceData): CatalogCandidate {
     return {
@@ -726,10 +762,6 @@ export class ActivityProposalResolutionService {
     if (!normalizedHint || !normalizedCandidate) return false;
     if (normalizedHint === normalizedCandidate) return true;
 
-    // Search evidence often includes a locality qualifier while OSM keeps
-    // only the canonical way name (for example "Costanera de Gualeguaychú"
-    // vs "Costanera"). Accept containment only for reasonably specific
-    // names; if more than one OSM way matches we still reject as ambiguous.
     const shorter =
       normalizedHint.length <= normalizedCandidate.length
         ? normalizedHint
@@ -825,7 +857,10 @@ function normalizeName(value: string): string {
 
 function normalizeStreetName(value: string): string {
   return normalizeName(value)
-    .replace(/^(calle|street|st|avenida|avenue|av|avda|boulevard|bulevar|blvd)\s+/, '')
+    .replace(
+      /^(calle|street|st|avenida|avenue|av|avda|boulevard|bulevar|blvd|paseo|promenade|boardwalk)\s+/,
+      '',
+    )
     .replace(/\bgral\b/g, 'general')
     .replace(/\bpte\b/g, 'presidente')
     .replace(/\s+/g, ' ')
