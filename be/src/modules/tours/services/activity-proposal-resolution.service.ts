@@ -564,7 +564,9 @@ export class ActivityProposalResolutionService {
     neighborhood: OsmCandidate,
   ): Promise<{ entity: ResolvedEntity; candidate: OsmCandidate | null }> {
     const streets = await this.osmPlacesService.findStreetsWithin(neighborhood);
-    const matches = this.matchByName(hint.name, streets);
+    const matches = streets.filter((candidate) =>
+      this.streetNameMatches(hint.name, candidate.name),
+    );
     if (matches.length === 1) {
       return {
         entity: this.resolvedOsmEntity(hint, matches[0]),
@@ -716,6 +718,29 @@ export class ActivityProposalResolutionService {
     return candidates.filter((c) => this.fuzzyMatches(hint, c.name));
   }
 
+  private streetNameMatches(hint: string, candidate: string): boolean {
+    if (this.fuzzyMatches(hint, candidate)) return true;
+
+    const normalizedHint = normalizeStreetName(hint);
+    const normalizedCandidate = normalizeStreetName(candidate);
+    if (!normalizedHint || !normalizedCandidate) return false;
+    if (normalizedHint === normalizedCandidate) return true;
+
+    // Search evidence often includes a locality qualifier while OSM keeps
+    // only the canonical way name (for example "Costanera de Gualeguaychú"
+    // vs "Costanera"). Accept containment only for reasonably specific
+    // names; if more than one OSM way matches we still reject as ambiguous.
+    const shorter =
+      normalizedHint.length <= normalizedCandidate.length
+        ? normalizedHint
+        : normalizedCandidate;
+    const longer =
+      normalizedHint.length > normalizedCandidate.length
+        ? normalizedHint
+        : normalizedCandidate;
+    return shorter.length >= 8 && longer.includes(shorter);
+  }
+
   private fuzzyMatches(a: string, b: string): boolean {
     const na = normalizeName(a);
     const nb = normalizeName(b);
@@ -795,6 +820,15 @@ function normalizeName(value: string): string {
     .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
+}
+
+function normalizeStreetName(value: string): string {
+  return normalizeName(value)
+    .replace(/^(calle|street|st|avenida|avenue|av|avda|boulevard|bulevar|blvd)\s+/, '')
+    .replace(/\bgral\b/g, 'general')
+    .replace(/\bpte\b/g, 'presidente')
+    .replace(/\s+/g, ' ')
     .trim();
 }
 
