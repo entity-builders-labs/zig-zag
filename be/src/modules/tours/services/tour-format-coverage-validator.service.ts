@@ -7,17 +7,17 @@ import {
 import { EXPERIENCE_FORMAT_ACTIVITY_KIND } from '../utils/experience-format-kind.util';
 
 /**
- * Deterministic gate answering a question nothing else in the pipeline
- * asks: did the itinerary respect the user's requested experience format
- * (neighborhood walk, thematic route, experience), not just their themes?
- * A tour can perfectly satisfy every requested theme while silently
- * ignoring an explicitly requested format the user cared about how to
- * experience the destination through.
+ * Deterministic tour-level format gate.
  *
- * Only flags a format when viable candidates for it existed in the offered
- * pool and none were selected — a format the pool never had at all is
- * CoverageAnalyzer/acquisition's concern, not a selection failure. Never
- * flags per-day; format coverage is a tour-level requirement.
+ * There are two distinct failures:
+ * 1) a viable requested format existed but planning selected none;
+ * 2) acquisition never produced any viable candidate for an explicitly
+ *    requested mapped structural format.
+ *
+ * Case (2) used to be silently skipped here, which made traces say
+ * FORMAT_COVERAGE_VALID even after CoverageAnalyzer had reported ROUTE /
+ * EXPERIENCE as blocking deficits. That is misleading: zero availability is
+ * an acquisition failure, not successful format coverage.
  */
 @Injectable()
 export class TourFormatCoverageValidator {
@@ -26,16 +26,29 @@ export class TourFormatCoverageValidator {
 
     for (const format of input.requestedExperienceFormats) {
       const kind = EXPERIENCE_FORMAT_ACTIVITY_KIND[format];
-      if (!kind) continue; // point_visits or unmapped — no gate
+      if (!kind) continue; // point_visits or unmapped — no structural gate
 
       const availableCandidateCount = input.availableCandidateActivities.filter(
-        (c) => c.kind === kind,
+        (candidate) => candidate.kind === kind,
       ).length;
-      if (availableCandidateCount === 0) continue; // acquisition's job, not selection's
-
       const selectedCandidateCount = input.selectedActivities.filter(
-        (a) => a.kind === kind,
+        (activity) => activity.kind === kind,
       ).length;
+
+      if (availableCandidateCount === 0) {
+        issues.push({
+          code: 'REQUESTED_FORMAT_UNAVAILABLE',
+          requestedFormat: format,
+          availableCandidateCount,
+          selectedCandidateCount,
+          message:
+            `Requested format "${format}" requires kind ${kind}, but acquisition ` +
+            'produced zero viable candidates for that kind. The request must not ' +
+            'be reported as valid format coverage.',
+        });
+        continue;
+      }
+
       if (selectedCandidateCount === 0) {
         issues.push({
           code: 'REQUESTED_FORMAT_MISSING',
@@ -45,7 +58,7 @@ export class TourFormatCoverageValidator {
           message:
             `Requested format "${format}" had ${availableCandidateCount} ` +
             `viable candidate(s) of kind ${kind} available, but the final ` +
-            `itinerary selected none of them.`,
+            'itinerary selected none of them.',
         });
       }
     }
