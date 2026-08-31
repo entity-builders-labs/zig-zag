@@ -162,9 +162,17 @@ export class GeminiDiscoveryProvider
     );
     const evidenceMap = buildEvidenceMap(searchResult);
     const evidenceKeys = Array.from(evidenceMap.keys());
-    const userPrompt = buildUserPrompt(request, evidenceMap, maxProposals, {
-      includeJsonFormatInstruction: false,
-    });
+    const targetKindInstruction = request.targetKind
+      ? `MANDATORY TARGET KIND: ${request.targetKind}. Every proposal in this extraction call MUST use kind=${request.targetKind}. Do not return POI or any other kind as a substitute for this missing structural format.\n\n`
+      : '';
+    const userPrompt = `${targetKindInstruction}${buildUserPrompt(
+      request,
+      evidenceMap,
+      maxProposals,
+      {
+        includeJsonFormatInstruction: false,
+      },
+    )}`;
 
     let raw: string;
     try {
@@ -289,8 +297,8 @@ export class GeminiDiscoveryProvider
     }
 
     const data: GeminiInteractionResponse = await resp.json();
-    const modelOutput = data.steps?.find((s) => s.type === 'model_output');
-    const text = modelOutput?.content?.find((c) => c.type === 'text')?.text;
+    const modelOutput = data.steps?.find((step) => step.type === 'model_output');
+    const text = modelOutput?.content?.find((content) => content.type === 'text')?.text;
     if (!text) {
       throw new Error('Gemini response had no model_output text content');
     }
