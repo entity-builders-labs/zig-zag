@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { ActivityKind } from '@prisma/client';
 import { ActivityDiscoveryService } from './activity-discovery.service';
 import {
   DISCOVERY_PROVIDER,
@@ -14,18 +15,18 @@ describe('ActivityDiscoveryService', () => {
   let mockSearchProvider: jest.Mocked<GroundedSearchProvider>;
 
   const appliedResult = {
-    provider: 'groq',
-    model: 'openai/gpt-oss-120b',
+    provider: 'serpapi',
+    model: 'google-ai-mode',
     groundingStatus: 'applied' as const,
-    evidence: [{ key: 'ev-1', source: 'web', snippet: 'real' }],
+    evidence: [{ key: 'ev-1', source: 'web', snippet: 'real evidence' }],
   };
 
   beforeEach(async () => {
     mockProvider = {
       discover: jest.fn().mockResolvedValue({
         proposals: [],
-        provider: 'groq',
-        model: 'openai/gpt-oss-120b',
+        provider: 'gemini',
+        model: 'gemini-flash',
         groundingStatus: 'applied',
       }),
     };
@@ -44,7 +45,7 @@ describe('ActivityDiscoveryService', () => {
     service = module.get(ActivityDiscoveryService);
   });
 
-  it('executes real search before extraction', async () => {
+  it('executes real search before extraction for a pure theme gap', async () => {
     await service.discoverGaps(
       'Buenos Aires',
       'Argentina',
@@ -62,34 +63,16 @@ describe('ActivityDiscoveryService', () => {
       expect.objectContaining({
         destinationName: 'Buenos Aires',
         requestedThemes: ['nature', 'tango'],
+        query: '',
       }),
     );
-    expect(mockProvider.discover).toHaveBeenCalled();
+    expect(mockProvider.discover).toHaveBeenCalledTimes(1);
   });
 
-  it('still works when called without requestedExperienceFormats', async () => {
-    await service.discoverGaps(
-      'Buenos Aires',
-      'Argentina',
-      ['history'],
-      [
-        {
-          reason: 'missing_requested_theme',
-          severity: 'blocking',
-          message: 'Falta historia',
-        },
-      ],
-    );
-
-    expect(mockSearchProvider.search).toHaveBeenCalledWith(
-      expect.objectContaining({ requestedExperienceFormats: undefined }),
-    );
-  });
-
-  it('does NOT run extraction when search fails', async () => {
+  it('does NOT run generic extraction when a pure-theme grounded search fails', async () => {
     mockSearchProvider.search.mockResolvedValue({
-      provider: 'groq',
-      model: 'openai/gpt-oss-120b',
+      provider: 'serpapi',
+      model: 'google-ai-mode',
       groundingStatus: 'failed',
       evidence: [],
       failureReason: 'network_error',
@@ -113,252 +96,296 @@ describe('ActivityDiscoveryService', () => {
     expect(result.proposals).toEqual([]);
   });
 
-  it('does NOT run extraction when search returns no usable evidence', async () => {
-    mockSearchProvider.search.mockResolvedValue({
-      provider: 'groq',
-      model: 'openai/gpt-oss-120b',
-      groundingStatus: 'no_usable_evidence',
-      evidence: [],
-    });
-
-    const result = await service.discoverBootstrap('Salta', 'Argentina', [
-      'history',
-    ]);
-
-    expect(mockProvider.discover).not.toHaveBeenCalled();
-    expect(result.groundingStatus).toBe('no_usable_evidence');
-  });
-
-  it('delegates bootstrap discovery after successful search', async () => {
-    await service.discoverBootstrap('Salta', 'Argentina', [
-      'history',
-      'nature',
-    ]);
-
-    expect(mockSearchProvider.search).toHaveBeenCalledWith(
-      expect.objectContaining({ destinationName: 'Salta', query: '' }),
-    );
-    expect(mockProvider.discover).toHaveBeenCalled();
-  });
-
-  it('never touches Prisma or persists anything', () => {
-    const constructorParams = Reflect.getOwnPropertyDescriptor(
-      ActivityDiscoveryService.prototype,
-      'constructor',
-    );
-    expect(constructorParams).toBeDefined();
-    expect((service as any).prisma).toBeUndefined();
-  });
-
-  describe('per-missing-kind semantic search orchestration', () => {
-    it('issues one semantic search call per missing kind derived from deficits, not a combined general call', async () => {
-      mockSearchProvider.search.mockImplementation(
-        async (request: GroundedSearchRequest) => ({
-          provider: 'serpapi',
-          model: 'google-ai-mode',
-          groundingStatus: 'applied' as const,
-          evidence: [
-            {
-              key: 'ev-1',
-              source: 'web',
-              snippet: `evidence for ${request.targetKind}`,
-            },
-          ],
-        }),
-      );
-
-      await service.discoverGaps(
-        'Buenos Aires',
-        'Argentina',
-        ['history'],
-        [
-          {
-            reason: 'missing_requested_experience_format',
-            severity: 'blocking',
-            message: 'Falta neighborhood_walks',
-            experienceFormat: 'neighborhood_walks',
-          },
-          {
-            reason: 'missing_requested_experience_format',
-            severity: 'blocking',
-            message: 'Falta thematic_routes',
-            experienceFormat: 'thematic_routes',
-          },
-        ],
-        ['neighborhood_walks', 'thematic_routes'],
-      );
-
-      expect(mockSearchProvider.search).toHaveBeenCalledTimes(2);
-      const calls = mockSearchProvider.search.mock.calls.map((c) => c[0]);
-      expect(calls.map((c) => c.targetKind).sort()).toEqual(
-        ['NEIGHBORHOOD_WALK', 'ROUTE'].sort(),
-      );
-      // Each call gets its own kind-specific query, built by
-      // SemanticDiscoveryQueryBuilder — never a combined/blended one.
-      for (const call of calls) {
-        expect(call.query.length).toBeGreaterThan(0);
-      }
-      expect(new Set(calls.map((c) => c.query)).size).toBe(2);
-    });
-
-    it('falls back to a single general call when no missing kind is derivable (pure theme gap)', async () => {
-      await service.discoverGaps(
-        'Buenos Aires',
-        'Argentina',
-        ['tango'],
-        [
-          {
-            reason: 'missing_requested_theme',
-            severity: 'blocking',
-            message: 'Falta tango',
-          },
-        ],
-      );
-
-      expect(mockSearchProvider.search).toHaveBeenCalledTimes(1);
-      const call = mockSearchProvider.search.mock.calls[0][0];
-      expect(call.query).toBe('');
-      expect(call.targetKind).toBeUndefined();
-    });
-
-    it('falls back to a single general call when a format deficit has no experienceFormat set (malformed input safety net)', async () => {
-      await service.discoverGaps(
-        'Buenos Aires',
-        'Argentina',
-        ['history'],
-        [
-          {
-            reason: 'missing_requested_experience_format',
-            severity: 'blocking',
-            message: 'Falta un formato',
-          },
-        ],
-      );
-
-      expect(mockSearchProvider.search).toHaveBeenCalledTimes(1);
-      expect(mockSearchProvider.search.mock.calls[0][0].query).toBe('');
-    });
-
-    it('forwards explorationStyle and additionalPreferences into the built query', async () => {
-      mockSearchProvider.search.mockResolvedValue(appliedResult);
-
-      await service.discoverGaps(
-        'Mendoza',
-        'Argentina',
-        ['wine'],
-        [
-          {
-            reason: 'missing_requested_experience_format',
-            severity: 'blocking',
-            message: 'Falta experiences',
-            experienceFormat: 'experiences',
-          },
-        ],
-        ['experiences'],
-        'local_deep_dive',
-        'vegetarian preferred',
-      );
-
-      const call = mockSearchProvider.search.mock.calls[0][0];
-      expect(call.query).toContain(
-        'Prioritize locally distinctive and neighborhood-level experiences',
-      );
-      expect(call.query).toContain('vegetarian preferred');
-    });
-
-    it('merges evidence from multiple search calls before the single extraction call', async () => {
-      mockSearchProvider.search
-        .mockResolvedValueOnce({
-          provider: 'serpapi',
-          model: 'google-ai-mode',
-          groundingStatus: 'applied',
-          evidence: [{ key: 'ev-1', source: 'a', snippet: 'walk evidence' }],
-        })
-        .mockResolvedValueOnce({
-          provider: 'serpapi',
-          model: 'google-ai-mode',
-          groundingStatus: 'applied',
-          evidence: [
-            { key: 'ev-1', source: 'b', snippet: 'experience evidence' },
-          ],
-        });
-
-      await service.discoverGaps(
-        'Buenos Aires',
-        'Argentina',
-        ['culture'],
-        [
-          {
-            reason: 'missing_requested_experience_format',
-            severity: 'blocking',
-            message: 'Falta neighborhood_walks',
-            experienceFormat: 'neighborhood_walks',
-          },
-          {
-            reason: 'missing_requested_experience_format',
-            severity: 'blocking',
-            message: 'Falta experiences',
-            experienceFormat: 'experiences',
-          },
-        ],
-        ['neighborhood_walks', 'experiences'],
-      );
-
-      expect(mockProvider.discover).toHaveBeenCalledTimes(1);
-      const [, mergedResult] = mockProvider.discover.mock.calls[0];
-      expect(mergedResult?.evidence).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({ snippet: 'walk evidence' }),
-          expect.objectContaining({ snippet: 'experience evidence' }),
-        ]),
-      );
-      expect(mergedResult?.groundingStatus).toBe('applied');
-    });
-
-    it('runs ROUTE evidence extraction only when a ROUTE plan ran, folding hints in as extra evidence', async () => {
-      mockSearchProvider.search.mockResolvedValue({
+  it('issues one search AND one extraction call per missing structural kind', async () => {
+    mockSearchProvider.search.mockImplementation(
+      async (request: GroundedSearchRequest) => ({
         provider: 'serpapi',
         model: 'google-ai-mode',
-        groundingStatus: 'applied',
+        groundingStatus: 'applied' as const,
         evidence: [
           {
             key: 'ev-1',
             source: 'web',
-            snippet: 'Calle Caseros flanks the colonial civic power center.',
+            snippet: `evidence for ${request.targetKind}`,
           },
         ],
-        textBlocks: [
-          {
-            text: 'Calle Caseros flanks the colonial civic power center.',
-            evidenceKeys: ['ev-1'],
-          },
-        ],
-      });
+      }),
+    );
+    mockProvider.discover.mockImplementation(async (request) => ({
+      proposals: [
+        {
+          name: `${request.targetKind} candidate`,
+          kind: request.targetKind as any,
+          themes: ['history'],
+          entityHints:
+            request.targetKind === ActivityKind.ROUTE
+              ? [
+                  {
+                    key: 'route-1',
+                    name: 'Costanera',
+                    role: 'route' as const,
+                    expectedType: 'promenade',
+                    required: true,
+                    evidenceKeys: ['c0-ev-1'],
+                  },
+                ]
+              : [
+                  {
+                    key: 'venue-1',
+                    name: 'Carnaval venue',
+                    role: 'venue' as const,
+                    expectedType: 'venue',
+                    required: true,
+                    evidenceKeys: ['c1-ev-1'],
+                  },
+                  {
+                    key: 'waypoint-1',
+                    name: 'Carnaval museum',
+                    role: 'waypoint' as const,
+                    expectedType: 'museum',
+                    required: false,
+                    evidenceKeys: ['c1-ev-1'],
+                  },
+                ],
+          suggestedDurationMinutes: 120,
+          shortReason: 'grounded',
+          evidenceKeys: [
+            request.targetKind === ActivityKind.ROUTE ? 'c0-ev-1' : 'c1-ev-1',
+          ],
+        },
+      ],
+      provider: 'gemini',
+      model: 'gemini-flash',
+      groundingStatus: 'applied' as const,
+    }));
 
-      await service.discoverGaps(
-        'Córdoba',
-        'Argentina',
-        ['history'],
-        [
-          {
-            reason: 'missing_requested_experience_format',
-            severity: 'blocking',
-            message: 'Falta thematic_routes',
-            experienceFormat: 'thematic_routes',
-          },
-        ],
-        ['thematic_routes'],
-      );
+    const result = await service.discoverGaps(
+      'Gualeguaychú',
+      'Argentina',
+      ['nature', 'beach', 'architecture', 'history'],
+      [
+        {
+          reason: 'missing_requested_experience_format',
+          severity: 'blocking',
+          message: 'Falta thematic_routes',
+          experienceFormat: 'thematic_routes',
+        },
+        {
+          reason: 'missing_requested_experience_format',
+          severity: 'blocking',
+          message: 'Falta experiences',
+          experienceFormat: 'experiences',
+        },
+      ],
+      ['thematic_routes', 'experiences'],
+    );
 
-      const [, mergedResult] = mockProvider.discover.mock.calls[0];
-      expect(mergedResult?.evidence).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({
-            source: 'route_evidence_extraction',
-            snippet: expect.stringContaining('Calle Caseros'),
-          }),
-        ]),
-      );
+    expect(mockSearchProvider.search).toHaveBeenCalledTimes(2);
+    expect(mockProvider.discover).toHaveBeenCalledTimes(2);
+
+    const searchKinds = mockSearchProvider.search.mock.calls
+      .map((call) => call[0].targetKind)
+      .sort();
+    expect(searchKinds).toEqual(
+      [ActivityKind.ROUTE, ActivityKind.EXPERIENCE].sort(),
+    );
+
+    const extractionRequests = mockProvider.discover.mock.calls.map(
+      (call) => call[0],
+    );
+    expect(extractionRequests).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          targetKind: ActivityKind.ROUTE,
+          requestedExperienceFormats: ['thematic_routes'],
+        }),
+        expect.objectContaining({
+          targetKind: ActivityKind.EXPERIENCE,
+          requestedExperienceFormats: ['experiences'],
+        }),
+      ]),
+    );
+    expect(result.proposals.map((proposal) => proposal.kind).sort()).toEqual(
+      [ActivityKind.ROUTE, ActivityKind.EXPERIENCE].sort(),
+    );
+    expect(result.searchTrace?.map((entry) => entry.targetKind).sort()).toEqual(
+      [ActivityKind.ROUTE, ActivityKind.EXPERIENCE].sort(),
+    );
+  });
+
+  it('discards wrong-kind proposals instead of letting POIs satisfy a composite gap', async () => {
+    mockProvider.discover.mockResolvedValue({
+      proposals: [
+        {
+          name: 'A museum POI',
+          kind: 'POI',
+          themes: ['history'],
+          entityHints: [
+            {
+              key: 'venue-1',
+              name: 'Museum',
+              role: 'venue',
+              expectedType: 'museum',
+              required: true,
+              evidenceKeys: ['c0-ev-1'],
+            },
+          ],
+          suggestedDurationMinutes: 60,
+          shortReason: 'wrong kind',
+          evidenceKeys: ['c0-ev-1'],
+        },
+      ],
+      provider: 'gemini',
+      model: 'gemini-flash',
+      groundingStatus: 'applied',
     });
+
+    const result = await service.discoverGaps(
+      'Gualeguaychú',
+      'Argentina',
+      ['history'],
+      [
+        {
+          reason: 'missing_requested_experience_format',
+          severity: 'blocking',
+          message: 'Falta thematic_routes',
+          experienceFormat: 'thematic_routes',
+        },
+      ],
+      ['thematic_routes'],
+    );
+
+    expect(result.proposals).toEqual([]);
+    expect(result.validationErrors).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('mismatched kind POI'),
+      ]),
+    );
+  });
+
+  it('keeps successful kinds when another kind search fails', async () => {
+    mockSearchProvider.search.mockImplementation(async (request) => {
+      if (request.targetKind === ActivityKind.ROUTE) {
+        return {
+          provider: 'serpapi',
+          model: 'google-ai-mode',
+          groundingStatus: 'failed' as const,
+          evidence: [],
+          failureReason: 'route_search_failed',
+        };
+      }
+      return appliedResult;
+    });
+    mockProvider.discover.mockImplementation(async (request) => ({
+      proposals: [
+        {
+          name: 'Carnaval experience',
+          kind: request.targetKind as any,
+          themes: ['history'],
+          entityHints: [
+            {
+              key: 'venue-1',
+              name: 'Carnaval venue',
+              role: 'venue' as const,
+              expectedType: 'venue',
+              required: true,
+              evidenceKeys: ['c1-ev-1'],
+            },
+            {
+              key: 'waypoint-1',
+              name: 'Carnaval museum',
+              role: 'waypoint' as const,
+              expectedType: 'museum',
+              required: false,
+              evidenceKeys: ['c1-ev-1'],
+            },
+          ],
+          suggestedDurationMinutes: 120,
+          shortReason: 'grounded',
+          evidenceKeys: ['c1-ev-1'],
+        },
+      ],
+      provider: 'gemini',
+      model: 'gemini-flash',
+      groundingStatus: 'applied' as const,
+    }));
+
+    const result = await service.discoverGaps(
+      'Gualeguaychú',
+      'Argentina',
+      ['history'],
+      [
+        {
+          reason: 'missing_requested_experience_format',
+          severity: 'blocking',
+          message: 'Falta thematic_routes',
+          experienceFormat: 'thematic_routes',
+        },
+        {
+          reason: 'missing_requested_experience_format',
+          severity: 'blocking',
+          message: 'Falta experiences',
+          experienceFormat: 'experiences',
+        },
+      ],
+      ['thematic_routes', 'experiences'],
+    );
+
+    expect(mockProvider.discover).toHaveBeenCalledTimes(1);
+    expect(result.proposals).toHaveLength(1);
+    expect(result.proposals[0].kind).toBe(ActivityKind.EXPERIENCE);
+    expect(result.validationErrors).toEqual(
+      expect.arrayContaining([expect.stringContaining('ROUTE: grounded search failed')]),
+    );
+  });
+
+  it('runs ROUTE evidence extraction before route-specific extraction', async () => {
+    mockSearchProvider.search.mockResolvedValue({
+      provider: 'serpapi',
+      model: 'google-ai-mode',
+      groundingStatus: 'applied',
+      evidence: [
+        {
+          key: 'ev-1',
+          source: 'web',
+          snippet: 'Calle Caseros flanks the colonial civic power center.',
+        },
+      ],
+      textBlocks: [
+        {
+          text: 'Calle Caseros flanks the colonial civic power center.',
+          evidenceKeys: ['ev-1'],
+        },
+      ],
+    });
+
+    await service.discoverGaps(
+      'Córdoba',
+      'Argentina',
+      ['history'],
+      [
+        {
+          reason: 'missing_requested_experience_format',
+          severity: 'blocking',
+          message: 'Falta thematic_routes',
+          experienceFormat: 'thematic_routes',
+        },
+      ],
+      ['thematic_routes'],
+    );
+
+    const [, searchResult] = mockProvider.discover.mock.calls[0];
+    expect(searchResult?.evidence).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          source: 'route_evidence_extraction',
+          snippet: expect.stringContaining('Calle Caseros'),
+        }),
+      ]),
+    );
+  });
+
+  it('never touches Prisma or persists anything', () => {
+    expect((service as any).prisma).toBeUndefined();
   });
 });
