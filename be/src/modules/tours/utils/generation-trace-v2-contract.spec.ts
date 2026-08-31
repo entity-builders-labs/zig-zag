@@ -111,11 +111,13 @@ describe('GenerationTrace V2 decision audit coverage', () => {
         complete: false,
         issues: [
           {
+            code: 'UNDERFILLED_DAY',
             dayNumber: 2,
             selectedActivityCount: 1,
             selectedActivityHours: 1.5,
             viableUnusedCandidateCount: 2,
             travelPace: 'moderate' as any,
+            message: 'Day 2 is underfilled while viable unused candidates remain.',
           },
         ],
       },
