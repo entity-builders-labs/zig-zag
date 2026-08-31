@@ -272,6 +272,47 @@ describe('GeminiDiscoveryProvider', () => {
     expect(response.validationErrors![0]).toContain('required area hint');
   });
 
+  it('accepts a venue-centric EXPERIENCE with one required real venue', async () => {
+    mockInteractionOk({
+      proposals: [
+        {
+          name: 'Caminito cultural experience',
+          kind: 'EXPERIENCE',
+          themes: ['culture'],
+          entityHints: [
+            {
+              key: 'caminito-venue',
+              name: 'Caminito',
+              role: 'venue',
+              expectedType: 'street_museum',
+              required: true,
+              evidenceKeys: ['ev-2'],
+            },
+          ],
+          suggestedDurationMinutes: 90,
+          shortReason: 'A venue-centric cultural experience',
+          evidenceKeys: ['ev-2'],
+        },
+      ],
+    });
+
+    const response = await provider.discover(
+      {
+        destinationName: 'Buenos Aires',
+        requestedThemes: ['culture'],
+        requestedExperienceFormats: ['experiences'],
+        targetKind: 'EXPERIENCE' as any,
+        mode: { type: 'gap_fill', deficits: [] },
+        maxProposals: 4,
+      },
+      searchResult,
+    );
+
+    expect(response.proposals).toHaveLength(1);
+    expect(response.proposals[0].kind).toBe('EXPERIENCE');
+    expect(response.validationErrors).toBeUndefined();
+  });
+
   it('respects maxProposals, discarding extras beyond the cap', async () => {
     const proposal = (i: number) => ({
       name: `Place ${i}`,
