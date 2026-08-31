@@ -97,6 +97,7 @@ import { OutboxModule } from '../outbox/outbox.module';
         groq: GroqGroundedSearchService,
       ): GroundedSearchProvider => {
         const provider = (
+          config.groundedSearchProvider ||
           process.env.GROUNDED_SEARCH_PROVIDER ||
           (config.serpApiKey ? 'serpapi' : 'groq')
         ).toLowerCase();
