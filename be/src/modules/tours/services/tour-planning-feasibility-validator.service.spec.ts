@@ -157,7 +157,9 @@ describe('TourPlanningFeasibilityValidatorService', () => {
       validSolution(),
       baseInput({ requestedDays: 2 }),
     );
-    expect(result.issues.some((issue) => issue.code === 'DAY_COUNT_MISMATCH')).toBe(true);
+    expect(
+      result.issues.some((issue) => issue.code === 'DAY_COUNT_MISMATCH'),
+    ).toBe(true);
   });
 
   it('rejects a duplicate activity across days', () => {
@@ -180,7 +182,9 @@ describe('TourPlanningFeasibilityValidatorService', () => {
       solution,
       baseInput({ requestedDays: 2 }),
     );
-    expect(result.issues.some((issue) => issue.code === 'DUPLICATE_ACTIVITY')).toBe(true);
+    expect(
+      result.issues.some((issue) => issue.code === 'DUPLICATE_ACTIVITY'),
+    ).toBe(true);
   });
 
   it('rejects an activity scheduled out of chronological order', () => {
@@ -205,7 +209,9 @@ describe('TourPlanningFeasibilityValidatorService', () => {
     });
     const result = validator.validate(solution, input);
     expect(
-      result.issues.some((issue) => issue.code === 'CHRONOLOGICAL_ORDER_VIOLATION'),
+      result.issues.some(
+        (issue) => issue.code === 'CHRONOLOGICAL_ORDER_VIOLATION',
+      ),
     ).toBe(true);
   });
 
@@ -214,7 +220,9 @@ describe('TourPlanningFeasibilityValidatorService', () => {
     solution.days[0].activities[0].endMinutesFromMidnight = 1300;
     const result = validator.validate(solution, baseInput());
     expect(
-      result.issues.some((issue) => issue.code === 'DAILY_TIME_CAPACITY_EXCEEDED'),
+      result.issues.some(
+        (issue) => issue.code === 'DAILY_TIME_CAPACITY_EXCEEDED',
+      ),
     ).toBe(true);
   });
 
@@ -222,14 +230,18 @@ describe('TourPlanningFeasibilityValidatorService', () => {
     const solution = validSolution();
     solution.days[0].dayNumber = 5;
     const result = validator.validate(solution, baseInput());
-    expect(result.issues.some((issue) => issue.code === 'INVALID_DAY_NUMBER')).toBe(true);
+    expect(
+      result.issues.some((issue) => issue.code === 'INVALID_DAY_NUMBER'),
+    ).toBe(true);
   });
 
   it('rejects an activity that is not part of the offered candidate pool', () => {
     const solution = validSolution();
     solution.days[0].activities[0].activityId = 'ghost';
     const result = validator.validate(solution, baseInput());
-    expect(result.issues.some((issue) => issue.code === 'UNKNOWN_ACTIVITY')).toBe(true);
+    expect(
+      result.issues.some((issue) => issue.code === 'UNKNOWN_ACTIVITY'),
+    ).toBe(true);
   });
 
   it('rejects a travel leg using a disallowed transportation mode', () => {
@@ -261,7 +273,9 @@ describe('TourPlanningFeasibilityValidatorService', () => {
       ],
     });
     const result = validator.validate(solution, input);
-    expect(result.issues.some((issue) => issue.code === 'DISALLOWED_TRAVEL_MODE')).toBe(true);
+    expect(
+      result.issues.some((issue) => issue.code === 'DISALLOWED_TRAVEL_MODE'),
+    ).toBe(true);
   });
 
   it('rejects a single leg that exceeds the max continuous walking distance', () => {
@@ -294,7 +308,9 @@ describe('TourPlanningFeasibilityValidatorService', () => {
     });
     const result = validator.validate(solution, input);
     expect(
-      result.issues.some((issue) => issue.code === 'MAX_CONTINUOUS_WALKING_EXCEEDED'),
+      result.issues.some(
+        (issue) => issue.code === 'MAX_CONTINUOUS_WALKING_EXCEEDED',
+      ),
     ).toBe(true);
   });
 
@@ -314,7 +330,9 @@ describe('TourPlanningFeasibilityValidatorService', () => {
     });
     const result = validator.validate(validSolution(), input);
     expect(
-      result.issues.some((issue) => issue.code === 'MAX_WALKING_PER_DAY_EXCEEDED'),
+      result.issues.some(
+        (issue) => issue.code === 'MAX_WALKING_PER_DAY_EXCEEDED',
+      ),
     ).toBe(true);
   });
 });

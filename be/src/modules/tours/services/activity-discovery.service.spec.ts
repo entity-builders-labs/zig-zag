@@ -257,9 +257,7 @@ describe('ActivityDiscoveryService', () => {
 
     expect(result.proposals).toEqual([]);
     expect(result.validationErrors).toEqual(
-      expect.arrayContaining([
-        expect.stringContaining('mismatched kind POI'),
-      ]),
+      expect.arrayContaining([expect.stringContaining('mismatched kind POI')]),
     );
   });
 
@@ -335,7 +333,9 @@ describe('ActivityDiscoveryService', () => {
     expect(result.proposals).toHaveLength(1);
     expect(result.proposals[0].kind).toBe(ActivityKind.EXPERIENCE);
     expect(result.validationErrors).toEqual(
-      expect.arrayContaining([expect.stringContaining('ROUTE: grounded search failed')]),
+      expect.arrayContaining([
+        expect.stringContaining('ROUTE: grounded search failed'),
+      ]),
     );
   });
 

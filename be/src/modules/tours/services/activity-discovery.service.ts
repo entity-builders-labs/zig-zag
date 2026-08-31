@@ -206,7 +206,9 @@ export class ActivityDiscoveryService {
       extractionModel ??= response.model;
       if (response.validationErrors?.length) {
         validationErrors.push(
-          ...response.validationErrors.map((error) => `${targetKind}: ${error}`),
+          ...response.validationErrors.map(
+            (error) => `${targetKind}: ${error}`,
+          ),
         );
       }
 
@@ -412,7 +414,9 @@ export class ActivityDiscoveryService {
     return `${item.snippet.trim().toLowerCase()}|${item.url ?? ''}`;
   }
 
-  private aggregateFailureStatus(results: GroundedSearchResult[]): GroundingStatus {
+  private aggregateFailureStatus(
+    results: GroundedSearchResult[],
+  ): GroundingStatus {
     if (results.some((result) => result.groundingStatus === 'failed')) {
       return 'failed';
     }

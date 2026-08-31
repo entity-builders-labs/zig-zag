@@ -297,8 +297,12 @@ export class GeminiDiscoveryProvider
     }
 
     const data: GeminiInteractionResponse = await resp.json();
-    const modelOutput = data.steps?.find((step) => step.type === 'model_output');
-    const text = modelOutput?.content?.find((content) => content.type === 'text')?.text;
+    const modelOutput = data.steps?.find(
+      (step) => step.type === 'model_output',
+    );
+    const text = modelOutput?.content?.find(
+      (content) => content.type === 'text',
+    )?.text;
     if (!text) {
       throw new Error('Gemini response had no model_output text content');
     }

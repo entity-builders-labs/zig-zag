@@ -42,9 +42,17 @@ describe('CoverageAnalyzer', () => {
       providerHealth: { status: 'healthy' as const },
     };
 
-    expect(service.analyze({ ...base, travelPace: 'relaxed' }).requiredCandidateCount).toBe(3);
-    expect(service.analyze({ ...base, travelPace: 'moderate' }).requiredCandidateCount).toBe(4);
-    expect(service.analyze({ ...base, travelPace: 'fast' }).requiredCandidateCount).toBe(5);
+    expect(
+      service.analyze({ ...base, travelPace: 'relaxed' })
+        .requiredCandidateCount,
+    ).toBe(3);
+    expect(
+      service.analyze({ ...base, travelPace: 'moderate' })
+        .requiredCandidateCount,
+    ).toBe(4);
+    expect(
+      service.analyze({ ...base, travelPace: 'fast' }).requiredCandidateCount,
+    ).toBe(5);
   });
 
   it('chooses Places Text Search for a conventional theme-only deficit', () => {
@@ -86,7 +94,9 @@ describe('CoverageAnalyzer', () => {
 
     expect(report.status).toBe('degraded');
     expect(report.decision.action).toBe('fail');
-    expect(report.decision.reason).toBe('provider_degraded_without_usable_pool');
+    expect(report.decision.reason).toBe(
+      'provider_degraded_without_usable_pool',
+    );
   });
 
   it('blocks when a requested composite format has zero candidates of that kind', () => {
@@ -153,7 +163,9 @@ describe('CoverageAnalyzer', () => {
 
     expect(report.deficits).not.toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ reason: 'missing_requested_experience_format' }),
+        expect.objectContaining({
+          reason: 'missing_requested_experience_format',
+        }),
       ]),
     );
   });
@@ -180,7 +192,10 @@ describe('CoverageAnalyzer', () => {
 
     expect(report.deficits).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ reason: 'missing_requested_theme', theme: 'architecture' }),
+        expect.objectContaining({
+          reason: 'missing_requested_theme',
+          theme: 'architecture',
+        }),
         expect.objectContaining({
           reason: 'missing_requested_experience_format',
           experienceFormat: 'thematic_routes',
@@ -192,7 +207,9 @@ describe('CoverageAnalyzer', () => {
       ]),
     );
     expect(report.decision.action).toBe('defer_to_pr7_grounded_gap');
-    expect(report.decision.reason).toBe('qualitative_gap_requires_activity_discovery');
+    expect(report.decision.reason).toBe(
+      'qualitative_gap_requires_activity_discovery',
+    );
   });
 
   it('does not gate point_visits because it has no composite kind mapping', () => {
