@@ -1,76 +1,25 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { Activity, ActivityKind, Prisma, VariantTheme } from '@prisma/client';
-import { PrismaService } from '@core/database/prisma.service';
-import { CompositeActivityService } from '@activities/services/composite-activity.service';
 import { CatalogCandidateValidatorService } from '@activities/services/catalog-candidate-validator.service';
 import { CatalogCandidate } from '@activities/interfaces/catalog-candidate-validation.interface';
 import {
-  OsmPlacesService,
   OsmCandidate,
+  OsmPlacesService,
 } from '@integrations/osm/services/osm-places.service';
-import { OsmMembershipService } from '@integrations/osm/services/osm-membership.service';
-import { geometryContainsPoint } from '@integrations/osm/utils/geojson-containment.util';
-import { GeoJsonGeometry } from '@integrations/osm/utils/osm-geometry.util';
 import {
   IPlacesApiService,
   PlaceData,
 } from '@integrations/google-places/interfaces/places-api.interface';
-import { VectorStoreService } from '@shared/ai/services/vector-store.service';
 import {
   ActivityProposal,
   EntityHint,
-  ProposalKind,
 } from '../interfaces/activity-discovery.interface';
 import {
   ProposalResolutionRequest,
   ProposalResolutionResponse,
   ResolvedActivityProposal,
   ResolvedEntity,
+  ResolvedEntityAdminContext,
 } from '../interfaces/proposal-resolution.interface';
-import { MIN_WAYPOINTS_FOR_MULTI_STOP } from '../utils/composite-activity-verification.util';
-
-const THEME_TO_VARIANT: Record<string, VariantTheme> = {
-  history: VariantTheme.HISTORY,
-  historic: VariantTheme.HISTORY,
-  heritage: VariantTheme.HISTORY,
-  culture: VariantTheme.HISTORY,
-  landmark: VariantTheme.HISTORY,
-  landmarks: VariantTheme.HISTORY,
-  art: VariantTheme.ART,
-  arts: VariantTheme.ART,
-  food: VariantTheme.FOOD,
-  foodie: VariantTheme.FOOD,
-  gastronomy: VariantTheme.FOOD,
-  tapas: VariantTheme.FOOD,
-  nature: VariantTheme.NATURE,
-  outdoor: VariantTheme.NATURE,
-  outdoors: VariantTheme.NATURE,
-  architecture: VariantTheme.ARCHITECTURE,
-  nightlife: VariantTheme.NIGHTLIFE,
-  shopping: VariantTheme.SHOPPING,
-  family: VariantTheme.FAMILY,
-  tango: VariantTheme.TANGO,
-  photography: VariantTheme.PHOTOGRAPHY,
-  photo: VariantTheme.PHOTOGRAPHY,
-  quick: VariantTheme.QUICK,
-  'deep dive': VariantTheme.DEEP_DIVE,
-  'deep-dive': VariantTheme.DEEP_DIVE,
-};
-
-const THEME_NAME: Record<VariantTheme, string> = {
-  HISTORY: 'Historic',
-  ART: 'Art',
-  FOOD: 'Food',
-  NATURE: 'Nature',
-  ARCHITECTURE: 'Architecture',
-  NIGHTLIFE: 'Nightlife',
-  SHOPPING: 'Shopping',
-  FAMILY: 'Family',
-  TANGO: 'Tango',
-  PHOTOGRAPHY: 'Photography',
-  QUICK: 'Quick',
-  DEEP_DIVE: 'Deep Dive',
-};
 
 const GENERIC_AREA_PHRASES = new Set([
   'downtown',
@@ -81,7 +30,7 @@ const GENERIC_AREA_PHRASES = new Set([
   'old town',
 ]);
 
-const STREET_TYPES = new Set([
+const ROUTE_LIKE_TYPES = new Set([
   'street',
   'road',
   'pedestrian street',
@@ -95,15 +44,9 @@ const STREET_TYPES = new Set([
   'highway',
   'promenade',
   'boardwalk',
+  'riverwalk',
+  'waterfront',
 ]);
-
-const KIND_MAP: Record<ProposalKind, ActivityKind> = {
-  POI: ActivityKind.POI,
-  ROUTE: ActivityKind.ROUTE,
-  AREA: ActivityKind.AREA,
-  NEIGHBORHOOD_WALK: ActivityKind.NEIGHBORHOOD_WALK,
-  EXPERIENCE: ActivityKind.EXPERIENCE,
-};
 
 @Injectable()
 export class ActivityProposalResolutionService {
@@ -113,13 +56,14 @@ export class ActivityProposalResolutionService {
     @Inject('PlacesApiService')
     private readonly placesApi: IPlacesApiService,
     private readonly osmPlacesService: OsmPlacesService,
-    private readonly osmMembershipService: OsmMembershipService,
-    private readonly compositeActivityService: CompositeActivityService,
     private readonly catalogCandidateValidator: CatalogCandidateValidatorService,
-    private readonly prisma: PrismaService,
-    private readonly vectorStoreService: VectorStoreService,
   ) {}
 
+  /**
+   * Resolution does one thing only: turn untrusted entity hints into provider-
+   * resolved real-world entities. It does not approve geographic coherence and
+   * it does not persist a composite Activity.
+   */
   async resolve(
     request: ProposalResolutionRequest,
   ): Promise<ProposalResolutionResponse> {
@@ -128,13 +72,11 @@ export class ActivityProposalResolutionService {
       resolved.push(await this.resolveProposal(proposal, request));
     }
 
-    await this.indexResolvedVenues(resolved);
-
     const acceptedCount = resolved.filter(
-      (r) => r.status === 'accepted',
+      (entry) => entry.status === 'accepted' || entry.status === 'partial',
     ).length;
     const rejectedCount = resolved.filter(
-      (r) => r.status === 'rejected',
+      (entry) => entry.status === 'rejected',
     ).length;
     return {
       resolved,
@@ -144,39 +86,6 @@ export class ActivityProposalResolutionService {
     };
   }
 
-  private async indexResolvedVenues(
-    resolved: ResolvedActivityProposal[],
-  ): Promise<void> {
-    const activityIds = new Set<string>();
-    for (const proposal of resolved) {
-      for (const entity of proposal.resolvedEntities) {
-        if (
-          (entity.role === 'venue' || entity.role === 'waypoint') &&
-          entity.status === 'resolved' &&
-          entity.activityId
-        ) {
-          activityIds.add(entity.activityId);
-        }
-      }
-    }
-    if (activityIds.size === 0) return;
-
-    try {
-      const result = await this.vectorStoreService.saveActivityEmbedding(
-        Array.from(activityIds, (id) => ({ id })),
-      );
-      if (result.status === 'unavailable') {
-        this.logger.warn(
-          `Embedding unavailable for resolved venues: ${result.reason}`,
-        );
-      }
-    } catch (error: any) {
-      this.logger.warn(
-        `Failed to index embeddings for resolved venues: ${error.message}`,
-      );
-    }
-  }
-
   private async resolveProposal(
     proposal: ActivityProposal,
     request: ProposalResolutionRequest,
@@ -184,17 +93,16 @@ export class ActivityProposalResolutionService {
     if (!request.destinationBoundary) {
       return this.reject(proposal, [], ['missing_destination_boundary']);
     }
-    const destination = request.destinationBoundary;
 
     switch (proposal.kind) {
       case 'AREA':
-        return this.resolveAreaProposal(proposal, destination);
+        return this.resolveAreaProposal(proposal, request.destinationBoundary);
       case 'POI':
-        return this.resolvePoiProposal(proposal, destination, request);
+        return this.resolvePoiProposal(proposal, request);
       case 'ROUTE':
       case 'NEIGHBORHOOD_WALK':
       case 'EXPERIENCE':
-        return this.resolveCompositeProposal(proposal, destination, request);
+        return this.resolveCompositeProposal(proposal, request);
       default:
         return this.reject(proposal, [], ['unknown_kind']);
     }
@@ -204,234 +112,114 @@ export class ActivityProposalResolutionService {
     proposal: ActivityProposal,
     destination: OsmCandidate,
   ): Promise<ResolvedActivityProposal> {
-    const areaHint = proposal.entityHints.find((h) => h.role === 'area');
+    const areaHint = proposal.entityHints.find((hint) => hint.role === 'area');
     if (!areaHint) {
       return this.reject(proposal, [], ['missing_required_hint']);
     }
-
-    const { entity, candidate } = await this.resolveAreaHint(
-      areaHint,
-      destination,
-    );
-    if (!candidate) {
-      return this.reject(
-        proposal,
-        [entity],
-        [entity.rejectionReason as string],
-      );
+    const result = await this.resolveAreaHint(areaHint, destination);
+    if (result.entity.status !== 'resolved') {
+      return this.reject(proposal, [result.entity], [
+        result.entity.rejectionReason ?? 'unresolved_area',
+      ]);
     }
-
-    const area = await this.compositeActivityService.resolveArea(candidate);
-    return {
-      proposal,
-      status: 'accepted',
-      resolvedEntities: [entity],
-      rejectionReasons: [],
-      persistedActivityId: area.id,
-    };
+    return this.resolvedProposal(proposal, [result.entity]);
   }
 
   private async resolvePoiProposal(
     proposal: ActivityProposal,
-    destination: OsmCandidate,
     request: ProposalResolutionRequest,
   ): Promise<ResolvedActivityProposal> {
     const venueHint = proposal.entityHints.find(
-      (h) => h.role === 'venue' || h.role === 'waypoint',
+      (hint) => hint.role === 'venue' || hint.role === 'waypoint',
     );
     if (!venueHint) {
       return this.reject(proposal, [], ['missing_required_hint']);
     }
-
-    const { entity, activity } = await this.resolveVenueHint(
-      venueHint,
-      destination,
-      request,
-    );
-    if (!activity) {
-      return this.reject(
-        proposal,
-        [entity],
-        [entity.rejectionReason as string],
-      );
+    const entity = await this.resolveVenueHint(venueHint, request);
+    if (entity.status !== 'resolved') {
+      return this.reject(proposal, [entity], [
+        entity.rejectionReason ?? 'unresolved_venue',
+      ]);
     }
-
-    return {
-      proposal,
-      status: 'accepted',
-      resolvedEntities: [entity],
-      rejectionReasons: [],
-      persistedActivityId: activity.id,
-    };
+    return this.resolvedProposal(proposal, [entity]);
   }
 
   private async resolveCompositeProposal(
     proposal: ActivityProposal,
-    destination: OsmCandidate,
     request: ProposalResolutionRequest,
   ): Promise<ResolvedActivityProposal> {
-    const resolvedEntities: ResolvedEntity[] = [];
-    const rejectionReasons: string[] = [];
-    const kind = KIND_MAP[proposal.kind];
+    const destination = request.destinationBoundary as OsmCandidate;
+    const entities: ResolvedEntity[] = [];
+    const reasons: string[] = [];
 
-    if (kind === ActivityKind.NEIGHBORHOOD_WALK) {
-      const hasRequiredArea = proposal.entityHints.some(
-        (h) => h.role === 'area' && h.required,
-      );
-      if (!hasRequiredArea) {
-        return this.reject(proposal, resolvedEntities, [
-          'missing_required_area_hint',
-        ]);
-      }
-    }
-    if (kind === ActivityKind.ROUTE) {
-      const hasRequiredRoute = proposal.entityHints.some(
-        (h) => h.role === 'route' && h.required,
-      );
-      if (!hasRequiredRoute) {
-        return this.reject(proposal, resolvedEntities, [
-          'missing_required_route_hint',
-        ]);
-      }
-    }
-
-    const areaHint = proposal.entityHints.find((h) => h.role === 'area');
-    let resolvedArea: OsmCandidate | null = null;
+    // An area is useful context, but absence/unresolvability is not a universal
+    // rejection for ROUTE/EXPERIENCE and is not fatal for NEIGHBORHOOD_WALK:
+    // the geographic validator may validate a walk from compact anchors.
+    const areaHint = proposal.entityHints.find((hint) => hint.role === 'area');
+    let resolvedAreaCandidate: OsmCandidate | undefined;
     if (areaHint) {
       const areaResult = await this.resolveAreaHint(areaHint, destination);
-      resolvedEntities.push(areaResult.entity);
-      if (!areaResult.candidate) {
-        rejectionReasons.push(areaResult.entity.rejectionReason as string);
-        return this.reject(proposal, resolvedEntities, rejectionReasons);
-      }
-      resolvedArea = areaResult.candidate;
-    }
-    const scopeBoundary = resolvedArea ?? destination;
-
-    const otherHints = proposal.entityHints.filter((h) => h.role !== 'area');
-    const waypointIds: string[] = [];
-    const candidateOsmFeaturesById = new Map<string, OsmCandidate>();
-    const seenExternalIds = new Set<string>();
-
-    for (const hint of otherHints) {
-      if (hint.role === 'route' || this.isStreetHint(hint)) {
-        const street = await this.resolveStreetHint(hint, scopeBoundary);
-        resolvedEntities.push(street.entity);
-        if (!street.candidate) {
-          rejectionReasons.push(street.entity.rejectionReason as string);
-          continue;
-        }
-        if (seenExternalIds.has(street.candidate.id)) {
-          rejectionReasons.push('duplicate_entity');
-          continue;
-        }
-        seenExternalIds.add(street.candidate.id);
-        candidateOsmFeaturesById.set(street.candidate.id, street.candidate);
-        waypointIds.push(street.candidate.id);
-      } else {
-        const venue = await this.resolveVenueHint(hint, destination, request);
-        resolvedEntities.push(venue.entity);
-        if (!venue.activity) {
-          rejectionReasons.push(venue.entity.rejectionReason as string);
-          continue;
-        }
-
-        const membership = this.osmMembershipService.membershipOf(
-          venue.entity.latitude as number,
-          venue.entity.longitude as number,
-          [scopeBoundary],
-        );
-        if (membership.outcome !== 'inside') {
-          rejectionReasons.push('waypoint_outside_neighborhood');
-          continue;
-        }
-
-        if (seenExternalIds.has(venue.activity.id)) {
-          rejectionReasons.push('duplicate_entity');
-          continue;
-        }
-        seenExternalIds.add(venue.activity.id);
-        waypointIds.push(venue.activity.id);
+      entities.push(areaResult.entity);
+      if (areaResult.entity.status === 'resolved' && areaResult.candidate) {
+        resolvedAreaCandidate = areaResult.candidate;
+      } else if (areaResult.entity.rejectionReason) {
+        reasons.push(areaResult.entity.rejectionReason);
       }
     }
 
-    if (kind === ActivityKind.ROUTE) {
-      const hasOsmGeometry = waypointIds.some((id) =>
-        candidateOsmFeaturesById.has(id),
-      );
-      if (waypointIds.length === 0 || !hasOsmGeometry) {
-        rejectionReasons.push('route_geometry_missing');
-        return this.reject(proposal, resolvedEntities, rejectionReasons);
-      }
-    } else if (kind === ActivityKind.EXPERIENCE) {
-      const requiredOtherHints = otherHints.filter((h) => h.required);
-      const isVenueCentric =
-        requiredOtherHints.length === 1 &&
-        requiredOtherHints[0].role === 'venue';
-      const minRequired = isVenueCentric ? 1 : MIN_WAYPOINTS_FOR_MULTI_STOP;
-      if (waypointIds.length < minRequired) {
-        rejectionReasons.push('insufficient_experience_entities');
-        return this.reject(proposal, resolvedEntities, rejectionReasons);
-      }
-    } else {
-      const poiCount = waypointIds.filter(
-        (id) => !candidateOsmFeaturesById.has(id),
-      ).length;
-      if (poiCount < MIN_WAYPOINTS_FOR_MULTI_STOP) {
-        rejectionReasons.push('insufficient_waypoints');
-        return this.reject(proposal, resolvedEntities, rejectionReasons);
+    const routeScope = resolvedAreaCandidate ?? destination;
+    for (const hint of proposal.entityHints.filter(
+      (candidate) => candidate.role !== 'area',
+    )) {
+      const entity = this.isRouteLikeHint(hint)
+        ? await this.resolveRouteLikeHint(hint, routeScope)
+        : await this.resolveVenueHint(hint, request);
+      entities.push(entity);
+      if (entity.status !== 'resolved' && entity.rejectionReason) {
+        reasons.push(entity.rejectionReason);
       }
     }
 
-    const variantTheme = this.pickVariantTheme(proposal.themes);
-    if (!variantTheme) {
-      rejectionReasons.push('unresolvable_theme');
-      return this.reject(proposal, resolvedEntities, rejectionReasons);
-    }
-
-    const areaForPersistence = resolvedArea ?? destination;
-
-    try {
-      const variant =
-        await this.compositeActivityService.createOrReuseComposite({
-          name: this.canonicalName(areaForPersistence.name, variantTheme, kind),
-          kind,
-          variantTheme,
-          themeReasoning: proposal.shortReason,
-          areaCandidate: areaForPersistence,
-          waypointIds,
-          candidateOsmFeaturesById,
-        });
-      return {
+    const resolvedCount = entities.filter(
+      (entity) => entity.status === 'resolved',
+    ).length;
+    if (resolvedCount === 0) {
+      return this.reject(
         proposal,
-        status: 'accepted',
-        resolvedEntities,
-        rejectionReasons,
-        persistedActivityId: variant.id,
-      };
-    } catch (error: any) {
-      this.logger.warn(
-        `Failed to persist composite "${proposal.name}": ${error.message}`,
+        entities,
+        reasons.length > 0 ? reasons : ['no_resolved_entities'],
       );
-      rejectionReasons.push('persistence_failed');
-      return this.reject(proposal, resolvedEntities, rejectionReasons);
     }
+
+    const unresolvedCount = entities.length - resolvedCount;
+    return {
+      proposal,
+      status: unresolvedCount > 0 ? 'partial' : 'accepted',
+      resolvedEntities: entities,
+      rejectionReasons: reasons,
+    };
   }
 
   private async resolveAreaHint(
     hint: EntityHint,
     destination: OsmCandidate,
-  ): Promise<{ entity: ResolvedEntity; candidate: OsmCandidate | null }> {
+  ): Promise<{ entity: ResolvedEntity; candidate?: OsmCandidate }> {
     if (GENERIC_AREA_PHRASES.has(normalizeName(hint.name))) {
+      return { entity: this.rejectedEntity(hint, 'generic_area_hint') };
+    }
+
+    const neighborhoodLookup =
+      await this.osmPlacesService.lookupNeighborhoodsWithin(destination);
+    if (neighborhoodLookup.status === 'failed') {
       return {
-        entity: this.rejectedEntity(hint, 'generic_area_hint'),
-        candidate: null,
+        entity: this.unresolvedProviderEntity(
+          hint,
+          'provider_unavailable',
+        ),
       };
     }
 
-    const neighborhoods =
-      await this.osmPlacesService.findNeighborhoodsWithin(destination);
-    const matches = this.matchByName(hint.name, neighborhoods);
+    const matches = this.matchByName(hint.name, neighborhoodLookup.value);
     if (matches.length === 1) {
       return {
         entity: this.resolvedOsmEntity(hint, matches[0]),
@@ -439,279 +227,224 @@ export class ActivityProposalResolutionService {
       };
     }
     if (matches.length > 1) {
-      return {
-        entity: this.rejectedEntity(hint, 'ambiguous_area'),
-        candidate: null,
-      };
+      return { entity: this.rejectedEntity(hint, 'ambiguous_area') };
     }
 
-    const center = this.centroidOf(destination.geometry);
+    const center = this.centroidOf(destination);
     const named = await this.osmPlacesService.findBoundaryByName(
       hint.name,
       center.latitude,
       center.longitude,
-      5000,
+      5_000,
     );
-    if (named && this.isInside(destination, named)) {
-      return { entity: this.resolvedOsmEntity(hint, named), candidate: named };
+    if (named && this.isCandidateCenterInside(destination, named)) {
+      return {
+        entity: this.resolvedOsmEntity(hint, named),
+        candidate: named,
+      };
     }
-
-    return {
-      entity: this.rejectedEntity(hint, 'unresolved_area'),
-      candidate: null,
-    };
+    return { entity: this.rejectedEntity(hint, 'unresolved_area') };
   }
 
   private async resolveVenueHint(
     hint: EntityHint,
-    destination: OsmCandidate,
     request: ProposalResolutionRequest,
-  ): Promise<{ entity: ResolvedEntity; activity: Activity | null }> {
+  ): Promise<ResolvedEntity> {
+    const destination = request.destinationBoundary as OsmCandidate;
+    let placesFailed = false;
     try {
-      const center = this.centroidOf(destination.geometry);
+      const center = this.centroidOf(destination);
       const result = await this.placesApi.searchText({
         textQuery: `${hint.name}, ${request.destinationName}`,
         locationBias: {
-          center: { latitude: center.latitude, longitude: center.longitude },
-          radius: 5000,
+          center,
+          radius: 5_000,
         },
         maxResultCount: 5,
       });
-
       const candidates = result.data ?? [];
-      const best = candidates.find((c) =>
-        this.fuzzyMatches(hint.name, c.displayName?.text ?? c.name ?? ''),
+      const best = candidates.find((candidate) =>
+        this.fuzzyMatches(
+          hint.name,
+          candidate.displayName?.text ?? candidate.name ?? '',
+        ),
       );
-
       if (best?.id) {
         const validation = this.catalogCandidateValidator.validate(
           this.toCatalogCandidate(best),
           { destinationBoundary: destination.geometry },
         );
         if (validation.accepted) {
-          const activity = await this.resolvePoiActivity(best);
-          return {
-            entity: {
-              hintKey: hint.key,
-              hintName: hint.name,
-              role: hint.role,
-              expectedType: hint.expectedType,
-              status: 'resolved',
-              activityId: activity.id,
-              externalId: best.id,
-              provider: this.placesApi.provider,
-              latitude: best.location?.latitude,
-              longitude: best.location?.longitude,
-            },
-            activity,
-          };
+          return this.resolvedPlaceEntity(hint, best);
         }
       }
     } catch (error: any) {
+      placesFailed = true;
       this.logger.warn(
         `Places resolution failed for hint "${hint.name}": ${error.message}`,
       );
     }
 
-    const osmFallback = await this.resolveOsmPoiHint(hint, destination);
-    if (osmFallback.activity) return osmFallback;
+    const osmLookup = await this.osmPlacesService.lookupPoisWithin(destination);
+    if (osmLookup.status === 'failed') {
+      return placesFailed
+        ? this.unresolvedProviderEntity(hint, 'provider_unavailable')
+        : this.unresolvedProviderEntity(hint, 'osm_provider_unavailable');
+    }
+    const matches = this.matchByName(hint.name, osmLookup.value);
+    if (matches.length === 1) {
+      return this.resolvedOsmEntity(hint, matches[0]);
+    }
+    if (matches.length > 1) {
+      return this.rejectedEntity(hint, 'ambiguous_venue');
+    }
+    return this.rejectedEntity(hint, 'unresolved_venue');
+  }
 
+  private async resolveRouteLikeHint(
+    hint: EntityHint,
+    scope: OsmCandidate,
+  ): Promise<ResolvedEntity> {
+    const lookup = await this.osmPlacesService.lookupStreetsWithin(scope);
+    if (lookup.status === 'failed') {
+      return this.unresolvedProviderEntity(hint, 'osm_provider_unavailable');
+    }
+    const matches = lookup.value.filter((candidate) =>
+      this.routeNameMatches(hint.name, candidate.name),
+    );
+    if (matches.length === 1) {
+      return this.resolvedOsmEntity(hint, matches[0]);
+    }
+    if (matches.length > 1) {
+      return this.rejectedEntity(hint, 'ambiguous_route');
+    }
+    return this.rejectedEntity(hint, 'unresolved_route');
+  }
+
+  private resolvedPlaceEntity(
+    hint: EntityHint,
+    place: PlaceData,
+  ): ResolvedEntity {
+    const canonicalName = place.displayName?.text ?? place.name ?? hint.name;
+    const latitude = place.location?.latitude;
+    const longitude = place.location?.longitude;
     return {
-      entity: this.rejectedEntity(hint, 'unresolved_venue'),
-      activity: null,
+      hintKey: hint.key,
+      hintName: hint.name,
+      role: hint.role,
+      expectedType: hint.expectedType,
+      status: 'resolved',
+      externalId: place.id,
+      provider: this.placesApi.provider,
+      canonicalName,
+      latitude,
+      longitude,
+      evidence: [
+        {
+          provider: this.placesApi.provider,
+          externalId: place.id,
+          canonicalName,
+          latitude,
+          longitude,
+        },
+      ],
+      materialization: { kind: 'place', place },
     };
   }
 
-  private async resolveOsmPoiHint(
+  private resolvedOsmEntity(
     hint: EntityHint,
-    destination: OsmCandidate,
-  ): Promise<{ entity: ResolvedEntity; activity: Activity | null }> {
-    try {
-      const lookup = (this.osmPlacesService as any).findPoisWithin;
-      if (typeof lookup !== 'function') {
-        return {
-          entity: this.rejectedEntity(hint, 'unresolved_venue'),
-          activity: null,
-        };
-      }
-      const candidates: OsmCandidate[] = await lookup.call(
-        this.osmPlacesService,
-        destination,
-      );
-      const matches = this.matchByName(hint.name, candidates);
-      if (matches.length !== 1) {
-        return {
-          entity: this.rejectedEntity(
-            hint,
-            matches.length > 1 ? 'ambiguous_venue' : 'unresolved_venue',
-          ),
-          activity: null,
-        };
-      }
-
-      const candidate = matches[0];
-      const activity = await this.resolveOsmPoiActivity(candidate);
-      const center = this.centroidOf(candidate.geometry);
-      return {
-        entity: {
-          hintKey: hint.key,
-          hintName: hint.name,
-          role: hint.role,
-          expectedType: hint.expectedType,
-          status: 'resolved',
-          activityId: activity.id,
-          externalId: candidate.id,
+    candidate: OsmCandidate,
+  ): ResolvedEntity {
+    const center = this.centroidOf(candidate);
+    return {
+      hintKey: hint.key,
+      hintName: hint.name,
+      role: hint.role,
+      expectedType: hint.expectedType,
+      status: 'resolved',
+      externalId: candidate.id,
+      provider: 'osm',
+      canonicalName: candidate.name,
+      latitude: center.latitude,
+      longitude: center.longitude,
+      geometry: candidate.geometry,
+      adminContext: this.adminContextOf(candidate),
+      evidence: [
+        {
           provider: 'osm',
+          externalId: candidate.id,
+          canonicalName: candidate.name,
           latitude: center.latitude,
           longitude: center.longitude,
         },
-        activity,
-      };
-    } catch (error: any) {
-      this.logger.warn(
-        `OSM POI fallback failed for hint "${hint.name}": ${error.message}`,
-      );
-      return {
-        entity: this.rejectedEntity(hint, 'unresolved_venue'),
-        activity: null,
-      };
-    }
-  }
-
-  private async resolveStreetHint(
-    hint: EntityHint,
-    neighborhood: OsmCandidate,
-  ): Promise<{ entity: ResolvedEntity; candidate: OsmCandidate | null }> {
-    const streets = await this.osmPlacesService.findStreetsWithin(neighborhood);
-    const matches = streets.filter((candidate) =>
-      this.streetNameMatches(hint.name, candidate.name),
-    );
-    if (matches.length === 1) {
-      return {
-        entity: this.resolvedOsmEntity(hint, matches[0]),
-        candidate: matches[0],
-      };
-    }
-    if (matches.length > 1) {
-      return {
-        entity: this.rejectedEntity(hint, 'ambiguous_street'),
-        candidate: null,
-      };
-    }
-    return {
-      entity: this.rejectedEntity(hint, 'unresolved_street'),
-      candidate: null,
+      ],
+      materialization: { kind: 'osm', candidate },
     };
   }
 
-  private async resolvePoiActivity(place: PlaceData): Promise<Activity> {
-    const provider = this.placesApi.provider;
-    const sourceName = provider === 'geoapify' ? 'geoapify' : 'google-maps';
-    const baseUrl =
-      provider === 'geoapify'
-        ? 'https://www.geoapify.com'
-        : 'https://maps.google.com';
-    const sourceId = await this.ensureSource(sourceName, 'external', baseUrl);
-    const externalId = place.id;
-    const primaryType = place.primaryType ?? place.types?.[0] ?? undefined;
-
-    return this.findOrCreateWithRace(
-      () =>
-        this.prisma.activity.findUnique({
-          where: { sourceId_externalId: { sourceId, externalId } },
-        }),
-      () =>
-        this.prisma.activity.create({
-          data: {
-            name: place.displayName?.text ?? place.name ?? '',
-            kind: ActivityKind.POI,
-            type: primaryType,
-            latitude: place.location?.latitude,
-            longitude: place.location?.longitude,
-            formattedAddress: place.formattedAddress,
-            rating: place.rating,
-            ratingCount: place.userRatingCount,
-            source: { connect: { id: sourceId } },
-            externalId,
-            metadata: {
-              placesProvider: provider,
-              providerTypes: place.types ?? [],
-              providerPrimaryType: place.primaryType,
-            } as unknown as Prisma.InputJsonValue,
-          },
-        }),
-    );
+  private adminContextOf(candidate: OsmCandidate): ResolvedEntityAdminContext {
+    const tags = candidate.tags;
+    return {
+      locality:
+        tags['addr:city'] ?? tags.city ?? tags.town ?? tags.village ?? undefined,
+      municipality:
+        tags['addr:municipality'] ?? tags.municipality ?? undefined,
+      region:
+        tags['addr:state'] ?? tags.state ?? tags.region ?? tags.province ?? undefined,
+      country: tags['addr:country'] ?? tags.country ?? undefined,
+    };
   }
 
-  private async resolveOsmPoiActivity(candidate: OsmCandidate): Promise<Activity> {
-    const sourceId = await this.ensureSource(
-      'openstreetmap',
-      'external',
-      'https://www.openstreetmap.org',
-    );
-    const externalId = candidate.id;
-    const center = this.centroidOf(candidate.geometry);
-    const primaryType =
-      candidate.tags.tourism ??
-      candidate.tags.amenity ??
-      candidate.tags.historic ??
-      candidate.tags.leisure ??
-      candidate.tags.natural ??
-      'osm_poi';
-
-    return this.findOrCreateWithRace(
-      () =>
-        this.prisma.activity.findUnique({
-          where: { sourceId_externalId: { sourceId, externalId } },
-        }),
-      () =>
-        this.prisma.activity.create({
-          data: {
-            name: candidate.name,
-            kind: ActivityKind.POI,
-            type: primaryType,
-            latitude: center.latitude,
-            longitude: center.longitude,
-            source: { connect: { id: sourceId } },
-            externalId,
-            metadata: {
-              placesProvider: 'osm',
-              osmType: candidate.osmType,
-              osmId: candidate.osmId,
-              providerTags: candidate.tags,
-            } as unknown as Prisma.InputJsonValue,
-          },
-        }),
-    );
+  private rejectedEntity(hint: EntityHint, reason: string): ResolvedEntity {
+    return {
+      hintKey: hint.key,
+      hintName: hint.name,
+      role: hint.role,
+      expectedType: hint.expectedType,
+      status: 'rejected',
+      rejectionReason: reason,
+    };
   }
 
-  private async findOrCreateWithRace<T>(
-    find: () => Promise<T | null>,
-    create: () => Promise<T>,
-  ): Promise<T> {
-    const existing = await find();
-    if (existing) return existing;
-    try {
-      return await create();
-    } catch (error: any) {
-      if (error?.code === 'P2002') {
-        const retried = await find();
-        if (retried) return retried;
-      }
-      throw error;
-    }
+  private unresolvedProviderEntity(
+    hint: EntityHint,
+    reason: string,
+  ): ResolvedEntity {
+    return {
+      hintKey: hint.key,
+      hintName: hint.name,
+      role: hint.role,
+      expectedType: hint.expectedType,
+      status: 'unresolved',
+      rejectionReason: reason,
+      providerFailure: true,
+    };
   }
 
-  private async ensureSource(
-    name: string,
-    type: string,
-    baseUrl?: string,
-  ): Promise<string> {
-    const source = await this.findOrCreateWithRace(
-      () => this.prisma.source.findUnique({ where: { name } }),
-      () => this.prisma.source.create({ data: { name, type, baseUrl } }),
-    );
-    return source.id;
+  private resolvedProposal(
+    proposal: ActivityProposal,
+    resolvedEntities: ResolvedEntity[],
+  ): ResolvedActivityProposal {
+    return {
+      proposal,
+      status: 'accepted',
+      resolvedEntities,
+      rejectionReasons: [],
+    };
+  }
+
+  private reject(
+    proposal: ActivityProposal,
+    resolvedEntities: ResolvedEntity[],
+    rejectionReasons: string[],
+  ): ResolvedActivityProposal {
+    return {
+      proposal,
+      status: 'rejected',
+      resolvedEntities,
+      rejectionReasons: Array.from(new Set(rejectionReasons.filter(Boolean))),
+    };
   }
 
   private toCatalogCandidate(place: PlaceData): CatalogCandidate {
@@ -730,57 +463,28 @@ export class ActivityProposalResolutionService {
     };
   }
 
-  private isStreetHint(hint: EntityHint): boolean {
-    if (hint.role === 'route') return true;
-    return STREET_TYPES.has(normalizeName(hint.expectedType));
-  }
-
-  private isInside(container: OsmCandidate, candidate: OsmCandidate): boolean {
-    const center = this.centroidOf(candidate.geometry);
-    return geometryContainsPoint(
-      container.geometry,
-      center.longitude,
-      center.latitude,
+  private isRouteLikeHint(hint: EntityHint): boolean {
+    return (
+      hint.role === 'route' ||
+      ROUTE_LIKE_TYPES.has(normalizeName(hint.expectedType))
     );
-  }
-
-  private pickVariantTheme(themes: string[]): VariantTheme | null {
-    for (const theme of themes) {
-      const mapped = THEME_TO_VARIANT[normalizeName(theme)];
-      if (mapped) return mapped;
-    }
-    return null;
-  }
-
-  private canonicalName(
-    areaName: string,
-    theme: VariantTheme,
-    kind: ActivityKind,
-  ): string {
-    const suffix =
-      kind === ActivityKind.ROUTE
-        ? 'Route'
-        : kind === ActivityKind.EXPERIENCE
-          ? 'Experience'
-          : 'Walk';
-    return `${areaName} ${THEME_NAME[theme]} ${suffix}`;
   }
 
   private matchByName(
     hint: string,
     candidates: OsmCandidate[],
   ): OsmCandidate[] {
-    return candidates.filter((c) => this.fuzzyMatches(hint, c.name));
+    return candidates.filter((candidate) =>
+      this.fuzzyMatches(hint, candidate.name),
+    );
   }
 
-  private streetNameMatches(hint: string, candidate: string): boolean {
+  private routeNameMatches(hint: string, candidate: string): boolean {
     if (this.fuzzyMatches(hint, candidate)) return true;
-
-    const normalizedHint = normalizeStreetName(hint);
-    const normalizedCandidate = normalizeStreetName(candidate);
+    const normalizedHint = normalizeRouteName(hint);
+    const normalizedCandidate = normalizeRouteName(candidate);
     if (!normalizedHint || !normalizedCandidate) return false;
     if (normalizedHint === normalizedCandidate) return true;
-
     const shorter =
       normalizedHint.length <= normalizedCandidate.length
         ? normalizedHint
@@ -792,19 +496,20 @@ export class ActivityProposalResolutionService {
     return shorter.length >= 8 && longer.includes(shorter);
   }
 
-  private fuzzyMatches(a: string, b: string): boolean {
-    const na = normalizeName(a);
-    const nb = normalizeName(b);
-    if (!na || !nb) return false;
-    if (na === nb) return true;
-    if (na.length < 5 || nb.length < 5) return false;
-    return levenshtein(na, nb) <= 1;
+  private fuzzyMatches(left: string, right: string): boolean {
+    const normalizedLeft = normalizeName(left);
+    const normalizedRight = normalizeName(right);
+    if (!normalizedLeft || !normalizedRight) return false;
+    if (normalizedLeft === normalizedRight) return true;
+    if (normalizedLeft.length < 5 || normalizedRight.length < 5) return false;
+    return levenshtein(normalizedLeft, normalizedRight) <= 1;
   }
 
-  private centroidOf(geometry: GeoJsonGeometry): {
+  private centroidOf(candidate: OsmCandidate): {
     latitude: number;
     longitude: number;
   } {
+    const geometry = candidate.geometry;
     if (geometry.type === 'Point') {
       return {
         latitude: geometry.coordinates[1],
@@ -817,51 +522,25 @@ export class ActivityProposalResolutionService {
         : geometry.type === 'Polygon'
           ? geometry.coordinates[0]
           : geometry.coordinates[0][0];
-    const longitude = ring.reduce((sum, [lon]) => sum + lon, 0) / ring.length;
-    const latitude = ring.reduce((sum, [, lat]) => sum + lat, 0) / ring.length;
-    return { latitude, longitude };
-  }
-
-  private rejectedEntity(hint: EntityHint, reason: string): ResolvedEntity {
     return {
-      hintKey: hint.key,
-      hintName: hint.name,
-      role: hint.role,
-      expectedType: hint.expectedType,
-      status: 'rejected',
-      rejectionReason: reason,
+      latitude: ring.reduce((sum, [, lat]) => sum + lat, 0) / ring.length,
+      longitude: ring.reduce((sum, [lon]) => sum + lon, 0) / ring.length,
     };
   }
 
-  private resolvedOsmEntity(
-    hint: EntityHint,
+  private isCandidateCenterInside(
+    container: OsmCandidate,
     candidate: OsmCandidate,
-  ): ResolvedEntity {
-    const center = this.centroidOf(candidate.geometry);
-    return {
-      hintKey: hint.key,
-      hintName: hint.name,
-      role: hint.role,
-      expectedType: hint.expectedType,
-      status: 'resolved',
-      externalId: candidate.id,
-      provider: 'osm',
-      latitude: center.latitude,
-      longitude: center.longitude,
-    };
-  }
-
-  private reject(
-    proposal: ActivityProposal,
-    resolvedEntities: ResolvedEntity[],
-    rejectionReasons: string[],
-  ): ResolvedActivityProposal {
-    return {
-      proposal,
-      status: 'rejected',
-      resolvedEntities,
-      rejectionReasons,
-    };
+  ): boolean {
+    const center = this.centroidOf(candidate);
+    const geometry = container.geometry;
+    if (geometry.type === 'Point') return false;
+    // resolveAreaHint only calls this for polygonal destination boundaries.
+    const polygons =
+      geometry.type === 'Polygon' ? [geometry.coordinates] : geometry.coordinates;
+    return polygons.some((polygon) =>
+      pointInRing(center.longitude, center.latitude, polygon[0]),
+    );
   }
 }
 
@@ -874,10 +553,10 @@ function normalizeName(value: string): string {
     .trim();
 }
 
-function normalizeStreetName(value: string): string {
+function normalizeRouteName(value: string): string {
   return normalizeName(value)
     .replace(
-      /^(calle|street|st|avenida|avenue|av|avda|boulevard|bulevar|blvd|paseo|promenade|boardwalk)\s+/,
+      /^(calle|street|st|avenida|avenue|av|avda|boulevard|bulevar|blvd|paseo|promenade|boardwalk|riverwalk|waterfront)\s+/,
       '',
     )
     .replace(/\bgral\b/g, 'general')
@@ -886,20 +565,37 @@ function normalizeStreetName(value: string): string {
     .trim();
 }
 
-function levenshtein(a: string, b: string): number {
-  const dp: number[][] = Array.from({ length: a.length + 1 }, (_, i) => [
-    i,
-    ...Array(b.length).fill(0),
-  ]);
-  for (let j = 0; j <= b.length; j++) dp[0][j] = j;
-  for (let i = 1; i <= a.length; i++) {
-    for (let j = 1; j <= b.length; j++) {
-      dp[i][j] = Math.min(
-        dp[i - 1][j] + 1,
-        dp[i][j - 1] + 1,
-        dp[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1),
+function levenshtein(left: string, right: string): number {
+  const matrix: number[][] = Array.from(
+    { length: left.length + 1 },
+    (_, index) => [index, ...Array(right.length).fill(0)],
+  );
+  for (let j = 0; j <= right.length; j += 1) matrix[0][j] = j;
+  for (let i = 1; i <= left.length; i += 1) {
+    for (let j = 1; j <= right.length; j += 1) {
+      matrix[i][j] = Math.min(
+        matrix[i - 1][j] + 1,
+        matrix[i][j - 1] + 1,
+        matrix[i - 1][j - 1] + (left[i - 1] === right[j - 1] ? 0 : 1),
       );
     }
   }
-  return dp[a.length][b.length];
+  return matrix[left.length][right.length];
+}
+
+function pointInRing(
+  longitude: number,
+  latitude: number,
+  ring: [number, number][],
+): boolean {
+  let inside = false;
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i, i += 1) {
+    const [xi, yi] = ring[i];
+    const [xj, yj] = ring[j];
+    const intersects =
+      yi > latitude !== yj > latitude &&
+      longitude < ((xj - xi) * (latitude - yi)) / (yj - yi || 1e-12) + xi;
+    if (intersects) inside = !inside;
+  }
+  return inside;
 }
