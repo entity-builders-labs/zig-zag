@@ -7,10 +7,10 @@ describe('InMemoryQueueService acknowledgement semantics', () => {
     queue = new InMemoryQueueService();
   });
 
-  it('rejects publication when no consumer is registered', async () => {
-    await expect(queue.publish('TourGenerationRequested', {})).rejects.toThrow(
-      'No subscribers registered',
-    );
+  it('acknowledges topics that intentionally have no local consumer', async () => {
+    await expect(
+      queue.publish('TourProgressUpdated', { tourId: 'tour-1' }),
+    ).resolves.toBeUndefined();
   });
 
   it('does not acknowledge until the consumer has completed', async () => {
@@ -37,7 +37,7 @@ describe('InMemoryQueueService acknowledgement semantics', () => {
     expect(acknowledged).toBe(true);
   });
 
-  it('rejects publication if any consumer fails', async () => {
+  it('rejects publication if any registered consumer fails', async () => {
     queue.subscribe('ActivityMediaUpdated', async () => undefined);
     queue.subscribe('ActivityMediaUpdated', async () => {
       throw new Error('consumer failed');
