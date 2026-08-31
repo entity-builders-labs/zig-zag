@@ -2,10 +2,12 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ActivityKind } from '@prisma/client';
 import { geometryContainsPoint } from '@integrations/osm/utils/geojson-containment.util';
 import { OsmCandidate } from '@integrations/osm/services/osm-places.service';
+import { GeoJsonGeometry } from '@integrations/osm/utils/osm-geometry.util';
 import { ActivityProposal } from '../interfaces/activity-discovery.interface';
 import {
   DEFAULT_GEOGRAPHIC_VALIDATION_THRESHOLDS,
   GEOGRAPHIC_VALIDATOR_VERSION,
+  GeographicPoint,
   GeographicValidationBatchResult,
   GeographicValidationRejectionReason,
   GeographicValidationResult,
@@ -16,7 +18,10 @@ import {
   ResolvedActivityProposal,
   ResolvedEntity,
 } from '../interfaces/proposal-resolution.interface';
-import { coherenceMetrics } from '../utils/geographic-coherence.util';
+import {
+  coherenceMetrics,
+  distanceMeters,
+} from '../utils/geographic-coherence.util';
 
 const PROPOSAL_KIND_TO_ACTIVITY_KIND: Record<
   ActivityProposal['kind'],
@@ -214,12 +219,7 @@ export class CompositeGeographicValidationService {
         'insufficient_resolved_entities',
       ]);
     }
-    const destinationMismatch = this.destinationMismatch(
-      anchors,
-      destinationBoundary,
-      true,
-    );
-    if (destinationMismatch) {
+    if (this.destinationMismatch(anchors, destinationBoundary, true)) {
       return this.rejected(proposalName, kind, anchors, evidenceKeys, [
         'destination_mismatch',
       ]);
@@ -265,7 +265,7 @@ export class CompositeGeographicValidationService {
       (entity) => entity.role === 'route' && entity.geometry,
     );
     if (canonicalRoute) {
-      if (!this.isInsideDestination(canonicalRoute, destinationBoundary)) {
+      if (this.routeDestinationMismatch([canonicalRoute], destinationBoundary)) {
         return this.rejected(proposalName, kind, [canonicalRoute], evidenceKeys, [
           'destination_mismatch',
         ]);
@@ -292,7 +292,7 @@ export class CompositeGeographicValidationService {
         'insufficient_resolved_entities',
       ]);
     }
-    if (this.destinationMismatch(anchors, destinationBoundary, false)) {
+    if (this.routeDestinationMismatch(anchors, destinationBoundary)) {
       return this.rejected(proposalName, kind, anchors, evidenceKeys, [
         'destination_mismatch',
       ]);
@@ -345,7 +345,12 @@ export class CompositeGeographicValidationService {
       withCoordinates.filter((entity) => entity.role !== 'area'),
     );
 
-    if (venueCentric && evidenceKeys.length > 0) {
+    if (venueCentric) {
+      if (evidenceKeys.length === 0) {
+        return this.rejected(proposalName, kind, anchors, evidenceKeys, [
+          'grounded_evidence_missing',
+        ]);
+      }
       const venue = anchors.find(
         (entity) => entity.hintKey === requiredConcreteHints[0].key,
       );
@@ -420,6 +425,12 @@ export class CompositeGeographicValidationService {
     };
   }
 
+  /**
+   * Walks and ordinary experiences are destination-local and therefore every
+   * component must remain inside the resolved destination boundary. ROUTE has
+   * a separate policy because a real regional route can legitimately leave a
+   * city polygon (for example wineries in Maipú/Luján de Cuyo for Mendoza).
+   */
   private destinationMismatch(
     anchors: ResolvedEntity[],
     destinationBoundary: OsmCandidate,
@@ -448,6 +459,40 @@ export class CompositeGeographicValidationService {
     return false;
   }
 
+  /**
+   * A component-defined ROUTE is validated against the broader destination
+   * context rather than the city polygon alone. Administrative contradictions
+   * are authoritative when metadata exists; otherwise coordinates may extend
+   * outside the polygon only within the route-scale threshold from the
+   * destination centroid. This keeps regional routes possible without turning
+   * an unrelated distant cluster into a valid route.
+   */
+  private routeDestinationMismatch(
+    anchors: ResolvedEntity[],
+    destinationBoundary: OsmCandidate,
+  ): boolean {
+    const countries = this.distinctAdminValues(anchors, 'country');
+    if (countries.size > 1) return true;
+    const regions = this.distinctAdminValues(anchors, 'region');
+    if (regions.size > 1) return true;
+
+    const destinationCenter = this.centroidOfGeometry(
+      destinationBoundary.geometry,
+    );
+    return anchors.some((entity) => {
+      if (this.isInsideDestination(entity, destinationBoundary)) return false;
+      if (!Number.isFinite(entity.latitude) || !Number.isFinite(entity.longitude)) {
+        return true;
+      }
+      return (
+        distanceMeters(destinationCenter, {
+          latitude: entity.latitude as number,
+          longitude: entity.longitude as number,
+        }) > this.thresholds.route.maxRadiusMeters
+      );
+    });
+  }
+
   private isInsideDestination(
     entity: ResolvedEntity,
     destinationBoundary: OsmCandidate,
@@ -460,6 +505,25 @@ export class CompositeGeographicValidationService {
       entity.longitude as number,
       entity.latitude as number,
     );
+  }
+
+  private centroidOfGeometry(geometry: GeoJsonGeometry): GeographicPoint {
+    if (geometry.type === 'Point') {
+      return {
+        latitude: geometry.coordinates[1],
+        longitude: geometry.coordinates[0],
+      };
+    }
+    const ring: [number, number][] =
+      geometry.type === 'LineString'
+        ? geometry.coordinates
+        : geometry.type === 'Polygon'
+          ? geometry.coordinates[0]
+          : geometry.coordinates[0][0];
+    return {
+      latitude: ring.reduce((sum, [, lat]) => sum + lat, 0) / ring.length,
+      longitude: ring.reduce((sum, [lon]) => sum + lon, 0) / ring.length,
+    };
   }
 
   private distinctAdminValues(
