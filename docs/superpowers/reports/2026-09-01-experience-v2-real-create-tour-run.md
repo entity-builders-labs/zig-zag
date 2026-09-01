@@ -52,3 +52,15 @@ Durante la corrida se detectó que un consumidor que marca el tour como `failed`
 El flujo completo ya no se detiene por `REQUESTED_FORMAT_NOT_ACQUIRED`: cuando falta una preferencia estructural, continúa con candidatos factibles. La corrida actual se detuvo correctamente en la validación determinística de movilidad. El próximo bloque debe migrar discovery y adquisición de formatos a Experiencias sin `targetKind`, y luego mejorar la selección/ruteo para que el planner encuentre una secuencia que respete el límite de caminata.
 
 No se registraron secretos en la Bitácora; los payloads de trace pasan por redaction centralizada.
+
+## Segunda corrida después de quitar el gate estructural
+
+- `tourId`: `67cc4293-4751-4440-b085-193780d526b9`
+- Estado final: `completed`
+- Duración observada: aproximadamente 110 s (incluyó espera de catálogo/Overpass)
+- Actividades persistidas: 9, distribuidas en 2 días.
+- La etapa `discovery` hizo una búsqueda genérica guiada por temas; el query de Tavily ya no llevó `targetKind` y devolvió 9 evidencias/4 propuestas.
+- Las 4 propuestas fueron rechazadas por validación geográfica; la generación continuó con el catálogo local verificado y materializó snapshots `TourExperience`.
+- La planificación determinística completó el tour con límites peatonales amplios. Overpass tuvo respuestas 429/timeout degradadas, sin invalidar las Experiencias ya verificadas.
+
+Esta corrida confirma que la ausencia de un formato estructural no impide construir un tour real. Queda pendiente que la traza de discovery exponga `searchTrace` con la misma riqueza que el resumen de grounding y que el provider/model de la etapa de preferencias se verifique en una corrida posterior al rebuild (el código ya usa metadata pública y segura de `LangChainService`).
