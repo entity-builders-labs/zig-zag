@@ -49,6 +49,7 @@ Increment A must document the V2 contracts and Bitácora V3/redaction boundary w
 - Removed structural format feasibility gates from coverage/planning. Missing `ExperienceFormat` values no longer fail a tour or trigger kind-specific discovery; theme gaps use generic grounded discovery.
 - Added a synthetic point/radius `DestinationScope`, so point-scale destinations continue through resolution and geographic validation.
 - Terminal failed generation events are now acknowledged as duplicate no-ops by the worker; explicit retries remain API-driven.
+- Discovery responses now expose a provider-neutral `experienceCandidates` view alongside the legacy proposals, and the planner has a native `normalizeExperiences()` boundary for verified catalog rows.
 - Real runs: `78101c2b-caf0-435b-b01d-8fe106103790` failed deterministically on walking feasibility; `67cc4293-4751-4440-b085-193780d526b9` completed with 9 activities and persisted Experience snapshots.
 
 Remaining material divergence: the planner and persistence path still expose legacy `Activity`/`ActivityKind` contracts internally, and discovery providers still return the compatibility `ActivityProposal` shape even when the search itself is generic.
