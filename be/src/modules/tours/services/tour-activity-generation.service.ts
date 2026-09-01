@@ -1162,13 +1162,14 @@ export class TourActivityGenerationService {
             d.reason === 'missing_requested_experience_format',
         );
         if (unresolvedRequestedFormats.length > 0) {
-          throw new Error(
-            `Requested experience formats could not be acquired after catalog refill and grounded discovery: ${unresolvedRequestedFormats
-              .map(
-                (d) =>
-                  `${d.experienceFormat ?? 'unknown'} (${d.actualCount ?? 0}/${d.expectedCount ?? 1})`,
-              )
-              .join(', ')}.`,
+          // A missing preferred format is a satisfaction signal, not proof that
+          // the destination has no usable experiences. Let the deterministic
+          // planner build the best feasible tour from verified candidates and
+          // preserve the deficit in the trace for the UI/audit surface.
+          this.logger.warn(
+            `Requested formats unavailable; continuing with feasible candidates: ${unresolvedRequestedFormats
+              .map((d) => d.experienceFormat ?? 'unknown')
+              .join(', ')}`,
           );
         }
       }

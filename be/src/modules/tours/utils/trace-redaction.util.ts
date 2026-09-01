@@ -15,7 +15,11 @@ function redact(value: unknown, seen: WeakSet<object>): unknown {
   if (seen.has(value)) return '[Circular]';
   seen.add(value);
 
-  if (Array.isArray(value)) return value.map((entry) => redact(entry, seen));
+  if (Array.isArray(value)) {
+    const output = value.map((entry) => redact(entry, seen));
+    seen.delete(value);
+    return output;
+  }
 
   const output: Record<string, unknown> = {};
   for (const [key, entry] of Object.entries(value)) {
@@ -23,5 +27,6 @@ function redact(value: unknown, seen: WeakSet<object>): unknown {
       ? REDACTED
       : redact(entry, seen);
   }
+  seen.delete(value);
   return output;
 }
