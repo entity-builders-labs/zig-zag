@@ -46,7 +46,7 @@ flowchart TD
     E -- No --> F["Completar solamente lo que falta<br/>POIs convencionales o experiencias temáticas"]
     F --> C
 
-    G --> H["5. IA de itinerario<br/>elige y propone horarios usando<br/>solamente IDs reales ofrecidos"]
+    G --> H["5. Planificador determinístico<br/>elige y propone horarios usando<br/>solamente Experiences verificadas"]
     H --> I["6. Verificación con reglas del sistema<br/>identidad, duplicados, ruta, horarios,<br/>duración y transporte"]
     I --> J{"¿El tour es realizable?"}
     J -- No --> K["Reordenar, reemplazar<br/>o reducir paradas"]
@@ -73,7 +73,7 @@ Zig-Zag informa el problema; nunca rellena el tour con lugares inventados.
 | Descubrir significado turístico | Places devuelve entidades, pero no garantiza una lista completa de imperdibles ni propone bien experiencias como una caminata histórica. Un proveedor grounded propone conceptos con fuentes. | `ActivityProposal` con evidencia; todavía no es una Activity ni identidad confiable.                       |
 | Resolver una propuesta          | El significado propuesto debe vincularse con un área, lugares, calles o caminos reales.                                                                                                       | Entidades verificadas con Google Places y OSM, o un rechazo explícito.                                     |
 | Armar días                      | La selección final es un problema de conjunto: variedad, duración y traslados importan además del puntaje individual.                                                                         | Alternativas viables y acotadas por día.                                                                   |
-| Selección asistida por IA       | La IA ayuda a combinar y calendarizar, pero recibe solamente candidatos reales.                                                                                                               | IDs ofrecidos y una propuesta compacta de agenda.                                                          |
+| Selección y planificación determinísticas | El solver combina y calendariza únicamente Experiences verificadas; ningún LLM inventa ni selecciona unidades de agenda. | IDs de Experience y una propuesta compacta de agenda. |
 | Verificación con reglas         | Una explicación convincente de la IA no demuestra rutas, horarios ni identidad.                                                                                                               | Tour corregido, reducido o rechazado según datos controlados por el backend.                               |
 | Guardar una fotografía          | Las Activities compartidas pueden evolucionar; un tour histórico no debe cambiar retroactivamente.                                                                                            | Orden, tramos y waypoints efectivos preservados al momento de generación.                                  |
 
@@ -1138,10 +1138,48 @@ Before merging a change to this engine, verify:
 - Are semantic relevance, set selection, and route ordering separate stages?
 - Can an infeasible itinerary reselect, split, or reduce stops instead of being
   persisted unchanged?
-- Does the itinerary model receive only verified Activity IDs?
+- Does the planner receive only verified Experience IDs?
 - Are flat and composite hallucinations rejected server-side?
 - Are historical waypoint snapshots preserved?
 - Are lifecycle changes explicit and restrictive?
 - Was every superseded selector, branch, mock, trace label, and dependency
   removed rather than left as an unused fallback?
 - Is the generation bitacora updated for new decisions and fallbacks?
+## Experience Domain V2 — provider boundaries
+
+The V2 migration makes `Experience` the only schedulable tourism unit and
+keeps `GeoEntity` as the representation of physical reality. The provider
+boundaries are intentionally explicit:
+
+```mermaid
+flowchart TD
+  I[User intent] --> C[Local Experience catalog]
+  C -->|coverage gap| T[Tavily grounded search]
+  T --> L[LLM preference interpretation / evidence extraction]
+  L --> R[GeoEntity resolution]
+  R --> P[Places: PLACE entities]
+  R --> O[OSM Overpass/Nominatim: AREA and ROUTE entities]
+  P --> V[Deterministic evidence + geographic validation]
+  O --> V
+  C --> V
+  V --> D[Conservative dedupe]
+  D --> E[Persist VERIFIED Experience]
+  E --> K[Rank and candidate window]
+  K --> S[Deterministic daily solver]
+  S --> X[Internal/external routing]
+  X --> Y[TourExperience snapshots]
+```
+
+| Boundary | Authority and responsibility |
+| --- | --- |
+| Local nearby search | PostgreSQL/pgvector catalog retrieval; no external provider and no truth decision by itself |
+| Google Places | Resolve a physical `GeoEntity PLACE` and its provider identity; a Nearby query is a resolver lookup, not Experience proof |
+| OSM Overpass/Nominatim | Resolve `AREA`/`ROUTE`, boundaries and canonical geometry; route geometry is not generated by the planner |
+| Tavily | Grounded evidence acquisition when local coverage is insufficient; never a geographic authority |
+| LLM | Normalize free-text preferences and extract candidates/components from supplied evidence; never validates, deduplicates or plans |
+| Geographic validation | Deterministic checks over evidence, resolved entities, destination scope and coherence |
+| Daily planner | Deterministic scheduling of persisted VERIFIED Experiences only |
+
+Routing is downstream of verification and selection. Provider-generated paths
+are logistical derivations and must not be used as evidence that an Experience
+exists. Outbox/queue execution and eventual media enrichment remain unchanged.
