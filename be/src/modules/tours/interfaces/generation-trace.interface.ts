@@ -11,8 +11,10 @@ import { GeographicValidationBatchResult } from './geographic-validation.interfa
 import { CandidateScoreBreakdown } from '../utils/candidate-ranking.util';
 import { ExperienceFormat } from './tour-generation.interface';
 import { ActivityKind } from '@prisma/client';
+import { PreferenceInterpretationTrace } from './preference-interpretation.interface';
 
 export type TraceStage =
+  | 'preference_interpretation'
   | 'tour_intent'
   | 'destination_resolution'
   | 'db_search'
@@ -124,6 +126,8 @@ export interface GenerationTraceStep {
   outputs?: Record<string, unknown>;
   candidateDecisions?: TraceCandidateDecision[];
   timing?: TraceTiming;
+  /** Full redacted LLM audit for preference interpretation. */
+  preferenceInterpretation?: PreferenceInterpretationTrace;
 
   /** Legacy/rich stage-specific data retained for compatibility and raw view. */
   candidates?: TraceCandidate[];

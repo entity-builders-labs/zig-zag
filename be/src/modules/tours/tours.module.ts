@@ -27,6 +27,7 @@ import { ApproximateTravelEstimateProvider } from './services/approximate-travel
 import { PlanningCandidateNormalizerService } from './services/planning-candidate-normalizer.service';
 import { TourPlanningFeasibilityValidatorService } from './services/tour-planning-feasibility-validator.service';
 import { ExperienceCatalogService } from './services/experience-catalog.service';
+import { PreferenceInterpreterService } from './services/preference-interpreter.service';
 import {
   DISCOVERY_PROVIDER,
   GROUNDED_SEARCH_PROVIDER,
@@ -89,6 +90,7 @@ import { OutboxModule } from '../outbox/outbox.module';
     PlanningCandidateNormalizerService,
     TourPlanningFeasibilityValidatorService,
     ExperienceCatalogService,
+    PreferenceInterpreterService,
     {
       provide: TRAVEL_ESTIMATE_PROVIDER,
       useExisting: ApproximateTravelEstimateProvider,
@@ -172,6 +174,7 @@ import { OutboxModule } from '../outbox/outbox.module';
     ActivityProposalMaterializationService,
     CompositeGeographicValidationService,
     ExperienceCatalogService,
+    PreferenceInterpreterService,
   ],
 })
 export class ToursModule {}

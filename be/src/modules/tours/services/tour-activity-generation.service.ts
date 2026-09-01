@@ -86,6 +86,7 @@ import { ActivityDiscoveryService } from './activity-discovery.service';
 import { CoverageAnalyzer } from './coverage-analyzer.service';
 import { redactTracePayload } from '../utils/trace-redaction.util';
 import { ExperienceCatalogService } from './experience-catalog.service';
+import { PreferenceInterpreterService } from './preference-interpreter.service';
 import { buildSemanticTourQuery } from '../utils/semantic-tour-query-builder.util';
 import {
   EmbeddingIndexIdentity,
@@ -148,6 +149,8 @@ export class TourActivityGenerationService {
     private readonly outboxService?: OutboxService,
     @Optional()
     private readonly experienceCatalog?: ExperienceCatalogService,
+    @Optional()
+    private readonly preferenceInterpreter?: PreferenceInterpreterService,
   ) {}
 
   /** Daily planning solver: no new Prisma columns. If a real base date exists, combine it
@@ -542,7 +545,78 @@ export class TourActivityGenerationService {
         indexedCandidateCount: 0,
       };
 
+      const preferenceInterpretation = this.preferenceInterpreter
+        ? await this.preferenceInterpreter.interpret(
+            request.intent.additionalPreferences,
+          )
+        : {
+            intent: {
+              preferredThemes: [],
+              preferredTraits: [],
+              excludedThemes: [],
+              excludedTraits: [],
+              hardExclusions: [],
+              positiveSemanticQuery: '',
+              notes: [],
+            },
+            trace: {
+              stage: 'preference_interpretation' as const,
+              systemPrompt: '',
+              userPrompt: '',
+              responseSchema: {},
+              parsedResponse: {
+                preferredThemes: [],
+                preferredTraits: [],
+                excludedThemes: [],
+                excludedTraits: [],
+                hardExclusions: [],
+                positiveSemanticQuery: '',
+                notes: [],
+              },
+              validationErrors: [],
+              status: 'skipped' as const,
+              durationMs: 0,
+            },
+          };
+      traceSteps.push({
+        stage: 'preference_interpretation',
+        label: 'Interpretación de preferencias',
+        summary:
+          preferenceInterpretation.trace.status === 'applied'
+            ? 'Preferencias libres normalizadas por el intérprete.'
+            : preferenceInterpretation.trace.status === 'fallback'
+              ? 'Se aplicó interpretación determinística de respaldo.'
+              : 'No se proporcionaron preferencias libres.',
+        component: 'PreferenceInterpreterService',
+        status:
+          preferenceInterpretation.trace.status === 'applied'
+            ? 'PASS'
+            : preferenceInterpretation.trace.status === 'fallback'
+              ? 'WARN'
+              : 'INFO',
+        inputs: {
+          hasAdditionalPreferences: Boolean(
+            request.intent.additionalPreferences?.trim(),
+          ),
+        },
+        outputs: { intent: preferenceInterpretation.intent },
+        preferenceInterpretation: preferenceInterpretation.trace,
+        timing: { durationMs: preferenceInterpretation.trace.durationMs },
+      });
       traceSteps.push(buildTourIntentStep(request));
+      // The interpreter only normalizes language. The existing deterministic
+      // acquisition/ranking pipeline consumes the merged themes/query below;
+      // it remains the authority for geographic verification and selection.
+      request.intent.interests = Array.from(
+        new Set([
+          ...request.intent.interests,
+          ...preferenceInterpretation.intent.preferredThemes,
+        ]),
+      );
+      if (preferenceInterpretation.intent.positiveSemanticQuery) {
+        request.intent.additionalPreferences =
+          preferenceInterpretation.intent.positiveSemanticQuery;
+      }
 
       const destinationResolution =
         await this.destinationResolutionService.resolveDestination(
@@ -1491,12 +1565,18 @@ export class TourActivityGenerationService {
               });
               const geoEntities = await tx.geoEntity.findMany({
                 where: {
-                  id: { in: experience.components.map((component) => component.geoEntityId) },
+                  id: {
+                    in: experience.components.map(
+                      (component) => component.geoEntityId,
+                    ),
+                  },
                 },
               });
               await tx.tourExperienceComponent.createMany({
                 data: experience.components.map((component) => {
-                  const geo = geoEntities.find((candidate) => candidate.id === component.geoEntityId);
+                  const geo = geoEntities.find(
+                    (candidate) => candidate.id === component.geoEntityId,
+                  );
                   return {
                     tourExperienceId: snapshot.id,
                     geoEntityId: component.geoEntityId,

@@ -515,6 +515,7 @@ describe('TourActivityGenerationService', () => {
     expect(trace.duplicateCount).toBeUndefined();
     expect(trace.auditFindings).toBeUndefined();
     expect(trace.steps.map((s: any) => s.stage)).toEqual([
+      'preference_interpretation',
       'tour_intent',
       'destination_resolution',
       'coverage_analysis',
