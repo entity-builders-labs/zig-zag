@@ -99,7 +99,7 @@ describe('CoverageAnalyzer', () => {
     );
   });
 
-  it('blocks when a requested composite format has zero candidates of that kind', () => {
+  it('does not block when a requested structural format has zero candidates', () => {
     const report = service.analyze({
       candidates: [
         poiCandidate('1'),
@@ -116,22 +116,14 @@ describe('CoverageAnalyzer', () => {
       providerHealth: { status: 'healthy' },
     });
 
-    expect(report.deficits).toEqual(
+    expect(report.deficits).not.toEqual(
       expect.arrayContaining([
         expect.objectContaining({
           reason: 'missing_requested_experience_format',
-          severity: 'blocking',
-          experienceFormat: 'neighborhood_walks',
         }),
       ]),
     );
-    expect(report.decision).toEqual(
-      expect.objectContaining({
-        action: 'needs_additional_discovery',
-        reason: 'requested_coverage_is_missing',
-        requiresAdditionalDiscovery: true,
-      }),
-    );
+    expect(report.decision.action).toBe('none');
   });
 
   it('does not add a format deficit when the matching structural kind exists', () => {
@@ -171,7 +163,7 @@ describe('CoverageAnalyzer', () => {
     );
   });
 
-  it('prioritizes structural discovery when theme and format deficits coexist', () => {
+  it('uses theme coverage rather than structural format gates', () => {
     const report = service.analyze({
       candidates: [
         poiCandidate('1'),
@@ -197,18 +189,10 @@ describe('CoverageAnalyzer', () => {
           reason: 'missing_requested_theme',
           theme: 'architecture',
         }),
-        expect.objectContaining({
-          reason: 'missing_requested_experience_format',
-          experienceFormat: 'thematic_routes',
-        }),
-        expect.objectContaining({
-          reason: 'missing_requested_experience_format',
-          experienceFormat: 'experiences',
-        }),
       ]),
     );
-    expect(report.decision.action).toBe('needs_additional_discovery');
-    expect(report.decision.reason).toBe('requested_coverage_is_missing');
+    expect(report.decision.action).toBe('places_text_search');
+    expect(report.decision.reason).toBe('missing_requested_theme');
   });
 
   it('maps point_visits to real POI candidates', () => {
@@ -237,7 +221,7 @@ describe('CoverageAnalyzer', () => {
     );
   });
 
-  it('reports a point_visits deficit when no POI exists', () => {
+  it('does not report a point_visits structural deficit when no POI exists', () => {
     const report = service.analyze({
       candidates: [
         {
@@ -261,11 +245,10 @@ describe('CoverageAnalyzer', () => {
       providerHealth: { status: 'healthy' },
     });
 
-    expect(report.deficits).toEqual(
+    expect(report.deficits).not.toEqual(
       expect.arrayContaining([
         expect.objectContaining({
           reason: 'missing_requested_experience_format',
-          experienceFormat: ExperienceFormat.POINT_VISITS,
         }),
       ]),
     );

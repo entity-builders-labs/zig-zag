@@ -1624,7 +1624,7 @@ describe('TourActivityGenerationService', () => {
     // pool with zero requested THEMES still needs to reach discoverGaps()
     // today — previously this was swallowed by a stale
     // `if (interests.length > 0)` guard.
-    it('calls discoverGaps for a format-only deficit even with zero requested themes', async () => {
+    it('does not call structural discovery for a format-only deficit', async () => {
       const candidates = [
         poiCandidate(),
         poiCandidate(),
@@ -1726,15 +1726,7 @@ describe('TourActivityGenerationService', () => {
 
       await service.generateTourActivities(TOUR_ID);
 
-      expect(activityDiscoveryService.discoverGaps).toHaveBeenCalledWith(
-        expect.any(String),
-        undefined,
-        [],
-        expect.any(Array),
-        ['neighborhood_walks'],
-        'balanced',
-        undefined,
-      );
+      expect(activityDiscoveryService.discoverGaps).not.toHaveBeenCalled();
     });
 
     it('reports an ignored requested format without any corrective retry', async () => {

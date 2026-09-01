@@ -7,8 +7,6 @@ import {
   CoverageReport,
   ThemeCoverageSummary,
 } from '../interfaces/coverage-analysis.interface';
-import { ExperienceFormat } from '../interfaces/tour-generation.interface';
-import { EXPERIENCE_FORMAT_ACTIVITY_KIND } from '../utils/experience-format-kind.util';
 import {
   THEME_KEYWORDS,
   matchesThemeKeywords,
@@ -59,28 +57,6 @@ export class CoverageAnalyzer {
           severity: 'blocking',
           message: `Falta cobertura significativa para el tema solicitado "${themeCoverage.theme}".`,
           theme: themeCoverage.theme,
-          expectedCount: 1,
-          actualCount: 0,
-        });
-      });
-
-    (input.requestedExperienceFormats ?? [])
-      .filter((format) => {
-        const kind =
-          EXPERIENCE_FORMAT_ACTIVITY_KIND[format as ExperienceFormat];
-        return (
-          kind != null &&
-          !kindCoverage.some((k) => k.kind === kind && k.count > 0)
-        );
-      })
-      .forEach((format) => {
-        const kind =
-          EXPERIENCE_FORMAT_ACTIVITY_KIND[format as ExperienceFormat];
-        deficits.push({
-          reason: 'missing_requested_experience_format',
-          severity: 'blocking',
-          message: `Falta cobertura para el formato de experiencia solicitado "${format}" (kind ${kind}).`,
-          experienceFormat: format,
           expectedCount: 1,
           actualCount: 0,
         });
@@ -169,19 +145,6 @@ export class CoverageAnalyzer {
           action: 'fail',
           reason: 'no_usable_candidates',
           requiresAdditionalDiscovery: false,
-          deficits,
-        };
-      } else if (
-        blockingDeficits.some(
-          (deficit) => deficit.reason === 'missing_requested_experience_format',
-        )
-      ) {
-        status =
-          providerHealth.status === 'degraded' ? 'degraded' : 'insufficient';
-        decision = {
-          action: 'needs_additional_discovery',
-          reason: 'requested_coverage_is_missing',
-          requiresAdditionalDiscovery: true,
           deficits,
         };
       } else if (
