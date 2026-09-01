@@ -3,6 +3,10 @@ import { PreferenceInterpreterService } from './preference-interpreter.service';
 describe('PreferenceInterpreterService', () => {
   function makeService(response?: string, error?: Error) {
     const langChain = {
+      getProviderMetadata: jest.fn(() => ({
+        provider: 'gemini',
+        model: 'gemini-test',
+      })),
       generateChatResponse: jest.fn(async () => {
         if (error) throw error;
         return response ?? '{}';
@@ -35,6 +39,8 @@ describe('PreferenceInterpreterService', () => {
       'arquitectura',
     ]);
     expect(result.trace.status).toBe('applied');
+    expect(result.trace.provider).toBe('gemini');
+    expect(result.trace.model).toBe('gemini-test');
     expect(result.trace.userPrompt).toBe('Quiero arquitectura tranquila');
   });
 
