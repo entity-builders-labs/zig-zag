@@ -41,3 +41,14 @@ Base: `83ceb3b293d1801f123c4f10c292ab8d15785205`
 ## Initial migration constraint
 
 Increment A must document the V2 contracts and Bitácora V3/redaction boundary without changing the async/outbox/media architecture. Domain/schema changes begin only after this inventory is committed.
+
+## Progress after initial inventory
+
+- Added `GeoEntity`, `Experience`, component/evidence/trait relations and `TourExperience` snapshot persistence. The worker still uses an idempotent Activity→Experience bridge while planner migration is pending.
+- Added centralized recursive Bitácora redaction and a traced `preference_interpretation` stage. Free-text preferences are normalized through the configured chat provider and hard exclusions are enforced deterministically before ranking.
+- Removed structural format feasibility gates from coverage/planning. Missing `ExperienceFormat` values no longer fail a tour or trigger kind-specific discovery; theme gaps use generic grounded discovery.
+- Added a synthetic point/radius `DestinationScope`, so point-scale destinations continue through resolution and geographic validation.
+- Terminal failed generation events are now acknowledged as duplicate no-ops by the worker; explicit retries remain API-driven.
+- Real runs: `78101c2b-caf0-435b-b01d-8fe106103790` failed deterministically on walking feasibility; `67cc4293-4751-4440-b085-193780d526b9` completed with 9 activities and persisted Experience snapshots.
+
+Remaining material divergence: the planner and persistence path still expose legacy `Activity`/`ActivityKind` contracts internally, and discovery providers still return the compatibility `ActivityProposal` shape even when the search itself is generic.
