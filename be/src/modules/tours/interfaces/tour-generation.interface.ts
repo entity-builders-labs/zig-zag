@@ -47,6 +47,16 @@ export interface TourIntent {
   experienceFormats: ExperienceFormat[];
   explorationStyle: ExplorationStyle;
   additionalPreferences?: string;
+  /** LLM-normalized language; deterministic services enforce exclusions. */
+  normalizedPreferences?: {
+    preferredThemes: string[];
+    preferredTraits: string[];
+    excludedThemes: string[];
+    excludedTraits: string[];
+    hardExclusions: string[];
+    positiveSemanticQuery: string;
+    notes: string[];
+  };
 }
 
 export interface MobilityPreferences {

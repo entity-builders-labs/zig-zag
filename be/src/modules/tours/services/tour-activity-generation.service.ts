@@ -408,18 +408,22 @@ export class TourActivityGenerationService {
     activities: any[],
     intent: TourIntent,
   ): Promise<CandidateSelection> {
+    const candidateActivities = this.filterHardExcludedActivities(
+      activities,
+      intent,
+    );
     const semanticQuery = buildSemanticTourQuery(intent);
     let semanticResult: SemanticSimilarityResult | null = null;
 
     if (semanticQuery) {
       semanticResult = await this.vectorStoreService.getSimilarityScores(
-        activities.map((activity) => activity.id),
+        candidateActivities.map((activity) => activity.id),
         semanticQuery,
       );
     }
 
-    const rankable: (RankableCandidate & { original: any })[] = activities.map(
-      (a) => ({
+    const rankable: (RankableCandidate & { original: any })[] =
+      candidateActivities.map((a) => ({
         id: a.id,
         source: a.kind && a.kind !== 'POI' ? 'composite' : 'poi',
         kind: a.kind,
@@ -429,8 +433,7 @@ export class TourActivityGenerationService {
         isCurated: a.isCurated,
         familyId: a.familyId,
         original: a,
-      }),
-    );
+      }));
     const rankedFull = rankCandidatesByRelevance(
       rankable,
       semanticResult?.status === 'applied' ? semanticResult.scores : null,
@@ -454,10 +457,10 @@ export class TourActivityGenerationService {
         droppedForFamilyCapCount,
         semanticRanking: {
           status: 'not_requested',
-          eligibleCandidateCount: activities.length,
+          eligibleCandidateCount: candidateActivities.length,
           indexedCandidateCount:
             await this.vectorStoreService.getCompatibleIndexCount(
-              activities.map((activity) => activity.id),
+              candidateActivities.map((activity) => activity.id),
             ),
         },
       };
@@ -476,6 +479,38 @@ export class TourActivityGenerationService {
         reason: semanticResult!.reason,
       },
     };
+  }
+
+  private filterHardExcludedActivities(activities: any[], intent: TourIntent) {
+    const exclusions = intent.normalizedPreferences?.hardExclusions ?? [];
+    if (exclusions.length === 0) return activities;
+    const aliases: Record<string, string[]> = {
+      religion: [
+        'religion',
+        'religious',
+        'iglesia',
+        'templo',
+        'catedral',
+        'mezquita',
+      ],
+      'non-vegan food': ['carne', 'asado', 'parrilla', 'meat'],
+    };
+    return activities.filter((activity) => {
+      const haystack = JSON.stringify({
+        name: activity.name,
+        type: activity.type,
+        knownActivityTypeName: activity.knownActivityTypeName,
+        metadata: activity.metadata,
+        themes: activity.themes,
+        traits: activity.traits,
+      }).toLowerCase();
+      return !exclusions.some((exclusion) => {
+        const terms = aliases[exclusion.toLowerCase()] ?? [
+          exclusion.toLowerCase(),
+        ];
+        return terms.some((term) => haystack.includes(term));
+      });
+    });
   }
 
   async generateTourActivities(tourId: string) {
@@ -613,6 +648,7 @@ export class TourActivityGenerationService {
           ...preferenceInterpretation.intent.preferredThemes,
         ]),
       );
+      request.intent.normalizedPreferences = preferenceInterpretation.intent;
       if (preferenceInterpretation.intent.positiveSemanticQuery) {
         request.intent.additionalPreferences =
           preferenceInterpretation.intent.positiveSemanticQuery;
