@@ -76,21 +76,18 @@ describe('TourPlanningFeasibilityValidatorService', () => {
     expect(result.issues).toEqual([]);
   });
 
-  it('rejects a requested format when acquisition offered zero candidates of its kind', () => {
+  it('does not evaluate legacy requested formats as feasibility rules', () => {
     const result = validator.validate(
       validSolution(),
       baseInput({ requestedFormats: [ExperienceFormat.EXPERIENCES] }),
     );
 
-    expect(result.valid).toBe(false);
-    expect(result.issues).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ code: 'REQUESTED_FORMAT_NOT_ACQUIRED' }),
-      ]),
-    );
+    expect(result.valid).toBe(true);
+    expect(result.issues).toEqual([]);
+    expect(result).toEqual({ valid: true, issues: [] });
   });
 
-  it('rejects a requested format when a viable candidate existed but the plan selected none', () => {
+  it('does not reject a feasible plan because a legacy format was unselected', () => {
     const result = validator.validate(
       validSolution(),
       baseInput({
@@ -112,12 +109,9 @@ describe('TourPlanningFeasibilityValidatorService', () => {
       }),
     );
 
-    expect(result.valid).toBe(false);
-    expect(result.issues).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ code: 'REQUESTED_FORMAT_NOT_SELECTED' }),
-      ]),
-    );
+    expect(result.valid).toBe(true);
+    expect(result.issues).toEqual([]);
+    expect(result).toEqual({ valid: true, issues: [] });
   });
 
   it('accepts a requested format when it is available and selected', () => {

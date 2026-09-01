@@ -6,7 +6,6 @@ import {
   PlanningFeasibilityResult,
   TourPlanningFeasibilityValidator,
 } from '../interfaces/daily-planning.interface';
-import { EXPERIENCE_FORMAT_ACTIVITY_KIND } from '../utils/experience-format-kind.util';
 
 /**
  * Independent safety-net cross-check for a `DailyPlanningSolution`.
@@ -16,11 +15,9 @@ import { EXPERIENCE_FORMAT_ACTIVITY_KIND } from '../utils/experience-format-kind
  * solver's own hard-constraint/placement/scoring logic and must never treat
  * the solution's own metadata as evidence of validity.
  *
- * Besides physical feasibility, this is the last pre-persistence guard for an
- * explicit structural request: if acquisition never produced a requested
- * ROUTE / EXPERIENCE / NEIGHBORHOOD_WALK, or the solver dropped every viable
- * candidate of that kind, the tour must not be persisted as a successful
- * POI-only itinerary.
+ * This validator checks only physical and temporal feasibility. Experience
+ * preference satisfaction is intentionally evaluated elsewhere and never
+ * becomes an ActivityKind/format gate.
  */
 @Injectable()
 export class TourPlanningFeasibilityValidatorService
@@ -37,43 +34,6 @@ export class TourPlanningFeasibilityValidatorService
         code: 'DAY_COUNT_MISMATCH',
         message: `Expected ${input.requestedDays} days, got ${solution.days.length}.`,
       });
-    }
-
-    const selectedActivityIds = new Set(
-      solution.days.flatMap((day) =>
-        day.activities.map((activity) => activity.activityId),
-      ),
-    );
-
-    for (const format of input.requestedFormats ?? []) {
-      const requiredKind = EXPERIENCE_FORMAT_ACTIVITY_KIND[format];
-      if (!requiredKind) continue;
-
-      const availableOfKind = input.candidates.filter(
-        (candidate) => candidate.kind === requiredKind,
-      );
-      if (availableOfKind.length === 0) {
-        issues.push({
-          code: 'REQUESTED_FORMAT_NOT_ACQUIRED',
-          message:
-            `Requested format "${format}" requires kind ${requiredKind}, ` +
-            'but acquisition offered zero viable candidates of that kind.',
-        });
-        continue;
-      }
-
-      if (
-        !availableOfKind.some((candidate) =>
-          selectedActivityIds.has(candidate.activityId),
-        )
-      ) {
-        issues.push({
-          code: 'REQUESTED_FORMAT_NOT_SELECTED',
-          message:
-            `Requested format "${format}" had ${availableOfKind.length} viable ` +
-            `candidate(s) of kind ${requiredKind}, but the final plan selected none.`,
-        });
-      }
     }
 
     const seenActivityIds = new Set<string>();
