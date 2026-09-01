@@ -84,6 +84,7 @@ import { CatalogRefillAnchorPlanner } from './catalog-refill-anchor-planner.serv
 import { TourIntent } from '../interfaces/tour-generation.interface';
 import { ActivityDiscoveryService } from './activity-discovery.service';
 import { CoverageAnalyzer } from './coverage-analyzer.service';
+import { redactTracePayload } from '../utils/trace-redaction.util';
 import { buildSemanticTourQuery } from '../utils/semantic-tour-query-builder.util';
 import {
   EmbeddingIndexIdentity,
@@ -1401,7 +1402,7 @@ export class TourActivityGenerationService {
         }
       }
 
-      const generationTrace = {
+      const generationTrace = redactTracePayload({
         steps: traceSteps,
         tourCompleteness: {
           ...completeness,
@@ -1411,7 +1412,7 @@ export class TourActivityGenerationService {
           ...formatCoverage,
           retryAttempted: correctiveRetryAttempted,
         },
-      };
+      });
 
       await this.prisma.$transaction(async (tx) => {
         await tx.tourActivity.deleteMany({
@@ -1571,10 +1572,10 @@ export class TourActivityGenerationService {
                 generationMessage: failureMessage,
                 generationError: error?.message || String(error),
                 generationFailedAt: new Date().toISOString(),
-                generationTrace: {
+                generationTrace: redactTracePayload({
                   ...((latestTour?.metadata as any)?.generationTrace ?? {}),
                   steps: traceSteps,
-                },
+                }),
               },
             },
           });
