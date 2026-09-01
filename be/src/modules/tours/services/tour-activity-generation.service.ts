@@ -146,7 +146,7 @@ export class TourActivityGenerationService {
     private readonly outboxService?: OutboxService,
   ) {}
 
-  /** PR10: no new Prisma columns. If a real base date exists, combine it
+  /** Daily planning solver: no new Prisma columns. If a real base date exists, combine it
    * with the planned day/minutes into a real Date; otherwise never invent
    * one — dayNumber/order/duration alone carry the schedule, and full
    * minutes-precise timing survives only in the planning trace/result.
@@ -188,7 +188,7 @@ export class TourActivityGenerationService {
       candidates: activities.map((activity) => ({
         id: activity.id,
         name: activity.name,
-        kind: activity.kind,
+        kind: activity.kind ?? ActivityKind.POI,
         source: activity.source || activity.sourceId || 'db',
         type: activity.type,
         knownActivityTypeName: activity.knownActivityTypeName,
@@ -213,7 +213,7 @@ export class TourActivityGenerationService {
   }
 
   /**
-   * PR 9: builds the candidate_pool trace step for whichever branch just
+   * Builds the candidate_pool trace step for whichever branch just
    * produced a ranked/windowed selection — tags each offered candidate with
    * its real provenance (discovery-resolved this request, freshly
    * crawled/refilled, or pre-existing catalog) so the bitácora can show
@@ -313,7 +313,10 @@ export class TourActivityGenerationService {
       },
     };
 
-    if (this.outboxService && (status === 'generating' || status === 'pending')) {
+    if (
+      this.outboxService &&
+      (status === 'generating' || status === 'pending')
+    ) {
       await this.prisma.$transaction(async (tx) => {
         await tx.tour.update({ where: { id: tourId }, data });
         await this.outboxService.createInTx(tx, {
@@ -884,7 +887,7 @@ export class TourActivityGenerationService {
                     ...discoveryResolvedActivities.filter(
                       (a: any) =>
                         !nearbyActivities.some((r: any) => r.id === a.id),
-                  ),
+                    ),
                   ];
                   const selection = await this.rankAndSliceActivities(
                     mergedPool,
@@ -1096,9 +1099,7 @@ export class TourActivityGenerationService {
               );
 
               const persistedDiscoveryActivityIds = resolutionResult.resolved
-                .filter(
-                  (r) => r.status === 'accepted' && r.persistedActivityId,
-                )
+                .filter((r) => r.status === 'accepted' && r.persistedActivityId)
                 .map((r) => r.persistedActivityId as string);
               if (persistedDiscoveryActivityIds.length > 0) {
                 const newlyResolvedActivities =
@@ -1141,6 +1142,19 @@ export class TourActivityGenerationService {
           traceSteps.push(buildCoverageAnalysisStep(finalCoverageReport));
         }
 
+        if (
+          finalCoverageReport.decision.action === 'fail' &&
+          (finalCoverageReport.decision.reason === 'no_usable_candidates' ||
+            finalCoverageReport.decision.reason ===
+              'provider_degraded_without_usable_pool')
+        ) {
+          throw new Error(
+            'El pool combinado de catálogo, refill y discovery sigue siendo insuficiente ' +
+              'después de agotar todas las vías de adquisición disponibles para este destino; ' +
+              'no se genera un itinerario con datos incompletos.',
+          );
+        }
+
         const unresolvedRequestedFormats = finalCoverageReport.deficits.filter(
           (d) =>
             d.severity === 'blocking' &&
@@ -1154,19 +1168,6 @@ export class TourActivityGenerationService {
                   `${d.experienceFormat ?? 'unknown'} (${d.actualCount ?? 0}/${d.expectedCount ?? 1})`,
               )
               .join(', ')}.`,
-          );
-        }
-
-        if (
-          finalCoverageReport.decision.action === 'fail' &&
-          (finalCoverageReport.decision.reason === 'no_usable_candidates' ||
-            finalCoverageReport.decision.reason ===
-              'provider_degraded_without_usable_pool')
-        ) {
-          throw new Error(
-            'El pool combinado de catálogo, refill y discovery sigue siendo insuficiente ' +
-              'después de agotar todas las vías de adquisición disponibles para este destino; ' +
-              'no se genera un itinerario con datos incompletos.',
           );
         }
       }

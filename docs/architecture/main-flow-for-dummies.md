@@ -294,13 +294,17 @@ coherente.
                   └───────────────┴───────┬────────┘
                                           ▼
                                    Places / OSM
-                                      resolve
+                                1. Entity Resolution
                                           ▼
-                                      validate
+                                 2. Geographic Validation
+                                    (coherence/bounds)
                                           ▼
-                                  Candidate Pool
+                                 3. Catalog Materialization
+                                    (persist & requery)
                                           ▼
-                                  Coverage again
+                                   Candidate Pool
+                                          ▼
+                                   Coverage again
 ```
 
 Grounded Search es deliberadamente el recurso de mayor nivel semántico y
@@ -309,27 +313,25 @@ debería ser condicional, no una llamada obligatoria para cada tour.
 ## Matices vs. la arquitectura formal
 
 Este documento es una guía intuitiva, no la especificación. Comparado con
-`activity-discovery-and-tour-generation.md` y el plan de PRs, hay cuatro
-precisiones a tener en cuenta:
+`activity-discovery-and-tour-generation.md` y el plan de PRs, hay precisiones clave a tener en cuenta:
 
 1. **Grounded no es un solo modo.** El código actual (`ActivityDiscoveryService`)
    distingue `discoverBootstrap()` (destino nuevo/sin perfil) de
    `discoverGaps()` (destino conocido con un deficit puntual) — dos decisiones
    tipadas separadas en `CoverageAnalyzer`, no una sola caja "Grounded
    Search".
-2. **Text Search y Nearby no son estrictamente excluyentes.** Cuando ambos
-   están planificados para deficits distintos en el mismo ciclo, pueden
-   correr en paralelo — no es un XOR por deficit único.
-3. **Falta la salida de "explicit failure".** Si después de agotar catálogo +
+2. **Pipeline tripartito de propuestas.** Una propuesta descubierta (`ActivityProposal`) pasa por 3 etapas estrictamente aisladas:
+   - **Resolución de Entidades (`Entity Resolution`)**: asocia hints a lugares concretos (Places/OSM). No valida coherencia ni persiste.
+   - **Validación Geográfica Determinística (`Geographic Validation`)**: comprueba si el conjunto de componentes satisface las reglas del kind (`NEIGHBORHOOD_WALK`, `ROUTE`, `EXPERIENCE`) y queda acotado dentro del destino.
+   - **Materialización de Catálogo (`Catalog Materialization`)**: persiste en una única transacción atómica las propuestas aceptadas como `Activity`, familias y waypoints, re-consultando el catálogo para alimentar el pool unificado.
+3. **Inicio asíncrono con Outbox Transaccional.** El wizard (`TourGenerationService.createTourFromWizard`) no dispara promesas sueltas (fire-and-forget). Crea el `Tour` en estado `pending` y encola `TourGenerationRequested` en la tabla `OutboxEvent` en la misma transacción atómica de base de datos.
+4. **Enriquecimiento de fotos fuera del camino crítico.** La búsqueda y asociación de imágenes de Wikimedia/Commons corre asincrónicamente vía `ActivityMediaEnrichmentRequested` y emite `ActivityMediaUpdated`. El enriquecimiento multimedia nunca bloquea la finalización del tour ni la planificación del itinerario.
+5. **Falta la salida de "explicit failure".** Si después de agotar catálogo +
    Text Search + Nearby + Grounded el pool sigue sin ser usable, el flujo
    debe fallar explícito **antes** de llegar al LLM de itinerario — nunca
-   seguir con un pool insuficiente. Ver PR 6/PR 9 en el plan.
-4. **El enriquecimiento con Nearby después de Grounded (punto 7) todavía no
-   está formalizado como paso explícito en ningún PR** — es coherente con la
-   arquitectura, pero hoy no hay código que lo implemente.
+   seguir con un pool insuficiente.
 
-Además, la separación búsqueda/extracción (punto 6) ya está implementada:
-`GroundedSearchProvider` (evidencia real — hoy SerpApi por defecto, Google
-Search) y `SearchGroundedDiscoveryProvider` (extracción estructurada — Groq)
+Además, la separación búsqueda/extracción ya está implementada:
+`GroundedSearchProvider` (evidencia real — SerpApi / Tavily) y `SearchGroundedDiscoveryProvider` (extracción estructurada — Groq / Gemini)
 son interfaces separadas; la extracción nunca inventa evidencia propia, ni a
-nivel proposal ni a nivel de cada `entityHint`. Ver PR 7.1 en el plan.
+nivel proposal ni a nivel de cada `entityHint`.

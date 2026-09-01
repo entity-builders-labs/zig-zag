@@ -28,7 +28,10 @@ export class DevicesController {
   constructor(private readonly pushService: PushNotificationService) {}
 
   @Post()
-  @ApiOperation({ summary: 'Register or refresh an Expo push notification token for the current user' })
+  @ApiOperation({
+    summary:
+      'Register or refresh an Expo push notification token for the current user',
+  })
   async registerDevice(
     @CurrentUser() user: RequestUser,
     @Body(ValidationPipe) dto: RegisterDeviceDto,
@@ -68,7 +71,9 @@ export class DevicesController {
 
   @Delete(':token')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Unregister / disable a push notification token on logout' })
+  @ApiOperation({
+    summary: 'Unregister / disable a push notification token on logout',
+  })
   async unregisterDevice(
     @CurrentUser() user: RequestUser,
     @Param('token') token: string,

@@ -53,7 +53,9 @@ describe('Unit Acceptance: Greedy Daily Planning Solver (TC-SOLV-01 to TC-SOLV-0
     const solution = await solver.solve(input);
 
     expect(solution.days[0].activities).toHaveLength(0);
-    expect(solution.unselected.some((u) => u.activityId === 'long-1')).toBe(true);
+    expect(solution.unselected.some((u) => u.activityId === 'long-1')).toBe(
+      true,
+    );
   });
 
   it('TC-SOLV-04: empty day bucket is valid when pool is exhausted or infeasible', async () => {

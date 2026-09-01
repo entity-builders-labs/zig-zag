@@ -118,9 +118,11 @@ export class ActivityProposalResolutionService {
     }
     const result = await this.resolveAreaHint(areaHint, destination);
     if (result.entity.status !== 'resolved') {
-      return this.reject(proposal, [result.entity], [
-        result.entity.rejectionReason ?? 'unresolved_area',
-      ]);
+      return this.reject(
+        proposal,
+        [result.entity],
+        [result.entity.rejectionReason ?? 'unresolved_area'],
+      );
     }
     return this.resolvedProposal(proposal, [result.entity]);
   }
@@ -137,9 +139,11 @@ export class ActivityProposalResolutionService {
     }
     const entity = await this.resolveVenueHint(venueHint, request);
     if (entity.status !== 'resolved') {
-      return this.reject(proposal, [entity], [
-        entity.rejectionReason ?? 'unresolved_venue',
-      ]);
+      return this.reject(
+        proposal,
+        [entity],
+        [entity.rejectionReason ?? 'unresolved_venue'],
+      );
     }
     return this.resolvedProposal(proposal, [entity]);
   }
@@ -212,10 +216,7 @@ export class ActivityProposalResolutionService {
       await this.osmPlacesService.lookupNeighborhoodsWithin(destination);
     if (neighborhoodLookup.status === 'failed') {
       return {
-        entity: this.unresolvedProviderEntity(
-          hint,
-          'provider_unavailable',
-        ),
+        entity: this.unresolvedProviderEntity(hint, 'provider_unavailable'),
       };
     }
 
@@ -387,11 +388,18 @@ export class ActivityProposalResolutionService {
     const tags = candidate.tags;
     return {
       locality:
-        tags['addr:city'] ?? tags.city ?? tags.town ?? tags.village ?? undefined,
-      municipality:
-        tags['addr:municipality'] ?? tags.municipality ?? undefined,
+        tags['addr:city'] ??
+        tags.city ??
+        tags.town ??
+        tags.village ??
+        undefined,
+      municipality: tags['addr:municipality'] ?? tags.municipality ?? undefined,
       region:
-        tags['addr:state'] ?? tags.state ?? tags.region ?? tags.province ?? undefined,
+        tags['addr:state'] ??
+        tags.state ??
+        tags.region ??
+        tags.province ??
+        undefined,
       country: tags['addr:country'] ?? tags.country ?? undefined,
     };
   }
@@ -534,10 +542,13 @@ export class ActivityProposalResolutionService {
   ): boolean {
     const center = this.centroidOf(candidate);
     const geometry = container.geometry;
-    if (geometry.type === 'Point') return false;
-    // resolveAreaHint only calls this for polygonal destination boundaries.
-    const polygons =
-      geometry.type === 'Polygon' ? [geometry.coordinates] : geometry.coordinates;
+    if (geometry.type !== 'Polygon' && geometry.type !== 'MultiPolygon') {
+      return false;
+    }
+    const polygons: [number, number][][][] =
+      geometry.type === 'Polygon'
+        ? [geometry.coordinates]
+        : geometry.coordinates;
     return polygons.some((polygon) =>
       pointInRing(center.longitude, center.latitude, polygon[0]),
     );

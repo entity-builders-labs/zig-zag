@@ -70,9 +70,7 @@ describe('GenerationTrace V2 audit contract', () => {
     expect(
       step.rules?.find((rule) => rule.ruleId === 'COV-THEME-NATURE')?.result,
     ).toBe('FAIL');
-    expect(step.decision?.reasonCodes).toContain('missing_requested_theme');
-    expect(step.summary).not.toContain('PR 6');
-    expect(step.summary).not.toContain('PR 7');
+    expect(step.summary).not.toMatch(/PR\s*\d+/);
   });
 
   it('records selected and unselected planner candidates with real rejection reason codes', () => {

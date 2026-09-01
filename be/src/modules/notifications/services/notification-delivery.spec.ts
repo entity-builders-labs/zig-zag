@@ -120,7 +120,12 @@ describe('NotificationDeliveryService', () => {
       mediaStatus: 'ENRICHED',
       photoCount: 2,
       mediaUpdatedAt: '2026-08-31T01:00:00.000Z',
-      photos: [{ url: 'https://example.com/photo.jpg', provider: 'wikimedia_commons' as const }],
+      photos: [
+        {
+          url: 'https://example.com/photo.jpg',
+          provider: 'wikimedia_commons' as const,
+        },
+      ],
     };
 
     await (deliveryService as any).handleMediaUpdated(mediaPayload);

@@ -290,7 +290,7 @@ describe('LangChainService', () => {
       expect(global.fetch).toHaveBeenCalledTimes(2);
     });
 
-    it('does not retry a Groq rate limit more than once', async () => {
+    it('does not retry a Groq rate limit more than the max retry count', async () => {
       (global.fetch as jest.Mock).mockResolvedValue({
         ok: false,
         status: 429,
@@ -301,7 +301,7 @@ describe('LangChainService', () => {
       await expect(
         service.generateChatResponse('system', 'user prompt'),
       ).rejects.toThrow('Groq error 429: still rate limited');
-      expect(global.fetch).toHaveBeenCalledTimes(2);
+      expect(global.fetch).toHaveBeenCalledTimes(4);
     });
   });
 });

@@ -1,12 +1,12 @@
-import { Module, Global } from "@nestjs/common";
-import { ConfigModule, ConfigService } from "@nestjs/config";
-import { WikidataModule } from "../wikidata/wikidata.module";
-import { WikimediaPhotoProvider } from "./providers/wikimedia-photo.provider";
-import { SerpApiPhotoProvider } from "./providers/serpapi-photo.provider";
-import { GooglePlacesPhotoProvider } from "./providers/google-places-photo.provider";
-import { MockPhotoProvider } from "./providers/mock-photo.provider";
-import { HybridPhotoProvider } from "./providers/hybrid-photo.provider";
-import { IPhotoEnrichmentProvider } from "./interfaces/photo-enrichment.interface";
+import { Module, Global } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { WikidataModule } from '../wikidata/wikidata.module';
+import { WikimediaPhotoProvider } from './providers/wikimedia-photo.provider';
+import { SerpApiPhotoProvider } from './providers/serpapi-photo.provider';
+import { GooglePlacesPhotoProvider } from './providers/google-places-photo.provider';
+import { MockPhotoProvider } from './providers/mock-photo.provider';
+import { HybridPhotoProvider } from './providers/hybrid-photo.provider';
+import { IPhotoEnrichmentProvider } from './interfaces/photo-enrichment.interface';
 
 @Global()
 @Module({
@@ -18,7 +18,7 @@ import { IPhotoEnrichmentProvider } from "./interfaces/photo-enrichment.interfac
     MockPhotoProvider,
     HybridPhotoProvider,
     {
-      provide: "PhotoEnrichmentProvider",
+      provide: 'PhotoEnrichmentProvider',
       useFactory: (
         config: ConfigService,
         hybrid: HybridPhotoProvider,
@@ -28,21 +28,21 @@ import { IPhotoEnrichmentProvider } from "./interfaces/photo-enrichment.interfac
         mock: MockPhotoProvider,
       ): IPhotoEnrichmentProvider => {
         const providerName = (
-          config.get<string>("PHOTO_PROVIDER") || "hybrid"
+          config.get<string>('PHOTO_PROVIDER') || 'hybrid'
         ).toLowerCase();
 
         switch (providerName) {
-          case "wikimedia":
+          case 'wikimedia':
             return wikimedia;
-          case "serpapi":
+          case 'serpapi':
             return serpApi;
-          case "google_places":
-          case "places":
+          case 'google_places':
+          case 'places':
             return googlePlaces;
-          case "mock":
-          case "test":
+          case 'mock':
+          case 'test':
             return mock;
-          case "hybrid":
+          case 'hybrid':
           default:
             return hybrid;
         }
@@ -58,7 +58,7 @@ import { IPhotoEnrichmentProvider } from "./interfaces/photo-enrichment.interfac
     },
   ],
   exports: [
-    "PhotoEnrichmentProvider",
+    'PhotoEnrichmentProvider',
     WikimediaPhotoProvider,
     SerpApiPhotoProvider,
     GooglePlacesPhotoProvider,

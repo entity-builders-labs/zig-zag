@@ -215,13 +215,34 @@ export const BUENOS_AIRES_CANDIDATES: PlanningActivityCandidate[] = [
     openingHours: {
       status: 'known',
       rangesByWeekday: {
-        1: [{ startMinutesFromMidnight: 720, endMinutesFromMidnight: 960 }, { startMinutesFromMidnight: 1140, endMinutesFromMidnight: 1440 }],
-        2: [{ startMinutesFromMidnight: 720, endMinutesFromMidnight: 960 }, { startMinutesFromMidnight: 1140, endMinutesFromMidnight: 1440 }],
-        3: [{ startMinutesFromMidnight: 720, endMinutesFromMidnight: 960 }, { startMinutesFromMidnight: 1140, endMinutesFromMidnight: 1440 }],
-        4: [{ startMinutesFromMidnight: 720, endMinutesFromMidnight: 960 }, { startMinutesFromMidnight: 1140, endMinutesFromMidnight: 1440 }],
-        5: [{ startMinutesFromMidnight: 720, endMinutesFromMidnight: 960 }, { startMinutesFromMidnight: 1140, endMinutesFromMidnight: 1440 }],
-        6: [{ startMinutesFromMidnight: 720, endMinutesFromMidnight: 960 }, { startMinutesFromMidnight: 1140, endMinutesFromMidnight: 1440 }],
-        0: [{ startMinutesFromMidnight: 720, endMinutesFromMidnight: 960 }, { startMinutesFromMidnight: 1140, endMinutesFromMidnight: 1440 }],
+        1: [
+          { startMinutesFromMidnight: 720, endMinutesFromMidnight: 960 },
+          { startMinutesFromMidnight: 1140, endMinutesFromMidnight: 1440 },
+        ],
+        2: [
+          { startMinutesFromMidnight: 720, endMinutesFromMidnight: 960 },
+          { startMinutesFromMidnight: 1140, endMinutesFromMidnight: 1440 },
+        ],
+        3: [
+          { startMinutesFromMidnight: 720, endMinutesFromMidnight: 960 },
+          { startMinutesFromMidnight: 1140, endMinutesFromMidnight: 1440 },
+        ],
+        4: [
+          { startMinutesFromMidnight: 720, endMinutesFromMidnight: 960 },
+          { startMinutesFromMidnight: 1140, endMinutesFromMidnight: 1440 },
+        ],
+        5: [
+          { startMinutesFromMidnight: 720, endMinutesFromMidnight: 960 },
+          { startMinutesFromMidnight: 1140, endMinutesFromMidnight: 1440 },
+        ],
+        6: [
+          { startMinutesFromMidnight: 720, endMinutesFromMidnight: 960 },
+          { startMinutesFromMidnight: 1140, endMinutesFromMidnight: 1440 },
+        ],
+        0: [
+          { startMinutesFromMidnight: 720, endMinutesFromMidnight: 960 },
+          { startMinutesFromMidnight: 1140, endMinutesFromMidnight: 1440 },
+        ],
       },
     },
   },

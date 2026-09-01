@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { loginViaUI } from "./auth-helper";
 
-test("@interactive Tour generation with rich photos and highlights", async ({
+test("@live @interactive Tour generation with rich photos and highlights", async ({
   page,
 }) => {
   test.setTimeout(0); // Sin límite de tiempo, queda abierto

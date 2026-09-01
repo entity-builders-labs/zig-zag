@@ -22,11 +22,11 @@ import {
 import { OverpassConcurrencyLimiter } from '../utils/overpass-concurrency.util';
 
 const DEFAULT_API_URL = 'https://overpass-api.de/api/interpreter';
-const DEFAULT_TIMEOUT_MS = 25000;
+const DEFAULT_TIMEOUT_MS = 20000;
 const DEFAULT_MAX_CONCURRENCY = 2;
 const DEFAULT_MAX_RETRIES = 2;
 const DEFAULT_RETRY_BASE_MS = 500;
-const DEFAULT_TOTAL_BUDGET_MS = 30000;
+const DEFAULT_TOTAL_BUDGET_MS = 25000;
 const RETRYABLE_STATUS_CODES = new Set([429, 502, 503, 504]);
 
 // Overpass's public instance rejects generic/bot-looking clients (axios's

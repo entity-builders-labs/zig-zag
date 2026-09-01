@@ -92,7 +92,9 @@ export class ActivityProposalMaterializationService {
           rejectionReasons: Array.from(
             new Set([
               ...entry.rejectionReasons,
-              ...(geographic?.rejectionReasons ?? ['geographic_validation_missing']),
+              ...(geographic?.rejectionReasons ?? [
+                'geographic_validation_missing',
+              ]),
             ]),
           ),
           persistedActivityId: undefined,
@@ -168,7 +170,9 @@ export class ActivityProposalMaterializationService {
     request: ProposalResolutionRequest,
   ): Promise<Activity> {
     if (!request.destinationBoundary) {
-      throw new Error('Composite materialization requires destination boundary');
+      throw new Error(
+        'Composite materialization requires destination boundary',
+      );
     }
 
     const kind = ActivityKind[

@@ -125,7 +125,7 @@ deben quedar ocultos dentro del prompt del LLM.
 
 El texto libre no es un prompt alternativo ni una vía para evitar el contrato
 canónico. Entra una sola vez al documento de intención que ve el selector de
-itinerario; PR 5 puede incorporarlo a la consulta semántica y PR 7 a los gaps
+itinerario; el ranking semántico puede incorporarlo a la consulta y el módulo de Discovery a los gaps
 de Discovery. Las preferencias estructuradas son autoritativas cuando existe
 un campo específico. Por ejemplo, una restricción alimentaria elegida en el
 wizard no puede ser anulada escribiendo lo contrario en texto libre.
@@ -385,8 +385,8 @@ flowchart TD
 This production topology is a required gate before enabling OSM-backed
 composite generation at mass scale. It does not require a `GeoFeature` table:
 resolved entities continue to use `Activity`, `ActivityFamily`, and
-`ActivityWaypoint`. The refill worker and production OSM hosting/provider are
-not implemented by PR 2; the repository remains the source of truth.
+`ActivityWaypoint`. The refill worker and production OSM hosting/provider remain
+bounded by environment; the repository remains the source of truth.
 
 The critical boundary is:
 
@@ -519,9 +519,9 @@ should normally enter the schedule as a coherent excursion/cluster with
 outbound and return legs, not as an isolated POI mixed into an otherwise urban
 day.
 
-This capability is intentionally outside the current PR 1–12 delivery chain.
-PR 4's intent contract, PRs 7–8's grounded proposal and resolution boundaries,
-and PRs 10–11's travel-time/leg contracts are prerequisites, but none should
+This capability is intentionally scoped for future iteration.
+The tour intent contract, grounded proposal and resolution boundaries,
+and daily planning travel-time contracts are prerequisites, but none should
 pretend to support regional excursions until the separate acceptance criteria
 are implemented.
 
@@ -630,7 +630,7 @@ together.
 
 ### Current embedding/retrieval implementation checkpoint
 
-PR 5 implements the semantic retrieval portion of this architecture:
+Semantic retrieval is implemented as follows:
 
 - `SemanticActivityDocumentBuilder` is the only document builder used by
   Activity embedding writes. It includes verified semantic fields and
@@ -656,10 +656,11 @@ PR 5 implements the semantic retrieval portion of this architecture:
   actual similarity operation, together with eligible, compatible-indexed, and
   offered counts.
 
-The 250/15 bounds are operational limits, not coverage policy. PR 6 still
-replaces the current raw minimum-count refill decision, and PRs 9–11 still own
-set-level diversity and deterministic transport feasibility. PR 5 does not
-claim that semantic relevance proves a day is geographically realizable.
+The 250/15 bounds are operational limits, not coverage policy. `CoverageAnalyzer`
+replaces any raw minimum-count refill decision, while the candidate selection window
+and daily planning solver own set-level diversity and deterministic transport feasibility.
+Semantic retrieval does not claim that semantic relevance alone proves a day is
+geographically realizable.
 
 ## Transport-aware spatial feasibility
 
@@ -917,7 +918,7 @@ The catalog write gate coordinates `CatalogIdentityValidator` and
 and cannot be persisted as a POI. Identity validation establishes that the
 provider entity is structurally usable; admission requires enough evidence for
 it to enter Zig-Zag's reusable catalog. Admission does not guarantee later tour
-eligibility, which belongs to PR 6's read-side quality gate.
+eligibility, which belongs to the read-side coverage quality gate (`CoverageAnalyzer`).
 
 | Rule                        | Rejection reason                      | Exact meaning                                                                                                                                                                                                                                                                                                                                                                                   |
 | --------------------------- | ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -964,7 +965,7 @@ One candidate can have multiple identity/admission reasons, so the sum of the
 per-reason counters may exceed the number of rejected candidates. A failed
 embedding is reported truthfully and does not pretend that semantic ranking
 was available. Legacy rows already present in a disposable local database are
-not proof that the write gate failed: PR 3 prevents new invalid persistence;
+not proof that the write gate failed: the admission write gate prevents new invalid persistence;
 the later read-side eligibility gate handles pre-existing catalog data.
 
 The development bitacora must render the non-request-failure entries from
@@ -1024,13 +1025,13 @@ entire healthy destination for every tour.
 
 ### Grounded destination bootstrap and qualitative-gap discovery
 
-This is deliberately **not implemented by PR 2**. It belongs to the
-provider-neutral Activity Discovery stage. It is not an always-first provider:
+This stage belongs to the
+provider-neutral Activity Discovery pipeline. It is not an always-first provider:
 it runs for an unprofiled/stale destination or a concrete qualitative,
 must-see, theme, neighborhood, or experience gap. A conventional named POI can
 go directly to Places resolution without grounded discovery.
 
-**Implemented (PR 7, corrected by PR 7.1):** discovery is two separate
+**Implementation:** discovery is two separate
 providers, not one combined step. A `GroundedSearchProvider` gathers real
 search evidence first (`GroqGroundedSearchService` — Groq's `browser_search`
 tool — or the current default, `SerpApiGroundedSearchService`, a plain Google
@@ -1047,16 +1048,31 @@ flowchart TD
     CAT["Catalog query + destination knowledge state"] --> COVER{"Profile fresh and requested<br/>coverage sufficient?"}
     COVER -- Yes --> POOL["Reuse verified catalog pool"]
     COVER -- "No: new/stale or qualitative gap" --> DISC["ActivityDiscoveryService<br/>bounded profile or explicit deficits"]
-    DISC --> SEARCH["GroundedSearchProvider<br/>real search evidence (SerpApi default)"]
+    DISC --> SEARCH["GroundedSearchProvider<br/>real search evidence (SerpApi / Tavily)"]
     SEARCH -- "not applied" --> EMPTY["No proposals — never fabricated"]
-    SEARCH -- applied --> GROUND["SearchGroundedDiscoveryProvider<br/>structured extraction (Groq)"]
+    SEARCH -- applied --> GROUND["SearchGroundedDiscoveryProvider<br/>structured extraction (Groq / Gemini)"]
     GROUND --> PROP["Structured ActivityProposal[]<br/>POI / ROUTE / WALK / EXPERIENCE<br/>evidenceKeys + entityHints"]
-    PROP --> RESOLVE["Entity resolution<br/>Places for POI/venue<br/>OSM for area/route/path"]
-    RESOLVE --> VALID{"Exact identity, inside destination,<br/>unambiguous and structurally viable?"}
-    VALID -- No --> DROP["Reject proposal/hint with reason"]
-    VALID -- Yes --> MERGE["Persist/reuse validated Activities<br/>merge with catalog pool"]
-    MERGE --> POOL
+    PROP --> RESOLVE["1. Entity resolution<br/>Places for POI/venue<br/>OSM for area/route/path"]
+    RESOLVE --> GEOVALID["2. Geographic validation<br/>Deterministic coherence, cluster radius & bounding"]
+    GEOVALID -- Rejected --> DROP["Reject proposal with stable reason code"]
+    GEOVALID -- Accepted --> MATERIALIZE["3. Catalog materialization<br/>Atomic persistence of activities/families/waypoints"]
+    MATERIALIZE --> REQUERY["Requery catalog & merge into candidate pool"]
+    REQUERY --> POOL
 ```
+
+### Tripartite Proposal Pipeline
+
+Discovered proposals transition across three strictly isolated stages:
+
+1. **Entity Resolution (`ActivityProposalResolutionService`)**: Maps LLM-generated `entityHints` to real provider records (Places, OSM). This stage does not evaluate spatial coherence, kind rules, or persist records.
+2. **Deterministic Geographic Validation (`CompositeGeographicValidationService`)**: Applies pure deterministic checks (bounding box, cluster radius, minimum component counts, route continuity) based on the proposal kind (`NEIGHBORHOOD_WALK`, `ROUTE`, `EXPERIENCE`).
+3. **Catalog Materialization**: Only `GEO_VERIFIED` proposals are persisted to the database in an atomic transaction, generating canonical Activity IDs and triggering asynchronous media enrichment.
+
+### Transactional Outbox and Asynchronous Media Architecture
+
+- **Transactional Initiation:** `TourGenerationService.createTourFromWizard` creates the tour in `pending` state and atomically enqueues a `TourGenerationRequested` outbox event in the same database transaction. `TourGenerationProcessorService` consumes the event to execute generation.
+- **Consumer Policy:** `InMemoryQueueService` enforces local subscriber registration for critical topics (`TourGenerationRequested`, `ActivityMediaEnrichmentRequested`). If no handler is registered, an error is thrown to keep the event retryable in the outbox loop. Optional topics (e.g. `ActivityMediaUpdated`) are acknowledged as no-ops.
+- **Asynchronous Media Enrichment:** Media lookup (Wikimedia Commons / geosearch) runs purely in the background via `ActivityMediaEnrichmentRequested` and emits `ActivityMediaUpdated`. Media enrichment never blocks tour generation, planning feasibility, or tour completion.
 
 The grounded provider may propose `San Telmo`, `La Boca`, or `Recoleta`, but
 those strings have no geographic authority. `Montserrat` versus OSM

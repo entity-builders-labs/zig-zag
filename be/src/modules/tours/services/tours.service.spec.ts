@@ -27,7 +27,9 @@ describe('ToursService', () => {
   };
 
   beforeEach(async () => {
-    outboxService = { createInTx: jest.fn().mockResolvedValue({ id: 'evt-1' }) };
+    outboxService = {
+      createInTx: jest.fn().mockResolvedValue({ id: 'evt-1' }),
+    };
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ToursService,

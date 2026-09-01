@@ -1,9 +1,4 @@
-import {
-  Injectable,
-  Inject,
-  Logger,
-  OnModuleInit,
-} from '@nestjs/common';
+import { Injectable, Inject, Logger, OnModuleInit } from '@nestjs/common';
 import {
   IMessageQueueService,
   MESSAGE_QUEUE_SERVICE,
@@ -72,7 +67,10 @@ export class NotificationDeliveryService implements OnModuleInit {
     }
 
     // If SSE was not connected and it's a terminal state, deliver via Push Notification
-    if (!sseDelivered && (eventName === 'tour.completed' || eventName === 'tour.failed')) {
+    if (
+      !sseDelivered &&
+      (eventName === 'tour.completed' || eventName === 'tour.failed')
+    ) {
       this.logger.log(
         `[NotificationDelivery] SSE stream inactive for tour "${tourId}". Routing to Push Notification fallback...`,
       );

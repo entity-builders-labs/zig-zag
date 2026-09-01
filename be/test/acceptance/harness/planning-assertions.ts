@@ -1,6 +1,5 @@
 import {
   PlannedDay,
-  PlannedActivity,
   PlanningActivityCandidate,
 } from 'src/modules/tours/interfaces/daily-planning.interface';
 import { resolveWeekday } from 'src/modules/tours/utils/daily-planning-placement.util';

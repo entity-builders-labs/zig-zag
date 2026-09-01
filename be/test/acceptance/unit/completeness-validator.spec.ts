@@ -15,8 +15,18 @@ describe('Unit Acceptance: Tour Completeness Validator (TC-VAL-01 to TC-VAL-03)'
       isFoodFocusedIntent: false,
       viableUnusedCandidateCount: 5,
       selectedActivities: [
-        { activityId: 'act-1', dayNumber: 1, durationHours: 2.5, isMeal: false },
-        { activityId: 'act-2', dayNumber: 1, durationHours: 2.0, isMeal: false },
+        {
+          activityId: 'act-1',
+          dayNumber: 1,
+          durationHours: 2.5,
+          isMeal: false,
+        },
+        {
+          activityId: 'act-2',
+          dayNumber: 1,
+          durationHours: 2.0,
+          isMeal: false,
+        },
       ],
     });
 
@@ -31,7 +41,12 @@ describe('Unit Acceptance: Tour Completeness Validator (TC-VAL-01 to TC-VAL-03)'
       isFoodFocusedIntent: false,
       viableUnusedCandidateCount: 10,
       selectedActivities: [
-        { activityId: 'act-1', dayNumber: 1, durationHours: 0.5, isMeal: false },
+        {
+          activityId: 'act-1',
+          dayNumber: 1,
+          durationHours: 0.5,
+          isMeal: false,
+        },
       ],
     });
 
@@ -46,7 +61,12 @@ describe('Unit Acceptance: Tour Completeness Validator (TC-VAL-01 to TC-VAL-03)'
       isFoodFocusedIntent: false,
       viableUnusedCandidateCount: 0,
       selectedActivities: [
-        { activityId: 'act-1', dayNumber: 1, durationHours: 0.5, isMeal: false },
+        {
+          activityId: 'act-1',
+          dayNumber: 1,
+          durationHours: 0.5,
+          isMeal: false,
+        },
       ],
     });
 

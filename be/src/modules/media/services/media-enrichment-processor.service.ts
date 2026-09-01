@@ -1,9 +1,4 @@
-import {
-  Injectable,
-  Inject,
-  Logger,
-  OnModuleInit,
-} from '@nestjs/common';
+import { Injectable, Inject, Logger, OnModuleInit } from '@nestjs/common';
 import { Prisma, MediaStatus } from '@prisma/client';
 import { PrismaService } from '../../../core/database/prisma.service';
 import {

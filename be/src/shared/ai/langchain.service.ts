@@ -42,7 +42,7 @@ export class LangChainService {
   private readonly logger = new Logger(LangChainService.name);
   private chatModel: any;
   private completionModel: any;
-  private readonly groqMaxRateLimitRetries = 1;
+  private readonly groqMaxRateLimitRetries = 3;
 
   constructor(
     @Inject(aiConfig.KEY)
@@ -75,7 +75,7 @@ export class LangChainService {
     const retryAfter = resp.headers?.get?.('retry-after');
     const retryAfterSeconds = retryAfter ? Number(retryAfter) : NaN;
     if (Number.isFinite(retryAfterSeconds)) {
-      return Math.min(10_000, Math.max(250, retryAfterSeconds * 1000));
+      return Math.min(60_000, Math.max(250, retryAfterSeconds * 1000 + 250));
     }
 
     const messageDelay = errorBody.match(
@@ -85,9 +85,9 @@ export class LangChainService {
       const value = Number(messageDelay[1]);
       const milliseconds =
         messageDelay[2].toLowerCase() === 'ms' ? value : value * 1000;
-      return Math.min(10_000, Math.max(250, Math.ceil(milliseconds) + 100));
+      return Math.min(60_000, Math.max(250, Math.ceil(milliseconds) + 500));
     }
-    return 1000;
+    return 1500;
   }
 
   private async fetchGroq(init: RequestInit): Promise<Response> {
@@ -102,7 +102,7 @@ export class LangChainService {
       if (resp.status === 429 && attempt < this.groqMaxRateLimitRetries) {
         const delayMs = this.groqRetryDelayMs(resp, errorBody);
         this.logger.warn(
-          `Groq rate limited the request; retrying once in ${delayMs}ms.`,
+          `Groq rate limited the request (attempt ${attempt + 1}/${this.groqMaxRateLimitRetries}); waiting ${delayMs}ms before retrying.`,
         );
         await new Promise((resolve) => setTimeout(resolve, delayMs));
         continue;
@@ -122,7 +122,11 @@ export class LangChainService {
       }
 
       // Validate chat model is not an embedding model (for Ollama/Groq/Gemini)
-      if (provider === 'ollama' || provider === 'groq' || provider === 'gemini') {
+      if (
+        provider === 'ollama' ||
+        provider === 'groq' ||
+        provider === 'gemini'
+      ) {
         const model = this.config.defaultModel;
         try {
           this.validateChatModel(model);
@@ -520,8 +524,12 @@ export class LangChainService {
 
         if (!resp.ok) {
           const errorBody = await resp.text();
-          this.logger.error(`Gemini completion error ${resp.status}: ${errorBody}`);
-          throw new Error(`Gemini completion error ${resp.status}: ${errorBody}`);
+          this.logger.error(
+            `Gemini completion error ${resp.status}: ${errorBody}`,
+          );
+          throw new Error(
+            `Gemini completion error ${resp.status}: ${errorBody}`,
+          );
         }
 
         const data = await resp.json();
@@ -547,7 +555,9 @@ export class LangChainService {
         } as any);
         const data = await resp.json();
         const rawCompletion = data.choices?.[0]?.message?.content || '';
-        response = rawCompletion.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
+        response = rawCompletion
+          .replace(/<think>[\s\S]*?<\/think>/gi, '')
+          .trim();
       } else {
         const model = customOptions
           ? this.getCompletionModel(customOptions)

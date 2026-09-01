@@ -27,7 +27,12 @@ export type MediaLookupResult =
       photos: [];
     }
   | {
-      outcome: 'RETRYABLE_FAILURE' | 'PERMANENT_FAILURE';
+      outcome: 'RETRYABLE_FAILURE';
+      photos: [];
+      error: string;
+    }
+  | {
+      outcome: 'PERMANENT_FAILURE';
       photos: [];
       error: string;
     };

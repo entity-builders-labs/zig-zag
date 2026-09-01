@@ -13,7 +13,6 @@ import {
 } from './planning-assertions';
 
 export interface TourInvariantsAsserterOptions {
-  requiredFrom?: 'PR10' | 'PR11';
   strictFormats?: boolean;
 }
 
@@ -24,7 +23,7 @@ export class TourInvariantsAsserter {
   static assertAll12Invariants(
     solution: DailyPlanningSolution,
     input: DailyPlanningInput,
-    options: TourInvariantsAsserterOptions = { requiredFrom: 'PR10' },
+    options: TourInvariantsAsserterOptions = {},
   ): void {
     const candidateMap = new Map<string, PlanningActivityCandidate>(
       input.candidates.map((c) => [c.activityId, c]),

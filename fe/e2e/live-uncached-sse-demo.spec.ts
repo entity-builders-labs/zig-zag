@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { apiLogin, seedAuthSession } from './auth-helper';
 import { API_URL } from './playwright.config';
 
-test('Live E2E Verification: Uncached City & Uncached Activities via SSE', async ({
+test('@live Live E2E Verification: Uncached City & Uncached Activities via SSE', async ({
   page,
   request,
 }) => {

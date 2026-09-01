@@ -43,7 +43,7 @@ export class TavilyGroundedSearchService implements GroundedSearchProvider {
       };
     }
 
-    const query = request.query?.trim() || this.buildFallbackQuery(request);
+    const query = this.buildSearchQuery(request);
 
     try {
       this.logger.debug(`Tavily search for: ${query}`);
@@ -101,17 +101,34 @@ export class TavilyGroundedSearchService implements GroundedSearchProvider {
     }
   }
 
+  private buildSearchQuery(request: GroundedSearchRequest): string {
+    const raw = request.query?.trim();
+    if (raw && raw.length < 200 && !raw.includes('\n')) {
+      return raw;
+    }
+    return this.buildFallbackQuery(request);
+  }
+
   private buildFallbackQuery(request: GroundedSearchRequest): string {
-    return [
-      request.destinationName,
-      request.destinationCountry,
-      ...request.requestedThemes,
-      ...(request.requestedExperienceFormats ?? []),
-      request.additionalPreferences,
-      'travel activities experiences attractions',
-    ]
-      .filter((part): part is string => Boolean(part && part.trim()))
-      .join(' ');
+    const destination = [request.destinationName, request.destinationCountry]
+      .filter(Boolean)
+      .join(', ');
+    const themes = request.requestedThemes.slice(0, 4).join(' ');
+    const prefs = request.additionalPreferences
+      ? request.additionalPreferences
+          .replace(/[^\w\s\u00C0-\u017F]/g, ' ')
+          .slice(0, 100)
+      : '';
+    const kindKeywords =
+      request.targetKind === 'ROUTE'
+        ? 'calles avenidas paseos peatonales costanera recorrido'
+        : request.targetKind === 'EXPERIENCE'
+          ? 'turismo atractivos que hacer paseos actividades lugares'
+          : 'puntos de interes atractivos';
+
+    return `${destination} ${themes} ${prefs} ${kindKeywords}`
+      .replace(/\s+/g, ' ')
+      .trim();
   }
 
   private extractEvidence(

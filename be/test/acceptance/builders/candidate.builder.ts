@@ -7,7 +7,9 @@ import { ExperienceFormat } from 'src/modules/tours/interfaces/tour-generation.i
 export class CandidateBuilder {
   private candidate: PlanningActivityCandidate;
 
-  constructor(id: string = `cand-${Math.random().toString(36).substring(2, 7)}`) {
+  constructor(
+    id: string = `cand-${Math.random().toString(36).substring(2, 7)}`,
+  ) {
     this.candidate = {
       activityId: id,
       kind: 'POI',

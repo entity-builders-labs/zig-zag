@@ -1,7 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import axios from 'axios';
 import * as webpush from 'web-push';
-import { PushNotificationService, isExpoPushToken } from './push-notification.service';
+import {
+  PushNotificationService,
+  isExpoPushToken,
+} from './push-notification.service';
 import { PrismaService } from '../../../core/database/prisma.service';
 
 jest.mock('axios');
@@ -49,8 +52,12 @@ describe('PushNotificationService', () => {
 
   describe('isExpoPushToken', () => {
     it('validates ExponentPushToken and ExpoPushToken formats correctly', () => {
-      expect(isExpoPushToken('ExponentPushToken[xxxxxxxxxxxxxxxxxxxxxx]')).toBe(true);
-      expect(isExpoPushToken('ExpoPushToken[xxxxxxxxxxxxxxxxxxxxxx]')).toBe(true);
+      expect(isExpoPushToken('ExponentPushToken[xxxxxxxxxxxxxxxxxxxxxx]')).toBe(
+        true,
+      );
+      expect(isExpoPushToken('ExpoPushToken[xxxxxxxxxxxxxxxxxxxxxx]')).toBe(
+        true,
+      );
       expect(isExpoPushToken('invalid-token')).toBe(false);
       expect(isExpoPushToken('')).toBe(false);
       expect(isExpoPushToken(null as any)).toBe(false);
@@ -191,7 +198,11 @@ describe('PushNotificationService', () => {
 
     it('sends push to all enabled devices belonging to the user', async () => {
       prismaMock.userDevice.findMany.mockResolvedValue([
-        { id: 'dev-1', expoPushToken: 'ExponentPushToken[token1]', enabled: true },
+        {
+          id: 'dev-1',
+          expoPushToken: 'ExponentPushToken[token1]',
+          enabled: true,
+        },
         { id: 'dev-2', expoPushToken: 'ExpoPushToken[token2]', enabled: true },
       ]);
       mockedAxios.post.mockResolvedValue({
@@ -232,7 +243,11 @@ describe('PushNotificationService', () => {
 
     it('disables device when Expo reports DeviceNotRegistered error', async () => {
       prismaMock.userDevice.findMany.mockResolvedValue([
-        { id: 'dev-1', expoPushToken: 'ExponentPushToken[staleToken]', enabled: true },
+        {
+          id: 'dev-1',
+          expoPushToken: 'ExponentPushToken[staleToken]',
+          enabled: true,
+        },
       ]);
       mockedAxios.post.mockResolvedValue({
         data: {

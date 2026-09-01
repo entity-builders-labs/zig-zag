@@ -32,7 +32,6 @@ export async function loginViaUI(
   }
 
   await page.getByTestId('login-code-input').fill(code);
-  await page.getByTestId('login-verify-code-button').click();
   await page.waitForURL((url) => url.pathname === '/' || url.pathname === '', {
     timeout: 15_000,
   });

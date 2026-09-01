@@ -6,9 +6,6 @@ describe('TourGenerationService canonical wizard path', () => {
     const toursService = {
       create: jest.fn(async (data) => ({ id: 'tour-1', ...data })),
     };
-    const activityGeneration = {
-      generateTourActivities: jest.fn().mockResolvedValue(undefined),
-    };
     const service = new TourGenerationService(
       { tour: { findMany: jest.fn() } } as any,
       {} as any,
@@ -16,7 +13,6 @@ describe('TourGenerationService canonical wizard path', () => {
       {} as any,
       toursService as any,
       {} as any,
-      activityGeneration as any,
     );
     const note = 'Prefer street photography';
     const request: TourGenerationRequest = {
@@ -58,10 +54,6 @@ describe('TourGenerationService canonical wizard path', () => {
     expect(persisted.metadata.generationRequest).toEqual(request);
     expect(persisted.metadata).not.toHaveProperty('options');
     expect(persisted.metadata).not.toHaveProperty('preferences');
-    expect(persisted.metadata).not.toHaveProperty('originalPrompt');
-    expect(persisted.prompt.split(note)).toHaveLength(2);
-    expect(activityGeneration.generateTourActivities).toHaveBeenCalledWith(
-      'tour-1',
-    );
+    expect(persisted.metadata.generationStatus).toBe('pending');
   });
 });

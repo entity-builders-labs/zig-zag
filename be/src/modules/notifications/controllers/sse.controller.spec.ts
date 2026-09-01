@@ -27,10 +27,9 @@ describe('SSEController', () => {
   it('opens a namespaced tour stream only for its owner', async () => {
     prisma.tour.findUnique.mockResolvedValue({ ownerId: 'user-1' });
 
-    const stream = await controller.streamTourEvents(
-      'tour-1',
-      { id: 'user-1' } as any,
-    );
+    const stream = await controller.streamTourEvents('tour-1', {
+      id: 'user-1',
+    } as any);
     stream.subscribe();
 
     expect(sseHub.getStream).toHaveBeenCalledWith('tour:tour-1');

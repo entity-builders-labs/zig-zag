@@ -216,7 +216,8 @@ export class ActivitiesService {
 
       const needsMediaEnrichment =
         !activityData.photos ||
-        (Array.isArray(activityData.photos) && activityData.photos.length === 0);
+        (Array.isArray(activityData.photos) &&
+          activityData.photos.length === 0);
 
       // The row and its media-enrichment request are one atomic unit. A
       // failed outbox insert rolls the activity creation back instead of
@@ -485,7 +486,7 @@ export class ActivitiesService {
 
   /**
    * Fetch specific activities by id, shaped identically to findAll's
-   * distance/weightedScore output — used by PR 9's unified candidate pool
+   * distance/weightedScore output — used by the unified candidate pool
    * to re-query rows just persisted by discovery resolution (a targeted
    * fetch, not reliant on the geographic query's own rank-then-cap
    * incidentally including them).
@@ -932,7 +933,8 @@ export class ActivitiesService {
       const mediaUpdatedAt = new Date();
 
       if (enrichment.photos && enrichment.photos.length > 0) {
-        updateData.photos = enrichment.photos as unknown as Prisma.InputJsonValue;
+        updateData.photos =
+          enrichment.photos as unknown as Prisma.InputJsonValue;
         updateData.mediaStatus = MediaStatus.ENRICHED;
         updateData.mediaUpdatedAt = mediaUpdatedAt;
         updateData.mediaError = null;

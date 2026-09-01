@@ -121,7 +121,9 @@ import { OutboxModule } from '../outbox/outbox.module';
           case 'serpapi':
             return serpApi;
           default:
-            throw new Error(`Unsupported GROUNDED_SEARCH_PROVIDER: ${provider}`);
+            throw new Error(
+              `Unsupported GROUNDED_SEARCH_PROVIDER: ${provider}`,
+            );
         }
       },
       inject: [

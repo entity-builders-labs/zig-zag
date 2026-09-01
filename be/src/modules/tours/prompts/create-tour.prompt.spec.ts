@@ -84,7 +84,7 @@ describe('shared TOUR_PLANNING_POLICY_PROMPT inclusion', () => {
     expect(TOUR_PLANNING_POLICY_PROMPT).toContain('fast: typically 4-7');
   });
 
-  it('carries requested experience format coverage semantics (PR 7.4), reaching every live prompt', () => {
+  it('carries requested experience format coverage semantics (Format Coverage Validator), reaching every live prompt', () => {
     expect(TOUR_PLANNING_POLICY_PROMPT).toContain(
       'REQUESTED EXPERIENCE FORMAT COVERAGE',
     );

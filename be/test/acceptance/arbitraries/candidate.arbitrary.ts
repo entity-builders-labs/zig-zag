@@ -27,7 +27,9 @@ export const arbitraryCandidate = (
   idPrefix = 'cand',
 ): fc.Arbitrary<PlanningActivityCandidate> =>
   fc.record({
-    activityId: fc.stringMatching(/^[a-z0-9-]{6,12}$/).map((id) => `${idPrefix}-${id}`),
+    activityId: fc
+      .stringMatching(/^[a-z0-9-]{6,12}$/)
+      .map((id) => `${idPrefix}-${id}`),
     kind: fc.constant<'POI'>('POI'),
     title: fc.lorem({ maxCount: 3 }),
     durationMinutes: fc.integer({ min: 30, max: 180 }),
@@ -55,4 +57,8 @@ export const arbitraryCandidatePool = (
   minCount = 5,
   maxCount = 30,
 ): fc.Arbitrary<PlanningActivityCandidate[]> =>
-  fc.array(arbitraryCandidate(), { minLength: minCount, maxLength: maxCount });
+  fc.uniqueArray(arbitraryCandidate(), {
+    minLength: minCount,
+    maxLength: maxCount,
+    selector: (c) => c.activityId,
+  });

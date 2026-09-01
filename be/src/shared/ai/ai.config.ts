@@ -187,7 +187,7 @@ export default registerAs('ai', (): AiConfig => {
       },
       groq: {
         apiKey: process.env.GROQ_API_KEY,
-        model: process.env.GROQ_DISCOVERY_MODEL || 'openai/gpt-oss-120b',
+        model: process.env.GROQ_DISCOVERY_MODEL || 'qwen/qwen3.8-27b',
       },
     },
   };

@@ -89,41 +89,47 @@ services:
     container_name: zigzag-backend
     ports:
       - '4000:3000'
+    env_file:
+      - ./.env
     environment:
-      - NODE_ENV=${NODE_ENV}
+      - NODE_ENV=${NODE_ENV:-development}
       - TS_NODE_TRANSPILE_ONLY=true
       # Docker detection flag - helps backend detect it's running in Docker
-      - DOCKER_CONTAINER=${DOCKER_CONTAINER}
+      - DOCKER_CONTAINER=true
       # Force postgres hostname for Docker network (hardcoded to override .env)
-      - DATABASE_URL=${DATABASE_URL}
-      - DIRECT_URL=${DIRECT_URL}
+      - DATABASE_URL=${DATABASE_URL:-postgresql://postgres:postgres@postgres:5432/zigzag}
+      - DIRECT_URL=${DIRECT_URL:-postgresql://postgres:postgres@postgres:5432/zigzag}
       - GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY}
       - GEOAPIFY_API_KEY=${GEOAPIFY_API_KEY}
-      - PLACES_PROVIDER=${PLACES_PROVIDER}
+      - PLACES_PROVIDER=${PLACES_PROVIDER:-google}
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - OPENAI_DEFAULT_MODEL=${OPENAI_DEFAULT_MODEL}
       - OPENAI_TEMPERATURE=${OPENAI_TEMPERATURE}
       - OPENAI_TIMEOUT=${OPENAI_TIMEOUT}
       - OLLAMA_TIMEOUT=${OLLAMA_TIMEOUT}
-      - PORT=${PORT}
+      - PORT=3000
       # AI provider flags
-      - ENABLE_AI=${ENABLE_AI}
-      - AI_PROVIDER=${AI_PROVIDER}
-      - AI_MODEL=${AI_MODEL}
+      - ENABLE_AI=${ENABLE_AI:-true}
+      - AI_PROVIDER=${AI_PROVIDER:-groq}
+      - AI_MODEL=${AI_MODEL:-qwen/qwen3.8-27b}
+      - DISCOVERY_EXTRACTOR_PROVIDER=${DISCOVERY_EXTRACTOR_PROVIDER:-groq}
+      - GROQ_DISCOVERY_MODEL=${GROQ_DISCOVERY_MODEL:-qwen/qwen3.8-27b}
+      - GEMINI_DISCOVERY_MODEL=${GEMINI_DISCOVERY_MODEL:-gemini-2.0-flash}
       - GEMINI_MODEL=${GEMINI_MODEL}
       - GROQ_MODEL=${GROQ_MODEL}
       - OPENAI_MODEL=${OPENAI_MODEL}
       - OLLAMA_MODEL=${OLLAMA_MODEL}
-      - EMBEDDINGS_MODEL=${EMBEDDINGS_MODEL}
-      - EMBEDDING_PROVIDER=${EMBEDDING_PROVIDER}
-      - EMBEDDING_DIMENSIONS=${EMBEDDING_DIMENSIONS}
-      - AWS_REGION=${AWS_REGION}
-      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL}
+      - EMBEDDINGS_MODEL=${EMBEDDINGS_MODEL:-nomic-embed-text}
+      - EMBEDDING_PROVIDER=${EMBEDDING_PROVIDER:-ollama}
+      - EMBEDDING_DIMENSIONS=${EMBEDDING_DIMENSIONS:-256}
+      - AWS_REGION=${AWS_REGION:-us-east-1}
+      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
       - OLLAMA_API_KEY=${OLLAMA_API_KEY}
       - OLLAMA_NUM_CTX=${OLLAMA_NUM_CTX}
       - GROQ_API_KEY=${GROQ_API_KEY}
       - GEMINI_API_KEY=${GEMINI_API_KEY}
-      - GROUNDED_SEARCH_PROVIDER=${GROUNDED_SEARCH_PROVIDER}
+      - TAVILY_API_KEY=${TAVILY_API_KEY}
+      - GROUNDED_SEARCH_PROVIDER=${GROUNDED_SEARCH_PROVIDER:-tavily}
       - SERPAPI_API_KEY=${SERPAPI_API_KEY}
       - STORAGE_PATH=${STORAGE_PATH}
       - AI_CACHE_MODE=${AI_CACHE_MODE}
@@ -162,6 +168,7 @@ services:
     volumes:
       - ${BACKEND_DIR:-./be}:/app/be
       - /app/node_modules
+      - /app/be/node_modules
 
     networks:
       - app-network

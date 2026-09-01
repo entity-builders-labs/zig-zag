@@ -7,10 +7,28 @@ describe('InMemoryQueueService acknowledgement semantics', () => {
     queue = new InMemoryQueueService();
   });
 
-  it('acknowledges topics that intentionally have no local consumer', async () => {
+  it('acknowledges optional topics that intentionally have no local consumer', async () => {
     await expect(
       queue.publish('TourProgressUpdated', { tourId: 'tour-1' }),
     ).resolves.toBeUndefined();
+    await expect(
+      queue.publish('ActivityMediaUpdated', { activityId: 'act-1' }),
+    ).resolves.toBeUndefined();
+  });
+
+  it('rejects publication when a critical topic has no local subscriber registered', async () => {
+    await expect(
+      queue.publish('TourGenerationRequested', { tourId: 'tour-1' }),
+    ).rejects.toThrow(
+      'No local subscribers registered for critical topic "TourGenerationRequested". Outbox must retry.',
+    );
+    await expect(
+      queue.publish('ActivityMediaEnrichmentRequested', {
+        activityId: 'act-1',
+      }),
+    ).rejects.toThrow(
+      'No local subscribers registered for critical topic "ActivityMediaEnrichmentRequested". Outbox must retry.',
+    );
   });
 
   it('does not acknowledge until the consumer has completed', async () => {

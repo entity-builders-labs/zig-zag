@@ -119,7 +119,7 @@ describe('TourActivityGenerationService', () => {
   let tourPlanningFeasibilityValidator: any;
 
   /**
-   * PR 10: the wizard path no longer asks an LLM which candidates to use —
+   * The wizard path no longer asks an LLM which candidates to use —
    * the deterministic solver both selects and schedules. This default stub
    * stands in for the real GreedyDailyPlanningSolver by scheduling every
    * offered candidate back to back on day 1 (and emitting the remaining
@@ -343,7 +343,7 @@ describe('TourActivityGenerationService', () => {
       providers: [
         TourActivityGenerationService,
         // LangChainService and CompositeActivityService remain wired only as
-        // regression tripwires: as of PR 10 the wizard path is fully
+        // regression tripwires: the wizard path is fully
         // deterministic, so neither an itinerary LLM call nor live composite
         // persistence may happen during generation.
         { provide: PrismaService, useValue: prisma },
@@ -507,7 +507,7 @@ describe('TourActivityGenerationService', () => {
     );
     expect(completedCall).toBeDefined();
     const trace = completedCall[0].data.metadata.generationTrace;
-    // PR 10: no LLM in this path anymore, so no AI reasoning and no
+    // No LLM in this path anymore, so no AI reasoning and no
     // anti-hallucination bookkeeping is reported — a deterministic
     // daily_planning step takes their place.
     expect(trace.aiReasoning).toBeUndefined();
@@ -557,7 +557,7 @@ describe('TourActivityGenerationService', () => {
     expect(solvedCandidateIds()).toContain(poiId);
   });
 
-  describe('deterministic daily planning (PR 10)', () => {
+  describe('deterministic daily planning', () => {
     const buildCandidates = () =>
       Array.from({ length: 4 }, (_, i) => ({
         id: testUuid(),
@@ -1021,7 +1021,16 @@ describe('TourActivityGenerationService', () => {
       );
       const trace = completedCall[0].data.metadata.generationTrace;
       expect(trace.tourFormatCoverage).toEqual(
-        expect.objectContaining({ valid: true, retryAttempted: false }),
+        expect.objectContaining({
+          valid: false,
+          issues: [
+            expect.objectContaining({
+              code: 'REQUESTED_FORMAT_UNAVAILABLE',
+              requestedFormat: 'neighborhood_walks',
+            }),
+          ],
+          retryAttempted: false,
+        }),
       );
     });
 
@@ -1085,7 +1094,7 @@ describe('TourActivityGenerationService', () => {
     });
   });
 
-  describe('entity resolution (PR 8)', () => {
+  describe('entity resolution', () => {
     // Discovery only fires when interests are requested and the pool is
     // insufficient (default activitiesService.findAll already returns []).
     // The Places refill afterward still needs a real candidate for the
@@ -1226,7 +1235,7 @@ describe('TourActivityGenerationService', () => {
       ).toBeUndefined();
     });
 
-    it("merges a newly resolved activity into this generation's own unified candidate pool (PR 9)", async () => {
+    it("merges a newly resolved activity into this generation's own unified candidate pool", async () => {
       toursService.findOne.mockResolvedValue(buildThinPoolTour());
       const poiId = setUpSuccessfulRefill();
       activityDiscoveryService.discoverGaps.mockResolvedValue({
@@ -1249,7 +1258,7 @@ describe('TourActivityGenerationService', () => {
         acceptedCount: 1,
         rejectedCount: 0,
       });
-      // PR 9: the re-query step fetches exactly the rows PR 8 just
+      // The re-query step fetches exactly the rows proposal resolution just
       // persisted, by id — a real row is needed here so it can compete in
       // the same ranked window as the thin local pool.
       activitiesService.findManyByIds = jest.fn().mockResolvedValue([
@@ -1306,7 +1315,7 @@ describe('TourActivityGenerationService', () => {
       expect(proposalResolver.resolve).not.toHaveBeenCalled();
     });
 
-    it('leaves a valid catalog-only tour possible when the discovery provider errors out (PR 9 acceptance)', async () => {
+    it('leaves a valid catalog-only tour possible when the discovery provider errors out', async () => {
       toursService.findOne.mockResolvedValue(buildThinPoolTour());
       const poiId = setUpSuccessfulRefill();
       activityDiscoveryService.discoverGaps.mockRejectedValue(
@@ -1323,7 +1332,7 @@ describe('TourActivityGenerationService', () => {
     });
   });
 
-  describe('unified candidate pool (PR 9)', () => {
+  describe('unified candidate pool', () => {
     const buildThinPoolTour = () =>
       buildTour({
         metadata: {
@@ -1517,7 +1526,7 @@ describe('TourActivityGenerationService', () => {
       ]);
       // A real embedding for the newly resolved composite/POI — already
       // written by CompositeActivityService/indexResolvedVenues at
-      // persistence time (confirmed during PR 9 scoping), so it must
+      // persistence time, so it must
       // compete in the measured semantic tier, not the missing-embedding
       // fallback.
       vectorStoreService.getSimilarityScores.mockResolvedValue({
@@ -1587,7 +1596,7 @@ describe('TourActivityGenerationService', () => {
     });
   });
 
-  describe('requested experience format coverage (PR 7.4)', () => {
+  describe('requested experience format coverage', () => {
     const poiCandidate = (overrides: any = {}) => ({
       id: testUuid(),
       name: 'POI',
@@ -1612,7 +1621,7 @@ describe('TourActivityGenerationService', () => {
 
     // Discovery only fires on a blocking deficit. A thin, format-lacking
     // pool with zero requested THEMES still needs to reach discoverGaps()
-    // today — before PR 7.4 this was silently swallowed by a stale
+    // today — previously this was swallowed by a stale
     // `if (interests.length > 0)` guard.
     it('calls discoverGaps for a format-only deficit even with zero requested themes', async () => {
       const candidates = [
@@ -1631,11 +1640,76 @@ describe('TourActivityGenerationService', () => {
         })),
       );
       activityDiscoveryService.discoverGaps.mockResolvedValue({
-        proposals: [],
+        proposals: [
+          {
+            name: 'Paseo San Telmo',
+            kind: ActivityKind.NEIGHBORHOOD_WALK,
+            themes: [],
+            entityHints: [],
+            suggestedDurationMinutes: 120,
+            shortReason: 'Grounded walk',
+            evidenceKeys: ['evidence-1'],
+          },
+        ],
         provider: 'groq',
         model: 'test-model',
-        groundingStatus: 'no_usable_evidence',
+        groundingStatus: 'grounded',
+        groundingEvidence: [{ key: 'evidence-1', snippet: 'San Telmo' }],
       });
+      proposalResolver.resolve.mockResolvedValue({
+        resolved: [
+          {
+            proposal: {
+              name: 'Paseo San Telmo',
+              kind: ActivityKind.NEIGHBORHOOD_WALK,
+              themes: [],
+              entityHints: [],
+              suggestedDurationMinutes: 120,
+              shortReason: 'Grounded walk',
+              evidenceKeys: ['evidence-1'],
+            },
+            status: 'accepted',
+            resolvedEntities: [
+              {
+                id: 'osm-1',
+                name: 'Paseo San Telmo',
+                kind: ActivityKind.NEIGHBORHOOD_WALK,
+                status: 'resolved',
+                latitude: -34.62,
+                longitude: -58.37,
+              },
+            ],
+            rejectionReasons: [],
+            persistedActivityId: 'materialized-walk-1',
+          },
+        ],
+        totalProposals: 1,
+        acceptedCount: 1,
+        rejectedCount: 0,
+      });
+      prisma.activity.findMany.mockResolvedValue([
+        ...candidates.map((c) => ({
+          id: c.id,
+          latitude: c.latitude,
+          longitude: c.longitude,
+          kind: ActivityKind.POI,
+        })),
+        {
+          id: 'materialized-walk-1',
+          latitude: -34.62,
+          longitude: -58.37,
+          kind: ActivityKind.NEIGHBORHOOD_WALK,
+        },
+      ]);
+      activitiesService.findManyByIds = jest.fn().mockResolvedValue([
+        {
+          id: 'materialized-walk-1',
+          name: 'Paseo San Telmo',
+          latitude: -34.62,
+          longitude: -58.37,
+          kind: ActivityKind.NEIGHBORHOOD_WALK,
+        },
+      ]);
       toursService.findOne.mockResolvedValue(
         buildTour({
           metadata: {
@@ -1699,7 +1773,7 @@ describe('TourActivityGenerationService', () => {
 
       await service.generateTourActivities(TOUR_ID);
 
-      // PR 10: there is no LLM left to re-invoke with feedback, so the
+      // With the daily planning solver: there is no LLM left to re-invoke with feedback, so the
       // shortfall is reported, never retried — and never papered over by
       // forcing the walk into the tour.
       expect(dailyPlanningSolver.solve).toHaveBeenCalledTimes(1);
@@ -1799,7 +1873,7 @@ describe('TourActivityGenerationService', () => {
     });
   });
 
-  // PR 10: the deterministic planner can only schedule ids from the offered
+  // The deterministic planner can only schedule ids from the offered
   // catalog pool, so live composite persistence must stay unreachable here.
   it('never persists a composite during live generation', async () => {
     const poiId = testUuid();
@@ -1881,7 +1955,7 @@ describe('TourActivityGenerationService', () => {
     });
   });
 
-  // PR 10: per-tour waypoint trimming at generation time is gone with the
+  // Per-tour waypoint trimming at generation time is gone with the
   // LLM that used to request it — every composite is snapshotted with its
   // full current waypoint set, and trimming now happens post-generation on
   // the review screen instead.
@@ -2085,7 +2159,7 @@ describe('TourActivityGenerationService', () => {
     await service.generateTourActivities(TOUR_ID);
 
     expect(googlePlacesService.crawlAndSaveActivities).not.toHaveBeenCalled();
-    // PR 9 acceptance: existing catalog Activities are preferred over
+    // Existing catalog Activities are preferred over
     // equivalent newly proposed ones — a sufficient catalog pool never
     // even reaches Discovery, so there's nothing new to prefer over.
     expect(activityDiscoveryService.discoverGaps).not.toHaveBeenCalled();
@@ -2247,12 +2321,16 @@ describe('TourActivityGenerationService', () => {
       buildTour({
         metadata: {
           generationRequest: buildGenerationRequest({
-            intent: { interests: ['history'] },
+            intent: {
+              interests: ['history'],
+              experienceFormats: [],
+            },
           }),
         },
         prompt: 'A tour',
       }),
     );
+    const fillerPoiId = testUuid();
     activitiesService.findAll.mockResolvedValue([
       {
         id: mediocrePoiId,
@@ -2273,22 +2351,45 @@ describe('TourActivityGenerationService', () => {
         isCurated: true,
         weightedScore: 4.0, // the old flat PRIOR_MEAN default — must NOT be used for a composite
       },
+      {
+        id: fillerPoiId,
+        name: 'Low score filler POI',
+        latitude: -34.62,
+        longitude: -58.37,
+        rating: 2.0,
+        ratingCount: 10,
+        kind: 'POI',
+        weightedScore: 2.0,
+      },
     ]);
     vectorStoreService.getSimilarityScores.mockResolvedValue(
       similarityResult(
         new Map([
           [mediocrePoiId, 0.5],
           [curatedWalkId, 0.5],
+          [fillerPoiId, 0.1],
         ]),
-        2,
+        3,
       ),
     );
     prisma.activity.findMany.mockResolvedValue([
+      {
+        id: mediocrePoiId,
+        latitude: -34.62,
+        longitude: -58.37,
+        kind: ActivityKind.POI,
+      },
       {
         id: curatedWalkId,
         latitude: -34.62,
         longitude: -58.37,
         kind: ActivityKind.NEIGHBORHOOD_WALK,
+      },
+      {
+        id: fillerPoiId,
+        latitude: -34.62,
+        longitude: -58.37,
+        kind: ActivityKind.POI,
       },
     ]);
 

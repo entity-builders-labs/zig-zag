@@ -16,6 +16,26 @@ test('serializes destination, mobility and experience intent independently', asy
       body: '[]'
     });
   });
+  await page.route('**/api.geoapify.com/**', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        features: [
+          {
+            properties: {
+              place_id: 'test-city',
+              formatted: 'Córdoba, Argentina',
+              lat: -31.4201,
+              lon: -64.1888,
+              result_type: 'city',
+            },
+            bbox: [-64.28, -31.5, -64.1, -31.34],
+          },
+        ],
+      }),
+    });
+  });
   await page.route('**/gplaces/v1/places:autocomplete', async (route) => {
     await route.fulfill({
       status: 200,
@@ -66,29 +86,26 @@ test('serializes destination, mobility and experience intent independently', asy
   await loginViaUI(page);
   await page.getByTestId('create-tour-fab').click();
 
-  await page.getByPlaceholder('Buscar destino').fill('Córdoba');
+  await page.getByPlaceholder(/Ej: Roma|Buscar destino/i).fill('Córdoba');
   await page.getByText('Córdoba, Argentina', { exact: true }).click();
-  await page.getByText('Siguiente →').click();
+  await page.getByTestId('wizard-cta-button').click();
 
   await page.getByText('$$', { exact: true }).click();
   await page.getByText('Familia', { exact: true }).click();
-  await page.getByText('Público', { exact: true }).click();
-  await page.getByText('Pie', { exact: true }).click();
+  await page.getByText('Bus/Subte', { exact: true }).click();
+  await page.getByText('A Pie', { exact: true }).click();
   await page.getByText('Me gusta caminar', { exact: true }).click();
-  await page.getByText('Acceso en silla de ruedas', { exact: true }).click();
-  await page.getByText('Siguiente →').click();
+  await page.getByText(/Silla de ruedas/i).click();
+  await page.getByTestId('wizard-cta-button').click();
 
-  await page.getByText('Caminatas por barrios', { exact: true }).click();
-  await page.getByText('Visitar lugares', { exact: true }).click();
+  await page.getByText(/Visitas a Lugares/i).click();
   await page.getByText('Icónicos', { exact: true }).click();
   await page.getByText('Historia', { exact: true }).last().click();
   await page
-    .getByPlaceholder(
-      'Ej. Prefiero fotografía urbana y evitar lugares muy concurridos'
-    )
+    .getByPlaceholder(/fotografía urbana/i)
     .fill('  Evitar multitudes y priorizar fotografía urbana.  ');
 
-  await page.getByText('Generar ZigZag ✨').click();
+  await page.getByTestId('wizard-cta-button').click();
   await expect.poll(() => submittedPayload).toBeTruthy();
 
   expect(submittedPayload).toMatchObject({

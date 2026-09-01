@@ -17,6 +17,10 @@ import { PrismaService } from '../../core/database/prisma.service';
     PushNotificationService,
     NotificationDeliveryService,
   ],
-  exports: [SSEHubService, PushNotificationService, NotificationDeliveryService],
+  exports: [
+    SSEHubService,
+    PushNotificationService,
+    NotificationDeliveryService,
+  ],
 })
 export class NotificationsModule {}

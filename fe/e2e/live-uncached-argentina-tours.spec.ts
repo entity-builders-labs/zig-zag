@@ -59,7 +59,7 @@ function toDateStr(d: Date): string {
 test.describe('E2E Live: Uncached Argentina Destinations at Human Speed', () => {
   test.setTimeout(300_000); // 5 minutes headroom for real API queries & human pacing
 
-  test('San Rafael, Mendoza: Full wizard journey, live refill, daily planning solver, list/map & bitácora', async ({
+  test('@live San Rafael, Mendoza: Full wizard journey, live refill, daily planning solver, list/map & bitácora', async ({
     page,
     request,
   }) => {
@@ -251,7 +251,7 @@ test.describe('E2E Live: Uncached Argentina Destinations at Human Speed', () => 
     expect(consoleErrors).toEqual([]);
   });
 
-  test('Villa General Belgrano, Córdoba: Alpine walk itinerary, fresh refill, PR10 solver, map & trace', async ({
+  test('@live Villa General Belgrano, Córdoba: Alpine walk itinerary, fresh refill, daily planning solver, map & trace', async ({
     page,
     request,
   }) => {

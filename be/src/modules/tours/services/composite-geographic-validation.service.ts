@@ -41,8 +41,7 @@ export class CompositeGeographicValidationService {
   );
 
   constructor(
-    private readonly thresholds: GeographicValidationThresholds =
-      DEFAULT_GEOGRAPHIC_VALIDATION_THRESHOLDS,
+    private readonly thresholds: GeographicValidationThresholds = DEFAULT_GEOGRAPHIC_VALIDATION_THRESHOLDS,
   ) {}
 
   validateBatch(
@@ -112,13 +111,9 @@ export class CompositeGeographicValidationService {
         );
         break;
       default:
-        result = this.rejected(
-          proposal.name,
-          kind,
-          [],
-          groundedEvidenceKeys,
-          ['no_resolved_entities'],
-        );
+        result = this.rejected(proposal.name, kind, [], groundedEvidenceKeys, [
+          'no_resolved_entities',
+        ]);
     }
 
     this.logger.log(
@@ -133,8 +128,7 @@ export class CompositeGeographicValidationService {
         strategy: result.strategy,
         rejectionReasons: result.rejectionReasons,
         radiusMeters: result.coherence?.radiusMeters,
-        maxPairwiseDistanceMeters:
-          result.coherence?.maxPairwiseDistanceMeters,
+        maxPairwiseDistanceMeters: result.coherence?.maxPairwiseDistanceMeters,
       }),
     );
     return result;
@@ -160,9 +154,13 @@ export class CompositeGeographicValidationService {
     }
     const canonicalEntity = withCoordinates[0];
     if (!this.isInsideDestination(canonicalEntity, destinationBoundary)) {
-      return this.rejected(proposalName, kind, [canonicalEntity], evidenceKeys, [
-        'destination_mismatch',
-      ]);
+      return this.rejected(
+        proposalName,
+        kind,
+        [canonicalEntity],
+        evidenceKeys,
+        ['destination_mismatch'],
+      );
     }
     return {
       proposalName,
@@ -191,9 +189,13 @@ export class CompositeGeographicValidationService {
     );
     if (canonicalArea) {
       if (!this.isInsideDestination(canonicalArea, destinationBoundary)) {
-        return this.rejected(proposalName, kind, [canonicalArea], evidenceKeys, [
-          'destination_mismatch',
-        ]);
+        return this.rejected(
+          proposalName,
+          kind,
+          [canonicalArea],
+          evidenceKeys,
+          ['destination_mismatch'],
+        );
       }
       return {
         proposalName,
@@ -226,7 +228,8 @@ export class CompositeGeographicValidationService {
     }
     const coherence = coherenceMetrics(this.pointsOf(anchors));
     if (
-      coherence.radiusMeters > this.thresholds.neighborhoodWalk.maxRadiusMeters ||
+      coherence.radiusMeters >
+        this.thresholds.neighborhoodWalk.maxRadiusMeters ||
       coherence.maxPairwiseDistanceMeters >
         this.thresholds.neighborhoodWalk.maxPairwiseDistanceMeters
     ) {
@@ -265,10 +268,16 @@ export class CompositeGeographicValidationService {
       (entity) => entity.role === 'route' && entity.geometry,
     );
     if (canonicalRoute) {
-      if (this.routeDestinationMismatch([canonicalRoute], destinationBoundary)) {
-        return this.rejected(proposalName, kind, [canonicalRoute], evidenceKeys, [
-          'destination_mismatch',
-        ]);
+      if (
+        this.routeDestinationMismatch([canonicalRoute], destinationBoundary)
+      ) {
+        return this.rejected(
+          proposalName,
+          kind,
+          [canonicalRoute],
+          evidenceKeys,
+          ['destination_mismatch'],
+        );
       }
       return {
         proposalName,
@@ -378,7 +387,8 @@ export class CompositeGeographicValidationService {
     const unresolvedRequired = requiredConcreteHints.some(
       (hint) =>
         !resolvedProposal.resolvedEntities.some(
-          (entity) => entity.hintKey === hint.key && entity.status === 'resolved',
+          (entity) =>
+            entity.hintKey === hint.key && entity.status === 'resolved',
         ),
     );
     if (unresolvedRequired) {
@@ -481,7 +491,10 @@ export class CompositeGeographicValidationService {
     );
     return anchors.some((entity) => {
       if (this.isInsideDestination(entity, destinationBoundary)) return false;
-      if (!Number.isFinite(entity.latitude) || !Number.isFinite(entity.longitude)) {
+      if (
+        !Number.isFinite(entity.latitude) ||
+        !Number.isFinite(entity.longitude)
+      ) {
         return true;
       }
       return (
@@ -497,7 +510,10 @@ export class CompositeGeographicValidationService {
     entity: ResolvedEntity,
     destinationBoundary: OsmCandidate,
   ): boolean {
-    if (!Number.isFinite(entity.latitude) || !Number.isFinite(entity.longitude)) {
+    if (
+      !Number.isFinite(entity.latitude) ||
+      !Number.isFinite(entity.longitude)
+    ) {
       return false;
     }
     return geometryContainsPoint(

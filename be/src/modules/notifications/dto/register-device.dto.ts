@@ -3,7 +3,8 @@ import { IsNotEmpty, IsString, IsIn } from 'class-validator';
 
 export class RegisterDeviceDto {
   @ApiProperty({
-    description: 'Expo Push Token (e.g. ExponentPushToken[xxxxxxxxxxxxxxxxxxxxxx])',
+    description:
+      'Expo Push Token (e.g. ExponentPushToken[xxxxxxxxxxxxxxxxxxxxxx])',
     example: 'ExponentPushToken[xxxxxxxxxxxxxxxxxxxxxx]',
   })
   @IsString()

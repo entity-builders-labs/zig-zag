@@ -41,7 +41,9 @@ function createService() {
       .mockResolvedValue({ status: 'success', value: [] }),
   };
   const catalogCandidateValidator = {
-    validate: jest.fn().mockReturnValue({ accepted: true, rejectionReasons: [] }),
+    validate: jest
+      .fn()
+      .mockReturnValue({ accepted: true, rejectionReasons: [] }),
   };
 
   const service = new ActivityProposalResolutionService(
@@ -185,7 +187,13 @@ describe('ActivityProposalResolutionService live regressions', () => {
           osmType: 'way',
           osmId: 10,
           tags: { highway: 'secondary' },
-          geometry: { type: 'LineString', coordinates: [[-58.52, -33.01], [-58.51, -33.02]] },
+          geometry: {
+            type: 'LineString',
+            coordinates: [
+              [-58.52, -33.01],
+              [-58.51, -33.02],
+            ],
+          },
         },
         {
           id: 'osm:way:11',
@@ -193,7 +201,13 @@ describe('ActivityProposalResolutionService live regressions', () => {
           osmType: 'way',
           osmId: 11,
           tags: { highway: 'residential' },
-          geometry: { type: 'LineString', coordinates: [[-58.51, -33.02], [-58.50, -33.03]] },
+          geometry: {
+            type: 'LineString',
+            coordinates: [
+              [-58.51, -33.02],
+              [-58.5, -33.03],
+            ],
+          },
         },
       ],
     });

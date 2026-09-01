@@ -53,9 +53,7 @@ export class NegativeCacheService {
     if (!lookupKey || !lookupKey.trim()) return;
 
     const normalizedKey = lookupKey.trim().toLowerCase();
-    const negativeUntil = new Date(
-      Date.now() + ttlDays * 24 * 60 * 60 * 1000,
-    );
+    const negativeUntil = new Date(Date.now() + ttlDays * 24 * 60 * 60 * 1000);
 
     try {
       await this.prisma.negativeMediaLookup.upsert({

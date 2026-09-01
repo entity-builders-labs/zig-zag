@@ -166,7 +166,9 @@ export class ActivitiesController {
 
   @Post(':id/enrich')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Enrich activity photos and highlights from configured provider' })
+  @ApiOperation({
+    summary: 'Enrich activity photos and highlights from configured provider',
+  })
   @ApiResponse({
     status: 200,
     description: 'Returns the enriched activity',

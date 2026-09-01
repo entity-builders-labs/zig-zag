@@ -1,4 +1,8 @@
 import { TourGenerationService } from './tour-generation.service';
+import {
+  TransportationMode,
+  TravelPace,
+} from '../interfaces/tour-generation.interface';
 
 describe('TourGenerationService Groq prompt budget', () => {
   it('offers each candidate once and uses a completion budget below the provider TPM limit', async () => {
@@ -95,11 +99,17 @@ describe('TourGenerationService Groq prompt budget', () => {
           additionalPreferences: '',
         },
         mobility: {
-          transportationModes: ['walking'],
-          maxWalkingDistancePerDayKm: 10,
-          maxContinuousWalkingDistanceKm: 3,
-          travelPace: 'moderate',
+          allowedTransportationModes: [TransportationMode.WALKING],
+          maxWalkingDistancePerDayMeters: 10000,
+          maxContinuousWalkingDistanceMeters: 3000,
+          travelPace: TravelPace.MODERATE,
+          accessibilityNeeds: [],
         },
+        dietaryRestrictions: [],
+        startDates: [],
+        excludeTours: [],
+        includeExistingActivities: true,
+        skipImageGeneration: false,
       } as any,
       'user-1',
     );

@@ -17,13 +17,27 @@ export const ROSARIO_CANDIDATES: PlanningActivityCandidate[] = [
     openingHours: {
       status: 'known',
       rangesByWeekday: {
-        '1': [{ startMinutesFromMidnight: 9 * 60, endMinutesFromMidnight: 19 * 60 }],
-        '2': [{ startMinutesFromMidnight: 9 * 60, endMinutesFromMidnight: 19 * 60 }],
-        '3': [{ startMinutesFromMidnight: 9 * 60, endMinutesFromMidnight: 19 * 60 }],
-        '4': [{ startMinutesFromMidnight: 9 * 60, endMinutesFromMidnight: 19 * 60 }],
-        '5': [{ startMinutesFromMidnight: 9 * 60, endMinutesFromMidnight: 19 * 60 }],
-        '6': [{ startMinutesFromMidnight: 9 * 60, endMinutesFromMidnight: 19 * 60 }],
-        '0': [{ startMinutesFromMidnight: 9 * 60, endMinutesFromMidnight: 19 * 60 }],
+        '1': [
+          { startMinutesFromMidnight: 9 * 60, endMinutesFromMidnight: 19 * 60 },
+        ],
+        '2': [
+          { startMinutesFromMidnight: 9 * 60, endMinutesFromMidnight: 19 * 60 },
+        ],
+        '3': [
+          { startMinutesFromMidnight: 9 * 60, endMinutesFromMidnight: 19 * 60 },
+        ],
+        '4': [
+          { startMinutesFromMidnight: 9 * 60, endMinutesFromMidnight: 19 * 60 },
+        ],
+        '5': [
+          { startMinutesFromMidnight: 9 * 60, endMinutesFromMidnight: 19 * 60 },
+        ],
+        '6': [
+          { startMinutesFromMidnight: 9 * 60, endMinutesFromMidnight: 19 * 60 },
+        ],
+        '0': [
+          { startMinutesFromMidnight: 9 * 60, endMinutesFromMidnight: 19 * 60 },
+        ],
       },
     },
   },
@@ -38,7 +52,10 @@ export const ROSARIO_CANDIDATES: PlanningActivityCandidate[] = [
       type: 'POINT',
       centroid: { lat: -32.9372, lng: -60.6361 },
     },
-    formats: [ExperienceFormat.POINT_VISITS, ExperienceFormat.NEIGHBORHOOD_WALKS],
+    formats: [
+      ExperienceFormat.POINT_VISITS,
+      ExperienceFormat.NEIGHBORHOOD_WALKS,
+    ],
     openingHours: { status: 'unknown' },
   },
   {
@@ -57,12 +74,42 @@ export const ROSARIO_CANDIDATES: PlanningActivityCandidate[] = [
       status: 'known',
       rangesByWeekday: {
         '1': [], // Closed Monday
-        '2': [{ startMinutesFromMidnight: 13 * 60, endMinutesFromMidnight: 19 * 60 }],
-        '3': [{ startMinutesFromMidnight: 13 * 60, endMinutesFromMidnight: 19 * 60 }],
-        '4': [{ startMinutesFromMidnight: 13 * 60, endMinutesFromMidnight: 19 * 60 }],
-        '5': [{ startMinutesFromMidnight: 13 * 60, endMinutesFromMidnight: 19 * 60 }],
-        '6': [{ startMinutesFromMidnight: 13 * 60, endMinutesFromMidnight: 19 * 60 }],
-        '0': [{ startMinutesFromMidnight: 13 * 60, endMinutesFromMidnight: 19 * 60 }],
+        '2': [
+          {
+            startMinutesFromMidnight: 13 * 60,
+            endMinutesFromMidnight: 19 * 60,
+          },
+        ],
+        '3': [
+          {
+            startMinutesFromMidnight: 13 * 60,
+            endMinutesFromMidnight: 19 * 60,
+          },
+        ],
+        '4': [
+          {
+            startMinutesFromMidnight: 13 * 60,
+            endMinutesFromMidnight: 19 * 60,
+          },
+        ],
+        '5': [
+          {
+            startMinutesFromMidnight: 13 * 60,
+            endMinutesFromMidnight: 19 * 60,
+          },
+        ],
+        '6': [
+          {
+            startMinutesFromMidnight: 13 * 60,
+            endMinutesFromMidnight: 19 * 60,
+          },
+        ],
+        '0': [
+          {
+            startMinutesFromMidnight: 13 * 60,
+            endMinutesFromMidnight: 19 * 60,
+          },
+        ],
       },
     },
   },

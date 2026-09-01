@@ -2,16 +2,13 @@ import { RankableCandidate, RankedCandidate } from './candidate-ranking.util';
 import { EXPERIENCE_FORMAT_ACTIVITY_KIND } from './experience-format-kind.util';
 import { ExperienceFormat } from '../interfaces/tour-generation.interface';
 
-// PR 9: a plain sortBy(score).slice(0, N) over a ranked pool can legitimately
+// A plain sortBy(score).slice(0, N) over a ranked pool can legitimately
 // drop every candidate of a requested experience format when enough
-// higher-scoring POIs exist — the LLM is then never offered a format the
-// user explicitly asked for, and PR 7.4's format-coverage validator can't
-// catch it (the model was never given the option). This module reserves
+// higher-scoring POIs exist — the planner is then never offered a format the
+// user explicitly asked for, and the format-coverage validator can't
+// catch it (the planner was never given the option). This module reserves
 // window slots for requested formats and caps near-duplicate family
-// variants before filling the remainder by plain rank — see
-// docs/superpowers/plans/2026-08-21-activity-engine-quality-discovery-mobility.md,
-// "PR 9: Unified candidate pool", "FORMAT-AWARE BOUNDED WINDOW" /
-// "FAMILY / VARIANT HANDLING".
+// variants before filling the remainder by plain rank.
 
 /** At most this many variants of the same ActivityFamily enter one window — avoids flooding it with near-identical composite variants. Centralized/named/documented per the plan's weight-hygiene rule. */
 export const MAX_VARIANTS_PER_FAMILY = 1;

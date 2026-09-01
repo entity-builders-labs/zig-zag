@@ -4,6 +4,11 @@ import {
   MessageHandler,
 } from '../interfaces/message-queue.interface';
 
+export const CRITICAL_TOPICS = new Set<string>([
+  'TourGenerationRequested',
+  'ActivityMediaEnrichmentRequested',
+]);
+
 /**
  * In-process transport used behind the durable database outbox.
  *
@@ -11,10 +16,10 @@ import {
  * exists, publish resolves only after every registered consumer has completed
  * successfully. A consumer failure therefore keeps the outbox row retryable.
  *
- * Some outbox event types are integration notifications with no in-process
- * subscriber (for example SSE/push-facing events). Preserve the historical
- * no-op acknowledgement for those topics instead of poisoning the outbox with
- * retries merely because this adapter has no local listener.
+ * Critical topics (TourGenerationRequested, ActivityMediaEnrichmentRequested)
+ * require a registered local subscriber and throw an error when missing so the
+ * outbox loop retries. Optional topics (e.g. ActivityMediaUpdated, TourProgressUpdated)
+ * are acknowledged as no-ops when no in-process consumer is listening.
  */
 @Injectable()
 export class InMemoryQueueService implements IMessageQueueService {
@@ -24,8 +29,16 @@ export class InMemoryQueueService implements IMessageQueueService {
   async publish<T = any>(topic: string, payload: T): Promise<void> {
     const handlers = this.subscribers.get(topic);
     if (!handlers || handlers.size === 0) {
+      if (CRITICAL_TOPICS.has(topic)) {
+        this.logger.error(
+          `[InMemoryQueue] No local subscribers registered for critical topic "${topic}". Outbox must retry.`,
+        );
+        throw new Error(
+          `No local subscribers registered for critical topic "${topic}". Outbox must retry.`,
+        );
+      }
       this.logger.debug(
-        `[InMemoryQueue] No local subscribers registered for topic "${topic}". Publication acknowledged as a no-op.`,
+        `[InMemoryQueue] No local subscribers registered for optional topic "${topic}". Publication acknowledged as a no-op.`,
       );
       return;
     }
@@ -41,7 +54,9 @@ export class InMemoryQueueService implements IMessageQueueService {
       (result): result is PromiseRejectedResult => result.status === 'rejected',
     );
     if (failures.length > 0) {
-      const reasons = failures.map((failure) => String(failure.reason)).join('; ');
+      const reasons = failures
+        .map((failure) => String(failure.reason))
+        .join('; ');
       this.logger.error(
         `[InMemoryQueue] ${failures.length}/${handlers.size} handler(s) failed for topic "${topic}": ${reasons}`,
       );
@@ -54,7 +69,9 @@ export class InMemoryQueueService implements IMessageQueueService {
       this.subscribers.set(topic, new Set());
     }
     this.subscribers.get(topic)!.add(handler as MessageHandler);
-    this.logger.debug(`[InMemoryQueue] Registered subscriber for topic "${topic}".`);
+    this.logger.debug(
+      `[InMemoryQueue] Registered subscriber for topic "${topic}".`,
+    );
   }
 
   unsubscribe(topic: string, handler?: MessageHandler): void {

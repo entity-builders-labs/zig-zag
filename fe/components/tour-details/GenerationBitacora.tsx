@@ -333,7 +333,7 @@ function TimelineStep({
 function MetricCard({ rule }: { rule: TraceRuleEvaluation }) {
   return (
     <Box
-      minW={160}
+      style={{ minWidth: 160 }}
       flex={1}
       p='$3'
       bg={COLORS.panelSoft as any}
@@ -524,7 +524,7 @@ function Panel({
   return (
     <Box
       flex={1}
-      minW={260}
+      style={{ minWidth: 260 }}
       bg={COLORS.panel as any}
       borderWidth={1}
       borderColor={COLORS.border as any}
@@ -550,7 +550,7 @@ function StageDetail({ step, index, nextStep }: { step: GenerationTraceStep; ind
     <VStack flex={1}>
       <Box px='$5' pt='$5' pb='$4' borderBottomWidth={1} borderBottomColor={COLORS.border as any}>
         <HStack justifyContent='space-between' alignItems='flex-start' space='lg' flexWrap='wrap'>
-          <VStack flex={1} minW={260}>
+          <VStack flex={1} style={{ minWidth: 260 }}>
             <HStack alignItems='center' space='sm' flexWrap='wrap'>
               <Box w={32} h={32} borderRadius='$full' bg={COLORS.blue as any} alignItems='center' justifyContent='center'>
                 <Text size='xs' fontWeight='$bold' color='#FFFFFF'>{index + 1}</Text>
@@ -567,7 +567,7 @@ function StageDetail({ step, index, nextStep }: { step: GenerationTraceStep; ind
             </HStack>
           </VStack>
           <Box
-            minW={260}
+            style={{ minWidth: 260 }}
             maxW={380}
             p='$3'
             borderRadius='$lg'
@@ -754,7 +754,7 @@ export const GenerationBitacora = ({
             bg={COLORS.panelStrong as any}
           >
             <HStack justifyContent='space-between' alignItems='center' space='lg' flexWrap='wrap'>
-              <HStack alignItems='center' space='sm' flex={1} minW={280}>
+              <HStack alignItems='center' space='sm' flex={1} style={{ minWidth: 280 }}>
                 <Pressable
                   onPress={() => setIsOpen(false)}
                   w={38}
@@ -830,7 +830,7 @@ export const GenerationBitacora = ({
                     {trace.steps.map((step, index) => (
                       <Pressable key={`${step.stage}-${index}`} onPress={() => setSelectedStep(index)}>
                         <Box
-                          minW={150}
+                          style={{ minWidth: 150 }}
                           p='$2.5'
                           borderRadius='$lg'
                           borderWidth={1}

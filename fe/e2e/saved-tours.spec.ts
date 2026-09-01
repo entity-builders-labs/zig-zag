@@ -8,23 +8,12 @@ test('a tour created by the user shows up in the Guardados tab', async ({
 }) => {
   const session = await apiLogin(request);
 
-  const createResp = await request.post(`${API_URL}/tours/generate-tour`, {
+  const createResp = await request.post(`${API_URL}/tours`, {
     headers: { Authorization: `Bearer ${session.accessToken}` },
     data: {
-      destination: 'Caminito, La Boca, Buenos Aires',
-      destinationLatitude: -34.6393027,
-      destinationLongitude: -58.3627819,
-      latitude: -34.6393027,
-      longitude: -58.3627819,
-      radius: 1000,
-      days: 1,
-      budgetLevel: 'medium',
-      interests: ['culture'],
-      transportationMode: ['walking'],
-      groupType: 'solo',
-      travelPace: 'moderate',
-      skipActivities: true, // Guardados only needs the tour to exist, not fully generated
-      skipImageGeneration: true,
+      name: 'Tour Guardados Fixture',
+      description: 'Caminito, La Boca, Buenos Aires',
+      totalDays: 1,
     },
   });
   expect(createResp.ok()).toBeTruthy();
@@ -44,20 +33,15 @@ test('Guardados only shows the current user\'s own tours', async ({
   request,
 }) => {
   const otherUser = await apiLogin(request);
-  await request.post(`${API_URL}/tours/generate-tour`, {
+  const otherResp = await request.post(`${API_URL}/tours`, {
     headers: { Authorization: `Bearer ${otherUser.accessToken}` },
     data: {
-      destination: 'Recoleta, Buenos Aires',
-      destinationLatitude: -34.5875,
-      destinationLongitude: -58.3936,
-      latitude: -34.5875,
-      longitude: -58.3936,
-      radius: 1000,
-      days: 1,
-      skipActivities: true,
-      skipImageGeneration: true,
+      name: 'Other User Tour',
+      description: 'Recoleta, Buenos Aires',
+      totalDays: 1,
     },
   });
+  expect(otherResp.ok()).toBeTruthy();
 
   const me = await apiLogin(request);
   await seedAuthSession(page, me);
@@ -65,7 +49,7 @@ test('Guardados only shows the current user\'s own tours', async ({
   await page.getByTestId('tab-saved').click();
 
   // The other user's tour must never leak into this session's list.
-  await expect(page.getByText('Todavía no creaste ningún tour')).toBeVisible({
+  await expect(page.getByText('Aún no tenés recorridos guardados')).toBeVisible({
     timeout: 10_000,
   });
 });

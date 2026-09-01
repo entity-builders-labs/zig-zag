@@ -34,7 +34,9 @@ export interface PhotoEnrichmentQuery {
 
 export interface IPhotoEnrichmentProvider {
   readonly providerName: string;
-  enrichActivity(query: PhotoEnrichmentQuery): Promise<ActivityEnrichmentResult>;
+  enrichActivity(
+    query: PhotoEnrichmentQuery,
+  ): Promise<ActivityEnrichmentResult>;
   enrichBatch?(
     queries: PhotoEnrichmentQuery[],
   ): Promise<Map<string, ActivityEnrichmentResult>>;

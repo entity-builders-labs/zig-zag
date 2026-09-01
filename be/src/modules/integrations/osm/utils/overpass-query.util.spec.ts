@@ -182,7 +182,9 @@ describe('buildPoisWithinAreaQuery', () => {
     expect(query).toContain('map_to_area->.a');
     expect(query).toContain('nwr["tourism"]["name"](area.a)');
     expect(query).toContain('nwr["historic"]["name"](area.a)');
-    expect(query).toContain('nwr["leisure"~"^(park|square|beach_resort)$"]["name"](area.a)');
+    expect(query).toContain(
+      'nwr["leisure"~"^(park|square|beach_resort)$"]["name"](area.a)',
+    );
     expect(query).toContain('nwr["natural"="beach"]["name"](area.a)');
     expect(query).not.toContain('around:');
   });

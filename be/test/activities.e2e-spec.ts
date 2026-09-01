@@ -4,6 +4,7 @@ import * as request from 'supertest';
 import { AppModule } from './../src/app.module';
 import { AiEmbeddingService } from '../src/shared/ai/services/ai-embedding.service';
 import { PrismaService } from '../src/core/database/prisma.service';
+import { SEMANTIC_ACTIVITY_DOCUMENT_VERSION } from '../src/shared/ai/services/semantic-activity-document-builder.service';
 
 // Exercises the real pgvector column, HNSW index, and raw-query path in
 // VectorStoreService end-to-end against a real Postgres connection - the one
@@ -24,6 +25,13 @@ describe('Activities similarity search (e2e)', () => {
 
   const toVectorLiteral = (vector: number[]) => `[${vector.join(',')}]`;
 
+  const testIdentity = {
+    provider: 'ollama',
+    model: 'nomic-embed-text',
+    dimensions: 256,
+    documentVersion: SEMANTIC_ACTIVITY_DOCUMENT_VERSION,
+  };
+
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
@@ -34,6 +42,11 @@ describe('Activities similarity search (e2e)', () => {
         getEmbeddings: () => ({
           embedQuery: jest.fn().mockResolvedValue(queryVector),
           embedDocuments: jest.fn(),
+        }),
+        getIndexIdentity: () => testIdentity,
+        getStatus: () => ({
+          status: 'ready',
+          identity: testIdentity,
         }),
       })
       .compile();
@@ -58,10 +71,22 @@ describe('Activities similarity search (e2e)', () => {
     activityIds.push(target.id, near.id, far.id);
 
     await prisma.$executeRaw`
-      UPDATE "activity" SET "embedding" = ${toVectorLiteral(closeVector)}::vector WHERE "id" = ${near.id}
+      UPDATE "activity"
+      SET "embedding" = ${toVectorLiteral(closeVector)}::vector,
+          "embeddingProvider" = ${testIdentity.provider},
+          "embeddingModel" = ${testIdentity.model},
+          "embeddingDimensions" = ${testIdentity.dimensions},
+          "embeddingDocumentVersion" = ${testIdentity.documentVersion}
+      WHERE "id" = ${near.id}
     `;
     await prisma.$executeRaw`
-      UPDATE "activity" SET "embedding" = ${toVectorLiteral(farVector)}::vector WHERE "id" = ${far.id}
+      UPDATE "activity"
+      SET "embedding" = ${toVectorLiteral(farVector)}::vector,
+          "embeddingProvider" = ${testIdentity.provider},
+          "embeddingModel" = ${testIdentity.model},
+          "embeddingDimensions" = ${testIdentity.dimensions},
+          "embeddingDocumentVersion" = ${testIdentity.documentVersion}
+      WHERE "id" = ${far.id}
     `;
   });
 

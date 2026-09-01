@@ -75,22 +75,23 @@ export interface GeographicValidationThresholds {
   };
 }
 
-export const DEFAULT_GEOGRAPHIC_VALIDATION_THRESHOLDS: GeographicValidationThresholds = {
-  neighborhoodWalk: {
-    minAnchors: 3,
-    maxRadiusMeters: 2_000,
-    maxPairwiseDistanceMeters: 4_000,
-  },
-  route: {
-    minAnchors: 3,
-    maxRadiusMeters: 80_000,
-    maxPairwiseDistanceMeters: 160_000,
-  },
-  experience: {
-    minAnchors: 2,
-    maxRadiusMeters: 30_000,
-    maxPairwiseDistanceMeters: 60_000,
-  },
-};
+export const DEFAULT_GEOGRAPHIC_VALIDATION_THRESHOLDS: GeographicValidationThresholds =
+  {
+    neighborhoodWalk: {
+      minAnchors: 3,
+      maxRadiusMeters: 2_000,
+      maxPairwiseDistanceMeters: 4_000,
+    },
+    route: {
+      minAnchors: 3,
+      maxRadiusMeters: 80_000,
+      maxPairwiseDistanceMeters: 160_000,
+    },
+    experience: {
+      minAnchors: 2,
+      maxRadiusMeters: 30_000,
+      maxPairwiseDistanceMeters: 60_000,
+    },
+  };
 
 export const GEOGRAPHIC_VALIDATOR_VERSION = 1;

@@ -240,11 +240,13 @@ export class ActivityDiscoveryService {
     );
     if (dedupedProposals.length === 0) {
       this.logger.warn(
-        `Structural discovery produced zero valid proposals for ${destinationName}: ${JSON.stringify({
-          missingKinds,
-          searchTrace,
-          validationErrors,
-        })}`,
+        `Structural discovery produced zero valid proposals for ${destinationName}: ${JSON.stringify(
+          {
+            missingKinds,
+            searchTrace,
+            validationErrors,
+          },
+        )}`,
       );
     }
 

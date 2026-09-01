@@ -51,7 +51,11 @@ describe('OutboxLifecycle Policy & Services', () => {
     cleaner = module.get<OutboxCleanerService>(OutboxCleanerService);
 
     // Disable auto-timers for unit testing
-    publisher.configure({ autoStart: false, baseBackoffMs: 1000, maxBackoffMs: 10000 });
+    publisher.configure({
+      autoStart: false,
+      baseBackoffMs: 1000,
+      maxBackoffMs: 10000,
+    });
     cleaner.configure({ autoStart: false });
   });
 
@@ -238,7 +242,9 @@ describe('OutboxLifecycle Policy & Services', () => {
 
       prismaMock.$queryRaw.mockResolvedValueOnce(mockRows);
       prismaMock.$executeRaw.mockResolvedValueOnce(1);
-      queueMock.publish.mockRejectedValueOnce(new Error('Fatal broker rejection'));
+      queueMock.publish.mockRejectedValueOnce(
+        new Error('Fatal broker rejection'),
+      );
       prismaMock.outboxEvent.update.mockResolvedValueOnce({});
 
       const result = await publisher.processNextBatch();

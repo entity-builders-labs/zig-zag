@@ -32,7 +32,7 @@ function ranked(
 }
 
 describe('selectBoundedWindow', () => {
-  it('never lets plain ranking reduce a requested format to zero candidates in the window (PR 9 regression case)', () => {
+  it('never lets plain ranking reduce a requested format to zero candidates in the window (format starvation regression case)', () => {
     // 12 higher-scoring POIs would fill the window on rank alone, crowding
     // out both real NEIGHBORHOOD_WALKs even though the pool has them.
     const pois: Candidate[] = Array.from({ length: 12 }, (_, i) => ({

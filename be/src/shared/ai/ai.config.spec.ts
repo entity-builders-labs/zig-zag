@@ -70,7 +70,7 @@ describe('aiConfig embedding index contract', () => {
           },
           groq: {
             apiKey: process.env.GROQ_API_KEY,
-            model: 'openai/gpt-oss-120b',
+            model: 'qwen/qwen3.8-27b',
           },
         },
       }),

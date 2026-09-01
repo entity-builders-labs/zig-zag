@@ -48,9 +48,9 @@ function activityKindToFormats(kind: ActivityKind): ExperienceFormat[] {
 }
 
 /**
- * Boundary adapter converting PR9's ranked, real Prisma `Activity` rows
+ * Boundary adapter converting ranked, real Prisma `Activity` rows
  * (plus their `CandidateScoreBreakdown`) into `PlanningActivityCandidate[]`
- * for the daily-planning solver. The only place in this plan that touches
+ * for the daily-planning solver. The only place that touches
  * Prisma directly for planning purposes — a bounded `activityWaypoint`
  * lookup to compute a composite's internal walking distance from its own
  * ordered real waypoints.

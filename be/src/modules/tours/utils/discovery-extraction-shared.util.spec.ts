@@ -234,9 +234,7 @@ describe('discovery-extraction-shared.util', () => {
 
     it('requires at least 2 resolvable entities for a non-venue-centric EXPERIENCE', () => {
       expect(
-        validateKindRules('EXPERIENCE', [
-          { role: 'waypoint', required: true },
-        ]),
+        validateKindRules('EXPERIENCE', [{ role: 'waypoint', required: true }]),
       ).toEqual(
         expect.arrayContaining([
           expect.stringContaining('at least 2 resolvable entities'),

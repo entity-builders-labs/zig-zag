@@ -15,7 +15,10 @@ describe('PBT-02: Uniqueness [Invariant 6]', () => {
     await fc.assert(
       fc.asyncProperty(
         fc.integer({ min: 1, max: 5 }),
-        fc.array(arbitraryCandidate('colliding'), { minLength: 2, maxLength: 6 }),
+        fc.array(arbitraryCandidate('colliding'), {
+          minLength: 2,
+          maxLength: 6,
+        }),
         async (requestedDays, baseCandidates) => {
           // Intentionally duplicate candidates in pool
           const noisyPool = [

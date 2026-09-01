@@ -45,7 +45,10 @@ describe('Provider Contract: Gemini Discovery Proposals (TC-PROV-01)', () => {
     const errors = validateProposal(validProposal, validEvidenceKeys);
     expect(errors).toHaveLength(0);
 
-    const kindErrors = validateKindRules(validProposal.kind as any, validProposal.entityHints);
+    const kindErrors = validateKindRules(
+      validProposal.kind as any,
+      validProposal.entityHints,
+    );
     expect(kindErrors).toHaveLength(0);
   });
 

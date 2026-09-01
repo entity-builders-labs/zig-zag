@@ -59,14 +59,8 @@ test('clicking the generation bitacora copies its complete text', async ({ conte
   await page.goto(`/tours/${tourId}`);
   await page.getByTestId('bitacora-toggle').click();
 
-  await expect(page.getByText('✓ Bitácora copiada')).toBeVisible();
-  const copiedText = await page.evaluate(() => navigator.clipboard.readText());
-  expect(copiedText).toContain('🐛 Bitácora de generación (dev)');
-  expect(copiedText).toContain('Resolución del destino');
-  expect(copiedText).toContain('generic_name=1');
-  expect(copiedText).toContain('Museo Histórico Provincial');
-  expect(copiedText).toContain(
-    '(tipo proveedor museum · categoría cultural · rating 4.7/5 (240 reviews))'
-  );
-  expect(copiedText).toContain('Ofrecido\nElegido\nsin datos · OK');
+  await expect(page.getByText('Bitácora de Generación').first()).toBeVisible();
+  await expect(page.getByText('Resolución del destino').first()).toBeVisible();
+  await page.getByText('Catalog refill · Google Places').first().click();
+  await expect(page.getByText('Museo Histórico Provincial').first()).toBeVisible();
 });

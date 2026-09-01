@@ -18,7 +18,7 @@ export interface OsmMembershipResult {
 
 /**
  * Exact, parent-constrained point-to-area membership over a finite set of
- * already-hydrated boundaries. This is the bounded adapter deferred from PR 3:
+ * already-hydrated boundaries. This is the bounded adapter for containment:
  * it never performs its own Overpass query. The caller resolves the finite
  * candidate set (a proposal's own neighborhood boundaries), and this service
  * answers "which of these authoritative polygons contains the point" using

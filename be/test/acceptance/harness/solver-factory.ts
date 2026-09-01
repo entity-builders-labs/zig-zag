@@ -4,7 +4,10 @@ import dailyPlanningPolicyConfig from 'src/modules/tours/config/daily-planning-p
 
 export function createGreedySolver(
   estimator: DeterministicTravelEstimator = new DeterministicTravelEstimator(),
-): { solver: GreedyDailyPlanningSolver; estimator: DeterministicTravelEstimator } {
+): {
+  solver: GreedyDailyPlanningSolver;
+  estimator: DeterministicTravelEstimator;
+} {
   const policy = dailyPlanningPolicyConfig();
   const solver = new GreedyDailyPlanningSolver(estimator, policy);
   return { solver, estimator };

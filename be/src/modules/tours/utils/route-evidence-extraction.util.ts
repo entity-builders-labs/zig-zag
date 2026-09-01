@@ -13,7 +13,7 @@ const NAME_CONTINUATION = `(?:${CAP_WORD}|${CONNECTOR})`;
 // destinations, per this session's La Rioja/Buenos Aires/Salta/Mendoza/
 // Córdoba testing) and English. A route name always starts with one of
 // these — bare capitalized phrases elsewhere in the text (a museum name, a
-// person's name) are deliberately not matched; PR 8 is the real identity
+// person's name) are deliberately not matched; proposal resolution is the real identity
 // authority, this only proposes candidates worth asking it about.
 const STREET_TYPE_PREFIXES: Record<string, string> = {
   Calle: 'street',
@@ -79,7 +79,7 @@ function normalize(name: string): string {
  * street/avenue name can appear anywhere: a text block's running narrative,
  * or a supplementary evidence item's title/snippet. This scans both and
  * proposes candidate EntityHints — never resolved or trusted as identity
- * here; PR 8's OSM/Nominatim/Overpass resolution remains the sole authority
+ * here; proposal resolution with OSM/Nominatim/Overpass remains the sole authority
  * on whether any of these are real.
  */
 export function extractRouteHints(result: {

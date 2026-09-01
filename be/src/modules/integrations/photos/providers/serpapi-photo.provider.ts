@@ -66,18 +66,15 @@ export class SerpApiPhotoProvider implements IPhotoEnrichmentProvider {
         .filter(Boolean)
         .join(' ');
 
-      const response = await axios.get<SerpApiGoogleMapsResponse>(
-        this.apiUrl,
-        {
-          params: {
-            engine: 'google_maps',
-            q,
-            api_key: apiKey,
-            hl: 'es',
-          },
-          timeout: 10000,
+      const response = await axios.get<SerpApiGoogleMapsResponse>(this.apiUrl, {
+        params: {
+          engine: 'google_maps',
+          q,
+          api_key: apiKey,
+          hl: 'es',
         },
-      );
+        timeout: 10000,
+      });
 
       const place =
         response.data?.place_results || response.data?.local_results?.[0];

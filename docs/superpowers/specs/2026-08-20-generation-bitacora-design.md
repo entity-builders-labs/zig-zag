@@ -18,41 +18,70 @@ El pedido de esta spec: una bitácora real dentro de la app (no solo un panel de
 
 ## Modelo de datos
 
-`tour.metadata.generationTrace` (mismo campo JSON que ya existe, se reemplaza su forma):
+`tour.metadata.generationTrace` (esquema Trace V2 canónico estructurado por etapas):
 
 ```ts
 type TraceStage =
-  | 'db_search'            // ActivitiesService.findAll por proximidad
-  | 'google_places_crawl'  // solo si se disparó (proximidad no encontró nada)
-  | 'osm_streets'          // OsmPlacesService.findStreetsNear
-  | 'osm_boundary'         // OsmPlacesService.findContainingBoundary
-  | 'embeddings'           // ver nota de alcance arriba — documenta la ausencia
-  | 'wikidata_enrichment'  // CompositeGenerationService.enrichCandidatesWithWikidata
-  | 'llm_generation'       // invocación del LLM + su reasoning
-  | 'verification';        // verifyAndDedupeActivities + generation-audit.util
+  | 'tour_intent'                 // Captura normalizada del pedido y constraints
+  | 'destination_resolution'      // Geocodificación y boundary autoritativo
+  | 'catalog_initial_pool'        // Búsqueda inicial en catálogo existente
+  | 'coverage_analysis'           // Evaluación de gaps temáticos y por formato
+  | 'google_places_crawl'         // Adquisición de POIs vía Places
+  | 'grounded_discovery'          // Búsqueda grounded de experiencias (SerpApi/Tavily + Groq/Gemini)
+  | 'entity_resolution'           // Resolución de hints contra Places/OSM (sin persistencia)
+  | 'geographic_validation'       // Validación geográfica determinística de componentes y polígonos
+  | 'catalog_materialization'     // Persistencia transaccional de propuestas aceptadas al catálogo
+  | 'candidate_pool'              // Pool unificado de candidatos para el itinerario
+  | 'embeddings'                  // Re-ranking semántico por pgvector
+  | 'daily_planning'              // Algoritmo determinístico de partición por días
+  | 'llm_generation'              // Invocación del LLM para estructuración horaria y reasoning
+  | 'tour_completeness'           // Validación de días completos y gaps temporales
+  | 'tour_format_coverage'        // Verificación de cobertura de formatos requeridos
+  | 'verification';               // Auditoría determinística y deduplicación final
 
 interface TraceCandidate {
-  source: 'db' | 'google_places' | 'osm' | 'wikidata';
+  source: 'db' | 'google_places' | 'osm' | 'wikidata' | 'grounded_discovery';
   id: string;
   name: string;
-  detail?: string;   // rating/precio/horario (db/google), tipo de vía/admin_level (osm), extracto usado o motivo de descarte (wikidata)
-  offered: boolean;  // llegó a estar en el texto final del prompt
-  chosen: boolean;   // el LLM lo eligió (cruzado post-verificación)
+  detail?: string;
+  offered: boolean;
+  chosen: boolean;
 }
 
 interface GenerationTraceStep {
   stage: TraceStage;
-  label: string;     // ej. "Búsqueda en Google Maps"
-  summary: string;   // ej. "18 lugares encontrados en un radio de 25km"
+  label: string;
+  summary: string;
+  status?: 'PASS' | 'WARN' | 'FAIL' | 'DEGRADED';
+  providerStatus?: 'success' | 'failed' | 'fallback';
+  degradedReason?: string;
+  decision?: {
+    outcome: string;
+    details?: Record<string, any>;
+  };
+  resolution?: {
+    totalProposals: number;
+    acceptedCount: number;
+    rejectedCount: number;
+    rejectionReasons?: string[];
+  };
+  geographicValidation?: {
+    validatorVersion: number;
+    totalProposals: number;
+    acceptedCount: number;
+    rejectedCount: number;
+    rejections?: Array<{ proposalName: string; reasons: string[] }>;
+  };
   candidates?: TraceCandidate[];
 }
 
 interface GenerationTrace {
+  version: 2;
   steps: GenerationTraceStep[];
-  aiReasoning?: string;                    // se mantiene (ya existe hoy)
-  hallucinatedCount: number;               // se mantiene
-  duplicateCount: number;                  // se mantiene
-  auditFindings?: GenerationAuditResult;   // se mantiene, mismo shape de generation-audit.util.ts
+  aiReasoning?: string;
+  hallucinatedCount: number;
+  duplicateCount: number;
+  auditFindings?: GenerationAuditResult;
 }
 ```
 

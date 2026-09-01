@@ -776,11 +776,17 @@ export function buildEntityResolutionStep(
   result: ProposalResolutionResponse,
 ): GenerationTraceStep {
   const resolution = result.entityResolution ?? result;
-  const accepted = resolution.resolved.filter((entry) => entry.status === 'accepted');
-  const rejected = resolution.resolved.filter((entry) => entry.status !== 'accepted');
+  const accepted = resolution.resolved.filter(
+    (entry) => entry.status === 'accepted',
+  );
+  const rejected = resolution.resolved.filter(
+    (entry) => entry.status !== 'accepted',
+  );
   const resolvedEntityCount = resolution.resolved.reduce(
     (sum, entry) =>
-      sum + entry.resolvedEntities.filter((entity) => entity.status === 'resolved').length,
+      sum +
+      entry.resolvedEntities.filter((entity) => entity.status === 'resolved')
+        .length,
     0,
   );
   const coordinateCount = resolution.resolved.reduce(
@@ -921,7 +927,9 @@ export function buildGeographicValidationStep(
   const radiusValues = validation.results
     .map((entry) => entry.coherence?.radiusMeters)
     .filter((value): value is number => Number.isFinite(value));
-  const maxRadiusMeters = radiusValues.length ? Math.max(...radiusValues) : null;
+  const maxRadiusMeters = radiusValues.length
+    ? Math.max(...radiusValues)
+    : null;
 
   return {
     stage: 'geographic_validation',
@@ -1011,9 +1019,7 @@ export function buildGeographicValidationStep(
       reason: entry.accepted
         ? `GEO_VERIFIED mediante ${entry.strategy ?? 'deterministic_validation'} con ${entry.anchors.length} anchor(s).`
         : entry.rejectionReasons.join(', '),
-      reasonCodes: entry.accepted
-        ? ['GEO_VERIFIED']
-        : entry.rejectionReasons,
+      reasonCodes: entry.accepted ? ['GEO_VERIFIED'] : entry.rejectionReasons,
     })),
     providerStatus: accepted.length ? 'success' : 'failed',
     degradedReason: accepted.length ? undefined : 'no_geo_verified_proposals',
@@ -1063,7 +1069,11 @@ export function buildCatalogMaterializationStep(
       ),
     ],
     decision: {
-      status: materialized.length ? (rejected.length ? 'WARN' : 'PASS') : 'WARN',
+      status: materialized.length
+        ? rejected.length
+          ? 'WARN'
+          : 'PASS'
+        : 'WARN',
       outcome: materialized.length
         ? 'CANONICAL_ACTIVITIES_MATERIALIZED'
         : 'NO_ACTIVITIES_MATERIALIZED',
@@ -1095,7 +1105,9 @@ export function buildCatalogMaterializationStep(
         : entry.rejectionReasons,
     })),
     providerStatus: materialized.length ? 'success' : 'failed',
-    degradedReason: materialized.length ? undefined : 'no_activities_materialized',
+    degradedReason: materialized.length
+      ? undefined
+      : 'no_activities_materialized',
     materialization,
   };
 }

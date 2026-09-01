@@ -17,10 +17,9 @@ export interface RankableCandidate {
   familyId?: string | null;
 }
 
-// PR 9: exposes what actually drove a candidate's rank, so the generation
+// Exposes what actually drove a candidate's rank, so the generation
 // bitácora can show real per-candidate score components instead of an
-// opaque total — see docs/superpowers/plans/2026-08-21-activity-engine-
-// quality-discovery-mobility.md, "PR 9: Unified candidate pool".
+// opaque total.
 export interface CandidateScoreBreakdown {
   /** null = missing-embedding tier; never a fake 0 (that would claim a measurement that didn't happen). */
   semanticSimilarity: number | null;

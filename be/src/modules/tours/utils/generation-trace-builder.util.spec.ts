@@ -1,10 +1,12 @@
 import {
   buildCandidatePoolStep,
+  buildCatalogMaterializationStep,
   buildCoverageAnalysisStep,
   buildDailyPlanningStep,
   buildEmbeddingsStep,
   buildDestinationResolutionStep,
   buildEntityResolutionStep,
+  buildGeographicValidationStep,
   buildLlmGenerationStep,
   buildPlacesCrawlStep,
   buildTourCompletenessStep,
@@ -243,13 +245,25 @@ describe('buildEntityResolutionStep', () => {
     evidenceKeys: [] as string[],
   });
 
-  it("reports accepted proposals as persisted and merged into this request's unified candidate pool", () => {
+  it('reports accepted proposals with resolved entities ready for geographic validation', () => {
     const step = buildEntityResolutionStep({
       resolved: [
         {
           proposal: proposal('Casa Histórica'),
           status: 'accepted',
-          resolvedEntities: [],
+          resolvedEntities: [
+            {
+              hintKey: 'hint-1',
+              hintName: 'Casa Histórica',
+              role: 'venue',
+              expectedType: 'museum',
+              provider: 'osm',
+              canonicalName: 'Casa Histórica',
+              status: 'resolved',
+              latitude: -34.62,
+              longitude: -58.37,
+            },
+          ],
           rejectionReasons: [],
           persistedActivityId: 'activity-1',
         },
@@ -262,8 +276,12 @@ describe('buildEntityResolutionStep', () => {
     expect(step.stage).toBe('entity_resolution');
     expect(step.providerStatus).toBe('success');
     expect(step.degradedReason).toBeUndefined();
-    expect(step.summary).toContain('1 de 1');
-    expect(step.summary).toContain('candidate_pool');
+    expect(step.summary).toContain(
+      'Esta etapa no decide coherencia geográfica ni persiste la composite',
+    );
+    expect(step.decision?.outcome).toBe(
+      'ENTITIES_READY_FOR_GEOGRAPHIC_VALIDATION',
+    );
     expect(step.resolution?.acceptedCount).toBe(1);
   });
 
@@ -285,6 +303,83 @@ describe('buildEntityResolutionStep', () => {
     expect(step.providerStatus).toBe('failed');
     expect(step.degradedReason).toBe('no_proposals_resolved');
     expect(step.summary).toContain('Plaza Ambigua: area_ambiguous');
+  });
+});
+
+describe('buildGeographicValidationStep', () => {
+  it('reports GEO_VERIFIED proposals ready for materialization', () => {
+    const step = buildGeographicValidationStep({
+      resolved: [],
+      totalProposals: 1,
+      acceptedCount: 1,
+      rejectedCount: 0,
+      geographicValidation: {
+        results: [
+          {
+            proposalName: 'Paseo San Telmo',
+            kind: 'NEIGHBORHOOD_WALK' as any,
+            status: 'GEO_VERIFIED',
+            strategy: 'component_defined',
+            accepted: true,
+            validatorVersion: 1,
+            groundedEvidenceKeys: ['ev1'],
+            anchors: [
+              {
+                hintKey: 'a1',
+                hintName: 'Plaza',
+                role: 'venue',
+                expectedType: 'square',
+                provider: 'osm',
+                externalId: 'w1',
+                status: 'resolved',
+              },
+            ],
+            rejectionReasons: [],
+          },
+        ],
+        acceptedCount: 1,
+        rejectedCount: 0,
+      },
+    });
+
+    expect(step.stage).toBe('geographic_validation');
+    expect(step.status).toBe('PASS');
+    expect(step.decision?.outcome).toBe('GEO_VERIFIED_PROPOSALS_READY');
+    expect(step.summary).toContain('1 propuesta(s) GEO_VERIFIED');
+  });
+});
+
+describe('buildCatalogMaterializationStep', () => {
+  it('reports materialized activities persisted in catalog', () => {
+    const step = buildCatalogMaterializationStep({
+      resolved: [
+        {
+          proposal: {
+            name: 'Paseo San Telmo',
+            kind: 'NEIGHBORHOOD_WALK' as any,
+            themes: [],
+            entityHints: [],
+            suggestedDurationMinutes: 120,
+            shortReason: 'test',
+            evidenceKeys: [],
+          },
+          status: 'accepted',
+          resolvedEntities: [],
+          rejectionReasons: [],
+          persistedActivityId: 'activity-1',
+        },
+      ],
+      totalProposals: 1,
+      acceptedCount: 1,
+      rejectedCount: 0,
+    });
+
+    expect(step.stage).toBe('catalog_materialization');
+    expect(step.status).toBe('PASS');
+    expect(step.decision?.outcome).toBe('CANONICAL_ACTIVITIES_MATERIALIZED');
+    expect(step.summary).toContain(
+      '1 propuesta(s) geográficamente verificadas',
+    );
   });
 });
 
@@ -615,9 +710,7 @@ describe('buildCoverageAnalysisStep', () => {
     expect(step.summary).toContain('Analizados 15 candidatos');
     expect(step.summary).toContain('elegibles 4');
     expect(step.summary).toContain('ofrecidos al LLM 4');
-    expect(step.summary).toContain('places_text_search');
-    expect(step.summary).not.toContain('PR 6');
-    expect(step.summary).not.toContain('PR 7');
+    expect(step.summary).not.toMatch(/PR\s*\d+/);
     expect(step.coverageReport?.decision.action).toBe('places_text_search');
   });
 });

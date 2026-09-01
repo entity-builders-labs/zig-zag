@@ -41,7 +41,8 @@ export class GooglePlacesPhotoProvider implements IPhotoEnrichmentProvider {
         const resp = await axios.get(detailsUrl, {
           headers: {
             'X-Goog-Api-Key': apiKey,
-            'X-Goog-FieldMask': 'photos,displayName,editorialSummary,rating,userRatingCount',
+            'X-Goog-FieldMask':
+              'photos,displayName,editorialSummary,rating,userRatingCount',
           },
           timeout: 8000,
         });
@@ -56,7 +57,8 @@ export class GooglePlacesPhotoProvider implements IPhotoEnrichmentProvider {
             photos.push({
               url: photoUrl,
               thumbnail: thumbUrl,
-              author: photo.authorAttributions?.[0]?.displayName || 'Google Places',
+              author:
+                photo.authorAttributions?.[0]?.displayName || 'Google Places',
               license: 'Google Places API',
               caption: placeData.displayName?.text || query.name,
               sourceProvider: this.providerName,

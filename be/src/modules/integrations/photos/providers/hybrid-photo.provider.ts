@@ -1,15 +1,15 @@
-import { Injectable, Logger } from "@nestjs/common";
+import { Injectable, Logger } from '@nestjs/common';
 import {
   ActivityEnrichmentResult,
   IPhotoEnrichmentProvider,
   PhotoEnrichmentQuery,
-} from "../interfaces/photo-enrichment.interface";
-import { WikimediaPhotoProvider } from "./wikimedia-photo.provider";
-import { SerpApiPhotoProvider } from "./serpapi-photo.provider";
+} from '../interfaces/photo-enrichment.interface';
+import { WikimediaPhotoProvider } from './wikimedia-photo.provider';
+import { SerpApiPhotoProvider } from './serpapi-photo.provider';
 
 @Injectable()
 export class HybridPhotoProvider implements IPhotoEnrichmentProvider {
-  readonly providerName = "hybrid";
+  readonly providerName = 'hybrid';
   private readonly logger = new Logger(HybridPhotoProvider.name);
 
   constructor(
@@ -21,7 +21,10 @@ export class HybridPhotoProvider implements IPhotoEnrichmentProvider {
     query: PhotoEnrichmentQuery,
   ): Promise<ActivityEnrichmentResult> {
     // 1. If activity has coordinates or wikidataId, prioritize Wikimedia Commons verified photos
-    if (query.latitude != null && query.longitude != null || query.wikidataId) {
+    if (
+      (query.latitude != null && query.longitude != null) ||
+      query.wikidataId
+    ) {
       this.logger.debug(
         `[HybridPhotoProvider] Checking Wikimedia Commons for "${query.name}"`,
       );
@@ -47,7 +50,7 @@ export class HybridPhotoProvider implements IPhotoEnrichmentProvider {
     return {
       photos: [],
       highlights: [],
-      status: "failed",
+      status: 'failed',
       provider: this.providerName,
     };
   }

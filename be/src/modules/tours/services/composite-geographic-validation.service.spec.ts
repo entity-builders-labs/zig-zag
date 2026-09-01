@@ -1,7 +1,10 @@
 import { ActivityKind } from '@prisma/client';
 import { OsmCandidate } from '@integrations/osm/services/osm-places.service';
 import { ActivityProposal } from '../interfaces/activity-discovery.interface';
-import { ResolvedActivityProposal, ResolvedEntity } from '../interfaces/proposal-resolution.interface';
+import {
+  ResolvedActivityProposal,
+  ResolvedEntity,
+} from '../interfaces/proposal-resolution.interface';
 import { CompositeGeographicValidationService } from './composite-geographic-validation.service';
 
 const destination: OsmCandidate = {
@@ -157,9 +160,9 @@ describe('CompositeGeographicValidationService', () => {
     const p = proposal('NEIGHBORHOOD_WALK', hints);
     const result = service.validate(
       resolved(p, [
-        entity('a', 'waypoint', -34.5000, -58.4000),
-        entity('b', 'waypoint', -34.5050, -58.4050),
-        entity('c', 'waypoint', -34.5100, -58.4100),
+        entity('a', 'waypoint', -34.5, -58.4),
+        entity('b', 'waypoint', -34.505, -58.405),
+        entity('c', 'waypoint', -34.51, -58.41),
       ]),
       destination,
     );
@@ -185,7 +188,7 @@ describe('CompositeGeographicValidationService', () => {
     const p = proposal('NEIGHBORHOOD_WALK', []);
     const result = service.validate(
       resolved(p, [
-        entity('a', 'waypoint', -34.40, -58.30),
+        entity('a', 'waypoint', -34.4, -58.3),
         entity('b', 'waypoint', -34.55, -58.45),
         entity('c', 'waypoint', -34.65, -58.55),
       ]),
@@ -246,7 +249,7 @@ describe('CompositeGeographicValidationService', () => {
     const result = service.validate(
       resolved(p, [
         entity('winery-a', 'venue', -34.45, -58.35),
-        entity('winery-b', 'venue', -34.50, -58.40),
+        entity('winery-b', 'venue', -34.5, -58.4),
         entity('winery-c', 'venue', -34.55, -58.45),
       ]),
       destination,
@@ -260,7 +263,7 @@ describe('CompositeGeographicValidationService', () => {
     const result = service.validate(
       resolved(p, [
         entity('a', 'venue', -34.45, -58.35),
-        entity('b', 'venue', -34.50, -58.40),
+        entity('b', 'venue', -34.5, -58.4),
         entity('c', 'venue', 40.4168, -3.7038),
       ]),
       destination,

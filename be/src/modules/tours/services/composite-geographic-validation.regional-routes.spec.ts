@@ -32,7 +32,8 @@ function proposal(
   evidenceKeys: string[] = ['ev-1'],
 ): ActivityProposal {
   return {
-    name: kind === 'ROUTE' ? 'Ruta del Vino de Mendoza' : 'Experiencia mendocina',
+    name:
+      kind === 'ROUTE' ? 'Ruta del Vino de Mendoza' : 'Experiencia mendocina',
     kind,
     themes: kind === 'ROUTE' ? ['food'] : ['culture'],
     entityHints: hints,
@@ -131,7 +132,7 @@ describe('CompositeGeographicValidationService regional route policy', () => {
       resolved(routeProposal, [
         resolvedEntity('Bodega Mendoza A', -33.04, -68.88),
         resolvedEntity('Bodega Mendoza B', -32.99, -68.79),
-        resolvedEntity('Winery Spain', 40.42, -3.70, {
+        resolvedEntity('Winery Spain', 40.42, -3.7, {
           adminContext: { region: 'Madrid', country: 'Spain' },
         }),
       ]),

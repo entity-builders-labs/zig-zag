@@ -133,7 +133,9 @@ export class PushNotificationService {
         return false;
       }
 
-      const validDevices = devices.filter((d) => isExpoPushToken(d.expoPushToken));
+      const validDevices = devices.filter((d) =>
+        isExpoPushToken(d.expoPushToken),
+      );
 
       if (validDevices.length === 0) {
         this.logger.warn(
@@ -173,10 +175,12 @@ export class PushNotificationService {
               ticket.details?.error === 'DeviceNotRegistered' ||
               ticket.message?.includes('not registered')
             ) {
-              await this.prisma.userDevice.update({
-                where: { id: device.id },
-                data: { enabled: false },
-              }).catch(() => {});
+              await this.prisma.userDevice
+                .update({
+                  where: { id: device.id },
+                  data: { enabled: false },
+                })
+                .catch(() => {});
             }
           }
         }

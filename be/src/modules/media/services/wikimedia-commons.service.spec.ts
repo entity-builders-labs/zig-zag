@@ -33,7 +33,9 @@ describe('WikimediaCommonsService lookup outcomes', () => {
                   extmetadata: {
                     Artist: { value: 'Jane Photographer' },
                     LicenseShortName: { value: 'CC BY-SA 4.0' },
-                    LicenseUrl: { value: 'https://creativecommons.org/licenses/by-sa/4.0/' },
+                    LicenseUrl: {
+                      value: 'https://creativecommons.org/licenses/by-sa/4.0/',
+                    },
                     ObjectName: { value: 'Historic Place' },
                   },
                 },
@@ -93,27 +95,36 @@ describe('WikimediaCommonsService lookup outcomes', () => {
 
   it.each([
     [{ code: 'ECONNABORTED', message: 'timeout' }, 'RETRYABLE_FAILURE'],
-    [{ response: { status: 429 }, message: 'rate limited' }, 'RETRYABLE_FAILURE'],
-    [{ response: { status: 503 }, message: 'unavailable' }, 'RETRYABLE_FAILURE'],
-  ])('does not negative-cache transient provider failure %#', async (error, outcome) => {
-    mockedAxios.get
-      .mockRejectedValueOnce(error)
-      .mockResolvedValueOnce({ data: { query: { pages: {} } } } as any);
+    [
+      { response: { status: 429 }, message: 'rate limited' },
+      'RETRYABLE_FAILURE',
+    ],
+    [
+      { response: { status: 503 }, message: 'unavailable' },
+      'RETRYABLE_FAILURE',
+    ],
+  ])(
+    'does not negative-cache transient provider failure %#',
+    async (error, outcome) => {
+      mockedAxios.get
+        .mockRejectedValueOnce(error)
+        .mockResolvedValueOnce({ data: { query: { pages: {} } } } as any);
 
-    const result = await service.findPhotosForActivity({
-      name: 'Retry Place',
-      destinationLabel: 'Test City',
-      latitude: -34.5,
-      longitude: -58.4,
-    });
+      const result = await service.findPhotosForActivity({
+        name: 'Retry Place',
+        destinationLabel: 'Test City',
+        latitude: -34.5,
+        longitude: -58.4,
+      });
 
-    expect(result.outcome).toBe(outcome);
-    expect(negativeCache.recordNegative).not.toHaveBeenCalledWith(
-      'wikimedia_commons',
-      'title_search',
-      expect.any(String),
-    );
-  });
+      expect(result.outcome).toBe(outcome);
+      expect(negativeCache.recordNegative).not.toHaveBeenCalledWith(
+        'wikimedia_commons',
+        'title_search',
+        expect.any(String),
+      );
+    },
+  );
 
   it('classifies non-retryable 4xx as permanent without poisoning negative cache', async () => {
     mockedAxios.get

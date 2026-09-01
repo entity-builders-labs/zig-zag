@@ -9,9 +9,9 @@ import {
 import { IWikidataApiService } from '../../wikidata/interfaces/wikidata.interface';
 
 const WIKIPEDIA_ES_API_URL = 'https://es.wikipedia.org/w/api.php';
-const WIKIPEDIA_EN_API_URL = 'https://en.wikipedia.org/w/api.php';
 const WIKIMEDIA_COMMONS_API_URL = 'https://commons.wikimedia.org/w/api.php';
-const USER_AGENT = 'ZigZagTravelApp/1.0 (https://github.com/jiseruk/zig-zag; support@zigzag.travel)';
+const USER_AGENT =
+  'ZigZagTravelApp/1.0 (https://github.com/jiseruk/zig-zag; support@zigzag.travel)';
 
 const ENGLISH_TO_SPANISH: Record<string, string> = {
   obelisk: 'obelisco',
@@ -55,7 +55,6 @@ export class WikimediaPhotoProvider implements IPhotoEnrichmentProvider {
   ): Promise<ActivityEnrichmentResult> {
     const photos: ActivityPhoto[] = [];
     let extract: string | undefined;
-    let verifiedTitle: string | undefined;
 
     try {
       // 1. Geosearch verification: POIs with coordinates are strictly verified against nearby articles (<= 2500m)
@@ -67,7 +66,6 @@ export class WikimediaPhotoProvider implements IPhotoEnrichmentProvider {
         );
 
         if (match) {
-          verifiedTitle = match.title;
           this.logger.debug(
             `100% Geographically verified Wikipedia match: "${match.title}" (${Math.round(match.dist)}m from ${query.name})`,
           );
@@ -82,11 +80,16 @@ export class WikimediaPhotoProvider implements IPhotoEnrichmentProvider {
           }
 
           // Get additional verified photos from Wikimedia Commons for this exact entity
-          const commonsPhotos = await this.fetchCommonsPhotos(match.title, query.name);
+          const commonsPhotos = await this.fetchCommonsPhotos(
+            match.title,
+            query.name,
+          );
           for (const cp of commonsPhotos) {
             if (
               photos.length < 6 &&
-              !photos.some((p) => p.url === cp.url || p.thumbnail === cp.thumbnail)
+              !photos.some(
+                (p) => p.url === cp.url || p.thumbnail === cp.thumbnail,
+              )
             ) {
               photos.push(cp);
             }
@@ -180,10 +183,33 @@ export class WikimediaPhotoProvider implements IPhotoEnrichmentProvider {
     if (normA.includes(normB) || normB.includes(normA)) return true;
 
     const stopwords = new Set([
-      'de', 'la', 'el', 'los', 'las', 'del', 'y', 'en', 'para', 'con', 'por', 'buenos', 'aires', 'argentina', 'ciudad', 'autonoma', 'estacion', 'avenida', 'calle', 'barrio'
+      'de',
+      'la',
+      'el',
+      'los',
+      'las',
+      'del',
+      'y',
+      'en',
+      'para',
+      'con',
+      'por',
+      'buenos',
+      'aires',
+      'argentina',
+      'ciudad',
+      'autonoma',
+      'estacion',
+      'avenida',
+      'calle',
+      'barrio',
     ]);
-    const wordsA = normA.split(/\s+/).filter((w) => w.length >= 3 && !stopwords.has(w));
-    const wordsB = normB.split(/\s+/).filter((w) => w.length >= 3 && !stopwords.has(w));
+    const wordsA = normA
+      .split(/\s+/)
+      .filter((w) => w.length >= 3 && !stopwords.has(w));
+    const wordsB = normB
+      .split(/\s+/)
+      .filter((w) => w.length >= 3 && !stopwords.has(w));
 
     for (const wa of wordsA) {
       for (const wb of wordsB) {
@@ -311,7 +337,8 @@ export class WikimediaPhotoProvider implements IPhotoEnrichmentProvider {
               thumbnail: photoUrl,
               author: author.length > 50 ? author.substring(0, 50) : author,
               license,
-              caption: caption.length > 100 ? caption.substring(0, 100) : caption,
+              caption:
+                caption.length > 100 ? caption.substring(0, 100) : caption,
               width: info.width,
               height: info.height,
               sourceProvider: this.providerName,

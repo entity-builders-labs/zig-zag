@@ -7,7 +7,7 @@ import {
 } from './interfaces/daily-planning.interface';
 import { PlanningCandidateNormalizerService } from './services/planning-candidate-normalizer.service';
 
-describe('ToursModule DI wiring (PR10)', () => {
+describe('ToursModule DI wiring (Daily Planning Solver)', () => {
   beforeAll(() => {
     process.env.DATABASE_URL =
       process.env.DATABASE_URL ||

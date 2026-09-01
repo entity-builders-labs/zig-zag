@@ -48,7 +48,8 @@ describe('TavilyGroundedSearchService', () => {
           {
             title: 'Historic waterfront walk',
             url: 'https://example.com/walk',
-            content: 'A documented historic walking route along the waterfront.',
+            content:
+              'A documented historic walking route along the waterfront.',
           },
         ],
       }),
