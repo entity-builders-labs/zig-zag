@@ -146,6 +146,7 @@ export async function orderAndScheduleDay(
       next.durationMinutes +
       (next.mobility?.internalTravelMinutes ?? 0);
     scheduled.push({
+      experienceId: next.experienceId,
       activityId: next.activityId,
       startMinutesFromMidnight: start,
       endMinutesFromMidnight: end,

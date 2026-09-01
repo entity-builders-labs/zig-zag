@@ -86,6 +86,7 @@ export class PlanningCandidateNormalizerService {
       : undefined;
 
     return {
+      experienceId: activity.experienceId ?? activity.id,
       activityId: activity.id,
       kind,
       title: activity.name,

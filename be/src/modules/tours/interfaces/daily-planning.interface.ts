@@ -50,6 +50,8 @@ export type NormalizedOpeningHours =
   | NormalizedOpeningHoursUnknown;
 
 export interface PlanningActivityCandidate {
+  /** Canonical V2 identity. `activityId` remains only for compatibility. */
+  experienceId?: string;
   activityId: string;
   kind: ActivityKind | 'POI';
   title: string;
@@ -111,6 +113,8 @@ export interface TravelEstimateProvider {
 }
 
 export interface PlannedActivity {
+  /** Canonical V2 identity carried through deterministic planning. */
+  experienceId?: string;
   activityId: string;
   startMinutesFromMidnight: number;
   endMinutesFromMidnight: number;
@@ -141,6 +145,7 @@ export type PlanningRejectionReason =
   | 'FAMILY_VARIANT_REDUNDANCY';
 
 export interface UnselectedPlanningCandidate {
+  experienceId?: string;
   activityId: string;
   reasons: PlanningRejectionReason[];
 }

@@ -255,6 +255,7 @@ export async function placeCandidates(
   for (const candidate of sortedCandidates) {
     if (placedIds.has(candidate.activityId)) {
       unselected.push({
+        experienceId: candidate.experienceId,
         activityId: candidate.activityId,
         reasons: ['DUPLICATE_ACTIVITY'],
       });
@@ -280,6 +281,7 @@ export async function placeCandidates(
 
     if (bestDay === null) {
       unselected.push({
+        experienceId: candidate.experienceId,
         activityId: candidate.activityId,
         reasons:
           dayFailureReasons.size > 0
