@@ -23,7 +23,10 @@ import {
 import { ToursService } from './tours.service';
 import { TourImageService } from './tour-image.service';
 import { DestinationResolutionService } from './destination-resolution.service';
-import { boundingBoxToCenterRadius } from '../utils/geometry-search-area.util';
+import {
+  boundingBoxToCenterRadius,
+  pointRadiusToGeometry,
+} from '../utils/geometry-search-area.util';
 import { TourGenerationRequest } from '../interfaces/tour-generation.interface';
 import {
   ActivityForPrompt,
@@ -670,6 +673,20 @@ export class TourActivityGenerationService {
         ),
       );
       const isAreaScale = destinationResolution.scale === 'area';
+      const destinationScope = isAreaScale
+        ? destinationResolution.boundary
+        : {
+            id: 'point-radius-scope',
+            name: request.destination.label ?? 'selected destination',
+            osmType: 'relation' as const,
+            osmId: 0,
+            geometry: pointRadiusToGeometry(
+              request.destination.latitude,
+              request.destination.longitude,
+              request.destination.radiusMeters || 25000,
+            ),
+            tags: {},
+          };
 
       const searchArea = isAreaScale
         ? boundingBoxToCenterRadius(destinationResolution.boundary.geometry)
@@ -791,10 +808,7 @@ export class TourActivityGenerationService {
                         await this.proposalResolver.resolve({
                           proposals: discoveryResult.proposals,
                           destinationName: request.destination.label,
-                          destinationBoundary:
-                            destinationResolution.scale === 'area'
-                              ? destinationResolution.boundary
-                              : undefined,
+                          destinationBoundary: destinationScope,
                         });
                       traceSteps.push(
                         buildEntityResolutionStep(resolutionResult),
@@ -895,9 +909,7 @@ export class TourActivityGenerationService {
                       anchors,
                       destinationLabel: request.destination.label,
                       requestedInterests: request.intent.interests,
-                      destinationBoundary: isAreaScale
-                        ? destinationResolution.boundary.geometry
-                        : undefined,
+                      destinationBoundary: destinationScope.geometry,
                     },
                   );
               }
@@ -1201,10 +1213,7 @@ export class TourActivityGenerationService {
               const resolutionResult = await this.proposalResolver.resolve({
                 proposals: discoveryResult.proposals,
                 destinationName: request.destination.label,
-                destinationBoundary:
-                  destinationResolution.scale === 'area'
-                    ? destinationResolution.boundary
-                    : undefined,
+                destinationBoundary: destinationScope,
               });
               traceSteps.push(
                 buildEntityResolutionStep(resolutionResult),

@@ -79,3 +79,23 @@ export function boundingBoxToCenterRadius(geometry: GeoJsonGeometry): {
 
   return { latitude: center.lat, longitude: center.lon, radiusMeters };
 }
+
+/** Builds a provider-neutral polygon scope for point/radius destinations. */
+export function pointRadiusToGeometry(
+  latitude: number,
+  longitude: number,
+  radiusMeters: number,
+  segments = 32,
+): GeoJsonGeometry {
+  const latRadius = radiusMeters / EARTH_RADIUS_METERS;
+  const lonRadius = latRadius / Math.max(Math.cos(toRad(latitude)), 0.1);
+  const ring: [number, number][] = [];
+  for (let index = 0; index <= segments; index++) {
+    const angle = (index / segments) * Math.PI * 2;
+    ring.push([
+      longitude + lonRadius * Math.cos(angle),
+      latitude + latRadius * Math.sin(angle),
+    ]);
+  }
+  return { type: 'Polygon', coordinates: [ring] };
+}

@@ -1171,7 +1171,10 @@ describe('TourActivityGenerationService', () => {
       expect(proposalResolver.resolve).toHaveBeenCalledWith({
         proposals: [discoveryProposal],
         destinationName: 'San Telmo, Buenos Aires, Argentina',
-        destinationBoundary: undefined,
+        destinationBoundary: expect.objectContaining({
+          id: 'point-radius-scope',
+          geometry: expect.objectContaining({ type: 'Polygon' }),
+        }),
       });
     });
 

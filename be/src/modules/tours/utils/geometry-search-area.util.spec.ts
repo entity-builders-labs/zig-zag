@@ -1,4 +1,7 @@
-import { boundingBoxToCenterRadius } from './geometry-search-area.util';
+import {
+  boundingBoxToCenterRadius,
+  pointRadiusToGeometry,
+} from './geometry-search-area.util';
 
 describe('boundingBoxToCenterRadius', () => {
   it('centers on the midpoint of a Polygon bounding box', () => {
@@ -139,5 +142,21 @@ describe('boundingBoxToCenterRadius', () => {
         radiusMeters + 1,
       );
     }
+  });
+});
+
+describe('pointRadiusToGeometry', () => {
+  it('creates a closed polygon scope around a point', () => {
+    const geometry = pointRadiusToGeometry(-33.01, -58.51, 5000) as {
+      type: 'Polygon';
+      coordinates: [number, number][][];
+    };
+    expect(geometry.type).toBe('Polygon');
+    expect(geometry.coordinates[0]).toHaveLength(33);
+    expect(geometry.coordinates[0][0]).toEqual(
+      geometry.coordinates[0][geometry.coordinates[0].length - 1],
+    );
+    expect(geometry.coordinates[0][0][0]).toBeCloseTo(-58.51, 2);
+    expect(geometry.coordinates[0][0][1]).toBeCloseTo(-33.01, 2);
   });
 });
