@@ -1,5 +1,7 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger, Optional } from '@nestjs/common';
+import { ConfigType } from '@nestjs/config';
 import { LangChainService } from '@shared/ai/langchain.service';
+import aiConfig from '@shared/ai/ai.config';
 import { redactTracePayload } from '../utils/trace-redaction.util';
 import {
   NormalizedPreferenceIntent,
@@ -49,7 +51,12 @@ const EMPTY_INTENT: NormalizedPreferenceIntent = {
 export class PreferenceInterpreterService {
   private readonly logger = new Logger(PreferenceInterpreterService.name);
 
-  constructor(private readonly langChainService: LangChainService) {}
+  constructor(
+    private readonly langChainService: LangChainService,
+    @Optional()
+    @Inject(aiConfig.KEY)
+    private readonly config?: ConfigType<typeof aiConfig>,
+  ) {}
 
   async interpret(text?: string): Promise<{
     intent: NormalizedPreferenceIntent;
@@ -85,8 +92,8 @@ export class PreferenceInterpreterService {
         intent: parsed,
         trace: redactTracePayload({
           stage: 'preference_interpretation',
-          provider: (this.langChainService as any).config?.provider,
-          model: (this.langChainService as any).config?.defaultModel,
+          provider: this.config?.provider,
+          model: this.config?.defaultModel,
           systemPrompt: SYSTEM_PROMPT,
           userPrompt,
           responseSchema: RESPONSE_SCHEMA,
@@ -104,8 +111,8 @@ export class PreferenceInterpreterService {
         intent: fallback,
         trace: redactTracePayload({
           stage: 'preference_interpretation',
-          provider: (this.langChainService as any).config?.provider,
-          model: (this.langChainService as any).config?.defaultModel,
+          provider: this.config?.provider,
+          model: this.config?.defaultModel,
           systemPrompt: SYSTEM_PROMPT,
           userPrompt,
           responseSchema: RESPONSE_SCHEMA,
