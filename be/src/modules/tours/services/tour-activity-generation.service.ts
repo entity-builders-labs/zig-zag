@@ -85,6 +85,7 @@ import { TourIntent } from '../interfaces/tour-generation.interface';
 import { ActivityDiscoveryService } from './activity-discovery.service';
 import { CoverageAnalyzer } from './coverage-analyzer.service';
 import { redactTracePayload } from '../utils/trace-redaction.util';
+import { ExperienceCatalogService } from './experience-catalog.service';
 import { buildSemanticTourQuery } from '../utils/semantic-tour-query-builder.util';
 import {
   EmbeddingIndexIdentity,
@@ -145,6 +146,8 @@ export class TourActivityGenerationService {
     >,
     @Optional()
     private readonly outboxService?: OutboxService,
+    @Optional()
+    private readonly experienceCatalog?: ExperienceCatalogService,
   ) {}
 
   /** Daily planning solver: no new Prisma columns. If a real base date exists, combine it
@@ -1419,6 +1422,9 @@ export class TourActivityGenerationService {
         await tx.tourActivity.deleteMany({
           where: { tourId },
         });
+        if (this.experienceCatalog) {
+          await tx.tourExperience.deleteMany({ where: { tourId } });
+        }
 
         for (const activity of activities as any[]) {
           const createdTourActivity = await tx.tourActivity.create({
@@ -1455,6 +1461,54 @@ export class TourActivityGenerationService {
                   waypointActivityId,
                   order: index + 1,
                 })),
+              });
+            }
+          }
+
+          if (this.experienceCatalog && activity.activityId) {
+            const entity = activityEntities.find(
+              (candidate) => candidate.id === activity.activityId,
+            );
+            if (entity) {
+              const waypointIds =
+                waypointIdsByActivityId.get(activity.activityId) ?? [];
+              const experience =
+                await this.experienceCatalog.persistActivityAsExperience(
+                  tx,
+                  { ...entity, kind: entity.kind },
+                  waypointIds,
+                );
+              const snapshot = await tx.tourExperience.create({
+                data: {
+                  tourId,
+                  experienceId: experience.id,
+                  dayNumber: activity.dayNumber,
+                  order: activity.order,
+                  startTime: activity.startTime,
+                  duration: activity.duration,
+                  notes: activity.notes,
+                },
+              });
+              const geoEntities = await tx.geoEntity.findMany({
+                where: {
+                  id: { in: experience.components.map((component) => component.geoEntityId) },
+                },
+              });
+              await tx.tourExperienceComponent.createMany({
+                data: experience.components.map((component) => {
+                  const geo = geoEntities.find((candidate) => candidate.id === component.geoEntityId);
+                  return {
+                    tourExperienceId: snapshot.id,
+                    geoEntityId: component.geoEntityId,
+                    order: component.order,
+                    role: component.role,
+                    required: component.required,
+                    name: geo?.name ?? activity.activityName,
+                    latitude: geo?.latitude,
+                    longitude: geo?.longitude,
+                    geometry: geo?.geometry as any,
+                  };
+                }),
               });
             }
           }

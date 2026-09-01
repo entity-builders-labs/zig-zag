@@ -128,4 +128,80 @@ export class ExperienceCatalogService {
       return experience;
     });
   }
+
+  /** Transitional idempotent bridge used by the tour worker. */
+  async persistActivityAsExperience(
+    tx: Prisma.TransactionClient,
+    activity: {
+      id: string;
+      name: string;
+      description?: string | null;
+      duration?: number | null;
+      latitude?: number | null;
+      longitude?: number | null;
+      type?: string | null;
+      kind: string;
+      boundary?: unknown;
+    },
+    waypointIds: string[] = [],
+  ) {
+    const componentActivities = waypointIds.length
+      ? await tx.activity.findMany({
+          where: { id: { in: waypointIds } },
+          select: { id: true, name: true, latitude: true, longitude: true, kind: true, boundary: true },
+        })
+      : [activity];
+
+    const components = [];
+    for (const component of componentActivities) {
+      const identity = await tx.geoEntityIdentity.findUnique({
+        where: { provider_externalId: { provider: 'legacy_activity', externalId: component.id } },
+        select: { geoEntityId: true },
+      });
+      const data = {
+        name: component.name,
+        kind: this.geoEntityKind(component.kind),
+        latitude: component.latitude ?? undefined,
+        longitude: component.longitude ?? undefined,
+        geometry: component.boundary as Prisma.InputJsonValue | undefined,
+      };
+      const geoEntity = identity
+        ? await tx.geoEntity.update({ where: { id: identity.geoEntityId }, data })
+        : await tx.geoEntity.create({
+            data: {
+              ...data,
+              identities: { create: { provider: 'legacy_activity', externalId: component.id } },
+            },
+          });
+      components.push({ geoEntityId: geoEntity.id, order: components.length + 1 });
+    }
+
+    return tx.experience.upsert({
+      where: { id: activity.id },
+      create: {
+        id: activity.id,
+        canonicalName: activity.name,
+        description: activity.description ?? undefined,
+        durationMinutes: activity.duration ? Math.round(activity.duration * 60) : undefined,
+        latitude: activity.latitude ?? undefined,
+        longitude: activity.longitude ?? undefined,
+        status: ExperienceStatus.VERIFIED,
+        metadata: { migratedFromActivityId: activity.id, type: activity.type },
+        components: { create: components },
+      },
+      update: {
+        canonicalName: activity.name,
+        description: activity.description ?? undefined,
+        status: ExperienceStatus.VERIFIED,
+        components: { deleteMany: {}, create: components },
+      },
+      include: { components: true },
+    });
+  }
+
+  private geoEntityKind(kind: string): GeoEntityKind {
+    if (kind === 'AREA') return GeoEntityKind.AREA;
+    if (kind === 'ROUTE') return GeoEntityKind.ROUTE;
+    return GeoEntityKind.PLACE;
+  }
 }
