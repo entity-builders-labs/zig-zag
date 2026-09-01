@@ -61,6 +61,18 @@ describe('TourGenerationProcessorService', () => {
     expect(generation.generateTourActivities).not.toHaveBeenCalled();
   });
 
+  it('acknowledges duplicate delivery after a terminal failure without rerunning generation', async () => {
+    const { service, generation } = setup({
+      id: 'tour-1',
+      metadata: { generationStatus: 'failed', generationError: 'infeasible' },
+      activities: [],
+    });
+
+    await service.handleGenerationRequested(payload);
+
+    expect(generation.generateTourActivities).not.toHaveBeenCalled();
+  });
+
   it('recovers an interrupted generating state before replaying the durable request', async () => {
     const { service, prisma, generation } = setup({
       id: 'tour-1',

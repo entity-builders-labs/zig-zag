@@ -46,6 +46,17 @@ export class TourGenerationProcessorService implements OnModuleInit {
       return;
     }
 
+    if (metadata.generationStatus === 'failed') {
+      // Generation failures are persisted as terminal domain state by the
+      // generator. A redelivered outbox event must be acknowledged without
+      // re-running providers/planning; explicit user retry creates a new
+      // generation attempt through the normal API path.
+      this.logger.debug(
+        `[TourGenerationProcessor] ${payload.eventKey} already failed; duplicate delivery is a no-op.`,
+      );
+      return;
+    }
+
     if (metadata.generationStatus === 'generating') {
       // A TourGenerationRequested outbox row is acknowledged only after this
       // handler completes. Seeing `generating` at the start of a redelivery
