@@ -94,9 +94,9 @@ model Activity {
   openingHours     Json?
 
   // Media enrichment status
-  mediaStatus      MediaStatus @default(PENDING)
-  mediaUpdatedAt   DateTime?
-  mediaError       String?
+  mediaStatus    MediaStatus @default(PENDING)
+  mediaUpdatedAt DateTime?
+  mediaError     String?
 
   // Flexible metadata - store anything from AI prompts
   metadata Json? // Store AI-generated data, tags, recommendations, etc.
@@ -146,6 +146,141 @@ model Activity {
   @@index([familyId])
   @@index([embeddingProvider, embeddingModel, embeddingDimensions, embeddingDocumentVersion])
   @@map("activity")
+}
+
+// V2 physical geography primitive. This is deliberately independent from
+// Experience identity: a provider identity belongs to a GeoEntity, while an
+// Experience describes what a traveller can do with one or more entities.
+model GeoEntity {
+  id         String                @id @default(uuid())
+  name       String
+  kind       GeoEntityKind
+  latitude   Float?
+  longitude  Float?
+  geometry   Json?
+  address    String?
+  metadata   Json?
+  identities GeoEntityIdentity[]
+  components ExperienceComponent[]
+  createdAt  DateTime              @default(now())
+  updatedAt  DateTime              @updatedAt
+
+  @@index([kind])
+  @@index([latitude, longitude])
+  @@map("geo_entity")
+}
+
+model GeoEntityIdentity {
+  id          String    @id @default(uuid())
+  geoEntityId String
+  provider    String
+  externalId  String
+  geoEntity   GeoEntity @relation(fields: [geoEntityId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([provider, externalId])
+  @@index([geoEntityId])
+  @@map("geo_entity_identity")
+}
+
+model Experience {
+  id                       String                      @id @default(uuid())
+  canonicalName            String
+  description              String?
+  durationMinutes          Int?
+  price                    Float?
+  status                   ExperienceStatus            @default(PENDING)
+  qualityScore             Float?
+  latitude                 Float?
+  longitude                Float?
+  metadata                 Json?
+  components               ExperienceComponent[]
+  evidence                 ExperienceEvidence[]
+  traits                   ExperienceTrait[]
+  tourExperiences          TourExperience[]
+  mediaStatus              MediaStatus                 @default(PENDING)
+  mediaUpdatedAt           DateTime?
+  mediaError               String?
+  embedding                Unsupported("vector(256)")?
+  embeddingProvider        String?
+  embeddingModel           String?
+  embeddingDimensions      Int?
+  embeddingDocumentVersion Int?
+  embeddedAt               DateTime?
+  createdAt                DateTime                    @default(now())
+  updatedAt                DateTime                    @updatedAt
+
+  @@index([status])
+  @@index([latitude, longitude])
+  @@index([embeddingProvider, embeddingModel, embeddingDimensions, embeddingDocumentVersion])
+  @@map("experience")
+}
+
+model ExperienceComponent {
+  id           String     @id @default(uuid())
+  experienceId String
+  geoEntityId  String
+  order        Int?
+  role         String?
+  required     Boolean    @default(true)
+  experience   Experience @relation(fields: [experienceId], references: [id], onDelete: Cascade)
+  geoEntity    GeoEntity  @relation(fields: [geoEntityId], references: [id], onDelete: Restrict)
+
+  @@unique([experienceId, geoEntityId])
+  @@index([geoEntityId])
+  @@map("experience_component")
+}
+
+model ExperienceEvidence {
+  id           String     @id @default(uuid())
+  experienceId String
+  source       String
+  url          String?
+  title        String?
+  snippet      String?
+  discoveredAt DateTime   @default(now())
+  experience   Experience @relation(fields: [experienceId], references: [id], onDelete: Cascade)
+
+  @@index([experienceId])
+  @@map("experience_evidence")
+}
+
+model TraitDefinition {
+  id          String            @id @default(uuid())
+  dimension   String
+  key         String
+  label       String?
+  experiences ExperienceTrait[]
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  @@unique([dimension, key])
+  @@map("trait_definition")
+}
+
+model ExperienceTrait {
+  experienceId      String
+  traitDefinitionId String
+  experience        Experience      @relation(fields: [experienceId], references: [id], onDelete: Cascade)
+  traitDefinition   TraitDefinition @relation(fields: [traitDefinitionId], references: [id], onDelete: Restrict)
+
+  @@id([experienceId, traitDefinitionId])
+  @@index([traitDefinitionId])
+  @@map("experience_trait")
+}
+
+enum GeoEntityKind {
+  PLACE
+  AREA
+  ROUTE
+}
+
+enum ExperienceStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+  ARCHIVED
 }
 
 enum ActivityKind {
@@ -355,11 +490,52 @@ model Tour {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  activities TourActivity[]
+  activities  TourActivity[]
+  experiences TourExperience[]
 
   @@index([categories]) // Index for category filtering
   @@index([ownerId])
   @@map("tour")
+}
+
+// V2 tour snapshot. The shared Experience may be enriched later; this row and
+// its component snapshots preserve what the traveller was actually given.
+model TourExperience {
+  id           String                    @id @default(uuid())
+  tourId       String
+  experienceId String
+  dayNumber    Int?
+  order        Int                       @default(1)
+  startTime    DateTime?
+  duration     Float?
+  notes        String?
+  tour         Tour                      @relation(fields: [tourId], references: [id], onDelete: Cascade)
+  experience   Experience                @relation(fields: [experienceId], references: [id], onDelete: Restrict)
+  components   TourExperienceComponent[]
+  createdAt    DateTime                  @default(now())
+  updatedAt    DateTime                  @updatedAt
+
+  @@unique([tourId, experienceId, dayNumber, order])
+  @@index([tourId])
+  @@index([experienceId])
+  @@map("tour_experience")
+}
+
+model TourExperienceComponent {
+  id               String         @id @default(uuid())
+  tourExperienceId String
+  geoEntityId      String
+  order            Int?
+  role             String?
+  required         Boolean        @default(true)
+  name             String
+  latitude         Float?
+  longitude        Float?
+  geometry         Json?
+  tourExperience   TourExperience @relation(fields: [tourExperienceId], references: [id], onDelete: Cascade)
+
+  @@index([tourExperienceId])
+  @@map("tour_experience_component")
 }
 
 model TourActivity {
@@ -508,7 +684,7 @@ model UserDevice {
   id            String   @id @default(uuid())
   userId        String
   expoPushToken String   @unique
-  platform      String   // "ios" | "android" | "web"
+  platform      String // "ios" | "android" | "web"
   enabled       Boolean  @default(true)
   lastSeenAt    DateTime @default(now())
   createdAt     DateTime @default(now())
