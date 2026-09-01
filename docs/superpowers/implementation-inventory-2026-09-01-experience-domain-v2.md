@@ -1,0 +1,43 @@
+# Experience Domain V2 — Implementation Inventory
+
+Date: 2026-09-01  
+Branch: `feat/experience-domain-v2`  
+Base: `83ceb3b293d1801f123c4f10c292ab8d15785205`
+
+## Preflight
+
+- HEAD: `3c1b52189dfcff071dc40eff70145e7c58896060` (plan-only commit on the base).
+- CodeGraph: available (`.codegraph/` present; used for the initial symbol/call-path inventory).
+- DB safety: local development database. `.env` has `NODE_ENV=development` and a localhost PostgreSQL URL; `zigzag-postgres` is a healthy Docker container using database `zigzag`. No reset/drop/rebaseline was performed.
+
+## Current implementation map
+
+| Responsibility | Current implementation |
+| --- | --- |
+| TourGenerationRequested async flow | `be/src/modules/tours/services/tour-generation-wizard.service.ts`, `tour-generation.service.ts`, `tour-generation-processor.service.ts` |
+| Outbox publisher/consumer | `be/src/modules/outbox/`, `be/src/modules/tours/services/tour-generation-processor.service.ts` |
+| Media enrichment + negative cache | `be/src/modules/tours/services/tour-image.service.ts`, image provider/cache services and Prisma media fields |
+| GenerationTrace persistence/UI | `be/src/modules/tours/interfaces/generation-trace.interface.ts`, `generation-trace-builder.util.ts`, `tour-activity-generation.service.ts`, `fe/components/tour-details/GenerationBitacora.tsx` |
+| Grounded discovery/extraction | `be/src/modules/tours/services/activity-discovery.service.ts`, `gemini-discovery.provider.ts`, `groq-discovery.provider.ts`, grounded-search adapters |
+| Entity resolution | `activity-proposal-resolution.service.ts`, `activity-proposal-pipeline.service.ts`, Google Places and OSM integrations |
+| Geographic validation | `composite-geographic-validation.service.ts`, `geographic-validation.interface.ts` |
+| Materialization | `activity-proposal-materialization.service.ts`, `activity-proposal-pipeline.service.ts` |
+| Coverage | `coverage-analyzer.service.ts`, `tour-format-coverage-validator.service.ts`, coverage interfaces |
+| Ranking/window | `candidate-ranking.util.ts`, `candidate-window-selection.util.ts`, `planning-candidate-normalizer.service.ts` |
+| Planning normalizer/solver | `planning-candidate-normalizer.service.ts`, `greedy-daily-planning.solver.ts`, daily-planning utilities |
+| TourActivity persistence/snapshots | Prisma `Activity`/`TourActivity` models and `tour-activity-generation.service.ts`; composite waypoints are persisted through the legacy Activity model |
+
+## Material divergence from V2
+
+- The schedulable unit is still `Activity`; `ActivityKind` and structural formats remain planner/coverage inputs.
+- Composite discovery still emits `ActivityProposal` with `ProposalKind`, including `NEIGHBORHOOD_WALK`.
+- Resolved entities and geographic validation are present, but materialization still targets Activities rather than `GeoEntity` + `Experience`.
+- The current final acquisition gate can hard-fail when a requested structural format has no accepted candidate, even when other real candidates exist.
+- A deterministic daily solver already exists, but its contracts are `PlanningActivityCandidate`/`PlannedActivity` and it is downstream of legacy format gates.
+- A legacy LLM itinerary path remains in `tour-generation.service.ts`; it is distinct from the wizard's deterministic daily solver.
+- Trace support is V2/legacy-shaped and does not yet satisfy the complete V3 per-call prompt/raw-response/redaction contract.
+- Async Outbox, retry/idempotency, and non-fatal media enrichment are existing infrastructure to preserve during migration.
+
+## Initial migration constraint
+
+Increment A must document the V2 contracts and Bitácora V3/redaction boundary without changing the async/outbox/media architecture. Domain/schema changes begin only after this inventory is committed.
