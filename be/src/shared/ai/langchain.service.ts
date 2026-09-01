@@ -52,6 +52,11 @@ export class LangChainService {
     this.initializeModels();
   }
 
+  /** Provider/model metadata for redacted generation audit records. */
+  getProviderMetadata(): { provider: string; model: string } {
+    return { provider: this.config.provider, model: this.config.defaultModel };
+  }
+
   // Helper to get Ollama request headers with authentication if configured
   private getOllamaHeaders(): Record<string, string> {
     const headers: Record<string, string> = {
