@@ -48,6 +48,37 @@ describe('PlanningCandidateNormalizerService', () => {
     expect(candidate.durationMinutes).toBe(150);
   });
 
+  it('normalizes a native verified Experience using its canonical identity and component fallback', async () => {
+    const [candidate] = await service.normalizeExperiences(
+      [
+        {
+          id: 'experience-1',
+          canonicalName: 'Visitar el museo',
+          durationMinutes: 75,
+          latitude: null,
+          longitude: null,
+          components: [
+            {
+              geoEntity: {
+                latitude: -34.6,
+                longitude: -58.4,
+              },
+            },
+          ],
+        },
+      ],
+      new Map(),
+    );
+
+    expect(candidate.experienceId).toBe('experience-1');
+    expect(candidate.activityId).toBe('experience-1');
+    expect(candidate.durationMinutes).toBe(75);
+    expect(candidate.spatialFootprint.centroid).toEqual({
+      lat: -34.6,
+      lng: -58.4,
+    });
+  });
+
   it('defaults a POI duration to 0 minutes when unset', async () => {
     const [candidate] = await service.normalize(
       [

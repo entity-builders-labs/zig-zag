@@ -76,6 +76,37 @@ export class PlanningCandidateNormalizerService {
     );
   }
 
+  /** Native V2 boundary: normalize verified Experiences without consulting
+   * ActivityKind or ActivityWaypoint. Kept alongside the compatibility method
+   * until the worker switches its acquisition source completely. */
+  async normalizeExperiences(
+    experiences: any[],
+    scoreBreakdownById: Map<string, CandidateScoreBreakdown>,
+  ): Promise<PlanningActivityCandidate[]> {
+    return experiences.map((experience) => {
+      const firstComponent = experience.components?.[0]?.geoEntity;
+      const latitude = experience.latitude ?? firstComponent?.latitude;
+      const longitude = experience.longitude ?? firstComponent?.longitude;
+      return {
+        experienceId: experience.id,
+        activityId: experience.id,
+        kind: 'POI',
+        title: experience.canonicalName,
+        durationMinutes:
+          experience.durationMinutes ??
+          this.policy.compositeDefaultDurationMinutes,
+        spatialFootprint: buildPointFootprint(
+          latitude ?? Number.NaN,
+          longitude ?? Number.NaN,
+        ),
+        semanticScore:
+          scoreBreakdownById.get(experience.id)?.semanticSimilarity ?? 0,
+        qualityScore: scoreBreakdownById.get(experience.id)?.qualityBonus,
+        metadata: { source: 'experience_catalog' },
+      };
+    });
+  }
+
   private async normalizeOne(
     activity: any,
     scoreBreakdown: CandidateScoreBreakdown | undefined,
