@@ -28,7 +28,7 @@ describe('NotificationDeliveryService', () => {
     };
 
     prismaMock = {
-      tourActivity: {
+      tourExperience: {
         findMany: jest.fn().mockResolvedValue([]),
       },
     };
@@ -108,15 +108,15 @@ describe('NotificationDeliveryService', () => {
     });
   });
 
-  it('delivers media only to the activity and related tour channels', async () => {
+  it('delivers media only to the experience and related tour channels', async () => {
     sseHubMock.hasActiveClients.mockReturnValue(true);
-    prismaMock.tourActivity.findMany.mockResolvedValue([
+    prismaMock.tourExperience.findMany.mockResolvedValue([
       { tourId: 'tour-1' },
       { tourId: 'tour-2' },
     ]);
 
     const mediaPayload = {
-      activityId: 'act-1',
+      experienceId: 'exp-1',
       mediaStatus: 'ENRICHED',
       photoCount: 2,
       mediaUpdatedAt: '2026-08-31T01:00:00.000Z',
@@ -131,18 +131,18 @@ describe('NotificationDeliveryService', () => {
     await (deliveryService as any).handleMediaUpdated(mediaPayload);
 
     expect(sseHubMock.emit).toHaveBeenCalledWith(
-      'activity:act-1',
-      'activity.media.updated',
+      'experience:exp-1',
+      'experience.media.updated',
       mediaPayload,
     );
     expect(sseHubMock.emit).toHaveBeenCalledWith(
       'tour:tour-1',
-      'activity.media.updated',
+      'experience.media.updated',
       mediaPayload,
     );
     expect(sseHubMock.emit).toHaveBeenCalledWith(
       'tour:tour-2',
-      'activity.media.updated',
+      'experience.media.updated',
       mediaPayload,
     );
     expect(sseHubMock.emit).toHaveBeenCalledTimes(3);

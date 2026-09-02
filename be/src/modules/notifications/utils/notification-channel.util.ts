@@ -1,4 +1,4 @@
 export const notificationChannel = {
   tour: (tourId: string) => `tour:${tourId}`,
-  activity: (activityId: string) => `activity:${activityId}`,
+  experience: (experienceId: string) => `experience:${experienceId}`,
 } as const;

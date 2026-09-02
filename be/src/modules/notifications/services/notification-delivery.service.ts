@@ -7,7 +7,7 @@ import { SSEHubService } from './sse-hub.service';
 import { PushNotificationService } from './push-notification.service';
 import {
   TourNotificationPayload,
-  ActivityMediaNotificationPayload,
+  ExperienceMediaNotificationPayload,
 } from '../interfaces/notification.interface';
 import { PrismaService } from '../../../core/database/prisma.service';
 import { notificationChannel } from '../utils/notification-channel.util';
@@ -43,14 +43,14 @@ export class NotificationDeliveryService implements OnModuleInit {
       async (payload) => this.handleTourEvent('tour.progress', payload),
     );
 
-    // 4. Activity media updated event
-    this.messageQueue.subscribe<ActivityMediaNotificationPayload>(
-      'ActivityMediaUpdated',
+    // 4. Experience media updated event
+    this.messageQueue.subscribe<ExperienceMediaNotificationPayload>(
+      'ExperienceMediaUpdated',
       async (payload) => this.handleMediaUpdated(payload),
     );
 
     this.logger.log(
-      '[NotificationDelivery] Subscribed to domain events (TourCompleted, TourFailed, TourProgressUpdated, ActivityMediaUpdated).',
+      '[NotificationDelivery] Subscribed to domain events (TourCompleted, TourFailed, TourProgressUpdated, ExperienceMediaUpdated).',
     );
   }
 
@@ -96,14 +96,14 @@ export class NotificationDeliveryService implements OnModuleInit {
   }
 
   private async handleMediaUpdated(
-    payload: ActivityMediaNotificationPayload,
+    payload: ExperienceMediaNotificationPayload,
   ): Promise<void> {
-    const { activityId } = payload;
+    const { experienceId } = payload;
     const channels = new Set<string>([
-      notificationChannel.activity(activityId),
+      notificationChannel.experience(experienceId),
     ]);
-    const relatedTours = await this.prisma.tourActivity.findMany({
-      where: { activityId },
+    const relatedTours = await this.prisma.tourExperience.findMany({
+      where: { experienceId },
       select: { tourId: true },
       distinct: ['tourId'],
     });
@@ -113,7 +113,7 @@ export class NotificationDeliveryService implements OnModuleInit {
 
     for (const channel of channels) {
       if (this.sseHub.hasActiveClients(channel)) {
-        this.sseHub.emit(channel, 'activity.media.updated', payload);
+        this.sseHub.emit(channel, 'experience.media.updated', payload);
       }
     }
   }

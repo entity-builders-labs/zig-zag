@@ -7,8 +7,8 @@ export interface TourNotificationPayload {
   data?: any;
 }
 
-export interface ActivityMediaNotificationPayload {
-  activityId: string;
+export interface ExperienceMediaNotificationPayload {
+  experienceId: string;
   mediaStatus: string;
   photoCount: number;
   mediaUpdatedAt: string;

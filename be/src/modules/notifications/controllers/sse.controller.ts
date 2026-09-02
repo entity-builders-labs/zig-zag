@@ -44,19 +44,19 @@ export class SSEController {
       .pipe(finalize(() => this.sseHub.removeClient(channelId)));
   }
 
-  @Sse('activities/:activityId/stream')
-  async streamActivityEvents(
-    @Param('activityId') activityId: string,
+  @Sse('experiences/:experienceId/stream')
+  async streamExperienceEvents(
+    @Param('experienceId') experienceId: string,
   ): Promise<Observable<MessageEvent>> {
-    const activity = await this.prisma.activity.findUnique({
-      where: { id: activityId },
+    const experience = await this.prisma.experience.findUnique({
+      where: { id: experienceId },
       select: { id: true },
     });
-    if (!activity) {
-      throw new NotFoundException(`Activity with ID ${activityId} not found`);
+    if (!experience) {
+      throw new NotFoundException(`Experience with ID ${experienceId} not found`);
     }
 
-    const channelId = notificationChannel.activity(activityId);
+    const channelId = notificationChannel.experience(experienceId);
     return this.sseHub
       .getStream(channelId)
       .pipe(finalize(() => this.sseHub.removeClient(channelId)));
