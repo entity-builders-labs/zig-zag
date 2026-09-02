@@ -941,26 +941,18 @@ export class TourActivityGenerationService {
                   searchArea.latitude,
                   searchArea.longitude,
                 );
-                const anchors = await this.catalogRefillAnchorPlanner.plan({
-                  destinationResolution,
-                  destinationPoint,
-                  pointRadiusMeters: Math.min(radius, 5_000),
-                  coverageAreas,
+                const acquired = await this.experienceCatalog.acquireNearbyAsExperiences({
+                  latitude: searchArea.latitude,
+                  longitude: searchArea.longitude,
+                  radius: Math.min(radius, 5000),
+                  interests: request.intent.interests,
+                  maxResultCount: activityLimit,
                 });
-                crawlResult =
-                  await this.googlePlacesService.crawlAndSaveActivities(
-                    {
-                      latitude: searchArea.latitude,
-                      longitude: searchArea.longitude,
-                      radius: Math.min(radius, 5000),
-                    },
-                    {
-                      anchors,
-                      destinationLabel: request.destination.label,
-                      requestedInterests: request.intent.interests,
-                      destinationBoundary: destinationScope.geometry,
-                    },
-                  );
+                crawlResult = {
+                  activitiesIds: acquired.activitiesIds,
+                  activities: acquired.activities,
+                  provenance: acquired.provenance,
+                } as any;
               }
 
               const refreshedActivities = await this.experienceCatalog.findVerifiedWithin(

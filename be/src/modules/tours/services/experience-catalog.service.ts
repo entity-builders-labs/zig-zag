@@ -1,6 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { ExperienceStatus, GeoEntityKind, Prisma } from '@prisma/client';
 import { PrismaService } from '@core/database/prisma.service';
+import { IPlacesApiService } from '@integrations/google-places/interfaces/places-api.interface';
 
 export interface GeoEntityInput {
   name: string;
@@ -44,7 +45,53 @@ export interface VerifiedExperienceInput {
  */
 @Injectable()
 export class ExperienceCatalogService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @Inject('PlacesApiService') private readonly placesApi: IPlacesApiService,
+  ) {}
+
+  async acquireNearbyAsExperiences(input: {
+    latitude: number;
+    longitude: number;
+    radius: number;
+    interests?: string[];
+    maxResultCount?: number;
+  }) {
+    const result = await this.placesApi.searchNearby({
+      latitude: input.latitude,
+      longitude: input.longitude,
+      radius: input.radius,
+      maxResultCount: input.maxResultCount ?? 20,
+      rankPreference: 'POPULARITY',
+    });
+    const acquired = [] as any[];
+    for (const place of result.data) {
+      if (!place.location || !place.id) continue;
+      const entity = await this.upsertGeoEntity({
+        name: place.displayName?.text ?? place.name ?? place.id,
+        kind: GeoEntityKind.PLACE,
+        provider: result.provenance.provider,
+        externalId: place.id,
+        latitude: place.location.latitude,
+        longitude: place.location.longitude,
+        address: place.formattedAddress,
+        metadata: { types: place.types, primaryType: place.primaryType },
+      });
+      const experience = await this.persistVerifiedExperience({
+        canonicalName: place.displayName?.text ?? place.name ?? place.id,
+        description: place.formattedAddress,
+        durationMinutes: 90,
+        latitude: place.location.latitude,
+        longitude: place.location.longitude,
+        qualityScore: place.rating,
+        metadata: { source: 'places_acquisition', provider: result.provenance.provider, placeId: place.id, interests: input.interests ?? [] },
+        components: [{ geoEntityId: entity.id, role: 'venue', required: true }],
+        evidence: [{ source: result.provenance.provider, title: place.displayName?.text ?? place.name, snippet: place.formattedAddress }],
+      });
+      acquired.push({ id: experience.id, name: experience.canonicalName, latitude: experience.latitude, longitude: experience.longitude, duration: 1.5, kind: 'EXPERIENCE', type: 'experience', metadata: { source: 'experience_catalog', experienceId: experience.id } });
+    }
+    return { activitiesIds: acquired.map((item) => item.id), activities: acquired, provenance: result.provenance };
+  }
 
   async findVerifiedWithin(
     latitude: number,
