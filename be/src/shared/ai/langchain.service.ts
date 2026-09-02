@@ -12,7 +12,6 @@ import { StringOutputParser } from '@langchain/core/output_parsers';
 import { RunnableSequence } from '@langchain/core/runnables';
 import { BaseLanguageModel } from '@langchain/core/language_models/base';
 import aiConfig from './ai.config';
-import { Activity } from '@prisma/client';
 import { AiCacheService } from './services/ai-cache.service';
 
 export type GroqResponseFormat =
@@ -586,10 +585,10 @@ export class LangChainService {
     }
   }
 
-  async analyzeActivity(activity: Activity, distanceKm: number): Promise<any> {
+  async analyzeExperience(experience: any, distanceKm: number): Promise<any> {
     const prompt = new PromptTemplate({
-      template: `As an AI expert in activity planning and tourism, analyze this activity 
-Activity
+      template: `As an AI expert in Experience planning and tourism, analyze this Experience
+Experience
 Name: {name}
 Type: {type}
 Duration: {duration} minutes
@@ -655,19 +654,19 @@ Response format:
       const resultText = await this.generateCompletionResponse(
         prompt.template as string,
         {
-          name: activity.name,
-          type: activity.type,
-          duration: String(activity.duration),
-          description: activity.description || '',
-          metadata: JSON.stringify(activity.metadata || ''),
+          name: experience.name,
+          type: experience.type,
+          duration: String(experience.duration),
+          description: experience.description || '',
+          metadata: JSON.stringify(experience.metadata || ''),
           distanceKm: distanceKm.toFixed(1),
         } as any,
       );
 
       return JSON.parse(resultText);
     } catch (error) {
-      console.error('Error analyzing activity relationship:', error);
-      throw new Error('Failed to analyze activity relationship');
+      console.error('Error analyzing experience relationship:', error);
+      throw new Error('Failed to analyze experience relationship');
     }
   }
 }
