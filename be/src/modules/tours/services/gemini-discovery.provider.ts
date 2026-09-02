@@ -1,20 +1,6 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import aiConfig from '@shared/ai/ai.config';
-import {
-  ActivityProposal,
-  DiscoveryRequest,
-  DiscoveryResponse,
-  GroundedSearchResult,
-  SearchGroundedDiscoveryProvider,
-} from '../interfaces/activity-discovery.interface';
-import {
-  DISCOVERY_SEMANTIC_RULES,
-  MAX_PROPOSALS,
-  buildEvidenceMap,
-  buildUserPrompt,
-  validateProposal,
-} from '../utils/discovery-extraction-shared.util';
 import { ExperienceDiscoveryRequest } from '../interfaces/experience-discovery.interface';
 import { ExperienceGroundedSearchResult } from '../interfaces/experience-grounding.interface';
 import { extractExperienceCandidates, ExperienceExtractionResult } from '../utils/experience-candidate-extraction.util';
@@ -22,9 +8,9 @@ import { extractExperienceCandidates, ExperienceExtractionResult } from '../util
 /** Gemini-specific: short role framing only. No JSON-shape prose here —
  * response_format (JSON Schema, below) enforces the exact shape
  * structurally, so repeating it in prose would be redundant. */
-const GEMINI_INTRO = `You are an ActivityProposal extractor.
+const GEMINI_INTRO = `You are an ExperienceCandidate extractor.
 
-Your task is to convert grounded tourism research into structured ActivityProposal
+Your task is to convert grounded tourism research into structured ExperienceCandidate
 candidates for a destination based on:
 - the user's requested themes;
 - requested experience formats;
@@ -46,7 +32,7 @@ Never provide or invent:
 - provider-specific geographic identifiers;
 - URLs or citations that were not supplied in the grounded evidence.`;
 
-const SYSTEM_INSTRUCTION = `${GEMINI_INTRO}\n\n${DISCOVERY_SEMANTIC_RULES}`;
+const SYSTEM_INSTRUCTION = GEMINI_INTRO;
 
 /** JSON Schema for the Interactions API's response_format — live-validated
  * shape (top-level field, direct schema object, lowercase JSON Schema
@@ -125,9 +111,7 @@ interface GeminiInteractionResponse {
 }
 
 @Injectable()
-export class GeminiDiscoveryProvider
-  implements SearchGroundedDiscoveryProvider
-{
+export class GeminiDiscoveryProvider {
   private readonly logger = new Logger(GeminiDiscoveryProvider.name);
   private readonly apiUrl =
     'https://generativelanguage.googleapis.com/v1beta/interactions';
@@ -142,9 +126,7 @@ export class GeminiDiscoveryProvider
     return this.config.discoveryExtractor.gemini.model;
   }
 
-  /** Native V2 extraction boundary. This is intentionally separate from the
-   * deprecated ActivityProposal contract until the worker migration consumes
-   * it directly. */
+  /** Native V2 extraction boundary for grounded Experience candidates. */
   async extractExperiences(
     request: ExperienceDiscoveryRequest,
     searchResult: ExperienceGroundedSearchResult,
@@ -166,124 +148,6 @@ export class GeminiDiscoveryProvider
     try { parsed = JSON.parse(raw); } catch { return { candidates: [], validationErrors: ['Failed to parse JSON response'], provider: 'gemini', model: this.model, rawOutput: raw }; }
     const extracted = extractExperienceCandidates(parsed, new Set(evidence.map((item) => item.key)), request.maxCandidates);
     return { ...extracted, provider: 'gemini', model: this.model, rawOutput: raw };
-  }
-
-  async discover(
-    request: DiscoveryRequest,
-    searchResult?: GroundedSearchResult,
-  ): Promise<DiscoveryResponse> {
-    const apiKey = this.config.discoveryExtractor.gemini.apiKey;
-    if (!apiKey) {
-      return {
-        proposals: [],
-        provider: 'gemini',
-        model: this.model,
-        groundingStatus: 'unavailable',
-        groundingProvider: searchResult?.provider,
-        groundingModel: searchResult?.model,
-        validationErrors: ['Missing Gemini API key'],
-      };
-    }
-
-    const maxProposals = Math.min(
-      request.maxProposals || MAX_PROPOSALS,
-      MAX_PROPOSALS,
-    );
-    const evidenceMap = buildEvidenceMap(searchResult);
-    const evidenceKeys = Array.from(evidenceMap.keys());
-    const targetKindInstruction = request.targetKind
-      ? `MANDATORY TARGET KIND: ${request.targetKind}. Every proposal in this extraction call MUST use kind=${request.targetKind}. Do not return POI or any other kind as a substitute for this missing structural format.\n\n`
-      : '';
-    const userPrompt = `${targetKindInstruction}${buildUserPrompt(
-      request,
-      evidenceMap,
-      maxProposals,
-      {
-        includeJsonFormatInstruction: false,
-      },
-    )}`;
-
-    let raw: string;
-    try {
-      raw = await this.callInteractionsApi(apiKey, userPrompt);
-    } catch (error: any) {
-      this.logger.error(`Gemini discovery call failed: ${error.message}`);
-      return {
-        proposals: [],
-        provider: 'gemini',
-        model: this.model,
-        groundingStatus: searchResult?.groundingStatus ?? 'unavailable',
-        groundingProvider: searchResult?.provider,
-        groundingModel: searchResult?.model,
-        groundingEvidence: searchResult?.evidence,
-        validationErrors: [`Gemini discovery call failed: ${error.message}`],
-      };
-    }
-
-    let parsed: any;
-    try {
-      parsed = JSON.parse(raw);
-    } catch {
-      return {
-        proposals: [],
-        provider: 'gemini',
-        model: this.model,
-        groundingStatus: searchResult?.groundingStatus ?? 'unavailable',
-        groundingProvider: searchResult?.provider,
-        groundingModel: searchResult?.model,
-        groundingEvidence: searchResult?.evidence,
-        rawOutput: raw,
-        validationErrors: ['Failed to parse JSON response'],
-      };
-    }
-
-    const rawProposals: any[] = parsed.proposals || [];
-    const proposals: ActivityProposal[] = [];
-    const validationErrors: string[] = [];
-
-    for (let i = 0; i < Math.min(rawProposals.length, maxProposals); i++) {
-      const p = rawProposals[i];
-      const errors = validateProposal(p, evidenceKeys);
-      if (errors.length > 0) {
-        validationErrors.push(
-          `Proposal ${i + 1} "${p?.name || 'unnamed'}": ${errors.join('; ')}`,
-        );
-        continue;
-      }
-      proposals.push({
-        name: p.name,
-        kind: p.kind,
-        themes: p.themes,
-        entityHints: p.entityHints.map((h: any) => ({
-          key: h.key,
-          name: h.name,
-          role: h.role,
-          expectedType: h.expectedType,
-          required: h.required === true,
-          evidenceKeys: Array.isArray(h.evidenceKeys) ? h.evidenceKeys : [],
-        })),
-        suggestedDurationMinutes: p.suggestedDurationMinutes,
-        shortReason: p.shortReason,
-        evidenceKeys: p.evidenceKeys,
-      });
-    }
-
-    const evidenceList = searchResult?.evidence
-      ? searchResult.evidence.filter((e) => evidenceKeys.includes(e.key))
-      : undefined;
-
-    return {
-      proposals,
-      provider: 'gemini',
-      model: this.model,
-      groundingStatus: searchResult?.groundingStatus ?? 'unavailable',
-      groundingProvider: searchResult?.provider,
-      groundingModel: searchResult?.model,
-      groundingEvidence: evidenceList,
-      rawOutput: raw,
-      validationErrors:
-        validationErrors.length > 0 ? validationErrors : undefined,
-    };
   }
 
   /** Single retry on a timeout/abort only — live-observed once this session
