@@ -27,7 +27,6 @@ import {
   SemanticDiscoveryQueryPlan,
 } from '../utils/semantic-discovery-query-builder.util';
 import { extractRouteHints } from '../utils/route-evidence-extraction.util';
-import { toExperienceCandidates } from '../utils/experience-candidate-adapter.util';
 
 const EVIDENCE_BUDGET = 30;
 const MAX_PROPOSALS_PER_KIND = 4;
@@ -253,7 +252,6 @@ export class ActivityDiscoveryService {
 
     return {
       proposals: dedupedProposals,
-      experienceCandidates: toExperienceCandidates(dedupedProposals),
       provider: extractionProvider ?? 'none',
       model: extractionModel ?? 'none',
       groundingStatus,
@@ -315,7 +313,6 @@ export class ActivityDiscoveryService {
       );
       return {
         proposals: [],
-        experienceCandidates: [],
         provider: 'none',
         model: 'none',
         groundingStatus: searchResult.groundingStatus,
@@ -337,9 +334,6 @@ export class ActivityDiscoveryService {
 
     return {
       ...response,
-      experienceCandidates:
-        response.experienceCandidates ??
-        toExperienceCandidates(response.proposals),
       searchTrace,
     };
   }

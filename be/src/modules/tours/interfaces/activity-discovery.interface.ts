@@ -1,6 +1,5 @@
 import { ActivityKind } from '@prisma/client';
 import { CoverageDeficit } from './coverage-analysis.interface';
-import { ExperienceCandidate } from './experience-discovery.interface';
 
 export type ProposalKind =
   | 'POI'
@@ -107,8 +106,6 @@ export interface DiscoverySearchTrace {
 
 export interface DiscoveryResponse {
   proposals: ActivityProposal[];
-  /** V2 provider-neutral view; `proposals` remains during migration. */
-  experienceCandidates?: ExperienceCandidate[];
   provider: string;
   model: string;
   groundingStatus: GroundingStatus;
