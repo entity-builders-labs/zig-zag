@@ -1681,8 +1681,7 @@ export class ExperienceGenerationService {
           data: {
             metadata: {
               ...withoutGenerationFailure(effectiveMetadata),
-              generationTrace,
-              executionSummary,
+              generationTrace: { ...(generationTrace as any), executionSummary },
               generationStatus: 'completed',
               generationMessage: completedMessage,
               generationCompletedAt: new Date().toISOString(),

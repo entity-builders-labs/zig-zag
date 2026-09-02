@@ -114,6 +114,14 @@ export interface GenerationTrace {
   hallucinatedCount: number;
   duplicateCount: number;
   auditFindings?: { perActivity: AuditFinding[] };
+  executionSummary?: {
+    status: 'completed' | 'failed';
+    steps: string[];
+    acceptedExperiences?: number;
+    rejectedProposals?: number;
+    selectedExperiences?: number;
+    failure?: string;
+  };
 }
 
 interface GenerationBitacoraProps {
@@ -315,6 +323,7 @@ function TimelineStep({
               </Text>
               <Icon as={StatusIcon} size='2xs' color={visual.color as any} />
             </HStack>
+
             <Text size='2xs' color={COLORS.textMuted} mt='$0.5'>
               {step.component || step.stage}
             </Text>
@@ -803,6 +812,14 @@ export const GenerationBitacora = ({
                 </Pressable>
               </HStack>
             </HStack>
+            {trace.executionSummary && (
+              <Box mt='$3' p='$3' borderRadius='$lg' bg={COLORS.panel as any} borderWidth={1} borderColor={COLORS.borderSoft as any}>
+                <Text size='sm' fontWeight='$bold' color={COLORS.text}>Resumen de ejecución</Text>
+                <Text size='xs' color={COLORS.textMuted} mt='$1'>
+                  {trace.executionSummary.steps.join(' ')}
+                </Text>
+              </Box>
+            )}
           </Box>
 
           {desktop ? (
