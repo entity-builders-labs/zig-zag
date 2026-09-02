@@ -13,7 +13,7 @@ ai/
 └── services/
     ├── ai-cache.service.ts         # File-based response caching
     ├── ai-embedding.service.ts     # Text → vector embeddings
-    ├── semantic-activity-document-builder.service.ts # Canonical Activity text
+    ├── semantic-experience-document-builder.service.ts # Canonical Experience text
     └── vector-store.service.ts     # pgvector similarity search
 ```
 
@@ -28,19 +28,19 @@ The primary AI service. Handles all LLM interactions:
   - Ollama supports optional authentication headers
 - **Chat responses**: `generateChatResponse(systemPrompt, userPrompt, variables)`
 - **Completion responses**: `generateCompletionResponse(promptText, variables)`
-- **Activity analysis**: `analyzeActivity(activity, distanceKm)` — generates structured metadata
+- **Experience analysis**: generates structured metadata for acquired Experiences
 - **Prompt templates**: `createPromptTemplate()` + `createChain()` for reusable chains
 - **Caching**: Integrates with `AiCacheService` to avoid redundant API calls
 
 ### `VectorStoreService`
 
-Semantic similarity search over activities using **pgvector** — a `vector(256)` column + HNSW index on `Activity.embedding`. No separate vector database process is used.
+Semantic similarity search over Experiences using **pgvector** — a `vector(256)` column + HNSW index on `Experience.embedding`. No separate vector database process is used.
 
-- Every write reloads the canonical Activity and uses `SemanticActivityDocumentBuilder`; callers cannot provide ad-hoc embedding prose.
+- Every write reloads the canonical Experience and uses the semantic Experience document builder; callers cannot provide ad-hoc embedding prose.
 - Every vector stores its provider, model, width, document version, and timestamp. Queries exclude vectors whose identity does not exactly match the configured index.
-- `saveActivityEmbedding()` returns the exact indexed IDs, reports provider unavailability, or throws `EmbeddingWriteError`; it never swallows a failed write.
+- `saveExperienceEmbedding()` returns the exact indexed IDs, reports provider unavailability, or throws `EmbeddingWriteError`; it never swallows a failed write.
 - `getSimilarityScores()` returns `applied` or `unavailable` from the actual query operation, including compatible/missing candidate counts.
-- `rebuildVectorStore()` first clears all vectors and identity fields, then rebuilds every active recommendable Activity. If any batch fails, it clears the partial result before returning the error.
+- `rebuildVectorStore()` first clears all vectors and identity fields, then rebuilds every verified Experience. If any batch fails, it clears the partial result before returning the error.
 
 ### `AiEmbeddingService`
 
@@ -53,11 +53,8 @@ Generates text embeddings using exactly the configured provider:
 `EMBEDDING_PROVIDER` is authoritative. Startup or runtime failure makes the
 service explicitly unavailable; the service never tries another provider even
 when unrelated credentials are present. Changing provider, model, dimensions,
-or the semantic document version requires the operator to run a full rebuild:
-
-```bash
-yarn workspace backend script match-activities
-```
+or the semantic document version requires a coordinated Experience embedding
+rebuild before deployment.
 
 Local and production both use PostgreSQL + pgvector. ChromaDB is not part of
 this architecture.

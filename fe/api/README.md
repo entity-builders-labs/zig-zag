@@ -13,7 +13,7 @@ api/
 │   └── useApi.ts          # Generic data fetching hook
 ├── services/
 │   └── api.service.ts     # Base API service class
-├── activities.ts          # Activity API functions
+├── experiences.ts         # Verified Experience API functions
 └── tours.ts               # Tour API functions + types
 ```
 
@@ -49,9 +49,9 @@ in `features/tours/tour-generation-contract.ts` and contains nested
 `destination`, `intent`, and `mobility` values rather than a parallel prompt or
 flat legacy wizard fields.
 
-### Activities (`activities.ts`)
+### Experiences (`experiences.ts`)
 
-Activity API functions (basic wrapper around axios).
+Verified Experience API functions (basic wrapper around axios).
 
 ## Hooks (`hooks/`)
 

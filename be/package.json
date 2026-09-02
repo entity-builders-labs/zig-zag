@@ -32,13 +32,7 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:deploy": "prisma migrate deploy",
     "prisma:seed": "prisma db push && npm run seed",
-    "test:db": "ts-node test-db-connection.ts",
-    "match:init": "yarn script match-activities",
-    "match:cinema": "yarn script match-activities --search-prompt 'Cinema'",
-    "match:museum": "yarn script match-activities --search-prompt 'outdoor relaxing activities perfect after watching a movie'",
-    "match:restaurants": "yarn script match-activities --search-prompt 'restaurants'",
-    "match:outdoor": "yarn script match-activities --search-prompt 'outdoor activities'",
-    "match:complementary": "yarn script match-activities --search-prompt 'indoor and outdoor activities that complement each other'"
+    "test:db": "ts-node test-db-connection.ts"
   },
   "dependencies": {
     "@aws-sdk/client-bedrock-runtime": "^3.873.0",

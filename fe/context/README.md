@@ -21,9 +21,9 @@ context/
 
 ## Key Function
 
-### `getActivities(coordinatesProps?)`
+### `getExperiences(coordinatesProps?)`
 
-Main data fetching function used across the app:
+Main verified-Experience fetching function used across the app:
 
 1. Takes optional coordinates (falls back to address → center)
 2. Tour/map screens query verified Experiences through their dedicated API boundaries.

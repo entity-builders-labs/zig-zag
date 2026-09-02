@@ -93,7 +93,6 @@ Points at `E2E_WEB_URL` (default `http://localhost:19006`) and the backend's `AP
 
 ```bash
 yarn script <command-name> [options]     # bootstraps a NestJS app context, no HTTP server
-yarn match:init                          # rebuild pgvector embeddings for all activities (match-activities)
 yarn crawl                               # run the Google Places location crawler CLI
 yarn script generate-templates --lat=... --lng=... --name="..." [--themes=history,food] [--update-existing]
                                           # pre-generate curated composite-activity variants (walks/routes/experiences) for an area offline
