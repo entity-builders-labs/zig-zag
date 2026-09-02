@@ -313,7 +313,6 @@ describe('buildCatalogMaterializationStep', () => {
         {
           proposal: {
             name: 'Paseo San Telmo',
-            kind: 'NEIGHBORHOOD_WALK' as any,
             themes: [],
             traits: [],
             componentHints: [],
