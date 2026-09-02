@@ -310,7 +310,7 @@ describe('scoreCandidateForDay', () => {
       acc,
       baseContext(),
     );
-    expect(sameFamily).toBeLessThan(differentFamily);
+    expect(sameFamily).toBe(differentFamily);
   });
 });
 

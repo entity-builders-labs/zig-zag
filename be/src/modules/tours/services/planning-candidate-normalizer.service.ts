@@ -92,7 +92,6 @@ export class PlanningCandidateNormalizerService {
     return {
       experienceId: activity.experienceId ?? activity.id,
       activityId: activity.id,
-      kind,
       title: activity.name,
       // Persisted duration is hours — converted once, here, at the
       // normalization boundary. Never mixed with hours downstream.
@@ -105,8 +104,6 @@ export class PlanningCandidateNormalizerService {
       semanticScore: scoreBreakdown?.semanticSimilarity ?? 0,
       qualityScore: scoreBreakdown?.qualityBonus,
       areaId: activity.familyId ?? undefined,
-      familyId: activity.familyId ?? undefined,
-      variantKey: activity.variantTheme ?? undefined,
       mobility,
       metadata: {
         source: activity.metadata?.placesProvider,

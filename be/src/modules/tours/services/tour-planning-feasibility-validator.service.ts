@@ -43,13 +43,14 @@ export class TourPlanningFeasibilityValidatorService
       let dayWalkingMeters = 0;
 
       for (const activity of day.activities) {
-        if (seenExperienceIds.has(activity.activityId)) {
+        const experienceId = activity.experienceId ?? activity.activityId;
+        if (seenExperienceIds.has(experienceId)) {
           issues.push({
             code: 'DUPLICATE_ACTIVITY',
             message: `Experience ${activity.experienceId ?? activity.activityId} is scheduled more than once.`,
           });
         }
-        seenExperienceIds.add(activity.activityId);
+        seenExperienceIds.add(experienceId);
 
         if (activity.startMinutesFromMidnight < cursor) {
           issues.push({
@@ -60,7 +61,7 @@ export class TourPlanningFeasibilityValidatorService
         cursor = activity.endMinutesFromMidnight;
 
         const candidate = input.candidates.find(
-          (candidate) => (candidate.experienceId ?? candidate.activityId) === (activity.experienceId ?? activity.activityId),
+          (candidate) => (candidate.experienceId ?? candidate.activityId) === experienceId,
         );
         if (!candidate) {
           issues.push({

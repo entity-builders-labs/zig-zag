@@ -50,8 +50,9 @@ export type NormalizedOpeningHours =
 export interface PlanningExperienceCandidate {
   /** Canonical V2 identity used by the planner. */
   experienceId?: string;
-  /** Transitional field for isolated pre-V2 fixtures; never populated by V2. */
+  /** @deprecated only for isolated pre-V2 fixtures; V2 never populates it. */
   activityId?: string;
+  /** @deprecated structural kind is not used by V2 planning. */
   kind?: string;
   title: string;
   durationMinutes: number;
@@ -61,6 +62,7 @@ export interface PlanningExperienceCandidate {
   qualityScore?: number;
   themes?: string[];
   areaId?: string;
+  /** @deprecated legacy family metadata is ignored by V2 planning. */
   familyId?: string;
   variantKey?: string;
   mobility?: {

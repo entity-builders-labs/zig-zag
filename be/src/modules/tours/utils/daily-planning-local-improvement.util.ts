@@ -11,6 +11,9 @@ import {
 } from './daily-planning-placement.util';
 import { footprintDistanceMeters } from './spatial-footprint.util';
 
+const candidateIdentity = (candidate: PlanningExperienceCandidate): string =>
+  candidate.experienceId ?? candidate.activityId ?? '';
+
 function dayCentroid(acc: DayAccumulator): Coordinate | null {
   if (acc.assigned.length === 0) return null;
   const lat =
@@ -53,7 +56,7 @@ function withoutCandidate(
 ): DayAccumulator {
   return {
     ...acc,
-    assigned: acc.assigned.filter((a) => a.activityId !== remove.activityId),
+    assigned: acc.assigned.filter((a) => candidateIdentity(a) !== candidateIdentity(remove)),
     totalActivityMinutes:
       acc.totalActivityMinutes - candidateActivityMinutes(remove),
   };
@@ -105,7 +108,7 @@ async function tryMove(
         if (!feasibility.feasible) continue;
 
         fromAcc.assigned = fromAcc.assigned.filter(
-          (a) => a.activityId !== candidate.activityId,
+          (a) => candidateIdentity(a) !== candidateIdentity(candidate),
         );
         toAcc.assigned.push(candidate);
         // Must mirror exactly what `placeCandidates` charged for this
@@ -158,10 +161,10 @@ async function trySwap(
           if (!feasibleInA.feasible || !feasibleInB.feasible) continue;
 
           accA.assigned = accA.assigned.map((a) =>
-            a.activityId === candidateA.activityId ? candidateB : a,
+            candidateIdentity(a) === candidateIdentity(candidateA) ? candidateB : a,
           );
           accB.assigned = accB.assigned.map((a) =>
-            a.activityId === candidateB.activityId ? candidateA : a,
+            candidateIdentity(a) === candidateIdentity(candidateB) ? candidateA : a,
           );
           // The swap previously left both days' totals describing their
           // pre-swap composition — exchanging a 60-minute stop for a

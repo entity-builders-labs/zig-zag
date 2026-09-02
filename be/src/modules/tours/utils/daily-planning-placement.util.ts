@@ -12,6 +12,9 @@ import {
 import { DailyPlanningPolicy } from '../config/daily-planning-policy.config';
 import { isOpenDuring } from './normalized-opening-hours.util';
 
+const candidateIdentity = (candidate: PlanningExperienceCandidate): string =>
+  candidate.experienceId ?? candidate.activityId ?? '';
+
 export interface DayAccumulator {
   dayNumber: number;
   assigned: PlanningExperienceCandidate[];
@@ -27,12 +30,6 @@ export interface PlacementContext {
   /** ISO date strings — empty means no confirmed base date, so weekday-
    * specific opening-hours checks are skipped rather than guessed. */
   startDates: string[];
-}
-
-function isCompositeKind(kind: PlanningExperienceCandidate['kind']): boolean {
-  return (
-    kind === 'NEIGHBORHOOD_WALK' || kind === 'ROUTE' || kind === 'EXPERIENCE'
-  );
 }
 
 /** Resolves the JS weekday (0=Sun..6=Sat) for a given planning day number,
@@ -84,7 +81,10 @@ export function internalWalkingMeters(
   if (candidate.mobility?.internalWalkingDistanceMeters !== undefined) {
     return candidate.mobility.internalWalkingDistanceMeters;
   }
-  if (isCompositeKind(candidate.kind)) {
+  if (
+    candidate.mobility?.internalWalkingDistanceMeters === undefined &&
+    candidate.kind !== 'POI'
+  ) {
     // Unknown internal walking on a composite: apply the explicit,
     // configurable conservative V1 fallback — never derived from duration.
     return (
@@ -211,12 +211,7 @@ export function scoreCandidateForDay(
   const quality = scoring.qualityWeight * (candidate.qualityScore ?? 0);
   const dayBalanceBonus =
     scoring.dayBalanceWeight * (1 / (acc.assigned.length + 1));
-  const familyPenalty =
-    candidate.familyId &&
-    acc.assigned.some((a) => a.familyId === candidate.familyId)
-      ? scoring.familyVariantPenaltyWeight
-      : 0;
-  return semantic + quality + dayBalanceBonus - familyPenalty;
+  return semantic + quality + dayBalanceBonus;
 }
 
 /** Greedy day placement: for each candidate (already sorted by the caller),
@@ -246,7 +241,7 @@ export async function placeCandidates(
   const unselected: UnselectedPlanningCandidate[] = [];
 
   for (const candidate of sortedCandidates) {
-    if (placedIds.has(candidate.activityId)) {
+    if (placedIds.has(candidateIdentity(candidate))) {
       unselected.push({
         experienceId: candidate.experienceId,
         activityId: candidate.activityId,
@@ -300,7 +295,7 @@ export async function placeCandidates(
     acc.totalWalkingMeters +=
       internalWalkingMeters(candidate, context.policy) +
       (travel?.walkingDistanceMeters ?? 0);
-    placedIds.add(candidate.activityId);
+    placedIds.add(candidateIdentity(candidate));
   }
 
   return { days, unselected };
