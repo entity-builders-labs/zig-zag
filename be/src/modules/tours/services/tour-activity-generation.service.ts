@@ -56,7 +56,6 @@ import {
   buildTourIntentStep,
   buildPlacesCrawlStep,
   buildTourCompletenessStep,
-  buildTourFormatCoverageStep,
 } from '../utils/generation-trace-builder.util';
 import {
   ExperienceProposalResolver,
@@ -64,11 +63,6 @@ import {
 } from '../interfaces/experience-resolution.interface';
 import { TourCompletenessValidator } from './tour-completeness-validator.service';
 import { TourCompletenessInput } from '../interfaces/tour-completeness.interface';
-import { TourFormatCoverageValidator } from './tour-format-coverage-validator.service';
-import {
-  TourFormatCoverageActivityRef,
-  TourFormatCoverageInput,
-} from '../interfaces/tour-format-coverage.interface';
 import { GenerationTraceStep } from '../interfaces/generation-trace.interface';
 import { PlanningCandidateNormalizerService } from './planning-candidate-normalizer.service';
 import dailyPlanningPolicyConfig from '../config/daily-planning-policy.config';
@@ -146,7 +140,6 @@ export class TourActivityGenerationService {
     @Inject(DISCOVERY_PROVIDER)
     private readonly discoveryProvider: SearchGroundedDiscoveryProvider,
     private readonly tourCompletenessValidator: TourCompletenessValidator,
-    private readonly tourFormatCoverageValidator: TourFormatCoverageValidator,
     @Inject(EXPERIENCE_PROPOSAL_RESOLVER)
     private readonly proposalResolver: ExperienceProposalResolver,
     private readonly planningCandidateNormalizer: PlanningCandidateNormalizerService,
@@ -1494,38 +1487,10 @@ export class TourActivityGenerationService {
       const completeness =
         this.tourCompletenessValidator.validate(completenessInput);
 
-      const formatCoverageInput: TourFormatCoverageInput = {
-        requestedExperienceFormats: request.intent.experienceFormats,
-        selectedActivities: Array.from(selectedIds)
-          .map((activityId): TourFormatCoverageActivityRef | null => {
-            const candidate = candidateActivitiesById.get(activityId);
-            return candidate?.kind
-              ? { activityId, kind: candidate.kind }
-              : null;
-          })
-          .filter((ref): ref is TourFormatCoverageActivityRef => ref !== null),
-        availableCandidateActivities: Array.from(
-          candidateActivitiesById.entries(),
-        )
-          .filter(
-            ([id, candidate]) =>
-              candidate.kind && !infeasibleActivityIds.has(id),
-          )
-          .map(([activityId, candidate]) => ({
-            activityId,
-            kind: candidate.kind as ActivityKind,
-          })),
-      };
-      const formatCoverage =
-        this.tourFormatCoverageValidator.validate(formatCoverageInput);
-
       const correctiveRetryAttempted = false;
 
       traceSteps.push(
         buildTourCompletenessStep(completeness, correctiveRetryAttempted),
-      );
-      traceSteps.push(
-        buildTourFormatCoverageStep(formatCoverage, correctiveRetryAttempted),
       );
 
       const activities = planningSolution.days.flatMap((day) =>
@@ -1624,10 +1589,6 @@ export class TourActivityGenerationService {
         steps: traceSteps,
         tourCompleteness: {
           ...completeness,
-          retryAttempted: correctiveRetryAttempted,
-        },
-        tourFormatCoverage: {
-          ...formatCoverage,
           retryAttempted: correctiveRetryAttempted,
         },
       });

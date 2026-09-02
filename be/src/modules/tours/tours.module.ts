@@ -10,7 +10,6 @@ import { DestinationResolutionService } from './services/destination-resolution.
 import { CatalogRefillAnchorPlanner } from './services/catalog-refill-anchor-planner.service';
 import { CoverageAnalyzer } from './services/coverage-analyzer.service';
 import { TourCompletenessValidator } from './services/tour-completeness-validator.service';
-import { TourFormatCoverageValidator } from './services/tour-format-coverage-validator.service';
 import { GroqGroundedSearchService } from './services/groq-grounded-search.service';
 import { SerpApiGroundedSearchService } from './services/serpapi-grounded-search.service';
 import { TavilyGroundedSearchService } from './services/tavily-grounded-search.service';
@@ -67,7 +66,6 @@ import { OutboxModule } from '../outbox/outbox.module';
     CatalogRefillAnchorPlanner,
     CoverageAnalyzer,
     TourCompletenessValidator,
-    TourFormatCoverageValidator,
     GroqGroundedSearchService,
     SerpApiGroundedSearchService,
     TavilyGroundedSearchService,
