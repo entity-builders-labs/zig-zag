@@ -1605,43 +1605,9 @@ export class TourActivityGenerationService {
             });
             continue;
           }
-          const createdTourActivity = await tx.tourActivity.create({
-            data: {
-              tourId,
-              activityId: activity.activityId,
-              activityName: activity.activityName,
-              activityType: activity.activityType,
-              activityLatitude: activity.activityLatitude,
-              activityLongitude: activity.activityLongitude,
-              activityData: activity.activityData,
-              duration: activity.duration,
-              startTime: activity.startTime,
-              notes: activity.notes,
-              dayNumber: activity.dayNumber,
-              travelTimeToNext: activity.travelTimeToNext,
-              distanceToNext: activity.distanceToNext,
-              order: activity.order,
-            },
-          });
-
-          const kind = activity.activityId
-            ? kindByActivityId.get(activity.activityId)
-            : undefined;
-          if (kind && kind !== ActivityKind.POI) {
-            const actualWaypointIds =
-              waypointIdsByActivityId.get(activity.activityId as string) ?? [];
-            const finalWaypointIds = actualWaypointIds;
-
-            if (finalWaypointIds.length > 0) {
-              await tx.tourActivityWaypoint.createMany({
-                data: finalWaypointIds.map((waypointActivityId, index) => ({
-                  tourActivityId: createdTourActivity.id,
-                  waypointActivityId,
-                  order: index + 1,
-                })),
-              });
-            }
-          }
+          this.logger.warn(
+            `Skipping unmaterialized planner item ${activity.activityId}: V2 only persists verified Experiences.`,
+          );
 
         }
 
