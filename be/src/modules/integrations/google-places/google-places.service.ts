@@ -40,7 +40,7 @@ interface PlaceWithMetadata extends GooglePlaceDetails {
 }
 
 export interface PlacesCrawlResult {
-  activitiesIds: string[];
+  experienceIds: string[];
   fromCache: boolean;
   provenance: PlacesCrawlProvenance;
 }
@@ -826,7 +826,7 @@ export class GooglePlacesService implements OnModuleInit {
       }
 
       return {
-        activitiesIds: activities.map((activity) => activity.id.toString()),
+        experienceIds: activities.map((activity) => activity.id.toString()),
         fromCache: provenance.cacheStatus === 'hit',
         provenance,
       };

@@ -935,7 +935,7 @@ export class ExperienceGenerationService {
                   `Skipping catalog refill for ${searchArea.latitude}, ${searchArea.longitude}: already attempted within ${this.CATALOG_REFILL_CACHE_EXPIRY_HOURS}h.`,
                 );
                 crawlResult = {
-                  activitiesIds: [],
+                  experienceIds: [],
                   fromCache: true,
                   provenance: {
                     provider: placesStatus.provider,
@@ -959,8 +959,8 @@ export class ExperienceGenerationService {
                   maxResultCount: activityLimit,
                 });
                 crawlResult = {
-                  activitiesIds: acquired.activitiesIds,
-                  activities: acquired.activities,
+                  experienceIds: acquired.experienceIds,
+                  experiences: acquired.experiences,
                   provenance: acquired.provenance,
                 } as any;
               }
@@ -1020,10 +1020,10 @@ export class ExperienceGenerationService {
                 availableActivitiesText = `\n\nAvailable verified Experiences in the area (within ${radius / 1000}km):\n${refreshedActivitiesSample
                   .map((act: any) => formatExperienceForPrompt(act))
                   .join('\n')}`;
-                const newActivityIds = new Set(crawlResult.activitiesIds);
+                const newExperienceIds = new Set(crawlResult.experienceIds);
                 const crawlStep = buildPlacesCrawlStep(
-                  refreshedActivitiesSample.filter((activity: any) =>
-                    newActivityIds.has(activity.id),
+                  refreshedActivitiesSample.filter((experience: any) =>
+                    newExperienceIds.has(experience.id),
                   ),
                   crawlResult.provenance,
                 );
@@ -1032,7 +1032,7 @@ export class ExperienceGenerationService {
                 const candidatePoolStep = this.buildCandidatePoolTraceStep(
                   selection,
                   discoveryResolvedActivityIds,
-                  newActivityIds,
+                  newExperienceIds,
                   crawlResult.provenance.provider === 'google'
                     ? 'google'
                     : 'geoapify',
