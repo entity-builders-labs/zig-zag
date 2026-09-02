@@ -2,6 +2,10 @@ import { Injectable, Inject } from '@nestjs/common';
 import { ExperienceStatus, GeoEntityKind, Prisma } from '@prisma/client';
 import { PrismaService } from '@core/database/prisma.service';
 import { IPlacesApiService } from '@integrations/google-places/interfaces/places-api.interface';
+import {
+  decideExperienceDedupe,
+  DedupeExperienceFingerprint,
+} from '../utils/experience-dedupe.util';
 
 export interface GeoEntityInput {
   name: string;
@@ -19,6 +23,7 @@ export interface VerifiedExperienceInput {
   canonicalName: string;
   description?: string;
   durationMinutes?: number;
+  price?: number;
   qualityScore?: number;
   latitude?: number;
   longitude?: number;
@@ -40,8 +45,8 @@ export interface VerifiedExperienceInput {
 
 /**
  * Persistence boundary for the V2 verified catalog. Provider identities are
- * resolved before this service is called; this class never searches providers
- * and never upgrades an unverified candidate by itself.
+ * resolved before this service is called; this class never upgrades an
+ * unresolved proposal into a verified Experience.
  */
 @Injectable()
 export class ExperienceCatalogService {
@@ -52,9 +57,22 @@ export class ExperienceCatalogService {
 
   private isAdmissiblePlace(place: any): boolean {
     const tourismTypes = new Set([
-      'tourist_attraction', 'museum', 'art_gallery', 'park', 'national_park',
-      'historical_landmark', 'historical_place', 'church', 'zoo', 'aquarium',
-      'amusement_park', 'observation_deck', 'visitor_center', 'cultural_center',
+      'tourist_attraction',
+      'museum',
+      'art_gallery',
+      'park',
+      'national_park',
+      'historical_landmark',
+      'historical_place',
+      'church',
+      'zoo',
+      'aquarium',
+      'amusement_park',
+      'observation_deck',
+      'visitor_center',
+      'cultural_center',
+      'restaurant',
+      'winery',
     ]);
     const types = [place.primaryType, ...(place.types ?? [])].filter(Boolean);
     return types.some((type) => tourismTypes.has(type));
@@ -76,8 +94,7 @@ export class ExperienceCatalogService {
     });
     const acquired = [] as any[];
     for (const place of result.data) {
-      if (!place.location || !place.id) continue;
-      if (!this.isAdmissiblePlace(place)) continue;
+      if (!place.location || !place.id || !this.isAdmissiblePlace(place)) continue;
       const entity = await this.upsertGeoEntity({
         name: place.displayName?.text ?? place.name ?? place.id,
         kind: GeoEntityKind.PLACE,
@@ -95,13 +112,37 @@ export class ExperienceCatalogService {
         latitude: place.location.latitude,
         longitude: place.location.longitude,
         qualityScore: place.rating,
-        metadata: { source: 'places_acquisition', provider: result.provenance.provider, placeId: place.id, interests: input.interests ?? [] },
+        metadata: {
+          source: 'places_acquisition',
+          provider: result.provenance.provider,
+          placeId: place.id,
+          themes: input.interests ?? [],
+        },
         components: [{ geoEntityId: entity.id, role: 'venue', required: true }],
-        evidence: [{ source: result.provenance.provider, title: place.displayName?.text ?? place.name, snippet: place.formattedAddress }],
+        evidence: [
+          {
+            source: result.provenance.provider,
+            title: place.displayName?.text ?? place.name,
+            snippet: place.formattedAddress,
+          },
+        ],
       });
-      acquired.push({ id: experience.id, name: experience.canonicalName, latitude: experience.latitude, longitude: experience.longitude, duration: 1.5, metadata: { source: 'experience_catalog', experienceId: experience.id }, components: experience.components });
+      if ((experience as any).dedupeDecision === 'AMBIGUOUS') continue;
+      acquired.push({
+        id: experience.id,
+        name: (experience as any).canonicalName,
+        latitude: (experience as any).latitude,
+        longitude: (experience as any).longitude,
+        duration: 1.5,
+        metadata: { source: 'experience_catalog', experienceId: experience.id },
+        components: (experience as any).components,
+      });
     }
-    return { experienceIds: acquired.map((item) => item.id), experiences: acquired, provenance: result.provenance };
+    return {
+      experienceIds: acquired.map((item) => item.id),
+      experiences: acquired,
+      provenance: result.provenance,
+    };
   }
 
   async findVerifiedWithin(
@@ -112,7 +153,10 @@ export class ExperienceCatalogService {
   ) {
     const experiences = await this.prisma.experience.findMany({
       where: { status: ExperienceStatus.VERIFIED },
-      include: { components: { include: { geoEntity: true } }, traits: { include: { traitDefinition: true } } },
+      include: {
+        components: { include: { geoEntity: true } },
+        traits: { include: { traitDefinition: true } },
+      },
       take: limit * 4,
       orderBy: { qualityScore: 'desc' },
     });
@@ -120,26 +164,39 @@ export class ExperienceCatalogService {
     return experiences
       .map((experience) => {
         const component = experience.components.find(
-          (item) => Number.isFinite(item.geoEntity.latitude) && Number.isFinite(item.geoEntity.longitude),
+          (item) =>
+            Number.isFinite(item.geoEntity.latitude) &&
+            Number.isFinite(item.geoEntity.longitude),
         )?.geoEntity;
         const lat = experience.latitude ?? component?.latitude;
         const lon = experience.longitude ?? component?.longitude;
         if (!Number.isFinite(lat) || !Number.isFinite(lon)) return undefined;
         const distanceSquared =
           ((lat! - latitude) * 111_000) ** 2 +
-          ((lon! - longitude) * 111_000 * Math.cos((latitude * Math.PI) / 180)) ** 2;
+          ((lon! - longitude) *
+            111_000 *
+            Math.cos((latitude * Math.PI) / 180)) ** 2;
         if (distanceSquared > radiusSquared) return undefined;
+        const metadata = this.objectMetadata(experience.metadata);
         return {
           id: experience.id,
           name: experience.canonicalName,
+          canonicalName: experience.canonicalName,
           description: experience.description,
           qualityScore: experience.qualityScore,
           latitude: lat,
           longitude: lon,
+          distance: Math.sqrt(distanceSquared) / 1000,
           duration: (experience.durationMinutes ?? 120) / 60,
-          themes: experience.traits.map((trait) => trait.traitDefinition.label),
-          traits: experience.traits.map((trait) => trait.traitDefinition.label),
-          metadata: { source: 'experience_catalog', experienceId: experience.id },
+          durationMinutes: experience.durationMinutes,
+          themes: this.stringList(metadata.themes),
+          intents: this.stringList(metadata.intents ?? metadata.archetypes),
+          traits: experience.traits.flatMap((trait) =>
+            [trait.traitDefinition.label, trait.traitDefinition.key].filter(
+              (value): value is string => !!value,
+            ),
+          ),
+          metadata: { ...metadata, source: 'experience_catalog', experienceId: experience.id },
           components: experience.components,
         };
       })
@@ -195,38 +252,123 @@ export class ExperienceCatalogService {
 
     return this.prisma.$transaction(async (tx) => {
       const normalizedName = input.canonicalName.trim().toLocaleLowerCase();
-      // Serialize the identity check for concurrent discovery/refill workers.
-      // The lock is transaction-scoped and does not require a legacy column or
-      // a product-visible compatibility key.
-      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${normalizedName}))`;
+      const componentIds = [...new Set(input.components.map((component) => component.geoEntityId))].sort();
+      const identityLock = `${normalizedName}|${componentIds.join('|')}`;
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${identityLock}))`;
+
       const existing = await tx.experience.findMany({
-        where: { status: ExperienceStatus.VERIFIED },
-        include: { components: true, evidence: true, traits: true },
+        where: {
+          status: ExperienceStatus.VERIFIED,
+          OR: [
+            { canonicalName: { equals: input.canonicalName, mode: 'insensitive' } },
+            { components: { some: { geoEntityId: { in: componentIds } } } },
+          ],
+        },
+        include: {
+          components: true,
+          evidence: true,
+          traits: true,
+        },
+        take: 50,
       });
-      const same = existing.find((candidate) => {
-        const candidateName = candidate.canonicalName.trim().toLocaleLowerCase();
-        const sharedComponent = candidate.components.some((component) =>
-          input.components.some((incoming) => incoming.geoEntityId === component.geoEntityId),
+
+      const incomingFingerprint: DedupeExperienceFingerprint = {
+        canonicalName: input.canonicalName,
+        latitude: input.latitude,
+        longitude: input.longitude,
+        components: input.components,
+        provenance: (input.evidence ?? []).map((item) => item.source),
+      };
+      const decision = decideExperienceDedupe(
+        incomingFingerprint,
+        existing.map((candidate) => ({
+          id: candidate.id,
+          canonicalName: candidate.canonicalName,
+          latitude: candidate.latitude,
+          longitude: candidate.longitude,
+          components: candidate.components,
+          provenance: candidate.evidence.map((item) => item.source),
+        })),
+      );
+
+      if (decision.decision === 'AMBIGUOUS') {
+        return {
+          id: decision.candidates[0],
+          dedupeDecision: 'AMBIGUOUS' as const,
+          dedupeEvidence: decision.evidence,
+          dedupeCandidates: decision.candidates,
+        };
+      }
+
+      if (decision.decision === 'SAME') {
+        const same = existing.find(
+          (candidate) => candidate.id === decision.canonicalExperienceId,
         );
-        return candidateName === normalizedName && sharedComponent;
-      });
-      if (same) {
-        const knownEvidence = new Set(same.evidence.map((item) => `${item.source}|${item.url ?? ''}|${item.title ?? ''}`));
-        const missingEvidence = (input.evidence ?? []).filter((item) => !knownEvidence.has(`${item.source}|${item.url ?? ''}|${item.title ?? ''}`));
-        if (missingEvidence.length) {
-          await tx.experienceEvidence.createMany({ data: missingEvidence.map((item) => ({ ...item, experienceId: same.id })) });
+        if (!same) {
+          throw new Error('Dedupe SAME referenced an Experience outside the candidate set');
         }
-        return { ...same, dedupeDecision: 'SAME' as const };
+
+        const knownEvidence = new Set(
+          same.evidence.map(
+            (item) => `${item.source}|${item.url ?? ''}|${item.title ?? ''}`,
+          ),
+        );
+        const missingEvidence = (input.evidence ?? []).filter(
+          (item) =>
+            !knownEvidence.has(
+              `${item.source}|${item.url ?? ''}|${item.title ?? ''}`,
+            ),
+        );
+        if (missingEvidence.length) {
+          await tx.experienceEvidence.createMany({
+            data: missingEvidence.map((item) => ({ ...item, experienceId: same.id })),
+          });
+        }
+
+        if (input.traitDefinitionIds?.length) {
+          await tx.experienceTrait.createMany({
+            data: input.traitDefinitionIds.map((traitDefinitionId) => ({
+              experienceId: same.id,
+              traitDefinitionId,
+            })),
+            skipDuplicates: true,
+          });
+        }
+
+        const updated = await tx.experience.update({
+          where: { id: same.id },
+          data: {
+            description: this.preferRicherText(same.description, input.description),
+            durationMinutes: input.durationMinutes ?? same.durationMinutes,
+            price: input.price ?? same.price,
+            qualityScore: Math.max(same.qualityScore ?? 0, input.qualityScore ?? 0) || null,
+            latitude: input.latitude ?? same.latitude,
+            longitude: input.longitude ?? same.longitude,
+            metadata: this.mergeMetadata(same.metadata, input.metadata),
+            // Any material enrichment invalidates the previous semantic vector.
+            embedding: Prisma.DbNull as never,
+            embeddingProvider: null,
+            embeddingModel: null,
+            embeddingDimensions: null,
+            embeddingDocumentVersion: null,
+            embeddedAt: null,
+          },
+          include: { components: true, evidence: true, traits: true },
+        });
+        return {
+          ...updated,
+          dedupeDecision: 'SAME' as const,
+          dedupeEvidence: decision.evidence,
+          semanticDocumentChanged: true,
+        };
       }
-      const sameName = existing.find((candidate) => candidate.canonicalName.trim().toLocaleLowerCase() === normalizedName);
-      if (sameName) {
-        return { ...sameName, dedupeDecision: 'AMBIGUOUS' as const };
-      }
+
       const experience = await tx.experience.create({
         data: {
           canonicalName: input.canonicalName,
           description: input.description,
           durationMinutes: input.durationMinutes,
+          price: input.price,
           qualityScore: input.qualityScore,
           latitude: input.latitude,
           longitude: input.longitude,
@@ -240,9 +382,7 @@ export class ExperienceCatalogService {
               required: component.required ?? true,
             })),
           },
-          evidence: input.evidence?.length
-            ? { create: input.evidence }
-            : undefined,
+          evidence: input.evidence?.length ? { create: input.evidence } : undefined,
           traits: input.traitDefinitionIds?.length
             ? {
                 create: input.traitDefinitionIds.map((traitDefinitionId) => ({
@@ -254,13 +394,37 @@ export class ExperienceCatalogService {
         include: { components: true, evidence: true, traits: true },
       });
 
-      return { ...experience, dedupeDecision: 'NEW' as const };
+      return {
+        ...experience,
+        dedupeDecision: 'NEW' as const,
+        dedupeEvidence: decision.evidence,
+        semanticDocumentChanged: true,
+      };
     });
   }
 
-  private geoEntityKind(kind: string): GeoEntityKind {
-    if (kind === 'AREA') return GeoEntityKind.AREA;
-    if (kind === 'ROUTE') return GeoEntityKind.ROUTE;
-    return GeoEntityKind.PLACE;
+  private preferRicherText(current?: string | null, incoming?: string): string | null | undefined {
+    if (!incoming?.trim()) return current;
+    if (!current?.trim()) return incoming;
+    return incoming.trim().length > current.trim().length ? incoming : current;
+  }
+
+  private mergeMetadata(current: unknown, incoming: unknown): Prisma.InputJsonValue | undefined {
+    const left = this.objectMetadata(current);
+    const right = this.objectMetadata(incoming);
+    const merged = { ...left, ...right };
+    return Object.keys(merged).length ? (merged as Prisma.InputJsonValue) : undefined;
+  }
+
+  private objectMetadata(value: unknown): Record<string, any> {
+    return value && typeof value === 'object' && !Array.isArray(value)
+      ? (value as Record<string, any>)
+      : {};
+  }
+
+  private stringList(value: unknown): string[] {
+    return Array.isArray(value)
+      ? value.filter((item): item is string => typeof item === 'string')
+      : [];
   }
 }
