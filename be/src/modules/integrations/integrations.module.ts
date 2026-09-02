@@ -1,6 +1,5 @@
 import { Module, Logger } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { GooglePlacesService } from './google-places/google-places.service';
 import { PrismaService } from '@core/database/prisma.service';
 import { AiModule } from '@shared/ai/ai.module';
 import { GooglePlacesApiService } from '@integrations/google-places/services/google-places-api.service';
@@ -70,10 +69,8 @@ export function createPlacesApiService(
       useFactory: createPlacesApiService,
       inject: [ConfigService, 'RealPlacesApiService', CachedPlacesApiService],
     },
-    GooglePlacesService,
   ],
   exports: [
-    GooglePlacesService,
     'PlacesApiService',
     OsmModule,
     WikidataModule,

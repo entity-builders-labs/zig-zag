@@ -10,10 +10,7 @@ import { ConfigType } from '@nestjs/config';
 import { PrismaService } from '@core/database/prisma.service';
 import { OutboxService } from '../../outbox/services/outbox.service';
 import { VectorStoreService } from '@shared/ai/services/vector-store.service';
-import {
-  GooglePlacesService,
-  PlacesCrawlResult,
-} from '@integrations/google-places/google-places.service';
+import { PlacesCrawlProvenance } from '@integrations/google-places/interfaces/places-api.interface';
 import {
   OsmCandidate,
   OsmPlacesService,
@@ -105,6 +102,12 @@ interface SemanticRankingOutcome {
   reason?: string;
 }
 
+interface PlacesCrawlResult {
+  experienceIds: string[];
+  fromCache: boolean;
+  provenance: PlacesCrawlProvenance;
+}
+
 interface CandidateSelection {
   activities: any[];
   semanticRanking: SemanticRankingOutcome;
@@ -138,7 +141,7 @@ export class ExperienceGenerationService {
     private readonly experienceCatalog: ExperienceCatalogService,
     private readonly experienceAcquisition: ExperienceAcquisitionService,
     private readonly vectorStoreService: VectorStoreService,
-    private readonly googlePlacesService: GooglePlacesService,
+    @Inject('PlacesApiService') private readonly placesApi: any,
     private readonly tourImageService: TourImageService,
     private readonly osmPlacesService: OsmPlacesService,
     private readonly destinationResolutionService: DestinationResolutionService,
@@ -907,7 +910,7 @@ export class ExperienceGenerationService {
               }
             }
 
-            const placesStatus = this.googlePlacesService.getProviderStatus();
+            const placesStatus = this.placesApi.getStatus();
             const placesLabel = placesProviderLabel(placesStatus.provider);
 
             const poolStatus =
