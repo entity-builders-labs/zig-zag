@@ -10,13 +10,21 @@ import { ExperienceCatalogService } from './experience-catalog.service';
 export class ExperienceAcquisitionService {
   constructor(private readonly catalog: ExperienceCatalogService) {}
 
-  acquireNearby(input: {
+  async acquireNearby(input: {
     latitude: number;
     longitude: number;
     radius: number;
     interests?: string[];
     maxResultCount?: number;
   }) {
-    return this.catalog.acquireNearbyAsExperiences(input);
+    const result = await this.catalog.acquireNearbyAsExperiences(input);
+    return {
+      ...result,
+      provenance: {
+        ...result.provenance,
+        acceptedCount: result.experienceIds.length,
+        rejectedCountByReason: {},
+      },
+    };
   }
 }
