@@ -36,7 +36,7 @@ export const Map: React.FC<MapProps> = ({
   };
 
   const region = initialRegion || contextRegion;
-  // Create markers from activities if no markers are provided via props
+  // Create markers from experiences if no markers are provided via props
   const markers = propMarkers || [];
   const interactive = zoomable ?? !isStatic;
 

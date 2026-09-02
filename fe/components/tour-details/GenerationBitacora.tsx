@@ -101,8 +101,8 @@ interface GenerationTraceStep {
 }
 
 interface AuditFinding {
-  activityId?: string;
-  activityName: string;
+  experienceId?: string;
+  experienceName: string;
   openingHoursCheck: 'ok' | 'possibly_closed' | 'no_data';
   priceLevelCheck: 'ok' | 'possibly_over_budget' | 'no_data';
 }
@@ -113,7 +113,7 @@ export interface GenerationTrace {
   aiReasoning?: string;
   hallucinatedCount: number;
   duplicateCount: number;
-  auditFindings?: { perActivity: AuditFinding[] };
+  auditFindings?: { perExperience: AuditFinding[] };
   executionSummary?: {
     status: 'completed' | 'failed';
     steps: string[];

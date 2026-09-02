@@ -48,7 +48,7 @@ export default function TourDetailScreen() {
   const [tour, setTour] = useState<Tour | null>(null);
   const [loading, setLoading] = useState(true);
   const [stops, setStops] = useState<TourStop[]>([]);
-  const [isGeneratingActivities, setIsGeneratingActivities] = useState(false);
+  const [isGeneratingExperiences, setIsGeneratingExperiences] = useState(false);
   const [generationMessage, setGenerationMessage] = useState<string>('');
   const [generationError, setGenerationError] = useState<string>('');
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
@@ -120,7 +120,7 @@ export default function TourDetailScreen() {
         experiences.length === 0;
 
       setTour(data);
-      setIsGeneratingActivities(stillGenerating);
+      setIsGeneratingExperiences(stillGenerating);
       setGenerationMessage(metadata?.generationMessage || '');
       setGenerationError(
         generationStatus === 'failed' ? metadata?.generationError || '' : '',
@@ -208,15 +208,15 @@ export default function TourDetailScreen() {
       if (eventName === 'tour.progress') {
         if (payload.message) setGenerationMessage(payload.message);
         if (payload.status === 'generating' || payload.status === 'pending') {
-          setIsGeneratingActivities(true);
+          setIsGeneratingExperiences(true);
         }
         scheduleReconciliation(false);
       } else if (eventName === 'tour.completed') {
-        setIsGeneratingActivities(false);
+        setIsGeneratingExperiences(false);
         setGenerationMessage(payload.message || 'Itinerario generado con éxito');
         scheduleReconciliation(true);
       } else if (eventName === 'tour.failed') {
-        setIsGeneratingActivities(false);
+        setIsGeneratingExperiences(false);
         setGenerationError(payload.message || 'No se pudo generar el itinerario');
         scheduleReconciliation(false);
       } else if (eventName === 'experience.media.updated') {
@@ -252,7 +252,7 @@ export default function TourDetailScreen() {
   useEffect(() => {
     if (
       !id ||
-      !isGeneratingActivities ||
+      !isGeneratingExperiences ||
       !isForeground ||
       (connectionState !== 'failed' && connectionState !== 'disconnected')
     ) {
@@ -274,7 +274,7 @@ export default function TourDetailScreen() {
     connectionState,
     id,
     isForeground,
-    isGeneratingActivities,
+    isGeneratingExperiences,
     refreshTour,
   ]);
 
@@ -464,7 +464,7 @@ export default function TourDetailScreen() {
                     </Box>
                   )}
 
-                  {isGeneratingActivities ? (
+                  {isGeneratingExperiences ? (
                     <Box
                       p='$8'
                       alignItems='center'

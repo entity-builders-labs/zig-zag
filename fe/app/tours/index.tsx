@@ -109,7 +109,7 @@ export default function ToursScreen() {
           message:
             error instanceof Error
               ? error.message
-              : 'Failed to fetch activities',
+              : 'Failed to fetch experiences',
           code: 'API_ERROR'
         }
       };
