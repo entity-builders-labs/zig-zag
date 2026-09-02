@@ -50,6 +50,16 @@ export class ExperienceCatalogService {
     @Inject('PlacesApiService') private readonly placesApi: IPlacesApiService,
   ) {}
 
+  private isAdmissiblePlace(place: any): boolean {
+    const tourismTypes = new Set([
+      'tourist_attraction', 'museum', 'art_gallery', 'park', 'national_park',
+      'historical_landmark', 'historical_place', 'church', 'zoo', 'aquarium',
+      'amusement_park', 'observation_deck', 'visitor_center', 'cultural_center',
+    ]);
+    const types = [place.primaryType, ...(place.types ?? [])].filter(Boolean);
+    return types.some((type) => tourismTypes.has(type));
+  }
+
   async acquireNearbyAsExperiences(input: {
     latitude: number;
     longitude: number;
@@ -67,6 +77,7 @@ export class ExperienceCatalogService {
     const acquired = [] as any[];
     for (const place of result.data) {
       if (!place.location || !place.id) continue;
+      if (!this.isAdmissiblePlace(place)) continue;
       const entity = await this.upsertGeoEntity({
         name: place.displayName?.text ?? place.name ?? place.id,
         kind: GeoEntityKind.PLACE,
