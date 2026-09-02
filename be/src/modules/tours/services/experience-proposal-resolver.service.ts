@@ -1,8 +1,9 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Optional } from '@nestjs/common';
 import { GeoEntityKind } from '@prisma/client';
 import { OsmCandidate, OsmPlacesService, OsmLookupResult } from '@integrations/osm/services/osm-places.service';
 import { ExperienceCatalogService } from './experience-catalog.service';
 import { CompositeGeographicValidationService } from './composite-geographic-validation.service';
+import { ExperienceEmbeddingIndexerService } from '@shared/ai/services/experience-embedding-indexer.service';
 import {
   ExperienceProposalResolver,
   ExperienceResolutionResponse,
@@ -30,6 +31,7 @@ export class ExperienceProposalResolverService
     private readonly osmPlaces: OsmPlacesService,
     private readonly catalog: ExperienceCatalogService,
     private readonly geographicValidator: CompositeGeographicValidationService,
+    @Optional() private readonly embeddingIndexer?: ExperienceEmbeddingIndexerService,
   ) {}
 
   async resolve(
@@ -79,6 +81,11 @@ export class ExperienceProposalResolverService
       });
       if ((experience as any).dedupeDecision === 'AMBIGUOUS') {
         return { ...candidate, status: 'rejected' as const, rejectionReasons: ['AMBIGUOUS_DEDUPE'] };
+      }
+      if (this.embeddingIndexer && (experience as any).dedupeDecision === 'NEW') {
+        await this.embeddingIndexer.index([experience.id]).catch((error) =>
+          this.logger.warn(`Experience embedding deferred: ${error instanceof Error ? error.message : String(error)}`),
+        );
       }
       return { ...candidate, experienceId: experience.id };
     }));
