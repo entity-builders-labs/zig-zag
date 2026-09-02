@@ -247,7 +247,7 @@ export class TourActivityGenerationService {
         metadata: activity.metadata,
       })),
       requestedThemes: request.intent.interests,
-      requestedExperienceFormats: request.intent.experienceFormats,
+      requestedExperienceFormats: [],
       days: request.days,
       explorationStyle: request.intent.explorationStyle,
       travelPace: request.mobility.travelPace,
@@ -484,7 +484,7 @@ export class TourActivityGenerationService {
     const { window, formatAvailability, droppedForFamilyCapCount } =
       selectBoundedWindow(
         rankedFull,
-        intent.experienceFormats,
+        [],
         this.ITINERARY_CANDIDATE_LIMIT,
       );
     const ranked = window.map((r) => r.candidate.original);
@@ -836,7 +836,7 @@ export class TourActivityGenerationService {
                       request.destination.label,
                       request.intent.interests,
                       deficits,
-                      request.intent.experienceFormats,
+                      [],
                       request.intent.additionalPreferences,
                     );
                   traceSteps.push(buildDiscoveryStep(discoveryResult));
@@ -1263,7 +1263,7 @@ export class TourActivityGenerationService {
                 request.destination.label,
                 request.intent.interests,
                 remainingStructuralDeficits,
-                request.intent.experienceFormats,
+                [],
                 request.intent.additionalPreferences,
               );
             traceSteps.push(buildDiscoveryStep(discoveryResult));
@@ -1398,7 +1398,6 @@ export class TourActivityGenerationService {
         mobility: request.mobility,
         travelPace: request.mobility.travelPace,
         planningWindow: this.dailyPlanningPolicy.window,
-        requestedFormats: request.intent.experienceFormats,
         startDates: request.startDates,
       };
 

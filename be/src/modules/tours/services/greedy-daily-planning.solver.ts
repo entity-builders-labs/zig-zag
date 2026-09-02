@@ -32,7 +32,6 @@ export class GreedyDailyPlanningSolver implements DailyPlanningSolver {
       policy: this.policy,
       mobility: input.mobility,
       planningWindow: input.planningWindow,
-      requestedFormats: input.requestedFormats ?? [],
       travelEstimateProvider: this.travelEstimateProvider,
       startDates: input.startDates,
     };
@@ -77,7 +76,6 @@ export class GreedyDailyPlanningSolver implements DailyPlanningSolver {
           maxContinuousWalkingDistanceMeters:
             input.mobility.maxContinuousWalkingDistanceMeters,
           travelPace: input.travelPace,
-          requestedFormats: [...(input.requestedFormats ?? [])],
           startDates: [...input.startDates],
         },
       },

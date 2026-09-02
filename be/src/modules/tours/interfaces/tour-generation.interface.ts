@@ -24,6 +24,8 @@ export enum TravelPace {
   FAST = 'fast',
 }
 
+/** @deprecated V2 derives experience shape from semantic intent; retained only
+ * by quarantined provider adapters until those files are deleted. */
 export enum ExperienceFormat {
   POINT_VISITS = 'point_visits',
   NEIGHBORHOOD_WALKS = 'neighborhood_walks',
@@ -44,7 +46,6 @@ export enum DestinationScaleHint {
 
 export interface TourIntent {
   interests: string[];
-  experienceFormats: ExperienceFormat[];
   explorationStyle: ExplorationStyle;
   additionalPreferences?: string;
   /** LLM-normalized language; deterministic services enforce exclusions. */

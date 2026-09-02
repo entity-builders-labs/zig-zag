@@ -12,16 +12,10 @@ function humanize(value: string): string {
  */
 export function buildSemanticTourQuery(intent: TourIntent): string | null {
   const interests = intent.interests.map(humanize).filter(Boolean);
-  const experienceFormats = intent.experienceFormats
-    .map(humanize)
-    .filter(Boolean);
   const additionalPreferences = intent.additionalPreferences?.trim();
 
   const lines = [
     interests.length > 0 ? `Interests: ${interests.join(', ')}` : undefined,
-    experienceFormats.length > 0
-      ? `Experience formats: ${experienceFormats.join(', ')}`
-      : undefined,
     `Exploration style: ${humanize(intent.explorationStyle)}`,
     additionalPreferences
       ? `Additional preferences: ${additionalPreferences}`

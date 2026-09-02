@@ -46,9 +46,6 @@ export function buildTourGenerationRequest(
     groupType: dto.groupType,
     intent: {
       interests: normalizeValues(dto.intent.interests),
-      // V2 intentionally has no structural format selector. The engine
-      // chooses verified Experiences from semantic intent and constraints.
-      experienceFormats: [],
       explorationStyle: dto.intent.explorationStyle,
       additionalPreferences: additionalPreferences || undefined,
     },

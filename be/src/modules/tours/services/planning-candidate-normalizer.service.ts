@@ -8,12 +8,8 @@ import {
   TRAVEL_ESTIMATE_PROVIDER,
   TravelEstimateProvider,
 } from '../interfaces/daily-planning.interface';
-import {
-  ExperienceFormat,
-  TransportationMode,
-} from '../interfaces/tour-generation.interface';
+import { TransportationMode } from '../interfaces/tour-generation.interface';
 import { CandidateScoreBreakdown } from '../utils/candidate-ranking.util';
-import { EXPERIENCE_FORMAT_ACTIVITY_KIND } from '../utils/experience-format-kind.util';
 import { buildPointFootprint } from '../utils/spatial-footprint.util';
 import { parseOpeningHours } from '../utils/normalized-opening-hours.util';
 
@@ -25,27 +21,6 @@ function isCompositeKind(kind: ActivityKind): boolean {
   );
 }
 
-// Inverted from EXPERIENCE_FORMAT_ACTIVITY_KIND (the single source of truth,
-// owned by experience-format-kind.util.ts — never redefined here) so a
-// real ActivityKind can be mapped back to the ExperienceFormat(s) it
-// satisfies without duplicating that data.
-const KIND_TO_FORMAT = new Map<ActivityKind, ExperienceFormat>(
-  (
-    Object.entries(EXPERIENCE_FORMAT_ACTIVITY_KIND) as [
-      ExperienceFormat,
-      ActivityKind,
-    ][]
-  ).map(([format, kind]) => [kind, format]),
-);
-
-function activityKindToFormats(kind: ActivityKind): ExperienceFormat[] {
-  // POINT_VISITS is deliberately absent from EXPERIENCE_FORMAT_ACTIVITY_KIND
-  // (see that file's own comment) since POI is the ubiquitous default kind —
-  // handled here as the one explicit exception to the inverted lookup.
-  if (kind === ActivityKind.POI) return [ExperienceFormat.POINT_VISITS];
-  const format = KIND_TO_FORMAT.get(kind);
-  return format ? [format] : [];
-}
 
 /**
  * Boundary adapter converting ranked, real Prisma `Activity` rows
@@ -131,7 +106,6 @@ export class PlanningCandidateNormalizerService {
       openingHours: parseOpeningHours(activity.openingHours?.weekdayText),
       semanticScore: scoreBreakdown?.semanticSimilarity ?? 0,
       qualityScore: scoreBreakdown?.qualityBonus,
-      formats: activityKindToFormats(kind),
       areaId: activity.familyId ?? undefined,
       familyId: activity.familyId ?? undefined,
       variantKey: activity.variantTheme ?? undefined,

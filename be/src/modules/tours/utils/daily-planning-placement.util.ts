@@ -6,7 +6,6 @@ import {
   UnselectedPlanningCandidate,
 } from '../interfaces/daily-planning.interface';
 import {
-  ExperienceFormat,
   MobilityPreferences,
   TransportationMode,
 } from '../interfaces/tour-generation.interface';
@@ -24,7 +23,6 @@ export interface PlacementContext {
   policy: DailyPlanningPolicy;
   mobility: MobilityPreferences;
   planningWindow: DailyPlanningWindow;
-  requestedFormats: ExperienceFormat[];
   travelEstimateProvider: TravelEstimateProvider;
   /** ISO date strings — empty means no confirmed base date, so weekday-
    * specific opening-hours checks are skipped rather than guessed. */
@@ -211,11 +209,6 @@ export function scoreCandidateForDay(
   const semantic = scoring.semanticWeight * candidate.semanticScore;
   // Unknown quality contributes 0, never a penalty relative to an explicit 0.
   const quality = scoring.qualityWeight * (candidate.qualityScore ?? 0);
-  const formatBonus = candidate.formats?.some((f) =>
-    context.requestedFormats.includes(f),
-  )
-    ? scoring.formatWeight
-    : 0;
   const dayBalanceBonus =
     scoring.dayBalanceWeight * (1 / (acc.assigned.length + 1));
   const familyPenalty =
@@ -223,7 +216,7 @@ export function scoreCandidateForDay(
     acc.assigned.some((a) => a.familyId === candidate.familyId)
       ? scoring.familyVariantPenaltyWeight
       : 0;
-  return semantic + quality + formatBonus + dayBalanceBonus - familyPenalty;
+  return semantic + quality + dayBalanceBonus - familyPenalty;
 }
 
 /** Greedy day placement: for each candidate (already sorted by the caller),

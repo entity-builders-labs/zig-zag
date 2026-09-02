@@ -95,7 +95,7 @@ export function buildTourIntentStep(
     component: 'TourGenerationRequest',
     status: 'INFO',
     summary:
-      `Temas: ${themes}. Formatos: ${request.intent.experienceFormats.join(', ')}. ` +
+      `Temas: ${themes}. ` +
       `Estilo: ${request.intent.explorationStyle}. Modos permitidos: ${request.mobility.allowedTransportationModes.join(', ')}. ` +
       `Esfuerzo peatonal capturado: ${request.mobility.maxWalkingDistancePerDayMeters / 1000}km por día y ` +
       `${request.mobility.maxContinuousWalkingDistanceMeters / 1000}km continuos; todavía no se aplica como restricción determinística hasta la etapa de factibilidad espacial. ` +
@@ -104,7 +104,6 @@ export function buildTourIntentStep(
       destination: request.destination.label,
       days: request.days,
       themes: request.intent.interests,
-      experienceFormats: request.intent.experienceFormats,
       explorationStyle: request.intent.explorationStyle,
       additionalPreferences: request.intent.additionalPreferences ?? null,
       allowedTransportationModes: request.mobility.allowedTransportationModes,
@@ -144,7 +143,6 @@ export function buildTourIntentStep(
     },
     outputs: {
       requestedThemes: request.intent.interests,
-      requestedFormats: request.intent.experienceFormats,
       requestedDays: request.days,
     },
   };

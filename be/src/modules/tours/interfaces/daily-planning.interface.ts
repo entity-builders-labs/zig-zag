@@ -1,6 +1,5 @@
 import { ActivityKind } from '@prisma/client';
 import {
-  ExperienceFormat,
   MobilityPreferences,
   TravelPace,
   TransportationMode,
@@ -61,7 +60,6 @@ export interface PlanningActivityCandidate {
   semanticScore: number;
   qualityScore?: number;
   themes?: string[];
-  formats?: ExperienceFormat[];
   areaId?: string;
   familyId?: string;
   variantKey?: string;
@@ -89,7 +87,6 @@ export interface DailyPlanningInput {
   mobility: MobilityPreferences;
   travelPace: TravelPace;
   planningWindow: DailyPlanningWindow;
-  requestedFormats?: ExperienceFormat[];
   startDates: string[];
 }
 
@@ -167,7 +164,6 @@ export interface DailyPlanningSolution {
       maxWalkingDistancePerDayMeters: number;
       maxContinuousWalkingDistanceMeters: number;
       travelPace: TravelPace;
-      requestedFormats: ExperienceFormat[];
       startDates: string[];
     };
   };

@@ -13,7 +13,6 @@ export function buildWizardSelectionInput(
     `Budget level: ${request.budgetLevel}`,
     `Group type: ${request.groupType}`,
     `Interests: ${request.intent.interests.length > 0 ? request.intent.interests.join(', ') : 'none specified'}`,
-    `Experience formats: ${request.intent.experienceFormats.join(', ')}`,
     `Exploration style: ${request.intent.explorationStyle}`,
     `Allowed transportation modes: ${request.mobility.allowedTransportationModes.join(', ')}`,
     `Travel pace: ${request.mobility.travelPace}`,
