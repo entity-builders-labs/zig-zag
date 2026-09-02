@@ -692,7 +692,7 @@ export function buildDiscoveryStep(
   return {
     stage: 'discovery',
     label: 'Grounded discovery',
-    component: 'ActivityDiscoveryService',
+    component: 'ExperienceDiscoveryService',
     status: applied ? 'PASS' : 'WARN',
     summary: `${result.proposals.length} propuesta(s) extraída(s) a partir de evidencia grounded.`,
     inputs: {
@@ -752,7 +752,7 @@ export function buildDiscoveryStep(
       source: 'discovery',
       status: 'ELIGIBLE' as const,
       reason:
-        'Concepto grounded listo para entity resolution; aún no es Activity canónica.',
+        'Concepto grounded listo para resolución; aún no es una Experience verificada.',
       reasonCodes: ['PROPOSAL_PENDING_RESOLUTION'],
     })),
     providerStatus: applied ? 'success' : 'failed',
@@ -802,7 +802,7 @@ export function buildEntityResolutionStep(
   return {
     stage: 'entity_resolution',
     label: 'Resolución de entidades reales',
-    component: 'ActivityProposalResolutionService',
+    component: 'ExperienceProposalResolverService',
     status: accepted.length ? 'PASS' : rejected.length ? 'WARN' : 'INFO',
     summary:
       `Entity resolution procesó ${resolution.totalProposals} propuesta(s): ` +
@@ -1027,21 +1027,21 @@ export function buildCatalogMaterializationStep(
   const materialization = result.materialization;
   const finalResolved = materialization?.resolved ?? result.resolved;
   const materialized = finalResolved.filter(
-    (entry) => entry.status === 'accepted' && entry.persistedActivityId,
+    (entry) => entry.status === 'accepted' && (entry.experienceId ?? entry.persistedActivityId),
   );
-  const rejected = finalResolved.filter((entry) => !entry.persistedActivityId);
-  const persistedActivityIds = materialized.map(
-    (entry) => entry.persistedActivityId as string,
+  const rejected = finalResolved.filter((entry) => !(entry.experienceId ?? entry.persistedActivityId));
+  const persistedExperienceIds = materialized.map(
+    (entry) => (entry.experienceId ?? entry.persistedActivityId) as string,
   );
 
   return {
     stage: 'catalog_materialization',
     label: 'Materialización en catálogo',
-    component: 'ActivityProposalMaterializationService',
+    component: 'ExperienceCatalogService',
     status: materialized.length ? (rejected.length ? 'WARN' : 'PASS') : 'WARN',
     summary:
       `${materialized.length} propuesta(s) geográficamente verificadas quedaron materializadas ` +
-      `como Activities canónicas; ${rejected.length} no produjeron Activity persistida. ` +
+      `como Experiences verificadas; ${rejected.length} no produjeron Experience persistida. ` +
       `La persistencia ocurre después de geographic_validation, nunca durante entity_resolution.`,
     inputs: {
       geoVerifiedCount:
@@ -1052,14 +1052,14 @@ export function buildCatalogMaterializationStep(
         'MAT-GEO-GATE-001',
         'Persistir composites solo después de GEO_VERIFIED',
         'PASS',
-        'ActivityProposalMaterializationService consume el resultado del validador geográfico.',
+        'ExperienceCatalogService consume el resultado del validador geográfico.',
       ),
       rule(
         'MAT-CANONICAL-001',
         'Exponer solo IDs canónicos persistidos al re-query/ranking',
         materialized.length ? 'PASS' : 'WARN',
-        `${persistedActivityIds.length} Activity id(s) quedaron disponibles para re-query.`,
-        persistedActivityIds.length,
+        `${persistedExperienceIds.length} Experience id(s) quedaron disponibles para re-query.`,
+        persistedExperienceIds.length,
       ),
     ],
     decision: {
@@ -1069,10 +1069,10 @@ export function buildCatalogMaterializationStep(
           : 'PASS'
         : 'WARN',
       outcome: materialized.length
-        ? 'CANONICAL_ACTIVITIES_MATERIALIZED'
-        : 'NO_ACTIVITIES_MATERIALIZED',
+        ? 'VERIFIED_EXPERIENCES_MATERIALIZED'
+        : 'NO_EXPERIENCES_MATERIALIZED',
       reason: materialized.length
-        ? 'Las Activities persistidas pueden reingresar al pool canónico del mismo pedido.'
+        ? 'Las Experiences persistidas pueden reingresar al pool canónico del mismo pedido.'
         : 'No hubo propuesta verificada que pudiera materializarse.',
       reasonCodes: rejected.flatMap((entry) => entry.rejectionReasons),
       triggeredActions: materialized.length
@@ -1082,26 +1082,26 @@ export function buildCatalogMaterializationStep(
     outputs: {
       materializedCount: materialized.length,
       rejectedCount: rejected.length,
-      persistedActivityIds,
+      persistedExperienceIds,
     },
     candidateDecisions: finalResolved.map((entry) => ({
-      id: entry.persistedActivityId ?? entry.proposal.name,
+      id: entry.experienceId ?? entry.persistedActivityId ?? entry.proposal.name,
       name: entry.proposal.name,
       source: 'discovery',
-      status: entry.persistedActivityId
+      status: entry.experienceId ?? entry.persistedActivityId
         ? ('ELIGIBLE' as const)
         : ('REJECTED' as const),
       reason: entry.persistedActivityId
-        ? 'Activity canónica materializada y lista para re-query.'
+        ? 'Experience verificada materializada y lista para re-query.'
         : entry.rejectionReasons.join(', '),
-      reasonCodes: entry.persistedActivityId
-        ? ['ACTIVITY_MATERIALIZED']
+      reasonCodes: entry.experienceId ?? entry.persistedActivityId
+        ? ['EXPERIENCE_MATERIALIZED']
         : entry.rejectionReasons,
     })),
     providerStatus: materialized.length ? 'success' : 'failed',
     degradedReason: materialized.length
       ? undefined
-      : 'no_activities_materialized',
+      : 'no_experiences_materialized',
     materialization,
   };
 }
