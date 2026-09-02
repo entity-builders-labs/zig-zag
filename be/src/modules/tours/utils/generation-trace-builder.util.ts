@@ -158,7 +158,7 @@ export function buildDbSearchStep(
     component: 'ActivitiesService.findAll',
     status: candidates.length ? 'PASS' : 'WARN',
     summary: candidates.length
-      ? `${candidates.length} actividades recuperadas del catálogo dentro del alcance de búsqueda.`
+      ? `${candidates.length} Experiences recuperadas del catálogo dentro del alcance de búsqueda.`
       : 'No se recuperaron actividades del catálogo en el alcance inicial.',
     inputs: { radiusKm },
     rules: [
@@ -278,7 +278,7 @@ export function buildPlacesCrawlStep(
     status: failed ? 'FAIL' : 'PASS',
     summary: failed
       ? `${providerLabel} falló (${cacheLabel}). Solicitados: ${provenance.requestedCount}; recibidos: ${provenance.receivedCount}; no se afirmó cobertura nueva.`
-      : `${providerLabel} (${cacheLabel}) recibió ${provenance.receivedCount} resultados brutos y persistió ${provenance.persistedCount ?? provenance.acceptedCount} actividad(es) nueva(s).${anchorSummary}${providerCalls}${operationSummary}${validationSummary}${embeddingFailureSummary}${rejectedCandidateCount ? ` Rechazos totales registrados: ${rejectedCandidateCount}.${rejectionReasons}` : ''}${requestFailureSuffix}`,
+      : `${providerLabel} (${cacheLabel}) recibió ${provenance.receivedCount} resultados brutos y persistió ${provenance.persistedCount ?? provenance.acceptedCount} Experience(s) nueva(s).${anchorSummary}${providerCalls}${operationSummary}${validationSummary}${embeddingFailureSummary}${rejectedCandidateCount ? ` Rechazos totales registrados: ${rejectedCandidateCount}.${rejectionReasons}` : ''}${requestFailureSuffix}`,
     inputs: {
       provider: provenance.provider,
       requestedCount: provenance.requestedCount,
@@ -642,7 +642,7 @@ export function buildCoverageAnalysisStep(
         ? 'WARN'
         : 'FAIL',
     summary:
-      `Analizados ${report.analyzedCandidateCount} candidatos; elegibles ${report.eligibleCandidateCount}; ofrecidos al LLM ${report.offeredCandidateCount}; requeridos ${report.requiredCandidateCount}. ` +
+      `Analizados ${report.analyzedCandidateCount} candidatos; elegibles ${report.eligibleCandidateCount}; ofrecidos al motor ${report.offeredCandidateCount}; requeridos ${report.requiredCandidateCount}. ` +
       `Estado ${report.status}. ${decisionSummary} ${deficitsSummary}`,
     inputs: {
       analyzedCandidateCount: report.analyzedCandidateCount,
@@ -1310,7 +1310,7 @@ export function buildExperienceCandidatePoolStep(params: {
     label: 'Ranking de Experiences',
     component: 'ExperienceRankingEngine',
     status: 'PASS',
-    summary: `Se ofrecieron ${candidates.length} Experience(s) verificadas de ${params.eligibleCount} elegibles; ${bySource.catalog} del catálogo, ${bySource.refill} de adquisición y ${bySource.discovery} de discovery. La selección no aplica gates de formato ni diversidad de ActivityKind.`,
+    summary: `Se ofrecieron ${candidates.length} Experience(s) verificadas de ${params.eligibleCount} elegibles; ${bySource.catalog} del catálogo, ${bySource.refill} de adquisición y ${bySource.discovery} de discovery. La selección usa relevancia, calidad y factibilidad, sin gates de formato legacy.`,
     inputs: {
       initialCatalogCount: params.initialCatalogCount,
       postAcquisitionCatalogCount: params.postAcquisitionCatalogCount,
@@ -1389,7 +1389,7 @@ export function buildDailyPlanningStep(
     status: selectedCount ? 'PASS' : 'FAIL',
     summary:
       `Solver ${solution.metadata.solver} planificó ${solution.days.length} día(s)${iterationsSummary}: ` +
-      `${selectedCount} actividad(es) seleccionada(s), ${solution.unselected.length} sin seleccionar ` +
+      `${selectedCount} Experience(s) seleccionada(s), ${solution.unselected.length} sin seleccionar ` +
       `(score total ${solution.score}).${travelSummary}`,
     inputs: {
       solver: solution.metadata.solver,

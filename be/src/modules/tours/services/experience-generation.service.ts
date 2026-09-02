@@ -1594,9 +1594,9 @@ export class ExperienceGenerationService {
           .map((step: any, index: number) => `${index + 1}. ${step.summary}`)
           .filter(Boolean)
           .join('\n'),
-        acceptedExperiences: traceStepList
+        acceptedExperiences: Math.max(activities.length, traceStepList
           .filter((step: any) => step.stage === 'entity_resolution')
-          .reduce((sum: number, step: any) => sum + Number((step.resolution as any)?.acceptedCount ?? 0), 0),
+          .reduce((sum: number, step: any) => sum + Number((step.resolution as any)?.acceptedCount ?? 0), 0)),
         rejectedProposals: traceStepList
           .filter((step: any) => step.stage === 'entity_resolution')
           .reduce((sum: number, step: any) => sum + Number((step.resolution as any)?.rejectedCount ?? 0), 0),
@@ -1611,6 +1611,7 @@ export class ExperienceGenerationService {
           data: {
             metadata: {
               ...withoutGenerationFailure(effectiveMetadata),
+              executionSummary,
               generationTrace: { ...(generationTrace as any), executionSummary },
               generationStatus: 'completed',
               generationMessage: completedMessage,

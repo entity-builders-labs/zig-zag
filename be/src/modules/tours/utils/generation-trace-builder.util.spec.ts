@@ -667,7 +667,7 @@ describe('buildCoverageAnalysisStep', () => {
     expect(step.stage).toBe('coverage_analysis');
     expect(step.summary).toContain('Analizados 15 candidatos');
     expect(step.summary).toContain('elegibles 4');
-    expect(step.summary).toContain('ofrecidos al LLM 4');
+    expect(step.summary).toContain('ofrecidos al motor 4');
     expect(step.summary).not.toMatch(/PR\s*\d+/);
     expect(step.coverageReport?.decision.action).toBe('places_text_search');
   });
