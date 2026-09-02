@@ -90,6 +90,7 @@ async function pickNextRouted(
     });
   }
 
+  if (!previous) return choices[0];
   return choices.sort(
     (left, right) =>
       left.distanceMeters - right.distanceMeters ||
