@@ -3,7 +3,7 @@ import {
   TRAVEL_ESTIMATE_PROVIDER,
   TOUR_PLANNING_FEASIBILITY_VALIDATOR,
   DailyPlanningSolution,
-  PlanningActivityCandidate,
+  PlanningExperienceCandidate,
   NormalizedOpeningHours,
 } from './daily-planning.interface';
 
@@ -16,8 +16,9 @@ describe('daily-planning.interface', () => {
     );
   });
 
-  it('constructs a valid PlanningActivityCandidate literal', () => {
-    const candidate: PlanningActivityCandidate = {
+  it('constructs a valid PlanningExperienceCandidate literal', () => {
+    const candidate: PlanningExperienceCandidate = {
+      experienceId: 'e1',
       activityId: 'a1',
       kind: 'POI',
       title: 'Test',

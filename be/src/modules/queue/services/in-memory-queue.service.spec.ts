@@ -23,11 +23,11 @@ describe('InMemoryQueueService acknowledgement semantics', () => {
       'No local subscribers registered for critical topic "TourGenerationRequested". Outbox must retry.',
     );
     await expect(
-      queue.publish('ActivityMediaEnrichmentRequested', {
-        activityId: 'act-1',
+      queue.publish('ExperienceMediaEnrichmentRequested', {
+        experienceId: 'exp-1',
       }),
     ).rejects.toThrow(
-      'No local subscribers registered for critical topic "ActivityMediaEnrichmentRequested". Outbox must retry.',
+      'No local subscribers registered for critical topic "ExperienceMediaEnrichmentRequested". Outbox must retry.',
     );
   });
 

@@ -1,5 +1,5 @@
 import { Test } from '@nestjs/testing';
-import { AppModule } from '../../app.module';
+import { ToursModule } from './tours.module';
 import {
   DAILY_PLANNING_SOLVER,
   TRAVEL_ESTIMATE_PROVIDER,
@@ -16,7 +16,7 @@ describe('ToursModule DI wiring (Daily Planning Solver)', () => {
 
   it('resolves the new daily-planning providers without error', async () => {
     const moduleRef = await Test.createTestingModule({
-      imports: [AppModule],
+      imports: [ToursModule],
     }).compile();
     expect(moduleRef.get(DAILY_PLANNING_SOLVER)).toBeDefined();
     expect(moduleRef.get(TRAVEL_ESTIMATE_PROVIDER)).toBeDefined();

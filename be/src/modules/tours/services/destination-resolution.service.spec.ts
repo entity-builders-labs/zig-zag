@@ -1,8 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ActivityKind } from '@prisma/client';
 import { DestinationResolutionService } from './destination-resolution.service';
 import { OsmPlacesService } from '@integrations/osm/services/osm-places.service';
-import { CompositeActivityService } from '@activities/services/composite-activity.service';
 import { DestinationScaleHint } from '../interfaces/tour-generation.interface';
 
 describe('DestinationResolutionService', () => {
@@ -13,7 +11,6 @@ describe('DestinationResolutionService', () => {
     lookupBoundaryById: jest.Mock;
     lookupDestinationBoundary: jest.Mock;
   };
-  let compositeActivityService: { resolveArea: jest.Mock };
 
   beforeEach(async () => {
     nominatimApi = { search: jest.fn(), reverse: jest.fn() };
@@ -25,17 +22,12 @@ describe('DestinationResolutionService', () => {
       })),
       lookupDestinationBoundary: jest.fn(),
     };
-    compositeActivityService = { resolveArea: jest.fn() };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         DestinationResolutionService,
         { provide: 'NominatimApiService', useValue: nominatimApi },
         { provide: OsmPlacesService, useValue: osmPlacesService },
-        {
-          provide: CompositeActivityService,
-          useValue: compositeActivityService,
-        },
       ],
     }).compile();
 
@@ -59,7 +51,7 @@ describe('DestinationResolutionService', () => {
     expect(osmPlacesService.lookupBoundaryById).not.toHaveBeenCalled();
   });
 
-  it('resolves a city-addresstype result to area-scale and persists the AREA activity', async () => {
+  it('resolves a city-addresstype result to area-scale with its boundary', async () => {
     nominatimApi.search.mockResolvedValue([
       {
         osmType: 'relation',
@@ -88,18 +80,11 @@ describe('DestinationResolutionService', () => {
       tags: { name: 'Buenos Aires', admin_level: '8' },
     };
     osmPlacesService.getBoundaryById.mockResolvedValue(boundary);
-    const areaActivity = {
-      id: 'area-1',
-      kind: ActivityKind.AREA,
-      name: 'Buenos Aires',
-    };
-    compositeActivityService.resolveArea.mockResolvedValue(areaActivity);
 
     const result = await service.resolveDestination('Buenos Aires');
 
     expect(result).toEqual({
       scale: 'area',
-      areaActivity,
       boundary,
       attemptedQueries: ['forward:Buenos Aires'],
       selectedResult: {
@@ -108,7 +93,6 @@ describe('DestinationResolutionService', () => {
         displayName: 'Buenos Aires',
       },
     });
-    expect(compositeActivityService.resolveArea).toHaveBeenCalledWith(boundary);
   });
 
   it.each(['state', 'country'])(
@@ -230,12 +214,6 @@ describe('DestinationResolutionService', () => {
       status: 'success',
       value: boundary,
     });
-    const areaActivity = {
-      id: 'area-san-juan',
-      kind: ActivityKind.AREA,
-      name: 'Capital',
-    };
-    compositeActivityService.resolveArea.mockResolvedValue(areaActivity);
 
     const result = await service.resolveDestination(
       'San Juan, San Juan Province, Argentina',
@@ -253,7 +231,6 @@ describe('DestinationResolutionService', () => {
     );
     expect(result).toEqual({
       scale: 'area',
-      areaActivity,
       boundary,
       attemptedQueries: [
         'forward:San Juan, San Juan Province, Argentina',
@@ -471,12 +448,6 @@ describe('DestinationResolutionService', () => {
       tags: { name: 'Montevideo', admin_level: '8' },
     };
     osmPlacesService.getBoundaryById.mockResolvedValue(boundary);
-    const areaActivity = {
-      id: 'area-montevideo',
-      kind: ActivityKind.AREA,
-      name: 'Montevideo',
-    };
-    compositeActivityService.resolveArea.mockResolvedValue(areaActivity);
 
     const result = await service.resolveDestination(
       'Montevideo, Montevideo Department, Uruguay',
@@ -551,12 +522,6 @@ describe('DestinationResolutionService', () => {
       tags: { name: 'Salta', admin_level: '8' },
     };
     osmPlacesService.getBoundaryById.mockResolvedValue(boundary);
-    const areaActivity = {
-      id: 'area-salta',
-      kind: ActivityKind.AREA,
-      name: 'Salta',
-    };
-    compositeActivityService.resolveArea.mockResolvedValue(areaActivity);
 
     const result = await service.resolveDestination(
       'Salta, Salta Province, Argentina',
@@ -631,12 +596,6 @@ describe('DestinationResolutionService', () => {
       tags: { name: 'Rosario', admin_level: '8' },
     };
     osmPlacesService.getBoundaryById.mockResolvedValue(boundary);
-    const areaActivity = {
-      id: 'area-rosario',
-      kind: ActivityKind.AREA,
-      name: 'Rosario',
-    };
-    compositeActivityService.resolveArea.mockResolvedValue(areaActivity);
 
     const result = await service.resolveDestination(
       'Rosario, Santa Fe Province, Argentina',

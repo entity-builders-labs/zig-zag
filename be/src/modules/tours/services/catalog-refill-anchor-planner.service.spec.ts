@@ -66,7 +66,6 @@ describe('CatalogRefillAnchorPlanner', () => {
       destinationResolution: {
         scale: 'area',
         attemptedQueries: [],
-        areaActivity: {} as any,
         boundary: {
           id: 'osm:relation:1',
           name: 'City',
@@ -92,7 +91,6 @@ describe('CatalogRefillAnchorPlanner', () => {
     const destinationResolution: DestinationResolution = {
       scale: 'area' as const,
       attemptedQueries: [],
-      areaActivity: {} as any,
       boundary: {
         id: 'osm:relation:1',
         name: 'City',
@@ -141,7 +139,6 @@ describe('CatalogRefillAnchorPlanner', () => {
       destinationResolution: {
         scale: 'area',
         attemptedQueries: [],
-        areaActivity: {} as any,
         boundary: {
           id: 'osm:relation:1',
           name: 'City',
@@ -167,7 +164,6 @@ describe('CatalogRefillAnchorPlanner', () => {
       destinationResolution: {
         scale: 'area',
         attemptedQueries: [],
-        areaActivity: {} as any,
         boundary: {
           id: 'osm:relation:1',
           name: 'City',
@@ -194,7 +190,6 @@ describe('CatalogRefillAnchorPlanner', () => {
       destinationResolution: {
         scale: 'area',
         attemptedQueries: [],
-        areaActivity: {} as any,
         boundary: {
           id: 'osm:relation:1',
           name: 'City',

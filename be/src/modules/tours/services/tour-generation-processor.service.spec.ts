@@ -9,7 +9,7 @@ describe('TourGenerationProcessorService', () => {
       findOne: jest.fn().mockResolvedValue(tour),
     };
     const generation = {
-      generateTourActivities: jest.fn().mockResolvedValue(undefined),
+      generateTourExperiences: jest.fn().mockResolvedValue(undefined),
     };
     const queue = { subscribe: jest.fn() };
     const service = new TourGenerationProcessorService(
@@ -32,7 +32,7 @@ describe('TourGenerationProcessorService', () => {
     const { service, queue } = setup({
       id: 'tour-1',
       metadata: { generationStatus: 'pending' },
-      activities: [],
+      experiences: [],
     });
     service.onModuleInit();
     expect(queue.subscribe).toHaveBeenCalledWith(
@@ -45,32 +45,32 @@ describe('TourGenerationProcessorService', () => {
     const { service, generation } = setup({
       id: 'tour-1',
       metadata: { generationStatus: 'pending' },
-      activities: [],
+      experiences: [],
     });
     await service.handleGenerationRequested(payload);
-    expect(generation.generateTourActivities).toHaveBeenCalledWith('tour-1');
+    expect(generation.generateTourExperiences).toHaveBeenCalledWith('tour-1');
   });
 
   it('treats duplicate delivery after completion as a no-op', async () => {
     const { service, generation } = setup({
       id: 'tour-1',
       metadata: { generationStatus: 'completed' },
-      activities: [{ id: 'tour-activity-1' }],
+      experiences: [{ id: 'tour-experience-1' }],
     });
     await service.handleGenerationRequested(payload);
-    expect(generation.generateTourActivities).not.toHaveBeenCalled();
+    expect(generation.generateTourExperiences).not.toHaveBeenCalled();
   });
 
   it('acknowledges duplicate delivery after a terminal failure without rerunning generation', async () => {
     const { service, generation } = setup({
       id: 'tour-1',
       metadata: { generationStatus: 'failed', generationError: 'infeasible' },
-      activities: [],
+      experiences: [],
     });
 
     await service.handleGenerationRequested(payload);
 
-    expect(generation.generateTourActivities).not.toHaveBeenCalled();
+    expect(generation.generateTourExperiences).not.toHaveBeenCalled();
   });
 
   it('recovers an interrupted generating state before replaying the durable request', async () => {
@@ -80,7 +80,7 @@ describe('TourGenerationProcessorService', () => {
         generationStatus: 'generating',
         generationStartedAt: '2026-08-31T10:00:00.000Z',
       },
-      activities: [],
+      experiences: [],
     });
 
     await service.handleGenerationRequested(payload);
@@ -94,6 +94,6 @@ describe('TourGenerationProcessorService', () => {
         }),
       },
     });
-    expect(generation.generateTourActivities).toHaveBeenCalledWith('tour-1');
+    expect(generation.generateTourExperiences).toHaveBeenCalledWith('tour-1');
   });
 });
