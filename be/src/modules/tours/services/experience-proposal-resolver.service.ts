@@ -92,7 +92,9 @@ export class ExperienceProposalResolverService
             themes: candidate.candidate.themes,
             traits: candidate.candidate.traits,
             intents:
-              candidate.candidate.intents ?? candidate.candidate.archetypes ?? [],
+              candidate.candidate.intents ??
+              candidate.candidate.archetypes ??
+              [],
             source: 'grounded_experience_discovery',
           },
           components: candidate.resolvedEntities
@@ -223,11 +225,14 @@ export class ExperienceProposalResolverService
           : hint.expectedKind === 'AREA'
             ? GeoEntityKind.AREA
             : GeoEntityKind.PLACE;
+      const point = this.representativePoint(matched);
       const geo = await this.catalog.upsertGeoEntity({
         name: matched.name,
         kind,
         provider: 'openstreetmap',
         externalId: matched.id,
+        latitude: point?.latitude,
+        longitude: point?.longitude,
         geometry: matched.geometry,
         metadata: { tags: matched.tags },
       });
@@ -237,8 +242,8 @@ export class ExperienceProposalResolverService
         provider: 'openstreetmap',
         externalId: matched.id,
         canonicalName: matched.name,
-        latitude: this.point(matched)?.latitude,
-        longitude: this.point(matched)?.longitude,
+        latitude: point?.latitude,
+        longitude: point?.longitude,
         geometry: matched.geometry,
         role: hint.role,
         status: 'resolved',
@@ -309,13 +314,34 @@ export class ExperienceProposalResolverService
     });
   }
 
-  private point(
+  private representativePoint(
     candidate: OsmCandidate,
   ): { latitude: number; longitude: number } | undefined {
-    if (candidate.geometry.type !== 'Point') return undefined;
+    const geometry = candidate.geometry;
+    if (geometry.type === 'Point') {
+      return {
+        latitude: geometry.coordinates[1],
+        longitude: geometry.coordinates[0],
+      };
+    }
+
+    const coordinates: Array<[number, number]> =
+      geometry.type === 'LineString'
+        ? geometry.coordinates
+        : geometry.type === 'Polygon'
+          ? geometry.coordinates[0]
+          : geometry.type === 'MultiPolygon'
+            ? geometry.coordinates[0]?.[0] ?? []
+            : [];
+    if (coordinates.length === 0) return undefined;
+
     return {
-      latitude: candidate.geometry.coordinates[1],
-      longitude: candidate.geometry.coordinates[0],
+      latitude:
+        coordinates.reduce((sum, [, latitude]) => sum + latitude, 0) /
+        coordinates.length,
+      longitude:
+        coordinates.reduce((sum, [longitude]) => sum + longitude, 0) /
+        coordinates.length,
     };
   }
 }
