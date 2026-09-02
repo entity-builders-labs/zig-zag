@@ -195,6 +195,10 @@ export class ExperienceCatalogService {
 
     return this.prisma.$transaction(async (tx) => {
       const normalizedName = input.canonicalName.trim().toLocaleLowerCase();
+      // Serialize the identity check for concurrent discovery/refill workers.
+      // The lock is transaction-scoped and does not require a legacy column or
+      // a product-visible compatibility key.
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${normalizedName}))`;
       const existing = await tx.experience.findMany({
         where: { status: ExperienceStatus.VERIFIED },
         include: { components: true, evidence: true, traits: true },
