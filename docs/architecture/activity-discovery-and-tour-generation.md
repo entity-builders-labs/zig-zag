@@ -1228,10 +1228,12 @@ flowchart LR
   candidate extraction, Groq for the general chat provider, and the local
   Overpass instance for OSM queries.
 
-These checkpoints are implementation evidence, not a declaration that the
-repository-wide Activity deletion is complete. The runtime source graph is
-Experience-native and the backend typecheck is green. The Prisma schema still
-contains historical Activity tables for the final destructive migration; the
-cutover acceptance gate remains open until that schema migration is applied.
-The old Activity-shaped unit tests are intentionally obsolete after the
-contract cutover and must be replaced by Experience-native fixtures.
+These checkpoints are implementation evidence, not a declaration that every
+historical test and document has been rewritten. The versioned migration
+`20260902120000_remove_activity_domain_v2` drops the historical Activity tables
+and enums idempotently after the prior migrations. It has been applied to the
+local development database without deleting valid Experience or
+TourExperience rows. New environments, including AWS, must run the complete
+migration chain to receive the same cutover deterministically. The backend
+typecheck is green; remaining frontend/type-test failures are tracked as
+separate migration work rather than hidden behind compatibility aliases.
