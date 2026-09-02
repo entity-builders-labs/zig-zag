@@ -1213,7 +1213,7 @@ flowchart LR
   O --> B[Persisted Bitácora V3 + execution narrative]
 ```
 
-`Activity`, `ActivityKind`, `TourActivity`, and the former format/kind coverage rules are historical terminology and are not part of the active V2 generation graph. The repository still contains isolated legacy command/module code that is outside this graph and remains a cleanup item; it must not be reintroduced into generation. V2 ranking is Experience-native and only applies deterministic relevance/capacity limits—there is no format or ActivityKind gate. Async generation remains durable: the HTTP request persists the Tour and outbox request first; the worker performs acquisition, resolution, validation, selection, planning, snapshot persistence, and media enrichment asynchronously. Grounded search and LLM extraction propose concepts and evidence only; OSM/Places resolution and component-level geographic validation decide whether an Experience is real.
+`Activity`, `ActivityKind`, `TourActivity`, and the former format/kind coverage rules are historical terminology and are not part of the active V2 generation graph. V2 ranking is Experience-native and only applies deterministic relevance/capacity limits—there is no format or ActivityKind gate. Async generation remains durable: the HTTP request persists the Tour and outbox request first; the worker performs acquisition, resolution, validation, selection, planning, snapshot persistence, and media enrichment asynchronously. Grounded search and LLM extraction propose concepts and evidence only; OSM/Places resolution and component-level geographic validation decide whether an Experience is real.
 
 ### Current implementation checkpoints (2026-09-02)
 
@@ -1229,6 +1229,9 @@ flowchart LR
   Overpass instance for OSM queries.
 
 These checkpoints are implementation evidence, not a declaration that the
-repository-wide Activity deletion is complete. The remaining Activity schema,
-services, and historical provider methods must be removed before the cutover
-acceptance gate is considered closed.
+repository-wide Activity deletion is complete. The runtime source graph is
+Experience-native and the backend typecheck is green. The Prisma schema still
+contains historical Activity tables for the final destructive migration; the
+cutover acceptance gate remains open until that schema migration is applied.
+The old Activity-shaped unit tests are intentionally obsolete after the
+contract cutover and must be replaced by Experience-native fixtures.
