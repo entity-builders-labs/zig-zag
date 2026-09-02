@@ -113,8 +113,7 @@ export class PlanningCandidateNormalizerService {
   }
 
   /** Persisted legacy duration values are hours. Composites never get it
-   * populated anywhere in the codebase (`CompositeActivityService` and
-   * `ActivityProposalResolutionService` both leave it `null`), so without a
+   * populated on some imported composite records, so without a
    * fallback every composite would enter the solver at 0 minutes, costing no
    * daily-time-capacity budget and later persisting a near-zero
    * snapshot duration. The fallback is a policy constant, mirroring

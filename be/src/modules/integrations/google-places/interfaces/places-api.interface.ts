@@ -12,7 +12,7 @@ export interface PlaceData {
   name?: string;
   businessStatus?: string;
   // Google's New Places API returns a string enum, not the old numeric 0-4
-  // price level — see priceLevelToNumber() in google-places.service.ts.
+  // price level — normalized by the active Places API adapters.
   priceLevel?: string;
   // One human-readable line per weekday (Google's own format, e.g.
   // "Monday: 9:00 AM – 6:00 PM"), when the provider exposes it.
