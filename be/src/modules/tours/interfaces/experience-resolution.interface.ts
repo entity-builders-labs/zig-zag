@@ -36,6 +36,7 @@ export interface ExperienceResolutionRequest {
   destinationName?: string;
   destinationBoundary: unknown;
   traceContext?: Record<string, unknown>;
+  evidence?: Array<{ key?: string; source: string; url?: string; title?: string; snippet?: string }>;
 }
 
 export interface ExperienceGeographicValidationResult {
