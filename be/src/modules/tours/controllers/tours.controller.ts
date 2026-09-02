@@ -29,6 +29,7 @@ import { appConfig } from 'src/core/config/app.config';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../../auth/decorators/current-user.decorator';
 import { RequestUser } from '../../auth/interfaces/jwt-payload.interface';
+import { ExperienceCatalogService } from '../services/experience-catalog.service';
 
 @ApiTags('tours')
 @Controller('tours')
@@ -37,7 +38,23 @@ export class ToursController {
     private readonly toursService: ToursService,
     private readonly tourGenerationService: TourGenerationService,
     private readonly tourLocationService: TourLocationService,
+    private readonly experienceCatalog: ExperienceCatalogService,
   ) {}
+
+  @Get('experiences/nearby')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get verified Experiences near a coordinate' })
+  @ApiQuery({ name: 'lat', required: true, type: Number })
+  @ApiQuery({ name: 'lng', required: true, type: Number })
+  @ApiQuery({ name: 'radius', required: false, type: Number })
+  async getNearbyExperiences(
+    @Query('lat') lat: number,
+    @Query('lng') lng: number,
+    @Query('radius') radius = 5000,
+  ) {
+    return this.experienceCatalog.findVerifiedWithin(+lat, +lng, +radius, 100);
+  }
 
   @Post()
   @UseGuards(JwtAuthGuard)
