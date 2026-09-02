@@ -22,7 +22,12 @@ import {
   boundingBoxToCenterRadius,
   pointRadiusToGeometry,
 } from '../utils/geometry-search-area.util';
-import { TourGenerationRequest } from '../interfaces/tour-generation.interface';
+import {
+  BudgetLevel,
+  GroupType,
+  TourGenerationRequest,
+  TourIntent,
+} from '../interfaces/tour-generation.interface';
 import {
   rankCandidatesByRelevance,
   RankableCandidate,
@@ -63,8 +68,10 @@ import {
   PlacesCrawlError,
   placesProviderLabel,
 } from '@integrations/google-places/interfaces/places-api.interface';
-import { TourIntent } from '../interfaces/tour-generation.interface';
-import { EXPERIENCE_GROUNDED_SEARCH_PROVIDER, ExperienceGroundedSearchProvider } from '../interfaces/experience-grounding.interface';
+import {
+  EXPERIENCE_GROUNDED_SEARCH_PROVIDER,
+  ExperienceGroundedSearchProvider,
+} from '../interfaces/experience-grounding.interface';
 import { ExperienceDiscoveryPlannerService } from './experience-discovery-planner.service';
 import { ExperienceCatalogService } from './experience-catalog.service';
 import { ExperienceAcquisitionService } from './experience-acquisition.service';
@@ -77,12 +84,26 @@ import {
   EmbeddingIndexIdentity,
   SemanticSimilarityResult,
 } from '@shared/ai/interfaces/embedding-index.interface';
+import {
+  evaluateExperiencePreferences,
+  PreferenceEvaluation,
+} from '../utils/experience-preference-evaluator.util';
+import { NormalizedPreferenceIntent } from '../interfaces/preference-interpretation.interface';
 
 interface NativeExperienceDiscoveryProvider {
   extractExperiences(
     request: ExperienceDiscoveryRequest,
     searchResult: import('../interfaces/experience-grounding.interface').ExperienceGroundedSearchResult,
-  ): Promise<{ candidates: any[]; validationErrors?: string[]; provider?: string; model?: string; rawOutput?: unknown }>;
+  ): Promise<{
+    candidates: any[];
+    validationErrors?: string[];
+    provider?: string;
+    model?: string;
+    rawOutput?: unknown;
+    prompt?: unknown;
+    responseSchema?: unknown;
+    tokenUsage?: unknown;
+  }>;
 }
 
 function withoutGenerationFailure(metadata: any): any {
@@ -102,29 +123,48 @@ interface SemanticRankingOutcome {
 
 interface PlacesCrawlResult {
   experienceIds: string[];
-  fromCache: boolean;
+  fromCache?: boolean;
   provenance: PlacesCrawlProvenance;
+  experiences?: any[];
 }
 
 interface CandidateSelection {
   experiences: any[];
   semanticRanking: SemanticRankingOutcome;
   scoreBreakdownById: Map<string, CandidateScoreBreakdown>;
+  preferenceEvaluationById: Map<string, PreferenceEvaluation>;
+  hardExclusionRelaxed: boolean;
 }
 
 function formatExperienceForPrompt(experience: any): string {
-  const themes = Array.isArray(experience.themes) ? experience.themes.join(', ') : '';
-  const traits = Array.isArray(experience.traits) ? experience.traits.join(', ') : '';
+  const themes = Array.isArray(experience.themes)
+    ? experience.themes.join(', ')
+    : '';
+  const traits = Array.isArray(experience.traits)
+    ? experience.traits.join(', ')
+    : '';
+  const intents = Array.isArray(experience.intents)
+    ? experience.intents.join(', ')
+    : '';
   const components = Array.isArray(experience.components)
-    ? experience.components.map((component: any) => component.geoEntity?.name ?? component.name).filter(Boolean).join(', ')
+    ? experience.components
+        .map(
+          (component: any) =>
+            component.geoEntity?.name ?? component.name,
+        )
+        .filter(Boolean)
+        .join(', ')
     : '';
   return [
     `${experience.id}: ${experience.canonicalName ?? experience.name ?? 'Experience'}`,
     experience.description,
     themes ? `themes=${themes}` : undefined,
     traits ? `traits=${traits}` : undefined,
+    intents ? `intents=${intents}` : undefined,
     components ? `components=${components}` : undefined,
-  ].filter(Boolean).join(' | ');
+  ]
+    .filter(Boolean)
+    .join(' | ');
 }
 
 @Injectable()
@@ -161,9 +201,123 @@ export class ExperienceGenerationService {
     >,
     @Optional()
     private readonly outboxService?: OutboxService,
-  @Optional()
-  private readonly preferenceInterpreter?: PreferenceInterpreterService,
+    @Optional()
+    private readonly preferenceInterpreter?: PreferenceInterpreterService,
   ) {}
+
+  private emptyNormalizedPreferences(): NormalizedPreferenceIntent {
+    return {
+      preferredThemes: [],
+      preferredTraits: [],
+      preferredIntents: [],
+      excludedThemes: [],
+      excludedTraits: [],
+      hardExclusions: [],
+      softConstraints: [],
+      ambiguities: [],
+      dietaryPreferences: [],
+      accessibilityPreferences: [],
+      budgetPreferences: [],
+      groupPreferences: [],
+      positiveSemanticQuery: '',
+      notes: [],
+    };
+  }
+
+  private mergeStructuredPreferences(
+    interpreted: NormalizedPreferenceIntent,
+    request: TourGenerationRequest,
+  ): NormalizedPreferenceIntent {
+    const unique = (values: string[]) =>
+      Array.from(
+        new Set(values.map((value) => value.trim().toLowerCase()).filter(Boolean)),
+      );
+    const dietary = unique([
+      ...interpreted.dietaryPreferences,
+      ...(request.dietaryRestrictions ?? []),
+    ]);
+    const accessibility = unique([
+      ...interpreted.accessibilityPreferences,
+      ...(request.mobility.accessibilityNeeds ?? []),
+    ]);
+    const hardExclusions = [...interpreted.hardExclusions];
+    if (dietary.some((value) => /vegan|vegano|vegana/.test(value))) {
+      hardExclusions.push('non-vegan food');
+    }
+    const budgetPreferences = [...interpreted.budgetPreferences];
+    if (request.budgetLevel === BudgetLevel.LOW) {
+      budgetPreferences.push('low budget');
+    }
+    const groupPreferences = [...interpreted.groupPreferences];
+    if (request.groupType === GroupType.FAMILY) {
+      groupPreferences.push('family friendly');
+    }
+
+    return {
+      ...interpreted,
+      preferredThemes: unique(interpreted.preferredThemes),
+      preferredTraits: unique(interpreted.preferredTraits),
+      preferredIntents: unique(interpreted.preferredIntents),
+      excludedThemes: unique(interpreted.excludedThemes),
+      excludedTraits: unique(interpreted.excludedTraits),
+      hardExclusions: unique(hardExclusions),
+      softConstraints: unique(interpreted.softConstraints),
+      ambiguities: unique(interpreted.ambiguities),
+      dietaryPreferences: dietary,
+      accessibilityPreferences: accessibility,
+      budgetPreferences: unique(budgetPreferences),
+      groupPreferences: unique(groupPreferences),
+    };
+  }
+
+  private hydratePersistedExperience(experience: any): any {
+    const metadata =
+      experience?.metadata &&
+      typeof experience.metadata === 'object' &&
+      !Array.isArray(experience.metadata)
+        ? experience.metadata
+        : {};
+    const firstPoint = experience.components?.find(
+      (component: any) =>
+        Number.isFinite(component.geoEntity?.latitude) &&
+        Number.isFinite(component.geoEntity?.longitude),
+    )?.geoEntity;
+    const traitDefinitions = (experience.traits ?? []).map(
+      (trait: any) => trait.traitDefinition,
+    );
+    return {
+      id: experience.id,
+      name: experience.canonicalName,
+      canonicalName: experience.canonicalName,
+      description: experience.description,
+      latitude: experience.latitude ?? firstPoint?.latitude,
+      longitude: experience.longitude ?? firstPoint?.longitude,
+      duration: (experience.durationMinutes ?? 120) / 60,
+      durationMinutes: experience.durationMinutes,
+      price: experience.price,
+      qualityScore: experience.qualityScore,
+      themes: Array.isArray(metadata.themes) ? metadata.themes : [],
+      intents: Array.isArray(metadata.intents)
+        ? metadata.intents
+        : Array.isArray(metadata.archetypes)
+          ? metadata.archetypes
+          : [],
+      traits: Array.from(
+        new Set([
+          ...(Array.isArray(metadata.traits) ? metadata.traits : []),
+          ...traitDefinitions.flatMap((definition: any) =>
+            [definition?.label, definition?.key].filter(Boolean),
+          ),
+        ]),
+      ),
+      metadata: {
+        ...metadata,
+        source: 'experience_catalog',
+        experienceId: experience.id,
+      },
+      components: experience.components ?? [],
+    };
+  }
 
   private async discoverExperienceGaps(
     destinationName: string,
@@ -175,7 +329,9 @@ export class ExperienceGenerationService {
       scope: { destinationName },
       requestedThemes: interests,
       semanticQuery: additionalPreferences,
-      coverageGaps: deficits.map((deficit) => deficit.message || deficit.reason),
+      coverageGaps: deficits.map(
+        (deficit) => deficit.message || deficit.reason,
+      ),
       breadth: 'focused',
       maxCandidates: 8,
     };
@@ -184,38 +340,119 @@ export class ExperienceGenerationService {
     const evidence: any[] = [];
     const searchTrace: any[] = [];
     const extractionTrace: any[] = [];
-    for (const plannedQuery of plan.queries) {
-      const grounded = await this.groundedSearchProvider.search({
-        destinationName,
-        requestedThemes: interests,
-        additionalPreferences,
-        query: plannedQuery.query,
-      });
-      searchTrace.push({ query: plannedQuery.query, purpose: plannedQuery.purpose, provider: grounded.provider, model: grounded.model, groundingStatus: grounded.groundingStatus, evidenceCount: grounded.evidence.length, evidenceKeys: grounded.evidence.map((item: any) => item.key) });
-      if (grounded.evidence.length === 0) continue;
-      evidence.push(...grounded.evidence);
-      const extracted = await this.discoveryProvider.extractExperiences(request, grounded);
-      extractionTrace.push({ provider: extracted.provider, model: extracted.model, candidateCount: extracted.candidates.length, validationErrors: extracted.validationErrors });
-      candidates.push(...(extracted.candidates ?? []));
-      if (candidates.length >= 8) break;
+
+    for (const [index, plannedQuery] of plan.queries.entries()) {
+      const attempt = index + 1;
+      const startedAt = new Date().toISOString();
+      const startedMs = Date.now();
+      try {
+        const grounded = await this.groundedSearchProvider.search({
+          destinationName,
+          requestedThemes: interests,
+          additionalPreferences,
+          query: plannedQuery.query,
+        });
+        searchTrace.push(
+          redactTracePayload({
+            query: plannedQuery.query,
+            purpose: plannedQuery.purpose,
+            provider: grounded.provider,
+            model: grounded.model,
+            groundingStatus: grounded.groundingStatus,
+            evidenceCount: grounded.evidence.length,
+            evidenceKeys: grounded.evidence.map((item: any) => item.key),
+            prompt: (grounded as any).prompt,
+            rawResponse: (grounded as any).rawResponse,
+            tokenUsage: (grounded as any).tokenUsage,
+            attempt,
+            startedAt,
+            completedAt: new Date().toISOString(),
+            durationMs: Date.now() - startedMs,
+            status: 'completed',
+          }),
+        );
+        if (grounded.evidence.length === 0) continue;
+        evidence.push(...grounded.evidence);
+
+        const extractionStartedAt = new Date().toISOString();
+        const extractionStartedMs = Date.now();
+        try {
+          const extracted = await this.discoveryProvider.extractExperiences(
+            request,
+            grounded,
+          );
+          extractionTrace.push(
+            redactTracePayload({
+              provider: extracted.provider,
+              model: extracted.model,
+              prompt: extracted.prompt,
+              responseSchema: extracted.responseSchema,
+              rawResponse: extracted.rawOutput,
+              tokenUsage: extracted.tokenUsage,
+              candidateCount: extracted.candidates.length,
+              validationErrors: extracted.validationErrors,
+              attempt,
+              startedAt: extractionStartedAt,
+              completedAt: new Date().toISOString(),
+              durationMs: Date.now() - extractionStartedMs,
+              status:
+                extracted.validationErrors?.length &&
+                extracted.candidates.length === 0
+                  ? 'invalid_response'
+                  : 'completed',
+            }),
+          );
+          candidates.push(...(extracted.candidates ?? []));
+          if (candidates.length >= 8) break;
+        } catch (error: any) {
+          extractionTrace.push(
+            redactTracePayload({
+              attempt,
+              startedAt: extractionStartedAt,
+              completedAt: new Date().toISOString(),
+              durationMs: Date.now() - extractionStartedMs,
+              status: 'provider_error',
+              error: {
+                name: error?.name,
+                message: error?.message ?? String(error),
+              },
+            }),
+          );
+        }
+      } catch (error: any) {
+        searchTrace.push(
+          redactTracePayload({
+            query: plannedQuery.query,
+            purpose: plannedQuery.purpose,
+            attempt,
+            startedAt,
+            completedAt: new Date().toISOString(),
+            durationMs: Date.now() - startedMs,
+            status: 'provider_error',
+            error: {
+              name: error?.name,
+              message: error?.message ?? String(error),
+            },
+          }),
+        );
+      }
     }
-    return { candidates: candidates.slice(0, 8), evidence, provider: 'experience-discovery', model: 'provider-neutral', groundingStatus: candidates.length ? 'applied' : 'no_usable_evidence', searchTrace, extractionTrace };
+
+    return {
+      candidates: candidates.slice(0, 8),
+      evidence,
+      provider: 'experience-discovery',
+      model: 'provider-neutral',
+      groundingStatus: candidates.length
+        ? 'applied'
+        : searchTrace.some((item) => item.status === 'provider_error')
+          ? 'provider_error'
+          : 'no_usable_evidence',
+      searchTrace,
+      extractionTrace,
+    };
   }
 
-  /** Daily planning solver: no new Prisma columns. If a real base date exists, combine it
-   * with the planned day/minutes into a real Date; otherwise never invent
-   * one — dayNumber/order/duration alone carry the schedule, and full
-   * minutes-precise timing survives only in the planning trace/result.
-   *
-   * Day arithmetic is done in UTC on purpose: the wizard sends each start
-   * date as a UTC-midnight ISO string, so UTC arithmetic keeps day 1 on the
-   * exact calendar date the user picked, and produces the same value no
-   * matter which timezone the server runs in (local `setDate`/`setHours`
-   * would silently shift day 1 to the previous date for any negative UTC
-   * offset, e.g. Buenos Aires). The planned minutes are destination-local
-   * wall-clock time, which we cannot convert without the destination's own
-   * timezone — a known approximation, not a claim of exact instants.
-   */
   private resolvePlannedStartTime(
     startDates: string[],
     dayNumber: number,
@@ -240,16 +477,49 @@ export class ExperienceGenerationService {
       reason?: string;
     },
   ) {
+    const normalized =
+      request.intent.normalizedPreferences ?? this.emptyNormalizedPreferences();
     return this.coverageAnalyzer.analyze({
       candidates: experiences.map((experience) => ({
         id: experience.id,
         name: experience.canonicalName ?? experience.name,
-        source: experience.source || experience.sourceId || 'db',
-        weightedScore: experience.weightedScore,
+        description: experience.description,
+        source:
+          experience.source ||
+          experience.sourceId ||
+          experience.metadata?.source ||
+          'db',
+        weightedScore:
+          experience.weightedScore ?? experience.qualityScore ?? null,
         distanceKm: experience.distance,
+        durationMinutes:
+          experience.durationMinutes ??
+          (Number.isFinite(experience.duration)
+            ? experience.duration * 60
+            : undefined),
+        themes: experience.themes ?? experience.metadata?.themes ?? [],
+        traits: experience.traits ?? experience.metadata?.traits ?? [],
+        intents:
+          experience.intents ??
+          experience.metadata?.intents ??
+          experience.metadata?.archetypes ??
+          [],
         metadata: experience.metadata,
       })),
-      requestedThemes: request.intent.interests,
+      requestedThemes: Array.from(
+        new Set([
+          ...request.intent.interests,
+          ...normalized.preferredThemes,
+        ]),
+      ),
+      requestedTraits: Array.from(
+        new Set([
+          ...normalized.preferredTraits,
+          ...normalized.dietaryPreferences,
+          ...normalized.accessibilityPreferences,
+        ]),
+      ),
+      requestedIntents: normalized.preferredIntents,
       days: request.days,
       explorationStyle: request.intent.explorationStyle,
       travelPace: request.mobility.travelPace,
@@ -264,13 +534,6 @@ export class ExperienceGenerationService {
     });
   }
 
-  /**
-   * Builds the candidate_pool trace step for whichever branch just
-   * produced a ranked/windowed selection — tags each offered candidate with
-   * its real provenance (discovery-resolved this request, freshly
-   * crawled/refilled, or pre-existing catalog) so the bitácora can show
-   * source, score components, and coverage contribution truthfully.
-   */
   private buildCandidatePoolTraceStep(
     selection: CandidateSelection,
     discoveryResolvedExperienceIds: Set<string>,
@@ -281,18 +544,23 @@ export class ExperienceGenerationService {
     postAcquisitionCatalogCount: number,
     eligibleCount: number,
   ): GenerationTraceStep {
-    const offeredCandidates = selection.experiences.map((act: any) => ({
-      id: act.id,
-      name: act.name,
-      metadata: act.metadata,
-      traceSource: discoveryResolvedExperienceIds.has(act.id)
+    const offeredCandidates = selection.experiences.map((experience: any) => ({
+      id: experience.id,
+      name: experience.name,
+      metadata: {
+        ...(experience.metadata ?? {}),
+        preferenceEvaluation:
+          selection.preferenceEvaluationById.get(experience.id),
+        hardExclusionRelaxed: selection.hardExclusionRelaxed,
+      },
+      traceSource: discoveryResolvedExperienceIds.has(experience.id)
         ? ('discovery' as const)
-        : newlyAcquiredExperienceIds.has(act.id)
+        : newlyAcquiredExperienceIds.has(experience.id)
           ? crawlProvider === 'google'
             ? ('google_places' as const)
             : ('geoapify' as const)
           : ('db' as const),
-      scoreBreakdown: selection.scoreBreakdownById.get(act.id)!,
+      scoreBreakdown: selection.scoreBreakdownById.get(experience.id)!,
     }));
     return buildExperienceCandidatePoolStep({
       initialCatalogCount,
@@ -334,9 +602,6 @@ export class ExperienceGenerationService {
     }
   }
 
-  /**
-   * Helper method to update generation status and message
-   */
   private async updateGenerationStatus(
     tourId: string,
     status: string,
@@ -344,9 +609,6 @@ export class ExperienceGenerationService {
   ) {
     const tour = await this.toursService.findOne(tourId);
     const metadata = tour?.metadata as any;
-    // A successful retry must not keep presenting the previous attempt's
-    // failure as current state. Failed metadata is added atomically in the
-    // catch path below; every non-failed transition explicitly removes it.
     const nextMetadata = withoutGenerationFailure(metadata);
     const data = {
       metadata: {
@@ -384,10 +646,6 @@ export class ExperienceGenerationService {
 
   private readonly CATALOG_RETRIEVAL_POOL_LIMIT = 250;
   private readonly ITINERARY_CANDIDATE_LIMIT = 15;
-
-  /** Mirrors HybridSearchService's own crawl-dedup window — this refill
-   * path calls Google Places directly and previously had no memory of a
-   * recent crawl at all, unlike the map-search flow's CrawlerSearch gate. */
   private readonly CATALOG_REFILL_RADIUS_THRESHOLD_DEG = 0.01;
   private readonly CATALOG_REFILL_CACHE_EXPIRY_HOURS = 24;
 
@@ -448,10 +706,32 @@ export class ExperienceGenerationService {
     experiences: any[],
     intent: TourIntent,
   ): Promise<CandidateSelection> {
-    const candidateExperiences = this.filterHardExcludedExperiences(
-      experiences,
-      intent,
-    );
+    const preferenceEvaluationById = new Map<string, PreferenceEvaluation>();
+    for (const experience of experiences) {
+      preferenceEvaluationById.set(
+        experience.id,
+        evaluateExperiencePreferences(
+          experience,
+          intent.normalizedPreferences,
+        ),
+      );
+    }
+
+    const hasHardExclusions =
+      (intent.normalizedPreferences?.hardExclusions.length ?? 0) > 0;
+    const strictCandidates = hasHardExclusions
+      ? experiences.filter(
+          (experience) =>
+            (preferenceEvaluationById.get(experience.id)?.exclusionMatches
+              .length ?? 0) === 0,
+        )
+      : experiences;
+    const hardExclusionRelaxed =
+      hasHardExclusions && strictCandidates.length === 0 && experiences.length > 0;
+    const candidateExperiences = hardExclusionRelaxed
+      ? experiences
+      : strictCandidates;
+
     const semanticQuery = buildSemanticTourQuery(intent);
     let semanticResult: SemanticSimilarityResult | null = null;
 
@@ -462,36 +742,39 @@ export class ExperienceGenerationService {
       );
     }
 
-    const preferred = [
-      ...(intent.normalizedPreferences?.preferredThemes ?? []),
-      ...(intent.normalizedPreferences?.preferredTraits ?? []),
-      ...intent.interests,
-    ].map((value) => value.toLowerCase());
     const rankable: (RankableCandidate & { original: any })[] =
-      candidateExperiences.map((a) => ({
-        id: a.id,
+      candidateExperiences.map((experience) => ({
+        id: experience.id,
         source: 'poi' as const,
-        subtype: a.themes?.[0] ?? a.traits?.[0] ?? a.metadata?.traits?.[0],
-        distanceKm: a.distance,
-        weightedScore: a.qualityScore,
+        subtype:
+          experience.themes?.[0] ??
+          experience.traits?.[0] ??
+          experience.intents?.[0] ??
+          experience.metadata?.traits?.[0],
+        distanceKm: experience.distance,
+        weightedScore: experience.qualityScore,
         isCurated: false,
-        preferenceScore: this.preferenceScore(a, preferred),
-        original: a,
+        preferenceScore:
+          preferenceEvaluationById.get(experience.id)?.score ?? 0,
+        original: experience,
       }));
+
     const rankedFull = rankCandidatesByRelevance(
       rankable,
       semanticResult?.status === 'applied' ? semanticResult.scores : null,
     );
     const window = rankedFull.slice(0, this.ITINERARY_CANDIDATE_LIMIT);
-    const ranked = window.map((r) => r.candidate.original);
+    const ranked = window.map((result) => result.candidate.original);
     const scoreBreakdownById = new Map(
-      window.map((r) => [r.candidate.id, r.scoreBreakdown]),
+      window.map((result) => [result.candidate.id, result.scoreBreakdown]),
     );
 
     if (!semanticQuery) {
       return {
         experiences: ranked,
         scoreBreakdownById,
+        preferenceEvaluationById,
+        hardExclusionRelaxed,
         semanticRanking: {
           status: 'not_requested',
           eligibleCandidateCount: candidateExperiences.length,
@@ -506,6 +789,8 @@ export class ExperienceGenerationService {
     return {
       experiences: ranked,
       scoreBreakdownById,
+      preferenceEvaluationById,
+      hardExclusionRelaxed,
       semanticRanking: {
         status: semanticResult!.status,
         eligibleCandidateCount: semanticResult!.requestedCandidateCount,
@@ -514,48 +799,6 @@ export class ExperienceGenerationService {
         reason: semanticResult!.reason,
       },
     };
-  }
-
-  private preferenceScore(experience: any, preferred: string[]): number {
-    if (preferred.length === 0) return 0;
-    const values = [
-      ...(experience.themes ?? []),
-      ...(experience.traits ?? []),
-      ...(experience.metadata?.themes ?? []),
-      ...(experience.metadata?.traits ?? []),
-    ].map((value: unknown) => String(value).toLowerCase());
-    const matches = preferred.filter((theme) => values.some((value) => value === theme || value.includes(theme) || theme.includes(value)));
-    return Math.min(1, matches.length / preferred.length);
-  }
-
-  private filterHardExcludedExperiences(experiences: any[], intent: TourIntent) {
-    const exclusions = intent.normalizedPreferences?.hardExclusions ?? [];
-    if (exclusions.length === 0) return experiences;
-    const aliases: Record<string, string[]> = {
-      religion: [
-        'religion',
-        'religious',
-        'iglesia',
-        'templo',
-        'catedral',
-        'mezquita',
-      ],
-      'non-vegan food': ['carne', 'asado', 'parrilla', 'meat'],
-    };
-    return experiences.filter((experience) => {
-      const haystack = JSON.stringify({
-        name: experience.canonicalName ?? experience.name,
-        metadata: experience.metadata,
-        themes: experience.themes,
-        traits: experience.traits,
-      }).toLowerCase();
-      return !exclusions.some((exclusion) => {
-        const terms = aliases[exclusion.toLowerCase()] ?? [
-          exclusion.toLowerCase(),
-        ];
-        return terms.some((term) => haystack.includes(term));
-      });
-    });
   }
 
   async generateTourExperiences(tourId: string) {
@@ -611,11 +854,13 @@ export class ExperienceGenerationService {
       let placesRefillError: PlacesCrawlError | null = null;
 
       const recordOfferedCandidates = (selection: CandidateSelection) => {
-        selection.experiences.forEach((act: any) => {
-          candidateExperienceIds.add(act.id);
-          candidateExperiencesById.set(act.id, act);
-          const breakdown = selection.scoreBreakdownById.get(act.id);
-          if (breakdown) offeredScoreBreakdownById.set(act.id, breakdown);
+        selection.experiences.forEach((experience: any) => {
+          candidateExperienceIds.add(experience.id);
+          candidateExperiencesById.set(experience.id, experience);
+          const breakdown = selection.scoreBreakdownById.get(experience.id);
+          if (breakdown) {
+            offeredScoreBreakdownById.set(experience.id, breakdown);
+          }
         });
       };
 
@@ -630,43 +875,44 @@ export class ExperienceGenerationService {
             request.intent.additionalPreferences,
           )
         : {
-            intent: {
-              preferredThemes: [],
-              preferredTraits: [],
-              excludedThemes: [],
-              excludedTraits: [],
-              hardExclusions: [],
-              positiveSemanticQuery: '',
-              notes: [],
-            },
+            intent: this.emptyNormalizedPreferences(),
             trace: {
               stage: 'preference_interpretation' as const,
               systemPrompt: '',
               userPrompt: '',
               responseSchema: {},
-              parsedResponse: {
-                preferredThemes: [],
-                preferredTraits: [],
-                excludedThemes: [],
-                excludedTraits: [],
-                hardExclusions: [],
-                positiveSemanticQuery: '',
-                notes: [],
-              },
+              parsedResponse: this.emptyNormalizedPreferences(),
               validationErrors: [],
               status: 'skipped' as const,
               durationMs: 0,
             },
           };
+
+      const normalizedPreferences = this.mergeStructuredPreferences(
+        preferenceInterpretation.intent,
+        request,
+      );
+      request.intent.normalizedPreferences = normalizedPreferences;
+      request.intent.interests = Array.from(
+        new Set([
+          ...request.intent.interests,
+          ...normalizedPreferences.preferredThemes,
+        ]),
+      );
+      if (normalizedPreferences.positiveSemanticQuery) {
+        request.intent.additionalPreferences =
+          normalizedPreferences.positiveSemanticQuery;
+      }
+
       traceSteps.push({
         stage: 'preference_interpretation',
         label: 'Interpretación de preferencias',
         summary:
           preferenceInterpretation.trace.status === 'applied'
-            ? 'Preferencias libres normalizadas por el intérprete.'
+            ? 'Preferencias libres normalizadas por el intérprete y combinadas con restricciones estructuradas.'
             : preferenceInterpretation.trace.status === 'fallback'
-              ? 'Se aplicó interpretación determinística de respaldo.'
-              : 'No se proporcionaron preferencias libres.',
+              ? 'Se aplicó interpretación determinística de respaldo y restricciones estructuradas.'
+              : 'Se aplicaron sólo restricciones estructuradas.',
         component: 'PreferenceInterpreterService',
         status:
           preferenceInterpretation.trace.status === 'applied'
@@ -678,26 +924,19 @@ export class ExperienceGenerationService {
           hasAdditionalPreferences: Boolean(
             request.intent.additionalPreferences?.trim(),
           ),
+          dietaryRestrictions: request.dietaryRestrictions,
+          accessibilityNeeds: request.mobility.accessibilityNeeds,
+          budgetLevel: request.budgetLevel,
+          groupType: request.groupType,
         },
-        outputs: { intent: preferenceInterpretation.intent },
-        preferenceInterpretation: preferenceInterpretation.trace,
+        outputs: { intent: normalizedPreferences },
+        preferenceInterpretation: {
+          ...preferenceInterpretation.trace,
+          parsedResponse: normalizedPreferences,
+        },
         timing: { durationMs: preferenceInterpretation.trace.durationMs },
       });
       traceSteps.push(buildTourIntentStep(request));
-      // The interpreter only normalizes language. The existing deterministic
-      // acquisition/ranking pipeline consumes the merged themes/query below;
-      // it remains the authority for geographic verification and selection.
-      request.intent.interests = Array.from(
-        new Set([
-          ...request.intent.interests,
-          ...preferenceInterpretation.intent.preferredThemes,
-        ]),
-      );
-      request.intent.normalizedPreferences = preferenceInterpretation.intent;
-      if (preferenceInterpretation.intent.positiveSemanticQuery) {
-        request.intent.additionalPreferences =
-          preferenceInterpretation.intent.positiveSemanticQuery;
-      }
 
       const destinationResolution =
         await this.destinationResolutionService.resolveDestination(
@@ -737,10 +976,6 @@ export class ExperienceGenerationService {
             longitude: request.destination.longitude,
             radiusMeters: request.destination.radiusMeters || 25000,
           };
-      const destinationPoint = {
-        latitude: request.destination.latitude,
-        longitude: request.destination.longitude,
-      };
       let coverageAreas: OsmCandidate[] = [];
 
       if (
@@ -767,8 +1002,8 @@ export class ExperienceGenerationService {
             10000,
             'Experience catalog search timeout',
           );
-          nearbyExperiences.forEach((act: any) =>
-            allEligibleExperiencesById.set(act.id, act),
+          nearbyExperiences.forEach((experience: any) =>
+            allEligibleExperiencesById.set(experience.id, experience),
           );
           const selection = await this.rankAndSliceExperiences(
             nearbyExperiences,
@@ -789,398 +1024,338 @@ export class ExperienceGenerationService {
             await this.updateGenerationStatus(
               tourId,
               'generating',
-              `${nearbyExperiences.length} Experiences encontradas. Ordenando según tus preferencias...`,
+              `${nearbyExperiences.length} Experiences relevantes encontradas. Ordenando según tus preferencias...`,
             );
             recordOfferedCandidates(selection);
             availableExperiencesText = `\n\nAvailable verified Experiences in the area (within ${radius / 1000}km):\n${nearbyExperiencesSample
-              .map((act: any) => formatExperienceForPrompt(act))
+              .map((experience: any) => formatExperienceForPrompt(experience))
               .join('\n')}`;
-            const dbSearchStep = buildDbSearchStep(
-              nearbyExperiencesSample,
-              radius / 1000,
+            traceSteps.push(
+              buildDbSearchStep(nearbyExperiencesSample, radius / 1000),
+              this.buildCandidatePoolTraceStep(
+                selection,
+                discoveryResolvedExperienceIds,
+                new Set(),
+                undefined,
+                request,
+                nearbyExperiences.length,
+                nearbyExperiences.length,
+                initialCoverageReport.relevantCandidateCount,
+              ),
             );
-            traceSteps.push(dbSearchStep);
-            const candidatePoolStep = this.buildCandidatePoolTraceStep(
-              selection,
-              discoveryResolvedExperienceIds,
-              new Set(),
-              undefined,
-              request,
-              nearbyExperiences.length,
-              nearbyExperiences.length,
-              nearbyExperiences.length,
-            );
-            traceSteps.push(candidatePoolStep);
           } else {
-            const dbSearchStep = buildDbSearchStep(
-              nearbyExperiences,
-              radius / 1000,
+            traceSteps.push(buildDbSearchStep(nearbyExperiences, radius / 1000));
+            const blockingDeficits = initialCoverageReport.deficits.filter(
+              (deficit) => deficit.severity === 'blocking',
             );
-            traceSteps.push(dbSearchStep);
 
-            {
-              const deficits = initialCoverageReport.deficits
-                .filter((d) => d.severity === 'blocking')
-                .map((d) => ({
-                  reason: d.reason as any,
-                  severity: d.severity as any,
-                  message: d.message,
-                  theme: d.theme,
-                  experienceFormat: d.experienceFormat,
-                  expectedCount: d.expectedCount,
-                  actualCount: d.actualCount,
-                }));
+            if (blockingDeficits.length > 0) {
+              const discoveryResult = await this.discoverExperienceGaps(
+                request.destination.label,
+                request.intent.interests,
+                blockingDeficits,
+                request.intent.additionalPreferences,
+              );
+              traceSteps.push(buildDiscoveryStep(discoveryResult));
 
-              if (deficits.length > 0) {
-                try {
-                  const discoveryResult =
-                    await this.discoverExperienceGaps(
-                      request.destination.label,
-                      request.intent.interests,
-                      deficits,
-                      request.intent.additionalPreferences,
-                    );
-                  traceSteps.push(buildDiscoveryStep(discoveryResult));
-                  if (discoveryResult.candidates.length > 0) {
-                    try {
-                      const resolutionResult =
-                        await this.proposalResolver.resolve({
-                          candidates: discoveryResult.candidates,
-                          destinationName: request.destination.label,
-                          destinationBoundary: destinationScope,
-                          evidence: discoveryResult.evidence,
-                        });
-                      traceSteps.push(
-                        buildEntityResolutionStep(resolutionResult),
-                        buildGeographicValidationStep(resolutionResult),
-                        buildCatalogMaterializationStep(resolutionResult),
-                      );
+              if (discoveryResult.candidates.length > 0) {
+                const resolutionResult = await this.proposalResolver.resolve({
+                  candidates: discoveryResult.candidates,
+                  destinationName: request.destination.label,
+                  destinationBoundary: destinationScope,
+                  evidence: discoveryResult.evidence,
+                });
+                traceSteps.push(
+                  buildEntityResolutionStep(resolutionResult),
+                  buildGeographicValidationStep(resolutionResult),
+                  buildCatalogMaterializationStep(resolutionResult),
+                );
 
-                      const persistedDiscoveryExperienceIds =
-                        resolutionResult.resolved
-                          .filter(
-                            (r) =>
-                              r.status === 'accepted' && r.experienceId,
-                          )
-                          .map((r) => r.experienceId as string);
-                      const persistedExperienceIds = resolutionResult.resolved
-                        .filter((r: any) => r.status === 'accepted' && r.experienceId)
-                        .map((r: any) => r.experienceId as string);
-                      if (persistedExperienceIds.length > 0) {
-                        const experiences = await this.prisma.experience.findMany({
-                          where: { id: { in: persistedExperienceIds }, status: 'VERIFIED' },
-                          include: { components: { include: { geoEntity: true } } },
-                        });
-                        experiences.forEach((experience: any) => {
-                          allEligibleExperiencesById.set(experience.id, {
-                            id: experience.id,
-                            name: experience.canonicalName,
-                            latitude: experience.latitude ?? experience.components[0]?.geoEntity.latitude,
-                            longitude: experience.longitude ?? experience.components[0]?.geoEntity.longitude,
-                            duration: (experience.durationMinutes ?? 120) / 60,
-                            metadata: { source: 'experience_catalog', experienceId: experience.id },
-                          });
-                          candidateExperiencesById.set(experience.id, allEligibleExperiencesById.get(experience.id));
-                          discoveryResolvedExperienceIds.add(experience.id);
-                        });
-                      }
-                    } catch (resolutionError) {
-                      this.logger.warn(
-                        `Entity resolution failed (non-fatal): ${resolutionError.message}`,
-                      );
-                    }
-                  }
-                } catch (discoveryError) {
-                  this.logger.warn(
-                    `Grounded discovery failed (non-fatal): ${discoveryError.message}`,
-                  );
+                const persistedExperienceIds = resolutionResult.resolved
+                  .filter(
+                    (result) =>
+                      result.status === 'accepted' && result.experienceId,
+                  )
+                  .map((result) => result.experienceId as string);
+                if (persistedExperienceIds.length > 0) {
+                  const persistedExperiences =
+                    await this.prisma.experience.findMany({
+                      where: {
+                        id: { in: persistedExperienceIds },
+                        status: 'VERIFIED',
+                      },
+                      include: {
+                        components: { include: { geoEntity: true } },
+                        traits: { include: { traitDefinition: true } },
+                      },
+                    });
+                  persistedExperiences.forEach((experience: any) => {
+                    const hydrated = this.hydratePersistedExperience(experience);
+                    allEligibleExperiencesById.set(experience.id, hydrated);
+                    discoveryResolvedExperienceIds.add(experience.id);
+                  });
                 }
               }
             }
 
-            const placesStatus = this.placesApi.getStatus();
-            const placesLabel = placesProviderLabel(placesStatus.provider);
-
-            const poolStatus =
-              nearbyExperiences.length > 0
-                ? `Se encontraron ${nearbyExperiences.length} Experiences pero son insuficientes. Buscando más con ${placesLabel}...`
-                : `No se encontraron Experiences locales. Buscando con ${placesLabel}...`;
-            await this.updateGenerationStatus(tourId, 'generating', poolStatus);
-
-            try {
-              if (isAreaScale) {
-                coverageAreas = await this.lookupCoverageAreas(
-                  destinationResolution.boundary,
-                );
-              }
-
-              const skipRefill = await this.wasCatalogRefillRecentlyAttempted(
-                searchArea.latitude,
-                searchArea.longitude,
-              );
-
-              let crawlResult: PlacesCrawlResult;
-              if (skipRefill) {
-                this.logger.log(
-                  `Skipping catalog refill for ${searchArea.latitude}, ${searchArea.longitude}: already attempted within ${this.CATALOG_REFILL_CACHE_EXPIRY_HOURS}h.`,
-                );
-                crawlResult = {
-                  experienceIds: [],
-                  fromCache: true,
-                  provenance: {
-                    provider: placesStatus.provider,
-                    cacheStatus: 'hit',
-                    requestedCount: 0,
-                    receivedCount: 0,
-                    acceptedCount: 0,
-                    rejectedCountByReason: {},
-                  },
-                };
-              } else {
-                await this.recordCatalogRefillAttempt(
-                  searchArea.latitude,
-                  searchArea.longitude,
-                );
-                const acquired = await this.experienceAcquisition.acquireNearby({
-                  latitude: searchArea.latitude,
-                  longitude: searchArea.longitude,
-                  radius: Math.min(radius, 5000),
-                  interests: request.intent.interests,
-                  maxResultCount: experienceLimit,
-                });
-                crawlResult = {
-                  experienceIds: acquired.experienceIds,
-                  experiences: acquired.experiences,
-                  provenance: acquired.provenance,
-                } as any;
-              }
-
-              const refreshedExperiences = await this.experienceCatalog.findVerifiedWithin(
+            // Requery after discovery before deciding whether any generic
+            // provider refill is justified. Focused coverage gaps must never
+            // be replaced silently by a popularity-only nearby search.
+            const postDiscoveryExperiences =
+              await this.experienceCatalog.findVerifiedWithin(
                 searchArea.latitude,
                 searchArea.longitude,
                 radius,
                 experienceLimit,
               );
-              refreshedExperiences.forEach((act: any) =>
-                allEligibleExperiencesById.set(act.id, act),
-              );
-              if (refreshedExperiences.length > 0) {
-                await this.updateGenerationStatus(
-                  tourId,
-                  'generating',
-                  `¡Catálogo actualizado con ${placesLabel}! Analizando ${refreshedExperiences.length} Experiences...`,
-                );
+            postDiscoveryExperiences.forEach((experience: any) =>
+              allEligibleExperiencesById.set(experience.id, experience),
+            );
+            const postDiscoveryPool = Array.from(
+              allEligibleExperiencesById.values(),
+            );
+            let postDiscoverySelection = await this.rankAndSliceExperiences(
+              postDiscoveryPool,
+              request.intent,
+            );
+            semanticRankingOutcome = postDiscoverySelection.semanticRanking;
+            let postDiscoveryCoverage = this.buildCoverageReport(
+              postDiscoveryPool,
+              request,
+              postDiscoverySelection.experiences.length,
+              semanticRankingOutcome,
+              { status: 'healthy' },
+            );
+            traceSteps.push(buildCoverageAnalysisStep(postDiscoveryCoverage));
 
-                const discoveryResolvedExperiences = Array.from(
-                  allEligibleExperiencesById.values(),
-                ).filter((a: any) => discoveryResolvedExperienceIds.has(a.id));
-                const mergedPool = [
-                  ...refreshedExperiences,
-                  ...discoveryResolvedExperiences.filter(
-                    (a: any) =>
-                      !refreshedExperiences.some((r: any) => r.id === a.id),
-                  ),
-                ];
-
-                const selection = await this.rankAndSliceExperiences(
-                  mergedPool,
-                  request.intent,
-                );
-        const refreshedExperiencesSample = selection.experiences;
-                semanticRankingOutcome = selection.semanticRanking;
-                const refreshedCoverageReport = this.buildCoverageReport(
-                  mergedPool,
-                  request,
-                  refreshedExperiencesSample.length,
-                  semanticRankingOutcome,
-                  { status: 'healthy' },
-                );
-                traceSteps.push(
-                  buildCoverageAnalysisStep(refreshedCoverageReport),
-                );
-                if (
-                  refreshedCoverageReport.decision.reason ===
-                  'no_usable_candidates'
-                ) {
-                  throw new Error(
-                    'No se encontró un pool de Experiences utilizable para armar un itinerario real con el catálogo actual.',
-                  );
-                }
-                recordOfferedCandidates(selection);
-                availableExperiencesText = `\n\nAvailable verified Experiences in the area (within ${radius / 1000}km):\n${refreshedExperiencesSample
-                  .map((act: any) => formatExperienceForPrompt(act))
-                  .join('\n')}`;
-                const newExperienceIds = new Set(crawlResult.experienceIds);
-                const crawlStep = buildPlacesCrawlStep(
-                  refreshedExperiencesSample.filter((experience: any) =>
-                    newExperienceIds.has(experience.id),
-                  ),
-                  crawlResult.provenance,
-                );
-                traceSteps.push(crawlStep);
-
-                const candidatePoolStep = this.buildCandidatePoolTraceStep(
-                  selection,
-                  discoveryResolvedExperienceIds,
-                  newExperienceIds,
-                  crawlResult.provenance.provider === 'google'
-                    ? 'google'
-                    : 'geoapify',
-                  request,
-                  nearbyExperiences.length,
-                  mergedPool.length,
-                  mergedPool.length,
-                );
-                traceSteps.push(candidatePoolStep);
-              } else {
-                traceSteps.push(
-                  buildPlacesCrawlStep([], crawlResult.provenance),
-                );
-                if (nearbyExperiences.length > 0) {
-                  const thinPoolMessage =
-                    nearbyExperiences.length === 1
-                      ? '1 actividad local disponible.'
-                      : `${nearbyExperiences.length} Experiences locales disponibles.`;
-                  await this.updateGenerationStatus(
-                    tourId,
-                    'generating',
-                    thinPoolMessage,
-                  );
-                  const discoveryResolvedExperiences = Array.from(
-                    allEligibleExperiencesById.values(),
-                  ).filter((a: any) => discoveryResolvedExperienceIds.has(a.id));
-                  const mergedPool = [
-                    ...nearbyExperiences,
-                    ...discoveryResolvedExperiences.filter(
-                      (a: any) =>
-                        !nearbyExperiences.some((r: any) => r.id === a.id),
-                    ),
-                  ];
-                  const selection = await this.rankAndSliceExperiences(
-                    mergedPool,
-                    request.intent,
-                  );
-                  const nearbyExperiencesSample = selection.experiences;
-                  semanticRankingOutcome = selection.semanticRanking;
-                  recordOfferedCandidates(selection);
-                  availableExperiencesText = `\n\nAvailable verified Experiences in the area (within ${radius / 1000}km):\n${nearbyExperiencesSample
-                    .map((act: any) => formatExperienceForPrompt(act))
-                    .join('\n')}`;
-                  const candidatePoolStep = this.buildCandidatePoolTraceStep(
-                    selection,
-                    discoveryResolvedExperienceIds,
-                    new Set(),
-                    undefined,
-                    request,
-                    nearbyExperiences.length,
-                    mergedPool.length,
-                    mergedPool.length,
-                  );
-                  traceSteps.push(candidatePoolStep);
-                } else {
-                  await this.updateGenerationStatus(
-                    tourId,
-                    'generating',
-                    'No se encontraron lugares reales cerca de esta ubicación.',
-                  );
-                }
-              }
-            } catch (crawlError) {
-              if (crawlError instanceof PlacesCrawlError) {
-                placesRefillError = crawlError;
-              }
-              this.logger.error(
-                `${placesLabel} catalog refill failed: ${crawlError.message}`,
-              );
-              const failedProvenance =
-                crawlError instanceof PlacesCrawlError
-                  ? crawlError.provenance
-                  : {
-                      provider: placesStatus.provider,
-                      cacheStatus:
-                        placesStatus.cacheEnabled &&
-                        placesStatus.cacheMode === 'strict'
-                          ? ('strict-miss' as const)
-                          : ('miss-live' as const),
-                      requestedCount: 0,
-                      receivedCount: 0,
-                      acceptedCount: 0,
-                      rejectedCountByReason: {},
-                    };
-              traceSteps.push(buildPlacesCrawlStep([], failedProvenance, true));
-              const degradedCoverageReport = this.buildCoverageReport(
-                nearbyExperiences,
-                request,
-                nearbyExperiencesSample.length,
-                semanticRankingOutcome,
-                {
-                  status: 'degraded',
-                  reason: placesStatus.degradedReason || 'provider_unavailable',
-                },
-              );
+            if (postDiscoveryCoverage.decision.action === 'none') {
+              recordOfferedCandidates(postDiscoverySelection);
+              availableExperiencesText = `\n\nAvailable verified Experiences in the area (within ${radius / 1000}km):\n${postDiscoverySelection.experiences
+                .map((experience: any) => formatExperienceForPrompt(experience))
+                .join('\n')}`;
               traceSteps.push(
-                buildCoverageAnalysisStep(degradedCoverageReport),
-              );
-              if (nearbyExperiences.length > 0) {
-                await this.updateGenerationStatus(
-                  tourId,
-                  'generating',
-                  `${placesLabel} indisponible. Usando ${nearbyExperiences.length} Experiences locales encontradas.`,
-                );
-                const discoveryResolvedExperiences = Array.from(
-                  allEligibleExperiencesById.values(),
-                ).filter((a: any) => discoveryResolvedExperienceIds.has(a.id));
-                const mergedPool = [
-                  ...nearbyExperiences,
-                  ...discoveryResolvedExperiences.filter(
-                    (a: any) =>
-                      !nearbyExperiences.some((r: any) => r.id === a.id),
-                  ),
-                ];
-                const selection = await this.rankAndSliceExperiences(
-                  mergedPool,
-                  request.intent,
-                );
-                const nearbyExperiencesSample = selection.experiences;
-                semanticRankingOutcome = selection.semanticRanking;
-                recordOfferedCandidates(selection);
-                availableExperiencesText = `\n\nAvailable verified Experiences in the area (within ${radius / 1000}km):\n${nearbyExperiencesSample
-                  .map((act: any) => formatExperienceForPrompt(act))
-                  .join('\n')}`;
-                const candidatePoolStep = this.buildCandidatePoolTraceStep(
-                  selection,
+                this.buildCandidatePoolTraceStep(
+                  postDiscoverySelection,
                   discoveryResolvedExperienceIds,
                   new Set(),
                   undefined,
                   request,
                   nearbyExperiences.length,
-                  mergedPool.length,
-                  mergedPool.length,
-                );
-                traceSteps.push(candidatePoolStep);
-              } else {
+                  postDiscoveryPool.length,
+                  postDiscoveryCoverage.relevantCandidateCount,
+                ),
+              );
+            } else {
+              const semanticCoverageDeficit = postDiscoveryCoverage.deficits.some(
+                (deficit) =>
+                  deficit.reason === 'missing_requested_theme' ||
+                  deficit.reason === 'missing_requested_trait' ||
+                  deficit.reason === 'missing_requested_intent',
+              );
+
+              if (!semanticCoverageDeficit) {
+                const placesStatus = this.placesApi.getStatus();
+                const placesLabel = placesProviderLabel(placesStatus.provider);
                 await this.updateGenerationStatus(
                   tourId,
                   'generating',
-                  `La búsqueda con ${placesLabel} falló.`,
+                  `Coverage temática resuelta pero faltan candidatos. Buscando más lugares con ${placesLabel}...`,
+                );
+
+                try {
+                  if (isAreaScale) {
+                    coverageAreas = await this.lookupCoverageAreas(
+                      destinationResolution.boundary,
+                    );
+                  }
+                  const skipRefill =
+                    await this.wasCatalogRefillRecentlyAttempted(
+                      searchArea.latitude,
+                      searchArea.longitude,
+                    );
+                  let crawlResult: PlacesCrawlResult;
+                  if (skipRefill) {
+                    crawlResult = {
+                      experienceIds: [],
+                      fromCache: true,
+                      provenance: {
+                        provider: placesStatus.provider,
+                        cacheStatus: 'hit',
+                        requestedCount: 0,
+                        receivedCount: 0,
+                        acceptedCount: 0,
+                        rejectedCountByReason: {},
+                      },
+                    };
+                  } else {
+                    await this.recordCatalogRefillAttempt(
+                      searchArea.latitude,
+                      searchArea.longitude,
+                    );
+                    const acquired =
+                      await this.experienceAcquisition.acquireNearby({
+                        latitude: searchArea.latitude,
+                        longitude: searchArea.longitude,
+                        radius: Math.min(radius, 5000),
+                        interests: request.intent.interests,
+                        maxResultCount: experienceLimit,
+                      });
+                    crawlResult = {
+                      experienceIds: acquired.experienceIds,
+                      experiences: acquired.experiences,
+                      provenance: acquired.provenance,
+                    };
+                  }
+
+                  const refreshedExperiences =
+                    await this.experienceCatalog.findVerifiedWithin(
+                      searchArea.latitude,
+                      searchArea.longitude,
+                      radius,
+                      experienceLimit,
+                    );
+                  refreshedExperiences.forEach((experience: any) =>
+                    allEligibleExperiencesById.set(experience.id, experience),
+                  );
+                  const refreshedPool = Array.from(
+                    allEligibleExperiencesById.values(),
+                  );
+                  postDiscoverySelection =
+                    await this.rankAndSliceExperiences(
+                      refreshedPool,
+                      request.intent,
+                    );
+                  semanticRankingOutcome =
+                    postDiscoverySelection.semanticRanking;
+                  postDiscoveryCoverage = this.buildCoverageReport(
+                    refreshedPool,
+                    request,
+                    postDiscoverySelection.experiences.length,
+                    semanticRankingOutcome,
+                    { status: 'healthy' },
+                  );
+                  traceSteps.push(
+                    buildPlacesCrawlStep(
+                      refreshedExperiences.filter((experience: any) =>
+                        new Set(crawlResult.experienceIds).has(experience.id),
+                      ),
+                      crawlResult.provenance,
+                    ),
+                    buildCoverageAnalysisStep(postDiscoveryCoverage),
+                  );
+
+                  if (postDiscoveryCoverage.decision.action === 'none') {
+                    recordOfferedCandidates(postDiscoverySelection);
+                    availableExperiencesText = `\n\nAvailable verified Experiences in the area (within ${radius / 1000}km):\n${postDiscoverySelection.experiences
+                      .map((experience: any) =>
+                        formatExperienceForPrompt(experience),
+                      )
+                      .join('\n')}`;
+                    traceSteps.push(
+                      this.buildCandidatePoolTraceStep(
+                        postDiscoverySelection,
+                        discoveryResolvedExperienceIds,
+                        new Set(crawlResult.experienceIds),
+                        crawlResult.provenance.provider === 'google'
+                          ? 'google'
+                          : 'geoapify',
+                        request,
+                        nearbyExperiences.length,
+                        refreshedPool.length,
+                        postDiscoveryCoverage.relevantCandidateCount,
+                      ),
+                    );
+                  }
+                } catch (crawlError: any) {
+                  if (crawlError instanceof PlacesCrawlError) {
+                    placesRefillError = crawlError;
+                  }
+                  this.logger.error(
+                    `${placesLabel} catalog refill failed: ${crawlError.message}`,
+                  );
+                  const failedProvenance =
+                    crawlError instanceof PlacesCrawlError
+                      ? crawlError.provenance
+                      : {
+                          provider: placesStatus.provider,
+                          cacheStatus:
+                            placesStatus.cacheEnabled &&
+                            placesStatus.cacheMode === 'strict'
+                              ? ('strict-miss' as const)
+                              : ('miss-live' as const),
+                          requestedCount: 0,
+                          receivedCount: 0,
+                          acceptedCount: 0,
+                          rejectedCountByReason: {},
+                        };
+                  traceSteps.push(
+                    buildPlacesCrawlStep([], failedProvenance, true),
+                  );
+                }
+              }
+
+              // Whatever path ran, do not silently call a deficit covered.
+              const finalPool = Array.from(allEligibleExperiencesById.values());
+              const finalSelection = await this.rankAndSliceExperiences(
+                finalPool,
+                request.intent,
+              );
+              semanticRankingOutcome = finalSelection.semanticRanking;
+              const finalCoverage = this.buildCoverageReport(
+                finalPool,
+                request,
+                finalSelection.experiences.length,
+                semanticRankingOutcome,
+                placesRefillError
+                  ? { status: 'degraded', reason: placesRefillError.code }
+                  : { status: 'healthy' },
+              );
+              traceSteps.push(buildCoverageAnalysisStep(finalCoverage));
+
+              if (
+                finalCoverage.decision.requiresAdditionalDiscovery ||
+                finalCoverage.decision.action === 'fail'
+              ) {
+                throw new Error(
+                  `Coverage insuficiente después de catálogo, discovery enfocado y adquisición acotada: ${finalCoverage.deficits
+                    .filter((deficit) => deficit.severity === 'blocking')
+                    .map((deficit) => deficit.reason)
+                    .join(', ')}`,
                 );
               }
+
+              recordOfferedCandidates(finalSelection);
+              availableExperiencesText = `\n\nAvailable verified Experiences in the area (within ${radius / 1000}km):\n${finalSelection.experiences
+                .map((experience: any) => formatExperienceForPrompt(experience))
+                .join('\n')}`;
+              traceSteps.push(
+                this.buildCandidatePoolTraceStep(
+                  finalSelection,
+                  discoveryResolvedExperienceIds,
+                  new Set(),
+                  undefined,
+                  request,
+                  nearbyExperiences.length,
+                  finalPool.length,
+                  finalCoverage.relevantCandidateCount,
+                ),
+              );
             }
           }
-        } catch (error) {
+        } catch (error: any) {
           this.logger.warn(
-            `Experience catalog search failed or timed out: ${error.message}`,
+            `Experience catalog/acquisition pipeline failed: ${error.message}`,
           );
-          await this.updateGenerationStatus(
-            tourId,
-            'generating',
-            'Búsqueda de Experiences completada. Generando itinerario...',
-          );
+          if (!availableExperiencesText) {
+            throw error;
+          }
         }
 
-        const offeredIds = Array.from(candidateExperienceIds);
         traceSteps.push(
-          buildEmbeddingsStep(semanticRankingOutcome, offeredIds.length),
+          buildEmbeddingsStep(
+            semanticRankingOutcome,
+            candidateExperienceIds.size,
+          ),
         );
       }
 
@@ -1206,136 +1381,8 @@ export class ExperienceGenerationService {
           );
         }
         throw new Error(
-          'No se encontraron lugares reales para esta ubicación. Probá con otro destino o un radio de búsqueda más amplio.',
+          'No se encontraron Experiences verificadas y relevantes para esta solicitud.',
         );
-      }
-
-      if (allEligibleExperiencesById.size > 0) {
-        let finalCoverageReport = this.buildCoverageReport(
-          Array.from(allEligibleExperiencesById.values()),
-          request,
-          candidateExperienceIds.size,
-          semanticRankingOutcome,
-          placesRefillError
-            ? { status: 'degraded', reason: placesRefillError.code }
-            : { status: 'healthy' },
-        );
-        const remainingStructuralDeficits = finalCoverageReport.deficits
-          .filter((d) => d.severity === 'blocking')
-          .map((d) => ({
-            reason: d.reason as any,
-            severity: d.severity as any,
-            message: d.message,
-            theme: d.theme,
-            experienceFormat: d.experienceFormat,
-            expectedCount: d.expectedCount,
-            actualCount: d.actualCount,
-          }));
-
-        if (remainingStructuralDeficits.length > 0) {
-          try {
-            const discoveryResult =
-              await this.discoverExperienceGaps(
-                request.destination.label,
-                request.intent.interests,
-                remainingStructuralDeficits,
-                request.intent.additionalPreferences,
-              );
-            traceSteps.push(buildDiscoveryStep(discoveryResult));
-
-            if (discoveryResult.candidates.length > 0) {
-              const resolutionResult = await this.proposalResolver.resolve({
-                candidates: discoveryResult.candidates,
-                destinationName: request.destination.label,
-                destinationBoundary: destinationScope,
-                evidence: discoveryResult.evidence,
-              });
-              traceSteps.push(
-                buildEntityResolutionStep(resolutionResult),
-                buildGeographicValidationStep(resolutionResult),
-                buildCatalogMaterializationStep(resolutionResult),
-              );
-
-              const persistedDiscoveryExperienceIds = resolutionResult.resolved
-                .filter((r) => r.status === 'accepted' && r.experienceId)
-                .map((r) => r.experienceId as string);
-              const persistedExperienceIds = resolutionResult.resolved
-                .filter((r: any) => r.status === 'accepted' && r.experienceId)
-                .map((r: any) => r.experienceId as string);
-              if (persistedExperienceIds.length > 0) {
-                const experiences = await this.prisma.experience.findMany({
-                  where: { id: { in: persistedExperienceIds }, status: 'VERIFIED' },
-                  include: { components: { include: { geoEntity: true } } },
-                });
-                experiences.forEach((experience: any) => {
-                  const candidate = {
-                    id: experience.id,
-                    name: experience.canonicalName,
-                    latitude: experience.latitude ?? experience.components[0]?.geoEntity.latitude,
-                    longitude: experience.longitude ?? experience.components[0]?.geoEntity.longitude,
-                    duration: (experience.durationMinutes ?? 120) / 60,
-                    metadata: { source: 'experience_catalog', experienceId: experience.id },
-                  };
-                  allEligibleExperiencesById.set(experience.id, candidate);
-                  candidateExperiencesById.set(experience.id, candidate);
-                  discoveryResolvedExperienceIds.add(experience.id);
-                });
-              }
-              if (persistedDiscoveryExperienceIds.length > 0) {
-                const reconciledSelection = await this.rankAndSliceExperiences(
-                  Array.from(allEligibleExperiencesById.values()),
-                  request.intent,
-                );
-                semanticRankingOutcome = reconciledSelection.semanticRanking;
-                recordOfferedCandidates(reconciledSelection);
-                  availableExperiencesText = `\n\nAvailable verified Experiences in the area:\n${reconciledSelection.experiences
-                  .map((act: any) => formatExperienceForPrompt(act))
-                  .join('\n')}`;
-              }
-            }
-          } catch (discoveryError) {
-            this.logger.warn(
-              `Post-refill structural discovery failed (non-fatal until final acquisition gate): ${discoveryError.message}`,
-            );
-          }
-
-          finalCoverageReport = this.buildCoverageReport(
-            Array.from(allEligibleExperiencesById.values()),
-            request,
-            candidateExperienceIds.size,
-            semanticRankingOutcome,
-            placesRefillError
-              ? { status: 'degraded', reason: placesRefillError.code }
-              : { status: 'healthy' },
-          );
-          traceSteps.push(buildCoverageAnalysisStep(finalCoverageReport));
-        }
-
-        if (
-          finalCoverageReport.decision.action === 'fail' &&
-          (finalCoverageReport.decision.reason === 'no_usable_candidates' ||
-            finalCoverageReport.decision.reason ===
-              'provider_degraded_without_usable_pool')
-        ) {
-          throw new Error(
-            'El pool combinado de catálogo, refill y discovery sigue siendo insuficiente ' +
-              'después de agotar todas las vías de adquisición disponibles para este destino; ' +
-              'no se genera un itinerario con datos incompletos.',
-          );
-        }
-
-        const unresolvedRequestedFormats: any[] = [];
-        if (unresolvedRequestedFormats.length > 0) {
-          // A missing preferred format is a satisfaction signal, not proof that
-          // the destination has no usable experiences. Let the deterministic
-          // planner build the best feasible tour from verified candidates and
-          // preserve the deficit in the trace for the UI/audit surface.
-          this.logger.warn(
-            `Requested formats unavailable; continuing with feasible candidates: ${unresolvedRequestedFormats
-              .map((d) => d.experienceFormat ?? 'unknown')
-              .join(', ')}`,
-          );
-        }
       }
 
       await this.updateGenerationStatus(
@@ -1360,17 +1407,16 @@ export class ExperienceGenerationService {
         startDates: request.startDates,
       };
 
-      const planningSolution =
-        await this.dailyPlanningSolver.solve(planningInput);
-
-      const feasibilityResult = this.tourPlanningFeasibilityValidator.validate(
-        planningSolution,
-        planningInput,
-      );
+      const planningSolution = await this.dailyPlanningSolver.solve(planningInput);
+      const feasibilityResult =
+        this.tourPlanningFeasibilityValidator.validate(
+          planningSolution,
+          planningInput,
+        );
       if (!feasibilityResult.valid) {
         throw new Error(
           `Deterministic daily planning produced an infeasible solution: ${feasibilityResult.issues
-            .map((i) => `${i.code}: ${i.message}`)
+            .map((issue) => `${issue.code}: ${issue.message}`)
             .join('; ')}`,
         );
       }
@@ -1381,7 +1427,7 @@ export class ExperienceGenerationService {
       );
       if (plannedExperienceCount === 0) {
         throw new Error(
-          'No se encontraron lugares reales para esta ubicación. Probá con otro destino o un radio de búsqueda más amplio.',
+          'No se pudo construir un itinerario factible con las Experiences verificadas.',
         );
       }
 
@@ -1396,13 +1442,6 @@ export class ExperienceGenerationService {
       const isFoodFocusedIntent =
         request.intent.interests.length === 1 &&
         request.intent.interests[0] === 'food';
-
-      const selectedIds = new Set(
-        planningSolution.days.flatMap((day) =>
-          day.experiences.map((a) => a.experienceId),
-        ),
-      );
-
       const physicallyInfeasibleReasons = new Set<string>([
         'DAILY_TIME_CAPACITY_EXCEEDED',
         'MAX_WALKING_PER_DAY_EXCEEDED',
@@ -1413,11 +1452,11 @@ export class ExperienceGenerationService {
         'INVALID_SPATIAL_FOOTPRINT',
         'INVALID_COMPOSITE',
       ]);
-      const infeasiblyUnselected = planningSolution.unselected.filter((u) =>
-        u.reasons.some((r) => physicallyInfeasibleReasons.has(r)),
-      );
-      const infeasibleExperienceIds = new Set(
-        infeasiblyUnselected.map((u) => u.experienceId),
+      const infeasiblyUnselected = planningSolution.unselected.filter(
+        (unselected) =>
+          unselected.reasons.some((reason) =>
+            physicallyInfeasibleReasons.has(reason),
+          ),
       );
       const viableUnusedCandidateCount =
         planningSolution.unselected.length - infeasiblyUnselected.length;
@@ -1427,17 +1466,22 @@ export class ExperienceGenerationService {
         travelPace: request.mobility.travelPace,
         isFoodFocusedIntent,
         selectedExperiences: planningSolution.days.flatMap((day) =>
-        day.experiences.map((experience) => {
-          const experienceId = experience.experienceId;
-            const candidate = candidateExperiencesById.get(experienceId);
+          day.experiences.map((experience) => {
+            const candidate = candidateExperiencesById.get(
+              experience.experienceId,
+            );
             return {
-              experienceId,
+              experienceId: experience.experienceId,
               dayNumber: day.dayNumber,
               durationHours:
                 (experience.endMinutesFromMidnight -
                   experience.startMinutesFromMidnight) /
                 60,
-              isMeal: Array.isArray(candidate?.traits) && candidate.traits.some((trait: string) => trait.toLowerCase() === 'food'),
+              isMeal:
+                Array.isArray(candidate?.traits) &&
+                candidate.traits.some(
+                  (trait: string) => trait.toLowerCase() === 'food',
+                ),
             };
           }),
         ),
@@ -1445,25 +1489,18 @@ export class ExperienceGenerationService {
       };
       const completeness =
         this.tourCompletenessValidator.validate(completenessInput);
-
       const correctiveRetryAttempted = false;
-
       traceSteps.push(
         buildTourCompletenessStep(completeness, correctiveRetryAttempted),
       );
 
       const selectedExperiences = planningSolution.days.flatMap((day) =>
         day.experiences.map((planned, index) => {
-          const experienceId = planned.experienceId;
-          const candidate = candidateExperiencesById.get(experienceId);
+          const candidate = candidateExperiencesById.get(planned.experienceId);
           const nextInDay = day.experiences[index + 1];
           return {
-            experienceId,
+            experienceId: planned.experienceId,
             experienceName: candidate?.name ?? 'Experience',
-            experienceType: 'experience',
-            experienceLatitude: candidate?.latitude,
-            experienceLongitude: candidate?.longitude,
-            experienceData: undefined as any,
             duration:
               (planned.endMinutesFromMidnight -
                 planned.startMinutesFromMidnight) /
@@ -1476,7 +1513,8 @@ export class ExperienceGenerationService {
             notes: undefined as string | undefined,
             dayNumber: day.dayNumber,
             order: index + 1,
-            travelTimeToNext: nextInDay?.travelFromPrevious?.durationMinutes,
+            travelTimeToNext:
+              nextInDay?.travelFromPrevious?.durationMinutes,
             distanceToNext: nextInDay?.travelFromPrevious
               ? nextInDay.travelFromPrevious.distanceMeters / 1000
               : undefined,
@@ -1484,17 +1522,13 @@ export class ExperienceGenerationService {
         }),
       );
 
-      const experienceIds = selectedExperiences
-        .map((a) => a.experienceId)
-        .filter((id): id is string => !!id);
-      let experienceEntities: Array<any> = [];
-
-      if (experienceIds.length > 0) {
-        experienceEntities = await this.prisma.experience.findMany({
-          where: { id: { in: experienceIds }, status: 'VERIFIED' },
-          include: { components: { include: { geoEntity: true } } },
-        });
-      }
+      const experienceIds = selectedExperiences.map(
+        (selected) => selected.experienceId,
+      );
+      const experienceEntities = await this.prisma.experience.findMany({
+        where: { id: { in: experienceIds }, status: 'VERIFIED' },
+        include: { components: { include: { geoEntity: true } } },
+      });
 
       const generationTrace = redactTracePayload({
         steps: traceSteps,
@@ -1507,22 +1541,28 @@ export class ExperienceGenerationService {
       await this.prisma.$transaction(async (tx) => {
         await tx.tourExperience.deleteMany({ where: { tourId } });
 
-        for (const selected of selectedExperiences as any[]) {
+        for (const selected of selectedExperiences) {
           const experience = experienceEntities.find(
             (candidate) => candidate.id === selected.experienceId,
           );
-          if (experience) {
-            const snapshot = await tx.tourExperience.create({
-              data: {
-                tourId,
-                experienceId: experience.id,
-                dayNumber: selected.dayNumber,
-                order: selected.order,
-                startTime: selected.startTime,
-                duration: selected.duration,
-                notes: selected.notes,
-                components: {
-                  create: experience.components.map((component: any, index: number) => ({
+          if (!experience) {
+            this.logger.warn(
+              `Skipping unmaterialized planner item ${selected.experienceId}: V2 only persists verified Experiences.`,
+            );
+            continue;
+          }
+          await tx.tourExperience.create({
+            data: {
+              tourId,
+              experienceId: experience.id,
+              dayNumber: selected.dayNumber,
+              order: selected.order,
+              startTime: selected.startTime,
+              duration: selected.duration,
+              notes: selected.notes,
+              components: {
+                create: experience.components.map(
+                  (component: any, index: number) => ({
                     geoEntityId: component.geoEntityId,
                     order: component.order ?? index + 1,
                     role: component.role,
@@ -1531,16 +1571,11 @@ export class ExperienceGenerationService {
                     latitude: component.geoEntity.latitude,
                     longitude: component.geoEntity.longitude,
                     geometry: component.geoEntity.geometry,
-                  })),
-                },
+                  }),
+                ),
               },
-            });
-            continue;
-          }
-          this.logger.warn(
-            `Skipping unmaterialized planner item ${selected.experienceId}: V2 only persists verified Experiences.`,
-          );
-
+            },
+          });
         }
 
         await tx.tour.update({
@@ -1568,8 +1603,14 @@ export class ExperienceGenerationService {
                   experienceId: experience.id,
                   name: experience.canonicalName,
                   destinationLabel: request.destination?.label,
-                  latitude: experience.latitude ?? experience.components[0]?.geoEntity?.latitude ?? 0,
-                  longitude: experience.longitude ?? experience.components[0]?.geoEntity?.longitude ?? 0,
+                  latitude:
+                    experience.latitude ??
+                    experience.components[0]?.geoEntity?.latitude ??
+                    0,
+                  longitude:
+                    experience.longitude ??
+                    experience.components[0]?.geoEntity?.longitude ??
+                    0,
                   category: experience.components[0]?.role,
                 },
               });
@@ -1577,10 +1618,6 @@ export class ExperienceGenerationService {
           }
         }
       });
-
-      this.logger.log(
-        `Experiences generated successfully for tour ${tourId} (${selectedExperiences.length} experiences)`,
-      );
 
       if (!request.skipImageGeneration) {
         try {
@@ -1590,7 +1627,7 @@ export class ExperienceGenerationService {
             'Generando imagen de portada...',
           );
           await this.tourImageService.generateTourCoverImage(tourId);
-        } catch (imgError) {
+        } catch (imgError: any) {
           this.logger.warn(
             `Failed to generate cover image: ${imgError.message}`,
           );
@@ -1603,15 +1640,28 @@ export class ExperienceGenerationService {
         status: 'completed' as const,
         steps: traceStepList.map((step: any) => step.summary).filter(Boolean),
         narrative: traceStepList
-          .map((step: any, index: number) => `${index + 1}. ${step.summary}`)
+          .map(
+            (step: any, index: number) => `${index + 1}. ${step.summary}`,
+          )
           .filter(Boolean)
           .join('\n'),
-        acceptedExperiences: Math.max(selectedExperiences.length, traceStepList
-          .filter((step: any) => step.stage === 'entity_resolution')
-          .reduce((sum: number, step: any) => sum + Number((step.resolution as any)?.acceptedCount ?? 0), 0)),
+        acceptedExperiences: Math.max(
+          selectedExperiences.length,
+          traceStepList
+            .filter((step: any) => step.stage === 'entity_resolution')
+            .reduce(
+              (sum: number, step: any) =>
+                sum + Number((step.resolution as any)?.acceptedCount ?? 0),
+              0,
+            ),
+        ),
         rejectedProposals: traceStepList
           .filter((step: any) => step.stage === 'entity_resolution')
-          .reduce((sum: number, step: any) => sum + Number((step.resolution as any)?.rejectedCount ?? 0), 0),
+          .reduce(
+            (sum: number, step: any) =>
+              sum + Number((step.resolution as any)?.rejectedCount ?? 0),
+            0,
+          ),
         selectedExperiences: selectedExperiences.length,
       };
       const completedTour = await this.toursService.findOne(tourId);
@@ -1624,7 +1674,10 @@ export class ExperienceGenerationService {
             metadata: {
               ...withoutGenerationFailure(effectiveMetadata),
               executionSummary,
-              generationTrace: { ...(generationTrace as any), executionSummary },
+              generationTrace: {
+                ...(generationTrace as any),
+                executionSummary,
+              },
               generationStatus: 'completed',
               generationMessage: completedMessage,
               generationCompletedAt: new Date().toISOString(),
@@ -1646,7 +1699,7 @@ export class ExperienceGenerationService {
       });
 
       return this.toursService.findOne(tourId);
-    } catch (error) {
+    } catch (error: any) {
       let latestTour: any = null;
       try {
         latestTour = await this.toursService.findOne(tourId);
@@ -1673,9 +1726,13 @@ export class ExperienceGenerationService {
                   steps: traceSteps,
                   executionSummary: {
                     status: 'failed',
-                    steps: traceSteps.map((step) => step.summary).filter(Boolean),
+                    steps: traceSteps
+                      .map((step) => step.summary)
+                      .filter(Boolean),
                     narrative: traceSteps
-                      .map((step, index) => `${index + 1}. ${step.summary}`)
+                      .map(
+                        (step, index) => `${index + 1}. ${step.summary}`,
+                      )
                       .filter(Boolean)
                       .join('\n'),
                     failure: error?.message || String(error),
@@ -1715,5 +1772,4 @@ export class ExperienceGenerationService {
       );
     }
   }
-
 }
