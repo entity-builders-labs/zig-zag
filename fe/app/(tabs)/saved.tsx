@@ -33,7 +33,7 @@ function SavedTourCard({ tour, index }: { tour: Tour; index: number }) {
   const generationStatus = (tour.metadata as any)?.generationStatus;
   const isGenerating =
     generationStatus === 'generating' || generationStatus === 'pending';
-  const stopCount = tour.activities?.length || 0;
+  const stopCount = tour.experiences?.length || 0;
   const cover = tour.coverImage || DEFAULT_COVERS[index % DEFAULT_COVERS.length];
 
   const durationStr = tour.duration

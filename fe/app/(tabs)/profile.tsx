@@ -79,7 +79,7 @@ export default function ProfileScreen() {
 
   const stats = useMemo(() => {
     const totalTours = tours.length;
-    const totalStops = tours.reduce((acc, t) => acc + (t.activities?.length || 0), 0);
+    const totalStops = tours.reduce((acc, t) => acc + (t.experiences?.length || 0), 0);
     const totalKm = tours.reduce((acc, t) => acc + (t.totalDistance || 2.4), 0);
 
     return {

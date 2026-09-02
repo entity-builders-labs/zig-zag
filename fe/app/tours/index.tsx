@@ -235,7 +235,7 @@ export default function ToursScreen() {
                   )}
                   <HStack space='md' mt='$2' alignItems='center'>
                     <Text size='2xs' fontWeight='$bold' color='$primary600'>
-                      📍 {tour.activities?.length || 0} paradas
+                      📍 {tour.experiences?.length || 0} paradas
                     </Text>
                     {tour.totalDistance && (
                       <Text size='2xs' color='$textLight500'>

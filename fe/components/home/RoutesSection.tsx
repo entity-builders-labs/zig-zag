@@ -142,10 +142,6 @@ export const RoutesSection = ({
 
   const getTourImage = (tour: any, index: number) => {
     if (tour.coverImage) return tour.coverImage;
-    if (tour.activities?.[0]?.activity?.photos?.[0]) {
-      const p = tour.activities[0].activity.photos[0];
-      return typeof p === "string" ? p : p.url;
-    }
     return INSPIRATION_TEMPLATES[index % INSPIRATION_TEMPLATES.length].coverImage;
   };
 
@@ -218,7 +214,7 @@ export const RoutesSection = ({
         >
           {displayTours.map((tour: any, index: number) => {
             const imgUrl = getTourImage(tour, index);
-            const stops = tour.activities?.length || tour.stopsCount || 4;
+            const stops = tour.experiences?.length || tour.stopsCount || 4;
             const tag = tour.categoryTag || "Ruta a pie";
             const isTemplate = tour.isTemplate || !tour.id || tour.id.startsWith("tour-");
 
