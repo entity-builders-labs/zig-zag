@@ -1193,3 +1193,24 @@ and updates the shared `Experience`; the legacy Activity media topic is not
 part of the V2 generation path. The persisted Bitácora also contains an
 `executionSummary` with the stage-by-stage decision narrative rendered by the
 tour detail UI.
+## Experience Domain V2 cutover (2026-09-02)
+
+The current `feat/experience-domain-v2` implementation supersedes the historical Activity flow described in earlier sections of this document. The authoritative runtime path is:
+
+```mermaid
+flowchart LR
+  W[Wizard intent] --> P[PreferenceInterpreter]
+  P --> D[Destination boundary]
+  D --> C[Verified Experience catalog]
+  C --> A[Experience acquisition]
+  A --> R[OSM/Places resolution]
+  R --> V[Component geographic validation]
+  V --> E[Evidence-backed Experience]
+  E --> K[Experience ranking]
+  K --> S[Deterministic daily planner]
+  S --> T[TourExperience snapshots]
+  T --> O[Outbox/media events]
+  O --> B[Persisted Bitácora V3 + execution narrative]
+```
+
+`Activity`, `ActivityKind`, `TourActivity`, and the former format/kind coverage rules are historical terminology and are not part of the active V2 generation graph. Async generation remains durable: the HTTP request persists the Tour and outbox request first; the worker performs acquisition, resolution, validation, selection, planning, snapshot persistence, and media enrichment asynchronously. Grounded search and LLM extraction propose concepts and evidence only; OSM/Places resolution and component-level geographic validation decide whether an Experience is real.

@@ -17,9 +17,6 @@ context/
 | ---------------------- | ------------------ | --------------------------------------- |
 | `center`               | `{ lat, lng }`     | Current map center coordinates          |
 | `address`              | `Address \| null`  | Selected address from search            |
-| `activities`           | `Activity[]`       | Cached activities for current location  |
-| `activitiesLoading`    | `boolean`          | Loading state                           |
-| `activitiesError`      | `ApiError \| null` | Error state                             |
 | `selectedRadiusMeters` | `number`           | Search radius (default from env: 3000m) |
 
 ## Key Function
@@ -30,7 +27,7 @@ Main data fetching function used across the app:
 
 1. Takes optional coordinates (falls back to address → center)
 2. Tour/map screens query verified Experiences through their dedicated API boundaries.
-3. Updates `activities` state with results
+3. Tour and map surfaces consume verified Experience snapshots from their own API boundaries.
 4. Returns response with `fromCache` and `crawlingTriggered` flags
 
 Called automatically on mount with default center (Buenos Aires).

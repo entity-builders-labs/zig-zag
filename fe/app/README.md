@@ -28,7 +28,7 @@ In `_layout.tsx`, providers are nested in this order (outermost first):
 2. **`SafeAreaProvider`** — Safe area insets
 3. **`ErrorBoundary`** — Global error handling
 4. **`GestureHandlerRootView`** — Gesture support
-5. **`AppProvider`** — App state (map, activities, address)
+5. **`AppProvider`** — App state (map center, address, and radius)
 6. **`AutocompleteDropdownContextProvider`** — Address autocomplete
 
 ## Navigation Flows
