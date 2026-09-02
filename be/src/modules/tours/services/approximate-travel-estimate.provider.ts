@@ -44,6 +44,7 @@ export class ApproximateTravelEstimateProvider
       walkingMinutes: isWalking ? durationMinutes : 0,
       walkingDistanceMeters: isWalking ? distanceMeters : 0,
       approximate: true,
+      provider: 'approximate',
     };
   }
 
@@ -65,8 +66,6 @@ export class ApproximateTravelEstimateProvider
       case TransportationMode.DRIVING:
         return this.policy.travel.carUrbanSpeedKmh;
       case TransportationMode.PUBLIC_TRANSPORT:
-        // No real transit routing in V1 — a conservative urban-driving-speed
-        // proxy, per the spec's explicit non-goal on transit APIs.
         return this.policy.travel.carUrbanSpeedKmh;
       default:
         return this.policy.travel.walkingSpeedKmh;
