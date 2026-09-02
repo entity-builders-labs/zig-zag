@@ -7,7 +7,6 @@ import {
   Optional,
 } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
-import { ActivityKind } from '@prisma/client';
 import { PrismaService } from '@core/database/prisma.service';
 import { OutboxService } from '../../outbox/services/outbox.service';
 import { VectorStoreService } from '@shared/ai/services/vector-store.service';
@@ -251,7 +250,7 @@ export class ExperienceGenerationService {
       candidates: activities.map((activity) => ({
         id: activity.id,
         name: activity.name,
-        kind: activity.kind ?? ActivityKind.POI,
+        kind: activity.kind ?? 'EXPERIENCE',
         source: activity.source || activity.sourceId || 'db',
         type: activity.type,
         knownActivityTypeName: activity.knownActivityTypeName,
@@ -885,7 +884,7 @@ export class ExperienceGenerationService {
                             name: experience.canonicalName,
                             latitude: experience.latitude ?? experience.components[0]?.geoEntity.latitude,
                             longitude: experience.longitude ?? experience.components[0]?.geoEntity.longitude,
-                            kind: ActivityKind.EXPERIENCE,
+                            kind: 'EXPERIENCE',
                             type: 'experience',
                             duration: (experience.durationMinutes ?? 120) / 60,
                             metadata: { source: 'experience_catalog', experienceId: experience.id },
@@ -1287,7 +1286,7 @@ export class ExperienceGenerationService {
                     name: experience.canonicalName,
                     latitude: experience.latitude ?? experience.components[0]?.geoEntity.latitude,
                     longitude: experience.longitude ?? experience.components[0]?.geoEntity.longitude,
-                    kind: ActivityKind.EXPERIENCE,
+                    kind: 'EXPERIENCE',
                     type: 'experience',
                     duration: (experience.durationMinutes ?? 120) / 60,
                     metadata: { source: 'experience_catalog', experienceId: experience.id },
