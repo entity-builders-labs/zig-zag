@@ -194,7 +194,7 @@ function SavedTourCard({ tour, index }: { tour: Tour; index: number }) {
               alignItems='center'
             >
               <Text size='2xs' fontWeight='$semibold' color='$textLight400'>
-                {tour.destination || 'Buenos Aires'}
+                {tour.metadata?.generationRequest?.destination?.label || 'Buenos Aires'}
               </Text>
 
               <HStack space='xs' alignItems='center'>
