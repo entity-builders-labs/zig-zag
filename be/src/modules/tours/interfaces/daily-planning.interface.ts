@@ -130,9 +130,7 @@ export type PlanningRejectionReason =
   | 'INVALID_SPATIAL_FOOTPRINT'
   | 'INVALID_COMPOSITE'
   | 'NO_FEASIBLE_DAY'
-  | 'LOWER_RANKED_THAN_SELECTED'
-  | 'FORMAT_REDUNDANCY'
-  | 'FAMILY_VARIANT_REDUNDANCY';
+  | 'LOWER_RANKED_THAN_SELECTED';
 
 export interface UnselectedPlanningCandidate {
   experienceId: string;

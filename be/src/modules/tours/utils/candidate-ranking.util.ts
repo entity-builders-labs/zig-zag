@@ -13,8 +13,6 @@ export interface RankableCandidate {
   weightedScore?: number;
   /** Composite only — true for a pre-vetted generate-templates variant. */
   isCurated?: boolean;
-  /** Composite only — groups variants of the same area+experience-type, used for window-selection family diversity (candidate-window-selection.util.ts). */
-  familyId?: string | null;
   /** Deterministic affinity to normalized user themes/traits (0..1). */
   preferenceScore?: number;
 }
