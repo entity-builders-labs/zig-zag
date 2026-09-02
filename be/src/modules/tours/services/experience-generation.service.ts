@@ -574,14 +574,14 @@ export class ExperienceGenerationService {
     const metadata = tour.metadata as any;
     if (metadata?.generationStatus === 'generating') {
       throw new BadRequestException(
-        'Activities are already being generated for this tour',
+        'Experiences are already being generated for this tour',
       );
     }
     if (
       metadata?.generationStatus === 'completed' &&
       tour.experiences.length > 0
     ) {
-      throw new BadRequestException('Activities have already been generated');
+      throw new BadRequestException('Experiences have already been generated');
     }
 
     const traceSteps: GenerationTraceStep[] = [];
@@ -589,7 +589,7 @@ export class ExperienceGenerationService {
     await this.updateGenerationStatus(
       tourId,
       'generating',
-      'Iniciando generación de actividades...',
+      'Iniciando generación de Experiences...',
     );
 
     try {
@@ -760,7 +760,7 @@ export class ExperienceGenerationService {
         await this.updateGenerationStatus(
           tourId,
           'generating',
-          `Buscando actividades en la zona (radio ${Math.round(radius / 1000)}km)...`,
+          `Buscando Experiences verificadas en la zona (radio ${Math.round(radius / 1000)}km)...`,
         );
 
         try {
@@ -796,7 +796,7 @@ export class ExperienceGenerationService {
             await this.updateGenerationStatus(
               tourId,
               'generating',
-              `${nearbyActivities.length} actividades encontradas. Ordenando según tus preferencias...`,
+              `${nearbyActivities.length} Experiences encontradas. Ordenando según tus preferencias...`,
             );
             recordOfferedCandidates(selection);
             availableActivitiesText = `\n\nAvailable verified Experiences in the area (within ${radius / 1000}km):\n${nearbyActivitiesSample
@@ -913,8 +913,8 @@ export class ExperienceGenerationService {
 
             const poolStatus =
               nearbyActivities.length > 0
-                ? `Se encontraron ${nearbyActivities.length} actividades pero insuficientes. Buscando más con ${placesLabel}...`
-                : `No se encontraron actividades locales. Buscando con ${placesLabel}...`;
+                ? `Se encontraron ${nearbyActivities.length} Experiences pero son insuficientes. Buscando más con ${placesLabel}...`
+                : `No se encontraron Experiences locales. Buscando con ${placesLabel}...`;
             await this.updateGenerationStatus(tourId, 'generating', poolStatus);
 
             try {
@@ -978,7 +978,7 @@ export class ExperienceGenerationService {
                 await this.updateGenerationStatus(
                   tourId,
                   'generating',
-                  `¡Catálogo actualizado con ${placesLabel}! Analizando ${refreshedActivities.length} actividades...`,
+                  `¡Catálogo actualizado con ${placesLabel}! Analizando ${refreshedActivities.length} Experiences...`,
                 );
 
                 const discoveryResolvedActivities = Array.from(
@@ -1013,7 +1013,7 @@ export class ExperienceGenerationService {
                   'no_usable_candidates'
                 ) {
                   throw new Error(
-                    'No se encontró un pool de actividades utilizable para armar un itinerario real con el catálogo actual.',
+                    'No se encontró un pool de Experiences utilizable para armar un itinerario real con el catálogo actual.',
                   );
                 }
                 recordOfferedCandidates(selection);
@@ -1050,7 +1050,7 @@ export class ExperienceGenerationService {
                   const thinPoolMessage =
                     nearbyActivities.length === 1
                       ? '1 actividad local disponible.'
-                      : `${nearbyActivities.length} actividades locales disponibles.`;
+                      : `${nearbyActivities.length} Experiences locales disponibles.`;
                   await this.updateGenerationStatus(
                     tourId,
                     'generating',
@@ -1135,7 +1135,7 @@ export class ExperienceGenerationService {
                 await this.updateGenerationStatus(
                   tourId,
                   'generating',
-                  `${placesLabel} indisponible. Usando ${nearbyActivities.length} actividades locales encontradas.`,
+                  `${placesLabel} indisponible. Usando ${nearbyActivities.length} Experiences locales encontradas.`,
                 );
                 const discoveryResolvedActivities = Array.from(
                   allEligibleActivitiesById.values(),
@@ -1184,7 +1184,7 @@ export class ExperienceGenerationService {
           await this.updateGenerationStatus(
             tourId,
             'generating',
-            'Búsqueda de actividades completada. Generando itinerario con IA...',
+            'Búsqueda de Experiences completada. Generando itinerario...',
           );
         }
 
@@ -1411,7 +1411,7 @@ export class ExperienceGenerationService {
       await this.updateGenerationStatus(
         tourId,
         'generating',
-        'Itinerario planificado. Guardando actividades...',
+        'Itinerario planificado. Guardando TourExperience...',
       );
 
       const isFoodFocusedIntent =

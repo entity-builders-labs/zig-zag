@@ -61,12 +61,12 @@ export class ToursController {
   @ApiOperation({
     summary: 'Create a tour from wizard preferences',
     description:
-      'Creates a basic tour structure from wizard preferences and automatically starts generating activities in the background.',
+      'Creates a basic tour structure from wizard preferences and automatically starts generating Experiences in the background.',
   })
   @ApiResponse({
     status: 201,
     description:
-      'The tour has been successfully created. Activities are being generated in the background.',
+      'The tour has been successfully created. Experiences are being generated in the background.',
   })
   @ApiResponse({
     status: 400,
