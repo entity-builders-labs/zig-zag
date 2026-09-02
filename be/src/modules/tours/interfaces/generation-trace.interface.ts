@@ -2,7 +2,6 @@ import { GenerationAuditResult } from '../utils/generation-audit.util';
 import { PlacesCrawlProvenance } from '@integrations/google-places/interfaces/places-api.interface';
 import { CoverageReport } from './coverage-analysis.interface';
 import { TourCompletenessResult } from './tour-completeness.interface';
-import { TourFormatCoverageResult } from './tour-format-coverage.interface';
 import { ExperienceResolutionResponse } from './experience-resolution.interface';
 import { GeographicValidationBatchResult } from './geographic-validation.interface';
 import { ExperienceGeographicValidationBatchResult } from './experience-resolution.interface';
@@ -85,9 +84,6 @@ export type TourCompletenessTraceResult = TourCompletenessResult & {
   retryAttempted: boolean;
 };
 
-export type TourFormatCoverageTraceResult = TourFormatCoverageResult & {
-  retryAttempted: boolean;
-};
 
 /** Legacy candidate shape kept so old persisted traces remain readable. */
 export interface TraceCandidate {
@@ -152,7 +148,6 @@ export interface GenerationTraceStep {
     reason?: string;
   };
   tourCompleteness?: TourCompletenessTraceResult;
-  tourFormatCoverage?: TourFormatCoverageTraceResult;
   resolution?: ExperienceResolutionResponse;
   geographicValidation?: GeographicValidationBatchResult | ExperienceGeographicValidationBatchResult;
   materialization?: unknown;
@@ -198,5 +193,4 @@ export interface GenerationTrace {
   duplicateCount: number;
   auditFindings?: GenerationAuditResult;
   tourCompleteness?: TourCompletenessTraceResult;
-  tourFormatCoverage?: TourFormatCoverageTraceResult;
 }

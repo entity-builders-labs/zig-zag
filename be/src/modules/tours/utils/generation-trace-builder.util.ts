@@ -14,7 +14,6 @@ import {
   CoverageReport,
 } from '../interfaces/coverage-analysis.interface';
 import { TourCompletenessResult } from '../interfaces/tour-completeness.interface';
-import { TourFormatCoverageResult } from '../interfaces/tour-format-coverage.interface';
 import { ExperienceResolutionResponse } from '../interfaces/experience-resolution.interface';
 import {
   ExperienceFormat,
@@ -1441,59 +1440,6 @@ export function buildTourCompletenessStep(
     providerStatus: result.complete ? 'success' : 'failed',
     degradedReason: result.complete ? undefined : 'underfilled_day',
     tourCompleteness: { ...result, retryAttempted },
-  };
-}
-
-export function buildTourFormatCoverageStep(
-  result: TourFormatCoverageResult,
-  retryAttempted: boolean,
-): GenerationTraceStep {
-  const summary = result.valid
-    ? 'El itinerario respetó los formatos de experiencia solicitados que tenían candidatos disponibles.' +
-      (retryAttempted ? ' (tras un reintento por cobertura de formato)' : '')
-    : result.issues
-        .map(
-          (issue) =>
-            `Formato "${issue.requestedFormat}": ${issue.availableCandidateCount} ` +
-            `candidato(s) viable(s) disponible(s), 0 seleccionado(s).`,
-        )
-        .join(' ') +
-      (retryAttempted
-        ? ' Se reintentó la generación una vez y el resultado siguió sin incluir el formato.'
-        : '');
-  return {
-    stage: 'tour_format_coverage',
-    label: 'Cobertura de formatos solicitados',
-    component: 'TourFormatCoverageValidator',
-    status: result.valid ? 'PASS' : 'WARN',
-    summary,
-    inputs: { retryAttempted },
-    rules: [
-      rule(
-        'FORMAT-COVERAGE-001',
-        'Un formato solicitado debe aparecer si existía un candidato viable de ese formato',
-        result.valid ? 'PASS' : 'WARN',
-        result.valid
-          ? 'No hay formato viable solicitado que haya desaparecido del resultado.'
-          : result.issues.map((i) => JSON.stringify(i)).join(' '),
-      ),
-    ],
-    decision: {
-      status: result.valid ? 'PASS' : 'WARN',
-      outcome: result.valid
-        ? 'FORMAT_COVERAGE_VALID'
-        : 'REQUESTED_FORMAT_MISSING',
-      reason: result.valid
-        ? 'La cobertura de formato es consistente con la disponibilidad real.'
-        : 'Al menos un formato solicitado y disponible no sobrevivió al plan final.',
-      reasonCodes: result.valid ? [] : ['REQUESTED_FORMAT_MISSING'],
-      triggeredActions:
-        !result.valid && !retryAttempted ? ['RETRY_ONCE'] : ['CONTINUE'],
-    },
-    outputs: { valid: result.valid, issues: result.issues },
-    providerStatus: result.valid ? 'success' : 'failed',
-    degradedReason: result.valid ? undefined : 'requested_format_missing',
-    tourFormatCoverage: { ...result, retryAttempted },
   };
 }
 
