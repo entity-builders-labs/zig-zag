@@ -24,12 +24,14 @@ import { PlanningCandidateNormalizerService } from './services/planning-candidat
 import { TourPlanningFeasibilityValidatorService } from './services/tour-planning-feasibility-validator.service';
 import { PreferenceInterpreterService } from './services/preference-interpreter.service';
 import { ExperienceDiscoveryPlannerService } from './services/experience-discovery-planner.service';
+import { ExperienceProposalResolverService } from './services/experience-proposal-resolver.service';
 import {
   DISCOVERY_PROVIDER,
   GROUNDED_SEARCH_PROVIDER,
   GroundedSearchProvider,
   SearchGroundedDiscoveryProvider,
 } from './interfaces/activity-discovery.interface';
+import { EXPERIENCE_PROPOSAL_RESOLVER } from './interfaces/experience-resolution.interface';
 import {
   DAILY_PLANNING_SOLVER,
   TRAVEL_ESTIMATE_PROVIDER,
@@ -82,6 +84,11 @@ import { OutboxModule } from '../outbox/outbox.module';
     TourPlanningFeasibilityValidatorService,
     PreferenceInterpreterService,
     ExperienceDiscoveryPlannerService,
+    ExperienceProposalResolverService,
+    {
+      provide: EXPERIENCE_PROPOSAL_RESOLVER,
+      useExisting: ExperienceProposalResolverService,
+    },
     {
       provide: TRAVEL_ESTIMATE_PROVIDER,
       useExisting: ApproximateTravelEstimateProvider,
