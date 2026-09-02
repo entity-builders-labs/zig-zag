@@ -199,11 +199,14 @@ export class ExperienceGenerationService {
       searchTrace.push({ query: plannedQuery.query, provider: grounded.provider, model: grounded.model, groundingStatus: grounded.groundingStatus, evidenceCount: grounded.evidence.length });
       if (grounded.evidence.length === 0) continue;
       evidence.push(...grounded.evidence);
-      const extracted = await this.discoveryProvider.discover(
-        { destinationName, requestedThemes: interests, requestedExperienceFormats: requestedFormats, additionalPreferences, mode: { type: 'gap_fill', deficits }, maxProposals: 8 },
-        grounded,
-      );
-      proposals.push(...(extracted.proposals ?? []));
+      const nativeExtractor = (this.discoveryProvider as any).extractExperiences;
+      const extracted = typeof nativeExtractor === 'function'
+        ? await nativeExtractor.call(this.discoveryProvider, request, grounded)
+        : await this.discoveryProvider.discover(
+            { destinationName, requestedThemes: interests, requestedExperienceFormats: requestedFormats, additionalPreferences, mode: { type: 'gap_fill', deficits }, maxProposals: 8 },
+            grounded,
+          );
+      proposals.push(...(extracted.candidates ?? extracted.proposals ?? []));
       if (proposals.length >= 8) break;
     }
     return { proposals: proposals.slice(0, 8), evidence, provider: 'experience-discovery', model: 'provider-neutral', groundingStatus: proposals.length ? 'applied' : 'no_usable_evidence', searchTrace };
