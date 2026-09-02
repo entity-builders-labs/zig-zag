@@ -49,13 +49,12 @@ export class MediaPresentationResolver {
    * Pure deterministic presentation resolver.
    * Generates DTO representation without touching or mutating the database.
    */
-  resolvePresentation(activity: {
+  resolvePresentation(experience: {
     photos?: any;
-    knownActivityTypeName?: string | null;
-    type?: string | null;
-    kind?: string | null;
+    traits?: Array<string | { label?: string }>;
+    metadata?: { category?: string; primaryType?: string } | null;
   }): MediaPresentation {
-    const rawPhotos = activity.photos;
+    const rawPhotos = experience.photos;
 
     if (rawPhotos) {
       let parsedPhotos: any[] = [];
@@ -109,9 +108,9 @@ export class MediaPresentationResolver {
 
     // Resolve curated editorial fallback based on category
     const categoryKey = (
-      activity.knownActivityTypeName ||
-      activity.type ||
-      activity.kind ||
+      experience.metadata?.category ||
+      experience.metadata?.primaryType ||
+      experience.traits?.map((trait) => typeof trait === 'string' ? trait : trait.label).find(Boolean) ||
       'default'
     )
       .toLowerCase()
