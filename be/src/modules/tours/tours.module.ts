@@ -6,7 +6,6 @@ import { TourActivityGenerationService } from './services/tour-activity-generati
 import { TourGenerationProcessorService } from './services/tour-generation-processor.service';
 import { TourImageService } from './services/tour-image.service';
 import { TourLocationService } from './services/tour-location.service';
-import { CompositeGenerationService } from './services/composite-generation.service';
 import { DestinationResolutionService } from './services/destination-resolution.service';
 import { CatalogRefillAnchorPlanner } from './services/catalog-refill-anchor-planner.service';
 import { CoverageAnalyzer } from './services/coverage-analyzer.service';
@@ -66,7 +65,6 @@ import { OutboxModule } from '../outbox/outbox.module';
     TourGenerationProcessorService,
     TourImageService,
     TourLocationService,
-    CompositeGenerationService,
     DestinationResolutionService,
     CatalogRefillAnchorPlanner,
     CoverageAnalyzer,
@@ -168,7 +166,6 @@ import { OutboxModule } from '../outbox/outbox.module';
     TourActivityGenerationService,
     TourImageService,
     TourLocationService,
-    CompositeGenerationService,
     ActivityDiscoveryService,
     ActivityProposalResolutionService,
     ActivityProposalMaterializationService,
