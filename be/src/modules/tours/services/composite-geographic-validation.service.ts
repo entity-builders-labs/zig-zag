@@ -295,7 +295,7 @@ export class CompositeGeographicValidationService {
     const proposalName = proposal.name;
     const kind = 'EXPERIENCE';
     const requiredConcreteHints = proposal.componentHints.filter(
-      (hint) => hint.required && hint.role !== 'area' && hint.role !== 'route',
+      (hint) => hint.required,
     );
     const venueCentric =
       requiredConcreteHints.length === 1 &&
@@ -303,6 +303,7 @@ export class CompositeGeographicValidationService {
     const anchors = this.dedupeEntities(
       withCoordinates.filter((entity) => entity.role !== 'area'),
     );
+    const hasRouteComponent = anchors.some((entity) => entity.role === 'route');
 
     if (venueCentric) {
       if (evidenceKeys.length === 0) {
@@ -346,21 +347,20 @@ export class CompositeGeographicValidationService {
         'unresolved_required_component',
       ]);
     }
-    if (anchors.length < this.thresholds.experience.minAnchors) {
+    if (anchors.length < (hasRouteComponent ? 1 : this.thresholds.experience.minAnchors)) {
       return this.rejected(proposalName, kind, anchors, evidenceKeys, [
         'insufficient_resolved_entities',
       ]);
     }
-    if (this.destinationMismatch(anchors, destinationBoundary, false)) {
+    if (hasRouteComponent ? this.routeDestinationMismatch(anchors, destinationBoundary) : this.destinationMismatch(anchors, destinationBoundary, false)) {
       return this.rejected(proposalName, kind, anchors, evidenceKeys, [
         'destination_mismatch',
       ]);
     }
     const coherence = coherenceMetrics(this.pointsOf(anchors));
     if (
-      coherence.radiusMeters > this.thresholds.experience.maxRadiusMeters ||
-      coherence.maxPairwiseDistanceMeters >
-        this.thresholds.experience.maxPairwiseDistanceMeters
+      coherence.radiusMeters > (hasRouteComponent ? this.thresholds.route.maxRadiusMeters : this.thresholds.experience.maxRadiusMeters) ||
+      coherence.maxPairwiseDistanceMeters > (hasRouteComponent ? this.thresholds.route.maxPairwiseDistanceMeters : this.thresholds.experience.maxPairwiseDistanceMeters)
     ) {
       return this.rejected(
         proposalName,
