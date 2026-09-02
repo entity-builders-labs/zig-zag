@@ -183,6 +183,7 @@ export class ExperienceGenerationService {
     const candidates: any[] = [];
     const evidence: any[] = [];
     const searchTrace: any[] = [];
+    const extractionTrace: any[] = [];
     for (const plannedQuery of plan.queries) {
       const grounded = await this.groundedSearchProvider.search({
         destinationName,
@@ -190,14 +191,15 @@ export class ExperienceGenerationService {
         additionalPreferences,
         query: plannedQuery.query,
       });
-      searchTrace.push({ query: plannedQuery.query, provider: grounded.provider, model: grounded.model, groundingStatus: grounded.groundingStatus, evidenceCount: grounded.evidence.length });
+      searchTrace.push({ query: plannedQuery.query, purpose: plannedQuery.purpose, provider: grounded.provider, model: grounded.model, groundingStatus: grounded.groundingStatus, evidenceCount: grounded.evidence.length, evidenceKeys: grounded.evidence.map((item: any) => item.key) });
       if (grounded.evidence.length === 0) continue;
       evidence.push(...grounded.evidence);
       const extracted = await this.discoveryProvider.extractExperiences(request, grounded);
+      extractionTrace.push({ provider: extracted.provider, model: extracted.model, candidateCount: extracted.candidates.length, validationErrors: extracted.validationErrors });
       candidates.push(...(extracted.candidates ?? []));
       if (candidates.length >= 8) break;
     }
-    return { candidates: candidates.slice(0, 8), evidence, provider: 'experience-discovery', model: 'provider-neutral', groundingStatus: candidates.length ? 'applied' : 'no_usable_evidence', searchTrace };
+    return { candidates: candidates.slice(0, 8), evidence, provider: 'experience-discovery', model: 'provider-neutral', groundingStatus: candidates.length ? 'applied' : 'no_usable_evidence', searchTrace, extractionTrace };
   }
 
   /** Daily planning solver: no new Prisma columns. If a real base date exists, combine it

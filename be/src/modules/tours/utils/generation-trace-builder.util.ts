@@ -676,7 +676,6 @@ export function buildCoverageAnalysisStep(
 export function buildDiscoveryStep(
   result: {
     candidates?: any[];
-    proposals?: any[];
     provider: string;
     model?: string;
     groundingStatus: 'applied' | 'unavailable' | 'failed' | 'no_usable_evidence';
@@ -684,21 +683,25 @@ export function buildDiscoveryStep(
     groundingModel?: string;
     groundingEvidence?: any[];
     validationErrors?: string[];
+    searchTrace?: any[];
+    extractionTrace?: any[];
   },
 ): GenerationTraceStep {
-  const candidates = result.candidates ?? result.proposals ?? [];
+  const candidates = result.candidates ?? [];
   const applied = result.groundingStatus === 'applied';
   return {
     stage: 'discovery',
     label: 'Grounded discovery',
     component: 'ExperienceDiscoveryService',
     status: applied ? 'PASS' : 'WARN',
-    summary: `${candidates.length} candidate(s) extraído(s) a partir de evidencia grounded.`,
+    summary: `${candidates.length} Experience candidate(s) extraído(s) a partir de evidencia grounded.`,
     inputs: {
       provider: result.provider,
       groundingProvider: result.groundingProvider,
       groundingModel: result.groundingModel,
       evidenceCount: result.groundingEvidence?.length ?? 0,
+      searchTrace: result.searchTrace ?? [],
+      extractionTrace: result.extractionTrace ?? [],
     },
     rules: [
       rule(
@@ -713,9 +716,9 @@ export function buildDiscoveryStep(
       ),
       rule(
         'DISC-PROPOSAL-001',
-        'Las propuestas son conceptos; todavía no son identidad canónica',
+        'Los candidates son conceptos; todavía no son identidad canónica',
         'PASS',
-        'Las propuestas quedan pendientes de entity resolution antes de entrar al catálogo.',
+        'Los candidates quedan pendientes de entity resolution antes de entrar al catálogo.',
       ),
     ],
     decision: {
