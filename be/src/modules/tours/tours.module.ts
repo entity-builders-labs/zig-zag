@@ -24,6 +24,7 @@ import { PreferenceInterpreterService } from './services/preference-interpreter.
 import { ExperienceDiscoveryPlannerService } from './services/experience-discovery-planner.service';
 import { ExperienceProposalResolverService } from './services/experience-proposal-resolver.service';
 import { ExperienceCatalogService } from './services/experience-catalog.service';
+import { ExperienceAcquisitionService } from './services/experience-acquisition.service';
 import {
   DISCOVERY_PROVIDER,
   GROUNDED_SEARCH_PROVIDER,
@@ -84,6 +85,7 @@ import { OutboxModule } from '../outbox/outbox.module';
     ExperienceDiscoveryPlannerService,
     ExperienceProposalResolverService,
     ExperienceCatalogService,
+    ExperienceAcquisitionService,
     {
       provide: EXPERIENCE_PROPOSAL_RESOLVER,
       useExisting: ExperienceProposalResolverService,
@@ -163,6 +165,7 @@ import { OutboxModule } from '../outbox/outbox.module';
     TourLocationService,
     CompositeGeographicValidationService,
     PreferenceInterpreterService,
+    ExperienceAcquisitionService,
   ],
 })
 export class ToursModule {}

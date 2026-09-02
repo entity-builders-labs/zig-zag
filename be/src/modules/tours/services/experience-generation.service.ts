@@ -81,6 +81,7 @@ import {
 } from '../interfaces/activity-discovery.interface';
 import { ExperienceDiscoveryPlannerService } from './experience-discovery-planner.service';
 import { ExperienceCatalogService } from './experience-catalog.service';
+import { ExperienceAcquisitionService } from './experience-acquisition.service';
 import { ExperienceDiscoveryRequest } from '../interfaces/experience-discovery.interface';
 import { CoverageAnalyzer } from './coverage-analyzer.service';
 import { redactTracePayload } from '../utils/trace-redaction.util';
@@ -137,6 +138,7 @@ export class ExperienceGenerationService {
     private readonly prisma: PrismaService,
     private readonly toursService: ToursService,
     private readonly experienceCatalog: ExperienceCatalogService,
+    private readonly experienceAcquisition: ExperienceAcquisitionService,
     private readonly vectorStoreService: VectorStoreService,
     private readonly googlePlacesService: GooglePlacesService,
     private readonly tourImageService: TourImageService,
@@ -951,7 +953,7 @@ export class ExperienceGenerationService {
                   searchArea.latitude,
                   searchArea.longitude,
                 );
-                const acquired = await this.experienceCatalog.acquireNearbyAsExperiences({
+                const acquired = await this.experienceAcquisition.acquireNearby({
                   latitude: searchArea.latitude,
                   longitude: searchArea.longitude,
                   radius: Math.min(radius, 5000),
