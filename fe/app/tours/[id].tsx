@@ -37,7 +37,7 @@ import {
   GenerationTrace,
 } from '../../components/tour-details/GenerationBitacora';
 import { TourStop } from '../../components/tour-details/types';
-import { transformActivitiesToStops, transformExperiencesToStops } from '../../components/tour-details/build-stops';
+import { transformExperiencesToStops } from '../../components/tour-details/build-stops';
 import { FONT_DISPLAY } from '@/constants/typography';
 import { copyTextToClipboard } from '@/utils/copy-to-clipboard';
 
@@ -114,12 +114,10 @@ export default function TourDetailScreen() {
     (data: Tour, recordInitialState = false, redirectIfCompleted = false) => {
       const metadata = data.metadata as any;
       const generationStatus = metadata?.generationStatus;
-      const activities = data.activities || [];
       const experiences = data.experiences || [];
-      const scheduledItems = experiences.length > 0 ? experiences : activities;
       const stillGenerating =
         (generationStatus === 'generating' || generationStatus === 'pending') &&
-        scheduledItems.length === 0;
+        experiences.length === 0;
 
       setTour(data);
       setIsGeneratingActivities(stillGenerating);
@@ -135,7 +133,7 @@ export default function TourDetailScreen() {
         !redirectedToReviewRef.current &&
         generationStatus !== 'generating' &&
         generationStatus !== 'pending' &&
-        scheduledItems.length > 0
+        experiences.length > 0
       ) {
         redirectedToReviewRef.current = true;
         router.replace(`/tours/${id}/review`);
@@ -178,11 +176,9 @@ export default function TourDetailScreen() {
 
   useEffect(() => {
     setStops(
-      tour?.experiences?.length
-        ? transformExperiencesToStops(tour.experiences, tour.totalDays)
-        : transformActivitiesToStops(tour?.activities || [], tour?.totalDays),
+      transformExperiencesToStops(tour?.experiences, tour?.totalDays),
     );
-  }, [tour?.experiences, tour?.activities, tour?.totalDays]);
+  }, [tour?.experiences, tour?.totalDays]);
 
   useEffect(() => {
     const loadTour = async () => {
@@ -534,7 +530,7 @@ export default function TourDetailScreen() {
                       borderColor='$borderLight100'
                     >
                       <Text color='$textLight600' textAlign='center'>
-                        No hay actividades disponibles para este tour
+                        No hay experiencias disponibles para este tour
                       </Text>
                     </Box>
                   ) : (
