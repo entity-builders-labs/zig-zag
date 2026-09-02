@@ -12,12 +12,10 @@ import {
 } from '@nestjs/common';
 import { ToursService } from '../services/tours.service';
 import { TourGenerationService } from '../services/tour-generation.service';
-import { TourActivityGenerationService } from '../services/tour-activity-generation.service';
 import { TourLocationService } from '../services/tour-location.service';
 import { CreateTourDto } from '../dto/create-tour.dto';
 import { UpdateTourDto } from '../dto/update-tour.dto';
 import { CreateTourFromWizardDto } from '../dto/create-tour-from-wizard.dto';
-import { UpdateTourActivityWaypointsDto } from '../dto/update-tour-activity-waypoints.dto';
 import { buildTourGenerationRequest } from '../utils/tour-generation-request.util';
 import {
   ApiTags,
@@ -38,7 +36,6 @@ export class ToursController {
   constructor(
     private readonly toursService: ToursService,
     private readonly tourGenerationService: TourGenerationService,
-    private readonly tourActivityGenerationService: TourActivityGenerationService,
     private readonly tourLocationService: TourLocationService,
   ) {}
 
@@ -86,35 +83,6 @@ export class ToursController {
     );
   }
 
-  @Post(':id/generate-activities')
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
-  @ApiOperation({
-    summary: 'Generate activities for an existing tour',
-    description:
-      'Generates activities in the background for a tour that was created with skipActivities=true',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Activities have been successfully generated.',
-  })
-  @ApiResponse({
-    status: 400,
-    description: 'Invalid request or activities already generated.',
-  })
-  @ApiResponse({
-    status: 404,
-    description: 'Tour not found.',
-  })
-  async generateActivities(
-    @Param('id') id: string,
-    @CurrentUser() user: RequestUser,
-  ) {
-    // Confirms the tour exists and belongs to the caller before kicking off
-    // (re-)generation — throws NotFound/Forbidden otherwise.
-    await this.toursService.findOne(id, user.id);
-    return this.tourActivityGenerationService.generateTourActivities(id);
-  }
 
   @Get('nearby')
   @ApiOperation({
@@ -259,28 +227,4 @@ export class ToursController {
     return this.toursService.remove(id, user.id);
   }
 
-  @Patch(':tourId/activities/:tourActivityId/waypoints')
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
-  @ApiOperation({
-    summary:
-      'Adjust which waypoints of a composite tour stop are shown for this tour instance (the pre-confirmation review screen)',
-  })
-  @ApiResponse({
-    status: 200,
-    description:
-      'The TourActivityWaypoint snapshot was updated (or left as-is if the subset was invalid/too small).',
-  })
-  updateActivityWaypoints(
-    @Param('tourId') tourId: string,
-    @Param('tourActivityId') tourActivityId: string,
-    @Body(ValidationPipe)
-    updateTourActivityWaypointsDto: UpdateTourActivityWaypointsDto,
-  ) {
-    return this.tourActivityGenerationService.updateTourActivityWaypoints(
-      tourId,
-      tourActivityId,
-      updateTourActivityWaypointsDto.selectedWaypointActivityIds,
-    );
-  }
 }
