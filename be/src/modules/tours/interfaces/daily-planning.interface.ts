@@ -49,7 +49,7 @@ export type NormalizedOpeningHours =
 
 export interface PlanningExperienceCandidate {
   /** Canonical V2 identity used by the planner. */
-  experienceId?: string;
+  experienceId: string;
   title: string;
   durationMinutes: number;
   spatialFootprint: SpatialFootprint;
