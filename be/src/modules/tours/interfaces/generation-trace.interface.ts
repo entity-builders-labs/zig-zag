@@ -1,4 +1,3 @@
-import { GenerationAuditResult } from '../utils/generation-audit.util';
 import { PlacesCrawlProvenance } from '@integrations/google-places/interfaces/places-api.interface';
 import { CoverageReport } from './coverage-analysis.interface';
 import { TourCompletenessResult } from './tour-completeness.interface';
@@ -121,7 +120,7 @@ export interface GenerationTraceStep {
   /** Full redacted LLM audit for preference interpretation. */
   preferenceInterpretation?: PreferenceInterpretationTrace;
 
-  /** Legacy/rich stage-specific data retained for compatibility and raw view. */
+  /** Stage-specific evidence retained for audit and UI rendering. */
   candidates?: TraceCandidate[];
   placesProvenance?: PlacesCrawlProvenance;
   providerStatus?: 'success' | 'failed';
@@ -182,7 +181,6 @@ export interface GenerationTrace {
   aiReasoning?: string;
   hallucinatedCount: number;
   duplicateCount: number;
-  auditFindings?: GenerationAuditResult;
   tourCompleteness?: TourCompletenessTraceResult;
   /** Human-readable, persisted decision narrative for the Bitácora UI. */
   executionSummary?: {

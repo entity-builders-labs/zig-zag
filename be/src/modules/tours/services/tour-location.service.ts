@@ -14,48 +14,27 @@ export class TourLocationService {
     category: string = 'walking',
     radius: number = 5000, // 5km default
   ) {
-    // 1. Search for existing tours in the area
-    // We'll check if any activity in the tour is within the radius
+    // Search tours through their immutable Experience snapshots.
     // This is a rough approximation using bounding box logic for better performance
     const latDelta = radius / 111000; // Roughly 1 degree lat = 111km
     const lngDelta = radius / (111000 * Math.cos((latitude * Math.PI) / 180));
 
     const nearbyTours = await this.prisma.tour.findMany({
       where: {
-        OR: [
-          // Check inline activities
-          {
-            activities: {
-              some: {
-                activityLatitude: {
-                  gte: latitude - latDelta,
-                  lte: latitude + latDelta,
-                },
-                activityLongitude: {
-                  gte: longitude - lngDelta,
-                  lte: longitude + lngDelta,
-                },
-              },
-            },
-          },
-          // Check linked activities
-          {
-            activities: {
-              some: {
-                activity: {
-                  latitude: {
-                    gte: latitude - latDelta,
-                    lte: latitude + latDelta,
-                  },
-                  longitude: {
-                    gte: longitude - lngDelta,
-                    lte: longitude + lngDelta,
+        experiences: {
+          some: {
+            experience: {
+              components: {
+                some: {
+                  geoEntity: {
+                    latitude: { gte: latitude - latDelta, lte: latitude + latDelta },
+                    longitude: { gte: longitude - lngDelta, lte: longitude + lngDelta },
                   },
                 },
               },
             },
           },
-        ],
+        },
         // Filter by category (case insensitive search in name/description)
         AND: [
           {
@@ -68,9 +47,9 @@ export class TourLocationService {
         ],
       },
       include: {
-        activities: {
+        experiences: {
           include: {
-            activity: true,
+            experience: true,
           },
           orderBy: {
             order: 'asc',

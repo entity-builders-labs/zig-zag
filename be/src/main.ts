@@ -44,7 +44,7 @@ async function bootstrap() {
         .setTitle(swagger.title)
         .setDescription(swagger.description)
         .setVersion(swagger.version)
-        .addTag('activities')
+        .addTag('experiences')
         .addTag('tours')
         .build(),
     );

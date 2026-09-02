@@ -107,7 +107,7 @@ export interface GenerateTourOptions {
   latitude?: number;
   longitude?: number;
   radius?: number; // in meters, default 25000 (25km)
-  includeExistingActivities?: boolean; // Whether to search for existing activities in DB
+  includeExistingExperiences?: boolean;
   days?: number;
   budgetLevel?: BudgetLevel;
   interests?: string[];
@@ -119,7 +119,7 @@ export interface GenerateTourOptions {
   destinationLatitude?: number;
   destinationLongitude?: number;
   skipImageGeneration?: boolean;
-  skipActivities?: boolean; // If true, create tour without activities
+  skipExperiences?: boolean;
   // New fields for auto-prompt generation
   name?: string;
   description?: string;
