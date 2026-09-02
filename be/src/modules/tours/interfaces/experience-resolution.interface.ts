@@ -1,4 +1,5 @@
 import { ExperienceCandidate } from './experience-discovery.interface';
+import { DedupeEvidence } from '../utils/experience-dedupe.util';
 
 export type ResolvedGeoEntityStatus = 'resolved' | 'unresolved';
 
@@ -29,6 +30,9 @@ export interface ResolvedExperienceCandidate {
   resolvedEntities: ResolvedGeoEntity[];
   rejectionReasons: string[];
   experienceId?: string;
+  dedupeDecision?: 'SAME' | 'NEW' | 'AMBIGUOUS';
+  dedupeEvidence?: DedupeEvidence;
+  dedupeCandidates?: string[];
 }
 
 export interface ExperienceResolutionRequest {
@@ -36,13 +40,24 @@ export interface ExperienceResolutionRequest {
   destinationName?: string;
   destinationBoundary: unknown;
   traceContext?: Record<string, unknown>;
-  evidence?: Array<{ key?: string; source: string; url?: string; title?: string; snippet?: string }>;
+  evidence?: Array<{
+    key?: string;
+    source: string;
+    url?: string;
+    title?: string;
+    snippet?: string;
+  }>;
 }
 
 export interface ExperienceGeographicValidationResult {
   proposalName: string;
   kind: 'EXPERIENCE' | 'ROUTE' | 'AREA' | 'NEIGHBORHOOD_WALK' | 'POI';
-  status: 'UNVERIFIED' | 'GROUNDED' | 'GEO_VERIFIED' | 'AUTHORITATIVELY_VERIFIED' | 'REJECTED';
+  status:
+    | 'UNVERIFIED'
+    | 'GROUNDED'
+    | 'GEO_VERIFIED'
+    | 'AUTHORITATIVELY_VERIFIED'
+    | 'REJECTED';
   accepted: boolean;
   strategy?:
     | 'canonical_entity'
@@ -85,7 +100,9 @@ export interface ExperienceResolutionResponse {
 }
 
 export interface ExperienceProposalResolver {
-  resolve(request: ExperienceResolutionRequest): Promise<ExperienceResolutionResponse>;
+  resolve(
+    request: ExperienceResolutionRequest,
+  ): Promise<ExperienceResolutionResponse>;
 }
 
 export const EXPERIENCE_PROPOSAL_RESOLVER = 'EXPERIENCE_PROPOSAL_RESOLVER';
