@@ -15,6 +15,8 @@ import {
   buildUserPrompt,
   validateProposal,
 } from '../utils/discovery-extraction-shared.util';
+import { ExperienceDiscoveryRequest } from '../interfaces/experience-discovery.interface';
+import { extractExperienceCandidates, ExperienceExtractionResult } from '../utils/experience-candidate-extraction.util';
 
 /** Gemini-specific: short role framing only. No JSON-shape prose here —
  * response_format (JSON Schema, below) enforces the exact shape
@@ -137,6 +139,32 @@ export class GeminiDiscoveryProvider
 
   private get model(): string {
     return this.config.discoveryExtractor.gemini.model;
+  }
+
+  /** Native V2 extraction boundary. This is intentionally separate from the
+   * deprecated ActivityProposal contract until the worker migration consumes
+   * it directly. */
+  async extractExperiences(
+    request: ExperienceDiscoveryRequest,
+    searchResult: GroundedSearchResult,
+  ): Promise<ExperienceExtractionResult & { provider: string; model: string; rawOutput?: string }> {
+    const apiKey = this.config.discoveryExtractor.gemini.apiKey;
+    if (!apiKey) return { candidates: [], validationErrors: ['Missing Gemini API key'], provider: 'gemini', model: this.model };
+    const evidence = searchResult.evidence ?? [];
+    const prompt = [
+      `Destination: ${request.scope.destinationName ?? 'unknown'}`,
+      `Themes: ${request.requestedThemes.join(', ') || 'none'}`,
+      `Preferences: ${(request.semanticQuery || request.preferredTraits?.join(', ')) ?? 'none'}`,
+      'Return JSON with a candidates array. Each candidate must contain name, description, themes, traits, suggestedDurationMinutes, componentHints, evidenceKeys and shortReason.',
+      'Do not output kinds, coordinates, provider IDs, URLs, or entities not directly supported by evidence.',
+      'Grounded evidence:',
+      ...evidence.map((item) => `[${item.key}] ${item.title || item.source}: ${item.snippet}`),
+    ].join('\n');
+    const raw = await this.callInteractionsApi(apiKey, prompt);
+    let parsed: unknown;
+    try { parsed = JSON.parse(raw); } catch { return { candidates: [], validationErrors: ['Failed to parse JSON response'], provider: 'gemini', model: this.model, rawOutput: raw }; }
+    const extracted = extractExperienceCandidates(parsed, new Set(evidence.map((item) => item.key)), request.maxCandidates);
+    return { ...extracted, provider: 'gemini', model: this.model, rawOutput: raw };
   }
 
   async discover(
