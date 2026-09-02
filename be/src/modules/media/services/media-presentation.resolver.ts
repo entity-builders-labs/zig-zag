@@ -46,15 +46,21 @@ const CURATED_CATEGORY_FALLBACKS: Record<
 @Injectable()
 export class MediaPresentationResolver {
   /**
-   * Pure deterministic presentation resolver.
-   * Generates DTO representation without touching or mutating the database.
+   * Pure deterministic presentation resolver. `media` is the canonical V2
+   * persisted URL relation; `photos` remains a read-only compatibility input
+   * for old DTO/tests while cutover is completed.
    */
   resolvePresentation(experience: {
+    media?: any[];
     photos?: any;
     traits?: Array<string | { label?: string }>;
     metadata?: { category?: string; primaryType?: string } | null;
   }): MediaPresentation {
-    const rawPhotos = experience.photos;
+    const rawPhotos = experience.media?.length
+      ? [...experience.media].sort(
+          (left, right) => (left.position ?? 0) - (right.position ?? 0),
+        )
+      : experience.photos;
 
     if (rawPhotos) {
       let parsedPhotos: any[] = [];
@@ -69,48 +75,53 @@ export class MediaPresentationResolver {
       }
 
       if (parsedPhotos.length > 0) {
-        const normalizedPhotos: DocumentaryPhoto[] = parsedPhotos.map((p) => {
-          if (typeof p === 'string') {
+        const normalizedPhotos: DocumentaryPhoto[] = parsedPhotos
+          .filter((photo) => typeof photo === 'string' || photo?.url)
+          .map((photo) => {
+            if (typeof photo === 'string') {
+              return {
+                url: photo,
+                provider: 'wikimedia_commons',
+              };
+            }
             return {
-              url: p,
-              provider: 'wikimedia_commons',
+              url: photo.url,
+              width: photo.width,
+              height: photo.height,
+              caption: photo.caption,
+              author: photo.author,
+              authorUrl: photo.authorUrl,
+              license: photo.license,
+              licenseUrl: photo.licenseUrl,
+              sourceUrl: photo.sourceUrl,
+              provider: photo.provider || 'wikimedia_commons',
             };
-          }
-          return {
-            url: p.url,
-            width: p.width,
-            height: p.height,
-            caption: p.caption,
-            author: p.author,
-            authorUrl: p.authorUrl,
-            license: p.license,
-            licenseUrl: p.licenseUrl,
-            sourceUrl: p.sourceUrl,
-            provider: p.provider || 'wikimedia_commons',
-          };
-        });
+          });
 
-        const primary = normalizedPhotos[0];
-        return {
-          photos: normalizedPhotos,
-          primaryPhoto: {
-            url: primary.url,
-            caption: primary.caption,
-            author: primary.author,
-            license: primary.license,
-            licenseUrl: primary.licenseUrl,
-            isFallback: false,
-          },
-          source: 'DOCUMENTARY',
-        };
+        if (normalizedPhotos.length > 0) {
+          const primary = normalizedPhotos[0];
+          return {
+            photos: normalizedPhotos,
+            primaryPhoto: {
+              url: primary.url,
+              caption: primary.caption,
+              author: primary.author,
+              license: primary.license,
+              licenseUrl: primary.licenseUrl,
+              isFallback: false,
+            },
+            source: 'DOCUMENTARY',
+          };
+        }
       }
     }
 
-    // Resolve curated editorial fallback based on category
     const categoryKey = (
       experience.metadata?.category ||
       experience.metadata?.primaryType ||
-      experience.traits?.map((trait) => typeof trait === 'string' ? trait : trait.label).find(Boolean) ||
+      experience.traits
+        ?.map((trait) => (typeof trait === 'string' ? trait : trait.label))
+        .find(Boolean) ||
       'default'
     )
       .toLowerCase()
@@ -118,9 +129,8 @@ export class MediaPresentationResolver {
 
     let matchedFallback = CURATED_CATEGORY_FALLBACKS[categoryKey];
     if (!matchedFallback) {
-      // Fuzzy match key substring
-      const foundKey = Object.keys(CURATED_CATEGORY_FALLBACKS).find((k) =>
-        categoryKey.includes(k),
+      const foundKey = Object.keys(CURATED_CATEGORY_FALLBACKS).find((key) =>
+        categoryKey.includes(key),
       );
       matchedFallback = foundKey
         ? CURATED_CATEGORY_FALLBACKS[foundKey]
