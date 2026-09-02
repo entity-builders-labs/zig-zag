@@ -367,6 +367,45 @@ export class VectorStoreService implements OnModuleInit {
     }
   }
 
+  /** V2 semantic lookup: embeddings are read from Experience, never Activity. */
+  async getExperienceSimilarityScores(
+    candidateIds: string[],
+    queryText: string,
+  ): Promise<SemanticSimilarityResult> {
+    const requestedIds = [...new Set(candidateIds)];
+    const status = this.embeddingService.getStatus();
+    if (requestedIds.length === 0) return { status: 'applied', scores: new Map(), requestedCandidateCount: 0, indexedCandidateCount: 0, identity: status.identity };
+    if (status.status === 'unavailable') return { status: 'unavailable', scores: new Map(), requestedCandidateCount: requestedIds.length, indexedCandidateCount: 0, identity: status.identity, reason: status.reason };
+    try {
+      const queryVector = await this.embeddingService.getEmbeddings()!.embedQuery(queryText);
+      const literal = this.toVectorLiteral(queryVector);
+      const compatibleIdentity = this.compatibleIdentitySql(status.identity);
+      const rows = await this.prisma.$queryRaw<{ id: string; distance: number }[]>`
+        SELECT "id", "embedding" <=> ${literal}::vector AS "distance"
+        FROM "experience"
+        WHERE "id" IN (${Prisma.join(requestedIds)})
+          AND "embedding" IS NOT NULL
+          AND ${compatibleIdentity}
+      `;
+      return { status: 'applied', scores: new Map(rows.map((row) => [row.id, 1 - row.distance])), requestedCandidateCount: requestedIds.length, indexedCandidateCount: rows.length, identity: status.identity };
+    } catch (error) {
+      const reason = error instanceof Error ? error.message : String(error);
+      return { status: 'unavailable', scores: new Map(), requestedCandidateCount: requestedIds.length, indexedCandidateCount: 0, identity: status.identity, reason };
+    }
+  }
+
+  async getCompatibleExperienceIndexCount(candidateIds: string[]): Promise<number> {
+    if (candidateIds.length === 0) return 0;
+    const identity = this.embeddingService.getIndexIdentity();
+    const rows = await this.prisma.$queryRaw<{ count: bigint }[]>`
+      SELECT COUNT(*) AS "count" FROM "experience"
+      WHERE "id" IN (${Prisma.join([...new Set(candidateIds)])})
+        AND "embedding" IS NOT NULL
+        AND ${this.compatibleIdentitySql(identity)}
+    `;
+    return Number(rows[0]?.count ?? 0);
+  }
+
   async getCompatibleIndexCount(activityIds: string[]): Promise<number> {
     if (activityIds.length === 0) return 0;
 

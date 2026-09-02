@@ -101,7 +101,7 @@ export class ExperienceCatalogService {
   ) {
     const experiences = await this.prisma.experience.findMany({
       where: { status: ExperienceStatus.VERIFIED },
-      include: { components: { include: { geoEntity: true } } },
+      include: { components: { include: { geoEntity: true } }, traits: { include: { traitDefinition: true } } },
       take: limit * 4,
       orderBy: { qualityScore: 'desc' },
     });
@@ -122,11 +122,12 @@ export class ExperienceCatalogService {
           id: experience.id,
           name: experience.canonicalName,
           description: experience.description,
+          qualityScore: experience.qualityScore,
           latitude: lat,
           longitude: lon,
           duration: (experience.durationMinutes ?? 120) / 60,
-          kind: 'EXPERIENCE',
-          type: 'experience',
+          themes: experience.traits.map((trait) => trait.traitDefinition.label),
+          traits: experience.traits.map((trait) => trait.traitDefinition.label),
           metadata: { source: 'experience_catalog', experienceId: experience.id },
           components: experience.components,
         };

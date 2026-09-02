@@ -459,7 +459,7 @@ export class ExperienceGenerationService {
     let semanticResult: SemanticSimilarityResult | null = null;
 
     if (semanticQuery) {
-      semanticResult = await this.vectorStoreService.getSimilarityScores(
+      semanticResult = await this.vectorStoreService.getExperienceSimilarityScores(
         candidateActivities.map((activity) => activity.id),
         semanticQuery,
       );
@@ -468,13 +468,11 @@ export class ExperienceGenerationService {
     const rankable: (RankableCandidate & { original: any })[] =
       candidateActivities.map((a) => ({
         id: a.id,
-        source: a.kind && a.kind !== 'POI' ? 'composite' : 'poi',
-        kind: a.kind,
-        subtype: a.knownActivityTypeName ?? a.type,
+        source: 'poi' as const,
+        subtype: a.themes?.[0] ?? a.traits?.[0] ?? a.metadata?.traits?.[0],
         distanceKm: a.distance,
-        weightedScore: a.weightedScore,
-        isCurated: a.isCurated,
-        familyId: a.familyId,
+        weightedScore: a.qualityScore,
+        isCurated: false,
         original: a,
       }));
     const rankedFull = rankCandidatesByRelevance(
@@ -502,7 +500,7 @@ export class ExperienceGenerationService {
           status: 'not_requested',
           eligibleCandidateCount: candidateActivities.length,
           indexedCandidateCount:
-            await this.vectorStoreService.getCompatibleIndexCount(
+            await this.vectorStoreService.getCompatibleExperienceIndexCount(
               candidateActivities.map((activity) => activity.id),
             ),
         },
@@ -1494,65 +1492,16 @@ export class ExperienceGenerationService {
         }),
       );
 
-      const activityIds = activities
+      const experienceIds = activities
         .map((a) => a.activityId)
         .filter((id): id is string => !!id);
-
-      let kindByActivityId = new Map<string, ActivityKind>();
-      const waypointIdsByActivityId = new Map<string, string[]>();
-
-      let activityEntities: Array<{
-        id: string;
-        name: string;
-        latitude: number;
-        longitude: number;
-        kind: ActivityKind;
-        type: string | null;
-        formattedAddress: string | null;
-        photos: any;
-        metadata: any;
-      }> = [];
       let experienceEntities: Array<any> = [];
 
-      if (activityIds.length > 0) {
-        activityEntities = await this.prisma.activity.findMany({
-          where: { id: { in: activityIds } },
-          select: {
-            id: true,
-            name: true,
-            latitude: true,
-            longitude: true,
-            kind: true,
-            type: true,
-            formattedAddress: true,
-            photos: true,
-            metadata: true,
-          },
-        });
+      if (experienceIds.length > 0) {
         experienceEntities = await this.prisma.experience.findMany({
-          where: { id: { in: activityIds }, status: 'VERIFIED' },
+          where: { id: { in: experienceIds }, status: 'VERIFIED' },
           include: { components: { include: { geoEntity: true } } },
         });
-
-        kindByActivityId = new Map(
-          activityEntities.map((act) => [act.id, act.kind]),
-        );
-
-        const nonPoiActivityIds = activityEntities
-          .filter((act) => act.kind !== ActivityKind.POI)
-          .map((act) => act.id);
-        if (nonPoiActivityIds.length > 0) {
-          const waypointRows = await this.prisma.activityWaypoint.findMany({
-            where: { compositeActivityId: { in: nonPoiActivityIds } },
-            orderBy: { order: 'asc' },
-          });
-          for (const row of waypointRows) {
-            const list =
-              waypointIdsByActivityId.get(row.compositeActivityId) ?? [];
-            list.push(row.waypointActivityId);
-            waypointIdsByActivityId.set(row.compositeActivityId, list);
-          }
-        }
       }
 
       const generationTrace = redactTracePayload({
