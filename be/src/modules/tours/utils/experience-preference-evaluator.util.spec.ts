@@ -1,6 +1,7 @@
+import { NormalizedPreferenceIntent } from '../interfaces/preference-interpretation.interface';
 import { evaluateExperiencePreferences } from './experience-preference-evaluator.util';
 
-const emptyIntent = {
+const emptyIntent: NormalizedPreferenceIntent = {
   preferredThemes: [],
   preferredTraits: [],
   preferredIntents: [],
