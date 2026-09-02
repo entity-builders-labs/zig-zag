@@ -52,8 +52,7 @@ export class PlanningCandidateNormalizerService {
   }
 
   /** Native V2 boundary: normalize verified Experiences without consulting
-   * ActivityKind or ActivityWaypoint. Kept alongside the compatibility method
-   * until the worker switches its acquisition source completely. */
+   * ActivityKind or ActivityWaypoint. */
   async normalizeExperiences(
     experiences: any[],
     scoreBreakdownById: Map<string, CandidateScoreBreakdown>,
@@ -113,12 +112,12 @@ export class PlanningCandidateNormalizerService {
     };
   }
 
-  /** Persisted `Activity.duration` is hours. Composites never get it
+  /** Persisted legacy duration values are hours. Composites never get it
    * populated anywhere in the codebase (`CompositeActivityService` and
    * `ActivityProposalResolutionService` both leave it `null`), so without a
    * fallback every composite would enter the solver at 0 minutes, costing no
    * daily-time-capacity budget and later persisting a near-zero
-   * `TourActivity.duration`. The fallback is a policy constant, mirroring
+   * snapshot duration. The fallback is a policy constant, mirroring
    * `internalWalking.unknownFallbackMinutes` — deliberately NOT derived from
    * `duration` (that is the very value that is missing) nor from internal
    * walking, which is an independent signal. POIs/AREA keep the plain `?? 0`

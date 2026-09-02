@@ -30,7 +30,7 @@ export interface AiConfig {
   embeddingProvider: EmbeddingProvider;
   awsRegion: string;
   embeddingDimensions: 256;
-  // Discovery extraction (ActivityProposal extraction from grounded evidence)
+  // Discovery extraction (ExperienceCandidate extraction from grounded evidence)
   discoveryExtractor: DiscoveryExtractorConfig;
 }
 
