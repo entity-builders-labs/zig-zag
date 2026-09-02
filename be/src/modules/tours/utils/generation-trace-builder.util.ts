@@ -1138,6 +1138,7 @@ export function buildCandidatePoolStep(params: {
       detail:
         `score total ${c.scoreBreakdown.totalScore.toFixed(3)} ` +
         `(semántica ${c.scoreBreakdown.semanticSimilarity ?? 'n/d'}, ` +
+        `preferencias ${(c.scoreBreakdown.preferenceBonus ?? 0).toFixed(3)}, ` +
         `calidad ${c.scoreBreakdown.qualityBonus.toFixed(3)}, ` +
         `proximidad ${c.scoreBreakdown.proximityBonus.toFixed(3)}, ` +
         `diversidad ${c.scoreBreakdown.diversityBonus.toFixed(3)})`,
