@@ -136,7 +136,10 @@ services:
       - MOCK_MAPS_MODE=${MOCK_MAPS_MODE}
       - ALLOW_API_FALLBACK=${ALLOW_API_FALLBACK}
       - USE_MOCK_MAPS=${USE_MOCK_MAPS}
-      - OVERPASS_API_URL=${OVERPASS_API_URL}
+      # The local Overpass profile publishes port 12345 on Docker Desktop's
+      # host. Use it by default in development; production can still provide
+      # an explicit OVERPASS_API_URL.
+      - OVERPASS_API_URL=${OVERPASS_API_URL:-http://host.docker.internal:12345/api/interpreter}
       - OVERPASS_TIMEOUT_MS=${OVERPASS_TIMEOUT_MS}
       - OVERPASS_MAX_RETRIES=${OVERPASS_MAX_RETRIES}
       - OVERPASS_RETRY_BASE_MS=${OVERPASS_RETRY_BASE_MS}
