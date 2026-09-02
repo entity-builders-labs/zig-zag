@@ -582,7 +582,7 @@ export class ExperienceGenerationService {
     }
     if (
       metadata?.generationStatus === 'completed' &&
-      tour.experiences.length > 0
+      (tour.experiences?.length ?? 0) > 0
     ) {
       throw new BadRequestException('Experiences have already been generated');
     }
