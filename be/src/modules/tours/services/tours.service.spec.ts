@@ -138,7 +138,7 @@ describe('ToursService', () => {
       await expect(service.findOne('tour-1')).resolves.toBe(tour);
     });
 
-    it("includes each TourActivity's waypoint snapshot", async () => {
+    it('includes the native TourExperience snapshots', async () => {
       const tour = { id: 'tour-1', ownerId: 'user-1' };
       mockPrismaService.tour.findUnique.mockResolvedValue(tour);
 
@@ -147,13 +147,10 @@ describe('ToursService', () => {
       expect(mockPrismaService.tour.findUnique).toHaveBeenCalledWith(
         expect.objectContaining({
           include: expect.objectContaining({
-            activities: expect.objectContaining({
+            experiences: expect.objectContaining({
               include: expect.objectContaining({
-                activity: true,
-                waypoints: {
-                  include: { waypointActivity: true },
-                  orderBy: { order: 'asc' },
-                },
+                experience: expect.any(Object),
+                components: true,
               }),
             }),
           }),
