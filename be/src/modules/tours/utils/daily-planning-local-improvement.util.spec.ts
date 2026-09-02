@@ -18,13 +18,11 @@ function candidate(
   familyId?: string,
 ): PlanningExperienceCandidate {
   return {
-    activityId: id,
-    kind: 'POI',
+    experienceId: id,
     title: id,
     durationMinutes: 60,
     spatialFootprint: { type: 'POINT', centroid: { lat, lng } },
     semanticScore: 0.5,
-    familyId,
   };
 }
 
@@ -35,8 +33,7 @@ function candidateWithOptions(
   opts: { durationMinutes?: number; openingHours?: NormalizedOpeningHours },
 ): PlanningExperienceCandidate {
   return {
-    activityId: id,
-    kind: 'POI',
+    experienceId: id,
     title: id,
     durationMinutes: opts.durationMinutes ?? 60,
     spatialFootprint: { type: 'POINT', centroid: { lat, lng } },
@@ -56,8 +53,7 @@ function candidateWithMobility(
   },
 ): PlanningExperienceCandidate {
   return {
-    activityId: id,
-    kind: 'POI',
+    experienceId: id,
     title: id,
     durationMinutes: opts.durationMinutes,
     spatialFootprint: { type: 'POINT', centroid: { lat, lng } },
@@ -135,7 +131,7 @@ describe('runBoundedLocalImprovement', () => {
             candidate('b', 0, 0.001),
             candidate('c', 0, 0.002),
           ],
-          totalActivityMinutes: 180,
+          totalExperienceMinutes: 180,
           totalWalkingMeters: 0,
         },
       ],
@@ -144,7 +140,7 @@ describe('runBoundedLocalImprovement', () => {
         {
           dayNumber: 2,
           assigned: [],
-          totalActivityMinutes: 0,
+          totalExperienceMinutes: 0,
           totalWalkingMeters: 0,
         },
       ],
@@ -165,7 +161,7 @@ describe('runBoundedLocalImprovement', () => {
         {
           dayNumber: 1,
           assigned: [candidate('a1', 0, 0), candidate('far-from-a', 10, 10)],
-          totalActivityMinutes: 120,
+          totalExperienceMinutes: 120,
           totalWalkingMeters: 0,
         },
       ],
@@ -177,7 +173,7 @@ describe('runBoundedLocalImprovement', () => {
             candidate('b1', 10, 10.001),
             candidate('near-a-actually', 0, 0.001),
           ],
-          totalActivityMinutes: 120,
+          totalExperienceMinutes: 120,
           totalWalkingMeters: 0,
         },
       ],
@@ -187,7 +183,7 @@ describe('runBoundedLocalImprovement', () => {
       days,
       context(),
     );
-    const day1Ids = improved.get(1)!.assigned.map((a) => a.activityId);
+    const day1Ids = improved.get(1)!.assigned.map((a) => a.experienceId);
     // 'near-a-actually' (0, 0.001) belongs with 'a1' (0,0), not 'far-from-a' (10,10).
     expect(day1Ids).toContain('near-a-actually');
   });
@@ -199,7 +195,7 @@ describe('runBoundedLocalImprovement', () => {
         {
           dayNumber: 1,
           assigned: [candidate('a', 0, 0)],
-          totalActivityMinutes: 60,
+          totalExperienceMinutes: 60,
           totalWalkingMeters: 0,
         },
       ],
@@ -208,7 +204,7 @@ describe('runBoundedLocalImprovement', () => {
         {
           dayNumber: 2,
           assigned: [candidate('b', 1, 1)],
-          totalActivityMinutes: 60,
+          totalExperienceMinutes: 60,
           totalWalkingMeters: 0,
         },
       ],
@@ -234,7 +230,7 @@ describe('runBoundedLocalImprovement', () => {
             candidate('b', 0, 0.001),
             candidate('c', 0, 0.002),
           ],
-          totalActivityMinutes: 180,
+          totalExperienceMinutes: 180,
           totalWalkingMeters: 0,
         },
       ],
@@ -248,7 +244,7 @@ describe('runBoundedLocalImprovement', () => {
           // below could never trip. A far-away pre-existing candidate gives
           // day 2 a real "previous stop" for the walking-distance check.
           assigned: [candidate('seed-far', 10, 10)],
-          totalActivityMinutes: 60,
+          totalExperienceMinutes: 60,
           totalWalkingMeters: 0,
         },
       ],
@@ -283,7 +279,7 @@ describe('runBoundedLocalImprovement', () => {
             }),
             candidateWithMobility('c', 0, 0.002, { durationMinutes: 60 }),
           ],
-          totalActivityMinutes: 330,
+          totalExperienceMinutes: 330,
           totalWalkingMeters: 500,
         },
       ],
@@ -292,7 +288,7 @@ describe('runBoundedLocalImprovement', () => {
         {
           dayNumber: 2,
           assigned: [],
-          totalActivityMinutes: 0,
+          totalExperienceMinutes: 0,
           totalWalkingMeters: 0,
         },
       ],
@@ -303,15 +299,15 @@ describe('runBoundedLocalImprovement', () => {
       context(),
     );
 
-    expect(improved.get(2)!.assigned.map((x) => x.activityId)).toEqual(['a']);
-    expect(improved.get(1)!.assigned.map((x) => x.activityId)).toEqual([
+    expect(improved.get(2)!.assigned.map((x) => x.experienceId)).toEqual(['a']);
+    expect(improved.get(1)!.assigned.map((x) => x.experienceId)).toEqual([
       'b',
       'c',
     ]);
     // 330 - (60 duration + 30 internal travel) = 240, not 270: the omitted
     // internal travel is exactly the drift this asserts against.
-    expect(improved.get(1)!.totalActivityMinutes).toBe(240);
-    expect(improved.get(2)!.totalActivityMinutes).toBe(90);
+    expect(improved.get(1)!.totalExperienceMinutes).toBe(240);
+    expect(improved.get(2)!.totalExperienceMinutes).toBe(90);
     expect(improved.get(1)!.totalWalkingMeters).toBe(0);
     expect(improved.get(2)!.totalWalkingMeters).toBe(500);
   });
@@ -334,7 +330,7 @@ describe('runBoundedLocalImprovement', () => {
         {
           dayNumber: 1,
           assigned: [a, far], // 60 + 180
-          totalActivityMinutes: 240,
+          totalExperienceMinutes: 240,
           totalWalkingMeters: 0,
         },
       ],
@@ -343,7 +339,7 @@ describe('runBoundedLocalImprovement', () => {
         {
           dayNumber: 2,
           assigned: [b, near], // 60 + (120 + 30 internal travel)
-          totalActivityMinutes: 210,
+          totalExperienceMinutes: 210,
           totalWalkingMeters: 400,
         },
       ],
@@ -355,18 +351,18 @@ describe('runBoundedLocalImprovement', () => {
     );
 
     // Geographic compactness swaps 'far' (180 min) with 'near' (150 min).
-    expect(improved.get(1)!.assigned.map((x) => x.activityId)).toEqual([
+    expect(improved.get(1)!.assigned.map((x) => x.experienceId)).toEqual([
       'a',
       'near',
     ]);
-    expect(improved.get(2)!.assigned.map((x) => x.activityId)).toEqual([
+    expect(improved.get(2)!.assigned.map((x) => x.experienceId)).toEqual([
       'b',
       'far',
     ]);
     // Day 1 now holds a(60) + near(120+30) = 210; day 2 holds b(60) + far(180)
     // = 240. Before the fix both days kept their pre-swap totals (240/210).
-    expect(improved.get(1)!.totalActivityMinutes).toBe(210);
-    expect(improved.get(2)!.totalActivityMinutes).toBe(240);
+    expect(improved.get(1)!.totalExperienceMinutes).toBe(210);
+    expect(improved.get(2)!.totalExperienceMinutes).toBe(240);
     expect(improved.get(1)!.totalWalkingMeters).toBe(400);
     expect(improved.get(2)!.totalWalkingMeters).toBe(0);
   });
@@ -375,7 +371,7 @@ describe('runBoundedLocalImprovement', () => {
     // Same geographically-favorable pair as the compactness swap test above
     // ('far-from-a' at (10,10) really belongs with (10,10.001); the incoming
     // candidate at (0,0.001) really belongs with (0,0)) — the swap probe
-    // must remove 'far-from-a' (180 min) from day 1's totalActivityMinutes
+    // must remove 'far-from-a' (180 min) from day 1's totalExperienceMinutes
     // (180) before computing the incoming candidate's proposed start. Done
     // correctly, the true post-removal total is 0, so the proposed start is
     // 540 (9:00) — before the 11:00 opening, correctly infeasible. Before
@@ -409,7 +405,7 @@ describe('runBoundedLocalImprovement', () => {
         {
           dayNumber: 1,
           assigned: [candidate('a1', 0, 0), farFromA],
-          totalActivityMinutes: 180,
+          totalExperienceMinutes: 180,
           totalWalkingMeters: 0,
         },
       ],
@@ -418,7 +414,7 @@ describe('runBoundedLocalImprovement', () => {
         {
           dayNumber: 2,
           assigned: [candidate('b1', 10, 10.001), nearButClosedUntilEleven],
-          totalActivityMinutes: 120,
+          totalExperienceMinutes: 120,
           totalWalkingMeters: 0,
         },
       ],
@@ -433,7 +429,7 @@ describe('runBoundedLocalImprovement', () => {
       days,
       regressionContext,
     );
-    const day1Ids = improved.get(1)!.assigned.map((a) => a.activityId);
+    const day1Ids = improved.get(1)!.assigned.map((a) => a.experienceId);
     expect(day1Ids).not.toContain('near-a-actually');
     expect(day1Ids).toContain('far-from-a');
   });

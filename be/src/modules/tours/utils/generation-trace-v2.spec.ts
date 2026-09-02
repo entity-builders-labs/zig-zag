@@ -17,7 +17,6 @@ describe('GenerationTrace V2 audit contract', () => {
       requestedThemeCoverage: [
         { theme: 'nature', matchedCandidateCount: 0, strongMatchCount: 0 },
       ],
-      kindCoverage: [{ kind: 'POI' as any, count: 11 }],
       sourceCoverage: [{ source: 'geoapify', count: 11 }],
       geographicCoverage: { distinctClusterCount: 2, thresholdKilometers: 1.5 },
       semanticCoverage: {
@@ -78,14 +77,14 @@ describe('GenerationTrace V2 audit contract', () => {
       days: [
         {
           dayNumber: 1,
-          activities: [
+          experiences: [
             {
-              activityId: 'activity-selected',
+              experienceId: 'activity-selected',
               startMinutesFromMidnight: 540,
               endMinutesFromMidnight: 660,
             },
           ],
-          totalActivityMinutes: 120,
+          totalExperienceMinutes: 120,
           totalTravelMinutes: 0,
           totalWalkingMinutes: 0,
           utilizationMinutes: 120,
@@ -93,7 +92,7 @@ describe('GenerationTrace V2 audit contract', () => {
       ],
       unselected: [
         {
-          activityId: 'activity-rejected',
+          experienceId: 'activity-rejected',
           reasons: ['DAILY_TIME_CAPACITY_EXCEEDED'],
         },
       ],

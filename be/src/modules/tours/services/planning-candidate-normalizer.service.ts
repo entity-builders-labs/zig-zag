@@ -40,6 +40,15 @@ export class PlanningCandidateNormalizerService {
         semanticScore:
           scoreBreakdownById.get(experience.id)?.semanticSimilarity ?? 0,
         qualityScore: scoreBreakdownById.get(experience.id)?.qualityBonus,
+        mobility: experience.mobility
+          ? {
+              internalWalkingMinutes: experience.mobility.internalWalkingMinutes,
+              internalWalkingDistanceMeters:
+                experience.mobility.internalWalkingDistanceMeters,
+              internalTravelMinutes: experience.mobility.internalTravelMinutes,
+            }
+          : undefined,
+        openingHours: experience.openingHours,
         metadata: { source: 'experience_catalog' },
       };
     });

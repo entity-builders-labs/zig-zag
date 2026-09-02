@@ -33,7 +33,7 @@ describe('TourGenerationService canonical wizard path', () => {
       },
       dietaryRestrictions: [],
       startDates: [],
-      includeExistingActivities: true,
+      includeExistingExperiences: true,
       skipImageGeneration: true,
       excludeTours: [],
       categories: [],

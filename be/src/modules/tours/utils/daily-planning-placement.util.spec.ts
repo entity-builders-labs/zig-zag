@@ -16,8 +16,7 @@ function candidate(
   overrides: Partial<PlanningExperienceCandidate> = {},
 ): PlanningExperienceCandidate {
   return {
-    activityId: overrides.activityId ?? 'a1',
-    kind: 'POI',
+    experienceId: overrides.experienceId ?? 'a1',
     title: 'Test',
     durationMinutes: 60,
     spatialFootprint: { type: 'POINT', centroid: { lat: 0, lng: 0 } },
@@ -92,7 +91,7 @@ function emptyDay(dayNumber: number): DayAccumulator {
   return {
     dayNumber,
     assigned: [],
-    totalActivityMinutes: 0,
+    totalExperienceMinutes: 0,
     totalWalkingMeters: 0,
   };
 }
@@ -111,7 +110,7 @@ describe('checkHardConstraints', () => {
     const acc: DayAccumulator = {
       dayNumber: 1,
       assigned: [],
-      totalActivityMinutes: 650,
+      totalExperienceMinutes: 650,
       totalWalkingMeters: 0,
     };
     const result = await checkHardConstraints(
@@ -138,12 +137,12 @@ describe('checkHardConstraints', () => {
     });
     const acc: DayAccumulator = {
       dayNumber: 1,
-      assigned: [candidate({ activityId: 'prev' })],
-      totalActivityMinutes: 60,
+      assigned: [candidate({ experienceId: 'prev' })],
+      totalExperienceMinutes: 60,
       totalWalkingMeters: 0,
     };
     const result = await checkHardConstraints(
-      candidate({ activityId: 'next' }),
+      candidate({ experienceId: 'next' }),
       acc,
       context,
     );
@@ -166,12 +165,12 @@ describe('checkHardConstraints', () => {
     });
     const acc: DayAccumulator = {
       dayNumber: 1,
-      assigned: [candidate({ activityId: 'prev' })],
-      totalActivityMinutes: 60,
+      assigned: [candidate({ experienceId: 'prev' })],
+      totalExperienceMinutes: 60,
       totalWalkingMeters: 0,
     };
     const result = await checkHardConstraints(
-      candidate({ activityId: 'next' }),
+      candidate({ experienceId: 'next' }),
       acc,
       context,
     );
@@ -293,20 +292,20 @@ describe('scoreCandidateForDay', () => {
     expect(scoreUnknown).toBe(scoreZero);
   });
 
-  it('penalizes a same-family candidate already assigned that day', () => {
+  it('does not apply a structural family penalty in V2', () => {
     const acc: DayAccumulator = {
       dayNumber: 1,
-      assigned: [candidate({ activityId: 'existing', familyId: 'fam-1' })],
-      totalActivityMinutes: 60,
+      assigned: [candidate({ experienceId: 'existing' })],
+      totalExperienceMinutes: 60,
       totalWalkingMeters: 0,
     };
     const sameFamily = scoreCandidateForDay(
-      candidate({ familyId: 'fam-1' }),
+      candidate({ experienceId: 'same' }),
       acc,
       baseContext(),
     );
     const differentFamily = scoreCandidateForDay(
-      candidate({ familyId: 'fam-2' }),
+      candidate({ experienceId: 'different' }),
       acc,
       baseContext(),
     );
@@ -317,7 +316,7 @@ describe('scoreCandidateForDay', () => {
 describe('placeCandidates', () => {
   it('places every hard-feasible candidate somewhere across the requested days', async () => {
     const { days, unselected } = await placeCandidates(
-      [candidate({ activityId: 'a' }), candidate({ activityId: 'b' })],
+      [candidate({ experienceId: 'a' }), candidate({ experienceId: 'b' })],
       2,
       baseContext(),
     );
@@ -329,14 +328,14 @@ describe('placeCandidates', () => {
     expect(unselected).toHaveLength(0);
   });
 
-  it('marks a duplicate activityId as unselected with DUPLICATE_ACTIVITY', async () => {
+  it('marks a duplicate experienceId as unselected with DUPLICATE_ACTIVITY', async () => {
     const { unselected } = await placeCandidates(
-      [candidate({ activityId: 'dup' }), candidate({ activityId: 'dup' })],
+      [candidate({ experienceId: 'dup' }), candidate({ experienceId: 'dup' })],
       1,
       baseContext(),
     );
     expect(unselected).toEqual([
-      { activityId: 'dup', reasons: ['DUPLICATE_ACTIVITY'] },
+      { experienceId: 'dup', reasons: ['DUPLICATE_ACTIVITY'] },
     ]);
   });
 

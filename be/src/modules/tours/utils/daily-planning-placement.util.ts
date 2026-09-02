@@ -85,8 +85,9 @@ export function internalWalkingMeters(
     candidate.mobility?.internalWalkingDistanceMeters === undefined &&
     candidate.mobility?.internalWalkingMinutes === undefined
   ) {
-    // Unknown internal walking on a composite: apply the explicit,
-    // configurable conservative V1 fallback — never derived from duration.
+    // A point Experience has no internal leg. For an area/line Experience,
+    // unknown internal walking gets the explicit conservative fallback.
+    if (candidate.spatialFootprint.type === 'POINT') return 0;
     return (
       (policy.internalWalking.unknownFallbackMinutes *
         policy.travel.walkingSpeedKmh *

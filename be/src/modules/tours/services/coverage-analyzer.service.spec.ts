@@ -1,6 +1,4 @@
-import { ActivityKind } from '@prisma/client';
 import { CoverageAnalyzer } from './coverage-analyzer.service';
-import { ExperienceFormat } from '../interfaces/tour-generation.interface';
 
 describe('CoverageAnalyzer', () => {
   let service: CoverageAnalyzer;
@@ -19,10 +17,8 @@ describe('CoverageAnalyzer', () => {
     return {
       id,
       name: `POI ${id}`,
-      kind: ActivityKind.POI,
       source: 'google_places',
       type: 'museum',
-      knownActivityTypeName: 'museum',
       weightedScore: 4.5,
       distanceKm: 1,
       ...overrides,
@@ -99,7 +95,7 @@ describe('CoverageAnalyzer', () => {
     );
   });
 
-  it('does not block when a requested structural format has zero candidates', () => {
+  it('does not block when a requested experience shape has zero candidates', () => {
     const report = service.analyze({
       candidates: [
         poiCandidate('1'),
@@ -108,7 +104,6 @@ describe('CoverageAnalyzer', () => {
         poiCandidate('4'),
       ],
       requestedThemes: [],
-      requestedExperienceFormats: [ExperienceFormat.NEIGHBORHOOD_WALKS],
       days: 1,
       explorationStyle: 'balanced',
       semanticCoverage: semantic,
@@ -126,7 +121,7 @@ describe('CoverageAnalyzer', () => {
     expect(report.decision.action).toBe('none');
   });
 
-  it('does not add a format deficit when the matching structural kind exists', () => {
+  it('does not add a structural deficit when a different experience shape exists', () => {
     const report = service.analyze({
       candidates: [
         poiCandidate('1'),
@@ -136,13 +131,11 @@ describe('CoverageAnalyzer', () => {
         {
           id: 'route-1',
           name: 'Costanera route',
-          kind: ActivityKind.ROUTE,
           source: 'catalog',
           distanceKm: 1,
         },
       ],
       requestedThemes: [],
-      requestedExperienceFormats: [ExperienceFormat.THEMATIC_ROUTES],
       days: 1,
       explorationStyle: 'balanced',
       semanticCoverage: {
@@ -172,10 +165,6 @@ describe('CoverageAnalyzer', () => {
         poiCandidate('4'),
       ],
       requestedThemes: ['architecture'],
-      requestedExperienceFormats: [
-        ExperienceFormat.THEMATIC_ROUTES,
-        ExperienceFormat.EXPERIENCES,
-      ],
       days: 1,
       explorationStyle: 'balanced',
       semanticCoverage: semantic,
@@ -195,7 +184,7 @@ describe('CoverageAnalyzer', () => {
     expect(report.decision.reason).toBe('missing_requested_theme');
   });
 
-  it('maps point_visits to real POI candidates', () => {
+  it('uses real catalog candidates without structural format mapping', () => {
     const report = service.analyze({
       candidates: [
         poiCandidate('1'),
@@ -204,7 +193,6 @@ describe('CoverageAnalyzer', () => {
         poiCandidate('4'),
       ],
       requestedThemes: [],
-      requestedExperienceFormats: [ExperienceFormat.POINT_VISITS],
       days: 1,
       explorationStyle: 'balanced',
       semanticCoverage: semantic,
@@ -214,26 +202,20 @@ describe('CoverageAnalyzer', () => {
 
     expect(report.status).toBe('sufficient');
     expect(report.decision.action).toBe('none');
-    expect(report.kindCoverage).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ kind: ActivityKind.POI, count: 4 }),
-      ]),
-    );
+    expect(report.requestedThemeCoverage).toEqual([]);
   });
 
-  it('does not report a point_visits structural deficit when no POI exists', () => {
+  it('does not report a structural deficit when only another experience exists', () => {
     const report = service.analyze({
       candidates: [
         {
           id: 'route-1',
           name: 'Route',
-          kind: ActivityKind.ROUTE,
           source: 'catalog',
           distanceKm: 1,
         },
       ],
       requestedThemes: [],
-      requestedExperienceFormats: [ExperienceFormat.POINT_VISITS],
       days: 1,
       explorationStyle: 'balanced',
       semanticCoverage: {

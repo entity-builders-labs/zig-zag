@@ -19,8 +19,6 @@ describe('daily-planning.interface', () => {
   it('constructs a valid PlanningExperienceCandidate literal', () => {
     const candidate: PlanningExperienceCandidate = {
       experienceId: 'e1',
-      activityId: 'a1',
-      kind: 'POI',
       title: 'Test',
       durationMinutes: 60,
       spatialFootprint: { type: 'POINT', centroid: { lat: 1, lng: 2 } },

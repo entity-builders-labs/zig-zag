@@ -16,8 +16,7 @@ function candidate(
   semanticScore = 0.5,
 ): PlanningExperienceCandidate {
   return {
-    activityId: id,
-    kind: 'POI',
+    experienceId: id,
     title: id,
     durationMinutes,
     spatialFootprint: { type: 'POINT', centroid: { lat, lng } },
@@ -71,15 +70,15 @@ function mondayHours(
 describe('orderAndScheduleDay', () => {
   it('returns an empty PlannedDay for no candidates', async () => {
     const day = await orderAndScheduleDay(1, [], context());
-    expect(day.activities).toEqual([]);
+    expect(day.experiences).toEqual([]);
     expect(day.dayNumber).toBe(1);
   });
 
   it('schedules a single candidate starting at the planning window start', async () => {
     const day = await orderAndScheduleDay(1, [candidate('a', 0, 0)], context());
-    expect(day.activities[0].startMinutesFromMidnight).toBe(540);
-    expect(day.activities[0].endMinutesFromMidnight).toBe(600);
-    expect(day.activities[0].travelFromPrevious).toBeUndefined();
+    expect(day.experiences[0].startMinutesFromMidnight).toBe(540);
+    expect(day.experiences[0].endMinutesFromMidnight).toBe(600);
+    expect(day.experiences[0].travelFromPrevious).toBeUndefined();
   });
 
   it('orders by nearest-neighbor from the previous stop', async () => {
@@ -98,23 +97,23 @@ describe('orderAndScheduleDay', () => {
       ],
       context(),
     );
-    expect(day.activities.map((a) => a.activityId)).toEqual([
+    expect(day.experiences.map((a) => a.experienceId)).toEqual([
       'start',
       'near',
       'far',
     ]);
   });
 
-  it('accumulates travel time between consecutive activities', async () => {
+  it('accumulates travel time between consecutive experiences', async () => {
     const day = await orderAndScheduleDay(
       1,
       [candidate('a', 0, 0), candidate('b', 0, 0.01)],
       context(),
     );
     expect(day.totalTravelMinutes).toBeGreaterThan(0);
-    expect(day.activities[1].travelFromPrevious).toBeDefined();
-    expect(day.activities[1].startMinutesFromMidnight).toBeGreaterThan(
-      day.activities[0].endMinutesFromMidnight,
+    expect(day.experiences[1].travelFromPrevious).toBeDefined();
+    expect(day.experiences[1].startMinutesFromMidnight).toBeGreaterThan(
+      day.experiences[0].endMinutesFromMidnight,
     );
   });
 
@@ -137,12 +136,12 @@ describe('orderAndScheduleDay', () => {
       { ...context(), startDates: ['2026-09-07'] }, // a real Monday
     );
 
-    expect(day.activities.map((a) => a.activityId)).toEqual([
+    expect(day.experiences.map((a) => a.experienceId)).toEqual([
       'start',
       'far-open',
       'near-closed',
     ]);
-    const scheduledNearClosed = day.activities[2];
+    const scheduledNearClosed = day.experiences[2];
     expect(scheduledNearClosed.startMinutesFromMidnight).toBeGreaterThanOrEqual(
       11 * 60,
     );
@@ -161,7 +160,7 @@ describe('orderAndScheduleDay', () => {
       { ...context(), startDates: ['2026-09-07'] },
     );
 
-    expect(day.activities.map((a) => a.activityId)).toEqual([
+    expect(day.experiences.map((a) => a.experienceId)).toEqual([
       'start',
       'near',
       'far',
@@ -182,7 +181,7 @@ describe('orderAndScheduleDay', () => {
       context(), // no startDates — weekday unknown, hours cannot be evaluated
     );
 
-    expect(day.activities.map((a) => a.activityId)).toEqual([
+    expect(day.experiences.map((a) => a.experienceId)).toEqual([
       'start',
       'near-closed',
       'far-open',
@@ -195,6 +194,6 @@ describe('orderAndScheduleDay', () => {
       [candidate('a', 0, 0, 60), candidate('b', 0, 0.01, 90)],
       context(),
     );
-    expect(day.totalActivityMinutes).toBe(150);
+    expect(day.totalExperienceMinutes).toBe(150);
   });
 });

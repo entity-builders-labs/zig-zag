@@ -1380,7 +1380,7 @@ export function buildDailyPlanningStep(
     },
     candidateDecisions: [...selected, ...unselected],
     providerStatus: selectedCount === 0 ? 'failed' : undefined,
-    degradedReason: selectedCount === 0 ? 'no_activities_selected' : undefined,
+    degradedReason: selectedCount === 0 ? 'no_experiences_selected' : undefined,
     dailyPlanning: {
       solver: solution.metadata.solver,
       dayCount: solution.days.length,

@@ -75,7 +75,7 @@ function baseInput(
 
 function candidate(id: string, semanticScore = 0.5) {
   return {
-    activityId: id,
+    experienceId: id,
     kind: 'POI' as const,
     title: id,
     durationMinutes: 60,
@@ -111,7 +111,7 @@ describe('GreedyDailyPlanningSolver', () => {
       baseInput({ requestedDays: 3, candidates: [candidate('only-one')] }),
     );
     const totalScheduled = solution.days.reduce(
-      (sum, d) => sum + d.activities.length,
+      (sum, d) => sum + d.experiences.length,
       0,
     );
     expect(totalScheduled).toBe(1);
@@ -146,7 +146,7 @@ describe('GreedyDailyPlanningSolver', () => {
     expect(first).toEqual(second);
   });
 
-  it('never expands a duplicate activityId in the input into two planned instances', async () => {
+  it('never expands a duplicate experienceId in the input into two planned instances', async () => {
     const solver = new GreedyDailyPlanningSolver(
       realishTravelEstimateProvider(),
       policy,
@@ -156,10 +156,10 @@ describe('GreedyDailyPlanningSolver', () => {
       baseInput({ requestedDays: 1, candidates: [dup, { ...dup }] }),
     );
     const totalScheduled = solution.days.reduce(
-      (sum, d) => sum + d.activities.length,
+      (sum, d) => sum + d.experiences.length,
       0,
     );
     expect(totalScheduled).toBe(1);
-    expect(solution.unselected.some((u) => u.activityId === 'dup')).toBe(true);
+    expect(solution.unselected.some((u) => u.experienceId === 'dup')).toBe(true);
   });
 });

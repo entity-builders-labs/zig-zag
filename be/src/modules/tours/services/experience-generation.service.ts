@@ -271,8 +271,8 @@ export class ExperienceGenerationService {
    */
   private buildCandidatePoolTraceStep(
     selection: CandidateSelection,
-    discoveryResolvedActivityIds: Set<string>,
-    newlyCrawledActivityIds: Set<string>,
+    discoveryResolvedExperienceIds: Set<string>,
+    newlyAcquiredExperienceIds: Set<string>,
     crawlProvider: 'google' | 'geoapify' | undefined,
     request: TourGenerationRequest,
     initialCatalogCount: number,
@@ -283,9 +283,9 @@ export class ExperienceGenerationService {
       id: act.id,
       name: act.name,
       metadata: act.metadata,
-      traceSource: discoveryResolvedActivityIds.has(act.id)
+      traceSource: discoveryResolvedExperienceIds.has(act.id)
         ? ('discovery' as const)
-        : newlyCrawledActivityIds.has(act.id)
+        : newlyAcquiredExperienceIds.has(act.id)
           ? crawlProvider === 'google'
             ? ('google_places' as const)
             : ('geoapify' as const)
@@ -579,21 +579,21 @@ export class ExperienceGenerationService {
         );
       }
 
-      let availableActivitiesText = '';
-      const candidateActivityIds = new Set<string>();
-      const candidateActivitiesById = new Map<string, any>();
+      let availableExperiencesText = '';
+      const candidateExperienceIds = new Set<string>();
+      const candidateExperiencesById = new Map<string, any>();
       const offeredScoreBreakdownById = new Map<
         string,
         CandidateScoreBreakdown
       >();
-      const allEligibleActivitiesById = new Map<string, any>();
-      const discoveryResolvedActivityIds = new Set<string>();
+      const allEligibleExperiencesById = new Map<string, any>();
+      const discoveryResolvedExperienceIds = new Set<string>();
       let placesRefillError: PlacesCrawlError | null = null;
 
       const recordOfferedCandidates = (selection: CandidateSelection) => {
         selection.experiences.forEach((act: any) => {
-          candidateActivityIds.add(act.id);
-          candidateActivitiesById.set(act.id, act);
+          candidateExperienceIds.add(act.id);
+          candidateExperiencesById.set(act.id, act);
           const breakdown = selection.scoreBreakdownById.get(act.id);
           if (breakdown) offeredScoreBreakdownById.set(act.id, breakdown);
         });
@@ -728,7 +728,7 @@ export class ExperienceGenerationService {
         Number.isFinite(request.destination.longitude)
       ) {
         const radius = searchArea.radiusMeters;
-        const activityLimit = this.CATALOG_RETRIEVAL_POOL_LIMIT;
+        const experienceLimit = this.CATALOG_RETRIEVAL_POOL_LIMIT;
 
         await this.updateGenerationStatus(
           tourId,
@@ -737,29 +737,29 @@ export class ExperienceGenerationService {
         );
 
         try {
-          const nearbyActivities = await this.withTimeout(
+          const nearbyExperiences = await this.withTimeout(
             this.experienceCatalog.findVerifiedWithin(
               searchArea.latitude,
               searchArea.longitude,
               radius,
-              activityLimit,
+              experienceLimit,
             ),
             10000,
-            'Activity search timeout',
+            'Experience catalog search timeout',
           );
-          nearbyActivities.forEach((act: any) =>
-            allEligibleActivitiesById.set(act.id, act),
+          nearbyExperiences.forEach((act: any) =>
+            allEligibleExperiencesById.set(act.id, act),
           );
           const selection = await this.rankAndSliceExperiences(
-            nearbyActivities,
+            nearbyExperiences,
             request.intent,
           );
-          const nearbyActivitiesSample = selection.experiences;
+          const nearbyExperiencesSample = selection.experiences;
           semanticRankingOutcome = selection.semanticRanking;
           const initialCoverageReport = this.buildCoverageReport(
-            nearbyActivities,
+            nearbyExperiences,
             request,
-            nearbyActivitiesSample.length,
+            nearbyExperiencesSample.length,
             semanticRankingOutcome,
             { status: 'healthy' },
           );
@@ -769,31 +769,31 @@ export class ExperienceGenerationService {
             await this.updateGenerationStatus(
               tourId,
               'generating',
-              `${nearbyActivities.length} Experiences encontradas. Ordenando según tus preferencias...`,
+              `${nearbyExperiences.length} Experiences encontradas. Ordenando según tus preferencias...`,
             );
             recordOfferedCandidates(selection);
-            availableActivitiesText = `\n\nAvailable verified Experiences in the area (within ${radius / 1000}km):\n${nearbyActivitiesSample
+            availableExperiencesText = `\n\nAvailable verified Experiences in the area (within ${radius / 1000}km):\n${nearbyExperiencesSample
               .map((act: any) => formatExperienceForPrompt(act))
               .join('\n')}`;
             const dbSearchStep = buildDbSearchStep(
-              nearbyActivitiesSample,
+              nearbyExperiencesSample,
               radius / 1000,
             );
             traceSteps.push(dbSearchStep);
             const candidatePoolStep = this.buildCandidatePoolTraceStep(
               selection,
-              discoveryResolvedActivityIds,
+              discoveryResolvedExperienceIds,
               new Set(),
               undefined,
               request,
-              nearbyActivities.length,
-              nearbyActivities.length,
-              nearbyActivities.length,
+              nearbyExperiences.length,
+              nearbyExperiences.length,
+              nearbyExperiences.length,
             );
             traceSteps.push(candidatePoolStep);
           } else {
             const dbSearchStep = buildDbSearchStep(
-              nearbyActivities,
+              nearbyExperiences,
               radius / 1000,
             );
             traceSteps.push(dbSearchStep);
@@ -836,7 +836,7 @@ export class ExperienceGenerationService {
                         buildCatalogMaterializationStep(resolutionResult),
                       );
 
-                      const persistedDiscoveryActivityIds =
+                      const persistedDiscoveryExperienceIds =
                         resolutionResult.resolved
                           .filter(
                             (r) =>
@@ -852,7 +852,7 @@ export class ExperienceGenerationService {
                           include: { components: { include: { geoEntity: true } } },
                         });
                         experiences.forEach((experience: any) => {
-                          allEligibleActivitiesById.set(experience.id, {
+                          allEligibleExperiencesById.set(experience.id, {
                             id: experience.id,
                             name: experience.canonicalName,
                             latitude: experience.latitude ?? experience.components[0]?.geoEntity.latitude,
@@ -860,8 +860,8 @@ export class ExperienceGenerationService {
                             duration: (experience.durationMinutes ?? 120) / 60,
                             metadata: { source: 'experience_catalog', experienceId: experience.id },
                           });
-                          candidateActivitiesById.set(experience.id, allEligibleActivitiesById.get(experience.id));
-                          discoveryResolvedActivityIds.add(experience.id);
+                          candidateExperiencesById.set(experience.id, allEligibleExperiencesById.get(experience.id));
+                          discoveryResolvedExperienceIds.add(experience.id);
                         });
                       }
                     } catch (resolutionError) {
@@ -882,8 +882,8 @@ export class ExperienceGenerationService {
             const placesLabel = placesProviderLabel(placesStatus.provider);
 
             const poolStatus =
-              nearbyActivities.length > 0
-                ? `Se encontraron ${nearbyActivities.length} Experiences pero son insuficientes. Buscando más con ${placesLabel}...`
+              nearbyExperiences.length > 0
+                ? `Se encontraron ${nearbyExperiences.length} Experiences pero son insuficientes. Buscando más con ${placesLabel}...`
                 : `No se encontraron Experiences locales. Buscando con ${placesLabel}...`;
             await this.updateGenerationStatus(tourId, 'generating', poolStatus);
 
@@ -926,7 +926,7 @@ export class ExperienceGenerationService {
                   longitude: searchArea.longitude,
                   radius: Math.min(radius, 5000),
                   interests: request.intent.interests,
-                  maxResultCount: activityLimit,
+                  maxResultCount: experienceLimit,
                 });
                 crawlResult = {
                   experienceIds: acquired.experienceIds,
@@ -935,30 +935,30 @@ export class ExperienceGenerationService {
                 } as any;
               }
 
-              const refreshedActivities = await this.experienceCatalog.findVerifiedWithin(
+              const refreshedExperiences = await this.experienceCatalog.findVerifiedWithin(
                 searchArea.latitude,
                 searchArea.longitude,
                 radius,
-                activityLimit,
+                experienceLimit,
               );
-              refreshedActivities.forEach((act: any) =>
-                allEligibleActivitiesById.set(act.id, act),
+              refreshedExperiences.forEach((act: any) =>
+                allEligibleExperiencesById.set(act.id, act),
               );
-              if (refreshedActivities.length > 0) {
+              if (refreshedExperiences.length > 0) {
                 await this.updateGenerationStatus(
                   tourId,
                   'generating',
-                  `¡Catálogo actualizado con ${placesLabel}! Analizando ${refreshedActivities.length} Experiences...`,
+                  `¡Catálogo actualizado con ${placesLabel}! Analizando ${refreshedExperiences.length} Experiences...`,
                 );
 
-                const discoveryResolvedActivities = Array.from(
-                  allEligibleActivitiesById.values(),
-                ).filter((a: any) => discoveryResolvedActivityIds.has(a.id));
+                const discoveryResolvedExperiences = Array.from(
+                  allEligibleExperiencesById.values(),
+                ).filter((a: any) => discoveryResolvedExperienceIds.has(a.id));
                 const mergedPool = [
-                  ...refreshedActivities,
-                  ...discoveryResolvedActivities.filter(
+                  ...refreshedExperiences,
+                  ...discoveryResolvedExperiences.filter(
                     (a: any) =>
-                      !refreshedActivities.some((r: any) => r.id === a.id),
+                      !refreshedExperiences.some((r: any) => r.id === a.id),
                   ),
                 ];
 
@@ -966,12 +966,12 @@ export class ExperienceGenerationService {
                   mergedPool,
                   request.intent,
                 );
-        const refreshedActivitiesSample = selection.experiences;
+        const refreshedExperiencesSample = selection.experiences;
                 semanticRankingOutcome = selection.semanticRanking;
                 const refreshedCoverageReport = this.buildCoverageReport(
                   mergedPool,
                   request,
-                  refreshedActivitiesSample.length,
+                  refreshedExperiencesSample.length,
                   semanticRankingOutcome,
                   { status: 'healthy' },
                 );
@@ -987,12 +987,12 @@ export class ExperienceGenerationService {
                   );
                 }
                 recordOfferedCandidates(selection);
-                availableActivitiesText = `\n\nAvailable verified Experiences in the area (within ${radius / 1000}km):\n${refreshedActivitiesSample
+                availableExperiencesText = `\n\nAvailable verified Experiences in the area (within ${radius / 1000}km):\n${refreshedExperiencesSample
                   .map((act: any) => formatExperienceForPrompt(act))
                   .join('\n')}`;
                 const newExperienceIds = new Set(crawlResult.experienceIds);
                 const crawlStep = buildPlacesCrawlStep(
-                  refreshedActivitiesSample.filter((experience: any) =>
+                  refreshedExperiencesSample.filter((experience: any) =>
                     newExperienceIds.has(experience.id),
                   ),
                   crawlResult.provenance,
@@ -1001,13 +1001,13 @@ export class ExperienceGenerationService {
 
                 const candidatePoolStep = this.buildCandidatePoolTraceStep(
                   selection,
-                  discoveryResolvedActivityIds,
+                  discoveryResolvedExperienceIds,
                   newExperienceIds,
                   crawlResult.provenance.provider === 'google'
                     ? 'google'
                     : 'geoapify',
                   request,
-                  nearbyActivities.length,
+                  nearbyExperiences.length,
                   mergedPool.length,
                   mergedPool.length,
                 );
@@ -1016,43 +1016,43 @@ export class ExperienceGenerationService {
                 traceSteps.push(
                   buildPlacesCrawlStep([], crawlResult.provenance),
                 );
-                if (nearbyActivities.length > 0) {
+                if (nearbyExperiences.length > 0) {
                   const thinPoolMessage =
-                    nearbyActivities.length === 1
+                    nearbyExperiences.length === 1
                       ? '1 actividad local disponible.'
-                      : `${nearbyActivities.length} Experiences locales disponibles.`;
+                      : `${nearbyExperiences.length} Experiences locales disponibles.`;
                   await this.updateGenerationStatus(
                     tourId,
                     'generating',
                     thinPoolMessage,
                   );
-                  const discoveryResolvedActivities = Array.from(
-                    allEligibleActivitiesById.values(),
-                  ).filter((a: any) => discoveryResolvedActivityIds.has(a.id));
+                  const discoveryResolvedExperiences = Array.from(
+                    allEligibleExperiencesById.values(),
+                  ).filter((a: any) => discoveryResolvedExperienceIds.has(a.id));
                   const mergedPool = [
-                    ...nearbyActivities,
-                    ...discoveryResolvedActivities.filter(
+                    ...nearbyExperiences,
+                    ...discoveryResolvedExperiences.filter(
                       (a: any) =>
-                        !nearbyActivities.some((r: any) => r.id === a.id),
+                        !nearbyExperiences.some((r: any) => r.id === a.id),
                     ),
                   ];
                   const selection = await this.rankAndSliceExperiences(
                     mergedPool,
                     request.intent,
                   );
-                  const nearbyActivitiesSample = selection.experiences;
+                  const nearbyExperiencesSample = selection.experiences;
                   semanticRankingOutcome = selection.semanticRanking;
                   recordOfferedCandidates(selection);
-                  availableActivitiesText = `\n\nAvailable verified Experiences in the area (within ${radius / 1000}km):\n${nearbyActivitiesSample
+                  availableExperiencesText = `\n\nAvailable verified Experiences in the area (within ${radius / 1000}km):\n${nearbyExperiencesSample
                     .map((act: any) => formatExperienceForPrompt(act))
                     .join('\n')}`;
                   const candidatePoolStep = this.buildCandidatePoolTraceStep(
                     selection,
-                    discoveryResolvedActivityIds,
+                    discoveryResolvedExperienceIds,
                     new Set(),
                     undefined,
                     request,
-                    nearbyActivities.length,
+                    nearbyExperiences.length,
                     mergedPool.length,
                     mergedPool.length,
                   );
@@ -1089,9 +1089,9 @@ export class ExperienceGenerationService {
                     };
               traceSteps.push(buildPlacesCrawlStep([], failedProvenance, true));
               const degradedCoverageReport = this.buildCoverageReport(
-                nearbyActivities,
+                nearbyExperiences,
                 request,
-                nearbyActivitiesSample.length,
+                nearbyExperiencesSample.length,
                 semanticRankingOutcome,
                 {
                   status: 'degraded',
@@ -1101,39 +1101,39 @@ export class ExperienceGenerationService {
               traceSteps.push(
                 buildCoverageAnalysisStep(degradedCoverageReport),
               );
-              if (nearbyActivities.length > 0) {
+              if (nearbyExperiences.length > 0) {
                 await this.updateGenerationStatus(
                   tourId,
                   'generating',
-                  `${placesLabel} indisponible. Usando ${nearbyActivities.length} Experiences locales encontradas.`,
+                  `${placesLabel} indisponible. Usando ${nearbyExperiences.length} Experiences locales encontradas.`,
                 );
-                const discoveryResolvedActivities = Array.from(
-                  allEligibleActivitiesById.values(),
-                ).filter((a: any) => discoveryResolvedActivityIds.has(a.id));
+                const discoveryResolvedExperiences = Array.from(
+                  allEligibleExperiencesById.values(),
+                ).filter((a: any) => discoveryResolvedExperienceIds.has(a.id));
                 const mergedPool = [
-                  ...nearbyActivities,
-                  ...discoveryResolvedActivities.filter(
+                  ...nearbyExperiences,
+                  ...discoveryResolvedExperiences.filter(
                     (a: any) =>
-                      !nearbyActivities.some((r: any) => r.id === a.id),
+                      !nearbyExperiences.some((r: any) => r.id === a.id),
                   ),
                 ];
                 const selection = await this.rankAndSliceExperiences(
                   mergedPool,
                   request.intent,
                 );
-                const nearbyActivitiesSample = selection.experiences;
+                const nearbyExperiencesSample = selection.experiences;
                 semanticRankingOutcome = selection.semanticRanking;
                 recordOfferedCandidates(selection);
-                availableActivitiesText = `\n\nAvailable verified Experiences in the area (within ${radius / 1000}km):\n${nearbyActivitiesSample
+                availableExperiencesText = `\n\nAvailable verified Experiences in the area (within ${radius / 1000}km):\n${nearbyExperiencesSample
                   .map((act: any) => formatExperienceForPrompt(act))
                   .join('\n')}`;
                 const candidatePoolStep = this.buildCandidatePoolTraceStep(
                   selection,
-                  discoveryResolvedActivityIds,
+                  discoveryResolvedExperienceIds,
                   new Set(),
                   undefined,
                   request,
-                  nearbyActivities.length,
+                  nearbyExperiences.length,
                   mergedPool.length,
                   mergedPool.length,
                 );
@@ -1149,7 +1149,7 @@ export class ExperienceGenerationService {
           }
         } catch (error) {
           this.logger.warn(
-            `Activity search failed or timed out: ${error.message}`,
+            `Experience catalog search failed or timed out: ${error.message}`,
           );
           await this.updateGenerationStatus(
             tourId,
@@ -1158,13 +1158,13 @@ export class ExperienceGenerationService {
           );
         }
 
-        const offeredIds = Array.from(candidateActivityIds);
+        const offeredIds = Array.from(candidateExperienceIds);
         traceSteps.push(
           buildEmbeddingsStep(semanticRankingOutcome, offeredIds.length),
         );
       }
 
-      if (!availableActivitiesText) {
+      if (!availableExperiencesText) {
         if (placesRefillError?.code === 'quota_exhausted') {
           throw new Error(
             'Google Places alcanzó su cuota diaria y no pudo buscar lugares reales para este destino. Volvé a intentar cuando se renueve la cuota del proveedor.',
@@ -1190,11 +1190,11 @@ export class ExperienceGenerationService {
         );
       }
 
-      if (allEligibleActivitiesById.size > 0) {
+      if (allEligibleExperiencesById.size > 0) {
         let finalCoverageReport = this.buildCoverageReport(
-          Array.from(allEligibleActivitiesById.values()),
+          Array.from(allEligibleExperiencesById.values()),
           request,
-          candidateActivityIds.size,
+          candidateExperienceIds.size,
           semanticRankingOutcome,
           placesRefillError
             ? { status: 'degraded', reason: placesRefillError.code }
@@ -1236,7 +1236,7 @@ export class ExperienceGenerationService {
                 buildCatalogMaterializationStep(resolutionResult),
               );
 
-              const persistedDiscoveryActivityIds = resolutionResult.resolved
+              const persistedDiscoveryExperienceIds = resolutionResult.resolved
                 .filter((r) => r.status === 'accepted' && r.experienceId)
                 .map((r) => r.experienceId as string);
               const persistedExperienceIds = resolutionResult.resolved
@@ -1256,19 +1256,19 @@ export class ExperienceGenerationService {
                     duration: (experience.durationMinutes ?? 120) / 60,
                     metadata: { source: 'experience_catalog', experienceId: experience.id },
                   };
-                  allEligibleActivitiesById.set(experience.id, candidate);
-                  candidateActivitiesById.set(experience.id, candidate);
-                  discoveryResolvedActivityIds.add(experience.id);
+                  allEligibleExperiencesById.set(experience.id, candidate);
+                  candidateExperiencesById.set(experience.id, candidate);
+                  discoveryResolvedExperienceIds.add(experience.id);
                 });
               }
-              if (persistedDiscoveryActivityIds.length > 0) {
+              if (persistedDiscoveryExperienceIds.length > 0) {
                 const reconciledSelection = await this.rankAndSliceExperiences(
-                  Array.from(allEligibleActivitiesById.values()),
+                  Array.from(allEligibleExperiencesById.values()),
                   request.intent,
                 );
                 semanticRankingOutcome = reconciledSelection.semanticRanking;
                 recordOfferedCandidates(reconciledSelection);
-                  availableActivitiesText = `\n\nAvailable verified Experiences in the area:\n${reconciledSelection.experiences
+                  availableExperiencesText = `\n\nAvailable verified Experiences in the area:\n${reconciledSelection.experiences
                   .map((act: any) => formatExperienceForPrompt(act))
                   .join('\n')}`;
               }
@@ -1280,9 +1280,9 @@ export class ExperienceGenerationService {
           }
 
           finalCoverageReport = this.buildCoverageReport(
-            Array.from(allEligibleActivitiesById.values()),
+            Array.from(allEligibleExperiencesById.values()),
             request,
-            candidateActivityIds.size,
+            candidateExperienceIds.size,
             semanticRankingOutcome,
             placesRefillError
               ? { status: 'degraded', reason: placesRefillError.code }
@@ -1326,7 +1326,7 @@ export class ExperienceGenerationService {
 
       const planningCandidates =
         await this.planningCandidateNormalizer.normalizeExperiences(
-          Array.from(candidateActivitiesById.values()),
+          Array.from(candidateExperiencesById.values()),
           offeredScoreBreakdownById,
         );
 
@@ -1355,11 +1355,11 @@ export class ExperienceGenerationService {
         );
       }
 
-      const plannedActivityCount = planningSolution.days.reduce(
+      const plannedExperienceCount = planningSolution.days.reduce(
         (total, day) => total + day.experiences.length,
         0,
       );
-      if (plannedActivityCount === 0) {
+      if (plannedExperienceCount === 0) {
         throw new Error(
           'No se encontraron lugares reales para esta ubicación. Probá con otro destino o un radio de búsqueda más amplio.',
         );
@@ -1396,7 +1396,7 @@ export class ExperienceGenerationService {
       const infeasiblyUnselected = planningSolution.unselected.filter((u) =>
         u.reasons.some((r) => physicallyInfeasibleReasons.has(r)),
       );
-      const infeasibleActivityIds = new Set(
+      const infeasibleExperienceIds = new Set(
         infeasiblyUnselected.map((u) => u.experienceId),
       );
       const viableUnusedCandidateCount =
@@ -1409,7 +1409,7 @@ export class ExperienceGenerationService {
         selectedExperiences: planningSolution.days.flatMap((day) =>
         day.experiences.map((activity) => {
           const experienceId = activity.experienceId;
-            const candidate = candidateActivitiesById.get(experienceId);
+            const candidate = candidateExperiencesById.get(experienceId);
             return {
               experienceId,
               dayNumber: day.dayNumber,
@@ -1432,18 +1432,18 @@ export class ExperienceGenerationService {
         buildTourCompletenessStep(completeness, correctiveRetryAttempted),
       );
 
-      const activities = planningSolution.days.flatMap((day) =>
+      const selectedExperiences = planningSolution.days.flatMap((day) =>
         day.experiences.map((planned, index) => {
           const experienceId = planned.experienceId;
-          const candidate = candidateActivitiesById.get(experienceId);
+          const candidate = candidateExperiencesById.get(experienceId);
           const nextInDay = day.experiences[index + 1];
           return {
             experienceId,
-            activityName: candidate?.name ?? 'Activity',
-            activityType: 'experience',
-            activityLatitude: candidate?.latitude,
-            activityLongitude: candidate?.longitude,
-            activityData: undefined as any,
+            experienceName: candidate?.name ?? 'Activity',
+            experienceType: 'experience',
+            experienceLatitude: candidate?.latitude,
+            experienceLongitude: candidate?.longitude,
+            experienceData: undefined as any,
             duration:
               (planned.endMinutesFromMidnight -
                 planned.startMinutesFromMidnight) /
@@ -1464,7 +1464,7 @@ export class ExperienceGenerationService {
         }),
       );
 
-      const experienceIds = activities
+      const experienceIds = selectedExperiences
         .map((a) => a.experienceId)
         .filter((id): id is string => !!id);
       let experienceEntities: Array<any> = [];
@@ -1487,20 +1487,20 @@ export class ExperienceGenerationService {
       await this.prisma.$transaction(async (tx) => {
         await tx.tourExperience.deleteMany({ where: { tourId } });
 
-        for (const activity of activities as any[]) {
+        for (const selected of selectedExperiences as any[]) {
           const experience = experienceEntities.find(
-            (candidate) => candidate.id === activity.experienceId,
+            (candidate) => candidate.id === selected.experienceId,
           );
           if (experience) {
             const snapshot = await tx.tourExperience.create({
               data: {
                 tourId,
                 experienceId: experience.id,
-                dayNumber: activity.dayNumber,
-                order: activity.order,
-                startTime: activity.startTime,
-                duration: activity.duration,
-                notes: activity.notes,
+                dayNumber: selected.dayNumber,
+                order: selected.order,
+                startTime: selected.startTime,
+                duration: selected.duration,
+                notes: selected.notes,
                 components: {
                   create: experience.components.map((component: any, index: number) => ({
                     geoEntityId: component.geoEntityId,
@@ -1518,7 +1518,7 @@ export class ExperienceGenerationService {
             continue;
           }
           this.logger.warn(
-            `Skipping unmaterialized planner item ${activity.experienceId}: V2 only persists verified Experiences.`,
+            `Skipping unmaterialized planner item ${selected.experienceId}: V2 only persists verified Experiences.`,
           );
 
         }
@@ -1559,7 +1559,7 @@ export class ExperienceGenerationService {
       });
 
       this.logger.log(
-        `Experiences generated successfully for tour ${tourId} (${activities.length} experiences)`,
+        `Experiences generated successfully for tour ${tourId} (${selectedExperiences.length} experiences)`,
       );
 
       if (!request.skipImageGeneration) {
@@ -1577,7 +1577,7 @@ export class ExperienceGenerationService {
         }
       }
 
-      const completedMessage = `¡Listo! ${activities.length} experiencias generadas exitosamente.`;
+      const completedMessage = `¡Listo! ${selectedExperiences.length} experiencias generadas exitosamente.`;
       const traceStepList = (generationTrace as any).steps ?? [];
       const executionSummary = {
         status: 'completed' as const,
@@ -1586,13 +1586,13 @@ export class ExperienceGenerationService {
           .map((step: any, index: number) => `${index + 1}. ${step.summary}`)
           .filter(Boolean)
           .join('\n'),
-        acceptedExperiences: Math.max(activities.length, traceStepList
+        acceptedExperiences: Math.max(selectedExperiences.length, traceStepList
           .filter((step: any) => step.stage === 'entity_resolution')
           .reduce((sum: number, step: any) => sum + Number((step.resolution as any)?.acceptedCount ?? 0), 0)),
         rejectedProposals: traceStepList
           .filter((step: any) => step.stage === 'entity_resolution')
           .reduce((sum: number, step: any) => sum + Number((step.resolution as any)?.rejectedCount ?? 0), 0),
-        selectedExperiences: activities.length,
+        selectedExperiences: selectedExperiences.length,
       };
       const completedTour = await this.toursService.findOne(tourId);
       const effectiveMetadata =
@@ -1618,7 +1618,7 @@ export class ExperienceGenerationService {
               tourId,
               userId: tour.ownerId || undefined,
               status: 'COMPLETED',
-              totalActivities: activities.length,
+              totalActivities: selectedExperiences.length,
               message: completedMessage,
             },
           });
@@ -1686,12 +1686,12 @@ export class ExperienceGenerationService {
       }
 
       this.logger.error(
-        `Failed to generate activities for tour ${tourId}: ${error.message}`,
+        `Failed to generate experiences for tour ${tourId}: ${error.message}`,
         error.stack,
       );
 
       throw new BadRequestException(
-        `Failed to generate activities: ${error.message}`,
+        `Failed to generate experiences: ${error.message}`,
       );
     }
   }

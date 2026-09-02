@@ -16,8 +16,7 @@ function baseInput(
     requestedDays: 1,
     candidates: [
       {
-        activityId: 'a',
-        kind: 'POI',
+        experienceId: 'a',
         title: 'a',
         durationMinutes: 60,
         spatialFootprint: { type: 'POINT', centroid: { lat: 0, lng: 0 } },
@@ -46,14 +45,14 @@ function validSolution(): DailyPlanningSolution {
     days: [
       {
         dayNumber: 1,
-        activities: [
+        experiences: [
           {
-            activityId: 'a',
+            experienceId: 'a',
             startMinutesFromMidnight: 540,
             endMinutesFromMidnight: 600,
           },
         ],
-        totalActivityMinutes: 60,
+        totalExperienceMinutes: 60,
         totalTravelMinutes: 0,
         totalWalkingMinutes: 0,
         utilizationMinutes: 60,
@@ -88,14 +87,14 @@ describe('TourPlanningFeasibilityValidatorService', () => {
     const solution = validSolution();
     solution.days.push({
       dayNumber: 2,
-      activities: [
+      experiences: [
         {
-          activityId: 'a',
+          experienceId: 'a',
           startMinutesFromMidnight: 540,
           endMinutesFromMidnight: 600,
         },
       ],
-      totalActivityMinutes: 60,
+      totalExperienceMinutes: 60,
       totalTravelMinutes: 0,
       totalWalkingMinutes: 0,
       utilizationMinutes: 60,
@@ -111,8 +110,8 @@ describe('TourPlanningFeasibilityValidatorService', () => {
 
   it('rejects an activity scheduled out of chronological order', () => {
     const solution = validSolution();
-    solution.days[0].activities.push({
-      activityId: 'a2',
+    solution.days[0].experiences.push({
+      experienceId: 'a2',
       startMinutesFromMidnight: 500,
       endMinutesFromMidnight: 560,
     });
@@ -120,8 +119,7 @@ describe('TourPlanningFeasibilityValidatorService', () => {
       candidates: [
         ...baseInput().candidates,
         {
-          activityId: 'a2',
-          kind: 'POI',
+          experienceId: 'a2',
           title: 'a2',
           durationMinutes: 60,
           spatialFootprint: { type: 'POINT', centroid: { lat: 0, lng: 0 } },
@@ -139,7 +137,7 @@ describe('TourPlanningFeasibilityValidatorService', () => {
 
   it('rejects an activity that runs past the planning window', () => {
     const solution = validSolution();
-    solution.days[0].activities[0].endMinutesFromMidnight = 1300;
+    solution.days[0].experiences[0].endMinutesFromMidnight = 1300;
     const result = validator.validate(solution, baseInput());
     expect(
       result.issues.some(
@@ -159,7 +157,7 @@ describe('TourPlanningFeasibilityValidatorService', () => {
 
   it('rejects an activity that is not part of the offered candidate pool', () => {
     const solution = validSolution();
-    solution.days[0].activities[0].activityId = 'ghost';
+    solution.days[0].experiences[0].experienceId = 'ghost';
     const result = validator.validate(solution, baseInput());
     expect(
       result.issues.some((issue) => issue.code === 'UNKNOWN_ACTIVITY'),
@@ -168,8 +166,8 @@ describe('TourPlanningFeasibilityValidatorService', () => {
 
   it('rejects a travel leg using a disallowed transportation mode', () => {
     const solution = validSolution();
-    solution.days[0].activities.push({
-      activityId: 'a2',
+    solution.days[0].experiences.push({
+      experienceId: 'a2',
       startMinutesFromMidnight: 610,
       endMinutesFromMidnight: 670,
       travelFromPrevious: {
@@ -185,8 +183,7 @@ describe('TourPlanningFeasibilityValidatorService', () => {
       candidates: [
         ...baseInput().candidates,
         {
-          activityId: 'a2',
-          kind: 'POI',
+          experienceId: 'a2',
           title: 'a2',
           durationMinutes: 60,
           spatialFootprint: { type: 'POINT', centroid: { lat: 0, lng: 0 } },
@@ -202,8 +199,8 @@ describe('TourPlanningFeasibilityValidatorService', () => {
 
   it('rejects a single leg that exceeds the max continuous walking distance', () => {
     const solution = validSolution();
-    solution.days[0].activities.push({
-      activityId: 'a2',
+    solution.days[0].experiences.push({
+      experienceId: 'a2',
       startMinutesFromMidnight: 610,
       endMinutesFromMidnight: 670,
       travelFromPrevious: {
@@ -219,8 +216,7 @@ describe('TourPlanningFeasibilityValidatorService', () => {
       candidates: [
         ...baseInput().candidates,
         {
-          activityId: 'a2',
-          kind: 'POI',
+          experienceId: 'a2',
           title: 'a2',
           durationMinutes: 60,
           spatialFootprint: { type: 'POINT', centroid: { lat: 0, lng: 0 } },
@@ -240,8 +236,7 @@ describe('TourPlanningFeasibilityValidatorService', () => {
     const input = baseInput({
       candidates: [
         {
-          activityId: 'a',
-          kind: 'POI',
+          experienceId: 'a',
           title: 'a',
           durationMinutes: 60,
           spatialFootprint: { type: 'POINT', centroid: { lat: 0, lng: 0 } },

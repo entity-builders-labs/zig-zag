@@ -12,8 +12,6 @@ import {
   buildTourCompletenessStep,
   buildTourIntentStep,
 } from './generation-trace-builder.util';
-import { ActivityKind } from '@prisma/client';
-import { ExperienceFormat } from '../interfaces/tour-generation.interface';
 import { DailyPlanningSolution } from '../interfaces/daily-planning.interface';
 
 describe('buildTourIntentStep', () => {
@@ -44,7 +42,7 @@ describe('buildTourIntentStep', () => {
       },
       dietaryRestrictions: [],
       startDates: [],
-      includeExistingActivities: true,
+      includeExistingExperiences: true,
       skipImageGeneration: true,
       excludeTours: [],
       categories: [],
@@ -106,21 +104,21 @@ describe('buildDailyPlanningStep', () => {
       days: [
         {
           dayNumber: 1,
-          activities: [
+          experiences: [
             {
-              activityId: 'a',
+              experienceId: 'a',
               startMinutesFromMidnight: 540,
               endMinutesFromMidnight: 600,
             },
           ],
-          totalActivityMinutes: 60,
+          totalExperienceMinutes: 60,
           totalTravelMinutes: 5,
           totalWalkingMinutes: 5,
           utilizationMinutes: 65,
         },
       ],
       unselected: [
-        { activityId: 'b', reasons: ['DAILY_TIME_CAPACITY_EXCEEDED'] },
+        { experienceId: 'b', reasons: ['DAILY_TIME_CAPACITY_EXCEEDED'] },
       ],
       score: 1,
       metadata: {
@@ -148,8 +146,8 @@ describe('buildDailyPlanningStep', () => {
       days: [
         {
           dayNumber: 1,
-          activityCount: 1,
-          totalActivityMinutes: 60,
+        experienceCount: 1,
+          totalExperienceMinutes: 60,
           totalTravelMinutes: 5,
           totalWalkingMinutes: 5,
           utilizationMinutes: 65,
@@ -158,21 +156,21 @@ describe('buildDailyPlanningStep', () => {
     });
   });
 
-  it('flags a degraded outcome when no activities were selected across any day', () => {
+  it('flags a degraded outcome when no experiences were selected across any day', () => {
     const solution: DailyPlanningSolution = {
       days: [
         {
           dayNumber: 1,
-          activities: [],
-          totalActivityMinutes: 0,
+          experiences: [],
+          totalExperienceMinutes: 0,
           totalTravelMinutes: 0,
           totalWalkingMinutes: 0,
           utilizationMinutes: 0,
         },
       ],
       unselected: [
-        { activityId: 'a', reasons: ['DAILY_TIME_CAPACITY_EXCEEDED'] },
-        { activityId: 'b', reasons: ['OPENING_HOURS_INCOMPATIBLE'] },
+        { experienceId: 'a', reasons: ['DAILY_TIME_CAPACITY_EXCEEDED'] },
+        { experienceId: 'b', reasons: ['OPENING_HOURS_INCOMPATIBLE'] },
       ],
       score: 0,
       metadata: {
@@ -184,7 +182,7 @@ describe('buildDailyPlanningStep', () => {
     const step = buildDailyPlanningStep(solution);
 
     expect(step.providerStatus).toBe('failed');
-    expect(step.degradedReason).toBe('no_activities_selected');
+    expect(step.degradedReason).toBe('no_experiences_selected');
     expect(step.dailyPlanning?.iterations).toBeUndefined();
   });
 });
@@ -307,7 +305,7 @@ describe('buildGeographicValidationStep', () => {
 });
 
 describe('buildCatalogMaterializationStep', () => {
-  it('reports materialized activities persisted in catalog', () => {
+  it('reports materialized experiences persisted in catalog', () => {
     const step = buildCatalogMaterializationStep({
       resolved: [
         {
@@ -631,7 +629,6 @@ describe('buildCoverageAnalysisStep', () => {
       usableCandidateCount: 4,
       requiredCandidateCount: 8,
       requestedThemeCoverage: [],
-      kindCoverage: [],
       sourceCoverage: [],
       geographicCoverage: {
         distinctClusterCount: 1,
@@ -745,7 +742,7 @@ describe('destination trace step', () => {
 describe('buildLlmGenerationStep', () => {
   it('labels model reasoning as unverified rather than deterministic evidence', () => {
     const step = buildLlmGenerationStep(
-      'All activities fit public-transport zones and opening hours.',
+      'All experiences fit public-transport zones and opening hours.',
     );
 
     expect(step.label).toContain('no verificada');
@@ -775,38 +772,24 @@ describe('buildCandidatePoolStep', () => {
       offeredCandidates: [
         {
           id: 'poi-catalog',
-          name: 'Museo Histórico',
-          kind: ActivityKind.POI,
-          type: 'museum',
+          name: 'History Museum',
           traceSource: 'db',
           scoreBreakdown: breakdown(),
         },
         {
           id: 'poi-refill',
           name: 'Plaza Central',
-          kind: ActivityKind.POI,
-          type: 'plaza',
           traceSource: 'google_places',
           scoreBreakdown: breakdown(),
         },
         {
           id: 'walk-discovery',
           name: 'San Telmo Historic Walk',
-          kind: ActivityKind.NEIGHBORHOOD_WALK,
-          type: 'walk',
           traceSource: 'discovery',
           scoreBreakdown: breakdown(),
         },
       ],
       requestedThemes: ['history'],
-      formatAvailability: [
-        {
-          format: ExperienceFormat.NEIGHBORHOOD_WALKS,
-          fullPoolCount: 1,
-          llmWindowCount: 1,
-        },
-      ],
-      droppedForFamilyCapCount: 0,
     });
 
     expect(step.stage).toBe('candidate_pool');
@@ -814,10 +797,6 @@ describe('buildCandidatePoolStep', () => {
       catalog: 1,
       refill: 1,
       discovery: 1,
-    });
-    expect(step.candidatePool?.byKind).toEqual({
-      [ActivityKind.POI]: 2,
-      [ActivityKind.NEIGHBORHOOD_WALK]: 1,
     });
     expect(step.candidatePool?.llmWindowCount).toBe(3);
 
@@ -827,12 +806,10 @@ describe('buildCandidatePoolStep', () => {
     ]);
     expect(byId.get('poi-refill')?.coverageContribution?.themes).toEqual([]);
     expect(byId.get('walk-discovery')?.source).toBe('discovery');
-    expect(
-      byId.get('walk-discovery')?.coverageContribution?.experienceFormat,
-    ).toBe(ExperienceFormat.NEIGHBORHOOD_WALKS);
+    expect(byId.get('walk-discovery')?.coverageContribution?.themes).toEqual(['history']);
   });
 
-  it('surfaces a dropped-for-family-cap count in the summary when variants were capped', () => {
+  it('surfaces the Experience-native source counts in the summary', () => {
     const step = buildCandidatePoolStep({
       initialCatalogCount: 5,
       postAcquisitionCatalogCount: 5,
@@ -841,17 +818,14 @@ describe('buildCandidatePoolStep', () => {
         {
           id: 'poi-1',
           name: 'Museo',
-          kind: ActivityKind.POI,
           traceSource: 'db',
           scoreBreakdown: breakdown(),
         },
       ],
       requestedThemes: [],
-      formatAvailability: [],
-      droppedForFamilyCapCount: 2,
     });
 
-    expect(step.summary).toContain('2 variante(s) adicional(es)');
-    expect(step.candidatePool?.droppedForFamilyCapCount).toBe(2);
+    expect(step.summary).toContain('1 candidato(s) reales');
+    expect(step.candidatePool?.bySource).toEqual({ catalog: 1, refill: 0, discovery: 0 });
   });
 });
