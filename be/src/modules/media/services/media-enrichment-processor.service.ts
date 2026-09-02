@@ -1,5 +1,5 @@
 import { Injectable, Inject, Logger, OnModuleInit } from '@nestjs/common';
-import { Prisma, MediaStatus } from '@prisma/client';
+import { MediaStatus } from '@prisma/client';
 import { PrismaService } from '../../../core/database/prisma.service';
 import {
   IMessageQueueService,
@@ -7,6 +7,7 @@ import {
 } from '../../queue/interfaces/message-queue.interface';
 import { OutboxService } from '../../outbox/services/outbox.service';
 import {
+  DocumentaryPhoto,
   ExperienceMediaEnrichmentPayload,
   ExperienceMediaUpdatedPayload,
   MediaLookupResult,
@@ -51,8 +52,8 @@ export class MediaEnrichmentProcessorService implements OnModuleInit {
     });
 
     if (lookup.outcome === 'RETRYABLE_FAILURE') {
-      // Let the durable outbox retry this request. Do not write FAILED and do
-      // not emit ExperienceMediaUpdated for a transient upstream incident.
+      // Let the durable outbox retry this request. Do not write FAILED, do not
+      // write a negative cache here, and do not emit ExperienceMediaUpdated.
       throw new Error(`Retryable media lookup failure: ${lookup.error}`);
     }
 
@@ -64,6 +65,34 @@ export class MediaEnrichmentProcessorService implements OnModuleInit {
     const photos = lookup.outcome === 'FOUND' ? lookup.photos : [];
     await this.prisma.$transaction(async (tx) => {
       const mediaUpdatedAt = new Date();
+
+      // URL-only persistence. No binary/image body is downloaded or stored.
+      // Upsert on (experienceId,url) makes replay safe while still allowing
+      // provider metadata to become richer on later successful lookups.
+      for (const [position, photo] of photos.entries()) {
+        await tx.experienceMedia.upsert({
+          where: {
+            experienceId_url: {
+              experienceId,
+              url: photo.url,
+            },
+          },
+          create: this.mediaRow(experienceId, photo, position),
+          update: {
+            provider: photo.provider,
+            width: photo.width,
+            height: photo.height,
+            caption: photo.caption,
+            author: photo.author,
+            authorUrl: photo.authorUrl,
+            license: photo.license,
+            licenseUrl: photo.licenseUrl,
+            sourceUrl: photo.sourceUrl,
+            position,
+          },
+        });
+      }
+
       await tx.experience.update({
         where: { id: experienceId },
         data: {
@@ -89,9 +118,30 @@ export class MediaEnrichmentProcessorService implements OnModuleInit {
 
     this.logger.log(
       lookup.outcome === 'FOUND'
-        ? `[MediaEnrichmentProcessor] Enriched experience "${name}" with ${photos.length} authentic photo(s).`
+        ? `[MediaEnrichmentProcessor] Enriched experience "${name}" with ${photos.length} persisted documentary photo URL(s).`
         : `[MediaEnrichmentProcessor] Wikimedia authoritatively returned no documentary photo for "${name}".`,
     );
+  }
+
+  private mediaRow(
+    experienceId: string,
+    photo: DocumentaryPhoto,
+    position: number,
+  ) {
+    return {
+      experienceId,
+      provider: photo.provider,
+      url: photo.url,
+      width: photo.width,
+      height: photo.height,
+      caption: photo.caption,
+      author: photo.author,
+      authorUrl: photo.authorUrl,
+      license: photo.license,
+      licenseUrl: photo.licenseUrl,
+      sourceUrl: photo.sourceUrl,
+      position,
+    };
   }
 
   private async persistPermanentFailure(
