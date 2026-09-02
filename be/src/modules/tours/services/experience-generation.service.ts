@@ -1407,15 +1407,15 @@ export class ExperienceGenerationService {
         travelPace: request.mobility.travelPace,
         isFoodFocusedIntent,
         selectedExperiences: planningSolution.days.flatMap((day) =>
-        day.experiences.map((activity) => {
-          const experienceId = activity.experienceId;
+        day.experiences.map((experience) => {
+          const experienceId = experience.experienceId;
             const candidate = candidateExperiencesById.get(experienceId);
             return {
               experienceId,
               dayNumber: day.dayNumber,
               durationHours:
-                (activity.endMinutesFromMidnight -
-                  activity.startMinutesFromMidnight) /
+                (experience.endMinutesFromMidnight -
+                  experience.startMinutesFromMidnight) /
                 60,
               isMeal: Array.isArray(candidate?.traits) && candidate.traits.some((trait: string) => trait.toLowerCase() === 'food'),
             };

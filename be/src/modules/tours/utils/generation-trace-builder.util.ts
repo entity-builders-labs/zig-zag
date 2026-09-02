@@ -1296,9 +1296,9 @@ export function buildDailyPlanningStep(
     ? ' Las estimaciones de traslado usadas son aproximadas.'
     : ' Las estimaciones de traslado usadas son reales.';
   const selected = solution.days.flatMap((day) =>
-    day.experiences.map((activity, order) => ({
-      id: activity.experienceId,
-      name: activity.experienceId,
+    day.experiences.map((experience, order) => ({
+      id: experience.experienceId,
+      name: experience.experienceId,
       status: 'SELECTED' as const,
       reason: `Asignada al día ${day.dayNumber} en posición ${order + 1}; pasó la factibilidad del solver.`,
       reasonCodes: ['FEASIBLE_AND_SELECTED'],

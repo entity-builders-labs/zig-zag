@@ -35,7 +35,7 @@ export class TourCompletenessValidator {
       for (const experience of dayExperiences) {
         // A meal stop that isn't the trip's focus is capped so it can't,
         // on its own, make an otherwise thin day look complete, and never
-        // counts toward the "substantial activity" count either.
+        // counts toward the "substantial experience" count either.
         const isComplementaryMeal =
           experience.isMeal && !input.isFoodFocusedIntent;
         meaningfulHours += isComplementaryMeal
