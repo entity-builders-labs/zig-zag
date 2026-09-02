@@ -6,6 +6,7 @@ import {
   DailyPlanningSolution,
   DailyPlanningSolver,
   PlannedDay,
+  PlanningExperienceCandidate,
   TRAVEL_ESTIMATE_PROVIDER,
   TravelEstimateProvider,
 } from '../interfaces/daily-planning.interface';
@@ -27,7 +28,15 @@ export class GreedyDailyPlanningSolver implements DailyPlanningSolver {
   ) {}
 
   async solve(input: DailyPlanningInput): Promise<DailyPlanningSolution> {
-    const sorted = sortCandidatesDeterministically(input.candidates);
+    const routedCandidates = await Promise.all(
+      input.candidates.map((candidate) =>
+        this.withInternalRouting(
+          candidate,
+          input.mobility.allowedTransportationModes,
+        ),
+      ),
+    );
+    const sorted = sortCandidatesDeterministically(routedCandidates);
     const context: PlacementContext = {
       policy: this.policy,
       mobility: input.mobility,
@@ -64,7 +73,7 @@ export class GreedyDailyPlanningSolver implements DailyPlanningSolver {
         .map((experience) => experience.travelFromPrevious)
         .filter((estimate): estimate is NonNullable<typeof estimate> => !!estimate),
     );
-    const internalEstimateCount = input.candidates.reduce(
+    const internalEstimateCount = routedCandidates.reduce(
       (sum, candidate) =>
         sum +
         Object.values(candidate.mobility?.routingProviderCounts ?? {}).reduce(
@@ -73,7 +82,7 @@ export class GreedyDailyPlanningSolver implements DailyPlanningSolver {
         ),
       0,
     );
-    const internalFallbackCount = input.candidates.reduce(
+    const internalFallbackCount = routedCandidates.reduce(
       (sum, candidate) => sum + (candidate.mobility?.routingFallbackCount ?? 0),
       0,
     );
@@ -82,7 +91,7 @@ export class GreedyDailyPlanningSolver implements DailyPlanningSolver {
       const provider = estimate.provider ?? 'unknown';
       providerCounts[provider] = (providerCounts[provider] ?? 0) + 1;
     }
-    for (const candidate of input.candidates) {
+    for (const candidate of routedCandidates) {
       for (const [provider, count] of Object.entries(
         candidate.mobility?.routingProviderCounts ?? {},
       )) {
@@ -125,6 +134,53 @@ export class GreedyDailyPlanningSolver implements DailyPlanningSolver {
           travelPace: input.travelPace,
           startDates: [...input.startDates],
         },
+      },
+    };
+  }
+
+  private async withInternalRouting(
+    candidate: PlanningExperienceCandidate,
+    allowedModes: DailyPlanningInput['mobility']['allowedTransportationModes'],
+  ): Promise<PlanningExperienceCandidate> {
+    if (
+      candidate.mobility?.internalTravelMinutes !== undefined ||
+      (candidate.componentFootprints?.length ?? 0) < 2
+    ) {
+      return candidate;
+    }
+
+    let internalTravelMinutes = 0;
+    let internalWalkingMinutes = 0;
+    let internalWalkingDistanceMeters = 0;
+    let routingFallbackCount = 0;
+    const routingProviderCounts: Record<string, number> = {};
+    const footprints = candidate.componentFootprints!;
+
+    for (let index = 1; index < footprints.length; index++) {
+      const estimate = await this.travelEstimateProvider.estimate(
+        footprints[index - 1],
+        footprints[index],
+        allowedModes,
+      );
+      internalTravelMinutes += estimate.durationMinutes;
+      internalWalkingMinutes += estimate.walkingMinutes;
+      internalWalkingDistanceMeters += estimate.walkingDistanceMeters;
+      const provider = estimate.provider ?? 'unknown';
+      routingProviderCounts[provider] = (routingProviderCounts[provider] ?? 0) + 1;
+      if (estimate.approximate || estimate.fallbackReason) {
+        routingFallbackCount++;
+      }
+    }
+
+    return {
+      ...candidate,
+      mobility: {
+        ...candidate.mobility,
+        internalTravelMinutes,
+        internalWalkingMinutes,
+        internalWalkingDistanceMeters,
+        routingProviderCounts,
+        routingFallbackCount,
       },
     };
   }
