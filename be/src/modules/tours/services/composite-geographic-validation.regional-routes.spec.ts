@@ -1,9 +1,9 @@
 import { OsmCandidate } from '@integrations/osm/services/osm-places.service';
 import { ActivityProposal } from '../interfaces/activity-discovery.interface';
 import {
-  ResolvedActivityProposal,
-  ResolvedEntity,
-} from '../interfaces/proposal-resolution.interface';
+  ResolvedExperienceCandidate,
+  ResolvedGeoEntity,
+} from '../interfaces/experience-resolution.interface';
 import { CompositeGeographicValidationService } from './composite-geographic-validation.service';
 
 const destination: OsmCandidate = {
@@ -47,8 +47,8 @@ function resolvedEntity(
   key: string,
   latitude: number,
   longitude: number,
-  overrides: Partial<ResolvedEntity> = {},
-): ResolvedEntity {
+  overrides: Partial<ResolvedGeoEntity> = {},
+): ResolvedGeoEntity {
   return {
     hintKey: key,
     hintName: key,
@@ -79,8 +79,8 @@ function resolvedEntity(
 
 function resolved(
   activityProposal: ActivityProposal,
-  entities: ResolvedEntity[],
-): ResolvedActivityProposal {
+  entities: ResolvedGeoEntity[],
+): ResolvedExperienceCandidate {
   return {
     proposal: activityProposal,
     status: 'accepted',

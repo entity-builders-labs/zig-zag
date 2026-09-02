@@ -16,7 +16,9 @@ import { CoverageAnalyzer } from './coverage-analyzer.service';
 import { ActivityDiscoveryService } from './activity-discovery.service';
 import { TourCompletenessValidator } from './tour-completeness-validator.service';
 import { TourFormatCoverageValidator } from './tour-format-coverage-validator.service';
-import { PROPOSAL_RESOLVER } from '../interfaces/proposal-resolution.interface';
+import {
+  EXPERIENCE_PROPOSAL_RESOLVER,
+} from '../interfaces/experience-resolution.interface';
 import { PlacesCrawlError } from '@integrations/google-places/interfaces/places-api.interface';
 import { PlanningCandidateNormalizerService } from './planning-candidate-normalizer.service';
 import {
@@ -371,7 +373,7 @@ describe('TourActivityGenerationService', () => {
           provide: ActivityDiscoveryService,
           useValue: activityDiscoveryService,
         },
-        { provide: PROPOSAL_RESOLVER, useValue: proposalResolver },
+        { provide: EXPERIENCE_PROPOSAL_RESOLVER, useValue: proposalResolver },
         {
           provide: PlanningCandidateNormalizerService,
           useValue: planningCandidateNormalizer,

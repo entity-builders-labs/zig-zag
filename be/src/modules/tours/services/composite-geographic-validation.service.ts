@@ -14,10 +14,10 @@ import {
   GeographicValidationThresholds,
 } from '../interfaces/geographic-validation.interface';
 import {
-  ProposalResolutionResponse,
-  ResolvedActivityProposal,
-  ResolvedEntity,
-} from '../interfaces/proposal-resolution.interface';
+  ExperienceGeographicValidationBatchResult,
+  ResolvedExperienceCandidate,
+  ResolvedGeoEntity,
+} from '../interfaces/experience-resolution.interface';
 import {
   coherenceMetrics,
   distanceMeters,
@@ -45,7 +45,7 @@ export class CompositeGeographicValidationService {
   ) {}
 
   validateBatch(
-    resolution: ProposalResolutionResponse,
+    resolution: ExperienceGeographicValidationBatchResult,
     destinationBoundary: OsmCandidate,
   ): GeographicValidationBatchResult {
     const results = resolution.resolved.map((resolved) =>
@@ -59,7 +59,7 @@ export class CompositeGeographicValidationService {
   }
 
   validate(
-    resolvedProposal: ResolvedActivityProposal,
+    resolvedProposal: ResolvedExperienceCandidate,
     destinationBoundary: OsmCandidate,
   ): GeographicValidationResult {
     const { proposal, resolvedEntities } = resolvedProposal;
@@ -137,8 +137,8 @@ export class CompositeGeographicValidationService {
   private validateCanonical(
     proposalName: string,
     kind: ActivityKind,
-    resolved: ResolvedEntity[],
-    withCoordinates: ResolvedEntity[],
+    resolved: ResolvedGeoEntity[],
+    withCoordinates: ResolvedGeoEntity[],
     destinationBoundary: OsmCandidate,
     evidenceKeys: string[],
   ): GeographicValidationResult {
@@ -177,8 +177,8 @@ export class CompositeGeographicValidationService {
   }
 
   private validateNeighborhoodWalk(
-    resolvedProposal: ResolvedActivityProposal,
-    withCoordinates: ResolvedEntity[],
+    resolvedProposal: ResolvedExperienceCandidate,
+    withCoordinates: ResolvedGeoEntity[],
     destinationBoundary: OsmCandidate,
     evidenceKeys: string[],
   ): GeographicValidationResult {
@@ -257,8 +257,8 @@ export class CompositeGeographicValidationService {
   }
 
   private validateRoute(
-    resolvedProposal: ResolvedActivityProposal,
-    withCoordinates: ResolvedEntity[],
+    resolvedProposal: ResolvedExperienceCandidate,
+    withCoordinates: ResolvedGeoEntity[],
     destinationBoundary: OsmCandidate,
     evidenceKeys: string[],
   ): GeographicValidationResult {
@@ -336,8 +336,8 @@ export class CompositeGeographicValidationService {
   }
 
   private validateExperience(
-    resolvedProposal: ResolvedActivityProposal,
-    withCoordinates: ResolvedEntity[],
+    resolvedProposal: ResolvedExperienceCandidate,
+    withCoordinates: ResolvedGeoEntity[],
     destinationBoundary: OsmCandidate,
     evidenceKeys: string[],
   ): GeographicValidationResult {
@@ -442,7 +442,7 @@ export class CompositeGeographicValidationService {
    * city polygon (for example wineries in Maipú/Luján de Cuyo for Mendoza).
    */
   private destinationMismatch(
-    anchors: ResolvedEntity[],
+    anchors: ResolvedGeoEntity[],
     destinationBoundary: OsmCandidate,
     requireSameLocality: boolean,
   ): boolean {
@@ -478,7 +478,7 @@ export class CompositeGeographicValidationService {
    * an unrelated distant cluster into a valid route.
    */
   private routeDestinationMismatch(
-    anchors: ResolvedEntity[],
+    anchors: ResolvedGeoEntity[],
     destinationBoundary: OsmCandidate,
   ): boolean {
     const countries = this.distinctAdminValues(anchors, 'country');
@@ -507,7 +507,7 @@ export class CompositeGeographicValidationService {
   }
 
   private isInsideDestination(
-    entity: ResolvedEntity,
+    entity: ResolvedGeoEntity,
     destinationBoundary: OsmCandidate,
   ): boolean {
     if (
@@ -543,7 +543,7 @@ export class CompositeGeographicValidationService {
   }
 
   private distinctAdminValues(
-    anchors: ResolvedEntity[],
+    anchors: ResolvedGeoEntity[],
     key: 'country' | 'region',
   ): Set<string> {
     return new Set(
@@ -554,14 +554,14 @@ export class CompositeGeographicValidationService {
     );
   }
 
-  private pointsOf(entities: ResolvedEntity[]) {
+  private pointsOf(entities: ResolvedGeoEntity[]) {
     return entities.map((entity) => ({
       latitude: entity.latitude as number,
       longitude: entity.longitude as number,
     }));
   }
 
-  private dedupeEntities(entities: ResolvedEntity[]): ResolvedEntity[] {
+  private dedupeEntities(entities: ResolvedGeoEntity[]): ResolvedGeoEntity[] {
     const seen = new Set<string>();
     return entities.filter((entity) => {
       const key =
@@ -576,7 +576,7 @@ export class CompositeGeographicValidationService {
   private rejected(
     proposalName: string,
     kind: ActivityKind,
-    anchors: ResolvedEntity[],
+    anchors: ResolvedGeoEntity[],
     evidenceKeys: string[],
     rejectionReasons: GeographicValidationRejectionReason[],
     coherence?: ReturnType<typeof coherenceMetrics>,

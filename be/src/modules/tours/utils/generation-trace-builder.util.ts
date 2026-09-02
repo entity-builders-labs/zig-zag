@@ -15,7 +15,7 @@ import {
 } from '../interfaces/coverage-analysis.interface';
 import { TourCompletenessResult } from '../interfaces/tour-completeness.interface';
 import { TourFormatCoverageResult } from '../interfaces/tour-format-coverage.interface';
-import { ProposalResolutionResponse } from '../interfaces/proposal-resolution.interface';
+import { ExperienceResolutionResponse } from '../interfaces/experience-resolution.interface';
 import {
   ExperienceFormat,
   TourGenerationRequest,
@@ -773,7 +773,7 @@ export function buildDiscoveryStep(
 }
 
 export function buildEntityResolutionStep(
-  result: ProposalResolutionResponse,
+  result: ExperienceResolutionResponse,
 ): GenerationTraceStep {
   const resolution = result.entityResolution ?? result;
   const accepted = resolution.resolved.filter(
@@ -894,7 +894,7 @@ export function buildEntityResolutionStep(
 }
 
 export function buildGeographicValidationStep(
-  result: ProposalResolutionResponse,
+  result: ExperienceResolutionResponse,
 ): GenerationTraceStep {
   const validation = result.geographicValidation;
   if (!validation) {
@@ -1028,7 +1028,7 @@ export function buildGeographicValidationStep(
 }
 
 export function buildCatalogMaterializationStep(
-  result: ProposalResolutionResponse,
+  result: ExperienceResolutionResponse,
 ): GenerationTraceStep {
   const materialization = result.materialization;
   const finalResolved = materialization?.resolved ?? result.resolved;

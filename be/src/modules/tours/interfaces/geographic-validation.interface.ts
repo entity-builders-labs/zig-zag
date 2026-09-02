@@ -1,5 +1,5 @@
 import { ActivityKind } from '@prisma/client';
-import { ResolvedEntity } from './proposal-resolution.interface';
+import { ResolvedGeoEntity } from './experience-resolution.interface';
 
 export type GeographicValidationStatus =
   | 'UNVERIFIED'
@@ -43,8 +43,8 @@ export interface GeographicValidationResult {
   status: GeographicValidationStatus;
   accepted: boolean;
   strategy?: GeographicVerificationStrategy;
-  canonicalEntity?: ResolvedEntity;
-  anchors: ResolvedEntity[];
+  canonicalEntity?: ResolvedGeoEntity;
+  anchors: ResolvedGeoEntity[];
   coherence?: GeographicCoherenceMetrics;
   groundedEvidenceKeys: string[];
   rejectionReasons: GeographicValidationRejectionReason[];

@@ -5,7 +5,7 @@ import {
   buildTourFormatCoverageStep,
 } from './generation-trace-builder.util';
 import { DiscoveryResponse } from '../interfaces/activity-discovery.interface';
-import { ProposalResolutionResponse } from '../interfaces/proposal-resolution.interface';
+import { ExperienceResolutionResponse } from '../interfaces/experience-resolution.interface';
 
 describe('GenerationTrace V2 decision audit coverage', () => {
   it('records grounded discovery provenance and the resolution handoff', () => {
@@ -72,7 +72,7 @@ describe('GenerationTrace V2 decision audit coverage', () => {
   });
 
   it('keeps entity resolution rejection reasons attached to the rejected candidate', () => {
-    const result: ProposalResolutionResponse = {
+    const result: ExperienceResolutionResponse = {
       totalProposals: 1,
       acceptedCount: 0,
       rejectedCount: 1,

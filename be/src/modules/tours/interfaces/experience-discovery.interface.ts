@@ -15,10 +15,19 @@ export interface GeoEntityHintV2 {
  */
 export interface ExperienceCandidate {
   name: string;
+  kind?: 'POI' | 'ROUTE' | 'AREA' | 'NEIGHBORHOOD_WALK' | 'EXPERIENCE';
   description?: string;
   themes: string[];
   traits: string[];
   suggestedDurationMinutes?: number;
+  entityHints?: Array<{
+    key: string;
+    name: string;
+    role: 'area' | 'waypoint' | 'route' | 'venue';
+    expectedType: string;
+    required: boolean;
+    evidenceKeys: string[];
+  }>;
   componentHints: GeoEntityHintV2[];
   evidenceKeys: string[];
   shortReason: string;
@@ -55,4 +64,3 @@ export interface ExperienceDiscoveryPlan {
   queries: ExperienceDiscoveryQuery[];
   enrichmentAllowed: boolean;
 }
-

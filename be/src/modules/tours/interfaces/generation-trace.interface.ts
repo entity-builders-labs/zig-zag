@@ -3,11 +3,9 @@ import { PlacesCrawlProvenance } from '@integrations/google-places/interfaces/pl
 import { CoverageReport } from './coverage-analysis.interface';
 import { TourCompletenessResult } from './tour-completeness.interface';
 import { TourFormatCoverageResult } from './tour-format-coverage.interface';
-import {
-  ProposalMaterializationResponse,
-  ProposalResolutionResponse,
-} from './proposal-resolution.interface';
+import { ExperienceResolutionResponse } from './experience-resolution.interface';
 import { GeographicValidationBatchResult } from './geographic-validation.interface';
+import { ExperienceGeographicValidationBatchResult } from './experience-resolution.interface';
 import { CandidateScoreBreakdown } from '../utils/candidate-ranking.util';
 import { ExperienceFormat } from './tour-generation.interface';
 import { ActivityKind } from '@prisma/client';
@@ -155,9 +153,9 @@ export interface GenerationTraceStep {
   };
   tourCompleteness?: TourCompletenessTraceResult;
   tourFormatCoverage?: TourFormatCoverageTraceResult;
-  resolution?: ProposalResolutionResponse;
-  geographicValidation?: GeographicValidationBatchResult;
-  materialization?: ProposalMaterializationResponse;
+  resolution?: ExperienceResolutionResponse;
+  geographicValidation?: GeographicValidationBatchResult | ExperienceGeographicValidationBatchResult;
+  materialization?: unknown;
   candidatePool?: {
     initialCatalogCount: number;
     postAcquisitionCatalogCount: number;

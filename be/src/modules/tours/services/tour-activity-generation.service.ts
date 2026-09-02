@@ -59,9 +59,9 @@ import {
   buildTourFormatCoverageStep,
 } from '../utils/generation-trace-builder.util';
 import {
-  IProposalResolver,
-  PROPOSAL_RESOLVER,
-} from '../interfaces/proposal-resolution.interface';
+  ExperienceProposalResolver,
+  EXPERIENCE_PROPOSAL_RESOLVER,
+} from '../interfaces/experience-resolution.interface';
 import { TourCompletenessValidator } from './tour-completeness-validator.service';
 import { TourCompletenessInput } from '../interfaces/tour-completeness.interface';
 import { TourFormatCoverageValidator } from './tour-format-coverage-validator.service';
@@ -136,8 +136,8 @@ export class TourActivityGenerationService {
     private readonly activityDiscoveryService: ActivityDiscoveryService,
     private readonly tourCompletenessValidator: TourCompletenessValidator,
     private readonly tourFormatCoverageValidator: TourFormatCoverageValidator,
-    @Inject(PROPOSAL_RESOLVER)
-    private readonly proposalResolver: IProposalResolver,
+    @Inject(EXPERIENCE_PROPOSAL_RESOLVER)
+    private readonly proposalResolver: ExperienceProposalResolver,
     private readonly planningCandidateNormalizer: PlanningCandidateNormalizerService,
     @Inject(DAILY_PLANNING_SOLVER)
     private readonly dailyPlanningSolver: DailyPlanningSolver,

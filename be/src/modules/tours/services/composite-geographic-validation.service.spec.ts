@@ -2,9 +2,9 @@ import { ActivityKind } from '@prisma/client';
 import { OsmCandidate } from '@integrations/osm/services/osm-places.service';
 import { ActivityProposal } from '../interfaces/activity-discovery.interface';
 import {
-  ResolvedActivityProposal,
-  ResolvedEntity,
-} from '../interfaces/proposal-resolution.interface';
+  ResolvedExperienceCandidate,
+  ResolvedGeoEntity,
+} from '../interfaces/experience-resolution.interface';
 import { CompositeGeographicValidationService } from './composite-geographic-validation.service';
 
 const destination: OsmCandidate = {
@@ -45,11 +45,11 @@ function proposal(
 
 function entity(
   key: string,
-  role: ResolvedEntity['role'],
+  role: ResolvedGeoEntity['role'],
   latitude: number,
   longitude: number,
-  overrides: Partial<ResolvedEntity> = {},
-): ResolvedEntity {
+  overrides: Partial<ResolvedGeoEntity> = {},
+): ResolvedGeoEntity {
   return {
     hintKey: key,
     hintName: key,
@@ -76,8 +76,8 @@ function entity(
 
 function resolved(
   activityProposal: ActivityProposal,
-  entities: ResolvedEntity[],
-): ResolvedActivityProposal {
+  entities: ResolvedGeoEntity[],
+): ResolvedExperienceCandidate {
   return {
     proposal: activityProposal,
     status: entities.some((candidate) => candidate.status === 'resolved')
@@ -340,7 +340,7 @@ describe('CompositeGeographicValidationService', () => {
         evidenceKeys: ['ev-1'],
       },
     ]);
-    const unresolvedEntity: ResolvedEntity = {
+    const unresolvedEntity: ResolvedGeoEntity = {
       hintKey: 'b',
       hintName: 'Building',
       role: 'waypoint',
