@@ -4,7 +4,7 @@ import { ActivityKind } from '@prisma/client';
 import { PrismaService } from '@core/database/prisma.service';
 import dailyPlanningPolicyConfig from '../config/daily-planning-policy.config';
 import {
-  PlanningActivityCandidate,
+  PlanningExperienceCandidate,
   TRAVEL_ESTIMATE_PROVIDER,
   TravelEstimateProvider,
 } from '../interfaces/daily-planning.interface';
@@ -24,7 +24,7 @@ function isCompositeKind(kind: ActivityKind): boolean {
 
 /**
  * Boundary adapter converting ranked, real Prisma `Activity` rows
- * (plus their `CandidateScoreBreakdown`) into `PlanningActivityCandidate[]`
+ * (plus their `CandidateScoreBreakdown`) into `PlanningExperienceCandidate[]`
  * for the daily-planning solver. The only place that touches
  * Prisma directly for planning purposes — a bounded `activityWaypoint`
  * lookup to compute a composite's internal walking distance from its own
@@ -43,7 +43,7 @@ export class PlanningCandidateNormalizerService {
   async normalize(
     activities: any[],
     scoreBreakdownById: Map<string, CandidateScoreBreakdown>,
-  ): Promise<PlanningActivityCandidate[]> {
+  ): Promise<PlanningExperienceCandidate[]> {
     return Promise.all(
       activities.map((activity) =>
         this.normalizeOne(activity, scoreBreakdownById.get(activity.id)),
@@ -57,7 +57,7 @@ export class PlanningCandidateNormalizerService {
   async normalizeExperiences(
     experiences: any[],
     scoreBreakdownById: Map<string, CandidateScoreBreakdown>,
-  ): Promise<PlanningActivityCandidate[]> {
+  ): Promise<PlanningExperienceCandidate[]> {
     return experiences.map((experience) => {
       const firstComponent = experience.components?.[0]?.geoEntity ?? experience.components?.[0];
       const latitude = experience.latitude ?? firstComponent?.latitude;
@@ -85,7 +85,7 @@ export class PlanningCandidateNormalizerService {
   private async normalizeOne(
     activity: any,
     scoreBreakdown: CandidateScoreBreakdown | undefined,
-  ): Promise<PlanningActivityCandidate> {
+  ): Promise<PlanningExperienceCandidate> {
     const kind: ActivityKind = activity.kind ?? ActivityKind.POI;
     const mobility = isCompositeKind(kind)
       ? await this.computeInternalWalking(activity)
@@ -137,7 +137,7 @@ export class PlanningCandidateNormalizerService {
 
   private async computeInternalWalking(
     composite: any,
-  ): Promise<PlanningActivityCandidate['mobility']> {
+  ): Promise<PlanningExperienceCandidate['mobility']> {
     const waypoints = await this.prisma.activityWaypoint.findMany({
       where: { compositeActivityId: composite.id },
       orderBy: { order: 'asc' },

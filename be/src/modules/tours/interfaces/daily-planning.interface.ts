@@ -48,7 +48,7 @@ export type NormalizedOpeningHours =
   | NormalizedOpeningHoursKnown
   | NormalizedOpeningHoursUnknown;
 
-export interface PlanningActivityCandidate {
+export interface PlanningExperienceCandidate {
   /** Canonical V2 identity. `activityId` remains only for compatibility. */
   experienceId?: string;
   activityId: string;
@@ -83,7 +83,7 @@ export interface DailyPlanningWindow {
 export interface DailyPlanningInput {
   destination: DestinationResolution;
   requestedDays: number;
-  candidates: PlanningActivityCandidate[];
+  candidates: PlanningExperienceCandidate[];
   mobility: MobilityPreferences;
   travelPace: TravelPace;
   planningWindow: DailyPlanningWindow;

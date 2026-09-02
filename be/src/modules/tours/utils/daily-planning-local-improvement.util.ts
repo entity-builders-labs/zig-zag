@@ -1,6 +1,6 @@
 import {
   Coordinate,
-  PlanningActivityCandidate,
+  PlanningExperienceCandidate,
 } from '../interfaces/daily-planning.interface';
 import {
   DayAccumulator,
@@ -23,7 +23,7 @@ function dayCentroid(acc: DayAccumulator): Coordinate | null {
 }
 
 function distanceToCentroid(
-  candidate: PlanningActivityCandidate,
+  candidate: PlanningExperienceCandidate,
   centroid: Coordinate | null,
 ): number {
   if (!centroid) return 0;
@@ -49,7 +49,7 @@ function distanceToCentroid(
  * its threshold checks stay conservative-only either way. */
 function withoutCandidate(
   acc: DayAccumulator,
-  remove: PlanningActivityCandidate,
+  remove: PlanningExperienceCandidate,
 ): DayAccumulator {
   return {
     ...acc,
@@ -74,7 +74,7 @@ function withoutCandidate(
 function transferCandidateTotals(
   from: DayAccumulator,
   to: DayAccumulator,
-  candidate: PlanningActivityCandidate,
+  candidate: PlanningExperienceCandidate,
   context: PlacementContext,
 ): void {
   const minutes = candidateActivityMinutes(candidate);

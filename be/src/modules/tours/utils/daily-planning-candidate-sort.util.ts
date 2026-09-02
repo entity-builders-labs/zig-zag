@@ -1,4 +1,4 @@
-import { PlanningActivityCandidate } from '../interfaces/daily-planning.interface';
+import { PlanningExperienceCandidate } from '../interfaces/daily-planning.interface';
 
 /** Deterministic initial ordering used to drive anchor seeding and the
  * greedy placement loop. Only semantic/quality/lexical signals — requested-
@@ -7,8 +7,8 @@ import { PlanningActivityCandidate } from '../interfaces/daily-planning.interfac
  * improvement, not duplicated here. Never depends on DB result order or
  * object iteration order. */
 export function sortCandidatesDeterministically(
-  candidates: PlanningActivityCandidate[],
-): PlanningActivityCandidate[] {
+  candidates: PlanningExperienceCandidate[],
+): PlanningExperienceCandidate[] {
   return [...candidates].sort((a, b) => {
     if (b.semanticScore !== a.semanticScore) {
       return b.semanticScore - a.semanticScore;
@@ -26,8 +26,8 @@ export function sortCandidatesDeterministically(
  * candidates don't all land on day 1. V1: the top `requestedDays` candidates
  * from the stable sort, one per day in order. No complex optimizer. */
 export function selectDailyAnchors(
-  sortedCandidates: PlanningActivityCandidate[],
+  sortedCandidates: PlanningExperienceCandidate[],
   requestedDays: number,
-): PlanningActivityCandidate[] {
+): PlanningExperienceCandidate[] {
   return sortedCandidates.slice(0, requestedDays);
 }

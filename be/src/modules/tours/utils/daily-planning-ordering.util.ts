@@ -2,7 +2,7 @@ import {
   DailyPlanningWindow,
   PlannedActivity,
   PlannedDay,
-  PlanningActivityCandidate,
+  PlanningExperienceCandidate,
   TravelEstimate,
   TravelEstimateProvider,
 } from '../interfaces/daily-planning.interface';
@@ -23,9 +23,9 @@ export interface OrderingContext {
 }
 
 function pickNearest(
-  from: PlanningActivityCandidate,
-  candidates: PlanningActivityCandidate[],
-): PlanningActivityCandidate {
+  from: PlanningExperienceCandidate,
+  candidates: PlanningExperienceCandidate[],
+): PlanningExperienceCandidate {
   let best = candidates[0];
   let bestDistance = Infinity;
   for (const candidate of candidates) {
@@ -44,7 +44,7 @@ function pickNearest(
 /** Scheduled span a candidate would occupy if started right now — the same
  * arithmetic the scheduling loop below uses for `end`, so the hours
  * preference and the emitted schedule can never disagree. */
-function occupiedMinutes(candidate: PlanningActivityCandidate): number {
+function occupiedMinutes(candidate: PlanningExperienceCandidate): number {
   return (
     candidate.durationMinutes + (candidate.mobility?.internalTravelMinutes ?? 0)
   );
@@ -60,11 +60,11 @@ function occupiedMinutes(candidate: PlanningActivityCandidate): number {
  * previous pure-geographic one — geography still wins whenever there is no
  * hours conflict to resolve. */
 function pickNext(
-  from: PlanningActivityCandidate | null,
-  remaining: PlanningActivityCandidate[],
+  from: PlanningExperienceCandidate | null,
+  remaining: PlanningExperienceCandidate[],
   weekday: number | undefined,
   cursorMinutes: number,
-): PlanningActivityCandidate {
+): PlanningExperienceCandidate {
   if (weekday !== undefined) {
     const openAtCursor = remaining.filter(
       (candidate) =>
@@ -102,7 +102,7 @@ function pickNext(
  * drift is therefore a known, tracked V1 gap, not a covered case. */
 export async function orderAndScheduleDay(
   dayNumber: number,
-  candidates: PlanningActivityCandidate[],
+  candidates: PlanningExperienceCandidate[],
   context: OrderingContext,
 ): Promise<PlannedDay> {
   if (candidates.length === 0) {
@@ -122,7 +122,7 @@ export async function orderAndScheduleDay(
   let cursorMinutes = context.planningWindow.startMinutesFromMidnight;
   let totalTravelMinutes = 0;
   let totalWalkingMinutes = 0;
-  let previous: PlanningActivityCandidate | null = null;
+  let previous: PlanningExperienceCandidate | null = null;
 
   while (remaining.length > 0) {
     const next = pickNext(previous, remaining, weekday, cursorMinutes);

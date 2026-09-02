@@ -1,6 +1,6 @@
 import {
   DailyPlanningWindow,
-  PlanningActivityCandidate,
+  PlanningExperienceCandidate,
   PlanningRejectionReason,
   TravelEstimateProvider,
   UnselectedPlanningCandidate,
@@ -14,7 +14,7 @@ import { isOpenDuring } from './normalized-opening-hours.util';
 
 export interface DayAccumulator {
   dayNumber: number;
-  assigned: PlanningActivityCandidate[];
+  assigned: PlanningExperienceCandidate[];
   totalActivityMinutes: number;
   totalWalkingMeters: number;
 }
@@ -29,7 +29,7 @@ export interface PlacementContext {
   startDates: string[];
 }
 
-function isCompositeKind(kind: PlanningActivityCandidate['kind']): boolean {
+function isCompositeKind(kind: PlanningExperienceCandidate['kind']): boolean {
   return (
     kind === 'NEIGHBORHOOD_WALK' || kind === 'ROUTE' || kind === 'EXPERIENCE'
   );
@@ -70,7 +70,7 @@ export function resolveWeekday(
  * adds/removes exactly what `placeCandidates` accumulated, instead of
  * re-deriving a partial formula that silently drifts. */
 export function candidateActivityMinutes(
-  candidate: PlanningActivityCandidate,
+  candidate: PlanningExperienceCandidate,
 ): number {
   return (
     candidate.durationMinutes + (candidate.mobility?.internalTravelMinutes ?? 0)
@@ -78,7 +78,7 @@ export function candidateActivityMinutes(
 }
 
 export function internalWalkingMeters(
-  candidate: PlanningActivityCandidate,
+  candidate: PlanningExperienceCandidate,
   policy: DailyPlanningPolicy,
 ): number {
   if (candidate.mobility?.internalWalkingDistanceMeters !== undefined) {
@@ -102,7 +102,7 @@ export function internalWalkingMeters(
  * Task 9's local improvement (which probes a hypothetical day state without
  * ever appending). */
 export async function checkHardConstraints(
-  candidate: PlanningActivityCandidate,
+  candidate: PlanningExperienceCandidate,
   acc: DayAccumulator,
   context: PlacementContext,
 ): Promise<{ feasible: boolean; reasons: PlanningRejectionReason[] }> {
@@ -201,7 +201,7 @@ export async function checkHardConstraints(
  * Task 9 local-improvement concerns, evaluated only after a full day's
  * candidates are known. */
 export function scoreCandidateForDay(
-  candidate: PlanningActivityCandidate,
+  candidate: PlanningExperienceCandidate,
   acc: DayAccumulator,
   context: PlacementContext,
 ): number {
@@ -225,7 +225,7 @@ export function scoreCandidateForDay(
  * placement-loop layer — not inside `checkHardConstraints`, which only ever
  * evaluates one candidate against one day's state. */
 export async function placeCandidates(
-  sortedCandidates: PlanningActivityCandidate[],
+  sortedCandidates: PlanningExperienceCandidate[],
   requestedDays: number,
   context: PlacementContext,
 ): Promise<{
