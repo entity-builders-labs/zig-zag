@@ -1,12 +1,11 @@
 import { ConfigService } from '@nestjs/config';
 import { TavilyGroundedSearchService } from './tavily-grounded-search.service';
-import { GroundedSearchRequest } from '../interfaces/activity-discovery.interface';
+import { ExperienceGroundedSearchRequest } from '../interfaces/experience-grounding.interface';
 
-const request: GroundedSearchRequest = {
+const request: ExperienceGroundedSearchRequest = {
   destinationName: 'Gualeguaychú',
   destinationCountry: 'Argentina',
   requestedThemes: ['history', 'architecture'],
-  requestedExperienceFormats: ['thematic_routes'],
   query:
     'Find real thematic walking routes in Gualeguaychú, Argentina focused on history and architecture.',
 };

@@ -3,12 +3,11 @@ import {
   buildEntityResolutionStep,
   buildTourCompletenessStep,
 } from './generation-trace-builder.util';
-import { DiscoveryResponse } from '../interfaces/activity-discovery.interface';
 import { ExperienceResolutionResponse } from '../interfaces/experience-resolution.interface';
 
 describe('GenerationTrace V2 decision audit coverage', () => {
   it('records grounded discovery provenance and the resolution handoff', () => {
-    const result: DiscoveryResponse = {
+    const result: any = {
       proposals: [
         {
           name: 'Whale watching excursion',

@@ -689,15 +689,26 @@ export function buildCoverageAnalysisStep(
 }
 
 export function buildDiscoveryStep(
-  result: import('../interfaces/activity-discovery.interface').DiscoveryResponse,
+  result: {
+    candidates?: any[];
+    proposals?: any[];
+    provider: string;
+    model?: string;
+    groundingStatus: 'applied' | 'unavailable' | 'failed' | 'no_usable_evidence';
+    groundingProvider?: string;
+    groundingModel?: string;
+    groundingEvidence?: any[];
+    validationErrors?: string[];
+  },
 ): GenerationTraceStep {
+  const candidates = result.candidates ?? result.proposals ?? [];
   const applied = result.groundingStatus === 'applied';
   return {
     stage: 'discovery',
     label: 'Grounded discovery',
     component: 'ExperienceDiscoveryService',
     status: applied ? 'PASS' : 'WARN',
-    summary: `${result.proposals.length} propuesta(s) extraída(s) a partir de evidencia grounded.`,
+    summary: `${candidates.length} candidate(s) extraído(s) a partir de evidencia grounded.`,
     inputs: {
       provider: result.provider,
       groundingProvider: result.groundingProvider,
@@ -724,24 +735,24 @@ export function buildDiscoveryStep(
     ],
     decision: {
       status: applied ? 'PASS' : 'WARN',
-      outcome: result.proposals.length
+      outcome: candidates.length
         ? 'PROPOSALS_READY_FOR_RESOLUTION'
         : 'NO_USABLE_PROPOSALS',
-      reason: result.proposals.length
+      reason: candidates.length
         ? 'Hay conceptos grounded para intentar resolver como entidades reales.'
         : 'Discovery no produjo propuestas utilizables.',
       reasonCodes: result.validationErrors?.length
         ? ['PROPOSALS_VALIDATION_REJECTED']
         : ['GROUNDED_DISCOVERY_COMPLETED'],
-      triggeredActions: result.proposals.length
+      triggeredActions: candidates.length
         ? ['RESOLVE_ENTITIES']
         : ['CONTINUE_WITH_EXISTING_POOL'],
     },
     outputs: {
-      proposalCount: result.proposals.length,
+      candidateCount: candidates.length,
       validationErrors: result.validationErrors ?? [],
     },
-    candidates: result.proposals.map((p) => ({
+    candidates: candidates.map((p) => ({
       source: 'discovery' as const,
       id: p.name,
       name: p.name,
@@ -749,7 +760,7 @@ export function buildDiscoveryStep(
       offered: false,
       chosen: false,
     })),
-    candidateDecisions: result.proposals.map((p) => ({
+    candidateDecisions: candidates.map((p) => ({
       id: p.name,
       name: p.name,
       source: 'discovery',
