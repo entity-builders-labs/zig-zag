@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { GeoEntityKind } from '@prisma/client';
 import { OsmCandidate, OsmPlacesService } from '@integrations/osm/services/osm-places.service';
 import { ExperienceCatalogService } from './experience-catalog.service';
+import { CompositeGeographicValidationService } from './composite-geographic-validation.service';
 import {
   ExperienceProposalResolver,
   ExperienceResolutionResponse,
@@ -26,6 +27,7 @@ export class ExperienceProposalResolverService
   constructor(
     private readonly osmPlaces: OsmPlacesService,
     private readonly catalog: ExperienceCatalogService,
+    private readonly geographicValidator: CompositeGeographicValidationService,
   ) {}
 
   async resolve(
@@ -46,16 +48,35 @@ export class ExperienceProposalResolverService
         ])
       : [[], []];
 
-    const resolved = await Promise.all(
+    const candidates = await Promise.all(
       proposals.map((proposal: any) => this.resolveProposal(proposal, boundary, streets, pois)),
     );
+    const validation = boundary
+      ? this.geographicValidator.validateBatch({ resolved: candidates.filter((item) => item.status === 'accepted') } as any, boundary)
+      : { results: [], acceptedCount: 0, rejectedCount: candidates.length };
+    const validationByName = new Map(validation.results.map((result) => [result.proposalName, result]));
+    const resolved = await Promise.all(candidates.map(async (candidate) => {
+      if (candidate.status !== 'accepted') return candidate;
+      const result = validationByName.get(candidate.proposal.name);
+      if (!result?.accepted) {
+        return { ...candidate, status: 'rejected' as const, rejectionReasons: result?.rejectionReasons ?? ['geographic_validation_failed'] };
+      }
+      const experience = await this.catalog.persistVerifiedExperience({
+        canonicalName: candidate.proposal.name,
+        description: candidate.proposal.description,
+        durationMinutes: candidate.proposal.suggestedDurationMinutes,
+        metadata: { themes: candidate.proposal.themes, traits: candidate.proposal.traits, source: 'grounded_experience_discovery' },
+        components: candidate.resolvedEntities.filter((entity: any) => entity.status === 'resolved' && entity.geoEntityId).map((entity: any, index: number) => ({ geoEntityId: entity.geoEntityId, order: index + 1, role: entity.role, required: true })),
+      });
+      return { ...candidate, experienceId: experience.id };
+    }));
 
     this.logger.log(`Resolved ${resolved.filter((item) => item.status === 'accepted').length}/${resolved.length} Experience candidate(s) against OSM`);
 
     return {
       totalProposals: resolved.length,
-      acceptedCount: 0,
-      rejectedCount: resolved.length,
+      acceptedCount: resolved.filter((item) => item.status === 'accepted').length,
+      rejectedCount: resolved.filter((item) => item.status === 'rejected').length,
       resolved,
     };
   }
@@ -85,14 +106,7 @@ export class ExperienceProposalResolverService
     if (resolvedEntities.length === 0 || unresolvedRequired) {
       return { proposal, status: 'rejected' as const, resolvedEntities: entities, rejectionReasons: [resolvedEntities.length === 0 ? 'no_osm_match' : 'unresolved_required_component'] };
     }
-    const experience = await this.catalog.persistVerifiedExperience({
-      canonicalName: proposal.name,
-      description: proposal.description,
-      durationMinutes: proposal.suggestedDurationMinutes,
-      metadata: { themes: proposal.themes, traits: proposal.traits, source: 'grounded_experience_discovery' },
-      components: resolvedEntities.map((entity: any, index) => ({ geoEntityId: entity.geoEntityId, order: index + 1, role: entity.role, required: true })),
-    });
-    return { proposal, status: 'accepted' as const, resolvedEntities: entities, rejectionReasons: [] as string[], experienceId: experience.id };
+    return { proposal, status: 'accepted' as const, resolvedEntities: entities, rejectionReasons: [] as string[] };
   }
 
   private matchCandidate(name: string, pool: OsmCandidate[]): OsmCandidate | undefined {
