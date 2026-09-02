@@ -5,7 +5,7 @@ import {
 import {
   DayAccumulator,
   PlacementContext,
-  candidateActivityMinutes,
+  candidateExperienceMinutes,
   checkHardConstraints,
   internalWalkingMeters,
 } from './daily-planning-placement.util';
@@ -58,7 +58,7 @@ function withoutCandidate(
     ...acc,
     assigned: acc.assigned.filter((a) => candidateIdentity(a) !== candidateIdentity(remove)),
     totalExperienceMinutes:
-      acc.totalExperienceMinutes - candidateActivityMinutes(remove),
+      acc.totalExperienceMinutes - candidateExperienceMinutes(remove),
   };
 }
 
@@ -80,7 +80,7 @@ function transferCandidateTotals(
   candidate: PlanningExperienceCandidate,
   context: PlacementContext,
 ): void {
-  const minutes = candidateActivityMinutes(candidate);
+  const minutes = candidateExperienceMinutes(candidate);
   const walkingMeters = internalWalkingMeters(candidate, context.policy);
   from.totalExperienceMinutes -= minutes;
   to.totalExperienceMinutes += minutes;

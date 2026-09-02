@@ -66,7 +66,7 @@ export function resolveWeekday(
  * property of the candidate alone. Exported so Task 9's local improvement
  * adds/removes exactly what `placeCandidates` accumulated, instead of
  * re-deriving a partial formula that silently drifts. */
-export function candidateActivityMinutes(
+export function candidateExperienceMinutes(
   candidate: PlanningExperienceCandidate,
 ): number {
   return (
@@ -140,11 +140,11 @@ export async function checkHardConstraints(
   const dayWindowMinutes =
     context.planningWindow.endMinutesFromMidnight -
     context.planningWindow.startMinutesFromMidnight;
-  const projectedActivityMinutes =
+  const projectedExperienceMinutes =
     acc.totalExperienceMinutes +
-    candidateActivityMinutes(candidate) +
+    candidateExperienceMinutes(candidate) +
     (travel?.durationMinutes ?? 0);
-  if (projectedActivityMinutes > dayWindowMinutes) {
+  if (projectedExperienceMinutes > dayWindowMinutes) {
     reasons.push('DAILY_TIME_CAPACITY_EXCEEDED');
   }
 
@@ -289,7 +289,7 @@ export async function placeCandidates(
 
     acc.assigned.push(candidate);
     acc.totalExperienceMinutes +=
-      candidateActivityMinutes(candidate) + (travel?.durationMinutes ?? 0);
+      candidateExperienceMinutes(candidate) + (travel?.durationMinutes ?? 0);
     acc.totalWalkingMeters +=
       internalWalkingMeters(candidate, context.policy) +
       (travel?.walkingDistanceMeters ?? 0);
