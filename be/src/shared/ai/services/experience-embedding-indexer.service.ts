@@ -21,7 +21,10 @@ export class ExperienceEmbeddingIndexerService {
         : {
             status: 'VERIFIED',
             OR: [
-              { embedding: null },
+              { embeddingProvider: null },
+              { embeddingModel: null },
+              { embeddingDimensions: null },
+              { embeddingDocumentVersion: null },
               { embeddingProvider: { not: identity.provider } },
               { embeddingModel: { not: identity.model } },
               { embeddingDimensions: { not: identity.dimensions } },
