@@ -1642,7 +1642,7 @@ export class ExperienceGenerationService {
       });
 
       this.logger.log(
-        `Activities generated successfully for tour ${tourId} (${activities.length} activities)`,
+        `Experiences generated successfully for tour ${tourId} (${activities.length} experiences)`,
       );
 
       if (!request.skipImageGeneration) {
@@ -1660,7 +1660,7 @@ export class ExperienceGenerationService {
         }
       }
 
-      const completedMessage = `¡Listo! ${activities.length} actividades generadas exitosamente.`;
+      const completedMessage = `¡Listo! ${activities.length} experiencias generadas exitosamente.`;
       const completedTour = await this.toursService.findOne(tourId);
       const effectiveMetadata =
         (completedTour?.metadata as any) || (metadata as any) || {};
