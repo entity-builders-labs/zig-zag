@@ -2,7 +2,7 @@ import { Module, forwardRef } from '@nestjs/common';
 import { ToursController } from './controllers/tours.controller';
 import { ToursService } from './services/tours.service';
 import { TourGenerationService } from './services/tour-generation.service';
-import { TourActivityGenerationService } from './services/tour-activity-generation.service';
+import { ExperienceGenerationService } from './services/experience-generation.service';
 import { TourGenerationProcessorService } from './services/tour-generation-processor.service';
 import { TourImageService } from './services/tour-image.service';
 import { TourLocationService } from './services/tour-location.service';
@@ -58,7 +58,7 @@ import { OutboxModule } from '../outbox/outbox.module';
   providers: [
     ToursService,
     TourGenerationService,
-    TourActivityGenerationService,
+    ExperienceGenerationService,
     TourGenerationProcessorService,
     TourImageService,
     TourLocationService,
@@ -158,7 +158,7 @@ import { OutboxModule } from '../outbox/outbox.module';
   exports: [
     ToursService,
     TourGenerationService,
-    TourActivityGenerationService,
+    ExperienceGenerationService,
     TourImageService,
     TourLocationService,
     CompositeGeographicValidationService,

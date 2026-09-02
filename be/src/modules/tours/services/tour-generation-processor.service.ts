@@ -5,7 +5,7 @@ import {
   MESSAGE_QUEUE_SERVICE,
 } from '../../queue/interfaces/message-queue.interface';
 import { TourGenerationRequestedPayload } from '../interfaces/tour-generation-events.interface';
-import { TourActivityGenerationService } from './tour-activity-generation.service';
+import { ExperienceGenerationService } from './experience-generation.service';
 import { ToursService } from './tours.service';
 
 @Injectable()
@@ -15,7 +15,7 @@ export class TourGenerationProcessorService implements OnModuleInit {
   constructor(
     private readonly prisma: PrismaService,
     private readonly toursService: ToursService,
-    private readonly tourActivityGenerationService: TourActivityGenerationService,
+    private readonly experienceGenerationService: ExperienceGenerationService,
     @Inject(MESSAGE_QUEUE_SERVICE)
     private readonly messageQueue: IMessageQueueService,
   ) {}
@@ -80,7 +80,7 @@ export class TourGenerationProcessorService implements OnModuleInit {
       );
     }
 
-    await this.tourActivityGenerationService.generateTourActivities(
+    await this.experienceGenerationService.generateTourExperiences(
       payload.tourId,
     );
   }

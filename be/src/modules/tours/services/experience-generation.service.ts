@@ -76,7 +76,6 @@ import {
   PlacesCrawlError,
   placesProviderLabel,
 } from '@integrations/google-places/interfaces/places-api.interface';
-import { CatalogRefillAnchorPlanner } from './catalog-refill-anchor-planner.service';
 import { TourIntent } from '../interfaces/tour-generation.interface';
 import {
   DISCOVERY_PROVIDER,
@@ -120,8 +119,8 @@ interface CandidateSelection {
 }
 
 @Injectable()
-export class TourActivityGenerationService {
-  private readonly logger = new Logger(TourActivityGenerationService.name);
+export class ExperienceGenerationService {
+  private readonly logger = new Logger(ExperienceGenerationService.name);
 
   constructor(
     private readonly prisma: PrismaService,
@@ -132,7 +131,6 @@ export class TourActivityGenerationService {
     private readonly tourImageService: TourImageService,
     private readonly osmPlacesService: OsmPlacesService,
     private readonly destinationResolutionService: DestinationResolutionService,
-    private readonly catalogRefillAnchorPlanner: CatalogRefillAnchorPlanner,
     private readonly coverageAnalyzer: CoverageAnalyzer,
     private readonly experienceDiscoveryPlanner: ExperienceDiscoveryPlannerService,
     @Inject(GROUNDED_SEARCH_PROVIDER)
@@ -556,7 +554,7 @@ export class TourActivityGenerationService {
     });
   }
 
-  async generateTourActivities(tourId: string) {
+  async generateTourExperiences(tourId: string) {
     const tour = await this.toursService.findOne(tourId);
     if (!tour) {
       throw new NotFoundException(`Tour with ID ${tourId} not found`);
