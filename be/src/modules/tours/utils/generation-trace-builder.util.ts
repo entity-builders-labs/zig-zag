@@ -1,4 +1,3 @@
-import { ActivityKind } from '@prisma/client';
 import { OsmCandidate } from '@integrations/osm/services/osm-places.service';
 import {
   PlacesCrawlProvenance,
@@ -18,9 +17,13 @@ import { ExperienceResolutionResponse } from '../interfaces/experience-resolutio
 import { TourGenerationRequest } from '../interfaces/tour-generation.interface';
 import { DailyPlanningSolution } from '../interfaces/daily-planning.interface';
 import { CandidateScoreBreakdown } from './candidate-ranking.util';
-import { FormatAvailability } from './candidate-window-selection.util';
 import { matchedThemesFor } from './theme-matching.util';
-import { EXPERIENCE_FORMAT_ACTIVITY_KIND } from './experience-format-kind.util';
+
+interface FormatAvailability {
+  format: string;
+  fullPoolCount: number;
+  llmWindowCount: number;
+}
 
 function activityDetail(act: any): string {
   const parts: string[] = [];
@@ -1122,12 +1125,12 @@ export function buildCandidatePoolStep(params: {
 }): GenerationTraceStep {
   const bySource = { catalog: 0, refill: 0, discovery: 0 };
   const byKind: Record<string, number> = {};
-  const experienceFormatByKind = new Map<ActivityKind, string>(
-    Object.entries(EXPERIENCE_FORMAT_ACTIVITY_KIND).map(([format, kind]) => [
-      kind as ActivityKind,
-      format,
-    ]),
-  );
+  const experienceFormatByKind = new Map<string, string>([
+    ['POI', 'point_visits'],
+    ['NEIGHBORHOOD_WALK', 'neighborhood_walks'],
+    ['ROUTE', 'thematic_routes'],
+    ['EXPERIENCE', 'experiences'],
+  ]);
 
   const candidates: TraceCandidate[] = params.offeredCandidates.map((c) => {
     const bucket =
@@ -1140,7 +1143,7 @@ export function buildCandidatePoolStep(params: {
     if (c.kind) byKind[c.kind] = (byKind[c.kind] ?? 0) + 1;
     const themes = matchedThemesFor(c, params.requestedThemes);
     const experienceFormat = c.kind
-      ? experienceFormatByKind.get(c.kind as ActivityKind)
+      ? experienceFormatByKind.get(String(c.kind))
       : undefined;
     return {
       source: c.traceSource,
