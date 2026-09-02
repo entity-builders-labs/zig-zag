@@ -31,7 +31,7 @@ export class MediaEnrichmentProcessorService implements OnModuleInit {
       this.handleMediaEnrichment.bind(this),
     );
     this.logger.log(
-      '[MediaEnrichmentProcessor] Subscribed to topic "ActivityMediaEnrichmentRequested".',
+      '[MediaEnrichmentProcessor] Subscribed to topic "ExperienceMediaEnrichmentRequested".',
     );
   }
 
@@ -52,7 +52,7 @@ export class MediaEnrichmentProcessorService implements OnModuleInit {
 
     if (lookup.outcome === 'RETRYABLE_FAILURE') {
       // Let the durable outbox retry this request. Do not write FAILED and do
-      // not emit ActivityMediaUpdated for a transient upstream incident.
+      // not emit ExperienceMediaUpdated for a transient upstream incident.
       throw new Error(`Retryable media lookup failure: ${lookup.error}`);
     }
 
