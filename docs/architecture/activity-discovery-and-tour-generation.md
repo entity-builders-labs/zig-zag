@@ -1182,4 +1182,9 @@ flowchart TD
 
 Routing is downstream of verification and selection. Provider-generated paths
 are logistical derivations and must not be used as evidence that an Experience
-exists. Outbox/queue execution and eventual media enrichment remain unchanged.
+exists. Outbox/queue execution remains asynchronous and durable. V2 media
+enrichment uses `ExperienceMediaEnrichmentRequested` / `ExperienceMediaUpdated`
+and updates the shared `Experience`; the legacy Activity media topic is not
+part of the V2 generation path. The persisted Bitácora also contains an
+`executionSummary` with the stage-by-stage decision narrative rendered by the
+tour detail UI.
