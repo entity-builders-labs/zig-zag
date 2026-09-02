@@ -1261,6 +1261,80 @@ export function buildCandidatePoolStep(params: {
   };
 }
 
+/** V2 candidate-pool trace: Experience-native ranking with no format/kind gate. */
+export function buildExperienceCandidatePoolStep(params: {
+  initialCatalogCount: number;
+  postAcquisitionCatalogCount: number;
+  eligibleCount: number;
+  offeredCandidates: Array<
+    CoverageCandidate & {
+      traceSource: 'db' | 'google_places' | 'geoapify' | 'discovery';
+      scoreBreakdown: CandidateScoreBreakdown;
+    }
+  >;
+  requestedThemes: string[];
+}): GenerationTraceStep {
+  const bySource = { catalog: 0, refill: 0, discovery: 0 };
+  const candidates: TraceCandidate[] = params.offeredCandidates.map((c) => {
+    const bucket = c.traceSource === 'db'
+      ? 'catalog'
+      : c.traceSource === 'discovery' ? 'discovery' : 'refill';
+    bySource[bucket] += 1;
+    return {
+      source: c.traceSource,
+      id: c.id,
+      name: c.name,
+      detail: `score total ${c.scoreBreakdown.totalScore.toFixed(3)}`,
+      offered: true,
+      chosen: false,
+      scoreBreakdown: c.scoreBreakdown,
+      coverageContribution: { themes: matchedThemesFor(c, params.requestedThemes) },
+    };
+  });
+  return {
+    stage: 'candidate_pool',
+    label: 'Ranking de Experiences',
+    component: 'ExperienceRankingEngine',
+    status: 'PASS',
+    summary: `Se ofrecieron ${candidates.length} Experience(s) verificadas de ${params.eligibleCount} elegibles; ${bySource.catalog} del catálogo, ${bySource.refill} de adquisición y ${bySource.discovery} de discovery. La selección no aplica gates de formato ni diversidad de ActivityKind.`,
+    inputs: {
+      initialCatalogCount: params.initialCatalogCount,
+      postAcquisitionCatalogCount: params.postAcquisitionCatalogCount,
+      eligibleCount: params.eligibleCount,
+      requestedThemes: params.requestedThemes,
+    },
+    rules: [rule('EXPERIENCE-RANK-001', 'Ordenar Experiences por relevancia semántica y calidad', 'PASS', 'El ranking determinístico consume únicamente Experiences verificadas.', candidates.length)],
+    decision: {
+      status: 'PASS',
+      outcome: 'EXPERIENCE_POOL_RANKED',
+      reason: 'El pool quedó limitado por capacidad, sin imponer formatos legacy.',
+      reasonCodes: [],
+      triggeredActions: ['RUN_DAILY_PLANNING'],
+    },
+    outputs: { offeredCandidateCount: candidates.length, bySource },
+    candidates,
+    candidateDecisions: params.offeredCandidates.map((c) => ({
+      id: c.id,
+      name: c.name,
+      source: c.traceSource,
+      status: 'RANKED' as const,
+      reason: 'Entró al pool V2 por relevancia.',
+      reasonCodes: ['INSIDE_EXPERIENCE_POOL'],
+      scoreBreakdown: c.scoreBreakdown,
+    })),
+    candidatePool: {
+      initialCatalogCount: params.initialCatalogCount,
+      postAcquisitionCatalogCount: params.postAcquisitionCatalogCount,
+      eligibleCount: params.eligibleCount,
+      llmWindowCount: candidates.length,
+      byKind: {},
+      bySource,
+      requestedFormatAvailability: [],
+      droppedForFamilyCapCount: 0,
+    },
+  };
+}
+
 export function buildDailyPlanningStep(
   solution: DailyPlanningSolution,
 ): GenerationTraceStep {

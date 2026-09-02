@@ -29,11 +29,7 @@ import {
   CandidateScoreBreakdown,
 } from '../utils/candidate-ranking.util';
 import {
-  selectBoundedWindow,
-  FormatAvailability,
-} from '../utils/candidate-window-selection.util';
-import {
-  buildCandidatePoolStep,
+  buildExperienceCandidatePoolStep,
   buildCoverageAnalysisStep,
   buildDailyPlanningStep,
   buildDiscoveryStep,
@@ -112,8 +108,6 @@ interface CandidateSelection {
   experiences: any[];
   semanticRanking: SemanticRankingOutcome;
   scoreBreakdownById: Map<string, CandidateScoreBreakdown>;
-  formatAvailability: FormatAvailability[];
-  droppedForFamilyCapCount: number;
 }
 
 function formatExperienceForPrompt(experience: any): string {
@@ -309,14 +303,12 @@ export class ExperienceGenerationService {
           : ('db' as const),
       scoreBreakdown: selection.scoreBreakdownById.get(act.id)!,
     }));
-    return buildCandidatePoolStep({
+    return buildExperienceCandidatePoolStep({
       initialCatalogCount,
       postAcquisitionCatalogCount,
       eligibleCount,
       offeredCandidates,
       requestedThemes: request.intent.interests,
-      formatAvailability: selection.formatAvailability,
-      droppedForFamilyCapCount: selection.droppedForFamilyCapCount,
     });
   }
 
@@ -465,7 +457,7 @@ export class ExperienceGenerationService {
     experiences: any[],
     intent: TourIntent,
   ): Promise<CandidateSelection> {
-    const candidateActivities = this.filterHardExcludedActivities(
+    const candidateExperiences = this.filterHardExcludedActivities(
       experiences,
       intent,
     );
@@ -474,13 +466,13 @@ export class ExperienceGenerationService {
 
     if (semanticQuery) {
       semanticResult = await this.vectorStoreService.getExperienceSimilarityScores(
-        candidateActivities.map((activity) => activity.id),
+        candidateExperiences.map((experience) => experience.id),
         semanticQuery,
       );
     }
 
     const rankable: (RankableCandidate & { original: any })[] =
-      candidateActivities.map((a) => ({
+      candidateExperiences.map((a) => ({
         id: a.id,
         source: 'poi' as const,
         subtype: a.themes?.[0] ?? a.traits?.[0] ?? a.metadata?.traits?.[0],
@@ -493,12 +485,7 @@ export class ExperienceGenerationService {
       rankable,
       semanticResult?.status === 'applied' ? semanticResult.scores : null,
     );
-    const { window, formatAvailability, droppedForFamilyCapCount } =
-      selectBoundedWindow(
-        rankedFull,
-        [],
-        this.ITINERARY_CANDIDATE_LIMIT,
-      );
+    const window = rankedFull.slice(0, this.ITINERARY_CANDIDATE_LIMIT);
     const ranked = window.map((r) => r.candidate.original);
     const scoreBreakdownById = new Map(
       window.map((r) => [r.candidate.id, r.scoreBreakdown]),
@@ -508,14 +495,12 @@ export class ExperienceGenerationService {
       return {
         experiences: ranked,
         scoreBreakdownById,
-        formatAvailability,
-        droppedForFamilyCapCount,
         semanticRanking: {
           status: 'not_requested',
-          eligibleCandidateCount: candidateActivities.length,
+          eligibleCandidateCount: candidateExperiences.length,
           indexedCandidateCount:
             await this.vectorStoreService.getCompatibleExperienceIndexCount(
-              candidateActivities.map((activity) => activity.id),
+              candidateExperiences.map((experience) => experience.id),
             ),
         },
       };
@@ -524,8 +509,6 @@ export class ExperienceGenerationService {
     return {
       experiences: ranked,
       scoreBreakdownById,
-      formatAvailability,
-      droppedForFamilyCapCount,
       semanticRanking: {
         status: semanticResult!.status,
         eligibleCandidateCount: semanticResult!.requestedCandidateCount,
