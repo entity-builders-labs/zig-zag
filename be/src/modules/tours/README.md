@@ -45,16 +45,16 @@ The primary flow when a user creates a tour from the mobile app wizard:
    - Creates a basic tour record and persists that request in PostgreSQL
    - Builds selector input from typed intent and mobility preferences
    - Kicks off **background** activity generation (non-blocking)
-3. **`TourActivityGenerationService.generateTourActivities()`** (background):
+3. **The async tour-generation processor** (background):
    - Reads only the persisted canonical generation request
-   - Uses `LangChainService` to generate activity recommendations
-   - Searches for existing nearby activities in the DB
-   - Enriches with vector similarity search (pgvector)
-   - Creates `TourActivity` records linking activities to the tour
-   - Optionally generates a cover image via `TourImageService`
+   - Interprets free-text preferences through the configured LLM
+   - Discovers candidate Experiences with grounded search
+   - Resolves component hints against Places/OSM and validates geographic coherence
+   - Runs deterministic daily planning and persists `TourExperience` snapshots
+   - Publishes media work through the existing outbox flow
 
-The request distinguishes thematic interests, desired experience formats,
-exploration style, allowed transportation modes, daily/continuous walking
+The request distinguishes thematic interests, exploration style,
+allowed transportation modes, daily/continuous walking
 limits, pace, accessibility, and bounded additional preferences. PR 4 captures
 and traces every dimension; deterministic walking and transport enforcement is
 deliberately deferred to the spatial-feasibility stage.
@@ -79,7 +79,6 @@ The `prompts/` folder contains structured prompt templates that:
 | -------- | -------------------------------- | -------------------------------------- |
 | `POST`   | `/tours`                         | Create a tour manually                 |
 | `POST`   | `/tours/generate-tour`           | Generate tour from wizard preferences  |
-| `POST`   | `/tours/:id/generate-activities` | Generate activities for existing tour  |
 | `GET`    | `/tours/nearby`                  | Find tours near a location             |
 | `GET`    | `/tours`                         | List all tours (paginated, filterable) |
 | `GET`    | `/tours/:id`                     | Get tour by ID                         |
@@ -90,6 +89,6 @@ The `prompts/` folder contains structured prompt templates that:
 
 - **`LangChainService`** — AI model interaction (from `shared/ai`)
 - **`VectorStoreService`** — pgvector similarity search (from `shared/ai`)
-- **`ActivitiesService`** — Access to existing activities (from `modules/activities`)
+- **`ExperienceCatalogService`** — Verified Experience and component snapshots
 - **`ImageGenerationService`** — DALL-E cover images (from `shared/ai`)
 - **`PrismaService`** — Database access (from `core/database`)
