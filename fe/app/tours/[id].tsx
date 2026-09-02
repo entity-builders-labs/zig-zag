@@ -115,9 +115,11 @@ export default function TourDetailScreen() {
       const metadata = data.metadata as any;
       const generationStatus = metadata?.generationStatus;
       const activities = data.activities || [];
+      const experiences = data.experiences || [];
+      const scheduledItems = experiences.length > 0 ? experiences : activities;
       const stillGenerating =
         (generationStatus === 'generating' || generationStatus === 'pending') &&
-        activities.length === 0;
+        scheduledItems.length === 0;
 
       setTour(data);
       setIsGeneratingActivities(stillGenerating);
@@ -133,7 +135,7 @@ export default function TourDetailScreen() {
         !redirectedToReviewRef.current &&
         generationStatus !== 'generating' &&
         generationStatus !== 'pending' &&
-        activities.length > 0
+        scheduledItems.length > 0
       ) {
         redirectedToReviewRef.current = true;
         router.replace(`/tours/${id}/review`);
