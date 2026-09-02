@@ -9,10 +9,38 @@ export interface PreferenceEvaluation {
 }
 
 const ALIASES: Record<string, string[]> = {
-  religion: ['religion', 'religious', 'iglesia', 'church', 'templo', 'catedral', 'cathedral', 'mezquita', 'mosque', 'synagogue', 'sinagoga'],
+  religion: [
+    'religion',
+    'religious',
+    'iglesia',
+    'church',
+    'templo',
+    'catedral',
+    'cathedral',
+    'mezquita',
+    'mosque',
+    'synagogue',
+    'sinagoga',
+  ],
   vegan: ['vegan', 'vegano', 'vegana', 'plant based', 'plant-based'],
-  'non-vegan food': ['meat', 'carne', 'asado', 'parrilla', 'steak', 'chorizo'],
-  accessibility: ['accessible', 'accesible', 'wheelchair', 'silla de ruedas', 'step free', 'step-free'],
+  'non-vegan food': [
+    'meat',
+    'carne',
+    'asado',
+    'parrilla',
+    'steak',
+    'chorizo',
+  ],
+  accessibility: [
+    'accessible',
+    'accesible',
+    'wheelchair',
+    'silla de ruedas',
+    'step free',
+    'step-free',
+  ],
+  'family friendly': ['family friendly', 'family-friendly', 'kids', 'children', 'niños', 'ninos', 'familia'],
+  'low budget': ['low budget', 'budget', 'free', 'gratis', 'economical', 'economico', 'económico'],
 };
 
 export function evaluateExperiencePreferences(
@@ -20,7 +48,13 @@ export function evaluateExperiencePreferences(
   intent?: NormalizedPreferenceIntent,
 ): PreferenceEvaluation {
   if (!intent) {
-    return { score: 0, positiveMatches: [], negativeMatches: [], exclusionMatches: [], reasons: [] };
+    return {
+      score: 0,
+      positiveMatches: [],
+      negativeMatches: [],
+      exclusionMatches: [],
+      reasons: [],
+    };
   }
 
   const corpus = buildPreferenceCorpus(experience);
@@ -30,6 +64,8 @@ export function evaluateExperiencePreferences(
     ...(intent.preferredIntents ?? []),
     ...(intent.dietaryPreferences ?? []),
     ...(intent.accessibilityPreferences ?? []),
+    ...(intent.budgetPreferences ?? []),
+    ...(intent.groupPreferences ?? []),
   ]);
   const negative = unique([
     ...(intent.excludedThemes ?? []),
@@ -42,10 +78,16 @@ export function evaluateExperiencePreferences(
   const negativeMatches = negative.filter((term) => matchesTerm(corpus, term));
   const exclusionMatches = exclusions.filter((term) => matchesTerm(corpus, term));
 
-  const positiveRatio = preferred.length ? positiveMatches.length / preferred.length : 0;
-  const negativePenalty = negative.length ? negativeMatches.length / negative.length : 0;
+  const positiveRatio = preferred.length
+    ? positiveMatches.length / preferred.length
+    : 0;
+  const negativePenalty = negative.length
+    ? negativeMatches.length / negative.length
+    : 0;
   const exclusionPenalty = exclusionMatches.length > 0 ? 1 : 0;
-  const score = clamp01(positiveRatio - negativePenalty * 0.45 - exclusionPenalty * 0.8);
+  const score = clamp01(
+    positiveRatio - negativePenalty * 0.45 - exclusionPenalty * 0.8,
+  );
 
   const reasons = [
     ...positiveMatches.map((match) => `positive:${match}`),
@@ -53,18 +95,28 @@ export function evaluateExperiencePreferences(
     ...exclusionMatches.map((match) => `exclusion:${match}`),
   ];
 
-  return { score, positiveMatches, negativeMatches, exclusionMatches, reasons };
+  return {
+    score,
+    positiveMatches,
+    negativeMatches,
+    exclusionMatches,
+    reasons,
+  };
 }
 
 export function buildPreferenceCorpus(experience: any): string[] {
+  // Optional components must not turn a preference into a hard exclusion for
+  // an Experience that does not require visiting them.
   const componentValues = Array.isArray(experience?.components)
-    ? experience.components.flatMap((component: any) => [
-        component?.role,
-        component?.geoEntity?.name,
-        component?.geoEntity?.kind,
-        component?.geoEntity?.address,
-        ...stringArray(component?.geoEntity?.metadata?.types),
-      ])
+    ? experience.components
+        .filter((component: any) => component?.required !== false)
+        .flatMap((component: any) => [
+          component?.role,
+          component?.geoEntity?.name,
+          component?.geoEntity?.kind,
+          component?.geoEntity?.address,
+          ...stringArray(component?.geoEntity?.metadata?.types),
+        ])
     : [];
 
   return unique([
@@ -77,6 +129,9 @@ export function buildPreferenceCorpus(experience: any): string[] {
     ...stringArray(experience?.metadata?.themes),
     ...stringArray(experience?.metadata?.traits),
     ...stringArray(experience?.metadata?.intents),
+    experience?.metadata?.budgetLevel,
+    experience?.metadata?.groupType,
+    ...(experience?.price === 0 ? ['free'] : []),
     ...componentValues,
   ]).map(normalize);
 }
@@ -85,8 +140,11 @@ function matchesTerm(corpus: string[], rawTerm: string): boolean {
   const term = normalize(rawTerm);
   const terms = unique([term, ...(ALIASES[term] ?? []).map(normalize)]);
   return terms.some((candidate) =>
-    corpus.some((value) =>
-      value === candidate || value.includes(candidate) || candidate.includes(value),
+    corpus.some(
+      (value) =>
+        value === candidate ||
+        value.includes(candidate) ||
+        candidate.includes(value),
     ),
   );
 }
@@ -98,7 +156,14 @@ function stringArray(value: unknown): string[] {
 }
 
 function unique(values: Array<string | null | undefined>): string[] {
-  return [...new Set(values.filter((value): value is string => typeof value === 'string' && value.trim().length > 0))];
+  return [
+    ...new Set(
+      values.filter(
+        (value): value is string =>
+          typeof value === 'string' && value.trim().length > 0,
+      ),
+    ),
+  ];
 }
 
 function normalize(value: string): string {
