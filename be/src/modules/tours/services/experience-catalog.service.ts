@@ -99,7 +99,7 @@ export class ExperienceCatalogService {
         components: [{ geoEntityId: entity.id, role: 'venue', required: true }],
         evidence: [{ source: result.provenance.provider, title: place.displayName?.text ?? place.name, snippet: place.formattedAddress }],
       });
-      acquired.push({ id: experience.id, name: experience.canonicalName, latitude: experience.latitude, longitude: experience.longitude, duration: 1.5, kind: 'EXPERIENCE', type: 'experience', metadata: { source: 'experience_catalog', experienceId: experience.id } });
+      acquired.push({ id: experience.id, name: experience.canonicalName, latitude: experience.latitude, longitude: experience.longitude, duration: 1.5, metadata: { source: 'experience_catalog', experienceId: experience.id }, components: experience.components });
     }
     return { experienceIds: acquired.map((item) => item.id), experiences: acquired, provenance: result.provenance };
   }

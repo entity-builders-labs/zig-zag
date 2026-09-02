@@ -242,10 +242,7 @@ export class ExperienceGenerationService {
       candidates: activities.map((activity) => ({
         id: activity.id,
         name: activity.name,
-        kind: activity.kind ?? 'EXPERIENCE',
         source: activity.source || activity.sourceId || 'db',
-        type: activity.type,
-        knownActivityTypeName: activity.knownActivityTypeName,
         weightedScore: activity.weightedScore,
         distanceKm: activity.distance,
         metadata: activity.metadata,
@@ -285,9 +282,6 @@ export class ExperienceGenerationService {
     const offeredCandidates = selection.experiences.map((act: any) => ({
       id: act.id,
       name: act.name,
-      kind: act.kind,
-      type: act.type,
-      knownActivityTypeName: act.knownActivityTypeName,
       metadata: act.metadata,
       traceSource: discoveryResolvedActivityIds.has(act.id)
         ? ('discovery' as const)
@@ -531,8 +525,6 @@ export class ExperienceGenerationService {
     return activities.filter((activity) => {
       const haystack = JSON.stringify({
         name: activity.name,
-        type: activity.type,
-        knownActivityTypeName: activity.knownActivityTypeName,
         metadata: activity.metadata,
         themes: activity.themes,
         traits: activity.traits,
@@ -865,8 +857,6 @@ export class ExperienceGenerationService {
                             name: experience.canonicalName,
                             latitude: experience.latitude ?? experience.components[0]?.geoEntity.latitude,
                             longitude: experience.longitude ?? experience.components[0]?.geoEntity.longitude,
-                            kind: 'EXPERIENCE',
-                            type: 'experience',
                             duration: (experience.durationMinutes ?? 120) / 60,
                             metadata: { source: 'experience_catalog', experienceId: experience.id },
                           });
@@ -1267,8 +1257,6 @@ export class ExperienceGenerationService {
                     name: experience.canonicalName,
                     latitude: experience.latitude ?? experience.components[0]?.geoEntity.latitude,
                     longitude: experience.longitude ?? experience.components[0]?.geoEntity.longitude,
-                    kind: 'EXPERIENCE',
-                    type: 'experience',
                     duration: (experience.durationMinutes ?? 120) / 60,
                     metadata: { source: 'experience_catalog', experienceId: experience.id },
                   };
@@ -1437,7 +1425,7 @@ export class ExperienceGenerationService {
                 (activity.endMinutesFromMidnight -
                   activity.startMinutesFromMidnight) /
                 60,
-              isMeal: candidate?.type === 'food',
+              isMeal: Array.isArray(candidate?.traits) && candidate.traits.some((trait: string) => trait.toLowerCase() === 'food'),
             };
           }),
         ),
@@ -1460,7 +1448,7 @@ export class ExperienceGenerationService {
           return {
             experienceId,
             activityName: candidate?.name ?? 'Activity',
-            activityType: candidate?.type ?? 'Activity',
+            activityType: 'experience',
             activityLatitude: candidate?.latitude,
             activityLongitude: candidate?.longitude,
             activityData: undefined as any,
