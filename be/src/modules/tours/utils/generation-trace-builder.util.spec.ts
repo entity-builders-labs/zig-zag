@@ -146,7 +146,7 @@ describe('buildDailyPlanningStep', () => {
       days: [
         {
           dayNumber: 1,
-        experienceCount: 1,
+          experienceCount: 1,
           totalExperienceMinutes: 60,
           totalTravelMinutes: 5,
           totalWalkingMinutes: 5,
@@ -204,7 +204,11 @@ describe('buildEntityResolutionStep', () => {
     const step = buildEntityResolutionStep({
       resolved: [
         {
-          candidate: { ...proposal('Casa Histórica'), traits: [], componentHints: [] },
+          candidate: {
+            ...proposal('Casa Histórica'),
+            traits: [],
+            componentHints: [],
+          },
           status: 'accepted',
           resolvedEntities: [
             {
@@ -244,7 +248,11 @@ describe('buildEntityResolutionStep', () => {
     const step = buildEntityResolutionStep({
       resolved: [
         {
-          candidate: { ...proposal('Plaza Ambigua'), traits: [], componentHints: [] },
+          candidate: {
+            ...proposal('Plaza Ambigua'),
+            traits: [],
+            componentHints: [],
+          },
           status: 'rejected',
           resolvedEntities: [],
           rejectionReasons: ['area_ambiguous'],
@@ -619,15 +627,23 @@ describe('buildEmbeddingsStep', () => {
 });
 
 describe('buildCoverageAnalysisStep', () => {
-  it('reports analyzed vs eligible vs offered counts and the acquisition decision without implementation-phase terminology', () => {
+  it('reports analyzed vs eligible vs offered counts and the grounded-discovery decision without implementation-phase terminology', () => {
+    const deficit = {
+      reason: 'missing_requested_theme' as const,
+      severity: 'blocking' as const,
+      message: 'Falta cobertura para beach.',
+    };
     const step = buildCoverageAnalysisStep({
       status: 'insufficient',
       analyzedCandidateCount: 15,
       eligibleCandidateCount: 4,
+      relevantCandidateCount: 4,
       offeredCandidateCount: 4,
       usableCandidateCount: 4,
       requiredCandidateCount: 8,
       requestedThemeCoverage: [],
+      requestedTraitCoverage: [],
+      requestedIntentCoverage: [],
       sourceCoverage: [],
       geographicCoverage: {
         distinctClusterCount: 1,
@@ -645,18 +661,12 @@ describe('buildCoverageAnalysisStep', () => {
         reason: 'El catálogo puede ampliarse mediante búsqueda grounded.',
       },
       providerHealth: { status: 'healthy' },
-      deficits: [
-        {
-          reason: 'missing_requested_theme',
-          severity: 'blocking',
-          message: 'Falta cobertura para beach.',
-        },
-      ],
+      deficits: [deficit],
       decision: {
-        action: 'places_text_search',
-        reason: 'missing_requested_theme',
-        requiresAdditionalDiscovery: false,
-        deficits: [],
+        action: 'needs_additional_discovery',
+        reason: 'requested_coverage_is_missing',
+        requiresAdditionalDiscovery: true,
+        deficits: [deficit],
       },
     });
 
@@ -665,7 +675,10 @@ describe('buildCoverageAnalysisStep', () => {
     expect(step.summary).toContain('elegibles 4');
     expect(step.summary).toContain('ofrecidos al motor 4');
     expect(step.summary).not.toMatch(/PR\s*\d+/);
-    expect(step.coverageReport?.decision.action).toBe('places_text_search');
+    expect(step.coverageReport?.decision.action).toBe(
+      'needs_additional_discovery',
+    );
+    expect(step.decision?.triggeredActions).toContain('RUN_GROUNDED_DISCOVERY');
   });
 });
 
@@ -685,7 +698,10 @@ describe('destination trace step', () => {
   it('records normalized destination attempts and the coordinate mismatch reason', () => {
     const step = buildDestinationResolutionStep('Montevideo', {
       scale: 'point',
-      attemptedQueries: ['forward:Montevideo', 'reverse:-34.905900,-56.191300'],
+      attemptedQueries: [
+        'forward:Montevideo',
+        'reverse:-34.905900,-56.191300',
+      ],
       degradationReason: 'candidate_mismatched_coordinates',
     });
 
@@ -805,7 +821,9 @@ describe('buildCandidatePoolStep', () => {
     ]);
     expect(byId.get('poi-refill')?.coverageContribution?.themes).toEqual([]);
     expect(byId.get('walk-discovery')?.source).toBe('discovery');
-    expect(byId.get('walk-discovery')?.coverageContribution?.themes).toEqual(['history']);
+    expect(byId.get('walk-discovery')?.coverageContribution?.themes).toEqual([
+      'history',
+    ]);
   });
 
   it('surfaces the Experience-native source counts in the summary', () => {
@@ -825,6 +843,10 @@ describe('buildCandidatePoolStep', () => {
     });
 
     expect(step.summary).toContain('1 candidato(s) reales');
-    expect(step.candidatePool?.bySource).toEqual({ catalog: 1, refill: 0, discovery: 0 });
+    expect(step.candidatePool?.bySource).toEqual({
+      catalog: 1,
+      refill: 0,
+      discovery: 0,
+    });
   });
 });
