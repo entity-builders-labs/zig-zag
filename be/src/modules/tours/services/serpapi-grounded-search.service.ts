@@ -1,14 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
-  GroundedSearchRequest,
-  GroundedSearchResult,
-  GroundedSearchProvider,
-  GroundedTextBlock,
-  GroundingEvidence,
-} from '../interfaces/activity-discovery.interface';
-import { EXPERIENCE_FORMAT_SEARCH_PHRASE } from '../utils/experience-format-kind.util';
-import { ExperienceFormat } from '../interfaces/tour-generation.interface';
+  ExperienceGroundedSearchRequest as GroundedSearchRequest,
+  ExperienceGroundedSearchResult as GroundedSearchResult,
+  ExperienceGroundedSearchProvider as GroundedSearchProvider,
+  ExperienceGroundingEvidence as GroundingEvidence,
+} from '../interfaces/experience-grounding.interface';
+type GroundedTextBlock = { text: string; evidenceKeys: string[] };
 
 interface SerpApiOrganicResult {
   title?: string;
@@ -161,10 +159,7 @@ export class SerpApiGroundedSearchService implements GroundedSearchProvider {
   }
 
   private formatLocation(request: GroundedSearchRequest): string | undefined {
-    const parts = [request.destinationName, request.destinationCountry].filter(
-      (part): part is string => Boolean(part && part.trim()),
-    );
-    return parts.length > 0 ? parts.join(', ') : undefined;
+    return request.destinationName;
   }
 
   /**
@@ -322,25 +317,7 @@ export class SerpApiGroundedSearchService implements GroundedSearchProvider {
   }
 
   private buildSearchQuery(request: GroundedSearchRequest): string {
-    const parts: string[] = [
-      request.destinationName,
-      ...(request.destinationCountry ? [request.destinationCountry] : []),
-      ...request.requestedThemes,
-      'must-see attractions travel guide',
-    ];
-    if (request.requestedExperienceFormats?.length) {
-      // Real search phrases (e.g. "walking tour"), never the raw enum slug
-      // ("neighborhood_walks") — nobody searches that literal string, and it
-      // returns materially worse evidence than what a real person would type.
-      const phrases = request.requestedExperienceFormats
-        .map(
-          (format) =>
-            EXPERIENCE_FORMAT_SEARCH_PHRASE[format as ExperienceFormat],
-        )
-        .filter((phrase): phrase is string => !!phrase);
-      parts.push(...phrases);
-    }
-    return parts.join(' ');
+    return request.query?.trim() || [request.destinationName, ...request.requestedThemes, 'real tourism experiences'].join(' ');
   }
 
   private extractEvidence(

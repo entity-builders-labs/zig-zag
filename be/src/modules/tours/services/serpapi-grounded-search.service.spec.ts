@@ -132,7 +132,7 @@ describe('SerpApiGroundedSearchService', () => {
       expect(result.evidence).toEqual([]);
     });
 
-    it('translates requestedExperienceFormats into real search phrases, never the raw enum slug', async () => {
+    it('uses the V2 fallback query without legacy format slugs', async () => {
       configService.get.mockReturnValue('test-key');
       mockFetchOk([]);
 
@@ -140,13 +140,12 @@ describe('SerpApiGroundedSearchService', () => {
         destinationName: 'La Rioja',
         destinationCountry: 'Argentina',
         requestedThemes: ['history'],
-        requestedExperienceFormats: ['neighborhood_walks'],
         query: '',
       });
 
       const calledUrl = fetchSpy.mock.calls[0][0] as string;
       const q = new URL(calledUrl).searchParams.get('q');
-      expect(q).toContain('walking tour');
+      expect(q).toContain('real tourism experiences');
       expect(q).not.toContain('neighborhood_walks');
     });
 
@@ -184,7 +183,6 @@ describe('SerpApiGroundedSearchService', () => {
         destinationCountry: 'Salta Province, Argentina',
         requestedThemes: [],
         query: 'Find 8-10 real neighborhood walking experiences inside Salta.',
-        targetKind: 'NEIGHBORHOOD_WALK' as any,
       });
 
       const calledUrl = fetchSpy.mock.calls[0][0] as string;
@@ -193,7 +191,7 @@ describe('SerpApiGroundedSearchService', () => {
       expect(params.get('q')).toBe(
         'Find 8-10 real neighborhood walking experiences inside Salta.',
       );
-      expect(params.get('location')).toBe('Salta, Salta Province, Argentina');
+      expect(params.get('location')).toBe('Salta');
       expect(params.get('hl')).toBe('en');
     });
 

@@ -1,6 +1,7 @@
 /** Search evidence contract used by Experience Domain V2. */
 export interface ExperienceGroundedSearchRequest {
   destinationName: string;
+  destinationCountry?: string;
   requestedThemes: string[];
   additionalPreferences?: string;
   query: string;

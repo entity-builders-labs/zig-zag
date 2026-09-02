@@ -64,12 +64,7 @@ import {
   placesProviderLabel,
 } from '@integrations/google-places/interfaces/places-api.interface';
 import { TourIntent } from '../interfaces/tour-generation.interface';
-import {
-  DISCOVERY_PROVIDER,
-  GROUNDED_SEARCH_PROVIDER,
-  GroundedSearchProvider,
-  SearchGroundedDiscoveryProvider,
-} from '../interfaces/activity-discovery.interface';
+import { EXPERIENCE_GROUNDED_SEARCH_PROVIDER, ExperienceGroundedSearchProvider } from '../interfaces/experience-grounding.interface';
 import { ExperienceDiscoveryPlannerService } from './experience-discovery-planner.service';
 import { ExperienceCatalogService } from './experience-catalog.service';
 import { ExperienceAcquisitionService } from './experience-acquisition.service';
@@ -141,10 +136,10 @@ export class ExperienceGenerationService {
     private readonly destinationResolutionService: DestinationResolutionService,
     private readonly coverageAnalyzer: CoverageAnalyzer,
     private readonly experienceDiscoveryPlanner: ExperienceDiscoveryPlannerService,
-    @Inject(GROUNDED_SEARCH_PROVIDER)
-    private readonly groundedSearchProvider: GroundedSearchProvider,
-    @Inject(DISCOVERY_PROVIDER)
-    private readonly discoveryProvider: SearchGroundedDiscoveryProvider,
+    @Inject(EXPERIENCE_GROUNDED_SEARCH_PROVIDER)
+    private readonly groundedSearchProvider: ExperienceGroundedSearchProvider,
+    @Inject('EXPERIENCE_DISCOVERY_PROVIDER')
+    private readonly discoveryProvider: any,
     private readonly tourCompletenessValidator: TourCompletenessValidator,
     @Inject(EXPERIENCE_PROPOSAL_RESOLVER)
     private readonly proposalResolver: ExperienceProposalResolver,

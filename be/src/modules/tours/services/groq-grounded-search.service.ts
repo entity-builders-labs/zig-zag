@@ -1,13 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
-  GroundedSearchRequest,
-  GroundedSearchResult,
-  GroundedSearchProvider,
-  GroundingEvidence,
-} from '../interfaces/activity-discovery.interface';
-import { EXPERIENCE_FORMAT_SEARCH_PHRASE } from '../utils/experience-format-kind.util';
-import { ExperienceFormat } from '../interfaces/tour-generation.interface';
+  ExperienceGroundedSearchRequest as GroundedSearchRequest,
+  ExperienceGroundedSearchResult as GroundedSearchResult,
+  ExperienceGroundedSearchProvider as GroundedSearchProvider,
+  ExperienceGroundingEvidence as GroundingEvidence,
+} from '../interfaces/experience-grounding.interface';
 
 /** Browser search citation marker: 【N†LN-LN】 */
 const CITATION_RE = /【(\d+)†L\d+-L\d+】/g;
@@ -108,47 +106,13 @@ export class GroqGroundedSearchService implements GroundedSearchProvider {
     }
   }
 
-  // Deliberately ignores request.query/targetKind (SemanticDiscoveryQueryBuilder's
-  // output) — this alternate provider isn't wired into the semantic-search
-  // path, still builds its own combined browser_search prompt as before.
   private buildSearchQuery(request: GroundedSearchRequest): string {
-    const parts: string[] = [];
-    parts.push(
-      `Search for must-see places, experiences, neighborhoods, and attractions in ${request.destinationName}${request.destinationCountry ? `, ${request.destinationCountry}` : ''}.`,
-    );
-
-    if (request.requestedThemes.length > 0) {
-      parts.push(`Themes: ${request.requestedThemes.join(', ')}.`);
-    }
-    if (
-      request.requestedExperienceFormats &&
-      request.requestedExperienceFormats.length > 0
-    ) {
-      // Real phrases (e.g. "walking tour"), never the raw enum slug
-      // ("neighborhood_walks") — same fix as SerpApiGroundedSearchService.
-      const phrases = request.requestedExperienceFormats
-        .map(
-          (format) =>
-            EXPERIENCE_FORMAT_SEARCH_PHRASE[format as ExperienceFormat] ??
-            format,
-        )
-        .join(', ');
-      parts.push(`Experience formats: ${phrases}.`);
-    }
-    if (request.explorationStyle) {
-      parts.push(`Exploration style: ${request.explorationStyle}.`);
-    }
-    if (request.additionalPreferences) {
-      parts.push(`Additional preferences: ${request.additionalPreferences}`);
-    }
-
-    parts.push(
-      'Include: iconic POIs, museums, parks, landmarks, neighborhoods, historic streets, markets, notable routes, and local experiences.',
-    );
-    parts.push(
-      'Provide specific names, locations, and brief descriptions for each.',
-    );
-    return parts.join(' ');
+    return request.query?.trim() || [
+      request.destinationName,
+      ...request.requestedThemes,
+      request.additionalPreferences,
+      'real tourism experiences and attractions',
+    ].filter(Boolean).join(' ');
   }
 
   /**

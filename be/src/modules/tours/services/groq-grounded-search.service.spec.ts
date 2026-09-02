@@ -42,7 +42,7 @@ describe('GroqGroundedSearchService', () => {
     expect(fetchSpy).toBeUndefined();
   });
 
-  it('translates requestedExperienceFormats into real phrases, never the raw enum slug', async () => {
+  it('uses the V2 query verbatim', async () => {
     configService.get.mockReturnValue('test-key');
     mockFetchOk('No evidence found.');
 
@@ -50,16 +50,14 @@ describe('GroqGroundedSearchService', () => {
       destinationName: 'La Rioja',
       destinationCountry: 'Argentina',
       requestedThemes: ['history'],
-      requestedExperienceFormats: ['neighborhood_walks'],
-      query: 'unused by this provider',
+      query: 'La Rioja history real tourism experiences',
     });
 
     const body = JSON.parse(fetchSpy.mock.calls[0][1].body);
     const userMessage = body.messages.find(
       (m: any) => m.role === 'user',
     ).content;
-    expect(userMessage).toContain('walking tour');
-    expect(userMessage).not.toContain('neighborhood_walks');
+    expect(userMessage).toBe('La Rioja history real tourism experiences');
   });
 
   it('executes browser search and normalizes evidence', async () => {
