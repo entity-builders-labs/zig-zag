@@ -12,6 +12,7 @@ type GoogleIdentity = {
   initialize: (options: {
     client_id: string;
     callback: (response: { credential?: string }) => void;
+    use_fedcm_for_prompt?: boolean;
   }) => void;
   renderButton: (
     element: HTMLElement,
@@ -77,6 +78,10 @@ export function GoogleSignInButton({
         if (!active || !container.current) return;
         google.initialize({
           client_id: clientId,
+          // The local Expo web shell runs inside an embedded browser where
+          // FedCM is often unavailable and can fail without surfacing an
+          // error. Force Google's popup UX for local development.
+          use_fedcm_for_prompt: false,
           callback: ({ credential }) => {
             if (credential) void onSignIn(credential);
           },
