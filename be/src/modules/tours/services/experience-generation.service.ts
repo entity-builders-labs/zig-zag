@@ -27,7 +27,6 @@ import {
   pointRadiusToGeometry,
 } from '../utils/geometry-search-area.util';
 import { TourGenerationRequest } from '../interfaces/tour-generation.interface';
-import { verifySelectedWaypointSubset } from '../utils/composite-activity-verification.util';
 import {
   rankCandidatesByRelevance,
   RankableCandidate,
@@ -1729,58 +1728,4 @@ export class ExperienceGenerationService {
     }
   }
 
-  async updateTourActivityWaypoints(
-    tourId: string,
-    tourActivityId: string,
-    selectedWaypointActivityIds: string[],
-  ) {
-    const tourActivity = await this.prisma.tourActivity.findUnique({
-      where: { id: tourActivityId },
-    });
-    if (!tourActivity || tourActivity.tourId !== tourId) {
-      throw new NotFoundException(
-        `TourActivity ${tourActivityId} not found on tour ${tourId}`,
-      );
-    }
-    if (!tourActivity.activityId) {
-      throw new BadRequestException(
-        'This tour stop has no linked variant to select waypoints from.',
-      );
-    }
-
-    const actualWaypoints = await this.prisma.activityWaypoint.findMany({
-      where: { compositeActivityId: tourActivity.activityId },
-    });
-    const actualWaypointIds = new Set(
-      actualWaypoints.map((w) => w.waypointActivityId),
-    );
-
-    const validSubset = verifySelectedWaypointSubset(
-      selectedWaypointActivityIds,
-      actualWaypointIds,
-    );
-    if (!validSubset) {
-      this.logger.warn(
-        `Ignored an invalid/too-small waypoint subset for TourActivity ${tourActivityId} (tour ${tourId}) — left as-is.`,
-      );
-      return tourActivity;
-    }
-
-    await this.prisma.$transaction(async (tx) => {
-      await tx.tourActivityWaypoint.deleteMany({
-        where: { tourActivityId },
-      });
-      await tx.tourActivityWaypoint.createMany({
-        data: validSubset.map((waypointActivityId, index) => ({
-          tourActivityId,
-          waypointActivityId,
-          order: index + 1,
-        })),
-      });
-    });
-
-    return this.prisma.tourActivity.findUnique({
-      where: { id: tourActivityId },
-    });
-  }
 }
