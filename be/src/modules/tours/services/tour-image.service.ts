@@ -19,7 +19,7 @@ export class TourImageService {
     try {
       const tour = await this.prisma.tour.findUnique({
         where: { id: tourId },
-        include: { activities: true },
+        include: { experiences: { include: { experience: true } } },
       });
 
       if (!tour) return null;
@@ -27,9 +27,9 @@ export class TourImageService {
       this.logger.debug(`Generating cover image for tour: ${tour.name}`);
 
       // Create a rich prompt based on tour details
-      const activityNames = tour.activities
+      const activityNames = tour.experiences
         .slice(0, 3)
-        .map((a) => a.activityName)
+        .map((snapshot) => snapshot.experience.canonicalName)
         .join(', ');
 
       const prompt = generateCoverImagePrompt(
