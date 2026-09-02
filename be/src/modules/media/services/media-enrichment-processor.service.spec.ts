@@ -113,15 +113,17 @@ describe('MediaEnrichmentProcessorService', () => {
     await service.handleMediaEnrichment(payload);
     await service.handleMediaEnrichment(payload);
 
-    expect(tx.experienceMedia.upsert).toHaveBeenCalledTimes(2);
-    for (const call of tx.experienceMedia.upsert.mock.calls) {
-      expect(call[0].where).toEqual({
+    const expectedUpsert = expect.objectContaining({
+      where: {
         experienceId_url: {
           experienceId: payload.experienceId,
           url: photo.url,
         },
-      });
-    }
+      },
+    });
+    expect(tx.experienceMedia.upsert).toHaveBeenCalledTimes(2);
+    expect(tx.experienceMedia.upsert).toHaveBeenNthCalledWith(1, expectedUpsert);
+    expect(tx.experienceMedia.upsert).toHaveBeenNthCalledWith(2, expectedUpsert);
   });
 
   it('does not persist FAILED or negative media state for retryable failures', async () => {
