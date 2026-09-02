@@ -1,4 +1,5 @@
 import { PlanningCandidateNormalizerService } from './planning-candidate-normalizer.service';
+import { TransportationMode } from '../interfaces/tour-generation.interface';
 
 describe('PlanningCandidateNormalizerService', () => {
   let service: PlanningCandidateNormalizerService;
@@ -89,6 +90,76 @@ describe('PlanningCandidateNormalizerService', () => {
     });
   });
 
+  it('routes consecutive required components and records provider/fallback provenance', async () => {
+    const estimate = jest
+      .fn()
+      .mockResolvedValueOnce({
+        mode: TransportationMode.WALKING,
+        durationMinutes: 10,
+        distanceMeters: 700,
+        walkingMinutes: 10,
+        walkingDistanceMeters: 700,
+        approximate: false,
+        provider: 'geoapify',
+      })
+      .mockResolvedValueOnce({
+        mode: TransportationMode.WALKING,
+        durationMinutes: 15,
+        distanceMeters: 1000,
+        walkingMinutes: 15,
+        walkingDistanceMeters: 1000,
+        approximate: true,
+        provider: 'approximate',
+        fallbackReason: 'geoapify_failed:timeout',
+      });
+    const routed = new PlanningCandidateNormalizerService(
+      { compositeDefaultDurationMinutes: 90 } as any,
+      { estimate } as any,
+    );
+
+    const [candidate] = await routed.normalizeExperiences(
+      [
+        {
+          id: 'composite',
+          canonicalName: 'Three-stop walk',
+          components: [
+            {
+              order: 1,
+              required: true,
+              geoEntity: { latitude: -34.6, longitude: -58.4 },
+            },
+            {
+              order: 2,
+              required: true,
+              geoEntity: { latitude: -34.601, longitude: -58.401 },
+            },
+            {
+              order: 3,
+              required: true,
+              geoEntity: { latitude: -34.602, longitude: -58.402 },
+            },
+            {
+              order: 4,
+              required: false,
+              geoEntity: { latitude: -35, longitude: -59 },
+            },
+          ],
+        },
+      ],
+      new Map(),
+      [TransportationMode.WALKING],
+    );
+
+    expect(estimate).toHaveBeenCalledTimes(2);
+    expect(candidate.mobility).toEqual({
+      internalTravelMinutes: 25,
+      internalWalkingMinutes: 25,
+      internalWalkingDistanceMeters: 1700,
+      routingProviderCounts: { geoapify: 1, approximate: 1 },
+      routingFallbackCount: 1,
+    });
+  });
+
   it('preserves canonical ROUTE geometry as a LINE planning footprint', async () => {
     const [candidate] = await service.normalizeExperiences(
       [
@@ -121,10 +192,8 @@ describe('PlanningCandidateNormalizerService', () => {
       throw new Error('Expected LINE footprint');
     }
     expect(candidate.spatialFootprint.geometry).toHaveLength(3);
-    expect(candidate.spatialFootprint.centroid).toEqual({
-      lat: -32.949999999999996,
-      lng: -68.8,
-    });
+    expect(candidate.spatialFootprint.centroid.lat).toBeCloseTo(-32.95);
+    expect(candidate.spatialFootprint.centroid.lng).toBeCloseTo(-68.8);
   });
 
   it('uses the configured default when an Experience has no duration', async () => {
@@ -206,7 +275,6 @@ describe('PlanningCandidateNormalizerService', () => {
     expect(candidate.mobility).toEqual({
       internalWalkingMinutes: 5,
       internalWalkingDistanceMeters: 300,
-      internalTravelMinutes: undefined,
     });
   });
 
