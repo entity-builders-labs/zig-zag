@@ -81,8 +81,8 @@ describe('buildTourCompletenessStep', () => {
           {
             code: 'UNDERFILLED_DAY',
             dayNumber: 1,
-            selectedActivityCount: 2,
-            selectedActivityHours: 2.5,
+            selectedExperienceCount: 2,
+            selectedExperienceHours: 2.5,
             viableUnusedCandidateCount: 12,
             travelPace: 'moderate' as any,
             message: 'thin day',

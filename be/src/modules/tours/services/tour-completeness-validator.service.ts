@@ -26,13 +26,13 @@ export class TourCompletenessValidator {
     const issues: TourCompletenessIssue[] = [];
 
     for (let dayNumber = 1; dayNumber <= input.requestedDays; dayNumber++) {
-      const dayActivities = input.selectedActivities.filter(
+      const dayExperiences = input.selectedExperiences.filter(
         (activity) => activity.dayNumber === dayNumber,
       );
 
       let meaningfulHours = 0;
       let substantialCount = 0;
-      for (const activity of dayActivities) {
+      for (const activity of dayExperiences) {
         // A meal stop that isn't the trip's focus is capped so it can't,
         // on its own, make an otherwise thin day look complete, and never
         // counts toward the "substantial activity" count either.
@@ -60,7 +60,7 @@ export class TourCompletenessValidator {
         issues.push(
           this.buildIssue(
             dayNumber,
-            dayActivities.length,
+            dayExperiences.length,
             meaningfulHours,
             input,
           ),
@@ -73,21 +73,21 @@ export class TourCompletenessValidator {
 
   private buildIssue(
     dayNumber: number,
-    selectedActivityCount: number,
+    selectedExperienceCount: number,
     meaningfulHours: number,
     input: TourCompletenessInput,
   ): TourCompletenessIssue {
-    const selectedActivityHours = Number(meaningfulHours.toFixed(2));
+    const selectedExperienceHours = Number(meaningfulHours.toFixed(2));
     return {
       code: 'UNDERFILLED_DAY',
       dayNumber,
-      selectedActivityCount,
-      selectedActivityHours,
+      selectedExperienceCount,
+      selectedExperienceHours,
       viableUnusedCandidateCount: input.viableUnusedCandidateCount,
       travelPace: input.travelPace,
       message:
-        `Day ${dayNumber} has ${selectedActivityCount} activity/activities ` +
-        `totaling ~${selectedActivityHours}h of meaningful time, below the ` +
+        `Day ${dayNumber} has ${selectedExperienceCount} experience(s) ` +
+        `totaling ~${selectedExperienceHours}h of meaningful time, below the ` +
         `"${input.travelPace}" pace guideline, while ` +
         `${input.viableUnusedCandidateCount} viable candidate(s) remain unused.`,
     };

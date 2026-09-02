@@ -1465,8 +1465,8 @@ export function buildTourCompletenessStep(
     : result.issues
         .map(
           (issue) =>
-            `Día ${issue.dayNumber}: ${issue.selectedActivityCount} actividad(es), ` +
-            `~${issue.selectedActivityHours}h, ${issue.viableUnusedCandidateCount} ` +
+            `Día ${issue.dayNumber}: ${issue.selectedExperienceCount} experience(s), ` +
+            `~${issue.selectedExperienceHours}h, ${issue.viableUnusedCandidateCount} ` +
             `candidato(s) viable(s) sin usar (ritmo "${issue.travelPace}").`,
         )
         .join(' ') +
@@ -1490,7 +1490,7 @@ export function buildTourCompletenessStep(
           : result.issues
               .map(
                 (i) =>
-                  `Día ${i.dayNumber}: ${i.selectedActivityCount} seleccionada(s), ${i.viableUnusedCandidateCount} viable(s) sin usar.`,
+                  `Día ${i.dayNumber}: ${i.selectedExperienceCount} seleccionada(s), ${i.viableUnusedCandidateCount} viable(s) sin usar.`,
               )
               .join(' '),
       ),

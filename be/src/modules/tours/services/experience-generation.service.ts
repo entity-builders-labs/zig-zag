@@ -1425,11 +1425,11 @@ export class ExperienceGenerationService {
         requestedDays: request.days,
         travelPace: request.mobility.travelPace,
         isFoodFocusedIntent,
-        selectedActivities: planningSolution.days.flatMap((day) =>
+        selectedExperiences: planningSolution.days.flatMap((day) =>
           day.activities.map((activity) => {
             const candidate = candidateActivitiesById.get(activity.activityId);
             return {
-              activityId: activity.activityId,
+              experienceId: activity.experienceId ?? activity.activityId,
               dayNumber: day.dayNumber,
               durationHours:
                 (activity.endMinutesFromMidnight -

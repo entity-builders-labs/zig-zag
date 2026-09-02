@@ -5,15 +5,15 @@ export type TourCompletenessIssueCode = 'UNDERFILLED_DAY';
 export interface TourCompletenessIssue {
   code: TourCompletenessIssueCode;
   dayNumber: number;
-  selectedActivityCount: number;
-  selectedActivityHours: number;
+  selectedExperienceCount: number;
+  selectedExperienceHours: number;
   viableUnusedCandidateCount: number;
   travelPace: TravelPace;
   message: string;
 }
 
-export interface TourCompletenessSelectedActivity {
-  activityId: string;
+export interface TourCompletenessSelectedExperience {
+  experienceId: string;
   dayNumber: number;
   durationHours: number;
   /** Activity.type === 'food' — the only structured meal signal available
@@ -28,7 +28,7 @@ export interface TourCompletenessInput {
    * interest), not merely when 'food' is one of several themes — see
    * TourCompletenessValidator for the exact heuristic and its rationale. */
   isFoodFocusedIntent: boolean;
-  selectedActivities: TourCompletenessSelectedActivity[];
+  selectedExperiences: TourCompletenessSelectedExperience[];
   /** Offered-minus-selected candidates, global across the whole tour — not
    * per day. The system has no deterministic day assignment for unused
    * candidates yet (that's spatial/temporal feasibility, later work), so a

@@ -1,6 +1,6 @@
 import { TourCompletenessValidator } from './tour-completeness-validator.service';
 import { TravelPace } from '../interfaces/tour-generation.interface';
-import { TourCompletenessSelectedActivity } from '../interfaces/tour-completeness.interface';
+import { TourCompletenessSelectedExperience } from '../interfaces/tour-completeness.interface';
 
 describe('TourCompletenessValidator', () => {
   let service: TourCompletenessValidator;
@@ -9,11 +9,11 @@ describe('TourCompletenessValidator', () => {
     service = new TourCompletenessValidator();
   });
 
-  function activity(
-    overrides: Partial<TourCompletenessSelectedActivity>,
-  ): TourCompletenessSelectedActivity {
+  function experience(
+    overrides: Partial<TourCompletenessSelectedExperience>,
+  ): TourCompletenessSelectedExperience {
     return {
-      activityId: 'act-1',
+      experienceId: 'exp-1',
       dayNumber: 1,
       durationHours: 1,
       isMeal: false,
@@ -26,9 +26,9 @@ describe('TourCompletenessValidator', () => {
       requestedDays: 1,
       travelPace: TravelPace.MODERATE,
       isFoodFocusedIntent: false,
-      selectedActivities: [
-        activity({ activityId: 'museum', durationHours: 1.5 }),
-        activity({ activityId: 'restaurant', durationHours: 1, isMeal: true }),
+      selectedExperiences: [
+        experience({ experienceId: 'museum', durationHours: 1.5 }),
+        experience({ experienceId: 'restaurant', durationHours: 1, isMeal: true }),
       ],
       viableUnusedCandidateCount: 12,
     });
@@ -44,9 +44,9 @@ describe('TourCompletenessValidator', () => {
       requestedDays: 1,
       travelPace: TravelPace.MODERATE,
       isFoodFocusedIntent: false,
-      selectedActivities: [
-        activity({ activityId: 'walk', durationHours: 3 }),
-        activity({ activityId: 'museum', durationHours: 3 }),
+      selectedExperiences: [
+        experience({ experienceId: 'walk', durationHours: 3 }),
+        experience({ experienceId: 'museum', durationHours: 3 }),
       ],
       viableUnusedCandidateCount: 12,
     });
@@ -60,10 +60,10 @@ describe('TourCompletenessValidator', () => {
       requestedDays: 1,
       travelPace: TravelPace.MODERATE,
       isFoodFocusedIntent: false,
-      selectedActivities: [
-        activity({ activityId: 'museum', durationHours: 1 }),
-        activity({
-          activityId: 'restaurant',
+      selectedExperiences: [
+        experience({ experienceId: 'museum', durationHours: 1 }),
+        experience({
+          experienceId: 'restaurant',
           durationHours: 1.5,
           isMeal: true,
         }),
@@ -79,10 +79,10 @@ describe('TourCompletenessValidator', () => {
       requestedDays: 1,
       travelPace: TravelPace.MODERATE,
       isFoodFocusedIntent: true,
-      selectedActivities: [
-        activity({ activityId: 'market', durationHours: 1.5, isMeal: true }),
-        activity({ activityId: 'lunch', durationHours: 1.5, isMeal: true }),
-        activity({ activityId: 'dinner', durationHours: 1.5, isMeal: true }),
+      selectedExperiences: [
+        experience({ experienceId: 'market', durationHours: 1.5, isMeal: true }),
+        experience({ experienceId: 'lunch', durationHours: 1.5, isMeal: true }),
+        experience({ experienceId: 'dinner', durationHours: 1.5, isMeal: true }),
       ],
       viableUnusedCandidateCount: 6,
     });
@@ -91,23 +91,23 @@ describe('TourCompletenessValidator', () => {
   });
 
   it('accepts lower density for relaxed pace than it would for fast pace, same activities', () => {
-    const selectedActivities = [
-      activity({ activityId: 'poi-1', durationHours: 1 }),
-      activity({ activityId: 'poi-2', durationHours: 1 }),
+    const selectedExperiences = [
+      experience({ experienceId: 'poi-1', durationHours: 1 }),
+      experience({ experienceId: 'poi-2', durationHours: 1 }),
     ];
 
     const relaxed = service.validate({
       requestedDays: 1,
       travelPace: TravelPace.RELAXED,
       isFoodFocusedIntent: false,
-      selectedActivities,
+      selectedExperiences,
       viableUnusedCandidateCount: 8,
     });
     const fast = service.validate({
       requestedDays: 1,
       travelPace: TravelPace.FAST,
       isFoodFocusedIntent: false,
-      selectedActivities,
+      selectedExperiences,
       viableUnusedCandidateCount: 8,
     });
 
@@ -120,9 +120,9 @@ describe('TourCompletenessValidator', () => {
       requestedDays: 1,
       travelPace: TravelPace.FAST,
       isFoodFocusedIntent: false,
-      selectedActivities: [
-        activity({ activityId: 'poi-1', durationHours: 1 }),
-        activity({ activityId: 'poi-2', durationHours: 1 }),
+      selectedExperiences: [
+        experience({ experienceId: 'poi-1', durationHours: 1 }),
+        experience({ experienceId: 'poi-2', durationHours: 1 }),
       ],
       viableUnusedCandidateCount: 10,
     });
@@ -135,7 +135,7 @@ describe('TourCompletenessValidator', () => {
       requestedDays: 1,
       travelPace: TravelPace.MODERATE,
       isFoodFocusedIntent: false,
-      selectedActivities: [activity({ activityId: 'poi-1', durationHours: 1 })],
+      selectedExperiences: [experience({ experienceId: 'poi-1', durationHours: 1 })],
       viableUnusedCandidateCount: 0,
     });
 
@@ -147,7 +147,7 @@ describe('TourCompletenessValidator', () => {
       requestedDays: 1,
       travelPace: TravelPace.MODERATE,
       isFoodFocusedIntent: false,
-      selectedActivities: [activity({ activityId: 'walk', durationHours: 4 })],
+      selectedExperiences: [experience({ experienceId: 'walk', durationHours: 4 })],
       viableUnusedCandidateCount: 12,
     });
 
@@ -159,7 +159,7 @@ describe('TourCompletenessValidator', () => {
       requestedDays: 1,
       travelPace: TravelPace.MODERATE,
       isFoodFocusedIntent: false,
-      selectedActivities: [],
+      selectedExperiences: [],
       viableUnusedCandidateCount: 0,
     });
 
@@ -172,9 +172,9 @@ describe('TourCompletenessValidator', () => {
       requestedDays: 2,
       travelPace: TravelPace.MODERATE,
       isFoodFocusedIntent: false,
-      selectedActivities: [
-        activity({ activityId: 'walk-day1', dayNumber: 1, durationHours: 4 }),
-        activity({ activityId: 'poi-day2', dayNumber: 2, durationHours: 1 }),
+      selectedExperiences: [
+        experience({ experienceId: 'walk-day1', dayNumber: 1, durationHours: 4 }),
+        experience({ experienceId: 'poi-day2', dayNumber: 2, durationHours: 1 }),
       ],
       viableUnusedCandidateCount: 8,
     });
@@ -191,8 +191,8 @@ describe('TourCompletenessValidator', () => {
       requestedDays: 2,
       travelPace: TravelPace.MODERATE,
       isFoodFocusedIntent: false,
-      selectedActivities: [
-        activity({ activityId: 'walk-day1', dayNumber: 1, durationHours: 4 }),
+      selectedExperiences: [
+        experience({ experienceId: 'walk-day1', dayNumber: 1, durationHours: 4 }),
         // day 2 has no activities at all
       ],
       viableUnusedCandidateCount: 5,
@@ -202,7 +202,7 @@ describe('TourCompletenessValidator', () => {
     expect(result.issues).toEqual([
       expect.objectContaining({
         dayNumber: 2,
-        selectedActivityCount: 0,
+        selectedExperienceCount: 0,
         code: 'UNDERFILLED_DAY',
       }),
     ]);
