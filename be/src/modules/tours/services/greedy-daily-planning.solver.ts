@@ -55,7 +55,47 @@ export class GreedyDailyPlanningSolver implements DailyPlanningSolver {
     }
     plannedDays.sort((a, b) => a.dayNumber - b.dayNumber);
 
-  const score = plannedDays.reduce((sum, d) => sum + d.experiences.length, 0);
+    const score = plannedDays.reduce(
+      (sum, day) => sum + day.experiences.length,
+      0,
+    );
+    const externalEstimates = plannedDays.flatMap((day) =>
+      day.experiences
+        .map((experience) => experience.travelFromPrevious)
+        .filter((estimate): estimate is NonNullable<typeof estimate> => !!estimate),
+    );
+    const internalEstimateCount = input.candidates.reduce(
+      (sum, candidate) =>
+        sum +
+        Object.values(candidate.mobility?.routingProviderCounts ?? {}).reduce(
+          (candidateSum, count) => candidateSum + count,
+          0,
+        ),
+      0,
+    );
+    const internalFallbackCount = input.candidates.reduce(
+      (sum, candidate) => sum + (candidate.mobility?.routingFallbackCount ?? 0),
+      0,
+    );
+    const providerCounts: Record<string, number> = {};
+    for (const estimate of externalEstimates) {
+      const provider = estimate.provider ?? 'unknown';
+      providerCounts[provider] = (providerCounts[provider] ?? 0) + 1;
+    }
+    for (const candidate of input.candidates) {
+      for (const [provider, count] of Object.entries(
+        candidate.mobility?.routingProviderCounts ?? {},
+      )) {
+        providerCounts[provider] = (providerCounts[provider] ?? 0) + count;
+      }
+    }
+    const externalFallbackCount = externalEstimates.filter(
+      (estimate) => estimate.approximate || !!estimate.fallbackReason,
+    ).length;
+    const approximateEstimateCount =
+      externalEstimates.filter((estimate) => estimate.approximate).length +
+      internalFallbackCount;
+    const fallbackCount = externalFallbackCount + internalFallbackCount;
 
     return {
       days: plannedDays,
@@ -63,8 +103,15 @@ export class GreedyDailyPlanningSolver implements DailyPlanningSolver {
       score,
       metadata: {
         solver: 'GreedyDailyPlanningSolver',
-        approximateTravel: true,
+        approximateTravel: approximateEstimateCount > 0,
         iterations,
+        routing: {
+          externalEstimateCount: externalEstimates.length,
+          internalEstimateCount,
+          approximateEstimateCount,
+          fallbackCount,
+          providerCounts,
+        },
         constraints: {
           requestedDays: input.requestedDays,
           planningWindow: input.planningWindow,
