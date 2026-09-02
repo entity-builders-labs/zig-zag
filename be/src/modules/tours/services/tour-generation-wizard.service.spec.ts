@@ -6,14 +6,7 @@ describe('TourGenerationService canonical wizard path', () => {
     const toursService = {
       create: jest.fn(async (data) => ({ id: 'tour-1', ...data })),
     };
-    const service = new TourGenerationService(
-      { tour: { findMany: jest.fn() } } as any,
-      {} as any,
-      {} as any,
-      {} as any,
-      toursService as any,
-      {} as any,
-    );
+    const service = new TourGenerationService(toursService as any);
     const note = 'Prefer street photography';
     const request: TourGenerationRequest = {
       contractVersion: 1 as const,
@@ -28,7 +21,6 @@ describe('TourGenerationService canonical wizard path', () => {
       groupType: 'family' as any,
       intent: {
         interests: ['history'],
-        experienceFormats: ['neighborhood_walks' as any],
         explorationStyle: 'balanced' as any,
         additionalPreferences: note,
       },

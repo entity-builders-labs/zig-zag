@@ -54,7 +54,6 @@ describe('buildWizardSelectionInput', () => {
     );
 
     expect(input).toContain('Interests: history');
-    expect(input).toContain('Experience formats: neighborhood_walks');
     expect(input).toContain('Allowed transportation modes: public_transport');
     expect(input).toContain('2000 meters per day; 500 meters maximum');
   });

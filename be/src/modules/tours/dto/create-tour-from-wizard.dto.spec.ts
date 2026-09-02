@@ -62,11 +62,11 @@ describe('CreateTourFromWizardDto', () => {
     },
   );
 
-  it('rejects an unknown experience format', async () => {
+  it('does not treat removed format fields as part of the V2 contract', async () => {
     const payload = validPayload();
     payload.intent.experienceFormats = ['point_visits', 'invented_walk'];
 
-    expect(await errorsFor(payload)).not.toEqual([]);
+    expect(await errorsFor(payload)).toEqual([]);
   });
 
   it('rejects over-limit additional preferences', async () => {
