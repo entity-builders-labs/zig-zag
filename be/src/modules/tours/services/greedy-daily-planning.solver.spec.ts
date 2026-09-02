@@ -1,6 +1,7 @@
 import { GreedyDailyPlanningSolver } from './greedy-daily-planning.solver';
 import {
   DailyPlanningInput,
+  PlanningExperienceCandidate,
   TravelEstimateProvider,
 } from '../interfaces/daily-planning.interface';
 import {
@@ -72,7 +73,10 @@ function baseInput(
   };
 }
 
-function candidate(id: string, semanticScore = 0.5) {
+function candidate(
+  id: string,
+  semanticScore = 0.5,
+): PlanningExperienceCandidate {
   const stableOffset =
     Array.from(id).reduce((sum, character) => sum + character.charCodeAt(0), 0) %
     10;
@@ -81,7 +85,7 @@ function candidate(id: string, semanticScore = 0.5) {
     title: id,
     durationMinutes: 60,
     spatialFootprint: {
-      type: 'POINT' as const,
+      type: 'POINT',
       centroid: { lat: 0, lng: stableOffset * 0.0001 },
     },
     componentFootprints: [],
@@ -139,12 +143,12 @@ describe('GreedyDailyPlanningSolver', () => {
   it('routes all internal component legs with the request mobility modes before placement', async () => {
     const provider = realishTravelEstimateProvider();
     const solver = new GreedyDailyPlanningSolver(provider, policy);
-    const composite = {
+    const composite: PlanningExperienceCandidate = {
       ...candidate('composite'),
       componentFootprints: [
-        { type: 'POINT' as const, centroid: { lat: 0, lng: 0 } },
-        { type: 'POINT' as const, centroid: { lat: 0, lng: 0.001 } },
-        { type: 'POINT' as const, centroid: { lat: 0, lng: 0.002 } },
+        { type: 'POINT', centroid: { lat: 0, lng: 0 } },
+        { type: 'POINT', centroid: { lat: 0, lng: 0.001 } },
+        { type: 'POINT', centroid: { lat: 0, lng: 0.002 } },
       ],
     };
 
@@ -154,8 +158,8 @@ describe('GreedyDailyPlanningSolver', () => {
 
     expect(provider.estimate).toHaveBeenCalledTimes(2);
     expect(provider.estimate).toHaveBeenCalledWith(
-      composite.componentFootprints[0],
-      composite.componentFootprints[1],
+      composite.componentFootprints![0],
+      composite.componentFootprints![1],
       [TransportationMode.WALKING],
     );
     expect(solution.metadata.approximateTravel).toBe(true);
