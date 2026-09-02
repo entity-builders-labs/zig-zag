@@ -299,7 +299,7 @@ describe('GooglePlacesService provider provenance', () => {
     expect(activities.create).toHaveBeenCalledWith(
       expect.objectContaining({ externalId: 'google-landmark-1' }),
     );
-    expect(result.activitiesIds).toEqual(['activity-1']);
+    expect(result.experienceIds).toEqual(['activity-1']);
     expect(result.provenance.rejectedCountByReason).toEqual(
       expect.objectContaining({ provider_request_failed: expect.any(Number) }),
     );
@@ -453,7 +453,7 @@ describe('GooglePlacesService provider provenance', () => {
       { maxProviderCalls: 1, destinationLabel: 'Córdoba, Argentina' },
     );
 
-    expect(result.activitiesIds).toEqual(['activity-1']);
+    expect(result.experienceIds).toEqual(['activity-1']);
     expect(result.provenance).toMatchObject({
       persistedCount: 1,
       embeddedCount: 0,
