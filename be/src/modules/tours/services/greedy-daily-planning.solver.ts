@@ -55,7 +55,7 @@ export class GreedyDailyPlanningSolver implements DailyPlanningSolver {
     }
     plannedDays.sort((a, b) => a.dayNumber - b.dayNumber);
 
-    const score = plannedDays.reduce((sum, d) => sum + d.activities.length, 0);
+  const score = plannedDays.reduce((sum, d) => sum + d.experiences.length, 0);
 
     return {
       days: plannedDays,

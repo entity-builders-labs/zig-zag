@@ -12,7 +12,7 @@ import {
 import { footprintDistanceMeters } from './spatial-footprint.util';
 
 const candidateIdentity = (candidate: PlanningExperienceCandidate): string =>
-  candidate.experienceId ?? candidate.activityId ?? '';
+  candidate.experienceId;
 
 function dayCentroid(acc: DayAccumulator): Coordinate | null {
   if (acc.assigned.length === 0) return null;
@@ -57,8 +57,8 @@ function withoutCandidate(
   return {
     ...acc,
     assigned: acc.assigned.filter((a) => candidateIdentity(a) !== candidateIdentity(remove)),
-    totalActivityMinutes:
-      acc.totalActivityMinutes - candidateActivityMinutes(remove),
+    totalExperienceMinutes:
+      acc.totalExperienceMinutes - candidateActivityMinutes(remove),
   };
 }
 
@@ -82,8 +82,8 @@ function transferCandidateTotals(
 ): void {
   const minutes = candidateActivityMinutes(candidate);
   const walkingMeters = internalWalkingMeters(candidate, context.policy);
-  from.totalActivityMinutes -= minutes;
-  to.totalActivityMinutes += minutes;
+  from.totalExperienceMinutes -= minutes;
+  to.totalExperienceMinutes += minutes;
   from.totalWalkingMeters -= walkingMeters;
   to.totalWalkingMeters += walkingMeters;
 }

@@ -13,12 +13,12 @@ import { DailyPlanningPolicy } from '../config/daily-planning-policy.config';
 import { isOpenDuring } from './normalized-opening-hours.util';
 
 const candidateIdentity = (candidate: PlanningExperienceCandidate): string =>
-  candidate.experienceId ?? candidate.activityId ?? '';
+  candidate.experienceId;
 
 export interface DayAccumulator {
   dayNumber: number;
   assigned: PlanningExperienceCandidate[];
-  totalActivityMinutes: number;
+  totalExperienceMinutes: number;
   totalWalkingMeters: number;
 }
 
@@ -83,7 +83,7 @@ export function internalWalkingMeters(
   }
   if (
     candidate.mobility?.internalWalkingDistanceMeters === undefined &&
-    candidate.kind !== 'POI'
+    candidate.mobility?.internalWalkingMinutes === undefined
   ) {
     // Unknown internal walking on a composite: apply the explicit,
     // configurable conservative V1 fallback — never derived from duration.
@@ -141,7 +141,7 @@ export async function checkHardConstraints(
     context.planningWindow.endMinutesFromMidnight -
     context.planningWindow.startMinutesFromMidnight;
   const projectedActivityMinutes =
-    acc.totalActivityMinutes +
+    acc.totalExperienceMinutes +
     candidateActivityMinutes(candidate) +
     (travel?.durationMinutes ?? 0);
   if (projectedActivityMinutes > dayWindowMinutes) {
@@ -174,7 +174,7 @@ export async function checkHardConstraints(
     if (weekday !== undefined) {
       const proposedStart =
         context.planningWindow.startMinutesFromMidnight +
-        acc.totalActivityMinutes;
+        acc.totalExperienceMinutes;
       const proposedEnd = proposedStart + candidate.durationMinutes;
       if (
         !isOpenDuring(
@@ -232,7 +232,7 @@ export async function placeCandidates(
     days.set(d, {
       dayNumber: d,
       assigned: [],
-      totalActivityMinutes: 0,
+      totalExperienceMinutes: 0,
       totalWalkingMeters: 0,
     });
   }
@@ -244,7 +244,6 @@ export async function placeCandidates(
     if (placedIds.has(candidateIdentity(candidate))) {
       unselected.push({
         experienceId: candidate.experienceId,
-        activityId: candidate.activityId,
         reasons: ['DUPLICATE_ACTIVITY'],
       });
       continue;
@@ -270,7 +269,6 @@ export async function placeCandidates(
     if (bestDay === null) {
       unselected.push({
         experienceId: candidate.experienceId,
-        activityId: candidate.activityId,
         reasons:
           dayFailureReasons.size > 0
             ? Array.from(dayFailureReasons)
@@ -290,7 +288,7 @@ export async function placeCandidates(
       : null;
 
     acc.assigned.push(candidate);
-    acc.totalActivityMinutes +=
+    acc.totalExperienceMinutes +=
       candidateActivityMinutes(candidate) + (travel?.durationMinutes ?? 0);
     acc.totalWalkingMeters +=
       internalWalkingMeters(candidate, context.policy) +

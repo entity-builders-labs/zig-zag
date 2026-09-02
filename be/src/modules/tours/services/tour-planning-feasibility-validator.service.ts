@@ -42,12 +42,12 @@ export class TourPlanningFeasibilityValidatorService
       let cursor = input.planningWindow.startMinutesFromMidnight;
       let dayWalkingMeters = 0;
 
-      for (const activity of day.activities) {
-        const experienceId = activity.experienceId ?? activity.activityId;
+      for (const activity of day.experiences) {
+        const experienceId = activity.experienceId;
         if (seenExperienceIds.has(experienceId)) {
           issues.push({
             code: 'DUPLICATE_ACTIVITY',
-            message: `Experience ${activity.experienceId ?? activity.activityId} is scheduled more than once.`,
+            message: `Experience ${activity.experienceId} is scheduled more than once.`,
           });
         }
         seenExperienceIds.add(experienceId);
@@ -55,18 +55,18 @@ export class TourPlanningFeasibilityValidatorService
         if (activity.startMinutesFromMidnight < cursor) {
           issues.push({
             code: 'CHRONOLOGICAL_ORDER_VIOLATION',
-            message: `Day ${day.dayNumber}: Experience ${activity.experienceId ?? activity.activityId} starts before the previous Experience ends.`,
+            message: `Day ${day.dayNumber}: Experience ${activity.experienceId} starts before the previous Experience ends.`,
           });
         }
         cursor = activity.endMinutesFromMidnight;
 
         const candidate = input.candidates.find(
-          (candidate) => (candidate.experienceId ?? candidate.activityId) === experienceId,
+          (candidate) => candidate.experienceId === experienceId,
         );
         if (!candidate) {
           issues.push({
             code: 'UNKNOWN_ACTIVITY',
-            message: `Experience ${activity.experienceId ?? activity.activityId} is not part of the offered candidate pool.`,
+            message: `Experience ${activity.experienceId} is not part of the offered candidate pool.`,
           });
           continue;
         }
@@ -80,7 +80,7 @@ export class TourPlanningFeasibilityValidatorService
           ) {
             issues.push({
               code: 'DISALLOWED_TRAVEL_MODE',
-              message: `Day ${day.dayNumber}: the leg into Experience ${activity.experienceId ?? activity.activityId} used a disallowed transportation mode.`,
+            message: `Day ${day.dayNumber}: the leg into Experience ${activity.experienceId} used a disallowed transportation mode.`,
             });
           }
           if (
@@ -89,7 +89,7 @@ export class TourPlanningFeasibilityValidatorService
           ) {
             issues.push({
               code: 'MAX_CONTINUOUS_WALKING_EXCEEDED',
-              message: `Day ${day.dayNumber}: the leg into Experience ${activity.experienceId ?? activity.activityId} exceeds the continuous walking limit.`,
+            message: `Day ${day.dayNumber}: the leg into Experience ${activity.experienceId} exceeds the continuous walking limit.`,
             });
           }
         }

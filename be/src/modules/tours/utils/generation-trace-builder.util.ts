@@ -1353,7 +1353,7 @@ export function buildDailyPlanningStep(
   solution: DailyPlanningSolution,
 ): GenerationTraceStep {
   const selectedCount = solution.days.reduce(
-    (sum, day) => sum + day.activities.length,
+    (sum, day) => sum + day.experiences.length,
     0,
   );
   const iterationsSummary =
@@ -1364,9 +1364,9 @@ export function buildDailyPlanningStep(
     ? ' Las estimaciones de traslado usadas son aproximadas.'
     : ' Las estimaciones de traslado usadas son reales.';
   const selected = solution.days.flatMap((day) =>
-    day.activities.map((activity, order) => ({
-      id: activity.activityId,
-      name: activity.activityId,
+    day.experiences.map((activity, order) => ({
+      id: activity.experienceId,
+      name: activity.experienceId,
       status: 'SELECTED' as const,
       reason: `Asignada al día ${day.dayNumber} en posición ${order + 1}; pasó la factibilidad del solver.`,
       reasonCodes: ['FEASIBLE_AND_SELECTED'],
@@ -1375,8 +1375,8 @@ export function buildDailyPlanningStep(
     })),
   );
   const unselected = solution.unselected.map((candidate) => ({
-    id: candidate.activityId,
-    name: candidate.activityId,
+    id: candidate.experienceId,
+    name: candidate.experienceId,
     status: 'UNSELECTED' as const,
     reason: candidate.reasons.join(', '),
     reasonCodes: candidate.reasons,
@@ -1439,8 +1439,8 @@ export function buildDailyPlanningStep(
       score: solution.score,
       days: solution.days.map((day) => ({
         dayNumber: day.dayNumber,
-        activityCount: day.activities.length,
-        totalActivityMinutes: day.totalActivityMinutes,
+        experienceCount: day.experiences.length,
+        totalExperienceMinutes: day.totalExperienceMinutes,
         totalTravelMinutes: day.totalTravelMinutes,
         totalWalkingMinutes: day.totalWalkingMinutes,
         utilizationMinutes: day.utilizationMinutes,
@@ -1459,8 +1459,8 @@ export function buildDailyPlanningStep(
       score: solution.score,
       days: solution.days.map((day) => ({
         dayNumber: day.dayNumber,
-        activityCount: day.activities.length,
-        totalActivityMinutes: day.totalActivityMinutes,
+        experienceCount: day.experiences.length,
+        totalExperienceMinutes: day.totalExperienceMinutes,
         totalTravelMinutes: day.totalTravelMinutes,
         totalWalkingMinutes: day.totalWalkingMinutes,
         utilizationMinutes: day.utilizationMinutes,

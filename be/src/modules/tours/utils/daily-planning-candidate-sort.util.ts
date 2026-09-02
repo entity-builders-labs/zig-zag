@@ -18,7 +18,7 @@ export function sortCandidatesDeterministically(
     if (bQuality !== aQuality) {
       return bQuality - aQuality;
     }
-    return (a.experienceId ?? a.activityId ?? '').localeCompare(b.experienceId ?? b.activityId ?? '');
+    return a.experienceId.localeCompare(b.experienceId);
   });
 }
 

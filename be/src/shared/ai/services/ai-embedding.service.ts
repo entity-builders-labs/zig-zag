@@ -10,8 +10,8 @@ import aiConfig from '../ai.config';
 import {
   EmbeddingIndexIdentity,
   EmbeddingServiceStatus,
+  EXPERIENCE_EMBEDDING_DOCUMENT_VERSION,
 } from '../interfaces/embedding-index.interface';
-import { SEMANTIC_ACTIVITY_DOCUMENT_VERSION } from './semantic-activity-document-builder.service';
 
 @Injectable()
 export class AiEmbeddingService implements OnModuleInit {
@@ -47,7 +47,7 @@ export class AiEmbeddingService implements OnModuleInit {
       provider: this.config.embeddingProvider,
       model: this.config.embeddingsModel!,
       dimensions: this.config.embeddingDimensions,
-      documentVersion: SEMANTIC_ACTIVITY_DOCUMENT_VERSION,
+      documentVersion: EXPERIENCE_EMBEDDING_DOCUMENT_VERSION,
     };
   }
 

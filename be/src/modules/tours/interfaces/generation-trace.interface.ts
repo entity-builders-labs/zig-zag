@@ -174,7 +174,7 @@ export interface GenerationTraceStep {
     days: Array<{
       dayNumber: number;
       activityCount: number;
-      totalActivityMinutes: number;
+      totalExperienceMinutes: number;
       totalTravelMinutes: number;
       totalWalkingMinutes: number;
       utilizationMinutes: number;

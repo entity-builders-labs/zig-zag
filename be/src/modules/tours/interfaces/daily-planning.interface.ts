@@ -50,10 +50,6 @@ export type NormalizedOpeningHours =
 export interface PlanningExperienceCandidate {
   /** Canonical V2 identity used by the planner. */
   experienceId?: string;
-  /** @deprecated only for isolated pre-V2 fixtures; V2 never populates it. */
-  activityId?: string;
-  /** @deprecated structural kind is not used by V2 planning. */
-  kind?: string;
   title: string;
   durationMinutes: number;
   spatialFootprint: SpatialFootprint;
@@ -62,9 +58,6 @@ export interface PlanningExperienceCandidate {
   qualityScore?: number;
   themes?: string[];
   areaId?: string;
-  /** @deprecated legacy family metadata is ignored by V2 planning. */
-  familyId?: string;
-  variantKey?: string;
   mobility?: {
     internalWalkingMinutes?: number;
     internalWalkingDistanceMeters?: number;
@@ -111,10 +104,8 @@ export interface TravelEstimateProvider {
   ): Promise<TravelEstimate>;
 }
 
-export interface PlannedActivity {
-  /** Canonical V2 identity carried through deterministic planning. */
-  experienceId?: string;
-  activityId?: string;
+export interface PlannedExperience {
+  experienceId: string;
   startMinutesFromMidnight: number;
   endMinutesFromMidnight: number;
   travelFromPrevious?: TravelEstimate;
@@ -122,8 +113,8 @@ export interface PlannedActivity {
 
 export interface PlannedDay {
   dayNumber: number;
-  activities: PlannedActivity[];
-  totalActivityMinutes: number;
+  experiences: PlannedExperience[];
+  totalExperienceMinutes: number;
   totalTravelMinutes: number;
   totalWalkingMinutes: number;
   utilizationMinutes: number;
@@ -144,8 +135,7 @@ export type PlanningRejectionReason =
   | 'FAMILY_VARIANT_REDUNDANCY';
 
 export interface UnselectedPlanningCandidate {
-  experienceId?: string;
-  activityId?: string;
+  experienceId: string;
   reasons: PlanningRejectionReason[];
 }
 

@@ -9,7 +9,7 @@ import {
 import { ConfigType } from '@nestjs/config';
 import { PrismaService } from '@core/database/prisma.service';
 import { OutboxService } from '../../outbox/services/outbox.service';
-import { VectorStoreService } from '@shared/ai/services/vector-store.service';
+import { ExperienceVectorStoreService } from '@shared/ai/services/experience-vector-store.service';
 import { PlacesCrawlProvenance } from '@integrations/google-places/interfaces/places-api.interface';
 import {
   OsmCandidate,
@@ -136,7 +136,7 @@ export class ExperienceGenerationService {
     private readonly toursService: ToursService,
     private readonly experienceCatalog: ExperienceCatalogService,
     private readonly experienceAcquisition: ExperienceAcquisitionService,
-    private readonly vectorStoreService: VectorStoreService,
+    private readonly vectorStoreService: ExperienceVectorStoreService,
     @Inject('PlacesApiService') private readonly placesApi: any,
     private readonly tourImageService: TourImageService,
     private readonly osmPlacesService: OsmPlacesService,
@@ -454,7 +454,7 @@ export class ExperienceGenerationService {
     let semanticResult: SemanticSimilarityResult | null = null;
 
     if (semanticQuery) {
-      semanticResult = await this.vectorStoreService.getExperienceSimilarityScores(
+      semanticResult = await this.vectorStoreService.getSimilarityScores(
         candidateExperiences.map((experience) => experience.id),
         semanticQuery,
       );
@@ -488,7 +488,7 @@ export class ExperienceGenerationService {
           status: 'not_requested',
           eligibleCandidateCount: candidateExperiences.length,
           indexedCandidateCount:
-            await this.vectorStoreService.getCompatibleExperienceIndexCount(
+            await this.vectorStoreService.getCompatibleIndexCount(
               candidateExperiences.map((experience) => experience.id),
             ),
         },
@@ -1364,7 +1364,7 @@ export class ExperienceGenerationService {
       }
 
       const plannedActivityCount = planningSolution.days.reduce(
-        (total, day) => total + day.activities.length,
+        (total, day) => total + day.experiences.length,
         0,
       );
       if (plannedActivityCount === 0) {
@@ -1387,7 +1387,7 @@ export class ExperienceGenerationService {
 
       const selectedIds = new Set(
         planningSolution.days.flatMap((day) =>
-          day.activities.map((a) => a.experienceId ?? a.activityId),
+          day.experiences.map((a) => a.experienceId),
         ),
       );
 
@@ -1405,7 +1405,7 @@ export class ExperienceGenerationService {
         u.reasons.some((r) => physicallyInfeasibleReasons.has(r)),
       );
       const infeasibleActivityIds = new Set(
-        infeasiblyUnselected.map((u) => u.experienceId ?? u.activityId),
+        infeasiblyUnselected.map((u) => u.experienceId),
       );
       const viableUnusedCandidateCount =
         planningSolution.unselected.length - infeasiblyUnselected.length;
@@ -1415,8 +1415,8 @@ export class ExperienceGenerationService {
         travelPace: request.mobility.travelPace,
         isFoodFocusedIntent,
         selectedExperiences: planningSolution.days.flatMap((day) =>
-          day.activities.map((activity) => {
-            const experienceId = activity.experienceId ?? activity.activityId;
+        day.experiences.map((activity) => {
+          const experienceId = activity.experienceId;
             const candidate = candidateActivitiesById.get(experienceId);
             return {
               experienceId,
@@ -1441,10 +1441,10 @@ export class ExperienceGenerationService {
       );
 
       const activities = planningSolution.days.flatMap((day) =>
-        day.activities.map((planned, index) => {
-          const experienceId = planned.experienceId ?? planned.activityId;
+        day.experiences.map((planned, index) => {
+          const experienceId = planned.experienceId;
           const candidate = candidateActivitiesById.get(experienceId);
-          const nextInDay = day.activities[index + 1];
+          const nextInDay = day.experiences[index + 1];
           return {
             experienceId,
             activityName: candidate?.name ?? 'Activity',

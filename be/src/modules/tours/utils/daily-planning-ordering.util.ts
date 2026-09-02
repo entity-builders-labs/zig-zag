@@ -1,6 +1,6 @@
 import {
   DailyPlanningWindow,
-  PlannedActivity,
+  PlannedExperience,
   PlannedDay,
   PlanningExperienceCandidate,
   TravelEstimate,
@@ -108,8 +108,8 @@ export async function orderAndScheduleDay(
   if (candidates.length === 0) {
     return {
       dayNumber,
-      activities: [],
-      totalActivityMinutes: 0,
+      experiences: [],
+      totalExperienceMinutes: 0,
       totalTravelMinutes: 0,
       totalWalkingMinutes: 0,
       utilizationMinutes: 0,
@@ -118,7 +118,7 @@ export async function orderAndScheduleDay(
 
   const remaining = sortCandidatesDeterministically(candidates);
   const weekday = resolveWeekday(context.startDates, dayNumber);
-  const scheduled: PlannedActivity[] = [];
+  const scheduled: PlannedExperience[] = [];
   let cursorMinutes = context.planningWindow.startMinutesFromMidnight;
   let totalTravelMinutes = 0;
   let totalWalkingMinutes = 0;
@@ -147,7 +147,6 @@ export async function orderAndScheduleDay(
       (next.mobility?.internalTravelMinutes ?? 0);
     scheduled.push({
       experienceId: next.experienceId,
-      activityId: next.activityId ?? next.experienceId,
       startMinutesFromMidnight: start,
       endMinutesFromMidnight: end,
       travelFromPrevious: travel,
@@ -157,15 +156,15 @@ export async function orderAndScheduleDay(
     previous = next;
   }
 
-  const totalActivityMinutes = candidates.reduce(
+  const totalExperienceMinutes = candidates.reduce(
     (sum, c) => sum + c.durationMinutes,
     0,
   );
 
   return {
     dayNumber,
-    activities: scheduled,
-    totalActivityMinutes,
+    experiences: scheduled,
+    totalExperienceMinutes,
     totalTravelMinutes,
     totalWalkingMinutes,
     utilizationMinutes:
