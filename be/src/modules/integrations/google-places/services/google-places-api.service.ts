@@ -163,11 +163,14 @@ export class GooglePlacesApiService implements IPlacesApiService {
   async searchNearby(
     params: PlacesSearchNearbyParams,
   ): Promise<PlacesApiResult<PlaceData[]>> {
-    const requestedCount = params.maxResultCount || 20;
+    // Google Places Nearby accepts only 1..20 results per request. Callers may
+    // ask for a larger catalog pool, but that must never leak into the API
+    // payload (a previous 250-result request caused a deterministic 400).
+    const requestedCount = Math.min(Math.max(params.maxResultCount ?? 20, 1), 20);
     this.assertOperationAvailable('searchNearby', requestedCount);
 
     const body: any = {
-      maxResultCount: params.maxResultCount || 20,
+      maxResultCount: requestedCount,
       rankPreference: params.rankPreference || 'POPULARITY',
       locationRestriction: {
         circle: {
