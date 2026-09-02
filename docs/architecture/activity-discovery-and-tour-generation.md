@@ -1170,6 +1170,11 @@ flowchart TD
   X --> Y[TourExperience snapshots]
 ```
 
+`ExperienceAcquisitionService` is the reusable acquisition boundary for
+provider refills. Tour generation may invoke it after coverage analysis, but
+the service does not create tours or snapshots; it only admits provider
+results into the verified Experience catalog.
+
 | Boundary | Authority and responsibility |
 | --- | --- |
 | Local nearby search | PostgreSQL/pgvector catalog retrieval; no external provider and no truth decision by itself |
