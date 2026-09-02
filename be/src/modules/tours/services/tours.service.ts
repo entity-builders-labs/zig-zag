@@ -232,6 +232,13 @@ export class ToursService {
             order: 'asc',
           },
         },
+        experiences: {
+          include: {
+            experience: { include: { components: true, traits: true, evidence: true } },
+            components: true,
+          },
+          orderBy: [{ dayNumber: 'asc' }, { order: 'asc' }],
+        },
       },
     });
 
