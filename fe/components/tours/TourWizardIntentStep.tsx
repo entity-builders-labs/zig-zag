@@ -12,7 +12,6 @@ import {
 import { Check, Compass, Landmark, MapPin, Sparkles } from 'lucide-react-native';
 import {
   ADDITIONAL_PREFERENCES_MAX_LENGTH,
-  ExperienceFormat,
   ExplorationStyle
 } from '@/features/tours/tour-generation-contract';
 import { WizardFieldLabel } from './WizardFieldLabel';
@@ -20,21 +19,12 @@ import { WizardFieldLabel } from './WizardFieldLabel';
 interface TourWizardIntentStepProps {
   interestOptions: string[];
   selectedInterests: string[];
-  experienceFormats: ExperienceFormat[];
   explorationStyle: ExplorationStyle;
   additionalPreferences: string;
   onInterestToggle: (value: string) => void;
-  onExperienceFormatToggle: (value: ExperienceFormat) => void;
   onExplorationStyleChange: (value: ExplorationStyle) => void;
   onAdditionalPreferencesChange: (value: string) => void;
 }
-
-const EXPERIENCE_FORMAT_OPTIONS = [
-  { value: 'point_visits' as const, label: '🏛️ Visitas a Lugares' },
-  { value: 'neighborhood_walks' as const, label: '🚶 Caminatas Barriales' },
-  { value: 'thematic_routes' as const, label: '🗺️ Rutas Temáticas' },
-  { value: 'experiences' as const, label: '✨ Otras Experiencias' }
-];
 
 const EXPLORATION_STYLE_OPTIONS = [
   {
@@ -57,57 +47,14 @@ const EXPLORATION_STYLE_OPTIONS = [
 export function TourWizardIntentStep({
   interestOptions,
   selectedInterests,
-  experienceFormats,
   explorationStyle,
   additionalPreferences,
   onInterestToggle,
-  onExperienceFormatToggle,
   onExplorationStyleChange,
   onAdditionalPreferencesChange
 }: TourWizardIntentStepProps) {
   return (
     <VStack space='xl' flex={1}>
-      {/* Experience Format */}
-      <VStack space='sm'>
-        <WizardFieldLabel>¿Qué tipo de experiencias querés vivir?</WizardFieldLabel>
-        <Box flexDirection='row' flexWrap='wrap' gap='$2'>
-          {EXPERIENCE_FORMAT_OPTIONS.map(({ value, label }) => {
-            const isSelected = experienceFormats.includes(value);
-            return (
-              <Pressable
-                key={value}
-                onPress={() => onExperienceFormatToggle(value)}
-              >
-                <Box
-                  bg={isSelected ? '$secondary950' : '$white'}
-                  borderRadius='$full'
-                  px='$4'
-                  py='$2.5'
-                  borderWidth={1.5}
-                  borderColor={isSelected ? '$secondary950' : '$borderLight200'}
-                  shadowColor='$black'
-                  shadowOffset={{ width: 0, height: 1 }}
-                  shadowOpacity={isSelected ? 0.1 : 0.02}
-                  shadowRadius={2}
-                  elevation={1}
-                >
-                  <Text
-                    size='xs'
-                    fontWeight={isSelected ? '$bold' : '$medium'}
-                    color={isSelected ? '$white' : '$textLight800'}
-                  >
-                    {label}
-                  </Text>
-                </Box>
-              </Pressable>
-            );
-          })}
-        </Box>
-        <Text size='2xs' color='$textLight500'>
-          Esto orienta la búsqueda; la selección final se decide por tus preferencias, movilidad y evidencia geográfica.
-        </Text>
-      </VStack>
-
       {/* Exploration Style */}
       <VStack space='sm'>
         <WizardFieldLabel>Estilo de exploración</WizardFieldLabel>

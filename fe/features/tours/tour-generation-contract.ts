@@ -9,11 +9,6 @@ export type TransportationMode =
   | 'driving'
   | 'public_transport'
   | 'cycling';
-export type ExperienceFormat =
-  | 'point_visits'
-  | 'neighborhood_walks'
-  | 'thematic_routes'
-  | 'experiences';
 export type ExplorationStyle = 'iconic' | 'balanced' | 'local_deep_dive';
 export type DestinationScaleHint = 'settlement' | 'specific_point';
 
@@ -27,7 +22,6 @@ export interface TourDestinationSelection {
 
 export interface TourIntent {
   interests: string[];
-  experienceFormats: ExperienceFormat[];
   explorationStyle: ExplorationStyle;
   additionalPreferences?: string;
 }

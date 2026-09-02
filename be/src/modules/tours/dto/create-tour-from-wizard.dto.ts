@@ -22,7 +22,6 @@ import {
 import {
   BudgetLevel,
   DestinationScaleHint,
-  ExperienceFormat,
   ExplorationStyle,
   GroupType,
   TransportationMode,
@@ -87,14 +86,6 @@ export class TourIntentDto {
   @IsString({ each: true })
   @MaxLength(INTENT_VALUE_MAX_LENGTH, { each: true })
   interests: string[];
-
-  @ApiProperty({ enum: ExperienceFormat, isArray: true })
-  @IsArray()
-  @ArrayMinSize(1)
-  @ArrayMaxSize(4)
-  @ArrayUnique()
-  @IsEnum(ExperienceFormat, { each: true })
-  experienceFormats: ExperienceFormat[];
 
   @ApiProperty({ enum: ExplorationStyle })
   @IsEnum(ExplorationStyle)

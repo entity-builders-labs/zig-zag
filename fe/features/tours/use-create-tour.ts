@@ -46,13 +46,6 @@ export function useCreateTour(
         errorMessage: 'Elegí al menos un medio de transporte'
       };
     }
-    if (preferences.intent?.experienceFormats?.length === 0) {
-      return {
-        valid: false,
-        errorMessage: 'Elegí al menos un formato de experiencia'
-      };
-    }
-
     return { valid: true };
   };
 

@@ -18,7 +18,6 @@ import { GenerateTourDto } from '@/api/tours';
 import {
   BudgetLevel,
   DestinationScaleHint,
-  ExperienceFormat,
   ExplorationStyle,
   GroupType,
   TransportationMode,
@@ -96,9 +95,6 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
   const [travelPace, setTravelPace] = useState(50);
   const [groupType, setGroupType] = useState<GroupType>('solo');
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
-  const [experienceFormats, setExperienceFormats] = useState<
-    ExperienceFormat[]
-  >(['point_visits', 'neighborhood_walks']);
   const [explorationStyle, setExplorationStyle] =
     useState<ExplorationStyle>('balanced');
   const [walkingEffortProfile, setWalkingEffortProfile] =
@@ -168,16 +164,6 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
     });
   };
 
-  const toggleExperienceFormat = (format: ExperienceFormat) => {
-    setExperienceFormats((current) => {
-      if (current.includes(format)) {
-        return current.length === 1
-          ? current
-          : current.filter((value) => value !== format);
-      }
-      return [...current, format];
-    });
-  };
 
   const toggleAccessibilityNeed = (need: string) => {
     setAccessibilityNeeds((current) =>
@@ -265,7 +251,6 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
         interests: selectedInterests.map(
           (interest) => INTEREST_MAP[interest] || interest.toLowerCase()
         ),
-        experienceFormats,
         explorationStyle,
         additionalPreferences: additionalPreferences.trim() || undefined
       },
@@ -482,14 +467,12 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
             />
           )}
           {currentStep === 3 && (
-            <TourWizardIntentStep
+              <TourWizardIntentStep
               interestOptions={INTEREST_OPTIONS}
               selectedInterests={selectedInterests}
-              experienceFormats={experienceFormats}
               explorationStyle={explorationStyle}
               additionalPreferences={additionalPreferences}
               onInterestToggle={toggleInterest}
-              onExperienceFormatToggle={toggleExperienceFormat}
               onExplorationStyleChange={setExplorationStyle}
               onAdditionalPreferencesChange={setAdditionalPreferences}
             />
