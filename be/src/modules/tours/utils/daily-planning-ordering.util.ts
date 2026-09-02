@@ -16,90 +16,93 @@ export interface OrderingContext {
   travelEstimateProvider: TravelEstimateProvider;
   planningWindow: DailyPlanningWindow;
   allowedTransportationModes: TransportationMode[];
-  /** ISO date strings — empty means no confirmed base date, so the weekday
-   * is unresolvable and the opening-hours preference below is skipped
-   * entirely (same unknown-day policy as the placement pass). */
   startDates: string[];
 }
 
-function pickNearest(
-  from: PlanningExperienceCandidate,
-  candidates: PlanningExperienceCandidate[],
-): PlanningExperienceCandidate {
-  let best = candidates[0];
-  let bestDistance = Infinity;
-  for (const candidate of candidates) {
-    const distance = footprintDistanceMeters(
-      from.spatialFootprint,
-      candidate.spatialFootprint,
-    );
-    if (distance < bestDistance) {
-      bestDistance = distance;
-      best = candidate;
-    }
-  }
-  return best;
-}
-
-/** Scheduled span a candidate would occupy if started right now — the same
- * arithmetic the scheduling loop below uses for `end`, so the hours
- * preference and the emitted schedule can never disagree. */
 function occupiedMinutes(candidate: PlanningExperienceCandidate): number {
   return (
     candidate.durationMinutes + (candidate.mobility?.internalTravelMinutes ?? 0)
   );
 }
 
-/** Picks the next stop: among the remaining candidates, prefers the nearest
- * one whose *known* opening hours actually admit it at `cursorMinutes`, and
- * only falls back to pure nearest-neighbor when none of them do.
- *
- * Candidates with unknown/absent hours always qualify (this domain's
- * unknown-availability policy), so when no candidate has real hours data the
- * preferred set is the full remaining set and the choice is exactly the
- * previous pure-geographic one — geography still wins whenever there is no
- * hours conflict to resolve. */
-function pickNext(
-  from: PlanningExperienceCandidate | null,
+interface RoutedChoice {
+  candidate: PlanningExperienceCandidate;
+  travel?: TravelEstimate;
+  startMinutes: number;
+  endMinutes: number;
+  distanceMeters: number;
+}
+
+function isCandidateOpen(
+  candidate: PlanningExperienceCandidate,
+  weekday: number | undefined,
+  startMinutes: number,
+  endMinutes: number,
+): boolean {
+  if (weekday === undefined || !candidate.openingHours) return true;
+  return isOpenDuring(
+    candidate.openingHours,
+    weekday,
+    startMinutes,
+    endMinutes,
+  );
+}
+
+/**
+ * Evaluates the real inbound travel leg before choosing the next Experience.
+ * This deliberately routes first and then checks the resulting start/end
+ * window, so geographic reordering can never silently move a known-hours
+ * Experience outside its opening hours.
+ */
+async function pickNextRouted(
+  previous: PlanningExperienceCandidate | null,
   remaining: PlanningExperienceCandidate[],
   weekday: number | undefined,
   cursorMinutes: number,
-): PlanningExperienceCandidate {
-  if (weekday !== undefined) {
-    const openAtCursor = remaining.filter(
-      (candidate) =>
-        !candidate.openingHours ||
-        isOpenDuring(
-          candidate.openingHours,
-          weekday,
-          cursorMinutes,
-          cursorMinutes + occupiedMinutes(candidate),
-        ),
-    );
-    if (openAtCursor.length > 0) {
-      return from ? pickNearest(from, openAtCursor) : openAtCursor[0];
-    }
+  context: OrderingContext,
+): Promise<RoutedChoice | undefined> {
+  const choices: RoutedChoice[] = [];
+
+  for (const candidate of remaining) {
+    const travel = previous
+      ? await context.travelEstimateProvider.estimate(
+          previous.spatialFootprint,
+          candidate.spatialFootprint,
+          context.allowedTransportationModes,
+        )
+      : undefined;
+    const startMinutes = cursorMinutes + (travel?.durationMinutes ?? 0);
+    const endMinutes = startMinutes + occupiedMinutes(candidate);
+    if (endMinutes > context.planningWindow.endMinutesFromMidnight) continue;
+    if (!isCandidateOpen(candidate, weekday, startMinutes, endMinutes)) continue;
+
+    choices.push({
+      candidate,
+      travel,
+      startMinutes,
+      endMinutes,
+      distanceMeters: previous
+        ? footprintDistanceMeters(
+            previous.spatialFootprint,
+            candidate.spatialFootprint,
+          )
+        : 0,
+    });
   }
-  return from ? pickNearest(from, remaining) : remaining[0];
+
+  return choices.sort(
+    (left, right) =>
+      left.distanceMeters - right.distanceMeters ||
+      left.startMinutes - right.startMinutes ||
+      left.candidate.experienceId.localeCompare(right.candidate.experienceId),
+  )[0];
 }
 
-/** Orders one day's already-assigned candidates and turns them into a
- * scheduled PlannedDay. Deterministic-sort start point, then, for each
- * subsequent stop, the nearest remaining candidate that is also open at the
- * current cursor time — the spec's "opening-hours-constrained first,
- * otherwise nearest feasible" heuristic in its simplified V1 form.
- *
- * This is a genuine best-effort preference, NOT a guarantee. It evaluates
- * each candidate's window at the cursor *before* the inbound travel leg is
- * priced (the leg is only estimated for the stop actually chosen), and when
- * no remaining candidate is open at the cursor it deliberately falls back to
- * pure nearest-neighbor rather than stalling the day — so a stop can still
- * end up scheduled outside its known hours.
- *
- * Nothing downstream catches that: `TourPlanningFeasibilityValidator` was
- * built deliberately independent of the opening-hours utilities and performs
- * no opening-hours re-check at all. Residual post-reordering opening-hours
- * drift is therefore a known, tracked V1 gap, not a covered case. */
+/**
+ * Orders one day's already-assigned Experiences while preserving hard temporal
+ * feasibility after routing. Known opening hours are checked against the final
+ * routed start/end time, not merely against the pre-travel cursor.
+ */
 export async function orderAndScheduleDay(
   dayNumber: number,
   candidates: PlanningExperienceCandidate[],
@@ -125,26 +128,29 @@ export async function orderAndScheduleDay(
   let previous: PlanningExperienceCandidate | null = null;
 
   while (remaining.length > 0) {
-    const next = pickNext(previous, remaining, weekday, cursorMinutes);
+    const choice = await pickNextRouted(
+      previous,
+      remaining,
+      weekday,
+      cursorMinutes,
+      context,
+    );
+    if (!choice) {
+      const unresolved = remaining.map((item) => item.experienceId).join(', ');
+      throw new Error(
+        `OPENING_HOURS_INCOMPATIBLE_AFTER_ROUTING: day ${dayNumber}; remaining ${unresolved}`,
+      );
+    }
+
+    const { candidate: next, travel, startMinutes: start, endMinutes: end } =
+      choice;
     remaining.splice(remaining.indexOf(next), 1);
 
-    let travel: TravelEstimate | undefined;
-    if (previous) {
-      travel = await context.travelEstimateProvider.estimate(
-        previous.spatialFootprint,
-        next.spatialFootprint,
-        context.allowedTransportationModes,
-      );
-      cursorMinutes += travel.durationMinutes;
+    if (travel) {
       totalTravelMinutes += travel.durationMinutes;
       totalWalkingMinutes += travel.walkingMinutes;
     }
 
-    const start = cursorMinutes;
-    const end =
-      start +
-      next.durationMinutes +
-      (next.mobility?.internalTravelMinutes ?? 0);
     scheduled.push({
       experienceId: next.experienceId,
       startMinutesFromMidnight: start,
@@ -157,7 +163,7 @@ export async function orderAndScheduleDay(
   }
 
   const totalExperienceMinutes = candidates.reduce(
-    (sum, c) => sum + c.durationMinutes,
+    (sum, candidate) => sum + candidate.durationMinutes,
     0,
   );
 
