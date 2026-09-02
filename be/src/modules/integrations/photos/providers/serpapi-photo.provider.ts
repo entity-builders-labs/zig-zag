@@ -2,8 +2,8 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 import {
-  ActivityEnrichmentResult,
-  ActivityPhoto,
+  ExperienceEnrichmentResult,
+  ExperiencePhoto,
   IPhotoEnrichmentProvider,
   PhotoEnrichmentQuery,
 } from '../interfaces/photo-enrichment.interface';
@@ -39,9 +39,9 @@ export class SerpApiPhotoProvider implements IPhotoEnrichmentProvider {
 
   constructor(private readonly config: ConfigService) {}
 
-  async enrichActivity(
+  async enrichExperience(
     query: PhotoEnrichmentQuery,
-  ): Promise<ActivityEnrichmentResult> {
+  ): Promise<ExperienceEnrichmentResult> {
     const apiKey =
       this.config.get<string>('ai.serpApiKey') || process.env.SERPAPI_API_KEY;
 
@@ -55,7 +55,7 @@ export class SerpApiPhotoProvider implements IPhotoEnrichmentProvider {
       };
     }
 
-    const photos: ActivityPhoto[] = [];
+    const photos: ExperiencePhoto[] = [];
     let placeTitle = query.name;
     let snippet = '';
     let rating: number | undefined;
@@ -146,11 +146,11 @@ export class SerpApiPhotoProvider implements IPhotoEnrichmentProvider {
 
   async enrichBatch(
     queries: PhotoEnrichmentQuery[],
-  ): Promise<Map<string, ActivityEnrichmentResult>> {
-    const results = new Map<string, ActivityEnrichmentResult>();
+  ): Promise<Map<string, ExperienceEnrichmentResult>> {
+    const results = new Map<string, ExperienceEnrichmentResult>();
     for (const q of queries) {
       const key = q.id || q.name;
-      results.set(key, await this.enrichActivity(q));
+      results.set(key, await this.enrichExperience(q));
     }
     return results;
   }

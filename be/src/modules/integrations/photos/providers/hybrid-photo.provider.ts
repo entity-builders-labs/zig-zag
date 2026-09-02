@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import {
-  ActivityEnrichmentResult,
+  ExperienceEnrichmentResult,
   IPhotoEnrichmentProvider,
   PhotoEnrichmentQuery,
 } from '../interfaces/photo-enrichment.interface';
@@ -17,9 +17,9 @@ export class HybridPhotoProvider implements IPhotoEnrichmentProvider {
     private readonly serpApiProvider: SerpApiPhotoProvider,
   ) {}
 
-  async enrichActivity(
+  async enrichExperience(
     query: PhotoEnrichmentQuery,
-  ): Promise<ActivityEnrichmentResult> {
+  ): Promise<ExperienceEnrichmentResult> {
     // 1. If activity has coordinates or wikidataId, prioritize Wikimedia Commons verified photos
     if (
       (query.latitude != null && query.longitude != null) ||
@@ -28,7 +28,7 @@ export class HybridPhotoProvider implements IPhotoEnrichmentProvider {
       this.logger.debug(
         `[HybridPhotoProvider] Checking Wikimedia Commons for "${query.name}"`,
       );
-      const wikiResult = await this.wikimediaProvider.enrichActivity(query);
+      const wikiResult = await this.wikimediaProvider.enrichExperience(query);
       if (wikiResult.photos.length > 0) {
         return wikiResult;
       }
@@ -38,7 +38,7 @@ export class HybridPhotoProvider implements IPhotoEnrichmentProvider {
     this.logger.debug(
       `[HybridPhotoProvider] Checking SerpApi Google Maps for "${query.name}"`,
     );
-    const serpResult = await this.serpApiProvider.enrichActivity(query);
+    const serpResult = await this.serpApiProvider.enrichExperience(query);
     if (serpResult.photos.length > 0) {
       return serpResult;
     }
@@ -57,11 +57,11 @@ export class HybridPhotoProvider implements IPhotoEnrichmentProvider {
 
   async enrichBatch(
     queries: PhotoEnrichmentQuery[],
-  ): Promise<Map<string, ActivityEnrichmentResult>> {
-    const results = new Map<string, ActivityEnrichmentResult>();
+  ): Promise<Map<string, ExperienceEnrichmentResult>> {
+    const results = new Map<string, ExperienceEnrichmentResult>();
     for (const q of queries) {
       const key = q.id || q.name;
-      results.set(key, await this.enrichActivity(q));
+      results.set(key, await this.enrichExperience(q));
     }
     return results;
   }

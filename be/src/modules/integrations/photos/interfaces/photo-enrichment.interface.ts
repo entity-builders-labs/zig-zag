@@ -1,4 +1,4 @@
-export interface ActivityPhoto {
+export interface ExperiencePhoto {
   url: string;
   thumbnail?: string;
   author?: string;
@@ -9,8 +9,8 @@ export interface ActivityPhoto {
   sourceProvider: string;
 }
 
-export interface ActivityEnrichmentResult {
-  photos: ActivityPhoto[];
+export interface ExperienceEnrichmentResult {
+  photos: ExperiencePhoto[];
   highlights?: string[];
   curatorTip?: string;
   rawExtract?: string;
@@ -34,10 +34,10 @@ export interface PhotoEnrichmentQuery {
 
 export interface IPhotoEnrichmentProvider {
   readonly providerName: string;
-  enrichActivity(
+  enrichExperience(
     query: PhotoEnrichmentQuery,
-  ): Promise<ActivityEnrichmentResult>;
+  ): Promise<ExperienceEnrichmentResult>;
   enrichBatch?(
     queries: PhotoEnrichmentQuery[],
-  ): Promise<Map<string, ActivityEnrichmentResult>>;
+  ): Promise<Map<string, ExperienceEnrichmentResult>>;
 }

@@ -43,7 +43,7 @@ export class MediaEnrichmentProcessorService implements OnModuleInit {
       `[MediaEnrichmentProcessor] Processing media enrichment for experience "${name}" (id: ${experienceId})...`,
     );
 
-    const lookup = await this.wikimediaCommons.findPhotosForActivity({
+    const lookup = await this.wikimediaCommons.findPhotosForExperience({
       name,
       destinationLabel,
       latitude,

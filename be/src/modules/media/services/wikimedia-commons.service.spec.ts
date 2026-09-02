@@ -46,7 +46,7 @@ describe('WikimediaCommonsService lookup outcomes', () => {
       },
     } as any);
 
-    const result = await service.findPhotosForActivity({
+    const result = await service.findPhotosForExperience({
       name: 'Historic Place',
       destinationLabel: 'Test City',
       latitude: -34.5,
@@ -72,7 +72,7 @@ describe('WikimediaCommonsService lookup outcomes', () => {
       .mockResolvedValueOnce({ data: { query: { pages: {} } } } as any)
       .mockResolvedValueOnce({ data: { query: { pages: {} } } } as any);
 
-    const result = await service.findPhotosForActivity({
+    const result = await service.findPhotosForExperience({
       name: 'Unknown Place',
       destinationLabel: 'Test City',
       latitude: -34.5,
@@ -110,7 +110,7 @@ describe('WikimediaCommonsService lookup outcomes', () => {
         .mockRejectedValueOnce(error)
         .mockResolvedValueOnce({ data: { query: { pages: {} } } } as any);
 
-      const result = await service.findPhotosForActivity({
+      const result = await service.findPhotosForExperience({
         name: 'Retry Place',
         destinationLabel: 'Test City',
         latitude: -34.5,
@@ -134,7 +134,7 @@ describe('WikimediaCommonsService lookup outcomes', () => {
       })
       .mockResolvedValueOnce({ data: { query: { pages: {} } } } as any);
 
-    const result = await service.findPhotosForActivity({
+      const result = await service.findPhotosForExperience({
       name: 'Bad Request Place',
       destinationLabel: 'Test City',
       latitude: -34.5,

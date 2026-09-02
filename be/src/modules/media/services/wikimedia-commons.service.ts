@@ -24,7 +24,7 @@ export class WikimediaCommonsService {
    * Resolves authentic documentary photos using two isolated strategies.
    * A valid empty provider response is cacheable; provider failures are not.
    */
-  async findPhotosForActivity(params: {
+  async findPhotosForExperience(params: {
     name: string;
     destinationLabel?: string;
     latitude: number;

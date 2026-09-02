@@ -8,7 +8,7 @@ describe('MockPhotoProvider', () => {
   });
 
   it('should enrich activity with mock photos and highlights', async () => {
-    const result = await provider.enrichActivity({
+    const result = await provider.enrichExperience({
       name: 'Palacio Barolo',
       category: 'cultural',
       destinationName: 'Buenos Aires',

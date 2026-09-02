@@ -50,24 +50,6 @@ export interface MediaPresentation {
   source: 'DOCUMENTARY' | 'CURATED_FALLBACK';
 }
 
-export interface ActivityMediaEnrichmentPayload {
-  activityId: string;
-  name: string;
-  destinationLabel?: string;
-  wikidataId?: string;
-  latitude: number;
-  longitude: number;
-  category?: string;
-}
-
-export interface ActivityMediaUpdatedPayload {
-  activityId: string;
-  mediaStatus: 'ENRICHED' | 'FAILED';
-  photoCount: number;
-  mediaUpdatedAt: string;
-  photos?: DocumentaryPhoto[];
-}
-
 export interface ExperienceMediaEnrichmentPayload {
   experienceId: string;
   name: string;

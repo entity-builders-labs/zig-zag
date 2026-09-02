@@ -2,8 +2,8 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 import {
-  ActivityEnrichmentResult,
-  ActivityPhoto,
+  ExperienceEnrichmentResult,
+  ExperiencePhoto,
   IPhotoEnrichmentProvider,
   PhotoEnrichmentQuery,
 } from '../interfaces/photo-enrichment.interface';
@@ -15,9 +15,9 @@ export class GooglePlacesPhotoProvider implements IPhotoEnrichmentProvider {
 
   constructor(private readonly config: ConfigService) {}
 
-  async enrichActivity(
+  async enrichExperience(
     query: PhotoEnrichmentQuery,
-  ): Promise<ActivityEnrichmentResult> {
+  ): Promise<ExperienceEnrichmentResult> {
     const apiKey =
       this.config.get<string>('googleMapsApiKey') ||
       this.config.get<string>('GOOGLE_MAPS_API_KEY') ||
@@ -33,7 +33,7 @@ export class GooglePlacesPhotoProvider implements IPhotoEnrichmentProvider {
       };
     }
 
-    const photos: ActivityPhoto[] = [];
+    const photos: ExperiencePhoto[] = [];
 
     try {
       if (query.placeId) {
@@ -87,11 +87,11 @@ export class GooglePlacesPhotoProvider implements IPhotoEnrichmentProvider {
 
   async enrichBatch(
     queries: PhotoEnrichmentQuery[],
-  ): Promise<Map<string, ActivityEnrichmentResult>> {
-    const results = new Map<string, ActivityEnrichmentResult>();
+  ): Promise<Map<string, ExperienceEnrichmentResult>> {
+    const results = new Map<string, ExperienceEnrichmentResult>();
     for (const q of queries) {
       const key = q.id || q.name;
-      results.set(key, await this.enrichActivity(q));
+      results.set(key, await this.enrichExperience(q));
     }
     return results;
   }

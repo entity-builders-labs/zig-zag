@@ -1,8 +1,8 @@
 import { Injectable, Logger, Inject, Optional } from '@nestjs/common';
 import axios from 'axios';
 import {
-  ActivityEnrichmentResult,
-  ActivityPhoto,
+  ExperienceEnrichmentResult,
+  ExperiencePhoto,
   IPhotoEnrichmentProvider,
   PhotoEnrichmentQuery,
 } from '../interfaces/photo-enrichment.interface';
@@ -50,10 +50,10 @@ export class WikimediaPhotoProvider implements IPhotoEnrichmentProvider {
     private readonly wikidataService?: IWikidataApiService,
   ) {}
 
-  async enrichActivity(
+  async enrichExperience(
     query: PhotoEnrichmentQuery,
-  ): Promise<ActivityEnrichmentResult> {
-    const photos: ActivityPhoto[] = [];
+  ): Promise<ExperienceEnrichmentResult> {
+    const photos: ExperiencePhoto[] = [];
     let extract: string | undefined;
 
     try {
@@ -228,7 +228,7 @@ export class WikimediaPhotoProvider implements IPhotoEnrichmentProvider {
 
   private async fetchWikipediaPageDetails(
     pageId: number,
-  ): Promise<{ extract?: string; leadImage?: ActivityPhoto } | null> {
+  ): Promise<{ extract?: string; leadImage?: ExperiencePhoto } | null> {
     try {
       const res = await axios.get(WIKIPEDIA_ES_API_URL, {
         params: {
@@ -248,7 +248,7 @@ export class WikimediaPhotoProvider implements IPhotoEnrichmentProvider {
       const page = res.data?.query?.pages?.[pageId];
       if (!page) return null;
 
-      let leadImage: ActivityPhoto | undefined;
+      let leadImage: ExperiencePhoto | undefined;
       const imgUrl = page.original?.source || page.thumbnail?.source;
       if (imgUrl && !imgUrl.endsWith('.svg')) {
         leadImage = {
@@ -275,8 +275,8 @@ export class WikimediaPhotoProvider implements IPhotoEnrichmentProvider {
   private async fetchCommonsPhotos(
     exactTitle: string,
     queryName?: string,
-  ): Promise<ActivityPhoto[]> {
-    const photos: ActivityPhoto[] = [];
+  ): Promise<ExperiencePhoto[]> {
+    const photos: ExperiencePhoto[] = [];
     const searchTerms = [exactTitle];
     if (queryName && queryName.toLowerCase() !== exactTitle.toLowerCase()) {
       searchTerms.push(queryName);
@@ -380,11 +380,11 @@ export class WikimediaPhotoProvider implements IPhotoEnrichmentProvider {
 
   async enrichBatch(
     queries: PhotoEnrichmentQuery[],
-  ): Promise<Map<string, ActivityEnrichmentResult>> {
-    const results = new Map<string, ActivityEnrichmentResult>();
+  ): Promise<Map<string, ExperienceEnrichmentResult>> {
+    const results = new Map<string, ExperienceEnrichmentResult>();
     for (const q of queries) {
       const key = q.id || q.name;
-      results.set(key, await this.enrichActivity(q));
+      results.set(key, await this.enrichExperience(q));
     }
     return results;
   }

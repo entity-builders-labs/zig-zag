@@ -65,7 +65,7 @@ describe('WikimediaPhotoProvider', () => {
       },
     });
 
-    const result = await provider.enrichActivity({
+    const result = await provider.enrichExperience({
       name: 'Palacio Barolo',
       category: 'cultural',
       latitude: -34.6096,
@@ -85,7 +85,7 @@ describe('WikimediaPhotoProvider', () => {
   it('should handle Wikipedia API failure gracefully', async () => {
     mockedAxios.get.mockRejectedValueOnce(new Error('Network timeout'));
 
-    const result = await provider.enrichActivity({
+    const result = await provider.enrichExperience({
       name: 'Monumento Raro',
       latitude: -34.6,
       longitude: -58.38,

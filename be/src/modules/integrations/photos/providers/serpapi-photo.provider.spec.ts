@@ -36,7 +36,7 @@ describe('SerpApiPhotoProvider', () => {
       },
     });
 
-    const result = await provider.enrichActivity({
+    const result = await provider.enrichExperience({
       name: 'Café Tortoni',
       destinationName: 'Buenos Aires',
     });
@@ -53,7 +53,7 @@ describe('SerpApiPhotoProvider', () => {
     delete process.env.SERPAPI_API_KEY;
     const noKeyProvider = new SerpApiPhotoProvider(configService);
 
-    const result = await noKeyProvider.enrichActivity({
+    const result = await noKeyProvider.enrichExperience({
       name: 'Cualquier Lugar',
     });
     expect(result.status).toBe('failed');

@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import {
-  ActivityEnrichmentResult,
-  ActivityPhoto,
+  ExperienceEnrichmentResult,
+  ExperiencePhoto,
   IPhotoEnrichmentProvider,
   PhotoEnrichmentQuery,
 } from '../interfaces/photo-enrichment.interface';
@@ -11,10 +11,10 @@ export class MockPhotoProvider implements IPhotoEnrichmentProvider {
   readonly providerName = 'mock';
   private readonly logger = new Logger(MockPhotoProvider.name);
 
-  async enrichActivity(
+  async enrichExperience(
     query: PhotoEnrichmentQuery,
-  ): Promise<ActivityEnrichmentResult> {
-    const photos: ActivityPhoto[] = [
+  ): Promise<ExperienceEnrichmentResult> {
+    const photos: ExperiencePhoto[] = [
       {
         url: `https://images.unsplash.com/photo-1589909202802-8f4aadce1849?q=80&w=1200&auto=format&fit=crop`,
         thumbnail: `https://images.unsplash.com/photo-1589909202802-8f4aadce1849?q=80&w=400&auto=format&fit=crop`,
@@ -44,11 +44,11 @@ export class MockPhotoProvider implements IPhotoEnrichmentProvider {
 
   async enrichBatch(
     queries: PhotoEnrichmentQuery[],
-  ): Promise<Map<string, ActivityEnrichmentResult>> {
-    const results = new Map<string, ActivityEnrichmentResult>();
+  ): Promise<Map<string, ExperienceEnrichmentResult>> {
+    const results = new Map<string, ExperienceEnrichmentResult>();
     for (const q of queries) {
       const key = q.id || q.name;
-      results.set(key, await this.enrichActivity(q));
+      results.set(key, await this.enrichExperience(q));
     }
     return results;
   }

@@ -10,13 +10,13 @@ describe('HybridPhotoProvider', () => {
   beforeEach(() => {
     mockWikimedia = {
       providerName: 'wikimedia',
-      enrichActivity: jest.fn(),
+      enrichExperience: jest.fn(),
       enrichBatch: jest.fn(),
     } as any;
 
     mockSerpApi = {
       providerName: 'serpapi',
-      enrichActivity: jest.fn(),
+      enrichExperience: jest.fn(),
       enrichBatch: jest.fn(),
     } as any;
 
@@ -24,7 +24,7 @@ describe('HybridPhotoProvider', () => {
   });
 
   it('should route cultural query to Wikimedia first', async () => {
-    mockWikimedia.enrichActivity.mockResolvedValueOnce({
+    mockWikimedia.enrichExperience.mockResolvedValueOnce({
       photos: [
         {
           url: 'https://commons.wikimedia.org/pic.jpg',
@@ -36,25 +36,25 @@ describe('HybridPhotoProvider', () => {
       provider: 'wikimedia',
     });
 
-    const result = await provider.enrichActivity({
+    const result = await provider.enrichExperience({
       name: 'Palacio Barolo',
       category: 'cultural',
       wikidataId: 'Q1140940',
     });
 
-    expect(mockWikimedia.enrichActivity).toHaveBeenCalled();
-    expect(mockSerpApi.enrichActivity).not.toHaveBeenCalled();
+    expect(mockWikimedia.enrichExperience).toHaveBeenCalled();
+    expect(mockSerpApi.enrichExperience).not.toHaveBeenCalled();
     expect(result.provider).toBe('wikimedia');
   });
 
   it('should cascade to SerpApi when Wikimedia has no photos', async () => {
-    mockWikimedia.enrichActivity.mockResolvedValueOnce({
+    mockWikimedia.enrichExperience.mockResolvedValueOnce({
       photos: [],
       status: 'failed',
       provider: 'wikimedia',
     });
 
-    mockSerpApi.enrichActivity.mockResolvedValueOnce({
+    mockSerpApi.enrichExperience.mockResolvedValueOnce({
       photos: [
         {
           url: 'https://lh3.googleusercontent.com/p/123',
@@ -65,20 +65,20 @@ describe('HybridPhotoProvider', () => {
       provider: 'serpapi',
     });
 
-    const result = await provider.enrichActivity({
+    const result = await provider.enrichExperience({
       name: 'Museo Poco Conocido',
       category: 'museum',
       latitude: -34.6,
       longitude: -58.38,
     });
 
-    expect(mockWikimedia.enrichActivity).toHaveBeenCalled();
-    expect(mockSerpApi.enrichActivity).toHaveBeenCalled();
+    expect(mockWikimedia.enrichExperience).toHaveBeenCalled();
+    expect(mockSerpApi.enrichExperience).toHaveBeenCalled();
     expect(result.provider).toBe('serpapi');
   });
 
   it('should route query without coords/wikidata directly to SerpApi', async () => {
-    mockSerpApi.enrichActivity.mockResolvedValueOnce({
+    mockSerpApi.enrichExperience.mockResolvedValueOnce({
       photos: [
         {
           url: 'https://lh3.googleusercontent.com/p/cafe',
@@ -90,13 +90,13 @@ describe('HybridPhotoProvider', () => {
       provider: 'serpapi',
     });
 
-    const result = await provider.enrichActivity({
+    const result = await provider.enrichExperience({
       name: 'Café Tortoni',
       category: 'food',
     });
 
-    expect(mockWikimedia.enrichActivity).not.toHaveBeenCalled();
-    expect(mockSerpApi.enrichActivity).toHaveBeenCalled();
+    expect(mockWikimedia.enrichExperience).not.toHaveBeenCalled();
+    expect(mockSerpApi.enrichExperience).toHaveBeenCalled();
     expect(result.provider).toBe('serpapi');
   });
 });
