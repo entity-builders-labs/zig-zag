@@ -1,4 +1,6 @@
-export const EXPERIENCE_SEMANTIC_DOCUMENT_VERSION = 2;
+import { EXPERIENCE_EMBEDDING_DOCUMENT_VERSION } from '../interfaces/embedding-index.interface';
+
+export const EXPERIENCE_SEMANTIC_DOCUMENT_VERSION = EXPERIENCE_EMBEDDING_DOCUMENT_VERSION;
 
 export interface ExperienceSemanticDocumentInput {
   canonicalName: string;
