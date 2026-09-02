@@ -11,12 +11,15 @@ describe('GenerationTrace V2 audit contract', () => {
       status: 'insufficient',
       analyzedCandidateCount: 11,
       eligibleCandidateCount: 11,
+      relevantCandidateCount: 0,
       offeredCandidateCount: 11,
       usableCandidateCount: 11,
       requiredCandidateCount: 9,
       requestedThemeCoverage: [
         { theme: 'nature', matchedCandidateCount: 0, strongMatchCount: 0 },
       ],
+      requestedTraitCoverage: [],
+      requestedIntentCoverage: [],
       sourceCoverage: [{ source: 'geoapify', count: 11 }],
       geographicCoverage: { distinctClusterCount: 2, thresholdKilometers: 1.5 },
       semanticCoverage: {
@@ -79,7 +82,7 @@ describe('GenerationTrace V2 audit contract', () => {
           dayNumber: 1,
           experiences: [
             {
-              experienceId: 'activity-selected',
+              experienceId: 'experience-selected',
               startMinutesFromMidnight: 540,
               endMinutesFromMidnight: 660,
             },
@@ -92,7 +95,7 @@ describe('GenerationTrace V2 audit contract', () => {
       ],
       unselected: [
         {
-          experienceId: 'activity-rejected',
+          experienceId: 'experience-rejected',
           reasons: ['DAILY_TIME_CAPACITY_EXCEEDED'],
         },
       ],
@@ -113,13 +116,13 @@ describe('GenerationTrace V2 audit contract', () => {
     expect(step.candidateDecisions).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          id: 'activity-selected',
+          id: 'experience-selected',
           status: 'SELECTED',
           dayNumber: 1,
           order: 1,
         }),
         expect.objectContaining({
-          id: 'activity-rejected',
+          id: 'experience-rejected',
           status: 'UNSELECTED',
           reasonCodes: ['DAILY_TIME_CAPACITY_EXCEEDED'],
         }),
