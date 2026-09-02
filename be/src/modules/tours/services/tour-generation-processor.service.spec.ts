@@ -1,12 +1,18 @@
 import { TourGenerationProcessorService } from './tour-generation-processor.service';
 
 describe('TourGenerationProcessorService', () => {
-  function setup(tour: any) {
-    const prisma = {
+  function setup(initialTour: any, latestTour: any = initialTour) {
+    const prisma: any = {
       tour: { update: jest.fn().mockResolvedValue({}) },
+      outboxEvent: { deleteMany: jest.fn().mockResolvedValue({ count: 1 }) },
     };
+    prisma.$transaction = jest.fn(async (callback: any) => callback(prisma));
+
     const toursService = {
-      findOne: jest.fn().mockResolvedValue(tour),
+      findOne: jest
+        .fn()
+        .mockResolvedValueOnce(initialTour)
+        .mockResolvedValue(latestTour),
     };
     const generation = {
       generateTourExperiences: jest.fn().mockResolvedValue(undefined),
@@ -95,5 +101,82 @@ describe('TourGenerationProcessorService', () => {
       },
     });
     expect(generation.generateTourExperiences).toHaveBeenCalledWith('tour-1');
+  });
+
+  it('compensates a transient 429 back to pending, removes the unpublished TourFailed event and rethrows', async () => {
+    const initialTour = {
+      id: 'tour-1',
+      metadata: { generationStatus: 'pending' },
+      experiences: [],
+    };
+    const latestTour = {
+      id: 'tour-1',
+      metadata: {
+        generationStatus: 'failed',
+        generationError: 'Google Places 429 rate limited',
+        generationFailedAt: '2026-09-02T20:00:00.000Z',
+        generationTrace: { steps: [] },
+      },
+      experiences: [],
+    };
+    const { service, prisma, generation } = setup(initialTour, latestTour);
+    const transient = new Error(
+      'Failed to generate experiences: Google Places 429 rate limited',
+    );
+    generation.generateTourExperiences.mockRejectedValueOnce(transient);
+
+    await expect(service.handleGenerationRequested(payload)).rejects.toBe(
+      transient,
+    );
+
+    expect(prisma.$transaction).toHaveBeenCalledTimes(1);
+    expect(prisma.tour.update).toHaveBeenCalledWith({
+      where: { id: 'tour-1' },
+      data: {
+        metadata: expect.objectContaining({
+          generationStatus: 'pending',
+          generationFailureKind: 'retryable',
+          generationRetryReasonCode: 'RATE_LIMITED',
+          generationRetryCount: 1,
+          generationRetryableAt: expect.any(String),
+        }),
+      },
+    });
+    expect(prisma.outboxEvent.deleteMany).toHaveBeenCalledWith({
+      where: {
+        eventType: 'TourFailed',
+        status: 'PENDING',
+        payload: { path: ['tourId'], equals: 'tour-1' },
+      },
+    });
+  });
+
+  it('does not compensate a deterministic infeasibility failure', async () => {
+    const initialTour = {
+      id: 'tour-1',
+      metadata: { generationStatus: 'pending' },
+      experiences: [],
+    };
+    const latestTour = {
+      id: 'tour-1',
+      metadata: {
+        generationStatus: 'failed',
+        generationError: 'No feasible itinerary',
+        generationTrace: { steps: [] },
+      },
+      experiences: [],
+    };
+    const { service, prisma, generation } = setup(initialTour, latestTour);
+    const terminal = new Error(
+      'Failed to generate experiences: No feasible itinerary',
+    );
+    generation.generateTourExperiences.mockRejectedValueOnce(terminal);
+
+    await expect(service.handleGenerationRequested(payload)).rejects.toBe(
+      terminal,
+    );
+
+    expect(prisma.$transaction).not.toHaveBeenCalled();
+    expect(prisma.outboxEvent.deleteMany).not.toHaveBeenCalled();
   });
 });
