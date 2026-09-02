@@ -134,7 +134,7 @@ export const TourHeader = ({
     return coordinates.length > 1 ? [coordinates] : [];
     // experiences is included deliberately: generation updates snapshots asynchronously
     // for a tour that's still generating (e.g. navigated to straight from
-    // the wizard), activities starts at [] and arrives later via polling.
+    // the wizard), experiences arrive later via polling.
     // Keying only on tour.id meant this never recomputed once real stops
     // showed up — the route stayed empty forever for that render's tour.
     // eslint-disable-next-line react-hooks/exhaustive-deps

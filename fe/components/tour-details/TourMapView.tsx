@@ -32,7 +32,7 @@ interface StopWithLocation {
   image?: string;
   category?: string;
   travelTimeToNext?: number;
-  activityId?: string;
+  experienceId?: string;
 }
 
 export const TourMapView = ({
@@ -67,7 +67,7 @@ export const TourMapView = ({
           if (!component || component.latitude == null || component.longitude == null) return [];
           return [{
             id: snapshot.id,
-            activityId: snapshot.experienceId,
+            experienceId: snapshot.experienceId,
             latitude: component.latitude,
             longitude: component.longitude,
             title: snapshot.experience?.canonicalName || snapshot.experience?.name || 'Experiencia',
@@ -86,7 +86,7 @@ export const TourMapView = ({
         if (latitude == null || longitude == null) return null;
         return {
           id: item.id || `stop-${index}`,
-          activityId: item.activityId,
+          experienceId: item.experienceId,
           latitude,
           longitude,
           title: item.title,
@@ -353,8 +353,8 @@ export const TourMapView = ({
             bg='$primary500'
             borderRadius='$2xl'
             onPress={() => {
-              if (currentStop.activityId && !currentStop.activityId.startsWith('inline-')) {
-                router.push(`/activities/${currentStop.activityId}`);
+              if (currentStop.experienceId) {
+                router.push(`/experiences/${currentStop.experienceId}`);
               }
             }}
           >
