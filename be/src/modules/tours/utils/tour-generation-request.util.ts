@@ -62,7 +62,7 @@ export function buildTourGenerationRequest(
     },
     dietaryRestrictions: normalizeValues(dto.dietaryRestrictions),
     startDates: [...(dto.startDates ?? [])],
-    includeExistingActivities: dto.includeExistingActivities !== false,
+    includeExistingExperiences: dto.includeExistingExperiences !== false,
     skipImageGeneration: dto.skipImageGeneration !== false,
     excludeTours: normalizeValues(dto.excludeTours),
     categories: normalizeValues(dto.categories),

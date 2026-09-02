@@ -91,7 +91,7 @@ export interface TourGenerationRequest {
   mobility: MobilityPreferences;
   dietaryRestrictions: string[];
   startDates: string[];
-  includeExistingActivities: boolean;
+  includeExistingExperiences: boolean;
   skipImageGeneration: boolean;
   excludeTours: string[];
   categories: string[];

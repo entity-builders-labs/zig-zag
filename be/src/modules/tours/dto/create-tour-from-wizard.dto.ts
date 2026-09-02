@@ -191,7 +191,7 @@ export class CreateTourFromWizardDto {
   @ApiProperty({ default: true, required: false })
   @IsBoolean()
   @IsOptional()
-  includeExistingActivities = true;
+  includeExistingExperiences = true;
 
   @ApiProperty({ default: true, required: false })
   @IsBoolean()
