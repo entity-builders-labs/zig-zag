@@ -18,15 +18,22 @@ describe('PreferenceInterpreterService', () => {
     };
   }
 
-  it('normalizes a valid LLM response and records an applied trace', async () => {
+  it('normalizes the complete typed LLM response and records an applied trace', async () => {
     const { service, langChain } = makeService(
       JSON.stringify({
-        preferredThemes: [' Arquitectura ', 'arquitectura'],
+        preferredThemes: [' Arquitectura '],
         preferredTraits: ['tranquilo'],
+        preferredIntents: ['walking-like'],
         excludedThemes: [],
         excludedTraits: [],
-        hardExclusions: [],
-        positiveSemanticQuery: 'edificios históricos',
+        hardExclusions: ['religion'],
+        softConstraints: ['prefer shade'],
+        ambiguities: ['short walks could mean distance or duration'],
+        dietaryPreferences: ['vegan'],
+        accessibilityPreferences: ['wheelchair accessible'],
+        budgetPreferences: ['low budget'],
+        groupPreferences: ['family friendly'],
+        positiveSemanticQuery: 'edificios históricos accesibles',
         notes: ['prioridad alta'],
       }),
     );
@@ -34,9 +41,11 @@ describe('PreferenceInterpreterService', () => {
     const result = await service.interpret('Quiero arquitectura tranquila');
 
     expect(langChain.generateChatResponse).toHaveBeenCalledTimes(1);
-    expect(result.intent.preferredThemes).toEqual([
-      'arquitectura',
-      'arquitectura',
+    expect(result.intent.preferredThemes).toEqual(['arquitectura']);
+    expect(result.intent.preferredIntents).toEqual(['walking-like']);
+    expect(result.intent.dietaryPreferences).toEqual(['vegan']);
+    expect(result.intent.accessibilityPreferences).toEqual([
+      'wheelchair accessible',
     ]);
     expect(result.trace.status).toBe('applied');
     expect(result.trace.provider).toBe('gemini');
@@ -44,18 +53,22 @@ describe('PreferenceInterpreterService', () => {
     expect(result.trace.userPrompt).toBe('Quiero arquitectura tranquila');
   });
 
-  it('uses a deterministic fallback when the provider fails', async () => {
+  it('uses a deterministic fallback for religion, diet and accessibility when the provider fails', async () => {
     const { service } = makeService(
       undefined,
       new Error('provider unavailable'),
     );
 
     const result = await service.interpret(
-      'Evitar iglesias y buscar arquitectura',
+      'Evitar iglesias, soy vegano, necesito silla de ruedas y busco arquitectura',
     );
 
     expect(result.trace.status).toBe('fallback');
     expect(result.intent.excludedThemes).toContain('religion');
+    expect(result.intent.hardExclusions).toContain('religion');
+    expect(result.intent.hardExclusions).toContain('non-vegan food');
+    expect(result.intent.dietaryPreferences).toContain('vegan');
+    expect(result.intent.accessibilityPreferences).toContain('accessibility');
     expect(result.intent.preferredThemes).toContain('arquitectura');
     expect(result.trace.validationErrors).toContain('provider unavailable');
   });
@@ -68,5 +81,7 @@ describe('PreferenceInterpreterService', () => {
     expect(langChain.generateChatResponse).not.toHaveBeenCalled();
     expect(result.trace.status).toBe('skipped');
     expect(result.intent.preferredThemes).toEqual([]);
+    expect(result.intent.softConstraints).toEqual([]);
+    expect(result.intent.ambiguities).toEqual([]);
   });
 });
