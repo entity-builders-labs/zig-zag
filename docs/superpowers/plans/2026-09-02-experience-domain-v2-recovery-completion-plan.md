@@ -207,6 +207,43 @@ Mantener LLM sólo para interpretar texto libre. Después:
 
 **Gate:** mismo input canónico produce el mismo Tour; downtime de routing activa fallback sin cambiar una Experience de inválida a válida; opening hours siguen válidos después del orden final.
 
+### Suite obligatoria de selección E2E a escala
+
+Los tests de creación de Tours deben demostrar de punta a punta que el usuario recibe las **mejores Experiences disponibles para sus preferencias**, no sólo que el ranking devuelve algún resultado o que el Tour llega a `completed`.
+
+Cada escenario mockeado de selección debe:
+
+- sembrar en la base un catálogo determinístico de al menos 300 Experiences verificadas, con seed fija y distribución documentada;
+- incluir variedad real de themes, traits, archetype/intent facets blandas, duración, costo, accesibilidad, horarios, popularidad/calidad, ubicación, componentes y similitud semántica;
+- incluir distractores difíciles: Experiences populares pero irrelevantes, cercanas pero incompatibles, semánticamente parecidas con un trait excluido, duplicados/variantes, opciones con horarios inviables y opciones que cumplen sólo una parte de la intención;
+- reservar un conjunto de Experiences claramente dominantes para la combinación concreta de preferencias del usuario, con un oracle esperado construido a partir de reglas de negocio y no copiado de la implementación del scorer;
+- ingresar por el contrato público de creación del Tour y ejecutar el pipeline real: canonicalización, interpretación de preferencias, catálogo, filtros, embeddings/ranking, routing, planner, persistencia y snapshots;
+- mockear sólo boundaries externos no determinísticos —LLM, embeddings provider, Places/OSM/search y routing externo— con respuestas versionadas. No mockear coverage, filtros, scorer, ranking, planner, repositorios, outbox consumer ni materialización;
+- esperar el procesamiento async mediante estados/eventos acotados; quedan prohibidos sleeps arbitrarios, loops infinitos y shortcuts que invoquen directamente al ranking;
+- inspeccionar el Tour persistido, sus `TourExperience`, el orden final y Bitácora V3;
+- probar que las Experiences dominantes fueron seleccionadas y que los distractores incompatibles fueron excluidos o penalizados por el motivo correcto;
+- verificar las contribuciones de score, hard constraints, soft penalties, relajaciones, diversidad y factibilidad temporal/geográfica que explican la selección;
+- ejecutar dos veces el mismo input y seed para demostrar determinismo e idempotencia.
+
+La suite debe cubrir como mínimo estas combinaciones con catálogos diferentes o seeds parametrizadas:
+
+1. cultura + arte + tango, priorizando caminatas y evitando contenido religioso;
+2. gastronomía vegana con presupuesto y duración limitados;
+3. accesibilidad reducida, distancias cortas y opening hours estrictos;
+4. familia con edades mixtas y preferencias parcialmente contradictorias;
+5. interés long-tail con catálogo numeroso pero mayormente irrelevante;
+6. preferencias tan restrictivas que obligan a una relajación explícita sin devolver resultados arbitrarios.
+
+No alcanza con afirmar el top 1 de una lista artificial de cinco registros. Para cada caso se debe comprobar:
+
+- que las seleccionadas están en el conjunto esperado o cumplen invariantes de dominancia definidos en el test;
+- que ninguna Experience excluida por un hard constraint aparece en el Tour;
+- que las selecciones superan por score explicable a una muestra de distractores cercanos;
+- que el conjunto final es planificable y coherente como Tour, no sólo relevante individualmente;
+- que un cambio controlado de preferencias cambia la selección en la dirección esperada sobre el mismo catálogo.
+
+**Gate:** toda la suite E2E a escala pasa con cientos de Experiences persistidas por escenario. Un test reducido puede complementar esta suite, pero nunca reemplazarla.
+
 ## Checkpoint 9 — media con persistencia de URLs
 
 - Agregar el modelo persistente necesario para URLs de imágenes, proveedor/procedencia y estado.
@@ -340,6 +377,7 @@ Además:
 - tests de integración con DB y migraciones desde cero;
 - tests frontend para contratos day-trip/preferences si cambia la UI;
 - E2E determinístico con providers fake/recorded;
+- suite E2E de selección a escala con al menos 300 Experiences persistidas por escenario y mocks únicamente en boundaries externos;
 - al menos una ejecución real controlada para Gualeguaychú y una para discovery fundamentado, sin convertirla en condición permanente del CI;
 - inspección directa de tablas Experience/GeoEntity/TourExperience/media/outbox/jobs y de Bitácora V3.
 
@@ -371,6 +409,7 @@ Si algún punto no está comprobado, el reporte debe decir `FAIL` o `BLOCKED`; n
 La rama sólo está terminada cuando:
 
 - los 18 escenarios pasan;
+- la suite E2E de selección a escala demuestra que las preferencias cambian correctamente las Experiences elegidas;
 - CI/PR está verde;
 - migraciones y persistencia fueron inspeccionadas;
 - Bitácora V3 prueba el comportamiento real;
