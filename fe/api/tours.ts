@@ -90,7 +90,7 @@ export async function fetchTourById(id: string) {
 // Rewrites which waypoints of a composite tour stop are shown for THIS tour
 // instance — the pre-confirmation review screen's "exclude a stop"
 // affordance. Never touches the shared variant's own content, nor any other
-// tour's snapshot (see be/.../update-tour-activity-waypoints.dto.ts).
+// tour's Experience snapshot (see the corresponding backend update DTO).
 export async function generateTour(payload: GenerateTourDto) {
   const { data } = await axiosInstance.post<Tour>(
     '/tours/generate-tour',
