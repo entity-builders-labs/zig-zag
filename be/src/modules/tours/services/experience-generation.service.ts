@@ -462,6 +462,11 @@ export class ExperienceGenerationService {
       );
     }
 
+    const preferred = [
+      ...(intent.normalizedPreferences?.preferredThemes ?? []),
+      ...(intent.normalizedPreferences?.preferredTraits ?? []),
+      ...intent.interests,
+    ].map((value) => value.toLowerCase());
     const rankable: (RankableCandidate & { original: any })[] =
       candidateExperiences.map((a) => ({
         id: a.id,
@@ -470,6 +475,7 @@ export class ExperienceGenerationService {
         distanceKm: a.distance,
         weightedScore: a.qualityScore,
         isCurated: false,
+        preferenceScore: this.preferenceScore(a, preferred),
         original: a,
       }));
     const rankedFull = rankCandidatesByRelevance(
@@ -508,6 +514,18 @@ export class ExperienceGenerationService {
         reason: semanticResult!.reason,
       },
     };
+  }
+
+  private preferenceScore(experience: any, preferred: string[]): number {
+    if (preferred.length === 0) return 0;
+    const values = [
+      ...(experience.themes ?? []),
+      ...(experience.traits ?? []),
+      ...(experience.metadata?.themes ?? []),
+      ...(experience.metadata?.traits ?? []),
+    ].map((value: unknown) => String(value).toLowerCase());
+    const matches = preferred.filter((theme) => values.some((value) => value === theme || value.includes(theme) || theme.includes(value)));
+    return Math.min(1, matches.length / preferred.length);
   }
 
   private filterHardExcludedExperiences(experiences: any[], intent: TourIntent) {

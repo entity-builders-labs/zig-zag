@@ -15,6 +15,8 @@ export interface RankableCandidate {
   isCurated?: boolean;
   /** Composite only — groups variants of the same area+experience-type, used for window-selection family diversity (candidate-window-selection.util.ts). */
   familyId?: string | null;
+  /** Deterministic affinity to normalized user themes/traits (0..1). */
+  preferenceScore?: number;
 }
 
 // Exposes what actually drove a candidate's rank, so the generation
@@ -23,6 +25,7 @@ export interface RankableCandidate {
 export interface CandidateScoreBreakdown {
   /** null = missing-embedding tier; never a fake 0 (that would claim a measurement that didn't happen). */
   semanticSimilarity: number | null;
+  preferenceBonus?: number;
   qualityBonus: number;
   proximityBonus: number;
   /** Captured at the moment this candidate was selected in the greedy diversity pass, not recomputed afterward. */
@@ -49,6 +52,7 @@ const PROXIMITY_WEIGHT = 0.1;
 const NEW_KIND_BONUS = 0.04;
 const NEW_SUBTYPE_BONUS = 0.03;
 const REPEATED_SUBTYPE_PENALTY = 0.02;
+const PREFERENCE_WEIGHT = 0.25;
 
 export function qualityBonus(candidate: RankableCandidate): number {
   if (candidate.source === 'poi') {
@@ -75,6 +79,8 @@ export function proximityBonus(
 }
 
 function fallbackCompare(a: RankableCandidate, b: RankableCandidate): number {
+  const preferenceDifference = (b.preferenceScore ?? 0) - (a.preferenceScore ?? 0);
+  if (Math.abs(preferenceDifference) > Number.EPSILON) return preferenceDifference;
   const qualityDifference = qualityBonus(b) - qualityBonus(a);
   if (Math.abs(qualityDifference) > Number.EPSILON) return qualityDifference;
 
@@ -120,6 +126,7 @@ function rankKnownSemanticTier<T extends RankableCandidate>(
     proximity: proximityBonus(candidate, maximumDistanceKm),
     baseScore:
       similarityById.get(candidate.id)! +
+      (candidate.preferenceScore ?? 0) * PREFERENCE_WEIGHT +
       qualityBonus(candidate) +
       proximityBonus(candidate, maximumDistanceKm),
   }));
@@ -150,7 +157,8 @@ function rankKnownSemanticTier<T extends RankableCandidate>(
     selected.push({
       candidate: next.candidate,
       scoreBreakdown: {
-        semanticSimilarity: next.semanticSimilarity,
+      semanticSimilarity: next.semanticSimilarity,
+        preferenceBonus: next.candidate.preferenceScore ?? 0,
         qualityBonus: next.quality,
         proximityBonus: next.proximity,
         diversityBonus,
@@ -184,10 +192,11 @@ function wrapWithoutSemanticSignal<T extends RankableCandidate>(
     candidate,
     scoreBreakdown: {
       semanticSimilarity: null,
+      preferenceBonus: candidate.preferenceScore ?? 0,
       qualityBonus: quality,
       proximityBonus: proximity,
       diversityBonus: 0,
-      totalScore: quality + proximity,
+      totalScore: (candidate.preferenceScore ?? 0) * PREFERENCE_WEIGHT + quality + proximity,
     },
   };
 }
