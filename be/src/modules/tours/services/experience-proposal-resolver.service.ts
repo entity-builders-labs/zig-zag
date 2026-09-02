@@ -63,18 +63,18 @@ export class ExperienceProposalResolverService
     const validationByName = new Map(validation.results.map((result) => [result.proposalName, result]));
     const resolved = await Promise.all(resolvedCandidates.map(async (candidate) => {
       if (candidate.status !== 'accepted') return candidate;
-      const result = validationByName.get(candidate.proposal.name);
+      const result = validationByName.get(candidate.candidate.name);
       if (!result?.accepted) {
         return { ...candidate, status: 'rejected' as const, rejectionReasons: result?.rejectionReasons ?? ['geographic_validation_failed'] };
       }
       const experience = await this.catalog.persistVerifiedExperience({
-        canonicalName: candidate.proposal.name,
-        description: candidate.proposal.description,
-        durationMinutes: candidate.proposal.suggestedDurationMinutes,
-        metadata: { themes: candidate.proposal.themes, traits: candidate.proposal.traits, source: 'grounded_experience_discovery' },
+        canonicalName: candidate.candidate.name,
+        description: candidate.candidate.description,
+        durationMinutes: candidate.candidate.suggestedDurationMinutes,
+        metadata: { themes: candidate.candidate.themes, traits: candidate.candidate.traits, source: 'grounded_experience_discovery' },
         components: candidate.resolvedEntities.filter((entity: any) => entity.status === 'resolved' && entity.geoEntityId).map((entity: any, index: number) => ({ geoEntityId: entity.geoEntityId, order: index + 1, role: entity.role, required: true })),
         evidence: evidence
-          .filter((item: { key?: string }) => candidate.proposal.evidenceKeys?.includes(item.key ?? ''))
+          .filter((item: { key?: string }) => candidate.candidate.evidenceKeys?.includes(item.key ?? ''))
           .map((item: { source: string; url?: string; title?: string; snippet?: string }) => ({ source: item.source, url: item.url, title: item.title, snippet: item.snippet })),
       });
       return { ...candidate, experienceId: experience.id };
@@ -91,7 +91,7 @@ export class ExperienceProposalResolverService
   }
 
   private async resolveCandidate(
-    proposal: any,
+    candidate: any,
     boundary: OsmCandidate | undefined,
     streets: OsmCandidate[],
     pois: OsmCandidate[],
@@ -102,7 +102,7 @@ export class ExperienceProposalResolverService
     evidence: Array<{ key?: string; source: string; url?: string; title?: string; snippet?: string }>,
   ) {
     const entities: ResolvedGeoEntity[] = [];
-    for (const hint of proposal?.componentHints ?? []) {
+    for (const hint of candidate?.componentHints ?? []) {
       const pool = hint.expectedKind === 'ROUTE' || hint.role === 'route' ? streets : hint.expectedKind === 'AREA' || hint.role === 'area' ? (boundary ? [boundary] : []) : pois;
       const candidate = this.matchCandidate(hint.name, pool);
       if (!candidate) {
@@ -122,11 +122,11 @@ export class ExperienceProposalResolverService
       entities.push({ hintKey: hint.key, hintName: hint.name, provider: 'openstreetmap', externalId: candidate.id, canonicalName: candidate.name, latitude: this.point(candidate)?.latitude, longitude: this.point(candidate)?.longitude, geometry: candidate.geometry, role: hint.role, status: 'resolved' });
       (entities[entities.length - 1] as any).geoEntityId = geo.id;
     }
-    const required = (proposal?.componentHints ?? []).filter((hint: any) => hint.required);
+    const required = (candidate?.componentHints ?? []).filter((hint: any) => hint.required);
     const unresolvedRequired = required.some((hint: any) => !entities.find((entity) => entity.hintKey === hint.key && entity.status === 'resolved'));
     const resolvedEntities = entities.filter((entity) => entity.status === 'resolved');
     if (resolvedEntities.length === 0 || unresolvedRequired) {
-      return { proposal, status: 'rejected' as const, resolvedEntities: entities, rejectionReasons: [
+      return { candidate, status: 'rejected' as const, resolvedEntities: entities, rejectionReasons: [
         resolvedEntities.length === 0
           ? entities.some((entity) => entity.reason === 'OSM_PROVIDER_FAILED')
             ? 'OSM_PROVIDER_FAILED'
@@ -136,7 +136,7 @@ export class ExperienceProposalResolverService
           : 'UNRESOLVED_REQUIRED_COMPONENT',
       ] };
     }
-    return { proposal, status: 'accepted' as const, resolvedEntities: entities, rejectionReasons: [] as string[] };
+    return { candidate, status: 'accepted' as const, resolvedEntities: entities, rejectionReasons: [] as string[] };
   }
 
   private matchCandidate(name: string, pool: OsmCandidate[]): OsmCandidate | undefined {

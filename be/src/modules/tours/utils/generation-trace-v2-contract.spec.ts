@@ -8,10 +8,9 @@ import { ExperienceResolutionResponse } from '../interfaces/experience-resolutio
 describe('GenerationTrace V2 decision audit coverage', () => {
   it('records grounded discovery provenance and the resolution handoff', () => {
     const result: any = {
-      proposals: [
+      candidates: [
         {
           name: 'Whale watching excursion',
-          kind: 'EXPERIENCE',
           themes: ['nature', 'wildlife'],
           componentHints: [
             {
@@ -43,7 +42,6 @@ describe('GenerationTrace V2 decision audit coverage', () => {
       searchTrace: [
         {
           query: 'real whale watching experiences near Puerto Madryn',
-          targetKind: 'EXPERIENCE' as any,
           provider: 'serpapi',
           model: 'google_ai_mode',
           groundingStatus: 'applied',
@@ -58,13 +56,13 @@ describe('GenerationTrace V2 decision audit coverage', () => {
     expect(
       step.rules?.find((rule) => rule.ruleId === 'DISC-GROUNDED-001')?.result,
     ).toBe('PASS');
-    expect(step.decision?.outcome).toBe('PROPOSALS_READY_FOR_RESOLUTION');
+    expect(step.decision?.outcome).toBe('CANDIDATES_READY_FOR_RESOLUTION');
     expect(step.decision?.triggeredActions).toContain('RESOLVE_ENTITIES');
     expect(step.candidateDecisions?.[0]).toEqual(
       expect.objectContaining({
         name: 'Whale watching excursion',
         status: 'ELIGIBLE',
-        reasonCodes: ['PROPOSAL_PENDING_RESOLUTION'],
+        reasonCodes: ['CANDIDATE_PENDING_RESOLUTION'],
       }),
     );
   });
@@ -76,7 +74,7 @@ describe('GenerationTrace V2 decision audit coverage', () => {
       rejectedCount: 1,
       resolved: [
         {
-          proposal: {
+          candidate: {
             name: 'Invented route',
             themes: ['history'],
             traits: [],

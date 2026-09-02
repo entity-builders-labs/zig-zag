@@ -204,7 +204,7 @@ describe('buildEntityResolutionStep', () => {
     const step = buildEntityResolutionStep({
       resolved: [
         {
-          proposal: { ...proposal('Casa Histórica'), traits: [], componentHints: [] },
+          candidate: { ...proposal('Casa Histórica'), traits: [], componentHints: [] },
           status: 'accepted',
           resolvedEntities: [
             {
@@ -244,7 +244,7 @@ describe('buildEntityResolutionStep', () => {
     const step = buildEntityResolutionStep({
       resolved: [
         {
-          proposal: { ...proposal('Plaza Ambigua'), traits: [], componentHints: [] },
+          candidate: { ...proposal('Plaza Ambigua'), traits: [], componentHints: [] },
           status: 'rejected',
           resolvedEntities: [],
           rejectionReasons: ['area_ambiguous'],
@@ -309,7 +309,7 @@ describe('buildCatalogMaterializationStep', () => {
     const step = buildCatalogMaterializationStep({
       resolved: [
         {
-          proposal: {
+          candidate: {
             name: 'Paseo San Telmo',
             themes: [],
             traits: [],

@@ -24,7 +24,7 @@ export interface ResolvedGeoEntity {
 }
 
 export interface ResolvedExperienceCandidate {
-  proposal: ExperienceCandidate;
+  candidate: ExperienceCandidate;
   status: 'accepted' | 'rejected';
   resolvedEntities: ResolvedGeoEntity[];
   rejectionReasons: string[];

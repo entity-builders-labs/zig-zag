@@ -724,13 +724,13 @@ export function buildDiscoveryStep(
     decision: {
       status: applied ? 'PASS' : 'WARN',
       outcome: candidates.length
-        ? 'PROPOSALS_READY_FOR_RESOLUTION'
-        : 'NO_USABLE_PROPOSALS',
+        ? 'CANDIDATES_READY_FOR_RESOLUTION'
+        : 'NO_USABLE_CANDIDATES',
       reason: candidates.length
         ? 'Hay conceptos grounded para intentar resolver como entidades reales.'
-        : 'Discovery no produjo propuestas utilizables.',
+        : 'Discovery no produjo candidates utilizables.',
       reasonCodes: result.validationErrors?.length
-        ? ['PROPOSALS_VALIDATION_REJECTED']
+        ? ['CANDIDATES_VALIDATION_REJECTED']
         : ['GROUNDED_DISCOVERY_COMPLETED'],
       triggeredActions: candidates.length
         ? ['RESOLVE_ENTITIES']
@@ -754,8 +754,8 @@ export function buildDiscoveryStep(
       source: 'discovery',
       status: 'ELIGIBLE' as const,
       reason:
-        'Concepto grounded listo para resolución; aún no es una Experience verificada.',
-      reasonCodes: ['PROPOSAL_PENDING_RESOLUTION'],
+        'Candidate grounded listo para resolución; aún no es una Experience verificada.',
+      reasonCodes: ['CANDIDATE_PENDING_RESOLUTION'],
     })),
     providerStatus: applied ? 'success' : 'failed',
     degradedReason: applied ? undefined : `grounding_${result.groundingStatus}`,
@@ -798,7 +798,7 @@ export function buildEntityResolutionStep(
   );
   const rejectedSummaries = rejected.map(
     (entry) =>
-      `${entry.proposal.name}: ${entry.rejectionReasons.join(', ') || 'sin motivo registrado'}`,
+      `${entry.candidate.name}: ${entry.rejectionReasons.join(', ') || 'sin motivo registrado'}`,
   );
 
   return {
@@ -840,7 +840,7 @@ export function buildEntityResolutionStep(
           ? rejected
               .map(
                 (entry) =>
-                  `${entry.proposal.name}: ${entry.rejectionReasons.join(', ') || 'sin motivo'}`,
+                  `${entry.candidate.name}: ${entry.rejectionReasons.join(', ') || 'sin motivo'}`,
               )
               .join('; ')
           : 'No hubo rechazos de resolución.',
@@ -867,8 +867,8 @@ export function buildEntityResolutionStep(
       entitiesWithCoordinates: coordinateCount,
     },
     candidateDecisions: resolution.resolved.map((entry) => ({
-      id: entry.proposal.name,
-      name: entry.proposal.name,
+      id: entry.candidate.name,
+      name: entry.candidate.name,
       source: 'discovery',
       status:
         entry.status === 'accepted'
@@ -1087,8 +1087,8 @@ export function buildCatalogMaterializationStep(
       persistedExperienceIds,
     },
     candidateDecisions: finalResolved.map((entry) => ({
-      id: entry.experienceId ?? entry.proposal.name,
-      name: entry.proposal.name,
+      id: entry.experienceId ?? entry.candidate.name,
+      name: entry.candidate.name,
       source: 'discovery',
       status: entry.experienceId
         ? ('ELIGIBLE' as const)

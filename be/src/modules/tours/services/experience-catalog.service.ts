@@ -198,7 +198,6 @@ export class ExperienceCatalogService {
       const existing = await tx.experience.findMany({
         where: { status: ExperienceStatus.VERIFIED },
         include: { components: true, evidence: true, traits: true },
-        take: 100,
       });
       const same = existing.find((candidate) => {
         const candidateName = candidate.canonicalName.trim().toLocaleLowerCase();
@@ -208,6 +207,11 @@ export class ExperienceCatalogService {
         return candidateName === normalizedName && sharedComponent;
       });
       if (same) {
+        const knownEvidence = new Set(same.evidence.map((item) => `${item.source}|${item.url ?? ''}|${item.title ?? ''}`));
+        const missingEvidence = (input.evidence ?? []).filter((item) => !knownEvidence.has(`${item.source}|${item.url ?? ''}|${item.title ?? ''}`));
+        if (missingEvidence.length) {
+          await tx.experienceEvidence.createMany({ data: missingEvidence.map((item) => ({ ...item, experienceId: same.id })) });
+        }
         return same;
       }
       const experience = await tx.experience.create({
