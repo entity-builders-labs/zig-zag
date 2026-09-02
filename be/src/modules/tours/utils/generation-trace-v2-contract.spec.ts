@@ -116,8 +116,8 @@ describe('GenerationTrace V2 decision audit coverage', () => {
           {
             code: 'UNDERFILLED_DAY',
             dayNumber: 2,
-            selectedActivityCount: 1,
-            selectedActivityHours: 1.5,
+            selectedExperienceCount: 1,
+            selectedExperienceHours: 1.5,
             viableUnusedCandidateCount: 2,
             travelPace: 'moderate' as any,
             message:
