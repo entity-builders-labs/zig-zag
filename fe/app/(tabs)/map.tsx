@@ -455,7 +455,7 @@ export default function MapScreen() {
             <HStack space="$2" mt="$3">
               <Button
                 flex={1}
-                onPress={() => router.push(`/activities/${selectedPlace.id}`)}
+                onPress={() => setSelectedPlace(null)}
                 bg="$backgroundLight100"
                 borderWidth={1}
                 borderColor="$borderLight200"
@@ -465,7 +465,7 @@ export default function MapScreen() {
                 <HStack space="xs" alignItems="center">
                   <Icon as={Eye} size="xs" color="$textLight800" />
                   <ButtonText size="xs" fontWeight="$bold" color="$textLight800">
-                    Ver Ficha
+                    Cerrar
                   </ButtonText>
                 </HStack>
               </Button>
