@@ -219,29 +219,26 @@ export default function TourDetailScreen() {
         setIsGeneratingActivities(false);
         setGenerationError(payload.message || 'No se pudo generar el itinerario');
         scheduleReconciliation(false);
-      } else if (eventName === 'activity.media.updated') {
-        const { activityId, mediaUpdatedAt, photos } = payload;
-        if (activityId && mediaUpdatedAt && Array.isArray(photos)) {
+      } else if (eventName === 'experience.media.updated') {
+        const { experienceId, mediaUpdatedAt } = payload;
+        if (experienceId && mediaUpdatedAt) {
           setTour((prevTour) => {
-            if (!prevTour || !prevTour.activities) return prevTour;
-            const updatedActivities = prevTour.activities.map((act) => {
-              const currentActivity = act.activity;
-              if (!currentActivity || currentActivity.id !== activityId) {
-                return act;
+            if (!prevTour || !prevTour.experiences) return prevTour;
+            const updatedExperiences = prevTour.experiences.map((snapshot) => {
+              const currentExperience = snapshot.experience;
+              if (!currentExperience || currentExperience.id !== experienceId) {
+                return snapshot;
               }
-              const currentUpdatedAt = currentActivity.mediaUpdatedAt;
+              const currentUpdatedAt = currentExperience.mediaUpdatedAt;
               if (
                 currentUpdatedAt &&
                 Date.parse(currentUpdatedAt) >= Date.parse(mediaUpdatedAt)
               ) {
-                return act;
+                return snapshot;
               }
-              return {
-                ...act,
-                activity: { ...currentActivity, photos, mediaUpdatedAt },
-              };
+              return { ...snapshot, experience: { ...currentExperience, mediaUpdatedAt } };
             });
-            return { ...prevTour, activities: updatedActivities };
+            return { ...prevTour, experiences: updatedExperiences };
           });
         } else {
           scheduleReconciliation(false);

@@ -90,6 +90,7 @@ export interface TourExperience {
     name?: string;
     description?: string;
     status?: string;
+    mediaUpdatedAt?: string;
     themes?: string[];
     traits?: Array<{ trait: string; value?: string }>;
     components?: Array<{ name: string; role?: string; latitude?: number; longitude?: number }>;
