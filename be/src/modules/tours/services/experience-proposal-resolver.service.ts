@@ -6,6 +6,7 @@ import { CompositeGeographicValidationService } from './composite-geographic-val
 import {
   ExperienceProposalResolver,
   ExperienceResolutionResponse,
+  ExperienceResolutionRequest,
   ResolvedGeoEntity,
 } from '../interfaces/experience-resolution.interface';
 
@@ -31,16 +32,13 @@ export class ExperienceProposalResolverService
   ) {}
 
   async resolve(
-    input: any,
-    _destinationBoundary?: unknown,
+    input: ExperienceResolutionRequest,
   ): Promise<ExperienceResolutionResponse> {
-    const proposals = Array.isArray(input)
-      ? input
-      : Array.isArray(input?.proposals)
-        ? input.proposals
-        : [];
-
-    const boundary = _destinationBoundary as OsmCandidate | undefined;
+    const proposals = Array.isArray(input?.proposals) ? input.proposals : [];
+    const boundary = input?.destinationBoundary as OsmCandidate | undefined;
+    if (!boundary) {
+      throw new Error('Experience resolution requires destinationBoundary');
+    }
     const [streets, pois] = boundary
       ? await Promise.all([
           this.osmPlaces.findStreetsWithin(boundary),
@@ -51,9 +49,10 @@ export class ExperienceProposalResolverService
     const candidates = await Promise.all(
       proposals.map((proposal: any) => this.resolveProposal(proposal, boundary, streets, pois)),
     );
-    const validation = boundary
-      ? this.geographicValidator.validateBatch({ resolved: candidates.filter((item) => item.status === 'accepted') } as any, boundary)
-      : { results: [], acceptedCount: 0, rejectedCount: candidates.length };
+    const validation = this.geographicValidator.validateBatch(
+      { resolved: candidates.filter((item) => item.status === 'accepted') } as any,
+      boundary,
+    );
     const validationByName = new Map(validation.results.map((result) => [result.proposalName, result]));
     const resolved = await Promise.all(candidates.map(async (candidate) => {
       if (candidate.status !== 'accepted') return candidate;

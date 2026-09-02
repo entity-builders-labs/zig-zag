@@ -28,6 +28,14 @@ export interface ResolvedExperienceCandidate {
   resolvedEntities: ResolvedGeoEntity[];
   rejectionReasons: string[];
   persistedActivityId?: string;
+  experienceId?: string;
+}
+
+export interface ExperienceResolutionRequest {
+  proposals: ExperienceCandidate[];
+  destinationName?: string;
+  destinationBoundary: unknown;
+  traceContext?: Record<string, unknown>;
 }
 
 export interface ExperienceGeographicValidationResult {
@@ -76,10 +84,7 @@ export interface ExperienceResolutionResponse {
 }
 
 export interface ExperienceProposalResolver {
-  resolve(
-    proposals: unknown,
-    destinationBoundary?: unknown,
-  ): Promise<ExperienceResolutionResponse>;
+  resolve(request: ExperienceResolutionRequest): Promise<ExperienceResolutionResponse>;
 }
 
 export const EXPERIENCE_PROPOSAL_RESOLVER = 'EXPERIENCE_PROPOSAL_RESOLVER';
