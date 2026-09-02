@@ -64,8 +64,6 @@ export class PlanningCandidateNormalizerService {
       const longitude = experience.longitude ?? firstComponent?.longitude;
       return {
         experienceId: experience.id,
-        activityId: experience.id,
-        kind: 'POI',
         title: experience.canonicalName ?? experience.name,
         durationMinutes:
           experience.durationMinutes ?? (experience.duration ? experience.duration * 60 : undefined) ??

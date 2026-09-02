@@ -1,4 +1,3 @@
-import { ActivityKind } from '@prisma/client';
 import {
   MobilityPreferences,
   TravelPace,
@@ -49,10 +48,11 @@ export type NormalizedOpeningHours =
   | NormalizedOpeningHoursUnknown;
 
 export interface PlanningExperienceCandidate {
-  /** Canonical V2 identity. `activityId` remains only for compatibility. */
+  /** Canonical V2 identity used by the planner. */
   experienceId?: string;
-  activityId: string;
-  kind: ActivityKind | 'POI';
+  /** Transitional field for isolated pre-V2 fixtures; never populated by V2. */
+  activityId?: string;
+  kind?: string;
   title: string;
   durationMinutes: number;
   spatialFootprint: SpatialFootprint;
@@ -112,7 +112,7 @@ export interface TravelEstimateProvider {
 export interface PlannedActivity {
   /** Canonical V2 identity carried through deterministic planning. */
   experienceId?: string;
-  activityId: string;
+  activityId?: string;
   startMinutesFromMidnight: number;
   endMinutesFromMidnight: number;
   travelFromPrevious?: TravelEstimate;
@@ -143,7 +143,7 @@ export type PlanningRejectionReason =
 
 export interface UnselectedPlanningCandidate {
   experienceId?: string;
-  activityId: string;
+  activityId?: string;
   reasons: PlanningRejectionReason[];
 }
 

@@ -71,7 +71,7 @@ describe('PlanningCandidateNormalizerService', () => {
     );
 
     expect(candidate.experienceId).toBe('experience-1');
-    expect(candidate.activityId).toBe('experience-1');
+    expect(candidate.activityId).toBeUndefined();
     expect(candidate.durationMinutes).toBe(75);
     expect(candidate.spatialFootprint.centroid).toEqual({
       lat: -34.6,
