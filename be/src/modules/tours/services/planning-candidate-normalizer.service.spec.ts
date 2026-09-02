@@ -1,5 +1,4 @@
 import { PlanningCandidateNormalizerService } from './planning-candidate-normalizer.service';
-import { TransportationMode } from '../interfaces/tour-generation.interface';
 
 describe('PlanningCandidateNormalizerService', () => {
   let service: PlanningCandidateNormalizerService;
@@ -60,10 +59,12 @@ describe('PlanningCandidateNormalizerService', () => {
           longitude: -58.4,
           components: [
             {
+              order: 1,
               required: true,
               geoEntity: { latitude: -34.6, longitude: -58.4 },
             },
             {
+              order: 2,
               required: true,
               geoEntity: { latitude: -34.62, longitude: -58.42 },
             },
@@ -90,56 +91,25 @@ describe('PlanningCandidateNormalizerService', () => {
     });
   });
 
-  it('routes consecutive required components and records provider/fallback provenance', async () => {
-    const estimate = jest
-      .fn()
-      .mockResolvedValueOnce({
-        mode: TransportationMode.WALKING,
-        durationMinutes: 10,
-        distanceMeters: 700,
-        walkingMinutes: 10,
-        walkingDistanceMeters: 700,
-        approximate: false,
-        provider: 'geoapify',
-      })
-      .mockResolvedValueOnce({
-        mode: TransportationMode.WALKING,
-        durationMinutes: 15,
-        distanceMeters: 1000,
-        walkingMinutes: 15,
-        walkingDistanceMeters: 1000,
-        approximate: true,
-        provider: 'approximate',
-        fallbackReason: 'geoapify_failed:timeout',
-      });
-    const routed = new PlanningCandidateNormalizerService(
-      { compositeDefaultDurationMinutes: 90 } as any,
-      { estimate } as any,
-    );
-
-    const [candidate] = await routed.normalizeExperiences(
+  it('preserves ordered required component footprints and excludes optional components', async () => {
+    const [candidate] = await service.normalizeExperiences(
       [
         {
           id: 'composite',
           canonicalName: 'Three-stop walk',
           components: [
             {
-              order: 1,
-              required: true,
-              geoEntity: { latitude: -34.6, longitude: -58.4 },
-            },
-            {
               order: 2,
               required: true,
               geoEntity: { latitude: -34.601, longitude: -58.401 },
             },
             {
-              order: 3,
+              order: 1,
               required: true,
-              geoEntity: { latitude: -34.602, longitude: -58.402 },
+              geoEntity: { latitude: -34.6, longitude: -58.4 },
             },
             {
-              order: 4,
+              order: 3,
               required: false,
               geoEntity: { latitude: -35, longitude: -59 },
             },
@@ -147,17 +117,12 @@ describe('PlanningCandidateNormalizerService', () => {
         },
       ],
       new Map(),
-      [TransportationMode.WALKING],
     );
 
-    expect(estimate).toHaveBeenCalledTimes(2);
-    expect(candidate.mobility).toEqual({
-      internalTravelMinutes: 25,
-      internalWalkingMinutes: 25,
-      internalWalkingDistanceMeters: 1700,
-      routingProviderCounts: { geoapify: 1, approximate: 1 },
-      routingFallbackCount: 1,
-    });
+    expect(candidate.componentFootprints).toEqual([
+      { type: 'POINT', centroid: { lat: -34.6, lng: -58.4 } },
+      { type: 'POINT', centroid: { lat: -34.601, lng: -58.401 } },
+    ]);
   });
 
   it('preserves canonical ROUTE geometry as a LINE planning footprint', async () => {
@@ -275,6 +240,9 @@ describe('PlanningCandidateNormalizerService', () => {
     expect(candidate.mobility).toEqual({
       internalWalkingMinutes: 5,
       internalWalkingDistanceMeters: 300,
+      internalTravelMinutes: undefined,
+      routingProviderCounts: undefined,
+      routingFallbackCount: undefined,
     });
   });
 
