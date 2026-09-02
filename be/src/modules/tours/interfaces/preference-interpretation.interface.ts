@@ -1,9 +1,16 @@
 export interface NormalizedPreferenceIntent {
   preferredThemes: string[];
   preferredTraits: string[];
+  preferredIntents: string[];
   excludedThemes: string[];
   excludedTraits: string[];
   hardExclusions: string[];
+  softConstraints: string[];
+  ambiguities: string[];
+  dietaryPreferences: string[];
+  accessibilityPreferences: string[];
+  budgetPreferences: string[];
+  groupPreferences: string[];
   positiveSemanticQuery: string;
   notes: string[];
 }
