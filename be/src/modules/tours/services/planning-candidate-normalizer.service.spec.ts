@@ -174,7 +174,7 @@ describe('PlanningCandidateNormalizerService', () => {
     expect(candidate.qualityScore).toBe(0.4);
   });
 
-  it('maps POI to POINT_VISITS and NEIGHBORHOOD_WALK to NEIGHBORHOOD_WALKS', async () => {
+  it('normalizes legacy-shaped rows without exposing structural format fields', async () => {
     const [poi, walk] = await service.normalize(
       [
         {
@@ -196,8 +196,9 @@ describe('PlanningCandidateNormalizerService', () => {
       ],
       new Map(),
     );
-    expect(poi.formats).toEqual(['point_visits']);
-    expect(walk.formats).toEqual(['neighborhood_walks']);
+    expect(poi.activityId).toBe('poi');
+    expect(walk.activityId).toBe('walk');
+    expect('formats' in poi).toBe(false);
   });
 
   it('never derives internal walking from duration — represents it as unknown with too few waypoints', async () => {
