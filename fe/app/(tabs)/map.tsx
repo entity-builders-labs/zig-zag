@@ -34,7 +34,7 @@ import {
 import { Map } from "@/features/map";
 import { Marker } from "@/features/map/types";
 import { AppContext, useMap } from "@/context/app";
-import { fetchAllActivities, ActivityDetail } from "@/api/activities";
+import { fetchNearbyExperiences } from "@/api/experiences";
 import { FONT_DISPLAY } from "@/constants/typography";
 import { useRouter } from "expo-router";
 
@@ -165,32 +165,28 @@ export default function MapScreen() {
       try {
         const lat = center?.lat || -34.6037;
         const lng = center?.lng || -58.3816;
-        const res = await fetchAllActivities({
+        const res = await fetchNearbyExperiences({
           latitude: lat,
           longitude: lng,
           radius: 10000,
-          limit: 30,
         });
 
         if (res && res.length > 0) {
-          const mapped: MapPlace[] = res.map((act, i) => {
-            const photo =
-              act.photos?.[0]?.url ||
-              (typeof act.photos?.[0] === "string" ? act.photos[0] : null) ||
-              CURATED_PLACES[i % CURATED_PLACES.length].photoUrl;
+          const mapped: MapPlace[] = res.map((experience, i) => {
+            const photo = CURATED_PLACES[i % CURATED_PLACES.length].photoUrl;
 
             return {
-              id: act.id,
-              name: act.name,
-              description: act.description || "Lugar destacado para descubrir en tu recorrido.",
-              type: act.type || "culture",
-              categoryLabel: act.type || "Atracción",
+              id: experience.id,
+              name: experience.canonicalName,
+              description: experience.description || "Experiencia verificada para descubrir en tu recorrido.",
+              type: "experience",
+              categoryLabel: "Experiencia",
               categoryIcon: Landmark,
-              rating: act.rating || 4.7,
-              ratingCount: act.ratingCount || 150,
-              latitude: act.latitude || lat,
-              longitude: act.longitude || lng,
-              address: act.formattedAddress || act.address || "Buenos Aires",
+              rating: experience.qualityScore || 4.7,
+              ratingCount: 0,
+              latitude: experience.latitude ?? lat,
+              longitude: experience.longitude ?? lng,
+              address: "",
               photoUrl: photo,
             };
           });
@@ -564,4 +560,3 @@ export default function MapScreen() {
     </Box>
   );
 }
-
