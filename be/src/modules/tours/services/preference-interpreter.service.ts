@@ -185,7 +185,7 @@ export class PreferenceInterpreterService {
     const budgetPreferences: string[] = [];
     const groupPreferences: string[] = [];
 
-    if (/no quiero[^,.!?;]*(religios|iglesia|templo|mezquita|catedral)|sin[^,.!?;]*(religios|iglesia|templo|mezquita|catedral)/.test(lower)) {
+    if (/(no quiero|sin|evitar|evito)[^,.!?;]*(religios|iglesia|templo|mezquita|catedral)/.test(lower)) {
       excludedThemes.push('religion');
       hardExclusions.push('religion');
     }
