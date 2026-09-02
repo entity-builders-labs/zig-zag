@@ -22,6 +22,7 @@ function realishTravelEstimateProvider(): TravelEstimateProvider {
         walkingMinutes: (distanceMeters / 1000 / 4.5) * 60,
         walkingDistanceMeters: distanceMeters,
         approximate: true,
+        provider: 'approximate',
       };
     }),
   };
@@ -72,15 +73,18 @@ function baseInput(
 }
 
 function candidate(id: string, semanticScore = 0.5) {
+  const stableOffset =
+    Array.from(id).reduce((sum, character) => sum + character.charCodeAt(0), 0) %
+    10;
   return {
     experienceId: id,
-    kind: 'POI' as const,
     title: id,
     durationMinutes: 60,
     spatialFootprint: {
       type: 'POINT' as const,
-      centroid: { lat: 0, lng: Math.random() * 0.01 },
+      centroid: { lat: 0, lng: stableOffset * 0.0001 },
     },
+    componentFootprints: [],
     semanticScore,
   };
 }
@@ -109,21 +113,57 @@ describe('GreedyDailyPlanningSolver', () => {
       baseInput({ requestedDays: 3, candidates: [candidate('only-one')] }),
     );
     const totalScheduled = solution.days.reduce(
-      (sum, d) => sum + d.experiences.length,
+      (sum, day) => sum + day.experiences.length,
       0,
     );
     expect(totalScheduled).toBe(1);
   });
 
-  it('always reports approximateTravel: true for the V1 provider', async () => {
+  it('does not claim approximate routing when no route estimate was needed', async () => {
     const solver = new GreedyDailyPlanningSolver(
       realishTravelEstimateProvider(),
       policy,
     );
     const solution = await solver.solve(
-      baseInput({ candidates: [candidate('a')] }),
+      baseInput({ requestedDays: 1, candidates: [candidate('a')] }),
+    );
+    expect(solution.metadata.approximateTravel).toBe(false);
+    expect(solution.metadata.routing).toMatchObject({
+      externalEstimateCount: 0,
+      internalEstimateCount: 0,
+      approximateEstimateCount: 0,
+      fallbackCount: 0,
+    });
+  });
+
+  it('routes all internal component legs with the request mobility modes before placement', async () => {
+    const provider = realishTravelEstimateProvider();
+    const solver = new GreedyDailyPlanningSolver(provider, policy);
+    const composite = {
+      ...candidate('composite'),
+      componentFootprints: [
+        { type: 'POINT' as const, centroid: { lat: 0, lng: 0 } },
+        { type: 'POINT' as const, centroid: { lat: 0, lng: 0.001 } },
+        { type: 'POINT' as const, centroid: { lat: 0, lng: 0.002 } },
+      ],
+    };
+
+    const solution = await solver.solve(
+      baseInput({ requestedDays: 1, candidates: [composite] }),
+    );
+
+    expect(provider.estimate).toHaveBeenCalledTimes(2);
+    expect(provider.estimate).toHaveBeenCalledWith(
+      composite.componentFootprints[0],
+      composite.componentFootprints[1],
+      [TransportationMode.WALKING],
     );
     expect(solution.metadata.approximateTravel).toBe(true);
+    expect(solution.metadata.routing).toMatchObject({
+      internalEstimateCount: 2,
+      approximateEstimateCount: 2,
+      providerCounts: { approximate: 2 },
+    });
   });
 
   it('is deterministic: repeated solves on identical input produce a deep-equal solution', async () => {
@@ -154,10 +194,12 @@ describe('GreedyDailyPlanningSolver', () => {
       baseInput({ requestedDays: 1, candidates: [dup, { ...dup }] }),
     );
     const totalScheduled = solution.days.reduce(
-      (sum, d) => sum + d.experiences.length,
+      (sum, day) => sum + day.experiences.length,
       0,
     );
     expect(totalScheduled).toBe(1);
-    expect(solution.unselected.some((u) => u.experienceId === 'dup')).toBe(true);
+    expect(solution.unselected.some((item) => item.experienceId === 'dup')).toBe(
+      true,
+    );
   });
 });
