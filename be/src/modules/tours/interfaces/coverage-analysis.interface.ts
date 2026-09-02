@@ -66,6 +66,12 @@ interface CoverageDecisionBase {
   requiresAdditionalDiscovery: boolean;
 }
 
+/**
+ * The two legacy refill actions are retained only so persisted V2-era trace
+ * fixtures can still be decoded during the migration. CoverageAnalyzer never
+ * emits them; runtime decisions are `none`, `fail`, or grounded discovery.
+ * Remove these aliases in the final CP14 trace/schema cutover.
+ */
 export type CoverageAcquisitionDecision =
   | (CoverageDecisionBase & {
       action: 'none';
@@ -92,6 +98,12 @@ export type CoverageAcquisitionDecision =
       reason: 'requested_coverage_is_missing';
       requiresAdditionalDiscovery: true;
       deficits: CoverageDeficit[];
+    })
+  | (CoverageDecisionBase & {
+      action: 'places_text_search' | 'places_nearby_search';
+      reason: 'missing_requested_theme';
+      requiresAdditionalDiscovery: boolean;
+      deficits?: CoverageDeficit[];
     });
 
 export interface CoverageReport {
