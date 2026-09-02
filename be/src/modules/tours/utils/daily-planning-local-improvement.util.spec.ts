@@ -80,9 +80,9 @@ function stubTravelEstimateProvider(): TravelEstimateProvider {
 
 const policy: DailyPlanningPolicy = {
   paceTargets: {
-    relaxed: { preferredActivitiesMin: 2, preferredActivitiesMax: 4 },
-    moderate: { preferredActivitiesMin: 3, preferredActivitiesMax: 5 },
-    fast: { preferredActivitiesMin: 4, preferredActivitiesMax: 7 },
+    relaxed: { preferredExperiencesMin: 2, preferredExperiencesMax: 4 },
+    moderate: { preferredExperiencesMin: 3, preferredExperiencesMax: 5 },
+    fast: { preferredExperiencesMin: 4, preferredExperiencesMax: 7 },
   },
   travel: {
     detourFactor: 1.3,
@@ -95,8 +95,6 @@ const policy: DailyPlanningPolicy = {
   scoring: {
     semanticWeight: 1,
     qualityWeight: 0.5,
-    formatWeight: 0.75,
-    familyVariantPenaltyWeight: 0.5,
     dayBalanceWeight: 0.25,
   },
   localImprovement: { maxIterations: 20 },

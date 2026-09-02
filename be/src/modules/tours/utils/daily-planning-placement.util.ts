@@ -245,7 +245,7 @@ export async function placeCandidates(
     if (placedIds.has(candidateIdentity(candidate))) {
       unselected.push({
         experienceId: candidate.experienceId,
-        reasons: ['DUPLICATE_ACTIVITY'],
+        reasons: ['DUPLICATE_EXPERIENCE'],
       });
       continue;
     }

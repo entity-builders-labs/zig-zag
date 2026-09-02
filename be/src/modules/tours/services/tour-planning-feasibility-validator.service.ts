@@ -46,7 +46,7 @@ export class TourPlanningFeasibilityValidatorService
         const experienceId = activity.experienceId;
         if (seenExperienceIds.has(experienceId)) {
           issues.push({
-            code: 'DUPLICATE_ACTIVITY',
+            code: 'DUPLICATE_EXPERIENCE',
             message: `Experience ${activity.experienceId} is scheduled more than once.`,
           });
         }
@@ -65,7 +65,7 @@ export class TourPlanningFeasibilityValidatorService
         );
         if (!candidate) {
           issues.push({
-            code: 'UNKNOWN_ACTIVITY',
+            code: 'UNKNOWN_EXPERIENCE',
             message: `Experience ${activity.experienceId} is not part of the offered candidate pool.`,
           });
           continue;

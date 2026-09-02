@@ -9,8 +9,8 @@ describe('dailyPlanningPolicyConfig', () => {
     const policy = dailyPlanningPolicyConfig();
     expect(policy.travel.walkingSpeedKmh).toBeGreaterThan(0);
     expect(policy.travel.detourFactor).toBeGreaterThanOrEqual(1);
-    expect(policy.paceTargets.fast.preferredActivitiesMax).toBeGreaterThan(
-      policy.paceTargets.relaxed.preferredActivitiesMax,
+    expect(policy.paceTargets.fast.preferredExperiencesMax).toBeGreaterThan(
+      policy.paceTargets.relaxed.preferredExperiencesMax,
     );
     expect(policy.localImprovement.maxIterations).toBeGreaterThan(0);
   });

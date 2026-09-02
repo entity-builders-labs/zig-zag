@@ -978,7 +978,7 @@ export function buildGeographicValidationStep(
         : 'Ninguna propuesta alcanzó verificación geográfica.',
       reasonCodes: rejected.flatMap((entry) => entry.rejectionReasons),
       triggeredActions: accepted.length
-        ? ['MATERIALIZE_VERIFIED_ACTIVITIES']
+        ? ['MATERIALIZE_VERIFIED_EXPERIENCES']
         : ['CONTINUE_WITH_EXISTING_POOL'],
     },
     outputs: {
@@ -1356,13 +1356,13 @@ export function buildDailyPlanningStep(
       status: selectedCount ? 'PASS' : 'FAIL',
       outcome: selectedCount
         ? 'DAILY_PLAN_BUILT'
-        : 'NO_FEASIBLE_ACTIVITIES_SELECTED',
+        : 'NO_FEASIBLE_EXPERIENCES_SELECTED',
       reason: selectedCount
         ? 'El solver produjo una asignación determinística y físicamente evaluable.'
         : 'Ningún candidato pudo ser seleccionado.',
       reasonCodes: selectedCount
         ? ['PLANNING_COMPLETED']
-        : ['NO_ACTIVITIES_SELECTED'],
+        : ['NO_EXPERIENCES_SELECTED'],
       triggeredActions: ['VALIDATE_COMPLETENESS', 'VALIDATE_FORMAT_COVERAGE'],
     },
     outputs: {
@@ -1492,10 +1492,10 @@ export function buildLlmGenerationStep(
 export function buildVerificationStep(params: {
   hallucinatedCount: number;
   duplicateCount: number;
-  pickedActivityIds: string[];
+  pickedExperienceIds: string[];
   candidatesByStage: TraceCandidate[][];
 }): GenerationTraceStep {
-  const pickedSet = new Set(params.pickedActivityIds);
+  const pickedSet = new Set(params.pickedExperienceIds);
   const chosen: TraceCandidate[] = [];
   for (const list of params.candidatesByStage) {
     for (const c of list) {
@@ -1509,7 +1509,7 @@ export function buildVerificationStep(params: {
     component: 'AntiHallucinationVerifier',
     status: valid ? 'PASS' : 'WARN',
     summary: `${params.hallucinatedCount} pick(s) no canónicos y ${params.duplicateCount} duplicado(s) detectados.`,
-    inputs: { pickedActivityIds: params.pickedActivityIds },
+    inputs: { pickedExperienceIds: params.pickedExperienceIds },
     rules: [
       rule(
         'VERIFY-CANONICAL-001',
@@ -1523,7 +1523,7 @@ export function buildVerificationStep(params: {
       ),
       rule(
         'VERIFY-UNIQUE-001',
-        'No persistir la misma Activity más de una vez en el mismo resultado',
+        'No persistir la misma Experience más de una vez en el mismo resultado',
         params.duplicateCount === 0 ? 'PASS' : 'FAIL',
         `${params.duplicateCount} duplicado(s) detectado(s).`,
         params.duplicateCount,

@@ -169,9 +169,8 @@ export class CatalogRefillAnchorPlanner {
     const lonDelta = (radiusKm * degPerKm) / Math.cos((lat * Math.PI) / 180);
 
     const result = await this.prisma.$queryRawUnsafe<[{ count: bigint }]>(
-      `SELECT COUNT(*)::bigint AS count FROM activity
-       WHERE kind != 'AREA'
-         AND isArchived = false
+      `SELECT COUNT(*)::bigint AS count FROM experience
+       WHERE status = 'VERIFIED'
          AND latitude IS NOT NULL
          AND longitude IS NOT NULL
          AND latitude BETWEEN $1 AND $2

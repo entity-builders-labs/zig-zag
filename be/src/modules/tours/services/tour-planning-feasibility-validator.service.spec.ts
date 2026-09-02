@@ -104,7 +104,7 @@ describe('TourPlanningFeasibilityValidatorService', () => {
       baseInput({ requestedDays: 2 }),
     );
     expect(
-      result.issues.some((issue) => issue.code === 'DUPLICATE_ACTIVITY'),
+      result.issues.some((issue) => issue.code === 'DUPLICATE_EXPERIENCE'),
     ).toBe(true);
   });
 
@@ -160,7 +160,7 @@ describe('TourPlanningFeasibilityValidatorService', () => {
     solution.days[0].experiences[0].experienceId = 'ghost';
     const result = validator.validate(solution, baseInput());
     expect(
-      result.issues.some((issue) => issue.code === 'UNKNOWN_ACTIVITY'),
+      result.issues.some((issue) => issue.code === 'UNKNOWN_EXPERIENCE'),
     ).toBe(true);
   });
 

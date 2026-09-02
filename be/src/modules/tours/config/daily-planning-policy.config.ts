@@ -2,12 +2,12 @@ import { registerAs } from '@nestjs/config';
 
 export interface DailyPlanningPolicy {
   paceTargets: {
-    relaxed: { preferredActivitiesMin: number; preferredActivitiesMax: number };
+    relaxed: { preferredExperiencesMin: number; preferredExperiencesMax: number };
     moderate: {
-      preferredActivitiesMin: number;
-      preferredActivitiesMax: number;
+      preferredExperiencesMin: number;
+      preferredExperiencesMax: number;
     };
-    fast: { preferredActivitiesMin: number; preferredActivitiesMax: number };
+    fast: { preferredExperiencesMin: number; preferredExperiencesMax: number };
   };
   travel: {
     detourFactor: number;
@@ -20,7 +20,7 @@ export interface DailyPlanningPolicy {
      * unknown and mobility constraints are actively being checked. */
     unknownFallbackMinutes: number;
   };
-  /** Policy constant used as the planning duration of a composite Activity
+  /** Policy constant used as the planning duration of a composite Experience
    * (`NEIGHBORHOOD_WALK`/`ROUTE`/`EXPERIENCE`) whose own `duration` is unset —
    * which is every composite today, since nothing in the codebase populates
    * it. Never derived from `duration` or from internal walking: it is an
@@ -30,8 +30,6 @@ export interface DailyPlanningPolicy {
   scoring: {
     semanticWeight: number;
     qualityWeight: number;
-    formatWeight: number;
-    familyVariantPenaltyWeight: number;
     dayBalanceWeight: number;
   };
   localImprovement: {
@@ -47,9 +45,9 @@ export default registerAs(
   'dailyPlanningPolicy',
   (): DailyPlanningPolicy => ({
     paceTargets: {
-      relaxed: { preferredActivitiesMin: 2, preferredActivitiesMax: 4 },
-      moderate: { preferredActivitiesMin: 3, preferredActivitiesMax: 5 },
-      fast: { preferredActivitiesMin: 4, preferredActivitiesMax: 7 },
+      relaxed: { preferredExperiencesMin: 2, preferredExperiencesMax: 4 },
+      moderate: { preferredExperiencesMin: 3, preferredExperiencesMax: 5 },
+      fast: { preferredExperiencesMin: 4, preferredExperiencesMax: 7 },
     },
     travel: {
       detourFactor: Number(process.env.DAILY_PLANNING_DETOUR_FACTOR ?? 1.3),
@@ -72,8 +70,6 @@ export default registerAs(
     scoring: {
       semanticWeight: 1,
       qualityWeight: 0.5,
-      formatWeight: 0.75,
-      familyVariantPenaltyWeight: 0.5,
       dayBalanceWeight: 0.25,
     },
     localImprovement: {

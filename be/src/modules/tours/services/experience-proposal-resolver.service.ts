@@ -17,7 +17,8 @@ import {
  * GeoEntity resolver is wired: grounded text alone must never become a
  * schedulable Experience. Keeping that decision here makes the runtime
  * contract explicit and prevents Nest from booting with an accidental
- * Activity-era resolver.
+ * Experience resolver: concepts are proposed by discovery, then resolved
+ * independently against provider-backed geographic entities.
  */
 @Injectable()
 export class ExperienceProposalResolverService

@@ -1439,7 +1439,7 @@ export class ExperienceGenerationService {
           const nextInDay = day.experiences[index + 1];
           return {
             experienceId,
-            experienceName: candidate?.name ?? 'Activity',
+            experienceName: candidate?.name ?? 'Experience',
             experienceType: 'experience',
             experienceLatitude: candidate?.latitude,
             experienceLongitude: candidate?.longitude,
