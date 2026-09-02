@@ -50,7 +50,6 @@ export class CompositeGeographicValidationService {
     destinationBoundary: OsmCandidate,
   ): GeographicValidationResult {
     const { proposal, resolvedEntities } = resolvedProposal;
-    const kind: string = 'EXPERIENCE';
     const resolved = resolvedEntities.filter(
       (entity) => entity.status === 'resolved',
     );
@@ -60,54 +59,18 @@ export class CompositeGeographicValidationService {
     );
     const groundedEvidenceKeys = Array.from(new Set(proposal.evidenceKeys));
 
-    let result: GeographicValidationResult;
-    switch (kind) {
-      case 'POI':
-      case 'AREA':
-        result = this.validateCanonical(
-          proposal.name,
-          kind,
-          resolved,
-          withCoordinates,
-          destinationBoundary,
-          groundedEvidenceKeys,
-        );
-        break;
-      case 'NEIGHBORHOOD_WALK':
-        result = this.validateNeighborhoodWalk(
-          resolvedProposal,
-          withCoordinates,
-          destinationBoundary,
-          groundedEvidenceKeys,
-        );
-        break;
-      case 'ROUTE':
-        result = this.validateRoute(
-          resolvedProposal,
-          withCoordinates,
-          destinationBoundary,
-          groundedEvidenceKeys,
-        );
-        break;
-      case 'EXPERIENCE':
-        result = this.validateExperience(
-          resolvedProposal,
-          withCoordinates,
-          destinationBoundary,
-          groundedEvidenceKeys,
-        );
-        break;
-      default:
-        result = this.rejected(proposal.name, kind, [], groundedEvidenceKeys, [
-          'no_resolved_entities',
-        ]);
-    }
+    const result = this.validateExperience(
+      resolvedProposal,
+      withCoordinates,
+      destinationBoundary,
+      groundedEvidenceKeys,
+    );
 
     this.logger.log(
       JSON.stringify({
         event: 'geographic_validation',
         proposalName: proposal.name,
-        experienceKind: kind,
+        experienceKind: 'EXPERIENCE',
         proposedHintCount: proposal.componentHints.length,
         resolvedEntityCount: resolved.length,
         entitiesWithCoordinates: withCoordinates.length,
