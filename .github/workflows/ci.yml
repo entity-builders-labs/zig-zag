@@ -27,6 +27,8 @@ jobs:
       - run: yarn workspace backend typecheck
       - run: yarn workspace backend lint:check
       - run: yarn workspace backend test --runInBand
+      - name: V2 acceptance suite
+        run: yarn workspace backend test:acceptance
       - run: yarn workspace backend build
 
   frontend:
