@@ -29,7 +29,7 @@ function realTravelEstimateProvider(): TravelEstimateProvider {
     estimate: jest.fn(async (from, to) => {
       const dLat = to.centroid.lat - from.centroid.lat;
       const dLng = to.centroid.lng - from.centroid.lng;
-      const distanceMeters = Math.sqrt(dLat * dLat + dLng * dLng) * 111000; // rough degrees-to-meters
+      const distanceMeters = Math.sqrt(dLat * dLat + dLng * dLng) * 111000;
       return {
         mode: TransportationMode.WALKING,
         durationMinutes: (distanceMeters / 1000 / 4.5) * 60,
@@ -37,6 +37,7 @@ function realTravelEstimateProvider(): TravelEstimateProvider {
         walkingMinutes: (distanceMeters / 1000 / 4.5) * 60,
         walkingDistanceMeters: distanceMeters,
         approximate: true,
+        provider: 'approximate',
       };
     }),
   };
@@ -54,7 +55,6 @@ function context(): OrderingContext {
   };
 }
 
-/** Monday-only window, in minutes from midnight (weekday 1). */
 function mondayHours(
   startMinutesFromMidnight: number,
   endMinutesFromMidnight: number,
@@ -81,23 +81,17 @@ describe('orderAndScheduleDay', () => {
     expect(day.experiences[0].travelFromPrevious).toBeUndefined();
   });
 
-  it('orders by nearest-neighbor from the previous stop', async () => {
-    // 'start' has the highest semanticScore, so sortCandidatesDeterministically
-    // picks it as the day's opening stop on real merit (realistic solver
-    // behavior — the best-ranked candidate opens the day). 'near' and 'far'
-    // are tied on score, so their relative order is decided purely by
-    // geography from that opening stop: (0,0.001) is much closer to (0,0)
-    // than (0,1) is.
+  it('preserves merit for the first stop, then orders feasible stops by geography', async () => {
     const day = await orderAndScheduleDay(
       1,
       [
         candidate('near', 0, 0.001),
-        candidate('far', 0, 1),
+        candidate('far', 0, 0.01),
         candidate('start', 0, 0, 60, 0.9),
       ],
       context(),
     );
-    expect(day.experiences.map((a) => a.experienceId)).toEqual([
+    expect(day.experiences.map((item) => item.experienceId)).toEqual([
       'start',
       'near',
       'far',
@@ -117,12 +111,7 @@ describe('orderAndScheduleDay', () => {
     );
   });
 
-  it('prefers a reachable open candidate over a nearer one that is still closed at the cursor', async () => {
-    // 'start' (best score) opens the day at 9:00 and ends at 10:00. Pure
-    // nearest-neighbor would then take 'near-closed' (0, 0.001) — but it only
-    // opens at 11:00, so it would be scheduled an hour before opening. The
-    // hours-aware preference takes the reachable open candidate instead and
-    // comes back to 'near-closed' once the cursor is inside its window.
+  it('uses routed arrival time, not the pre-travel cursor, when evaluating opening hours', async () => {
     const nearClosed = candidate('near-closed', 0, 0.001);
     nearClosed.openingHours = mondayHours(11 * 60, 18 * 60);
 
@@ -133,10 +122,10 @@ describe('orderAndScheduleDay', () => {
         candidate('far-open', 0, 0.05),
         candidate('start', 0, 0, 60, 0.9),
       ],
-      { ...context(), startDates: ['2026-09-07'] }, // a real Monday
+      { ...context(), startDates: ['2026-09-07'] },
     );
 
-    expect(day.experiences.map((a) => a.experienceId)).toEqual([
+    expect(day.experiences.map((item) => item.experienceId)).toEqual([
       'start',
       'far-open',
       'near-closed',
@@ -150,24 +139,24 @@ describe('orderAndScheduleDay', () => {
     );
   });
 
-  it('still orders purely by geography when every candidate is open at the cursor', async () => {
+  it('still orders by geography when every known-hours candidate is feasible', async () => {
     const near = candidate('near', 0, 0.001);
-    near.openingHours = mondayHours(9 * 60, 18 * 60); // already open at 10:00
+    near.openingHours = mondayHours(9 * 60, 18 * 60);
 
     const day = await orderAndScheduleDay(
       1,
-      [near, candidate('far', 0, 1), candidate('start', 0, 0, 60, 0.9)],
+      [near, candidate('far', 0, 0.01), candidate('start', 0, 0, 60, 0.9)],
       { ...context(), startDates: ['2026-09-07'] },
     );
 
-    expect(day.experiences.map((a) => a.experienceId)).toEqual([
+    expect(day.experiences.map((item) => item.experienceId)).toEqual([
       'start',
       'near',
       'far',
     ]);
   });
 
-  it('falls back to pure nearest-neighbor when no base date resolves a weekday', async () => {
+  it('does not enforce weekday-specific hours when no base date resolves a weekday', async () => {
     const nearClosed = candidate('near-closed', 0, 0.001);
     nearClosed.openingHours = mondayHours(11 * 60, 18 * 60);
 
@@ -175,20 +164,33 @@ describe('orderAndScheduleDay', () => {
       1,
       [
         nearClosed,
-        candidate('far-open', 0, 0.05),
+        candidate('far-open', 0, 0.01),
         candidate('start', 0, 0, 60, 0.9),
       ],
-      context(), // no startDates — weekday unknown, hours cannot be evaluated
+      context(),
     );
 
-    expect(day.experiences.map((a) => a.experienceId)).toEqual([
+    expect(day.experiences.map((item) => item.experienceId)).toEqual([
       'start',
       'near-closed',
       'far-open',
     ]);
   });
 
-  it('reports total activity minutes independent of travel time', async () => {
+  it('fails instead of silently scheduling a known-closed Experience after routing', async () => {
+    const closed = candidate('closed', 0, 0.001);
+    closed.openingHours = mondayHours(7 * 60, 8 * 60);
+
+    await expect(
+      orderAndScheduleDay(
+        1,
+        [candidate('start', 0, 0, 60, 0.9), closed],
+        { ...context(), startDates: ['2026-09-07'] },
+      ),
+    ).rejects.toThrow('OPENING_HOURS_INCOMPATIBLE_AFTER_ROUTING');
+  });
+
+  it('reports total Experience minutes independent of travel time', async () => {
     const day = await orderAndScheduleDay(
       1,
       [candidate('a', 0, 0, 60), candidate('b', 0, 0.01, 90)],
