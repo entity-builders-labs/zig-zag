@@ -18,6 +18,8 @@ import { GroqDiscoveryProvider } from './services/groq-discovery.provider';
 import { GeminiDiscoveryProvider } from './services/gemini-discovery.provider';
 import { GreedyDailyPlanningSolver } from './services/greedy-daily-planning.solver';
 import { ApproximateTravelEstimateProvider } from './services/approximate-travel-estimate.provider';
+import { GeoapifyTravelEstimateProvider } from './services/geoapify-travel-estimate.provider';
+import { ResilientTravelEstimateProvider } from './services/resilient-travel-estimate.provider';
 import { PlanningCandidateNormalizerService } from './services/planning-candidate-normalizer.service';
 import { TourPlanningFeasibilityValidatorService } from './services/tour-planning-feasibility-validator.service';
 import { PreferenceInterpreterService } from './services/preference-interpreter.service';
@@ -74,6 +76,8 @@ import { OutboxModule } from '../outbox/outbox.module';
     GeminiDiscoveryProvider,
     GreedyDailyPlanningSolver,
     ApproximateTravelEstimateProvider,
+    GeoapifyTravelEstimateProvider,
+    ResilientTravelEstimateProvider,
     PlanningCandidateNormalizerService,
     TourPlanningFeasibilityValidatorService,
     PreferenceInterpreterService,
@@ -87,7 +91,7 @@ import { OutboxModule } from '../outbox/outbox.module';
     },
     {
       provide: TRAVEL_ESTIMATE_PROVIDER,
-      useExisting: ApproximateTravelEstimateProvider,
+      useExisting: ResilientTravelEstimateProvider,
     },
     {
       provide: DAILY_PLANNING_SOLVER,
