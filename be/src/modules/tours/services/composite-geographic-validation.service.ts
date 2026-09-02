@@ -107,7 +107,7 @@ export class CompositeGeographicValidationService {
       JSON.stringify({
         event: 'geographic_validation',
         proposalName: proposal.name,
-        activityKind: kind,
+        experienceKind: kind,
         proposedHintCount: (proposal.componentHints ?? proposal.entityHints ?? []).length,
         resolvedEntityCount: resolved.length,
         entitiesWithCoordinates: withCoordinates.length,

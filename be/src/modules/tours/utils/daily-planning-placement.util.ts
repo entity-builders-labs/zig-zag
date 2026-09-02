@@ -59,9 +59,9 @@ export function resolveWeekday(
   return target.getDay();
 }
 
-/** A candidate's own contribution to a day's `totalActivityMinutes`: its
+/** A candidate's own contribution to a day's `totalExperienceMinutes`: its
  * duration plus whatever internal travel it carries (a composite's own
- * waypoint-to-waypoint time). Deliberately excludes inter-Activity leg
+ * waypoint-to-waypoint time). Deliberately excludes inter-experience leg
  * travel, which depends on which stop precedes it and is therefore not a
  * property of the candidate alone. Exported so Task 9's local improvement
  * adds/removes exactly what `placeCandidates` accumulated, instead of
@@ -111,7 +111,7 @@ export async function checkHardConstraints(
 
   // `Number.isFinite` rejects null, undefined, NaN and Infinity in one check
   // and accepts every legitimate coordinate. `null` matters specifically:
-  // `Activity.latitude`/`longitude` are Prisma `Float?`, so a missing value
+  // `Experience latitude`/`longitude` are Prisma `Float?`, so a missing value
   // arrives as `null`, which passes both an `=== undefined` and an isNaN
   // check and is then silently coerced to 0 by the Haversine math — planning
   // a real candidate at Null Island (0N 0E).
@@ -164,7 +164,7 @@ export async function checkHardConstraints(
   ) {
     reasons.push('MAX_WALKING_PER_DAY_EXCEEDED');
   }
-  // V1 treats one inter-Activity leg as one continuous segment (documented
+  // V1 treats one inter-experience leg as one continuous segment (documented
   // approximation — see the plan's "internal walking, reconciled" section).
   if (legWalkingMeters > context.mobility.maxContinuousWalkingDistanceMeters) {
     reasons.push('MAX_CONTINUOUS_WALKING_EXCEEDED');
@@ -217,7 +217,7 @@ export function scoreCandidateForDay(
 
 /** Greedy day placement: for each candidate (already sorted by the caller),
  * finds every hard-feasible day and assigns it to whichever scores highest.
- * Duplicate activityIds and a `requestedDays` of 0 are handled here, at the
+ * Duplicate experienceIds and a `requestedDays` of 0 are handled here, at the
  * placement-loop layer — not inside `checkHardConstraints`, which only ever
  * evaluates one candidate against one day's state. */
 export async function placeCandidates(

@@ -25,7 +25,7 @@ interface FormatAvailability {
   llmWindowCount: number;
 }
 
-function activityDetail(act: any): string {
+function experienceDetail(act: any): string {
   const parts: string[] = [];
   const metadata =
     act.metadata &&
@@ -155,7 +155,7 @@ export function buildDbSearchStep(
   return {
     stage: 'db_search',
     label: 'Recuperación inicial del catálogo',
-    component: 'ActivitiesService.findAll',
+    component: 'ExperienceCatalog.findVerifiedWithin',
     status: candidates.length ? 'PASS' : 'WARN',
     summary: candidates.length
       ? `${candidates.length} Experiences recuperadas del catálogo dentro del alcance de búsqueda.`
@@ -188,7 +188,7 @@ export function buildDbSearchStep(
         source: 'db',
         id: act.id,
         name: act.name,
-        detail: activityDetail(act),
+        detail: experienceDetail(act),
         offered: true,
         chosen: false,
       }),
@@ -240,7 +240,7 @@ export function buildPlacesCrawlStep(
     : '';
   const validationSummary =
     provenance.validatedCount !== undefined
-      ? ` Flujo de candidatos: semilla recibió ${provenance.seedReceivedCount ?? 0}; cobertura recibió ${provenance.coverageReceivedCount ?? provenance.receivedCount}; geografía de operación rechazó ${provenance.operationGeographyRejectedCount ?? 0}; la unión eliminó ${provenance.deduplicatedCount ?? 0} duplicado(s); identidad válida ${provenance.identityValidCount ?? provenance.validatedCount}; admisión aprobada ${provenance.admittedCount ?? provenance.validatedCount}; ${provenance.existingCount ?? provenance.rejectedCountByReason.existing_activity ?? 0} ya existía(n); persistió ${provenance.persistedCount ?? provenance.acceptedCount} nuevo(s) e indexó ${provenance.embeddedCount ?? 0} embedding(s).`
+      ? ` Flujo de candidatos: semilla recibió ${provenance.seedReceivedCount ?? 0}; cobertura recibió ${provenance.coverageReceivedCount ?? provenance.receivedCount}; geografía de operación rechazó ${provenance.operationGeographyRejectedCount ?? 0}; la unión eliminó ${provenance.deduplicatedCount ?? 0} duplicado(s); identidad válida ${provenance.identityValidCount ?? provenance.validatedCount}; admisión aprobada ${provenance.admittedCount ?? provenance.validatedCount}; ${provenance.existingCount ?? provenance.rejectedCountByReason.existing_experience ?? 0} ya existía(n); persistió ${provenance.persistedCount ?? provenance.acceptedCount} nuevo(s) e indexó ${provenance.embeddedCount ?? 0} embedding(s).`
       : '';
   const embeddingFailureSummary =
     provenance.embeddingWriteStatus === 'failed' ||
@@ -332,7 +332,7 @@ export function buildPlacesCrawlStep(
             provenance.provider === 'google' ? 'google_places' : 'geoapify',
           id: act.id,
           name: act.name,
-          detail: activityDetail(act),
+          detail: experienceDetail(act),
           offered: true,
           chosen: false,
         }),

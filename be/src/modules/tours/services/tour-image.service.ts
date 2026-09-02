@@ -27,7 +27,7 @@ export class TourImageService {
       this.logger.debug(`Generating cover image for tour: ${tour.name}`);
 
       // Create a rich prompt based on tour details
-      const activityNames = tour.experiences
+      const experienceNames = tour.experiences
         .slice(0, 3)
         .map((snapshot) => snapshot.experience.canonicalName)
         .join(', ');
@@ -35,7 +35,7 @@ export class TourImageService {
       const prompt = generateCoverImagePrompt(
         tour.name,
         tour.description || tour.name,
-        activityNames,
+        experienceNames,
       );
 
       const imageUrl = await this.imageGenerationService.generateImage(prompt);

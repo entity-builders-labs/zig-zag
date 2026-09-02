@@ -38,16 +38,16 @@ function distanceToCentroid(
 
 /** Builds a hypothetical accumulator with `remove` taken out, for probing
  * `checkHardConstraints` before committing a swap. Must also subtract
- * `remove`'s own contribution to `totalActivityMinutes` (mirroring, in
+ * `remove`'s own contribution to `totalExperienceMinutes` (mirroring, in
  * reverse, how `placeCandidates`/`tryMove` accumulate it) — not just filter
  * `assigned`. The DAILY_TIME_CAPACITY_EXCEEDED/MAX_WALKING_PER_DAY_EXCEEDED
  * checks are pure thresholds, so a stale (too-high) total there is only ever
  * conservative. But the OPENING_HOURS_INCOMPATIBLE check reads
- * `acc.totalActivityMinutes` to compute a proposed `[start, end)` instant,
+ * `acc.totalExperienceMinutes` to compute a proposed `[start, end)` instant,
  * not a threshold — a stale, inflated total shifts that instant *later*,
  * which can move a truly before-opening instant into a falsely-evaluated
  * open window: a false ACCEPT, not a safe over-reject. `totalWalkingMeters`
- * is deliberately left as-is: unlike `totalActivityMinutes`, it isn't read
+ * is deliberately left as-is: unlike `totalExperienceMinutes`, it isn't read
  * to resolve a point-in-time window anywhere in `checkHardConstraints`, so
  * its threshold checks stay conservative-only either way. */
 function withoutCandidate(
@@ -62,7 +62,7 @@ function withoutCandidate(
   };
 }
 
-/** Inter-Activity leg cost (travel minutes, leg walking distance) is a
+/** Inter-Experience leg cost (travel minutes, leg walking distance) is a
  * property of a *pair* of consecutive stops, not of a candidate, so neither
  * move nor swap can re-price it without re-running the whole day's travel
  * chain. Both operations therefore adjust only the candidate-owned part of a
@@ -88,7 +88,7 @@ function transferCandidateTotals(
   to.totalWalkingMeters += walkingMeters;
 }
 
-/** Move: relocate one Activity from a day with meaningfully more assigned
+/** Move: relocate one Experience from a day with meaningfully more assigned
  * Activities to a lighter day, only when hard-feasible at the destination. */
 async function tryMove(
   days: Map<number, DayAccumulator>,
