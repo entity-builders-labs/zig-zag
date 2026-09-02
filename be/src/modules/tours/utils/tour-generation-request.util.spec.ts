@@ -16,7 +16,6 @@ function validDto(): CreateTourFromWizardDto {
     groupType: 'couple' as any,
     intent: {
       interests: [' History ', 'history', ' Architecture '],
-      experienceFormats: ['point_visits' as any],
       explorationStyle: 'balanced' as any,
       additionalPreferences: '  Street photography  ',
     },

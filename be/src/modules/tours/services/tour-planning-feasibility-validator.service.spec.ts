@@ -1,11 +1,9 @@
-import { ActivityKind } from '@prisma/client';
 import { TourPlanningFeasibilityValidatorService } from './tour-planning-feasibility-validator.service';
 import {
   DailyPlanningInput,
   DailyPlanningSolution,
 } from '../interfaces/daily-planning.interface';
 import {
-  ExperienceFormat,
   TransportationMode,
   TravelPace,
 } from '../interfaces/tour-generation.interface';
@@ -74,76 +72,6 @@ describe('TourPlanningFeasibilityValidatorService', () => {
     const result = validator.validate(validSolution(), baseInput());
     expect(result.valid).toBe(true);
     expect(result.issues).toEqual([]);
-  });
-
-  it('does not evaluate legacy requested formats as feasibility rules', () => {
-    const result = validator.validate(
-      validSolution(),
-      baseInput({ requestedFormats: [ExperienceFormat.EXPERIENCES] }),
-    );
-
-    expect(result.valid).toBe(true);
-    expect(result.issues).toEqual([]);
-    expect(result).toEqual({ valid: true, issues: [] });
-  });
-
-  it('does not reject a feasible plan because a legacy format was unselected', () => {
-    const result = validator.validate(
-      validSolution(),
-      baseInput({
-        requestedFormats: [ExperienceFormat.EXPERIENCES],
-        candidates: [
-          ...baseInput().candidates,
-          {
-            activityId: 'exp-1',
-            kind: ActivityKind.EXPERIENCE,
-            title: 'Experience',
-            durationMinutes: 120,
-            spatialFootprint: {
-              type: 'POINT',
-              centroid: { lat: 0, lng: 0 },
-            },
-            semanticScore: 0.8,
-          },
-        ],
-      }),
-    );
-
-    expect(result.valid).toBe(true);
-    expect(result.issues).toEqual([]);
-    expect(result).toEqual({ valid: true, issues: [] });
-  });
-
-  it('accepts a requested format when it is available and selected', () => {
-    const solution = validSolution();
-    solution.days[0].activities = [
-      {
-        activityId: 'exp-1',
-        startMinutesFromMidnight: 540,
-        endMinutesFromMidnight: 660,
-      },
-    ];
-    const result = validator.validate(
-      solution,
-      baseInput({
-        requestedFormats: [ExperienceFormat.EXPERIENCES],
-        candidates: [
-          {
-            activityId: 'exp-1',
-            kind: ActivityKind.EXPERIENCE,
-            title: 'Experience',
-            durationMinutes: 120,
-            spatialFootprint: {
-              type: 'POINT',
-              centroid: { lat: 0, lng: 0 },
-            },
-            semanticScore: 0.8,
-          },
-        ],
-      }),
-    );
-
-    expect(result.valid).toBe(true);
   });
 
   it('rejects a day-count mismatch', () => {
