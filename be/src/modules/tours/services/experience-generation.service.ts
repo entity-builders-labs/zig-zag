@@ -169,7 +169,6 @@ export class ExperienceGenerationService {
     deficits: any[],
     additionalPreferences?: string,
   ): Promise<any> {
-    const targetKind = deficits.find((deficit) => deficit.experienceFormat)?.experienceFormat;
     const request: ExperienceDiscoveryRequest = {
       scope: { destinationName },
       requestedThemes: interests,
