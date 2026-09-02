@@ -10,11 +10,8 @@ import {
   BadgeText,
   Button,
   ButtonText,
-  Icon,
   Pressable,
 } from '@gluestack-ui/themed';
-import { useRouter } from 'expo-router';
-import { ChevronRight } from 'lucide-react-native';
 import { TourStopLocation } from './types';
 import { FONT_DISPLAY } from '@/constants/typography';
 
@@ -27,10 +24,6 @@ export const TourStopCard = ({
   isLast: boolean;
   stopNumber?: number;
 }) => {
-  const router = useRouter();
-  // Activities that only exist inline on the tour (no linked Activity record)
-  // get a synthetic `inline-...` id and have no detail page to navigate to.
-  const hasActivityDetail = !data.id.startsWith('inline-');
 
   return (
     <HStack testID={`location-stop-${data.id}`}>
@@ -67,11 +60,7 @@ export const TourStopCard = ({
 
       {/* Card Content */}
       <Box flex={1} pb='$4' pl='$2' pr='$2'>
-        <Pressable
-          onPress={() => {
-            if (hasActivityDetail) router.push(`/activities/${data.id}`);
-          }}
-        >
+        <Pressable>
           <Box
             bg='$white'
             borderRadius='$2xl'
@@ -130,14 +119,6 @@ export const TourStopCard = ({
                   </Text>
                 </VStack>
 
-                {hasActivityDetail && (
-                  <HStack justifyContent='flex-end' alignItems='center' mt='$1'>
-                    <Text size='2xs' fontWeight='$bold' color='$primary600'>
-                      Ver detalles
-                    </Text>
-                    <Icon as={ChevronRight} size='2xs' color='$primary600' ml='$0.5' />
-                  </HStack>
-                )}
               </VStack>
             </HStack>
           </Box>

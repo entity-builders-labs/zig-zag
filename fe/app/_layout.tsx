@@ -109,7 +109,6 @@ function RootNavigator() {
         <Stack.Screen name='(auth)' />
         <Stack.Screen name='(tabs)' />
         <Stack.Screen name='tours' />
-        <Stack.Screen name='activities' />
       </Stack>
     </AutocompleteDropdownContextProvider>
   );
