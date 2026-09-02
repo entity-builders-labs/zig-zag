@@ -1688,6 +1688,11 @@ export class ExperienceGenerationService {
                 generationTrace: redactTracePayload({
                   ...((latestTour?.metadata as any)?.generationTrace ?? {}),
                   steps: traceSteps,
+                  executionSummary: {
+                    status: 'failed',
+                    steps: traceSteps.map((step) => step.summary).filter(Boolean),
+                    failure: error?.message || String(error),
+                  },
                 }),
               },
             },
