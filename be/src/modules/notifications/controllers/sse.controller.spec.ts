@@ -16,7 +16,7 @@ describe('SSEController', () => {
     };
     prisma = {
       tour: { findUnique: jest.fn() },
-      activity: { findUnique: jest.fn() },
+      experience: { findUnique: jest.fn() },
     };
     controller = new SSEController(
       sseHub as unknown as SSEHubService,
@@ -45,25 +45,25 @@ describe('SSEController', () => {
     expect(sseHub.getStream).not.toHaveBeenCalled();
   });
 
-  it('returns not found for missing tours and activities', async () => {
+  it('returns not found for missing tours and experiences', async () => {
     prisma.tour.findUnique.mockResolvedValue(null);
-    prisma.activity.findUnique.mockResolvedValue(null);
+    prisma.experience.findUnique.mockResolvedValue(null);
 
     await expect(
       controller.streamTourEvents('missing', { id: 'user-1' } as any),
     ).rejects.toBeInstanceOf(NotFoundException);
     await expect(
-      controller.streamActivityEvents('missing'),
+      controller.streamExperienceEvents('missing'),
     ).rejects.toBeInstanceOf(NotFoundException);
   });
 
-  it('opens the namespaced activity stream for an existing activity', async () => {
-    prisma.activity.findUnique.mockResolvedValue({ id: 'activity-1' });
+  it('opens the namespaced experience stream for an existing experience', async () => {
+    prisma.experience.findUnique.mockResolvedValue({ id: 'experience-1' });
 
-    const stream = await controller.streamActivityEvents('activity-1');
+    const stream = await controller.streamExperienceEvents('experience-1');
     stream.subscribe();
 
-    expect(sseHub.getStream).toHaveBeenCalledWith('activity:activity-1');
-    expect(sseHub.removeClient).toHaveBeenCalledWith('activity:activity-1');
+    expect(sseHub.getStream).toHaveBeenCalledWith('experience:experience-1');
+    expect(sseHub.removeClient).toHaveBeenCalledWith('experience:experience-1');
   });
 });
