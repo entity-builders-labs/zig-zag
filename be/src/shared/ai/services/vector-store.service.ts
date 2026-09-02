@@ -550,7 +550,7 @@ export class VectorStoreService implements OnModuleInit {
           COUNT(*) FILTER (
             WHERE "embedding" IS NOT NULL AND (${incompatibleIdentity})
           ) AS "incompatibleCount"
-        FROM "activity"
+        FROM "experience"
       `;
       result.status = 'connected';
       result.identity = identity;

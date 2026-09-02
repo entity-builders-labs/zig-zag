@@ -4,7 +4,6 @@ import { PrismaModule } from '@core/database/database.module';
 import { AiModule } from '@shared/ai/ai.module';
 import { ToursModule } from '@tours/tours.module';
 import { IntegrationsModule } from '@integrations/integrations.module';
-import { EmbeddingCheckerCommand } from './embedding-checker.command';
 
 @Module({
   imports: [
@@ -14,8 +13,6 @@ import { EmbeddingCheckerCommand } from './embedding-checker.command';
     ToursModule,
     IntegrationsModule, // OsmPlacesService — not re-exported by ToursModule
   ],
-  providers: [
-    EmbeddingCheckerCommand,
-  ],
+  providers: [],
 })
 export class ScriptsModule {}
