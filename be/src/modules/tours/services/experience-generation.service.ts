@@ -27,10 +27,6 @@ import {
   pointRadiusToGeometry,
 } from '../utils/geometry-search-area.util';
 import { TourGenerationRequest } from '../interfaces/tour-generation.interface';
-import {
-  ActivityForPrompt,
-  formatActivityForPrompt,
-} from '../utils/activity-prompt-formatter.util';
 import { verifySelectedWaypointSubset } from '../utils/composite-activity-verification.util';
 import {
   rankCandidatesByRelevance,
@@ -116,6 +112,21 @@ interface CandidateSelection {
   scoreBreakdownById: Map<string, CandidateScoreBreakdown>;
   formatAvailability: FormatAvailability[];
   droppedForFamilyCapCount: number;
+}
+
+function formatExperienceForPrompt(experience: any): string {
+  const themes = Array.isArray(experience.themes) ? experience.themes.join(', ') : '';
+  const traits = Array.isArray(experience.traits) ? experience.traits.join(', ') : '';
+  const components = Array.isArray(experience.components)
+    ? experience.components.map((component: any) => component.geoEntity?.name ?? component.name).filter(Boolean).join(', ')
+    : '';
+  return [
+    `${experience.id}: ${experience.canonicalName ?? experience.name ?? 'Experience'}`,
+    experience.description,
+    themes ? `themes=${themes}` : undefined,
+    traits ? `traits=${traits}` : undefined,
+    components ? `components=${components}` : undefined,
+  ].filter(Boolean).join(' | ');
 }
 
 @Injectable()
@@ -597,7 +608,7 @@ export class ExperienceGenerationService {
 
       let availableActivitiesText = '';
       const candidateActivityIds = new Set<string>();
-      const candidateActivitiesById = new Map<string, ActivityForPrompt>();
+      const candidateActivitiesById = new Map<string, any>();
       const offeredScoreBreakdownById = new Map<
         string,
         CandidateScoreBreakdown
@@ -788,8 +799,8 @@ export class ExperienceGenerationService {
               `${nearbyActivities.length} actividades encontradas. Ordenando según tus preferencias...`,
             );
             recordOfferedCandidates(selection);
-            availableActivitiesText = `\n\nAvailable activities in the area (within ${radius / 1000}km):\n${nearbyActivitiesSample
-              .map((act: any) => formatActivityForPrompt(act))
+            availableActivitiesText = `\n\nAvailable verified Experiences in the area (within ${radius / 1000}km):\n${nearbyActivitiesSample
+              .map((act: any) => formatExperienceForPrompt(act))
               .join('\n')}`;
             const dbSearchStep = buildDbSearchStep(
               nearbyActivitiesSample,
@@ -1006,8 +1017,8 @@ export class ExperienceGenerationService {
                   );
                 }
                 recordOfferedCandidates(selection);
-                availableActivitiesText = `\n\nAvailable activities in the area (within ${radius / 1000}km):\n${refreshedActivitiesSample
-                  .map((act: any) => formatActivityForPrompt(act))
+                availableActivitiesText = `\n\nAvailable verified Experiences in the area (within ${radius / 1000}km):\n${refreshedActivitiesSample
+                  .map((act: any) => formatExperienceForPrompt(act))
                   .join('\n')}`;
                 const newActivityIds = new Set(crawlResult.activitiesIds);
                 const crawlStep = buildPlacesCrawlStep(
@@ -1062,8 +1073,8 @@ export class ExperienceGenerationService {
                   const nearbyActivitiesSample = selection.activities;
                   semanticRankingOutcome = selection.semanticRanking;
                   recordOfferedCandidates(selection);
-                  availableActivitiesText = `\n\nAvailable activities in the area (within ${radius / 1000}km):\n${nearbyActivitiesSample
-                    .map((act: any) => formatActivityForPrompt(act))
+                  availableActivitiesText = `\n\nAvailable verified Experiences in the area (within ${radius / 1000}km):\n${nearbyActivitiesSample
+                    .map((act: any) => formatExperienceForPrompt(act))
                     .join('\n')}`;
                   const candidatePoolStep = this.buildCandidatePoolTraceStep(
                     selection,
@@ -1143,8 +1154,8 @@ export class ExperienceGenerationService {
                 const nearbyActivitiesSample = selection.activities;
                 semanticRankingOutcome = selection.semanticRanking;
                 recordOfferedCandidates(selection);
-                availableActivitiesText = `\n\nAvailable activities in the area (within ${radius / 1000}km):\n${nearbyActivitiesSample
-                  .map((act: any) => formatActivityForPrompt(act))
+                availableActivitiesText = `\n\nAvailable verified Experiences in the area (within ${radius / 1000}km):\n${nearbyActivitiesSample
+                  .map((act: any) => formatExperienceForPrompt(act))
                   .join('\n')}`;
                 const candidatePoolStep = this.buildCandidatePoolTraceStep(
                   selection,
@@ -1294,8 +1305,8 @@ export class ExperienceGenerationService {
                 );
                 semanticRankingOutcome = reconciledSelection.semanticRanking;
                 recordOfferedCandidates(reconciledSelection);
-                availableActivitiesText = `\n\nAvailable activities in the area:\n${reconciledSelection.activities
-                  .map((act: any) => formatActivityForPrompt(act))
+                  availableActivitiesText = `\n\nAvailable verified Experiences in the area:\n${reconciledSelection.activities
+                  .map((act: any) => formatExperienceForPrompt(act))
                   .join('\n')}`;
               }
             }
