@@ -1,6 +1,10 @@
 import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { ExperienceStatus, GeoEntityKind } from '@prisma/client';
+import {
+  ExperienceStatus,
+  GeoEntityKind,
+  MediaStatus,
+} from '@prisma/client';
 import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { PrismaService } from '../src/core/database/prisma.service';
@@ -54,7 +58,10 @@ function preferenceInterpretationResponse() {
 
 function buildSeed(index: number): SeededExperience {
   if (index % 13 === 0) {
-    return { id: `scale-ideal-${String(index).padStart(3, '0')}`, oracleClass: 'ideal' };
+    return {
+      id: `scale-ideal-${String(index).padStart(3, '0')}`,
+      oracleClass: 'ideal',
+    };
   }
   if (index % 17 === 0) {
     return {
@@ -63,7 +70,10 @@ function buildSeed(index: number): SeededExperience {
     };
   }
   if (index % 5 === 0) {
-    return { id: `scale-tango-${String(index).padStart(3, '0')}`, oracleClass: 'tango_only' };
+    return {
+      id: `scale-tango-${String(index).padStart(3, '0')}`,
+      oracleClass: 'tango_only',
+    };
   }
   if (index % 7 === 0) {
     return {
@@ -107,21 +117,17 @@ function metadataFor(seed: SeededExperience) {
         intents: ['visit'],
         oracleClass: seed.oracleClass,
       };
-    default:
+    default: {
+      const distractorThemes = ['shopping', 'sports', 'architecture'];
       return {
-        themes: ['shopping', 'sports', 'architecture'][
-          Number(seed.id.slice(-1)) % 3
-        ]
-          ? [
-              ['shopping', 'sports', 'architecture'][
-                Number(seed.id.slice(-1)) % 3
-              ],
-            ]
-          : ['culture'],
+        themes: [
+          distractorThemes[Number(seed.id.slice(-1)) % distractorThemes.length],
+        ],
         traits: ['general'],
         intents: ['visit'],
         oracleClass: seed.oracleClass,
       };
+    }
   }
 }
 
@@ -131,7 +137,9 @@ describe('Experience V2 selection at scale (public API + PostgreSQL + outbox)', 
   let outboxPublisher: OutboxPublisherService;
   const seeded = Array.from({ length: 320 }, (_, index) => buildSeed(index));
   const idealIds = new Set(
-    seeded.filter((item) => item.oracleClass === 'ideal').map((item) => item.id),
+    seeded
+      .filter((item) => item.oracleClass === 'ideal')
+      .map((item) => item.id),
   );
 
   const fakeLangChain = {
@@ -144,13 +152,13 @@ describe('Experience V2 selection at scale (public API + PostgreSQL + outbox)', 
 
   const fakeEmbeddings = {
     embedQuery: jest.fn(async () => [...positiveVector]),
-    embedDocuments: jest.fn(async (texts: string[]) =>
+    embedDocuments: jest.fn(async (texts: string[]): Promise<number[][]> =>
       texts.map(() => [...positiveVector]),
     ),
   };
 
   const fakeEmbeddingService = {
-    ensureInitialized: jest.fn(async () => undefined),
+    ensureInitialized: jest.fn(async (): Promise<void> => undefined),
     getIndexIdentity: jest.fn(() => EMBEDDING_IDENTITY),
     getStatus: jest.fn(() => ({
       status: 'ready',
@@ -161,25 +169,33 @@ describe('Experience V2 selection at scale (public API + PostgreSQL + outbox)', 
 
   const fakeGeoapifyRouting = {
     isAvailable: jest.fn(() => true),
-    estimate: jest.fn(async (from: any, to: any, allowedModes: TransportationMode[]) => {
-      const dLat = to.centroid.lat - from.centroid.lat;
-      const dLng = to.centroid.lng - from.centroid.lng;
-      const distanceMeters = Math.sqrt(dLat * dLat + dLng * dLng) * 111_000;
-      const mode = allowedModes.includes(TransportationMode.WALKING)
-        ? TransportationMode.WALKING
-        : allowedModes[0];
-      const durationMinutes = (distanceMeters / 1000 / 4.8) * 60;
-      return {
-        mode,
-        durationMinutes,
-        distanceMeters,
-        walkingMinutes: mode === TransportationMode.WALKING ? durationMinutes : 0,
-        walkingDistanceMeters:
-          mode === TransportationMode.WALKING ? distanceMeters : 0,
-        approximate: false,
-        provider: 'geoapify',
-      };
-    }),
+    estimate: jest.fn(
+      async (
+        from: any,
+        to: any,
+        allowedModes: TransportationMode[],
+      ) => {
+        const dLat = to.centroid.lat - from.centroid.lat;
+        const dLng = to.centroid.lng - from.centroid.lng;
+        const distanceMeters =
+          Math.sqrt(dLat * dLat + dLng * dLng) * 111_000;
+        const mode = allowedModes.includes(TransportationMode.WALKING)
+          ? TransportationMode.WALKING
+          : allowedModes[0];
+        const durationMinutes = (distanceMeters / 1000 / 4.8) * 60;
+        return {
+          mode,
+          durationMinutes,
+          distanceMeters,
+          walkingMinutes:
+            mode === TransportationMode.WALKING ? durationMinutes : 0,
+          walkingDistanceMeters:
+            mode === TransportationMode.WALKING ? distanceMeters : 0,
+          approximate: false,
+          provider: 'geoapify',
+        };
+      },
+    ),
   };
 
   beforeAll(async () => {
@@ -266,6 +282,8 @@ describe('Experience V2 selection at scale (public API + PostgreSQL + outbox)', 
         latitude: geoRows[index].latitude,
         longitude: geoRows[index].longitude,
         metadata: metadataFor(seed),
+        mediaStatus: MediaStatus.ENRICHED,
+        mediaUpdatedAt: new Date('2026-09-01T00:00:00.000Z'),
         embeddingProvider: EMBEDDING_IDENTITY.provider,
         embeddingModel: EMBEDDING_IDENTITY.model,
         embeddingDimensions: EMBEDDING_IDENTITY.dimensions,
@@ -406,9 +424,9 @@ describe('Experience V2 selection at scale (public API + PostgreSQL + outbox)', 
     const coverageTrace = traceSteps.find(
       (step: any) => step.stage === 'coverage_analysis',
     );
-    expect(coverageTrace.coverageReport.analyzedCandidateCount).toBeGreaterThanOrEqual(
-      250,
-    );
+    expect(
+      coverageTrace.coverageReport.analyzedCandidateCount,
+    ).toBeGreaterThanOrEqual(250);
     expect(coverageTrace.coverageReport.status).toBe('sufficient');
     expect(coverageTrace.coverageReport.decision.action).toBe('none');
 
@@ -427,7 +445,9 @@ describe('Experience V2 selection at scale (public API + PostgreSQL + outbox)', 
       ),
     ).toBe(true);
 
-    expect(traceSteps.some((step: any) => step.stage === 'discovery')).toBe(false);
+    expect(traceSteps.some((step: any) => step.stage === 'discovery')).toBe(
+      false,
+    );
     expect(tour.metadata.executionSummary.status).toBe('completed');
     expect(tour.metadata.executionSummary.selectedExperiences).toBe(
       tour.experiences.length,
