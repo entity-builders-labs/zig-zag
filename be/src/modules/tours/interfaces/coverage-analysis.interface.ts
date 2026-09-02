@@ -1,4 +1,3 @@
-
 export type CoverageReportStatus = 'sufficient' | 'insufficient' | 'degraded';
 
 export type DestinationKnowledgeStatus =
@@ -10,12 +9,27 @@ export type DestinationKnowledgeStatus =
 export type CoverageDeficitReason =
   | 'insufficient_usable_candidates'
   | 'missing_requested_theme'
+  | 'missing_requested_trait'
+  | 'missing_requested_intent'
+  | 'insufficient_duration_fit'
   | 'insufficient_source_diversity'
   | 'insufficient_geographic_distribution'
   | 'insufficient_semantic_coverage';
 
 export interface ThemeCoverageSummary {
   theme: string;
+  matchedCandidateCount: number;
+  strongMatchCount: number;
+}
+
+export interface TraitCoverageSummary {
+  trait: string;
+  matchedCandidateCount: number;
+  strongMatchCount: number;
+}
+
+export interface IntentCoverageSummary {
+  intent: string;
   matchedCandidateCount: number;
   strongMatchCount: number;
 }
@@ -42,7 +56,8 @@ export interface CoverageDeficit {
   severity: 'blocking' | 'warning';
   message: string;
   theme?: string;
-  experienceFormat?: string;
+  trait?: string;
+  intent?: string;
   expectedCount?: number;
   actualCount?: number;
 }
@@ -56,20 +71,6 @@ export type CoverageAcquisitionDecision =
       action: 'none';
       reason: 'coverage_sufficient';
       requiresAdditionalDiscovery: false;
-    })
-  | (CoverageDecisionBase & {
-      action: 'places_text_search';
-      reason:
-        | 'missing_requested_theme'
-        | 'insufficient_source_diversity';
-      requiresAdditionalDiscovery: false;
-      deficits: CoverageDeficit[];
-    })
-  | (CoverageDecisionBase & {
-      action: 'places_nearby_search';
-      reason: 'insufficient_geographic_distribution';
-      requiresAdditionalDiscovery: false;
-      deficits: CoverageDeficit[];
     })
   | (CoverageDecisionBase & {
       action: 'fail';
@@ -97,10 +98,13 @@ export interface CoverageReport {
   status: CoverageReportStatus;
   analyzedCandidateCount: number;
   eligibleCandidateCount: number;
+  relevantCandidateCount: number;
   offeredCandidateCount: number;
   usableCandidateCount: number;
   requiredCandidateCount: number;
   requestedThemeCoverage: ThemeCoverageSummary[];
+  requestedTraitCoverage: TraitCoverageSummary[];
+  requestedIntentCoverage: IntentCoverageSummary[];
   sourceCoverage: SourceCoverageSummary[];
   geographicCoverage: GeographicCoverageSummary;
   semanticCoverage: SemanticCoverageSummary;
@@ -120,18 +124,25 @@ export interface CoverageReport {
 export interface CoverageCandidate {
   id: string;
   name: string;
+  description?: string | null;
   source?: string | null;
   weightedScore?: number | null;
   distanceKm?: number | null;
+  durationMinutes?: number | null;
+  themes?: string[];
+  traits?: string[];
+  intents?: string[];
   metadata?: unknown;
 }
 
 export interface CoverageAnalysisInput {
   candidates: CoverageCandidate[];
   requestedThemes: string[];
+  requestedTraits?: string[];
+  requestedIntents?: string[];
+  preferredDurationMinutes?: { min?: number; max?: number };
   days: number;
   explorationStyle?: string;
-  /** TravelPace value ('relaxed'|'moderate'|'fast') drives how many stops/day count as enough. */
   travelPace?: string;
   semanticCoverage: SemanticCoverageSummary;
   offeredCandidateCount: number;
