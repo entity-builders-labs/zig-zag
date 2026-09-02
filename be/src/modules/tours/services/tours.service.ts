@@ -93,6 +93,18 @@ export class ToursService {
               activity: true,
             },
           },
+          experiences: {
+            include: {
+              experience: {
+                include: {
+                  components: true,
+                  traits: true,
+                },
+              },
+              components: true,
+            },
+            orderBy: [{ dayNumber: 'asc' }, { order: 'asc' }],
+          },
         },
       });
 
@@ -168,6 +180,18 @@ export class ToursService {
             include: {
               activity: true,
             },
+          },
+          experiences: {
+            include: {
+              experience: {
+                include: {
+                  components: true,
+                  traits: true,
+                },
+              },
+              components: true,
+            },
+            orderBy: [{ dayNumber: 'asc' }, { order: 'asc' }],
           },
         },
         orderBy: {

@@ -52,12 +52,47 @@ export interface Tour {
     // stop.
     waypoints?: ActivityWaypointRef[];
   }[];
+  /** Canonical V2 tour snapshots. New generations populate this relation. */
+  experiences?: TourExperience[];
   metadata?: any;
   options?: {
     latitude?: number;
     longitude?: number;
     radius?: number;
     includeExistingActivities?: boolean;
+  };
+}
+
+export interface TourExperienceComponent {
+  id: string;
+  geoEntityId: string;
+  order?: number;
+  role?: string;
+  required: boolean;
+  name: string;
+  latitude?: number;
+  longitude?: number;
+  geometry?: unknown;
+}
+
+export interface TourExperience {
+  id: string;
+  experienceId: string;
+  dayNumber?: number;
+  order: number;
+  startTime?: string;
+  duration?: number;
+  notes?: string;
+  components: TourExperienceComponent[];
+  experience?: {
+    id: string;
+    canonicalName?: string;
+    name?: string;
+    description?: string;
+    status?: string;
+    themes?: string[];
+    traits?: Array<{ trait: string; value?: string }>;
+    components?: Array<{ name: string; role?: string; latitude?: number; longitude?: number }>;
   };
 }
 

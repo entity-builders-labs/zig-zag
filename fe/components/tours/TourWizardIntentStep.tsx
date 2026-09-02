@@ -69,7 +69,7 @@ export function TourWizardIntentStep({
     <VStack space='xl' flex={1}>
       {/* Experience Format */}
       <VStack space='sm'>
-        <WizardFieldLabel>¿Qué formato de experiencia buscás?</WizardFieldLabel>
+        <WizardFieldLabel>¿Qué tipo de experiencias querés vivir?</WizardFieldLabel>
         <Box flexDirection='row' flexWrap='wrap' gap='$2'>
           {EXPERIENCE_FORMAT_OPTIONS.map(({ value, label }) => {
             const isSelected = experienceFormats.includes(value);
@@ -104,7 +104,7 @@ export function TourWizardIntentStep({
           })}
         </Box>
         <Text size='2xs' color='$textLight500'>
-          Elegir una caminata no cambia automáticamente cuánto estás dispuesto a caminar.
+          Esto orienta la búsqueda; la selección final se decide por tus preferencias, movilidad y evidencia geográfica.
         </Text>
       </VStack>
 
@@ -231,4 +231,3 @@ export function TourWizardIntentStep({
     </VStack>
   );
 }
-

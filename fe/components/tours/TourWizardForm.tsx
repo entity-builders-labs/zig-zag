@@ -277,7 +277,6 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
         accessibilityNeeds
       },
       startDates: startDates.length > 0 ? startDates : undefined,
-      includeExistingActivities: true,
       skipImageGeneration: true
     });
   };
@@ -544,4 +543,3 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
     </Box>
   );
 };
-

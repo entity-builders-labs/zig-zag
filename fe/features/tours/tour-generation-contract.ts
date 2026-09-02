@@ -49,7 +49,6 @@ export interface GenerateTourDto {
   mobility: MobilityPreferences;
   dietaryRestrictions?: string[];
   startDates?: string[];
-  includeExistingActivities?: boolean;
   skipImageGeneration?: boolean;
   excludeTours?: string[];
   categories?: string[];
