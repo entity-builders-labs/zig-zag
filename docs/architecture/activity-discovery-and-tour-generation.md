@@ -1214,3 +1214,21 @@ flowchart LR
 ```
 
 `Activity`, `ActivityKind`, `TourActivity`, and the former format/kind coverage rules are historical terminology and are not part of the active V2 generation graph. The repository still contains isolated legacy command/module code that is outside this graph and remains a cleanup item; it must not be reintroduced into generation. V2 ranking is Experience-native and only applies deterministic relevance/capacity limits—there is no format or ActivityKind gate. Async generation remains durable: the HTTP request persists the Tour and outbox request first; the worker performs acquisition, resolution, validation, selection, planning, snapshot persistence, and media enrichment asynchronously. Grounded search and LLM extraction propose concepts and evidence only; OSM/Places resolution and component-level geographic validation decide whether an Experience is real.
+
+### Current implementation checkpoints (2026-09-02)
+
+- The active discovery boundary requires `extractExperiences`; the worker no
+  longer falls back to the historical `ActivityProposal` extractor.
+- The deterministic planner carries `experienceId` through selection,
+  completeness, and `TourExperience` snapshot materialization. V2 generation
+  does not look up planner items in `TourActivity`.
+- Media notification delivery is Experience-native (`ExperienceMediaUpdated`)
+  and resolves related tours through `TourExperience`.
+- The local runtime is configured with Tavily for grounded search, Gemini for
+  candidate extraction, Groq for the general chat provider, and the local
+  Overpass instance for OSM queries.
+
+These checkpoints are implementation evidence, not a declaration that the
+repository-wide Activity deletion is complete. The remaining Activity schema,
+services, and historical provider methods must be removed before the cutover
+acceptance gate is considered closed.
