@@ -76,24 +76,24 @@ export const getPhotoGallery = (photos: any, category?: string): string[] => {
   return fallbacks;
 };
 
-export const getHighlights = (activity: any): string[] => {
-  if (!activity) return [];
+export const getHighlights = (experience: any): string[] => {
+  if (!experience) return [];
 
   // 1. From metadata.highlights
-  if (Array.isArray(activity.metadata?.highlights) && activity.metadata.highlights.length > 0) {
-    return activity.metadata.highlights;
+  if (Array.isArray(experience.metadata?.highlights) && experience.metadata.highlights.length > 0) {
+    return experience.metadata.highlights;
   }
 
   // 2. From metadata.tags
-  if (Array.isArray(activity.metadata?.tags) && activity.metadata.tags.length > 0) {
-    return activity.metadata.tags.slice(0, 4);
+  if (Array.isArray(experience.metadata?.tags) && experience.metadata.tags.length > 0) {
+    return experience.metadata.tags.slice(0, 4);
   }
 
   // 3. Derive from name / description / type
   const highlights: string[] = [];
-  const name = (activity.name || '').toLowerCase();
-  const desc = (activity.description || '').toLowerCase();
-  const type = (activity.type || activity.knownActivityTypeName || '').toLowerCase();
+  const name = (experience.canonicalName || experience.name || '').toLowerCase();
+  const desc = (experience.description || '').toLowerCase();
+  const type = (experience.type || experience.traits?.map((trait: any) => trait.value).join(' ') || '').toLowerCase();
 
   if (name.includes('zanjón') || desc.includes('túnel') || desc.includes('subterráneo')) {
     highlights.push('🏛️ Túneles subterráneos coloniales del siglo XVIII');
@@ -112,10 +112,10 @@ export const getHighlights = (activity: any): string[] => {
     highlights.push('🏛️ Arquitectura industrial recuperada');
     highlights.push('📚 Tienda de diseño y café cultural');
   } else {
-    if (activity.rating && activity.rating >= 4.5) {
-      highlights.push(`⭐ Excelencia calificada (${activity.rating.toFixed(1)} / 5)`);
+    if (experience.rating && experience.rating >= 4.5) {
+      highlights.push(`⭐ Excelencia calificada (${experience.rating.toFixed(1)} / 5)`);
     }
-    if (activity.priceLevel === 0 || activity.price === 0) {
+    if (experience.priceLevel === 0 || experience.price === 0) {
       highlights.push('🎟️ Entrada libre y gratuita');
     }
     highlights.push('📍 Punto icónico imperdible en la zona');
@@ -125,12 +125,12 @@ export const getHighlights = (activity: any): string[] => {
   return highlights;
 };
 
-export const getCuratorTip = (activity: any): string => {
-  if (activity?.metadata?.curatorTip) return activity.metadata.curatorTip;
-  if (activity?.metadata?.insiderTip) return activity.metadata.insiderTip;
-  if (activity?.notes) return activity.notes;
+export const getCuratorTip = (experience: any): string => {
+  if (experience?.metadata?.curatorTip) return experience.metadata.curatorTip;
+  if (experience?.metadata?.insiderTip) return experience.metadata.insiderTip;
+  if (experience?.notes) return experience.notes;
 
-  const name = (activity?.name || '').toLowerCase();
+  const name = (experience?.canonicalName || experience?.name || '').toLowerCase();
   if (name.includes('zanjón')) {
     return 'Llegá 15 minutos antes del turno de visita guiada para recorrer la galería de fotos históricas en la recepción.';
   }
@@ -220,18 +220,18 @@ export const getNavigationUrls = (lat?: number, lng?: number, address?: string, 
   };
 };
 
-export const getBadges = (activity: any): BadgeData[] => {
-  if (!activity) return [];
+export const getBadges = (experience: any): BadgeData[] => {
+  if (!experience) return [];
   const badges: BadgeData[] = [];
-  if (activity.priceLevel !== undefined && activity.priceLevel !== null) {
-    const priceText = activity.priceLevel === 0 ? 'Gratis' : '$'.repeat(activity.priceLevel);
+  if (experience.priceLevel !== undefined && experience.priceLevel !== null) {
+    const priceText = experience.priceLevel === 0 ? 'Gratis' : '$'.repeat(experience.priceLevel);
     badges.push({ text: priceText, action: 'info' });
-  } else if (activity.price) {
-    badges.push({ text: `$${activity.price}`, action: 'info' });
+  } else if (experience.price) {
+    badges.push({ text: `$${experience.price}`, action: 'info' });
   }
-  if (activity.type || activity.knownActivityTypeName) {
-    badges.push({ text: activity.type || activity.knownActivityTypeName, action: 'success' });
+  const traitLabel = experience.traits?.map((trait: any) => trait.value).filter(Boolean).slice(0, 2).join(' · ');
+  if (experience.type || traitLabel) {
+    badges.push({ text: experience.type || traitLabel, action: 'success' });
   }
   return badges;
 };
-
