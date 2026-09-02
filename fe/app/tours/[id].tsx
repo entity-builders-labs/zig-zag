@@ -37,7 +37,7 @@ import {
   GenerationTrace,
 } from '../../components/tour-details/GenerationBitacora';
 import { TourStop } from '../../components/tour-details/types';
-import { transformActivitiesToStops } from '../../components/tour-details/build-stops';
+import { transformActivitiesToStops, transformExperiencesToStops } from '../../components/tour-details/build-stops';
 import { FONT_DISPLAY } from '@/constants/typography';
 import { copyTextToClipboard } from '@/utils/copy-to-clipboard';
 
@@ -175,8 +175,12 @@ export default function TourDetailScreen() {
   );
 
   useEffect(() => {
-    setStops(transformActivitiesToStops(tour?.activities || [], tour?.totalDays));
-  }, [tour?.activities, tour?.totalDays]);
+    setStops(
+      tour?.experiences?.length
+        ? transformExperiencesToStops(tour.experiences, tour.totalDays)
+        : transformActivitiesToStops(tour?.activities || [], tour?.totalDays),
+    );
+  }, [tour?.experiences, tour?.activities, tour?.totalDays]);
 
   useEffect(() => {
     const loadTour = async () => {

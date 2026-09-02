@@ -16,7 +16,7 @@ import {
   Tour,
 } from '../../../api/tours';
 import { TourStop, TourStopComposite } from '../../../components/tour-details/types';
-import { transformActivitiesToStops } from '../../../components/tour-details/build-stops';
+import { transformActivitiesToStops, transformExperiencesToStops } from '../../../components/tour-details/build-stops';
 import { TourStopCard } from '../../../components/tour-details/TourStopCard';
 import { CompositeStopCard } from '../../../components/tour-details/CompositeStopCard';
 import { FONT_DISPLAY } from '@/constants/typography';
@@ -43,20 +43,20 @@ export default function TourReviewScreen() {
         setLoading(true);
         const data: Tour = await fetchTourById(id);
         const activities = data.activities || [];
+        const experiences = data.experiences || [];
 
         // Nothing to review here (e.g. reached directly via URL before
         // generation actually finished) — fall back to the normal detail
         // screen rather than showing an empty review.
         const metadata = data.metadata as any;
-        if (metadata?.generationStatus !== 'completed' || activities.length === 0) {
+        if (metadata?.generationStatus !== 'completed' || (activities.length === 0 && experiences.length === 0)) {
           router.replace(`/tours/${id}`);
           return;
         }
 
-        const transformedStops = transformActivitiesToStops(
-          activities,
-          data.totalDays
-        );
+        const transformedStops = experiences.length
+          ? transformExperiencesToStops(experiences, data.totalDays)
+          : transformActivitiesToStops(activities, data.totalDays);
         setStops(transformedStops);
 
         const initialSelections = new Map<string, Set<string>>();

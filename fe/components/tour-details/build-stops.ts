@@ -5,6 +5,58 @@ import { TourStop } from './types';
 
 export type TourActivityItem = NonNullable<Tour['activities']>[number];
 
+/** Presentation projection for canonical V2 snapshots. The UI consumes the
+ * snapshot's own component coordinates and never relies on mutable Activity
+ * rows when a TourExperience is present. */
+export function transformExperiencesToStops(
+  experiences: Tour['experiences'],
+  totalDays?: number,
+): TourStop[] {
+  if (!experiences?.length) return [];
+  const items: TourActivityItem[] = experiences.map((snapshot, index) => {
+    const exp = snapshot.experience;
+    const first = snapshot.components[0];
+    return {
+      id: snapshot.id,
+      order: snapshot.order ?? index,
+      dayNumber: snapshot.dayNumber ?? undefined,
+      notes: snapshot.notes ?? exp?.description,
+      activityName: exp?.canonicalName || exp?.name || 'Experiencia',
+      activityType: 'EXPERIENCE',
+      activityLatitude: first?.latitude,
+      activityLongitude: first?.longitude,
+      activity: {
+        id: snapshot.experienceId,
+        name: exp?.canonicalName || exp?.name || 'Experiencia',
+        description: exp?.description,
+        type: 'EXPERIENCE',
+        latitude: first?.latitude,
+        longitude: first?.longitude,
+        kind: 'EXPERIENCE',
+        waypoints: snapshot.components.map((component, componentIndex) => ({
+          order: component.order ?? componentIndex,
+          waypointActivity: {
+            id: component.geoEntityId,
+            name: component.name,
+            latitude: component.latitude,
+            longitude: component.longitude,
+          },
+        })),
+      },
+      waypoints: snapshot.components.map((component, componentIndex) => ({
+        order: component.order ?? componentIndex,
+        waypointActivity: {
+          id: component.geoEntityId,
+          name: component.name,
+          latitude: component.latitude,
+          longitude: component.longitude,
+        },
+      })),
+    } as TourActivityItem;
+  });
+  return transformActivitiesToStops(items, totalDays);
+}
+
 // A composite pick (neighborhood_walk/route/experience) renders as a
 // TourStopComposite instead of a plain TourStopLocation — its themeReasoning
 // was persisted into TourActivity.notes at generation time (see
