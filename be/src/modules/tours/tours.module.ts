@@ -15,9 +15,6 @@ import { ActivityDiscoveryService } from './services/activity-discovery.service'
 import { GroqGroundedSearchService } from './services/groq-grounded-search.service';
 import { SerpApiGroundedSearchService } from './services/serpapi-grounded-search.service';
 import { TavilyGroundedSearchService } from './services/tavily-grounded-search.service';
-import { ActivityProposalResolutionService } from './services/activity-proposal-resolution.service';
-import { ActivityProposalMaterializationService } from './services/activity-proposal-materialization.service';
-import { ActivityProposalPipelineService } from './services/activity-proposal-pipeline.service';
 import { CompositeGeographicValidationService } from './services/composite-geographic-validation.service';
 import { GroqDiscoveryProvider } from './services/groq-discovery.provider';
 import { GeminiDiscoveryProvider } from './services/gemini-discovery.provider';
@@ -33,7 +30,6 @@ import {
   GroundedSearchProvider,
   SearchGroundedDiscoveryProvider,
 } from './interfaces/activity-discovery.interface';
-import { PROPOSAL_RESOLVER } from './interfaces/proposal-resolution.interface';
 import {
   DAILY_PLANNING_SOLVER,
   TRAVEL_ESTIMATE_PROVIDER,
@@ -74,9 +70,6 @@ import { OutboxModule } from '../outbox/outbox.module';
     GroqGroundedSearchService,
     SerpApiGroundedSearchService,
     TavilyGroundedSearchService,
-    ActivityProposalResolutionService,
-    ActivityProposalMaterializationService,
-    ActivityProposalPipelineService,
     {
       provide: CompositeGeographicValidationService,
       useFactory: () => new CompositeGeographicValidationService(),
@@ -155,10 +148,6 @@ import { OutboxModule } from '../outbox/outbox.module';
       },
       inject: [aiConfig.KEY, GeminiDiscoveryProvider, GroqDiscoveryProvider],
     },
-    {
-      provide: PROPOSAL_RESOLVER,
-      useExisting: ActivityProposalPipelineService,
-    },
   ],
   exports: [
     ToursService,
@@ -167,8 +156,6 @@ import { OutboxModule } from '../outbox/outbox.module';
     TourImageService,
     TourLocationService,
     ActivityDiscoveryService,
-    ActivityProposalResolutionService,
-    ActivityProposalMaterializationService,
     CompositeGeographicValidationService,
     PreferenceInterpreterService,
   ],
