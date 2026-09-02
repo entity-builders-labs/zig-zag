@@ -12,7 +12,7 @@ describe('InMemoryQueueService acknowledgement semantics', () => {
       queue.publish('TourProgressUpdated', { tourId: 'tour-1' }),
     ).resolves.toBeUndefined();
     await expect(
-      queue.publish('ActivityMediaUpdated', { activityId: 'act-1' }),
+      queue.publish('ExperienceMediaUpdated', { experienceId: 'exp-1' }),
     ).resolves.toBeUndefined();
   });
 
@@ -56,13 +56,13 @@ describe('InMemoryQueueService acknowledgement semantics', () => {
   });
 
   it('rejects publication if any registered consumer fails', async () => {
-    queue.subscribe('ActivityMediaUpdated', async () => undefined);
-    queue.subscribe('ActivityMediaUpdated', async () => {
+    queue.subscribe('ExperienceMediaUpdated', async () => undefined);
+    queue.subscribe('ExperienceMediaUpdated', async () => {
       throw new Error('consumer failed');
     });
 
     await expect(
-      queue.publish('ActivityMediaUpdated', { activityId: 'a-1' }),
+      queue.publish('ExperienceMediaUpdated', { experienceId: 'exp-1' }),
     ).rejects.toThrow('Consumer failure');
   });
 });

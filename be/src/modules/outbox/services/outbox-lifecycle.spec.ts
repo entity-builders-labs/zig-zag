@@ -94,8 +94,8 @@ describe('OutboxLifecycle Policy & Services', () => {
       prismaMock.outboxEvent.create.mockResolvedValueOnce({ id: 'outbox-2' });
 
       const result = await outboxService.create({
-        eventType: 'ActivityMediaEnrichmentRequested',
-        payload: { activityId: 'act-99' },
+        eventType: 'ExperienceMediaEnrichmentRequested',
+        payload: { experienceId: 'exp-99' },
       });
 
       expect(result.id).toBe('outbox-2');
@@ -133,8 +133,8 @@ describe('OutboxLifecycle Policy & Services', () => {
       const mockStaleRows = [
         {
           id: 'stale-event',
-          eventType: 'ActivityMediaEnrichmentRequested',
-          payload: { activityId: 'act-1' },
+          eventType: 'ExperienceMediaEnrichmentRequested',
+          payload: { experienceId: 'exp-1' },
           status: OutboxStatus.PROCESSING,
           attemptCount: 1,
           maxAttempts: 5,
@@ -196,8 +196,8 @@ describe('OutboxLifecycle Policy & Services', () => {
       const mockRows = [
         {
           id: 'event-transient-fail',
-          eventType: 'ActivityMediaUpdated',
-          payload: { activityId: 'act-1' },
+          eventType: 'ExperienceMediaUpdated',
+          payload: { experienceId: 'exp-1' },
           status: OutboxStatus.PENDING,
           attemptCount: 0,
           maxAttempts: 5,

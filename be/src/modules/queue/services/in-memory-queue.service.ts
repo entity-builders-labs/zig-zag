@@ -18,7 +18,7 @@ export const CRITICAL_TOPICS = new Set<string>([
  *
  * Critical topics (TourGenerationRequested, ExperienceMediaEnrichmentRequested)
  * require a registered local subscriber and throw an error when missing so the
- * outbox loop retries. Optional topics (e.g. ActivityMediaUpdated, TourProgressUpdated)
+ * outbox loop retries. Optional topics (e.g. ExperienceMediaUpdated, TourProgressUpdated)
  * are acknowledged as no-ops when no in-process consumer is listening.
  */
 @Injectable()
