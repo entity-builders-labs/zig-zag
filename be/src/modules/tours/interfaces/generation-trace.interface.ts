@@ -6,7 +6,6 @@ import { ExperienceResolutionResponse } from './experience-resolution.interface'
 import { GeographicValidationBatchResult } from './geographic-validation.interface';
 import { ExperienceGeographicValidationBatchResult } from './experience-resolution.interface';
 import { CandidateScoreBreakdown } from '../utils/candidate-ranking.util';
-import { ExperienceFormat } from './tour-generation.interface';
 import { ActivityKind } from '@prisma/client';
 import { PreferenceInterpretationTrace } from './preference-interpretation.interface';
 
@@ -102,7 +101,7 @@ export interface TraceCandidate {
   scoreBreakdown?: CandidateScoreBreakdown;
   coverageContribution?: {
     themes: string[];
-    experienceFormat?: ExperienceFormat;
+    experienceFormat?: string;
   };
 }
 
@@ -159,7 +158,7 @@ export interface GenerationTraceStep {
     byKind: Partial<Record<ActivityKind, number>>;
     bySource: { catalog: number; refill: number; discovery: number };
     requestedFormatAvailability: Array<{
-      format: ExperienceFormat;
+      format: string;
       fullPoolCount: number;
       llmWindowCount: number;
     }>;

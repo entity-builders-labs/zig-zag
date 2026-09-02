@@ -15,10 +15,7 @@ import {
 } from '../interfaces/coverage-analysis.interface';
 import { TourCompletenessResult } from '../interfaces/tour-completeness.interface';
 import { ExperienceResolutionResponse } from '../interfaces/experience-resolution.interface';
-import {
-  ExperienceFormat,
-  TourGenerationRequest,
-} from '../interfaces/tour-generation.interface';
+import { TourGenerationRequest } from '../interfaces/tour-generation.interface';
 import { DailyPlanningSolution } from '../interfaces/daily-planning.interface';
 import { CandidateScoreBreakdown } from './candidate-ranking.util';
 import { FormatAvailability } from './candidate-window-selection.util';
@@ -1125,10 +1122,10 @@ export function buildCandidatePoolStep(params: {
 }): GenerationTraceStep {
   const bySource = { catalog: 0, refill: 0, discovery: 0 };
   const byKind: Partial<Record<ActivityKind, number>> = {};
-  const experienceFormatByKind = new Map<ActivityKind, ExperienceFormat>(
+  const experienceFormatByKind = new Map<ActivityKind, string>(
     Object.entries(EXPERIENCE_FORMAT_ACTIVITY_KIND).map(([format, kind]) => [
       kind as ActivityKind,
-      format as ExperienceFormat,
+      format,
     ]),
   );
 
