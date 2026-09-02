@@ -1121,7 +1121,7 @@ export function buildCandidatePoolStep(params: {
   droppedForFamilyCapCount: number;
 }): GenerationTraceStep {
   const bySource = { catalog: 0, refill: 0, discovery: 0 };
-  const byKind: Partial<Record<ActivityKind, number>> = {};
+  const byKind: Record<string, number> = {};
   const experienceFormatByKind = new Map<ActivityKind, string>(
     Object.entries(EXPERIENCE_FORMAT_ACTIVITY_KIND).map(([format, kind]) => [
       kind as ActivityKind,
@@ -1140,7 +1140,7 @@ export function buildCandidatePoolStep(params: {
     if (c.kind) byKind[c.kind] = (byKind[c.kind] ?? 0) + 1;
     const themes = matchedThemesFor(c, params.requestedThemes);
     const experienceFormat = c.kind
-      ? experienceFormatByKind.get(c.kind)
+      ? experienceFormatByKind.get(c.kind as ActivityKind)
       : undefined;
     return {
       source: c.traceSource,

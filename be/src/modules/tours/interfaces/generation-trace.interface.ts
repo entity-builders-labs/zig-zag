@@ -6,7 +6,6 @@ import { ExperienceResolutionResponse } from './experience-resolution.interface'
 import { GeographicValidationBatchResult } from './geographic-validation.interface';
 import { ExperienceGeographicValidationBatchResult } from './experience-resolution.interface';
 import { CandidateScoreBreakdown } from '../utils/candidate-ranking.util';
-import { ActivityKind } from '@prisma/client';
 import { PreferenceInterpretationTrace } from './preference-interpretation.interface';
 
 export type TraceStage =
@@ -155,7 +154,7 @@ export interface GenerationTraceStep {
     postAcquisitionCatalogCount: number;
     eligibleCount: number;
     llmWindowCount: number;
-    byKind: Partial<Record<ActivityKind, number>>;
+    byKind: Record<string, number>;
     bySource: { catalog: number; refill: number; discovery: number };
     requestedFormatAvailability: Array<{
       format: string;

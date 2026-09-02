@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { ActivityKind } from '@prisma/client';
 import {
   CoverageAnalysisInput,
   CoverageCandidate,
@@ -54,24 +53,13 @@ export class CoverageAnalyzer {
       .forEach((themeCoverage) => {
         deficits.push({
           reason: 'missing_requested_theme',
-          severity: 'blocking',
-          message: `Falta cobertura significativa para el tema solicitado "${themeCoverage.theme}".`,
+          severity: 'warning',
+          message: `La cobertura del tema solicitado "${themeCoverage.theme}" es baja; se priorizará en el ranking sin bloquear el tour.`,
           theme: themeCoverage.theme,
           expectedCount: 1,
           actualCount: 0,
         });
       });
-
-    if (eligibleCandidates.length >= 3 && kindCoverage.length < 2) {
-      deficits.push({
-        reason: 'insufficient_kind_diversity',
-        severity: 'warning',
-        message:
-          'El pool elegible está demasiado concentrado en un único kind estructural.',
-        expectedCount: 2,
-        actualCount: kindCoverage.length,
-      });
-    }
 
     if (sourceCoverage.length === 0) {
       deficits.push({
@@ -223,9 +211,9 @@ export class CoverageAnalyzer {
   }
 
   private buildKindCoverage(candidates: CoverageCandidate[]) {
-    const counts = new Map<ActivityKind | 'unknown', number>();
+    const counts = new Map<string, number>();
     for (const candidate of candidates) {
-      const key = candidate.kind ?? 'unknown';
+      const key = candidate.kind ?? 'experience';
       counts.set(key, (counts.get(key) ?? 0) + 1);
     }
     return [...counts.entries()].map(([kind, count]) => ({ kind, count }));

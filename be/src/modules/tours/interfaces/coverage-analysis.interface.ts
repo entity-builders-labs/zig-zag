@@ -1,4 +1,3 @@
-import { ActivityKind } from '@prisma/client';
 
 export type CoverageReportStatus = 'sufficient' | 'insufficient' | 'degraded';
 
@@ -24,7 +23,7 @@ export interface ThemeCoverageSummary {
 }
 
 export interface KindCoverageSummary {
-  kind: ActivityKind | 'unknown';
+  kind: string;
   count: number;
 }
 
@@ -130,7 +129,7 @@ export interface CoverageReport {
 export interface CoverageCandidate {
   id: string;
   name: string;
-  kind?: ActivityKind | null;
+  kind?: string | null;
   source?: string | null;
   type?: string | null;
   knownActivityTypeName?: string | null;
