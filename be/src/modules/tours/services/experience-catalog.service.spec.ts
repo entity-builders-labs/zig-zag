@@ -23,4 +23,12 @@ describe('ExperienceCatalogService dedupe', () => {
     expect(tx.$executeRaw).toHaveBeenCalled();
     expect(tx.experience.create).toHaveBeenCalled();
   });
+
+  it('returns AMBIGUOUS when the name exists with a different component', async () => {
+    const tx: any = { $executeRaw: jest.fn(), experience: { findMany: jest.fn().mockResolvedValue([{ id: 'exp-old', canonicalName: 'museo central', components: [{ geoEntityId: 'geo-other' }], evidence: [], traits: [] }]), create: jest.fn() } };
+    const prisma: any = { $transaction: jest.fn((callback: any) => callback(tx)) };
+    const result = await new ExperienceCatalogService(prisma, {} as any).persistVerifiedExperience(input);
+    expect(result.dedupeDecision).toBe('AMBIGUOUS');
+    expect(tx.experience.create).not.toHaveBeenCalled();
+  });
 });

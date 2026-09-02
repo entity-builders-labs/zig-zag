@@ -218,6 +218,10 @@ export class ExperienceCatalogService {
         }
         return { ...same, dedupeDecision: 'SAME' as const };
       }
+      const sameName = existing.find((candidate) => candidate.canonicalName.trim().toLocaleLowerCase() === normalizedName);
+      if (sameName) {
+        return { ...sameName, dedupeDecision: 'AMBIGUOUS' as const };
+      }
       const experience = await tx.experience.create({
         data: {
           canonicalName: input.canonicalName,

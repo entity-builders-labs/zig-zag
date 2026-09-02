@@ -77,6 +77,9 @@ export class ExperienceProposalResolverService
           .filter((item: { key?: string }) => candidate.candidate.evidenceKeys?.includes(item.key ?? ''))
           .map((item: { source: string; url?: string; title?: string; snippet?: string }) => ({ source: item.source, url: item.url, title: item.title, snippet: item.snippet })),
       });
+      if ((experience as any).dedupeDecision === 'AMBIGUOUS') {
+        return { ...candidate, status: 'rejected' as const, rejectionReasons: ['AMBIGUOUS_DEDUPE'] };
+      }
       return { ...candidate, experienceId: experience.id };
     }));
 
