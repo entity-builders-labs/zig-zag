@@ -117,6 +117,7 @@ export interface GenerationTrace {
   executionSummary?: {
     status: 'completed' | 'failed';
     steps: string[];
+    narrative?: string;
     acceptedExperiences?: number;
     rejectedProposals?: number;
     selectedExperiences?: number;
@@ -816,8 +817,13 @@ export const GenerationBitacora = ({
               <Box mt='$3' p='$3' borderRadius='$lg' bg={COLORS.panel as any} borderWidth={1} borderColor={COLORS.borderSoft as any}>
                 <Text size='sm' fontWeight='$bold' color={COLORS.text}>Resumen de ejecución</Text>
                 <Text size='xs' color={COLORS.textMuted} mt='$1'>
-                  {trace.executionSummary.steps.join(' ')}
+                  {trace.executionSummary.narrative || trace.executionSummary.steps.join(' ')}
                 </Text>
+                {(trace.executionSummary.acceptedExperiences != null || trace.executionSummary.selectedExperiences != null) && (
+                  <Text size='xs' color={COLORS.textMuted} mt='$2'>
+                    Aceptadas: {trace.executionSummary.acceptedExperiences ?? 0} · Seleccionadas: {trace.executionSummary.selectedExperiences ?? 0} · Rechazadas: {trace.executionSummary.rejectedProposals ?? 0}
+                  </Text>
+                )}
               </Box>
             )}
           </Box>

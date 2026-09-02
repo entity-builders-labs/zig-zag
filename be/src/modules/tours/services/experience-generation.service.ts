@@ -1625,6 +1625,10 @@ export class ExperienceGenerationService {
       const executionSummary = {
         status: 'completed' as const,
         steps: traceStepList.map((step: any) => step.summary).filter(Boolean),
+        narrative: traceStepList
+          .map((step: any, index: number) => `${index + 1}. ${step.summary}`)
+          .filter(Boolean)
+          .join('\n'),
         acceptedExperiences: traceStepList
           .filter((step: any) => step.stage === 'entity_resolution')
           .reduce((sum: number, step: any) => sum + Number((step.resolution as any)?.acceptedCount ?? 0), 0),
@@ -1692,6 +1696,10 @@ export class ExperienceGenerationService {
                   executionSummary: {
                     status: 'failed',
                     steps: traceSteps.map((step) => step.summary).filter(Boolean),
+                    narrative: traceSteps
+                      .map((step, index) => `${index + 1}. ${step.summary}`)
+                      .filter(Boolean)
+                      .join('\n'),
                     failure: error?.message || String(error),
                   },
                 }),

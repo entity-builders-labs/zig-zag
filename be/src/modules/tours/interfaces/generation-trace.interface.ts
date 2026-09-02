@@ -195,6 +195,7 @@ export interface GenerationTrace {
   executionSummary?: {
     status: 'completed' | 'failed';
     steps: string[];
+    narrative?: string;
     acceptedExperiences?: number;
     rejectedProposals?: number;
     selectedExperiences?: number;
