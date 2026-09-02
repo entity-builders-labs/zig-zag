@@ -25,7 +25,7 @@ Base: `83ceb3b293d1801f123c4f10c292ab8d15785205`
 | Coverage | `coverage-analyzer.service.ts`, `tour-format-coverage-validator.service.ts`, coverage interfaces |
 | Ranking/window | `candidate-ranking.util.ts`, `candidate-window-selection.util.ts`, `planning-candidate-normalizer.service.ts` |
 | Planning normalizer/solver | `planning-candidate-normalizer.service.ts`, `greedy-daily-planning.solver.ts`, daily-planning utilities |
-| TourActivity persistence/snapshots | Prisma `Activity`/`TourActivity` models and `tour-activity-generation.service.ts`; composite waypoints are persisted through the legacy Activity model |
+| TourExperience persistence/snapshots | Prisma `Experience`/`TourExperience` models exist; the worker still persists `TourActivity` as its schedulable output |
 
 ## Material divergence from V2
 
@@ -44,12 +44,12 @@ Increment A must document the V2 contracts and Bitácora V3/redaction boundary w
 
 ## Progress after initial inventory
 
-- Added `GeoEntity`, `Experience`, component/evidence/trait relations and `TourExperience` snapshot persistence. The worker still uses an idempotent Activity→Experience bridge while planner migration is pending.
+- Added `GeoEntity`, `Experience`, component/evidence/trait relations and `TourExperience` schema. The temporary Activity→Experience bridge was removed; native materialization is still pending.
 - Added centralized recursive Bitácora redaction and a traced `preference_interpretation` stage. Free-text preferences are normalized through the configured chat provider and hard exclusions are enforced deterministically before ranking.
 - Removed structural format feasibility gates from coverage/planning. Missing `ExperienceFormat` values no longer fail a tour or trigger kind-specific discovery; theme gaps use generic grounded discovery.
 - Added a synthetic point/radius `DestinationScope`, so point-scale destinations continue through resolution and geographic validation.
 - Terminal failed generation events are now acknowledged as duplicate no-ops by the worker; explicit retries remain API-driven.
-- Discovery responses now expose a provider-neutral `experienceCandidates` view alongside the legacy proposals, and the planner has a native `normalizeExperiences()` boundary for verified catalog rows.
-- Real runs: `78101c2b-caf0-435b-b01d-8fe106103790` failed deterministically on walking feasibility; `67cc4293-4751-4440-b085-193780d526b9` completed with 9 activities and persisted Experience snapshots.
+- Added a provider-neutral query planner and native Gemini `ExperienceCandidate` extraction/validation boundaries. They are not wired into the worker yet.
+- Real runs: `78101c2b-caf0-435b-b01d-8fe106103790` failed deterministically on walking feasibility; `0c510f27-7289-4d34-a6c6-f58a7b7ab2f3` and `c481f46b-0d7b-4505-b322-43be2e79e33a` completed through the legacy Activity pipeline with zero `TourExperience` snapshots.
 
 Remaining material divergence: the planner and persistence path still expose legacy `Activity`/`ActivityKind` contracts internally, and discovery providers still return the compatibility `ActivityProposal` shape even when the search itself is generic.
