@@ -9,27 +9,45 @@ import {
 const SYSTEM_PROMPT = `Interpret the user's supplemental tourism preferences into normalized intent.
 Return JSON only. You interpret language; deterministic code enforces the result.
 Never invent geographic entities, provider IDs, coordinates, or evidence.
-Fields: preferredThemes, preferredTraits, excludedThemes, excludedTraits,
-hardExclusions, positiveSemanticQuery, notes. Use short lowercase phrases.`;
+Do not turn ambiguity into a hard rule. Preserve uncertainty in ambiguities.
+Fields: preferredThemes, preferredTraits, preferredIntents, excludedThemes, excludedTraits,
+hardExclusions, softConstraints, ambiguities, dietaryPreferences,
+accessibilityPreferences, budgetPreferences, groupPreferences,
+positiveSemanticQuery, notes. Use short lowercase phrases.`;
 
+const STRING_ARRAY = { type: 'array', items: { type: 'string' } };
 const RESPONSE_SCHEMA = {
   type: 'object',
   additionalProperties: false,
   properties: {
-    preferredThemes: { type: 'array', items: { type: 'string' } },
-    preferredTraits: { type: 'array', items: { type: 'string' } },
-    excludedThemes: { type: 'array', items: { type: 'string' } },
-    excludedTraits: { type: 'array', items: { type: 'string' } },
-    hardExclusions: { type: 'array', items: { type: 'string' } },
+    preferredThemes: STRING_ARRAY,
+    preferredTraits: STRING_ARRAY,
+    preferredIntents: STRING_ARRAY,
+    excludedThemes: STRING_ARRAY,
+    excludedTraits: STRING_ARRAY,
+    hardExclusions: STRING_ARRAY,
+    softConstraints: STRING_ARRAY,
+    ambiguities: STRING_ARRAY,
+    dietaryPreferences: STRING_ARRAY,
+    accessibilityPreferences: STRING_ARRAY,
+    budgetPreferences: STRING_ARRAY,
+    groupPreferences: STRING_ARRAY,
     positiveSemanticQuery: { type: 'string' },
-    notes: { type: 'array', items: { type: 'string' } },
+    notes: STRING_ARRAY,
   },
   required: [
     'preferredThemes',
     'preferredTraits',
+    'preferredIntents',
     'excludedThemes',
     'excludedTraits',
     'hardExclusions',
+    'softConstraints',
+    'ambiguities',
+    'dietaryPreferences',
+    'accessibilityPreferences',
+    'budgetPreferences',
+    'groupPreferences',
     'positiveSemanticQuery',
     'notes',
   ],
@@ -38,9 +56,16 @@ const RESPONSE_SCHEMA = {
 const EMPTY_INTENT: NormalizedPreferenceIntent = {
   preferredThemes: [],
   preferredTraits: [],
+  preferredIntents: [],
   excludedThemes: [],
   excludedTraits: [],
   hardExclusions: [],
+  softConstraints: [],
+  ambiguities: [],
+  dietaryPreferences: [],
+  accessibilityPreferences: [],
+  budgetPreferences: [],
+  groupPreferences: [],
   positiveSemanticQuery: '',
   notes: [],
 };
@@ -132,9 +157,16 @@ export class PreferenceInterpreterService {
     return {
       preferredThemes: list(value?.preferredThemes),
       preferredTraits: list(value?.preferredTraits),
+      preferredIntents: list(value?.preferredIntents),
       excludedThemes: list(value?.excludedThemes),
       excludedTraits: list(value?.excludedTraits),
       hardExclusions: list(value?.hardExclusions),
+      softConstraints: list(value?.softConstraints),
+      ambiguities: list(value?.ambiguities),
+      dietaryPreferences: list(value?.dietaryPreferences),
+      accessibilityPreferences: list(value?.accessibilityPreferences),
+      budgetPreferences: list(value?.budgetPreferences),
+      groupPreferences: list(value?.groupPreferences),
       positiveSemanticQuery:
         typeof value?.positiveSemanticQuery === 'string'
           ? value.positiveSemanticQuery.trim().slice(0, 500)
@@ -147,10 +179,30 @@ export class PreferenceInterpreterService {
     const lower = text.toLowerCase();
     const excludedThemes: string[] = [];
     const excludedTraits: string[] = [];
-    if (/religios|iglesia|templo|mezquita|sin culto/.test(lower))
+    const hardExclusions: string[] = [];
+    const dietaryPreferences: string[] = [];
+    const accessibilityPreferences: string[] = [];
+    const budgetPreferences: string[] = [];
+    const groupPreferences: string[] = [];
+
+    if (/no quiero[^,.!?;]*(religios|iglesia|templo|mezquita|catedral)|sin[^,.!?;]*(religios|iglesia|templo|mezquita|catedral)/.test(lower)) {
       excludedThemes.push('religion');
-    if (/vegana|vegano|vegan/.test(lower))
-      excludedTraits.push('non-vegan food');
+      hardExclusions.push('religion');
+    }
+    if (/vegana|vegano|vegan/.test(lower)) {
+      dietaryPreferences.push('vegan');
+      hardExclusions.push('non-vegan food');
+    }
+    if (/silla de ruedas|wheelchair|movilidad reducida|sin escaleras|accesible/.test(lower)) {
+      accessibilityPreferences.push('accessibility');
+    }
+    if (/barato|economico|económico|low budget|budget/.test(lower)) {
+      budgetPreferences.push('low budget');
+    }
+    if (/niños|ninos|kids|chicos|familia/.test(lower)) {
+      groupPreferences.push('family friendly');
+    }
+
     const preferredThemes = [
       'arquitectura',
       'comida',
@@ -158,16 +210,23 @@ export class PreferenceInterpreterService {
       'cultura',
       'arte',
       'historia',
+      'tango',
     ].filter((theme) => lower.includes(theme));
+
     const positiveSemanticQuery = text
       .replace(/\b(no quiero|sin|evitar|evito)\b[^,.!?;]*/gi, '')
       .trim();
+
     return {
       ...EMPTY_INTENT,
       preferredThemes,
       excludedThemes,
       excludedTraits,
-      hardExclusions: [...excludedThemes, ...excludedTraits],
+      hardExclusions,
+      dietaryPreferences,
+      accessibilityPreferences,
+      budgetPreferences,
+      groupPreferences,
       positiveSemanticQuery,
       notes: ['deterministic_fallback'],
     };
