@@ -6,18 +6,15 @@ import {
   PlacementContext,
 } from './daily-planning-placement.util';
 import {
-  PlanningActivityCandidate,
+  PlanningExperienceCandidate,
   TravelEstimateProvider,
 } from '../interfaces/daily-planning.interface';
-import {
-  TransportationMode,
-  ExperienceFormat,
-} from '../interfaces/tour-generation.interface';
+import { TransportationMode } from '../interfaces/tour-generation.interface';
 import { DailyPlanningPolicy } from '../config/daily-planning-policy.config';
 
 function candidate(
-  overrides: Partial<PlanningActivityCandidate> = {},
-): PlanningActivityCandidate {
+  overrides: Partial<PlanningExperienceCandidate> = {},
+): PlanningExperienceCandidate {
   return {
     activityId: overrides.activityId ?? 'a1',
     kind: 'POI',
@@ -85,7 +82,6 @@ function baseContext(
       accessibilityNeeds: [],
     },
     planningWindow: policy.window,
-    requestedFormats: [],
     travelEstimateProvider: fakeTravelEstimateProvider(),
     startDates: [],
     ...overrides,
@@ -295,23 +291,6 @@ describe('scoreCandidateForDay', () => {
       baseContext(),
     );
     expect(scoreUnknown).toBe(scoreZero);
-  });
-
-  it('rewards a candidate matching a requested format', () => {
-    const context = baseContext({
-      requestedFormats: [ExperienceFormat.NEIGHBORHOOD_WALKS],
-    });
-    const withFormat = scoreCandidateForDay(
-      candidate({ formats: [ExperienceFormat.NEIGHBORHOOD_WALKS] }),
-      emptyDay(1),
-      context,
-    );
-    const withoutFormat = scoreCandidateForDay(
-      candidate({ formats: [] }),
-      emptyDay(1),
-      context,
-    );
-    expect(withFormat).toBeGreaterThan(withoutFormat);
   });
 
   it('penalizes a same-family candidate already assigned that day', () => {

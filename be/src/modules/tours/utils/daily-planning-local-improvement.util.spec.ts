@@ -5,7 +5,7 @@ import {
 } from './daily-planning-placement.util';
 import {
   NormalizedOpeningHours,
-  PlanningActivityCandidate,
+  PlanningExperienceCandidate,
   TravelEstimateProvider,
 } from '../interfaces/daily-planning.interface';
 import { TransportationMode } from '../interfaces/tour-generation.interface';
@@ -16,7 +16,7 @@ function candidate(
   lat: number,
   lng: number,
   familyId?: string,
-): PlanningActivityCandidate {
+): PlanningExperienceCandidate {
   return {
     activityId: id,
     kind: 'POI',
@@ -33,7 +33,7 @@ function candidateWithOptions(
   lat: number,
   lng: number,
   opts: { durationMinutes?: number; openingHours?: NormalizedOpeningHours },
-): PlanningActivityCandidate {
+): PlanningExperienceCandidate {
   return {
     activityId: id,
     kind: 'POI',
@@ -54,7 +54,7 @@ function candidateWithMobility(
     internalTravelMinutes?: number;
     internalWalkingDistanceMeters?: number;
   },
-): PlanningActivityCandidate {
+): PlanningExperienceCandidate {
   return {
     activityId: id,
     kind: 'POI',
@@ -118,7 +118,6 @@ function context(): PlacementContext {
       accessibilityNeeds: [],
     },
     planningWindow: policy.window,
-    requestedFormats: [],
     travelEstimateProvider: stubTravelEstimateProvider(),
     startDates: [],
   };

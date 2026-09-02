@@ -2,13 +2,13 @@ import {
   sortCandidatesDeterministically,
   selectDailyAnchors,
 } from './daily-planning-candidate-sort.util';
-import { PlanningActivityCandidate } from '../interfaces/daily-planning.interface';
+import { PlanningExperienceCandidate } from '../interfaces/daily-planning.interface';
 
 function candidate(
   id: string,
   semanticScore: number,
   qualityScore?: number,
-): PlanningActivityCandidate {
+): PlanningExperienceCandidate {
   return {
     activityId: id,
     kind: 'POI',

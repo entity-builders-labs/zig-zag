@@ -3,7 +3,7 @@ import {
   OrderingContext,
 } from './daily-planning-ordering.util';
 import {
-  PlanningActivityCandidate,
+  PlanningExperienceCandidate,
   TravelEstimateProvider,
 } from '../interfaces/daily-planning.interface';
 import { TransportationMode } from '../interfaces/tour-generation.interface';
@@ -14,7 +14,7 @@ function candidate(
   lng: number,
   durationMinutes = 60,
   semanticScore = 0.5,
-): PlanningActivityCandidate {
+): PlanningExperienceCandidate {
   return {
     activityId: id,
     kind: 'POI',
@@ -59,7 +59,7 @@ function context(): OrderingContext {
 function mondayHours(
   startMinutesFromMidnight: number,
   endMinutesFromMidnight: number,
-): PlanningActivityCandidate['openingHours'] {
+): PlanningExperienceCandidate['openingHours'] {
   return {
     status: 'known',
     rangesByWeekday: {
