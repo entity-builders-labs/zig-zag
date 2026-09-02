@@ -171,7 +171,7 @@ export class ToursService {
   }
 
   /**
-   * `ownerId` is omitted by trusted internal callers (background activity
+   * `ownerId` is omitted by trusted internal callers (background generation
    * generation, which runs without an HTTP/user context); the HTTP-facing
    * controller always passes it to enforce that tours are private per owner.
    */
@@ -243,7 +243,7 @@ export class ToursService {
         throw new NotFoundException(`Tour with ID ${id} not found`);
       }
       if (error.code === 'P2003') {
-        throw new BadRequestException('Invalid activity reference');
+        throw new BadRequestException('Invalid experience reference');
       }
       if (error instanceof BadRequestException) {
         throw error;

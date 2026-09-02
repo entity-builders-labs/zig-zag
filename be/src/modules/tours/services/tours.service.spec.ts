@@ -17,12 +17,6 @@ describe('ToursService', () => {
       delete: jest.fn(),
       count: jest.fn(),
     },
-    tourActivity: {
-      deleteMany: jest.fn(),
-    },
-    activity: {
-      findMany: jest.fn(),
-    },
     $transaction: jest.fn(),
   };
 
@@ -57,7 +51,7 @@ describe('ToursService', () => {
         id: 'tour-1',
         ownerId: 'user-1',
         metadata: {},
-        activities: [],
+        experiences: [],
       });
 
       await service.create({
@@ -68,7 +62,7 @@ describe('ToursService', () => {
           generationStatus: 'pending',
           generationRequest: { contractVersion: 1 },
         } as any,
-        activities: [],
+        experiences: [],
       } as any);
 
       expect(mockPrismaService.$transaction).toHaveBeenCalledTimes(1);
@@ -89,7 +83,7 @@ describe('ToursService', () => {
       mockPrismaService.tour.create.mockResolvedValue({
         id: 'tour-legacy',
         ownerId: 'user-1',
-        activities: [],
+        experiences: [],
       });
 
       await service.create({
@@ -97,7 +91,7 @@ describe('ToursService', () => {
         name: 'Legacy',
         categories: [],
         metadata: { generationStatus: 'pending' } as any,
-        activities: [],
+        experiences: [],
       } as any);
 
       expect(outboxService.createInTx).not.toHaveBeenCalled();
@@ -203,7 +197,6 @@ describe('ToursService', () => {
       mockPrismaService.tour.findUnique.mockResolvedValue({
         ownerId: 'user-1',
       });
-      mockPrismaService.tourActivity.deleteMany.mockResolvedValue({});
       mockPrismaService.tour.update.mockResolvedValue({ id: 'tour-1' });
 
       await service.update('tour-1', { name: 'New name' }, 'user-1');
@@ -236,7 +229,6 @@ describe('ToursService', () => {
       mockPrismaService.tour.findUnique.mockResolvedValue({
         ownerId: 'user-1',
       });
-      mockPrismaService.tourActivity.deleteMany.mockResolvedValue({});
       mockPrismaService.tour.delete.mockResolvedValue({ id: 'tour-1' });
 
       await service.remove('tour-1', 'user-1');
