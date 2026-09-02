@@ -26,7 +26,6 @@ import { GreedyDailyPlanningSolver } from './services/greedy-daily-planning.solv
 import { ApproximateTravelEstimateProvider } from './services/approximate-travel-estimate.provider';
 import { PlanningCandidateNormalizerService } from './services/planning-candidate-normalizer.service';
 import { TourPlanningFeasibilityValidatorService } from './services/tour-planning-feasibility-validator.service';
-import { ExperienceCatalogService } from './services/experience-catalog.service';
 import { PreferenceInterpreterService } from './services/preference-interpreter.service';
 import {
   DISCOVERY_PROVIDER,
@@ -89,7 +88,6 @@ import { OutboxModule } from '../outbox/outbox.module';
     ApproximateTravelEstimateProvider,
     PlanningCandidateNormalizerService,
     TourPlanningFeasibilityValidatorService,
-    ExperienceCatalogService,
     PreferenceInterpreterService,
     {
       provide: TRAVEL_ESTIMATE_PROVIDER,
@@ -173,7 +171,6 @@ import { OutboxModule } from '../outbox/outbox.module';
     ActivityProposalResolutionService,
     ActivityProposalMaterializationService,
     CompositeGeographicValidationService,
-    ExperienceCatalogService,
     PreferenceInterpreterService,
   ],
 })

@@ -88,7 +88,6 @@ import { TourIntent } from '../interfaces/tour-generation.interface';
 import { ActivityDiscoveryService } from './activity-discovery.service';
 import { CoverageAnalyzer } from './coverage-analyzer.service';
 import { redactTracePayload } from '../utils/trace-redaction.util';
-import { ExperienceCatalogService } from './experience-catalog.service';
 import { PreferenceInterpreterService } from './preference-interpreter.service';
 import { buildSemanticTourQuery } from '../utils/semantic-tour-query-builder.util';
 import {
@@ -150,10 +149,8 @@ export class TourActivityGenerationService {
     >,
     @Optional()
     private readonly outboxService?: OutboxService,
-    @Optional()
-    private readonly experienceCatalog?: ExperienceCatalogService,
-    @Optional()
-    private readonly preferenceInterpreter?: PreferenceInterpreterService,
+  @Optional()
+  private readonly preferenceInterpreter?: PreferenceInterpreterService,
   ) {}
 
   /** Daily planning solver: no new Prisma columns. If a real base date exists, combine it
@@ -1541,9 +1538,7 @@ export class TourActivityGenerationService {
         await tx.tourActivity.deleteMany({
           where: { tourId },
         });
-        if (this.experienceCatalog) {
-          await tx.tourExperience.deleteMany({ where: { tourId } });
-        }
+        await tx.tourExperience.deleteMany({ where: { tourId } });
 
         for (const activity of activities as any[]) {
           const createdTourActivity = await tx.tourActivity.create({
