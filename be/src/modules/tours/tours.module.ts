@@ -83,6 +83,7 @@ import { OutboxModule } from '../outbox/outbox.module';
     TourPlanningFeasibilityValidatorService,
     PreferenceInterpreterService,
     ExperienceDiscoveryPlannerService,
+    ExperienceDiscoveryPlannerService,
     ExperienceProposalResolverService,
     ExperienceCatalogService,
     {

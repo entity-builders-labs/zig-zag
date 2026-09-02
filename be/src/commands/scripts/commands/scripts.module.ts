@@ -9,7 +9,6 @@ import { IntegrationsModule } from '@integrations/integrations.module';
 import { EmbeddingCheckerCommand } from './embedding-checker.command';
 import { ImageAuditCommand } from './image-audit.command';
 import { SeedE2eCompositeCommand } from './seed-e2e-composite.command';
-import { TryDiscoveryCommand } from './try-discovery.command';
 
 @Module({
   imports: [
@@ -25,7 +24,6 @@ import { TryDiscoveryCommand } from './try-discovery.command';
     EmbeddingCheckerCommand,
     ImageAuditCommand,
     SeedE2eCompositeCommand,
-    TryDiscoveryCommand,
   ],
 })
 export class ScriptsModule {}

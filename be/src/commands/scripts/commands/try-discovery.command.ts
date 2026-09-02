@@ -1,6 +1,8 @@
 import { Command, CommandRunner, Option } from 'nest-commander';
 import { Injectable, Logger } from '@nestjs/common';
-import { ActivityDiscoveryService } from '@tours/services/activity-discovery.service';
+import { Inject } from '@nestjs/common';
+import { GROUNDED_SEARCH_PROVIDER, GroundedSearchProvider, DISCOVERY_PROVIDER, SearchGroundedDiscoveryProvider } from '@tours/interfaces/activity-discovery.interface';
+import { ExperienceDiscoveryPlannerService } from '@tours/services/experience-discovery-planner.service';
 
 interface TryDiscoveryOptions {
   destination?: string;
@@ -23,7 +25,11 @@ interface TryDiscoveryOptions {
 export class TryDiscoveryCommand extends CommandRunner {
   private readonly logger = new Logger(TryDiscoveryCommand.name);
 
-  constructor(private readonly discoveryService: ActivityDiscoveryService) {
+  constructor(
+    @Inject(GROUNDED_SEARCH_PROVIDER) private readonly searchProvider: GroundedSearchProvider,
+    @Inject(DISCOVERY_PROVIDER) private readonly discoveryProvider: SearchGroundedDiscoveryProvider,
+    private readonly planner: ExperienceDiscoveryPlannerService,
+  ) {
     super();
   }
 
@@ -42,11 +48,9 @@ export class TryDiscoveryCommand extends CommandRunner {
       `Running discoverBootstrap for "${destination}"${country ? `, ${country}` : ''} — themes: ${themes.join(', ')}`,
     );
 
-    const response = await this.discoveryService.discoverBootstrap(
-      destination,
-      country,
-      themes,
-    );
+    const plan = this.planner.plan({ scope: { destinationName: destination }, requestedThemes: themes, breadth: 'broad', maxCandidates: 8 });
+    const grounded = await this.searchProvider.search({ destinationName: destination, destinationCountry: country, requestedThemes: themes, query: plan.queries[0]?.query || `${destination} tourism` });
+    const response = await this.discoveryProvider.discover({ destinationName: destination, destinationCountry: country, requestedThemes: themes, mode: { type: 'bootstrap', reason: 'new_destination' }, maxProposals: 8 }, grounded);
 
     console.log(JSON.stringify(response, null, 2));
   }
