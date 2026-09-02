@@ -1,11 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
-  GroundedSearchProvider,
-  GroundedSearchRequest,
-  GroundedSearchResult,
-  GroundingEvidence,
-} from '../interfaces/activity-discovery.interface';
+  ExperienceGroundedSearchProvider as GroundedSearchProvider,
+  ExperienceGroundedSearchRequest as GroundedSearchRequest,
+  ExperienceGroundedSearchResult as GroundedSearchResult,
+  ExperienceGroundingEvidence as GroundingEvidence,
+} from '../interfaces/experience-grounding.interface';
 
 interface TavilySearchResult {
   title?: string;
@@ -110,23 +110,14 @@ export class TavilyGroundedSearchService implements GroundedSearchProvider {
   }
 
   private buildFallbackQuery(request: GroundedSearchRequest): string {
-    const destination = [request.destinationName, request.destinationCountry]
-      .filter(Boolean)
-      .join(', ');
+    const destination = request.destinationName;
     const themes = request.requestedThemes.slice(0, 4).join(' ');
     const prefs = request.additionalPreferences
       ? request.additionalPreferences
           .replace(/[^\w\s\u00C0-\u017F]/g, ' ')
           .slice(0, 100)
       : '';
-    const kindKeywords =
-      request.targetKind === 'ROUTE'
-        ? 'calles avenidas paseos peatonales costanera recorrido'
-        : request.targetKind === 'EXPERIENCE'
-          ? 'turismo atractivos que hacer paseos actividades lugares'
-          : 'puntos de interes atractivos';
-
-    return `${destination} ${themes} ${prefs} ${kindKeywords}`
+    return `${destination} ${themes} ${prefs} turismo atractivos experiencias lugares`
       .replace(/\s+/g, ' ')
       .trim();
   }

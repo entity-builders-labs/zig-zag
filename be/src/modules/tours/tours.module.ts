@@ -25,12 +25,7 @@ import { ExperienceDiscoveryPlannerService } from './services/experience-discove
 import { ExperienceProposalResolverService } from './services/experience-proposal-resolver.service';
 import { ExperienceCatalogService } from './services/experience-catalog.service';
 import { ExperienceAcquisitionService } from './services/experience-acquisition.service';
-import {
-  DISCOVERY_PROVIDER,
-  GROUNDED_SEARCH_PROVIDER,
-  GroundedSearchProvider,
-  SearchGroundedDiscoveryProvider,
-} from './interfaces/activity-discovery.interface';
+import { EXPERIENCE_GROUNDED_SEARCH_PROVIDER, ExperienceGroundedSearchProvider } from './interfaces/experience-grounding.interface';
 import { EXPERIENCE_PROPOSAL_RESOLVER } from './interfaces/experience-resolution.interface';
 import {
   DAILY_PLANNING_SOLVER,
@@ -101,13 +96,13 @@ import { OutboxModule } from '../outbox/outbox.module';
       useExisting: TourPlanningFeasibilityValidatorService,
     },
     {
-      provide: GROUNDED_SEARCH_PROVIDER,
+      provide: EXPERIENCE_GROUNDED_SEARCH_PROVIDER,
       useFactory: (
         config: AiConfig,
         serpApi: SerpApiGroundedSearchService,
         groq: GroqGroundedSearchService,
         tavily: TavilyGroundedSearchService,
-      ): GroundedSearchProvider => {
+      ): ExperienceGroundedSearchProvider => {
         const provider = (
           config.groundedSearchProvider ||
           process.env.GROUNDED_SEARCH_PROVIDER ||
@@ -135,12 +130,12 @@ import { OutboxModule } from '../outbox/outbox.module';
       ],
     },
     {
-      provide: DISCOVERY_PROVIDER,
+      provide: 'EXPERIENCE_DISCOVERY_PROVIDER',
       useFactory: (
         config: AiConfig,
         gemini: GeminiDiscoveryProvider,
         groq: GroqDiscoveryProvider,
-      ): SearchGroundedDiscoveryProvider => {
+      ): any => {
         switch (config.discoveryExtractor.provider) {
           case 'gemini':
             return gemini;
