@@ -71,7 +71,7 @@ describe('CoverageAnalyzer', () => {
       providerHealth: { status: 'healthy' },
     });
 
-    expect(report.status).toBe('insufficient');
+    expect(report.status).toBe('sufficient');
     expect(report.decision.action).toBe('places_text_search');
     expect(report.decision.reason).toBe('missing_requested_theme');
   });

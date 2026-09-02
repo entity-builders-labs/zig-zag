@@ -115,6 +115,18 @@ export class CoverageAnalyzer {
       requiresAdditionalDiscovery: false,
     };
 
+    const advisoryThemeGaps = deficits.filter(
+      (deficit) => deficit.reason === 'missing_requested_theme',
+    );
+    if (advisoryThemeGaps.length > 0 && blockingDeficits.length === 0) {
+      decision = {
+        action: 'places_text_search',
+        reason: 'missing_requested_theme',
+        requiresAdditionalDiscovery: false,
+        deficits: advisoryThemeGaps,
+      };
+    }
+
     if (blockingDeficits.length > 0) {
       if (
         eligibleCandidates.length === 0 &&
