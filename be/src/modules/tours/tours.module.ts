@@ -25,7 +25,10 @@ import { ExperienceDiscoveryPlannerService } from './services/experience-discove
 import { ExperienceProposalResolverService } from './services/experience-proposal-resolver.service';
 import { ExperienceCatalogService } from './services/experience-catalog.service';
 import { ExperienceAcquisitionService } from './services/experience-acquisition.service';
-import { EXPERIENCE_GROUNDED_SEARCH_PROVIDER, ExperienceGroundedSearchProvider } from './interfaces/experience-grounding.interface';
+import {
+  EXPERIENCE_GROUNDED_SEARCH_PROVIDER,
+  ExperienceGroundedSearchProvider,
+} from './interfaces/experience-grounding.interface';
 import { EXPERIENCE_PROPOSAL_RESOLVER } from './interfaces/experience-resolution.interface';
 import {
   DAILY_PLANNING_SOLVER,
@@ -74,7 +77,6 @@ import { OutboxModule } from '../outbox/outbox.module';
     PlanningCandidateNormalizerService,
     TourPlanningFeasibilityValidatorService,
     PreferenceInterpreterService,
-    ExperienceDiscoveryPlannerService,
     ExperienceDiscoveryPlannerService,
     ExperienceProposalResolverService,
     ExperienceCatalogService,
