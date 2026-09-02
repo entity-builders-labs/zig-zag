@@ -6,6 +6,8 @@ import {
   PlanningFeasibilityResult,
   TourPlanningFeasibilityValidator,
 } from '../interfaces/daily-planning.interface';
+import { resolveWeekday } from '../utils/daily-planning-placement.util';
+import { isOpenDuring } from '../utils/normalized-opening-hours.util';
 
 /**
  * Independent safety-net cross-check for a `DailyPlanningSolution`.
@@ -14,10 +16,6 @@ import {
  * plain data on the solution and its input — it must never call into the
  * solver's own hard-constraint/placement/scoring logic and must never treat
  * the solution's own metadata as evidence of validity.
- *
- * This validator checks only physical and temporal feasibility. Experience
- * preference satisfaction is intentionally evaluated elsewhere and never
- * becomes a hard trait gate.
  */
 @Injectable()
 export class TourPlanningFeasibilityValidatorService
@@ -41,6 +39,7 @@ export class TourPlanningFeasibilityValidatorService
     for (const day of solution.days) {
       let cursor = input.planningWindow.startMinutesFromMidnight;
       let dayWalkingMeters = 0;
+      const weekday = resolveWeekday(input.startDates, day.dayNumber);
 
       for (const experience of day.experiences) {
         const experienceId = experience.experienceId;
@@ -71,6 +70,22 @@ export class TourPlanningFeasibilityValidatorService
           continue;
         }
 
+        if (
+          weekday !== undefined &&
+          candidate.openingHours &&
+          !isOpenDuring(
+            candidate.openingHours,
+            weekday,
+            experience.startMinutesFromMidnight,
+            experience.endMinutesFromMidnight,
+          )
+        ) {
+          issues.push({
+            code: 'OPENING_HOURS_INCOMPATIBLE',
+            message: `Day ${day.dayNumber}: Experience ${experience.experienceId} is scheduled outside its known opening hours.`,
+          });
+        }
+
         if (experience.travelFromPrevious) {
           dayWalkingMeters += experience.travelFromPrevious.walkingDistanceMeters;
           if (
@@ -80,7 +95,7 @@ export class TourPlanningFeasibilityValidatorService
           ) {
             issues.push({
               code: 'DISALLOWED_TRAVEL_MODE',
-            message: `Day ${day.dayNumber}: the leg into Experience ${experience.experienceId} used a disallowed transportation mode.`,
+              message: `Day ${day.dayNumber}: the leg into Experience ${experience.experienceId} used a disallowed transportation mode.`,
             });
           }
           if (
@@ -89,7 +104,7 @@ export class TourPlanningFeasibilityValidatorService
           ) {
             issues.push({
               code: 'MAX_CONTINUOUS_WALKING_EXCEEDED',
-            message: `Day ${day.dayNumber}: the leg into Experience ${experience.experienceId} exceeds the continuous walking limit.`,
+              message: `Day ${day.dayNumber}: the leg into Experience ${experience.experienceId} exceeds the continuous walking limit.`,
             });
           }
         }
