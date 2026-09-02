@@ -1,4 +1,4 @@
-import { Module, forwardRef } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { ToursController } from './controllers/tours.controller';
 import { ToursService } from './services/tours.service';
 import { TourGenerationService } from './services/tour-generation.service';
@@ -39,7 +39,6 @@ import {
 } from './interfaces/daily-planning.interface';
 import aiConfig, { AiConfig } from '../../shared/ai/ai.config';
 
-import { ActivitiesModule } from '../activities/activities.module';
 import { AiModule } from '../../shared/ai/ai.module';
 import { PrismaModule } from '../../core/database/database.module';
 import { IntegrationsModule } from '../integrations/integrations.module';
@@ -50,7 +49,6 @@ import { OutboxModule } from '../outbox/outbox.module';
   imports: [
     PrismaModule,
     OutboxModule,
-    forwardRef(() => ActivitiesModule),
     AiModule,
     IntegrationsModule,
     AuthModule,
