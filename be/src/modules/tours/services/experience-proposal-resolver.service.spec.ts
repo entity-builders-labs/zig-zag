@@ -16,8 +16,8 @@ describe('ExperienceProposalResolverService', () => {
 
   it('uses destinationBoundary from the canonical request object', async () => {
     const osmPlaces = {
-      findStreetsWithin: jest.fn().mockResolvedValue([]),
-      findPoisWithin: jest.fn().mockResolvedValue([
+      lookupStreetsWithin: jest.fn().mockResolvedValue({ status: 'success', value: [] }),
+      lookupPoisWithin: jest.fn().mockResolvedValue({ status: 'success', value: [
         {
           id: 'osm:node:10',
           name: 'Museum',
@@ -26,7 +26,7 @@ describe('ExperienceProposalResolverService', () => {
           geometry: { type: 'Point', coordinates: [-58.45, -34.55] },
           tags: { tourism: 'museum' },
         },
-      ]),
+      ] }),
     };
     const catalog = {
       upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-10' }),
@@ -70,7 +70,7 @@ describe('ExperienceProposalResolverService', () => {
       ],
     });
 
-    expect(osmPlaces.findPoisWithin).toHaveBeenCalledWith(boundary);
+    expect(osmPlaces.lookupPoisWithin).toHaveBeenCalledWith(boundary);
     expect(geographicValidator.validateBatch).toHaveBeenCalledWith(
       expect.objectContaining({ resolved: expect.any(Array) }),
       boundary,
@@ -87,5 +87,25 @@ describe('ExperienceProposalResolverService', () => {
     await expect(service.resolve({ proposals: [], destinationBoundary: undefined })).rejects.toThrow(
       'Experience resolution requires destinationBoundary',
     );
+  });
+
+  it('distinguishes an OSM provider failure from an empty query', async () => {
+    const service = new ExperienceProposalResolverService(
+      {
+        lookupStreetsWithin: jest.fn().mockResolvedValue({ status: 'success', value: [] }),
+        lookupPoisWithin: jest.fn().mockResolvedValue({ status: 'failed', value: [], failureReason: '504' }),
+      } as any,
+      {} as any,
+      { validateBatch: jest.fn().mockReturnValue({ results: [], acceptedCount: 0, rejectedCount: 0 }) } as any,
+    );
+    const result = await service.resolve({
+      destinationBoundary: boundary,
+      proposals: [{
+        name: 'Visit Museum', themes: [], traits: [], componentHints: undefined as any,
+        entityHints: [{ key: 'museum', name: 'Museum', role: 'venue', expectedType: 'Museum', required: true, evidenceKeys: [] }],
+        evidenceKeys: [], shortReason: 'test',
+      }],
+    });
+    expect(result.resolved[0].rejectionReasons).toContain('OSM_PROVIDER_FAILED');
   });
 });

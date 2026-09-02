@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { GeoEntityKind } from '@prisma/client';
-import { OsmCandidate, OsmPlacesService } from '@integrations/osm/services/osm-places.service';
+import { OsmCandidate, OsmPlacesService, OsmLookupResult } from '@integrations/osm/services/osm-places.service';
 import { ExperienceCatalogService } from './experience-catalog.service';
 import { CompositeGeographicValidationService } from './composite-geographic-validation.service';
 import {
@@ -39,15 +39,20 @@ export class ExperienceProposalResolverService
     if (!boundary) {
       throw new Error('Experience resolution requires destinationBoundary');
     }
-    const [streets, pois] = boundary
-      ? await Promise.all([
-          this.osmPlaces.findStreetsWithin(boundary),
-          this.osmPlaces.findPoisWithin(boundary),
-        ])
-      : [[], []];
+    const [streetLookup, poiLookup] = await Promise.all([
+      this.osmPlaces.lookupStreetsWithin(boundary),
+      this.osmPlaces.lookupPoisWithin(boundary),
+    ]);
+    const streets = streetLookup.value;
+    const pois = poiLookup.value;
 
     const candidates = await Promise.all(
-      proposals.map((proposal: any) => this.resolveProposal(proposal, boundary, streets, pois)),
+      proposals.map((proposal: any) =>
+        this.resolveProposal(proposal, boundary, streets, pois, {
+          streets: streetLookup,
+          pois: poiLookup,
+        }),
+      ),
     );
     const validation = this.geographicValidator.validateBatch(
       { resolved: candidates.filter((item) => item.status === 'accepted') } as any,
@@ -85,13 +90,25 @@ export class ExperienceProposalResolverService
     boundary: OsmCandidate | undefined,
     streets: OsmCandidate[],
     pois: OsmCandidate[],
+    osmLookups: {
+      streets: OsmLookupResult<OsmCandidate[]>;
+      pois: OsmLookupResult<OsmCandidate[]>;
+    },
   ) {
     const entities: ResolvedGeoEntity[] = [];
     for (const hint of proposal?.componentHints ?? proposal?.entityHints ?? []) {
       const pool = hint.expectedKind === 'ROUTE' || hint.role === 'route' ? streets : hint.expectedKind === 'AREA' || hint.role === 'area' ? (boundary ? [boundary] : []) : pois;
       const candidate = this.matchCandidate(hint.name, pool);
       if (!candidate) {
-        entities.push({ hintKey: hint.key, hintName: hint.name, provider: 'openstreetmap', externalId: '', role: hint.role, status: 'unresolved', reason: 'no_osm_match' });
+        const lookup = hint.expectedKind === 'ROUTE' || hint.role === 'route'
+          ? osmLookups.streets
+          : osmLookups.pois;
+        const reason = lookup.status === 'failed'
+          ? 'OSM_PROVIDER_FAILED'
+          : lookup.value.length === 0
+            ? 'OSM_QUERY_EMPTY'
+            : 'NO_OSM_MATCH';
+        entities.push({ hintKey: hint.key, hintName: hint.name, provider: 'openstreetmap', externalId: '', role: hint.role, status: 'unresolved', reason });
         continue;
       }
       const kind = hint.expectedKind === 'ROUTE' ? GeoEntityKind.ROUTE : hint.expectedKind === 'AREA' ? GeoEntityKind.AREA : GeoEntityKind.PLACE;
@@ -103,7 +120,15 @@ export class ExperienceProposalResolverService
     const unresolvedRequired = required.some((hint: any) => !entities.find((entity) => entity.hintKey === hint.key && entity.status === 'resolved'));
     const resolvedEntities = entities.filter((entity) => entity.status === 'resolved');
     if (resolvedEntities.length === 0 || unresolvedRequired) {
-      return { proposal, status: 'rejected' as const, resolvedEntities: entities, rejectionReasons: [resolvedEntities.length === 0 ? 'no_osm_match' : 'unresolved_required_component'] };
+      return { proposal, status: 'rejected' as const, resolvedEntities: entities, rejectionReasons: [
+        resolvedEntities.length === 0
+          ? entities.some((entity) => entity.reason === 'OSM_PROVIDER_FAILED')
+            ? 'OSM_PROVIDER_FAILED'
+            : entities.some((entity) => entity.reason === 'OSM_QUERY_EMPTY')
+              ? 'OSM_QUERY_EMPTY'
+              : 'NO_OSM_MATCH'
+          : 'UNRESOLVED_REQUIRED_COMPONENT',
+      ] };
     }
     return { proposal, status: 'accepted' as const, resolvedEntities: entities, rejectionReasons: [] as string[] };
   }
