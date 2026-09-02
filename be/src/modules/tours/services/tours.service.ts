@@ -28,7 +28,7 @@ export class ToursService {
    * scheduling its generation.
    */
   async create(createTourDto: CreateTourDto) {
-    const { activities: _removedActivities, ...tourData } = createTourDto;
+    const tourData = createTourDto;
 
     const tourDataClean: any = {
       ownerId: tourData.ownerId,
@@ -207,7 +207,7 @@ export class ToursService {
   }
 
   async update(id: string, updateTourDto: UpdateTourDto, ownerId: string) {
-    const { activities: _removedActivities, ...tourData } = updateTourDto;
+    const tourData = updateTourDto;
 
     try {
       const existing = await this.prisma.tour.findUnique({
