@@ -820,6 +820,29 @@ export class TourActivityGenerationService {
                               r.status === 'accepted' && r.persistedActivityId,
                           )
                           .map((r) => r.persistedActivityId as string);
+                      const persistedExperienceIds = resolutionResult.resolved
+                        .filter((r: any) => r.status === 'accepted' && r.experienceId)
+                        .map((r: any) => r.experienceId as string);
+                      if (persistedExperienceIds.length > 0) {
+                        const experiences = await this.prisma.experience.findMany({
+                          where: { id: { in: persistedExperienceIds }, status: 'VERIFIED' },
+                          include: { components: { include: { geoEntity: true } } },
+                        });
+                        experiences.forEach((experience: any) => {
+                          allEligibleActivitiesById.set(experience.id, {
+                            id: experience.id,
+                            name: experience.canonicalName,
+                            latitude: experience.latitude ?? experience.components[0]?.geoEntity.latitude,
+                            longitude: experience.longitude ?? experience.components[0]?.geoEntity.longitude,
+                            kind: ActivityKind.EXPERIENCE,
+                            type: 'experience',
+                            duration: (experience.durationMinutes ?? 120) / 60,
+                            metadata: { source: 'experience_catalog', experienceId: experience.id },
+                          });
+                          candidateActivitiesById.set(experience.id, allEligibleActivitiesById.get(experience.id));
+                          discoveryResolvedActivityIds.add(experience.id);
+                        });
+                      }
                       if (persistedDiscoveryActivityIds.length > 0) {
                         const newlyResolvedActivities =
                           await this.activitiesService.findManyByIds(
@@ -1221,6 +1244,30 @@ export class TourActivityGenerationService {
               const persistedDiscoveryActivityIds = resolutionResult.resolved
                 .filter((r) => r.status === 'accepted' && r.persistedActivityId)
                 .map((r) => r.persistedActivityId as string);
+              const persistedExperienceIds = resolutionResult.resolved
+                .filter((r: any) => r.status === 'accepted' && r.experienceId)
+                .map((r: any) => r.experienceId as string);
+              if (persistedExperienceIds.length > 0) {
+                const experiences = await this.prisma.experience.findMany({
+                  where: { id: { in: persistedExperienceIds }, status: 'VERIFIED' },
+                  include: { components: { include: { geoEntity: true } } },
+                });
+                experiences.forEach((experience: any) => {
+                  const candidate = {
+                    id: experience.id,
+                    name: experience.canonicalName,
+                    latitude: experience.latitude ?? experience.components[0]?.geoEntity.latitude,
+                    longitude: experience.longitude ?? experience.components[0]?.geoEntity.longitude,
+                    kind: ActivityKind.EXPERIENCE,
+                    type: 'experience',
+                    duration: (experience.durationMinutes ?? 120) / 60,
+                    metadata: { source: 'experience_catalog', experienceId: experience.id },
+                  };
+                  allEligibleActivitiesById.set(experience.id, candidate);
+                  candidateActivitiesById.set(experience.id, candidate);
+                  discoveryResolvedActivityIds.add(experience.id);
+                });
+              }
               if (persistedDiscoveryActivityIds.length > 0) {
                 const newlyResolvedActivities =
                   await this.activitiesService.findManyByIds(
@@ -1484,6 +1531,7 @@ export class TourActivityGenerationService {
         photos: any;
         metadata: any;
       }> = [];
+      let experienceEntities: Array<any> = [];
 
       if (activityIds.length > 0) {
         activityEntities = await this.prisma.activity.findMany({
@@ -1499,6 +1547,10 @@ export class TourActivityGenerationService {
             photos: true,
             metadata: true,
           },
+        });
+        experienceEntities = await this.prisma.experience.findMany({
+          where: { id: { in: activityIds }, status: 'VERIFIED' },
+          include: { components: { include: { geoEntity: true } } },
         });
 
         kindByActivityId = new Map(
@@ -1541,6 +1593,35 @@ export class TourActivityGenerationService {
         await tx.tourExperience.deleteMany({ where: { tourId } });
 
         for (const activity of activities as any[]) {
+          const experience = experienceEntities.find(
+            (candidate) => candidate.id === activity.activityId,
+          );
+          if (experience) {
+            const snapshot = await tx.tourExperience.create({
+              data: {
+                tourId,
+                experienceId: experience.id,
+                dayNumber: activity.dayNumber,
+                order: activity.order,
+                startTime: activity.startTime,
+                duration: activity.duration,
+                notes: activity.notes,
+                components: {
+                  create: experience.components.map((component: any, index: number) => ({
+                    geoEntityId: component.geoEntityId,
+                    order: component.order ?? index + 1,
+                    role: component.role,
+                    required: component.required,
+                    name: component.geoEntity.name,
+                    latitude: component.geoEntity.latitude,
+                    longitude: component.geoEntity.longitude,
+                    geometry: component.geoEntity.geometry,
+                  })),
+                },
+              },
+            });
+            continue;
+          }
           const createdTourActivity = await tx.tourActivity.create({
             data: {
               tourId,
