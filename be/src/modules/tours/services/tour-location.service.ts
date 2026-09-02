@@ -1,19 +1,12 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@core/database/prisma.service';
-import { generateNearbyTourPrompt } from '../prompts/nearby-tour.prompt';
-import { TourGenerationService } from './tour-generation.service';
 
 @Injectable()
 export class TourLocationService {
-  private readonly logger = new Logger(TourLocationService.name);
-
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly tourGenerationService: TourGenerationService,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   /**
-   * Get nearby tours matching a category, or generate if none found
+   * Get nearby tours matching a category.
    */
   async getNearbyTours(
     latitude: number,
@@ -87,36 +80,8 @@ export class TourLocationService {
       take: 10,
     });
 
-    // 2. If we found enough tours, return them
-    if (nearbyTours.length >= 3) {
-      return nearbyTours;
-    }
-
-    // 3. If not enough tours, generate a new one using AI
-    // We'll generate one tour to add to the collection
-    try {
-      const prompt = generateNearbyTourPrompt(category);
-
-      // Generate tour (this saves it to DB)
-      const generatedTour = await this.tourGenerationService.generateTour(
-        prompt,
-        {
-          latitude,
-          longitude,
-          radius: radius * 2, // Search slightly wider for activities
-          includeExistingActivities: true,
-        },
-      );
-
-      // Add to our results
-      return [...nearbyTours, generatedTour];
-    } catch (error) {
-      this.logger.error(
-        `Failed to generate nearby tour: ${error.message}`,
-        error.stack,
-      );
-      // If generation fails, just return what we found (if any)
-      return nearbyTours;
-    }
+    // Nearby lookup is read-only. New tours are created exclusively through
+    // the canonical wizard request and its async outbox pipeline.
+    return nearbyTours;
   }
 }
