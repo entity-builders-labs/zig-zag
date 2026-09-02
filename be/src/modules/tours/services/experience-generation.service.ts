@@ -172,7 +172,6 @@ export class ExperienceGenerationService {
     destinationName: string,
     interests: string[],
     deficits: any[],
-    requestedFormats: string[],
     additionalPreferences?: string,
   ): Promise<any> {
     const targetKind = deficits.find((deficit) => deficit.experienceFormat)?.experienceFormat;
@@ -192,7 +191,6 @@ export class ExperienceGenerationService {
       const grounded = await this.groundedSearchProvider.search({
         destinationName,
         requestedThemes: interests,
-        requestedExperienceFormats: requestedFormats,
         additionalPreferences,
         query: plannedQuery.query,
       });
@@ -203,7 +201,7 @@ export class ExperienceGenerationService {
       const extracted = typeof nativeExtractor === 'function'
         ? await nativeExtractor.call(this.discoveryProvider, request, grounded)
         : await this.discoveryProvider.discover(
-            { destinationName, requestedThemes: interests, requestedExperienceFormats: requestedFormats, additionalPreferences, mode: { type: 'gap_fill', deficits }, maxProposals: 8 },
+            { destinationName, requestedThemes: interests, additionalPreferences, mode: { type: 'gap_fill', deficits }, maxProposals: 8 },
             grounded,
           );
       proposals.push(...(extracted.candidates ?? extracted.proposals ?? []));
@@ -263,7 +261,6 @@ export class ExperienceGenerationService {
         metadata: activity.metadata,
       })),
       requestedThemes: request.intent.interests,
-      requestedExperienceFormats: [],
       days: request.days,
       explorationStyle: request.intent.explorationStyle,
       travelPace: request.mobility.travelPace,
@@ -850,7 +847,6 @@ export class ExperienceGenerationService {
                       request.destination.label,
                       request.intent.interests,
                       deficits,
-                      [],
                       request.intent.additionalPreferences,
                     );
                   traceSteps.push(buildDiscoveryStep(discoveryResult));
@@ -1258,7 +1254,6 @@ export class ExperienceGenerationService {
                 request.destination.label,
                 request.intent.interests,
                 remainingStructuralDeficits,
-                [],
                 request.intent.additionalPreferences,
               );
             traceSteps.push(buildDiscoveryStep(discoveryResult));

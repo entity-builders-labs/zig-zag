@@ -742,7 +742,7 @@ export function buildDiscoveryStep(
       source: 'discovery' as const,
       id: p.name,
       name: p.name,
-      detail: `${p.kind} · ${p.themes.join(', ')} · ${p.suggestedDurationMinutes} min · ${p.shortReason}`,
+      detail: `${p.themes?.join(', ') || 'sin themes'} · ${p.suggestedDurationMinutes ?? 'duración desconocida'} min · ${p.shortReason}`,
       offered: false,
       chosen: false,
     })),
