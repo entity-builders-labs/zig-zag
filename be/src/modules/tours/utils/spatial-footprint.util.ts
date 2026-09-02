@@ -5,8 +5,9 @@ import {
   SpatialFootprint,
 } from '../interfaces/daily-planning.interface';
 
-type ComponentLike = {
+export type ComponentLike = {
   required?: boolean;
+  order?: number | null;
   role?: string | null;
   latitude?: number | null;
   longitude?: number | null;
@@ -63,6 +64,51 @@ function centroidOf(points: Coordinate[]): Coordinate | undefined {
   };
 }
 
+function componentFootprint(component: ComponentLike): SpatialFootprint | undefined {
+  const entity = component.geoEntity ?? component;
+  const geometry = entity.geometry;
+  const points = geometryCoordinates(geometry);
+  if (geometry?.type === 'LineString' && points.length > 0) {
+    return {
+      type: 'LINE',
+      centroid: centroidOf(points)!,
+      bounds: boundsOf(points),
+      geometry: points,
+    };
+  }
+  if (
+    (geometry?.type === 'Polygon' || geometry?.type === 'MultiPolygon') &&
+    points.length > 0
+  ) {
+    return {
+      type: 'AREA',
+      centroid: centroidOf(points)!,
+      bounds: boundsOf(points),
+    };
+  }
+  if (validCoordinate(entity.latitude, entity.longitude)) {
+    return buildPointFootprint(entity.latitude, entity.longitude as number);
+  }
+  if (points.length > 0) {
+    return buildPointFootprint(points[0].lat, points[0].lng);
+  }
+  return undefined;
+}
+
+export function buildOrderedComponentFootprints(
+  components: ComponentLike[] = [],
+): SpatialFootprint[] {
+  return [...components]
+    .filter((component) => component.required !== false)
+    .sort(
+      (left, right) =>
+        (left.order ?? Number.MAX_SAFE_INTEGER) -
+        (right.order ?? Number.MAX_SAFE_INTEGER),
+    )
+    .map(componentFootprint)
+    .filter((footprint): footprint is SpatialFootprint => !!footprint);
+}
+
 /**
  * Planner-native footprint for a persisted Experience.
  *
@@ -88,18 +134,8 @@ export function buildExperienceFootprint(input: {
         'LineString',
   );
   if (canonicalRoute) {
-    const points = geometryCoordinates(
-      canonicalRoute.geoEntity?.geometry ?? canonicalRoute.geometry,
-    );
-    const centroid = centroidOf(points);
-    if (centroid) {
-      return {
-        type: 'LINE',
-        centroid,
-        bounds: boundsOf(points),
-        geometry: points,
-      };
-    }
+    const footprint = componentFootprint(canonicalRoute);
+    if (footprint?.type === 'LINE') return footprint;
   }
 
   const canonicalArea = components.find((component) => {
@@ -110,22 +146,13 @@ export function buildExperienceFootprint(input: {
     );
   });
   if (canonicalArea) {
-    const points = geometryCoordinates(
-      canonicalArea.geoEntity?.geometry ?? canonicalArea.geometry,
-    );
-    const centroid = centroidOf(points);
-    if (centroid) {
-      return { type: 'AREA', centroid, bounds: boundsOf(points) };
-    }
+    const footprint = componentFootprint(canonicalArea);
+    if (footprint?.type === 'AREA') return footprint;
   }
 
-  const componentPoints = components.flatMap((component) => {
-    const entity = component.geoEntity ?? component;
-    if (validCoordinate(entity.latitude, entity.longitude)) {
-      return [{ lat: entity.latitude, lng: entity.longitude as number }];
-    }
-    return geometryCoordinates(entity.geometry);
-  });
+  const componentPoints = buildOrderedComponentFootprints(components).map(
+    (footprint) => footprint.centroid,
+  );
   const componentCentroid = centroidOf(componentPoints);
   if (componentCentroid) {
     return componentPoints.length === 1
