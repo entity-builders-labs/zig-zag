@@ -8,7 +8,6 @@ import { ToursModule } from '@tours/tours.module';
 import { IntegrationsModule } from '@integrations/integrations.module';
 import { EmbeddingCheckerCommand } from './embedding-checker.command';
 import { ImageAuditCommand } from './image-audit.command';
-import { GenerateTemplatesCommand } from './generate-templates.command';
 import { SeedE2eCompositeCommand } from './seed-e2e-composite.command';
 import { TryDiscoveryCommand } from './try-discovery.command';
 
@@ -25,7 +24,6 @@ import { TryDiscoveryCommand } from './try-discovery.command';
     MetadataCheckerCommand,
     EmbeddingCheckerCommand,
     ImageAuditCommand,
-    GenerateTemplatesCommand,
     SeedE2eCompositeCommand,
     TryDiscoveryCommand,
   ],
