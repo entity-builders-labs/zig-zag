@@ -9,145 +9,6 @@ datasource db {
   extensions = [vector]
 }
 
-model Activity {
-  id          String  @id @default(uuid())
-  name        String
-  description String?
-
-  // Core fields - all optional for flexibility
-  type         String?
-  difficulty   Difficulty?
-  duration     Float?
-  price        Float?
-  maxGroupSize Int?
-
-  // Geolocation - optional but recommended
-  latitude  Float?
-  longitude Float?
-  location  Json? // Flexible location data
-  address   String? // Simple address string
-
-  // What this Activity represents structurally: a single real-world point
-  // (POI, the historical default), a multi-stop composite experience
-  // (NEIGHBORHOOD_WALK/EXPERIENCE), a themed path whose own trace is the
-  // content (ROUTE), or a geographic container (AREA). Orthogonal to `type`/
-  // `knownActivityTypeName`, which classify what kind of place a POI is
-  // (museum, restaurant, ...) — kind classifies structural shape, not
-  // subject matter.
-  kind ActivityKind @default(POI)
-
-  // Only meaningful for variants (kind NEIGHBORHOOD_WALK/ROUTE/EXPERIENCE) —
-  // null for POI/AREA. Small fixed vocabulary for now (see enum comment);
-  // deliberately not free text so variant identity (see externalId below)
-  // stays stable and dedupe-able.
-  variantTheme VariantTheme?
-
-  // Real OSM geometry, never authored by the LLM. Two scoped uses only:
-  // Polygon/MultiPolygon when kind=AREA (the neighborhood boundary), and
-  // LineString when kind=ROUTE and the specific trace is the content of the
-  // experience (e.g. "walk through Caminito"). Never used for the merely
-  // incidental path between stops of a NEIGHBORHOOD_WALK/EXPERIENCE — that
-  // stays client-side (fetchWalkingRoute), computed on render, not stored.
-  boundary Json?
-
-  // true for variants pre-generated and validated offline (see the
-  // generate-templates command), as opposed to the ones assembled ad hoc
-  // during a live tour generation.
-  isCurated Boolean @default(false)
-
-  // Generic "retired from circulation, not physically deleted" flag. Set on
-  // a POI being taken out of the catalog, or on a variant that falls below
-  // its minimum viable waypoint count as a consequence (see
-  // CompositeActivityService.removeWaypointFromActiveVariants). Archived
-  // activities are excluded from discovery surfaces (ActivitiesService
-  // default query) but not deleted — tours that already reference them keep
-  // showing their own TourActivityWaypoint snapshot unaffected.
-  isArchived Boolean @default(false)
-
-  // Nullable at the schema level (a POI/AREA has no family), but every
-  // Activity created with a variant kind is always created with familyId
-  // resolved — enforced in CompositeActivityService, not here. Matters
-  // because Postgres does not enforce uniqueness across rows with
-  // familyId=NULL, so a variant left without a family would bypass the
-  // dedupe the externalId scheme below relies on.
-  familyId String?
-  family   ActivityFamily? @relation("FamilyVariants", fields: [familyId], references: [id], onDelete: SetNull)
-
-  // Reverse of ActivityFamily.areaActivityId — the families this Activity
-  // (when kind=AREA) is the geographic container for.
-  areaFamilies ActivityFamily[] @relation("AreaFamilies")
-
-  // Source relationship - optional (AI-generated might not have source)
-  sourceId   String?
-  source     Source? @relation(fields: [sourceId], references: [id], onDelete: SetNull)
-  externalId String? // Optional for AI-generated activities
-
-  // Google Places additional fields
-  rating           Float?
-  ratingCount      Int?
-  formattedAddress String?
-  phoneNumber      String?
-  website          String?
-  businessStatus   String?
-  priceLevel       Int?
-  photos           Json?
-  openingHours     Json?
-
-  // Media enrichment status
-  mediaStatus    MediaStatus @default(PENDING)
-  mediaUpdatedAt DateTime?
-  mediaError     String?
-
-  // Flexible metadata - store anything from AI prompts
-  metadata Json? // Store AI-generated data, tags, recommendations, etc.
-
-  // Semantic search embedding (pgvector). Nullable: not every activity has
-  // embeddable metadata. The HNSW index on this column is raw-SQL-only (see
-  // the add_pgvector_embedding migration) and invisible here — always run
-  // `prisma migrate dev --create-only` and check for a stray
-  // `DROP INDEX activity_embedding_hnsw_idx` before applying future migrations.
-  embedding                Unsupported("vector(256)")?
-  // Identity of the exact provider/model/document contract that produced the
-  // vector above. A vector is queryable only when every field matches the
-  // active embedding configuration. Switching providers/models is therefore
-  // an explicit full-index rebuild, never an implicit mixed-vector fallback.
-  embeddingProvider        String?
-  embeddingModel           String?
-  embeddingDimensions      Int?
-  embeddingDocumentVersion Int?
-  embeddedAt               DateTime?
-
-  // Timestamps
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Optional relationships
-  knownActivityTypeName String?
-  KnownActivityType     KnownActivityType?     @relation(fields: [knownActivityTypeName], references: [name], onDelete: SetNull)
-  TourActivity          TourActivity[]
-  tourWaypointSnapshots TourActivityWaypoint[]
-
-  sourceRelations ActivityRelationship[] @relation("SourceActivities")
-  targetRelations ActivityRelationship[] @relation("TargetActivities")
-
-  // Ordered waypoints belonging to this Activity when it's a composite
-  // (kind NEIGHBORHOOD_WALK/ROUTE/EXPERIENCE) — its current content.
-  compositeWaypoints ActivityWaypoint[] @relation("CompositeWaypoints")
-  // Composites this Activity is used as a waypoint of, when this Activity
-  // itself is a real, recommendable stop (POI or ROUTE) — never the other
-  // way for a purely connective, non-notable street, which is never
-  // persisted at all.
-  memberOfComposites ActivityWaypoint[] @relation("WaypointOfComposite")
-
-  @@unique([sourceId, externalId])
-  @@index([latitude, longitude]) // For location queries
-  @@index([sourceId])
-  @@index([kind])
-  @@index([familyId])
-  @@index([embeddingProvider, embeddingModel, embeddingDimensions, embeddingDocumentVersion])
-  @@map("activity")
-}
-
 // V2 physical geography primitive. This is deliberately independent from
 // Experience identity: a provider identity belongs to a GeoEntity, while an
 // Experience describes what a traveller can do with one or more entities.
@@ -283,59 +144,12 @@ enum ExperienceStatus {
   ARCHIVED
 }
 
-enum ActivityKind {
-  POI
-  NEIGHBORHOOD_WALK
-  ROUTE
-  AREA
-  EXPERIENCE
-}
-
 // Small fixed vocabulary on purpose — not free text, so variant identity
-// (Activity.externalId = variant:${familyId}:${variantTheme}) stays stable
-// and dedupe-able. Adding a value requires a migration (ALTER TYPE ... ADD
-// VALUE); if the vocabulary grows a lot, migrating to a lookup table like
-// KnownActivityType is the natural next step, not done here.
-enum VariantTheme {
-  HISTORY
-  ART
-  FOOD
-  NATURE
-  ARCHITECTURE
-  NIGHTLIFE
-  SHOPPING
-  FAMILY
-  TANGO
-  PHOTOGRAPHY
-  QUICK
-  DEEP_DIVE
-}
-
 // The conceptual container behind a set of themed variants for one area
 // (e.g. "San Telmo Walk" behind "San Telmo Historic Walk", "San Telmo Art
 // Walk", ...) — never shown to the user directly. @@unique([areaActivityId,
 // kind]) keeps repeated generate-templates runs (or concurrent live
 // generations) from creating duplicate families for the same area.
-model ActivityFamily {
-  id             String       @id @default(uuid())
-  areaActivityId String // FK to the Activity with kind=AREA that contains this family
-  name           String // e.g. "San Telmo Walk"
-  kind           ActivityKind // the kind its variants typically have, e.g. NEIGHBORHOOD_WALK
-
-  areaActivity Activity   @relation("AreaFamilies", fields: [areaActivityId], references: [id], onDelete: Cascade)
-  variants     Activity[] @relation("FamilyVariants")
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([areaActivityId, kind])
-  @@map("activity_family")
-}
-
-// Self-referential, ordered join: the current content of a composite
-// Activity. Deliberately separate from ActivityRelationship (pairwise
-// SEQUENTIAL/SIMILAR/COMPLEMENTARY scoring between independent activities)
-// — this is ordered composition, not a scored relation.
 //
 // onDelete is asymmetric on purpose: compositeActivity is Cascade (deleting
 // the whole variant cleans up its own waypoints), but waypointActivity is
@@ -344,72 +158,7 @@ model ActivityFamily {
 // CompositeActivityService.mergeWaypointIdentity /
 // removeWaypointFromActiveVariants for the explicit path required to
 // operate on a referenced POI.
-model ActivityWaypoint {
-  id                  String  @id @default(uuid())
-  compositeActivityId String
-  waypointActivityId  String
-  order               Int
-  isRequired          Boolean @default(true) // false = optional stop, can be excluded at the instance level
-  role                String? // free-text label, e.g. "start"/"viewpoint"/"end"
-
-  compositeActivity Activity @relation("CompositeWaypoints", fields: [compositeActivityId], references: [id], onDelete: Cascade)
-  waypointActivity  Activity @relation("WaypointOfComposite", fields: [waypointActivityId], references: [id], onDelete: Restrict)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([compositeActivityId, waypointActivityId])
-  @@unique([compositeActivityId, order])
-  @@map("activity_waypoint")
-}
-
 // A snapshot of which waypoints of a variant were actually used for one
-// specific TourActivity, taken whenever a TourActivity links an Activity
-// with kind != POI — always, not only on an explicit user exclusion. Since
-// a variant's own ActivityWaypoint set is mutable content, this is what
-// keeps a generated tour stable over time even if the shared variant
-// changes later. No separate "ActivityInstance" table is needed —
-// TourActivity already is that instance (it has its own
-// startTime/duration/notes/dayNumber); this table is just its waypoint
-// snapshot.
-//
-// Also Restrict, for the same reason as ActivityWaypoint but more acutely:
-// if this were Cascade, deleting a POI would silently break the snapshot
-// of tours already generated in the past — exactly what this table exists
-// to prevent. CompositeActivityService.mergeWaypointIdentity /
-// removeWaypointFromActiveVariants must account for rows here too, not
-// only in ActivityWaypoint — a POI can appear in many historical tours'
-// snapshots, not just in its variant's live content.
-model TourActivityWaypoint {
-  id                 String @id @default(uuid())
-  tourActivityId     String
-  waypointActivityId String
-  order              Int
-
-  tourActivity     TourActivity @relation(fields: [tourActivityId], references: [id], onDelete: Cascade)
-  waypointActivity Activity     @relation(fields: [waypointActivityId], references: [id], onDelete: Restrict)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([tourActivityId, waypointActivityId])
-  @@unique([tourActivityId, order])
-  @@map("tour_activity_waypoint")
-}
-
-model KnownActivityType {
-  id          String     @id @default(uuid())
-  name        String     @unique
-  description String?
-  icon        String?
-  category    String?
-  activities  Activity[]
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-
-  @@map("known_activity_types")
-}
-
 model User {
   id               String       @id @default(uuid())
   email            String       @unique
@@ -490,7 +239,6 @@ model Tour {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  activities  TourActivity[]
   experiences TourExperience[]
 
   @@index([categories]) // Index for category filtering
@@ -538,40 +286,6 @@ model TourExperienceComponent {
   @@map("tour_experience_component")
 }
 
-model TourActivity {
-  id               String    @id @default(uuid())
-  tourId           String
-  activityId       String? // Optional - might be creating activity inline
-  startTime        DateTime?
-  duration         Float? // Duration for this activity in the tour context
-  notes            String? // Detailed notes from AI
-  dayNumber        Int? // Which day of the tour
-  travelTimeToNext Float? // Travel time to next activity
-  distanceToNext   Float? // Distance to next activity
-  order            Int       @default(1)
-
-  // Inline activity data - for when activity doesn't exist yet
-  activityName      String?
-  activityType      String?
-  activityLatitude  Float?
-  activityLongitude Float?
-  activityData      Json? // Store full activity data if creating inline
-
-  tour     Tour      @relation(fields: [tourId], references: [id], onDelete: Cascade)
-  activity Activity? @relation(fields: [activityId], references: [id], onDelete: SetNull)
-
-  // Snapshot of which waypoints of a composite Activity were used for this
-  // specific tour stop — see TourActivityWaypoint for why this exists.
-  waypoints TourActivityWaypoint[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([tourId])
-  @@index([activityId])
-  @@map("tour_activity")
-}
-
 enum Difficulty {
   EASY
   MEDIUM
@@ -591,44 +305,14 @@ model CrawlerSearch {
 }
 
 model Source {
-  id         String     @id @default(uuid())
-  name       String     @unique
-  type       String     @default("external") // "external", "ai", "manual"
-  baseUrl    String?
-  activities Activity[]
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
+  id        String   @id @default(uuid())
+  name      String   @unique
+  type      String   @default("external") // "external", "ai", "manual"
+  baseUrl   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("source")
-}
-
-enum RelationType {
-  SEQUENTIAL
-  SIMILAR
-  COMPLEMENTARY
-}
-
-model ActivityRelationship {
-  id                     String       @id @default(uuid())
-  sourceActivityId       String
-  targetActivityId       String
-  relationType           RelationType
-  compatibilityScore     Int
-  timeCompatibilityScore Int
-  distanceScore          Int
-  varietyScore           Int
-  timeGapRecommended     Int?
-  reasoning              String?
-  metadata               Json?
-  createdAt              DateTime     @default(now())
-  updatedAt              DateTime     @updatedAt
-  sourceActivity         Activity     @relation("SourceActivities", fields: [sourceActivityId], references: [id], onDelete: Cascade)
-  targetActivity         Activity     @relation("TargetActivities", fields: [targetActivityId], references: [id], onDelete: Cascade)
-
-  @@index([sourceActivityId])
-  @@index([targetActivityId])
-  @@index([compatibilityScore, timeCompatibilityScore, distanceScore, varietyScore])
-  @@map("activity_relationship")
 }
 
 enum MediaStatus {
