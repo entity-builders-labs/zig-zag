@@ -14,15 +14,15 @@ describe('Unit Acceptance: Tour Completeness Validator (TC-VAL-01 to TC-VAL-03)'
       travelPace: TravelPace.MODERATE,
       isFoodFocusedIntent: false,
       viableUnusedCandidateCount: 5,
-      selectedActivities: [
+      selectedExperiences: [
         {
-          activityId: 'act-1',
+          experienceId: 'exp-1',
           dayNumber: 1,
           durationHours: 2.5,
           isMeal: false,
         },
         {
-          activityId: 'act-2',
+          experienceId: 'exp-2',
           dayNumber: 1,
           durationHours: 2.0,
           isMeal: false,
@@ -40,9 +40,9 @@ describe('Unit Acceptance: Tour Completeness Validator (TC-VAL-01 to TC-VAL-03)'
       travelPace: TravelPace.MODERATE,
       isFoodFocusedIntent: false,
       viableUnusedCandidateCount: 10,
-      selectedActivities: [
+      selectedExperiences: [
         {
-          activityId: 'act-1',
+          experienceId: 'exp-1',
           dayNumber: 1,
           durationHours: 0.5,
           isMeal: false,
@@ -60,9 +60,9 @@ describe('Unit Acceptance: Tour Completeness Validator (TC-VAL-01 to TC-VAL-03)'
       travelPace: TravelPace.MODERATE,
       isFoodFocusedIntent: false,
       viableUnusedCandidateCount: 0,
-      selectedActivities: [
+      selectedExperiences: [
         {
-          activityId: 'act-1',
+          experienceId: 'exp-1',
           dayNumber: 1,
           durationHours: 0.5,
           isMeal: false,

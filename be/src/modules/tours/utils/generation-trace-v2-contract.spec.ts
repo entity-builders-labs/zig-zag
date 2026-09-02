@@ -13,7 +13,7 @@ describe('GenerationTrace V2 decision audit coverage', () => {
           name: 'Whale watching excursion',
           kind: 'EXPERIENCE',
           themes: ['nature', 'wildlife'],
-          entityHints: [
+          componentHints: [
             {
               key: 'venue-1',
               name: 'Whale watching excursion',
@@ -71,7 +71,7 @@ describe('GenerationTrace V2 decision audit coverage', () => {
 
   it('keeps entity resolution rejection reasons attached to the rejected candidate', () => {
     const result: ExperienceResolutionResponse = {
-      totalProposals: 1,
+      totalCandidates: 1,
       acceptedCount: 0,
       rejectedCount: 1,
       resolved: [
@@ -81,7 +81,6 @@ describe('GenerationTrace V2 decision audit coverage', () => {
             themes: ['history'],
             traits: [],
             componentHints: [],
-            entityHints: [],
             suggestedDurationMinutes: 90,
             shortReason: 'test',
             evidenceKeys: ['e1'],

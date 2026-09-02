@@ -16,8 +16,7 @@ describe('PBT-08: Partition Integrity [Invariant 10]', () => {
         fc.integer({ min: 1, max: 4 }),
         arbitraryCandidatePool(3, 15),
         async (requestedDays, candidates) => {
-          // De-duplicate candidate pool by activityId
-          const uniqueMap = new Map(candidates.map((c) => [c.activityId, c]));
+          const uniqueMap = new Map(candidates.map((c) => [c.experienceId, c]));
           const uniqueCandidates = Array.from(uniqueMap.values());
 
           const input = TourInputBuilder.aTourInput()
@@ -28,10 +27,10 @@ describe('PBT-08: Partition Integrity [Invariant 10]', () => {
           const solution = await solver.solve(input);
 
           const selectedIds = new Set(
-            solution.days.flatMap((d) => d.activities.map((a) => a.activityId)),
+            solution.days.flatMap((d) => d.experiences.map((a) => a.experienceId)),
           );
           const unselectedIds = new Set(
-            solution.unselected.map((u) => u.activityId),
+            solution.unselected.map((u) => u.experienceId),
           );
 
           // Intersection is empty
@@ -42,8 +41,8 @@ describe('PBT-08: Partition Integrity [Invariant 10]', () => {
           // Union equals input pool
           for (const cand of uniqueCandidates) {
             const isPartitioned =
-              selectedIds.has(cand.activityId) ||
-              unselectedIds.has(cand.activityId);
+              selectedIds.has(cand.experienceId!) ||
+              unselectedIds.has(cand.experienceId!);
             expect(isPartitioned).toBe(true);
           }
         },

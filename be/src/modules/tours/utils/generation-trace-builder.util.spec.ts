@@ -223,7 +223,7 @@ describe('buildEntityResolutionStep', () => {
           experienceId: 'experience-1',
         },
       ],
-      totalProposals: 1,
+      totalCandidates: 1,
       acceptedCount: 1,
       rejectedCount: 0,
     });
@@ -250,7 +250,7 @@ describe('buildEntityResolutionStep', () => {
           rejectionReasons: ['area_ambiguous'],
         },
       ],
-      totalProposals: 1,
+      totalCandidates: 1,
       acceptedCount: 0,
       rejectedCount: 1,
     });
@@ -265,7 +265,7 @@ describe('buildGeographicValidationStep', () => {
   it('reports GEO_VERIFIED proposals ready for materialization', () => {
     const step = buildGeographicValidationStep({
       resolved: [],
-      totalProposals: 1,
+      totalCandidates: 1,
       acceptedCount: 1,
       rejectedCount: 0,
       geographicValidation: {
@@ -314,7 +314,6 @@ describe('buildCatalogMaterializationStep', () => {
             themes: [],
             traits: [],
             componentHints: [],
-            entityHints: [],
             suggestedDurationMinutes: 120,
             shortReason: 'test',
             evidenceKeys: [],
@@ -325,7 +324,7 @@ describe('buildCatalogMaterializationStep', () => {
           experienceId: 'experience-1',
         },
       ],
-      totalProposals: 1,
+      totalCandidates: 1,
       acceptedCount: 1,
       rejectedCount: 0,
     });

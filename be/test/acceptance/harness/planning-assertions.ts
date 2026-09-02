@@ -1,7 +1,4 @@
-import {
-  PlannedDay,
-  PlanningActivityCandidate,
-} from 'src/modules/tours/interfaces/daily-planning.interface';
+import { PlannedDay, PlanningExperienceCandidate } from 'src/modules/tours/interfaces/daily-planning.interface';
 import { resolveWeekday } from 'src/modules/tours/utils/daily-planning-placement.util';
 
 /**
@@ -31,13 +28,13 @@ export function haversineDistanceMeters(
 }
 
 /**
- * Asserts that activities within a planned day have strictly monotonic and non-overlapping schedules:
+ * Asserts that experiences within a planned day have strictly monotonic and non-overlapping schedules:
  * startTime(i+1) >= endTime(i) + travelTime(i -> i+1)
  */
 export function assertNoTemporalOverlap(day: PlannedDay): void {
-  for (let i = 0; i < day.activities.length - 1; i++) {
-    const current = day.activities[i];
-    const next = day.activities[i + 1];
+  for (let i = 0; i < day.experiences.length - 1; i++) {
+    const current = day.experiences[i];
+    const next = day.experiences[i + 1];
 
     expect(current.endMinutesFromMidnight).toBeGreaterThan(
       current.startMinutesFromMidnight,
@@ -60,7 +57,7 @@ export function assertWithinDailyWalkingBudget(
   maxWalkingMeters: number,
 ): void {
   let dayWalkingMeters = 0;
-  for (const act of day.activities) {
+  for (const act of day.experiences) {
     if (act.travelFromPrevious) {
       dayWalkingMeters += act.travelFromPrevious.walkingDistanceMeters ?? 0;
     }
@@ -76,7 +73,7 @@ export function assertWithinContinuousWalkingBudget(
   day: PlannedDay,
   maxContinuousWalkingMeters: number,
 ): void {
-  for (const act of day.activities) {
+  for (const act of day.experiences) {
     if (act.travelFromPrevious) {
       const legWalking = act.travelFromPrevious.walkingDistanceMeters ?? 0;
       expect(legWalking).toBeLessThanOrEqual(maxContinuousWalkingMeters);
@@ -91,7 +88,7 @@ export function assertNoRogueModes(
   day: PlannedDay,
   allowedModes: string[],
 ): void {
-  for (const act of day.activities) {
+  for (const act of day.experiences) {
     if (act.travelFromPrevious) {
       expect(allowedModes).toContain(act.travelFromPrevious.mode);
     }
@@ -104,11 +101,11 @@ export function assertNoRogueModes(
  */
 export function assertOpeningHoursComplied(
   day: PlannedDay,
-  candidatesMap: Map<string, PlanningActivityCandidate>,
+  candidatesMap: Map<string, PlanningExperienceCandidate>,
   startDateIso?: string,
 ): void {
-  for (const act of day.activities) {
-    const candidate = candidatesMap.get(act.activityId);
+  for (const act of day.experiences) {
+    const candidate = candidatesMap.get(act.experienceId);
     if (!candidate || !candidate.openingHours) {
       continue;
     }
@@ -121,7 +118,7 @@ export function assertOpeningHoursComplied(
       if (ranges && ranges.length === 0) {
         // Hard constraint: explicitly closed that day
         throw new Error(
-          `Activity ${act.activityId} scheduled on Day ${day.dayNumber} (${startDateIso}) but is explicitly closed on weekday ${weekday}`,
+          `Experience ${act.experienceId} scheduled on Day ${day.dayNumber} (${startDateIso}) but is explicitly closed on weekday ${weekday}`,
         );
       }
     }
@@ -133,13 +130,13 @@ export function assertOpeningHoursComplied(
  */
 export function assertGeographicallyReasonable(
   day: PlannedDay,
-  candidatesMap: Map<string, PlanningActivityCandidate>,
+  candidatesMap: Map<string, PlanningExperienceCandidate>,
 ): void {
-  if (day.activities.length < 3) return;
+  if (day.experiences.length < 3) return;
 
-  const coords = day.activities
+  const coords = day.experiences
     .map((a) => {
-      const c = candidatesMap.get(a.activityId);
+      const c = candidatesMap.get(a.experienceId);
       return c?.spatialFootprint.centroid;
     })
     .filter((c): c is { lat: number; lng: number } => !!c);

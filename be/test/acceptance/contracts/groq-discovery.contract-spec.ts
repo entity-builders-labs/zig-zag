@@ -1,54 +1,27 @@
-import {
-  validateProposal,
-  validateKindRules,
-} from 'src/modules/tours/utils/discovery-extraction-shared.util';
+import { extractExperienceCandidates } from 'src/modules/tours/utils/experience-candidate-extraction.util';
 
-describe('Provider Contract: Groq Grounded Discovery Proposals (TC-PROV-02)', () => {
-  const validEvidenceKeys = ['ev-1', 'ev-2'];
-
-  it('validates compliant Groq proposal schema with required entity hints', () => {
-    const validProposal = {
-      name: 'Teatro Colón Visita Guiada',
-      kind: 'POI',
+describe('Provider Contract: Groq ExperienceCandidate envelope', () => {
+  it('accepts a venue-centric Experience with one PLACE component', () => {
+    const result = extractExperienceCandidates({ candidates: [{
+      name: 'Visita guiada al Teatro Colón',
+      description: 'Visita cultural sustentada por evidencia',
       themes: ['architecture', 'culture'],
+      traits: ['guided'],
       suggestedDurationMinutes: 90,
-      shortReason: 'Ícono lírico y arquitectónico',
+      shortReason: 'Ícono arquitectónico',
       evidenceKeys: ['ev-2'],
-      entityHints: [
-        {
-          key: 'hint-1',
-          name: 'Teatro Colón',
-          role: 'venue',
-          expectedType: 'theater',
-          required: true,
-          evidenceKeys: ['ev-2'],
-        },
-      ],
-    };
-
-    const errors = validateProposal(validProposal, validEvidenceKeys);
-    expect(errors).toHaveLength(0);
-
-    const kindErrors = validateKindRules(
-      validProposal.kind as any,
-      validProposal.entityHints,
-    );
-    expect(kindErrors).toHaveLength(0);
+      componentHints: [{ key: 'venue', name: 'Teatro Colón', role: 'venue', expectedKind: 'PLACE', required: true, evidenceKeys: ['ev-2'] }],
+    }] }, new Set(['ev-2']), 8);
+    expect(result.validationErrors).toHaveLength(0);
+    expect(result.candidates[0].componentHints).toHaveLength(1);
   });
 
-  it('rejects proposal with invalid kind or missing entity hints', () => {
-    const invalidProposal = {
-      name: 'Actividad Sin Entidades',
-      kind: 'INVALID_KIND',
-      themes: ['culture'],
-      suggestedDurationMinutes: 60,
-      shortReason: 'Sin entidades',
-      evidenceKeys: ['ev-1'],
-      entityHints: [] as any[],
-    };
-
-    const errors = validateProposal(invalidProposal, validEvidenceKeys);
-    expect(errors.some((e) => e.includes('invalid kind'))).toBe(true);
-    expect(errors.some((e) => e.includes('missing entityHints'))).toBe(true);
+  it('rejects invalid component kinds and missing required fields', () => {
+    const result = extractExperienceCandidates({ candidates: [{
+      name: 'Sin entidades', themes: ['culture'], traits: [], evidenceKeys: ['ev-1'],
+      componentHints: [{ key: 'x', name: 'Lugar', role: 'venue', expectedKind: 'INVALID', required: true, evidenceKeys: ['ev-1'] }],
+    }] }, new Set(['ev-1']), 8);
+    expect(result.candidates).toHaveLength(0);
+    expect(result.validationErrors.join(' ')).toMatch(/invalid role\/kind|suggestedDurationMinutes/);
   });
 });

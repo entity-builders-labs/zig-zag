@@ -34,7 +34,7 @@ describe('PBT-02: Uniqueness [Invariant 6]', () => {
           const solution = await solver.solve(input);
 
           const scheduledIds = solution.days.flatMap((d) =>
-            d.activities.map((a) => a.activityId),
+            d.experiences.map((a) => a.experienceId),
           );
           const uniqueIds = new Set(scheduledIds);
 

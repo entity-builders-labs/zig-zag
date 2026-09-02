@@ -108,7 +108,7 @@ export class CompositeGeographicValidationService {
         event: 'geographic_validation',
         proposalName: proposal.name,
         experienceKind: kind,
-        proposedHintCount: (proposal.componentHints ?? proposal.entityHints ?? []).length,
+        proposedHintCount: proposal.componentHints.length,
         resolvedEntityCount: resolved.length,
         entitiesWithCoordinates: withCoordinates.length,
         validationStatus: result.status,
@@ -331,7 +331,7 @@ export class CompositeGeographicValidationService {
     const proposal = resolvedProposal.proposal;
     const proposalName = proposal.name;
     const kind = 'EXPERIENCE';
-    const requiredConcreteHints = proposal.entityHints.filter(
+    const requiredConcreteHints = proposal.componentHints.filter(
       (hint) => hint.required && hint.role !== 'area' && hint.role !== 'route',
     );
     const venueCentric =

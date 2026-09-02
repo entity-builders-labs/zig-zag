@@ -12,8 +12,7 @@ const GEMINI_INTRO = `You are an ExperienceCandidate extractor.
 
 Your task is to convert grounded tourism research into structured ExperienceCandidate
 candidates for a destination based on:
-- the user's requested themes;
-- requested experience formats;
+ - the user's requested themes;
 - exploration style;
 - additional preferences;
 - explicit coverage gaps;
@@ -40,59 +39,39 @@ const SYSTEM_INSTRUCTION = GEMINI_INTRO;
 const RESPONSE_SCHEMA = {
   type: 'object',
   properties: {
-    proposals: {
+    candidates: {
       type: 'array',
       items: {
         type: 'object',
         properties: {
           name: { type: 'string' },
-          kind: {
-            type: 'string',
-            enum: ['POI', 'ROUTE', 'AREA', 'NEIGHBORHOOD_WALK', 'EXPERIENCE'],
-          },
+          description: { type: 'string' },
           themes: { type: 'array', items: { type: 'string' } },
-          entityHints: {
+          traits: { type: 'array', items: { type: 'string' } },
+          componentHints: {
             type: 'array',
             items: {
               type: 'object',
               properties: {
                 key: { type: 'string' },
                 name: { type: 'string' },
-                role: {
-                  type: 'string',
-                  enum: ['area', 'waypoint', 'route', 'venue'],
-                },
-                expectedType: { type: 'string' },
+                role: { type: 'string', enum: ['area', 'waypoint', 'route', 'venue'] },
+                expectedKind: { type: 'string', enum: ['PLACE', 'AREA', 'ROUTE'] },
                 required: { type: 'boolean' },
                 evidenceKeys: { type: 'array', items: { type: 'string' } },
               },
-              required: [
-                'key',
-                'name',
-                'role',
-                'expectedType',
-                'required',
-                'evidenceKeys',
-              ],
+              required: ['key', 'name', 'role', 'expectedKind', 'required', 'evidenceKeys'],
             },
           },
           suggestedDurationMinutes: { type: 'integer' },
           shortReason: { type: 'string' },
           evidenceKeys: { type: 'array', items: { type: 'string' } },
         },
-        required: [
-          'name',
-          'kind',
-          'themes',
-          'entityHints',
-          'suggestedDurationMinutes',
-          'shortReason',
-          'evidenceKeys',
-        ],
+        required: ['name', 'description', 'themes', 'traits', 'componentHints', 'suggestedDurationMinutes', 'shortReason', 'evidenceKeys'],
       },
     },
   },
-  required: ['proposals'],
+  required: ['candidates'],
 };
 
 interface GeminiInteractionStep {

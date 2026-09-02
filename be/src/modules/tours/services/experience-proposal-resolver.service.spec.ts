@@ -48,18 +48,17 @@ describe('ExperienceProposalResolverService', () => {
     const result = await service.resolve({
       destinationName: 'Test City',
       destinationBoundary: boundary,
-      proposals: [
+      candidates: [
         {
           name: 'Visit Museum',
           themes: ['culture'],
           traits: [],
-          componentHints: undefined as any,
-          entityHints: [
+          componentHints: [
             {
               key: 'museum',
               name: 'Museum',
               role: 'venue',
-              expectedType: 'Museum',
+              expectedKind: 'PLACE',
               required: true,
               evidenceKeys: ['ev-1'],
             },
@@ -84,7 +83,7 @@ describe('ExperienceProposalResolverService', () => {
 
   it('fails explicitly when destination scope is absent', async () => {
     const service = new ExperienceProposalResolverService({} as any, {} as any, {} as any);
-    await expect(service.resolve({ proposals: [], destinationBoundary: undefined })).rejects.toThrow(
+    await expect(service.resolve({ candidates: [], destinationBoundary: undefined })).rejects.toThrow(
       'Experience resolution requires destinationBoundary',
     );
   });
@@ -100,9 +99,8 @@ describe('ExperienceProposalResolverService', () => {
     );
     const result = await service.resolve({
       destinationBoundary: boundary,
-      proposals: [{
-        name: 'Visit Museum', themes: [], traits: [], componentHints: undefined as any,
-        entityHints: [{ key: 'museum', name: 'Museum', role: 'venue', expectedType: 'Museum', required: true, evidenceKeys: [] }],
+      candidates: [{
+        name: 'Visit Museum', themes: [], traits: [], componentHints: [{ key: 'museum', name: 'Museum', role: 'venue', expectedKind: 'PLACE', required: true, evidenceKeys: [] }],
         evidenceKeys: [], shortReason: 'test',
       }],
     });

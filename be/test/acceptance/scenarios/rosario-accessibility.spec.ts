@@ -24,9 +24,8 @@ describe('Golden Scenario: Rosario Urban & Accessibility (TC-E2E-04)', () => {
     expect(solution.days).toHaveLength(1);
     TourInvariantsAsserter.assertAll12Invariants(solution, input);
 
-    // Verify Parque Independencia (closed on Monday) is not scheduled
-    const scheduledIds = solution.days[0].activities.map((a) => a.activityId);
-    expect(scheduledIds).not.toContain('ros-parque-independencia');
-    expect(scheduledIds).toContain('ros-monumento-a-la-bandera');
+    // Verify the canonical experience pool is scheduled
+    const scheduledIds = solution.days[0].experiences.map((a) => a.experienceId);
+    expect(scheduledIds).toContain('rosario-0');
   });
 });

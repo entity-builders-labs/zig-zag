@@ -1,19 +1,14 @@
-import {
-  PlanningActivityCandidate,
-  NormalizedOpeningHours,
-} from 'src/modules/tours/interfaces/daily-planning.interface';
-import { ExperienceFormat } from 'src/modules/tours/interfaces/tour-generation.interface';
+import { PlanningExperienceCandidate, NormalizedOpeningHours } from 'src/modules/tours/interfaces/daily-planning.interface';
 
 export class CandidateBuilder {
-  private candidate: PlanningActivityCandidate;
+  private candidate: PlanningExperienceCandidate;
 
   constructor(
     id: string = `cand-${Math.random().toString(36).substring(2, 7)}`,
   ) {
     this.candidate = {
-      activityId: id,
-      kind: 'POI',
-      title: `Activity ${id}`,
+      experienceId: id,
+      title: `Experience ${id}`,
       durationMinutes: 60,
       semanticScore: 0.8,
       qualityScore: 0.9,
@@ -21,7 +16,6 @@ export class CandidateBuilder {
         type: 'POINT',
         centroid: { lat: -34.6037, lng: -58.3816 }, // Default Buenos Aires
       },
-      formats: [ExperienceFormat.POINT_VISITS],
     };
   }
 
@@ -30,7 +24,7 @@ export class CandidateBuilder {
   }
 
   withId(id: string): this {
-    this.candidate.activityId = id;
+    this.candidate.experienceId = id;
     return this;
   }
 
@@ -73,19 +67,13 @@ export class CandidateBuilder {
     return this;
   }
 
-  withFormats(...formats: ExperienceFormat[]): this {
-    this.candidate.formats = formats;
-    return this;
-  }
-
   withThemes(...themes: string[]): this {
     this.candidate.themes = themes;
     return this;
   }
 
   withFamily(familyId: string, variantKey?: string): this {
-    this.candidate.familyId = familyId;
-    this.candidate.variantKey = variantKey;
+    this.candidate.metadata = { ...this.candidate.metadata, source: familyId };
     return this;
   }
 
@@ -98,7 +86,7 @@ export class CandidateBuilder {
     return this;
   }
 
-  build(): PlanningActivityCandidate {
+  build(): PlanningExperienceCandidate {
     return { ...this.candidate };
   }
 }

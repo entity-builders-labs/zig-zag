@@ -180,7 +180,7 @@ export class ExperienceGenerationService {
       maxCandidates: 8,
     };
     const plan = this.experienceDiscoveryPlanner.plan(request);
-    const proposals: any[] = [];
+    const candidates: any[] = [];
     const evidence: any[] = [];
     const searchTrace: any[] = [];
     for (const plannedQuery of plan.queries) {
@@ -194,10 +194,10 @@ export class ExperienceGenerationService {
       if (grounded.evidence.length === 0) continue;
       evidence.push(...grounded.evidence);
       const extracted = await this.discoveryProvider.extractExperiences(request, grounded);
-      proposals.push(...(extracted.candidates ?? []));
-      if (proposals.length >= 8) break;
+      candidates.push(...(extracted.candidates ?? []));
+      if (candidates.length >= 8) break;
     }
-    return { proposals: proposals.slice(0, 8), evidence, provider: 'experience-discovery', model: 'provider-neutral', groundingStatus: proposals.length ? 'applied' : 'no_usable_evidence', searchTrace };
+    return { candidates: candidates.slice(0, 8), evidence, provider: 'experience-discovery', model: 'provider-neutral', groundingStatus: candidates.length ? 'applied' : 'no_usable_evidence', searchTrace };
   }
 
   /** Daily planning solver: no new Prisma columns. If a real base date exists, combine it
@@ -821,11 +821,11 @@ export class ExperienceGenerationService {
                       request.intent.additionalPreferences,
                     );
                   traceSteps.push(buildDiscoveryStep(discoveryResult));
-                  if (discoveryResult.proposals.length > 0) {
+                  if (discoveryResult.candidates.length > 0) {
                     try {
                       const resolutionResult =
                         await this.proposalResolver.resolve({
-                          proposals: discoveryResult.proposals,
+                          candidates: discoveryResult.candidates,
                           destinationName: request.destination.label,
                           destinationBoundary: destinationScope,
                           evidence: discoveryResult.evidence,
@@ -1223,9 +1223,9 @@ export class ExperienceGenerationService {
               );
             traceSteps.push(buildDiscoveryStep(discoveryResult));
 
-            if (discoveryResult.proposals.length > 0) {
+            if (discoveryResult.candidates.length > 0) {
               const resolutionResult = await this.proposalResolver.resolve({
-                proposals: discoveryResult.proposals,
+                candidates: discoveryResult.candidates,
                 destinationName: request.destination.label,
                 destinationBoundary: destinationScope,
                 evidence: discoveryResult.evidence,

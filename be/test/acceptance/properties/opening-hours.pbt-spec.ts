@@ -26,7 +26,7 @@ describe('PBT-05: Opening Hours Compliance [Invariant 5]', () => {
 
           const solution = await solver.solve(input);
           const candidateMap = new Map(
-            candidates.map((c) => [c.activityId, c]),
+            candidates.map((c) => [c.experienceId, c]),
           );
 
           for (const day of solution.days) {

@@ -22,7 +22,7 @@ describe('Unit Acceptance: Greedy Daily Planning Solver (TC-SOLV-01 to TC-SOLV-0
     const solution = await solver.solve(input);
 
     expect(solution.days).toHaveLength(1);
-    expect(solution.days[0].activities.length).toBeGreaterThanOrEqual(1);
+    expect(solution.days[0].experiences.length).toBeGreaterThanOrEqual(1);
     TourInvariantsAsserter.assertAll12Invariants(solution, input);
   });
 
@@ -52,8 +52,8 @@ describe('Unit Acceptance: Greedy Daily Planning Solver (TC-SOLV-01 to TC-SOLV-0
 
     const solution = await solver.solve(input);
 
-    expect(solution.days[0].activities).toHaveLength(0);
-    expect(solution.unselected.some((u) => u.activityId === 'long-1')).toBe(
+    expect(solution.days[0].experiences).toHaveLength(0);
+    expect(solution.unselected.some((u) => u.experienceId === 'long-1')).toBe(
       true,
     );
   });
@@ -71,7 +71,7 @@ describe('Unit Acceptance: Greedy Daily Planning Solver (TC-SOLV-01 to TC-SOLV-0
     const solution = await solver.solve(input);
 
     expect(solution.days).toHaveLength(3);
-    const totalScheduled = solution.days.flatMap((d) => d.activities).length;
+    const totalScheduled = solution.days.flatMap((d) => d.experiences).length;
     expect(totalScheduled).toBe(1);
   });
 

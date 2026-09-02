@@ -35,7 +35,7 @@ export class ExperienceProposalResolverService
   async resolve(
     input: ExperienceResolutionRequest,
   ): Promise<ExperienceResolutionResponse> {
-    const proposals = Array.isArray(input?.proposals) ? input.proposals : [];
+    const candidates = Array.isArray(input?.candidates) ? input.candidates : [];
     const evidence = input.evidence ?? [];
     const boundary = input?.destinationBoundary as OsmCandidate | undefined;
     if (!boundary) {
@@ -48,20 +48,20 @@ export class ExperienceProposalResolverService
     const streets = streetLookup.value;
     const pois = poiLookup.value;
 
-    const candidates = await Promise.all(
-      proposals.map((proposal: any) =>
-        this.resolveProposal(proposal, boundary, streets, pois, {
+    const resolvedCandidates = await Promise.all(
+      candidates.map((candidate: any) =>
+        this.resolveCandidate(candidate, boundary, streets, pois, {
           streets: streetLookup,
           pois: poiLookup,
         }, input.evidence ?? []),
       ),
     );
     const validation = this.geographicValidator.validateBatch(
-      { resolved: candidates.filter((item) => item.status === 'accepted') } as any,
+      { resolved: resolvedCandidates.filter((item) => item.status === 'accepted') } as any,
       boundary,
     );
     const validationByName = new Map(validation.results.map((result) => [result.proposalName, result]));
-    const resolved = await Promise.all(candidates.map(async (candidate) => {
+    const resolved = await Promise.all(resolvedCandidates.map(async (candidate) => {
       if (candidate.status !== 'accepted') return candidate;
       const result = validationByName.get(candidate.proposal.name);
       if (!result?.accepted) {
@@ -83,14 +83,14 @@ export class ExperienceProposalResolverService
     this.logger.log(`Resolved ${resolved.filter((item) => item.status === 'accepted').length}/${resolved.length} Experience candidate(s) against OSM`);
 
     return {
-      totalProposals: resolved.length,
+      totalCandidates: resolved.length,
       acceptedCount: resolved.filter((item) => item.status === 'accepted').length,
       rejectedCount: resolved.filter((item) => item.status === 'rejected').length,
       resolved,
     };
   }
 
-  private async resolveProposal(
+  private async resolveCandidate(
     proposal: any,
     boundary: OsmCandidate | undefined,
     streets: OsmCandidate[],
@@ -102,7 +102,7 @@ export class ExperienceProposalResolverService
     evidence: Array<{ key?: string; source: string; url?: string; title?: string; snippet?: string }>,
   ) {
     const entities: ResolvedGeoEntity[] = [];
-    for (const hint of proposal?.componentHints ?? proposal?.entityHints ?? []) {
+    for (const hint of proposal?.componentHints ?? []) {
       const pool = hint.expectedKind === 'ROUTE' || hint.role === 'route' ? streets : hint.expectedKind === 'AREA' || hint.role === 'area' ? (boundary ? [boundary] : []) : pois;
       const candidate = this.matchCandidate(hint.name, pool);
       if (!candidate) {
@@ -122,7 +122,7 @@ export class ExperienceProposalResolverService
       entities.push({ hintKey: hint.key, hintName: hint.name, provider: 'openstreetmap', externalId: candidate.id, canonicalName: candidate.name, latitude: this.point(candidate)?.latitude, longitude: this.point(candidate)?.longitude, geometry: candidate.geometry, role: hint.role, status: 'resolved' });
       (entities[entities.length - 1] as any).geoEntityId = geo.id;
     }
-    const required = (proposal?.componentHints ?? proposal?.entityHints ?? []).filter((hint: any) => hint.required);
+    const required = (proposal?.componentHints ?? []).filter((hint: any) => hint.required);
     const unresolvedRequired = required.some((hint: any) => !entities.find((entity) => entity.hintKey === hint.key && entity.status === 'resolved'));
     const resolvedEntities = entities.filter((entity) => entity.status === 'resolved');
     if (resolvedEntities.length === 0 || unresolvedRequired) {

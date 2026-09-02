@@ -1,5 +1,5 @@
 /** Provider-neutral geographic hint extracted from grounded evidence. */
-export interface GeoEntityHintV2 {
+export interface GeoEntityHint {
   key: string;
   name: string;
   role: 'area' | 'waypoint' | 'route' | 'venue';
@@ -19,15 +19,7 @@ export interface ExperienceCandidate {
   themes: string[];
   traits: string[];
   suggestedDurationMinutes?: number;
-  entityHints?: Array<{
-    key: string;
-    name: string;
-    role: 'area' | 'waypoint' | 'route' | 'venue';
-    expectedType: string;
-    required: boolean;
-    evidenceKeys: string[];
-  }>;
-  componentHints: GeoEntityHintV2[];
+  componentHints: GeoEntityHint[];
   evidenceKeys: string[];
   shortReason: string;
 }

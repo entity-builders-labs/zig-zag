@@ -1,6 +1,6 @@
 import {
   ExperienceCandidate,
-  GeoEntityHintV2,
+  GeoEntityHint,
 } from '../interfaces/experience-discovery.interface';
 
 const ROLES = new Set(['area', 'waypoint', 'route', 'venue']);
@@ -35,7 +35,7 @@ export function extractExperienceCandidates(
     if (!Array.isArray(candidate?.evidenceKeys) || candidate.evidenceKeys.length === 0) errors.push('evidenceKeys is required');
     if (Array.isArray(candidate?.evidenceKeys) && candidate.evidenceKeys.some((key: unknown) => !evidenceKeys.has(String(key)))) errors.push('candidate references unknown evidence');
 
-    const hints: GeoEntityHintV2[] = [];
+    const hints: GeoEntityHint[] = [];
     if (Array.isArray(candidate?.componentHints)) {
       for (const [hintIndex, hint] of candidate.componentHints.slice(0, MAX_HINTS).entries()) {
         if (!hint || typeof hint.name !== 'string' || !hint.name.trim()) { errors.push(`component ${hintIndex + 1} name is required`); continue; }

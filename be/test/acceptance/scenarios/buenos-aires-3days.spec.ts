@@ -3,7 +3,6 @@ import { createGreedySolver } from '../harness/solver-factory';
 import { TourInvariantsAsserter } from '../harness/tour-invariants-asserter';
 import { TourInputBuilder } from '../builders/tour-input.builder';
 import { BUENOS_AIRES_CANDIDATES } from '../fixtures/buenos-aires.fixture';
-import { ExperienceFormat } from 'src/modules/tours/interfaces/tour-generation.interface';
 
 describe('Golden Scenario: Buenos Aires 3-Day Tour (TC-E2E-01)', () => {
   let solver: GreedyDailyPlanningSolver;
@@ -17,10 +16,6 @@ describe('Golden Scenario: Buenos Aires 3-Day Tour (TC-E2E-01)', () => {
     const input = new TourInputBuilder()
       .withDays(3)
       .withCandidates(BUENOS_AIRES_CANDIDATES)
-      .withRequestedFormats([
-        ExperienceFormat.POINT_VISITS,
-        ExperienceFormat.NEIGHBORHOOD_WALKS,
-      ])
       .withStartDates(['2026-09-07T00:00:00.000Z']) // Monday
       .build();
 
@@ -31,7 +26,7 @@ describe('Golden Scenario: Buenos Aires 3-Day Tour (TC-E2E-01)', () => {
 
     // Verify Recoleta and San Telmo walks are included
     const allScheduledIds = solution.days.flatMap((d) =>
-      d.activities.map((a) => a.activityId),
+      d.experiences.map((a) => a.experienceId),
     );
     expect(allScheduledIds.length).toBeGreaterThanOrEqual(4);
   });

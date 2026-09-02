@@ -1,78 +1,30 @@
-import {
-  validateProposal,
-  validateKindRules,
-} from 'src/modules/tours/utils/discovery-extraction-shared.util';
+import { extractExperienceCandidates } from 'src/modules/tours/utils/experience-candidate-extraction.util';
 
-describe('Provider Contract: Gemini Discovery Proposals (TC-PROV-01)', () => {
-  const validEvidenceKeys = ['ev-1', 'ev-2', 'ev-3'];
-
-  it('validates compliant Gemini proposal schema with valid evidence keys', () => {
-    const validProposal = {
+describe('Provider Contract: Gemini ExperienceCandidate envelope', () => {
+  const evidence = new Set(['ev-1']);
+  const valid = {
+    candidates: [{
       name: 'Paseo Histórico San Telmo',
-      kind: 'NEIGHBORHOOD_WALK',
+      description: 'Recorrido histórico por el casco antiguo',
       themes: ['history', 'architecture'],
+      traits: ['walking', 'guided'],
       suggestedDurationMinutes: 120,
-      shortReason: 'Recorrido histórico por el casco antiguo',
+      shortReason: 'Sustentado por evidencia',
       evidenceKeys: ['ev-1'],
-      entityHints: [
-        {
-          key: 'hint-area',
-          name: 'Barrio San Telmo',
-          role: 'area',
-          expectedType: 'neighborhood',
-          required: true,
-          evidenceKeys: ['ev-1'],
-        },
-        {
-          key: 'hint-1',
-          name: 'Plaza Dorrego',
-          role: 'waypoint',
-          expectedType: 'square',
-          required: false,
-          evidenceKeys: ['ev-1'],
-        },
-        {
-          key: 'hint-2',
-          name: 'Mercado de San Telmo',
-          role: 'waypoint',
-          expectedType: 'market',
-          required: false,
-          evidenceKeys: ['ev-1'],
-        },
-      ],
-    };
+      componentHints: [{ key: 'area', name: 'Barrio San Telmo', role: 'area', expectedKind: 'AREA', required: true, evidenceKeys: ['ev-1'] }],
+    }],
+  };
 
-    const errors = validateProposal(validProposal, validEvidenceKeys);
-    expect(errors).toHaveLength(0);
-
-    const kindErrors = validateKindRules(
-      validProposal.kind as any,
-      validProposal.entityHints,
-    );
-    expect(kindErrors).toHaveLength(0);
+  it('accepts the canonical schema without structural kinds', () => {
+    const result = extractExperienceCandidates(valid, evidence, 8);
+    expect(result.validationErrors).toHaveLength(0);
+    expect(result.candidates[0]).not.toHaveProperty('kind');
+    expect(result.candidates[0].componentHints[0].expectedKind).toBe('AREA');
   });
 
-  it('rejects proposal with hallucinated evidence keys', () => {
-    const invalidProposal = {
-      name: 'Paseo Falso',
-      kind: 'POI',
-      themes: ['history'],
-      suggestedDurationMinutes: 60,
-      shortReason: 'Inventado',
-      evidenceKeys: ['ev-999'], // Hallucinated key
-      entityHints: [
-        {
-          key: 'hint-1',
-          name: 'Lugar Fantasma',
-          role: 'venue',
-          expectedType: 'museum',
-          required: true,
-          evidenceKeys: ['ev-999'],
-        },
-      ],
-    };
-
-    const errors = validateProposal(invalidProposal, validEvidenceKeys);
-    expect(errors.some((e) => e.includes('unknown evidence key'))).toBe(true);
+  it('rejects hallucinated evidence keys and legacy envelopes', () => {
+    const result = extractExperienceCandidates({ proposals: [{ kind: 'POI', entityHints: [] }], candidates: [{ ...valid.candidates[0], evidenceKeys: ['ev-999'] }] }, evidence, 8);
+    expect(result.candidates).toHaveLength(0);
+    expect(result.validationErrors.join(' ')).toMatch(/unknown evidence/);
   });
 });

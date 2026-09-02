@@ -32,7 +32,7 @@ export interface ResolvedExperienceCandidate {
 }
 
 export interface ExperienceResolutionRequest {
-  proposals: ExperienceCandidate[];
+  candidates: ExperienceCandidate[];
   destinationName?: string;
   destinationBoundary: unknown;
   traceContext?: Record<string, unknown>;
@@ -75,7 +75,7 @@ export interface ExperienceMaterializationResponse {
 }
 
 export interface ExperienceResolutionResponse {
-  totalProposals: number;
+  totalCandidates: number;
   acceptedCount: number;
   rejectedCount: number;
   resolved: ResolvedExperienceCandidate[];

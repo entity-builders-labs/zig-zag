@@ -10,7 +10,7 @@ describe('Unit Acceptance: Candidate Sorting & Determinism (TC-RANK-01 to TC-RAN
       .build();
 
     const sorted = sortCandidatesDeterministically([c1, c2]);
-    expect(sorted[0].activityId).toBe('c2');
+    expect(sorted[0].experienceId).toBe('c2');
   });
 
   it('TC-RANK-02: ties in semantic score break by quality score descending', () => {
@@ -21,7 +21,7 @@ describe('Unit Acceptance: Candidate Sorting & Determinism (TC-RANK-01 to TC-RAN
       .build();
 
     const sorted = sortCandidatesDeterministically([c1, c2]);
-    expect(sorted[0].activityId).toBe('c2');
+    expect(sorted[0].experienceId).toBe('c2');
   });
 
   it('TC-RANK-03: ties in semantic and quality break deterministically by activityId lexical order', () => {
@@ -37,7 +37,7 @@ describe('Unit Acceptance: Candidate Sorting & Determinism (TC-RANK-01 to TC-RAN
     const sorted1 = sortCandidatesDeterministically([c1, c2]);
     const sorted2 = sortCandidatesDeterministically([c2, c1]);
 
-    expect(sorted1.map((c) => c.activityId)).toEqual(['a-cand', 'b-cand']);
-    expect(sorted2.map((c) => c.activityId)).toEqual(['a-cand', 'b-cand']);
+    expect(sorted1.map((c) => c.experienceId)).toEqual(['a-cand', 'b-cand']);
+    expect(sorted2.map((c) => c.experienceId)).toEqual(['a-cand', 'b-cand']);
   });
 });

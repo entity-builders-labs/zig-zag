@@ -1,10 +1,9 @@
 import {
   DailyPlanningInput,
-  PlanningActivityCandidate,
+  PlanningExperienceCandidate,
   DailyPlanningWindow,
 } from 'src/modules/tours/interfaces/daily-planning.interface';
 import {
-  ExperienceFormat,
   MobilityPreferences,
   TravelPace,
   TransportationMode,
@@ -61,12 +60,12 @@ export class TourInputBuilder {
     return this;
   }
 
-  withCandidates(candidates: PlanningActivityCandidate[]): this {
+  withCandidates(candidates: PlanningExperienceCandidate[]): this {
     this.input.candidates = candidates;
     return this;
   }
 
-  addCandidates(...candidates: PlanningActivityCandidate[]): this {
+  addCandidates(...candidates: PlanningExperienceCandidate[]): this {
     this.input.candidates.push(...candidates);
     return this;
   }
@@ -102,18 +101,6 @@ export class TourInputBuilder {
       };
     } else if (typeof windowOrStart === 'object') {
       this.input.planningWindow = windowOrStart;
-    }
-    return this;
-  }
-
-  withRequestedFormats(
-    formatsOrFirst: ExperienceFormat[] | ExperienceFormat,
-    ...rest: ExperienceFormat[]
-  ): this {
-    if (Array.isArray(formatsOrFirst)) {
-      this.input.requestedFormats = formatsOrFirst;
-    } else {
-      this.input.requestedFormats = [formatsOrFirst, ...rest];
     }
     return this;
   }

@@ -804,7 +804,7 @@ export function buildEntityResolutionStep(
     component: 'ExperienceProposalResolverService',
     status: accepted.length ? 'PASS' : rejected.length ? 'WARN' : 'INFO',
     summary:
-      `Entity resolution procesó ${resolution.totalProposals} propuesta(s): ` +
+      `Entity resolution procesó ${resolution.totalCandidates} candidato(s): ` +
       `${accepted.length} quedaron con entidades concretas suficientes para continuar y ` +
       `${rejected.length} no pudieron resolverse. Se obtuvieron ${resolvedEntityCount} entidad(es) ` +
       `provider-backed, ${coordinateCount} con coordenadas. Esta etapa no decide coherencia ` +
@@ -812,7 +812,7 @@ export function buildEntityResolutionStep(
       (rejectedSummaries.length
         ? ` Rechazadas: ${rejectedSummaries.join('; ')}.`
         : ''),
-    inputs: { totalProposals: resolution.totalProposals },
+    inputs: { totalCandidates: resolution.totalCandidates },
     rules: [
       rule(
         'RES-IDENTITY-001',
@@ -857,7 +857,7 @@ export function buildEntityResolutionStep(
         : ['CONTINUE_WITH_EXISTING_POOL'],
     },
     outputs: {
-      proposalCount: resolution.totalProposals,
+      candidateCount: resolution.totalCandidates,
       resolutionReadyCount: accepted.length,
       rejectedCount: rejected.length,
       resolvedEntityCount,
