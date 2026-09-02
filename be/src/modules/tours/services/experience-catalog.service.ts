@@ -216,7 +216,7 @@ export class ExperienceCatalogService {
         if (missingEvidence.length) {
           await tx.experienceEvidence.createMany({ data: missingEvidence.map((item) => ({ ...item, experienceId: same.id })) });
         }
-        return same;
+        return { ...same, dedupeDecision: 'SAME' as const };
       }
       const experience = await tx.experience.create({
         data: {
@@ -250,7 +250,7 @@ export class ExperienceCatalogService {
         include: { components: true, evidence: true, traits: true },
       });
 
-      return experience;
+      return { ...experience, dedupeDecision: 'NEW' as const };
     });
   }
 
