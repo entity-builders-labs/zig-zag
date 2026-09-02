@@ -5,6 +5,7 @@ import {
   MESSAGE_QUEUE_SERVICE,
 } from '../../queue/interfaces/message-queue.interface';
 import { TourGenerationRequestedPayload } from '../interfaces/tour-generation-events.interface';
+import { classifyGenerationFailure } from '../utils/generation-failure-classifier.util';
 import { ExperienceGenerationService } from './experience-generation.service';
 import { ToursService } from './tours.service';
 
@@ -46,24 +47,23 @@ export class TourGenerationProcessorService implements OnModuleInit {
       return;
     }
 
-    if (metadata.generationStatus === 'failed') {
-      // Generation failures are persisted as terminal domain state by the
-      // generator. A redelivered outbox event must be acknowledged without
-      // re-running providers/planning; explicit user retry creates a new
-      // generation attempt through the normal API path.
+    if (
+      metadata.generationStatus === 'failed' &&
+      metadata.generationFailureKind !== 'retryable'
+    ) {
+      // Only explicitly terminal failures are acknowledged as no-ops. A
+      // transient provider failure is compensated back to pending below and
+      // must never be converted into a successful outbox acknowledgement.
       this.logger.debug(
-        `[TourGenerationProcessor] ${payload.eventKey} already failed; duplicate delivery is a no-op.`,
+        `[TourGenerationProcessor] ${payload.eventKey} already failed terminally; duplicate delivery is a no-op.`,
       );
       return;
     }
 
-    if (metadata.generationStatus === 'generating') {
-      // A TourGenerationRequested outbox row is acknowledged only after this
-      // handler completes. Seeing `generating` at the start of a redelivery
-      // therefore means a previous process died after changing tour state but
-      // before the durable event was acknowledged. Move it back to pending so
-      // the canonical generator can restart deterministically from the stored
-      // generationRequest.
+    if (
+      metadata.generationStatus === 'generating' ||
+      metadata.generationFailureKind === 'retryable'
+    ) {
       await this.prisma.tour.update({
         where: { id: payload.tourId },
         data: {
@@ -76,12 +76,80 @@ export class TourGenerationProcessorService implements OnModuleInit {
         },
       });
       this.logger.warn(
-        `[TourGenerationProcessor] Recovering interrupted generation for tour ${payload.tourId}.`,
+        `[TourGenerationProcessor] Recovering interrupted/retryable generation for tour ${payload.tourId}.`,
       );
     }
 
-    await this.experienceGenerationService.generateTourExperiences(
-      payload.tourId,
-    );
+    try {
+      await this.experienceGenerationService.generateTourExperiences(
+        payload.tourId,
+      );
+    } catch (error: unknown) {
+      const latestTour = await this.toursService.findOne(payload.tourId);
+      const latestMetadata = (latestTour.metadata ?? {}) as any;
+      const classification = classifyGenerationFailure(error, latestMetadata);
+
+      if (!classification.retryable) {
+        throw error;
+      }
+
+      // ExperienceGenerationService persists a terminal-looking failure before
+      // propagating its exception. Compensate it while the original durable
+      // TourGenerationRequested event is still PROCESSING. The publisher will
+      // observe this rethrow, move that event back to PENDING with backoff, and
+      // redeliver it. Any TourFailed row created by the generator is still
+      // unpublished at this point and is removed atomically with the state
+      // correction so users never receive a false terminal notification.
+      const {
+        generationFailedAt: _generationFailedAt,
+        generationCompletedAt: _generationCompletedAt,
+        ...retryableMetadata
+      } = latestMetadata;
+      const retryCount = Number(latestMetadata.generationRetryCount ?? 0) + 1;
+      const retryableAt = new Date().toISOString();
+
+      await this.prisma.$transaction(async (tx) => {
+        await tx.tour.update({
+          where: { id: payload.tourId },
+          data: {
+            metadata: {
+              ...retryableMetadata,
+              generationStatus: 'pending',
+              generationFailureKind: 'retryable',
+              generationRetryReasonCode: classification.reasonCode,
+              generationRetryCount: retryCount,
+              generationRetryableAt: retryableAt,
+              generationMessage: `Reintento pendiente: ${classification.reasonCode}`,
+              generationError: classification.message,
+              generationTrace: {
+                ...(latestMetadata.generationTrace ?? {}),
+                executionSummary: {
+                  ...(latestMetadata.generationTrace?.executionSummary ?? {}),
+                  status: 'retryable',
+                  retryable: true,
+                  reasonCode: classification.reasonCode,
+                  failure: classification.message,
+                },
+              },
+            },
+          },
+        });
+        await tx.outboxEvent.deleteMany({
+          where: {
+            eventType: 'TourFailed',
+            status: 'PENDING',
+            payload: {
+              path: ['tourId'],
+              equals: payload.tourId,
+            },
+          },
+        });
+      });
+
+      this.logger.warn(
+        `[TourGenerationProcessor] Retryable generation failure for ${payload.tourId}: ${classification.reasonCode}. Durable event will be retried.`,
+      );
+      throw error;
+    }
   }
 }
