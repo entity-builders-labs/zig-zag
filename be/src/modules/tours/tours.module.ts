@@ -11,7 +11,6 @@ import { CatalogRefillAnchorPlanner } from './services/catalog-refill-anchor-pla
 import { CoverageAnalyzer } from './services/coverage-analyzer.service';
 import { TourCompletenessValidator } from './services/tour-completeness-validator.service';
 import { TourFormatCoverageValidator } from './services/tour-format-coverage-validator.service';
-import { ActivityDiscoveryService } from './services/activity-discovery.service';
 import { GroqGroundedSearchService } from './services/groq-grounded-search.service';
 import { SerpApiGroundedSearchService } from './services/serpapi-grounded-search.service';
 import { TavilyGroundedSearchService } from './services/tavily-grounded-search.service';
@@ -69,7 +68,6 @@ import { OutboxModule } from '../outbox/outbox.module';
     CoverageAnalyzer,
     TourCompletenessValidator,
     TourFormatCoverageValidator,
-    ActivityDiscoveryService,
     GroqGroundedSearchService,
     SerpApiGroundedSearchService,
     TavilyGroundedSearchService,
@@ -164,7 +162,6 @@ import { OutboxModule } from '../outbox/outbox.module';
     TourActivityGenerationService,
     TourImageService,
     TourLocationService,
-    ActivityDiscoveryService,
     CompositeGeographicValidationService,
     PreferenceInterpreterService,
   ],

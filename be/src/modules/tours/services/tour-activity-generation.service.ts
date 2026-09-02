@@ -85,7 +85,14 @@ import {
 } from '@integrations/google-places/interfaces/places-api.interface';
 import { CatalogRefillAnchorPlanner } from './catalog-refill-anchor-planner.service';
 import { TourIntent } from '../interfaces/tour-generation.interface';
-import { ActivityDiscoveryService } from './activity-discovery.service';
+import {
+  DISCOVERY_PROVIDER,
+  GROUNDED_SEARCH_PROVIDER,
+  GroundedSearchProvider,
+  SearchGroundedDiscoveryProvider,
+} from '../interfaces/activity-discovery.interface';
+import { ExperienceDiscoveryPlannerService } from './experience-discovery-planner.service';
+import { ExperienceDiscoveryRequest } from '../interfaces/experience-discovery.interface';
 import { CoverageAnalyzer } from './coverage-analyzer.service';
 import { redactTracePayload } from '../utils/trace-redaction.util';
 import { PreferenceInterpreterService } from './preference-interpreter.service';
@@ -133,7 +140,11 @@ export class TourActivityGenerationService {
     private readonly destinationResolutionService: DestinationResolutionService,
     private readonly catalogRefillAnchorPlanner: CatalogRefillAnchorPlanner,
     private readonly coverageAnalyzer: CoverageAnalyzer,
-    private readonly activityDiscoveryService: ActivityDiscoveryService,
+    private readonly experienceDiscoveryPlanner: ExperienceDiscoveryPlannerService,
+    @Inject(GROUNDED_SEARCH_PROVIDER)
+    private readonly groundedSearchProvider: GroundedSearchProvider,
+    @Inject(DISCOVERY_PROVIDER)
+    private readonly discoveryProvider: SearchGroundedDiscoveryProvider,
     private readonly tourCompletenessValidator: TourCompletenessValidator,
     private readonly tourFormatCoverageValidator: TourFormatCoverageValidator,
     @Inject(EXPERIENCE_PROPOSAL_RESOLVER)
@@ -152,6 +163,45 @@ export class TourActivityGenerationService {
   @Optional()
   private readonly preferenceInterpreter?: PreferenceInterpreterService,
   ) {}
+
+  private async discoverExperienceGaps(
+    destinationName: string,
+    interests: string[],
+    deficits: any[],
+    requestedFormats: string[],
+    additionalPreferences?: string,
+  ): Promise<any> {
+    const targetKind = deficits.find((deficit) => deficit.experienceFormat)?.experienceFormat;
+    const request: ExperienceDiscoveryRequest = {
+      scope: { destinationName },
+      requestedThemes: interests,
+      semanticQuery: additionalPreferences,
+      coverageGaps: deficits.map((deficit) => deficit.message || deficit.reason),
+      breadth: 'focused',
+      maxCandidates: 8,
+    };
+    const plan = this.experienceDiscoveryPlanner.plan(request);
+    const proposals: any[] = [];
+    const searchTrace: any[] = [];
+    for (const plannedQuery of plan.queries) {
+      const grounded = await this.groundedSearchProvider.search({
+        destinationName,
+        requestedThemes: interests,
+        requestedExperienceFormats: requestedFormats,
+        additionalPreferences,
+        query: plannedQuery.query,
+      });
+      searchTrace.push({ query: plannedQuery.query, provider: grounded.provider, model: grounded.model, groundingStatus: grounded.groundingStatus, evidenceCount: grounded.evidence.length });
+      if (grounded.evidence.length === 0) continue;
+      const extracted = await this.discoveryProvider.discover(
+        { destinationName, requestedThemes: interests, requestedExperienceFormats: requestedFormats, additionalPreferences, mode: { type: 'gap_fill', deficits }, maxProposals: 8 },
+        grounded,
+      );
+      proposals.push(...(extracted.proposals ?? []));
+      if (proposals.length >= 8) break;
+    }
+    return { proposals: proposals.slice(0, 8), provider: 'experience-discovery', model: 'provider-neutral', groundingStatus: proposals.length ? 'applied' : 'no_usable_evidence', searchTrace };
+  }
 
   /** Daily planning solver: no new Prisma columns. If a real base date exists, combine it
    * with the planned day/minutes into a real Date; otherwise never invent
@@ -789,13 +839,11 @@ export class TourActivityGenerationService {
               if (deficits.length > 0) {
                 try {
                   const discoveryResult =
-                    await this.activityDiscoveryService.discoverGaps(
+                    await this.discoverExperienceGaps(
                       request.destination.label,
-                      undefined,
                       request.intent.interests,
                       deficits,
                       request.intent.experienceFormats,
-                      request.intent.explorationStyle,
                       request.intent.additionalPreferences,
                     );
                   traceSteps.push(buildDiscoveryStep(discoveryResult));
@@ -1218,13 +1266,11 @@ export class TourActivityGenerationService {
         if (remainingStructuralDeficits.length > 0) {
           try {
             const discoveryResult =
-              await this.activityDiscoveryService.discoverGaps(
+              await this.discoverExperienceGaps(
                 request.destination.label,
-                undefined,
                 request.intent.interests,
                 remainingStructuralDeficits,
                 request.intent.experienceFormats,
-                request.intent.explorationStyle,
                 request.intent.additionalPreferences,
               );
             traceSteps.push(buildDiscoveryStep(discoveryResult));
