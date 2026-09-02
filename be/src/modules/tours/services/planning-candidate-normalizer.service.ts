@@ -59,16 +59,16 @@ export class PlanningCandidateNormalizerService {
     scoreBreakdownById: Map<string, CandidateScoreBreakdown>,
   ): Promise<PlanningActivityCandidate[]> {
     return experiences.map((experience) => {
-      const firstComponent = experience.components?.[0]?.geoEntity;
+      const firstComponent = experience.components?.[0]?.geoEntity ?? experience.components?.[0];
       const latitude = experience.latitude ?? firstComponent?.latitude;
       const longitude = experience.longitude ?? firstComponent?.longitude;
       return {
         experienceId: experience.id,
         activityId: experience.id,
         kind: 'POI',
-        title: experience.canonicalName,
+        title: experience.canonicalName ?? experience.name,
         durationMinutes:
-          experience.durationMinutes ??
+          experience.durationMinutes ?? (experience.duration ? experience.duration * 60 : undefined) ??
           this.policy.compositeDefaultDurationMinutes,
         spatialFootprint: buildPointFootprint(
           latitude ?? Number.NaN,

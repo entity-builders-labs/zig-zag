@@ -1357,7 +1357,7 @@ export class ExperienceGenerationService {
       );
 
       const planningCandidates =
-        await this.planningCandidateNormalizer.normalize(
+        await this.planningCandidateNormalizer.normalizeExperiences(
           Array.from(candidateActivitiesById.values()),
           offeredScoreBreakdownById,
         );
