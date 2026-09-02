@@ -11,8 +11,7 @@ import {
   Icon,
   Pressable,
 } from '@gluestack-ui/themed';
-import { useRouter } from 'expo-router';
-import { Footprints, Milestone, Sparkles, ChevronRight } from 'lucide-react-native';
+import { Footprints, Milestone, Sparkles } from 'lucide-react-native';
 import { Map as MapView } from '../../features/map';
 import { fetchWalkingRoute } from '../../features/map/directions';
 import {
@@ -120,7 +119,6 @@ export const CompositeStopCard = ({
         ? routeCoordinates
         : waypointCoordinates;
   const mapRegion = getRegionForCoordinates(framingPoints);
-  const router = useRouter();
   const KindIcon = KIND_ICONS[data.kind] || Sparkles;
 
   // No flex={1} — see the comment in TourStopCard.tsx; this card in
@@ -366,19 +364,6 @@ export const CompositeStopCard = ({
               </HStack>
             )}
 
-            {!editable && (
-              <Pressable
-                onPress={() => router.push(`/activities/${data.id}`)}
-                mt='$3'
-              >
-                <HStack alignItems='center' justifyContent='flex-end' space='xs'>
-                  <Text size='2xs' color='$tertiary700' fontWeight='$bold'>
-                    Ver experiencia completa
-                  </Text>
-                  <Icon as={ChevronRight} size='2xs' color='$tertiary700' />
-                </HStack>
-              </Pressable>
-            )}
           </VStack>
         </Box>
       </Box>

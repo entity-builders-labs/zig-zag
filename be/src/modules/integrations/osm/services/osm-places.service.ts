@@ -154,7 +154,7 @@ export class OsmPlacesService {
   /**
    * The neighborhood/administrative boundary that contains a point — the
    * area candidate offered to the LLM so it never has to invent which
-   * ActivityFamily a composite belongs to. Never throws, same defensive
+   * experience grouping a composite belongs to. Never throws, same defensive
    * fallback as findStreetsNear.
    */
   async findContainingBoundary(
