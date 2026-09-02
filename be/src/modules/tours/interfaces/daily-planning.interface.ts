@@ -62,6 +62,8 @@ export interface PlanningExperienceCandidate {
     internalWalkingMinutes?: number;
     internalWalkingDistanceMeters?: number;
     internalTravelMinutes?: number;
+    routingProviderCounts?: Record<string, number>;
+    routingFallbackCount?: number;
   };
   metadata?: {
     source?: string;
@@ -92,6 +94,8 @@ export interface TravelEstimate {
   walkingMinutes: number;
   walkingDistanceMeters: number;
   approximate: boolean;
+  provider?: string;
+  fallbackReason?: string;
 }
 
 export const TRAVEL_ESTIMATE_PROVIDER = 'TRAVEL_ESTIMATE_PROVIDER';
@@ -145,6 +149,13 @@ export interface DailyPlanningSolution {
     solver: string;
     approximateTravel: boolean;
     iterations?: number;
+    routing?: {
+      externalEstimateCount: number;
+      internalEstimateCount: number;
+      approximateEstimateCount: number;
+      fallbackCount: number;
+      providerCounts: Record<string, number>;
+    };
     /** Snapshot of the actual constraints the solver evaluated. This is
      * observability data only; it does not participate in the algorithm. */
     constraints?: {
