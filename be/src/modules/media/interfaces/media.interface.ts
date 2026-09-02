@@ -67,3 +67,20 @@ export interface ActivityMediaUpdatedPayload {
   mediaUpdatedAt: string;
   photos?: DocumentaryPhoto[];
 }
+
+export interface ExperienceMediaEnrichmentPayload {
+  experienceId: string;
+  name: string;
+  destinationLabel?: string;
+  latitude: number;
+  longitude: number;
+  category?: string;
+}
+
+export interface ExperienceMediaUpdatedPayload {
+  experienceId: string;
+  mediaStatus: 'ENRICHED' | 'FAILED';
+  photoCount: number;
+  mediaUpdatedAt: string;
+  photos?: DocumentaryPhoto[];
+}

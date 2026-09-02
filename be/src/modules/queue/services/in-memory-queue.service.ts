@@ -6,7 +6,7 @@ import {
 
 export const CRITICAL_TOPICS = new Set<string>([
   'TourGenerationRequested',
-  'ActivityMediaEnrichmentRequested',
+  'ExperienceMediaEnrichmentRequested',
 ]);
 
 /**
@@ -16,7 +16,7 @@ export const CRITICAL_TOPICS = new Set<string>([
  * exists, publish resolves only after every registered consumer has completed
  * successfully. A consumer failure therefore keeps the outbox row retryable.
  *
- * Critical topics (TourGenerationRequested, ActivityMediaEnrichmentRequested)
+ * Critical topics (TourGenerationRequested, ExperienceMediaEnrichmentRequested)
  * require a registered local subscriber and throw an error when missing so the
  * outbox loop retries. Optional topics (e.g. ActivityMediaUpdated, TourProgressUpdated)
  * are acknowledged as no-ops when no in-process consumer is listening.

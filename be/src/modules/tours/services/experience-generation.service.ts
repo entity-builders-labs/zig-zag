@@ -568,7 +568,7 @@ export class ExperienceGenerationService {
     }
     if (
       metadata?.generationStatus === 'completed' &&
-      tour.activities.length > 0
+      tour.experiences.length > 0
     ) {
       throw new BadRequestException('Activities have already been generated');
     }
@@ -1618,22 +1618,17 @@ export class ExperienceGenerationService {
         });
 
         if (this.outboxService) {
-          for (const act of activityEntities) {
-            if (
-              !act.photos ||
-              (Array.isArray(act.photos) && act.photos.length === 0)
-            ) {
+          for (const experience of experienceEntities) {
+            if (experience.mediaStatus === 'PENDING') {
               await this.outboxService.createInTx(tx, {
-                eventType: 'ActivityMediaEnrichmentRequested',
+                eventType: 'ExperienceMediaEnrichmentRequested',
                 payload: {
-                  activityId: act.id,
-                  name: act.name,
-                  destinationLabel:
-                    request.destination?.label || act.formattedAddress,
-                  wikidataId: (act.metadata as any)?.wikidataId,
-                  latitude: act.latitude,
-                  longitude: act.longitude,
-                  category: act.type || act.kind,
+                  experienceId: experience.id,
+                  name: experience.canonicalName,
+                  destinationLabel: request.destination?.label,
+                  latitude: experience.latitude ?? experience.components[0]?.geoEntity?.latitude ?? 0,
+                  longitude: experience.longitude ?? experience.components[0]?.geoEntity?.longitude ?? 0,
+                  category: experience.components[0]?.role,
                 },
               });
             }
@@ -1661,6 +1656,18 @@ export class ExperienceGenerationService {
       }
 
       const completedMessage = `¡Listo! ${activities.length} experiencias generadas exitosamente.`;
+      const traceStepList = (generationTrace as any).steps ?? [];
+      const executionSummary = {
+        status: 'completed' as const,
+        steps: traceStepList.map((step: any) => step.summary).filter(Boolean),
+        acceptedExperiences: traceStepList
+          .filter((step: any) => step.stage === 'entity_resolution')
+          .reduce((sum: number, step: any) => sum + Number((step.resolution as any)?.acceptedCount ?? 0), 0),
+        rejectedProposals: traceStepList
+          .filter((step: any) => step.stage === 'entity_resolution')
+          .reduce((sum: number, step: any) => sum + Number((step.resolution as any)?.rejectedCount ?? 0), 0),
+        selectedExperiences: activities.length,
+      };
       const completedTour = await this.toursService.findOne(tourId);
       const effectiveMetadata =
         (completedTour?.metadata as any) || (metadata as any) || {};
@@ -1671,6 +1678,7 @@ export class ExperienceGenerationService {
             metadata: {
               ...withoutGenerationFailure(effectiveMetadata),
               generationTrace,
+              executionSummary,
               generationStatus: 'completed',
               generationMessage: completedMessage,
               generationCompletedAt: new Date().toISOString(),

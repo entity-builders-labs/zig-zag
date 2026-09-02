@@ -7,8 +7,8 @@ import {
 } from '../../queue/interfaces/message-queue.interface';
 import { OutboxService } from '../../outbox/services/outbox.service';
 import {
-  ActivityMediaEnrichmentPayload,
-  ActivityMediaUpdatedPayload,
+  ExperienceMediaEnrichmentPayload,
+  ExperienceMediaUpdatedPayload,
   MediaLookupResult,
 } from '../interfaces/media.interface';
 import { WikimediaCommonsService } from './wikimedia-commons.service';
@@ -26,8 +26,8 @@ export class MediaEnrichmentProcessorService implements OnModuleInit {
   ) {}
 
   onModuleInit(): void {
-    this.messageQueue.subscribe<ActivityMediaEnrichmentPayload>(
-      'ActivityMediaEnrichmentRequested',
+    this.messageQueue.subscribe<ExperienceMediaEnrichmentPayload>(
+      'ExperienceMediaEnrichmentRequested',
       this.handleMediaEnrichment.bind(this),
     );
     this.logger.log(
@@ -36,11 +36,11 @@ export class MediaEnrichmentProcessorService implements OnModuleInit {
   }
 
   async handleMediaEnrichment(
-    payload: ActivityMediaEnrichmentPayload,
+    payload: ExperienceMediaEnrichmentPayload,
   ): Promise<void> {
-    const { activityId, name, destinationLabel, latitude, longitude } = payload;
+    const { experienceId, name, destinationLabel, latitude, longitude } = payload;
     this.logger.log(
-      `[MediaEnrichmentProcessor] Processing media enrichment for activity "${name}" (id: ${activityId})...`,
+      `[MediaEnrichmentProcessor] Processing media enrichment for experience "${name}" (id: ${experienceId})...`,
     );
 
     const lookup = await this.wikimediaCommons.findPhotosForActivity({
@@ -57,25 +57,24 @@ export class MediaEnrichmentProcessorService implements OnModuleInit {
     }
 
     if (lookup.outcome === 'PERMANENT_FAILURE') {
-      await this.persistPermanentFailure(activityId, name, lookup);
+      await this.persistPermanentFailure(experienceId, name, lookup);
       return;
     }
 
     const photos = lookup.outcome === 'FOUND' ? lookup.photos : [];
     await this.prisma.$transaction(async (tx) => {
       const mediaUpdatedAt = new Date();
-      await tx.activity.update({
-        where: { id: activityId },
+      await tx.experience.update({
+        where: { id: experienceId },
         data: {
-          photos: photos.length > 0 ? (photos as any) : Prisma.JsonNull,
           mediaStatus: MediaStatus.ENRICHED,
           mediaUpdatedAt,
           mediaError: null,
         },
       });
 
-      const updatedPayload: ActivityMediaUpdatedPayload = {
-        activityId,
+      const updatedPayload: ExperienceMediaUpdatedPayload = {
+        experienceId,
         mediaStatus: 'ENRICHED',
         photoCount: photos.length,
         mediaUpdatedAt: mediaUpdatedAt.toISOString(),
@@ -83,32 +82,32 @@ export class MediaEnrichmentProcessorService implements OnModuleInit {
       };
 
       await this.outboxService.createInTx(tx, {
-        eventType: 'ActivityMediaUpdated',
+        eventType: 'ExperienceMediaUpdated',
         payload: updatedPayload,
       });
     });
 
     this.logger.log(
       lookup.outcome === 'FOUND'
-        ? `[MediaEnrichmentProcessor] Enriched activity "${name}" with ${photos.length} authentic photo(s).`
+        ? `[MediaEnrichmentProcessor] Enriched experience "${name}" with ${photos.length} authentic photo(s).`
         : `[MediaEnrichmentProcessor] Wikimedia authoritatively returned no documentary photo for "${name}".`,
     );
   }
 
   private async persistPermanentFailure(
-    activityId: string,
+    experienceId: string,
     name: string,
     lookup: Extract<MediaLookupResult, { outcome: 'PERMANENT_FAILURE' }>,
   ): Promise<void> {
     const errorMessage = lookup.error.slice(0, 500);
     this.logger.error(
-      `[MediaEnrichmentProcessor] Permanent media enrichment failure for activity "${name}" (id: ${activityId}): ${errorMessage}`,
+      `[MediaEnrichmentProcessor] Permanent media enrichment failure for experience "${name}" (id: ${experienceId}): ${errorMessage}`,
     );
 
     await this.prisma.$transaction(async (tx) => {
       const mediaUpdatedAt = new Date();
-      await tx.activity.update({
-        where: { id: activityId },
+      await tx.experience.update({
+        where: { id: experienceId },
         data: {
           mediaStatus: MediaStatus.FAILED,
           mediaUpdatedAt,
@@ -116,15 +115,15 @@ export class MediaEnrichmentProcessorService implements OnModuleInit {
         },
       });
 
-      const failedPayload: ActivityMediaUpdatedPayload = {
-        activityId,
+      const failedPayload: ExperienceMediaUpdatedPayload = {
+        experienceId,
         mediaStatus: 'FAILED',
         photoCount: 0,
         mediaUpdatedAt: mediaUpdatedAt.toISOString(),
       };
 
       await this.outboxService.createInTx(tx, {
-        eventType: 'ActivityMediaUpdated',
+        eventType: 'ExperienceMediaUpdated',
         payload: failedPayload,
       });
     });

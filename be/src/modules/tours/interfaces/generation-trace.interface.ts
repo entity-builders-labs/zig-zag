@@ -192,4 +192,13 @@ export interface GenerationTrace {
   duplicateCount: number;
   auditFindings?: GenerationAuditResult;
   tourCompleteness?: TourCompletenessTraceResult;
+  /** Human-readable, persisted decision narrative for the Bitácora UI. */
+  executionSummary?: {
+    status: 'completed' | 'failed';
+    steps: string[];
+    acceptedExperiences?: number;
+    rejectedProposals?: number;
+    selectedExperiences?: number;
+    failure?: string;
+  };
 }

@@ -38,7 +38,7 @@ export class TourGenerationProcessorService implements OnModuleInit {
 
     if (
       metadata.generationStatus === 'completed' &&
-      tour.activities.length > 0
+      tour.experiences.length > 0
     ) {
       this.logger.debug(
         `[TourGenerationProcessor] ${payload.eventKey} already completed; duplicate delivery is a no-op.`,
