@@ -13,63 +13,90 @@ describe('CoverageAnalyzer', () => {
     indexedCandidateCount: 4,
   };
 
-  function poiCandidate(id: string, overrides: Record<string, unknown> = {}) {
+  function candidate(id: string, overrides: Record<string, unknown> = {}) {
     return {
       id,
-      name: `POI ${id}`,
-      source: 'google_places',
-      type: 'museum',
+      name: `Experience ${id}`,
+      source: 'catalog',
       weightedScore: 4.5,
       distanceKm: 1,
+      durationMinutes: 120,
+      themes: ['history'],
+      traits: ['walking'],
+      intents: ['visit-like'],
       ...overrides,
     };
   }
 
-  it('scales required candidate count by travelPace', () => {
+  it('scales required candidate count by travel pace', () => {
     const base = {
-      candidates: Array.from({ length: 4 }, (_, index) =>
-        poiCandidate(`candidate-${index}`),
-      ),
+      candidates: Array.from({ length: 5 }, (_, index) => candidate(`candidate-${index}`)),
       requestedThemes: [] as string[],
       days: 1,
       explorationStyle: 'balanced',
       semanticCoverage: semantic,
-      offeredCandidateCount: 4,
+      offeredCandidateCount: 5,
       providerHealth: { status: 'healthy' as const },
     };
 
-    expect(
-      service.analyze({ ...base, travelPace: 'relaxed' })
-        .requiredCandidateCount,
-    ).toBe(3);
-    expect(
-      service.analyze({ ...base, travelPace: 'moderate' })
-        .requiredCandidateCount,
-    ).toBe(4);
-    expect(
-      service.analyze({ ...base, travelPace: 'fast' }).requiredCandidateCount,
-    ).toBe(5);
+    expect(service.analyze({ ...base, travelPace: 'relaxed' }).requiredCandidateCount).toBe(3);
+    expect(service.analyze({ ...base, travelPace: 'moderate' }).requiredCandidateCount).toBe(4);
+    expect(service.analyze({ ...base, travelPace: 'fast' }).requiredCandidateCount).toBe(5);
   });
 
-  it('chooses Places Text Search for a conventional theme-only deficit', () => {
+  it('keeps a mature relevant catalog local-only', () => {
     const report = service.analyze({
-      candidates: [
-        poiCandidate('1'),
-        poiCandidate('2'),
-        poiCandidate('3'),
-        poiCandidate('4'),
-      ],
-      requestedThemes: ['beach'],
+      candidates: Array.from({ length: 8 }, (_, index) =>
+        candidate(`history-${index}`, { themes: ['history', 'architecture'] }),
+      ),
+      requestedThemes: ['history'],
+      requestedTraits: ['walking'],
+      requestedIntents: ['visit-like'],
       days: 1,
-      explorationStyle: 'balanced',
-      semanticCoverage: semantic,
-      offeredCandidateCount: 4,
+      semanticCoverage: { ...semantic, eligibleCandidateCount: 8, indexedCandidateCount: 8 },
+      offeredCandidateCount: 8,
       providerHealth: { status: 'healthy' },
     });
 
     expect(report.status).toBe('sufficient');
-    expect(report.decision.action).toBe('places_text_search');
-    expect(report.decision.reason).toBe('missing_requested_theme');
+    expect(report.relevantCandidateCount).toBe(8);
+    expect(report.decision).toEqual({
+      action: 'none',
+      reason: 'coverage_sufficient',
+      requiresAdditionalDiscovery: false,
+    });
+  });
+
+  it('treats a large but irrelevant catalog as insufficient coverage', () => {
+    const report = service.analyze({
+      candidates: Array.from({ length: 300 }, (_, index) =>
+        candidate(`irrelevant-${index}`, {
+          themes: ['shopping'],
+          traits: ['indoor'],
+          intents: ['shopping-like'],
+        }),
+      ),
+      requestedThemes: ['tango'],
+      requestedTraits: ['live music'],
+      requestedIntents: ['performance-like'],
+      days: 1,
+      semanticCoverage: { status: 'applied', eligibleCandidateCount: 300, indexedCandidateCount: 300 },
+      offeredCandidateCount: 300,
+      providerHealth: { status: 'healthy' },
+    });
+
+    expect(report.eligibleCandidateCount).toBe(300);
+    expect(report.relevantCandidateCount).toBe(0);
+    expect(report.status).toBe('insufficient');
+    expect(report.decision.action).toBe('needs_additional_discovery');
+    expect(report.decision.requiresAdditionalDiscovery).toBe(true);
+    expect(report.deficits).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ reason: 'missing_requested_theme', theme: 'tango' }),
+        expect.objectContaining({ reason: 'missing_requested_trait', trait: 'live music' }),
+        expect.objectContaining({ reason: 'missing_requested_intent', intent: 'performance-like' }),
+      ]),
+    );
   });
 
   it('reports provider outage as degraded when no usable pool exists', () => {
@@ -77,7 +104,6 @@ describe('CoverageAnalyzer', () => {
       candidates: [],
       requestedThemes: ['history'],
       days: 1,
-      explorationStyle: 'balanced',
       semanticCoverage: {
         status: 'unavailable',
         eligibleCandidateCount: 0,
@@ -90,148 +116,26 @@ describe('CoverageAnalyzer', () => {
 
     expect(report.status).toBe('degraded');
     expect(report.decision.action).toBe('fail');
-    expect(report.decision.reason).toBe(
-      'provider_degraded_without_usable_pool',
-    );
+    expect(report.decision.reason).toBe('provider_degraded_without_usable_pool');
   });
 
-  it('does not block when a requested experience shape has zero candidates', () => {
+  it('detects duration mismatch without pretending the catalog is empty', () => {
     const report = service.analyze({
-      candidates: [
-        poiCandidate('1'),
-        poiCandidate('2'),
-        poiCandidate('3'),
-        poiCandidate('4'),
-      ],
-      requestedThemes: [],
+      candidates: Array.from({ length: 4 }, (_, index) =>
+        candidate(`long-${index}`, { durationMinutes: 360 }),
+      ),
+      requestedThemes: ['history'],
+      preferredDurationMinutes: { max: 120 },
       days: 1,
-      explorationStyle: 'balanced',
       semanticCoverage: semantic,
       offeredCandidateCount: 4,
       providerHealth: { status: 'healthy' },
     });
 
-    expect(report.deficits).not.toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          reason: 'missing_requested_experience_format',
-        }),
-      ]),
-    );
-    expect(report.decision.action).toBe('none');
-  });
-
-  it('does not add a structural deficit when a different experience shape exists', () => {
-    const report = service.analyze({
-      candidates: [
-        poiCandidate('1'),
-        poiCandidate('2'),
-        poiCandidate('3'),
-        poiCandidate('4'),
-        {
-          id: 'route-1',
-          name: 'Costanera route',
-          source: 'catalog',
-          distanceKm: 1,
-        },
-      ],
-      requestedThemes: [],
-      days: 1,
-      explorationStyle: 'balanced',
-      semanticCoverage: {
-        ...semantic,
-        eligibleCandidateCount: 5,
-        indexedCandidateCount: 5,
-      },
-      offeredCandidateCount: 5,
-      providerHealth: { status: 'healthy' },
-    });
-
-    expect(report.deficits).not.toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          reason: 'missing_requested_experience_format',
-        }),
-      ]),
-    );
-  });
-
-  it('uses theme coverage rather than structural format gates', () => {
-    const report = service.analyze({
-      candidates: [
-        poiCandidate('1'),
-        poiCandidate('2'),
-        poiCandidate('3'),
-        poiCandidate('4'),
-      ],
-      requestedThemes: ['architecture'],
-      days: 1,
-      explorationStyle: 'balanced',
-      semanticCoverage: semantic,
-      offeredCandidateCount: 4,
-      providerHealth: { status: 'healthy' },
-    });
-
+    expect(report.relevantCandidateCount).toBe(4);
     expect(report.deficits).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({
-          reason: 'missing_requested_theme',
-          theme: 'architecture',
-        }),
-      ]),
-    );
-    expect(report.decision.action).toBe('places_text_search');
-    expect(report.decision.reason).toBe('missing_requested_theme');
-  });
-
-  it('uses real catalog candidates without structural format mapping', () => {
-    const report = service.analyze({
-      candidates: [
-        poiCandidate('1'),
-        poiCandidate('2'),
-        poiCandidate('3'),
-        poiCandidate('4'),
-      ],
-      requestedThemes: [],
-      days: 1,
-      explorationStyle: 'balanced',
-      semanticCoverage: semantic,
-      offeredCandidateCount: 4,
-      providerHealth: { status: 'healthy' },
-    });
-
-    expect(report.status).toBe('sufficient');
-    expect(report.decision.action).toBe('none');
-    expect(report.requestedThemeCoverage).toEqual([]);
-  });
-
-  it('does not report a structural deficit when only another experience exists', () => {
-    const report = service.analyze({
-      candidates: [
-        {
-          id: 'route-1',
-          name: 'Route',
-          source: 'catalog',
-          distanceKm: 1,
-        },
-      ],
-      requestedThemes: [],
-      days: 1,
-      explorationStyle: 'balanced',
-      semanticCoverage: {
-        ...semantic,
-        eligibleCandidateCount: 1,
-        indexedCandidateCount: 1,
-      },
-      offeredCandidateCount: 1,
-      providerHealth: { status: 'healthy' },
-    });
-
-    expect(report.deficits).not.toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          reason: 'missing_requested_experience_format',
-        }),
+        expect.objectContaining({ reason: 'insufficient_duration_fit' }),
       ]),
     );
   });
