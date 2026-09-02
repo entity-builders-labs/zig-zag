@@ -35,6 +35,7 @@ export class ExperienceProposalResolverService
     input: ExperienceResolutionRequest,
   ): Promise<ExperienceResolutionResponse> {
     const proposals = Array.isArray(input?.proposals) ? input.proposals : [];
+    const evidence = input.evidence ?? [];
     const boundary = input?.destinationBoundary as OsmCandidate | undefined;
     if (!boundary) {
       throw new Error('Experience resolution requires destinationBoundary');
@@ -51,7 +52,7 @@ export class ExperienceProposalResolverService
         this.resolveProposal(proposal, boundary, streets, pois, {
           streets: streetLookup,
           pois: poiLookup,
-        }),
+        }, input.evidence ?? []),
       ),
     );
     const validation = this.geographicValidator.validateBatch(
@@ -71,6 +72,9 @@ export class ExperienceProposalResolverService
         durationMinutes: candidate.proposal.suggestedDurationMinutes,
         metadata: { themes: candidate.proposal.themes, traits: candidate.proposal.traits, source: 'grounded_experience_discovery' },
         components: candidate.resolvedEntities.filter((entity: any) => entity.status === 'resolved' && entity.geoEntityId).map((entity: any, index: number) => ({ geoEntityId: entity.geoEntityId, order: index + 1, role: entity.role, required: true })),
+        evidence: evidence
+          .filter((item: { key?: string }) => candidate.proposal.evidenceKeys?.includes(item.key ?? ''))
+          .map((item: { source: string; url?: string; title?: string; snippet?: string }) => ({ source: item.source, url: item.url, title: item.title, snippet: item.snippet })),
       });
       return { ...candidate, experienceId: experience.id };
     }));
@@ -94,6 +98,7 @@ export class ExperienceProposalResolverService
       streets: OsmLookupResult<OsmCandidate[]>;
       pois: OsmLookupResult<OsmCandidate[]>;
     },
+    evidence: Array<{ key?: string; source: string; url?: string; title?: string; snippet?: string }>,
   ) {
     const entities: ResolvedGeoEntity[] = [];
     for (const hint of proposal?.componentHints ?? proposal?.entityHints ?? []) {

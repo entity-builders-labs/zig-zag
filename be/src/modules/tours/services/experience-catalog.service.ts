@@ -182,6 +182,22 @@ export class ExperienceCatalogService {
     }
 
     return this.prisma.$transaction(async (tx) => {
+      const normalizedName = input.canonicalName.trim().toLocaleLowerCase();
+      const existing = await tx.experience.findMany({
+        where: { status: ExperienceStatus.VERIFIED },
+        include: { components: true, evidence: true, traits: true },
+        take: 100,
+      });
+      const same = existing.find((candidate) => {
+        const candidateName = candidate.canonicalName.trim().toLocaleLowerCase();
+        const sharedComponent = candidate.components.some((component) =>
+          input.components.some((incoming) => incoming.geoEntityId === component.geoEntityId),
+        );
+        return candidateName === normalizedName && sharedComponent;
+      });
+      if (same) {
+        return same;
+      }
       const experience = await tx.experience.create({
         data: {
           canonicalName: input.canonicalName,

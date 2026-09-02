@@ -173,6 +173,7 @@ export class ExperienceGenerationService {
     };
     const plan = this.experienceDiscoveryPlanner.plan(request);
     const proposals: any[] = [];
+    const evidence: any[] = [];
     const searchTrace: any[] = [];
     for (const plannedQuery of plan.queries) {
       const grounded = await this.groundedSearchProvider.search({
@@ -184,6 +185,7 @@ export class ExperienceGenerationService {
       });
       searchTrace.push({ query: plannedQuery.query, provider: grounded.provider, model: grounded.model, groundingStatus: grounded.groundingStatus, evidenceCount: grounded.evidence.length });
       if (grounded.evidence.length === 0) continue;
+      evidence.push(...grounded.evidence);
       const extracted = await this.discoveryProvider.discover(
         { destinationName, requestedThemes: interests, requestedExperienceFormats: requestedFormats, additionalPreferences, mode: { type: 'gap_fill', deficits }, maxProposals: 8 },
         grounded,
@@ -191,7 +193,7 @@ export class ExperienceGenerationService {
       proposals.push(...(extracted.proposals ?? []));
       if (proposals.length >= 8) break;
     }
-    return { proposals: proposals.slice(0, 8), provider: 'experience-discovery', model: 'provider-neutral', groundingStatus: proposals.length ? 'applied' : 'no_usable_evidence', searchTrace };
+    return { proposals: proposals.slice(0, 8), evidence, provider: 'experience-discovery', model: 'provider-neutral', groundingStatus: proposals.length ? 'applied' : 'no_usable_evidence', searchTrace };
   }
 
   /** Daily planning solver: no new Prisma columns. If a real base date exists, combine it
@@ -845,6 +847,7 @@ export class ExperienceGenerationService {
                           proposals: discoveryResult.proposals,
                           destinationName: request.destination.label,
                           destinationBoundary: destinationScope,
+                          evidence: discoveryResult.evidence,
                         });
                       traceSteps.push(
                         buildEntityResolutionStep(resolutionResult),
@@ -1251,6 +1254,7 @@ export class ExperienceGenerationService {
                 proposals: discoveryResult.proposals,
                 destinationName: request.destination.label,
                 destinationBoundary: destinationScope,
+                evidence: discoveryResult.evidence,
               });
               traceSteps.push(
                 buildEntityResolutionStep(resolutionResult),
