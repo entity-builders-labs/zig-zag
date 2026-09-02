@@ -53,11 +53,13 @@ export interface PlanningExperienceCandidate {
   title: string;
   durationMinutes: number;
   spatialFootprint: SpatialFootprint;
+  /** Ordered required components retained so internal routing can use the
+   * same request mobility constraints as inter-Experience routing. */
+  componentFootprints?: SpatialFootprint[];
   openingHours?: NormalizedOpeningHours;
   semanticScore: number;
   qualityScore?: number;
   themes?: string[];
-  areaId?: string;
   mobility?: {
     internalWalkingMinutes?: number;
     internalWalkingDistanceMeters?: number;
