@@ -46,6 +46,48 @@ export interface VerifiedExperienceInput {
 export class ExperienceCatalogService {
   constructor(private readonly prisma: PrismaService) {}
 
+  async findVerifiedWithin(
+    latitude: number,
+    longitude: number,
+    radiusMeters: number,
+    limit = 100,
+  ) {
+    const experiences = await this.prisma.experience.findMany({
+      where: { status: ExperienceStatus.VERIFIED },
+      include: { components: { include: { geoEntity: true } } },
+      take: limit * 4,
+      orderBy: { qualityScore: 'desc' },
+    });
+    const radiusSquared = radiusMeters * radiusMeters;
+    return experiences
+      .map((experience) => {
+        const component = experience.components.find(
+          (item) => Number.isFinite(item.geoEntity.latitude) && Number.isFinite(item.geoEntity.longitude),
+        )?.geoEntity;
+        const lat = experience.latitude ?? component?.latitude;
+        const lon = experience.longitude ?? component?.longitude;
+        if (!Number.isFinite(lat) || !Number.isFinite(lon)) return undefined;
+        const distanceSquared =
+          ((lat! - latitude) * 111_000) ** 2 +
+          ((lon! - longitude) * 111_000 * Math.cos((latitude * Math.PI) / 180)) ** 2;
+        if (distanceSquared > radiusSquared) return undefined;
+        return {
+          id: experience.id,
+          name: experience.canonicalName,
+          description: experience.description,
+          latitude: lat,
+          longitude: lon,
+          duration: (experience.durationMinutes ?? 120) / 60,
+          kind: 'EXPERIENCE',
+          type: 'experience',
+          metadata: { source: 'experience_catalog', experienceId: experience.id },
+          components: experience.components,
+        };
+      })
+      .filter((experience): experience is NonNullable<typeof experience> => !!experience)
+      .slice(0, limit);
+  }
+
   async upsertGeoEntity(input: GeoEntityInput) {
     const identity = await this.prisma.geoEntityIdentity.findUnique({
       where: {

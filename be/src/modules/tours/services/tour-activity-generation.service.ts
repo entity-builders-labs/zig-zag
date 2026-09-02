@@ -9,7 +9,6 @@ import {
 import { ConfigType } from '@nestjs/config';
 import { ActivityKind } from '@prisma/client';
 import { PrismaService } from '@core/database/prisma.service';
-import { ActivitiesService } from '@activities/services/activities.service';
 import { OutboxService } from '../../outbox/services/outbox.service';
 import { VectorStoreService } from '@shared/ai/services/vector-store.service';
 import {
@@ -86,6 +85,7 @@ import {
   SearchGroundedDiscoveryProvider,
 } from '../interfaces/activity-discovery.interface';
 import { ExperienceDiscoveryPlannerService } from './experience-discovery-planner.service';
+import { ExperienceCatalogService } from './experience-catalog.service';
 import { ExperienceDiscoveryRequest } from '../interfaces/experience-discovery.interface';
 import { CoverageAnalyzer } from './coverage-analyzer.service';
 import { redactTracePayload } from '../utils/trace-redaction.util';
@@ -126,7 +126,7 @@ export class TourActivityGenerationService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly toursService: ToursService,
-    private readonly activitiesService: ActivitiesService,
+    private readonly experienceCatalog: ExperienceCatalogService,
     private readonly vectorStoreService: VectorStoreService,
     private readonly googlePlacesService: GooglePlacesService,
     private readonly tourImageService: TourImageService,
@@ -756,9 +756,9 @@ export class TourActivityGenerationService {
 
         try {
           const nearbyActivities = await this.withTimeout(
-            this.activitiesService.findAll(
-              searchArea.latitude.toString(),
-              searchArea.longitude.toString(),
+            this.experienceCatalog.findVerifiedWithin(
+              searchArea.latitude,
+              searchArea.longitude,
               radius,
               activityLimit,
             ),
@@ -884,18 +884,6 @@ export class TourActivityGenerationService {
                           discoveryResolvedActivityIds.add(experience.id);
                         });
                       }
-                      if (persistedDiscoveryActivityIds.length > 0) {
-                        const newlyResolvedActivities =
-                          await this.activitiesService.findManyByIds(
-                            persistedDiscoveryActivityIds,
-                            searchArea.latitude,
-                            searchArea.longitude,
-                          );
-                        newlyResolvedActivities.forEach((act: any) => {
-                          allEligibleActivitiesById.set(act.id, act);
-                          discoveryResolvedActivityIds.add(act.id);
-                        });
-                      }
                     } catch (resolutionError) {
                       this.logger.warn(
                         `Entity resolution failed (non-fatal): ${resolutionError.message}`,
@@ -975,9 +963,9 @@ export class TourActivityGenerationService {
                   );
               }
 
-              const refreshedActivities = await this.activitiesService.findAll(
-                searchArea.latitude.toString(),
-                searchArea.longitude.toString(),
+              const refreshedActivities = await this.experienceCatalog.findVerifiedWithin(
+                searchArea.latitude,
+                searchArea.longitude,
                 radius,
                 activityLimit,
               );
@@ -1308,17 +1296,6 @@ export class TourActivityGenerationService {
                 });
               }
               if (persistedDiscoveryActivityIds.length > 0) {
-                const newlyResolvedActivities =
-                  await this.activitiesService.findManyByIds(
-                    persistedDiscoveryActivityIds,
-                    searchArea.latitude,
-                    searchArea.longitude,
-                  );
-                newlyResolvedActivities.forEach((act: any) => {
-                  allEligibleActivitiesById.set(act.id, act);
-                  discoveryResolvedActivityIds.add(act.id);
-                });
-
                 const reconciledSelection = await this.rankAndSliceActivities(
                   Array.from(allEligibleActivitiesById.values()),
                   request.intent,
