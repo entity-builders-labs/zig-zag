@@ -92,7 +92,7 @@ jobs:
         run: |
           mkdir -p ci-logs
           yarn workspace fe build:web
-          python3 -m http.server 19006 --directory fe/dist > ci-logs/frontend.log 2>&1 &
+          python3 fe/e2e/spa-server.py --directory fe/dist --port 19006 > ci-logs/frontend.log 2>&1 &
         env:
           EXPO_PUBLIC_API_URL: http://localhost:4000
           EXPO_PUBLIC_GOOGLE_MAPS_API_KEY: test-key
