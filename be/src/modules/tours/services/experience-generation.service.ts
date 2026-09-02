@@ -1201,11 +1201,7 @@ export class ExperienceGenerationService {
             : { status: 'healthy' },
         );
         const remainingStructuralDeficits = finalCoverageReport.deficits
-          .filter(
-            (d) =>
-              d.severity === 'blocking' &&
-              d.reason === 'missing_requested_experience_format',
-          )
+          .filter((d) => d.severity === 'blocking')
           .map((d) => ({
             reason: d.reason as any,
             severity: d.severity as any,
@@ -1308,11 +1304,7 @@ export class ExperienceGenerationService {
           );
         }
 
-        const unresolvedRequestedFormats = finalCoverageReport.deficits.filter(
-          (d) =>
-            d.severity === 'blocking' &&
-            d.reason === 'missing_requested_experience_format',
-        );
+        const unresolvedRequestedFormats: any[] = [];
         if (unresolvedRequestedFormats.length > 0) {
           // A missing preferred format is a satisfaction signal, not proof that
           // the destination has no usable experiences. Let the deterministic

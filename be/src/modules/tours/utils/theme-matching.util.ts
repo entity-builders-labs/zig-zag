@@ -4,7 +4,7 @@ import { CoverageCandidate } from '../interfaces/coverage-analysis.interface';
 // each offered candidate with the requested themes it actually matches
 // without forking a second copy — same "centralized, never diverges"
 // principle already applied to EXPERIENCE_FORMAT_ACTIVITY_KIND
-// (experience-format-kind.util.ts).
+// based only on Experience traits and descriptive metadata.
 export const THEME_KEYWORDS: Record<string, readonly string[]> = {
   history: ['history', 'historic', 'historical', 'monument', 'museum'],
   art: ['art', 'gallery', 'museum', 'art_museum', 'art_gallery'],
@@ -25,8 +25,6 @@ export function matchesThemeKeywords(
       : '';
   const haystack = [
     candidate.name,
-    candidate.type,
-    candidate.knownActivityTypeName,
     candidate.source,
     metadataText,
   ]

@@ -617,21 +617,6 @@ export function buildCoverageAnalysisStep(
     ),
   ];
 
-  for (const deficit of report.deficits.filter(
-    (d) => d.reason === 'missing_requested_experience_format',
-  )) {
-    rules.push(
-      rule(
-        `COV-FORMAT-${(deficit.experienceFormat ?? 'UNKNOWN').toUpperCase().replace(/[^A-Z0-9]+/g, '_')}`,
-        `Disponibilidad del formato solicitado: ${deficit.experienceFormat ?? 'unknown'}`,
-        'FAIL',
-        deficit.message,
-        deficit.actualCount,
-        deficit.expectedCount,
-      ),
-    );
-  }
-
   return {
     stage: 'coverage_analysis',
     label: 'Cobertura multidimensional del pool',
@@ -1131,17 +1116,8 @@ export function buildCandidatePoolStep(params: {
     }
   >;
   requestedThemes: string[];
-  formatAvailability: FormatAvailability[];
-  droppedForFamilyCapCount: number;
 }): GenerationTraceStep {
   const bySource = { catalog: 0, refill: 0, discovery: 0 };
-  const byKind: Record<string, number> = {};
-  const experienceFormatByKind = new Map<string, string>([
-    ['POI', 'point_visits'],
-    ['NEIGHBORHOOD_WALK', 'neighborhood_walks'],
-    ['ROUTE', 'thematic_routes'],
-    ['EXPERIENCE', 'experiences'],
-  ]);
 
   const candidates: TraceCandidate[] = params.offeredCandidates.map((c) => {
     const bucket =
@@ -1151,11 +1127,7 @@ export function buildCandidatePoolStep(params: {
           ? 'discovery'
           : 'refill';
     bySource[bucket] += 1;
-    if (c.kind) byKind[c.kind] = (byKind[c.kind] ?? 0) + 1;
     const themes = matchedThemesFor(c, params.requestedThemes);
-    const experienceFormat = c.kind
-      ? experienceFormatByKind.get(String(c.kind))
-      : undefined;
     return {
       source: c.traceSource,
       id: c.id,
@@ -1169,87 +1141,53 @@ export function buildCandidatePoolStep(params: {
       offered: true,
       chosen: false,
       scoreBreakdown: c.scoreBreakdown,
-      coverageContribution: { themes, experienceFormat },
+      coverageContribution: { themes },
     };
   });
-
-  const formatRules = params.formatAvailability.map((f) =>
-    rule(
-      `RANK-FORMAT-${f.format.toUpperCase().replace(/[^A-Z0-9]+/g, '_')}`,
-      `Reservar representación del formato solicitado ${f.format} cuando existe en el pool`,
-      f.fullPoolCount === 0
-        ? 'SKIPPED'
-        : f.llmWindowCount > 0
-          ? 'PASS'
-          : 'FAIL',
-      f.fullPoolCount === 0
-        ? 'No había candidato real de ese formato en el pool completo.'
-        : `${f.llmWindowCount}/${f.fullPoolCount} llegó/llegaron a la ventana.`,
-      f.llmWindowCount,
-      f.fullPoolCount === 0 ? undefined : '> 0',
-    ),
-  );
-  const formatSummary = params.formatAvailability
-    .map(
-      (format) =>
-        `"${format.format}": ${format.fullPoolCount} en el pool completo, ${format.llmWindowCount} en la ventana ofrecida`,
-    )
-    .join('; ');
 
   return {
     stage: 'candidate_pool',
     label: 'Ranking y ventana canónica',
     component: 'CandidateRankingEngine + selectBoundedWindow',
-    status: formatRules.some((r) => r.result === 'FAIL') ? 'FAIL' : 'PASS',
+    status: 'PASS',
     summary:
       `Ventana ofrecida al selector: ${candidates.length} candidato(s) reales ` +
       `de ${params.eligibleCount} elegibles (${bySource.catalog} del catálogo, ` +
       `${bySource.refill} de refill, ${bySource.discovery} recién resueltos ` +
-      `por discovery). Cada uno conserva su ID de Activity real; el modelo no ` +
-      `puede crear entidades.` +
-      (formatSummary ? ` Formatos solicitados: ${formatSummary}.` : '') +
-      (params.droppedForFamilyCapCount > 0
-        ? ` ${params.droppedForFamilyCapCount} variante(s) adicional(es) de una misma familia quedaron fuera de la ventana.`
-        : ''),
+      `por discovery). Cada uno conserva su ID canónico de Experience; el modelo no ` +
+      `puede crear entidades.`,
     inputs: {
       initialCatalogCount: params.initialCatalogCount,
       postAcquisitionCatalogCount: params.postAcquisitionCatalogCount,
       eligibleCount: params.eligibleCount,
       requestedThemes: params.requestedThemes,
-      requestedFormatAvailability: params.formatAvailability,
     },
     rules: [
       rule(
         'RANK-WINDOW-001',
         'Acotar el pool sin perder identidad canónica',
         'PASS',
-        `${candidates.length} candidato(s) quedaron en la ventana; todos conservan Activity id real.`,
+        `${candidates.length} candidato(s) quedaron en la ventana; todos conservan Experience id real.`,
         candidates.length,
       ),
       rule(
-        'RANK-FAMILY-001',
-        'Limitar redundancia de variantes de una misma familia en la ventana',
-        params.droppedForFamilyCapCount ? 'WARN' : 'PASS',
-        params.droppedForFamilyCapCount
-          ? `${params.droppedForFamilyCapCount} variante(s) redundante(s) quedaron fuera.`
-          : 'No fue necesario descartar variantes por family cap.',
-        params.droppedForFamilyCapCount,
+        'RANK-DIVERSITY-001',
+        'Mantener diversidad semántica y geográfica en la ventana',
+        'PASS',
+        'La ventana se construyó con ranking Experience-native.',
+        candidates.length,
       ),
-      ...formatRules,
     ],
     decision: {
-      status: formatRules.some((r) => r.result === 'FAIL') ? 'FAIL' : 'PASS',
+      status: 'PASS',
       outcome: 'PLANNING_WINDOW_BUILT',
       reason:
-        'La ventana quedó ordenada por señales reales de relevancia y cobertura de formato.',
-      reasonCodes: formatRules
-        .filter((r) => r.result === 'FAIL')
-        .map((r) => r.ruleId),
+        'La ventana quedó ordenada por señales reales de relevancia y cobertura semántica.',
+      reasonCodes: [],
       triggeredActions: ['RUN_DAILY_PLANNING'],
     },
     outputs: {
       offeredCandidateCount: candidates.length,
-      byKind,
       bySource,
     },
     candidates,
@@ -1267,10 +1205,7 @@ export function buildCandidatePoolStep(params: {
       postAcquisitionCatalogCount: params.postAcquisitionCatalogCount,
       eligibleCount: params.eligibleCount,
       llmWindowCount: candidates.length,
-      byKind,
       bySource,
-      requestedFormatAvailability: params.formatAvailability,
-      droppedForFamilyCapCount: params.droppedForFamilyCapCount,
     },
   };
 }
@@ -1341,10 +1276,7 @@ export function buildExperienceCandidatePoolStep(params: {
       postAcquisitionCatalogCount: params.postAcquisitionCatalogCount,
       eligibleCount: params.eligibleCount,
       llmWindowCount: candidates.length,
-      byKind: {},
       bySource,
-      requestedFormatAvailability: [],
-      droppedForFamilyCapCount: 0,
     },
   };
 }

@@ -10,8 +10,6 @@ export type DestinationKnowledgeStatus =
 export type CoverageDeficitReason =
   | 'insufficient_usable_candidates'
   | 'missing_requested_theme'
-  | 'missing_requested_experience_format'
-  | 'insufficient_kind_diversity'
   | 'insufficient_source_diversity'
   | 'insufficient_geographic_distribution'
   | 'insufficient_semantic_coverage';
@@ -20,11 +18,6 @@ export interface ThemeCoverageSummary {
   theme: string;
   matchedCandidateCount: number;
   strongMatchCount: number;
-}
-
-export interface KindCoverageSummary {
-  kind: string;
-  count: number;
 }
 
 export interface SourceCoverageSummary {
@@ -68,7 +61,6 @@ export type CoverageAcquisitionDecision =
       action: 'places_text_search';
       reason:
         | 'missing_requested_theme'
-        | 'insufficient_kind_diversity'
         | 'insufficient_source_diversity';
       requiresAdditionalDiscovery: false;
       deficits: CoverageDeficit[];
@@ -109,7 +101,6 @@ export interface CoverageReport {
   usableCandidateCount: number;
   requiredCandidateCount: number;
   requestedThemeCoverage: ThemeCoverageSummary[];
-  kindCoverage: KindCoverageSummary[];
   sourceCoverage: SourceCoverageSummary[];
   geographicCoverage: GeographicCoverageSummary;
   semanticCoverage: SemanticCoverageSummary;
@@ -129,10 +120,7 @@ export interface CoverageReport {
 export interface CoverageCandidate {
   id: string;
   name: string;
-  kind?: string | null;
   source?: string | null;
-  type?: string | null;
-  knownActivityTypeName?: string | null;
   weightedScore?: number | null;
   distanceKm?: number | null;
   metadata?: unknown;
@@ -141,8 +129,6 @@ export interface CoverageCandidate {
 export interface CoverageAnalysisInput {
   candidates: CoverageCandidate[];
   requestedThemes: string[];
-  /** Experience formats explicitly requested in the wizard. */
-  requestedExperienceFormats?: string[];
   days: number;
   explorationStyle?: string;
   /** TravelPace value ('relaxed'|'moderate'|'fast') drives how many stops/day count as enough. */

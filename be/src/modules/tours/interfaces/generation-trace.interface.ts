@@ -154,14 +154,7 @@ export interface GenerationTraceStep {
     postAcquisitionCatalogCount: number;
     eligibleCount: number;
     llmWindowCount: number;
-    byKind: Record<string, number>;
     bySource: { catalog: number; refill: number; discovery: number };
-    requestedFormatAvailability: Array<{
-      format: string;
-      fullPoolCount: number;
-      llmWindowCount: number;
-    }>;
-    droppedForFamilyCapCount: number;
   };
   dailyPlanning?: {
     solver: string;
@@ -173,7 +166,7 @@ export interface GenerationTraceStep {
     score: number;
     days: Array<{
       dayNumber: number;
-      activityCount: number;
+      experienceCount: number;
       totalExperienceMinutes: number;
       totalTravelMinutes: number;
       totalWalkingMinutes: number;

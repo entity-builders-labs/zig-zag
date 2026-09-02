@@ -24,7 +24,6 @@ export class CoverageAnalyzer {
     const requestedThemeCoverage = input.requestedThemes.map((theme) =>
       this.buildThemeCoverage(theme, eligibleCandidates),
     );
-    const kindCoverage = this.buildKindCoverage(eligibleCandidates);
     const sourceCoverage = this.buildSourceCoverage(eligibleCandidates);
     const geographicCoverage = this.buildGeographicCoverage(eligibleCandidates);
     const deficits: CoverageDeficit[] = [];
@@ -183,7 +182,6 @@ export class CoverageAnalyzer {
       usableCandidateCount: eligibleCandidates.length,
       requiredCandidateCount,
       requestedThemeCoverage,
-      kindCoverage,
       sourceCoverage,
       geographicCoverage,
       semanticCoverage: input.semanticCoverage,
@@ -220,15 +218,6 @@ export class CoverageAnalyzer {
       matchedCandidateCount: matchingCandidates.length,
       strongMatchCount: matchingCandidates.length,
     };
-  }
-
-  private buildKindCoverage(candidates: CoverageCandidate[]) {
-    const counts = new Map<string, number>();
-    for (const candidate of candidates) {
-      const key = candidate.kind ?? 'experience';
-      counts.set(key, (counts.get(key) ?? 0) + 1);
-    }
-    return [...counts.entries()].map(([kind, count]) => ({ kind, count }));
   }
 
   private buildSourceCoverage(candidates: CoverageCandidate[]) {
