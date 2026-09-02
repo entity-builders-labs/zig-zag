@@ -1,9 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { ActivityKind } from '@prisma/client';
 import { geometryContainsPoint } from '@integrations/osm/utils/geojson-containment.util';
 import { OsmCandidate } from '@integrations/osm/services/osm-places.service';
 import { GeoJsonGeometry } from '@integrations/osm/utils/osm-geometry.util';
-import { ActivityProposal } from '../interfaces/activity-discovery.interface';
 import {
   DEFAULT_GEOGRAPHIC_VALIDATION_THRESHOLDS,
   GEOGRAPHIC_VALIDATOR_VERSION,
@@ -22,17 +20,6 @@ import {
   coherenceMetrics,
   distanceMeters,
 } from '../utils/geographic-coherence.util';
-
-const PROPOSAL_KIND_TO_ACTIVITY_KIND: Record<
-  ActivityProposal['kind'],
-  ActivityKind
-> = {
-  POI: ActivityKind.POI,
-  AREA: ActivityKind.AREA,
-  NEIGHBORHOOD_WALK: ActivityKind.NEIGHBORHOOD_WALK,
-  ROUTE: ActivityKind.ROUTE,
-  EXPERIENCE: ActivityKind.EXPERIENCE,
-};
 
 @Injectable()
 export class CompositeGeographicValidationService {
@@ -63,7 +50,7 @@ export class CompositeGeographicValidationService {
     destinationBoundary: OsmCandidate,
   ): GeographicValidationResult {
     const { proposal, resolvedEntities } = resolvedProposal;
-    const kind = PROPOSAL_KIND_TO_ACTIVITY_KIND[proposal.kind];
+    const kind = String(proposal.kind ?? 'EXPERIENCE').toUpperCase();
     const resolved = resolvedEntities.filter(
       (entity) => entity.status === 'resolved',
     );
@@ -75,8 +62,8 @@ export class CompositeGeographicValidationService {
 
     let result: GeographicValidationResult;
     switch (kind) {
-      case ActivityKind.POI:
-      case ActivityKind.AREA:
+      case 'POI':
+      case 'AREA':
         result = this.validateCanonical(
           proposal.name,
           kind,
@@ -86,7 +73,7 @@ export class CompositeGeographicValidationService {
           groundedEvidenceKeys,
         );
         break;
-      case ActivityKind.NEIGHBORHOOD_WALK:
+      case 'NEIGHBORHOOD_WALK':
         result = this.validateNeighborhoodWalk(
           resolvedProposal,
           withCoordinates,
@@ -94,7 +81,7 @@ export class CompositeGeographicValidationService {
           groundedEvidenceKeys,
         );
         break;
-      case ActivityKind.ROUTE:
+      case 'ROUTE':
         result = this.validateRoute(
           resolvedProposal,
           withCoordinates,
@@ -102,7 +89,7 @@ export class CompositeGeographicValidationService {
           groundedEvidenceKeys,
         );
         break;
-      case ActivityKind.EXPERIENCE:
+      case 'EXPERIENCE':
         result = this.validateExperience(
           resolvedProposal,
           withCoordinates,
@@ -121,7 +108,7 @@ export class CompositeGeographicValidationService {
         event: 'geographic_validation',
         proposalName: proposal.name,
         activityKind: kind,
-        proposedHintCount: proposal.entityHints.length,
+        proposedHintCount: (proposal.componentHints ?? proposal.entityHints ?? []).length,
         resolvedEntityCount: resolved.length,
         entitiesWithCoordinates: withCoordinates.length,
         validationStatus: result.status,
@@ -136,7 +123,7 @@ export class CompositeGeographicValidationService {
 
   private validateCanonical(
     proposalName: string,
-    kind: ActivityKind,
+    kind: string,
     resolved: ResolvedGeoEntity[],
     withCoordinates: ResolvedGeoEntity[],
     destinationBoundary: OsmCandidate,
@@ -183,7 +170,7 @@ export class CompositeGeographicValidationService {
     evidenceKeys: string[],
   ): GeographicValidationResult {
     const proposalName = resolvedProposal.proposal.name;
-    const kind = ActivityKind.NEIGHBORHOOD_WALK;
+    const kind = 'NEIGHBORHOOD_WALK';
     const canonicalArea = withCoordinates.find(
       (entity) => entity.role === 'area' && entity.geometry,
     );
@@ -263,7 +250,7 @@ export class CompositeGeographicValidationService {
     evidenceKeys: string[],
   ): GeographicValidationResult {
     const proposalName = resolvedProposal.proposal.name;
-    const kind = ActivityKind.ROUTE;
+    const kind = 'ROUTE';
     const canonicalRoute = withCoordinates.find(
       (entity) => entity.role === 'route' && entity.geometry,
     );
@@ -343,7 +330,7 @@ export class CompositeGeographicValidationService {
   ): GeographicValidationResult {
     const proposal = resolvedProposal.proposal;
     const proposalName = proposal.name;
-    const kind = ActivityKind.EXPERIENCE;
+    const kind = 'EXPERIENCE';
     const requiredConcreteHints = proposal.entityHints.filter(
       (hint) => hint.required && hint.role !== 'area' && hint.role !== 'route',
     );
@@ -575,7 +562,7 @@ export class CompositeGeographicValidationService {
 
   private rejected(
     proposalName: string,
-    kind: ActivityKind,
+    kind: string,
     anchors: ResolvedGeoEntity[],
     evidenceKeys: string[],
     rejectionReasons: GeographicValidationRejectionReason[],

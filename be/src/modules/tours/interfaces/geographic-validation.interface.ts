@@ -1,4 +1,3 @@
-import { ActivityKind } from '@prisma/client';
 import { ResolvedGeoEntity } from './experience-resolution.interface';
 
 export type GeographicValidationStatus =
@@ -39,7 +38,7 @@ export interface GeographicCoherenceMetrics {
 
 export interface GeographicValidationResult {
   proposalName: string;
-  kind: ActivityKind;
+  kind: string;
   status: GeographicValidationStatus;
   accepted: boolean;
   strategy?: GeographicVerificationStrategy;
