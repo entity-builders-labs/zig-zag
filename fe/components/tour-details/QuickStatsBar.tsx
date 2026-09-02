@@ -3,7 +3,7 @@ import { HStack, VStack, Text, Box } from '@gluestack-ui/themed';
 import { Tour } from '../../api/tours';
 
 export const QuickStatsBar = ({ tour }: { tour: Tour }) => {
-  const stopsCount = tour.activities?.length || 0;
+  const stopsCount = tour.experiences?.length || 0;
   const distanceStr = tour.totalDistance ? `${tour.totalDistance.toFixed(1)} km` : '2.4 km';
   
   const getDurationStr = () => {

@@ -45,8 +45,9 @@ export const TourHeader = ({
   expanded?: boolean;
 }) => {
   const router = useRouter();
-  const firstActivity = tour.activities?.[0]?.activity;
-  const imageUri = tour.coverImage || getImage(firstActivity?.photos);
+  const firstExperience = tour.experiences?.[0];
+  const firstComponent = firstExperience?.components?.[0];
+  const imageUri = tour.coverImage || getImage(undefined, 0, firstExperience?.experience?.themes?.[0]);
 
   const getFirstLocation = () => {
     const destination = tour.metadata?.generationRequest?.destination;
@@ -56,12 +57,12 @@ export const TourHeader = ({
         longitude: destination.longitude
       };
     } else if (
-      firstActivity?.latitude != null &&
-      firstActivity?.longitude != null
+      firstComponent?.latitude != null &&
+      firstComponent?.longitude != null
     ) {
       return {
-        latitude: firstActivity.latitude,
-        longitude: firstActivity.longitude
+        latitude: firstComponent.latitude,
+        longitude: firstComponent.longitude
       };
     }
   };
@@ -70,15 +71,16 @@ export const TourHeader = ({
 
   // All stops with resolvable coordinates, to plot the full itinerary
   // instead of a single pin at the tour's destination.
-  const stops: StopWithLocation[] = (tour.activities || [])
+  const stops: StopWithLocation[] = (tour.experiences || [])
     .map((stop) => {
-      const latitude = stop.activity?.latitude ?? stop.activityLatitude;
-      const longitude = stop.activity?.longitude ?? stop.activityLongitude;
+      const first = stop.components?.[0];
+      const latitude = first?.latitude;
+      const longitude = first?.longitude;
       if (latitude == null || longitude == null) return null;
       return {
         latitude,
         longitude,
-        title: stop.activity?.name || stop.activityName || 'Actividad',
+        title: stop.experience?.canonicalName || stop.experience?.name || 'Experiencia',
         order: stop.order,
         dayNumber: stop.dayNumber ?? 1
       };
@@ -94,13 +96,13 @@ export const TourHeader = ({
         (a, b) => a - b
       ),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [tour.id, tour.activities]
+    [tour.id, tour.experiences]
   );
   const [selectedDay, setSelectedDay] = useState(1);
   const visibleStops = React.useMemo(
     () => stops.filter((stop) => stop.dayNumber === selectedDay),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [tour.id, tour.activities, selectedDay]
+    [tour.id, tour.experiences, selectedDay]
   );
 
   const stopMarkers: MapMarker[] = visibleStops.map((stop, index) => ({
@@ -130,13 +132,13 @@ export const TourHeader = ({
       ? [firstLocation, ...orderedStops]
       : orderedStops;
     return coordinates.length > 1 ? [coordinates] : [];
-    // tour.activities is included deliberately: when this header is shown
+    // experiences is included deliberately: generation updates snapshots asynchronously
     // for a tour that's still generating (e.g. navigated to straight from
     // the wizard), activities starts at [] and arrives later via polling.
     // Keying only on tour.id meant this never recomputed once real stops
     // showed up — the route stayed empty forever for that render's tour.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tour.id, tour.activities, selectedDay]);
+  }, [tour.id, tour.experiences, selectedDay]);
 
   const [routes, setRoutes] = useState<
     { coordinates: (typeof straightRoutes)[number] }[]
@@ -172,14 +174,12 @@ export const TourHeader = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [straightRoutes]);
 
-  // Get tags from metadata or fallback to first activity type
+  // Get tags from metadata or fallback to first Experience theme
   const tags =
     tour.metadata?.tags ||
-    (firstActivity?.type
-      ? [firstActivity.type]
-      : tour.activities?.[0]?.activityType
-        ? [tour.activities[0].activityType]
-        : ['']);
+    (firstExperience?.experience?.themes?.length
+      ? firstExperience.experience.themes
+      : ['']);
   const handleBack = () => {
     if (router.canGoBack()) {
       router.back();

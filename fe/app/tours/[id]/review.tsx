@@ -12,16 +12,13 @@ import {
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import {
   fetchTourById,
-  updateTourActivityWaypoints,
   Tour,
 } from '../../../api/tours';
 import { TourStop, TourStopComposite } from '../../../components/tour-details/types';
-import { transformActivitiesToStops, transformExperiencesToStops } from '../../../components/tour-details/build-stops';
+import { transformExperiencesToStops } from '../../../components/tour-details/build-stops';
 import { TourStopCard } from '../../../components/tour-details/TourStopCard';
 import { CompositeStopCard } from '../../../components/tour-details/CompositeStopCard';
 import { FONT_DISPLAY } from '@/constants/typography';
-
-const MIN_SELECTED_WAYPOINTS = 2;
 
 export default function TourReviewScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -42,21 +39,18 @@ export default function TourReviewScreen() {
       try {
         setLoading(true);
         const data: Tour = await fetchTourById(id);
-        const activities = data.activities || [];
         const experiences = data.experiences || [];
 
         // Nothing to review here (e.g. reached directly via URL before
         // generation actually finished) — fall back to the normal detail
         // screen rather than showing an empty review.
         const metadata = data.metadata as any;
-        if (metadata?.generationStatus !== 'completed' || (activities.length === 0 && experiences.length === 0)) {
+        if (metadata?.generationStatus !== 'completed' || experiences.length === 0) {
           router.replace(`/tours/${id}`);
           return;
         }
 
-        const transformedStops = experiences.length
-          ? transformExperiencesToStops(experiences, data.totalDays)
-          : transformActivitiesToStops(activities, data.totalDays);
+        const transformedStops = transformExperiencesToStops(experiences, data.totalDays);
         setStops(transformedStops);
 
         const initialSelections = new Map<string, Set<string>>();
@@ -106,29 +100,6 @@ export default function TourReviewScreen() {
       // A stop whose edited selection dropped below the minimum keeps its
       // full snapshot instead (same fallback the backend itself applies),
       // so there's nothing meaningful to send for it either.
-      const patchTargets = compositeStops.filter((stop) => {
-        const selected = selections.get(stop.tourActivityId);
-        if (!selected) return false;
-        if (selected.size < MIN_SELECTED_WAYPOINTS) return false;
-        const original = new Set(
-          stop.waypoints.map((w) => w.waypointActivity.id)
-        );
-        return (
-          selected.size !== original.size ||
-          [...selected].some((wid) => !original.has(wid))
-        );
-      });
-
-      await Promise.all(
-        patchTargets.map((stop) =>
-          updateTourActivityWaypoints(
-            id,
-            stop.tourActivityId,
-            Array.from(selections.get(stop.tourActivityId) || [])
-          )
-        )
-      );
-
       router.replace(`/tours/${id}`);
     } catch (error) {
       console.error('Failed to confirm tour waypoint edits:', error);

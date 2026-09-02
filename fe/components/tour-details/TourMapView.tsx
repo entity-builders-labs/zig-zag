@@ -46,7 +46,6 @@ export const TourMapView = ({
   const [selectedStopIndex, setSelectedStopIndex] = useState(0);
 
   const firstExperience = tour.experiences?.[0];
-  const firstActivity = tour.activities?.[0]?.activity;
   const firstComponent = firstExperience?.components?.[0];
   const firstLocation = tour.metadata?.options?.latitude && tour.metadata?.options?.longitude
     ? {
@@ -57,11 +56,6 @@ export const TourMapView = ({
       ? {
           latitude: firstComponent.latitude,
           longitude: firstComponent.longitude,
-        }
-      : firstActivity?.latitude && firstActivity?.longitude
-      ? {
-          latitude: firstActivity.latitude,
-          longitude: firstActivity.longitude,
         }
       : undefined;
 
@@ -84,18 +78,7 @@ export const TourMapView = ({
             travelTimeToNext: undefined,
           }];
         })
-      : (tour.activities || []).map((item, index) => ({
-          id: item.activity?.id || `stop-${index}`,
-          activityId: item.activity?.id,
-          latitude: item.activity?.latitude ?? item.activityLatitude,
-          longitude: item.activity?.longitude ?? item.activityLongitude,
-          title: item.activity?.name || item.activityName || `Parada ${index + 1}`,
-          order: item.order ?? index,
-          dayNumber: item.dayNumber ?? 1,
-          image: getImage(item.activity?.photos, index),
-          category: item.activity?.type || item.activityType || 'Atracción',
-          travelTimeToNext: item.travelTimeToNext ? Math.round(item.travelTimeToNext) : undefined,
-        }));
+      : [];
     return source
       .map((item, index): StopWithLocation | null => {
         const latitude = item.latitude;
@@ -115,7 +98,7 @@ export const TourMapView = ({
         };
       })
       .filter((s): s is StopWithLocation => s !== null);
-  }, [tour.experiences, tour.activities]);
+  }, [tour.experiences]);
 
   const availableDays = useMemo(
     () => Array.from(new Set(stops.map((stop) => stop.dayNumber))).sort((a, b) => a - b),

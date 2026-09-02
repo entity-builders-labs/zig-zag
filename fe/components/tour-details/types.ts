@@ -1,8 +1,3 @@
-import {
-  ActivityBoundary,
-  ActivityKind,
-  ActivityWaypointRef,
-} from '../../features/activities/composite';
 
 export interface BadgeData {
   text: string;
@@ -33,9 +28,9 @@ export interface TourStopComposite {
   tourActivityId: string;
   title: string;
   themeReasoning?: string;
-  kind: Exclude<ActivityKind, 'POI' | 'AREA'>;
-  boundary?: ActivityBoundary;
-  waypoints: ActivityWaypointRef[];
+  kind: string;
+  boundary?: unknown;
+  waypoints: Array<{ order: number; waypointActivity: { id: string; name: string; latitude?: number; longitude?: number } }>;
   badges: BadgeData[];
 }
 

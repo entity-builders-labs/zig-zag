@@ -1,8 +1,4 @@
 import axiosInstance from './config/axios';
-import {
-  ActivityWaypointRef,
-  CompositeActivityFields
-} from '../features/activities/composite';
 import { GenerateTourDto } from '../features/tours/tour-generation-contract';
 
 export type { GenerateTourDto } from '../features/tours/tour-generation-contract';
@@ -17,42 +13,7 @@ export interface Tour {
   totalDistance?: number;
   totalDays?: number;
   categories?: string[];
-  activities?: {
-    // The TourActivity join row's own id — distinct from `activity.id`
-    // (the underlying Activity/variant). Needed to target
-    // PATCH /tours/:tourId/activities/:tourActivityId/waypoints.
-    id: string;
-    activity?: {
-      id: string;
-      name: string;
-      description?: string;
-      type: string;
-      photos?: any;
-      mediaUpdatedAt?: string;
-      latitude?: number;
-      longitude?: number;
-      address?: string;
-      price?: number;
-    } & CompositeActivityFields;
-    // Inline fields in case activity relation is missing
-    activityName?: string;
-    activityType?: string;
-    activityLatitude?: number;
-    activityLongitude?: number;
-
-    order: number;
-    dayNumber?: number;
-    travelTimeToNext?: number;
-    distanceToNext?: number;
-    notes?: string;
-
-    // Snapshot of which waypoints of a composite `activity` were shown for
-    // THIS tour stop (TourActivityWaypoint) — frozen at generation time,
-    // not the variant's current/live content. Empty/absent for a plain POI
-    // stop.
-    waypoints?: ActivityWaypointRef[];
-  }[];
-  /** Canonical V2 tour snapshots. New generations populate this relation. */
+  /** Canonical V2 tour snapshots. */
   experiences?: TourExperience[];
   metadata?: any;
   options?: {
@@ -130,18 +91,6 @@ export async function fetchTourById(id: string) {
 // instance — the pre-confirmation review screen's "exclude a stop"
 // affordance. Never touches the shared variant's own content, nor any other
 // tour's snapshot (see be/.../update-tour-activity-waypoints.dto.ts).
-export async function updateTourActivityWaypoints(
-  tourId: string,
-  tourActivityId: string,
-  selectedWaypointActivityIds: string[]
-) {
-  const { data } = await axiosInstance.patch(
-    `/tours/${tourId}/activities/${tourActivityId}/waypoints`,
-    { selectedWaypointActivityIds }
-  );
-  return data;
-}
-
 export async function generateTour(payload: GenerateTourDto) {
   const { data } = await axiosInstance.post<Tour>(
     '/tours/generate-tour',
