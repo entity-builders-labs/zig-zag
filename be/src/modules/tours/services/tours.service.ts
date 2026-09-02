@@ -8,8 +8,6 @@ import {
 import { PrismaService } from '@core/database/prisma.service';
 import { CreateTourDto } from '../dto/create-tour.dto';
 import { UpdateTourDto } from '../dto/update-tour.dto';
-import { isValidId } from '@shared/utils/id-validator';
-import { prepareActivityDataForCreate } from '../utils/activity-transformer.util';
 import { OutboxService } from '../../outbox/services/outbox.service';
 
 @Injectable()
@@ -30,29 +28,7 @@ export class ToursService {
    * scheduling its generation.
    */
   async create(createTourDto: CreateTourDto) {
-    const { activities, ...tourData } = createTourDto;
-
-    if (activities?.length) {
-      const activityIds = activities
-        .map((a) => a.activityId)
-        .filter((id): id is string => isValidId(id));
-
-      if (activityIds.length > 0) {
-        try {
-          const existingActivities = await this.prisma.activity.findMany({
-            where: { id: { in: activityIds } },
-          });
-
-          if (existingActivities.length !== activityIds.length) {
-            this.logger.warn(
-              `Some activity IDs are invalid. Expected ${activityIds.length}, found ${existingActivities.length}`,
-            );
-          }
-        } catch (error) {
-          this.logger.error(`Error validating activity IDs: ${error.message}`);
-        }
-      }
-    }
+    const { activities: _removedActivities, ...tourData } = createTourDto;
 
     const tourDataClean: any = {
       ownerId: tourData.ownerId,
@@ -80,19 +56,8 @@ export class ToursService {
       const tour = await tx.tour.create({
         data: {
           ...tourDataClean,
-          activities: {
-            create:
-              activities?.map((activityDto, index) =>
-                prepareActivityDataForCreate(activityDto, index),
-              ) || [],
-          },
         },
         include: {
-          activities: {
-            include: {
-              activity: true,
-            },
-          },
           experiences: {
             include: {
               experience: {
@@ -152,16 +117,15 @@ export class ToursService {
       longitude !== undefined &&
       radius !== undefined
     ) {
-      where.activities = {
+      where.experiences = {
         some: {
-          activityLatitude: {
+          experience: { latitude: {
             gte: latitude - radius,
             lte: latitude + radius,
-          },
-          activityLongitude: {
+          }, longitude: {
             gte: longitude - radius,
             lte: longitude + radius,
-          },
+          } },
         },
       };
     }
@@ -176,11 +140,6 @@ export class ToursService {
         take: limit,
         skip: skip,
         include: {
-          activities: {
-            include: {
-              activity: true,
-            },
-          },
           experiences: {
             include: {
               experience: {
@@ -220,18 +179,6 @@ export class ToursService {
     const tour = await this.prisma.tour.findUnique({
       where: { id },
       include: {
-        activities: {
-          include: {
-            activity: true,
-            waypoints: {
-              include: { waypointActivity: true },
-              orderBy: { order: 'asc' },
-            },
-          },
-          orderBy: {
-            order: 'asc',
-          },
-        },
         experiences: {
           include: {
             experience: { include: { components: true, traits: true, evidence: true } },
@@ -260,7 +207,7 @@ export class ToursService {
   }
 
   async update(id: string, updateTourDto: UpdateTourDto, ownerId: string) {
-    const { activities, ...tourData } = updateTourDto;
+    const { activities: _removedActivities, ...tourData } = updateTourDto;
 
     try {
       const existing = await this.prisma.tour.findUnique({
@@ -274,47 +221,12 @@ export class ToursService {
 
       this.assertOwnership(existing.ownerId, ownerId);
 
-      if (activities?.length) {
-        const activityIds = activities
-          .map((a) => a.activityId)
-          .filter((id): id is string => isValidId(id));
-
-        if (activityIds.length > 0) {
-          const existingActivities = await this.prisma.activity.findMany({
-            where: { id: { in: activityIds } },
-          });
-
-          if (existingActivities.length !== activityIds.length) {
-            throw new BadRequestException('Some activity IDs are invalid');
-          }
-        }
-      }
-
       return await this.prisma.$transaction(async (tx) => {
-        await tx.tourActivity.deleteMany({
-          where: { tourId: id },
-        });
-
         const updatedTour = await tx.tour.update({
           where: { id },
-          data: {
-            ...tourData,
-            activities: {
-              create:
-                activities?.map((activity, index) =>
-                  prepareActivityDataForCreate(activity, index),
-                ) || [],
-            },
-          },
+          data: { ...tourData },
           include: {
-            activities: {
-              include: {
-                activity: true,
-              },
-              orderBy: {
-                order: 'asc',
-              },
-            },
+            experiences: { include: { experience: true, components: true } },
           },
         });
 
@@ -354,14 +266,10 @@ export class ToursService {
       this.assertOwnership(existing.ownerId, ownerId);
 
       return await this.prisma.$transaction(async (tx) => {
-        await tx.tourActivity.deleteMany({
-          where: { tourId: id },
-        });
-
         const deletedTour = await tx.tour.delete({
           where: { id },
           include: {
-            activities: true,
+            experiences: true,
           },
         });
 
