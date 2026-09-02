@@ -1,4 +1,5 @@
 import { GeoEntityKind } from '@prisma/client';
+import { ExperienceCandidate } from '../interfaces/experience-discovery.interface';
 import { ExperienceProposalResolverService } from './experience-proposal-resolver.service';
 
 describe('ExperienceProposalResolverService', () => {
@@ -9,12 +10,19 @@ describe('ExperienceProposalResolverService', () => {
     osmId: 1,
     geometry: {
       type: 'Polygon',
-      coordinates: [[[-58.5, -34.6], [-58.4, -34.6], [-58.4, -34.5], [-58.5, -34.6]]],
+      coordinates: [
+        [
+          [-58.5, -34.6],
+          [-58.4, -34.6],
+          [-58.4, -34.5],
+          [-58.5, -34.6],
+        ],
+      ],
     },
     tags: { boundary: 'administrative' },
   };
 
-  const candidate = (name = 'Visit Museum') => ({
+  const candidate = (name = 'Visit Museum'): ExperienceCandidate => ({
     name,
     themes: ['culture'],
     traits: [],
@@ -34,17 +42,22 @@ describe('ExperienceProposalResolverService', () => {
 
   it('uses destinationBoundary from the canonical request object', async () => {
     const osmPlaces = {
-      lookupStreetsWithin: jest.fn().mockResolvedValue({ status: 'success', value: [] }),
-      lookupPoisWithin: jest.fn().mockResolvedValue({ status: 'success', value: [
-        {
-          id: 'osm:node:10',
-          name: 'Museum',
-          osmType: 'node',
-          osmId: 10,
-          geometry: { type: 'Point', coordinates: [-58.45, -34.55] },
-          tags: { tourism: 'museum' },
-        },
-      ] }),
+      lookupStreetsWithin: jest
+        .fn()
+        .mockResolvedValue({ status: 'success', value: [] }),
+      lookupPoisWithin: jest.fn().mockResolvedValue({
+        status: 'success',
+        value: [
+          {
+            id: 'osm:node:10',
+            name: 'Museum',
+            osmType: 'node',
+            osmId: 10,
+            geometry: { type: 'Point', coordinates: [-58.45, -34.55] },
+            tags: { tourism: 'museum' },
+          },
+        ],
+      }),
     };
     const catalog = {
       upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-10' }),
@@ -85,36 +98,60 @@ describe('ExperienceProposalResolverService', () => {
   });
 
   it('fails explicitly when destination scope is absent', async () => {
-    const service = new ExperienceProposalResolverService({} as any, {} as any, {} as any);
-    await expect(service.resolve({ candidates: [], destinationBoundary: undefined })).rejects.toThrow(
-      'Experience resolution requires destinationBoundary',
+    const service = new ExperienceProposalResolverService(
+      {} as any,
+      {} as any,
+      {} as any,
     );
+    await expect(
+      service.resolve({ candidates: [], destinationBoundary: undefined }),
+    ).rejects.toThrow('Experience resolution requires destinationBoundary');
   });
 
   it('distinguishes an OSM provider failure from an empty query', async () => {
     const service = new ExperienceProposalResolverService(
       {
-        lookupStreetsWithin: jest.fn().mockResolvedValue({ status: 'success', value: [] }),
-        lookupPoisWithin: jest.fn().mockResolvedValue({ status: 'failed', value: [], failureReason: '504' }),
+        lookupStreetsWithin: jest
+          .fn()
+          .mockResolvedValue({ status: 'success', value: [] }),
+        lookupPoisWithin: jest.fn().mockResolvedValue({
+          status: 'failed',
+          value: [],
+          failureReason: '504',
+        }),
       } as any,
       {} as any,
-      { validateBatch: jest.fn().mockReturnValue({ results: [], acceptedCount: 0, rejectedCount: 0 }) } as any,
+      {
+        validateBatch: jest
+          .fn()
+          .mockReturnValue({ results: [], acceptedCount: 0, rejectedCount: 0 }),
+      } as any,
     );
     const result = await service.resolve({
       destinationBoundary: boundary,
       candidates: [candidate()],
     });
-    expect(result.resolved[0].rejectionReasons).toContain('OSM_PROVIDER_FAILED');
+    expect(result.resolved[0].rejectionReasons).toContain(
+      'OSM_PROVIDER_FAILED',
+    );
   });
 
   it('reports OSM_QUERY_EMPTY when the provider succeeded but returned no candidates', async () => {
     const service = new ExperienceProposalResolverService(
       {
-        lookupStreetsWithin: jest.fn().mockResolvedValue({ status: 'success', value: [] }),
-        lookupPoisWithin: jest.fn().mockResolvedValue({ status: 'success', value: [] }),
+        lookupStreetsWithin: jest
+          .fn()
+          .mockResolvedValue({ status: 'success', value: [] }),
+        lookupPoisWithin: jest
+          .fn()
+          .mockResolvedValue({ status: 'success', value: [] }),
       } as any,
       {} as any,
-      { validateBatch: jest.fn().mockReturnValue({ results: [], acceptedCount: 0, rejectedCount: 0 }) } as any,
+      {
+        validateBatch: jest
+          .fn()
+          .mockReturnValue({ results: [], acceptedCount: 0, rejectedCount: 0 }),
+      } as any,
     );
 
     const result = await service.resolve({
@@ -129,7 +166,9 @@ describe('ExperienceProposalResolverService', () => {
   it('reports NO_OSM_MATCH when OSM returned candidates but none match the required component', async () => {
     const service = new ExperienceProposalResolverService(
       {
-        lookupStreetsWithin: jest.fn().mockResolvedValue({ status: 'success', value: [] }),
+        lookupStreetsWithin: jest
+          .fn()
+          .mockResolvedValue({ status: 'success', value: [] }),
         lookupPoisWithin: jest.fn().mockResolvedValue({
           status: 'success',
           value: [
@@ -143,7 +182,11 @@ describe('ExperienceProposalResolverService', () => {
         }),
       } as any,
       {} as any,
-      { validateBatch: jest.fn().mockReturnValue({ results: [], acceptedCount: 0, rejectedCount: 0 }) } as any,
+      {
+        validateBatch: jest
+          .fn()
+          .mockReturnValue({ results: [], acceptedCount: 0, rejectedCount: 0 }),
+      } as any,
     );
 
     const result = await service.resolve({
@@ -172,34 +215,38 @@ describe('ExperienceProposalResolverService', () => {
     };
     const service = new ExperienceProposalResolverService(
       {
-        lookupStreetsWithin: jest.fn().mockResolvedValue({ status: 'success', value: [] }),
-        lookupPoisWithin: jest.fn().mockResolvedValue({ status: 'success', value: [] }),
+        lookupStreetsWithin: jest
+          .fn()
+          .mockResolvedValue({ status: 'success', value: [] }),
+        lookupPoisWithin: jest
+          .fn()
+          .mockResolvedValue({ status: 'success', value: [] }),
       } as any,
       catalog as any,
       geographicValidator as any,
     );
 
-    const result = await service.resolve({
-      destinationBoundary: boundary,
-      candidates: [
+    const areaCandidate: ExperienceCandidate = {
+      name: 'Walk the historic center',
+      themes: ['history'],
+      traits: [],
+      evidenceKeys: ['ev-1'],
+      shortReason: 'Area-bound experience',
+      componentHints: [
         {
-          name: 'Walk the historic center',
-          themes: ['history'],
-          traits: [],
+          key: 'historic-center',
+          name: 'Test City',
+          role: 'area',
+          expectedKind: 'AREA',
+          required: true,
           evidenceKeys: ['ev-1'],
-          shortReason: 'Area-bound experience',
-          componentHints: [
-            {
-              key: 'historic-center',
-              name: 'Test City',
-              role: 'area',
-              expectedKind: 'AREA',
-              required: true,
-              evidenceKeys: ['ev-1'],
-            },
-          ],
         },
       ],
+    };
+
+    const result = await service.resolve({
+      destinationBoundary: boundary,
+      candidates: [areaCandidate],
     });
 
     expect(result.acceptedCount).toBe(1);
@@ -219,7 +266,9 @@ describe('ExperienceProposalResolverService', () => {
     };
     const service = new ExperienceProposalResolverService(
       {
-        lookupStreetsWithin: jest.fn().mockResolvedValue({ status: 'success', value: [] }),
+        lookupStreetsWithin: jest
+          .fn()
+          .mockResolvedValue({ status: 'success', value: [] }),
         lookupPoisWithin: jest.fn().mockResolvedValue({
           status: 'success',
           value: [
