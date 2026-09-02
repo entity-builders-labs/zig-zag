@@ -10,7 +10,6 @@ import {
   buildLlmGenerationStep,
   buildPlacesCrawlStep,
   buildTourCompletenessStep,
-  buildTourFormatCoverageStep,
   buildTourIntentStep,
 } from './generation-trace-builder.util';
 import { ActivityKind } from '@prisma/client';
@@ -33,7 +32,6 @@ describe('buildTourIntentStep', () => {
       groupType: 'solo' as any,
       intent: {
         interests: ['history'],
-        experienceFormats: ['neighborhood_walks' as any],
         explorationStyle: 'balanced' as any,
         additionalPreferences: note,
       },
@@ -53,7 +51,6 @@ describe('buildTourIntentStep', () => {
     });
 
     expect(step.stage).toBe('tour_intent');
-    expect(step.summary).toContain('neighborhood_walks');
     expect(step.summary).toContain('public_transport');
     expect(step.summary).toContain('todavía no se aplica');
     expect(step.summary?.split(note)).toHaveLength(2);
@@ -100,48 +97,6 @@ describe('buildTourCompletenessStep', () => {
     expect(step.summary).toContain('Día 1');
     expect(step.summary).toContain('reintentó');
     expect(step.tourCompleteness?.retryAttempted).toBe(true);
-  });
-});
-
-describe('buildTourFormatCoverageStep', () => {
-  it('reports success and no retry when every requested format with candidates was covered', () => {
-    const step = buildTourFormatCoverageStep(
-      { valid: true, issues: [] },
-      false,
-    );
-
-    expect(step.stage).toBe('tour_format_coverage');
-    expect(step.providerStatus).toBe('success');
-    expect(step.degradedReason).toBeUndefined();
-    expect(step.tourFormatCoverage).toEqual({
-      valid: true,
-      issues: [],
-      retryAttempted: false,
-    });
-  });
-
-  it('surfaces each missing format and marks the degraded reason', () => {
-    const step = buildTourFormatCoverageStep(
-      {
-        valid: false,
-        issues: [
-          {
-            code: 'REQUESTED_FORMAT_MISSING',
-            requestedFormat: 'neighborhood_walks' as any,
-            availableCandidateCount: 3,
-            selectedCandidateCount: 0,
-            message: 'ignored',
-          },
-        ],
-      },
-      true,
-    );
-
-    expect(step.providerStatus).toBe('failed');
-    expect(step.degradedReason).toBe('requested_format_missing');
-    expect(step.summary).toContain('neighborhood_walks');
-    expect(step.summary).toContain('reintentó');
-    expect(step.tourFormatCoverage?.retryAttempted).toBe(true);
   });
 });
 
@@ -239,6 +194,8 @@ describe('buildEntityResolutionStep', () => {
     name,
     kind: 'POI' as any,
     themes: ['history'],
+    traits: [] as string[],
+    componentHints: [] as any[],
     entityHints: [] as any[],
     suggestedDurationMinutes: 90,
     shortReason: 'test',
@@ -249,7 +206,7 @@ describe('buildEntityResolutionStep', () => {
     const step = buildEntityResolutionStep({
       resolved: [
         {
-          proposal: proposal('Casa Histórica'),
+          proposal: { ...proposal('Casa Histórica'), traits: [], componentHints: [] },
           status: 'accepted',
           resolvedEntities: [
             {
@@ -289,7 +246,7 @@ describe('buildEntityResolutionStep', () => {
     const step = buildEntityResolutionStep({
       resolved: [
         {
-          proposal: proposal('Plaza Ambigua'),
+          proposal: { ...proposal('Plaza Ambigua'), traits: [], componentHints: [] },
           status: 'rejected',
           resolvedEntities: [],
           rejectionReasons: ['area_ambiguous'],
@@ -358,6 +315,8 @@ describe('buildCatalogMaterializationStep', () => {
             name: 'Paseo San Telmo',
             kind: 'NEIGHBORHOOD_WALK' as any,
             themes: [],
+            traits: [],
+            componentHints: [],
             entityHints: [],
             suggestedDurationMinutes: 120,
             shortReason: 'test',
@@ -376,7 +335,7 @@ describe('buildCatalogMaterializationStep', () => {
 
     expect(step.stage).toBe('catalog_materialization');
     expect(step.status).toBe('PASS');
-    expect(step.decision?.outcome).toBe('CANONICAL_ACTIVITIES_MATERIALIZED');
+    expect(step.decision?.outcome).toBe('VERIFIED_EXPERIENCES_MATERIALIZED');
     expect(step.summary).toContain(
       '1 propuesta(s) geográficamente verificadas',
     );

@@ -6,12 +6,13 @@ export interface ResolvedGeoEntity {
   hintKey: string;
   hintName: string;
   provider: string;
-  externalId: string;
+  externalId?: string;
   canonicalName?: string | null;
   latitude?: number | null;
   longitude?: number | null;
   geometry?: unknown;
   role: 'area' | 'waypoint' | 'route' | 'venue';
+  expectedType?: string;
   status: ResolvedGeoEntityStatus;
   reason?: string;
   adminContext?: {

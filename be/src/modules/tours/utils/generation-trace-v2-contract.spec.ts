@@ -2,7 +2,6 @@ import {
   buildDiscoveryStep,
   buildEntityResolutionStep,
   buildTourCompletenessStep,
-  buildTourFormatCoverageStep,
 } from './generation-trace-builder.util';
 import { DiscoveryResponse } from '../interfaces/activity-discovery.interface';
 import { ExperienceResolutionResponse } from '../interfaces/experience-resolution.interface';
@@ -56,7 +55,7 @@ describe('GenerationTrace V2 decision audit coverage', () => {
 
     const step = buildDiscoveryStep(result);
 
-    expect(step.component).toBe('ActivityDiscoveryService');
+    expect(step.component).toBe('ExperienceDiscoveryService');
     expect(
       step.rules?.find((rule) => rule.ruleId === 'DISC-GROUNDED-001')?.result,
     ).toBe('PASS');
@@ -82,6 +81,8 @@ describe('GenerationTrace V2 decision audit coverage', () => {
             name: 'Invented route',
             kind: 'ROUTE',
             themes: ['history'],
+            traits: [],
+            componentHints: [],
             entityHints: [],
             suggestedDurationMinutes: 90,
             shortReason: 'test',
@@ -135,29 +136,4 @@ describe('GenerationTrace V2 decision audit coverage', () => {
     ).toBe('WARN');
   });
 
-  it('records missing requested format only when validator reports a real viable omission', () => {
-    const step = buildTourFormatCoverageStep(
-      {
-        valid: false,
-        issues: [
-          {
-            code: 'REQUESTED_FORMAT_MISSING',
-            requestedFormat: 'experiences' as any,
-            availableCandidateCount: 2,
-            selectedCandidateCount: 0,
-            message:
-              'Experience candidates were available but none were selected.',
-          },
-        ],
-      },
-      false,
-    );
-
-    expect(step.status).toBe('WARN');
-    expect(step.decision?.outcome).toBe('REQUESTED_FORMAT_MISSING');
-    expect(step.decision?.reasonCodes).toContain('REQUESTED_FORMAT_MISSING');
-    expect(
-      step.rules?.find((rule) => rule.ruleId === 'FORMAT-COVERAGE-001')?.result,
-    ).toBe('WARN');
-  });
 });
