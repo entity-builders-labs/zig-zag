@@ -870,9 +870,9 @@ export class ExperienceGenerationService {
                         resolutionResult.resolved
                           .filter(
                             (r) =>
-                              r.status === 'accepted' && r.persistedActivityId,
+                              r.status === 'accepted' && r.experienceId,
                           )
-                          .map((r) => r.persistedActivityId as string);
+                          .map((r) => r.experienceId as string);
                       const persistedExperienceIds = resolutionResult.resolved
                         .filter((r: any) => r.status === 'accepted' && r.experienceId)
                         .map((r: any) => r.experienceId as string);
@@ -1273,8 +1273,8 @@ export class ExperienceGenerationService {
               );
 
               const persistedDiscoveryActivityIds = resolutionResult.resolved
-                .filter((r) => r.status === 'accepted' && r.persistedActivityId)
-                .map((r) => r.persistedActivityId as string);
+                .filter((r) => r.status === 'accepted' && r.experienceId)
+                .map((r) => r.experienceId as string);
               const persistedExperienceIds = resolutionResult.resolved
                 .filter((r: any) => r.status === 'accepted' && r.experienceId)
                 .map((r: any) => r.experienceId as string);

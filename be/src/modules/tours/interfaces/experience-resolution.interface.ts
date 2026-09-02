@@ -28,7 +28,6 @@ export interface ResolvedExperienceCandidate {
   status: 'accepted' | 'rejected';
   resolvedEntities: ResolvedGeoEntity[];
   rejectionReasons: string[];
-  persistedActivityId?: string;
   experienceId?: string;
 }
 

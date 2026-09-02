@@ -1027,11 +1027,11 @@ export function buildCatalogMaterializationStep(
   const materialization = result.materialization;
   const finalResolved = materialization?.resolved ?? result.resolved;
   const materialized = finalResolved.filter(
-    (entry) => entry.status === 'accepted' && (entry.experienceId ?? entry.persistedActivityId),
+    (entry) => entry.status === 'accepted' && entry.experienceId,
   );
-  const rejected = finalResolved.filter((entry) => !(entry.experienceId ?? entry.persistedActivityId));
+  const rejected = finalResolved.filter((entry) => !entry.experienceId);
   const persistedExperienceIds = materialized.map(
-    (entry) => (entry.experienceId ?? entry.persistedActivityId) as string,
+    (entry) => entry.experienceId as string,
   );
 
   return {
@@ -1085,16 +1085,16 @@ export function buildCatalogMaterializationStep(
       persistedExperienceIds,
     },
     candidateDecisions: finalResolved.map((entry) => ({
-      id: entry.experienceId ?? entry.persistedActivityId ?? entry.proposal.name,
+      id: entry.experienceId ?? entry.proposal.name,
       name: entry.proposal.name,
       source: 'discovery',
-      status: entry.experienceId ?? entry.persistedActivityId
+      status: entry.experienceId
         ? ('ELIGIBLE' as const)
         : ('REJECTED' as const),
-      reason: entry.persistedActivityId
+      reason: entry.experienceId
         ? 'Experience verificada materializada y lista para re-query.'
         : entry.rejectionReasons.join(', '),
-      reasonCodes: entry.experienceId ?? entry.persistedActivityId
+      reasonCodes: entry.experienceId
         ? ['EXPERIENCE_MATERIALIZED']
         : entry.rejectionReasons,
     })),
