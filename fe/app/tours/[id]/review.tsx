@@ -25,7 +25,7 @@ export default function TourReviewScreen() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [stops, setStops] = useState<TourStop[]>([]);
-  // tourActivityId -> set of waypointActivityId currently checked. Seeded
+  // experienceSnapshotId -> set of component ids currently checked. Seeded
   // from each composite stop's full snapshot (everything checked by
   // default) — unchecking is the only way to exclude something.
   const [selections, setSelections] = useState<Map<string, Set<string>>>(
@@ -57,8 +57,8 @@ export default function TourReviewScreen() {
         for (const stop of transformedStops) {
           if (stop.type === 'composite') {
             initialSelections.set(
-              stop.tourActivityId,
-              new Set(stop.waypoints.map((w) => w.waypointActivity.id))
+              stop.experienceSnapshotId,
+              new Set(stop.components.map((w) => w.component.id))
             );
           }
         }
@@ -77,16 +77,16 @@ export default function TourReviewScreen() {
     (s): s is TourStopComposite => s.type === 'composite'
   );
 
-  const toggleWaypoint = (tourActivityId: string, waypointId: string) => {
+  const toggleComponent = (experienceSnapshotId: string, componentId: string) => {
     setSelections((prev) => {
       const next = new Map(prev);
-      const current = new Set(next.get(tourActivityId) ?? []);
-      if (current.has(waypointId)) {
-        current.delete(waypointId);
+      const current = new Set(next.get(experienceSnapshotId) ?? []);
+      if (current.has(componentId)) {
+        current.delete(componentId);
       } else {
-        current.add(waypointId);
+        current.add(componentId);
       }
-      next.set(tourActivityId, current);
+      next.set(experienceSnapshotId, current);
       return next;
     });
   };
@@ -152,9 +152,9 @@ export default function TourReviewScreen() {
                     data={item}
                     isLast={isLastStop}
                     editable
-                    selectedWaypointIds={selections.get(item.tourActivityId)}
-                    onToggleWaypoint={(waypointId) =>
-                      toggleWaypoint(item.tourActivityId, waypointId)
+                    selectedComponentIds={selections.get(item.experienceSnapshotId)}
+                    onToggleComponent={(componentId) =>
+                      toggleComponent(item.experienceSnapshotId, componentId)
                     }
                   />
                 ) : (

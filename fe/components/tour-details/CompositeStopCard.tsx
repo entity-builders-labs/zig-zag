@@ -46,8 +46,8 @@ export const CompositeStopCard = ({
   isLast,
   stopNumber,
   editable = false,
-  selectedWaypointIds,
-  onToggleWaypoint,
+  selectedComponentIds,
+  onToggleComponent,
 }: {
   data: TourStopComposite;
   isLast: boolean;
@@ -56,14 +56,14 @@ export const CompositeStopCard = ({
   // plain numbered list, letting the user exclude a stop for this tour
   // instance only (never the shared variant's own content).
   editable?: boolean;
-  selectedWaypointIds?: Set<string>;
-  onToggleWaypoint?: (waypointActivityId: string) => void;
+  selectedComponentIds?: Set<string>;
+  onToggleComponent?: (componentId: string) => void;
 }) => {
-  const orderedWaypoints = [...data.waypoints].sort(
+  const orderedComponents = [...data.components].sort(
     (a, b) => a.order - b.order
   );
-  const waypointCoordinates = orderedWaypoints
-    .map((w) => w.waypointActivity)
+  const waypointCoordinates = orderedComponents
+    .map((w) => w.component)
     .filter(
       (a): a is { id: string; name: string; latitude: number; longitude: number } =>
         a.latitude != null && a.longitude != null
@@ -75,11 +75,12 @@ export const CompositeStopCard = ({
   // never through the polygons pipeline (which would render it as a closed
   // shape it isn't). Any other boundary shape (Polygon/MultiPolygon, from a
   // variant materialized inside an AREA) renders as a polygon instead.
-  const isOwnRouteBoundary = data.boundary?.type === 'LineString';
+  const boundary = data.boundary as any;
+  const isOwnRouteBoundary = boundary?.type === 'LineString';
   const polygonParts = !isOwnRouteBoundary
     ? geoJsonBoundaryToPolygonParts(
-        data.boundary?.type === 'Polygon' || data.boundary?.type === 'MultiPolygon'
-          ? data.boundary
+        boundary?.type === 'Polygon' || boundary?.type === 'MultiPolygon'
+          ? boundary
           : null
       )
     : [];
@@ -92,7 +93,7 @@ export const CompositeStopCard = ({
       : waypointCoordinates
   );
 
-  // The walking path BETWEEN this stop's waypoints (not the boundary itself)
+  // The walking path between this stop's components (not the boundary itself)
   // is computed client-side, same as the tour-level route in TourHeader —
   // there's nothing to persist here, it's cheap to recompute on render.
   useEffect(() => {
@@ -126,7 +127,7 @@ export const CompositeStopCard = ({
   // particular has by far the tallest natural content of any row type
   // (map + waypoint list), so it's the one that visibly overflowed.
   return (
-    <HStack testID={`composite-stop-${data.tourActivityId}`}>
+    <HStack testID={`composite-stop-${data.experienceSnapshotId}`}>
       {/* Timeline Node — rose accent, distinguishing a composite/experience */}
       <Box width={36} alignItems='center' position='relative'>
         <Box height={16} width={2} bg='$borderLight300' />
@@ -178,7 +179,7 @@ export const CompositeStopCard = ({
                 isStatic
                 zoomable={false}
                 initialRegion={mapRegion}
-                instanceId={`composite-${data.tourActivityId}`}
+                instanceId={`composite-${data.experienceSnapshotId}`}
                 markers={[]}
                 routes={
                   polygonParts.length === 0 && routeCoordinates.length > 1
@@ -212,7 +213,7 @@ export const CompositeStopCard = ({
                     ✨ {KIND_LABELS[data.kind] || data.kind}
                   </Text>
                 </Box>
-                {orderedWaypoints.length > 0 && (
+                {orderedComponents.length > 0 && (
                   <Box
                     bg='$backgroundLight100'
                     px='$2'
@@ -220,7 +221,7 @@ export const CompositeStopCard = ({
                     borderRadius='$full'
                   >
                     <Text size='2xs' fontWeight='$medium' color='$textLight600'>
-                      {orderedWaypoints.length} paradas
+                      {orderedComponents.length} componentes
                     </Text>
                   </Box>
                 )}
@@ -257,16 +258,16 @@ export const CompositeStopCard = ({
             )}
 
             {/* Waypoints Sub-List */}
-            {orderedWaypoints.length > 0 && editable ? (
-              <VStack mt='$3' space='xs' testID={`composite-waypoints-${data.tourActivityId}`}>
-                {orderedWaypoints.map((w, index) => {
+            {orderedComponents.length > 0 && editable ? (
+              <VStack mt='$3' space='xs' testID={`composite-components-${data.experienceSnapshotId}`}>
+                {orderedComponents.map((w, index) => {
                   const isChecked =
-                    selectedWaypointIds?.has(w.waypointActivity.id) ?? true;
+                    selectedComponentIds?.has(w.component.id) ?? true;
                   return (
                     <Pressable
-                      key={w.waypointActivity.id}
-                      onPress={() => onToggleWaypoint?.(w.waypointActivity.id)}
-                      testID={`waypoint-checkbox-${w.waypointActivity.id}`}
+                      key={w.component.id}
+                      onPress={() => onToggleComponent?.(w.component.id)}
+                      testID={`component-checkbox-${w.component.id}`}
                     >
                       <HStack
                         space='sm'
@@ -292,13 +293,13 @@ export const CompositeStopCard = ({
                           )}
                         </Box>
                         <Text size='xs' fontWeight='$medium' color='$textLight800' flex={1}>
-                          {index + 1}. {w.waypointActivity.name}
+                          {index + 1}. {w.component.name}
                         </Text>
                       </HStack>
                     </Pressable>
                   );
                 })}
-                {(selectedWaypointIds?.size ?? 0) < MIN_SELECTED_WAYPOINTS && (
+                {(selectedComponentIds?.size ?? 0) < MIN_SELECTED_WAYPOINTS && (
                   <Text size='2xs' color='$error600' mt='$1'>
                     Elegí al menos {MIN_SELECTED_WAYPOINTS} paradas — si no,
                     se mantiene el recorrido completo.
@@ -306,14 +307,14 @@ export const CompositeStopCard = ({
                 )}
               </VStack>
             ) : (
-              orderedWaypoints.length > 0 && (
+              orderedComponents.length > 0 && (
                 <VStack mt='$3' space='xs'>
                   <Text size='2xs' fontWeight='$bold' color='$textLight400' textTransform='uppercase' letterSpacing={0.5} mb='$1'>
                     Paradas de esta experiencia:
                   </Text>
-                  {orderedWaypoints.map((w, index) => (
+                  {orderedComponents.map((w, index) => (
                     <HStack
-                      key={w.waypointActivity.id}
+                      key={w.component.id}
                       space='sm'
                       alignItems='center'
                       p='$2'
@@ -341,7 +342,7 @@ export const CompositeStopCard = ({
                         numberOfLines={1}
                         flex={1}
                       >
-                        {w.waypointActivity.name}
+                          {w.component.name}
                       </Text>
                     </HStack>
                   ))}

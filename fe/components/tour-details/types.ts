@@ -13,24 +13,17 @@ export interface TourStopLocation {
   badges: BadgeData[];
 }
 
-// A multi-stop composite pick (neighborhood_walk/route/experience), as
-// opposed to a plain POI (TourStopLocation). `waypoints` is always this
-// specific tour stop's TourActivityWaypoint snapshot — frozen at generation
-// time, never the variant's current/live ActivityWaypoint content — so the
-// card stays stable even if the shared variant is edited/curated later.
+// A multi-component Experience snapshot, as opposed to a plain location.
 export interface TourStopComposite {
   type: 'composite';
   id: string;
-  // The TourActivity join row's own id — distinct from `id` (the Activity/
-  // variant id, used for the React key). This is what the pre-confirmation
-  // review screen's PATCH /tours/:tourId/activities/:tourActivityId/waypoints
-  // call targets.
-  tourActivityId: string;
+  // Immutable snapshot identity, distinct from the persisted Experience id.
+  experienceSnapshotId: string;
   title: string;
   themeReasoning?: string;
   kind: string;
   boundary?: unknown;
-  waypoints: Array<{ order: number; waypointActivity: { id: string; name: string; latitude?: number; longitude?: number } }>;
+  components: Array<{ order: number; component: { id: string; name: string; latitude?: number; longitude?: number } }>;
   badges: BadgeData[];
 }
 

@@ -26,11 +26,11 @@ function buildExperienceStop(snapshot: TourExperience): TourStop | null {
   const badges = getBadges({ type: 'EXPERIENCE', metadata: { themes: experience?.themes } });
   if (snapshot.components && snapshot.components.length > 1) {
     return {
-      type: 'composite', id: snapshot.id, tourActivityId: snapshot.id, title,
+      type: 'composite', id: snapshot.id, experienceSnapshotId: snapshot.id, title,
       themeReasoning: snapshot.notes, kind: 'EXPERIENCE' as any,
-      waypoints: snapshot.components.map((component, index) => ({
+      components: snapshot.components.map((component, index) => ({
         order: component.order ?? index,
-        waypointActivity: { id: component.geoEntityId, name: component.name, latitude: component.latitude, longitude: component.longitude },
+        component: { id: component.geoEntityId, name: component.name, latitude: component.latitude, longitude: component.longitude },
       })) as any, badges,
     };
   }
