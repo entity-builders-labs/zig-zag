@@ -7,8 +7,8 @@ export interface EmbeddingIndexIdentity {
   documentVersion: number;
 }
 
-/** Version of the canonical Experience embedding document. */
-export const EXPERIENCE_EMBEDDING_DOCUMENT_VERSION = 1;
+/** Increment whenever the canonical Experience semantic document changes materially. */
+export const EXPERIENCE_EMBEDDING_DOCUMENT_VERSION = 2;
 
 export type EmbeddingServiceStatus =
   | {
