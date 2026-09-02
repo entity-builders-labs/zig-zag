@@ -9,13 +9,12 @@ export interface GeoEntityHintV2 {
 }
 
 /**
- * A grounded tourism concept. There is intentionally no structural Activity
- * kind here: single-place visits and multi-component experiences use the same
+ * A grounded tourism concept. There is intentionally no structural kind here:
+ * single-place visits and multi-component experiences use the same
  * acquisition/verification contract.
  */
 export interface ExperienceCandidate {
   name: string;
-  kind?: 'POI' | 'ROUTE' | 'AREA' | 'NEIGHBORHOOD_WALK' | 'EXPERIENCE';
   description?: string;
   themes: string[];
   traits: string[];

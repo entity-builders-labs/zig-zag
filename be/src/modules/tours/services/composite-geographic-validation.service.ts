@@ -50,7 +50,7 @@ export class CompositeGeographicValidationService {
     destinationBoundary: OsmCandidate,
   ): GeographicValidationResult {
     const { proposal, resolvedEntities } = resolvedProposal;
-    const kind = String(proposal.kind ?? 'EXPERIENCE').toUpperCase();
+    const kind: string = 'EXPERIENCE';
     const resolved = resolvedEntities.filter(
       (entity) => entity.status === 'resolved',
     );
