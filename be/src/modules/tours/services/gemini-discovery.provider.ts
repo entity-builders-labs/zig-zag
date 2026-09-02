@@ -16,6 +16,7 @@ import {
   validateProposal,
 } from '../utils/discovery-extraction-shared.util';
 import { ExperienceDiscoveryRequest } from '../interfaces/experience-discovery.interface';
+import { ExperienceGroundedSearchResult } from '../interfaces/experience-grounding.interface';
 import { extractExperienceCandidates, ExperienceExtractionResult } from '../utils/experience-candidate-extraction.util';
 
 /** Gemini-specific: short role framing only. No JSON-shape prose here —
@@ -146,7 +147,7 @@ export class GeminiDiscoveryProvider
    * it directly. */
   async extractExperiences(
     request: ExperienceDiscoveryRequest,
-    searchResult: GroundedSearchResult,
+    searchResult: ExperienceGroundedSearchResult,
   ): Promise<ExperienceExtractionResult & { provider: string; model: string; rawOutput?: string }> {
     const apiKey = this.config.discoveryExtractor.gemini.apiKey;
     if (!apiKey) return { candidates: [], validationErrors: ['Missing Gemini API key'], provider: 'gemini', model: this.model };

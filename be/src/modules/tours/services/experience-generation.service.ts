@@ -78,6 +78,13 @@ import {
   SemanticSimilarityResult,
 } from '@shared/ai/interfaces/embedding-index.interface';
 
+interface NativeExperienceDiscoveryProvider {
+  extractExperiences(
+    request: ExperienceDiscoveryRequest,
+    searchResult: import('../interfaces/experience-grounding.interface').ExperienceGroundedSearchResult,
+  ): Promise<{ candidates: any[]; validationErrors?: string[]; provider?: string; model?: string; rawOutput?: unknown }>;
+}
+
 function withoutGenerationFailure(metadata: any): any {
   const cleanMetadata = { ...(metadata ?? {}) };
   delete cleanMetadata.generationError;
@@ -139,7 +146,7 @@ export class ExperienceGenerationService {
     @Inject(EXPERIENCE_GROUNDED_SEARCH_PROVIDER)
     private readonly groundedSearchProvider: ExperienceGroundedSearchProvider,
     @Inject('EXPERIENCE_DISCOVERY_PROVIDER')
-    private readonly discoveryProvider: any,
+    private readonly discoveryProvider: NativeExperienceDiscoveryProvider,
     private readonly tourCompletenessValidator: TourCompletenessValidator,
     @Inject(EXPERIENCE_PROPOSAL_RESOLVER)
     private readonly proposalResolver: ExperienceProposalResolver,
@@ -186,14 +193,8 @@ export class ExperienceGenerationService {
       searchTrace.push({ query: plannedQuery.query, provider: grounded.provider, model: grounded.model, groundingStatus: grounded.groundingStatus, evidenceCount: grounded.evidence.length });
       if (grounded.evidence.length === 0) continue;
       evidence.push(...grounded.evidence);
-      const nativeExtractor = (this.discoveryProvider as any).extractExperiences;
-      const extracted = typeof nativeExtractor === 'function'
-        ? await nativeExtractor.call(this.discoveryProvider, request, grounded)
-        : await this.discoveryProvider.discover(
-            { destinationName, requestedThemes: interests, additionalPreferences, mode: { type: 'gap_fill', deficits }, maxProposals: 8 },
-            grounded,
-          );
-      proposals.push(...(extracted.candidates ?? extracted.proposals ?? []));
+      const extracted = await this.discoveryProvider.extractExperiences(request, grounded);
+      proposals.push(...(extracted.candidates ?? []));
       if (proposals.length >= 8) break;
     }
     return { proposals: proposals.slice(0, 8), evidence, provider: 'experience-discovery', model: 'provider-neutral', groundingStatus: proposals.length ? 'applied' : 'no_usable_evidence', searchTrace };

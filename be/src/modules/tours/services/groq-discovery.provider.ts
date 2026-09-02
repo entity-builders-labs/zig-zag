@@ -17,6 +17,7 @@ import {
   validateProposal,
 } from '../utils/discovery-extraction-shared.util';
 import { ExperienceDiscoveryRequest } from '../interfaces/experience-discovery.interface';
+import { ExperienceGroundedSearchResult } from '../interfaces/experience-grounding.interface';
 import { extractExperienceCandidates, ExperienceExtractionResult } from '../utils/experience-candidate-extraction.util';
 
 /** Groq-specific: JSON shape/output-format prose, needed because Groq's
@@ -99,7 +100,7 @@ export class GroqDiscoveryProvider implements SearchGroundedDiscoveryProvider {
 
   async extractExperiences(
     request: ExperienceDiscoveryRequest,
-    searchResult: GroundedSearchResult,
+    searchResult: ExperienceGroundedSearchResult,
   ): Promise<ExperienceExtractionResult & { provider: string; model: string; rawOutput?: string }> {
     const evidence = searchResult.evidence ?? [];
     const prompt = [
