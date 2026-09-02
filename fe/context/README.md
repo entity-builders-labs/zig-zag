@@ -29,7 +29,7 @@ context/
 Main data fetching function used across the app:
 
 1. Takes optional coordinates (falls back to address → center)
-2. Calls `POST /activities/search-hybrid` with lat/lng/radius
+2. Tour/map screens query verified Experiences through their dedicated API boundaries.
 3. Updates `activities` state with results
 4. Returns response with `fromCache` and `crawlingTriggered` flags
 
@@ -43,7 +43,6 @@ Exported hooks for consuming context in components:
 | ------------------- | ----------------------------------------------- | ------------------------------- |
 | `useMap()`          | `{ center, handleCenterChange }`                | Map center management           |
 | `useAddress()`      | `{ address, setAddress }`                       | Address selection + auto-center |
-| `useActivities()`   | `{ activities, loading, error, getActivities }` | Activities data                 |
 | `useSearchRadius()` | `{ radiusMeters, setRadiusMeters }`             | Search radius control           |
 
 ### `useAddress()` side-effects

@@ -2,9 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet, View, Text } from 'react-native';
 import { GoogleMap, useJsApiLoader, Marker } from '@react-google-maps/api';
 import { useMap } from '../../context/app';
-import { useActivities } from '../../context/app';
 import { MapProps } from './types';
-import { Activity } from '../activities/types';
 import { Marker as MarkerType } from './types';
 import { ZIGZAG_WARM_MAP_STYLE } from '../../constants/map-style';
 import { createSvgMarkerUrl } from './utils';
@@ -35,19 +33,6 @@ function exposeMapInstanceData(
   };
 }
 
-// Function to create markers from activities
-const createMarkersFromActivities = (activities: Activity[]): MarkerType[] => {
-  return activities.map((activity) => ({
-    id: activity.id,
-    coordinate: {
-      latitude: activity.latitude,
-      longitude: activity.longitude,
-    },
-    title: activity.name,
-    description: activity.description,
-    order: activity.order,
-  }));
-};
 
 export const Map: React.FC<MapProps> = ({
   markers: propMarkers,
@@ -59,7 +44,6 @@ export const Map: React.FC<MapProps> = ({
   instanceId,
 }) => {
   const { center, handleCenterChange } = useMap();
-  const { activities } = useActivities();
   const mapRef = useRef<google.maps.Map | null>(null);
   const polylinesRef = useRef<google.maps.Polyline[]>([]);
   const polygonsRef = useRef<google.maps.Polygon[]>([]);
@@ -81,7 +65,7 @@ export const Map: React.FC<MapProps> = ({
     googleMapsApiKey: apiKey,
   });
 
-  const markers = propMarkers || createMarkersFromActivities(activities);
+  const markers = propMarkers || [];
 
   // Frame every marker and route point instead of a fixed zoom level, which
   // ignored initialRegion's delta entirely and often left the map zoomed way

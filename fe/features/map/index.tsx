@@ -10,26 +10,11 @@ import MapView, {
 import { useMap } from '../../context/app';
 import { useAddress } from '../../context/app';
 import { useSearchRadius } from '../../context/app';
-import { useActivities } from '../../context/app';
 import { MapProps } from './types';
-import { Activity } from '../activities/types';
 import { Marker as MarkerType } from './types';
 import { ZIGZAG_WARM_MAP_STYLE } from '../../constants/map-style';
 import { getCategoryEmoji } from './utils';
 
-// Function to create markers from activities
-const createMarkersFromActivities = (activities: Activity[]): MarkerType[] => {
-  return activities.map((activity) => ({
-    id: activity.id,
-    coordinate: {
-      latitude: activity.latitude,
-      longitude: activity.longitude,
-    },
-    title: activity.name,
-    description: activity.description,
-    order: activity.order,
-  }));
-};
 
 export const Map: React.FC<MapProps> = ({
   markers: propMarkers,
@@ -41,7 +26,6 @@ export const Map: React.FC<MapProps> = ({
 }) => {
   const { center } = useMap();
   const { address } = useAddress();
-  const { activities } = useActivities();
   const { radiusMeters } = useSearchRadius();
 
   const contextRegion: Region = {
@@ -53,7 +37,7 @@ export const Map: React.FC<MapProps> = ({
 
   const region = initialRegion || contextRegion;
   // Create markers from activities if no markers are provided via props
-  const markers = propMarkers || createMarkersFromActivities(activities);
+  const markers = propMarkers || [];
   const interactive = zoomable ?? !isStatic;
 
   return (
