@@ -15,11 +15,9 @@ tours/
 ├── interfaces/
 │   └── tour-generation.interface.ts # Canonical request and legacy internal options
 ├── prompts/                         # LangChain prompt templates
-│   ├── activity-recommendation.prompt.ts
 │   ├── contextual-activities.prompt.ts
 │   ├── create-tour.prompt.ts
 │   ├── media-generation.prompt.ts
-│   ├── nearby-tour.prompt.ts
 │   └── index.ts
 ├── services/
 │   ├── tours.service.ts             # CRUD operations
