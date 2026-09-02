@@ -79,7 +79,6 @@ describe('GenerationTrace V2 decision audit coverage', () => {
         {
           proposal: {
             name: 'Invented route',
-            kind: 'ROUTE',
             themes: ['history'],
             traits: [],
             componentHints: [],
