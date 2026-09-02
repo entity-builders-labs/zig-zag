@@ -229,7 +229,7 @@ export class ExperienceGenerationService {
   }
 
   private buildCoverageReport(
-    activities: any[],
+    experiences: any[],
     request: TourGenerationRequest,
     offeredCandidateCount: number,
     semanticRanking: SemanticRankingOutcome,
@@ -239,13 +239,13 @@ export class ExperienceGenerationService {
     },
   ) {
     return this.coverageAnalyzer.analyze({
-      candidates: activities.map((activity) => ({
-        id: activity.id,
-        name: activity.name,
-        source: activity.source || activity.sourceId || 'db',
-        weightedScore: activity.weightedScore,
-        distanceKm: activity.distance,
-        metadata: activity.metadata,
+      candidates: experiences.map((experience) => ({
+        id: experience.id,
+        name: experience.canonicalName ?? experience.name,
+        source: experience.source || experience.sourceId || 'db',
+        weightedScore: experience.weightedScore,
+        distanceKm: experience.distance,
+        metadata: experience.metadata,
       })),
       requestedThemes: request.intent.interests,
       days: request.days,
@@ -446,7 +446,7 @@ export class ExperienceGenerationService {
     experiences: any[],
     intent: TourIntent,
   ): Promise<CandidateSelection> {
-    const candidateExperiences = this.filterHardExcludedActivities(
+    const candidateExperiences = this.filterHardExcludedExperiences(
       experiences,
       intent,
     );
@@ -508,9 +508,9 @@ export class ExperienceGenerationService {
     };
   }
 
-  private filterHardExcludedActivities(activities: any[], intent: TourIntent) {
+  private filterHardExcludedExperiences(experiences: any[], intent: TourIntent) {
     const exclusions = intent.normalizedPreferences?.hardExclusions ?? [];
-    if (exclusions.length === 0) return activities;
+    if (exclusions.length === 0) return experiences;
     const aliases: Record<string, string[]> = {
       religion: [
         'religion',
@@ -522,12 +522,12 @@ export class ExperienceGenerationService {
       ],
       'non-vegan food': ['carne', 'asado', 'parrilla', 'meat'],
     };
-    return activities.filter((activity) => {
+    return experiences.filter((experience) => {
       const haystack = JSON.stringify({
-        name: activity.name,
-        metadata: activity.metadata,
-        themes: activity.themes,
-        traits: activity.traits,
+        name: experience.canonicalName ?? experience.name,
+        metadata: experience.metadata,
+        themes: experience.themes,
+        traits: experience.traits,
       }).toLowerCase();
       return !exclusions.some((exclusion) => {
         const terms = aliases[exclusion.toLowerCase()] ?? [
