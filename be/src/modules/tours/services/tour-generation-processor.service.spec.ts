@@ -38,7 +38,7 @@ describe('TourGenerationProcessorService', () => {
     const { service, queue } = setup({
       id: 'tour-1',
       metadata: { generationStatus: 'pending' },
-      experiences: [],
+      experiences: [] as any[],
     });
     service.onModuleInit();
     expect(queue.subscribe).toHaveBeenCalledWith(
@@ -51,7 +51,7 @@ describe('TourGenerationProcessorService', () => {
     const { service, generation } = setup({
       id: 'tour-1',
       metadata: { generationStatus: 'pending' },
-      experiences: [],
+      experiences: [] as any[],
     });
     await service.handleGenerationRequested(payload);
     expect(generation.generateTourExperiences).toHaveBeenCalledWith('tour-1');
@@ -71,7 +71,7 @@ describe('TourGenerationProcessorService', () => {
     const { service, generation } = setup({
       id: 'tour-1',
       metadata: { generationStatus: 'failed', generationError: 'infeasible' },
-      experiences: [],
+      experiences: [] as any[],
     });
 
     await service.handleGenerationRequested(payload);
@@ -86,7 +86,7 @@ describe('TourGenerationProcessorService', () => {
         generationStatus: 'generating',
         generationStartedAt: '2026-08-31T10:00:00.000Z',
       },
-      experiences: [],
+      experiences: [] as any[],
     });
 
     await service.handleGenerationRequested(payload);
@@ -107,7 +107,7 @@ describe('TourGenerationProcessorService', () => {
     const initialTour = {
       id: 'tour-1',
       metadata: { generationStatus: 'pending' },
-      experiences: [],
+      experiences: [] as any[],
     };
     const latestTour = {
       id: 'tour-1',
@@ -115,9 +115,9 @@ describe('TourGenerationProcessorService', () => {
         generationStatus: 'failed',
         generationError: 'Google Places 429 rate limited',
         generationFailedAt: '2026-09-02T20:00:00.000Z',
-        generationTrace: { steps: [] },
+        generationTrace: { steps: [] as any[] },
       },
-      experiences: [],
+      experiences: [] as any[],
     };
     const { service, prisma, generation } = setup(initialTour, latestTour);
     const transient = new Error(
@@ -155,16 +155,16 @@ describe('TourGenerationProcessorService', () => {
     const initialTour = {
       id: 'tour-1',
       metadata: { generationStatus: 'pending' },
-      experiences: [],
+      experiences: [] as any[],
     };
     const latestTour = {
       id: 'tour-1',
       metadata: {
         generationStatus: 'failed',
         generationError: 'No feasible itinerary',
-        generationTrace: { steps: [] },
+        generationTrace: { steps: [] as any[] },
       },
-      experiences: [],
+      experiences: [] as any[],
     };
     const { service, prisma, generation } = setup(initialTour, latestTour);
     const terminal = new Error(
