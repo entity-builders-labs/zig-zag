@@ -1502,9 +1502,6 @@ export class ExperienceGenerationService {
       });
 
       await this.prisma.$transaction(async (tx) => {
-        await tx.tourActivity.deleteMany({
-          where: { tourId },
-        });
         await tx.tourExperience.deleteMany({ where: { tourId } });
 
         for (const activity of activities as any[]) {
