@@ -21,12 +21,13 @@ export interface RankableCandidate {
 // bitácora can show real per-candidate score components instead of an
 // opaque total.
 export interface CandidateScoreBreakdown {
-  /** null = missing-embedding tier; never a fake 0 (that would claim a measurement that didn't happen). */
+  /** null = missing-embedding tier; never a fake 0. */
   semanticSimilarity: number | null;
+  /** Weighted contribution actually added to totalScore. */
   preferenceBonus?: number;
   qualityBonus: number;
   proximityBonus: number;
-  /** Captured at the moment this candidate was selected in the greedy diversity pass, not recomputed afterward. */
+  /** Captured at the moment this candidate was selected. */
   diversityBonus: number;
   totalScore: number;
 }
@@ -37,20 +38,13 @@ export interface RankedCandidate<T extends RankableCandidate> {
 }
 
 const MAX_WEIGHTED_SCORE = 5;
-// Small on purpose relative to interestSimilarity's 0-1 range — quality is a
-// tie-breaker here, not the primary signal, unlike ActivitiesService.findAll's
-// own weightedScore-first sort (which this function does not replace, only
-// feeds from, when interests are present).
 const POI_QUALITY_WEIGHT = 0.2;
-// Deliberately less than POI_QUALITY_WEIGHT's max (0.2) — a curated composite
-// is a solid signal but shouldn't automatically outrank a very well-reviewed
-// matching POI on interest similarity alone.
 const CURATED_COMPOSITE_BONUS = 0.15;
 const PROXIMITY_WEIGHT = 0.1;
 const NEW_KIND_BONUS = 0.04;
 const NEW_SUBTYPE_BONUS = 0.03;
 const REPEATED_SUBTYPE_PENALTY = 0.02;
-const PREFERENCE_WEIGHT = 0.25;
+export const PREFERENCE_WEIGHT = 0.25;
 
 export function qualityBonus(candidate: RankableCandidate): number {
   if (candidate.source === 'poi') {
@@ -59,6 +53,10 @@ export function qualityBonus(candidate: RankableCandidate): number {
     );
   }
   return candidate.isCurated ? CURATED_COMPOSITE_BONUS : 0;
+}
+
+export function preferenceBonus(candidate: RankableCandidate): number {
+  return (candidate.preferenceScore ?? 0) * PREFERENCE_WEIGHT;
 }
 
 export function proximityBonus(
@@ -89,9 +87,6 @@ function fallbackCompare(a: RankableCandidate, b: RankableCandidate): number {
   return a.id.localeCompare(b.id);
 }
 
-// Shared by the live comparator (re-evaluated every sort pass, current
-// state) and the post-shift capture (frozen at the exact moment a
-// candidate is selected) — factored out so the two can't drift apart.
 function diversityBonusFor(
   candidate: RankableCandidate,
   selectedKinds: Set<string>,
@@ -117,17 +112,20 @@ function rankKnownSemanticTier<T extends RankableCandidate>(
       .map((candidate) => candidate.distanceKm)
       .filter((distance): distance is number => Number.isFinite(distance)),
   );
-  const remaining = candidates.map((candidate) => ({
-    candidate,
-    semanticSimilarity: similarityById.get(candidate.id)!,
-    quality: qualityBonus(candidate),
-    proximity: proximityBonus(candidate, maximumDistanceKm),
-    baseScore:
-      similarityById.get(candidate.id)! +
-      (candidate.preferenceScore ?? 0) * PREFERENCE_WEIGHT +
-      qualityBonus(candidate) +
-      proximityBonus(candidate, maximumDistanceKm),
-  }));
+  const remaining = candidates.map((candidate) => {
+    const preference = preferenceBonus(candidate);
+    const quality = qualityBonus(candidate);
+    const proximity = proximityBonus(candidate, maximumDistanceKm);
+    const semanticSimilarity = similarityById.get(candidate.id)!;
+    return {
+      candidate,
+      semanticSimilarity,
+      preference,
+      quality,
+      proximity,
+      baseScore: semanticSimilarity + preference + quality + proximity,
+    };
+  });
   const selected: RankedCandidate<T>[] = [];
   const selectedKinds = new Set<string>();
   const subtypeCounts = new Map<string, number>();
@@ -143,10 +141,6 @@ function rankKnownSemanticTier<T extends RankableCandidate>(
     });
 
     const next = remaining.shift()!;
-    // Capture diversityBonus from the state exactly as it stood at
-    // selection time, before this pick updates selectedKinds/subtypeCounts
-    // below — recomputing afterward would use every-candidate-but-the-last's
-    // wrong (post-mutation) state.
     const diversityBonus = diversityBonusFor(
       next.candidate,
       selectedKinds,
@@ -155,8 +149,8 @@ function rankKnownSemanticTier<T extends RankableCandidate>(
     selected.push({
       candidate: next.candidate,
       scoreBreakdown: {
-      semanticSimilarity: next.semanticSimilarity,
-        preferenceBonus: next.candidate.preferenceScore ?? 0,
+        semanticSimilarity: next.semanticSimilarity,
+        preferenceBonus: next.preference,
         qualityBonus: next.quality,
         proximityBonus: next.proximity,
         diversityBonus,
@@ -176,38 +170,30 @@ function rankKnownSemanticTier<T extends RankableCandidate>(
   return selected;
 }
 
-// Wraps a candidate that never went through the greedy semantic/diversity
-// pass — no interest signal at all, or absent from similarityById — with an
-// honest breakdown: diversityBonus is 0 because that pass never ran for it,
-// not because diversity genuinely contributed nothing.
 function wrapWithoutSemanticSignal<T extends RankableCandidate>(
   candidate: T,
   maximumDistanceKm: number,
 ): RankedCandidate<T> {
+  const preference = preferenceBonus(candidate);
   const quality = qualityBonus(candidate);
   const proximity = proximityBonus(candidate, maximumDistanceKm);
   return {
     candidate,
     scoreBreakdown: {
       semanticSimilarity: null,
-      preferenceBonus: candidate.preferenceScore ?? 0,
+      preferenceBonus: preference,
       qualityBonus: quality,
       proximityBonus: proximity,
       diversityBonus: 0,
-      totalScore: (candidate.preferenceScore ?? 0) * PREFERENCE_WEIGHT + quality + proximity,
+      totalScore: preference + quality + proximity,
     },
   };
 }
 
 /**
- * Sorts candidates descending by relevance. With no interest signal
- * (`similarityById === null` — the caller passes this when `interests` is
- * empty or embeddings are unavailable), falls back to exactly today's
- * weightedScore-only order, so a request with no interests keeps its
- * existing behavior. Candidates absent from `similarityById` have unknown
- * semantic relevance: they are ranked deterministically by non-semantic
- * signals after the compatible indexed tier, never converted into a fake
- * zero-similarity measurement.
+ * Sorts candidates descending by relevance. Candidates absent from
+ * similarityById have unknown semantic relevance and are ranked
+ * deterministically by non-semantic signals after the compatible indexed tier.
  */
 export function rankCandidatesByRelevance<T extends RankableCandidate>(
   candidates: T[],
