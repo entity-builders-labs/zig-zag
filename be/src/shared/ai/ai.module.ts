@@ -7,6 +7,7 @@ import aiConfig from './ai.config';
 import { AiCacheService } from './services/ai-cache.service';
 import { AiEmbeddingService } from './services/ai-embedding.service';
 import { ExperienceVectorStoreService } from './services/experience-vector-store.service';
+import { ExperienceEmbeddingIndexerService } from './services/experience-embedding-indexer.service';
 
 @Module({
   imports: [ConfigModule.forFeature(aiConfig), PrismaModule],
@@ -16,6 +17,7 @@ import { ExperienceVectorStoreService } from './services/experience-vector-store
     AiCacheService,
     AiEmbeddingService,
     ExperienceVectorStoreService,
+    ExperienceEmbeddingIndexerService,
   ],
   exports: [
     LangChainService,
@@ -23,6 +25,7 @@ import { ExperienceVectorStoreService } from './services/experience-vector-store
     AiCacheService,
     AiEmbeddingService,
     ExperienceVectorStoreService,
+    ExperienceEmbeddingIndexerService,
   ],
 })
 export class AiModule {}
