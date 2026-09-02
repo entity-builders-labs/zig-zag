@@ -1,10 +1,8 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { Activity } from '@prisma/client';
 import {
   OsmPlacesService,
   OsmCandidate,
 } from '@integrations/osm/services/osm-places.service';
-import { CompositeActivityService } from '@activities/services/composite-activity.service';
 import {
   INominatimApiService,
   NominatimResult,
@@ -53,7 +51,6 @@ export type DestinationResolution =
   | ({ scale: 'point' } & DestinationResolutionAudit)
   | ({
       scale: 'area';
-      areaActivity: Activity;
       boundary: OsmCandidate;
     } & DestinationResolutionAudit);
 
@@ -76,7 +73,6 @@ export class DestinationResolutionService {
     @Inject('NominatimApiService')
     private readonly nominatimApi: INominatimApiService,
     private readonly osmPlacesService: OsmPlacesService,
-    private readonly compositeActivityService: CompositeActivityService,
   ) {}
 
   /**
@@ -233,11 +229,8 @@ export class DestinationResolutionService {
         };
       }
 
-      const areaActivity =
-        await this.compositeActivityService.resolveArea(boundary);
       return {
         scale: 'area',
-        areaActivity,
         boundary,
         attemptedQueries,
         selectedResult,
@@ -400,11 +393,8 @@ export class DestinationResolutionService {
       osmId: boundary.osmId,
       displayName: boundary.name,
     } as const;
-    const areaActivity =
-      await this.compositeActivityService.resolveArea(boundary);
     return {
       scale: 'area',
-      areaActivity,
       boundary,
       attemptedQueries,
       settlementResult,

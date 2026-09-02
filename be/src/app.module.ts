@@ -9,7 +9,6 @@ import { ConfigModule } from './core/config/config.module';
 import { AiModule } from './shared/ai/ai.module';
 
 // Domain modules
-import { ActivitiesModule } from './modules/activities/activities.module';
 import { ToursModule } from './modules/tours/tours.module';
 import { IntegrationsModule } from './modules/integrations/integrations.module';
 import { AuthModule } from './modules/auth/auth.module';
@@ -40,7 +39,6 @@ import { ScriptsModule } from './commands/scripts/commands/scripts.module';
 
     // Domain (estos módulos ya incluyen sus commands)
     AuthModule,
-    ActivitiesModule,
     ToursModule,
     IntegrationsModule,
 

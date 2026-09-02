@@ -1,8 +1,7 @@
-import { Module, forwardRef, Logger } from '@nestjs/common';
+import { Module, Logger } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { GooglePlacesService } from './google-places/google-places.service';
 import { PrismaService } from '@core/database/prisma.service';
-import { ActivitiesModule } from '@activities/activities.module';
 import { AiModule } from '@shared/ai/ai.module';
 import { GooglePlacesApiService } from '@integrations/google-places/services/google-places-api.service';
 import { GeoapifyPlacesApiService } from '@integrations/google-places/services/geoapify-places-api.service';
@@ -51,7 +50,6 @@ export function createPlacesApiService(
 @Module({
   imports: [
     ConfigModule,
-    forwardRef(() => ActivitiesModule),
     AiModule,
     OsmModule,
     WikidataModule,
