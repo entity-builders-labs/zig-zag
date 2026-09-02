@@ -109,7 +109,7 @@ interface PlacesCrawlResult {
 }
 
 interface CandidateSelection {
-  activities: any[];
+  experiences: any[];
   semanticRanking: SemanticRankingOutcome;
   scoreBreakdownById: Map<string, CandidateScoreBreakdown>;
   formatAvailability: FormatAvailability[];
@@ -293,7 +293,7 @@ export class ExperienceGenerationService {
     postAcquisitionCatalogCount: number,
     eligibleCount: number,
   ): GenerationTraceStep {
-    const offeredCandidates = selection.activities.map((act: any) => ({
+    const offeredCandidates = selection.experiences.map((act: any) => ({
       id: act.id,
       name: act.name,
       kind: act.kind,
@@ -461,12 +461,12 @@ export class ExperienceGenerationService {
     });
   }
 
-  private async rankAndSliceActivities(
-    activities: any[],
+  private async rankAndSliceExperiences(
+    experiences: any[],
     intent: TourIntent,
   ): Promise<CandidateSelection> {
     const candidateActivities = this.filterHardExcludedActivities(
-      activities,
+      experiences,
       intent,
     );
     const semanticQuery = buildSemanticTourQuery(intent);
@@ -506,7 +506,7 @@ export class ExperienceGenerationService {
 
     if (!semanticQuery) {
       return {
-        activities: ranked,
+        experiences: ranked,
         scoreBreakdownById,
         formatAvailability,
         droppedForFamilyCapCount,
@@ -522,7 +522,7 @@ export class ExperienceGenerationService {
     }
 
     return {
-      activities: ranked,
+      experiences: ranked,
       scoreBreakdownById,
       formatAvailability,
       droppedForFamilyCapCount,
@@ -621,7 +621,7 @@ export class ExperienceGenerationService {
       let placesRefillError: PlacesCrawlError | null = null;
 
       const recordOfferedCandidates = (selection: CandidateSelection) => {
-        selection.activities.forEach((act: any) => {
+        selection.experiences.forEach((act: any) => {
           candidateActivityIds.add(act.id);
           candidateActivitiesById.set(act.id, act);
           const breakdown = selection.scoreBreakdownById.get(act.id);
@@ -780,11 +780,11 @@ export class ExperienceGenerationService {
           nearbyActivities.forEach((act: any) =>
             allEligibleActivitiesById.set(act.id, act),
           );
-          const selection = await this.rankAndSliceActivities(
+          const selection = await this.rankAndSliceExperiences(
             nearbyActivities,
             request.intent,
           );
-          const nearbyActivitiesSample = selection.activities;
+          const nearbyActivitiesSample = selection.experiences;
           semanticRankingOutcome = selection.semanticRanking;
           const initialCoverageReport = this.buildCoverageReport(
             nearbyActivities,
@@ -994,11 +994,11 @@ export class ExperienceGenerationService {
                   ),
                 ];
 
-                const selection = await this.rankAndSliceActivities(
+                const selection = await this.rankAndSliceExperiences(
                   mergedPool,
                   request.intent,
                 );
-                const refreshedActivitiesSample = selection.activities;
+        const refreshedActivitiesSample = selection.experiences;
                 semanticRankingOutcome = selection.semanticRanking;
                 const refreshedCoverageReport = this.buildCoverageReport(
                   mergedPool,
@@ -1068,11 +1068,11 @@ export class ExperienceGenerationService {
                         !nearbyActivities.some((r: any) => r.id === a.id),
                     ),
                   ];
-                  const selection = await this.rankAndSliceActivities(
+                  const selection = await this.rankAndSliceExperiences(
                     mergedPool,
                     request.intent,
                   );
-                  const nearbyActivitiesSample = selection.activities;
+                  const nearbyActivitiesSample = selection.experiences;
                   semanticRankingOutcome = selection.semanticRanking;
                   recordOfferedCandidates(selection);
                   availableActivitiesText = `\n\nAvailable verified Experiences in the area (within ${radius / 1000}km):\n${nearbyActivitiesSample
@@ -1149,11 +1149,11 @@ export class ExperienceGenerationService {
                       !nearbyActivities.some((r: any) => r.id === a.id),
                   ),
                 ];
-                const selection = await this.rankAndSliceActivities(
+                const selection = await this.rankAndSliceExperiences(
                   mergedPool,
                   request.intent,
                 );
-                const nearbyActivitiesSample = selection.activities;
+                const nearbyActivitiesSample = selection.experiences;
                 semanticRankingOutcome = selection.semanticRanking;
                 recordOfferedCandidates(selection);
                 availableActivitiesText = `\n\nAvailable verified Experiences in the area (within ${radius / 1000}km):\n${nearbyActivitiesSample
@@ -1300,13 +1300,13 @@ export class ExperienceGenerationService {
                 });
               }
               if (persistedDiscoveryActivityIds.length > 0) {
-                const reconciledSelection = await this.rankAndSliceActivities(
+                const reconciledSelection = await this.rankAndSliceExperiences(
                   Array.from(allEligibleActivitiesById.values()),
                   request.intent,
                 );
                 semanticRankingOutcome = reconciledSelection.semanticRanking;
                 recordOfferedCandidates(reconciledSelection);
-                  availableActivitiesText = `\n\nAvailable verified Experiences in the area:\n${reconciledSelection.activities
+                  availableActivitiesText = `\n\nAvailable verified Experiences in the area:\n${reconciledSelection.experiences
                   .map((act: any) => formatExperienceForPrompt(act))
                   .join('\n')}`;
               }
