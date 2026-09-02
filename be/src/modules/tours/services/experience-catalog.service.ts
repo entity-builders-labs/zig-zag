@@ -111,7 +111,10 @@ export class ExperienceCatalogService {
           source: 'places_acquisition',
           provider: result.provenance.provider,
           placeId: place.id,
-          themes: input.interests ?? [],
+          // These are hints carried from the acquisition request, not proof of
+          // semantic relevance. Focused deficits are handled by grounded
+          // discovery before this quantity-only refill is allowed to run.
+          requestedThemes: input.interests ?? [],
         },
         components: [{ geoEntityId: entity.id, role: 'venue', required: true }],
         evidence: [
@@ -173,11 +176,17 @@ export class ExperienceCatalogService {
             Math.cos((latitude * Math.PI) / 180)) ** 2;
         if (distanceSquared > radiusSquared) return undefined;
         const metadata = this.objectMetadata(experience.metadata);
+        const relationalTraits = experience.traits.flatMap((trait) =>
+          [trait.traitDefinition.label, trait.traitDefinition.key].filter(
+            (value): value is string => !!value,
+          ),
+        );
         return {
           id: experience.id,
           name: experience.canonicalName,
           canonicalName: experience.canonicalName,
           description: experience.description,
+          price: experience.price,
           qualityScore: experience.qualityScore,
           latitude: lat,
           longitude: lon,
@@ -186,10 +195,11 @@ export class ExperienceCatalogService {
           durationMinutes: experience.durationMinutes,
           themes: this.stringList(metadata.themes),
           intents: this.stringList(metadata.intents ?? metadata.archetypes),
-          traits: experience.traits.flatMap((trait) =>
-            [trait.traitDefinition.label, trait.traitDefinition.key].filter(
-              (value): value is string => !!value,
-            ),
+          traits: Array.from(
+            new Set([
+              ...this.stringList(metadata.traits),
+              ...relationalTraits,
+            ]),
           ),
           metadata: {
             ...metadata,
@@ -199,7 +209,10 @@ export class ExperienceCatalogService {
           components: experience.components,
         };
       })
-      .filter((experience): experience is NonNullable<typeof experience> => !!experience)
+      .filter(
+        (experience): experience is NonNullable<typeof experience> =>
+          !!experience,
+      )
       .slice(0, limit);
   }
 
@@ -254,27 +267,45 @@ export class ExperienceCatalogService {
       const componentIds = [
         ...new Set(input.components.map((component) => component.geoEntityId)),
       ].sort();
-      const identityLock = `${normalizedName}|${componentIds.join('|')}`;
-      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${identityLock}))`;
+
+      // Serialize all identity domains that can make two writes compete. Keys
+      // are sorted to keep acquisition workers from deadlocking each other.
+      const identityLocks = [
+        `experience:name:${normalizedName}`,
+        ...componentIds.map((id) => `experience:component:${id}`),
+      ].sort();
+      for (const identityLock of identityLocks) {
+        await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${identityLock}))`;
+      }
 
       const existing = await tx.experience.findMany({
         where: {
           status: ExperienceStatus.VERIFIED,
           OR: [
-            { canonicalName: { equals: input.canonicalName, mode: 'insensitive' } },
+            {
+              canonicalName: {
+                equals: input.canonicalName,
+                mode: 'insensitive',
+              },
+            },
             { components: { some: { geoEntityId: { in: componentIds } } } },
           ],
         },
         include: {
           components: true,
           evidence: true,
-          traits: true,
+          traits: { include: { traitDefinition: true } },
         },
         take: 50,
       });
 
       const incomingFingerprint: DedupeExperienceFingerprint = {
         canonicalName: input.canonicalName,
+        semanticTerms: this.semanticTerms(
+          input.description,
+          input.metadata,
+          [],
+        ),
         latitude: input.latitude,
         longitude: input.longitude,
         components: input.components,
@@ -285,6 +316,15 @@ export class ExperienceCatalogService {
         existing.map((candidate) => ({
           id: candidate.id,
           canonicalName: candidate.canonicalName,
+          semanticTerms: this.semanticTerms(
+            candidate.description,
+            candidate.metadata,
+            candidate.traits.flatMap(({ traitDefinition }) => [
+              traitDefinition.label,
+              traitDefinition.key,
+              `${traitDefinition.dimension}:${traitDefinition.key}`,
+            ]),
+          ),
           latitude: candidate.latitude,
           longitude: candidate.longitude,
           components: candidate.components,
@@ -344,11 +384,18 @@ export class ExperienceCatalogService {
         const updated = await tx.experience.update({
           where: { id: same.id },
           data: {
-            description: this.preferRicherText(same.description, input.description),
+            description: this.preferRicherText(
+              same.description,
+              input.description,
+            ),
             durationMinutes: input.durationMinutes ?? same.durationMinutes,
             price: input.price ?? same.price,
             qualityScore:
-              Math.max(same.qualityScore ?? 0, input.qualityScore ?? 0) || null,
+              input.qualityScore == null
+                ? same.qualityScore
+                : same.qualityScore == null
+                  ? input.qualityScore
+                  : Math.max(same.qualityScore, input.qualityScore),
             latitude: input.latitude ?? same.latitude,
             longitude: input.longitude ?? same.longitude,
             metadata: this.mergeMetadata(same.metadata, input.metadata),
@@ -360,7 +407,6 @@ export class ExperienceCatalogService {
           },
           include: { components: true, evidence: true, traits: true },
         });
-        // `embedding` is Prisma Unsupported("vector"), so it must be cleared by SQL.
         await tx.$executeRaw`UPDATE "experience" SET "embedding" = NULL WHERE "id" = ${same.id}`;
 
         return {
@@ -411,6 +457,21 @@ export class ExperienceCatalogService {
         semanticDocumentChanged: true,
       };
     });
+  }
+
+  private semanticTerms(
+    description: string | null | undefined,
+    metadataValue: unknown,
+    relationalTraits: Array<string | null | undefined>,
+  ): string[] {
+    const metadata = this.objectMetadata(metadataValue);
+    return [
+      description,
+      ...this.stringList(metadata.themes),
+      ...this.stringList(metadata.traits),
+      ...this.stringList(metadata.intents ?? metadata.archetypes),
+      ...relationalTraits,
+    ].filter((value): value is string => typeof value === 'string' && !!value.trim());
   }
 
   private preferRicherText(
