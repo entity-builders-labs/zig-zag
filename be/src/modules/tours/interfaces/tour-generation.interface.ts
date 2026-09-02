@@ -1,3 +1,5 @@
+import { NormalizedPreferenceIntent } from './preference-interpretation.interface';
+
 export enum BudgetLevel {
   LOW = 'low',
   MEDIUM = 'medium',
@@ -39,16 +41,8 @@ export interface TourIntent {
   interests: string[];
   explorationStyle: ExplorationStyle;
   additionalPreferences?: string;
-  /** LLM-normalized language; deterministic services enforce exclusions. */
-  normalizedPreferences?: {
-    preferredThemes: string[];
-    preferredTraits: string[];
-    excludedThemes: string[];
-    excludedTraits: string[];
-    hardExclusions: string[];
-    positiveSemanticQuery: string;
-    notes: string[];
-  };
+  /** LLM-normalized language; deterministic services remain authoritative. */
+  normalizedPreferences?: NormalizedPreferenceIntent;
 }
 
 export interface MobilityPreferences {
@@ -97,7 +91,7 @@ export interface GenerateTourOptions {
   ownerId?: string;
   latitude?: number;
   longitude?: number;
-  radius?: number; // in meters, default 25000 (25km)
+  radius?: number;
   includeExistingExperiences?: boolean;
   days?: number;
   budgetLevel?: BudgetLevel;
@@ -111,7 +105,6 @@ export interface GenerateTourOptions {
   destinationLongitude?: number;
   skipImageGeneration?: boolean;
   skipExperiences?: boolean;
-  // New fields for auto-prompt generation
   name?: string;
   description?: string;
   totalDistance?: number;
