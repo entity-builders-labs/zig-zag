@@ -43,11 +43,6 @@ export interface VerifiedExperienceInput {
   traitDefinitionIds?: string[];
 }
 
-/**
- * Persistence boundary for the V2 verified catalog. Provider identities are
- * resolved before this service is called; this class never upgrades an
- * unresolved proposal into a verified Experience.
- */
 @Injectable()
 export class ExperienceCatalogService {
   constructor(
@@ -196,7 +191,11 @@ export class ExperienceCatalogService {
               (value): value is string => !!value,
             ),
           ),
-          metadata: { ...metadata, source: 'experience_catalog', experienceId: experience.id },
+          metadata: {
+            ...metadata,
+            source: 'experience_catalog',
+            experienceId: experience.id,
+          },
           components: experience.components,
         };
       })
@@ -252,7 +251,9 @@ export class ExperienceCatalogService {
 
     return this.prisma.$transaction(async (tx) => {
       const normalizedName = input.canonicalName.trim().toLocaleLowerCase();
-      const componentIds = [...new Set(input.components.map((component) => component.geoEntityId))].sort();
+      const componentIds = [
+        ...new Set(input.components.map((component) => component.geoEntityId)),
+      ].sort();
       const identityLock = `${normalizedName}|${componentIds.join('|')}`;
       await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${identityLock}))`;
 
@@ -305,7 +306,9 @@ export class ExperienceCatalogService {
           (candidate) => candidate.id === decision.canonicalExperienceId,
         );
         if (!same) {
-          throw new Error('Dedupe SAME referenced an Experience outside the candidate set');
+          throw new Error(
+            'Dedupe SAME referenced an Experience outside the candidate set',
+          );
         }
 
         const knownEvidence = new Set(
@@ -321,7 +324,10 @@ export class ExperienceCatalogService {
         );
         if (missingEvidence.length) {
           await tx.experienceEvidence.createMany({
-            data: missingEvidence.map((item) => ({ ...item, experienceId: same.id })),
+            data: missingEvidence.map((item) => ({
+              ...item,
+              experienceId: same.id,
+            })),
           });
         }
 
@@ -341,12 +347,11 @@ export class ExperienceCatalogService {
             description: this.preferRicherText(same.description, input.description),
             durationMinutes: input.durationMinutes ?? same.durationMinutes,
             price: input.price ?? same.price,
-            qualityScore: Math.max(same.qualityScore ?? 0, input.qualityScore ?? 0) || null,
+            qualityScore:
+              Math.max(same.qualityScore ?? 0, input.qualityScore ?? 0) || null,
             latitude: input.latitude ?? same.latitude,
             longitude: input.longitude ?? same.longitude,
             metadata: this.mergeMetadata(same.metadata, input.metadata),
-            // Any material enrichment invalidates the previous semantic vector.
-            embedding: Prisma.DbNull as never,
             embeddingProvider: null,
             embeddingModel: null,
             embeddingDimensions: null,
@@ -355,6 +360,9 @@ export class ExperienceCatalogService {
           },
           include: { components: true, evidence: true, traits: true },
         });
+        // `embedding` is Prisma Unsupported("vector"), so it must be cleared by SQL.
+        await tx.$executeRaw`UPDATE "experience" SET "embedding" = NULL WHERE "id" = ${same.id}`;
+
         return {
           ...updated,
           dedupeDecision: 'SAME' as const,
@@ -382,7 +390,9 @@ export class ExperienceCatalogService {
               required: component.required ?? true,
             })),
           },
-          evidence: input.evidence?.length ? { create: input.evidence } : undefined,
+          evidence: input.evidence?.length
+            ? { create: input.evidence }
+            : undefined,
           traits: input.traitDefinitionIds?.length
             ? {
                 create: input.traitDefinitionIds.map((traitDefinitionId) => ({
@@ -403,17 +413,25 @@ export class ExperienceCatalogService {
     });
   }
 
-  private preferRicherText(current?: string | null, incoming?: string): string | null | undefined {
+  private preferRicherText(
+    current?: string | null,
+    incoming?: string,
+  ): string | null | undefined {
     if (!incoming?.trim()) return current;
     if (!current?.trim()) return incoming;
     return incoming.trim().length > current.trim().length ? incoming : current;
   }
 
-  private mergeMetadata(current: unknown, incoming: unknown): Prisma.InputJsonValue | undefined {
+  private mergeMetadata(
+    current: unknown,
+    incoming: unknown,
+  ): Prisma.InputJsonValue | undefined {
     const left = this.objectMetadata(current);
     const right = this.objectMetadata(incoming);
     const merged = { ...left, ...right };
-    return Object.keys(merged).length ? (merged as Prisma.InputJsonValue) : undefined;
+    return Object.keys(merged).length
+      ? (merged as Prisma.InputJsonValue)
+      : undefined;
   }
 
   private objectMetadata(value: unknown): Record<string, any> {
