@@ -1399,7 +1399,7 @@ export class ExperienceGenerationService {
 
       const selectedIds = new Set(
         planningSolution.days.flatMap((day) =>
-          day.activities.map((a) => a.activityId),
+          day.activities.map((a) => a.experienceId ?? a.activityId),
         ),
       );
 
@@ -1417,7 +1417,7 @@ export class ExperienceGenerationService {
         u.reasons.some((r) => physicallyInfeasibleReasons.has(r)),
       );
       const infeasibleActivityIds = new Set(
-        infeasiblyUnselected.map((u) => u.activityId),
+        infeasiblyUnselected.map((u) => u.experienceId ?? u.activityId),
       );
       const viableUnusedCandidateCount =
         planningSolution.unselected.length - infeasiblyUnselected.length;
@@ -1428,9 +1428,10 @@ export class ExperienceGenerationService {
         isFoodFocusedIntent,
         selectedExperiences: planningSolution.days.flatMap((day) =>
           day.activities.map((activity) => {
-            const candidate = candidateActivitiesById.get(activity.activityId);
+            const experienceId = activity.experienceId ?? activity.activityId;
+            const candidate = candidateActivitiesById.get(experienceId);
             return {
-              experienceId: activity.experienceId ?? activity.activityId,
+              experienceId,
               dayNumber: day.dayNumber,
               durationHours:
                 (activity.endMinutesFromMidnight -
@@ -1453,10 +1454,11 @@ export class ExperienceGenerationService {
 
       const activities = planningSolution.days.flatMap((day) =>
         day.activities.map((planned, index) => {
-          const candidate = candidateActivitiesById.get(planned.activityId);
+          const experienceId = planned.experienceId ?? planned.activityId;
+          const candidate = candidateActivitiesById.get(experienceId);
           const nextInDay = day.activities[index + 1];
           return {
-            activityId: planned.activityId,
+            experienceId,
             activityName: candidate?.name ?? 'Activity',
             activityType: candidate?.type ?? 'Activity',
             activityLatitude: candidate?.latitude,
@@ -1483,7 +1485,7 @@ export class ExperienceGenerationService {
       );
 
       const experienceIds = activities
-        .map((a) => a.activityId)
+        .map((a) => a.experienceId)
         .filter((id): id is string => !!id);
       let experienceEntities: Array<any> = [];
 
@@ -1507,7 +1509,7 @@ export class ExperienceGenerationService {
 
         for (const activity of activities as any[]) {
           const experience = experienceEntities.find(
-            (candidate) => candidate.id === activity.activityId,
+            (candidate) => candidate.id === activity.experienceId,
           );
           if (experience) {
             const snapshot = await tx.tourExperience.create({
@@ -1536,7 +1538,7 @@ export class ExperienceGenerationService {
             continue;
           }
           this.logger.warn(
-            `Skipping unmaterialized planner item ${activity.activityId}: V2 only persists verified Experiences.`,
+            `Skipping unmaterialized planner item ${activity.experienceId}: V2 only persists verified Experiences.`,
           );
 
         }
