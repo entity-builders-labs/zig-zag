@@ -38,7 +38,7 @@ interface SerpApiAiModeResponse {
  * Two paths: the legacy "general" path (engine=google, keyword-concat
  * query, used for pure theme gaps) and the "semantic" path
  * (engine=google_ai_mode, natural-language query built by
- * SemanticDiscoveryQueryBuilder for one missing ActivityKind, carried in
+ * SemanticDiscoveryQueryBuilder for one missing experience trait, carried in
  * request.query) — see docs/architecture and the discovery-fix plan for why
  * google_ai_mode materially outperforms engine=google for smaller/
  * less-documented destinations.

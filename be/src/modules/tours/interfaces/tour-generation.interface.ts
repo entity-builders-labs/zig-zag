@@ -24,15 +24,6 @@ export enum TravelPace {
   FAST = 'fast',
 }
 
-/** @deprecated V2 derives experience shape from semantic intent; retained only
- * by quarantined provider adapters until those files are deleted. */
-export enum ExperienceFormat {
-  POINT_VISITS = 'point_visits',
-  NEIGHBORHOOD_WALKS = 'neighborhood_walks',
-  THEMATIC_ROUTES = 'thematic_routes',
-  EXPERIENCES = 'experiences',
-}
-
 export enum ExplorationStyle {
   ICONIC = 'iconic',
   BALANCED = 'balanced',

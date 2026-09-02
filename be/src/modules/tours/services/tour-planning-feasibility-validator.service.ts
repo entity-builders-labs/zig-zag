@@ -17,7 +17,7 @@ import {
  *
  * This validator checks only physical and temporal feasibility. Experience
  * preference satisfaction is intentionally evaluated elsewhere and never
- * becomes an ActivityKind/format gate.
+ * becomes a hard trait gate.
  */
 @Injectable()
 export class TourPlanningFeasibilityValidatorService

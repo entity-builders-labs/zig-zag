@@ -20,7 +20,7 @@ export interface Tour {
     latitude?: number;
     longitude?: number;
     radius?: number;
-    includeExistingActivities?: boolean;
+    includeExistingExperiences?: boolean;
   };
 }
 
