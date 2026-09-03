@@ -5,13 +5,15 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   format-backend:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: feat/experience-domain-v2
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
@@ -20,13 +22,16 @@ jobs:
       - run: yarn workspace backend prisma:generate
       - name: Apply autofixable backend lint rules
         run: yarn workspace backend lint || true
-      - name: Archive formatted backend TypeScript
-        uses: actions/upload-artifact@v4
-        with:
-          name: backend-formatted-sources
-          path: |
-            be/src/**/*.ts
-            be/test/**/*.ts
-          retention-days: 1
+      - name: Persist autofixes on recovery branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add be/src be/test
+          if git diff --cached --quiet; then
+            echo "No autofix changes to persist."
+          else
+            git commit -m "style(v2): apply backend lint autofixes"
+            git push origin HEAD:feat/experience-domain-v2
+          fi
       - name: Show remaining non-autofixable lint errors
         run: yarn workspace backend lint:check
