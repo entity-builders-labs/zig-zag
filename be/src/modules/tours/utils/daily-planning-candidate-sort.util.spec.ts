@@ -8,6 +8,7 @@ function candidate(
   id: string,
   semanticScore: number,
   qualityScore?: number,
+  rankingScore?: number,
 ): PlanningExperienceCandidate {
   return {
     experienceId: id,
@@ -15,12 +16,13 @@ function candidate(
     durationMinutes: 60,
     spatialFootprint: { type: 'POINT', centroid: { lat: 0, lng: 0 } },
     semanticScore,
+    rankingScore,
     qualityScore,
   };
 }
 
 describe('sortCandidatesDeterministically', () => {
-  it('sorts by semantic score descending', () => {
+  it('sorts by semantic score descending when no upstream ranking score exists', () => {
     const sorted = sortCandidatesDeterministically([
       candidate('low', 0.2),
       candidate('high', 0.9),
@@ -28,7 +30,18 @@ describe('sortCandidatesDeterministically', () => {
     expect(sorted.map((c) => c.experienceId)).toEqual(['high', 'low']);
   });
 
-  it('breaks a semantic tie by quality score descending', () => {
+  it('preserves the complete upstream deterministic ranking over raw semantic similarity', () => {
+    const sorted = sortCandidatesDeterministically([
+      candidate('semantic-false-friend', 0.95, 4.9, 1.05),
+      candidate('preference-best-fit', 0.9, 4.4, 1.3),
+    ]);
+    expect(sorted.map((c) => c.experienceId)).toEqual([
+      'preference-best-fit',
+      'semantic-false-friend',
+    ]);
+  });
+
+  it('breaks a ranking tie by quality score descending', () => {
     const sorted = sortCandidatesDeterministically([
       candidate('low-quality', 0.5, 1),
       candidate('high-quality', 0.5, 4),
@@ -62,7 +75,7 @@ describe('sortCandidatesDeterministically', () => {
 });
 
 describe('selectDailyAnchors', () => {
-  it('picks the top N sorted candidates as anchors, one per day', () => {
+  it('picks the top N sorted candidates as anchors, one per day in order', () => {
     const sorted = [
       candidate('a', 0.9),
       candidate('b', 0.8),
