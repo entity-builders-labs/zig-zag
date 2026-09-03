@@ -18,6 +18,7 @@ import { GenerateTourDto } from '@/api/tours';
 import {
   BudgetLevel,
   DestinationScaleHint,
+  ExperienceIntent,
   ExplorationStyle,
   GroupType,
   TransportationMode,
@@ -95,6 +96,7 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
   const [travelPace, setTravelPace] = useState(50);
   const [groupType, setGroupType] = useState<GroupType>('solo');
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
+  const [selectedIntents, setSelectedIntents] = useState<ExperienceIntent[]>([]);
   const [explorationStyle, setExplorationStyle] =
     useState<ExplorationStyle>('balanced');
   const [walkingEffortProfile, setWalkingEffortProfile] =
@@ -153,6 +155,14 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
     );
   };
 
+  const toggleIntent = (intent: ExperienceIntent) => {
+    setSelectedIntents((current) =>
+      current.includes(intent)
+        ? current.filter((value) => value !== intent)
+        : [...current, intent]
+    );
+  };
+
   const toggleTransportationMode = (mode: TransportationMode) => {
     setTransportationModes((current) => {
       if (current.includes(mode)) {
@@ -163,7 +173,6 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
       return [...current, mode];
     });
   };
-
 
   const toggleAccessibilityNeed = (need: string) => {
     setAccessibilityNeeds((current) =>
@@ -251,6 +260,7 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
         interests: selectedInterests.map(
           (interest) => INTEREST_MAP[interest] || interest.toLowerCase()
         ),
+        intents: selectedIntents,
         explorationStyle,
         additionalPreferences: additionalPreferences.trim() || undefined
       },
@@ -384,7 +394,6 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
 
   return (
     <Box flex={1} bg='$backgroundLight50'>
-      {/* Wizard Header with Progress Bar */}
       <Box bg='$backgroundLight50' pt='$12' pb='$3' px='$4' borderBottomWidth={1} borderBottomColor='$borderLight100'>
         <HStack alignItems='center' justifyContent='space-between'>
           <HStack alignItems='center' space='md'>
@@ -422,7 +431,6 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
             </VStack>
           </HStack>
 
-          {/* 3-Segment Progress Bar */}
           <HStack space='xs' w='$20'>
             {[1, 2, 3].map((step) => (
               <Box
@@ -467,12 +475,14 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
             />
           )}
           {currentStep === 3 && (
-              <TourWizardIntentStep
+            <TourWizardIntentStep
               interestOptions={INTEREST_OPTIONS}
               selectedInterests={selectedInterests}
+              selectedIntents={selectedIntents}
               explorationStyle={explorationStyle}
               additionalPreferences={additionalPreferences}
               onInterestToggle={toggleInterest}
+              onIntentToggle={toggleIntent}
               onExplorationStyleChange={setExplorationStyle}
               onAdditionalPreferencesChange={setAdditionalPreferences}
             />
@@ -480,7 +490,6 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
         </Box>
       </ScrollView>
 
-      {/* Floating Bottom CTA */}
       <Box
         position='absolute'
         bottom='$0'
