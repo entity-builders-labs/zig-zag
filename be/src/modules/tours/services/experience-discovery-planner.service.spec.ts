@@ -39,9 +39,9 @@ describe('ExperienceDiscoveryPlannerService', () => {
 
     const queries = plan.queries.map(({ query }) => query);
     expect(queries.length).toBeGreaterThan(0);
-    expect(
-      queries.every((query) => query.includes('from Buenos Aires')),
-    ).toBe(true);
+    expect(queries.every((query) => query.includes('from Buenos Aires'))).toBe(
+      true,
+    );
     expect(
       queries.every((query) => query.includes('returning the same day')),
     ).toBe(true);
