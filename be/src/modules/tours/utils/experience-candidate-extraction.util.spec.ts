@@ -9,6 +9,7 @@ describe('extractExperienceCandidates', () => {
             name: 'Costanera cultural',
             themes: ['culture'],
             traits: [],
+            intents: ['walk'],
             componentHints: [
               {
                 key: 'route',
@@ -28,6 +29,7 @@ describe('extractExperienceCandidates', () => {
       8,
     );
     expect(result.candidates).toHaveLength(1);
+    expect(result.candidates[0]).toMatchObject({ intents: ['walk'] });
     expect(result.candidates[0]).not.toHaveProperty('kind');
   });
 
@@ -39,6 +41,7 @@ describe('extractExperienceCandidates', () => {
             name: 'Invented',
             themes: [],
             traits: [],
+            intents: [],
             componentHints: [
               {
                 name: 'Unknown',
