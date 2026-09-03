@@ -1,6 +1,6 @@
 name: V2 CP11 Runtime Patch
 
-# One-shot recovery workflow. Rerun after Prisma/trace integration fixes; remove after CP11 is persisted.
+# One-shot recovery workflow. Remove after CP11/CP12 runtime fixes are persisted.
 on:
   push:
     branches:
@@ -24,21 +24,22 @@ jobs:
           node-version: '22'
       - run: corepack enable
       - run: yarn install --frozen-lockfile
-      - run: yarn workspace backend prisma:generate
+      - run: python .github/scripts/cp12_schema_patch.py
       - run: python .github/scripts/cp11_patch.py
       - run: yarn workspace backend prisma:generate
       - run: yarn workspace backend lint
       - run: yarn workspace backend typecheck
       - run: yarn workspace backend test --runInBand generation-trace-v3.util.spec.ts generation-trace-builder.util.spec.ts trace-redaction.util.spec.ts
-      - name: Commit CP11 runtime patch
+      - name: Commit CP11/CP12 runtime fixes
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add be/prisma/schema.prisma be/src/modules/tours/services/experience-generation.service.ts be/src/modules/tours/utils/generation-trace-builder.util.ts be/test/experience-selection-scale.e2e-spec.ts
+          git add be/prisma/schema.prisma be/prisma/migrations/20260903004500_add_catalog_population_job/migration.sql
+          git add be/src/modules/tours/services/experience-generation.service.ts be/src/modules/tours/utils/generation-trace-builder.util.ts be/test/experience-selection-scale.e2e-spec.ts
           git add -u be/src/modules/tours/utils
           if git diff --cached --quiet; then
-            echo "No CP11 runtime changes to persist."
+            echo "No CP11/CP12 runtime changes to persist."
           else
-            git commit -m "feat(v3): persist auditable generation trace"
+            git commit -m "fix(v2): persist CP11 trace and CP12 catalog job schema"
             git push origin HEAD:feat/experience-domain-v2
           fi
