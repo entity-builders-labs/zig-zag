@@ -26,7 +26,7 @@ describe('ExperienceDiscoveryPlannerService', () => {
     expect(plan.enrichmentAllowed).toBe(true);
   });
 
-  it('treats day_trip as a soft FROM-base facet without an origin-bound model', () => {
+  it('treats day_trip as a soft FROM-base same-day facet without an origin-bound model', () => {
     const plan = new ExperienceDiscoveryPlannerService().plan({
       scope: { destinationName: 'Buenos Aires' },
       requestedThemes: ['nature', 'gastronomy'],
@@ -37,15 +37,18 @@ describe('ExperienceDiscoveryPlannerService', () => {
       maxCandidates: 8,
     });
 
-    expect(plan.queries.length).toBeGreaterThan(0);
+    const queries = plan.queries.map(({ query }) => query);
+    expect(queries.length).toBeGreaterThan(0);
     expect(
-      plan.queries.every((query) =>
-        query.query.includes('from Buenos Aires'),
-      ),
+      queries.every((query) => query.includes('from Buenos Aires')),
     ).toBe(true);
-    expect(plan.queries[0].query).toContain('day trips from Buenos Aires');
+    expect(
+      queries.every((query) => query.includes('returning the same day')),
+    ).toBe(true);
+    expect(queries.every((query) => query.includes('no overnight'))).toBe(true);
+    expect(queries[0]).toContain('day trips from Buenos Aires');
     expect(JSON.stringify(plan)).not.toMatch(
-      /originName|sameDayReturn|maxOutboundTravelMinutes|origin_bound_open|overnight/i,
+      /originName|sameDayReturn|maxOutboundTravelMinutes|origin_bound_open|OvernightPolicy/i,
     );
   });
 
