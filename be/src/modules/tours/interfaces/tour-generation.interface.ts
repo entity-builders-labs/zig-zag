@@ -40,7 +40,7 @@ export enum DestinationScaleHint {
 export interface TourIntent {
   interests: string[];
   /** Soft Experience facets/intents. They influence deterministic matching and focused discovery, never planner structure. */
-  intents: string[];
+  intents?: string[];
   explorationStyle: ExplorationStyle;
   additionalPreferences?: string;
   /** LLM-normalized language; deterministic services remain authoritative. */
