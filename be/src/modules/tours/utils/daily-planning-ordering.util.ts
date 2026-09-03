@@ -3,8 +3,10 @@ import {
   PlannedExperience,
   PlannedDay,
   PlanningExperienceCandidate,
+  PlanningRejectionReason,
   TravelEstimate,
   TravelEstimateProvider,
+  UnselectedPlanningCandidate,
 } from '../interfaces/daily-planning.interface';
 import { TransportationMode } from '../interfaces/tour-generation.interface';
 import { sortCandidatesDeterministically } from './daily-planning-candidate-sort.util';
@@ -17,6 +19,11 @@ export interface OrderingContext {
   planningWindow: DailyPlanningWindow;
   allowedTransportationModes: TransportationMode[];
   startDates: string[];
+}
+
+export interface OrderedDayWithRepair {
+  day: PlannedDay;
+  unselected: UnselectedPlanningCandidate[];
 }
 
 function occupiedMinutes(candidate: PlanningExperienceCandidate): number {
@@ -33,6 +40,18 @@ interface RoutedChoice {
   distanceMeters: number;
 }
 
+interface ScheduleAttemptSuccess {
+  ok: true;
+  day: PlannedDay;
+}
+
+interface ScheduleAttemptFailure {
+  ok: false;
+  reason: PlanningRejectionReason;
+}
+
+type ScheduleAttempt = ScheduleAttemptSuccess | ScheduleAttemptFailure;
+
 function isCandidateOpen(
   candidate: PlanningExperienceCandidate,
   weekday: number | undefined,
@@ -48,12 +67,6 @@ function isCandidateOpen(
   );
 }
 
-/**
- * Evaluates the real inbound travel leg before choosing the next Experience.
- * This deliberately routes first and then checks the resulting start/end
- * window, so geographic reordering can never silently move a known-hours
- * Experience outside its opening hours.
- */
 async function pickNextRouted(
   previous: PlanningExperienceCandidate | null,
   remaining: PlanningExperienceCandidate[],
@@ -100,27 +113,38 @@ async function pickNextRouted(
   )[0];
 }
 
-/**
- * Orders one day's already-assigned Experiences while preserving hard temporal
- * feasibility after routing. Known opening hours are checked against the final
- * routed start/end time, not merely against the pre-travel cursor.
- */
-export async function orderAndScheduleDay(
+async function inferFailureReason(
+  previous: PlanningExperienceCandidate | null,
+  remaining: PlanningExperienceCandidate[],
+  weekday: number | undefined,
+  cursorMinutes: number,
+  context: OrderingContext,
+): Promise<PlanningRejectionReason> {
+  for (const candidate of remaining) {
+    const travel = previous
+      ? await context.travelEstimateProvider.estimate(
+          previous.spatialFootprint,
+          candidate.spatialFootprint,
+          context.allowedTransportationModes,
+        )
+      : undefined;
+    const startMinutes = cursorMinutes + (travel?.durationMinutes ?? 0);
+    const endMinutes = startMinutes + occupiedMinutes(candidate);
+    if (
+      endMinutes <= context.planningWindow.endMinutesFromMidnight &&
+      !isCandidateOpen(candidate, weekday, startMinutes, endMinutes)
+    ) {
+      return 'OPENING_HOURS_INCOMPATIBLE';
+    }
+  }
+  return 'DAILY_TIME_CAPACITY_EXCEEDED';
+}
+
+async function tryScheduleDay(
   dayNumber: number,
   candidates: PlanningExperienceCandidate[],
   context: OrderingContext,
-): Promise<PlannedDay> {
-  if (candidates.length === 0) {
-    return {
-      dayNumber,
-      experiences: [],
-      totalExperienceMinutes: 0,
-      totalTravelMinutes: 0,
-      totalWalkingMinutes: 0,
-      utilizationMinutes: 0,
-    };
-  }
-
+): Promise<ScheduleAttempt> {
   const remaining = sortCandidatesDeterministically(candidates);
   const weekday = resolveWeekday(context.startDates, dayNumber);
   const scheduled: PlannedExperience[] = [];
@@ -138,10 +162,16 @@ export async function orderAndScheduleDay(
       context,
     );
     if (!choice) {
-      const unresolved = remaining.map((item) => item.experienceId).join(', ');
-      throw new Error(
-        `OPENING_HOURS_INCOMPATIBLE_AFTER_ROUTING: day ${dayNumber}; remaining ${unresolved}`,
-      );
+      return {
+        ok: false,
+        reason: await inferFailureReason(
+          previous,
+          remaining,
+          weekday,
+          cursorMinutes,
+          context,
+        ),
+      };
     }
 
     const {
@@ -168,18 +198,84 @@ export async function orderAndScheduleDay(
     previous = next;
   }
 
-  const totalExperienceMinutes = candidates.reduce(
-    (sum, candidate) => sum + candidate.durationMinutes,
-    0,
-  );
+  return {
+    ok: true,
+    day: {
+      dayNumber,
+      experiences: scheduled,
+      totalExperienceMinutes: candidates.reduce(
+        (sum, candidate) => sum + candidate.durationMinutes,
+        0,
+      ),
+      totalTravelMinutes,
+      totalWalkingMinutes,
+      utilizationMinutes:
+        cursorMinutes - context.planningWindow.startMinutesFromMidnight,
+    },
+  };
+}
+
+/**
+ * Routes and schedules a day. If real routing/reordering makes the initially
+ * assigned set infeasible, the solver repairs it deterministically instead of
+ * aborting the whole Tour: the lowest-priority candidate is removed, the day
+ * is rerouted from scratch, and the process repeats until the retained set is
+ * feasible. Every removed candidate is returned with the concrete hard reason
+ * so the caller can preserve it in `solution.unselected` and the Bitácora.
+ */
+export async function orderAndScheduleDayWithRepair(
+  dayNumber: number,
+  candidates: PlanningExperienceCandidate[],
+  context: OrderingContext,
+): Promise<OrderedDayWithRepair> {
+  if (candidates.length === 0) {
+    return {
+      day: {
+        dayNumber,
+        experiences: [],
+        totalExperienceMinutes: 0,
+        totalTravelMinutes: 0,
+        totalWalkingMinutes: 0,
+        utilizationMinutes: 0,
+      },
+      unselected: [],
+    };
+  }
+
+  const retained = sortCandidatesDeterministically(candidates);
+  const unselected: UnselectedPlanningCandidate[] = [];
+
+  while (retained.length > 0) {
+    const attempt = await tryScheduleDay(dayNumber, retained, context);
+    if (attempt.ok) {
+      return { day: attempt.day, unselected };
+    }
+
+    const removed = retained.pop()!;
+    unselected.push({
+      experienceId: removed.experienceId,
+      reasons: [attempt.reason],
+    });
+  }
 
   return {
-    dayNumber,
-    experiences: scheduled,
-    totalExperienceMinutes,
-    totalTravelMinutes,
-    totalWalkingMinutes,
-    utilizationMinutes:
-      cursorMinutes - context.planningWindow.startMinutesFromMidnight,
+    day: {
+      dayNumber,
+      experiences: [],
+      totalExperienceMinutes: 0,
+      totalTravelMinutes: 0,
+      totalWalkingMinutes: 0,
+      utilizationMinutes: 0,
+    },
+    unselected,
   };
+}
+
+/** Compatibility wrapper for direct callers that only need the repaired day. */
+export async function orderAndScheduleDay(
+  dayNumber: number,
+  candidates: PlanningExperienceCandidate[],
+  context: OrderingContext,
+): Promise<PlannedDay> {
+  return (await orderAndScheduleDayWithRepair(dayNumber, candidates, context)).day;
 }
