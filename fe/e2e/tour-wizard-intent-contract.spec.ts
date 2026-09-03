@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { loginViaUI } from './auth-helper';
 
-test('serializes destination, mobility and experience intent independently', async ({
+test('serializes destination, mobility and Experience V2 intent independently', async ({
   page
 }) => {
   let submittedPayload: any;
@@ -28,12 +28,12 @@ test('serializes destination, mobility and experience intent independently', asy
               formatted: 'Córdoba, Argentina',
               lat: -31.4201,
               lon: -64.1888,
-              result_type: 'city',
+              result_type: 'city'
             },
-            bbox: [-64.28, -31.5, -64.1, -31.34],
-          },
-        ],
-      }),
+            bbox: [-64.28, -31.5, -64.1, -31.34]
+          }
+        ]
+      })
     });
   });
   await page.route('**/gplaces/v1/places:autocomplete', async (route) => {
@@ -78,7 +78,7 @@ test('serializes destination, mobility and experience intent independently', asy
         id: '00000000-0000-4000-8000-000000000004',
         name: 'Córdoba, Argentina',
         metadata: { generationStatus: 'pending' },
-        activities: []
+        experiences: []
       })
     });
   });
@@ -86,10 +86,12 @@ test('serializes destination, mobility and experience intent independently', asy
   await loginViaUI(page);
   await page.getByTestId('create-tour-fab').click();
 
+  await expect(page.getByText('Destino y Fechas', { exact: true })).toBeVisible();
   await page.getByPlaceholder(/Ej: Roma|Buscar destino/i).fill('Córdoba');
   await page.getByText('Córdoba, Argentina', { exact: true }).click();
   await page.getByTestId('wizard-cta-button').click();
 
+  await expect(page.getByText('Movilidad y Ritmo', { exact: true })).toBeVisible();
   await page.getByText('$$', { exact: true }).click();
   await page.getByText('Familia', { exact: true }).click();
   await page.getByText('Bus/Subte', { exact: true }).click();
@@ -98,7 +100,11 @@ test('serializes destination, mobility and experience intent independently', asy
   await page.getByText(/Silla de ruedas/i).click();
   await page.getByTestId('wizard-cta-button').click();
 
-  await page.getByText(/Visitas a Lugares/i).click();
+  await expect(page.getByText('Intereses y Estilo', { exact: true })).toBeVisible();
+  await expect(page.getByText(/Visitas a Lugares/i)).toHaveCount(0);
+  await expect(page.getByText(/Tipo de Actividades/i)).toHaveCount(0);
+  await expect(page.getByText(/Especial Mapa/i)).toHaveCount(0);
+
   await page.getByText('Icónicos', { exact: true }).click();
   await page.getByText('Historia', { exact: true }).last().click();
   await page
@@ -120,7 +126,6 @@ test('serializes destination, mobility and experience intent independently', asy
     groupType: 'family',
     intent: {
       interests: ['history'],
-      experienceFormats: ['neighborhood_walks'],
       explorationStyle: 'iconic',
       additionalPreferences: 'Evitar multitudes y priorizar fotografía urbana.'
     },
@@ -133,6 +138,7 @@ test('serializes destination, mobility and experience intent independently', asy
     }
   });
 
+  expect(submittedPayload.intent).not.toHaveProperty('experienceFormats');
   expect(submittedPayload).not.toHaveProperty('prompt');
   expect(submittedPayload).not.toHaveProperty('destinationLatitude');
   expect(submittedPayload).not.toHaveProperty('transportationMode');
