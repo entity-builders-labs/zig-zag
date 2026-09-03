@@ -70,12 +70,20 @@ export class ExperienceProposalResolverService
     const acceptedForValidation = resolvedCandidates.filter(
       (item) => item.status === 'accepted',
     ) as ResolvedExperienceCandidate[];
-    const validationResults = acceptedForValidation.map((item) =>
-      this.geographicValidator.validate(
-        item,
-        this.validationBoundaryFor(item, boundary),
-      ),
-    );
+    const validationResults = acceptedForValidation
+      .map((item) =>
+        this.geographicValidator.validate(
+          item,
+          this.validationBoundaryFor(item, boundary),
+        ),
+      )
+      .filter(
+        (
+          result,
+        ): result is NonNullable<
+          ReturnType<CompositeGeographicValidationService['validate']>
+        > => result != null,
+      );
     const validationByName = new Map(
       validationResults.map((result) => [result.proposalName, result]),
     );
