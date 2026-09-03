@@ -1,7 +1,7 @@
 const SENSITIVE_KEY =
-  /(authorization|api[-_]?key|token|cookie|password|secret|credential|bearer)/i;
+  /(authorization|api[-_]?key|token|cookie|password|secret|credential|bearer|dsn|connection[-_]?string|database[-_]?url)/i;
 const SENSITIVE_VALUE =
-  /bearer\s+[a-z0-9._~+/=-]+|(?:api[-_]?key|token|secret|password)\s*[:=]\s*[^\s,;&]+/gi;
+  /bearer\s+[a-z0-9._~+/=-]+|(?:api[-_]?key|token|secret|password)\s*[:=]\s*[^\s,;&]+|(?:postgres(?:ql)?|mysql|mongodb(?:\+srv)?|redis):\/\/[^\s]+/gi;
 const REDACTED = '[REDACTED]';
 
 /** Returns a JSON-safe trace payload with credentials removed recursively. */
