@@ -29,6 +29,14 @@ export interface ResolvedExperienceCandidate {
   status: 'accepted' | 'rejected';
   resolvedEntities: ResolvedGeoEntity[];
   rejectionReasons: string[];
+  /**
+   * Internal verification signal: referenced grounded evidence explicitly
+   * associates this Experience with the requested destination/base. It lets
+   * geographic validation verify an Experience's own coherent geography
+   * without incorrectly requiring every associated Experience to lie inside
+   * the destination polygon.
+   */
+  destinationAssociationVerified?: boolean;
   experienceId?: string;
   dedupeDecision?: 'SAME' | 'NEW' | 'AMBIGUOUS';
   dedupeEvidence?: DedupeEvidence;
