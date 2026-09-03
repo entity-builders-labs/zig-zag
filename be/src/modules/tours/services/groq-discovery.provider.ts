@@ -35,8 +35,11 @@ export class GroqDiscoveryProvider {
     const prompt = [
       `Destination: ${request.scope.destinationName ?? 'unknown'}`,
       `Themes: ${request.requestedThemes.join(', ') || 'none'}`,
+      `Requested intents: ${request.requestedIntents?.join(', ') || 'none'}`,
       `Preferences: ${request.semanticQuery ?? request.preferredTraits?.join(', ') ?? 'none'}`,
-      'Return JSON with a candidates array. Each candidate must contain name, description, themes, traits, suggestedDurationMinutes, componentHints, evidenceKeys and shortReason.',
+      'Return JSON with a candidates array. Each candidate must contain name, description, themes, traits, intents, suggestedDurationMinutes, componentHints, evidenceKeys and shortReason.',
+      'intents are soft Experience facets such as visit, walk, food, route_like or day_trip; never use them as structural proposal kinds.',
+      'If day_trip is requested, only emit candidates supported by evidence as suitable from the selected base destination and returning the same day; do not emit overnight or weekend-only trips.',
       'Do not output kinds, coordinates, provider IDs, or unsupported URLs.',
       'Grounded evidence:',
       ...evidence.map(
