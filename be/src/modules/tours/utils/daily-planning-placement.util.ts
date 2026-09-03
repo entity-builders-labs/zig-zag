@@ -32,17 +32,6 @@ export interface PlacementContext {
   startDates: string[];
 }
 
-/** Resolves the JS weekday (0=Sun..6=Sat) for a given planning day number,
- * from the tour's first confirmed start date. Exported so the ordering pass
- * resolves the weekday exactly the same way instead of reimplementing it.
- * Deliberately parses the
- * `YYYY-MM-DD` components and constructs the Date with the local-time
- * constructor (`new Date(y, m, d)`) rather than `new Date(dateOnlyString)` —
- * a date-only ISO string parses as UTC midnight, while `Date#getDay()`
- * reads the *local* calendar day, so on any host west of UTC that pairing
- * silently reports the previous day's weekday. Adding `dayNumber - 1` days
- * via the constructor's day argument lets JS normalize month/year rollover
- * for multi-day tours for free. */
 export function resolveWeekday(
   startDates: string[],
   dayNumber: number,
@@ -59,13 +48,6 @@ export function resolveWeekday(
   return target.getDay();
 }
 
-/** A candidate's own contribution to a day's `totalExperienceMinutes`: its
- * duration plus whatever internal travel it carries (a composite's own
- * waypoint-to-waypoint time). Deliberately excludes inter-experience leg
- * travel, which depends on which stop precedes it and is therefore not a
- * property of the candidate alone. Exported so Task 9's local improvement
- * adds/removes exactly what `placeCandidates` accumulated, instead of
- * re-deriving a partial formula that silently drifts. */
 export function candidateExperienceMinutes(
   candidate: PlanningExperienceCandidate,
 ): number {
@@ -85,8 +67,6 @@ export function internalWalkingMeters(
     candidate.mobility?.internalWalkingDistanceMeters === undefined &&
     candidate.mobility?.internalWalkingMinutes === undefined
   ) {
-    // A point Experience has no internal leg. For an area/line Experience,
-    // unknown internal walking gets the explicit conservative fallback.
     if (candidate.spatialFootprint.type === 'POINT') return 0;
     return (
       (policy.internalWalking.unknownFallbackMinutes *
@@ -98,10 +78,6 @@ export function internalWalkingMeters(
   return 0;
 }
 
-/** Pure read of (candidate, acc, context) — never mutates `acc`. Safe to
- * call both from the main placement loop (which appends afterward) and from
- * Task 9's local improvement (which probes a hypothetical day state without
- * ever appending). */
 export async function checkHardConstraints(
   candidate: PlanningExperienceCandidate,
   acc: DayAccumulator,
@@ -109,12 +85,6 @@ export async function checkHardConstraints(
 ): Promise<{ feasible: boolean; reasons: PlanningRejectionReason[] }> {
   const reasons: PlanningRejectionReason[] = [];
 
-  // `Number.isFinite` rejects null, undefined, NaN and Infinity in one check
-  // and accepts every legitimate coordinate. `null` matters specifically:
-  // `Experience latitude`/`longitude` are Prisma `Float?`, so a missing value
-  // arrives as `null`, which passes both an `=== undefined` and an isNaN
-  // check and is then silently coerced to 0 by the Haversine math — planning
-  // a real candidate at Null Island (0N 0E).
   if (
     !Number.isFinite(candidate.spatialFootprint.centroid.lat) ||
     !Number.isFinite(candidate.spatialFootprint.centroid.lng)
@@ -164,9 +134,13 @@ export async function checkHardConstraints(
   ) {
     reasons.push('MAX_WALKING_PER_DAY_EXCEEDED');
   }
-  // V1 treats one inter-experience leg as one continuous segment (documented
-  // approximation — see the plan's "internal walking, reconciled" section).
-  if (legWalkingMeters > context.mobility.maxContinuousWalkingDistanceMeters) {
+
+  const maxContinuousWalkingMeters =
+    context.mobility.maxContinuousWalkingDistanceMeters;
+  if (
+    legWalkingMeters > maxContinuousWalkingMeters ||
+    candidateInternalWalkingMeters > maxContinuousWalkingMeters
+  ) {
     reasons.push('MAX_CONTINUOUS_WALKING_EXCEEDED');
   }
 
@@ -188,19 +162,11 @@ export async function checkHardConstraints(
         reasons.push('OPENING_HOURS_INCOMPATIBLE');
       }
     }
-    // No confirmed base date: cannot evaluate a weekday-specific window —
-    // treated as unknown, same policy as missing opening-hours data.
   }
 
   return { feasible: reasons.length === 0, reasons };
 }
 
-/** Soft score for placing `candidate` into day `acc`. Deliberately narrow:
- * semantic relevance, quality, requested-format match, day-balance, and
- * same-day family-variant redundancy only. Travel cost, geographic spread,
- * and cross-day redundancy are intentionally NOT scored here — they are
- * Task 9 local-improvement concerns, evaluated only after a full day's
- * candidates are known. */
 export function scoreCandidateForDay(
   candidate: PlanningExperienceCandidate,
   acc: DayAccumulator,
@@ -208,18 +174,12 @@ export function scoreCandidateForDay(
 ): number {
   const { scoring } = context.policy;
   const semantic = scoring.semanticWeight * candidate.semanticScore;
-  // Unknown quality contributes 0, never a penalty relative to an explicit 0.
   const quality = scoring.qualityWeight * (candidate.qualityScore ?? 0);
   const dayBalanceBonus =
     scoring.dayBalanceWeight * (1 / (acc.assigned.length + 1));
   return semantic + quality + dayBalanceBonus;
 }
 
-/** Greedy day placement: for each candidate (already sorted by the caller),
- * finds every hard-feasible day and assigns it to whichever scores highest.
- * Duplicate experienceIds and a `requestedDays` of 0 are handled here, at the
- * placement-loop layer — not inside `checkHardConstraints`, which only ever
- * evaluates one candidate against one day's state. */
 export async function placeCandidates(
   sortedCandidates: PlanningExperienceCandidate[],
   requestedDays: number,
