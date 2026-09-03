@@ -1,5 +1,6 @@
 name: V2 CP11 Runtime Patch
 
+# One-shot recovery workflow. Triggered on this file only; remove after CP11 is persisted.
 on:
   push:
     branches:
