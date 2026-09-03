@@ -13,46 +13,44 @@ export class TourImageService {
   ) {}
 
   /**
-   * Generate a cover image for a tour
+   * Generate a cover image for a tour.
+   *
+   * Absence of a Tour or a provider returning no image is represented as null.
+   * Provider/database failures are deliberately allowed to propagate so the
+   * generation orchestrator can make the non-fatal degradation explicit and
+   * record it in trace/metadata instead of silently converting errors to null.
    */
   async generateTourCoverImage(tourId: string): Promise<string | null> {
-    try {
-      const tour = await this.prisma.tour.findUnique({
-        where: { id: tourId },
-        include: { experiences: { include: { experience: true } } },
+    const tour = await this.prisma.tour.findUnique({
+      where: { id: tourId },
+      include: { experiences: { include: { experience: true } } },
+    });
+
+    if (!tour) return null;
+
+    this.logger.debug(`Generating cover image for tour: ${tour.name}`);
+
+    const experienceNames = tour.experiences
+      .slice(0, 3)
+      .map((snapshot) => snapshot.experience.canonicalName)
+      .join(', ');
+
+    const prompt = generateCoverImagePrompt(
+      tour.name,
+      tour.description || tour.name,
+      experienceNames,
+    );
+
+    const imageUrl = await this.imageGenerationService.generateImage(prompt);
+
+    if (imageUrl) {
+      await this.prisma.tour.update({
+        where: { id: tour.id },
+        data: { coverImage: imageUrl },
       });
-
-      if (!tour) return null;
-
-      this.logger.debug(`Generating cover image for tour: ${tour.name}`);
-
-      // Create a rich prompt based on tour details
-      const experienceNames = tour.experiences
-        .slice(0, 3)
-        .map((snapshot) => snapshot.experience.canonicalName)
-        .join(', ');
-
-      const prompt = generateCoverImagePrompt(
-        tour.name,
-        tour.description || tour.name,
-        experienceNames,
-      );
-
-      const imageUrl = await this.imageGenerationService.generateImage(prompt);
-
-      if (imageUrl) {
-        // Save to DB
-        await this.prisma.tour.update({
-          where: { id: tour.id },
-          data: { coverImage: imageUrl },
-        });
-        this.logger.log(`Generated and saved cover image for tour ${tourId}`);
-      }
-
-      return imageUrl;
-    } catch (error) {
-      this.logger.error(`Error generating tour cover image: ${error.message}`);
-      return null;
+      this.logger.log(`Generated and saved cover image for tour ${tourId}`);
     }
+
+    return imageUrl;
   }
 }
