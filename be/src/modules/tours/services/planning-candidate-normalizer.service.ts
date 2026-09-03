@@ -30,6 +30,7 @@ export class PlanningCandidateNormalizerService {
         experience.mobility ?? experience.metadata?.mobility;
       const persistedOpeningHours =
         experience.openingHours ?? experience.metadata?.openingHours;
+      const scoreBreakdown = scoreBreakdownById.get(experience.id);
       return {
         experienceId: experience.id,
         title: experience.canonicalName ?? experience.name,
@@ -45,14 +46,16 @@ export class PlanningCandidateNormalizerService {
         componentFootprints: buildOrderedComponentFootprints(
           experience.components ?? [],
         ),
-        semanticScore:
-          scoreBreakdownById.get(experience.id)?.semanticSimilarity ?? 0,
-        qualityScore: scoreBreakdownById.get(experience.id)?.qualityBonus,
+        semanticScore: scoreBreakdown?.semanticSimilarity ?? 0,
+        rankingScore: scoreBreakdown?.totalScore,
+        qualityScore: scoreBreakdown?.qualityBonus,
         mobility: persistedMobility
           ? {
               internalWalkingMinutes: persistedMobility.internalWalkingMinutes,
               internalWalkingDistanceMeters:
                 persistedMobility.internalWalkingDistanceMeters,
+              maxInternalContinuousWalkingDistanceMeters:
+                persistedMobility.maxInternalContinuousWalkingDistanceMeters,
               internalTravelMinutes: persistedMobility.internalTravelMinutes,
               routingProviderCounts: persistedMobility.routingProviderCounts,
               routingFallbackCount: persistedMobility.routingFallbackCount,
