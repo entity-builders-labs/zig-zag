@@ -20,18 +20,47 @@ jobs:
           cache: yarn
       - run: yarn install --frozen-lockfile
       - run: yarn workspace backend prisma:generate
-      - name: Apply autofixable backend lint rules
-        run: yarn workspace backend lint || true
-      - name: Persist autofixes on recovery branch
+      - name: Remove remaining dead V2 compatibility code
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          p = Path('be/src/modules/tours/services/experience-generation.service.ts')
+          s = p.read_text()
+          s = s.replace('      let coverageAreas: OsmCandidate[] = [];\n\n', '')
+          s = s.replace("                  if (isAreaScale) {\n                    coverageAreas = await this.lookupCoverageAreas(\n                      destinationResolution.boundary,\n                    );\n                  }\n", '')
+          p.write_text(s)
+
+          p = Path('be/src/modules/tours/services/tour-generation-processor.service.ts')
+          s = p.read_text()
+          s = s.replace("""      const {\n        generationFailedAt: _generationFailedAt,\n        generationCompletedAt: _generationCompletedAt,\n        ...retryableMetadata\n      } = latestMetadata;\n""", """      const retryableMetadata = { ...latestMetadata };\n      delete retryableMetadata.generationFailedAt;\n      delete retryableMetadata.generationCompletedAt;\n""")
+          p.write_text(s)
+
+          p = Path('be/src/modules/tours/utils/daily-planning-local-improvement.util.spec.ts')
+          s = p.read_text().replace("function candidate(\n  id: string,\n  lat: number,\n  lng: number,\n  familyId?: string,\n): PlanningExperienceCandidate {", "function candidate(\n  id: string,\n  lat: number,\n  lng: number,\n): PlanningExperienceCandidate {")
+          p.write_text(s)
+
+          p = Path('be/src/modules/tours/utils/generation-trace-builder.util.ts')
+          s = p.read_text().replace("""interface FormatAvailability {\n  format: string;\n  fullPoolCount: number;\n  llmWindowCount: number;\n}\n\n""", '')
+          p.write_text(s)
+
+          p = Path('be/test/acceptance/builders/candidate.builder.ts')
+          s = p.read_text().replace('  withFamily(familyId: string, variantKey?: string): this {', '  withFamily(familyId: string): this {')
+          s = s.replace('  withFamilyId(familyId: string, variantKey?: string): this {\n    return this.withFamily(familyId, variantKey);\n', '  withFamilyId(familyId: string): this {\n    return this.withFamily(familyId);\n')
+          p.write_text(s)
+          PY
+      - name: Apply backend lint autofixes
+        run: yarn workspace backend lint
+      - name: Persist lint recovery on branch
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add be/src be/test
           if git diff --cached --quiet; then
-            echo "No autofix changes to persist."
+            echo "No lint recovery changes to persist."
           else
-            git commit -m "style(v2): apply backend lint autofixes"
+            git commit -m "chore(v2): close backend lint recovery"
             git push origin HEAD:feat/experience-domain-v2
           fi
-      - name: Show remaining non-autofixable lint errors
+      - name: Verify backend lint
         run: yarn workspace backend lint:check
