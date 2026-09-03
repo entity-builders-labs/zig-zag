@@ -172,6 +172,39 @@ describe('GreedyDailyPlanningSolver', () => {
     });
   });
 
+  it('rejects a composite when one internal walking leg exceeds the continuous walking limit', async () => {
+    const provider = realishTravelEstimateProvider();
+    const solver = new GreedyDailyPlanningSolver(provider, policy);
+    const composite: PlanningExperienceCandidate = {
+      ...candidate('too-much-internal-walking', 0.9),
+      componentFootprints: [
+        { type: 'POINT', centroid: { lat: 0, lng: 0 } },
+        { type: 'POINT', centroid: { lat: 0, lng: 0.01 } },
+        { type: 'POINT', centroid: { lat: 0, lng: 0.0105 } },
+      ],
+    };
+
+    const solution = await solver.solve(
+      baseInput({
+        requestedDays: 1,
+        candidates: [composite],
+        mobility: {
+          allowedTransportationModes: [TransportationMode.WALKING],
+          maxWalkingDistancePerDayMeters: 10000,
+          maxContinuousWalkingDistanceMeters: 600,
+          travelPace: TravelPace.MODERATE,
+          accessibilityNeeds: [],
+        },
+      }),
+    );
+
+    expect(solution.days[0].experiences).toHaveLength(0);
+    expect(solution.unselected).toContainEqual({
+      experienceId: composite.experienceId,
+      reasons: ['MAX_CONTINUOUS_WALKING_EXCEEDED'],
+    });
+  });
+
   it('is deterministic: repeated solves on identical input produce a deep-equal solution', async () => {
     const solver = new GreedyDailyPlanningSolver(
       realishTravelEstimateProvider(),
