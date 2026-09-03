@@ -23,6 +23,8 @@ export interface RankableCandidate {
 export interface CandidateScoreBreakdown {
   /** null = missing-embedding tier; never a fake 0. */
   semanticSimilarity: number | null;
+  /** Raw deterministic preference affinity before weighting. */
+  preferenceScore?: number;
   /** Weighted contribution actually added to totalScore. */
   preferenceBonus?: number;
   qualityBonus: number;
@@ -74,11 +76,17 @@ export function proximityBonus(
   );
 }
 
-function fallbackCompare(a: RankableCandidate, b: RankableCandidate): number {
+function preferenceCompare(a: RankableCandidate, b: RankableCandidate): number {
   const preferenceDifference =
     (b.preferenceScore ?? 0) - (a.preferenceScore ?? 0);
-  if (Math.abs(preferenceDifference) > Number.EPSILON)
-    return preferenceDifference;
+  return Math.abs(preferenceDifference) > Number.EPSILON
+    ? preferenceDifference
+    : 0;
+}
+
+function fallbackCompare(a: RankableCandidate, b: RankableCandidate): number {
+  const preferenceDifference = preferenceCompare(a, b);
+  if (preferenceDifference !== 0) return preferenceDifference;
   const qualityDifference = qualityBonus(b) - qualityBonus(a);
   if (Math.abs(qualityDifference) > Number.EPSILON) return qualityDifference;
 
@@ -134,6 +142,14 @@ function rankKnownSemanticTier<T extends RankableCandidate>(
 
   while (remaining.length > 0) {
     remaining.sort((a, b) => {
+      // Explicit normalized preference affinity is a relevance tier, not a
+      // small bonus that quality/diversity may override. This prevents a
+      // partially matching high-rated candidate from displacing a candidate
+      // that satisfies every requested facet. Semantic/quality/proximity and
+      // diversity still order candidates *within* the same preference tier.
+      const preferenceDifference = preferenceCompare(a.candidate, b.candidate);
+      if (preferenceDifference !== 0) return preferenceDifference;
+
       const score = (entry: (typeof remaining)[number]) =>
         entry.baseScore +
         diversityBonusFor(entry.candidate, selectedKinds, subtypeCounts);
@@ -152,6 +168,7 @@ function rankKnownSemanticTier<T extends RankableCandidate>(
       candidate: next.candidate,
       scoreBreakdown: {
         semanticSimilarity: next.semanticSimilarity,
+        preferenceScore: next.candidate.preferenceScore,
         preferenceBonus: next.preference,
         qualityBonus: next.quality,
         proximityBonus: next.proximity,
@@ -183,6 +200,7 @@ function wrapWithoutSemanticSignal<T extends RankableCandidate>(
     candidate,
     scoreBreakdown: {
       semanticSimilarity: null,
+      preferenceScore: candidate.preferenceScore,
       preferenceBonus: preference,
       qualityBonus: quality,
       proximityBonus: proximity,
