@@ -78,6 +78,7 @@ import { ExperienceAcquisitionService } from './experience-acquisition.service';
 import { ExperienceDiscoveryRequest } from '../interfaces/experience-discovery.interface';
 import { CoverageAnalyzer } from './coverage-analyzer.service';
 import { redactTracePayload } from '../utils/trace-redaction.util';
+import { buildGenerationExecutionSummary } from '../utils/generation-execution-summary.util';
 import { PreferenceInterpreterService } from './preference-interpreter.service';
 import { buildSemanticTourQuery } from '../utils/semantic-tour-query-builder.util';
 import {
@@ -1521,8 +1522,31 @@ export class ExperienceGenerationService {
         include: { components: { include: { geoEntity: true } } },
       });
 
+      const materializedTourExperiences = selectedExperiences
+        .filter((selected) =>
+          experienceEntities.some(
+            (experience) => experience.id === selected.experienceId,
+          ),
+        )
+        .map((selected) => {
+          const experience = experienceEntities.find(
+            (candidate) => candidate.id === selected.experienceId,
+          )!;
+          return {
+            experienceId: selected.experienceId,
+            dayNumber: selected.dayNumber,
+            order: selected.order,
+            startTime: selected.startTime?.toISOString(),
+            durationHours: selected.duration,
+            componentCount: experience.components.length,
+          };
+        });
+
       const generationTrace = redactTracePayload({
+        version: 3,
+        canonicalRequest: request,
         steps: traceSteps,
+        materializedTourExperiences,
         tourCompleteness: {
           ...completeness,
           retryAttempted: correctiveRetryAttempted,
@@ -1627,32 +1651,30 @@ export class ExperienceGenerationService {
 
       const completedMessage = `¡Listo! ${selectedExperiences.length} experiencias generadas exitosamente.`;
       const traceStepList = (generationTrace as any).steps ?? [];
-      const executionSummary = {
-        status: 'completed' as const,
-        steps: traceStepList.map((step: any) => step.summary).filter(Boolean),
-        narrative: traceStepList
-          .map((step: any, index: number) => `${index + 1}. ${step.summary}`)
-          .filter(Boolean)
-          .join('\n'),
-        acceptedExperiences: Math.max(
-          selectedExperiences.length,
-          traceStepList
-            .filter((step: any) => step.stage === 'entity_resolution')
-            .reduce(
-              (sum: number, step: any) =>
-                sum + Number((step.resolution as any)?.acceptedCount ?? 0),
-              0,
-            ),
-        ),
-        rejectedProposals: traceStepList
+      const acceptedExperiences = Math.max(
+        selectedExperiences.length,
+        traceStepList
           .filter((step: any) => step.stage === 'entity_resolution')
           .reduce(
             (sum: number, step: any) =>
-              sum + Number((step.resolution as any)?.rejectedCount ?? 0),
+              sum + Number((step.resolution as any)?.acceptedCount ?? 0),
             0,
           ),
-        selectedExperiences: selectedExperiences.length,
-      };
+      );
+      const rejectedProposals = traceStepList
+        .filter((step: any) => step.stage === 'entity_resolution')
+        .reduce(
+          (sum: number, step: any) =>
+            sum + Number((step.resolution as any)?.rejectedCount ?? 0),
+          0,
+        );
+      const executionSummary = buildGenerationExecutionSummary({
+        status: 'completed',
+        steps: traceSteps,
+        materializedTourExperiences,
+        acceptedExperiences,
+        rejectedProposals,
+      });
       const completedTour = await this.toursService.findOne(tourId);
       const effectiveMetadata =
         (completedTour?.metadata as any) || (metadata as any) || {};
@@ -1713,17 +1735,17 @@ export class ExperienceGenerationService {
                 generationTrace: redactTracePayload({
                   ...((latestTour?.metadata as any)?.generationTrace ?? {}),
                   steps: traceSteps,
-                  executionSummary: {
+                  version: 3,
+                  canonicalRequest: redactTracePayload(
+                    (latestTour?.metadata as any)?.generationRequest ??
+                      metadata?.generationRequest ??
+                      {},
+                  ),
+                  executionSummary: buildGenerationExecutionSummary({
                     status: 'failed',
-                    steps: traceSteps
-                      .map((step) => step.summary)
-                      .filter(Boolean),
-                    narrative: traceSteps
-                      .map((step, index) => `${index + 1}. ${step.summary}`)
-                      .filter(Boolean)
-                      .join('\n'),
+                    steps: traceSteps,
                     failure: error?.message || String(error),
-                  },
+                  }),
                 }),
               },
             },

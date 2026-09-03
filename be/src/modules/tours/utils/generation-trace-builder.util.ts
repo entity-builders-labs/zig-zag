@@ -1399,6 +1399,7 @@ export function buildDailyPlanningStep(
       approximateTravel: solution.metadata.approximateTravel,
       iterations: solution.metadata.iterations,
       score: solution.score,
+      routing: solution.metadata.routing,
       days: solution.days.map((day) => ({
         dayNumber: day.dayNumber,
         experienceCount: day.experiences.length,

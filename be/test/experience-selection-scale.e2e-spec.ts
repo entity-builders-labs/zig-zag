@@ -331,40 +331,42 @@ describe('Experience V2 selection at scale (public API + PostgreSQL + outbox)', 
     expect(idealIds.size).toBeGreaterThanOrEqual(20);
 
     const accessToken = await authenticate();
+    const generationRequest: any = {
+      destination: {
+        label: 'Obelisco, Buenos Aires',
+        latitude: -34.6037,
+        longitude: -58.3816,
+        radiusMeters: 5000,
+        scaleHint: 'specific_point',
+      },
+      days: 2,
+      budgetLevel: 'medium',
+      groupType: 'friends',
+      intent: {
+        interests: ['tango'],
+        explorationStyle: 'balanced',
+        additionalPreferences:
+          'Quiero tango accesible y música en vivo. No quiero iglesias ni experiencias religiosas.',
+      },
+      mobility: {
+        allowedTransportationModes: ['walking'],
+        maxWalkingDistancePerDayMeters: 12000,
+        maxContinuousWalkingDistanceMeters: 3000,
+        travelPace: 'moderate',
+        accessibilityNeeds: ['accessibility'],
+      },
+      dietaryRestrictions: [],
+      startDates: ['2026-09-07'],
+      includeExistingExperiences: true,
+      skipImageGeneration: true,
+      excludeTours: [],
+      categories: [],
+    };
+
     const createResponse = await request(app.getHttpServer())
       .post('/tours/generate-tour')
       .set('Authorization', `Bearer ${accessToken}`)
-      .send({
-        destination: {
-          label: 'Obelisco, Buenos Aires',
-          latitude: -34.6037,
-          longitude: -58.3816,
-          radiusMeters: 5000,
-          scaleHint: 'specific_point',
-        },
-        days: 2,
-        budgetLevel: 'medium',
-        groupType: 'friends',
-        intent: {
-          interests: ['tango'],
-          explorationStyle: 'balanced',
-          additionalPreferences:
-            'Quiero tango accesible y música en vivo. No quiero iglesias ni experiencias religiosas.',
-        },
-        mobility: {
-          allowedTransportationModes: ['walking'],
-          maxWalkingDistancePerDayMeters: 12000,
-          maxContinuousWalkingDistanceMeters: 3000,
-          travelPace: 'moderate',
-          accessibilityNeeds: ['accessibility'],
-        },
-        dietaryRestrictions: [],
-        startDates: ['2026-09-07'],
-        includeExistingExperiences: true,
-        skipImageGeneration: true,
-        excludeTours: [],
-        categories: [],
-      })
+      .send(generationRequest)
       .expect(201);
 
     const tourId = createResponse.body.id;
@@ -404,6 +406,15 @@ describe('Experience V2 selection at scale (public API + PostgreSQL + outbox)', 
       expect(item.components[0].name).toContain('Venue scale-ideal-');
     }
 
+    expect(tour.metadata.generationTrace.version).toBe(3);
+    expect(tour.metadata.generationTrace.canonicalRequest).toMatchObject({
+      destination: { label: 'Obelisco, Buenos Aires' },
+      days: 2,
+      intent: { interests: ['tango'] },
+    });
+    expect(
+      tour.metadata.generationTrace.materializedTourExperiences,
+    ).toHaveLength(tour.experiences.length);
     const traceSteps = tour.metadata.generationTrace.steps;
     const preferenceTrace = traceSteps.find(
       (step: any) => step.stage === 'preference_interpretation',
@@ -446,10 +457,64 @@ describe('Experience V2 selection at scale (public API + PostgreSQL + outbox)', 
     expect(tour.metadata.executionSummary.selectedExperiences).toBe(
       tour.experiences.length,
     );
+    expect(tour.metadata.executionSummary.orderedStages.at(-1)).toMatchObject({
+      stage: 'tour_experience_materialization',
+      outcome: 'TOUR_EXPERIENCES_PERSISTED',
+    });
+    const planningTrace = traceSteps.find(
+      (step: any) => step.stage === 'daily_planning',
+    );
+    expect(
+      planningTrace.dailyPlanning.routing.providerCounts.geoapify,
+    ).toBeGreaterThan(0);
+    expect(
+      planningTrace.dailyPlanning.routing.externalEstimateCount,
+    ).toBeGreaterThan(0);
 
     const storedGenerationEvent = await prisma.outboxEvent.findUnique({
       where: { id: pendingGeneration!.id },
     });
     expect(storedGenerationEvent?.status).toBe('PUBLISHED');
+
+    const secondCreate = await request(app.getHttpServer())
+      .post('/tours/generate-tour')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send(generationRequest)
+      .expect(201);
+    const secondTourId = secondCreate.body.id;
+    expect(secondTourId).not.toBe(tourId);
+
+    const secondGenerationEvent = await prisma.outboxEvent.findFirst({
+      where: {
+        eventType: 'TourGenerationRequested',
+        payload: { path: ['tourId'], equals: secondTourId },
+      },
+    });
+    expect(secondGenerationEvent).toBeTruthy();
+    await outboxPublisher.processNextBatch();
+
+    const secondTourResponse = await request(app.getHttpServer())
+      .get(`/tours/${secondTourId}`)
+      .set('Authorization', `Bearer ${accessToken}`)
+      .expect(200);
+    const secondTour = secondTourResponse.body;
+    expect(secondTour.metadata.generationStatus).toBe('completed');
+
+    const normalizePlan = (value: any) =>
+      value.experiences.map((item: any) => ({
+        experienceId: item.experienceId,
+        dayNumber: item.dayNumber,
+        order: item.order,
+        startTime: item.startTime,
+        duration: item.duration,
+        components: item.components.map((component: any) => ({
+          geoEntityId: component.geoEntityId,
+          order: component.order,
+          role: component.role,
+          required: component.required,
+        })),
+      }));
+    expect(normalizePlan(secondTour)).toEqual(normalizePlan(tour));
+    expect(secondTour.metadata.generationTrace.version).toBe(3);
   });
 });
