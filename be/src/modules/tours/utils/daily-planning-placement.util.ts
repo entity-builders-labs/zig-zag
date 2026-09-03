@@ -78,6 +78,16 @@ export function internalWalkingMeters(
   return 0;
 }
 
+function maxInternalContinuousWalkingMeters(
+  candidate: PlanningExperienceCandidate,
+  policy: DailyPlanningPolicy,
+): number {
+  return (
+    candidate.mobility?.maxInternalContinuousWalkingDistanceMeters ??
+    internalWalkingMeters(candidate, policy)
+  );
+}
+
 export async function checkHardConstraints(
   candidate: PlanningExperienceCandidate,
   acc: DayAccumulator,
@@ -139,7 +149,8 @@ export async function checkHardConstraints(
     context.mobility.maxContinuousWalkingDistanceMeters;
   if (
     legWalkingMeters > maxContinuousWalkingMeters ||
-    candidateInternalWalkingMeters > maxContinuousWalkingMeters
+    maxInternalContinuousWalkingMeters(candidate, context.policy) >
+      maxContinuousWalkingMeters
   ) {
     reasons.push('MAX_CONTINUOUS_WALKING_EXCEEDED');
   }
