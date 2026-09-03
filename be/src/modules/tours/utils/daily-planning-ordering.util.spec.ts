@@ -1,5 +1,6 @@
 import {
   orderAndScheduleDay,
+  orderAndScheduleDayWithRepair,
   OrderingContext,
 } from './daily-planning-ordering.util';
 import {
@@ -177,16 +178,25 @@ describe('orderAndScheduleDay', () => {
     ]);
   });
 
-  it('fails instead of silently scheduling a known-closed Experience after routing', async () => {
-    const closed = candidate('closed', 0, 0.001);
+  it('repairs a post-routing opening-hours conflict without aborting the whole day', async () => {
+    const closed = candidate('closed', 0, 0.001, 60, 0.2);
     closed.openingHours = mondayHours(7 * 60, 8 * 60);
+    const start = candidate('start', 0, 0, 60, 0.9);
 
-    await expect(
-      orderAndScheduleDay(1, [candidate('start', 0, 0, 60, 0.9), closed], {
-        ...context(),
-        startDates: ['2026-09-07'],
-      }),
-    ).rejects.toThrow('OPENING_HOURS_INCOMPATIBLE_AFTER_ROUTING');
+    const repaired = await orderAndScheduleDayWithRepair(1, [start, closed], {
+      ...context(),
+      startDates: ['2026-09-07'],
+    });
+
+    expect(repaired.day.experiences.map((item) => item.experienceId)).toEqual([
+      'start',
+    ]);
+    expect(repaired.unselected).toEqual([
+      {
+        experienceId: 'closed',
+        reasons: ['OPENING_HOURS_INCOMPATIBLE'],
+      },
+    ]);
   });
 
   it('reports total Experience minutes independent of travel time', async () => {
