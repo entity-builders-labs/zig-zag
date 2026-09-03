@@ -1,4 +1,5 @@
 import {
+  GenerationExecutionStageSummary,
   GenerationTraceExecutionSummary,
   GenerationTraceStep,
   MaterializedTourExperienceTrace,
@@ -24,15 +25,17 @@ function numericCounts(outputs: Record<string, unknown> | undefined) {
 export function buildGenerationExecutionSummary(
   input: BuildExecutionSummaryInput,
 ): GenerationTraceExecutionSummary {
-  const orderedStages = input.steps.map((step, index) => ({
-    ordinal: index + 1,
-    stage: step.stage,
-    status: step.status ?? step.decision?.status ?? 'INFO',
-    component: step.component,
-    outcome: step.decision?.outcome,
-    summary: step.summary,
-    counts: numericCounts(step.outputs),
-  }));
+  const orderedStages: GenerationExecutionStageSummary[] = input.steps.map(
+    (step, index) => ({
+      ordinal: index + 1,
+      stage: step.stage,
+      status: step.status ?? step.decision?.status ?? 'INFO',
+      component: step.component,
+      outcome: step.decision?.outcome,
+      summary: step.summary,
+      counts: numericCounts(step.outputs),
+    }),
+  );
 
   const materialized = input.materializedTourExperiences ?? [];
   if (materialized.length > 0) {
