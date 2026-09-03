@@ -36,7 +36,12 @@ export class ExperienceDiscoveryPlannerService {
     const localBase = [destination, ...preferenceTerms]
       .filter(Boolean)
       .join(' ');
-    const dayTripBase = [...preferenceTerms, `day trips from ${destination}`]
+    const dayTripBase = [
+      ...preferenceTerms,
+      `day trips from ${destination}`,
+      'returning the same day',
+      'no overnight stay',
+    ]
       .filter(Boolean)
       .join(' ');
 
@@ -48,6 +53,7 @@ export class ExperienceDiscoveryPlannerService {
       expectedEvidence: dayTripRequested
         ? [
             'named same-day destinations or experiences reachable from the base destination',
+            'evidence that the experience can start from the base and return the same day',
             'experience description',
             'relationship to the base destination',
           ]
@@ -57,13 +63,14 @@ export class ExperienceDiscoveryPlannerService {
     for (const gap of gaps) {
       queries.push({
         query: dayTripRequested
-          ? `${gap} day trips from ${destination} named places official tourism`
+          ? `${gap} day trips from ${destination} returning the same day no overnight named places official tourism`
           : `${destination} ${gap} named places official tourism`,
         purpose: 'coverage_gap',
         expectedEvidence: dayTripRequested
           ? [
               'named entities',
               'evidence of the requested experience',
+              'same-day feasibility from the base destination',
               'relationship to the base destination',
             ]
           : ['named entities', 'evidence of the requested experience'],
@@ -73,7 +80,7 @@ export class ExperienceDiscoveryPlannerService {
     if (request.breadth === 'focused' && semantic) {
       queries.push({
         query: dayTripRequested
-          ? `${semantic} day trips from ${destination} official guide`
+          ? `${semantic} day trips from ${destination} returning the same day no overnight official guide`
           : `${destination} ${semantic} official guide itinerary`,
         purpose: 'focused_enrichment',
         expectedEvidence: dayTripRequested
