@@ -1,5 +1,6 @@
 name: V2 CP11 Runtime Patch
 
+# One-shot recovery workflow. Delete after CP11 runtime patch is persisted.
 on:
   push:
     paths:
@@ -68,7 +69,6 @@ jobs:
 
           start = text.index("      const executionSummary = {\n", text.index("const completedMessage"))
           end = text.index("      const completedTour =", start)
-          old_summary = text[start:end]
           new_summary = """      const executionSummary = buildExecutionSummary({
         status: 'completed',
         steps: traceSteps,
