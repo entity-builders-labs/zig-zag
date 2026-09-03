@@ -1,6 +1,5 @@
 name: V2 CP11 Runtime Patch
 
-# One-shot recovery workflow. Trigger corrected runner, then delete after persistence.
 on:
   push:
     branches:
@@ -21,134 +20,23 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
-          node-version: "22"
-          cache: yarn
+          node-version: '22'
+      - run: corepack enable
       - run: yarn install --frozen-lockfile
       - run: yarn workspace backend prisma:generate
-      - name: Patch CP11 runtime audit
-        run: |
-          python <<'PY'
-          from pathlib import Path
-
-          service = Path('be/src/modules/tours/services/experience-generation.service.ts')
-          text = service.read_text()
-          old_import = "import { redactTracePayload } from '../utils/trace-redaction.util';"
-          new_import = old_import + "\nimport {\n  buildExecutionSummary,\n  buildGenerationTraceV3,\n} from '../utils/generation-trace-v3.util';"
-          if "buildGenerationTraceV3" not in text:
-              assert old_import in text
-              text = text.replace(old_import, new_import, 1)
-
-          old_trace = """      const generationTrace = redactTracePayload({
-        steps: traceSteps,
-        tourCompleteness: {
-          ...completeness,
-          retryAttempted: correctiveRetryAttempted,
-        },
-      });"""
-          new_trace = """      const materializedTourExperiences = selectedExperiences.map((selected) => {
-        const experience = experienceEntities.find(
-          (candidate) => candidate.id === selected.experienceId,
-        );
-        return {
-          experienceId: selected.experienceId,
-          dayNumber: selected.dayNumber,
-          order: selected.order,
-          startTime: selected.startTime?.toISOString(),
-          durationHours: selected.duration,
-          componentCount: experience?.components.length ?? 0,
-        };
-      });
-      const generationTrace = buildGenerationTraceV3({
-        canonicalRequest: request,
-        steps: traceSteps,
-        tourCompleteness: {
-          ...completeness,
-          retryAttempted: correctiveRetryAttempted,
-        },
-        materializedTourExperiences,
-      });"""
-          if "const materializedTourExperiences" not in text:
-              assert old_trace in text, 'generation trace anchor not found'
-              text = text.replace(old_trace, new_trace, 1)
-
-          if "const executionSummary = buildExecutionSummary({" not in text:
-              start = text.index("      const executionSummary = {\n", text.index("const completedMessage"))
-              end = text.index("      const completedTour =", start)
-              new_summary = """      const executionSummary = buildExecutionSummary({
-        status: 'completed',
-        steps: traceSteps,
-        materialized: materializedTourExperiences,
-        acceptedExperiences: Math.max(
-          selectedExperiences.length,
-          traceStepList
-            .filter((step: any) => step.stage === 'entity_resolution')
-            .reduce(
-              (sum: number, step: any) =>
-                sum + Number((step.resolution as any)?.acceptedCount ?? 0),
-              0,
-            ),
-        ),
-        rejectedProposals: traceStepList
-          .filter((step: any) => step.stage === 'entity_resolution')
-          .reduce(
-            (sum: number, step: any) =>
-              sum + Number((step.resolution as any)?.rejectedCount ?? 0),
-            0,
-          ),
-        selectedExperiences: selectedExperiences.length,
-      });
-"""
-              text = text[:start] + new_summary + text[end:]
-
-          old_failure = """                  executionSummary: {
-                    status: 'failed',
-                    steps: traceSteps
-                      .map((step) => step.summary)
-                      .filter(Boolean),
-                    narrative: traceSteps
-                      .map((step, index) => `${index + 1}. ${step.summary}`)
-                      .filter(Boolean)
-                      .join('\\n'),
-                    failure: error?.message || String(error),
-                  },"""
-          new_failure = """                  version: 3,
-                  canonicalRequest: redactTracePayload(
-                    (latestTour?.metadata as any)?.generationRequest ?? {},
-                  ),
-                  executionSummary: buildExecutionSummary({
-                    status: 'failed',
-                    steps: traceSteps,
-                    failure: error?.message || String(error),
-                  }),"""
-          if old_failure in text:
-              text = text.replace(old_failure, new_failure, 1)
-          service.write_text(text)
-
-          builder = Path('be/src/modules/tours/utils/generation-trace-builder.util.ts')
-          text = builder.read_text()
-          marker = "      routing: solution.metadata.routing,"
-          if marker not in text:
-              anchor = "      score: solution.score,\n      days: solution.days.map((day) => ({"
-              idx = text.index("    dailyPlanning: {")
-              pos = text.index(anchor, idx)
-              text = text[:pos] + text[pos:].replace(
-                  anchor,
-                  "      score: solution.score,\n      routing: solution.metadata.routing,\n      days: solution.days.map((day) => ({",
-                  1,
-              )
-          builder.write_text(text)
-          PY
+      - run: python .github/scripts/cp11_patch.py
       - run: yarn workspace backend lint
       - run: yarn workspace backend typecheck
-      - run: yarn workspace backend test --runInBand generation-trace-v3.util.spec.ts generation-trace-builder.util.spec.ts
+      - run: yarn workspace backend test --runInBand generation-trace-v3.util.spec.ts generation-trace-builder.util.spec.ts trace-redaction.util.spec.ts
       - name: Commit CP11 runtime patch
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add be/src/modules/tours/services/experience-generation.service.ts be/src/modules/tours/utils/generation-trace-builder.util.ts
+          git add be/src/modules/tours/services/experience-generation.service.ts be/src/modules/tours/utils/generation-trace-builder.util.ts be/test/experience-selection-scale.e2e-spec.ts
+          git add -u be/src/modules/tours/utils
           if git diff --cached --quiet; then
             echo "No CP11 runtime changes to persist."
           else
-            git commit -m "feat(v2): persist generation trace v3 runtime evidence"
+            git commit -m "feat(v3): persist auditable generation trace"
             git push origin HEAD:feat/experience-domain-v2
           fi
