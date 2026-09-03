@@ -3,7 +3,9 @@ import { ExperienceDiscoveryPlannerService } from './experience-discovery-planne
 describe('ExperienceDiscoveryPlannerService', () => {
   it('plans bounded provider-neutral experience queries without structural kinds', () => {
     const plan = new ExperienceDiscoveryPlannerService().plan({
-      scope: { destinationName: 'Gualeguaychú' },
+      scope: {
+        destinationName: 'Gualeguaychú',
+      },
       requestedThemes: ['nature', 'food'],
       requestedIntents: ['walk'],
       semanticQuery: 'costanera carnaval',
@@ -14,7 +16,9 @@ describe('ExperienceDiscoveryPlannerService', () => {
 
     expect(plan.queries.length).toBeLessThanOrEqual(4);
     expect(plan.queries.map((q) => q.purpose)).toContain('coverage_gap');
-    expect(plan.queries.map((q) => q.query).join(' ')).toContain('Gualeguaychú');
+    expect(plan.queries.map((q) => q.query).join(' ')).toContain(
+      'Gualeguaychú',
+    );
     expect(plan.queries.map((q) => q.query).join(' ')).toContain('walk');
     expect(plan.queries.join(' ')).not.toMatch(
       /targetKind|ActivityKind|NEIGHBORHOOD_WALK/,
@@ -34,9 +38,11 @@ describe('ExperienceDiscoveryPlannerService', () => {
     });
 
     expect(plan.queries.length).toBeGreaterThan(0);
-    expect(plan.queries.every((query) => query.query.includes('from Buenos Aires'))).toBe(
-      true,
-    );
+    expect(
+      plan.queries.every((query) =>
+        query.query.includes('from Buenos Aires'),
+      ),
+    ).toBe(true);
     expect(plan.queries[0].query).toContain('day trips from Buenos Aires');
     expect(JSON.stringify(plan)).not.toMatch(
       /originName|sameDayReturn|maxOutboundTravelMinutes|origin_bound_open|overnight/i,
