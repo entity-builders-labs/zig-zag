@@ -1,4 +1,4 @@
-name: Backend Format Recovery
+name: Experience V3 Recovery Batch
 
 on:
   pull_request:
@@ -8,7 +8,7 @@ permissions:
   contents: write
 
 jobs:
-  format-backend:
+  apply-v3-recovery:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -20,47 +20,261 @@ jobs:
           cache: yarn
       - run: yarn install --frozen-lockfile
       - run: yarn workspace backend prisma:generate
-      - name: Remove remaining dead V2 compatibility code
+      - name: Apply Bitacora V3 and deterministic E2E assertions
         run: |
           python - <<'PY'
           from pathlib import Path
 
+          # Persist routing evidence emitted by the real deterministic solver.
+          p = Path('be/src/modules/tours/utils/generation-trace-builder.util.ts')
+          s = p.read_text()
+          needle = """      approximateTravel: solution.metadata.approximateTravel,
+              iterations: solution.metadata.iterations,
+              score: solution.score,
+              days: solution.days.map((day) => ({"""
+          if needle not in s:
+              # formatted source uses six-space indentation in this object.
+              needle = """      approximateTravel: solution.metadata.approximateTravel,
+      iterations: solution.metadata.iterations,
+      score: solution.score,
+      days: solution.days.map((day) => ({"""
+          replacement = needle.replace(
+              "      score: solution.score,\n",
+              "      score: solution.score,\n      routing: solution.metadata.routing,\n",
+          )
+          if needle not in s:
+              raise SystemExit('dailyPlanning trace block not found')
+          s = s.replace(needle, replacement, 1)
+          p.write_text(s)
+
+          # Promote persisted generation trace to V3 and use the structured
+          # summary builder for both successful and failed runs.
           p = Path('be/src/modules/tours/services/experience-generation.service.ts')
           s = p.read_text()
-          s = s.replace('      let coverageAreas: OsmCandidate[] = [];\n\n', '')
-          s = s.replace("                  if (isAreaScale) {\n                    coverageAreas = await this.lookupCoverageAreas(\n                      destinationResolution.boundary,\n                    );\n                  }\n", '')
+          import_anchor = "import { redactTracePayload } from '../utils/trace-redaction.util';\n"
+          import_line = "import { buildGenerationExecutionSummary } from '../utils/generation-execution-summary.util';\n"
+          if import_line not in s:
+              s = s.replace(import_anchor, import_anchor + import_line)
+
+          trace_anchor = """      const generationTrace = redactTracePayload({
+        steps: traceSteps,"""
+          trace_replacement = """      const materializedTourExperiences = selectedExperiences
+        .filter((selected) =>
+          experienceEntities.some(
+            (experience) => experience.id === selected.experienceId,
+          ),
+        )
+        .map((selected) => {
+          const experience = experienceEntities.find(
+            (candidate) => candidate.id === selected.experienceId,
+          )!;
+          return {
+            experienceId: selected.experienceId,
+            dayNumber: selected.dayNumber,
+            order: selected.order,
+            startTime: selected.startTime?.toISOString(),
+            durationHours: selected.duration,
+            componentCount: experience.components.length,
+          };
+        });
+
+      const generationTrace = redactTracePayload({
+        version: 3,
+        canonicalRequest: request,
+        steps: traceSteps,
+        materializedTourExperiences,"""
+          if trace_anchor not in s:
+              raise SystemExit('generationTrace success anchor not found')
+          s = s.replace(trace_anchor, trace_replacement, 1)
+
+          start = s.index('      const executionSummary = {')
+          end = s.index('      const completedTour =', start)
+          old = s[start:end]
+          accepted_start = old.index('acceptedExperiences:')
+          # Keep the existing domain counts by computing them explicitly.
+          new = """      const acceptedExperiences = Math.max(
+        selectedExperiences.length,
+        traceStepList
+          .filter((step: any) => step.stage === 'entity_resolution')
+          .reduce(
+            (sum: number, step: any) =>
+              sum + Number((step.resolution as any)?.acceptedCount ?? 0),
+            0,
+          ),
+      );
+      const rejectedProposals = traceStepList
+        .filter((step: any) => step.stage === 'entity_resolution')
+        .reduce(
+          (sum: number, step: any) =>
+            sum + Number((step.resolution as any)?.rejectedCount ?? 0),
+          0,
+        );
+      const executionSummary = buildGenerationExecutionSummary({
+        status: 'completed',
+        steps: traceStepList,
+        materializedTourExperiences,
+        acceptedExperiences,
+        rejectedProposals,
+      });
+"""
+          s = s[:start] + new + s[end:]
+
+          # Failure traces are V3 too. Replace just the nested legacy summary.
+          failure_marker = """                  executionSummary: {
+                    status: 'failed',"""
+          if failure_marker not in s:
+              raise SystemExit('failure executionSummary anchor not found')
+          fstart = s.index(failure_marker)
+          fend_marker = """                  },
+                }),"""
+          fend = s.index(fend_marker, fstart)
+          failure_new = """                  version: 3,
+                  canonicalRequest:
+                    (latestTour?.metadata as any)?.generationRequest ??
+                    metadata?.generationRequest ??
+                    {},
+                  executionSummary: buildGenerationExecutionSummary({
+                    status: 'failed',
+                    steps: traceSteps,
+                    failure: error?.message || String(error),
+                  }),
+"""
+          s = s[:fstart] + failure_new + s[fend + len('                  },\n'):]
           p.write_text(s)
 
-          p = Path('be/src/modules/tours/services/tour-generation-processor.service.ts')
+          # Strengthen the real 320-row E2E: V3 audit evidence + exact repeat.
+          p = Path('be/test/experience-selection-scale.e2e-spec.ts')
           s = p.read_text()
-          s = s.replace("""      const {\n        generationFailedAt: _generationFailedAt,\n        generationCompletedAt: _generationCompletedAt,\n        ...retryableMetadata\n      } = latestMetadata;\n""", """      const retryableMetadata = { ...latestMetadata };\n      delete retryableMetadata.generationFailedAt;\n      delete retryableMetadata.generationCompletedAt;\n""")
-          p.write_text(s)
+          send_anchor = """    const createResponse = await request(app.getHttpServer())
+      .post('/tours/generate-tour')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({"""
+          if send_anchor not in s:
+              raise SystemExit('scale E2E request anchor not found')
+          s = s.replace(
+              send_anchor,
+              """    const generationRequest = {""",
+              1,
+          )
+          end_request = """        categories: [],
+      })
+      .expect(201);"""
+          if end_request not in s:
+              raise SystemExit('scale E2E request end not found')
+          s = s.replace(
+              end_request,
+              """        categories: [],
+      };
 
-          p = Path('be/src/modules/tours/utils/daily-planning-local-improvement.util.spec.ts')
-          s = p.read_text().replace("function candidate(\n  id: string,\n  lat: number,\n  lng: number,\n  familyId?: string,\n): PlanningExperienceCandidate {", "function candidate(\n  id: string,\n  lat: number,\n  lng: number,\n): PlanningExperienceCandidate {")
-          p.write_text(s)
+    const createResponse = await request(app.getHttpServer())
+      .post('/tours/generate-tour')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send(generationRequest)
+      .expect(201);""",
+              1,
+          )
 
-          p = Path('be/src/modules/tours/utils/generation-trace-builder.util.ts')
-          s = p.read_text().replace("""interface FormatAvailability {\n  format: string;\n  fullPoolCount: number;\n  llmWindowCount: number;\n}\n\n""", '')
-          p.write_text(s)
+          trace_assert_anchor = """    const traceSteps = tour.metadata.generationTrace.steps;"""
+          trace_assertions = """    expect(tour.metadata.generationTrace.version).toBe(3);
+    expect(tour.metadata.generationTrace.canonicalRequest).toMatchObject({
+      destination: { label: 'Obelisco, Buenos Aires' },
+      days: 2,
+      intent: { interests: ['tango'] },
+    });
+    expect(tour.metadata.generationTrace.materializedTourExperiences).toHaveLength(
+      tour.experiences.length,
+    );
 
-          p = Path('be/test/acceptance/builders/candidate.builder.ts')
-          s = p.read_text().replace('  withFamily(familyId: string, variantKey?: string): this {', '  withFamily(familyId: string): this {')
-          s = s.replace('  withFamilyId(familyId: string, variantKey?: string): this {\n    return this.withFamily(familyId, variantKey);\n', '  withFamilyId(familyId: string): this {\n    return this.withFamily(familyId);\n')
+    const traceSteps = tour.metadata.generationTrace.steps;"""
+          if trace_assert_anchor not in s:
+              raise SystemExit('trace assertion anchor not found')
+          s = s.replace(trace_assert_anchor, trace_assertions, 1)
+
+          completion_anchor = """    expect(tour.metadata.executionSummary.selectedExperiences).toBe(
+      tour.experiences.length,
+    );"""
+          completion_replacement = completion_anchor + """
+    expect(tour.metadata.executionSummary.orderedStages.at(-1)).toMatchObject({
+      stage: 'tour_experience_materialization',
+      outcome: 'TOUR_EXPERIENCES_PERSISTED',
+    });
+
+    const planningTrace = traceSteps.find(
+      (step: any) => step.stage === 'daily_planning',
+    );
+    expect(planningTrace.dailyPlanning.routing.providerCounts.geoapify).toBeGreaterThan(
+      0,
+    );
+    expect(planningTrace.dailyPlanning.routing.externalEstimateCount).toBeGreaterThan(
+      0,
+    );"""
+          if completion_anchor not in s:
+              raise SystemExit('executionSummary assertion anchor not found')
+          s = s.replace(completion_anchor, completion_replacement, 1)
+
+          replay_anchor = """    expect(storedGenerationEvent?.status).toBe('PUBLISHED');
+  });"""
+          replay = """    expect(storedGenerationEvent?.status).toBe('PUBLISHED');
+
+    const secondCreate = await request(app.getHttpServer())
+      .post('/tours/generate-tour')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send(generationRequest)
+      .expect(201);
+    const secondTourId = secondCreate.body.id;
+    expect(secondTourId).not.toBe(tourId);
+
+    const secondGenerationEvent = await prisma.outboxEvent.findFirst({
+      where: {
+        eventType: 'TourGenerationRequested',
+        payload: { path: ['tourId'], equals: secondTourId },
+      },
+    });
+    expect(secondGenerationEvent).toBeTruthy();
+    await outboxPublisher.processNextBatch();
+
+    const secondTourResponse = await request(app.getHttpServer())
+      .get(`/tours/${secondTourId}`)
+      .set('Authorization', `Bearer ${accessToken}`)
+      .expect(200);
+    const secondTour = secondTourResponse.body;
+    expect(secondTour.metadata.generationStatus).toBe('completed');
+
+    const normalizePlan = (value: any) =>
+      value.experiences.map((item: any) => ({
+        experienceId: item.experienceId,
+        dayNumber: item.dayNumber,
+        order: item.order,
+        startTime: item.startTime,
+        duration: item.duration,
+        components: item.components.map((component: any) => ({
+          geoEntityId: component.geoEntityId,
+          order: component.order,
+          role: component.role,
+          required: component.required,
+        })),
+      }));
+    expect(normalizePlan(secondTour)).toEqual(normalizePlan(tour));
+    expect(secondTour.metadata.generationTrace.version).toBe(3);
+  });"""
+          if replay_anchor not in s:
+              raise SystemExit('scale E2E replay anchor not found')
+          s = s.replace(replay_anchor, replay, 1)
           p.write_text(s)
           PY
-      - name: Apply backend lint autofixes
-        run: yarn workspace backend lint
-      - name: Persist lint recovery on branch
+      - name: Format and verify backend
+        run: |
+          yarn workspace backend lint
+          yarn workspace backend typecheck
+          yarn workspace backend test --runInBand
+      - name: Persist V3 recovery batch
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add be/src be/test
           if git diff --cached --quiet; then
-            echo "No lint recovery changes to persist."
+            echo "No V3 recovery changes to persist."
           else
-            git commit -m "chore(v2): close backend lint recovery"
+            git commit -m "feat(v3): persist auditable generation trace and determinism gate"
             git push origin HEAD:feat/experience-domain-v2
           fi
-      - name: Verify backend lint
-        run: yarn workspace backend lint:check
