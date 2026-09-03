@@ -1,25 +1,28 @@
 from pathlib import Path
 
-# Preserve deterministic solver routing evidence in the trace.
-p = Path('be/src/modules/tours/utils/generation-trace-builder.util.ts')
-s = p.read_text()
-anchor = """      score: solution.score,
-      days: solution.days.map((day) => ({"""
-replacement = """      score: solution.score,
-      routing: solution.metadata.routing,
-      days: solution.days.map((day) => ({"""
-daily = s.index('    dailyPlanning: {')
-pos = s.index(anchor, daily)
-s = s[:pos] + s[pos:].replace(anchor, replacement, 1)
-p.write_text(s)
+# Preserve deterministic solver routing evidence in the persisted trace.
+builder = Path('be/src/modules/tours/utils/generation-trace-builder.util.ts')
+text = builder.read_text()
+routing_marker = "      routing: solution.metadata.routing,"
+if routing_marker not in text:
+    anchor = "      score: solution.score,\n      days: solution.days.map((day) => ({"
+    daily = text.index('    dailyPlanning: {')
+    pos = text.index(anchor, daily)
+    text = text[:pos] + text[pos:].replace(
+        anchor,
+        "      score: solution.score,\n      routing: solution.metadata.routing,\n      days: solution.days.map((day) => ({",
+        1,
+    )
+builder.write_text(text)
 
-p = Path('be/src/modules/tours/services/experience-generation.service.ts')
-s = p.read_text()
-import_anchor = "import { redactTracePayload } from '../utils/trace-redaction.util';\n"
-import_line = "import { buildGenerationExecutionSummary } from '../utils/generation-execution-summary.util';\n"
-if import_line not in s:
-    assert import_anchor in s
-    s = s.replace(import_anchor, import_anchor + import_line, 1)
+# Wire the canonical V3 trace builder into the real generation runtime.
+service = Path('be/src/modules/tours/services/experience-generation.service.ts')
+text = service.read_text()
+old_import = "import { redactTracePayload } from '../utils/trace-redaction.util';"
+new_import = old_import + "\nimport {\n  buildExecutionSummary,\n  buildGenerationTraceV3,\n} from '../utils/generation-trace-v3.util';"
+if "buildGenerationTraceV3" not in text:
+    assert old_import in text
+    text = text.replace(old_import, new_import, 1)
 
 old_trace = """      const generationTrace = redactTracePayload({
         steps: traceSteps,
@@ -48,49 +51,49 @@ new_trace = """      const materializedTourExperiences = selectedExperiences
           };
         });
 
-      const generationTrace = redactTracePayload({
-        version: 3,
+      const generationTrace = buildGenerationTraceV3({
         canonicalRequest: request,
         steps: traceSteps,
-        materializedTourExperiences,
         tourCompleteness: {
           ...completeness,
           retryAttempted: correctiveRetryAttempted,
         },
+        materializedTourExperiences,
       });"""
-assert old_trace in s
-s = s.replace(old_trace, new_trace, 1)
+if "const materializedTourExperiences" not in text:
+    assert old_trace in text, 'generation trace success anchor not found'
+    text = text.replace(old_trace, new_trace, 1)
 
-start = s.index('      const executionSummary = {', s.index('const completedMessage'))
-end = s.index('      const completedTour =', start)
-new_summary = """      const acceptedExperiences = Math.max(
-        selectedExperiences.length,
-        traceStepList
+if "const executionSummary = buildExecutionSummary({" not in text:
+    start = text.index('      const executionSummary = {', text.index('const completedMessage'))
+    end = text.index('      const completedTour =', start)
+    new_summary = """      const executionSummary = buildExecutionSummary({
+        status: 'completed',
+        steps: traceSteps,
+        materialized: materializedTourExperiences,
+        acceptedExperiences: Math.max(
+          selectedExperiences.length,
+          traceStepList
+            .filter((step: any) => step.stage === 'entity_resolution')
+            .reduce(
+              (sum: number, step: any) =>
+                sum + Number((step.resolution as any)?.acceptedCount ?? 0),
+              0,
+            ),
+        ),
+        rejectedProposals: traceStepList
           .filter((step: any) => step.stage === 'entity_resolution')
           .reduce(
             (sum: number, step: any) =>
-              sum + Number((step.resolution as any)?.acceptedCount ?? 0),
+              sum + Number((step.resolution as any)?.rejectedCount ?? 0),
             0,
           ),
-      );
-      const rejectedProposals = traceStepList
-        .filter((step: any) => step.stage === 'entity_resolution')
-        .reduce(
-          (sum: number, step: any) =>
-            sum + Number((step.resolution as any)?.rejectedCount ?? 0),
-          0,
-        );
-      const executionSummary = buildGenerationExecutionSummary({
-        status: 'completed',
-        steps: traceStepList,
-        materializedTourExperiences,
-        acceptedExperiences,
-        rejectedProposals,
+        selectedExperiences: selectedExperiences.length,
       });
 """
-s = s[:start] + new_summary + s[end:]
+    text = text[:start] + new_summary + text[end:]
 
-failure = """                  executionSummary: {
+old_failure = """                  executionSummary: {
                     status: 'failed',
                     steps: traceSteps
                       .map((step) => step.summary)
@@ -101,53 +104,75 @@ failure = """                  executionSummary: {
                       .join('\\n'),
                     failure: error?.message || String(error),
                   },"""
-failure_new = """                  version: 3,
-                  canonicalRequest:
+new_failure = """                  version: 3,
+                  canonicalRequest: redactTracePayload(
                     (latestTour?.metadata as any)?.generationRequest ??
-                    metadata?.generationRequest ??
-                    {},
-                  executionSummary: buildGenerationExecutionSummary({
+                      metadata?.generationRequest ??
+                      {},
+                  ),
+                  executionSummary: buildExecutionSummary({
                     status: 'failed',
                     steps: traceSteps,
                     failure: error?.message || String(error),
                   }),"""
-assert failure in s
-s = s.replace(failure, failure_new, 1)
-p.write_text(s)
+if old_failure in text:
+    text = text.replace(old_failure, new_failure, 1)
+service.write_text(text)
 
-# Strengthen the real 320-row E2E with V3 evidence and exact repeat determinism.
-p = Path('be/test/experience-selection-scale.e2e-spec.ts')
-s = p.read_text()
-send_anchor = """    const createResponse = await request(app.getHttpServer())
+# Strengthen the real 320-row PostgreSQL E2E with V3 evidence and exact
+# deterministic repeat. This does not import ranking/coverage/planner internals.
+e2e = Path('be/test/experience-selection-scale.e2e-spec.ts')
+text = e2e.read_text()
+if 'const generationRequest = {' not in text:
+    send_anchor = """    const createResponse = await request(app.getHttpServer())
       .post('/tours/generate-tour')
       .set('Authorization', `Bearer ${accessToken}`)
       .send({"""
-assert send_anchor in s
-s = s.replace(send_anchor, '    const generationRequest = {', 1)
-end_request = """        categories: [],
+    assert send_anchor in text
+    text = text.replace(send_anchor, '    const generationRequest = {', 1)
+    end_request = """        categories: [],
       })
       .expect(201);"""
-assert end_request in s
-s = s.replace(end_request, """        categories: [],
+    assert end_request in text
+    text = text.replace(
+        end_request,
+        """        categories: [],
       };
 
     const createResponse = await request(app.getHttpServer())
       .post('/tours/generate-tour')
       .set('Authorization', `Bearer ${accessToken}`)
       .send(generationRequest)
-      .expect(201);""", 1)
-trace_anchor = '    const traceSteps = tour.metadata.generationTrace.steps;'
-assert trace_anchor in s
-s = s.replace(trace_anchor, """    expect(tour.metadata.generationTrace.version).toBe(3);
+      .expect(201);""",
+        1,
+    )
+
+if 'generationTrace.version).toBe(3)' not in text:
+    trace_anchor = '    const traceSteps = tour.metadata.generationTrace.steps;'
+    assert trace_anchor in text
+    text = text.replace(
+        trace_anchor,
+        """    expect(tour.metadata.generationTrace.version).toBe(3);
+    expect(tour.metadata.generationTrace.canonicalRequest).toMatchObject({
+      destination: { label: 'Obelisco, Buenos Aires' },
+      days: 2,
+      intent: { interests: ['tango'] },
+    });
     expect(tour.metadata.generationTrace.materializedTourExperiences).toHaveLength(
       tour.experiences.length,
     );
-    const traceSteps = tour.metadata.generationTrace.steps;""", 1)
-completion = """    expect(tour.metadata.executionSummary.selectedExperiences).toBe(
+    const traceSteps = tour.metadata.generationTrace.steps;""",
+        1,
+    )
+
+if "stage: 'tour_experience_materialization'" not in text:
+    completion = """    expect(tour.metadata.executionSummary.selectedExperiences).toBe(
       tour.experiences.length,
     );"""
-assert completion in s
-s = s.replace(completion, completion + """
+    assert completion in text
+    text = text.replace(
+        completion,
+        completion + """
     expect(tour.metadata.executionSummary.orderedStages.at(-1)).toMatchObject({
       stage: 'tour_experience_materialization',
       outcome: 'TOUR_EXPERIENCES_PERSISTED',
@@ -155,11 +180,18 @@ s = s.replace(completion, completion + """
     const planningTrace = traceSteps.find(
       (step: any) => step.stage === 'daily_planning',
     );
-    expect(planningTrace.dailyPlanning.routing.providerCounts.geoapify).toBeGreaterThan(0);""", 1)
-replay_anchor = """    expect(storedGenerationEvent?.status).toBe('PUBLISHED');
+    expect(planningTrace.dailyPlanning.routing.providerCounts.geoapify).toBeGreaterThan(0);
+    expect(planningTrace.dailyPlanning.routing.externalEstimateCount).toBeGreaterThan(0);""",
+        1,
+    )
+
+if 'const normalizePlan = (value: any)' not in text:
+    replay_anchor = """    expect(storedGenerationEvent?.status).toBe('PUBLISHED');
   });"""
-assert replay_anchor in s
-s = s.replace(replay_anchor, """    expect(storedGenerationEvent?.status).toBe('PUBLISHED');
+    assert replay_anchor in text
+    text = text.replace(
+        replay_anchor,
+        """    expect(storedGenerationEvent?.status).toBe('PUBLISHED');
 
     const secondCreate = await request(app.getHttpServer())
       .post('/tours/generate-tour')
@@ -167,12 +199,24 @@ s = s.replace(replay_anchor, """    expect(storedGenerationEvent?.status).toBe('
       .send(generationRequest)
       .expect(201);
     const secondTourId = secondCreate.body.id;
+    expect(secondTourId).not.toBe(tourId);
+
+    const secondGenerationEvent = await prisma.outboxEvent.findFirst({
+      where: {
+        eventType: 'TourGenerationRequested',
+        payload: { path: ['tourId'], equals: secondTourId },
+      },
+    });
+    expect(secondGenerationEvent).toBeTruthy();
     await outboxPublisher.processNextBatch();
+
     const secondTourResponse = await request(app.getHttpServer())
       .get(`/tours/${secondTourId}`)
       .set('Authorization', `Bearer ${accessToken}`)
       .expect(200);
     const secondTour = secondTourResponse.body;
+    expect(secondTour.metadata.generationStatus).toBe('completed');
+
     const normalizePlan = (value: any) =>
       value.experiences.map((item: any) => ({
         experienceId: item.experienceId,
@@ -189,5 +233,16 @@ s = s.replace(replay_anchor, """    expect(storedGenerationEvent?.status).toBe('
       }));
     expect(normalizePlan(secondTour)).toEqual(normalizePlan(tour));
     expect(secondTour.metadata.generationTrace.version).toBe(3);
-  });""", 1)
-p.write_text(s)
+  });""",
+        1,
+    )
+e2e.write_text(text)
+
+# There must be one execution-summary implementation, not two subtly
+# different audit contracts.
+for duplicate in [
+    Path('be/src/modules/tours/utils/generation-execution-summary.util.ts'),
+    Path('be/src/modules/tours/utils/generation-execution-summary.util.spec.ts'),
+]:
+    if duplicate.exists():
+        duplicate.unlink()
