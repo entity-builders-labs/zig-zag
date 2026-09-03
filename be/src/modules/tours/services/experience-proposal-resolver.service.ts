@@ -196,11 +196,12 @@ export class ExperienceProposalResolverService
     evidence: ExperienceResolutionRequest['evidence'] = [],
   ) {
     const entities: ResolvedGeoEntity[] = [];
-    const destinationAssociationVerified = this.hasDestinationAssociationEvidence(
-      candidate,
-      destinationName,
-      evidence,
-    );
+    const destinationAssociationVerified =
+      this.hasDestinationAssociationEvidence(
+        candidate,
+        destinationName,
+        evidence,
+      );
 
     for (const hint of candidate?.componentHints ?? []) {
       const pool =
@@ -357,7 +358,8 @@ export class ExperienceProposalResolverService
       if (hint.expectedKind !== 'PLACE') return undefined;
 
       const externalId = `osm:${match.osmType}:${match.osmId}`;
-      const canonicalName = match.displayName.split(',')[0]?.trim() || hint.name;
+      const canonicalName =
+        match.displayName.split(',')[0]?.trim() || hint.name;
       const geometry = {
         type: 'Point' as const,
         coordinates: [match.longitude as number, match.latitude as number],
