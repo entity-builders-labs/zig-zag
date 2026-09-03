@@ -150,13 +150,14 @@ export function buildPreferenceCorpus(experience: any): string[] {
 function matchesTerm(corpus: string[], rawTerm: string): boolean {
   const term = normalize(rawTerm);
   const terms = unique([term, ...(ALIASES[term] ?? []).map(normalize)]);
+
+  // Match the requested term (or one of its explicit aliases) inside the
+  // Experience evidence. Do not perform the reverse containment check:
+  // generic corpus values such as "food" would otherwise match a much more
+  // specific exclusion such as "non vegan food", producing false hard
+  // exclusions for genuinely vegan Experiences.
   return terms.some((candidate) =>
-    corpus.some(
-      (value) =>
-        value === candidate ||
-        value.includes(candidate) ||
-        candidate.includes(value),
-    ),
+    corpus.some((value) => value === candidate || value.includes(candidate)),
   );
 }
 
