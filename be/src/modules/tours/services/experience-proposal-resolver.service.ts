@@ -1,10 +1,14 @@
-import { Injectable, Logger, Optional } from '@nestjs/common';
+import { Inject, Injectable, Logger, Optional } from '@nestjs/common';
 import { GeoEntityKind } from '@prisma/client';
 import {
   OsmCandidate,
   OsmLookupResult,
   OsmPlacesService,
 } from '@integrations/osm/services/osm-places.service';
+import {
+  INominatimApiService,
+  NominatimResult,
+} from '@integrations/osm/interfaces/nominatim.interface';
 import { ExperienceCatalogService } from './experience-catalog.service';
 import { CompositeGeographicValidationService } from './composite-geographic-validation.service';
 import { ExperienceEmbeddingIndexerService } from '@shared/ai/services/experience-embedding-indexer.service';
@@ -27,6 +31,9 @@ export class ExperienceProposalResolverService
     private readonly geographicValidator: CompositeGeographicValidationService,
     @Optional()
     private readonly embeddingIndexer?: ExperienceEmbeddingIndexerService,
+    @Optional()
+    @Inject('NominatimApiService')
+    private readonly nominatim?: INominatimApiService,
   ) {}
 
   async resolve(
@@ -52,6 +59,8 @@ export class ExperienceProposalResolverService
           streetLookup.value,
           poiLookup.value,
           { streets: streetLookup, pois: poiLookup },
+          input.destinationName,
+          evidence,
         ),
       ),
     );
@@ -90,10 +99,7 @@ export class ExperienceProposalResolverService
           metadata: {
             themes: candidate.candidate.themes,
             traits: candidate.candidate.traits,
-            intents:
-              candidate.candidate.intents ??
-              candidate.candidate.archetypes ??
-              [],
+            intents: candidate.candidate.intents ?? [],
             source: 'grounded_experience_discovery',
           },
           components: candidate.resolvedEntities
@@ -161,7 +167,7 @@ export class ExperienceProposalResolverService
     );
 
     this.logger.log(
-      `Resolved ${resolved.filter((item) => item.status === 'accepted').length}/${resolved.length} Experience candidate(s) against OSM`,
+      `Resolved ${resolved.filter((item) => item.status === 'accepted').length}/${resolved.length} Experience candidate(s) against trusted geography`,
     );
 
     return {
@@ -183,8 +189,15 @@ export class ExperienceProposalResolverService
       streets: OsmLookupResult<OsmCandidate[]>;
       pois: OsmLookupResult<OsmCandidate[]>;
     },
+    destinationName?: string,
+    evidence: ExperienceResolutionRequest['evidence'] = [],
   ) {
     const entities: ResolvedGeoEntity[] = [];
+    const destinationAssociationVerified = this.hasDestinationAssociationEvidence(
+      candidate,
+      destinationName,
+      evidence,
+    );
 
     for (const hint of candidate?.componentHints ?? []) {
       const pool =
@@ -195,59 +208,38 @@ export class ExperienceProposalResolverService
             : pois;
       const matched = this.matchCandidate(hint.name, pool);
 
-      if (!matched) {
-        const lookup =
-          hint.expectedKind === 'ROUTE' || hint.role === 'route'
-            ? osmLookups.streets
-            : osmLookups.pois;
-        const reason =
-          lookup.status === 'failed'
-            ? 'OSM_PROVIDER_FAILED'
-            : lookup.value.length === 0
-              ? 'OSM_QUERY_EMPTY'
-              : 'NO_OSM_MATCH';
-        entities.push({
-          hintKey: hint.key,
-          hintName: hint.name,
-          provider: 'openstreetmap',
-          externalId: '',
-          role: hint.role,
-          status: 'unresolved',
-          reason,
-        });
+      if (matched) {
+        entities.push(await this.persistOsmEntity(hint, matched));
         continue;
       }
 
-      const kind =
-        hint.expectedKind === 'ROUTE'
-          ? GeoEntityKind.ROUTE
-          : hint.expectedKind === 'AREA'
-            ? GeoEntityKind.AREA
-            : GeoEntityKind.PLACE;
-      const point = this.representativePoint(matched);
-      const geo = await this.catalog.upsertGeoEntity({
-        name: matched.name,
-        kind,
-        provider: 'openstreetmap',
-        externalId: matched.id,
-        latitude: point?.latitude,
-        longitude: point?.longitude,
-        geometry: matched.geometry,
-        metadata: { tags: matched.tags },
-      });
+      if (destinationAssociationVerified) {
+        const globallyResolved = await this.resolveTrustedGlobalHint(hint);
+        if (globallyResolved) {
+          entities.push(globallyResolved);
+          continue;
+        }
+      }
+
+      const lookup =
+        hint.expectedKind === 'ROUTE' || hint.role === 'route'
+          ? osmLookups.streets
+          : osmLookups.pois;
+      const reason =
+        lookup.status === 'failed'
+          ? 'OSM_PROVIDER_FAILED'
+          : lookup.value.length === 0
+            ? 'OSM_QUERY_EMPTY'
+            : 'NO_OSM_MATCH';
       entities.push({
         hintKey: hint.key,
         hintName: hint.name,
         provider: 'openstreetmap',
-        externalId: matched.id,
-        canonicalName: matched.name,
-        latitude: point?.latitude,
-        longitude: point?.longitude,
-        geometry: matched.geometry,
+        externalId: '',
         role: hint.role,
-        status: 'resolved',
+        status: 'unresolved',
+        reason,
       });
-      (entities[entities.length - 1] as any).geoEntityId = geo.id;
     }
 
     const required = (candidate?.componentHints ?? []).filter(
@@ -269,6 +261,7 @@ export class ExperienceProposalResolverService
         candidate,
         status: 'rejected' as const,
         resolvedEntities: entities,
+        destinationAssociationVerified,
         rejectionReasons: [
           resolvedEntities.length === 0
             ? entities.some((entity) => entity.reason === 'OSM_PROVIDER_FAILED')
@@ -285,30 +278,189 @@ export class ExperienceProposalResolverService
       candidate,
       status: 'accepted' as const,
       resolvedEntities: entities,
+      destinationAssociationVerified,
       rejectionReasons: [] as string[],
     };
+  }
+
+  private async persistOsmEntity(
+    hint: any,
+    matched: OsmCandidate,
+  ): Promise<ResolvedGeoEntity> {
+    const kind =
+      hint.expectedKind === 'ROUTE'
+        ? GeoEntityKind.ROUTE
+        : hint.expectedKind === 'AREA'
+          ? GeoEntityKind.AREA
+          : GeoEntityKind.PLACE;
+    const point = this.representativePoint(matched);
+    const geo = await this.catalog.upsertGeoEntity({
+      name: matched.name,
+      kind,
+      provider: 'openstreetmap',
+      externalId: matched.id,
+      latitude: point?.latitude,
+      longitude: point?.longitude,
+      geometry: matched.geometry,
+      metadata: { tags: matched.tags },
+    });
+    return Object.assign(
+      {
+        hintKey: hint.key,
+        hintName: hint.name,
+        provider: 'openstreetmap',
+        externalId: matched.id,
+        canonicalName: matched.name,
+        latitude: point?.latitude,
+        longitude: point?.longitude,
+        geometry: matched.geometry,
+        role: hint.role,
+        status: 'resolved' as const,
+      },
+      { geoEntityId: geo.id },
+    );
+  }
+
+  private async resolveTrustedGlobalHint(
+    hint: any,
+  ): Promise<ResolvedGeoEntity | undefined> {
+    if (!this.nominatim || hint.expectedKind === 'ROUTE') return undefined;
+
+    try {
+      const results = await this.nominatim.search(hint.name);
+      const match = this.bestNominatimMatch(hint.name, results);
+      if (
+        !match ||
+        !Number.isFinite(match.latitude) ||
+        !Number.isFinite(match.longitude)
+      ) {
+        return undefined;
+      }
+
+      if (
+        hint.expectedKind === 'AREA' &&
+        (match.osmType === 'way' || match.osmType === 'relation')
+      ) {
+        const boundary = await this.osmPlaces.lookupBoundaryById(
+          match.osmType,
+          match.osmId,
+        );
+        if (boundary.value) {
+          return this.persistOsmEntity(hint, boundary.value);
+        }
+        return undefined;
+      }
+
+      if (hint.expectedKind !== 'PLACE') return undefined;
+
+      const externalId = `osm:${match.osmType}:${match.osmId}`;
+      const canonicalName = match.displayName.split(',')[0]?.trim() || hint.name;
+      const geometry = {
+        type: 'Point' as const,
+        coordinates: [match.longitude as number, match.latitude as number],
+      };
+      const geo = await this.catalog.upsertGeoEntity({
+        name: canonicalName,
+        kind: GeoEntityKind.PLACE,
+        provider: 'nominatim',
+        externalId,
+        latitude: match.latitude,
+        longitude: match.longitude,
+        geometry,
+        metadata: {
+          displayName: match.displayName,
+          addresstype: match.addresstype,
+          address: match.address,
+        },
+      });
+      return Object.assign(
+        {
+          hintKey: hint.key,
+          hintName: hint.name,
+          provider: 'nominatim',
+          externalId,
+          canonicalName,
+          latitude: match.latitude,
+          longitude: match.longitude,
+          geometry,
+          role: hint.role,
+          status: 'resolved' as const,
+          adminContext: {
+            country: match.address?.country,
+            region: match.address?.state,
+            locality:
+              match.address?.city ??
+              match.address?.town ??
+              match.address?.village ??
+              match.address?.municipality,
+            municipality: match.address?.municipality,
+          },
+        },
+        { geoEntityId: geo.id },
+      );
+    } catch (error: any) {
+      this.logger.warn(
+        `Global trusted resolution failed for "${hint.name}": ${error?.message ?? error}`,
+      );
+      return undefined;
+    }
+  }
+
+  private hasDestinationAssociationEvidence(
+    candidate: any,
+    destinationName: string | undefined,
+    evidence: ExperienceResolutionRequest['evidence'],
+  ): boolean {
+    if (!destinationName || !candidate?.evidenceKeys?.length) return false;
+    const destinationTokens = this.normalize(destinationName)
+      .split(' ')
+      .filter((token) => token.length >= 4);
+    if (destinationTokens.length === 0) return false;
+
+    const candidateEvidence = (evidence ?? []).filter((item) =>
+      candidate.evidenceKeys.includes(item.key ?? ''),
+    );
+    return candidateEvidence.some((item) => {
+      const text = this.normalize(`${item.title ?? ''} ${item.snippet ?? ''}`);
+      return destinationTokens.some((token) => text.includes(token));
+    });
+  }
+
+  private bestNominatimMatch(
+    name: string,
+    results: NominatimResult[],
+  ): NominatimResult | undefined {
+    const needle = this.normalize(name);
+    return results
+      .filter((result) => {
+        const display = this.normalize(result.displayName);
+        return display === needle || display.startsWith(`${needle} `);
+      })
+      .sort((a, b) => b.importance - a.importance)[0];
   }
 
   private matchCandidate(
     name: string,
     pool: OsmCandidate[],
   ): OsmCandidate | undefined {
-    const normalize = (value: string) =>
-      value
-        .normalize('NFKD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, ' ')
-        .trim();
-    const needle = normalize(name);
+    const needle = this.normalize(name);
     return pool.find((candidate) => {
-      const haystack = normalize(candidate.name);
+      const haystack = this.normalize(candidate.name);
       return (
         haystack === needle ||
         haystack.includes(needle) ||
         needle.includes(haystack)
       );
     });
+  }
+
+  private normalize(value: string): string {
+    return value
+      .normalize('NFKD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, ' ')
+      .trim();
   }
 
   private representativePoint(
