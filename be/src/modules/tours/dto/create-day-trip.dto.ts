@@ -7,6 +7,7 @@ import {
   IsArray,
   IsDateString,
   IsEnum,
+  IsIn,
   IsLatitude,
   IsLongitude,
   IsNumber,
@@ -84,7 +85,7 @@ export class CreateDayTripDto {
   returnWindow: DayTripClockWindowDto;
 
   @ApiProperty({ enum: ['same_day_only', 'allow_overnight'] })
-  @IsEnum(['same_day_only', 'allow_overnight'])
+  @IsIn(['same_day_only', 'allow_overnight'])
   overnightPolicy: OvernightPolicy;
 
   @ApiProperty({ enum: TransportationMode, isArray: true })
