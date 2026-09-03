@@ -3,8 +3,10 @@ name: V2 CP11 Runtime Patch
 # One-shot recovery workflow. Delete after CP11 runtime patch is persisted.
 on:
   push:
+    branches:
+      - feat/experience-domain-v2
     paths:
-      - '.github/workflows/v2-cp11-runtime-patch.yml'
+      - .github/workflows/v2-cp11-runtime-patch.yml
 
 permissions:
   contents: write
@@ -19,23 +21,32 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: "22"
           cache: yarn
       - run: yarn install --frozen-lockfile
       - run: yarn workspace backend prisma:generate
       - name: Patch CP11 runtime audit
-        shell: python
         run: |
+          python <<'PY'
           from pathlib import Path
 
           service = Path('be/src/modules/tours/services/experience-generation.service.ts')
           text = service.read_text()
           old_import = "import { redactTracePayload } from '../utils/trace-redaction.util';"
           new_import = old_import + "\nimport {\n  buildExecutionSummary,\n  buildGenerationTraceV3,\n} from '../utils/generation-trace-v3.util';"
-          assert old_import in text
-          text = text.replace(old_import, new_import, 1)
+          if "buildGenerationTraceV3" not in text:
+              assert old_import in text
+              text = text.replace(old_import, new_import, 1)
 
           old_trace = """      const generationTrace = redactTracePayload({
+            steps: traceSteps,
+            tourCompleteness: {
+              ...completeness,
+              retryAttempted: correctiveRetryAttempted,
+            },
+          });"""
+          if old_trace not in text:
+              old_trace = """      const generationTrace = redactTracePayload({
         steps: traceSteps,
         tourCompleteness: {
           ...completeness,
@@ -64,12 +75,14 @@ jobs:
         },
         materializedTourExperiences,
       });"""
-          assert old_trace in text
-          text = text.replace(old_trace, new_trace, 1)
+          if "const materializedTourExperiences" not in text:
+              assert old_trace in text, 'generation trace anchor not found'
+              text = text.replace(old_trace, new_trace, 1)
 
-          start = text.index("      const executionSummary = {\n", text.index("const completedMessage"))
-          end = text.index("      const completedTour =", start)
-          new_summary = """      const executionSummary = buildExecutionSummary({
+          if "const executionSummary = buildExecutionSummary({" not in text:
+              start = text.index("      const executionSummary = {\n", text.index("const completedMessage"))
+              end = text.index("      const completedTour =", start)
+              new_summary = """      const executionSummary = buildExecutionSummary({
         status: 'completed',
         steps: traceSteps,
         materialized: materializedTourExperiences,
@@ -93,7 +106,7 @@ jobs:
         selectedExperiences: selectedExperiences.length,
       });
 """
-          text = text[:start] + new_summary + text[end:]
+              text = text[:start] + new_summary + text[end:]
 
           old_failure = """                  executionSummary: {
                     status: 'failed',
@@ -115,28 +128,35 @@ jobs:
                     steps: traceSteps,
                     failure: error?.message || String(error),
                   }),"""
-          assert old_failure in text
-          text = text.replace(old_failure, new_failure, 1)
+          if old_failure in text:
+              text = text.replace(old_failure, new_failure, 1)
           service.write_text(text)
 
           builder = Path('be/src/modules/tours/utils/generation-trace-builder.util.ts')
           text = builder.read_text()
-          old = """      score: solution.score,
-      days: solution.days.map((day) => ({"""
-          new = """      score: solution.score,
-      routing: solution.metadata.routing,
-      days: solution.days.map((day) => ({"""
-          idx = text.index("    dailyPlanning: {")
-          pos = text.index(old, idx)
-          text = text[:pos] + text[pos:].replace(old, new, 1)
+          marker = "      routing: solution.metadata.routing,"
+          if marker not in text:
+              anchor = "      score: solution.score,\n      days: solution.days.map((day) => ({"
+              idx = text.index("    dailyPlanning: {")
+              pos = text.index(anchor, idx)
+              text = text[:pos] + text[pos:].replace(
+                  anchor,
+                  "      score: solution.score,\n      routing: solution.metadata.routing,\n      days: solution.days.map((day) => ({",
+                  1,
+              )
           builder.write_text(text)
-      - run: yarn workspace backend lint --fix
+          PY
+      - run: yarn workspace backend lint
       - run: yarn workspace backend typecheck
       - run: yarn workspace backend test --runInBand generation-trace-v3.util.spec.ts generation-trace-builder.util.spec.ts
       - name: Commit CP11 runtime patch
         run: |
-          git config user.name github-actions[bot]
-          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add be/src/modules/tours/services/experience-generation.service.ts be/src/modules/tours/utils/generation-trace-builder.util.ts
-          git commit -m 'feat(v2): persist generation trace v3 runtime evidence' || exit 0
-          git push origin HEAD:feat/experience-domain-v2
+          if git diff --cached --quiet; then
+            echo "No CP11 runtime changes to persist."
+          else
+            git commit -m "feat(v2): persist generation trace v3 runtime evidence"
+            git push origin HEAD:feat/experience-domain-v2
+          fi
