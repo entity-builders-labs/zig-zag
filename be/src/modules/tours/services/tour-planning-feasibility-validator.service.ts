@@ -9,14 +9,6 @@ import {
 import { resolveWeekday } from '../utils/daily-planning-placement.util';
 import { isOpenDuring } from '../utils/normalized-opening-hours.util';
 
-/**
- * Independent safety-net cross-check for a `DailyPlanningSolution`.
- *
- * This deliberately re-derives feasibility from scratch by reading only the
- * plain data on the solution and its input — it must never call into the
- * solver's own hard-constraint/placement/scoring logic and must never treat
- * the solution's own metadata as evidence of validity.
- */
 @Injectable()
 export class TourPlanningFeasibilityValidatorService
   implements TourPlanningFeasibilityValidator
@@ -113,13 +105,16 @@ export class TourPlanningFeasibilityValidatorService
         const internalWalkingDistanceMeters =
           candidate.mobility?.internalWalkingDistanceMeters ?? 0;
         dayWalkingMeters += internalWalkingDistanceMeters;
+        const maxInternalContinuousWalkingDistanceMeters =
+          candidate.mobility?.maxInternalContinuousWalkingDistanceMeters ??
+          internalWalkingDistanceMeters;
         if (
-          internalWalkingDistanceMeters >
+          maxInternalContinuousWalkingDistanceMeters >
           input.mobility.maxContinuousWalkingDistanceMeters
         ) {
           issues.push({
             code: 'MAX_CONTINUOUS_WALKING_EXCEEDED',
-            message: `Day ${day.dayNumber}: Experience ${experience.experienceId} internal walking exceeds the continuous walking limit.`,
+            message: `Day ${day.dayNumber}: Experience ${experience.experienceId} contains an internal walking leg that exceeds the continuous walking limit.`,
           });
         }
       }
