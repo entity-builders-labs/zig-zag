@@ -19,7 +19,6 @@ export type TraceStage =
   | 'catalog_materialization'
   | 'candidate_pool'
   | 'daily_planning'
-  | 'tour_experience_materialization'
   | 'google_places_crawl'
   | 'places_crawl'
   | 'embeddings'
@@ -69,86 +68,96 @@ export interface TraceTiming {
   durationMs?: number;
 }
 
-export interface TraceCandidate {
-  source: string;
-  id?: string;
-  name: string;
-  detail?: string;
-  offered?: boolean;
-  chosen?: boolean;
-  scoreBreakdown?: CandidateScoreBreakdown;
-  coverageContribution?: Record<string, unknown>;
-}
-
 export interface TraceCandidateDecision {
   id: string;
   name: string;
   source?: string;
   status: TraceCandidateStatus;
-  reason: string;
-  reasonCodes: string[];
+  reason?: string;
+  reasonCodes?: string[];
   scoreBreakdown?: CandidateScoreBreakdown;
+  rules?: TraceRuleEvaluation[];
   dayNumber?: number;
   order?: number;
 }
 
-export interface GenerationExecutionStageSummary {
-  ordinal: number;
-  stage: TraceStage;
-  status: TraceDecisionStatus | TraceRuleResult;
-  component?: string;
-  outcome?: string;
-  summary: string;
-  counts?: Record<string, number>;
-}
+export type TourCompletenessTraceResult = TourCompletenessResult & {
+  retryAttempted: boolean;
+};
 
-export interface GenerationTraceExecutionSummary {
-  status: 'completed' | 'failed';
-  orderedStages: GenerationExecutionStageSummary[];
-  steps: string[];
-  narrative: string;
-  acceptedExperiences?: number;
-  rejectedProposals?: number;
-  selectedExperiences?: number;
-  failure?: string;
-}
-
-export interface MaterializedTourExperienceTrace {
-  experienceId: string;
-  dayNumber?: number;
-  order: number;
-  startTime?: string;
-  durationHours?: number;
-  componentCount: number;
+/** Legacy candidate shape kept so old persisted traces remain readable. */
+export interface TraceCandidate {
+  source:
+    | 'db'
+    | 'google_places'
+    | 'geoapify'
+    | 'osm'
+    | 'wikidata'
+    | 'discovery';
+  id: string;
+  name: string;
+  detail?: string;
+  offered: boolean;
+  chosen: boolean;
+  scoreBreakdown?: CandidateScoreBreakdown;
+  coverageContribution?: {
+    themes: string[];
+    experienceFormat?: string;
+  };
 }
 
 export interface GenerationTraceStep {
   stage: TraceStage;
   label: string;
   summary: string;
+
   component?: string;
-  status?: TraceDecisionStatus | TraceRuleResult;
+  status?: TraceDecisionStatus;
   inputs?: Record<string, unknown>;
-  outputs?: Record<string, unknown>;
   rules?: TraceRuleEvaluation[];
   decision?: TraceDecision;
-  candidates?: TraceCandidate[];
+  outputs?: Record<string, unknown>;
   candidateDecisions?: TraceCandidateDecision[];
   timing?: TraceTiming;
-  providerStatus?: 'success' | 'degraded' | 'failed';
+  /** Full redacted LLM audit for preference interpretation. */
+  preferenceInterpretation?: PreferenceInterpretationTrace;
+
+  /** Stage-specific evidence retained for audit and UI rendering. */
+  candidates?: TraceCandidate[];
+  placesProvenance?: PlacesCrawlProvenance;
+  providerStatus?: 'success' | 'failed';
   degradedReason?: string;
+  semanticRanking?: {
+    status: 'not_requested' | 'applied' | 'unavailable';
+    eligibleCandidateCount: number;
+    indexedCandidateCount: number;
+    offeredCandidateCount: number;
+    provider?: string;
+    model?: string;
+    dimensions?: number;
+    documentVersion?: number;
+    reason?: string;
+  };
   coverageReport?: CoverageReport;
+  grounding?: {
+    status: 'applied' | 'unavailable' | 'failed' | 'no_usable_evidence';
+    provider?: string;
+    model?: string;
+    evidenceCount?: number;
+    reason?: string;
+  };
+  tourCompleteness?: TourCompletenessTraceResult;
   resolution?: ExperienceResolutionResponse;
   geographicValidation?:
     | GeographicValidationBatchResult
     | ExperienceGeographicValidationBatchResult;
-  preferenceInterpretation?: PreferenceInterpretationTrace;
+  materialization?: unknown;
   candidatePool?: {
     initialCatalogCount: number;
     postAcquisitionCatalogCount: number;
     eligibleCount: number;
     llmWindowCount: number;
-    bySource: Record<string, number>;
+    bySource: { catalog: number; refill: number; discovery: number };
   };
   dailyPlanning?: {
     solver: string;
@@ -174,21 +183,51 @@ export interface GenerationTraceStep {
       utilizationMinutes: number;
     }>;
   };
-  placesCrawl?: PlacesCrawlProvenance;
-  materialization?: unknown;
-  discovery?: unknown;
-  embedding?: unknown;
-  verification?: unknown;
-  legacy?: Record<string, unknown>;
+}
+
+export interface GenerationExecutionStageSummary {
+  ordinal: number;
+  stage: TraceStage | 'tour_experience_materialization';
+  status: TraceDecisionStatus;
+  component?: string;
+  outcome?: string;
+  summary: string;
+  counts?: Record<string, number>;
+}
+
+export interface GenerationTraceExecutionSummary {
+  status: 'completed' | 'failed';
+  /** Ordered machine-readable reconstruction of the complete run. */
+  orderedStages: GenerationExecutionStageSummary[];
+  /** Compatibility text retained for existing Bitácora UI versions. */
+  steps: string[];
+  narrative?: string;
+  acceptedExperiences?: number;
+  rejectedProposals?: number;
+  selectedExperiences?: number;
+  failure?: string;
+}
+
+export interface MaterializedTourExperienceTrace {
+  experienceId: string;
+  dayNumber: number;
+  order: number;
+  startTime?: string;
+  durationHours: number;
+  componentCount: number;
 }
 
 export interface GenerationTrace {
+  /** Version 1 traces omitted this field; V3 is the canonical V2-domain trace. */
   version?: 1 | 2 | 3;
-  canonicalRequest?: unknown;
+  /** Redacted canonical request exactly as consumed by deterministic generation. */
+  canonicalRequest?: Record<string, unknown>;
   steps: GenerationTraceStep[];
-  tourCompleteness?: TourCompletenessResult & { retryAttempted?: boolean };
-  hallucinatedCount?: number;
-  duplicateCount?: number;
+  aiReasoning?: string;
+  hallucinatedCount: number;
+  duplicateCount: number;
+  tourCompleteness?: TourCompletenessTraceResult;
+  /** Final persisted TourExperience snapshots, not planner proposals. */
   materializedTourExperiences?: MaterializedTourExperienceTrace[];
   executionSummary?: GenerationTraceExecutionSummary;
 }
