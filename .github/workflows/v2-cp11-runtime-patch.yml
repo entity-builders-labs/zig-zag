@@ -1,0 +1,142 @@
+name: V2 CP11 Runtime Patch
+
+on:
+  push:
+    paths:
+      - '.github/workflows/v2-cp11-runtime-patch.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/experience-domain-v2
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: yarn
+      - run: yarn install --frozen-lockfile
+      - run: yarn workspace backend prisma:generate
+      - name: Patch CP11 runtime audit
+        shell: python
+        run: |
+          from pathlib import Path
+
+          service = Path('be/src/modules/tours/services/experience-generation.service.ts')
+          text = service.read_text()
+          old_import = "import { redactTracePayload } from '../utils/trace-redaction.util';"
+          new_import = old_import + "\nimport {\n  buildExecutionSummary,\n  buildGenerationTraceV3,\n} from '../utils/generation-trace-v3.util';"
+          assert old_import in text
+          text = text.replace(old_import, new_import, 1)
+
+          old_trace = """      const generationTrace = redactTracePayload({
+        steps: traceSteps,
+        tourCompleteness: {
+          ...completeness,
+          retryAttempted: correctiveRetryAttempted,
+        },
+      });"""
+          new_trace = """      const materializedTourExperiences = selectedExperiences.map((selected) => {
+        const experience = experienceEntities.find(
+          (candidate) => candidate.id === selected.experienceId,
+        );
+        return {
+          experienceId: selected.experienceId,
+          dayNumber: selected.dayNumber,
+          order: selected.order,
+          startTime: selected.startTime?.toISOString(),
+          durationHours: selected.duration,
+          componentCount: experience?.components.length ?? 0,
+        };
+      });
+      const generationTrace = buildGenerationTraceV3({
+        canonicalRequest: request,
+        steps: traceSteps,
+        tourCompleteness: {
+          ...completeness,
+          retryAttempted: correctiveRetryAttempted,
+        },
+        materializedTourExperiences,
+      });"""
+          assert old_trace in text
+          text = text.replace(old_trace, new_trace, 1)
+
+          start = text.index("      const executionSummary = {\n", text.index("const completedMessage"))
+          end = text.index("      const completedTour =", start)
+          old_summary = text[start:end]
+          new_summary = """      const executionSummary = buildExecutionSummary({
+        status: 'completed',
+        steps: traceSteps,
+        materialized: materializedTourExperiences,
+        acceptedExperiences: Math.max(
+          selectedExperiences.length,
+          traceStepList
+            .filter((step: any) => step.stage === 'entity_resolution')
+            .reduce(
+              (sum: number, step: any) =>
+                sum + Number((step.resolution as any)?.acceptedCount ?? 0),
+              0,
+            ),
+        ),
+        rejectedProposals: traceStepList
+          .filter((step: any) => step.stage === 'entity_resolution')
+          .reduce(
+            (sum: number, step: any) =>
+              sum + Number((step.resolution as any)?.rejectedCount ?? 0),
+            0,
+          ),
+        selectedExperiences: selectedExperiences.length,
+      });
+"""
+          text = text[:start] + new_summary + text[end:]
+
+          old_failure = """                  executionSummary: {
+                    status: 'failed',
+                    steps: traceSteps
+                      .map((step) => step.summary)
+                      .filter(Boolean),
+                    narrative: traceSteps
+                      .map((step, index) => `${index + 1}. ${step.summary}`)
+                      .filter(Boolean)
+                      .join('\\n'),
+                    failure: error?.message || String(error),
+                  },"""
+          new_failure = """                  version: 3,
+                  canonicalRequest: redactTracePayload(
+                    (latestTour?.metadata as any)?.generationRequest ?? {},
+                  ),
+                  executionSummary: buildExecutionSummary({
+                    status: 'failed',
+                    steps: traceSteps,
+                    failure: error?.message || String(error),
+                  }),"""
+          assert old_failure in text
+          text = text.replace(old_failure, new_failure, 1)
+          service.write_text(text)
+
+          builder = Path('be/src/modules/tours/utils/generation-trace-builder.util.ts')
+          text = builder.read_text()
+          old = """      score: solution.score,
+      days: solution.days.map((day) => ({"""
+          new = """      score: solution.score,
+      routing: solution.metadata.routing,
+      days: solution.days.map((day) => ({"""
+          idx = text.index("    dailyPlanning: {")
+          pos = text.index(old, idx)
+          text = text[:pos] + text[pos:].replace(old, new, 1)
+          builder.write_text(text)
+      - run: yarn workspace backend lint --fix
+      - run: yarn workspace backend typecheck
+      - run: yarn workspace backend test --runInBand generation-trace-v3.util.spec.ts generation-trace-builder.util.spec.ts
+      - name: Commit CP11 runtime patch
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add be/src/modules/tours/services/experience-generation.service.ts be/src/modules/tours/utils/generation-trace-builder.util.ts
+          git commit -m 'feat(v2): persist generation trace v3 runtime evidence' || exit 0
+          git push origin HEAD:feat/experience-domain-v2
