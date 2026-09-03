@@ -1,6 +1,6 @@
 name: V2 CP11 Runtime Patch
 
-# One-shot recovery workflow. Final CP11/CP12 integration rerun; remove after fixes are persisted.
+# One-shot recovery workflow. Latest-head CP11/CP12 integration rerun; remove after fixes are persisted.
 on:
   push:
     branches:
@@ -29,7 +29,7 @@ jobs:
       - run: yarn workspace backend prisma:generate
       - run: yarn workspace backend lint
       - run: yarn workspace backend typecheck
-      - run: yarn workspace backend test --runInBand generation-trace-v3.util.spec.ts generation-trace-builder.util.spec.ts trace-redaction.util.spec.ts
+      - run: yarn workspace backend test --runInBand generation-trace-v3.util.spec.ts generation-trace-builder.util.spec.ts trace-redaction.util.spec.ts day-trip-feasibility.util.spec.ts
       - name: Commit CP11/CP12 runtime fixes
         run: |
           git config user.name "github-actions[bot]"
