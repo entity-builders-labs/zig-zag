@@ -1,4 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '@core/database/prisma.service';
 import { OutboxService } from '../../outbox/services/outbox.service';
 import { ExperienceCatalogService } from './experience-catalog.service';
@@ -12,6 +13,10 @@ import { redactTracePayload } from '../utils/trace-redaction.util';
 
 const MAX_POPULATION_RADIUS_METERS = 25_000;
 const MAX_POPULATION_CANDIDATES = 250;
+
+function asInputJson(value: unknown): Prisma.InputJsonValue {
+  return value as Prisma.InputJsonValue;
+}
 
 @Injectable()
 export class CatalogPopulationService {
@@ -34,21 +39,23 @@ export class CatalogPopulationService {
         data: {
           idempotencyKey: request.idempotencyKey,
           requestedById: request.requestedById,
-          scope: request.scope,
+          scope: asInputJson(request.scope),
           themes: request.themes,
           intents: request.intents ?? [],
           status: CATALOG_POPULATION_STATUS.PENDING,
-          trace: redactTracePayload({
-            version: 1,
-            bounded: true,
-            scope: request.scope,
-            themes: request.themes,
-            intents: request.intents ?? [],
-            maxCandidates: Math.min(
-              request.maxCandidates ?? MAX_POPULATION_CANDIDATES,
-              MAX_POPULATION_CANDIDATES,
-            ),
-          }),
+          trace: asInputJson(
+            redactTracePayload({
+              version: 1,
+              bounded: true,
+              scope: request.scope,
+              themes: request.themes,
+              intents: request.intents ?? [],
+              maxCandidates: Math.min(
+                request.maxCandidates ?? MAX_POPULATION_CANDIDATES,
+                MAX_POPULATION_CANDIDATES,
+              ),
+            }),
+          ),
         },
       });
       const payload: CatalogPopulationRequestedPayload = {
@@ -125,8 +132,12 @@ export class CatalogPopulationService {
         MAX_POPULATION_CANDIDATES,
       );
       const beforeIds = new Set(before.map((item: any) => item.id));
-      const createdCount = after.filter((item: any) => !beforeIds.has(item.id)).length;
-      const reusedCount = acquired.experienceIds.filter((id) => beforeIds.has(id)).length;
+      const createdCount = after.filter(
+        (item: any) => !beforeIds.has(item.id),
+      ).length;
+      const reusedCount = acquired.experienceIds.filter((id) =>
+        beforeIds.has(id),
+      ).length;
 
       await this.prisma.catalogPopulationJob.update({
         where: { id: job.id },
@@ -137,17 +148,19 @@ export class CatalogPopulationService {
           createdCount,
           reusedCount,
           completedAt: new Date(),
-          trace: redactTracePayload({
-            ...(job.trace as any),
-            attempt,
-            beforeCount: before.length,
-            acquiredCount: acquired.experienceIds.length,
-            afterCount: after.length,
-            createdCount,
-            reusedCount,
-            provenance: acquired.provenance,
-            coverageDelta: after.length - before.length,
-          }),
+          trace: asInputJson(
+            redactTracePayload({
+              ...(job.trace as any),
+              attempt,
+              beforeCount: before.length,
+              acquiredCount: acquired.experienceIds.length,
+              afterCount: after.length,
+              createdCount,
+              reusedCount,
+              provenance: acquired.provenance,
+              coverageDelta: after.length - before.length,
+            }),
+          ),
         },
       });
     } catch (error: any) {
@@ -159,12 +172,14 @@ export class CatalogPopulationService {
             ? CATALOG_POPULATION_STATUS.FAILED
             : CATALOG_POPULATION_STATUS.RETRYABLE,
           lastError: error?.message ?? String(error),
-          trace: redactTracePayload({
-            ...(job.trace as any),
-            attempt,
-            error: error?.message ?? String(error),
-            retryable: !terminal,
-          }),
+          trace: asInputJson(
+            redactTracePayload({
+              ...(job.trace as any),
+              attempt,
+              error: error?.message ?? String(error),
+              retryable: !terminal,
+            }),
+          ),
         },
       });
       throw error;
