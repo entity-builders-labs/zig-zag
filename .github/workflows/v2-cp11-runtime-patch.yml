@@ -1,6 +1,6 @@
 name: V2 CP11 Runtime Patch
 
-# One-shot recovery workflow. Latest-head CP11/CP12 integration rerun; remove after fixes are persisted.
+# One-shot recovery workflow. Remove after CP11/CP12 fixes are persisted and normal CI is green.
 on:
   push:
     branches:
@@ -39,7 +39,13 @@ jobs:
           git add -u be/src/modules/tours/utils
           if git diff --cached --quiet; then
             echo "No CP11/CP12 runtime changes to persist."
-          else
-            git commit -m "fix(v2): persist CP11 trace and CP12 catalog job schema"
-            git push origin HEAD:feat/experience-domain-v2
+            exit 0
           fi
+          git commit -m "fix(v2): persist CP11 trace and CP12 catalog job schema"
+          git fetch origin feat/experience-domain-v2
+          git rebase origin/feat/experience-domain-v2
+          yarn workspace backend prisma:generate
+          yarn workspace backend lint
+          yarn workspace backend typecheck
+          yarn workspace backend test --runInBand generation-trace-v3.util.spec.ts generation-trace-builder.util.spec.ts trace-redaction.util.spec.ts day-trip-feasibility.util.spec.ts
+          git push origin HEAD:feat/experience-domain-v2
