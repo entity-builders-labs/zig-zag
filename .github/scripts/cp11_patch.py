@@ -15,14 +15,15 @@ if routing_marker not in text:
     )
 builder.write_text(text)
 
-# Wire the canonical V3 trace builder into the real generation runtime.
+# Wire the canonical structured execution-summary implementation into the real
+# generation runtime. Trace payload remains centrally redacted.
 service = Path('be/src/modules/tours/services/experience-generation.service.ts')
 text = service.read_text()
-old_import = "import { redactTracePayload } from '../utils/trace-redaction.util';"
-new_import = old_import + "\nimport {\n  buildExecutionSummary,\n  buildGenerationTraceV3,\n} from '../utils/generation-trace-v3.util';"
-if "buildGenerationTraceV3" not in text:
-    assert old_import in text
-    text = text.replace(old_import, new_import, 1)
+import_anchor = "import { redactTracePayload } from '../utils/trace-redaction.util';"
+summary_import = "import { buildGenerationExecutionSummary } from '../utils/generation-execution-summary.util';"
+if summary_import not in text:
+    assert import_anchor in text
+    text = text.replace(import_anchor, import_anchor + "\n" + summary_import, 1)
 
 old_trace = """      const generationTrace = redactTracePayload({
         steps: traceSteps,
@@ -51,44 +52,46 @@ new_trace = """      const materializedTourExperiences = selectedExperiences
           };
         });
 
-      const generationTrace = buildGenerationTraceV3({
+      const generationTrace = redactTracePayload({
+        version: 3,
         canonicalRequest: request,
         steps: traceSteps,
+        materializedTourExperiences,
         tourCompleteness: {
           ...completeness,
           retryAttempted: correctiveRetryAttempted,
         },
-        materializedTourExperiences,
       });"""
 if "const materializedTourExperiences" not in text:
     assert old_trace in text, 'generation trace success anchor not found'
     text = text.replace(old_trace, new_trace, 1)
 
-if "const executionSummary = buildExecutionSummary({" not in text:
+if "const executionSummary = buildGenerationExecutionSummary({" not in text:
     start = text.index('      const executionSummary = {', text.index('const completedMessage'))
     end = text.index('      const completedTour =', start)
-    new_summary = """      const executionSummary = buildExecutionSummary({
-        status: 'completed',
-        steps: traceSteps,
-        materialized: materializedTourExperiences,
-        acceptedExperiences: Math.max(
-          selectedExperiences.length,
-          traceStepList
-            .filter((step: any) => step.stage === 'entity_resolution')
-            .reduce(
-              (sum: number, step: any) =>
-                sum + Number((step.resolution as any)?.acceptedCount ?? 0),
-              0,
-            ),
-        ),
-        rejectedProposals: traceStepList
+    new_summary = """      const acceptedExperiences = Math.max(
+        selectedExperiences.length,
+        traceStepList
           .filter((step: any) => step.stage === 'entity_resolution')
           .reduce(
             (sum: number, step: any) =>
-              sum + Number((step.resolution as any)?.rejectedCount ?? 0),
+              sum + Number((step.resolution as any)?.acceptedCount ?? 0),
             0,
           ),
-        selectedExperiences: selectedExperiences.length,
+      );
+      const rejectedProposals = traceStepList
+        .filter((step: any) => step.stage === 'entity_resolution')
+        .reduce(
+          (sum: number, step: any) =>
+            sum + Number((step.resolution as any)?.rejectedCount ?? 0),
+          0,
+        );
+      const executionSummary = buildGenerationExecutionSummary({
+        status: 'completed',
+        steps: traceSteps,
+        materializedTourExperiences,
+        acceptedExperiences,
+        rejectedProposals,
       });
 """
     text = text[:start] + new_summary + text[end:]
@@ -110,7 +113,7 @@ new_failure = """                  version: 3,
                       metadata?.generationRequest ??
                       {},
                   ),
-                  executionSummary: buildExecutionSummary({
+                  executionSummary: buildGenerationExecutionSummary({
                     status: 'failed',
                     steps: traceSteps,
                     failure: error?.message || String(error),
@@ -123,13 +126,13 @@ service.write_text(text)
 # deterministic repeat. This does not import ranking/coverage/planner internals.
 e2e = Path('be/test/experience-selection-scale.e2e-spec.ts')
 text = e2e.read_text()
-if 'const generationRequest = {' not in text:
+if 'const generationRequest: any = {' not in text:
     send_anchor = """    const createResponse = await request(app.getHttpServer())
       .post('/tours/generate-tour')
       .set('Authorization', `Bearer ${accessToken}`)
       .send({"""
     assert send_anchor in text
-    text = text.replace(send_anchor, '    const generationRequest = {', 1)
+    text = text.replace(send_anchor, '    const generationRequest: any = {', 1)
     end_request = """        categories: [],
       })
       .expect(201);"""
@@ -237,12 +240,3 @@ if 'const normalizePlan = (value: any)' not in text:
         1,
     )
 e2e.write_text(text)
-
-# There must be one execution-summary implementation, not two subtly
-# different audit contracts.
-for duplicate in [
-    Path('be/src/modules/tours/utils/generation-execution-summary.util.ts'),
-    Path('be/src/modules/tours/utils/generation-execution-summary.util.spec.ts'),
-]:
-    if duplicate.exists():
-        duplicate.unlink()
