@@ -698,10 +698,7 @@ describe('destination trace step', () => {
   it('records normalized destination attempts and the coordinate mismatch reason', () => {
     const step = buildDestinationResolutionStep('Montevideo', {
       scale: 'point',
-      attemptedQueries: [
-        'forward:Montevideo',
-        'reverse:-34.905900,-56.191300',
-      ],
+      attemptedQueries: ['forward:Montevideo', 'reverse:-34.905900,-56.191300'],
       degradationReason: 'candidate_mismatched_coordinates',
     });
 

@@ -1,5 +1,7 @@
-const SENSITIVE_KEY = /(authorization|api[-_]?key|token|cookie|password|secret|credential|bearer)/i;
-const SENSITIVE_VALUE = /bearer\s+[a-z0-9._~+/=-]+|(?:api[-_]?key|token|secret|password)\s*[:=]\s*[^\s,;&]+/gi;
+const SENSITIVE_KEY =
+  /(authorization|api[-_]?key|token|cookie|password|secret|credential|bearer)/i;
+const SENSITIVE_VALUE =
+  /bearer\s+[a-z0-9._~+/=-]+|(?:api[-_]?key|token|secret|password)\s*[:=]\s*[^\s,;&]+/gi;
 const REDACTED = '[REDACTED]';
 
 /** Returns a JSON-safe trace payload with credentials removed recursively. */
@@ -23,9 +25,7 @@ function redact(value: unknown, seen: WeakSet<object>): unknown {
 
   const output: Record<string, unknown> = {};
   for (const [key, entry] of Object.entries(value)) {
-    output[key] = SENSITIVE_KEY.test(key)
-      ? REDACTED
-      : redact(entry, seen);
+    output[key] = SENSITIVE_KEY.test(key) ? REDACTED : redact(entry, seen);
   }
   seen.delete(value);
   return output;

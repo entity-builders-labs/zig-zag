@@ -182,11 +182,10 @@ describe('orderAndScheduleDay', () => {
     closed.openingHours = mondayHours(7 * 60, 8 * 60);
 
     await expect(
-      orderAndScheduleDay(
-        1,
-        [candidate('start', 0, 0, 60, 0.9), closed],
-        { ...context(), startDates: ['2026-09-07'] },
-      ),
+      orderAndScheduleDay(1, [candidate('start', 0, 0, 60, 0.9), closed], {
+        ...context(),
+        startDates: ['2026-09-07'],
+      }),
     ).rejects.toThrow('OPENING_HOURS_INCOMPATIBLE_AFTER_ROUTING');
   });
 

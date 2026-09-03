@@ -27,8 +27,14 @@ export class TourLocationService {
               components: {
                 some: {
                   geoEntity: {
-                    latitude: { gte: latitude - latDelta, lte: latitude + latDelta },
-                    longitude: { gte: longitude - lngDelta, lte: longitude + lngDelta },
+                    latitude: {
+                      gte: latitude - latDelta,
+                      lte: latitude + latDelta,
+                    },
+                    longitude: {
+                      gte: longitude - lngDelta,
+                      lte: longitude + lngDelta,
+                    },
                   },
                 },
               },

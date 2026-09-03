@@ -119,13 +119,16 @@ export class ToursService {
     ) {
       where.experiences = {
         some: {
-          experience: { latitude: {
-            gte: latitude - radius,
-            lte: latitude + radius,
-          }, longitude: {
-            gte: longitude - radius,
-            lte: longitude + radius,
-          } },
+          experience: {
+            latitude: {
+              gte: latitude - radius,
+              lte: latitude + radius,
+            },
+            longitude: {
+              gte: longitude - radius,
+              lte: longitude + radius,
+            },
+          },
         },
       };
     }
@@ -181,7 +184,9 @@ export class ToursService {
       include: {
         experiences: {
           include: {
-            experience: { include: { components: true, traits: true, evidence: true } },
+            experience: {
+              include: { components: true, traits: true, evidence: true },
+            },
             components: true,
           },
           orderBy: [{ dayNumber: 'asc' }, { order: 'asc' }],

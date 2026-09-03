@@ -87,7 +87,8 @@ export class TourPlanningFeasibilityValidatorService
         }
 
         if (experience.travelFromPrevious) {
-          dayWalkingMeters += experience.travelFromPrevious.walkingDistanceMeters;
+          dayWalkingMeters +=
+            experience.travelFromPrevious.walkingDistanceMeters;
           if (
             !input.mobility.allowedTransportationModes.includes(
               experience.travelFromPrevious.mode,

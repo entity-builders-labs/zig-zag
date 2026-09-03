@@ -75,8 +75,10 @@ export function proximityBonus(
 }
 
 function fallbackCompare(a: RankableCandidate, b: RankableCandidate): number {
-  const preferenceDifference = (b.preferenceScore ?? 0) - (a.preferenceScore ?? 0);
-  if (Math.abs(preferenceDifference) > Number.EPSILON) return preferenceDifference;
+  const preferenceDifference =
+    (b.preferenceScore ?? 0) - (a.preferenceScore ?? 0);
+  if (Math.abs(preferenceDifference) > Number.EPSILON)
+    return preferenceDifference;
   const qualityDifference = qualityBonus(b) - qualityBonus(a);
   if (Math.abs(qualityDifference) > Number.EPSILON) return qualityDifference;
 

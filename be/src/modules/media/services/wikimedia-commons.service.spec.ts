@@ -134,7 +134,7 @@ describe('WikimediaCommonsService lookup outcomes', () => {
       })
       .mockResolvedValueOnce({ data: { query: { pages: {} } } } as any);
 
-      const result = await service.findPhotosForExperience({
+    const result = await service.findPhotosForExperience({
       name: 'Bad Request Place',
       destinationLabel: 'Test City',
       latitude: -34.5,

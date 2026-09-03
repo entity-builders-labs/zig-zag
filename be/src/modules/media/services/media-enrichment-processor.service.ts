@@ -39,7 +39,8 @@ export class MediaEnrichmentProcessorService implements OnModuleInit {
   async handleMediaEnrichment(
     payload: ExperienceMediaEnrichmentPayload,
   ): Promise<void> {
-    const { experienceId, name, destinationLabel, latitude, longitude } = payload;
+    const { experienceId, name, destinationLabel, latitude, longitude } =
+      payload;
     this.logger.log(
       `[MediaEnrichmentProcessor] Processing media enrichment for experience "${name}" (id: ${experienceId})...`,
     );

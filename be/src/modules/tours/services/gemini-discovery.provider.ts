@@ -3,7 +3,10 @@ import { ConfigType } from '@nestjs/config';
 import aiConfig from '@shared/ai/ai.config';
 import { ExperienceDiscoveryRequest } from '../interfaces/experience-discovery.interface';
 import { ExperienceGroundedSearchResult } from '../interfaces/experience-grounding.interface';
-import { extractExperienceCandidates, ExperienceExtractionResult } from '../utils/experience-candidate-extraction.util';
+import {
+  extractExperienceCandidates,
+  ExperienceExtractionResult,
+} from '../utils/experience-candidate-extraction.util';
 
 /** Gemini-specific: short role framing only. No JSON-shape prose here —
  * response_format (JSON Schema, below) enforces the exact shape
@@ -55,19 +58,41 @@ const RESPONSE_SCHEMA = {
               properties: {
                 key: { type: 'string' },
                 name: { type: 'string' },
-                role: { type: 'string', enum: ['area', 'waypoint', 'route', 'venue'] },
-                expectedKind: { type: 'string', enum: ['PLACE', 'AREA', 'ROUTE'] },
+                role: {
+                  type: 'string',
+                  enum: ['area', 'waypoint', 'route', 'venue'],
+                },
+                expectedKind: {
+                  type: 'string',
+                  enum: ['PLACE', 'AREA', 'ROUTE'],
+                },
                 required: { type: 'boolean' },
                 evidenceKeys: { type: 'array', items: { type: 'string' } },
               },
-              required: ['key', 'name', 'role', 'expectedKind', 'required', 'evidenceKeys'],
+              required: [
+                'key',
+                'name',
+                'role',
+                'expectedKind',
+                'required',
+                'evidenceKeys',
+              ],
             },
           },
           suggestedDurationMinutes: { type: 'integer' },
           shortReason: { type: 'string' },
           evidenceKeys: { type: 'array', items: { type: 'string' } },
         },
-        required: ['name', 'description', 'themes', 'traits', 'componentHints', 'suggestedDurationMinutes', 'shortReason', 'evidenceKeys'],
+        required: [
+          'name',
+          'description',
+          'themes',
+          'traits',
+          'componentHints',
+          'suggestedDurationMinutes',
+          'shortReason',
+          'evidenceKeys',
+        ],
       },
     },
   },
@@ -109,9 +134,21 @@ export class GeminiDiscoveryProvider {
   async extractExperiences(
     request: ExperienceDiscoveryRequest,
     searchResult: ExperienceGroundedSearchResult,
-  ): Promise<ExperienceExtractionResult & { provider: string; model: string; rawOutput?: string }> {
+  ): Promise<
+    ExperienceExtractionResult & {
+      provider: string;
+      model: string;
+      rawOutput?: string;
+    }
+  > {
     const apiKey = this.config.discoveryExtractor.gemini.apiKey;
-    if (!apiKey) return { candidates: [], validationErrors: ['Missing Gemini API key'], provider: 'gemini', model: this.model };
+    if (!apiKey)
+      return {
+        candidates: [],
+        validationErrors: ['Missing Gemini API key'],
+        provider: 'gemini',
+        model: this.model,
+      };
     const evidence = searchResult.evidence ?? [];
     const prompt = [
       `Destination: ${request.scope.destinationName ?? 'unknown'}`,
@@ -120,13 +157,34 @@ export class GeminiDiscoveryProvider {
       'Return JSON with a candidates array. Each candidate must contain name, description, themes, traits, suggestedDurationMinutes, componentHints, evidenceKeys and shortReason.',
       'Do not output kinds, coordinates, provider IDs, URLs, or entities not directly supported by evidence.',
       'Grounded evidence:',
-      ...evidence.map((item) => `[${item.key}] ${item.title || item.source}: ${item.snippet}`),
+      ...evidence.map(
+        (item) => `[${item.key}] ${item.title || item.source}: ${item.snippet}`,
+      ),
     ].join('\n');
     const raw = await this.callInteractionsApi(apiKey, prompt);
     let parsed: unknown;
-    try { parsed = JSON.parse(raw); } catch { return { candidates: [], validationErrors: ['Failed to parse JSON response'], provider: 'gemini', model: this.model, rawOutput: raw }; }
-    const extracted = extractExperienceCandidates(parsed, new Set(evidence.map((item) => item.key)), request.maxCandidates);
-    return { ...extracted, provider: 'gemini', model: this.model, rawOutput: raw };
+    try {
+      parsed = JSON.parse(raw);
+    } catch {
+      return {
+        candidates: [],
+        validationErrors: ['Failed to parse JSON response'],
+        provider: 'gemini',
+        model: this.model,
+        rawOutput: raw,
+      };
+    }
+    const extracted = extractExperienceCandidates(
+      parsed,
+      new Set(evidence.map((item) => item.key)),
+      request.maxCandidates,
+    );
+    return {
+      ...extracted,
+      provider: 'gemini',
+      model: this.model,
+      rawOutput: raw,
+    };
   }
 
   /** Single retry on a timeout/abort only — live-observed once this session

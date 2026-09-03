@@ -32,7 +32,10 @@ export interface ExperienceGroundedSearchResult {
 }
 
 export interface ExperienceGroundedSearchProvider {
-  search(request: ExperienceGroundedSearchRequest): Promise<ExperienceGroundedSearchResult>;
+  search(
+    request: ExperienceGroundedSearchRequest,
+  ): Promise<ExperienceGroundedSearchResult>;
 }
 
-export const EXPERIENCE_GROUNDED_SEARCH_PROVIDER = 'EXPERIENCE_GROUNDED_SEARCH_PROVIDER';
+export const EXPERIENCE_GROUNDED_SEARCH_PROVIDER =
+  'EXPERIENCE_GROUNDED_SEARCH_PROVIDER';

@@ -70,13 +70,17 @@ describe('decideExperienceDedupe', () => {
         latitude: -32.89,
         longitude: -68.84,
         provenance: ['provider-a'],
-        components: [{ geoEntityId: 'kitchen-1', role: 'venue', required: true }],
+        components: [
+          { geoEntityId: 'kitchen-1', role: 'venue', required: true },
+        ],
       },
       [
         {
           id: 'existing',
           ...base,
-          components: [{ geoEntityId: 'bodega-a', role: 'winery', required: true }],
+          components: [
+            { geoEntityId: 'bodega-a', role: 'winery', required: true },
+          ],
         },
       ],
     );

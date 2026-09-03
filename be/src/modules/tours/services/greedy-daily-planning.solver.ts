@@ -71,7 +71,9 @@ export class GreedyDailyPlanningSolver implements DailyPlanningSolver {
     const externalEstimates = plannedDays.flatMap((day) =>
       day.experiences
         .map((experience) => experience.travelFromPrevious)
-        .filter((estimate): estimate is NonNullable<typeof estimate> => !!estimate),
+        .filter(
+          (estimate): estimate is NonNullable<typeof estimate> => !!estimate,
+        ),
     );
     const internalEstimateCount = routedCandidates.reduce(
       (sum, candidate) =>
@@ -166,7 +168,8 @@ export class GreedyDailyPlanningSolver implements DailyPlanningSolver {
       internalWalkingMinutes += estimate.walkingMinutes;
       internalWalkingDistanceMeters += estimate.walkingDistanceMeters;
       const provider = estimate.provider ?? 'unknown';
-      routingProviderCounts[provider] = (routingProviderCounts[provider] ?? 0) + 1;
+      routingProviderCounts[provider] =
+        (routingProviderCounts[provider] ?? 0) + 1;
       if (estimate.approximate || estimate.fallbackReason) {
         routingFallbackCount++;
       }

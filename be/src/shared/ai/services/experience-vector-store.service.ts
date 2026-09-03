@@ -41,25 +41,55 @@ export class ExperienceVectorStoreService implements OnModuleInit {
     const requestedIds = [...new Set(candidateIds)];
     const identity = this.embeddingService.getIndexIdentity();
     if (requestedIds.length === 0) {
-      return { status: 'applied', scores: new Map(), requestedCandidateCount: 0, indexedCandidateCount: 0, identity };
+      return {
+        status: 'applied',
+        scores: new Map(),
+        requestedCandidateCount: 0,
+        indexedCandidateCount: 0,
+        identity,
+      };
     }
     const status = this.embeddingService.getStatus();
     if (status.status === 'unavailable') {
-      return { status: 'unavailable', scores: new Map(), requestedCandidateCount: requestedIds.length, indexedCandidateCount: 0, identity, reason: status.reason };
+      return {
+        status: 'unavailable',
+        scores: new Map(),
+        requestedCandidateCount: requestedIds.length,
+        indexedCandidateCount: 0,
+        identity,
+        reason: status.reason,
+      };
     }
     try {
-      const queryVector = await this.embeddingService.getEmbeddings()!.embedQuery(queryText);
+      const queryVector = await this.embeddingService
+        .getEmbeddings()!
+        .embedQuery(queryText);
       const literal = this.toVectorLiteral(queryVector);
-      const rows = await this.prisma.$queryRaw<{ id: string; distance: number }[]>`
+      const rows = await this.prisma.$queryRaw<
+        { id: string; distance: number }[]
+      >`
         SELECT "id", "embedding" <=> ${literal}::vector AS "distance"
         FROM "experience"
         WHERE "id" IN (${Prisma.join(requestedIds)})
           AND "embedding" IS NOT NULL
           AND ${this.compatibleIdentitySql(identity)}
       `;
-      return { status: 'applied', scores: new Map(rows.map((row) => [row.id, 1 - row.distance])), requestedCandidateCount: requestedIds.length, indexedCandidateCount: rows.length, identity };
+      return {
+        status: 'applied',
+        scores: new Map(rows.map((row) => [row.id, 1 - row.distance])),
+        requestedCandidateCount: requestedIds.length,
+        indexedCandidateCount: rows.length,
+        identity,
+      };
     } catch (error) {
-      return { status: 'unavailable', scores: new Map(), requestedCandidateCount: requestedIds.length, indexedCandidateCount: 0, identity, reason: error instanceof Error ? error.message : String(error) };
+      return {
+        status: 'unavailable',
+        scores: new Map(),
+        requestedCandidateCount: requestedIds.length,
+        indexedCandidateCount: 0,
+        identity,
+        reason: error instanceof Error ? error.message : String(error),
+      };
     }
   }
 

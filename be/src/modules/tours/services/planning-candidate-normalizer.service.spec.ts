@@ -34,9 +34,7 @@ describe('PlanningCandidateNormalizerService', () => {
           latitude: null,
           longitude: null,
           durationMinutes: 75,
-          components: [
-            { geoEntity: { latitude: -34.6, longitude: -58.4 } },
-          ],
+          components: [{ geoEntity: { latitude: -34.6, longitude: -58.4 } }],
         },
       ],
       new Map(),
@@ -195,9 +193,7 @@ describe('PlanningCandidateNormalizerService', () => {
           longitude: 2,
         },
       ],
-      new Map([
-        ['e5', { semanticSimilarity: 0.8, qualityBonus: 0.4 } as any],
-      ]),
+      new Map([['e5', { semanticSimilarity: 0.8, qualityBonus: 0.4 } as any]]),
     );
     expect(candidate.semanticScore).toBe(0.8);
     expect(candidate.qualityScore).toBe(0.4);

@@ -130,5 +130,4 @@ describe('GenerationTrace V2 decision audit coverage', () => {
       step.rules?.find((rule) => rule.ruleId === 'COMP-DAY-USAGE-001')?.result,
     ).toBe('WARN');
   });
-
 });

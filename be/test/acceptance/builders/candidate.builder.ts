@@ -1,4 +1,7 @@
-import { PlanningExperienceCandidate, NormalizedOpeningHours } from 'src/modules/tours/interfaces/daily-planning.interface';
+import {
+  PlanningExperienceCandidate,
+  NormalizedOpeningHours,
+} from 'src/modules/tours/interfaces/daily-planning.interface';
 
 export class CandidateBuilder {
   private candidate: PlanningExperienceCandidate;

@@ -9,7 +9,8 @@ import {
 @Injectable()
 export class ExperienceDiscoveryPlannerService {
   plan(request: ExperienceDiscoveryRequest): ExperienceDiscoveryPlan {
-    const destination = request.scope.destinationName?.trim() || 'the destination';
+    const destination =
+      request.scope.destinationName?.trim() || 'the destination';
     const origin = request.scope.originName?.trim();
     const themes = request.requestedThemes.filter(Boolean).slice(0, 5);
     const gaps = (request.coverageGaps ?? []).filter(Boolean).slice(0, 3);
@@ -20,14 +21,21 @@ export class ExperienceDiscoveryPlannerService {
     queries.push({
       query: `${base} best things to do real places experiences`,
       purpose: request.breadth === 'broad' ? 'bootstrap' : 'coverage_gap',
-      expectedEvidence: ['named places', 'experience description', 'destination association'],
+      expectedEvidence: [
+        'named places',
+        'experience description',
+        'destination association',
+      ],
     });
 
     for (const gap of gaps) {
       queries.push({
         query: `${destination} ${gap} named places official tourism`,
         purpose: 'coverage_gap',
-        expectedEvidence: ['named entities', 'evidence of the requested experience'],
+        expectedEvidence: [
+          'named entities',
+          'evidence of the requested experience',
+        ],
       });
     }
 
@@ -35,7 +43,10 @@ export class ExperienceDiscoveryPlannerService {
       queries.push({
         query: `${destination} ${semantic} official guide itinerary`,
         purpose: 'focused_enrichment',
-        expectedEvidence: ['specific components', 'ordering or relationship evidence'],
+        expectedEvidence: [
+          'specific components',
+          'ordering or relationship evidence',
+        ],
       });
     }
 

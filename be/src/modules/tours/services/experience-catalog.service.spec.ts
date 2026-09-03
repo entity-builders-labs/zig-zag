@@ -40,7 +40,9 @@ describe('ExperienceCatalogService dedupe', () => {
       experienceEvidence: { createMany: jest.fn() },
       experienceTrait: { createMany: jest.fn() },
     };
-    const prisma: any = { $transaction: jest.fn((callback: any) => callback(tx)) };
+    const prisma: any = {
+      $transaction: jest.fn((callback: any) => callback(tx)),
+    };
     const service = new ExperienceCatalogService(prisma, {} as any);
 
     const result = await service.persistVerifiedExperience(input);
@@ -49,7 +51,9 @@ describe('ExperienceCatalogService dedupe', () => {
     expect(result.dedupeDecision).toBe('SAME');
     expect(tx.experience.create).not.toHaveBeenCalled();
     expect(tx.experienceEvidence.createMany).toHaveBeenCalledWith({
-      data: [expect.objectContaining({ experienceId: 'exp-1', source: 'search' })],
+      data: [
+        expect.objectContaining({ experienceId: 'exp-1', source: 'search' }),
+      ],
     });
     expect(tx.experience.update).toHaveBeenCalled();
   });
@@ -62,10 +66,14 @@ describe('ExperienceCatalogService dedupe', () => {
         create: jest.fn().mockResolvedValue({ id: 'exp-new' }),
       },
     };
-    const prisma: any = { $transaction: jest.fn((callback: any) => callback(tx)) };
+    const prisma: any = {
+      $transaction: jest.fn((callback: any) => callback(tx)),
+    };
 
-    const result = await new ExperienceCatalogService(prisma, {} as any)
-      .persistVerifiedExperience({ ...input, evidence: [] });
+    const result = await new ExperienceCatalogService(
+      prisma,
+      {} as any,
+    ).persistVerifiedExperience({ ...input, evidence: [] });
 
     expect(result.dedupeDecision).toBe('NEW');
     expect(tx.$executeRaw).toHaveBeenCalled();
@@ -82,7 +90,9 @@ describe('ExperienceCatalogService dedupe', () => {
             canonicalName: 'museo central',
             latitude: null,
             longitude: null,
-            components: [{ geoEntityId: 'geo-other', role: 'venue', required: true }],
+            components: [
+              { geoEntityId: 'geo-other', role: 'venue', required: true },
+            ],
             evidence: [],
             traits: [],
           },
@@ -90,10 +100,14 @@ describe('ExperienceCatalogService dedupe', () => {
         create: jest.fn(),
       },
     };
-    const prisma: any = { $transaction: jest.fn((callback: any) => callback(tx)) };
+    const prisma: any = {
+      $transaction: jest.fn((callback: any) => callback(tx)),
+    };
 
-    const result = await new ExperienceCatalogService(prisma, {} as any)
-      .persistVerifiedExperience(input);
+    const result = await new ExperienceCatalogService(
+      prisma,
+      {} as any,
+    ).persistVerifiedExperience(input);
 
     expect(result.dedupeDecision).toBe('AMBIGUOUS');
     expect(tx.experience.create).not.toHaveBeenCalled();
@@ -120,20 +134,24 @@ describe('ExperienceCatalogService dedupe', () => {
         create: jest.fn(),
       },
     };
-    const prisma: any = { $transaction: jest.fn((callback: any) => callback(tx)) };
+    const prisma: any = {
+      $transaction: jest.fn((callback: any) => callback(tx)),
+    };
 
-    const result = await new ExperienceCatalogService(prisma, {} as any)
-      .persistVerifiedExperience({
-        canonicalName: 'Ruta del vino premium de Luján de Cuyo',
-        latitude: -33.038,
-        longitude: -68.879,
-        components: [
-          { geoEntityId: 'bodega-a', role: 'winery', required: true },
-          { geoEntityId: 'restaurant-x', role: 'lunch', required: true },
-          { geoEntityId: 'bodega-z', role: 'winery', required: true },
-        ],
-        evidence: [{ source: 'official-tourism' }],
-      });
+    const result = await new ExperienceCatalogService(
+      prisma,
+      {} as any,
+    ).persistVerifiedExperience({
+      canonicalName: 'Ruta del vino premium de Luján de Cuyo',
+      latitude: -33.038,
+      longitude: -68.879,
+      components: [
+        { geoEntityId: 'bodega-a', role: 'winery', required: true },
+        { geoEntityId: 'restaurant-x', role: 'lunch', required: true },
+        { geoEntityId: 'bodega-z', role: 'winery', required: true },
+      ],
+      evidence: [{ source: 'official-tourism' }],
+    });
 
     expect(result.dedupeDecision).toBe('AMBIGUOUS');
     expect(tx.experience.create).not.toHaveBeenCalled();

@@ -67,10 +67,10 @@ describe('Destination geography regressions', () => {
     }).compile();
     const service = module.get(DestinationResolutionService);
 
-    const result = await service.resolveDestination(
-      'Sevilla',
-      { latitude: 37.3891, longitude: -5.9845 },
-    );
+    const result = await service.resolveDestination('Sevilla', {
+      latitude: 37.3891,
+      longitude: -5.9845,
+    });
 
     expect(result.scale).toBe('area');
     if (result.scale !== 'area') throw new Error('Expected area resolution');

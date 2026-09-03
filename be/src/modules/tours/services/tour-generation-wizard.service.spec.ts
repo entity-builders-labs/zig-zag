@@ -48,7 +48,11 @@ describe('TourGenerationService canonical wizard path', () => {
     expect(persisted.metadata).not.toHaveProperty('preferences');
     expect(persisted.metadata.generationStatus).toBe('pending');
     expect(persisted.prompt).toContain('Interests: history');
-    expect(persisted.prompt).toContain('Additional preferences: Prefer street photography');
-    expect(persisted.prompt).not.toMatch(/experienceFormats|requestedFormats|point_visits|neighborhood_walks/);
+    expect(persisted.prompt).toContain(
+      'Additional preferences: Prefer street photography',
+    );
+    expect(persisted.prompt).not.toMatch(
+      /experienceFormats|requestedFormats|point_visits|neighborhood_walks/,
+    );
   });
 });

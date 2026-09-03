@@ -28,7 +28,10 @@ export class ResilientTravelEstimateProvider implements TravelEstimateProvider {
 
     if (configured === 'approximate') {
       const estimate = await this.approximate.estimate(from, to, allowedModes);
-      return { ...estimate, fallbackReason: 'routing_provider_configured_approximate' };
+      return {
+        ...estimate,
+        fallbackReason: 'routing_provider_configured_approximate',
+      };
     }
 
     if (configured !== 'geoapify') {

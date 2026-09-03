@@ -13,7 +13,9 @@ describe('ExperienceDiscoveryPlannerService', () => {
 
     expect(plan.queries.length).toBeLessThanOrEqual(4);
     expect(plan.queries.map((q) => q.purpose)).toContain('coverage_gap');
-    expect(plan.queries.join(' ')).not.toMatch(/targetKind|ActivityKind|NEIGHBORHOOD_WALK/);
+    expect(plan.queries.join(' ')).not.toMatch(
+      /targetKind|ActivityKind|NEIGHBORHOOD_WALK/,
+    );
     expect(plan.enrichmentAllowed).toBe(true);
   });
 });

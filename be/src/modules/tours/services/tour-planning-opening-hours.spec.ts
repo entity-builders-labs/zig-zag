@@ -1,5 +1,8 @@
 import { TourPlanningFeasibilityValidatorService } from './tour-planning-feasibility-validator.service';
-import { TransportationMode, TravelPace } from '../interfaces/tour-generation.interface';
+import {
+  TransportationMode,
+  TravelPace,
+} from '../interfaces/tour-generation.interface';
 
 describe('TourPlanningFeasibilityValidatorService opening-hours defense', () => {
   it('rejects a final routed schedule outside known opening hours', () => {

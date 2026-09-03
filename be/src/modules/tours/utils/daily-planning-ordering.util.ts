@@ -74,7 +74,8 @@ async function pickNextRouted(
     const startMinutes = cursorMinutes + (travel?.durationMinutes ?? 0);
     const endMinutes = startMinutes + occupiedMinutes(candidate);
     if (endMinutes > context.planningWindow.endMinutesFromMidnight) continue;
-    if (!isCandidateOpen(candidate, weekday, startMinutes, endMinutes)) continue;
+    if (!isCandidateOpen(candidate, weekday, startMinutes, endMinutes))
+      continue;
 
     choices.push({
       candidate,
@@ -143,8 +144,12 @@ export async function orderAndScheduleDay(
       );
     }
 
-    const { candidate: next, travel, startMinutes: start, endMinutes: end } =
-      choice;
+    const {
+      candidate: next,
+      travel,
+      startMinutes: start,
+      endMinutes: end,
+    } = choice;
     remaining.splice(remaining.indexOf(next), 1);
 
     if (travel) {

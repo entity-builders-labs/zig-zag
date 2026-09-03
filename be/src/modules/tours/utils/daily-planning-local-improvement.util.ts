@@ -56,7 +56,9 @@ function withoutCandidate(
 ): DayAccumulator {
   return {
     ...acc,
-    assigned: acc.assigned.filter((a) => candidateIdentity(a) !== candidateIdentity(remove)),
+    assigned: acc.assigned.filter(
+      (a) => candidateIdentity(a) !== candidateIdentity(remove),
+    ),
     totalExperienceMinutes:
       acc.totalExperienceMinutes - candidateExperienceMinutes(remove),
   };
@@ -161,10 +163,14 @@ async function trySwap(
           if (!feasibleInA.feasible || !feasibleInB.feasible) continue;
 
           accA.assigned = accA.assigned.map((a) =>
-            candidateIdentity(a) === candidateIdentity(candidateA) ? candidateB : a,
+            candidateIdentity(a) === candidateIdentity(candidateA)
+              ? candidateB
+              : a,
           );
           accB.assigned = accB.assigned.map((a) =>
-            candidateIdentity(a) === candidateIdentity(candidateB) ? candidateA : a,
+            candidateIdentity(a) === candidateIdentity(candidateB)
+              ? candidateA
+              : a,
           );
           // The swap previously left both days' totals describing their
           // pre-swap composition — exchanging a 60-minute stop for a

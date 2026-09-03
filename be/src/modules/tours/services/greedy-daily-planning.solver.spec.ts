@@ -78,8 +78,10 @@ function candidate(
   semanticScore = 0.5,
 ): PlanningExperienceCandidate {
   const stableOffset =
-    Array.from(id).reduce((sum, character) => sum + character.charCodeAt(0), 0) %
-    10;
+    Array.from(id).reduce(
+      (sum, character) => sum + character.charCodeAt(0),
+      0,
+    ) % 10;
   return {
     experienceId: id,
     title: id,
@@ -202,8 +204,8 @@ describe('GreedyDailyPlanningSolver', () => {
       0,
     );
     expect(totalScheduled).toBe(1);
-    expect(solution.unselected.some((item) => item.experienceId === 'dup')).toBe(
-      true,
-    );
+    expect(
+      solution.unselected.some((item) => item.experienceId === 'dup'),
+    ).toBe(true);
   });
 });

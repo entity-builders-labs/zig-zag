@@ -5,10 +5,13 @@ import {
 
 describe('rankCandidatesByRelevance', () => {
   it('uses deterministic preference affinity before quality ties', () => {
-    const result = rankCandidatesByRelevance([
-      { id: 'culture', source: 'poi', preferenceScore: 1, weightedScore: 1 },
-      { id: 'other', source: 'poi', preferenceScore: 0, weightedScore: 5 },
-    ], null);
+    const result = rankCandidatesByRelevance(
+      [
+        { id: 'culture', source: 'poi', preferenceScore: 1, weightedScore: 1 },
+        { id: 'other', source: 'poi', preferenceScore: 0, weightedScore: 5 },
+      ],
+      null,
+    );
     expect(result[0].candidate.id).toBe('culture');
   });
   it('falls back to weightedScore-only order when similarityById is null (no interests supplied)', () => {

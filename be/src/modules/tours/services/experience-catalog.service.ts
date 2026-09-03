@@ -89,7 +89,8 @@ export class ExperienceCatalogService {
     });
     const acquired = [] as any[];
     for (const place of result.data) {
-      if (!place.location || !place.id || !this.isAdmissiblePlace(place)) continue;
+      if (!place.location || !place.id || !this.isAdmissiblePlace(place))
+        continue;
       const entity = await this.upsertGeoEntity({
         name: place.displayName?.text ?? place.name ?? place.id,
         kind: GeoEntityKind.PLACE,
@@ -173,7 +174,8 @@ export class ExperienceCatalogService {
           ((lat! - latitude) * 111_000) ** 2 +
           ((lon! - longitude) *
             111_000 *
-            Math.cos((latitude * Math.PI) / 180)) ** 2;
+            Math.cos((latitude * Math.PI) / 180)) **
+            2;
         if (distanceSquared > radiusSquared) return undefined;
         const metadata = this.objectMetadata(experience.metadata);
         const relationalTraits = experience.traits.flatMap((trait) =>
@@ -196,10 +198,7 @@ export class ExperienceCatalogService {
           themes: this.stringList(metadata.themes),
           intents: this.stringList(metadata.intents ?? metadata.archetypes),
           traits: Array.from(
-            new Set([
-              ...this.stringList(metadata.traits),
-              ...relationalTraits,
-            ]),
+            new Set([...this.stringList(metadata.traits), ...relationalTraits]),
           ),
           metadata: {
             ...metadata,
@@ -471,7 +470,9 @@ export class ExperienceCatalogService {
       ...this.stringList(metadata.traits),
       ...this.stringList(metadata.intents ?? metadata.archetypes),
       ...relationalTraits,
-    ].filter((value): value is string => typeof value === 'string' && !!value.trim());
+    ].filter(
+      (value): value is string => typeof value === 'string' && !!value.trim(),
+    );
   }
 
   private preferRicherText(

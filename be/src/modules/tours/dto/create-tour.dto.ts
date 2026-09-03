@@ -97,5 +97,4 @@ export class CreateTourDto {
   @IsObject()
   @IsOptional()
   metadata?: Prisma.JsonValue;
-
 }

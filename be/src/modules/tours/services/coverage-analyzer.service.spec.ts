@@ -30,7 +30,9 @@ describe('CoverageAnalyzer', () => {
 
   it('scales required candidate count by travel pace', () => {
     const base = {
-      candidates: Array.from({ length: 5 }, (_, index) => candidate(`candidate-${index}`)),
+      candidates: Array.from({ length: 5 }, (_, index) =>
+        candidate(`candidate-${index}`),
+      ),
       requestedThemes: [] as string[],
       days: 1,
       explorationStyle: 'balanced',
@@ -39,9 +41,17 @@ describe('CoverageAnalyzer', () => {
       providerHealth: { status: 'healthy' as const },
     };
 
-    expect(service.analyze({ ...base, travelPace: 'relaxed' }).requiredCandidateCount).toBe(3);
-    expect(service.analyze({ ...base, travelPace: 'moderate' }).requiredCandidateCount).toBe(4);
-    expect(service.analyze({ ...base, travelPace: 'fast' }).requiredCandidateCount).toBe(5);
+    expect(
+      service.analyze({ ...base, travelPace: 'relaxed' })
+        .requiredCandidateCount,
+    ).toBe(3);
+    expect(
+      service.analyze({ ...base, travelPace: 'moderate' })
+        .requiredCandidateCount,
+    ).toBe(4);
+    expect(
+      service.analyze({ ...base, travelPace: 'fast' }).requiredCandidateCount,
+    ).toBe(5);
   });
 
   it('keeps a mature relevant catalog local-only', () => {
@@ -53,7 +63,11 @@ describe('CoverageAnalyzer', () => {
       requestedTraits: ['walking'],
       requestedIntents: ['visit-like'],
       days: 1,
-      semanticCoverage: { ...semantic, eligibleCandidateCount: 8, indexedCandidateCount: 8 },
+      semanticCoverage: {
+        ...semantic,
+        eligibleCandidateCount: 8,
+        indexedCandidateCount: 8,
+      },
       offeredCandidateCount: 8,
       providerHealth: { status: 'healthy' },
     });
@@ -80,7 +94,11 @@ describe('CoverageAnalyzer', () => {
       requestedTraits: ['live music'],
       requestedIntents: ['performance-like'],
       days: 1,
-      semanticCoverage: { status: 'applied', eligibleCandidateCount: 300, indexedCandidateCount: 300 },
+      semanticCoverage: {
+        status: 'applied',
+        eligibleCandidateCount: 300,
+        indexedCandidateCount: 300,
+      },
       offeredCandidateCount: 300,
       providerHealth: { status: 'healthy' },
     });
@@ -92,9 +110,18 @@ describe('CoverageAnalyzer', () => {
     expect(report.decision.requiresAdditionalDiscovery).toBe(true);
     expect(report.deficits).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ reason: 'missing_requested_theme', theme: 'tango' }),
-        expect.objectContaining({ reason: 'missing_requested_trait', trait: 'live music' }),
-        expect.objectContaining({ reason: 'missing_requested_intent', intent: 'performance-like' }),
+        expect.objectContaining({
+          reason: 'missing_requested_theme',
+          theme: 'tango',
+        }),
+        expect.objectContaining({
+          reason: 'missing_requested_trait',
+          trait: 'live music',
+        }),
+        expect.objectContaining({
+          reason: 'missing_requested_intent',
+          intent: 'performance-like',
+        }),
       ]),
     );
   });
@@ -116,7 +143,9 @@ describe('CoverageAnalyzer', () => {
 
     expect(report.status).toBe('degraded');
     expect(report.decision.action).toBe('fail');
-    expect(report.decision.reason).toBe('provider_degraded_without_usable_pool');
+    expect(report.decision.reason).toBe(
+      'provider_degraded_without_usable_pool',
+    );
   });
 
   it('detects duration mismatch without pretending the catalog is empty', () => {

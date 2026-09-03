@@ -20,6 +20,9 @@ export interface TourDensityPolicyEntry {
 
 export const TOUR_DENSITY_POLICY: Record<TravelPace, TourDensityPolicyEntry> = {
   [TravelPace.RELAXED]: { minSubstantialExperiences: 2, minMeaningfulHours: 3 },
-  [TravelPace.MODERATE]: { minSubstantialExperiences: 3, minMeaningfulHours: 4 },
+  [TravelPace.MODERATE]: {
+    minSubstantialExperiences: 3,
+    minMeaningfulHours: 4,
+  },
   [TravelPace.FAST]: { minSubstantialExperiences: 4, minMeaningfulHours: 5 },
 };

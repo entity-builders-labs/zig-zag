@@ -23,11 +23,7 @@ export function matchesThemeKeywords(
     candidate.metadata && typeof candidate.metadata === 'object'
       ? JSON.stringify(candidate.metadata).toLowerCase()
       : '';
-  const haystack = [
-    candidate.name,
-    candidate.source,
-    metadataText,
-  ]
+  const haystack = [candidate.name, candidate.source, metadataText]
     .filter((value): value is string => typeof value === 'string')
     .join(' ')
     .toLowerCase();

@@ -53,7 +53,9 @@ export class SSEController {
       select: { id: true },
     });
     if (!experience) {
-      throw new NotFoundException(`Experience with ID ${experienceId} not found`);
+      throw new NotFoundException(
+        `Experience with ID ${experienceId} not found`,
+      );
     }
 
     const channelId = notificationChannel.experience(experienceId);

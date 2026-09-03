@@ -2,7 +2,10 @@ import { registerAs } from '@nestjs/config';
 
 export interface DailyPlanningPolicy {
   paceTargets: {
-    relaxed: { preferredExperiencesMin: number; preferredExperiencesMax: number };
+    relaxed: {
+      preferredExperiencesMin: number;
+      preferredExperiencesMax: number;
+    };
     moderate: {
       preferredExperiencesMin: number;
       preferredExperiencesMax: number;

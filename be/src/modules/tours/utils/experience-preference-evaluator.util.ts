@@ -23,14 +23,7 @@ const ALIASES: Record<string, string[]> = {
     'sinagoga',
   ],
   vegan: ['vegan', 'vegano', 'vegana', 'plant based', 'plant-based'],
-  'non-vegan food': [
-    'meat',
-    'carne',
-    'asado',
-    'parrilla',
-    'steak',
-    'chorizo',
-  ],
+  'non-vegan food': ['meat', 'carne', 'asado', 'parrilla', 'steak', 'chorizo'],
   accessibility: [
     'accessible',
     'accesible',
@@ -39,8 +32,24 @@ const ALIASES: Record<string, string[]> = {
     'step free',
     'step-free',
   ],
-  'family friendly': ['family friendly', 'family-friendly', 'kids', 'children', 'niños', 'ninos', 'familia'],
-  'low budget': ['low budget', 'budget', 'free', 'gratis', 'economical', 'economico', 'económico'],
+  'family friendly': [
+    'family friendly',
+    'family-friendly',
+    'kids',
+    'children',
+    'niños',
+    'ninos',
+    'familia',
+  ],
+  'low budget': [
+    'low budget',
+    'budget',
+    'free',
+    'gratis',
+    'economical',
+    'economico',
+    'económico',
+  ],
 };
 
 export function evaluateExperiencePreferences(
@@ -76,7 +85,9 @@ export function evaluateExperiencePreferences(
 
   const positiveMatches = preferred.filter((term) => matchesTerm(corpus, term));
   const negativeMatches = negative.filter((term) => matchesTerm(corpus, term));
-  const exclusionMatches = exclusions.filter((term) => matchesTerm(corpus, term));
+  const exclusionMatches = exclusions.filter((term) =>
+    matchesTerm(corpus, term),
+  );
 
   const positiveRatio = preferred.length
     ? positiveMatches.length / preferred.length

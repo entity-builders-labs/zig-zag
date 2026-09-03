@@ -148,10 +148,7 @@ function formatExperienceForPrompt(experience: any): string {
     : '';
   const components = Array.isArray(experience.components)
     ? experience.components
-        .map(
-          (component: any) =>
-            component.geoEntity?.name ?? component.name,
-        )
+        .map((component: any) => component.geoEntity?.name ?? component.name)
         .filter(Boolean)
         .join(', ')
     : '';
@@ -230,7 +227,9 @@ export class ExperienceGenerationService {
   ): NormalizedPreferenceIntent {
     const unique = (values: string[]) =>
       Array.from(
-        new Set(values.map((value) => value.trim().toLowerCase()).filter(Boolean)),
+        new Set(
+          values.map((value) => value.trim().toLowerCase()).filter(Boolean),
+        ),
       );
     const dietary = unique([
       ...interpreted.dietaryPreferences,
@@ -507,10 +506,7 @@ export class ExperienceGenerationService {
         metadata: experience.metadata,
       })),
       requestedThemes: Array.from(
-        new Set([
-          ...request.intent.interests,
-          ...normalized.preferredThemes,
-        ]),
+        new Set([...request.intent.interests, ...normalized.preferredThemes]),
       ),
       requestedTraits: Array.from(
         new Set([
@@ -549,8 +545,9 @@ export class ExperienceGenerationService {
       name: experience.name,
       metadata: {
         ...(experience.metadata ?? {}),
-        preferenceEvaluation:
-          selection.preferenceEvaluationById.get(experience.id),
+        preferenceEvaluation: selection.preferenceEvaluationById.get(
+          experience.id,
+        ),
         hardExclusionRelaxed: selection.hardExclusionRelaxed,
       },
       traceSource: discoveryResolvedExperienceIds.has(experience.id)
@@ -710,10 +707,7 @@ export class ExperienceGenerationService {
     for (const experience of experiences) {
       preferenceEvaluationById.set(
         experience.id,
-        evaluateExperiencePreferences(
-          experience,
-          intent.normalizedPreferences,
-        ),
+        evaluateExperiencePreferences(experience, intent.normalizedPreferences),
       );
     }
 
@@ -727,7 +721,9 @@ export class ExperienceGenerationService {
         )
       : experiences;
     const hardExclusionRelaxed =
-      hasHardExclusions && strictCandidates.length === 0 && experiences.length > 0;
+      hasHardExclusions &&
+      strictCandidates.length === 0 &&
+      experiences.length > 0;
     const candidateExperiences = hardExclusionRelaxed
       ? experiences
       : strictCandidates;
@@ -1044,7 +1040,9 @@ export class ExperienceGenerationService {
               ),
             );
           } else {
-            traceSteps.push(buildDbSearchStep(nearbyExperiences, radius / 1000));
+            traceSteps.push(
+              buildDbSearchStep(nearbyExperiences, radius / 1000),
+            );
             const blockingDeficits = initialCoverageReport.deficits.filter(
               (deficit) => deficit.severity === 'blocking',
             );
@@ -1090,7 +1088,8 @@ export class ExperienceGenerationService {
                       },
                     });
                   persistedExperiences.forEach((experience: any) => {
-                    const hydrated = this.hydratePersistedExperience(experience);
+                    const hydrated =
+                      this.hydratePersistedExperience(experience);
                     allEligibleExperiencesById.set(experience.id, hydrated);
                     discoveryResolvedExperienceIds.add(experience.id);
                   });
@@ -1146,12 +1145,13 @@ export class ExperienceGenerationService {
                 ),
               );
             } else {
-              const semanticCoverageDeficit = postDiscoveryCoverage.deficits.some(
-                (deficit) =>
-                  deficit.reason === 'missing_requested_theme' ||
-                  deficit.reason === 'missing_requested_trait' ||
-                  deficit.reason === 'missing_requested_intent',
-              );
+              const semanticCoverageDeficit =
+                postDiscoveryCoverage.deficits.some(
+                  (deficit) =>
+                    deficit.reason === 'missing_requested_theme' ||
+                    deficit.reason === 'missing_requested_trait' ||
+                    deficit.reason === 'missing_requested_intent',
+                );
 
               if (!semanticCoverageDeficit) {
                 const placesStatus = this.placesApi.getStatus();
@@ -1220,11 +1220,10 @@ export class ExperienceGenerationService {
                   const refreshedPool = Array.from(
                     allEligibleExperiencesById.values(),
                   );
-                  postDiscoverySelection =
-                    await this.rankAndSliceExperiences(
-                      refreshedPool,
-                      request.intent,
-                    );
+                  postDiscoverySelection = await this.rankAndSliceExperiences(
+                    refreshedPool,
+                    request.intent,
+                  );
                   semanticRankingOutcome =
                     postDiscoverySelection.semanticRanking;
                   postDiscoveryCoverage = this.buildCoverageReport(
@@ -1407,12 +1406,12 @@ export class ExperienceGenerationService {
         startDates: request.startDates,
       };
 
-      const planningSolution = await this.dailyPlanningSolver.solve(planningInput);
-      const feasibilityResult =
-        this.tourPlanningFeasibilityValidator.validate(
-          planningSolution,
-          planningInput,
-        );
+      const planningSolution =
+        await this.dailyPlanningSolver.solve(planningInput);
+      const feasibilityResult = this.tourPlanningFeasibilityValidator.validate(
+        planningSolution,
+        planningInput,
+      );
       if (!feasibilityResult.valid) {
         throw new Error(
           `Deterministic daily planning produced an infeasible solution: ${feasibilityResult.issues
@@ -1513,8 +1512,7 @@ export class ExperienceGenerationService {
             notes: undefined as string | undefined,
             dayNumber: day.dayNumber,
             order: index + 1,
-            travelTimeToNext:
-              nextInDay?.travelFromPrevious?.durationMinutes,
+            travelTimeToNext: nextInDay?.travelFromPrevious?.durationMinutes,
             distanceToNext: nextInDay?.travelFromPrevious
               ? nextInDay.travelFromPrevious.distanceMeters / 1000
               : undefined,
@@ -1640,9 +1638,7 @@ export class ExperienceGenerationService {
         status: 'completed' as const,
         steps: traceStepList.map((step: any) => step.summary).filter(Boolean),
         narrative: traceStepList
-          .map(
-            (step: any, index: number) => `${index + 1}. ${step.summary}`,
-          )
+          .map((step: any, index: number) => `${index + 1}. ${step.summary}`)
           .filter(Boolean)
           .join('\n'),
         acceptedExperiences: Math.max(
@@ -1730,9 +1726,7 @@ export class ExperienceGenerationService {
                       .map((step) => step.summary)
                       .filter(Boolean),
                     narrative: traceSteps
-                      .map(
-                        (step, index) => `${index + 1}. ${step.summary}`,
-                      )
+                      .map((step, index) => `${index + 1}. ${step.summary}`)
                       .filter(Boolean)
                       .join('\n'),
                     failure: error?.message || String(error),

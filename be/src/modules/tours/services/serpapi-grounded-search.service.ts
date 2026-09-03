@@ -317,7 +317,14 @@ export class SerpApiGroundedSearchService implements GroundedSearchProvider {
   }
 
   private buildSearchQuery(request: GroundedSearchRequest): string {
-    return request.query?.trim() || [request.destinationName, ...request.requestedThemes, 'real tourism experiences'].join(' ');
+    return (
+      request.query?.trim() ||
+      [
+        request.destinationName,
+        ...request.requestedThemes,
+        'real tourism experiences',
+      ].join(' ')
+    );
   }
 
   private extractEvidence(

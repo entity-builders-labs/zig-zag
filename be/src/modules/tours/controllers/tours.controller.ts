@@ -100,7 +100,6 @@ export class ToursController {
     );
   }
 
-
   @Get('nearby')
   @ApiOperation({
     summary: 'Get nearby tours by category',
@@ -243,5 +242,4 @@ export class ToursController {
   remove(@Param('id') id: string, @CurrentUser() user: RequestUser) {
     return this.toursService.remove(id, user.id);
   }
-
 }

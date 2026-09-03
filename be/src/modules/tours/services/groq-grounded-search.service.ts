@@ -107,12 +107,17 @@ export class GroqGroundedSearchService implements GroundedSearchProvider {
   }
 
   private buildSearchQuery(request: GroundedSearchRequest): string {
-    return request.query?.trim() || [
-      request.destinationName,
-      ...request.requestedThemes,
-      request.additionalPreferences,
-      'real tourism experiences and attractions',
-    ].filter(Boolean).join(' ');
+    return (
+      request.query?.trim() ||
+      [
+        request.destinationName,
+        ...request.requestedThemes,
+        request.additionalPreferences,
+        'real tourism experiences and attractions',
+      ]
+        .filter(Boolean)
+        .join(' ')
+    );
   }
 
   /**

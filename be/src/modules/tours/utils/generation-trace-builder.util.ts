@@ -673,20 +673,18 @@ export function buildCoverageAnalysisStep(
   };
 }
 
-export function buildDiscoveryStep(
-  result: {
-    candidates?: any[];
-    provider: string;
-    model?: string;
-    groundingStatus: 'applied' | 'unavailable' | 'failed' | 'no_usable_evidence';
-    groundingProvider?: string;
-    groundingModel?: string;
-    groundingEvidence?: any[];
-    validationErrors?: string[];
-    searchTrace?: any[];
-    extractionTrace?: any[];
-  },
-): GenerationTraceStep {
+export function buildDiscoveryStep(result: {
+  candidates?: any[];
+  provider: string;
+  model?: string;
+  groundingStatus: 'applied' | 'unavailable' | 'failed' | 'no_usable_evidence';
+  groundingProvider?: string;
+  groundingModel?: string;
+  groundingEvidence?: any[];
+  validationErrors?: string[];
+  searchTrace?: any[];
+  extractionTrace?: any[];
+}): GenerationTraceStep {
   const candidates = result.candidates ?? [];
   const applied = result.groundingStatus === 'applied';
   return {
@@ -1229,9 +1227,12 @@ export function buildExperienceCandidatePoolStep(params: {
 }): GenerationTraceStep {
   const bySource = { catalog: 0, refill: 0, discovery: 0 };
   const candidates: TraceCandidate[] = params.offeredCandidates.map((c) => {
-    const bucket = c.traceSource === 'db'
-      ? 'catalog'
-      : c.traceSource === 'discovery' ? 'discovery' : 'refill';
+    const bucket =
+      c.traceSource === 'db'
+        ? 'catalog'
+        : c.traceSource === 'discovery'
+          ? 'discovery'
+          : 'refill';
     bySource[bucket] += 1;
     return {
       source: c.traceSource,
@@ -1241,7 +1242,9 @@ export function buildExperienceCandidatePoolStep(params: {
       offered: true,
       chosen: false,
       scoreBreakdown: c.scoreBreakdown,
-      coverageContribution: { themes: matchedThemesFor(c, params.requestedThemes) },
+      coverageContribution: {
+        themes: matchedThemesFor(c, params.requestedThemes),
+      },
     };
   });
   return {
@@ -1256,11 +1259,20 @@ export function buildExperienceCandidatePoolStep(params: {
       eligibleCount: params.eligibleCount,
       requestedThemes: params.requestedThemes,
     },
-    rules: [rule('EXPERIENCE-RANK-001', 'Ordenar Experiences por relevancia semántica y calidad', 'PASS', 'El ranking determinístico consume únicamente Experiences verificadas.', candidates.length)],
+    rules: [
+      rule(
+        'EXPERIENCE-RANK-001',
+        'Ordenar Experiences por relevancia semántica y calidad',
+        'PASS',
+        'El ranking determinístico consume únicamente Experiences verificadas.',
+        candidates.length,
+      ),
+    ],
     decision: {
       status: 'PASS',
       outcome: 'EXPERIENCE_POOL_RANKED',
-      reason: 'El pool quedó limitado por capacidad, sin imponer formatos legacy.',
+      reason:
+        'El pool quedó limitado por capacidad, sin imponer formatos legacy.',
       reasonCodes: [],
       triggeredActions: ['RUN_DAILY_PLANNING'],
     },

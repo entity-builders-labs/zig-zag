@@ -28,7 +28,11 @@ describe('TourCompletenessValidator', () => {
       isFoodFocusedIntent: false,
       selectedExperiences: [
         experience({ experienceId: 'museum', durationHours: 1.5 }),
-        experience({ experienceId: 'restaurant', durationHours: 1, isMeal: true }),
+        experience({
+          experienceId: 'restaurant',
+          durationHours: 1,
+          isMeal: true,
+        }),
       ],
       viableUnusedCandidateCount: 12,
     });
@@ -80,9 +84,17 @@ describe('TourCompletenessValidator', () => {
       travelPace: TravelPace.MODERATE,
       isFoodFocusedIntent: true,
       selectedExperiences: [
-        experience({ experienceId: 'market', durationHours: 1.5, isMeal: true }),
+        experience({
+          experienceId: 'market',
+          durationHours: 1.5,
+          isMeal: true,
+        }),
         experience({ experienceId: 'lunch', durationHours: 1.5, isMeal: true }),
-        experience({ experienceId: 'dinner', durationHours: 1.5, isMeal: true }),
+        experience({
+          experienceId: 'dinner',
+          durationHours: 1.5,
+          isMeal: true,
+        }),
       ],
       viableUnusedCandidateCount: 6,
     });
@@ -135,7 +147,9 @@ describe('TourCompletenessValidator', () => {
       requestedDays: 1,
       travelPace: TravelPace.MODERATE,
       isFoodFocusedIntent: false,
-      selectedExperiences: [experience({ experienceId: 'poi-1', durationHours: 1 })],
+      selectedExperiences: [
+        experience({ experienceId: 'poi-1', durationHours: 1 }),
+      ],
       viableUnusedCandidateCount: 0,
     });
 
@@ -147,7 +161,9 @@ describe('TourCompletenessValidator', () => {
       requestedDays: 1,
       travelPace: TravelPace.MODERATE,
       isFoodFocusedIntent: false,
-      selectedExperiences: [experience({ experienceId: 'walk', durationHours: 4 })],
+      selectedExperiences: [
+        experience({ experienceId: 'walk', durationHours: 4 }),
+      ],
       viableUnusedCandidateCount: 12,
     });
 
@@ -173,8 +189,16 @@ describe('TourCompletenessValidator', () => {
       travelPace: TravelPace.MODERATE,
       isFoodFocusedIntent: false,
       selectedExperiences: [
-        experience({ experienceId: 'walk-day1', dayNumber: 1, durationHours: 4 }),
-        experience({ experienceId: 'poi-day2', dayNumber: 2, durationHours: 1 }),
+        experience({
+          experienceId: 'walk-day1',
+          dayNumber: 1,
+          durationHours: 4,
+        }),
+        experience({
+          experienceId: 'poi-day2',
+          dayNumber: 2,
+          durationHours: 1,
+        }),
       ],
       viableUnusedCandidateCount: 8,
     });
@@ -192,7 +216,11 @@ describe('TourCompletenessValidator', () => {
       travelPace: TravelPace.MODERATE,
       isFoodFocusedIntent: false,
       selectedExperiences: [
-        experience({ experienceId: 'walk-day1', dayNumber: 1, durationHours: 4 }),
+        experience({
+          experienceId: 'walk-day1',
+          dayNumber: 1,
+          durationHours: 4,
+        }),
         // day 2 has no activities at all
       ],
       viableUnusedCandidateCount: 5,

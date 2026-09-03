@@ -8,9 +8,7 @@ import { ToursService } from './tours.service';
 export class TourGenerationService {
   private readonly logger = new Logger(TourGenerationService.name);
 
-  constructor(
-    private readonly toursService: ToursService,
-  ) {}
+  constructor(private readonly toursService: ToursService) {}
 
   /**
    * Creates the canonical wizard Tour and its durable generation request.
@@ -64,5 +62,4 @@ export class TourGenerationService {
       throw new BadRequestException(`Failed to create tour: ${errorMessage}`);
     }
   }
-
 }

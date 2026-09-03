@@ -47,13 +47,7 @@ export function createPlacesApiService(
 }
 
 @Module({
-  imports: [
-    ConfigModule,
-    AiModule,
-    OsmModule,
-    WikidataModule,
-    PhotosModule,
-  ],
+  imports: [ConfigModule, AiModule, OsmModule, WikidataModule, PhotosModule],
   providers: [
     PrismaService,
     GooglePlacesApiService,
@@ -70,11 +64,6 @@ export function createPlacesApiService(
       inject: [ConfigService, 'RealPlacesApiService', CachedPlacesApiService],
     },
   ],
-  exports: [
-    'PlacesApiService',
-    OsmModule,
-    WikidataModule,
-    PhotosModule,
-  ],
+  exports: ['PlacesApiService', OsmModule, WikidataModule, PhotosModule],
 })
 export class IntegrationsModule {}

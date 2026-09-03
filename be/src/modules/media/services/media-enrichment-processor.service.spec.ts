@@ -122,8 +122,14 @@ describe('MediaEnrichmentProcessorService', () => {
       },
     });
     expect(tx.experienceMedia.upsert).toHaveBeenCalledTimes(2);
-    expect(tx.experienceMedia.upsert).toHaveBeenNthCalledWith(1, expectedUpsert);
-    expect(tx.experienceMedia.upsert).toHaveBeenNthCalledWith(2, expectedUpsert);
+    expect(tx.experienceMedia.upsert).toHaveBeenNthCalledWith(
+      1,
+      expectedUpsert,
+    );
+    expect(tx.experienceMedia.upsert).toHaveBeenNthCalledWith(
+      2,
+      expectedUpsert,
+    );
   });
 
   it('does not persist FAILED or negative media state for retryable failures', async () => {

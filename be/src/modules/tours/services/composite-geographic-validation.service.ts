@@ -347,20 +347,33 @@ export class CompositeGeographicValidationService {
         'unresolved_required_component',
       ]);
     }
-    if (anchors.length < (hasRouteComponent ? 1 : this.thresholds.experience.minAnchors)) {
+    if (
+      anchors.length <
+      (hasRouteComponent ? 1 : this.thresholds.experience.minAnchors)
+    ) {
       return this.rejected(proposalName, kind, anchors, evidenceKeys, [
         'insufficient_resolved_entities',
       ]);
     }
-    if (hasRouteComponent ? this.routeDestinationMismatch(anchors, destinationBoundary) : this.destinationMismatch(anchors, destinationBoundary, false)) {
+    if (
+      hasRouteComponent
+        ? this.routeDestinationMismatch(anchors, destinationBoundary)
+        : this.destinationMismatch(anchors, destinationBoundary, false)
+    ) {
       return this.rejected(proposalName, kind, anchors, evidenceKeys, [
         'destination_mismatch',
       ]);
     }
     const coherence = coherenceMetrics(this.pointsOf(anchors));
     if (
-      coherence.radiusMeters > (hasRouteComponent ? this.thresholds.route.maxRadiusMeters : this.thresholds.experience.maxRadiusMeters) ||
-      coherence.maxPairwiseDistanceMeters > (hasRouteComponent ? this.thresholds.route.maxPairwiseDistanceMeters : this.thresholds.experience.maxPairwiseDistanceMeters)
+      coherence.radiusMeters >
+        (hasRouteComponent
+          ? this.thresholds.route.maxRadiusMeters
+          : this.thresholds.experience.maxRadiusMeters) ||
+      coherence.maxPairwiseDistanceMeters >
+        (hasRouteComponent
+          ? this.thresholds.route.maxPairwiseDistanceMeters
+          : this.thresholds.experience.maxPairwiseDistanceMeters)
     ) {
       return this.rejected(
         proposalName,

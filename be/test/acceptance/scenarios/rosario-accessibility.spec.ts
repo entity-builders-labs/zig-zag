@@ -25,7 +25,9 @@ describe('Golden Scenario: Rosario Urban & Accessibility (TC-E2E-04)', () => {
     TourInvariantsAsserter.assertAll12Invariants(solution, input);
 
     // Verify the canonical experience pool is scheduled
-    const scheduledIds = solution.days[0].experiences.map((a) => a.experienceId);
+    const scheduledIds = solution.days[0].experiences.map(
+      (a) => a.experienceId,
+    );
     expect(scheduledIds).toContain('rosario-0');
   });
 });

@@ -32,7 +32,11 @@ function errorMessage(error: unknown): string {
 function nestedValues(error: any): { statuses: number[]; codes: string[] } {
   const candidates = [error, error?.cause, error?.originalError];
   const statuses = candidates
-    .flatMap((candidate) => [candidate?.status, candidate?.statusCode, candidate?.response?.status])
+    .flatMap((candidate) => [
+      candidate?.status,
+      candidate?.statusCode,
+      candidate?.response?.status,
+    ])
     .map(Number)
     .filter(Number.isFinite);
   const codes = candidates
@@ -47,10 +51,16 @@ function traceContainsProviderFailure(metadata: any): boolean {
   if (!Array.isArray(steps)) return false;
   return steps.some((step: any) => {
     if (step?.providerStatus === 'failed') return true;
-    if (step?.grounding?.status === 'failed' || step?.grounding?.status === 'unavailable') {
+    if (
+      step?.grounding?.status === 'failed' ||
+      step?.grounding?.status === 'unavailable'
+    ) {
       return true;
     }
-    if (step?.degradedReason && /provider|timeout|rate|429|5\d\d/i.test(String(step.degradedReason))) {
+    if (
+      step?.degradedReason &&
+      /provider|timeout|rate|429|5\d\d/i.test(String(step.degradedReason))
+    ) {
       return true;
     }
     const serialized = JSON.stringify({
@@ -86,16 +96,28 @@ export function classifyGenerationFailure(
   if (codes.some((code) => RETRYABLE_CODES.has(code))) {
     return { retryable: true, reasonCode: 'NETWORK_TRANSIENT', message };
   }
-  if (/\b429\b|rate.?limit|limit[oó] temporalmente|too many requests/i.test(message)) {
+  if (
+    /\b429\b|rate.?limit|limit[oó] temporalmente|too many requests/i.test(
+      message,
+    )
+  ) {
     return { retryable: true, reasonCode: 'RATE_LIMITED', message };
   }
   if (/timeout|timed out|tiempo de espera|ETIMEDOUT/i.test(message)) {
     return { retryable: true, reasonCode: 'TIMEOUT', message };
   }
-  if (/ECONNRESET|ECONNREFUSED|EAI_AGAIN|ENETUNREACH|network (error|down)|socket hang up/i.test(message)) {
+  if (
+    /ECONNRESET|ECONNREFUSED|EAI_AGAIN|ENETUNREACH|network (error|down)|socket hang up/i.test(
+      message,
+    )
+  ) {
     return { retryable: true, reasonCode: 'NETWORK_TRANSIENT', message };
   }
-  if (/\b(502|503|504)\b|temporarily unavailable|service unavailable/i.test(message)) {
+  if (
+    /\b(502|503|504)\b|temporarily unavailable|service unavailable/i.test(
+      message,
+    )
+  ) {
     return { retryable: true, reasonCode: 'HTTP_TRANSIENT', message };
   }
   if (traceContainsProviderFailure(latestTourMetadata)) {

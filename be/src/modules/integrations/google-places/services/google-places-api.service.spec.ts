@@ -19,7 +19,12 @@ describe('GooglePlacesApiService', () => {
   it('clamps oversized nearby pools to Google API limit', async () => {
     mockedAxios.post.mockResolvedValueOnce({ data: { places: [] } });
     const service = new GooglePlacesApiService(config);
-    await service.searchNearby({ latitude: 1, longitude: 2, radius: 1000, maxResultCount: 250 });
+    await service.searchNearby({
+      latitude: 1,
+      longitude: 2,
+      radius: 1000,
+      maxResultCount: 250,
+    });
     expect(mockedAxios.post).toHaveBeenCalledWith(
       expect.any(String),
       expect.objectContaining({ maxResultCount: 20 }),

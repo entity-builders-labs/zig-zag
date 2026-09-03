@@ -4,13 +4,19 @@ describe('classifyGenerationFailure', () => {
   it.each([
     [new Error('429 Too Many Requests'), 'RATE_LIMITED'],
     [new Error('provider timed out after 10000ms'), 'TIMEOUT'],
-    [Object.assign(new Error('socket reset'), { code: 'ECONNRESET' }), 'NETWORK_TRANSIENT'],
+    [
+      Object.assign(new Error('socket reset'), { code: 'ECONNRESET' }),
+      'NETWORK_TRANSIENT',
+    ],
     [{ message: 'unavailable', response: { status: 503 } }, 'HTTP_TRANSIENT'],
-  ])('classifies transient infrastructure failures as retryable', (error, reasonCode) => {
-    expect(classifyGenerationFailure(error)).toEqual(
-      expect.objectContaining({ retryable: true, reasonCode }),
-    );
-  });
+  ])(
+    'classifies transient infrastructure failures as retryable',
+    (error, reasonCode) => {
+      expect(classifyGenerationFailure(error)).toEqual(
+        expect.objectContaining({ retryable: true, reasonCode }),
+      );
+    },
+  );
 
   it('uses persisted provider-error trace as retry evidence when the wrapper message lost the original cause', () => {
     const classification = classifyGenerationFailure(

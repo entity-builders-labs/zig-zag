@@ -77,10 +77,9 @@ export class ExperienceProposalResolverService
           return {
             ...candidate,
             status: 'rejected' as const,
-            rejectionReasons:
-              geographicResult?.rejectionReasons ?? [
-                'GEOGRAPHIC_VALIDATION_FAILED',
-              ],
+            rejectionReasons: geographicResult?.rejectionReasons ?? [
+              'GEOGRAPHIC_VALIDATION_FAILED',
+            ],
           };
         }
 
@@ -272,9 +271,7 @@ export class ExperienceProposalResolverService
         resolvedEntities: entities,
         rejectionReasons: [
           resolvedEntities.length === 0
-            ? entities.some(
-                (entity) => entity.reason === 'OSM_PROVIDER_FAILED',
-              )
+            ? entities.some((entity) => entity.reason === 'OSM_PROVIDER_FAILED')
               ? 'OSM_PROVIDER_FAILED'
               : entities.some((entity) => entity.reason === 'OSM_QUERY_EMPTY')
                 ? 'OSM_QUERY_EMPTY'
@@ -331,7 +328,7 @@ export class ExperienceProposalResolverService
         : geometry.type === 'Polygon'
           ? geometry.coordinates[0]
           : geometry.type === 'MultiPolygon'
-            ? geometry.coordinates[0]?.[0] ?? []
+            ? (geometry.coordinates[0]?.[0] ?? [])
             : [];
     if (coordinates.length === 0) return undefined;
 

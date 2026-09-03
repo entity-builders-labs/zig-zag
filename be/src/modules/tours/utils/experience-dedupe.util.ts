@@ -46,9 +46,7 @@ export function decideExperienceDedupe(
 ): DedupeDecision {
   const ranked = existing
     .filter(
-      (
-        candidate,
-      ): candidate is DedupeExperienceFingerprint & { id: string } =>
+      (candidate): candidate is DedupeExperienceFingerprint & { id: string } =>
         !!candidate.id,
     )
     .map((candidate) => ({
@@ -163,10 +161,7 @@ export function compareFingerprints(
   const existingProvenance = new Set(
     (existing.provenance ?? []).map(normalize),
   );
-  const provenanceOverlap = setOverlap(
-    incomingProvenance,
-    existingProvenance,
-  );
+  const provenanceOverlap = setOverlap(incomingProvenance, existingProvenance);
   const distanceKm = haversineKm(incoming, existing);
 
   const reasons: string[] = [];

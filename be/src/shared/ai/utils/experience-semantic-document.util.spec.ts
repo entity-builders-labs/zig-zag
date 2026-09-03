@@ -42,7 +42,9 @@ describe('buildExperienceSemanticDocument', () => {
     expect(document).toContain('themes: wine, gastronomy');
     expect(document).toContain('diet:vegan-friendly');
     expect(document).toContain('intents: route-like, food-focused');
-    expect(document).toContain('component: role=winery | kind=PLACE | Bodega A');
+    expect(document).toContain(
+      'component: role=winery | kind=PLACE | Bodega A',
+    );
     expect(document).not.toContain('{"');
   });
 });

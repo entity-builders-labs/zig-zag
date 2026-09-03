@@ -27,7 +27,9 @@ describe('PBT-08: Partition Integrity [Invariant 10]', () => {
           const solution = await solver.solve(input);
 
           const selectedIds = new Set(
-            solution.days.flatMap((d) => d.experiences.map((a) => a.experienceId)),
+            solution.days.flatMap((d) =>
+              d.experiences.map((a) => a.experienceId),
+            ),
           );
           const unselectedIds = new Set(
             solution.unselected.map((u) => u.experienceId),

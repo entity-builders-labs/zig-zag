@@ -185,7 +185,11 @@ export class PreferenceInterpreterService {
     const budgetPreferences: string[] = [];
     const groupPreferences: string[] = [];
 
-    if (/(no quiero|sin|evitar|evito)[^,.!?;]*(religios|iglesia|templo|mezquita|catedral)/.test(lower)) {
+    if (
+      /(no quiero|sin|evitar|evito)[^,.!?;]*(religios|iglesia|templo|mezquita|catedral)/.test(
+        lower,
+      )
+    ) {
       excludedThemes.push('religion');
       hardExclusions.push('religion');
     }
@@ -193,7 +197,11 @@ export class PreferenceInterpreterService {
       dietaryPreferences.push('vegan');
       hardExclusions.push('non-vegan food');
     }
-    if (/silla de ruedas|wheelchair|movilidad reducida|sin escaleras|accesible/.test(lower)) {
+    if (
+      /silla de ruedas|wheelchair|movilidad reducida|sin escaleras|accesible/.test(
+        lower,
+      )
+    ) {
       accessibilityPreferences.push('accessibility');
     }
     if (/barato|economico|económico|low budget|budget/.test(lower)) {

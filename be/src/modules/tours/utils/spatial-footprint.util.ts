@@ -64,7 +64,9 @@ function centroidOf(points: Coordinate[]): Coordinate | undefined {
   };
 }
 
-function componentFootprint(component: ComponentLike): SpatialFootprint | undefined {
+function componentFootprint(
+  component: ComponentLike,
+): SpatialFootprint | undefined {
   const entity = component.geoEntity ?? component;
   const geometry = entity.geometry;
   const points = geometryCoordinates(geometry);

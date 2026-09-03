@@ -46,7 +46,9 @@ describe('ExperienceEmbeddingIndexerService', () => {
   it('indexes verified experiences with the canonical identity and semantic document', async () => {
     const embedDocuments = jest.fn().mockResolvedValue([[0.1, 0.2]]);
     const prisma: any = {
-      experience: { findMany: jest.fn().mockResolvedValue([experience('exp-1')]) },
+      experience: {
+        findMany: jest.fn().mockResolvedValue([experience('exp-1')]),
+      },
       $executeRaw: jest.fn(),
     };
     const embeddings: any = {
@@ -62,14 +64,18 @@ describe('ExperienceEmbeddingIndexerService', () => {
     expect(result.status).toBe('indexed');
     expect(result.indexedIds).toEqual(['exp-1']);
     expect(embedDocuments).toHaveBeenCalledWith([
-      expect.stringContaining('component: role=venue | kind=PLACE | Venue exp-1'),
+      expect.stringContaining(
+        'component: role=venue | kind=PLACE | Venue exp-1',
+      ),
     ]);
     expect(prisma.$executeRaw).toHaveBeenCalled();
   });
 
   it('reports unavailable provider without writing and leaves the row retryable', async () => {
     const prisma: any = {
-      experience: { findMany: jest.fn().mockResolvedValue([experience('exp-1')]) },
+      experience: {
+        findMany: jest.fn().mockResolvedValue([experience('exp-1')]),
+      },
       $executeRaw: jest.fn(),
     };
     const embeddings: any = {
@@ -140,7 +146,9 @@ describe('ExperienceEmbeddingIndexerService', () => {
 
   it('rejects a provider response with the wrong vector dimensions', async () => {
     const prisma: any = {
-      experience: { findMany: jest.fn().mockResolvedValue([experience('exp-1')]) },
+      experience: {
+        findMany: jest.fn().mockResolvedValue([experience('exp-1')]),
+      },
       $executeRaw: jest.fn(),
     };
     const embeddings: any = {

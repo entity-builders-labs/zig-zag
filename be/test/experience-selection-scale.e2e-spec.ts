@@ -1,10 +1,6 @@
 import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import {
-  ExperienceStatus,
-  GeoEntityKind,
-  MediaStatus,
-} from '@prisma/client';
+import { ExperienceStatus, GeoEntityKind, MediaStatus } from '@prisma/client';
 import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { PrismaService } from '../src/core/database/prisma.service';
@@ -143,7 +139,9 @@ describe('Experience V2 selection at scale (public API + PostgreSQL + outbox)', 
   );
 
   const fakeLangChain = {
-    generateChatResponse: jest.fn(async () => preferenceInterpretationResponse()),
+    generateChatResponse: jest.fn(async () =>
+      preferenceInterpretationResponse(),
+    ),
     getProviderMetadata: jest.fn(() => ({
       provider: 'e2e-preference-interpreter',
       model: 'deterministic-json-v1',
@@ -152,8 +150,9 @@ describe('Experience V2 selection at scale (public API + PostgreSQL + outbox)', 
 
   const fakeEmbeddings = {
     embedQuery: jest.fn(async () => [...positiveVector]),
-    embedDocuments: jest.fn(async (texts: string[]): Promise<number[][]> =>
-      texts.map(() => [...positiveVector]),
+    embedDocuments: jest.fn(
+      async (texts: string[]): Promise<number[][]> =>
+        texts.map(() => [...positiveVector]),
     ),
   };
 
@@ -170,15 +169,10 @@ describe('Experience V2 selection at scale (public API + PostgreSQL + outbox)', 
   const fakeGeoapifyRouting = {
     isAvailable: jest.fn(() => true),
     estimate: jest.fn(
-      async (
-        from: any,
-        to: any,
-        allowedModes: TransportationMode[],
-      ) => {
+      async (from: any, to: any, allowedModes: TransportationMode[]) => {
         const dLat = to.centroid.lat - from.centroid.lat;
         const dLng = to.centroid.lng - from.centroid.lng;
-        const distanceMeters =
-          Math.sqrt(dLat * dLat + dLng * dLng) * 111_000;
+        const distanceMeters = Math.sqrt(dLat * dLat + dLng * dLng) * 111_000;
         const mode = allowedModes.includes(TransportationMode.WALKING)
           ? TransportationMode.WALKING
           : allowedModes[0];

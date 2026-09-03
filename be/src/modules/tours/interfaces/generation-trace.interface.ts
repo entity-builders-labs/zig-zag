@@ -81,7 +81,6 @@ export type TourCompletenessTraceResult = TourCompletenessResult & {
   retryAttempted: boolean;
 };
 
-
 /** Legacy candidate shape kept so old persisted traces remain readable. */
 export interface TraceCandidate {
   source:
@@ -146,7 +145,9 @@ export interface GenerationTraceStep {
   };
   tourCompleteness?: TourCompletenessTraceResult;
   resolution?: ExperienceResolutionResponse;
-  geographicValidation?: GeographicValidationBatchResult | ExperienceGeographicValidationBatchResult;
+  geographicValidation?:
+    | GeographicValidationBatchResult
+    | ExperienceGeographicValidationBatchResult;
   materialization?: unknown;
   candidatePool?: {
     initialCatalogCount: number;
