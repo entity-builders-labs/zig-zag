@@ -16,7 +16,7 @@ import {
   placeCandidates,
 } from '../utils/daily-planning-placement.util';
 import { runBoundedLocalImprovement } from '../utils/daily-planning-local-improvement.util';
-import { orderAndScheduleDay } from '../utils/daily-planning-ordering.util';
+import { orderAndScheduleDayWithRepair } from '../utils/daily-planning-ordering.util';
 
 @Injectable()
 export class GreedyDailyPlanningSolver implements DailyPlanningSolver {
@@ -53,14 +53,20 @@ export class GreedyDailyPlanningSolver implements DailyPlanningSolver {
     const { iterations } = await runBoundedLocalImprovement(days, context);
 
     const plannedDays: PlannedDay[] = [];
+    const routedRepairUnselected = [];
     for (const [dayNumber, acc] of days) {
-      const planned = await orderAndScheduleDay(dayNumber, acc.assigned, {
-        travelEstimateProvider: this.travelEstimateProvider,
-        planningWindow: input.planningWindow,
-        allowedTransportationModes: input.mobility.allowedTransportationModes,
-        startDates: input.startDates,
-      });
-      plannedDays.push(planned);
+      const repaired = await orderAndScheduleDayWithRepair(
+        dayNumber,
+        acc.assigned,
+        {
+          travelEstimateProvider: this.travelEstimateProvider,
+          planningWindow: input.planningWindow,
+          allowedTransportationModes: input.mobility.allowedTransportationModes,
+          startDates: input.startDates,
+        },
+      );
+      plannedDays.push(repaired.day);
+      routedRepairUnselected.push(...repaired.unselected);
     }
     plannedDays.sort((a, b) => a.dayNumber - b.dayNumber);
 
@@ -110,7 +116,7 @@ export class GreedyDailyPlanningSolver implements DailyPlanningSolver {
 
     return {
       days: plannedDays,
-      unselected,
+      unselected: [...unselected, ...routedRepairUnselected],
       score,
       metadata: {
         solver: 'GreedyDailyPlanningSolver',
