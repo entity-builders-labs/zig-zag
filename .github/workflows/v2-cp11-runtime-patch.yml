@@ -1,6 +1,6 @@
 name: V2 CP11 Runtime Patch
 
-# One-shot recovery workflow. Delete after CP11 runtime patch is persisted.
+# One-shot recovery workflow. Trigger corrected runner, then delete after persistence.
 on:
   push:
     branches:
@@ -39,14 +39,6 @@ jobs:
               text = text.replace(old_import, new_import, 1)
 
           old_trace = """      const generationTrace = redactTracePayload({
-            steps: traceSteps,
-            tourCompleteness: {
-              ...completeness,
-              retryAttempted: correctiveRetryAttempted,
-            },
-          });"""
-          if old_trace not in text:
-              old_trace = """      const generationTrace = redactTracePayload({
         steps: traceSteps,
         tourCompleteness: {
           ...completeness,
