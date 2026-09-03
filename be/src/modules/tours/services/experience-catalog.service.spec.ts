@@ -1,5 +1,57 @@
 import { ExperienceCatalogService } from './experience-catalog.service';
 
+describe('ExperienceCatalogService catalog retrieval', () => {
+  it('does not pre-rank nearby candidates by quality before relevance ranking', async () => {
+    const lowQualityRelevant = {
+      id: 'relevant-low-quality',
+      canonicalName: 'Relevant',
+      description: 'Relevant experience',
+      durationMinutes: 60,
+      price: 10,
+      qualityScore: 2,
+      latitude: -34.6037,
+      longitude: -58.3816,
+      metadata: { themes: ['tango'], traits: [], intents: ['performance'] },
+      components: [],
+      traits: [],
+    };
+    const highQualityGeneric = {
+      ...lowQualityRelevant,
+      id: 'generic-high-quality',
+      canonicalName: 'Generic',
+      qualityScore: 5,
+      latitude: -34.604,
+      metadata: { themes: ['shopping'], traits: [], intents: ['visit'] },
+    };
+    const prisma: any = {
+      experience: {
+        findMany: jest
+          .fn()
+          .mockResolvedValue([highQualityGeneric, lowQualityRelevant]),
+      },
+    };
+    const service = new ExperienceCatalogService(prisma, {} as any);
+
+    const result = await service.findVerifiedWithin(
+      -34.6037,
+      -58.3816,
+      5000,
+      10,
+    );
+
+    expect(prisma.experience.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        orderBy: { id: 'asc' },
+        take: 1000,
+      }),
+    );
+    expect(result.map((item) => item.id)).toEqual([
+      'relevant-low-quality',
+      'generic-high-quality',
+    ]);
+  });
+});
+
 describe('ExperienceCatalogService dedupe', () => {
   const input: any = {
     canonicalName: ' Museo Central ',
