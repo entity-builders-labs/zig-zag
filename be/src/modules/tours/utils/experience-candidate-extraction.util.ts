@@ -38,6 +38,8 @@ export function extractExperienceCandidates(
       errors.push('themes must be an array');
     if (!Array.isArray(candidate?.traits))
       errors.push('traits must be an array');
+    if (!Array.isArray(candidate?.intents))
+      errors.push('intents must be an array');
     if (
       !Array.isArray(candidate?.componentHints) ||
       candidate.componentHints.length === 0
@@ -97,6 +99,7 @@ export function extractExperienceCandidates(
           : undefined,
       themes: candidate.themes.map(String),
       traits: candidate.traits.map(String),
+      intents: candidate.intents.map(String),
       suggestedDurationMinutes: Number.isInteger(
         candidate.suggestedDurationMinutes,
       )
