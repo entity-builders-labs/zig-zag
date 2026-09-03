@@ -46,6 +46,7 @@ export function buildTourGenerationRequest(
     groupType: dto.groupType,
     intent: {
       interests: normalizeValues(dto.intent.interests),
+      intents: normalizeValues(dto.intent.intents),
       explorationStyle: dto.intent.explorationStyle,
       additionalPreferences: additionalPreferences || undefined,
     },
