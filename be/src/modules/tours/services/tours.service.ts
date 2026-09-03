@@ -9,6 +9,7 @@ import { PrismaService } from '@core/database/prisma.service';
 import { CreateTourDto } from '../dto/create-tour.dto';
 import { UpdateTourDto } from '../dto/update-tour.dto';
 import { OutboxService } from '../../outbox/services/outbox.service';
+import { MediaPresentationResolver } from '../../media/services/media-presentation.resolver';
 
 @Injectable()
 export class ToursService {
@@ -17,6 +18,7 @@ export class ToursService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly outboxService: OutboxService,
+    private readonly mediaPresentationResolver: MediaPresentationResolver,
   ) {}
 
   /**
@@ -52,8 +54,8 @@ export class ToursService {
       (key) => tourDataClean[key] === undefined && delete tourDataClean[key],
     );
 
-    return this.prisma.$transaction(async (tx) => {
-      const tour = await tx.tour.create({
+    const tour = await this.prisma.$transaction(async (tx) => {
+      const created = await tx.tour.create({
         data: {
           ...tourDataClean,
         },
@@ -64,6 +66,7 @@ export class ToursService {
                 include: {
                   components: true,
                   traits: true,
+                  media: true,
                 },
               },
               components: true,
@@ -81,16 +84,18 @@ export class ToursService {
         await this.outboxService.createInTx(tx, {
           eventType: 'TourGenerationRequested',
           payload: {
-            eventKey: `tour-generation:${tour.id}`,
-            tourId: tour.id,
-            userId: tour.ownerId ?? undefined,
+            eventKey: `tour-generation:${created.id}`,
+            tourId: created.id,
+            userId: created.ownerId ?? undefined,
             requestedAt: new Date().toISOString(),
           },
         });
       }
 
-      return tour;
+      return created;
     });
+
+    return this.withMediaPresentation(tour);
   }
 
   async findAll(
@@ -149,6 +154,7 @@ export class ToursService {
                 include: {
                   components: true,
                   traits: true,
+                  media: true,
                 },
               },
               components: true,
@@ -163,7 +169,7 @@ export class ToursService {
     ]);
 
     return {
-      tours,
+      tours: tours.map((tour) => this.withMediaPresentation(tour)),
       meta: {
         total,
         page,
@@ -185,7 +191,12 @@ export class ToursService {
         experiences: {
           include: {
             experience: {
-              include: { components: true, traits: true, evidence: true },
+              include: {
+                components: true,
+                traits: true,
+                evidence: true,
+                media: true,
+              },
             },
             components: true,
           },
@@ -202,7 +213,26 @@ export class ToursService {
       this.assertOwnership(tour.ownerId, ownerId);
     }
 
-    return tour;
+    return this.withMediaPresentation(tour);
+  }
+
+  private withMediaPresentation<T extends { experiences?: any[] }>(tour: T): T {
+    if (!Array.isArray(tour.experiences)) return tour;
+    return {
+      ...tour,
+      experiences: tour.experiences.map((tourExperience) => {
+        if (!tourExperience?.experience) return tourExperience;
+        return {
+          ...tourExperience,
+          experience: {
+            ...tourExperience.experience,
+            mediaPresentation: this.mediaPresentationResolver.resolvePresentation(
+              tourExperience.experience,
+            ),
+          },
+        };
+      }),
+    } as T;
   }
 
   private assertOwnership(tourOwnerId: string | null, ownerId: string) {
@@ -226,17 +256,22 @@ export class ToursService {
 
       this.assertOwnership(existing.ownerId, ownerId);
 
-      return await this.prisma.$transaction(async (tx) => {
-        const updatedTour = await tx.tour.update({
+      const updatedTour = await this.prisma.$transaction(async (tx) =>
+        tx.tour.update({
           where: { id },
           data: { ...tourData },
           include: {
-            experiences: { include: { experience: true, components: true } },
+            experiences: {
+              include: {
+                experience: { include: { media: true } },
+                components: true,
+              },
+            },
           },
-        });
+        }),
+      );
 
-        return updatedTour;
-      });
+      return this.withMediaPresentation(updatedTour);
     } catch (error) {
       if (
         error instanceof NotFoundException ||
