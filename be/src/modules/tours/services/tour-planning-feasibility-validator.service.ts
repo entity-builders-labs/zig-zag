@@ -109,8 +109,19 @@ export class TourPlanningFeasibilityValidatorService
             });
           }
         }
-        dayWalkingMeters +=
+
+        const internalWalkingDistanceMeters =
           candidate.mobility?.internalWalkingDistanceMeters ?? 0;
+        dayWalkingMeters += internalWalkingDistanceMeters;
+        if (
+          internalWalkingDistanceMeters >
+          input.mobility.maxContinuousWalkingDistanceMeters
+        ) {
+          issues.push({
+            code: 'MAX_CONTINUOUS_WALKING_EXCEEDED',
+            message: `Day ${day.dayNumber}: Experience ${experience.experienceId} internal walking exceeds the continuous walking limit.`,
+          });
+        }
       }
 
       if (cursor > input.planningWindow.endMinutesFromMidnight) {
