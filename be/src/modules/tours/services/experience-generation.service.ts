@@ -972,8 +972,6 @@ export class ExperienceGenerationService {
             longitude: request.destination.longitude,
             radiusMeters: request.destination.radiusMeters || 25000,
           };
-      let coverageAreas: OsmCandidate[] = [];
-
       if (
         Number.isFinite(request.destination.latitude) &&
         Number.isFinite(request.destination.longitude)
@@ -1163,11 +1161,6 @@ export class ExperienceGenerationService {
                 );
 
                 try {
-                  if (isAreaScale) {
-                    coverageAreas = await this.lookupCoverageAreas(
-                      destinationResolution.boundary,
-                    );
-                  }
                   const skipRefill =
                     await this.wasCatalogRefillRecentlyAttempted(
                       searchArea.latitude,

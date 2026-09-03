@@ -19,12 +19,6 @@ import { DailyPlanningSolution } from '../interfaces/daily-planning.interface';
 import { CandidateScoreBreakdown } from './candidate-ranking.util';
 import { matchedThemesFor } from './theme-matching.util';
 
-interface FormatAvailability {
-  format: string;
-  fullPoolCount: number;
-  llmWindowCount: number;
-}
-
 function experienceDetail(act: any): string {
   const parts: string[] = [];
   const metadata =

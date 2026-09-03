@@ -15,7 +15,6 @@ function candidate(
   id: string,
   lat: number,
   lng: number,
-  familyId?: string,
 ): PlanningExperienceCandidate {
   return {
     experienceId: id,

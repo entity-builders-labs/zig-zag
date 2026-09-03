@@ -75,13 +75,13 @@ export class CandidateBuilder {
     return this;
   }
 
-  withFamily(familyId: string, variantKey?: string): this {
+  withFamily(familyId: string): this {
     this.candidate.metadata = { ...this.candidate.metadata, source: familyId };
     return this;
   }
 
-  withFamilyId(familyId: string, variantKey?: string): this {
-    return this.withFamily(familyId, variantKey);
+  withFamilyId(familyId: string): this {
+    return this.withFamily(familyId);
   }
 
   withOpeningHours(hours: NormalizedOpeningHours): this {

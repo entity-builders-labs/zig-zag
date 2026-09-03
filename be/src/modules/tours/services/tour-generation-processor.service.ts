@@ -100,11 +100,9 @@ export class TourGenerationProcessorService implements OnModuleInit {
       // redeliver it. Any TourFailed row created by the generator is still
       // unpublished at this point and is removed atomically with the state
       // correction so users never receive a false terminal notification.
-      const {
-        generationFailedAt: _generationFailedAt,
-        generationCompletedAt: _generationCompletedAt,
-        ...retryableMetadata
-      } = latestMetadata;
+      const retryableMetadata = { ...latestMetadata };
+      delete retryableMetadata.generationFailedAt;
+      delete retryableMetadata.generationCompletedAt;
       const retryCount = Number(latestMetadata.generationRetryCount ?? 0) + 1;
       const retryableAt = new Date().toISOString();
 
