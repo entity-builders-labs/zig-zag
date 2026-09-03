@@ -9,6 +9,7 @@ import {
   PlanningExperienceCandidate,
   TRAVEL_ESTIMATE_PROVIDER,
   TravelEstimateProvider,
+  UnselectedPlanningCandidate,
 } from '../interfaces/daily-planning.interface';
 import { sortCandidatesDeterministically } from '../utils/daily-planning-candidate-sort.util';
 import {
@@ -53,7 +54,7 @@ export class GreedyDailyPlanningSolver implements DailyPlanningSolver {
     const { iterations } = await runBoundedLocalImprovement(days, context);
 
     const plannedDays: PlannedDay[] = [];
-    const routedRepairUnselected = [];
+    const routedRepairUnselected: UnselectedPlanningCandidate[] = [];
     for (const [dayNumber, acc] of days) {
       const repaired = await orderAndScheduleDayWithRepair(
         dayNumber,
@@ -160,6 +161,7 @@ export class GreedyDailyPlanningSolver implements DailyPlanningSolver {
     let internalTravelMinutes = 0;
     let internalWalkingMinutes = 0;
     let internalWalkingDistanceMeters = 0;
+    let maxInternalContinuousWalkingDistanceMeters = 0;
     let routingFallbackCount = 0;
     const routingProviderCounts: Record<string, number> = {};
     const footprints = candidate.componentFootprints!;
@@ -173,6 +175,10 @@ export class GreedyDailyPlanningSolver implements DailyPlanningSolver {
       internalTravelMinutes += estimate.durationMinutes;
       internalWalkingMinutes += estimate.walkingMinutes;
       internalWalkingDistanceMeters += estimate.walkingDistanceMeters;
+      maxInternalContinuousWalkingDistanceMeters = Math.max(
+        maxInternalContinuousWalkingDistanceMeters,
+        estimate.walkingDistanceMeters,
+      );
       const provider = estimate.provider ?? 'unknown';
       routingProviderCounts[provider] =
         (routingProviderCounts[provider] ?? 0) + 1;
@@ -188,6 +194,7 @@ export class GreedyDailyPlanningSolver implements DailyPlanningSolver {
         internalTravelMinutes,
         internalWalkingMinutes,
         internalWalkingDistanceMeters,
+        maxInternalContinuousWalkingDistanceMeters,
         routingProviderCounts,
         routingFallbackCount,
       },
