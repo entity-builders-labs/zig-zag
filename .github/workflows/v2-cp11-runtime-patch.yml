@@ -1,6 +1,6 @@
 name: V2 CP11 Runtime Patch
 
-# One-shot recovery workflow. Remove after CP11/CP12 runtime fixes are persisted.
+# One-shot recovery workflow. Final CP11/CP12 integration rerun; remove after fixes are persisted.
 on:
   push:
     branches:
