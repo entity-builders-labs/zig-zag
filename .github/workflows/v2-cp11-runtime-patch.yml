@@ -1,6 +1,6 @@
 name: V2 CP11 Runtime Patch
 
-# One-shot recovery workflow. Triggered on this file only; remove after CP11 is persisted.
+# One-shot recovery workflow. Rerun after Prisma/trace integration fixes; remove after CP11 is persisted.
 on:
   push:
     branches:
@@ -26,6 +26,7 @@ jobs:
       - run: yarn install --frozen-lockfile
       - run: yarn workspace backend prisma:generate
       - run: python .github/scripts/cp11_patch.py
+      - run: yarn workspace backend prisma:generate
       - run: yarn workspace backend lint
       - run: yarn workspace backend typecheck
       - run: yarn workspace backend test --runInBand generation-trace-v3.util.spec.ts generation-trace-builder.util.spec.ts trace-redaction.util.spec.ts
@@ -33,7 +34,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add be/src/modules/tours/services/experience-generation.service.ts be/src/modules/tours/utils/generation-trace-builder.util.ts be/test/experience-selection-scale.e2e-spec.ts
+          git add be/prisma/schema.prisma be/src/modules/tours/services/experience-generation.service.ts be/src/modules/tours/utils/generation-trace-builder.util.ts be/test/experience-selection-scale.e2e-spec.ts
           git add -u be/src/modules/tours/utils
           if git diff --cached --quiet; then
             echo "No CP11 runtime changes to persist."
