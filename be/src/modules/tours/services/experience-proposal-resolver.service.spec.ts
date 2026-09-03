@@ -1,5 +1,6 @@
 import { GeoEntityKind } from '@prisma/client';
 import { ExperienceCandidate } from '../interfaces/experience-discovery.interface';
+import { ExperienceGeographicValidationResult } from '../interfaces/experience-resolution.interface';
 import { ExperienceProposalResolverService } from './experience-proposal-resolver.service';
 
 describe('ExperienceProposalResolverService', () => {
@@ -46,7 +47,9 @@ describe('ExperienceProposalResolverService', () => {
     shortReason: 'Evidence-backed experience',
   });
 
-  const acceptedValidation = (proposalName = 'Visit Museum') => ({
+  const acceptedValidation = (
+    proposalName = 'Visit Museum',
+  ): ExperienceGeographicValidationResult => ({
     proposalName,
     kind: 'EXPERIENCE',
     status: 'GEO_VERIFIED',
@@ -143,7 +146,11 @@ describe('ExperienceProposalResolverService', () => {
           importance: 0.8,
           latitude: -34.425,
           longitude: -58.579,
-          address: { town: 'Tigre', state: 'Buenos Aires', country: 'Argentina' },
+          address: {
+            town: 'Tigre',
+            state: 'Buenos Aires',
+            country: 'Argentina',
+          },
         },
       ]),
     };
@@ -164,7 +171,8 @@ describe('ExperienceProposalResolverService', () => {
           key: 'ev-1',
           source: 'tourism-guide',
           title: 'Best day trips from Buenos Aires',
-          snippet: 'Tigre and its delta are a classic same-day escape from Buenos Aires.',
+          snippet:
+            'Tigre and its delta are a classic same-day escape from Buenos Aires.',
         },
       ],
     });
