@@ -257,7 +257,10 @@ export class ExperienceGenerationService {
       ...interpreted,
       preferredThemes: unique(interpreted.preferredThemes),
       preferredTraits: unique(interpreted.preferredTraits),
-      preferredIntents: unique(interpreted.preferredIntents),
+      preferredIntents: unique([
+        ...interpreted.preferredIntents,
+        ...(request.intent.intents ?? []),
+      ]),
       excludedThemes: unique(interpreted.excludedThemes),
       excludedTraits: unique(interpreted.excludedTraits),
       hardExclusions: unique(hardExclusions),
@@ -322,12 +325,14 @@ export class ExperienceGenerationService {
   private async discoverExperienceGaps(
     destinationName: string,
     interests: string[],
+    requestedIntents: string[],
     deficits: any[],
     additionalPreferences?: string,
   ): Promise<any> {
     const request: ExperienceDiscoveryRequest = {
       scope: { destinationName },
       requestedThemes: interests,
+      requestedIntents,
       semanticQuery: additionalPreferences,
       coverageGaps: deficits.map(
         (deficit) => deficit.message || deficit.reason,
@@ -921,6 +926,7 @@ export class ExperienceGenerationService {
           hasAdditionalPreferences: Boolean(
             request.intent.additionalPreferences?.trim(),
           ),
+          intents: request.intent.intents ?? [],
           dietaryRestrictions: request.dietaryRestrictions,
           accessibilityNeeds: request.mobility.accessibilityNeeds,
           budgetLevel: request.budgetLevel,
@@ -1050,6 +1056,7 @@ export class ExperienceGenerationService {
               const discoveryResult = await this.discoverExperienceGaps(
                 request.destination.label,
                 request.intent.interests,
+                normalizedPreferences.preferredIntents,
                 blockingDeficits,
                 request.intent.additionalPreferences,
               );
@@ -1096,9 +1103,6 @@ export class ExperienceGenerationService {
               }
             }
 
-            // Requery after discovery before deciding whether any generic
-            // provider refill is justified. Focused coverage gaps must never
-            // be replaced silently by a popularity-only nearby search.
             const postDiscoveryExperiences =
               await this.experienceCatalog.findVerifiedWithin(
                 searchArea.latitude,
@@ -1287,7 +1291,6 @@ export class ExperienceGenerationService {
                 }
               }
 
-              // Whatever path ran, do not silently call a deficit covered.
               const finalPool = Array.from(allEligibleExperiencesById.values());
               const finalSelection = await this.rankAndSliceExperiences(
                 finalPool,
