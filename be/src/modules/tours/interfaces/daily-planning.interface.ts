@@ -63,6 +63,8 @@ export interface PlanningExperienceCandidate {
   mobility?: {
     internalWalkingMinutes?: number;
     internalWalkingDistanceMeters?: number;
+    /** Longest single internal walking leg between consecutive components. */
+    maxInternalContinuousWalkingDistanceMeters?: number;
     internalTravelMinutes?: number;
     routingProviderCounts?: Record<string, number>;
     routingFallbackCount?: number;
