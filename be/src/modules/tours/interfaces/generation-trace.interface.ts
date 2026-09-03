@@ -37,9 +37,13 @@ export type TraceCandidateStatus =
   | 'UNSELECTED';
 
 /**
- * GenerationTrace V2 is an audit contract, not UI copy. The backend records
+ * GenerationTrace is an audit contract, not UI copy. The backend records
  * facts and decisions made by the engine; the frontend renders them without
  * inventing motivations or reverse-engineering domain rules.
+ *
+ * V3 adds the canonical redacted request, structured execution summary,
+ * routing evidence and TourExperience materialization snapshots. V1/V2 remain
+ * readable because traces are persisted historical data.
  */
 export interface TraceRuleEvaluation {
   ruleId: string;
@@ -107,7 +111,6 @@ export interface GenerationTraceStep {
   label: string;
   summary: string;
 
-  /** V2 auditable fields. */
   component?: string;
   status?: TraceDecisionStatus;
   inputs?: Record<string, unknown>;
@@ -164,6 +167,13 @@ export interface GenerationTraceStep {
     approximateTravel: boolean;
     iterations?: number;
     score: number;
+    routing?: {
+      externalEstimateCount: number;
+      internalEstimateCount: number;
+      approximateEstimateCount: number;
+      fallbackCount: number;
+      providerCounts: Record<string, number>;
+    };
     days: Array<{
       dayNumber: number;
       experienceCount: number;
@@ -175,22 +185,49 @@ export interface GenerationTraceStep {
   };
 }
 
+export interface GenerationExecutionStageSummary {
+  ordinal: number;
+  stage: TraceStage | 'tour_experience_materialization';
+  status: TraceDecisionStatus;
+  component?: string;
+  outcome?: string;
+  summary: string;
+  counts?: Record<string, number>;
+}
+
+export interface GenerationTraceExecutionSummary {
+  status: 'completed' | 'failed';
+  /** Ordered machine-readable reconstruction of the complete run. */
+  orderedStages: GenerationExecutionStageSummary[];
+  /** Compatibility text retained for existing Bitácora UI versions. */
+  steps: string[];
+  narrative?: string;
+  acceptedExperiences?: number;
+  rejectedProposals?: number;
+  selectedExperiences?: number;
+  failure?: string;
+}
+
+export interface MaterializedTourExperienceTrace {
+  experienceId: string;
+  dayNumber: number;
+  order: number;
+  startTime?: string;
+  durationHours: number;
+  componentCount: number;
+}
+
 export interface GenerationTrace {
-  /** Version 1 traces omitted this field. */
-  version?: 1 | 2;
+  /** Version 1 traces omitted this field; V3 is the canonical V2-domain trace. */
+  version?: 1 | 2 | 3;
+  /** Redacted canonical request exactly as consumed by deterministic generation. */
+  canonicalRequest?: Record<string, unknown>;
   steps: GenerationTraceStep[];
   aiReasoning?: string;
   hallucinatedCount: number;
   duplicateCount: number;
   tourCompleteness?: TourCompletenessTraceResult;
-  /** Human-readable, persisted decision narrative for the Bitácora UI. */
-  executionSummary?: {
-    status: 'completed' | 'failed';
-    steps: string[];
-    narrative?: string;
-    acceptedExperiences?: number;
-    rejectedProposals?: number;
-    selectedExperiences?: number;
-    failure?: string;
-  };
+  /** Final persisted TourExperience snapshots, not planner proposals. */
+  materializedTourExperiences?: MaterializedTourExperienceTrace[];
+  executionSummary?: GenerationTraceExecutionSummary;
 }
