@@ -5,6 +5,7 @@ import {
   OsmLookupResult,
   OsmPlacesService,
 } from '@integrations/osm/services/osm-places.service';
+import { geometryContainsPoint } from '@integrations/osm/utils/geojson-containment.util';
 import {
   INominatimApiService,
   NominatimResult,
@@ -16,6 +17,7 @@ import {
   ExperienceProposalResolver,
   ExperienceResolutionRequest,
   ExperienceResolutionResponse,
+  ResolvedExperienceCandidate,
   ResolvedGeoEntity,
 } from '../interfaces/experience-resolution.interface';
 
@@ -65,16 +67,17 @@ export class ExperienceProposalResolverService
       ),
     );
 
-    const validation = this.geographicValidator.validateBatch(
-      {
-        resolved: resolvedCandidates.filter(
-          (item) => item.status === 'accepted',
-        ),
-      } as any,
-      boundary,
+    const acceptedForValidation = resolvedCandidates.filter(
+      (item): item is ResolvedExperienceCandidate => item.status === 'accepted',
+    );
+    const validationResults = acceptedForValidation.map((item) =>
+      this.geographicValidator.validate(
+        item,
+        this.validationBoundaryFor(item, boundary),
+      ),
     );
     const validationByName = new Map(
-      validation.results.map((result) => [result.proposalName, result]),
+      validationResults.map((result) => [result.proposalName, result]),
     );
 
     const resolved = await Promise.all(
@@ -424,6 +427,72 @@ export class ExperienceProposalResolverService
       const text = this.normalize(`${item.title ?? ''} ${item.snippet ?? ''}`);
       return destinationTokens.some((token) => text.includes(token));
     });
+  }
+
+  private validationBoundaryFor(
+    candidate: ResolvedExperienceCandidate,
+    destinationBoundary: OsmCandidate,
+  ): OsmCandidate {
+    if (!candidate.destinationAssociationVerified) return destinationBoundary;
+    const anchors = candidate.resolvedEntities.filter(
+      (entity) =>
+        entity.status === 'resolved' &&
+        Number.isFinite(entity.latitude) &&
+        Number.isFinite(entity.longitude),
+    );
+    if (anchors.length === 0) return destinationBoundary;
+
+    const allOutside = anchors.every(
+      (entity) => !this.isInsideBoundary(entity, destinationBoundary),
+    );
+    if (!allOutside) return destinationBoundary;
+
+    const latitudes = anchors.map((entity) => entity.latitude as number);
+    const longitudes = anchors.map((entity) => entity.longitude as number);
+    const minLat = Math.min(...latitudes);
+    const maxLat = Math.max(...latitudes);
+    const minLon = Math.min(...longitudes);
+    const maxLon = Math.max(...longitudes);
+    const margin = 0.002;
+    return {
+      id: 'synthetic:grounded-association-scope',
+      name: `Grounded association scope for ${candidate.candidate.name}`,
+      osmType: 'relation',
+      osmId: 0,
+      geometry: {
+        type: 'Polygon',
+        coordinates: [
+          [
+            [minLon - margin, minLat - margin],
+            [maxLon + margin, minLat - margin],
+            [maxLon + margin, maxLat + margin],
+            [minLon - margin, maxLat + margin],
+            [minLon - margin, minLat - margin],
+          ],
+        ],
+      },
+      tags: {
+        synthetic: 'true',
+        validation_scope: 'grounded_destination_association',
+      },
+    };
+  }
+
+  private isInsideBoundary(
+    entity: ResolvedGeoEntity,
+    boundary: OsmCandidate,
+  ): boolean {
+    if (
+      !Number.isFinite(entity.latitude) ||
+      !Number.isFinite(entity.longitude)
+    ) {
+      return false;
+    }
+    return geometryContainsPoint(
+      boundary.geometry,
+      entity.longitude as number,
+      entity.latitude as number,
+    );
   }
 
   private bestNominatimMatch(
