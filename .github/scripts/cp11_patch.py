@@ -1,5 +1,43 @@
 from pathlib import Path
 
+# Keep the Prisma client contract aligned with the catalog-population migration.
+# The migration already creates this table; without the model Prisma cannot
+# expose prisma.catalogPopulationJob and the admin population runtime cannot compile.
+schema = Path('be/prisma/schema.prisma')
+text = schema.read_text()
+if 'model CatalogPopulationJob {' not in text:
+    anchor = 'model User {\n'
+    assert anchor in text, 'User model anchor not found in Prisma schema'
+    model = '''model CatalogPopulationJob {
+  id             String   @id @default(uuid())
+  idempotencyKey String   @unique
+  requestedById  String
+  scope          Json
+  themes         String[] @default([])
+  intents        String[] @default([])
+  status         String   @default("PENDING")
+  attemptCount   Int      @default(0)
+  maxAttempts    Int      @default(5)
+  beforeCount    Int      @default(0)
+  afterCount     Int      @default(0)
+  createdCount   Int      @default(0)
+  reusedCount    Int      @default(0)
+  lastError      String?
+  trace          Json?
+  startedAt      DateTime?
+  completedAt    DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([status, createdAt])
+  @@index([requestedById])
+  @@map("catalog_population_job")
+}
+
+'''
+    text = text.replace(anchor, model + anchor, 1)
+    schema.write_text(text)
+
 # Preserve deterministic solver routing evidence in the persisted trace.
 builder = Path('be/src/modules/tours/utils/generation-trace-builder.util.ts')
 text = builder.read_text()
