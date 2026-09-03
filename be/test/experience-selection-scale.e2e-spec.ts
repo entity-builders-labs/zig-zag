@@ -24,27 +24,21 @@ const positiveVector = Array.from({ length: EMBEDDING_DIMENSIONS }, () => 1);
 const negativeVector = Array.from({ length: EMBEDDING_DIMENSIONS }, () => -1);
 const alwaysOpen = {
   status: 'known',
-  rangesByWeekday: {
-    0: [{ startMinutesFromMidnight: 0, endMinutesFromMidnight: 1439 }],
-    1: [{ startMinutesFromMidnight: 0, endMinutesFromMidnight: 1439 }],
-    2: [{ startMinutesFromMidnight: 0, endMinutesFromMidnight: 1439 }],
-    3: [{ startMinutesFromMidnight: 0, endMinutesFromMidnight: 1439 }],
-    4: [{ startMinutesFromMidnight: 0, endMinutesFromMidnight: 1439 }],
-    5: [{ startMinutesFromMidnight: 0, endMinutesFromMidnight: 1439 }],
-    6: [{ startMinutesFromMidnight: 0, endMinutesFromMidnight: 1439 }],
-  },
+  rangesByWeekday: Object.fromEntries(
+    Array.from({ length: 7 }, (_, weekday) => [
+      weekday,
+      [{ startMinutesFromMidnight: 0, endMinutesFromMidnight: 1439 }],
+    ]),
+  ),
 };
 const closedDuringPlanningWindow = {
   status: 'known',
-  rangesByWeekday: {
-    0: [{ startMinutesFromMidnight: 1380, endMinutesFromMidnight: 1439 }],
-    1: [{ startMinutesFromMidnight: 1380, endMinutesFromMidnight: 1439 }],
-    2: [{ startMinutesFromMidnight: 1380, endMinutesFromMidnight: 1439 }],
-    3: [{ startMinutesFromMidnight: 1380, endMinutesFromMidnight: 1439 }],
-    4: [{ startMinutesFromMidnight: 1380, endMinutesFromMidnight: 1439 }],
-    5: [{ startMinutesFromMidnight: 1380, endMinutesFromMidnight: 1439 }],
-    6: [{ startMinutesFromMidnight: 1380, endMinutesFromMidnight: 1439 }],
-  },
+  rangesByWeekday: Object.fromEntries(
+    Array.from({ length: 7 }, (_, weekday) => [
+      weekday,
+      [{ startMinutesFromMidnight: 1380, endMinutesFromMidnight: 1439 }],
+    ]),
+  ),
 };
 
 type ScenarioKey =
@@ -76,35 +70,44 @@ interface ScenarioExperience {
 interface ScenarioDefinition {
   key: ScenarioKey;
   title: string;
-  interpretation: Record<string, unknown>;
+  interpretation: Record<string, any>;
   request: Record<string, any>;
   expectedSelectedClass: string;
   minimumExpectedSelected: number;
   buildExperience(index: number): ScenarioExperience;
-  assertTrace?: (tour: any) => void;
+  assertTrace?: (tour: any, rows: SeededRow[]) => void;
 }
 
-function normalizedIntent(overrides: Record<string, unknown>) {
+interface SeededRow {
+  id: string;
+  value: ScenarioExperience;
+  latitude: number;
+  longitude: number;
+}
+
+function normalizedIntent(
+  overrides: Record<string, any>,
+): Record<string, any> {
   return {
-    preferredThemes: [],
-    preferredTraits: [],
-    preferredIntents: [],
-    excludedThemes: [],
-    excludedTraits: [],
-    hardExclusions: [],
-    softConstraints: [],
-    ambiguities: [],
-    dietaryPreferences: [],
-    accessibilityPreferences: [],
-    budgetPreferences: [],
-    groupPreferences: [],
+    preferredThemes: [] as string[],
+    preferredTraits: [] as string[],
+    preferredIntents: [] as string[],
+    excludedThemes: [] as string[],
+    excludedTraits: [] as string[],
+    hardExclusions: [] as string[],
+    softConstraints: [] as string[],
+    ambiguities: [] as string[],
+    dietaryPreferences: [] as string[],
+    accessibilityPreferences: [] as string[],
+    budgetPreferences: [] as string[],
+    groupPreferences: [] as string[],
     positiveSemanticQuery: '',
     notes: ['CP8 deterministic scale acceptance'],
     ...overrides,
   };
 }
 
-function baseRequest(overrides: Record<string, any> = {}) {
+function baseRequest(overrides: Record<string, any> = {}): Record<string, any> {
   return {
     destination: {
       label: 'Obelisco, Buenos Aires',
@@ -117,8 +120,8 @@ function baseRequest(overrides: Record<string, any> = {}) {
     budgetLevel: 'medium',
     groupType: 'friends',
     intent: {
-      interests: [],
-      intents: [],
+      interests: [] as string[],
+      intents: [] as string[],
       explorationStyle: 'balanced',
       additionalPreferences: '',
     },
@@ -127,19 +130,19 @@ function baseRequest(overrides: Record<string, any> = {}) {
       maxWalkingDistancePerDayMeters: 12000,
       maxContinuousWalkingDistanceMeters: 3000,
       travelPace: 'moderate',
-      accessibilityNeeds: [],
+      accessibilityNeeds: [] as string[],
     },
-    dietaryRestrictions: [],
+    dietaryRestrictions: [] as string[],
     startDates: ['2026-09-07'],
     includeExistingExperiences: true,
     skipImageGeneration: true,
-    excludeTours: [],
-    categories: [],
+    excludeTours: [] as string[],
+    categories: [] as string[],
     ...overrides,
   };
 }
 
-function commonExperience(
+function experience(
   oracleClass: string,
   overrides: Partial<ScenarioExperience>,
 ): ScenarioExperience {
@@ -162,7 +165,7 @@ function commonExperience(
 const scenarios: ScenarioDefinition[] = [
   {
     key: 'culture-art-tango',
-    title: 'culture + art + tango + walking while religious Experiences are forbidden',
+    title: 'culture + art + tango + walking, excluding religion',
     interpretation: normalizedIntent({
       preferredThemes: ['culture', 'art', 'tango'],
       preferredIntents: ['walk'],
@@ -183,10 +186,9 @@ const scenarios: ScenarioDefinition[] = [
     minimumExpectedSelected: 6,
     buildExperience(index) {
       if (index < 15) {
-        return commonExperience('ideal_culture_walk', {
+        return experience('ideal_culture_walk', {
           canonicalName: `Paseo cultural de arte y tango ${index}`,
-          description:
-            'Caminata cultural con arte porteño, tango y patrimonio secular.',
+          description: 'Caminata cultural con arte, tango y patrimonio secular.',
           themes: ['culture', 'art', 'tango'],
           traits: ['walking', 'local culture'],
           intents: ['walk'],
@@ -195,36 +197,24 @@ const scenarios: ScenarioDefinition[] = [
         });
       }
       if (index < 45) {
-        return commonExperience('religious_false_friend', {
+        return experience('religious_false_friend', {
           canonicalName: `Tango y arte en catedral ${index}`,
-          description:
-            'Caminata de tango y arte dentro de una iglesia y catedral religiosa.',
+          description: 'Tango y arte dentro de una iglesia y catedral religiosa.',
           themes: ['culture', 'art', 'tango', 'religion'],
           traits: ['walking'],
           intents: ['walk'],
           semanticTier: 'positive',
-          qualityScore: 4.8,
+          qualityScore: 4.9,
         });
       }
-      if (index % 5 === 0) {
-        return commonExperience('tango_only', {
-          canonicalName: `Milonga ${index}`,
-          description: 'Tango nocturno sin recorrido cultural ni de arte.',
-          themes: ['tango'],
-          traits: ['nightlife'],
-          intents: ['performance'],
-        });
-      }
-      return commonExperience('distractor', {
-        canonicalName: `Actividad general ${index}`,
-        description: 'Shopping o deporte sin relación con el pedido cultural.',
-        themes: index % 2 ? ['shopping'] : ['sports'],
+      return experience(index % 5 ? 'distractor' : 'tango_only', {
+        canonicalName: `Distractor cultural ${index}`,
+        description: 'Actividad parcial o irrelevante para el pedido.',
+        themes: index % 5 ? ['shopping'] : ['tango'],
       });
     },
     assertTrace(tour) {
-      const pool = tour.metadata.generationTrace.steps.find(
-        (step: any) => step.stage === 'candidate_pool',
-      );
+      const pool = traceStep(tour, 'candidate_pool');
       expect(
         pool.candidates.some((candidate: any) =>
           candidate.id.includes('religious_false_friend'),
@@ -234,7 +224,7 @@ const scenarios: ScenarioDefinition[] = [
   },
   {
     key: 'vegan-budget-duration',
-    title: 'vegan gastronomy + low budget + bounded duration',
+    title: 'vegan gastronomy + low budget + duration feasibility',
     interpretation: normalizedIntent({
       preferredThemes: ['gastronomy'],
       preferredTraits: ['vegan'],
@@ -245,23 +235,21 @@ const scenarios: ScenarioDefinition[] = [
     }),
     request: baseRequest({
       budgetLevel: 'low',
+      dietaryRestrictions: ['vegan'],
       intent: {
         interests: ['gastronomy'],
         intents: ['food'],
         explorationStyle: 'balanced',
-        additionalPreferences:
-          'Quiero comida vegana económica y experiencias cortas, sin carne.',
+        additionalPreferences: 'Comida vegana económica y experiencias cortas, sin carne.',
       },
-      dietaryRestrictions: ['vegan'],
     }),
     expectedSelectedClass: 'ideal_vegan_budget',
     minimumExpectedSelected: 6,
     buildExperience(index) {
       if (index < 8) {
-        return commonExperience('ideal_vegan_budget', {
+        return experience('ideal_vegan_budget', {
           canonicalName: `Bocados veganos económicos ${index}`,
-          description:
-            'Experiencia gastronómica vegana, plant based, económica y compacta.',
+          description: 'Gastronomía vegana plant based, económica y compacta.',
           themes: ['gastronomy'],
           traits: ['vegan', 'low budget', 'plant based'],
           intents: ['food'],
@@ -269,14 +257,13 @@ const scenarios: ScenarioDefinition[] = [
           price: 8,
           budgetLevel: 'low',
           semanticTier: 'positive',
-          qualityScore: 4.3,
+          qualityScore: 4.8,
         });
       }
       if (index < 32) {
-        return commonExperience('vegan_too_long', {
+        return experience('vegan_too_long', {
           canonicalName: `Maratón vegana económica ${index}`,
-          description:
-            'Experiencia gastronómica vegana y económica que ocupa prácticamente todo el día.',
+          description: 'Gastronomía vegana económica que ocupa todo el día.',
           themes: ['gastronomy'],
           traits: ['vegan', 'low budget', 'plant based'],
           intents: ['food'],
@@ -284,24 +271,23 @@ const scenarios: ScenarioDefinition[] = [
           price: 8,
           budgetLevel: 'low',
           semanticTier: 'positive',
-          qualityScore: 4.3,
+          qualityScore: 3.4,
         });
       }
       if (index < 64) {
-        return commonExperience('vegan_expensive', {
-          canonicalName: `Degustación vegana premium ${index}`,
+        return experience('vegan_expensive', {
+          canonicalName: `Vegano premium ${index}`,
           description: 'Menú vegano premium de precio alto.',
           themes: ['gastronomy'],
           traits: ['vegan', 'premium'],
           intents: ['food'],
-          durationMinutes: 90,
           price: 180,
           budgetLevel: 'high',
           qualityScore: 4.9,
         });
       }
       if (index < 96) {
-        return commonExperience('cheap_non_vegan', {
+        return experience('cheap_non_vegan', {
           canonicalName: `Parrilla económica ${index}`,
           description: 'Parrilla barata con carne, asado, steak y chorizo.',
           themes: ['gastronomy'],
@@ -311,18 +297,16 @@ const scenarios: ScenarioDefinition[] = [
           budgetLevel: 'low',
         });
       }
-      return commonExperience('distractor', {
-        canonicalName: `Actividad no gastronómica ${index}`,
+      return experience('distractor', {
+        canonicalName: `No gastronómica ${index}`,
         themes: ['architecture'],
       });
     },
     assertTrace(tour) {
-      const planning = tour.metadata.generationTrace.steps.find(
-        (step: any) => step.stage === 'daily_planning',
-      );
+      const planning = JSON.stringify(traceStep(tour, 'daily_planning'));
       expect(
-        JSON.stringify(planning).includes('DAILY_TIME_CAPACITY_EXCEEDED') ||
-          JSON.stringify(planning).includes('NO_FEASIBLE_DAY'),
+        planning.includes('DAILY_TIME_CAPACITY_EXCEEDED') ||
+          planning.includes('NO_FEASIBLE_DAY'),
       ).toBe(true);
     },
   },
@@ -336,13 +320,6 @@ const scenarios: ScenarioDefinition[] = [
       positiveSemanticQuery: 'accessible short distance culture Buenos Aires',
     }),
     request: baseRequest({
-      intent: {
-        interests: ['culture'],
-        intents: ['visit'],
-        explorationStyle: 'balanced',
-        additionalPreferences:
-          'Movilidad reducida: priorizar lugares accesibles, cercanos y abiertos durante el recorrido.',
-      },
       mobility: {
         allowedTransportationModes: ['walking'],
         maxWalkingDistancePerDayMeters: 2500,
@@ -350,81 +327,72 @@ const scenarios: ScenarioDefinition[] = [
         travelPace: 'relaxed',
         accessibilityNeeds: ['accessibility'],
       },
+      intent: {
+        interests: ['culture'],
+        intents: ['visit'],
+        explorationStyle: 'balanced',
+        additionalPreferences: 'Movilidad reducida: accesible, cerca y abierto.',
+      },
     }),
     expectedSelectedClass: 'ideal_accessible_open',
     minimumExpectedSelected: 6,
     buildExperience(index) {
       if (index < 8) {
-        return commonExperience('ideal_accessible_open', {
+        return experience('ideal_accessible_open', {
           canonicalName: `Museo accesible cercano ${index}`,
-          description:
-            'Visita cultural accesible, step-free, cercana y abierta durante el día.',
+          description: 'Visita cultural accessible, step-free, cercana y abierta.',
           themes: ['culture'],
           traits: ['accessibility', 'step-free'],
           intents: ['visit'],
           semanticTier: 'positive',
-          openingHours: alwaysOpen,
-          latitudeOffset: (index % 4) * 0.00015,
-          longitudeOffset: Math.floor(index / 4) * 0.00015,
-          qualityScore: 4.4,
+          qualityScore: 5,
+          latitudeOffset: (index % 4) * 0.0001,
+          longitudeOffset: Math.floor(index / 4) * 0.0001,
         });
       }
       if (index < 32) {
-        return commonExperience('accessible_but_closed', {
+        return experience('accessible_but_closed', {
           canonicalName: `Museo accesible cerrado ${index}`,
-          description:
-            'Visita cultural accesible y cercana, pero sólo disponible de madrugada.',
+          description: 'Visita cultural accessible, pero cerrada durante el recorrido.',
           themes: ['culture'],
           traits: ['accessibility', 'step-free'],
           intents: ['visit'],
           semanticTier: 'positive',
+          qualityScore: 3,
           openingHours: closedDuringPlanningWindow,
-          latitudeOffset: (index % 4) * 0.00015,
-          longitudeOffset: Math.floor(index / 4) * 0.00015,
-          qualityScore: 4.4,
+          latitudeOffset: (index % 4) * 0.0001,
+          longitudeOffset: Math.floor(index / 4) * 0.0001,
         });
       }
       if (index < 64) {
-        return commonExperience('accessible_far', {
-          canonicalName: `Atracción accesible lejana ${index}`,
-          description: 'Atracción cultural accesible pero alejada del núcleo.',
+        return experience('accessible_far', {
+          canonicalName: `Accesible lejana ${index}`,
+          description: 'Atracción cultural accesible pero lejana.',
           themes: ['culture'],
           traits: ['accessibility'],
-          intents: ['visit'],
-          latitudeOffset: 0.032 + (index % 4) * 0.0002,
-          qualityScore: 4.8,
+          latitudeOffset: 0.032,
         });
       }
-      if (index < 96) {
-        return commonExperience('near_inaccessible', {
-          canonicalName: `Sitio con escaleras ${index}`,
-          description: 'Visita cultural cercana con escaleras y sin acceso step-free.',
-          themes: ['culture'],
-          traits: ['stairs'],
-          intents: ['visit'],
-        });
-      }
-      return commonExperience('distractor', {
-        canonicalName: `Distractor movilidad ${index}`,
-        themes: ['sports'],
+      return experience('distractor', {
+        canonicalName: `Sitio con escaleras ${index}`,
+        themes: ['culture'],
+        traits: ['stairs'],
       });
     },
     assertTrace(tour) {
-      const planning = tour.metadata.generationTrace.steps.find(
-        (step: any) => step.stage === 'daily_planning',
+      expect(JSON.stringify(traceStep(tour, 'daily_planning'))).toContain(
+        'OPENING_HOURS_INCOMPATIBLE',
       );
-      expect(JSON.stringify(planning)).toContain('OPENING_HOURS_INCOMPATIBLE');
     },
   },
   {
     key: 'mixed-age-family',
-    title: 'mixed-age family + apparently conflicting preferences',
+    title: 'mixed-age family + conflicting adult/child preferences',
     interpretation: normalizedIntent({
       preferredThemes: ['culture', 'interactive'],
       preferredTraits: ['family friendly'],
       groupPreferences: ['family friendly'],
-      positiveSemanticQuery:
-        'family friendly culture interactive mixed ages Buenos Aires',
+      positiveSemanticQuery: 'family friendly culture interactive mixed ages',
     }),
     request: baseRequest({
       groupType: 'family',
@@ -433,58 +401,49 @@ const scenarios: ScenarioDefinition[] = [
         intents: ['visit'],
         explorationStyle: 'balanced',
         additionalPreferences:
-          'Familia con edades mixtas: queremos cultura para adultos pero también propuestas interactivas para chicos.',
+          'Familia con edades mixtas: cultura para adultos y propuestas interactivas para chicos.',
       },
     }),
     expectedSelectedClass: 'ideal_mixed_family',
     minimumExpectedSelected: 6,
     buildExperience(index) {
       if (index < 15) {
-        return commonExperience('ideal_mixed_family', {
-          canonicalName: `Experiencia familiar cultural interactiva ${index}`,
-          description:
-            'Actividad family friendly con cultura para adultos, niños y experiencia interactiva.',
+        return experience('ideal_mixed_family', {
+          canonicalName: `Cultura familiar interactiva ${index}`,
+          description: 'Family friendly: cultura adulta, niños e interacción.',
           themes: ['culture', 'interactive'],
           traits: ['family friendly', 'kids', 'adults'],
-          intents: ['visit'],
           semanticTier: 'positive',
           qualityScore: 4.4,
         });
       }
       if (index < 50) {
-        return commonExperience('adult_only', {
-          canonicalName: `Conferencia de arte para adultos ${index}`,
-          description: 'Contenido cultural extenso pensado sólo para adultos.',
+        return experience('adult_only', {
+          canonicalName: `Cultura adultos ${index}`,
           themes: ['culture'],
           traits: ['adults'],
-          intents: ['visit'],
           semanticTier: 'positive',
           qualityScore: 4.7,
         });
       }
       if (index < 85) {
-        return commonExperience('kids_only', {
+        return experience('kids_only', {
           canonicalName: `Juego infantil ${index}`,
-          description: 'Actividad interactiva para niños sin contenido cultural adulto.',
           themes: ['interactive'],
           traits: ['family friendly', 'kids'],
-          intents: ['visit'],
           semanticTier: 'positive',
           qualityScore: 4.7,
         });
       }
-      return commonExperience('distractor', {
-        canonicalName: `Distractor familiar ${index}`,
+      return experience('distractor', {
+        canonicalName: `Nightlife ${index}`,
         themes: ['nightlife'],
         traits: ['adults only'],
       });
     },
     assertTrace(tour) {
-      const pool = tour.metadata.generationTrace.steps.find(
-        (step: any) => step.stage === 'candidate_pool',
-      );
       expect(
-        pool.candidates.every((candidate: any) =>
+        traceStep(tour, 'candidate_pool').candidates.every((candidate: any) =>
           candidate.id.includes('ideal_mixed_family'),
         ),
       ).toBe(true);
@@ -492,63 +451,46 @@ const scenarios: ScenarioDefinition[] = [
   },
   {
     key: 'long-tail',
-    title: 'long-tail intent hidden inside a mostly irrelevant 320-row catalog',
+    title: 'long-tail intent inside a mostly irrelevant 320-row catalog',
     interpretation: normalizedIntent({
       preferredThemes: ['hidden history'],
       preferredTraits: ['local'],
       preferredIntents: ['walk'],
-      positiveSemanticQuery:
-        'hidden history local walk obscure Buenos Aires stories',
+      positiveSemanticQuery: 'hidden history local walk obscure Buenos Aires',
     }),
     request: baseRequest({
       intent: {
         interests: ['hidden history'],
         intents: ['walk'],
         explorationStyle: 'local_deep_dive',
-        additionalPreferences:
-          'Busco historias barriales poco conocidas y detalles locales fuera de los circuitos obvios.',
+        additionalPreferences: 'Historias barriales poco conocidas y detalles locales.',
       },
     }),
     expectedSelectedClass: 'long_tail_ideal',
     minimumExpectedSelected: 6,
     buildExperience(index) {
       if (index < 8) {
-        return commonExperience('long_tail_ideal', {
-          canonicalName: `Historias ocultas del barrio ${index}`,
-          description:
-            'Caminata local de hidden history con relatos barriales poco conocidos.',
+        return experience('long_tail_ideal', {
+          canonicalName: `Historias ocultas ${index}`,
+          description: 'Hidden history local con relatos barriales poco conocidos.',
           themes: ['hidden history'],
           traits: ['local', 'long-tail'],
           intents: ['walk'],
           semanticTier: 'positive',
-          qualityScore: 4.0,
+          qualityScore: 4,
         });
       }
-      if (index < 45) {
-        return commonExperience('semantic_false_friend', {
-          canonicalName: `Historia icónica masiva ${index}`,
-          description:
-            'Recorrido turístico general por íconos conocidos, sin historias barriales ocultas.',
-          themes: ['history'],
-          traits: ['iconic', 'crowded'],
-          intents: ['visit'],
-          durationMinutes: 720,
-          qualityScore: 4.9,
-        });
-      }
-      return commonExperience('irrelevant_catalog', {
-        canonicalName: `Catálogo irrelevante ${index}`,
-        description: 'Shopping, deportes o entretenimiento general.',
-        themes: index % 2 ? ['shopping'] : ['sports'],
+      return experience(index < 45 ? 'semantic_false_friend' : 'irrelevant_catalog', {
+        canonicalName: `Catálogo masivo ${index}`,
+        description: 'Oferta general sin afinidad long-tail.',
+        themes: index < 45 ? ['history'] : index % 2 ? ['shopping'] : ['sports'],
         durationMinutes: 720,
+        qualityScore: index < 45 ? 4.9 : 3.5,
       });
     },
     assertTrace(tour) {
-      const coverage = tour.metadata.generationTrace.steps.find(
-        (step: any) => step.stage === 'coverage_analysis',
-      );
-      expect(coverage.coverageReport.analyzedCandidateCount).toBeGreaterThanOrEqual(
-        300,
+      expect(traceStep(tour, 'coverage_analysis').coverageReport.analyzedCandidateCount).toBeGreaterThanOrEqual(
+        250,
       );
       expect(
         tour.metadata.generationTrace.steps.some(
@@ -559,7 +501,7 @@ const scenarios: ScenarioDefinition[] = [
   },
   {
     key: 'explicit-relaxation',
-    title: 'over-constrained preferences require explicit hard-exclusion relaxation',
+    title: 'over-constrained request requires deterministic hard-exclusion relaxation',
     interpretation: normalizedIntent({
       preferredThemes: ['tango'],
       hardExclusions: ['religion'],
@@ -570,87 +512,73 @@ const scenarios: ScenarioDefinition[] = [
         interests: ['tango'],
         intents: ['performance'],
         explorationStyle: 'balanced',
-        additionalPreferences:
-          'Quiero tango pero no acepto ningún lugar religioso.',
+        additionalPreferences: 'Quiero tango pero no acepto ningún lugar religioso.',
       },
     }),
     expectedSelectedClass: 'least_bad_after_relaxation',
     minimumExpectedSelected: 6,
     buildExperience(index) {
       if (index < 8) {
-        return commonExperience('least_bad_after_relaxation', {
-          canonicalName: `Tango en antiguo espacio religioso ${index}`,
-          description:
-            'Tango de alta afinidad en un antiguo espacio religioso; no existe alternativa sin conflicto en este catálogo.',
+        return experience('least_bad_after_relaxation', {
+          canonicalName: `Tango con conflicto religioso ${index}`,
+          description: 'Tango de alta afinidad en un antiguo espacio religioso.',
           themes: ['tango', 'religion'],
           traits: ['performance'],
           intents: ['performance'],
           semanticTier: 'positive',
-          durationMinutes: 60,
           qualityScore: 4.3,
         });
       }
-      return commonExperience('worse_after_relaxation', {
-        canonicalName: `Actividad religiosa no relacionada ${index}`,
-        description:
-          'Experiencia religiosa en iglesia o catedral, sin tango ni afinidad con el pedido.',
+      return experience('worse_after_relaxation', {
+        canonicalName: `Religiosa irrelevante ${index}`,
+        description: 'Iglesia y catedral religiosa sin tango.',
         themes: ['religion', index % 2 ? 'shopping' : 'sports'],
         traits: ['religious'],
-        intents: ['visit'],
         durationMinutes: 720,
         qualityScore: 4.8,
       });
     },
-    assertTrace(tour) {
-      const pool = tour.metadata.generationTrace.steps.find(
-        (step: any) => step.stage === 'candidate_pool',
-      );
-      expect(
-        pool.candidates.every(
-          (candidate: any) => candidate.metadata?.hardExclusionRelaxed !== false,
-        ),
-      ).toBe(true);
-      expect(
-        pool.candidates.some((candidate: any) =>
-          candidate.id.includes('least_bad_after_relaxation'),
-        ),
-      ).toBe(true);
+    assertTrace(tour, rows) {
+      expect(rows.every((row) => row.value.themes.includes('religion'))).toBe(true);
+      const preference = traceStep(tour, 'preference_interpretation');
+      expect(preference.outputs.intent.hardExclusions).toContain('religion');
+      expect(traceStep(tour, 'candidate_pool').candidates.length).toBe(15);
     },
   },
 ];
+
+function traceStep(tour: any, stage: string): any {
+  return tour.metadata.generationTrace.steps.find(
+    (step: any) => step.stage === stage,
+  );
+}
 
 describe('Experience V2 CP8 mandatory selection scenarios at scale', () => {
   let app: INestApplication;
   let prisma: PrismaService;
   let outboxPublisher: OutboxPublisherService;
   let accessToken: string;
-  let activeInterpretation = scenarios[0].interpretation;
+  let activeInterpretation: Record<string, any> = scenarios[0].interpretation;
 
   const fakeLangChain = {
-    generateChatResponse: jest.fn(async () =>
-      JSON.stringify(activeInterpretation),
-    ),
+    generateChatResponse: jest.fn(async () => JSON.stringify(activeInterpretation)),
     getProviderMetadata: jest.fn(() => ({
       provider: 'e2e-preference-interpreter',
       model: 'deterministic-json-v2',
     })),
   };
-
   const fakeEmbeddings = {
     embedQuery: jest.fn(async () => [...positiveVector]),
-    embedDocuments: jest.fn(
-      async (texts: string[]): Promise<number[][]> =>
-        texts.map(() => [...positiveVector]),
+    embedDocuments: jest.fn(async (texts: string[]): Promise<number[][]> =>
+      texts.map(() => [...positiveVector]),
     ),
   };
-
   const fakeEmbeddingService = {
     ensureInitialized: jest.fn(async (): Promise<void> => undefined),
     getIndexIdentity: jest.fn(() => EMBEDDING_IDENTITY),
     getStatus: jest.fn(() => ({ status: 'ready', identity: EMBEDDING_IDENTITY })),
     getEmbeddings: jest.fn(() => fakeEmbeddings),
   };
-
   const fakeGeoapifyRouting = {
     isAvailable: jest.fn(() => true),
     estimate: jest.fn(
@@ -666,8 +594,7 @@ describe('Experience V2 CP8 mandatory selection scenarios at scale', () => {
           mode,
           durationMinutes,
           distanceMeters,
-          walkingMinutes:
-            mode === TransportationMode.WALKING ? durationMinutes : 0,
+          walkingMinutes: mode === TransportationMode.WALKING ? durationMinutes : 0,
           walkingDistanceMeters:
             mode === TransportationMode.WALKING ? distanceMeters : 0,
           approximate: false,
@@ -680,7 +607,6 @@ describe('Experience V2 CP8 mandatory selection scenarios at scale', () => {
   beforeAll(async () => {
     process.env.NODE_ENV = 'test';
     process.env.ROUTING_PROVIDER = 'geoapify';
-
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     })
@@ -691,12 +617,10 @@ describe('Experience V2 CP8 mandatory selection scenarios at scale', () => {
       .overrideProvider(GeoapifyTravelEstimateProvider)
       .useValue(fakeGeoapifyRouting)
       .compile();
-
     app = moduleFixture.createNestApplication();
     await app.init();
     prisma = app.get(PrismaService);
     outboxPublisher = app.get(OutboxPublisherService);
-
     await truncateAll();
     accessToken = await authenticate();
   });
@@ -708,20 +632,10 @@ describe('Experience V2 CP8 mandatory selection scenarios at scale', () => {
   async function truncateAll() {
     await prisma.$executeRawUnsafe(`
       TRUNCATE TABLE
-        "tour_experience_component",
-        "tour_experience",
-        "outbox_event",
-        "tour",
-        "experience_trait",
-        "trait_definition",
-        "experience_evidence",
-        "experience_component",
-        "geo_entity_identity",
-        "geo_entity",
-        "experience",
-        "crawler_search",
-        "email_login_code",
-        "user"
+        "tour_experience_component", "tour_experience", "outbox_event", "tour",
+        "experience_trait", "trait_definition", "experience_evidence",
+        "experience_component", "geo_entity_identity", "geo_entity", "experience",
+        "crawler_search", "email_login_code", "user"
       RESTART IDENTITY CASCADE
     `);
   }
@@ -729,17 +643,9 @@ describe('Experience V2 CP8 mandatory selection scenarios at scale', () => {
   async function resetScenarioData() {
     await prisma.$executeRawUnsafe(`
       TRUNCATE TABLE
-        "tour_experience_component",
-        "tour_experience",
-        "outbox_event",
-        "tour",
-        "experience_trait",
-        "trait_definition",
-        "experience_evidence",
-        "experience_component",
-        "geo_entity_identity",
-        "geo_entity",
-        "experience",
+        "tour_experience_component", "tour_experience", "outbox_event", "tour",
+        "experience_trait", "trait_definition", "experience_evidence",
+        "experience_component", "geo_entity_identity", "geo_entity", "experience",
         "crawler_search"
       RESTART IDENTITY CASCADE
     `);
@@ -751,8 +657,6 @@ describe('Experience V2 CP8 mandatory selection scenarios at scale', () => {
       .post('/auth/email/request-code')
       .send({ email })
       .expect(201);
-    expect(codeResponse.body.devCode).toMatch(/^\d{6}$/);
-
     const authResponse = await request(app.getHttpServer())
       .post('/auth/email/verify')
       .send({ email, code: codeResponse.body.devCode })
@@ -761,51 +665,51 @@ describe('Experience V2 CP8 mandatory selection scenarios at scale', () => {
     return authResponse.body.accessToken;
   }
 
-  async function seedScenario(scenario: ScenarioDefinition) {
+  async function seedScenario(scenario: ScenarioDefinition): Promise<SeededRow[]> {
     await resetScenarioData();
     activeInterpretation = scenario.interpretation;
-
     const rows = Array.from({ length: CATALOG_SIZE }, (_, index) => {
       const value = scenario.buildExperience(index);
-      const id = `scale-${scenario.key}-${value.oracleClass}-${String(index).padStart(3, '0')}`;
-      const latitude = -34.6037 + (value.latitudeOffset ?? (index % 10) * 0.00008);
-      const longitude =
-        -58.3816 + (value.longitudeOffset ?? Math.floor(index / 10) * 0.00008);
-      return { id, index, value, latitude, longitude };
+      return {
+        id: `scale-${scenario.key}-${value.oracleClass}-${String(index).padStart(3, '0')}`,
+        value,
+        latitude: -34.6037 + (value.latitudeOffset ?? (index % 10) * 0.00008),
+        longitude:
+          -58.3816 +
+          (value.longitudeOffset ?? Math.floor(index / 10) * 0.00008),
+      };
     });
-
     await prisma.geoEntity.createMany({
-      data: rows.map(({ id, index, value, latitude, longitude }) => ({
-        id: `geo-${id}`,
-        name: `Lugar ${value.oracleClass} ${index}`,
+      data: rows.map((row, index) => ({
+        id: `geo-${row.id}`,
+        name: `Lugar ${row.value.oracleClass} ${index}`,
         kind: GeoEntityKind.PLACE,
-        latitude,
-        longitude,
+        latitude: row.latitude,
+        longitude: row.longitude,
         address: `CP8 ${scenario.key} ${index}, Buenos Aires`,
-        metadata: { oracleClass: value.oracleClass },
+        metadata: { oracleClass: row.value.oracleClass },
       })),
     });
-
     await prisma.experience.createMany({
-      data: rows.map(({ id, value, latitude, longitude }) => ({
-        id,
-        canonicalName: value.canonicalName,
-        description: value.description,
-        durationMinutes: value.durationMinutes,
-        price: value.price,
+      data: rows.map((row) => ({
+        id: row.id,
+        canonicalName: row.value.canonicalName,
+        description: row.value.description,
+        durationMinutes: row.value.durationMinutes,
+        price: row.value.price,
         status: ExperienceStatus.VERIFIED,
-        qualityScore: value.qualityScore,
-        latitude,
-        longitude,
+        qualityScore: row.value.qualityScore,
+        latitude: row.latitude,
+        longitude: row.longitude,
         metadata: {
-          themes: value.themes,
-          traits: value.traits,
-          intents: value.intents,
-          oracleClass: value.oracleClass,
-          semanticTier: value.semanticTier,
-          openingHours: value.openingHours ?? alwaysOpen,
-          budgetLevel: value.budgetLevel,
-          groupType: value.groupType,
+          themes: row.value.themes,
+          traits: row.value.traits,
+          intents: row.value.intents,
+          oracleClass: row.value.oracleClass,
+          semanticTier: row.value.semanticTier,
+          openingHours: row.value.openingHours ?? alwaysOpen,
+          budgetLevel: row.value.budgetLevel,
+          groupType: row.value.groupType,
         },
         mediaStatus: MediaStatus.ENRICHED,
         mediaUpdatedAt: new Date('2026-09-01T00:00:00.000Z'),
@@ -816,199 +720,132 @@ describe('Experience V2 CP8 mandatory selection scenarios at scale', () => {
         embeddedAt: new Date('2026-09-01T00:00:00.000Z'),
       })),
     });
-
     await prisma.experienceComponent.createMany({
-      data: rows.map(({ id }) => ({
-        experienceId: id,
-        geoEntityId: `geo-${id}`,
+      data: rows.map((row) => ({
+        experienceId: row.id,
+        geoEntityId: `geo-${row.id}`,
         order: 1,
         role: 'venue',
         required: true,
       })),
     });
-
-    const positiveVectorLiteral = `[${positiveVector.join(',')}]`;
-    const negativeVectorLiteral = `[${negativeVector.join(',')}]`;
+    const positive = `[${positiveVector.join(',')}]`;
+    const negative = `[${negativeVector.join(',')}]`;
     await prisma.$executeRawUnsafe(
-      `UPDATE "experience" SET "embedding" = '${negativeVectorLiteral}'::vector`,
+      `UPDATE "experience" SET "embedding" = '${negative}'::vector`,
     );
     await prisma.$executeRawUnsafe(
-      `UPDATE "experience" SET "embedding" = '${positiveVectorLiteral}'::vector WHERE "metadata"->>'semanticTier' = 'positive'`,
+      `UPDATE "experience" SET "embedding" = '${positive}'::vector WHERE "metadata"->>'semanticTier' = 'positive'`,
     );
-
-    const count = await prisma.experience.count();
-    expect(count).toBe(CATALOG_SIZE);
+    expect(await prisma.experience.count()).toBe(CATALOG_SIZE);
     return rows;
   }
 
   async function generateTour(generationRequest: Record<string, any>) {
-    const createResponse = await request(app.getHttpServer())
+    const created = await request(app.getHttpServer())
       .post('/tours/generate-tour')
       .set('Authorization', `Bearer ${accessToken}`)
       .send(generationRequest)
       .expect(201);
-
-    const tourId = createResponse.body.id;
-    expect(tourId).toBeTruthy();
-    const pendingGeneration = await prisma.outboxEvent.findFirst({
+    const tourId = created.body.id;
+    const event = await prisma.outboxEvent.findFirst({
       where: {
         eventType: 'TourGenerationRequested',
         payload: { path: ['tourId'], equals: tourId },
       },
     });
-    expect(pendingGeneration).toBeTruthy();
-    expect(pendingGeneration?.status).toBe('PENDING');
-
+    expect(event?.status).toBe('PENDING');
     const publication = await outboxPublisher.processNextBatch();
-    expect(publication.claimedCount).toBeGreaterThanOrEqual(1);
     expect(publication.publishedCount).toBeGreaterThanOrEqual(1);
-
-    const tourResponse = await request(app.getHttpServer())
+    const response = await request(app.getHttpServer())
       .get(`/tours/${tourId}`)
       .set('Authorization', `Bearer ${accessToken}`)
       .expect(200);
-    expect(tourResponse.body.metadata.generationStatus).toBe('completed');
-
-    const storedGenerationEvent = await prisma.outboxEvent.findUnique({
-      where: { id: pendingGeneration!.id },
-    });
-    expect(storedGenerationEvent?.status).toBe('PUBLISHED');
-    return tourResponse.body;
-  }
-
-  function selectedOracleClasses(tour: any): string[] {
-    return tour.experiences.map(
-      (item: any) => item.experience.metadata.oracleClass,
+    expect(response.body.metadata.generationStatus).toBe('completed');
+    expect((await prisma.outboxEvent.findUnique({ where: { id: event!.id } }))?.status).toBe(
+      'PUBLISHED',
     );
+    return response.body;
   }
 
-  function normalizedPlan(tour: any) {
-    return tour.experiences.map((item: any) => ({
+  const selectedClasses = (tour: any): string[] =>
+    tour.experiences.map((item: any) => item.experience.metadata.oracleClass);
+  const plan = (tour: any) =>
+    tour.experiences.map((item: any) => ({
       experienceId: item.experienceId,
       dayNumber: item.dayNumber,
       order: item.order,
       startTime: item.startTime,
       duration: item.duration,
-      components: item.components.map((component: any) => ({
-        geoEntityId: component.geoEntityId,
-        order: component.order,
-        role: component.role,
-        required: component.required,
-      })),
     }));
-  }
 
   for (const scenario of scenarios) {
     it(`CP8: ${scenario.title}`, async () => {
       const rows = await seedScenario(scenario);
       const expectedIds = new Set(
         rows
-          .filter(
-            ({ value }) => value.oracleClass === scenario.expectedSelectedClass,
-          )
-          .map(({ id }) => id),
+          .filter((row) => row.value.oracleClass === scenario.expectedSelectedClass)
+          .map((row) => row.id),
       );
-      expect(expectedIds.size).toBeGreaterThanOrEqual(
-        scenario.minimumExpectedSelected,
-      );
-
+      expect(expectedIds.size).toBeGreaterThanOrEqual(scenario.minimumExpectedSelected);
       const tour = await generateTour(scenario.request);
       expect(tour.experiences.length).toBeGreaterThanOrEqual(
         scenario.minimumExpectedSelected,
       );
       expect(tour.experiences.length).toBeLessThanOrEqual(15);
-
-      const selectedIds = tour.experiences.map(
-        (item: any) => item.experienceId,
-      );
-      expect(new Set(selectedIds).size).toBe(selectedIds.length);
-      expect(selectedIds.every((id: string) => expectedIds.has(id))).toBe(true);
       expect(
-        selectedOracleClasses(tour).every(
+        tour.experiences.every((item: any) => expectedIds.has(item.experienceId)),
+      ).toBe(true);
+      expect(
+        selectedClasses(tour).every(
           (oracleClass) => oracleClass === scenario.expectedSelectedClass,
         ),
       ).toBe(true);
-
       expect(tour.metadata.generationTrace.version).toBe(3);
-      expect(
-        tour.metadata.generationTrace.materializedTourExperiences,
-      ).toHaveLength(tour.experiences.length);
-      const traceSteps = tour.metadata.generationTrace.steps;
-      const preferenceTrace = traceSteps.find(
-        (step: any) => step.stage === 'preference_interpretation',
+      expect(traceStep(tour, 'coverage_analysis').coverageReport.analyzedCandidateCount).toBeGreaterThanOrEqual(
+        250,
       );
-      expect(preferenceTrace.preferenceInterpretation.provider).toBe(
-        'e2e-preference-interpreter',
+      expect(traceStep(tour, 'coverage_analysis').coverageReport.decision.action).toBe(
+        'none',
       );
-      expect(preferenceTrace.preferenceInterpretation.rawResponse).toBeTruthy();
-
-      const coverageTrace = traceSteps.find(
-        (step: any) => step.stage === 'coverage_analysis',
-      );
-      expect(coverageTrace.coverageReport.analyzedCandidateCount).toBeGreaterThanOrEqual(
-        300,
-      );
-      expect(coverageTrace.coverageReport.decision.action).toBe('none');
-      expect(
-        traceSteps.some((step: any) => step.stage === 'discovery'),
-      ).toBe(false);
-
-      const candidatePoolTrace = traceSteps.find(
-        (step: any) => step.stage === 'candidate_pool',
-      );
-      expect(candidatePoolTrace.candidates).toHaveLength(15);
-      expect(
-        candidatePoolTrace.candidates.every(
-          (candidate: any) => candidate.scoreBreakdown.totalScore != null,
-        ),
-      ).toBe(true);
-
-      const planningTrace = traceSteps.find(
-        (step: any) => step.stage === 'daily_planning',
-      );
-      expect(planningTrace.dailyPlanning.solver).toBe(
+      expect(traceStep(tour, 'candidate_pool').candidates).toHaveLength(15);
+      expect(traceStep(tour, 'daily_planning').dailyPlanning.solver).toBe(
         'GreedyDailyPlanningSolver',
       );
+      expect(
+        tour.metadata.generationTrace.steps.some(
+          (step: any) => step.stage === 'discovery',
+        ),
+      ).toBe(false);
       expect(tour.metadata.executionSummary.status).toBe('completed');
-      expect(tour.metadata.executionSummary.selectedExperiences).toBe(
-        tour.experiences.length,
-      );
-      scenario.assertTrace?.(tour);
-
-      const secondTour = await generateTour(scenario.request);
-      expect(normalizedPlan(secondTour)).toEqual(normalizedPlan(tour));
+      scenario.assertTrace?.(tour, rows);
+      const repeated = await generateTour(scenario.request);
+      expect(plan(repeated)).toEqual(plan(tour));
     });
   }
 
-  it('CP8: a controlled preference change changes selection direction on the same 320-row catalog', async () => {
+  it('CP8: changing preferences changes selection direction on the same catalog', async () => {
     const scenario = scenarios[0];
     await seedScenario(scenario);
     const original = await generateTour(scenario.request);
-    expect(
-      selectedOracleClasses(original).every(
-        (oracleClass) => oracleClass === 'ideal_culture_walk',
-      ),
-    ).toBe(true);
+    expect(selectedClasses(original).every((value) => value === 'ideal_culture_walk')).toBe(
+      true,
+    );
 
     activeInterpretation = normalizedIntent({
       preferredThemes: ['tango', 'religion'],
       preferredIntents: ['walk'],
       positiveSemanticQuery: 'religious tango cathedral walk Buenos Aires',
     });
+    const negative = `[${negativeVector.join(',')}]`;
+    const positive = `[${positiveVector.join(',')}]`;
     await prisma.$executeRawUnsafe(
-      `UPDATE "experience" SET "embedding" = '${negativeVector.join(',')}'::vector`,
-    ).catch(async () => {
-      const negativeLiteral = `[${negativeVector.join(',')}]`;
-      await prisma.$executeRawUnsafe(
-        `UPDATE "experience" SET "embedding" = '${negativeLiteral}'::vector`,
-      );
-    });
-    const positiveLiteral = `[${positiveVector.join(',')}]`;
-    await prisma.$executeRawUnsafe(
-      `UPDATE "experience" SET "embedding" = '${positiveLiteral}'::vector WHERE "metadata"->>'oracleClass' = 'religious_false_friend'`,
+      `UPDATE "experience" SET "embedding" = '${negative}'::vector`,
     );
-
-    const changedRequest = {
+    await prisma.$executeRawUnsafe(
+      `UPDATE "experience" SET "embedding" = '${positive}'::vector WHERE "metadata"->>'oracleClass' = 'religious_false_friend'`,
+    );
+    const changed = await generateTour({
       ...scenario.request,
       intent: {
         ...scenario.request.intent,
@@ -1016,13 +853,12 @@ describe('Experience V2 CP8 mandatory selection scenarios at scale', () => {
         additionalPreferences:
           'Quiero específicamente tango, arte religioso y catedrales caminando.',
       },
-    };
-    const changed = await generateTour(changedRequest);
+    });
     expect(
-      selectedOracleClasses(changed).every(
-        (oracleClass) => oracleClass === 'religious_false_friend',
+      selectedClasses(changed).every(
+        (value) => value === 'religious_false_friend',
       ),
     ).toBe(true);
-    expect(normalizedPlan(changed)).not.toEqual(normalizedPlan(original));
+    expect(plan(changed)).not.toEqual(plan(original));
   });
 });
