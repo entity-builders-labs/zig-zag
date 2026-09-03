@@ -52,6 +52,12 @@ interface ScheduleAttemptFailure {
 
 type ScheduleAttempt = ScheduleAttemptSuccess | ScheduleAttemptFailure;
 
+function isScheduleAttemptFailure(
+  attempt: ScheduleAttempt,
+): attempt is ScheduleAttemptFailure {
+  return attempt.ok === false;
+}
+
 function isCandidateOpen(
   candidate: PlanningExperienceCandidate,
   weekday: number | undefined,
@@ -247,7 +253,7 @@ export async function orderAndScheduleDayWithRepair(
 
   while (retained.length > 0) {
     const attempt = await tryScheduleDay(dayNumber, retained, context);
-    if (attempt.ok) {
+    if (!isScheduleAttemptFailure(attempt)) {
       return { day: attempt.day, unselected };
     }
 
