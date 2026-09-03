@@ -15,16 +15,20 @@ const GEMINI_INTRO = `You are an ExperienceCandidate extractor.
 
 Your task is to convert grounded tourism research into structured ExperienceCandidate
 candidates for a destination based on:
- - the user's requested themes;
+- the user's requested themes and soft Experience intents;
 - exploration style;
 - additional preferences;
 - explicit coverage gaps;
 - grounded search evidence supplied to you.
 
+If day_trip is requested, only extract experiences supported by evidence as suitable
+from the selected base destination and returning the same day. Do not return overnight
+or weekend-only trips.
+
 You are NOT responsible for trusted geographic identity.
 
-The backend independently resolves all proposed entities through Google Places
-or OpenStreetMap before anything may be persisted.
+The backend independently resolves all proposed entities through trusted geographic
+providers before anything may be persisted.
 
 Never provide or invent:
 - coordinates;
@@ -36,9 +40,7 @@ Never provide or invent:
 
 const SYSTEM_INSTRUCTION = GEMINI_INTRO;
 
-/** JSON Schema for the Interactions API's response_format — live-validated
- * shape (top-level field, direct schema object, lowercase JSON Schema
- * types, no OpenAI-style {type:"json_schema", json_schema:{...}} envelope). */
+/** JSON Schema for the Interactions API's response_format. */
 const RESPONSE_SCHEMA = {
   type: 'object',
   properties: {
@@ -51,6 +53,7 @@ const RESPONSE_SCHEMA = {
           description: { type: 'string' },
           themes: { type: 'array', items: { type: 'string' } },
           traits: { type: 'array', items: { type: 'string' } },
+          intents: { type: 'array', items: { type: 'string' } },
           componentHints: {
             type: 'array',
             items: {
@@ -88,6 +91,7 @@ const RESPONSE_SCHEMA = {
           'description',
           'themes',
           'traits',
+          'intents',
           'componentHints',
           'suggestedDurationMinutes',
           'shortReason',
@@ -153,9 +157,12 @@ export class GeminiDiscoveryProvider {
     const prompt = [
       `Destination: ${request.scope.destinationName ?? 'unknown'}`,
       `Themes: ${request.requestedThemes.join(', ') || 'none'}`,
+      `Requested intents: ${request.requestedIntents?.join(', ') || 'none'}`,
       `Preferences: ${(request.semanticQuery || request.preferredTraits?.join(', ')) ?? 'none'}`,
-      'Return JSON with a candidates array. Each candidate must contain name, description, themes, traits, suggestedDurationMinutes, componentHints, evidenceKeys and shortReason.',
-      'Do not output kinds, coordinates, provider IDs, URLs, or entities not directly supported by evidence.',
+      'Return JSON with a candidates array. Each candidate must contain name, description, themes, traits, intents, suggestedDurationMinutes, componentHints, evidenceKeys and shortReason.',
+      'intents are soft Experience facets such as visit, walk, food, route_like or day_trip; never structural proposal kinds.',
+      'For day_trip, only return evidence-backed same-day experiences from the selected base; exclude overnight or weekend-only trips.',
+      'Do not output coordinates, provider IDs, URLs, or entities not directly supported by evidence.',
       'Grounded evidence:',
       ...evidence.map(
         (item) => `[${item.key}] ${item.title || item.source}: ${item.snippet}`,
@@ -187,9 +194,6 @@ export class GeminiDiscoveryProvider {
     };
   }
 
-  /** Single retry on a timeout/abort only — live-observed once this session
-   * as a transient hang on the Interactions API, not on genuine 4xx errors
-   * (those propagate immediately, retrying them wouldn't help). */
   private async callInteractionsApi(
     apiKey: string,
     userPrompt: string,
