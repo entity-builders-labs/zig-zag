@@ -68,8 +68,8 @@ export class ExperienceProposalResolverService
     );
 
     const acceptedForValidation = resolvedCandidates.filter(
-      (item): item is ResolvedExperienceCandidate => item.status === 'accepted',
-    );
+      (item) => item.status === 'accepted',
+    ) as ResolvedExperienceCandidate[];
     const validationResults = acceptedForValidation.map((item) =>
       this.geographicValidator.validate(
         item,
