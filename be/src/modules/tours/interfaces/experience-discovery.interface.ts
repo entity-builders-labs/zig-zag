@@ -27,15 +27,15 @@ export interface ExperienceCandidate {
 export type ExperienceDiscoveryBreadth = 'focused' | 'broad';
 
 export interface ExperienceDiscoveryScope {
+  /** The destination selected by the user. For day_trip this is also the base used by FROM-base discovery queries. */
   destinationName?: string;
-  originName?: string;
-  maxOutboundTravelMinutes?: number;
-  sameDayReturn?: boolean;
 }
 
 export interface ExperienceDiscoveryRequest {
   scope: ExperienceDiscoveryScope;
   requestedThemes: string[];
+  /** Soft Experience facets/intents; never structural proposal kinds. */
+  requestedIntents?: string[];
   preferredTraits?: string[];
   excludedThemes?: string[];
   excludedTraits?: string[];
