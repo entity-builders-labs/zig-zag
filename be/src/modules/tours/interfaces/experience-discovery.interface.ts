@@ -18,8 +18,12 @@ export interface ExperienceCandidate {
   description?: string;
   themes: string[];
   traits: string[];
-  /** Soft Experience facets only; never planner or proposal kinds. */
-  intents: string[];
+  /**
+   * Soft Experience facets only; never planner or proposal kinds. Native
+   * discovery adapters require this array at their extraction boundary, while
+   * internal legacy fixtures may omit it and are normalized to [] downstream.
+   */
+  intents?: string[];
   suggestedDurationMinutes?: number;
   componentHints: GeoEntityHint[];
   evidenceKeys: string[];
