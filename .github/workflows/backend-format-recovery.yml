@@ -1,5 +1,6 @@
 name: Experience V3 Recovery Batch
 
+# One-shot CP11 application; delete after the runtime/e2e commit is persisted.
 on:
   push:
     paths:
