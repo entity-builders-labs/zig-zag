@@ -5,56 +5,81 @@ import {
   ExperienceDiscoveryRequest,
 } from '../interfaces/experience-discovery.interface';
 
+function normalizeFacet(value: string): string {
+  return value.trim().toLowerCase().replace(/[\s-]+/g, '_');
+}
+
 /** Provider-neutral query planner for grounded Experience acquisition. */
 @Injectable()
 export class ExperienceDiscoveryPlannerService {
   plan(request: ExperienceDiscoveryRequest): ExperienceDiscoveryPlan {
     const destination =
       request.scope.destinationName?.trim() || 'the destination';
-    const origin = request.scope.originName?.trim();
     const themes = request.requestedThemes.filter(Boolean).slice(0, 5);
+    const intents = (request.requestedIntents ?? [])
+      .map(normalizeFacet)
+      .filter(Boolean)
+      .slice(0, 5);
+    const dayTripRequested = intents.includes('day_trip');
+    const otherIntents = intents.filter((intent) => intent !== 'day_trip');
     const gaps = (request.coverageGaps ?? []).filter(Boolean).slice(0, 3);
     const semantic = request.semanticQuery?.trim();
     const queries: ExperienceDiscoveryQuery[] = [];
 
-    const base = [destination, ...themes, semantic].filter(Boolean).join(' ');
+    const intentTerms = otherIntents.map((intent) => intent.replace(/_/g, ' '));
+    const preferenceTerms = [...themes, ...intentTerms, semantic].filter(Boolean);
+    const localBase = [destination, ...preferenceTerms].filter(Boolean).join(' ');
+    const dayTripBase = [...preferenceTerms, `day trips from ${destination}`]
+      .filter(Boolean)
+      .join(' ');
+
     queries.push({
-      query: `${base} best things to do real places experiences`,
+      query: dayTripRequested
+        ? `${dayTripBase} real places experiences`
+        : `${localBase} best things to do real places experiences`,
       purpose: request.breadth === 'broad' ? 'bootstrap' : 'coverage_gap',
-      expectedEvidence: [
-        'named places',
-        'experience description',
-        'destination association',
-      ],
+      expectedEvidence: dayTripRequested
+        ? [
+            'named same-day destinations or experiences reachable from the base destination',
+            'experience description',
+            'relationship to the base destination',
+          ]
+        : [
+            'named places',
+            'experience description',
+            'destination association',
+          ],
     });
 
     for (const gap of gaps) {
       queries.push({
-        query: `${destination} ${gap} named places official tourism`,
+        query: dayTripRequested
+          ? `${gap} day trips from ${destination} named places official tourism`
+          : `${destination} ${gap} named places official tourism`,
         purpose: 'coverage_gap',
-        expectedEvidence: [
-          'named entities',
-          'evidence of the requested experience',
-        ],
+        expectedEvidence: dayTripRequested
+          ? [
+              'named entities',
+              'evidence of the requested experience',
+              'relationship to the base destination',
+            ]
+          : ['named entities', 'evidence of the requested experience'],
       });
     }
 
     if (request.breadth === 'focused' && semantic) {
       queries.push({
-        query: `${destination} ${semantic} official guide itinerary`,
+        query: dayTripRequested
+          ? `${semantic} day trips from ${destination} official guide`
+          : `${destination} ${semantic} official guide itinerary`,
         purpose: 'focused_enrichment',
-        expectedEvidence: [
-          'specific components',
-          'ordering or relationship evidence',
-        ],
-      });
-    }
-
-    if (origin && request.scope.sameDayReturn) {
-      queries.push({
-        query: `${origin} day trip ${destination} experiences return same day`,
-        purpose: 'focused_enrichment',
-        expectedEvidence: ['destination relationship', 'travel feasibility'],
+        expectedEvidence: dayTripRequested
+          ? [
+              'specific components',
+              'same-day experience evidence',
+              'relationship to the base destination',
+            ]
+          : ['specific components', 'ordering or relationship evidence'],
       });
     }
 
