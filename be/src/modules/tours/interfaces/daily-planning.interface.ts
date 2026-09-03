@@ -57,7 +57,15 @@ export interface PlanningExperienceCandidate {
    * same request mobility constraints as inter-Experience routing. */
   componentFootprints?: SpatialFootprint[];
   openingHours?: NormalizedOpeningHours;
+  /** Raw semantic similarity remains separately observable. */
   semanticScore: number;
+  /**
+   * Deterministic relevance score produced by the catalog ranking boundary.
+   * It preserves preference, semantic, quality, proximity and diversity
+   * contributions when candidates cross into the planner. Older/direct
+   * planner callers may omit it and fall back to semanticScore.
+   */
+  rankingScore?: number;
   qualityScore?: number;
   themes?: string[];
   mobility?: {
