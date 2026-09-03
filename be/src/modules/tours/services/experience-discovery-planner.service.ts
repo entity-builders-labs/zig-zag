@@ -6,7 +6,10 @@ import {
 } from '../interfaces/experience-discovery.interface';
 
 function normalizeFacet(value: string): string {
-  return value.trim().toLowerCase().replace(/[\s-]+/g, '_');
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/[\s-]+/g, '_');
 }
 
 /** Provider-neutral query planner for grounded Experience acquisition. */
@@ -27,8 +30,12 @@ export class ExperienceDiscoveryPlannerService {
     const queries: ExperienceDiscoveryQuery[] = [];
 
     const intentTerms = otherIntents.map((intent) => intent.replace(/_/g, ' '));
-    const preferenceTerms = [...themes, ...intentTerms, semantic].filter(Boolean);
-    const localBase = [destination, ...preferenceTerms].filter(Boolean).join(' ');
+    const preferenceTerms = [...themes, ...intentTerms, semantic].filter(
+      Boolean,
+    );
+    const localBase = [destination, ...preferenceTerms]
+      .filter(Boolean)
+      .join(' ');
     const dayTripBase = [...preferenceTerms, `day trips from ${destination}`]
       .filter(Boolean)
       .join(' ');
@@ -44,11 +51,7 @@ export class ExperienceDiscoveryPlannerService {
             'experience description',
             'relationship to the base destination',
           ]
-        : [
-            'named places',
-            'experience description',
-            'destination association',
-          ],
+        : ['named places', 'experience description', 'destination association'],
     });
 
     for (const gap of gaps) {
