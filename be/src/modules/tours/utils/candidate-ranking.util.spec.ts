@@ -14,6 +14,46 @@ describe('rankCandidatesByRelevance', () => {
     );
     expect(result[0].candidate.id).toBe('culture');
   });
+
+  it('keeps a complete preference match ahead of a partial match even when diversity and quality favor the partial match', () => {
+    const result = rankCandidatesByRelevance(
+      [
+        {
+          id: 'complete-1',
+          source: 'poi',
+          subtype: 'culture',
+          preferenceScore: 1,
+          weightedScore: 4.2,
+        },
+        {
+          id: 'complete-2',
+          source: 'poi',
+          subtype: 'culture',
+          preferenceScore: 1,
+          weightedScore: 4.2,
+        },
+        {
+          id: 'partial-diverse',
+          source: 'poi',
+          subtype: 'interactive',
+          preferenceScore: 2 / 3,
+          weightedScore: 5,
+        },
+      ],
+      new Map([
+        ['complete-1', 0.8],
+        ['complete-2', 0.8],
+        ['partial-diverse', 0.8],
+      ]),
+    );
+
+    expect(result.map((item) => item.candidate.id)).toEqual([
+      'complete-1',
+      'complete-2',
+      'partial-diverse',
+    ]);
+  });
+
   it('falls back to weightedScore-only order when similarityById is null (no interests supplied)', () => {
     const candidates: RankableCandidate[] = [
       { id: 'low', source: 'poi', weightedScore: 3.5 },
