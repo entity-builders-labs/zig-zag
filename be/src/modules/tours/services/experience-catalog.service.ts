@@ -150,14 +150,20 @@ export class ExperienceCatalogService {
     radiusMeters: number,
     limit = 100,
   ) {
+    // This method owns geography only. Do not pre-rank the catalog by quality
+    // here: doing so can discard lower-rated but highly relevant Experiences
+    // before semantic/preference ranking ever sees them. Scan a bounded,
+    // deterministic pool, filter by radius, then keep the geographically
+    // nearest rows with a stable id tie-break. Relevance is applied later.
+    const scanLimit = Math.max(limit * 4, 1000);
     const experiences = await this.prisma.experience.findMany({
       where: { status: ExperienceStatus.VERIFIED },
       include: {
         components: { include: { geoEntity: true } },
         traits: { include: { traitDefinition: true } },
       },
-      take: limit * 4,
-      orderBy: { qualityScore: 'desc' },
+      take: scanLimit,
+      orderBy: { id: 'asc' },
     });
     const radiusSquared = radiusMeters * radiusMeters;
     return experiences
@@ -193,6 +199,7 @@ export class ExperienceCatalogService {
           latitude: lat,
           longitude: lon,
           distance: Math.sqrt(distanceSquared) / 1000,
+          distanceSquared,
           duration: (experience.durationMinutes ?? 120) / 60,
           durationMinutes: experience.durationMinutes,
           themes: this.stringList(metadata.themes),
@@ -212,7 +219,13 @@ export class ExperienceCatalogService {
         (experience): experience is NonNullable<typeof experience> =>
           !!experience,
       )
-      .slice(0, limit);
+      .sort(
+        (left, right) =>
+          left.distanceSquared - right.distanceSquared ||
+          left.id.localeCompare(right.id),
+      )
+      .slice(0, limit)
+      .map(({ distanceSquared: _distanceSquared, ...experience }) => experience);
   }
 
   async upsertGeoEntity(input: GeoEntityInput) {
