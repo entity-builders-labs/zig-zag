@@ -11,6 +11,13 @@ export type TransportationMode =
   | 'cycling';
 export type ExplorationStyle = 'iconic' | 'balanced' | 'local_deep_dive';
 export type DestinationScaleHint = 'settlement' | 'specific_point';
+export type ExperienceIntent =
+  | 'visit'
+  | 'walk'
+  | 'food'
+  | 'nightlife'
+  | 'route_like'
+  | 'day_trip';
 
 export interface TourDestinationSelection {
   label?: string;
@@ -22,6 +29,8 @@ export interface TourDestinationSelection {
 
 export interface TourIntent {
   interests: string[];
+  /** Soft Experience facets. They affect matching/discovery, never choose a planner or domain model. */
+  intents?: ExperienceIntent[];
   explorationStyle: ExplorationStyle;
   additionalPreferences?: string;
 }
