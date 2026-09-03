@@ -16,6 +16,7 @@ function validDto(): CreateTourFromWizardDto {
     groupType: 'couple' as any,
     intent: {
       interests: [' History ', 'history', ' Architecture '],
+      intents: [' Day_Trip ', 'day_trip'],
       explorationStyle: 'balanced' as any,
       additionalPreferences: '  Street photography  ',
     },
@@ -44,6 +45,7 @@ describe('buildTourGenerationRequest', () => {
       destination: { label: 'Córdoba, Argentina' },
       intent: {
         interests: ['History', 'Architecture'],
+        intents: ['Day_Trip'],
         additionalPreferences: 'Street photography',
       },
       mobility: { accessibilityNeeds: ['Avoid stairs'] },
