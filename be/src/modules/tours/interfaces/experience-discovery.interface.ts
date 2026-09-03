@@ -18,6 +18,8 @@ export interface ExperienceCandidate {
   description?: string;
   themes: string[];
   traits: string[];
+  /** Soft Experience facets only; never planner or proposal kinds. */
+  intents: string[];
   suggestedDurationMinutes?: number;
   componentHints: GeoEntityHint[];
   evidenceKeys: string[];
