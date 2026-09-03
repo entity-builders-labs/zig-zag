@@ -2,7 +2,7 @@ import { ExperienceCatalogService } from './experience-catalog.service';
 
 describe('ExperienceCatalogService catalog retrieval', () => {
   it('does not pre-rank nearby candidates by quality before relevance ranking', async () => {
-    const lowQualityRelevant = {
+    const lowQualityRelevant: any = {
       id: 'relevant-low-quality',
       canonicalName: 'Relevant',
       description: 'Relevant experience',
@@ -15,7 +15,7 @@ describe('ExperienceCatalogService catalog retrieval', () => {
       components: [],
       traits: [],
     };
-    const highQualityGeneric = {
+    const highQualityGeneric: any = {
       ...lowQualityRelevant,
       id: 'generic-high-quality',
       canonicalName: 'Generic',
