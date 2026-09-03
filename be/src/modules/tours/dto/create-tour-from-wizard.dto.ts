@@ -87,6 +87,21 @@ export class TourIntentDto {
   @MaxLength(INTENT_VALUE_MAX_LENGTH, { each: true })
   interests: string[];
 
+  @ApiProperty({
+    type: [String],
+    required: false,
+    example: ['walk', 'day_trip'],
+    description:
+      'Soft Experience facets/intents used for matching and focused discovery; they do not select a planner or domain type',
+  })
+  @IsArray()
+  @ArrayMaxSize(20)
+  @ArrayUnique()
+  @IsString({ each: true })
+  @MaxLength(INTENT_VALUE_MAX_LENGTH, { each: true })
+  @IsOptional()
+  intents: string[] = [];
+
   @ApiProperty({ enum: ExplorationStyle })
   @IsEnum(ExplorationStyle)
   explorationStyle: ExplorationStyle;
