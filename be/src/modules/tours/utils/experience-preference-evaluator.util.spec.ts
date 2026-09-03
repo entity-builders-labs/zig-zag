@@ -58,6 +58,30 @@ describe('evaluateExperiencePreferences', () => {
     expect(result.exclusionMatches).toContain('non-vegan food');
   });
 
+  it('does not infer non-vegan food from the generic food intent', () => {
+    const result = evaluateExperiencePreferences(
+      {
+        canonicalName: 'Bocados veganos económicos',
+        description: 'Gastronomía vegana plant based, económica y compacta.',
+        themes: ['gastronomy'],
+        traits: ['vegan', 'low budget', 'plant based'],
+        intents: ['food'],
+        metadata: { budgetLevel: 'low' },
+      },
+      {
+        ...emptyIntent,
+        preferredThemes: ['gastronomy'],
+        preferredTraits: ['vegan'],
+        dietaryPreferences: ['vegan'],
+        budgetPreferences: ['low budget'],
+        hardExclusions: ['non-vegan food'],
+      },
+    );
+
+    expect(result.exclusionMatches).toEqual([]);
+    expect(result.score).toBe(1);
+  });
+
   it('rewards explicit accessibility suitability deterministically', () => {
     const result = evaluateExperiencePreferences(
       {
