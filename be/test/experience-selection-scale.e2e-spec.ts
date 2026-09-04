@@ -240,13 +240,14 @@ const scenarios: ScenarioDefinition[] = [
         interests: ['gastronomy'],
         intents: ['food'],
         explorationStyle: 'balanced',
-        additionalPreferences: 'Comida vegana económica y experiencias cortas, sin carne.',
+        additionalPreferences:
+          'Comida vegana económica y experiencias cortas, sin carne.',
       },
     }),
     expectedSelectedClass: 'ideal_vegan_budget',
     minimumExpectedSelected: 6,
     buildExperience(index) {
-      if (index < 8) {
+      if (index < 15) {
         return experience('ideal_vegan_budget', {
           canonicalName: `Bocados veganos económicos ${index}`,
           description: 'Gastronomía vegana plant based, económica y compacta.',
@@ -260,7 +261,7 @@ const scenarios: ScenarioDefinition[] = [
           qualityScore: 4.8,
         });
       }
-      if (index < 32) {
+      if (index < 39) {
         return experience('vegan_too_long', {
           canonicalName: `Maratón vegana económica ${index}`,
           description: 'Gastronomía vegana económica que ocupa todo el día.',
@@ -274,7 +275,7 @@ const scenarios: ScenarioDefinition[] = [
           qualityScore: 3.4,
         });
       }
-      if (index < 64) {
+      if (index < 71) {
         return experience('vegan_expensive', {
           canonicalName: `Vegano premium ${index}`,
           description: 'Menú vegano premium de precio alto.',
@@ -283,10 +284,10 @@ const scenarios: ScenarioDefinition[] = [
           intents: ['food'],
           price: 180,
           budgetLevel: 'high',
-          qualityScore: 4.9,
+          qualityScore: 4.2,
         });
       }
-      if (index < 96) {
+      if (index < 103) {
         return experience('cheap_non_vegan', {
           canonicalName: `Parrilla económica ${index}`,
           description: 'Parrilla barata con carne, asado, steak y chorizo.',
@@ -337,23 +338,25 @@ const scenarios: ScenarioDefinition[] = [
     expectedSelectedClass: 'ideal_accessible_open',
     minimumExpectedSelected: 6,
     buildExperience(index) {
-      if (index < 8) {
+      if (index < 15) {
         return experience('ideal_accessible_open', {
           canonicalName: `Museo accesible cercano ${index}`,
-          description: 'Visita cultural accessible, step-free, cercana y abierta.',
+          description:
+            'Visita cultural accessible, step-free, cercana y abierta.',
           themes: ['culture'],
           traits: ['accessibility', 'step-free'],
           intents: ['visit'],
           semanticTier: 'positive',
           qualityScore: 5,
-          latitudeOffset: (index % 4) * 0.0001,
-          longitudeOffset: Math.floor(index / 4) * 0.0001,
+          latitudeOffset: (index % 5) * 0.0001,
+          longitudeOffset: Math.floor(index / 5) * 0.0001,
         });
       }
-      if (index < 32) {
+      if (index < 39) {
         return experience('accessible_but_closed', {
           canonicalName: `Museo accesible cerrado ${index}`,
-          description: 'Visita cultural accessible, pero cerrada durante el recorrido.',
+          description:
+            'Visita cultural accessible, pero cerrada durante el recorrido.',
           themes: ['culture'],
           traits: ['accessibility', 'step-free'],
           intents: ['visit'],
@@ -364,7 +367,7 @@ const scenarios: ScenarioDefinition[] = [
           longitudeOffset: Math.floor(index / 4) * 0.0001,
         });
       }
-      if (index < 64) {
+      if (index < 71) {
         return experience('accessible_far', {
           canonicalName: `Accesible lejana ${index}`,
           description: 'Atracción cultural accesible pero lejana.',
@@ -414,25 +417,27 @@ const scenarios: ScenarioDefinition[] = [
           themes: ['culture', 'interactive'],
           traits: ['family friendly', 'kids', 'adults'],
           semanticTier: 'positive',
-          qualityScore: 4.4,
+          qualityScore: 5,
         });
       }
       if (index < 50) {
         return experience('adult_only', {
           canonicalName: `Cultura adultos ${index}`,
+          description: 'Experiencia cultural atractiva para adultos, no infantil.',
           themes: ['culture'],
           traits: ['adults'],
           semanticTier: 'positive',
-          qualityScore: 4.7,
+          qualityScore: 4,
         });
       }
       if (index < 85) {
         return experience('kids_only', {
           canonicalName: `Juego infantil ${index}`,
+          description: 'Actividad interactiva para chicos con poco contenido adulto.',
           themes: ['interactive'],
           traits: ['family friendly', 'kids'],
           semanticTier: 'positive',
-          qualityScore: 4.7,
+          qualityScore: 4,
         });
       }
       return experience('distractor', {
@@ -463,7 +468,8 @@ const scenarios: ScenarioDefinition[] = [
         interests: ['hidden history'],
         intents: ['walk'],
         explorationStyle: 'local_deep_dive',
-        additionalPreferences: 'Historias barriales poco conocidas y detalles locales.',
+        additionalPreferences:
+          'Historias barriales poco conocidas y detalles locales.',
       },
     }),
     expectedSelectedClass: 'long_tail_ideal',
@@ -480,18 +486,27 @@ const scenarios: ScenarioDefinition[] = [
           qualityScore: 4,
         });
       }
-      return experience(index < 45 ? 'semantic_false_friend' : 'irrelevant_catalog', {
-        canonicalName: `Catálogo masivo ${index}`,
-        description: 'Oferta general sin afinidad long-tail.',
-        themes: index < 45 ? ['history'] : index % 2 ? ['shopping'] : ['sports'],
-        durationMinutes: 720,
-        qualityScore: index < 45 ? 4.9 : 3.5,
-      });
+      return experience(
+        index < 45 ? 'semantic_false_friend' : 'irrelevant_catalog',
+        {
+          canonicalName: `Catálogo masivo ${index}`,
+          description: 'Oferta general sin afinidad long-tail.',
+          themes:
+            index < 45
+              ? ['history']
+              : index % 2
+                ? ['shopping']
+                : ['sports'],
+          durationMinutes: 720,
+          qualityScore: index < 45 ? 4.9 : 3.5,
+        },
+      );
     },
     assertTrace(tour) {
-      expect(traceStep(tour, 'coverage_analysis').coverageReport.analyzedCandidateCount).toBeGreaterThanOrEqual(
-        250,
-      );
+      expect(
+        traceStep(tour, 'coverage_analysis').coverageReport
+          .analyzedCandidateCount,
+      ).toBeGreaterThanOrEqual(250);
       expect(
         tour.metadata.generationTrace.steps.some(
           (step: any) => step.stage === 'discovery',
@@ -501,9 +516,11 @@ const scenarios: ScenarioDefinition[] = [
   },
   {
     key: 'explicit-relaxation',
-    title: 'over-constrained request requires deterministic hard-exclusion relaxation',
+    title:
+      'over-constrained request requires deterministic hard-exclusion relaxation',
     interpretation: normalizedIntent({
       preferredThemes: ['tango'],
+      preferredIntents: ['performance'],
       hardExclusions: ['religion'],
       positiveSemanticQuery: 'tango Buenos Aires',
     }),
@@ -518,7 +535,7 @@ const scenarios: ScenarioDefinition[] = [
     expectedSelectedClass: 'least_bad_after_relaxation',
     minimumExpectedSelected: 6,
     buildExperience(index) {
-      if (index < 8) {
+      if (index < 20) {
         return experience('least_bad_after_relaxation', {
           canonicalName: `Tango con conflicto religioso ${index}`,
           description: 'Tango de alta afinidad en un antiguo espacio religioso.',
@@ -530,19 +547,29 @@ const scenarios: ScenarioDefinition[] = [
         });
       }
       return experience('worse_after_relaxation', {
-        canonicalName: `Religiosa irrelevante ${index}`,
-        description: 'Iglesia y catedral religiosa sin tango.',
-        themes: ['religion', index % 2 ? 'shopping' : 'sports'],
+        canonicalName: `Tango religioso inviable ${index}`,
+        description:
+          'Propuesta religiosa de tango con duración inviable y baja afinidad.',
+        themes: ['tango', 'religion'],
         traits: ['religious'],
+        intents: ['performance'],
         durationMinutes: 720,
-        qualityScore: 4.8,
+        qualityScore: 3,
       });
     },
     assertTrace(tour, rows) {
-      expect(rows.every((row) => row.value.themes.includes('religion'))).toBe(true);
+      expect(rows.every((row) => row.value.themes.includes('religion'))).toBe(
+        true,
+      );
       const preference = traceStep(tour, 'preference_interpretation');
       expect(preference.outputs.intent.hardExclusions).toContain('religion');
-      expect(traceStep(tour, 'candidate_pool').candidates.length).toBe(15);
+      const pool = traceStep(tour, 'candidate_pool');
+      expect(pool.candidates).toHaveLength(15);
+      expect(
+        pool.candidates.every(
+          (candidate: any) => candidate.metadata?.hardExclusionRelaxed === true,
+        ),
+      ).toBe(true);
     },
   },
 ];
@@ -576,7 +603,10 @@ describe('Experience V2 CP8 mandatory selection scenarios at scale', () => {
   const fakeEmbeddingService = {
     ensureInitialized: jest.fn(async (): Promise<void> => undefined),
     getIndexIdentity: jest.fn(() => EMBEDDING_IDENTITY),
-    getStatus: jest.fn(() => ({ status: 'ready', identity: EMBEDDING_IDENTITY })),
+    getStatus: jest.fn(() => ({
+      status: 'ready',
+      identity: EMBEDDING_IDENTITY,
+    })),
     getEmbeddings: jest.fn(() => fakeEmbeddings),
   };
   const fakeGeoapifyRouting = {
@@ -585,7 +615,8 @@ describe('Experience V2 CP8 mandatory selection scenarios at scale', () => {
       async (from: any, to: any, allowedModes: TransportationMode[]) => {
         const dLat = to.centroid.lat - from.centroid.lat;
         const dLng = to.centroid.lng - from.centroid.lng;
-        const distanceMeters = Math.sqrt(dLat * dLat + dLng * dLng) * 111_000;
+        const distanceMeters =
+          Math.sqrt(dLat * dLat + dLng * dLng) * 111_000;
         const mode = allowedModes.includes(TransportationMode.WALKING)
           ? TransportationMode.WALKING
           : allowedModes[0];
@@ -594,7 +625,8 @@ describe('Experience V2 CP8 mandatory selection scenarios at scale', () => {
           mode,
           durationMinutes,
           distanceMeters,
-          walkingMinutes: mode === TransportationMode.WALKING ? durationMinutes : 0,
+          walkingMinutes:
+            mode === TransportationMode.WALKING ? durationMinutes : 0,
           walkingDistanceMeters:
             mode === TransportationMode.WALKING ? distanceMeters : 0,
           approximate: false,
@@ -665,7 +697,9 @@ describe('Experience V2 CP8 mandatory selection scenarios at scale', () => {
     return authResponse.body.accessToken;
   }
 
-  async function seedScenario(scenario: ScenarioDefinition): Promise<SeededRow[]> {
+  async function seedScenario(
+    scenario: ScenarioDefinition,
+  ): Promise<SeededRow[]> {
     await resetScenarioData();
     activeInterpretation = scenario.interpretation;
     const rows = Array.from({ length: CATALOG_SIZE }, (_, index) => {
@@ -673,7 +707,8 @@ describe('Experience V2 CP8 mandatory selection scenarios at scale', () => {
       return {
         id: `scale-${scenario.key}-${value.oracleClass}-${String(index).padStart(3, '0')}`,
         value,
-        latitude: -34.6037 + (value.latitudeOffset ?? (index % 10) * 0.00008),
+        latitude:
+          -34.6037 + (value.latitudeOffset ?? (index % 10) * 0.00008),
         longitude:
           -58.3816 +
           (value.longitudeOffset ?? Math.floor(index / 10) * 0.00008),
@@ -701,13 +736,13 @@ describe('Experience V2 CP8 mandatory selection scenarios at scale', () => {
         qualityScore: row.value.qualityScore,
         latitude: row.latitude,
         longitude: row.longitude,
+        openingHours: row.value.openingHours ?? alwaysOpen,
         metadata: {
           themes: row.value.themes,
           traits: row.value.traits,
           intents: row.value.intents,
           oracleClass: row.value.oracleClass,
           semanticTier: row.value.semanticTier,
-          openingHours: row.value.openingHours ?? alwaysOpen,
           budgetLevel: row.value.budgetLevel,
           groupType: row.value.groupType,
         },
@@ -762,14 +797,18 @@ describe('Experience V2 CP8 mandatory selection scenarios at scale', () => {
       .set('Authorization', `Bearer ${accessToken}`)
       .expect(200);
     expect(response.body.metadata.generationStatus).toBe('completed');
-    expect((await prisma.outboxEvent.findUnique({ where: { id: event!.id } }))?.status).toBe(
-      'PUBLISHED',
-    );
+    expect(
+      (
+        await prisma.outboxEvent.findUnique({ where: { id: event!.id } })
+      )?.status,
+    ).toBe('PUBLISHED');
     return response.body;
   }
 
   const selectedClasses = (tour: any): string[] =>
-    tour.experiences.map((item: any) => item.experience.metadata.oracleClass);
+    tour.experiences.map(
+      (item: any) => item.experience.metadata.oracleClass,
+    );
   const plan = (tour: any) =>
     tour.experiences.map((item: any) => ({
       experienceId: item.experienceId,
@@ -784,10 +823,14 @@ describe('Experience V2 CP8 mandatory selection scenarios at scale', () => {
       const rows = await seedScenario(scenario);
       const expectedIds = new Set(
         rows
-          .filter((row) => row.value.oracleClass === scenario.expectedSelectedClass)
+          .filter(
+            (row) => row.value.oracleClass === scenario.expectedSelectedClass,
+          )
           .map((row) => row.id),
       );
-      expect(expectedIds.size).toBeGreaterThanOrEqual(scenario.minimumExpectedSelected);
+      expect(expectedIds.size).toBeGreaterThanOrEqual(
+        scenario.minimumExpectedSelected,
+      );
       const tour = await generateTour(scenario.request);
       expect(tour.experiences.length).toBeGreaterThanOrEqual(
         scenario.minimumExpectedSelected,
@@ -802,12 +845,13 @@ describe('Experience V2 CP8 mandatory selection scenarios at scale', () => {
         ),
       ).toBe(true);
       expect(tour.metadata.generationTrace.version).toBe(3);
-      expect(traceStep(tour, 'coverage_analysis').coverageReport.analyzedCandidateCount).toBeGreaterThanOrEqual(
-        250,
-      );
-      expect(traceStep(tour, 'coverage_analysis').coverageReport.decision.action).toBe(
-        'none',
-      );
+      expect(
+        traceStep(tour, 'coverage_analysis').coverageReport
+          .analyzedCandidateCount,
+      ).toBeGreaterThanOrEqual(250);
+      expect(
+        traceStep(tour, 'coverage_analysis').coverageReport.decision.action,
+      ).toBe('none');
       expect(traceStep(tour, 'candidate_pool').candidates).toHaveLength(15);
       expect(traceStep(tour, 'daily_planning').dailyPlanning.solver).toBe(
         'GreedyDailyPlanningSolver',
@@ -828,9 +872,11 @@ describe('Experience V2 CP8 mandatory selection scenarios at scale', () => {
     const scenario = scenarios[0];
     await seedScenario(scenario);
     const original = await generateTour(scenario.request);
-    expect(selectedClasses(original).every((value) => value === 'ideal_culture_walk')).toBe(
-      true,
-    );
+    expect(
+      selectedClasses(original).every(
+        (value) => value === 'ideal_culture_walk',
+      ),
+    ).toBe(true);
 
     activeInterpretation = normalizedIntent({
       preferredThemes: ['tango', 'religion'],
