@@ -1822,9 +1822,16 @@ export class ExperienceGenerationService {
         error.stack,
       );
 
-      throw new BadRequestException(
+      const wrapped = new BadRequestException(
         `Failed to generate experiences: ${error.message}`,
       );
+      // Preserve an explicit retryable signal (e.g. from isCoverageFatal's
+      // throw) across this wrap — without this, classifyGenerationFailure
+      // never sees it and falls back to its whole-trace heuristic scan.
+      if (typeof error.retryable === 'boolean') {
+        (wrapped as any).retryable = error.retryable;
+      }
+      throw wrapped;
     }
   }
 }
