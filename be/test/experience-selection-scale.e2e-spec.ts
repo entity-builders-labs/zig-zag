@@ -196,7 +196,8 @@ const scenarios: ScenarioDefinition[] = [
       if (index < 15) {
         return experience('ideal_culture_walk', {
           canonicalName: `Paseo cultural de arte y tango ${index}`,
-          description: 'Caminata cultural con arte, tango y patrimonio secular.',
+          description:
+            'Caminata cultural con arte, tango y patrimonio secular.',
           themes: ['culture', 'art', 'tango'],
           traits: ['walking', 'local culture'],
           intents: ['walk'],
@@ -207,7 +208,8 @@ const scenarios: ScenarioDefinition[] = [
       if (index < 45) {
         return experience('religious_false_friend', {
           canonicalName: `Tango y arte en catedral ${index}`,
-          description: 'Tango y arte dentro de una iglesia y catedral religiosa.',
+          description:
+            'Tango y arte dentro de una iglesia y catedral religiosa.',
           themes: ['culture', 'art', 'tango', 'religion'],
           traits: ['walking'],
           intents: ['walk'],
@@ -339,7 +341,8 @@ const scenarios: ScenarioDefinition[] = [
         interests: ['culture'],
         intents: ['visit'],
         explorationStyle: 'balanced',
-        additionalPreferences: 'Movilidad reducida: accesible, cerca y abierto.',
+        additionalPreferences:
+          'Movilidad reducida: accesible, cerca y abierto.',
       },
     }),
     expectedSelectedClass: 'ideal_accessible_open',
@@ -429,7 +432,8 @@ const scenarios: ScenarioDefinition[] = [
       if (index < 50) {
         return experience('adult_only', {
           canonicalName: `Cultura adultos ${index}`,
-          description: 'Experiencia cultural atractiva para adultos, no infantil.',
+          description:
+            'Experiencia cultural atractiva para adultos, no infantil.',
           themes: ['culture'],
           traits: ['adults'],
           semanticTier: 'positive',
@@ -499,12 +503,7 @@ const scenarios: ScenarioDefinition[] = [
         {
           canonicalName: `Catálogo masivo ${index}`,
           description: 'Oferta general sin afinidad long-tail.',
-          themes:
-            index < 45
-              ? ['history']
-              : index % 2
-                ? ['shopping']
-                : ['sports'],
+          themes: index < 45 ? ['history'] : index % 2 ? ['shopping'] : ['sports'],
           durationMinutes: 720,
           qualityScore: index < 45 ? 4.9 : 3.5,
         },
@@ -589,7 +588,8 @@ describe('Experience V2 CP8 mandatory selection scenarios at scale', () => {
   let prisma: PrismaService;
   let outboxPublisher: OutboxPublisherService;
   let accessToken: string;
-  let activeInterpretation: Record<string, unknown> = scenarios[0].interpretation;
+  let activeInterpretation: Record<string, unknown> =
+    scenarios[0].interpretation;
 
   const fakeLangChain = {
     generateChatResponse: jest.fn(async () =>
@@ -602,8 +602,9 @@ describe('Experience V2 CP8 mandatory selection scenarios at scale', () => {
   };
   const fakeEmbeddings = {
     embedQuery: jest.fn(async () => [...positiveVector]),
-    embedDocuments: jest.fn(async (texts: string[]): Promise<number[][]> =>
-      texts.map(() => [...positiveVector]),
+    embedDocuments: jest.fn(
+      async (texts: string[]): Promise<number[][]> =>
+        texts.map(() => [...positiveVector]),
     ),
   };
   const fakeEmbeddingService = {
@@ -621,8 +622,7 @@ describe('Experience V2 CP8 mandatory selection scenarios at scale', () => {
       async (from: any, to: any, allowedModes: TransportationMode[]) => {
         const dLat = to.centroid.lat - from.centroid.lat;
         const dLng = to.centroid.lng - from.centroid.lng;
-        const distanceMeters =
-          Math.sqrt(dLat * dLat + dLng * dLng) * 111_000;
+        const distanceMeters = Math.sqrt(dLat * dLat + dLng * dLng) * 111_000;
         const mode = allowedModes.includes(TransportationMode.WALKING)
           ? TransportationMode.WALKING
           : allowedModes[0];
@@ -713,8 +713,7 @@ describe('Experience V2 CP8 mandatory selection scenarios at scale', () => {
       return {
         id: `scale-${scenario.key}-${value.oracleClass}-${String(index).padStart(3, '0')}`,
         value,
-        latitude:
-          -34.6037 + (value.latitudeOffset ?? (index % 10) * 0.00008),
+        latitude: -34.6037 + (value.latitudeOffset ?? (index % 10) * 0.00008),
         longitude:
           -58.3816 +
           (value.longitudeOffset ?? Math.floor(index / 10) * 0.00008),
@@ -806,15 +805,15 @@ describe('Experience V2 CP8 mandatory selection scenarios at scale', () => {
       .expect(200);
     expect(response.body.metadata.generationStatus).toBe('completed');
     expect(
-      (await prisma.outboxEvent.findUnique({ where: { id: event!.id } }))?.status,
+      (
+        await prisma.outboxEvent.findUnique({ where: { id: event!.id } })
+      )?.status,
     ).toBe('PUBLISHED');
     return response.body;
   }
 
   const selectedClasses = (tour: any): string[] =>
-    tour.experiences.map(
-      (item: any) => item.experience.metadata.oracleClass,
-    );
+    tour.experiences.map((item: any) => item.experience.metadata.oracleClass);
 
   const plan = (tour: any) =>
     tour.experiences.map((item: any) => ({
