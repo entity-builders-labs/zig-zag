@@ -65,6 +65,39 @@ describe('buildGenerationExecutionSummary', () => {
     expect(result.narrative).toContain('4. 2 TourExperience snapshot');
   });
 
+  it('records geographic validation as its own ordered execution stage', () => {
+    const result = buildGenerationExecutionSummary({
+      status: 'completed',
+      steps: [
+        step('entity_resolution', 'components resolved', { resolvedCount: 2 }),
+        step('geographic_validation', 'geography validated', {
+          acceptedCount: 1,
+          rejectedCount: 1,
+        }),
+        step('catalog_materialization', 'experience persisted', {
+          persistedCount: 1,
+        }),
+      ],
+    });
+
+    expect(result.orderedStages.map((item) => item.stage)).toEqual([
+      'entity_resolution',
+      'geographic_validation',
+      'catalog_materialization',
+    ]);
+    expect(result.orderedStages[1]).toEqual(
+      expect.objectContaining({
+        stage: 'geographic_validation',
+        outcome: 'OUTCOME_geographic_validation',
+        counts: {
+          acceptedCount: 1,
+          rejectedCount: 1,
+        },
+      }),
+    );
+    expect(result.narrative).toContain('2. geography validated');
+  });
+
   it('keeps failed executions structured without inventing materialization', () => {
     const result = buildGenerationExecutionSummary({
       status: 'failed',
