@@ -421,7 +421,7 @@ export class ExperienceCatalogService {
                   : Math.max(same.qualityScore, input.qualityScore),
             latitude: input.latitude ?? same.latitude,
             longitude: input.longitude ?? same.longitude,
-            openingHours: input.openingHours as
+            openingHours: input.openingHours as unknown as
               | Prisma.InputJsonValue
               | undefined,
             metadata: this.mergeMetadata(same.metadata, input.metadata),
@@ -452,7 +452,7 @@ export class ExperienceCatalogService {
           qualityScore: input.qualityScore,
           latitude: input.latitude,
           longitude: input.longitude,
-          openingHours: input.openingHours as
+          openingHours: input.openingHours as unknown as
             | Prisma.InputJsonValue
             | undefined,
           metadata: input.metadata as Prisma.InputJsonValue | undefined,
