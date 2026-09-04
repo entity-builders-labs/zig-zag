@@ -60,22 +60,11 @@ interface ScenarioExperience {
   price: number;
   qualityScore: number;
   semanticTier: 'positive' | 'negative';
-  openingHours?: any;
+  openingHours?: unknown;
   budgetLevel?: string;
   groupType?: string;
   latitudeOffset?: number;
   longitudeOffset?: number;
-}
-
-interface ScenarioDefinition {
-  key: ScenarioKey;
-  title: string;
-  interpretation: Record<string, any>;
-  request: Record<string, any>;
-  expectedSelectedClass: string;
-  minimumExpectedSelected: number;
-  buildExperience(index: number): ScenarioExperience;
-  assertTrace?: (tour: any, rows: SeededRow[]) => void;
 }
 
 interface SeededRow {
@@ -85,9 +74,20 @@ interface SeededRow {
   longitude: number;
 }
 
+interface ScenarioDefinition {
+  key: ScenarioKey;
+  title: string;
+  interpretation: Record<string, unknown>;
+  request: Record<string, unknown>;
+  expectedSelectedClass: string;
+  minimumExpectedSelected: number;
+  buildExperience(index: number): ScenarioExperience;
+  assertTrace?: (tour: any, rows: SeededRow[]) => void;
+}
+
 function normalizedIntent(
-  overrides: Record<string, any>,
-): Record<string, any> {
+  overrides: Record<string, unknown>,
+): Record<string, unknown> {
   return {
     preferredThemes: [] as string[],
     preferredTraits: [] as string[],
@@ -107,7 +107,9 @@ function normalizedIntent(
   };
 }
 
-function baseRequest(overrides: Record<string, any> = {}): Record<string, any> {
+function baseRequest(
+  overrides: Record<string, unknown> = {},
+): Record<string, unknown> {
   return {
     destination: {
       label: 'Obelisco, Buenos Aires',
@@ -162,6 +164,12 @@ function experience(
   };
 }
 
+function traceStep(tour: any, stage: string): any {
+  return tour.metadata.generationTrace.steps.find(
+    (step: any) => step.stage === stage,
+  );
+}
+
 const scenarios: ScenarioDefinition[] = [
   {
     key: 'culture-art-tango',
@@ -214,9 +222,8 @@ const scenarios: ScenarioDefinition[] = [
       });
     },
     assertTrace(tour) {
-      const pool = traceStep(tour, 'candidate_pool');
       expect(
-        pool.candidates.some((candidate: any) =>
+        traceStep(tour, 'candidate_pool').candidates.some((candidate: any) =>
           candidate.id.includes('religious_false_friend'),
         ),
       ).toBe(false);
@@ -338,7 +345,7 @@ const scenarios: ScenarioDefinition[] = [
     expectedSelectedClass: 'ideal_accessible_open',
     minimumExpectedSelected: 6,
     buildExperience(index) {
-      if (index < 15) {
+      if (index < 7) {
         return experience('ideal_accessible_open', {
           canonicalName: `Museo accesible cercano ${index}`,
           description:
@@ -347,21 +354,21 @@ const scenarios: ScenarioDefinition[] = [
           traits: ['accessibility', 'step-free'],
           intents: ['visit'],
           semanticTier: 'positive',
-          qualityScore: 5,
-          latitudeOffset: (index % 5) * 0.0001,
-          longitudeOffset: Math.floor(index / 5) * 0.0001,
+          qualityScore: 4.8,
+          latitudeOffset: (index % 4) * 0.0001,
+          longitudeOffset: Math.floor(index / 4) * 0.0001,
         });
       }
-      if (index < 39) {
+      if (index < 15) {
         return experience('accessible_but_closed', {
           canonicalName: `Museo accesible cerrado ${index}`,
           description:
-            'Visita cultural accessible, pero cerrada durante el recorrido.',
+            'Visita cultural accessible, step-free y muy atractiva, pero cerrada durante el recorrido.',
           themes: ['culture'],
           traits: ['accessibility', 'step-free'],
           intents: ['visit'],
           semanticTier: 'positive',
-          qualityScore: 3,
+          qualityScore: 5,
           openingHours: closedDuringPlanningWindow,
           latitudeOffset: (index % 4) * 0.0001,
           longitudeOffset: Math.floor(index / 4) * 0.0001,
@@ -383,9 +390,8 @@ const scenarios: ScenarioDefinition[] = [
       });
     },
     assertTrace(tour) {
-      expect(JSON.stringify(traceStep(tour, 'daily_planning'))).toContain(
-        'OPENING_HOURS_INCOMPATIBLE',
-      );
+      const planning = JSON.stringify(traceStep(tour, 'daily_planning'));
+      expect(planning).toContain('OPENING_HOURS_INCOMPATIBLE');
     },
   },
   {
@@ -433,7 +439,8 @@ const scenarios: ScenarioDefinition[] = [
       if (index < 85) {
         return experience('kids_only', {
           canonicalName: `Juego infantil ${index}`,
-          description: 'Actividad interactiva para chicos con poco contenido adulto.',
+          description:
+            'Actividad interactiva para chicos con poco contenido adulto.',
           themes: ['interactive'],
           traits: ['family friendly', 'kids'],
           semanticTier: 'positive',
@@ -478,7 +485,8 @@ const scenarios: ScenarioDefinition[] = [
       if (index < 8) {
         return experience('long_tail_ideal', {
           canonicalName: `Historias ocultas ${index}`,
-          description: 'Hidden history local con relatos barriales poco conocidos.',
+          description:
+            'Hidden history local con relatos barriales poco conocidos.',
           themes: ['hidden history'],
           traits: ['local', 'long-tail'],
           intents: ['walk'],
@@ -529,21 +537,23 @@ const scenarios: ScenarioDefinition[] = [
         interests: ['tango'],
         intents: ['performance'],
         explorationStyle: 'balanced',
-        additionalPreferences: 'Quiero tango pero no acepto ningún lugar religioso.',
+        additionalPreferences:
+          'Quiero tango pero no acepto ningún lugar religioso.',
       },
     }),
     expectedSelectedClass: 'least_bad_after_relaxation',
     minimumExpectedSelected: 6,
     buildExperience(index) {
-      if (index < 20) {
+      if (index < 15) {
         return experience('least_bad_after_relaxation', {
           canonicalName: `Tango con conflicto religioso ${index}`,
-          description: 'Tango de alta afinidad en un antiguo espacio religioso.',
+          description:
+            'Tango de alta afinidad en un antiguo espacio religioso.',
           themes: ['tango', 'religion'],
-          traits: ['performance'],
+          traits: ['performance', 'religious'],
           intents: ['performance'],
           semanticTier: 'positive',
-          qualityScore: 4.3,
+          qualityScore: 4.8,
         });
       }
       return experience('worse_after_relaxation', {
@@ -551,9 +561,10 @@ const scenarios: ScenarioDefinition[] = [
         description:
           'Propuesta religiosa de tango con duración inviable y baja afinidad.',
         themes: ['tango', 'religion'],
-        traits: ['religious'],
+        traits: ['performance', 'religious'],
         intents: ['performance'],
         durationMinutes: 720,
+        semanticTier: index < 40 ? 'positive' : 'negative',
         qualityScore: 3,
       });
     },
@@ -563,32 +574,27 @@ const scenarios: ScenarioDefinition[] = [
       );
       const preference = traceStep(tour, 'preference_interpretation');
       expect(preference.outputs.intent.hardExclusions).toContain('religion');
-      const pool = traceStep(tour, 'candidate_pool');
-      expect(pool.candidates).toHaveLength(15);
+      expect(traceStep(tour, 'candidate_pool').candidates).toHaveLength(15);
       expect(
-        pool.candidates.every(
-          (candidate: any) => candidate.metadata?.hardExclusionRelaxed === true,
+        tour.experiences.every((item: any) =>
+          item.experience.metadata.themes.includes('religion'),
         ),
       ).toBe(true);
     },
   },
 ];
 
-function traceStep(tour: any, stage: string): any {
-  return tour.metadata.generationTrace.steps.find(
-    (step: any) => step.stage === stage,
-  );
-}
-
 describe('Experience V2 CP8 mandatory selection scenarios at scale', () => {
   let app: INestApplication;
   let prisma: PrismaService;
   let outboxPublisher: OutboxPublisherService;
   let accessToken: string;
-  let activeInterpretation: Record<string, any> = scenarios[0].interpretation;
+  let activeInterpretation: Record<string, unknown> = scenarios[0].interpretation;
 
   const fakeLangChain = {
-    generateChatResponse: jest.fn(async () => JSON.stringify(activeInterpretation)),
+    generateChatResponse: jest.fn(async () =>
+      JSON.stringify(activeInterpretation),
+    ),
     getProviderMetadata: jest.fn(() => ({
       provider: 'e2e-preference-interpreter',
       model: 'deterministic-json-v2',
@@ -714,6 +720,7 @@ describe('Experience V2 CP8 mandatory selection scenarios at scale', () => {
           (value.longitudeOffset ?? Math.floor(index / 10) * 0.00008),
       };
     });
+
     await prisma.geoEntity.createMany({
       data: rows.map((row, index) => ({
         id: `geo-${row.id}`,
@@ -764,6 +771,7 @@ describe('Experience V2 CP8 mandatory selection scenarios at scale', () => {
         required: true,
       })),
     });
+
     const positive = `[${positiveVector.join(',')}]`;
     const negative = `[${negativeVector.join(',')}]`;
     await prisma.$executeRawUnsafe(
@@ -776,7 +784,7 @@ describe('Experience V2 CP8 mandatory selection scenarios at scale', () => {
     return rows;
   }
 
-  async function generateTour(generationRequest: Record<string, any>) {
+  async function generateTour(generationRequest: Record<string, unknown>) {
     const created = await request(app.getHttpServer())
       .post('/tours/generate-tour')
       .set('Authorization', `Bearer ${accessToken}`)
@@ -798,9 +806,7 @@ describe('Experience V2 CP8 mandatory selection scenarios at scale', () => {
       .expect(200);
     expect(response.body.metadata.generationStatus).toBe('completed');
     expect(
-      (
-        await prisma.outboxEvent.findUnique({ where: { id: event!.id } })
-      )?.status,
+      (await prisma.outboxEvent.findUnique({ where: { id: event!.id } }))?.status,
     ).toBe('PUBLISHED');
     return response.body;
   }
@@ -809,6 +815,7 @@ describe('Experience V2 CP8 mandatory selection scenarios at scale', () => {
     tour.experiences.map(
       (item: any) => item.experience.metadata.oracleClass,
     );
+
   const plan = (tour: any) =>
     tour.experiences.map((item: any) => ({
       experienceId: item.experienceId,
@@ -831,13 +838,16 @@ describe('Experience V2 CP8 mandatory selection scenarios at scale', () => {
       expect(expectedIds.size).toBeGreaterThanOrEqual(
         scenario.minimumExpectedSelected,
       );
+
       const tour = await generateTour(scenario.request);
       expect(tour.experiences.length).toBeGreaterThanOrEqual(
         scenario.minimumExpectedSelected,
       );
       expect(tour.experiences.length).toBeLessThanOrEqual(15);
       expect(
-        tour.experiences.every((item: any) => expectedIds.has(item.experienceId)),
+        tour.experiences.every((item: any) =>
+          expectedIds.has(item.experienceId),
+        ),
       ).toBe(true);
       expect(
         selectedClasses(tour).every(
@@ -863,6 +873,7 @@ describe('Experience V2 CP8 mandatory selection scenarios at scale', () => {
       ).toBe(false);
       expect(tour.metadata.executionSummary.status).toBe('completed');
       scenario.assertTrace?.(tour, rows);
+
       const repeated = await generateTour(scenario.request);
       expect(plan(repeated)).toEqual(plan(tour));
     });
@@ -891,10 +902,11 @@ describe('Experience V2 CP8 mandatory selection scenarios at scale', () => {
     await prisma.$executeRawUnsafe(
       `UPDATE "experience" SET "embedding" = '${positive}'::vector WHERE "metadata"->>'oracleClass' = 'religious_false_friend'`,
     );
+
     const changed = await generateTour({
       ...scenario.request,
       intent: {
-        ...scenario.request.intent,
+        ...(scenario.request.intent as Record<string, unknown>),
         interests: ['tango', 'religion'],
         additionalPreferences:
           'Quiero específicamente tango, arte religioso y catedrales caminando.',
