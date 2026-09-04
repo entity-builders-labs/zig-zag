@@ -242,6 +242,61 @@ export class ExperienceCatalogService {
       });
   }
 
+  /**
+   * A single verified Experience with everything a detail screen needs:
+   * resolved address (from its first geolocatable component's GeoEntity),
+   * real persisted media (matches the `DocumentaryPhoto[]` shape 1:1, so the
+   * frontend's existing `getPhotoGallery` needs no adaptation), and its raw
+   * components for the multi-component ("composite") detail branch.
+   */
+  async findById(id: string) {
+    const experience = await this.prisma.experience.findUnique({
+      where: { id },
+      include: {
+        components: { include: { geoEntity: true } },
+        traits: { include: { traitDefinition: true } },
+        media: { orderBy: { position: 'asc' } },
+      },
+    });
+    if (!experience || experience.status !== ExperienceStatus.VERIFIED) {
+      return null;
+    }
+    const metadata = this.objectMetadata(experience.metadata);
+    const relationalTraits = experience.traits.flatMap((trait) =>
+      [trait.traitDefinition.label, trait.traitDefinition.key].filter(
+        (value): value is string => !!value,
+      ),
+    );
+    const primaryGeoEntity = experience.components.find(
+      (item) =>
+        Number.isFinite(item.geoEntity.latitude) &&
+        Number.isFinite(item.geoEntity.longitude),
+    )?.geoEntity;
+    return {
+      id: experience.id,
+      name: experience.canonicalName,
+      canonicalName: experience.canonicalName,
+      description: experience.description,
+      price: experience.price,
+      qualityScore: experience.qualityScore,
+      latitude: experience.latitude ?? primaryGeoEntity?.latitude,
+      longitude: experience.longitude ?? primaryGeoEntity?.longitude,
+      address: primaryGeoEntity?.address,
+      duration: (experience.durationMinutes ?? 120) / 60,
+      durationMinutes: experience.durationMinutes,
+      openingHours: experience.openingHours,
+      themes: this.stringList(metadata.themes),
+      intents: this.stringList(metadata.intents ?? metadata.archetypes),
+      traits: Array.from(
+        new Set([...this.stringList(metadata.traits), ...relationalTraits]),
+      ),
+      type: this.stringList(metadata.themes)[0],
+      photos: experience.media,
+      mediaUpdatedAt: experience.mediaUpdatedAt,
+      components: experience.components,
+    };
+  }
+
   async upsertGeoEntity(input: GeoEntityInput) {
     const identity = await this.prisma.geoEntityIdentity.findUnique({
       where: {

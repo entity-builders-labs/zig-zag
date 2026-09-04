@@ -9,6 +9,7 @@ import {
   Query,
   UseGuards,
   ValidationPipe,
+  NotFoundException,
 } from '@nestjs/common';
 import { ToursService } from '../services/tours.service';
 import { TourGenerationService } from '../services/tour-generation.service';
@@ -54,6 +55,22 @@ export class ToursController {
     @Query('radius') radius = 5000,
   ) {
     return this.experienceCatalog.findVerifiedWithin(+lat, +lng, +radius, 100);
+  }
+
+  @Get('experiences/:id')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get a single verified Experience by id' })
+  @ApiResponse({
+    status: 404,
+    description: 'Experience not found or not verified.',
+  })
+  async getExperienceById(@Param('id') id: string) {
+    const experience = await this.experienceCatalog.findById(id);
+    if (!experience) {
+      throw new NotFoundException(`Experience with ID ${id} not found`);
+    }
+    return experience;
   }
 
   @Post()

@@ -52,6 +52,107 @@ describe('ExperienceCatalogService catalog retrieval', () => {
   });
 });
 
+describe('ExperienceCatalogService.findById', () => {
+  it('returns null when no Experience matches the id', async () => {
+    const prisma: any = {
+      experience: { findUnique: jest.fn().mockResolvedValue(null) },
+    };
+    const service = new ExperienceCatalogService(prisma, {} as any);
+
+    const result = await service.findById('missing-id');
+
+    expect(result).toBeNull();
+    expect(prisma.experience.findUnique).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: 'missing-id' } }),
+    );
+  });
+
+  it('returns null for an Experience that is not VERIFIED (e.g. still PENDING)', async () => {
+    const prisma: any = {
+      experience: {
+        findUnique: jest.fn().mockResolvedValue({
+          id: 'e1',
+          status: 'PENDING',
+          components: [],
+          traits: [],
+          media: [],
+        }),
+      },
+    };
+    const service = new ExperienceCatalogService(prisma, {} as any);
+
+    const result = await service.findById('e1');
+
+    expect(result).toBeNull();
+  });
+
+  it('shapes a verified Experience with address from its first geolocatable component and real media as photos', async () => {
+    const prisma: any = {
+      experience: {
+        findUnique: jest.fn().mockResolvedValue({
+          id: 'e1',
+          canonicalName: 'Museo Central',
+          description: 'A real museum',
+          price: 15,
+          qualityScore: 4.5,
+          latitude: null,
+          longitude: null,
+          durationMinutes: 90,
+          openingHours: { monday: '10:00-18:00' },
+          mediaUpdatedAt: '2026-09-01T00:00:00.000Z',
+          status: 'VERIFIED',
+          metadata: { themes: ['history', 'art'], traits: ['guided'] },
+          components: [
+            {
+              geoEntityId: 'geo-1',
+              order: 1,
+              geoEntity: {
+                latitude: -34.6,
+                longitude: -58.38,
+                address: 'Av. de Mayo 123',
+              },
+            },
+          ],
+          traits: [
+            { traitDefinition: { label: 'Family friendly', key: 'family' } },
+          ],
+          media: [
+            { url: 'https://example.com/photo1.jpg', position: 0 },
+            { url: 'https://example.com/photo2.jpg', position: 1 },
+          ],
+        }),
+      },
+    };
+    const service = new ExperienceCatalogService(prisma, {} as any);
+
+    const result = await service.findById('e1');
+
+    expect(result).toEqual(
+      expect.objectContaining({
+        id: 'e1',
+        canonicalName: 'Museo Central',
+        name: 'Museo Central',
+        description: 'A real museum',
+        price: 15,
+        qualityScore: 4.5,
+        latitude: -34.6,
+        longitude: -58.38,
+        address: 'Av. de Mayo 123',
+        durationMinutes: 90,
+        duration: 1.5,
+        openingHours: { monday: '10:00-18:00' },
+        themes: ['history', 'art'],
+        traits: expect.arrayContaining(['guided', 'Family friendly', 'family']),
+        photos: [
+          { url: 'https://example.com/photo1.jpg', position: 0 },
+          { url: 'https://example.com/photo2.jpg', position: 1 },
+        ],
+        mediaUpdatedAt: '2026-09-01T00:00:00.000Z',
+      }),
+    );
+  });
+});
+
 describe('ExperienceCatalogService dedupe', () => {
   const input: any = {
     canonicalName: ' Museo Central ',
