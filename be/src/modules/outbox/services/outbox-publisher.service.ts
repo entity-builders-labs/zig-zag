@@ -15,6 +15,7 @@ import {
   OutboxMetrics,
   OutboxPublisherConfig,
   OutboxStatus,
+  OutboxTerminalFailureHandler,
 } from '../interfaces/outbox.interface';
 
 @Injectable()
@@ -29,6 +30,11 @@ export class OutboxPublisherService implements OnModuleInit, OnModuleDestroy {
   private publishSuccessTotal = 0;
   private publishFailuresTotal = 0;
   private staleLeaseRecoveriesTotal = 0;
+
+  private readonly terminalFailureHandlers = new Map<
+    string,
+    OutboxTerminalFailureHandler[]
+  >();
 
   constructor(
     private readonly prisma: PrismaService,
@@ -47,6 +53,50 @@ export class OutboxPublisherService implements OnModuleInit, OnModuleDestroy {
 
   configure(customConfig: Partial<OutboxPublisherConfig>): void {
     Object.assign(this.config, customConfig);
+  }
+
+  /**
+   * Registers a handler to be invoked once an event of the given type
+   * permanently exhausts its retries (`attemptCount >= maxAttempts`) — the
+   * one moment nothing will ever redeliver this exact event again. This
+   * keeps the publisher itself domain-agnostic: it only exposes the moment,
+   * never interprets it. A handler that throws is logged and otherwise
+   * ignored — it must never affect the outbox's own state transition, which
+   * has already been durably committed by the time handlers run.
+   */
+  onTerminalFailure(
+    eventType: string,
+    handler: OutboxTerminalFailureHandler,
+  ): void {
+    const handlers = this.terminalFailureHandlers.get(eventType) ?? [];
+    handlers.push(handler);
+    this.terminalFailureHandlers.set(eventType, handlers);
+  }
+
+  private async notifyTerminalFailure(
+    event: ClaimedOutboxEventRow,
+    lastError: string,
+  ): Promise<void> {
+    const handlers = this.terminalFailureHandlers.get(event.eventType);
+    if (!handlers || handlers.length === 0) return;
+
+    for (const handler of handlers) {
+      try {
+        await handler({
+          id: event.id,
+          eventType: event.eventType,
+          payload: event.payload,
+          attemptCount: event.attemptCount,
+          maxAttempts: event.maxAttempts,
+          lastError,
+        });
+      } catch (handlerError: any) {
+        this.logger.error(
+          `[OutboxPublisher] Terminal-failure handler for "${event.eventType}" (id: ${event.id}) threw: ${handlerError?.message || handlerError}`,
+          handlerError?.stack,
+        );
+      }
+    }
   }
 
   onModuleInit(): void {
@@ -154,6 +204,10 @@ export class OutboxPublisherService implements OnModuleInit, OnModuleDestroy {
             this.logger.error(
               `[OutboxPublisher] Event "${event.eventType}" (id: ${event.id}) reached max attempts (${event.attemptCount}/${event.maxAttempts}). Marked as FAILED. Error: ${truncatedError}`,
             );
+            // The FAILED transition above is already durably committed —
+            // only now is it true that nothing will ever redeliver this
+            // event again, so only now do domain-side handlers get to see it.
+            await this.notifyTerminalFailure(event, truncatedError);
           } else {
             const backoffMs = Math.min(
               this.config.maxBackoffMs,

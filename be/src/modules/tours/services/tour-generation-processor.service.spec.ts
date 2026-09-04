@@ -18,13 +18,22 @@ describe('TourGenerationProcessorService', () => {
       generateTourExperiences: jest.fn().mockResolvedValue(undefined),
     };
     const queue = { subscribe: jest.fn() };
+    const outboxPublisher = { onTerminalFailure: jest.fn() };
     const service = new TourGenerationProcessorService(
       prisma as any,
       toursService as any,
       generation as any,
       queue as any,
+      outboxPublisher as any,
     );
-    return { service, prisma, toursService, generation, queue };
+    return {
+      service,
+      prisma,
+      toursService,
+      generation,
+      queue,
+      outboxPublisher,
+    };
   }
 
   const payload = {
@@ -42,6 +51,19 @@ describe('TourGenerationProcessorService', () => {
     });
     service.onModuleInit();
     expect(queue.subscribe).toHaveBeenCalledWith(
+      'TourGenerationRequested',
+      expect.any(Function),
+    );
+  });
+
+  it('registers a terminal-failure handler for TourGenerationRequested with the outbox publisher', () => {
+    const { service, outboxPublisher } = setup({
+      id: 'tour-1',
+      metadata: { generationStatus: 'pending' },
+      experiences: [] as any[],
+    });
+    service.onModuleInit();
+    expect(outboxPublisher.onTerminalFailure).toHaveBeenCalledWith(
       'TourGenerationRequested',
       expect.any(Function),
     );
@@ -178,5 +200,68 @@ describe('TourGenerationProcessorService', () => {
 
     expect(prisma.$transaction).not.toHaveBeenCalled();
     expect(prisma.outboxEvent.deleteMany).not.toHaveBeenCalled();
+  });
+
+  describe('handleTerminalFailure', () => {
+    const terminalEvent = {
+      id: 'outbox-1',
+      eventType: 'TourGenerationRequested',
+      payload: { tourId: 'tour-1' },
+      attemptCount: 5,
+      maxAttempts: 5,
+      lastError: 'Fatal broker rejection',
+    };
+
+    it('marks a zombie-pending tour as terminally failed once the outbox exhausts every attempt', async () => {
+      const { service, prisma } = setup({
+        id: 'tour-1',
+        metadata: {
+          generationStatus: 'pending',
+          generationFailureKind: 'retryable',
+          generationMessage: 'Reintento pendiente: PROVIDER_TRANSIENT',
+          generationRetryCount: 4,
+        },
+        experiences: [] as any[],
+      });
+
+      await service.handleTerminalFailure(terminalEvent);
+
+      expect(prisma.tour.update).toHaveBeenCalledWith({
+        where: { id: 'tour-1' },
+        data: {
+          metadata: expect.objectContaining({
+            generationStatus: 'failed',
+            generationFailureKind: 'exhausted',
+            generationError: 'Fatal broker rejection',
+            generationMessage: expect.any(String),
+            generationFailedAt: expect.any(String),
+          }),
+        },
+      });
+    });
+
+    it('is a no-op when the tour already completed before the terminal event was processed', async () => {
+      const { service, prisma } = setup({
+        id: 'tour-1',
+        metadata: { generationStatus: 'completed' },
+        experiences: [{ id: 'tour-experience-1' }],
+      });
+
+      await service.handleTerminalFailure(terminalEvent);
+
+      expect(prisma.tour.update).not.toHaveBeenCalled();
+    });
+
+    it('ignores an event payload with no tourId', async () => {
+      const { service, prisma } = setup({
+        id: 'tour-1',
+        metadata: { generationStatus: 'pending' },
+        experiences: [] as any[],
+      });
+
+      await service.handleTerminalFailure({ ...terminalEvent, payload: {} });
+
+      expect(prisma.tour.update).not.toHaveBeenCalled();
+    });
   });
 });

@@ -8,6 +8,8 @@ import { TourGenerationRequestedPayload } from '../interfaces/tour-generation-ev
 import { classifyGenerationFailure } from '../utils/generation-failure-classifier.util';
 import { ExperienceGenerationService } from './experience-generation.service';
 import { ToursService } from './tours.service';
+import { OutboxPublisherService } from '../../outbox/services/outbox-publisher.service';
+import { OutboxTerminalFailureEvent } from '../../outbox/interfaces/outbox.interface';
 
 @Injectable()
 export class TourGenerationProcessorService implements OnModuleInit {
@@ -19,6 +21,7 @@ export class TourGenerationProcessorService implements OnModuleInit {
     private readonly experienceGenerationService: ExperienceGenerationService,
     @Inject(MESSAGE_QUEUE_SERVICE)
     private readonly messageQueue: IMessageQueueService,
+    private readonly outboxPublisher: OutboxPublisherService,
   ) {}
 
   onModuleInit(): void {
@@ -28,6 +31,62 @@ export class TourGenerationProcessorService implements OnModuleInit {
     );
     this.logger.log(
       '[TourGenerationProcessor] Subscribed to topic "TourGenerationRequested".',
+    );
+
+    // Closes the gap between the outbox's own retry budget and the Tour's
+    // domain state: a "retryable" compensation (below) promises a future
+    // redelivery, but says nothing about whether the durable event actually
+    // has attempts left. Without this, a Tour that never recovers gets
+    // stuck forever showing "retry pending" once the outbox permanently
+    // gives up, since no further redelivery of that event will ever arrive
+    // to say otherwise.
+    this.outboxPublisher.onTerminalFailure(
+      'TourGenerationRequested',
+      this.handleTerminalFailure.bind(this),
+    );
+  }
+
+  /**
+   * Invoked once — after the outbox event's own row is already committed
+   * FAILED — when a `TourGenerationRequested` event permanently exhausts its
+   * retries. Reconciles any Tour left in a `pending`/`retryable` state that
+   * can now never be redelivered into a real, visible terminal failure.
+   */
+  async handleTerminalFailure(
+    event: OutboxTerminalFailureEvent,
+  ): Promise<void> {
+    const tourId = event.payload?.tourId;
+    if (!tourId) return;
+
+    let tour: any;
+    try {
+      tour = await this.toursService.findOne(tourId);
+    } catch {
+      return;
+    }
+
+    const metadata = (tour.metadata ?? {}) as any;
+    if (metadata.generationStatus === 'completed') {
+      return;
+    }
+
+    await this.prisma.tour.update({
+      where: { id: tourId },
+      data: {
+        metadata: {
+          ...metadata,
+          generationStatus: 'failed',
+          generationFailureKind: 'exhausted',
+          generationMessage:
+            'La generación no pudo completarse tras agotar todos los reintentos automáticos.',
+          generationError: event.lastError,
+          generationFailedAt: new Date().toISOString(),
+        },
+      },
+    });
+
+    this.logger.error(
+      `[TourGenerationProcessor] Outbox permanently exhausted retries for tour ${tourId} (${event.attemptCount}/${event.maxAttempts}); marked generation as terminally failed.`,
     );
   }
 

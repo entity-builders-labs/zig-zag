@@ -265,6 +265,112 @@ describe('OutboxLifecycle Policy & Services', () => {
     });
   });
 
+  describe('OutboxPublisherService - Terminal Failure Notification', () => {
+    function terminalRow(overrides: Partial<any> = {}) {
+      return [
+        {
+          id: 'event-terminal-fail',
+          eventType: 'TourGenerationRequested',
+          payload: { tourId: 't-9' },
+          status: OutboxStatus.PENDING,
+          attemptCount: 4, // next attempt will be 5 == maxAttempts
+          maxAttempts: 5,
+          leaseUntil: null as Date | null,
+          ...overrides,
+        },
+      ];
+    }
+
+    it('10. invokes a registered handler, after the FAILED transition is committed, when an event exhausts maxAttempts', async () => {
+      const callOrder: string[] = [];
+      prismaMock.outboxEvent.update.mockImplementationOnce(async () => {
+        callOrder.push('db-update-failed');
+        return {};
+      });
+      const handler = jest.fn(async () => {
+        callOrder.push('handler-invoked');
+      });
+      publisher.onTerminalFailure('TourGenerationRequested', handler);
+
+      prismaMock.$queryRaw.mockResolvedValueOnce(terminalRow());
+      prismaMock.$executeRaw.mockResolvedValueOnce(1);
+      queueMock.publish.mockRejectedValueOnce(
+        new Error('Fatal broker rejection'),
+      );
+
+      const result = await publisher.processNextBatch();
+
+      expect(result.failedCount).toBe(1);
+      expect(handler).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: 'event-terminal-fail',
+          eventType: 'TourGenerationRequested',
+          payload: { tourId: 't-9' },
+          attemptCount: 5,
+          maxAttempts: 5,
+          lastError: expect.stringContaining('Fatal broker rejection'),
+        }),
+      );
+      expect(callOrder).toEqual(['db-update-failed', 'handler-invoked']);
+    });
+
+    it('11. does not invoke a registered handler on a non-terminal (backoff) failure', async () => {
+      const handler = jest.fn();
+      publisher.onTerminalFailure('TourGenerationRequested', handler);
+
+      prismaMock.$queryRaw.mockResolvedValueOnce(
+        terminalRow({ attemptCount: 0 }),
+      );
+      prismaMock.$executeRaw.mockResolvedValueOnce(1);
+      queueMock.publish.mockRejectedValueOnce(new Error('Transient'));
+      prismaMock.outboxEvent.update.mockResolvedValueOnce({});
+
+      await publisher.processNextBatch();
+
+      expect(handler).not.toHaveBeenCalled();
+    });
+
+    it('12. does not invoke a handler registered for a different eventType', async () => {
+      const handler = jest.fn();
+      publisher.onTerminalFailure('SomeOtherEvent', handler);
+
+      prismaMock.$queryRaw.mockResolvedValueOnce(terminalRow());
+      prismaMock.$executeRaw.mockResolvedValueOnce(1);
+      queueMock.publish.mockRejectedValueOnce(
+        new Error('Fatal broker rejection'),
+      );
+      prismaMock.outboxEvent.update.mockResolvedValueOnce({});
+
+      await publisher.processNextBatch();
+
+      expect(handler).not.toHaveBeenCalled();
+    });
+
+    it("13. a throwing handler never breaks the publisher's own FAILED transition or batch result", async () => {
+      const handler = jest.fn(async () => {
+        throw new Error('domain handler exploded');
+      });
+      publisher.onTerminalFailure('TourGenerationRequested', handler);
+
+      prismaMock.$queryRaw.mockResolvedValueOnce(terminalRow());
+      prismaMock.$executeRaw.mockResolvedValueOnce(1);
+      queueMock.publish.mockRejectedValueOnce(
+        new Error('Fatal broker rejection'),
+      );
+      prismaMock.outboxEvent.update.mockResolvedValueOnce({});
+
+      const result = await publisher.processNextBatch();
+
+      expect(result.failedCount).toBe(1);
+      expect(prismaMock.outboxEvent.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: 'event-terminal-fail' },
+          data: expect.objectContaining({ status: OutboxStatus.FAILED }),
+        }),
+      );
+    });
+  });
+
   describe('OutboxCleanerService - Retention & Bounded Deletions', () => {
     it('6. cleans expired PUBLISHED rows in bounded batches and ignores recent ones', async () => {
       prismaMock.$executeRaw
