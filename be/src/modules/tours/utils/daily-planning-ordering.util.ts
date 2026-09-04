@@ -283,7 +283,6 @@ export async function orderAndScheduleDay(
   candidates: PlanningExperienceCandidate[],
   context: OrderingContext,
 ): Promise<PlannedDay> {
-  return (
-    await orderAndScheduleDayWithRepair(dayNumber, candidates, context)
-  ).day;
+  return (await orderAndScheduleDayWithRepair(dayNumber, candidates, context))
+    .day;
 }
