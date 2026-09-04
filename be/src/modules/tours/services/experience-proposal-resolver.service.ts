@@ -181,6 +181,19 @@ export class ExperienceProposalResolverService
       `Resolved ${resolved.filter((item) => item.status === 'accepted').length}/${resolved.length} Experience candidate(s) against trusted geography`,
     );
 
+    const entityResolution: ExperienceResolutionResponse = {
+      totalCandidates: resolvedCandidates.length,
+      acceptedCount: acceptedForValidation.length,
+      rejectedCount: resolvedCandidates.length - acceptedForValidation.length,
+      resolved: resolvedCandidates,
+    };
+    const geographicValidation = {
+      results: validationResults,
+      acceptedCount: validationResults.filter((item) => item.accepted).length,
+      rejectedCount: validationResults.filter((item) => !item.accepted).length,
+      resolved: acceptedForValidation,
+    };
+
     return {
       totalCandidates: resolved.length,
       acceptedCount: resolved.filter((item) => item.status === 'accepted')
@@ -188,6 +201,9 @@ export class ExperienceProposalResolverService
       rejectedCount: resolved.filter((item) => item.status === 'rejected')
         .length,
       resolved,
+      entityResolution,
+      geographicValidation,
+      materialization: { resolved },
     };
   }
 
