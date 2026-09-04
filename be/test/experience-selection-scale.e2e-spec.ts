@@ -623,7 +623,8 @@ describe('Experience V2 CP8 mandatory selection scenarios at scale', () => {
       async (from: any, to: any, allowedModes: TransportationMode[]) => {
         const dLat = to.centroid.lat - from.centroid.lat;
         const dLng = to.centroid.lng - from.centroid.lng;
-        const distanceMeters = Math.sqrt(dLat * dLat + dLng * dLng) * 111_000;
+        const distanceMeters =
+          Math.sqrt(dLat * dLat + dLng * dLng) * 111_000;
         const mode = allowedModes.includes(TransportationMode.WALKING)
           ? TransportationMode.WALKING
           : allowedModes[0];
@@ -714,7 +715,8 @@ describe('Experience V2 CP8 mandatory selection scenarios at scale', () => {
       return {
         id: `scale-${scenario.key}-${value.oracleClass}-${String(index).padStart(3, '0')}`,
         value,
-        latitude: -34.6037 + (value.latitudeOffset ?? (index % 10) * 0.00008),
+        latitude:
+          -34.6037 + (value.latitudeOffset ?? (index % 10) * 0.00008),
         longitude:
           -58.3816 +
           (value.longitudeOffset ?? Math.floor(index / 10) * 0.00008),
@@ -812,7 +814,9 @@ describe('Experience V2 CP8 mandatory selection scenarios at scale', () => {
   }
 
   const selectedClasses = (tour: any): string[] =>
-    tour.experiences.map((item: any) => item.experience.metadata.oracleClass);
+    tour.experiences.map(
+      (item: any) => item.experience.metadata.oracleClass,
+    );
 
   const plan = (tour: any) =>
     tour.experiences.map((item: any) => ({
