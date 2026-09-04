@@ -15,10 +15,11 @@ export class TourImageService {
   /**
    * Generate a cover image for a tour.
    *
-   * Absence of a Tour or a provider returning no image is represented as null.
-   * Provider/database failures are deliberately allowed to propagate so the
-   * generation orchestrator can make the non-fatal degradation explicit and
-   * record it in trace/metadata instead of silently converting errors to null.
+   * Cover generation is best-effort presentation work, not a reason to fail an
+   * otherwise valid Tour. The outcome is nevertheless persisted in Tour
+   * metadata before returning/rethrowing so the generation orchestrator may
+   * degrade non-fatally without turning the provider failure into a silent
+   * catch-and-log only path.
    */
   async generateTourCoverImage(tourId: string): Promise<string | null> {
     const tour = await this.prisma.tour.findUnique({
@@ -41,16 +42,73 @@ export class TourImageService {
       experienceNames,
     );
 
-    const imageUrl = await this.imageGenerationService.generateImage(prompt);
+    try {
+      const imageUrl = await this.imageGenerationService.generateImage(prompt);
+      const completedAt = new Date().toISOString();
 
-    if (imageUrl) {
       await this.prisma.tour.update({
         where: { id: tour.id },
-        data: { coverImage: imageUrl },
+        data: {
+          ...(imageUrl ? { coverImage: imageUrl } : {}),
+          metadata: {
+            ...this.objectMetadata(tour.metadata),
+            coverImageGeneration: imageUrl
+              ? {
+                  status: 'generated',
+                  provider: 'ImageGenerationService',
+                  completedAt,
+                }
+              : {
+                  status: 'not_generated',
+                  provider: 'ImageGenerationService',
+                  reasonCode: 'PROVIDER_RETURNED_NO_IMAGE',
+                  completedAt,
+                },
+          },
+        },
       });
-      this.logger.log(`Generated and saved cover image for tour ${tourId}`);
-    }
 
-    return imageUrl;
+      if (imageUrl) {
+        this.logger.log(`Generated and saved cover image for tour ${tourId}`);
+      } else {
+        this.logger.warn(
+          `Cover image provider returned no image for tour ${tourId}`,
+        );
+      }
+
+      return imageUrl;
+    } catch (error: any) {
+      const message = error?.message ?? String(error);
+      const failedAt = new Date().toISOString();
+      try {
+        await this.prisma.tour.update({
+          where: { id: tour.id },
+          data: {
+            metadata: {
+              ...this.objectMetadata(tour.metadata),
+              coverImageGeneration: {
+                status: 'failed',
+                provider: 'ImageGenerationService',
+                reasonCode: 'COVER_IMAGE_PROVIDER_FAILED',
+                error: message,
+                failedAt,
+              },
+            },
+          },
+        });
+      } catch (recordingError: any) {
+        this.logger.error(
+          `Failed to persist cover-image failure for tour ${tourId}: ${recordingError?.message ?? recordingError}`,
+        );
+      }
+      this.logger.warn(`Failed to generate cover image: ${message}`);
+      throw error;
+    }
+  }
+
+  private objectMetadata(value: unknown): Record<string, unknown> {
+    return value && typeof value === 'object' && !Array.isArray(value)
+      ? (value as Record<string, unknown>)
+      : {};
   }
 }
