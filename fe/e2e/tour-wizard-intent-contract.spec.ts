@@ -101,11 +101,19 @@ test('serializes destination, mobility and Experience V2 intent independently', 
   await page.getByTestId('wizard-cta-button').click();
 
   await expect(page.getByText('Intereses y Estilo', { exact: true })).toBeVisible();
+  await expect(page.getByText('Tipo de experiencia', { exact: true })).toBeVisible();
+  await expect(page.getByText('Visitas y lugares', { exact: true })).toBeVisible();
+  await expect(page.getByText('Caminatas y recorridos', { exact: true })).toBeVisible();
+  await expect(page.getByText('Gastronomía', { exact: true })).toBeVisible();
+  await expect(page.getByText('Vida nocturna', { exact: true })).toBeVisible();
+  await expect(page.getByText('Rutas temáticas', { exact: true })).toBeVisible();
+  await expect(page.getByText('Escapada de un día', { exact: true })).toBeVisible();
   await expect(page.getByText(/Visitas a Lugares/i)).toHaveCount(0);
   await expect(page.getByText(/Tipo de Actividades/i)).toHaveCount(0);
   await expect(page.getByText(/Especial Mapa/i)).toHaveCount(0);
 
   await page.getByText('Icónicos', { exact: true }).click();
+  await page.getByText('Escapada de un día', { exact: true }).click();
   await page.getByText('Historia', { exact: true }).last().click();
   await page
     .getByPlaceholder(/fotografía urbana/i)
@@ -126,6 +134,7 @@ test('serializes destination, mobility and Experience V2 intent independently', 
     groupType: 'family',
     intent: {
       interests: ['history'],
+      intents: ['day_trip'],
       explorationStyle: 'iconic',
       additionalPreferences: 'Evitar multitudes y priorizar fotografía urbana.'
     },
