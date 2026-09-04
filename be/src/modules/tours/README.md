@@ -4,32 +4,37 @@ The most complex module in the backend — handles AI-powered tour generation, C
 
 ## Architecture
 
+By far the largest module (53 services, 44 utils as of this writing) — it owns the whole Experience Domain V2 engine, not just tour CRUD. Representative layout (not exhaustive):
+
 ```
 tours/
 ├── controllers/
-│   └── tours.controller.ts          # REST API endpoints
+│   └── tours.controller.ts              # REST API endpoints
 ├── dto/
-│   ├── create-tour.dto.ts           # Manual tour creation
-│   ├── create-tour-from-wizard.dto.ts # Canonical wizard intent + mobility
+│   ├── create-tour.dto.ts               # Manual tour creation
+│   ├── create-tour-from-wizard.dto.ts   # Canonical wizard intent + mobility
 │   └── update-tour.dto.ts
-├── interfaces/
-│   └── tour-generation.interface.ts # Canonical request and legacy internal options
-├── prompts/                         # LangChain prompt templates
-│   ├── contextual-activities.prompt.ts
-│   ├── create-tour.prompt.ts
-│   ├── media-generation.prompt.ts
-│   └── index.ts
+├── interfaces/                          # Experience/GeoEntity/coverage/discovery/daily-planning contracts
+├── prompts/
+│   └── media-generation.prompt.ts       # Only LLM prompt still owned directly by this module
 ├── services/
-│   ├── tours.service.ts             # CRUD operations
-│   ├── tour-generation.service.ts   # AI tour generation pipeline
-│   ├── tour-activity-generation.service.ts # Background activity generation
-│   ├── tour-image.service.ts        # Cover image generation (DALL-E)
-│   └── tour-location.service.ts     # Nearby tour discovery
-├── utils/
-│   ├── activity-transformer.util.ts # Activity data transformation
-│   ├── json-parser.util.ts          # Safe JSON parsing from AI responses
-│   ├── prompt-builder.util.ts       # Dynamic prompt construction
-│   └── travel-time-calculator.util.ts
+│   ├── tours.service.ts                 # CRUD operations
+│   ├── tour-generation.service.ts       # Wizard entry point → atomic Tour + outbox event
+│   ├── tour-generation-processor.service.ts # Outbox consumer — actually runs generation
+│   ├── experience-generation.service.ts # The orchestrator: preferences → coverage → discovery →
+│   │                                     # resolution → ranking → deterministic planning → snapshots
+│   ├── experience-catalog.service.ts    # Verified Experience/GeoEntity persistence + trait/dedupe wiring
+│   ├── experience-discovery-planner.service.ts, groq-discovery.provider.ts,
+│   │   gemini-discovery.provider.ts     # Grounded discovery query planning + extraction
+│   ├── experience-proposal-resolver.service.ts # Component resolution + geographic validation
+│   ├── coverage-analyzer.service.ts     # Relevance-based coverage gate (see CLAUDE.md invariant)
+│   ├── greedy-daily-planning.solver.ts, planning-candidate-normalizer.service.ts,
+│   │   tour-planning-feasibility-validator.service.ts # Deterministic scheduling
+│   ├── preference-interpreter.service.ts # Free-text → typed NormalizedPreferenceIntent
+│   ├── tour-image.service.ts            # Cover image generation (DALL-E)
+│   └── tour-location.service.ts         # Read-only nearby-tour lookup over persisted TourExperience
+├── utils/                               # daily-planning-*, experience-dedupe, theme-matching,
+│                                         # experience-preference-evaluator, coverage-decision, trace builders, etc.
 └── tours.module.ts
 ```
 
@@ -62,21 +67,17 @@ deliberately deferred to the spatial-feasibility stage.
 ### Nearby Tours Discovery
 
 - **`GET /tours/nearby?lat=X&lng=Y&category=Z`**
-- `TourLocationService.getNearbyTours()` finds existing tours near coordinates
-- If insufficient results, can trigger new tour generation
+- `TourLocationService.getNearbyTours()` is **read-only** — it looks up existing, already-persisted `Tour → TourExperience → Experience → ExperienceComponent → GeoEntity` rows near the coordinates. It never triggers generation. (No auth guard on this route today — known gap.)
 
 ### LangChain Prompts
 
-The `prompts/` folder contains structured prompt templates that:
-
-- Define the AI's role and expected JSON output format
-- Include existing activity context for better recommendations
-- Handle different tour types (contextual, nearby, from-scratch)
+`prompts/` only owns `media-generation.prompt.ts` now — there is no itinerary/planning prompt in this module's live path (planning is a deterministic solver, never an LLM). `PreferenceInterpreterService` and the discovery providers (`groq-discovery.provider.ts`/`gemini-discovery.provider.ts`) build their prompts inline rather than via this folder.
 
 ## API Endpoints
 
 | Method   | Path                             | Description                            |
 | -------- | -------------------------------- | -------------------------------------- |
+| `GET`    | `/tours/experiences/nearby`      | Verified Experience catalog lookup near a point |
 | `POST`   | `/tours`                         | Create a tour manually                 |
 | `POST`   | `/tours/generate-tour`           | Generate tour from wizard preferences  |
 | `GET`    | `/tours/nearby`                  | Find tours near a location             |

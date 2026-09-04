@@ -1,24 +1,44 @@
 # Activity Discovery and Tour Generation
 
-> **Status:** Target architecture and design invariants. Some stages already
-> exist and others are planned. The current repository remains the source of
-> truth for implementation status.
+> **⚠️ Filename and most of this document predate the Experience Domain V2
+> rearchitecture.** The live runtime model is `GeoEntity` (physical reality:
+> `PLACE`/`AREA`/`ROUTE`) + `Experience` (the only schedulable tourism unit) —
+> `Activity`/`ActivityKind`/`TourActivity` no longer exist anywhere in the
+> schema or runtime (removed by migration `20260902120000_remove_activity_domain_v2`).
+> **Jump straight to [Experience Domain V2 cutover](#experience-domain-v2-cutover-2026-09-02)
+> near the bottom of this file for the current authoritative flow, and to
+> `CLAUDE.md` for a current, dense architecture summary.** Everything between
+> here and that section — "Architectural invariants" through "Activity
+> proposal boundary" — describes the pre-V2 design and is kept only as
+> historical/design-rationale context; do not treat it as current behavior.
+> Many of its underlying *principles* (catalog-first, discovery proposes but
+> never supplies trusted identity, transport-aware feasibility, deterministic
+> selection) still hold in V2, just expressed over Experiences/GeoEntities
+> instead of Activities — see `CLAUDE.md` for how each maps forward.
 >
-> **Mandatory reading:** Read this document before changing tour generation,
-> activity retrieval/ranking, embeddings, destination resolution, composite
-> Activities, Google Places/OSM integrations, or Activity Discovery.
+> **Status:** Some V2 stages already exist and others are planned/tracked as
+> known gaps (see `CLAUDE.md` and
+> `docs/superpowers/plans/2026-09-02-experience-domain-v2-recovery-completion-plan.md`).
+> The current repository remains the source of truth for implementation status.
+>
+> **Mandatory reading:** Read this document (the V2 cutover section, at
+> minimum — the historical sections for background if you have time) before
+> changing Experience/tour generation, candidate retrieval/ranking,
+> embeddings, destination resolution, multi-component Experiences, Google
+> Places/OSM integrations, or Experience Discovery.
 
-This document describes how Zig-Zag should transform user preferences into a
+This document describes how Zig-Zag transforms user preferences into a
 grounded tour while growing a reusable catalog of neighborhood walks, food and
 architecture walks, and route-based experiences.
 
 Related documents:
 
-- [Destination-aware activity engine design](../superpowers/specs/2026-08-21-activity-engine-design.md)
-- [Destination-resolution implementation plan](../superpowers/plans/2026-08-21-activity-engine-destination-resolution.md)
-- [Candidate quality, discovery, and mobility implementation plan](../superpowers/plans/2026-08-21-activity-engine-quality-discovery-mobility.md)
-- [Generation bitacora design](../superpowers/specs/2026-08-20-generation-bitacora-design.md)
-- [Adquisición de candidatos: guía informal del flujo](./main-flow-for-dummies.md) — introducción intuitiva a "Verified pool" antes de leer las invariantes formales de este documento.
+- [Destination-aware activity engine design](../superpowers/specs/2026-08-21-activity-engine-design.md) — historical, pre-V2
+- [Destination-resolution implementation plan](../superpowers/plans/2026-08-21-activity-engine-destination-resolution.md) — historical, pre-V2
+- [Candidate quality, discovery, and mobility implementation plan](../superpowers/plans/2026-08-21-activity-engine-quality-discovery-mobility.md) — historical, pre-V2
+- [Generation bitacora design](../superpowers/specs/2026-08-20-generation-bitacora-design.md) — Bitácora V3 superseded some of this; see `generation-trace.interface.ts`
+- [Adquisición de candidatos: guía informal del flujo](./main-flow-for-dummies.md) — historical, pre-V2, introducción intuitiva a "Verified pool"
+- [Experience Domain V2 recovery/completion plan](../superpowers/plans/2026-09-02-experience-domain-v2-recovery-completion-plan.md) — **current**, checkpoint-by-checkpoint status
 
 ## Vista de negocio y producto
 
@@ -70,12 +90,12 @@ Zig-Zag informa el problema; nunca rellena el tour con lugares inventados.
 | Comprobar calidad y geografía   | Muchos resultados relevantes pueden estar demasiado separados, ser débiles o no formar un día posible para el transporte elegido.                                                             | Grupos candidatos con evidencia y coherencia espacial.                                                     |
 | Analizar cobertura              | Evita llamar a proveedores solamente porque el ranking no es perfecto y evita aceptar un conteo alto pero inútil. También distingue catálogo conocido de destino todavía no perfilado.        | Decisión explícita: continuar, completar POIs, descubrir conceptos o inicializar conocimiento del destino. |
 | Completar POIs convencionales   | Cuando faltan entidades concretas, Google Places Text Search puede recuperar atracciones relevantes y Nearby puede cubrir un tipo o zona faltante.                                            | Nuevos POIs admitidos únicamente después de validar identidad, evidencia y ubicación.                      |
-| Descubrir significado turístico | Places devuelve entidades, pero no garantiza una lista completa de imperdibles ni propone bien experiencias como una caminata histórica. Un proveedor grounded propone conceptos con fuentes. | `ActivityProposal` con evidencia; todavía no es una Activity ni identidad confiable.                       |
+| Descubrir significado turístico | Places devuelve entidades, pero no garantiza una lista completa de imperdibles ni propone bien experiencias como una caminata histórica. Un proveedor grounded propone conceptos con fuentes. | `ExperienceCandidate` con evidencia; todavía no es un Experience ni identidad confiable.                       |
 | Resolver una propuesta          | El significado propuesto debe vincularse con un área, lugares, calles o caminos reales.                                                                                                       | Entidades verificadas con Google Places y OSM, o un rechazo explícito.                                     |
 | Armar días                      | La selección final es un problema de conjunto: variedad, duración y traslados importan además del puntaje individual.                                                                         | Alternativas viables y acotadas por día.                                                                   |
 | Selección y planificación determinísticas | El solver combina y calendariza únicamente Experiences verificadas; ningún LLM inventa ni selecciona unidades de agenda. | IDs de Experience y una propuesta compacta de agenda. |
 | Verificación con reglas         | Una explicación convincente de la IA no demuestra rutas, horarios ni identidad.                                                                                                               | Tour corregido, reducido o rechazado según datos controlados por el backend.                               |
-| Guardar una fotografía          | Las Activities compartidas pueden evolucionar; un tour histórico no debe cambiar retroactivamente.                                                                                            | Orden, tramos y waypoints efectivos preservados al momento de generación.                                  |
+| Guardar una fotografía          | Las Experiences compartidas pueden evolucionar; un tour histórico no debe cambiar retroactivamente.                                                                                            | Orden, tramos y waypoints efectivos preservados al momento de generación.                                  |
 
 ### Qué debe expresar el wizard
 
@@ -160,6 +180,21 @@ relevancia turística. Ninguna crea composites. Una nueva composite nace de una
 propuesta de Discovery, se resuelve contra entidades reales y se valida antes
 de entrar al catálogo. Una composite que ya existe se reutiliza desde la
 consulta inicial sin volver a descubrirla.
+
+---
+
+> ## ⚠️ HISTORICAL — pre-V2 Activity design, superseded
+>
+> Everything from here through **"Change checklist"** describes the
+> `Activity`/`ActivityKind`/`TourActivity` model, which no longer exists in
+> this codebase (removed by migration `20260902120000_remove_activity_domain_v2`).
+> An "itinerary LLM" that "selects real Activity IDs" (invariant 6 below, and
+> others) is also no longer accurate — V2 has **no LLM in ranking/selection/
+> scheduling at all**, only a deterministic solver (see `CLAUDE.md`). Kept for
+> design-rationale/history; skip to
+> [Experience Domain V2 — provider boundaries](#experience-domain-v2--provider-boundaries)
+> and [Experience Domain V2 cutover](#experience-domain-v2-cutover-2026-09-02)
+> for the current flow.
 
 ## Architectural invariants
 
@@ -1145,6 +1180,12 @@ Before merging a change to this engine, verify:
 - Was every superseded selector, branch, mock, trace label, and dependency
   removed rather than left as an unused fallback?
 - Is the generation bitacora updated for new decisions and fallbacks?
+
+> ## ✅ Current content resumes here
+>
+> The sections below (`Experience Domain V2 — provider boundaries` onward)
+> describe the live, current architecture.
+
 ## Experience Domain V2 — provider boundaries
 
 The V2 migration makes `Experience` the only schedulable tourism unit and

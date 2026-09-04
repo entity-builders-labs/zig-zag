@@ -170,21 +170,6 @@ enum ExperienceStatus {
   ARCHIVED
 }
 
-// Small fixed vocabulary on purpose — not free text, so variant identity
-// The conceptual container behind a set of themed variants for one area
-// (e.g. "San Telmo Walk" behind "San Telmo Historic Walk", "San Telmo Art
-// Walk", ...) — never shown to the user directly. @@unique([areaActivityId,
-// kind]) keeps repeated generate-templates runs (or concurrent live
-// generations) from creating duplicate families for the same area.
-//
-// onDelete is asymmetric on purpose: compositeActivity is Cascade (deleting
-// the whole variant cleans up its own waypoints), but waypointActivity is
-// Restrict — deleting a POI that is still a waypoint of some variant fails
-// instead of silently breaking that variant. See
-// CompositeActivityService.mergeWaypointIdentity /
-// removeWaypointFromActiveVariants for the explicit path required to
-// operate on a referenced POI.
-// A snapshot of which waypoints of a variant were actually used for one
 model User {
   id               String       @id @default(uuid())
   email            String       @unique
