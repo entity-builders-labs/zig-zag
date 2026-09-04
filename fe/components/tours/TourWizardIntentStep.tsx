@@ -53,9 +53,34 @@ const EXPERIENCE_INTENT_OPTIONS: Array<{
   desc: string;
 }> = [
   {
+    value: 'visit',
+    label: 'Visitas y lugares',
+    desc: 'Museos, monumentos, mercados y otros puntos concretos'
+  },
+  {
+    value: 'walk',
+    label: 'Caminatas y recorridos',
+    desc: 'Paseos a pie que pueden combinar varios lugares'
+  },
+  {
+    value: 'food',
+    label: 'Gastronomía',
+    desc: 'Comida, mercados, degustaciones y experiencias culinarias'
+  },
+  {
+    value: 'nightlife',
+    label: 'Vida nocturna',
+    desc: 'Bares, música, espectáculos y experiencias nocturnas'
+  },
+  {
+    value: 'route_like',
+    label: 'Rutas temáticas',
+    desc: 'Recorridos conectados por un tema, paisaje o producto'
+  },
+  {
     value: 'day_trip',
     label: 'Escapada de un día',
-    desc: 'Experiencias para hacer desde el destino base'
+    desc: 'Experiencias desde el destino base con regreso en el día'
   }
 ];
 
@@ -122,6 +147,11 @@ export function TourWizardIntentStep({
 
       <VStack space='sm'>
         <WizardFieldLabel>Tipo de experiencia</WizardFieldLabel>
+        <Text size='2xs' color='$textLight500'>
+          Podés combinar tipos e intereses. Por ejemplo, Caminatas y recorridos +
+          Historia busca caminatas históricas sin crear un tipo especial en el
+          planner.
+        </Text>
         {EXPERIENCE_INTENT_OPTIONS.map(({ value, label, desc }) => {
           const isSelected = selectedIntents.includes(value);
           return (
