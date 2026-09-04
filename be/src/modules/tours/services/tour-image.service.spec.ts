@@ -20,7 +20,9 @@ describe('TourImageService', () => {
       },
     };
     const images: any = {
-      generateImage: jest.fn().mockResolvedValue('https://example.test/cover.jpg'),
+      generateImage: jest
+        .fn()
+        .mockResolvedValue('https://example.test/cover.jpg'),
     };
     const service = new TourImageService(prisma, images);
 
