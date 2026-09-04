@@ -55,6 +55,7 @@ model Experience {
   qualityScore             Float?
   latitude                 Float?
   longitude                Float?
+  openingHours             Json?
   metadata                 Json?
   components               ExperienceComponent[]
   evidence                 ExperienceEvidence[]
