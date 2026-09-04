@@ -108,9 +108,9 @@ export interface ExperienceEntityResolutionResponse {
 }
 
 /**
- * Canonical V2 resolver response. Geographic validation is mandatory: callers
- * and the Bitácora must never have to infer whether validation happened from
- * the absence of data. Empty/rejected batches are represented explicitly.
+ * Shared resolution shape used by intermediate trace/test fixtures. The final
+ * V2 resolver result is refined below so geographic validation cannot be
+ * omitted from the canonical pipeline.
  */
 export interface ExperienceResolutionResponse {
   totalCandidates: number;
@@ -118,14 +118,19 @@ export interface ExperienceResolutionResponse {
   rejectedCount: number;
   resolved: ResolvedExperienceCandidate[];
   entityResolution?: ExperienceEntityResolutionResponse;
-  geographicValidation: ExperienceGeographicValidationBatchResult;
+  geographicValidation?: ExperienceGeographicValidationBatchResult;
   materialization?: ExperienceMaterializationResponse;
+}
+
+export interface FinalExperienceResolutionResponse
+  extends ExperienceResolutionResponse {
+  geographicValidation: ExperienceGeographicValidationBatchResult;
 }
 
 export interface ExperienceProposalResolver {
   resolve(
     request: ExperienceResolutionRequest,
-  ): Promise<ExperienceResolutionResponse>;
+  ): Promise<FinalExperienceResolutionResponse>;
 }
 
 export const EXPERIENCE_PROPOSAL_RESOLVER = 'EXPERIENCE_PROPOSAL_RESOLVER';
