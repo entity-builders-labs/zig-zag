@@ -44,6 +44,7 @@ import { PrismaModule } from '../../core/database/database.module';
 import { IntegrationsModule } from '../integrations/integrations.module';
 import { AuthModule } from '../auth/auth.module';
 import { OutboxModule } from '../outbox/outbox.module';
+import { MediaModule } from '../media/media.module';
 
 @Module({
   imports: [
@@ -52,6 +53,7 @@ import { OutboxModule } from '../outbox/outbox.module';
     AiModule,
     IntegrationsModule,
     AuthModule,
+    MediaModule,
   ],
   controllers: [ToursController],
   providers: [

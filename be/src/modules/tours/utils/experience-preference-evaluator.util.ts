@@ -147,9 +147,20 @@ export function buildPreferenceCorpus(experience: any): string[] {
   ]).map(normalize);
 }
 
+// ALIASES keys may contain punctuation (e.g. "non-vegan food"), but every
+// lookup term is normalized (punctuation -> spaces) before matching. Build
+// a normalized-key lookup once so a hyphenated key can never silently miss
+// its own alias list.
+const NORMALIZED_ALIASES: Record<string, string[]> = Object.fromEntries(
+  Object.entries(ALIASES).map(([key, values]) => [normalize(key), values]),
+);
+
 function matchesTerm(corpus: string[], rawTerm: string): boolean {
   const term = normalize(rawTerm);
-  const terms = unique([term, ...(ALIASES[term] ?? []).map(normalize)]);
+  const terms = unique([
+    term,
+    ...(NORMALIZED_ALIASES[term] ?? []).map(normalize),
+  ]);
 
   // Match the requested term (or one of its explicit aliases) inside the
   // Experience evidence. Do not perform the reverse containment check:

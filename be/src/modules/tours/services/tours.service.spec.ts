@@ -3,6 +3,7 @@ import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { ToursService } from './tours.service';
 import { PrismaService } from '../../../core/database/prisma.service';
 import { OutboxService } from '../../outbox/services/outbox.service';
+import { MediaPresentationResolver } from '../../media/services/media-presentation.resolver';
 
 describe('ToursService', () => {
   let service: ToursService;
@@ -20,6 +21,10 @@ describe('ToursService', () => {
     $transaction: jest.fn(),
   };
 
+  const mockMediaPresentationResolver = {
+    resolvePresentation: jest.fn().mockReturnValue(undefined),
+  };
+
   beforeEach(async () => {
     outboxService = {
       createInTx: jest.fn().mockResolvedValue({ id: 'evt-1' }),
@@ -29,6 +34,10 @@ describe('ToursService', () => {
         ToursService,
         { provide: PrismaService, useValue: mockPrismaService },
         { provide: OutboxService, useValue: outboxService },
+        {
+          provide: MediaPresentationResolver,
+          useValue: mockMediaPresentationResolver,
+        },
       ],
     }).compile();
 
