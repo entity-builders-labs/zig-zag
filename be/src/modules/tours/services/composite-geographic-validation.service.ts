@@ -59,12 +59,19 @@ export class CompositeGeographicValidationService {
     );
     const groundedEvidenceKeys = Array.from(new Set(candidate.evidenceKeys));
 
-    const result = this.validateExperience(
-      resolvedProposal,
-      withCoordinates,
-      destinationBoundary,
-      groundedEvidenceKeys,
-    );
+    const result =
+      this.tryCanonicalGeometry(
+        resolvedProposal,
+        withCoordinates,
+        destinationBoundary,
+        groundedEvidenceKeys,
+      ) ??
+      this.validateExperience(
+        resolvedProposal,
+        withCoordinates,
+        destinationBoundary,
+        groundedEvidenceKeys,
+      );
 
     this.logger.log(
       JSON.stringify({
@@ -84,136 +91,29 @@ export class CompositeGeographicValidationService {
     return result;
   }
 
-  private validateCanonical(
-    proposalName: string,
-    kind: string,
-    resolved: ResolvedGeoEntity[],
-    withCoordinates: ResolvedGeoEntity[],
-    destinationBoundary: OsmCandidate,
-    evidenceKeys: string[],
-  ): GeographicValidationResult {
-    if (resolved.length === 0) {
-      return this.rejected(proposalName, kind, [], evidenceKeys, [
-        'no_resolved_entities',
-      ]);
-    }
-    if (withCoordinates.length === 0) {
-      return this.rejected(proposalName, kind, resolved, evidenceKeys, [
-        'missing_coordinates',
-      ]);
-    }
-    const canonicalEntity = withCoordinates[0];
-    if (!this.isInsideDestination(canonicalEntity, destinationBoundary)) {
-      return this.rejected(
-        proposalName,
-        kind,
-        [canonicalEntity],
-        evidenceKeys,
-        ['destination_mismatch'],
-      );
-    }
-    return {
-      proposalName,
-      kind,
-      status: 'GEO_VERIFIED',
-      accepted: true,
-      strategy: 'canonical_entity',
-      canonicalEntity,
-      anchors: [canonicalEntity],
-      groundedEvidenceKeys: evidenceKeys,
-      rejectionReasons: [],
-      validatorVersion: GEOGRAPHIC_VALIDATOR_VERSION,
-    };
-  }
-
-  private validateNeighborhoodWalk(
+  /**
+   * A resolved GeoEntity with real canonical geometry (a ROUTE linestring
+   * matching a `route`-role hint, or an AREA polygon matching an `area`-role
+   * hint alongside at least one waypoint/venue hint) is authoritative —
+   * accept immediately rather than falling through to the anchor-count/
+   * coherence heuristics `validateExperience` uses for candidates that never
+   * had real geometry to begin with. `validateExperience` already filters
+   * out `role === 'area'` entities entirely (never treating an area as a
+   * valid anchor on its own) and has no equivalent short-circuit for a
+   * resolved ROUTE geometry either, so without this a genuinely well-evidenced
+   * route/area candidate could be rejected as `insufficient_resolved_entities`
+   * purely because its one strong anchor doesn't count as one.
+   * Returns undefined (no short-circuit) for every other case, in which case
+   * the caller falls through to `validateExperience` unchanged.
+   */
+  private tryCanonicalGeometry(
     resolvedProposal: ResolvedExperienceCandidate,
     withCoordinates: ResolvedGeoEntity[],
     destinationBoundary: OsmCandidate,
     evidenceKeys: string[],
-  ): GeographicValidationResult {
+  ): GeographicValidationResult | undefined {
     const proposalName = resolvedProposal.candidate.name;
-    const kind = 'NEIGHBORHOOD_WALK';
-    const canonicalArea = withCoordinates.find(
-      (entity) => entity.role === 'area' && entity.geometry,
-    );
-    if (canonicalArea) {
-      if (!this.isInsideDestination(canonicalArea, destinationBoundary)) {
-        return this.rejected(
-          proposalName,
-          kind,
-          [canonicalArea],
-          evidenceKeys,
-          ['destination_mismatch'],
-        );
-      }
-      return {
-        proposalName,
-        kind,
-        status: 'GEO_VERIFIED',
-        accepted: true,
-        strategy: 'canonical_area',
-        canonicalEntity: canonicalArea,
-        anchors: [canonicalArea],
-        groundedEvidenceKeys: evidenceKeys,
-        rejectionReasons: [],
-        validatorVersion: GEOGRAPHIC_VALIDATOR_VERSION,
-      };
-    }
 
-    const anchors = this.dedupeEntities(
-      withCoordinates.filter(
-        (entity) => entity.role === 'waypoint' || entity.role === 'venue',
-      ),
-    );
-    if (anchors.length < this.thresholds.neighborhoodWalk.minAnchors) {
-      return this.rejected(proposalName, kind, anchors, evidenceKeys, [
-        'insufficient_resolved_entities',
-      ]);
-    }
-    if (this.destinationMismatch(anchors, destinationBoundary, true)) {
-      return this.rejected(proposalName, kind, anchors, evidenceKeys, [
-        'destination_mismatch',
-      ]);
-    }
-    const coherence = coherenceMetrics(this.pointsOf(anchors));
-    if (
-      coherence.radiusMeters >
-        this.thresholds.neighborhoodWalk.maxRadiusMeters ||
-      coherence.maxPairwiseDistanceMeters >
-        this.thresholds.neighborhoodWalk.maxPairwiseDistanceMeters
-    ) {
-      return this.rejected(
-        proposalName,
-        kind,
-        anchors,
-        evidenceKeys,
-        ['geographic_incoherence'],
-        coherence,
-      );
-    }
-    return {
-      proposalName,
-      kind,
-      status: 'GEO_VERIFIED',
-      accepted: true,
-      strategy: 'compact_anchors',
-      anchors,
-      coherence,
-      groundedEvidenceKeys: evidenceKeys,
-      rejectionReasons: [],
-      validatorVersion: GEOGRAPHIC_VALIDATOR_VERSION,
-    };
-  }
-
-  private validateRoute(
-    resolvedProposal: ResolvedExperienceCandidate,
-    withCoordinates: ResolvedGeoEntity[],
-    destinationBoundary: OsmCandidate,
-    evidenceKeys: string[],
-  ): GeographicValidationResult {
-    const proposalName = resolvedProposal.candidate.name;
-    const kind = 'ROUTE';
     const canonicalRoute = withCoordinates.find(
       (entity) => entity.role === 'route' && entity.geometry,
     );
@@ -223,7 +123,7 @@ export class CompositeGeographicValidationService {
       ) {
         return this.rejected(
           proposalName,
-          kind,
+          'ROUTE',
           [canonicalRoute],
           evidenceKeys,
           ['destination_mismatch'],
@@ -231,7 +131,7 @@ export class CompositeGeographicValidationService {
       }
       return {
         proposalName,
-        kind,
+        kind: 'ROUTE',
         status: 'GEO_VERIFIED',
         accepted: true,
         strategy: 'canonical_geometry',
@@ -243,46 +143,37 @@ export class CompositeGeographicValidationService {
       };
     }
 
-    const anchors = this.dedupeEntities(
-      withCoordinates.filter((entity) => entity.role !== 'area'),
+    const canonicalArea = withCoordinates.find(
+      (entity) => entity.role === 'area' && entity.geometry,
     );
-    if (anchors.length < this.thresholds.route.minAnchors) {
-      return this.rejected(proposalName, kind, anchors, evidenceKeys, [
-        'insufficient_resolved_entities',
-      ]);
-    }
-    if (this.routeDestinationMismatch(anchors, destinationBoundary)) {
-      return this.rejected(proposalName, kind, anchors, evidenceKeys, [
-        'destination_mismatch',
-      ]);
-    }
-    const coherence = coherenceMetrics(this.pointsOf(anchors));
-    if (
-      coherence.radiusMeters > this.thresholds.route.maxRadiusMeters ||
-      coherence.maxPairwiseDistanceMeters >
-        this.thresholds.route.maxPairwiseDistanceMeters
-    ) {
-      return this.rejected(
+    const hasWaypointHint = resolvedProposal.candidate.componentHints.some(
+      (hint) => hint.role === 'waypoint' || hint.role === 'venue',
+    );
+    if (canonicalArea && hasWaypointHint) {
+      if (!this.isInsideDestination(canonicalArea, destinationBoundary)) {
+        return this.rejected(
+          proposalName,
+          'NEIGHBORHOOD_WALK',
+          [canonicalArea],
+          evidenceKeys,
+          ['destination_mismatch'],
+        );
+      }
+      return {
         proposalName,
-        kind,
-        anchors,
-        evidenceKeys,
-        ['geographic_incoherence'],
-        coherence,
-      );
+        kind: 'NEIGHBORHOOD_WALK',
+        status: 'GEO_VERIFIED',
+        accepted: true,
+        strategy: 'canonical_area',
+        canonicalEntity: canonicalArea,
+        anchors: [canonicalArea],
+        groundedEvidenceKeys: evidenceKeys,
+        rejectionReasons: [],
+        validatorVersion: GEOGRAPHIC_VALIDATOR_VERSION,
+      };
     }
-    return {
-      proposalName,
-      kind,
-      status: 'GEO_VERIFIED',
-      accepted: true,
-      strategy: 'component_defined',
-      anchors,
-      coherence,
-      groundedEvidenceKeys: evidenceKeys,
-      rejectionReasons: [],
-      validatorVersion: GEOGRAPHIC_VALIDATOR_VERSION,
-    };
+
+    return undefined;
   }
 
   private validateExperience(

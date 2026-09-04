@@ -33,6 +33,67 @@ describe('extractExperienceCandidates', () => {
     expect(result.candidates[0]).not.toHaveProperty('kind');
   });
 
+  it('defaults orderedByEvidence to false when the raw candidate omits it', () => {
+    const result = extractExperienceCandidates(
+      {
+        candidates: [
+          {
+            name: 'Unordered walk',
+            themes: ['culture'],
+            traits: [],
+            intents: ['walk'],
+            componentHints: [
+              {
+                key: 'a',
+                name: 'Plaza',
+                role: 'waypoint',
+                expectedKind: 'PLACE',
+                required: true,
+                evidenceKeys: ['ev-1'],
+              },
+            ],
+            evidenceKeys: ['ev-1'],
+            shortReason: 'no sequence claim',
+          },
+        ],
+      },
+      new Set(['ev-1']),
+      8,
+    );
+    expect(result.candidates[0].orderedByEvidence).toBe(false);
+  });
+
+  it('carries orderedByEvidence through only when the raw candidate explicitly sets it true', () => {
+    const result = extractExperienceCandidates(
+      {
+        candidates: [
+          {
+            name: 'Ordered walk',
+            themes: ['culture'],
+            traits: [],
+            intents: ['walk'],
+            componentHints: [
+              {
+                key: 'a',
+                name: 'Plaza',
+                role: 'waypoint',
+                expectedKind: 'PLACE',
+                required: true,
+                evidenceKeys: ['ev-1'],
+              },
+            ],
+            evidenceKeys: ['ev-1'],
+            shortReason: 'evidence describes start-then-walk sequence',
+            orderedByEvidence: true,
+          },
+        ],
+      },
+      new Set(['ev-1']),
+      8,
+    );
+    expect(result.candidates[0].orderedByEvidence).toBe(true);
+  });
+
   it('rejects unknown evidence and malformed components', () => {
     const result = extractExperienceCandidates(
       {

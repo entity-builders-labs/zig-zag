@@ -111,6 +111,7 @@ export function extractExperienceCandidates(
         typeof candidate.shortReason === 'string'
           ? candidate.shortReason.trim()
           : '',
+      orderedByEvidence: candidate.orderedByEvidence === true,
     });
   }
   return { candidates, validationErrors };

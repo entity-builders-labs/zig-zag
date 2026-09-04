@@ -153,6 +153,79 @@ describe('ExperienceCatalogService.findById', () => {
   });
 });
 
+describe('ExperienceCatalogService.resolveOrCreateTraitDefinitions', () => {
+  it('creates a TraitDefinition row per new trait, bucketed under the general dimension', async () => {
+    const prisma: any = {
+      traitDefinition: {
+        upsert: jest
+          .fn()
+          .mockResolvedValueOnce({ id: 'trait-romantic' })
+          .mockResolvedValueOnce({ id: 'trait-family-friendly' }),
+      },
+    };
+    const service = new ExperienceCatalogService(prisma, {} as any);
+
+    const ids = await service.resolveOrCreateTraitDefinitions([
+      'romantic',
+      'family-friendly',
+    ]);
+
+    expect(ids).toEqual(['trait-romantic', 'trait-family-friendly']);
+    expect(prisma.traitDefinition.upsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { dimension_key: { dimension: 'general', key: 'romantic' } },
+        create: { dimension: 'general', key: 'romantic', label: 'romantic' },
+      }),
+    );
+  });
+
+  it('reuses an existing TraitDefinition row for a case-insensitive match instead of duplicating it', async () => {
+    const prisma: any = {
+      traitDefinition: {
+        upsert: jest.fn().mockResolvedValue({ id: 'trait-existing' }),
+      },
+    };
+    const service = new ExperienceCatalogService(prisma, {} as any);
+
+    const ids = await service.resolveOrCreateTraitDefinitions(['Romantic']);
+
+    expect(ids).toEqual(['trait-existing']);
+    expect(prisma.traitDefinition.upsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { dimension_key: { dimension: 'general', key: 'romantic' } },
+      }),
+    );
+  });
+
+  it('dedupes repeated trait strings within one call', async () => {
+    const prisma: any = {
+      traitDefinition: {
+        upsert: jest.fn().mockResolvedValue({ id: 'trait-vegan' }),
+      },
+    };
+    const service = new ExperienceCatalogService(prisma, {} as any);
+
+    const ids = await service.resolveOrCreateTraitDefinitions([
+      'vegan',
+      'vegan',
+      ' vegan ',
+    ]);
+
+    expect(ids).toEqual(['trait-vegan']);
+    expect(prisma.traitDefinition.upsert).toHaveBeenCalledTimes(1);
+  });
+
+  it('returns an empty array without calling Prisma when there are no traits', async () => {
+    const prisma: any = { traitDefinition: { upsert: jest.fn() } };
+    const service = new ExperienceCatalogService(prisma, {} as any);
+
+    const ids = await service.resolveOrCreateTraitDefinitions([]);
+
+    expect(ids).toEqual([]);
+    expect(prisma.traitDefinition.upsert).not.toHaveBeenCalled();
+  });
+});
+
 describe('ExperienceCatalogService dedupe', () => {
   const input: any = {
     canonicalName: ' Museo Central ',

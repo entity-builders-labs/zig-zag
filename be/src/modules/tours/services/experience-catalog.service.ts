@@ -33,7 +33,8 @@ export interface VerifiedExperienceInput {
   metadata?: unknown;
   components: Array<{
     geoEntityId: string;
-    order?: number;
+    /** `null` (not just absent) means no intrinsic sequence evidence exists. */
+    order?: number | null;
     role?: string;
     required?: boolean;
   }>;
@@ -295,6 +296,41 @@ export class ExperienceCatalogService {
       mediaUpdatedAt: experience.mediaUpdatedAt,
       components: experience.components,
     };
+  }
+
+  /**
+   * Resolves freeform trait strings (as emitted by discovery/extraction —
+   * `ExperienceCandidate.traits: string[]`, no taxonomy) against
+   * `TraitDefinition` via find-or-create, returning ids ready for
+   * `persistVerifiedExperience`'s `traitDefinitionIds`. Without this, that
+   * field is always empty in practice — no real caller ever populated it.
+   *
+   * There is no real `dimension` taxonomy for freeform trait strings today,
+   * so everything buckets under `'general'`, normalizing the string into
+   * `key` and keeping the original as `label`. Revisit if/when a closed
+   * taxonomy is defined for the discovery prompt to emit instead.
+   */
+  async resolveOrCreateTraitDefinitions(traits: string[]): Promise<string[]> {
+    const normalized = Array.from(
+      new Set(
+        traits
+          .map((trait) => trait.trim())
+          .filter((trait): trait is string => trait.length > 0),
+      ),
+    );
+    if (normalized.length === 0) return [];
+
+    const ids: string[] = [];
+    for (const trait of normalized) {
+      const key = trait.toLowerCase();
+      const definition = await this.prisma.traitDefinition.upsert({
+        where: { dimension_key: { dimension: 'general', key } },
+        update: {},
+        create: { dimension: 'general', key, label: trait },
+      });
+      ids.push(definition.id);
+    }
+    return ids;
   }
 
   async upsertGeoEntity(input: GeoEntityInput) {

@@ -103,6 +103,10 @@ export class ExperienceProposalResolverService
           };
         }
 
+        const traitDefinitionIds =
+          await this.catalog.resolveOrCreateTraitDefinitions(
+            candidate.candidate.traits,
+          );
         const experience = await this.catalog.persistVerifiedExperience({
           canonicalName: candidate.candidate.name,
           description: candidate.candidate.description,
@@ -113,6 +117,7 @@ export class ExperienceProposalResolverService
             intents: candidate.candidate.intents ?? [],
             source: 'grounded_experience_discovery',
           },
+          traitDefinitionIds,
           components: candidate.resolvedEntities
             .filter(
               (entity: any) =>
@@ -120,7 +125,10 @@ export class ExperienceProposalResolverService
             )
             .map((entity: any, index: number) => ({
               geoEntityId: entity.geoEntityId,
-              order: index + 1,
+              // Only a real, evidence-backed visiting sequence earns a
+              // concrete order — otherwise this is resolution/array order,
+              // not intrinsic sequence, and must persist as null.
+              order: candidate.candidate.orderedByEvidence ? index + 1 : null,
               role: entity.role,
               required: true,
             })),

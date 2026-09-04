@@ -85,6 +85,11 @@ const RESPONSE_SCHEMA = {
           suggestedDurationMinutes: { type: 'integer' },
           shortReason: { type: 'string' },
           evidenceKeys: { type: 'array', items: { type: 'string' } },
+          orderedByEvidence: {
+            type: 'boolean',
+            description:
+              "True only when the cited evidence explicitly describes a visiting sequence for this candidate's components. Never inferred from componentHints array order.",
+          },
         },
         required: [
           'name',
@@ -96,6 +101,7 @@ const RESPONSE_SCHEMA = {
           'suggestedDurationMinutes',
           'shortReason',
           'evidenceKeys',
+          'orderedByEvidence',
         ],
       },
     },
@@ -159,7 +165,8 @@ export class GeminiDiscoveryProvider {
       `Themes: ${request.requestedThemes.join(', ') || 'none'}`,
       `Requested intents: ${request.requestedIntents?.join(', ') || 'none'}`,
       `Preferences: ${(request.semanticQuery || request.preferredTraits?.join(', ')) ?? 'none'}`,
-      'Return JSON with a candidates array. Each candidate must contain name, description, themes, traits, intents, suggestedDurationMinutes, componentHints, evidenceKeys and shortReason.',
+      'Return JSON with a candidates array. Each candidate must contain name, description, themes, traits, intents, suggestedDurationMinutes, componentHints, evidenceKeys, shortReason and orderedByEvidence.',
+      "orderedByEvidence must be true only when the cited evidence explicitly describes a visiting sequence for this candidate's components; otherwise false. Never infer an order from componentHints array order.",
       'intents are soft Experience facets such as visit, walk, food, route_like or day_trip; never structural proposal kinds.',
       'For day_trip, only return evidence-backed same-day experiences from the selected base; exclude overnight or weekend-only trips.',
       'Do not output coordinates, provider IDs, URLs, or entities not directly supported by evidence.',

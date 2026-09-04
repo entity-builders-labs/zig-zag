@@ -28,6 +28,14 @@ export interface ExperienceCandidate {
   componentHints: GeoEntityHint[];
   evidenceKeys: string[];
   shortReason: string;
+  /**
+   * True only when the cited evidence explicitly describes a visiting
+   * sequence for this Experience's components (e.g. "start at X, then walk
+   * to Y"). Absent/false means no real sequence evidence exists — resolved
+   * components must persist with `order: null` (no intrinsic sequence),
+   * never a fabricated one derived from array/resolution order.
+   */
+  orderedByEvidence?: boolean;
 }
 
 export type ExperienceDiscoveryBreadth = 'focused' | 'broad';

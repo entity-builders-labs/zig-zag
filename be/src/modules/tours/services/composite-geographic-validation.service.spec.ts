@@ -107,7 +107,190 @@ describe('CompositeGeographicValidationService', () => {
       boundary,
     );
     expect(result.accepted).toBe(true);
-    expect(result.strategy).toBe('component_defined');
+    // A resolved route entity with real canonical LineString geometry is
+    // authoritative — accepted via the canonical-geometry short-circuit
+    // (CP3-1), not the anchor-count/coherence fallback path.
+    expect(result.strategy).toBe('canonical_geometry');
+  });
+
+  it('rejects a canonical route whose geometry falls outside the route-scale destination radius', () => {
+    const candidate: ExperienceCandidate = {
+      name: 'Faraway route',
+      themes: ['nature'],
+      traits: [],
+      evidenceKeys: ['e'],
+      shortReason: 'grounded',
+      componentHints: [
+        {
+          key: 'r',
+          name: 'Faraway',
+          role: 'route',
+          expectedKind: 'ROUTE',
+          required: true,
+          evidenceKeys: ['e'],
+        },
+      ],
+    };
+    const result = new CompositeGeographicValidationService().validate(
+      {
+        candidate,
+        status: 'accepted',
+        resolvedEntities: [
+          {
+            hintKey: 'r',
+            hintName: 'Faraway',
+            provider: 'osm',
+            externalId: 'way:2',
+            role: 'route',
+            status: 'resolved',
+            latitude: 10,
+            longitude: 10,
+            geometry: {
+              type: 'LineString',
+              coordinates: [
+                [10, 10],
+                [10.01, 10.01],
+              ],
+            },
+          },
+        ],
+        rejectionReasons: [],
+      },
+      boundary,
+    );
+    expect(result.accepted).toBe(false);
+    expect(result.kind).toBe('ROUTE');
+    expect(result.rejectionReasons).toContain('destination_mismatch');
+  });
+
+  it('accepts a canonical AREA polygon paired with a waypoint hint as a neighborhood walk', () => {
+    const candidate: ExperienceCandidate = {
+      name: 'San Telmo walk',
+      themes: ['culture'],
+      traits: [],
+      evidenceKeys: ['e'],
+      shortReason: 'grounded',
+      componentHints: [
+        {
+          key: 'a',
+          name: 'San Telmo',
+          role: 'area',
+          expectedKind: 'AREA',
+          required: true,
+          evidenceKeys: ['e'],
+        },
+        {
+          key: 'w',
+          name: 'Plaza Dorrego',
+          role: 'waypoint',
+          expectedKind: 'PLACE',
+          required: true,
+          evidenceKeys: ['e'],
+        },
+      ],
+    };
+    const result = new CompositeGeographicValidationService().validate(
+      {
+        candidate,
+        status: 'accepted',
+        resolvedEntities: [
+          {
+            hintKey: 'a',
+            hintName: 'San Telmo',
+            provider: 'osm',
+            externalId: 'relation:1',
+            role: 'area',
+            status: 'resolved',
+            latitude: -34.62,
+            longitude: -58.37,
+            geometry: {
+              type: 'Polygon',
+              coordinates: [
+                [
+                  [-58.38, -34.63],
+                  [-58.36, -34.63],
+                  [-58.36, -34.61],
+                  [-58.38, -34.61],
+                  [-58.38, -34.63],
+                ],
+              ],
+            },
+          },
+          {
+            hintKey: 'w',
+            hintName: 'Plaza Dorrego',
+            provider: 'osm',
+            externalId: 'node:2',
+            role: 'waypoint',
+            status: 'resolved',
+            latitude: -34.62,
+            longitude: -58.37,
+          },
+        ],
+        rejectionReasons: [],
+      },
+      boundary,
+    );
+    expect(result.accepted).toBe(true);
+    expect(result.kind).toBe('NEIGHBORHOOD_WALK');
+    expect(result.strategy).toBe('canonical_area');
+  });
+
+  it('does not short-circuit a canonical AREA polygon with no waypoint/venue hint — falls through unchanged', () => {
+    // An area alone (no waypoint hint) isn't a walk — this must fall through
+    // to validateExperience's existing anchor logic, which filters out
+    // role==='area' entities entirely, rather than being force-accepted here.
+    const candidate: ExperienceCandidate = {
+      name: 'Area only',
+      themes: ['culture'],
+      traits: [],
+      evidenceKeys: ['e'],
+      shortReason: 'grounded',
+      componentHints: [
+        {
+          key: 'a',
+          name: 'San Telmo',
+          role: 'area',
+          expectedKind: 'AREA',
+          required: true,
+          evidenceKeys: ['e'],
+        },
+      ],
+    };
+    const result = new CompositeGeographicValidationService().validate(
+      {
+        candidate,
+        status: 'accepted',
+        resolvedEntities: [
+          {
+            hintKey: 'a',
+            hintName: 'San Telmo',
+            provider: 'osm',
+            externalId: 'relation:1',
+            role: 'area',
+            status: 'resolved',
+            latitude: -34.62,
+            longitude: -58.37,
+            geometry: {
+              type: 'Polygon',
+              coordinates: [
+                [
+                  [-58.38, -34.63],
+                  [-58.36, -34.63],
+                  [-58.36, -34.61],
+                  [-58.38, -34.61],
+                  [-58.38, -34.63],
+                ],
+              ],
+            },
+          },
+        ],
+        rejectionReasons: [],
+      },
+      boundary,
+    );
+    expect(result.accepted).toBe(false);
+    expect(result.strategy).not.toBe('canonical_area');
   });
 
   it('accepts a coherent Experience with two required components', () => {

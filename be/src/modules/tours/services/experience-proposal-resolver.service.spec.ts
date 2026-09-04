@@ -81,6 +81,7 @@ describe('ExperienceProposalResolverService', () => {
       }),
     };
     const catalog = {
+      resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
       upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-10' }),
       persistVerifiedExperience: jest.fn().mockResolvedValue({
         id: 'exp-10',
@@ -114,6 +115,243 @@ describe('ExperienceProposalResolverService', () => {
     );
   });
 
+  it('resolves candidate traits into traitDefinitionIds and threads them into persistence (CP3-3)', async () => {
+    const osmPlaces = {
+      lookupStreetsWithin: jest
+        .fn()
+        .mockResolvedValue({ status: 'success', value: [] }),
+      lookupPoisWithin: jest.fn().mockResolvedValue({
+        status: 'success',
+        value: [
+          {
+            id: 'osm:node:10',
+            name: 'Museum',
+            osmType: 'node',
+            osmId: 10,
+            geometry: { type: 'Point', coordinates: [-58.45, -34.55] },
+            tags: {},
+          },
+        ],
+      }),
+    };
+    const catalog = {
+      upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-10' }),
+      resolveOrCreateTraitDefinitions: jest
+        .fn()
+        .mockResolvedValue(['trait-romantic', 'trait-family-friendly']),
+      persistVerifiedExperience: jest.fn().mockResolvedValue({
+        id: 'exp-traits',
+        dedupeDecision: 'NEW',
+      }),
+    };
+    const geographicValidator = {
+      validate: jest.fn().mockReturnValue(acceptedValidation()),
+    };
+    const service = new ExperienceProposalResolverService(
+      osmPlaces as any,
+      catalog as any,
+      geographicValidator as any,
+    );
+
+    const withTraits = candidate();
+    withTraits.traits = ['romantic', 'family-friendly'];
+
+    await service.resolve({
+      destinationBoundary: boundary,
+      candidates: [withTraits],
+    });
+
+    expect(catalog.resolveOrCreateTraitDefinitions).toHaveBeenCalledWith([
+      'romantic',
+      'family-friendly',
+    ]);
+    expect(catalog.persistVerifiedExperience).toHaveBeenCalledWith(
+      expect.objectContaining({
+        traitDefinitionIds: ['trait-romantic', 'trait-family-friendly'],
+      }),
+    );
+  });
+
+  it('persists component order as null when the candidate has no order evidence (CP3-2)', async () => {
+    const catalog = {
+      resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+      upsertGeoEntity: jest
+        .fn()
+        .mockResolvedValueOnce({ id: 'geo-a' })
+        .mockResolvedValueOnce({ id: 'geo-b' }),
+      persistVerifiedExperience: jest.fn().mockResolvedValue({
+        id: 'exp-multi',
+        dedupeDecision: 'NEW',
+      }),
+    };
+    const geographicValidator = {
+      validate: jest.fn().mockReturnValue(acceptedValidation('Two stops')),
+    };
+    const service = new ExperienceProposalResolverService(
+      {
+        lookupStreetsWithin: jest
+          .fn()
+          .mockResolvedValue({ status: 'success', value: [] }),
+        lookupPoisWithin: jest.fn().mockResolvedValue({
+          status: 'success',
+          value: [
+            {
+              id: 'osm:node:1',
+              name: 'Stop A',
+              osmType: 'node',
+              osmId: 1,
+              geometry: { type: 'Point', coordinates: [-58.45, -34.55] },
+              tags: {},
+            },
+            {
+              id: 'osm:node:2',
+              name: 'Stop B',
+              osmType: 'node',
+              osmId: 2,
+              geometry: { type: 'Point', coordinates: [-58.46, -34.56] },
+              tags: {},
+            },
+          ],
+        }),
+      } as any,
+      catalog as any,
+      geographicValidator as any,
+    );
+
+    const twoStopCandidate: ExperienceCandidate = {
+      name: 'Two stops',
+      themes: ['culture'],
+      traits: [],
+      intents: ['walk'],
+      evidenceKeys: ['ev-1'],
+      shortReason: 'no sequence evidence',
+      // orderedByEvidence intentionally omitted — must persist order: null.
+      componentHints: [
+        {
+          key: 'a',
+          name: 'Stop A',
+          role: 'waypoint',
+          expectedKind: 'PLACE',
+          required: true,
+          evidenceKeys: ['ev-1'],
+        },
+        {
+          key: 'b',
+          name: 'Stop B',
+          role: 'waypoint',
+          expectedKind: 'PLACE',
+          required: true,
+          evidenceKeys: ['ev-1'],
+        },
+      ],
+    };
+
+    await service.resolve({
+      destinationBoundary: boundary,
+      candidates: [twoStopCandidate],
+    });
+
+    expect(catalog.persistVerifiedExperience).toHaveBeenCalledWith(
+      expect.objectContaining({
+        components: [
+          expect.objectContaining({ geoEntityId: 'geo-a', order: null }),
+          expect.objectContaining({ geoEntityId: 'geo-b', order: null }),
+        ],
+      }),
+    );
+  });
+
+  it('persists sequential component order when the candidate has real order evidence (CP3-2)', async () => {
+    const catalog = {
+      resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+      upsertGeoEntity: jest
+        .fn()
+        .mockResolvedValueOnce({ id: 'geo-a' })
+        .mockResolvedValueOnce({ id: 'geo-b' }),
+      persistVerifiedExperience: jest.fn().mockResolvedValue({
+        id: 'exp-multi-ordered',
+        dedupeDecision: 'NEW',
+      }),
+    };
+    const geographicValidator = {
+      validate: jest
+        .fn()
+        .mockReturnValue(acceptedValidation('Two ordered stops')),
+    };
+    const service = new ExperienceProposalResolverService(
+      {
+        lookupStreetsWithin: jest
+          .fn()
+          .mockResolvedValue({ status: 'success', value: [] }),
+        lookupPoisWithin: jest.fn().mockResolvedValue({
+          status: 'success',
+          value: [
+            {
+              id: 'osm:node:1',
+              name: 'Stop A',
+              osmType: 'node',
+              osmId: 1,
+              geometry: { type: 'Point', coordinates: [-58.45, -34.55] },
+              tags: {},
+            },
+            {
+              id: 'osm:node:2',
+              name: 'Stop B',
+              osmType: 'node',
+              osmId: 2,
+              geometry: { type: 'Point', coordinates: [-58.46, -34.56] },
+              tags: {},
+            },
+          ],
+        }),
+      } as any,
+      catalog as any,
+      geographicValidator as any,
+    );
+
+    const orderedCandidate: ExperienceCandidate = {
+      name: 'Two ordered stops',
+      themes: ['culture'],
+      traits: [],
+      intents: ['walk'],
+      evidenceKeys: ['ev-1'],
+      shortReason: 'evidence: "start at Stop A, then walk to Stop B"',
+      orderedByEvidence: true,
+      componentHints: [
+        {
+          key: 'a',
+          name: 'Stop A',
+          role: 'waypoint',
+          expectedKind: 'PLACE',
+          required: true,
+          evidenceKeys: ['ev-1'],
+        },
+        {
+          key: 'b',
+          name: 'Stop B',
+          role: 'waypoint',
+          expectedKind: 'PLACE',
+          required: true,
+          evidenceKeys: ['ev-1'],
+        },
+      ],
+    };
+
+    await service.resolve({
+      destinationBoundary: boundary,
+      candidates: [orderedCandidate],
+    });
+
+    expect(catalog.persistVerifiedExperience).toHaveBeenCalledWith(
+      expect.objectContaining({
+        components: [
+          expect.objectContaining({ geoEntityId: 'geo-a', order: 1 }),
+          expect.objectContaining({ geoEntityId: 'geo-b', order: 2 }),
+        ],
+      }),
+    );
+  });
+
   it('resolves an evidence-associated Experience outside the base destination and validates its own geo scope', async () => {
     const osmPlaces = {
       lookupStreetsWithin: jest
@@ -125,6 +363,7 @@ describe('ExperienceProposalResolverService', () => {
       lookupBoundaryById: jest.fn(),
     };
     const catalog = {
+      resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
       upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-tigre' }),
       persistVerifiedExperience: jest.fn().mockResolvedValue({
         id: 'exp-tigre',
@@ -315,6 +554,7 @@ describe('ExperienceProposalResolverService', () => {
 
   it('resolves AREA components against the canonical destination boundary and persists an AREA GeoEntity', async () => {
     const catalog = {
+      resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
       upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-area-1' }),
       persistVerifiedExperience: jest.fn().mockResolvedValue({
         id: 'exp-area-1',
@@ -375,6 +615,7 @@ describe('ExperienceProposalResolverService', () => {
 
   it('uses GEOGRAPHIC_VALIDATION_FAILED when a resolved candidate has no validation result', async () => {
     const catalog = {
+      resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
       upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-10' }),
       persistVerifiedExperience: jest.fn(),
     };
