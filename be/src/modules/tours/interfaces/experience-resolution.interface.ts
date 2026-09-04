@@ -59,7 +59,10 @@ export interface ExperienceResolutionRequest {
 
 export interface ExperienceGeographicValidationResult {
   proposalName: string;
-  kind: 'EXPERIENCE' | 'ROUTE' | 'AREA' | 'NEIGHBORHOOD_WALK' | 'POI';
+  /** Keep this aligned with the validator boundary. Candidate extraction owns
+   * the finite proposal vocabulary; geographic validation reports what it
+   * actually evaluated instead of narrowing the runtime result a second time. */
+  kind: string;
   status:
     | 'UNVERIFIED'
     | 'GROUNDED'
