@@ -36,6 +36,32 @@ export interface TourExperienceComponent {
   geometry?: unknown;
 }
 
+export interface DocumentaryPhoto {
+  url: string;
+  width?: number;
+  height?: number;
+  caption?: string;
+  author?: string;
+  authorUrl?: string;
+  license?: string;
+  licenseUrl?: string;
+  sourceUrl?: string;
+  provider?: 'wikimedia_commons' | 'google_places';
+}
+
+export interface MediaPresentation {
+  photos: DocumentaryPhoto[];
+  primaryPhoto?: {
+    url: string;
+    caption?: string;
+    author?: string;
+    license?: string;
+    licenseUrl?: string;
+    isFallback: boolean;
+  };
+  source?: 'DOCUMENTARY' | 'CURATED_FALLBACK';
+}
+
 export interface TourExperience {
   id: string;
   experienceId: string;
@@ -52,6 +78,8 @@ export interface TourExperience {
     description?: string;
     status?: string;
     mediaUpdatedAt?: string;
+    /** Resolved by the backend on every full tour fetch (real Wikimedia/etc. photos, falling back to a curated static bank only when none exist). */
+    mediaPresentation?: MediaPresentation;
     themes?: string[];
     traits?: Array<{ trait: string; value?: string }>;
     components?: Array<{ name: string; role?: string; latitude?: number; longitude?: number }>;

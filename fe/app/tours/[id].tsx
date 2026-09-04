@@ -220,7 +220,7 @@ export default function TourDetailScreen() {
         setGenerationError(payload.message || 'No se pudo generar el itinerario');
         scheduleReconciliation(false);
       } else if (eventName === 'experience.media.updated') {
-        const { experienceId, mediaUpdatedAt } = payload;
+        const { experienceId, mediaUpdatedAt, photos } = payload;
         if (experienceId && mediaUpdatedAt) {
           setTour((prevTour) => {
             if (!prevTour || !prevTour.experiences) return prevTour;
@@ -236,7 +236,19 @@ export default function TourDetailScreen() {
               ) {
                 return snapshot;
               }
-              return { ...snapshot, experience: { ...currentExperience, mediaUpdatedAt } };
+              return {
+                ...snapshot,
+                experience: {
+                  ...currentExperience,
+                  mediaUpdatedAt,
+                  // The push carries the raw enriched photo list; keep any
+                  // previously-resolved primaryPhoto/source until the next
+                  // full fetch re-resolves the presentation server-side.
+                  mediaPresentation: Array.isArray(photos)
+                    ? { ...currentExperience.mediaPresentation, photos }
+                    : currentExperience.mediaPresentation,
+                },
+              };
             });
             return { ...prevTour, experiences: updatedExperiences };
           });

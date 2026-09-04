@@ -34,5 +34,5 @@ function buildExperienceStop(snapshot: TourExperience): TourStop | null {
       })) as any, badges,
     };
   }
-  return { type: 'location', id: snapshot.id, title, image: getImage(undefined, 0, experience?.themes?.[0]), description: experience?.description || snapshot.notes, badges };
+  return { type: 'location', id: snapshot.id, title, image: getImage(experience?.mediaPresentation?.photos, 0, experience?.themes?.[0]), description: experience?.description || snapshot.notes, badges };
 }

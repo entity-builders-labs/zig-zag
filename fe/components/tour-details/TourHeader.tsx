@@ -47,7 +47,13 @@ export const TourHeader = ({
   const router = useRouter();
   const firstExperience = tour.experiences?.[0];
   const firstComponent = firstExperience?.components?.[0];
-  const imageUri = tour.coverImage || getImage(undefined, 0, firstExperience?.experience?.themes?.[0]);
+  const imageUri =
+    tour.coverImage ||
+    getImage(
+      firstExperience?.experience?.mediaPresentation?.photos,
+      0,
+      firstExperience?.experience?.themes?.[0]
+    );
 
   const getFirstLocation = () => {
     const destination = tour.metadata?.generationRequest?.destination;
