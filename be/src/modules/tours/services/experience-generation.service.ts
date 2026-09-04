@@ -77,6 +77,7 @@ import { ExperienceCatalogService } from './experience-catalog.service';
 import { ExperienceAcquisitionService } from './experience-acquisition.service';
 import { ExperienceDiscoveryRequest } from '../interfaces/experience-discovery.interface';
 import { CoverageAnalyzer } from './coverage-analyzer.service';
+import { isCoverageFatal } from '../utils/coverage-decision.util';
 import { redactTracePayload } from '../utils/trace-redaction.util';
 import { buildGenerationExecutionSummary } from '../utils/generation-execution-summary.util';
 import { PreferenceInterpreterService } from './preference-interpreter.service';
@@ -1308,10 +1309,12 @@ export class ExperienceGenerationService {
               );
               traceSteps.push(buildCoverageAnalysisStep(finalCoverage));
 
-              if (
-                finalCoverage.decision.requiresAdditionalDiscovery ||
-                finalCoverage.decision.action === 'fail'
-              ) {
+              // A requested theme/trait/intent still missing after catalog +
+              // discovery + acquisition (`requiresAdditionalDiscovery`) is a
+              // real, trace-visible deficit — but per invariant #11 it must
+              // never fail the Tour on its own. Only a genuinely infeasible
+              // pool (`isCoverageFatal`) aborts generation here.
+              if (isCoverageFatal(finalCoverage)) {
                 throw new Error(
                   `Coverage insuficiente después de catálogo, discovery enfocado y adquisición acotada: ${finalCoverage.deficits
                     .filter((deficit) => deficit.severity === 'blocking')
