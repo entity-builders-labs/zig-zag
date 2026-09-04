@@ -13,7 +13,10 @@ import {
   CoverageReport,
 } from '../interfaces/coverage-analysis.interface';
 import { TourCompletenessResult } from '../interfaces/tour-completeness.interface';
-import { ExperienceResolutionResponse } from '../interfaces/experience-resolution.interface';
+import {
+  ExperienceResolutionResponse,
+  FinalExperienceResolutionResponse,
+} from '../interfaces/experience-resolution.interface';
 import { TourGenerationRequest } from '../interfaces/tour-generation.interface';
 import { DailyPlanningSolution } from '../interfaces/daily-planning.interface';
 import { CandidateScoreBreakdown } from './candidate-ranking.util';
@@ -882,34 +885,9 @@ export function buildEntityResolutionStep(
 }
 
 export function buildGeographicValidationStep(
-  result: ExperienceResolutionResponse,
+  result: FinalExperienceResolutionResponse,
 ): GenerationTraceStep {
   const validation = result.geographicValidation;
-  if (!validation) {
-    return {
-      stage: 'geographic_validation',
-      label: 'Validación geográfica',
-      component: 'CompositeGeographicValidationService',
-      status: 'INFO',
-      summary:
-        'No hay resultado de validación geográfica adjunto a esta respuesta legacy.',
-      rules: [
-        rule(
-          'GEO-AVAILABLE-001',
-          'Registrar el resultado determinístico de validación geográfica',
-          'SKIPPED',
-          'La respuesta no contiene GeographicValidationBatchResult.',
-        ),
-      ],
-      decision: {
-        status: 'INFO',
-        outcome: 'GEOGRAPHIC_VALIDATION_NOT_RECORDED',
-        reason: 'Trace legacy sin resultado geográfico separado.',
-        triggeredActions: ['CONTINUE'],
-      },
-    };
-  }
-
   const accepted = validation.results.filter((entry) => entry.accepted);
   const rejected = validation.results.filter((entry) => !entry.accepted);
   const radiusValues = validation.results
