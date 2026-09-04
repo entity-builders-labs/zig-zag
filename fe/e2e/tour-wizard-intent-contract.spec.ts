@@ -104,7 +104,7 @@ test('serializes destination, mobility and Experience V2 intent independently', 
   await expect(page.getByText('Tipo de experiencia', { exact: true })).toBeVisible();
   await expect(page.getByText('Visitas y lugares', { exact: true })).toBeVisible();
   await expect(page.getByText('Caminatas y recorridos', { exact: true })).toBeVisible();
-  await expect(page.getByText('Gastronomía', { exact: true })).toBeVisible();
+  await expect(page.getByText('Gastronomía', { exact: true }).first()).toBeVisible();
   await expect(page.getByText('Vida nocturna', { exact: true })).toBeVisible();
   await expect(page.getByText('Rutas temáticas', { exact: true })).toBeVisible();
   await expect(page.getByText('Escapada de un día', { exact: true })).toBeVisible();
