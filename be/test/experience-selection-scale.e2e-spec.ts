@@ -503,7 +503,8 @@ const scenarios: ScenarioDefinition[] = [
         {
           canonicalName: `Catálogo masivo ${index}`,
           description: 'Oferta general sin afinidad long-tail.',
-          themes: index < 45 ? ['history'] : index % 2 ? ['shopping'] : ['sports'],
+          themes:
+            index < 45 ? ['history'] : index % 2 ? ['shopping'] : ['sports'],
           durationMinutes: 720,
           qualityScore: index < 45 ? 4.9 : 3.5,
         },
@@ -805,9 +806,7 @@ describe('Experience V2 CP8 mandatory selection scenarios at scale', () => {
       .expect(200);
     expect(response.body.metadata.generationStatus).toBe('completed');
     expect(
-      (
-        await prisma.outboxEvent.findUnique({ where: { id: event!.id } })
-      )?.status,
+      (await prisma.outboxEvent.findUnique({ where: { id: event!.id } }))?.status,
     ).toBe('PUBLISHED');
     return response.body;
   }
