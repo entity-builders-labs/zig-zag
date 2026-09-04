@@ -1342,12 +1342,25 @@ export class ExperienceGenerationService {
               // never fail the Tour on its own. Only a genuinely infeasible
               // pool (`isCoverageFatal`) aborts generation here.
               if (isCoverageFatal(finalCoverage)) {
-                throw new Error(
+                const coverageError = new Error(
                   `Coverage insuficiente después de catálogo, discovery enfocado y adquisición acotada: ${finalCoverage.deficits
                     .filter((deficit) => deficit.severity === 'blocking')
                     .map((deficit) => deficit.reason)
                     .join(', ')}`,
                 );
+                // Authoritative retry signal from the code that actually
+                // decided this is fatal — an empty/insufficient pool caused
+                // by a genuinely degraded provider (e.g. Places down) is
+                // worth retrying; the same pool being empty because the
+                // destination just has no coverage yet never gets better on
+                // retry. Set explicitly so classifyGenerationFailure's
+                // whole-trace text scan (which can't distinguish "this
+                // failure was provider-caused" from "an unrelated earlier
+                // sub-step hit a transient 429 and recovered") never
+                // overrides it.
+                (coverageError as any).retryable =
+                  finalCoverage.providerHealth.status === 'degraded';
+                throw coverageError;
               }
 
               recordOfferedCandidates(finalSelection);

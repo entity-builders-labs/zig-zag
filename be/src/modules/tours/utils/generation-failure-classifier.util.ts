@@ -85,6 +85,27 @@ export function classifyGenerationFailure(
   latestTourMetadata?: unknown,
 ): GenerationFailureClassification {
   const message = errorMessage(error);
+
+  // An explicit `retryable` flag set by the code that threw the error is
+  // authoritative — it knows whether *this specific* failure was actually
+  // provider-caused, unlike the whole-trace text scan below, which cannot
+  // distinguish that from an unrelated earlier sub-step (e.g. a Groq 429
+  // during preference interpretation) that already degraded gracefully and
+  // has nothing to do with why generation ultimately failed.
+  if (
+    error &&
+    typeof error === 'object' &&
+    'retryable' in error &&
+    typeof (error as any).retryable === 'boolean'
+  ) {
+    const retryable = (error as any).retryable as boolean;
+    return {
+      retryable,
+      reasonCode: retryable ? 'PROVIDER_TRANSIENT' : 'TERMINAL',
+      message,
+    };
+  }
+
   const { statuses, codes } = nestedValues(error as any);
 
   if (statuses.some((status) => status === 429)) {

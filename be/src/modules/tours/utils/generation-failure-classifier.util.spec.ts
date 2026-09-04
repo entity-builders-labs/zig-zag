@@ -51,4 +51,47 @@ describe('classifyGenerationFailure', () => {
       expect.objectContaining({ retryable: false, reasonCode: 'TERMINAL' }),
     );
   });
+
+  it('honors an explicit retryable:false on the error even when an unrelated earlier trace step looks provider-caused', () => {
+    // Real bug reproduction: a Groq 429 during preference_interpretation
+    // (already handled gracefully via deterministic fallback, unrelated to
+    // why generation ultimately failed) used to poison the whole-trace scan
+    // and make a genuinely empty/permanent coverage gap (e.g. a destination
+    // with zero catalog Experiences) retry forever instead of terminating.
+    const coverageError = Object.assign(
+      new Error(
+        'Coverage insuficiente después de catálogo, discovery enfocado y adquisición acotada: insufficient_usable_candidates',
+      ),
+      { retryable: false },
+    );
+
+    const classification = classifyGenerationFailure(coverageError, {
+      generationTrace: {
+        steps: [
+          {
+            stage: 'preference_interpretation',
+            error: 'Groq error 429: rate_limit_exceeded',
+          },
+        ],
+      },
+    });
+
+    expect(classification).toEqual(
+      expect.objectContaining({ retryable: false, reasonCode: 'TERMINAL' }),
+    );
+  });
+
+  it('honors an explicit retryable:true on the error even with no trace evidence at all', () => {
+    const providerDegradedError = Object.assign(
+      new Error('Coverage insuficiente después de catálogo...'),
+      { retryable: true },
+    );
+
+    expect(classifyGenerationFailure(providerDegradedError)).toEqual(
+      expect.objectContaining({
+        retryable: true,
+        reasonCode: 'PROVIDER_TRANSIENT',
+      }),
+    );
+  });
 });
