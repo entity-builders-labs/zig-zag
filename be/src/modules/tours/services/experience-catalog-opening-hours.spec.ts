@@ -33,15 +33,18 @@ describe('ExperienceCatalogService opening hours', () => {
       .mockResolvedValue({ id: 'geo-museum-1' } as any);
     const persist = jest
       .spyOn(service, 'persistVerifiedExperience')
-      .mockImplementation(async (input: any) => ({
-        id: 'experience-museum-1',
-        canonicalName: input.canonicalName,
-        latitude: input.latitude,
-        longitude: input.longitude,
-        openingHours: input.openingHours,
-        components: [],
-        dedupeDecision: 'NEW',
-      } as any));
+      .mockImplementation(
+        async (input: any) =>
+          ({
+            id: 'experience-museum-1',
+            canonicalName: input.canonicalName,
+            latitude: input.latitude,
+            longitude: input.longitude,
+            openingHours: input.openingHours,
+            components: [],
+            dedupeDecision: 'NEW',
+          }) as any,
+      );
 
     const result = await service.acquireNearbyAsExperiences({
       latitude: -34.6037,
