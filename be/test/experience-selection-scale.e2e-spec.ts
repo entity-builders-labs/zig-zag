@@ -60,7 +60,7 @@ interface ScenarioExperience {
   price: number;
   qualityScore: number;
   semanticTier: 'positive' | 'negative';
-  openingHours?: unknown;
+  openingHours?: any;
   budgetLevel?: string;
   groupType?: string;
   latitudeOffset?: number;
