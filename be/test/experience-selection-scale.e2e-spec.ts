@@ -503,12 +503,7 @@ const scenarios: ScenarioDefinition[] = [
         {
           canonicalName: `Catálogo masivo ${index}`,
           description: 'Oferta general sin afinidad long-tail.',
-          themes:
-            index < 45
-              ? ['history']
-              : index % 2
-                ? ['shopping']
-                : ['sports'],
+          themes: index < 45 ? ['history'] : index % 2 ? ['shopping'] : ['sports'],
           durationMinutes: 720,
           qualityScore: index < 45 ? 4.9 : 3.5,
         },
@@ -718,8 +713,7 @@ describe('Experience V2 CP8 mandatory selection scenarios at scale', () => {
       return {
         id: `scale-${scenario.key}-${value.oracleClass}-${String(index).padStart(3, '0')}`,
         value,
-        latitude:
-          -34.6037 + (value.latitudeOffset ?? (index % 10) * 0.00008),
+        latitude: -34.6037 + (value.latitudeOffset ?? (index % 10) * 0.00008),
         longitude:
           -58.3816 +
           (value.longitudeOffset ?? Math.floor(index / 10) * 0.00008),
@@ -811,7 +805,9 @@ describe('Experience V2 CP8 mandatory selection scenarios at scale', () => {
       .expect(200);
     expect(response.body.metadata.generationStatus).toBe('completed');
     expect(
-      (await prisma.outboxEvent.findUnique({ where: { id: event!.id } }))?.status,
+      (
+        await prisma.outboxEvent.findUnique({ where: { id: event!.id } })
+      )?.status,
     ).toBe('PUBLISHED');
     return response.body;
   }
