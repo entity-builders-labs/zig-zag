@@ -330,14 +330,22 @@ export class ExperienceGenerationService {
     requestedIntents: string[],
     deficits: any[],
     additionalPreferences?: string,
+    preferredTraits?: string[],
+    destinationCountry?: string,
   ): Promise<any> {
     const request: ExperienceDiscoveryRequest = {
       scope: { destinationName },
       requestedThemes: interests,
       requestedIntents,
+      preferredTraits,
       semanticQuery: additionalPreferences,
+      // Clean, single-word subjects only — never the deficit's rendered
+      // `message` (a full Spanish sentence written for the Bitácora). That
+      // text used to be fed straight into search queries and drowned them
+      // in noise (see ExperienceDiscoveryPlannerService.plan()'s docstring).
       coverageGaps: deficits.map(
-        (deficit) => deficit.message || deficit.reason,
+        (deficit) =>
+          deficit.theme ?? deficit.trait ?? deficit.intent ?? deficit.reason,
       ),
       breadth: 'focused',
       maxCandidates: 8,
@@ -355,6 +363,7 @@ export class ExperienceGenerationService {
       try {
         const grounded = await this.groundedSearchProvider.search({
           destinationName,
+          destinationCountry,
           requestedThemes: interests,
           additionalPreferences,
           query: plannedQuery.query,
@@ -1087,6 +1096,8 @@ export class ExperienceGenerationService {
                 normalizedPreferences.preferredIntents,
                 blockingDeficits,
                 request.intent.additionalPreferences,
+                normalizedPreferences.preferredTraits,
+                destinationResolution.country,
               );
               traceSteps.push(buildDiscoveryStep(discoveryResult));
 

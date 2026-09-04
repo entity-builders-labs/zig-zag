@@ -44,6 +44,7 @@ export class TavilyGroundedSearchService implements GroundedSearchProvider {
     }
 
     const query = this.buildSearchQuery(request);
+    const country = request.destinationCountry?.trim().toLowerCase();
 
     try {
       this.logger.debug(`Tavily search for: ${query}`);
@@ -59,6 +60,7 @@ export class TavilyGroundedSearchService implements GroundedSearchProvider {
           max_results: 10,
           include_answer: false,
           include_raw_content: false,
+          ...(country ? { country } : {}),
         }),
         signal: AbortSignal.timeout(this.timeoutMs),
       });
@@ -102,8 +104,16 @@ export class TavilyGroundedSearchService implements GroundedSearchProvider {
   }
 
   private buildSearchQuery(request: GroundedSearchRequest): string {
+    // Trust the caller's already-built query whenever one exists — same
+    // contract as SerpApiGroundedSearchService/GroqGroundedSearchService, so
+    // swapping providers is actually transparent. The previous 200-char/
+    // no-newline cutoff had no basis in Tavily's own API (their guidance
+    // tops out around 400 chars) and silently discarded a real, working
+    // query, replacing it with a cruder fallback — verified live: it
+    // returned generic government tourism-portal noise contaminated with
+    // unrelated countries, worse than the query it was "protecting" against.
     const raw = request.query?.trim();
-    if (raw && raw.length < 200 && !raw.includes('\n')) {
+    if (raw && !raw.includes('\n')) {
       return raw;
     }
     return this.buildFallbackQuery(request);

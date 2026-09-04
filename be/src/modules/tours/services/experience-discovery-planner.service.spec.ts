@@ -65,4 +65,73 @@ describe('ExperienceDiscoveryPlannerService', () => {
     expect(plan.queries[0].query).toContain('walk');
     expect(plan.queries[0].query).not.toContain('day trips from Buenos Aires');
   });
+
+  it('plans exactly one query combining every preference, not one per theme/trait/intent', () => {
+    // Multiple calls were tried and measured against the live provider: each
+    // extra call cost real money for no quality gain, so a single
+    // consolidated query is the deliberate design, not a temporary
+    // simplification.
+    const plan = new ExperienceDiscoveryPlannerService().plan({
+      scope: { destinationName: 'San Juan, Argentina' },
+      requestedThemes: ['history', 'nature', 'architecture'],
+      preferredTraits: ['scenic', 'family-friendly'],
+      requestedIntents: ['walk', 'route_like', 'day_trip'],
+      semanticQuery: 'valle de la luna',
+      breadth: 'focused',
+      maxCandidates: 8,
+    });
+
+    expect(plan.queries).toHaveLength(1);
+  });
+
+  it('includes preferred traits in the single query (previously dropped entirely)', () => {
+    const plan = new ExperienceDiscoveryPlannerService().plan({
+      scope: { destinationName: 'Mendoza' },
+      requestedThemes: ['wine'],
+      preferredTraits: ['romantic'],
+      breadth: 'focused',
+      maxCandidates: 8,
+    });
+
+    expect(plan.queries[0].query).toContain('romantic');
+  });
+
+  it('builds a plain keyword-style query, not a long instruction sentence', () => {
+    // Search engines respond to search terms, not prompts — verified
+    // against the live Tavily API: a natural-language instruction sentence
+    // performed worse than a short keyword join for the same preferences.
+    const plan = new ExperienceDiscoveryPlannerService().plan({
+      scope: { destinationName: 'San Juan, Argentina' },
+      requestedThemes: ['history', 'nature', 'architecture'],
+      requestedIntents: ['walk', 'route_like', 'day_trip'],
+      semanticQuery: 'valle de la luna',
+      breadth: 'focused',
+      maxCandidates: 8,
+    });
+
+    expect(plan.queries[0].query.length).toBeLessThan(200);
+    expect(plan.queries[0].query).not.toMatch(
+      /\b(please|list|reachable|verifiable)\b/i,
+    );
+  });
+
+  it('never leaks CoverageAnalyzer diagnostic message text into the query (regression: caused wrong-country results)', () => {
+    // Real production bug: coverageGaps used to be built from
+    // deficit.message (a full Spanish sentence for the Bitácora, e.g. 'No
+    // hay coverage verificable para el tema solicitado "history".') and fed
+    // straight into the search query, drowning it in noise that made Tavily
+    // return mostly San Juan, Puerto Rico results instead of San Juan,
+    // Argentina. coverageGaps must never resurface as query text.
+    const plan = new ExperienceDiscoveryPlannerService().plan({
+      scope: { destinationName: 'San Juan, Argentina' },
+      requestedThemes: ['history'],
+      coverageGaps: [
+        'No hay coverage verificable para el tema solicitado "history".',
+      ],
+      breadth: 'focused',
+      maxCandidates: 8,
+    });
+
+    expect(plan.queries[0].query).not.toMatch(/no hay|verificable|solicitado/i);
+  });
 });

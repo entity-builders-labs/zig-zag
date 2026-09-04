@@ -248,6 +248,7 @@ describe('DestinationResolutionService', () => {
         osmId: 3465536,
         displayName: 'Capital',
       },
+      country: 'Argentina',
     });
   });
 

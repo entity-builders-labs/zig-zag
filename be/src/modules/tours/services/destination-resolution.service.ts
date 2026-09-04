@@ -45,6 +45,15 @@ export interface DestinationResolutionAudit {
     displayName: string;
   };
   degradationReason?: DestinationDegradationReason;
+  /**
+   * The resolved destination's country, in Nominatim's own English-language
+   * address field — never re-derived from free text elsewhere. Used to
+   * scope grounded search providers (e.g. Tavily's `country` boost) so a
+   * common place name shared by multiple countries (San Juan exists in
+   * Argentina, Puerto Rico, and elsewhere) doesn't pull in unrelated results
+   * for the wrong one.
+   */
+  country?: string;
 }
 
 export type DestinationResolution =
@@ -217,6 +226,7 @@ export class DestinationResolutionService {
         osmId: best.osmId,
         displayName: best.displayName,
       } as const;
+      const country = best.address?.country;
       if (!boundary) {
         return {
           scale: 'point',
@@ -226,6 +236,7 @@ export class DestinationResolutionService {
             boundaryLookup.status === 'failed'
               ? 'provider_failed'
               : 'boundary_unavailable',
+          country,
         };
       }
 
@@ -234,6 +245,7 @@ export class DestinationResolutionService {
         boundary,
         attemptedQueries,
         selectedResult,
+        country,
       };
     } catch (error: any) {
       this.logger.warn(
@@ -345,6 +357,7 @@ export class DestinationResolutionService {
       osmId: settlement.osmId,
       displayName: settlement.displayName,
     } as const;
+    const country = settlement.address?.country;
     const lookupCoordinates =
       coordinates ??
       (settlement.latitude !== undefined && settlement.longitude !== undefined
@@ -363,6 +376,7 @@ export class DestinationResolutionService {
         attemptedQueries,
         settlementResult,
         degradationReason: 'boundary_unavailable',
+        country,
       };
     }
 
@@ -385,6 +399,7 @@ export class DestinationResolutionService {
           boundaryLookup.status === 'failed'
             ? 'provider_failed'
             : 'boundary_unavailable',
+        country,
       };
     }
 
@@ -399,6 +414,7 @@ export class DestinationResolutionService {
       attemptedQueries,
       settlementResult,
       selectedResult,
+      country,
     };
   }
 

@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import {
   ExperienceDiscoveryPlan,
-  ExperienceDiscoveryQuery,
   ExperienceDiscoveryRequest,
 } from '../interfaces/experience-discovery.interface';
 
@@ -15,87 +14,73 @@ function normalizeFacet(value: string): string {
 /** Provider-neutral query planner for grounded Experience acquisition. */
 @Injectable()
 export class ExperienceDiscoveryPlannerService {
+  /**
+   * A single, keyword-style query combining every requested preference,
+   * rather than one query per theme/trait/intent gap. Splitting into
+   * multiple calls was tried and measured against the live Tavily API
+   * (see docs/superpowers — the "Dos relojes" / discovery-quality session):
+   * each extra call cost real money for no quality gain, and the per-gap
+   * queries were built from CoverageAnalyzer's human-readable diagnostic
+   * `message` strings (meant for the Bitácora, not a search engine),
+   * producing queries so garbled they mostly returned results for the
+   * wrong country entirely (e.g. San Juan, Puerto Rico instead of San Juan,
+   * Argentina). A single plain-keyword query beat both the broken
+   * multi-query approach and a long natural-language instruction sentence —
+   * search engines respond to search terms, not prompts.
+   */
   plan(request: ExperienceDiscoveryRequest): ExperienceDiscoveryPlan {
     const destination =
       request.scope.destinationName?.trim() || 'the destination';
     const themes = request.requestedThemes.filter(Boolean).slice(0, 5);
+    const traits = (request.preferredTraits ?? []).filter(Boolean).slice(0, 5);
     const intents = (request.requestedIntents ?? [])
       .map(normalizeFacet)
       .filter(Boolean)
       .slice(0, 5);
     const dayTripRequested = intents.includes('day_trip');
     const otherIntents = intents.filter((intent) => intent !== 'day_trip');
-    const gaps = (request.coverageGaps ?? []).filter(Boolean).slice(0, 3);
     const semantic = request.semanticQuery?.trim();
-    const queries: ExperienceDiscoveryQuery[] = [];
 
     const intentTerms = otherIntents.map((intent) => intent.replace(/_/g, ' '));
-    const preferenceTerms = [...themes, ...intentTerms, semantic].filter(
-      Boolean,
-    );
-    const localBase = [destination, ...preferenceTerms]
+    const preferenceTerms = [...themes, ...traits, ...intentTerms, semantic]
       .filter(Boolean)
-      .join(' ');
-    const dayTripBase = [
-      ...preferenceTerms,
-      `day trips from ${destination}`,
-      'returning the same day',
-      'no overnight stay',
-    ]
-      .filter(Boolean)
-      .join(' ');
+      .slice(0, 12);
 
-    queries.push({
-      query: dayTripRequested
-        ? `${dayTripBase} real places experiences`
-        : `${localBase} best things to do real places experiences`,
-      purpose: request.breadth === 'broad' ? 'bootstrap' : 'coverage_gap',
-      expectedEvidence: dayTripRequested
-        ? [
-            'named same-day destinations or experiences reachable from the base destination',
-            'evidence that the experience can start from the base and return the same day',
-            'experience description',
-            'relationship to the base destination',
-          ]
-        : ['named places', 'experience description', 'destination association'],
-    });
-
-    for (const gap of gaps) {
-      queries.push({
-        query: dayTripRequested
-          ? `${gap} day trips from ${destination} returning the same day no overnight named places official tourism`
-          : `${destination} ${gap} named places official tourism`,
-        purpose: 'coverage_gap',
-        expectedEvidence: dayTripRequested
-          ? [
-              'named entities',
-              'evidence of the requested experience',
-              'same-day feasibility from the base destination',
-              'relationship to the base destination',
-            ]
-          : ['named entities', 'evidence of the requested experience'],
-      });
-    }
-
-    if (request.breadth === 'focused' && semantic) {
-      queries.push({
-        query: dayTripRequested
-          ? `${semantic} day trips from ${destination} returning the same day no overnight official guide`
-          : `${destination} ${semantic} official guide itinerary`,
-        purpose: 'focused_enrichment',
-        expectedEvidence: dayTripRequested
-          ? [
-              'specific components',
-              'same-day experience evidence',
-              'relationship to the base destination',
-            ]
-          : ['specific components', 'ordering or relationship evidence'],
-      });
-    }
+    const query = dayTripRequested
+      ? [
+          destination,
+          ...preferenceTerms,
+          `day trips from ${destination}`,
+          'returning the same day',
+          'no overnight',
+          'real named places',
+        ]
+          .filter(Boolean)
+          .join(' ')
+      : [destination, ...preferenceTerms, 'real named places official tourism']
+          .filter(Boolean)
+          .join(' ');
 
     return {
-      queries: queries.slice(0, 4),
-      enrichmentAllowed: request.breadth === 'focused' || gaps.length > 0,
+      queries: [
+        {
+          query,
+          purpose: request.breadth === 'broad' ? 'bootstrap' : 'coverage_gap',
+          expectedEvidence: dayTripRequested
+            ? [
+                'named same-day destinations or experiences reachable from the base destination',
+                'evidence that the experience can start from the base and return the same day',
+                'experience description',
+                'relationship to the base destination',
+              ]
+            : [
+                'named places',
+                'experience description',
+                'destination association',
+              ],
+        },
+      ],
+      enrichmentAllowed: true,
     };
   }
 }
