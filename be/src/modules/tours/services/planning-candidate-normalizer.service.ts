@@ -31,6 +31,25 @@ export class PlanningCandidateNormalizerService {
       const persistedOpeningHours =
         experience.openingHours ?? experience.metadata?.openingHours;
       const scoreBreakdown = scoreBreakdownById.get(experience.id);
+      const spatialFootprint = buildExperienceFootprint({
+        latitude: experience.latitude,
+        longitude: experience.longitude,
+        components: experience.components,
+      });
+      const componentFootprints = buildOrderedComponentFootprints(
+        experience.components ?? [],
+      );
+      // Derived once here so the solver's hot loops never need `?? spatialFootprint`
+      // scattered across call sites — a single-component (or component-less)
+      // Experience's start/end both collapse to its one generic footprint.
+      const startFootprint =
+        componentFootprints.length >= 2
+          ? componentFootprints[0]
+          : spatialFootprint;
+      const endFootprint =
+        componentFootprints.length >= 2
+          ? componentFootprints[componentFootprints.length - 1]
+          : spatialFootprint;
       return {
         experienceId: experience.id,
         title: experience.canonicalName ?? experience.name,
@@ -38,14 +57,10 @@ export class PlanningCandidateNormalizerService {
           experience.durationMinutes ??
           (experience.duration ? experience.duration * 60 : undefined) ??
           this.policy.compositeDefaultDurationMinutes,
-        spatialFootprint: buildExperienceFootprint({
-          latitude: experience.latitude,
-          longitude: experience.longitude,
-          components: experience.components,
-        }),
-        componentFootprints: buildOrderedComponentFootprints(
-          experience.components ?? [],
-        ),
+        spatialFootprint,
+        componentFootprints,
+        startFootprint,
+        endFootprint,
         semanticScore: scoreBreakdown?.semanticSimilarity ?? 0,
         rankingScore: scoreBreakdown?.totalScore,
         qualityScore: scoreBreakdown?.qualityBonus,

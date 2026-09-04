@@ -17,11 +17,14 @@ describe('daily-planning.interface', () => {
   });
 
   it('constructs a valid PlanningExperienceCandidate literal', () => {
+    const footprint = { type: 'POINT' as const, centroid: { lat: 1, lng: 2 } };
     const candidate: PlanningExperienceCandidate = {
       experienceId: 'e1',
       title: 'Test',
       durationMinutes: 60,
-      spatialFootprint: { type: 'POINT', centroid: { lat: 1, lng: 2 } },
+      spatialFootprint: footprint,
+      startFootprint: footprint,
+      endFootprint: footprint,
       semanticScore: 0.5,
     };
     expect(candidate.durationMinutes).toBe(60);

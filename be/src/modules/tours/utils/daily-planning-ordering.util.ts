@@ -85,8 +85,8 @@ async function pickNextRouted(
   for (const candidate of remaining) {
     const travel = previous
       ? await context.travelEstimateProvider.estimate(
-          previous.spatialFootprint,
-          candidate.spatialFootprint,
+          previous.endFootprint,
+          candidate.startFootprint,
           context.allowedTransportationModes,
         )
       : undefined;
@@ -101,10 +101,14 @@ async function pickNextRouted(
       travel,
       startMinutes,
       endMinutes,
+      // Same end→start pairing as the travel estimate above — otherwise a
+      // route-shaped candidate gets ranked by its centroid distance while
+      // actually routed by its real endpoint, and the "nearest" pick can
+      // visibly zigzag against what was actually estimated/scheduled.
       distanceMeters: previous
         ? footprintDistanceMeters(
-            previous.spatialFootprint,
-            candidate.spatialFootprint,
+            previous.endFootprint,
+            candidate.startFootprint,
           )
         : 0,
     });
@@ -129,8 +133,8 @@ async function inferFailureReason(
   for (const candidate of remaining) {
     const travel = previous
       ? await context.travelEstimateProvider.estimate(
-          previous.spatialFootprint,
-          candidate.spatialFootprint,
+          previous.endFootprint,
+          candidate.startFootprint,
           context.allowedTransportationModes,
         )
       : undefined;
@@ -209,8 +213,12 @@ async function tryScheduleDay(
     day: {
       dayNumber,
       experiences: scheduled,
+      // Must include internal travel, same as occupiedMinutes() above and
+      // every `end` timestamp already scheduled — otherwise this total
+      // silently disagrees with its own day's schedule (a shorter number
+      // next to `end` timestamps that already account for it).
       totalExperienceMinutes: candidates.reduce(
-        (sum, candidate) => sum + candidate.durationMinutes,
+        (sum, candidate) => sum + occupiedMinutes(candidate),
         0,
       ),
       totalTravelMinutes,

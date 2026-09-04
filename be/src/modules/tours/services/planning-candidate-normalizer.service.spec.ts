@@ -123,6 +123,82 @@ describe('PlanningCandidateNormalizerService', () => {
     ]);
   });
 
+  it('derives startFootprint/endFootprint from the first/last required component of a multi-component Experience', async () => {
+    const [candidate] = await service.normalizeExperiences(
+      [
+        {
+          id: 'walk',
+          canonicalName: 'Three-stop walk',
+          components: [
+            {
+              order: 2,
+              required: true,
+              geoEntity: { latitude: -34.601, longitude: -58.401 },
+            },
+            {
+              order: 1,
+              required: true,
+              geoEntity: { latitude: -34.6, longitude: -58.4 },
+            },
+            {
+              order: 3,
+              required: true,
+              geoEntity: { latitude: -34.603, longitude: -58.403 },
+            },
+          ],
+        },
+      ],
+      new Map(),
+    );
+
+    expect(candidate.startFootprint).toEqual({
+      type: 'POINT',
+      centroid: { lat: -34.6, lng: -58.4 },
+    });
+    expect(candidate.endFootprint).toEqual({
+      type: 'POINT',
+      centroid: { lat: -34.603, lng: -58.403 },
+    });
+    // Regression guard: start/end must NOT both collapse to the generic
+    // (centroid) spatialFootprint for a real multi-stop Experience.
+    expect(candidate.startFootprint).not.toEqual(candidate.spatialFootprint);
+    expect(candidate.endFootprint).not.toEqual(candidate.spatialFootprint);
+  });
+
+  it('collapses startFootprint/endFootprint to spatialFootprint for a single-component (or component-less) Experience', async () => {
+    const [singleComponent] = await service.normalizeExperiences(
+      [
+        {
+          id: 'poi',
+          canonicalName: 'Museo',
+          latitude: -34.6,
+          longitude: -58.4,
+          components: [
+            {
+              order: 1,
+              required: true,
+              geoEntity: { latitude: -34.6, longitude: -58.4 },
+            },
+          ],
+        },
+      ],
+      new Map(),
+    );
+    expect(singleComponent.startFootprint).toEqual(
+      singleComponent.spatialFootprint,
+    );
+    expect(singleComponent.endFootprint).toEqual(
+      singleComponent.spatialFootprint,
+    );
+
+    const [noComponents] = await service.normalizeExperiences(
+      [{ id: 'poi2', canonicalName: 'Plaza', latitude: 1, longitude: 2 }],
+      new Map(),
+    );
+    expect(noComponents.startFootprint).toEqual(noComponents.spatialFootprint);
+    expect(noComponents.endFootprint).toEqual(noComponents.spatialFootprint);
+  });
+
   it('preserves canonical ROUTE geometry as a LINE planning footprint', async () => {
     const [candidate] = await service.normalizeExperiences(
       [

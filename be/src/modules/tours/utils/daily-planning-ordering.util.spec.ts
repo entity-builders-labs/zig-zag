@@ -16,11 +16,14 @@ function candidate(
   durationMinutes = 60,
   semanticScore = 0.5,
 ): PlanningExperienceCandidate {
+  const footprint = { type: 'POINT' as const, centroid: { lat, lng } };
   return {
     experienceId: id,
     title: id,
     durationMinutes,
-    spatialFootprint: { type: 'POINT', centroid: { lat, lng } },
+    spatialFootprint: footprint,
+    startFootprint: footprint,
+    endFootprint: footprint,
     semanticScore,
   };
 }
@@ -206,5 +209,56 @@ describe('orderAndScheduleDay', () => {
       context(),
     );
     expect(day.totalExperienceMinutes).toBe(150);
+  });
+
+  it('includes internal travel in totalExperienceMinutes, keeping it consistent with its own end timestamps', async () => {
+    // Regression guard for CP8-3: candidateExperienceMinutes/occupiedMinutes
+    // (used for every `end` timestamp) already include internal travel —
+    // the day-level total must not silently disagree with its own schedule.
+    const withInternalTravel: PlanningExperienceCandidate = {
+      ...candidate('a', 0, 0, 60),
+      mobility: { internalTravelMinutes: 15 },
+    };
+    const day = await orderAndScheduleDay(
+      1,
+      [withInternalTravel, candidate('b', 0, 0.01, 90)],
+      context(),
+    );
+    expect(day.totalExperienceMinutes).toBe(60 + 15 + 90);
+    expect(day.totalExperienceMinutes + day.totalTravelMinutes).toBeCloseTo(
+      day.utilizationMinutes,
+    );
+  });
+
+  it('routes end→start, not centroid-to-centroid, when a candidate is route-shaped', async () => {
+    // Regression guard for CP8-1: end/start footprints must drive the
+    // estimate, not the generic (centroid) spatialFootprint — checked
+    // order-independently, since which candidate the solver visits first
+    // is its own decision, not this test's.
+    const provider = realTravelEstimateProvider();
+    const a: PlanningExperienceCandidate = {
+      ...candidate('a', 5, 5, 60), // generic centroid — must never appear in an estimate() call
+      startFootprint: { type: 'POINT', centroid: { lat: 0, lng: 0 } },
+      endFootprint: { type: 'POINT', centroid: { lat: 0, lng: 0 } },
+    };
+    const b: PlanningExperienceCandidate = {
+      ...candidate('b', 9, 9, 60), // generic centroid — must never appear in an estimate() call
+      startFootprint: { type: 'POINT', centroid: { lat: 10, lng: 10 } },
+      endFootprint: { type: 'POINT', centroid: { lat: 10, lng: 10 } },
+    };
+
+    await orderAndScheduleDay(1, [a, b], {
+      ...context(),
+      travelEstimateProvider: provider,
+    });
+
+    const calls = (provider.estimate as jest.Mock).mock.calls;
+    expect(calls.length).toBeGreaterThan(0);
+    for (const [from, to] of calls) {
+      expect(from.centroid).not.toEqual({ lat: 5, lng: 5 });
+      expect(from.centroid).not.toEqual({ lat: 9, lng: 9 });
+      expect(to.centroid).not.toEqual({ lat: 5, lng: 5 });
+      expect(to.centroid).not.toEqual({ lat: 9, lng: 9 });
+    }
   });
 });

@@ -56,6 +56,17 @@ export interface PlanningExperienceCandidate {
   /** Ordered required components retained so internal routing can use the
    * same request mobility constraints as inter-Experience routing. */
   componentFootprints?: SpatialFootprint[];
+  /**
+   * Derived once at normalization: `componentFootprints[0]`/`[last]` when
+   * there are ≥2 component footprints, otherwise both equal
+   * `spatialFootprint`. Inter-candidate travel/ordering must route
+   * end→start using these — a multi-component Experience (walk/route)
+   * is not a single point, and routing/ordering by the generic
+   * `spatialFootprint` (its centroid) makes a route-shaped Experience zigzag
+   * against its neighbors instead of connecting at its real endpoints.
+   */
+  startFootprint: SpatialFootprint;
+  endFootprint: SpatialFootprint;
   openingHours?: NormalizedOpeningHours;
   /** Raw semantic similarity remains separately observable. */
   semanticScore: number;

@@ -105,8 +105,8 @@ export async function checkHardConstraints(
   const previous = acc.assigned[acc.assigned.length - 1];
   const travel = previous
     ? await context.travelEstimateProvider.estimate(
-        previous.spatialFootprint,
-        candidate.spatialFootprint,
+        previous.endFootprint,
+        candidate.startFootprint,
         context.mobility.allowedTransportationModes,
       )
     : null;
@@ -161,7 +161,10 @@ export async function checkHardConstraints(
       const proposedStart =
         context.planningWindow.startMinutesFromMidnight +
         acc.totalExperienceMinutes;
-      const proposedEnd = proposedStart + candidate.durationMinutes;
+      // Must match what the scheduler actually books (durationMinutes +
+      // internal travel) — using durationMinutes alone here validates a
+      // shorter window than the one that ends up scheduled.
+      const proposedEnd = proposedStart + candidateExperienceMinutes(candidate);
       if (
         !isOpenDuring(
           candidate.openingHours,
@@ -253,8 +256,8 @@ export async function placeCandidates(
     const previous = acc.assigned[acc.assigned.length - 1];
     const travel = previous
       ? await context.travelEstimateProvider.estimate(
-          previous.spatialFootprint,
-          candidate.spatialFootprint,
+          previous.endFootprint,
+          candidate.startFootprint,
           context.mobility.allowedTransportationModes,
         )
       : null;

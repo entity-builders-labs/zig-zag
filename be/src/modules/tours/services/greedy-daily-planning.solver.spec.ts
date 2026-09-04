@@ -82,14 +82,17 @@ function candidate(
       (sum, character) => sum + character.charCodeAt(0),
       0,
     ) % 10;
+  const footprint = {
+    type: 'POINT' as const,
+    centroid: { lat: 0, lng: stableOffset * 0.0001 },
+  };
   return {
     experienceId: id,
     title: id,
     durationMinutes: 60,
-    spatialFootprint: {
-      type: 'POINT',
-      centroid: { lat: 0, lng: stableOffset * 0.0001 },
-    },
+    spatialFootprint: footprint,
+    startFootprint: footprint,
+    endFootprint: footprint,
     componentFootprints: [],
     semanticScore,
   };

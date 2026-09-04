@@ -10,11 +10,14 @@ function candidate(
   qualityScore?: number,
   rankingScore?: number,
 ): PlanningExperienceCandidate {
+  const footprint = { type: 'POINT' as const, centroid: { lat: 0, lng: 0 } };
   return {
     experienceId: id,
     title: id,
     durationMinutes: 60,
-    spatialFootprint: { type: 'POINT', centroid: { lat: 0, lng: 0 } },
+    spatialFootprint: footprint,
+    startFootprint: footprint,
+    endFootprint: footprint,
     semanticScore,
     rankingScore,
     qualityScore,

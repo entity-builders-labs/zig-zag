@@ -16,11 +16,14 @@ function candidate(
   lat: number,
   lng: number,
 ): PlanningExperienceCandidate {
+  const footprint = { type: 'POINT' as const, centroid: { lat, lng } };
   return {
     experienceId: id,
     title: id,
     durationMinutes: 60,
-    spatialFootprint: { type: 'POINT', centroid: { lat, lng } },
+    spatialFootprint: footprint,
+    startFootprint: footprint,
+    endFootprint: footprint,
     semanticScore: 0.5,
   };
 }
@@ -31,11 +34,14 @@ function candidateWithOptions(
   lng: number,
   opts: { durationMinutes?: number; openingHours?: NormalizedOpeningHours },
 ): PlanningExperienceCandidate {
+  const footprint = { type: 'POINT' as const, centroid: { lat, lng } };
   return {
     experienceId: id,
     title: id,
     durationMinutes: opts.durationMinutes ?? 60,
-    spatialFootprint: { type: 'POINT', centroid: { lat, lng } },
+    spatialFootprint: footprint,
+    startFootprint: footprint,
+    endFootprint: footprint,
     semanticScore: 0.5,
     openingHours: opts.openingHours,
   };
@@ -51,11 +57,14 @@ function candidateWithMobility(
     internalWalkingDistanceMeters?: number;
   },
 ): PlanningExperienceCandidate {
+  const footprint = { type: 'POINT' as const, centroid: { lat, lng } };
   return {
     experienceId: id,
     title: id,
     durationMinutes: opts.durationMinutes,
-    spatialFootprint: { type: 'POINT', centroid: { lat, lng } },
+    spatialFootprint: footprint,
+    startFootprint: footprint,
+    endFootprint: footprint,
     semanticScore: 0.5,
     mobility: {
       internalTravelMinutes: opts.internalTravelMinutes,

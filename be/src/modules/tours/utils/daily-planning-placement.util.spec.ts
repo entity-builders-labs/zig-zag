@@ -15,11 +15,14 @@ import { DailyPlanningPolicy } from '../config/daily-planning-policy.config';
 function candidate(
   overrides: Partial<PlanningExperienceCandidate> = {},
 ): PlanningExperienceCandidate {
+  const footprint = { type: 'POINT' as const, centroid: { lat: 0, lng: 0 } };
   return {
     experienceId: overrides.experienceId ?? 'a1',
     title: 'Test',
     durationMinutes: 60,
-    spatialFootprint: { type: 'POINT', centroid: { lat: 0, lng: 0 } },
+    spatialFootprint: footprint,
+    startFootprint: footprint,
+    endFootprint: footprint,
     semanticScore: 0.5,
     ...overrides,
   };
@@ -146,6 +149,73 @@ describe('checkHardConstraints', () => {
     );
     expect(result.feasible).toBe(false);
     expect(result.reasons).toContain('MAX_CONTINUOUS_WALKING_EXCEEDED');
+  });
+
+  it('estimates inter-candidate travel end→start, not centroid-to-centroid', async () => {
+    // Regression guard for CP8-1: a route-shaped candidate's real endpoints
+    // are far from its centroid — routing by spatialFootprint would silently
+    // mis-price (and mis-order) the leg.
+    const estimate = jest.fn().mockResolvedValue({
+      mode: TransportationMode.WALKING,
+      durationMinutes: 5,
+      distanceMeters: 100,
+      walkingMinutes: 5,
+      walkingDistanceMeters: 100,
+      approximate: true,
+    });
+    const previous = candidate({
+      experienceId: 'prev',
+      spatialFootprint: { type: 'AREA', centroid: { lat: 0, lng: 0 } },
+      endFootprint: { type: 'POINT', centroid: { lat: 1, lng: 1 } },
+    });
+    const next = candidate({
+      experienceId: 'next',
+      spatialFootprint: { type: 'AREA', centroid: { lat: 10, lng: 10 } },
+      startFootprint: { type: 'POINT', centroid: { lat: 2, lng: 2 } },
+    });
+    const acc: DayAccumulator = {
+      dayNumber: 1,
+      assigned: [previous],
+      totalExperienceMinutes: 60,
+      totalWalkingMeters: 0,
+    };
+
+    await checkHardConstraints(
+      next,
+      acc,
+      baseContext({ travelEstimateProvider: { estimate } }),
+    );
+
+    expect(estimate).toHaveBeenCalledWith(
+      previous.endFootprint,
+      next.startFootprint,
+      expect.anything(),
+    );
+  });
+
+  it('rejects a candidate whose duration fits alone but pushes past closing once internal travel is included', async () => {
+    // Regression guard for CP8-2: the hard-constraint check must use the
+    // same duration formula the scheduler actually books
+    // (durationMinutes + internalTravelMinutes), not durationMinutes alone.
+    const context = baseContext({ startDates: ['2026-09-07'] }); // a real Monday
+    const result = await checkHardConstraints(
+      candidate({
+        durationMinutes: 50,
+        mobility: { internalTravelMinutes: 20 },
+        openingHours: {
+          status: 'known',
+          rangesByWeekday: {
+            1: [{ startMinutesFromMidnight: 540, endMinutesFromMidnight: 600 }],
+          }, // 9:00-10:00 Monday only — 60 min window
+        },
+      }),
+      emptyDay(1), // day starts at window start, 9:00
+      context,
+    );
+    // durationMinutes alone (50) fits inside the 60-minute window; +20 min
+    // internal travel (70 total) does not.
+    expect(result.feasible).toBe(false);
+    expect(result.reasons).toContain('OPENING_HOURS_INCOMPATIBLE');
   });
 
   it('rejects when total daily walking would exceed the limit', async () => {
