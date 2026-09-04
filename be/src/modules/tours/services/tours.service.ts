@@ -226,9 +226,10 @@ export class ToursService {
           ...tourExperience,
           experience: {
             ...tourExperience.experience,
-            mediaPresentation: this.mediaPresentationResolver.resolvePresentation(
-              tourExperience.experience,
-            ),
+            mediaPresentation:
+              this.mediaPresentationResolver.resolvePresentation(
+                tourExperience.experience,
+              ),
           },
         };
       }),
