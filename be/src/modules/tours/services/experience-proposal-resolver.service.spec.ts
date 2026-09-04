@@ -255,8 +255,21 @@ describe('ExperienceProposalResolverService', () => {
 
   it.each([
     {
-      name: 'provider failure',
-      lookup: { status: 'failed', value: [], failureReason: '504' },
+      name: '429 rate limit',
+      lookup: {
+        status: 'failed',
+        value: [],
+        failureReason: '429 Too Many Requests',
+      },
+      expected: 'OSM_PROVIDER_FAILED',
+    },
+    {
+      name: 'provider timeout',
+      lookup: {
+        status: 'failed',
+        value: [],
+        failureReason: 'Overpass request timed out',
+      },
       expected: 'OSM_PROVIDER_FAILED',
     },
     {
