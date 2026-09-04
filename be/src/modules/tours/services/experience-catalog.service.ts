@@ -2,6 +2,8 @@ import { Injectable, Inject } from '@nestjs/common';
 import { ExperienceStatus, GeoEntityKind, Prisma } from '@prisma/client';
 import { PrismaService } from '@core/database/prisma.service';
 import { IPlacesApiService } from '@integrations/google-places/interfaces/places-api.interface';
+import { NormalizedOpeningHours } from '../interfaces/daily-planning.interface';
+import { parseOpeningHours } from '../utils/normalized-opening-hours.util';
 import {
   decideExperienceDedupe,
   DedupeExperienceFingerprint,
@@ -27,6 +29,7 @@ export interface VerifiedExperienceInput {
   qualityScore?: number;
   latitude?: number;
   longitude?: number;
+  openingHours?: NormalizedOpeningHours;
   metadata?: unknown;
   components: Array<{
     geoEntityId: string;
@@ -91,6 +94,7 @@ export class ExperienceCatalogService {
     for (const place of result.data) {
       if (!place.location || !place.id || !this.isAdmissiblePlace(place))
         continue;
+      const openingHours = parseOpeningHours(place.openingHoursWeekdayText);
       const entity = await this.upsertGeoEntity({
         name: place.displayName?.text ?? place.name ?? place.id,
         kind: GeoEntityKind.PLACE,
@@ -99,7 +103,11 @@ export class ExperienceCatalogService {
         latitude: place.location.latitude,
         longitude: place.location.longitude,
         address: place.formattedAddress,
-        metadata: { types: place.types, primaryType: place.primaryType },
+        metadata: {
+          types: place.types,
+          primaryType: place.primaryType,
+          openingHoursWeekdayText: place.openingHoursWeekdayText,
+        },
       });
       const experience = await this.persistVerifiedExperience({
         canonicalName: place.displayName?.text ?? place.name ?? place.id,
@@ -108,6 +116,7 @@ export class ExperienceCatalogService {
         latitude: place.location.latitude,
         longitude: place.location.longitude,
         qualityScore: place.rating,
+        openingHours,
         metadata: {
           source: 'places_acquisition',
           provider: result.provenance.provider,
@@ -133,6 +142,7 @@ export class ExperienceCatalogService {
         latitude: (experience as any).latitude,
         longitude: (experience as any).longitude,
         duration: 1.5,
+        openingHours: (experience as any).openingHours,
         metadata: { source: 'experience_catalog', experienceId: experience.id },
         components: (experience as any).components,
       });
@@ -202,6 +212,7 @@ export class ExperienceCatalogService {
           distanceSquared,
           duration: (experience.durationMinutes ?? 120) / 60,
           durationMinutes: experience.durationMinutes,
+          openingHours: experience.openingHours,
           themes: this.stringList(metadata.themes),
           intents: this.stringList(metadata.intents ?? metadata.archetypes),
           traits: Array.from(
@@ -410,6 +421,9 @@ export class ExperienceCatalogService {
                   : Math.max(same.qualityScore, input.qualityScore),
             latitude: input.latitude ?? same.latitude,
             longitude: input.longitude ?? same.longitude,
+            openingHours: input.openingHours as
+              | Prisma.InputJsonValue
+              | undefined,
             metadata: this.mergeMetadata(same.metadata, input.metadata),
             embeddingProvider: null,
             embeddingModel: null,
@@ -438,6 +452,9 @@ export class ExperienceCatalogService {
           qualityScore: input.qualityScore,
           latitude: input.latitude,
           longitude: input.longitude,
+          openingHours: input.openingHours as
+            | Prisma.InputJsonValue
+            | undefined,
           metadata: input.metadata as Prisma.InputJsonValue | undefined,
           status: ExperienceStatus.VERIFIED,
           components: {
