@@ -236,7 +236,10 @@ export class ExperienceCatalogService {
           left.id.localeCompare(right.id),
       )
       .slice(0, limit)
-      .map(({ distanceSquared: _distanceSquared, ...experience }) => experience);
+      .map(({ distanceSquared, ...experience }) => {
+        void distanceSquared;
+        return experience;
+      });
   }
 
   async upsertGeoEntity(input: GeoEntityInput) {
