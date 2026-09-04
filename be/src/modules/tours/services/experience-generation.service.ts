@@ -33,6 +33,7 @@ import {
   RankableCandidate,
   CandidateScoreBreakdown,
 } from '../utils/candidate-ranking.util';
+import { selectBoundedWindow } from '../utils/candidate-window-selection.util';
 import {
   buildExperienceCandidatePoolStep,
   buildCoverageAnalysisStep,
@@ -522,7 +523,12 @@ export class ExperienceGenerationService {
           ...normalized.accessibilityPreferences,
         ]),
       ),
-      requestedIntents: normalized.preferredIntents,
+      requestedIntents: Array.from(
+        new Set([
+          ...(request.intent.intents ?? []),
+          ...normalized.preferredIntents,
+        ]),
+      ),
       days: request.days,
       explorationStyle: request.intent.explorationStyle,
       travelPace: request.mobility.travelPace,
@@ -748,7 +754,11 @@ export class ExperienceGenerationService {
     const rankable: (RankableCandidate & { original: any })[] =
       candidateExperiences.map((experience) => ({
         id: experience.id,
-        source: 'poi' as const,
+        // A multi-component Experience (walk/route/day-trip) is a
+        // 'composite', matching candidate-ranking.util's own quality-bonus
+        // split — this used to be hardcoded 'poi' for everything, silently
+        // disabling that split and the curated-composite bonus entirely.
+        source: (experience.components?.length ?? 1) > 1 ? 'composite' : 'poi',
         subtype:
           experience.themes?.[0] ??
           experience.traits?.[0] ??
@@ -766,7 +776,24 @@ export class ExperienceGenerationService {
       rankable,
       semanticResult?.status === 'applied' ? semanticResult.scores : null,
     );
-    const window = rankedFull.slice(0, this.ITINERARY_CANDIDATE_LIMIT);
+    // A plain top-N score slice can starve out a real candidate for a
+    // format the user explicitly requested (walk/route_like/day_trip/...)
+    // whenever plain single-place candidates numerically dominate the pool
+    // — which they usually do. Reserve real matches for every requested
+    // intent before filling the rest by score.
+    const requestedIntents = Array.from(
+      new Set([
+        ...(intent.intents ?? []),
+        ...(intent.normalizedPreferences?.preferredIntents ?? []),
+      ]),
+    );
+    const window = selectBoundedWindow(
+      rankedFull,
+      (candidate) =>
+        candidate.original.intents ?? candidate.original.metadata?.intents,
+      requestedIntents,
+      this.ITINERARY_CANDIDATE_LIMIT,
+    );
     const ranked = window.map((result) => result.candidate.original);
     const scoreBreakdownById = new Map(
       window.map((result) => [result.candidate.id, result.scoreBreakdown]),
