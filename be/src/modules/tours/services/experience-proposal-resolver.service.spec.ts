@@ -437,6 +437,155 @@ describe('ExperienceProposalResolverService', () => {
     );
   });
 
+  it("resolves a global hint whose grounded-evidence name is a translated form of Nominatim's canonical name, not an exact literal prefix", async () => {
+    // Real-world regression: Argentina's OSM/Nominatim data names this park
+    // in Spanish ("Parque Provincial Ischigualasto"), while English-language
+    // grounded search evidence — and the LLM extracting from it — surfaces
+    // the English form ("Ischigualasto Provincial Park"). The old exact
+    // literal-prefix check silently discarded this single, unambiguous,
+    // high-importance Nominatim result just because "Park" never literally
+    // becomes "Parque".
+    const osmPlaces = {
+      lookupStreetsWithin: jest
+        .fn()
+        .mockResolvedValue({ status: 'success', value: [] }),
+      lookupPoisWithin: jest
+        .fn()
+        .mockResolvedValue({ status: 'success', value: [] }),
+      lookupBoundaryById: jest.fn(),
+    };
+    const catalog = {
+      resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+      upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-ischigualasto' }),
+      persistVerifiedExperience: jest.fn().mockResolvedValue({
+        id: 'exp-ischigualasto',
+        dedupeDecision: 'NEW',
+      }),
+    };
+    const geographicValidator = {
+      validate: jest
+        .fn()
+        .mockReturnValue(
+          acceptedValidation(
+            'Ischigualasto Provincial Park - Valle de la Luna Full-Day Tour',
+          ),
+        ),
+    };
+    const nominatim = {
+      search: jest.fn().mockResolvedValue([
+        {
+          osmType: 'relation',
+          osmId: 3290015,
+          addresstype: 'protected_area',
+          displayName:
+            'Parque Provincial Ischigualasto, Valle Fértil, San Juan, Argentina',
+          importance: 0.43,
+          latitude: -30.0694429,
+          longitude: -67.9849624,
+          address: { state: 'San Juan', country: 'Argentina' },
+        },
+      ]),
+    };
+    const service = new ExperienceProposalResolverService(
+      osmPlaces as any,
+      catalog as any,
+      geographicValidator as any,
+      undefined,
+      nominatim as any,
+    );
+
+    const result = await service.resolve({
+      destinationName: 'San Juan, Argentina',
+      destinationBoundary: boundary,
+      candidates: [
+        candidate(
+          'Ischigualasto Provincial Park - Valle de la Luna Full-Day Tour',
+          'Ischigualasto Provincial Park',
+          ['day_trip'],
+        ),
+      ],
+      evidence: [
+        {
+          key: 'ev-1',
+          source: 'tourism-guide',
+          title: 'Ischigualasto & Valle de la Luna Tour in San Juan, Argentina',
+          snippet: 'A full-day tour from San Juan, Argentina.',
+        },
+      ],
+    });
+
+    expect(nominatim.search).toHaveBeenCalledWith(
+      'Ischigualasto Provincial Park',
+    );
+    expect(result.acceptedCount).toBe(1);
+    expect(catalog.upsertGeoEntity).toHaveBeenCalledWith(
+      expect.objectContaining({
+        latitude: -30.0694429,
+        longitude: -67.9849624,
+      }),
+    );
+  });
+
+  it('never resolves a global hint on a shared generic/short word alone (translation false-positive guard)', async () => {
+    // "casa" overlaps but is below the 5-char anchor-token floor, and
+    // "vieja" doesn't appear in the candidate result at all — this must stay
+    // rejected exactly like it was before the translated-name fallback
+    // existed, so the fallback never becomes a loophole for weak matches.
+    const nominatim = {
+      search: jest.fn().mockResolvedValue([
+        {
+          osmType: 'node',
+          osmId: 1,
+          addresstype: 'building',
+          displayName: 'Casa Nueva, Somewhere Else, Argentina',
+          importance: 0.9,
+          latitude: -30.0,
+          longitude: -68.0,
+          address: {},
+        },
+      ]),
+    };
+    const service = new ExperienceProposalResolverService(
+      {
+        lookupStreetsWithin: jest
+          .fn()
+          .mockResolvedValue({ status: 'success', value: [] }),
+        lookupPoisWithin: jest.fn().mockResolvedValue({
+          status: 'success',
+          value: [
+            {
+              id: 'osm:node:99',
+              name: 'Unrelated Kiosk',
+              geometry: { type: 'Point', coordinates: [-68.0, -30.0] },
+              tags: {},
+            },
+          ],
+        }),
+      } as any,
+      {} as any,
+      { validate: jest.fn() } as any,
+      undefined,
+      nominatim as any,
+    );
+
+    const result = await service.resolve({
+      destinationName: 'San Juan, Argentina',
+      destinationBoundary: boundary,
+      candidates: [candidate('Visit Casa Vieja', 'Casa Vieja')],
+      evidence: [
+        {
+          key: 'ev-1',
+          source: 'guide',
+          title: 'San Juan, Argentina highlights',
+          snippet: 'Casa Vieja is a historic house in San Juan, Argentina.',
+        },
+      ],
+    });
+
+    expect(result.acceptedCount).toBe(0);
+    expect(result.resolved[0].rejectionReasons).toContain('NO_OSM_MATCH');
+  });
+
   it('does not escape the destination boundary without evidence associating the Experience to the base', async () => {
     const nominatim = { search: jest.fn() };
     const service = new ExperienceProposalResolverService(

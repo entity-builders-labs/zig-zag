@@ -534,12 +534,47 @@ export class ExperienceProposalResolverService
     results: NominatimResult[],
   ): NominatimResult | undefined {
     const needle = this.normalize(name);
+    const exact = results.filter((result) => {
+      const display = this.normalize(result.displayName);
+      return display === needle || display.startsWith(`${needle} `);
+    });
+    if (exact.length > 0) {
+      return exact.sort((a, b) => b.importance - a.importance)[0];
+    }
+
+    // A real landmark's grounded-evidence name and Nominatim's own canonical
+    // name can differ by more than word order or punctuation. Argentina's
+    // OSM data names places in Spanish ("Parque Provincial Ischigualasto")
+    // while English-language grounded search evidence — and the LLM
+    // extracting from it — surfaces the English form ("Ischigualasto
+    // Provincial Park"). Requiring an exact literal prefix silently
+    // discarded a real, unambiguous, single-result Nominatim match just
+    // because "Park" never literally becomes "Parque". Fall back to
+    // significant-token overlap against only the place-name segment of
+    // displayName (never the address hierarchy after it, which would let
+    // country/region tokens produce false positives on their own), guarded
+    // by requiring at least one long/specific shared token so a merely
+    // translated generic word can never match by itself.
+    const needleTokens = needle.split(' ').filter((token) => token.length >= 4);
+    if (needleTokens.length === 0) return undefined;
+
     return results
-      .filter((result) => {
-        const display = this.normalize(result.displayName);
-        return display === needle || display.startsWith(`${needle} `);
+      .map((result) => {
+        const headSegment = this.normalize(
+          result.displayName.split(',')[0] ?? '',
+        );
+        const headTokens = new Set(headSegment.split(' ').filter(Boolean));
+        const matchedTokens = needleTokens.filter((token) =>
+          headTokens.has(token),
+        );
+        return { result, matchedTokens };
       })
-      .sort((a, b) => b.importance - a.importance)[0];
+      .filter(
+        (candidate) =>
+          candidate.matchedTokens.length / needleTokens.length >= 0.5 &&
+          candidate.matchedTokens.some((token) => token.length >= 5),
+      )
+      .sort((a, b) => b.result.importance - a.result.importance)[0]?.result;
   }
 
   private matchCandidate(
