@@ -128,8 +128,28 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
               lat: location.coords.latitude,
               lng: location.coords.longitude
             };
-            setDestinationCoords(coords);
-            setCenter(coords);
+            // Real device geolocation is async and can take several seconds
+            // to resolve — long enough for the user to pick a destination
+            // from the autocomplete in the meantime. The `!destinationCoords`
+            // check above only ran once, at mount, so without this guard the
+            // resolved location overwrites whatever the user just chose,
+            // unconditionally, whenever it happens to arrive. Verified live:
+            // typing "Chilecito, La Rioja" and selecting it from the
+            // dropdown updated the map correctly, but by submit time the
+            // request carried the device's real (unrelated) coordinates
+            // instead. The functional updater form reads the *current*
+            // state at the moment this resolves, not the value captured by
+            // the effect's closure, so a destination chosen in the
+            // meantime is never clobbered.
+            let overwritten = true;
+            setDestinationCoords((current) => {
+              if (current) {
+                overwritten = false;
+                return current;
+              }
+              return coords;
+            });
+            if (overwritten) setCenter(coords);
           }
         } catch (error) {
           console.error('Error getting initial location:', error);
