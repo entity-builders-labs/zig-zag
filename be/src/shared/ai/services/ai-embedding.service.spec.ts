@@ -48,6 +48,7 @@ describe('AiEmbeddingService Bedrock adapter', () => {
         gemini: { model: 'gemini-3.5-flash-lite' },
         groq: { model: 'openai/gpt-oss-120b' },
       },
+      geminiGroundedSearchModel: 'gemini-3.5-flash',
     });
 
     await service.ensureInitialized();
@@ -81,6 +82,7 @@ describe('AiEmbeddingService Bedrock adapter', () => {
         gemini: { model: 'gemini-3.5-flash-lite' },
         groq: { model: 'openai/gpt-oss-120b' },
       },
+      geminiGroundedSearchModel: 'gemini-3.5-flash',
     });
 
     await service.ensureInitialized();
@@ -135,6 +137,7 @@ describe('AiEmbeddingService Bedrock adapter', () => {
         gemini: { model: 'gemini-3.5-flash-lite' },
         groq: { model: 'openai/gpt-oss-120b' },
       },
+      geminiGroundedSearchModel: 'gemini-3.5-flash',
     });
 
     await service.ensureInitialized();

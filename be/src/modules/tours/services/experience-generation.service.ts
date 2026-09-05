@@ -380,6 +380,12 @@ export class ExperienceGenerationService {
             groundingStatus: grounded.groundingStatus,
             evidenceCount: grounded.evidence.length,
             evidenceKeys: grounded.evidence.map((item: any) => item.key),
+            // Per-evidence forensic detail — currently only populated by
+            // GeminiGroundedSearchService (see its own doc comment): whether
+            // each piece of evidence is the real source page (via Tavily
+            // /extract) or a lower-confidence segment of Gemini's own
+            // synthesized output when extraction wasn't possible.
+            evidenceProvenance: grounded.evidenceProvenance,
             prompt: (grounded as any).prompt,
             rawResponse: (grounded as any).rawResponse,
             tokenUsage: (grounded as any).tokenUsage,

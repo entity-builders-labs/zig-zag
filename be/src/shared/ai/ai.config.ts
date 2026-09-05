@@ -14,8 +14,8 @@ export interface AiConfig {
   groqApiKey?: string;
   // Gemini
   geminiApiKey?: string;
-  // Grounded search evidence provider ('serpapi' | 'groq' | 'tavily')
-  groundedSearchProvider?: 'serpapi' | 'groq' | 'tavily';
+  // Grounded search evidence provider ('serpapi' | 'groq' | 'tavily' | 'gemini')
+  groundedSearchProvider?: 'serpapi' | 'groq' | 'tavily' | 'gemini';
   // SerpApi (grounded search evidence provider)
   serpApiKey?: string;
   // Tavily (grounded search evidence provider)
@@ -32,6 +32,8 @@ export interface AiConfig {
   embeddingDimensions: 256;
   // Discovery extraction (ExperienceCandidate extraction from grounded evidence)
   discoveryExtractor: DiscoveryExtractorConfig;
+  // Gemini's own google_search grounding, when groundedSearchProvider is 'gemini'
+  geminiGroundedSearchModel: string;
 }
 
 export type DiscoveryExtractorProvider = 'gemini' | 'groq';
@@ -142,9 +144,11 @@ export default registerAs('ai', (): AiConfig => {
     process.env.GROUNDED_SEARCH_PROVIDER ||
     (process.env.SERPAPI_API_KEY ? 'serpapi' : 'groq')
   ).toLowerCase();
-  if (!['serpapi', 'groq', 'tavily'].includes(groundedSearchProvider)) {
+  if (
+    !['serpapi', 'groq', 'tavily', 'gemini'].includes(groundedSearchProvider)
+  ) {
     throw new Error(
-      `Unsupported GROUNDED_SEARCH_PROVIDER "${groundedSearchProvider}". Expected serpapi, groq, or tavily.`,
+      `Unsupported GROUNDED_SEARCH_PROVIDER "${groundedSearchProvider}". Expected serpapi, groq, tavily, or gemini.`,
     );
   }
 
@@ -164,7 +168,8 @@ export default registerAs('ai', (): AiConfig => {
     groundedSearchProvider: groundedSearchProvider as
       | 'serpapi'
       | 'groq'
-      | 'tavily',
+      | 'tavily'
+      | 'gemini',
     ollamaBaseUrl: process.env.OLLAMA_BASE_URL,
     ollamaApiKey: process.env.OLLAMA_API_KEY,
     ollamaNumCtx: process.env.OLLAMA_NUM_CTX
@@ -190,5 +195,7 @@ export default registerAs('ai', (): AiConfig => {
         model: process.env.GROQ_DISCOVERY_MODEL || 'qwen/qwen3.8-27b',
       },
     },
+    geminiGroundedSearchModel:
+      process.env.GEMINI_GROUNDED_SEARCH_MODEL || 'gemini-3.5-flash',
   };
 });

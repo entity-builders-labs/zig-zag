@@ -13,6 +13,8 @@ import { TourCompletenessValidator } from './services/tour-completeness-validato
 import { GroqGroundedSearchService } from './services/groq-grounded-search.service';
 import { SerpApiGroundedSearchService } from './services/serpapi-grounded-search.service';
 import { TavilyGroundedSearchService } from './services/tavily-grounded-search.service';
+import { GeminiGroundedSearchService } from './services/gemini-grounded-search.service';
+import { TavilyExtractService } from './services/tavily-extract.service';
 import { CompositeGeographicValidationService } from './services/composite-geographic-validation.service';
 import { GroqDiscoveryProvider } from './services/groq-discovery.provider';
 import { GeminiDiscoveryProvider } from './services/gemini-discovery.provider';
@@ -70,6 +72,8 @@ import { MediaModule } from '../media/media.module';
     GroqGroundedSearchService,
     SerpApiGroundedSearchService,
     TavilyGroundedSearchService,
+    GeminiGroundedSearchService,
+    TavilyExtractService,
     {
       provide: CompositeGeographicValidationService,
       useFactory: () => new CompositeGeographicValidationService(),
@@ -110,6 +114,7 @@ import { MediaModule } from '../media/media.module';
         serpApi: SerpApiGroundedSearchService,
         groq: GroqGroundedSearchService,
         tavily: TavilyGroundedSearchService,
+        gemini: GeminiGroundedSearchService,
       ): ExperienceGroundedSearchProvider => {
         const provider = (
           config.groundedSearchProvider ||
@@ -124,6 +129,8 @@ import { MediaModule } from '../media/media.module';
             return tavily;
           case 'serpapi':
             return serpApi;
+          case 'gemini':
+            return gemini;
           default:
             throw new Error(
               `Unsupported GROUNDED_SEARCH_PROVIDER: ${provider}`,
@@ -135,6 +142,7 @@ import { MediaModule } from '../media/media.module';
         SerpApiGroundedSearchService,
         GroqGroundedSearchService,
         TavilyGroundedSearchService,
+        GeminiGroundedSearchService,
       ],
     },
     {
