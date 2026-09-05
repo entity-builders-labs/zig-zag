@@ -170,6 +170,7 @@ export class GeminiDiscoveryProvider {
       'intents are soft Experience facets such as visit, walk, food, route_like or day_trip; never structural proposal kinds.',
       'For day_trip, only return evidence-backed same-day experiences from the selected base; exclude overnight or weekend-only trips.',
       'Do not output coordinates, provider IDs, URLs, or entities not directly supported by evidence.',
+      "componentHints[].name must be the place's shortest official/canonical name exactly as it literally appears in the evidence — never a marketing title, never a translated compound, never a parenthetical nickname appended to it. This name is used afterward to verify the place against a real map database.",
       'Grounded evidence:',
       ...evidence.map(
         (item) => `[${item.key}] ${item.title || item.source}: ${item.snippet}`,
