@@ -1110,7 +1110,18 @@ export class ExperienceGenerationService {
                   ]),
                 ),
                 blockingDeficits,
-                request.intent.additionalPreferences,
+                // The LLM-derived positive-only paraphrase, never the raw
+                // additionalPreferences text. A search engine has no notion
+                // of "no quiero X" as an exclusion — it just matches "X" as
+                // another keyword, actively pulling in the exact content the
+                // user asked to avoid (verified live: adding an excluded
+                // term to the query, even with a "-" prefix, pulled in MORE
+                // matching results, not fewer — Tavily's plain search has no
+                // keyword-exclusion syntax at all). hardExclusions still
+                // filters candidates correctly later in the pipeline; this
+                // only stops the raw negation text from reaching the search
+                // evidence-gathering step in the first place.
+                normalizedPreferences.positiveSemanticQuery,
                 normalizedPreferences.preferredTraits,
                 destinationResolution.country,
               );
