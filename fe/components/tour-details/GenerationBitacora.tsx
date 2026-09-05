@@ -12,12 +12,17 @@ import {
   AlertTriangle,
   ArrowLeft,
   CheckCircle2,
+  ChevronDown,
+  ChevronUp,
   CircleHelp,
   Clock,
   Download,
   FileJson,
+  Layers,
+  MapPin,
   Search,
   ShieldCheck,
+  Sparkles,
   Terminal,
   XCircle,
 } from 'lucide-react-native';
@@ -577,8 +582,7 @@ function StageDetail({ step, index, nextStep }: { step: GenerationTraceStep; ind
             </HStack>
           </VStack>
           <Box
-            style={{ minWidth: 260 }}
-            maxW={380}
+            style={{ minWidth: 260, maxWidth: 380 }}
             p='$3'
             borderRadius='$lg'
             borderWidth={1}
@@ -675,6 +679,98 @@ export function formatGenerationBitacora(trace: GenerationTrace): string {
   return lines.filter((line) => line !== '').join('\n');
 }
 
+function renderSummaryPoints(trace: GenerationTrace) {
+  const points: { icon: any; title: string; desc: string; color: string; bg: string }[] = [];
+
+  // 1. Preference / Intent
+  const intentStep = trace.steps.find((s) => s.stage === 'preference_interpretation' || s.stage === 'tour_intent');
+  if (intentStep) {
+    points.push({
+      icon: Sparkles,
+      title: 'Intención y Preferencias',
+      desc: intentStep.summary || 'Preferencias interpretadas y combinadas con filtros.',
+      color: COLORS.blue,
+      bg: COLORS.blueSoft,
+    });
+  }
+
+  // 2. Destination
+  const destStep = trace.steps.find((s) => s.stage === 'destination_resolution');
+  if (destStep) {
+    points.push({
+      icon: MapPin,
+      title: 'Destino',
+      desc: destStep.summary || 'Límites geográficos resueltos.',
+      color: COLORS.green,
+      bg: COLORS.greenBg,
+    });
+  }
+
+  // 3. Validation / Discovery
+  const geoStep = trace.steps.find((s) => s.stage === 'geographic_validation');
+  const discoveryStep = trace.steps.find((s) => s.stage === 'experience_discovery' || s.stage === 'grounded_search');
+  if (geoStep || discoveryStep || trace.executionSummary?.acceptedExperiences != null) {
+    const accepted = trace.executionSummary?.acceptedExperiences ?? 0;
+    const rejected = trace.executionSummary?.rejectedProposals ?? 0;
+    points.push({
+      icon: ShieldCheck,
+      title: 'Validación Geográfica',
+      desc: geoStep?.summary || `${accepted} experiencias verificadas con evidencia real (${rejected} descartadas).`,
+      color: COLORS.amber,
+      bg: COLORS.amberBg,
+    });
+  }
+
+  // 4. Daily Planning / Itinerary
+  const planningStep = trace.steps.find((s) => s.stage === 'daily_planning');
+  if (planningStep || trace.executionSummary?.selectedExperiences != null) {
+    const selected = trace.executionSummary?.selectedExperiences ?? 0;
+    points.push({
+      icon: Layers,
+      title: 'Planificación de Itinerario',
+      desc: planningStep?.summary || `${selected} experiencias programadas en el itinerario diario.`,
+      color: COLORS.blue,
+      bg: COLORS.blueSoft,
+    });
+  }
+
+  if (points.length === 0) {
+    const text = trace.executionSummary?.narrative || trace.executionSummary?.steps.join(' ') || 'Ejecución finalizada.';
+    return (
+      <Text size='xs' color={COLORS.textMuted} lineHeight='$sm'>
+        {text}
+      </Text>
+    );
+  }
+
+  return points.map((p, idx) => {
+    const PointIcon = p.icon;
+    return (
+      <HStack key={idx} space='sm' alignItems='flex-start' py='$1'>
+        <Box
+          w={22}
+          h={22}
+          borderRadius='$full'
+          bg={p.bg as any}
+          alignItems='center'
+          justifyContent='center'
+          mt='$0.5'
+        >
+          <Icon as={PointIcon} size='xs' color={p.color as any} />
+        </Box>
+        <VStack flex={1}>
+          <Text size='2xs' fontWeight='$bold' color={COLORS.text}>
+            {p.title}
+          </Text>
+          <Text size='xs' color={COLORS.textMuted} lineHeight='$xs'>
+            {p.desc}
+          </Text>
+        </VStack>
+      </HStack>
+    );
+  });
+}
+
 export const GenerationBitacora = ({
   trace,
   tourName,
@@ -682,6 +778,7 @@ export const GenerationBitacora = ({
   categories,
 }: GenerationBitacoraProps) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isSummaryExpanded, setIsSummaryExpanded] = useState(false);
   const [selectedStep, setSelectedStep] = useState(0);
   const [downloadState, setDownloadState] = useState<'idle' | 'done'>('idle');
   const { width } = useWindowDimensions();
@@ -813,16 +910,76 @@ export const GenerationBitacora = ({
                 </Pressable>
               </HStack>
             </HStack>
+
             {trace.executionSummary && (
-              <Box mt='$3' p='$3' borderRadius='$lg' bg={COLORS.panel as any} borderWidth={1} borderColor={COLORS.borderSoft as any}>
-                <Text size='sm' fontWeight='$bold' color={COLORS.text}>Resumen de ejecución</Text>
-                <Text size='xs' color={COLORS.textMuted} mt='$1'>
-                  {trace.executionSummary.narrative || trace.executionSummary.steps.join(' ')}
-                </Text>
-                {(trace.executionSummary.acceptedExperiences != null || trace.executionSummary.selectedExperiences != null) && (
-                  <Text size='xs' color={COLORS.textMuted} mt='$2'>
-                    Aceptadas: {trace.executionSummary.acceptedExperiences ?? 0} · Seleccionadas: {trace.executionSummary.selectedExperiences ?? 0} · Rechazadas: {trace.executionSummary.rejectedProposals ?? 0}
-                  </Text>
+              <Box mt='$2.5'>
+                <Pressable
+                  onPress={() => setIsSummaryExpanded(!isSummaryExpanded)}
+                  p='$2.5'
+                  borderRadius='$lg'
+                  bg={COLORS.panel as any}
+                  borderWidth={1}
+                  borderColor={COLORS.borderSoft as any}
+                  accessibilityRole='button'
+                  accessibilityLabel='Alternar resumen de ejecución'
+                  testID='bitacora-summary-toggle'
+                >
+                  <HStack justifyContent='space-between' alignItems='center'>
+                    <HStack alignItems='center' space='sm' flexWrap='wrap' flex={1}>
+                      <Text size='xs' fontWeight='$bold' color={COLORS.text}>
+                        Resumen de ejecución
+                      </Text>
+                      <Box px='$2' py='$0.5' borderRadius='$full' bg={COLORS.blueSoft as any}>
+                        <Text size='2xs' color={COLORS.blue} fontWeight='$medium'>
+                          {trace.executionSummary.selectedExperiences != null
+                            ? `${trace.executionSummary.selectedExperiences} seleccionadas`
+                            : `${trace.steps.length} etapas`} · {trace.steps.length} etapas
+                        </Text>
+                      </Box>
+                      {trace.executionSummary.acceptedExperiences != null && (
+                        <Box px='$2' py='$0.5' borderRadius='$full' bg={COLORS.greenBg as any}>
+                          <Text size='2xs' color={COLORS.green} fontWeight='$medium'>
+                            {trace.executionSummary.acceptedExperiences} validadas
+                          </Text>
+                        </Box>
+                      )}
+                      {Boolean(trace.executionSummary.rejectedProposals) && (
+                        <Box px='$2' py='$0.5' borderRadius='$full' bg={COLORS.amberBg as any}>
+                          <Text size='2xs' color={COLORS.amber} fontWeight='$medium'>
+                            {trace.executionSummary.rejectedProposals} descartadas
+                          </Text>
+                        </Box>
+                      )}
+                    </HStack>
+                    <HStack alignItems='center' space='xs'>
+                      <Text size='2xs' color={COLORS.blue} fontWeight='$medium'>
+                        {isSummaryExpanded ? 'Ocultar' : 'Ver detalle'}
+                      </Text>
+                      <Icon
+                        as={isSummaryExpanded ? ChevronUp : ChevronDown}
+                        size='xs'
+                        color={COLORS.blue as any}
+                      />
+                    </HStack>
+                  </HStack>
+                </Pressable>
+
+                {isSummaryExpanded && (
+                  <Box
+                    mt='$2'
+                    p='$3'
+                    borderRadius='$lg'
+                    bg={COLORS.panelStrong as any}
+                    borderWidth={1}
+                    borderColor={COLORS.border as any}
+                    style={{ maxHeight: 220 }}
+                  >
+                    <ScrollView showsVerticalScrollIndicator={false}>
+                      <VStack space='xs'>
+                        {renderSummaryPoints(trace)}
+                      </VStack>
+                    </ScrollView>
+                  </Box>
                 )}
               </Box>
             )}

@@ -50,7 +50,7 @@ describe('buildTourIntentStep', () => {
 
     expect(step.stage).toBe('tour_intent');
     expect(step.summary).toContain('public_transport');
-    expect(step.summary).toContain('todavía no se aplica');
+    expect(step.summary).toContain('Temas: history');
     expect(step.summary?.split(note)).toHaveLength(2);
   });
 });
@@ -308,7 +308,7 @@ describe('buildGeographicValidationStep', () => {
     expect(step.stage).toBe('geographic_validation');
     expect(step.status).toBe('PASS');
     expect(step.decision?.outcome).toBe('GEO_VERIFIED_PROPOSALS_READY');
-    expect(step.summary).toContain('1 propuesta(s) GEO_VERIFIED');
+    expect(step.summary).toContain('1 propuesta(s) verificadas');
   });
 });
 

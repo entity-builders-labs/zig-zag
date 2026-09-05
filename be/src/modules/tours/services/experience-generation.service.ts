@@ -951,10 +951,10 @@ export class ExperienceGenerationService {
         label: 'Interpretación de preferencias',
         summary:
           preferenceInterpretation.trace.status === 'applied'
-            ? 'Preferencias libres normalizadas por el intérprete y combinadas con restricciones estructuradas.'
+            ? 'Preferencias libres normalizadas y combinadas con filtros.'
             : preferenceInterpretation.trace.status === 'fallback'
-              ? 'Se aplicó interpretación determinística de respaldo y restricciones estructuradas.'
-              : 'Se aplicaron sólo restricciones estructuradas.',
+              ? 'Preferencias estructuradas aplicadas con respaldo determinístico.'
+              : 'Filtros estructurados aplicados.',
         component: 'PreferenceInterpreterService',
         status:
           preferenceInterpretation.trace.status === 'applied'

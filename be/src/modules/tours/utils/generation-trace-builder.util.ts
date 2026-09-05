@@ -90,12 +90,9 @@ export function buildTourIntentStep(
     stage: 'tour_intent',
     label: 'Intención y movilidad solicitadas',
     component: 'TourGenerationRequest',
-    status: 'INFO',
     summary:
       `Temas: ${themes}. ` +
-      `Estilo: ${request.intent.explorationStyle}. Modos permitidos: ${request.mobility.allowedTransportationModes.join(', ')}. ` +
-      `Esfuerzo peatonal capturado: ${request.mobility.maxWalkingDistancePerDayMeters / 1000}km por día y ` +
-      `${request.mobility.maxContinuousWalkingDistanceMeters / 1000}km continuos; todavía no se aplica como restricción determinística hasta la etapa de factibilidad espacial. ` +
+      `Estilo: ${request.intent.explorationStyle}. Modos: ${request.mobility.allowedTransportationModes.join(', ')}. ` +
       `Ritmo: ${request.mobility.travelPace}.${accessibility}${additional}`,
     inputs: {
       destination: request.destination.label,
@@ -927,10 +924,7 @@ export function buildGeographicValidationStep(
     label: 'Validación geográfica independiente',
     component: 'CompositeGeographicValidationService',
     status: accepted.length ? (rejected.length ? 'WARN' : 'PASS') : 'WARN',
-    summary:
-      `Validación geográfica determinística: ${accepted.length} propuesta(s) GEO_VERIFIED y ` +
-      `${rejected.length} rechazada(s). La decisión usa entidades ya resueltas, coordenadas, ` +
-      `boundary/destino y coherencia espacial; no usa al LLM como autoridad.`,
+    summary: `Validación geográfica: ${accepted.length} propuesta(s) verificadas y ${rejected.length} descartadas por coherencia espacial o falta de entidad real.`,
     inputs: {
       proposalCount: validation.results.length,
       validatorVersions: Array.from(
@@ -1249,7 +1243,7 @@ export function buildExperienceCandidatePoolStep(params: {
     label: 'Ranking de Experiences',
     component: 'ExperienceRankingEngine',
     status: 'PASS',
-    summary: `Se ofrecieron ${candidates.length} Experience(s) verificadas de ${params.eligibleCount} elegibles; ${bySource.catalog} del catálogo, ${bySource.refill} de adquisición y ${bySource.discovery} de discovery. La selección usa relevancia, calidad y factibilidad, sin gates de formato legacy.`,
+    summary: `Se evaluaron ${params.eligibleCount} experiencias elegibles y se ofrecieron ${candidates.length} candidatas (${bySource.catalog} catálogo, ${bySource.refill} adquisición, ${bySource.discovery} discovery).`,
     inputs: {
       initialCatalogCount: params.initialCatalogCount,
       postAcquisitionCatalogCount: params.postAcquisitionCatalogCount,
