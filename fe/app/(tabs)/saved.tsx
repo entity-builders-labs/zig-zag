@@ -19,22 +19,36 @@ import { Link, useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
 import { fetchMyTours, Tour } from '@/api/tours';
 import { FONT_DISPLAY } from '@/constants/typography';
-
-const DEFAULT_COVERS = [
-  'https://images.unsplash.com/photo-1589909202802-8f4aadce1849?q=80&w=600&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1513584684374-8bab748fbf90?q=80&w=600&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1518684079-3c830dcef090?q=80&w=600&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1534430480872-3498386e7856?q=80&w=600&auto=format&fit=crop',
-];
+import { getImage } from '@/components/tour-details/utils';
 
 type FilterType = 'all' | 'completed' | 'generating';
 
-function SavedTourCard({ tour, index }: { tour: Tour; index: number }) {
+function SavedTourCard({ tour }: { tour: Tour }) {
   const generationStatus = (tour.metadata as any)?.generationStatus;
   const isGenerating =
     generationStatus === 'generating' || generationStatus === 'pending';
   const stopCount = tour.experiences?.length || 0;
-  const cover = tour.coverImage || DEFAULT_COVERS[index % DEFAULT_COVERS.length];
+  // Same real-photo-first logic as TourHeader.tsx's own cover image — this
+  // card used to ignore mediaPresentation entirely and always show one of 4
+  // hardcoded stock photos by array index, even for a tour whose first
+  // Experience already has real, enriched photos (verified live: a genuine
+  // Chilecito street photo existed but this screen still showed a stock
+  // Buenos Aires obelisk). getImage()'s own category fallback covers the
+  // no-real-photos case, so no separate DEFAULT_COVERS array is needed.
+  // Always index 0 (the best/primary real photo), never this card's list
+  // position — getImage()'s `index` picks *which real photo* to show
+  // (gallery[index % gallery.length]), not a fallback-variety knob; passing
+  // the card's list position here picked a different, sometimes wildly
+  // mismatched real photo per card (verified live: a second real photo in
+  // the array turned out to be an unrelated, mislabeled Wikimedia file).
+  const firstExperience = tour.experiences?.[0]?.experience;
+  const cover =
+    tour.coverImage ||
+    getImage(
+      firstExperience?.mediaPresentation?.photos,
+      0,
+      firstExperience?.themes?.[0],
+    );
 
   const durationStr = tour.duration
     ? `${Math.floor(tour.duration / 60)}h ${tour.duration % 60 > 0 ? `${tour.duration % 60}m` : ''}`
@@ -398,8 +412,8 @@ export default function SavedScreen() {
             contentContainerStyle={{ padding: 16, paddingBottom: 40 }}
           >
             <VStack space='lg'>
-              {filteredTours.map((tour, index) => (
-                <SavedTourCard key={tour.id} tour={tour} index={index} />
+              {filteredTours.map((tour) => (
+                <SavedTourCard key={tour.id} tour={tour} />
               ))}
             </VStack>
           </ScrollView>
