@@ -1095,7 +1095,19 @@ export class ExperienceGenerationService {
             if (blockingDeficits.length > 0) {
               const discoveryResult = await this.discoverExperienceGaps(
                 request.destination.label,
-                request.intent.interests,
+                // Union with the LLM's free-text theme interpretation, not
+                // just the wizard's own explicit interests — same gap as
+                // the intents union below, mirroring the pattern already
+                // used in buildCoverageReport. Missing this meant a theme
+                // the user only expressed in free text (never checked as a
+                // wizard interest chip) silently never reached the search
+                // query at all.
+                Array.from(
+                  new Set([
+                    ...request.intent.interests,
+                    ...(normalizedPreferences.preferredThemes ?? []),
+                  ]),
+                ),
                 // Union with the wizard's own explicit intents, not just the
                 // LLM's free-text interpretation — the same gap already
                 // fixed for rankAndSliceExperiences and completenessInput.
@@ -1122,7 +1134,18 @@ export class ExperienceGenerationService {
                 // only stops the raw negation text from reaching the search
                 // evidence-gathering step in the first place.
                 normalizedPreferences.positiveSemanticQuery,
-                normalizedPreferences.preferredTraits,
+                // Union with dietary/accessibility preferences, matching
+                // buildCoverageReport's requestedTraits exactly — a vegan
+                // or accessibility need the user only expressed as such
+                // (never phrased as a generic "trait") previously never
+                // reached the search query either.
+                Array.from(
+                  new Set([
+                    ...(normalizedPreferences.preferredTraits ?? []),
+                    ...(normalizedPreferences.dietaryPreferences ?? []),
+                    ...(normalizedPreferences.accessibilityPreferences ?? []),
+                  ]),
+                ),
                 destinationResolution.country,
               );
               traceSteps.push(buildDiscoveryStep(discoveryResult));
