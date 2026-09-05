@@ -165,12 +165,12 @@ export class GeminiDiscoveryProvider {
       `Themes: ${request.requestedThemes.join(', ') || 'none'}`,
       `Requested intents: ${request.requestedIntents?.join(', ') || 'none'}`,
       `Preferences: ${(request.semanticQuery || request.preferredTraits?.join(', ')) ?? 'none'}`,
+      'IMPORTANT: for every componentHints[].name, translate it to the official local-language administrative name used by that country\'s mapping data (for Argentina/most of Latin America this is Spanish, e.g. "Parque Nacional El Leoncito", never "El Leoncito National Park"). Do this even if the evidence only ever uses an English phrase — rely on your own knowledge of the real place\'s official name, not just the evidence wording, for this field specifically. This name is used afterward to verify the place against a real map database, which stores names in the local language.',
       'Return JSON with a candidates array. Each candidate must contain name, description, themes, traits, intents, suggestedDurationMinutes, componentHints, evidenceKeys, shortReason and orderedByEvidence.',
       "orderedByEvidence must be true only when the cited evidence explicitly describes a visiting sequence for this candidate's components; otherwise false. Never infer an order from componentHints array order.",
       'intents are soft Experience facets such as visit, walk, food, route_like or day_trip; never structural proposal kinds.',
       'For day_trip, only return evidence-backed same-day experiences from the selected base; exclude overnight or weekend-only trips.',
       'Do not output coordinates, provider IDs, URLs, or entities not directly supported by evidence.',
-      "componentHints[].name must be the place's shortest official/canonical name exactly as it literally appears in the evidence — never a marketing title, never a translated compound, never a parenthetical nickname appended to it. This name is used afterward to verify the place against a real map database.",
       'Grounded evidence:',
       ...evidence.map(
         (item) => `[${item.key}] ${item.title || item.source}: ${item.snippet}`,
