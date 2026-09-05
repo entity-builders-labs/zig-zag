@@ -44,7 +44,6 @@ export class TavilyGroundedSearchService implements GroundedSearchProvider {
     }
 
     const query = this.buildSearchQuery(request);
-    const country = request.destinationCountry?.trim().toLowerCase();
 
     try {
       this.logger.debug(`Tavily search for: ${query}`);
@@ -66,7 +65,18 @@ export class TavilyGroundedSearchService implements GroundedSearchProvider {
           max_results: 20,
           include_answer: false,
           include_raw_content: false,
-          ...(country ? { country } : {}),
+          // Deliberately never passed to Tavily's own `country` boost, even
+          // though destinationCountry is available: repeating the identical
+          // query live showed 0-to-20 result-count variance on its own, and
+          // pairing that noise with `country` occasionally returned zero
+          // results outright — a worse failure than the milder, already
+          // mitigated risk of some wrong-country evidence slipping through.
+          // CompositeGeographicValidationService's destination_mismatch
+          // check already rejects a wrong-country candidate downstream,
+          // before it can ever be persisted — so the generic, unfiltered
+          // search plus that existing downstream filter is more robust than
+          // trying to get Tavily's own opaque relevance/boost logic to do
+          // the filtering upstream.
         }),
         signal: AbortSignal.timeout(this.timeoutMs),
       });

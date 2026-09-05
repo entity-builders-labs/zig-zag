@@ -81,7 +81,7 @@ describe('TavilyGroundedSearchService', () => {
     });
   });
 
-  it('scopes the search to the destination country to avoid cross-country name collisions (e.g. San Juan, Argentina vs San Juan, Puerto Rico)', async () => {
+  it("never sends Tavily's country boost param, even when destinationCountry is known — repeated live calls with the identical query showed 0-to-20 result-count variance, and pairing that with `country` occasionally returned zero results outright (catastrophic — no evidence at all) instead of the milder, already-handled risk of some wrong-country noise slipping into evidence (CompositeGeographicValidationService's destination_mismatch check already rejects those downstream, before persistence)", async () => {
     const config = {
       get: jest.fn().mockReturnValue('tvly-test'),
     } as unknown as ConfigService;
@@ -95,7 +95,7 @@ describe('TavilyGroundedSearchService', () => {
 
     const [, options] = (global.fetch as jest.Mock).mock.calls[0];
     const body = JSON.parse(options.body);
-    expect(body.country).toBe('argentina');
+    expect(body).not.toHaveProperty('country');
   });
 
   it("requests 20 results, not 10 — verified live: a real page enumerating three distinct extra themes (nature, water sports, a separate national park) only entered Tavily's own top 10 once results were raised to 20, with no second API call needed", async () => {
@@ -113,23 +113,6 @@ describe('TavilyGroundedSearchService', () => {
     const [, options] = (global.fetch as jest.Mock).mock.calls[0];
     const body = JSON.parse(options.body);
     expect(body.max_results).toBe(20);
-  });
-
-  it('omits the country param when the destination country is unknown', async () => {
-    const config = {
-      get: jest.fn().mockReturnValue('tvly-test'),
-    } as unknown as ConfigService;
-    const service = new TavilyGroundedSearchService(config);
-    global.fetch = jest.fn().mockResolvedValue({
-      ok: true,
-      json: async () => ({ results: [] as any[] }),
-    }) as jest.Mock;
-
-    await service.search({ ...request, destinationCountry: undefined });
-
-    const [, options] = (global.fetch as jest.Mock).mock.calls[0];
-    const body = JSON.parse(options.body);
-    expect(body).not.toHaveProperty('country');
   });
 
   it("trusts a long, well-structured query as-is instead of silently discarding it (regression: the old 200-char cutoff had no basis in Tavily's own API and replaced a working query with a cruder, noisier fallback)", async () => {
