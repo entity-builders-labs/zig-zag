@@ -32,13 +32,27 @@ describe('ExperienceCatalogService.upsertGeoEntity', () => {
     );
   });
 
-  it('creates a new GeoEntity when no identity exists yet', async () => {
-    const prisma: any = {
+  /**
+   * Everything past the exact-identity check runs inside `$transaction`, so
+   * every test below stubs it as `jest.fn((cb) => cb(prisma))` — the mock
+   * plays the role of both the outer client and the `tx` handed to the
+   * callback, which is enough since these tests never assert on real
+   * cross-connection isolation.
+   */
+  function withTransaction(prisma: any) {
+    prisma.$transaction = jest.fn((cb: any) => cb(prisma));
+    prisma.$executeRaw = jest.fn().mockResolvedValue(undefined);
+    return prisma;
+  }
+
+  it('creates a new GeoEntity when no identity exists yet and nothing nearby matches', async () => {
+    const prisma: any = withTransaction({
       geoEntityIdentity: { findUnique: jest.fn().mockResolvedValue(null) },
       geoEntity: {
         create: jest.fn().mockResolvedValue({ id: 'geo-new' }),
+        findMany: jest.fn().mockResolvedValue([]),
       },
-    };
+    });
     const service = new ExperienceCatalogService(prisma, {} as any);
 
     const result = await service.upsertGeoEntity(input);
@@ -55,18 +69,120 @@ describe('ExperienceCatalogService.upsertGeoEntity', () => {
     );
   });
 
+  it('reconciles onto an existing nearby GeoEntity instead of creating a duplicate for the same real place', async () => {
+    // Verified live: a composite Experience's Nominatim-resolved "Plaza
+    // Dorrego" component and a separately-acquired standalone "Plaza
+    // Dorrego" POI Experience ended up as two unrelated GeoEntity rows ~3m
+    // apart — the tour then offered the same real plaza twice. A new
+    // provider/externalId for a name+location that already exists nearby
+    // must attach onto that entity, not mint a second one.
+    const prisma: any = withTransaction({
+      geoEntityIdentity: {
+        findUnique: jest.fn().mockResolvedValue(null),
+        create: jest.fn().mockResolvedValue({}),
+      },
+      geoEntity: {
+        create: jest.fn(),
+        update: jest.fn().mockResolvedValue({ id: 'geo-existing-plaza' }),
+        findMany: jest.fn().mockResolvedValue([
+          {
+            id: 'geo-existing-plaza',
+            name: 'Plaza Dorrego',
+            latitude: input.latitude + 0.00002, // ~2m away
+            longitude: input.longitude + 0.00002,
+          },
+        ]),
+      },
+    });
+    const service = new ExperienceCatalogService(prisma, {} as any);
+
+    const result = await service.upsertGeoEntity({
+      ...input,
+      name: 'Plaza Dorrego',
+    });
+
+    expect(result).toEqual({ id: 'geo-existing-plaza' });
+    expect(prisma.geoEntityIdentity.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          geoEntityId: 'geo-existing-plaza',
+          provider: 'google',
+          externalId: 'ChIJreal123',
+        }),
+      }),
+    );
+    expect(prisma.geoEntity.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: 'geo-existing-plaza' } }),
+    );
+    expect(prisma.geoEntity.create).not.toHaveBeenCalled();
+  });
+
+  it('does not reconcile onto a nearby GeoEntity whose name does not match', async () => {
+    const prisma: any = withTransaction({
+      geoEntityIdentity: { findUnique: jest.fn().mockResolvedValue(null) },
+      geoEntity: {
+        create: jest.fn().mockResolvedValue({ id: 'geo-new' }),
+        findMany: jest.fn().mockResolvedValue([
+          {
+            id: 'geo-unrelated-cafe',
+            name: 'Café Británico',
+            latitude: input.latitude + 0.00002,
+            longitude: input.longitude + 0.00002,
+          },
+        ]),
+      },
+    });
+    const service = new ExperienceCatalogService(prisma, {} as any);
+
+    const result = await service.upsertGeoEntity({
+      ...input,
+      name: 'Plaza Dorrego',
+    });
+
+    expect(result).toEqual({ id: 'geo-new' });
+    expect(prisma.geoEntity.create).toHaveBeenCalled();
+  });
+
+  it('does not reconcile onto a same-named GeoEntity outside the reconciliation radius', async () => {
+    const prisma: any = withTransaction({
+      geoEntityIdentity: { findUnique: jest.fn().mockResolvedValue(null) },
+      geoEntity: {
+        create: jest.fn().mockResolvedValue({ id: 'geo-new' }),
+        findMany: jest.fn().mockResolvedValue([
+          {
+            id: 'geo-far-plaza-dorrego',
+            name: 'Plaza Dorrego',
+            latitude: input.latitude + 0.01, // ~1.1km away
+            longitude: input.longitude,
+          },
+        ]),
+      },
+    });
+    const service = new ExperienceCatalogService(prisma, {} as any);
+
+    const result = await service.upsertGeoEntity({
+      ...input,
+      name: 'Plaza Dorrego',
+    });
+
+    expect(result).toEqual({ id: 'geo-new' });
+    expect(prisma.geoEntity.create).toHaveBeenCalled();
+  });
+
   it('recovers from a concurrent-create race instead of crashing generation (real regression)', async () => {
     // Verified live: ExperienceProposalResolverService.resolve() resolves
     // every discovery candidate concurrently (Promise.all). Two candidates
     // referencing the same real place both saw "no identity yet" from
     // findUnique before either finished creating one — the second create()
     // call hit GeoEntityIdentity's real unique constraint and crashed the
-    // whole tour generation with "No pudimos generar este tour."
+    // whole tour generation with "No pudimos generar este tour." The
+    // advisory lock now makes this practically unreachable, but the P2002
+    // recovery stays as defense in depth.
     const conflictError = new Prisma.PrismaClientKnownRequestError(
       'Unique constraint failed on the fields: (`provider`,`externalId`)',
       { code: 'P2002', clientVersion: 'test' },
     );
-    const prisma: any = {
+    const prisma: any = withTransaction({
       geoEntityIdentity: {
         findUnique: jest.fn().mockResolvedValue(null),
         findUniqueOrThrow: jest
@@ -76,8 +192,9 @@ describe('ExperienceCatalogService.upsertGeoEntity', () => {
       geoEntity: {
         create: jest.fn().mockRejectedValue(conflictError),
         update: jest.fn().mockResolvedValue({ id: 'geo-winner' }),
+        findMany: jest.fn().mockResolvedValue([]),
       },
-    };
+    });
     const service = new ExperienceCatalogService(prisma, {} as any);
 
     const result = await service.upsertGeoEntity(input);
@@ -100,10 +217,13 @@ describe('ExperienceCatalogService.upsertGeoEntity', () => {
 
   it('re-throws an unrelated database error instead of masking it as a race', async () => {
     const otherError = new Error('connection lost');
-    const prisma: any = {
+    const prisma: any = withTransaction({
       geoEntityIdentity: { findUnique: jest.fn().mockResolvedValue(null) },
-      geoEntity: { create: jest.fn().mockRejectedValue(otherError) },
-    };
+      geoEntity: {
+        create: jest.fn().mockRejectedValue(otherError),
+        findMany: jest.fn().mockResolvedValue([]),
+      },
+    });
     const service = new ExperienceCatalogService(prisma, {} as any);
 
     await expect(service.upsertGeoEntity(input)).rejects.toThrow(

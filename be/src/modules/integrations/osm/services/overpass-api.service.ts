@@ -22,11 +22,23 @@ import {
 import { OverpassConcurrencyLimiter } from '../utils/overpass-concurrency.util';
 
 const DEFAULT_API_URL = 'https://overpass-api.de/api/interpreter';
-const DEFAULT_TIMEOUT_MS = 20000;
+// Query builders in overpass-query.util.ts tag their heaviest ("within area")
+// queries with the server-side budget `[timeout:30]` — the client-side
+// per-attempt timeout below MUST exceed that with real margin, or axios aborts
+// a request the Overpass server would have finished successfully. Verified
+// live: a genuinely well-tagged OSM street ("Defensa" in San Telmo, Buenos
+// Aires) came back OSM_PROVIDER_FAILED in production because the old default
+// here (20000ms) was actually *shorter* than the query's own 30s budget —
+// axios gave up before overpass-api.de (a slow, shared public instance) could
+// respond, even though the data was there and the query itself was fine.
+const DEFAULT_TIMEOUT_MS = 40000;
 const DEFAULT_MAX_CONCURRENCY = 2;
 const DEFAULT_MAX_RETRIES = 2;
 const DEFAULT_RETRY_BASE_MS = 500;
-const DEFAULT_TOTAL_BUDGET_MS = 25000;
+// Must comfortably exceed DEFAULT_TIMEOUT_MS so a first attempt is never
+// truncated by the budget check before it can even use its own timeout, with
+// enough left over for one genuine retry.
+const DEFAULT_TOTAL_BUDGET_MS = 90000;
 const RETRYABLE_STATUS_CODES = new Set([429, 502, 503, 504]);
 
 // Overpass's public instance rejects generic/bot-looking clients (axios's

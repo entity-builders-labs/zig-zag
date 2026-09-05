@@ -34,6 +34,7 @@ import {
   CandidateScoreBreakdown,
 } from '../utils/candidate-ranking.util';
 import { selectBoundedWindow } from '../utils/candidate-window-selection.util';
+import { filterOverlappingExperienceCandidates } from '../utils/candidate-overlap-filter.util';
 import {
   buildExperienceCandidatePoolStep,
   buildCoverageAnalysisStep,
@@ -1497,9 +1498,32 @@ export class ExperienceGenerationService {
         'Planificando el itinerario día a día...',
       );
 
+      // Verified live: a standalone POI Experience and a composite Experience
+      // that separately resolved the *same real place* as one of its own
+      // components can both reach this pool as unrelated records (their
+      // GeoEntity rows may predate ExperienceCatalogService.upsertGeoEntity's
+      // cross-provider reconciliation, or some other gap could still produce
+      // the same split) — the solver has no way to know they're the same
+      // place, so it can book a traveler into it twice on two different days.
+      // Filter that overlap out of the pool itself, before normalization.
+      const overlapFilter = filterOverlappingExperienceCandidates(
+        Array.from(candidateExperiencesById.values()).map((experience) => ({
+          ...experience,
+          rankingScore: offeredScoreBreakdownById.get(experience.id)
+            ?.totalScore,
+        })),
+      );
+      if (overlapFilter.excluded.length > 0) {
+        this.logger.log(
+          `Excluded ${overlapFilter.excluded.length} candidate(s) redundant with another selected candidate covering the same real place: ${overlapFilter.excluded
+            .map((item) => `${item.id} (kept ${item.overlapsWith})`)
+            .join(', ')}`,
+        );
+      }
+
       const planningCandidates =
         await this.planningCandidateNormalizer.normalizeExperiences(
-          Array.from(candidateExperiencesById.values()),
+          overlapFilter.kept,
           offeredScoreBreakdownById,
         );
 

@@ -1,13 +1,29 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable, Inject, Logger } from '@nestjs/common';
 import { ExperienceStatus, GeoEntityKind, Prisma } from '@prisma/client';
 import { PrismaService } from '@core/database/prisma.service';
 import { IPlacesApiService } from '@integrations/google-places/interfaces/places-api.interface';
 import { NormalizedOpeningHours } from '../interfaces/daily-planning.interface';
 import { parseOpeningHours } from '../utils/normalized-opening-hours.util';
+import { calculateDistance } from '@shared/utils/distance.utils';
 import {
   decideExperienceDedupe,
   DedupeExperienceFingerprint,
 } from '../utils/experience-dedupe.util';
+
+// Two different resolution paths (a Nominatim lookup done while resolving a
+// composite's `venue` component hint, a Google Places lookup done while
+// acquiring the *same* real place as its own standalone POI Experience on a
+// different pass) commonly mint two different (provider, externalId) pairs
+// for one physical place — GeoEntityIdentity's exact-match dedupe never
+// catches that, since the identities genuinely differ. Verified live: a real
+// Buenos Aires plaza (Plaza Dorrego) ended up as two independent GeoEntity
+// rows ~3m apart, so the same physical place was offered to a traveler twice
+// in one tour (once standalone, once as a composite's component) with no way
+// for the daily-planning solver to know they were the same place. Tight
+// enough to not conflate two distinct, unrelated things that happen to sit
+// close together (e.g. a plaza and the café facing it); wide enough to
+// absorb real cross-provider geocoding jitter for the same building/plaza.
+const GEO_ENTITY_RECONCILIATION_RADIUS_METERS = 75;
 
 export interface GeoEntityInput {
   name: string;
@@ -49,6 +65,8 @@ export interface VerifiedExperienceInput {
 
 @Injectable()
 export class ExperienceCatalogService {
+  private readonly logger = new Logger(ExperienceCatalogService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     @Inject('PlacesApiService') private readonly placesApi: IPlacesApiService,
@@ -361,49 +379,162 @@ export class ExperienceCatalogService {
       });
     }
 
-    try {
-      return await this.prisma.geoEntity.create({
-        data: {
-          ...data,
-          identities: {
-            create: {
-              provider: input.provider,
-              externalId: input.externalId,
-            },
+    // No exact (provider, externalId) match — before minting a brand-new
+    // GeoEntity, check whether the *same real place* already exists under a
+    // different provider's identity (verified live: a Nominatim-resolved
+    // composite component and a later Google-Places-resolved standalone POI
+    // both named "Plaza Dorrego" ended up ~3m apart as two unrelated
+    // GeoEntity rows, so the tour offered the same real plaza twice). This
+    // whole "identity doesn't exist yet" section runs under one advisory
+    // lock per kind so two concurrent resolutions (Promise.all in
+    // ExperienceProposalResolverService) can't both race past this check —
+    // matching the pattern persistVerifiedExperience already uses for its
+    // own identity locks.
+    return this.prisma.$transaction(async (tx) => {
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${'geo-entity-reconcile:' + input.kind}))`;
+
+      // Re-check now that we hold the lock: a concurrent call may have just
+      // created this exact identity while we were waiting.
+      const identityAfterLock = await tx.geoEntityIdentity.findUnique({
+        where: {
+          provider_externalId: {
+            provider: input.provider,
+            externalId: input.externalId,
           },
         },
+        select: { geoEntityId: true },
       });
-    } catch (error) {
-      // Real-world regression, verified live: ExperienceProposalResolverService
-      // resolves every discovery candidate concurrently (Promise.all), and
-      // more than one can legitimately reference the *same* real place (the
-      // extractor proposing it under two different component hints/candidates
-      // in one discovery response). The findUnique check above and this
-      // create() are not atomic together — two concurrent calls for the
-      // identical (provider, externalId) can both see "doesn't exist yet"
-      // and both attempt to create it. The second used to crash the whole
-      // generation on GeoEntityIdentity's unique constraint instead of
-      // simply reusing the entity the first call just created.
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.code === 'P2002'
-      ) {
-        const winner = await this.prisma.geoEntityIdentity.findUniqueOrThrow({
-          where: {
-            provider_externalId: {
-              provider: input.provider,
-              externalId: input.externalId,
-            },
-          },
-          select: { geoEntityId: true },
-        });
-        return this.prisma.geoEntity.update({
-          where: { id: winner.geoEntityId },
+      if (identityAfterLock) {
+        return tx.geoEntity.update({
+          where: { id: identityAfterLock.geoEntityId },
           data,
         });
       }
-      throw error;
+
+      const nearbyMatch = await this.findNearbyMatchingGeoEntity(tx, input);
+      if (nearbyMatch) {
+        this.logger.log(
+          `Reconciled "${input.name}" (${input.provider}:${input.externalId}) onto existing GeoEntity ${nearbyMatch.id} instead of creating a duplicate for the same real place`,
+        );
+        await tx.geoEntityIdentity.create({
+          data: {
+            geoEntityId: nearbyMatch.id,
+            provider: input.provider,
+            externalId: input.externalId,
+          },
+        });
+        return tx.geoEntity.update({
+          where: { id: nearbyMatch.id },
+          data,
+        });
+      }
+
+      try {
+        return await tx.geoEntity.create({
+          data: {
+            ...data,
+            identities: {
+              create: {
+                provider: input.provider,
+                externalId: input.externalId,
+              },
+            },
+          },
+        });
+      } catch (error) {
+        // Defense in depth: the advisory lock above should make this
+        // unreachable in normal operation, but a P2002 here still means
+        // "someone else just created this identity" rather than a real
+        // failure — recover the same way the pre-lock code path used to,
+        // instead of crashing generation on it.
+        if (
+          error instanceof Prisma.PrismaClientKnownRequestError &&
+          error.code === 'P2002'
+        ) {
+          const winner = await tx.geoEntityIdentity.findUniqueOrThrow({
+            where: {
+              provider_externalId: {
+                provider: input.provider,
+                externalId: input.externalId,
+              },
+            },
+            select: { geoEntityId: true },
+          });
+          return tx.geoEntity.update({
+            where: { id: winner.geoEntityId },
+            data,
+          });
+        }
+        throw error;
+      }
+    });
+  }
+
+  /**
+   * Finds an existing GeoEntity of the same kind, within
+   * GEO_ENTITY_RECONCILIATION_RADIUS_METERS, whose name matches — the
+   * cross-provider reconciliation `upsertGeoEntity` needs so the same real
+   * place never ends up as two unrelated GeoEntity rows. A plain bounding-box
+   * prefilter (reusing the existing `[latitude, longitude]` index) narrows
+   * the candidate set before the precise Haversine + name check.
+   */
+  private async findNearbyMatchingGeoEntity(
+    tx: Prisma.TransactionClient,
+    input: GeoEntityInput,
+  ) {
+    if (input.latitude == null || input.longitude == null) return undefined;
+
+    const radiusMeters = GEO_ENTITY_RECONCILIATION_RADIUS_METERS;
+    const latDeltaDegrees = radiusMeters / 111_320;
+    const lonDeltaDegrees =
+      radiusMeters /
+      (111_320 * Math.max(Math.cos((input.latitude * Math.PI) / 180), 0.01));
+
+    const candidates = await tx.geoEntity.findMany({
+      where: {
+        kind: input.kind,
+        latitude: {
+          gte: input.latitude - latDeltaDegrees,
+          lte: input.latitude + latDeltaDegrees,
+        },
+        longitude: {
+          gte: input.longitude - lonDeltaDegrees,
+          lte: input.longitude + lonDeltaDegrees,
+        },
+      },
+    });
+
+    const needle = this.normalizeGeoEntityName(input.name);
+    let best: { id: string; distanceKm: number } | undefined;
+    for (const candidate of candidates) {
+      if (candidate.latitude == null || candidate.longitude == null) continue;
+      const haystack = this.normalizeGeoEntityName(candidate.name);
+      const namesMatch =
+        haystack === needle ||
+        haystack.includes(needle) ||
+        needle.includes(haystack);
+      if (!namesMatch) continue;
+
+      const distanceKm = calculateDistance(
+        { latitude: input.latitude, longitude: input.longitude },
+        { latitude: candidate.latitude, longitude: candidate.longitude },
+      );
+      if (distanceKm * 1000 > radiusMeters) continue;
+      if (!best || distanceKm < best.distanceKm) {
+        best = { id: candidate.id, distanceKm };
+      }
     }
+
+    return best ? { id: best.id } : undefined;
+  }
+
+  private normalizeGeoEntityName(value: string): string {
+    return value
+      .normalize('NFKD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, ' ')
+      .trim();
   }
 
   async persistVerifiedExperience(input: VerifiedExperienceInput) {
