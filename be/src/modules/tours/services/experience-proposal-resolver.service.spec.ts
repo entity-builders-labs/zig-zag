@@ -595,6 +595,120 @@ describe('ExperienceProposalResolverService', () => {
     });
   });
 
+  it('prefers the Nominatim match closest to the destination over one with higher importance (same-country name collision)', async () => {
+    // Real-world regression, verified live against the real Nominatim API:
+    // two real places share the exact name "Catedral San Juan Bautista" —
+    // one in Buenos Aires (importance 0.208), one in San Juan capital
+    // (importance 0.199, the actual requested destination). Ranking by
+    // importance alone (the pre-fix behavior) picks the wrong one even
+    // though countryCode already narrowed correctly to Argentina. Distance
+    // to the destination boundary's centroid is a far stronger signal for
+    // disambiguating same-named real places than Nominatim's own global
+    // popularity score.
+    const sanJuanBoundary: any = {
+      id: 'osm:relation:2',
+      name: 'San Juan',
+      osmType: 'relation',
+      osmId: 2,
+      geometry: {
+        type: 'Polygon',
+        coordinates: [
+          [
+            [-68.57, -31.57],
+            [-68.5, -31.57],
+            [-68.5, -31.5],
+            [-68.57, -31.57],
+          ],
+        ],
+      },
+      tags: { boundary: 'administrative' },
+    };
+    const osmPlaces = {
+      lookupStreetsWithin: jest
+        .fn()
+        .mockResolvedValue({ status: 'success', value: [] }),
+      lookupPoisWithin: jest
+        .fn()
+        .mockResolvedValue({ status: 'success', value: [] }),
+      lookupBoundaryById: jest.fn(),
+    };
+    const catalog = {
+      resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+      upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-cathedral' }),
+      persistVerifiedExperience: jest.fn().mockResolvedValue({
+        id: 'exp-cathedral',
+        dedupeDecision: 'NEW',
+      }),
+    };
+    const geographicValidator = {
+      validate: jest
+        .fn()
+        .mockReturnValue(acceptedValidation('Catedral San Juan Bautista')),
+    };
+    const nominatim = {
+      search: jest.fn().mockResolvedValue([
+        {
+          osmType: 'way',
+          osmId: 111,
+          addresstype: 'amenity',
+          displayName:
+            'Catedral San Juan Bautista, Chacarita, Buenos Aires, Argentina',
+          importance: 0.208,
+          latitude: -34.588,
+          longitude: -58.453,
+          address: { state: 'Buenos Aires', country: 'Argentina' },
+        },
+        {
+          osmType: 'way',
+          osmId: 222,
+          addresstype: 'amenity',
+          displayName:
+            'Catedral San Juan Bautista, Capital, San Juan, Argentina',
+          importance: 0.199,
+          latitude: -31.537,
+          longitude: -68.529,
+          address: { state: 'San Juan', country: 'Argentina' },
+        },
+      ]),
+    };
+    const service = new ExperienceProposalResolverService(
+      osmPlaces as any,
+      catalog as any,
+      geographicValidator as any,
+      undefined,
+      nominatim as any,
+    );
+
+    const result = await service.resolve({
+      destinationName: 'San Juan, Argentina',
+      destinationCountryCode: 'AR',
+      destinationBoundary: sanJuanBoundary,
+      candidates: [
+        candidate(
+          'Catedral San Juan Bautista tour',
+          'Catedral San Juan Bautista',
+          ['visit'],
+        ),
+      ],
+      evidence: [
+        {
+          key: 'ev-1',
+          source: 'tourism-guide',
+          title: 'Visiting the cathedral in San Juan, Argentina',
+          snippet: 'Catedral San Juan Bautista in San Juan, Argentina.',
+        },
+      ],
+    });
+
+    expect(catalog.upsertGeoEntity).toHaveBeenCalledWith(
+      expect.objectContaining({ latitude: -31.537, longitude: -68.529 }),
+    );
+    expect(result.resolved[0].resolvedEntities[0]).toMatchObject({
+      latitude: -31.537,
+      longitude: -68.529,
+    });
+  });
+
   it('never resolves a global hint on a shared generic/short word alone (translation false-positive guard)', async () => {
     // "casa" overlaps but is below the 5-char anchor-token floor, and
     // "vieja" doesn't appear in the candidate result at all — this must stay

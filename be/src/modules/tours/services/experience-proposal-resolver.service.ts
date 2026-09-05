@@ -13,6 +13,7 @@ import {
 import { ExperienceCatalogService } from './experience-catalog.service';
 import { CompositeGeographicValidationService } from './composite-geographic-validation.service';
 import { ExperienceEmbeddingIndexerService } from '@shared/ai/services/experience-embedding-indexer.service';
+import { calculateDistance, Coordinates } from '@shared/utils/distance.utils';
 import {
   ExperienceProposalResolver,
   ExperienceResolutionRequest,
@@ -255,6 +256,7 @@ export class ExperienceProposalResolverService
         const globallyResolved = await this.resolveTrustedGlobalHint(
           hint,
           destinationCountryCode,
+          this.representativePoint(boundary),
         );
         if (globallyResolved) {
           entities.push(globallyResolved);
@@ -365,6 +367,7 @@ export class ExperienceProposalResolverService
   private async resolveTrustedGlobalHint(
     hint: any,
     destinationCountryCode?: string,
+    destinationPoint?: Coordinates,
   ): Promise<ResolvedGeoEntity | undefined> {
     if (!this.nominatim || hint.expectedKind === 'ROUTE') return undefined;
 
@@ -375,7 +378,11 @@ export class ExperienceProposalResolverService
           ? { countryCode: destinationCountryCode }
           : undefined,
       );
-      const match = this.bestNominatimMatch(hint.name, results);
+      const match = this.bestNominatimMatch(
+        hint.name,
+        results,
+        destinationPoint,
+      );
       if (
         !match ||
         !Number.isFinite(match.latitude) ||
@@ -543,6 +550,7 @@ export class ExperienceProposalResolverService
   private bestNominatimMatch(
     name: string,
     results: NominatimResult[],
+    destinationPoint?: Coordinates,
   ): NominatimResult | undefined {
     const needle = this.normalize(name);
     const exact = results.filter((result) => {
@@ -550,7 +558,7 @@ export class ExperienceProposalResolverService
       return display === needle || display.startsWith(`${needle} `);
     });
     if (exact.length > 0) {
-      return exact.sort((a, b) => b.importance - a.importance)[0];
+      return this.rankNominatimCandidates(exact, destinationPoint);
     }
 
     // A real landmark's grounded-evidence name and Nominatim's own canonical
@@ -569,7 +577,7 @@ export class ExperienceProposalResolverService
     const needleTokens = needle.split(' ').filter((token) => token.length >= 4);
     if (needleTokens.length === 0) return undefined;
 
-    return results
+    const fuzzyMatches = results
       .map((result) => {
         const headSegment = this.normalize(
           result.displayName.split(',')[0] ?? '',
@@ -585,7 +593,50 @@ export class ExperienceProposalResolverService
           candidate.matchedTokens.length / needleTokens.length >= 0.5 &&
           candidate.matchedTokens.some((token) => token.length >= 5),
       )
-      .sort((a, b) => b.result.importance - a.result.importance)[0]?.result;
+      .map((candidate) => candidate.result);
+    return this.rankNominatimCandidates(fuzzyMatches, destinationPoint);
+  }
+
+  /**
+   * Nominatim's own `importance` is a global, name-driven popularity signal
+   * with no awareness of the requested destination — verified live against
+   * the real API: two real places sharing an identical name (e.g. a
+   * "Catedral San Juan Bautista" in Buenos Aires and another in San Juan
+   * province) can both survive the text-match filters above, and the wrong
+   * one (Buenos Aires, importance 0.208) outranks the right one (San Juan,
+   * importance 0.199) on importance alone. When we know where the request's
+   * destination actually is, proximity to it is a far stronger signal than
+   * global importance for choosing between same-named real places — so it
+   * takes priority whenever it can be measured. A candidate missing
+   * coordinates simply can't participate in that comparison and falls back
+   * to importance, same as before this fix existed.
+   */
+  private rankNominatimCandidates(
+    candidates: NominatimResult[],
+    destinationPoint?: Coordinates,
+  ): NominatimResult | undefined {
+    if (candidates.length === 0) return undefined;
+
+    if (destinationPoint) {
+      const measured = candidates
+        .filter(
+          (result) =>
+            Number.isFinite(result.latitude) &&
+            Number.isFinite(result.longitude),
+        )
+        .map((result) => ({
+          result,
+          distanceKm: calculateDistance(destinationPoint, {
+            latitude: result.latitude as number,
+            longitude: result.longitude as number,
+          }),
+        }));
+      if (measured.length > 0) {
+        return measured.sort((a, b) => a.distanceKm - b.distanceKm)[0].result;
+      }
+    }
+
+    return candidates.sort((a, b) => b.importance - a.importance)[0];
   }
 
   private matchCandidate(
