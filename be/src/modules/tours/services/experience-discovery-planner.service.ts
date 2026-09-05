@@ -46,15 +46,20 @@ export class ExperienceDiscoveryPlannerService {
       .filter(Boolean)
       .slice(0, 12);
 
+    // Live testing against Tavily turned out to have far more run-to-run
+    // result-count variance than expected — the exact same query, called
+    // back to back with no change, returned anywhere from 0 to 20 results.
+    // That noise makes any single-sample "this wording broke it" claim
+    // unreliable, so treat the change below as a reasonable simplification,
+    // not a proven fix: mention the destination exactly once instead of
+    // repeating it (as the old `${destination} ... day trips from
+    // ${destination}` shape did), and drop the padding words after the
+    // preference terms ("returning the same day", "no overnight", "real
+    // named places") — shorter, no redundant destination mention, and the
+    // "same day, no overnight" meaning still reaches the extraction LLM via
+    // expectedEvidence below regardless of what the raw search query says.
     const query = dayTripRequested
-      ? [
-          destination,
-          ...preferenceTerms,
-          `day trips from ${destination}`,
-          'returning the same day',
-          'no overnight',
-          'real named places',
-        ]
+      ? [destination, 'day trips from', ...preferenceTerms, 'walking tours']
           .filter(Boolean)
           .join(' ')
       : [destination, ...preferenceTerms, 'real named places official tourism']

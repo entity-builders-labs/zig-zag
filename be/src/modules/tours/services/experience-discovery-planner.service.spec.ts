@@ -39,14 +39,19 @@ describe('ExperienceDiscoveryPlannerService', () => {
 
     const queries = plan.queries.map(({ query }) => query);
     expect(queries.length).toBeGreaterThan(0);
-    expect(queries.every((query) => query.includes('from Buenos Aires'))).toBe(
-      true,
-    );
-    expect(
-      queries.every((query) => query.includes('returning the same day')),
-    ).toBe(true);
-    expect(queries.every((query) => query.includes('no overnight'))).toBe(true);
-    expect(queries[0]).toContain('day trips from Buenos Aires');
+    // "{destination} day trips from {preferences}...", not
+    // "{destination} ... day trips from {destination}" (repeating it) — a
+    // reasonable simplification (shorter, no redundant mention), not a
+    // proven fix: live testing showed Tavily's own result count varies a
+    // lot run to run for the identical query, so no single-sample
+    // before/after comparison can reliably prove one exact wording is
+    // "safe" and another "broken". The "same day, no overnight" semantic
+    // still reaches the extraction LLM via expectedEvidence below; it
+    // doesn't need to survive in the raw search query text too.
+    expect(queries[0]).toContain('Buenos Aires day trips from');
+    expect(queries[0].match(/Buenos Aires/g)?.length).toBe(1);
+    expect(queries[0]).not.toContain('returning the same day');
+    expect(queries[0]).not.toContain('no overnight');
     expect(JSON.stringify(plan)).not.toMatch(
       /originName|sameDayReturn|maxOutboundTravelMinutes|origin_bound_open|OvernightPolicy/i,
     );

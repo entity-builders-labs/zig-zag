@@ -1096,7 +1096,19 @@ export class ExperienceGenerationService {
               const discoveryResult = await this.discoverExperienceGaps(
                 request.destination.label,
                 request.intent.interests,
-                normalizedPreferences.preferredIntents,
+                // Union with the wizard's own explicit intents, not just the
+                // LLM's free-text interpretation — the same gap already
+                // fixed for rankAndSliceExperiences and completenessInput.
+                // Missing this meant a wizard-selected day_trip/route_like
+                // intent silently never reached discovery's day-trip query
+                // branch unless the free-text interpreter happened to
+                // re-derive it independently.
+                Array.from(
+                  new Set([
+                    ...(request.intent.intents ?? []),
+                    ...(normalizedPreferences.preferredIntents ?? []),
+                  ]),
+                ),
                 blockingDeficits,
                 request.intent.additionalPreferences,
                 normalizedPreferences.preferredTraits,
