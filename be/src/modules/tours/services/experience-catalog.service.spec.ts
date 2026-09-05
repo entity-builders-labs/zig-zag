@@ -1,4 +1,116 @@
+import { Prisma, GeoEntityKind } from '@prisma/client';
 import { ExperienceCatalogService } from './experience-catalog.service';
+
+describe('ExperienceCatalogService.upsertGeoEntity', () => {
+  const input = {
+    name: 'Jardín Botánico Chirau Mita',
+    kind: GeoEntityKind.PLACE,
+    provider: 'google',
+    externalId: 'ChIJreal123',
+    latitude: -29.16,
+    longitude: -67.5,
+  };
+
+  it('updates the existing GeoEntity when an identity already exists', async () => {
+    const prisma: any = {
+      geoEntityIdentity: {
+        findUnique: jest.fn().mockResolvedValue({ geoEntityId: 'geo-1' }),
+      },
+      geoEntity: {
+        update: jest.fn().mockResolvedValue({ id: 'geo-1' }),
+        create: jest.fn(),
+      },
+    };
+    const service = new ExperienceCatalogService(prisma, {} as any);
+
+    const result = await service.upsertGeoEntity(input);
+
+    expect(result).toEqual({ id: 'geo-1' });
+    expect(prisma.geoEntity.create).not.toHaveBeenCalled();
+    expect(prisma.geoEntity.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: 'geo-1' } }),
+    );
+  });
+
+  it('creates a new GeoEntity when no identity exists yet', async () => {
+    const prisma: any = {
+      geoEntityIdentity: { findUnique: jest.fn().mockResolvedValue(null) },
+      geoEntity: {
+        create: jest.fn().mockResolvedValue({ id: 'geo-new' }),
+      },
+    };
+    const service = new ExperienceCatalogService(prisma, {} as any);
+
+    const result = await service.upsertGeoEntity(input);
+
+    expect(result).toEqual({ id: 'geo-new' });
+    expect(prisma.geoEntity.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          identities: {
+            create: { provider: 'google', externalId: 'ChIJreal123' },
+          },
+        }),
+      }),
+    );
+  });
+
+  it('recovers from a concurrent-create race instead of crashing generation (real regression)', async () => {
+    // Verified live: ExperienceProposalResolverService.resolve() resolves
+    // every discovery candidate concurrently (Promise.all). Two candidates
+    // referencing the same real place both saw "no identity yet" from
+    // findUnique before either finished creating one — the second create()
+    // call hit GeoEntityIdentity's real unique constraint and crashed the
+    // whole tour generation with "No pudimos generar este tour."
+    const conflictError = new Prisma.PrismaClientKnownRequestError(
+      'Unique constraint failed on the fields: (`provider`,`externalId`)',
+      { code: 'P2002', clientVersion: 'test' },
+    );
+    const prisma: any = {
+      geoEntityIdentity: {
+        findUnique: jest.fn().mockResolvedValue(null),
+        findUniqueOrThrow: jest
+          .fn()
+          .mockResolvedValue({ geoEntityId: 'geo-winner' }),
+      },
+      geoEntity: {
+        create: jest.fn().mockRejectedValue(conflictError),
+        update: jest.fn().mockResolvedValue({ id: 'geo-winner' }),
+      },
+    };
+    const service = new ExperienceCatalogService(prisma, {} as any);
+
+    const result = await service.upsertGeoEntity(input);
+
+    expect(result).toEqual({ id: 'geo-winner' });
+    expect(prisma.geoEntityIdentity.findUniqueOrThrow).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: {
+          provider_externalId: {
+            provider: 'google',
+            externalId: 'ChIJreal123',
+          },
+        },
+      }),
+    );
+    expect(prisma.geoEntity.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: 'geo-winner' } }),
+    );
+  });
+
+  it('re-throws an unrelated database error instead of masking it as a race', async () => {
+    const otherError = new Error('connection lost');
+    const prisma: any = {
+      geoEntityIdentity: { findUnique: jest.fn().mockResolvedValue(null) },
+      geoEntity: { create: jest.fn().mockRejectedValue(otherError) },
+    };
+    const service = new ExperienceCatalogService(prisma, {} as any);
+
+    await expect(service.upsertGeoEntity(input)).rejects.toThrow(
+      'connection lost',
+    );
+  });
+});
 
 describe('ExperienceCatalogService catalog retrieval', () => {
   it('does not pre-rank nearby candidates by quality before relevance ranking', async () => {

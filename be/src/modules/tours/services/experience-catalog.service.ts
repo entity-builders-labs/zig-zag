@@ -361,17 +361,49 @@ export class ExperienceCatalogService {
       });
     }
 
-    return this.prisma.geoEntity.create({
-      data: {
-        ...data,
-        identities: {
-          create: {
-            provider: input.provider,
-            externalId: input.externalId,
+    try {
+      return await this.prisma.geoEntity.create({
+        data: {
+          ...data,
+          identities: {
+            create: {
+              provider: input.provider,
+              externalId: input.externalId,
+            },
           },
         },
-      },
-    });
+      });
+    } catch (error) {
+      // Real-world regression, verified live: ExperienceProposalResolverService
+      // resolves every discovery candidate concurrently (Promise.all), and
+      // more than one can legitimately reference the *same* real place (the
+      // extractor proposing it under two different component hints/candidates
+      // in one discovery response). The findUnique check above and this
+      // create() are not atomic together — two concurrent calls for the
+      // identical (provider, externalId) can both see "doesn't exist yet"
+      // and both attempt to create it. The second used to crash the whole
+      // generation on GeoEntityIdentity's unique constraint instead of
+      // simply reusing the entity the first call just created.
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
+        const winner = await this.prisma.geoEntityIdentity.findUniqueOrThrow({
+          where: {
+            provider_externalId: {
+              provider: input.provider,
+              externalId: input.externalId,
+            },
+          },
+          select: { geoEntityId: true },
+        });
+        return this.prisma.geoEntity.update({
+          where: { id: winner.geoEntityId },
+          data,
+        });
+      }
+      throw error;
+    }
   }
 
   async persistVerifiedExperience(input: VerifiedExperienceInput) {
