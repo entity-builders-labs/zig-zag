@@ -98,6 +98,23 @@ describe('TavilyGroundedSearchService', () => {
     expect(body.country).toBe('argentina');
   });
 
+  it("requests 20 results, not 10 — verified live: a real page enumerating three distinct extra themes (nature, water sports, a separate national park) only entered Tavily's own top 10 once results were raised to 20, with no second API call needed", async () => {
+    const config = {
+      get: jest.fn().mockReturnValue('tvly-test'),
+    } as unknown as ConfigService;
+    const service = new TavilyGroundedSearchService(config);
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ results: [] as any[] }),
+    }) as jest.Mock;
+
+    await service.search(request);
+
+    const [, options] = (global.fetch as jest.Mock).mock.calls[0];
+    const body = JSON.parse(options.body);
+    expect(body.max_results).toBe(20);
+  });
+
   it('omits the country param when the destination country is unknown', async () => {
     const config = {
       get: jest.fn().mockReturnValue('tvly-test'),

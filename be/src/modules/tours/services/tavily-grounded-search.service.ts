@@ -57,7 +57,13 @@ export class TavilyGroundedSearchService implements GroundedSearchProvider {
         body: JSON.stringify({
           query,
           search_depth: 'basic',
-          max_results: 10,
+          // Tavily bills per request, not per result (up to its own cap of
+          // 20) — raising this costs nothing extra and buys real diversity.
+          // Verified live: a page enumerating three distinct themes beyond
+          // the single dominant one only entered the top 10 once results
+          // were raised to 20, in the exact same single call — cheaper and
+          // simpler than a second discovery round for the same gap.
+          max_results: 20,
           include_answer: false,
           include_raw_content: false,
           ...(country ? { country } : {}),
