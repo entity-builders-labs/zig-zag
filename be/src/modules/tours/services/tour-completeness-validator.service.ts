@@ -3,6 +3,7 @@ import {
   TourCompletenessInput,
   TourCompletenessIssue,
   TourCompletenessResult,
+  UnmetRequestedFormatIssue,
 } from '../interfaces/tour-completeness.interface';
 import {
   MEAL_HOURS_CAP_WHEN_NOT_FOCUSED,
@@ -68,7 +69,40 @@ export class TourCompletenessValidator {
       }
     }
 
+    issues.push(...this.checkRequestedFormats(input));
+
     return { complete: issues.length === 0, issues };
+  }
+
+  /**
+   * Re-derives, from the final selected Experiences alone, whether every
+   * requested soft facet (walk/route_like/day_trip/visit/...) is actually
+   * represented — independent of what any earlier stage (CoverageAnalyzer,
+   * the ranking window) believed was available. First version: it does not
+   * yet distinguish "no real candidate for this format ever existed" from
+   * "one existed and the solver skipped it" — both surface the same
+   * symptom to the user, and splitting the cause apart is a natural later
+   * refinement, not a blocker for this check to exist at all.
+   */
+  private checkRequestedFormats(
+    input: TourCompletenessInput,
+  ): UnmetRequestedFormatIssue[] {
+    const requested = Array.from(
+      new Set((input.requestedIntents ?? []).filter(Boolean)),
+    );
+
+    return requested
+      .filter(
+        (intent) =>
+          !input.selectedExperiences.some((experience) =>
+            experience.intents?.includes(intent),
+          ),
+      )
+      .map((intent) => ({
+        code: 'UNMET_REQUESTED_FORMAT' as const,
+        requestedIntent: intent,
+        message: `You asked for "${intent}" experiences, but none made it into the final itinerary.`,
+      }));
   }
 
   private buildIssue(

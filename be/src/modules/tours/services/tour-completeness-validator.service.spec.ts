@@ -235,4 +235,102 @@ describe('TourCompletenessValidator', () => {
       }),
     ]);
   });
+
+  describe('requested format coverage (first version)', () => {
+    it('flags a requested intent that no selected Experience actually carries', () => {
+      const result = service.validate({
+        requestedDays: 1,
+        travelPace: TravelPace.MODERATE,
+        isFoodFocusedIntent: false,
+        selectedExperiences: [
+          experience({
+            experienceId: 'museum',
+            durationHours: 3,
+            intents: ['visit'],
+          }),
+        ],
+        viableUnusedCandidateCount: 0,
+        requestedIntents: ['walk', 'day_trip'],
+      });
+
+      expect(result.complete).toBe(false);
+      expect(result.issues).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            code: 'UNMET_REQUESTED_FORMAT',
+            requestedIntent: 'walk',
+          }),
+          expect.objectContaining({
+            code: 'UNMET_REQUESTED_FORMAT',
+            requestedIntent: 'day_trip',
+          }),
+        ]),
+      );
+    });
+
+    it('does not flag a requested intent that at least one selected Experience carries', () => {
+      const result = service.validate({
+        requestedDays: 1,
+        travelPace: TravelPace.MODERATE,
+        isFoodFocusedIntent: false,
+        selectedExperiences: [
+          experience({
+            experienceId: 'walk',
+            durationHours: 3,
+            intents: ['walk', 'route_like'],
+          }),
+          experience({
+            experienceId: 'museum',
+            durationHours: 3,
+            intents: ['visit'],
+          }),
+        ],
+        viableUnusedCandidateCount: 0,
+        requestedIntents: ['walk'],
+      });
+
+      expect(
+        result.issues.some((issue) => issue.code === 'UNMET_REQUESTED_FORMAT'),
+      ).toBe(false);
+    });
+
+    it('is a no-op when no format was requested', () => {
+      const result = service.validate({
+        requestedDays: 1,
+        travelPace: TravelPace.MODERATE,
+        isFoodFocusedIntent: false,
+        selectedExperiences: [
+          experience({ experienceId: 'museum', durationHours: 3 }),
+        ],
+        viableUnusedCandidateCount: 0,
+      });
+
+      expect(
+        result.issues.some((issue) => issue.code === 'UNMET_REQUESTED_FORMAT'),
+      ).toBe(false);
+    });
+
+    it('deduplicates repeated requested intents into a single issue', () => {
+      const result = service.validate({
+        requestedDays: 1,
+        travelPace: TravelPace.MODERATE,
+        isFoodFocusedIntent: false,
+        selectedExperiences: [
+          experience({
+            experienceId: 'museum',
+            durationHours: 3,
+            intents: ['visit'],
+          }),
+        ],
+        viableUnusedCandidateCount: 0,
+        requestedIntents: ['walk', 'walk'],
+      });
+
+      expect(
+        result.issues.filter(
+          (issue) => issue.code === 'UNMET_REQUESTED_FORMAT',
+        ),
+      ).toHaveLength(1);
+    });
+  });
 });

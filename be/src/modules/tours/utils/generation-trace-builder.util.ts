@@ -12,7 +12,10 @@ import {
   CoverageCandidate,
   CoverageReport,
 } from '../interfaces/coverage-analysis.interface';
-import { TourCompletenessResult } from '../interfaces/tour-completeness.interface';
+import {
+  TourCompletenessIssue,
+  TourCompletenessResult,
+} from '../interfaces/tour-completeness.interface';
 import { ExperienceResolutionResponse } from '../interfaces/experience-resolution.interface';
 import { TourGenerationRequest } from '../interfaces/tour-generation.interface';
 import { DailyPlanningSolution } from '../interfaces/daily-planning.interface';
@@ -1412,6 +1415,17 @@ export function buildDailyPlanningStep(
   };
 }
 
+function describeCompletenessIssue(issue: TourCompletenessIssue): string {
+  if (issue.code === 'UNMET_REQUESTED_FORMAT') {
+    return `Formato pedido sin cubrir: "${issue.requestedIntent}".`;
+  }
+  return (
+    `Día ${issue.dayNumber}: ${issue.selectedExperienceCount} experience(s), ` +
+    `~${issue.selectedExperienceHours}h, ${issue.viableUnusedCandidateCount} ` +
+    `candidato(s) viable(s) sin usar (ritmo "${issue.travelPace}").`
+  );
+}
+
 export function buildTourCompletenessStep(
   result: TourCompletenessResult,
   retryAttempted: boolean,
@@ -1419,17 +1433,13 @@ export function buildTourCompletenessStep(
   const summary = result.complete
     ? 'El itinerario generado hace un uso razonable de los días solicitados.' +
       (retryAttempted ? ' (tras un reintento por completitud)' : '')
-    : result.issues
-        .map(
-          (issue) =>
-            `Día ${issue.dayNumber}: ${issue.selectedExperienceCount} experience(s), ` +
-            `~${issue.selectedExperienceHours}h, ${issue.viableUnusedCandidateCount} ` +
-            `candidato(s) viable(s) sin usar (ritmo "${issue.travelPace}").`,
-        )
-        .join(' ') +
+    : result.issues.map(describeCompletenessIssue).join(' ') +
       (retryAttempted
         ? ' Se reintentó la generación una vez y el resultado siguió incompleto.'
         : '');
+  const reasonCodes = Array.from(
+    new Set(result.issues.map((issue) => issue.code)),
+  );
   return {
     stage: 'tour_completeness',
     label: 'Completitud del itinerario',
@@ -1444,12 +1454,7 @@ export function buildTourCompletenessStep(
         result.complete ? 'PASS' : 'WARN',
         result.complete
           ? 'No se detectaron días subutilizados con alternativas viables.'
-          : result.issues
-              .map(
-                (i) =>
-                  `Día ${i.dayNumber}: ${i.selectedExperienceCount} seleccionada(s), ${i.viableUnusedCandidateCount} viable(s) sin usar.`,
-              )
-              .join(' '),
+          : result.issues.map(describeCompletenessIssue).join(' '),
       ),
     ],
     decision: {
@@ -1457,8 +1462,8 @@ export function buildTourCompletenessStep(
       outcome: result.complete ? 'TOUR_COMPLETE' : 'TOUR_UNDERFILLED',
       reason: result.complete
         ? 'La política de completitud no detectó déficit accionable.'
-        : 'Existen días que podrían estar mejor utilizados según la política actual.',
-      reasonCodes: result.complete ? [] : ['UNDERFILLED_DAY'],
+        : 'Existen días que podrían estar mejor utilizados, o formatos pedidos sin cubrir, según la política actual.',
+      reasonCodes,
       triggeredActions:
         !result.complete && !retryAttempted ? ['RETRY_ONCE'] : ['CONTINUE'],
     },

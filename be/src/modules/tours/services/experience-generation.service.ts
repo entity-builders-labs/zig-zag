@@ -54,7 +54,10 @@ import {
   EXPERIENCE_PROPOSAL_RESOLVER,
 } from '../interfaces/experience-resolution.interface';
 import { TourCompletenessValidator } from './tour-completeness-validator.service';
-import { TourCompletenessInput } from '../interfaces/tour-completeness.interface';
+import {
+  TourCompletenessInput,
+  UnmetRequestedFormatIssue,
+} from '../interfaces/tour-completeness.interface';
 import { GenerationTraceStep } from '../interfaces/generation-trace.interface';
 import { PlanningCandidateNormalizerService } from './planning-candidate-normalizer.service';
 import dailyPlanningPolicyConfig from '../config/daily-planning-policy.config';
@@ -1511,6 +1514,12 @@ export class ExperienceGenerationService {
       const viableUnusedCandidateCount =
         planningSolution.unselected.length - infeasiblyUnselected.length;
 
+      const requestedFormatIntents = Array.from(
+        new Set([
+          ...(request.intent.intents ?? []),
+          ...(normalizedPreferences.preferredIntents ?? []),
+        ]),
+      );
       const completenessInput: TourCompletenessInput = {
         requestedDays: request.days,
         travelPace: request.mobility.travelPace,
@@ -1532,10 +1541,12 @@ export class ExperienceGenerationService {
                 candidate.traits.some(
                   (trait: string) => trait.toLowerCase() === 'food',
                 ),
+              intents: candidate?.intents ?? [],
             };
           }),
         ),
         viableUnusedCandidateCount,
+        requestedIntents: requestedFormatIntents,
       };
       const completeness =
         this.tourCompletenessValidator.validate(completenessInput);
@@ -1543,6 +1554,18 @@ export class ExperienceGenerationService {
       traceSteps.push(
         buildTourCompletenessStep(completeness, correctiveRetryAttempted),
       );
+      // Plain, user-facing summary — never nested under generationTrace,
+      // which is __DEV__-only. This is the one signal a real user gets when
+      // a format they explicitly asked for didn't make it into their tour.
+      const unmetFormatMessages = completeness.issues
+        .filter(
+          (issue): issue is UnmetRequestedFormatIssue =>
+            issue.code === 'UNMET_REQUESTED_FORMAT',
+        )
+        .map(
+          (issue) =>
+            `No pudimos encontrar experiencias verificadas de tipo "${issue.requestedIntent}" para incluir en tu itinerario.`,
+        );
 
       const selectedExperiences = planningSolution.days.flatMap((day) =>
         day.experiences.map((planned, index) => {
@@ -1749,6 +1772,8 @@ export class ExperienceGenerationService {
               generationStatus: 'completed',
               generationMessage: completedMessage,
               generationCompletedAt: new Date().toISOString(),
+              completenessNotice:
+                unmetFormatMessages.length > 0 ? unmetFormatMessages : null,
             },
           },
         });

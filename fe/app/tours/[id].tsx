@@ -476,6 +476,38 @@ export default function TourDetailScreen() {
                     </Box>
                   )}
 
+                  {/* Formatos pedidos que no se pudieron cubrir — visible para
+                      cualquier usuario, no sólo en la Bitácora __DEV__-only. */}
+                  {Array.isArray(tour?.metadata?.completenessNotice) &&
+                    tour.metadata.completenessNotice.length > 0 && (
+                      <Box
+                        mb='$4'
+                        p='$4'
+                        bg='$warning50'
+                        borderRadius='$xl'
+                        borderWidth={1}
+                        borderColor='$warning200'
+                      >
+                        {tour.metadata.completenessNotice.map(
+                          (notice: string, index: number) => (
+                            <Text
+                              key={index}
+                              size='sm'
+                              color='$warning700'
+                              mb={
+                                index <
+                                tour.metadata.completenessNotice.length - 1
+                                  ? '$1'
+                                  : undefined
+                              }
+                            >
+                              {notice}
+                            </Text>
+                          ),
+                        )}
+                      </Box>
+                    )}
+
                   {isGeneratingExperiences ? (
                     <Box
                       p='$8'
