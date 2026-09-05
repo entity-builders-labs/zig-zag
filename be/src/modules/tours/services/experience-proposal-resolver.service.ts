@@ -10,6 +10,7 @@ import {
   INominatimApiService,
   NominatimResult,
 } from '@integrations/osm/interfaces/nominatim.interface';
+import { IPlacesApiService } from '@integrations/google-places/interfaces/places-api.interface';
 import { ExperienceCatalogService } from './experience-catalog.service';
 import { CompositeGeographicValidationService } from './composite-geographic-validation.service';
 import { ExperienceEmbeddingIndexerService } from '@shared/ai/services/experience-embedding-indexer.service';
@@ -21,6 +22,14 @@ import {
   ResolvedExperienceCandidate,
   ResolvedGeoEntity,
 } from '../interfaces/experience-resolution.interface';
+
+// Loose radius for biasing a Places text search toward the destination when
+// Nominatim/OSM had no usable match — wide enough to cover a metro area's
+// outskirts (matches the same order of magnitude as
+// destination-resolution.service.ts's own MAX_DESTINATION_DISTANCE_METERS)
+// without being so wide it stops disambiguating same-named places in
+// different cities.
+const PLACES_FALLBACK_BIAS_RADIUS_METERS = 50_000;
 
 @Injectable()
 export class ExperienceProposalResolverService
@@ -37,6 +46,9 @@ export class ExperienceProposalResolverService
     @Optional()
     @Inject('NominatimApiService')
     private readonly nominatim?: INominatimApiService,
+    @Optional()
+    @Inject('PlacesApiService')
+    private readonly placesApi?: IPlacesApiService,
   ) {}
 
   async resolve(
@@ -369,6 +381,32 @@ export class ExperienceProposalResolverService
     destinationCountryCode?: string,
     destinationPoint?: Coordinates,
   ): Promise<ResolvedGeoEntity | undefined> {
+    const resolved = await this.resolveViaNominatim(
+      hint,
+      destinationCountryCode,
+      destinationPoint,
+    );
+    if (resolved) return resolved;
+
+    // Nominatim/OSM has real coverage gaps for small, well-known urban
+    // landmarks — verified live: a real cathedral in San Juan capital
+    // (confirmed on Google Maps) has no name tag at all in OpenStreetMap at
+    // its real coordinates, just an anonymous "house" node. Google Places
+    // (or whichever provider PLACES_PROVIDER selects — Geoapify's own
+    // searchText is a documented no-op stub, so this only ever helps when
+    // Google is the active provider, never regresses when it isn't) covers
+    // exactly this class of real, commercially/institutionally documented
+    // place that OSM's community tagging often misses. Only PLACE hints —
+    // AREA/ROUTE stay OSM-only, same restriction the Nominatim path itself
+    // already applies.
+    return this.resolveViaPlaces(hint, destinationPoint);
+  }
+
+  private async resolveViaNominatim(
+    hint: any,
+    destinationCountryCode?: string,
+    destinationPoint?: Coordinates,
+  ): Promise<ResolvedGeoEntity | undefined> {
     if (!this.nominatim || hint.expectedKind === 'ROUTE') return undefined;
 
     try {
@@ -456,6 +494,84 @@ export class ExperienceProposalResolverService
     } catch (error: any) {
       this.logger.warn(
         `Global trusted resolution failed for "${hint.name}": ${error?.message ?? error}`,
+      );
+      return undefined;
+    }
+  }
+
+  /**
+   * Fallback for a PLACE hint Nominatim/OSM couldn't resolve. Uses whichever
+   * IPlacesApiService the PLACES_PROVIDER env var selects (Google or
+   * Geoapify — see integrations.module.ts's createRealPlacesApiService), the
+   * same caching-wrapped instance the catalog-refill path already uses, so
+   * this consumes the exact same quota/cache as the rest of the app rather
+   * than a second, separately-configured client.
+   */
+  private async resolveViaPlaces(
+    hint: any,
+    destinationPoint?: Coordinates,
+  ): Promise<ResolvedGeoEntity | undefined> {
+    if (!this.placesApi || hint.expectedKind !== 'PLACE') return undefined;
+
+    try {
+      const result = await this.placesApi.searchText({
+        textQuery: hint.name,
+        maxResultCount: 3,
+        locationBias: destinationPoint
+          ? {
+              center: destinationPoint,
+              radius: PLACES_FALLBACK_BIAS_RADIUS_METERS,
+            }
+          : undefined,
+      });
+      const place = result.data[0];
+      if (
+        !place?.location ||
+        !Number.isFinite(place.location.latitude) ||
+        !Number.isFinite(place.location.longitude)
+      ) {
+        return undefined;
+      }
+
+      const providerLabel =
+        this.placesApi.provider === 'google' ? 'google_places' : 'geoapify';
+      const canonicalName = place.displayName?.text || place.name || hint.name;
+      const externalId = `${providerLabel}:${place.id}`;
+      const geometry = {
+        type: 'Point' as const,
+        coordinates: [place.location.longitude, place.location.latitude],
+      };
+      const geo = await this.catalog.upsertGeoEntity({
+        name: canonicalName,
+        kind: GeoEntityKind.PLACE,
+        provider: providerLabel,
+        externalId,
+        latitude: place.location.latitude,
+        longitude: place.location.longitude,
+        geometry,
+        metadata: {
+          formattedAddress: place.formattedAddress,
+          types: place.types,
+        },
+      });
+      return Object.assign(
+        {
+          hintKey: hint.key,
+          hintName: hint.name,
+          provider: providerLabel,
+          externalId,
+          canonicalName,
+          latitude: place.location.latitude,
+          longitude: place.location.longitude,
+          geometry,
+          role: hint.role,
+          status: 'resolved' as const,
+        },
+        { geoEntityId: geo.id },
+      );
+    } catch (error: any) {
+      this.logger.warn(
+        `Places fallback resolution failed for "${hint.name}": ${error?.message ?? error}`,
       );
       return undefined;
     }

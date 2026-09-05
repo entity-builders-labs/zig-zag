@@ -643,7 +643,7 @@ describe('ExperienceProposalResolverService', () => {
     const geographicValidator = {
       validate: jest
         .fn()
-        .mockReturnValue(acceptedValidation('Catedral San Juan Bautista')),
+        .mockReturnValue(acceptedValidation('Catedral San Juan Bautista tour')),
     };
     const nominatim = {
       search: jest.fn().mockResolvedValue([
@@ -707,6 +707,143 @@ describe('ExperienceProposalResolverService', () => {
       latitude: -31.537,
       longitude: -68.529,
     });
+  });
+
+  it('falls back to the configured Places provider when Nominatim/OSM has no match for a PLACE hint', async () => {
+    // Real-world regression, verified live: a real, well-known cathedral in
+    // San Juan capital (confirmed on Google Maps) has no name tag at all in
+    // OpenStreetMap at its real coordinates — Nominatim never returns it
+    // under any query text. Google Places (the provider PLACES_PROVIDER
+    // selects) does have it. This is the same catalog-refill IPlacesApiService
+    // instance (via the generic 'PlacesApiService' token), not a bespoke
+    // client, so it shares quota/caching with the rest of the app.
+    const nominatim = { search: jest.fn().mockResolvedValue([]) };
+    const placesApi = {
+      provider: 'google' as const,
+      searchText: jest.fn().mockResolvedValue({
+        data: [
+          {
+            id: 'ChIJcathedral123',
+            displayName: { text: 'Catedral San Juan Bautista' },
+            formattedAddress: 'San Juan, Argentina',
+            location: { latitude: -31.5370714, longitude: -68.5286788 },
+            types: ['church', 'place_of_worship'],
+          },
+        ],
+        provenance: {
+          provider: 'google',
+          cacheStatus: 'miss-live',
+          requestedCount: 3,
+          receivedCount: 1,
+        },
+      }),
+    };
+    const catalog = {
+      resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+      upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-cathedral' }),
+      persistVerifiedExperience: jest.fn().mockResolvedValue({
+        id: 'exp-cathedral',
+        dedupeDecision: 'NEW',
+      }),
+    };
+    const geographicValidator = {
+      validate: jest
+        .fn()
+        .mockReturnValue(acceptedValidation('Catedral San Juan Bautista tour')),
+    };
+    const service = new ExperienceProposalResolverService(
+      {
+        lookupStreetsWithin: jest
+          .fn()
+          .mockResolvedValue({ status: 'success', value: [] }),
+        lookupPoisWithin: jest
+          .fn()
+          .mockResolvedValue({ status: 'success', value: [] }),
+        lookupBoundaryById: jest.fn(),
+      } as any,
+      catalog as any,
+      geographicValidator as any,
+      undefined,
+      nominatim as any,
+      placesApi as any,
+    );
+
+    const result = await service.resolve({
+      destinationName: 'San Juan, Argentina',
+      destinationBoundary: boundary,
+      candidates: [
+        candidate(
+          'Catedral San Juan Bautista tour',
+          'Catedral San Juan Bautista',
+          ['visit'],
+        ),
+      ],
+      evidence: [
+        {
+          key: 'ev-1',
+          source: 'tourism-guide',
+          title: 'Visiting the cathedral in San Juan, Argentina',
+          snippet: 'Catedral San Juan Bautista in San Juan, Argentina.',
+        },
+      ],
+    });
+
+    expect(placesApi.searchText).toHaveBeenCalledWith(
+      expect.objectContaining({ textQuery: 'Catedral San Juan Bautista' }),
+    );
+    expect(catalog.upsertGeoEntity).toHaveBeenCalledWith(
+      expect.objectContaining({
+        provider: 'google_places',
+        latitude: -31.5370714,
+        longitude: -68.5286788,
+      }),
+    );
+    expect(result.acceptedCount).toBe(1);
+    expect(result.resolved[0].resolvedEntities[0]).toMatchObject({
+      provider: 'google_places',
+      canonicalName: 'Catedral San Juan Bautista',
+      latitude: -31.5370714,
+      longitude: -68.5286788,
+    });
+  });
+
+  it('stays unresolved (no crash) when Nominatim has no match and no Places provider is configured', async () => {
+    const nominatim = { search: jest.fn().mockResolvedValue([]) };
+    const service = new ExperienceProposalResolverService(
+      {
+        lookupStreetsWithin: jest
+          .fn()
+          .mockResolvedValue({ status: 'success', value: [] }),
+        lookupPoisWithin: jest
+          .fn()
+          .mockResolvedValue({ status: 'success', value: [] }),
+        lookupBoundaryById: jest.fn(),
+      } as any,
+      {} as any,
+      { validate: jest.fn() } as any,
+      undefined,
+      nominatim as any,
+      undefined,
+    );
+
+    const result = await service.resolve({
+      destinationName: 'San Juan, Argentina',
+      destinationBoundary: boundary,
+      candidates: [
+        candidate('Ghost Cathedral tour', 'Ghost Cathedral', ['visit']),
+      ],
+      evidence: [
+        {
+          key: 'ev-1',
+          source: 'tourism-guide',
+          title: 'Visiting San Juan, Argentina',
+          snippet: 'Ghost Cathedral in San Juan, Argentina.',
+        },
+      ],
+    });
+
+    expect(result.acceptedCount).toBe(0);
+    expect(result.resolved[0].status).toBe('rejected');
   });
 
   it('never resolves a global hint on a shared generic/short word alone (translation false-positive guard)', async () => {
