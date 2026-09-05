@@ -46,6 +46,13 @@ export interface ResolvedExperienceCandidate {
 export interface ExperienceResolutionRequest {
   candidates: ExperienceCandidate[];
   destinationName?: string;
+  /**
+   * ISO 3166-1 alpha-2 country code of the resolved destination, when known.
+   * Threaded into every Nominatim hint lookup to prevent a generic/common
+   * place name from matching a same-named place in an unrelated country —
+   * verified live against the real API (see nominatim.interface.ts).
+   */
+  destinationCountryCode?: string;
   destinationBoundary: unknown;
   traceContext?: Record<string, unknown>;
   evidence?: Array<{

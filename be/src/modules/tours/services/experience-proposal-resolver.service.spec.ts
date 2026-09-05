@@ -416,7 +416,7 @@ describe('ExperienceProposalResolverService', () => {
       ],
     });
 
-    expect(nominatim.search).toHaveBeenCalledWith('Tigre');
+    expect(nominatim.search).toHaveBeenCalledWith('Tigre', undefined);
     expect(result.acceptedCount).toBe(1);
     expect(result.resolved[0]).toMatchObject({
       experienceId: 'exp-tigre',
@@ -516,6 +516,7 @@ describe('ExperienceProposalResolverService', () => {
 
     expect(nominatim.search).toHaveBeenCalledWith(
       'Ischigualasto Provincial Park',
+      undefined,
     );
     expect(result.acceptedCount).toBe(1);
     expect(catalog.upsertGeoEntity).toHaveBeenCalledWith(
@@ -524,6 +525,74 @@ describe('ExperienceProposalResolverService', () => {
         longitude: -67.9849624,
       }),
     );
+  });
+
+  it('threads destinationCountryCode into the Nominatim global-hint search', async () => {
+    // Real-world regression: generic/common Spanish place names (e.g. "Cerro
+    // Alcázar") can resolve to a same-named place in a completely unrelated
+    // country when Nominatim's plain search has no geographic biasing —
+    // verified live against the real API. destinationCountryCode restricts
+    // the search to the resolved destination's own country.
+    const osmPlaces = {
+      lookupStreetsWithin: jest
+        .fn()
+        .mockResolvedValue({ status: 'success', value: [] }),
+      lookupPoisWithin: jest
+        .fn()
+        .mockResolvedValue({ status: 'success', value: [] }),
+      lookupBoundaryById: jest.fn(),
+    };
+    const catalog = {
+      resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+      upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-alcazar' }),
+      persistVerifiedExperience: jest.fn().mockResolvedValue({
+        id: 'exp-alcazar',
+        dedupeDecision: 'NEW',
+      }),
+    };
+    const geographicValidator = {
+      validate: jest.fn().mockReturnValue(acceptedValidation('Cerro Alcázar')),
+    };
+    const nominatim = {
+      search: jest.fn().mockResolvedValue([
+        {
+          osmType: 'node',
+          osmId: 999,
+          addresstype: 'peak',
+          displayName: 'Cerro Alcázar, San Juan, Argentina',
+          importance: 0.3,
+          latitude: -31.5,
+          longitude: -68.5,
+          address: { state: 'San Juan', country: 'Argentina' },
+        },
+      ]),
+    };
+    const service = new ExperienceProposalResolverService(
+      osmPlaces as any,
+      catalog as any,
+      geographicValidator as any,
+      undefined,
+      nominatim as any,
+    );
+
+    await service.resolve({
+      destinationName: 'San Juan, Argentina',
+      destinationCountryCode: 'AR',
+      destinationBoundary: boundary,
+      candidates: [candidate('Cerro Alcázar hike', 'Cerro Alcázar', ['walk'])],
+      evidence: [
+        {
+          key: 'ev-1',
+          source: 'tourism-guide',
+          title: 'Hiking near San Juan, Argentina',
+          snippet: 'Cerro Alcázar is a popular hike near San Juan, Argentina.',
+        },
+      ],
+    });
+
+    expect(nominatim.search).toHaveBeenCalledWith('Cerro Alcázar', {
+      countryCode: 'AR',
+    });
   });
 
   it('never resolves a global hint on a shared generic/short word alone (translation false-positive guard)', async () => {

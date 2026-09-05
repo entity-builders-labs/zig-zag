@@ -1154,6 +1154,7 @@ export class ExperienceGenerationService {
                 const resolutionResult = await this.proposalResolver.resolve({
                   candidates: discoveryResult.candidates,
                   destinationName: request.destination.label,
+                  destinationCountryCode: destinationResolution.countryCode,
                   destinationBoundary: destinationScope,
                   evidence: discoveryResult.evidence,
                 });

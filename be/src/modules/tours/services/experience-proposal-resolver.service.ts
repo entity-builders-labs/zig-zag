@@ -63,6 +63,7 @@ export class ExperienceProposalResolverService
           { streets: streetLookup, pois: poiLookup },
           input.destinationName,
           evidence,
+          input.destinationCountryCode,
         ),
       ),
     );
@@ -226,6 +227,7 @@ export class ExperienceProposalResolverService
     },
     destinationName?: string,
     evidence: ExperienceResolutionRequest['evidence'] = [],
+    destinationCountryCode?: string,
   ) {
     const entities: ResolvedGeoEntity[] = [];
     const destinationAssociationVerified =
@@ -250,7 +252,10 @@ export class ExperienceProposalResolverService
       }
 
       if (destinationAssociationVerified) {
-        const globallyResolved = await this.resolveTrustedGlobalHint(hint);
+        const globallyResolved = await this.resolveTrustedGlobalHint(
+          hint,
+          destinationCountryCode,
+        );
         if (globallyResolved) {
           entities.push(globallyResolved);
           continue;
@@ -359,11 +364,17 @@ export class ExperienceProposalResolverService
 
   private async resolveTrustedGlobalHint(
     hint: any,
+    destinationCountryCode?: string,
   ): Promise<ResolvedGeoEntity | undefined> {
     if (!this.nominatim || hint.expectedKind === 'ROUTE') return undefined;
 
     try {
-      const results = await this.nominatim.search(hint.name);
+      const results = await this.nominatim.search(
+        hint.name,
+        destinationCountryCode
+          ? { countryCode: destinationCountryCode }
+          : undefined,
+      );
       const match = this.bestNominatimMatch(hint.name, results);
       if (
         !match ||

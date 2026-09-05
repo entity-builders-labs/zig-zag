@@ -6,6 +6,7 @@ import * as crypto from 'crypto';
 import {
   INominatimApiService,
   NominatimResult,
+  NominatimSearchOptions,
 } from '../interfaces/nominatim.interface';
 
 @Injectable()
@@ -31,8 +32,17 @@ export class CachedNominatimApiService implements INominatimApiService {
     }
   }
 
-  private getCachePath(query: string): string {
-    const hash = crypto.createHash('md5').update(query).digest('hex');
+  private getCachePath(
+    query: string,
+    options?: NominatimSearchOptions,
+  ): string {
+    // Fold options into the cache key — two calls with the same query text
+    // but a different countryCode must not collide on the same cache file
+    // (they can legitimately return different results).
+    const keyMaterial = options?.countryCode
+      ? `${query}|countryCode=${options.countryCode.toLowerCase()}`
+      : query;
+    const hash = crypto.createHash('md5').update(keyMaterial).digest('hex');
     return path.join(this.cacheDir, `search-${hash}.json`);
   }
 
@@ -42,8 +52,11 @@ export class CachedNominatimApiService implements INominatimApiService {
     );
   }
 
-  async search(query: string): Promise<NominatimResult[]> {
-    const cachePath = this.getCachePath(query);
+  async search(
+    query: string,
+    options?: NominatimSearchOptions,
+  ): Promise<NominatimResult[]> {
+    const cachePath = this.getCachePath(query, options);
 
     if (fs.existsSync(cachePath)) {
       this.logger.log(`[CachedNominatimApiService] Cache hit for "${query}"`);
@@ -59,7 +72,7 @@ export class CachedNominatimApiService implements INominatimApiService {
     this.logger.log(
       `[CachedNominatimApiService] Cache miss for "${query}". Calling real API...`,
     );
-    const result = await this.realService.search(query);
+    const result = await this.realService.search(query, options);
 
     if (this.mode === 'write') {
       try {

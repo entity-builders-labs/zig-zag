@@ -131,6 +131,60 @@ describe('CachedNominatimApiService', () => {
     );
   });
 
+  it('passes options through to the real service on a miss', async () => {
+    realService.search.mockResolvedValue([
+      {
+        osmType: 'relation',
+        osmId: 3,
+        addresstype: 'mountain',
+        displayName: 'Cerro Alcázar, San Juan, Argentina',
+        importance: 0.3,
+      },
+    ]);
+    const service = await setup('write');
+
+    await service.search('Cerro Alcázar', { countryCode: 'ar' });
+
+    expect(realService.search).toHaveBeenCalledWith('Cerro Alcázar', {
+      countryCode: 'ar',
+    });
+  });
+
+  it('caches the same query text separately per countryCode option', async () => {
+    realService.search
+      .mockResolvedValueOnce([
+        {
+          osmType: 'way',
+          osmId: 10,
+          addresstype: 'mountain',
+          displayName: 'Cerro Alcázar, San Juan, Argentina',
+          importance: 0.3,
+        },
+      ])
+      .mockResolvedValueOnce([
+        {
+          osmType: 'way',
+          osmId: 20,
+          addresstype: 'castle',
+          displayName: 'Alcázar, Spain',
+          importance: 0.9,
+        },
+      ]);
+    const service = await setup('write');
+
+    const withCountry = await service.search('Cerro Alcázar', {
+      countryCode: 'ar',
+    });
+    const withoutCountry = await service.search('Cerro Alcázar');
+
+    expect(withCountry).toMatchObject([{ osmId: 10 }]);
+    expect(withoutCountry).toMatchObject([{ osmId: 20 }]);
+    expect(realService.search).toHaveBeenCalledTimes(2);
+    expect(fs.readdirSync(path.join(tempDir, 'nominatim-cache'))).toHaveLength(
+      2,
+    );
+  });
+
   it('strict mode throws on a cache miss instead of calling the real service', async () => {
     const service = await setup('strict');
 

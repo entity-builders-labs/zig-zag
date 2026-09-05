@@ -4,6 +4,7 @@ import axios from 'axios';
 import {
   INominatimApiService,
   NominatimResult,
+  NominatimSearchOptions,
 } from '../interfaces/nominatim.interface';
 
 const DEFAULT_API_URL = 'https://nominatim.openstreetmap.org/search';
@@ -93,7 +94,10 @@ export class NominatimApiService implements INominatimApiService {
     };
   }
 
-  async search(query: string): Promise<NominatimResult[]> {
+  async search(
+    query: string,
+    options?: NominatimSearchOptions,
+  ): Promise<NominatimResult[]> {
     try {
       const response = await axios.get<NominatimApiResponseItem[]>(
         this.apiUrl,
@@ -104,6 +108,15 @@ export class NominatimApiService implements INominatimApiService {
             format: 'jsonv2',
             limit: RESULT_LIMIT,
             addressdetails: 1,
+            // Restricting to a known destination country avoids a
+            // generic/common place name (e.g. "Cerro Alcázar") winning on
+            // global `importance` in an unrelated, more-documented country —
+            // verified live against the real API. Omitted entirely rather
+            // than sent empty when unknown, matching Nominatim's own
+            // expectation for this param.
+            ...(options?.countryCode
+              ? { countrycodes: options.countryCode.toLowerCase() }
+              : {}),
           },
           timeout: this.timeoutMs,
         },

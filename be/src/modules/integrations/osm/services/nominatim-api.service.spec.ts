@@ -85,6 +85,31 @@ describe('NominatimApiService', () => {
     );
   });
 
+  it('sends countrycodes when a countryCode option is passed', async () => {
+    mockedAxios.get.mockResolvedValue({ data: [] });
+
+    await service.search('Cerro Alcázar', { countryCode: 'AR' });
+
+    expect(mockedAxios.get).toHaveBeenCalledWith(
+      expect.stringContaining('nominatim.openstreetmap.org/search'),
+      expect.objectContaining({
+        params: expect.objectContaining({
+          q: 'Cerro Alcázar',
+          countrycodes: 'ar',
+        }),
+      }),
+    );
+  });
+
+  it('omits countrycodes entirely when no countryCode option is passed', async () => {
+    mockedAxios.get.mockResolvedValue({ data: [] });
+
+    await service.search('Barcelona');
+
+    const call = mockedAxios.get.mock.calls[0];
+    expect(call[1].params).not.toHaveProperty('countrycodes');
+  });
+
   it('throws when the request fails so callers can distinguish failure from no matches', async () => {
     mockedAxios.get.mockRejectedValue(new Error('network down'));
 

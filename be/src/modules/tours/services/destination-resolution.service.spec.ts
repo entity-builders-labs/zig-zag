@@ -249,6 +249,7 @@ describe('DestinationResolutionService', () => {
         displayName: 'Capital',
       },
       country: 'Argentina',
+      countryCode: 'AR',
     });
   });
 

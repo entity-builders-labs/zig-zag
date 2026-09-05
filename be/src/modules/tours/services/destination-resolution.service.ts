@@ -54,6 +54,15 @@ export interface DestinationResolutionAudit {
    * for the wrong one.
    */
   country?: string;
+  /**
+   * ISO 3166-1 alpha-2 country code, alongside `country` above — used to
+   * scope Nominatim hint lookups during Experience discovery/resolution
+   * (`countrycodes` param) so a generic/common place name doesn't match a
+   * same-named place in an unrelated country. Kept separate from `country`
+   * (English display name) since Nominatim's own address fields provide both
+   * and downstream consumers want different shapes.
+   */
+  countryCode?: string;
 }
 
 export type DestinationResolution =
@@ -227,6 +236,7 @@ export class DestinationResolutionService {
         displayName: best.displayName,
       } as const;
       const country = best.address?.country;
+      const countryCode = best.address?.countryCode;
       if (!boundary) {
         return {
           scale: 'point',
@@ -237,6 +247,7 @@ export class DestinationResolutionService {
               ? 'provider_failed'
               : 'boundary_unavailable',
           country,
+          countryCode,
         };
       }
 
@@ -246,6 +257,7 @@ export class DestinationResolutionService {
         attemptedQueries,
         selectedResult,
         country,
+        countryCode,
       };
     } catch (error: any) {
       this.logger.warn(
@@ -358,6 +370,7 @@ export class DestinationResolutionService {
       displayName: settlement.displayName,
     } as const;
     const country = settlement.address?.country;
+    const countryCode = settlement.address?.countryCode;
     const lookupCoordinates =
       coordinates ??
       (settlement.latitude !== undefined && settlement.longitude !== undefined
@@ -377,6 +390,7 @@ export class DestinationResolutionService {
         settlementResult,
         degradationReason: 'boundary_unavailable',
         country,
+        countryCode,
       };
     }
 
@@ -400,6 +414,7 @@ export class DestinationResolutionService {
             ? 'provider_failed'
             : 'boundary_unavailable',
         country,
+        countryCode,
       };
     }
 
@@ -415,6 +430,7 @@ export class DestinationResolutionService {
       settlementResult,
       selectedResult,
       country,
+      countryCode,
     };
   }
 
