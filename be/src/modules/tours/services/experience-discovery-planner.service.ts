@@ -29,42 +29,47 @@ export class ExperienceDiscoveryPlannerService {
    * search engines respond to search terms, not prompts.
    */
   plan(request: ExperienceDiscoveryRequest): ExperienceDiscoveryPlan {
-    const destination =
-      request.scope.destinationName?.trim() || 'the destination';
-    const themes = request.requestedThemes.filter(Boolean).slice(0, 5);
-    const traits = (request.preferredTraits ?? []).filter(Boolean).slice(0, 5);
+    const destination = request.scope.destinationName?.trim() ?? '';
+    const themes = request.requestedThemes
+      .map((value) => value.trim())
+      .filter(Boolean)
+      .slice(0, 5);
+    const traits = (request.preferredTraits ?? [])
+      .map((value) => value.trim())
+      .filter(Boolean)
+      .slice(0, 5);
     const intents = (request.requestedIntents ?? [])
       .map(normalizeFacet)
       .filter(Boolean)
       .slice(0, 5);
     const dayTripRequested = intents.includes('day_trip');
-    const otherIntents = intents.filter((intent) => intent !== 'day_trip');
+    const intentTerms = intents.map((intent) => intent.replace(/_/g, ' '));
     const semantic = request.semanticQuery?.trim();
 
-    const intentTerms = otherIntents.map((intent) => intent.replace(/_/g, ' '));
-    const preferenceTerms = [...themes, ...traits, ...intentTerms, semantic]
-      .filter(Boolean)
-      .slice(0, 12);
-
-    // Live testing against Tavily turned out to have far more run-to-run
-    // result-count variance than expected — the exact same query, called
-    // back to back with no change, returned anywhere from 0 to 20 results.
-    // That noise makes any single-sample "this wording broke it" claim
-    // unreliable, so treat the change below as a reasonable simplification,
-    // not a proven fix: mention the destination exactly once instead of
-    // repeating it (as the old `${destination} ... day trips from
-    // ${destination}` shape did), and drop the padding words after the
-    // preference terms ("returning the same day", "no overnight", "real
-    // named places") — shorter, no redundant destination mention, and the
-    // "same day, no overnight" meaning still reaches the extraction LLM via
-    // expectedEvidence below regardless of what the raw search query says.
-    const query = dayTripRequested
-      ? [destination, 'day trips from', ...preferenceTerms, 'walking tours']
-          .filter(Boolean)
-          .join(' ')
-      : [destination, ...preferenceTerms, 'real named places official tourism']
-          .filter(Boolean)
-          .join(' ');
+    // Live testing against Tavily showed far more run-to-run result-count
+    // variance than expected for the identical query (0 to 20 results with
+    // no code change at all), so no single-sample before/after comparison
+    // can prove one exact wording "safer" than another — every wording
+    // choice here is a reasonable simplification, not a proven fix.
+    //
+    // Every requested intent (day_trip included) is folded into the same
+    // flat term list as themes/traits instead of day_trip driving its own
+    // fixed phrase ("day trips from ... walking tours"/"real named places
+    // official tourism") — that fixed framing was never empirically shown
+    // to help, and a plain "day trip" keyword term is consistent with
+    // treating this as keywords, not prose ("search engines respond to
+    // search terms, not prompts" — see the query-length test below).
+    // `expectedEvidence` below is not read by anything downstream (verified
+    // across the codebase) — it does not carry the day-trip semantics
+    // anywhere the raw query text above doesn't already reach.
+    const queryTerms = [
+      destination,
+      ...themes,
+      ...traits,
+      ...intentTerms,
+      semantic,
+    ].filter(Boolean);
+    const query = [...new Set(queryTerms)].join(' ');
 
     return {
       queries: [

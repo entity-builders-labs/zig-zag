@@ -39,17 +39,20 @@ describe('ExperienceDiscoveryPlannerService', () => {
 
     const queries = plan.queries.map(({ query }) => query);
     expect(queries.length).toBeGreaterThan(0);
-    // "{destination} day trips from {preferences}...", not
-    // "{destination} ... day trips from {destination}" (repeating it) — a
-    // reasonable simplification (shorter, no redundant mention), not a
-    // proven fix: live testing showed Tavily's own result count varies a
-    // lot run to run for the identical query, so no single-sample
-    // before/after comparison can reliably prove one exact wording is
-    // "safe" and another "broken". The "same day, no overnight" semantic
-    // still reaches the extraction LLM via expectedEvidence below; it
-    // doesn't need to survive in the raw search query text too.
-    expect(queries[0]).toContain('Buenos Aires day trips from');
+    // day_trip is folded into the flat term list like any other intent —
+    // "{destination} {themes} {traits} day trip {semantic}" — instead of
+    // driving its own fixed phrase ("day trips from ... walking tours").
+    // That fixed framing was never empirically shown to help (Tavily's own
+    // result count varies a lot run to run for the identical query, so no
+    // single-sample before/after comparison can reliably prove one exact
+    // wording "safe" and another "broken"); `expectedEvidence` below is not
+    // read by anything downstream, so it does not carry this semantic
+    // either — the plain "day trip" term is the only thing conveying it.
+    expect(queries[0]).toContain('Buenos Aires');
     expect(queries[0].match(/Buenos Aires/g)?.length).toBe(1);
+    expect(queries[0]).toContain('day trip');
+    expect(queries[0]).not.toContain('day trips from');
+    expect(queries[0]).not.toContain('walking tours');
     expect(queries[0]).not.toContain('returning the same day');
     expect(queries[0]).not.toContain('no overnight');
     expect(JSON.stringify(plan)).not.toMatch(
@@ -69,6 +72,20 @@ describe('ExperienceDiscoveryPlannerService', () => {
     expect(plan.queries[0].query).toContain('Buenos Aires');
     expect(plan.queries[0].query).toContain('walk');
     expect(plan.queries[0].query).not.toContain('day trips from Buenos Aires');
+    expect(plan.queries[0].query).not.toContain('real named places');
+  });
+
+  it('deduplicates repeated terms instead of joining them twice', () => {
+    // e.g. semanticQuery overlapping a requested theme verbatim.
+    const plan = new ExperienceDiscoveryPlannerService().plan({
+      scope: { destinationName: 'Mendoza' },
+      requestedThemes: ['wine'],
+      semanticQuery: 'wine',
+      breadth: 'focused',
+      maxCandidates: 8,
+    });
+
+    expect(plan.queries[0].query.match(/\bwine\b/gi)?.length).toBe(1);
   });
 
   it('plans exactly one query combining every preference, not one per theme/trait/intent', () => {
