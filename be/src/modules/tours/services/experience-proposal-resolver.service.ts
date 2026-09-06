@@ -16,9 +16,10 @@ import { CompositeGeographicValidationService } from './composite-geographic-val
 import { ExperienceEmbeddingIndexerService } from '@shared/ai/services/experience-embedding-indexer.service';
 import { calculateDistance, Coordinates } from '@shared/utils/distance.utils';
 import {
+  ExperienceEntityResolutionResponse,
   ExperienceProposalResolver,
   ExperienceResolutionRequest,
-  ExperienceResolutionResponse,
+  FinalExperienceResolutionResponse,
   ResolvedExperienceCandidate,
   ResolvedGeoEntity,
 } from '../interfaces/experience-resolution.interface';
@@ -53,7 +54,7 @@ export class ExperienceProposalResolverService
 
   async resolve(
     input: ExperienceResolutionRequest,
-  ): Promise<ExperienceResolutionResponse> {
+  ): Promise<FinalExperienceResolutionResponse> {
     const candidates = Array.isArray(input?.candidates) ? input.candidates : [];
     const evidence = input.evidence ?? [];
     const boundary = input?.destinationBoundary as OsmCandidate | undefined;
@@ -222,7 +223,7 @@ export class ExperienceProposalResolverService
       `Resolved ${resolved.filter((item) => item.status === 'accepted').length}/${resolved.length} Experience candidate(s) against trusted geography`,
     );
 
-    const entityResolution: ExperienceResolutionResponse = {
+    const entityResolution: ExperienceEntityResolutionResponse = {
       totalCandidates: resolvedCandidates.length,
       acceptedCount: acceptedForValidation.length,
       rejectedCount: resolvedCandidates.length - acceptedForValidation.length,

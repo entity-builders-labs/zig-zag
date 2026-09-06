@@ -127,20 +127,37 @@ export interface ExperienceMaterializationResponse {
   resolved: ResolvedExperienceCandidate[];
 }
 
+export interface ExperienceEntityResolutionResponse {
+  totalCandidates: number;
+  acceptedCount: number;
+  rejectedCount: number;
+  resolved: ResolvedExperienceCandidate[];
+}
+
+/**
+ * Shared resolution shape used by intermediate trace/test fixtures. The final
+ * V2 resolver result is refined below so geographic validation cannot be
+ * omitted from the canonical pipeline.
+ */
 export interface ExperienceResolutionResponse {
   totalCandidates: number;
   acceptedCount: number;
   rejectedCount: number;
   resolved: ResolvedExperienceCandidate[];
-  entityResolution?: ExperienceResolutionResponse;
+  entityResolution?: ExperienceEntityResolutionResponse;
   geographicValidation?: ExperienceGeographicValidationBatchResult;
   materialization?: ExperienceMaterializationResponse;
+}
+
+export interface FinalExperienceResolutionResponse
+  extends ExperienceResolutionResponse {
+  geographicValidation: ExperienceGeographicValidationBatchResult;
 }
 
 export interface ExperienceProposalResolver {
   resolve(
     request: ExperienceResolutionRequest,
-  ): Promise<ExperienceResolutionResponse>;
+  ): Promise<FinalExperienceResolutionResponse>;
 }
 
 export const EXPERIENCE_PROPOSAL_RESOLVER = 'EXPERIENCE_PROPOSAL_RESOLVER';

@@ -806,7 +806,8 @@ describe('Experience V2 CP8 mandatory selection scenarios at scale', () => {
       .expect(200);
     expect(response.body.metadata.generationStatus).toBe('completed');
     expect(
-      (await prisma.outboxEvent.findUnique({ where: { id: event!.id } }))?.status,
+      (await prisma.outboxEvent.findUnique({ where: { id: event!.id } }))
+        ?.status,
     ).toBe('PUBLISHED');
     return response.body;
   }
