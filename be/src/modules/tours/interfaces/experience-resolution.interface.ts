@@ -8,6 +8,8 @@ export interface ResolvedGeoEntity {
   hintName: string;
   provider: string;
   externalId?: string;
+  /** Present when status === 'resolved' — see persistOsmEntity/resolveViaNominatim/resolveViaPlaces, each of which attaches this via Object.assign after upserting the real GeoEntity. */
+  geoEntityId?: string;
   canonicalName?: string | null;
   latitude?: number | null;
   longitude?: number | null;

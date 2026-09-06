@@ -5,6 +5,18 @@ export interface ExperienceGroundedSearchRequest {
   requestedThemes: string[];
   additionalPreferences?: string;
   query: string;
+  /**
+   * Soft Experience facets (walk, route_like, day_trip, visit, food — see
+   * TourIntentDto.intents), structured rather than folded into `query`'s
+   * flat keyword join. Providers that need to react to a specific facet
+   * (e.g. TavilyGroundedSearchService phrasing a walk/route request
+   * differently — verified live: "caminatas" alone reads as
+   * hiking/trekking in Spanish, "icónicas" disambiguates to urban walking
+   * routes) should read this instead of string-sniffing `query`. Optional
+   * and currently read only by Tavily — every other provider's behavior is
+   * unchanged by its presence.
+   */
+  requestedIntents?: string[];
 }
 
 export interface ExperienceGroundingEvidence {

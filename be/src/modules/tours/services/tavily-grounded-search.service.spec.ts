@@ -320,4 +320,93 @@ describe('TavilyGroundedSearchService', () => {
     expect(result.evidence[0].snippet.length).toBeLessThan(longContent.length);
     expect(result.evidence[0].snippet.length).toBeLessThanOrEqual(6000);
   });
+
+  describe('walk/route_like query phrasing', () => {
+    // Verified live against the real Tavily API: the planner's flat keyword
+    // join ("{destination} history culture walk") returns commercial
+    // tour-booking listings, not the itemized city guides that actually name
+    // a route's stops; "N caminatas icónicas en {destino}" (Spanish) or "N
+    // iconic walking routes in {destino}" (elsewhere) returns real enumerated
+    // walk articles instead. Also verified live: without "icónicas", plain
+    // "caminatas en {destino}" reads as senderismo/trekking in Spanish, not
+    // urban walking routes — that qualifier is doing real disambiguating
+    // work, not just adding words.
+    function expectQuery(
+      req: ExperienceGroundedSearchRequest,
+      expected: string,
+    ) {
+      return async () => {
+        const config = {
+          get: jest.fn().mockReturnValue('tvly-test'),
+        } as unknown as ConfigService;
+        const service = new TavilyGroundedSearchService(
+          config,
+          tavilyExtract(),
+        );
+        global.fetch = jest.fn().mockResolvedValue({
+          ok: true,
+          json: async () => ({ results: [] as any[] }),
+        }) as jest.Mock;
+
+        await service.search(req);
+
+        const [, options] = (global.fetch as jest.Mock).mock.calls[0];
+        const body = JSON.parse(options.body);
+        expect(body.query).toBe(expected);
+      };
+    }
+
+    it(
+      'builds a Spanish "iconic walks" phrase for a Spanish-speaking destination when walk is requested',
+      expectQuery(
+        { ...request, requestedIntents: ['walk'] },
+        '10 caminatas icónicas en Gualeguaychú',
+      ),
+    );
+
+    it(
+      'builds the same Spanish phrase for route_like too, not just walk',
+      expectQuery(
+        { ...request, requestedIntents: ['route_like'] },
+        '10 caminatas icónicas en Gualeguaychú',
+      ),
+    );
+
+    it(
+      'builds an English "iconic walking routes" phrase for a non-Spanish-speaking destination',
+      expectQuery(
+        {
+          ...request,
+          destinationCountry: 'France',
+          requestedIntents: ['walk'],
+        },
+        '10 iconic walking routes in Gualeguaychú',
+      ),
+    );
+
+    it(
+      'builds the English phrase when destinationCountry is unknown',
+      expectQuery(
+        {
+          ...request,
+          destinationCountry: undefined,
+          requestedIntents: ['walk'],
+        },
+        '10 iconic walking routes in Gualeguaychú',
+      ),
+    );
+
+    it(
+      "ignores the walk phrasing and trusts the planner's query when neither walk nor route_like is requested",
+      expectQuery(
+        { ...request, requestedIntents: ['visit', 'food'] },
+        request.query,
+      ),
+    );
+
+    it(
+      'ignores the walk phrasing when requestedIntents is absent (unaffected default)',
+      expectQuery(request, request.query),
+    );
+  });
 });

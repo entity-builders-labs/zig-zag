@@ -231,6 +231,94 @@ describe('ExperienceProposalResolverService', () => {
     expect(result.resolved[0].experienceId).toBe('exp-caminito');
   });
 
+  it("dedupes components by geoEntityId before persisting (real regression: two hints of one candidate reconciled onto the same GeoEntity, crashing on ExperienceComponent's unique constraint)", async () => {
+    // Verified live: a Recoleta candidate proposed an "area" hint ("Recoleta")
+    // and a "venue" hint naming something inside it — cross-provider
+    // reconciliation (ExperienceCatalogService.upsertGeoEntity, added earlier
+    // this recovery) correctly resolved both onto the *same* real GeoEntity,
+    // but nothing deduped `components` before persistVerifiedExperience's
+    // nested `components: { create: [...] } }` — inserting the same
+    // (experienceId, geoEntityId) pair twice crashed the whole generation on
+    // ExperienceComponent's unique constraint.
+    const osmPlaces = {
+      lookupStreetsWithin: jest
+        .fn()
+        .mockResolvedValue({ status: 'success', value: [] }),
+      lookupPoisWithin: jest.fn().mockResolvedValue({
+        status: 'success',
+        value: [
+          {
+            id: 'osm:node:1',
+            name: 'Recoleta Cultural Center',
+            osmType: 'node',
+            osmId: 1,
+            geometry: { type: 'Point', coordinates: [-58.393, -34.587] },
+            tags: {},
+          },
+        ],
+      }),
+    };
+    const twoHintCandidate: ExperienceCandidate = {
+      name: 'Recoleta Walk',
+      themes: ['culture'],
+      traits: [],
+      intents: ['walk'],
+      componentHints: [
+        {
+          key: 'area',
+          name: 'Recoleta',
+          role: 'area',
+          expectedKind: 'AREA',
+          required: true,
+          evidenceKeys: ['ev-1'],
+        },
+        {
+          key: 'venue',
+          name: 'Recoleta Cultural Center',
+          role: 'venue',
+          expectedKind: 'PLACE',
+          required: true,
+          evidenceKeys: ['ev-1'],
+        },
+      ],
+      evidenceKeys: ['ev-1'],
+      shortReason: 'A cultural walk through Recoleta',
+    };
+    const catalog = {
+      resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+      // Both hints reconcile onto the same real place, exactly like
+      // ExperienceCatalogService.upsertGeoEntity's own proximity+name
+      // reconciliation now does across candidates — here simulated within
+      // one candidate to isolate the dedup this test targets.
+      upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-shared' }),
+      persistVerifiedExperience: jest.fn().mockResolvedValue({
+        id: 'exp-recoleta',
+        dedupeDecision: 'NEW',
+      }),
+    };
+    const geographicValidator = {
+      validate: jest.fn().mockReturnValue(acceptedValidation('Recoleta Walk')),
+    };
+    const service = new ExperienceProposalResolverService(
+      osmPlaces as any,
+      catalog as any,
+      geographicValidator as any,
+    );
+
+    const result = await service.resolve({
+      destinationName: 'Recoleta, Buenos Aires',
+      destinationBoundary: { ...boundary, name: 'Recoleta' },
+      candidates: [twoHintCandidate],
+    });
+
+    expect(result.acceptedCount).toBe(1);
+    expect(catalog.persistVerifiedExperience).toHaveBeenCalledWith(
+      expect.objectContaining({
+        components: [expect.objectContaining({ geoEntityId: 'geo-shared' })],
+      }),
+    );
+  });
+
   it('resolves candidate traits into traitDefinitionIds and threads them into persistence (CP3-3)', async () => {
     const osmPlaces = {
       lookupStreetsWithin: jest

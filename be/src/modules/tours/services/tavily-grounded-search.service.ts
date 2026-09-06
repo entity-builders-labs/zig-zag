@@ -39,6 +39,33 @@ const MAX_EXTRACT_CANDIDATES = 5;
 // extractor's own prompt budget.
 const MAX_EXTRACTED_CONTENT_CHARS = 6000;
 
+// destinationCountry carries Nominatim's own English-language `address.country`
+// field (see DestinationResolutionAudit's own doc comment) — matched here in
+// that same form, not the ISO code (which the grounded-search request doesn't
+// currently carry) and not a Spanish self-name.
+const SPANISH_SPEAKING_COUNTRIES = new Set([
+  'Argentina',
+  'Bolivia',
+  'Chile',
+  'Colombia',
+  'Costa Rica',
+  'Cuba',
+  'Dominican Republic',
+  'Ecuador',
+  'El Salvador',
+  'Equatorial Guinea',
+  'Guatemala',
+  'Honduras',
+  'Mexico',
+  'Nicaragua',
+  'Panama',
+  'Paraguay',
+  'Peru',
+  'Spain',
+  'Uruguay',
+  'Venezuela',
+]);
+
 @Injectable()
 export class TavilyGroundedSearchService implements GroundedSearchProvider {
   private readonly logger = new Logger(TavilyGroundedSearchService.name);
@@ -150,6 +177,28 @@ export class TavilyGroundedSearchService implements GroundedSearchProvider {
   }
 
   private buildSearchQuery(request: GroundedSearchRequest): string {
+    // A walk/route request gets its own phrasing — verified live against the
+    // real API: ExperienceDiscoveryPlannerService's flat keyword join (e.g.
+    // "Palermo, Buenos Aires ... history culture walk") returns commercial
+    // tour-booking pages (GetYourGuide/Viator-style "15 BEST Walking Tours
+    // (with Prices)"), not the itemized city guides that actually name a
+    // route's stops. "N caminatas icónicas en {destino}" instead surfaces
+    // real enumerated-walk articles (AllTrails city guides, "todos los
+    // imprescindibles ... para descubrirlos a pie"). Two things about that
+    // phrasing turned out to matter, both verified live, not assumed: the
+    // requested count (a bare destination+theme query never reads as "give
+    // me a list"), and — in Spanish specifically — "icónicas": without it,
+    // "caminatas" alone reads as senderismo/trekking (hiking trails in the
+    // surrounding Province), not urban walking routes in the city itself.
+    // Scoped to Tavily only (not the shared planner) because Gemini's own
+    // prompt already embeds `query` as one line inside a larger natural-
+    // language instruction it was designed and worded around — untested
+    // with this phrasing, per its own doc comment (quota exhausted every
+    // live attempt this session).
+    if (this.isWalkOrRouteRequest(request)) {
+      return this.buildWalkQuery(request);
+    }
+
     // Trust the caller's already-built query whenever one exists — same
     // contract as SerpApiGroundedSearchService/GroqGroundedSearchService, so
     // swapping providers is actually transparent. The previous 200-char/
@@ -163,6 +212,24 @@ export class TavilyGroundedSearchService implements GroundedSearchProvider {
       return raw;
     }
     return this.buildFallbackQuery(request);
+  }
+
+  private isWalkOrRouteRequest(request: GroundedSearchRequest): boolean {
+    const intents = request.requestedIntents ?? [];
+    return intents.includes('walk') || intents.includes('route_like');
+  }
+
+  private buildWalkQuery(request: GroundedSearchRequest): string {
+    const destination = request.destinationName;
+    if (this.isSpanishSpeakingCountry(request.destinationCountry)) {
+      return `10 caminatas icónicas en ${destination}`;
+    }
+    return `10 iconic walking routes in ${destination}`;
+  }
+
+  private isSpanishSpeakingCountry(country: string | undefined): boolean {
+    if (!country) return false;
+    return SPANISH_SPEAKING_COUNTRIES.has(country.trim());
   }
 
   private buildFallbackQuery(request: GroundedSearchRequest): string {

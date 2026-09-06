@@ -151,20 +151,20 @@ export class ExperienceProposalResolverService
             source: 'grounded_experience_discovery',
           },
           traitDefinitionIds,
-          components: candidate.resolvedEntities
-            .filter(
+          components: this.dedupeResolvedEntitiesByGeoEntity(
+            candidate.resolvedEntities.filter(
               (entity: any) =>
                 entity.status === 'resolved' && entity.geoEntityId,
-            )
-            .map((entity: any, index: number) => ({
-              geoEntityId: entity.geoEntityId,
-              // Only a real, evidence-backed visiting sequence earns a
-              // concrete order — otherwise this is resolution/array order,
-              // not intrinsic sequence, and must persist as null.
-              order: candidate.candidate.orderedByEvidence ? index + 1 : null,
-              role: entity.role,
-              required: true,
-            })),
+            ),
+          ).map((entity: any, index: number) => ({
+            geoEntityId: entity.geoEntityId,
+            // Only a real, evidence-backed visiting sequence earns a
+            // concrete order — otherwise this is resolution/array order,
+            // not intrinsic sequence, and must persist as null.
+            order: candidate.candidate.orderedByEvidence ? index + 1 : null,
+            role: entity.role,
+            required: true,
+          })),
           evidence: evidence
             .filter((item: { key?: string }) =>
               candidate.candidate.evidenceKeys?.includes(item.key ?? ''),
@@ -772,6 +772,32 @@ export class ExperienceProposalResolverService
     }
 
     return candidates.sort((a, b) => b.importance - a.importance)[0];
+  }
+
+  /**
+   * Two different componentHints of the *same* candidate can resolve onto
+   * the *same* real GeoEntity — verified live: ExperienceCatalogService's own
+   * cross-provider reconciliation (added earlier this recovery, so the same
+   * real place stops minting duplicate GeoEntity rows across *different*
+   * candidates/generations) makes this more likely, not less, since two
+   * hints in one candidate that name near-identical/overlapping real places
+   * now correctly land on one entity instead of two separate ones. Without
+   * this, `persistVerifiedExperience`'s nested `components: { create: [...] }`
+   * would insert the same (experienceId, geoEntityId) pair twice, crashing
+   * on ExperienceComponent's own unique constraint — reproduced live: a
+   * Recoleta candidate's "area" and "venue" hints reconciled onto one
+   * GeoEntity, aborting the whole generation. Keeps the first occurrence
+   * (preserves array order for `orderedByEvidence`'s sequential numbering).
+   */
+  private dedupeResolvedEntitiesByGeoEntity<T extends { geoEntityId?: string }>(
+    entities: T[],
+  ): T[] {
+    const seen = new Set<string>();
+    return entities.filter((entity) => {
+      if (!entity.geoEntityId || seen.has(entity.geoEntityId)) return false;
+      seen.add(entity.geoEntityId);
+      return true;
+    });
   }
 
   private matchCandidate(

@@ -371,6 +371,7 @@ export class ExperienceGenerationService {
           requestedThemes: interests,
           additionalPreferences,
           query: plannedQuery.query,
+          requestedIntents,
         });
         searchTrace.push(
           redactTracePayload({
