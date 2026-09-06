@@ -22,8 +22,12 @@ import {
 // for the daily-planning solver to know they were the same place. Tight
 // enough to not conflate two distinct, unrelated things that happen to sit
 // close together (e.g. a plaza and the café facing it); wide enough to
-// absorb real cross-provider geocoding jitter for the same building/plaza.
-const GEO_ENTITY_RECONCILIATION_RADIUS_METERS = 75;
+// absorb real cross-provider geocoding jitter for the same building/plaza —
+// also verified live: a real, extended place (Caminito, a ~150-200m
+// pedestrian street in La Boca, not a small point) resolved ~80m apart across
+// two paths and slipped past an earlier 75m radius, so this needs to cover a
+// street-scale feature's own real extent, not just point jitter.
+const GEO_ENTITY_RECONCILIATION_RADIUS_METERS = 150;
 
 export interface GeoEntityInput {
   name: string;

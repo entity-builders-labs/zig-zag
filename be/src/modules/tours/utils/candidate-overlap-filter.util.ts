@@ -5,8 +5,10 @@ import { calculateDistance } from '@shared/utils/distance.utils';
 // kept in sync deliberately, since this filter exists to catch the cases
 // that reconciliation can't: candidates whose overlapping GeoEntity rows
 // were already-persisted duplicates from *before* that fix existed, or from
-// any other gap that lets the same real place end up under two ids.
-const OVERLAP_RADIUS_METERS = 75;
+// any other gap that lets the same real place end up under two ids. See that
+// constant's own comment for why 150m, not a tighter point-scale radius —
+// verified live with a real extended place (Caminito, La Boca).
+const OVERLAP_RADIUS_METERS = 150;
 
 export interface OverlapCandidateComponent {
   name?: string | null;
