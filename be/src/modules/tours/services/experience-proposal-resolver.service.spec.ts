@@ -115,6 +115,122 @@ describe('ExperienceProposalResolverService', () => {
     );
   });
 
+  it('uses radius-based OSM lookups for a point-scale destination instead of "within area" (real regression: Caminito/Calle Defensa)', async () => {
+    // Verified live: a point-scale destination's boundary is a synthetic
+    // placeholder (osmId: 0) — a real "within area" Overpass query
+    // (queryStreetsWithinArea/queryPoisWithinArea) rejects it outright with
+    // an HTTP 400 ("only positive integers are allowed"), not a slow query
+    // or an empty result. Every ROUTE-kind componentHint for a point-scale
+    // destination was unconditionally unresolvable because of this — PLACE
+    // hints alone have a global fallback (Nominatim/Places) that papers over
+    // the same gap.
+    const pointScaleBoundary: any = {
+      id: 'point-radius-scope',
+      name: 'La Boca, Buenos Aires',
+      osmType: 'relation',
+      osmId: 0,
+      geometry: {
+        type: 'Polygon',
+        coordinates: [
+          [
+            [-58.37, -34.64],
+            [-58.35, -34.64],
+            [-58.35, -34.62],
+            [-58.37, -34.62],
+            [-58.37, -34.64],
+          ],
+        ],
+      },
+      tags: {},
+    };
+    const osmPlaces = {
+      lookupStreetsWithin: jest.fn(),
+      lookupPoisWithin: jest.fn(),
+      lookupStreetsNear: jest.fn().mockResolvedValue({
+        status: 'success',
+        value: [
+          {
+            id: 'osm:way:1',
+            name: 'Caminito',
+            osmType: 'way',
+            osmId: 1,
+            geometry: {
+              type: 'LineString',
+              coordinates: [
+                [-58.363, -34.635],
+                [-58.362, -34.634],
+              ],
+            },
+            tags: { highway: 'pedestrian' },
+          },
+        ],
+      }),
+      lookupPoisNear: jest
+        .fn()
+        .mockResolvedValue({ status: 'success', value: [] }),
+    };
+    const routeCandidate: ExperienceCandidate = {
+      name: 'Caminito Route',
+      themes: ['culture'],
+      traits: [],
+      intents: ['walk'],
+      componentHints: [
+        {
+          key: 'street',
+          name: 'Caminito',
+          role: 'route',
+          expectedKind: 'ROUTE',
+          required: true,
+          evidenceKeys: ['ev-1'],
+        },
+      ],
+      evidenceKeys: ['ev-1'],
+      shortReason: 'A real, named pedestrian street',
+    };
+    const catalog = {
+      resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+      upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-caminito' }),
+      persistVerifiedExperience: jest.fn().mockResolvedValue({
+        id: 'exp-caminito',
+        dedupeDecision: 'NEW',
+      }),
+    };
+    const geographicValidator = {
+      validate: jest.fn().mockReturnValue(acceptedValidation('Caminito Route')),
+    };
+    const service = new ExperienceProposalResolverService(
+      osmPlaces as any,
+      catalog as any,
+      geographicValidator as any,
+    );
+
+    const result = await service.resolve({
+      destinationName: 'La Boca, Buenos Aires',
+      destinationBoundary: pointScaleBoundary,
+      destinationPointRadius: {
+        latitude: -34.6345,
+        longitude: -58.3631,
+        radiusMeters: 1200,
+      },
+      candidates: [routeCandidate],
+    });
+
+    expect(osmPlaces.lookupStreetsNear).toHaveBeenCalledWith(
+      -34.6345,
+      -58.3631,
+      1200,
+    );
+    expect(osmPlaces.lookupPoisNear).toHaveBeenCalledWith(
+      -34.6345,
+      -58.3631,
+      1200,
+    );
+    expect(osmPlaces.lookupStreetsWithin).not.toHaveBeenCalled();
+    expect(osmPlaces.lookupPoisWithin).not.toHaveBeenCalled();
+    expect(result.acceptedCount).toBe(1);
+    expect(result.resolved[0].experienceId).toBe('exp-caminito');
+  });
+
   it('resolves candidate traits into traitDefinitionIds and threads them into persistence (CP3-3)', async () => {
     const osmPlaces = {
       lookupStreetsWithin: jest

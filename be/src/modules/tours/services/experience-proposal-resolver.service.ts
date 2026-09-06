@@ -61,9 +61,28 @@ export class ExperienceProposalResolverService
       throw new Error('Experience resolution requires destinationBoundary');
     }
 
+    // A point-scale destination has no real OSM area/relation — boundary
+    // here is a synthetic point-radius placeholder (osmId: 0) that a real
+    // "within area" Overpass query rejects outright (verified live:
+    // relation(0) returns a hard HTTP 400, not a slow query or an empty
+    // result). Use the radius-based lookups instead whenever the caller
+    // tells us this destination degraded to point-scale.
+    const pointRadius = input.destinationPointRadius;
     const [streetLookup, poiLookup] = await Promise.all([
-      this.osmPlaces.lookupStreetsWithin(boundary),
-      this.osmPlaces.lookupPoisWithin(boundary),
+      pointRadius
+        ? this.osmPlaces.lookupStreetsNear(
+            pointRadius.latitude,
+            pointRadius.longitude,
+            pointRadius.radiusMeters,
+          )
+        : this.osmPlaces.lookupStreetsWithin(boundary),
+      pointRadius
+        ? this.osmPlaces.lookupPoisNear(
+            pointRadius.latitude,
+            pointRadius.longitude,
+            pointRadius.radiusMeters,
+          )
+        : this.osmPlaces.lookupPoisWithin(boundary),
     ]);
 
     const resolvedCandidates = await Promise.all(

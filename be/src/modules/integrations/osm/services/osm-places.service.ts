@@ -152,6 +152,56 @@ export class OsmPlacesService {
   }
 
   /**
+   * Radius-based sibling of findPoisWithin, for a point-scale destination —
+   * one with no real OSM area/relation to scope a `map_to_area` query
+   * against (queryPoisWithinArea's `osmId` would be a synthetic placeholder,
+   * which Overpass itself rejects outright: verified live, `relation(0)`
+   * returns a hard HTTP 400 "only positive integers are allowed", not a slow
+   * query or an empty result). Never throws, same defensive fallback as
+   * findStreetsNear.
+   */
+  async findPoisNear(
+    latitude: number,
+    longitude: number,
+    radiusMeters: number,
+  ): Promise<OsmCandidate[]> {
+    return (await this.lookupPoisNear(latitude, longitude, radiusMeters)).value;
+  }
+
+  async lookupPoisNear(
+    latitude: number,
+    longitude: number,
+    radiusMeters: number,
+  ): Promise<OsmLookupResult<OsmCandidate[]>> {
+    const cappedRadiusMeters = Math.min(
+      radiusMeters,
+      this.maxStreetsRadiusMeters,
+    );
+    try {
+      const elements = await this.overpassApi.queryPois({
+        latitude,
+        longitude,
+        radiusMeters: cappedRadiusMeters,
+      });
+      return {
+        status: 'success',
+        value: elements
+          .map((el) => this.toCandidate(el))
+          .filter((c): c is OsmCandidate => c !== null),
+      };
+    } catch (error: any) {
+      this.logger.warn(
+        `Overpass queryPois failed, continuing without POI candidates: ${error.message}`,
+      );
+      return {
+        status: 'failed',
+        value: [],
+        failureReason: error.message || 'unknown Overpass error',
+      };
+    }
+  }
+
+  /**
    * The neighborhood/administrative boundary that contains a point — the
    * area candidate offered to the LLM so it never has to invent which
    * experience grouping a composite belongs to. Never throws, same defensive

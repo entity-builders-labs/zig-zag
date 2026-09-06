@@ -1163,6 +1163,13 @@ export class ExperienceGenerationService {
                   destinationName: request.destination.label,
                   destinationCountryCode: destinationResolution.countryCode,
                   destinationBoundary: destinationScope,
+                  destinationPointRadius: isAreaScale
+                    ? undefined
+                    : {
+                        latitude: request.destination.latitude,
+                        longitude: request.destination.longitude,
+                        radiusMeters: searchArea.radiusMeters,
+                      },
                   evidence: discoveryResult.evidence,
                 });
                 traceSteps.push(

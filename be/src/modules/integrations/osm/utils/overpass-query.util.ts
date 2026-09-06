@@ -65,6 +65,31 @@ export function buildStreetsQuery({
   ].join('\n');
 }
 
+// Radius-based sibling of buildPoisWithinAreaQuery, for a point-scale
+// destination (no real OSM area/relation to scope a `map_to_area` query
+// against) — same tag filters, `around:radius,lat,lon` instead of an area
+// reference. See ExperienceProposalResolverService's own use of this: a
+// destination that degraded to point-scale has no real osmId to query
+// "within", so lookupPoisWithin/lookupStreetsWithin must not be used for it.
+export function buildPoisQuery({
+  latitude,
+  longitude,
+  radiusMeters,
+}: QueryStreetsParams): string {
+  const around = `(around:${radiusMeters},${latitude},${longitude})`;
+  return [
+    '[out:json][timeout:25];',
+    '(',
+    `  nwr["tourism"]["name"]${around};`,
+    `  nwr["amenity"~"^(marketplace|place_of_worship)$"]["name"]${around};`,
+    `  nwr["historic"]["name"]${around};`,
+    `  nwr["leisure"~"^(park|square|beach_resort)$"]["name"]${around};`,
+    `  nwr["natural"="beach"]["name"]${around};`,
+    ');',
+    'out tags center;',
+  ].join('\n');
+}
+
 export function buildBoundaryByIdQuery({
   osmType,
   osmId,

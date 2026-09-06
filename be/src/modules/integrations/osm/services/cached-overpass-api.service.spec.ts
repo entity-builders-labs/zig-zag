@@ -20,6 +20,7 @@ describe('CachedOverpassApiService', () => {
       queryAdminBoundariesWithinArea: jest.fn(),
       queryStreetsWithinArea: jest.fn(),
       queryPoisWithinArea: jest.fn(),
+      queryPois: jest.fn(),
     };
   });
 

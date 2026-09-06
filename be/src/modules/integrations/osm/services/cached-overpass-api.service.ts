@@ -144,4 +144,10 @@ export class CachedOverpassApiService implements IOverpassApiService {
       this.realService.queryPoisWithinArea(params),
     );
   }
+
+  async queryPois(params: QueryStreetsParams): Promise<OverpassElement[]> {
+    return this.handleRequest('queryPois', params, () =>
+      this.realService.queryPois(params),
+    );
+  }
 }

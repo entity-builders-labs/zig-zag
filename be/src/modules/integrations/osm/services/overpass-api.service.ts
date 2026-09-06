@@ -18,6 +18,7 @@ import {
   buildAdminBoundariesWithinAreaQuery,
   buildStreetsWithinAreaQuery,
   buildPoisWithinAreaQuery,
+  buildPoisQuery,
 } from '../utils/overpass-query.util';
 import { OverpassConcurrencyLimiter } from '../utils/overpass-concurrency.util';
 
@@ -199,5 +200,9 @@ export class OverpassApiService implements IOverpassApiService {
     params: QueryByIdParams,
   ): Promise<OverpassElement[]> {
     return this.execute(buildPoisWithinAreaQuery(params));
+  }
+
+  async queryPois(params: QueryStreetsParams): Promise<OverpassElement[]> {
+    return this.execute(buildPoisQuery(params));
   }
 }

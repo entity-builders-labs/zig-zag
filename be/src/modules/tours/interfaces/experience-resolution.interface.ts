@@ -54,6 +54,24 @@ export interface ExperienceResolutionRequest {
    */
   destinationCountryCode?: string;
   destinationBoundary: unknown;
+  /**
+   * Present only when the destination degraded to point-scale (no real OSM
+   * area/relation was found — see DestinationResolutionService). Tells the
+   * resolver to scope its own street/POI lookups by radius
+   * (OsmPlacesService.lookupStreetsNear/lookupPoisNear) instead of "within"
+   * a boundary — destinationBoundary in that case is a synthetic
+   * point-radius placeholder (`osmId: 0`) that a real "within area" Overpass
+   * query rejects outright (verified live: `relation(0)` returns a hard
+   * HTTP 400, "only positive integers are allowed" — not a slow query or an
+   * empty result). Without this, every ROUTE/AREA componentHint for a
+   * point-scale destination was unconditionally unresolvable, since PLACE
+   * hints alone have a global Nominatim/Places fallback for exactly this gap.
+   */
+  destinationPointRadius?: {
+    latitude: number;
+    longitude: number;
+    radiusMeters: number;
+  };
   traceContext?: Record<string, unknown>;
   evidence?: Array<{
     key?: string;
