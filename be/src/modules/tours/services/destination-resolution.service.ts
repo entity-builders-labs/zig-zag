@@ -106,6 +106,11 @@ export class DestinationResolutionService {
   ): Promise<DestinationResolution> {
     const attemptedQueries: string[] = [];
     if (scaleHint === DestinationScaleHint.SPECIFIC_POINT) {
+      // Deliberately no reverse-geocode here — an autocomplete-selected exact
+      // point is trusted as-is, never "widened" by re-deriving anything about
+      // it (see this branch's own test). The country-context gap fixed below
+      // is specifically for a destination that *tried* to resolve an area
+      // and fell back to point-scale, not this already-precise case.
       return {
         scale: 'point',
         attemptedQueries,
@@ -125,6 +130,11 @@ export class DestinationResolutionService {
       const originalResults = await this.nominatimApi.search(destinationText);
       let candidates = originalResults;
       let reverseResult: NominatimResult | null = null;
+      // Distinct from `reverseResult` truthiness: a reverse lookup that ran
+      // and genuinely returned null still means "don't bother calling
+      // reverse again below just to recover country context" — only a
+      // lookup that never ran at all should trigger that fallback call.
+      let reverseAttempted = false;
 
       let best = this.selectAreaCandidate(candidates, coordinates);
       const originalResultsMatchCoordinates = coordinates
@@ -161,6 +171,7 @@ export class DestinationResolutionService {
           coordinates.latitude,
           coordinates.longitude,
         );
+        reverseAttempted = true;
         const locality = reverseResult
           ? this.getStructuredLocality(reverseResult)
           : undefined;
@@ -216,12 +227,39 @@ export class DestinationResolutionService {
             attemptedQueries,
           );
         }
+        // Neither an area nor a settlement candidate exists — common for a
+        // neighborhood-level destination ("La Boca", "San Telmo", "Palermo",
+        // "Recoleta"): Nominatim classifies these as `suburb`, never
+        // city/town/village, so the reverse-geocode enrichment above never
+        // even ran (originalResultsContainSelectedPoint was already true).
+        // country/countryCode still matter downstream — every Nominatim hint
+        // lookup during Experience discovery is scoped to this country
+        // (ExperienceProposalResolverService) — even though the destination
+        // itself degrades to point-scale here. Verified live: skipping this
+        // left countryCode undefined for a real La Boca generation, and a
+        // same/similar-named place in Guadalajara, Mexico won a hint
+        // resolution ("Teatro de la Ribera") that should have stayed in
+        // Argentina. Reuse reverseResult if a reverse lookup already ran
+        // above (even one that returned null — no point asking twice);
+        // otherwise this is the one reverse-geocode call needed just to
+        // recover country context.
+        const countryContext = reverseAttempted
+          ? {
+              country: reverseResult?.address?.country,
+              countryCode: reverseResult?.address?.countryCode,
+            }
+          : await this.resolveCountryContextFromCoordinates(
+              coordinates,
+              attemptedQueries,
+            );
+
         return {
           scale: 'point',
           attemptedQueries,
           degradationReason: hadCoordinateMismatch
             ? 'candidate_mismatched_coordinates'
             : 'no_area_candidate',
+          ...countryContext,
         };
       }
 
@@ -268,6 +306,39 @@ export class DestinationResolutionService {
         attemptedQueries,
         degradationReason: 'provider_failed',
       };
+    }
+  }
+
+  /**
+   * The one place country/countryCode get recovered for a point-scale
+   * destination that never found (or never even looked for) an area
+   * candidate — see call sites' own comments for why this matters. Never
+   * throws: a failed reverse lookup here degrades to no country context,
+   * same as before this existed, rather than failing the whole destination
+   * resolution over what was already going to be a point-scale result.
+   */
+  private async resolveCountryContextFromCoordinates(
+    coordinates: DestinationCoordinates | undefined,
+    attemptedQueries: string[],
+  ): Promise<{ country?: string; countryCode?: string }> {
+    if (!coordinates) return {};
+    try {
+      attemptedQueries.push(
+        `reverse-country:${coordinates.latitude.toFixed(6)},${coordinates.longitude.toFixed(6)}`,
+      );
+      const result = await this.nominatimApi.reverse(
+        coordinates.latitude,
+        coordinates.longitude,
+      );
+      return {
+        country: result?.address?.country,
+        countryCode: result?.address?.countryCode,
+      };
+    } catch (error: any) {
+      this.logger.warn(
+        `Reverse geocode for country context failed: ${error.message}`,
+      );
+      return {};
     }
   }
 

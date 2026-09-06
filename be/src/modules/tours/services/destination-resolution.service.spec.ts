@@ -621,7 +621,50 @@ describe('DestinationResolutionService', () => {
     });
   });
 
-  it('keeps a successfully resolved hotel at point scale without normalizing it to its city', async () => {
+  it('keeps a successfully resolved hotel at point scale without normalizing it to its city, but still recovers country context', async () => {
+    // Regression: a coordinate-consistent, non-area/settlement match (a
+    // hotel, or — verified live — a neighborhood-level "suburb" match like
+    // La Boca/San Telmo/Palermo) used to skip reverse-geocoding entirely,
+    // leaving country/countryCode undefined for the rest of the request.
+    // ExperienceProposalResolverService scopes every Nominatim hint lookup
+    // to that country — without it, a same/similar-named place in an
+    // unrelated country can win a hint resolution (verified live: "Teatro de
+    // la Ribera", a real La Boca theater, resolved to a venue in Guadalajara,
+    // Mexico).
+    nominatimApi.search.mockResolvedValue([
+      {
+        osmType: 'node',
+        osmId: 99,
+        addresstype: 'hotel',
+        displayName: 'Hotel Cervantes, Montevideo, Uruguay',
+        importance: 0.4,
+        latitude: -34.9,
+        longitude: -56.19,
+      },
+    ]);
+    nominatimApi.reverse.mockResolvedValue({
+      address: { country: 'Uruguay', countryCode: 'UY' },
+    });
+
+    const result = await service.resolveDestination(
+      'Hotel Cervantes, Montevideo, Uruguay',
+      { latitude: -34.9, longitude: -56.19 },
+    );
+
+    expect(result).toEqual({
+      scale: 'point',
+      attemptedQueries: [
+        'forward:Hotel Cervantes, Montevideo, Uruguay',
+        'reverse-country:-34.900000,-56.190000',
+      ],
+      degradationReason: 'no_area_candidate',
+      country: 'Uruguay',
+      countryCode: 'UY',
+    });
+    expect(nominatimApi.reverse).toHaveBeenCalledWith(-34.9, -56.19);
+  });
+
+  it('degrades to point scale without country context when the destination has no coordinates to reverse-geocode', async () => {
     nominatimApi.search.mockResolvedValue([
       {
         osmType: 'node',
@@ -636,7 +679,6 @@ describe('DestinationResolutionService', () => {
 
     const result = await service.resolveDestination(
       'Hotel Cervantes, Montevideo, Uruguay',
-      { latitude: -34.9, longitude: -56.19 },
     );
 
     expect(result).toEqual({
