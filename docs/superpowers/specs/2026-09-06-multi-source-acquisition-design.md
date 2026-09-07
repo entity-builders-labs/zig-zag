@@ -357,11 +357,11 @@ Three steps, in order of value-to-risk:
    destination) rather than only to resolve an already-proposed hint. Lowest
    priority of the three — smallest incremental value given OSM's existing
    role in the pipeline.
-4. **Fix `TavilyGroundedSearchService.buildWalkQuery`'s theme/style
-   blindness** — small, self-contained, and independent of steps 1-3 (could
-   land first or last, no ordering dependency). Three concrete gaps found
-   live this session, all in the same function
-   (`tavily-grounded-search.service.ts:217-227`):
+4. **Fix `TavilyGroundedSearchService.buildWalkQuery`'s theme blindness, and
+   route `explorationStyle` downstream instead of into the query** — small,
+   self-contained, and independent of steps 1-3 (could land first or last,
+   no ordering dependency). Two concrete gaps found live this session, both
+   in the same function (`tavily-grounded-search.service.ts:217-227`):
    - `isWalkOrRouteRequest` buckets `walk` and `route_like` together and
      `buildWalkQuery` emits the identical phrase for both — a themed route
      (wine route, architecture route, mural route) gets the same generic
@@ -370,37 +370,53 @@ Three steps, in order of value-to-risk:
    - `request.requestedThemes` is never read in this function — a
      history-themed and a food-themed walk request for the same city
      produce byte-identical Tavily queries.
-   - No `explorationStyle` (iconic vs. local/off-the-beaten-path) input
-     exists in this function at all; it always says "icónicas" ("iconic").
-     This is worse than the theme gap above — verified directly this
-     session that `explorationStyle` is **absent from the discovery/
-     grounded-search request shape entirely**
-     (`ExperienceDiscoveryRequest`/`ExperienceGroundedSearchRequest`, in
-     `experience-discovery.interface.ts`/`experience-grounding.interface.ts`
-     — neither declares the field). It reaches three other places
-     (`buildSemanticTourQuery` → real input to the catalog's pgvector
-     semantic ranking; `buildWizardSelectionInput` → a cosmetic label
-     stored on `tour.prompt`; `CoverageAnalyzer.analyze()`'s input object —
-     confirmed dead there, `coverage-analyzer.service.ts` never reads it),
-     but never reaches Gemini/Groq/SerpAPI/Tavily's own request/prompt
-     construction. Note: this session's Wikivoyage research (step 1) found
-     no reliable *structural* signal for `explorationStyle` either — so
-     once it does reach discovery, the fix is necessarily query-phrasing-
-     level (e.g. swapping "icónicas" for "auténticas"/"locales" style
-     language when requested), not a deeper data-driven distinction.
-   Scope: add `explorationStyle` to `ExperienceDiscoveryRequest` (threaded
-   from `request.intent.explorationStyle`, same source
-   `buildSemanticTourQuery` already reads) and to
-   `ExperienceGroundedSearchRequest`, then adapt `buildWalkQuery` to
-   incorporate both the request's theme(s) and, where present, exploration
-   style into the generated phrase — still a single Tavily query per
-   request, still free-text, no new provider, no schema change. Out of
-   scope: making `route_like` structurally distinct from `walk` anywhere
-   else in the pipeline (`intents` stay soft facets, per this codebase's
-   existing invariant — CLAUDE.md/CONTEXT.md), and wiring
-   `explorationStyle` into Gemini/Groq/SerpAPI's own prompts (only Tavily's
-   walk query is in scope here — the others are untested with this field
-   and out of this narrow fix's blast radius).
+   Scope for these two: adapt `buildWalkQuery` to incorporate the request's
+   theme(s) into the generated phrase — still a single Tavily query per
+   request, still free-text, no new provider, no schema change. Precedent:
+   `requestedThemes` already reaches every other grounded-search provider
+   (Gemini/Groq/SerpAPI, and even Tavily's own non-walk fallback query) —
+   this closes the one remaining gap, it doesn't introduce a new pattern.
+
+   **`explorationStyle` is deliberately NOT added to this query**, despite
+   being an equally real gap (verified this session: it's absent from the
+   discovery/grounded-search request shape entirely —
+   `ExperienceDiscoveryRequest`/`ExperienceGroundedSearchRequest` in
+   `experience-discovery.interface.ts`/`experience-grounding.interface.ts`
+   neither declares it; it only reaches `buildSemanticTourQuery`'s catalog
+   pgvector ranking, a cosmetic `tour.prompt` label, and a confirmed-dead
+   parameter on `CoverageAnalyzer.analyze()`). Baking it into search-query
+   phrasing was considered and rejected: this session's Wikivoyage research
+   already found no reliable *structural* signal for iconic-vs-local, so any
+   query-phrasing attempt (e.g. "icónicas" → "auténticas"/"locales") is
+   unvalidated guesswork layered onto the single most fragile part of this
+   pipeline (one free-text string, empirically proven this session to swing
+   from good results to commercial-junk results on small wording changes) —
+   and a query that under-returns or over-narrows the search *shrinks the
+   candidate universe before anything downstream ever sees it*, which no
+   later ranking step can recover from.
+
+   Instead: `explorationStyle` becomes a new `TraitDefinition.dimension`
+   (`exploration_style`, values matching the existing `ExplorationStyle`
+   enum) folded into `NormalizedPreferenceIntent`'s weighted preference
+   facets (same `{dimension, key, weight}` shape this design already gives
+   every other preference), so it flows through the existing
+   `experience-preference-evaluator.util.ts` ranking step over whatever
+   candidate pool discovery already produced — the same place themes/traits
+   already influence which candidates the solver sees as preferred. This
+   only *reorders/deprioritizes* candidates that exist; it can't shrink the
+   pool the way a bad search query can. Concretely: today
+   `request.intent.explorationStyle` reaches nothing preference-shaped at
+   all (`NormalizedPreferenceIntent` is built by `PreferenceInterpreterService`
+   from free-text `additionalPreferences` only, entirely separate from the
+   wizard's structured `explorationStyle` field) — this step adds that one
+   missing merge point. Out of scope: making `route_like` structurally
+   distinct from `walk` anywhere in the pipeline (`intents` stay soft
+   facets, per this codebase's existing invariant — CLAUDE.md/CONTEXT.md),
+   and wiring `explorationStyle` into Gemini/Groq/SerpAPI's own prompts
+   (their `requestedThemes` usage is untouched by this step; if the
+   downstream-ranking approach proves insufficient in practice, revisit
+   query-level phrasing then, with real before/after evidence — not
+   speculatively now).
 
 Tavily/SerpAPI/Gemini remain wired exactly as today otherwise — steps 1-3
 don't touch them, and step 4 is scoped to this one query-builder function,
