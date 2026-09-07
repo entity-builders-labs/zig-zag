@@ -59,7 +59,9 @@ export const CompositeStopCard = ({
   onToggleComponent?: (componentId: string) => void;
 }) => {
   const orderedComponents = [...data.components].sort(
-    (a, b) => a.order - b.order
+    (a, b) =>
+      (a.order ?? Number.MAX_SAFE_INTEGER) -
+      (b.order ?? Number.MAX_SAFE_INTEGER)
   );
   const waypointCoordinates = orderedComponents
     .map((w) => w.component)

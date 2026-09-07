@@ -29,7 +29,7 @@ function buildExperienceStop(snapshot: TourExperience): TourStop | null {
       type: 'composite', id: snapshot.id, experienceSnapshotId: snapshot.id, title,
       themeReasoning: snapshot.notes, kind: 'EXPERIENCE' as any,
       components: snapshot.components.map((component, index) => ({
-        order: component.order ?? index,
+        order: component.order ?? null,
         component: { id: component.geoEntityId, name: component.name, latitude: component.latitude, longitude: component.longitude },
       })) as any, badges,
     };

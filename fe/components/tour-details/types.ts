@@ -23,7 +23,7 @@ export interface TourStopComposite {
   themeReasoning?: string;
   kind: string;
   boundary?: unknown;
-  components: Array<{ order: number; component: { id: string; name: string; latitude?: number; longitude?: number } }>;
+  components: Array<{ order: number | null; component: { id: string; name: string; latitude?: number; longitude?: number } }>;
   badges: BadgeData[];
 }
 
