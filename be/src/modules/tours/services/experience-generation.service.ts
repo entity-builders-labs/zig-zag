@@ -96,6 +96,7 @@ import {
   PreferenceEvaluation,
 } from '../utils/experience-preference-evaluator.util';
 import { NormalizedPreferenceIntent } from '../interfaces/preference-interpretation.interface';
+import { buildTourExperienceCreateData } from '../utils/tour-experience-snapshot.util';
 
 interface NativeExperienceDiscoveryProvider {
   extractExperiences(
@@ -1675,6 +1676,7 @@ export class ExperienceGenerationService {
             distanceToNext: nextInDay?.travelFromPrevious
               ? nextInDay.travelFromPrevious.distanceMeters / 1000
               : undefined,
+            travelFromPrevious: planned.travelFromPrevious ?? null,
           };
         }),
       );
@@ -1732,29 +1734,7 @@ export class ExperienceGenerationService {
             continue;
           }
           await tx.tourExperience.create({
-            data: {
-              tourId,
-              experienceId: experience.id,
-              dayNumber: selected.dayNumber,
-              order: selected.order,
-              startTime: selected.startTime,
-              duration: selected.duration,
-              notes: selected.notes,
-              components: {
-                create: experience.components.map(
-                  (component: any, index: number) => ({
-                    geoEntityId: component.geoEntityId,
-                    order: component.order ?? index + 1,
-                    role: component.role,
-                    required: component.required,
-                    name: component.geoEntity.name,
-                    latitude: component.geoEntity.latitude,
-                    longitude: component.geoEntity.longitude,
-                    geometry: component.geoEntity.geometry,
-                  }),
-                ),
-              },
-            },
+            data: buildTourExperienceCreateData(tourId, selected, experience),
           });
         }
 
