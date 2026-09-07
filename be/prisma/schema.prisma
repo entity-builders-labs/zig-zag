@@ -260,19 +260,20 @@ model Tour {
 // V2 tour snapshot. The shared Experience may be enriched later; this row and
 // its component snapshots preserve what the traveller was actually given.
 model TourExperience {
-  id           String                    @id @default(uuid())
-  tourId       String
-  experienceId String
-  dayNumber    Int?
-  order        Int                       @default(1)
-  startTime    DateTime?
-  duration     Float?
-  notes        String?
-  tour         Tour                      @relation(fields: [tourId], references: [id], onDelete: Cascade)
-  experience   Experience                @relation(fields: [experienceId], references: [id], onDelete: Restrict)
-  components   TourExperienceComponent[]
-  createdAt    DateTime                  @default(now())
-  updatedAt    DateTime                  @updatedAt
+  id                 String                    @id @default(uuid())
+  tourId             String
+  experienceId       String
+  dayNumber          Int?
+  order              Int                       @default(1)
+  startTime          DateTime?
+  duration           Float?
+  notes              String?
+  travelFromPrevious Json?
+  tour               Tour                      @relation(fields: [tourId], references: [id], onDelete: Cascade)
+  experience         Experience                @relation(fields: [experienceId], references: [id], onDelete: Restrict)
+  components         TourExperienceComponent[]
+  createdAt          DateTime                  @default(now())
+  updatedAt          DateTime                  @updatedAt
 
   @@unique([tourId, experienceId, dayNumber, order])
   @@index([tourId])
