@@ -23,8 +23,14 @@ The current acquisition path asks one thing (grounded web search + LLM
 extraction) to do three jobs at once: discover what exists, interpret it into
 tourism concepts, and prove it's real. This design separates those jobs:
 structured sources (Wikivoyage, OSM, Google Places) supply facts directly;
-free-text web search + LLM extraction (Tavily/SerpAPI/Gemini, unchanged)
-remains for genuine long-tail content structured sources don't cover.
+free-text web search + LLM extraction (Tavily/SerpAPI/Gemini) remains for
+genuine long-tail content structured sources don't cover. One narrow
+exception to "unchanged": `TavilyGroundedSearchService.buildWalkQuery`
+(added `2026-09-05`/`ff2aa70`) hardcodes a single phrase — `"10 caminatas
+icónicas en {destino}"` — for *every* `walk`-or-`route_like` request
+regardless of requested theme or exploration style, verified directly in
+code this session. That is exactly the kind of query-construction fragility
+this whole design exists to reduce reliance on; Rollout step 4 fixes it.
 
 Verified directly against the running code (not assumed):
 
@@ -98,7 +104,10 @@ Verified directly against the running code (not assumed):
   "worse" than another source).
 - Tavily/SerpAPI/Gemini grounded search + LLM extraction are **not removed** —
   they remain the long-tail path for destinations/concepts the structured
-  sources don't cover, wired exactly as today.
+  sources don't cover, wired exactly as today, **except** for
+  `TavilyGroundedSearchService`'s own walk/route query-construction fix
+  (Rollout step 4) — a narrow, self-contained correction to that one query
+  builder, not a redesign of the tier-2 path itself.
 
 ## Design
 
@@ -348,10 +357,36 @@ Three steps, in order of value-to-risk:
    destination) rather than only to resolve an already-proposed hint. Lowest
    priority of the three — smallest incremental value given OSM's existing
    role in the pipeline.
+4. **Fix `TavilyGroundedSearchService.buildWalkQuery`'s theme/style
+   blindness** — small, self-contained, and independent of steps 1-3 (could
+   land first or last, no ordering dependency). Three concrete gaps found
+   live this session, all in the same function
+   (`tavily-grounded-search.service.ts:217-227`):
+   - `isWalkOrRouteRequest` buckets `walk` and `route_like` together and
+     `buildWalkQuery` emits the identical phrase for both — a themed route
+     (wine route, architecture route, mural route) gets the same generic
+     `"10 caminatas icónicas en {destino}"` as a plain walk request, with no
+     way for the route's actual theme to shape the query.
+   - `request.requestedThemes` is never read in this function — a
+     history-themed and a food-themed walk request for the same city
+     produce byte-identical Tavily queries.
+   - No `explorationStyle` (iconic vs. local/off-the-beaten-path) input
+     exists in this function at all; it always says "icónicas" ("iconic").
+     Note: this session's Wikivoyage research (step 1) found no reliable
+     *structural* signal for `explorationStyle` either — so this fix is
+     necessarily query-phrasing-level (e.g. swapping "icónicas" for
+     "auténticas"/"locales" style language when requested), not a deeper
+     data-driven distinction.
+   Scope: adapt `buildWalkQuery` to incorporate the request's theme(s) and,
+   where present, exploration style into the generated phrase — still a
+   single Tavily query per request, still free-text, no new provider, no
+   schema change. Out of scope: making `route_like` structurally distinct
+   from `walk` anywhere else in the pipeline (`intents` stay soft facets,
+   per this codebase's existing invariant — CLAUDE.md/CONTEXT.md).
 
-Tavily/SerpAPI/Gemini remain wired exactly as today throughout — they are not
-touched by any of these three steps, and continue serving as the long-tail
-path for whatever the structured sources don't cover.
+Tavily/SerpAPI/Gemini remain wired exactly as today otherwise — steps 1-3
+don't touch them, and step 4 is scoped to this one query-builder function,
+not a redesign of the tier-2 path itself.
 
 ## Open questions
 
