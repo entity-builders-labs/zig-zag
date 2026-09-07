@@ -15,6 +15,7 @@ export interface Tour {
   categories?: string[];
   /** Canonical V2 tour snapshots. */
   experiences?: TourExperience[];
+  dayTotals?: DayTotals[];
   metadata?: any;
   options?: {
     latitude?: number;
@@ -27,7 +28,7 @@ export interface Tour {
 export interface TourExperienceComponent {
   id: string;
   geoEntityId: string;
-  order?: number;
+  order?: number | null;
   role?: string;
   required: boolean;
   name: string;
@@ -62,6 +63,32 @@ export interface MediaPresentation {
   source?: 'DOCUMENTARY' | 'CURATED_FALLBACK';
 }
 
+export interface TravelFromPrevious {
+  mode: 'WALKING' | 'CYCLING' | 'DRIVING' | 'PUBLIC_TRANSPORT';
+  durationMinutes: number;
+  distanceMeters: number;
+  walkingMinutes: number;
+  walkingDistanceMeters: number;
+  approximate: boolean;
+  provider?: string;
+  fallbackReason?: string;
+}
+
+export interface DayTotals {
+  dayNumber: number;
+  experienceCount: number;
+  totalExperienceMinutes: number;
+  totalTravelMinutes: number;
+  totalWalkingMinutes: number;
+  totalMinutes: number;
+}
+
+export interface ExperiencePresentation {
+  geometryMode: 'POINT' | 'AREA' | 'ROUTE' | 'MULTI_POINT';
+  geometry?: unknown;
+  hasIntrinsicSequence: boolean;
+}
+
 export interface TourExperience {
   id: string;
   experienceId: string;
@@ -70,6 +97,8 @@ export interface TourExperience {
   startTime?: string;
   duration?: number;
   notes?: string;
+  travelFromPrevious?: TravelFromPrevious | null;
+  experiencePresentation?: ExperiencePresentation;
   components: TourExperienceComponent[];
   experience?: {
     id: string;
