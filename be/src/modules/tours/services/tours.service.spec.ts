@@ -199,7 +199,7 @@ describe('ToursService', () => {
           experienceCount: 2,
           totalExperienceMinutes: 210,
           totalTravelMinutes: 12,
-          totalWalkingMinutes: 12,
+          totalTravelWalkingMinutes: 12,
           totalMinutes: 222,
         },
       ]);

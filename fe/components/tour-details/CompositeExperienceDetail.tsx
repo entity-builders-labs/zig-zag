@@ -54,7 +54,9 @@ export const CompositeExperienceDetail = ({
   const orderedComponents = useMemo(
     () =>
       [...experience.components].sort(
-        (a, b) => (a.order ?? 0) - (b.order ?? 0)
+        (a, b) =>
+          (a.order ?? Number.MAX_SAFE_INTEGER) -
+          (b.order ?? Number.MAX_SAFE_INTEGER)
       ),
     [experience.components]
   );

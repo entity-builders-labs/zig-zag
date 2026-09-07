@@ -22,7 +22,7 @@ describe('computeDayTotals', () => {
         experienceCount: 3,
         totalExperienceMinutes: 330, // (1.5 + 2 + 2) * 60
         totalTravelMinutes: 28, // 12 + 16
-        totalWalkingMinutes: 12,
+        totalTravelWalkingMinutes: 12,
         totalMinutes: 358,
       },
     ]);
@@ -56,7 +56,7 @@ describe('computeDayTotals', () => {
         experienceCount: 1,
         totalExperienceMinutes: 0,
         totalTravelMinutes: 0,
-        totalWalkingMinutes: 0,
+        totalTravelWalkingMinutes: 0,
         totalMinutes: 0,
       },
     ]);

@@ -3,7 +3,14 @@ export interface DayTotals {
   experienceCount: number;
   totalExperienceMinutes: number;
   totalTravelMinutes: number;
-  totalWalkingMinutes: number;
+  /**
+   * Walking BETWEEN experiences only (sum of `travelFromPrevious.walkingMinutes`).
+   * Does NOT include a multi-component Experience's own internal walking
+   * between its components — the complete figure (both combined) is
+   * available on `tour.metadata.generationTrace`'s own `totalWalkingMinutes`
+   * for the same day, computed by the solver.
+   */
+  totalTravelWalkingMinutes: number;
   totalMinutes: number;
 }
 
@@ -44,7 +51,7 @@ export function computeDayTotals(
           sum + (experience.travelFromPrevious?.durationMinutes ?? 0),
         0,
       );
-      const totalWalkingMinutes = dayExperiences.reduce(
+      const totalTravelWalkingMinutes = dayExperiences.reduce(
         (sum, experience) =>
           sum + (experience.travelFromPrevious?.walkingMinutes ?? 0),
         0,
@@ -52,10 +59,10 @@ export function computeDayTotals(
       return {
         dayNumber,
         experienceCount: dayExperiences.length,
-        totalExperienceMinutes,
-        totalTravelMinutes,
-        totalWalkingMinutes,
-        totalMinutes: totalExperienceMinutes + totalTravelMinutes,
+        totalExperienceMinutes: Math.round(totalExperienceMinutes),
+        totalTravelMinutes: Math.round(totalTravelMinutes),
+        totalTravelWalkingMinutes: Math.round(totalTravelWalkingMinutes),
+        totalMinutes: Math.round(totalExperienceMinutes + totalTravelMinutes),
       };
     });
 }

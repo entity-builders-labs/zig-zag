@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 import { buildTourExperienceCreateData } from './tour-experience-snapshot.util';
 
 describe('buildTourExperienceCreateData', () => {
@@ -120,14 +121,14 @@ describe('buildTourExperienceCreateData', () => {
     expect(result.travelFromPrevious).toEqual(travelFromPrevious);
   });
 
-  it("persists null travelFromPrevious for a day's first stop", () => {
+  it("persists a real SQL NULL (Prisma.DbNull) for a day's first stop, not a JSON null", () => {
     const result = buildTourExperienceCreateData(
       'tour-1',
       { ...baseSelected, travelFromPrevious: null },
       experienceWithOrderedComponents,
     );
 
-    expect(result.travelFromPrevious).toBeNull();
+    expect(result.travelFromPrevious).toBe(Prisma.DbNull);
   });
 
   it('maps every scalar field onto the create input', () => {

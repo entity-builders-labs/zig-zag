@@ -53,8 +53,13 @@ export function buildTourExperienceCreateData(
     startTime: selected.startTime,
     duration: selected.duration,
     notes: selected.notes,
-    travelFromPrevious: (selected.travelFromPrevious ??
-      null) as Prisma.InputJsonValue | null,
+    // Prisma.DbNull, not a plain JS `null` literal — writing a bare `null`
+    // through a `Json?` field stores a JSONB `'null'` value rather than a
+    // real SQL NULL, which would silently break a future
+    // `WHERE "travelFromPrevious" IS NOT NULL` query.
+    travelFromPrevious: (selected.travelFromPrevious ?? Prisma.DbNull) as
+      | Prisma.InputJsonValue
+      | typeof Prisma.DbNull,
     components: {
       create: experience.components.map((component) => ({
         geoEntityId: component.geoEntityId,

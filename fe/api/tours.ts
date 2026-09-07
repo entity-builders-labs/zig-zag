@@ -64,7 +64,7 @@ export interface MediaPresentation {
 }
 
 export interface TravelFromPrevious {
-  mode: 'WALKING' | 'CYCLING' | 'DRIVING' | 'PUBLIC_TRANSPORT';
+  mode: 'walking' | 'cycling' | 'driving' | 'public_transport';
   durationMinutes: number;
   distanceMeters: number;
   walkingMinutes: number;
@@ -79,7 +79,13 @@ export interface DayTotals {
   experienceCount: number;
   totalExperienceMinutes: number;
   totalTravelMinutes: number;
-  totalWalkingMinutes: number;
+  /**
+   * Walking BETWEEN experiences only (`travelFromPrevious`), not a
+   * multi-component Experience's own internal walking between its
+   * components — see `tour.metadata.generationTrace`'s own
+   * `totalWalkingMinutes` for the combined figure.
+   */
+  totalTravelWalkingMinutes: number;
   totalMinutes: number;
 }
 

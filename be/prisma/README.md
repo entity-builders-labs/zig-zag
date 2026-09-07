@@ -100,13 +100,14 @@ A generated itinerary. `experiences` → `TourExperience[]` (the schedulable sna
 
 A **frozen per-Tour snapshot** of a selected `Experience` — the shared `Experience` may be enriched/edited later; this row (and its component snapshots) preserve exactly what the traveller was given.
 
-| Field       | Type      | Description                          |
-| ----------- | --------- | -------------------------------------- |
-| `dayNumber` | Int?      |                                        |
-| `order`     | Int       | Position within the day                |
-| `startTime` | DateTime? |                                        |
-| `duration`  | Float?    |                                        |
-| `notes`     | String?   |                                        |
+| Field                | Type      | Description                          |
+| -------------------- | --------- | -------------------------------------- |
+| `dayNumber`          | Int?      |                                        |
+| `order`               | Int       | Position within the day                |
+| `startTime`          | DateTime? |                                        |
+| `duration`           | Float?    |                                        |
+| `notes`              | String?   |                                        |
+| `travelFromPrevious` | Json?     | The solver's per-leg `TravelEstimate` for how the traveller got to this experience from the previous one that day; `null` (a real SQL NULL, via `Prisma.DbNull`) for a day's first stop |
 
 **Unique**: `(tourId, experienceId, dayNumber, order)`. **Indexes**: `(tourId)`, `(experienceId)`
 
