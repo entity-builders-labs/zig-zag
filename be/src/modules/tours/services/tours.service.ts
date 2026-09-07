@@ -10,6 +10,8 @@ import { CreateTourDto } from '../dto/create-tour.dto';
 import { UpdateTourDto } from '../dto/update-tour.dto';
 import { OutboxService } from '../../outbox/services/outbox.service';
 import { MediaPresentationResolver } from '../../media/services/media-presentation.resolver';
+import { computeDayTotals } from '../utils/day-totals.util';
+import { deriveExperiencePresentation } from '../utils/experience-presentation.util';
 
 @Injectable()
 export class ToursService {
@@ -220,10 +222,14 @@ export class ToursService {
     if (!Array.isArray(tour.experiences)) return tour;
     return {
       ...tour,
+      dayTotals: computeDayTotals(tour.experiences),
       experiences: tour.experiences.map((tourExperience) => {
         if (!tourExperience?.experience) return tourExperience;
         return {
           ...tourExperience,
+          experiencePresentation: deriveExperiencePresentation(
+            tourExperience.components ?? [],
+          ),
           experience: {
             ...tourExperience.experience,
             mediaPresentation:

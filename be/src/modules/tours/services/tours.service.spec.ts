@@ -141,6 +141,70 @@ describe('ToursService', () => {
       await expect(service.findOne('tour-1')).resolves.toBe(tour);
     });
 
+    it('decorates each experience with experiencePresentation, derived from its components', async () => {
+      const tour: any = {
+        id: 'tour-1',
+        ownerId: 'user-1',
+        experiences: [
+          {
+            id: 'te-1',
+            dayNumber: 1,
+            duration: 1.5,
+            travelFromPrevious: null,
+            components: [{ role: 'venue', order: null, geometry: null }],
+            experience: { id: 'exp-1', canonicalName: 'Plaza Dorrego' },
+          },
+        ],
+      };
+      mockPrismaService.tour.findUnique.mockResolvedValue(tour);
+
+      const result: any = await service.findOne('tour-1', 'user-1');
+
+      expect(result.experiences[0].experiencePresentation).toEqual({
+        geometryMode: 'POINT',
+        hasIntrinsicSequence: false,
+      });
+    });
+
+    it('adds dayTotals summarizing every experience by dayNumber', async () => {
+      const tour: any = {
+        id: 'tour-1',
+        ownerId: 'user-1',
+        experiences: [
+          {
+            id: 'te-1',
+            dayNumber: 1,
+            duration: 1.5,
+            travelFromPrevious: null,
+            components: [],
+            experience: { id: 'exp-1' },
+          },
+          {
+            id: 'te-2',
+            dayNumber: 1,
+            duration: 2,
+            travelFromPrevious: { durationMinutes: 12, walkingMinutes: 12 },
+            components: [],
+            experience: { id: 'exp-2' },
+          },
+        ],
+      };
+      mockPrismaService.tour.findUnique.mockResolvedValue(tour);
+
+      const result: any = await service.findOne('tour-1', 'user-1');
+
+      expect(result.dayTotals).toEqual([
+        {
+          dayNumber: 1,
+          experienceCount: 2,
+          totalExperienceMinutes: 210,
+          totalTravelMinutes: 12,
+          totalWalkingMinutes: 12,
+          totalMinutes: 222,
+        },
+      ]);
+    });
+
     it('includes the native TourExperience snapshots', async () => {
       const tour = { id: 'tour-1', ownerId: 'user-1' };
       mockPrismaService.tour.findUnique.mockResolvedValue(tour);
