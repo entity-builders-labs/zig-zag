@@ -372,17 +372,35 @@ Three steps, in order of value-to-risk:
      produce byte-identical Tavily queries.
    - No `explorationStyle` (iconic vs. local/off-the-beaten-path) input
      exists in this function at all; it always says "icónicas" ("iconic").
-     Note: this session's Wikivoyage research (step 1) found no reliable
-     *structural* signal for `explorationStyle` either — so this fix is
-     necessarily query-phrasing-level (e.g. swapping "icónicas" for
-     "auténticas"/"locales" style language when requested), not a deeper
-     data-driven distinction.
-   Scope: adapt `buildWalkQuery` to incorporate the request's theme(s) and,
-   where present, exploration style into the generated phrase — still a
-   single Tavily query per request, still free-text, no new provider, no
-   schema change. Out of scope: making `route_like` structurally distinct
-   from `walk` anywhere else in the pipeline (`intents` stay soft facets,
-   per this codebase's existing invariant — CLAUDE.md/CONTEXT.md).
+     This is worse than the theme gap above — verified directly this
+     session that `explorationStyle` is **absent from the discovery/
+     grounded-search request shape entirely**
+     (`ExperienceDiscoveryRequest`/`ExperienceGroundedSearchRequest`, in
+     `experience-discovery.interface.ts`/`experience-grounding.interface.ts`
+     — neither declares the field). It reaches three other places
+     (`buildSemanticTourQuery` → real input to the catalog's pgvector
+     semantic ranking; `buildWizardSelectionInput` → a cosmetic label
+     stored on `tour.prompt`; `CoverageAnalyzer.analyze()`'s input object —
+     confirmed dead there, `coverage-analyzer.service.ts` never reads it),
+     but never reaches Gemini/Groq/SerpAPI/Tavily's own request/prompt
+     construction. Note: this session's Wikivoyage research (step 1) found
+     no reliable *structural* signal for `explorationStyle` either — so
+     once it does reach discovery, the fix is necessarily query-phrasing-
+     level (e.g. swapping "icónicas" for "auténticas"/"locales" style
+     language when requested), not a deeper data-driven distinction.
+   Scope: add `explorationStyle` to `ExperienceDiscoveryRequest` (threaded
+   from `request.intent.explorationStyle`, same source
+   `buildSemanticTourQuery` already reads) and to
+   `ExperienceGroundedSearchRequest`, then adapt `buildWalkQuery` to
+   incorporate both the request's theme(s) and, where present, exploration
+   style into the generated phrase — still a single Tavily query per
+   request, still free-text, no new provider, no schema change. Out of
+   scope: making `route_like` structurally distinct from `walk` anywhere
+   else in the pipeline (`intents` stay soft facets, per this codebase's
+   existing invariant — CLAUDE.md/CONTEXT.md), and wiring
+   `explorationStyle` into Gemini/Groq/SerpAPI's own prompts (only Tavily's
+   walk query is in scope here — the others are untested with this field
+   and out of this narrow fix's blast radius).
 
 Tavily/SerpAPI/Gemini remain wired exactly as today otherwise — steps 1-3
 don't touch them, and step 4 is scoped to this one query-builder function,
