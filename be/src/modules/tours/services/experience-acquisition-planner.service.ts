@@ -155,6 +155,7 @@ export class ExperienceAcquisitionPlannerService {
     const osmConcepts = new Set<string>();
     const placesTypes = new Set<string>();
     const webKeywords = new Set<string>();
+    let hasRoutableDeficit = false;
 
     for (const deficit of deficits) {
       const route = lookupSourceCapabilityRoute(deficit.dimension, deficit.key);
@@ -162,6 +163,8 @@ export class ExperienceAcquisitionPlannerService {
       if (!route) {
         continue;
       }
+
+      hasRoutableDeficit = true;
 
       if (route.wikivoyageSections) {
         for (const s of route.wikivoyageSections) wikivoyageSections.add(s);
@@ -177,7 +180,17 @@ export class ExperienceAcquisitionPlannerService {
       }
     }
 
+    if (!hasRoutableDeficit) {
+      return {
+        destination: input.destination,
+        deficits,
+        sourcePlans: [],
+        breadth,
+      };
+    }
+
     const sourcePlans: SourcePlan[] = [];
+    const destName = input.destination.destinationName?.trim() || '';
 
     // 17.1 Wikivoyage coalescing (canonical order SEE, DO, EAT)
     if (wikivoyageSections.size > 0) {
@@ -212,25 +225,26 @@ export class ExperienceAcquisitionPlannerService {
     }
 
     // 17.4 Web query coalescing (at most one plain-keyword query)
-    const sortedKeywords = [...webKeywords].sort();
-    const destName = input.destination.destinationName?.trim() || '';
-    const queryParts = destName ? [destName] : [];
+    if (webKeywords.size > 0 || input.semanticQuery?.trim()) {
+      const sortedKeywords = [...webKeywords].sort();
+      const queryParts = destName ? [destName] : [];
 
-    if (sortedKeywords.length > 0) {
-      queryParts.push(...sortedKeywords);
-    } else {
-      queryParts.push('top attractions');
-    }
-    if (input.semanticQuery?.trim()) {
-      queryParts.push(input.semanticQuery.trim());
-    }
+      if (sortedKeywords.length > 0) {
+        queryParts.push(...sortedKeywords);
+      } else {
+        queryParts.push('top attractions');
+      }
+      if (input.semanticQuery?.trim()) {
+        queryParts.push(input.semanticQuery.trim());
+      }
 
-    sourcePlans.push({
-      provider: 'web',
-      web: {
-        query: queryParts.join(' '),
-      },
-    });
+      sourcePlans.push({
+        provider: 'web',
+        web: {
+          query: queryParts.join(' '),
+        },
+      });
+    }
 
     this.logger.log(
       `Built acquisition plan for "${destName}" with ${deficits.length} deficits: [${sourcePlans.map((s) => s.provider).join(', ')}]`,

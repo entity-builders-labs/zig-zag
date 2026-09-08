@@ -71,7 +71,7 @@ describe('WikivoyageAcquisitionProvider', () => {
         longitude: -58.372832,
       },
       evidenceType: 'place',
-      evidenceKey: 'wikivoyage:San_Telmo:wikidata:Q6010497',
+      evidenceKey: 'wikivoyage:San_Telmo:see:see:Mercado_San_Telmo:1',
     });
 
     expect(tango).toEqual({
@@ -114,6 +114,50 @@ describe('WikivoyageAcquisitionProvider', () => {
     expect(result.value[1].evidenceKey).toBe(
       'wikivoyage:San_Telmo:eat:eat:Cafe_Dorrego:2',
     );
+  });
+
+  it('generates distinct listing-specific evidenceKeys for different listings sharing the same Wikidata QID', async () => {
+    const mockResult: WikivoyageArticleResult = {
+      status: 'found',
+      title: 'San Telmo',
+      entries: [
+        {
+          name: 'Mercado San Telmo',
+          sectionType: 'SEE',
+          templateName: 'see',
+          wikidata: 'Q6010497',
+        },
+        {
+          name: 'Tour gastronómico Mercado San Telmo',
+          sectionType: 'DO',
+          templateName: 'do',
+          wikidata: 'Q6010497',
+        },
+      ],
+    };
+
+    apiService.fetchArticle.mockResolvedValueOnce(mockResult);
+
+    const result = await provider.acquire('San Telmo');
+    expect(result.status).toBe('success');
+    expect(result.value).toHaveLength(2);
+
+    const [seeListing, doListing] = result.value;
+
+    // Both observations retain Wikidata QID in externalId
+    expect(seeListing.externalId).toBe('Q6010497');
+    expect(doListing.externalId).toBe('Q6010497');
+
+    // Evidence keys are listing-specific, distinct, and include section/template/name/occurrence
+    expect(seeListing.evidenceKey).toBe(
+      'wikivoyage:San_Telmo:see:see:Mercado_San_Telmo:1',
+    );
+    expect(doListing.evidenceKey).toBe(
+      'wikivoyage:San_Telmo:do:do:Tour_gastronomico_Mercado_San_Telmo:1',
+    );
+    expect(seeListing.evidenceKey).not.toBe(doListing.evidenceKey);
+    expect(seeListing.evidenceKey).not.toContain('wikidata');
+    expect(doListing.evidenceKey).not.toContain('wikidata');
   });
 
   it('filters entries when sections option is provided', async () => {

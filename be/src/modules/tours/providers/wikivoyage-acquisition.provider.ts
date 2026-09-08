@@ -64,20 +64,18 @@ export class WikivoyageAcquisitionProvider {
       const section = entry.sectionType.toLowerCase();
       const template = slugify(entry.templateName || 'entry');
 
-      let evidenceKey: string;
-      const qid = entry.wikidata?.trim();
-      if (qid && /^Q\d+$/i.test(qid)) {
-        evidenceKey = `wikivoyage:${articleSlug}:wikidata:${qid}`;
-      } else {
-        const groupKey = `${articleSlug}:${section}:${template}:${entrySlug}`;
-        const occurrence = (occurrenceMap.get(groupKey) ?? 0) + 1;
-        occurrenceMap.set(groupKey, occurrence);
-        evidenceKey = `wikivoyage:${articleSlug}:${section}:${template}:${entrySlug}:${occurrence}`;
-      }
+      const groupKey = `${articleSlug}:${section}:${template}:${entrySlug}`;
+      const occurrence = (occurrenceMap.get(groupKey) ?? 0) + 1;
+      occurrenceMap.set(groupKey, occurrence);
+      const evidenceKey = `wikivoyage:${articleSlug}:${section}:${template}:${entrySlug}:${occurrence}`;
+
+      const rawQid = entry.wikidata?.trim();
+      const normalizedQid =
+        rawQid && /^Q\d+$/i.test(rawQid) ? rawQid.toUpperCase() : rawQid;
 
       return {
         provider: 'wikivoyage',
-        externalId: entry.wikidata,
+        externalId: normalizedQid || undefined,
         title: entry.name,
         description: entry.description,
         geo:

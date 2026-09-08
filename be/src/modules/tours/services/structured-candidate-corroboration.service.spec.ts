@@ -746,4 +746,71 @@ describe('StructuredCandidateCorroborationService', () => {
     expect(placeCandidate?.componentHints[0].role).toBe('venue');
     expect(areaCandidate?.componentHints[0].role).toBe('area');
   });
+
+  // Scenario M (regression): Shared Wikidata QID across different observation kinds (place vs tourism_activity)
+  it('Scenario M (regression): does not merge place and tourism_activity sharing the same Wikidata QID', () => {
+    const pSeePlace: StructuredCandidateProposal = {
+      candidate: {
+        name: 'Mercado San Telmo',
+        themes: [],
+        traits: [],
+        componentHints: [
+          {
+            key: 'hint:mercado',
+            name: 'Mercado San Telmo',
+            role: 'venue',
+            expectedKind: 'PLACE',
+            required: true,
+            evidenceKeys: ['wikivoyage:San_Telmo:see:see:Mercado_San_Telmo:1'],
+          },
+        ],
+        evidenceKeys: ['wikivoyage:San_Telmo:see:see:Mercado_San_Telmo:1'],
+        shortReason: 'Historical market',
+      },
+      observations: [
+        {
+          provider: 'wikivoyage',
+          externalId: 'Q123',
+          title: 'Mercado San Telmo',
+          evidenceType: 'place',
+          evidenceKey: 'wikivoyage:San_Telmo:see:see:Mercado_San_Telmo:1',
+          geo: { latitude: -34.6195, longitude: -58.3728 },
+        },
+      ],
+    };
+
+    const pDoActivity: StructuredCandidateProposal = {
+      candidate: {
+        name: 'Tour gastronómico Mercado San Telmo',
+        themes: [],
+        traits: [],
+        componentHints: [],
+        evidenceKeys: [
+          'wikivoyage:San_Telmo:do:do:Tour_gastronomico_Mercado_San_Telmo:1',
+        ],
+        shortReason: 'Food tour',
+      },
+      observations: [
+        {
+          provider: 'wikivoyage',
+          externalId: 'Q123',
+          title: 'Tour gastronómico Mercado San Telmo',
+          evidenceType: 'tourism_activity',
+          evidenceKey:
+            'wikivoyage:San_Telmo:do:do:Tour_gastronomico_Mercado_San_Telmo:1',
+          geo: { latitude: -34.6195, longitude: -58.3728 },
+        },
+      ],
+    };
+
+    const pairDec = service.decidePair(pSeePlace, pDoActivity);
+    expect(pairDec.decision).toBe('NEW');
+    expect(pairDec.reasons).toContain('incompatible_evidence_type');
+    expect(pairDec.reasons).not.toContain('same_evidence_key');
+    expect(pairDec.reasons).not.toContain('same_wikidata_identity');
+
+    const result = service.corroborateAndMerge([pSeePlace, pDoActivity]);
+    expect(result.candidates).toHaveLength(2);
+    expect(result.groups).toHaveLength(2);
+  });
 });
