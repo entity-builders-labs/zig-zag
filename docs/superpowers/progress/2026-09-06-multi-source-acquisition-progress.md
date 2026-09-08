@@ -6,11 +6,13 @@ Implementation plan: `docs/superpowers/plans/2026-09-08-multi-source-acquisition
 # Current State
 
 - Branch: `feat/experience-domain-v2`
-- Current milestone: Phase 2 — Preference Facets & Deterministic Importance Mapping (HARDENED & VERIFIED)
-- Verified code commit: `2f79c6569eb2e008ee1cb21ff06eb9d45388c4b1` (Phase 2 hardening commit)
-- Verified base commit: `e04fc5725f15429884e2c200f6332807b3f8666a` (Phase 2 core implementation commit)
-- Last verified test state: backend Jest `113/113` suites and `791/791` tests passing (baseline was `111/111` suites, `760/760` tests; +2 new suites, +31 tests, zero regressions).
-- Linting: `yarn lint:check` is 100% clean (0 errors, 0 warnings).
+- Current milestone: Phase 2 — Preference Facets & Deterministic Importance Mapping (FINAL VERIFIED & APPROVED)
+- Final verified Phase 2 code commit: `f12b2d56dada8a6db7bfc2e2308ea45366426955`
+- Previous hardening commit: `2f79c65d2c111ca0fac2ea79ccfaca0e627c9368`
+- Base Phase 2 core implementation commit: `e04fc5725f15429884e2c200f6332807b3f8666a`
+- Verified code commit: `f12b2d56dada8a6db7bfc2e2308ea45366426955`
+- Last verified test state: backend Jest `113/113` suites and `792/792` tests passing (baseline was `111/111` suites, `760/760` tests; +2 new suites, +32 tests, zero regressions).
+- Linting: `yarn lint:check` is 100% clean (0 errors, 0 warnings across `{src,apps,libs,test}/**/*.ts`).
 - Typecheck: `yarn run check` introduces zero new errors beyond the known acceptance-fixture baseline; `yarn build` is 100% clean.
 
 # Completed
@@ -135,13 +137,21 @@ Implementation plan: `docs/superpowers/plans/2026-09-08-multi-source-acquisition
     - Updated `experience-generation.service.ts` to filter out undefined wizard facets.
     - Updated `preference-interpreter.service.ts` to reject invalid keys in controlled dimensions.
     - Updated `preference-interpreter.service.spec.ts` and `preference-facet-merge.util.spec.ts` (11 unit tests).
+  - **Final Hardening Checkpoint (Verified in `f12b2d56dada8a6db7bfc2e2308ea45366426955`)**:
+    - **Malformed/Missing LLM Facet Dimension Handling**:
+      - Updated `PreferenceInterpreterService.normalizeFacets()` to drop facets with missing or blank dimensions instead of defaulting to `'theme'`.
+      - Maintained clean rejection for unknown dimensions via `canonicalizeFacetKey` and dormant `exploration_style`.
+      - Added explicit unit tests in `preference-interpreter.service.spec.ts` verifying that `{ key: "history", confidence: 0.9, strength: "strong" }` and `{ dimension: "", key: "history", confidence: 0.9, strength: "strong" }` are dropped.
+    - **E2E Acceptance Fixture Validation**:
+      - Updated `normalizedIntent` in `be/test/experience-selection-scale.e2e-spec.ts` to strictly throw on unnormalizable overrides for `preferredThemes`, `preferredTraits`, and `preferredIntents`, removing the fallback facet fabrication bypass.
+      - Explicitly migrated custom-facet scenarios (`mixed-age-family` with `interactive`, `long-tail` with `hidden history`, and `CP8` with `religion`) to declare explicit `preferredFacets: [...]`.
   - **E2E Scale Helper & Architecture Documentation**:
     - Updated `be/test/experience-selection-scale.e2e-spec.ts` legacy fixture helper to use wizard semantics (`source: 'wizard'`, `importance: 1.0`, `confidence: 1.0`).
     - Updated `CLAUDE.md` to document `preferredFacets: PreferenceFacet[]`, dimension isolation, and scoring invariants.
 
 # In Progress
 
-None. Phase 2 hardening is complete.
+None. Phase 2 final validation and checkpoint are complete.
 
 # Not Started
 
@@ -153,9 +163,10 @@ None. Phase 2 hardening is complete.
 
 # Verification
 
-- `yarn test` (`be/`): PASS — 113 suites, 791 tests passing (zero regressions, +2 suites, +31 tests).
-- `yarn run lint:check` (`be/`): PASS — 0 errors, 0 warnings across entire codebase.
+- `yarn test --runInBand` (`be/`): PASS — 113 suites, 792 tests passing (zero regressions, +2 suites, +32 tests).
+- `yarn run lint:check` (`be/`): PASS — 0 errors, 0 warnings across `{src,apps,libs,test}/**/*.ts`.
 - `yarn run check` (`be/`): TypeScript compilation in `be/src/` has 0 errors; `yarn build` completed cleanly.
+- Targeted preference and vocabulary tests: PASS — 35/35 passing.
 - Dimension isolation verified: `candidateMatchesPreferenceFacet` isolates `winery_scale`, `tourism_intensity`, `nature_type`, and `local_character` from unintended title/description/generic trait matches.
 
 # Important Decisions / Invariants
@@ -173,4 +184,4 @@ None. Phase 2 hardening is complete.
 
 # Next Action
 
-Phase 2 is fully hardened and complete. Stop before Phase 3. Next action will be Phase 3 (Deterministic Corroboration / acquisition planning foundation) upon user instruction.
+Phase 2 is fully hardened, verified, and complete. Stop before Phase 3. Next action will be Phase 3 (Deterministic Corroboration / acquisition planning foundation) upon user instruction.
