@@ -383,6 +383,93 @@ describe('ExperienceCatalogService.findById', () => {
       }),
     );
   });
+
+  it('preserves dimensionedTraits alongside traits: string[] in findById', async () => {
+    const prisma: any = {
+      experience: {
+        findUnique: jest.fn().mockResolvedValue({
+          id: 'e-winery',
+          canonicalName: 'Bodega Catena',
+          status: 'VERIFIED',
+          durationMinutes: 120,
+          metadata: {
+            themes: ['wine'],
+            traits: ['historic'],
+            dimensionedTraits: [{ dimension: 'nature_type', key: 'mountain' }],
+          },
+          components: [],
+          traits: [
+            {
+              traitDefinition: {
+                dimension: 'winery_scale',
+                key: 'boutique',
+                label: 'Boutique Winery',
+              },
+            },
+          ],
+          media: [],
+        }),
+      },
+    };
+    const service = new ExperienceCatalogService(prisma, {} as any);
+    const result = await service.findById('e-winery');
+
+    expect(result).not.toBeNull();
+    expect(result?.traits).toEqual(
+      expect.arrayContaining(['historic', 'Boutique Winery', 'boutique']),
+    );
+    expect(result?.dimensionedTraits).toEqual([
+      { dimension: 'nature_type', key: 'mountain' },
+      { dimension: 'winery_scale', key: 'boutique', label: 'Boutique Winery' },
+    ]);
+    expect(result?.metadata.dimensionedTraits).toEqual(
+      result?.dimensionedTraits,
+    );
+  });
+
+  it('preserves dimensionedTraits alongside traits: string[] in findVerifiedWithin', async () => {
+    const prisma: any = {
+      experience: {
+        findMany: jest.fn().mockResolvedValue([
+          {
+            id: 'e-winery-1',
+            canonicalName: 'Bodega Catena',
+            status: 'VERIFIED',
+            latitude: -34.6,
+            longitude: -58.38,
+            durationMinutes: 120,
+            metadata: {
+              themes: ['wine'],
+              traits: ['historic'],
+            },
+            components: [],
+            traits: [
+              {
+                traitDefinition: {
+                  dimension: 'winery_scale',
+                  key: 'boutique',
+                  label: 'Boutique Winery',
+                },
+              },
+            ],
+          },
+        ]),
+      },
+    };
+    const service = new ExperienceCatalogService(prisma, {} as any);
+    const results = await service.findVerifiedWithin(-34.6, -58.38, 5000, 10);
+
+    expect(results).toHaveLength(1);
+    expect(results[0].traits).toEqual(
+      expect.arrayContaining(['historic', 'Boutique Winery', 'boutique']),
+    );
+    expect(results[0].dimensionedTraits).toEqual([
+      { dimension: 'winery_scale', key: 'boutique', label: 'Boutique Winery' },
+    ]);
+    expect(results[0].metadata.dimensionedTraits).toEqual(
+      results[0].dimensionedTraits,
+    );
+  });
 });
 
 describe('ExperienceCatalogService.resolveOrCreateTraitDefinitions', () => {

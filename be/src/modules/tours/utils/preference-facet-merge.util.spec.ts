@@ -155,14 +155,27 @@ describe('preference-facet-merge.util', () => {
       );
     });
 
+    it('returns undefined for invalid keys or dormant exploration_style', () => {
+      expect(
+        normalizeWizardFacet('theme', 'invalid_fake_theme'),
+      ).toBeUndefined();
+      expect(normalizeWizardFacet('intent', 'invalid_intent')).toBeUndefined();
+      expect(
+        normalizeWizardFacet('exploration_style', 'relaxed'),
+      ).toBeUndefined();
+      expect(
+        normalizeWizardFacet('unknown_dimension', 'some_key'),
+      ).toBeUndefined();
+    });
+
     it('distinguishes identical keys if they belong to different dimensions', () => {
-      const wizardFacets: PreferenceFacet[] = [
-        normalizeWizardFacet('theme', 'park'),
+      const wizardFacets: (PreferenceFacet | undefined)[] = [
+        normalizeWizardFacet('theme', 'food'),
       ];
       const freeTextFacets: PreferenceFacet[] = [
         {
-          dimension: 'nature_type',
-          key: 'park',
+          dimension: 'intent',
+          key: 'food',
           importance: 0.7,
           confidence: 0.9,
           source: 'free_text',
@@ -172,10 +185,36 @@ describe('preference-facet-merge.util', () => {
       const merged = mergePreferenceFacets(wizardFacets, freeTextFacets);
 
       expect(merged).toHaveLength(2);
-      expect(merged.find((f) => f.dimension === 'theme')?.key).toBe('park');
-      expect(merged.find((f) => f.dimension === 'nature_type')?.key).toBe(
-        'park',
-      );
+      expect(merged.find((f) => f.dimension === 'theme')?.key).toBe('food');
+      expect(merged.find((f) => f.dimension === 'intent')?.key).toBe('food');
+    });
+
+    it('filters out exploration_style or invalid facets during merge', () => {
+      const wizardFacets = [
+        normalizeWizardFacet('theme', 'history'),
+        undefined,
+      ];
+      const freeTextFacets: PreferenceFacet[] = [
+        {
+          dimension: 'exploration_style',
+          key: 'relaxed',
+          importance: 1.0,
+          confidence: 1.0,
+          source: 'free_text',
+        },
+        {
+          dimension: 'theme',
+          key: 'invalid_nonexistent_theme',
+          importance: 1.0,
+          confidence: 1.0,
+          source: 'free_text',
+        },
+      ];
+
+      const merged = mergePreferenceFacets(wizardFacets, freeTextFacets);
+      expect(merged).toHaveLength(1);
+      expect(merged[0].dimension).toBe('theme');
+      expect(merged[0].key).toBe('history');
     });
   });
 

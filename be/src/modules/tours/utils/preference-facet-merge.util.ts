@@ -4,13 +4,25 @@ import { canonicalizeFacetKey } from '../preferences/preference-facet-vocabulary
 /**
  * Constructs a normalized PreferenceFacet for a wizard selection.
  * Wizard choices always have importance: 1.0, confidence: 1.0, and source: 'wizard'.
+ * Returns undefined if key is invalid or dimension is not supported/dormant.
  */
 export function normalizeWizardFacet(
   dimension: string,
   rawKey: string,
-): PreferenceFacet {
+): PreferenceFacet | undefined {
+  if (
+    !dimension ||
+    typeof dimension !== 'string' ||
+    !rawKey ||
+    typeof rawKey !== 'string'
+  ) {
+    return undefined;
+  }
   const normDim = dimension.trim().toLowerCase();
   const canonicalKey = canonicalizeFacetKey(normDim, rawKey);
+  if (!canonicalKey) {
+    return undefined;
+  }
   return {
     dimension: normDim,
     key: canonicalKey,
@@ -30,14 +42,14 @@ export function normalizeWizardFacet(
  * Inferred facets with distinct (dimension, key) are retained.
  */
 export function mergePreferenceFacets(
-  wizardFacets: PreferenceFacet[] = [],
-  interpretedFacets: PreferenceFacet[] = [],
+  wizardFacets: (PreferenceFacet | undefined | null)[] = [],
+  interpretedFacets: (PreferenceFacet | undefined | null)[] = [],
 ): PreferenceFacet[] {
   const mergedMap = new Map<string, PreferenceFacet>();
 
   // 1. Wizard facets are inserted first as authoritative
   for (const facet of wizardFacets) {
-    if (!facet || !facet.key) {
+    if (!facet || !facet.key || !facet.dimension) {
       continue;
     }
     const normDim = facet.dimension.trim().toLowerCase();
@@ -57,7 +69,7 @@ export function mergePreferenceFacets(
 
   // 2. Free-text facets are merged; cannot weaken or overwrite existing wizard facets
   for (const facet of interpretedFacets) {
-    if (!facet || !facet.key) {
+    if (!facet || !facet.key || !facet.dimension) {
       continue;
     }
     const normDim = facet.dimension.trim().toLowerCase();

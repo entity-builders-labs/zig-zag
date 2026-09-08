@@ -222,6 +222,21 @@ export class ExperienceCatalogService {
             (value): value is string => !!value,
           ),
         );
+        const metadataDimensioned = Array.isArray(metadata.dimensionedTraits)
+          ? (metadata.dimensionedTraits as Array<{
+              dimension: string;
+              key: string;
+              label?: string;
+            }>)
+          : [];
+        const dimensionedTraits = [
+          ...metadataDimensioned,
+          ...experience.traits.map((trait) => ({
+            dimension: trait.traitDefinition.dimension,
+            key: trait.traitDefinition.key,
+            label: trait.traitDefinition.label ?? undefined,
+          })),
+        ];
         return {
           id: experience.id,
           name: experience.canonicalName,
@@ -241,8 +256,10 @@ export class ExperienceCatalogService {
           traits: Array.from(
             new Set([...this.stringList(metadata.traits), ...relationalTraits]),
           ),
+          dimensionedTraits,
           metadata: {
             ...metadata,
+            dimensionedTraits,
             source: 'experience_catalog',
             experienceId: experience.id,
           },
@@ -290,6 +307,21 @@ export class ExperienceCatalogService {
         (value): value is string => !!value,
       ),
     );
+    const metadataDimensioned = Array.isArray(metadata.dimensionedTraits)
+      ? (metadata.dimensionedTraits as Array<{
+          dimension: string;
+          key: string;
+          label?: string;
+        }>)
+      : [];
+    const dimensionedTraits = [
+      ...metadataDimensioned,
+      ...experience.traits.map((trait) => ({
+        dimension: trait.traitDefinition.dimension,
+        key: trait.traitDefinition.key,
+        label: trait.traitDefinition.label ?? undefined,
+      })),
+    ];
     const primaryGeoEntity = experience.components.find(
       (item) =>
         Number.isFinite(item.geoEntity.latitude) &&
@@ -313,6 +345,13 @@ export class ExperienceCatalogService {
       traits: Array.from(
         new Set([...this.stringList(metadata.traits), ...relationalTraits]),
       ),
+      dimensionedTraits,
+      metadata: {
+        ...metadata,
+        dimensionedTraits,
+        source: 'experience_catalog',
+        experienceId: experience.id,
+      },
       type: this.stringList(metadata.themes)[0],
       photos: experience.media,
       mediaUpdatedAt: experience.mediaUpdatedAt,

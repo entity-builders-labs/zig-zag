@@ -35,6 +35,8 @@ export const INITIAL_DIMENSION_VOCABULARY: Record<
     'tango',
     'wine',
     'photography',
+    'shopping',
+    'sports',
   ],
   [PREFERENCE_DIMENSIONS.TRAIT]: [],
   [PREFERENCE_DIMENSIONS.INTENT]: [
@@ -44,6 +46,8 @@ export const INITIAL_DIMENSION_VOCABULARY: Record<
     'visit',
     'performance',
     'shopping',
+    'food',
+    'nightlife',
   ],
   [PREFERENCE_DIMENSIONS.WINERY_SCALE]: ['boutique', 'medium', 'industrial'],
   [PREFERENCE_DIMENSIONS.TOURISM_INTENSITY]: [
@@ -75,98 +79,125 @@ export const INITIAL_DIMENSION_VOCABULARY: Record<
 };
 
 /**
- * Mapping of localized or synonym phrases to canonical domain keys.
+ * Mapping of localized or synonym phrases to canonical domain keys, scoped strictly by dimension.
  */
-const CANONICAL_KEY_SYNONYMS: Record<string, string> = {
-  // Themes
-  arquitectura: 'architecture',
-  architectural: 'architecture',
-  comida: 'food',
-  gastronomia: 'gastronomy',
-  gastronomía: 'gastronomy',
-  culinario: 'food',
-  culinaria: 'food',
-  historia: 'history',
-  historico: 'history',
-  histórico: 'history',
-  cultura: 'culture',
-  cultural: 'culture',
-  arte: 'art',
-  artistico: 'art',
-  artístico: 'art',
-  naturaleza: 'nature',
-  vino: 'wine',
-  vinos: 'wine',
-  bodega: 'wine',
-  bodegas: 'wine',
-  winery: 'wine',
-  wineries: 'wine',
-  tango: 'tango',
-  musica: 'music',
-  música: 'music',
-  musical: 'music',
-  nocturno: 'nightlife',
-  noche: 'nightlife',
-  'vida nocturna': 'nightlife',
-  aire_libre: 'outdoor',
-  'aire libre': 'outdoor',
-  playa: 'beach',
-  playas: 'beach',
-  senderismo: 'hiking',
-  trekking: 'hiking',
-  fotografia: 'photography',
-  fotografía: 'photography',
-  familia: 'family',
-  familiar: 'family',
-
-  // Intents
-  caminata: 'walk',
-  caminar: 'walk',
-  paseo: 'walk',
-  walking: 'walk',
-  'walking-like': 'walk',
-  'route-like': 'route_like',
-  ruta: 'route_like',
-  recorrido: 'route_like',
-  excursion: 'day_trip',
-  excursión: 'day_trip',
-  'day-trip': 'day_trip',
-  visita: 'visit',
-  conocer: 'visit',
-  espectaculo: 'performance',
-  espectáculo: 'performance',
-  show: 'performance',
-  compras: 'shopping',
-  shopping: 'shopping',
-
-  // Winery scale
-  chica: 'boutique',
-  pequeña: 'boutique',
-  pequena: 'boutique',
-  artesanal: 'boutique',
-  familiar_winery: 'boutique',
-  mediana: 'medium',
-  grande: 'industrial',
-
-  // Tourism intensity
-  oculto: 'hidden',
-  escondido: 'hidden',
-  secreto: 'hidden',
-  autentico: 'authentic',
-  auténtico: 'authentic',
-  icono: 'iconic',
-  iconico: 'iconic',
-  icónico: 'iconic',
-
-  // Nature type
-  montana: 'mountain',
-  montaña: 'mountain',
-  bosque: 'forest',
-  costa: 'coast',
-  rio: 'river',
-  río: 'river',
-  parque: 'park',
-  desierto: 'desert',
+export const DIMENSION_KEY_SYNONYMS: Record<
+  PreferenceDimension,
+  Record<string, string>
+> = {
+  [PREFERENCE_DIMENSIONS.THEME]: {
+    arquitectura: 'architecture',
+    architectural: 'architecture',
+    comida: 'food',
+    culinario: 'food',
+    culinaria: 'food',
+    gastronomia: 'gastronomy',
+    gastronomía: 'gastronomy',
+    historia: 'history',
+    historico: 'history',
+    histórico: 'history',
+    cultura: 'culture',
+    cultural: 'culture',
+    arte: 'art',
+    artistico: 'art',
+    artístico: 'art',
+    naturaleza: 'nature',
+    vino: 'wine',
+    vinos: 'wine',
+    bodega: 'wine',
+    bodegas: 'wine',
+    winery: 'wine',
+    wineries: 'wine',
+    tango: 'tango',
+    musica: 'music',
+    música: 'music',
+    musical: 'music',
+    nocturno: 'nightlife',
+    noche: 'nightlife',
+    'vida nocturna': 'nightlife',
+    aire_libre: 'outdoor',
+    'aire libre': 'outdoor',
+    playa: 'beach',
+    playas: 'beach',
+    senderismo: 'hiking',
+    trekking: 'hiking',
+    fotografia: 'photography',
+    fotografía: 'photography',
+    familia: 'family',
+    familiar: 'family',
+    compras: 'shopping',
+    deporte: 'sports',
+    deportes: 'sports',
+  },
+  [PREFERENCE_DIMENSIONS.INTENT]: {
+    caminata: 'walk',
+    caminar: 'walk',
+    paseo: 'walk',
+    walking: 'walk',
+    'walking-like': 'walk',
+    'route-like': 'route_like',
+    ruta: 'route_like',
+    recorrido: 'route_like',
+    excursion: 'day_trip',
+    excursión: 'day_trip',
+    'day-trip': 'day_trip',
+    'day trip': 'day_trip',
+    visita: 'visit',
+    conocer: 'visit',
+    'visit-like': 'visit',
+    espectaculo: 'performance',
+    espectáculo: 'performance',
+    show: 'performance',
+    compras: 'shopping',
+    shopping: 'shopping',
+    comida: 'food',
+    gastronomia: 'food',
+    food: 'food',
+    noche: 'nightlife',
+    nightlife: 'nightlife',
+    'vida nocturna': 'nightlife',
+  },
+  [PREFERENCE_DIMENSIONS.WINERY_SCALE]: {
+    chica: 'boutique',
+    pequeña: 'boutique',
+    pequena: 'boutique',
+    artesanal: 'boutique',
+    familiar: 'boutique',
+    familiar_winery: 'boutique',
+    mediana: 'medium',
+    grande: 'industrial',
+  },
+  [PREFERENCE_DIMENSIONS.TOURISM_INTENSITY]: {
+    oculto: 'hidden',
+    escondido: 'hidden',
+    secreto: 'hidden',
+    popular: 'popular',
+    icono: 'iconic',
+    iconico: 'iconic',
+    icónico: 'iconic',
+  },
+  [PREFERENCE_DIMENSIONS.NATURE_TYPE]: {
+    montana: 'mountain',
+    montaña: 'mountain',
+    bosque: 'forest',
+    costa: 'coast',
+    playa: 'coast',
+    rio: 'river',
+    río: 'river',
+    parque: 'park',
+    desierto: 'desert',
+  },
+  [PREFERENCE_DIMENSIONS.LOCAL_CHARACTER]: {
+    autentico: 'authentic',
+    auténtico: 'authentic',
+    residencial: 'residential',
+    tradicional: 'traditional',
+    contemporaneo: 'contemporary',
+    contemporáneo: 'contemporary',
+    moderno: 'contemporary',
+  },
+  [PREFERENCE_DIMENSIONS.TRAIT]: {},
+  [PREFERENCE_DIMENSIONS.EXPLORATION_STYLE]: {},
 };
 
 function normalizeText(value: string): string {
@@ -180,37 +211,63 @@ function normalizeText(value: string): string {
 }
 
 /**
- * Maps a raw facet key (including localized wording or accents) into its canonical domain key.
+ * Maps a raw facet key into its canonical domain key within the given dimension.
+ * For controlled dimensions, returns undefined if the key cannot be mapped to the canonical vocabulary.
+ * For open dimensions (trait), returns normalized string.
+ * For unknown or dormant dimensions (exploration_style), returns undefined.
  */
 export function canonicalizeFacetKey(
   dimension: string,
   rawKey: string,
-): string {
+): string | undefined {
+  if (
+    !dimension ||
+    typeof dimension !== 'string' ||
+    !rawKey ||
+    typeof rawKey !== 'string'
+  ) {
+    return undefined;
+  }
+
+  const dim = dimension.trim().toLowerCase() as PreferenceDimension;
+
+  // exploration_style is dormant in Phase 2
+  if (dim === PREFERENCE_DIMENSIONS.EXPLORATION_STYLE) {
+    return undefined;
+  }
+
+  // Reject any dimensions not in PREFERENCE_DIMENSIONS
+  const validDimensions = Object.values(PREFERENCE_DIMENSIONS) as string[];
+  if (!validDimensions.includes(dim)) {
+    return undefined;
+  }
+
   const normalizedRaw = normalizeText(rawKey);
   if (!normalizedRaw) {
-    return '';
+    return undefined;
   }
 
-  // Check direct synonym match
-  if (CANONICAL_KEY_SYNONYMS[normalizedRaw]) {
-    return CANONICAL_KEY_SYNONYMS[normalizedRaw];
-  }
-
-  // Check without spaces / hyphenated
   const snake = normalizedRaw.replace(/[ -]+/g, '_');
-  if (CANONICAL_KEY_SYNONYMS[snake]) {
-    return CANONICAL_KEY_SYNONYMS[snake];
-  }
 
-  // If already in known vocabulary for this dimension, return it
-  const dim = dimension.trim().toLowerCase() as PreferenceDimension;
-  const vocab = INITIAL_DIMENSION_VOCABULARY[dim];
-  if (vocab && vocab.includes(snake)) {
+  // Trait dimension is open-ended
+  if (dim === PREFERENCE_DIMENSIONS.TRAIT) {
     return snake;
   }
+
+  // Controlled dimensions: theme, intent, winery_scale, tourism_intensity, nature_type, local_character
+  const dimSynonyms = DIMENSION_KEY_SYNONYMS[dim];
+  const synonymKey = dimSynonyms?.[normalizedRaw] ?? dimSynonyms?.[snake];
+
+  const candidateKey = synonymKey ?? snake;
+  const vocab = INITIAL_DIMENSION_VOCABULARY[dim];
+
+  if (vocab && vocab.includes(candidateKey)) {
+    return candidateKey;
+  }
+
   if (vocab && vocab.includes(normalizedRaw)) {
     return normalizedRaw;
   }
 
-  return snake;
+  return undefined;
 }

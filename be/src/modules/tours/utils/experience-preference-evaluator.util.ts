@@ -4,6 +4,7 @@ import {
   PreferenceFacet,
   PreferenceFacetSource,
 } from '../preferences/preference-facet.interface';
+import { candidateMatchesPreferenceFacet } from './preference-facet-matching.util';
 
 export interface PreferenceFacetMatch {
   dimension: string;
@@ -105,7 +106,7 @@ export function evaluateExperiencePreferences(
     const effectiveWeight = calculateEffectiveWeight(facet);
     facetPossibleWeight += effectiveWeight;
 
-    const matched = matchesTerm(corpus, facet.key);
+    const matched = candidateMatchesPreferenceFacet(experience, facet);
     if (matched) {
       facetMatchedWeight += effectiveWeight;
       positiveMatches.push(facet.key);

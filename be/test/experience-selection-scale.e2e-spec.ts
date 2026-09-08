@@ -7,6 +7,7 @@ import { PrismaService } from '../src/core/database/prisma.service';
 import { OutboxPublisherService } from '../src/modules/outbox/services/outbox-publisher.service';
 import { GeoapifyTravelEstimateProvider } from '../src/modules/tours/services/geoapify-travel-estimate.provider';
 import { TransportationMode } from '../src/modules/tours/interfaces/tour-generation.interface';
+import { normalizeWizardFacet } from '../src/modules/tours/utils/preference-facet-merge.util';
 import { LangChainService } from '../src/shared/ai/langchain.service';
 import { AiEmbeddingService } from '../src/shared/ai/services/ai-embedding.service';
 
@@ -91,35 +92,44 @@ function normalizedIntent(
   const preferredFacets: any[] = [];
   if (Array.isArray(overrides.preferredThemes)) {
     for (const theme of overrides.preferredThemes as string[]) {
-      preferredFacets.push({
-        dimension: 'theme',
-        key: theme,
-        importance: 1.0,
-        confidence: 1.0,
-        source: 'free_text',
-      });
+      const facet = normalizeWizardFacet('theme', theme);
+      preferredFacets.push(
+        facet ?? {
+          dimension: 'theme',
+          key: theme,
+          importance: 1.0,
+          confidence: 1.0,
+          source: 'wizard',
+        },
+      );
     }
   }
   if (Array.isArray(overrides.preferredTraits)) {
     for (const trait of overrides.preferredTraits as string[]) {
-      preferredFacets.push({
-        dimension: 'trait',
-        key: trait,
-        importance: 1.0,
-        confidence: 1.0,
-        source: 'free_text',
-      });
+      const facet = normalizeWizardFacet('trait', trait);
+      preferredFacets.push(
+        facet ?? {
+          dimension: 'trait',
+          key: trait,
+          importance: 1.0,
+          confidence: 1.0,
+          source: 'wizard',
+        },
+      );
     }
   }
   if (Array.isArray(overrides.preferredIntents)) {
     for (const intent of overrides.preferredIntents as string[]) {
-      preferredFacets.push({
-        dimension: 'intent',
-        key: intent,
-        importance: 1.0,
-        confidence: 1.0,
-        source: 'free_text',
-      });
+      const facet = normalizeWizardFacet('intent', intent);
+      preferredFacets.push(
+        facet ?? {
+          dimension: 'intent',
+          key: intent,
+          importance: 1.0,
+          confidence: 1.0,
+          source: 'wizard',
+        },
+      );
     }
   }
   if (Array.isArray(overrides.preferredFacets)) {

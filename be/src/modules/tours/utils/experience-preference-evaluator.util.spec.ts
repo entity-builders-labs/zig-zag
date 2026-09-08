@@ -119,12 +119,12 @@ describe('evaluateExperiencePreferences', () => {
       const intent: NormalizedPreferenceIntent = {
         ...emptyIntent,
         preferredFacets: [
-          normalizeWizardFacet('theme', 'history'),
-          normalizeWizardFacet('theme', 'art'), // not matched
-          normalizeWizardFacet('trait', 'guided'),
-          normalizeWizardFacet('trait', 'boutique'), // not matched
-          normalizeWizardFacet('intent', 'visit'),
-          normalizeWizardFacet('intent', 'cycling'), // not matched
+          normalizeWizardFacet('theme', 'history')!,
+          normalizeWizardFacet('theme', 'art')!, // not matched
+          normalizeWizardFacet('trait', 'guided')!,
+          normalizeWizardFacet('trait', 'boutique')!, // not matched
+          normalizeWizardFacet('intent', 'visit')!,
+          normalizeWizardFacet('intent', 'performance')!, // not matched
         ],
         budgetPreferences: ['low budget'],
         accessibilityPreferences: ['accessible'],
@@ -264,6 +264,95 @@ describe('evaluateExperiencePreferences', () => {
       expect(highScore).toBeCloseTo(0.8);
       expect(lowScore).toBeCloseTo(0.2);
       expect(highScore).toBeGreaterThan(lowScore);
+    });
+  });
+
+  describe('dimension isolation in preference evaluation', () => {
+    it('does not give false positive match for winery_scale when only name/description/generic trait has boutique', () => {
+      const expWithoutDimensionedScale = {
+        canonicalName: 'Boutique Winery Bodega',
+        description: 'A charming boutique tasting venue',
+        themes: ['wine'],
+        traits: ['boutique'],
+      };
+
+      const intent: NormalizedPreferenceIntent = {
+        ...emptyIntent,
+        preferredFacets: [
+          {
+            dimension: 'theme',
+            key: 'wine',
+            importance: 1.0,
+            confidence: 1.0,
+            source: 'wizard',
+          },
+          {
+            dimension: 'winery_scale',
+            key: 'boutique',
+            importance: 1.0,
+            confidence: 1.0,
+            source: 'free_text',
+          },
+        ],
+      };
+
+      const result = evaluateExperiencePreferences(
+        expWithoutDimensionedScale,
+        intent,
+      );
+
+      // wine matches (1.0), but winery_scale:boutique does NOT match (0.0) -> total matched 1.0 / 2.0 = 0.5
+      expect(result.score).toBeCloseTo(0.5);
+      expect(result.positiveMatches).toEqual(['wine']);
+      const wineryFacetMatch = result.facetMatches.find(
+        (m) => m.dimension === 'winery_scale' && m.key === 'boutique',
+      );
+      expect(wineryFacetMatch?.matched).toBe(false);
+    });
+
+    it('matches winery_scale when explicit dimensionedTraits evidence is present', () => {
+      const expWithDimensionedScale = {
+        canonicalName: 'Bodega Pequeña',
+        themes: ['wine'],
+        dimensionedTraits: [
+          { dimension: 'winery_scale', key: 'boutique', label: 'Boutique' },
+        ],
+      };
+
+      const intent: NormalizedPreferenceIntent = {
+        ...emptyIntent,
+        preferredFacets: [
+          {
+            dimension: 'theme',
+            key: 'wine',
+            importance: 1.0,
+            confidence: 1.0,
+            source: 'wizard',
+          },
+          {
+            dimension: 'winery_scale',
+            key: 'boutique',
+            importance: 1.0,
+            confidence: 1.0,
+            source: 'free_text',
+          },
+        ],
+      };
+
+      const result = evaluateExperiencePreferences(
+        expWithDimensionedScale,
+        intent,
+      );
+
+      // both wine and winery_scale:boutique match -> 2.0 / 2.0 = 1.0
+      expect(result.score).toBeCloseTo(1.0);
+      expect(result.positiveMatches).toEqual(
+        expect.arrayContaining(['wine', 'boutique']),
+      );
+      const wineryFacetMatch = result.facetMatches.find(
+        (m) => m.dimension === 'winery_scale' && m.key === 'boutique',
+      );
+      expect(wineryFacetMatch?.matched).toBe(true);
     });
   });
 });

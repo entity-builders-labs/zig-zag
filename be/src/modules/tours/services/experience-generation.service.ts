@@ -273,7 +273,7 @@ export class ExperienceGenerationService {
       ...(request.intent.intents ?? []).map((intent) =>
         normalizeWizardFacet('intent', intent),
       ),
-    ];
+    ].filter((facet): facet is PreferenceFacet => facet !== undefined);
 
     const preferredFacets = mergePreferenceFacets(
       wizardFacets,
@@ -310,6 +310,21 @@ export class ExperienceGenerationService {
     const traitDefinitions = (experience.traits ?? []).map(
       (trait: any) => trait.traitDefinition,
     );
+    const metadataDimensioned = Array.isArray(metadata.dimensionedTraits)
+      ? (metadata.dimensionedTraits as Array<{
+          dimension: string;
+          key: string;
+          label?: string;
+        }>)
+      : [];
+    const dimensionedTraits = [
+      ...metadataDimensioned,
+      ...traitDefinitions.filter(Boolean).map((definition: any) => ({
+        dimension: definition.dimension,
+        key: definition.key,
+        label: definition.label ?? undefined,
+      })),
+    ];
     return {
       id: experience.id,
       name: experience.canonicalName,
@@ -335,8 +350,10 @@ export class ExperienceGenerationService {
           ),
         ]),
       ),
+      dimensionedTraits,
       metadata: {
         ...metadata,
+        dimensionedTraits,
         source: 'experience_catalog',
         experienceId: experience.id,
       },

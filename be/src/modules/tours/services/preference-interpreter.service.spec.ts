@@ -152,4 +152,29 @@ describe('PreferenceInterpreterService', () => {
     expect(result.intent.softConstraints).toEqual([]);
     expect(result.intent.ambiguities).toEqual([]);
   });
+
+  it('drops invalid keys for controlled dimensions in LLM response', async () => {
+    const { service } = makeService(
+      JSON.stringify({
+        preferredFacets: [
+          {
+            dimension: 'theme',
+            key: 'unsupported_theme_123',
+            confidence: 0.9,
+            strength: 'strong',
+          },
+          {
+            dimension: 'theme',
+            key: 'history',
+            confidence: 0.9,
+            strength: 'strong',
+          },
+        ],
+      }),
+    );
+
+    const result = await service.interpret('Quiero algo raro e historia');
+    expect(result.intent.preferredFacets).toHaveLength(1);
+    expect(result.intent.preferredFacets[0].key).toBe('history');
+  });
 });
