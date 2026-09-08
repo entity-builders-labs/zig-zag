@@ -1,3 +1,7 @@
+import {
+  ExperienceDiscoveryBreadth,
+  ExperienceDiscoveryScope,
+} from './experience-discovery.interface';
 import { CoverageDeficit } from './coverage-analysis.interface';
 
 export interface AcquisitionDeficit {
@@ -8,35 +12,51 @@ export interface AcquisitionDeficit {
   legacyDeficit?: CoverageDeficit;
 }
 
+export interface WikivoyageSourcePlanPayload {
+  sections: Array<'SEE' | 'DO' | 'EAT'>;
+}
+
+export interface OsmSourcePlanPayload {
+  concepts: string[];
+}
+
+export interface PlacesSourcePlanPayload {
+  searchTypes: string[];
+}
+
+export interface WebSourcePlanPayload {
+  query: string;
+}
+
 export interface WikivoyageSourcePlan {
   provider: 'wikivoyage';
-  sections: Array<'SEE' | 'DO' | 'EAT'>;
+  wikivoyage: WikivoyageSourcePlanPayload;
 }
 
 export interface OsmSourcePlan {
   provider: 'osm';
-  concepts: string[];
+  osm: OsmSourcePlanPayload;
 }
 
 export interface GooglePlacesSourcePlan {
   provider: 'google_places';
-  searchTypes: string[];
+  places: PlacesSourcePlanPayload;
 }
 
 export interface WebSourcePlan {
   provider: 'web';
-  query: string;
+  web: WebSourcePlanPayload;
 }
 
-export interface SourcePlans {
-  wikivoyage?: WikivoyageSourcePlan;
-  osm?: OsmSourcePlan;
-  googlePlaces?: GooglePlacesSourcePlan;
-  web?: WebSourcePlan;
-}
+export type SourcePlan =
+  | WikivoyageSourcePlan
+  | OsmSourcePlan
+  | GooglePlacesSourcePlan
+  | WebSourcePlan;
 
 export interface ExperienceAcquisitionPlan {
-  destination: string;
+  destination: ExperienceDiscoveryScope;
   deficits: AcquisitionDeficit[];
-  sources: SourcePlans;
+  sourcePlans: SourcePlan[];
+  breadth: ExperienceDiscoveryBreadth;
 }

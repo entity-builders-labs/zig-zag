@@ -1,17 +1,22 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { CoverageDeficit } from '../interfaces/coverage-analysis.interface';
 import { PreferenceFacet } from '../preferences/preference-facet.interface';
-import { ExperienceCandidate } from '../interfaces/experience-discovery.interface';
+import {
+  ExperienceCandidate,
+  ExperienceDiscoveryBreadth,
+  ExperienceDiscoveryScope,
+} from '../interfaces/experience-discovery.interface';
 import {
   AcquisitionDeficit,
   ExperienceAcquisitionPlan,
-  SourcePlans,
+  SourcePlan,
 } from '../interfaces/experience-acquisition-plan.interface';
 import { lookupSourceCapabilityRoute } from '../constants/acquisition-source-routing';
 import { candidateMatchesPreferenceFacet } from '../utils/preference-facet-matching.util';
 
 export interface BuildPlanInput {
-  destination: string;
+  destination: ExperienceDiscoveryScope;
+  breadth?: ExperienceDiscoveryBreadth;
   deficits?: AcquisitionDeficit[];
   legacyDeficits?: CoverageDeficit[];
   preferredFacets?: PreferenceFacet[];
@@ -106,6 +111,7 @@ export class ExperienceAcquisitionPlannerService {
    * to appropriate providers using the explicit capability routing table.
    */
   buildAcquisitionPlan(input: BuildPlanInput): ExperienceAcquisitionPlan {
+    const breadth: ExperienceDiscoveryBreadth = input.breadth ?? 'focused';
     const deficits: AcquisitionDeficit[] = [];
     const seenDeficitKeys = new Set<string>();
 
@@ -140,7 +146,8 @@ export class ExperienceAcquisitionPlannerService {
       return {
         destination: input.destination,
         deficits: [],
-        sources: {},
+        sourcePlans: [],
+        breadth,
       };
     }
 
@@ -170,37 +177,45 @@ export class ExperienceAcquisitionPlannerService {
       }
     }
 
-    const sources: SourcePlans = {};
+    const sourcePlans: SourcePlan[] = [];
 
     // 17.1 Wikivoyage coalescing (canonical order SEE, DO, EAT)
     if (wikivoyageSections.size > 0) {
       const order = ['SEE', 'DO', 'EAT'] as const;
       const sortedSections = order.filter((s) => wikivoyageSections.has(s));
-      sources.wikivoyage = {
+      sourcePlans.push({
         provider: 'wikivoyage',
-        sections: sortedSections,
-      };
+        wikivoyage: {
+          sections: sortedSections,
+        },
+      });
     }
 
     // 17.2 OSM coalescing (sorted concepts)
     if (osmConcepts.size > 0) {
-      sources.osm = {
+      sourcePlans.push({
         provider: 'osm',
-        concepts: [...osmConcepts].sort(),
-      };
+        osm: {
+          concepts: [...osmConcepts].sort(),
+        },
+      });
     }
 
-    // 17.3 Google Places coalescing (sorted search types)
+    // 17.3 Google Places coalescing (sorted search types, provider: 'google_places', payload key: 'places')
     if (placesTypes.size > 0) {
-      sources.googlePlaces = {
+      sourcePlans.push({
         provider: 'google_places',
-        searchTypes: [...placesTypes].sort(),
-      };
+        places: {
+          searchTypes: [...placesTypes].sort(),
+        },
+      });
     }
 
     // 17.4 Web query coalescing (at most one plain-keyword query)
     const sortedKeywords = [...webKeywords].sort();
-    const queryParts = [input.destination.trim()];
+    const destName = input.destination.destinationName?.trim() || '';
+    const queryParts = destName ? [destName] : [];
+
     if (sortedKeywords.length > 0) {
       queryParts.push(...sortedKeywords);
     } else {
@@ -210,21 +225,22 @@ export class ExperienceAcquisitionPlannerService {
       queryParts.push(input.semanticQuery.trim());
     }
 
-    sources.web = {
+    sourcePlans.push({
       provider: 'web',
-      query: queryParts.join(' '),
-    };
+      web: {
+        query: queryParts.join(' '),
+      },
+    });
 
     this.logger.log(
-      `Built acquisition plan for "${input.destination}" with ${deficits.length} deficits: sources [${Object.keys(
-        sources,
-      ).join(', ')}]`,
+      `Built acquisition plan for "${destName}" with ${deficits.length} deficits: [${sourcePlans.map((s) => s.provider).join(', ')}]`,
     );
 
     return {
       destination: input.destination,
       deficits,
-      sources,
+      sourcePlans,
+      breadth,
     };
   }
 }

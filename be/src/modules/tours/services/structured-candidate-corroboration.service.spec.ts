@@ -664,4 +664,86 @@ describe('StructuredCandidateCorroborationService', () => {
     expect(order1.groups).toEqual(order2.groups);
     expect(order1.groups).toEqual(order3.groups);
   });
+
+  it('Scenario L (regression): classifies conflicting expectedKind (PLACE vs AREA) as AMBIGUOUS and preserves separate candidates', () => {
+    const proposalPlace: StructuredCandidateProposal = {
+      candidate: {
+        name: 'San Telmo Market',
+        themes: ['food'],
+        traits: ['market'],
+        componentHints: [
+          {
+            key: 'hint:place',
+            name: 'San Telmo Market',
+            role: 'venue',
+            expectedKind: 'PLACE',
+            required: true,
+            evidenceKeys: ['osm:1'],
+          },
+        ],
+        evidenceKeys: ['osm:1'],
+        shortReason: 'Place candidate',
+      },
+      observations: [
+        {
+          provider: 'osm',
+          title: 'San Telmo Market',
+          evidenceType: 'place',
+          evidenceKey: 'osm:1',
+          geo: { latitude: -34.62, longitude: -58.37 },
+        },
+      ],
+    };
+
+    const proposalArea: StructuredCandidateProposal = {
+      candidate: {
+        name: 'San Telmo Market',
+        themes: ['food'],
+        traits: ['market'],
+        componentHints: [
+          {
+            key: 'hint:area',
+            name: 'San Telmo Market',
+            role: 'area',
+            expectedKind: 'AREA',
+            required: true,
+            evidenceKeys: ['wikivoyage:1'],
+          },
+        ],
+        evidenceKeys: ['wikivoyage:1'],
+        shortReason: 'Area candidate',
+      },
+      observations: [
+        {
+          provider: 'wikivoyage',
+          title: 'San Telmo Market',
+          evidenceType: 'place',
+          evidenceKey: 'wikivoyage:1',
+          geo: { latitude: -34.62, longitude: -58.37 },
+        },
+      ],
+    };
+
+    // Pair decision must be AMBIGUOUS due to conflicting expectedKind
+    const pair = service.decidePair(proposalPlace, proposalArea);
+    expect(pair.decision).toBe('AMBIGUOUS');
+    expect(pair.reasons).toContain('conflicting_component_expected_kind');
+
+    // Corroboration merge must NOT collapse them into 1 candidate or force expectedKind PLACE
+    const result = service.corroborateAndMerge([proposalPlace, proposalArea]);
+    expect(result.candidates).toHaveLength(2);
+    expect(result.groups).toHaveLength(2);
+
+    const placeCandidate = result.candidates.find(
+      (c) => c.componentHints[0].expectedKind === 'PLACE',
+    );
+    const areaCandidate = result.candidates.find(
+      (c) => c.componentHints[0].expectedKind === 'AREA',
+    );
+
+    expect(placeCandidate).toBeDefined();
+    expect(areaCandidate).toBeDefined();
+    expect(placeCandidate?.componentHints[0].role).toBe('venue');
+    expect(areaCandidate?.componentHints[0].role).toBe('area');
+  });
 });

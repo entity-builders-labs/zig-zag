@@ -3,6 +3,17 @@ import { ExperienceAcquisitionPlannerService } from './experience-acquisition-pl
 import { CoverageDeficit } from '../interfaces/coverage-analysis.interface';
 import { PreferenceFacet } from '../preferences/preference-facet.interface';
 import { ExperienceCandidate } from '../interfaces/experience-discovery.interface';
+import {
+  ExperienceAcquisitionPlan,
+  SourcePlan,
+} from '../interfaces/experience-acquisition-plan.interface';
+
+function findPlan<T extends SourcePlan['provider']>(
+  plan: ExperienceAcquisitionPlan,
+  provider: T,
+): Extract<SourcePlan, { provider: T }> | undefined {
+  return plan.sourcePlans.find((s) => s.provider === provider) as any;
+}
 
 describe('ExperienceAcquisitionPlannerService', () => {
   let service: ExperienceAcquisitionPlannerService;
@@ -89,7 +100,7 @@ describe('ExperienceAcquisitionPlannerService', () => {
     });
   });
 
-  // Scenario N: Preference facet projection
+  // Scenario N: Preference facet projection with canonical dimensions
   it('Scenario N: emits deficit when preference facet has no candidate match, and emits none when match exists', () => {
     const candidatePool: ExperienceCandidate[] = [
       {
@@ -103,7 +114,7 @@ describe('ExperienceAcquisitionPlannerService', () => {
     ];
 
     const wineFacet: PreferenceFacet = {
-      dimension: 'cuisine',
+      dimension: 'theme',
       key: 'wine',
       importance: 1.0,
       confidence: 1.0,
@@ -124,9 +135,9 @@ describe('ExperienceAcquisitionPlannerService', () => {
     ]);
     expect(wineDeficits).toHaveLength(1);
     expect(wineDeficits[0]).toEqual({
-      dimension: 'cuisine',
+      dimension: 'theme',
       key: 'wine',
-      reason: 'Coverage deficit for preference facet [cuisine:wine]',
+      reason: 'Coverage deficit for preference facet [theme:wine]',
       origin: 'preference_facet',
     });
 
@@ -143,7 +154,7 @@ describe('ExperienceAcquisitionPlannerService', () => {
     const candidatePool: ExperienceCandidate[] = [];
     const explorationFacet: PreferenceFacet = {
       dimension: 'exploration_style',
-      key: 'off_the_beaten_path',
+      key: 'relaxed',
       importance: 1.0,
       confidence: 1.0,
       source: 'wizard',
@@ -155,51 +166,146 @@ describe('ExperienceAcquisitionPlannerService', () => {
     expect(deficits).toHaveLength(0);
 
     const plan = service.buildAcquisitionPlan({
-      destination: 'Mendoza',
+      destination: { destinationName: 'Mendoza' },
       preferredFacets: [explorationFacet],
       candidates: candidatePool,
     });
     expect(plan.deficits).toHaveLength(0);
-    expect(plan.sources).toEqual({});
+    expect(plan.sourcePlans).toHaveLength(0);
   });
 
-  // Scenario P: Source plan routing
-  it('Scenario P: routes theme:history deficit to Wikivoyage, OSM, Places, and Web', () => {
+  // Specific canonical route tests
+  it('routes theme:wine correctly across Wikivoyage, OSM, Places, and Web', () => {
     const plan = service.buildAcquisitionPlan({
-      destination: 'Buenos Aires',
+      destination: { destinationName: 'Mendoza' },
       deficits: [
         {
           dimension: 'theme',
-          key: 'history',
-          reason: 'Need history',
+          key: 'wine',
+          reason: 'Need wine',
           origin: 'coverage_analysis',
         },
       ],
     });
 
-    expect(plan.sources.wikivoyage).toEqual({
-      provider: 'wikivoyage',
-      sections: ['SEE'],
-    });
+    expect(plan.destination).toEqual({ destinationName: 'Mendoza' });
+    expect(plan.breadth).toBe('focused');
 
-    expect(plan.sources.osm).toEqual({
-      provider: 'osm',
-      concepts: ['historic', 'museum'],
-    });
+    const wv = findPlan(plan, 'wikivoyage');
+    expect(wv?.wikivoyage.sections).toEqual(['EAT']);
 
-    expect(plan.sources.googlePlaces).toEqual({
-      provider: 'google_places',
-      searchTypes: ['museum', 'tourist_attraction'],
-    });
+    const osm = findPlan(plan, 'osm');
+    expect(osm?.osm.concepts).toEqual(['vineyard', 'winery']);
 
-    expect(plan.sources.web?.query).toContain('Buenos Aires');
-    expect(plan.sources.web?.query).toContain('historic sites');
+    const places = findPlan(plan, 'google_places');
+    expect(places?.places.searchTypes).toEqual(['winery']);
+
+    const web = findPlan(plan, 'web');
+    expect(web?.web.query).toContain('Mendoza');
+    expect(web?.web.query).toContain('wine tasting');
   });
 
-  // Scenario Q: Multi-deficit plan coalescing
+  it('routes winery_scale:boutique to Places and Web only (no OSM or Wikivoyage)', () => {
+    const plan = service.buildAcquisitionPlan({
+      destination: { destinationName: 'Mendoza' },
+      deficits: [
+        {
+          dimension: 'winery_scale',
+          key: 'boutique',
+          reason: 'Need boutique winery',
+          origin: 'preference_facet',
+        },
+      ],
+    });
+
+    expect(findPlan(plan, 'wikivoyage')).toBeUndefined();
+    expect(findPlan(plan, 'osm')).toBeUndefined();
+
+    const places = findPlan(plan, 'google_places');
+    expect(places?.places.searchTypes).toEqual(['winery']);
+
+    const web = findPlan(plan, 'web');
+    expect(web?.web.query).toContain('boutique wineries');
+  });
+
+  it('routes nature_type:park correctly to Wikivoyage, OSM, Places, and Web', () => {
+    const plan = service.buildAcquisitionPlan({
+      destination: { destinationName: 'Bariloche' },
+      deficits: [
+        {
+          dimension: 'nature_type',
+          key: 'park',
+          reason: 'Need park',
+          origin: 'preference_facet',
+        },
+      ],
+    });
+
+    const wv = findPlan(plan, 'wikivoyage');
+    expect(wv?.wikivoyage.sections).toEqual(['SEE', 'DO']);
+
+    const osm = findPlan(plan, 'osm');
+    expect(osm?.osm.concepts).toEqual(['nature_reserve', 'park']);
+
+    const places = findPlan(plan, 'google_places');
+    expect(places?.places.searchTypes).toEqual(['park']);
+
+    const web = findPlan(plan, 'web');
+    expect(web?.web.query).toContain('parks');
+  });
+
+  it('routes local_character:authentic to Wikivoyage and Web only (no OSM or Places)', () => {
+    const plan = service.buildAcquisitionPlan({
+      destination: { destinationName: 'Buenos Aires' },
+      deficits: [
+        {
+          dimension: 'local_character',
+          key: 'authentic',
+          reason: 'Need authentic character',
+          origin: 'preference_facet',
+        },
+      ],
+    });
+
+    const wv = findPlan(plan, 'wikivoyage');
+    expect(wv?.wikivoyage.sections).toEqual(['SEE', 'EAT']);
+
+    expect(findPlan(plan, 'osm')).toBeUndefined();
+    expect(findPlan(plan, 'google_places')).toBeUndefined();
+
+    const web = findPlan(plan, 'web');
+    expect(web?.web.query).toContain('authentic neighborhood spots');
+  });
+
+  it('routes intent:walk to Wikivoyage DO, OSM route-like concepts, and Web (no Places)', () => {
+    const plan = service.buildAcquisitionPlan({
+      destination: { destinationName: 'Salta' },
+      deficits: [
+        {
+          dimension: 'intent',
+          key: 'walk',
+          reason: 'Need walking activity',
+          origin: 'coverage_analysis',
+        },
+      ],
+    });
+
+    const wv = findPlan(plan, 'wikivoyage');
+    expect(wv?.wikivoyage.sections).toEqual(['DO']);
+
+    const osm = findPlan(plan, 'osm');
+    expect(osm?.osm.concepts).toEqual(['footway', 'hiking', 'route']);
+
+    expect(findPlan(plan, 'google_places')).toBeUndefined();
+
+    const web = findPlan(plan, 'web');
+    expect(web?.web.query).toContain('walking tours');
+  });
+
+  // Scenario Q: Multi-deficit plan coalescing with canonical contract
   it('Scenario Q: coalesces multi-deficit requests across providers into sorted deduplicated source plans', () => {
     const plan = service.buildAcquisitionPlan({
-      destination: 'Buenos Aires',
+      destination: { destinationName: 'Buenos Aires' },
       deficits: [
         {
           dimension: 'theme',
@@ -216,19 +322,19 @@ describe('ExperienceAcquisitionPlannerService', () => {
       ],
     });
 
-    expect(plan.sources.wikivoyage).toEqual({
-      provider: 'wikivoyage',
-      sections: ['SEE', 'EAT'],
-    });
+    const wv = findPlan(plan, 'wikivoyage');
+    expect(wv?.wikivoyage.sections).toEqual(['SEE', 'EAT']);
 
-    expect(plan.sources.osm?.concepts).toEqual([
+    const osm = findPlan(plan, 'osm');
+    expect(osm?.osm.concepts).toEqual([
       'cafe',
       'historic',
       'museum',
       'restaurant',
     ]);
 
-    expect(plan.sources.googlePlaces?.searchTypes).toEqual([
+    const places = findPlan(plan, 'google_places');
+    expect(places?.places.searchTypes).toEqual([
       'bakery',
       'cafe',
       'museum',
@@ -236,13 +342,13 @@ describe('ExperienceAcquisitionPlannerService', () => {
       'tourist_attraction',
     ]);
 
-    expect(plan.sources.web).toBeDefined();
+    expect(findPlan(plan, 'web')).toBeDefined();
   });
 
   // Scenario R: Single web query guarantee
   it('Scenario R: emits exactly ONE plain-keyword web query regardless of the number of deficits', () => {
     const plan = service.buildAcquisitionPlan({
-      destination: 'Mendoza',
+      destination: { destinationName: 'Mendoza' },
       deficits: [
         {
           dimension: 'theme',
@@ -257,35 +363,34 @@ describe('ExperienceAcquisitionPlannerService', () => {
           origin: 'coverage_analysis',
         },
         {
-          dimension: 'cuisine',
+          dimension: 'theme',
           key: 'wine',
           reason: 'Need wine',
           origin: 'preference_facet',
         },
         {
-          dimension: 'setting',
-          key: 'outdoors',
-          reason: 'Need outdoors',
+          dimension: 'nature_type',
+          key: 'mountain',
+          reason: 'Need mountains',
           origin: 'preference_facet',
         },
         {
-          dimension: 'vibe',
-          key: 'scenic',
-          reason: 'Need scenic',
+          dimension: 'tourism_intensity',
+          key: 'hidden',
+          reason: 'Need hidden spots',
           origin: 'preference_facet',
         },
       ],
       semanticQuery: 'wineries in Valle de Uco',
     });
 
-    expect(plan.sources.web).toBeDefined();
-    const query = plan.sources.web!.query;
+    const webPlans = plan.sourcePlans.filter((s) => s.provider === 'web');
+    expect(webPlans).toHaveLength(1);
 
-    // Must be a single space-separated string starting with destination
+    const query = (webPlans[0] as any).web.query;
     expect(query.startsWith('Mendoza')).toBe(true);
     expect(query).toContain('wine tasting');
     expect(query).toContain('wineries in Valle de Uco');
-    // Ensure no prompt prose or JSON artifacts
     expect(query).not.toContain('Find me');
     expect(query).not.toContain('{');
     expect(query).not.toContain('}');
@@ -294,7 +399,7 @@ describe('ExperienceAcquisitionPlannerService', () => {
   // Scenario S: Unknown dimension fallback
   it('Scenario S: routes unknown dimensions or keys ONLY to web without polluting OSM or Places', () => {
     const plan = service.buildAcquisitionPlan({
-      destination: 'Córdoba',
+      destination: { destinationName: 'Córdoba' },
       deficits: [
         {
           dimension: 'companion',
@@ -305,24 +410,27 @@ describe('ExperienceAcquisitionPlannerService', () => {
       ],
     });
 
-    expect(plan.sources.wikivoyage).toBeUndefined();
-    expect(plan.sources.osm).toBeUndefined();
-    expect(plan.sources.googlePlaces).toBeUndefined();
+    expect(findPlan(plan, 'wikivoyage')).toBeUndefined();
+    expect(findPlan(plan, 'osm')).toBeUndefined();
+    expect(findPlan(plan, 'google_places')).toBeUndefined();
 
-    expect(plan.sources.web).toEqual({
+    const web = findPlan(plan, 'web');
+    expect(web).toEqual({
       provider: 'web',
-      query: 'Córdoba flying_trapeze',
+      web: {
+        query: 'Córdoba flying_trapeze',
+      },
     });
   });
 
   // Scenario T: Empty deficit handling
   it('Scenario T: returns empty source plans when no deficits exist', () => {
     const plan = service.buildAcquisitionPlan({
-      destination: 'Salta',
+      destination: { destinationName: 'Salta' },
       deficits: [],
     });
 
     expect(plan.deficits).toHaveLength(0);
-    expect(plan.sources).toEqual({});
+    expect(plan.sourcePlans).toHaveLength(0);
   });
 });

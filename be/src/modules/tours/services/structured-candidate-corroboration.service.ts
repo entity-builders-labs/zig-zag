@@ -21,6 +21,7 @@ export type CorroborationReason =
   | 'name_match_without_geography'
   | 'geographic_overlap_without_name_match'
   | 'incompatible_evidence_type'
+  | 'conflicting_component_expected_kind'
   | 'no_shared_identity_signal';
 
 export interface CorroborationPairDecision {
@@ -169,6 +170,18 @@ export class StructuredCandidateCorroborationService {
         decision: 'NEW',
         reasons: ['incompatible_evidence_type'],
       };
+    }
+
+    // Component hint expectedKind check: conflicting kinds are never SAME
+    const leftHints = left.candidate.componentHints;
+    const rightHints = right.candidate.componentHints;
+    if (leftHints.length === 1 && rightHints.length === 1) {
+      if (leftHints[0].expectedKind !== rightHints[0].expectedKind) {
+        return {
+          decision: 'AMBIGUOUS',
+          reasons: ['conflicting_component_expected_kind'],
+        };
+      }
     }
 
     // Rule B: Shared canonical Wikidata identity
@@ -435,29 +448,47 @@ export class StructuredCandidateCorroborationService {
     );
 
     if (isSingleConceptCluster && allHints.length > 0) {
-      const role =
-        allHints.find((h) => h.role === 'venue')?.role ||
-        allHints[0].role ||
-        'venue';
-      const expectedKind =
-        allHints.find((h) => h.expectedKind === 'PLACE')?.expectedKind ||
-        allHints[0].expectedKind ||
-        'PLACE';
-      const required = allHints.some((h) => h.required);
-      const hintEvidenceKeys = [
-        ...new Set(allHints.flatMap((h) => h.evidenceKeys)),
-      ].sort();
+      const distinctKinds = [...new Set(allHints.map((h) => h.expectedKind))];
 
-      componentHints = [
-        {
-          key: `${evidenceKeys[0]}:component`,
-          name: chosenName,
-          role,
-          expectedKind,
-          required,
-          evidenceKeys: hintEvidenceKeys,
-        },
-      ];
+      // If expectedKind conflicts, do NOT silently choose PLACE. Keep hints separate.
+      if (distinctKinds.length > 1) {
+        componentHints = allHints;
+      } else {
+        const expectedKind = distinctKinds[0];
+        const distinctRoles = [...new Set(allHints.map((h) => h.role))];
+
+        let role: GeoEntityHint['role'] | undefined;
+        if (distinctRoles.length === 1) {
+          role = distinctRoles[0];
+        } else if (
+          distinctRoles.length === 2 &&
+          distinctRoles.includes('venue') &&
+          distinctRoles.includes('waypoint')
+        ) {
+          role = 'venue';
+        } else {
+          // Incompatible roles: keep hints separate
+          componentHints = allHints;
+        }
+
+        if (role) {
+          const required = allHints.some((h) => h.required);
+          const hintEvidenceKeys = [
+            ...new Set(allHints.flatMap((h) => h.evidenceKeys)),
+          ].sort();
+
+          componentHints = [
+            {
+              key: `${evidenceKeys[0]}:component`,
+              name: chosenName,
+              role,
+              expectedKind,
+              required,
+              evidenceKeys: hintEvidenceKeys,
+            },
+          ];
+        }
+      }
     } else {
       // Multi-component alignment fallback
       componentHints = allHints;
