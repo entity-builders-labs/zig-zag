@@ -93,43 +93,34 @@ function normalizedIntent(
   if (Array.isArray(overrides.preferredThemes)) {
     for (const theme of overrides.preferredThemes as string[]) {
       const facet = normalizeWizardFacet('theme', theme);
-      preferredFacets.push(
-        facet ?? {
-          dimension: 'theme',
-          key: theme,
-          importance: 1.0,
-          confidence: 1.0,
-          source: 'wizard',
-        },
-      );
+      if (!facet) {
+        throw new Error(
+          `Invalid preferredThemes fixture override "${theme}": failed to normalize to a valid wizard facet`,
+        );
+      }
+      preferredFacets.push(facet);
     }
   }
   if (Array.isArray(overrides.preferredTraits)) {
     for (const trait of overrides.preferredTraits as string[]) {
       const facet = normalizeWizardFacet('trait', trait);
-      preferredFacets.push(
-        facet ?? {
-          dimension: 'trait',
-          key: trait,
-          importance: 1.0,
-          confidence: 1.0,
-          source: 'wizard',
-        },
-      );
+      if (!facet) {
+        throw new Error(
+          `Invalid preferredTraits fixture override "${trait}": failed to normalize to a valid wizard facet`,
+        );
+      }
+      preferredFacets.push(facet);
     }
   }
   if (Array.isArray(overrides.preferredIntents)) {
     for (const intent of overrides.preferredIntents as string[]) {
       const facet = normalizeWizardFacet('intent', intent);
-      preferredFacets.push(
-        facet ?? {
-          dimension: 'intent',
-          key: intent,
-          importance: 1.0,
-          confidence: 1.0,
-          source: 'wizard',
-        },
-      );
+      if (!facet) {
+        throw new Error(
+          `Invalid preferredIntents fixture override "${intent}": failed to normalize to a valid wizard facet`,
+        );
+      }
+      preferredFacets.push(facet);
     }
   }
   if (Array.isArray(overrides.preferredFacets)) {
@@ -452,7 +443,22 @@ const scenarios: ScenarioDefinition[] = [
     key: 'mixed-age-family',
     title: 'mixed-age family + conflicting adult/child preferences',
     interpretation: normalizedIntent({
-      preferredThemes: ['culture', 'interactive'],
+      preferredFacets: [
+        {
+          dimension: 'theme',
+          key: 'culture',
+          importance: 1.0,
+          confidence: 1.0,
+          source: 'wizard',
+        },
+        {
+          dimension: 'theme',
+          key: 'interactive',
+          importance: 1.0,
+          confidence: 1.0,
+          source: 'wizard',
+        },
+      ],
       preferredTraits: ['family friendly'],
       groupPreferences: ['family friendly'],
       positiveSemanticQuery: 'family friendly culture interactive mixed ages',
@@ -520,7 +526,15 @@ const scenarios: ScenarioDefinition[] = [
     key: 'long-tail',
     title: 'long-tail intent inside a mostly irrelevant 320-row catalog',
     interpretation: normalizedIntent({
-      preferredThemes: ['hidden history'],
+      preferredFacets: [
+        {
+          dimension: 'theme',
+          key: 'hidden history',
+          importance: 1.0,
+          confidence: 1.0,
+          source: 'wizard',
+        },
+      ],
       preferredTraits: ['local'],
       preferredIntents: ['walk'],
       positiveSemanticQuery: 'hidden history local walk obscure Buenos Aires',
@@ -940,7 +954,22 @@ describe('Experience V2 CP8 mandatory selection scenarios at scale', () => {
     ).toBe(true);
 
     activeInterpretation = normalizedIntent({
-      preferredThemes: ['tango', 'religion'],
+      preferredFacets: [
+        {
+          dimension: 'theme',
+          key: 'tango',
+          importance: 1.0,
+          confidence: 1.0,
+          source: 'wizard',
+        },
+        {
+          dimension: 'theme',
+          key: 'religion',
+          importance: 1.0,
+          confidence: 1.0,
+          source: 'wizard',
+        },
+      ],
       preferredIntents: ['walk'],
       positiveSemanticQuery: 'religious tango cathedral walk Buenos Aires',
     });

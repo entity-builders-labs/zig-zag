@@ -177,4 +177,41 @@ describe('PreferenceInterpreterService', () => {
     expect(result.intent.preferredFacets).toHaveLength(1);
     expect(result.intent.preferredFacets[0].key).toBe('history');
   });
+
+  it('drops facets with missing or blank dimension in LLM response', async () => {
+    const { service } = makeService(
+      JSON.stringify({
+        preferredFacets: [
+          {
+            key: 'history',
+            confidence: 0.9,
+            strength: 'strong',
+          },
+          {
+            dimension: '',
+            key: 'history',
+            confidence: 0.9,
+            strength: 'strong',
+          },
+          {
+            dimension: 'theme',
+            key: 'history',
+            confidence: 0.9,
+            strength: 'strong',
+          },
+        ],
+      }),
+    );
+
+    const result = await service.interpret('Quiero historia');
+    expect(result.intent.preferredFacets).toHaveLength(1);
+    expect(result.intent.preferredFacets[0]).toEqual(
+      expect.objectContaining({
+        dimension: 'theme',
+        key: 'history',
+        confidence: 0.9,
+        importance: 1.0,
+      }),
+    );
+  });
 });

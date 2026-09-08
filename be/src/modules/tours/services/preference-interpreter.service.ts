@@ -208,10 +208,14 @@ export class PreferenceInterpreterService {
         continue;
       }
 
-      const rawDim =
-        typeof item.dimension === 'string' && item.dimension.trim().length > 0
-          ? item.dimension.trim().toLowerCase()
-          : 'theme';
+      if (
+        typeof item.dimension !== 'string' ||
+        item.dimension.trim().length === 0
+      ) {
+        continue;
+      }
+
+      const rawDim = item.dimension.trim().toLowerCase();
 
       // exploration_style is dormant in Phase 2
       if (rawDim === 'exploration_style') {
