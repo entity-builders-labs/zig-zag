@@ -6,9 +6,10 @@ Implementation plan: `docs/superpowers/plans/2026-09-08-multi-source-acquisition
 # Current State
 
 - Branch: `feat/experience-domain-v2`
-- Current milestone: Phase 2 — Preference Facets & Deterministic Importance Mapping (CLOSED & VERIFIED)
-- Verified base commit: `7441a78664e2a41bceffe588817d8c4e40e8b4d5` (Phase 1 hardening commit)
-- Last verified test state: backend Jest `111/111` suites and `760/760` tests passing (baseline was `110/110` suites, `747/747` tests; +1 new suite, +13 tests, zero regressions).
+- Current milestone: Phase 2 — Preference Facets & Deterministic Importance Mapping (HARDENED & VERIFIED)
+- Verified code commit: `2f79c6569eb2e008ee1cb21ff06eb9d45388c4b1` (Phase 2 hardening commit)
+- Verified base commit: `e04fc5725f15429884e2c200f6332807b3f8666a` (Phase 2 core implementation commit)
+- Last verified test state: backend Jest `113/113` suites and `791/791` tests passing (baseline was `111/111` suites, `760/760` tests; +2 new suites, +31 tests, zero regressions).
 - Linting: `yarn lint:check` is 100% clean (0 errors, 0 warnings).
 - Typecheck: `yarn run check` introduces zero new errors beyond the known acceptance-fixture baseline; `yarn build` is 100% clean.
 
@@ -104,11 +105,43 @@ Implementation plan: `docs/superpowers/plans/2026-09-08-multi-source-acquisition
     - `mergeStructuredPreferences()` normalizes wizard interests & intents into wizard facets and merges with interpreted facets.
     - `buildCoverageReport`, `rankAndSliceExperiences`, `selectBoundedWindow`, and candidate discovery extraction updated to use `getFacetKeysByDimension`.
     - `GenerationTrace` / candidate pool step captures `preferenceEvaluation` with `facetMatches` and `scoreBreakdown` intact.
-  - Updated `be/test/experience-selection-scale.e2e-spec.ts` `normalizedIntent` helper.
+- **Phase 2 Hardening (Dimension-Aware Matching & Controlled Vocabulary Enforcement)**:
+  - **Pure Dimension-Aware Matcher**:
+    Created `be/src/modules/tours/utils/preference-facet-matching.util.ts`:
+    - Strict dimension isolation:
+      - `theme`: matches only against `experience.themes` and `metadata.themes`.
+      - `intent`: matches only against `experience.intents`, `metadata.intents`, and `metadata.archetypes`.
+      - `trait`: matches against `experience.traits`, `metadata.traits`, and `dimensionedTraits` where `dimension === 'trait' || dimension === 'general'`.
+      - Structured dimensions (`winery_scale`, `tourism_intensity`, `nature_type`, `local_character`): matches only against explicit dimension-specific evidence (`dimensionedTraits`, `metadata.dimensionedTraits`, `metadata.preferenceFacets`, `metadata.facets`, `metadata.dimensions`). False positive matches against name/description/generic traits completely eliminated.
+      - Dormant `exploration_style` and unknown dimensions return `false`.
+    - Unit test suite: `be/src/modules/tours/utils/preference-facet-matching.util.spec.ts` (14 unit tests covering all dimensions, false-positive prevention, and edge cases).
+  - **Vocabulary & Dimension-Scoped Synonyms**:
+    Updated `be/src/modules/tours/preferences/preference-facet-vocabulary.ts`:
+    - Audited repository reality and added missing valid intents (`food`, `nightlife`) and themes (`shopping`, `sports`).
+    - Replaced global flat synonyms with dimension-scoped `DIMENSION_KEY_SYNONYMS: Record<PreferenceDimension, Record<string, string>>`.
+    - Updated `canonicalizeFacetKey(dimension, rawKey)` to strictly enforce vocabulary for controlled dimensions, returning `undefined` for invalid/dormant/unknown keys.
+    - Unit test suite: `be/src/modules/tours/preferences/preference-facet-vocabulary.spec.ts` (10 unit tests).
+  - **Runtime Hydration of `dimensionedTraits`**:
+    - Updated `ExperienceCatalogService` (`findVerifiedWithin()` and `findById()`) to map and preserve `dimensionedTraits: Array<{ dimension: string; key: string; label?: string }>` on hydrated experiences and metadata while keeping backward-compatible `traits: string[]`.
+    - Updated `ExperienceGenerationService` (`hydratePersistedExperience()`) to map `dimensionedTraits` from trait definitions and metadata.
+    - Unit tests in `experience-catalog.service.spec.ts` verifying preservation of `dimensionedTraits`.
+  - **Preference Evaluator Dimension Isolation**:
+    Updated `be/src/modules/tours/utils/experience-preference-evaluator.util.ts`:
+    - Replaced corpus-wide text matching with `candidateMatchesPreferenceFacet(experience, facet)`.
+    - Unit tests in `experience-preference-evaluator.util.spec.ts` verifying false-positive immunity on `winery_scale` and valid dimensioned matches.
+  - **Interpreter & Merge Discipline**:
+    - Updated `normalizeWizardFacet()` in `preference-facet-merge.util.ts` to return `PreferenceFacet | undefined`, rejecting invalid keys and dormant `exploration_style`.
+    - Updated `mergePreferenceFacets()` to filter out invalid or undefined facets.
+    - Updated `experience-generation.service.ts` to filter out undefined wizard facets.
+    - Updated `preference-interpreter.service.ts` to reject invalid keys in controlled dimensions.
+    - Updated `preference-interpreter.service.spec.ts` and `preference-facet-merge.util.spec.ts` (11 unit tests).
+  - **E2E Scale Helper & Architecture Documentation**:
+    - Updated `be/test/experience-selection-scale.e2e-spec.ts` legacy fixture helper to use wizard semantics (`source: 'wizard'`, `importance: 1.0`, `confidence: 1.0`).
+    - Updated `CLAUDE.md` to document `preferredFacets: PreferenceFacet[]`, dimension isolation, and scoring invariants.
 
 # In Progress
 
-None. Phase 2 is complete.
+None. Phase 2 hardening is complete.
 
 # Not Started
 
@@ -120,10 +153,10 @@ None. Phase 2 is complete.
 
 # Verification
 
-- `yarn test` (`be/`): PASS — 111 suites, 760 tests passing (zero regressions, +1 suite, +13 tests).
-- `yarn lint:check` (`be/`): PASS — 0 errors, 0 warnings across entire codebase.
+- `yarn test` (`be/`): PASS — 113 suites, 791 tests passing (zero regressions, +2 suites, +31 tests).
+- `yarn run lint:check` (`be/`): PASS — 0 errors, 0 warnings across entire codebase.
 - `yarn run check` (`be/`): TypeScript compilation in `be/src/` has 0 errors; `yarn build` completed cleanly.
-- Explainability verified: `PreferenceEvaluation.facetMatches` correctly captures all 7 audit fields for real facets; trace candidate decisions preserve breakdown.
+- Dimension isolation verified: `candidateMatchesPreferenceFacet` isolates `winery_scale`, `tourism_intensity`, `nature_type`, and `local_character` from unintended title/description/generic trait matches.
 
 # Important Decisions / Invariants
 
@@ -131,12 +164,13 @@ None. Phase 2 is complete.
   - `Verified code commit`: Commit whose code, types, and tests were actually executed and verified.
   - `Verified base commit`: Base commit on which changes were developed and verified.
   - `Checkpoint commit`: Optional informational field only when referring to an already-existing documentation or tracking commit. Never embed the self-referential commit SHA within its own commit.
+- **Dimension-Aware Matching**: Preferences are evaluated against structured entity evidence matching the exact facet dimension. Unstructured substrings in name or description never trigger matches on controlled dimensions.
 - **`facetMatches` Invariant**: Contains only genuine `PreferenceFacet` records. Dietary, accessibility, budget, and group constraints participate in `positiveRatio` with fixed weight 1.0, but never manufacture synthetic `PreferenceFacet` entries.
-- **Canonical Facet Keys**: Free-text terms (in Spanish or English) and synonyms are normalized into canonical domain keys (`canonicalizeFacetKey`), preventing duplicate language-specific facet keys.
+- **Canonical Facet Keys**: Free-text terms (in Spanish or English) and synonyms are normalized into canonical domain keys (`canonicalizeFacetKey`), returning `undefined` for keys outside the controlled vocabulary.
 - **Strict Wizard Precedence**: Wizard facets always have `importance: 1.0, confidence: 1.0, source: 'wizard'`. Free-text facets matching the same compound `${dimension}:${key}` are discarded and cannot lower wizard weights.
 - **Exploration Style Dormancy**: `exploration_style` remains reserved in vocabulary but dormant until Phase 6 rollout.
 - **Scope Isolation**: No corroboration merge, no Google Places cutover, no OSM provider, no Tavily changes, and no Prisma migrations in Phase 2.
 
 # Next Action
 
-Phase 2 is complete. Stop before Phase 3. Next action will be Phase 3 (Deterministic Corroboration / acquisition planning foundation) upon user instruction.
+Phase 2 is fully hardened and complete. Stop before Phase 3. Next action will be Phase 3 (Deterministic Corroboration / acquisition planning foundation) upon user instruction.
