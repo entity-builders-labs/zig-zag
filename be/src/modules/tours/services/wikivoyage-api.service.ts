@@ -214,8 +214,8 @@ export class WikivoyageApiService {
       ? this.cleanWikitextMarkup(rawDescription)
       : undefined;
 
-    const lat = this.parseCoordinate(kv['lat'] || kv['latitude']);
-    const long = this.parseCoordinate(
+    const lat = this.parseLatitude(kv['lat'] || kv['latitude']);
+    const long = this.parseLongitude(
       kv['long'] || kv['lon'] || kv['longitude'],
     );
     const wikidata = this.parseWikidata(kv['wikidata']);
@@ -265,12 +265,29 @@ export class WikivoyageApiService {
     return params;
   }
 
-  private parseCoordinate(val?: string): number | undefined {
+  private parseLatitude(val?: string): number | undefined {
+    const num = this.parseStrictNumber(val);
+    if (num === undefined) return undefined;
+    if (num < -90 || num > 90) return undefined;
+    return num;
+  }
+
+  private parseLongitude(val?: string): number | undefined {
+    const num = this.parseStrictNumber(val);
+    if (num === undefined) return undefined;
+    if (num < -180 || num > 180) return undefined;
+    return num;
+  }
+
+  private parseStrictNumber(val?: string): number | undefined {
     if (!val) return undefined;
     const clean = val.trim();
     if (!clean) return undefined;
-    const num = parseFloat(clean);
-    return isNaN(num) ? undefined : num;
+    if (!/^[-+]?(?:\d+(?:\.\d+)?|\.\d+)$/.test(clean)) {
+      return undefined;
+    }
+    const num = Number(clean);
+    return Number.isFinite(num) ? num : undefined;
   }
 
   private parseWikidata(val?: string): string | undefined {

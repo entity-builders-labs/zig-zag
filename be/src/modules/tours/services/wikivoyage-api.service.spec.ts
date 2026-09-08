@@ -244,5 +244,63 @@ describe('WikivoyageApiService', () => {
       expect(entries[0].long).toBeUndefined();
       expect(entries[0].wikidata).toBeUndefined();
     });
+
+    describe('coordinate parsing hardening', () => {
+      it('parses valid decimal coordinates', () => {
+        const wikitext = `
+          == Ver ==
+          {{see | name=Punto Valido | lat=-34.619528 | long=-58.372832 }}
+        `;
+        const [entry] = service.parseWikitext(wikitext);
+        expect(entry.lat).toBe(-34.619528);
+        expect(entry.long).toBe(-58.372832);
+      });
+
+      it('rejects non-numeric input for coordinates', () => {
+        const wikitext = `
+          == Ver ==
+          {{see | name=No Numerico | lat=desconocido | long=abc }}
+        `;
+        const [entry] = service.parseWikitext(wikitext);
+        expect(entry.lat).toBeUndefined();
+        expect(entry.long).toBeUndefined();
+      });
+
+      it('rejects partially numeric input such as "12abc"', () => {
+        const wikitext = `
+          == Ver ==
+          {{see | name=Parcial | lat=-34.61foo | long=-58.37deg }}
+        `;
+        const [entry] = service.parseWikitext(wikitext);
+        expect(entry.lat).toBeUndefined();
+        expect(entry.long).toBeUndefined();
+      });
+
+      it('rejects out-of-range latitude (> 90 or < -90)', () => {
+        const wikitextOver = `
+          == Ver ==
+          {{see | name=Lat Alto | lat=90.0001 | long=-58.37 }}
+        `;
+        const wikitextUnder = `
+          == Ver ==
+          {{see | name=Lat Bajo | lat=-90.0001 | long=-58.37 }}
+        `;
+        expect(service.parseWikitext(wikitextOver)[0].lat).toBeUndefined();
+        expect(service.parseWikitext(wikitextUnder)[0].lat).toBeUndefined();
+      });
+
+      it('rejects out-of-range longitude (> 180 or < -180)', () => {
+        const wikitextOver = `
+          == Ver ==
+          {{see | name=Long Alto | lat=-34.61 | long=180.0001 }}
+        `;
+        const wikitextUnder = `
+          == Ver ==
+          {{see | name=Long Bajo | lat=-34.61 | long=-180.0001 }}
+        `;
+        expect(service.parseWikitext(wikitextOver)[0].long).toBeUndefined();
+        expect(service.parseWikitext(wikitextUnder)[0].long).toBeUndefined();
+      });
+    });
   });
 });

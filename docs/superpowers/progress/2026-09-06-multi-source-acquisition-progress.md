@@ -6,9 +6,10 @@ Implementation plan: `docs/superpowers/plans/2026-09-08-multi-source-acquisition
 # Current State
 
 - Branch: `feat/experience-domain-v2`
-- Verified commit: `3d49d90ebe6f873258d76ceac39c305f1fe64232`
-- Current milestone: Phase 1 — Wikivoyage Structured Acquisition Adapter (COMPLETED & VERIFIED)
-- Last verified test state: backend Jest `110/110` suites and `742/742` tests passing (baseline was `107/107` suites, `721/721` tests; +3 new suites, +21 tests).
+- Verified commit: `e1f3c18382269e6af9a6d77f2b89e28f9f523377`
+- Verified base HEAD: `f93b5b0ef587f090d4d67358546fd8bbbc698115`
+- Current milestone: Phase 1 — Wikivoyage Structured Acquisition Adapter (HARDENED & VERIFIED)
+- Last verified test state: backend Jest `110/110` suites and `747/747` tests passing (baseline was `107/107` suites, `721/721` tests; +3 new suites, +26 tests).
 - Linting: `yarn lint:check` is 100% clean (0 errors, 0 warnings).
 - Typecheck: `yarn run check` introduces zero new errors; existing errors remain strictly confined to pre-existing `be/test/acceptance` fixtures.
 
@@ -57,7 +58,10 @@ Implementation plan: `docs/superpowers/plans/2026-09-08-multi-source-acquisition
   - La Boca: 4 entries (3 place, 1 tourism_activity); coords 0/4 (0%), QID 4/4 (100%); latency 210ms.
   - Buenos Aires/Recoleta: 9 entries (8 place, 1 tourism_activity); coords 3/9 (33%), QID 5/9 (56%); latency 235ms.
   - Palermo (Buenos Aires): 13 entries (12 place, 1 tourism_activity); coords 5/13 (38%), QID 5/13 (38%); latency 370ms.
-  - Operational observations: Wikimedia does not expose `X-RateLimit-*` headers; `Cache-Control` is `private, must-revalidate, max-age=0`. Observed latencies are 200–380ms. No rate-limit issues occurred during serial execution. Complex in-memory caching or throttlers are premature and not required in Phase 1.
+- **Phase 1 Hardening (Coordinate Validation & Strict Numeric Parsing)**:
+  - Hardened `WikivoyageApiService` coordinate parsing to reject partially numeric inputs (e.g. `"12abc"`, `"-34.61foo"`) using strict regex `/^[-+]?(?:\d+(?:\.\d+)?|\.\d+)$/` and finite number check.
+  - Added geographic boundary checks: latitude within `[-90, 90]` and longitude within `[-180, 180]`.
+  - Added 5 dedicated unit tests in `be/src/modules/tours/services/wikivoyage-api.service.spec.ts` covering valid coordinates, non-numeric strings, partially numeric strings, out-of-range latitude, and out-of-range longitude.
 
 # In Progress
 
@@ -74,7 +78,7 @@ None. Phase 1 is complete.
 
 # Verification
 
-- `yarn test --runInBand` (`be/`): PASS — 110 suites, 742 tests (zero regressions, +3 suites, +21 tests).
+- `yarn test --runInBand` (`be/`): PASS — 110 suites, 747 tests (zero regressions, +3 suites, +26 tests).
 - `yarn lint:check` (`be/`): PASS — 0 errors across entire repository.
 - `yarn run check` (`be/`): TypeScript compilation in `be/src/` has 0 errors. Pre-existing errors in `test/acceptance` remain unchanged.
 - Live characterization: `be/test/characterize-wikivoyage.ts` executed successfully against live MediaWiki API.
