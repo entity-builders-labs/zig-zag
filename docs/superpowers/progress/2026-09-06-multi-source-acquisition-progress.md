@@ -1,17 +1,17 @@
 # Multi-source Experience acquisition — progress
 
 Canonical design: `docs/superpowers/specs/2026-09-06-multi-source-acquisition-design.md`
-Implementation plan: `docs/superpowers/plans/2026-09-08-multi-source-acquisition-implementation.md`
 
 # Current State
 
 - Branch: `feat/experience-domain-v2`
-- Current milestone: Phase 3 — Deterministic Corroboration + Acquisition Planning Foundation (HARDENED & VERIFIED)
-- Verified code commit: `0dff08f7f8c3df11f04e48a5b9d1339a3836bdbb`
-- Verified base HEAD: `62d535ee3a993463e4becbbcb7586d4364f729c2`
-- Previous Phase 3 code commit: `34a543451575d28e446638f389474ff91e724a2e`
+- Current milestone: Phase 3 — Deterministic Corroboration + Acquisition Planning Foundation (FINAL HARDENING VERIFIED)
+- Final verified Phase 3 code commit: `8415df6d2e6fdd32ee4a04a3d729f3d5ea93dc24`
+- Previous Phase 3 hardening code commit: `0dff08f7f8c3df11f04e48a5b9d1339a3836bdbb`
+- Previous Phase 3 initial code commit: `34a543451575d28e446638f389474ff91e724a2e`
+- Verified base HEAD: `1b702fcff99c61f36578db9f58bdd6e193e8b68e`
 - Previous Phase 2 code commit: `f12b2d56dada8a6db7bfc2e2308ea45366426955`
-- Last verified test state: backend Jest `116/116` suites and `827/827` tests passing (baseline was `113/113` suites, `792/792` tests; +3 new suites, +35 tests, zero regressions).
+- Last verified test state: backend Jest `116/116` suites and `831/831` tests passing (baseline was `113/113` suites, `792/792` tests; +3 new suites, +39 tests, zero regressions).
 - Linting: `yarn lint:check` is 100% clean (0 errors, 0 warnings across `{src,apps,libs,test}/**/*.ts`).
 - Typecheck: `yarn run check` introduces zero new errors beyond the known acceptance-fixture baseline; `yarn build` is 100% clean.
 
@@ -168,6 +168,11 @@ Implementation plan: `docs/superpowers/plans/2026-09-08-multi-source-acquisition
 - **Structured Candidate Proposal Envelope**:
   - Created `be/src/modules/tours/interfaces/structured-candidate-proposal.interface.ts` defining `StructuredCandidateProposal { candidate: ExperienceCandidate; observations: SourceObservation[]; }`.
   - Updated `StructuredExperienceCandidateSynthesizerService`: added `synthesizeProposals()` and delegated `synthesize()` to it.
+- **Wikivoyage Evidence Identity Decoupling**:
+  - `evidenceKey` strictly identifies the source-listing observation: `wikivoyage:${articleSlug}:${section}:${template}:${entrySlug}:${occurrence}`.
+  - Normalized Wikidata QID resides strictly in `externalId` (used for entity-level matching and corroboration).
+  - Distinct listings pointing to the same QID (e.g. Mercado San Telmo SEE vs Tour gastronómico Mercado San Telmo DO) receive distinct listing-specific `evidenceKeys`.
+  - Comprehensive unit tests in `wikivoyage-acquisition.provider.spec.ts` (6 tests passing).
 - **Pairwise Corroboration Engine & Conservative Grouping**:
   - Created `be/src/modules/tours/services/structured-candidate-corroboration.service.ts`:
     - `decidePair(left, right)`: Rule A (exact evidenceKey match), observation structural compatibility check, Rule B (canonical Wikidata QID match), real-world geographic proximity (< 150m) & normalized name matching. Decisions: `SAME`, `NEW`, `AMBIGUOUS`.
@@ -175,7 +180,7 @@ Implementation plan: `docs/superpowers/plans/2026-09-08-multi-source-acquisition
     - Single-place component hint collapse: merging two single-place proposals yields exactly 1 `GeoEntityHint` on the resulting candidate only when `role` and `expectedKind` are compatible; conflicting kinds are never collapsed and pairwise decisions classify them as `AMBIGUOUS` (`conflicting_component_expected_kind`).
     - Merged candidate synthesis: unioned sorted `evidenceKeys`, `themes`, `traits`, `intents`; longest normalized name and description.
     - Traces: structured `CorroborationMergeResult` with `candidates`, `groups`, and `pairDecisions`.
-  - Comprehensive unit test suite in `structured-candidate-corroboration.service.spec.ts` (12 tests passing, covering Scenarios A through L: exact duplicates, Wikidata QID, 10m cross-provider places, 5km far places, 20m distinct places, name match without coords, place vs route, tourism activity vs place, component hint collapse, transitive conflict, input order independence, and Scenario L regression on conflicting expectedKind).
+  - Comprehensive unit test suite in `structured-candidate-corroboration.service.spec.ts` (13 tests passing, covering Scenarios A through M: exact duplicates, Wikidata QID, 10m cross-provider places, 5km far places, 20m distinct places, name match without coords, place vs route, tourism activity vs place, component hint collapse, transitive conflict, input order independence, Scenario L regression on conflicting expectedKind, and Scenario M regression verifying that sharing a Wikidata QID across distinct observation kinds like place vs tourism_activity never merges them).
 - **Dimension-Aware Acquisition Deficit & Routing Foundation**:
   - Created `be/src/modules/tours/interfaces/experience-acquisition-plan.interface.ts` defining canonical `ExperienceAcquisitionPlan` (`destination: ExperienceDiscoveryScope`, `breadth: ExperienceDiscoveryBreadth`, `deficits: AcquisitionDeficit[]`, `sourcePlans: SourcePlan[]`), where `SourcePlan` is a discriminated provider plan containing only its own provider payload (`wikivoyage`, `osm`, `places` under `google_places`, and `web`).
   - Created `be/src/modules/tours/constants/acquisition-source-routing.ts` defining explicit hand-maintained capability routing table mapping strictly canonical Phase 2 `(dimension, key)` to provider capabilities, purging non-canonical dimensions (`cuisine`, `setting`, `category`, `vibe`), adding all required canonical routes (`theme:wine`, `winery_scale:boutique`, `nature_type:park`, `local_character:authentic`, `intent:walk`, etc.), leaving `exploration_style` strictly dormant, and providing conservative generic deficit fallback (Wikivoyage + Web only, no OSM or Places broad pollution).
@@ -183,10 +188,12 @@ Implementation plan: `docs/superpowers/plans/2026-09-08-multi-source-acquisition
     - `projectCoverageDeficits(legacyDeficits)`: projects legacy `CoverageDeficit` items without regex string parsing.
     - `projectPreferenceFacetDeficits(candidates, preferredFacets)`: evaluates candidate pool using pure matcher `candidateMatchesPreferenceFacet`, emitting deficits for unmet facets.
     - `buildAcquisitionPlan(input)`: multi-deficit coalescing across Wikivoyage (canonical `SEE`, `DO`, `EAT`), OSM (sorted concepts), and Google Places (sorted search types).
+    - Unroutable / dormant deficit handling: if all deficits are unroutable (e.g. `exploration_style`), planner returns `sourcePlans: []` without manufacturing a web query.
     - Single web query guarantee: at most ONE plain-keyword web query per acquisition pass (`<destination> <sorted keywords> <semanticQuery>`), with zero LLM query builder or prompt prose.
     - `exploration_style` strictly dormant (never emits deficits or source plans).
     - Unknown dimension fallback: routes ONLY to web with sanitized keyword.
-  - Comprehensive unit test suite in `experience-acquisition-planner.service.spec.ts` (12 tests passing, covering Scenarios M through T plus specific canonical dimension routing tests).
+    - Generic dimensionless deficit fallback: routes to conservative Wikivoyage broad + web only.
+  - Comprehensive unit test suite in `experience-acquisition-planner.service.spec.ts` (14 tests passing, covering Scenarios M through T, explicit dormant deficits, generic fallback, and specific canonical dimension routing tests).
 - **NestJS Module Registration**:
   - Registered and exported `StructuredCandidateCorroborationService` and `ExperienceAcquisitionPlannerService` in `be/src/modules/tours/tours.module.ts`. Downstream orchestration and resolver remain completely untouched.
 
@@ -203,11 +210,11 @@ None. Phase 3 final hardening, validation, and checkpoint are complete.
 
 # Verification
 
-- `yarn test --runInBand` (`be/`): PASS — 116 suites, 827 tests passing (zero regressions, +3 suites, +35 tests over Phase 2).
+- `yarn test --runInBand` (`be/`): PASS — 116 suites, 831 tests passing (zero regressions, +3 suites, +39 tests over Phase 2).
 - `yarn run lint:check` (`be/`): PASS — 0 errors, 0 warnings across `{src,apps,libs,test}/**/*.ts`.
 - `yarn build` (`be/`): PASS — nest build completes cleanly.
-- Targeted Phase 3 test suites: PASS — 65/65 tests passing across all 6 targeted suites.
-- Scenario coverage: Scenarios A through L (corroboration) and M through T (acquisition planning) fully covered by automated unit tests.
+- Targeted Phase 3 test suites: PASS — 48/48 tests passing across all 5 targeted suites (`wikivoyage-acquisition.provider.spec.ts` (6), `structured-candidate-corroboration.service.spec.ts` (13), `experience-acquisition-planner.service.spec.ts` (14), `real-world-entity-matching.util.spec.ts` (6), `structured-experience-candidate-synthesizer.service.spec.ts` (9)).
+- Scenario coverage: Scenarios A through M (corroboration) and M through T (acquisition planning) fully covered by automated unit tests.
 
 # Important Decisions / Invariants
 
@@ -215,16 +222,22 @@ None. Phase 3 final hardening, validation, and checkpoint are complete.
   - `Verified code commit`: Commit whose code, types, and tests were actually executed and verified.
   - `Verified base HEAD`: Base commit on which changes were developed and verified.
   - `Checkpoint commit`: Optional informational field only when referring to an already-existing documentation or tracking commit. Never embed the self-referential commit SHA within its own commit.
+- **Evidence Identity vs Entity Identity**:
+  - `evidenceKey` is strictly listing-specific and collision-resistant: `wikivoyage:${articleSlug}:${section}:${template}:${entrySlug}:${occurrence}`.
+  - Normalized Wikidata QID identifies real-world entities and is stored in `externalId`.
+  - Distinct listings with identical QID do not collide on `evidenceKey`.
 - **Corroboration Decisions**:
   - Allowed decisions: `SAME`, `NEW`, `AMBIGUOUS`.
   - `AMBIGUOUS` is NEVER force-merged into `SAME` or `NEW`.
   - Real-world entity reconciliation radius: 150 meters.
   - Conservative complete-link clustering prevents false merges under transitive conflicts.
-  - Single-place component hint collapse: merging two single-place proposals yields exactly 1 `GeoEntityHint` on the resulting candidate.
+  - Single-place component hint collapse: merging two single-place proposals yields exactly 1 `GeoEntityHint` on the resulting candidate only when `role` and `expectedKind` match.
+  - Activity-like observations (`tourism_activity`, `route`, `operator`, `editorial`) are never merged with places even if they share coordinates or Wikidata QID.
 - **Acquisition Planning & Routing**:
-  - Explicit hand-maintained routing table; no dynamic LLM query generation.
+  - Canonical contract: `ExperienceAcquisitionPlan` with discriminated `SourcePlan[]`.
+  - Canonical Phase 2 active dimensions only (`theme`, `intent`, `winery_scale`, `tourism_intensity`, `nature_type`, `local_character`).
   - Single web query guarantee: at most ONE web query per acquisition pass using plain space-separated keywords.
-  - `exploration_style` remains strictly dormant until Phase 6 rollout.
+  - `exploration_style` remains strictly dormant until Phase 6 rollout; if all deficits are dormant, `sourcePlans: []` is returned.
   - Unknown dimensions fallback to web only (never pollute OSM or Places).
 - **Scope Isolation**:
   - Phase 3 does NOT execute Google Places, OSM, or web providers through the new orchestration yet.
