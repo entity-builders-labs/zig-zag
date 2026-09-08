@@ -4,7 +4,12 @@ import { PrismaService } from '@core/database/prisma.service';
 import { IPlacesApiService } from '@integrations/google-places/interfaces/places-api.interface';
 import { NormalizedOpeningHours } from '../interfaces/daily-planning.interface';
 import { parseOpeningHours } from '../utils/normalized-opening-hours.util';
-import { calculateDistance } from '@shared/utils/distance.utils';
+import {
+  distanceMeters,
+  normalizeRealWorldName,
+  REAL_WORLD_RECONCILIATION_RADIUS_METERS,
+  realWorldNamesMatch,
+} from '../utils/real-world-entity-matching.util';
 import {
   decideExperienceDedupe,
   DedupeExperienceFingerprint,
@@ -27,7 +32,8 @@ import {
 // pedestrian street in La Boca, not a small point) resolved ~80m apart across
 // two paths and slipped past an earlier 75m radius, so this needs to cover a
 // street-scale feature's own real extent, not just point jitter.
-const GEO_ENTITY_RECONCILIATION_RADIUS_METERS = 150;
+const GEO_ENTITY_RECONCILIATION_RADIUS_METERS =
+  REAL_WORLD_RECONCILIATION_RADIUS_METERS;
 
 export interface GeoEntityInput {
   name: string;
@@ -547,22 +553,17 @@ export class ExperienceCatalogService {
       },
     });
 
-    const needle = this.normalizeGeoEntityName(input.name);
     let best: { id: string; distanceKm: number } | undefined;
     for (const candidate of candidates) {
       if (candidate.latitude == null || candidate.longitude == null) continue;
-      const haystack = this.normalizeGeoEntityName(candidate.name);
-      const namesMatch =
-        haystack === needle ||
-        haystack.includes(needle) ||
-        needle.includes(haystack);
-      if (!namesMatch) continue;
+      if (!realWorldNamesMatch(input.name, candidate.name)) continue;
 
-      const distanceKm = calculateDistance(
+      const distMeters = distanceMeters(
         { latitude: input.latitude, longitude: input.longitude },
         { latitude: candidate.latitude, longitude: candidate.longitude },
       );
-      if (distanceKm * 1000 > radiusMeters) continue;
+      if (distMeters > radiusMeters) continue;
+      const distanceKm = distMeters / 1000;
       if (!best || distanceKm < best.distanceKm) {
         best = { id: candidate.id, distanceKm };
       }
@@ -572,12 +573,7 @@ export class ExperienceCatalogService {
   }
 
   private normalizeGeoEntityName(value: string): string {
-    return value
-      .normalize('NFKD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, ' ')
-      .trim();
+    return normalizeRealWorldName(value);
   }
 
   async persistVerifiedExperience(input: VerifiedExperienceInput) {

@@ -32,6 +32,8 @@ import { ExperienceAcquisitionService } from './services/experience-acquisition.
 import { WikivoyageApiService } from './services/wikivoyage-api.service';
 import { WikivoyageAcquisitionProvider } from './providers/wikivoyage-acquisition.provider';
 import { StructuredExperienceCandidateSynthesizerService } from './services/structured-experience-candidate-synthesizer.service';
+import { StructuredCandidateCorroborationService } from './services/structured-candidate-corroboration.service';
+import { ExperienceAcquisitionPlannerService } from './services/experience-acquisition-planner.service';
 import {
   EXPERIENCE_GROUNDED_SEARCH_PROVIDER,
   ExperienceGroundedSearchProvider,
@@ -97,6 +99,8 @@ import { MediaModule } from '../media/media.module';
     WikivoyageApiService,
     WikivoyageAcquisitionProvider,
     StructuredExperienceCandidateSynthesizerService,
+    StructuredCandidateCorroborationService,
+    ExperienceAcquisitionPlannerService,
     {
       provide: EXPERIENCE_PROPOSAL_RESOLVER,
       useExisting: ExperienceProposalResolverService,
@@ -184,6 +188,8 @@ import { MediaModule } from '../media/media.module';
     WikivoyageApiService,
     WikivoyageAcquisitionProvider,
     StructuredExperienceCandidateSynthesizerService,
+    StructuredCandidateCorroborationService,
+    ExperienceAcquisitionPlannerService,
   ],
 })
 export class ToursModule {}

@@ -57,9 +57,23 @@ export class WikivoyageAcquisitionProvider {
 
     const articleSlug = slugify(articleResult.title || destination);
 
+    const occurrenceMap = new Map<string, number>();
+
     const observations: SourceObservation[] = entries.map((entry) => {
       const entrySlug = slugify(entry.name);
-      const evidenceKey = `wikivoyage:${articleSlug}:${entrySlug}`;
+      const section = entry.sectionType.toLowerCase();
+      const template = slugify(entry.templateName || 'entry');
+
+      let evidenceKey: string;
+      const qid = entry.wikidata?.trim();
+      if (qid && /^Q\d+$/i.test(qid)) {
+        evidenceKey = `wikivoyage:${articleSlug}:wikidata:${qid}`;
+      } else {
+        const groupKey = `${articleSlug}:${section}:${template}:${entrySlug}`;
+        const occurrence = (occurrenceMap.get(groupKey) ?? 0) + 1;
+        occurrenceMap.set(groupKey, occurrence);
+        evidenceKey = `wikivoyage:${articleSlug}:${section}:${template}:${entrySlug}:${occurrence}`;
+      }
 
       return {
         provider: 'wikivoyage',

@@ -71,7 +71,7 @@ describe('WikivoyageAcquisitionProvider', () => {
         longitude: -58.372832,
       },
       evidenceType: 'place',
-      evidenceKey: 'wikivoyage:San_Telmo:Mercado_San_Telmo',
+      evidenceKey: 'wikivoyage:San_Telmo:wikidata:Q6010497',
     });
 
     expect(tango).toEqual({
@@ -81,8 +81,39 @@ describe('WikivoyageAcquisitionProvider', () => {
       description: 'Aprender a bailar tango en la plaza.',
       geo: undefined,
       evidenceType: 'tourism_activity',
-      evidenceKey: 'wikivoyage:San_Telmo:Clases_de_Tango',
+      evidenceKey: 'wikivoyage:San_Telmo:do:hacer:Clases_de_Tango:1',
     });
+  });
+
+  it('generates distinct collision-resistant evidenceKeys for duplicate names in the same article', async () => {
+    const mockResult: WikivoyageArticleResult = {
+      status: 'found',
+      title: 'San Telmo',
+      entries: [
+        {
+          name: 'Café Dorrego',
+          sectionType: 'EAT',
+          templateName: 'eat',
+        },
+        {
+          name: 'Café Dorrego',
+          sectionType: 'EAT',
+          templateName: 'eat',
+        },
+      ],
+    };
+
+    apiService.fetchArticle.mockResolvedValueOnce(mockResult);
+
+    const result = await provider.acquire('San Telmo');
+    expect(result.status).toBe('success');
+    expect(result.value).toHaveLength(2);
+    expect(result.value[0].evidenceKey).toBe(
+      'wikivoyage:San_Telmo:eat:eat:Cafe_Dorrego:1',
+    );
+    expect(result.value[1].evidenceKey).toBe(
+      'wikivoyage:San_Telmo:eat:eat:Cafe_Dorrego:2',
+    );
   });
 
   it('filters entries when sections option is provided', async () => {

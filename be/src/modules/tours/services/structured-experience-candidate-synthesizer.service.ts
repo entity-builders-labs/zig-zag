@@ -4,10 +4,13 @@ import {
   GeoEntityHint,
 } from '../interfaces/experience-discovery.interface';
 import { SourceObservation } from '../interfaces/experience-acquisition.interface';
+import { StructuredCandidateProposal } from '../interfaces/structured-candidate-proposal.interface';
 
 @Injectable()
 export class StructuredExperienceCandidateSynthesizerService {
-  synthesize(observations: SourceObservation[]): ExperienceCandidate[] {
+  synthesizeProposals(
+    observations: SourceObservation[],
+  ): StructuredCandidateProposal[] {
     return observations.map((obs) => {
       const componentHints: GeoEntityHint[] = [];
 
@@ -57,7 +60,14 @@ export class StructuredExperienceCandidateSynthesizerService {
         orderedByEvidence: false,
       };
 
-      return candidate;
+      return {
+        candidate,
+        observations: [obs],
+      };
     });
+  }
+
+  synthesize(observations: SourceObservation[]): ExperienceCandidate[] {
+    return this.synthesizeProposals(observations).map((p) => p.candidate);
   }
 }

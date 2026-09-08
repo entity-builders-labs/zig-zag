@@ -135,4 +135,20 @@ describe('StructuredExperienceCandidateSynthesizerService', () => {
     expect(candidates[0].componentHints).toEqual([]);
     expect(candidates[1].componentHints).toEqual([]);
   });
+
+  it('synthesizeProposals returns StructuredCandidateProposal envelopes with raw observations', () => {
+    const observation: SourceObservation = {
+      provider: 'wikivoyage',
+      title: 'Plaza Dorrego',
+      evidenceType: 'place',
+      evidenceKey: 'wikivoyage:San_Telmo:see:see:Plaza_Dorrego:1',
+      geo: { latitude: -34.62, longitude: -58.37 },
+    };
+
+    const proposals = service.synthesizeProposals([observation]);
+
+    expect(proposals).toHaveLength(1);
+    expect(proposals[0].candidate.name).toBe('Plaza Dorrego');
+    expect(proposals[0].observations).toEqual([observation]);
+  });
 });

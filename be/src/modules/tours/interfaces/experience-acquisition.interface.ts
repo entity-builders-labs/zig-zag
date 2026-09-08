@@ -1,6 +1,7 @@
 export type ExperienceAcquisitionProvider =
   | 'wikivoyage'
   | 'osm'
+  | 'wikidata'
   | 'google_places'
   | 'web';
 
