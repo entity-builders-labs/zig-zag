@@ -6,11 +6,12 @@ Implementation plan: `docs/superpowers/plans/2026-09-08-multi-source-acquisition
 # Current State
 
 - Branch: `feat/experience-domain-v2`
-- Current milestone: Phase 3 — Deterministic Corroboration + Acquisition Planning Foundation (COMPLETED & VERIFIED)
-- Verified code commit: `34a54344fa03c58253a6f112702758f62c828236`
-- Verified base HEAD: `60dc22b828e360aa09b2c60221726fb5bf55bc33`
+- Current milestone: Phase 3 — Deterministic Corroboration + Acquisition Planning Foundation (HARDENED & VERIFIED)
+- Verified code commit: `0dff08f7f8c3df11f04e48a5b9d1339a3836bdbb`
+- Verified base HEAD: `62d535ee3a993463e4becbbcb7586d4364f729c2`
+- Previous Phase 3 code commit: `34a543451575d28e446638f389474ff91e724a2e`
 - Previous Phase 2 code commit: `f12b2d56dada8a6db7bfc2e2308ea45366426955`
-- Last verified test state: backend Jest `116/116` suites and `822/822` tests passing (baseline was `113/113` suites, `792/792` tests; +3 new suites, +30 tests, zero regressions).
+- Last verified test state: backend Jest `116/116` suites and `827/827` tests passing (baseline was `113/113` suites, `792/792` tests; +3 new suites, +35 tests, zero regressions).
 - Linting: `yarn lint:check` is 100% clean (0 errors, 0 warnings across `{src,apps,libs,test}/**/*.ts`).
 - Typecheck: `yarn run check` introduces zero new errors beyond the known acceptance-fixture baseline; `yarn build` is 100% clean.
 
@@ -171,13 +172,13 @@ Implementation plan: `docs/superpowers/plans/2026-09-08-multi-source-acquisition
   - Created `be/src/modules/tours/services/structured-candidate-corroboration.service.ts`:
     - `decidePair(left, right)`: Rule A (exact evidenceKey match), observation structural compatibility check, Rule B (canonical Wikidata QID match), real-world geographic proximity (< 150m) & normalized name matching. Decisions: `SAME`, `NEW`, `AMBIGUOUS`.
     - Conservative complete-link clustering: input sorted deterministically; a proposal joins a cluster only if it is SAME with all existing cluster members; if a candidate could join multiple clusters, it is kept separate; `AMBIGUOUS` pairs never merged.
-    - Single-place component hint collapse: two SAME single-concept candidates yield exactly 1 merged `GeoEntityHint` (unioned evidenceKeys, required=true if either required, preserved role and kind).
+    - Single-place component hint collapse: merging two single-place proposals yields exactly 1 `GeoEntityHint` on the resulting candidate only when `role` and `expectedKind` are compatible; conflicting kinds are never collapsed and pairwise decisions classify them as `AMBIGUOUS` (`conflicting_component_expected_kind`).
     - Merged candidate synthesis: unioned sorted `evidenceKeys`, `themes`, `traits`, `intents`; longest normalized name and description.
     - Traces: structured `CorroborationMergeResult` with `candidates`, `groups`, and `pairDecisions`.
-  - Comprehensive unit test suite in `structured-candidate-corroboration.service.spec.ts` (11 tests passing, covering Scenarios A through K: exact duplicates, Wikidata QID, 10m cross-provider places, 5km far places, 20m distinct places, name match without coords, place vs route, tourism activity vs place, component hint collapse, transitive conflict, input order independence).
+  - Comprehensive unit test suite in `structured-candidate-corroboration.service.spec.ts` (12 tests passing, covering Scenarios A through L: exact duplicates, Wikidata QID, 10m cross-provider places, 5km far places, 20m distinct places, name match without coords, place vs route, tourism activity vs place, component hint collapse, transitive conflict, input order independence, and Scenario L regression on conflicting expectedKind).
 - **Dimension-Aware Acquisition Deficit & Routing Foundation**:
-  - Created `be/src/modules/tours/interfaces/experience-acquisition-plan.interface.ts` defining `AcquisitionDeficit`, `ExperienceAcquisitionPlan`, `SourcePlans`.
-  - Created `be/src/modules/tours/constants/acquisition-source-routing.ts` defining explicit hand-maintained capability routing table mapping `(dimension, key)` to provider capabilities.
+  - Created `be/src/modules/tours/interfaces/experience-acquisition-plan.interface.ts` defining canonical `ExperienceAcquisitionPlan` (`destination: ExperienceDiscoveryScope`, `breadth: ExperienceDiscoveryBreadth`, `deficits: AcquisitionDeficit[]`, `sourcePlans: SourcePlan[]`), where `SourcePlan` is a discriminated provider plan containing only its own provider payload (`wikivoyage`, `osm`, `places` under `google_places`, and `web`).
+  - Created `be/src/modules/tours/constants/acquisition-source-routing.ts` defining explicit hand-maintained capability routing table mapping strictly canonical Phase 2 `(dimension, key)` to provider capabilities, purging non-canonical dimensions (`cuisine`, `setting`, `category`, `vibe`), adding all required canonical routes (`theme:wine`, `winery_scale:boutique`, `nature_type:park`, `local_character:authentic`, `intent:walk`, etc.), leaving `exploration_style` strictly dormant, and providing conservative generic deficit fallback (Wikivoyage + Web only, no OSM or Places broad pollution).
   - Created `be/src/modules/tours/services/experience-acquisition-planner.service.ts`:
     - `projectCoverageDeficits(legacyDeficits)`: projects legacy `CoverageDeficit` items without regex string parsing.
     - `projectPreferenceFacetDeficits(candidates, preferredFacets)`: evaluates candidate pool using pure matcher `candidateMatchesPreferenceFacet`, emitting deficits for unmet facets.
@@ -185,13 +186,13 @@ Implementation plan: `docs/superpowers/plans/2026-09-08-multi-source-acquisition
     - Single web query guarantee: at most ONE plain-keyword web query per acquisition pass (`<destination> <sorted keywords> <semanticQuery>`), with zero LLM query builder or prompt prose.
     - `exploration_style` strictly dormant (never emits deficits or source plans).
     - Unknown dimension fallback: routes ONLY to web with sanitized keyword.
-  - Comprehensive unit test suite in `experience-acquisition-planner.service.spec.ts` (8 tests passing, covering Scenarios M through T).
+  - Comprehensive unit test suite in `experience-acquisition-planner.service.spec.ts` (12 tests passing, covering Scenarios M through T plus specific canonical dimension routing tests).
 - **NestJS Module Registration**:
   - Registered and exported `StructuredCandidateCorroborationService` and `ExperienceAcquisitionPlannerService` in `be/src/modules/tours/tours.module.ts`. Downstream orchestration and resolver remain completely untouched.
 
 # In Progress
 
-None. Phase 3 final validation and checkpoint are complete.
+None. Phase 3 final hardening, validation, and checkpoint are complete.
 
 # Not Started
 
@@ -202,11 +203,11 @@ None. Phase 3 final validation and checkpoint are complete.
 
 # Verification
 
-- `yarn test --runInBand` (`be/`): PASS — 116 suites, 822 tests passing (zero regressions, +3 suites, +30 tests over Phase 2).
+- `yarn test --runInBand` (`be/`): PASS — 116 suites, 827 tests passing (zero regressions, +3 suites, +35 tests over Phase 2).
 - `yarn run lint:check` (`be/`): PASS — 0 errors, 0 warnings across `{src,apps,libs,test}/**/*.ts`.
 - `yarn build` (`be/`): PASS — nest build completes cleanly.
-- Targeted Phase 3 test suites: PASS — 60/60 tests passing across all 6 targeted suites.
-- Scenario coverage: Scenarios A through K (corroboration) and M through T (acquisition planning) fully covered by automated unit tests.
+- Targeted Phase 3 test suites: PASS — 65/65 tests passing across all 6 targeted suites.
+- Scenario coverage: Scenarios A through L (corroboration) and M through T (acquisition planning) fully covered by automated unit tests.
 
 # Important Decisions / Invariants
 
