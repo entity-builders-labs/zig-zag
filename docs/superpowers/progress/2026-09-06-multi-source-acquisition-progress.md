@@ -6,12 +6,12 @@ Implementation plan: `docs/superpowers/plans/2026-09-08-multi-source-acquisition
 # Current State
 
 - Branch: `feat/experience-domain-v2`
-- Verified commit: `e1f3c18382269e6af9a6d77f2b89e28f9f523377`
-- Verified base HEAD: `f93b5b0ef587f090d4d67358546fd8bbbc698115`
-- Current milestone: Phase 1 — Wikivoyage Structured Acquisition Adapter (HARDENED & VERIFIED)
+- Current milestone: Phase 1 — Wikivoyage Structured Acquisition Adapter (CLOSED & VERIFIED)
+- Verified code commit: `7441a78664e2a41bceffe588817d8c4e40e8b4d5` (coordinate-hardening verified with full backend test suite)
+- Base implementation commit: `f93b5b0ef587f090d4d67358546fd8bbbc698115` (original Phase 1 implementation)
 - Last verified test state: backend Jest `110/110` suites and `747/747` tests passing (baseline was `107/107` suites, `721/721` tests; +3 new suites, +26 tests).
 - Linting: `yarn lint:check` is 100% clean (0 errors, 0 warnings).
-- Typecheck: `yarn run check` introduces zero new errors; existing errors remain strictly confined to pre-existing `be/test/acceptance` fixtures.
+- Typecheck: `yarn run check` introduces zero new errors beyond the known acceptance-fixture baseline.
 
 # Completed
 
@@ -85,6 +85,10 @@ None. Phase 1 is complete.
 
 # Important Decisions / Invariants
 
+- **Checkpoint Convention**:
+  - `Verified code commit`: Commit whose code, types, and tests were actually executed and verified.
+  - `Base implementation commit`: Initial feature implementation commit for the milestone.
+  - `Checkpoint commit`: Optional informational field only when referring to an already-existing documentation or tracking commit. Never embed the self-referential commit SHA within its own commit.
 - The operational implementation plan is authoritative; this progress checkpoint is a verified execution index.
 - Milestone scope strictly preserved: Phase 1 provides adapter, provider, mechanical synthesizer, and module wiring. It does NOT wire into `CoverageAnalyzer`, deficit routing, tour solver, or tour generation.
 - Strict mechanical synthesis: no semantic inference for themes/traits/intents. `GeoEntityHint` generated only for `place`, `area`, and `route`. `tourism_activity` leaves `componentHints` empty.
