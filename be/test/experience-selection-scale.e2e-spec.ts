@@ -88,10 +88,51 @@ interface ScenarioDefinition {
 function normalizedIntent(
   overrides: Record<string, unknown>,
 ): Record<string, unknown> {
+  const preferredFacets: any[] = [];
+  if (Array.isArray(overrides.preferredThemes)) {
+    for (const theme of overrides.preferredThemes as string[]) {
+      preferredFacets.push({
+        dimension: 'theme',
+        key: theme,
+        importance: 1.0,
+        confidence: 1.0,
+        source: 'free_text',
+      });
+    }
+  }
+  if (Array.isArray(overrides.preferredTraits)) {
+    for (const trait of overrides.preferredTraits as string[]) {
+      preferredFacets.push({
+        dimension: 'trait',
+        key: trait,
+        importance: 1.0,
+        confidence: 1.0,
+        source: 'free_text',
+      });
+    }
+  }
+  if (Array.isArray(overrides.preferredIntents)) {
+    for (const intent of overrides.preferredIntents as string[]) {
+      preferredFacets.push({
+        dimension: 'intent',
+        key: intent,
+        importance: 1.0,
+        confidence: 1.0,
+        source: 'free_text',
+      });
+    }
+  }
+  if (Array.isArray(overrides.preferredFacets)) {
+    preferredFacets.push(...(overrides.preferredFacets as any[]));
+  }
+
+  const restOverrides = { ...overrides };
+  delete restOverrides.preferredThemes;
+  delete restOverrides.preferredTraits;
+  delete restOverrides.preferredIntents;
+
   return {
-    preferredThemes: [] as string[],
-    preferredTraits: [] as string[],
-    preferredIntents: [] as string[],
+    preferredFacets,
     excludedThemes: [] as string[],
     excludedTraits: [] as string[],
     hardExclusions: [] as string[],
@@ -103,7 +144,7 @@ function normalizedIntent(
     groupPreferences: [] as string[],
     positiveSemanticQuery: '',
     notes: ['CP8 deterministic scale acceptance'],
-    ...overrides,
+    ...restOverrides,
   };
 }
 

@@ -1,4 +1,19 @@
 import { NormalizedPreferenceIntent } from '../interfaces/preference-interpretation.interface';
+import {
+  calculateEffectiveWeight,
+  PreferenceFacet,
+  PreferenceFacetSource,
+} from '../preferences/preference-facet.interface';
+
+export interface PreferenceFacetMatch {
+  dimension: string;
+  key: string;
+  importance: number;
+  confidence: number;
+  effectiveWeight: number;
+  source: PreferenceFacetSource;
+  matched: boolean;
+}
 
 export interface PreferenceEvaluation {
   score: number;
@@ -6,6 +21,7 @@ export interface PreferenceEvaluation {
   negativeMatches: string[];
   exclusionMatches: string[];
   reasons: string[];
+  facetMatches: PreferenceFacetMatch[];
 }
 
 const ALIASES: Record<string, string[]> = {
@@ -63,56 +79,125 @@ export function evaluateExperiencePreferences(
       negativeMatches: [],
       exclusionMatches: [],
       reasons: [],
+      facetMatches: [],
     };
   }
 
   const corpus = buildPreferenceCorpus(experience);
-  const preferred = unique([
-    ...(intent.preferredThemes ?? []),
-    ...(intent.preferredTraits ?? []),
-    ...(intent.preferredIntents ?? []),
+
+  // 1. Deduplicate preferred facets by normalized (dimension, key)
+  const dedupedFacets = deduplicateFacets(intent.preferredFacets ?? []);
+
+  // 2. Legacy positive constraint terms (dietary, accessibility, budget, group)
+  const legacyPositiveTerms = unique([
     ...(intent.dietaryPreferences ?? []),
     ...(intent.accessibilityPreferences ?? []),
     ...(intent.budgetPreferences ?? []),
     ...(intent.groupPreferences ?? []),
   ]);
+
+  let facetPossibleWeight = 0;
+  let facetMatchedWeight = 0;
+  const positiveMatches: string[] = [];
+  const facetMatches: PreferenceFacetMatch[] = [];
+
+  for (const facet of dedupedFacets) {
+    const effectiveWeight = calculateEffectiveWeight(facet);
+    facetPossibleWeight += effectiveWeight;
+
+    const matched = matchesTerm(corpus, facet.key);
+    if (matched) {
+      facetMatchedWeight += effectiveWeight;
+      positiveMatches.push(facet.key);
+    }
+
+    facetMatches.push({
+      dimension: facet.dimension,
+      key: facet.key,
+      importance: facet.importance,
+      confidence: facet.confidence,
+      effectiveWeight,
+      source: facet.source,
+      matched,
+    });
+  }
+
+  let legacyPossibleWeight = 0;
+  let legacyMatchedWeight = 0;
+
+  for (const term of legacyPositiveTerms) {
+    legacyPossibleWeight += 1.0;
+    if (matchesTerm(corpus, term)) {
+      legacyMatchedWeight += 1.0;
+      positiveMatches.push(term);
+    }
+  }
+
+  const totalPossibleWeight = facetPossibleWeight + legacyPossibleWeight;
+  const totalMatchedWeight = facetMatchedWeight + legacyMatchedWeight;
+
+  const positiveRatio =
+    totalPossibleWeight > 0 ? totalMatchedWeight / totalPossibleWeight : 0;
+
+  // 3. Negative penalties (soft)
   const negative = unique([
     ...(intent.excludedThemes ?? []),
     ...(intent.excludedTraits ?? []),
     ...(intent.softConstraints ?? []),
   ]);
-  const exclusions = unique(intent.hardExclusions ?? []);
-
-  const positiveMatches = preferred.filter((term) => matchesTerm(corpus, term));
   const negativeMatches = negative.filter((term) => matchesTerm(corpus, term));
-  const exclusionMatches = exclusions.filter((term) =>
-    matchesTerm(corpus, term),
-  );
-
-  const positiveRatio = preferred.length
-    ? positiveMatches.length / preferred.length
-    : 0;
   const negativePenalty = negative.length
     ? negativeMatches.length / negative.length
     : 0;
+
+  // 4. Hard exclusions
+  const exclusions = unique(intent.hardExclusions ?? []);
+  const exclusionMatches = exclusions.filter((term) =>
+    matchesTerm(corpus, term),
+  );
   const exclusionPenalty = exclusionMatches.length > 0 ? 1 : 0;
+
+  // 5. Final clamped score
   const score = clamp01(
     positiveRatio - negativePenalty * 0.45 - exclusionPenalty * 0.8,
   );
 
+  const uniquePositiveMatches = unique(positiveMatches);
+
   const reasons = [
-    ...positiveMatches.map((match) => `positive:${match}`),
+    ...uniquePositiveMatches.map((match) => `positive:${match}`),
     ...negativeMatches.map((match) => `negative:${match}`),
     ...exclusionMatches.map((match) => `exclusion:${match}`),
   ];
 
   return {
     score,
-    positiveMatches,
+    positiveMatches: uniquePositiveMatches,
     negativeMatches,
     exclusionMatches,
     reasons,
+    facetMatches,
   };
+}
+
+function deduplicateFacets(facets: PreferenceFacet[]): PreferenceFacet[] {
+  const map = new Map<string, PreferenceFacet>();
+  for (const f of facets) {
+    if (!f || !f.key) {
+      continue;
+    }
+    const dim = f.dimension.trim().toLowerCase();
+    const key = f.key.trim().toLowerCase();
+    const compound = `${dim}:${key}`;
+    if (!map.has(compound)) {
+      map.set(compound, {
+        ...f,
+        dimension: dim,
+        key,
+      });
+    }
+  }
+  return Array.from(map.values());
 }
 
 export function buildPreferenceCorpus(experience: any): string[] {

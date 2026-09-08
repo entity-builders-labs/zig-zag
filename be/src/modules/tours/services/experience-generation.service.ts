@@ -95,7 +95,15 @@ import {
   evaluateExperiencePreferences,
   PreferenceEvaluation,
 } from '../utils/experience-preference-evaluator.util';
-import { NormalizedPreferenceIntent } from '../interfaces/preference-interpretation.interface';
+import {
+  getFacetKeysByDimension,
+  NormalizedPreferenceIntent,
+} from '../interfaces/preference-interpretation.interface';
+import { PreferenceFacet } from '../preferences/preference-facet.interface';
+import {
+  mergePreferenceFacets,
+  normalizeWizardFacet,
+} from '../utils/preference-facet-merge.util';
 import { buildTourExperienceCreateData } from '../utils/tour-experience-snapshot.util';
 
 interface NativeExperienceDiscoveryProvider {
@@ -212,9 +220,7 @@ export class ExperienceGenerationService {
 
   private emptyNormalizedPreferences(): NormalizedPreferenceIntent {
     return {
-      preferredThemes: [],
-      preferredTraits: [],
-      preferredIntents: [],
+      preferredFacets: [],
       excludedThemes: [],
       excludedTraits: [],
       hardExclusions: [],
@@ -260,14 +266,23 @@ export class ExperienceGenerationService {
       groupPreferences.push('family friendly');
     }
 
+    const wizardFacets: PreferenceFacet[] = [
+      ...(request.intent.interests ?? []).map((interest) =>
+        normalizeWizardFacet('theme', interest),
+      ),
+      ...(request.intent.intents ?? []).map((intent) =>
+        normalizeWizardFacet('intent', intent),
+      ),
+    ];
+
+    const preferredFacets = mergePreferenceFacets(
+      wizardFacets,
+      interpreted.preferredFacets ?? [],
+    );
+
     return {
       ...interpreted,
-      preferredThemes: unique(interpreted.preferredThemes),
-      preferredTraits: unique(interpreted.preferredTraits),
-      preferredIntents: unique([
-        ...interpreted.preferredIntents,
-        ...(request.intent.intents ?? []),
-      ]),
+      preferredFacets,
       excludedThemes: unique(interpreted.excludedThemes),
       excludedTraits: unique(interpreted.excludedTraits),
       hardExclusions: unique(hardExclusions),
@@ -535,11 +550,14 @@ export class ExperienceGenerationService {
         metadata: experience.metadata,
       })),
       requestedThemes: Array.from(
-        new Set([...request.intent.interests, ...normalized.preferredThemes]),
+        new Set([
+          ...request.intent.interests,
+          ...getFacetKeysByDimension(normalized.preferredFacets, 'theme'),
+        ]),
       ),
       requestedTraits: Array.from(
         new Set([
-          ...normalized.preferredTraits,
+          ...getFacetKeysByDimension(normalized.preferredFacets, 'trait'),
           ...normalized.dietaryPreferences,
           ...normalized.accessibilityPreferences,
         ]),
@@ -547,7 +565,7 @@ export class ExperienceGenerationService {
       requestedIntents: Array.from(
         new Set([
           ...(request.intent.intents ?? []),
-          ...normalized.preferredIntents,
+          ...getFacetKeysByDimension(normalized.preferredFacets, 'intent'),
         ]),
       ),
       days: request.days,
@@ -805,7 +823,10 @@ export class ExperienceGenerationService {
     const requestedIntents = Array.from(
       new Set([
         ...(intent.intents ?? []),
-        ...(intent.normalizedPreferences?.preferredIntents ?? []),
+        ...getFacetKeysByDimension(
+          intent.normalizedPreferences?.preferredFacets,
+          'intent',
+        ),
       ]),
     );
     const window = selectBoundedWindow(
@@ -947,7 +968,10 @@ export class ExperienceGenerationService {
       request.intent.interests = Array.from(
         new Set([
           ...request.intent.interests,
-          ...normalizedPreferences.preferredThemes,
+          ...getFacetKeysByDimension(
+            normalizedPreferences.preferredFacets,
+            'theme',
+          ),
         ]),
       );
       if (normalizedPreferences.positiveSemanticQuery) {
@@ -1114,7 +1138,10 @@ export class ExperienceGenerationService {
                 Array.from(
                   new Set([
                     ...request.intent.interests,
-                    ...(normalizedPreferences.preferredThemes ?? []),
+                    ...getFacetKeysByDimension(
+                      normalizedPreferences.preferredFacets,
+                      'theme',
+                    ),
                   ]),
                 ),
                 // Union with the wizard's own explicit intents, not just the
@@ -1127,7 +1154,10 @@ export class ExperienceGenerationService {
                 Array.from(
                   new Set([
                     ...(request.intent.intents ?? []),
-                    ...(normalizedPreferences.preferredIntents ?? []),
+                    ...getFacetKeysByDimension(
+                      normalizedPreferences.preferredFacets,
+                      'intent',
+                    ),
                   ]),
                 ),
                 blockingDeficits,
@@ -1150,7 +1180,10 @@ export class ExperienceGenerationService {
                 // reached the search query either.
                 Array.from(
                   new Set([
-                    ...(normalizedPreferences.preferredTraits ?? []),
+                    ...getFacetKeysByDimension(
+                      normalizedPreferences.preferredFacets,
+                      'trait',
+                    ),
                     ...(normalizedPreferences.dietaryPreferences ?? []),
                     ...(normalizedPreferences.accessibilityPreferences ?? []),
                   ]),
@@ -1603,7 +1636,10 @@ export class ExperienceGenerationService {
       const requestedFormatIntents = Array.from(
         new Set([
           ...(request.intent.intents ?? []),
-          ...(normalizedPreferences.preferredIntents ?? []),
+          ...getFacetKeysByDimension(
+            normalizedPreferences.preferredFacets,
+            'intent',
+          ),
         ]),
       );
       const completenessInput: TourCompletenessInput = {

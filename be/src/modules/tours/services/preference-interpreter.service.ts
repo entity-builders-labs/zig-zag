@@ -5,24 +5,50 @@ import {
   NormalizedPreferenceIntent,
   PreferenceInterpretationTrace,
 } from '../interfaces/preference-interpretation.interface';
+import {
+  InterpretedPreferenceFacet,
+  mapStrengthToImportance,
+  PreferenceFacet,
+  PreferenceFacetStrength,
+} from '../preferences/preference-facet.interface';
+import { canonicalizeFacetKey } from '../preferences/preference-facet-vocabulary';
 
 const SYSTEM_PROMPT = `Interpret the user's supplemental tourism preferences into normalized intent.
 Return JSON only. You interpret language; deterministic code enforces the result.
 Never invent geographic entities, provider IDs, coordinates, or evidence.
 Do not turn ambiguity into a hard rule. Preserve uncertainty in ambiguities.
-Fields: preferredThemes, preferredTraits, preferredIntents, excludedThemes, excludedTraits,
-hardExclusions, softConstraints, ambiguities, dietaryPreferences,
-accessibilityPreferences, budgetPreferences, groupPreferences,
+For positive preferences, output preferredFacets as a list of objects with:
+- dimension: active dimension name (theme, trait, intent, winery_scale, tourism_intensity, nature_type, local_character). Do NOT output exploration_style.
+- key: CANONICAL domain key in English (e.g. "architecture" not "arquitectura", "food" not "comida", "walk" not "caminata", "history" not "historia").
+- confidence: float between 0 and 1 indicating certainty.
+- strength: "strong" | "medium" | "weak" indicating user emphasis.
+Do not invent arbitrary importance numbers; code derives importance deterministically from strength.
+Other fields: excludedThemes, excludedTraits, hardExclusions, softConstraints, ambiguities,
+dietaryPreferences, accessibilityPreferences, budgetPreferences, groupPreferences,
 positiveSemanticQuery, notes. Use short lowercase phrases.`;
 
 const STRING_ARRAY = { type: 'array', items: { type: 'string' } };
+
+const PREFERRED_FACET_SCHEMA = {
+  type: 'object',
+  additionalProperties: false,
+  properties: {
+    dimension: { type: 'string' },
+    key: { type: 'string' },
+    confidence: { type: 'number' },
+    strength: { type: 'string', enum: ['strong', 'medium', 'weak'] },
+  },
+  required: ['dimension', 'key', 'confidence'],
+};
+
 const RESPONSE_SCHEMA = {
   type: 'object',
   additionalProperties: false,
   properties: {
-    preferredThemes: STRING_ARRAY,
-    preferredTraits: STRING_ARRAY,
-    preferredIntents: STRING_ARRAY,
+    preferredFacets: {
+      type: 'array',
+      items: PREFERRED_FACET_SCHEMA,
+    },
     excludedThemes: STRING_ARRAY,
     excludedTraits: STRING_ARRAY,
     hardExclusions: STRING_ARRAY,
@@ -36,9 +62,7 @@ const RESPONSE_SCHEMA = {
     notes: STRING_ARRAY,
   },
   required: [
-    'preferredThemes',
-    'preferredTraits',
-    'preferredIntents',
+    'preferredFacets',
     'excludedThemes',
     'excludedTraits',
     'hardExclusions',
@@ -54,9 +78,7 @@ const RESPONSE_SCHEMA = {
 };
 
 const EMPTY_INTENT: NormalizedPreferenceIntent = {
-  preferredThemes: [],
-  preferredTraits: [],
-  preferredIntents: [],
+  preferredFacets: [],
   excludedThemes: [],
   excludedTraits: [],
   hardExclusions: [],
@@ -154,10 +176,9 @@ export class PreferenceInterpreterService {
             .filter(Boolean)
             .slice(0, 20)
         : [];
+
     return {
-      preferredThemes: list(value?.preferredThemes),
-      preferredTraits: list(value?.preferredTraits),
-      preferredIntents: list(value?.preferredIntents),
+      preferredFacets: this.normalizeFacets(value?.preferredFacets),
       excludedThemes: list(value?.excludedThemes),
       excludedTraits: list(value?.excludedTraits),
       hardExclusions: list(value?.hardExclusions),
@@ -173,6 +194,70 @@ export class PreferenceInterpreterService {
           : '',
       notes: list(value?.notes),
     };
+  }
+
+  private normalizeFacets(rawFacets: unknown): PreferenceFacet[] {
+    if (!Array.isArray(rawFacets)) {
+      return [];
+    }
+
+    const merged = new Map<string, PreferenceFacet>();
+
+    for (const item of rawFacets) {
+      if (!item || typeof item !== 'object') {
+        continue;
+      }
+
+      const rawDim =
+        typeof item.dimension === 'string' && item.dimension.trim().length > 0
+          ? item.dimension.trim().toLowerCase()
+          : 'theme';
+
+      // exploration_style is dormant in Phase 2
+      if (rawDim === 'exploration_style') {
+        continue;
+      }
+
+      const rawKey =
+        typeof item.key === 'string' ? item.key.trim().toLowerCase() : '';
+      if (!rawKey) {
+        continue;
+      }
+
+      const canonicalKey = canonicalizeFacetKey(rawDim, rawKey);
+      if (!canonicalKey) {
+        continue;
+      }
+
+      const rawConfidence =
+        typeof item.confidence === 'number' && !Number.isNaN(item.confidence)
+          ? item.confidence
+          : 0.7;
+      const confidence = Math.max(0, Math.min(1, rawConfidence));
+
+      const validStrengths: PreferenceFacetStrength[] = [
+        'strong',
+        'medium',
+        'weak',
+      ];
+      const strength: PreferenceFacetStrength | undefined =
+        validStrengths.includes(item.strength) ? item.strength : undefined;
+
+      const importance = mapStrengthToImportance(strength);
+      const compoundKey = `${rawDim}:${canonicalKey}`;
+
+      if (!merged.has(compoundKey)) {
+        merged.set(compoundKey, {
+          dimension: rawDim,
+          key: canonicalKey,
+          importance,
+          confidence,
+          source: 'free_text',
+        });
+      }
+    }
+
+    return Array.from(merged.values());
   }
 
   private fallback(text: string): NormalizedPreferenceIntent {
@@ -211,15 +296,36 @@ export class PreferenceInterpreterService {
       groupPreferences.push('family friendly');
     }
 
-    const preferredThemes = [
-      'arquitectura',
-      'comida',
-      'naturaleza',
-      'cultura',
-      'arte',
-      'historia',
-      'tango',
-    ].filter((theme) => lower.includes(theme));
+    // Free text keywords mapped into candidate InterpretedPreferenceFacet objects
+    const candidateKeywords = [
+      { trigger: 'arquitectura', dimension: 'theme', rawKey: 'architecture' },
+      { trigger: 'comida', dimension: 'theme', rawKey: 'food' },
+      { trigger: 'gastronomia', dimension: 'theme', rawKey: 'gastronomy' },
+      { trigger: 'gastronomía', dimension: 'theme', rawKey: 'gastronomy' },
+      { trigger: 'naturaleza', dimension: 'theme', rawKey: 'nature' },
+      { trigger: 'cultura', dimension: 'theme', rawKey: 'culture' },
+      { trigger: 'arte', dimension: 'theme', rawKey: 'art' },
+      { trigger: 'historia', dimension: 'theme', rawKey: 'history' },
+      { trigger: 'tango', dimension: 'theme', rawKey: 'tango' },
+      { trigger: 'vino', dimension: 'theme', rawKey: 'wine' },
+      { trigger: 'bodega', dimension: 'theme', rawKey: 'wine' },
+      { trigger: 'caminata', dimension: 'intent', rawKey: 'walk' },
+      { trigger: 'caminar', dimension: 'intent', rawKey: 'walk' },
+    ];
+
+    const rawFallbackFacets: InterpretedPreferenceFacet[] = [];
+    for (const kw of candidateKeywords) {
+      if (lower.includes(kw.trigger)) {
+        rawFallbackFacets.push({
+          dimension: kw.dimension,
+          key: kw.rawKey,
+          confidence: 0.9,
+          strength: 'strong',
+        });
+      }
+    }
+
+    const preferredFacets = this.normalizeFacets(rawFallbackFacets);
 
     const positiveSemanticQuery = text
       .replace(/\b(no quiero|sin|evitar|evito)\b[^,.!?;]*/gi, '')
@@ -227,7 +333,7 @@ export class PreferenceInterpreterService {
 
     return {
       ...EMPTY_INTENT,
-      preferredThemes,
+      preferredFacets,
       excludedThemes,
       excludedTraits,
       hardExclusions,

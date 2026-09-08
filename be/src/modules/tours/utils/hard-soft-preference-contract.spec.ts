@@ -1,10 +1,9 @@
 import { NormalizedPreferenceIntent } from '../interfaces/preference-interpretation.interface';
 import { evaluateExperiencePreferences } from './experience-preference-evaluator.util';
+import { normalizeWizardFacet } from './preference-facet-merge.util';
 
 const baseIntent: NormalizedPreferenceIntent = {
-  preferredThemes: [],
-  preferredTraits: [],
-  preferredIntents: [],
+  preferredFacets: [],
   excludedThemes: [],
   excludedTraits: [],
   hardExclusions: [],
@@ -28,7 +27,7 @@ describe('hard vs soft Experience preference contract', () => {
       },
       {
         ...baseIntent,
-        preferredThemes: ['culture'],
+        preferredFacets: [normalizeWizardFacet('theme', 'culture')],
         softConstraints: ['crowded'],
       },
     );
@@ -48,7 +47,7 @@ describe('hard vs soft Experience preference contract', () => {
       },
       {
         ...baseIntent,
-        preferredThemes: ['art'],
+        preferredFacets: [normalizeWizardFacet('theme', 'art')],
         hardExclusions: ['religion'],
       },
     );
@@ -106,5 +105,27 @@ describe('hard vs soft Experience preference contract', () => {
     );
 
     expect(result.exclusionMatches).toContain('religion');
+  });
+
+  it('falls back softly when hard exclusions empty the candidate set', () => {
+    const candidates = [
+      {
+        canonicalName: 'Parroquia San Telmo',
+        themes: ['history', 'religion'],
+      },
+    ];
+
+    const strictlyFiltered = candidates.filter((candidate) => {
+      const evaluation = evaluateExperiencePreferences(candidate, {
+        ...baseIntent,
+        hardExclusions: ['religion'],
+      });
+      return evaluation.exclusionMatches.length === 0;
+    });
+
+    expect(strictlyFiltered).toHaveLength(0);
+
+    const relaxedSelection = candidates;
+    expect(relaxedSelection).toHaveLength(1);
   });
 });
