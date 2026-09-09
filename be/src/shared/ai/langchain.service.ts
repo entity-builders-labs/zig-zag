@@ -34,6 +34,20 @@ export type ChatResponseOptions = Partial<
     reasoningEffort?: 'low' | 'medium' | 'high';
     includeReasoning?: boolean;
   };
+  /**
+   * Force a specific transport for this one call, independent of the global
+   * `AI_PROVIDER`. Used by the discovery extractors so that
+   * `DISCOVERY_EXTRACTOR_PROVIDER` — not `AI_PROVIDER` — decides where the
+   * extraction request actually goes.
+   */
+  providerOverride?: 'openai' | 'groq' | 'gemini' | 'ollama';
+  /** Force a specific model for this one call, independent of `AI_MODEL`. */
+  modelOverride?: string;
+  /**
+   * Skip the file-based AI response cache for this one call (both read and
+   * write). Live characterization tests need a guaranteed real outbound call.
+   */
+  bypassCache?: boolean;
 };
 
 @Injectable()
@@ -301,6 +315,9 @@ export class LangChainService {
     const {
       responseFormat: requestedResponseFormat,
       groq: groqOptions,
+      providerOverride,
+      modelOverride,
+      bypassCache,
       ...modelOptions
     } = options;
     const responseShapeOptions = {
@@ -311,16 +328,18 @@ export class LangChainService {
       requestedResponseFormat || groqOptions
         ? `${systemPrompt}|${userPrompt}|${JSON.stringify(responseShapeOptions)}`
         : `${systemPrompt}|${userPrompt}`;
-    // Check cache first
-    const cached = await this.aiCache.getCachedResponse(cachePrompt, {
-      type: 'chat',
-      variables,
-    });
+    // Check cache first (unless this call explicitly opts out)
+    const cached = bypassCache
+      ? null
+      : await this.aiCache.getCachedResponse(cachePrompt, {
+          type: 'chat',
+          variables,
+        });
     if (cached) return cached;
 
     try {
       let response = '';
-      const provider = this.config.provider;
+      const provider = providerOverride ?? this.config.provider;
 
       if (provider === 'ollama') {
         const model = this.chatModel;
@@ -350,7 +369,8 @@ export class LangChainService {
       } else if (provider === 'gemini') {
         const userTmpl = PromptTemplate.fromTemplate(userPrompt);
         const userText = await userTmpl.format(variables as any);
-        const model = this.config.defaultModel || 'gemini-3.6-flash';
+        const model =
+          modelOverride ?? (this.config.defaultModel || 'gemini-3.6-flash');
 
         const payload: any = {
           contents: [
@@ -392,7 +412,8 @@ export class LangChainService {
       } else if (provider === 'groq') {
         const userTmpl = PromptTemplate.fromTemplate(userPrompt);
         const userText = await userTmpl.format(variables as any);
-        const model = this.config.defaultModel || 'llama-3.1-8b-instant';
+        const model =
+          modelOverride ?? (this.config.defaultModel || 'llama-3.1-8b-instant');
         const responseFormat = requestedResponseFormat ?? {
           type: 'json_object' as const,
         };
@@ -465,11 +486,13 @@ export class LangChainService {
         response = await chain.invoke(variables);
       }
 
-      // Save to cache
-      await this.aiCache.cacheResponse(cachePrompt, response, {
-        type: 'chat',
-        variables,
-      });
+      // Save to cache (unless this call explicitly opts out)
+      if (!bypassCache) {
+        await this.aiCache.cacheResponse(cachePrompt, response, {
+          type: 'chat',
+          variables,
+        });
+      }
       return response;
     } catch (error) {
       this.logger.error(`Error generating chat response: ${error.message}`);

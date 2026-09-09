@@ -4,132 +4,25 @@ import aiConfig from '@shared/ai/ai.config';
 import { ExperienceDiscoveryRequest } from '../interfaces/experience-discovery.interface';
 import { ExperienceGroundedSearchResult } from '../interfaces/experience-grounding.interface';
 import {
-  INITIAL_DIMENSION_VOCABULARY,
-  PREFERENCE_DIMENSIONS,
-} from '../preferences/preference-facet-vocabulary';
+  buildDiscoveryResponseJsonSchema,
+  buildDiscoverySystemPrompt,
+  buildDiscoveryUserPrompt,
+} from '../prompts/experience-discovery-extraction.prompt';
 import {
   extractExperienceCandidates,
   ExperienceExtractionResult,
 } from '../utils/experience-candidate-extraction.util';
 
+/** Role framing shared by every discovery extractor. No JSON-shape prose —
+ * response_format (JSON Schema, below) enforces the exact shape structurally. */
+const SYSTEM_INSTRUCTION = buildDiscoverySystemPrompt();
+
 /**
- * Canonical controlled vocabularies, derived straight from the central
- * preference-facet vocabulary — never a second hand-maintained list. `traits`
- * stays open-ended (no enum).
+ * JSON Schema for the Interactions API's `response_format`. Shared with the
+ * Ollama extractor — `themes`/`intents` `enum`s come from the central
+ * controlled vocabulary; `traits` stays open.
  */
-const CANONICAL_THEMES = [
-  ...INITIAL_DIMENSION_VOCABULARY[PREFERENCE_DIMENSIONS.THEME],
-];
-const CANONICAL_INTENTS = [
-  ...INITIAL_DIMENSION_VOCABULARY[PREFERENCE_DIMENSIONS.INTENT],
-];
-
-/** Gemini-specific: short role framing only. No JSON-shape prose here —
- * response_format (JSON Schema, below) enforces the exact shape
- * structurally, so repeating it in prose would be redundant. */
-const GEMINI_INTRO = `You are an ExperienceCandidate extractor.
-
-Your task is to convert grounded tourism research into structured ExperienceCandidate
-candidates for a destination based on:
-- the user's requested themes and soft Experience intents;
-- exploration style;
-- additional preferences;
-- explicit coverage gaps;
-- grounded search evidence supplied to you.
-
-If day_trip is requested, only extract experiences supported by evidence as suitable
-from the selected base destination and returning the same day. Do not return overnight
-or weekend-only trips.
-
-You are NOT responsible for trusted geographic identity.
-
-The backend independently resolves all proposed entities through trusted geographic
-providers before anything may be persisted.
-
-Never provide or invent:
-- coordinates;
-- Google Place IDs;
-- OpenStreetMap IDs;
-- Wikidata IDs;
-- provider-specific geographic identifiers;
-- URLs or citations that were not supplied in the grounded evidence.`;
-
-const SYSTEM_INSTRUCTION = GEMINI_INTRO;
-
-/** JSON Schema for the Interactions API's response_format. */
-const RESPONSE_SCHEMA = {
-  type: 'object',
-  properties: {
-    candidates: {
-      type: 'array',
-      items: {
-        type: 'object',
-        properties: {
-          name: { type: 'string' },
-          description: { type: 'string' },
-          themes: {
-            type: 'array',
-            items: { type: 'string', enum: CANONICAL_THEMES },
-          },
-          traits: { type: 'array', items: { type: 'string' } },
-          intents: {
-            type: 'array',
-            items: { type: 'string', enum: CANONICAL_INTENTS },
-          },
-          componentHints: {
-            type: 'array',
-            items: {
-              type: 'object',
-              properties: {
-                key: { type: 'string' },
-                name: { type: 'string' },
-                role: {
-                  type: 'string',
-                  enum: ['area', 'waypoint', 'route', 'venue'],
-                },
-                expectedKind: {
-                  type: 'string',
-                  enum: ['PLACE', 'AREA', 'ROUTE'],
-                },
-                required: { type: 'boolean' },
-                evidenceKeys: { type: 'array', items: { type: 'string' } },
-              },
-              required: [
-                'key',
-                'name',
-                'role',
-                'expectedKind',
-                'required',
-                'evidenceKeys',
-              ],
-            },
-          },
-          suggestedDurationMinutes: { type: 'integer' },
-          shortReason: { type: 'string' },
-          evidenceKeys: { type: 'array', items: { type: 'string' } },
-          orderedByEvidence: {
-            type: 'boolean',
-            description:
-              "True only when the cited evidence explicitly describes a visiting sequence for this candidate's components. Never inferred from componentHints array order.",
-          },
-        },
-        required: [
-          'name',
-          'description',
-          'themes',
-          'traits',
-          'intents',
-          'componentHints',
-          'suggestedDurationMinutes',
-          'shortReason',
-          'evidenceKeys',
-          'orderedByEvidence',
-        ],
-      },
-    },
-  },
-  required: ['candidates'],
-};
+const RESPONSE_SCHEMA = buildDiscoveryResponseJsonSchema();
 
 interface GeminiInteractionStep {
   type: string;
@@ -182,25 +75,7 @@ export class GeminiDiscoveryProvider {
         model: this.model,
       };
     const evidence = searchResult.evidence ?? [];
-    const prompt = [
-      `Destination: ${request.scope.destinationName ?? 'unknown'}`,
-      `Themes: ${request.requestedThemes.join(', ') || 'none'}`,
-      `Requested intents: ${request.requestedIntents?.join(', ') || 'none'}`,
-      `Preferences: ${(request.semanticQuery || request.preferredTraits?.join(', ')) ?? 'none'}`,
-      'IMPORTANT: for every componentHints[].name, translate it to the official local-language administrative name used by that country\'s mapping data (for Argentina/most of Latin America this is Spanish, e.g. "Parque Nacional El Leoncito", never "El Leoncito National Park"). Do this even if the evidence only ever uses an English phrase — rely on your own knowledge of the real place\'s official name, not just the evidence wording, for this field specifically. This name is used afterward to verify the place against a real map database, which stores names in the local language.',
-      'Return JSON with a candidates array. Each candidate must contain name, description, themes, traits, intents, suggestedDurationMinutes, componentHints, evidenceKeys, shortReason and orderedByEvidence.',
-      'Some evidence entries are the full text of a source article, not just a short snippet — when one describes a walk/route with multiple named stops (specific streets, plazas, landmarks, markets), enumerate EACH real stop it names as its own componentHint (role "venue" for a point, "route" for a named street/path, "area" for a district), citing the exact evidence key(s) that name it. Do not collapse a multi-stop route into a single componentHint just because it shares one candidate name.',
-      'A componentHints[].name for role "venue" must be the actual named place or business (e.g. a milonga, café, museum, restaurant) — never a street name, cross-street, or address fragment mentioned only to locate it. If evidence gives an address like "Armenia 1366" or says a venue is "on Armenia street", the venue name is whatever business/place it names (e.g. "La Viruta"), never "Armenia" itself. Only use role "route" naming a street when the street itself, not a venue located on it, is what the candidate describes.',
-      "orderedByEvidence must be true only when the cited evidence explicitly describes a visiting sequence for this candidate's components; otherwise false. Never infer an order from componentHints array order.",
-      `themes must be drawn ONLY from this controlled vocabulary: ${CANONICAL_THEMES.join(', ')}. intents must be drawn ONLY from this controlled vocabulary: ${CANONICAL_INTENTS.join(', ')}. Use the exact canonical key, never a localized or synonym form. traits is the open-ended dimension: put descriptive properties that are NOT one of those canonical themes/intents here (e.g. "craft beer", "rooftop", "family friendly", "specialty coffee"). Never put a canonical theme or canonical intent inside traits. themes and intents are separate, independent controlled dimensions: the same canonical key MAY appear in both themes and intents when it legitimately represents both roles and the request or evidence supports both — do not deduplicate across themes and intents.`,
-      'intents are soft Experience facets such as visit, walk, food, route_like or day_trip; never structural proposal kinds.',
-      'For day_trip, only return evidence-backed same-day experiences from the selected base; exclude overnight or weekend-only trips.',
-      'Do not output coordinates, provider IDs, URLs, or entities not directly supported by evidence.',
-      'Grounded evidence:',
-      ...evidence.map(
-        (item) => `[${item.key}] ${item.title || item.source}: ${item.snippet}`,
-      ),
-    ].join('\n');
+    const prompt = buildDiscoveryUserPrompt(request, evidence);
     const raw = await this.callInteractionsApi(apiKey, prompt);
     let parsed: unknown;
     try {

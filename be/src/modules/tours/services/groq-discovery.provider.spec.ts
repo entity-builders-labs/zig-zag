@@ -76,4 +76,32 @@ describe('GroqDiscoveryProvider — controlled facet contract', () => {
     );
     expect(prompt).toMatch(/do not deduplicate across themes and intents/i);
   });
+
+  it('carries the shared generic-pseudo-entity prohibition into the prompt', async () => {
+    const prompt = await capturePrompt();
+    expect(prompt).toMatch(/generic pseudo-entity/i);
+    expect(prompt).toMatch(/Specialty Coffee Shop/);
+  });
+
+  it('forces the Groq transport and the Groq discovery model, independent of AI_PROVIDER', async () => {
+    await provider.extractExperiences(
+      {
+        scope: { destinationName: 'Buenos Aires' },
+        requestedThemes: ['history'],
+        breadth: 'focused',
+        maxCandidates: 8,
+      } as any,
+      {
+        evidence: [{ key: 'ev-1', title: 'T', source: 'S', snippet: 's' }],
+      } as any,
+      { bypassCache: true },
+    );
+    const opts = generateChatResponse.mock.calls[0][3];
+    expect(opts).toMatchObject({
+      providerOverride: 'groq',
+      modelOverride: 'groq-test',
+      bypassCache: true,
+      responseFormat: { type: 'json_object' },
+    });
+  });
 });

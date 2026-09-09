@@ -5,26 +5,13 @@ import aiConfig from '@shared/ai/ai.config';
 import { ExperienceDiscoveryRequest } from '../interfaces/experience-discovery.interface';
 import { ExperienceGroundedSearchResult } from '../interfaces/experience-grounding.interface';
 import {
-  INITIAL_DIMENSION_VOCABULARY,
-  PREFERENCE_DIMENSIONS,
-} from '../preferences/preference-facet-vocabulary';
+  buildDiscoverySystemPrompt,
+  buildDiscoveryUserPrompt,
+} from '../prompts/experience-discovery-extraction.prompt';
 import {
   extractExperienceCandidates,
   ExperienceExtractionResult,
 } from '../utils/experience-candidate-extraction.util';
-
-/**
- * Canonical controlled vocabularies, derived straight from the central
- * preference-facet vocabulary — never a second hand-maintained list. Groq has
- * no response schema, so the prompt carries the contract and the shared
- * deterministic normalizer stays the backend authority.
- */
-const CANONICAL_THEMES = [
-  ...INITIAL_DIMENSION_VOCABULARY[PREFERENCE_DIMENSIONS.THEME],
-];
-const CANONICAL_INTENTS = [
-  ...INITIAL_DIMENSION_VOCABULARY[PREFERENCE_DIMENSIONS.INTENT],
-];
 
 @Injectable()
 export class GroqDiscoveryProvider {
@@ -41,6 +28,7 @@ export class GroqDiscoveryProvider {
   async extractExperiences(
     request: ExperienceDiscoveryRequest,
     searchResult: ExperienceGroundedSearchResult,
+    options?: { bypassCache?: boolean },
   ): Promise<
     ExperienceExtractionResult & {
       provider: string;
@@ -49,30 +37,17 @@ export class GroqDiscoveryProvider {
     }
   > {
     const evidence = searchResult.evidence ?? [];
-    const prompt = [
-      `Destination: ${request.scope.destinationName ?? 'unknown'}`,
-      `Themes: ${request.requestedThemes.join(', ') || 'none'}`,
-      `Requested intents: ${request.requestedIntents?.join(', ') || 'none'}`,
-      `Preferences: ${request.semanticQuery ?? request.preferredTraits?.join(', ') ?? 'none'}`,
-      'IMPORTANT: for every componentHints[].name, translate it to the official local-language administrative name used by that country\'s mapping data (for Argentina/most of Latin America this is Spanish, e.g. "Parque Nacional El Leoncito", never "El Leoncito National Park"). Do this even if the evidence only ever uses an English phrase — rely on your own knowledge of the real place\'s official name, not just the evidence wording, for this field specifically. This name is used afterward to verify the place against a real map database, which stores names in the local language.',
-      'Return JSON with a candidates array. Each candidate must contain name, description, themes, traits, intents, suggestedDurationMinutes, componentHints, evidenceKeys, shortReason and orderedByEvidence.',
-      'Some evidence entries are the full text of a source article, not just a short snippet — when one describes a walk/route with multiple named stops (specific streets, plazas, landmarks, markets), enumerate EACH real stop it names as its own componentHint (role "venue" for a point, "route" for a named street/path, "area" for a district), citing the exact evidence key(s) that name it. Do not collapse a multi-stop route into a single componentHint just because it shares one candidate name.',
-      'A componentHints[].name for role "venue" must be the actual named place or business (e.g. a milonga, café, museum, restaurant) — never a street name, cross-street, or address fragment mentioned only to locate it. If evidence gives an address like "Armenia 1366" or says a venue is "on Armenia street", the venue name is whatever business/place it names (e.g. "La Viruta"), never "Armenia" itself. Only use role "route" naming a street when the street itself, not a venue located on it, is what the candidate describes.',
-      'orderedByEvidence must be true only when the cited evidence explicitly describes a visiting sequence for this candidate\'s components (e.g. "start at X, then walk to Y"); otherwise set it to false. Do not infer an order from how you happen to list componentHints.',
-      `themes must be drawn ONLY from this controlled vocabulary: ${CANONICAL_THEMES.join(', ')}. intents must be drawn ONLY from this controlled vocabulary: ${CANONICAL_INTENTS.join(', ')}. Use the exact canonical key, never a localized or synonym form. traits is the open-ended dimension: put descriptive properties that are NOT one of those canonical themes/intents here (e.g. "craft beer", "rooftop", "family friendly", "specialty coffee"). Never put a canonical theme or canonical intent inside traits. themes and intents are separate, independent controlled dimensions: the same canonical key MAY appear in both themes and intents when it legitimately represents both roles and the request or evidence supports both — do not deduplicate across themes and intents.`,
-      'intents are soft Experience facets such as visit, walk, food, route_like or day_trip; never use them as structural proposal kinds.',
-      'If day_trip is requested, only emit candidates supported by evidence as suitable from the selected base destination and returning the same day; do not emit overnight or weekend-only trips.',
-      'Do not output kinds, coordinates, provider IDs, or unsupported URLs.',
-      'Grounded evidence:',
-      ...evidence.map(
-        (item) => `[${item.key}] ${item.title || item.source}: ${item.snippet}`,
-      ),
-    ].join('\n');
+    const prompt = buildDiscoveryUserPrompt(request, evidence);
     const raw = await this.langChainService.generateChatResponse(
-      'You extract grounded tourism Experiences. Geographic identity is resolved independently; never invent identifiers.',
+      buildDiscoverySystemPrompt(),
       prompt,
       {},
       {
+        // DISCOVERY_EXTRACTOR_PROVIDER — not AI_PROVIDER — decides that this
+        // extraction call really goes to Groq, with the Groq discovery model.
+        providerOverride: 'groq',
+        modelOverride: this.model,
+        bypassCache: options?.bypassCache,
         responseFormat: { type: 'json_object' },
         groq: { maxCompletionTokens: 4096 },
       },

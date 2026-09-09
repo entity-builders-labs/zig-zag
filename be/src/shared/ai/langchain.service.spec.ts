@@ -304,4 +304,99 @@ describe('LangChainService', () => {
       expect(global.fetch).toHaveBeenCalledTimes(4);
     });
   });
+
+  describe('generateChatResponse — per-call provider / model / cache overrides', () => {
+    const geminiBaseConfig = {
+      enableAi: true,
+      provider: 'gemini' as const,
+      defaultModel: 'gemini-some-default',
+      temperature: 0.7,
+      timeout: 60000,
+      groqApiKey: 'test-groq-key',
+      geminiApiKey: 'test-gemini-key',
+      embeddingProvider: 'openai' as const,
+    };
+
+    const cacheStub = {
+      getCachedResponse: jest.fn(),
+      cacheResponse: jest.fn().mockResolvedValue(undefined),
+    };
+
+    let overrideService: LangChainService;
+
+    beforeEach(async () => {
+      const module: TestingModule = await Test.createTestingModule({
+        providers: [
+          LangChainService,
+          { provide: aiConfig.KEY, useValue: geminiBaseConfig },
+          { provide: AiCacheService, useValue: cacheStub },
+        ],
+      }).compile();
+      overrideService = module.get(LangChainService);
+      jest.clearAllMocks();
+      cacheStub.getCachedResponse.mockResolvedValue(null);
+      global.fetch = jest.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          choices: [{ message: { content: '{"ok":true}' } }],
+        }),
+      });
+    });
+
+    it('routes to Groq when providerOverride is "groq" even though AI_PROVIDER is gemini', async () => {
+      await overrideService.generateChatResponse(
+        'sys',
+        'user',
+        {},
+        {
+          providerOverride: 'groq',
+          modelOverride: 'qwen/qwen3.8-27b',
+          responseFormat: { type: 'json_object' },
+        },
+      );
+
+      const [url, options] = (global.fetch as jest.Mock).mock.calls[0];
+      expect(url).toBe('https://api.groq.com/openai/v1/chat/completions');
+      expect(JSON.parse(options.body).model).toBe('qwen/qwen3.8-27b');
+    });
+
+    it('bypassCache:true skips the cache read even when a cached value exists', async () => {
+      cacheStub.getCachedResponse.mockResolvedValue('CACHED');
+
+      const result = await overrideService.generateChatResponse(
+        'sys',
+        'user',
+        {},
+        {
+          providerOverride: 'groq',
+          modelOverride: 'qwen/qwen3.8-27b',
+          bypassCache: true,
+          responseFormat: { type: 'json_object' },
+        },
+      );
+
+      expect(result).toBe('{"ok":true}');
+      expect(cacheStub.getCachedResponse).not.toHaveBeenCalled();
+      expect(cacheStub.cacheResponse).not.toHaveBeenCalled();
+      expect(global.fetch).toHaveBeenCalled();
+    });
+
+    it('without bypassCache, a cached value short-circuits the real call', async () => {
+      cacheStub.getCachedResponse.mockResolvedValue('CACHED');
+
+      const result = await overrideService.generateChatResponse(
+        'sys',
+        'user',
+        {},
+        {
+          providerOverride: 'groq',
+          modelOverride: 'qwen/qwen3.8-27b',
+          responseFormat: { type: 'json_object' },
+        },
+      );
+
+      expect(result).toBe('CACHED');
+      expect(global.fetch).not.toHaveBeenCalled();
+    });
+  });
 });
