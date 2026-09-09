@@ -43,6 +43,9 @@ export type ExperienceDiscoveryBreadth = 'focused' | 'broad';
 export interface ExperienceDiscoveryScope {
   /** The destination selected by the user. For day_trip this is also the base used by FROM-base discovery queries. */
   destinationName?: string;
+  latitude?: number;
+  longitude?: number;
+  radiusMeters?: number;
 }
 
 export interface ExperienceDiscoveryRequest {

@@ -27,6 +27,7 @@ export interface SourceObservation {
   geo?: SourceObservationGeo;
   evidenceType: SourceEvidenceType;
   evidenceKey: string;
+  metadata?: Record<string, unknown>;
 }
 
 export interface AcquisitionProviderResult<T> {

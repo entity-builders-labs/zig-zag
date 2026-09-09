@@ -1,7 +1,10 @@
-import { Injectable, Inject, Logger } from '@nestjs/common';
+import { Injectable, Inject, Logger, Optional } from '@nestjs/common';
 import { ExperienceStatus, GeoEntityKind, Prisma } from '@prisma/client';
 import { PrismaService } from '@core/database/prisma.service';
 import { IPlacesApiService } from '@integrations/google-places/interfaces/places-api.interface';
+import { GooglePlacesAcquisitionProvider } from '../providers/google-places-acquisition.provider';
+import { StructuredExperienceCandidateSynthesizerService } from './structured-experience-candidate-synthesizer.service';
+import { StructuredCandidateCorroborationService } from './structured-candidate-corroboration.service';
 import { NormalizedOpeningHours } from '../interfaces/daily-planning.interface';
 import { parseOpeningHours } from '../utils/normalized-opening-hours.util';
 import {
@@ -80,30 +83,13 @@ export class ExperienceCatalogService {
   constructor(
     private readonly prisma: PrismaService,
     @Inject('PlacesApiService') private readonly placesApi: IPlacesApiService,
+    @Optional()
+    private readonly googlePlacesProvider?: GooglePlacesAcquisitionProvider,
+    @Optional()
+    private readonly candidateSynthesizer?: StructuredExperienceCandidateSynthesizerService,
+    @Optional()
+    private readonly corroborationService?: StructuredCandidateCorroborationService,
   ) {}
-
-  private isAdmissiblePlace(place: any): boolean {
-    const tourismTypes = new Set([
-      'tourist_attraction',
-      'museum',
-      'art_gallery',
-      'park',
-      'national_park',
-      'historical_landmark',
-      'historical_place',
-      'church',
-      'zoo',
-      'aquarium',
-      'amusement_park',
-      'observation_deck',
-      'visitor_center',
-      'cultural_center',
-      'restaurant',
-      'winery',
-    ]);
-    const types = [place.primaryType, ...(place.types ?? [])].filter(Boolean);
-    return types.some((type) => tourismTypes.has(type));
-  }
 
   async acquireNearbyAsExperiences(input: {
     latitude: number;
@@ -112,58 +98,100 @@ export class ExperienceCatalogService {
     interests?: string[];
     maxResultCount?: number;
   }) {
-    const result = await this.placesApi.searchNearby({
-      latitude: input.latitude,
-      longitude: input.longitude,
-      radius: input.radius,
-      maxResultCount: input.maxResultCount ?? 20,
-      rankPreference: 'POPULARITY',
-    });
+    const placesProvider =
+      this.googlePlacesProvider ??
+      new GooglePlacesAcquisitionProvider(this.placesApi);
+    const synthesizer =
+      this.candidateSynthesizer ??
+      new StructuredExperienceCandidateSynthesizerService();
+    const corroborator =
+      this.corroborationService ??
+      new StructuredCandidateCorroborationService();
+
+    const providerResult = await placesProvider.acquire(
+      {
+        latitude: input.latitude,
+        longitude: input.longitude,
+        radiusMeters: input.radius,
+      },
+      {
+        radiusMeters: input.radius,
+        maxResultCount: input.maxResultCount,
+      },
+    );
+
+    const observations = providerResult.value;
+    if (observations.length === 0) {
+      return {
+        experienceIds: [],
+        experiences: [],
+        provenance: {
+          provider: 'google' as const,
+          cacheStatus: 'miss-live' as const,
+          requestedCount: input.maxResultCount ?? 20,
+          receivedCount: 0,
+        },
+      };
+    }
+
+    // Pass observations through structured proposal synthesis
+    const proposals = synthesizer.synthesizeProposals(observations);
+
+    // Corroborate and merge proposals
+    const corroborationResult = corroborator.corroborateAndMerge(proposals);
+
+    // Persist ONLY corroborated ExperienceCandidates (never raw Places directly)
     const acquired = [] as any[];
-    for (const place of result.data) {
-      if (!place.location || !place.id || !this.isAdmissiblePlace(place))
+    for (const candidate of corroborationResult.candidates) {
+      const candidateObs = observations.find((obs) =>
+        candidate.evidenceKeys.includes(obs.evidenceKey),
+      );
+      if (!candidateObs?.geo?.latitude || !candidateObs?.geo?.longitude) {
         continue;
-      const openingHours = parseOpeningHours(place.openingHoursWeekdayText);
+      }
+
+      const placeId = candidateObs.externalId;
+      const meta = candidateObs.metadata as any;
+      const openingHours = parseOpeningHours(meta?.openingHoursWeekdayText);
+
       const entity = await this.upsertGeoEntity({
-        name: place.displayName?.text ?? place.name ?? place.id,
+        name: candidate.name,
         kind: GeoEntityKind.PLACE,
-        provider: result.provenance.provider,
-        externalId: place.id,
-        latitude: place.location.latitude,
-        longitude: place.location.longitude,
-        address: place.formattedAddress,
+        provider: 'google',
+        externalId: placeId ?? candidate.evidenceKeys[0],
+        latitude: candidateObs.geo.latitude,
+        longitude: candidateObs.geo.longitude,
+        address: candidateObs.description,
         metadata: {
-          types: place.types,
-          primaryType: place.primaryType,
-          openingHoursWeekdayText: place.openingHoursWeekdayText,
+          types: meta?.types,
+          primaryType: meta?.primaryType,
+          openingHoursWeekdayText: meta?.openingHoursWeekdayText,
         },
       });
+
       const experience = await this.persistVerifiedExperience({
-        canonicalName: place.displayName?.text ?? place.name ?? place.id,
-        description: place.formattedAddress,
+        canonicalName: candidate.name,
+        description: candidateObs.description,
         durationMinutes: 90,
-        latitude: place.location.latitude,
-        longitude: place.location.longitude,
-        qualityScore: place.rating,
+        latitude: candidateObs.geo.latitude,
+        longitude: candidateObs.geo.longitude,
+        qualityScore:
+          typeof meta?.rating === 'number' ? meta.rating : undefined,
         openingHours,
         metadata: {
           source: 'places_acquisition',
-          provider: result.provenance.provider,
-          placeId: place.id,
-          // These are hints carried from the acquisition request, not proof of
-          // semantic relevance. Focused deficits are handled by grounded
-          // discovery before this quantity-only refill is allowed to run.
+          provider: 'google',
+          placeId,
           requestedThemes: input.interests ?? [],
         },
         components: [{ geoEntityId: entity.id, role: 'venue', required: true }],
-        evidence: [
-          {
-            source: result.provenance.provider,
-            title: place.displayName?.text ?? place.name,
-            snippet: place.formattedAddress,
-          },
-        ],
+        evidence: candidate.evidenceKeys.map(() => ({
+          source: 'google_places',
+          title: candidate.name,
+          snippet: candidateObs.description,
+        })),
       });
+
       if ((experience as any).dedupeDecision === 'AMBIGUOUS') continue;
       acquired.push({
         id: experience.id,
@@ -176,10 +204,16 @@ export class ExperienceCatalogService {
         components: (experience as any).components,
       });
     }
+
     return {
       experienceIds: acquired.map((item) => item.id),
       experiences: acquired,
-      provenance: result.provenance,
+      provenance: {
+        provider: 'google' as const,
+        cacheStatus: 'miss-live' as const,
+        requestedCount: input.maxResultCount ?? 20,
+        receivedCount: observations.length,
+      },
     };
   }
 

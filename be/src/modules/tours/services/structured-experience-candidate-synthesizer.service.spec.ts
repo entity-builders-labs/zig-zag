@@ -151,4 +151,47 @@ describe('StructuredExperienceCandidateSynthesizerService', () => {
     expect(proposals[0].candidate.name).toBe('Plaza Dorrego');
     expect(proposals[0].observations).toEqual([observation]);
   });
+
+  it('synthesizes Google Places SourceObservation into candidate with venue component hint and empty facets', () => {
+    const observation: SourceObservation = {
+      provider: 'google_places',
+      externalId: 'ChIJPlace123',
+      title: 'Teatro Colón',
+      description: 'Cerrito 628, Buenos Aires',
+      geo: { latitude: -34.601111, longitude: -58.383056 },
+      evidenceType: 'place',
+      evidenceKey: 'google_places:ChIJPlace123',
+      metadata: {
+        rating: 4.9,
+      },
+    };
+
+    const proposals = service.synthesizeProposals([observation]);
+
+    expect(proposals).toHaveLength(1);
+    const proposal = proposals[0];
+    const candidate = proposal.candidate;
+
+    expect(candidate.name).toBe('Teatro Colón');
+    expect(candidate.description).toBe('Cerrito 628, Buenos Aires');
+    expect(candidate.themes).toEqual([]);
+    expect(candidate.traits).toEqual([]);
+    expect(candidate.intents).toEqual([]);
+    expect(candidate.evidenceKeys).toEqual(['google_places:ChIJPlace123']);
+    expect(candidate.shortReason).toBe(
+      'Structured observation from google_places: Teatro Colón',
+    );
+    expect(candidate.orderedByEvidence).toBe(false);
+
+    expect(candidate.componentHints).toHaveLength(1);
+    expect(candidate.componentHints[0]).toEqual({
+      key: 'google_places:ChIJPlace123:component',
+      name: 'Teatro Colón',
+      role: 'venue',
+      expectedKind: 'PLACE',
+      required: true,
+      evidenceKeys: ['google_places:ChIJPlace123'],
+    });
+    expect(proposal.observations).toEqual([observation]);
+  });
 });

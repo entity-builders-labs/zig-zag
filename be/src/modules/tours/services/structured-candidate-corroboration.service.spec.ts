@@ -813,4 +813,253 @@ describe('StructuredCandidateCorroborationService', () => {
     expect(result.candidates).toHaveLength(2);
     expect(result.groups).toHaveLength(2);
   });
+
+  describe('Google Places cross-source corroboration (Phase 4)', () => {
+    it('1. Same place from Wikivoyage + Google Places within 150m and matching name collapses into ONE ExperienceCandidate with both evidenceKeys and 1 component hint', () => {
+      const pWV: StructuredCandidateProposal = {
+        candidate: {
+          name: 'Teatro Colón',
+          description: 'Famoso teatro de ópera en Buenos Aires.',
+          themes: [],
+          traits: [],
+          componentHints: [
+            {
+              key: 'wikivoyage:San_Nicolas:see:see:Teatro_Colon:1:component',
+              name: 'Teatro Colón',
+              role: 'venue',
+              expectedKind: 'PLACE',
+              required: true,
+              evidenceKeys: ['wikivoyage:San_Nicolas:see:see:Teatro_Colon:1'],
+            },
+          ],
+          evidenceKeys: ['wikivoyage:San_Nicolas:see:see:Teatro_Colon:1'],
+          shortReason: 'Wikivoyage see listing',
+        },
+        observations: [
+          {
+            provider: 'wikivoyage',
+            title: 'Teatro Colón',
+            evidenceType: 'place',
+            evidenceKey: 'wikivoyage:San_Nicolas:see:see:Teatro_Colon:1',
+            geo: { latitude: -34.601111, longitude: -58.383056 },
+          },
+        ],
+      };
+
+      const pGP: StructuredCandidateProposal = {
+        candidate: {
+          name: 'Teatro Colon',
+          description: 'Cerrito 628, C1010 Cdad. Autónoma de Buenos Aires',
+          themes: [],
+          traits: [],
+          componentHints: [
+            {
+              key: 'google_places:ChIJTeatroColon:component',
+              name: 'Teatro Colon',
+              role: 'venue',
+              expectedKind: 'PLACE',
+              required: true,
+              evidenceKeys: ['google_places:ChIJTeatroColon'],
+            },
+          ],
+          evidenceKeys: ['google_places:ChIJTeatroColon'],
+          shortReason: 'Structured observation from google_places',
+        },
+        observations: [
+          {
+            provider: 'google_places',
+            externalId: 'ChIJTeatroColon',
+            title: 'Teatro Colon',
+            evidenceType: 'place',
+            evidenceKey: 'google_places:ChIJTeatroColon',
+            geo: { latitude: -34.60115, longitude: -58.3831 },
+          },
+        ],
+      };
+
+      const pairDec = service.decidePair(pWV, pGP);
+      expect(pairDec.decision).toBe('SAME');
+      expect(pairDec.reasons).toContain('compatible_geo_and_name');
+
+      const mergeResult = service.corroborateAndMerge([pWV, pGP]);
+      expect(mergeResult.candidates).toHaveLength(1);
+      expect(mergeResult.groups).toHaveLength(1);
+
+      const merged = mergeResult.candidates[0];
+      expect(merged.name).toBe('Teatro Colon');
+      expect(merged.evidenceKeys).toEqual([
+        'google_places:ChIJTeatroColon',
+        'wikivoyage:San_Nicolas:see:see:Teatro_Colon:1',
+      ]);
+      expect(merged.componentHints).toHaveLength(1);
+      expect(merged.componentHints[0]).toEqual({
+        key: 'google_places:ChIJTeatroColon:component',
+        name: 'Teatro Colon',
+        role: 'venue',
+        expectedKind: 'PLACE',
+        required: true,
+        evidenceKeys: [
+          'google_places:ChIJTeatroColon',
+          'wikivoyage:San_Nicolas:see:see:Teatro_Colon:1',
+        ],
+      });
+    });
+
+    it('2. Same name from Wikivoyage and Google Places but distance > 150m remains TWO distinct candidates (NEW)', () => {
+      const pWV: StructuredCandidateProposal = {
+        candidate: {
+          name: 'Café Tortoni',
+          themes: [],
+          traits: [],
+          componentHints: [],
+          evidenceKeys: ['wikivoyage:Monserrat:see:see:Cafe_Tortoni:1'],
+          shortReason: 'Historic cafe',
+        },
+        observations: [
+          {
+            provider: 'wikivoyage',
+            title: 'Café Tortoni',
+            evidenceType: 'place',
+            evidenceKey: 'wikivoyage:Monserrat:see:see:Cafe_Tortoni:1',
+            geo: { latitude: -34.6083, longitude: -58.3794 },
+          },
+        ],
+      };
+
+      const pGP: StructuredCandidateProposal = {
+        candidate: {
+          name: 'Café Tortoni',
+          themes: [],
+          traits: [],
+          componentHints: [],
+          evidenceKeys: ['google_places:ChIJTortoniFar'],
+          shortReason: 'Places cafe',
+        },
+        observations: [
+          {
+            provider: 'google_places',
+            externalId: 'ChIJTortoniFar',
+            title: 'Café Tortoni',
+            evidenceType: 'place',
+            evidenceKey: 'google_places:ChIJTortoniFar',
+            // ~750m away
+            geo: { latitude: -34.615, longitude: -58.3794 },
+          },
+        ],
+      };
+
+      const pairDec = service.decidePair(pWV, pGP);
+      expect(pairDec.decision).toBe('NEW');
+
+      const mergeResult = service.corroborateAndMerge([pWV, pGP]);
+      expect(mergeResult.candidates).toHaveLength(2);
+      expect(mergeResult.groups).toHaveLength(2);
+    });
+
+    it('3. Overlapping coordinates <= 150m with different names marked AMBIGUOUS and not auto-merged', () => {
+      const pWV: StructuredCandidateProposal = {
+        candidate: {
+          name: 'Café Tortoni',
+          themes: [],
+          traits: [],
+          componentHints: [],
+          evidenceKeys: ['wikivoyage:Monserrat:see:see:Cafe_Tortoni:1'],
+          shortReason: 'Historic cafe',
+        },
+        observations: [
+          {
+            provider: 'wikivoyage',
+            title: 'Café Tortoni',
+            evidenceType: 'place',
+            evidenceKey: 'wikivoyage:Monserrat:see:see:Cafe_Tortoni:1',
+            geo: { latitude: -34.6083, longitude: -58.3794 },
+          },
+        ],
+      };
+
+      const pGP: StructuredCandidateProposal = {
+        candidate: {
+          name: 'Farmacia del Águila',
+          themes: [],
+          traits: [],
+          componentHints: [],
+          evidenceKeys: ['google_places:ChIJPharmacy'],
+          shortReason: 'Pharmacy',
+        },
+        observations: [
+          {
+            provider: 'google_places',
+            externalId: 'ChIJPharmacy',
+            title: 'Farmacia del Águila',
+            evidenceType: 'place',
+            evidenceKey: 'google_places:ChIJPharmacy',
+            // ~6m away, completely different name
+            geo: { latitude: -34.60835, longitude: -58.37945 },
+          },
+        ],
+      };
+
+      const pairDec = service.decidePair(pWV, pGP);
+      expect(pairDec.decision).toBe('AMBIGUOUS');
+      expect(pairDec.reasons).toContain(
+        'geographic_overlap_without_name_match',
+      );
+
+      const mergeResult = service.corroborateAndMerge([pWV, pGP]);
+      expect(mergeResult.candidates).toHaveLength(2);
+      expect(mergeResult.groups).toHaveLength(2);
+    });
+
+    it('4. Google Places place_id does NOT auto-merge via QID rule with Wikivoyage Wikidata QID', () => {
+      const pWV: StructuredCandidateProposal = {
+        candidate: {
+          name: 'Museo de Arte Moderno',
+          themes: [],
+          traits: [],
+          componentHints: [],
+          evidenceKeys: ['wikivoyage:San_Telmo:see:see:MAMBA:1'],
+          shortReason: 'Modern art museum',
+        },
+        observations: [
+          {
+            provider: 'wikivoyage',
+            externalId: 'Q12345',
+            title: 'Museo de Arte Moderno',
+            evidenceType: 'place',
+            evidenceKey: 'wikivoyage:San_Telmo:see:see:MAMBA:1',
+          },
+        ],
+      };
+
+      const pGP: StructuredCandidateProposal = {
+        candidate: {
+          name: 'Centro Cultural Recoleta',
+          themes: [],
+          traits: [],
+          componentHints: [],
+          evidenceKeys: ['google_places:Q12345'],
+          shortReason: 'Cultural center',
+        },
+        observations: [
+          {
+            provider: 'google_places',
+            // Coincidentally has Q12345 as externalId string
+            externalId: 'Q12345',
+            title: 'Centro Cultural Recoleta',
+            evidenceType: 'place',
+            evidenceKey: 'google_places:Q12345',
+          },
+        ],
+      };
+
+      const pairDec = service.decidePair(pWV, pGP);
+      // Because google_places is not wikivoyage/wikidata, canonicalExternalIdentity does not match
+      expect(pairDec.reasons).not.toContain('same_wikidata_identity');
+      expect(pairDec.decision).toBe('NEW');
+
+      const mergeResult = service.corroborateAndMerge([pWV, pGP]);
+      expect(mergeResult.candidates).toHaveLength(2);
+      expect(mergeResult.groups).toHaveLength(2);
+    });
+  });
 });

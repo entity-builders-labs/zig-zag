@@ -31,6 +31,7 @@ import { ExperienceCatalogService } from './services/experience-catalog.service'
 import { ExperienceAcquisitionService } from './services/experience-acquisition.service';
 import { WikivoyageApiService } from './services/wikivoyage-api.service';
 import { WikivoyageAcquisitionProvider } from './providers/wikivoyage-acquisition.provider';
+import { GooglePlacesAcquisitionProvider } from './providers/google-places-acquisition.provider';
 import { StructuredExperienceCandidateSynthesizerService } from './services/structured-experience-candidate-synthesizer.service';
 import { StructuredCandidateCorroborationService } from './services/structured-candidate-corroboration.service';
 import { ExperienceAcquisitionPlannerService } from './services/experience-acquisition-planner.service';
@@ -98,6 +99,7 @@ import { MediaModule } from '../media/media.module';
     ExperienceAcquisitionService,
     WikivoyageApiService,
     WikivoyageAcquisitionProvider,
+    GooglePlacesAcquisitionProvider,
     StructuredExperienceCandidateSynthesizerService,
     StructuredCandidateCorroborationService,
     ExperienceAcquisitionPlannerService,
@@ -187,6 +189,7 @@ import { MediaModule } from '../media/media.module';
     ExperienceAcquisitionService,
     WikivoyageApiService,
     WikivoyageAcquisitionProvider,
+    GooglePlacesAcquisitionProvider,
     StructuredExperienceCandidateSynthesizerService,
     StructuredCandidateCorroborationService,
     ExperienceAcquisitionPlannerService,
