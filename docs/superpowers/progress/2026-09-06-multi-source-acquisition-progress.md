@@ -50,7 +50,14 @@ Canonical design: `docs/superpowers/specs/2026-09-06-multi-source-acquisition-de
 - **Wikivoyage Acquisition Provider**:
   Created `be/src/modules/tours/providers/wikivoyage-acquisition.provider.ts`:
   - Narrow `acquire(destination, options?)` signature.
-  - Maps `WikivoyageEntry` into provider-neutral `SourceObservation` with stable evidenceKey (`wikivoyage:${articleSlug}:${entrySlug}`).
+  - Maps `WikivoyageEntry` into a provider-neutral `SourceObservation`. The
+    initial `wikivoyage:${articleSlug}:${entrySlug}` evidenceKey noted here was
+    **superseded** in Phase 3 — see "Wikivoyage Evidence Key Hardening" and
+    "Evidence Identity vs Entity Identity" below. Current code
+    (`wikivoyage-acquisition.provider.ts`) emits the collision-resistant
+    listing key `wikivoyage:${articleSlug}:${section}:${template}:${entrySlug}:${occurrence}`
+    unconditionally, and the normalized Wikidata QID lives in `externalId`
+    (never in `evidenceKey`).
   - Returns `{ status: 'success', value: [] }` on missing article.
   - Unit tests in `be/src/modules/tours/providers/wikivoyage-acquisition.provider.spec.ts` (4 tests).
 - **Conservative Mechanical Candidate Synthesizer**:
@@ -163,9 +170,13 @@ Canonical design: `docs/superpowers/specs/2026-09-06-multi-source-acquisition-de
 - **Provider Union Restoration**:
   - Restored `'wikidata'` to `ExperienceAcquisitionProvider` in `be/src/modules/tours/interfaces/experience-acquisition.interface.ts` (without creating a standalone Wikidata provider).
 - **Wikivoyage Evidence Key Hardening**:
-  - Updated `WikivoyageAcquisitionProvider.acquire()` to format collision-resistant `evidenceKey`:
-    - `wikivoyage:${articleSlug}:wikidata:${qid}` when `entry.wikidata` matches `/^Q\d+$/i`.
-    - `wikivoyage:${articleSlug}:${section}:${template}:${entrySlug}:${occurrence}` with deterministic duplicate occurrence tracking per normalized key.
+  - Updated `WikivoyageAcquisitionProvider.acquire()` to emit a single
+    collision-resistant listing `evidenceKey`,
+    `wikivoyage:${articleSlug}:${section}:${template}:${entrySlug}:${occurrence}`,
+    with deterministic duplicate-occurrence tracking per normalized key.
+    (An earlier draft folded a `wikivoyage:${articleSlug}:wikidata:${qid}`
+    variant into the key; that was dropped — the normalized QID goes to
+    `externalId`, see "Wikivoyage Evidence Identity Decoupling" below.)
   - Added unit test in `wikivoyage-acquisition.provider.spec.ts` for duplicate listing names in the same article.
 - **Shared Real-World Matching Primitives**:
   - Created `be/src/modules/tours/utils/real-world-entity-matching.util.ts`:
