@@ -1,59 +1,55 @@
 # tour-generation integration suite (`yarn test:integration`)
 
-Real internal components (`PrismaService`, `ExperienceCatalogService`,
-`ExperienceProposalResolverService`, `CoverageAnalyzer`,
-`ExperienceAcquisitionPlannerService`, `ExperienceAcquisitionService`,
-synthesizer, corroboration, ranking, `GreedyDailyPlanningSolver`,
-`TourPlanningFeasibilityValidatorService`) against a **real Postgres**
-(`docker-compose --profile dev up -d postgres`, or the CI `backend-integration`
-job). Only external transports are faked (Places / grounded search / discovery
-extractor / OSM / Wikivoyage HTTP / `TRAVEL_ESTIMATE_PROVIDER` / embeddings /
-image / outbox / destination resolution).
+The durable, behavior-named integration category for the productive
+tour-generation graph. It runs the **real internal orchestration** against a
+**real Postgres**, faking only the external transports.
 
-Shared helpers: `../support/test-db.ts` (connect + `TRUNCATE ... RESTART
-IDENTITY CASCADE`), `../support/seed.ts` (`seedVerifiedExperience`, `seedTour`).
+- **Real** (no mocks): `ExperienceGenerationService.generateTourExperiences`,
+  `CoverageAnalyzer`, `ExperienceAcquisitionPlannerService`,
+  `ExperienceAcquisitionService` (structured + `web` SourcePlan),
+  `StructuredExperienceCandidateSynthesizerService`,
+  `StructuredCandidateCorroborationService`,
+  `ExperienceProposalResolverService` +
+  `CompositeGeographicValidationService`, `ExperienceCatalogService`,
+  `PrismaService` (schema constraints, relations, transactions, advisory-lock
+  dedupe), preference/semantic ranking, `PlanningCandidateNormalizerService`,
+  `GreedyDailyPlanningSolver`, `TourPlanningFeasibilityValidatorService`,
+  `TourExperience` / `TourExperienceComponent` materialization,
+  `generationTrace` / `executionSummary`.
+- **Faked** deterministic transports only: Google Places, OSM/Overpass,
+  Nominatim, Wikivoyage HTTP, grounded web search, the discovery-extractor
+  LLM, embeddings, LLM chat, destination resolution, and the
+  `TRAVEL_ESTIMATE_PROVIDER`. Each fake speaks a real provider result shape
+  and exposes `jest.fn` spies for call-count assertions.
 
-## Status
+Run locally with `docker-compose --profile dev up -d postgres` (or any
+reachable `DATABASE_URL`); CI runs it in the `backend-integration` job
+(`pgvector/pgvector:pg16` + `prisma:deploy`). `test:acceptance` stays DB-free.
 
-- `catalog-retrieval.integration-spec.ts` — **green**. Proves the DB seam:
-  real `ExperienceCatalogService.findVerifiedWithin` over seeded rows in real
-  Postgres, radius + VERIFIED filtering.
+## Support
 
-## Pending (Phase 7 Checkpoint F follow-up — full `generateTourExperiences` harness)
+- `../support/test-db.ts` — env load, real `PrismaService` connect,
+  `TRUNCATE ... RESTART IDENTITY CASCADE` between scenarios.
+- `../support/seed.ts` — `seedVerifiedExperience`, `seedTour`, `ALWAYS_OPEN`.
+- `support/harness.ts` — one reusable `TourGenerationHarness` that boots the
+  real `AppModule`, overrides the external boundaries, and exposes
+  `configure(scenario)`, `generate(tourId)`, `loadTour(tourId)` and the fake
+  spies. Do not build a second Nest module per spec.
+- `support/fakes.ts` — the deterministic fake transports + builders
+  (`osmPoi`, `placeData`, `venueHint`).
 
-The specs below need a `Test.createTestingModule` that wires the real
-`ExperienceGenerationService` graph (per the provider list above) with the
-external boundaries faked. That harness is scaffolded here as `describe.skip`
-so the durable, behavior-named taxonomy exists; each is a straight
-implementation task on top of `support/`:
+## What the suite covers
 
-- `canonical-orchestration.integration-spec.ts` — empty catalog + blocking
-  deficit → plan → structured + web → synthesis → corroboration → resolver →
-  Prisma persist → re-query → ranking → solver → feasibility → materialized
-  Tour; trace shows the real acquisition steps.
-- `catalog-first.integration-spec.ts` — sufficient catalog + covered
-  preferences → `decision.action === 'none'` → **zero** provider-fake calls.
-- `catalog-reuse.integration-spec.ts` — run 1 acquires + persists; run 2
-  (same destination, compatible prefs) → sufficient catalog → zero calls.
-- `acquisition-degradation.integration-spec.ts` — WV / OSM / Places quota each
-  failing with the rest sufficient → Tour still completes.
-- `places-admission.integration-spec.ts` — ~50 generic cafés/bars/chains +
-  a few real tourism food Experiences, request `food + nightlife` → generic
-  operational venues do NOT become VERIFIED Experiences (type semantics, not
-  fixture strings); a real evidence-backed food Experience can.
-- `long-tail-acquisition.integration-spec.ts` — `theme=food` + `trait=craft
-  beer` + `trait=specialty coffee`, catalog deficit → CoverageAnalyzer deficit
-  → planner → `web` SourcePlan → grounded fake → extractor fake → candidates
-  carrying those traits; no new enum.
-- `day-trip.integration-spec.ts` — Argentina fixture, base Buenos Aires:
-  base destination preserved; a `day_trip` candidate is acquired, resolved
-  within boundary, planned same-day, not replaced by an arbitrary POI.
-- `no-direct-persistence.integration-spec.ts` — a Places observation never
-  yields a VERIFIED `Experience` without going through the resolver.
-- `duplicate-delivery.integration-spec.ts` — same proposal + evidence twice /
-  a generation retry → no duplicate `Experience` rows.
-- `routing-boundary.integration-spec.ts` — solver consumes
-  `TRAVEL_ESTIMATE_PROVIDER` (never Geoapify directly); route-shaped Experience
-  connects `previous.endFootprint → next.startFootprint`; internal legs use the
-  same provider; `approximate: false` propagates to `travelFromPrevious` +
-  routing counts; a fallback estimate is reflected in solution metadata.
+| spec | behavior |
+| --- | --- |
+| `canonical-orchestration` | empty catalog + blocking deficit → plan → structured source **and** web SourcePlan → synthesis → corroboration → resolver → real Prisma persistence → catalog re-query → ranking → solver → feasibility → materialized Tour; trace carries the real acquisition step (no legacy "Places crawl"); `executionSummary.acquisition` reflects the run. |
+| `catalog-first` | a sufficient VERIFIED catalog → `CoverageAnalyzer` decides `none` → **zero** calls to every faked transport; the Tour is still planned from the catalog. |
+| `catalog-reuse` | run 1 acquires + persists; run 2 (same DB, compatible request) → catalog now sufficient → zero provider calls, no duplicate Experience rows, Tour built from the reused catalog. |
+| `acquisition-degradation` | Wikivoyage / OSM / Google Places each failing while the rest stay sufficient → Tour still completes; the trace/`executionSummary` name the attempted + failed provider, provider-neutrally. Every-source-fails + empty catalog → generation fails with `retryable: true`. Places holds no special failure authority. |
+| `places-admission` | a food + nightlife request routes contextual commercial types to Places; bare `restaurant`/`cafe`/`bakery`/`bar`/`night_club` venues are admitted as observations but never become VERIFIED Experiences (source-type semantics, not a name blacklist, not a ratings threshold); evidence-backed tourism food still can. |
+| `long-tail-acquisition` | `theme=food` + open traits `craft_beer` / `specialty_coffee` the catalog lacks → deficit → planner → web SourcePlan (traits forwarded as open traits, excluded preferences not) → grounded fake → extractor fake → `ExperienceCandidate` with open traits → resolver → persistence → available to the planner. No new enum. |
+| `day-trip` | `day_trip` intent from a Buenos Aires base → a day-trip Experience is acquired, resolved within scope, the base destination is unchanged, and the planner places it in a valid day rather than swapping an arbitrary POI. |
+| `no-direct-persistence` | a provider observation is never a VERIFIED Experience: nothing is persisted until the resolver runs; the resolver is the only path to a row; an ungroundable observation lands nothing. |
+| `duplicate-delivery` | the same proposal + evidence delivered on a second run reconciles to one logical Experience (resolver SAME/dedupe + GeoEntity identity), no duplicate rows/components. |
+| `routing-boundary` | the deterministic planner routes only through `TRAVEL_ESTIMATE_PROVIDER` (a fixture, never a network call); a real-routing result (`approximate:false`) and an approximate fallback (`fallbackReason` set) both propagate to `travelFromPrevious`, the routing provider counts and the approximate count; a route-shaped Experience is routed by its component endpoints, not its centroid. |
+| `catalog-retrieval` | focused DB-seam test: `ExperienceCatalogService.findVerifiedWithin` over seeded rows in real Postgres (radius + VERIFIED filtering). Not a substitute for canonical orchestration. |

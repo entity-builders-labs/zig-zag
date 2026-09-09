@@ -7,20 +7,26 @@ Canonical design: `docs/superpowers/specs/2026-09-06-multi-source-acquisition-de
 - Branch: `feat/experience-domain-v2`
 - Current milestone: **Phase 7 — final orchestration.**
   **Checkpoint A COMPLETE · B COMPLETE · C COMPLETE · D COMPLETE · E COMPLETE ·
-  F IN PROGRESS.**
+  F COMPLETE.**
   **Engine Quality Gate G NOT STARTED · Argentina Live Smoke H NOT STARTED · Phase 7
   overall NOT CLOSED** (G/H are a separate session after user review of A–F).
-  - F is NOT complete: the durable `test:integration` category, real Postgres, the
-    `backend-integration` CI job, the DB reset/seed helpers and
-    `catalog-retrieval.integration-spec.ts` all exist, but the integration specs that
-    actually define Checkpoint F (the full `generateTourExperiences` orchestration
-    against real Postgres) are not yet implemented as executable tests — they are
-    enumerated as pending behaviors in
-    `be/test/integration/tour-generation/README.md`. F is marked COMPLETE only once
-    every required behavior spec is implemented (none skipped/scaffolded),
-    `test:integration` passes against real Postgres, and CI `backend-integration`
-    passes.
-- Phase 7 A–E: starting HEAD `ad0a212991063fb7eed8750739ad315cba83ea2f`. Commits:
+  - F is complete: the durable `yarn test:integration` category runs the real
+    productive orchestration (`ExperienceGenerationService.generateTourExperiences` →
+    coverage → `buildAcquisitionPlan` → `executePlan` incl. web SourcePlan →
+    synthesizer → corroboration → `ExperienceProposalResolverService` + geographic
+    validation → real Prisma persistence → catalog re-query → preference/semantic
+    ranking → `PlanningCandidateNormalizerService` → `GreedyDailyPlanningSolver` →
+    `TourPlanningFeasibilityValidatorService` → `TourExperience` materialization →
+    trace/executionSummary) against a real Postgres, with only external transports
+    faked. **11 suites / 16 tests, all implemented (none skipped/scaffolded), green
+    against real Postgres**: `canonical-orchestration`, `catalog-first`,
+    `catalog-reuse`, `acquisition-degradation`, `places-admission`,
+    `long-tail-acquisition`, `day-trip`, `no-direct-persistence`,
+    `duplicate-delivery`, `routing-boundary`, plus the focused `catalog-retrieval`
+    DB-seam test. One reusable harness (`be/test/integration/tour-generation/support/`)
+    — no second Nest app architecture, no in-memory `CatalogPort`, no Prisma fake.
+    CI `backend-integration` runs it (`pgvector/pgvector:pg16` + `prisma:deploy`).
+- Phase 7 A–F: starting HEAD `ad0a212991063fb7eed8750739ad315cba83ea2f`. Commits:
   - `c9420c1` `test(tours): repair acceptance suite type and contract drift` — A. The 7
     pre-existing `tsc` errors (PlanningExperienceCandidate `startFootprint`/`endFootprint`
     drift + `TourCompletenessIssue` union narrowing + two contract specs missing
@@ -31,7 +37,16 @@ Canonical design: `docs/superpowers/specs/2026-09-06-multi-source-acquisition-de
   - `5364152` `fix(tours): prevent generic places from originating tourism experiences` — D.
   - `2cb7f38` `feat(tours): roll up multi-source acquisition in the execution summary` — E.
   - `46fcc2e` `refactor(tours): drop dead OSM coverage-area lookup from live generation`.
-  - `b32db59` `test(tours): cover tour generation orchestration end to end` — F.
+  - `b32db59` `test(tours): cover tour generation orchestration end to end` — F, first
+    increment (durable `test:integration` category, real Postgres, DB helpers,
+    `catalog-retrieval` DB-seam spec, `backend-integration` CI job).
+  - `9f3eb31` `docs(superpowers): record phase 7 orchestration checkpoints A-F`.
+  - `7be393a` `docs(superpowers): correct phase 7 checkpoint f status to in progress`
+    (F was not actually complete at `9f3eb31` — the orchestration specs were still
+    scaffolding).
+  - _F completion:_ the reusable `generateTourExperiences` integration harness +
+    the ten behavior specs (`test(tours): …` + `docs(superpowers): close phase 7
+    checkpoint f`) — see the `test:integration (F, complete)` bullet below.
 - **Old live architecture → new.** `ExperienceGenerationService.generateTourExperiences`
   ran a hand-rolled cascade: `discoverExperienceGaps()` (its own grounded-search +
   extractor + resolver web path) **plus** `experienceAcquisition.acquireNearby()` (a
@@ -81,25 +96,31 @@ Canonical design: `docs/superpowers/specs/2026-09-06-multi-source-acquisition-de
   `TRAVEL_ESTIMATE_PROVIDER` (`ResilientTravelEstimateProvider` → Geoapify → Approximate).
   The seam is open for a future `ROUTING_PROVIDER=osrm|google`; no routing infra was
   added in A–F.
-- **Current verified test state** (A–E landed, measured at HEAD `9f3eb31`, 2026-09-09):
+- **Current verified test state** (A–F landed, measured 2026-09-09):
   `yarn typecheck` 0 errors; `yarn test --runInBand` 124 suites / 994 tests green;
-  `yarn test:acceptance` 20 suites / 30 tests green; `yarn build` clean;
-  `yarn lint:check` clean (on the pushed branch state). The 7 pre-Phase-7 baseline
-  `tsc` errors were removed by Checkpoint A — `yarn run check` no longer fails on them
-  (any older bullet in this doc that still says "check fails on 7 baseline errors" is
-  historical, pre-Phase-7, and superseded by this line).
-- **`test:integration` (F, in progress)**: the durable `yarn test:integration` category
-  (real Postgres, `jest-integration.json`, `--forceExit`) and the CI `backend-integration`
-  job (`pgvector/pgvector:pg16` + `prisma:generate` + `prisma:deploy` + `test:integration`)
-  exist; the DB-free `V2 acceptance` job is untouched. Implemented specs so far:
-  `catalog-retrieval.integration-spec.ts` (1 suite / 2 tests, DB seam only). The ten
-  behavior-named orchestration specs that actually constitute Checkpoint F
-  (canonical-orchestration, catalog-first, catalog-reuse, acquisition-degradation,
-  places-admission, long-tail-acquisition, day-trip, no-direct-persistence,
-  duplicate-delivery, routing-boundary) are enumerated as pending in
-  `be/test/integration/tour-generation/README.md` and are the remaining F work — they
-  need the reusable `generateTourExperiences` integration harness on top of `support/`.
-- Everything else in the Phase 7 A–E brief is implemented in code and covered by unit
+  `yarn test:acceptance` 20 suites / 30 tests green; `yarn test:integration`
+  11 suites / 16 tests green against real Postgres; `yarn build` clean;
+  `yarn lint:check` clean for all Phase 7 A–F changes (a full-repo `lint:check` in
+  this working tree also flags two unrelated files from a concurrent auth-domain
+  session — not part of any Phase 7 commit; the pushed branch and CI `lint:check`
+  are green). The 7 pre-Phase-7 baseline `tsc` errors were removed by Checkpoint A —
+  `yarn run check` no longer fails on them (any older bullet in this doc that still
+  says "check fails on 7 baseline errors" is historical, pre-Phase-7, and superseded
+  by this line).
+- **`test:integration` (F, complete)**: the durable `yarn test:integration` category
+  (real Postgres, `jest-integration.json`, `--forceExit`) + the CI `backend-integration`
+  job (`pgvector/pgvector:pg16` + `prisma:generate` + `prisma:deploy` + `test:integration`);
+  the DB-free `V2 acceptance` job is untouched. One reusable harness
+  (`be/test/integration/tour-generation/support/{harness,fakes}.ts` +
+  `be/test/integration/support/{test-db,seed}.ts`) boots the real `AppModule` and
+  overrides only the external transports (Google Places, OSM/Overpass, Nominatim,
+  Wikivoyage HTTP, grounded search, discovery-extractor LLM, embeddings, LLM chat,
+  destination resolution, `TRAVEL_ESTIMATE_PROVIDER`). Behavior specs (all
+  implemented, none skipped): `canonical-orchestration`, `catalog-first`,
+  `catalog-reuse`, `acquisition-degradation`, `places-admission`,
+  `long-tail-acquisition`, `day-trip`, `no-direct-persistence`,
+  `duplicate-delivery`, `routing-boundary`, `catalog-retrieval`.
+- Everything else in the Phase 7 A–F brief is implemented in code and covered by unit
   specs at the boundary (`experience-acquisition.service.spec.ts` web execution +
   failure isolation; `google-places-acquisition.provider.spec.ts` +
   `structured-candidate-corroboration.service.spec.ts` standalone-eligibility;
