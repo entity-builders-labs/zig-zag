@@ -20,6 +20,7 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:acceptance": "jest --config ./test/jest-acceptance.json --runInBand",
+    "test:integration": "jest --config ./test/jest-integration.json --runInBand --forceExit",
     "test:providers:smoke": "jest --config ./test/jest-smoke.json --runInBand",
     "test:live:discovery": "jest --config ./test/jest-live.json --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
