@@ -10,10 +10,6 @@ import { ConfigType } from '@nestjs/config';
 import { PrismaService } from '@core/database/prisma.service';
 import { OutboxService } from '../../outbox/services/outbox.service';
 import { ExperienceVectorStoreService } from '@shared/ai/services/experience-vector-store.service';
-import {
-  OsmCandidate,
-  OsmPlacesService,
-} from '@integrations/osm/services/osm-places.service';
 import { ToursService } from './tours.service';
 import { TourImageService } from './tour-image.service';
 import { DestinationResolutionService } from './destination-resolution.service';
@@ -161,7 +157,6 @@ export class ExperienceGenerationService {
     private readonly experienceAcquisition: ExperienceAcquisitionService,
     private readonly vectorStoreService: ExperienceVectorStoreService,
     private readonly tourImageService: TourImageService,
-    private readonly osmPlacesService: OsmPlacesService,
     private readonly destinationResolutionService: DestinationResolutionService,
     private readonly coverageAnalyzer: CoverageAnalyzer,
     private readonly experienceAcquisitionPlanner: ExperienceAcquisitionPlannerService,
@@ -456,19 +451,6 @@ export class ExperienceGenerationService {
       offeredCandidates,
       requestedThemes: request.intent.interests,
     });
-  }
-
-  private async lookupCoverageAreas(
-    boundary: OsmCandidate,
-  ): Promise<OsmCandidate[]> {
-    const lookup =
-      await this.osmPlacesService.lookupNeighborhoodsWithin(boundary);
-    if (lookup.status === 'failed') {
-      this.logger.warn(
-        `OSM coverage-area lookup unavailable; Places refill will use the destination point only: ${lookup.failureReason ?? 'unknown failure'}`,
-      );
-    }
-    return lookup.value;
   }
 
   private async withTimeout<T>(
