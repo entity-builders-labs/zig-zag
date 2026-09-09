@@ -536,6 +536,16 @@ None. Phase 5 OSM proactive acquisition is hardened, verified, and CLOSED.
   `experience-generation.service.ts` for live tours. **OSM proactive acquisition is ready for
   this step but not yet consumed by a real tour.**
 
+Cross-cutting target architecture and branch convergence (future `Activities` and `Events`
+source families, `Search Retrieval` vs `Grounded Research` as a capability split,
+convergence with `feat/agentic-travel-planning` after an Integration Gate, and
+`Operational Requirements` / `Operational Stops`) are documented in
+`docs/superpowers/specs/2026-09-09-travel-content-agentic-planning-target-architecture.md`,
+`docs/superpowers/plans/2026-09-09-travel-content-agentic-planning-convergence-roadmap.md`, and
+`docs/superpowers/plans/2026-09-09-agentic-acquisition-integration-handoff.md`. Those documents
+do **not** change the status of Phase 5 / 6 / 7 above — Phases 6 and 7 remain not started, and
+must not be expanded to absorb that future work.
+
 # Verification
 
 Phase 5 **hardening** verified against code commit `f24f6f4efff270f3a08d4616f1628b619c7f1302`:

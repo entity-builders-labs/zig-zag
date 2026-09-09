@@ -422,6 +422,27 @@ Tavily/SerpAPI/Gemini remain wired exactly as today otherwise — steps 1-3
 don't touch them, and step 4 is scoped to this one query-builder function,
 not a redesign of the tier-2 path itself.
 
+## Target architecture follow-up
+
+This spec implements the acquisition architecture for the current phases
+(Wikivoyage / OSM / Google Places / Web, plus dimension-aware source routing
+and shared corroboration). The **cross-cutting future architecture** — future
+`Activities` and `Events` source families, the `Search Retrieval` vs
+`Grounded Research` split as a first-class capability distinction, convergence
+with `feat/agentic-travel-planning`, and `Operational Requirements` /
+`Operational Stops` (meals, coffee, breaks) as a layer distinct from
+Experiences — lives in:
+
+`docs/superpowers/specs/2026-09-09-travel-content-agentic-planning-target-architecture.md`
+
+(with the executable sequence in
+`docs/superpowers/plans/2026-09-09-travel-content-agentic-planning-convergence-roadmap.md`).
+
+The current Phase 5 / 6 / 7 **must not be expanded** to absorb that work:
+Phase 6 is Tavily walk-query + `exploration_style`; Phase 7 is wiring the
+canonical multi-source orchestration into live tour generation; everything
+beyond that is post-Integration-Gate.
+
 ## Open questions
 
 1. **Initial `TraitDefinition.dimension` vocabulary** — this design proposes

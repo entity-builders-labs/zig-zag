@@ -1909,6 +1909,16 @@ PHASE 6 — Tavily + explorationStyle
 
 PHASE 7 — Final orchestration
 
+After Phase 7:
+→ Integration Gate with agentic planning (feat/agentic-travel-planning).
+→ See the convergence roadmap:
+  docs/superpowers/plans/2026-09-09-travel-content-agentic-planning-convergence-roadmap.md
+  and the cross-cutting target architecture:
+  docs/superpowers/specs/2026-09-09-travel-content-agentic-planning-target-architecture.md
+Phase 7 is the prerequisite for that convergence — it defines the canonical
+live acquisition API the agent must consume. Do not merge the branches before
+Phase 7 is closed.
+
 1. integrate source planning into ExperienceAcquisitionService
 2. independent provider execution
 3. failure isolation
