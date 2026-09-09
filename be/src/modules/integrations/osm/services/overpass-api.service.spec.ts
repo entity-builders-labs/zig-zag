@@ -66,6 +66,38 @@ describe('OverpassApiService', () => {
     expect(url).toBe('https://overpass-api.de/api/interpreter');
   });
 
+  it('queryFeaturesNear POSTs a bounded union query built from structured selectors', async () => {
+    mockedAxios.post.mockResolvedValue({
+      data: { elements: [{ type: 'node', id: 7 }] },
+    });
+    service = await setup();
+
+    const result = await service.queryFeaturesNear({
+      latitude: -34.6,
+      longitude: -58.38,
+      radiusMeters: 3000,
+      selectors: [
+        { key: 'tourism', value: 'museum', requireName: true },
+        {
+          key: 'leisure',
+          value: 'park',
+          requireName: true,
+          elementTypes: ['way', 'relation'],
+        },
+      ],
+    });
+
+    expect(result).toEqual([{ type: 'node', id: 7 }]);
+    const [, body] = mockedAxios.post.mock.calls[0];
+    const decoded = decodeURIComponent(String(body).replace(/\+/g, ' '));
+    expect(decoded).toContain('out tags center;');
+    expect(decoded).toContain(
+      'nwr["tourism"="museum"]["name"](around:3000,-34.6,-58.38);',
+    );
+    expect(decoded).toContain('way["leisure"="park"]["name"](around:3000');
+    expect(decoded).toContain('relation["leisure"="park"]["name"](around:3000');
+  });
+
   it('returns an empty array when the response has no elements', async () => {
     mockedAxios.post.mockResolvedValue({ data: {} });
     service = await setup();

@@ -143,6 +143,7 @@ describe('ExperienceAcquisitionService', () => {
   describe('executePlan', () => {
     let googlePlacesProvider: any;
     let wikivoyageProvider: any;
+    let osmProvider: any;
     let synthesizer: StructuredExperienceCandidateSynthesizerService;
     let corroborator: StructuredCandidateCorroborationService;
     let service: ExperienceAcquisitionService;
@@ -154,6 +155,9 @@ describe('ExperienceAcquisitionService', () => {
       wikivoyageProvider = {
         acquire: jest.fn(),
       };
+      osmProvider = {
+        acquire: jest.fn(),
+      };
       synthesizer = new StructuredExperienceCandidateSynthesizerService();
       corroborator = new StructuredCandidateCorroborationService();
       service = new ExperienceAcquisitionService(
@@ -163,6 +167,8 @@ describe('ExperienceAcquisitionService', () => {
         wikivoyageProvider,
         synthesizer,
         corroborator,
+        undefined,
+        osmProvider,
       );
     });
 
@@ -400,6 +406,181 @@ describe('ExperienceAcquisitionService', () => {
       expect(synthesizeSpy).toHaveBeenCalledTimes(1);
       expect(corroborateSpy).toHaveBeenCalledTimes(1);
       expect(result.candidates).toHaveLength(1);
+    });
+
+    it('6. executes an osm SourcePlan and flows its observations through shared synthesis + corroboration', async () => {
+      const synthesizeSpy = jest.spyOn(synthesizer, 'synthesizeProposals');
+      const corroborateSpy = jest.spyOn(corroborator, 'corroborateAndMerge');
+
+      osmProvider.acquire.mockResolvedValueOnce({
+        status: 'success',
+        value: [
+          {
+            provider: 'osm',
+            externalId: 'osm:node:1',
+            evidenceKey: 'osm:node:1',
+            title: 'Museo Histórico Nacional',
+            evidenceType: 'place',
+            geo: { latitude: -34.62, longitude: -58.37 },
+            metadata: {
+              osmType: 'node',
+              osmTags: {},
+              matchedConcepts: ['museum'],
+            },
+          },
+        ],
+      });
+
+      const plan: ExperienceAcquisitionPlan = {
+        destination: {
+          destinationName: 'Buenos Aires',
+          latitude: -34.6037,
+          longitude: -58.3816,
+        },
+        deficits: [],
+        breadth: 'focused',
+        sourcePlans: [{ provider: 'osm', osm: { concepts: ['museum'] } }],
+      };
+
+      const result = await service.executePlan(plan);
+
+      expect(osmProvider.acquire).toHaveBeenCalledWith(plan.destination, {
+        concepts: ['museum'],
+      });
+      expect(result.providerResults.osm?.status).toBe('success');
+      expect(synthesizeSpy).toHaveBeenCalledTimes(1);
+      expect(corroborateSpy).toHaveBeenCalledTimes(1);
+      expect(result.candidates).toHaveLength(1);
+      expect(result.candidates[0].name).toBe('Museo Histórico Nacional');
+    });
+
+    it('7. an osm provider failure is isolated: Wikivoyage still contributes and the pass succeeds', async () => {
+      wikivoyageProvider.acquire.mockResolvedValueOnce({
+        status: 'success',
+        value: [
+          {
+            provider: 'wikivoyage',
+            title: 'Obelisco de Buenos Aires',
+            evidenceType: 'place',
+            evidenceKey: 'wikivoyage:San_Nicolas:see:see:Obelisco:1',
+            geo: { latitude: -34.6037, longitude: -58.3816 },
+          },
+        ],
+      });
+      osmProvider.acquire.mockResolvedValueOnce({
+        status: 'failed',
+        value: [],
+        failureReason: 'overpass 504',
+      });
+
+      const plan: ExperienceAcquisitionPlan = {
+        destination: {
+          destinationName: 'Buenos Aires',
+          latitude: -34.6037,
+          longitude: -58.3816,
+        },
+        deficits: [],
+        breadth: 'focused',
+        sourcePlans: [
+          { provider: 'wikivoyage', wikivoyage: { sections: ['SEE'] } },
+          { provider: 'osm', osm: { concepts: ['park'] } },
+        ],
+      };
+
+      const result = await service.executePlan(plan);
+
+      expect(result.providerResults.osm?.status).toBe('failed');
+      expect(result.providerResults.osm?.failureReason).toBe('overpass 504');
+      expect(result.providerResults.wikivoyage?.status).toBe('success');
+      expect(result.candidates).toHaveLength(1);
+      expect(result.candidates[0].name).toBe('Obelisco de Buenos Aires');
+    });
+
+    it('8. zero results from an osm SourcePlan is handled cleanly as success with []', async () => {
+      osmProvider.acquire.mockResolvedValueOnce({
+        status: 'success',
+        value: [],
+      });
+
+      const plan: ExperienceAcquisitionPlan = {
+        destination: {
+          destinationName: 'Quiet Town',
+          latitude: -34.6,
+          longitude: -58.4,
+        },
+        deficits: [],
+        breadth: 'focused',
+        sourcePlans: [{ provider: 'osm', osm: { concepts: ['winery'] } }],
+      };
+
+      const result = await service.executePlan(plan);
+
+      expect(result.providerResults.osm).toEqual({
+        status: 'success',
+        value: [],
+      });
+      expect(result.candidates).toEqual([]);
+      expect(result.observations).toEqual([]);
+    });
+
+    it('9. an osm place observation corroborates with a Google Places observation for the same real place', async () => {
+      osmProvider.acquire.mockResolvedValueOnce({
+        status: 'success',
+        value: [
+          {
+            provider: 'osm',
+            externalId: 'osm:node:99',
+            evidenceKey: 'osm:node:99',
+            title: 'Mercado de San Telmo',
+            evidenceType: 'place',
+            geo: { latitude: -34.6208, longitude: -58.3717 },
+            metadata: {
+              osmType: 'node',
+              osmTags: {},
+              matchedConcepts: ['historic'],
+            },
+          },
+        ],
+      });
+      googlePlacesProvider.acquire.mockResolvedValueOnce({
+        status: 'success',
+        value: [
+          {
+            provider: 'google_places',
+            externalId: 'ChIJMercadoSanTelmo',
+            evidenceKey: 'google_places:ChIJMercadoSanTelmo',
+            evidenceType: 'place',
+            title: 'Mercado de San Telmo',
+            geo: { latitude: -34.62085, longitude: -58.37172 },
+          },
+        ],
+      });
+
+      const plan: ExperienceAcquisitionPlan = {
+        destination: {
+          destinationName: 'Buenos Aires',
+          latitude: -34.6037,
+          longitude: -58.3816,
+        },
+        deficits: [],
+        breadth: 'focused',
+        sourcePlans: [
+          { provider: 'osm', osm: { concepts: ['historic'] } },
+          {
+            provider: 'google_places',
+            places: { searchTypes: ['tourist_attraction'] },
+          },
+        ],
+      };
+
+      const result = await service.executePlan(plan);
+
+      expect(result.observations).toHaveLength(2);
+      expect(result.candidates).toHaveLength(1);
+      expect(result.candidates[0].evidenceKeys.sort()).toEqual([
+        'google_places:ChIJMercadoSanTelmo',
+        'osm:node:99',
+      ]);
     });
   });
 

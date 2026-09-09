@@ -1062,4 +1062,139 @@ describe('StructuredCandidateCorroborationService', () => {
       expect(mergeResult.groups).toHaveLength(2);
     });
   });
+
+  describe('OSM cross-source corroboration (Phase 5)', () => {
+    const osmPlace = (
+      id: string,
+      name: string,
+      latitude: number,
+      longitude: number,
+    ): StructuredCandidateProposal => ({
+      candidate: {
+        name,
+        themes: [],
+        traits: [],
+        componentHints: [
+          {
+            key: `${id}:component`,
+            name,
+            role: 'venue',
+            expectedKind: 'PLACE',
+            required: true,
+            evidenceKeys: [id],
+          },
+        ],
+        evidenceKeys: [id],
+        shortReason: `Structured observation from osm: ${name}`,
+      },
+      observations: [
+        {
+          provider: 'osm',
+          externalId: id,
+          title: name,
+          evidenceType: 'place',
+          evidenceKey: id,
+          geo: { latitude, longitude },
+          metadata: {
+            osmType: id.split(':')[1],
+            matchedConcepts: ['historic'],
+          },
+        },
+      ],
+    });
+
+    it('merges an OSM place and a Wikivoyage listing for the same real place (geo + name) into one candidate with unioned evidenceKeys', () => {
+      const pOSM = osmPlace(
+        'osm:node:1',
+        'Mercado de San Telmo',
+        -34.6208,
+        -58.3717,
+      );
+      const pWV: StructuredCandidateProposal = {
+        candidate: {
+          name: 'Mercado de San Telmo',
+          themes: [],
+          traits: [],
+          componentHints: [
+            {
+              key: 'wikivoyage:San_Telmo:see:see:Mercado:1:component',
+              name: 'Mercado de San Telmo',
+              role: 'venue',
+              expectedKind: 'PLACE',
+              required: true,
+              evidenceKeys: ['wikivoyage:San_Telmo:see:see:Mercado:1'],
+            },
+          ],
+          evidenceKeys: ['wikivoyage:San_Telmo:see:see:Mercado:1'],
+          shortReason: 'Wikivoyage see listing',
+        },
+        observations: [
+          {
+            provider: 'wikivoyage',
+            title: 'Mercado de San Telmo',
+            evidenceType: 'place',
+            evidenceKey: 'wikivoyage:San_Telmo:see:see:Mercado:1',
+            geo: { latitude: -34.62085, longitude: -58.37172 },
+          },
+        ],
+      };
+
+      const pairDec = service.decidePair(pOSM, pWV);
+      expect(pairDec.decision).toBe('SAME');
+      expect(pairDec.reasons).toContain('compatible_geo_and_name');
+
+      const mergeResult = service.corroborateAndMerge([pOSM, pWV]);
+      expect(mergeResult.candidates).toHaveLength(1);
+      expect(mergeResult.candidates[0].evidenceKeys).toEqual([
+        'osm:node:1',
+        'wikivoyage:San_Telmo:see:see:Mercado:1',
+      ]);
+    });
+
+    it('does not merge an OSM osm:way id with a coincidental Wikidata QID identity', () => {
+      const pOSM = osmPlace('osm:way:12345', 'Parque X', -34.6, -58.4);
+      const pWV: StructuredCandidateProposal = {
+        candidate: {
+          name: 'Otro Lugar',
+          themes: [],
+          traits: [],
+          componentHints: [],
+          evidenceKeys: ['wikivoyage:X:see:see:Q12345:1'],
+          shortReason: 'unrelated',
+        },
+        observations: [
+          {
+            provider: 'wikivoyage',
+            externalId: 'Q12345',
+            title: 'Otro Lugar',
+            evidenceType: 'place',
+            evidenceKey: 'wikivoyage:X:see:see:Q12345:1',
+          },
+        ],
+      };
+
+      const pairDec = service.decidePair(pOSM, pWV);
+      expect(pairDec.reasons).not.toContain('same_wikidata_identity');
+      expect(pairDec.decision).toBe('NEW');
+    });
+
+    it('marks an OSM place overlapping a differently-named place as AMBIGUOUS (never force-merges)', () => {
+      const pOSM = osmPlace('osm:node:7', 'Plaza Dorrego', -34.6205, -58.3712);
+      const pOSM2 = osmPlace(
+        'osm:node:8',
+        'Farmacia del Centro',
+        -34.62052,
+        -58.37122,
+      );
+
+      const pairDec = service.decidePair(pOSM, pOSM2);
+      expect(pairDec.decision).toBe('AMBIGUOUS');
+      expect(pairDec.reasons).toContain(
+        'geographic_overlap_without_name_match',
+      );
+
+      const mergeResult = service.corroborateAndMerge([pOSM, pOSM2]);
+      expect(mergeResult.candidates).toHaveLength(2);
+    });
+  });
 });

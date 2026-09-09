@@ -21,6 +21,7 @@ describe('CachedOverpassApiService', () => {
       queryStreetsWithinArea: jest.fn(),
       queryPoisWithinArea: jest.fn(),
       queryPois: jest.fn(),
+      queryFeaturesNear: jest.fn(),
     };
   });
 
@@ -183,5 +184,40 @@ describe('CachedOverpassApiService', () => {
     await service.queryPoisWithinArea({ osmType: 'relation', osmId: 2223069 });
 
     expect(realService.queryPoisWithinArea).toHaveBeenCalledTimes(1);
+  });
+
+  it('delegates queryFeaturesNear to the real service and caches by method+params', async () => {
+    realService.queryFeaturesNear.mockResolvedValue([
+      { type: 'node', id: 5 },
+    ] as any);
+    const service = await setup('write');
+
+    const params = {
+      latitude: -34.6,
+      longitude: -58.38,
+      radiusMeters: 3000,
+      selectors: [{ key: 'tourism', value: 'museum' }],
+    };
+    const first = await service.queryFeaturesNear(params);
+    const second = await service.queryFeaturesNear(params);
+
+    expect(first).toEqual([{ type: 'node', id: 5 }]);
+    expect(second).toEqual([{ type: 'node', id: 5 }]);
+    expect(realService.queryFeaturesNear).toHaveBeenCalledTimes(1);
+    expect(fs.readdirSync(path.join(tempDir, 'osm-cache'))).toHaveLength(1);
+  });
+
+  it('strict mode throws on a queryFeaturesNear cache miss', async () => {
+    const service = await setup('strict');
+
+    await expect(
+      service.queryFeaturesNear({
+        latitude: 0,
+        longitude: 0,
+        radiusMeters: 1000,
+        selectors: [{ key: 'leisure', value: 'park' }],
+      }),
+    ).rejects.toThrow(/Strict mode/);
+    expect(realService.queryFeaturesNear).not.toHaveBeenCalled();
   });
 });

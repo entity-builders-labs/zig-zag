@@ -1,5 +1,6 @@
 import {
   sanitizeOverpassName,
+  sanitizeOverpassTagToken,
   buildBoundaryByNameQuery,
   buildContainingBoundaryQuery,
   buildStreetsQuery,
@@ -7,6 +8,7 @@ import {
   buildAdminBoundariesWithinAreaQuery,
   buildStreetsWithinAreaQuery,
   buildPoisWithinAreaQuery,
+  buildFeaturesNearQuery,
 } from './overpass-query.util';
 
 describe('sanitizeOverpassName', () => {
@@ -187,5 +189,106 @@ describe('buildPoisWithinAreaQuery', () => {
     );
     expect(query).toContain('nwr["natural"="beach"]["name"](area.a)');
     expect(query).not.toContain('around:');
+  });
+});
+
+describe('sanitizeOverpassTagToken', () => {
+  it('accepts real OSM tag tokens', () => {
+    expect(sanitizeOverpassTagToken('tourism')).toBe('tourism');
+    expect(sanitizeOverpassTagToken('arts_centre')).toBe('arts_centre');
+    expect(sanitizeOverpassTagToken('route')).toBe('route');
+    expect(sanitizeOverpassTagToken('addr:city')).toBe('addr:city');
+  });
+
+  it('rejects anything outside [A-Za-z0-9_:]', () => {
+    for (const bad of ['a"b', 'na me', 'wine*', 'park]', 'x;out', 'y\n', '']) {
+      expect(() => sanitizeOverpassTagToken(bad)).toThrow(
+        /Invalid Overpass tag token/,
+      );
+    }
+  });
+});
+
+describe('buildFeaturesNearQuery', () => {
+  const base = { latitude: -34.6037, longitude: -58.3816, radiusMeters: 3000 };
+
+  it('builds one bounded union query with out tags center', () => {
+    const query = buildFeaturesNearQuery({
+      ...base,
+      selectors: [{ key: 'tourism', value: 'museum', requireName: true }],
+    });
+    expect(query).toContain('[out:json][timeout:25];');
+    expect(query).toContain('(\n');
+    expect(query).toContain(
+      'nwr["tourism"="museum"]["name"](around:3000,-34.6037,-58.3816);',
+    );
+    expect(query.trimEnd().endsWith('out tags center;')).toBe(true);
+    expect(query).not.toContain('out geom');
+  });
+
+  it('emits one line per selector inside a single union', () => {
+    const query = buildFeaturesNearQuery({
+      ...base,
+      selectors: [
+        { key: 'tourism', value: 'museum', requireName: true },
+        { key: 'historic', value: 'monument', requireName: true },
+      ],
+    });
+    expect((query.match(/around:3000/g) || []).length).toBe(2);
+    expect((query.match(/^\(/gm) || []).length).toBe(1);
+    expect(query).toContain('nwr["tourism"="museum"]["name"]');
+    expect(query).toContain('nwr["historic"="monument"]["name"]');
+  });
+
+  it('omits the name filter when requireName is false and supports key-presence selectors', () => {
+    const query = buildFeaturesNearQuery({
+      ...base,
+      selectors: [{ key: 'historic', requireName: false }],
+    });
+    expect(query).toContain('nwr["historic"](around:3000,-34.6037,-58.3816);');
+    expect(query).not.toContain('["name"]');
+  });
+
+  it('restricts element types to a strict subset with one line per type (no nwr shorthand)', () => {
+    const query = buildFeaturesNearQuery({
+      ...base,
+      selectors: [
+        {
+          key: 'leisure',
+          value: 'park',
+          requireName: true,
+          elementTypes: ['way', 'relation'],
+        },
+      ],
+    });
+    expect(query).toContain('way["leisure"="park"]["name"](around:3000');
+    expect(query).toContain('relation["leisure"="park"]["name"](around:3000');
+    expect(query).not.toContain('nwr["leisure"="park"]');
+    expect(query).not.toContain('node["leisure"="park"]');
+  });
+
+  it('caps the radius defensively', () => {
+    const query = buildFeaturesNearQuery({
+      ...base,
+      radiusMeters: 100000,
+      selectors: [{ key: 'natural', value: 'peak' }],
+    });
+    expect(query).toContain('around:8000,');
+    expect(query).not.toContain('around:100000');
+  });
+
+  it('rejects an unsafe tag token instead of interpolating it', () => {
+    expect(() =>
+      buildFeaturesNearQuery({
+        ...base,
+        selectors: [{ key: 'amenity"];out;("', value: 'x' }],
+      }),
+    ).toThrow(/Invalid Overpass tag token/);
+  });
+
+  it('throws on an empty selector list', () => {
+    expect(() => buildFeaturesNearQuery({ ...base, selectors: [] })).toThrow(
+      /at least one selector/,
+    );
   });
 });

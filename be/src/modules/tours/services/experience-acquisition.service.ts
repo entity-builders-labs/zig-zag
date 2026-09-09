@@ -11,6 +11,7 @@ import { ExperienceAcquisitionPlan } from '../interfaces/experience-acquisition-
 import { ExperienceCandidate } from '../interfaces/experience-discovery.interface';
 import { GooglePlacesAcquisitionProvider } from '../providers/google-places-acquisition.provider';
 import { WikivoyageAcquisitionProvider } from '../providers/wikivoyage-acquisition.provider';
+import { OsmAcquisitionProvider } from '../providers/osm-acquisition.provider';
 import { StructuredExperienceCandidateSynthesizerService } from './structured-experience-candidate-synthesizer.service';
 import {
   CorroborationGroupTrace,
@@ -86,6 +87,8 @@ export class ExperienceAcquisitionService {
     @Optional()
     @Inject(EXPERIENCE_PROPOSAL_RESOLVER)
     private readonly proposalResolver?: ExperienceProposalResolver,
+    @Optional()
+    private readonly osmProvider?: OsmAcquisitionProvider,
   ) {}
 
   async executePlan(
@@ -141,6 +144,26 @@ export class ExperienceAcquisitionService {
             status: 'failed',
             value: [],
             failureReason: error?.message ?? 'Google Places acquisition failed',
+          };
+        }
+      } else if (sourcePlan.provider === 'osm' && this.osmProvider) {
+        try {
+          const res = await this.osmProvider.acquire(
+            plan.destination,
+            sourcePlan.osm,
+          );
+          providerResults.osm = res;
+          if (res.status === 'success' && res.value?.length > 0) {
+            allObservations.push(...res.value);
+          }
+        } catch (error: any) {
+          this.logger.warn(
+            `OSM acquisition threw: ${error?.message ?? String(error)}`,
+          );
+          providerResults.osm = {
+            status: 'failed',
+            value: [],
+            failureReason: error?.message ?? 'OSM acquisition failed',
           };
         }
       }

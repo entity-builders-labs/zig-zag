@@ -20,6 +20,7 @@ describe('OsmPlacesService', () => {
       queryStreetsWithinArea: jest.fn(),
       queryPoisWithinArea: jest.fn(),
       queryPois: jest.fn(),
+      queryFeaturesNear: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -671,6 +672,86 @@ describe('OsmPlacesService', () => {
         status: 'failed',
         value: [],
         failureReason: 'down',
+      });
+    });
+  });
+
+  describe('lookupFeaturesNear', () => {
+    const selectors = [
+      { key: 'tourism', value: 'museum', requireName: true },
+      { key: 'leisure', value: 'park', requireName: true },
+    ];
+
+    it('maps named Overpass elements into OsmCandidate[] and drops the nameless ones', async () => {
+      overpassApi.queryFeaturesNear.mockResolvedValue([
+        {
+          type: 'node',
+          id: 1,
+          tags: { name: 'Museo Histórico Nacional', tourism: 'museum' },
+          lat: -34.62,
+          lon: -58.37,
+        },
+        {
+          type: 'way',
+          id: 2,
+          tags: { leisure: 'park' }, // no name -> dropped by toCandidate
+          center: { lat: -34.58, lon: -58.42 },
+        },
+      ]);
+
+      const result = await service.lookupFeaturesNear(
+        -34.6,
+        -58.38,
+        3000,
+        selectors,
+      );
+
+      expect(result.status).toBe('success');
+      expect(result.value).toEqual([
+        expect.objectContaining({
+          id: 'osm:node:1',
+          name: 'Museo Histórico Nacional',
+          osmType: 'node',
+        }),
+      ]);
+    });
+
+    it('caps the radius to maxFeaturesRadiusMeters before querying Overpass', async () => {
+      const cappedService = await setup({
+        OVERPASS_MAX_FEATURES_RADIUS_METERS: '4000',
+      });
+      overpassApi.queryFeaturesNear.mockResolvedValue([]);
+
+      await cappedService.lookupFeaturesNear(-34.6, -58.38, 50000, selectors);
+
+      expect(overpassApi.queryFeaturesNear).toHaveBeenCalledWith(
+        expect.objectContaining({ radiusMeters: 4000, selectors }),
+      );
+    });
+
+    it('returns success with [] for an empty selector list without calling Overpass', async () => {
+      const result = await service.lookupFeaturesNear(-34.6, -58.38, 3000, []);
+
+      expect(result).toEqual({ status: 'success', value: [] });
+      expect(overpassApi.queryFeaturesNear).not.toHaveBeenCalled();
+    });
+
+    it('degrades to a failed lookup (never throws) when Overpass fails', async () => {
+      overpassApi.queryFeaturesNear.mockRejectedValue(
+        new Error('overpass 504'),
+      );
+
+      const result = await service.lookupFeaturesNear(
+        -34.6,
+        -58.38,
+        3000,
+        selectors,
+      );
+
+      expect(result).toMatchObject({
+        status: 'failed',
+        value: [],
+        failureReason: 'overpass 504',
       });
     });
   });

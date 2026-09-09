@@ -45,6 +45,29 @@ export interface QueryStreetsParams {
   radiusMeters: number;
 }
 
+// A single, structured OSM tag selector for proactive feature discovery
+// (queryFeaturesNear). Deliberately NOT a free-form Overpass QL fragment:
+// `key`/`value` are validated token-by-token by the query builder
+// (sanitizeOverpassTagToken) so a concept registry entry can never inject
+// raw QL. One selector == one `key`(=`value`) tag match, optionally scoped
+// to specific element types and/or requiring a `name` tag.
+export interface OverpassSelector {
+  key: string;
+  /** Omitted means "key present with any value". */
+  value?: string;
+  /** Defaults to all three (`nwr`). */
+  elementTypes?: Array<'node' | 'way' | 'relation'>;
+  /** Defaults to true — an unnamed feature can't become an identifiable Experience. */
+  requireName?: boolean;
+}
+
+export interface QueryFeaturesNearParams {
+  latitude: number;
+  longitude: number;
+  radiusMeters: number;
+  selectors: OverpassSelector[];
+}
+
 export interface QueryByIdParams {
   osmType: 'way' | 'relation';
   osmId: number;
@@ -78,4 +101,9 @@ export interface IOverpassApiService {
   queryStreetsWithinArea(params: QueryByIdParams): Promise<OverpassElement[]>;
   queryPoisWithinArea(params: QueryByIdParams): Promise<OverpassElement[]>;
   queryPois(params: QueryStreetsParams): Promise<OverpassElement[]>;
+  // Proactive feature discovery: one bounded `around:` union query built from
+  // an explicit, structured selector list (never interpolated concept strings).
+  queryFeaturesNear(
+    params: QueryFeaturesNearParams,
+  ): Promise<OverpassElement[]>;
 }

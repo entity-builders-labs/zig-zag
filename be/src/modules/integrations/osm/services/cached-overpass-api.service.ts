@@ -11,6 +11,7 @@ import {
   QueryStreetsParams,
   QueryByIdParams,
   QueryAdminBoundariesWithinAreaParams,
+  QueryFeaturesNearParams,
 } from '../interfaces/overpass.interface';
 
 @Injectable()
@@ -148,6 +149,14 @@ export class CachedOverpassApiService implements IOverpassApiService {
   async queryPois(params: QueryStreetsParams): Promise<OverpassElement[]> {
     return this.handleRequest('queryPois', params, () =>
       this.realService.queryPois(params),
+    );
+  }
+
+  async queryFeaturesNear(
+    params: QueryFeaturesNearParams,
+  ): Promise<OverpassElement[]> {
+    return this.handleRequest('queryFeaturesNear', params, () =>
+      this.realService.queryFeaturesNear(params),
     );
   }
 }

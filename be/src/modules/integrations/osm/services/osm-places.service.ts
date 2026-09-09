@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import {
   IOverpassApiService,
   OverpassElement,
+  OverpassSelector,
 } from '../interfaces/overpass.interface';
 import {
   GeoJsonGeometry,
@@ -39,6 +40,10 @@ export interface OsmLookupResult<T> {
 const NEIGHBORHOOD_ADMIN_LEVEL_RANGE = { min: 8, max: 11 };
 const DESTINATION_BOUNDARY_ADMIN_LEVEL_RANGE = { min: 5, max: 12 };
 const DEFAULT_MAX_STREETS_RADIUS_METERS = 2500;
+// Proactive feature discovery (lookupFeaturesNear) legitimately wants a wider
+// reach than a walkable-streets query, but still bounded so a single union
+// query can never aim an unbounded `around:` at a shared Overpass instance.
+const DEFAULT_MAX_FEATURES_RADIUS_METERS = 8000;
 const GENERIC_STREET_NAMES = new Set([
   'sin nombre',
   'unnamed',
@@ -67,6 +72,14 @@ export class OsmPlacesService {
     return parseInt(
       this.configService.get<string>('OVERPASS_MAX_RADIUS_METERS') ||
         String(DEFAULT_MAX_STREETS_RADIUS_METERS),
+      10,
+    );
+  }
+
+  private get maxFeaturesRadiusMeters(): number {
+    return parseInt(
+      this.configService.get<string>('OVERPASS_MAX_FEATURES_RADIUS_METERS') ||
+        String(DEFAULT_MAX_FEATURES_RADIUS_METERS),
       10,
     );
   }
@@ -192,6 +205,54 @@ export class OsmPlacesService {
     } catch (error: any) {
       this.logger.warn(
         `Overpass queryPois failed, continuing without POI candidates: ${error.message}`,
+      );
+      return {
+        status: 'failed',
+        value: [],
+        failureReason: error.message || 'unknown Overpass error',
+      };
+    }
+  }
+
+  /**
+   * Proactive feature discovery for the acquisition pipeline: one bounded
+   * Overpass `around:` union query built from an explicit, structured
+   * selector list (never interpolated concept strings — see
+   * OsmAcquisitionProvider + osm-acquisition-concepts.ts). Radius is capped
+   * to maxFeaturesRadiusMeters. Never throws — a failed/unconfigured Overpass
+   * call degrades to "no OSM feature candidates this pass", same defensive
+   * contract as findStreetsNear/findPoisNear. `toCandidate` already drops
+   * elements with no `name` tag.
+   */
+  async lookupFeaturesNear(
+    latitude: number,
+    longitude: number,
+    radiusMeters: number,
+    selectors: OverpassSelector[],
+  ): Promise<OsmLookupResult<OsmCandidate[]>> {
+    if (!selectors || selectors.length === 0) {
+      return { status: 'success', value: [] };
+    }
+    const cappedRadiusMeters = Math.min(
+      radiusMeters,
+      this.maxFeaturesRadiusMeters,
+    );
+    try {
+      const elements = await this.overpassApi.queryFeaturesNear({
+        latitude,
+        longitude,
+        radiusMeters: cappedRadiusMeters,
+        selectors,
+      });
+      return {
+        status: 'success',
+        value: elements
+          .map((el) => this.toCandidate(el))
+          .filter((c): c is OsmCandidate => c !== null),
+      };
+    } catch (error: any) {
+      this.logger.warn(
+        `Overpass queryFeaturesNear failed, continuing without OSM feature candidates: ${error.message}`,
       );
       return {
         status: 'failed',
