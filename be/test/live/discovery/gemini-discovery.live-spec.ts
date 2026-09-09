@@ -4,7 +4,7 @@ import aiConfig from 'src/shared/ai/ai.config';
 import { GeminiDiscoveryProvider } from 'src/modules/tours/services/gemini-discovery.provider';
 import {
   assertLiveExtractionContract,
-  assertNoGenericPseudoEntities,
+  assertNoConcretePlaceHints,
   liveGate,
   loadRootEnv,
   printCharacterization,
@@ -67,9 +67,6 @@ const RUN = liveGate('gemini');
       expectedProvider: 'gemini',
       allowEmptyCandidates: true,
     });
-    assertNoGenericPseudoEntities(
-      result as any,
-      genericEntityScenario.bannedPlaceNames ?? [],
-    );
+    assertNoConcretePlaceHints(result as any);
   });
 });

@@ -28,15 +28,19 @@ Canonical design: `docs/superpowers/specs/2026-09-06-multi-source-acquisition-de
     controlled-facets / long-tail / generic-entity; 1 / 1 / 1 candidates;
     0 validationErrors. The Interactions API accepts `response_format` including
     `themes`/`intents` `items.enum`; the `steps[].model_output.content[].text` parser
-    matched the real payload. Generic-entity probe: **no fabricated `PLACE`** — cited the
-    real `AREA`s Palermo Soho / Palermo Hollywood.
+    matched the real payload.
   - **EXTERNAL LIVE GROQ CHARACTERIZED** — 2026-09-09, model `qwen/qwen3.8-27b`;
     controlled-facets / long-tail / generic-entity; 1 / 1 / 0–1 candidates (varies by
     run); 0 validationErrors. The live spec asserts the real `fetch` call hit
-    `api.groq.com` at the Groq discovery model. Generic-entity probe: **no fabricated
-    `PLACE`** — either zero candidates or real `AREA`s only. The probe tolerates an
-    empty result (a conservative model that proposes nothing for thin category-only
-    evidence is valid; the only hard rule is the no-pseudo-entity check).
+    `api.groq.com` at the Groq discovery model.
+  - **Generic-entity probe** (all three providers): the fixture's evidence names only
+    real AREAs and generic categories, no concrete venue — so the hard rule is
+    `assertNoConcretePlaceHints`: **any** `componentHint` with `expectedKind === 'PLACE'`
+    fails, regardless of how it is named (no banned-name list, no fuzzy matching, no
+    runtime taxonomy). AREA hints, candidates without hints, and zero candidates are all
+    valid. Observed: Ollama/Gemini used real `AREA`s (Palermo Soho / Palermo Hollywood);
+    Groq returned zero-or-one candidate with `AREA`s only. No `PLACE` hint from any
+    provider.
   - This is live *characterization*, not "production verified".
 - **Ollama is a supported discovery extractor, NOT the production default.** Before
   choosing it in production, benchmark: quality (candidate validity, hallucination rate,
@@ -62,9 +66,10 @@ Canonical design: `docs/superpowers/specs/2026-09-06-multi-source-acquisition-de
 - Previous Phase 4 hardening code commit: `0321576b4f335a26039943ec3668a7390ce05139`
 - Previous Phase 4 initial code commit: `a42aa3f453973f09491a3ab5603cc9146763286a`
 - Previous Phase 3 code commit: `8415df6d2e6fdd32ee4a04a3d729f3d5ea93dc24`
-- Last verified test state: backend Jest `122/122` suites and `962/962` tests passing
-  (+7 from the `TraitDefinition` race fix, +27 from the facet-contract fix; zero
-  regressions).
+- Last verified test state: backend Jest `125/125` suites and `989/989` tests passing
+  (`yarn test --runInBand`, 2026-09-09), zero regressions. The opt-in live
+  discovery-characterization suite (`yarn test:live:discovery`) is separate and never
+  runs in the normal suite.
 - Targeted Phase 6 suites: `8/8` suites, `92/92` tests passing
   (`tavily-grounded-search.service.spec.ts`, `preference-facet-vocabulary.spec.ts`,
   `preference-facet-merge.util.spec.ts`, `preference-facet-matching.util.spec.ts`,

@@ -4,7 +4,7 @@ import aiConfig from 'src/shared/ai/ai.config';
 import { OllamaDiscoveryProvider } from 'src/modules/tours/services/ollama-discovery.provider';
 import {
   assertLiveExtractionContract,
-  assertNoGenericPseudoEntities,
+  assertNoConcretePlaceHints,
   liveGate,
   loadRootEnv,
   printCharacterization,
@@ -81,9 +81,6 @@ const RUN = liveGate('ollama');
       allowEmptyCandidates: true,
     });
     // ...and no fabricated pseudo-entity.
-    assertNoGenericPseudoEntities(
-      result as any,
-      genericEntityScenario.bannedPlaceNames ?? [],
-    );
+    assertNoConcretePlaceHints(result as any);
   });
 });

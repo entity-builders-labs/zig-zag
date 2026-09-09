@@ -5,8 +5,6 @@ export interface LiveDiscoveryScenario {
   name: string;
   request: ExperienceDiscoveryRequest;
   evidence: ExperienceGroundedSearchResult;
-  /** Only used by the generic-entity scenario. */
-  bannedPlaceNames?: string[];
 }
 
 function grounded(
@@ -85,9 +83,11 @@ export const longTailScenario: LiveDiscoveryScenario = {
 };
 
 /**
- * Scenario 3 — generic-entity hallucination probe. Evidence names a real AREA
- * (Palermo) but NO concrete cafe or brewery. A `PLACE` componentHint named
- * after a bare category would be a fabricated pseudo-entity.
+ * Scenario 3 — generic-entity hallucination probe. Evidence names real AREAs
+ * (Palermo Soho / Palermo Hollywood) but NO concrete cafe or brewery, on
+ * purpose. For this fixture ANY `PLACE` componentHint is therefore a
+ * fabricated concrete entity (see `assertNoConcretePlaceHints`); AREA hints,
+ * candidates without hints, and zero candidates are all valid.
  */
 export const genericEntityScenario: LiveDiscoveryScenario = {
   name: 'generic-entity-probe',
@@ -108,19 +108,6 @@ export const genericEntityScenario: LiveDiscoveryScenario = {
         'Palermo, the largest barrio in Buenos Aires, has in recent years filled with independent specialty coffee shops and many small craft breweries. Wander the leafy streets of Palermo Soho and Palermo Hollywood and you will pass one after another. The article does not single out a specific cafe or brewery by name; the pleasure is in stumbling on them yourself.',
     },
   ]),
-  bannedPlaceNames: [
-    'specialty coffee shop',
-    'specialty coffee shops',
-    'coffee shop',
-    'coffee place',
-    'craft brewery',
-    'craft breweries',
-    'small craft brewery',
-    'local brewery',
-    'craft beer bar',
-    'wine store',
-    'historic restaurant',
-  ],
 };
 
 export const ALL_SCENARIOS = [

@@ -6,7 +6,7 @@ import aiConfig from 'src/shared/ai/ai.config';
 import { GroqDiscoveryProvider } from 'src/modules/tours/services/groq-discovery.provider';
 import {
   assertLiveExtractionContract,
-  assertNoGenericPseudoEntities,
+  assertNoConcretePlaceHints,
   liveGate,
   loadRootEnv,
   printCharacterization,
@@ -105,9 +105,6 @@ const noCache = {
       expectedProvider: 'groq',
       allowEmptyCandidates: true,
     });
-    assertNoGenericPseudoEntities(
-      result as any,
-      genericEntityScenario.bannedPlaceNames ?? [],
-    );
+    assertNoConcretePlaceHints(result as any);
   });
 });

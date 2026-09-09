@@ -112,31 +112,31 @@ export function assertLiveExtractionContract(args: {
 }
 
 /**
- * The generic-category-as-entity check (§25 exception): no `PLACE`
- * componentHint may be named after a bare category the evidence only mentions
- * generically.
+ * Fixture-semantic assertion for the generic-entity probe. That fixture's
+ * evidence deliberately names only real AREA(s) (e.g. Palermo) plus generic
+ * categories ("specialty coffee shops", "small craft breweries") and NO
+ * concrete venue/business — so for that scenario ANY `componentHint` with
+ * `expectedKind === 'PLACE'` is a fabricated concrete entity, regardless of
+ * how the model named it. AREA hints, candidates without hints, and zero
+ * candidates all remain valid. This is stronger than any banned-name list and
+ * needs no fuzzy matching / category regex / runtime taxonomy.
  */
-export function assertNoGenericPseudoEntities(
-  result: LiveExtractionResult,
-  genericNames: string[],
-): void {
-  const banned = new Set(genericNames.map((n) => n.trim().toLowerCase()));
+export function assertNoConcretePlaceHints(result: LiveExtractionResult): void {
   const offenders: string[] = [];
   for (const c of result.candidates) {
     for (const hint of c.componentHints ?? []) {
-      if (
-        hint.expectedKind === 'PLACE' &&
-        banned.has(String(hint.name).trim().toLowerCase())
-      ) {
-        offenders.push(`${c.name} -> "${hint.name}"`);
+      if (hint.expectedKind === 'PLACE') {
+        offenders.push(
+          `candidate "${c.name}" -> componentHint name="${hint.name}" role=${hint.role} expectedKind=${hint.expectedKind}`,
+        );
       }
     }
   }
   if (offenders.length > 0) {
     throw new Error(
-      `generic pseudo-entities materialised as PLACE componentHints: ${JSON.stringify(
-        offenders,
-      )}\nrawOutput=${truncate(result.rawOutput)}`,
+      `generic-entity evidence (no concrete venue) produced PLACE componentHints — ` +
+        `fabricated concrete entities:\nprovider=${result.provider} model=${result.model}\n` +
+        `${offenders.join('\n')}\nrawOutput=${truncate(result.rawOutput)}`,
     );
   }
 }
