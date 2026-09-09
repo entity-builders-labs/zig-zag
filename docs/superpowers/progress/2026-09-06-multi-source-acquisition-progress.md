@@ -5,11 +5,22 @@ Canonical design: `docs/superpowers/specs/2026-09-06-multi-source-acquisition-de
 # Current State
 
 - Branch: `feat/experience-domain-v2`
-- Current milestone: **Phase 7 — final orchestration. Checkpoints A–F COMPLETE.**
+- Current milestone: **Phase 7 — final orchestration.**
+  **Checkpoint A COMPLETE · B COMPLETE · C COMPLETE · D COMPLETE · E COMPLETE ·
+  F IN PROGRESS.**
   **Engine Quality Gate G NOT STARTED · Argentina Live Smoke H NOT STARTED · Phase 7
   overall NOT CLOSED** (G/H are a separate session after user review of A–F).
-- Phase 7 A–F: starting HEAD `ad0a212991063fb7eed8750739ad315cba83ea2f`, ending HEAD
-  `b32db59c824b9e290e32046de25735c8da92b2f4`. Commits:
+  - F is NOT complete: the durable `test:integration` category, real Postgres, the
+    `backend-integration` CI job, the DB reset/seed helpers and
+    `catalog-retrieval.integration-spec.ts` all exist, but the integration specs that
+    actually define Checkpoint F (the full `generateTourExperiences` orchestration
+    against real Postgres) are not yet implemented as executable tests — they are
+    enumerated as pending behaviors in
+    `be/test/integration/tour-generation/README.md`. F is marked COMPLETE only once
+    every required behavior spec is implemented (none skipped/scaffolded),
+    `test:integration` passes against real Postgres, and CI `backend-integration`
+    passes.
+- Phase 7 A–E: starting HEAD `ad0a212991063fb7eed8750739ad315cba83ea2f`. Commits:
   - `c9420c1` `test(tours): repair acceptance suite type and contract drift` — A. The 7
     pre-existing `tsc` errors (PlanningExperienceCandidate `startFootprint`/`endFootprint`
     drift + `TourCompletenessIssue` union narrowing + two contract specs missing
@@ -70,25 +81,31 @@ Canonical design: `docs/superpowers/specs/2026-09-06-multi-source-acquisition-de
   `TRAVEL_ESTIMATE_PROVIDER` (`ResilientTravelEstimateProvider` → Geoapify → Approximate).
   The seam is open for a future `ROUTING_PROVIDER=osrm|google`; no routing infra was
   added in A–F.
-- **Test counts** (real, this HEAD): `yarn test --runInBand` 124 suites / 994 tests;
-  `yarn test:acceptance` 20 suites / 30 tests; `yarn typecheck` 0 errors; `yarn build`
-  clean. New durable `yarn test:integration` category (real Postgres) — 1 suite / 2
-  tests green (`catalog-retrieval.integration-spec.ts`); the nine behavior-named
-  orchestration specs (canonical-orchestration, catalog-first, catalog-reuse,
-  acquisition-degradation, places-admission, long-tail, day-trip, no-direct-persistence,
-  duplicate-delivery, routing-boundary) are scaffolded in
-  `be/test/integration/tour-generation/README.md` as the explicit F follow-up (they need
-  the full `generateTourExperiences` Test-module harness on top of `support/`). New CI
-  job `backend-integration` (`pgvector/pgvector:pg16` + `prisma:deploy` +
-  `test:integration`); the DB-free `V2 acceptance` job is untouched.
-- Known remaining in F: the nine orchestration integration specs above. Everything else
-  in the Phase 7 A–F brief (§43–§51 behaviors) is implemented in code and covered by
-  unit specs at the boundary (`experience-acquisition.service.spec.ts` web execution +
+- **Current verified test state** (A–E landed, measured at HEAD `9f3eb31`, 2026-09-09):
+  `yarn typecheck` 0 errors; `yarn test --runInBand` 124 suites / 994 tests green;
+  `yarn test:acceptance` 20 suites / 30 tests green; `yarn build` clean;
+  `yarn lint:check` clean (on the pushed branch state). The 7 pre-Phase-7 baseline
+  `tsc` errors were removed by Checkpoint A — `yarn run check` no longer fails on them
+  (any older bullet in this doc that still says "check fails on 7 baseline errors" is
+  historical, pre-Phase-7, and superseded by this line).
+- **`test:integration` (F, in progress)**: the durable `yarn test:integration` category
+  (real Postgres, `jest-integration.json`, `--forceExit`) and the CI `backend-integration`
+  job (`pgvector/pgvector:pg16` + `prisma:generate` + `prisma:deploy` + `test:integration`)
+  exist; the DB-free `V2 acceptance` job is untouched. Implemented specs so far:
+  `catalog-retrieval.integration-spec.ts` (1 suite / 2 tests, DB seam only). The ten
+  behavior-named orchestration specs that actually constitute Checkpoint F
+  (canonical-orchestration, catalog-first, catalog-reuse, acquisition-degradation,
+  places-admission, long-tail-acquisition, day-trip, no-direct-persistence,
+  duplicate-delivery, routing-boundary) are enumerated as pending in
+  `be/test/integration/tour-generation/README.md` and are the remaining F work — they
+  need the reusable `generateTourExperiences` integration harness on top of `support/`.
+- Everything else in the Phase 7 A–E brief is implemented in code and covered by unit
+  specs at the boundary (`experience-acquisition.service.spec.ts` web execution +
   failure isolation; `google-places-acquisition.provider.spec.ts` +
   `structured-candidate-corroboration.service.spec.ts` standalone-eligibility;
   `generation-trace-builder.util.spec.ts` `buildAcquisitionStep`;
-  `generation-execution-summary.util.spec.ts` roll-up); the integration specs would
-  additionally prove them against real Postgres end-to-end.
+  `generation-execution-summary.util.spec.ts` roll-up). The F integration specs prove
+  the same behaviors against real Postgres end-to-end.
 
 - Previous milestone: pre-Phase-7 hardening — `TraitDefinition` concurrency-safe
   resolution; `ExperienceCandidate` controlled-facet contract; explicit
@@ -151,10 +168,11 @@ Canonical design: `docs/superpowers/specs/2026-09-06-multi-source-acquisition-de
 - Previous Phase 4 hardening code commit: `0321576b4f335a26039943ec3668a7390ce05139`
 - Previous Phase 4 initial code commit: `a42aa3f453973f09491a3ab5603cc9146763286a`
 - Previous Phase 3 code commit: `8415df6d2e6fdd32ee4a04a3d729f3d5ea93dc24`
-- Last verified test state: backend Jest `125/125` suites and `989/989` tests passing
-  (`yarn test --runInBand`, 2026-09-09), zero regressions. The opt-in live
-  discovery-characterization suite (`yarn test:live:discovery`) is separate and never
-  runs in the normal suite.
+- Test state at the close of pre-Phase-7 hardening (historical — superseded by the
+  **Current verified test state** bullet near the top of this section): backend Jest
+  `125/125` suites and `989/989` tests passing (`yarn test --runInBand`, 2026-09-09),
+  zero regressions. The opt-in live discovery-characterization suite
+  (`yarn test:live:discovery`) is separate and never runs in the normal suite.
 - Targeted Phase 6 suites: `8/8` suites, `92/92` tests passing
   (`tavily-grounded-search.service.spec.ts`, `preference-facet-vocabulary.spec.ts`,
   `preference-facet-merge.util.spec.ts`, `preference-facet-matching.util.spec.ts`,
@@ -162,11 +180,12 @@ Canonical design: `docs/superpowers/specs/2026-09-06-multi-source-acquisition-de
   `hard-soft-preference-contract.spec.ts`, `experience-acquisition-planner.service.spec.ts`).
 - Linting: `yarn lint:check` is 100% clean (0 errors, 0 warnings across `{src,apps,libs,test}/**/*.ts`).
 - Build: `yarn build` (`nest build`) is 100% clean.
-- `yarn run check` (typecheck + lint:check): still fails **only** on the same 7 pre-existing baseline
-  `tsc` errors under `be/test/acceptance/**` and `test/acceptance/unit/completeness-validator.spec.ts`
-  (`PlanningExperienceCandidate.startFootprint/endFootprint`, `TourCompletenessIssue.dayNumber` —
-  PR10 daily-planning drift, unrelated to acquisition). **check baseline errors: 7 · final errors: 7 ·
-  new errors from Phase 6: 0.** `src/**` typechecks clean.
+- `yarn run check` (typecheck + lint:check) at the close of pre-Phase-7 hardening
+  (historical): failed **only** on 7 pre-existing baseline `tsc` errors under
+  `be/test/acceptance/**` (`PlanningExperienceCandidate.startFootprint/endFootprint`,
+  `TourCompletenessIssue.dayNumber` — PR10 daily-planning drift). **Checkpoint A removed
+  all 7**; `yarn run check` no longer fails on them (see the Current verified test state
+  bullet above).
 - **OSM proactive acquisition is implemented and verified through
   `ExperienceAcquisitionService.executePlan`, but live tour-generation orchestration remains
   intentionally deferred to Phase 7.**
