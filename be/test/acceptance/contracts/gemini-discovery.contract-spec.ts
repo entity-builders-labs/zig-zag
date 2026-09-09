@@ -9,6 +9,7 @@ describe('Provider Contract: Gemini ExperienceCandidate envelope', () => {
         description: 'Recorrido histórico por el casco antiguo',
         themes: ['history', 'architecture'],
         traits: ['walking', 'guided'],
+        intents: ['walk'],
         suggestedDurationMinutes: 120,
         shortReason: 'Sustentado por evidencia',
         evidenceKeys: ['ev-1'],

@@ -2,9 +2,13 @@ import {
   PlanningExperienceCandidate,
   NormalizedOpeningHours,
 } from 'src/modules/tours/interfaces/daily-planning.interface';
+import { withPointFootprints } from './point-footprints.util';
 
 export class CandidateBuilder {
-  private candidate: PlanningExperienceCandidate;
+  private candidate: Omit<
+    PlanningExperienceCandidate,
+    'startFootprint' | 'endFootprint'
+  >;
 
   constructor(
     id: string = `cand-${Math.random().toString(36).substring(2, 7)}`,
@@ -90,6 +94,6 @@ export class CandidateBuilder {
   }
 
   build(): PlanningExperienceCandidate {
-    return { ...this.candidate };
+    return withPointFootprints({ ...this.candidate });
   }
 }

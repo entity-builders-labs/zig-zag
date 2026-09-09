@@ -10,6 +10,7 @@ describe('Provider Contract: Groq ExperienceCandidate envelope', () => {
             description: 'Visita cultural sustentada por evidencia',
             themes: ['architecture', 'culture'],
             traits: ['guided'],
+            intents: ['visit'],
             suggestedDurationMinutes: 90,
             shortReason: 'Ícono arquitectónico',
             evidenceKeys: ['ev-2'],

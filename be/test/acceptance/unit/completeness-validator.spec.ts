@@ -51,7 +51,11 @@ describe('Unit Acceptance: Tour Completeness Validator (TC-VAL-01 to TC-VAL-03)'
     });
 
     expect(result.complete).toBe(false);
-    expect(result.issues.some((i) => i.dayNumber === 1)).toBe(true);
+    expect(
+      result.issues.some(
+        (i) => i.code === 'UNDERFILLED_DAY' && i.dayNumber === 1,
+      ),
+    ).toBe(true);
   });
 
   it('TC-VAL-03: thin day passes when candidate pool is genuinely exhausted (viableUnusedCandidateCount === 0)', () => {
