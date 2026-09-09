@@ -5,25 +5,32 @@ Canonical design: `docs/superpowers/specs/2026-09-06-multi-source-acquisition-de
 # Current State
 
 - Branch: `feat/experience-domain-v2`
-- Current milestone: Phase 5 — OSM proactive acquisition (VERIFIED)
-- Verified Phase 5 code commit: `54eceebbec90a1662f32b44385364d091b3be55e`
+- Current milestone: Phase 5 — OSM proactive acquisition (HARDENED, CLOSED)
+- Verified Phase 5 hardening code commit: `f24f6f4efff270f3a08d4616f1628b619c7f1302`
+- Previous Phase 5 code commit: `54eceebbec90a1662f32b44385364d091b3be55e`
 - Previous Phase 4 final-verification code commit: `28c550936bdfec853fea3fe9353efc11cc30bdb5`
 - Previous Phase 4 hardening code commit: `0321576b4f335a26039943ec3668a7390ce05139`
 - Previous Phase 4 initial code commit: `a42aa3f453973f09491a3ab5603cc9146763286a`
 - Previous Phase 3 code commit: `8415df6d2e6fdd32ee4a04a3d729f3d5ea93dc24`
-- Last verified test state: backend Jest `119/119` suites and `904/904` tests passing
-  (+37 new tests / +2 suites in Phase 5, zero regressions vs the prior 867).
-- Targeted Phase 5 suites: `8/8` suites, `130/130` tests passing
+- Last verified test state: backend Jest `119/119` suites and `920/920` tests passing
+  (+16 in the Phase 5 hardening pass, zero regressions vs the prior 904).
+- Targeted OSM/acquisition suites: `8/8` suites, `146/146` tests passing
   (`overpass-query.util.spec.ts`, `overpass-api.service.spec.ts`, `cached-overpass-api.service.spec.ts`,
   `osm-places.service.spec.ts`, `osm-acquisition-concepts.spec.ts`, `osm-acquisition.provider.spec.ts`,
+  `experience-acquisition.service.spec.ts`, `structured-candidate-corroboration.service.spec.ts`).
+- Phase 4 no-regression suites: `4/4` suites, `80/80` tests passing
+  (`google-places-acquisition.provider.spec.ts`, `experience-catalog.service.spec.ts`,
   `experience-acquisition.service.spec.ts`, `structured-candidate-corroboration.service.spec.ts`).
 - Linting: `yarn lint:check` is 100% clean (0 errors, 0 warnings across `{src,apps,libs,test}/**/*.ts`).
 - Build: `yarn build` (`nest build`) is 100% clean.
 - `yarn run check` (typecheck + lint:check): still fails **only** on the same 7 pre-existing baseline
   `tsc` errors under `be/test/acceptance/**` and `test/acceptance/unit/completeness-validator.spec.ts`
   (`PlanningExperienceCandidate.startFootprint/endFootprint`, `TourCompletenessIssue.dayNumber` —
-  PR10 daily-planning drift, unrelated to acquisition). Phase 5 introduces zero new `tsc` errors and
-  `src/**` typechecks clean.
+  PR10 daily-planning drift, unrelated to acquisition). **check baseline errors: 7 · final errors: 7 ·
+  new errors from this hardening: 0.** `src/**` typechecks clean.
+- **OSM proactive acquisition is implemented and verified through
+  `ExperienceAcquisitionService.executePlan`, but live tour-generation orchestration remains
+  intentionally deferred to Phase 7.**
 - **OSM proactive acquisition is implemented and verified through
   `ExperienceAcquisitionService.executePlan`, but live tour-generation orchestration remains
   intentionally deferred to Phase 7.**
@@ -453,9 +460,72 @@ corroboration, resolver, geographic validation, dedupe) is shared and unchanged.
   branch + OSM↔Places corroboration), `structured-candidate-corroboration.service.spec.ts`
   (OSM cross-source scenarios).
 
+### Phase 5: Hardening (`f24f6f4efff270f3a08d4616f1628b619c7f1302`)
+One narrow hardening pass before closure — no architecture change, no live tour-generation
+wiring, no Phase 6/7 work. Previous Phase 5 code: `54eceeb…`.
+
+- **Deterministic output order** — `OsmAcquisitionProvider.acquire` sorts the final
+  `SourceObservation[]` by `evidenceKey` ascending (`localeCompare`) after dedupe. Reversing
+  the Overpass response order — or the requested-concept order (already normalized by
+  `resolveOsmConcepts` → `uniqueSorted`) — now yields a deep-equal, identically-ordered
+  result. `matchedConcepts` stays `uniqueSorted` on both first-emit and merge.
+- **Defensive OSM identity validation** — `OsmPlacesService.toCandidate()` now rejects an
+  element whose `type` is not `node`/`way`/`relation` **or** whose `id` is not a finite
+  positive integer, *before* building `osm:${type}:${id}`. A malformed sibling is skipped
+  (`return null`); the lookup never throws, never fails, and identity is never synthesised
+  from name/coordinates. Applies to every OSM lookup path (centralised at the one
+  `OverpassElement → OsmCandidate` seam). Canonical identity unchanged:
+  `externalId === evidenceKey === osm:${type}:${id}`.
+- **Defensive geo validation** — `centroidOfGeometry()` only emits `geo` when latitude and
+  longitude are finite and within `[-90,90]` / `[-180,180]`; otherwise `geo: undefined`
+  (no clamping, no invented point). The observation's identity/title still survive an
+  absent `geo`.
+- **Food / nightlife not proactively acquired** — `restaurant`, `cafe`, `bar`, `pub`,
+  `nightclub` moved from `OSM_ACQUISITION_CONCEPTS` into `OSM_UNSUPPORTED_CONCEPTS`. A
+  generic food/nightlife venue is an operational itinerary stop, not a gastronomic
+  Experience in itself; curated Wikivoyage / web / Places evidence — never a bare OSM
+  `amenity` tag, no rating/`tourism=yes` heuristic, no LLM classification — must establish
+  that a food venue *is* a tourism Experience. Requesting only these concepts ⇒ Overpass not
+  called ⇒ `{ status: 'success', value: [] }`. `acquisition-source-routing.ts` untouched
+  (the routing table may still name them; the capability registry says "unsupported for
+  proactive Experience acquisition"). The registry invariant ("every routed `osmConcept` is
+  explicitly supported or explicitly unsupported") still holds.
+- **Winery semantics** — the `winery` selector is now `craft=winery` only. `shop=wine`
+  (a vinoteca / wine shop) is no longer treated as a winery Experience.
+- **Structured provider provenance** — `AcquisitionProviderResult<T>` gains an optional,
+  provider-neutral `provenance?: Record<string, unknown>` (Wikivoyage/Places don't set it;
+  nothing added to `SourceObservation`). `OsmAcquisitionProvider` attaches it on **every**
+  return (success / empty-early-return / failed):
+  `requestedConcepts` (normalized: trimmed, non-empty, deduped, sorted) ·
+  `supportedConcepts` (with a registry entry) · `unsupportedConcepts` (explicit + unknown) ·
+  `radiusRequestedMeters` · `rawResultCount` (raw `OverpassElement` count before adapter
+  filtering) · `candidateCount` (`OsmCandidate[]` after `toCandidate`: drops
+  nameless / invalid-identity / null-geometry) · `observationCount` (final list) ·
+  `dedupedCount` (candidates whose `osm:${type}:${id}` was already emitted this pass —
+  the same real element returned more than once by the union query; counted explicitly, NOT
+  `candidateCount − observationCount`, which would also include zero-concept-match drops) ·
+  `evidenceKeys` (final sorted list). No raw payloads, no secrets, no preference semantics.
+- **Raw result count through the lookup** — `OsmPlacesService.lookupFeaturesNear` now returns
+  a narrow `OsmFeatureLookupResult extends OsmLookupResult<OsmCandidate[]> { rawResultCount }`
+  (shared `OsmLookupResult` untouched). `rawResultCount = elements.length` on success,
+  `0` on failure and on the empty-selectors early return. `success []` vs `failed []`
+  semantics unchanged.
+- **Provenance survives `executePlan`** — `providerResults.osm = res` already carries the
+  provider result verbatim, so `provenance` flows through unchanged; tests assert it on both
+  the success and failure paths, and that a sibling provider still contributes when OSM fails.
+- **Untouched**: `experience-generation.service.ts`, `buildAcquisitionPlan`/`executePlan`
+  wiring, `ExperienceCandidate` shape, synthesizer, corroboration, resolver, geographic
+  validation, dedupe, catalog persistence, ranking, planner, tour materialization, Tavily,
+  `exploration_style`, preference interpretation, `acquisition-source-routing.ts`. No
+  `OsmCandidate → Experience` persistence, no OSM-specific synthesizer, no OSM quality
+  scoring. **Phase 6 not started. Phase 7 not started.**
+- **Tests**: +16 (deterministic order ×2, geo validation ×6, malformed-identity ×2 in
+  `osm-places.service.spec.ts`, `rawResultCount` cases, food/nightlife-unsupported ×5,
+  `shop=wine`≠winery, structured-provenance fields, provenance-survives-`executePlan`).
+
 # In Progress
 
-None. Phase 5 OSM proactive acquisition is complete and verified.
+None. Phase 5 OSM proactive acquisition is hardened, verified, and CLOSED.
 
 # Not Started
 
@@ -468,19 +538,31 @@ None. Phase 5 OSM proactive acquisition is complete and verified.
 
 # Verification
 
-Phase 5 verified against code commit `54eceebbec90a1662f32b44385364d091b3be55e`:
+Phase 5 **hardening** verified against code commit `f24f6f4efff270f3a08d4616f1628b619c7f1302`:
 
-- `yarn test --runInBand` (`be/`): PASS — **119** suites, **904** tests passing
-  (+37 tests / +2 suites over the prior 867, zero regressions).
-- Targeted Phase 5 suites: PASS — **130/130** tests across 8 suites
+- `yarn test --runInBand` (`be/`): PASS — **119** suites, **920** tests passing
+  (+16 over the prior 904, zero regressions).
+- Targeted OSM/acquisition suites: PASS — **146/146** tests across 8 suites
   (`overpass-query.util.spec.ts`, `overpass-api.service.spec.ts`, `cached-overpass-api.service.spec.ts`,
   `osm-places.service.spec.ts`, `osm-acquisition-concepts.spec.ts`, `osm-acquisition.provider.spec.ts`,
   `experience-acquisition.service.spec.ts`, `structured-candidate-corroboration.service.spec.ts`).
+- Phase 4 no-regression suites: PASS — **80/80** across 4 suites
+  (`google-places-acquisition.provider.spec.ts`, `experience-catalog.service.spec.ts`,
+  `experience-acquisition.service.spec.ts`, `structured-candidate-corroboration.service.spec.ts`) —
+  no Starbucks-cafe pollution, no direct persistence, no provider-failure flattening, no fabricated
+  embedding provenance, no broad nearby exact-ID bug.
 - `yarn lint:check` (`be/`): PASS — 0 errors, 0 warnings.
 - `yarn build` (`be/`): PASS — `nest build` completes cleanly.
 - `yarn run check` (`be/`): FAIL — exclusively on the same 7 pre-existing baseline `tsc` errors
   under `be/test/acceptance/**` + `test/acceptance/unit/completeness-validator.spec.ts` (PR10 drift,
-  unrelated). Phase 5 adds zero new `tsc` errors; `src/**` typechecks clean.
+  unrelated). **check baseline errors: 7 · final errors: 7 · new errors from this hardening: 0.**
+  `src/**` typechecks clean.
+
+### Phase 5 (initial) verification — code commit `54eceebbec90a1662f32b44385364d091b3be55e`
+
+- `yarn test --runInBand` (`be/`): PASS — 119 suites, 904 tests (+37 / +2 suites over 867, zero regressions).
+- Targeted Phase 5 suites: PASS — 130/130 across 8 suites.
+- `yarn lint:check` / `yarn build` (`be/`): PASS.
 - Live characterization: real `overpass-api.de` `queryFeaturesNear` for San Telmo returned a
   well-formed, named-only result set (see the Phase 5 "Live characterization" note above).
 
@@ -526,28 +608,44 @@ Verified against code commit `28c550936bdfec853fea3fe9353efc11cc30bdb5`:
   - Conservative complete-link clustering prevents false merges under transitive conflicts.
   - Single-place component hint collapse: merging two single-place proposals yields exactly 1 `GeoEntityHint` on the resulting candidate only when `role` and `expectedKind` match.
   - Activity-like observations (`tourism_activity`, `route`, `operator`, `editorial`) are never merged with places even if they share coordinates or Wikidata QID.
-- **OSM proactive acquisition (Phase 5)**:
+- **OSM proactive acquisition (Phase 5, hardened)**:
   - OSM concepts are turned into Overpass queries ONLY via the explicit
     `OSM_ACQUISITION_CONCEPTS` registry — never by interpolating a concept string into QL.
     Every tag token is re-validated by `sanitizeOverpassTagToken`.
   - Broad concepts (`building`, `tourism`, `route`, `scenic`, `waterway`, `coastline`, `river`,
-    `desert`) are explicitly unsupported for proactive OSM acquisition — recall is deliberately
-    sacrificed rather than emitting a whole-radius query.
+    `desert`) AND generic food/nightlife venues (`restaurant`, `cafe`, `bar`, `pub`,
+    `nightclub`) are explicitly unsupported for proactive OSM Experience acquisition — recall
+    is deliberately sacrificed rather than emitting a whole-radius or "a nearby restaurant
+    exists" query. A food venue is proven to be a tourism Experience by Wikivoyage / web /
+    Places, not a bare OSM `amenity` tag. `winery` = `craft=winery` only (never `shop=wine`).
   - One bounded Overpass union query per `SourcePlan.osm` (`out tags center`, `["name"]`, radius
     capped), reusing `OverpassApiService.execute` + `CachedOverpassApiService` + `OVERPASS_API_URL`.
   - `OsmAcquisitionProvider` is non-persistent and mechanical: `evidenceType` from selector
     semantics (not OSM element type; `area` needs a way/relation, a node downgrades to `place`);
     `matchedConcepts` is trace metadata only, never inferred into themes/traits/intents/facets.
+  - **Deterministic output**: final observations are sorted by `evidenceKey`; identical
+    semantic elements yield a deep-equal result regardless of Overpass or concept order.
+  - **Defensive boundaries**: `toCandidate()` rejects a malformed OSM identity (bad `type`,
+    non-finite/non-positive `id`) — skip the sibling, never throw; `centroidOfGeometry()`
+    emits `geo` only when finite and in valid degree ranges, else `undefined` (no clamping).
   - OSM identity is `osm:${elementType}:${elementId}` for both `externalId` and `evidenceKey`;
-    it never merges with a Wikidata QID identity. An OSM provider failure degrades only OSM.
+    it never merges with a Wikidata QID identity. An OSM provider failure degrades only OSM,
+    and `success []` stays distinct from `failed []`.
+  - **Structured provenance** on every `OsmAcquisitionProvider` return
+    (`AcquisitionProviderResult.provenance`, provider-neutral optional): `requestedConcepts`
+    / `supportedConcepts` / `unsupportedConcepts` / `radiusRequestedMeters` / `rawResultCount`
+    / `candidateCount` / `observationCount` / `dedupedCount` / `evidenceKeys`. It flows through
+    `executePlan` on `providerResults.osm.provenance` unchanged. No raw payloads / secrets /
+    preference semantics.
   - Wired into `ExperienceAcquisitionService.executePlan` only. Live tour-generation
     orchestration (`buildAcquisitionPlan` / `executePlan` from `experience-generation.service.ts`)
     is intentionally deferred to Phase 7.
 
 # Next Action
 
-Phase 5 (OSM proactive acquisition) is fully implemented, verified, and complete at
-`54eceebbec90a1662f32b44385364d091b3be55e`. Phase 6 (Tavily walk-query theme-awareness +
-`explorationStyle` as a preference facet) and Phase 7 (final live orchestration) have NOT
-started. Next action will be Phase 6 upon explicit user instruction.
+Phase 5 (OSM proactive acquisition) is fully implemented, **hardened**, verified, and CLOSED
+at `f24f6f4efff270f3a08d4616f1628b619c7f1302` (previous Phase 5 code `54eceeb…`). Phase 6
+(Tavily walk-query theme-awareness + `explorationStyle` as a preference facet) and Phase 7
+(final live orchestration) have **NOT** started. Next action will be Phase 6 upon explicit
+user instruction.
 
