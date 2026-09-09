@@ -18,6 +18,8 @@ import { TavilyExtractService } from './services/tavily-extract.service';
 import { CompositeGeographicValidationService } from './services/composite-geographic-validation.service';
 import { GroqDiscoveryProvider } from './services/groq-discovery.provider';
 import { GeminiDiscoveryProvider } from './services/gemini-discovery.provider';
+import { OllamaDiscoveryProvider } from './services/ollama-discovery.provider';
+import { selectDiscoveryExtractor } from './services/discovery-extractor-selection.util';
 import { GreedyDailyPlanningSolver } from './services/greedy-daily-planning.solver';
 import { ApproximateTravelEstimateProvider } from './services/approximate-travel-estimate.provider';
 import { GeoapifyTravelEstimateProvider } from './services/geoapify-travel-estimate.provider';
@@ -87,6 +89,7 @@ import { MediaModule } from '../media/media.module';
     },
     GroqDiscoveryProvider,
     GeminiDiscoveryProvider,
+    OllamaDiscoveryProvider,
     GreedyDailyPlanningSolver,
     ApproximateTravelEstimateProvider,
     GeoapifyTravelEstimateProvider,
@@ -161,23 +164,24 @@ import { MediaModule } from '../media/media.module';
     },
     {
       provide: 'EXPERIENCE_DISCOVERY_PROVIDER',
+      // Keyed on DISCOVERY_EXTRACTOR_PROVIDER only — never AI_PROVIDER.
       useFactory: (
         config: AiConfig,
         gemini: GeminiDiscoveryProvider,
         groq: GroqDiscoveryProvider,
-      ): any => {
-        switch (config.discoveryExtractor.provider) {
-          case 'gemini':
-            return gemini;
-          case 'groq':
-            return groq;
-          default:
-            throw new Error(
-              `Unsupported DISCOVERY_EXTRACTOR_PROVIDER: ${config.discoveryExtractor.provider}`,
-            );
-        }
-      },
-      inject: [aiConfig.KEY, GeminiDiscoveryProvider, GroqDiscoveryProvider],
+        ollama: OllamaDiscoveryProvider,
+      ) =>
+        selectDiscoveryExtractor(config.discoveryExtractor.provider, {
+          gemini,
+          groq,
+          ollama,
+        }),
+      inject: [
+        aiConfig.KEY,
+        GeminiDiscoveryProvider,
+        GroqDiscoveryProvider,
+        OllamaDiscoveryProvider,
+      ],
     },
   ],
   exports: [

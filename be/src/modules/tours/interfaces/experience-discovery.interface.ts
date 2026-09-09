@@ -52,6 +52,27 @@ export interface ExperienceCandidate {
   orderedByEvidence?: boolean;
 }
 
+/**
+ * The shared boundary every grounded discovery extractor implements
+ * (Gemini / Groq / Ollama). Selection is driven by
+ * `DISCOVERY_EXTRACTOR_PROVIDER`, never by the general `AI_PROVIDER`, and each
+ * implementation is responsible for using its own configured transport +
+ * model so the returned `provider` / `model` describe the real call.
+ */
+export interface ExperienceDiscoveryExtractor {
+  extractExperiences(
+    request: ExperienceDiscoveryRequest,
+    searchResult: import('./experience-grounding.interface').ExperienceGroundedSearchResult,
+    options?: { bypassCache?: boolean },
+  ): Promise<
+    import('../utils/experience-candidate-extraction.util').ExperienceExtractionResult & {
+      provider: string;
+      model: string;
+      rawOutput?: string;
+    }
+  >;
+}
+
 export type ExperienceDiscoveryBreadth = 'focused' | 'broad';
 
 export interface ExperienceDiscoveryScope {

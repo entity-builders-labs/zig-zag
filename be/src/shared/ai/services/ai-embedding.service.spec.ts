@@ -47,6 +47,11 @@ describe('AiEmbeddingService Bedrock adapter', () => {
         provider: 'gemini',
         gemini: { model: 'gemini-3.5-flash-lite' },
         groq: { model: 'openai/gpt-oss-120b' },
+        ollama: {
+          baseUrl: 'http://localhost:11434',
+          model: 'qwen2.5:7b-instruct',
+          timeoutMs: 240000,
+        },
       },
       geminiGroundedSearchModel: 'gemini-3.5-flash',
     });
@@ -81,6 +86,11 @@ describe('AiEmbeddingService Bedrock adapter', () => {
         provider: 'gemini',
         gemini: { model: 'gemini-3.5-flash-lite' },
         groq: { model: 'openai/gpt-oss-120b' },
+        ollama: {
+          baseUrl: 'http://localhost:11434',
+          model: 'qwen2.5:7b-instruct',
+          timeoutMs: 240000,
+        },
       },
       geminiGroundedSearchModel: 'gemini-3.5-flash',
     });
@@ -136,6 +146,11 @@ describe('AiEmbeddingService Bedrock adapter', () => {
         provider: 'gemini',
         gemini: { model: 'gemini-3.5-flash-lite' },
         groq: { model: 'openai/gpt-oss-120b' },
+        ollama: {
+          baseUrl: 'http://localhost:11434',
+          model: 'qwen2.5:7b-instruct',
+          timeoutMs: 240000,
+        },
       },
       geminiGroundedSearchModel: 'gemini-3.5-flash',
     });

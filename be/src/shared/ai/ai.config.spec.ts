@@ -59,10 +59,13 @@ describe('aiConfig embedding index contract', () => {
     delete process.env.DISCOVERY_EXTRACTOR_PROVIDER;
     delete process.env.GEMINI_DISCOVERY_MODEL;
     delete process.env.GROQ_DISCOVERY_MODEL;
+    delete process.env.OLLAMA_DISCOVERY_MODEL;
+    delete process.env.OLLAMA_MODEL;
+    delete process.env.OLLAMA_BASE_URL;
 
     expect(loadConfig()).toEqual(
       expect.objectContaining({
-        discoveryExtractor: {
+        discoveryExtractor: expect.objectContaining({
           provider: 'gemini',
           gemini: {
             apiKey: process.env.GEMINI_API_KEY,
@@ -72,7 +75,30 @@ describe('aiConfig embedding index contract', () => {
             apiKey: process.env.GROQ_API_KEY,
             model: 'qwen/qwen3.8-27b',
           },
-        },
+          ollama: expect.objectContaining({
+            baseUrl: 'http://localhost:11434',
+            model: 'qwen2.5:7b-instruct',
+          }),
+        }),
+      }),
+    );
+  });
+
+  it('resolves the ollama discovery extractor from OLLAMA_* settings, not AI_PROVIDER', () => {
+    process.env.DISCOVERY_EXTRACTOR_PROVIDER = 'ollama';
+    process.env.AI_PROVIDER = 'openai';
+    process.env.OLLAMA_BASE_URL = 'https://ollama.internal:11434';
+    process.env.OLLAMA_DISCOVERY_MODEL = 'qwen2.5:14b-instruct';
+
+    expect(loadConfig()).toEqual(
+      expect.objectContaining({
+        discoveryExtractor: expect.objectContaining({
+          provider: 'ollama',
+          ollama: expect.objectContaining({
+            baseUrl: 'https://ollama.internal:11434',
+            model: 'qwen2.5:14b-instruct',
+          }),
+        }),
       }),
     );
   });

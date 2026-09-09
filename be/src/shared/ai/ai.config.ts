@@ -36,12 +36,19 @@ export interface AiConfig {
   geminiGroundedSearchModel: string;
 }
 
-export type DiscoveryExtractorProvider = 'gemini' | 'groq';
+export type DiscoveryExtractorProvider = 'gemini' | 'groq' | 'ollama';
 
 export interface DiscoveryExtractorConfig {
   provider: DiscoveryExtractorProvider;
   gemini: { apiKey?: string; model: string };
   groq: { apiKey?: string; model: string };
+  ollama: {
+    baseUrl: string;
+    apiKey?: string;
+    model: string;
+    timeoutMs: number;
+    numCtx?: number;
+  };
 }
 
 // Helper to detect if a model is an embedding model
@@ -134,9 +141,9 @@ export default registerAs('ai', (): AiConfig => {
 
   const discoveryExtractorProvider =
     process.env.DISCOVERY_EXTRACTOR_PROVIDER || 'gemini';
-  if (!['gemini', 'groq'].includes(discoveryExtractorProvider)) {
+  if (!['gemini', 'groq', 'ollama'].includes(discoveryExtractorProvider)) {
     throw new Error(
-      `Unsupported DISCOVERY_EXTRACTOR_PROVIDER "${discoveryExtractorProvider}". Expected gemini or groq.`,
+      `Unsupported DISCOVERY_EXTRACTOR_PROVIDER "${discoveryExtractorProvider}". Expected gemini, groq or ollama.`,
     );
   }
 
@@ -193,6 +200,24 @@ export default registerAs('ai', (): AiConfig => {
       groq: {
         apiKey: process.env.GROQ_API_KEY,
         model: process.env.GROQ_DISCOVERY_MODEL || 'qwen/qwen3.8-27b',
+      },
+      ollama: {
+        // Reuse the existing Ollama connection settings — a remote host is
+        // allowed (a future self-hosted deployment), localhost is the default.
+        baseUrl: process.env.OLLAMA_BASE_URL || 'http://localhost:11434',
+        apiKey: process.env.OLLAMA_API_KEY,
+        model:
+          process.env.OLLAMA_DISCOVERY_MODEL ||
+          process.env.OLLAMA_MODEL ||
+          'qwen2.5:7b-instruct',
+        timeoutMs: process.env.OLLAMA_DISCOVERY_TIMEOUT_MS
+          ? parseInt(process.env.OLLAMA_DISCOVERY_TIMEOUT_MS, 10)
+          : process.env.OLLAMA_TIMEOUT
+            ? parseInt(process.env.OLLAMA_TIMEOUT, 10)
+            : baseTimeout * 4,
+        numCtx: process.env.OLLAMA_NUM_CTX
+          ? parseInt(process.env.OLLAMA_NUM_CTX, 10)
+          : undefined,
       },
     },
     geminiGroundedSearchModel:
