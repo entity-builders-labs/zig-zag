@@ -277,6 +277,20 @@ describe('ExperienceAcquisitionService', () => {
       ]);
       expect(result.candidates[0].componentHints).toHaveLength(1);
       expect(result.candidates[0].componentHints[0].role).toBe('venue');
+      expect(result.evidence).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            key: 'wikivoyage:San_Nicolas:see:see:Teatro_Colon:1',
+            source: 'wikivoyage',
+            title: 'Teatro Colón',
+          }),
+          expect.objectContaining({
+            key: 'google_places:ChIJTeatroColon',
+            source: 'google_places',
+            title: 'Teatro Colon',
+          }),
+        ]),
+      );
     });
 
     it('3. failure in Google Places does NOT fail Wikivoyage or the pass', async () => {
@@ -386,6 +400,216 @@ describe('ExperienceAcquisitionService', () => {
       expect(synthesizeSpy).toHaveBeenCalledTimes(1);
       expect(corroborateSpy).toHaveBeenCalledTimes(1);
       expect(result.candidates).toHaveLength(1);
+    });
+  });
+
+  describe('acquireNearby with ExperienceProposalResolver', () => {
+    let catalog: any;
+    let embeddingIndexer: any;
+    let proposalResolver: any;
+    let service: ExperienceAcquisitionService;
+
+    const destinationScope = {
+      boundaryGeoJson: { type: 'Polygon', coordinates: [] as any[] },
+      countryCode: 'AR',
+      displayName: 'Buenos Aires, Argentina',
+    };
+
+    beforeEach(() => {
+      catalog = {
+        acquireNearbyAsExperiences: jest.fn(),
+        findVerifiedWithin: jest.fn(),
+      };
+      embeddingIndexer = {
+        index: jest.fn().mockResolvedValue({
+          status: 'indexed',
+          requestedIds: [],
+          indexedIds: [],
+        }),
+      };
+      proposalResolver = {
+        resolve: jest.fn(),
+      };
+      service = new ExperienceAcquisitionService(
+        catalog as any,
+        embeddingIndexer as any,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        proposalResolver as any,
+      );
+    });
+
+    it('B. routes candidates through proposalResolver with matching evidence when destinationBoundary is provided', async () => {
+      const mockCandidate = {
+        candidateId: 'cand-1',
+        name: 'Teatro Colón',
+        description: 'Historic opera house',
+        componentHints: [{ name: 'Teatro Colón', role: 'venue' as const }],
+        evidenceKeys: ['google_places:ChIJTeatroColon'],
+        primaryProvider: 'google_places' as const,
+      };
+
+      const mockObservation = {
+        provider: 'google_places' as const,
+        externalId: 'ChIJTeatroColon',
+        evidenceKey: 'google_places:ChIJTeatroColon',
+        evidenceType: 'place' as const,
+        title: 'Teatro Colón',
+        description: 'Historic opera house in Buenos Aires',
+        geo: { latitude: -34.6011, longitude: -58.3831 },
+        metadata: { websiteUri: 'https://teatrocolon.org.ar' },
+      };
+
+      catalog.acquireNearbyAsExperiences.mockResolvedValueOnce({
+        experienceIds: [],
+        experiences: [],
+        candidates: [mockCandidate],
+        observations: [mockObservation],
+        provenance: {
+          provider: 'google',
+          cacheStatus: 'miss-live',
+          requestedCount: 10,
+          receivedCount: 1,
+        },
+      });
+
+      proposalResolver.resolve.mockResolvedValueOnce({
+        resolved: [
+          {
+            candidateId: 'cand-1',
+            status: 'accepted',
+            experienceId: 'exp-teatro-colon',
+          },
+        ],
+        rejectedCountByReason: {},
+      });
+
+      catalog.findVerifiedWithin.mockResolvedValueOnce([
+        { id: 'exp-teatro-colon', canonicalName: 'Teatro Colón' },
+      ]);
+
+      const result = await service.acquireNearby({
+        latitude: -34.6011,
+        longitude: -58.3831,
+        radius: 3000,
+        destinationName: 'Buenos Aires',
+        destinationCountryCode: 'AR',
+        destinationBoundary: destinationScope,
+      });
+
+      expect(proposalResolver.resolve).toHaveBeenCalledWith({
+        candidates: [mockCandidate],
+        destinationName: 'Buenos Aires',
+        destinationCountryCode: 'AR',
+        destinationBoundary: destinationScope,
+        destinationPointRadius: undefined,
+        evidence: [
+          {
+            key: 'google_places:ChIJTeatroColon',
+            source: 'google_places',
+            title: 'Teatro Colón',
+            snippet: 'Historic opera house in Buenos Aires',
+            url: 'https://teatrocolon.org.ar',
+          },
+        ],
+      });
+
+      expect(result.experienceIds).toEqual(['exp-teatro-colon']);
+      expect(result.experiences).toHaveLength(1);
+      expect(result.experiences[0].id).toBe('exp-teatro-colon');
+      expect(result.provenance.acceptedCount).toBe(1);
+    });
+
+    it('C. preserves geographic validation: rejected candidates with GEOGRAPHIC_VALIDATION_FAILED are NOT persisted', async () => {
+      const mockCandidate = {
+        candidateId: 'cand-faraway',
+        name: 'Plaza Italia (wrong city)',
+        description: 'Located 700km away',
+        componentHints: [{ name: 'Plaza Italia', role: 'venue' as const }],
+        evidenceKeys: ['google_places:ChIJFaraway'],
+        primaryProvider: 'google_places' as const,
+      };
+
+      const mockObservation = {
+        provider: 'google_places' as const,
+        externalId: 'ChIJFaraway',
+        evidenceKey: 'google_places:ChIJFaraway',
+        evidenceType: 'place' as const,
+        title: 'Plaza Italia (wrong city)',
+        description: 'Located 700km away',
+        geo: { latitude: -31.4, longitude: -64.18 },
+      };
+
+      catalog.acquireNearbyAsExperiences.mockResolvedValueOnce({
+        experienceIds: [],
+        experiences: [],
+        candidates: [mockCandidate],
+        observations: [mockObservation],
+        provenance: {
+          provider: 'google',
+          cacheStatus: 'miss-live',
+          requestedCount: 10,
+          receivedCount: 1,
+        },
+      });
+
+      proposalResolver.resolve.mockResolvedValueOnce({
+        resolved: [
+          {
+            candidateId: 'cand-faraway',
+            status: 'rejected',
+            rejectionReasons: ['GEOGRAPHIC_VALIDATION_FAILED'],
+          },
+        ],
+        rejectedCountByReason: {
+          GEOGRAPHIC_VALIDATION_FAILED: 1,
+        },
+      });
+
+      const result = await service.acquireNearby({
+        latitude: -34.6011,
+        longitude: -58.3831,
+        radius: 3000,
+        destinationName: 'Buenos Aires',
+        destinationCountryCode: 'AR',
+        destinationBoundary: destinationScope,
+      });
+
+      expect(proposalResolver.resolve).toHaveBeenCalledTimes(1);
+      expect(catalog.findVerifiedWithin).not.toHaveBeenCalled();
+      expect(result.experienceIds).toEqual([]);
+      expect(result.experiences).toEqual([]);
+      expect(result.provenance.acceptedCount).toBe(0);
+      expect(result.provenance.rejectedCountByReason).toEqual({
+        GEOGRAPHIC_VALIDATION_FAILED: 1,
+      });
+    });
+
+    it('D. does not persist when destinationBoundary is missing (legacy admin/refill path)', async () => {
+      catalog.acquireNearbyAsExperiences.mockResolvedValueOnce({
+        experienceIds: [],
+        experiences: [],
+        candidates: [{ candidateId: 'cand-legacy', name: 'Legacy Place' }],
+        observations: [],
+        provenance: {
+          provider: 'google',
+          cacheStatus: 'miss-live',
+          requestedCount: 10,
+          receivedCount: 1,
+        },
+      });
+
+      const result = await service.acquireNearby({
+        latitude: -34.6011,
+        longitude: -58.3831,
+        radius: 3000,
+      });
+
+      expect(proposalResolver.resolve).not.toHaveBeenCalled();
+      expect(result.experienceIds).toEqual([]);
+      expect(result.experiences).toEqual([]);
     });
   });
 });

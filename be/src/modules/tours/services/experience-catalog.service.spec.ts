@@ -702,3 +702,56 @@ describe('ExperienceCatalogService dedupe', () => {
     expect(tx.experience.create).not.toHaveBeenCalled();
   });
 });
+
+describe('ExperienceCatalogService.acquireNearbyAsExperiences (Phase 4 shortcut elimination)', () => {
+  it('must not call upsertGeoEntity or persistVerifiedExperience directly from Google Places observations', async () => {
+    const placesApi: any = {
+      searchNearby: jest.fn().mockResolvedValue({
+        data: [
+          {
+            id: 'ChIJTest123',
+            displayName: { text: 'Test Museum' },
+            formattedAddress: 'Calle Falsa 123',
+            location: { latitude: -34.6, longitude: -58.38 },
+            primaryType: 'museum',
+            types: ['museum', 'tourist_attraction'],
+            rating: 4.5,
+          },
+        ],
+        provenance: {
+          provider: 'google',
+          cacheStatus: 'miss-live',
+          requestedCount: 1,
+          receivedCount: 1,
+        },
+      }),
+    };
+
+    const prisma: any = {
+      geoEntity: { create: jest.fn(), update: jest.fn() },
+      experience: { create: jest.fn() },
+    };
+
+    const service = new ExperienceCatalogService(prisma, placesApi);
+    const upsertSpy = jest.spyOn(service, 'upsertGeoEntity');
+    const persistSpy = jest.spyOn(service, 'persistVerifiedExperience');
+
+    const result = await service.acquireNearbyAsExperiences({
+      latitude: -34.6,
+      longitude: -58.38,
+      radius: 5000,
+      maxResultCount: 10,
+    });
+
+    // Invariant: acquireNearbyAsExperiences is strictly non-persistent.
+    // It must NEVER write GeoEntities or Experiences directly.
+    expect(upsertSpy).not.toHaveBeenCalled();
+    expect(persistSpy).not.toHaveBeenCalled();
+    expect(result.experienceIds).toEqual([]);
+    expect(result.experiences).toEqual([]);
+    expect(result.candidates).toHaveLength(1);
+    expect(result.candidates[0].name).toBe('Test Museum');
+    expect(result.observations).toHaveLength(1);
+    expect(result.observations[0].externalId).toBe('ChIJTest123');
+  });
+});

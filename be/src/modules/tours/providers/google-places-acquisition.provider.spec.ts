@@ -308,4 +308,119 @@ describe('GooglePlacesAcquisitionProvider', () => {
     expect(result.value).toHaveLength(1);
     expect(result.value[0].externalId).toBe('place_bariloche_park');
   });
+
+  it('calls searchText with includedType and strictTypeFiltering when one searchType is provided without coordinates', async () => {
+    placesApiMock.searchText.mockResolvedValueOnce({
+      data: [
+        {
+          id: 'place_bodega_catena',
+          displayName: { text: 'Bodega Catena Zapata' },
+          primaryType: 'winery',
+          types: ['winery', 'food', 'point_of_interest', 'establishment'],
+          location: { latitude: -33.13, longitude: -68.91 },
+        },
+      ],
+      provenance: {
+        provider: 'google',
+        cacheStatus: 'miss-live',
+        requestedCount: 5,
+        receivedCount: 1,
+      },
+    });
+
+    const result = await provider.acquire(
+      { destinationName: 'Mendoza' },
+      { searchTypes: ['winery'], maxResultCount: 5 },
+    );
+
+    expect(placesApiMock.searchText).toHaveBeenCalledWith({
+      textQuery: 'Mendoza',
+      includedType: 'winery',
+      strictTypeFiltering: true,
+      maxResultCount: 5,
+    });
+    expect(result.status).toBe('success');
+    expect(result.value).toHaveLength(1);
+    expect(result.value[0].externalId).toBe('place_bodega_catena');
+  });
+
+  it('calls searchText for each type and dedupes results when multiple searchTypes are provided without coordinates', async () => {
+    const sharedPlace: PlaceData = {
+      id: 'place_shared',
+      displayName: { text: 'Teatro Colón' },
+      primaryType: 'tourist_attraction',
+      types: ['tourist_attraction', 'performing_arts_theater'],
+      location: { latitude: -34.6011, longitude: -58.3831 },
+    };
+
+    const museumPlace: PlaceData = {
+      id: 'place_museum',
+      displayName: { text: 'Museo Nacional de Bellas Artes' },
+      primaryType: 'museum',
+      types: ['museum'],
+      location: { latitude: -34.5838, longitude: -58.393 },
+    };
+
+    placesApiMock.searchText
+      .mockResolvedValueOnce({
+        data: [sharedPlace, museumPlace],
+        provenance: {
+          provider: 'google',
+          cacheStatus: 'miss-live',
+          requestedCount: 5,
+          receivedCount: 2,
+        },
+      })
+      .mockResolvedValueOnce({
+        data: [sharedPlace],
+        provenance: {
+          provider: 'google',
+          cacheStatus: 'miss-live',
+          requestedCount: 5,
+          receivedCount: 1,
+        },
+      });
+
+    const result = await provider.acquire(
+      { destinationName: 'Buenos Aires' },
+      { searchTypes: ['museum', 'tourist_attraction'], maxResultCount: 5 },
+    );
+
+    expect(placesApiMock.searchText).toHaveBeenCalledTimes(2);
+    expect(placesApiMock.searchText).toHaveBeenNthCalledWith(1, {
+      textQuery: 'Buenos Aires',
+      includedType: 'museum',
+      strictTypeFiltering: true,
+      maxResultCount: 5,
+    });
+    expect(placesApiMock.searchText).toHaveBeenNthCalledWith(2, {
+      textQuery: 'Buenos Aires',
+      includedType: 'tourist_attraction',
+      strictTypeFiltering: true,
+      maxResultCount: 5,
+    });
+
+    expect(result.status).toBe('success');
+    // sharedPlace is deduplicated by place.id, so we get 2 distinct places
+    expect(result.value).toHaveLength(2);
+    expect(result.value.map((v) => v.externalId)).toEqual([
+      'place_shared',
+      'place_museum',
+    ]);
+  });
+
+  it('returns failed status when searchText throws an error', async () => {
+    placesApiMock.searchText.mockRejectedValueOnce(
+      new Error('Google Places API quota exceeded'),
+    );
+
+    const result = await provider.acquire(
+      { destinationName: 'Mendoza' },
+      { searchTypes: ['winery'] },
+    );
+
+    expect(result.status).toBe('failed');
+    expect(result.value).toEqual([]);
+    expect(result.failureReason).toBe('Google Places API quota exceeded');
+  });
 });

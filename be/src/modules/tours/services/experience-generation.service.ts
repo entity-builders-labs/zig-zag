@@ -1352,6 +1352,17 @@ export class ExperienceGenerationService {
                         radius: Math.min(radius, 5000),
                         interests: request.intent.interests,
                         maxResultCount: experienceLimit,
+                        destinationName: request.destination.label,
+                        destinationCountryCode:
+                          destinationResolution.countryCode,
+                        destinationBoundary: destinationScope,
+                        destinationPointRadius: isAreaScale
+                          ? undefined
+                          : {
+                              latitude: request.destination.latitude,
+                              longitude: request.destination.longitude,
+                              radiusMeters: searchArea.radiusMeters,
+                            },
                       });
                     crawlResult = {
                       experienceIds: acquired.experienceIds,

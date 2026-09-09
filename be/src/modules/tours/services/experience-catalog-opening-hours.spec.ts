@@ -1,74 +1,44 @@
 import { ExperienceCatalogService } from './experience-catalog.service';
+import { parseOpeningHours } from '../utils/normalized-opening-hours.util';
 
 describe('ExperienceCatalogService opening hours', () => {
   it('normalizes Google weekday descriptions and persists them on Experience', async () => {
-    const placesApi: any = {
-      searchNearby: jest.fn().mockResolvedValue({
-        data: [
-          {
-            id: 'museum-1',
-            displayName: { text: 'Museo de Prueba' },
-            formattedAddress: 'Buenos Aires',
-            location: { latitude: -34.6037, longitude: -58.3816 },
-            primaryType: 'museum',
-            types: ['museum'],
-            rating: 4.7,
-            openingHoursWeekdayText: [
-              'Monday: 9:00 AM – 6:00 PM',
-              'Tuesday: Closed',
-            ],
-          },
-        ],
-        provenance: {
-          provider: 'google',
-          cacheStatus: 'miss-live',
-          requestedCount: 20,
-          receivedCount: 1,
-        },
-      }),
-    };
-    const service = new ExperienceCatalogService({} as any, placesApi);
-    jest
-      .spyOn(service, 'upsertGeoEntity')
-      .mockResolvedValue({ id: 'geo-museum-1' } as any);
-    const persist = jest
-      .spyOn(service, 'persistVerifiedExperience')
-      .mockImplementation(
-        async (input: any) =>
-          ({
-            id: 'experience-museum-1',
-            canonicalName: input.canonicalName,
-            latitude: input.latitude,
-            longitude: input.longitude,
-            openingHours: input.openingHours,
-            components: [],
-            dedupeDecision: 'NEW',
-          }) as any,
-      );
+    const openingHours = parseOpeningHours([
+      'Monday: 9:00 AM – 6:00 PM',
+      'Tuesday: Closed',
+    ]);
 
-    const result = await service.acquireNearbyAsExperiences({
+    const tx: any = {
+      $executeRaw: jest.fn(),
+      experience: {
+        findMany: jest.fn().mockResolvedValue([]),
+        create: jest.fn().mockImplementation(async (args: any) => ({
+          id: 'experience-museum-1',
+          ...args.data,
+        })),
+      },
+    };
+    const prisma: any = {
+      $transaction: jest.fn((cb: any) => cb(tx)),
+    };
+    const service = new ExperienceCatalogService(prisma, {} as any);
+
+    const experience = await service.persistVerifiedExperience({
+      canonicalName: 'Museo de Prueba',
+      description: 'Buenos Aires',
       latitude: -34.6037,
       longitude: -58.3816,
-      radius: 5000,
+      durationMinutes: 90,
+      qualityScore: 4.7,
+      openingHours,
+      metadata: { source: 'places_acquisition', provider: 'google' },
+      components: [
+        { geoEntityId: 'geo-museum-1', role: 'venue', required: true },
+      ],
+      evidence: [{ source: 'google_places', title: 'Museo de Prueba' }],
     });
 
-    expect(persist).toHaveBeenCalledWith(
-      expect.objectContaining({
-        openingHours: {
-          status: 'known',
-          rangesByWeekday: {
-            1: [
-              {
-                startMinutesFromMidnight: 540,
-                endMinutesFromMidnight: 1080,
-              },
-            ],
-            2: [],
-          },
-        },
-      }),
-    );
-    expect(result.experiences[0].openingHours).toEqual({
+    expect((experience as any).openingHours).toEqual({
       status: 'known',
       rangesByWeekday: {
         1: [
@@ -80,6 +50,24 @@ describe('ExperienceCatalogService opening hours', () => {
         2: [],
       },
     });
+    expect(tx.experience.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          openingHours: {
+            status: 'known',
+            rangesByWeekday: {
+              1: [
+                {
+                  startMinutesFromMidnight: 540,
+                  endMinutesFromMidnight: 1080,
+                },
+              ],
+              2: [],
+            },
+          },
+        }),
+      }),
+    );
   });
 
   it('returns canonical opening hours from catalog retrieval without metadata fallback', async () => {

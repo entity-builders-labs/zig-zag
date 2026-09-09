@@ -1,4 +1,4 @@
-import { Injectable, Optional, Logger } from '@nestjs/common';
+import { Injectable, Optional, Inject, Logger } from '@nestjs/common';
 import { ExperienceEmbeddingIndexerService } from '@shared/ai/services/experience-embedding-indexer.service';
 import { ExperienceCatalogService } from './experience-catalog.service';
 import {
@@ -16,6 +16,19 @@ import {
   CorroborationPairTrace,
   StructuredCandidateCorroborationService,
 } from './structured-candidate-corroboration.service';
+import {
+  EXPERIENCE_PROPOSAL_RESOLVER,
+  ExperienceProposalResolver,
+  FinalExperienceResolutionResponse,
+} from '../interfaces/experience-resolution.interface';
+
+export interface ResolverEvidenceItem {
+  key: string;
+  source: string;
+  title?: string;
+  snippet?: string;
+  url?: string;
+}
 
 export interface ExecuteAcquisitionPlanResult {
   candidates: ExperienceCandidate[];
@@ -26,6 +39,23 @@ export interface ExecuteAcquisitionPlanResult {
       AcquisitionProviderResult<SourceObservation>
     >
   >;
+  evidence?: ResolverEvidenceItem[];
+}
+
+export interface AcquireNearbyInput {
+  latitude: number;
+  longitude: number;
+  radius: number;
+  interests?: string[];
+  maxResultCount?: number;
+  destinationName?: string;
+  destinationCountryCode?: string;
+  destinationBoundary?: unknown;
+  destinationPointRadius?: {
+    latitude: number;
+    longitude: number;
+    radiusMeters: number;
+  };
 }
 
 /**
@@ -52,6 +82,9 @@ export class ExperienceAcquisitionService {
     private readonly synthesizer?: StructuredExperienceCandidateSynthesizerService,
     @Optional()
     private readonly corroborationService?: StructuredCandidateCorroborationService,
+    @Optional()
+    @Inject(EXPERIENCE_PROPOSAL_RESOLVER)
+    private readonly proposalResolver?: ExperienceProposalResolver,
   ) {}
 
   async executePlan(
@@ -117,6 +150,7 @@ export class ExperienceAcquisitionService {
         candidates: [],
         observations: [],
         providerResults,
+        evidence: [],
       };
     }
 
@@ -132,28 +166,105 @@ export class ExperienceAcquisitionService {
           pairDecisions: [] as CorroborationPairTrace[],
         };
 
+    const evidence: ResolverEvidenceItem[] = allObservations.map((obs) => ({
+      key: obs.evidenceKey,
+      source: obs.provider,
+      title: obs.title,
+      snippet: obs.description,
+      url:
+        typeof (obs.metadata as any)?.websiteUri === 'string'
+          ? (obs.metadata as any).websiteUri
+          : undefined,
+    }));
+
     return {
       candidates: mergeResult.candidates,
       observations: allObservations,
       providerResults,
+      evidence,
     };
   }
 
-  async acquireNearby(input: {
-    latitude: number;
-    longitude: number;
-    radius: number;
-    interests?: string[];
-    maxResultCount?: number;
-  }) {
-    const result = await this.catalog.acquireNearbyAsExperiences(input);
-    const embedding = await this.embeddingIndexer.index(result.experienceIds);
+  async acquireNearby(input: AcquireNearbyInput) {
+    const acquisition = await this.catalog.acquireNearbyAsExperiences(input);
+
+    const canResolve =
+      Boolean(this.proposalResolver) &&
+      Boolean(input.destinationBoundary || input.destinationPointRadius);
+
+    if (canResolve && acquisition.candidates.length > 0) {
+      const resolverEvidence: ResolverEvidenceItem[] = (
+        acquisition.observations ?? []
+      ).map((obs) => ({
+        key: obs.evidenceKey,
+        source: obs.provider,
+        title: obs.title,
+        snippet: obs.description,
+        url:
+          typeof (obs.metadata as any)?.websiteUri === 'string'
+            ? (obs.metadata as any).websiteUri
+            : undefined,
+      }));
+
+      const resolution = await this.proposalResolver!.resolve({
+        candidates: acquisition.candidates,
+        destinationName: input.destinationName,
+        destinationCountryCode: input.destinationCountryCode,
+        destinationBoundary: input.destinationBoundary,
+        destinationPointRadius: input.destinationPointRadius,
+        evidence: resolverEvidence,
+      });
+
+      const acceptedIds = resolution.resolved
+        .filter((r) => r.status === 'accepted' && r.experienceId)
+        .map((r) => r.experienceId as string);
+
+      const persistedExperiences =
+        acceptedIds.length > 0
+          ? await this.catalog.findVerifiedWithin(
+              input.latitude,
+              input.longitude,
+              input.radius,
+              input.maxResultCount,
+            )
+          : [];
+
+      const rejectedCountByReason: Record<string, number> = {};
+      for (const res of resolution.resolved) {
+        if (res.status === 'rejected') {
+          for (const reason of res.rejectionReasons ?? []) {
+            rejectedCountByReason[reason] =
+              (rejectedCountByReason[reason] ?? 0) + 1;
+          }
+        }
+      }
+
+      return {
+        ...acquisition,
+        experienceIds: acceptedIds,
+        experiences: persistedExperiences,
+        resolution,
+        provenance: {
+          ...acquisition.provenance,
+          acceptedCount: acceptedIds.length,
+          rejectedCountByReason,
+          embeddedCount: acceptedIds.length,
+          embeddingWriteStatus: 'indexed' as const,
+          embeddingFailureReason: undefined as string | undefined,
+          embeddingIdentity: undefined as any,
+        },
+      };
+    }
+
+    const embedding = await this.embeddingIndexer.index(
+      acquisition.experienceIds,
+    );
 
     return {
-      ...result,
+      ...acquisition,
       provenance: {
-        ...result.provenance,
-        acceptedCount: result.experienceIds.length,
+        ...acquisition.provenance,
+        acceptedCount: acquisition.experienceIds.length,
         rejectedCountByReason: {},
         embeddedCount: embedding.indexedIds.length,
         embeddingWriteStatus: embedding.status,
@@ -161,5 +272,33 @@ export class ExperienceAcquisitionService {
         embeddingIdentity: embedding.identity,
       },
     };
+  }
+
+  async materializeExecution(
+    execution: ExecuteAcquisitionPlanResult,
+    context: {
+      destinationName?: string;
+      destinationCountryCode?: string;
+      destinationBoundary: unknown;
+      destinationPointRadius?: {
+        latitude: number;
+        longitude: number;
+        radiusMeters: number;
+      };
+    },
+  ): Promise<FinalExperienceResolutionResponse> {
+    if (!this.proposalResolver) {
+      throw new Error(
+        'ExperienceProposalResolver is required for materialization',
+      );
+    }
+    return this.proposalResolver.resolve({
+      candidates: execution.candidates,
+      destinationName: context.destinationName,
+      destinationCountryCode: context.destinationCountryCode,
+      destinationBoundary: context.destinationBoundary,
+      destinationPointRadius: context.destinationPointRadius,
+      evidence: execution.evidence,
+    });
   }
 }

@@ -117,11 +117,48 @@ export class GooglePlacesAcquisitionProvider {
         places = result.data ?? [];
       } else if (options?.query || destination?.destinationName) {
         const textQuery = options?.query ?? destination?.destinationName ?? '';
-        const result = await this.placesApi.searchText({
-          textQuery,
-          maxResultCount: options?.maxResultCount ?? 5,
-        });
-        places = result.data ?? [];
+        const searchTypes = options?.searchTypes?.filter(Boolean) ?? [];
+        const maxResultCount = options?.maxResultCount ?? 5;
+
+        if (searchTypes.length === 1) {
+          const result = await this.placesApi.searchText({
+            textQuery,
+            includedType: searchTypes[0],
+            strictTypeFiltering: true,
+            maxResultCount,
+          });
+          places = result.data ?? [];
+        } else if (searchTypes.length > 1) {
+          const seenPlaceIds = new Set<string>();
+          const collectedPlaces: PlaceData[] = [];
+          for (const searchType of searchTypes) {
+            const result = await this.placesApi.searchText({
+              textQuery,
+              includedType: searchType,
+              strictTypeFiltering: true,
+              maxResultCount,
+            });
+            for (const place of result.data ?? []) {
+              if (place.id && !seenPlaceIds.has(place.id)) {
+                seenPlaceIds.add(place.id);
+                collectedPlaces.push(place);
+                if (collectedPlaces.length >= maxResultCount) {
+                  break;
+                }
+              }
+            }
+            if (collectedPlaces.length >= maxResultCount) {
+              break;
+            }
+          }
+          places = collectedPlaces;
+        } else {
+          const result = await this.placesApi.searchText({
+            textQuery,
+            maxResultCount,
+          });
+          places = result.data ?? [];
+        }
       } else {
         return {
           status: 'success',

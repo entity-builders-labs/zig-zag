@@ -6,7 +6,6 @@ import { GooglePlacesAcquisitionProvider } from '../providers/google-places-acqu
 import { StructuredExperienceCandidateSynthesizerService } from './structured-experience-candidate-synthesizer.service';
 import { StructuredCandidateCorroborationService } from './structured-candidate-corroboration.service';
 import { NormalizedOpeningHours } from '../interfaces/daily-planning.interface';
-import { parseOpeningHours } from '../utils/normalized-opening-hours.util';
 import {
   distanceMeters,
   normalizeRealWorldName,
@@ -123,8 +122,10 @@ export class ExperienceCatalogService {
     const observations = providerResult.value;
     if (observations.length === 0) {
       return {
-        experienceIds: [],
-        experiences: [],
+        experienceIds: [] as string[],
+        experiences: [] as any[],
+        candidates: [] as any[],
+        observations: [] as any[],
         provenance: {
           provider: 'google' as const,
           cacheStatus: 'miss-live' as const,
@@ -140,74 +141,13 @@ export class ExperienceCatalogService {
     // Corroborate and merge proposals
     const corroborationResult = corroborator.corroborateAndMerge(proposals);
 
-    // Persist ONLY corroborated ExperienceCandidates (never raw Places directly)
-    const acquired = [] as any[];
-    for (const candidate of corroborationResult.candidates) {
-      const candidateObs = observations.find((obs) =>
-        candidate.evidenceKeys.includes(obs.evidenceKey),
-      );
-      if (!candidateObs?.geo?.latitude || !candidateObs?.geo?.longitude) {
-        continue;
-      }
-
-      const placeId = candidateObs.externalId;
-      const meta = candidateObs.metadata as any;
-      const openingHours = parseOpeningHours(meta?.openingHoursWeekdayText);
-
-      const entity = await this.upsertGeoEntity({
-        name: candidate.name,
-        kind: GeoEntityKind.PLACE,
-        provider: 'google',
-        externalId: placeId ?? candidate.evidenceKeys[0],
-        latitude: candidateObs.geo.latitude,
-        longitude: candidateObs.geo.longitude,
-        address: candidateObs.description,
-        metadata: {
-          types: meta?.types,
-          primaryType: meta?.primaryType,
-          openingHoursWeekdayText: meta?.openingHoursWeekdayText,
-        },
-      });
-
-      const experience = await this.persistVerifiedExperience({
-        canonicalName: candidate.name,
-        description: candidateObs.description,
-        durationMinutes: 90,
-        latitude: candidateObs.geo.latitude,
-        longitude: candidateObs.geo.longitude,
-        qualityScore:
-          typeof meta?.rating === 'number' ? meta.rating : undefined,
-        openingHours,
-        metadata: {
-          source: 'places_acquisition',
-          provider: 'google',
-          placeId,
-          requestedThemes: input.interests ?? [],
-        },
-        components: [{ geoEntityId: entity.id, role: 'venue', required: true }],
-        evidence: candidate.evidenceKeys.map(() => ({
-          source: 'google_places',
-          title: candidate.name,
-          snippet: candidateObs.description,
-        })),
-      });
-
-      if ((experience as any).dedupeDecision === 'AMBIGUOUS') continue;
-      acquired.push({
-        id: experience.id,
-        name: (experience as any).canonicalName,
-        latitude: (experience as any).latitude,
-        longitude: (experience as any).longitude,
-        duration: 1.5,
-        openingHours: (experience as any).openingHours,
-        metadata: { source: 'experience_catalog', experienceId: experience.id },
-        components: (experience as any).components,
-      });
-    }
-
+    // Non-persistent: Acquired candidates must flow through ExperienceProposalResolverService.resolve()
+    // to preserve geographic validation, deduplication, trait resolution, and single-path persistence.
     return {
-      experienceIds: acquired.map((item) => item.id),
-      experiences: acquired,
+      experienceIds: [] as string[],
+      experiences: [] as any[],
+      candidates: corroborationResult.candidates,
+      observations,
       provenance: {
         provider: 'google' as const,
         cacheStatus: 'miss-live' as const,
