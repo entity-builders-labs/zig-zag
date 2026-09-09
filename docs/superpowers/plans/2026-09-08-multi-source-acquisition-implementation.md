@@ -139,6 +139,37 @@ All candidates must flow through the existing downstream pipeline responsible fo
 - embeddings.
 
 
+2.3b ExperienceCandidate facet contract (pre-Phase-7 semantic contract hardening)
+
+themes and intents are controlled; traits is open-ended.
+
+Enforced deterministically at the one shared LLM extraction boundary
+(extractExperienceCandidates -> experience-candidate-facet-normalizer.util.ts),
+from the central preference-facet vocabulary only — never left to prompt
+obedience, never a second taxonomy inside a provider:
+
+- synonyms / localized forms are canonicalized (canonicalizeFacetKey);
+- a controlled key the model emitted in the wrong array is repaired to the
+  right one (canonical theme in traits/intents -> theme; canonical intent in
+  themes/traits -> intent) — nothing recognizable as a controlled theme/intent
+  survives in traits;
+- origin decides precedence for a key valid in both controlled dimensions
+  (food / nightlife / shopping): from themes[]/traits[] -> THEME wins, from
+  intents[] -> INTENT wins;
+- no global theme<->intent dedupe — a key explicitly supplied in both
+  controlled arrays may survive in both;
+- unknown / long-tail concepts are never lost — they remain traits with their
+  human label, deduped case-insensitively; the vocabulary is not grown to
+  absorb them.
+
+Gemini additionally pins its JSON-schema themes/intents enums to the same
+central vocabulary; Groq carries the contract in-prompt. The deterministic
+normalizer is the backend authority regardless of provider. Structured
+synthesis is unchanged (still emits empty facet arrays). No schema migration;
+existing mis-classified TraitDefinition('general', ...) rows are pre-production
+data. Phase 7 remains NOT STARTED.
+
+
 2.4 Provider failures are isolated
 
 Each provider returns something equivalent to:

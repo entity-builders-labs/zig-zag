@@ -122,6 +122,34 @@ design's sources motivate: `winery_scale`, `tourism_intensity`,
 already being real, DB-backed data (not a closed enum) is exactly why this
 works without touching the model.
 
+### `ExperienceCandidate` facet contract (pre-Phase-7 semantic hardening)
+
+`ExperienceCandidate.themes` and `.intents` are **controlled** — only canonical
+keys from the central `preference-facet-vocabulary.ts` may appear in them;
+`.traits` is **open-ended**. This is enforced deterministically at the single
+shared LLM extraction boundary (`extractExperienceCandidates` →
+`experience-candidate-facet-normalizer.util.ts`), not left to prompt obedience:
+
+- synonyms / localized forms are canonicalized via `canonicalizeFacetKey`;
+- a value the model placed in the wrong array is **repaired** to the right one
+  (a canonical theme emitted in `traits` or `intents` becomes a theme; a
+  canonical intent emitted in `themes` or `traits` becomes an intent);
+- origin-aware precedence resolves keys valid in both controlled dimensions
+  (`food` / `nightlife` / `shopping`): a value from `themes[]`/`traits[]`
+  prefers THEME, a value from `intents[]` prefers INTENT;
+- there is **no** global theme↔intent dedupe — a key the model explicitly put
+  in both controlled arrays may legitimately survive in both;
+- an unknown/long-tail concept is never discarded — it stays in `traits` with
+  its human-readable label (case-insensitively deduped). No provider-specific
+  tourism taxonomy, no vocabulary growth to absorb long-tail terms.
+
+The Gemini extractor additionally pins `themes`/`intents` `enum`s in its JSON
+schema to the same central vocabulary; Groq (no schema) carries the contract in
+its prompt. The deterministic normalizer remains the backend authority
+regardless of provider. Structured synthesis still emits empty facet arrays —
+no OSM/Places/Wikivoyage theme inference. Existing mis-classified
+`TraitDefinition('general', …)` rows are pre-production data, not migrated.
+
 ### `NormalizedPreferenceIntent` gains weights, stays one source of truth
 
 Confirmed (Q2): extend the existing interpreter output, not a parallel

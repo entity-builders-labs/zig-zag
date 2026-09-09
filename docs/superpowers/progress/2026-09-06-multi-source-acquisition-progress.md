@@ -5,7 +5,12 @@ Canonical design: `docs/superpowers/specs/2026-09-06-multi-source-acquisition-de
 # Current State
 
 - Branch: `feat/experience-domain-v2`
-- Current milestone: Phase 6 — Tavily walk-query theme-awareness + `exploration_style` facet (VERIFIED)
+- Current milestone: pre-Phase-7 hardening — `TraitDefinition` concurrency-safe resolution
+  + `ExperienceCandidate` controlled-facet contract (VERIFIED). Phase 7 NOT STARTED.
+- Pre-Phase-7 code commits: `adaedfdb80d9b8915f2d8af38d27a9315c4b3f49`
+  (`fix(tours): make trait definition resolution concurrency-safe`),
+  `28c368cd4e8e154b26fd1f18dd1a642055e11fd1`
+  (`fix(tours): normalize candidate controlled facets`)
 - Verified Phase 6 code commits: `2d023e110119bff4fb42fbe675865d6b38c041a3` (Tavily theme-aware),
   `37ad22873d1045a61a8144962205975f6c360a75` (`exploration_style` → ranking facet)
 - Previous Phase 5 hardening code commit: `f24f6f4efff270f3a08d4616f1628b619c7f1302`
@@ -14,8 +19,9 @@ Canonical design: `docs/superpowers/specs/2026-09-06-multi-source-acquisition-de
 - Previous Phase 4 hardening code commit: `0321576b4f335a26039943ec3668a7390ce05139`
 - Previous Phase 4 initial code commit: `a42aa3f453973f09491a3ab5603cc9146763286a`
 - Previous Phase 3 code commit: `8415df6d2e6fdd32ee4a04a3d729f3d5ea93dc24`
-- Last verified test state: backend Jest `119/119` suites and `928/928` tests passing
-  (+8 in Phase 6, zero regressions vs the prior 920).
+- Last verified test state: backend Jest `122/122` suites and `962/962` tests passing
+  (+7 from the `TraitDefinition` race fix, +27 from the facet-contract fix; zero
+  regressions).
 - Targeted Phase 6 suites: `8/8` suites, `92/92` tests passing
   (`tavily-grounded-search.service.spec.ts`, `preference-facet-vocabulary.spec.ts`,
   `preference-facet-merge.util.spec.ts`, `preference-facet-matching.util.spec.ts`,
@@ -727,6 +733,26 @@ Verified against code commit `28c550936bdfec853fea3fe9353efc11cc30bdb5`:
     duration / component count — is soft ranking, never an exclusion, and never touches
     acquisition, source routing, free-text interpretation, or any search query. The LLM
     interpreter is still forbidden from emitting it.
+- **Pre-Phase-7: `TraitDefinition` concurrency fix + `ExperienceCandidate` facet contract**:
+  - `ExperienceCatalogService.resolveOrCreateTraitDefinitions` dedupes by persistence
+    identity (`dimension='general'`, lowercased-trimmed key) and recovers a concurrent
+    `P2002` by re-reading the winning row (`upsertGeoEntity` style, `debug` log only);
+    `persistVerifiedExperience` dedupes `traitDefinitionIds` at entry on every path.
+    `Promise.all` in `ExperienceProposalResolverService.resolve()` is unchanged.
+  - `ExperienceCandidate.themes` / `.intents` are **controlled**, `.traits` is
+    **open-ended**, enforced deterministically at the one shared LLM extraction boundary
+    (`extractExperienceCandidates` → `experience-candidate-facet-normalizer.util.ts`) from
+    the central `preference-facet-vocabulary.ts` only. Synonyms canonicalized; a controlled
+    key emitted in the wrong array is repaired to the right one (nothing theme/intent-
+    recognizable survives in `traits`); origin decides precedence for keys valid in both
+    controlled dimensions (`food`/`nightlife`/`shopping`); **no** global theme↔intent
+    dedupe; unknown long-tail concepts stay in `traits` (human label, case-insensitive
+    dedupe) with **no** vocabulary growth and **no** provider-specific taxonomy. Gemini
+    pins its JSON-schema `themes`/`intents` enums to the same central vocabulary; Groq
+    carries the contract in-prompt. Structured synthesis unchanged (still empty facet
+    arrays). No schema migration; existing mis-classified `TraitDefinition('general', …)`
+    rows are pre-production data, left as-is. Marked **pre-Phase-7 semantic contract
+    hardening** — Phase 7 remains NOT STARTED.
 
 # Next Action
 
