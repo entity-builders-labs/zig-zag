@@ -544,6 +544,169 @@ describe('ExperienceCatalogService.resolveOrCreateTraitDefinitions', () => {
     expect(ids).toEqual([]);
     expect(prisma.traitDefinition.upsert).not.toHaveBeenCalled();
   });
+
+  it('deduplicates by persistence identity (dimension+lowercased key), not by raw string', async () => {
+    const idByKey: Record<string, string> = {
+      rooftop: 'trait-rooftop',
+      'craft beer': 'trait-craft-beer',
+    };
+    const prisma: any = {
+      traitDefinition: {
+        upsert: jest.fn(({ where }: any) => {
+          const key = where.dimension_key.key;
+          return Promise.resolve({ id: idByKey[key] });
+        }),
+      },
+    };
+    const service = new ExperienceCatalogService(prisma, {} as any);
+
+    const ids = await service.resolveOrCreateTraitDefinitions([
+      'Rooftop',
+      'rooftop',
+      ' ROOFTOP ',
+      'Craft Beer',
+    ]);
+
+    // Exactly one persistence identity per unique (general, lowercased-key).
+    expect(prisma.traitDefinition.upsert).toHaveBeenCalledTimes(2);
+    expect(prisma.traitDefinition.upsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { dimension_key: { dimension: 'general', key: 'rooftop' } },
+        create: { dimension: 'general', key: 'rooftop', label: 'Rooftop' },
+      }),
+    );
+    expect(prisma.traitDefinition.upsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { dimension_key: { dimension: 'general', key: 'craft beer' } },
+        create: {
+          dimension: 'general',
+          key: 'craft beer',
+          label: 'Craft Beer',
+        },
+      }),
+    );
+    expect(ids).toEqual(['trait-rooftop', 'trait-craft-beer']);
+    expect(ids.length).toBe(new Set(ids).size);
+  });
+
+  it('recovers the winning row when a concurrent create loses the P2002 race', async () => {
+    const p2002 = new Prisma.PrismaClientKnownRequestError(
+      'Unique constraint failed on the fields: (`dimension`,`key`)',
+      { code: 'P2002', clientVersion: 'test' },
+    );
+    const prisma: any = {
+      traitDefinition: {
+        upsert: jest.fn().mockRejectedValue(p2002),
+        findUnique: jest.fn().mockResolvedValue({ id: 'trait-winner' }),
+      },
+    };
+    const service = new ExperienceCatalogService(prisma, {} as any);
+
+    const ids = await service.resolveOrCreateTraitDefinitions(['craft_beer']);
+
+    expect(ids).toEqual(['trait-winner']);
+    expect(prisma.traitDefinition.findUnique).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: {
+          dimension_key: { dimension: 'general', key: 'craft_beer' },
+        },
+      }),
+    );
+  });
+
+  it('rethrows a P2002 whose winning row cannot be read (real inconsistency, not a race)', async () => {
+    const p2002 = new Prisma.PrismaClientKnownRequestError('unique', {
+      code: 'P2002',
+      clientVersion: 'test',
+    });
+    const prisma: any = {
+      traitDefinition: {
+        upsert: jest.fn().mockRejectedValue(p2002),
+        findUnique: jest.fn().mockResolvedValue(null),
+      },
+    };
+    const service = new ExperienceCatalogService(prisma, {} as any);
+
+    await expect(
+      service.resolveOrCreateTraitDefinitions(['craft_beer']),
+    ).rejects.toBe(p2002);
+  });
+
+  it('propagates a non-P2002 Prisma error without swallowing it', async () => {
+    const other = new Prisma.PrismaClientKnownRequestError('boom', {
+      code: 'P2010',
+      clientVersion: 'test',
+    });
+    const prisma: any = {
+      traitDefinition: {
+        upsert: jest.fn().mockRejectedValue(other),
+        findUnique: jest.fn(),
+      },
+    };
+    const service = new ExperienceCatalogService(prisma, {} as any);
+
+    await expect(
+      service.resolveOrCreateTraitDefinitions(['craft_beer']),
+    ).rejects.toBe(other);
+    expect(prisma.traitDefinition.findUnique).not.toHaveBeenCalled();
+  });
+
+  it('stays concurrency-safe when parallel calls share a trait: one identity, one id (real P2002 observed against PostgreSQL)', async () => {
+    // Faithful fake of the PostgreSQL race: the first create per compound key
+    // wins; every later create for that key raises P2002 and must recover the
+    // winner via findUnique.
+    const winners: Record<string, string> = {};
+    const seq: Record<string, number> = {};
+    const prisma: any = {
+      traitDefinition: {
+        upsert: jest.fn(({ where, create }: any) => {
+          const key = where.dimension_key.key;
+          seq[key] = (seq[key] ?? 0) + 1;
+          if (seq[key] === 1) {
+            winners[key] = `id-${key}`;
+            return Promise.resolve({ id: winners[key], ...create });
+          }
+          return Promise.reject(
+            new Prisma.PrismaClientKnownRequestError('unique', {
+              code: 'P2002',
+              clientVersion: 'test',
+            }),
+          );
+        }),
+        findUnique: jest.fn(({ where }: any) =>
+          Promise.resolve({ id: winners[where.dimension_key.key] ?? null }),
+        ),
+      },
+    };
+    const service = new ExperienceCatalogService(prisma, {} as any);
+
+    const results = await Promise.all([
+      service.resolveOrCreateTraitDefinitions(['craft_beer', 'artisanal']),
+      service.resolveOrCreateTraitDefinitions(['craft_beer', 'local']),
+      service.resolveOrCreateTraitDefinitions(['CRAFT_BEER']),
+      service.resolveOrCreateTraitDefinitions(['craft_beer']),
+    ]);
+
+    // Every reference to craft_beer resolves to the same single id.
+    const craftBeerIds = new Set([
+      results[0][0],
+      results[1][0],
+      results[2][0],
+      results[3][0],
+    ]);
+    expect(craftBeerIds.size).toBe(1);
+    // Exactly one persistence identity per key.
+    expect(seq['craft_beer']).toBeGreaterThanOrEqual(1);
+    expect(winners['craft_beer']).toBe('id-craft_beer');
+    expect(winners['artisanal']).toBe('id-artisanal');
+    expect(winners['local']).toBe('id-local');
+    // 'CRAFT_BEER' lowercases to the same key -> no separate identity.
+    expect(Object.keys(winners).sort()).toEqual([
+      'artisanal',
+      'craft_beer',
+      'local',
+    ]);
+  });
 });
 
 describe('ExperienceCatalogService dedupe', () => {
@@ -624,6 +787,86 @@ describe('ExperienceCatalogService dedupe', () => {
     expect(result.dedupeDecision).toBe('NEW');
     expect(tx.$executeRaw).toHaveBeenCalled();
     expect(tx.experience.create).toHaveBeenCalled();
+  });
+
+  it('deduplicates repeated traitDefinitionIds before the NEW-experience nested create (composite PK safety)', async () => {
+    const tx: any = {
+      $executeRaw: jest.fn(),
+      experience: {
+        findMany: jest.fn().mockResolvedValue([]),
+        create: jest.fn().mockResolvedValue({ id: 'exp-new' }),
+      },
+    };
+    const prisma: any = {
+      $transaction: jest.fn((callback: any) => callback(tx)),
+    };
+
+    await new ExperienceCatalogService(
+      prisma,
+      {} as any,
+    ).persistVerifiedExperience({
+      ...input,
+      evidence: [],
+      traitDefinitionIds: ['trait-a', 'trait-a', 'trait-b', 'trait-a'],
+    });
+
+    const created = tx.experience.create.mock.calls[0][0].data.traits.create;
+    expect(created).toEqual([
+      { traitDefinitionId: 'trait-a' },
+      { traitDefinitionId: 'trait-b' },
+    ]);
+  });
+
+  it('deduplicates repeated traitDefinitionIds on the SAME/existing path too', async () => {
+    const tx: any = {
+      $executeRaw: jest.fn(),
+      experience: {
+        findMany: jest.fn().mockResolvedValue([
+          {
+            id: 'exp-same',
+            canonicalName: 'museo central',
+            description: null,
+            durationMinutes: null,
+            price: null,
+            qualityScore: null,
+            latitude: null,
+            longitude: null,
+            metadata: {},
+            components: [
+              { geoEntityId: 'geo-1', role: 'venue', required: true },
+            ],
+            evidence: [],
+            traits: [],
+          },
+        ]),
+        update: jest.fn().mockResolvedValue({ id: 'exp-same', components: [] }),
+        create: jest.fn(),
+      },
+      experienceEvidence: { createMany: jest.fn() },
+      experienceTrait: { createMany: jest.fn() },
+    };
+    const prisma: any = {
+      $transaction: jest.fn((callback: any) => callback(tx)),
+    };
+
+    await new ExperienceCatalogService(
+      prisma,
+      {} as any,
+    ).persistVerifiedExperience({
+      ...input,
+      evidence: [],
+      traitDefinitionIds: ['trait-a', 'trait-a', 'trait-b'],
+    });
+
+    expect(tx.experienceTrait.createMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: [
+          { experienceId: 'exp-same', traitDefinitionId: 'trait-a' },
+          { experienceId: 'exp-same', traitDefinitionId: 'trait-b' },
+        ],
+        skipDuplicates: true,
+      }),
+    );
   });
 
   it('returns AMBIGUOUS for same-name Experiences with conflicting structure', async () => {

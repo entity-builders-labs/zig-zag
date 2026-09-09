@@ -455,26 +455,80 @@ export class ExperienceCatalogService {
    * taxonomy is defined for the discovery prompt to emit instead.
    */
   async resolveOrCreateTraitDefinitions(traits: string[]): Promise<string[]> {
-    const normalized = Array.from(
-      new Set(
-        traits
-          .map((trait) => trait.trim())
-          .filter((trait): trait is string => trait.length > 0),
-      ),
-    );
-    if (normalized.length === 0) return [];
+    // Deduplicate by the *persistence identity* (`dimension='general'`,
+    // `key=lowercased trimmed string`), not by the raw string — otherwise
+    // "Historia" / " historia " / "HISTORIA" each survive the Set and then
+    // upsert the same `(general, historia)` row three times, returning a
+    // non-unique id list. The label keeps the first non-empty trimmed value
+    // for a stable, deterministic result.
+    const byIdentity = new Map<
+      string,
+      { dimension: string; key: string; label: string }
+    >();
+    for (const raw of traits ?? []) {
+      const label = typeof raw === 'string' ? raw.trim() : '';
+      if (!label) continue;
+      const dimension = 'general';
+      const key = label.toLowerCase();
+      const compound = `${dimension}:${key}`;
+      if (!byIdentity.has(compound)) {
+        byIdentity.set(compound, { dimension, key, label });
+      }
+    }
+    if (byIdentity.size === 0) return [];
 
     const ids: string[] = [];
-    for (const trait of normalized) {
-      const key = trait.toLowerCase();
-      const definition = await this.prisma.traitDefinition.upsert({
-        where: { dimension_key: { dimension: 'general', key } },
-        update: {},
-        create: { dimension: 'general', key, label: trait },
-      });
-      ids.push(definition.id);
+    for (const { dimension, key, label } of byIdentity.values()) {
+      ids.push(await this.resolveOneTraitDefinition(dimension, key, label));
     }
-    return ids;
+    // One upsert per unique `(dimension, key)` -> ids are already unique;
+    // this only makes the invariant explicit.
+    return Array.from(new Set(ids));
+  }
+
+  /**
+   * Find-or-create one `TraitDefinition`, concurrency-safe. Two accepted
+   * candidates resolved in parallel by `ExperienceProposalResolverService`
+   * (`Promise.all`) can both see "row absent" and race to create the same
+   * `(dimension, key)` — verified in production as a Prisma `P2002` /
+   * PostgreSQL `23505` on `@@unique([dimension, key])` that crashed
+   * generation. Recover the winning row the same way `upsertGeoEntity` does
+   * for its own identity race; every other error rethrows, and a recovered
+   * race is `debug`-only noise, never a visible generation failure.
+   */
+  private async resolveOneTraitDefinition(
+    dimension: string,
+    key: string,
+    label: string,
+  ): Promise<string> {
+    try {
+      const definition = await this.prisma.traitDefinition.upsert({
+        where: { dimension_key: { dimension, key } },
+        update: {},
+        create: { dimension, key, label },
+      });
+      return definition.id;
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
+        const winner = await this.prisma.traitDefinition.findUnique({
+          where: { dimension_key: { dimension, key } },
+          select: { id: true },
+        });
+        if (!winner) {
+          // A P2002 with no readable winner is a real inconsistency, not a
+          // recoverable race — do not silence it.
+          throw error;
+        }
+        this.logger.debug(
+          `TraitDefinition ${dimension}:${key} lost a concurrent create race; recovered the winning row ${winner.id}`,
+        );
+        return winner.id;
+      }
+      throw error;
+    }
   }
 
   async upsertGeoEntity(input: GeoEntityInput) {
@@ -658,6 +712,15 @@ export class ExperienceCatalogService {
       throw new Error('A verified Experience requires at least one component');
     }
 
+    // `ExperienceTrait` has a composite PK `@@id([experienceId, traitDefinitionId])`.
+    // The NEW-experience path below writes traits via a nested `create` with
+    // no `skipDuplicates`, so a repeated id in the input would hit the PK.
+    // Deduplicate once here and use this collection on every path (defense in
+    // depth — never rely on `skipDuplicates` alone).
+    const traitDefinitionIds = Array.from(
+      new Set(input.traitDefinitionIds ?? []),
+    );
+
     return this.prisma.$transaction(async (tx) => {
       const normalizedName = input.canonicalName.trim().toLocaleLowerCase();
       const componentIds = [
@@ -767,9 +830,9 @@ export class ExperienceCatalogService {
           });
         }
 
-        if (input.traitDefinitionIds?.length) {
+        if (traitDefinitionIds.length) {
           await tx.experienceTrait.createMany({
-            data: input.traitDefinitionIds.map((traitDefinitionId) => ({
+            data: traitDefinitionIds.map((traitDefinitionId) => ({
               experienceId: same.id,
               traitDefinitionId,
             })),
@@ -841,9 +904,9 @@ export class ExperienceCatalogService {
           evidence: input.evidence?.length
             ? { create: input.evidence }
             : undefined,
-          traits: input.traitDefinitionIds?.length
+          traits: traitDefinitionIds.length
             ? {
-                create: input.traitDefinitionIds.map((traitDefinitionId) => ({
+                create: traitDefinitionIds.map((traitDefinitionId) => ({
                   traitDefinitionId,
                 })),
               }
