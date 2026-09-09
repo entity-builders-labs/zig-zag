@@ -340,12 +340,27 @@ export class StructuredCandidateCorroborationService {
       }
     }
 
-    // Synthesize candidates from clusters
+    // Synthesize candidates from clusters. A cluster whose every observation is
+    // `standaloneEligible === false` — a generic operational venue (a plain
+    // café / bar / restaurant, admitted only because the plan requested that
+    // commercial type) that did NOT corroborate with any stronger tourism
+    // evidence — is dropped: it may enrich a real Experience but never
+    // originate one.
     const candidates: ExperienceCandidate[] = [];
     const groups: CorroborationGroupTrace[] = [];
 
     for (let i = 0; i < clusters.length; i++) {
       const cluster = clusters[i];
+      const onlyEnrichmentEligible =
+        cluster.length > 0 &&
+        cluster.every((proposal) =>
+          proposal.observations.every(
+            (obs) => obs.standaloneEligible === false,
+          ),
+        );
+      if (onlyEnrichmentEligible) {
+        continue;
+      }
       const mergedCandidate = this.synthesizeMergedCandidate(cluster);
       candidates.push(mergedCandidate);
 

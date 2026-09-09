@@ -477,6 +477,38 @@ describe('GooglePlacesAcquisitionProvider', () => {
       expect(result.status).toBe('success');
       expect(result.value).toHaveLength(1);
       expect(result.value[0].externalId).toBe('starbucks-1');
+      // Admitted for corroboration only — a bare café can enrich a real
+      // Experience but must never originate one.
+      expect(result.value[0].standaloneEligible).toBe(false);
+    });
+
+    it('B2. a café that also carries a safe tourism type stays standalone-eligible', async () => {
+      placesApiMock.searchNearby.mockResolvedValueOnce({
+        data: [
+          {
+            id: 'cafe-museo-1',
+            displayName: { text: 'Café del Museo' },
+            formattedAddress: 'x',
+            primaryType: 'cafe',
+            types: ['cafe', 'tourist_attraction', 'point_of_interest'],
+            location: { latitude: -34.6, longitude: -58.38 },
+          },
+        ],
+        provenance: {
+          provider: 'google',
+          cacheStatus: 'miss-live',
+          requestedCount: 1,
+          receivedCount: 1,
+        },
+      });
+
+      const result = await provider.acquire(
+        { latitude: -34.6, longitude: -58.38, radiusMeters: 5000 },
+        { searchTypes: ['cafe'] },
+      );
+
+      expect(result.value).toHaveLength(1);
+      expect(result.value[0].standaloneEligible).toBe(true);
     });
 
     it('C. generic refill still admits safe generic tourism types (museum, park, tourist_attraction)', async () => {

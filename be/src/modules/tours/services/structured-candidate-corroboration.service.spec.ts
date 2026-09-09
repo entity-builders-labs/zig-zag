@@ -1197,4 +1197,78 @@ describe('StructuredCandidateCorroborationService', () => {
       expect(mergeResult.candidates).toHaveLength(2);
     });
   });
+
+  describe('standalone eligibility (generic operational venue admission)', () => {
+    const genericCafeProposal: StructuredCandidateProposal = {
+      candidate: {
+        name: 'Generic Café',
+        themes: [],
+        traits: [],
+        intents: [],
+        componentHints: [
+          {
+            key: 'google_places:cafe-1:component',
+            name: 'Generic Café',
+            role: 'venue',
+            expectedKind: 'PLACE',
+            required: true,
+            evidenceKeys: ['google_places:cafe-1'],
+          },
+        ],
+        evidenceKeys: ['google_places:cafe-1'],
+        shortReason: 'Structured observation from google_places: Generic Café',
+      },
+      observations: [
+        {
+          provider: 'google_places',
+          externalId: 'cafe-1',
+          title: 'Generic Café',
+          evidenceType: 'place',
+          evidenceKey: 'google_places:cafe-1',
+          standaloneEligible: false,
+          geo: { latitude: -34.6, longitude: -58.38 },
+        },
+      ],
+    };
+
+    it('drops a cluster made only of standalone-ineligible observations', () => {
+      const result = service.corroborateAndMerge([genericCafeProposal]);
+      expect(result.candidates).toHaveLength(0);
+    });
+
+    it('keeps a standalone-ineligible observation when it corroborates real tourism evidence', () => {
+      const wikivoyageEat: StructuredCandidateProposal = {
+        name: 'Generic Café',
+        // reuse the same candidate shape but from Wikivoyage EAT evidence
+      } as unknown as StructuredCandidateProposal;
+      Object.assign(wikivoyageEat, {
+        candidate: {
+          ...genericCafeProposal.candidate,
+          evidenceKeys: ['wikivoyage:Palermo:eat:eat:Generic_Cafe:1'],
+          componentHints: [
+            {
+              ...genericCafeProposal.candidate.componentHints[0],
+              key: 'wikivoyage:Palermo:eat:eat:Generic_Cafe:1:component',
+              evidenceKeys: ['wikivoyage:Palermo:eat:eat:Generic_Cafe:1'],
+            },
+          ],
+        },
+        observations: [
+          {
+            provider: 'wikivoyage',
+            title: 'Generic Café',
+            evidenceType: 'place',
+            evidenceKey: 'wikivoyage:Palermo:eat:eat:Generic_Cafe:1',
+            geo: { latitude: -34.6, longitude: -58.38 },
+          },
+        ],
+      });
+
+      const result = service.corroborateAndMerge([
+        genericCafeProposal,
+        wikivoyageEat,
+      ]);
+      expect(result.candidates).toHaveLength(1);
+    });
+  });
 });

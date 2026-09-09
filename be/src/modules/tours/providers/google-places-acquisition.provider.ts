@@ -195,6 +195,20 @@ export class GooglePlacesAcquisitionProvider {
         }
 
         const geo = this.validateCoordinates(place.location);
+        const rawTypes = [place.primaryType, ...(place.types ?? [])].filter(
+          (t): t is string => typeof t === 'string' && t.trim().length > 0,
+        );
+        // A place admitted ONLY because a contextual commercial type matched
+        // the plan's request (no safe tourism type present) is enrichment-only:
+        // it may corroborate a real tourism Experience but must not originate
+        // one. Type semantics only — never ratings or names.
+        const hasTourismType = rawTypes.some((t) =>
+          SAFE_GENERIC_TOURISM_TYPES.has(t),
+        );
+        const hasContextualType = rawTypes.some((t) =>
+          CONTEXTUAL_GOOGLE_PLACES_TYPES.has(t),
+        );
+        const standaloneEligible = hasTourismType || !hasContextualType;
 
         observations.push({
           provider: 'google_places',
@@ -204,6 +218,7 @@ export class GooglePlacesAcquisitionProvider {
           title: place.displayName?.text ?? place.name ?? placeId,
           description: place.formattedAddress,
           geo,
+          standaloneEligible,
           metadata: {
             rating: place.rating,
             userRatingCount: place.userRatingCount,

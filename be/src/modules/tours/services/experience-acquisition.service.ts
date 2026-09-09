@@ -235,7 +235,13 @@ export class ExperienceAcquisitionService {
       const mergeResult = this.corroborationService
         ? this.corroborationService.corroborateAndMerge(proposals)
         : {
-            candidates: proposals.map((p) => p.candidate),
+            // No corroborator wired: a standalone-ineligible observation (a
+            // generic operational venue) still must not originate a candidate.
+            candidates: proposals
+              .filter((p) =>
+                p.observations.some((obs) => obs.standaloneEligible !== false),
+              )
+              .map((p) => p.candidate),
             groups: [] as CorroborationGroupTrace[],
             pairDecisions: [] as CorroborationPairTrace[],
           };
