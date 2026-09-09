@@ -5,29 +5,29 @@ Canonical design: `docs/superpowers/specs/2026-09-06-multi-source-acquisition-de
 # Current State
 
 - Branch: `feat/experience-domain-v2`
-- Current milestone: Phase 5 — OSM proactive acquisition (HARDENED, CLOSED)
-- Verified Phase 5 hardening code commit: `f24f6f4efff270f3a08d4616f1628b619c7f1302`
+- Current milestone: Phase 6 — Tavily walk-query theme-awareness + `exploration_style` facet (VERIFIED)
+- Verified Phase 6 code commits: `2d023e110119bff4fb42fbe675865d6b38c041a3` (Tavily theme-aware),
+  `37ad22873d1045a61a8144962205975f6c360a75` (`exploration_style` → ranking facet)
+- Previous Phase 5 hardening code commit: `f24f6f4efff270f3a08d4616f1628b619c7f1302`
 - Previous Phase 5 code commit: `54eceebbec90a1662f32b44385364d091b3be55e`
 - Previous Phase 4 final-verification code commit: `28c550936bdfec853fea3fe9353efc11cc30bdb5`
 - Previous Phase 4 hardening code commit: `0321576b4f335a26039943ec3668a7390ce05139`
 - Previous Phase 4 initial code commit: `a42aa3f453973f09491a3ab5603cc9146763286a`
 - Previous Phase 3 code commit: `8415df6d2e6fdd32ee4a04a3d729f3d5ea93dc24`
-- Last verified test state: backend Jest `119/119` suites and `920/920` tests passing
-  (+16 in the Phase 5 hardening pass, zero regressions vs the prior 904).
-- Targeted OSM/acquisition suites: `8/8` suites, `146/146` tests passing
-  (`overpass-query.util.spec.ts`, `overpass-api.service.spec.ts`, `cached-overpass-api.service.spec.ts`,
-  `osm-places.service.spec.ts`, `osm-acquisition-concepts.spec.ts`, `osm-acquisition.provider.spec.ts`,
-  `experience-acquisition.service.spec.ts`, `structured-candidate-corroboration.service.spec.ts`).
-- Phase 4 no-regression suites: `4/4` suites, `80/80` tests passing
-  (`google-places-acquisition.provider.spec.ts`, `experience-catalog.service.spec.ts`,
-  `experience-acquisition.service.spec.ts`, `structured-candidate-corroboration.service.spec.ts`).
+- Last verified test state: backend Jest `119/119` suites and `928/928` tests passing
+  (+8 in Phase 6, zero regressions vs the prior 920).
+- Targeted Phase 6 suites: `8/8` suites, `92/92` tests passing
+  (`tavily-grounded-search.service.spec.ts`, `preference-facet-vocabulary.spec.ts`,
+  `preference-facet-merge.util.spec.ts`, `preference-facet-matching.util.spec.ts`,
+  `experience-preference-evaluator.util.spec.ts`, `preference-interpreter.service.spec.ts`,
+  `hard-soft-preference-contract.spec.ts`, `experience-acquisition-planner.service.spec.ts`).
 - Linting: `yarn lint:check` is 100% clean (0 errors, 0 warnings across `{src,apps,libs,test}/**/*.ts`).
 - Build: `yarn build` (`nest build`) is 100% clean.
 - `yarn run check` (typecheck + lint:check): still fails **only** on the same 7 pre-existing baseline
   `tsc` errors under `be/test/acceptance/**` and `test/acceptance/unit/completeness-validator.spec.ts`
   (`PlanningExperienceCandidate.startFootprint/endFootprint`, `TourCompletenessIssue.dayNumber` —
   PR10 daily-planning drift, unrelated to acquisition). **check baseline errors: 7 · final errors: 7 ·
-  new errors from this hardening: 0.** `src/**` typechecks clean.
+  new errors from Phase 6: 0.** `src/**` typechecks clean.
 - **OSM proactive acquisition is implemented and verified through
   `ExperienceAcquisitionService.executePlan`, but live tour-generation orchestration remains
   intentionally deferred to Phase 7.**
@@ -515,18 +515,68 @@ wiring, no Phase 6/7 work. Previous Phase 5 code: `54eceeb…`.
   validation, dedupe, catalog persistence, ranking, planner, tour materialization, Tavily,
   `exploration_style`, preference interpretation, `acquisition-source-routing.ts`. No
   `OsmCandidate → Experience` persistence, no OSM-specific synthesizer, no OSM quality
-  scoring. **Phase 6 not started. Phase 7 not started.**
+  scoring. (Phase 6 — the OSM hardening pass did not touch it — is the subsection below.)
 - **Tests**: +16 (deterministic order ×2, geo validation ×6, malformed-identity ×2 in
   `osm-places.service.spec.ts`, `rawResultCount` cases, food/nightlife-unsupported ×5,
   `shop=wine`≠winery, structured-provenance fields, provenance-survives-`executePlan`).
 
+### Phase 6: Tavily theme-awareness + `exploration_style` facet (`2d023e1`, `37ad228`)
+Two independent web/exploration fixes; no acquisition-orchestration change, no live
+tour-generation wiring, no Phase 7 work.
+
+- **Tavily walk/route query is theme-aware** (`tavily-grounded-search.service.ts`,
+  commit `2d023e1`): `buildWalkQuery` now folds the first two `request.requestedThemes`
+  into the phrase — `10 caminatas históricas y arquitectónicas icónicas en {destino}` /
+  `10 iconic history and architecture walking routes in {destino}` — one query per
+  request (no theme explosion), both language branches, the `icónicas`/`iconic`
+  disambiguator kept. No themes → the exact legacy phrase unchanged. A small local
+  canonical-key → Spanish-adjective table; an unmapped key falls through as-is.
+  `isWalkOrRouteRequest` / walk↔route_like bucketing unchanged (route_like not made
+  distinct). No interface / schema / other-provider change.
+- **`exploration_style` activated as a ranking facet** (commit `37ad228`):
+  - Vocabulary: `INITIAL_DIMENSION_VOCABULARY['exploration_style']` fixed to the real
+    `ExplorationStyle` enum poles `['iconic', 'local_deep_dive']` (the Phase-2
+    speculative `relaxed/balanced/intensive` keys were wrong — that pace axis is
+    `TravelPace`). `BALANCED` is deliberately absent → no facet, no ranking pressure.
+    `canonicalizeFacetKey`'s dormant early-return removed; `iconic`/`local_deep_dive`
+    canonicalize, everything else (`balanced`, `relaxed`, unknown) → `undefined`.
+  - Wizard merge point (`experience-generation.service.ts` `mergeStructuredPreferences`):
+    `normalizeWizardFacet('exploration_style', request.intent.explorationStyle)` is added
+    to the wizard facets (`source:'wizard'`, importance/confidence 1.0); `BALANCED` →
+    `undefined`, dropped. Single point where the structured field reaches
+    `NormalizedPreferenceIntent`.
+  - Matching (`preference-facet-matching.util.ts`): an `exploration_style` branch matched
+    against the **same explicit dimensioned evidence** a candidate already carries —
+    `iconic` → `tourism_intensity: iconic | popular`; `local_deep_dive` →
+    `tourism_intensity: hidden | local` **or** `local_character: authentic`. Only
+    `dimensionedTraits` / `metadata.preferenceFacets` / `metadata.facets` /
+    `metadata.dimensions` — **never** name / description / duration / component count.
+    Soft ranking, never an exclusion. The 3×-inlined dimensioned-evidence reader is
+    extracted into a shared `hasExplicitDimensionedEvidence` helper (behaviour-preserving
+    for the existing structured dimensions).
+  - **Unchanged guards** (verified, kept dormant): the LLM interpreter still cannot emit
+    `exploration_style` (prompt + drop-guard in `preference-interpreter.service.ts`);
+    `experience-acquisition-planner.service.ts` and `acquisition-source-routing.ts` still
+    ignore it, so it never triggers acquisition, never shrinks the pool, and never shapes
+    a search query. No schema change.
+- **Tests**: +8 across the two commits (Tavily themed phrase ES/EN + route_like + no-themes
+  fallback + unmapped-key survives + two-theme cap; `exploration_style` canonicalization
+  `iconic`/`local_deep_dive`/`balanced`; wizard-facet normalization + merge; matcher
+  positive/negative + cross-dimension isolation + no name/description/duration inference;
+  evaluator participation).
+- **Not touched**: `experience-generation.service.ts` acquisition orchestration,
+  `buildAcquisitionPlan`/`executePlan` wiring, `semantic-tour-query-builder.util.ts`,
+  `prompt-builder.util.ts` (deprecated `/tours/nearby`), `CoverageAnalyzer`'s dead
+  `explorationStyle?` param, Gemini/Groq/SerpApi providers, `ExperienceCandidate` shape,
+  schema, resolver/validation/dedupe/solver/planner, `feat/agentic-travel-planning`.
+  **Phase 7 not started.**
+
 # In Progress
 
-None. Phase 5 OSM proactive acquisition is hardened, verified, and CLOSED.
+None. Phase 6 (Tavily theme-awareness + `exploration_style` facet) is verified and CLOSED.
 
 # Not Started
 
-- Phase 6: Tavily walk-query theme-awareness + `explorationStyle` as a preference facet.
 - Phase 7: Final acquisition orchestration — wire `buildAcquisitionPlan` / `executePlan`
   (catalog → coverage deficits → acquisition plan → structured/web providers → corroboration →
   resolver → refill/requery → ranking → planner → materialization) into
@@ -545,7 +595,25 @@ must not be expanded to absorb that future work.
 
 # Verification
 
-Phase 5 **hardening** verified against code commit `f24f6f4efff270f3a08d4616f1628b619c7f1302`:
+Phase 6 verified against code commits `2d023e110119bff4fb42fbe675865d6b38c041a3` (Tavily
+theme-aware) and `37ad22873d1045a61a8144962205975f6c360a75` (`exploration_style` facet):
+
+- `yarn test --runInBand` (`be/`): PASS — **119** suites, **928** tests passing
+  (+8 over the prior 920, zero regressions).
+- Targeted Phase 6 suites: PASS — **92/92** across 8 suites
+  (`tavily-grounded-search.service.spec.ts`, `preference-facet-vocabulary.spec.ts`,
+  `preference-facet-merge.util.spec.ts`, `preference-facet-matching.util.spec.ts`,
+  `experience-preference-evaluator.util.spec.ts`, `preference-interpreter.service.spec.ts`
+  (LLM drop-guard intact), `hard-soft-preference-contract.spec.ts`,
+  `experience-acquisition-planner.service.spec.ts` (planner still ignores `exploration_style`)).
+- `yarn lint:check` (`be/`): PASS — 0 errors, 0 warnings.
+- `yarn build` (`be/`): PASS — `nest build` completes cleanly.
+- `yarn run check` (`be/`): FAIL — exclusively on the same 7 pre-existing baseline `tsc` errors
+  under `be/test/acceptance/**` + `test/acceptance/unit/completeness-validator.spec.ts` (PR10
+  drift, unrelated). **check baseline errors: 7 · final errors: 7 · new errors from Phase 6: 0.**
+  `src/**` typechecks clean.
+
+### Phase 5 hardening verification — code commit `f24f6f4efff270f3a08d4616f1628b619c7f1302`
 
 - `yarn test --runInBand` (`be/`): PASS — **119** suites, **920** tests passing
   (+16 over the prior 904, zero regressions).
@@ -647,12 +715,24 @@ Verified against code commit `28c550936bdfec853fea3fe9353efc11cc30bdb5`:
   - Wired into `ExperienceAcquisitionService.executePlan` only. Live tour-generation
     orchestration (`buildAcquisitionPlan` / `executePlan` from `experience-generation.service.ts`)
     is intentionally deferred to Phase 7.
+- **Web / exploration (Phase 6)**:
+  - `TavilyGroundedSearchService.buildWalkQuery` is theme-aware — the first two
+    `requestedThemes` shape the phrase, one query per request (never a theme explosion),
+    both language branches, `icónicas`/`iconic` disambiguator kept; no themes → the exact
+    legacy phrase. Scoped to Tavily only; other grounded providers untouched.
+  - `exploration_style` is a **wizard-sourced, ranking-only** `PreferenceFacet` with the
+    real `ExplorationStyle` poles `iconic` / `local_deep_dive` (`BALANCED` → no facet).
+    It is matched against the same **explicit dimensioned** `tourism_intensity` /
+    `local_character` evidence a candidate already carries — never name / description /
+    duration / component count — is soft ranking, never an exclusion, and never touches
+    acquisition, source routing, free-text interpretation, or any search query. The LLM
+    interpreter is still forbidden from emitting it.
 
 # Next Action
 
-Phase 5 (OSM proactive acquisition) is fully implemented, **hardened**, verified, and CLOSED
-at `f24f6f4efff270f3a08d4616f1628b619c7f1302` (previous Phase 5 code `54eceeb…`). Phase 6
-(Tavily walk-query theme-awareness + `explorationStyle` as a preference facet) and Phase 7
-(final live orchestration) have **NOT** started. Next action will be Phase 6 upon explicit
-user instruction.
+Phase 6 (Tavily walk-query theme-awareness + `exploration_style` ranking facet) is
+implemented, verified, and CLOSED at `2d023e1` / `37ad228`. Phase 7 (final live
+multi-source acquisition orchestration) has **NOT** started; per the convergence roadmap it
+is the prerequisite for the Integration Gate with `feat/agentic-travel-planning`. Next
+action will be Phase 7 upon explicit user instruction.
 
