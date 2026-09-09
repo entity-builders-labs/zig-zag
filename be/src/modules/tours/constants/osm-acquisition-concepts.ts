@@ -36,27 +36,12 @@ export const OSM_ACQUISITION_CONCEPTS: Record<string, OsmConceptDefinition> = {
     evidenceType: 'place',
   },
 
-  // --- food / nightlife venues (only reached when the plan explicitly routes them) ---
-  restaurant: {
-    selectors: [{ key: 'amenity', value: 'restaurant', requireName: true }],
-    evidenceType: 'place',
-  },
-  cafe: {
-    selectors: [{ key: 'amenity', value: 'cafe', requireName: true }],
-    evidenceType: 'place',
-  },
-  bar: {
-    selectors: [{ key: 'amenity', value: 'bar', requireName: true }],
-    evidenceType: 'place',
-  },
-  pub: {
-    selectors: [{ key: 'amenity', value: 'pub', requireName: true }],
-    evidenceType: 'place',
-  },
-  nightclub: {
-    selectors: [{ key: 'amenity', value: 'nightclub', requireName: true }],
-    evidenceType: 'place',
-  },
+  // NOTE: restaurant / cafe / bar / pub / nightclub are intentionally NOT
+  // here — see OSM_UNSUPPORTED_CONCEPTS. A generic food/nightlife venue is an
+  // operational itinerary stop (lunch, dinner, coffee, a drink), not a
+  // gastronomic Experience worth doing in itself. Establishing that a food
+  // venue *is* a tourism Experience is left to Wikivoyage / web / curated
+  // Places evidence, never a bare OSM `amenity` tag.
 
   // --- historic / landmark points ---
   monument: {
@@ -93,10 +78,9 @@ export const OSM_ACQUISITION_CONCEPTS: Record<string, OsmConceptDefinition> = {
 
   // --- wine ---
   winery: {
-    selectors: [
-      { key: 'craft', value: 'winery', requireName: true },
-      { key: 'shop', value: 'wine', requireName: true },
-    ],
+    // Only a genuine wine-producing facility. `shop=wine` (a vinoteca / wine
+    // shop) is deliberately NOT accepted — it is not a winery Experience.
+    selectors: [{ key: 'craft', value: 'winery', requireName: true }],
     evidenceType: 'place',
   },
   vineyard: {
@@ -153,9 +137,15 @@ export const OSM_ACQUISITION_CONCEPTS: Record<string, OsmConceptDefinition> = {
 
 /**
  * Concepts that appear in `acquisition-source-routing.ts` (`osmConcepts`) but
- * are intentionally NOT proactively acquirable via OSM: too broad to bound
- * safely, or with no defensible restricted selector. They are dropped from
- * the OSM source plan rather than turned into a generic whole-radius query.
+ * are intentionally NOT proactively acquirable as Experiences via OSM:
+ *  - too broad to bound safely / no defensible restricted selector
+ *    (`building`, `tourism`, `route`, `scenic`, `waterway`, `coastline`,
+ *    `river`, `desert`); OR
+ *  - a generic food/nightlife venue that is an operational stop, not a
+ *    gastronomic Experience in itself (`restaurant`, `cafe`, `bar`, `pub`,
+ *    `nightclub`) — curated Wikivoyage/web/Places evidence, not a bare OSM
+ *    tag, must establish that a food venue is a tourism Experience.
+ * They are dropped from the OSM source plan rather than turned into a query.
  */
 export const OSM_UNSUPPORTED_CONCEPTS: ReadonlySet<string> = new Set([
   'building',
@@ -166,6 +156,11 @@ export const OSM_UNSUPPORTED_CONCEPTS: ReadonlySet<string> = new Set([
   'coastline',
   'river',
   'desert',
+  'restaurant',
+  'cafe',
+  'bar',
+  'pub',
+  'nightclub',
 ]);
 
 function uniqueSorted(values: string[]): string[] {
@@ -176,8 +171,11 @@ function uniqueSorted(values: string[]): string[] {
  * Splits requested concepts into supported (with a registry definition) and
  * unsupported (explicitly listed, or simply unknown), and flattens the
  * supported concepts' selectors into a single list for one union query.
+ * `requested` is the normalized (trimmed, non-empty, deduped, sorted) input,
+ * surfaced so callers/provenance need not recompute it.
  */
 export function resolveOsmConcepts(concepts: string[]): {
+  requested: string[];
   selectors: OverpassSelector[];
   supported: string[];
   unsupported: string[];
@@ -198,5 +196,5 @@ export function resolveOsmConcepts(concepts: string[]): {
     (concept) => OSM_ACQUISITION_CONCEPTS[concept].selectors,
   );
 
-  return { selectors, supported, unsupported };
+  return { requested, selectors, supported, unsupported };
 }

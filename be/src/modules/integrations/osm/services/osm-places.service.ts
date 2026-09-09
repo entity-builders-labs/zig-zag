@@ -31,6 +31,31 @@ export interface OsmLookupResult<T> {
   failureReason?: string;
 }
 
+// Narrow result for proactive feature discovery only (keeps the shared
+// OsmLookupResult untouched). `rawResultCount` is the raw OverpassElement
+// count before adapter filtering (name/identity/geometry), so downstream
+// provenance can report discovery yield vs. usable candidates.
+export interface OsmFeatureLookupResult
+  extends OsmLookupResult<OsmCandidate[]> {
+  rawResultCount: number;
+}
+
+const OSM_ELEMENT_TYPES: ReadonlySet<string> = new Set([
+  'node',
+  'way',
+  'relation',
+]);
+
+function isValidOsmIdentity(type: unknown, id: unknown): boolean {
+  return (
+    typeof type === 'string' &&
+    OSM_ELEMENT_TYPES.has(type) &&
+    typeof id === 'number' &&
+    Number.isInteger(id) &&
+    id > 0
+  );
+}
+
 // OSM's admin_level varies a lot by country, but 8-11 is the plausible
 // range for a city/neighborhood-level boundary in most tagging schemes.
 // When queryContainingBoundary returns multiple candidates for the same
@@ -85,6 +110,13 @@ export class OsmPlacesService {
   }
 
   private toCandidate(element: OverpassElement): OsmCandidate | null {
+    // Defensive identity check at the OverpassElement -> OsmCandidate seam: a
+    // malformed external payload must never mint an identity like
+    // `osm:node:undefined`, `osm:way:NaN`, `osm:foo:123` or `osm:relation:-1`.
+    // Skip the bad sibling; never throw, never fail the whole lookup, never
+    // synthesise identity from name/coordinates.
+    if (!isValidOsmIdentity(element?.type, element?.id)) return null;
+
     const geometry = overpassElementToGeoJson(element);
     if (!geometry) return null;
 
@@ -229,9 +261,9 @@ export class OsmPlacesService {
     longitude: number,
     radiusMeters: number,
     selectors: OverpassSelector[],
-  ): Promise<OsmLookupResult<OsmCandidate[]>> {
+  ): Promise<OsmFeatureLookupResult> {
     if (!selectors || selectors.length === 0) {
-      return { status: 'success', value: [] };
+      return { status: 'success', value: [], rawResultCount: 0 };
     }
     const cappedRadiusMeters = Math.min(
       radiusMeters,
@@ -249,6 +281,7 @@ export class OsmPlacesService {
         value: elements
           .map((el) => this.toCandidate(el))
           .filter((c): c is OsmCandidate => c !== null),
+        rawResultCount: elements.length,
       };
     } catch (error: any) {
       this.logger.warn(
@@ -258,6 +291,7 @@ export class OsmPlacesService {
         status: 'failed',
         value: [],
         failureReason: error.message || 'unknown Overpass error',
+        rawResultCount: 0,
       };
     }
   }

@@ -34,4 +34,11 @@ export interface AcquisitionProviderResult<T> {
   status: 'success' | 'failed';
   value: T[];
   failureReason?: string;
+  /**
+   * Optional, provider-neutral structured provenance for trace / Bitácora
+   * reconstruction (counts, resolved concepts, effective request scope, …).
+   * Never raw provider payloads, secrets, or preference semantics. Currently
+   * populated by the OSM acquisition provider; other providers may omit it.
+   */
+  provenance?: Record<string, unknown>;
 }

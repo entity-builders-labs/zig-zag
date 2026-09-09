@@ -27,16 +27,20 @@ describe('OsmAcquisitionProvider', () => {
     tags: over.tags ?? {},
   });
 
+  // Mirror OsmPlacesService.lookupFeaturesNear's OsmFeatureLookupResult shape.
+  const okLookup = (value: OsmCandidate[], rawResultCount = value.length) => ({
+    status: 'success' as const,
+    value,
+    rawResultCount,
+  });
+
   beforeEach(() => {
     osmPlaces = { lookupFeaturesNear: jest.fn() };
     provider = new OsmAcquisitionProvider(osmPlaces as any);
   });
 
   it('resolves concepts through the registry into one lookupFeaturesNear call with structured selectors', async () => {
-    osmPlaces.lookupFeaturesNear.mockResolvedValue({
-      status: 'success',
-      value: [],
-    });
+    osmPlaces.lookupFeaturesNear.mockResolvedValue(okLookup([]));
 
     await provider.acquire(destination, { concepts: ['museum', 'park'] });
 
@@ -58,7 +62,18 @@ describe('OsmAcquisitionProvider', () => {
     });
 
     expect(osmPlaces.lookupFeaturesNear).not.toHaveBeenCalled();
-    expect(result).toEqual({ status: 'success', value: [] });
+    expect(result.status).toBe('success');
+    expect(result.value).toEqual([]);
+    expect(result.provenance).toMatchObject({
+      requestedConcepts: ['building', 'route', 'tourism'],
+      supportedConcepts: [],
+      unsupportedConcepts: ['building', 'route', 'tourism'],
+      rawResultCount: 0,
+      candidateCount: 0,
+      observationCount: 0,
+      dedupedCount: 0,
+      evidenceKeys: [],
+    });
   });
 
   it('does not call Overpass when the destination has no usable coordinates', async () => {
@@ -68,13 +83,19 @@ describe('OsmAcquisitionProvider', () => {
     );
 
     expect(osmPlaces.lookupFeaturesNear).not.toHaveBeenCalled();
-    expect(result).toEqual({ status: 'success', value: [] });
+    expect(result.status).toBe('success');
+    expect(result.value).toEqual([]);
+    expect(result.provenance).toMatchObject({
+      supportedConcepts: ['museum'],
+      unsupportedConcepts: [],
+      rawResultCount: 0,
+      observationCount: 0,
+    });
   });
 
   it('maps candidates to provider-neutral SourceObservations with osm identity and no semantic inference', async () => {
-    osmPlaces.lookupFeaturesNear.mockResolvedValue({
-      status: 'success',
-      value: [
+    osmPlaces.lookupFeaturesNear.mockResolvedValue(
+      okLookup([
         candidate({
           id: 'osm:node:1',
           osmType: 'node',
@@ -86,8 +107,8 @@ describe('OsmAcquisitionProvider', () => {
             description: 'Casa colonial',
           },
         }),
-      ],
-    });
+      ]),
+    );
 
     const result = await provider.acquire(destination, {
       concepts: ['museum'],
@@ -120,9 +141,8 @@ describe('OsmAcquisitionProvider', () => {
   });
 
   it('classifies evidenceType from selector semantics, not OSM element type', async () => {
-    osmPlaces.lookupFeaturesNear.mockResolvedValue({
-      status: 'success',
-      value: [
+    osmPlaces.lookupFeaturesNear.mockResolvedValue(
+      okLookup([
         candidate({
           id: 'osm:way:10',
           osmType: 'way',
@@ -144,8 +164,8 @@ describe('OsmAcquisitionProvider', () => {
           name: 'Sendero de los Cerros',
           tags: { name: 'Sendero de los Cerros', route: 'hiking' },
         }),
-      ],
-    });
+      ]),
+    );
 
     const result = await provider.acquire(destination, {
       concepts: ['park', 'hiking'],
@@ -160,9 +180,8 @@ describe('OsmAcquisitionProvider', () => {
   });
 
   it('emits one observation per OSM element even when several concepts match it', async () => {
-    osmPlaces.lookupFeaturesNear.mockResolvedValue({
-      status: 'success',
-      value: [
+    osmPlaces.lookupFeaturesNear.mockResolvedValue(
+      okLookup([
         candidate({
           id: 'osm:node:20',
           osmType: 'node',
@@ -174,8 +193,8 @@ describe('OsmAcquisitionProvider', () => {
             tourism: 'viewpoint',
           },
         }),
-      ],
-    });
+      ]),
+    );
 
     const result = await provider.acquire(destination, {
       concepts: ['monument', 'historic', 'viewpoint'],
@@ -194,34 +213,240 @@ describe('OsmAcquisitionProvider', () => {
       status: 'failed',
       value: [],
       failureReason: 'overpass 504',
+      rawResultCount: 0,
     });
 
     const result = await provider.acquire(destination, {
       concepts: ['museum'],
     });
 
-    expect(result).toEqual({
-      status: 'failed',
-      value: [],
-      failureReason: 'overpass 504',
+    expect(result.status).toBe('failed');
+    expect(result.value).toEqual([]);
+    expect(result.failureReason).toBe('overpass 504');
+    // Failure stays observable: concept resolution is still reported.
+    expect(result.provenance).toMatchObject({
+      requestedConcepts: ['museum'],
+      supportedConcepts: ['museum'],
+      unsupportedConcepts: [],
+      rawResultCount: 0,
+      observationCount: 0,
     });
   });
 
   it('treats a successful empty Overpass response as a clean empty acquisition', async () => {
-    osmPlaces.lookupFeaturesNear.mockResolvedValue({
-      status: 'success',
-      value: [],
-    });
+    osmPlaces.lookupFeaturesNear.mockResolvedValue(okLookup([], 0));
 
     const result = await provider.acquire(destination, {
       concepts: ['museum'],
     });
 
-    expect(result).toEqual({ status: 'success', value: [] });
+    expect(result.status).toBe('success');
+    expect(result.value).toEqual([]);
+    expect(result.provenance).toMatchObject({
+      rawResultCount: 0,
+      candidateCount: 0,
+      observationCount: 0,
+    });
   });
 
   it('has no persistence dependencies (constructed with only OsmPlacesService)', () => {
     // A regression guard: the provider must never gain a Prisma / catalog dep.
     expect(OsmAcquisitionProvider.length).toBe(1);
+  });
+
+  describe('deterministic output order', () => {
+    const elements = [
+      candidate({
+        id: 'osm:node:1',
+        osmType: 'node',
+        osmId: 1,
+        name: 'A',
+        tags: { name: 'A', tourism: 'museum' },
+      }),
+      candidate({
+        id: 'osm:node:2',
+        osmType: 'node',
+        osmId: 2,
+        name: 'B',
+        tags: { name: 'B', tourism: 'museum' },
+      }),
+      candidate({
+        id: 'osm:node:3',
+        osmType: 'node',
+        osmId: 3,
+        name: 'C',
+        tags: { name: 'C', leisure: 'park' },
+      }),
+    ];
+
+    it('is independent of Overpass response order (forward vs reversed) and sorted by evidenceKey', async () => {
+      osmPlaces.lookupFeaturesNear.mockResolvedValueOnce(okLookup(elements));
+      const forward = await provider.acquire(destination, {
+        concepts: ['museum', 'park'],
+      });
+
+      osmPlaces.lookupFeaturesNear.mockResolvedValueOnce(
+        okLookup([...elements].reverse()),
+      );
+      const reversed = await provider.acquire(destination, {
+        concepts: ['museum', 'park'],
+      });
+
+      expect(forward).toEqual(reversed);
+      expect(forward.value.map((o) => o.evidenceKey)).toEqual([
+        'osm:node:1',
+        'osm:node:2',
+        'osm:node:3',
+      ]);
+    });
+
+    it('is independent of concept input order', async () => {
+      osmPlaces.lookupFeaturesNear.mockResolvedValue(okLookup(elements));
+
+      const a = await provider.acquire(destination, {
+        concepts: ['park', 'museum'],
+      });
+      const b = await provider.acquire(destination, {
+        concepts: ['museum', 'park'],
+      });
+
+      expect(a).toEqual(b);
+      const [, , , selectorsA] = osmPlaces.lookupFeaturesNear.mock.calls[0];
+      const [, , , selectorsB] = osmPlaces.lookupFeaturesNear.mock.calls[1];
+      expect(selectorsA).toEqual(selectorsB);
+    });
+  });
+
+  describe('defensive geo validation', () => {
+    const withGeometry = (geometry: any) =>
+      candidate({
+        id: 'osm:node:9',
+        osmType: 'node',
+        osmId: 9,
+        name: 'Weird Place',
+        tags: { name: 'Weird Place', tourism: 'museum' },
+        geometry,
+      });
+
+    it('emits a valid geo for a valid Point', async () => {
+      osmPlaces.lookupFeaturesNear.mockResolvedValue(
+        okLookup([
+          withGeometry({ type: 'Point', coordinates: [-58.38, -34.6] }),
+        ]),
+      );
+      const result = await provider.acquire(destination, {
+        concepts: ['museum'],
+      });
+      expect(result.value[0].geo).toEqual({
+        latitude: -34.6,
+        longitude: -58.38,
+      });
+    });
+
+    it.each([
+      ['NaN coordinates', { type: 'Point', coordinates: [NaN, NaN] }],
+      ['Infinity coordinates', { type: 'Point', coordinates: [Infinity, 0] }],
+      ['latitude > 90', { type: 'Point', coordinates: [10, 91] }],
+      ['longitude > 180', { type: 'Point', coordinates: [181, 10] }],
+      ['empty LineString', { type: 'LineString', coordinates: [] }],
+    ])(
+      'omits geo for %s but still emits the observation',
+      async (_label, geometry) => {
+        osmPlaces.lookupFeaturesNear.mockResolvedValue(
+          okLookup([withGeometry(geometry)]),
+        );
+        const result = await provider.acquire(destination, {
+          concepts: ['museum'],
+        });
+
+        expect(result.value).toHaveLength(1);
+        expect(result.value[0].geo).toBeUndefined();
+        expect(result.value[0].externalId).toBe('osm:node:9');
+        expect(result.value[0].title).toBe('Weird Place');
+      },
+    );
+  });
+
+  describe('winery semantics', () => {
+    it('matches craft=winery but NOT shop=wine (a wine shop is not a winery)', async () => {
+      osmPlaces.lookupFeaturesNear.mockResolvedValue(
+        okLookup([
+          candidate({
+            id: 'osm:way:1',
+            osmType: 'way',
+            osmId: 1,
+            name: 'Bodega Real',
+            tags: { name: 'Bodega Real', craft: 'winery' },
+          }),
+          candidate({
+            id: 'osm:node:2',
+            osmType: 'node',
+            osmId: 2,
+            name: 'Vinoteca del Centro',
+            tags: { name: 'Vinoteca del Centro', shop: 'wine' },
+          }),
+        ]),
+      );
+
+      const result = await provider.acquire(destination, {
+        concepts: ['winery'],
+      });
+
+      expect(result.value.map((o) => o.externalId)).toEqual(['osm:way:1']);
+      expect(result.value[0].metadata!.matchedConcepts).toEqual(['winery']);
+    });
+  });
+
+  describe('structured provenance', () => {
+    it('reports raw / candidate / observation / deduped counts and evidenceKeys', async () => {
+      // Two raw candidates for the SAME element (union matched it twice) + one
+      // distinct element. lookup already filtered nameless/invalid, so
+      // candidateCount = 3, observationCount = 2, dedupedCount = 1.
+      osmPlaces.lookupFeaturesNear.mockResolvedValue(
+        okLookup(
+          [
+            candidate({
+              id: 'osm:node:1',
+              osmType: 'node',
+              osmId: 1,
+              name: 'Museo',
+              tags: { name: 'Museo', tourism: 'museum', historic: 'monument' },
+            }),
+            candidate({
+              id: 'osm:node:1',
+              osmType: 'node',
+              osmId: 1,
+              name: 'Museo',
+              tags: { name: 'Museo', tourism: 'museum', historic: 'monument' },
+            }),
+            candidate({
+              id: 'osm:way:2',
+              osmType: 'way',
+              osmId: 2,
+              name: 'Parque',
+              tags: { name: 'Parque', leisure: 'park' },
+            }),
+          ],
+          5, // raw Overpass returned more rows than survived adapter filtering
+        ),
+      );
+
+      const result = await provider.acquire(destination, {
+        concepts: ['museum', 'monument', 'park', 'building'],
+      });
+
+      expect(result.provenance).toEqual({
+        provider: 'osm',
+        requestedConcepts: ['building', 'monument', 'museum', 'park'],
+        supportedConcepts: ['monument', 'museum', 'park'],
+        unsupportedConcepts: ['building'],
+        radiusRequestedMeters: 4000,
+        rawResultCount: 5,
+        candidateCount: 3,
+        observationCount: 2,
+        dedupedCount: 1,
+        evidenceKeys: ['osm:node:1', 'osm:way:2'],
+      });
+    });
   });
 });

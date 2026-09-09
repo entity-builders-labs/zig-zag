@@ -45,7 +45,7 @@ export class OsmAcquisitionProvider {
     destination: ExperienceDiscoveryScope,
     options?: OsmAcquireOptions,
   ): Promise<AcquisitionProviderResult<SourceObservation>> {
-    const { selectors, supported, unsupported } = resolveOsmConcepts(
+    const { requested, selectors, supported, unsupported } = resolveOsmConcepts(
       options?.concepts ?? [],
     );
 
@@ -65,19 +65,38 @@ export class OsmAcquisitionProvider {
       (lng as number) >= -180 &&
       (lng as number) <= 180;
 
+    const radiusRequestedMeters =
+      destination?.radiusMeters ?? DEFAULT_DISCOVERY_RADIUS_METERS;
+
+    const baseProvenance = {
+      provider: 'osm' as const,
+      requestedConcepts: requested,
+      supportedConcepts: supported,
+      unsupportedConcepts: unsupported,
+      radiusRequestedMeters,
+    };
+
     // Nothing to query: no usable coordinates, or every requested concept is
     // unsupported. A clean empty success, not a failure — Overpass is not called.
     if (!hasCoordinates || selectors.length === 0) {
-      return { status: 'success', value: [] };
+      return {
+        status: 'success',
+        value: [],
+        provenance: {
+          ...baseProvenance,
+          rawResultCount: 0,
+          candidateCount: 0,
+          observationCount: 0,
+          dedupedCount: 0,
+          evidenceKeys: [],
+        },
+      };
     }
-
-    const radiusMeters =
-      destination?.radiusMeters ?? DEFAULT_DISCOVERY_RADIUS_METERS;
 
     const lookup = await this.osmPlaces.lookupFeaturesNear(
       lat as number,
       lng as number,
-      radiusMeters,
+      radiusRequestedMeters,
       selectors,
     );
 
@@ -86,9 +105,25 @@ export class OsmAcquisitionProvider {
         status: 'failed',
         value: [],
         failureReason: lookup.failureReason ?? 'Overpass query failed',
+        provenance: {
+          ...baseProvenance,
+          rawResultCount: lookup.rawResultCount,
+          candidateCount: 0,
+          observationCount: 0,
+          dedupedCount: 0,
+          evidenceKeys: [],
+        },
       };
     }
 
+    const candidateCount = lookup.value.length;
+    // dedupedCount counts candidates whose `osm:${type}:${id}` was already
+    // emitted this pass (the same real OSM element returned more than once by
+    // the union query). It deliberately does NOT count candidates dropped for
+    // matching zero requested concepts — `candidateCount - observationCount`
+    // includes those; `dedupedCount` isolates only the duplicate-element
+    // collapses so the metric stays deterministic and unambiguous.
+    let dedupedCount = 0;
     const byExternalId = new Map<string, SourceObservation>();
     for (const candidate of lookup.value) {
       const matchedConcepts = this.matchConcepts(candidate, supported);
@@ -96,6 +131,7 @@ export class OsmAcquisitionProvider {
 
       const existing = byExternalId.get(candidate.id);
       if (existing) {
+        dedupedCount += 1;
         existing.metadata!.matchedConcepts = uniqueSorted([
           ...(existing.metadata!.matchedConcepts as string[]),
           ...matchedConcepts,
@@ -119,7 +155,24 @@ export class OsmAcquisitionProvider {
       });
     }
 
-    return { status: 'success', value: [...byExternalId.values()] };
+    // Deterministic output: identical semantic OSM elements in any Overpass
+    // response order must yield a deep-equal, identically-ordered result.
+    const observations = [...byExternalId.values()].sort((a, b) =>
+      a.evidenceKey.localeCompare(b.evidenceKey),
+    );
+
+    return {
+      status: 'success',
+      value: observations,
+      provenance: {
+        ...baseProvenance,
+        rawResultCount: lookup.rawResultCount,
+        candidateCount,
+        observationCount: observations.length,
+        dedupedCount,
+        evidenceKeys: observations.map((obs) => obs.evidenceKey),
+      },
+    };
   }
 
   /** Requested concepts whose registry selectors actually match this element. */
@@ -179,10 +232,22 @@ function centroidOfGeometry(
     (acc, [lon, lat]) => [acc[0] + lon, acc[1] + lat],
     [0, 0],
   );
-  return {
-    latitude: sum[1] / points.length,
-    longitude: sum[0] / points.length,
-  };
+  const longitude = sum[0] / points.length;
+  const latitude = sum[1] / points.length;
+  // Only emit geo we can actually vouch for — no clamping, no invented point.
+  // A malformed geometry (NaN/Infinity coords, out-of-range degrees) yields
+  // `geo: undefined`; the observation's identity/title still survive.
+  if (
+    !Number.isFinite(latitude) ||
+    !Number.isFinite(longitude) ||
+    latitude < -90 ||
+    latitude > 90 ||
+    longitude < -180 ||
+    longitude > 180
+  ) {
+    return undefined;
+  }
+  return { latitude, longitude };
 }
 
 function collectPositions(value: unknown, out: Array<[number, number]>): void {

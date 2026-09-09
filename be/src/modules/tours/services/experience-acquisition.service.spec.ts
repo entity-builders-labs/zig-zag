@@ -582,6 +582,90 @@ describe('ExperienceAcquisitionService', () => {
         'osm:node:99',
       ]);
     });
+
+    it('10. preserves the OSM provider provenance on providerResults.osm (success and failure)', async () => {
+      const successProvenance = {
+        provider: 'osm',
+        requestedConcepts: ['museum'],
+        supportedConcepts: ['museum'],
+        unsupportedConcepts: [] as string[],
+        radiusRequestedMeters: 5000,
+        rawResultCount: 4,
+        candidateCount: 3,
+        observationCount: 2,
+        dedupedCount: 1,
+        evidenceKeys: ['osm:node:1', 'osm:way:2'],
+      };
+      osmProvider.acquire.mockResolvedValueOnce({
+        status: 'success',
+        value: [],
+        provenance: successProvenance,
+      });
+
+      const okPlan: ExperienceAcquisitionPlan = {
+        destination: {
+          destinationName: 'Buenos Aires',
+          latitude: -34.6037,
+          longitude: -58.3816,
+        },
+        deficits: [],
+        breadth: 'focused',
+        sourcePlans: [{ provider: 'osm', osm: { concepts: ['museum'] } }],
+      };
+      const okResult = await service.executePlan(okPlan);
+      expect(okResult.providerResults.osm?.provenance).toEqual(
+        successProvenance,
+      );
+
+      // Failure path: provenance still carries the concept resolution.
+      wikivoyageProvider.acquire.mockResolvedValueOnce({
+        status: 'success',
+        value: [
+          {
+            provider: 'wikivoyage',
+            title: 'Obelisco',
+            evidenceType: 'place',
+            evidenceKey: 'wikivoyage:x:1',
+            geo: { latitude: -34.6037, longitude: -58.3816 },
+          },
+        ],
+      });
+      osmProvider.acquire.mockResolvedValueOnce({
+        status: 'failed',
+        value: [],
+        failureReason: 'overpass 504',
+        provenance: {
+          provider: 'osm',
+          requestedConcepts: ['park'],
+          supportedConcepts: ['park'],
+          unsupportedConcepts: [] as string[],
+          rawResultCount: 0,
+          observationCount: 0,
+        },
+      });
+      const failPlan: ExperienceAcquisitionPlan = {
+        destination: {
+          destinationName: 'Buenos Aires',
+          latitude: -34.6037,
+          longitude: -58.3816,
+        },
+        deficits: [],
+        breadth: 'focused',
+        sourcePlans: [
+          { provider: 'wikivoyage', wikivoyage: { sections: ['SEE'] } },
+          { provider: 'osm', osm: { concepts: ['park'] } },
+        ],
+      };
+      const failResult = await service.executePlan(failPlan);
+      expect(failResult.providerResults.osm?.status).toBe('failed');
+      expect(failResult.providerResults.osm?.provenance).toMatchObject({
+        requestedConcepts: ['park'],
+        supportedConcepts: ['park'],
+        unsupportedConcepts: [],
+      });
+      // Sibling still contributed.
+      expect(failResult.candidates).toHaveLength(1);
+    });
   });
 
   describe('acquireNearby with ExperienceProposalResolver', () => {

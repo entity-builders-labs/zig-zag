@@ -682,7 +682,7 @@ describe('OsmPlacesService', () => {
       { key: 'leisure', value: 'park', requireName: true },
     ];
 
-    it('maps named Overpass elements into OsmCandidate[] and drops the nameless ones', async () => {
+    it('maps named Overpass elements into OsmCandidate[], drops nameless ones, and exposes rawResultCount', async () => {
       overpassApi.queryFeaturesNear.mockResolvedValue([
         {
           type: 'node',
@@ -697,6 +697,12 @@ describe('OsmPlacesService', () => {
           tags: { leisure: 'park' }, // no name -> dropped by toCandidate
           center: { lat: -34.58, lon: -58.42 },
         },
+        {
+          type: 'relation',
+          id: 3,
+          tags: { name: 'Parque Lezama', leisure: 'park' },
+          center: { lat: -34.628, lon: -58.369 },
+        },
       ]);
 
       const result = await service.lookupFeaturesNear(
@@ -707,12 +713,77 @@ describe('OsmPlacesService', () => {
       );
 
       expect(result.status).toBe('success');
+      expect(result.rawResultCount).toBe(3); // raw Overpass count, pre-filter
       expect(result.value).toEqual([
-        expect.objectContaining({
-          id: 'osm:node:1',
-          name: 'Museo Histórico Nacional',
-          osmType: 'node',
-        }),
+        expect.objectContaining({ id: 'osm:node:1', osmType: 'node' }),
+        expect.objectContaining({ id: 'osm:relation:3', osmType: 'relation' }),
+      ]);
+      expect(result.value).toHaveLength(2); // candidateCount after filtering
+    });
+
+    it('skips elements with a malformed OSM identity but keeps the valid siblings', async () => {
+      overpassApi.queryFeaturesNear.mockResolvedValue([
+        {
+          type: 'node',
+          tags: { name: 'No id', tourism: 'museum' },
+          lat: -34.6,
+          lon: -58.3,
+        },
+        {
+          type: 'node',
+          id: Number.NaN,
+          tags: { name: 'NaN id', tourism: 'museum' },
+          lat: -34.6,
+          lon: -58.3,
+        },
+        {
+          type: 'node',
+          id: -5,
+          tags: { name: 'Negative id', tourism: 'museum' },
+          lat: -34.6,
+          lon: -58.3,
+        },
+        {
+          type: 'node',
+          id: 0,
+          tags: { name: 'Zero id', tourism: 'museum' },
+          lat: -34.6,
+          lon: -58.3,
+        },
+        {
+          type: 'node',
+          id: 3.5,
+          tags: { name: 'Float id', tourism: 'museum' },
+          lat: -34.6,
+          lon: -58.3,
+        },
+        {
+          type: 'foo',
+          id: 7,
+          tags: { name: 'Bad type', tourism: 'museum' },
+          lat: -34.6,
+          lon: -58.3,
+        },
+        {
+          type: 'node',
+          id: 42,
+          tags: { name: 'Good', tourism: 'museum' },
+          lat: -34.62,
+          lon: -58.37,
+        },
+      ] as any);
+
+      const result = await service.lookupFeaturesNear(
+        -34.6,
+        -58.38,
+        3000,
+        selectors,
+      );
+
+      expect(result.status).toBe('success');
+      expect(result.rawResultCount).toBe(7);
+      expect(result.value).toEqual([
+        expect.objectContaining({ id: 'osm:node:42', name: 'Good' }),
       ]);
     });
 
@@ -729,14 +800,35 @@ describe('OsmPlacesService', () => {
       );
     });
 
-    it('returns success with [] for an empty selector list without calling Overpass', async () => {
+    it('returns success with [] (rawResultCount 0) for an empty selector list without calling Overpass', async () => {
       const result = await service.lookupFeaturesNear(-34.6, -58.38, 3000, []);
 
-      expect(result).toEqual({ status: 'success', value: [] });
+      expect(result).toEqual({
+        status: 'success',
+        value: [],
+        rawResultCount: 0,
+      });
       expect(overpassApi.queryFeaturesNear).not.toHaveBeenCalled();
     });
 
-    it('degrades to a failed lookup (never throws) when Overpass fails', async () => {
+    it('reports rawResultCount 0 for a successful empty Overpass response', async () => {
+      overpassApi.queryFeaturesNear.mockResolvedValue([]);
+
+      const result = await service.lookupFeaturesNear(
+        -34.6,
+        -58.38,
+        3000,
+        selectors,
+      );
+
+      expect(result).toEqual({
+        status: 'success',
+        value: [],
+        rawResultCount: 0,
+      });
+    });
+
+    it('degrades to a failed lookup (never throws, rawResultCount 0) when Overpass fails', async () => {
       overpassApi.queryFeaturesNear.mockRejectedValue(
         new Error('overpass 504'),
       );
@@ -752,6 +844,7 @@ describe('OsmPlacesService', () => {
         status: 'failed',
         value: [],
         failureReason: 'overpass 504',
+        rawResultCount: 0,
       });
     });
   });
