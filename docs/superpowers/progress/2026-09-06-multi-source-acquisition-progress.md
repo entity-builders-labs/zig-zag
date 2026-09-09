@@ -5,12 +5,40 @@ Canonical design: `docs/superpowers/specs/2026-09-06-multi-source-acquisition-de
 # Current State
 
 - Branch: `feat/experience-domain-v2`
-- Current milestone: pre-Phase-7 hardening — `TraitDefinition` concurrency-safe resolution
-  + `ExperienceCandidate` controlled-facet contract (VERIFIED). Phase 7 NOT STARTED.
+- Current milestone: pre-Phase-7 hardening — `TraitDefinition` concurrency-safe resolution;
+  `ExperienceCandidate` controlled-facet contract; explicit discovery-extractor
+  transport/model + a shared extraction prompt + Ollama as a third extractor + live
+  provider characterization. Phase 7 NOT STARTED.
+- Discovery-extractor verification layers:
+  - **UNIT CONTRACT VERIFIED** — prompt/schema/parser/normalizer, all providers.
+  - **LOCAL LIVE OLLAMA CHARACTERIZED** — 2026-09-09, model `qwen2.5:7b-instruct` via
+    `http://localhost:11434`; scenarios controlled-facets / long-tail / generic-entity;
+    1 / 2 / 1 candidates; 0 validationErrors each. A bare `format: 'json'` first failed
+    the componentHint schema and leaked long-tail terms into `themes`; the shared
+    JSON-Schema `format` fixed both, and the model did **not** fabricate a `PLACE` from
+    the category-only generic-entity evidence (used real `AREA`s instead).
+  - **EXTERNAL LIVE GEMINI VERIFIED** — 2026-09-09, model `gemini-3.5-flash-lite`;
+    controlled-facets / long-tail; 1 / 1 candidates; 0 validationErrors. The Interactions
+    API accepts `response_format` including `themes`/`intents` `items.enum`; the
+    `steps[].model_output.content[].text` parser matched the real payload.
+  - **EXTERNAL LIVE GROQ VERIFIED** — 2026-09-09, model `qwen/qwen3.8-27b`;
+    controlled-facets / long-tail; 1 / 1 candidates; 0 validationErrors. The live spec
+    asserts the real `fetch` call hit `api.groq.com` at the Groq discovery model.
+  - This is live *characterization*, not "production verified".
+- **Ollama is a supported discovery extractor, NOT the production default.** Before
+  choosing it in production, benchmark: quality (candidate validity, hallucination rate,
+  facet-contract compliance, entity grounding); performance (p50/p95, tokens/sec,
+  concurrency); economics (requests/day, prompt/output tokens, Gemini/Groq API cost vs
+  GPU instance cost + utilization + ops overhead). No self-host infra in this work.
 - Pre-Phase-7 code commits: `adaedfdb80d9b8915f2d8af38d27a9315c4b3f49`
   (`fix(tours): make trait definition resolution concurrency-safe`),
   `28c368cd4e8e154b26fd1f18dd1a642055e11fd1`
-  (`fix(tours): normalize candidate controlled facets`)
+  (`fix(tours): normalize candidate controlled facets`),
+  `705e322ab9a7bf761f80bf58122a2aa0d32682de`
+  (`fix(tours): align discovery prompts with facet contract`),
+  `37a6add…` (`refactor(tours): centralize discovery extraction prompt and make transport explicit`),
+  `0b403a3…` (`feat(tours): add ollama discovery extractor`),
+  `0a9b70c…` (`test(tours): add live discovery extractor characterization`)
 - Verified Phase 6 code commits: `2d023e110119bff4fb42fbe675865d6b38c041a3` (Tavily theme-aware),
   `37ad22873d1045a61a8144962205975f6c360a75` (`exploration_style` → ranking facet)
 - Previous Phase 5 hardening code commit: `f24f6f4efff270f3a08d4616f1628b619c7f1302`

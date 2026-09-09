@@ -143,12 +143,36 @@ shared LLM extraction boundary (`extractExperienceCandidates` →
   its human-readable label (case-insensitively deduped). No provider-specific
   tourism taxonomy, no vocabulary growth to absorb long-tail terms.
 
-The Gemini extractor additionally pins `themes`/`intents` `enum`s in its JSON
-schema to the same central vocabulary; Groq (no schema) carries the contract in
-its prompt. The deterministic normalizer remains the backend authority
-regardless of provider. Structured synthesis still emits empty facet arrays —
-no OSM/Places/Wikivoyage theme inference. Existing mis-classified
+Every discovery extractor speaks one **shared** contract
+(`prompts/experience-discovery-extraction.prompt.ts`): system framing, the
+ExperienceCandidate/componentHint rules, the controlled-vs-open facet contract,
+and a JSON-Schema (`themes`/`intents` `enum`-constrained to the central
+vocabulary, `traits` open) reused by every provider that supports structured
+output. Providers add only transport + response-format wiring + parsing — no
+provider-specific tourism taxonomy, no divergent prose. The deterministic
+`normalizeExperienceCandidateFacets` stays the backend authority regardless of
+provider or model obedience. Structured synthesis still emits empty facet
+arrays — no OSM/Places/Wikivoyage theme inference. Existing mis-classified
 `TraitDefinition('general', …)` rows are pre-production data, not migrated.
+
+### Discovery-extractor selection is transport-authoritative
+
+`DISCOVERY_EXTRACTOR_PROVIDER` (`gemini` | `groq` | `ollama`) — never the
+general `AI_PROVIDER` — decides the discovery extractor's implementation,
+transport, model and credentials. Selection goes through a pure
+`selectDiscoveryExtractor(provider, { gemini, groq, ollama })`; Groq extraction
+calls `LangChainService.generateChatResponse` with an explicit
+`providerOverride`/`modelOverride` so it reaches Groq at
+`discoveryExtractor.groq.model` even when `AI_PROVIDER`/`AI_MODEL` point
+elsewhere, and the returned `{ provider, model }` describe the real call.
+**Ollama** is a supported, self-hostable extractor (official `ollama` client,
+structured `format` JSON-Schema, `temperature: 0`; a remote `OLLAMA_BASE_URL`
+is allowed) — for dev/testing today and a possible production option **after a
+benchmark**; it is not the default and no self-host infra is part of this work.
+Verification has three layers: unit contract, local live Ollama
+characterization, and external live Gemini/Groq characterization (opt-in
+`RUN_LIVE_DISCOVERY_TESTS=1 yarn test:live:discovery`; never run by the normal
+suite).
 
 ### `NormalizedPreferenceIntent` gains weights, stays one source of truth
 

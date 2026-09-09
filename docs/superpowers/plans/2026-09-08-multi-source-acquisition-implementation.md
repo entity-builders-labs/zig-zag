@@ -162,12 +162,33 @@ obedience, never a second taxonomy inside a provider:
   human label, deduped case-insensitively; the vocabulary is not grown to
   absorb them.
 
-Gemini additionally pins its JSON-schema themes/intents enums to the same
-central vocabulary; Groq carries the contract in-prompt. The deterministic
-normalizer is the backend authority regardless of provider. Structured
-synthesis is unchanged (still emits empty facet arrays). No schema migration;
-existing mis-classified TraitDefinition('general', ...) rows are pre-production
-data. Phase 7 remains NOT STARTED.
+Every extractor speaks ONE shared contract
+(prompts/experience-discovery-extraction.prompt.ts): system framing,
+ExperienceCandidate/componentHint rules, the facet contract, and a shared
+JSON-Schema (themes/intents enum-constrained to the central vocabulary, traits
+open) reused by every provider that supports structured output. Providers add
+only transport + parsing. The deterministic normalizer is the backend authority
+regardless of provider or model obedience. Structured synthesis is unchanged
+(still emits empty facet arrays). No schema migration; existing mis-classified
+TraitDefinition('general', ...) rows are pre-production data.
+
+2.3c Discovery-extractor selection is transport-authoritative
+
+DISCOVERY_EXTRACTOR_PROVIDER (gemini | groq | ollama) — never AI_PROVIDER —
+decides the extractor's implementation, transport, model and credentials.
+selectDiscoveryExtractor(provider, {gemini,groq,ollama}) is pure and never reads
+AI_PROVIDER; Groq extraction passes providerOverride/modelOverride into
+LangChainService.generateChatResponse so it reaches Groq at
+discoveryExtractor.groq.model regardless of AI_PROVIDER/AI_MODEL, and the
+returned {provider, model} describe the real call. Ollama is a supported,
+self-hostable extractor (official ollama client, structured format JSON-Schema,
+temperature 0, remote OLLAMA_BASE_URL allowed) — dev/testing now, a possible
+production option only after a benchmark (quality / performance / economics); it
+is NOT the default and no self-host infra is in scope. Verification: unit
+contract + local live Ollama + external live Gemini/Groq, all opt-in via
+RUN_LIVE_DISCOVERY_TESTS=1 yarn test:live:discovery (never the normal suite).
+
+Phase 7 remains NOT STARTED.
 
 
 2.4 Provider failures are isolated
