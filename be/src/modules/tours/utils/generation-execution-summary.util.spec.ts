@@ -110,4 +110,60 @@ describe('buildGenerationExecutionSummary', () => {
     expect(result.orderedStages).toHaveLength(1);
     expect(result.selectedExperiences).toBe(0);
   });
+
+  it('rolls up the multi-source acquisition loop from its per-pass steps', () => {
+    const acqStep = (pass: number, outputs: Record<string, unknown>) => ({
+      ...step('discovery', `pase ${pass}`, outputs),
+      component: 'ExperienceAcquisitionService',
+    });
+    const result = buildGenerationExecutionSummary({
+      status: 'completed',
+      steps: [
+        acqStep(1, {
+          observationCount: 3,
+          structuredCandidateCount: 2,
+          webCandidateCount: 1,
+          structuredProviders: [
+            { provider: 'wikivoyage', status: 'success' },
+            { provider: 'osm', status: 'failed' },
+          ],
+          webResults: [{ status: 'success' }],
+        }),
+        acqStep(2, {
+          observationCount: 1,
+          structuredCandidateCount: 1,
+          webCandidateCount: 0,
+          structuredProviders: [
+            { provider: 'google_places', status: 'success' },
+          ],
+          webResults: [],
+        }),
+        {
+          ...step('daily_planning', 'planned'),
+          dailyPlanning: { approximateTravel: true },
+        } as any,
+      ],
+    });
+
+    expect(result.acquisition).toEqual({
+      passes: 2,
+      providersAttempted: ['google_places', 'osm', 'web', 'wikivoyage'],
+      providersFailed: ['osm'],
+      observationCount: 4,
+      structuredCandidateCount: 3,
+      webCandidateCount: 1,
+      approximateRouting: true,
+    });
+  });
+
+  it('omits the acquisition roll-up when acquisition never ran (catalog-first)', () => {
+    const result = buildGenerationExecutionSummary({
+      status: 'completed',
+      steps: [
+        step('coverage_analysis', 'coverage none'),
+        step('daily_planning', 'planned'),
+      ],
+    });
+    expect(result.acquisition).toBeUndefined();
+  });
 });

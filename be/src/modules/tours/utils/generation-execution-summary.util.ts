@@ -57,6 +57,48 @@ export function buildGenerationExecutionSummary(
   }
 
   const summaries = orderedStages.map((stage) => stage.summary);
+
+  // Roll up the canonical multi-source acquisition loop from its steps
+  // (component === 'ExperienceAcquisitionService', emitted once per pass).
+  const acquisitionSteps = input.steps.filter(
+    (step) => step.component === 'ExperienceAcquisitionService',
+  );
+  let acquisition: GenerationTraceExecutionSummary['acquisition'];
+  if (acquisitionSteps.length > 0) {
+    const providersAttempted = new Set<string>();
+    const providersFailed = new Set<string>();
+    let observationCount = 0;
+    let structuredCandidateCount = 0;
+    let webCandidateCount = 0;
+    for (const step of acquisitionSteps) {
+      const out = (step.outputs ?? {}) as Record<string, any>;
+      observationCount += Number(out.observationCount) || 0;
+      structuredCandidateCount += Number(out.structuredCandidateCount) || 0;
+      webCandidateCount += Number(out.webCandidateCount) || 0;
+      for (const entry of out.structuredProviders ?? []) {
+        providersAttempted.add(entry.provider);
+        if (entry.status === 'failed') providersFailed.add(entry.provider);
+      }
+      for (const web of out.webResults ?? []) {
+        providersAttempted.add('web');
+        if (web.status === 'failed') providersFailed.add('web');
+      }
+    }
+    const planningStep = input.steps.find(
+      (step) => step.stage === 'daily_planning',
+    );
+    acquisition = {
+      passes: acquisitionSteps.length,
+      providersAttempted: [...providersAttempted].sort(),
+      providersFailed: [...providersFailed].sort(),
+      observationCount,
+      structuredCandidateCount,
+      webCandidateCount,
+      approximateRouting: (planningStep as any)?.dailyPlanning
+        ?.approximateTravel,
+    };
+  }
+
   return {
     status: input.status,
     orderedStages,
@@ -67,6 +109,7 @@ export function buildGenerationExecutionSummary(
     acceptedExperiences: input.acceptedExperiences,
     rejectedProposals: input.rejectedProposals,
     selectedExperiences: materialized.length,
+    acquisition,
     failure: input.failure,
   };
 }

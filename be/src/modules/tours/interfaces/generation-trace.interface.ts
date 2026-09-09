@@ -195,6 +195,18 @@ export interface GenerationExecutionStageSummary {
   counts?: Record<string, number>;
 }
 
+export interface GenerationTraceAcquisitionSummary {
+  /** Bounded multi-source acquisition passes that actually ran (0 = catalog-first). */
+  passes: number;
+  providersAttempted: string[];
+  providersFailed: string[];
+  observationCount: number;
+  structuredCandidateCount: number;
+  webCandidateCount: number;
+  /** True when the planned itinerary used at least one approximate travel leg. */
+  approximateRouting?: boolean;
+}
+
 export interface GenerationTraceExecutionSummary {
   status: 'completed' | 'failed';
   /** Ordered machine-readable reconstruction of the complete run. */
@@ -205,6 +217,12 @@ export interface GenerationTraceExecutionSummary {
   acceptedExperiences?: number;
   rejectedProposals?: number;
   selectedExperiences?: number;
+  /**
+   * Roll-up of the canonical multi-source acquisition loop — answers "which
+   * sources ran, how many passes, how much did they produce" without walking
+   * every stage. Absent when acquisition never ran (catalog-first).
+   */
+  acquisition?: GenerationTraceAcquisitionSummary;
   failure?: string;
 }
 
