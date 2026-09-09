@@ -4,12 +4,14 @@ import aiConfig from 'src/shared/ai/ai.config';
 import { GeminiDiscoveryProvider } from 'src/modules/tours/services/gemini-discovery.provider';
 import {
   assertLiveExtractionContract,
+  assertNoGenericPseudoEntities,
   liveGate,
   loadRootEnv,
   printCharacterization,
 } from './discovery-live.helper';
 import {
   controlledScenario,
+  genericEntityScenario,
   longTailScenario,
 } from './discovery-live.fixtures';
 
@@ -52,4 +54,22 @@ const RUN = liveGate('gemini');
       });
     });
   }
+
+  it('does not materialise a generic category as a concrete PLACE (generic-entity probe)', async () => {
+    const result = await provider.extractExperiences(
+      genericEntityScenario.request,
+      genericEntityScenario.evidence,
+    );
+    printCharacterization(genericEntityScenario.name, result as any);
+    assertLiveExtractionContract({
+      result: result as any,
+      evidenceKeys: genericEntityScenario.evidence.evidence.map((e) => e.key),
+      expectedProvider: 'gemini',
+      allowEmptyCandidates: true,
+    });
+    assertNoGenericPseudoEntities(
+      result as any,
+      genericEntityScenario.bannedPlaceNames ?? [],
+    );
+  });
 });

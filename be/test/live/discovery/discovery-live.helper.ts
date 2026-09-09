@@ -41,13 +41,20 @@ function truncate(value: string | undefined, max = 2000): string {
   return value.length > max ? `${value.slice(0, max)}… [truncated]` : value;
 }
 
-/** Structural + domain invariants only — never exact names / counts / strings. */
+/**
+ * Structural + domain invariants only — never exact names / counts / strings.
+ * `allowEmptyCandidates` is for the generic-entity probe: returning no candidate
+ * at all for deliberately thin category-only evidence is a valid, conservative
+ * outcome (§ "candidate sin venue: válido") — the only hard rule there is the
+ * no-generic-pseudo-entity check, applied separately.
+ */
 export function assertLiveExtractionContract(args: {
   result: LiveExtractionResult;
   evidenceKeys: string[];
   expectedProvider: string;
+  allowEmptyCandidates?: boolean;
 }): void {
-  const { result, evidenceKeys, expectedProvider } = args;
+  const { result, evidenceKeys, expectedProvider, allowEmptyCandidates } = args;
   const evidence = new Set(evidenceKeys);
   const detail = () =>
     `\nprovider=${result.provider} model=${result.model}` +
@@ -64,7 +71,7 @@ export function assertLiveExtractionContract(args: {
   if (result.validationErrors.length > 0) {
     throw new Error(`live extraction produced validationErrors.${detail()}`);
   }
-  if (result.candidates.length === 0) {
+  if (result.candidates.length === 0 && !allowEmptyCandidates) {
     throw new Error(`live extraction produced zero candidates.${detail()}`);
   }
 

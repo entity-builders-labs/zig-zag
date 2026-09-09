@@ -78,6 +78,7 @@ const RUN = liveGate('ollama');
       result: result as any,
       evidenceKeys: genericEntityScenario.evidence.evidence.map((e) => e.key),
       expectedProvider: 'ollama',
+      allowEmptyCandidates: true,
     });
     // ...and no fabricated pseudo-entity.
     assertNoGenericPseudoEntities(

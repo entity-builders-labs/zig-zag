@@ -6,12 +6,14 @@ import aiConfig from 'src/shared/ai/ai.config';
 import { GroqDiscoveryProvider } from 'src/modules/tours/services/groq-discovery.provider';
 import {
   assertLiveExtractionContract,
+  assertNoGenericPseudoEntities,
   liveGate,
   loadRootEnv,
   printCharacterization,
 } from './discovery-live.helper';
 import {
   controlledScenario,
+  genericEntityScenario,
   longTailScenario,
 } from './discovery-live.fixtures';
 
@@ -82,4 +84,30 @@ const noCache = {
       });
     });
   }
+
+  it('does not materialise a generic category as a concrete PLACE (generic-entity probe)', async () => {
+    const result = await provider.extractExperiences(
+      genericEntityScenario.request,
+      genericEntityScenario.evidence,
+      { bypassCache: true },
+    );
+    printCharacterization(genericEntityScenario.name, result as any);
+
+    const groqCall = fetchSpy.mock.calls.find(([url]) =>
+      String(url).includes('api.groq.com'),
+    );
+    expect(groqCall).toBeDefined();
+    expect(JSON.parse((groqCall![1] as any).body).model).toBe(expectedModel);
+
+    assertLiveExtractionContract({
+      result: result as any,
+      evidenceKeys: genericEntityScenario.evidence.evidence.map((e) => e.key),
+      expectedProvider: 'groq',
+      allowEmptyCandidates: true,
+    });
+    assertNoGenericPseudoEntities(
+      result as any,
+      genericEntityScenario.bannedPlaceNames ?? [],
+    );
+  });
 });
