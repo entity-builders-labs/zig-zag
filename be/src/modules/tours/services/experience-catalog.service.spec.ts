@@ -1,5 +1,6 @@
 import { Prisma, GeoEntityKind } from '@prisma/client';
 import { ExperienceCatalogService } from './experience-catalog.service';
+import { PlacesCrawlError } from '@integrations/google-places/interfaces/places-api.interface';
 
 describe('ExperienceCatalogService.upsertGeoEntity', () => {
   const input = {
@@ -753,5 +754,110 @@ describe('ExperienceCatalogService.acquireNearbyAsExperiences (Phase 4 shortcut 
     expect(result.candidates[0].name).toBe('Test Museum');
     expect(result.observations).toHaveLength(1);
     expect(result.observations[0].externalId).toBe('ChIJTest123');
+  });
+
+  it('surfaces a Google Places provider failure as a PlacesCrawlError, not a successful empty acquisition', async () => {
+    const failingProvider: any = {
+      acquire: jest.fn().mockResolvedValue({
+        status: 'failed',
+        value: [],
+        failureReason: 'Places API quota exceeded (OVER_QUERY_LIMIT)',
+      }),
+    };
+    const synthesizer: any = { synthesizeProposals: jest.fn() };
+    const corroborator: any = { corroborateAndMerge: jest.fn() };
+    const service = new ExperienceCatalogService(
+      {} as any,
+      {} as any,
+      failingProvider,
+      synthesizer,
+      corroborator,
+    );
+
+    const call = service.acquireNearbyAsExperiences({
+      latitude: -34.6,
+      longitude: -58.38,
+      radius: 5000,
+      maxResultCount: 10,
+    });
+
+    await expect(call).rejects.toBeInstanceOf(PlacesCrawlError);
+    await call.catch((error: PlacesCrawlError) => {
+      expect(error.provenance.receivedCount).toBe(0);
+      expect(error.provenance.acceptedCount).toBe(0);
+      expect(error.code).toBe('request_failed');
+    });
+    // A failure must never be laundered into candidate synthesis.
+    expect(synthesizer.synthesizeProposals).not.toHaveBeenCalled();
+    expect(corroborator.corroborateAndMerge).not.toHaveBeenCalled();
+  });
+
+  it('treats a successful empty provider result as a normal empty acquisition (no error)', async () => {
+    const emptyProvider: any = {
+      acquire: jest.fn().mockResolvedValue({ status: 'success', value: [] }),
+    };
+    const service = new ExperienceCatalogService(
+      {} as any,
+      {} as any,
+      emptyProvider,
+      { synthesizeProposals: jest.fn() } as any,
+      { corroborateAndMerge: jest.fn() } as any,
+    );
+
+    const result = await service.acquireNearbyAsExperiences({
+      latitude: -34.6,
+      longitude: -58.38,
+      radius: 5000,
+      maxResultCount: 10,
+    });
+
+    expect(result.experienceIds).toEqual([]);
+    expect(result.experiences).toEqual([]);
+    expect(result.candidates).toEqual([]);
+    expect(result.provenance.receivedCount).toBe(0);
+  });
+});
+
+describe('ExperienceCatalogService.findVerifiedByIds', () => {
+  it('returns exactly the requested verified rows, in order, and nothing else', async () => {
+    const row = (id: string): any => ({
+      id,
+      canonicalName: id,
+      description: `${id} description`,
+      price: null,
+      qualityScore: null,
+      latitude: -34.6,
+      longitude: -58.38,
+      durationMinutes: 60,
+      openingHours: null,
+      metadata: { themes: ['history'] },
+      components: [],
+      traits: [],
+    });
+    const prisma: any = {
+      experience: {
+        findMany: jest.fn().mockResolvedValue([row('exp-new')]),
+      },
+    };
+    const service = new ExperienceCatalogService(prisma, {} as any);
+
+    const result = await service.findVerifiedByIds(['exp-new']);
+
+    expect(prisma.experience.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: { in: ['exp-new'] }, status: 'VERIFIED' },
+      }),
+    );
+    expect(result.map((item) => item.id)).toEqual(['exp-new']);
+  });
+
+  it('short-circuits without touching Prisma for an empty id list', async () => {
+    const prisma: any = { experience: { findMany: jest.fn() } };
+    const service = new ExperienceCatalogService(prisma, {} as any);
+
+    const result = await service.findVerifiedByIds([]);
+
+    expect(result).toEqual([]);
+    expect(prisma.experience.findMany).not.toHaveBeenCalled();
   });
 });

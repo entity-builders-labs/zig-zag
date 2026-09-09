@@ -423,4 +423,184 @@ describe('GooglePlacesAcquisitionProvider', () => {
     expect(result.value).toEqual([]);
     expect(result.failureReason).toBe('Google Places API quota exceeded');
   });
+
+  describe('generic refill vs plan-driven contextual admission ("Starbucks problem")', () => {
+    const starbucks: PlaceData = {
+      id: 'starbucks-1',
+      displayName: { text: 'Starbucks' },
+      formattedAddress: 'Av. Corrientes 500, Buenos Aires',
+      primaryType: 'cafe',
+      types: ['cafe', 'food', 'point_of_interest', 'establishment'],
+      location: { latitude: -34.6037, longitude: -58.3816 },
+    };
+
+    it('A. generic refill (no searchTypes) rejects a Starbucks-like cafe', async () => {
+      placesApiMock.searchNearby.mockResolvedValueOnce({
+        data: [starbucks],
+        provenance: {
+          provider: 'google',
+          cacheStatus: 'miss-live',
+          requestedCount: 1,
+          receivedCount: 1,
+        },
+      });
+
+      const result = await provider.acquire({
+        latitude: -34.6037,
+        longitude: -58.3816,
+        radiusMeters: 5000,
+      });
+
+      expect(result.status).toBe('success');
+      expect(result.value.map((obs) => obs.externalId)).not.toContain(
+        'starbucks-1',
+      );
+      expect(result.value).toEqual([]);
+    });
+
+    it('B. an explicitly requested cafe type may admit the same cafe', async () => {
+      placesApiMock.searchNearby.mockResolvedValueOnce({
+        data: [starbucks],
+        provenance: {
+          provider: 'google',
+          cacheStatus: 'miss-live',
+          requestedCount: 1,
+          receivedCount: 1,
+        },
+      });
+
+      const result = await provider.acquire(
+        { latitude: -34.6037, longitude: -58.3816, radiusMeters: 5000 },
+        { searchTypes: ['cafe'] },
+      );
+
+      expect(result.status).toBe('success');
+      expect(result.value).toHaveLength(1);
+      expect(result.value[0].externalId).toBe('starbucks-1');
+    });
+
+    it('C. generic refill still admits safe generic tourism types (museum, park, tourist_attraction)', async () => {
+      const safePlaces: PlaceData[] = [
+        {
+          id: 'museo-1',
+          displayName: { text: 'Museo Histórico' },
+          primaryType: 'museum',
+          types: ['museum', 'point_of_interest', 'establishment'],
+          location: { latitude: -34.6, longitude: -58.38 },
+        },
+        {
+          id: 'parque-1',
+          displayName: { text: 'Parque Centenario' },
+          primaryType: 'park',
+          types: ['park', 'point_of_interest'],
+          location: { latitude: -34.606, longitude: -58.435 },
+        },
+        {
+          id: 'atraccion-1',
+          displayName: { text: 'Obelisco' },
+          primaryType: 'tourist_attraction',
+          types: ['tourist_attraction', 'point_of_interest'],
+          location: { latitude: -34.6037, longitude: -58.3816 },
+        },
+      ];
+      placesApiMock.searchNearby.mockResolvedValueOnce({
+        data: safePlaces,
+        provenance: {
+          provider: 'google',
+          cacheStatus: 'miss-live',
+          requestedCount: 3,
+          receivedCount: 3,
+        },
+      });
+
+      const result = await provider.acquire({
+        latitude: -34.6037,
+        longitude: -58.3816,
+        radiusMeters: 5000,
+      });
+
+      expect(result.status).toBe('success');
+      expect(result.value.map((obs) => obs.externalId).sort()).toEqual([
+        'atraccion-1',
+        'museo-1',
+        'parque-1',
+      ]);
+    });
+
+    it('D. generic refill still rejects pharmacy/bank/store', async () => {
+      const commercialPlaces: PlaceData[] = [
+        {
+          id: 'farmacia-1',
+          displayName: { text: 'Farmacity' },
+          primaryType: 'pharmacy',
+          types: ['pharmacy', 'drugstore', 'store', 'establishment'],
+        },
+        {
+          id: 'banco-1',
+          displayName: { text: 'Banco Galicia' },
+          primaryType: 'bank',
+          types: ['bank', 'atm', 'finance', 'establishment'],
+        },
+        {
+          id: 'tienda-1',
+          displayName: { text: 'Coto' },
+          primaryType: 'supermarket',
+          types: ['supermarket', 'grocery_or_supermarket', 'store'],
+        },
+      ];
+      placesApiMock.searchNearby.mockResolvedValueOnce({
+        data: commercialPlaces,
+        provenance: {
+          provider: 'google',
+          cacheStatus: 'miss-live',
+          requestedCount: 3,
+          receivedCount: 3,
+        },
+      });
+
+      const result = await provider.acquire({
+        latitude: -34.6037,
+        longitude: -58.3816,
+        radiusMeters: 5000,
+      });
+
+      expect(result.status).toBe('success');
+      expect(result.value).toEqual([]);
+    });
+
+    it('does not infer semantic facets even when a contextual type is explicitly requested', async () => {
+      placesApiMock.searchNearby.mockResolvedValueOnce({
+        data: [starbucks],
+        provenance: {
+          provider: 'google',
+          cacheStatus: 'miss-live',
+          requestedCount: 1,
+          receivedCount: 1,
+        },
+      });
+
+      const result = await provider.acquire(
+        { latitude: -34.6037, longitude: -58.3816, radiusMeters: 5000 },
+        { searchTypes: ['cafe'] },
+      );
+
+      const obs = result.value[0] as any;
+      expect(obs.themes).toBeUndefined();
+      expect(obs.traits).toBeUndefined();
+      expect(obs.intents).toBeUndefined();
+      expect(obs.winery_scale).toBeUndefined();
+      expect(obs.local_character).toBeUndefined();
+      expect(obs.tourism_intensity).toBeUndefined();
+      // Only factual metadata is carried through.
+      expect(Object.keys(obs.metadata).sort()).toEqual(
+        [
+          'openingHoursWeekdayText',
+          'primaryType',
+          'rating',
+          'types',
+          'userRatingCount',
+        ].sort(),
+      );
+    });
+  });
 });

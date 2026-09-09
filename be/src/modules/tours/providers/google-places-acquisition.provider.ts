@@ -44,7 +44,13 @@ export const DISALLOWED_GOOGLE_PLACES_TYPES = new Set([
   'insurance_agency',
 ]);
 
-export const DEFAULT_ALLOWED_GOOGLE_PLACES_TYPES = new Set([
+// Safe generic tourism types: a result carrying one of these is an admissible
+// tourism Experience candidate even when the caller supplied no explicit
+// `searchTypes` (a generic Places refill). Deliberately excludes commercial
+// food/nightlife categories — a nearby crawl must not turn arbitrary cafes,
+// bars, restaurants or bakeries into Experiences just because Google returned
+// them ("Starbucks problem").
+export const SAFE_GENERIC_TOURISM_TYPES = new Set([
   'tourist_attraction',
   'museum',
   'art_gallery',
@@ -60,13 +66,26 @@ export const DEFAULT_ALLOWED_GOOGLE_PLACES_TYPES = new Set([
   'observation_deck',
   'visitor_center',
   'cultural_center',
+  'campground',
+  'winery',
+]);
+
+// Contextual commercial types: only admissible when the acquisition plan
+// explicitly asked for them via `searchTypes` (e.g. a `cafe`/`bar` deficit
+// routed by the planner). Never admitted on a generic, type-less refill.
+export const CONTEXTUAL_GOOGLE_PLACES_TYPES = new Set([
   'restaurant',
   'cafe',
   'bakery',
   'bar',
   'night_club',
-  'campground',
-  'winery',
+]);
+
+// Full known-type vocabulary (safe + contextual). Retained for callers that
+// want the union; admission itself is driven by the two sets above, not this.
+export const DEFAULT_ALLOWED_GOOGLE_PLACES_TYPES = new Set([
+  ...SAFE_GENERIC_TOURISM_TYPES,
+  ...CONTEXTUAL_GOOGLE_PLACES_TYPES,
 ]);
 
 export interface GooglePlacesAcquireOptions {
@@ -241,16 +260,22 @@ export class GooglePlacesAcquisitionProvider {
       return false;
     }
 
-    const allowedSet =
-      requestedTypes && requestedTypes.length > 0
-        ? new Set(requestedTypes)
-        : DEFAULT_ALLOWED_GOOGLE_PLACES_TYPES;
+    // Explicit plan-driven request: admissible only against exactly what was
+    // asked for (which may legitimately include a contextual commercial type).
+    // Generic refill (no `searchTypes`): admissible only against safe generic
+    // tourism types — a contextual `cafe`/`bar`/`restaurant`/`bakery`/
+    // `night_club` is never admitted unless the plan explicitly requested it.
+    const hasExplicitRequest = !!requestedTypes && requestedTypes.length > 0;
+    const allowedSet = hasExplicitRequest
+      ? new Set(requestedTypes)
+      : SAFE_GENERIC_TOURISM_TYPES;
 
     const hasAllowed = rawTypes.some((t) => allowedSet.has(t));
     if (!hasAllowed) {
       return false;
     }
 
+    // A broad/commercial-only result is never sufficient on its own.
     const onlyDisallowed = rawTypes.every((t) =>
       DISALLOWED_GOOGLE_PLACES_TYPES.has(t),
     );

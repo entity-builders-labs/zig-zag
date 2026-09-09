@@ -1,5 +1,6 @@
 import { Injectable, Optional, Inject, Logger } from '@nestjs/common';
 import { ExperienceEmbeddingIndexerService } from '@shared/ai/services/experience-embedding-indexer.service';
+import { PlacesCrawlProvenance } from '@integrations/google-places/interfaces/places-api.interface';
 import { ExperienceCatalogService } from './experience-catalog.service';
 import {
   AcquisitionProviderResult,
@@ -188,9 +189,13 @@ export class ExperienceAcquisitionService {
   async acquireNearby(input: AcquireNearbyInput) {
     const acquisition = await this.catalog.acquireNearbyAsExperiences(input);
 
+    // Resolver-backed materialization requires a real `destinationBoundary`:
+    // ExperienceProposalResolverService.resolve() throws without it.
+    // `destinationPointRadius` is supplemental point-scale context, never a
+    // substitute — a point-scale destination still passes a synthetic
+    // point-radius boundary alongside it (see ExperienceGenerationService).
     const canResolve =
-      Boolean(this.proposalResolver) &&
-      Boolean(input.destinationBoundary || input.destinationPointRadius);
+      Boolean(this.proposalResolver) && Boolean(input.destinationBoundary);
 
     if (canResolve && acquisition.candidates.length > 0) {
       const resolverEvidence: ResolverEvidenceItem[] = (
@@ -219,14 +224,12 @@ export class ExperienceAcquisitionService {
         .filter((r) => r.status === 'accepted' && r.experienceId)
         .map((r) => r.experienceId as string);
 
+      // Return exactly the Experiences this resolution materialized, in
+      // acceptance order — not a broader geographic pool, which could both
+      // omit accepted ids past a limit and surface unrelated nearby rows.
       const persistedExperiences =
         acceptedIds.length > 0
-          ? await this.catalog.findVerifiedWithin(
-              input.latitude,
-              input.longitude,
-              input.radius,
-              input.maxResultCount,
-            )
+          ? await this.catalog.findVerifiedByIds(acceptedIds)
           : [];
 
       const rejectedCountByReason: Record<string, number> = {};
@@ -239,20 +242,24 @@ export class ExperienceAcquisitionService {
         }
       }
 
+      // Embedding indexing is owned by ExperienceProposalResolverService
+      // (gated on dedupe NEW / semanticDocumentChanged, and the embedding
+      // provider may be unavailable). Its per-Experience outcome is not
+      // propagated here, so no embedding-specific provenance is reported —
+      // "not reported" is correct; a fabricated `embeddingWriteStatus:
+      // 'indexed'` / `embeddedCount: acceptedIds.length` is not.
+      const provenance: PlacesCrawlProvenance = {
+        ...acquisition.provenance,
+        acceptedCount: acceptedIds.length,
+        rejectedCountByReason,
+      };
+
       return {
         ...acquisition,
         experienceIds: acceptedIds,
         experiences: persistedExperiences,
         resolution,
-        provenance: {
-          ...acquisition.provenance,
-          acceptedCount: acceptedIds.length,
-          rejectedCountByReason,
-          embeddedCount: acceptedIds.length,
-          embeddingWriteStatus: 'indexed' as const,
-          embeddingFailureReason: undefined as string | undefined,
-          embeddingIdentity: undefined as any,
-        },
+        provenance,
       };
     }
 
@@ -260,17 +267,19 @@ export class ExperienceAcquisitionService {
       acquisition.experienceIds,
     );
 
+    const provenance: PlacesCrawlProvenance = {
+      ...acquisition.provenance,
+      acceptedCount: acquisition.experienceIds.length,
+      rejectedCountByReason: {},
+      embeddedCount: embedding.indexedIds.length,
+      embeddingWriteStatus: embedding.status,
+      embeddingFailureReason: embedding.reason,
+      embeddingIdentity: embedding.identity,
+    };
+
     return {
       ...acquisition,
-      provenance: {
-        ...acquisition.provenance,
-        acceptedCount: acquisition.experienceIds.length,
-        rejectedCountByReason: {},
-        embeddedCount: embedding.indexedIds.length,
-        embeddingWriteStatus: embedding.status,
-        embeddingFailureReason: embedding.reason,
-        embeddingIdentity: embedding.identity,
-      },
+      provenance,
     };
   }
 

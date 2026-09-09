@@ -1,7 +1,10 @@
 import { Injectable, Inject, Logger, Optional } from '@nestjs/common';
 import { ExperienceStatus, GeoEntityKind, Prisma } from '@prisma/client';
 import { PrismaService } from '@core/database/prisma.service';
-import { IPlacesApiService } from '@integrations/google-places/interfaces/places-api.interface';
+import {
+  IPlacesApiService,
+  PlacesCrawlError,
+} from '@integrations/google-places/interfaces/places-api.interface';
 import { GooglePlacesAcquisitionProvider } from '../providers/google-places-acquisition.provider';
 import { StructuredExperienceCandidateSynthesizerService } from './structured-experience-candidate-synthesizer.service';
 import { StructuredCandidateCorroborationService } from './structured-candidate-corroboration.service';
@@ -119,6 +122,31 @@ export class ExperienceCatalogService {
       },
     );
 
+    // A provider *failure* is not an empty acquisition. Zero results
+    // (`status: 'success', value: []`) is a normal empty pass; a failure
+    // (`status: 'failed'`) must stay observably distinct — surface it as a
+    // structured PlacesCrawlError carrying truthful provenance so the refill
+    // seam in ExperienceGenerationService records "Places failed" rather than
+    // "Places found nothing", and generation proceeds with whatever other
+    // sources produced.
+    if (providerResult.status === 'failed') {
+      throw new PlacesCrawlError(
+        `Google Places acquisition failed during catalog refill: ${
+          providerResult.failureReason ?? 'unknown provider error'
+        }`,
+        {
+          provider: 'google',
+          cacheStatus: 'miss-live',
+          requestedCount: input.maxResultCount ?? 20,
+          receivedCount: 0,
+          acceptedCount: 0,
+          rejectedCountByReason: {},
+        },
+        undefined,
+        'request_failed',
+      );
+    }
+
     const observations = providerResult.value;
     if (observations.length === 0) {
       return {
@@ -181,70 +209,24 @@ export class ExperienceCatalogService {
     const radiusSquared = radiusMeters * radiusMeters;
     return experiences
       .map((experience) => {
-        const component = experience.components.find(
-          (item) =>
-            Number.isFinite(item.geoEntity.latitude) &&
-            Number.isFinite(item.geoEntity.longitude),
-        )?.geoEntity;
-        const lat = experience.latitude ?? component?.latitude;
-        const lon = experience.longitude ?? component?.longitude;
-        if (!Number.isFinite(lat) || !Number.isFinite(lon)) return undefined;
+        const projected = this.projectVerifiedExperienceRow(experience, {
+          latitude,
+          longitude,
+        });
+        if (
+          !Number.isFinite(projected.latitude) ||
+          !Number.isFinite(projected.longitude)
+        ) {
+          return undefined;
+        }
         const distanceSquared =
-          ((lat! - latitude) * 111_000) ** 2 +
-          ((lon! - longitude) *
+          ((projected.latitude! - latitude) * 111_000) ** 2 +
+          ((projected.longitude! - longitude) *
             111_000 *
             Math.cos((latitude * Math.PI) / 180)) **
             2;
         if (distanceSquared > radiusSquared) return undefined;
-        const metadata = this.objectMetadata(experience.metadata);
-        const relationalTraits = experience.traits.flatMap((trait) =>
-          [trait.traitDefinition.label, trait.traitDefinition.key].filter(
-            (value): value is string => !!value,
-          ),
-        );
-        const metadataDimensioned = Array.isArray(metadata.dimensionedTraits)
-          ? (metadata.dimensionedTraits as Array<{
-              dimension: string;
-              key: string;
-              label?: string;
-            }>)
-          : [];
-        const dimensionedTraits = [
-          ...metadataDimensioned,
-          ...experience.traits.map((trait) => ({
-            dimension: trait.traitDefinition.dimension,
-            key: trait.traitDefinition.key,
-            label: trait.traitDefinition.label ?? undefined,
-          })),
-        ];
-        return {
-          id: experience.id,
-          name: experience.canonicalName,
-          canonicalName: experience.canonicalName,
-          description: experience.description,
-          price: experience.price,
-          qualityScore: experience.qualityScore,
-          latitude: lat,
-          longitude: lon,
-          distance: Math.sqrt(distanceSquared) / 1000,
-          distanceSquared,
-          duration: (experience.durationMinutes ?? 120) / 60,
-          durationMinutes: experience.durationMinutes,
-          openingHours: experience.openingHours,
-          themes: this.stringList(metadata.themes),
-          intents: this.stringList(metadata.intents ?? metadata.archetypes),
-          traits: Array.from(
-            new Set([...this.stringList(metadata.traits), ...relationalTraits]),
-          ),
-          dimensionedTraits,
-          metadata: {
-            ...metadata,
-            dimensionedTraits,
-            source: 'experience_catalog',
-            experienceId: experience.id,
-          },
-          components: experience.components,
-        };
+        return { ...projected, distanceSquared };
       })
       .filter(
         (experience): experience is NonNullable<typeof experience> =>
@@ -260,6 +242,127 @@ export class ExperienceCatalogService {
         void distanceSquared;
         return experience;
       });
+  }
+
+  /**
+   * Retrieves verified Experiences by their exact ids, in the order given.
+   * Unlike `findVerifiedWithin` this performs no geographic scan/filter — it
+   * returns exactly the requested rows (subject only to a genuinely missing or
+   * non-VERIFIED row), so an acquisition boundary can report precisely the
+   * Experiences a resolver just materialized rather than a broader nearby pool.
+   */
+  async findVerifiedByIds(ids: string[]) {
+    if (ids.length === 0) return [];
+    const rows = await this.prisma.experience.findMany({
+      where: { id: { in: ids }, status: ExperienceStatus.VERIFIED },
+      include: {
+        components: { include: { geoEntity: true } },
+        traits: { include: { traitDefinition: true } },
+      },
+    });
+    const byId = new Map(rows.map((row) => [row.id, row]));
+    return ids
+      .map((id) => byId.get(id))
+      .filter((row): row is NonNullable<typeof row> => !!row)
+      .map((experience) => this.projectVerifiedExperienceRow(experience));
+  }
+
+  /**
+   * Shared hydration for a verified Experience row into the shape the ranking
+   * pipeline consumes. `center` is optional: when supplied, a `distance` (km)
+   * is attached; callers that only need the row (`findVerifiedByIds`) omit it.
+   */
+  private projectVerifiedExperienceRow(
+    experience: {
+      id: string;
+      canonicalName: string;
+      description: string | null;
+      price: number | null;
+      qualityScore: number | null;
+      latitude: number | null;
+      longitude: number | null;
+      durationMinutes: number | null;
+      openingHours: unknown;
+      metadata: unknown;
+      components: Array<{
+        geoEntity: { latitude: number | null; longitude: number | null };
+        [key: string]: any;
+      }>;
+      traits: Array<{
+        traitDefinition: {
+          dimension: string;
+          key: string;
+          label: string | null;
+        };
+      }>;
+    },
+    center?: { latitude: number; longitude: number },
+  ) {
+    const component = experience.components.find(
+      (item) =>
+        Number.isFinite(item.geoEntity.latitude) &&
+        Number.isFinite(item.geoEntity.longitude),
+    )?.geoEntity;
+    const lat = experience.latitude ?? component?.latitude ?? null;
+    const lon = experience.longitude ?? component?.longitude ?? null;
+    const metadata = this.objectMetadata(experience.metadata);
+    const relationalTraits = experience.traits.flatMap((trait) =>
+      [trait.traitDefinition.label, trait.traitDefinition.key].filter(
+        (value): value is string => !!value,
+      ),
+    );
+    const metadataDimensioned = Array.isArray(metadata.dimensionedTraits)
+      ? (metadata.dimensionedTraits as Array<{
+          dimension: string;
+          key: string;
+          label?: string;
+        }>)
+      : [];
+    const dimensionedTraits = [
+      ...metadataDimensioned,
+      ...experience.traits.map((trait) => ({
+        dimension: trait.traitDefinition.dimension,
+        key: trait.traitDefinition.key,
+        label: trait.traitDefinition.label ?? undefined,
+      })),
+    ];
+    const distanceKm =
+      center && Number.isFinite(lat) && Number.isFinite(lon)
+        ? Math.sqrt(
+            ((lat! - center.latitude) * 111_000) ** 2 +
+              ((lon! - center.longitude) *
+                111_000 *
+                Math.cos((center.latitude * Math.PI) / 180)) **
+                2,
+          ) / 1000
+        : undefined;
+    return {
+      id: experience.id,
+      name: experience.canonicalName,
+      canonicalName: experience.canonicalName,
+      description: experience.description,
+      price: experience.price,
+      qualityScore: experience.qualityScore,
+      latitude: lat,
+      longitude: lon,
+      distance: distanceKm,
+      duration: (experience.durationMinutes ?? 120) / 60,
+      durationMinutes: experience.durationMinutes,
+      openingHours: experience.openingHours,
+      themes: this.stringList(metadata.themes),
+      intents: this.stringList(metadata.intents ?? metadata.archetypes),
+      traits: Array.from(
+        new Set([...this.stringList(metadata.traits), ...relationalTraits]),
+      ),
+      dimensionedTraits,
+      metadata: {
+        ...metadata,
+        dimensionedTraits,
+        source: 'experience_catalog',
+        experienceId: experience.id,
+      },
+      components: experience.components,
+    };
   }
 
   /**

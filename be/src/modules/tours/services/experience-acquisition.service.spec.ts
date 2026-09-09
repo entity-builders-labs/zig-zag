@@ -419,6 +419,7 @@ describe('ExperienceAcquisitionService', () => {
       catalog = {
         acquireNearbyAsExperiences: jest.fn(),
         findVerifiedWithin: jest.fn(),
+        findVerifiedByIds: jest.fn(),
       };
       embeddingIndexer = {
         index: jest.fn().mockResolvedValue({
@@ -486,7 +487,7 @@ describe('ExperienceAcquisitionService', () => {
         rejectedCountByReason: {},
       });
 
-      catalog.findVerifiedWithin.mockResolvedValueOnce([
+      catalog.findVerifiedByIds.mockResolvedValueOnce([
         { id: 'exp-teatro-colon', canonicalName: 'Teatro Colón' },
       ]);
 
@@ -516,10 +517,20 @@ describe('ExperienceAcquisitionService', () => {
         ],
       });
 
+      // Exact accepted-id retrieval, not a broad geographic re-query.
+      expect(catalog.findVerifiedByIds).toHaveBeenCalledWith([
+        'exp-teatro-colon',
+      ]);
+      expect(catalog.findVerifiedWithin).not.toHaveBeenCalled();
       expect(result.experienceIds).toEqual(['exp-teatro-colon']);
       expect(result.experiences).toHaveLength(1);
       expect(result.experiences[0].id).toBe('exp-teatro-colon');
       expect(result.provenance.acceptedCount).toBe(1);
+      // Embedding provenance is owned by the resolver and not reported here —
+      // it must never be fabricated from the accepted-id count.
+      expect(result.provenance.embeddingWriteStatus).toBeUndefined();
+      expect(result.provenance.embeddedCount).toBeUndefined();
+      expect(result.provenance.embeddingIdentity).toBeUndefined();
     });
 
     it('C. preserves geographic validation: rejected candidates with GEOGRAPHIC_VALIDATION_FAILED are NOT persisted', async () => {
@@ -578,6 +589,7 @@ describe('ExperienceAcquisitionService', () => {
       });
 
       expect(proposalResolver.resolve).toHaveBeenCalledTimes(1);
+      expect(catalog.findVerifiedByIds).not.toHaveBeenCalled();
       expect(catalog.findVerifiedWithin).not.toHaveBeenCalled();
       expect(result.experienceIds).toEqual([]);
       expect(result.experiences).toEqual([]);
@@ -610,6 +622,127 @@ describe('ExperienceAcquisitionService', () => {
       expect(proposalResolver.resolve).not.toHaveBeenCalled();
       expect(result.experienceIds).toEqual([]);
       expect(result.experiences).toEqual([]);
+    });
+
+    it('16. does not call the resolver when only destinationPointRadius is present (no destinationBoundary)', async () => {
+      catalog.acquireNearbyAsExperiences.mockResolvedValueOnce({
+        experienceIds: [],
+        experiences: [],
+        candidates: [{ candidateId: 'cand-pr', name: 'Point-radius Place' }],
+        observations: [],
+        provenance: {
+          provider: 'google',
+          cacheStatus: 'miss-live',
+          requestedCount: 10,
+          receivedCount: 1,
+        },
+      });
+
+      const result = await service.acquireNearby({
+        latitude: -34.6011,
+        longitude: -58.3831,
+        radius: 3000,
+        destinationPointRadius: {
+          latitude: -34.6011,
+          longitude: -58.3831,
+          radiusMeters: 3000,
+        },
+      });
+
+      // pointRadius alone must never enter a resolver that requires a boundary.
+      expect(proposalResolver.resolve).not.toHaveBeenCalled();
+      expect(catalog.findVerifiedByIds).not.toHaveBeenCalled();
+      expect(result.experienceIds).toEqual([]);
+      expect(result.experiences).toEqual([]);
+    });
+
+    it('17. calls the resolver for a point-scale destination that passes a synthetic boundary alongside destinationPointRadius', async () => {
+      const pointRadius = {
+        latitude: -41.13,
+        longitude: -71.31,
+        radiusMeters: 4000,
+      };
+      catalog.acquireNearbyAsExperiences.mockResolvedValueOnce({
+        experienceIds: [],
+        experiences: [],
+        candidates: [{ candidateId: 'cand-nahuel', name: 'Cerro Campanario' }],
+        observations: [],
+        provenance: {
+          provider: 'google',
+          cacheStatus: 'miss-live',
+          requestedCount: 10,
+          receivedCount: 1,
+        },
+      });
+      proposalResolver.resolve.mockResolvedValueOnce({
+        resolved: [
+          {
+            candidateId: 'cand-nahuel',
+            status: 'accepted',
+            experienceId: 'exp-campanario',
+          },
+        ],
+      });
+      catalog.findVerifiedByIds.mockResolvedValueOnce([
+        { id: 'exp-campanario', canonicalName: 'Cerro Campanario' },
+      ]);
+
+      const result = await service.acquireNearby({
+        latitude: pointRadius.latitude,
+        longitude: pointRadius.longitude,
+        radius: 4000,
+        destinationName: 'San Carlos de Bariloche',
+        destinationBoundary: destinationScope,
+        destinationPointRadius: pointRadius,
+      });
+
+      expect(proposalResolver.resolve).toHaveBeenCalledWith(
+        expect.objectContaining({
+          destinationBoundary: destinationScope,
+          destinationPointRadius: pointRadius,
+        }),
+      );
+      expect(result.experienceIds).toEqual(['exp-campanario']);
+    });
+
+    it('18. returns exactly the accepted resolver experienceIds, never a broader nearby pool', async () => {
+      catalog.acquireNearbyAsExperiences.mockResolvedValueOnce({
+        experienceIds: [],
+        experiences: [],
+        candidates: [{ candidateId: 'cand-new', name: 'Exp New' }],
+        observations: [],
+        provenance: {
+          provider: 'google',
+          cacheStatus: 'miss-live',
+          requestedCount: 10,
+          receivedCount: 1,
+        },
+      });
+      proposalResolver.resolve.mockResolvedValueOnce({
+        resolved: [
+          {
+            candidateId: 'cand-new',
+            status: 'accepted',
+            experienceId: 'exp-new',
+          },
+        ],
+      });
+      // Catalog exact-id lookup returns only what was asked for.
+      catalog.findVerifiedByIds.mockImplementationOnce(async (ids: string[]) =>
+        ids.map((id) => ({ id, canonicalName: id })),
+      );
+
+      const result = await service.acquireNearby({
+        latitude: -34.6011,
+        longitude: -58.3831,
+        radius: 3000,
+        destinationName: 'Buenos Aires',
+        destinationBoundary: destinationScope,
+      });
+
+      expect(catalog.findVerifiedByIds).toHaveBeenCalledWith(['exp-new']);
+      expect(result.experienceIds).toEqual(['exp-new']);
+      expect(result.experiences.map((exp: any) => exp.id)).toEqual(['exp-new']);
     });
   });
 });
