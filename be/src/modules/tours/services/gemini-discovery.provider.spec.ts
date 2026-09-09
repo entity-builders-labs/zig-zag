@@ -87,7 +87,23 @@ describe('GeminiDiscoveryProvider — controlled facet contract', () => {
     expect(prompt).toContain(CANONICAL_INTENTS.join(', '));
     expect(prompt).toMatch(/traits is the open-ended dimension/i);
     expect(prompt).toMatch(
-      /never put a canonical theme or intent inside traits/i,
+      /never put a canonical theme or canonical intent inside traits/i,
     );
+  });
+
+  it('keeps traits strictly separate but does NOT forbid a key appearing in both themes and intents', async () => {
+    const body = await capturePayload();
+    const prompt: string = body.input;
+
+    // no global cross-dimension dedupe rule that would contradict the normalizer
+    expect(prompt).not.toMatch(/same concept in more than one/i);
+    // themes and intents are independent dimensions, overlap allowed
+    expect(prompt).toMatch(
+      /themes and intents are separate, independent controlled dimensions/i,
+    );
+    expect(prompt).toMatch(
+      /same canonical key MAY appear in both themes and intents/i,
+    );
+    expect(prompt).toMatch(/do not deduplicate across themes and intents/i);
   });
 });

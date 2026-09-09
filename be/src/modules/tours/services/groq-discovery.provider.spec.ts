@@ -61,7 +61,19 @@ describe('GroqDiscoveryProvider — controlled facet contract', () => {
     expect(prompt).toMatch(/traits is the open-ended dimension/i);
     expect(prompt).toMatch(/craft beer/i);
     expect(prompt).toMatch(
-      /never put a canonical theme or intent inside traits/i,
+      /never put a canonical theme or canonical intent inside traits/i,
     );
+  });
+
+  it('keeps traits strictly separate but allows the same key in both themes and intents', async () => {
+    const prompt = await capturePrompt();
+    expect(prompt).not.toMatch(/same concept in more than one/i);
+    expect(prompt).toMatch(
+      /themes and intents are separate, independent controlled dimensions/i,
+    );
+    expect(prompt).toMatch(
+      /same canonical key MAY appear in both themes and intents/i,
+    );
+    expect(prompt).toMatch(/do not deduplicate across themes and intents/i);
   });
 });
