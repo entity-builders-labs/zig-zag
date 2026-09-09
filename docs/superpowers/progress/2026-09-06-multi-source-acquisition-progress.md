@@ -5,15 +5,14 @@ Canonical design: `docs/superpowers/specs/2026-09-06-multi-source-acquisition-de
 # Current State
 
 - Branch: `feat/experience-domain-v2`
-- Current milestone: Phase 3 — Deterministic Corroboration + Acquisition Planning Foundation (FINAL HARDENING VERIFIED)
-- Final verified Phase 3 code commit: `8415df6d2e6fdd32ee4a04a3d729f3d5ea93dc24`
-- Previous Phase 3 hardening code commit: `0dff08f7f8c3df11f04e48a5b9d1339a3836bdbb`
-- Previous Phase 3 initial code commit: `34a543451575d28e446638f389474ff91e724a2e`
-- Verified base HEAD: `1b702fcff99c61f36578db9f58bdd6e193e8b68e`
-- Previous Phase 2 code commit: `f12b2d56dada8a6db7bfc2e2308ea45366426955`
-- Last verified test state: backend Jest `116/116` suites and `831/831` tests passing (baseline was `113/113` suites, `792/792` tests; +3 new suites, +39 tests, zero regressions).
+- Current milestone: Phase 4 — Google Places Cutover into Acquisition Framework (FINAL HARDENING VERIFIED)
+- Final verified Phase 4 hardening code commit: `0321576b4f335a26039943ec3668a7390ce05139`
+- Previous Phase 4 initial code commit: `a42aa3f453973f09491a3ab5603cc9146763286a`
+- Previous Phase 3 code commit: `8415df6d2e6fdd32ee4a04a3d729f3d5ea93dc24`
+- Verified base HEAD: `4dfd53b5292c7eb7ac20773bc228cee985251c19`
+- Last verified test state: backend Jest `117/117` suites and `855/855` tests passing (+7 new tests in Phase 4 hardening, zero regressions).
 - Linting: `yarn lint:check` is 100% clean (0 errors, 0 warnings across `{src,apps,libs,test}/**/*.ts`).
-- Typecheck: `yarn run check` introduces zero new errors beyond the known acceptance-fixture baseline; `yarn build` is 100% clean.
+- Build: `yarn build` is 100% clean.
 
 # Completed
 
@@ -197,19 +196,21 @@ Canonical design: `docs/superpowers/specs/2026-09-06-multi-source-acquisition-de
 - **NestJS Module Registration**:
   - Registered and exported `StructuredCandidateCorroborationService` and `ExperienceAcquisitionPlannerService` in `be/src/modules/tours/tours.module.ts`. Downstream orchestration and resolver remain completely untouched.
 
-### Phase 4: Google Places Cutover into the Acquisition Framework
+### Phase 4: Google Places Cutover into the Acquisition Framework (FINAL HARDENING VERIFIED)
 - **Verified Code Commit**:
-  - `a42aa3f453973f09491a3ab5603cc9146763286a`
+  - `0321576b4f335a26039943ec3668a7390ce05139` (final hardening)
+  - `a42aa3f453973f09491a3ab5603cc9146763286a` (initial cutover)
 - **GooglePlacesAcquisitionProvider Implementation**:
   - Created `be/src/modules/tours/providers/google-places-acquisition.provider.ts`:
     - Injects `PlacesApiService` and implements standard `AcquisitionProviderResult<SourceObservation>` contract.
     - Supports coordinate search (`searchNearby`) and text fallback (`searchText`).
+    - Hardened text fallback: when coordinates are absent, single `searchTypes` strictly enforces `includedType` and `strictTypeFiltering: true`. Multiple `searchTypes` deterministically issues per-type `searchText` queries and dedupes places by `place.id` while preserving `maxResultCount`. Unconstrained destination-only text search is prevented when types are specified.
     - Emits provider-neutral `SourceObservation` with `provider: 'google_places'`, `evidenceKey: 'google_places:' + place.id`, `evidenceType: 'place'`, `metadata`.
     - Non-inference invariant: does not infer tourism_activity, route, area, themes, traits, intents, or preference facets.
     - Coordinate validation: finite numbers, lat in [-90, 90], lon in [-180, 180]. Invalid coordinates safely rejected.
     - Conservative admissibility check: rejects generic/commercial categories (`point_of_interest`, `establishment`, `store`, `lodging`, `bank`, `gas_station`, etc.) unless allowed tourism types (`museum`, `park`, `tourist_attraction`, `winery`, etc.) are present.
     - Provider failure isolation: catches API throws and returns `{ status: 'failed', value: [], failureReason }` without bubbling uncaught exceptions.
-    - Unit tests in `be/src/modules/tours/providers/google-places-acquisition.provider.spec.ts` (7 tests passing).
+    - Unit tests in `be/src/modules/tours/providers/google-places-acquisition.provider.spec.ts` (10 tests passing).
 - **Cross-Source Corroboration**:
   - Verified `StructuredExperienceCandidateSynthesizerService` handles `google_places` observations provider-neutrally.
   - Added Google Places cross-source corroboration test suite in `be/src/modules/tours/services/structured-candidate-corroboration.service.spec.ts` (17 tests total passing):
@@ -217,23 +218,27 @@ Canonical design: `docs/superpowers/specs/2026-09-06-multi-source-acquisition-de
     - Distance > 150m with same name remains 2 distinct candidates (`NEW`).
     - Overlapping coordinates $\le 150$m with different names marked `AMBIGUOUS` and not merged.
     - Google Places `place_id` does NOT auto-merge via QID rule with Wikivoyage Wikidata QID.
-- **Elimination of Unsafe Direct Places Persistence Shortcut**:
+- **Complete Elimination of Catalog-Level Persistence Shortcut**:
   - Refactored `ExperienceCatalogService.acquireNearbyAsExperiences` in `be/src/modules/tours/services/experience-catalog.service.ts`:
-    - Eliminated raw Google Places results directly calling `persistVerifiedExperience` or `upsertGeoEntity`.
-    - Every Google Places candidate strictly flows through `GooglePlacesAcquisitionProvider` -> `StructuredExperienceCandidateSynthesizerService` -> `StructuredCandidateCorroborationService` -> persist only corroborated `ExperienceCandidate[]`.
-    - Verified opening hours normalization and persistence intact in `experience-catalog-opening-hours.spec.ts` (2 tests passing).
-- **ExperienceAcquisitionService Execution**:
-  - Implemented `executePlan(plan: ExperienceAcquisitionPlan)` in `be/src/modules/tours/services/experience-acquisition.service.ts`:
-    - Dispatches to planned providers (`wikivoyage`, `google_places`), synthesizes proposals, and corroborates through `StructuredCandidateCorroborationService`.
-    - Provider failure isolation: Google Places API failure recorded in `providerResults` without failing Wikivoyage or the pass.
-    - Zero results from Google Places handled cleanly as success with `[]`.
-    - Unit and integration tests in `experience-acquisition.service.spec.ts` (8 tests passing).
+    - Completely removed the direct local loop calling `this.upsertGeoEntity` and `this.persistVerifiedExperience`.
+    - `acquireNearbyAsExperiences` is strictly non-persistent and returns `{ experienceIds: [], experiences: [], candidates, observations, provenance }`.
+    - Added dedicated test in `be/src/modules/tours/services/experience-catalog.service.spec.ts` asserting that `upsertGeoEntity` and `persistVerifiedExperience` are never called from `acquireNearbyAsExperiences`.
+    - Verified opening hours normalization and persistence via direct catalog persistence test in `experience-catalog-opening-hours.spec.ts` (2 tests passing).
+- **Single Resolver-Backed Persistence Path**:
+  - Wired `ExperienceProposalResolver` into `ExperienceAcquisitionService`:
+    - `executePlan` populates deterministic `evidence` records (`ResolverEvidenceItem[]`) directly from `SourceObservation` fields.
+    - `acquireNearby` accepts destination context (`destinationName`, `destinationCountryCode`, `destinationBoundary`, `destinationPointRadius`).
+    - When destination context is present, routes candidates through `proposalResolver.resolve(...)`, passing matching evidence records. Only candidates accepted by the resolver and geographic validation are materialized in the catalog.
+    - Candidates rejected by geographic validation (e.g. `GEOGRAPHIC_VALIDATION_FAILED`) are never written to the catalog.
+    - Updated `ExperienceGenerationService` refill call site to pass resolved destination boundary and point-radius context to `acquireNearby`.
+    - Added `materializeExecution(execution, context)` helper for explicit plan materialization.
+    - Added unit tests in `be/src/modules/tours/services/experience-acquisition.service.spec.ts` verifying resolver delegation, evidence propagation, and geographic rejection preservation (11 tests passing).
 - **NestJS Module Registration**:
   - Registered and exported `GooglePlacesAcquisitionProvider` in `be/src/modules/tours/tours.module.ts`.
 
 # In Progress
 
-None. Phase 4 Google Places cutover and validation are complete.
+None. Phase 4 Google Places cutover and final hardening are complete and verified.
 
 # Not Started
 
@@ -243,21 +248,22 @@ None. Phase 4 Google Places cutover and validation are complete.
 
 # Verification
 
-- `yarn test --runInBand` (`be/`): PASS — 117 suites, 848 tests passing (zero regressions, +1 suite, +17 tests over Phase 3).
+- `yarn test --runInBand` (`be/`): PASS — 117 suites, 855 tests passing (zero regressions, +7 tests over Phase 4 initial commit, +24 tests over Phase 3).
 - `yarn run lint:check` (`be/`): PASS — 0 errors, 0 warnings across `{src,apps,libs,test}/**/*.ts`.
 - `yarn build` (`be/`): PASS — nest build completes cleanly.
-- Targeted Phase 4 test suites: PASS — 34/34 tests passing across all 4 targeted suites (`google-places-acquisition.provider.spec.ts` (7), `structured-candidate-corroboration.service.spec.ts` (17), `experience-acquisition.service.spec.ts` (8), `experience-catalog-opening-hours.spec.ts` (2)).
+- Targeted Phase 4 test suites: PASS — 62/62 tests passing across all 5 targeted suites (`google-places-acquisition.provider.spec.ts` (10), `structured-candidate-corroboration.service.spec.ts` (17), `experience-acquisition.service.spec.ts` (11), `experience-catalog.service.spec.ts` (22), `experience-catalog-opening-hours.spec.ts` (2)).
 
 # Important Decisions / Invariants
 
-- **Checkpoint Convention**:
-  - `Verified code commit`: Commit whose code, types, and tests were actually executed and verified.
-  - `Verified base HEAD`: Base commit on which changes were developed and verified.
-  - `Checkpoint commit`: Optional informational field only when referring to an already-existing documentation or tracking commit. Never embed the self-referential commit SHA within its own commit.
+- **Single Persistence Path for Acquired Experiences**:
+  - `ExperienceProposalResolverService.resolve()` -> geographic validation (`CompositeGeographicValidationService`) -> `ExperienceCatalogService.persistVerifiedExperience()` is the ONLY path for persisting acquired experiences into the catalog.
+  - `GooglePlacesAcquisitionProvider` and `acquireNearbyAsExperiences` never write directly to the database.
 - **Provider-Neutral SourceObservation Boundary**:
   - Google Places outputs `SourceObservation` with `provider: 'google_places'`, `evidenceKey: 'google_places:' + place.id`, and `evidenceType: 'place'`.
   - Raw Google Places results never bypass observation / proposal / corroboration.
-  - Direct raw Place -> upsertGeoEntity + persistVerifiedExperience loop completely removed.
+- **Strict Google Places Text Fallback Filtering**:
+  - When coordinates are absent and text search is used, `searchTypes` are strictly enforced with `includedType` and `strictTypeFiltering: true`.
+  - For multiple types, deterministic per-type searches deduplicate places by `place.id` while preserving `maxResultCount`. Unconstrained destination-only text search is prohibited when types are specified.
 - **Conservative Google Places Admissibility**:
   - Purely commercial/generic types (`point_of_interest`, `establishment`, `store`, `lodging`, `bank`, etc.) are rejected unless allowed tourism types (`museum`, `park`, `tourist_attraction`, `winery`, etc.) are present.
 - **Evidence Identity vs Entity Identity**:
@@ -271,13 +277,8 @@ None. Phase 4 Google Places cutover and validation are complete.
   - Conservative complete-link clustering prevents false merges under transitive conflicts.
   - Single-place component hint collapse: merging two single-place proposals yields exactly 1 `GeoEntityHint` on the resulting candidate only when `role` and `expectedKind` match.
   - Activity-like observations (`tourism_activity`, `route`, `operator`, `editorial`) are never merged with places even if they share coordinates or Wikidata QID.
-- **Scope Isolation**:
-  - Phase 4 refactors Google Places into the structured acquisition pipeline.
-  - Does NOT yet execute OSM or web providers through new orchestration.
-  - `ExperienceCandidate` remains the downstream boundary.
-  - Resolver, geographic validator, dedupe, embeddings, ranking, solver, and planner are untouched.
 
 # Next Action
 
-Phase 4 is fully implemented, verified, and complete. Stop before Phase 5. Next action will be Phase 5 (Proactive OSM) upon user instruction.
+Phase 4 final hardening is fully implemented, verified, and complete. Stop before Phase 5. Next action will be Phase 5 (Proactive OSM) upon user instruction.
 
