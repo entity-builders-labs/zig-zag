@@ -5,14 +5,25 @@ Canonical design: `docs/superpowers/specs/2026-09-06-multi-source-acquisition-de
 # Current State
 
 - Branch: `feat/experience-domain-v2`
-- Current milestone: Phase 4 — Google Places Cutover into Acquisition Framework (FINAL HARDENING VERIFIED)
-- Final verified Phase 4 hardening code commit: `0321576b4f335a26039943ec3668a7390ce05139`
+- Current milestone: Phase 4 — Google Places Cutover (FINAL VERIFIED)
+- Final verified Phase 4 code commit: `28c550936bdfec853fea3fe9353efc11cc30bdb5`
+- Previous Phase 4 hardening code commit: `0321576b4f335a26039943ec3668a7390ce05139`
 - Previous Phase 4 initial code commit: `a42aa3f453973f09491a3ab5603cc9146763286a`
 - Previous Phase 3 code commit: `8415df6d2e6fdd32ee4a04a3d729f3d5ea93dc24`
-- Verified base HEAD: `4dfd53b5292c7eb7ac20773bc228cee985251c19`
-- Last verified test state: backend Jest `117/117` suites and `855/855` tests passing (+7 new tests in Phase 4 hardening, zero regressions).
+- Phase 4 docs checkpoint HEAD prior to this hardening: `7003c369afa8ad0b79076560d976aa1c88bbe023`
+- Last verified test state: backend Jest `117/117` suites and `867/867` tests passing
+  (+12 new tests in this Phase 4 finalization, zero regressions vs the prior 855).
+- Targeted Phase 4 suites: `5/5` suites, `74/74` tests passing
+  (`google-places-acquisition.provider.spec.ts`, `experience-catalog.service.spec.ts`,
+  `experience-acquisition.service.spec.ts`, `structured-candidate-corroboration.service.spec.ts`,
+  `experience-catalog-opening-hours.spec.ts`).
 - Linting: `yarn lint:check` is 100% clean (0 errors, 0 warnings across `{src,apps,libs,test}/**/*.ts`).
-- Build: `yarn build` is 100% clean.
+- Build: `yarn build` (`nest build`) is 100% clean.
+- `yarn run check` (typecheck + lint:check): fails **only** on 7 pre-existing baseline
+  `tsc` errors under `be/test/acceptance/**` and `test/acceptance/unit/completeness-validator.spec.ts`
+  (`PlanningExperienceCandidate.startFootprint/endFootprint`, `TourCompletenessIssue.dayNumber` —
+  PR10 daily-planning drift, unrelated to acquisition). These are byte-identical to the pre-change
+  baseline at `7003c369`; this finalization introduces zero new `tsc` errors and `src/**` typechecks clean.
 
 # Completed
 
@@ -236,9 +247,113 @@ Canonical design: `docs/superpowers/specs/2026-09-06-multi-source-acquisition-de
 - **NestJS Module Registration**:
   - Registered and exported `GooglePlacesAcquisitionProvider` in `be/src/modules/tours/tours.module.ts`.
 
+### Phase 4: Final Verification (`28c550936bdfec853fea3fe9353efc11cc30bdb5`)
+Five acquisition-layer robustness fixes; the resolver-backed materialization
+architecture (Places → `SourceObservation[]` → `StructuredCandidateProposal[]`
+→ corroboration → `ExperienceCandidate[]` → `ExperienceProposalResolverService
+.resolve()` → `CompositeGeographicValidationService` → dedupe → persistence)
+is unchanged.
+
+- **Generic-commercial Places admission rule ("Starbucks problem")**:
+  - `google-places-acquisition.provider.ts`: `DEFAULT_ALLOWED_GOOGLE_PLACES_TYPES`
+    split into `SAFE_GENERIC_TOURISM_TYPES` (tourist_attraction, museum, art_gallery,
+    park, national_park, historical_landmark, historical_place, church,
+    place_of_worship, zoo, aquarium, amusement_park, observation_deck,
+    visitor_center, cultural_center, campground, winery) and
+    `CONTEXTUAL_GOOGLE_PLACES_TYPES` (restaurant, cafe, bakery, bar, night_club).
+    `DEFAULT_ALLOWED_GOOGLE_PLACES_TYPES` retained as the derived union.
+  - `isAdmissible`: with no explicit `searchTypes` the allowlist is
+    `SAFE_GENERIC_TOURISM_TYPES` only — a contextual commercial type is admissible
+    **only** when the acquisition plan/`searchTypes` explicitly requested it. The
+    `onlyDisallowed` guard still rejects broad-generic-only results
+    (`point_of_interest`/`establishment`/store/bank/pharmacy/…). Rule is purely
+    type-driven; no brand names.
+  - Semantic invariant preserved: Google Places `type` never infers
+    `theme/trait/intent/winery_scale/nature_type/local_character/tourism_intensity`
+    or a quality facet, even for an explicitly requested contextual type — the
+    `SourceObservation` carries only factual `metadata`
+    (rating, userRatingCount, primaryType, types, openingHoursWeekdayText).
+  - Regression tests in `google-places-acquisition.provider.spec.ts`: generic refill
+    rejects a Starbucks-like cafe; an explicit `searchTypes: ['cafe']` may admit it;
+    generic museum/park/tourist_attraction still admitted; pharmacy/bank/store still
+    rejected; no semantic facet inference with an explicit contextual type.
+
+- **Provider failure vs successful-empty distinction**:
+  - `ExperienceCatalogService.acquireNearbyAsExperiences` now inspects
+    `providerResult.status`. `status: 'failed'` throws a structured
+    `PlacesCrawlError` (truthful `PlacesCrawlProvenance` — `receivedCount: 0`,
+    `acceptedCount: 0` — and `code: 'request_failed'`) instead of returning a
+    successful empty acquisition. `status: 'success', value: []` still returns a
+    normal empty acquisition (`experienceIds: []`, `receivedCount: 0`, no error).
+  - Propagation is via the existing seam: `ExperienceAcquisitionService.acquireNearby`
+    does not catch it, so it reaches `ExperienceGenerationService`'s existing
+    `PlacesCrawlError` refill `catch` (`experience-generation.service.ts` ~1432-1475),
+    which records the failed `places_crawl` bitácora step, degrades coverage
+    (`{ status: 'degraded', reason: code }`), and continues on the existing
+    catalog/discovery/Wikivoyage pool. Not a global fatal error unless the
+    existing coverage rules independently fail the tour.
+  - Regression tests in `experience-catalog.service.spec.ts`: failed provider
+    rejects with `PlacesCrawlError` (and never reaches synthesis/corroboration);
+    successful `[]` stays a normal empty acquisition.
+  - `ExperienceGenerationService` has no unit spec harness; standing one up for a
+    ~1500-line service is disproportionate here, and item 20 was explicitly
+    conditional. The isolation/observability seam is already in code and the throw
+    is unit-covered at the catalog boundary.
+
+- **Truthful embedding provenance**:
+  - `ExperienceAcquisitionService.acquireNearby` resolver-backed branch no longer
+    sets `embeddedCount: acceptedIds.length` / `embeddingWriteStatus: 'indexed'` /
+    `embeddingFailureReason` / `embeddingIdentity`. Embedding indexing is owned by
+    `ExperienceProposalResolverService.resolve()` (gated on dedupe `NEW` /
+    `semanticDocumentChanged`, and the embedding provider may be `unavailable`);
+    its per-Experience outcome is not propagated, so those optional
+    `PlacesCrawlProvenance` fields are omitted rather than invented. Both return
+    branches now type their provenance as `PlacesCrawlProvenance` explicitly.
+  - Regression test in `experience-acquisition.service.spec.ts`: an accepted
+    resolver candidate yields `embeddingWriteStatus === undefined` and
+    `embeddedCount === undefined` (fails if `embeddedCount: acceptedIds.length` or
+    `'indexed'` is reintroduced).
+
+- **`destinationBoundary` guard**:
+  - `canResolve` is now `Boolean(this.proposalResolver) && Boolean(input.destinationBoundary)`
+    — `destinationPointRadius` alone (supplemental point-scale context) can no
+    longer enter `ExperienceProposalResolverService.resolve()`, which throws
+    `'Experience resolution requires destinationBoundary'` without a boundary.
+    Point-scale destinations still resolve: `ExperienceGenerationService` passes a
+    synthetic point-radius `destinationBoundary` alongside the real
+    `destinationPointRadius`.
+  - Regression tests in `experience-acquisition.service.spec.ts`: pointRadius-only
+    → resolver not called, acquisition stays non-persistent; boundary + pointRadius
+    together → resolver called with both.
+
+- **Exact accepted-ID retrieval**:
+  - New `ExperienceCatalogService.findVerifiedByIds(ids: string[])` — order-preserving,
+    exact-id (`where: { id: { in: ids }, status: VERIFIED }`), returns exactly the
+    requested rows (a missing/non-VERIFIED row simply drops out), no geographic
+    scan/filter. The resolver-backed `acquireNearby` now uses it instead of
+    `findVerifiedWithin(lat,lng,radius,max)`, so the returned `experiences`
+    correspond exactly to the accepted resolver `experienceIds` and never leak an
+    unrelated nearby Experience.
+  - Per-row hydration extracted into a shared private `projectVerifiedExperienceRow`
+    helper reused by `findVerifiedWithin` and `findVerifiedByIds`; `findVerifiedWithin`
+    behavior (radius filter, distance, `distanceSquared` sort + id tie-break, slice)
+    is byte-for-byte preserved (its existing spec stays green).
+  - Regression tests: `findVerifiedByIds` returns only the requested rows and
+    short-circuits on an empty id list; acquisition spec asserts
+    `findVerifiedByIds` is called with exactly the accepted ids and
+    `findVerifiedWithin` is not.
+
+- **Untouched (verified intact)**: resolver / `CompositeGeographicValidationService`
+  / SAME-NEW-AMBIGUOUS dedupe / synthesizer / `ExperienceAcquisitionPlannerService`
+  / cross-provider corroboration (all corroboration specs green) / Google text
+  fallback `searchTypes` behavior (1 type → strict `includedType`; N types →
+  per-type dedup by `place.id`, respects `maxResultCount`). No schema/migration,
+  no OSM/Tavily/`exploration_style` work, no `ExperienceCandidate` shape change,
+  no module-wiring change. **Phase 5 not started.**
+
 # In Progress
 
-None. Phase 4 Google Places cutover and final hardening are complete and verified.
+None. Phase 4 Google Places cutover and final verification are complete.
 
 # Not Started
 
@@ -248,10 +363,19 @@ None. Phase 4 Google Places cutover and final hardening are complete and verifie
 
 # Verification
 
-- `yarn test --runInBand` (`be/`): PASS — 117 suites, 855 tests passing (zero regressions, +7 tests over Phase 4 initial commit, +24 tests over Phase 3).
-- `yarn run lint:check` (`be/`): PASS — 0 errors, 0 warnings across `{src,apps,libs,test}/**/*.ts`.
-- `yarn build` (`be/`): PASS — nest build completes cleanly.
-- Targeted Phase 4 test suites: PASS — 62/62 tests passing across all 5 targeted suites (`google-places-acquisition.provider.spec.ts` (10), `structured-candidate-corroboration.service.spec.ts` (17), `experience-acquisition.service.spec.ts` (11), `experience-catalog.service.spec.ts` (22), `experience-catalog-opening-hours.spec.ts` (2)).
+Verified against code commit `28c550936bdfec853fea3fe9353efc11cc30bdb5`:
+
+- `yarn test --runInBand` (`be/`): PASS — 117 suites, 867 tests passing (+12 over the prior 855, zero regressions).
+- Targeted Phase 4 suites: PASS — 74/74 tests across 5 suites
+  (`google-places-acquisition.provider.spec.ts` (15), `experience-catalog.service.spec.ts` (26),
+  `experience-acquisition.service.spec.ts` (14), `structured-candidate-corroboration.service.spec.ts` (17),
+  `experience-catalog-opening-hours.spec.ts` (2)).
+- `yarn lint:check` (`be/`): PASS — 0 errors, 0 warnings across `{src,apps,libs,test}/**/*.ts`.
+- `yarn build` (`be/`): PASS — `nest build` completes cleanly.
+- `yarn run check` (`be/`): FAIL — but exclusively on 7 pre-existing baseline `tsc` errors under
+  `be/test/acceptance/**` + `test/acceptance/unit/completeness-validator.spec.ts`, byte-identical to
+  the `7003c369` baseline (PR10 `PlanningExperienceCandidate` / `TourCompletenessIssue` drift,
+  unrelated to acquisition). This finalization adds zero new `tsc` errors; `src/**` typechecks clean.
 
 # Important Decisions / Invariants
 
@@ -280,5 +404,7 @@ None. Phase 4 Google Places cutover and final hardening are complete and verifie
 
 # Next Action
 
-Phase 4 final hardening is fully implemented, verified, and complete. Stop before Phase 5. Next action will be Phase 5 (Proactive OSM) upon user instruction.
+Phase 4 (Google Places cutover) is fully implemented, verified, and complete at
+`28c550936bdfec853fea3fe9353efc11cc30bdb5`. Phase 5 has NOT started. Next action
+will be Phase 5 (Proactive OSM) upon explicit user instruction.
 
