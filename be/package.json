@@ -21,6 +21,7 @@
     "test:cov": "jest --coverage",
     "test:acceptance": "jest --config ./test/jest-acceptance.json --runInBand",
     "test:providers:smoke": "jest --config ./test/jest-smoke.json --runInBand",
+    "test:live:discovery": "jest --config ./test/jest-live.json --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "seed": "npx ts-node prisma/seed.ts",
     "crawl": "npx ts-node src/cli.ts crawl -lat 20.6502284 -lng -87.390293 -r 50000 -p 10 -k 'things to do'",
