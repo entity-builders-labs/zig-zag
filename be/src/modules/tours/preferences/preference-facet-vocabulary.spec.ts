@@ -112,7 +112,14 @@ describe('preference-facet-vocabulary', () => {
       ).toBe('handcrafted_goods');
     });
 
-    it('rejects exploration_style (dormant in Phase 2) and unknown dimensions', () => {
+    it('canonicalizes the two actionable exploration_style poles and rejects everything else', () => {
+      expect(
+        canonicalizeFacetKey(PREFERENCE_DIMENSIONS.EXPLORATION_STYLE, 'iconic'),
+      ).toBe('iconic');
+      expect(canonicalizeFacetKey('exploration_style', 'local_deep_dive')).toBe(
+        'local_deep_dive',
+      );
+      // BALANCED is neutral -> no facet; the old Phase-2 speculative keys are gone.
       expect(
         canonicalizeFacetKey('exploration_style', 'balanced'),
       ).toBeUndefined();

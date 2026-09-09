@@ -155,14 +155,34 @@ describe('preference-facet-merge.util', () => {
       );
     });
 
-    it('returns undefined for invalid keys or dormant exploration_style', () => {
+    it('normalizes the wizard exploration_style field (iconic / local_deep_dive), drops balanced and invalid keys', () => {
+      expect(normalizeWizardFacet('exploration_style', 'iconic')).toEqual({
+        dimension: 'exploration_style',
+        key: 'iconic',
+        importance: 1.0,
+        confidence: 1.0,
+        source: 'wizard',
+      });
+      expect(
+        normalizeWizardFacet('exploration_style', 'local_deep_dive'),
+      ).toEqual({
+        dimension: 'exploration_style',
+        key: 'local_deep_dive',
+        importance: 1.0,
+        confidence: 1.0,
+        source: 'wizard',
+      });
+      // BALANCED is neutral -> no facet.
+      expect(
+        normalizeWizardFacet('exploration_style', 'balanced'),
+      ).toBeUndefined();
+      expect(
+        normalizeWizardFacet('exploration_style', 'relaxed'),
+      ).toBeUndefined();
       expect(
         normalizeWizardFacet('theme', 'invalid_fake_theme'),
       ).toBeUndefined();
       expect(normalizeWizardFacet('intent', 'invalid_intent')).toBeUndefined();
-      expect(
-        normalizeWizardFacet('exploration_style', 'relaxed'),
-      ).toBeUndefined();
       expect(
         normalizeWizardFacet('unknown_dimension', 'some_key'),
       ).toBeUndefined();
@@ -189,13 +209,15 @@ describe('preference-facet-merge.util', () => {
       expect(merged.find((f) => f.dimension === 'intent')?.key).toBe('food');
     });
 
-    it('filters out exploration_style or invalid facets during merge', () => {
+    it('carries a wizard exploration_style facet through merge and still filters stale/invalid keys', () => {
       const wizardFacets = [
         normalizeWizardFacet('theme', 'history'),
+        normalizeWizardFacet('exploration_style', 'iconic'),
         undefined,
       ];
       const freeTextFacets: PreferenceFacet[] = [
         {
+          // stale Phase-2 key: still filtered
           dimension: 'exploration_style',
           key: 'relaxed',
           importance: 1.0,
@@ -212,9 +234,15 @@ describe('preference-facet-merge.util', () => {
       ];
 
       const merged = mergePreferenceFacets(wizardFacets, freeTextFacets);
-      expect(merged).toHaveLength(1);
-      expect(merged[0].dimension).toBe('theme');
-      expect(merged[0].key).toBe('history');
+      expect(merged).toHaveLength(2);
+      expect(merged.find((f) => f.dimension === 'theme')?.key).toBe('history');
+      expect(merged.find((f) => f.dimension === 'exploration_style')).toEqual({
+        dimension: 'exploration_style',
+        key: 'iconic',
+        importance: 1.0,
+        confidence: 1.0,
+        source: 'wizard',
+      });
     });
   });
 

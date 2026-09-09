@@ -6,7 +6,9 @@ export const PREFERENCE_DIMENSIONS = {
   TOURISM_INTENSITY: 'tourism_intensity',
   NATURE_TYPE: 'nature_type',
   LOCAL_CHARACTER: 'local_character',
-  // Reserved for Phase 6 rollout only; dormant in Phase 2
+  // Activated in Phase 6. Wizard-sourced only (the LLM interpreter is
+  // forbidden from emitting it); influences ranking, never acquisition or
+  // search-query phrasing.
   EXPLORATION_STYLE: 'exploration_style',
 } as const;
 
@@ -70,12 +72,10 @@ export const INITIAL_DIMENSION_VOCABULARY: Record<
     'traditional',
     'contemporary',
   ],
-  // Dormant in Phase 2
-  [PREFERENCE_DIMENSIONS.EXPLORATION_STYLE]: [
-    'relaxed',
-    'balanced',
-    'intensive',
-  ],
+  // Matches the two actionable poles of the ExplorationStyle enum
+  // (ICONIC / LOCAL_DEEP_DIVE). BALANCED is deliberately absent — it is
+  // neutral and produces no facet / no ranking pressure.
+  [PREFERENCE_DIMENSIONS.EXPLORATION_STYLE]: ['iconic', 'local_deep_dive'],
 };
 
 /**
@@ -212,9 +212,12 @@ function normalizeText(value: string): string {
 
 /**
  * Maps a raw facet key into its canonical domain key within the given dimension.
- * For controlled dimensions, returns undefined if the key cannot be mapped to the canonical vocabulary.
+ * For controlled dimensions (incl. exploration_style since Phase 6), returns
+ * undefined if the key cannot be mapped to the canonical vocabulary — so
+ * exploration_style 'iconic'/'local_deep_dive' canonicalize, 'balanced' and
+ * anything else return undefined.
  * For open dimensions (trait), returns normalized string.
- * For unknown or dormant dimensions (exploration_style), returns undefined.
+ * For unknown dimensions, returns undefined.
  */
 export function canonicalizeFacetKey(
   dimension: string,
@@ -230,11 +233,6 @@ export function canonicalizeFacetKey(
   }
 
   const dim = dimension.trim().toLowerCase() as PreferenceDimension;
-
-  // exploration_style is dormant in Phase 2
-  if (dim === PREFERENCE_DIMENSIONS.EXPLORATION_STYLE) {
-    return undefined;
-  }
 
   // Reject any dimensions not in PREFERENCE_DIMENSIONS
   const validDimensions = Object.values(PREFERENCE_DIMENSIONS) as string[];

@@ -40,12 +40,13 @@ describe('candidateMatchesPreferenceFacet', () => {
       ).toBe(false);
     });
 
-    it('returns false for unknown dimensions and exploration_style', () => {
+    it('returns false for unknown dimensions and stale exploration_style keys', () => {
       const exp = {
         canonicalName: 'Relaxed Tour',
         description: 'Super relaxed and balanced pace',
         traits: ['relaxed', 'custom_dim_val'],
       };
+      // 'relaxed' is a stale Phase-2 key — no evidence-target mapping, no match.
       expect(
         candidateMatchesPreferenceFacet(
           exp,
@@ -58,6 +59,100 @@ describe('candidateMatchesPreferenceFacet', () => {
           baseFacet('unknown_dimension', 'custom_dim_val'),
         ),
       ).toBe(false);
+    });
+  });
+
+  describe('exploration_style (Phase 6)', () => {
+    it('iconic matches explicit dimensioned tourism_intensity iconic|popular', () => {
+      const iconicExp = {
+        canonicalName: 'Obelisco',
+        dimensionedTraits: [{ dimension: 'tourism_intensity', key: 'iconic' }],
+      };
+      const popularExp = {
+        metadata: {
+          preferenceFacets: [
+            { dimension: 'tourism_intensity', key: 'popular' },
+          ],
+        },
+      };
+      expect(
+        candidateMatchesPreferenceFacet(
+          iconicExp,
+          baseFacet('exploration_style', 'iconic'),
+        ),
+      ).toBe(true);
+      expect(
+        candidateMatchesPreferenceFacet(
+          popularExp,
+          baseFacet('exploration_style', 'iconic'),
+        ),
+      ).toBe(true);
+    });
+
+    it('local_deep_dive matches tourism_intensity hidden|local or local_character authentic', () => {
+      const hiddenExp = {
+        metadata: {
+          dimensions: { tourism_intensity: 'hidden' },
+        },
+      };
+      const authenticExp = {
+        dimensionedTraits: [{ dimension: 'local_character', key: 'authentic' }],
+      };
+      expect(
+        candidateMatchesPreferenceFacet(
+          hiddenExp,
+          baseFacet('exploration_style', 'local_deep_dive'),
+        ),
+      ).toBe(true);
+      expect(
+        candidateMatchesPreferenceFacet(
+          authenticExp,
+          baseFacet('exploration_style', 'local_deep_dive'),
+        ),
+      ).toBe(true);
+    });
+
+    it('never matches from name / description / duration / components — only explicit dimensioned evidence', () => {
+      const noEvidence = {
+        canonicalName:
+          'Iconic landmark tour of the most popular authentic spots',
+        description:
+          'A hidden gem for local deep dives, very iconic and popular',
+        durationMinutes: 45,
+        components: [{ role: 'venue' }],
+        themes: ['history'],
+        traits: ['iconic', 'authentic'],
+      };
+      expect(
+        candidateMatchesPreferenceFacet(
+          noEvidence,
+          baseFacet('exploration_style', 'iconic'),
+        ),
+      ).toBe(false);
+      expect(
+        candidateMatchesPreferenceFacet(
+          noEvidence,
+          baseFacet('exploration_style', 'local_deep_dive'),
+        ),
+      ).toBe(false);
+    });
+
+    it('cross-dimension isolation: an iconic facet does not match tourism_intensity local evidence, and vice versa', () => {
+      const localExp = {
+        dimensionedTraits: [{ dimension: 'tourism_intensity', key: 'local' }],
+      };
+      expect(
+        candidateMatchesPreferenceFacet(
+          localExp,
+          baseFacet('exploration_style', 'iconic'),
+        ),
+      ).toBe(false);
+      expect(
+        candidateMatchesPreferenceFacet(
+          localExp,
+          baseFacet('exploration_style', 'local_deep_dive'),
+        ),
+      ).toBe(true);
     });
   });
 

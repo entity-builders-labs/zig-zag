@@ -354,5 +354,45 @@ describe('evaluateExperiencePreferences', () => {
       );
       expect(wineryFacetMatch?.matched).toBe(true);
     });
+
+    it('a wizard exploration_style facet participates in scoring against explicit dimensioned evidence', () => {
+      const intent: NormalizedPreferenceIntent = {
+        ...emptyIntent,
+        preferredFacets: [
+          {
+            dimension: 'exploration_style',
+            key: 'local_deep_dive',
+            importance: 1.0,
+            confidence: 1.0,
+            source: 'wizard',
+          },
+        ],
+      };
+
+      const withEvidence = {
+        canonicalName: 'Barrio escondido',
+        dimensionedTraits: [{ dimension: 'tourism_intensity', key: 'hidden' }],
+      };
+      const withoutEvidence = {
+        canonicalName: 'Barrio escondido',
+        description: 'A hidden local authentic deep dive', // free text only
+        traits: ['authentic', 'hidden'],
+      };
+
+      const matched = evaluateExperiencePreferences(withEvidence, intent);
+      const unmatched = evaluateExperiencePreferences(withoutEvidence, intent);
+
+      expect(
+        matched.facetMatches.find((m) => m.dimension === 'exploration_style')
+          ?.matched,
+      ).toBe(true);
+      expect(matched.positiveMatches).toContain('local_deep_dive');
+      expect(matched.score).toBeGreaterThan(unmatched.score);
+
+      expect(
+        unmatched.facetMatches.find((m) => m.dimension === 'exploration_style')
+          ?.matched,
+      ).toBe(false);
+    });
   });
 });

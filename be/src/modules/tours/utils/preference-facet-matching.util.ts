@@ -110,63 +110,117 @@ export function candidateMatchesPreferenceFacet(
 
   if (structuredDimensions.includes(dim)) {
     // Must match only against explicit dimension-specific evidence.
-    // 1. dimensionedTraits (top-level or in metadata)
-    const dimensionedTraits = [
-      ...(Array.isArray(exp.dimensionedTraits) ? exp.dimensionedTraits : []),
-      ...(Array.isArray(metadata.dimensionedTraits)
-        ? metadata.dimensionedTraits
-        : []),
-    ];
-    const hasDimensionedMatch = dimensionedTraits.some((item) => {
-      if (!item || typeof item !== 'object') return false;
-      const itemDim =
-        typeof item.dimension === 'string'
-          ? item.dimension.trim().toLowerCase()
-          : '';
-      const itemKey =
-        typeof item.key === 'string' ? normalizeText(item.key) : '';
-      return itemDim === dim && itemKey === normalizedFacetKey;
-    });
-    if (hasDimensionedMatch) {
-      return true;
-    }
-
-    // 2. Explicit metadata preferenceFacets or facets
-    const facets = [
-      ...(Array.isArray(metadata.preferenceFacets)
-        ? metadata.preferenceFacets
-        : []),
-      ...(Array.isArray(metadata.facets) ? metadata.facets : []),
-    ];
-    const hasFacetMatch = facets.some((item) => {
-      if (!item || typeof item !== 'object') return false;
-      const itemDim =
-        typeof item.dimension === 'string'
-          ? item.dimension.trim().toLowerCase()
-          : '';
-      const itemKey =
-        typeof item.key === 'string' ? normalizeText(item.key) : '';
-      return itemDim === dim && itemKey === normalizedFacetKey;
-    });
-    if (hasFacetMatch) {
-      return true;
-    }
-
-    // 3. Explicit metadata.dimensions map
-    if (metadata.dimensions && typeof metadata.dimensions === 'object') {
-      const dimValue = metadata.dimensions[dim];
-      if (
-        typeof dimValue === 'string' &&
-        normalizeText(dimValue) === normalizedFacetKey
-      ) {
-        return true;
-      }
-    }
-
-    // If no explicit dimension-specific evidence: return false
-    return false;
+    return hasExplicitDimensionedEvidence(
+      exp,
+      metadata,
+      dim,
+      normalizedFacetKey,
+    );
   }
 
-  // exploration_style and any unknown dimensions are rejected
+  if (dim === PREFERENCE_DIMENSIONS.EXPLORATION_STYLE) {
+    // A meta-preference about how to experience the trip — it carries no
+    // per-Experience tag of its own, so it is matched against the SAME
+    // explicit dimensioned evidence a candidate already carries for
+    // tourism_intensity / local_character. Only explicit dimensioned
+    // evidence — never name / description / duration / component count.
+    // Soft ranking, never an exclusion. `balanced` never reaches here (it
+    // produces no facet). An unknown key matches nothing. Look up by the
+    // canonical key (underscores intact — `normalizeText` above would have
+    // collapsed `local_deep_dive` to `local deep dive`).
+    const canonicalKey = facet.key.trim().toLowerCase();
+    const targets = EXPLORATION_STYLE_EVIDENCE_TARGETS[canonicalKey];
+    if (!targets) return false;
+    return targets.some(([targetDim, targetKey]) =>
+      hasExplicitDimensionedEvidence(
+        exp,
+        metadata,
+        targetDim,
+        normalizeText(targetKey),
+      ),
+    );
+  }
+
+  // Any unknown dimension is rejected
+  return false;
+}
+
+// exploration_style key -> the (dimension, key) explicit dimensioned-evidence
+// pairs a candidate must carry to count as a match. Conservative: iconic reads
+// the "well-known / heavily-visited" end of tourism_intensity; local_deep_dive
+// reads the "off the beaten path" end plus an explicit authentic local
+// character. Nothing here reads themes, name, description, or geometry.
+const EXPLORATION_STYLE_EVIDENCE_TARGETS: Record<
+  string,
+  ReadonlyArray<readonly [string, string]>
+> = {
+  iconic: [
+    [PREFERENCE_DIMENSIONS.TOURISM_INTENSITY, 'iconic'],
+    [PREFERENCE_DIMENSIONS.TOURISM_INTENSITY, 'popular'],
+  ],
+  local_deep_dive: [
+    [PREFERENCE_DIMENSIONS.TOURISM_INTENSITY, 'hidden'],
+    [PREFERENCE_DIMENSIONS.TOURISM_INTENSITY, 'local'],
+    [PREFERENCE_DIMENSIONS.LOCAL_CHARACTER, 'authentic'],
+  ],
+};
+
+/**
+ * True iff the candidate carries explicit dimensioned evidence for
+ * `(targetDim, normalizedTargetKey)` — in `dimensionedTraits` (top-level or
+ * metadata), `metadata.preferenceFacets` / `metadata.facets`, or the
+ * `metadata.dimensions` map. Never inspects name / description / free text.
+ * `normalizedTargetKey` is already normalized by the caller.
+ */
+function hasExplicitDimensionedEvidence(
+  exp: Record<string, any>,
+  metadata: Record<string, any>,
+  targetDim: string,
+  normalizedTargetKey: string,
+): boolean {
+  const dimensionedTraits = [
+    ...(Array.isArray(exp.dimensionedTraits) ? exp.dimensionedTraits : []),
+    ...(Array.isArray(metadata.dimensionedTraits)
+      ? metadata.dimensionedTraits
+      : []),
+  ];
+  const hasDimensionedMatch = dimensionedTraits.some((item) => {
+    if (!item || typeof item !== 'object') return false;
+    const itemDim =
+      typeof item.dimension === 'string'
+        ? item.dimension.trim().toLowerCase()
+        : '';
+    const itemKey = typeof item.key === 'string' ? normalizeText(item.key) : '';
+    return itemDim === targetDim && itemKey === normalizedTargetKey;
+  });
+  if (hasDimensionedMatch) return true;
+
+  const facets = [
+    ...(Array.isArray(metadata.preferenceFacets)
+      ? metadata.preferenceFacets
+      : []),
+    ...(Array.isArray(metadata.facets) ? metadata.facets : []),
+  ];
+  const hasFacetMatch = facets.some((item) => {
+    if (!item || typeof item !== 'object') return false;
+    const itemDim =
+      typeof item.dimension === 'string'
+        ? item.dimension.trim().toLowerCase()
+        : '';
+    const itemKey = typeof item.key === 'string' ? normalizeText(item.key) : '';
+    return itemDim === targetDim && itemKey === normalizedTargetKey;
+  });
+  if (hasFacetMatch) return true;
+
+  if (metadata.dimensions && typeof metadata.dimensions === 'object') {
+    const dimValue = metadata.dimensions[targetDim];
+    if (
+      typeof dimValue === 'string' &&
+      normalizeText(dimValue) === normalizedTargetKey
+    ) {
+      return true;
+    }
+  }
+
   return false;
 }

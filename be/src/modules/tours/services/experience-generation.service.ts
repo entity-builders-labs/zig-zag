@@ -273,6 +273,16 @@ export class ExperienceGenerationService {
       ...(request.intent.intents ?? []).map((intent) =>
         normalizeWizardFacet('intent', intent),
       ),
+      // The wizard's always-present explorationStyle field: ICONIC /
+      // LOCAL_DEEP_DIVE become an exploration_style facet that influences
+      // ranking only; BALANCED normalizes to undefined (neutral, no facet).
+      // This is the single merge point where the structured field reaches
+      // NormalizedPreferenceIntent — it never touches acquisition or search
+      // queries.
+      normalizeWizardFacet(
+        'exploration_style',
+        request.intent.explorationStyle,
+      ),
     ].filter((facet): facet is PreferenceFacet => facet !== undefined);
 
     const preferredFacets = mergePreferenceFacets(
