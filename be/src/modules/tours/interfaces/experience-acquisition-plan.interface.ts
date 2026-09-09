@@ -25,7 +25,18 @@ export interface PlacesSourcePlanPayload {
 }
 
 export interface WebSourcePlanPayload {
+  /** One coalesced plain-keyword grounded-search query (never negative text). */
   query: string;
+  /**
+   * Deficit context the discovery extractor needs to build its
+   * `ExperienceDiscoveryRequest` — projected deterministically from the plan's
+   * deficits (theme/intent/trait keys) plus the caller's positive semantic
+   * query. Kept on the plan so `executePlan(plan)` stays single-arg.
+   */
+  requestedThemes?: string[];
+  requestedIntents?: string[];
+  preferredTraits?: string[];
+  semanticQuery?: string;
 }
 
 export interface WikivoyageSourcePlan {

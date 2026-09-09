@@ -8,7 +8,15 @@ import {
   SourceObservation,
 } from '../interfaces/experience-acquisition.interface';
 import { ExperienceAcquisitionPlan } from '../interfaces/experience-acquisition-plan.interface';
-import { ExperienceCandidate } from '../interfaces/experience-discovery.interface';
+import {
+  ExperienceCandidate,
+  ExperienceDiscoveryExtractor,
+  ExperienceDiscoveryRequest,
+} from '../interfaces/experience-discovery.interface';
+import {
+  EXPERIENCE_GROUNDED_SEARCH_PROVIDER,
+  ExperienceGroundedSearchProvider,
+} from '../interfaces/experience-grounding.interface';
 import { GooglePlacesAcquisitionProvider } from '../providers/google-places-acquisition.provider';
 import { WikivoyageAcquisitionProvider } from '../providers/wikivoyage-acquisition.provider';
 import { OsmAcquisitionProvider } from '../providers/osm-acquisition.provider';
@@ -32,6 +40,28 @@ export interface ResolverEvidenceItem {
   url?: string;
 }
 
+/**
+ * Per-`web` SourcePlan execution record. Web does NOT produce SourceObservations
+ * — grounded evidence goes straight to the shared discovery extractor and yields
+ * ExperienceCandidates — so it is reported separately rather than faked into
+ * `providerResults<SourceObservation>`.
+ */
+export interface WebAcquisitionResult {
+  status: 'success' | 'failed' | 'skipped';
+  query: string;
+  groundedProvider?: string;
+  groundedModel?: string;
+  groundingStatus?: string;
+  evidenceKeys: string[];
+  evidenceProvenance?: unknown;
+  extractorProvider?: string;
+  extractorModel?: string;
+  rawOutput?: string;
+  validationErrors: string[];
+  candidateCount: number;
+  failureReason?: string;
+}
+
 export interface ExecuteAcquisitionPlanResult {
   candidates: ExperienceCandidate[];
   observations: SourceObservation[];
@@ -41,6 +71,9 @@ export interface ExecuteAcquisitionPlanResult {
       AcquisitionProviderResult<SourceObservation>
     >
   >;
+  webResults?: WebAcquisitionResult[];
+  structuredCandidateCount?: number;
+  webCandidateCount?: number;
   evidence?: ResolverEvidenceItem[];
 }
 
@@ -89,6 +122,12 @@ export class ExperienceAcquisitionService {
     private readonly proposalResolver?: ExperienceProposalResolver,
     @Optional()
     private readonly osmProvider?: OsmAcquisitionProvider,
+    @Optional()
+    @Inject(EXPERIENCE_GROUNDED_SEARCH_PROVIDER)
+    private readonly groundedSearchProvider?: ExperienceGroundedSearchProvider,
+    @Optional()
+    @Inject('EXPERIENCE_DISCOVERY_PROVIDER')
+    private readonly discoveryExtractor?: ExperienceDiscoveryExtractor,
   ) {}
 
   async executePlan(
@@ -169,44 +208,171 @@ export class ExperienceAcquisitionService {
       }
     }
 
-    if (allObservations.length === 0) {
+    // Web SourcePlans: grounded evidence -> shared discovery extractor ->
+    // ExperienceCandidates. Not a SourceObservation path; reported separately.
+    // Each web plan is failure-isolated (mirrors the structured loop).
+    const webResults: WebAcquisitionResult[] = [];
+    const webCandidates: ExperienceCandidate[] = [];
+    const webEvidence: ResolverEvidenceItem[] = [];
+    for (const sourcePlan of plan.sourcePlans) {
+      if (sourcePlan.provider !== 'web') continue;
+      webResults.push(
+        await this.executeWebSourcePlan(plan, sourcePlan.web, {
+          webCandidates,
+          webEvidence,
+        }),
+      );
+    }
+
+    // Structured synthesis + corroboration only when there are observations.
+    const structuredCandidates: ExperienceCandidate[] = [];
+    const structuredEvidence: ResolverEvidenceItem[] = [];
+    if (allObservations.length > 0) {
+      const proposals = this.synthesizer
+        ? this.synthesizer.synthesizeProposals(allObservations)
+        : [];
+
+      const mergeResult = this.corroborationService
+        ? this.corroborationService.corroborateAndMerge(proposals)
+        : {
+            candidates: proposals.map((p) => p.candidate),
+            groups: [] as CorroborationGroupTrace[],
+            pairDecisions: [] as CorroborationPairTrace[],
+          };
+      structuredCandidates.push(...mergeResult.candidates);
+
+      for (const obs of allObservations) {
+        structuredEvidence.push({
+          key: obs.evidenceKey,
+          source: obs.provider,
+          title: obs.title,
+          snippet: obs.description,
+          url:
+            typeof (obs.metadata as any)?.websiteUri === 'string'
+              ? (obs.metadata as any).websiteUri
+              : undefined,
+        });
+      }
+    }
+
+    // Structured + web candidates converge on the ExperienceCandidate boundary;
+    // web is NOT fed through the structured corroborator — the resolver's
+    // SAME/NEW/AMBIGUOUS + dedupe is the only authority for any overlap.
+    return {
+      candidates: [...structuredCandidates, ...webCandidates],
+      observations: allObservations,
+      providerResults,
+      webResults: webResults.length > 0 ? webResults : undefined,
+      structuredCandidateCount: structuredCandidates.length,
+      webCandidateCount: webCandidates.length,
+      evidence: [...structuredEvidence, ...webEvidence],
+    };
+  }
+
+  private async executeWebSourcePlan(
+    plan: ExperienceAcquisitionPlan,
+    web: NonNullable<
+      Extract<
+        ExperienceAcquisitionPlan['sourcePlans'][number],
+        { provider: 'web' }
+      >['web']
+    >,
+    sink: {
+      webCandidates: ExperienceCandidate[];
+      webEvidence: ResolverEvidenceItem[];
+    },
+  ): Promise<WebAcquisitionResult> {
+    if (!this.groundedSearchProvider || !this.discoveryExtractor) {
       return {
-        candidates: [],
-        observations: [],
-        providerResults,
-        evidence: [],
+        status: 'skipped',
+        query: web.query,
+        evidenceKeys: [],
+        validationErrors: [],
+        candidateCount: 0,
+        failureReason: 'web discovery providers not configured',
       };
     }
 
-    const proposals = this.synthesizer
-      ? this.synthesizer.synthesizeProposals(allObservations)
-      : [];
+    try {
+      const grounded = await this.groundedSearchProvider.search({
+        destinationName: plan.destination.destinationName ?? '',
+        requestedThemes: web.requestedThemes ?? [],
+        requestedIntents: web.requestedIntents,
+        additionalPreferences: web.semanticQuery,
+        query: web.query,
+      });
 
-    const mergeResult = this.corroborationService
-      ? this.corroborationService.corroborateAndMerge(proposals)
-      : {
-          candidates: proposals.map((p) => p.candidate),
-          groups: [] as CorroborationGroupTrace[],
-          pairDecisions: [] as CorroborationPairTrace[],
-        };
+      const base: WebAcquisitionResult = {
+        status: 'success',
+        query: web.query,
+        groundedProvider: grounded.provider,
+        groundedModel: grounded.model,
+        groundingStatus: grounded.groundingStatus,
+        evidenceKeys: (grounded.evidence ?? []).map((e) => e.key),
+        evidenceProvenance: grounded.evidenceProvenance,
+        validationErrors: [],
+        candidateCount: 0,
+      };
 
-    const evidence: ResolverEvidenceItem[] = allObservations.map((obs) => ({
-      key: obs.evidenceKey,
-      source: obs.provider,
-      title: obs.title,
-      snippet: obs.description,
-      url:
-        typeof (obs.metadata as any)?.websiteUri === 'string'
-          ? (obs.metadata as any).websiteUri
-          : undefined,
-    }));
+      if (!grounded.evidence || grounded.evidence.length === 0) {
+        return base;
+      }
 
-    return {
-      candidates: mergeResult.candidates,
-      observations: allObservations,
-      providerResults,
-      evidence,
-    };
+      const request: ExperienceDiscoveryRequest = {
+        scope: { destinationName: plan.destination.destinationName },
+        requestedThemes: web.requestedThemes ?? [],
+        requestedIntents: web.requestedIntents,
+        preferredTraits: web.preferredTraits,
+        semanticQuery: web.semanticQuery,
+        coverageGaps: [
+          ...new Set(
+            plan.deficits
+              .map((d) => d.key ?? d.reason)
+              .filter((v): v is string => !!v && v.trim().length > 0),
+          ),
+        ],
+        breadth: plan.breadth,
+        maxCandidates: 8,
+      };
+
+      const extracted = await this.discoveryExtractor.extractExperiences(
+        request,
+        grounded,
+        { bypassCache: true },
+      );
+
+      sink.webCandidates.push(...extracted.candidates);
+      for (const ev of grounded.evidence) {
+        sink.webEvidence.push({
+          key: ev.key,
+          source: ev.source,
+          title: ev.title,
+          snippet: ev.snippet,
+          url: ev.url,
+        });
+      }
+
+      return {
+        ...base,
+        extractorProvider: extracted.provider,
+        extractorModel: extracted.model,
+        rawOutput: extracted.rawOutput,
+        validationErrors: extracted.validationErrors ?? [],
+        candidateCount: extracted.candidates.length,
+      };
+    } catch (error: any) {
+      this.logger.warn(
+        `Web acquisition threw: ${error?.message ?? String(error)}`,
+      );
+      return {
+        status: 'failed',
+        query: web.query,
+        evidenceKeys: [],
+        validationErrors: [],
+        candidateCount: 0,
+        failureReason: error?.message ?? 'Web acquisition failed',
+      };
+    }
   }
 
   async acquireNearby(input: AcquireNearbyInput) {

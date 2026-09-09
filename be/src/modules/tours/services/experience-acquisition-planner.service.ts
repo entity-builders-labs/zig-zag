@@ -238,10 +238,30 @@ export class ExperienceAcquisitionPlannerService {
         queryParts.push(input.semanticQuery.trim());
       }
 
+      // Deterministic deficit projection so the web executor can build a
+      // faithful ExperienceDiscoveryRequest without another context argument.
+      // Fields are omitted when empty so the coalesced web plan stays minimal.
+      const byDimension = (dim: string) =>
+        [
+          ...new Set(
+            deficits
+              .filter((d) => d.dimension === dim && d.key)
+              .map((d) => d.key as string),
+          ),
+        ].sort();
+      const webThemes = byDimension('theme');
+      const webIntents = byDimension('intent');
+      const webTraits = byDimension('trait');
+      const webSemanticQuery = input.semanticQuery?.trim() || undefined;
+
       sourcePlans.push({
         provider: 'web',
         web: {
           query: queryParts.join(' '),
+          ...(webThemes.length ? { requestedThemes: webThemes } : {}),
+          ...(webIntents.length ? { requestedIntents: webIntents } : {}),
+          ...(webTraits.length ? { preferredTraits: webTraits } : {}),
+          ...(webSemanticQuery ? { semanticQuery: webSemanticQuery } : {}),
         },
       });
     }

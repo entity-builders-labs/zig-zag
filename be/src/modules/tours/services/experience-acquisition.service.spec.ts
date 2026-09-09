@@ -668,6 +668,175 @@ describe('ExperienceAcquisitionService', () => {
     });
   });
 
+  describe('executePlan — web SourcePlan execution', () => {
+    const webCandidate = {
+      name: 'Palermo craft beer route',
+      themes: ['food'],
+      traits: ['craft beer'],
+      intents: ['route_like'],
+      componentHints: [
+        {
+          key: 'a',
+          name: 'Strange Brewing',
+          role: 'venue',
+          expectedKind: 'PLACE',
+          required: true,
+          evidenceKeys: ['ev-1'],
+        },
+      ],
+      evidenceKeys: ['ev-1'],
+      shortReason: 'x',
+    };
+
+    const groundedResult = {
+      provider: 'tavily',
+      model: 'n/a',
+      groundingStatus: 'applied',
+      evidence: [
+        { key: 'ev-1', source: 'timeout.com', title: 'T', snippet: 'S' },
+      ],
+      evidenceProvenance: [{ provider: 'tavily' }],
+    };
+
+    const webPlan: ExperienceAcquisitionPlan = {
+      destination: { destinationName: 'Buenos Aires' },
+      deficits: [
+        {
+          dimension: 'trait',
+          key: 'craft beer',
+          reason: 'r',
+          origin: 'preference_facet',
+        },
+      ],
+      breadth: 'focused',
+      sourcePlans: [
+        {
+          provider: 'web',
+          web: {
+            query: 'Buenos Aires craft beer',
+            preferredTraits: ['craft beer'],
+            requestedThemes: ['food'],
+          },
+        },
+      ],
+    };
+
+    it('runs grounded search + the shared discovery extractor and returns web candidates', async () => {
+      const search = jest.fn().mockResolvedValue(groundedResult);
+      const extractExperiences = jest.fn().mockResolvedValue({
+        candidates: [webCandidate],
+        validationErrors: [],
+        provider: 'gemini',
+        model: 'gemini-x',
+        rawOutput: '{"candidates":[]}',
+      });
+      const service = new ExperienceAcquisitionService(
+        {} as any,
+        {} as any,
+        { acquire: jest.fn() } as any,
+        { acquire: jest.fn() } as any,
+        new StructuredExperienceCandidateSynthesizerService(),
+        new StructuredCandidateCorroborationService(),
+        undefined,
+        { acquire: jest.fn() } as any,
+        { search } as any,
+        { extractExperiences } as any,
+      );
+
+      const result = await service.executePlan(webPlan);
+
+      expect(search).toHaveBeenCalledTimes(1);
+      expect(search.mock.calls[0][0]).toMatchObject({
+        destinationName: 'Buenos Aires',
+        query: 'Buenos Aires craft beer',
+        requestedThemes: ['food'],
+      });
+      expect(extractExperiences).toHaveBeenCalledTimes(1);
+      expect(extractExperiences.mock.calls[0][2]).toEqual({
+        bypassCache: true,
+      });
+      expect(result.candidates).toHaveLength(1);
+      expect(result.candidates[0].name).toBe('Palermo craft beer route');
+      expect(result.webCandidateCount).toBe(1);
+      expect(result.structuredCandidateCount).toBe(0);
+      expect(result.webResults?.[0]).toMatchObject({
+        status: 'success',
+        query: 'Buenos Aires craft beer',
+        groundedProvider: 'tavily',
+        extractorProvider: 'gemini',
+        candidateCount: 1,
+        evidenceKeys: ['ev-1'],
+      });
+      expect(result.evidence?.some((e) => e.key === 'ev-1')).toBe(true);
+    });
+
+    it('isolates a web failure — structured providers still contribute', async () => {
+      const wikivoyageProvider = {
+        acquire: jest.fn().mockResolvedValue({
+          status: 'success',
+          value: [
+            {
+              provider: 'wikivoyage',
+              title: 'Teatro Colón',
+              evidenceType: 'place',
+              evidenceKey: 'wikivoyage:x:see:see:Teatro:1',
+              geo: { latitude: -34.6011, longitude: -58.3831 },
+            },
+          ],
+        }),
+      };
+      const search = jest.fn().mockRejectedValue(new Error('tavily 503'));
+      const service = new ExperienceAcquisitionService(
+        {} as any,
+        {} as any,
+        { acquire: jest.fn() } as any,
+        wikivoyageProvider as any,
+        new StructuredExperienceCandidateSynthesizerService(),
+        new StructuredCandidateCorroborationService(),
+        undefined,
+        { acquire: jest.fn() } as any,
+        { search } as any,
+        { extractExperiences: jest.fn() } as any,
+      );
+
+      const result = await service.executePlan({
+        ...webPlan,
+        sourcePlans: [
+          { provider: 'wikivoyage', wikivoyage: { sections: ['SEE'] } },
+          webPlan.sourcePlans[0],
+        ],
+      });
+
+      expect(result.webResults?.[0]).toMatchObject({
+        status: 'failed',
+        failureReason: 'tavily 503',
+      });
+      expect(result.structuredCandidateCount).toBe(1);
+      expect(result.candidates).toHaveLength(1);
+    });
+
+    it('reports "skipped" when web discovery providers are not configured', async () => {
+      const service = new ExperienceAcquisitionService(
+        {} as any,
+        {} as any,
+        { acquire: jest.fn() } as any,
+        { acquire: jest.fn() } as any,
+        new StructuredExperienceCandidateSynthesizerService(),
+        new StructuredCandidateCorroborationService(),
+        undefined,
+        { acquire: jest.fn() } as any,
+        // no groundedSearchProvider / discoveryExtractor
+      );
+
+      const result = await service.executePlan(webPlan);
+      expect(result.webResults?.[0]).toMatchObject({
+        status: 'skipped',
+        failureReason: 'web discovery providers not configured',
+      });
+      expect(result.candidates).toHaveLength(0);
+    });
+  });
+
   describe('acquireNearby with ExperienceProposalResolver', () => {
     let catalog: any;
     let embeddingIndexer: any;
