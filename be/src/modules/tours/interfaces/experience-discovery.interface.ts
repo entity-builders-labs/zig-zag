@@ -16,12 +16,26 @@ export interface GeoEntityHint {
 export interface ExperienceCandidate {
   name: string;
   description?: string;
+  /**
+   * Controlled dimension: canonical THEME keys from the central preference-facet
+   * vocabulary only (synonyms/localized forms resolved, deduped). The shared
+   * extraction boundary (experience-candidate-facet-normalizer.util.ts)
+   * guarantees this deterministically regardless of what the LLM emitted.
+   */
   themes: string[];
+  /**
+   * Open-ended dimension: descriptive facets that are NOT a canonical theme or
+   * intent (long-tail concepts such as "craft beer", "rooftop", "specialty
+   * coffee" are expected here). Human-readable labels, deduped
+   * case-insensitively. A controlled theme/intent never survives in this array.
+   */
   traits: string[];
   /**
-   * Soft Experience facets only; never planner or proposal kinds. Native
-   * discovery adapters require this array at their extraction boundary, while
-   * internal legacy fixtures may omit it and are normalized to [] downstream.
+   * Controlled dimension: canonical INTENT keys from the central preference-facet
+   * vocabulary only — soft Experience facets (visit / walk / food / route_like /
+   * day_trip / ...), never planner or proposal kinds. Native discovery adapters
+   * require this array at their extraction boundary, while internal legacy
+   * fixtures may omit it and are normalized to [] downstream.
    */
   intents?: string[];
   suggestedDurationMinutes?: number;

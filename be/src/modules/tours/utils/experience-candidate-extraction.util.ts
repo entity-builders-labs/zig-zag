@@ -2,6 +2,7 @@ import {
   ExperienceCandidate,
   GeoEntityHint,
 } from '../interfaces/experience-discovery.interface';
+import { normalizeExperienceCandidateFacets } from './experience-candidate-facet-normalizer.util';
 
 const ROLES = new Set(['area', 'waypoint', 'route', 'venue']);
 const KINDS = new Set(['PLACE', 'AREA', 'ROUTE']);
@@ -91,15 +92,25 @@ export function extractExperienceCandidates(
       validationErrors.push(`Candidate ${index + 1}: ${errors.join('; ')}`);
       continue;
     }
+    // Deterministic, provider-neutral repair of the semantic facets: themes and
+    // intents are controlled vocabularies, traits is open-ended, and a
+    // controlled concept the model placed in the wrong array is moved to the
+    // right one instead of leaking through (see
+    // experience-candidate-facet-normalizer.util.ts).
+    const facets = normalizeExperienceCandidateFacets({
+      themes: candidate.themes,
+      traits: candidate.traits,
+      intents: candidate.intents,
+    });
     candidates.push({
       name: candidate.name.trim(),
       description:
         typeof candidate.description === 'string'
           ? candidate.description.trim()
           : undefined,
-      themes: candidate.themes.map(String),
-      traits: candidate.traits.map(String),
-      intents: candidate.intents.map(String),
+      themes: facets.themes,
+      traits: facets.traits,
+      intents: facets.intents,
       suggestedDurationMinutes: Number.isInteger(
         candidate.suggestedDurationMinutes,
       )

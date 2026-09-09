@@ -4,9 +4,25 @@ import aiConfig from '@shared/ai/ai.config';
 import { ExperienceDiscoveryRequest } from '../interfaces/experience-discovery.interface';
 import { ExperienceGroundedSearchResult } from '../interfaces/experience-grounding.interface';
 import {
+  INITIAL_DIMENSION_VOCABULARY,
+  PREFERENCE_DIMENSIONS,
+} from '../preferences/preference-facet-vocabulary';
+import {
   extractExperienceCandidates,
   ExperienceExtractionResult,
 } from '../utils/experience-candidate-extraction.util';
+
+/**
+ * Canonical controlled vocabularies, derived straight from the central
+ * preference-facet vocabulary — never a second hand-maintained list. `traits`
+ * stays open-ended (no enum).
+ */
+const CANONICAL_THEMES = [
+  ...INITIAL_DIMENSION_VOCABULARY[PREFERENCE_DIMENSIONS.THEME],
+];
+const CANONICAL_INTENTS = [
+  ...INITIAL_DIMENSION_VOCABULARY[PREFERENCE_DIMENSIONS.INTENT],
+];
 
 /** Gemini-specific: short role framing only. No JSON-shape prose here —
  * response_format (JSON Schema, below) enforces the exact shape
@@ -51,9 +67,15 @@ const RESPONSE_SCHEMA = {
         properties: {
           name: { type: 'string' },
           description: { type: 'string' },
-          themes: { type: 'array', items: { type: 'string' } },
+          themes: {
+            type: 'array',
+            items: { type: 'string', enum: CANONICAL_THEMES },
+          },
           traits: { type: 'array', items: { type: 'string' } },
-          intents: { type: 'array', items: { type: 'string' } },
+          intents: {
+            type: 'array',
+            items: { type: 'string', enum: CANONICAL_INTENTS },
+          },
           componentHints: {
             type: 'array',
             items: {
@@ -170,6 +192,7 @@ export class GeminiDiscoveryProvider {
       'Some evidence entries are the full text of a source article, not just a short snippet — when one describes a walk/route with multiple named stops (specific streets, plazas, landmarks, markets), enumerate EACH real stop it names as its own componentHint (role "venue" for a point, "route" for a named street/path, "area" for a district), citing the exact evidence key(s) that name it. Do not collapse a multi-stop route into a single componentHint just because it shares one candidate name.',
       'A componentHints[].name for role "venue" must be the actual named place or business (e.g. a milonga, café, museum, restaurant) — never a street name, cross-street, or address fragment mentioned only to locate it. If evidence gives an address like "Armenia 1366" or says a venue is "on Armenia street", the venue name is whatever business/place it names (e.g. "La Viruta"), never "Armenia" itself. Only use role "route" naming a street when the street itself, not a venue located on it, is what the candidate describes.',
       "orderedByEvidence must be true only when the cited evidence explicitly describes a visiting sequence for this candidate's components; otherwise false. Never infer an order from componentHints array order.",
+      `themes must be drawn ONLY from this controlled vocabulary: ${CANONICAL_THEMES.join(', ')}. intents must be drawn ONLY from this controlled vocabulary: ${CANONICAL_INTENTS.join(', ')}. Use the exact canonical key, never a localized or synonym form. traits is the open-ended dimension: put descriptive properties that are NOT one of those canonical themes/intents here (e.g. "craft beer", "rooftop", "family friendly", "specialty coffee"). Never place the same concept in more than one of themes/traits/intents, and never put a canonical theme or intent inside traits.`,
       'intents are soft Experience facets such as visit, walk, food, route_like or day_trip; never structural proposal kinds.',
       'For day_trip, only return evidence-backed same-day experiences from the selected base; exclude overnight or weekend-only trips.',
       'Do not output coordinates, provider IDs, URLs, or entities not directly supported by evidence.',
