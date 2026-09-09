@@ -357,42 +357,70 @@ describe('TavilyGroundedSearchService', () => {
     }
 
     it(
-      'builds a Spanish "iconic walks" phrase for a Spanish-speaking destination when walk is requested',
+      'folds the requested themes into the Spanish walk phrase (a history walk != a food walk)',
       expectQuery(
         { ...request, requestedIntents: ['walk'] },
-        '10 caminatas icónicas en Gualeguaychú',
+        '10 caminatas históricas y arquitectónicas icónicas en Gualeguaychú',
       ),
     );
 
     it(
-      'builds the same Spanish phrase for route_like too, not just walk',
+      'builds the same themed phrase for route_like too — one query, not made distinct from walk',
       expectQuery(
         { ...request, requestedIntents: ['route_like'] },
-        '10 caminatas icónicas en Gualeguaychú',
+        '10 caminatas históricas y arquitectónicas icónicas en Gualeguaychú',
       ),
     );
 
     it(
-      'builds an English "iconic walking routes" phrase for a non-Spanish-speaking destination',
+      'folds themes into the English phrase for a non-Spanish-speaking destination',
       expectQuery(
         {
           ...request,
           destinationCountry: 'France',
           requestedIntents: ['walk'],
         },
-        '10 iconic walking routes in Gualeguaychú',
+        '10 iconic history and architecture walking routes in Gualeguaychú',
       ),
     );
 
     it(
-      'builds the English phrase when destinationCountry is unknown',
+      'folds themes into the English phrase when destinationCountry is unknown',
       expectQuery(
         {
           ...request,
           destinationCountry: undefined,
           requestedIntents: ['walk'],
         },
-        '10 iconic walking routes in Gualeguaychú',
+        '10 iconic history and architecture walking routes in Gualeguaychú',
+      ),
+    );
+
+    it(
+      'falls back to the exact legacy phrase when no themes are requested',
+      expectQuery(
+        { ...request, requestedThemes: [], requestedIntents: ['walk'] },
+        '10 caminatas icónicas en Gualeguaychú',
+      ),
+    );
+
+    it(
+      'keeps an unmapped theme key in the phrase rather than dropping it',
+      expectQuery(
+        { ...request, requestedThemes: ['tango'], requestedIntents: ['walk'] },
+        '10 caminatas tango icónicas en Gualeguaychú',
+      ),
+    );
+
+    it(
+      'uses at most the first two themes (a themed walk never explodes into multiple queries)',
+      expectQuery(
+        {
+          ...request,
+          requestedThemes: ['history', 'architecture', 'food', 'nature'],
+          requestedIntents: ['walk'],
+        },
+        '10 caminatas históricas y arquitectónicas icónicas en Gualeguaychú',
       ),
     );
 

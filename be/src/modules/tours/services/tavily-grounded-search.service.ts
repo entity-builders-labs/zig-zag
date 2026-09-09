@@ -43,6 +43,28 @@ const MAX_EXTRACTED_CONTENT_CHARS = 6000;
 // field (see DestinationResolutionAudit's own doc comment) — matched here in
 // that same form, not the ISO code (which the grounded-search request doesn't
 // currently carry) and not a Spanish self-name.
+// Canonical theme keys -> Spanish adjective form for the walk-query phrase.
+// Only the clearly-adjectival common keys; an unmapped key falls through as
+// its raw form rather than being dropped, so a themed walk request never
+// silently loses its theme. Local to this file — this is query phrasing, not
+// a shared vocabulary.
+const WALK_THEME_ADJECTIVE_ES: Record<string, string> = {
+  history: 'históricas',
+  culture: 'culturales',
+  art: 'artísticas',
+  architecture: 'arquitectónicas',
+  nature: 'naturales',
+  food: 'gastronómicas',
+  gastronomy: 'gastronómicas',
+  music: 'musicales',
+  photography: 'fotográficas',
+  nightlife: 'nocturnas',
+};
+
+// A themed walk query stays a single query — the request's first couple of
+// themes shape the phrase, they never explode into multiple Tavily calls.
+const MAX_WALK_QUERY_THEMES = 2;
+
 const SPANISH_SPEAKING_COUNTRIES = new Set([
   'Argentina',
   'Bolivia',
@@ -219,12 +241,43 @@ export class TavilyGroundedSearchService implements GroundedSearchProvider {
     return intents.includes('walk') || intents.includes('route_like');
   }
 
+  // Folds the request's themes into the walk/route phrase — a history walk and
+  // a food walk for the same city must not produce byte-identical queries.
+  // Still ONE query, still both language branches, still the "icónicas" /
+  // "iconic" disambiguator that live verification showed is load-bearing
+  // (without it "caminatas" reads as senderismo/trekking in Spanish). No
+  // themes -> the exact legacy phrase, unchanged.
   private buildWalkQuery(request: GroundedSearchRequest): string {
     const destination = request.destinationName;
-    if (this.isSpanishSpeakingCountry(request.destinationCountry)) {
-      return `10 caminatas icónicas en ${destination}`;
+    const themeKeys = this.walkQueryThemeKeys(request);
+    const spanish = this.isSpanishSpeakingCountry(request.destinationCountry);
+
+    if (themeKeys.length === 0) {
+      return spanish
+        ? `10 caminatas icónicas en ${destination}`
+        : `10 iconic walking routes in ${destination}`;
     }
-    return `10 iconic walking routes in ${destination}`;
+
+    if (spanish) {
+      const adjectives = themeKeys
+        .map((key) => WALK_THEME_ADJECTIVE_ES[key] ?? key)
+        .join(' y ');
+      return `10 caminatas ${adjectives} icónicas en ${destination}`;
+    }
+    return `10 iconic ${themeKeys.join(' and ')} walking routes in ${destination}`;
+  }
+
+  private walkQueryThemeKeys(request: GroundedSearchRequest): string[] {
+    const seen = new Set<string>();
+    const keys: string[] = [];
+    for (const raw of request.requestedThemes ?? []) {
+      const key = typeof raw === 'string' ? raw.trim().toLowerCase() : '';
+      if (!key || seen.has(key)) continue;
+      seen.add(key);
+      keys.push(key);
+      if (keys.length >= MAX_WALK_QUERY_THEMES) break;
+    }
+    return keys;
   }
 
   private isSpanishSpeakingCountry(country: string | undefined): boolean {
