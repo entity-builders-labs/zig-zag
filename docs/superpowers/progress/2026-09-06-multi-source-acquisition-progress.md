@@ -5,10 +5,95 @@ Canonical design: `docs/superpowers/specs/2026-09-06-multi-source-acquisition-de
 # Current State
 
 - Branch: `feat/experience-domain-v2`
-- Current milestone: pre-Phase-7 hardening — `TraitDefinition` concurrency-safe resolution;
-  `ExperienceCandidate` controlled-facet contract; explicit discovery-extractor
-  transport/model + a shared extraction prompt + Ollama as a third extractor + live
-  provider characterization. Phase 7 NOT STARTED.
+- Current milestone: **Phase 7 — final orchestration. Checkpoints A–F COMPLETE.**
+  **Engine Quality Gate G NOT STARTED · Argentina Live Smoke H NOT STARTED · Phase 7
+  overall NOT CLOSED** (G/H are a separate session after user review of A–F).
+- Phase 7 A–F: starting HEAD `ad0a212991063fb7eed8750739ad315cba83ea2f`, ending HEAD
+  `b32db59c824b9e290e32046de25735c8da92b2f4`. Commits:
+  - `c9420c1` `test(tours): repair acceptance suite type and contract drift` — A. The 7
+    pre-existing `tsc` errors (PlanningExperienceCandidate `startFootprint`/`endFootprint`
+    drift + `TourCompletenessIssue` union narrowing + two contract specs missing
+    `intents`) are gone; `yarn typecheck` 0, `yarn test:acceptance` 20 suites / 30 tests
+    green (was red at HEAD, which blocked the CI `V2 acceptance` job).
+  - `8dd62ab` `feat(tours): execute web source plans through acquisition` — B.
+  - `90a9d5a` `refactor(tours): cut live generation over to multi source acquisition` — C.
+  - `5364152` `fix(tours): prevent generic places from originating tourism experiences` — D.
+  - `2cb7f38` `feat(tours): roll up multi-source acquisition in the execution summary` — E.
+  - `46fcc2e` `refactor(tours): drop dead OSM coverage-area lookup from live generation`.
+  - `b32db59` `test(tours): cover tour generation orchestration end to end` — F.
+- **Old live architecture → new.** `ExperienceGenerationService.generateTourExperiences`
+  ran a hand-rolled cascade: `discoverExperienceGaps()` (its own grounded-search +
+  extractor + resolver web path) **plus** `experienceAcquisition.acquireNearby()` (a
+  Google-Places-only catalog refill), each with bespoke coverage re-checks and a
+  "Places crawl" trace step. Now there is ONE architecture: initial catalog coverage →
+  (if insufficient, for at most `MAX_ACQUISITION_PASSES` = 2 passes)
+  `ExperienceAcquisitionPlannerService.buildAcquisitionPlan` →
+  `ExperienceAcquisitionService.executePlan` (structured providers **+ the `web`
+  SourcePlan** — grounded search → shared discovery extractor → `ExperienceCandidate[]`,
+  failure-isolated per source, web candidates NOT run through the structured
+  corroborator) → `materializeExecution` (the resolver: geographic validation,
+  SAME/NEW/AMBIGUOUS, dedupe, persistence, embeddings) → real `findVerifiedWithin`
+  re-query → re-rank → CoverageAnalyzer again. Catalog-first is preserved (initial
+  `decision.action === 'none'` → zero provider calls). `discoverExperienceGaps`,
+  `acquireNearby` from the live path, `wasCatalogRefillRecentlyAttempted`/
+  `recordCatalogRefillAttempt`, `placesRefillError` as global provider-health authority,
+  `ExperienceDiscoveryPlannerService` (superseded by `buildAcquisitionPlan`'s web
+  coalescing — file + spec deleted), `lookupCoverageAreas`, and the now-unused
+  `ExperienceGenerationService` ctor deps (`experienceDiscoveryPlanner`,
+  `groundedSearchProvider`, `discoveryProvider`, `proposalResolver`, `placesApi`,
+  `osmPlacesService`) are all gone. `ExperienceAcquisitionService.acquireNearby()` is
+  kept (it retains test coverage and `catalog.acquireNearbyAsExperiences` is a
+  standalone capability) but is no longer the live architecture.
+- **Places tourism admission** (D): `SourceObservation.standaloneEligible?: boolean`.
+  A Google Places result admitted **only** because a contextual commercial type
+  (`restaurant`/`cafe`/`bakery`/`bar`/`night_club`) matched, with no
+  `SAFE_GENERIC_TOURISM_TYPES` signal, is marked `standaloneEligible: false` — type
+  semantics only, no ratings, no brand blacklist. `StructuredCandidateCorroborationService`
+  drops any cluster whose every observation is ineligible (a bare venue that did not
+  corroborate stronger tourism evidence never originates an Experience; one that DID
+  cluster with Wikivoyage EAT / OSM / web tourism survives as enrichment).
+- **Trace / summary / failure semantics** (C + E): per-pass `buildAcquisitionStep`
+  (`stage: 'discovery'`, `component: 'ExperienceAcquisitionService'`) names the routed
+  sources, structured provider results, web discovery detail (grounded provider/model/
+  status, evidence count, extractor provider/model, validation errors, candidate count —
+  redacted) and structured/web candidate counts. Routing observability already rides on
+  the `daily_planning` step (`solution.metadata.routing` + `approximateTravel`).
+  `executionSummary.acquisition` rolls up `passes`, `providersAttempted`/`providersFailed`,
+  `observationCount`, `structuredCandidateCount`, `webCandidateCount`, `approximateRouting`
+  (absent on catalog-first). Failure classification is provider-neutral: C's thrown
+  errors carry an explicit `retryable` flag (true only when *every* attempted acquisition
+  source failed and the catalog is still insufficient; false for a soft-deficit-fatal
+  pool) and `classifyGenerationFailure` already prefers it — no Places-specific codes
+  remain anywhere. A soft missing theme/trait/intent stays a trace-visible deficit and
+  never fails the Tour (`isCoverageFatal` unchanged).
+- **Routing** stays a separate, untouched concern: the solver depends only on
+  `TRAVEL_ESTIMATE_PROVIDER` (`ResilientTravelEstimateProvider` → Geoapify → Approximate).
+  The seam is open for a future `ROUTING_PROVIDER=osrm|google`; no routing infra was
+  added in A–F.
+- **Test counts** (real, this HEAD): `yarn test --runInBand` 124 suites / 994 tests;
+  `yarn test:acceptance` 20 suites / 30 tests; `yarn typecheck` 0 errors; `yarn build`
+  clean. New durable `yarn test:integration` category (real Postgres) — 1 suite / 2
+  tests green (`catalog-retrieval.integration-spec.ts`); the nine behavior-named
+  orchestration specs (canonical-orchestration, catalog-first, catalog-reuse,
+  acquisition-degradation, places-admission, long-tail, day-trip, no-direct-persistence,
+  duplicate-delivery, routing-boundary) are scaffolded in
+  `be/test/integration/tour-generation/README.md` as the explicit F follow-up (they need
+  the full `generateTourExperiences` Test-module harness on top of `support/`). New CI
+  job `backend-integration` (`pgvector/pgvector:pg16` + `prisma:deploy` +
+  `test:integration`); the DB-free `V2 acceptance` job is untouched.
+- Known remaining in F: the nine orchestration integration specs above. Everything else
+  in the Phase 7 A–F brief (§43–§51 behaviors) is implemented in code and covered by
+  unit specs at the boundary (`experience-acquisition.service.spec.ts` web execution +
+  failure isolation; `google-places-acquisition.provider.spec.ts` +
+  `structured-candidate-corroboration.service.spec.ts` standalone-eligibility;
+  `generation-trace-builder.util.spec.ts` `buildAcquisitionStep`;
+  `generation-execution-summary.util.spec.ts` roll-up); the integration specs would
+  additionally prove them against real Postgres end-to-end.
+
+- Previous milestone: pre-Phase-7 hardening — `TraitDefinition` concurrency-safe
+  resolution; `ExperienceCandidate` controlled-facet contract; explicit
+  discovery-extractor transport/model + a shared extraction prompt + Ollama as a third
+  extractor + live provider characterization.
 - Discovery-extractor contract shape:
   - **Semantic contract** (system framing + ExperienceCandidate/componentHint rules +
     facet contract) — shared by Gemini, Groq and Ollama.
