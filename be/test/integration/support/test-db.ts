@@ -10,12 +10,16 @@ import { PrismaService } from 'src/core/database/prisma.service';
  * back to the monorepo-root `.env` (local `docker-compose --profile dev up -d
  * postgres`). Never invents one.
  */
-function ensureDatabaseUrl(): string {
-  if (process.env.DATABASE_URL) return process.env.DATABASE_URL;
-  for (const rel of ['../../../../.env', '../../../.env']) {
+export function ensureEnvLoaded(): void {
+  if (process.env.DATABASE_URL) return;
+  for (const rel of ['../../../../.env', '../../../.env', '../../.env']) {
     const file = path.resolve(__dirname, rel);
     if (fs.existsSync(file)) dotenv.config({ path: file });
   }
+}
+
+function ensureDatabaseUrl(): string {
+  ensureEnvLoaded();
   if (!process.env.DATABASE_URL) {
     throw new Error(
       'test:integration needs a reachable Postgres. Set DATABASE_URL or run ' +
@@ -58,6 +62,7 @@ const RESET_TABLES = [
   'tour_experience_component',
   'tour_experience',
   'tour',
+  'outbox_event',
   'experience_trait',
   'experience_evidence',
   'experience_media',
@@ -69,13 +74,16 @@ const RESET_TABLES = [
   'crawler_search',
 ];
 
-export async function resetDb(): Promise<void> {
-  const db = await getPrisma();
+export async function resetDbWith(db: PrismaService): Promise<void> {
   await db.$executeRawUnsafe(
     `TRUNCATE TABLE ${RESET_TABLES.map((t) => `"${t}"`).join(
       ', ',
     )} RESTART IDENTITY CASCADE`,
   );
+}
+
+export async function resetDb(): Promise<void> {
+  await resetDbWith(await getPrisma());
 }
 
 export async function closeDb(): Promise<void> {

@@ -1,5 +1,16 @@
 import { PrismaService } from 'src/core/database/prisma.service';
 
+/** A "known" opening-hours block that is open every minute of every weekday. */
+export const ALWAYS_OPEN = {
+  status: 'known',
+  rangesByWeekday: Object.fromEntries(
+    Array.from({ length: 7 }, (_, weekday) => [
+      weekday,
+      [{ startMinutesFromMidnight: 0, endMinutesFromMidnight: 1439 }],
+    ]),
+  ),
+};
+
 export interface SeedExperienceInput {
   canonicalName: string;
   description?: string;
@@ -11,6 +22,8 @@ export interface SeedExperienceInput {
   durationMinutes?: number;
   qualityScore?: number;
   source?: string;
+  status?: 'VERIFIED' | 'PENDING' | 'REJECTED';
+  openingHours?: unknown;
   /** Extra ExperienceComponent geo entities (a multi-component walk/route). */
   extraComponents?: Array<{
     name: string;
@@ -46,11 +59,12 @@ export async function seedVerifiedExperience(
     data: {
       canonicalName: input.canonicalName,
       description: input.description,
-      status: 'VERIFIED',
+      status: input.status ?? 'VERIFIED',
       qualityScore: input.qualityScore ?? 0.8,
       durationMinutes: input.durationMinutes ?? 90,
       latitude: input.latitude,
       longitude: input.longitude,
+      openingHours: (input.openingHours ?? ALWAYS_OPEN) as any,
       metadata,
       components: {
         create: [
