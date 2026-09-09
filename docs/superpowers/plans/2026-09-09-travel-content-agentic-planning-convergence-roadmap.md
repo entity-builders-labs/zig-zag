@@ -182,6 +182,21 @@ tracks are aligned.
   resolver → catalog refresh → coverage → ranking → planner → materialization);
 - Google-Places-only `acquireNearby` refill is replaced;
 - no direct persistence shortcuts;
+- **Places food/nightlife admission respects the Experience vs Operational Stop
+  invariant.** A bare Places result whose only significance is `restaurant` /
+  `cafe` / `bakery` / `bar` / `night_club` must not originate a tourism
+  Experience merely because a food/nightlife preference or a
+  `acquisition-source-routing.ts` entry requested that type. Those Places
+  entities may only (1) corroborate / enrich a tourism Experience discovered
+  through stronger evidence, (2) represent a venue itself proven to be a
+  tourism Experience, or (3) resolve Operational Stops after operational
+  planning exists. The deterministic mechanism — routing changes / provider
+  admission changes / a corroboration requirement / an evidence threshold /
+  another mechanism — is **not decided here**; this gate only fixes the
+  invariant and the closure criterion. (This is **not** Phase 6 scope; Phase 6
+  is Tavily walk/route theme-awareness + `exploration_style` facet activation.
+  It belongs to Phase 7 closure because Phase 7 is when the canonical
+  multi-source acquisition path becomes live.)
 - acceptance suite + live smoke green;
 - full backend tests green; `yarn run check` shows no *new* tsc errors vs the
   documented baseline.

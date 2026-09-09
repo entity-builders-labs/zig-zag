@@ -31,9 +31,6 @@ Canonical design: `docs/superpowers/specs/2026-09-06-multi-source-acquisition-de
 - **OSM proactive acquisition is implemented and verified through
   `ExperienceAcquisitionService.executePlan`, but live tour-generation orchestration remains
   intentionally deferred to Phase 7.**
-- **OSM proactive acquisition is implemented and verified through
-  `ExperienceAcquisitionService.executePlan`, but live tour-generation orchestration remains
-  intentionally deferred to Phase 7.**
 
 # Completed
 

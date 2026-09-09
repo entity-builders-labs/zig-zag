@@ -2008,6 +2008,12 @@ The multi-source acquisition project is complete only when all of the following 
 
 - Google Places no longer bypasses the candidate/resolver/validation pipeline;
 
+- Places food/nightlife admission respects the Experience vs Operational Stop
+  invariant — a bare `restaurant`/`cafe`/`bakery`/`bar`/`night_club` Places
+  result does not originate a tourism Experience merely because a food/nightlife
+  preference or routing entry requested that type
+  (Phase 7 closure criterion — see the convergence roadmap's "Phase 7 gate");
+
 - OSM can proactively fill coverage deficits;
 
 - web + LLM remains available for long-tail gaps;

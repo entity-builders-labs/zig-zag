@@ -157,11 +157,32 @@ today Google Places; Geoapify or another provider can sit behind the same
 interface (`IPlacesApiService` / the `PlacesApiService` token; the design
 already distinguishes provider from capability).
 
-> **A Place is not automatically an Experience.** Phase 4 removed the
-> direct `Place → Experience` shortcut precisely for this reason. A Place
-> becomes a candidate that must survive corroboration + resolver +
-> geographic validation + dedupe like any other, and a *generic* venue
-> (see §7) is not proactively turned into an Experience at all.
+**A Place is not automatically an Experience** — a Place becomes a candidate
+that must survive corroboration + resolver + geographic validation + dedupe
+like any other.
+
+> **Target invariant.** A generic operational venue must **not** originate a
+> tourism Experience — not because its Places type exists nearby, and not
+> because a broad food/nightlife preference or a routing entry requested that
+> category. Generic `restaurant` / `cafe` / `bakery` / `bar` / `night_club`
+> venues are not Experiences by default.
+
+> **Current state (not yet the invariant).** Phase 4 removed the direct
+> `Place → Experience` shortcut and blocks generic *type-less* commercial
+> refill pollution (the "Starbucks" fix). But an **explicitly-requested**
+> contextual food/nightlife Places type is still admitted today, and
+> `acquisition-source-routing.ts` still routes `theme:food` / `intent:food`
+> → Places `restaurant` / `bakery` / `cafe` and `intent:nightlife` → `bar` /
+> `night_club`. Phase 4 did **not** solve the whole
+> Experience-vs-Operational-Stop problem for Places — that remaining semantic
+> seam must be reconciled before Phase 7 can be declared CLOSED (see §7 and
+> the convergence roadmap's Phase 7 gate).
+
+Allowed roles for those Places entities, now and after the seam is closed:
+(1) **corroborate / enrich** a tourism Experience discovered through stronger
+evidence; (2) **represent** a venue that is itself proven to be a tourism
+Experience; (3) **resolve Operational Stops** (lunch, coffee, dinner, a
+snack) once operational planning exists (§10).
 
 ### 3.4 Activities (future family)
 
@@ -407,6 +428,11 @@ Operational Stop (a need of the day, not a destination):
 > `nightclub` must not become an Experience just because the tag exists
 > nearby. Phase 5 hardening already made these concepts unsupported for
 > proactive OSM Experience acquisition for exactly this reason.
+
+The current **Places** contextual-admission seam (an explicitly-requested
+food/nightlife Places type is still admitted, and `acquisition-source-routing.ts`
+still routes food/nightlife deficits to those types) is tracked as a **Phase 7
+closure criterion** — see §3.3 and the convergence roadmap's "Phase 7 gate".
 
 And explicitly:
 
