@@ -6,12 +6,20 @@ import {
 } from '../utils/experience-candidate-facet-normalizer.util';
 
 /**
- * The single semantic contract every Experience discovery extractor
+ * The single *semantic* contract every Experience discovery extractor
  * (Gemini / Groq / Ollama) speaks. Provider modules add only transport,
  * response-format wiring, and response parsing on top of this — they never
  * carry their own copy of the ExperienceCandidate / componentHint / facet
  * rules, and never their own tourism taxonomy. Canonical vocabularies come
  * from `preference-facet-vocabulary.ts` via the facet normalizer.
+ *
+ * The *structured JSON Schema* (`buildDiscoveryResponseJsonSchema`) is a
+ * separate, narrower artifact: the two extractors that support schema-enforced
+ * output — Gemini (`response_format`) and Ollama (`format`) — reuse it, while
+ * Groq currently runs in JSON-object mode and leans on this semantic prompt
+ * plus the deterministic backend normalizer. All three still converge on the
+ * same domain contract because `normalizeExperienceCandidateFacets` is the
+ * authority regardless of provider or model obedience.
  */
 
 export { CANONICAL_THEME_KEYS, CANONICAL_INTENT_KEYS };
@@ -62,7 +70,7 @@ export function buildDiscoveryRequestHeader(
  *  rules, the controlled-vs-open facet contract, day-trip and ordering rules. */
 export function buildDiscoveryInstructions(): string[] {
   return [
-    'IMPORTANT: for every componentHints[].name, translate it to the official local-language administrative name used by that country\'s mapping data (for Argentina/most of Latin America this is Spanish, e.g. "Parque Nacional El Leoncito", never "El Leoncito National Park"). Do this even if the evidence only ever uses an English phrase — rely on your own knowledge of the real place\'s official name, not just the evidence wording, for this field specifically. This name is used afterward to verify the place against a real map database, which stores names in the local language.',
+    'componentHints[].name must be the identity of an entity the grounded evidence explicitly supports. When the evidence clearly refers to one specific real named place, you MAY normalize or translate that SAME entity to the official local-language name used by that country\'s mapping data (for Argentina and most of Latin America this is Spanish — e.g. evidence "El Leoncito National Park" becomes "Parque Nacional El Leoncito"), but ONLY when you are confident it is the same entity, so the backend can match it against a local-language map database. Never use this to introduce a different place, add an entity absent from the evidence, turn a place or business category into a concrete venue, add coordinates or provider IDs, or invent an official name you are unsure of. If you are uncertain, keep the exact name the evidence uses and let the backend geographic resolver decide the canonical identity.',
     'Return JSON with a candidates array. Each candidate must contain name, description, themes, traits, intents, suggestedDurationMinutes, componentHints, evidenceKeys, shortReason and orderedByEvidence. Each componentHints entry must contain key (a short slug), name, role (one of area, waypoint, route, venue), expectedKind (one of PLACE, AREA, ROUTE), required (boolean) and evidenceKeys (a non-empty array of the exact evidence keys that name it). Never invent other role or expectedKind values.',
     'Some evidence entries are the full text of a source article, not just a short snippet — when one describes a walk/route with multiple named stops (specific streets, plazas, landmarks, markets), enumerate EACH real stop it names as its own componentHint (role "venue" for a point, "route" for a named street/path, "area" for a district), citing the exact evidence key(s) that name it. Do not collapse a multi-stop route into a single componentHint just because it shares one candidate name.',
     'A componentHints[].name for role "venue" must be the actual named place or business (e.g. a milonga, café, museum, restaurant) — never a street name, cross-street, or address fragment mentioned only to locate it. If evidence gives an address like "Armenia 1366" or says a venue is "on Armenia street", the venue name is whatever business/place it names (e.g. "La Viruta"), never "Armenia" itself. Only use role "route" naming a street when the street itself, not a venue located on it, is what the candidate describes.',

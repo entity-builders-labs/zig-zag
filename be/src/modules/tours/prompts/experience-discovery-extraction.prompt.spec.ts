@@ -62,12 +62,31 @@ describe('experience discovery extraction prompt (shared contract)', () => {
       expect(text).toMatch(/If the evidence names no concrete business/i);
     });
 
-    it('keeps the local-language name, multi-stop, ordering and evidence-only rules', () => {
-      expect(text).toMatch(/official local-language administrative name/i);
+    it('keeps the multi-stop, ordering and evidence-only rules', () => {
       expect(text).toMatch(/enumerate EACH real stop/i);
       expect(text).toMatch(/orderedByEvidence must be true only when/i);
       expect(text).toMatch(/day_trip/);
       expect(text).toMatch(/Do not output coordinates, provider IDs, URLs/i);
+    });
+
+    it('scopes local-language name normalization to the SAME evidenced entity, not model knowledge', () => {
+      // allowed: normalize/translate the SAME entity to its official local-language form
+      expect(text).toMatch(/official local-language name/i);
+      expect(text).toMatch(/that SAME entity/);
+      expect(text).toMatch(
+        /only when you are confident it is the same entity/i,
+      );
+      // uncertainty -> keep the evidenced name, resolver decides identity
+      expect(text).toMatch(
+        /keep the exact name the evidence uses and let the backend geographic resolver decide/i,
+      );
+      // the LLM is not a geographic-identity authority
+      expect(text).toMatch(
+        /must be the identity of an entity the grounded evidence explicitly supports/i,
+      );
+      expect(text).toMatch(/invent an official name you are unsure of/i);
+      // the old open-ended wording is gone
+      expect(text).not.toMatch(/rely on your own knowledge/i);
     });
   });
 

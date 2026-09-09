@@ -18,9 +18,11 @@ import {
 const SYSTEM_INSTRUCTION = buildDiscoverySystemPrompt();
 
 /**
- * JSON Schema for the Interactions API's `response_format`. Shared with the
- * Ollama extractor — `themes`/`intents` `enum`s come from the central
- * controlled vocabulary; `traits` stays open.
+ * JSON Schema for the Interactions API's `response_format`. The two extractors
+ * with structured-schema support — Gemini and Ollama — reuse this exact schema
+ * (`themes`/`intents` `enum`s from the central controlled vocabulary, `traits`
+ * open). Groq has no equivalent, so it relies on the shared semantic prompt
+ * plus the deterministic backend normalizer instead.
  */
 const RESPONSE_SCHEMA = buildDiscoveryResponseJsonSchema();
 
