@@ -27,7 +27,6 @@ import { ResilientTravelEstimateProvider } from './services/resilient-travel-est
 import { PlanningCandidateNormalizerService } from './services/planning-candidate-normalizer.service';
 import { TourPlanningFeasibilityValidatorService } from './services/tour-planning-feasibility-validator.service';
 import { PreferenceInterpreterService } from './services/preference-interpreter.service';
-import { ExperienceDiscoveryPlannerService } from './services/experience-discovery-planner.service';
 import { ExperienceProposalResolverService } from './services/experience-proposal-resolver.service';
 import { ExperienceCatalogService } from './services/experience-catalog.service';
 import { ExperienceAcquisitionService } from './services/experience-acquisition.service';
@@ -97,7 +96,6 @@ import { MediaModule } from '../media/media.module';
     PlanningCandidateNormalizerService,
     TourPlanningFeasibilityValidatorService,
     PreferenceInterpreterService,
-    ExperienceDiscoveryPlannerService,
     ExperienceProposalResolverService,
     ExperienceCatalogService,
     ExperienceAcquisitionService,

@@ -763,6 +763,131 @@ export function buildDiscoveryStep(result: {
   };
 }
 
+/**
+ * One acquisition pass: the routed ExperienceAcquisitionPlan plus the
+ * multi-source execution (structured providers + web discovery). Replaces the
+ * old single-source "Places crawl" step — the Bitácora now names the real
+ * sources that ran.
+ */
+export function buildAcquisitionStep(params: {
+  passNumber: number;
+  plan: {
+    sourcePlans: Array<{ provider: string }>;
+    deficits: Array<{ dimension?: string; key?: string; reason: string }>;
+  };
+  execution: {
+    observations: unknown[];
+    candidates: unknown[];
+    providerResults: Record<
+      string,
+      { status?: string; failureReason?: string } | undefined
+    >;
+    webResults?: Array<{
+      status: string;
+      query: string;
+      groundedProvider?: string;
+      groundedModel?: string;
+      groundingStatus?: string;
+      evidenceKeys: string[];
+      extractorProvider?: string;
+      extractorModel?: string;
+      validationErrors: string[];
+      candidateCount: number;
+      failureReason?: string;
+    }>;
+    structuredCandidateCount?: number;
+    webCandidateCount?: number;
+  };
+}): GenerationTraceStep {
+  const { passNumber, plan, execution } = params;
+  const providers = plan.sourcePlans.map((s) => s.provider);
+  const structuredEntries = Object.entries(execution.providerResults).map(
+    ([provider, res]) => ({
+      provider,
+      status: res?.status ?? 'unknown',
+      failureReason: res?.failureReason,
+    }),
+  );
+  const failed = [
+    ...structuredEntries
+      .filter((e) => e.status === 'failed')
+      .map((e) => e.provider),
+    ...(execution.webResults ?? [])
+      .filter((w) => w.status === 'failed')
+      .map(() => 'web'),
+  ];
+  const anyAttempted =
+    structuredEntries.length > 0 || (execution.webResults?.length ?? 0) > 0;
+  const allFailed =
+    anyAttempted &&
+    structuredEntries.every((e) => e.status === 'failed') &&
+    (execution.webResults ?? []).every((w) => w.status === 'failed');
+
+  return {
+    stage: 'discovery',
+    label: `Adquisición multi-fuente (pase ${passNumber})`,
+    component: 'ExperienceAcquisitionService',
+    status: allFailed ? 'FAIL' : failed.length > 0 ? 'WARN' : 'PASS',
+    summary: `Pase ${passNumber}: fuentes [${providers.join(', ') || 'ninguna'}] → ${execution.observations.length} observación(es) estructurada(s) + ${execution.candidates.length} candidate(s) (web: ${execution.webCandidateCount ?? 0}).`,
+    inputs: {
+      passNumber,
+      routedProviders: providers,
+      deficits: plan.deficits.map((d) => ({
+        dimension: d.dimension,
+        key: d.key,
+        reason: d.reason,
+      })),
+    },
+    outputs: {
+      observationCount: execution.observations.length,
+      structuredCandidateCount: execution.structuredCandidateCount ?? 0,
+      webCandidateCount: execution.webCandidateCount ?? 0,
+      candidateCount: execution.candidates.length,
+      structuredProviders: structuredEntries,
+      webResults: (execution.webResults ?? []).map((w) => ({
+        status: w.status,
+        query: w.query,
+        groundedProvider: w.groundedProvider,
+        groundedModel: w.groundedModel,
+        groundingStatus: w.groundingStatus,
+        evidenceCount: w.evidenceKeys.length,
+        extractorProvider: w.extractorProvider,
+        extractorModel: w.extractorModel,
+        validationErrors: w.validationErrors,
+        candidateCount: w.candidateCount,
+        failureReason: w.failureReason,
+      })),
+    },
+    rules: [
+      rule(
+        'ACQ-ROUTING-001',
+        'Los deficits se enrutan a fuentes por la tabla de capacidad, no por reglas ad hoc',
+        providers.length > 0 ? 'PASS' : 'SKIPPED',
+        providers.length > 0
+          ? `Fuentes enrutadas: ${providers.join(', ')}.`
+          : 'No hubo deficit enrutable.',
+      ),
+      rule(
+        'ACQ-ISOLATION-001',
+        'Una fuente que falla no aborta la adquisición',
+        allFailed ? 'FAIL' : failed.length > 0 ? 'WARN' : 'PASS',
+        failed.length > 0
+          ? `Fuentes con fallo aisladas: ${failed.join(', ')}.`
+          : 'Todas las fuentes atendidas respondieron.',
+      ),
+      rule(
+        'ACQ-CANDIDATE-001',
+        'Estructurados y web convergen en el boundary ExperienceCandidate antes del resolver',
+        'PASS',
+        'Los candidates quedan pendientes de entity resolution / validación geográfica.',
+      ),
+    ],
+    providerStatus: allFailed ? 'failed' : 'success',
+    degradedReason:
+      failed.length > 0 ? `providers_failed_${failed.join('_')}` : undefined,
+  };
+}
+
 export function buildEntityResolutionStep(
   result: ExperienceResolutionResponse,
 ): GenerationTraceStep {

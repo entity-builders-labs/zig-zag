@@ -10,7 +10,6 @@ import { ConfigType } from '@nestjs/config';
 import { PrismaService } from '@core/database/prisma.service';
 import { OutboxService } from '../../outbox/services/outbox.service';
 import { ExperienceVectorStoreService } from '@shared/ai/services/experience-vector-store.service';
-import { PlacesCrawlProvenance } from '@integrations/google-places/interfaces/places-api.interface';
 import {
   OsmCandidate,
   OsmPlacesService,
@@ -39,7 +38,7 @@ import {
   buildExperienceCandidatePoolStep,
   buildCoverageAnalysisStep,
   buildDailyPlanningStep,
-  buildDiscoveryStep,
+  buildAcquisitionStep,
   buildDbSearchStep,
   buildDestinationResolutionStep,
   buildEmbeddingsStep,
@@ -47,13 +46,8 @@ import {
   buildGeographicValidationStep,
   buildCatalogMaterializationStep,
   buildTourIntentStep,
-  buildPlacesCrawlStep,
   buildTourCompletenessStep,
 } from '../utils/generation-trace-builder.util';
-import {
-  ExperienceProposalResolver,
-  EXPERIENCE_PROPOSAL_RESOLVER,
-} from '../interfaces/experience-resolution.interface';
 import { TourCompletenessValidator } from './tour-completeness-validator.service';
 import {
   TourCompletenessInput,
@@ -69,18 +63,10 @@ import {
   TOUR_PLANNING_FEASIBILITY_VALIDATOR,
   TourPlanningFeasibilityValidator,
 } from '../interfaces/daily-planning.interface';
-import {
-  PlacesCrawlError,
-  placesProviderLabel,
-} from '@integrations/google-places/interfaces/places-api.interface';
-import {
-  EXPERIENCE_GROUNDED_SEARCH_PROVIDER,
-  ExperienceGroundedSearchProvider,
-} from '../interfaces/experience-grounding.interface';
-import { ExperienceDiscoveryPlannerService } from './experience-discovery-planner.service';
 import { ExperienceCatalogService } from './experience-catalog.service';
 import { ExperienceAcquisitionService } from './experience-acquisition.service';
-import { ExperienceDiscoveryRequest } from '../interfaces/experience-discovery.interface';
+import { ExperienceAcquisitionPlannerService } from './experience-acquisition-planner.service';
+import { ExperienceCandidate } from '../interfaces/experience-discovery.interface';
 import { CoverageAnalyzer } from './coverage-analyzer.service';
 import { isCoverageFatal } from '../utils/coverage-decision.util';
 import { redactTracePayload } from '../utils/trace-redaction.util';
@@ -106,21 +92,12 @@ import {
 } from '../utils/preference-facet-merge.util';
 import { buildTourExperienceCreateData } from '../utils/tour-experience-snapshot.util';
 
-interface NativeExperienceDiscoveryProvider {
-  extractExperiences(
-    request: ExperienceDiscoveryRequest,
-    searchResult: import('../interfaces/experience-grounding.interface').ExperienceGroundedSearchResult,
-  ): Promise<{
-    candidates: any[];
-    validationErrors?: string[];
-    provider?: string;
-    model?: string;
-    rawOutput?: unknown;
-    prompt?: unknown;
-    responseSchema?: unknown;
-    tokenUsage?: unknown;
-  }>;
-}
+/**
+ * Hard bound on the canonical acquisition loop: initial catalog coverage,
+ * then at most this many `plan → executePlan → materialize → re-query →
+ * coverage` passes before the pool is taken as final. Never `while (deficit)`.
+ */
+const MAX_ACQUISITION_PASSES = 2;
 
 function withoutGenerationFailure(metadata: any): any {
   const cleanMetadata = { ...(metadata ?? {}) };
@@ -135,13 +112,6 @@ interface SemanticRankingOutcome {
   indexedCandidateCount: number;
   identity?: EmbeddingIndexIdentity;
   reason?: string;
-}
-
-interface PlacesCrawlResult {
-  experienceIds: string[];
-  fromCache?: boolean;
-  provenance: PlacesCrawlProvenance;
-  experiences?: any[];
 }
 
 interface CandidateSelection {
@@ -190,19 +160,12 @@ export class ExperienceGenerationService {
     private readonly experienceCatalog: ExperienceCatalogService,
     private readonly experienceAcquisition: ExperienceAcquisitionService,
     private readonly vectorStoreService: ExperienceVectorStoreService,
-    @Inject('PlacesApiService') private readonly placesApi: any,
     private readonly tourImageService: TourImageService,
     private readonly osmPlacesService: OsmPlacesService,
     private readonly destinationResolutionService: DestinationResolutionService,
     private readonly coverageAnalyzer: CoverageAnalyzer,
-    private readonly experienceDiscoveryPlanner: ExperienceDiscoveryPlannerService,
-    @Inject(EXPERIENCE_GROUNDED_SEARCH_PROVIDER)
-    private readonly groundedSearchProvider: ExperienceGroundedSearchProvider,
-    @Inject('EXPERIENCE_DISCOVERY_PROVIDER')
-    private readonly discoveryProvider: NativeExperienceDiscoveryProvider,
+    private readonly experienceAcquisitionPlanner: ExperienceAcquisitionPlannerService,
     private readonly tourCompletenessValidator: TourCompletenessValidator,
-    @Inject(EXPERIENCE_PROPOSAL_RESOLVER)
-    private readonly proposalResolver: ExperienceProposalResolver,
     private readonly planningCandidateNormalizer: PlanningCandidateNormalizerService,
     @Inject(DAILY_PLANNING_SOLVER)
     private readonly dailyPlanningSolver: DailyPlanningSolver,
@@ -368,158 +331,6 @@ export class ExperienceGenerationService {
         experienceId: experience.id,
       },
       components: experience.components ?? [],
-    };
-  }
-
-  private async discoverExperienceGaps(
-    destinationName: string,
-    interests: string[],
-    requestedIntents: string[],
-    deficits: any[],
-    additionalPreferences?: string,
-    preferredTraits?: string[],
-    destinationCountry?: string,
-  ): Promise<any> {
-    const request: ExperienceDiscoveryRequest = {
-      scope: { destinationName },
-      requestedThemes: interests,
-      requestedIntents,
-      preferredTraits,
-      semanticQuery: additionalPreferences,
-      // Clean, single-word subjects only — never the deficit's rendered
-      // `message` (a full Spanish sentence written for the Bitácora). That
-      // text used to be fed straight into search queries and drowned them
-      // in noise (see ExperienceDiscoveryPlannerService.plan()'s docstring).
-      coverageGaps: deficits.map(
-        (deficit) =>
-          deficit.theme ?? deficit.trait ?? deficit.intent ?? deficit.reason,
-      ),
-      breadth: 'focused',
-      maxCandidates: 8,
-    };
-    const plan = this.experienceDiscoveryPlanner.plan(request);
-    const candidates: any[] = [];
-    const evidence: any[] = [];
-    const searchTrace: any[] = [];
-    const extractionTrace: any[] = [];
-
-    for (const [index, plannedQuery] of plan.queries.entries()) {
-      const attempt = index + 1;
-      const startedAt = new Date().toISOString();
-      const startedMs = Date.now();
-      try {
-        const grounded = await this.groundedSearchProvider.search({
-          destinationName,
-          destinationCountry,
-          requestedThemes: interests,
-          additionalPreferences,
-          query: plannedQuery.query,
-          requestedIntents,
-        });
-        searchTrace.push(
-          redactTracePayload({
-            query: plannedQuery.query,
-            purpose: plannedQuery.purpose,
-            provider: grounded.provider,
-            model: grounded.model,
-            groundingStatus: grounded.groundingStatus,
-            evidenceCount: grounded.evidence.length,
-            evidenceKeys: grounded.evidence.map((item: any) => item.key),
-            // Per-evidence forensic detail — currently only populated by
-            // GeminiGroundedSearchService (see its own doc comment): whether
-            // each piece of evidence is the real source page (via Tavily
-            // /extract) or a lower-confidence segment of Gemini's own
-            // synthesized output when extraction wasn't possible.
-            evidenceProvenance: grounded.evidenceProvenance,
-            prompt: (grounded as any).prompt,
-            rawResponse: (grounded as any).rawResponse,
-            tokenUsage: (grounded as any).tokenUsage,
-            attempt,
-            startedAt,
-            completedAt: new Date().toISOString(),
-            durationMs: Date.now() - startedMs,
-            status: 'completed',
-          }),
-        );
-        if (grounded.evidence.length === 0) continue;
-        evidence.push(...grounded.evidence);
-
-        const extractionStartedAt = new Date().toISOString();
-        const extractionStartedMs = Date.now();
-        try {
-          const extracted = await this.discoveryProvider.extractExperiences(
-            request,
-            grounded,
-          );
-          extractionTrace.push(
-            redactTracePayload({
-              provider: extracted.provider,
-              model: extracted.model,
-              prompt: extracted.prompt,
-              responseSchema: extracted.responseSchema,
-              rawResponse: extracted.rawOutput,
-              tokenUsage: extracted.tokenUsage,
-              candidateCount: extracted.candidates.length,
-              validationErrors: extracted.validationErrors,
-              attempt,
-              startedAt: extractionStartedAt,
-              completedAt: new Date().toISOString(),
-              durationMs: Date.now() - extractionStartedMs,
-              status:
-                extracted.validationErrors?.length &&
-                extracted.candidates.length === 0
-                  ? 'invalid_response'
-                  : 'completed',
-            }),
-          );
-          candidates.push(...(extracted.candidates ?? []));
-          if (candidates.length >= 8) break;
-        } catch (error: any) {
-          extractionTrace.push(
-            redactTracePayload({
-              attempt,
-              startedAt: extractionStartedAt,
-              completedAt: new Date().toISOString(),
-              durationMs: Date.now() - extractionStartedMs,
-              status: 'provider_error',
-              error: {
-                name: error?.name,
-                message: error?.message ?? String(error),
-              },
-            }),
-          );
-        }
-      } catch (error: any) {
-        searchTrace.push(
-          redactTracePayload({
-            query: plannedQuery.query,
-            purpose: plannedQuery.purpose,
-            attempt,
-            startedAt,
-            completedAt: new Date().toISOString(),
-            durationMs: Date.now() - startedMs,
-            status: 'provider_error',
-            error: {
-              name: error?.name,
-              message: error?.message ?? String(error),
-            },
-          }),
-        );
-      }
-    }
-
-    return {
-      candidates: candidates.slice(0, 8),
-      evidence,
-      provider: 'experience-discovery',
-      model: 'provider-neutral',
-      groundingStatus: candidates.length
-        ? 'applied'
-        : searchTrace.some((item) => item.status === 'provider_error')
-          ? 'provider_error'
-          : 'no_usable_evidence',
-      searchTrace,
-      extractionTrace,
     };
   }
 
@@ -722,61 +533,6 @@ export class ExperienceGenerationService {
 
   private readonly CATALOG_RETRIEVAL_POOL_LIMIT = 250;
   private readonly ITINERARY_CANDIDATE_LIMIT = 15;
-  private readonly CATALOG_REFILL_RADIUS_THRESHOLD_DEG = 0.01;
-  private readonly CATALOG_REFILL_CACHE_EXPIRY_HOURS = 24;
-
-  private async wasCatalogRefillRecentlyAttempted(
-    latitude: number,
-    longitude: number,
-  ): Promise<boolean> {
-    const recentSearch = await this.prisma.crawlerSearch.findFirst({
-      where: {
-        AND: [
-          {
-            latitude: {
-              gte: latitude - this.CATALOG_REFILL_RADIUS_THRESHOLD_DEG,
-            },
-          },
-          {
-            latitude: {
-              lte: latitude + this.CATALOG_REFILL_RADIUS_THRESHOLD_DEG,
-            },
-          },
-          {
-            longitude: {
-              gte: longitude - this.CATALOG_REFILL_RADIUS_THRESHOLD_DEG,
-            },
-          },
-          {
-            longitude: {
-              lte: longitude + this.CATALOG_REFILL_RADIUS_THRESHOLD_DEG,
-            },
-          },
-          {
-            createdAt: {
-              gte: new Date(
-                Date.now() -
-                  this.CATALOG_REFILL_CACHE_EXPIRY_HOURS * 60 * 60 * 1000,
-              ),
-            },
-          },
-        ],
-      },
-    });
-    return !!recentSearch;
-  }
-
-  private async recordCatalogRefillAttempt(
-    latitude: number,
-    longitude: number,
-  ): Promise<void> {
-    const attemptedAt = new Date();
-    await this.prisma.crawlerSearch.upsert({
-      where: { latitude_longitude: { latitude, longitude } },
-      create: { latitude, longitude, createdAt: attemptedAt },
-      update: { createdAt: attemptedAt },
-    });
-  }
 
   private async rankAndSliceExperiences(
     experiences: any[],
@@ -950,7 +706,12 @@ export class ExperienceGenerationService {
       >();
       const allEligibleExperiencesById = new Map<string, any>();
       const discoveryResolvedExperienceIds = new Set<string>();
-      let placesRefillError: PlacesCrawlError | null = null;
+      // Canonical multi-source acquisition bookkeeping (was: placesRefillError).
+      // Per-pass detail lands in the trace via buildAcquisitionStep; only the
+      // degraded-all-providers signal needs to survive to the failure branch.
+      const acquisitionProvidersAttempted = new Set<string>();
+      const acquisitionProvidersFailed = new Set<string>();
+      let degradedAcquisitionReason: string | null = null;
 
       const recordOfferedCandidates = (selection: CandidateSelection) => {
         selection.experiences.forEach((experience: any) => {
@@ -1148,386 +909,230 @@ export class ExperienceGenerationService {
             traceSteps.push(
               buildDbSearchStep(nearbyExperiences, radius / 1000),
             );
-            const blockingDeficits = initialCoverageReport.deficits.filter(
-              (deficit) => deficit.severity === 'blocking',
-            );
 
-            if (blockingDeficits.length > 0) {
-              const discoveryResult = await this.discoverExperienceGaps(
-                request.destination.label,
-                // Union with the LLM's free-text theme interpretation, not
-                // just the wizard's own explicit interests — same gap as
-                // the intents union below, mirroring the pattern already
-                // used in buildCoverageReport. Missing this meant a theme
-                // the user only expressed in free text (never checked as a
-                // wizard interest chip) silently never reached the search
-                // query at all.
-                Array.from(
-                  new Set([
-                    ...request.intent.interests,
-                    ...getFacetKeysByDimension(
-                      normalizedPreferences.preferredFacets,
-                      'theme',
-                    ),
-                  ]),
-                ),
-                // Union with the wizard's own explicit intents, not just the
-                // LLM's free-text interpretation — the same gap already
-                // fixed for rankAndSliceExperiences and completenessInput.
-                // Missing this meant a wizard-selected day_trip/route_like
-                // intent silently never reached discovery's day-trip query
-                // branch unless the free-text interpreter happened to
-                // re-derive it independently.
-                Array.from(
-                  new Set([
-                    ...(request.intent.intents ?? []),
-                    ...getFacetKeysByDimension(
-                      normalizedPreferences.preferredFacets,
-                      'intent',
-                    ),
-                  ]),
-                ),
-                blockingDeficits,
-                // The LLM-derived positive-only paraphrase, never the raw
-                // additionalPreferences text. A search engine has no notion
-                // of "no quiero X" as an exclusion — it just matches "X" as
-                // another keyword, actively pulling in the exact content the
-                // user asked to avoid (verified live: adding an excluded
-                // term to the query, even with a "-" prefix, pulled in MORE
-                // matching results, not fewer — Tavily's plain search has no
-                // keyword-exclusion syntax at all). hardExclusions still
-                // filters candidates correctly later in the pipeline; this
-                // only stops the raw negation text from reaching the search
-                // evidence-gathering step in the first place.
-                normalizedPreferences.positiveSemanticQuery,
-                // Union with dietary/accessibility preferences, matching
-                // buildCoverageReport's requestedTraits exactly — a vegan
-                // or accessibility need the user only expressed as such
-                // (never phrased as a generic "trait") previously never
-                // reached the search query either.
-                Array.from(
-                  new Set([
-                    ...getFacetKeysByDimension(
-                      normalizedPreferences.preferredFacets,
-                      'trait',
-                    ),
-                    ...(normalizedPreferences.dietaryPreferences ?? []),
-                    ...(normalizedPreferences.accessibilityPreferences ?? []),
-                  ]),
-                ),
-                destinationResolution.country,
+            // ── Canonical bounded multi-source acquisition loop ──
+            // Replaces the former hand-rolled discovery + Places-only refill
+            // cascade with the single canonical path:
+            //   coverage deficits → ExperienceAcquisitionPlannerService
+            //   .buildAcquisitionPlan → ExperienceAcquisitionService.executePlan
+            //   (structured providers + web discovery) → materializeExecution
+            //   (ExperienceProposalResolver) → catalog re-query →
+            //   CoverageAnalyzer, bounded by MAX_ACQUISITION_PASSES.
+            const acquisitionScope = {
+              destinationName: request.destination.label,
+              latitude: searchArea.latitude,
+              longitude: searchArea.longitude,
+              radiusMeters: searchArea.radiusMeters,
+            };
+            const coverageCandidateView = (pool: any[]) =>
+              pool.map(
+                (experience) =>
+                  ({
+                    name: experience.canonicalName ?? experience.name,
+                    description: experience.description,
+                    themes:
+                      experience.themes ?? experience.metadata?.themes ?? [],
+                    traits:
+                      experience.traits ?? experience.metadata?.traits ?? [],
+                    intents:
+                      experience.intents ??
+                      experience.metadata?.intents ??
+                      experience.metadata?.archetypes ??
+                      [],
+                  }) as unknown as ExperienceCandidate,
               );
-              traceSteps.push(buildDiscoveryStep(discoveryResult));
 
-              if (discoveryResult.candidates.length > 0) {
-                const resolutionResult = await this.proposalResolver.resolve({
-                  candidates: discoveryResult.candidates,
-                  destinationName: request.destination.label,
-                  destinationCountryCode: destinationResolution.countryCode,
-                  destinationBoundary: destinationScope,
-                  destinationPointRadius: isAreaScale
-                    ? undefined
-                    : {
-                        latitude: request.destination.latitude,
-                        longitude: request.destination.longitude,
-                        radiusMeters: searchArea.radiusMeters,
-                      },
-                  evidence: discoveryResult.evidence,
+            let currentPool = nearbyExperiences;
+            let currentSelection = selection;
+            let currentCoverage = initialCoverageReport;
+
+            for (let pass = 1; pass <= MAX_ACQUISITION_PASSES; pass++) {
+              if (currentCoverage.decision.action === 'none') break;
+
+              const blockingDeficits = currentCoverage.deficits.filter(
+                (deficit) => deficit.severity === 'blocking',
+              );
+
+              const acquisitionPlan =
+                this.experienceAcquisitionPlanner.buildAcquisitionPlan({
+                  destination: acquisitionScope,
+                  legacyDeficits: blockingDeficits,
+                  preferredFacets: normalizedPreferences.preferredFacets,
+                  candidates: coverageCandidateView(currentPool),
+                  semanticQuery: normalizedPreferences.positiveSemanticQuery,
+                  breadth: 'focused',
                 });
+
+              if (acquisitionPlan.sourcePlans.length === 0) {
+                // Nothing routable — a soft-only deficit. Stop acquiring; the
+                // gap stays visible in the coverage trace, never fatal.
+                break;
+              }
+
+              await this.updateGenerationStatus(
+                tourId,
+                'generating',
+                `Buscando más Experiences (fuentes: ${acquisitionPlan.sourcePlans
+                  .map((sourcePlan) => sourcePlan.provider)
+                  .join(', ')})...`,
+              );
+
+              const execution =
+                await this.experienceAcquisition.executePlan(acquisitionPlan);
+
+              for (const [provider, res] of Object.entries(
+                execution.providerResults,
+              )) {
+                acquisitionProvidersAttempted.add(provider);
+                if ((res as any)?.status === 'failed') {
+                  acquisitionProvidersFailed.add(provider);
+                }
+              }
+              for (const web of execution.webResults ?? []) {
+                acquisitionProvidersAttempted.add('web');
+                if (web.status === 'failed') {
+                  acquisitionProvidersFailed.add('web');
+                }
+              }
+
+              traceSteps.push(
+                buildAcquisitionStep({
+                  passNumber: pass,
+                  plan: acquisitionPlan,
+                  execution,
+                }),
+              );
+
+              if (execution.candidates.length > 0) {
+                const resolution =
+                  await this.experienceAcquisition.materializeExecution(
+                    execution,
+                    {
+                      destinationName: request.destination.label,
+                      destinationCountryCode: destinationResolution.countryCode,
+                      destinationBoundary: destinationScope,
+                      destinationPointRadius: isAreaScale
+                        ? undefined
+                        : {
+                            latitude: request.destination.latitude,
+                            longitude: request.destination.longitude,
+                            radiusMeters: searchArea.radiusMeters,
+                          },
+                    },
+                  );
                 traceSteps.push(
-                  buildEntityResolutionStep(resolutionResult),
-                  buildGeographicValidationStep(resolutionResult),
-                  buildCatalogMaterializationStep(resolutionResult),
+                  buildEntityResolutionStep(resolution),
+                  buildGeographicValidationStep(resolution),
+                  buildCatalogMaterializationStep(resolution),
                 );
 
-                const persistedExperienceIds = resolutionResult.resolved
+                const acceptedIds = resolution.resolved
                   .filter(
                     (result) =>
                       result.status === 'accepted' && result.experienceId,
                   )
                   .map((result) => result.experienceId as string);
-                if (persistedExperienceIds.length > 0) {
-                  const persistedExperiences =
-                    await this.prisma.experience.findMany({
-                      where: {
-                        id: { in: persistedExperienceIds },
-                        status: 'VERIFIED',
-                      },
-                      include: {
-                        components: { include: { geoEntity: true } },
-                        traits: { include: { traitDefinition: true } },
-                      },
-                    });
-                  persistedExperiences.forEach((experience: any) => {
-                    const hydrated =
-                      this.hydratePersistedExperience(experience);
-                    allEligibleExperiencesById.set(experience.id, hydrated);
+                if (acceptedIds.length > 0) {
+                  const persisted = await this.prisma.experience.findMany({
+                    where: { id: { in: acceptedIds }, status: 'VERIFIED' },
+                    include: {
+                      components: { include: { geoEntity: true } },
+                      traits: { include: { traitDefinition: true } },
+                    },
+                  });
+                  persisted.forEach((experience: any) => {
+                    allEligibleExperiencesById.set(
+                      experience.id,
+                      this.hydratePersistedExperience(experience),
+                    );
                     discoveryResolvedExperienceIds.add(experience.id);
                   });
                 }
               }
-            }
 
-            const postDiscoveryExperiences =
-              await this.experienceCatalog.findVerifiedWithin(
+              // Re-query the real catalog — the resolver may have created NEW,
+              // resolved SAME, enriched an existing row, or rejected; the
+              // accepted-id list alone is not the pool.
+              const refreshed = await this.experienceCatalog.findVerifiedWithin(
                 searchArea.latitude,
                 searchArea.longitude,
                 radius,
                 experienceLimit,
               );
-            postDiscoveryExperiences.forEach((experience: any) =>
-              allEligibleExperiencesById.set(experience.id, experience),
-            );
-            const postDiscoveryPool = Array.from(
-              allEligibleExperiencesById.values(),
-            );
-            let postDiscoverySelection = await this.rankAndSliceExperiences(
-              postDiscoveryPool,
-              request.intent,
-            );
-            semanticRankingOutcome = postDiscoverySelection.semanticRanking;
-            let postDiscoveryCoverage = this.buildCoverageReport(
-              postDiscoveryPool,
-              request,
-              postDiscoverySelection.experiences.length,
-              semanticRankingOutcome,
-              { status: 'healthy' },
-            );
-            traceSteps.push(buildCoverageAnalysisStep(postDiscoveryCoverage));
-
-            if (postDiscoveryCoverage.decision.action === 'none') {
-              recordOfferedCandidates(postDiscoverySelection);
-              availableExperiencesText = `\n\nAvailable verified Experiences in the area (within ${radius / 1000}km):\n${postDiscoverySelection.experiences
-                .map((experience: any) => formatExperienceForPrompt(experience))
-                .join('\n')}`;
-              traceSteps.push(
-                this.buildCandidatePoolTraceStep(
-                  postDiscoverySelection,
-                  discoveryResolvedExperienceIds,
-                  new Set(),
-                  undefined,
-                  request,
-                  nearbyExperiences.length,
-                  postDiscoveryPool.length,
-                  postDiscoveryCoverage.relevantCandidateCount,
-                ),
+              refreshed.forEach((experience: any) =>
+                allEligibleExperiencesById.set(experience.id, experience),
               );
-            } else {
-              const semanticCoverageDeficit =
-                postDiscoveryCoverage.deficits.some(
-                  (deficit) =>
-                    deficit.reason === 'missing_requested_theme' ||
-                    deficit.reason === 'missing_requested_trait' ||
-                    deficit.reason === 'missing_requested_intent',
-                );
-
-              if (!semanticCoverageDeficit) {
-                const placesStatus = this.placesApi.getStatus();
-                const placesLabel = placesProviderLabel(placesStatus.provider);
-                await this.updateGenerationStatus(
-                  tourId,
-                  'generating',
-                  `Coverage temática resuelta pero faltan candidatos. Buscando más lugares con ${placesLabel}...`,
-                );
-
-                try {
-                  const skipRefill =
-                    await this.wasCatalogRefillRecentlyAttempted(
-                      searchArea.latitude,
-                      searchArea.longitude,
-                    );
-                  let crawlResult: PlacesCrawlResult;
-                  if (skipRefill) {
-                    crawlResult = {
-                      experienceIds: [],
-                      fromCache: true,
-                      provenance: {
-                        provider: placesStatus.provider,
-                        cacheStatus: 'hit',
-                        requestedCount: 0,
-                        receivedCount: 0,
-                        acceptedCount: 0,
-                        rejectedCountByReason: {},
-                      },
-                    };
-                  } else {
-                    await this.recordCatalogRefillAttempt(
-                      searchArea.latitude,
-                      searchArea.longitude,
-                    );
-                    const acquired =
-                      await this.experienceAcquisition.acquireNearby({
-                        latitude: searchArea.latitude,
-                        longitude: searchArea.longitude,
-                        radius: Math.min(radius, 5000),
-                        interests: request.intent.interests,
-                        maxResultCount: experienceLimit,
-                        destinationName: request.destination.label,
-                        destinationCountryCode:
-                          destinationResolution.countryCode,
-                        destinationBoundary: destinationScope,
-                        destinationPointRadius: isAreaScale
-                          ? undefined
-                          : {
-                              latitude: request.destination.latitude,
-                              longitude: request.destination.longitude,
-                              radiusMeters: searchArea.radiusMeters,
-                            },
-                      });
-                    crawlResult = {
-                      experienceIds: acquired.experienceIds,
-                      experiences: acquired.experiences,
-                      provenance: acquired.provenance,
-                    };
-                  }
-
-                  const refreshedExperiences =
-                    await this.experienceCatalog.findVerifiedWithin(
-                      searchArea.latitude,
-                      searchArea.longitude,
-                      radius,
-                      experienceLimit,
-                    );
-                  refreshedExperiences.forEach((experience: any) =>
-                    allEligibleExperiencesById.set(experience.id, experience),
-                  );
-                  const refreshedPool = Array.from(
-                    allEligibleExperiencesById.values(),
-                  );
-                  postDiscoverySelection = await this.rankAndSliceExperiences(
-                    refreshedPool,
-                    request.intent,
-                  );
-                  semanticRankingOutcome =
-                    postDiscoverySelection.semanticRanking;
-                  postDiscoveryCoverage = this.buildCoverageReport(
-                    refreshedPool,
-                    request,
-                    postDiscoverySelection.experiences.length,
-                    semanticRankingOutcome,
-                    { status: 'healthy' },
-                  );
-                  traceSteps.push(
-                    buildPlacesCrawlStep(
-                      refreshedExperiences.filter((experience: any) =>
-                        new Set(crawlResult.experienceIds).has(experience.id),
-                      ),
-                      crawlResult.provenance,
-                    ),
-                    buildCoverageAnalysisStep(postDiscoveryCoverage),
-                  );
-
-                  if (postDiscoveryCoverage.decision.action === 'none') {
-                    recordOfferedCandidates(postDiscoverySelection);
-                    availableExperiencesText = `\n\nAvailable verified Experiences in the area (within ${radius / 1000}km):\n${postDiscoverySelection.experiences
-                      .map((experience: any) =>
-                        formatExperienceForPrompt(experience),
-                      )
-                      .join('\n')}`;
-                    traceSteps.push(
-                      this.buildCandidatePoolTraceStep(
-                        postDiscoverySelection,
-                        discoveryResolvedExperienceIds,
-                        new Set(crawlResult.experienceIds),
-                        crawlResult.provenance.provider === 'google'
-                          ? 'google'
-                          : 'geoapify',
-                        request,
-                        nearbyExperiences.length,
-                        refreshedPool.length,
-                        postDiscoveryCoverage.relevantCandidateCount,
-                      ),
-                    );
-                  }
-                } catch (crawlError: any) {
-                  if (crawlError instanceof PlacesCrawlError) {
-                    placesRefillError = crawlError;
-                  }
-                  this.logger.error(
-                    `${placesLabel} catalog refill failed: ${crawlError.message}`,
-                  );
-                  const failedProvenance =
-                    crawlError instanceof PlacesCrawlError
-                      ? crawlError.provenance
-                      : {
-                          provider: placesStatus.provider,
-                          cacheStatus:
-                            placesStatus.cacheEnabled &&
-                            placesStatus.cacheMode === 'strict'
-                              ? ('strict-miss' as const)
-                              : ('miss-live' as const),
-                          requestedCount: 0,
-                          receivedCount: 0,
-                          acceptedCount: 0,
-                          rejectedCountByReason: {},
-                        };
-                  traceSteps.push(
-                    buildPlacesCrawlStep([], failedProvenance, true),
-                  );
-                }
-              }
-
-              const finalPool = Array.from(allEligibleExperiencesById.values());
-              const finalSelection = await this.rankAndSliceExperiences(
-                finalPool,
+              currentPool = Array.from(allEligibleExperiencesById.values());
+              currentSelection = await this.rankAndSliceExperiences(
+                currentPool,
                 request.intent,
               );
-              semanticRankingOutcome = finalSelection.semanticRanking;
-              const finalCoverage = this.buildCoverageReport(
-                finalPool,
-                request,
-                finalSelection.experiences.length,
-                semanticRankingOutcome,
-                placesRefillError
-                  ? { status: 'degraded', reason: placesRefillError.code }
-                  : { status: 'healthy' },
-              );
-              traceSteps.push(buildCoverageAnalysisStep(finalCoverage));
+              semanticRankingOutcome = currentSelection.semanticRanking;
 
-              // A requested theme/trait/intent still missing after catalog +
-              // discovery + acquisition (`requiresAdditionalDiscovery`) is a
-              // real, trace-visible deficit — but per invariant #11 it must
-              // never fail the Tour on its own. Only a genuinely infeasible
-              // pool (`isCoverageFatal`) aborts generation here.
-              if (isCoverageFatal(finalCoverage)) {
-                const coverageError = new Error(
-                  `Coverage insuficiente después de catálogo, discovery enfocado y adquisición acotada: ${finalCoverage.deficits
-                    .filter((deficit) => deficit.severity === 'blocking')
-                    .map((deficit) => deficit.reason)
-                    .join(', ')}`,
-                );
-                // Authoritative retry signal from the code that actually
-                // decided this is fatal — an empty/insufficient pool caused
-                // by a genuinely degraded provider (e.g. Places down) is
-                // worth retrying; the same pool being empty because the
-                // destination just has no coverage yet never gets better on
-                // retry. Set explicitly so classifyGenerationFailure's
-                // whole-trace text scan (which can't distinguish "this
-                // failure was provider-caused" from "an unrelated earlier
-                // sub-step hit a transient 429 and recovered") never
-                // overrides it.
-                (coverageError as any).retryable =
-                  finalCoverage.providerHealth.status === 'degraded';
-                throw coverageError;
+              const providerHealth: {
+                status: 'healthy' | 'degraded' | 'unknown';
+                reason?: string;
+              } =
+                acquisitionProvidersAttempted.size > 0 &&
+                acquisitionProvidersFailed.size ===
+                  acquisitionProvidersAttempted.size
+                  ? {
+                      status: 'degraded',
+                      reason: `all_acquisition_providers_failed:${[
+                        ...acquisitionProvidersFailed,
+                      ]
+                        .sort()
+                        .join(',')}`,
+                    }
+                  : { status: 'healthy' };
+              if (providerHealth.status === 'degraded') {
+                degradedAcquisitionReason = providerHealth.reason ?? 'degraded';
               }
 
-              recordOfferedCandidates(finalSelection);
-              availableExperiencesText = `\n\nAvailable verified Experiences in the area (within ${radius / 1000}km):\n${finalSelection.experiences
-                .map((experience: any) => formatExperienceForPrompt(experience))
-                .join('\n')}`;
-              traceSteps.push(
-                this.buildCandidatePoolTraceStep(
-                  finalSelection,
-                  discoveryResolvedExperienceIds,
-                  new Set(),
-                  undefined,
-                  request,
-                  nearbyExperiences.length,
-                  finalPool.length,
-                  finalCoverage.relevantCandidateCount,
-                ),
+              currentCoverage = this.buildCoverageReport(
+                currentPool,
+                request,
+                currentSelection.experiences.length,
+                semanticRankingOutcome,
+                providerHealth,
               );
+              traceSteps.push(buildCoverageAnalysisStep(currentCoverage));
             }
+
+            const finalCoverage = currentCoverage;
+
+            // A requested soft theme/trait/intent still missing after catalog +
+            // bounded acquisition is a real, trace-visible deficit — but per
+            // invariant it must never fail the Tour on its own. Only a
+            // genuinely infeasible pool (`isCoverageFatal`) aborts here.
+            if (isCoverageFatal(finalCoverage)) {
+              const coverageError = new Error(
+                `Coverage insuficiente después de catálogo y adquisición multi-fuente acotada: ${finalCoverage.deficits
+                  .filter((deficit) => deficit.severity === 'blocking')
+                  .map((deficit) => deficit.reason)
+                  .join(', ')}`,
+              );
+              (coverageError as any).retryable =
+                finalCoverage.providerHealth.status === 'degraded';
+              throw coverageError;
+            }
+
+            recordOfferedCandidates(currentSelection);
+            availableExperiencesText = `\n\nAvailable verified Experiences in the area (within ${radius / 1000}km):\n${currentSelection.experiences
+              .map((experience: any) => formatExperienceForPrompt(experience))
+              .join('\n')}`;
+            traceSteps.push(
+              this.buildCandidatePoolTraceStep(
+                currentSelection,
+                discoveryResolvedExperienceIds,
+                new Set(),
+                undefined,
+                request,
+                nearbyExperiences.length,
+                currentPool.length,
+                finalCoverage.relevantCandidateCount,
+              ),
+            );
           }
         } catch (error: any) {
           this.logger.warn(
@@ -1547,25 +1152,17 @@ export class ExperienceGenerationService {
       }
 
       if (!availableExperiencesText) {
-        if (placesRefillError?.code === 'quota_exhausted') {
-          throw new Error(
-            'Google Places alcanzó su cuota diaria y no pudo buscar lugares reales para este destino. Volvé a intentar cuando se renueve la cuota del proveedor.',
+        if (degradedAcquisitionReason) {
+          // Every acquisition source consulted this run failed and the catalog
+          // has no relevant coverage yet — worth retrying once the providers
+          // recover. (A bare destination with providers responding normally
+          // but empty is NOT retryable — that path lands on the generic
+          // message below.)
+          const degradedError = new Error(
+            'No se encontraron Experiences verificadas y relevantes, y todas las fuentes de adquisición consultadas fallaron. Volvé a intentar cuando los proveedores se recuperen.',
           );
-        }
-        if (placesRefillError?.code === 'rate_limited') {
-          throw new Error(
-            'Google Places limitó temporalmente las búsquedas y no pudo devolver lugares reales para este destino. Esperá un momento y volvé a intentar.',
-          );
-        }
-        if (placesRefillError?.code === 'strict_cache_miss') {
-          throw new Error(
-            'El modo estricto local no tiene datos cacheados de Google Places para este destino y no permite llamadas externas.',
-          );
-        }
-        if (placesRefillError?.code === 'provider_unavailable') {
-          throw new Error(
-            'Google Places no está configurado o disponible para buscar lugares reales en este destino.',
-          );
+          (degradedError as any).retryable = true;
+          throw degradedError;
         }
         throw new Error(
           'No se encontraron Experiences verificadas y relevantes para esta solicitud.',

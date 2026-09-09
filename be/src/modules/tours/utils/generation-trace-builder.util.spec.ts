@@ -1,4 +1,5 @@
 import {
+  buildAcquisitionStep,
   buildCandidatePoolStep,
   buildCatalogMaterializationStep,
   buildCoverageAnalysisStep,
@@ -343,6 +344,102 @@ describe('buildCatalogMaterializationStep', () => {
     expect(step.summary).toContain(
       '1 propuesta(s) geográficamente verificadas',
     );
+  });
+});
+
+describe('buildAcquisitionStep', () => {
+  const basePlan = {
+    sourcePlans: [{ provider: 'wikivoyage' }, { provider: 'web' }],
+    deficits: [{ dimension: 'trait', key: 'craft beer', reason: 'r' }],
+  };
+
+  it('names the real routed sources and reports structured + web candidate counts', () => {
+    const step = buildAcquisitionStep({
+      passNumber: 1,
+      plan: basePlan,
+      execution: {
+        observations: [{}, {}],
+        candidates: [{}, {}, {}],
+        providerResults: { wikivoyage: { status: 'success' } },
+        webResults: [
+          {
+            status: 'success',
+            query: 'BA craft beer',
+            groundedProvider: 'tavily',
+            groundingStatus: 'applied',
+            evidenceKeys: ['ev-1'],
+            extractorProvider: 'gemini',
+            validationErrors: [],
+            candidateCount: 1,
+          },
+        ],
+        structuredCandidateCount: 2,
+        webCandidateCount: 1,
+      },
+    });
+
+    expect(step.stage).toBe('discovery');
+    expect(step.status).toBe('PASS');
+    expect(step.component).toBe('ExperienceAcquisitionService');
+    expect(step.summary).toMatch(/wikivoyage, web/);
+    expect(step.outputs).toMatchObject({
+      observationCount: 2,
+      structuredCandidateCount: 2,
+      webCandidateCount: 1,
+      candidateCount: 3,
+    });
+    expect((step.outputs as any).webResults[0]).toMatchObject({
+      status: 'success',
+      groundedProvider: 'tavily',
+      extractorProvider: 'gemini',
+      candidateCount: 1,
+    });
+  });
+
+  it('flags an isolated source failure as WARN, and all-failed as FAIL', () => {
+    const warn = buildAcquisitionStep({
+      passNumber: 1,
+      plan: basePlan,
+      execution: {
+        observations: [],
+        candidates: [],
+        providerResults: {
+          wikivoyage: { status: 'failed', failureReason: 'x' },
+        },
+        webResults: [
+          {
+            status: 'success',
+            query: 'q',
+            evidenceKeys: [],
+            validationErrors: [],
+            candidateCount: 0,
+          },
+        ],
+      },
+    });
+    expect(warn.status).toBe('WARN');
+
+    const fail = buildAcquisitionStep({
+      passNumber: 2,
+      plan: basePlan,
+      execution: {
+        observations: [],
+        candidates: [],
+        providerResults: { wikivoyage: { status: 'failed' } },
+        webResults: [
+          {
+            status: 'failed',
+            query: 'q',
+            evidenceKeys: [],
+            validationErrors: [],
+            candidateCount: 0,
+            failureReason: 'boom',
+          },
+        ],
+      },
+    });
+    expect(fail.status).toBe('FAIL');
+    expect(fail.providerStatus).toBe('failed');
   });
 });
 
