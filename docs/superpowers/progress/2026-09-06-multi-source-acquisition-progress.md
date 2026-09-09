@@ -9,21 +9,34 @@ Canonical design: `docs/superpowers/specs/2026-09-06-multi-source-acquisition-de
   `ExperienceCandidate` controlled-facet contract; explicit discovery-extractor
   transport/model + a shared extraction prompt + Ollama as a third extractor + live
   provider characterization. Phase 7 NOT STARTED.
+- Discovery-extractor contract shape:
+  - **Semantic contract** (system framing + ExperienceCandidate/componentHint rules +
+    facet contract) — shared by Gemini, Groq and Ollama.
+  - **Structured JSON Schema** (`themes`/`intents` enum-constrained, `traits` open) —
+    reused by Gemini (`response_format`) and Ollama (`format`) only. **Groq** runs
+    JSON-object mode + the shared semantic prompt + the deterministic backend normalizer.
 - Discovery-extractor verification layers:
-  - **UNIT CONTRACT VERIFIED** — prompt/schema/parser/normalizer, all providers.
+  - **UNIT CONTRACT VERIFIED** — shared prompt, the Gemini/Ollama structured schema,
+    parsers and the deterministic normalizer.
   - **LOCAL LIVE OLLAMA CHARACTERIZED** — 2026-09-09, model `qwen2.5:7b-instruct` via
     `http://localhost:11434`; scenarios controlled-facets / long-tail / generic-entity;
     1 / 2 / 1 candidates; 0 validationErrors each. A bare `format: 'json'` first failed
     the componentHint schema and leaked long-tail terms into `themes`; the shared
     JSON-Schema `format` fixed both, and the model did **not** fabricate a `PLACE` from
     the category-only generic-entity evidence (used real `AREA`s instead).
-  - **EXTERNAL LIVE GEMINI VERIFIED** — 2026-09-09, model `gemini-3.5-flash-lite`;
-    controlled-facets / long-tail; 1 / 1 candidates; 0 validationErrors. The Interactions
-    API accepts `response_format` including `themes`/`intents` `items.enum`; the
-    `steps[].model_output.content[].text` parser matched the real payload.
-  - **EXTERNAL LIVE GROQ VERIFIED** — 2026-09-09, model `qwen/qwen3.8-27b`;
-    controlled-facets / long-tail; 1 / 1 candidates; 0 validationErrors. The live spec
-    asserts the real `fetch` call hit `api.groq.com` at the Groq discovery model.
+  - **EXTERNAL LIVE GEMINI CHARACTERIZED** — 2026-09-09, model `gemini-3.5-flash-lite`;
+    controlled-facets / long-tail / generic-entity; 1 / 1 / 1 candidates;
+    0 validationErrors. The Interactions API accepts `response_format` including
+    `themes`/`intents` `items.enum`; the `steps[].model_output.content[].text` parser
+    matched the real payload. Generic-entity probe: **no fabricated `PLACE`** — cited the
+    real `AREA`s Palermo Soho / Palermo Hollywood.
+  - **EXTERNAL LIVE GROQ CHARACTERIZED** — 2026-09-09, model `qwen/qwen3.8-27b`;
+    controlled-facets / long-tail / generic-entity; 1 / 1 / 0–1 candidates (varies by
+    run); 0 validationErrors. The live spec asserts the real `fetch` call hit
+    `api.groq.com` at the Groq discovery model. Generic-entity probe: **no fabricated
+    `PLACE`** — either zero candidates or real `AREA`s only. The probe tolerates an
+    empty result (a conservative model that proposes nothing for thin category-only
+    evidence is valid; the only hard rule is the no-pseudo-entity check).
   - This is live *characterization*, not "production verified".
 - **Ollama is a supported discovery extractor, NOT the production default.** Before
   choosing it in production, benchmark: quality (candidate validity, hallucination rate,
@@ -38,7 +51,9 @@ Canonical design: `docs/superpowers/specs/2026-09-06-multi-source-acquisition-de
   (`fix(tours): align discovery prompts with facet contract`),
   `37a6add…` (`refactor(tours): centralize discovery extraction prompt and make transport explicit`),
   `0b403a3…` (`feat(tours): add ollama discovery extractor`),
-  `0a9b70c…` (`test(tours): add live discovery extractor characterization`)
+  `0a9b70c…` (`test(tours): add live discovery extractor characterization`),
+  `aed5879…` (`fix(tours): tighten grounded discovery naming contract`),
+  `647593c…` (`test(tours): characterize generic entity grounding across providers`)
 - Verified Phase 6 code commits: `2d023e110119bff4fb42fbe675865d6b38c041a3` (Tavily theme-aware),
   `37ad22873d1045a61a8144962205975f6c360a75` (`exploration_style` → ranking facet)
 - Previous Phase 5 hardening code commit: `f24f6f4efff270f3a08d4616f1628b619c7f1302`

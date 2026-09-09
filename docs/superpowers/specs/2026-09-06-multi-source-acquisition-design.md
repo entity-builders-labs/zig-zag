@@ -143,17 +143,28 @@ shared LLM extraction boundary (`extractExperienceCandidates` →
   its human-readable label (case-insensitively deduped). No provider-specific
   tourism taxonomy, no vocabulary growth to absorb long-tail terms.
 
-Every discovery extractor speaks one **shared** contract
+All discovery extractors share **one semantic contract**
 (`prompts/experience-discovery-extraction.prompt.ts`): system framing, the
-ExperienceCandidate/componentHint rules, the controlled-vs-open facet contract,
-and a JSON-Schema (`themes`/`intents` `enum`-constrained to the central
-vocabulary, `traits` open) reused by every provider that supports structured
-output. Providers add only transport + response-format wiring + parsing — no
+ExperienceCandidate/componentHint rules, and the controlled-vs-open facet
+contract. On top of that, the two extractors with schema-enforced output —
+**Gemini** (`response_format`) and **Ollama** (`format`) — reuse **one shared
+JSON Schema** (`themes`/`intents` `enum`-constrained to the central vocabulary,
+`traits` open); **Groq** currently runs in JSON-object mode and relies on the
+same semantic prompt plus the deterministic backend normalizer instead.
+Providers add only transport + response-format wiring + parsing — no
 provider-specific tourism taxonomy, no divergent prose. The deterministic
 `normalizeExperienceCandidateFacets` stays the backend authority regardless of
 provider or model obedience. Structured synthesis still emits empty facet
 arrays — no OSM/Places/Wikivoyage theme inference. Existing mis-classified
 `TraitDefinition('general', …)` rows are pre-production data, not migrated.
+
+The extractor is **not** a geographic-identity authority. `componentHints[].name`
+must be the identity of an entity the grounded evidence explicitly supports; the
+model may normalize/translate that *same* entity to its official local-language
+form only when it is confident the identity is unchanged, and on any doubt it
+keeps the evidenced name for the trusted geographic resolver to canonicalize. It
+never introduces a place absent from evidence, never turns a place/business
+*category* into a concrete venue, and never emits coordinates or provider IDs.
 
 ### Discovery-extractor selection is transport-authoritative
 

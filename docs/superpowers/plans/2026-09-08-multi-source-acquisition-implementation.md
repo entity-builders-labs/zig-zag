@@ -162,15 +162,22 @@ obedience, never a second taxonomy inside a provider:
   human label, deduped case-insensitively; the vocabulary is not grown to
   absorb them.
 
-Every extractor speaks ONE shared contract
+All extractors share ONE semantic contract
 (prompts/experience-discovery-extraction.prompt.ts): system framing,
-ExperienceCandidate/componentHint rules, the facet contract, and a shared
-JSON-Schema (themes/intents enum-constrained to the central vocabulary, traits
-open) reused by every provider that supports structured output. Providers add
-only transport + parsing. The deterministic normalizer is the backend authority
-regardless of provider or model obedience. Structured synthesis is unchanged
-(still emits empty facet arrays). No schema migration; existing mis-classified
-TraitDefinition('general', ...) rows are pre-production data.
+ExperienceCandidate/componentHint rules, the facet contract. The two extractors
+with schema-enforced output — Gemini (response_format) and Ollama (format) —
+additionally reuse ONE shared JSON Schema (themes/intents enum-constrained to
+the central vocabulary, traits open); Groq currently runs JSON-object mode and
+relies on the semantic prompt plus the deterministic backend normalizer.
+Providers add only transport + parsing. The deterministic normalizer is the
+backend authority regardless of provider or model obedience. The extractor is
+NOT a geographic-identity authority: componentHints[].name is the identity of an
+evidence-supported entity, local-language normalization is allowed only for the
+SAME entity, uncertainty keeps the evidenced name for the resolver, and a
+place/business category is never materialised as a concrete venue. Structured
+synthesis is unchanged (still emits empty facet arrays). No schema migration;
+existing mis-classified TraitDefinition('general', ...) rows are pre-production
+data.
 
 2.3c Discovery-extractor selection is transport-authoritative
 
