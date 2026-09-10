@@ -128,6 +128,32 @@ Canonical design: `docs/superpowers/specs/2026-09-06-multi-source-acquisition-de
   `generation-execution-summary.util.spec.ts` roll-up). The F integration specs prove
   the same behaviors against real Postgres end-to-end.
 
+## Post-F micro-hardening and cold-start characterization (2026-09-09)
+
+- **Post-F micro-hardening COMPLETE** in `cd33395` (`test(tours): harden structured
+  persistence and internal routing coverage`). The canonical orchestration test now
+  proves a Wikivoyage structured candidate persists with a valid component, geo
+  entity, and structured evidence. The routing-boundary test now distinguishes an
+  internal `component[n].end → component[n+1].start` leg from an inter-Experience leg
+  through the same `TRAVEL_ESTIMATE_PROVIDER` seam.
+- **Cold-start discovery characterization COMPLETE for the executed run (partial
+  provider comparison)**. Harness:
+  `be/test/live/cold-start-experience-acquisition.live-spec.ts`; report:
+  `docs/superpowers/characterization/2026-09-09-buenos-aires-cold-start-discovery-characterization.md`;
+  raw JSON: `/tmp/zigzag-buenos-aires-cold-start-characterization.json`.
+  It used an isolated `zigzag_characterization_20260909` database, ten bounded
+  Buenos Aires scenarios, and 13 runs per requested provider including bounded
+  repetitions. Tavily completed its retrieval calls. Groq browser search returned
+  initial evidence then hit its daily TPD quota; Gemini grounded search was
+  unavailable because of 429 quota exhaustion. These are recorded as provider
+  availability observations, not system failures.
+- The common downstream extractor was the existing Gemini discovery provider and
+  embeddings were intentionally unavailable to keep this measurement focused on
+  acquisition. No production discovery/ranking architecture, quality subsystem,
+  curation schema, or status was added. Human labels remain `UNREVIEWED`.
+- **Engine Quality Gate G NOT STARTED · Argentina Live Smoke H NOT STARTED · Phase 7
+  overall NOT CLOSED.**
+
 - Previous milestone: pre-Phase-7 hardening — `TraitDefinition` concurrency-safe
   resolution; `ExperienceCandidate` controlled-facet contract; explicit
   discovery-extractor transport/model + a shared extraction prompt + Ollama as a third
@@ -934,4 +960,3 @@ implemented, verified, and CLOSED at `2d023e1` / `37ad228`. Phase 7 (final live
 multi-source acquisition orchestration) has **NOT** started; per the convergence roadmap it
 is the prerequisite for the Integration Gate with `feat/agentic-travel-planning`. Next
 action will be Phase 7 upon explicit user instruction.
-
