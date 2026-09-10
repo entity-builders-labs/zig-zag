@@ -8,6 +8,22 @@ Companion to `docs/superpowers/specs/2026-09-09-travel-content-agentic-planning-
 the order of work *after* the gate. It does not repeat the architecture — read
 the spec first.
 
+> **AMENDMENT 2026-09-10 — preference-first refactor.** The G.1 characterization
+> (`docs/superpowers/characterization/2026-09-10-real-catalog-selection-semantics-characterization.md`)
+> proved the live selection/coverage orchestration built by Phase 7 A–G does not
+> respect user preferences (7 confirmed defects). A refactor design —
+> `docs/superpowers/specs/2026-09-10-preference-first-selection-and-agent-convergence-design.md`
+> — replaces the catalog-first geo pool + late re-scoring with **preference-first
+> per-facet retrieval + set-cover composition**, keeping every Phase 7 building
+> block (acquisition planner, executor, corroboration, resolver, validation,
+> dedupe, catalog). **Proposed (design §7.4, pending sign-off):** the Integration
+> Gate prerequisite "Phase 7 CLOSED" is redefined to **"preference-first core
+> stable + acceptance green"**, and the canonical API the agent consumes becomes
+> `PreferenceSpec` + per-facet tools + `unmetFacets`. `feat/agentic-travel-planning`
+> is unaffected in parallel; the `AgentPolicy` loop is refactor-independent (only
+> tool internals change). Read that design before executing Phase 7 closure or
+> the Gate.
+
 > **Docs-only.** This roadmap does not start Phase 6 or Phase 7, does not merge
 > branches, does not change schemas or the agent or acquisition, and does not
 > add `Activities` / `Events` / `OperationalStop`.

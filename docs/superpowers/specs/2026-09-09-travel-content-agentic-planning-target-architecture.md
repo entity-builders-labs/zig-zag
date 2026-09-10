@@ -562,6 +562,18 @@ geographic validation · dedupe · persistence · embeddings · catalog refresh 
 ranking · daily scheduling · travel estimation · feasibility · (future)
 operational-stop placement · Tour materialization.
 
+> **AMENDMENT 2026-09-10.** The *selection/coverage* slice of this list
+> (`CoverageAnalyzer` monolith, ranking-as-pool-sort, `selectBoundedWindow`,
+> the mechanical synthesizer) is being redesigned **preference-first** —
+> per-facet retrieval + LLM semantic classification of grounded evidence +
+> set-cover composition — see
+> `docs/superpowers/specs/2026-09-10-preference-first-selection-and-agent-convergence-design.md`.
+> The agent/core split, the evidence discipline (§4.3), Web = two capabilities
+> (§4), the Experience-vs-Operational-Stop invariant (§7), and "no privileged
+> global score" are all preserved. The classification LLM never establishes
+> identity or geography (still §5a-deterministic). That design also proposes
+> redefining the Integration Gate prerequisite (§16) — read it before the Gate.
+
 The LLM may still produce narrative / presentation copy afterwards. It never
 repairs or overrides a deterministic feasibility decision (PR 10 invariant:
 a tour is never generated and then handed to an LLM to "fix" impossible
