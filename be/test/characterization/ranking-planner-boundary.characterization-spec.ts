@@ -166,33 +166,31 @@ describe('CHAR-5 authoritative ranking across the planner boundary', () => {
     expect(scoreB).toBeGreaterThan(scoreA);
   });
 
-  it.failing(
-    'INVARIANT: the candidate the ranking layer put first must not be ordered last by the greedy planner',
-    async () => {
-      const ranked = rankCandidatesByRelevance([A, B], similarity);
-      const authoritativeFirst = ranked[0].candidate.id;
-      const breakdownById = new Map<string, CandidateScoreBreakdown>(
-        ranked.map((r) => [r.candidate.id, r.scoreBreakdown]),
-      );
-      const normalizer = new PlanningCandidateNormalizerService(
-        dailyPlanningPolicyConfig(),
-      );
-      const normalized = await normalizer.normalizeExperiences(
-        [A, B].map((c) => ({
-          id: c.id,
-          canonicalName: c.id,
-          description: '',
-          durationMinutes: 90,
-          latitude: -34.6,
-          longitude: -58.38,
-          components: [] as any[],
-        })),
-        breakdownById,
-      );
-      const greedyOrder = sortCandidatesDeterministically(normalized).map(
-        (n) => n.experienceId,
-      );
-      expect(greedyOrder[0]).toBe(authoritativeFirst);
-    },
-  );
+  it('OPEN CONTRACT: later planner ordering currently inverts the ranking layer preference tier', async () => {
+    const ranked = rankCandidatesByRelevance([A, B], similarity);
+    const authoritativeFirst = ranked[0].candidate.id;
+    const breakdownById = new Map<string, CandidateScoreBreakdown>(
+      ranked.map((r) => [r.candidate.id, r.scoreBreakdown]),
+    );
+    const normalizer = new PlanningCandidateNormalizerService(
+      dailyPlanningPolicyConfig(),
+    );
+    const normalized = await normalizer.normalizeExperiences(
+      [A, B].map((c) => ({
+        id: c.id,
+        canonicalName: c.id,
+        description: '',
+        durationMinutes: 90,
+        latitude: -34.6,
+        longitude: -58.38,
+        components: [] as any[],
+      })),
+      breakdownById,
+    );
+    const greedyOrder = sortCandidatesDeterministically(normalized).map(
+      (n) => n.experienceId,
+    );
+    expect(authoritativeFirst).toBe('A-strong-pref');
+    expect(greedyOrder).toEqual(['B-weak-pref', 'A-strong-pref']);
+  });
 });

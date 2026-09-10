@@ -24,8 +24,8 @@ import { placesHistoricalLandmarkObservation } from './support/observations';
  *    sets) — quality is silently 0 for every multi-stop Experience;
  *  - the normalizer forwards the ALREADY-WEIGHTED `qualityBonus` (0..0.2) as
  *    `qualityScore`, and the solver multiplies it by `qualityWeight` (0.5)
- *    again — a second attenuation, and nowhere near the raw 0..5 scale the
- *    weight was tuned for.
+ *    again — a contract/scale mismatch. The final canonical quality scale is
+ *    intentionally not decided by this characterization.
  */
 describe('CHAR-6 quality signal round-trip', () => {
   it('the structured synthesizer drops Google Places rating/userRatingCount', () => {
@@ -62,6 +62,24 @@ describe('CHAR-6 quality signal round-trip', () => {
     // DEFECT: a 4.7-rated multi-stop Experience contributes 0 quality.
     expect(qualityBonus(composite)).toBe(0);
   });
+
+  it.failing(
+    'INVARIANT: a composite must not interpret the same persisted quality signal differently solely because it has multiple components',
+    () => {
+      const poi: RankableCandidate = {
+        id: 'poi',
+        source: 'poi',
+        weightedScore: 4.7,
+      };
+      const composite: RankableCandidate = {
+        id: 'composite',
+        source: 'composite',
+        weightedScore: 4.7,
+        isCurated: false,
+      };
+      expect(qualityBonus(composite)).toBeCloseTo(qualityBonus(poi), 5);
+    },
+  );
 
   it('normalizer forwards the already-weighted qualityBonus; the solver attenuates it again', async () => {
     const rankable: (RankableCandidate & { original: any })[] = [
@@ -113,19 +131,13 @@ describe('CHAR-6 quality signal round-trip', () => {
   });
 
   it.failing(
-    'INVARIANT: a Google Places rating of 4.7 must produce a non-zero quality contribution in the planner soft score for a structured-acquired Experience',
+    'INVARIANT: an already-weighted ranking bonus must not masquerade as an unweighted planner quality score and be weighted again',
     async () => {
-      const synth = new StructuredExperienceCandidateSynthesizerService();
-      const [proposal] = synth.synthesizeProposals([
-        placesHistoricalLandmarkObservation(),
-      ]);
-      const c: any = proposal.candidate;
-      // What acquisition would persist: no qualityScore anywhere.
       const rankable: (RankableCandidate & { original: any })[] = [
         {
           id: 'x',
           source: 'poi',
-          weightedScore: (c.qualityScore as number) ?? undefined,
+          weightedScore: 4.7,
           preferenceScore: 0,
           original: {},
         },
@@ -138,8 +150,8 @@ describe('CHAR-6 quality signal round-trip', () => {
         [
           {
             id: 'x',
-            canonicalName: c.name,
-            description: c.description,
+            canonicalName: 'Rated Landmark',
+            description: '',
             durationMinutes: 90,
             latitude: -34.6,
             longitude: -58.38,
@@ -150,10 +162,10 @@ describe('CHAR-6 quality signal round-trip', () => {
           ['x', ranked[0].scoreBreakdown],
         ]),
       );
-      const policy = dailyPlanningPolicyConfig();
-      const qualityTerm =
-        policy.scoring.qualityWeight * (normalized.qualityScore ?? 0);
-      expect(qualityTerm).toBeGreaterThan(0);
+      expect(normalized.qualityScore).not.toBeCloseTo(
+        ranked[0].scoreBreakdown.qualityBonus,
+        3,
+      );
     },
   );
 });
