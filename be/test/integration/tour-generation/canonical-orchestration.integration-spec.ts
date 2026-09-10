@@ -89,13 +89,45 @@ describe('tour-generation integration · canonical orchestration', () => {
     // ── Real Postgres persistence ──
     const verified = await harness.prisma.experience.findMany({
       where: { status: 'VERIFIED' },
-      include: { components: { include: { geoEntity: true } } },
+      include: {
+        components: { include: { geoEntity: true } },
+        evidence: true,
+      },
     });
     expect(verified.length).toBeGreaterThanOrEqual(1);
     const names = verified.map((e) => e.canonicalName);
     expect(names).toEqual(
       expect.arrayContaining(['San Telmo colonial history walk']),
     );
+
+    // The structured Wikivoyage candidate completed the same resolver-backed
+    // persistence path as web candidates; receiving its observation alone is
+    // not enough. ExperienceEvidence intentionally persists source/title/
+    // snippet (not the acquisition-only evidenceKey).
+    const structuredExperience = verified.find(
+      (experience) =>
+        experience.canonicalName === 'Museo Histórico Nacional',
+    );
+    expect(structuredExperience).toBeDefined();
+    expect(structuredExperience!.components.length).toBeGreaterThanOrEqual(1);
+    expect(
+      structuredExperience!.components.some(
+        (component) =>
+          component.geoEntityId != null &&
+          component.geoEntity?.kind === 'PLACE' &&
+          component.geoEntity.name === 'Museo Histórico Nacional',
+      ),
+    ).toBe(true);
+    expect(structuredExperience!.evidence).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          source: 'wikivoyage',
+          title: 'Museo Histórico Nacional',
+          snippet: 'National history museum in Parque Lezama.',
+        }),
+      ]),
+    );
+
     for (const experience of verified) {
       expect(experience.components.length).toBeGreaterThanOrEqual(1);
       expect(experience.components.every((c) => c.geoEntityId != null)).toBe(

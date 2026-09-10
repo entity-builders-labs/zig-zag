@@ -93,6 +93,8 @@ describe('tour-generation integration · routing boundary', () => {
     expect(
       dailyPlanningStep(harness, tour.trace).dailyPlanning.approximateTravel,
     ).toBe(false);
+    expect(routing.internalEstimateCount).toBeGreaterThanOrEqual(1);
+    expect(routing.externalEstimateCount).toBeGreaterThanOrEqual(1);
 
     const legs = await harness.prisma.tourExperience.findMany({
       where: { tourId },
@@ -121,6 +123,26 @@ describe('tour-generation integration · routing boundary', () => {
       },
     );
     expect(touchedFarEndpoint).toBe(true);
+
+    // Explicitly distinguish the route's internal component leg from travel
+    // between Experiences. The solver must send component[0].end ->
+    // component[1].start through the same injected provider boundary.
+    const internalComponentLeg = harness.fakes.routing.estimate.mock.calls.find(
+      (call) => {
+        const from = call[0] as any;
+        const to = call[1] as any;
+        return (
+          Math.abs(from.centroid.lat - DEST.latitude) < 0.000001 &&
+          Math.abs(from.centroid.lng - DEST.longitude) < 0.000001 &&
+          Math.abs(to.centroid.lat - (DEST.latitude + 0.01)) < 0.000001 &&
+          Math.abs(to.centroid.lng - DEST.longitude) < 0.000001
+        );
+      },
+    );
+    expect(internalComponentLeg).toBeDefined();
+    expect(internalComponentLeg![2]).toEqual(
+      expect.arrayContaining(['walking', 'public_transport']),
+    );
   });
 
   it('propagates an approximate fallback estimate with its fallbackReason', async () => {
