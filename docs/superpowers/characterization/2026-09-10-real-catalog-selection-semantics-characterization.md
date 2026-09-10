@@ -32,7 +32,7 @@ No production file was modified. Instrumentation added: none.
 | `provider-order-convergence.db.characterization-spec.ts` | CHAR-8 (real PG) | 3 | 1 |
 | `specific-request-satisfaction.characterization-spec.ts` | CHAR-9 | 5 | 1 |
 | `rosario-like-selection.characterization-spec.ts` | CHAR-10 | 8 | 2 |
-| **total** | | **51** | **11** |
+| **total** | | **51** | **10** |
 
 `yarn workspace backend test:characterization` → 10 suites, 51 passed.
 `yarn workspace backend typecheck` → clean. Lint on `test/characterization/**` → clean.
