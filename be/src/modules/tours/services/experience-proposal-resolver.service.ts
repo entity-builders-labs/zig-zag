@@ -32,6 +32,45 @@ import {
 // different cities.
 const PLACES_FALLBACK_BIAS_RADIUS_METERS = 50_000;
 
+/**
+ * Upper bound on how many candidates `resolve()` resolves / persists at the
+ * same time. Each accepted candidate opens its own interactive
+ * `prisma.$transaction` (GeoEntity upsert + verified-Experience persist, both
+ * taking `pg_advisory_xact_lock`s), and an interactive transaction holds one
+ * pooled DB connection for its whole lifetime. A cold-start city (empty
+ * catalog → many acquisition deficits → dozens of structured + web candidates
+ * in one `resolve()` call) would otherwise fan those out unbounded and exhaust
+ * the connection pool, so the surplus transactions fail with "Unable to start
+ * a transaction in the given time." Keep this comfortably below the DB pool
+ * size; correctness does not depend on the exact value, only throughput does.
+ */
+export const RESOLVER_CANDIDATE_CONCURRENCY = 4;
+
+/**
+ * Run `worker` over `items` with at most `limit` in flight at once, returning
+ * results in input order regardless of completion order. Failure semantics
+ * match `Promise.all(items.map(worker))`: the first rejection rejects the whole
+ * call (in-flight workers are not awaited, their results are discarded).
+ */
+async function mapWithBoundedConcurrency<T, R>(
+  items: readonly T[],
+  limit: number,
+  worker: (item: T, index: number) => Promise<R>,
+): Promise<R[]> {
+  const results = new Array<R>(items.length);
+  let cursor = 0;
+  const lanes = Math.max(1, Math.min(limit, items.length));
+  const runLane = async (): Promise<void> => {
+    while (true) {
+      const index = cursor++;
+      if (index >= items.length) return;
+      results[index] = await worker(items[index], index);
+    }
+  };
+  await Promise.all(Array.from({ length: lanes }, () => runLane()));
+  return results;
+}
+
 @Injectable()
 export class ExperienceProposalResolverService
   implements ExperienceProposalResolver
@@ -86,8 +125,12 @@ export class ExperienceProposalResolverService
         : this.osmPlaces.lookupPoisWithin(boundary),
     ]);
 
-    const resolvedCandidates = await Promise.all(
-      candidates.map((candidate: any) =>
+    // Bounded: each candidate can upsert a GeoEntity (its own interactive
+    // transaction) while resolving — see RESOLVER_CANDIDATE_CONCURRENCY.
+    const resolvedCandidates = await mapWithBoundedConcurrency(
+      candidates,
+      RESOLVER_CANDIDATE_CONCURRENCY,
+      (candidate: any) =>
         this.resolveCandidate(
           candidate,
           boundary,
@@ -98,7 +141,6 @@ export class ExperienceProposalResolverService
           evidence,
           input.destinationCountryCode,
         ),
-      ),
     );
 
     const acceptedForValidation = resolvedCandidates.filter(
@@ -122,8 +164,13 @@ export class ExperienceProposalResolverService
       validationResults.map((result) => [result.proposalName, result]),
     );
 
-    const resolved = await Promise.all(
-      resolvedCandidates.map(async (candidate) => {
+    // Bounded: each accepted candidate persists inside its own interactive
+    // `prisma.$transaction`, holding a pooled DB connection for its lifetime —
+    // an unbounded fan-out here exhausted the pool on cold-start cities.
+    const resolved = await mapWithBoundedConcurrency(
+      resolvedCandidates,
+      RESOLVER_CANDIDATE_CONCURRENCY,
+      async (candidate) => {
         if (candidate.status !== 'accepted') return candidate;
 
         const geographicResult = validationByName.get(candidate.candidate.name);
@@ -216,7 +263,7 @@ export class ExperienceProposalResolverService
           dedupeDecision: (experience as any).dedupeDecision,
           dedupeEvidence: (experience as any).dedupeEvidence,
         };
-      }),
+      },
     );
 
     this.logger.log(
