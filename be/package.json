@@ -34,7 +34,8 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:deploy": "prisma migrate deploy",
     "prisma:seed": "prisma db push && npm run seed",
-    "test:db": "ts-node test-db-connection.ts"
+    "test:db": "ts-node test-db-connection.ts",
+    "test:characterization": "jest --config ./test/jest-characterization.json --runInBand --forceExit"
   },
   "dependencies": {
     "@aws-sdk/client-bedrock-runtime": "^3.873.0",
