@@ -105,8 +105,7 @@ describe('tour-generation integration · canonical orchestration', () => {
     // not enough. ExperienceEvidence intentionally persists source/title/
     // snippet (not the acquisition-only evidenceKey).
     const structuredExperience = verified.find(
-      (experience) =>
-        experience.canonicalName === 'Museo Histórico Nacional',
+      (experience) => experience.canonicalName === 'Museo Histórico Nacional',
     );
     expect(structuredExperience).toBeDefined();
     expect(structuredExperience!.components.length).toBeGreaterThanOrEqual(1);
