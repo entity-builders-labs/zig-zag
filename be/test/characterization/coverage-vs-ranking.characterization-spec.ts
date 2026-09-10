@@ -6,7 +6,7 @@ import {
 import { candidateMatchesPreferenceFacet } from '../../src/modules/tours/utils/preference-facet-matching.util';
 
 /**
- * TEST 3 — COVERAGE vs RANKING CONSISTENCY
+ * TEST 3 — COVERAGE vs RANKING EVIDENCE RULES
  *
  * `CoverageAnalyzer` (keyword expansion + name + JSON.stringify(metadata) scan)
  * and the preference evaluator (`candidateMatchesPreferenceFacet`: exact
@@ -84,7 +84,7 @@ const candidates: Cand[] = [
   },
 ];
 
-function coverageSaysHistory(c: Cand): boolean {
+function coverageSaysTheme(c: Cand, requestedTheme: string): boolean {
   const report = new CoverageAnalyzer().analyze({
     candidates: [
       {
@@ -98,7 +98,7 @@ function coverageSaysHistory(c: Cand): boolean {
         metadata: { themes: c.themes, traits: [], intents: [] },
       },
     ],
-    requestedThemes: ['history'],
+    requestedThemes: [requestedTheme],
     requestedTraits: [],
     requestedIntents: [],
     days: 1,
@@ -111,8 +111,14 @@ function coverageSaysHistory(c: Cand): boolean {
     },
     offeredCandidateCount: 1,
   } as any);
-  const cov = report.requestedThemeCoverage.find((t) => t.theme === 'history');
+  const cov = report.requestedThemeCoverage.find(
+    (t) => t.theme === requestedTheme,
+  );
   return (cov?.strongMatchCount ?? 0) >= 1;
+}
+
+function coverageSaysHistory(c: Cand): boolean {
+  return coverageSaysTheme(c, 'history');
 }
 
 function preferenceSaysHistory(c: Cand): {
@@ -140,7 +146,7 @@ function preferenceSaysHistory(c: Cand): {
   };
 }
 
-describe('CHAR-3 coverage vs ranking — do they agree on "history"?', () => {
+describe('CHAR-3 coverage vs ranking evidence rules', () => {
   const table: Array<{ id: string; coverage: boolean; preference: boolean }> =
     [];
 
@@ -168,24 +174,26 @@ describe('CHAR-3 coverage vs ranking — do they agree on "history"?', () => {
 
   it('CHARACTERIZATION: coverage keyword matching is accent-naive — a Spanish "Histórico" name is invisible to CoverageAnalyzer', () => {
     const accented = candidates.find((c) => c.id === 'a')!;
-    const ascii: Cand = {
+    const unaccented: Cand = {
       ...accented,
-      canonicalName: 'Historic Provincial Museum',
+      canonicalName: 'Museo Historico Provincial',
     };
-    // Same semantic place, only the accent differs -> different coverage verdict.
+    // Same candidate structure and text apart from the accent.
     expect(coverageSaysHistory(accented)).toBe(false);
-    expect(coverageSaysHistory(ascii)).toBe(true);
+    expect(coverageSaysHistory(unaccented)).toBe(true);
   });
 
   it.failing(
     'INVARIANT: equivalent normalized textual evidence must not change coverage solely because of accents/diacritics',
     () => {
       const accented = candidates.find((c) => c.id === 'a')!;
-      const ascii: Cand = {
+      const unaccented: Cand = {
         ...accented,
-        canonicalName: 'Historic Provincial Museum',
+        canonicalName: 'Museo Historico Provincial',
       };
-      expect(coverageSaysHistory(accented)).toBe(coverageSaysHistory(ascii));
+      expect(coverageSaysHistory(accented)).toBe(
+        coverageSaysHistory(unaccented),
+      );
     },
   );
 

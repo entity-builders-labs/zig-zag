@@ -19,9 +19,9 @@ import { placesHistoricalLandmarkObservation } from './support/observations';
  * Pinned current behavior:
  *  - the structured synthesizer carries NO quality field — the rating is
  *    dropped at the very first hop;
- *  - `qualityBonus` for a multi-component ("composite") Experience ignores
- *    `weightedScore` entirely (only a curated bonus, which acquisition never
- *    sets) — quality is silently 0 for every multi-stop Experience;
+ *  - `qualityBonus` uses the current source-specific policy: POIs use
+ *    `weightedScore`, while composites use the curated bonus and ignore
+ *    `weightedScore`;
  *  - the normalizer forwards the ALREADY-WEIGHTED `qualityBonus` (0..0.2) as
  *    `qualityScore`, and the solver multiplies it by `qualityWeight` (0.5)
  *    again — a contract/scale mismatch. The final canonical quality scale is
@@ -40,7 +40,7 @@ describe('CHAR-6 quality signal round-trip', () => {
     expect(JSON.stringify(candidate)).not.toMatch(/4\.7|rating/i);
   });
 
-  it('qualityBonus: a POI uses weightedScore; a multi-component Experience ignores it', () => {
+  it('OPEN DESIGN: POIs and composites currently use different quality policies', () => {
     const poi: RankableCandidate = {
       id: 'poi',
       source: 'poi',
@@ -59,27 +59,9 @@ describe('CHAR-6 quality signal round-trip', () => {
     };
     expect(qualityBonus(poi)).toBeCloseTo((4.7 / 5) * 0.2, 5); // 0.188
     expect(qualityBonus(poiNoQuality)).toBe(0);
-    // DEFECT: a 4.7-rated multi-stop Experience contributes 0 quality.
+    // Current behavior: an uncurated composite ignores weightedScore.
     expect(qualityBonus(composite)).toBe(0);
   });
-
-  it.failing(
-    'INVARIANT: a composite must not interpret the same persisted quality signal differently solely because it has multiple components',
-    () => {
-      const poi: RankableCandidate = {
-        id: 'poi',
-        source: 'poi',
-        weightedScore: 4.7,
-      };
-      const composite: RankableCandidate = {
-        id: 'composite',
-        source: 'composite',
-        weightedScore: 4.7,
-        isCurated: false,
-      };
-      expect(qualityBonus(composite)).toBeCloseTo(qualityBonus(poi), 5);
-    },
-  );
 
   it('normalizer forwards the already-weighted qualityBonus; the solver attenuates it again', async () => {
     const rankable: (RankableCandidate & { original: any })[] = [

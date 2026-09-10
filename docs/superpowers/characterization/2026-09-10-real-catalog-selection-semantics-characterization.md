@@ -30,20 +30,20 @@ file that reuses the existing `assertDisposableDatabase` guard (see DB safety).
 | `structured-evidence-semantics.characterization-spec.ts` | CHAR-1 (pure) | 5 | — |
 | `catalog-roundtrip.db.characterization-spec.ts` | CHAR-1/2/6 DB | 5 | 1 |
 | `exploration-style-roundtrip.characterization-spec.ts` | CHAR-2 (pure) | 5 | — |
-| `coverage-vs-ranking.characterization-spec.ts` | CHAR-3 | 7 | 1 |
+| `coverage-vs-ranking.characterization-spec.ts` | CHAR-3 | 8 | 1 |
 | `bitacora-coverage-contamination.characterization-spec.ts` | CHAR-4 | 3 | 1 |
 | `ranking-planner-boundary.characterization-spec.ts` | CHAR-5 | 5 | — |
-| `quality-signal-roundtrip.characterization-spec.ts` | CHAR-6 (pure) | 5 | 2 |
+| `quality-signal-roundtrip.characterization-spec.ts` | CHAR-6 (pure) | 4 | 1 |
 | `shared-component-identity.characterization-spec.ts` | CHAR-7 | 6 | — |
 | `provider-order-convergence.db.characterization-spec.ts` | CHAR-8 (real PG) | 3 | 1 |
 | `specific-request-satisfaction.characterization-spec.ts` | CHAR-9 | 7 | — |
 | `rosario-like-selection.characterization-spec.ts` | CHAR-10 | 8 | — |
-| **total** | | **60** | **7** |
+| **total** | | **59** | **5** |
 
 Verification results for this classification-correction pass are recorded below
 after the corrected suites are run.
 
-RED count remains 7 after this correction, but the RED assertions now target only
+RED count is 5 after this correction, and the RED assertions now target only
 definite implementation defects. Three RED
 "invariants" (CHAR-2 iconic-vs-local, CHAR-7 overlap winner, CHAR-9/10 named place)
 were not settled invariants and are now green `PRODUCT HYPOTHESIS` tests. This is a
@@ -63,12 +63,12 @@ these wrappers.
 
 Verification in this correction pass:
 - Actual starting HEAD: `38b039ca6302aae8d3dd032effcdf4e2c70b1acd`.
-- The three affected pure suites pass: 18 tests passed.
+- The three affected pure suites pass: 17 tests passed.
 - Backend typecheck passes.
 - ESLint passes for all four changed characterization test files.
-- The full characterization command discovers 11 suites and 60 tests. The 9
-  non-DB suites pass; the two DB suites fail closed because the worktree's
-  default `DATABASE_URL` targets `localhost/zigzag`. A rerun against
+- The full characterization command discovers 11 suites and 59 tests. The 9
+  non-DB suites pass (51 tests); the two DB suites fail closed because the
+  worktree's default `DATABASE_URL` targets `localhost/zigzag`. A rerun against
   `localhost/zigzag_test` remains unavailable because that disposable database
   is not running in the local environment.
 - Characterization remains isolated by `be/test/jest-characterization.json`, whose
@@ -132,12 +132,12 @@ after `persistVerifiedExperience` + `findVerifiedByIds` the hydrated
 `trait:iconic`. **RED (`it.failing`):** a trait whose key names a structured
 dimension value should be resolvable by that dimension after persist+hydrate.
 
-### CHAR-3 — coverage vs ranking consistency
+### CHAR-3 — coverage vs ranking evidence rules
 `CoverageAnalyzer` theme matching (`matchesThemeKeywords` / `THEME_KEYWORDS`) is
 accent-naive — `"Museo Histórico Provincial"` (accented `ó`) is not counted for
-`history`; `"Historic Provincial Museum"` is. The focused RED invariant is that
-equivalent normalized textual evidence must not change coverage solely because of
-accents or diacritics.
+`history`, while the otherwise identical `"Museo Historico Provincial"` is
+counted. The focused RED invariant is that equivalent normalized textual evidence
+must not change coverage solely because of accents or diacritics.
 
 `"Monumento Nacional"` (`themes:[]`) IS counted (`monument` substring) yet scores
 `0` in `evaluateExperiencePreferences`. **CONFIRMED:** coverage and preference
@@ -157,7 +157,7 @@ scans `JSON.stringify(metadata)`, which now contains
 candidate whose `preferenceEvaluation` says every requested theme `matched:false`
 must have `coverageContribution.themes = []`.
 
-### CHAR-5 — authoritative ranking across the planner boundary
+### CHAR-5 — ranking priority across the planner boundary
 `rankCandidatesByRelevance` treats `preferenceScore` as a hard sort tier. For
 A (`preferenceScore 1.0`, semantic 0.10) vs B (`0.2`, semantic 0.95): ranking puts
 A first (`A.totalScore 0.39 < B.totalScore 1.00`). Then:
@@ -168,25 +168,26 @@ A first (`A.totalScore 0.39 < B.totalScore 1.00`). Then:
   `rankingScore ?? semanticScore` → **[B, A]**;
 - `scoreCandidateForDay` has **no preference term** — day-1 soft score A 0.35, B 1.2.
 
-**Precise classification:** this is an **ordering** loss (the strongly-preferred
-candidate is ordered last), demonstrated as far as the greedy sort and the
+**Precise classification:** this is an **ordering** inversion (the ranking-layer
+first candidate is ordered last), demonstrated as far as the greedy sort and the
 per-day soft score. This suite does not assert that A is ultimately *dropped* from
 a full multi-day plan — CHAR-10's end-to-end run shows both survivors and the
-circuit get scheduled when capacity allows. Whether "the authoritative ranking
-tier must survive into candidate selection" is the intended contract is the
-question the fix review must settle. **CONFIRMED MECHANISM:** the preference tier
-is not explicitly transported past the normalizer, and later ordering can invert
-it. **OPEN CONTRACT:** whether that tier is authoritative through candidate-window
-selection and day placement. The inversion is therefore not classified as a
-definite implementation defect.
+circuit get scheduled when capacity allows. **CONFIRMED MECHANISM:** the
+preference tier is not explicitly transported past the normalizer, and later
+ordering can invert it. **OPEN CONTRACT:** whether ranking-layer preference
+priority must remain authoritative through candidate-window selection and day
+placement. The inversion is therefore not classified as a definite implementation
+defect.
 
 ### CHAR-6 — quality signal round-trip
 
 **Pure (`quality-signal-roundtrip.characterization-spec.ts`):**
 - the synthesizer carries no quality field — Places `rating` is dropped at hop 1;
-- `qualityBonus` for a multi-component ("composite") Experience ignores
-  `weightedScore` entirely (only `isCurated ? 0.15 : 0`; acquisition never sets
-  `isCurated`) → **0** for every multi-stop Experience;
+- `qualityBonus` uses a source-specific policy: POIs use `weightedScore`, while
+  composites use `isCurated ? 0.15 : 0` and ignore `weightedScore`; the focused
+  green characterization records `0.188` for the POI and `0` for the uncurated
+  composite. This is current behavior and an open policy question, not a
+  confirmed defect;
 - `PlanningCandidateNormalizerService` forwards the already-weighted `qualityBonus`
   (0..0.2) as `qualityScore`; `scoreCandidateForDay` multiplies it by
   `qualityWeight 0.5` again. This is a scale/semantic contract mismatch; the
@@ -201,9 +202,8 @@ provider rating is provenance-only, an input to a derived quality model, or a
 direct quality value; the final canonical quality scale is also undecided.
 
 **RED (pure):** the planner-facing `qualityScore` receives an already-weighted
-ranking bonus and weights it again. **RED (pure):** the same persisted quality
-signal is interpreted differently for composites solely because they have multiple
-components, absent an explicit policy authorizing that exception.
+ranking bonus and weights it again. The invariant is scale-neutral and does not
+assert a future raw or normalized quality scale.
 
 ### CHAR-7 — shared component ≠ same Experience
 - `decideExperienceDedupe`: one shared component of two → `AMBIGUOUS`; a
@@ -305,9 +305,7 @@ Confirmed by a RED test; each is a local implementation bug, not a design choice
 4. **Quality contract mismatch (CHAR-6).** `PlanningCandidateNormalizerService`
    forwards the already-weighted ranking `qualityBonus` as `qualityScore`, and
    `scoreCandidateForDay` weights it again. The defect is the mixed scale and
-   semantic contract, not any particular desired final scale. The same signal is
-   also interpreted differently for composite candidates without an explicit
-   policy permitting that exception.
+   semantic contract, not any particular desired final scale.
 5. **Trait persistence flattens every free trait to `dimension:'general'`
    (CHAR-2 DB).** `resolveOrCreateTraitDefinitions` hardcodes `'general'`, so a
    trait token that belongs to a structured dimension (`tourism_intensity`,
@@ -322,6 +320,9 @@ Factual observations, not necessarily bugs — pinned by green tests.
   into Experience `themes/traits` (CHAR-1, CHAR-1 DB).
 - Places `rating` is never converted into `Experience.qualityScore` on the real
   acquisition path (CHAR-6 DB).
+- Composite candidates currently use curated status rather than `weightedScore`,
+  unlike POIs; whether that source-specific policy should change is undecided
+  (CHAR-6).
 - The ranking preference tier is not explicitly transported across the planner
   boundary, so later ordering can invert it (CHAR-5); whether that violates the
   intended contract is open.
@@ -389,8 +390,7 @@ Ordered; contract decisions precede the policy-dependent changes. `#6` is
 product-gated.
 
 ### 1. Normalize textual evidence consistently
-- **Layers:** `theme-matching.util.ts`, `coverage-analyzer.service.ts`,
-  `theme-matching.util.ts`.
+- **Layers:** `theme-matching.util.ts`, `coverage-analyzer.service.ts`.
 - **Change:** ensure equivalent normalized text, including diacritics, follows
   the same keyword matching path. Do not decide the canonical evidence threshold.
 - **Tests addressed:** CHAR-3 normalization invariant.
@@ -415,31 +415,28 @@ product-gated.
 - **Overfitting risk:** medium — mitigate by sourcing the table from the public
   ontology, not from fixture strings. **DB migration:** none.
 
-### 4. Carry preference through the planner boundary (contract-gated)
-- **Layers:** `daily-planning.interface.ts` (`preferenceScore` on
-  `PlanningExperienceCandidate`), `planning-candidate-normalizer.service.ts`,
-  `candidate-window-selection.util.ts` (final sort key
-  `(preferenceScore desc, totalScore desc)`), `daily-planning-candidate-sort.util.ts`,
-  `daily-planning-placement.util.ts`, `daily-planning-policy.config.ts`.
+### 4. Preserve ranking priority only if the contract requires it
+- **Decision first:** determine whether ranking-layer preference priority must
+  survive candidate-window ordering and day placement.
+- **Conditional change:** if yes, carry an explicit preference signal or otherwise
+  preserve that ordering contract across the planner boundary. If no, document
+  the current two-stage behavior as intentional.
 - **Tests addressed:** CHAR-5, CHAR-10.
-- **New abstraction:** none (one field + one weight/tier).
-- **Overfitting risk:** low. **DB migration:** none.
-- **Contract question to settle first:** whether ranking authority extends past
-  the candidate window; if so, tier vs weighted term and whether it applies to
-  day placement.
 
 ### 5. Fix the quality contract (after policy decisions)
 - **Layers:** `planning-candidate-normalizer.service.ts`, `candidate-ranking.util.ts`,
   synthesizer/resolver, and the persisted Experience quality field.
-- **Decision first:** choose the canonical quality scale and define whether
-  provider ratings are direct, derived, or provenance-only; then ensure the
-  planner receives an unweighted value and applies weighting once, with an
-  explicit composite policy.
+- **Definite contract correction:** stop passing a weighted ranking contribution
+  as an unweighted planner `qualityScore`; apply the planner weight only to the
+  intended semantic quantity.
+- **Open design:** choose the canonical quality scale and define how POI,
+  composite, and provider signals contribute to it. Do not assume Places rating
+  maps directly to `Experience.qualityScore`.
 - **Tests addressed:** CHAR-6 (+DB).
 - **New abstraction:** none. **Overfitting risk:** low. **DB migration:** none
   (`Experience.qualityScore` exists).
 
-### 5. Order-independent metadata merge
+### 6. Order-independent metadata merge
 - **Layers:** `experience-catalog.service.ts` (`mergeMetadata`).
 - **Change:** union array-valued keys; prefer non-empty scalars; never let an
   empty incoming array clear a populated one.
@@ -458,11 +455,13 @@ product-gated.
 
 ## Verification performed
 
-- `yarn workspace backend test:characterization` (against `zigzag_test`) → 11
-  suites / 58 tests pass; 7 `it.failing` defect tests are RED as designed.
-- DB safety proof: `zigzag` → refused before TRUNCATE; `zigzag_test` → passes.
+- `yarn workspace backend test:characterization` → 11 suites / 59 tests
+  discovered; 9 non-DB suites pass and the 2 DB suites refuse the non-disposable
+  `zigzag` target before `TRUNCATE`. The final repository contains exactly 5
+  `it.failing` blocks.
+- The affected CHAR-3/5/6 suites pass: 17 tests passed.
 - `yarn workspace backend typecheck` → clean.
-- `eslint test/characterization/**` → clean.
+- ESLint passes for the four changed characterization test files.
 - Regex isolation confirmed via `jest --listTests` for every config (see above).
 - No production file changed → default `yarn test` / `test:e2e` / `test:integration`
   / `test:acceptance` behavior is unaffected by construction.

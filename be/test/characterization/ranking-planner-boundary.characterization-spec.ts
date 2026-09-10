@@ -10,15 +10,15 @@ import { PlanningCandidateNormalizerService } from '../../src/modules/tours/serv
 import dailyPlanningPolicyConfig from '../../src/modules/tours/config/daily-planning-policy.config';
 
 /**
- * TEST 5 — AUTHORITATIVE RANKING MUST SURVIVE THE PLANNER BOUNDARY
+ * TEST 5 — RANKING PRIORITY ACROSS THE PLANNER BOUNDARY
  *
  * `rankCandidatesByRelevance` treats `preferenceScore` as a HARD sort tier
  * (`preferenceCompare`): a strongly-preferred candidate ranks strictly above a
  * weakly-preferred one regardless of semantic similarity / quality.
  *
  * This test follows one such pair (A: strong preference, low semantic; B: weak
- * preference, high semantic) across every boundary and pins WHERE that
- * authoritative ordering is lost:
+ * preference, high semantic) across every boundary and pins where the
+ * ranking-layer ordering changes:
  *   1. `selectBoundedWindow` re-sorts the final window by `totalScore` only.
  *   2. `PlanningCandidateNormalizerService` carries `semanticScore` /
  *      `rankingScore` / `qualityScore` but NO preference field.
@@ -53,8 +53,8 @@ const similarity = new Map<string, number>([
   ['B-weak-pref', 0.95], // high semantic
 ]);
 
-describe('CHAR-5 authoritative ranking across the planner boundary', () => {
-  it('STAGE 1 — ranking: the strongly-preferred candidate is first even though its totalScore is lower', () => {
+describe('CHAR-5 ranking priority across the planner boundary', () => {
+  it('STAGE 1 — ranking: the higher-preference candidate is first even though its totalScore is lower', () => {
     const ranked = rankCandidatesByRelevance([A, B], similarity);
     // eslint-disable-next-line no-console
     console.info(
@@ -72,7 +72,7 @@ describe('CHAR-5 authoritative ranking across the planner boundary', () => {
     );
   });
 
-  it('STAGE 2 — selectBoundedWindow re-sorts by totalScore and INVERTS the authoritative order', () => {
+  it('STAGE 2 — selectBoundedWindow re-sorts by totalScore and inverts the ranking-layer order', () => {
     const ranked = rankCandidatesByRelevance([A, B], similarity) as any;
     const windowed = selectBoundedWindow(
       ranked,
@@ -162,13 +162,14 @@ describe('CHAR-5 authoritative ranking across the planner boundary', () => {
     );
     // eslint-disable-next-line no-console
     console.info(`[CHAR-5] solver soft score A=${scoreA} B=${scoreB}`);
-    // The solver ranks B above A on day 1 — the opposite of the preference tier.
+    // The solver ranks B above A on day 1 — opposite to the ranking-layer
+    // preference tier.
     expect(scoreB).toBeGreaterThan(scoreA);
   });
 
   it('OPEN CONTRACT: later planner ordering currently inverts the ranking layer preference tier', async () => {
     const ranked = rankCandidatesByRelevance([A, B], similarity);
-    const authoritativeFirst = ranked[0].candidate.id;
+    const rankingLayerFirst = ranked[0].candidate.id;
     const breakdownById = new Map<string, CandidateScoreBreakdown>(
       ranked.map((r) => [r.candidate.id, r.scoreBreakdown]),
     );
@@ -190,7 +191,7 @@ describe('CHAR-5 authoritative ranking across the planner boundary', () => {
     const greedyOrder = sortCandidatesDeterministically(normalized).map(
       (n) => n.experienceId,
     );
-    expect(authoritativeFirst).toBe('A-strong-pref');
+    expect(rankingLayerFirst).toBe('A-strong-pref');
     expect(greedyOrder).toEqual(['B-weak-pref', 'A-strong-pref']);
   });
 });
