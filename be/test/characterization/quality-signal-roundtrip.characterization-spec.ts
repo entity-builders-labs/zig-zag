@@ -5,6 +5,7 @@ import {
   CandidateScoreBreakdown,
 } from '../../src/modules/tours/utils/candidate-ranking.util';
 import { PlanningCandidateNormalizerService } from '../../src/modules/tours/services/planning-candidate-normalizer.service';
+import { scoreCandidateForDay } from '../../src/modules/tours/utils/daily-planning-placement.util';
 import dailyPlanningPolicyConfig from '../../src/modules/tours/config/daily-planning-policy.config';
 import { StructuredExperienceCandidateSynthesizerService } from '../../src/modules/tours/services/structured-experience-candidate-synthesizer.service';
 import { placesHistoricalLandmarkObservation } from './support/observations';
@@ -113,41 +114,97 @@ describe('CHAR-6 quality signal round-trip', () => {
   });
 
   it.failing(
-    'INVARIANT: an already-weighted ranking bonus must not masquerade as an unweighted planner quality score and be weighted again',
+    'INVARIANT: quality must not be weighted twice across the ranking/planner boundary',
     async () => {
       const rankable: (RankableCandidate & { original: any })[] = [
         {
-          id: 'x',
+          id: 'quality',
           source: 'poi',
           weightedScore: 4.7,
           preferenceScore: 0,
           original: {},
         },
+        {
+          id: 'no-quality',
+          source: 'poi',
+          weightedScore: undefined,
+          preferenceScore: 0,
+          original: {},
+        },
       ];
-      const ranked = rankCandidatesByRelevance(rankable, new Map([['x', 0.5]]));
+      const ranked = rankCandidatesByRelevance(
+        rankable,
+        new Map([
+          ['quality', 0.5],
+          ['no-quality', 0.5],
+        ]),
+      );
+      const qualityRankingContribution = ranked.find(
+        (r) => r.candidate.id === 'quality',
+      )!.scoreBreakdown.qualityBonus;
+      const scoreBreakdownById = new Map<string, CandidateScoreBreakdown>(
+        ranked.map((r) => [r.candidate.id, r.scoreBreakdown]),
+      );
       const normalizer = new PlanningCandidateNormalizerService(
         dailyPlanningPolicyConfig(),
       );
-      const [normalized] = await normalizer.normalizeExperiences(
-        [
-          {
-            id: 'x',
-            canonicalName: 'Rated Landmark',
-            description: '',
-            durationMinutes: 90,
-            latitude: -34.6,
-            longitude: -58.38,
-            components: [] as any[],
-          },
-        ],
-        new Map<string, CandidateScoreBreakdown>([
-          ['x', ranked[0].scoreBreakdown],
-        ]),
+      const normalized = await normalizer.normalizeExperiences(
+        ['quality', 'no-quality'].map((id) => ({
+          id,
+          canonicalName: 'Rated Landmark',
+          description: '',
+          durationMinutes: 90,
+          latitude: -34.6,
+          longitude: -58.38,
+          components: [] as any[],
+        })),
+        scoreBreakdownById,
       );
-      expect(normalized.qualityScore).not.toBeCloseTo(
-        ranked[0].scoreBreakdown.qualityBonus,
-        3,
+      const candidateWithQuality = normalized.find(
+        (candidate) => candidate.experienceId === 'quality',
+      )!;
+      const candidateWithoutQuality = normalized.find(
+        (candidate) => candidate.experienceId === 'no-quality',
+      )!;
+      const policy = dailyPlanningPolicyConfig();
+      const emptyDay: any = { dayNumber: 1, assigned: [] };
+      const context: any = { policy };
+      const scoreWithQuality = scoreCandidateForDay(
+        candidateWithQuality,
+        emptyDay,
+        context,
       );
+      const scoreWithoutQuality = scoreCandidateForDay(
+        candidateWithoutQuality,
+        emptyDay,
+        context,
+      );
+      const effectivePlannerQualityContribution =
+        scoreWithQuality - scoreWithoutQuality;
+      const boundaryQualityScore = candidateWithQuality.qualityScore ?? 0;
+      const effectivePlannerMultiplier =
+        boundaryQualityScore === 0
+          ? undefined
+          : effectivePlannerQualityContribution / boundaryQualityScore;
+      const approximatelyEqual = (left: number, right: number): boolean =>
+        Math.abs(left - right) <= 0.001;
+      const boundaryCarriesAlreadyWeightedContribution = approximatelyEqual(
+        boundaryQualityScore,
+        qualityRankingContribution,
+      );
+      const plannerAppliesAnotherWeight =
+        effectivePlannerMultiplier !== undefined &&
+        !approximatelyEqual(effectivePlannerMultiplier, 1);
+
+      // eslint-disable-next-line no-console
+      console.info(
+        `[CHAR-6] ranking quality contribution=${qualityRankingContribution} boundary qualityScore=${boundaryQualityScore} effective planner contribution=${effectivePlannerQualityContribution} effective multiplier=${effectivePlannerMultiplier} boundary already weighted=${boundaryCarriesAlreadyWeightedContribution} second weighting detected=${plannerAppliesAnotherWeight}`,
+      );
+
+      expect(
+        boundaryCarriesAlreadyWeightedContribution &&
+          plannerAppliesAnotherWeight,
+      ).toBe(false);
     },
   );
 });

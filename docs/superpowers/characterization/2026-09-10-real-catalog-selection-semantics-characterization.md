@@ -5,6 +5,7 @@
 **HEAD at G.1 start:** `02304665536ec1c11b183ab3b10e3e8838422fb9`
 **HEAD at hardening-pass start:** `7654e3b7ece49129a367a5ac115c621527a2c163`
 **HEAD at classification-correction start:** `38b039ca6302aae8d3dd032effcdf4e2c70b1acd`
+**HEAD at CHAR-6 micro-fix start:** `b14550ffbd03a4f650fae7a747c6cf91cdb4484a`
 **Task type:** DIAGNOSTIC / CHARACTERIZATION ONLY — no production semantic changes.
 **Motivating concern:** in real Rosario / Bahía Blanca bitácoras the engine's final
 Experience selection does not visibly respect the user's stated preferences.
@@ -203,7 +204,17 @@ direct quality value; the final canonical quality scale is also undecided.
 
 **RED (pure):** the planner-facing `qualityScore` receives an already-weighted
 ranking bonus and weights it again. The invariant is scale-neutral and does not
-assert a future raw or normalized quality scale.
+assert a future raw or normalized quality scale. It deliberately does not
+prescribe which side of the boundary changes: it passes if an unweighted
+canonical value crosses the boundary and is weighted once, or if the already-
+weighted contribution crosses the boundary and is consumed without another
+non-identity quality multiplier.
+
+The current diagnostic is ranking contribution `0.188`, planner boundary value
+`0.188`, effective planner quality contribution `0.094`, and effective multiplier
+`0.5`; both "boundary already weighted" and "second weighting detected" are true,
+so the RED invariant fails as intended. These values are observations, not the
+required future representation or scale.
 
 ### CHAR-7 — shared component ≠ same Experience
 - `decideExperienceDedupe`: one shared component of two → `AMBIGUOUS`; a
@@ -460,6 +471,9 @@ product-gated.
   `zigzag` target before `TRUNCATE`. The final repository contains exactly 5
   `it.failing` blocks.
 - The affected CHAR-3/5/6 suites pass: 17 tests passed.
+- The focused CHAR-6 suite passes: 4 tests, including the RED invariant's current
+  diagnostic of ranking contribution `0.188`, boundary value `0.188`, effective
+  planner contribution `0.094`, and effective multiplier `0.5`.
 - `yarn workspace backend typecheck` → clean.
 - ESLint passes for the four changed characterization test files.
 - Regex isolation confirmed via `jest --listTests` for every config (see above).
