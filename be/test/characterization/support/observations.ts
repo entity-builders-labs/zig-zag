@@ -79,54 +79,81 @@ export function placesHistoricalLandmarkObservation(
 }
 
 /**
- * OSM evidence that is FACTUALLY equivalent to `tourism_intensity: iconic`
- * (a heavily-visited, well-known place) and to `tourism_intensity: hidden`
- * / `local_character: authentic` (an off-the-beaten-path local place). The
- * providers do not currently emit a dimensioned facet for either; the tags
- * here are the raw objective signal.
+ * Two neutral structured observations. These carry only raw provider tags —
+ * NO claim is made that any of these tags proves a product facet such as
+ * `tourism_intensity: iconic` or `local_character: authentic`. They exist to
+ * exercise the plumbing (does ANY structured facet reach the persisted
+ * Experience?), not to assert a tag→facet mapping.
+ *
+ * `structuredLandmarkAObservation` has `wikidata` + `wikipedia`; the absence of
+ * those on `structuredPlaceBObservation` is deliberately NOT treated as
+ * evidence of "hidden" / "local" — it is just a second, differently-tagged
+ * place.
  */
-export function osmIconicPlaceObservation(): SourceObservation {
+export function structuredLandmarkAObservation(): SourceObservation {
   return {
     provider: 'osm',
     externalId: 'osm:node:333333',
     evidenceKey: 'osm:node:333333',
-    title: 'Iconic City Landmark',
+    title: 'Structured Landmark A',
     description:
-      'A nationally iconic, heavily visited landmark (wikipedia + wikidata, high visitor volume).',
+      'A place recorded in OpenStreetMap with wikidata/wikipedia tags.',
     geo: { latitude: -32.9476, longitude: -60.6285 },
     evidenceType: 'place',
     metadata: {
       osmType: 'node',
       osmTags: {
-        name: 'Iconic City Landmark',
+        name: 'Structured Landmark A',
         tourism: 'attraction',
         historic: 'monument',
         wikidata: 'Q9999999',
-        wikipedia: 'es:Iconic City Landmark',
+        wikipedia: 'es:Structured Landmark A',
       },
       matchedConcepts: ['historic'],
     },
   };
 }
 
-export function osmHiddenLocalPlaceObservation(): SourceObservation {
+export function structuredPlaceBObservation(): SourceObservation {
   return {
     provider: 'osm',
     externalId: 'osm:node:444444',
     evidenceKey: 'osm:node:444444',
-    title: 'Neighbourhood Passage',
-    description:
-      'A quiet residential passage known mostly to locals, no wikidata, low visitor volume.',
+    title: 'Structured Place B',
+    description: 'A place recorded in OpenStreetMap with a minimal tag set.',
     geo: { latitude: -32.94, longitude: -60.66 },
     evidenceType: 'place',
     metadata: {
       osmType: 'node',
       osmTags: {
-        name: 'Neighbourhood Passage',
+        name: 'Structured Place B',
         tourism: 'attraction',
         'addr:suburb': 'Barrio Martin',
       },
       matchedConcepts: ['historic'],
+    },
+  };
+}
+
+/**
+ * SYNTHETIC CONTROLLED EVIDENCE — not produced by any provider. Used only to
+ * exercise `candidateMatchesPreferenceFacet` matcher semantics for
+ * `exploration_style`, which requires explicit dimensioned evidence
+ * (`metadata.dimensionedTraits` / `metadata.preferenceFacets` /
+ * `metadata.dimensions`). The value here is hand-authored, not inferred from
+ * any raw tag.
+ */
+export function syntheticDimensionedExperience(
+  dimension: string,
+  key: string,
+): Record<string, unknown> {
+  return {
+    canonicalName: 'Synthetic Dimensioned Experience',
+    themes: [] as string[],
+    traits: [] as string[],
+    intents: [] as string[],
+    metadata: {
+      dimensionedTraits: [{ dimension, key }],
     },
   };
 }

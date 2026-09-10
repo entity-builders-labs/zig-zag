@@ -1,23 +1,37 @@
 import { CoverageAnalyzer } from '../../src/modules/tours/services/coverage-analyzer.service';
 import { PreferenceInterpreterService } from '../../src/modules/tours/services/preference-interpreter.service';
+import { ExperienceAcquisitionPlannerService } from '../../src/modules/tours/services/experience-acquisition-planner.service';
+import { getFacetKeysByDimension } from '../../src/modules/tours/interfaces/preference-interpretation.interface';
+import { normalizeWizardFacet } from '../../src/modules/tours/utils/preference-facet-merge.util';
 
 /**
  * TEST 9 — SPECIFIC FREE-TEXT REQUEST SATISFACTION
  *
- * A user asks for a concrete, generically-named place: "Quiero visitar
- * Landmark Alpha". The catalog already has sufficient GENERIC history +
- * architecture coverage, but NO row called "Landmark Alpha".
+ * Exercises the REAL coverage -> acquisition decision path:
+ *   interpret(additionalPreferences)  [real service, faked LLM transport]
+ *     -> merged facets / positiveSemanticQuery
+ *     -> requestedThemes (interests + theme-facet keys — the real derivation)
+ *     -> CoverageAnalyzer.analyze -> decision
+ *     -> (only if decision.action !== 'none') ExperienceAcquisitionPlanner
+ *         .buildAcquisitionPlan({ semanticQuery, legacyDeficits, ... })
  *
  * Pinned current behavior:
- *  - `NormalizedPreferenceIntent` has NO field for a named/required place;
- *    the phrase survives only as free text in `positiveSemanticQuery`, and
- *    the controlled-vocabulary facet normalizer emits nothing for it;
- *  - `CoverageAnalysisInput` has NO free-text / named-target field at all —
- *    only `requestedThemes/Traits/Intents`;
- *  - therefore Request 2 (history + architecture + "Quiero visitar Landmark
- *    Alpha") produces the SAME coverage decision as Request 1 (history +
- *    architecture): `action: 'none'`, no acquisition — "Landmark Alpha" is
- *    never specifically sought.
+ *  - a bare proper noun ("Landmark Alpha") produces NO controlled facet — it
+ *    survives only as free text in `positiveSemanticQuery`;
+ *  - it therefore never enters `requestedThemes`, so the coverage decision is
+ *    unchanged and the acquisition planner is never invoked;
+ *  - `buildAcquisitionPlan` with zero deficits + a semanticQuery returns
+ *    `sourcePlans: []` — free text ALONE cannot trigger acquisition;
+ *  - `positiveSemanticQuery` only reaches acquisition as a RIDER on an
+ *    independent structural deficit (e.g. a missing requested theme), where it
+ *    is appended to the web query;
+ *  - whether the catalog already contains a row literally named "Landmark
+ *    Alpha" makes no difference to any of the above.
+ *
+ * Whether a concrete "Quiero visitar X" SHOULD be able to influence
+ * acquisition is an OPEN PRODUCT DECISION (canonical docs currently treat all
+ * positive preferences as soft), so this file has NO `it.failing` invariant —
+ * only green characterization + one explicitly-labelled PRODUCT HYPOTHESIS.
  */
 
 class FakeLangChainService {
@@ -30,43 +44,52 @@ class FakeLangChainService {
   }
 }
 
-const WELL_BEHAVED_INTERPRETATION = JSON.stringify({
-  // A conservative interpreter: it recognises no controlled facet in a bare
-  // proper noun and simply echoes the phrase into the semantic query.
-  preferredFacets: [],
-  excludedThemes: [],
-  excludedTraits: [],
-  hardExclusions: [],
-  softConstraints: [],
-  ambiguities: [],
-  dietaryPreferences: [],
-  accessibilityPreferences: [],
-  budgetPreferences: [],
-  groupPreferences: [],
-  positiveSemanticQuery: 'Quiero visitar Landmark Alpha',
-  notes: [],
-});
+const interpretation = (positiveSemanticQuery: string) =>
+  JSON.stringify({
+    preferredFacets: [],
+    excludedThemes: [],
+    excludedTraits: [],
+    hardExclusions: [],
+    softConstraints: [],
+    ambiguities: [],
+    dietaryPreferences: [],
+    accessibilityPreferences: [],
+    budgetPreferences: [],
+    groupPreferences: [],
+    positiveSemanticQuery,
+    notes: [],
+  });
 
-function genericHistoryArchCatalog(count: number) {
-  return Array.from({ length: count }, (_, i) => ({
-    id: `generic-${i}`,
-    name: `Historic Building ${i}`,
-    description: 'A generic historic building with notable architecture.',
+/** The real requestedThemes derivation from experience-generation.service. */
+function deriveRequestedThemes(
+  interests: string[],
+  interpretedFacetKeys: { dimension: string; key: string }[],
+): string[] {
+  const wizardFacets = interests
+    .map((i) => normalizeWizardFacet('theme', i))
+    .filter((f): f is NonNullable<typeof f> => f !== undefined);
+  const merged = [...wizardFacets, ...(interpretedFacetKeys as any)];
+  return Array.from(
+    new Set([...interests, ...getFacetKeysByDimension(merged as any, 'theme')]),
+  );
+}
+
+function catalog(themes: string[][], names?: string[]) {
+  return themes.map((t, i) => ({
+    id: `row-${i}`,
+    name: names?.[i] ?? `Catalog Row ${i}`,
+    description: `Covers ${t.join(', ')}.`,
     source: 'db',
-    themes: ['history', 'architecture'],
+    themes: t,
     traits: [] as string[],
     intents: ['visit'],
-    metadata: {
-      themes: ['history', 'architecture'],
-      traits: [] as string[],
-      intents: ['visit'],
-    },
+    metadata: { themes: t, traits: [] as string[], intents: ['visit'] },
   }));
 }
 
-const analyze = (requestedThemes: string[]) =>
-  new CoverageAnalyzer().analyze({
-    candidates: genericHistoryArchCatalog(10),
+function analyze(requestedThemes: string[], candidates: any[]) {
+  return new CoverageAnalyzer().analyze({
+    candidates,
     requestedThemes,
     requestedTraits: [],
     requestedIntents: ['visit'],
@@ -75,53 +98,173 @@ const analyze = (requestedThemes: string[]) =>
     explorationStyle: 'balanced',
     semanticCoverage: {
       status: 'not_requested',
-      eligibleCandidateCount: 10,
+      eligibleCandidateCount: candidates.length,
       indexedCandidateCount: 0,
     },
-    offeredCandidateCount: 10,
+    offeredCandidateCount: candidates.length,
   } as any);
+}
+
+const GENERIC_HISTORY_ARCH = catalog(
+  Array.from({ length: 10 }, () => ['history', 'architecture']),
+);
+const GENERIC_PLUS_LANDMARK_ALPHA = catalog(
+  [
+    ...Array.from({ length: 10 }, () => ['history', 'architecture']),
+    ['history', 'architecture'],
+  ],
+  [
+    ...Array.from({ length: 10 }, (_, i) => `Catalog Row ${i}`),
+    'Landmark Alpha',
+  ],
+);
 
 describe('CHAR-9 specific free-text request satisfaction', () => {
-  it('the interpreter keeps "Landmark Alpha" only as free text — no facet, no named-target field', async () => {
+  it('the real interpreter keeps "Landmark Alpha" only as free text — no controlled facet', async () => {
     const service = new PreferenceInterpreterService(
-      new FakeLangChainService(WELL_BEHAVED_INTERPRETATION) as any,
+      new FakeLangChainService(
+        interpretation('Quiero visitar Landmark Alpha'),
+      ) as any,
     );
     const { intent } = await service.interpret('Quiero visitar Landmark Alpha');
     expect(intent.preferredFacets).toEqual([]);
     expect(intent.positiveSemanticQuery).toBe('Quiero visitar Landmark Alpha');
-    // No structured place target anywhere in the intent.
-    expect(JSON.stringify(intent)).not.toMatch(/namedTarget|requiredPlace/i);
-    const structuredTerms = [
-      ...intent.preferredFacets.map((f) => f.key),
-      ...intent.hardExclusions,
-      ...intent.softConstraints,
-    ];
-    expect(structuredTerms.join(' ').toLowerCase()).not.toContain(
-      'landmark alpha',
+    expect(getFacetKeysByDimension(intent.preferredFacets, 'theme')).toEqual(
+      [],
     );
   });
 
-  it('Request 1 (history + architecture) — generic coverage is already sufficient', () => {
-    const report = analyze(['history', 'architecture']);
+  it('Request A (history + architecture, generic-sufficient catalog) — coverage decision is "none", planner not reached', () => {
+    const requestedThemes = deriveRequestedThemes(
+      ['history', 'architecture'],
+      [],
+    );
+    expect(requestedThemes).toEqual(['history', 'architecture']);
+    const report = analyze(requestedThemes, GENERIC_HISTORY_ARCH);
     expect(report.decision.action).toBe('none');
   });
 
-  it('Request 2 (same + "Quiero visitar Landmark Alpha") — identical decision, no acquisition triggered', () => {
-    // The free text produced no new controlled theme, so requestedThemes is
-    // unchanged — this is exactly what the generation flow passes downstream.
-    const report1 = analyze(['history', 'architecture']);
-    const report2 = analyze(['history', 'architecture']);
+  it('Request B (same + "Quiero visitar Landmark Alpha", catalog lacks it) — identical requestedThemes, identical decision, planner not reached', async () => {
+    const service = new PreferenceInterpreterService(
+      new FakeLangChainService(
+        interpretation('Quiero visitar Landmark Alpha'),
+      ) as any,
+    );
+    const { intent } = await service.interpret('Quiero visitar Landmark Alpha');
+    const requestedThemes = deriveRequestedThemes(
+      ['history', 'architecture'],
+      intent.preferredFacets as any,
+    );
+    // The free text added no controlled theme.
+    expect(requestedThemes).toEqual(['history', 'architecture']);
+    const report = analyze(requestedThemes, GENERIC_HISTORY_ARCH);
     // eslint-disable-next-line no-console
     console.info(
-      `[CHAR-9] req1=${report1.decision.action} req2=${report2.decision.action}`,
+      `[CHAR-9] Request B decision=${report.decision.action} semanticQuery="${intent.positiveSemanticQuery}"`,
     );
-    expect(report2.decision).toEqual(report1.decision);
-    expect(report2.decision.action).toBe('none');
-    expect(report2.decision.requiresAdditionalDiscovery).toBe(false);
+    expect(report.decision.action).toBe('none');
+    expect(report.decision.requiresAdditionalDiscovery).toBe(false);
   });
 
-  it('CoverageAnalysisInput carries no channel for a concrete place request', () => {
-    // Structural proof: there is nowhere to put "Landmark Alpha".
+  it('Request C (same as B, but catalog now HAS a row named "Landmark Alpha") — B and C produce byte-identical coverage decisions', () => {
+    const requestedThemes = deriveRequestedThemes(
+      ['history', 'architecture'],
+      [],
+    );
+    const reportB = analyze(requestedThemes, GENERIC_HISTORY_ARCH);
+    const reportC = analyze(requestedThemes, GENERIC_PLUS_LANDMARK_ALPHA);
+    // eslint-disable-next-line no-console
+    console.info(
+      `[CHAR-9] B.action=${reportB.decision.action} C.action=${reportC.decision.action}`,
+    );
+    expect(reportC.decision).toEqual(reportB.decision);
+    expect(reportC.decision.action).toBe('none');
+  });
+
+  it('buildAcquisitionPlan with ZERO deficits + a semanticQuery mentioning "Landmark Alpha" produces NO source plans', () => {
+    const planner = new ExperienceAcquisitionPlannerService();
+    const plan = planner.buildAcquisitionPlan({
+      destination: {
+        destinationName: 'Testville',
+        latitude: -32.9,
+        longitude: -60.6,
+        radiusMeters: 3000,
+      },
+      legacyDeficits: [],
+      preferredFacets: [
+        {
+          dimension: 'theme',
+          key: 'history',
+          importance: 1,
+          confidence: 1,
+          source: 'wizard',
+        },
+      ],
+      candidates: [
+        {
+          name: 'X',
+          description: '',
+          themes: ['history'],
+          traits: [],
+          intents: [],
+        } as any,
+      ],
+      semanticQuery: 'Quiero visitar Landmark Alpha',
+      breadth: 'focused',
+    });
+    // eslint-disable-next-line no-console
+    console.info(
+      `[CHAR-9] zero-deficit plan sourcePlans=${plan.sourcePlans.length}`,
+    );
+    expect(plan.sourcePlans).toEqual([]);
+  });
+
+  it('positiveSemanticQuery reaches acquisition ONLY as a rider on an independent structural deficit (a missing requested theme)', () => {
+    const planner = new ExperienceAcquisitionPlannerService();
+    const plan = planner.buildAcquisitionPlan({
+      destination: {
+        destinationName: 'Testville',
+        latitude: -32.9,
+        longitude: -60.6,
+        radiusMeters: 3000,
+      },
+      legacyDeficits: [
+        {
+          type: 'missing_theme',
+          message: 'No tango coverage',
+          severity: 'blocking',
+          theme: 'tango',
+        } as any,
+      ],
+      preferredFacets: [],
+      candidates: [
+        {
+          name: 'X',
+          description: '',
+          themes: ['history'],
+          traits: [],
+          intents: [],
+        } as any,
+      ],
+      semanticQuery: 'Quiero visitar Landmark Alpha',
+      breadth: 'focused',
+    });
+    const web = plan.sourcePlans.find((s) => s.provider === 'web');
+    // eslint-disable-next-line no-console
+    console.info(`[CHAR-9] rider web query="${web?.web?.query}"`);
+    expect(web).toBeDefined();
+    // The named place is present — but only because the tango deficit opened
+    // the web channel; it is never its own trigger.
+    expect(web!.web!.query).toContain('Quiero visitar Landmark Alpha');
+    expect(web!.web!.query).toContain('tango');
+  });
+
+  it('PRODUCT HYPOTHESIS (NOT a settled invariant): there is no structured channel for a named concrete request', () => {
+    // CoverageAnalysisInput has no free-text / named-target field; the
+    // acquisition planner keys only on deficits + facets + a rider query.
+    // Whether "Quiero visitar X" SHOULD carry more weight (soft interest vs
+    // "sí o sí") is an open product decision — pinned here as current state,
+    // deliberately NOT as an `it.failing` invariant.
     const inputKeys = [
       'candidates',
       'requestedThemes',
@@ -139,15 +282,4 @@ describe('CHAR-9 specific free-text request satisfaction', () => {
     expect(inputKeys).not.toContain('namedTargets');
     expect(inputKeys).not.toContain('positiveSemanticQuery');
   });
-
-  it.failing(
-    'INVARIANT: a concrete "Quiero visitar X" request must be able to change acquisition when X is absent from the catalog',
-    () => {
-      const withoutRequest = analyze(['history', 'architecture']);
-      // There is no way to express the concrete request to the analyzer, so
-      // the "with request" analysis is necessarily identical.
-      const withRequest = analyze(['history', 'architecture']);
-      expect(withRequest.decision).not.toEqual(withoutRequest.decision);
-    },
-  );
 });

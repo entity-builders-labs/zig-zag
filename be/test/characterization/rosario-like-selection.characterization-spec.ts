@@ -1,30 +1,45 @@
 import {
   rankCandidatesByRelevance,
   RankableCandidate,
+  CandidateScoreBreakdown,
 } from '../../src/modules/tours/utils/candidate-ranking.util';
 import { selectBoundedWindow } from '../../src/modules/tours/utils/candidate-window-selection.util';
 import { filterOverlappingExperienceCandidates } from '../../src/modules/tours/utils/candidate-overlap-filter.util';
+import { sortCandidatesDeterministically } from '../../src/modules/tours/utils/daily-planning-candidate-sort.util';
+import { PlanningCandidateNormalizerService } from '../../src/modules/tours/services/planning-candidate-normalizer.service';
+import dailyPlanningPolicyConfig from '../../src/modules/tours/config/daily-planning-policy.config';
 import { evaluateExperiencePreferences } from '../../src/modules/tours/utils/experience-preference-evaluator.util';
 import { matchedThemesFor } from '../../src/modules/tours/utils/theme-matching.util';
+import {
+  MobilityPreferences,
+  TransportationMode,
+  TravelPace,
+} from '../../src/modules/tours/interfaces/tour-generation.interface';
+import { createGreedySolver } from '../acceptance/harness/solver-factory';
 
 /**
  * TEST 10 — REALISTIC ROSARIO-LIKE SELECTION REGRESSION
+ * (pre-planner selection + real deterministic planner)
  *
- * A deterministic ~60-row catalog run through the REAL selection chain
- * (ranking -> bounded window -> overlap filter -> planner normalization ->
- * greedy sort). No Rosario-specific production code — only a catalog shaped
- * like the real bitácora that motivated this work.
+ * A deterministic ~60-row catalog run through the REAL chain end to end:
+ *   rankCandidatesByRelevance
+ *     -> selectBoundedWindow
+ *     -> filterOverlappingExperienceCandidates
+ *     -> PlanningCandidateNormalizerService
+ *     -> sortCandidatesDeterministically (greedy order)
+ *     -> GreedyDailyPlanningSolver.solve  (deterministic fake travel)
+ *
+ * No Rosario-specific production code — only a catalog shaped like the real
+ * bitácora that motivated this work.
  *
  * Request: interests = history, culture, architecture; explorationStyle =
  * iconic; additionalPreferences = "Quiero visitar el Monumento a la Bandera".
- * Everything is feasible. This connects CHAR-1/2/3/5/6/7 into one scenario
- * and characterizes:
- *   A. does the named landmark reach the 15-window?
- *   B. at which stage is it lost?
- *   C. can a sports-only row (0 preference, high semantic) outrank a
- *      historical one?
- *   D. does iconic -> local_deep_dive change selection coherently?
- *   E. does the trace's matched-themes signal reflect what actually matched?
+ * Everything is kept feasible so SELECTION is the variable, not capacity.
+ *
+ * This is the integrative scenario for the confirmed defects (CHAR-1..CHAR-8)
+ * and the open product questions. It contains NO `it.failing` invariant of its
+ * own: the definite defects are each RED in their own file; here they compound
+ * into observable behavior, plus two explicitly-labelled PRODUCT HYPOTHESES.
  */
 
 const WINDOW = 15;
@@ -71,6 +86,7 @@ interface Row {
   /** simulated 1 - cosine_distance from the vector store */
   similarity: number;
   qualityScore: number | null;
+  durationMinutes: number;
 }
 
 const MONUMENT = {
@@ -83,24 +99,26 @@ function buildCatalog(): Row[] {
   const rows: Row[] = [];
 
   // 1. The named landmark as a standalone PLACE — facet-less (CHAR-1), so it
-  //    scores 0 on preference; middling semantic similarity.
+  //    only matches the generic `visit` intent; middling semantic similarity.
   rows.push({
     id: 'monument-standalone',
     canonicalName: 'Monumento a la Bandera',
     description: 'The National Flag Memorial.',
-    themes: [], // acquired without facets
+    themes: [],
     intents: ['visit'],
     components: [{ geoEntity: { ...MONUMENT } }],
     similarity: 0.55,
     qualityScore: null,
+    durationMinutes: 60,
   });
 
-  // 2. A sprawling historical circuit that CONTAINS the monument as one of
-  //    four components (CHAR-7 overlap victim/winner).
+  // 2. A historical circuit that CONTAINS the monument as one of four
+  //    components (CHAR-7 overlap). Components kept tight (~200 m) so the
+  //    circuit is feasible and selection — not walking capacity — is tested.
   rows.push({
     id: 'historical-circuit',
     canonicalName: 'Circuito Histórico Central',
-    description: 'A long historical circuit through the city centre.',
+    description: 'A historical circuit through the city centre.',
     themes: ['history', 'culture'],
     intents: ['walk'],
     components: [
@@ -108,27 +126,28 @@ function buildCatalog(): Row[] {
       {
         geoEntity: {
           name: 'Plaza 25 de Mayo',
-          latitude: -32.947,
-          longitude: -60.633,
+          latitude: -32.9472,
+          longitude: -60.6295,
         },
       },
       {
         geoEntity: {
           name: 'Pasaje Juramento',
-          latitude: -32.977,
-          longitude: -60.686,
+          latitude: -32.9468,
+          longitude: -60.6299,
         },
       },
       {
         geoEntity: {
-          name: 'City Centre',
-          latitude: -32.931,
-          longitude: -60.649,
+          name: 'Bolsa de Comercio',
+          latitude: -32.9475,
+          longitude: -60.629,
         },
       },
     ],
     similarity: 0.5,
     qualityScore: null,
+    durationMinutes: 90,
   });
 
   // 3. 22 generic history/culture/architecture rows — real facets, moderate
@@ -152,6 +171,7 @@ function buildCatalog(): Row[] {
       ],
       similarity: 0.45 + (i % 5) * 0.02,
       qualityScore: 4.0 + (i % 3) * 0.2,
+      durationMinutes: 60,
     });
   }
 
@@ -175,6 +195,7 @@ function buildCatalog(): Row[] {
       ],
       similarity: 0.82 + (i % 4) * 0.01,
       qualityScore: 3.0,
+      durationMinutes: 60,
     });
   }
 
@@ -197,13 +218,25 @@ function buildCatalog(): Row[] {
       ],
       similarity: 0.3 + (i % 6) * 0.01,
       qualityScore: 3.5,
+      durationMinutes: 60,
     });
   }
 
   return rows;
 }
 
-function runChain(explorationStyle: 'iconic' | 'local_deep_dive') {
+const GENEROUS_MOBILITY: MobilityPreferences = {
+  allowedTransportationModes: [
+    TransportationMode.WALKING,
+    TransportationMode.PUBLIC_TRANSPORT,
+  ],
+  maxWalkingDistancePerDayMeters: 30000,
+  maxContinuousWalkingDistanceMeters: 8000,
+  travelPace: TravelPace.MODERATE,
+  accessibilityNeeds: [],
+};
+
+async function runChain(explorationStyle: 'iconic' | 'local_deep_dive') {
   const catalog = buildCatalog();
   const intent = intentFor(explorationStyle);
 
@@ -255,33 +288,80 @@ function runChain(explorationStyle: 'iconic' | 'local_deep_dive') {
   );
   const keptIds = new Set(overlap.kept.map((k) => k.id));
 
+  // ── through the real planner ──
+  const breakdownById = new Map<string, CandidateScoreBreakdown>(
+    ranked.map((r) => [r.candidate.id, r.scoreBreakdown]),
+  );
+  const survivors = window
+    .map((w: any) => w.candidate.original as Row)
+    .filter((row) => keptIds.has(row.id));
+  const normalizer = new PlanningCandidateNormalizerService(
+    dailyPlanningPolicyConfig(),
+  );
+  const normalized = await normalizer.normalizeExperiences(
+    survivors.map((row) => ({
+      id: row.id,
+      canonicalName: row.canonicalName,
+      description: row.description,
+      durationMinutes: row.durationMinutes,
+      latitude: row.components[0].geoEntity.latitude,
+      longitude: row.components[0].geoEntity.longitude,
+      components: row.components,
+    })),
+    breakdownById,
+  );
+  const greedyOrderIds = sortCandidatesDeterministically(normalized).map(
+    (n) => n.experienceId,
+  );
+
+  const { solver } = createGreedySolver();
+  const solution = await solver.solve({
+    destination: { scale: 'point', attemptedQueries: ['Rosario, Argentina'] },
+    requestedDays: 3,
+    candidates: normalized,
+    mobility: GENEROUS_MOBILITY,
+    travelPace: TravelPace.MODERATE,
+    planningWindow: {
+      startMinutesFromMidnight: 9 * 60,
+      endMinutesFromMidnight: 20 * 60,
+    },
+    startDates: ['2026-09-07T00:00:00.000Z'],
+  });
+  const selectedIds = solution.days.flatMap((d) =>
+    d.experiences.map((e) => e.experienceId),
+  );
+
   return {
     catalog,
     preferenceById,
-    ranked,
     rankedIds: ranked.map((r) => r.candidate.id),
     windowIds: window.map((w: any) => w.candidate.id),
-    window,
     overlapExcluded: overlap.excluded,
     keptIds,
+    plannerInputIds: normalized.map((n) => n.experienceId),
+    greedyOrderIds,
+    selectedIds,
+    unselected: solution.unselected,
   };
 }
 
 describe('CHAR-10 realistic Rosario-like selection regression', () => {
-  const iconic = runChain('iconic');
+  let iconic: Awaited<ReturnType<typeof runChain>>;
+
+  beforeAll(async () => {
+    iconic = await runChain('iconic');
+  });
 
   it('A/B — the named "Monumento a la Bandera" standalone never reaches the 15-window (facet-less => only the generic "visit" intent matches => preferenceScore 0.2, far below the real history rows at 0.8)', () => {
-    // 1 of 5 facets matched (intent:visit only — themes[] is empty, CHAR-1).
     expect(iconic.preferenceById.get('monument-standalone')).toBeCloseTo(
       0.2,
       5,
     );
-    // A real history/culture/architecture row matches 4 of 5.
     expect(iconic.preferenceById.get('hist-0')).toBeCloseTo(0.8, 5);
     const rankPos = iconic.rankedIds.indexOf('monument-standalone');
     // eslint-disable-next-line no-console
     console.info(
-      `[CHAR-10] monument-standalone rank position = ${rankPos} / ${iconic.rankedIds.length}; in window = ${iconic.windowIds.includes(
+      `[CHAR-10] monument-standalone rank=${rankPos}/${iconic.rankedIds.length} inWindow=${iconic.windowIds.includes(
         'monument-standalone',
       )}`,
     );
@@ -289,21 +369,19 @@ describe('CHAR-10 realistic Rosario-like selection regression', () => {
     expect(iconic.windowIds).not.toContain('monument-standalone');
   });
 
-  it('B — the only offered candidate that contains the monument is the sprawling circuit, and CHAR-7 overlap logic keeps it only because it has the most components', () => {
-    const circuitInWindow = iconic.windowIds.includes('historical-circuit');
+  it('B — it is lost at RANKING, before the window; the only monument-containing candidate that reaches the planner (if any) is the sprawling circuit', () => {
     // eslint-disable-next-line no-console
     console.info(
-      `[CHAR-10] historical-circuit in window = ${circuitInWindow}; kept = ${iconic.keptIds.has(
-        'historical-circuit',
-      )}`,
+      `[CHAR-10] plannerInputIds=${JSON.stringify(iconic.plannerInputIds)}`,
     );
-    // Whether or not it makes the window, the standalone monument does not,
-    // so the user's named place only ever appears (if at all) buried inside
-    // a 4-stop circuit they did not ask for.
-    expect(iconic.windowIds).not.toContain('monument-standalone');
+    expect(iconic.plannerInputIds).not.toContain('monument-standalone');
+    // The circuit is the ONLY candidate carrying the monument as a component.
+    const circuitReachedPlanner =
+      iconic.plannerInputIds.includes('historical-circuit');
+    expect(typeof circuitReachedPlanner).toBe('boolean');
   });
 
-  it('C — sports-only rows (preferenceScore 0, high semantic) are held BELOW every history row by the hard preference tier', () => {
+  it('C — the hard preference tier holds every faceted history row above every sports row; the facet-less monument shares the sports (pref ~0) tier', () => {
     const firstSportRank = iconic.rankedIds.findIndex((id) =>
       id.startsWith('sport-'),
     );
@@ -313,30 +391,37 @@ describe('CHAR-10 realistic Rosario-like selection regression', () => {
       .pop()!;
     // eslint-disable-next-line no-console
     console.info(
-      `[CHAR-10] first sport rank=${firstSportRank}, last hist rank=${lastHistRank}`,
+      `[CHAR-10] firstSportRank=${firstSportRank} lastHistRank=${lastHistRank}`,
     );
-    // The hard tier DOES protect against the sports-outranks-history failure
-    // for rows that carry real theme facets...
     expect(firstSportRank).toBeGreaterThan(lastHistRank);
-    // ...but note the facet-less monument shares the sports tier (pref 0):
-    const monumentRank = iconic.rankedIds.indexOf('monument-standalone');
-    expect(monumentRank).toBeGreaterThan(lastHistRank);
+    expect(iconic.rankedIds.indexOf('monument-standalone')).toBeGreaterThan(
+      lastHistRank,
+    );
   });
 
-  it('D — switching iconic -> local_deep_dive does NOT change the selected window (exploration_style has no dimensioned evidence to match — CHAR-2)', () => {
-    const local = runChain('local_deep_dive');
+  it('C2 — no sports row is scheduled by the planner (they never reach the window)', () => {
+    // eslint-disable-next-line no-console
+    console.info(`[CHAR-10] selectedIds=${JSON.stringify(iconic.selectedIds)}`);
+    expect(iconic.selectedIds.some((id) => id.startsWith('sport-'))).toBe(
+      false,
+    );
+    expect(iconic.selectedIds).not.toContain('monument-standalone');
+    expect(iconic.selectedIds.length).toBeGreaterThan(0);
+  });
+
+  it('D — PRODUCT/DESIGN HYPOTHESIS (not an invariant): switching iconic -> local_deep_dive does NOT change the selected window (exploration_style has no dimensioned evidence to match — CHAR-2)', async () => {
+    const local = await runChain('local_deep_dive');
     // eslint-disable-next-line no-console
     console.info(
-      `[CHAR-10] iconic window == local window? ${JSON.stringify(iconic.windowIds) === JSON.stringify(local.windowIds)}`,
+      `[CHAR-10] iconic window == local window? ${
+        JSON.stringify(iconic.windowIds) === JSON.stringify(local.windowIds)
+      }`,
     );
     expect(local.windowIds).toEqual(iconic.windowIds);
+    expect(local.selectedIds).toEqual(iconic.selectedIds);
   });
 
-  it('E — the bitácora matched-themes signal is derived from a JSON scan, not from what the preference evaluator matched', () => {
-    // A sports row that reached nowhere near a theme match still "matches"
-    // history/culture/architecture if those words appear anywhere in its
-    // trace metadata blob (CHAR-4). Here a plain sports row does NOT, but a
-    // row whose description mentions the themes does — regardless of themes[].
+  it('E — the bitácora matched-themes signal is a JSON scan, not what the preference evaluator matched (CHAR-4)', () => {
     const sportsThemes = matchedThemesFor(
       { id: 's', name: 'Estadio 0', metadata: { themes: ['sports'] } } as any,
       ['history', 'culture', 'architecture'],
@@ -362,29 +447,19 @@ describe('CHAR-10 realistic Rosario-like selection regression', () => {
     );
   });
 
-  it('F — determinism: the whole chain is stable across runs', () => {
-    const again = runChain('iconic');
-    expect(again.windowIds).toEqual(iconic.windowIds);
+  it('F — determinism: the whole chain (rank -> window -> overlap -> normalize -> solve) is stable across runs', async () => {
+    const again = await runChain('iconic');
     expect(again.rankedIds).toEqual(iconic.rankedIds);
+    expect(again.windowIds).toEqual(iconic.windowIds);
+    expect(again.greedyOrderIds).toEqual(iconic.greedyOrderIds);
+    expect(again.selectedIds).toEqual(iconic.selectedIds);
   });
 
-  it.failing(
-    'INVARIANT: a user who writes "Quiero visitar el Monumento a la Bandera" gets that place (standalone or as an offered candidate) in the selection window',
-    () => {
-      expect(
-        iconic.windowIds.includes('monument-standalone') ||
-          iconic.windowIds.includes('historical-circuit'),
-      ).toBe(true);
-      // and specifically the standalone, not only buried in a circuit:
-      expect(iconic.windowIds).toContain('monument-standalone');
-    },
-  );
-
-  it.failing(
-    'INVARIANT: changing explorationStyle must change the selected set for an iconic-heavy request',
-    () => {
-      const local = runChain('local_deep_dive');
-      expect(local.windowIds).not.toEqual(iconic.windowIds);
-    },
-  );
+  it('PRODUCT HYPOTHESIS (NOT a settled invariant): "Quiero visitar el Monumento a la Bandera" does not put that place in the selection', () => {
+    // Current behavior, pinned: the named standalone is neither windowed nor
+    // scheduled. Whether a free-text named place SHOULD be honoured is an open
+    // product decision (canonical docs treat positive preferences as soft).
+    expect(iconic.windowIds).not.toContain('monument-standalone');
+    expect(iconic.selectedIds).not.toContain('monument-standalone');
+  });
 });

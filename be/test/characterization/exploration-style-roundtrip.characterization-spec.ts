@@ -2,29 +2,33 @@ import { candidateMatchesPreferenceFacet } from '../../src/modules/tours/utils/p
 import { evaluateExperiencePreferences } from '../../src/modules/tours/utils/experience-preference-evaluator.util';
 import { StructuredExperienceCandidateSynthesizerService } from '../../src/modules/tours/services/structured-experience-candidate-synthesizer.service';
 import {
-  osmIconicPlaceObservation,
-  osmHiddenLocalPlaceObservation,
+  structuredLandmarkAObservation,
+  structuredPlaceBObservation,
+  syntheticDimensionedExperience,
 } from './support/observations';
 
 /**
- * TEST 2 — EXPLORATION-STYLE ROUND-TRIP
+ * TEST 2 — EXPLORATION-STYLE MATCHER SEMANTICS (unit level)
  *
- * `explorationStyle` (iconic / local_deep_dive) becomes one `exploration_style`
- * PreferenceFacet. `candidateMatchesPreferenceFacet` matches it ONLY against
- * explicit dimensioned evidence for `tourism_intensity` / `local_character`
- * (`hasExplicitDimensionedEvidence`) — never themes, name, description, or a
- * relational trait string.
+ * This file pins the MATCHER behavior with hand-built inputs. The real
+ * persistence/hydration round-trip (does `resolveOrCreateTraitDefinitions`
+ * actually flatten a trait's dimension, and does the flattened row fail the
+ * `exploration_style` matcher after real persist+hydrate?) is in
+ * `exploration-style-roundtrip.db.characterization-spec.ts`.
  *
- * Characterization goals:
- *  - the ONLY persisted shape that can satisfy `exploration_style` is
- *    `metadata.dimensionedTraits: [{dimension:'tourism_intensity', key:...}]`
- *    (or `metadata.preferenceFacets` / `metadata.dimensions`);
- *  - the structured acquisition pipeline never produces that shape
- *    (`resolveOrCreateTraitDefinitions` flattens every trait to
- *    `dimension:'general'`; the synthesizer emits `traits: []`);
- *  - therefore `explorationStyle` produces ZERO directional ranking difference
- *    for a structured-acquired catalog, and instead only DILUTES `positiveRatio`
- *    (its weight is always in the denominator whether or not it can ever match).
+ * Pinned here:
+ *  - `candidateMatchesPreferenceFacet` matches an `exploration_style` facet
+ *    ONLY against explicit dimensioned evidence for `tourism_intensity` /
+ *    `local_character` (`hasExplicitDimensionedEvidence`) — never themes,
+ *    name, description, or a relational trait string;
+ *  - a relational trait carried as `{dimension:'general', key:'iconic'}` (the
+ *    shape `projectVerifiedExperienceRow` builds from a `TraitDefinition`)
+ *    does NOT satisfy `exploration_style:iconic`, though it DOES satisfy a
+ *    plain `trait:iconic` facet;
+ *  - the structured synthesizer emits no dimensioned evidence at all, so
+ *    `explorationStyle` cannot discriminate any structured-acquired
+ *    Experience; it only DILUTES `positiveRatio` (its facet weight is always
+ *    in the denominator whether or not it can ever match).
  */
 
 const wizardFacet = (dimension: string, key: string) => ({
@@ -50,17 +54,16 @@ const baseIntent = (): any => ({
   notes: [] as string[],
 });
 
-describe('CHAR-2 exploration-style round-trip', () => {
-  it('a relational-trait "iconic" (dimension:"general" — what resolveOrCreateTraitDefinitions writes) does NOT satisfy exploration_style:iconic', () => {
+describe('CHAR-2 exploration-style matcher semantics', () => {
+  it('a relational-trait key carried as dimension:"general" does NOT satisfy exploration_style, but DOES satisfy trait:<key>', () => {
+    // Shape produced by projectVerifiedExperienceRow from a TraitDefinition
+    // whose dimension is hardcoded 'general' (see resolveOrCreateTraitDefinitions).
     const experienceAsPersisted = {
-      canonicalName: 'Iconic City Landmark',
-      description: 'A nationally iconic landmark.',
+      canonicalName: 'Structured Landmark A',
+      description: 'A structured landmark.',
       themes: ['history'],
       traits: ['iconic'],
       intents: [] as string[],
-      // projectVerifiedExperienceRow builds this from
-      // experience.traits.map(t => ({dimension: t.traitDefinition.dimension, ...}))
-      // and every relational TraitDefinition dimension is hardcoded 'general'.
       dimensionedTraits: [{ dimension: 'general', key: 'iconic' }],
       metadata: {
         themes: ['history'],
@@ -75,7 +78,6 @@ describe('CHAR-2 exploration-style round-trip', () => {
         wizardFacet('exploration_style', 'iconic'),
       ),
     ).toBe(false);
-    // ...even though the plain trait dimension DOES match a `trait` facet:
     expect(
       candidateMatchesPreferenceFacet(
         experienceAsPersisted,
@@ -84,53 +86,41 @@ describe('CHAR-2 exploration-style round-trip', () => {
     ).toBe(true);
   });
 
-  it('the ONLY persisted shape that satisfies exploration_style:iconic is an explicit tourism_intensity dimensioned entry', () => {
-    const withExplicitDimension = {
-      canonicalName: 'Iconic City Landmark',
-      themes: ['history'],
-      traits: [] as string[],
-      intents: [] as string[],
-      metadata: {
-        dimensionedTraits: [{ dimension: 'tourism_intensity', key: 'iconic' }],
-      },
-    };
+  it('exploration_style matches ONLY explicit dimensioned evidence (SYNTHETIC controlled fixture)', () => {
+    // syntheticDimensionedExperience is hand-authored, NOT provider-derived.
     expect(
       candidateMatchesPreferenceFacet(
-        withExplicitDimension,
+        syntheticDimensionedExperience('tourism_intensity', 'iconic'),
         wizardFacet('exploration_style', 'iconic'),
       ),
     ).toBe(true);
 
-    // local_deep_dive reads the other end + local_character:authentic
-    const hiddenLocal = {
-      canonicalName: 'Neighbourhood Passage',
+    const authenticLocalCharacter = {
+      canonicalName: 'Synthetic Dimensioned Experience',
       themes: [] as string[],
       traits: [] as string[],
       intents: [] as string[],
-      metadata: {
-        dimensions: { local_character: 'authentic' },
-      },
+      metadata: { dimensions: { local_character: 'authentic' } },
     };
     expect(
       candidateMatchesPreferenceFacet(
-        hiddenLocal,
+        authenticLocalCharacter,
         wizardFacet('exploration_style', 'local_deep_dive'),
       ),
     ).toBe(true);
   });
 
-  it('the structured synthesizer emits NO dimensioned evidence for an objectively iconic OR hidden-local OSM place', () => {
+  it('the structured synthesizer emits NO dimensioned evidence for a raw OSM place, so no exploration_style key can match it', () => {
     const synth = new StructuredExperienceCandidateSynthesizerService();
     for (const obs of [
-      osmIconicPlaceObservation(),
-      osmHiddenLocalPlaceObservation(),
+      structuredLandmarkAObservation(),
+      structuredPlaceBObservation(),
     ]) {
       const [proposal] = synth.synthesizeProposals([obs]);
       const c: any = proposal.candidate;
       expect(c.traits).toEqual([]);
       expect(c.dimensionedTraits ?? []).toEqual([]);
       expect((c.metadata as any)?.dimensionedTraits ?? []).toEqual([]);
-      // ...so neither exploration_style key can match the synthesized candidate.
       const hydrated = {
         canonicalName: c.name,
         description: c.description,
@@ -154,8 +144,7 @@ describe('CHAR-2 exploration-style round-trip', () => {
     }
   });
 
-  it('exploration_style only DILUTES positiveRatio — iconic and local_deep_dive dilute a structured catalog identically (no directional signal)', () => {
-    // A catalog Experience that perfectly matches the 3 real wizard facets.
+  it('CHARACTERIZATION: exploration_style only DILUTES positiveRatio — iconic and local_deep_dive dilute a facet-only catalog identically (no directional signal)', () => {
     const perfectHistoryWalk = {
       canonicalName: 'Historic Architecture Walk',
       description: 'A walking tour of historic architecture.',
@@ -209,34 +198,34 @@ describe('CHAR-2 exploration-style round-trip', () => {
     expect(withLocalDeepDive.score).toBe(withIconic.score);
   });
 
-  it.failing(
-    'INVARIANT: choosing explorationStyle:iconic vs local_deep_dive must be able to change the preference score of at least one structured-acquired Experience',
-    () => {
-      const synth = new StructuredExperienceCandidateSynthesizerService();
-      const iconicPlace = synth.synthesizeProposals([
-        osmIconicPlaceObservation(),
-      ])[0].candidate as any;
-      const hydrated = {
-        canonicalName: iconicPlace.name,
-        description: iconicPlace.description,
-        themes: iconicPlace.themes,
-        traits: iconicPlace.traits,
-        intents: iconicPlace.intents,
-        metadata: {
-          themes: iconicPlace.themes,
-          traits: iconicPlace.traits,
-          intents: iconicPlace.intents,
-        },
-      };
-      const iconic = evaluateExperiencePreferences(hydrated, {
-        ...baseIntent(),
-        preferredFacets: [wizardFacet('exploration_style', 'iconic')],
-      });
-      const local = evaluateExperiencePreferences(hydrated, {
-        ...baseIntent(),
-        preferredFacets: [wizardFacet('exploration_style', 'local_deep_dive')],
-      });
-      expect(iconic.score).not.toBe(local.score);
-    },
-  );
+  it('CHARACTERIZATION: a synthesized structured candidate scores identically under iconic and local_deep_dive', () => {
+    const synth = new StructuredExperienceCandidateSynthesizerService();
+    const candidate = synth.synthesizeProposals([
+      structuredLandmarkAObservation(),
+    ])[0].candidate as any;
+    const hydrated = {
+      canonicalName: candidate.name,
+      description: candidate.description,
+      themes: candidate.themes,
+      traits: candidate.traits,
+      intents: candidate.intents,
+      metadata: {
+        themes: candidate.themes,
+        traits: candidate.traits,
+        intents: candidate.intents,
+      },
+    };
+    const iconic = evaluateExperiencePreferences(hydrated, {
+      ...baseIntent(),
+      preferredFacets: [wizardFacet('exploration_style', 'iconic')],
+    });
+    const local = evaluateExperiencePreferences(hydrated, {
+      ...baseIntent(),
+      preferredFacets: [wizardFacet('exploration_style', 'local_deep_dive')],
+    });
+    // Current behavior: identical (both 0). Whether explorationStyle SHOULD be
+    // able to discriminate structured-acquired Experiences is an OPEN DESIGN
+    // question (it needs an acquisition-side producer of dimensioned evidence).
+    expect(iconic.score).toBe(local.score);
+  });
 });

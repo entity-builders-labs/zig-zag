@@ -160,12 +160,18 @@ describe('CHAR-7 shared component vs same experience', () => {
       expect(result.kept.map((k) => k.id)).toEqual(['walk']);
     });
 
-    it.failing(
-      'INVARIANT: when two overlapping candidates differ by only one shared component, the more user-relevant (higher rankingScore) one must survive',
-      () => {
-        const result = filterOverlappingExperienceCandidates([walk, circuit]);
-        expect(result.kept.map((k) => k.id)).toEqual(['walk']);
-      },
-    );
+    it('OPEN POLICY (not a settled invariant): the overlap filter currently prefers component count over user relevance', () => {
+      // Definite finding: `preferWinner` compares component count BEFORE
+      // rankingScore, so a rankingScore-0.30 4-stop circuit beats a
+      // rankingScore-0.95 2-stop walk that shares one component.
+      //
+      // NOT decided: whether "larger composite subsumes smaller Experience"
+      // or "more user-relevant Experience wins" is the right policy. This is
+      // pinned as CURRENT behavior, deliberately not as an `it.failing`
+      // invariant.
+      const result = filterOverlappingExperienceCandidates([walk, circuit]);
+      expect(result.kept.map((k) => k.id)).toEqual(['circuit']);
+      expect((walk.rankingScore ?? 0) > (circuit.rankingScore ?? 0)).toBe(true);
+    });
   });
 });

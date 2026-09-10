@@ -2,10 +2,10 @@ import { ExperienceStatus } from '@prisma/client';
 import { PrismaService } from 'src/core/database/prisma.service';
 import { ExperienceCatalogService } from 'src/modules/tours/services/experience-catalog.service';
 import {
-  getPrisma,
-  resetDbWith,
+  getGuardedCharacterizationPrisma,
+  resetCharacterizationDb,
   closeDb,
-} from '../integration/support/test-db';
+} from './support/db';
 
 /**
  * TEST 8 — PROVIDER ORDER MUST CONVERGE
@@ -44,12 +44,12 @@ describe('CHAR-8 provider order convergence (real Postgres)', () => {
   let catalog: ExperienceCatalogService;
 
   beforeAll(async () => {
-    prisma = await getPrisma();
+    prisma = await getGuardedCharacterizationPrisma();
     catalog = new ExperienceCatalogService(prisma, {} as any);
   });
 
   afterAll(async () => {
-    await resetDbWith(prisma);
+    await resetCharacterizationDb(prisma);
     await closeDb();
   });
 
@@ -98,7 +98,7 @@ describe('CHAR-8 provider order convergence (real Postgres)', () => {
   }
 
   it('RUN 1 — empty provider then rich provider: rich facets survive', async () => {
-    await resetDbWith(prisma);
+    await resetCharacterizationDb(prisma);
     const geoEntityId = await seedGeoEntity();
     await persist(geoEntityId, EMPTY_METADATA);
     const second = await persist(geoEntityId, RICH_METADATA);
@@ -114,7 +114,7 @@ describe('CHAR-8 provider order convergence (real Postgres)', () => {
   });
 
   it('RUN 2 — rich provider then empty provider: rich facets are overwritten with []', async () => {
-    await resetDbWith(prisma);
+    await resetCharacterizationDb(prisma);
     const geoEntityId = await seedGeoEntity();
     await persist(geoEntityId, RICH_METADATA);
     const second = await persist(geoEntityId, EMPTY_METADATA);
@@ -133,13 +133,13 @@ describe('CHAR-8 provider order convergence (real Postgres)', () => {
   it.failing(
     'INVARIANT: the canonical Experience has the same facets regardless of provider order',
     async () => {
-      await resetDbWith(prisma);
+      await resetCharacterizationDb(prisma);
       let geoEntityId = await seedGeoEntity();
       await persist(geoEntityId, EMPTY_METADATA);
       await persist(geoEntityId, RICH_METADATA);
       const run1 = await finalFacets();
 
-      await resetDbWith(prisma);
+      await resetCharacterizationDb(prisma);
       geoEntityId = await seedGeoEntity();
       await persist(geoEntityId, RICH_METADATA);
       await persist(geoEntityId, EMPTY_METADATA);
