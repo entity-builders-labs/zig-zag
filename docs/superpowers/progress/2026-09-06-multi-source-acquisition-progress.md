@@ -7,9 +7,46 @@ Canonical design: `docs/superpowers/specs/2026-09-06-multi-source-acquisition-de
 - Branch: `feat/experience-domain-v2`
 - Current milestone: **Phase 7 — final orchestration.**
   **Checkpoint A COMPLETE · B COMPLETE · C COMPLETE · D COMPLETE · E COMPLETE ·
-  F COMPLETE.**
-  **Engine Quality Gate G NOT STARTED · Argentina Live Smoke H NOT STARTED · Phase 7
-  overall NOT CLOSED** (G/H are a separate session after user review of A–F).
+  F COMPLETE · G COMPLETE.**
+  **Argentina Live Smoke H NOT STARTED · Phase 7 overall NOT CLOSED**
+  (H is a separate session).
+  - G (engine-quality benchmark) is complete: `2026-09-10`, starting HEAD
+    `9e27c12910c10935138a00aee25bb01b6c43b628`. Design + results:
+    `docs/superpowers/plans/2026-09-10-engine-quality-benchmark.md`. A NEW
+    `be/test/experience-selection-competitive.e2e-spec.ts` drives ONE shared ~320-row
+    heterogeneous competitive corpus (seeded once, never mutated — `reverifyCorpus`
+    fingerprint guard) through the real `POST /tours/generate-tour` path for five
+    counterfactual profiles, over a deterministic multi-axis semantic oracle whose
+    stored row vectors are never rewritten between profiles. Real coverage / ranking /
+    normalizer / `GreedyDailyPlanningSolver` / feasibility / `TourExperience`
+    materialization / trace; faked only the LLM interpreter, embeddings and routing.
+    **All 5 counterfactuals = Outcome A (engine already correct); no production code
+    changed.** iconic-vs-local, craft-beer-vs-specialty-coffee, exact-fit-vs-generic-
+    5-star (quality is a bonus, not a substitute for fit — the q-5.0 cluster is not
+    even offered), hard-exclusion under competitive pressure, and a one-facet delta all
+    move the selection directionally; every scenario is deterministic on a repeat run
+    and uses no discovery/acquisition (`decision.action === 'none'`);
+    `findStrictlyDominatedSelections === []` throughout.
+    **Finding CP-G-DIV-1** (finding, not a bug — no documented set-level diversity
+    requirement): every itinerary collapses to a single cluster
+    (`maxSingleClusterShare = 1.0`); `selectBoundedWindow` has no per-cluster/family
+    cap and the solver soft score has no redundancy term. Follow-up left for a
+    separate, reviewed change.
+    Adjacent: `be/test/support/assert-disposable-database.ts` — a minimal fail-closed
+    guard (shared by the scale + competitive e2e) that refuses to `TRUNCATE` a
+    non-disposable DB; NOT the full DB-hardening (§15-16 of the pool-hardening plan
+    still owns that); `be/test/integration/support/test-db.ts` untouched. CI
+    `e2e-deterministic` gets `ALLOW_DESTRUCTIVE_TEST_DB=1` (its pg service is ephemeral
+    but named `zigzag`).
+  - Verified 2026-09-10 (vs a `zigzag_test` DB): `yarn typecheck` 0; `yarn build`
+    clean; `yarn test --runInBand` 125 suites / 1001 tests; `yarn test:acceptance`
+    20 / 30; `yarn test:integration` 11 / 16; **`yarn test:e2e --runInBand` 4 suites /
+    40 tests** (`app` 1 · `experience-selection-scale` 7, unchanged · `assert-disposable
+    -database` 15 · `experience-selection-competitive` 17); scoped `eslint` on the new
+    files clean. (A full-repo `lint:check` in this working tree also flags files from a
+    concurrent auth-domain session — not part of any Phase 7 commit; a pre-existing
+    committed prettier error in `canonical-orchestration.integration-spec.ts` from
+    `cd33395` was fixed in `82d6308`.)
   - F is complete: the durable `yarn test:integration` category runs the real
     productive orchestration (`ExperienceGenerationService.generateTourExperiences` →
     coverage → `buildAcquisitionPlan` → `executePlan` incl. web SourcePlan →
@@ -151,8 +188,11 @@ Canonical design: `docs/superpowers/specs/2026-09-06-multi-source-acquisition-de
   embeddings were intentionally unavailable to keep this measurement focused on
   acquisition. No production discovery/ranking architecture, quality subsystem,
   curation schema, or status was added. Human labels remain `UNREVIEWED`.
-- **Engine Quality Gate G NOT STARTED · Argentina Live Smoke H NOT STARTED · Phase 7
-  overall NOT CLOSED.**
+- **Engine Quality Gate G COMPLETE (2026-09-10) · Argentina Live Smoke H NOT STARTED ·
+  Phase 7 overall NOT CLOSED.** See
+  `docs/superpowers/plans/2026-09-10-engine-quality-benchmark.md` and the Current State
+  block for the G design + results (5 counterfactuals, all Outcome A, no production
+  change; Finding CP-G-DIV-1 = set-level diversity unimplemented, a finding not a bug).
 
 - Previous milestone: pre-Phase-7 hardening — `TraitDefinition` concurrency-safe
   resolution; `ExperienceCandidate` controlled-facet contract; explicit
