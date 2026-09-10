@@ -10,6 +10,7 @@ import { TransportationMode } from '../src/modules/tours/interfaces/tour-generat
 import { normalizeWizardFacet } from '../src/modules/tours/utils/preference-facet-merge.util';
 import { LangChainService } from '../src/shared/ai/langchain.service';
 import { AiEmbeddingService } from '../src/shared/ai/services/ai-embedding.service';
+import { assertDisposableDatabase } from './support/assert-disposable-database';
 
 jest.setTimeout(240_000);
 
@@ -734,6 +735,7 @@ describe('Experience V2 CP8 mandatory selection scenarios at scale', () => {
   });
 
   async function truncateAll() {
+    assertDisposableDatabase();
     await prisma.$executeRawUnsafe(`
       TRUNCATE TABLE
         "tour_experience_component", "tour_experience", "outbox_event", "tour",
@@ -745,6 +747,7 @@ describe('Experience V2 CP8 mandatory selection scenarios at scale', () => {
   }
 
   async function resetScenarioData() {
+    assertDisposableDatabase();
     await prisma.$executeRawUnsafe(`
       TRUNCATE TABLE
         "tour_experience_component", "tour_experience", "outbox_event", "tour",

@@ -147,6 +147,11 @@ jobs:
           DIRECT_URL: postgresql://postgres:postgres@localhost:5432/zigzag
           NODE_ENV: test
           ENABLE_AI: "false"
+          # The e2e specs TRUNCATE the whole database. The service DB above is
+          # ephemeral (fresh per run) but named `zigzag`, so the disposable-DB
+          # guard (be/test/support/assert-disposable-database.ts) needs this
+          # explicit opt-in.
+          ALLOW_DESTRUCTIVE_TEST_DB: "1"
           JWT_ACCESS_SECRET: ci-access-secret-that-is-not-used-in-production
           JWT_REFRESH_SECRET: ci-refresh-secret-that-is-not-used-in-production
       - name: Playwright deterministic suite
