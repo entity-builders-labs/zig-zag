@@ -300,6 +300,15 @@ CHAR-4). This resolves G.1 group B.
 - **No `dimensionedFacets` in v1.** Even the good model over-reached on
   `tourism_intensity:iconic` from marketing copy. `exploration_style` is
   handled by §5.4 instead.
+- **Prompt guardrails (from probe #2, §8.1 Finding E).** The model surfaced a
+  canonical theme wherever its word appeared: `theme:wine` for a venue that
+  merely "serves wine" (`vino` in a Places editorial), `theme:tango` for a
+  historic café that happens to host tango. The prompt must state: emit a
+  canonical theme only when the place is substantially *about* that theme, not
+  when the word appears incidentally in a menu / amenity list; prefer `traits`
+  ("serves wine", "occasional live tango") for incidental facts. This is
+  precision tuning, not a structural change — the deterministic normalizer still
+  clamps vocabulary regardless.
 - **Deterministic bracket:** identity resolution (5a, deterministic) before;
   `normalizeExperienceCandidateFacets` (controlled-vocab clamp) + a new
   trait-shape guard (must be a short string, not a canonical key, not a
@@ -357,6 +366,14 @@ notability proxy, Wikivoyage-listed as a signal). Applied **once** — the
 normalizer passes the raw `0..5`, the solver's `qualityWeight` acts on it
 directly (fixes CHAR-6's double-attenuation and contract mismatch).
 
+**Experiences with no rating (from probe #2, §8.1 Finding C).** A route-shaped or
+area-scoped Experience (a neighborhood walk, a thematic route) has no Places
+`rating`. Its quality is derived from: the notability of its resolved components
+(their own `qualityScore`s), Wikivoyage-listed, and Wikidata sitelink counts of
+its components. It is never assigned a flat default that silently clears the
+quality floor. If none of those signals exist, its quality is `null` and it is a
+**weak** match (§5.6a), not a strong one.
+
 ### 5.6a Definitions used above
 
 - **Strong match** for a facet = `experienceSatisfies(dimension, key)` is true
@@ -371,13 +388,53 @@ directly (fixes CHAR-6's double-attenuation and contract mismatch).
 
 ### 5.7 Composition = deterministic set-cover
 Greedy, deterministic, taste-free. Identical `PreferenceSpec` + identical
-catalog → deep-equal `CompositionResult`. Anchors: `priority: soft` = a strong
-inclusion tilt (matches the "positive preferences are always soft" invariant);
-`priority: must` (only when the interpreter is confident the text was emphatic)
-= hard include if the place resolves. Multi-facet Experiences are preferred
-(one slot covers more of the spec). No privileged global score — an Experience's
-"worth" is its preference-match strength + quality + similarity within its
-facet.
+catalog → deep-equal `CompositionResult`. No privileged global score — an
+Experience's "worth" is its preference-match strength + quality + similarity
+within its facet.
+
+**Only real, schedulable Experiences enter composition (from probe #2, §8.1
+Finding D).** A candidate is eligible only if it is an `Experience` with **≥1
+resolved `ExperienceComponent`** (a real `GeoEntity` with coordinates). A bare
+`AREA` or `ROUTE` `GeoEntity` with no wrapping Experience / no components is
+**never** a selectable pick — it is geographic reality, not a schedulable unit
+(Experience Domain V2 invariant). In probe #2 a bare "San Telmo" neighborhood
+polygon leaked in as a schedulable Experience and trivially "covered" every
+facet because a whole neighborhood contains everything. The composition MUST
+reject any candidate lacking components before facet matching.
+
+**Anchor semantics by kind (refines the earlier soft/must model).**
+- `anchor.kind = venue` (e.g. Teatro Colón) → a candidate Experience like any
+  other, with a strong inclusion tilt. `priority: must` (only if the interpreter
+  is confident the text was emphatic) = hard-include if it resolves.
+- `anchor.kind = area` (e.g. San Telmo) or `route` → **never** a selected stop.
+  It becomes (a) a **retrieval-scope bias**: per-facet retrieval (Stage 3)
+  prefers Experiences whose components fall inside the anchor's polygon; and
+  (b) a **trigger to acquire/compose a real multi-stop walk Experience** for
+  that area (a neighborhood-walk-shaped Experience whose components — plazas,
+  streets, landmarks — are resolved through OSM/Places, with the AREA as its
+  boundary). That resolved walk Experience is what can be selected; the bare
+  polygon cannot.
+
+**Best-in-facet reservation (from probe #2, §8.1 Finding A).** Pure multi-facet
+greedy can drop the single strongest match for a facet. Before the multi-facet
+fill, **reserve the top-k strongest matches per requested facet** (k derived
+from `days × pace`, ≥1), ranked by match strength → quality → similarity. A
+monothematic but dominant match for a facet (e.g. a dedicated tango-show venue
+for `intent:performance`) is guaranteed a slot; multi-facet Experiences then
+fill the remainder. Match *strength* (grounded facet + high quality + on-theme
+primary type) outranks facet *count*.
+
+**`performance` is not `theme` (from probe #2, §8.1 Finding B).** When the
+interpreter reads "ver un show / un espectáculo / a live performance of X", it
+emits **`intent:performance` alongside** `theme:X`, not `theme:X` alone. A
+requested `intent:performance` is satisfied only by an Experience the classifier
+grounded as an actual performance (a venue with shows / a listed event) — a
+place that is merely *themed* around X does not satisfy it. `theme:X` alone is
+still satisfied by ambiance-level matches.
+
+Multi-facet Experiences are preferred *within* the remainder fill (one slot
+covers more of the spec). Hard exclusions drop any matching candidate before
+any of the above.
 
 ### 5.8 Preference authority survives end-to-end
 `RequestedFacet.weight` flows into `PlanningExperienceCandidate.preferenceWeight`;
@@ -485,22 +542,57 @@ is unchanged in spirit — it just gates on the refactored core.
 
 ---
 
-## 8. The Buenos Aires dry-run (probe)
+## 8. Executable probes
 
 `docs/superpowers/characterization/2026-09-10-preference-first-buenos-aires-dry-run.md`
-records a manual end-to-end execution of this flow against **real providers**
-for a **cold Buenos Aires catalog**, with a representative search (history +
-architecture + tango, `explorationStyle: iconic`, free text naming San Telmo and
-Teatro Colón). Real calls: Groq (interpret + classification), Nominatim, Google
-Places (wide field mask), Overpass, Tavily, Gemini flash-lite (entity
-extraction), Wikidata. It produced a coherent 2-day itinerary where **every stop
-maps to a requested facet with grounded evidence** (Teatro Colón classified
-`architecture/music/history` from its real editorial + tour description; a real
-4.8-rated tango venue at the right evening slot; no stadiums, no
-empty-metadata museums), and `exploration_style` correctly showed as
-"unmet-by-design" in v1. It also confirmed the Places field-mask widening
-(§5.5) is load-bearing. That doc is the empirical evidence this design's shape
-works end to end.
+records **two probes** against real providers for a **cold Buenos Aires
+catalog** (history + architecture + tango; anchors San Telmo + Teatro Colón).
+
+- **Probe #1 (manual):** the full 11-stage flow driven by hand. Produced a
+  coherent 2-day itinerary where every stop mapped to a requested facet with
+  grounded evidence. Confirmed the Places field-mask widening (§5.5) is
+  load-bearing (`editorialSummary` is what produced Teatro Colón's
+  `architecture`/`music` signal).
+- **Probe #2 (executable):** real acquisition → real identity/corroboration →
+  **real Groq classification of all 12 bundles** → in-memory per-facet retrieval
+  using the **real** `candidateMatchesPreferenceFacet` + `normalizeExperienceCandidateFacets`
+  → in-memory deterministic set-cover. Output: a `CompositionResult` with
+  per-facet coverage, the selected set, why each entered, and unmet facets.
+  Every requested facet was covered by ≥1 strong grounded match; `unmetFacets`
+  was empty.
+
+Both probes validate the core shape. Probe #2 also surfaced concrete
+refinements, folded into §5 above:
+
+### 8.1 Findings from probe #2
+
+- **A — best-in-facet reservation.** Pure multi-facet greedy dropped **Bar Sur**
+  (the strongest dedicated tango-show venue, 4.8/1869) because it covered only
+  `theme:tango`; a multi-facet alternative was picked instead. The user still
+  got a tango show *by luck*, not by design. → §5.7 reserves the top-k strongest
+  matches per facet before the multi-facet fill; match *strength* outranks facet
+  *count*.
+- **B — `performance` is not `theme`.** `theme:tango` conflates "tango ambiance"
+  (a historic café) with "a tango performance". "Ver un show" must become
+  `intent:performance` at interpretation, and a requested `intent:performance`
+  must require a real performance venue. → §5.7 + interpreter contract.
+- **C — quality for un-rated Experiences.** An area/route Experience has no
+  Places `rating`; a flat default silently cleared the quality floor. → §5.6
+  derives quality from resolved-component notability instead; `null` → weak
+  match, not strong.
+- **D — anchor semantics / what can be an Experience.** A bare "San Telmo"
+  neighborhood polygon (a `sublocality` `GeoEntity`, no rating, **no
+  components**) leaked in as a schedulable Experience and trivially "covered"
+  every facet. → §5.7: only Experiences with ≥1 resolved component enter
+  composition; an `area`/`route` anchor is a retrieval-scope bias + a trigger to
+  acquire a real multi-stop walk Experience, never a selected stop. D also
+  absorbs the "thin `walk`" observation — point POIs classify as `visit`, so
+  `intent:walk` / `route_like` genuinely wants a resolved multi-stop route
+  Experience.
+- **E — classifier theme over-reach.** `theme:wine` for a venue that merely
+  serves wine; `theme:tango` for a café that hosts occasional tango. → §5.3
+  prompt guardrail (theme only when the place is substantially *about* it);
+  incidental facts go to `traits`.
 
 ---
 
@@ -535,7 +627,7 @@ from the CI-blocking gate until its `it.failing()` invariants flip (see 9.5).
 | **KEEP (expanded)** | `preference-facet-matching.util.spec.ts` — becomes the spec for THE match primitive; absorbs the useful cases from `experience-preference-evaluator.util.spec.ts`. `structured-candidate-corroboration.service.spec.ts` — + catalog fold-in cases. OSM/Wikivoyage/Places acquisition provider specs — + evidence-preservation assertions (§5.5). `greedy-daily-planning.*` acceptance unit specs — candidate inputs gain `preferenceWeight`; add a "preference term changes placement" case. |
 | **CHANGE** | `planning-candidate-normalizer.service.spec.ts` (carries `preferenceWeight` + raw quality), `daily-planning-placement.util.spec.ts` / `daily-planning-candidate-sort.util.spec.ts` (preference term in soft score + greedy order), `candidate-overlap-filter.util.spec.ts` (tie-break by "covers more spec"), `theme-matching.util.spec.ts` (only the trace-safe subset survives; `matchesThemeKeywords`-over-`JSON.stringify` deleted), `generation-trace-builder.util.spec.ts` (v4 + per-facet + primitive-based "what matched") |
 | **REMOVE** | `structured-experience-candidate-synthesizer.service.spec.ts` (service removed), `candidate-ranking.util.spec.ts` (big-pool sort removed — a much smaller `within-facet-ordering.spec.ts` replaces it), `candidate-window-selection.util.spec.ts` (`selectBoundedWindow` removed), `coverage-analyzer.service*.spec.ts` (monolith removed — `facet-sufficiency.spec.ts` replaces it), the theme/trait *extraction* cases in the discovery-extractor specs (Stage 4c extracts names only; anti-hallucination name-grounding cases stay and move to `web-entity-extraction.spec.ts`) |
-| **NEW** | `preference-spec-builder.spec.ts` (Stage 1 merge, anchors, wizard+free-text precedence), `facet-router.spec.ts` (Stage 4a routing table, per-facet provider actions, `exploration_style` not routed), `iconicity.util.spec.ts` (deterministic score), `semantic-classification-normalizer.spec.ts` (Stage 6b + trait-shape guard: rejects sentences, canonical keys, empty), `quality-score.util.spec.ts` (Stage 6c deterministic function), `composition-set-cover.spec.ts` (Stage 9: covers every facet, drops exclusions, forces anchors, prefers multi-facet, deterministic), `merge-metadata.spec.ts` (order-independence — promoted from characterization CHAR-8), `within-facet-ordering.spec.ts` |
+| **NEW** | `preference-spec-builder.spec.ts` (Stage 1 merge, anchors, wizard+free-text precedence), `facet-router.spec.ts` (Stage 4a routing table, per-facet provider actions, `exploration_style` not routed), `iconicity.util.spec.ts` (deterministic score), `semantic-classification-normalizer.spec.ts` (Stage 6b + trait-shape guard: rejects sentences, canonical keys, empty), `quality-score.util.spec.ts` (Stage 6c deterministic function), `composition-set-cover.spec.ts` (Stage 9: covers every facet, drops exclusions, prefers multi-facet, deterministic — **plus probe #2 guards:** best-in-facet reservation not dropped by multi-facet fill [Finding A]; a bare `AREA`/`ROUTE` `GeoEntity` with no components is rejected before matching [Finding D]; `intent:performance` unsatisfied by an ambiance-only themed place [Finding B]), `anchor-semantics.spec.ts` (`kind:venue` → candidate; `kind:area`/`route` → scope bias + walk-acquisition trigger, never a stop — Finding D), `merge-metadata.spec.ts` (order-independence — promoted from characterization CHAR-8), `within-facet-ordering.spec.ts` |
 
 ### 9.2 Integration (`be/test/integration/`, real Postgres)
 
@@ -643,7 +735,17 @@ the refactor branch merges.
 - **D3 — Anchor `must` semantics.** May the interpreter ever emit
   `anchor.priority: must` (hard include), or is every anchor `soft` in v1?
   Recommended: `soft` only in v1; `must` deferred with the named-request
-  product decision.
+  product decision. **Note (probe #2 Finding D):** this applies only to
+  `anchor.kind = venue`. An `area`/`route` anchor is *never* a hard-included
+  stop regardless of priority — it is always a retrieval-scope bias + a
+  walk-Experience acquisition trigger (§5.7).
+- **D5 — Area-anchor walk acquisition in v1.** When an `area` anchor is present
+  and the user requested `intent:walk` / `route_like`, does v1 actually acquire
+  and compose a real multi-stop walk Experience for that area (uses the existing
+  composite/`NEIGHBORHOOD_WALK` resolution path), or does v1 only apply the
+  retrieval-scope bias and leave the walk Experience to a later increment?
+  Recommended: acquire the walk Experience in v1 — otherwise `intent:walk` is
+  chronically thin for point-POI cities (probe #2).
 - **D4 — Phase renumbering.** Adopt §7.4 (redefine "Phase 7 CLOSED" as
   "preference-first core stable"), or keep Phase 7 numbering and call
   preference-first "Phase 8"? Recommended: §7.4.
@@ -667,6 +769,15 @@ the refactor branch merges.
    in the live path.
 7. `PreferenceInterpreterService` and the agent's request interpreter are one
    component (§7.3).
+10. **No bare `AREA` / `ROUTE` `GeoEntity` in a `CompositionResult`** — every
+    selected item is an `Experience` with ≥1 resolved `ExperienceComponent`
+    (probe #2 Finding D), proven by a test.
+11. **Best-in-facet reservation holds** — a test proves the single strongest
+    match for a facet is not dropped by the multi-facet fill (probe #2
+    Finding A).
+12. **`intent:performance` requires a performance venue** — a test proves an
+    ambiance-only themed place does not satisfy a requested `intent:performance`
+    (probe #2 Finding B).
 8. `yarn workspace backend check` shows no new tsc/lint errors vs the documented
    baseline.
 9. Argentina live smoke (ex-"Phase 7 H") green against the refactored core.

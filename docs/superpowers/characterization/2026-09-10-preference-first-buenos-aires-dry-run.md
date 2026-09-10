@@ -1,8 +1,17 @@
-# Preference-first flow — Buenos Aires cold-catalog dry-run (probe)
+# Preference-first flow — Buenos Aires cold-catalog probes
 
 Status: **probe / empirical evidence. Docs-only.** Companion to
 `docs/superpowers/specs/2026-09-10-preference-first-selection-and-agent-convergence-design.md`
 (§8). Run: 2026-09-10. Branch: `feat/experience-domain-v2`, HEAD `1aa6d10`.
+
+Two probes, same cold Buenos Aires catalog:
+- **Probe #1 (manual)** — the full 11-stage flow driven by hand; sections
+  "Purpose" through "Formalization" below.
+- **Probe #2 (executable)** — real acquisition + real Groq classification of all
+  bundles + in-memory retrieval using the *real* match primitive + in-memory
+  deterministic set-cover, producing a `CompositionResult`; section
+  "## Probe #2" near the end. Probe #2 surfaced findings A–E, folded into design
+  §5 and §8.1.
 
 ## Purpose
 
@@ -189,7 +198,73 @@ Mayo, San Telmo — but v1 cannot assert it) · anchors San Telmo & Teatro Coló
 
 ## Formalization
 
-This dry-run becomes `be/test/live/preference-first-buenos-aires.live-spec.ts`
-in the refactor (design §9.6): real providers, cold catalog, the same
-`PreferenceSpec`, asserting `perFacetCoverage` covers the requested facets and
-every selected Experience carries a grounded classification.
+Both probes become `be/test/live/preference-first-buenos-aires.live-spec.ts` in
+the refactor (design §9.6): real providers, cold catalog, the same
+`PreferenceSpec`, asserting `perFacetCoverage` covers the requested facets, every
+selected item is an `Experience` with resolved components, and the best-in-facet
+match for each facet is present.
+
+---
+
+## Probe #2 — executable (real classification + real primitive + set-cover)
+
+**Input** (structured `PreferenceSpec`, no free-text interpret this time):
+themes `[history, architecture, tango]`, intents `[visit, walk]`, anchors
+`[San Telmo (area), Teatro Colón (venue)]`, style `balanced`, 2 days / moderate.
+
+**What ran for real:** Overpass, Google Places text search (wide field mask),
+Tavily (3 facet queries), Wikidata, Gemini flash-lite (entity extraction) →
+**12 evidence bundles** → **12 real Groq `qwen/qwen3.8-27b` classification
+calls** (temp 0, evidence-only, no dimensioned facets) → in-memory per-facet
+retrieval via the **real** `candidateMatchesPreferenceFacet` +
+`normalizeExperienceCandidateFacets` (imported, not reimplemented) → in-memory
+deterministic set-cover. No persistence, no planner.
+
+**Classification sample (real Groq output):**
+
+| Experience | themes | intents | grounding example |
+|---|---|---|---|
+| Teatro Colón | architecture, history, music, entertainment | visit, walk | *"architecture, stairs, sculptures, vitreaux during the tour"* `[web:architecture:0-2]` |
+| Bar Sur | tango, music, wine, food | performance, food | *"espectáculos de tango en directo"* `[places:bar-sur, web:tango:0]` |
+| Museo Histórico Nacional del Cabildo | history, culture | visit | *"edificio gubernamental colonial… artículos patrimoniales"* `[places:…, web:history:3]` |
+| Monumento al Gral. San Martín (OSM-only) | history | visit | conservative — thin evidence |
+
+**`CompositionResult`:**
+- **Per-facet coverage:** `history` ✅ · `architecture` ✅ · `tango` ✅ ·
+  `visit` ✅ · `walk` ✅ — **`unmetFacets` = []**.
+- **Selected (8):** San Telmo, Teatro Colón, Plaza de Mayo, Café Tortoni, Plaza
+  Dorrego, Manzana de las Luces, Monumento de los Españoles, El Querandí.
+- Every requested facet covered by ≥1 strong grounded match. Anchors forced.
+
+**Findings (folded into design §5 / §8.1):**
+
+- **A — best-in-facet reservation.** **Bar Sur** (strongest dedicated tango-show
+  venue, 4.8/1869) was *not* selected — it covers only `theme:tango`, and the
+  greedy multi-facet fill preferred alternatives. The user still got a tango
+  show (El Querandí is also a dinner-show) by luck, not design. → reserve top-k
+  strongest per facet before the multi-facet fill.
+- **B — `performance` ≠ `theme`.** `theme:tango` was "covered" by a historic
+  café and by a neighborhood; that is ambiance, not a show. "Ver un show" must
+  become `intent:performance` and require a real performance venue.
+- **C — quality for un-rated Experiences.** "San Telmo" (area, no rating) got a
+  flat `q=3.5` that cleared the quality floor. Un-rated Experiences must derive
+  quality from component notability; `null` → weak match.
+- **D — anchor semantics / what is an Experience.** "San Telmo" resolved to a
+  bare `sublocality` `GeoEntity` — **no rating, no components** — and was
+  classified from web articles *about the neighborhood* (`[tango, history,
+  culture, architecture]`), then force-included as a schedulable stop that
+  trivially "covered" every facet. A bare `AREA`/`ROUTE` is geographic reality,
+  never a schedulable unit (Experience Domain V2). An `area` anchor must be a
+  retrieval-scope bias + a trigger to acquire a real multi-stop walk Experience;
+  the bare polygon cannot be selected. D also absorbs the observation that
+  `intent:walk` was thin (only Teatro Colón + Plaza de Mayo without the area
+  cheat) — point POIs classify as `visit`; `walk`/`route_like` wants a resolved
+  multi-stop route Experience.
+- **E — classifier theme over-reach.** `theme:wine` for Bar Sur / El Querandí
+  (from "vino" / "bebidas alcohólicas"); `theme:tango` for Café Tortoni (hosts
+  occasional tango). → prompt guardrail: canonical theme only when the place is
+  substantially *about* it; incidental facts → `traits`.
+
+**Verdict:** the core (per-facet retrieval with the real primitive + set-cover)
+works on real cold BA data — a preference-correct, fully-covered, grounded set
+with zero unmet facets. Findings A–E are refinements to §5, not shape changes.
