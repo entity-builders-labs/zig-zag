@@ -801,3 +801,246 @@ corrupted `Experience` (e.g. `qualityScore: NaN`, or `latitude: NaN` /
 
 ### Next task
 `A7 — Iconicity util`
+
+---
+
+## Checkpoint A — Task A6.1 — COMPLETE (review fix, A6 still not independently re-approved)
+
+- Branch: `feat/preference-first-selection`
+- Base commit: `37e38d51ed52aa6c285b8c14b64aa912b47c0785`
+- Original A6 implementation SHA (unchanged, not rewritten): `e4e89886ea6205b1202b5f221551ae78f397e6c9`
+- A6.1 implementation commit: `dc951aa36a8f03c800c2a092d3555fc4b525acb7`
+- Plan task: `A6.1 — PostGIS Geospatial Catalog Boundary Review Fix`
+- Status: COMPLETE
+
+### Review context
+A6's semantics were accepted (canonical facet matcher, A5 strongness, weak
+= match-but-not-strong, A4 satisfaction, deterministic bucket ordering, no
+embeddings in coverage, no live wiring) but its geography boundary was
+review-blocked: `FACET_RETRIEVAL_LIMIT = 2000` over
+`ExperienceCatalogService.findVerifiedWithin` only moved the failure
+threshold of a bounded JS/Prisma scan-then-filter; it did not eliminate
+arbitrary truncation before semantic matching. See
+`docs/superpowers/progress/2026-09-11-a6-review-correction.md`,
+`docs/superpowers/plans/2026-09-11-a6-1-postgis-geospatial-catalog-boundary.md`,
+`docs/superpowers/specs/2026-09-11-postgis-geospatial-catalog-boundary.md`.
+
+### Implemented
+- **Docker**: `postgres.Dockerfile` (new, repo root) extends
+  `pgvector/pgvector:pg15` (inspected first: Debian 12/bookworm, PGDG apt
+  repo already configured) with `postgresql-15-postgis-3` +
+  `postgresql-15-postgis-3-scripts`. `docker-compose.yml`'s `postgres`
+  service now builds this (`image: zigzag-postgres-pgvector-postgis:pg15`)
+  instead of using `pgvector/pgvector:pg15` directly.
+- **Migration** `be/prisma/migrations/20260911233115_add_postgis_extension/migration.sql`
+  (new, forward-only -- no historical migration edited): `CREATE EXTENSION
+  IF NOT EXISTS "postgis"` (vector untouched/still enabled) plus a partial
+  GiST expression index:
+  `CREATE INDEX IF NOT EXISTS "geo_entity_location_gist_idx" ON "geo_entity"
+  USING GIST ((ST_SetSRID(ST_MakePoint(longitude, latitude),
+  4326)::geography)) WHERE latitude IS NOT NULL AND longitude IS NOT
+  NULL`. No new persisted location column -- reuses existing
+  `GeoEntity.latitude`/`longitude`. `schema.prisma`'s datasource
+  `extensions` is now `[vector, postgis]`.
+  `prisma migrate dev --create-only` also proposed an unrelated `DROP
+  INDEX "experience_embedding_hnsw_idx"` (that HNSW index has no
+  schema.prisma attribute, so Prisma's diff engine sees it as drift,
+  exactly like the pre-existing Activity HNSW index before it) --
+  removed that line before applying; confirmed the index still exists
+  after migrating.
+- **`ExperienceCatalogService.findVerifiedWithinForMatching(latitude,
+  longitude, radiusMeters)`** (new method): one parameterized `$queryRaw`
+  joining `experience` → `experience_component` → `geo_entity`, keeping
+  VERIFIED Experiences with >=1 component whose GeoEntity lat/lng are
+  finite and in range (`BETWEEN -90 AND 90` / `BETWEEN -180 AND 180` --
+  empirically confirmed in-session this also excludes
+  `NaN`/`Infinity`/`-Infinity`, matching A5's validity contract) and
+  within `radiusMeters` via `ST_DWithin` on `::geography` (real meters).
+  Distance for ordering is `MIN(...)` per Experience (`GROUP BY e.id`),
+  `ORDER BY distance ASC, id ASC`. No `LIMIT`/`take` of any
+  correctness-visible kind; IDs are hydrated via the existing
+  `findVerifiedByIds` in internal batches (`HYDRATION_BATCH_SIZE = 500`,
+  a performance detail only) while preserving the full PostGIS order. A
+  bare Experience with no component is structurally unreachable (the
+  joins require a real `ExperienceComponent` row).
+- **`FacetRetrievalService`**: removed `FACET_RETRIEVAL_LIMIT = 2000` and
+  the `findVerifiedWithin(..., 2000)` call entirely; now calls
+  `findVerifiedWithinForMatching(lat, lng, radius)` (3 args, no limit).
+  `requestedFacetToPreferenceFacet` / `isStrongFacetMatch` /
+  `candidateMatchesPreferenceFacet` / `facetSatisfied` / strongest-first
+  ordering / `StrongMatchPolicy` passthrough are all unchanged.
+- **Test infra**: `test/integration/support/seed.ts` gained
+  `bulkSeedFillerExperiences` (a few parameterized `INSERT ... SELECT ...
+  FROM unnest(...)` statements instead of thousands of serial round
+  trips) and an optional `id` override on `seedVerifiedExperience` (needed
+  to force deterministic id-ordering for the global-scan regression).
+
+### Confirmations requested by the plan
+- **`vector` + `postgis` both present**, verified from a clean volume:
+  ```
+   extname
+  ---------
+   vector
+   postgis
+  ```
+- **`FACET_RETRIEVAL_LIMIT = 2000` is gone.** `grep -n
+  "FACET_RETRIEVAL_LIMIT" src/modules/tours/services/facet-retrieval.service.ts`
+  matches nothing; the constant and the `findVerifiedWithin(...,
+  FACET_RETRIEVAL_LIMIT)` call site were deleted, not just renamed/raised.
+- **No A7 work started** — no `iconicity` file/code/tests exist on this
+  branch; only A6.1's own files were touched.
+
+### Files changed
+- `postgres.Dockerfile` (new)
+- `docker-compose.yml`
+- `be/prisma/schema.prisma`
+- `be/prisma/migrations/20260911233115_add_postgis_extension/migration.sql` (new)
+- `be/src/modules/tours/services/experience-catalog.service.ts`
+- `be/src/modules/tours/services/facet-retrieval.service.ts`
+- `be/src/modules/tours/services/facet-retrieval.service.spec.ts`
+- `be/test/integration/support/seed.ts`
+- `be/test/integration/tour-generation/catalog-retrieval.integration-spec.ts`
+- `be/test/integration/tour-generation/facet-retrieval.integration-spec.ts`
+
+### Verification
+- Clean-volume Docker rebuild: stopped/removed the old `zigzag-postgres`
+  container, removed only the `ui-redesign_postgres_data` volume (left
+  `ollama_data`/`overpass_argentina_data` and every other project's
+  volumes on the machine untouched), `docker compose --profile dev build
+  postgres` → built successfully, `docker compose --profile dev up -d
+  postgres` → healthy.
+- `cd be && yarn prisma:deploy` → all 15 pre-existing historical
+  migrations applied cleanly from empty, then the new
+  `20260911233115_add_postgis_extension` applied cleanly (after removing
+  the unrelated proposed `DROP INDEX` line as described above).
+- `cd be && yarn prisma:generate` → PASS, no errors.
+- `docker exec zigzag-postgres psql ... SELECT extname FROM pg_extension
+  WHERE extname IN ('vector','postgis')` → both present, confirmed twice
+  (once manually before the migration to sanity-check package
+  installation, once for real after a from-scratch `migrate deploy`).
+- `docker exec zigzag-postgres psql ... \d geo_entity` → shows
+  `geo_entity_location_gist_idx` (gist,
+  `st_setsrid(st_makepoint(longitude, latitude), 4326)::geography`,
+  `WHERE latitude IS NOT NULL AND longitude IS NOT NULL`).
+- `docker exec zigzag-postgres psql ... SELECT indexname FROM pg_indexes
+  WHERE indexname = 'experience_embedding_hnsw_idx'` → still present
+  (confirms the diff-engine's proposed `DROP INDEX` was correctly excluded
+  from the applied migration, not just described as excluded).
+- Smoke-tested the raw SQL + bulk-seed helper directly via a throwaway
+  ts-node script before writing the full jest suite (found target among
+  5 fillers); script deleted before committing.
+- `cd be && yarn test src/modules/tours/services/facet-retrieval.service.spec.ts`
+  → PASS — 6/6 (bucketing/ordering/satisfied/policy-passthrough/bare-row
+  unit semantics unchanged; the old "generously large limit" test replaced
+  with "no result-limit argument at all", asserting the mocked call has
+  exactly 3 arguments).
+- `cd be && yarn test:integration --testPathPattern=facet-retrieval` →
+  PASS — 4/4 (single-strong-match satisfied; name-without-theme
+  non-match; bare row now excluded from BOTH strong and weak, since the
+  PostGIS boundary never returns it at all -- adapted from A6's old
+  weak-inclusion requirement, which no longer applies; new "no embedding
+  authority" test: a real in-scope high-quality `tango`-themed Experience
+  carrying `metadata.semanticSimilarity: 0.99` still cannot enter
+  `history` strong/weak coverage).
+- `cd be && yarn test:integration --testPathPattern=catalog-retrieval` →
+  PASS — 8/8 (2 pre-existing + 6 new `findVerifiedWithinForMatching`
+  cases): a target beyond the old closest-2000 window (2001 tightly
+  clustered fillers) is still returned; a target whose id is the
+  lexicographically maximal UUID-shaped string is still returned among
+  8001 broadly-scattered fillers (this second regression's first draft
+  used a target at distance 0 from the center, which is trivially
+  closest regardless of any bug and so proved nothing -- caught by
+  deliberately reverting to the old implementation and observing it
+  still passed; fixed by forcing an explicit maximal id and raising the
+  filler count past the old `scanLimit=8000` threshold); radius truth
+  (inside/outside); multi-component nearest-distance-in-scope
+  (~55km-away primary component + ~110m-away extra component still in
+  scope); deterministic id tie-break at equal distance; bare row excluded
+  by the join itself (`toHaveLength(0)`).
+- **Verified the regression tests are not tautological**: temporarily
+  patched `findVerifiedWithinForMatching` in the working tree to delegate
+  to the old `findVerifiedWithin(..., 2000)`, reran — the two
+  scale-regression tests (closest-2000, global-scan) failed with
+  `Received array: []`/missing-target as expected, plus (on an earlier
+  draft with the smaller 3000-scatter global-scan case) the
+  multi-component and bare-row tests also failed for the expected
+  reasons (old `Experience.latitude`/`longitude`-authoritative behavior).
+  Restored the real implementation from a clean backup before
+  committing; reran the full suite green afterward.
+- `cd be && yarn typecheck` → PASS — no errors.
+- `cd be && npx eslint` on all files listed above → PASS — 0 problems (62
+  prettier-only formatting errors surfaced on the first pass across the
+  new/edited integration specs and service files, fixed with `--fix`,
+  then re-verified tests/typecheck stayed green).
+- `cd be && yarn test src/modules/tours` → PASS — 83 test suites / 753
+  tests, **unchanged** from before A6.1 (no regressions from the catalog
+  method change).
+- `cd be && yarn test:integration` (full suite) → PASS — 12 test suites /
+  26 tests (up from 12 suites / 20 tests before A6.1 -- the net of the 6
+  new catalog-retrieval PostGIS tests, facet-retrieval staying at 4).
+
+### Deviations from plan
+- None from A6.1's own required scope. One deliberate, disclosed test
+  refinement: the plan's item 2 ("old global-scan regression... unrelated
+  rows may be outside the radius") was initially implemented with the
+  target Experience placed at the exact query center (distance 0),
+  which -- caught by this session's own "verify against the old
+  implementation" discipline -- turned out to always be the closest row
+  regardless of whether the regression being tested was actually present,
+  so it passed even when reverted to the old bounded implementation. Fixed
+  by giving the target an explicit, deterministic, lexicographically
+  maximal UUID-shaped id and raising the filler count to exceed the old
+  `scanLimit` (8000 at A6's `FACET_RETRIEVAL_LIMIT=2000`), which now fails
+  correctly against the old implementation and passes against the new one.
+
+### Decisions taken
+- Placed the heavy scale-regression tests (>2000 rows, >8000 rows)
+  directly against `ExperienceCatalogService.findVerifiedWithinForMatching`
+  in `catalog-retrieval.integration-spec.ts`, rather than duplicating
+  them at the `FacetRetrievalService` level in
+  `facet-retrieval.integration-spec.ts`. This isolates the actual
+  regression-prone geography boundary from facet-matching-specific
+  concerns (strong/weak/satisfied, embedding non-authority), and
+  `FacetRetrievalService` has no geography logic of its own left to
+  regress now that it simply delegates to the catalog method with no
+  additional limit.
+- Added `bulkSeedFillerExperiences` (parameterized `unnest`-based bulk
+  insert) rather than seeding thousands of rows one at a time through the
+  existing `seedVerifiedExperience` helper, per the plan's explicit
+  "usá bulk SQL/efficient seeding" instruction. IDs are generated in JS
+  and correlated by array position across the `geo_entity` /
+  `experience` / `experience_component` inserts, avoiding any
+  data-modifying-CTE row-correlation complexity.
+- Removed the diff-engine-proposed `DROP INDEX
+  "experience_embedding_hnsw_idx"` from the generated migration by hand
+  rather than trying to make Prisma's schema aware of that raw-SQL-only
+  index (e.g. via an unsupported/awkward schema.prisma annotation) --
+  consistent with the existing codebase pattern of raw-SQL-only indexes
+  invisible to schema.prisma, and explicitly out of A6.1's scope to fix
+  more broadly.
+- Confirmed with the user in an earlier task (A6) that this shared
+  worktree's local Postgres is disposable dev/test data; treated
+  A6.1's own explicit instruction to reset from a clean volume as
+  already-authorized continuation of that, rather than re-asking, since
+  the plan itself specifies `docker compose down -v` / clean-volume
+  rebuild as a required verification step. Scoped the actual reset
+  narrowly (only the `postgres` service/container/volume; left
+  `ollama_data`, `overpass_argentina_data`, and every unrelated
+  project's Docker volumes on the machine untouched).
+
+### Open issues / debt
+- A6.1 is a review fix, not an independent new checkpoint task -- per
+  the plan, A6 (as corrected by A6.1) still awaits explicit review
+  approval before A7 may begin. This progress entry documents
+  completion of the required fix, not a self-granted approval.
+- `FacetRetrievalService`/`findVerifiedWithinForMatching` are still not
+  wired into any live orchestration path -- unchanged from A6, deferred
+  to Checkpoint D.
+- Same worktree pre-existing unrelated dirty files remain untouched
+  (`.env.example`, `Makefile`, `be/src/core/config/auth.config.ts`,
+  `fe/app.config.js`, `fe/app/(tabs)/profile.tsx`, `fe/app/(tabs)/saved.tsx`,
+  `fe/app/tours/[id].tsx`) -- unchanged since the A6 note, still not
+  authored by this task.
+
+### Next task
+`A7 — Iconicity util` (blocked until this A6.1 review-fix is explicitly approved)
