@@ -160,7 +160,8 @@ it is.
 │  FOR EACH new / unclassified evidence bundle:                      ││
 │    6a. classify ── LLM (Groq qwen/qwen3.8-27b, temp 0) ── ONE call  ││
 │        per bundle, sequential, bounded retry-on-429 (v1 — see D1); ││
-│        cached by hash(bundle + model_id + prompt_version)          ││
+│        SKIPPED if Stage 5 corroboration matched an existing catalog││
+│        Experience — reuse its metadata.classification (D2)         ││
 │        input: OSM tags + Wikivoyage prose/section + Places         ││
 │               editorial/types + web snippets + Wikidata narrative  ││
 │        output: themes[] intents[] traits[]                         ││
@@ -232,7 +233,7 @@ it is.
 | Wikidata narrative | Wikidata API | 4b, per OSM feature with a QID | 0–M | **0** |
 | Identity resolution | Places / OSM | 5a, disambiguation | 0–K | **0** |
 | **Web entity extraction** | **LLM Gemini flash-lite** | **4c, per web-search batch — names + evidenceKeys only** | **0–P** | **0** |
-| **Semantic classification** | **LLM Groq qwen3.8-27b** | **6a, per NEW evidence bundle — one call each, sequential, cached (v1; batching deferred, D1)** | **0–B** | **0** |
+| **Semantic classification** | **LLM Groq qwen3.8-27b** | **6a, per bundle Stage 5 could NOT match to an existing Experience — one call each, sequential (v1; batching deferred, D1; no separate cache, D2)** | **0–B** | **0** |
 | Document embedding | Gemini | 7b, per new Experience | 0–B | **0** |
 | Travel estimates | Geoapify (+ Haversine fallback) | 10b, per candidate pair | many, cheap/cached | many |
 | Media / cover | Wikimedia / image gen | 11b, async, off critical path | async | async |
@@ -314,9 +315,23 @@ CHAR-4). This resolves G.1 group B.
   `normalizeExperienceCandidateFacets` (controlled-vocab clamp) + a new
   trait-shape guard (must be a short string, not a canonical key, not a
   sentence) after. The raw LLM output is never persisted directly.
-- **Caching:** keyed by `hash(evidence_bundle + model_id + prompt_version)`.
-  Shared landmarks and re-runs are free. A prompt/model improvement bumps
-  `prompt_version` and triggers a batch re-classification job, not a re-crawl.
+- **Caching (§11 D2 — RESOLVED 2026-09-11): no separate cache store.** Stage 5
+  corroboration already runs before Stage 6 and already knows whether a bundle
+  matches an existing catalog Experience (§5b, "fold in matching catalog rows
+  — enrich, not duplicate"). When it does, Stage 6 is **skipped** and the
+  Experience's already-persisted `metadata.classification` is reused — "shared
+  landmarks / re-runs are free" falls out of that, no cache table needed. A
+  prompt/model improvement bumps `prompt_version` and the batch
+  re-classification job is a direct Prisma query,
+  `Experience.metadata.classification.prompt_version != current`, not a
+  separate store to maintain. This leaves one narrow, accepted race: two
+  near-simultaneous requests independently discovering the *same brand-new*
+  (never-before-classified) entity both call Stage 6 for it; the existing
+  `pg_advisory_xact_lock` in `persistVerifiedExperience` already dedupes them
+  at persist time — a wasted-but-harmless extra LLM call, not worth a cache
+  subsystem to prevent. No new table (`experience_classification_cache`
+  dropped) and no use of `AiCacheService` (it is a dev/test tool — off by
+  default, file-based, no query capability — not a fit for this regardless).
 - **Failure:** on LLM error/timeout the Experience persists with `themes:[]`
   (today's behavior) — degraded, not blocking. A later re-classification pass
   picks it up.
@@ -473,8 +488,7 @@ Minimal. This design does **not** add `TourStop` / `OperationalStop` /
 | Populate `Experience.qualityScore` | column already exists | no migration |
 | `TraitDefinition.dimension` gets real values | column exists | no migration; a backfill job for existing `'general'` rows is optional and separate |
 | `generationTrace` v4 shape | `Tour.metadata` JSON | no migration |
-| `Experience.metadata.classification` sub-object (reasoningEvidence, model_id, prompt_version) | JSON | no migration |
-| Classification cache | a new small table `experience_classification_cache` OR the file cache (`AiCacheService` pattern) | decision D2 (§11) |
+| `Experience.metadata.classification` sub-object (reasoningEvidence, model_id, prompt_version) | JSON | no migration; doubles as the classification cache (D2 — no separate store) |
 
 ---
 
@@ -747,9 +761,10 @@ the refactor branch merges.
   sequential Stage 6 on the critical path in v1 (no thin tour, no pre-warm);
   parallel/batched classification and the thin-tour fallback are deferred,
   documented future performance work — not built in this refactor. See §5.3.
-- **D2 — Classification cache store.** New `experience_classification_cache`
-  table vs the file-based `AiCacheService` pattern? Recommended: a table (queryable,
-  survives container restarts, supports the batch re-classification job).
+- ~~**D2 — Classification cache store.**~~ **RESOLVED 2026-09-11:** no separate
+  store. Stage 6 is skipped and `Experience.metadata.classification` is reused
+  whenever Stage 5 corroboration matches an existing catalog Experience; the
+  re-classification job queries `Experience` directly. See §5.3.
 - **D3 — Anchor `must` semantics.** May the interpreter ever emit
   `anchor.priority: must` (hard include), or is every anchor `soft` in v1?
   Recommended: `soft` only in v1; `must` deferred with the named-request
