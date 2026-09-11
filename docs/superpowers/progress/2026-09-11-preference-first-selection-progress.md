@@ -489,6 +489,7 @@ in the prompt sent to the LLM. Added a dedicated prompt-contract test.
 - Branch: `feat/preference-first-selection`
 - Base commit: `c22faa50aaee513a692129af6b8a5e53ac22889a`
 - Implementation commit: `1eb60fc64a4bfd00f663f8d1016fd726a4c3d850`
+- Review fix commit: `470570365c60eda73bba36b7f4df0015a4399266`
 - Plan task: `A5 — Strong/weak match helper`
 - Status: COMPLETE
 
@@ -552,6 +553,50 @@ in the prompt sent to the LLM. Added a dedicated prompt-contract test.
 - `cd be && yarn test src/modules/tours` → PASS — 82 test suites / 732
   tests (up from 81 suites / 722 tests before this task), full `tours`
   module, no regressions.
+
+### Review fix (post-approval, before A6)
+
+A5 was approved at architecture level, then received one mandatory numeric-
+hardening fix before A6 started: `typeof value === 'number'` is `true` for
+`NaN` and `Infinity`, so the original geography/quality checks let a
+corrupted `Experience` (e.g. `qualityScore: NaN`, or `latitude: NaN` /
+`longitude: Infinity`) pass as a strong match -- important because A6 uses
+`strongMatches.length >= 1` to decide facet coverage and skip acquisition.
+
+- Review fix commit: `470570365c60eda73bba36b7f4df0015a4399266`
+- Files changed: `be/src/modules/tours/utils/preference-strong-match.util.ts`
+  and its spec only.
+- Geography: added private `isValidLatitude`/`isValidLongitude` requiring
+  `Number.isFinite` plus the real-world range (`-90..90` / `-180..180`),
+  not just `typeof === 'number'`.
+- Quality: `qualityScore` must now be `Number.isFinite` AND within the
+  canonical `0..5` scale before being compared against `qualityFloor`.
+- No change to `candidateMatchesPreferenceFacet`, the `RequestedFacet` →
+  `PreferenceFacet` adapter, the definition of "weak",
+  `DEFAULT_QUALITY_FLOOR` (still `3.0`), absent-classification-is-not-thin
+  treatment, `classification.state === 'degraded'`, `planningWindowMinutes`,
+  or the conceptual gate order (facet match → geography → quality → not
+  known-thin → obvious pre-planner feasibility).
+- RED verified first: added the new invalid-value test cases, ran them
+  against the unhardened implementation → 10 failures, all
+  `Expected: false, Received: true` (proving the vulnerability described
+  above), then implemented the fix.
+- `cd be && yarn test src/modules/tours/utils/preference-strong-match.util.spec.ts`
+  → PASS — 25/25 (15 pre-existing, unchanged, + 10 new): invalid numeric
+  geography (`NaN` latitude, `Infinity`/`-Infinity` longitude/latitude,
+  out-of-range latitude `91`/`-91`, out-of-range longitude `181`/`-181`) all
+  → not strong; the exact `+-90`/`+-180` boundary → still strong (no
+  over-rejection); invalid quality (`NaN`, `Infinity`, `-Infinity`,
+  negative `-1`, above-scale `5.1`) all → not strong; `qualityScore: 0` →
+  not strong at the default floor but strong once the floor is lowered to
+  `0` (proving it is rejected as a valid-but-low score, not as an invalid
+  value); `qualityScore: 5` (top of the canonical scale) → strong.
+- `cd be && yarn typecheck` → PASS — no errors.
+- `cd be && npx eslint src/modules/tours/utils/preference-strong-match.util.ts src/modules/tours/utils/preference-strong-match.util.spec.ts`
+  → PASS — 0 problems (no `--fix` needed this time).
+- `cd be && yarn test src/modules/tours` → PASS — 82 test suites / 747
+  tests (up from 732 before this fix), full `tours` module green, no
+  regressions.
 
 ### Deviations from plan
 - The plan's Checkpoint A "New files" list (§1) does not name a specific
