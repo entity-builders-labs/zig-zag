@@ -24,6 +24,57 @@ Related:
 
 ---
 
+## 0. Product vision: a personal travel research agent
+
+**Zig-Zag's product is a personal travel agent, not a catalog recommender.**
+The catalog is the agent's persistent shared tourism knowledge base: a growing,
+reusable model of real Experiences that have been discovered, grounded,
+classified, canonicalized, enriched and verified over time.
+
+The product goal is to do, in minutes, the research work a traveler currently
+does manually across search engines, maps, official tourism sites, attraction
+sites, local media, specialist blogs, community sources and multiple browser
+tabs — while remembering how that specific traveler likes to travel.
+
+The target product loop is:
+
+```text
+understand what this traveler wants
+        ↓
+remember relevant long-term travel taste
+        ↓
+inspect what Zig-Zag already knows
+        ↓
+detect missing knowledge / preference gaps
+        ↓
+research autonomously when more knowledge can improve the trip
+        ↓
+follow promising sources and original evidence
+        ↓
+discover / validate / canonicalize new Experiences
+        ↓
+persist and enrich reusable catalog knowledge
+        ↓
+compose the best candidate set for THIS traveler
+        ↓
+build a physically feasible deterministic itinerary
+        ↓
+explain it to the traveler
+        ↓
+receive feedback
+        ↓
+learn / research again / replan
+```
+
+The catalog therefore sits **in the middle of the architecture, not at the top
+of the product**. A warm catalog should make future trips faster and cheaper,
+but the agent must not be constrained to whatever happens to already be in it.
+When a trip would materially improve with new knowledge, the agent may initiate
+further research, provided every discovered fact still passes through the same
+grounded deterministic validation and persistence pipeline.
+
+---
+
 ## 1. Purpose
 
 Zig-Zag is being built as several tracks that must converge into one product:
@@ -63,7 +114,7 @@ what the traveler wants.
 
 ## 2. Architectural layers
 
-```
+```text
 USER / WIZARD / CONVERSATION
         │  natural-language request, wizard fields, follow-up feedback
         ▼
@@ -82,15 +133,17 @@ TOUR / ITINERARY
 - deciding *what is still missing* against measured coverage;
 - deciding whether another acquisition/research iteration is worthwhile
   (bounded by explicit iteration/research budgets);
+- deciding when a discovered source is worth deeper investigation;
 - responding to conversational feedback and replanning requests;
 - *requesting* capabilities of the core ("acquire more for this gap",
-  "run the planner").
+  "investigate this source further", "run the planner").
 
 **Deterministic Travel Core** owns:
 - acquisition; source-capability routing; corroboration; candidate synthesis;
 - the resolver; geographic validation; dedupe;
 - the catalog; embeddings; catalog refresh;
 - preference ranking; daily scheduling; travel estimation; feasibility;
+- evidence normalization, provenance and source-quality handling;
 - (future) operational-stop placement; Tour materialization.
 
 **Hard rule:** the agent cannot skip the deterministic validations. Anything
@@ -108,7 +161,7 @@ Today's acquisition engine has four pillars (see the multi-source acquisition
 design): **Wikivoyage, OSM, Google Places, Web**. The target generalises this
 into three families:
 
-```
+```text
 Experience Acquisition
 │
 ├── Structured / evergreen
@@ -119,7 +172,8 @@ Experience Acquisition
 │
 ├── Web
 │   ├── Search Retrieval    (we build the queries — Tavily / SerpAPI / …)
-│   └── Grounded Research    (we hand a research objective — Gemini / OpenAI / …)
+│   ├── Source Traversal    (Map / Crawl / Extract / follow original links)
+│   └── Grounded Research   (we hand a research objective — Gemini / OpenAI / …)
 │
 └── Temporal
     └── Events          (FUTURE — date-bound content; concerts, festivals, markets)
@@ -230,25 +284,28 @@ Events depend on:
 
 This is the most load-bearing distinction in this document.
 
-```
+```text
 Web
 ├── Search Retrieval
 │   └── Tavily / SerpAPI / future search APIs
+│
+├── Source Traversal
+│   └── Map / Crawl / Extract / follow original links
 │
 └── Grounded Research
     └── Gemini + Google Search / OpenAI + web search / future grounded LLMs
 ```
 
-"Web" is two capabilities with different control models, cost profiles, and
-failure modes. Choosing between them is an **architecture** decision;
-choosing a provider *inside* a capability is an interchangeable
-implementation detail (see §8).
+"Web" is a set of capabilities with different control models, cost profiles,
+and failure modes. Choosing between them is an **architecture** decision;
+choosing a provider *inside* a capability is an interchangeable implementation
+detail (see §8).
 
 ### 4.1 Search Retrieval
 
 **We construct the queries.**
 
-```
+```text
 deficit
   → deterministic query construction   (we own the phrasing)
   → search engine                       (Tavily / SerpAPI)
@@ -264,11 +321,55 @@ ever runs**, and no later ranking step can recover what was never retrieved.
 (This is exactly why the multi-source design keeps `explorationStyle` out of
 the walk query and routes it to downstream ranking instead.)
 
-### 4.2 Grounded Research
+### 4.2 Source Traversal / deep source research
+
+Search results are often only the entry point. A promising source — especially
+an official destination site, official attraction site, park authority,
+municipality, tourism board or operator site — may contain substantially richer
+information behind internal navigation.
+
+The research architecture therefore needs an explicit **follow-source** mode:
+
+```text
+Search / Grounded Research
+        ↓
+discover promising source URL/domain
+        ↓
+identify source role / authority
+        ↓
+Map site or inspect relevant links
+        ↓
+Crawl relevant sections only
+        ↓
+Extract original page content
+        ↓
+discover entities / claims / operational facts
+        ↓
+feed evidence into the normal validation pipeline
+```
+
+Examples of facts that are often best sourced from official pages:
+- current opening hours;
+- ticket / reservation requirements;
+- current prices;
+- visit duration / tour format;
+- accessibility;
+- age / child restrictions;
+- seasonal closures;
+- official descriptions of what the visitor actually does;
+- temporary operational notices.
+
+The agent may decide that a discovered domain or page is worth deeper research.
+It does **not** bypass provider limits, evidence normalization, identity
+resolution, validation or persistence. "Investigate this source further" is a
+research objective; the core/tooling still owns the concrete safe retrieval and
+normalization operations.
+
+### 4.3 Grounded Research
 
 **We hand the model a research objective.**
 
-```
+```text
 qualitative / ambiguous / multi-step deficit
   → research instruction                (we own the objective, not the queries)
   → grounded LLM
@@ -287,15 +388,15 @@ long-tail coverage.
 Weaknesses: less deterministic, more expensive, harder to reproduce
 run-to-run, and it can **synthesize a conclusion too early**.
 
-### 4.3 Evidence discipline (critical)
+### 4.4 Evidence discipline (critical)
 
 > The text a grounded LLM synthesizes must **not** automatically become
 > maximum-quality evidence.
 
 Preferred flow:
 
-```
-grounded LLM
+```text
+grounded LLM / search
   → cited real URLs
   → original-content extraction of those URLs
   → evidence  (full quality)
@@ -303,7 +404,7 @@ grounded LLM
 
 Fallback, explicit and marked:
 
-```
+```text
 original content unavailable
   → model output used as evidence
   → evidenceQuality = reduced
@@ -315,6 +416,44 @@ the extractor may only cite supplied evidence. The refinement here is to make
 "original content vs reduced model output" an explicit, observable property
 of the evidence, not an implicit one.
 
+### 4.5 Retrieval provider ≠ information source
+
+A retrieval mechanism is not the authoritative source of the fact it fetched.
+This distinction is required for provenance, trust and future source weighting.
+
+Examples:
+
+```text
+retrievalProvider: tavily
+sourceType: OFFICIAL_DESTINATION_SITE
+sourceDomain: turismo.buenosaires.gob.ar
+sourceUrl: https://...
+```
+
+or:
+
+```text
+retrievalProvider: grounded_llm
+sourceType: OFFICIAL_ATTRACTION_SITE
+sourceDomain: louvre.fr
+sourceUrl: https://...
+```
+
+Tavily, SerpAPI, Crawl, Extract, Gemini grounding, etc. describe **how Zig-Zag
+retrieved information**. Buenos Aires Turismo, the Louvre, a park authority,
+Wikivoyage, Reddit or a specialist local publication describe **where the
+information came from**.
+
+Source authority is claim-specific, not global. For example:
+- coordinates / physical existence → OSM / Places / official geo data;
+- current opening hours / ticket rules / price → official entity source;
+- historical context → official cultural source / Wikidata / Wikipedia;
+- popularity → Places/reviews;
+- local character / hidden-gem signal → specialist editorial/community evidence;
+- photos → Wikimedia Commons / Places / official/licensed media with provenance.
+
+Do not collapse this into a single `source = tavily` field.
+
 ---
 
 ## 5. Web escalation policy
@@ -323,10 +462,10 @@ The target is **not** a single global switch (`GROUNDED_SEARCH_PROVIDER=one_prov
 as the final architecture. The provider is swappable within a capability; the
 *capability* is chosen per deficit.
 
-```
+```text
 LOCAL CATALOG
       ↓
-CoverageAnalyzer
+Coverage / preference-gap analysis
       ↓ insufficient
 
 STRUCTURED ACQUISITION
@@ -338,12 +477,16 @@ resolver / geographic validation / dedupe
       ↓
 catalog re-query
       ↓
-CoverageAnalyzer again
+coverage again
       ↓ still insufficient?
       │
       ├── clear factual / queryable gap
       │        ↓
       │   Search Retrieval
+      │
+      ├── promising source discovered
+      │        ↓
+      │   Source Traversal / official-source research
       │
       └── qualitative / ambiguous / multi-step gap
                ↓
@@ -360,6 +503,10 @@ Worked examples:
   → likely structured *facts* (which wineries exist) **plus** grounded
   research (which ones are small, quiet, authentic — a qualitative judgment
   no single tag answers).
+- a winery has been grounded and accepted, but its current visit/ticket details
+  are incomplete → discover its official site, traverse only relevant visit /
+  booking pages, and enrich the existing canonical Experience rather than
+  creating another Experience.
 
 **Rule:** the choice of source family / capability depends on the *kind* of
 deficit. **Do not create a global source-quality score.** Source capability
@@ -371,9 +518,9 @@ Non-goals.
 
 ## 6. Provider benchmark strategy
 
-Tavily vs Gemini vs OpenAI (and Search Retrieval vs Grounded Research) must
-**not** be decided by intuition. A future benchmark runs real scenarios and
-measures, per **deficit class**:
+Tavily vs Gemini vs OpenAI (and Search Retrieval vs Grounded Research vs source
+traversal) must **not** be decided by intuition. A future benchmark runs real
+scenarios and measures, per **deficit class**:
 
 Per-run outcome metrics:
 - proposed candidate count
@@ -385,6 +532,8 @@ Per-run outcome metrics:
 - composite Experience completeness
 - preference-coverage gain (coverage before vs after)
 - evidence quality (original content vs reduced model output)
+- official-source recovery rate where one exists
+- enrichment completeness for accepted Experiences
 - run-to-run stability (identical scenario, N runs)
 
 Operational metrics:
@@ -447,7 +596,7 @@ And explicitly:
 A single real place can be both a chosen Experience *and* the thing that
 covers an operational requirement.
 
-```
+```text
 Requirement:        lunch, window 12:30–14:30
 Selected Experience: historic food market, scheduled 13:00–14:30
 Result:             lunch requirement satisfied → no extra stop inserted
@@ -479,7 +628,7 @@ party size, opening hours.
 
 ## 10. Operational Stop Resolver (future, conceptual)
 
-```
+```text
 selected Experiences
         +
 daily operational requirements
@@ -537,6 +686,7 @@ The product loop stays:
 - ambiguity detection and surfacing;
 - requirement interpretation;
 - deciding whether more research/acquisition is needed (against measured coverage);
+- deciding whether a newly-discovered source merits deeper traversal;
 - feedback iteration;
 - replanning requests.
 
@@ -544,10 +694,24 @@ The product loop stays:
 - geographic truth;
 - dedupe;
 - direct Experience persistence;
-- source-specific hacks / provider selection;
+- raw source-specific HTTP/provider mechanics;
 - replacing deterministic ranking;
 - replacing the deterministic planner/solver;
 - silently invented POIs.
+
+**Refined source-choice boundary.** The agent may decide the *research strategy*
+and objective (for example: "the catalog still lacks credible boutique-winery
+coverage; investigate this official Valle de Uco tourism domain further"). The
+agent does not hard-code transport mechanics such as a specific Tavily HTTP call
+or bypass the acquisition core. The research/acquisition capability selects and
+executes concrete provider operations, enforces budgets and retries, normalizes
+evidence and routes accepted facts through validation.
+
+This refinement preserves the existing rule that the agent cannot create a
+parallel source-specific acquisition architecture while allowing genuine
+agentic research: the agent can choose **what question/source deserves more
+attention**, while the core controls **how that research is safely executed and
+accepted**.
 
 ---
 
@@ -555,12 +719,13 @@ The product loop stays:
 
 The core owns, end to end:
 
-catalog · `CoverageAnalyzer` · deficit classification · source-capability
-routing · acquisition · web-retrieval policy · grounded-research escalation
-policy · evidence · candidate synthesis · corroboration · resolver ·
-geographic validation · dedupe · persistence · embeddings · catalog refresh ·
-ranking · daily scheduling · travel estimation · feasibility · (future)
-operational-stop placement · Tour materialization.
+catalog · coverage/preference-gap analysis · deficit classification ·
+source-capability routing · acquisition · web-retrieval policy ·
+source-traversal execution · grounded-research escalation policy · evidence ·
+candidate synthesis · corroboration · resolver · geographic validation · dedupe ·
+persistence · embeddings · catalog refresh · ranking/composition · daily
+scheduling · travel estimation · feasibility · (future) operational-stop
+placement · Tour materialization.
 
 > **AMENDMENT 2026-09-10.** The *selection/coverage* slice of this list
 > (`CoverageAnalyzer` monolith, ranking-as-pool-sort, `selectBoundedWindow`,
@@ -568,13 +733,13 @@ operational-stop placement · Tour materialization.
 > per-facet retrieval + LLM semantic classification of grounded evidence +
 > set-cover composition — see
 > `docs/superpowers/specs/2026-09-10-preference-first-selection-and-agent-convergence-design.md`.
-> The agent/core split, the evidence discipline (§4.3), Web = two capabilities
+> The agent/core split, the evidence discipline (§4.4), Web capability split
 > (§4), the Experience-vs-Operational-Stop invariant (§7), and "no privileged
 > global score" are all preserved. The classification LLM never establishes
-> identity or geography (still §5a-deterministic). **RESOLVED 2026-09-11:** the
-> Integration Gate prerequisite (§16) "Phase 7 CLOSED" now means
-> "preference-first core stable + acceptance green" — read that design's §7.4
-> before executing Phase 7 closure or the Gate.
+> identity or geography. **RESOLVED 2026-09-11:** the Integration Gate
+> prerequisite (§16) "Phase 7 CLOSED" now means "preference-first core stable +
+> acceptance green" — read that design's §7.4 before executing Phase 7 closure
+> or the Gate.
 
 The LLM may still produce narrative / presentation copy afterwards. It never
 repairs or overrides a deterministic feasibility decision (PR 10 invariant:
@@ -583,7 +748,109 @@ days; identical inputs produce a deep-equal solution).
 
 ---
 
-## 14. Relationship to `feat/agentic-travel-planning`
+## 14. Experience enrichment and traveler-facing content
+
+Acquisition answers: **"Is this a real tourism Experience and how does it match
+travel intent?"** Enrichment answers a different product question:
+**"Now that Zig-Zag knows this Experience is real, what does a traveler need to
+know about it?"**
+
+The target flow is:
+
+```text
+discover
+  → validate / corroborate
+  → classify
+  → canonicalize
+  → persist
+  → enrich
+  → present / reuse
+```
+
+Enrichment is additive to the canonical Experience. It must not create a second
+Experience just because a richer source was found.
+
+### 14.1 Existing enrichment foundation
+
+The repository already has important pieces that should be converged rather
+than reimplemented:
+- async media enrichment through Outbox;
+- Wikimedia Commons media;
+- Wikidata / Wikipedia narrative extracts;
+- verified photo providers (including Places/SerpAPI fallback paths);
+- URL + attribution / license metadata persistence rather than image binaries.
+
+Future work should unify these existing paths into the broader Experience
+enrichment lifecycle rather than introducing a parallel enrichment subsystem.
+
+### 14.2 Traveler-facing information target
+
+A planning-ready Experience may only need semantics and logistics, but a
+traveler-facing Experience should aim to provide, when evidence exists:
+- a concise explanation of what it is;
+- why it is worth doing;
+- what the visitor actually sees/does;
+- recommended duration;
+- best time / relevant seasonality;
+- opening hours;
+- price / ticket / reservation requirements;
+- accessibility and important restrictions;
+- practical tips;
+- official site / booking source;
+- representative real photos and gallery metadata;
+- provenance for material claims.
+
+Different claims may come from different authorities. Do not force one provider
+to own the whole object.
+
+### 14.3 Operational freshness
+
+Evergreen descriptive enrichment and operational facts have different freshness
+needs. Current hours, ticket rules, prices, closures and booking requirements
+should retain source + observed-at metadata and be refreshable independently of
+stable identity/history/classification.
+
+---
+
+## 15. Personal travel taste / learning
+
+The target agent should not start every trip from a blank user profile.
+
+Conceptually:
+
+```text
+CURRENT TRIP PREFERENCES
+        +
+LONG-TERM TRAVEL TASTE
+        +
+CONVERSATIONAL FEEDBACK
+        ↓
+PreferenceSpec / research strategy / composition
+```
+
+Long-term learning is not limited to scalar theme weights. The useful knowledge
+may be conditional and relational, for example:
+- prefers architecture as part of neighborhood walking rather than long
+  technical visits;
+- likes iconic places, but not an itinerary made entirely of "top 10" sights;
+- prefers markets and local neighborhoods over malls;
+- with children, avoids too many consecutive museums;
+- accepts a day trip when the payoff is high;
+- prefers authentic food Experiences over packaged tourist versions.
+
+Conversation should also produce immediate trip-specific learning:
+"we already saw X", "day 2 is too much walking", "I liked this kind of place",
+"less touristy than that". Replanning should update the active PreferenceSpec
+and, where appropriate, the longer-term taste model rather than regenerating
+from scratch.
+
+This section defines a target responsibility, not a storage schema. Personal
+memory/profile persistence is post-Gate work and must get its own design before
+implementation.
+
+---
+
+## 16. Relationship to `feat/agentic-travel-planning`
 
 **What that branch has today** (inspected read-only at `feat/agentic-travel-planning`;
 CLI-only via a `travel-planning-agent` command — **not** wired into
@@ -630,7 +897,7 @@ Wikivoyage / OSM / Places / Web with shared corroboration).
 
 **Target:**
 
-```
+```text
 Agent: coverage insufficient
         ↓
 research_gap / acquire_gap        (agent decides "acquire more for this gap")
@@ -647,16 +914,16 @@ resolver / geographic validation / dedupe
         ↓
 verified catalog
         ↓
-agent re-runs CoverageAnalyzer → decide: iterate again OR run planner
+agent re-runs preference-gap analysis → decide: iterate again OR run planner
 ```
 
-The agent decides **"need more acquisition"**. It does **not** decide
-"use Tavily" / "use OSM" / "use Google" — the acquisition core's routing
-table does.
+The agent decides **"need more acquisition/research"** and may decide that a
+particular discovered source merits deeper investigation. It does **not** own
+provider-specific mechanics or bypass canonical acquisition/validation.
 
 ---
 
-## 15. Branch convergence strategy
+## 17. Branch convergence strategy
 
 Two branches must not evolve indefinitely as parallel engines:
 
@@ -684,14 +951,15 @@ legacy `research_gap` pipeline gets entrenched.
 
 ---
 
-## 16. Integration Gate
+## 18. Integration Gate
 
 Convergence may begin only when **all** of the following hold.
 
 **Experience Domain (Track A):**
 - Phase 5 CLOSED
 - Phase 6 CLOSED
-- Phase 7 CLOSED
+- Phase 7 CLOSED — per the 2026-09-11 resolution, this means
+  **preference-first core stable + acceptance green**
 - `ExperienceAcquisitionPlanner` stable (contract not churning)
 - `ExperienceAcquisitionService` stable
 - resolver / geographic validation / dedupe path stable
@@ -708,7 +976,7 @@ Convergence may begin only when **all** of the following hold.
 
 ---
 
-## 17. Physical branch integration
+## 19. Physical branch integration
 
 **Target (documented, not executed now):**
 
@@ -733,12 +1001,12 @@ These docs travel to that integration branch when it is created.
 
 ---
 
-## 18. Tool semantics after convergence
+## 20. Tool semantics after convergence
 
 The tool may keep the name `research_gap`, or be renamed `acquire_gap`.
-Semantically, after convergence it means exactly one thing:
+Semantically, immediately after convergence it means:
 
-```
+```text
 research_gap / acquire_gap  →  canonical multi-source Experience acquisition
 ```
 
@@ -746,42 +1014,48 @@ There must **not** be two acquisition architectures living side by side —
 `research_gap → legacy web` and `acquire_gap → multi-source` cannot both
 exist. One acquisition architecture.
 
+Post-Gate, the tool surface may grow to support deeper research objectives such
+as source traversal/enrichment, but those capabilities must still feed the same
+canonical evidence/resolution/persistence path rather than forming a second
+research engine.
+
 ---
 
-## 19. Sequencing after convergence
+## 21. Sequencing after convergence
 
-```
+```text
 Phase 5   OSM proactive acquisition
 Phase 6   Web acquisition improvements
-Phase 7   canonical live multi-source acquisition orchestration
+Phase 7   preference-first canonical live acquisition / selection core
 ──────────  INTEGRATION GATE  ──────────
           Experience Domain + Agentic Planner convergence
           (feat/unified-agentic-travel-planning)
 ──────────  post-convergence roadmap  ──────────
+          Agentic Deep Research & Official-Source Enrichment
+          Personal Travel Taste / learning
+          Conversational iterative replanning
           Activities provider family
           Events provider family
           Operational requirements
           Operational Stop Resolver
           Wizard optional controls
-          Conversational iterative replanning
 ```
 
 The post-convergence items are **not** numbered as "Phase 8" yet — they are a
 post-convergence roadmap until both tracks are aligned. Their relative order
-may shift with product/evidence needs, but **none of them may contaminate
-Phase 5/6/7** — Phases 5–7 must not be expanded to absorb Activities, Events,
-or Operational Stops.
+may shift with product/evidence needs, but **none of them may contaminate the
+preference-first Phase 7 closure work**.
 
 ---
 
-## 20. Canonical acceptance scenario
+## 22. Canonical acceptance scenario
 
 > "Quiero 3 días en Mendoza. Me gustan bodegas chicas, poco turísticas,
 > paisajes de montaña y comer bien."
 
 Expected end-to-end behaviour after convergence:
 
-```
+```text
 Agent interpretation
   → boutique winery (winery_scale=boutique)
   → low tourism (tourism_intensity=low)
@@ -789,7 +1063,7 @@ Agent interpretation
   → food (theme/intent food)
   → 3 days
         ↓
-catalog query → CoverageAnalyzer → deficits
+catalog query → preference-gap analysis → deficits
         ↓
 agent decides: another acquisition iteration is needed
         ↓
@@ -801,16 +1075,36 @@ shared corroboration
         ↓
 resolver → geographic validation → dedupe
         ↓
-catalog refresh → CoverageAnalyzer again
+catalog refresh → preference-gap analysis again
         ↓
-agent decides:  iterate again  OR  run the deterministic planner
+agent decides: iterate again OR run the deterministic planner
         ↓
-GreedyDailyPlanningSolver → TourPlanningFeasibilityValidator → materialized Tour
+preference-first composition → GreedyDailyPlanningSolver
+        ↓
+TourPlanningFeasibilityValidator → materialized Tour
+```
+
+A later post-Gate deep-research acceptance scenario extends this:
+
+```text
+catalog still lacks credible boutique-winery evidence
+  ↓
+web search discovers an official Valle de Uco / winery source
+  ↓
+agent decides the source is worth deeper investigation
+  ↓
+map/crawl/extract relevant original pages
+  ↓
+discover/verify entities + current visit details
+  ↓
+canonicalize/persist new Experiences OR enrich existing ones
+  ↓
+re-run preference coverage/composition
 ```
 
 Later, once operational planning exists:
 
-```
+```text
 lunch requirement (12:30–14:30)
   → a selected gastronomic Experience may already satisfy it (§8)
   → Operational Stop Resolver only fills unsatisfied requirements
@@ -818,17 +1112,90 @@ lunch requirement (12:30–14:30)
 
 ---
 
-## 21. Observability
+## 23. Canonical end-to-end personal-agent loop
+
+```text
+                          USER
+                           │
+                    conversation
+                           │
+                           ▼
+                 ┌──────────────────┐
+                 │   TRAVEL AGENT   │
+                 └────────┬─────────┘
+                          │
+          ┌───────────────┼────────────────┐
+          │               │                │
+          ▼               ▼                ▼
+   trip preferences   taste memory    current feedback
+          │               │                │
+          └───────────────┬────────────────┘
+                          ▼
+                    PreferenceSpec
+                          │
+                          ▼
+                 inspect shared catalog
+                          │
+                    identify gaps
+                          │
+                   enough knowledge?
+                     │         │
+                    YES        NO
+                     │         │
+                     │         ▼
+                     │    RESEARCH AGENT
+                     │         │
+                     │     structured sources
+                     │     web search
+                     │     grounded research
+                     │     source traversal
+                     │     official sites
+                     │         │
+                     │         ▼
+                     │      evidence
+                     │         │
+                     │    validation
+                     │    classification
+                     │    canonicalization
+                     │    persistence / enrichment
+                     │         │
+                     └─────────┘
+                          │
+                          ▼
+                preference-first composition
+                          │
+                          ▼
+                deterministic planner
+                          │
+                          ▼
+                        TOUR
+                          │
+                          ▼
+                     USER REVIEW
+                          │
+                  feedback / changes
+                          │
+                          └──────► agent loop
+```
+
+This is the product-level north star. The catalog is the durable shared memory
+between research and planning; it is not the boundary of what the agent may
+know or investigate.
+
+---
+
+## 24. Observability
 
 The unified Bitácora / trace must be able to explain, in order:
 
-user request → interpretation → coverage → gaps → agent decision →
-acquisition plan → providers called → search queries → grounded-research
-queries/actions (where observable) → source URLs → original-content vs
-reduced model-output evidence → candidates → corroboration → rejects →
-accepted Experiences → coverage change → why continue / why stop → planner
-result → operational requirements → requirements satisfied by Experiences →
-inserted Operational Stops.
+user request → interpretation → relevant long-term taste → coverage → gaps →
+agent decision → acquisition/research objective → providers/capabilities called
+→ search queries → grounded-research queries/actions (where observable) → source
+URLs/domains → source type/authority → source traversal steps where used →
+original-content vs reduced model-output evidence → candidates → corroboration
+→ rejects → accepted Experiences → enrichment changes → coverage change → why
+continue / why stop → composition → planner result → operational requirements →
+requirements satisfied by Experiences → inserted Operational Stops.
 
 Secrets are always redacted. The existing generation-trace and the agent's
 `decisions` / `toolExecutions` / `coverageHistory` / `researchHistory` /
@@ -836,39 +1203,48 @@ Secrets are always redacted. The existing generation-trace and the agent's
 
 ---
 
-## 22. Non-goals
+## 25. Non-goals
 
 This document does **not** authorize, now:
 
 - Activities implementation
 - Events implementation
 - an `OperationalStop` / `TourStop` schema or type
+- personal-memory schema / storage
+- deep-research / crawl implementation before the Integration Gate
 - new wizard screens
-- Phase 6 implementation
-- Phase 7 implementation
 - any branch merge
-- ranking changes
 - LLM as the authority for geographic truth
 - LLM-driven dedupe
 
 ---
 
-## 23. Final architectural invariant
+## 26. Final architectural invariant
 
 **Not:**
 
-```
+```text
 LLM → search → itinerary
+```
+
+**Not:**
+
+```text
+catalog → rank → tour
 ```
 
 **Target:**
 
-```
-Agentic reasoning
-  → explicit requirements / deficits
-  → deterministic acquisition + validation
-  → verified Experience catalog
-  → deterministic ranking + planning
-  → operational requirement resolution
-  → iterative agentic replanning
+```text
+personal agent reasoning
+  → current preferences + learned travel taste
+  → inspect persistent shared tourism knowledge
+  → research the world when important knowledge is missing
+  → original evidence / authoritative sources where possible
+  → deterministic validation + canonical Experience knowledge
+  → reusable enrichment
+  → preference-first deterministic composition
+  → deterministic planning / feasibility
+  → traveler explanation + conversational feedback
+  → learn / research / replan
 ```
