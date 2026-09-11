@@ -61,6 +61,10 @@ live smoke happens after that merge and gates convergence into
     portfolio target. The planner may consume it when meaningful usable capacity
     remains; only after the reservoir is exhausted may bounded planner-triggered
     acquisition run. Never add low-quality filler merely to occupy every minute.
+15. Embeddings are **ranking-only personalization**. `semanticSimilarity` may
+    order already eligible/matching Experiences but never creates a facet match,
+    changes weak→strong, satisfies coverage, stops acquisition, bypasses hard
+    exclusions/geography/evidence/identity, or overrides planner feasibility.
 
 ---
 
@@ -281,11 +285,19 @@ If a new catalog method is added it must preserve:
 The service returns strong and weak IDs ordered strongest-first within the
 facet, and `satisfied = strongMatches.length >= 1`.
 
+**A6 MUST NOT use embeddings/vector similarity to decide match, strong/weak or
+`satisfied`.** A high cosine similarity is ranking context for Checkpoint C only;
+coverage remains `candidateMatchesPreferenceFacet` + A5 strong-match policy.
+Do not generate a query embedding in A6 and do not use vector search as a
+substitute for canonical facet retrieval.
+
 Integration test with real Postgres:
 - seed >500 Experiences so retrieval proves a relevant row is not lost by an
   arbitrary first-500 truncation;
 - one strong history Experience is enough to mark history satisfied;
 - a name containing “history” with no history facet does not match;
+- an Experience with no history facet remains non-matching even if a later
+  embedding similarity would be very high;
 - bare/no-component rows never become strong.
 
 ## A7 — Iconicity util
@@ -491,6 +503,43 @@ interface CompositionCandidate {
 `softAnchorBoost > 0` only for resolved soft venue anchors. It is a ranking
 signal, not a forced selection bit.
 
+## C1b — Embedding-backed semantic similarity (D7)
+
+Implement one canonical semantic-similarity contract for composition. Reuse the
+existing persisted Experience embedding fields/infrastructure; do **not** add a
+parallel vector table/store solely for this flow.
+
+Rules:
+1. If `PreferenceSpec.semanticQuery` is non-empty, compute at most one query
+   embedding for the generation/composition context using the active embedding
+   contract.
+2. Candidate vectors come from persisted canonical `Experience.embedding` plus
+   its embedding metadata (`embeddingProvider`, `embeddingModel`,
+   `embeddingDimensions`, `embeddingDocumentVersion`).
+3. Validate query/candidate compatibility before trusting cosine similarity.
+4. Compute `semanticSimilarity` from compatible vectors and attach it to
+   `CompositionCandidate`.
+5. Empty semanticQuery, missing candidate vector, stale/incompatible metadata or
+   query-embedding failure => deterministic neutral/unknown similarity plus a
+   reason for trace/debug. Do not fail tour generation.
+6. Do not call the embedding provider once per candidate. Do not synchronously
+   generate/repair missing candidate Experience embeddings inside composition.
+   Candidate embedding creation/refresh belongs to normal catalog/enrichment;
+   stale/missing rows may be marked/queued for async repair.
+7. Embedding similarity is ranking-only. It cannot create a facet match, convert
+   weak→strong, contribute to coverage/sufficiency, stop acquisition, bypass
+   hard exclusions/geography/evidence/identity or alter planner hard feasibility.
+
+Required tests:
+- non-matching candidate with `semanticSimilarity=0.99` still cannot cover a facet;
+- two otherwise-comparable strong candidates order by semantic similarity at the
+  documented tie-break position;
+- empty semanticQuery => deterministic neutral similarity;
+- missing/stale/incompatible candidate embedding => neutral/unknown, no throw;
+- one generation with N candidates performs at most one query-embedding call and
+  zero per-candidate embedding-generation calls;
+- identical query + persisted compatible vectors => deterministic scores/order.
+
 ## C2 — Canonical weighted set-cover composition
 
 Create `composition-set-cover.util.ts`.
@@ -531,10 +580,16 @@ stable id.
 Do not use raw facet count as the primary objective.
 Do not hardcode `days * 4`; call the canonical portfolio-target helper.
 Do not interpret `portfolioTarget` as a maximum final Tour size.
+Do not let semantic similarity participate in eligibility/coverage: C2 consumes
+its precomputed ranking signal only after canonical match/strongness is known.
 
 Required unit cases:
 - 5 moderate days targets 20 initial candidates, not 20 per facet;
 - one strong history match reserves history;
+- a non-matching candidate with extremely high semantic similarity cannot reserve
+  or cover history;
+- among otherwise-comparable strong matches, higher semantic similarity wins at
+  the semantic-similarity ranking position;
 - monothematic strongest tango-performance venue survives even if a weaker
   candidate covers 3 labels;
 - weighted two-low-priority facets do not automatically beat one high-priority
@@ -554,11 +609,15 @@ Thin service that:
 - hydrates canonical rows through catalog service / deterministic Prisma lookup;
 - computes satisfied facets only with the canonical matching primitive;
 - computes weighted preference coverage;
+- obtains the one request/query embedding when applicable and attaches
+  embedding-backed `semanticSimilarity` through the C1b contract without
+  creating a second semantic/coverage engine;
 - computes soft anchor boost;
 - calls pure `composeSet`;
 - returns both the initial selected portfolio and ranked reservoir.
 
-No second semantic engine.
+No second semantic engine. The composition service may rank with embeddings but
+must never use them to recompute facet truth or sufficiency.
 
 ## C4 — Planner candidate contract
 
@@ -667,6 +726,10 @@ Trace separately records:
 - basePortfolioTarget / portfolioTarget / distinctEligibleCount;
 - acquisition deficits;
 - classification reused vs classified vs degraded + evidence keys;
+- semantic-ranking provenance without raw vectors: semanticQuery present/absent,
+  query-embedding success/fallback, non-secret embedding provider/model/
+  dimensions/document-version compatibility metadata, and candidate similarity
+  score or neutral/fallback reason;
 - composition reservations, initial selected IDs and ranked reservoir size/order;
 - soft anchor boosts;
 - must anchors forced;
@@ -676,6 +739,7 @@ Trace separately records:
 - whether each backfill came from reservoir or planner-triggered acquisition;
 - initial selected count, final scheduled count and convergence stop reason.
 
+Never persist or expose raw embedding arrays in generation trace/Bitácora.
 Delete JSON-string keyword theme matching from trace generation.
 
 Trace v4 is the machine/audit contract. Do not shape backend trace fields around
@@ -688,6 +752,7 @@ Required trace tests:
 - each facet exposes strong/weak counts and satisfaction;
 - acquisition records exact deficit/reason and sources/queries/evidence;
 - classification records reused/classified/degraded and evidence keys;
+- semantic ranking records score/fallback provenance but no raw vectors;
 - composition records reservations, initial selection, ranked reservoir,
   selected/unselected reason data and anchors;
 - planner records initial placement, residual capacity, backfill decisions,
@@ -875,6 +940,8 @@ Keep the engineering/audit information accessible but collapsed by default:
 - provider queries and source URLs;
 - evidence keys;
 - prompts/raw model responses already retained by trace policy, redacted;
+- semantic-similarity score and embedding contract/fallback metadata, never raw
+  embedding arrays;
 - score breakdowns;
 - timings;
 - persisted IDs;
@@ -901,7 +968,7 @@ Add focused frontend tests and/or Playwright coverage proving at least:
 - primary view does not require a `ruleId` or `reasonCode` to understand any
   decision;
 - expanding technical details still exposes the underlying rule ID/evidence/raw
-  debugging data;
+  debugging data without exposing raw embedding vectors;
 - product copy remains compact: no stage renders a long narrative paragraph for
   information already represented as metrics/status/decision.
 
@@ -916,10 +983,10 @@ Acceptance criterion:
 
 ### Checkpoint C verification
 
-Run pure composition tests, duration-aware backfill/convergence tests, solver
-unit/acceptance tests, overlap tests, trace v4 tests, frontend Bitácora
-tests/Playwright, backend/frontend typecheck and relevant lint. Do not enter
-Checkpoint D with C7 green but C8 unimplemented.
+Run embedding-semantic-ranking tests, pure composition tests, duration-aware
+backfill/convergence tests, solver unit/acceptance tests, overlap tests, trace v4
+tests, frontend Bitácora tests/Playwright, backend/frontend typecheck and relevant
+lint. Do not enter Checkpoint D with C7 green but C8 unimplemented.
 
 ---
 
@@ -946,23 +1013,31 @@ Stages 1–11:
    - persist/enrich;
    - re-retrieve canonical rows;
    - recompute global sufficiency;
-8. compose weighted deterministic **initial** portfolio + ranked reservoir;
-9. normalize initial planner candidates with preferenceWeight/mustInclude;
-10. deterministic initial solver + feasibility;
-11. while meaningful residual capacity remains and convergence budget allows:
+8. after coverage/sufficiency is settled, compute embedding-backed
+   `semanticSimilarity` from one `PreferenceSpec.semanticQuery` query embedding
+   against compatible persisted Experience embeddings, with deterministic
+   neutral fallback; this signal MUST NOT feed back into step 5–7 coverage or
+   acquisition decisions;
+9. compose weighted deterministic **initial** portfolio + ranked reservoir;
+10. normalize initial planner candidates with preferenceWeight/mustInclude;
+11. deterministic initial solver + feasibility;
+12. while meaningful residual capacity remains and convergence budget allows:
     - promote next feasible reservoir candidate(s), normalize through the same
       planner-candidate contract and replan;
     - if reservoir is exhausted, emit structured planner-capacity deficit;
     - run bounded targeted acquisition for that concrete capacity deficit only;
     - send discoveries through corroboration/classification/persistence/
-      re-retrieval, recompose reservoir and replan;
+      re-retrieval, recompute compatible semantic similarity for newly eligible
+      candidates without changing historical coverage truth, recompose reservoir
+      and replan;
     - stop on no progress, no useful capacity or pass/provider budget;
-12. map infeasible must anchors;
-13. materialize + trace initial vs final planner state and convergence reason.
+13. map infeasible must anchors;
+14. materialize + trace initial vs final planner state and convergence reason.
 
 Do not call acquisition for exploration style.
 Do not stop after “N candidates per facet”; only facet>=1 + global capacity can
 stop pre-planner acquisition.
+Do not let embedding similarity satisfy a facet or stop acquisition.
 Do not stop final planning merely because `portfolioTarget` candidates were
 initially selected; D6 backfill is authoritative for useful residual capacity.
 Do not acquire filler for tiny/awkward gaps or solely to inflate catalog size.
@@ -978,6 +1053,11 @@ Required cases:
 - history+architecture one-day request: both facets covered by grounded
   Experiences;
 - initial composition target follows global pace target;
+- a non-history Experience with near-perfect embedding similarity still cannot
+  satisfy history or prevent targeted history acquisition;
+- two otherwise-equivalent grounded history Experiences can reorder based on
+  semanticQuery embedding similarity;
+- missing/incompatible embeddings fall back neutrally and generation succeeds;
 - long-duration candidates may schedule fewer rows than initial target without
   being considered incomplete solely by count;
 - short-duration candidates with useful spare capacity pull deterministic
@@ -1023,6 +1103,8 @@ from old “window size / global rank” mechanics to preference-first semantics
 - final scheduled cardinality is feasibility-driven and may be below or above
   the initial target through deterministic backfill;
 - a facet delta changes selected IDs;
+- semanticQuery deltas may reorder otherwise comparable eligible candidates via
+  embedding-backed similarity but never change factual facet coverage;
 - dominance/regret is evaluated against weighted preference coverage + quality,
   not legacy global score;
 - no arbitrary database row order changes outcome.
@@ -1094,6 +1176,8 @@ Assertions:
 - San Telmo polygon itself is not scheduled;
 - any acquired walk is multi-component and grounded;
 - classification provenance exists for newly classified Experiences;
+- embedding-backed semantic ranking, when available, uses persisted compatible
+  Experience vectors and cannot alter the trace's factual coverage decision;
 - if the planner reports meaningful residual capacity, any reservoir/acquisition
   backfill is grounded and traceable, and convergence remains bounded;
 - the generated v4 trace can be rendered by the product Bitácora with the same
@@ -1144,6 +1228,8 @@ wired and tested:
 - `selectBoundedWindow`;
 - global catalog-first rank/truncate path;
 - keyword/JSON-string theme matcher;
+- any vector/embedding similarity path that acts as coverage or strong-match
+  authority instead of ranking-only personalization;
 - any `exploration_style` coverage routing;
 - any per-facet `days×pace` quota;
 - any interpretation of `days×pace` as exact/max final Tour cardinality;
@@ -1188,27 +1274,34 @@ The implementation is complete when all of the following are true:
     there is no `NEIGHBORHOOD_WALK` type.
 13. Composition uses one reservation per facet + weighted initial remainder fill
     and preserves a deterministic ranked reservoir beyond the initial target.
-14. Planner receives raw quality once and preferenceWeight once for both initial
+14. `semanticSimilarity` is embedding-backed fine ranking from at most one
+    request/query embedding against compatible persisted Experience vectors;
+    missing/stale/incompatible vectors degrade neutrally, no per-candidate inline
+    embedding generation occurs, and vector similarity never creates coverage or
+    strongness.
+15. Planner receives raw quality once and preferenceWeight once for both initial
     and promoted reservoir candidates.
-15. Duration-aware planning determines final cardinality: long Experiences may
+16. Duration-aware planning determines final cardinality: long Experiences may
     yield fewer rows than the initial target; short Experiences may trigger
     deterministic reservoir backfill and, only after reservoir exhaustion,
     bounded planner-triggered acquisition.
-16. Backfill convergence stops deterministically on no useful capacity, no
+17. Backfill convergence stops deterministically on no useful capacity, no
     progress, exhausted candidate/provider budget or pass limits and never adds
     poor filler solely to occupy every minute.
-17. Large-corpus e2e proves preference deltas change the best selected set.
-18. Trace v4 explains facet coverage, global initial sufficiency, classification
-    reuse, acquisition, anchor semantics, composition reservoir, residual
-    capacity/backfill and final planner outcome.
-19. Bitácora v4 renders that trace natively as concise product decisions: a
+18. Large-corpus e2e proves preference deltas change the best selected set and
+    semanticQuery deltas can refine ordering without changing factual coverage.
+19. Trace v4 explains facet coverage, global initial sufficiency, classification
+    reuse, embedding-ranking provenance without raw vectors, acquisition, anchor
+    semantics, composition reservoir, residual capacity/backfill and final
+    planner outcome.
+20. Bitácora v4 renders that trace natively as concise product decisions: a
     product person can understand the flow without rule IDs, while technical
     details/evidence/raw diagnostics remain available on demand.
-20. Frontend acceptance verifies covered/uncovered facets, acquisition reason,
+21. Frontend acceptance verifies covered/uncovered facets, acquisition reason,
     anchor semantics, initial selection/reservoir, backfill, selected/unselected
     reasons and final planner feasibility in the primary Bitácora.
-21. Full backend + relevant frontend deterministic matrix is green.
-22. The merged preference-first core is recorded as Phase 7 CLOSED; Argentina
+22. Full backend + relevant frontend deterministic matrix is green.
+23. The merged preference-first core is recorded as Phase 7 CLOSED; Argentina
     live smoke then gates convergence to the unified agent branch.
 
 ---
@@ -1219,7 +1312,7 @@ The implementation is complete when all of the following are true:
 Checkpoint A
   PreferenceSpec / anchors / builder
   facet>=1 + global initial portfolio sufficiency
-  canonical per-facet retrieval
+  canonical per-facet retrieval (NO embedding coverage)
   iconicity
         ↓
 Checkpoint B
@@ -1230,6 +1323,7 @@ Checkpoint B
   area-walk acquisition
         ↓
 Checkpoint C
+  embedding-backed semanticSimilarity (ranking only)
   weighted deterministic initial composition + ranked reservoir
   soft vs must anchor semantics
   planner preferenceWeight + pinned must placement
