@@ -383,3 +383,101 @@ in the prompt sent to the LLM. Added a dedicated prompt-contract test.
 
 ### Next task
 `A4 — Canonical sufficiency helper`
+
+---
+
+## Checkpoint A — Task A4 — COMPLETE
+
+- Branch: `feat/preference-first-selection`
+- Base commit: `c4aa40a4bf22d1618383f76b039867c2958d4a00`
+- Implementation commit: `2bd62084ea20f6367952c7b7cf3c3e509dda111e`
+- Plan task: `A4 — Canonical sufficiency helper`
+- Status: COMPLETE
+
+### Implemented
+- Added `be/src/modules/tours/utils/preference-sufficiency.util.ts` with
+  exactly the four canonical pure primitives the plan specifies (spec
+  §6.2 -- GLOBAL portfolio target):
+  - `paceFactor(pace)`: `relaxed` → 3, `moderate` → 4, `fast` → 5.
+  - `basePortfolioTarget(days, pace) = clamp(days,1,14) * paceFactor(pace)`
+    -- the GLOBAL base portfolio target for the whole trip, never a
+    per-facet quota.
+  - `facetSatisfied(strongCount) = strongCount >= 1`.
+  - `portfolioTarget(baseTarget, distinctReservations, distinctMustAnchors)
+    = max(baseTarget, distinctReservations + distinctMustAnchors)`.
+- Reused `PreferenceSpec['trip']['pace']` (indexed-access type) as the
+  `Pace` type alias instead of redeclaring the `'relaxed'|'moderate'|'fast'`
+  union a second time, keeping A1's interface the single source of truth.
+- Deliberately did **not** implement a per-facet `requiredMatchCount(days,
+  pace)` -- the plan explicitly calls this out as something that would
+  reintroduce a per-facet quota, which the canonical model rejects.
+- Did not add a composed "overall sufficiency" wrapper function/interface
+  beyond the four named primitives -- the plan's A4 scope names exactly
+  these four, and the required test scenario that combines them (facet
+  satisfaction + base target + portfolio target + distinct-eligible-count
+  comparison) is expressed by composing the primitives directly in the
+  test, matching how a future caller (e.g. Checkpoint C's composition
+  service) is expected to compose them too.
+
+### Files changed
+- `be/src/modules/tours/utils/preference-sufficiency.util.ts` (new)
+- `be/src/modules/tours/utils/preference-sufficiency.util.spec.ts` (new)
+
+### Verification
+- RED check: ran the new spec before creating
+  `preference-sufficiency.util.ts` → FAIL as expected —
+  `TS2307: Cannot find module './preference-sufficiency.util'`, 0 tests
+  executed.
+- `cd be && yarn test src/modules/tours/utils/preference-sufficiency.util.spec.ts`
+  → PASS — 10/10 tests: `paceFactor` maps relaxed/moderate/fast to 3/4/5;
+  `basePortfolioTarget(5,'moderate') === 20` (the required "5 moderate
+  days → base target 20 TOTAL" case) plus clamp-below-1 and
+  clamp-above-14 boundary cases; `facetSatisfied(1) === true` (the
+  required "history strongCount=1 → satisfied" case), `facetSatisfied(0)
+  === false`, and `facetSatisfied(5) === true`; `portfolioTarget` picks
+  the base when it is larger, the reservations+anchors sum when that is
+  larger, and handles an exact tie; the required combined scenario
+  (history=1 + architecture=1 + tango=1 on a 5-day/moderate trip, all
+  three individually satisfied, but `portfolioTarget(20,3,0) === 20 > 3`
+  distinct eligible Experiences, so overall NOT sufficient); and the
+  required "exploration style cannot change any sufficiency result" case,
+  asserted both by exact function arity (`paceFactor.length === 1`,
+  `basePortfolioTarget.length === 2`, `facetSatisfied.length === 1`,
+  `portfolioTarget.length === 3` -- no function has a slot for
+  `explorationStyle`) and by re-invoking with identical inputs and
+  confirming identical output.
+- `cd be && yarn typecheck` (`tsc --noEmit`) → PASS — no errors.
+- `cd be && npx eslint <the 2 new files>` → PASS — 0 problems (1
+  prettier-only formatting error found on first run, fixed with `--fix`
+  scoped to only these two files, then re-verified tests/typecheck stayed
+  green).
+- `cd be && yarn test src/modules/tours` → PASS — 81 test suites / 722
+  tests (up from 80 suites / 712 tests before this task), full `tours`
+  module, no regressions.
+
+### Deviations from plan
+- None. All four required test scenarios are covered exactly as
+  specified, and `requiredMatchCount(days, pace)` was not implemented, per
+  the explicit "do not implement" instruction.
+
+### Decisions taken
+- No new wrapper/composition function was added beyond the four named
+  primitives (see "Implemented" above) -- kept strictly to the plan's
+  named A4 scope rather than pre-building a `computePortfolioSufficiency`
+  helper that no later task has asked for yet. `PortfolioSufficiency`
+  (the result-shaped interface from Task A1) remains available for a
+  future task to populate once a real caller needs it composed as an
+  object rather than as individual comparisons.
+
+### Open issues / debt
+- `preference-sufficiency.util.ts` is not yet called from any live code
+  path, consistent with Checkpoint A's stated scope (pure/canonical
+  primitives only, no live wiring yet).
+- Same worktree pre-existing unrelated dirty files remain untouched
+  (`.env.example`, `be/src/core/config/auth.config.ts`,
+  `fe/app/(tabs)/profile.tsx`, `fe/app/(tabs)/saved.tsx`,
+  `fe/app/tours/[id].tsx`) -- unchanged since the A3 note, still not
+  authored by this task.
+
+### Next task
+`A5 — Strong/weak match helper`
