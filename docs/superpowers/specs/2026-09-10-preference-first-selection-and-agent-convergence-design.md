@@ -87,6 +87,11 @@ never discards valid knowledge.
    planning. Real Experience duration, travel time, opening hours and day
    windows determine how many Experiences are actually scheduled. The planner
    may consume additional ranked candidates when useful capacity remains.
+11. **Embeddings rank; they do not establish truth or coverage.** Vector
+   similarity may personalize ordering among already canonically eligible /
+   matching Experiences, but it never creates a facet match, upgrades weak to
+   strong, satisfies a facet, stops acquisition, bypasses exclusions/geography/
+   identity/evidence, or overrides planner feasibility.
 
 ---
 
@@ -223,6 +228,12 @@ For acquisition/sufficiency purposes, a strong match means:
 Exact final opening-hours / routing feasibility remains Stage 10's authority.
 A weak match may still be useful for ranking or enrichment but does not by
 itself stop targeted acquisition for a missing facet.
+
+**Embedding/vector similarity is not part of this predicate.** A semantically
+similar vector cannot make an Experience match a facet and cannot make a weak
+match strong. Per-facet retrieval, coverage and sufficiency remain grounded in
+explicit classified/structured evidence plus the deterministic strong-match
+policy above.
 
 ### 6.2 Canonical sufficiency model — GLOBAL portfolio target
 
@@ -513,6 +524,52 @@ Within-facet ordering is deterministic and considers, in order:
 A single dominant monothematic Experience therefore cannot be displaced merely
 because another weaker Experience covers more facet labels.
 
+### 12.2a Embedding-backed semantic similarity — D7 RESOLVED
+
+`semanticSimilarity` is the user-specific fine-ranking signal for Experiences
+that have already passed canonical eligibility/matching. In v1 it is backed by
+vector similarity, not keyword matching and not an LLM judging candidates.
+
+Canonical computation when data is available:
+
+```text
+queryVector = embed(PreferenceSpec.semanticQuery)
+semanticSimilarity(experience) = cosineSimilarity(
+  queryVector,
+  Experience.embedding
+)
+```
+
+Rules:
+- generate at most **one query embedding per generation/composition context**
+  from the non-empty positive `PreferenceSpec.semanticQuery`;
+- reuse the persisted canonical `Experience.embedding` and its existing
+  embedding metadata (`embeddingProvider`, `embeddingModel`,
+  `embeddingDimensions`, `embeddingDocumentVersion`); do not add a parallel
+  vector table/store for this feature;
+- candidate and query vectors must be compatible for the active embedding
+  contract before cosine similarity is trusted;
+- composition MUST NOT call the embedding provider once per candidate and MUST
+  NOT synchronously create missing/stale candidate Experience embeddings;
+  catalog/enrichment owns candidate embedding generation/refresh;
+- empty `semanticQuery`, missing candidate vector, stale/incompatible embedding
+  metadata or an embedding-provider failure yields a deterministic neutral /
+  unknown similarity for that candidate/context; ranking falls through to the
+  next deterministic signals instead of failing tour generation;
+- stale/missing Experience embeddings may be queued/marked for normal async
+  enrichment, but that repair is not a prerequisite for the current Tour;
+- vector similarity may affect within-facet ordering, weighted remainder fill
+  and ranked-reservoir ordering only **after** canonical eligibility/matching;
+- it never creates `candidateMatchesPreferenceFacet`, changes strong/weak,
+  contributes to the sufficiency denominator, stops acquisition, bypasses a
+  hard exclusion, proves geography/identity/evidence, or overrides planner
+  feasibility.
+
+This preserves the boundary: structured/evidence-backed semantics answer
+“does this Experience really satisfy the requested facet?”, while embeddings
+answer “among valid candidates, which one is closer to what this traveler
+actually described?”.
+
 ### 12.3 Anchors
 
 - resolved venue `must` → add to selected set and mark `mustInclude`;
@@ -639,6 +696,11 @@ Generation trace v4 is the canonical machine-auditable record. It must explain:
 - targeted acquisition reasons;
 - providers/queries/evidence;
 - classification provenance + whether reused / classified / degraded;
+- embedding-backed semantic-ranking provenance: whether a semantic query existed,
+  whether its query embedding was computed or neutral fallback was used, the
+  non-secret provider/model/dimensions/document-version compatibility metadata,
+  and per-candidate similarity score or neutral/fallback reason; never raw vector
+  arrays;
 - composition reservations, initial remainder fill and reservoir size;
 - soft-anchor boost vs must-anchor forcing;
 - unmet facets and unmet anchors;
@@ -694,6 +756,8 @@ keep the full debugging material available behind expansion, including:
 - provider queries, URLs and evidence keys;
 - prompts and raw/normalized model responses where already retained by trace
   policy, with secrets redacted;
+- semantic-similarity scores and embedding contract metadata, but never raw
+  embedding/vector arrays;
 - score breakdowns, timings and persisted IDs.
 
 The primary view must never require interpreting a code such as
@@ -797,6 +861,18 @@ Existing async media/enrichment remains separate and unchanged by this refactor.
 Prove:
 - PreferenceSpec never puts exploration style in `facets`;
 - `facetSatisfied == strongCount >= 1`;
+- a non-matching Experience with vector similarity `0.99` still cannot cover a
+  requested facet, become strong, or stop acquisition;
+- among otherwise comparable canonically strong candidates, higher compatible
+  embedding-backed semantic similarity wins at the documented similarity
+  tie-break position;
+- empty semanticQuery yields deterministic neutral similarity;
+- missing/stale/incompatible candidate embedding yields deterministic neutral /
+  unknown similarity without failing generation;
+- composition never performs one embedding-provider call per candidate and never
+  synchronously generates missing candidate embeddings;
+- identical semanticQuery + compatible persisted vectors produce deterministic
+  similarity/order on repeat;
 - portfolio target is days×pace globally and represents initial breadth, not
   final itinerary cardinality;
 - soft anchors are not forced;
@@ -817,6 +893,9 @@ Prove:
 - classify → persist → re-retrieve preserves classification, quality and traits;
 - provider-order metadata merge converges;
 - stale/missing classification reclassifies rather than incorrectly skipping;
+- persisted Experience embedding metadata is preserved/read consistently for
+  composition similarity, with incompatible/stale metadata degrading to neutral
+  rather than affecting coverage;
 - area-walk first acquisition persists and second request reuses the same
   Experience id.
 
@@ -825,6 +904,11 @@ Prove:
 Use large competing catalogs (hundreds of Experiences) and prove:
 - every requested facet has at least one strong candidate before composition;
 - initial composition size targets the global days×pace breadth, not per facet;
+- high vector similarity cannot rescue a non-matching/weak Experience into facet
+  coverage;
+- changing free-text semantic context can reorder otherwise comparable eligible
+  Experiences through embedding-backed similarity without changing the factual
+  facet-coverage result;
 - long-duration Experiences can produce a valid final Tour with fewer scheduled
   rows than the initial portfolio target;
 - short-duration Experiences can cause deterministic backfill from the ranked
@@ -910,5 +994,15 @@ consumes a deterministic ranked reservoir when meaningful capacity remains, and
 may trigger bounded targeted acquisition only after that reservoir is exhausted.
 Convergence stops on no useful capacity, no progress, exhausted budgets or pass
 limits; the system never adds poor filler merely to occupy every minute.
+
+### D7 — embedding-backed semantic ranking
+`PreferenceSpec.semanticQuery` may produce one compatible query embedding for the
+current generation/composition context. It is compared against persisted
+canonical `Experience.embedding` vectors to produce `semanticSimilarity` for
+fine ranking among already eligible/matching candidates. Missing/stale/
+incompatible embeddings degrade deterministically to neutral/unknown similarity;
+they never create coverage, strongness, acquisition sufficiency, factual truth or
+planner feasibility. Candidate embedding creation/refresh remains catalog /
+enrichment responsibility, not a per-candidate composition call.
 
 ---
