@@ -158,7 +158,8 @@ it is.
                                     ▼                                │
 ┌─ 6. SEMANTIC CLASSIFICATION ──────────────────  (the new call) ────┐│
 │  FOR EACH new / unclassified evidence bundle:                      ││
-│    6a. classify ── LLM (Groq qwen/qwen3.8-27b, temp 0) ── batched,  ││
+│    6a. classify ── LLM (Groq qwen/qwen3.8-27b, temp 0) ── ONE call  ││
+│        per bundle, sequential, bounded retry-on-429 (v1 — see D1); ││
 │        cached by hash(bundle + model_id + prompt_version)          ││
 │        input: OSM tags + Wikivoyage prose/section + Places         ││
 │               editorial/types + web snippets + Wikidata narrative  ││
@@ -231,7 +232,7 @@ it is.
 | Wikidata narrative | Wikidata API | 4b, per OSM feature with a QID | 0–M | **0** |
 | Identity resolution | Places / OSM | 5a, disambiguation | 0–K | **0** |
 | **Web entity extraction** | **LLM Gemini flash-lite** | **4c, per web-search batch — names + evidenceKeys only** | **0–P** | **0** |
-| **Semantic classification** | **LLM Groq qwen3.8-27b** | **6a, per NEW evidence bundle — batched, cached** | **0–B** | **0** |
+| **Semantic classification** | **LLM Groq qwen3.8-27b** | **6a, per NEW evidence bundle — one call each, sequential, cached (v1; batching deferred, D1)** | **0–B** | **0** |
 | Document embedding | Gemini | 7b, per new Experience | 0–B | **0** |
 | Travel estimates | Geoapify (+ Haversine fallback) | 10b, per candidate pair | many, cheap/cached | many |
 | Media / cover | Wikimedia / image gen | 11b, async, off critical path | async | async |
@@ -319,12 +320,24 @@ CHAR-4). This resolves G.1 group B.
 - **Failure:** on LLM error/timeout the Experience persists with `themes:[]`
   (today's behavior) — degraded, not blocking. A later re-classification pass
   picks it up.
-- **Critical-path decision (§11 open decision D1):** for a genuinely cold
-  destination, Stage 6 is on the tour's critical path (B classification calls
-  before composition). Recommended: cold destinations return a **"thin first
-  tour"** from whatever classified in a bounded budget, and an async
-  pre-warm job completes classification so the *second* tour to that
-  destination is full. To be confirmed.
+- **Critical-path decision (§11 D1 — RESOLVED 2026-09-11).** For a genuinely
+  cold destination, Stage 6 is on the tour's critical path. **v1 runs it
+  sequentially, one classification call per new bundle, before composition** —
+  no "thin first tour", no async pre-warm job. Rationale: both probes hit
+  Groq's rate limit (`429 rate_limit_exceeded`) at just 12 near-sequential
+  calls on the free tier; parallelizing or batching classification calls
+  *increases* that exposure per unit time, and the existing async
+  `generationStatus`/SSE progress screen (already used for acquisition passes:
+  `"Buscando más Experiences (fuentes: …)"`) already makes a longer sequential
+  wait tolerable without new UX. Sequential classification MUST still use
+  bounded retry-with-backoff on `429` (proven in probe #2). **Deferred, NOT v1
+  scope:** parallelizing per-facet acquisition and batching classification
+  calls (documented as "Option A′" during design) is a **future performance
+  improvement**, to be taken up only if real telemetry after shipping shows
+  cold-destination latency is a problem. The "thin first tour + pre-warm"
+  shape (Option B) stays documented as a further fallback if A′ alone is not
+  enough — it can reuse the existing `MediaEnrichmentProcessorService`
+  async-job + SSE-push pattern rather than being built from scratch.
 
 ### 5.4 `exploration_style` becomes a within-facet ranking tilt
 Not a facet to satisfy, not a denominator term (fixes CHAR-2's dead-denominator
@@ -721,14 +734,19 @@ the refactor branch merges.
   sign-off).
 - Does not change the `Experience` / `GeoEntity` / `Tour` core models, dedupe
   thresholds, or the deterministic solver's hard constraints.
+- **No parallelized per-facet acquisition, no batched Stage 6 classification
+  calls, no "thin first tour" / async pre-warm** (D1, §5.3). v1 classifies
+  sequentially with bounded retry-on-429. This is explicitly deferred future
+  performance work, not built here — see the implementation plan's backlog.
 
 ---
 
 ## 11. Open decisions (need sign-off before the implementation plan)
 
-- **D1 — Cold-destination critical path.** Stage 6 on the tour critical path for
-  a cold city, or "thin first tour + async pre-warm" (§5.3)? Recommended: thin
-  first tour.
+- ~~**D1 — Cold-destination critical path.**~~ **RESOLVED 2026-09-11:**
+  sequential Stage 6 on the critical path in v1 (no thin tour, no pre-warm);
+  parallel/batched classification and the thin-tour fallback are deferred,
+  documented future performance work — not built in this refactor. See §5.3.
 - **D2 — Classification cache store.** New `experience_classification_cache`
   table vs the file-based `AiCacheService` pattern? Recommended: a table (queryable,
   survives container restarts, supports the batch re-classification job).
