@@ -96,7 +96,8 @@ it is.
 ┌─ 1. PREFERENCE RESOLUTION → PreferenceSpec (the query object) ───────────────┐
 │  1a. interpret free text     ── LLM (Groq) ── ONLY if additionalPreferences  │
 │      ≠ "". Output: preferredFacets (controlled vocab), exclusions,           │
-│      anchoredPlaces[], positiveSemanticQuery. Deterministic regex fallback.  │
+│      anchoredPlaces[] (each priority: soft|must — see D3), positiveSemantic- │
+│      Query. Deterministic regex fallback.                                   │
 │  1b. merge wizard + interpreted                              [no ext call]    │
 │      PreferenceSpec {                                                        │
 │        facets: RequestedFacet[] { dimension, key, weight, source, required } │
@@ -188,25 +189,34 @@ it is.
 │  deterministic set-cover:                                                    │
 │    • satisfy EVERY requested facet with ≥1 strong match                      │
 │    • drop anything matching hardExclusions                                   │
-│    • force-include resolved anchors (priority: soft = strong tilt, must =    │
-│      hard include if resolvable)                                             │
+│    • `must` anchors (resolved) are ALWAYS in the candidate set passed to the │
+│      planner — never trimmed by Stage 9 (see D3); `soft` anchors get a       │
+│      strong inclusion tilt but can be left out                              │
 │    • prefer multi-facet Experiences (cover more of the spec per slot)        │
 │    • enough total for days × pace                                            │
 │    • within-facet order: weight → similarity → iconicity tilt → quality →    │
 │      diversity                                                               │
 │  overlap resolution: shared component → keep the one covering MORE SPEC      │
 │    (not more components), tie-break weight then quality                      │
-│  → CompositionResult { selected[], perFacetCoverage, unmetFacets, anchors }  │
+│  → CompositionResult { selected[], perFacetCoverage, unmetFacets, anchors,   │
+│      unmetAnchors: [{anchor, reason: UNRESOLVED|INFEASIBLE}] }              │
 └───────────────────────────────────┬──────────────────────────────────────────┘
                                     ▼
 ┌─ 10. DETERMINISTIC DAILY PLANNING ─────────────────────────────────────────┐
 │  10a. normalize → PlanningExperienceCandidate[]  (+ preferenceWeight,       │
-│       raw qualityScore 0..5, footprints, opening hours)      [no ext call]  │
-│  10b. GreedyDailyPlanningSolver — hard constraints + soft score that NOW    │
-│       includes a preference term; quality weight applied ONCE              │
-│       travel ── Geoapify (+ Haversine fallback) ── per pair evaluated       │
+│       raw qualityScore 0..5, footprints, opening hours, mustInclude flag)   │
+│       [no ext call]                                                        │
+│  10b. GreedyDailyPlanningSolver — a `mustInclude` candidate is placed in a  │
+│       PINNED pass before the greedy loop (reuses the existing anchor-       │
+│       seeding precedent in daily-planning-candidate-sort.util.ts), subject  │
+│       ONLY to genuine hard constraints (opening hours, walking, time        │
+│       capacity) — never dropped by score/trimming. Hard constraints + soft  │
+│       score that NOW includes a preference term; quality weight applied     │
+│       ONCE. travel ── Geoapify (+ Haversine fallback) ── per pair evaluated │
 │  10c. TourPlanningFeasibilityValidator (re-derives from solution) [no call] │
 │  facet dropped for feasibility → moves to unmetFacets (reason: infeasible)  │
+│  `must` anchor that fails the pinned pass on real hard constraints →        │
+│  unmetAnchors (reason: INFEASIBLE) — the tour is NOT failed (see D3)        │
 └───────────────────────────────────┬──────────────────────────────────────────┘
                                     ▼
 ┌─ 11. MATERIALIZE + TRACE + ASYNC ENRICHMENT ──────────────────────────────┐
@@ -260,7 +270,7 @@ compose → plan. **0–1 LLM + 1 embedding + destination + travel.** Fast.
 | `mergeMetadata` (shallow, order-dependent) | **CHANGED** to order-independent (union arrays, prefer non-empty, `max` quality). |
 | `resolveOrCreateTraitDefinitions` (every dimension `'general'`) | **CHANGED** — real dimensions. |
 | `PlanningCandidateNormalizerService` | **CHANGED** — carries `preferenceWeight` + raw `qualityScore`. |
-| `GreedyDailyPlanningSolver` | **CHANGED** — preference term in the soft score; quality weight applied once. |
+| `GreedyDailyPlanningSolver` | **CHANGED** — preference term in the soft score; quality weight applied once; a new pinned-placement pass for `mustInclude` candidates (D3), extending the existing `selectDailyAnchors` day-seeding precedent. |
 | `TourPlanningFeasibilityValidatorService` | **KEPT** (10c). |
 | `filterOverlappingExperienceCandidates` | **CHANGED** — tie-break by "covers more spec", not by component count. |
 | `PreferenceInterpreterService` | **CHANGED / MERGED** — becomes the `PreferenceSpec` builder (Stage 1); unified with the agent's request interpreter (§7). |
@@ -430,18 +440,52 @@ polygon leaked in as a schedulable Experience and trivially "covered" every
 facet because a whole neighborhood contains everything. The composition MUST
 reject any candidate lacking components before facet matching.
 
-**Anchor semantics by kind (refines the earlier soft/must model).**
-- `anchor.kind = venue` (e.g. Teatro Colón) → a candidate Experience like any
-  other, with a strong inclusion tilt. `priority: must` (only if the interpreter
-  is confident the text was emphatic) = hard-include if it resolves.
-- `anchor.kind = area` (e.g. San Telmo) or `route` → **never** a selected stop.
-  It becomes (a) a **retrieval-scope bias**: per-facet retrieval (Stage 3)
-  prefers Experiences whose components fall inside the anchor's polygon; and
-  (b) a **trigger to acquire/compose a real multi-stop walk Experience** for
-  that area (a neighborhood-walk-shaped Experience whose components — plazas,
-  streets, landmarks — are resolved through OSM/Places, with the AREA as its
-  boundary). That resolved walk Experience is what can be selected; the bare
-  polygon cannot.
+**Anchor semantics by kind and priority (§11 D3 — RESOLVED 2026-09-11: `must`
+exists from v1).**
+
+- `anchor.kind = area` or `route` (e.g. San Telmo) → **never** a selected stop,
+  regardless of `priority`. It becomes (a) a **retrieval-scope bias**: per-facet
+  retrieval (Stage 3) prefers Experiences whose components fall inside the
+  anchor's polygon; and (b) a **trigger to acquire/compose a real multi-stop
+  walk Experience** for that area (a neighborhood-walk-shaped Experience whose
+  components — plazas, streets, landmarks — are resolved through OSM/Places,
+  with the AREA as its boundary). That resolved walk Experience is what can be
+  selected; the bare polygon cannot. `must` on an area/route anchor means the
+  walk-Experience acquisition is itself treated as `must` (§9.9-style priority
+  on the acquisition pass, not a forced stop).
+- `anchor.kind = venue` (e.g. Teatro Colón), `priority: soft` → a candidate
+  Experience like any other, with a strong inclusion tilt; can legitimately be
+  left out of the final set (by facet competition or, later, by the planner).
+- `anchor.kind = venue`, `priority: must` — three outcomes, **none of which
+  fails the tour** (preserves the Experience Domain V2 invariant "a missing
+  positive preference never fails a tour by itself" — a `must` anchor is still
+  a preference, just a non-droppable one when it *can* be satisfied):
+  1. **Resolved + feasible** → hard include. Guaranteed a slot in Stage 9
+     (never trimmed for budget/prioritization) and placed by the Stage 10
+     solver in a pinned pass before the greedy loop, subject only to genuine
+     hard constraints.
+  2. **Unresolved** (Stage 5 identity resolution never grounded the name to a
+     real `GeoEntity` — e.g. acquisition found nothing, or corroboration
+     couldn't disambiguate) → `unmetAnchors: [{anchor, reason: 'UNRESOLVED'}]`.
+     No hard-include is attempted; nothing else in the tour is affected.
+  3. **Resolved + infeasible** (the Stage 10 solver's pinned pass genuinely
+     cannot place it without violating a hard constraint — opening hours,
+     walking limits, time capacity) → the solver does **not** break the hard
+     constraint to force it in; `unmetAnchors: [{anchor, reason: 'INFEASIBLE'}]`,
+     and the solver proceeds without it.
+- **Interpreter conservativeness.** `priority: must` is emitted only for
+  explicit intent — "quiero visitar X", "incluí X", "sí o sí quiero ir a X",
+  "no me quiero perder X". Anything softer ("me gustaría", "si se puede", "algo
+  cerca de…") is `soft`. **When in doubt, `soft`** — this is a prompt
+  instruction to the interpreter (§1a), not a heuristic in code.
+- **Mechanism note.** The Stage 10 pinned-placement pass is a scoped addition to
+  `GreedyDailyPlanningSolver`: it reuses the existing precedent of
+  `selectDailyAnchors` in `daily-planning-candidate-sort.util.ts` (which already
+  seeds each day with a deterministic candidate before the general greedy fill,
+  for day-balance — a different "anchor" concept, not to be confused with a
+  user-requested `AnchoredPlace`), extended so a `mustInclude` candidate is
+  seeded first and exempted from score-based competition, never from hard
+  constraints.
 
 **Best-in-facet reservation (from probe #2, §8.1 Finding A).** Pure multi-facet
 greedy can drop the single strongest match for a facet. Before the multi-facet
@@ -654,7 +698,7 @@ from the CI-blocking gate until its `it.failing()` invariants flip (see 9.5).
 | **KEEP (expanded)** | `preference-facet-matching.util.spec.ts` — becomes the spec for THE match primitive; absorbs the useful cases from `experience-preference-evaluator.util.spec.ts`. `structured-candidate-corroboration.service.spec.ts` — + catalog fold-in cases. OSM/Wikivoyage/Places acquisition provider specs — + evidence-preservation assertions (§5.5). `greedy-daily-planning.*` acceptance unit specs — candidate inputs gain `preferenceWeight`; add a "preference term changes placement" case. |
 | **CHANGE** | `planning-candidate-normalizer.service.spec.ts` (carries `preferenceWeight` + raw quality), `daily-planning-placement.util.spec.ts` / `daily-planning-candidate-sort.util.spec.ts` (preference term in soft score + greedy order), `candidate-overlap-filter.util.spec.ts` (tie-break by "covers more spec"), `theme-matching.util.spec.ts` (only the trace-safe subset survives; `matchesThemeKeywords`-over-`JSON.stringify` deleted), `generation-trace-builder.util.spec.ts` (v4 + per-facet + primitive-based "what matched") |
 | **REMOVE** | `structured-experience-candidate-synthesizer.service.spec.ts` (service removed), `candidate-ranking.util.spec.ts` (big-pool sort removed — a much smaller `within-facet-ordering.spec.ts` replaces it), `candidate-window-selection.util.spec.ts` (`selectBoundedWindow` removed), `coverage-analyzer.service*.spec.ts` (monolith removed — `facet-sufficiency.spec.ts` replaces it), the theme/trait *extraction* cases in the discovery-extractor specs (Stage 4c extracts names only; anti-hallucination name-grounding cases stay and move to `web-entity-extraction.spec.ts`) |
-| **NEW** | `preference-spec-builder.spec.ts` (Stage 1 merge, anchors, wizard+free-text precedence), `facet-router.spec.ts` (Stage 4a routing table, per-facet provider actions, `exploration_style` not routed), `iconicity.util.spec.ts` (deterministic score), `semantic-classification-normalizer.spec.ts` (Stage 6b + trait-shape guard: rejects sentences, canonical keys, empty), `quality-score.util.spec.ts` (Stage 6c deterministic function), `composition-set-cover.spec.ts` (Stage 9: covers every facet, drops exclusions, prefers multi-facet, deterministic — **plus probe #2 guards:** best-in-facet reservation not dropped by multi-facet fill [Finding A]; a bare `AREA`/`ROUTE` `GeoEntity` with no components is rejected before matching [Finding D]; `intent:performance` unsatisfied by an ambiance-only themed place [Finding B]), `anchor-semantics.spec.ts` (`kind:venue` → candidate; `kind:area`/`route` → scope bias + walk-acquisition trigger, never a stop — Finding D), `merge-metadata.spec.ts` (order-independence — promoted from characterization CHAR-8), `within-facet-ordering.spec.ts` |
+| **NEW** | `preference-spec-builder.spec.ts` (Stage 1 merge, anchors, wizard+free-text precedence), `facet-router.spec.ts` (Stage 4a routing table, per-facet provider actions, `exploration_style` not routed), `iconicity.util.spec.ts` (deterministic score), `semantic-classification-normalizer.spec.ts` (Stage 6b + trait-shape guard: rejects sentences, canonical keys, empty), `quality-score.util.spec.ts` (Stage 6c deterministic function), `composition-set-cover.spec.ts` (Stage 9: covers every facet, drops exclusions, prefers multi-facet, deterministic — **plus probe #2 guards:** best-in-facet reservation not dropped by multi-facet fill [Finding A]; a bare `AREA`/`ROUTE` `GeoEntity` with no components is rejected before matching [Finding D]; `intent:performance` unsatisfied by an ambiance-only themed place [Finding B]), `anchor-semantics.spec.ts` (`kind:venue` → candidate; `kind:area`/`route` → scope bias + walk-acquisition trigger, never a stop — Finding D; **`must`-anchor branches, D3:** resolved+feasible never trimmed by Stage 9; unresolved → `unmetAnchors:UNRESOLVED`, tour still composes; `soft` can legitimately be left out), `must-anchor-interpreter.spec.ts` (D3: `must` only for "quiero visitar/incluí/sí o sí/no me quiero perder" phrasings; ambiguous phrasing → `soft`), `merge-metadata.spec.ts` (order-independence — promoted from characterization CHAR-8), `within-facet-ordering.spec.ts` |
 
 ### 9.2 Integration (`be/test/integration/`, real Postgres)
 
@@ -670,7 +714,7 @@ from the CI-blocking gate until its `it.failing()` invariants flip (see 9.5).
 |---|---|
 | **KEEP (catalog seeding + fakes discipline)** | `be/test/support/experience-selection/*` corpus/harness — the 320-row seeding + binary-embedding fake + fake interpreter + Haversine travel fake all stay. |
 | **CHANGE** | `experience-selection-scale.e2e-spec.ts` — feasibility/exclusion scenarios stay; assertions shift from "geo pool → ranked window" to "per-facet coverage in the result + composed set". `experience-selection-competitive.e2e-spec.ts` (CP-G benchmark) — the ranking-as-pool-sort it benchmarks is replaced; its counterfactuals ("one preference delta → different selection") are re-expressed as "one facet added/removed → different composed set", which is a *better* fit for preference-first. Dominance/regret checks stay. |
-| **NEW** | `preference-first-cold-catalog.e2e-spec.ts` (empty catalog for a city → full acquisition+classification path with faked provider transports → assert the tour's `perFacetCoverage` covers every requested facet, `unmetFacets` is explained, the trace has the per-facet section), `anchor-honored.e2e-spec.ts` (a `PreferenceSpec` with an anchor that exists in the seed → it appears in the composed set), `one-preference-delta.e2e-spec.ts` (adding `theme:tango` changes the composed set deterministically and in the right direction) |
+| **NEW** | `preference-first-cold-catalog.e2e-spec.ts` (empty catalog for a city → full acquisition+classification path with faked provider transports → assert the tour's `perFacetCoverage` covers every requested facet, `unmetFacets` is explained, the trace has the per-facet section), `anchor-honored.e2e-spec.ts` (a `PreferenceSpec` with a `soft` anchor that exists in the seed → it appears in the composed set; a `must` anchor that exists and is feasible → hard-included in the final plan, real Postgres + real solver end to end), `must-anchor-infeasible.e2e-spec.ts` (D3: a `must` anchor seeded but only schedulable in a way that violates a hard constraint → `unmetAnchors:INFEASIBLE`, tour still generates and is materialized), `one-preference-delta.e2e-spec.ts` (adding `theme:tango` changes the composed set deterministically and in the right direction) |
 | **REMOVE** | any assertion of "offered window length === 15" or "coverage decision `none` because N nearby rows exist" (concepts deleted) |
 
 ### 9.4 Acceptance (`be/test/acceptance/`, deterministic solver)
@@ -679,7 +723,7 @@ from the CI-blocking gate until its `it.failing()` invariants flip (see 9.5).
 |---|---|
 | **KEEP** | `be/test/acceptance/scenarios/*` (rosario-accessibility, buenos-aires-3days, san-rafael-2days, villa-general-belgrano-1day, idempotency) — they test feasibility, scheduling, determinism; candidate inputs adapt to the new `PlanningExperienceCandidate` shape (`preferenceWeight`, raw `qualityScore`). `be/test/acceptance/harness/*`, builders, invariant asserter — kept. |
 | **CHANGE** | `greedy-daily-planning.spec.ts` (TC-SOLV-*) — add cases proving the preference term affects day/order placement and that quality weight is applied once. |
-| **NEW** | `composition-scenarios.spec.ts` (set-cover: multi-facet preference, hard exclusion under pressure, anchor forced, unmet facet surfaced — deterministic, from the `PreferenceSpec` + a fixed classified corpus) |
+| **NEW** | `composition-scenarios.spec.ts` (set-cover: multi-facet preference, hard exclusion under pressure, anchor forced, unmet facet surfaced — deterministic, from the `PreferenceSpec` + a fixed classified corpus), `must-anchor-pinned-placement.spec.ts` (D3: `GreedyDailyPlanningSolver`'s pinned pass places a `mustInclude` candidate before the greedy fill; a genuine hard-constraint conflict rejects it without breaking the constraint or failing the rest of the plan) |
 
 ### 9.5 Characterization (`be/test/characterization/`, `yarn test:characterization`)
 
@@ -765,13 +809,16 @@ the refactor branch merges.
   store. Stage 6 is skipped and `Experience.metadata.classification` is reused
   whenever Stage 5 corroboration matches an existing catalog Experience; the
   re-classification job queries `Experience` directly. See §5.3.
-- **D3 — Anchor `must` semantics.** May the interpreter ever emit
-  `anchor.priority: must` (hard include), or is every anchor `soft` in v1?
-  Recommended: `soft` only in v1; `must` deferred with the named-request
-  product decision. **Note (probe #2 Finding D):** this applies only to
-  `anchor.kind = venue`. An `area`/`route` anchor is *never* a hard-included
-  stop regardless of priority — it is always a retrieval-scope bias + a
-  walk-Experience acquisition trigger (§5.7).
+- ~~**D3 — Anchor `must` semantics.**~~ **RESOLVED 2026-09-11: `must` exists
+  from v1**, `venue` anchors only (`area`/`route` anchors are never a
+  hard-included stop regardless of priority — always the retrieval-scope bias
+  + walk-Experience acquisition trigger, §5.7). Interpreter is conservative:
+  `must` only for explicit intent ("quiero visitar X", "incluí X", "sí o sí",
+  "no me quiero perder X"); doubt → `soft`. Three outcomes, none of which fails
+  the tour: resolved+feasible → hard include (pinned placement in the solver);
+  unresolved → `unmetAnchors` reason `UNRESOLVED`; resolved+infeasible → hard
+  constraints are never broken, `unmetAnchors` reason `INFEASIBLE`. Full
+  semantics and the solver mechanism in §5.7.
 - **D5 — Area-anchor walk acquisition in v1.** When an `area` anchor is present
   and the user requested `intent:walk` / `route_like`, does v1 actually acquire
   and compose a real multi-stop walk Experience for that area (uses the existing
@@ -802,6 +849,9 @@ the refactor branch merges.
    in the live path.
 7. `PreferenceInterpreterService` and the agent's request interpreter are one
    component (§7.3).
+8. `yarn workspace backend check` shows no new tsc/lint errors vs the documented
+   baseline.
+9. Argentina live smoke (ex-"Phase 7 H") green against the refactored core.
 10. **No bare `AREA` / `ROUTE` `GeoEntity` in a `CompositionResult`** — every
     selected item is an `Experience` with ≥1 resolved `ExperienceComponent`
     (probe #2 Finding D), proven by a test.
@@ -811,6 +861,10 @@ the refactor branch merges.
 12. **`intent:performance` requires a performance venue** — a test proves an
     ambiance-only themed place does not satisfy a requested `intent:performance`
     (probe #2 Finding B).
-8. `yarn workspace backend check` shows no new tsc/lint errors vs the documented
-   baseline.
-9. Argentina live smoke (ex-"Phase 7 H") green against the refactored core.
+13. **`must`-anchor semantics hold (D3)** — tests prove all three outcomes:
+    resolved+feasible → hard include, never trimmed by Stage 9 or dropped by
+    Stage 10 scoring; unresolved → `unmetAnchors` `UNRESOLVED`, tour still
+    generates; resolved+infeasible → hard constraints are not broken,
+    `unmetAnchors` `INFEASIBLE`, tour still generates. Plus: the interpreter
+    only emits `must` for the explicit-intent phrasings in §5.7, defaulting to
+    `soft` otherwise.
