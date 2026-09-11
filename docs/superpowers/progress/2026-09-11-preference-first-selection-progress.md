@@ -85,7 +85,7 @@
 ## Checkpoint A — Task A2 — COMPLETE
 
 - Branch: `feat/preference-first-selection`
-- Base commit: `4765409af4841c58da79c83222cd553d427e1579`
+- Base commit: `6f5570ddcaf7a2af15a7d2910777487cbd90df74`
 - Implementation commit: `6e25fbf30265f235ae779b21068ca5ed6d3778a1`
 - Plan task: `A2 — Interpreter anchors (D3)`
 - Status: COMPLETE
@@ -160,6 +160,48 @@
 - `cd be && npx eslint <all 7 files changed>` → PASS — 0 problems.
 - `cd be && yarn test src/modules/tours` → PASS — 79 test suites / 704
   tests, full `tours` module, no regressions from the interface change.
+
+### Review fix (post-approval, before A3)
+
+A2 was approved at implementation level, then received one review fix
+before A3 started: the original must/soft/thematic-mention/malformed/cap/
+fallback tests only proved `normalize()` handles a given LLM response
+correctly -- none of them proved the D3 must/soft rules are actually present
+in the prompt sent to the LLM. Added a dedicated prompt-contract test.
+
+- Review fix commit: `77d16290cdbfd5937b06466a63ac4d29c2ef1cdb`
+- File changed: `be/src/modules/tours/services/preference-interpreter.service.spec.ts`
+  only -- `preference-interpreter.service.ts` was NOT touched (confirmed via
+  `git diff --stat` showing zero changes to it before committing).
+- New test: `anchoredPlaces (D3) > prompt contract > sends the conservative
+  D3 anchor-priority rules to the LLM`. It calls `service.interpret(...)`,
+  reads `langChain.generateChatResponse.mock.calls[0][0]` (the real
+  `generateChatResponse(systemPrompt, userPrompt, variables, options)`
+  signature -- the system prompt is the first positional argument, not a
+  structured message array), and asserts the prompt contains: the exact
+  `"must" ONLY for explicit, unambiguous named-place intent` rule plus its
+  four example phrases (`quiero visitar X`, `incluí X`, `sí o sí quiero ir
+  a X`, `no me quiero perder X`); the `weaker or ambiguous` / `is priority
+  "soft"` rule plus the mere-thematic-mention example (`me interesa la
+  arquitectura de X`); and the `do not invent named places` anti-hallucination
+  rule.
+- Sanity-checked the new test is not tautological: temporarily weakened the
+  prompt's must-rule wording in a scratch copy (removed "ONLY for explicit,
+  unambiguous"), reran just that test, confirmed it fails
+  (`expect(received).toContain(expected)` on the exact-rule assertion), then
+  restored `preference-interpreter.service.ts` to its original, unmodified
+  content before committing.
+- `cd be && yarn test src/modules/tours/services/preference-interpreter.service.spec.ts`
+  → PASS — 12/12 tests: the 11 pre-existing normalization-contract tests
+  (must/soft/thematic-mention/malformed/cap/fallback, unchanged) plus the 1
+  new prompt-contract test, verifying both:
+  - D3 prompt contract sent to LLM (new);
+  - anchor normalization behavior (pre-existing, untouched).
+- `cd be && yarn typecheck` → PASS — no errors.
+- `cd be && npx eslint src/modules/tours/services/preference-interpreter.service.ts src/modules/tours/services/preference-interpreter.service.spec.ts`
+  → PASS — 0 problems.
+- Full `src/modules/tours` suite (704 tests) was not rerun for this fix, per
+  the review instructions, since no implementation file changed.
 
 ### Deviations from plan
 - None. `anchoredPlaces` was added to both files the plan named
