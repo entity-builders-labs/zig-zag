@@ -661,3 +661,143 @@ corrupted `Experience` (e.g. `qualityScore: NaN`, or `latitude: NaN` /
 
 ### Next task
 `A6 — FacetRetrievalService with canonical catalog boundary`
+
+---
+
+## Checkpoint A — Task A6 — COMPLETE
+
+- Branch: `feat/preference-first-selection`
+- Base commit: `5ed403aea4b191cc9419cc48895859dc7b991dc5`
+- Implementation commit: `e4e89886ea6205b1202b5f221551ae78f397e6c9`
+- Plan task: `A6 — FacetRetrievalService with canonical catalog boundary`
+- Status: COMPLETE
+
+### Implemented
+- Added `be/src/modules/tours/services/facet-retrieval.service.ts`
+  exporting `FacetRetrievalService.retrieveFacetCandidates(facet:
+  RequestedFacet, scope: {latitude,longitude,radiusMeters}, policy?:
+  StrongMatchPolicy): Promise<FacetCandidates>`.
+- Reuses `ExperienceCatalogService.findVerifiedWithin(...)` -- the
+  existing canonical geography/hydration boundary (deterministic order,
+  component + trait hydration, true radius filtering) -- instead of a
+  second, arbitrary Prisma bounding-box query. No new catalog method was
+  needed: the existing method's own scan (`scanLimit = max(limit*4,
+  1000)`) already comfortably covers hundreds-to-low-thousands of rows;
+  the actual truncation risk was its *final* geographically-closest
+  slice to `limit` (default 100) *after* radius filtering but *before*
+  any facet matching -- so this service calls it with a generously
+  large `limit` (`FACET_RETRIEVAL_LIMIT = 2000`) instead of the default,
+  so a relevant-but-not-closest row is never silently dropped before
+  semantic matching ever sees it.
+- Classifies each returned row via Task A5's `isStrongFacetMatch` +
+  `candidateMatchesPreferenceFacet` into `strongMatches` / `weakMatches`
+  / excluded-entirely (matches neither): strong = passes A5's full
+  strong-match gate; weak = thematically matches
+  (`candidateMatchesPreferenceFacet`) but fails at least one strong
+  requirement (e.g. a bare/no-component row, or below the quality
+  floor); excluded = does not match the facet at all.
+- Both buckets are ordered strongest-first: `qualityScore` descending,
+  `id` as a stable deterministic tie-break (private
+  `byStrengthThenId`).
+- `satisfied = facetSatisfied(strongMatches.length)`, reusing Task A4's
+  helper directly rather than re-deriving `>= 1`.
+- Exported `requestedFacetToPreferenceFacet` from Task A5's
+  `preference-strong-match.util.ts` (previously a private
+  `toPreferenceFacet`, identical behavior, only visibility changed) so
+  this service reuses the one canonical `RequestedFacet` ->
+  `PreferenceFacet` adapter instead of duplicating it -- avoiding a
+  second, subtly-divergent adapter implementation.
+
+### Files changed
+- `be/src/modules/tours/services/facet-retrieval.service.ts` (new)
+- `be/src/modules/tours/services/facet-retrieval.service.spec.ts` (new)
+- `be/test/integration/tour-generation/facet-retrieval.integration-spec.ts` (new)
+- `be/src/modules/tours/utils/preference-strong-match.util.ts` (modified:
+  exported the existing adapter, no behavior change)
+
+### Verification
+- RED check: ran the new unit spec before creating
+  `facet-retrieval.service.ts` → FAIL as expected —
+  `TS2307: Cannot find module './facet-retrieval.service'`, 0 tests
+  executed.
+- `cd be && yarn test src/modules/tours/services/facet-retrieval.service.spec.ts`
+  → PASS — 6/6 unit tests (mocked catalog, no DB): strong/weak/excluded
+  bucketing from one mixed row set; strongest-first ordering by
+  `qualityScore` with `id` tie-break; not satisfied when only weak
+  matches exist; the service requests a `limit >= 2000` from the
+  mocked catalog (proving the anti-truncation request itself, in
+  isolation from real DB behavior); a custom `qualityFloor` policy is
+  passed through to change the strong/weak boundary; a bare/no-component
+  row that matches the facet never becomes strong.
+- `cd be && yarn typecheck` → PASS (both after the unit implementation
+  and again after the integration spec).
+- `cd be && npx eslint <all 4 changed files>` → PASS — 0 problems (lint
+  errors surfaced by `--fix` on formatting only, in two rounds: one for
+  the unit service/spec, one for the integration spec's `it(name, fn,
+  timeout)` indentation; re-verified tests/typecheck stayed green after
+  each).
+- `cd be && yarn test:integration --testPathPattern=facet-retrieval`
+  (real Postgres) → PASS — 4/4 integration tests:
+  - does not lose a relevant strong match among 500 unrelated filler
+    Experiences + 1 real target (the target deliberately placed ~2 km
+    from center, farther than every filler, so only a generously large
+    `limit` retrieves it) -- **verified this test is not tautological**
+    by temporarily lowering `FACET_RETRIEVAL_LIMIT` to 100 in a scratch
+    copy, rerunning just this test, confirming it fails with
+    `expect(received).toContain(expected)` / `Received array: []`
+    (proving the exact regression this test guards against), then
+    restoring the file to its original, unmodified content before
+    committing;
+  - a single strong history match satisfies the facet;
+  - a name containing "history" ("History Bar & Grill") with themes
+    `['food']` does not match at all (neither strong nor weak);
+  - a bare/no-component row whose metadata themes match the facet lands
+    in `weakMatches`, never `strongMatches`.
+- `cd be && yarn test src/modules/tours` → PASS — 83 test suites / 753
+  tests (up from 82 suites / 747 tests before this task).
+- `cd be && yarn test:integration` (full suite, not just this file) →
+  PASS — 12 test suites / 20 tests (up from 11 suites / 16 tests before
+  this task) -- no regressions to the existing integration specs from
+  reusing/exporting `requestedFacetToPreferenceFacet`.
+
+### Deviations from plan
+- None. Per the plan's explicit preference, no new `ExperienceCatalogService`
+  method was added -- the existing `findVerifiedWithin` was reused as-is,
+  called with a larger `limit` than its own default.
+
+### Decisions taken
+- Chose `FACET_RETRIEVAL_LIMIT = 2000` as the generous limit passed to
+  `findVerifiedWithin`. This comfortably covers the plan's own required
+  test scale (500+ seeded rows) and a realistic destination catalog
+  (hundreds to low thousands of rows) without being literally unbounded.
+  Documented in the constant's own comment; revisit if a real
+  destination's catalog ever meaningfully exceeds this.
+- `FacetRetrievalService` is not registered in `tours.module.ts` yet,
+  consistent with every other Checkpoint A primitive/service --
+  Checkpoint D's live-path cutover (D1) is where new services get
+  registered and wired into the live orchestration path.
+- Ordering key for "strongest-first" was not explicitly specified by
+  the plan beyond the phrase itself; chose `qualityScore` descending
+  with `id` as a stable tie-break, consistent with `qualityScore`
+  already being part of A5's own strong-match definition and with the
+  existing codebase convention of an `id`-based deterministic tie-break
+  (e.g. `ExperienceCatalogService.findVerifiedWithin`'s own
+  `left.id.localeCompare(right.id)`).
+
+### Open issues / debt
+- `FacetRetrievalService` is not yet called from any live orchestration
+  path -- Checkpoint D wires it in.
+- Confirmed with the user before running the real-Postgres integration
+  suite for this task, since `resetDb()` truncates
+  `tour`/`experience`/`geo_entity`/etc. tables and a docker-compose dev
+  stack (`zigzag-backend`, `zigzag-postgres`) was already running in
+  this shared worktree/machine at the time -- user confirmed it is
+  disposable dev/test data and approved proceeding.
+- Same worktree pre-existing unrelated dirty files remain untouched. One
+  more unrelated file appeared during this task (`Makefile`, alongside
+  the previously-noted `.env.example`/`auth.config.ts`/`app.config.js`/
+  `profile.tsx`/`saved.tsx`/`tours/[id].tsx`) -- still not authored by
+  this task.
+
+### Next task
+`A7 — Iconicity util`
