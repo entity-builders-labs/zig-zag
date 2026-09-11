@@ -540,9 +540,9 @@ survive into final placement without making an ordinary preference fatal.
 
 ---
 
-## 14. Stage 11 — trace and async enrichment
+## 14. Stage 11 — trace, product Bitácora and async enrichment
 
-Generation trace v4 must explain:
+Generation trace v4 is the canonical machine-auditable record. It must explain:
 - normalized PreferenceSpec (with explorationStyle separate from facets);
 - per-facet strong/weak candidates;
 - facet satisfaction (`>=1 strong`);
@@ -556,6 +556,130 @@ Generation trace v4 must explain:
 - planner placements/unselected reasons.
 
 No trace field may itself become input to matching.
+
+### 14.1 Bitácora v4 is a product decision surface, not a trace dump
+
+The user-facing/debug Bitácora must render the v4 trace in two layers.
+
+**Primary view — product-readable:**
+- understandable without knowing code, service names, enums or rule IDs;
+- each step should be scannable in roughly 10 seconds;
+- one short sentence at most for the step purpose;
+- 2–5 important metrics/results, preferably compact rows/chips/tables;
+- one explicit decision/result line;
+- technical internals collapsed by default.
+
+Every primary step follows the same information hierarchy:
+
+```text
+Human-readable title
+Purpose — one short line
+Key results / metrics
+Decision — one short line
+[Candidates] [Rules] [Evidence] [Technical details]
+```
+
+The primary view MUST NOT become narrative prose. Avoid paragraphs that merely
+retell the pipeline. If a value, status, compact table or short reason can convey
+the information, prefer that over prose.
+
+A product person looking only at titles, metrics and decisions must be able to
+reconstruct:
+1. what the traveler asked for;
+2. what was already covered;
+3. what was missing;
+4. why acquisition ran;
+5. what was accepted/rejected;
+6. what was selected/unselected and why;
+7. whether the final itinerary is feasible and what remains unmet.
+
+**Technical details — engineering/audit:**
+keep the full debugging material available behind expansion, including:
+- internal stage/component/service names;
+- rule IDs and reason codes;
+- thresholds and actual/expected values;
+- raw/normalized inputs and outputs;
+- provider queries, URLs and evidence keys;
+- prompts and raw/normalized model responses where already retained by trace
+  policy, with secrets redacted;
+- score breakdowns, timings and persisted IDs.
+
+The primary view must never require interpreting a code such as
+`PREF_STRONG_MATCH_QUALITY_FLOOR` to understand the decision. Codes remain
+stable engineering identifiers only.
+
+### 14.2 Human rule rendering
+
+Each deterministic rule that can appear in the primary Bitácora needs a short
+human label and a concrete execution summary. Example:
+
+```text
+✅ Calidad suficiente
+4.4/5 · mínimo 3.0
+```
+
+rather than:
+
+```text
+PREF_STRONG_MATCH_QUALITY_FLOOR
+PASS · actual=4.4 · expected=3.0
+```
+
+The rule ID, exact comparator and raw inputs remain visible only in technical
+details. Failed rules follow the same pattern, e.g. `Sin ubicación verificable`
+with a one-line concrete reason rather than a bare reason code.
+
+### 14.3 Canonical product-facing stages
+
+The UI may group multiple machine trace steps where useful. The product-facing
+flow should communicate these concepts, without exposing implementation names as
+the headline:
+
+1. **Qué viaje entendimos** — normalized preferences, anchors and constraints.
+2. **Destino resuelto** — destination/scope and any relevant resolution result.
+3. **Cobertura de preferencias** — per-facet strong/weak counts and covered/gap.
+4. **Qué faltaba** — uncovered facets and/or global portfolio shortage.
+5. **Búsqueda de nuevas opciones** — targeted acquisition objective, sources,
+   found/verified/rejected counts.
+6. **Verificación y clasificación** — identity/evidence/classification outcomes,
+   including reused/classified/degraded counts.
+7. **Selección de Experiences** — reservations, weighted fill, soft/must anchors,
+   selected/unselected reasons and portfolio target.
+8. **Armado del itinerario** — days, placements, feasibility/conflicts, must
+   placement outcome.
+9. **Resultado final** — selected count, covered/unmet facets/anchors and final
+   feasibility/status.
+
+These are presentation concepts, not new orchestration stages. The trace remains
+machine-oriented and may contain finer-grained steps.
+
+### 14.4 Concise decision examples
+
+Coverage should read like:
+
+```text
+Historia       3 strong · 2 weak   ✅ Cubierta
+Arquitectura   1 strong · 4 weak   ✅ Cubierta
+Tango          0 strong · 2 weak   ⚠️ Falta
+
+Decisión: buscar nuevas opciones sólo para Tango.
+```
+
+Composition should read like:
+
+```text
+Objetivo                  12
+Preferencias cubiertas    3/3
+Reservadas por preferencia 3
+Must anchors              1/1
+Seleccionadas             12/12
+
+Decisión: portfolio completo.
+```
+
+An unselected candidate should have a short human reason such as `preferencia ya
+cubierta; otra opción aporta más peso/diversidad`, while exact scoring stays
+collapsed.
 
 Existing async media/enrichment remains separate and unchanged by this refactor.
 
@@ -599,7 +723,11 @@ Use large competing catalogs (hundreds of Experiences) and prove:
 - must anchor resolved+feasible appears in final scheduled Tour;
 - must anchor unresolved/infeasible is surfaced with the exact reason;
 - bare AREA/ROUTE never leaks into selected Experiences;
-- route/walk acquisition uses grounded multi-component evidence.
+- route/walk acquisition uses grounded multi-component evidence;
+- Bitácora primary view exposes covered/uncovered facets, acquisition decision,
+  composition decision and planner result without requiring rule IDs;
+- rule IDs, evidence and technical payloads remain available in expanded details;
+- product-facing steps remain concise rather than duplicating raw trace prose.
 
 ### Live
 
@@ -657,49 +785,3 @@ Acquire/reuse a normal grounded multi-component Experience in v1. No
 `NEIGHBORHOOD_WALK` type, no bare AREA/ROUTE scheduling, no invented sequence.
 
 ---
-
-## 18. Explicit non-goals
-
-This refactor does not add:
-- Activities;
-- Events;
-- OperationalStop / TourStop;
-- autonomous deep research / site crawl/map/extract orchestration;
-- long-term personal taste memory;
-- a new schema solely for classification caching;
-- LLM geographic truth;
-- LLM dedupe;
-- dimensioned-facet emission from the semantic classifier;
-- a new structural Experience kind for walks/routes.
-
-Those belong to the target architecture / post-gate roadmap after this core is
-stable.
-
----
-
-## 19. Final invariant
-
-Not:
-
-```text
-nearby catalog → global score → truncate → hope preferences survive
-```
-
-Not:
-
-```text
-one days×pace quota PER preference
-```
-
-Target:
-
-```text
-PreferenceSpec
-  → per-real-facet canonical retrieval
-  → >=1 strong match per requested facet
-  → global days×pace portfolio sufficiency
-  → targeted acquisition only where needed
-  → evidence-only classification + canonical persistence
-  → deterministic weighted set-cover composition
-  → deterministic feasible planning
-```
