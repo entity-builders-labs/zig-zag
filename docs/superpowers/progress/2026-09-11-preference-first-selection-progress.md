@@ -481,3 +481,138 @@ in the prompt sent to the LLM. Added a dedicated prompt-contract test.
 
 ### Next task
 `A5 — Strong/weak match helper`
+
+---
+
+## Checkpoint A — Task A5 — COMPLETE
+
+- Branch: `feat/preference-first-selection`
+- Base commit: `c22faa50aaee513a692129af6b8a5e53ac22889a`
+- Implementation commit: `1eb60fc64a4bfd00f663f8d1016fd726a4c3d850`
+- Plan task: `A5 — Strong/weak match helper`
+- Status: COMPLETE
+
+### Implemented
+- Added `be/src/modules/tours/utils/preference-strong-match.util.ts`
+  exporting `isStrongFacetMatch(experience, facet: RequestedFacet, policy?):
+  boolean`, ANDing in order (spec §6.1):
+  1. `candidateMatchesPreferenceFacet(experience, facet)` -- the one
+     canonical matching primitive. `RequestedFacet` (Task A1) is adapted to
+     the `PreferenceFacet` shape that primitive expects via a private
+     `toPreferenceFacet()` (only `dimension`/`key` are ever read by the
+     primitive; `importance`/`confidence` are filled with neutral
+     placeholder values never used for matching).
+  2. at least one resolved component with real geography
+     (`component.geoEntity.latitude`/`longitude` both numbers).
+  3. `qualityScore >= QUALITY_FLOOR` (`DEFAULT_QUALITY_FLOOR = 3.0`,
+     overridable via `policy.qualityFloor`) -- a `null` `qualityScore`
+     never gets a magic default (spec §10.1) and simply fails this check.
+  4. classification/evidence grounding is not explicitly known-thin:
+     `metadata.classification.state !== 'degraded'`. Absence of any
+     classification metadata at all is explicitly NOT treated as thin
+     (Task B2's classifier does not exist yet, so most current rows carry
+     no classification metadata) -- only an explicit `'degraded'` state
+     disqualifies.
+  5. an obvious pre-planner feasibility guard only: an optional
+     `policy.planningWindowMinutes` rejects a candidate whose
+     `durationMinutes` obviously exceeds it. The daily planner remains
+     authoritative for full feasibility (opening hours, routing, etc.) --
+     this is explicitly not a substitute for Stage 10.
+- A candidate that matches (step 1) but fails any of steps 2-5 is a *weak*
+  match; this helper only answers strong/not-strong. The next task (A6's
+  `FacetRetrievalService`) is expected to derive weak itself as
+  `candidateMatchesPreferenceFacet(...) && !isStrongFacetMatch(...)`.
+
+### Files changed
+- `be/src/modules/tours/utils/preference-strong-match.util.ts` (new)
+- `be/src/modules/tours/utils/preference-strong-match.util.spec.ts` (new)
+
+### Verification
+- RED check: ran the new spec before creating
+  `preference-strong-match.util.ts` → FAIL as expected —
+  `TS2307: Cannot find module './preference-strong-match.util'`, 0 tests
+  executed.
+- `cd be && yarn test src/modules/tours/utils/preference-strong-match.util.spec.ts`
+  → PASS — 10/10 tests: strong (matches + resolved geography + quality
+  4.4 + no degraded classification); not strong when quality is
+  below the floor (2.5); not strong when quality is `null`; not strong
+  with zero components and with a component whose geoEntity lacks
+  lat/lng; not strong when classification is explicitly `degraded`;
+  still eligible to be strong when classification metadata is simply
+  absent; not strong for a non-matching candidate (facet gate itself
+  fails); not strong when duration obviously exceeds a supplied
+  `planningWindowMinutes` (and correctly still strong with no window
+  supplied, or a window it fits within); respects a custom
+  `qualityFloor`; `DEFAULT_QUALITY_FLOOR === 3.0`.
+- `cd be && yarn typecheck` (`tsc --noEmit`) → PASS — no errors.
+- `cd be && npx eslint <the 2 new files>` → PASS — 0 problems (2
+  prettier-only formatting errors found on first run, fixed with `--fix`
+  scoped to only these two files, then re-verified tests/typecheck stayed
+  green).
+- `cd be && yarn test src/modules/tours` → PASS — 82 test suites / 732
+  tests (up from 81 suites / 722 tests before this task), full `tours`
+  module, no regressions.
+
+### Deviations from plan
+- The plan's Checkpoint A "New files" list (§1) does not name a specific
+  file for this task's helper (only `facet-retrieval.service.ts`, for the
+  *next* task A6, is listed). Named this file
+  `preference-strong-match.util.ts` to match the naming convention of the
+  other new preference-first primitives introduced in this checkpoint
+  (`preference-spec-builder.util.ts`, `preference-sufficiency.util.ts`).
+  This is a filename choice, not an architectural one -- the function's
+  behavior follows the plan's A5 bullet list exactly.
+
+### Decisions taken
+- Treated "classification/evidence grounding is not known-thin" as
+  "absence of classification metadata is not thin; only an explicit
+  `degraded` state is" (see `isClassificationKnownThin` doc comment).
+  This was necessary because Task B2 (the classifier that will actually
+  populate `metadata.classification.state`) does not exist yet at this
+  point in the checkpoint sequence, so requiring classification to be
+  *present* would make every current row fail step 4 and never be
+  strong -- clearly not the intent, since A5 explicitly precedes B2 in
+  the plan's own ordering.
+- `isStrongFacetMatch` deliberately does not compute or return a "weak"
+  verdict itself (no `'strong'|'weak'|'none'` enum return type) --
+  the plan's A5 wording only asks for a strong-match helper, and
+  Stage 6's own text (§6.1) already defines weak as "matches but isn't
+  strong", which the next task can derive by composing this helper with
+  `candidateMatchesPreferenceFacet` directly, avoiding a second
+  redundant classification surface.
+
+### Open issues / debt
+- `isStrongFacetMatch` is not yet called from any live/retrieval code
+  path -- Task A6 (`FacetRetrievalService`) is where it gets its first
+  real caller, consistent with Checkpoint A's stated scope (pure
+  primitives only, no live wiring yet).
+- **Concurrent upstream design amendment observed during this task's
+  push** (not authored by this task, no action required on my part):
+  after A4's progress was pushed, two docs-only commits landed directly
+  on `feat/preference-first-selection` from outside this session --
+  `d19d693` (spec: adds invariant #10 and §13.1 "D6 -- duration-aware
+  planner backfill and bounded convergence", clarifying that
+  `portfolioTarget`/`basePortfolioTarget` are **initial candidate
+  breadth**, never final Tour cardinality) and `27a9883` (the matching
+  plan update: `CompositionResult` gains a `rankedReservoir` field, a new
+  `C5b` task is added to Checkpoint C, and an explicit note is added
+  directly under A4's formulas: *"these helpers estimate pre-planner
+  candidate breadth only... do not interpret `portfolioTarget` as the
+  exact or maximum final Tour size"*). Neither commit touches A4's or
+  A5's actual formulas/behavior -- confirmed by reading both diffs in
+  full before merging. Both were merged locally with plain `git merge`
+  (not rebase, to avoid disturbing this worktree's pre-existing unrelated
+  dirty files) with zero conflicts, tests re-verified green after each
+  merge, and pushed with the user's explicit approval (the first push
+  attempt was blocked by the tool's permission classifier as a
+  merge-of-concurrent-work action; the user confirmed proceeding). This
+  is flagged here only as context for whoever picks up Checkpoint C later
+  -- A4/A5 required no code changes because of it.
+- Same worktree pre-existing unrelated dirty files remain untouched. One
+  more unrelated file appeared during this task's merges
+  (`fe/app.config.js`, alongside the previously-noted
+  `.env.example`/`auth.config.ts`/`profile.tsx`/`saved.tsx`/`tours/[id].tsx`)
+  -- still not authored by this task.
+
+### Next task
+`A6 — FacetRetrievalService with canonical catalog boundary`
