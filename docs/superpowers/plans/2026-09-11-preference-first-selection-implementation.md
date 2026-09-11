@@ -51,6 +51,10 @@ live smoke happens after that merge and gates convergence into
     isolation.
 12. Do not add Activity/Event/OperationalStop/TourStop or a classification cache
     table in this plan.
+13. Trace v4 remains fully auditable, but the primary Bitácora is a concise
+    product decision surface: no rule ID, enum, service name or raw payload may
+    be required to understand a step. Technical details stay available behind
+    expansion.
 
 ---
 
@@ -453,7 +457,7 @@ area-walk routing tests, real-Postgres round trips, typecheck and lint.
 
 ---
 
-# Checkpoint C — Deterministic composition and planner handoff
+# Checkpoint C — Deterministic composition, planner handoff and explainability
 
 ## C1 — Composition candidate model
 
@@ -595,10 +599,233 @@ Trace separately records:
 
 Delete JSON-string keyword theme matching from trace generation.
 
+Trace v4 is the machine/audit contract. Do not shape backend trace fields around
+current frontend widgets. Preserve enough structured information for the UI to
+produce concise human summaries while technical details remain exact.
+
+Required trace tests:
+- `version === 4` for the new path;
+- `explorationStyle` is separate from facets;
+- each facet exposes strong/weak counts and satisfaction;
+- acquisition records exact deficit/reason and sources/queries/evidence;
+- classification records reused/classified/degraded and evidence keys;
+- composition records reservations, selected/unselected reason data and anchors;
+- planner records placement/unselected feasibility reasons;
+- trace generation never performs semantic matching by JSON/string keywords.
+
+## C8 — Product-readable Generation Bitácora v4
+
+Implement the frontend presentation contract from spec §14.
+
+Primary file:
+- `fe/components/tour-details/GenerationBitacora.tsx`
+
+Inspect and update any nearby Bitácora types/tests/helpers rather than creating a
+parallel second Bitácora component.
+
+### C8.1 Trace-version/types
+
+The current frontend type only knows legacy trace versions. Add native v4
+support. Prefer explicit structured v4 fields/types over adding more `unknown`
+compatibility bags.
+
+Legacy traces must remain viewable. Do not delete the V1/V2/V3 compatibility
+renderer solely because v4 exists.
+
+Conceptually:
+
+```ts
+export interface GenerationTrace {
+  version?: 1 | 2 | 3 | 4;
+  ...
+}
+```
+
+The v4 renderer must consume trace semantics; it must not recompute matching,
+coverage, selection or feasibility in the frontend.
+
+### C8.2 Product view information hierarchy
+
+Every product-facing step uses this compact structure:
+
+```text
+Human-readable title
+Purpose — max one short line
+2–5 key metrics/results
+Decision — one short line
+Expandable details
+```
+
+Do not render explanatory paragraphs when a compact metric/status/table conveys
+the same information.
+
+A step should be understandable in approximately 10 seconds.
+
+### C8.3 Product-facing groupings
+
+Render/group the machine trace into these human concepts where applicable:
+
+1. `Qué viaje entendimos`
+2. `Destino resuelto`
+3. `Cobertura de preferencias`
+4. `Qué faltaba`
+5. `Búsqueda de nuevas opciones`
+6. `Verificación y clasificación`
+7. `Selección de Experiences`
+8. `Armado del itinerario`
+9. `Resultado final`
+
+These are presentation groupings only. Do NOT add fake backend orchestration
+stages just to match the UI.
+
+### C8.4 Required compact presentations
+
+Preference coverage must expose per facet at least:
+
+```text
+Historia       3 strong · 2 weak   ✅ Cubierta
+Arquitectura   1 strong · 4 weak   ✅ Cubierta
+Tango          0 strong · 2 weak   ⚠️ Falta
+```
+
+and one concrete decision line, e.g.:
+
+```text
+Decisión: buscar nuevas opciones sólo para Tango.
+```
+
+Portfolio sufficiency must show:
+- covered facets / total;
+- distinct eligible count;
+- global target;
+- sufficient/not sufficient;
+- whether the deficit is facet coverage or global capacity.
+
+Acquisition must show compactly:
+- target facet/capacity objective;
+- sources consulted;
+- candidates/observations found;
+- verified/accepted/rejected counts;
+- final decision/result.
+
+Classification must show compactly:
+- reused count;
+- newly classified count;
+- degraded count;
+- concise semantic labels per inspected Experience where useful.
+
+Composition must show:
+- global target;
+- facets covered;
+- reservations;
+- soft-anchor boosts;
+- must anchors;
+- selected count;
+- final decision.
+
+Planner must show:
+- days;
+- placed Experiences per day / total;
+- hard conflicts or feasibility failures;
+- must placement result;
+- final feasible/degraded outcome.
+
+### C8.5 Human rule rendering
+
+The primary view MUST NOT lead with internal codes.
+
+Bad:
+
+```text
+PREF_STRONG_MATCH_QUALITY_FLOOR
+PASS
+actual=4.4 expected=3.0
+```
+
+Good:
+
+```text
+✅ Calidad suficiente
+4.4/5 · mínimo 3.0
+```
+
+Implement a deterministic rule-presentation mapping/helper for rules that can
+surface in the primary Bitácora. It may live in `GenerationBitacora.tsx` if small
+or a nearby utility if substantial.
+
+Each human rule presentation includes:
+- short label;
+- PASS/WARN/FAIL visual state;
+- concrete actual/threshold or one-line reason when useful.
+
+Do not generate these labels with an LLM.
+
+Unknown/new rule IDs must degrade safely to a generic concise label without
+breaking rendering; the exact rule ID remains visible in technical details.
+
+### C8.6 Selected and unselected explanations
+
+For relevant candidates, expose a short human reason based only on trace data.
+Examples:
+- `Reservada como mejor opción para Arquitectura`;
+- `Priorizada porque pediste Teatro Colón` for a soft anchor boost;
+- `Incluida obligatoriamente por tu pedido` for a resolved must;
+- `No seleccionada: preferencia ya cubierta; otra opción aporta más peso/diversidad`;
+- `Descartada: sin ubicación verificable`;
+- `No pudo ubicarse: cerrada/no factible en el horario disponible`.
+
+Do not invent explanations that are not supported by the trace.
+Exact scores/reasonCodes remain in details.
+
+### C8.7 Technical-details layer
+
+Keep the engineering/audit information accessible but collapsed by default:
+- internal stage/component/service names;
+- rule IDs and reason codes;
+- actual/expected thresholds;
+- raw/normalized inputs/outputs;
+- provider queries and source URLs;
+- evidence keys;
+- prompts/raw model responses already retained by trace policy, redacted;
+- score breakdowns;
+- timings;
+- persisted IDs;
+- raw trace JSON/download.
+
+Do not remove debugging capability to make the product view simpler.
+
+### C8.8 Acceptance tests
+
+Add focused frontend tests and/or Playwright coverage proving at least:
+- v4 renders without falling through to the legacy generic renderer;
+- `explorationStyle` appears as a meta-preference, never as a coverage facet;
+- covered facet renders `Cubierta` with strong/weak counts;
+- uncovered facet visibly renders `Falta`;
+- acquisition decision is understandable without opening technical details;
+- soft anchor reads as prioritization, never as forced;
+- must anchor clearly differentiates included / UNRESOLVED / INFEASIBLE;
+- composition displays global target and selected count;
+- a selected and an unselected Experience have concise human reasons;
+- planner displays feasibility/result;
+- primary view does not require a `ruleId` or `reasonCode` to understand any
+  decision;
+- expanding technical details still exposes the underlying rule ID/evidence/raw
+  debugging data;
+- product copy remains compact: no stage renders a long narrative paragraph for
+  information already represented as metrics/status/decision.
+
+Acceptance criterion:
+
+> A product person must be able to scan only titles, metrics and decision lines
+> and correctly explain what the traveler wanted, what was covered, what was
+> missing, why research ran, what was selected and why, and whether the final
+> itinerary is feasible — without interpreting a rule ID, enum or service name.
+
 ### Checkpoint C verification
 
-Run pure composition tests, solver unit/acceptance tests, overlap tests,
-trace tests, typecheck and lint.
+Run pure composition tests, solver unit/acceptance tests, overlap tests, trace
+v4 tests, frontend Bitácora tests/Playwright, backend/frontend typecheck and
+relevant lint. Do not enter Checkpoint D with C7 green but C8 unimplemented.
 
 ---
 
@@ -669,6 +896,10 @@ Delete only once the new live path is green enough to replace callers:
 
 Use typecheck/import search as the worklist. Do not pre-delete dependencies and
 leave a knowingly broken intermediate checkpoint.
+
+Do not delete Bitácora legacy compatibility rendering while historical traces
+still exist; removal of orchestration authority does not imply removal of trace
+read compatibility.
 
 ## D4 — Adapt scale / competitive acceptance corpus
 
@@ -747,7 +978,9 @@ Assertions:
 - selected rows are grounded Experiences with components;
 - San Telmo polygon itself is not scheduled;
 - any acquired walk is multi-component and grounded;
-- classification provenance exists for newly classified Experiences.
+- classification provenance exists for newly classified Experiences;
+- the generated v4 trace can be rendered by the product Bitácora with the same
+  coverage/acquisition/composition/planner decisions visible without raw codes.
 
 This live spec validates real provider behavior. Deterministic semantics remain
 owned by unit/integration/e2e acceptance.
@@ -768,7 +1001,8 @@ yarn test:characterization
 yarn workspace backend build
 ```
 
-Run frontend Playwright where trace shape changes affect UI/bitácora.
+Run the frontend test/typecheck/lint matrix plus Playwright for Bitácora v4. A
+backend-green trace with a broken or unintelligible Bitácora is not sufficient.
 
 When the preference-first branch is stable and the deterministic acceptance
 matrix is green:
@@ -801,6 +1035,10 @@ wired and tested:
 Do not delete generic score building blocks still used by the deterministic
 planner unless search proves they have no legitimate caller.
 
+Do not remove legacy Bitácora trace-read compatibility as part of this deletion
+list. New v4 must have a native renderer, while old persisted traces remain
+inspectable.
+
 ---
 
 # Definition of Done
@@ -831,8 +1069,14 @@ The implementation is complete when all of the following are true:
 15. Large-corpus e2e proves preference deltas change the best selected set.
 16. Trace v4 explains facet coverage, global sufficiency, classification reuse,
     acquisition, anchor semantics, composition and planner outcome.
-17. Full backend deterministic matrix is green.
-18. The merged preference-first core is recorded as Phase 7 CLOSED; Argentina
+17. Bitácora v4 renders that trace natively as concise product decisions: a
+    product person can understand the flow without rule IDs, while technical
+    details/evidence/raw diagnostics remain available on demand.
+18. Frontend acceptance verifies covered/uncovered facets, acquisition reason,
+    anchor semantics, selected/unselected reasons and planner feasibility in the
+    primary Bitácora.
+19. Full backend + relevant frontend deterministic matrix is green.
+20. The merged preference-first core is recorded as Phase 7 CLOSED; Argentina
     live smoke then gates convergence to the unified agent branch.
 
 ---
@@ -857,7 +1101,9 @@ Checkpoint C
   weighted deterministic composition
   soft vs must anchor semantics
   planner preferenceWeight + pinned must placement
-  overlap + trace v4
+  overlap
+  trace v4 machine contract
+  product-readable Bitácora v4
         ↓
 Checkpoint D
   live orchestration cutover
@@ -865,6 +1111,6 @@ Checkpoint D
   delete superseded flow
   truthful classifier eval
   BA live characterization
-  full verification → merge → Phase 7 CLOSED
+  full backend/frontend verification → merge → Phase 7 CLOSED
   Argentina smoke → Integration Gate
 ```
