@@ -217,6 +217,42 @@ describe('PreferenceInterpreterService', () => {
   });
 
   describe('anchoredPlaces (D3)', () => {
+    describe('prompt contract', () => {
+      it('sends the conservative D3 anchor-priority rules to the LLM', async () => {
+        const { service, langChain } = makeService(
+          JSON.stringify({ anchoredPlaces: [] }),
+        );
+
+        await service.interpret('Quiero visitar el Teatro Colón');
+
+        expect(langChain.generateChatResponse).toHaveBeenCalledTimes(1);
+
+        // generateChatResponse(systemPrompt, userPrompt, variables, options) --
+        // the system prompt is the first positional argument.
+        const systemPrompt = langChain.generateChatResponse.mock.calls[0][0];
+
+        // must: explicit, unambiguous named-place intent only.
+        expect(systemPrompt).toContain(
+          '"must" ONLY for explicit, unambiguous named-place intent',
+        );
+        expect(systemPrompt).toContain('quiero visitar X');
+        expect(systemPrompt).toContain('incluí X');
+        expect(systemPrompt).toContain('sí o sí quiero ir a X');
+        expect(systemPrompt).toContain('no me quiero perder X');
+
+        // soft: weaker/ambiguous wording, including a mere thematic mention,
+        // must never escalate to "must".
+        expect(systemPrompt).toContain('weaker or ambiguous');
+        expect(systemPrompt).toContain('is priority "soft"');
+        expect(systemPrompt).toContain('me interesa la arquitectura de X');
+
+        // no hallucination: never invent named places that were not mentioned.
+        expect(systemPrompt.toLowerCase()).toContain(
+          'do not invent named places',
+        );
+      });
+    });
+
     it('preserves an explicit must anchor emitted for unambiguous named-place intent ("sí o sí X")', async () => {
       const { service } = makeService(
         JSON.stringify({
