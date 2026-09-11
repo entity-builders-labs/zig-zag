@@ -444,15 +444,44 @@ reject any candidate lacking components before facet matching.
 exists from v1).**
 
 - `anchor.kind = area` or `route` (e.g. San Telmo) → **never** a selected stop,
-  regardless of `priority`. It becomes (a) a **retrieval-scope bias**: per-facet
-  retrieval (Stage 3) prefers Experiences whose components fall inside the
-  anchor's polygon; and (b) a **trigger to acquire/compose a real multi-stop
-  walk Experience** for that area (a neighborhood-walk-shaped Experience whose
-  components — plazas, streets, landmarks — are resolved through OSM/Places,
-  with the AREA as its boundary). That resolved walk Experience is what can be
-  selected; the bare polygon cannot. `must` on an area/route anchor means the
-  walk-Experience acquisition is itself treated as `must` (§9.9-style priority
-  on the acquisition pass, not a forced stop).
+  regardless of `priority`. The `AREA`/`ROUTE` `GeoEntity` is only ever a
+  **boundary / retrieval-scope**; it is never itself schedulable (unchanged
+  from Finding D). `must` on an area/route anchor means the walk-Experience
+  acquisition below is itself treated as `must` (§9.9-style priority on the
+  acquisition pass, not a forced stop).
+
+**Area/route anchor + `intent:walk`/`route_like` requested (§11 D5 — RESOLVED
+2026-09-11): acquire/compose a real walk Experience in v1.**
+1. **Reuse first.** Stage 3's per-facet retrieval, for this facet+anchor
+   combination, specifically checks whether a multi-component Experience
+   already in the catalog has components inside the anchor's polygon — if one
+   does, it is used; nothing is re-acquired.
+2. **Otherwise, acquire and compose a new one** using the existing
+   multi-component Experience resolution path (`componentHints[].role`
+   `area`/`route`/`venue` → `ExperienceProposalResolverService` →
+   `CompositeGeographicValidationService`) — there is no separate structural
+   "composite" kind in Experience Domain V2 (the pre-V2 Activity domain called
+   this shape `NEIGHBORHOOD_WALK`/`ROUTE`; that enum no longer exists, only a
+   multi-component `Experience`). Stage 4a routes this facet+anchor combination
+   to `web` with a query phrased to surface a guided/self-guided walking-tour
+   article for the area (both BA probes found these organically — "Free
+   Walking Tour San Telmo" style results). Stage 4c's entity-extraction contract
+   must cover **multi-stop enumeration** (every real named stop → its own
+   `componentHint`, per the existing discovery-extraction prompt instruction),
+   not just single-entity naming — this is identity/component information, not
+   classification, so it belongs in Stage 4c/5, never Stage 6.
+3. **Real, grounded, resolved components only.** Every component of the walk
+   must be a real `GeoEntity` resolved through Places/OSM identity, exactly
+   like any other Experience — no invented stops, no LLM-claimed coordinates.
+4. **Insufficient evidence → do not build it.** If no source names enough real,
+   resolvable stops to construct a coherent walk, none is fabricated. The
+   `intent:walk`/`route_like` facet for that anchor follows the normal
+   insufficient/unmet path (never fatal to the tour) — same treatment as any
+   other under-evidenced facet.
+5. **Persist for reuse.** Any successfully constructed walk Experience goes
+   through the normal Stage 7 persistence — it becomes a real catalog row, so
+   step 1 (reuse first) satisfies every subsequent request touching that area
+   without re-acquiring.
 - `anchor.kind = venue` (e.g. Teatro Colón), `priority: soft` → a candidate
   Experience like any other, with a strong inclusion tilt; can legitimately be
   left out of the final set (by facet competition or, later, by the planner).
@@ -705,7 +734,7 @@ from the CI-blocking gate until its `it.failing()` invariants flip (see 9.5).
 | **KEEP (expanded)** | `preference-facet-matching.util.spec.ts` — becomes the spec for THE match primitive; absorbs the useful cases from `experience-preference-evaluator.util.spec.ts`. `structured-candidate-corroboration.service.spec.ts` — + catalog fold-in cases. OSM/Wikivoyage/Places acquisition provider specs — + evidence-preservation assertions (§5.5). `greedy-daily-planning.*` acceptance unit specs — candidate inputs gain `preferenceWeight`; add a "preference term changes placement" case. |
 | **CHANGE** | `planning-candidate-normalizer.service.spec.ts` (carries `preferenceWeight` + raw quality), `daily-planning-placement.util.spec.ts` / `daily-planning-candidate-sort.util.spec.ts` (preference term in soft score + greedy order), `candidate-overlap-filter.util.spec.ts` (tie-break by "covers more spec"), `theme-matching.util.spec.ts` (only the trace-safe subset survives; `matchesThemeKeywords`-over-`JSON.stringify` deleted), `generation-trace-builder.util.spec.ts` (v4 + per-facet + primitive-based "what matched") |
 | **REMOVE** | `structured-experience-candidate-synthesizer.service.spec.ts` (service removed), `candidate-ranking.util.spec.ts` (big-pool sort removed — a much smaller `within-facet-ordering.spec.ts` replaces it), `candidate-window-selection.util.spec.ts` (`selectBoundedWindow` removed), `coverage-analyzer.service*.spec.ts` (monolith removed — `facet-sufficiency.spec.ts` replaces it), the theme/trait *extraction* cases in the discovery-extractor specs (Stage 4c extracts names only; anti-hallucination name-grounding cases stay and move to `web-entity-extraction.spec.ts`) |
-| **NEW** | `preference-spec-builder.spec.ts` (Stage 1 merge, anchors, wizard+free-text precedence), `facet-router.spec.ts` (Stage 4a routing table, per-facet provider actions, `exploration_style` not routed), `iconicity.util.spec.ts` (deterministic score), `semantic-classification-normalizer.spec.ts` (Stage 6b + trait-shape guard: rejects sentences, canonical keys, empty), `quality-score.util.spec.ts` (Stage 6c deterministic function), `composition-set-cover.spec.ts` (Stage 9: covers every facet, drops exclusions, prefers multi-facet, deterministic — **plus probe #2 guards:** best-in-facet reservation not dropped by multi-facet fill [Finding A]; a bare `AREA`/`ROUTE` `GeoEntity` with no components is rejected before matching [Finding D]; `intent:performance` unsatisfied by an ambiance-only themed place [Finding B]), `anchor-semantics.spec.ts` (`kind:venue` → candidate; `kind:area`/`route` → scope bias + walk-acquisition trigger, never a stop — Finding D; **`must`-anchor branches, D3:** resolved+feasible never trimmed by Stage 9; unresolved → `unmetAnchors:UNRESOLVED`, tour still composes; `soft` can legitimately be left out), `must-anchor-interpreter.spec.ts` (D3: `must` only for "quiero visitar/incluí/sí o sí/no me quiero perder" phrasings; ambiguous phrasing → `soft`), `merge-metadata.spec.ts` (order-independence — promoted from characterization CHAR-8), `within-facet-ordering.spec.ts` |
+| **NEW** | `preference-spec-builder.spec.ts` (Stage 1 merge, anchors, wizard+free-text precedence), `facet-router.spec.ts` (Stage 4a routing table, per-facet provider actions, `exploration_style` not routed), `iconicity.util.spec.ts` (deterministic score), `semantic-classification-normalizer.spec.ts` (Stage 6b + trait-shape guard: rejects sentences, canonical keys, empty), `quality-score.util.spec.ts` (Stage 6c deterministic function), `composition-set-cover.spec.ts` (Stage 9: covers every facet, drops exclusions, prefers multi-facet, deterministic — **plus probe #2 guards:** best-in-facet reservation not dropped by multi-facet fill [Finding A]; a bare `AREA`/`ROUTE` `GeoEntity` with no components is rejected before matching [Finding D]; `intent:performance` unsatisfied by an ambiance-only themed place [Finding B]), `anchor-semantics.spec.ts` (`kind:venue` → candidate; `kind:area`/`route` → scope bias + walk-acquisition trigger, never a stop — Finding D; **`must`-anchor branches, D3:** resolved+feasible never trimmed by Stage 9; unresolved → `unmetAnchors:UNRESOLVED`, tour still composes; `soft` can legitimately be left out), `must-anchor-interpreter.spec.ts` (D3: `must` only for "quiero visitar/incluí/sí o sí/no me quiero perder" phrasings; ambiguous phrasing → `soft`), `area-anchor-walk-reuse.spec.ts` (D5: Stage 3 finds and reuses an existing catalog walk Experience covering the anchor's area instead of re-acquiring), `walk-experience-no-fabrication.spec.ts` (D5: insufficient evidence for a coherent multi-stop walk → none is built, no invented components, facet follows the normal unmet path), `merge-metadata.spec.ts` (order-independence — promoted from characterization CHAR-8), `within-facet-ordering.spec.ts` |
 
 ### 9.2 Integration (`be/test/integration/`, real Postgres)
 
@@ -721,7 +750,7 @@ from the CI-blocking gate until its `it.failing()` invariants flip (see 9.5).
 |---|---|
 | **KEEP (catalog seeding + fakes discipline)** | `be/test/support/experience-selection/*` corpus/harness — the 320-row seeding + binary-embedding fake + fake interpreter + Haversine travel fake all stay. |
 | **CHANGE** | `experience-selection-scale.e2e-spec.ts` — feasibility/exclusion scenarios stay; assertions shift from "geo pool → ranked window" to "per-facet coverage in the result + composed set". `experience-selection-competitive.e2e-spec.ts` (CP-G benchmark) — the ranking-as-pool-sort it benchmarks is replaced; its counterfactuals ("one preference delta → different selection") are re-expressed as "one facet added/removed → different composed set", which is a *better* fit for preference-first. Dominance/regret checks stay. |
-| **NEW** | `preference-first-cold-catalog.e2e-spec.ts` (empty catalog for a city → full acquisition+classification path with faked provider transports → assert the tour's `perFacetCoverage` covers every requested facet, `unmetFacets` is explained, the trace has the per-facet section), `anchor-honored.e2e-spec.ts` (a `PreferenceSpec` with a `soft` anchor that exists in the seed → it appears in the composed set; a `must` anchor that exists and is feasible → hard-included in the final plan, real Postgres + real solver end to end), `must-anchor-infeasible.e2e-spec.ts` (D3: a `must` anchor seeded but only schedulable in a way that violates a hard constraint → `unmetAnchors:INFEASIBLE`, tour still generates and is materialized), `one-preference-delta.e2e-spec.ts` (adding `theme:tango` changes the composed set deterministically and in the right direction) |
+| **NEW** | `preference-first-cold-catalog.e2e-spec.ts` (empty catalog for a city → full acquisition+classification path with faked provider transports → assert the tour's `perFacetCoverage` covers every requested facet, `unmetFacets` is explained, the trace has the per-facet section), `anchor-honored.e2e-spec.ts` (a `PreferenceSpec` with a `soft` anchor that exists in the seed → it appears in the composed set; a `must` anchor that exists and is feasible → hard-included in the final plan, real Postgres + real solver end to end), `must-anchor-infeasible.e2e-spec.ts` (D3: a `must` anchor seeded but only schedulable in a way that violates a hard constraint → `unmetAnchors:INFEASIBLE`, tour still generates and is materialized), `area-anchor-walk-acquire-and-reuse.e2e-spec.ts` (D5: an area anchor + `intent:walk` with a cold catalog → a real multi-component walk Experience is acquired, composed with grounded resolved components, and persisted; a *second* request against the same area, real Postgres, reuses the persisted walk with zero new acquisition calls), `one-preference-delta.e2e-spec.ts` (adding `theme:tango` changes the composed set deterministically and in the right direction) |
 | **REMOVE** | any assertion of "offered window length === 15" or "coverage decision `none` because N nearby rows exist" (concepts deleted) |
 
 ### 9.4 Acceptance (`be/test/acceptance/`, deterministic solver)
@@ -826,13 +855,17 @@ the refactor branch merges.
   unresolved → `unmetAnchors` reason `UNRESOLVED`; resolved+infeasible → hard
   constraints are never broken, `unmetAnchors` reason `INFEASIBLE`. Full
   semantics and the solver mechanism in §5.7.
-- **D5 — Area-anchor walk acquisition in v1.** When an `area` anchor is present
-  and the user requested `intent:walk` / `route_like`, does v1 actually acquire
-  and compose a real multi-stop walk Experience for that area (uses the existing
-  composite/`NEIGHBORHOOD_WALK` resolution path), or does v1 only apply the
-  retrieval-scope bias and leave the walk Experience to a later increment?
-  Recommended: acquire the walk Experience in v1 — otherwise `intent:walk` is
-  chronically thin for point-POI cities (probe #2).
+- ~~**D5 — Area-anchor walk acquisition in v1.**~~ **RESOLVED 2026-09-11: yes,
+  acquire/compose a real walk Experience in v1.** Reuse-first: Stage 3 checks
+  the catalog for an existing multi-component Experience covering the anchor's
+  area before acquiring. Otherwise, acquire/compose one via the existing
+  multi-component Experience resolution path (no separate "composite" kind in
+  Experience Domain V2). The `AREA`/`ROUTE` `GeoEntity` stays boundary/
+  retrieval-scope only, never itself selectable. Components must be real,
+  grounded, and resolved — insufficient evidence means it is not built (never
+  fabricated), and that facet follows the normal non-fatal unmet path. Every
+  successfully constructed walk is persisted to the catalog so future requests
+  reuse it. Full mechanism in §5.7.
 - ~~**D4 — Phase renumbering.**~~ **RESOLVED 2026-09-11: adopt §7.4.**
   Preference-first is **not** "Phase 8" — it is the correction and completion
   of Phase 7's live orchestration. `Phase 7 CLOSED` = "preference-first core
@@ -883,3 +916,9 @@ the refactor branch merges.
     `unmetAnchors` `INFEASIBLE`, tour still generates. Plus: the interpreter
     only emits `must` for the explicit-intent phrasings in §5.7, defaulting to
     `soft` otherwise.
+14. **Area-anchor walk acquisition holds (D5)** — tests prove: an existing
+    catalog walk Experience covering the anchor's area is reused, not
+    re-acquired; absent one, a new walk is acquired/composed with only real,
+    resolved components; insufficient evidence produces no walk (never a
+    fabricated one) and a non-fatal unmet facet; a successfully constructed
+    walk is persisted and reused by a subsequent request without re-acquiring.
