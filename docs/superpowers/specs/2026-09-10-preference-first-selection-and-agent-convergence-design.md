@@ -82,6 +82,11 @@ never discards valid knowledge.
    canonicalize → persist → re-retrieve → compose.
 9. **Hard feasibility always wins.** Even a user `must` anchor cannot force the
    solver to violate opening hours, day capacity, mobility or geography.
+10. **Portfolio target is bootstrap breadth, not final itinerary cardinality.**
+   `days × pace` estimates how broad the candidate portfolio should be before
+   planning. Real Experience duration, travel time, opening hours and day
+   windows determine how many Experiences are actually scheduled. The planner
+   may consume additional ranked candidates when useful capacity remains.
 
 ---
 
@@ -236,7 +241,7 @@ reservedPerFacet = 1
 ```
 
 **`days × pace` is NOT required per facet.** It is the desired total portfolio
-capacity for the trip:
+breadth before detailed scheduling:
 
 ```text
 paceFactor(relaxed)  = 3
@@ -246,8 +251,8 @@ paceFactor(fast)     = 5
 basePortfolioTarget = clamp(days, 1, 14) × paceFactor
 ```
 
-The actual composition target is at least large enough to hold distinct facet
-reservations and resolved must anchors:
+The actual initial composition target is at least large enough to hold distinct
+facet reservations and resolved must anchors:
 
 ```text
 portfolioTarget = max(
@@ -256,7 +261,7 @@ portfolioTarget = max(
 )
 ```
 
-Overall knowledge is sufficient when:
+Overall **pre-planner knowledge** is sufficient when:
 
 ```text
 allRequestedFacetsHaveAtLeastOneStrongMatch
@@ -264,12 +269,25 @@ AND
 totalDistinctEligibleExperiences >= portfolioTarget
 ```
 
+This condition means “we have enough grounded breadth to attempt planning without
+more speculative provider calls.” It does **not** mean the final Tour must contain
+exactly `portfolioTarget` Experiences. A4 intentionally ignores detailed
+Experience duration, inter-Experience travel time, opening hours and the shape of
+individual day windows; those facts become authoritative in Stage 10.
+
 Consequences:
-- 5 days × moderate ≈ 20 Experiences TOTAL, not 20 history + 20 food + ...;
+- 5 days × moderate ≈ 20 candidate Experiences TOTAL, not 20 history + 20 food + ...;
 - one Experience may satisfy multiple facets;
 - one multi-facet Experience does not by itself satisfy a multi-day portfolio;
+- long Experiences may make the final scheduled count substantially lower than
+  `portfolioTarget`;
+- short Experiences may leave useful capacity after the initial portfolio is
+  scheduled, so Stage 10 may consume additional candidates beyond the initial
+  `portfolioTarget`;
 - acquisition is targeted first at uncovered facets, then only at genuine
   global capacity shortage if the portfolio is still too thin;
+- planner-discovered capacity shortage is a separate, later signal and may
+  trigger bounded backfill/acquisition under D6;
 - `explorationStyle` never participates in sufficiency.
 
 ---
@@ -297,6 +315,12 @@ For a global capacity shortage after every facet is covered, acquisition may
 continue using the highest-weight facets / broad destination sources, bounded by
 existing acquisition pass and provider budgets. It must not call providers only
 to inflate the catalog after the request is already sufficient.
+
+A later **planner-discovered capacity deficit** is different from this pre-planner
+portfolio shortage. If Stage 10 proves that meaningful usable time remains after
+consuming the existing ranked reservoir, orchestration may run one or more
+bounded targeted acquisition passes for that concrete residual capacity under
+D6. That is demand-driven itinerary completion, not catalog inflation.
 
 Places invariant remains unchanged: generic restaurant/cafe/bakery/bar/
 night_club rows do not automatically originate tourism Experiences.
@@ -461,7 +485,8 @@ Persistence must preserve:
 ## 12. Stage 9 — deterministic composition
 
 Composition consumes the union of all per-facet strong candidates plus resolved
-anchors and builds a portfolio for the deterministic planner.
+anchors and builds an initial portfolio plus a deterministic ranked reservoir for
+the planner.
 
 ### 12.1 Eligibility
 
@@ -496,11 +521,11 @@ because another weaker Experience covers more facet labels.
   composition ordering; do not force it;
 - area/route anchors never become direct selected rows.
 
-### 12.4 Remainder fill to the GLOBAL portfolio target
+### 12.4 Initial remainder fill to the GLOBAL portfolio target
 
-After reservations and must anchors, fill until `portfolioTarget` (§6.2).
-Remainder priority is based on **weighted preference coverage**, not raw facet
-count alone:
+After reservations and must anchors, fill the **initial** selected portfolio
+until `portfolioTarget` (§6.2). Remainder priority is based on **weighted
+preference coverage**, not raw facet count alone:
 
 ```text
 weightedCoverage(c) = sum(weight(f) for each requested facet satisfied by c)
@@ -512,6 +537,15 @@ user intent, not because “facet count” is privileged regardless of weight.
 
 Composition never uses `days × 4` as a hard-coded target; it calls the one
 canonical `portfolioTarget(days, pace, reservations, mustAnchors)` helper.
+
+Crucially, composition MUST NOT discard every eligible candidate after the first
+`portfolioTarget` rows. It also exposes a deterministic **ranked reservoir** of
+eligible, unselected candidates using the same preference-aware ordering. The
+reservoir is available to Stage 10 when actual scheduling shows that short
+Experiences leave meaningful usable capacity.
+
+`portfolioTarget` therefore bounds the first planning attempt; it is not a hard
+maximum on final Tour cardinality.
 
 ---
 
@@ -538,6 +572,61 @@ Positive non-must facets remain preferences rather than hard scheduling
 constraints; the composition portfolio and preference term make their relevance
 survive into final placement without making an ordinary preference fatal.
 
+### 13.1 D6 — duration-aware backfill and bounded convergence — RESOLVED
+
+`days × pace` is an initial candidate-breadth heuristic only. Stage 10 determines
+final Tour cardinality from actual scheduling facts: Experience duration,
+travel time, opening hours, daily windows, mobility constraints, already placed
+must anchors and geography.
+
+After the first planning pass:
+
+1. compute **meaningful residual capacity** per day from the actual schedule;
+2. if no useful capacity remains, stop — the final Tour may legitimately contain
+   fewer Experiences than `portfolioTarget` when selected Experiences are long;
+3. if useful capacity remains, consume the next best feasible candidates from
+   the deterministic ranked reservoir produced by Stage 9;
+4. re-run the affected planning pass deterministically; do not append a stop
+   without re-checking travel/opening-hour/day constraints;
+5. repeat while the schedule makes progress and a policy-defined meaningful gap
+   remains;
+6. if the reservoir is exhausted while meaningful capacity still remains,
+   orchestration may emit a **planner capacity deficit** and run bounded targeted
+   acquisition;
+7. newly acquired valid Experiences follow the normal evidence → resolve →
+   classify → persist → re-retrieve path before they can enter the reservoir;
+8. recompose/replan after acquisition, bounded by explicit acquisition-pass and
+   no-progress limits.
+
+A planner capacity deficit should carry concrete scheduling context where
+available, for example:
+
+```text
+day: 4
+area/scope: Palermo
+availableMinutes: 120
+preferredFacets:
+  - architecture: 0.9
+  - local_food: 0.7
+```
+
+This context narrows retrieval/acquisition but never authorizes invention of an
+Experience or coordinates.
+
+The system does **not** optimize for filling every minute. Tiny/awkward gaps,
+poor-quality filler, excessive travel or candidates that materially reduce
+preference quality may be left unused. “Meaningful residual capacity” is a
+policy decision; do not hardcode a universal minute threshold inside A4.
+
+The convergence loop MUST terminate deterministically on at least one of:
+- no meaningful residual capacity;
+- no additional feasible reservoir candidate;
+- no progress after an iteration;
+- acquisition/provider budget exhausted;
+- configured maximum backfill/acquisition passes reached.
+
+This makes final cardinality an output of feasibility rather than an input quota.
+
 ---
 
 ## 14. Stage 11 — trace, product Bitácora and async enrichment
@@ -546,14 +635,17 @@ Generation trace v4 is the canonical machine-auditable record. It must explain:
 - normalized PreferenceSpec (with explorationStyle separate from facets);
 - per-facet strong/weak candidates;
 - facet satisfaction (`>=1 strong`);
-- **global** portfolio target/current distinct count;
+- **global initial** portfolio target/current distinct count;
 - targeted acquisition reasons;
 - providers/queries/evidence;
 - classification provenance + whether reused / classified / degraded;
-- composition reservations and remainder fill;
+- composition reservations, initial remainder fill and reservoir size;
 - soft-anchor boost vs must-anchor forcing;
 - unmet facets and unmet anchors;
-- planner placements/unselected reasons.
+- planner placements/unselected reasons;
+- residual-capacity/backfill iterations, including whether extra candidates came
+  from the reservoir or planner-triggered acquisition;
+- initial selected count vs final scheduled count and convergence stop reason.
 
 No trace field may itself become input to matching.
 
@@ -644,11 +736,11 @@ the headline:
 6. **Verificación y clasificación** — identity/evidence/classification outcomes,
    including reused/classified/degraded counts.
 7. **Selección de Experiences** — reservations, weighted fill, soft/must anchors,
-   selected/unselected reasons and portfolio target.
-8. **Armado del itinerario** — days, placements, feasibility/conflicts, must
-   placement outcome.
-9. **Resultado final** — selected count, covered/unmet facets/anchors and final
-   feasibility/status.
+   initial target, reservoir and selected/unselected reasons.
+8. **Armado del itinerario** — days, placements, residual capacity, backfill,
+   feasibility/conflicts and must placement outcome.
+9. **Resultado final** — final scheduled count, covered/unmet facets/anchors and
+   final feasibility/status.
 
 These are presentation concepts, not new orchestration stages. The trace remains
 machine-oriented and may contain finer-grained steps.
@@ -668,13 +760,26 @@ Decisión: buscar nuevas opciones sólo para Tango.
 Composition should read like:
 
 ```text
-Objetivo                  12
-Preferencias cubiertas    3/3
+Objetivo inicial           12
+Preferencias cubiertas     3/3
 Reservadas por preferencia 3
-Must anchors              1/1
-Seleccionadas             12/12
+Must anchors               1/1
+Selección inicial          12
+Reservoir elegible         8
 
-Decisión: portfolio completo.
+Decisión: portfolio inicial listo; el planner puede consumir más si queda capacidad útil.
+```
+
+Planner/backfill can read like:
+
+```text
+Plan inicial               10 colocadas
+Capacidad útil restante    150 min
+Backfill desde reservoir   +1
+Adquisición adicional      no
+Plan final                 11 colocadas
+
+Decisión: itinerario factible; sin capacidad útil relevante restante.
 ```
 
 An unselected candidate should have a short human reason such as `preferencia ya
@@ -692,13 +797,16 @@ Existing async media/enrichment remains separate and unchanged by this refactor.
 Prove:
 - PreferenceSpec never puts exploration style in `facets`;
 - `facetSatisfied == strongCount >= 1`;
-- portfolio target is days×pace globally;
+- portfolio target is days×pace globally and represents initial breadth, not
+  final itinerary cardinality;
 - soft anchors are not forced;
 - must anchors are forced only when resolved and feasible;
 - classification reuse requires a current valid classification;
 - freeform traits do not fabricate dimensions;
 - composite quality derives from component signals;
 - weighted remainder coverage respects facet weights;
+- composition preserves a deterministic ranked reservoir beyond the initial
+  portfolio target;
 - deterministic deep-equal composition.
 
 ### Integration — real Postgres
@@ -716,7 +824,17 @@ Prove:
 
 Use large competing catalogs (hundreds of Experiences) and prove:
 - every requested facet has at least one strong candidate before composition;
-- total composition size targets the global days×pace capacity, not per facet;
+- initial composition size targets the global days×pace breadth, not per facet;
+- long-duration Experiences can produce a valid final Tour with fewer scheduled
+  rows than the initial portfolio target;
+- short-duration Experiences can cause deterministic backfill from the ranked
+  reservoir beyond the initial portfolio target when useful day capacity remains;
+- when meaningful capacity remains and the reservoir is exhausted, bounded
+  planner-triggered acquisition can add a grounded Experience and replan;
+- tiny/awkward residual gaps do not force low-quality filler solely to consume
+  time;
+- the backfill/acquisition convergence loop stops deterministically on no
+  progress/budget/pass limits;
 - changing one preference changes the composed set predictably;
 - hard exclusions win;
 - soft anchor can win via boost but is allowed to lose;
@@ -725,7 +843,8 @@ Use large competing catalogs (hundreds of Experiences) and prove:
 - bare AREA/ROUTE never leaks into selected Experiences;
 - route/walk acquisition uses grounded multi-component evidence;
 - Bitácora primary view exposes covered/uncovered facets, acquisition decision,
-  composition decision and planner result without requiring rule IDs;
+  initial composition decision, residual capacity/backfill and final planner
+  result without requiring rule IDs;
 - rule IDs, evidence and technical payloads remain available in expanded details;
 - product-facing steps remain concise rather than duplicating raw trace prose.
 
@@ -783,5 +902,13 @@ Argentina live smoke gates convergence.
 ### D5 — area/route walk
 Acquire/reuse a normal grounded multi-component Experience in v1. No
 `NEIGHBORHOOD_WALK` type, no bare AREA/ROUTE scheduling, no invented sequence.
+
+### D6 — duration-aware planner backfill
+`days × pace` is initial candidate breadth, never final Tour cardinality. The
+planner decides final count from duration/travel/opening-hours/day feasibility,
+consumes a deterministic ranked reservoir when meaningful capacity remains, and
+may trigger bounded targeted acquisition only after that reservoir is exhausted.
+Convergence stops on no useful capacity, no progress, exhausted budgets or pass
+limits; the system never adds poor filler merely to occupy every minute.
 
 ---
