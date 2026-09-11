@@ -179,6 +179,7 @@ export class ExperienceGenerationService {
   private emptyNormalizedPreferences(): NormalizedPreferenceIntent {
     return {
       preferredFacets: [],
+      anchoredPlaces: [],
       excludedThemes: [],
       excludedTraits: [],
       hardExclusions: [],

@@ -1,8 +1,18 @@
 import { PreferenceFacet } from '../preferences/preference-facet.interface';
+import { AnchoredPlace } from './preference-spec.interface';
 
 export interface NormalizedPreferenceIntent {
   /** Canonical single positive facet collection. */
   preferredFacets: PreferenceFacet[];
+
+  /**
+   * Concrete named places/areas/routes the user explicitly mentioned
+   * (spec §4, plan Task A2 / D3). `priority: 'must'` is emitted only for
+   * explicit, unambiguous named-place intent; anything weaker or ambiguous
+   * defaults to `'soft'`. A soft anchor is a strong inclusion tilt, never a
+   * forced selection -- see `docs/superpowers/specs/2026-09-10-preference-first-selection-and-agent-convergence-design.md` §4.
+   */
+  anchoredPlaces: AnchoredPlace[];
 
   // Preserved negative and constraint fields
   excludedThemes: string[];

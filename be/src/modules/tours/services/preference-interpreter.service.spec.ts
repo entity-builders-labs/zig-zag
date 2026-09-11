@@ -151,6 +151,7 @@ describe('PreferenceInterpreterService', () => {
     expect(result.intent.preferredFacets).toEqual([]);
     expect(result.intent.softConstraints).toEqual([]);
     expect(result.intent.ambiguities).toEqual([]);
+    expect(result.intent.anchoredPlaces).toEqual([]);
   });
 
   it('drops invalid keys for controlled dimensions in LLM response', async () => {
@@ -213,5 +214,124 @@ describe('PreferenceInterpreterService', () => {
         importance: 1.0,
       }),
     );
+  });
+
+  describe('anchoredPlaces (D3)', () => {
+    it('preserves an explicit must anchor emitted for unambiguous named-place intent ("sí o sí X")', async () => {
+      const { service } = makeService(
+        JSON.stringify({
+          anchoredPlaces: [
+            { rawName: 'Teatro Colón', kind: 'venue', priority: 'must' },
+          ],
+        }),
+      );
+
+      const result = await service.interpret(
+        'Sí o sí quiero ir al Teatro Colón',
+      );
+
+      expect(result.intent.anchoredPlaces).toEqual([
+        { rawName: 'Teatro Colón', kind: 'venue', priority: 'must' },
+      ]);
+    });
+
+    it('keeps a weakly-worded mention as a soft anchor ("me gustaría conocer X")', async () => {
+      const { service } = makeService(
+        JSON.stringify({
+          anchoredPlaces: [
+            { rawName: 'Teatro Colón', kind: 'venue', priority: 'soft' },
+          ],
+        }),
+      );
+
+      const result = await service.interpret(
+        'Me gustaría conocer el Teatro Colón',
+      );
+
+      expect(result.intent.anchoredPlaces).toEqual([
+        { rawName: 'Teatro Colón', kind: 'venue', priority: 'soft' },
+      ]);
+    });
+
+    it('keeps a mere thematic mention of a place as a soft anchor, never must', async () => {
+      const { service } = makeService(
+        JSON.stringify({
+          anchoredPlaces: [
+            { rawName: 'Teatro Colón', kind: 'venue', priority: 'soft' },
+          ],
+          preferredFacets: [
+            {
+              dimension: 'theme',
+              key: 'architecture',
+              confidence: 0.8,
+              strength: 'medium',
+            },
+          ],
+        }),
+      );
+
+      const result = await service.interpret(
+        'Me interesa la arquitectura del Teatro Colón',
+      );
+
+      expect(result.intent.anchoredPlaces).toEqual([
+        { rawName: 'Teatro Colón', kind: 'venue', priority: 'soft' },
+      ]);
+    });
+
+    it('degrades malformed anchor payloads safely', async () => {
+      const { service } = makeService(
+        JSON.stringify({
+          anchoredPlaces: [
+            { rawName: 'Teatro Colón', kind: 'venue', priority: 'must' },
+            { rawName: '   ', kind: 'venue', priority: 'must' },
+            { kind: 'venue', priority: 'must' },
+            'not-an-object',
+            42,
+            null,
+            { rawName: 'Bodega Norton', kind: 'winery', priority: 'must' },
+            { rawName: 'Some Place', kind: 'venue', priority: 'urgent' },
+            { rawName: 'Plain Mention', kind: 'venue' },
+            { rawName: 'No Kind Given', priority: 'soft' },
+          ],
+        }),
+      );
+
+      const result = await service.interpret('cualquier texto');
+
+      expect(result.intent.anchoredPlaces).toEqual([
+        { rawName: 'Teatro Colón', kind: 'venue', priority: 'must' },
+        { rawName: 'Bodega Norton', kind: 'unknown', priority: 'must' },
+        { rawName: 'Some Place', kind: 'venue', priority: 'soft' },
+        { rawName: 'Plain Mention', kind: 'venue', priority: 'soft' },
+        { rawName: 'No Kind Given', kind: 'unknown', priority: 'soft' },
+      ]);
+    });
+
+    it('caps the anchor count conservatively', async () => {
+      const anchors = Array.from({ length: 10 }, (_, i) => ({
+        rawName: `Place ${i}`,
+        kind: 'venue',
+        priority: 'soft',
+      }));
+      const { service } = makeService(
+        JSON.stringify({ anchoredPlaces: anchors }),
+      );
+
+      const result = await service.interpret('texto con muchos lugares');
+
+      expect(result.intent.anchoredPlaces.length).toBeLessThanOrEqual(5);
+    });
+
+    it('defaults anchoredPlaces to an empty array in the deterministic fallback', async () => {
+      const { service } = makeService(
+        undefined,
+        new Error('provider unavailable'),
+      );
+
+      const result = await service.interpret('Quiero ir al Teatro Colón');
+
+      expect(result.intent.anchoredPlaces).toEqual([]);
+    });
   });
 });

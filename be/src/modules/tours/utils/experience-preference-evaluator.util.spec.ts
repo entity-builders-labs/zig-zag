@@ -7,6 +7,7 @@ import { normalizeWizardFacet } from './preference-facet-merge.util';
 
 const emptyIntent: NormalizedPreferenceIntent = {
   preferredFacets: [],
+  anchoredPlaces: [],
   excludedThemes: [],
   excludedTraits: [],
   hardExclusions: [],

@@ -288,6 +288,7 @@ function normalizedPreferences(
 
   return {
     preferredFacets: [...wizardFacets(scenario), ...inferredFacets],
+    anchoredPlaces: [],
     excludedThemes: [],
     excludedTraits: [],
     hardExclusions: [],

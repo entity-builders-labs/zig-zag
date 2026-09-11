@@ -12,6 +12,10 @@ import {
   PreferenceFacetStrength,
 } from '../preferences/preference-facet.interface';
 import { canonicalizeFacetKey } from '../preferences/preference-facet-vocabulary';
+import { AnchoredPlace } from '../interfaces/preference-spec.interface';
+
+/** Conservative cap on extracted named anchors per request (plan Task A2). */
+const MAX_ANCHORED_PLACES = 5;
 
 const SYSTEM_PROMPT = `Interpret the user's supplemental tourism preferences into normalized intent.
 Return JSON only. You interpret language; deterministic code enforces the result.
@@ -23,6 +27,16 @@ For positive preferences, output preferredFacets as a list of objects with:
 - confidence: float between 0 and 1 indicating certainty.
 - strength: "strong" | "medium" | "weak" indicating user emphasis.
 Do not invent arbitrary importance numbers; code derives importance deterministically from strength.
+Also output anchoredPlaces: concrete named places/areas/routes the user explicitly mentioned by
+name (never a generic theme). For each, output:
+- rawName: the name as mentioned by the user.
+- kind: "venue" | "area" | "route" | "unknown".
+- priority: "must" ONLY for explicit, unambiguous named-place intent, for example
+  "quiero visitar X", "incluí X", "sí o sí quiero ir a X", "no me quiero perder X".
+  Anything weaker or ambiguous -- including a place mentioned only in passing while
+  describing a theme, e.g. "me interesa la arquitectura de X" -- is priority "soft".
+Extract anchors conservatively: when in doubt about the name or the intent, omit the anchor
+rather than guessing. Do not invent named places that were not mentioned.
 Other fields: excludedThemes, excludedTraits, hardExclusions, softConstraints, ambiguities,
 dietaryPreferences, accessibilityPreferences, budgetPreferences, groupPreferences,
 positiveSemanticQuery, notes. Use short lowercase phrases.`;
@@ -41,6 +55,17 @@ const PREFERRED_FACET_SCHEMA = {
   required: ['dimension', 'key', 'confidence'],
 };
 
+const ANCHORED_PLACE_SCHEMA = {
+  type: 'object',
+  additionalProperties: false,
+  properties: {
+    rawName: { type: 'string' },
+    kind: { type: 'string', enum: ['venue', 'area', 'route', 'unknown'] },
+    priority: { type: 'string', enum: ['soft', 'must'] },
+  },
+  required: ['rawName', 'kind', 'priority'],
+};
+
 const RESPONSE_SCHEMA = {
   type: 'object',
   additionalProperties: false,
@@ -48,6 +73,10 @@ const RESPONSE_SCHEMA = {
     preferredFacets: {
       type: 'array',
       items: PREFERRED_FACET_SCHEMA,
+    },
+    anchoredPlaces: {
+      type: 'array',
+      items: ANCHORED_PLACE_SCHEMA,
     },
     excludedThemes: STRING_ARRAY,
     excludedTraits: STRING_ARRAY,
@@ -63,6 +92,7 @@ const RESPONSE_SCHEMA = {
   },
   required: [
     'preferredFacets',
+    'anchoredPlaces',
     'excludedThemes',
     'excludedTraits',
     'hardExclusions',
@@ -79,6 +109,7 @@ const RESPONSE_SCHEMA = {
 
 const EMPTY_INTENT: NormalizedPreferenceIntent = {
   preferredFacets: [],
+  anchoredPlaces: [],
   excludedThemes: [],
   excludedTraits: [],
   hardExclusions: [],
@@ -179,6 +210,7 @@ export class PreferenceInterpreterService {
 
     return {
       preferredFacets: this.normalizeFacets(value?.preferredFacets),
+      anchoredPlaces: this.normalizeAnchors(value?.anchoredPlaces),
       excludedThemes: list(value?.excludedThemes),
       excludedTraits: list(value?.excludedTraits),
       hardExclusions: list(value?.hardExclusions),
@@ -262,6 +294,61 @@ export class PreferenceInterpreterService {
     }
 
     return Array.from(merged.values());
+  }
+
+  /**
+   * Normalizes raw LLM-emitted anchored places (plan Task A2 / spec §4, D3).
+   * Degrades malformed input safely: unknown `kind` values fall back to
+   * `'unknown'`, unknown/missing `priority` falls back to `'soft'` (never
+   * `'must'`), blank/non-string names are dropped, and the result is capped
+   * conservatively. The LLM emits `priority` directly per the prompt rule;
+   * this method only validates/defaults it -- it never re-derives priority
+   * from the raw text.
+   */
+  private normalizeAnchors(rawAnchors: unknown): AnchoredPlace[] {
+    if (!Array.isArray(rawAnchors)) {
+      return [];
+    }
+
+    const validKinds: AnchoredPlace['kind'][] = [
+      'venue',
+      'area',
+      'route',
+      'unknown',
+    ];
+    const validPriorities: AnchoredPlace['priority'][] = ['soft', 'must'];
+
+    const anchors: AnchoredPlace[] = [];
+
+    for (const item of rawAnchors) {
+      if (!item || typeof item !== 'object') {
+        continue;
+      }
+
+      const rawName =
+        typeof (item as any).rawName === 'string'
+          ? (item as any).rawName.trim()
+          : '';
+      if (!rawName) {
+        continue;
+      }
+
+      const rawKind = (item as any).kind;
+      const kind: AnchoredPlace['kind'] = validKinds.includes(rawKind)
+        ? rawKind
+        : 'unknown';
+
+      const rawPriority = (item as any).priority;
+      const priority: AnchoredPlace['priority'] = validPriorities.includes(
+        rawPriority,
+      )
+        ? rawPriority
+        : 'soft';
+
+      anchors.push({ rawName, kind, priority });
+    }
+
+    return anchors.slice(0, MAX_ANCHORED_PLACES);
   }
 
   private fallback(text: string): NormalizedPreferenceIntent {
