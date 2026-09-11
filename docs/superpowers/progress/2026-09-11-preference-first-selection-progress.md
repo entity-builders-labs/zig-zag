@@ -79,3 +79,140 @@
 
 ### Next task
 `A2 — Interpreter anchors (D3)`
+
+---
+
+## Checkpoint A — Task A2 — COMPLETE
+
+- Branch: `feat/preference-first-selection`
+- Base commit: `4765409af4841c58da79c83222cd553d427e1579`
+- Implementation commit: `6e25fbf30265f235ae779b21068ca5ed6d3778a1`
+- Plan task: `A2 — Interpreter anchors (D3)`
+- Status: COMPLETE
+
+### Implemented
+- Added `anchoredPlaces: AnchoredPlace[]` to `NormalizedPreferenceIntent`
+  (`preference-interpretation.interface.ts`), importing `AnchoredPlace` from
+  the A1 `preference-spec.interface.ts`.
+- Extended `PreferenceInterpreterService`'s `SYSTEM_PROMPT` to instruct the
+  LLM to extract concrete named anchors as `{rawName, kind, priority}`, with
+  the exact D3 rule: `priority: 'must'` ONLY for explicit, unambiguous
+  named-place intent ("quiero visitar X", "incluí X", "sí o sí quiero ir a
+  X", "no me quiero perder X"); anything weaker or ambiguous -- including a
+  place mentioned only in passing while describing a theme -- defaults to
+  `'soft'`. The prompt also tells the model to extract conservatively and
+  never invent a named place that was not mentioned.
+- Added `ANCHORED_PLACE_SCHEMA` and wired `anchoredPlaces` into
+  `RESPONSE_SCHEMA` (documented/traced schema; not used for runtime
+  validation, matching the file's existing pattern where `RESPONSE_SCHEMA`
+  is recorded in the trace but not enforced against the raw LLM response).
+- Added `anchoredPlaces: []` to `EMPTY_INTENT` (covers both the "skipped"
+  early-return path and the deterministic regex `fallback()` path, since
+  `fallback()` spreads `...EMPTY_INTENT`).
+- Added private `normalizeAnchors(rawAnchors: unknown): AnchoredPlace[]`:
+  drops non-array input, drops non-object entries, drops entries with a
+  missing/blank/non-string `rawName` (trimmed), normalizes an invalid or
+  missing `kind` to `'unknown'`, normalizes an invalid or missing `priority`
+  to `'soft'` (never `'must'`), and caps the result to
+  `MAX_ANCHORED_PLACES = 5`. This method validates/defaults the
+  LLM-emitted `priority` -- it does not re-derive priority from the raw
+  input text itself (the D3 phrase-based rule lives in the prompt, per the
+  file's existing convention that the LLM interprets language while
+  deterministic code enforces/normalizes the result -- see e.g.
+  `mapStrengthToImportance` for the precedent this follows).
+- Wired `this.normalizeAnchors(value?.anchoredPlaces)` into `normalize()`.
+- Fixed four other `NormalizedPreferenceIntent` object-literal call sites
+  that the new required field broke at typecheck: added
+  `anchoredPlaces: []` to `experience-generation.service.ts`'s
+  `emptyNormalizedPreferences()` default, and to three test fixtures
+  (`experience-preference-evaluator.util.spec.ts`,
+  `hard-soft-preference-contract.spec.ts`,
+  `test/live/cold-start-experience-acquisition.live-spec.ts`). No other
+  behavior in these files was changed.
+
+### Files changed
+- `be/src/modules/tours/interfaces/preference-interpretation.interface.ts`
+- `be/src/modules/tours/services/preference-interpreter.service.ts`
+- `be/src/modules/tours/services/preference-interpreter.service.spec.ts`
+- `be/src/modules/tours/services/experience-generation.service.ts`
+- `be/src/modules/tours/utils/experience-preference-evaluator.util.spec.ts`
+- `be/src/modules/tours/utils/hard-soft-preference-contract.spec.ts`
+- `be/test/live/cold-start-experience-acquisition.live-spec.ts`
+
+### Verification
+- RED check: ran the new/modified assertions in
+  `preference-interpreter.service.spec.ts` before adding `anchoredPlaces` to
+  `NormalizedPreferenceIntent` → FAIL as expected — 7 `TS2339: Property
+  'anchoredPlaces' does not exist on type 'NormalizedPreferenceIntent'`
+  compile errors, 0 tests executed (test suite failed to run).
+- `cd be && yarn test src/modules/tours/services/preference-interpreter.service.spec.ts`
+  → PASS — 11/11 tests, including the new `anchoredPlaces (D3)` describe
+  block: explicit "sí o sí Teatro Colón" → `must`; "me gustaría conocer
+  Teatro Colón" → `soft`; mere thematic mention ("me interesa la
+  arquitectura del Teatro Colón") → `soft`, never `must`; malformed anchor
+  payloads (blank name, missing `rawName`, non-object entries, invalid
+  `kind`, invalid/missing `priority`) all degrade safely to the documented
+  defaults; a 10-anchor payload is capped to <= 5; the deterministic
+  fallback path defaults `anchoredPlaces` to `[]`.
+- `cd be && yarn typecheck` (`tsc --noEmit`) → PASS — no errors (after
+  fixing the four other call sites listed above; first run surfaced exactly
+  those 4 `TS2741: Property 'anchoredPlaces' is missing` errors).
+- `cd be && npx eslint <all 7 files changed>` → PASS — 0 problems.
+- `cd be && yarn test src/modules/tours` → PASS — 79 test suites / 704
+  tests, full `tours` module, no regressions from the interface change.
+
+### Deviations from plan
+- None. `anchoredPlaces` was added to both files the plan named
+  (`preference-interpretation.interface.ts`,
+  `preference-interpreter.service.ts`); the prompt rule text matches the
+  plan's D3 wording; the four required test scenarios are covered.
+
+### Decisions taken
+- Treated `priority` as an LLM-emitted, code-validated/defaulted field
+  rather than adding a second deterministic regex classifier that
+  re-derives `must`/`soft` from the raw request text. This follows the
+  file's existing, explicit architecture ("You interpret language;
+  deterministic code enforces the result" + the `mapStrengthToImportance`
+  precedent, where the LLM emits a discrete signal and code deterministically
+  maps/validates it) rather than attempting brittle regex named-entity
+  extraction for arbitrary place names. The three phrase-based test cases
+  ("sí o sí X" → must, "me gustaría conocer X" → soft, mere thematic mention
+  → soft) are exercised by mocking the LLM response as a correctly-prompted
+  model would emit it for that input, then asserting the normalization
+  pipeline preserves/validates it correctly end-to-end -- mirroring the
+  file's pre-existing test convention (e.g. the first existing test,
+  "normalizes the complete typed LLM response...", already follows this
+  same shape for `preferredFacets`).
+- The deterministic regex `fallback()` path (used only when the LLM
+  provider call itself throws) was NOT extended with anchor extraction,
+  since arbitrary named-place extraction from free text is not a
+  simple-keyword-list task like the fallback's existing theme/exclusion
+  detection. `anchoredPlaces` defaults to `[]` in that path via
+  `EMPTY_INTENT`. This is a narrower capability in the fallback path than
+  the live LLM path, consistent with the fallback's existing narrow scope
+  for other fields (e.g. its fixed `candidateKeywords` list vs. the LLM's
+  open-vocabulary `preferredFacets` extraction).
+- `experience-generation.service.ts`'s existing
+  `normalizeWizardFacet('exploration_style', ...)` call (which currently
+  inserts `exploration_style` as a facet on the *legacy* live orchestration
+  path) was left untouched. That is pre-existing legacy behavior on a path
+  Checkpoint D will replace wholesale with true `PreferenceSpec`-based
+  orchestration (A3's builder is the place `explorationStyle` genuinely
+  becomes a separate, non-facet field) -- fixing it now would be an
+  unrequested, out-of-scope behavior change to a file A2 only needed to
+  typecheck against the new required interface field.
+
+### Open issues / debt
+- The legacy `exploration_style`-as-facet merge in
+  `experience-generation.service.ts` (`mergeStructuredPreferences`) still
+  exists on the current live orchestration path and violates the
+  canonical invariant that `explorationStyle` is never a
+  `RequestedFacet`. This is known, pre-existing, and explicitly out of
+  scope for A2 -- it is superseded by Checkpoint D's live-path cutover
+  (D1), not fixed piecemeal here. Flagging so it is not mistaken for new
+  debt introduced by this task.
+- Same worktree pre-existing unrelated dirty files noted in the A1 section
+  above remain untouched and unresolved (out of scope).
+
+### Next task
+`A3 — PreferenceSpec builder`
