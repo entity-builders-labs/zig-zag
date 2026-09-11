@@ -6,6 +6,17 @@ import { OutboxService } from '../../outbox/services/outbox.service';
 import { WikimediaPhotoProvider } from '../../integrations/photos/providers/wikimedia-photo.provider';
 import { generateCoverImagePrompt } from '../prompts/media-generation.prompt';
 
+export type DestinationPhotoProvider =
+  | 'wikipedia_search'
+  | 'wikipedia_summary'
+  | 'wikipedia_geosearch'
+  | 'wikimedia';
+
+export interface DestinationPhotoResolution {
+  url: string;
+  provider: DestinationPhotoProvider;
+}
+
 @Injectable()
 export class TourImageService {
   private readonly logger = new Logger(TourImageService.name);
@@ -145,7 +156,7 @@ export class TourImageService {
     );
 
     try {
-      const photoUrl = await this.fetchDestinationPhoto(
+      const photoResult = await this.fetchDestinationPhoto(
         destinationLabel,
         destination.latitude,
         destination.longitude,
@@ -153,18 +164,40 @@ export class TourImageService {
 
       const completedAt = new Date().toISOString();
 
-      if (photoUrl) {
+      if (photoResult) {
         await this.prisma.$transaction(async (tx) => {
+          const latest = await tx.tour.findUnique({
+            where: { id: tour.id },
+            select: {
+              id: true,
+              ownerId: true,
+              coverImage: true,
+              metadata: true,
+            },
+          });
+
+          if (!latest) return;
+          if (latest.coverImage) {
+            // Tour already has a coverImage set; keep it without overwriting.
+            return;
+          }
+
+          const latestMetadata = this.objectMetadata(latest.metadata);
+          const currentStatus =
+            typeof latestMetadata.generationStatus === 'string'
+              ? latestMetadata.generationStatus
+              : 'generating';
+
           await tx.tour.update({
             where: { id: tour.id },
             data: {
-              coverImage: photoUrl,
+              coverImage: photoResult.url,
               metadata: {
-                ...this.objectMetadata(tour.metadata),
+                ...latestMetadata,
                 coverImageResolution: {
                   status: 'resolved',
-                  provider: 'wikimedia',
-                  url: photoUrl,
+                  provider: photoResult.provider,
+                  url: photoResult.url,
                   completedAt,
                 },
               },
@@ -175,10 +208,10 @@ export class TourImageService {
             await this.outboxService.createInTx(tx, {
               eventType: 'TourProgressUpdated',
               payload: {
-                tourId: tour.id,
-                userId: tour.ownerId || undefined,
-                status: 'generating',
-                coverImage: photoUrl,
+                tourId: latest.id,
+                userId: latest.ownerId || undefined,
+                status: currentStatus,
+                coverImage: photoResult.url,
                 message: `Foto de ${destinationLabel} obtenida`,
               },
             });
@@ -186,23 +219,38 @@ export class TourImageService {
         });
 
         this.logger.log(
-          `[TourImageService] Resolved and saved authentic destination photo for tour ${tourId}: ${photoUrl}`,
+          `[TourImageService] Resolved and saved authentic destination photo for tour ${tourId}: ${photoResult.url}`,
         );
-        return photoUrl;
+        return photoResult.url;
       }
 
-      await this.prisma.tour.update({
-        where: { id: tour.id },
-        data: {
-          metadata: {
-            ...this.objectMetadata(tour.metadata),
-            coverImageResolution: {
-              status: 'not_resolved',
-              reasonCode: 'NO_VERIFIED_PHOTO_FOUND',
-              completedAt,
+      await this.prisma.$transaction(async (tx) => {
+        const latest = await tx.tour.findUnique({
+          where: { id: tour.id },
+          select: {
+            id: true,
+            coverImage: true,
+            metadata: true,
+          },
+        });
+
+        if (!latest) return;
+        if (latest.coverImage) return;
+
+        const latestMetadata = this.objectMetadata(latest.metadata);
+        await tx.tour.update({
+          where: { id: tour.id },
+          data: {
+            metadata: {
+              ...latestMetadata,
+              coverImageResolution: {
+                status: 'not_resolved',
+                reasonCode: 'NO_VERIFIED_PHOTO_FOUND',
+                completedAt,
+              },
             },
           },
-        },
+        });
       });
 
       this.logger.warn(
@@ -221,7 +269,7 @@ export class TourImageService {
     label?: string,
     latitude?: number,
     longitude?: number,
-  ): Promise<string | null> {
+  ): Promise<DestinationPhotoResolution | null> {
     const USER_AGENT =
       'ZigZagTravelApp/1.0 (https://zigzag.travel; contact@zigzag.travel)';
     const headers = { 'User-Agent': USER_AGENT };
@@ -264,7 +312,10 @@ export class TourImageService {
           for (const p of pages) {
             const imgUrl = p.thumbnail?.source || p.originalimage?.source;
             if (imgUrl && this.isIconicDestinationPage(p.title, imgUrl)) {
-              return imgUrl;
+              return {
+                url: imgUrl,
+                provider: 'wikipedia_search',
+              };
             }
           }
         } catch (err: any) {
@@ -290,7 +341,10 @@ export class TourImageService {
             candidate &&
             this.isIconicDestinationPage(res.data?.title, candidate)
           ) {
-            return candidate;
+            return {
+              url: candidate,
+              provider: 'wikipedia_summary',
+            };
           }
         } catch (err: any) {
           this.logger.debug(
@@ -326,7 +380,10 @@ export class TourImageService {
         for (const p of pages) {
           const imgUrl = p.thumbnail?.source || p.originalimage?.source;
           if (imgUrl && this.isIconicDestinationPage(p.title, imgUrl)) {
-            return imgUrl;
+            return {
+              url: imgUrl,
+              provider: 'wikipedia_geosearch',
+            };
           }
         }
       } catch (err: any) {
@@ -348,7 +405,12 @@ export class TourImageService {
           const photo = enrichment.photos.find((p: any) =>
             this.isIconicDestinationPage(p.caption || p.title || p.url, p.url),
           );
-          if (photo) return photo.url;
+          if (photo) {
+            return {
+              url: photo.url,
+              provider: 'wikimedia',
+            };
+          }
         }
       } catch (err: any) {
         this.logger.debug(

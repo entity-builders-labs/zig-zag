@@ -428,7 +428,7 @@ export default function MapScreen() {
                 />
               </Box>
 
-              <VStack flex={1} space="2xs">
+              <VStack flex={1} space="xs">
                 <HStack justifyContent="space-between" alignItems="center">
                   <Box bg="$primary50" px="$2" py="$0.5" borderRadius="$full">
                     <Text size="2xs" fontWeight="$bold" color="$primary700">
@@ -460,7 +460,7 @@ export default function MapScreen() {
               </VStack>
             </HStack>
 
-            <HStack space="$2" mt="$3">
+            <HStack space="sm" mt="$3">
               <Button
                 flex={1}
                 onPress={() => setSelectedPlace(null)}
@@ -543,7 +543,7 @@ export default function MapScreen() {
                         resizeMode="cover"
                       />
                     </Box>
-                    <VStack flex={1} space="2xs">
+                    <VStack flex={1} space="xs">
                       <Heading size="xs" color="$textLight900" numberOfLines={1} style={{ fontFamily: FONT_DISPLAY }}>
                         {place.name}
                       </Heading>

@@ -161,7 +161,10 @@ describe('AuthService', () => {
         name: 'Apple User',
       });
 
-      const result = await service.loginWithApple('identity-token', 'Apple User');
+      const result = await service.loginWithApple(
+        'identity-token',
+        'Apple User',
+      );
 
       expect(result.user.email).toBe('user@example.com');
       expect(result.accessToken).toBe('signed-token');

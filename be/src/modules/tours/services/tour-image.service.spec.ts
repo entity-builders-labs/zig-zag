@@ -103,7 +103,10 @@ describe('TourImageService', () => {
 
   describe('resolveDestinationCoverImage', () => {
     it('returns existing coverImage immediately if already present', async () => {
-      const tourWithCover = { ...tour, coverImage: 'https://example.test/existing.jpg' };
+      const tourWithCover = {
+        ...tour,
+        coverImage: 'https://example.test/existing.jpg',
+      };
       const prisma: any = {
         tour: {
           findUnique: jest.fn().mockResolvedValue(tourWithCover),
@@ -126,7 +129,9 @@ describe('TourImageService', () => {
     it('resolves photo, saves coverImage, and creates TourProgressUpdated outbox event with coverImage', async () => {
       const prisma: any = {
         tour: {
-          findUnique: jest.fn().mockResolvedValue({ ...tour, coverImage: null }),
+          findUnique: jest
+            .fn()
+            .mockResolvedValue({ ...tour, coverImage: null }),
           update: jest.fn().mockResolvedValue(undefined),
         },
         $transaction: jest.fn(async (cb) => cb(prisma)),
@@ -147,10 +152,10 @@ describe('TourImageService', () => {
         wikimediaProvider,
       );
 
-      // Mock fetchDestinationPhoto returning the photo directly or via provider
-      jest
-        .spyOn(service as any, 'fetchDestinationPhoto')
-        .mockResolvedValue('https://upload.wikimedia.org/catedral-salta.jpg');
+      jest.spyOn(service as any, 'fetchDestinationPhoto').mockResolvedValue({
+        url: 'https://upload.wikimedia.org/catedral-salta.jpg',
+        provider: 'wikimedia',
+      });
 
       const result = await service.resolveDestinationCoverImage(tour.id, {
         label: 'Salta, Argentina',
@@ -186,6 +191,147 @@ describe('TourImageService', () => {
       );
     });
 
+    it('preserves metadata changes and does not revert completed lifecycle on late cover resolution', async () => {
+      // Initially, tour is generating
+      const initialTour = {
+        id: 'tour-race-1',
+        name: 'Salta Tour',
+        ownerId: 'user-1',
+        coverImage: null as string | null,
+        metadata: { generationStatus: 'generating' },
+      };
+
+      // While photo resolution was pending HTTP calls, generation finished and updated metadata
+      const completedTourInDb = {
+        id: 'tour-race-1',
+        name: 'Salta Tour',
+        ownerId: 'user-1',
+        coverImage: null as string | null,
+        metadata: {
+          generationStatus: 'completed',
+          generationTrace: { steps: ['retrieval', 'ranking', 'planning'] },
+          executionSummary: { totalExperiences: 5, durationMs: 1420 },
+        },
+      };
+
+      let findUniqueCallCount = 0;
+      const prisma: any = {
+        tour: {
+          findUnique: jest.fn().mockImplementation(async () => {
+            findUniqueCallCount++;
+            // First call before fetchDestinationPhoto
+            if (findUniqueCallCount === 1) return initialTour;
+            // Atomic re-read inside $transaction after fetchDestinationPhoto finishes
+            return completedTourInDb;
+          }),
+          update: jest.fn().mockResolvedValue(undefined),
+        },
+        $transaction: jest.fn(async (cb) => cb(prisma)),
+      };
+
+      const outboxService: any = {
+        createInTx: jest.fn().mockResolvedValue({ id: 'outbox-race-1' }),
+      };
+
+      const service = new TourImageService(
+        prisma,
+        {} as any,
+        outboxService,
+        {} as any,
+      );
+
+      jest.spyOn(service as any, 'fetchDestinationPhoto').mockResolvedValue({
+        url: 'https://upload.wikimedia.org/salta-view.jpg',
+        provider: 'wikipedia_search',
+      });
+
+      const result = await service.resolveDestinationCoverImage('tour-race-1', {
+        label: 'Salta, Argentina',
+      });
+
+      expect(result).toBe('https://upload.wikimedia.org/salta-view.jpg');
+
+      // Verify update merged into latest DB metadata without clobbering generationTrace or executionSummary
+      expect(prisma.tour.update).toHaveBeenCalledWith({
+        where: { id: 'tour-race-1' },
+        data: {
+          coverImage: 'https://upload.wikimedia.org/salta-view.jpg',
+          metadata: expect.objectContaining({
+            generationStatus: 'completed',
+            generationTrace: { steps: ['retrieval', 'ranking', 'planning'] },
+            executionSummary: { totalExperiences: 5, durationMs: 1420 },
+            coverImageResolution: expect.objectContaining({
+              status: 'resolved',
+              provider: 'wikipedia_search',
+              url: 'https://upload.wikimedia.org/salta-view.jpg',
+            }),
+          }),
+        },
+      });
+
+      // Verify event did NOT roll back lifecycle status to 'generating'
+      expect(outboxService.createInTx).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
+          eventType: 'TourProgressUpdated',
+          payload: expect.objectContaining({
+            tourId: 'tour-race-1',
+            status: 'completed',
+            coverImage: 'https://upload.wikimedia.org/salta-view.jpg',
+          }),
+        }),
+      );
+    });
+
+    it('does not overwrite coverImage if a concurrent worker set it before transaction commits', async () => {
+      const initialTour = {
+        id: 'tour-concurrent-1',
+        name: 'Mendoza Tour',
+        ownerId: 'user-1',
+        coverImage: null as string | null,
+        metadata: { generationStatus: 'generating' },
+      };
+
+      const concurrentTourInDb = {
+        ...initialTour,
+        coverImage: 'https://example.test/concurrent-winner.jpg',
+      };
+
+      let findUniqueCallCount = 0;
+      const prisma: any = {
+        tour: {
+          findUnique: jest.fn().mockImplementation(async () => {
+            findUniqueCallCount++;
+            if (findUniqueCallCount === 1) return initialTour;
+            return concurrentTourInDb;
+          }),
+          update: jest.fn().mockResolvedValue(undefined),
+        },
+        $transaction: jest.fn(async (cb) => cb(prisma)),
+      };
+
+      const outboxService: any = { createInTx: jest.fn() };
+      const service = new TourImageService(
+        prisma,
+        {} as any,
+        outboxService,
+        {} as any,
+      );
+
+      jest.spyOn(service as any, 'fetchDestinationPhoto').mockResolvedValue({
+        url: 'https://upload.wikimedia.org/late-arrival.jpg',
+        provider: 'wikipedia_summary',
+      });
+
+      await service.resolveDestinationCoverImage('tour-concurrent-1', {
+        label: 'Mendoza',
+      });
+
+      // Transaction re-read detected coverImage already set, aborted update
+      expect(prisma.tour.update).not.toHaveBeenCalled();
+      expect(outboxService.createInTx).not.toHaveBeenCalled();
+    });
+
     it('rejects sports stadiums, football fields, and non-iconic facilities', () => {
       const service = new TourImageService({} as any, {} as any);
       const isIconic = (service as any).isIconicDestinationPage.bind(service);
@@ -199,7 +345,7 @@ describe('TourImageService', () => {
       ).toBe(false);
       expect(
         isIconic(
-          'Club Atlético Newell\'s Old Boys',
+          "Club Atlético Newell's Old Boys",
           'https://upload.wikimedia.org/cancha_newells.jpg',
         ),
       ).toBe(false);
@@ -241,4 +387,3 @@ describe('TourImageService', () => {
     });
   });
 });
-

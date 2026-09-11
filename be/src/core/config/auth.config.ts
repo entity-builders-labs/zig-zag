@@ -11,6 +11,7 @@ export interface AuthConfig {
   // because Google issues a different client id per platform (web/iOS/Android).
   googleClientIds: string[];
   appleClientIds: string[];
+  allowDevAppleAuthMock: boolean;
   emailOtp: {
     codeTtlMinutes: number;
     maxAttempts: number;
@@ -58,6 +59,8 @@ export default registerAs('auth', (): AuthConfig => {
       .split(',')
       .map((id) => id.trim())
       .filter(Boolean),
+    allowDevAppleAuthMock:
+      !isProduction && process.env.ALLOW_DEV_APPLE_AUTH_MOCK === 'true',
     emailOtp: {
       codeTtlMinutes: process.env.EMAIL_OTP_TTL_MINUTES
         ? parseInt(process.env.EMAIL_OTP_TTL_MINUTES, 10)

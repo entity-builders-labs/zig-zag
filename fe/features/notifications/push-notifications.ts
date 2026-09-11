@@ -11,12 +11,22 @@ import {
 const PUSH_TOKEN_STORAGE_KEY = 'registered_expo_push_token';
 const isNative = Platform.OS === 'ios' || Platform.OS === 'android';
 
-let Notifications: typeof import('expo-notifications') | null | undefined = undefined;
+let notificationsModule: typeof import('expo-notifications') | null | undefined = undefined;
 
-function getNotificationsModule(): any {
-  // Push notifications require physical device with APNs capabilities.
-  // In simulator or environments without native notification server modules, return null.
-  return null;
+function getNotificationsModule(): typeof import('expo-notifications') | null {
+  if (notificationsModule !== undefined) return notificationsModule;
+  if (!isNative) {
+    notificationsModule = null;
+    return null;
+  }
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    notificationsModule = require('expo-notifications');
+    return notificationsModule;
+  } catch {
+    notificationsModule = null;
+    return null;
+  }
 }
 
 async function readStoredToken(): Promise<string | null> {

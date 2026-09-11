@@ -17,40 +17,74 @@ const isNativeSecureAvailable = (): boolean => {
 };
 
 async function getItem(key: string): Promise<string | null> {
+  if (Platform.OS === 'web') {
+    return AsyncStorage.getItem(key);
+  }
+
   if (isNativeSecureAvailable()) {
     try {
       return await secureStoreModule!.getItemAsync(key);
-    } catch {
-      return AsyncStorage.getItem(key);
+    } catch (error) {
+      if (__DEV__) {
+        console.warn(`[TokenStorage] SecureStore.getItemAsync failed in DEV; falling back to AsyncStorage:`, error);
+        return AsyncStorage.getItem(key);
+      }
+      throw error;
     }
   }
-  return AsyncStorage.getItem(key);
+
+  if (__DEV__) {
+    return AsyncStorage.getItem(key);
+  }
+  throw new Error('[TokenStorage] SecureStore is unavailable in production mobile build');
 }
 
 async function setItem(key: string, value: string): Promise<void> {
+  if (Platform.OS === 'web') {
+    return AsyncStorage.setItem(key, value);
+  }
+
   if (isNativeSecureAvailable()) {
     try {
       await secureStoreModule!.setItemAsync(key, value);
       return;
-    } catch {
-      await AsyncStorage.setItem(key, value);
-      return;
+    } catch (error) {
+      if (__DEV__) {
+        console.warn(`[TokenStorage] SecureStore.setItemAsync failed in DEV; falling back to AsyncStorage:`, error);
+        return AsyncStorage.setItem(key, value);
+      }
+      throw error;
     }
   }
-  await AsyncStorage.setItem(key, value);
+
+  if (__DEV__) {
+    return AsyncStorage.setItem(key, value);
+  }
+  throw new Error('[TokenStorage] SecureStore is unavailable in production mobile build');
 }
 
 async function removeItem(key: string): Promise<void> {
+  if (Platform.OS === 'web') {
+    return AsyncStorage.removeItem(key);
+  }
+
   if (isNativeSecureAvailable()) {
     try {
       await secureStoreModule!.deleteItemAsync(key);
       return;
-    } catch {
-      await AsyncStorage.removeItem(key);
-      return;
+    } catch (error) {
+      if (__DEV__) {
+        console.warn(`[TokenStorage] SecureStore.deleteItemAsync failed in DEV; falling back to AsyncStorage:`, error);
+        return AsyncStorage.removeItem(key);
+      }
+      throw error;
     }
   }
-  await AsyncStorage.removeItem(key);
+
+  if (__DEV__) {
+    return AsyncStorage.removeItem(key);
+  }
+  throw new Error('[TokenStorage] SecureStore is unavailable in production mobile build');
 }
 
 export async function getAccessToken(): Promise<string | null> {

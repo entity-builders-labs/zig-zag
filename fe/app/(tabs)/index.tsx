@@ -74,7 +74,7 @@ export default function HomeScreen() {
                   elevation={1}
                 >
                   <Icon as={MapPin} size="xs" color="$primary600" />
-                  <Text size="2xs" fontWeight="$bold" color="$textLight800" numberOfLines={1} maxW={120}>
+                  <Text size="2xs" fontWeight="$bold" color="$textLight800" numberOfLines={1} style={{ maxWidth: 120 }}>
                     {locationLabel}
                   </Text>
                 </HStack>

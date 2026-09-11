@@ -1,15 +1,16 @@
 import React, { useEffect, useRef } from 'react';
-import { Animated, StyleSheet, View } from 'react-native';
+import { Animated } from 'react-native';
 import { Box, HStack, Heading, Text, VStack } from '@gluestack-ui/themed';
-import { Sparkles } from 'lucide-react-native';
 import { FONT_DISPLAY } from '@/constants/typography';
 
 interface ItinerarySkeletonProps {
   message?: string;
+  showHeaderCard?: boolean;
 }
 
 export const ItinerarySkeleton: React.FC<ItinerarySkeletonProps> = ({
   message,
+  showHeaderCard = true,
 }) => {
   const pulseAnim = useRef(new Animated.Value(0.35)).current;
 
@@ -36,41 +37,43 @@ export const ItinerarySkeleton: React.FC<ItinerarySkeletonProps> = ({
   return (
     <VStack space='md'>
       {/* Top Status Card - Modern & Spinner-free */}
-      <Box
-        p='$5'
-        bg='$white'
-        borderRadius='$2xl'
-        borderWidth={1}
-        borderColor='$borderLight100'
-        shadowColor='$black'
-        shadowOffset={{ width: 0, height: 2 }}
-        shadowOpacity={0.04}
-        shadowRadius={6}
-      >
-        <HStack space='sm' alignItems='center' mb='$1.5'>
-          <Box
-            w={8}
-            h={8}
-            borderRadius='$full'
-            bg='$primary500'
-          />
-          <Heading
-            size='sm'
-            color='$textLight900'
-            style={{ fontFamily: FONT_DISPLAY }}
-          >
-            Armando tu recorrido
-          </Heading>
-        </HStack>
-        <Text
-          size='sm'
-          color='$textLight600'
-          fontWeight='$medium'
-          numberOfLines={2}
+      {showHeaderCard && (
+        <Box
+          p='$5'
+          bg='$white'
+          borderRadius='$2xl'
+          borderWidth={1}
+          borderColor='$borderLight100'
+          shadowColor='$black'
+          shadowOffset={{ width: 0, height: 2 }}
+          shadowOpacity={0.04}
+          shadowRadius={6}
         >
-          {message || 'Buscando lugares y relatos de tu destino...'}
-        </Text>
-      </Box>
+          <HStack space='sm' alignItems='center' mb='$1.5'>
+            <Box
+              w={8}
+              h={8}
+              borderRadius='$full'
+              bg='$primary500'
+            />
+            <Heading
+              size='sm'
+              color='$textLight900'
+              style={{ fontFamily: FONT_DISPLAY }}
+            >
+              Armando tu recorrido
+            </Heading>
+          </HStack>
+          <Text
+            size='sm'
+            color='$textLight600'
+            fontWeight='$medium'
+            numberOfLines={2}
+          >
+            {message || 'Buscando lugares y relatos de tu destino...'}
+          </Text>
+        </Box>
+      )}
 
       {/* 3 Pulsing Skeleton Stop Cards */}
       <Animated.View style={{ opacity: pulseAnim }}>

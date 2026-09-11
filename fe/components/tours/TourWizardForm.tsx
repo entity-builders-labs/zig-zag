@@ -77,7 +77,8 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
   initialLocation
 }) => {
   const insets = useSafeAreaInsets();
-  const { setCenter, setAddress } = useContext(AppContext);
+  const { setCenter, setAddress, address } = useContext(AppContext);
+  const initialAddressRef = useRef(address);
   const [currentStep, setCurrentStep] = useState(1);
   const destinationChosenRef = useRef(Boolean(initialDestination && initialDestination.trim().length > 0));
   const [destination, setDestination] = useState(initialDestination || '');
@@ -310,8 +311,14 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
   };
 
   const handleBack = () => {
-    if (currentStep > 1) setCurrentStep((step) => step - 1);
-    else onCancel();
+    if (currentStep > 1) {
+      setCurrentStep((step) => step - 1);
+    } else {
+      if (initialAddressRef.current) {
+        setAddress(initialAddressRef.current);
+      }
+      onCancel();
+    }
   };
 
   const renderDestinationStep = () => {
@@ -380,10 +387,13 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
                 if (coords) {
                   setDestinationCoords(coords);
                   setCenter(coords);
+                  const segments = label.split(',').map((s) => s.trim()).filter(Boolean);
+                  const city = segments[0] ?? label;
+                  const country = segments.length > 1 ? segments[segments.length - 1] : '';
                   setAddress({
                     street: label,
-                    city: label.split(',')[0],
-                    country: 'Argentina',
+                    city,
+                    country,
                     lat: coords.lat,
                     lng: coords.lng,
                   });
@@ -395,6 +405,9 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
                 setDestinationCoords(undefined);
                 setDestinationRadius(undefined);
                 setDestinationScaleHint('specific_point');
+                if (initialAddressRef.current) {
+                  setAddress(initialAddressRef.current);
+                }
               }
             }}
             onDirtyChange={setDestinationIsDirty}

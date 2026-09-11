@@ -15,8 +15,12 @@ export class AppleTokenService {
     const isProduction =
       this.configService.get<string>('nodeEnv') === 'production' ||
       process.env.NODE_ENV === 'production';
+    const allowDevMock =
+      !isProduction &&
+      (this.configService.get<boolean>('auth.allowDevAppleAuthMock') ??
+        process.env.ALLOW_DEV_APPLE_AUTH_MOCK === 'true');
 
-    if (!isProduction && identityToken.startsWith('dev_mock_apple_')) {
+    if (allowDevMock && identityToken.startsWith('dev_mock_apple_')) {
       const parts = identityToken.split(':');
       const email = parts[1] || 'dev.apple.user@privaterelay.appleid.com';
       const providerId = parts[2] || '001234.dev_apple_sim_user';

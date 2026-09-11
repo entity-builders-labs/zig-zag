@@ -208,8 +208,13 @@ export default function TourDetailScreen() {
     onEvent: (eventName, payload) => {
       if (eventName === 'tour.progress') {
         if (payload.message) setGenerationMessage(payload.message);
-        if (payload.status === 'generating' || payload.status === 'pending') {
-          setIsGeneratingExperiences(true);
+        if (payload.status === 'completed' || payload.status === 'failed') {
+          setIsGeneratingExperiences(false);
+        } else if (payload.status === 'generating' || payload.status === 'pending') {
+          setIsGeneratingExperiences(() => {
+            if (tour?.experiences && tour.experiences.length > 0) return false;
+            return true;
+          });
         }
         if (payload.coverImage) {
           setTour((prevTour) => {
@@ -519,41 +524,44 @@ export default function TourDetailScreen() {
                       </Box>
                     )}
 
-                  {isGeneratingExperiences ? (
-                    <Box
-                      p='$8'
-                      alignItems='center'
-                      justifyContent='center'
-                      bg='$white'
-                      borderRadius='$2xl'
-                      borderWidth={1}
-                      borderColor='$borderLight100'
-                      shadowColor='$black'
-                      shadowOffset={{ width: 0, height: 2 }}
-                      shadowOpacity={0.06}
-                      shadowRadius={8}
-                      elevation={2}
-                    >
-                      <Spinner size='large' color='$primary500' mb='$4' />
-                      <Heading
-                        size='sm'
-                        color='$textLight900'
-                        textAlign='center'
-                        style={{ fontFamily: FONT_DISPLAY }}
-                        mb='$1'
+                  {isGeneratingExperiences && stops.length === 0 ? (
+                    <VStack space='md'>
+                      <Box
+                        p='$8'
+                        alignItems='center'
+                        justifyContent='center'
+                        bg='$white'
+                        borderRadius='$2xl'
+                        borderWidth={1}
+                        borderColor='$borderLight100'
+                        shadowColor='$black'
+                        shadowOffset={{ width: 0, height: 2 }}
+                        shadowOpacity={0.06}
+                        shadowRadius={8}
+                        elevation={2}
                       >
-                        Armando tu recorrido
-                      </Heading>
-                      <Text
-                        color='$textLight600'
-                        textAlign='center'
-                        fontWeight='$medium'
-                        mb='$1'
-                      >
-                        Buscando lugares y relatos de tu destino
-                      </Text>
-                      <GenerationPipeline message={generationMessage} />
-                    </Box>
+                        <Spinner size='large' color='$primary500' mb='$4' />
+                        <Heading
+                          size='sm'
+                          color='$textLight900'
+                          textAlign='center'
+                          style={{ fontFamily: FONT_DISPLAY }}
+                          mb='$1'
+                        >
+                          Armando tu recorrido
+                        </Heading>
+                        <Text
+                          color='$textLight600'
+                          textAlign='center'
+                          fontWeight='$medium'
+                          mb='$1'
+                        >
+                          Buscando lugares y relatos de tu destino
+                        </Text>
+                        <GenerationPipeline message={generationMessage} />
+                      </Box>
+                      <ItinerarySkeleton showHeaderCard={false} />
+                    </VStack>
                   ) : generationError ? (
                     <Box
                       p='$8'

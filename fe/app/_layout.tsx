@@ -13,8 +13,22 @@ import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Platform } from 'react-native';
 import 'react-native-reanimated';
 
+let cachedNotifications: typeof Notifications | null | undefined = undefined;
+
 function getNotifications(): typeof Notifications | null {
-  return null;
+  if (cachedNotifications !== undefined) return cachedNotifications;
+  if (Platform.OS === 'web') {
+    cachedNotifications = null;
+    return null;
+  }
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    cachedNotifications = require('expo-notifications');
+    return cachedNotifications;
+  } catch {
+    cachedNotifications = null;
+    return null;
+  }
 }
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -42,6 +56,18 @@ function RootNavigator() {
 
     const notif = getNotifications();
     if (!notif) return;
+
+    try {
+      notif.setNotificationHandler?.({
+        handleNotification: async () => ({
+          shouldShowAlert: true,
+          shouldPlaySound: false,
+          shouldSetBadge: false,
+        }),
+      });
+    } catch {
+      // ignore handler initialization failure on unsupported environments
+    }
 
     const captureResponse = (response: Notifications.NotificationResponse) => {
       setPendingNotificationResponse(response);

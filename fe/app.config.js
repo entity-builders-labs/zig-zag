@@ -17,7 +17,7 @@ module.exports = {
     },
   },
   ios: {
-    bundleIdentifier: 'com.javieriseruk.zigzag',
+    bundleIdentifier: 'com.entitiybuilders.zig-zag',
     usesAppleSignIn: false,
     infoPlist: {
       NSLocationWhenInUseUsageDescription:

@@ -22,8 +22,18 @@ Furthermore, the legacy `TourImageService` attempted AI image generation (DALL-E
 2. **Asynchronous Outbox Resolution (No Instant Client Guesswork)**:
    - Presentation assets are resolved through the existing durable async pipeline.
    - When `TourGenerationRequested` is processed, `ExperienceGenerationService` coordinates with `TourImageService`.
-   - `TourImageService` leverages verified providers (`WikimediaPhotoProvider` with geographic/name matching, with Google Places as fallback) to obtain the primary destination landmark photo.
-   - The resolved photo URL is persisted in Postgres (`Tour.coverImage`) and recorded in `tour.metadata.coverImageResolution`.
+   - `TourImageService` leverages verified encyclopedia and media sources in order:
+     a. `wikipedia_search`: Prominence article search by destination label.
+     b. `wikipedia_summary`: Canonical summary lookup by destination city.
+     c. `wikipedia_geosearch`: Bounded geosearch around coordinates.
+     d. `wikimedia`: Direct `WikimediaPhotoProvider` enrichment.
+     *(Google Places is documented as a future optional commercial fallback; not wired in this phase).*
+   - The resolved photo URL is persisted in Postgres (`Tour.coverImage`) and recorded in `tour.metadata.coverImageResolution` with the truthful provider tag.
+   - **Concurrency & Lifecycle Invariants**:
+     - Inside a Prisma `$transaction`, `TourImageService` executes an atomic re-read of the Tour.
+     - If `latest.coverImage` is already set (by concurrent worker or previous step), the transaction safely aborts without overwriting.
+     - Existing `tour.metadata` (including `generationStatus`, `generationTrace`, and `executionSummary`) is preserved during the update.
+     - The outbox event `TourProgressUpdated` carries the current lifecycle status derived from `latestMetadata.generationStatus` (never reverting a completed or failed tour to `'generating'`).
 
 3. **Direct SSE Payload Delivery (Zero Extra HTTP Round-Trips)**:
    - Following the pattern established by `ExperienceMediaUpdated`, the outbox event `TourProgressUpdated` carries the resolved `coverImage` directly in its payload:
