@@ -451,37 +451,45 @@ exists from v1).**
   acquisition pass, not a forced stop).
 
 **Area/route anchor + `intent:walk`/`route_like` requested (§11 D5 — RESOLVED
-2026-09-11): acquire/compose a real walk Experience in v1.**
+2026-09-11): acquire a real multi-component Experience in v1.**
+
+The correct representation is **a normal `Experience`** — the same kind used
+everywhere else in this design, carrying `intent: walk` / `route_like` —
+composed of `ExperienceComponent`s that reference real `GeoEntity` rows
+(`PLACE | AREA | ROUTE`). There is no separate structural kind for this in
+Experience Domain V2, and nothing in this design introduces one.
+
 1. **Reuse first.** Stage 3's per-facet retrieval, for this facet+anchor
-   combination, specifically checks whether a multi-component Experience
-   already in the catalog has components inside the anchor's polygon — if one
-   does, it is used; nothing is re-acquired.
-2. **Otherwise, acquire and compose a new one** using the existing
-   multi-component Experience resolution path (`componentHints[].role`
+   combination, specifically checks whether a compatible multi-component
+   Experience already in the catalog has components inside the anchor's
+   polygon — if one does, it is used; nothing is re-acquired.
+2. **Otherwise, acquire and resolve a new one from real evidence** using the
+   existing component-resolution path (`componentHints[].role`
    `area`/`route`/`venue` → `ExperienceProposalResolverService` →
-   `CompositeGeographicValidationService`) — there is no separate structural
-   "composite" kind in Experience Domain V2 (the pre-V2 Activity domain called
-   this shape `NEIGHBORHOOD_WALK`/`ROUTE`; that enum no longer exists, only a
-   multi-component `Experience`). Stage 4a routes this facet+anchor combination
-   to `web` with a query phrased to surface a guided/self-guided walking-tour
-   article for the area (both BA probes found these organically — "Free
-   Walking Tour San Telmo" style results). Stage 4c's entity-extraction contract
-   must cover **multi-stop enumeration** (every real named stop → its own
-   `componentHint`, per the existing discovery-extraction prompt instruction),
-   not just single-entity naming — this is identity/component information, not
-   classification, so it belongs in Stage 4c/5, never Stage 6.
-3. **Real, grounded, resolved components only.** Every component of the walk
-   must be a real `GeoEntity` resolved through Places/OSM identity, exactly
-   like any other Experience — no invented stops, no LLM-claimed coordinates.
+   `CompositeGeographicValidationService`). Stage 4a routes this facet+anchor
+   combination to `web` with a query phrased to surface a guided/self-guided
+   walking-tour article for the area (both BA probes found these organically —
+   "Free Walking Tour San Telmo" style results). Stage 4c's entity-extraction
+   contract must cover **multi-stop enumeration** (every real named stop → its
+   own `componentHint`, per the existing discovery-extraction prompt
+   instruction), not just single-entity naming — this is identity/component
+   information, not classification, so it belongs in Stage 4c/5, never Stage 6.
+3. **Real, grounded, resolved components only — no invented sequence.** Every
+   component must be a real `GeoEntity` resolved through Places/OSM identity,
+   exactly like any other Experience — no invented stops, no LLM-claimed
+   coordinates. This reuses the existing resolver invariant: `order` is a
+   concrete integer only when the cited evidence explicitly describes a real
+   visiting sequence; otherwise `ExperienceComponent.order` stays `null` (never
+   inferred from array/resolution order).
 4. **Insufficient evidence → do not build it.** If no source names enough real,
-   resolvable stops to construct a coherent walk, none is fabricated. The
+   resolvable stops to construct a grounded Experience, none is fabricated. The
    `intent:walk`/`route_like` facet for that anchor follows the normal
    insufficient/unmet path (never fatal to the tour) — same treatment as any
    other under-evidenced facet.
-5. **Persist for reuse.** Any successfully constructed walk Experience goes
-   through the normal Stage 7 persistence — it becomes a real catalog row, so
-   step 1 (reuse first) satisfies every subsequent request touching that area
-   without re-acquiring.
+5. **Persist for reuse.** Any successfully acquired Experience goes through the
+   normal Stage 7 persistence — it becomes a real catalog row, so step 1
+   (reuse first) satisfies every subsequent request touching that area without
+   re-acquiring.
 - `anchor.kind = venue` (e.g. Teatro Colón), `priority: soft` → a candidate
   Experience like any other, with a strong inclusion tilt; can legitimately be
   left out of the final set (by facet competition or, later, by the planner).
@@ -856,14 +864,18 @@ the refactor branch merges.
   constraints are never broken, `unmetAnchors` reason `INFEASIBLE`. Full
   semantics and the solver mechanism in §5.7.
 - ~~**D5 — Area-anchor walk acquisition in v1.**~~ **RESOLVED 2026-09-11: yes,
-  acquire/compose a real walk Experience in v1.** Reuse-first: Stage 3 checks
-  the catalog for an existing multi-component Experience covering the anchor's
-  area before acquiring. Otherwise, acquire/compose one via the existing
-  multi-component Experience resolution path (no separate "composite" kind in
-  Experience Domain V2). The `AREA`/`ROUTE` `GeoEntity` stays boundary/
-  retrieval-scope only, never itself selectable. Components must be real,
-  grounded, and resolved — insufficient evidence means it is not built (never
-  fabricated), and that facet follows the normal non-fatal unmet path. Every
+  acquire a real multi-component Experience in v1.** The representation is a
+  **normal `Experience`** (`intent: walk`/`route_like`) composed of
+  `ExperienceComponent`s referencing real `GeoEntity` rows (`PLACE | AREA |
+  ROUTE`) — no separate structural kind. Reuse-first: Stage 3 checks the
+  catalog for a compatible existing
+  multi-component Experience covering the anchor's area before acquiring.
+  Otherwise, acquire/resolve one via the existing component-resolution path.
+  The `AREA`/`ROUTE` anchor stays boundary/retrieval-scope only, never itself
+  selectable. No invented sequence or components: `ExperienceComponent.order`
+  stays `null` unless evidence explicitly shows a real visiting order (existing
+  resolver invariant, not a new one). Insufficient grounded evidence → not
+  built, that facet follows the normal non-fatal unmet path. Every
   successfully constructed walk is persisted to the catalog so future requests
   reuse it. Full mechanism in §5.7.
 - ~~**D4 — Phase renumbering.**~~ **RESOLVED 2026-09-11: adopt §7.4.**
