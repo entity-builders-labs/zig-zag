@@ -30,7 +30,9 @@ live smoke happens after that merge and gates convergence into
    It must never enter per-facet retrieval, sufficiency, acquisition deficits or
    `unmetFacets`.
 2. A requested facet is satisfied by **>= 1 strong match** in v1.
-3. `days × pace` is a **GLOBAL portfolio target**, never a quota per facet.
+3. `days × pace` is a **GLOBAL initial portfolio-breadth target**, never a quota
+   per facet and never the final Tour cardinality. Duration/travel/opening-hours
+   feasibility determines the final scheduled count.
 4. `soft` venue anchors are a strong ordering boost only. They are not forced.
    `must` venue anchors are hard-included only when resolved and feasible.
 5. Existing `experienceId` alone does not mean classification can be skipped.
@@ -55,6 +57,10 @@ live smoke happens after that merge and gates convergence into
     product decision surface: no rule ID, enum, service name or raw payload may
     be required to understand a step. Technical details stay available behind
     expansion.
+14. Composition preserves a deterministic ranked reservoir beyond the initial
+    portfolio target. The planner may consume it when meaningful usable capacity
+    remains; only after the reservoir is exhausted may bounded planner-triggered
+    acquisition run. Never add low-quality filler merely to occupy every minute.
 
 ---
 
@@ -134,7 +140,8 @@ export interface UnmetAnchor {
 }
 
 export interface CompositionResult {
-  selected: string[];
+  selected: string[]; // initial portfolio, not final Tour cardinality
+  rankedReservoir: string[]; // eligible unselected rows for duration-aware backfill
   perFacetCoverage: Record<string, string[]>;
   unmetFacets: string[];
   mustAnchorsForced: string[];
@@ -228,6 +235,11 @@ portfolioTarget(baseTarget, distinctReservations, distinctMustAnchors)
 ```
 
 Do not implement `requiredMatchCount(days, pace)` per facet.
+
+Important post-A4 clarification from canonical D6: these helpers estimate
+**pre-planner candidate breadth only**. Do not retrofit duration/travel/opening
+hours into A4 and do not interpret `portfolioTarget` as the exact or maximum
+final Tour size. Duration-aware refinement belongs in Checkpoint C planning.
 
 Tests MUST include:
 - 5 moderate days → base target 20 TOTAL;
@@ -491,9 +503,12 @@ Algorithm:
    - resolved eligible => put in selected and record `mustAnchorsForced`.
 3. For each requested facet, reserve exactly one strongest strong match if not
    already covered by a selected candidate.
-4. Compute **global** portfolio target using the A4 helper.
-5. Fill remainder until portfolio target (or candidates exhausted).
-6. Recompute final per-facet coverage/unmet facets.
+4. Compute **global initial** portfolio target using the A4 helper.
+5. Fill the initial selected set until portfolio target (or candidates exhausted).
+6. Keep every remaining eligible candidate in a deterministic ranked reservoir
+   using the same preference-aware ordering; do not discard them merely because
+   the initial target was reached.
+7. Recompute initial per-facet coverage/unmet facets.
 
 Within-facet strength should prioritize:
 - grounding/match strength;
@@ -504,7 +519,7 @@ Within-facet strength should prioritize:
 - soft anchor boost;
 - diversity/stable id tie break.
 
-Remainder fill uses:
+Remainder fill and reservoir ordering use:
 
 ```text
 weightedCoverage(c) = Σ requestedFacet.weight for each requested facet c satisfies
@@ -515,9 +530,10 @@ stable id.
 
 Do not use raw facet count as the primary objective.
 Do not hardcode `days * 4`; call the canonical portfolio-target helper.
+Do not interpret `portfolioTarget` as a maximum final Tour size.
 
 Required unit cases:
-- 5 moderate days targets 20 total candidates, not 20 per facet;
+- 5 moderate days targets 20 initial candidates, not 20 per facet;
 - one strong history match reserves history;
 - monothematic strongest tango-performance venue survives even if a weaker
   candidate covers 3 labels;
@@ -528,7 +544,8 @@ Required unit cases:
 - soft venue anchor can be selected because of boost but is allowed to lose;
 - must venue anchor is forced;
 - unresolved must → exact UNRESOLVED;
-- deterministic deep equality on repeat.
+- candidates beyond the initial target remain in deterministic reservoir order;
+- deterministic deep equality on repeat includes both selected and reservoir.
 
 ## C3 — ExperienceCompositionService
 
@@ -538,7 +555,8 @@ Thin service that:
 - computes satisfied facets only with the canonical matching primitive;
 - computes weighted preference coverage;
 - computes soft anchor boost;
-- calls pure `composeSet`.
+- calls pure `composeSet`;
+- returns both the initial selected portfolio and ranked reservoir.
 
 No second semantic engine.
 
@@ -560,6 +578,10 @@ Normalizer:
 
 Planner soft score applies quality and preference once each.
 
+The same normalization contract is used for initial selected candidates and
+reservoir candidates promoted during backfill; backfill does not create a second
+planner-candidate semantics path.
+
 ## C5 — Must-anchor pinned placement
 
 Create `must-anchor-placement.util.ts` and adapt deterministic candidate sorting
@@ -576,6 +598,60 @@ Rules:
 Acceptance test MUST assert exact `INFEASIBLE`; do not use vacuous assertions
 such as `length >= 0`.
 
+## C5b — Duration-aware planner backfill and bounded convergence (D6)
+
+Implement the Stage 10 refinement loop from canonical spec §13.1. This task does
+**not** change A4's `days × pace` formula; it interprets that formula correctly
+as initial candidate breadth.
+
+After the initial solver pass:
+1. derive meaningful residual capacity from the actual schedule, using known
+   Experience duration, travel time, opening hours/day windows, geography,
+   mobility constraints and must placements;
+2. if no meaningful residual capacity remains, stop even if the final scheduled
+   count is below `portfolioTarget`;
+3. otherwise promote the next best feasible candidate(s) from the deterministic
+   ranked reservoir and re-run the affected planning pass;
+4. never append an Experience without rechecking hard feasibility;
+5. continue only while the schedule makes deterministic progress;
+6. if meaningful capacity remains and the reservoir is exhausted, return a
+   structured planner-capacity deficit to orchestration;
+7. orchestration may then run bounded targeted acquisition using the normal
+   evidence/resolve/classify/persist/re-retrieve path, recompose the reservoir,
+   and replan;
+8. terminate on no meaningful capacity, no feasible reservoir candidate, no
+   progress, exhausted provider/acquisition budget, or configured pass limit.
+
+Capacity-deficit context should be as concrete as the planner can prove, e.g.:
+
+```ts
+interface PlannerCapacityDeficit {
+  dayIndex: number;
+  availableMinutes: number;
+  areaOrScope?: string;
+  preferredFacets: Array<{ key: string; weight: number }>;
+}
+```
+
+Do not hardcode a universal minute threshold in A4. “Meaningful residual
+capacity” is planner/policy-level and may account for travel overhead and
+quality. Do not force filler into tiny/awkward gaps or degrade the itinerary just
+to maximize occupied minutes.
+
+Required tests:
+- long Experiences can yield a valid final Tour with fewer scheduled rows than
+  the initial `portfolioTarget`;
+- short Experiences with useful capacity promote additional candidates from the
+  reservoir, so final scheduled count may exceed the initial target;
+- promoted candidates still obey travel/opening-hours/day feasibility;
+- reservoir exhaustion with meaningful capacity emits a structured capacity
+  deficit rather than silently stopping;
+- newly acquired backfill candidates are not schedulable until they complete the
+  canonical persistence/re-retrieval path;
+- tiny/awkward gaps do not force filler;
+- repeated identical input produces identical backfill decisions;
+- no-progress/pass-budget termination prevents infinite loops.
+
 ## C6 — Overlap resolution
 
 Where overlap candidates conflict, use requested weighted coverage before legacy
@@ -591,11 +667,14 @@ Trace separately records:
 - basePortfolioTarget / portfolioTarget / distinctEligibleCount;
 - acquisition deficits;
 - classification reused vs classified vs degraded + evidence keys;
-- composition reservations;
+- composition reservations, initial selected IDs and ranked reservoir size/order;
 - soft anchor boosts;
 - must anchors forced;
 - unmet facets / anchors;
-- planner outcome.
+- planner initial placements/unselected feasibility reasons;
+- residual-capacity calculations and backfill iterations;
+- whether each backfill came from reservoir or planner-triggered acquisition;
+- initial selected count, final scheduled count and convergence stop reason.
 
 Delete JSON-string keyword theme matching from trace generation.
 
@@ -609,8 +688,10 @@ Required trace tests:
 - each facet exposes strong/weak counts and satisfaction;
 - acquisition records exact deficit/reason and sources/queries/evidence;
 - classification records reused/classified/degraded and evidence keys;
-- composition records reservations, selected/unselected reason data and anchors;
-- planner records placement/unselected feasibility reasons;
+- composition records reservations, initial selection, ranked reservoir,
+  selected/unselected reason data and anchors;
+- planner records initial placement, residual capacity, backfill decisions,
+  final placement and unselected feasibility reasons;
 - trace generation never performs semantic matching by JSON/string keywords.
 
 ## C8 — Product-readable Generation Bitácora v4
@@ -697,9 +778,9 @@ Decisión: buscar nuevas opciones sólo para Tango.
 Portfolio sufficiency must show:
 - covered facets / total;
 - distinct eligible count;
-- global target;
-- sufficient/not sufficient;
-- whether the deficit is facet coverage or global capacity.
+- global **initial breadth** target;
+- sufficient/not sufficient for first planning attempt;
+- whether the deficit is facet coverage or global pre-planner capacity.
 
 Acquisition must show compactly:
 - target facet/capacity objective;
@@ -715,20 +796,25 @@ Classification must show compactly:
 - concise semantic labels per inspected Experience where useful.
 
 Composition must show:
-- global target;
+- global initial target;
 - facets covered;
 - reservations;
 - soft-anchor boosts;
 - must anchors;
-- selected count;
+- initial selected count;
+- reservoir count;
 - final decision.
 
 Planner must show:
 - days;
-- placed Experiences per day / total;
+- initially placed Experiences per day / total;
+- meaningful residual capacity when present;
+- reservoir backfill count;
+- planner-triggered acquisition count/pass when present;
+- final placed Experiences per day / total;
 - hard conflicts or feasibility failures;
 - must placement result;
-- final feasible/degraded outcome.
+- convergence stop reason and final feasible/degraded outcome.
 
 ### C8.5 Human rule rendering
 
@@ -770,6 +856,8 @@ Examples:
 - `Reservada como mejor opción para Arquitectura`;
 - `Priorizada porque pediste Teatro Colón` for a soft anchor boost;
 - `Incluida obligatoriamente por tu pedido` for a resolved must;
+- `Agregada porque quedaba capacidad útil en el itinerario` for reservoir
+  backfill supported by trace;
 - `No seleccionada: preferencia ya cubierta; otra opción aporta más peso/diversidad`;
 - `Descartada: sin ubicación verificable`;
 - `No pudo ubicarse: cerrada/no factible en el horario disponible`.
@@ -804,7 +892,10 @@ Add focused frontend tests and/or Playwright coverage proving at least:
 - acquisition decision is understandable without opening technical details;
 - soft anchor reads as prioritization, never as forced;
 - must anchor clearly differentiates included / UNRESOLVED / INFEASIBLE;
-- composition displays global target and selected count;
+- composition displays initial global target, initial selected count and
+  reservoir count;
+- planner distinguishes initial placements from duration-aware backfill and
+  final scheduled count;
 - a selected and an unselected Experience have concise human reasons;
 - planner displays feasibility/result;
 - primary view does not require a `ruleId` or `reasonCode` to understand any
@@ -818,14 +909,17 @@ Acceptance criterion:
 
 > A product person must be able to scan only titles, metrics and decision lines
 > and correctly explain what the traveler wanted, what was covered, what was
-> missing, why research ran, what was selected and why, and whether the final
-> itinerary is feasible — without interpreting a rule ID, enum or service name.
+> missing, why research ran, what was initially selected, whether the planner
+> found useful spare capacity, what was added through backfill, and whether the
+> final itinerary is feasible — without interpreting a rule ID, enum or service
+> name.
 
 ### Checkpoint C verification
 
-Run pure composition tests, solver unit/acceptance tests, overlap tests, trace
-v4 tests, frontend Bitácora tests/Playwright, backend/frontend typecheck and
-relevant lint. Do not enter Checkpoint D with C7 green but C8 unimplemented.
+Run pure composition tests, duration-aware backfill/convergence tests, solver
+unit/acceptance tests, overlap tests, trace v4 tests, frontend Bitácora
+tests/Playwright, backend/frontend typecheck and relevant lint. Do not enter
+Checkpoint D with C7 green but C8 unimplemented.
 
 ---
 
@@ -841,7 +935,7 @@ Stages 1–11:
 3. resolve destination;
 4. resolve named anchors deterministically where possible;
 5. retrieve per real facet;
-6. compute global portfolio sufficiency;
+6. compute global pre-planner portfolio sufficiency;
 7. while insufficient and within pass/provider budget:
    - acquire uncovered facet(s) first;
    - if all facets covered but portfolio thin, acquire against highest-weight
@@ -852,15 +946,26 @@ Stages 1–11:
    - persist/enrich;
    - re-retrieve canonical rows;
    - recompute global sufficiency;
-8. compose weighted deterministic portfolio;
-9. normalize planner candidates with preferenceWeight/mustInclude;
-10. deterministic solver + feasibility;
-11. map infeasible must anchors;
-12. materialize + trace.
+8. compose weighted deterministic **initial** portfolio + ranked reservoir;
+9. normalize initial planner candidates with preferenceWeight/mustInclude;
+10. deterministic initial solver + feasibility;
+11. while meaningful residual capacity remains and convergence budget allows:
+    - promote next feasible reservoir candidate(s), normalize through the same
+      planner-candidate contract and replan;
+    - if reservoir is exhausted, emit structured planner-capacity deficit;
+    - run bounded targeted acquisition for that concrete capacity deficit only;
+    - send discoveries through corroboration/classification/persistence/
+      re-retrieval, recompose reservoir and replan;
+    - stop on no progress, no useful capacity or pass/provider budget;
+12. map infeasible must anchors;
+13. materialize + trace initial vs final planner state and convergence reason.
 
 Do not call acquisition for exploration style.
 Do not stop after “N candidates per facet”; only facet>=1 + global capacity can
-stop acquisition.
+stop pre-planner acquisition.
+Do not stop final planning merely because `portfolioTarget` candidates were
+initially selected; D6 backfill is authoritative for useful residual capacity.
+Do not acquire filler for tiny/awkward gaps or solely to inflate catalog size.
 
 Register new services in `tours.module.ts`.
 
@@ -872,7 +977,15 @@ faked external transports.
 Required cases:
 - history+architecture one-day request: both facets covered by grounded
   Experiences;
-- total composition target follows global pace target;
+- initial composition target follows global pace target;
+- long-duration candidates may schedule fewer rows than initial target without
+  being considered incomplete solely by count;
+- short-duration candidates with useful spare capacity pull deterministic
+  backfill from reservoir, allowing final scheduled count > initial target;
+- exhausted reservoir + meaningful capacity triggers bounded targeted
+  acquisition and replanning;
+- tiny/awkward gaps do not trigger low-quality filler;
+- no-progress/pass-budget bounds terminate convergence;
 - changing one preference changes selected composition deterministically;
 - hard exclusion survives pressure;
 - soft anchor has boost semantics (test a corpus where it wins and another
@@ -906,7 +1019,9 @@ read compatibility.
 Keep the large (hundreds of Experiences) competitive corpora. Change assertions
 from old “window size / global rank” mechanics to preference-first semantics:
 - requested facets each have >=1 strong candidate;
-- composition size aims at global portfolio target;
+- initial composition size aims at global portfolio target;
+- final scheduled cardinality is feasibility-driven and may be below or above
+  the initial target through deterministic backfill;
 - a facet delta changes selected IDs;
 - dominance/regret is evaluated against weighted preference coverage + quality,
   not legacy global score;
@@ -979,8 +1094,11 @@ Assertions:
 - San Telmo polygon itself is not scheduled;
 - any acquired walk is multi-component and grounded;
 - classification provenance exists for newly classified Experiences;
+- if the planner reports meaningful residual capacity, any reservoir/acquisition
+  backfill is grounded and traceable, and convergence remains bounded;
 - the generated v4 trace can be rendered by the product Bitácora with the same
-  coverage/acquisition/composition/planner decisions visible without raw codes.
+  coverage/acquisition/initial-composition/backfill/final-planner decisions
+  visible without raw codes.
 
 This live spec validates real provider behavior. Deterministic semantics remain
 owned by unit/integration/e2e acceptance.
@@ -1028,6 +1146,9 @@ wired and tested:
 - keyword/JSON-string theme matcher;
 - any `exploration_style` coverage routing;
 - any per-facet `days×pace` quota;
+- any interpretation of `days×pace` as exact/max final Tour cardinality;
+- any composition path that discards all eligible rows beyond initial target
+  instead of preserving the ranked reservoir;
 - any `soft anchor => force include` behavior;
 - any `experienceId => classification skipped` shortcut;
 - any classifier-trait => fabricated structured-dimension conversion.
@@ -1048,9 +1169,11 @@ The implementation is complete when all of the following are true:
 1. `PreferenceSpec.facets` contains real semantic/requested facets only;
    exploration style is separate.
 2. Each requested facet needs one strong match for facet satisfaction.
-3. `days×pace` is used exactly once as the global base portfolio target.
-4. Per-facet acquisition runs only for uncovered facets; global capacity refill
-   happens only after facet coverage and only while capacity is short.
+3. `days×pace` is used as the global **initial breadth** target, never a
+   per-facet quota or final Tour cardinality requirement.
+4. Per-facet acquisition runs only for uncovered facets; global pre-planner
+   capacity refill happens only after facet coverage and only while breadth is
+   short.
 5. Existing current classification is reused; missing/stale classification is
    classified/reclassified.
 6. Freeform classifier traits do not fabricate structured dimensions.
@@ -1063,20 +1186,29 @@ The implementation is complete when all of the following are true:
 11. AREA/ROUTE anchors are scopes, not selectable stops.
 12. Area+walk acquisition creates/reuses a normal multi-component Experience;
     there is no `NEIGHBORHOOD_WALK` type.
-13. Composition uses one reservation per facet + weighted remainder fill to the
-    global portfolio target.
-14. Planner receives raw quality once and preferenceWeight once.
-15. Large-corpus e2e proves preference deltas change the best selected set.
-16. Trace v4 explains facet coverage, global sufficiency, classification reuse,
-    acquisition, anchor semantics, composition and planner outcome.
-17. Bitácora v4 renders that trace natively as concise product decisions: a
+13. Composition uses one reservation per facet + weighted initial remainder fill
+    and preserves a deterministic ranked reservoir beyond the initial target.
+14. Planner receives raw quality once and preferenceWeight once for both initial
+    and promoted reservoir candidates.
+15. Duration-aware planning determines final cardinality: long Experiences may
+    yield fewer rows than the initial target; short Experiences may trigger
+    deterministic reservoir backfill and, only after reservoir exhaustion,
+    bounded planner-triggered acquisition.
+16. Backfill convergence stops deterministically on no useful capacity, no
+    progress, exhausted candidate/provider budget or pass limits and never adds
+    poor filler solely to occupy every minute.
+17. Large-corpus e2e proves preference deltas change the best selected set.
+18. Trace v4 explains facet coverage, global initial sufficiency, classification
+    reuse, acquisition, anchor semantics, composition reservoir, residual
+    capacity/backfill and final planner outcome.
+19. Bitácora v4 renders that trace natively as concise product decisions: a
     product person can understand the flow without rule IDs, while technical
     details/evidence/raw diagnostics remain available on demand.
-18. Frontend acceptance verifies covered/uncovered facets, acquisition reason,
-    anchor semantics, selected/unselected reasons and planner feasibility in the
-    primary Bitácora.
-19. Full backend + relevant frontend deterministic matrix is green.
-20. The merged preference-first core is recorded as Phase 7 CLOSED; Argentina
+20. Frontend acceptance verifies covered/uncovered facets, acquisition reason,
+    anchor semantics, initial selection/reservoir, backfill, selected/unselected
+    reasons and final planner feasibility in the primary Bitácora.
+21. Full backend + relevant frontend deterministic matrix is green.
+22. The merged preference-first core is recorded as Phase 7 CLOSED; Argentina
     live smoke then gates convergence to the unified agent branch.
 
 ---
@@ -1086,7 +1218,7 @@ The implementation is complete when all of the following are true:
 ```text
 Checkpoint A
   PreferenceSpec / anchors / builder
-  facet>=1 + global portfolio sufficiency
+  facet>=1 + global initial portfolio sufficiency
   canonical per-facet retrieval
   iconicity
         ↓
@@ -1098,15 +1230,16 @@ Checkpoint B
   area-walk acquisition
         ↓
 Checkpoint C
-  weighted deterministic composition
+  weighted deterministic initial composition + ranked reservoir
   soft vs must anchor semantics
   planner preferenceWeight + pinned must placement
+  duration-aware reservoir backfill + bounded capacity-driven acquisition
   overlap
   trace v4 machine contract
   product-readable Bitácora v4
         ↓
 Checkpoint D
-  live orchestration cutover
+  live orchestration cutover + convergence loop
   cold-catalog + large-corpus E2E
   delete superseded flow
   truthful classifier eval
