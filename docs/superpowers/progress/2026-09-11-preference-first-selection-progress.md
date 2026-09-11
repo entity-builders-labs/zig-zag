@@ -1,7 +1,8 @@
 ## Checkpoint A — Task A1 — COMPLETE
 
 - Branch: `feat/preference-first-selection`
-- HEAD: `97956766dd49181873f8d20bd836bac2febc4e17`
+- Base commit: `39968fb2e4a356a12a9a7e23fa3cb5858efdbb53`
+- Implementation commit: `4765409af4841c58da79c83222cd553d427e1579`
 - Plan task: `A1 — PreferenceSpec + facetKey`
 - Status: COMPLETE
 
