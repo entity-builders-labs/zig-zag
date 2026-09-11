@@ -118,4 +118,62 @@ describe('preference-strong-match.util', () => {
       expect(DEFAULT_QUALITY_FLOOR).toBe(3.0);
     });
   });
+
+  describe('numeric validation hardening -- invalid values are never strong', () => {
+    it.each([
+      ['NaN latitude', { latitude: NaN, longitude: -58.38 }],
+      ['Infinity longitude', { latitude: -34.6, longitude: Infinity }],
+      ['-Infinity latitude', { latitude: -Infinity, longitude: -58.38 }],
+      ['out-of-range latitude (91)', { latitude: 91, longitude: -58.38 }],
+      ['out-of-range latitude (-91)', { latitude: -91, longitude: -58.38 }],
+      ['out-of-range longitude (181)', { latitude: -34.6, longitude: 181 }],
+      ['out-of-range longitude (-181)', { latitude: -34.6, longitude: -181 }],
+    ])('is not strong when geography is invalid: %s', (_label, geo) => {
+      const experience = experienceWithComponent({
+        components: [{ geoEntity: geo }],
+      });
+      expect(isStrongFacetMatch(experience, facet())).toBe(false);
+    });
+
+    it('accepts the exact +-90/+-180 lat/lng boundary as valid geography (no over-rejection)', () => {
+      const corners = [
+        { latitude: -90, longitude: -180 },
+        { latitude: 90, longitude: 180 },
+      ];
+      for (const geoEntity of corners) {
+        const experience = experienceWithComponent({
+          components: [{ geoEntity }],
+        });
+        expect(isStrongFacetMatch(experience, facet())).toBe(true);
+      }
+    });
+
+    it.each([
+      ['NaN', NaN],
+      ['Infinity', Infinity],
+      ['-Infinity', -Infinity],
+      ['negative (-1)', -1],
+      ['above canonical scale (5.1)', 5.1],
+    ])('is not strong when qualityScore is invalid: %s', (_label, quality) => {
+      const experience = experienceWithComponent({ qualityScore: quality });
+      expect(isStrongFacetMatch(experience, facet())).toBe(false);
+    });
+
+    it('treats qualityScore = 0 as a valid number simply below the floor, not an invalid value', () => {
+      const experience = experienceWithComponent({ qualityScore: 0 });
+
+      // Below the default floor (3.0) -> not strong...
+      expect(isStrongFacetMatch(experience, facet())).toBe(false);
+      // ...but for the right reason: a valid low score, not an invalid one --
+      // proven by becoming strong once the floor itself is lowered to 0.
+      expect(isStrongFacetMatch(experience, facet(), { qualityFloor: 0 })).toBe(
+        true,
+      );
+    });
+
+    it('accepts qualityScore = 5, the top of the canonical 0..5 scale, as valid (no over-rejection)', () => {
+      const experience = experienceWithComponent({ qualityScore: 5 });
+      expect(isStrongFacetMatch(experience, facet())).toBe(true);
+    });
+  });
 });

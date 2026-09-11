@@ -41,6 +41,29 @@ export interface StrongMatchPolicy {
   planningWindowMinutes?: number;
 }
 
+/**
+ * `NaN`/`Infinity` satisfy `typeof value === 'number'`, so a valid
+ * geographic component requires `Number.isFinite` plus real-world range,
+ * not just the JS `number` type.
+ */
+function isValidLatitude(value: unknown): value is number {
+  return (
+    typeof value === 'number' &&
+    Number.isFinite(value) &&
+    value >= -90 &&
+    value <= 90
+  );
+}
+
+function isValidLongitude(value: unknown): value is number {
+  return (
+    typeof value === 'number' &&
+    Number.isFinite(value) &&
+    value >= -180 &&
+    value <= 180
+  );
+}
+
 function hasResolvedComponentWithGeography(exp: Record<string, any>): boolean {
   const components = Array.isArray(exp.components) ? exp.components : [];
   return components.some((component: any) => {
@@ -51,8 +74,8 @@ function hasResolvedComponentWithGeography(exp: Record<string, any>): boolean {
     return (
       geoEntity &&
       typeof geoEntity === 'object' &&
-      typeof geoEntity.latitude === 'number' &&
-      typeof geoEntity.longitude === 'number'
+      isValidLatitude(geoEntity.latitude) &&
+      isValidLongitude(geoEntity.longitude)
     );
   });
 }
@@ -103,7 +126,18 @@ export function isStrongFacetMatch(
   }
 
   const qualityFloor = policy.qualityFloor ?? DEFAULT_QUALITY_FLOOR;
-  if (typeof exp.qualityScore !== 'number' || exp.qualityScore < qualityFloor) {
+  const quality = exp.qualityScore;
+  // NaN/Infinity satisfy `typeof quality === 'number'`, so require
+  // Number.isFinite plus the canonical 0..5 scale before comparing against
+  // the floor -- an invalid numeric value is rejected here for a different
+  // reason than a valid-but-low score, even though both yield `false`.
+  if (
+    typeof quality !== 'number' ||
+    !Number.isFinite(quality) ||
+    quality < 0 ||
+    quality > 5 ||
+    quality < qualityFloor
+  ) {
     return false;
   }
 
