@@ -258,3 +258,128 @@ in the prompt sent to the LLM. Added a dedicated prompt-contract test.
 
 ### Next task
 `A3 — PreferenceSpec builder`
+
+---
+
+## Checkpoint A — Task A3 — COMPLETE
+
+- Branch: `feat/preference-first-selection`
+- Base commit: `e375b19bb0644503f90bf4b849ebae4b81bbe1fc`
+- Implementation commit: `266e2f0a4200dab16f830d188a4b2dc5fe6f0ba1`
+- Plan task: `A3 — PreferenceSpec builder`
+- Status: COMPLETE
+
+### Implemented
+- Added `be/src/modules/tours/utils/preference-spec-builder.util.ts`
+  exporting `buildPreferenceSpec(request: TourGenerationRequest, interpreted:
+  NormalizedPreferenceIntent): PreferenceSpec`, merging:
+  - wizard `intent.interests` → `theme` facets and wizard `intent.intents`
+    → `intent` facets, via the existing `normalizeWizardFacet` helper
+    (`preference-facet-merge.util.ts`, already used/tested elsewhere);
+  - `interpreted.preferredFacets` (from Task A2's
+    `PreferenceInterpreterService`);
+  - `interpreted.exclusions`-equivalent fields → `PreferenceSpec.exclusions`
+    (`excludedThemes` → `themes`, `excludedTraits` → `traits`,
+    `hardExclusions` → `hard`);
+  - `interpreted.anchoredPlaces` → `PreferenceSpec.anchors`, unchanged;
+  - `request.intent.explorationStyle` → **only**
+    `PreferenceSpec.explorationStyle` (never a facet);
+  - `request.dietaryRestrictions` + `interpreted.dietaryPreferences` →
+    `softConstraints.dietary`; `request.mobility.accessibilityNeeds` +
+    `interpreted.accessibilityPreferences` → `softConstraints.accessibility`;
+    `interpreted.budgetPreferences` + (`'low budget'` iff
+    `request.budgetLevel === BudgetLevel.LOW`) → `softConstraints.budget`;
+    `interpreted.groupPreferences` + (`'family friendly'` iff
+    `request.groupType === GroupType.FAMILY`) → `softConstraints.group`.
+    Each soft-constraint array is built from its own dedicated sources only.
+  - `request.days` / `request.startDates` / `request.mobility.travelPace` →
+    `PreferenceSpec.trip`.
+- Added private `dedupeFacetsByHighestEffectiveWeight()`: merges facets by
+  `(dimension,key)`, keeping the entry with the highest
+  `calculateEffectiveWeight` (importance × confidence), all mapped to
+  `RequestedFacet` with `required: false` always. Ties keep the first-seen
+  entry; since wizard facets are always pushed first and always carry the
+  maximum possible effective weight (`1.0 × 1.0 = 1.0`), a wizard facet
+  always wins over a same-key free-text facet in practice, without a
+  separate hardcoded source-precedence branch.
+- Added private `mapExplorationStyle()` and `mapPace()` to convert the
+  `ExplorationStyle`/`TravelPace` enums to the plain string-literal unions
+  `PreferenceSpec` uses, rather than casting the enum values directly.
+- Added `unique()` (trim + lowercase + de-duplicate) local helper for the
+  soft-constraint arrays, used consistently for all four dimensions so no
+  dimension accidentally reuses another's input array (the "previous bug"
+  the plan calls out is not present here).
+
+### Files changed
+- `be/src/modules/tours/utils/preference-spec-builder.util.ts` (new)
+- `be/src/modules/tours/utils/preference-spec-builder.util.spec.ts` (new)
+
+### Verification
+- RED check: ran the new spec before creating
+  `preference-spec-builder.util.ts` → FAIL as expected —
+  `TS2307: Cannot find module './preference-spec-builder.util'` plus 2
+  `TS7006: implicit any` errors on filter/some callbacks whose parameter
+  type could not be inferred without the module; 0 tests executed.
+- `cd be && yarn test src/modules/tours/utils/preference-spec-builder.util.spec.ts`
+  → PASS — 7/7 tests: wizard `history` + interpreted `history` merge into
+  exactly one `theme:history` facet with `weight: 1.0, source: 'wizard'`
+  (the higher-effective-weight entry); `explorationStyle` produces zero
+  facet entries (`spec.facets` has exactly the one requested theme facet,
+  none with `dimension === 'exploration_style'`); dietary restrictions
+  land in `softConstraints.dietary` only; a low budget level lands in
+  `softConstraints.budget` only; a family group type lands in
+  `softConstraints.group` only; `anchoredPlaces` pass through to
+  `spec.anchors` unchanged (deep-equal); exclusions/semanticQuery/trip are
+  wired correctly from the request/interpreted intent.
+- `cd be && yarn typecheck` (`tsc --noEmit`) → PASS — no errors.
+- `cd be && npx eslint <the 2 new files>` → PASS — 0 problems (3
+  prettier-only formatting errors found on first run, fixed with `--fix`
+  scoped to only these two files, then re-verified tests/typecheck stayed
+  green).
+- `cd be && yarn test src/modules/tours` → PASS — 80 test suites / 712
+  tests (up from 79 suites / 704 tests before this task), full `tours`
+  module, no regressions.
+
+### Deviations from plan
+- None. All six plan-required test scenarios are covered (history
+  dedup, exploration-style-zero-facets, dietary isolation, budget
+  isolation, group isolation, anchor pass-through), plus one additional
+  test wiring exclusions/semanticQuery/trip that the plan did not
+  explicitly list but that this task's own new file made otherwise
+  completely untested.
+
+### Decisions taken
+- Implemented the `(dimension,key)` → highest-effective-weight dedup as
+  its own function in the new file rather than reusing the existing
+  `mergePreferenceFacets` (`preference-facet-merge.util.ts`), because that
+  helper's rule is "wizard always wins outright" rather than "highest
+  effective weight wins" — a materially different (if, for current input
+  ranges, behaviorally equivalent) semantic. The plan explicitly specifies
+  the effective-weight rule for this builder, so this task encodes that
+  rule directly rather than depending on the older helper's different
+  stated invariant.
+- `interpreted.anchoredPlaces` is passed straight into
+  `PreferenceSpec.anchors` without any further validation/normalization,
+  since Task A2's `PreferenceInterpreterService.normalizeAnchors()` is
+  already the single place that validates/degrades raw anchor payloads.
+  Re-validating here would duplicate that logic.
+
+### Open issues / debt
+- Same as A2: the legacy `exploration_style`-as-facet merge in
+  `experience-generation.service.ts` (`mergeStructuredPreferences`) still
+  exists on the current live orchestration path and is not wired to this
+  new builder yet — Checkpoint D's live-path cutover replaces that call
+  site with `buildPreferenceSpec`, not this task.
+- `buildPreferenceSpec` is not yet called from any live code path (no
+  wiring task was in scope for A3); it is a pure, unit-tested primitive
+  only, consistent with Checkpoint A's stated scope ("creates pure/
+  canonical primitives... does not wire the live generation path yet").
+- Same worktree pre-existing unrelated dirty files remain untouched. Two
+  additional unrelated modified frontend files appeared in this worktree
+  during A3 (`fe/app/(tabs)/saved.tsx`, `fe/app/tours/[id].tsx`) that were
+  not present at the start of A2 -- not authored by this task, not staged,
+  not inspected further. This worktree appears to be shared with other
+  concurrent work; flagging so it is not mistaken for anything A3 touched.
+
+### Next task
+`A4 — Canonical sufficiency helper`
