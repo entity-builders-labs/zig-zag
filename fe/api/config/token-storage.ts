@@ -1,27 +1,56 @@
 import { Platform } from 'react-native';
-import * as SecureStore from 'expo-secure-store';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { STORAGE_KEYS } from './constants';
 
-// expo-secure-store has no web implementation, so tokens fall back to
-// AsyncStorage there — the web build already trusts localStorage-backed
-// AsyncStorage for other data, and there's no OS keychain to defer to anyway.
-const isNative = Platform.OS === 'ios' || Platform.OS === 'android';
+// expo-secure-store requires native Keychain entitlements which may be unavailable
+// on local unsigned simulators or web. Fall back gracefully to AsyncStorage.
+let secureStoreModule: typeof import('expo-secure-store') | null = null;
+try {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  secureStoreModule = require('expo-secure-store');
+} catch {
+  secureStoreModule = null;
+}
+
+const isNativeSecureAvailable = (): boolean => {
+  return (Platform.OS === 'ios' || Platform.OS === 'android') && secureStoreModule != null;
+};
 
 async function getItem(key: string): Promise<string | null> {
-  return isNative ? SecureStore.getItemAsync(key) : AsyncStorage.getItem(key);
+  if (isNativeSecureAvailable()) {
+    try {
+      return await secureStoreModule!.getItemAsync(key);
+    } catch {
+      return AsyncStorage.getItem(key);
+    }
+  }
+  return AsyncStorage.getItem(key);
 }
 
 async function setItem(key: string, value: string): Promise<void> {
-  return isNative
-    ? SecureStore.setItemAsync(key, value)
-    : AsyncStorage.setItem(key, value);
+  if (isNativeSecureAvailable()) {
+    try {
+      await secureStoreModule!.setItemAsync(key, value);
+      return;
+    } catch {
+      await AsyncStorage.setItem(key, value);
+      return;
+    }
+  }
+  await AsyncStorage.setItem(key, value);
 }
 
 async function removeItem(key: string): Promise<void> {
-  return isNative
-    ? SecureStore.deleteItemAsync(key)
-    : AsyncStorage.removeItem(key);
+  if (isNativeSecureAvailable()) {
+    try {
+      await secureStoreModule!.deleteItemAsync(key);
+      return;
+    } catch {
+      await AsyncStorage.removeItem(key);
+      return;
+    }
+  }
+  await AsyncStorage.removeItem(key);
 }
 
 export async function getAccessToken(): Promise<string | null> {

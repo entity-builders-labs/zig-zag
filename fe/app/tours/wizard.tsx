@@ -61,11 +61,15 @@ export default function TourWizardScreen() {
         onCancel={handleCancel}
         initialDestination={destination}
         initialLocation={
-          address?.lat && address?.lng
-            ? { lat: address.lat, lng: address.lng }
-            : latParam && lngParam
+          destination
+            ? latParam && lngParam
               ? { lat: parseFloat(latParam), lng: parseFloat(lngParam) }
               : undefined
+            : address?.lat && address?.lng
+              ? { lat: address.lat, lng: address.lng }
+              : latParam && lngParam
+                ? { lat: parseFloat(latParam), lng: parseFloat(lngParam) }
+                : undefined
         }
       />
     </>

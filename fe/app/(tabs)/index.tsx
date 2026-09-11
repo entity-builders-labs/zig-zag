@@ -20,14 +20,16 @@ import { RoutesSection } from "@/components/home/RoutesSection";
 import { AppContext } from "@/context/app";
 import { FONT_DISPLAY } from "@/constants/typography";
 import { useRouter } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function HomeScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { address } = useContext(AppContext);
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const locationLabel = address?.label || "Buenos Aires, AR";
+  const locationLabel = address?.city || address?.street || "Buenos Aires, AR";
 
   return (
     <Box flex={1} bg="$backgroundLight50">
@@ -36,7 +38,7 @@ export default function HomeScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 110 }}
       >
-        <VStack space="xl" pt="$12" pb="$6">
+        <VStack space="xl" pb="$6" style={{ paddingTop: insets.top + 16 }}>
           
           {/* Top Brand & Location Header */}
           <Box px="$4">

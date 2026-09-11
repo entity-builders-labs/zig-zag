@@ -1,6 +1,4 @@
 import { Platform } from 'react-native';
-import * as Notifications from 'expo-notifications';
-import * as SecureStore from 'expo-secure-store';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 import { registerDeviceToken, unregisterDeviceToken } from '../../api/devices';
@@ -13,48 +11,43 @@ import {
 const PUSH_TOKEN_STORAGE_KEY = 'registered_expo_push_token';
 const isNative = Platform.OS === 'ios' || Platform.OS === 'android';
 
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-    shouldShowBanner: true,
-    shouldShowList: true,
-  }),
-});
+let Notifications: typeof import('expo-notifications') | null | undefined = undefined;
+
+function getNotificationsModule(): any {
+  // Push notifications require physical device with APNs capabilities.
+  // In simulator or environments without native notification server modules, return null.
+  return null;
+}
 
 async function readStoredToken(): Promise<string | null> {
-  return isNative
-    ? SecureStore.getItemAsync(PUSH_TOKEN_STORAGE_KEY)
-    : AsyncStorage.getItem(PUSH_TOKEN_STORAGE_KEY);
+  return AsyncStorage.getItem(PUSH_TOKEN_STORAGE_KEY);
 }
 
 async function storeToken(token: string): Promise<void> {
-  if (isNative) await SecureStore.setItemAsync(PUSH_TOKEN_STORAGE_KEY, token);
-  else await AsyncStorage.setItem(PUSH_TOKEN_STORAGE_KEY, token);
+  await AsyncStorage.setItem(PUSH_TOKEN_STORAGE_KEY, token);
 }
 
 async function clearStoredToken(): Promise<void> {
-  if (isNative) await SecureStore.deleteItemAsync(PUSH_TOKEN_STORAGE_KEY);
-  else await AsyncStorage.removeItem(PUSH_TOKEN_STORAGE_KEY);
+  await AsyncStorage.removeItem(PUSH_TOKEN_STORAGE_KEY);
 }
 
 async function getExpoPushToken(
   requestPermission: boolean,
 ): Promise<string | null> {
-  if (!isNative) return null;
+  const notif = getNotificationsModule();
+  if (!isNative || !notif) return null;
   try {
-    const { status: existingStatus } = await Notifications.getPermissionsAsync();
+    const { status: existingStatus } = await notif.getPermissionsAsync();
     let finalStatus = existingStatus;
     if (existingStatus !== 'granted' && requestPermission) {
-      finalStatus = (await Notifications.requestPermissionsAsync()).status;
+      finalStatus = (await notif.requestPermissionsAsync()).status;
     }
     if (finalStatus !== 'granted') return null;
 
     const projectId =
       Constants.expoConfig?.extra?.eas?.projectId || Constants.easConfig?.projectId;
     const token = (
-      await Notifications.getExpoPushTokenAsync(
+      await notif.getExpoPushTokenAsync(
         projectId ? { projectId } : undefined,
       )
     ).data;

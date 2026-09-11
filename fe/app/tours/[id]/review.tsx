@@ -10,6 +10,7 @@ import {
   Spinner,
 } from '@gluestack-ui/themed';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   fetchTourById,
   Tour,
@@ -21,6 +22,7 @@ import { CompositeStopCard } from '../../../components/tour-details/CompositeSto
 import { FONT_DISPLAY } from '@/constants/typography';
 
 export default function TourReviewScreen() {
+  const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
@@ -124,7 +126,7 @@ export default function TourReviewScreen() {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 140 }}
         >
-          <VStack p='$4' space='xs'>
+          <VStack px='$4' pb='$4' space='xs' style={{ paddingTop: insets.top + 16 }}>
             <Heading
               size='lg'
               color='$textLight900'
@@ -171,10 +173,12 @@ export default function TourReviewScreen() {
           bottom={0}
           left={0}
           right={0}
-          p='$4'
+          px='$4'
+          pt='$4'
           bg='rgba(255, 255, 255, 0.95)'
           borderTopWidth={1}
           borderTopColor='$borderLight100'
+          style={{ paddingBottom: Math.max(insets.bottom, 16) + 8 }}
         >
           <Button
             testID='confirm-tour-button'

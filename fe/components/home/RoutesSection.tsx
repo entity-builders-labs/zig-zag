@@ -37,7 +37,7 @@ const INSPIRATION_TEMPLATES: TourItem[] = [
     category: "history",
     categoryTag: "Historia & Bohemio",
     duration: 2.2,
-    coverImage: "https://images.unsplash.com/photo-1589909202802-8f4aadce1849?q=80&w=600&auto=format&fit=crop",
+    coverImage: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?q=80&w=600&auto=format&fit=crop",
     stopsCount: 4,
     distanceKm: "1.9 km",
     isTemplate: true,

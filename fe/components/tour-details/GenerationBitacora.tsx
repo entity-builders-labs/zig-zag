@@ -1,5 +1,7 @@
 import React, { useMemo, useState } from 'react';
-import { Modal, Platform, ScrollView, useWindowDimensions } from 'react-native';
+import { Modal, Platform, ScrollView, Share, useWindowDimensions } from 'react-native';
+import { File, Paths } from 'expo-file-system';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   Box,
   HStack,
@@ -24,6 +26,7 @@ import {
   ShieldCheck,
   Sparkles,
   Terminal,
+  X,
   XCircle,
 } from 'lucide-react-native';
 import { copyTextToClipboard } from '@/utils/copy-to-clipboard';
@@ -446,16 +449,16 @@ function DecisionPanel({ step }: { step: GenerationTraceStep }) {
       {decision.reasonCodes?.length ? (
         <VStack space='xs' mb='$3'>
           <Text size='xs' color={COLORS.textMuted}>reasonCodes</Text>
-          {decision.reasonCodes.map((code) => (
-            <Text key={code} size='xs' color={COLORS.text}>• {code}</Text>
+          {decision.reasonCodes.map((code, idx) => (
+            <Text key={`${code}-${idx}`} size='xs' color={COLORS.text}>• {code}</Text>
           ))}
         </VStack>
       ) : null}
       {decision.triggeredActions?.length ? (
         <VStack space='xs' mb='$3'>
           <Text size='xs' color={COLORS.textMuted}>triggeredActions</Text>
-          {decision.triggeredActions.map((action) => (
-            <Text key={action} size='xs' color={COLORS.text}>• {action}</Text>
+          {decision.triggeredActions.map((action, idx) => (
+            <Text key={`${action}-${idx}`} size='xs' color={COLORS.text}>• {action}</Text>
           ))}
         </VStack>
       ) : null}
@@ -598,7 +601,7 @@ function StageDetail({ step, index, nextStep }: { step: GenerationTraceStep; ind
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ padding: 20, paddingBottom: 32 }}>
         {rules.length ? (
           <Box flexDirection='row' flexWrap='wrap' gap={12} mb='$4'>
-            {rules.slice(0, 6).map((rule) => <MetricCard key={rule.ruleId} rule={rule} />)}
+            {rules.slice(0, 6).map((rule, idx) => <MetricCard key={`${rule.ruleId}-${idx}`} rule={rule} />)}
           </Box>
         ) : null}
 
@@ -783,6 +786,9 @@ export const GenerationBitacora = ({
   const [downloadState, setDownloadState] = useState<'idle' | 'done'>('idle');
   const { width } = useWindowDimensions();
   const desktop = width >= 900;
+  const insets = useSafeAreaInsets();
+  const topInset = insets.top > 0 ? insets.top : (Platform.OS === 'ios' ? 44 : 0);
+  const bottomInset = insets.bottom > 0 ? insets.bottom : (Platform.OS === 'ios' ? 20 : 0);
 
   const stats = useMemo(() => {
     const rules = trace.steps.flatMap((step) => step.rules ?? []);
@@ -799,6 +805,8 @@ export const GenerationBitacora = ({
 
   const handleDownload = async () => {
     const json = safeJson(trace);
+
+    // On Web: native browser file download using Blob and anchor
     if (Platform.OS === 'web') {
       try {
         const webDocument = (globalThis as any).document;
@@ -816,11 +824,27 @@ export const GenerationBitacora = ({
           return;
         }
       } catch {
-        // Native-style clipboard fallback below.
+        // Fallback to clipboard below if document/blob fails
       }
     }
-    await copyTextToClipboard(json);
-    setDownloadState('done');
+
+    // On Mobile (iOS / Android): write physical file and share URI (prevents WhatsApp/messaging freeze)
+    try {
+      if (Platform.OS !== 'web') {
+        const file = new File(Paths.cache, 'generation-trace-v2.json');
+        file.write(json);
+        await Share.share({
+          url: file.uri,
+          title: 'generation-trace-v2.json',
+        });
+        setDownloadState('done');
+        return;
+      }
+      await copyTextToClipboard(json);
+      setDownloadState('done');
+    } catch {
+      // User cancelled share or file write error
+    }
   };
 
   return (
@@ -851,30 +875,42 @@ export const GenerationBitacora = ({
         </Box>
       </Pressable>
 
-      <Modal visible={isOpen} animationType='fade' onRequestClose={() => setIsOpen(false)}>
-        <Box flex={1} bg={COLORS.page as any}>
-          <Box
-            px={desktop ? '$5' : '$3'}
-            py='$3'
-            borderBottomWidth={1}
-            borderBottomColor={COLORS.border as any}
-            bg={COLORS.panelStrong as any}
-          >
-            <HStack justifyContent='space-between' alignItems='center' space='lg' flexWrap='wrap'>
-              <HStack alignItems='center' space='sm' flex={1} style={{ minWidth: 280 }}>
-                <Pressable
-                  onPress={() => setIsOpen(false)}
-                  w={38}
-                  h={38}
-                  borderRadius='$lg'
-                  borderWidth={1}
-                  borderColor={COLORS.border as any}
-                  alignItems='center'
-                  justifyContent='center'
-                  accessibilityLabel='Cerrar bitácora'
-                >
-                  <Icon as={ArrowLeft} size='sm' color={COLORS.textMuted as any} />
-                </Pressable>
+      <Modal visible={isOpen} animationType='slide' onRequestClose={() => setIsOpen(false)} statusBarTranslucent>
+        <Box
+          flex={1}
+          bg={COLORS.panelStrong as any}
+          style={{
+            paddingTop: topInset,
+            paddingBottom: bottomInset,
+            paddingLeft: insets.left,
+            paddingRight: insets.right,
+          }}
+        >
+          <Box flex={1} bg={COLORS.page as any}>
+            <Box
+              px={desktop ? '$5' : '$3'}
+              py='$3'
+              borderBottomWidth={1}
+              borderBottomColor={COLORS.border as any}
+              bg={COLORS.panelStrong as any}
+            >
+              <HStack justifyContent='space-between' alignItems='center' space='lg' flexWrap='wrap'>
+                <HStack alignItems='center' space='sm' flex={1} style={{ minWidth: 280 }}>
+                  <Pressable
+                    onPress={() => setIsOpen(false)}
+                    w={40}
+                    h={40}
+                    borderRadius='$lg'
+                    borderWidth={1}
+                    borderColor={COLORS.border as any}
+                    bg={COLORS.panel as any}
+                    alignItems='center'
+                    justifyContent='center'
+                    accessibilityLabel='Cerrar bitácora'
+                    hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+                  >
+                    <Icon as={ArrowLeft} size='sm' color={COLORS.text as any} />
+                  </Pressable>
                 <VStack flex={1}>
                   <HStack alignItems='center' space='sm' flexWrap='wrap'>
                     <Text size='lg' fontWeight='$bold' color={COLORS.text}>Bitácora de Generación</Text>
@@ -907,6 +943,21 @@ export const GenerationBitacora = ({
                     <Icon as={Download} size='xs' color={COLORS.text as any} />
                     <Text size='xs' color={COLORS.text}>{downloadState === 'done' ? 'JSON listo' : 'Descargar JSON'}</Text>
                   </HStack>
+                </Pressable>
+                <Pressable
+                  onPress={() => setIsOpen(false)}
+                  w={36}
+                  h={36}
+                  borderRadius='$lg'
+                  borderWidth={1}
+                  borderColor={COLORS.border as any}
+                  bg={COLORS.panel as any}
+                  alignItems='center'
+                  justifyContent='center'
+                  accessibilityLabel='Cerrar bitácora'
+                  hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+                >
+                  <Icon as={X} size='sm' color={COLORS.text as any} />
                 </Pressable>
               </HStack>
             </HStack>
@@ -1032,7 +1083,8 @@ export const GenerationBitacora = ({
             </VStack>
           )}
         </Box>
-      </Modal>
+      </Box>
+    </Modal>
     </>
   );
 };

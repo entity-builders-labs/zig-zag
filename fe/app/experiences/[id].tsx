@@ -1,9 +1,10 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ScrollView,
   ActivityIndicator,
   Linking,
   Share,
+  useWindowDimensions,
 } from 'react-native';
 import {
   Box,
@@ -17,6 +18,7 @@ import {
   Pressable,
 } from '@gluestack-ui/themed';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   ArrowLeft,
   MapPin,
@@ -28,6 +30,8 @@ import {
   Copy,
   Check,
   Compass,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react-native';
 import {
   fetchExperienceById,
@@ -49,6 +53,9 @@ import { CompositeExperienceDetail } from '../../components/tour-details/Composi
 export default function ExperienceDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const { width: screenWidth } = useWindowDimensions();
+  const galleryScrollRef = useRef<ScrollView>(null);
   const [experience, setExperience] = useState<ExperienceDetail | null>(null);
   const [similarExperiences, setSimilarExperiences] = useState<ExperienceSearchResult[]>([]);
   const [loading, setLoading] = useState(true);
@@ -223,16 +230,44 @@ export default function ExperienceDetailScreen() {
       <Box flex={1} bg='#F8FAFC'>
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 110 }}>
           <Box height={320} width='$full' position='relative' bg='#0F172A'>
-            <Image
-              source={{ uri: gallery[activePhotoIndex] || gallery[0] }}
-              alt={experience.name}
-              w='$full'
-              h='$full'
-              resizeMode='cover'
-            />
-            <Box position='absolute' top={0} left={0} right={0} bottom={0} bg='rgba(0, 0, 0, 0.25)' />
+            <ScrollView
+              ref={galleryScrollRef}
+              horizontal
+              pagingEnabled
+              showsHorizontalScrollIndicator={false}
+              scrollEventThrottle={16}
+              onMomentumScrollEnd={(event) => {
+                const offsetX = event.nativeEvent.contentOffset.x;
+                const newIndex = Math.round(offsetX / screenWidth);
+                if (newIndex >= 0 && newIndex < gallery.length) {
+                  setActivePhotoIndex(newIndex);
+                }
+              }}
+              style={{ width: '100%', height: 320 }}
+            >
+              {gallery.map((photoUrl, index) => (
+                <Box key={index} width={screenWidth} height={320} position='relative'>
+                  <Image
+                    source={{ uri: photoUrl }}
+                    alt={`${experience.name} - foto ${index + 1}`}
+                    w='$full'
+                    h='$full'
+                    resizeMode='cover'
+                  />
+                  <Box position='absolute' top={0} left={0} right={0} bottom={0} bg='rgba(0, 0, 0, 0.25)' />
+                </Box>
+              ))}
+            </ScrollView>
 
-            <HStack position='absolute' top={44} left={16} right={16} justifyContent='space-between' alignItems='center' zIndex={10}>
+            <HStack
+              position='absolute'
+              left={16}
+              right={16}
+              justifyContent='space-between'
+              alignItems='center'
+              zIndex={10}
+              style={{ top: insets.top + 12 }}
+            >
               <Pressable
                 onPress={handleBack}
                 w={40} h={40} rounded='$full' bg='rgba(255, 255, 255, 0.92)'
@@ -264,18 +299,68 @@ export default function ExperienceDetailScreen() {
               </HStack>
             </HStack>
 
-            <Box position='absolute' bottom={24} right={16} bg='rgba(0, 0, 0, 0.65)' px='$2.5' py='$1' rounded='$xl'>
+            {/* Left/Right navigation chevrons for Desktop Web / Tap */}
+            {gallery.length > 1 && activePhotoIndex > 0 && (
+              <Pressable
+                position='absolute'
+                left={12}
+                top='50%'
+                style={{ transform: [{ translateY: -18 }] }}
+                w={36}
+                h={36}
+                rounded='$full'
+                bg='rgba(0, 0, 0, 0.45)'
+                justifyContent='center'
+                alignItems='center'
+                zIndex={15}
+                onPress={() => {
+                  const target = activePhotoIndex - 1;
+                  setActivePhotoIndex(target);
+                  galleryScrollRef.current?.scrollTo({ x: target * screenWidth, animated: true });
+                }}
+              >
+                <ChevronLeft size={22} color='#FFFFFF' />
+              </Pressable>
+            )}
+
+            {gallery.length > 1 && activePhotoIndex < gallery.length - 1 && (
+              <Pressable
+                position='absolute'
+                right={12}
+                top='50%'
+                style={{ transform: [{ translateY: -18 }] }}
+                w={36}
+                h={36}
+                rounded='$full'
+                bg='rgba(0, 0, 0, 0.45)'
+                justifyContent='center'
+                alignItems='center'
+                zIndex={15}
+                onPress={() => {
+                  const target = activePhotoIndex + 1;
+                  setActivePhotoIndex(target);
+                  galleryScrollRef.current?.scrollTo({ x: target * screenWidth, animated: true });
+                }}
+              >
+                <ChevronRight size={22} color='#FFFFFF' />
+              </Pressable>
+            )}
+
+            <Box position='absolute' bottom={24} right={16} bg='rgba(0, 0, 0, 0.65)' px='$2.5' py='$1' rounded='$xl' zIndex={10}>
               <Text color='$white' fontSize='$xs' fontWeight='$bold'>
                 {activePhotoIndex + 1} / {gallery.length} fotos
               </Text>
             </Box>
 
             {gallery.length > 1 && (
-              <HStack position='absolute' bottom={26} left={16} space='xs' alignItems='center'>
+              <HStack position='absolute' bottom={26} left={16} space='xs' alignItems='center' zIndex={10}>
                 {gallery.map((_, i) => (
                   <Pressable
                     key={i}
-                    onPress={() => setActivePhotoIndex(i)}
+                    onPress={() => {
+                      setActivePhotoIndex(i);
+                      galleryScrollRef.current?.scrollTo({ x: i * screenWidth, animated: true });
+                    }}
                     w={activePhotoIndex === i ? 22 : 8}
                     h={8}
                     rounded='$full'
@@ -472,7 +557,23 @@ export default function ExperienceDetailScreen() {
           </VStack>
         </ScrollView>
 
-        <Box position='absolute' bottom={0} left={0} right={0} bg='rgba(255, 255, 255, 0.96)' borderTopWidth={1} borderColor='#E2E8F0' p='$3' px='$4' shadowColor='#000' shadowOffset={{ width: 0, height: -2 }} shadowOpacity={0.06} shadowRadius={4} elevation={5}>
+        <Box
+          position='absolute'
+          bottom={0}
+          left={0}
+          right={0}
+          bg='rgba(255, 255, 255, 0.96)'
+          borderTopWidth={1}
+          borderColor='#E2E8F0'
+          p='$3'
+          px='$4'
+          style={{ paddingBottom: Math.max(insets.bottom, 12) }}
+          shadowColor='#000'
+          shadowOffset={{ width: 0, height: -2 }}
+          shadowOpacity={0.06}
+          shadowRadius={4}
+          elevation={5}
+        >
           <Button bg='#F2994A' rounded='$xl' py='$3' onPress={() => handleOpenLink(navUrls.google)}>
             <Compass size={18} color='#FFFFFF' style={{ marginRight: 6 }} />
             <ButtonText color='$white' fontWeight='$bold' fontSize='$sm'>

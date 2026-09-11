@@ -1,4 +1,12 @@
-import { Button, ButtonSpinner, ButtonText } from '@gluestack-ui/themed';
+import React from 'react';
+import {
+  Box,
+  Button,
+  ButtonSpinner,
+  ButtonText,
+  HStack,
+} from '@gluestack-ui/themed';
+import { GoogleIcon } from './GoogleIcon';
 
 type Props = {
   disabled: boolean;
@@ -7,27 +15,54 @@ type Props = {
   onError: (message: string) => void;
 };
 
-// `onError` is part of Props (shared with the .web.tsx variant, which needs
-// it for failures that happen before onSignIn is ever called — loading the
-// Google script, missing client ID) but isn't read here: on native,
-// onSignIn IS the whole flow (GoogleSignin.signIn()), and its caller
-// (login.tsx's handleGoogle) already awaits and catches it internally, so
-// there's no failure path on this platform that onError would ever see.
+// `onError` is part of Props (shared with the .web.tsx variant)
 export function GoogleSignInButton({
   disabled,
   loading,
   onSignIn,
 }: Props) {
+  const isInteractive = !disabled && !loading;
+
   return (
     <Button
-      size='lg'
       variant='outline'
+      action='secondary'
+      h={48}
+      w='$full'
+      borderRadius='$2xl'
+      bg='$white'
+      borderWidth={1.5}
+      borderColor={'#747775' as any}
+      style={{
+        borderWidth: 1.5,
+        borderColor: '#747775',
+        height: 48,
+        borderRadius: 16,
+        backgroundColor: '#FFFFFF',
+      }}
       onPress={() => onSignIn()}
-      isDisabled={disabled}
+      isDisabled={!isInteractive}
       testID='login-google-button'
+      accessibilityLabel='Continuar con Google'
     >
-      {loading && <ButtonSpinner mr='$2' />}
-      <ButtonText>Continuar con Google</ButtonText>
+      <HStack alignItems='center' justifyContent='center' space='sm'>
+        {loading ? (
+          <ButtonSpinner color='#1F1F1F' />
+        ) : (
+          <Box mr='$1'>
+            <GoogleIcon size={20} />
+          </Box>
+        )}
+        <ButtonText
+          size='sm'
+          fontWeight='$medium'
+          color='#1F1F1F'
+          style={{ letterSpacing: -0.2 }}
+        >
+          {loading ? 'Iniciando sesión...' : 'Continuar con Google'}
+        </ButtonText>
+      </HStack>
     </Button>
   );
 }
+

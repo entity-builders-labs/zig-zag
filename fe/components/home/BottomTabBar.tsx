@@ -16,6 +16,7 @@ import {
 } from "lucide-react-native";
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import { useRouter } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export const BottomTabBar = ({
   state,
@@ -23,6 +24,7 @@ export const BottomTabBar = ({
   navigation,
 }: BottomTabBarProps) => {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
 
   const handleCreateTour = () => {
     router.push("/tours/wizard");
@@ -96,9 +98,9 @@ export const BottomTabBar = ({
       right={0}
       bg="$white"
       pt="$2.5"
-      pb="$6"
       borderTopWidth={1}
       borderColor="$borderLight100"
+      style={{ paddingBottom: Math.max(insets.bottom, 12) }}
       shadowColor="$black"
       shadowOffset={{ width: 0, height: -4 }}
       shadowOpacity={0.06}

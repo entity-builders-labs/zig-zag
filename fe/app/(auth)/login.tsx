@@ -26,6 +26,7 @@ import {
   AppleAuthenticationButton,
   AppleAuthenticationButtonType,
   AppleAuthenticationButtonStyle,
+  isAvailableAsync as isAppleAuthAvailableAsync,
 } from 'expo-apple-authentication';
 import { Mail, ArrowRight, Sparkles, KeyRound, Compass, ArrowLeft } from 'lucide-react-native';
 import { useAuth } from '@/context/auth';
@@ -36,6 +37,19 @@ type Step = 'providers' | 'email' | 'code';
 
 const BACKGROUND_IMAGE =
   'https://images.unsplash.com/photo-1516483638261-f4dbaf036963?q=80&w=1000&auto=format&fit=crop';
+
+function isAuthCancellation(error: unknown): boolean {
+  const anyError = error as any;
+  return Boolean(
+    anyError?.code === 'ERR_REQUEST_CANCELED' ||
+      anyError?.code === '1001' ||
+      anyError?.code === 'ERR_CANCELED' ||
+      anyError?.code === 'SIGN_IN_CANCELLED' ||
+      anyError?.code === '12501' ||
+      anyError?.message?.toLowerCase?.().includes('canceled') ||
+      anyError?.message?.toLowerCase?.().includes('cancelled'),
+  );
+}
 
 function errorMessage(error: unknown): string {
   const anyError = error as any;
@@ -56,30 +70,48 @@ export default function LoginScreen() {
   const [devCode, setDevCode] = useState<string | null>(null);
   const [loading, setLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [appleAuthAvailable, setAppleAuthAvailable] = useState(false);
 
-  const handleGoogle = useCallback(async (webIdToken?: string) => {
-    setError(null);
-    setLoading('google');
-    try {
-      await signInWithGoogle(webIdToken);
-    } catch (err) {
-      setError(errorMessage(err));
-    } finally {
-      setLoading(null);
+  React.useEffect(() => {
+    if (Platform.OS === 'ios') {
+      isAppleAuthAvailableAsync()
+        .then(setAppleAuthAvailable)
+        .catch(() => setAppleAuthAvailable(false));
     }
-  }, [signInWithGoogle]);
+  }, []);
+
+  const handleGoogle = useCallback(
+    async (webIdToken?: string) => {
+      if (loading !== null) return;
+      setError(null);
+      setLoading('google');
+      try {
+        await signInWithGoogle(webIdToken);
+      } catch (err) {
+        if (!isAuthCancellation(err)) {
+          setError(errorMessage(err));
+        }
+      } finally {
+        setLoading(null);
+      }
+    },
+    [signInWithGoogle, loading],
+  );
 
   const handleGoogleError = useCallback((message: string) => {
     setError(message);
   }, []);
 
   const handleApple = async () => {
+    if (loading !== null) return;
     setError(null);
     setLoading('apple');
     try {
       await signInWithApple();
     } catch (err) {
-      setError(errorMessage(err));
+      if (!isAuthCancellation(err)) {
+        setError(errorMessage(err));
+      }
     } finally {
       setLoading(null);
     }
@@ -152,11 +184,11 @@ export default function LoginScreen() {
             paddingVertical: 32,
           }}
           keyboardShouldPersistTaps='handled'
-          keyboardDismissMode='interactive'
+          keyboardDismissMode='on-drag'
           showsVerticalScrollIndicator={false}
         >
           {/* Responsive Centered Shell */}
-          <Box w='$full' maxW={440} zIndex={1}>
+          <Box w='$full' maxWidth={440} zIndex={1}>
         {/* Brand Header */}
         <VStack alignItems='center' mt='$10' space='xs'>
           <Box
@@ -239,8 +271,13 @@ export default function LoginScreen() {
               />
 
               {/* Apple Sign-In (iOS only) */}
-              {Platform.OS === 'ios' && (
-                <Box w='$full' mt='$1'>
+              {Platform.OS === 'ios' && appleAuthAvailable && (
+                <Box
+                  w='$full'
+                  mt='$1'
+                  opacity={loading !== null && loading !== 'apple' ? 0.5 : 1}
+                  pointerEvents={loading !== null ? 'none' : 'auto'}
+                >
                   <AppleAuthenticationButton
                     buttonType={AppleAuthenticationButtonType.SIGN_IN}
                     buttonStyle={AppleAuthenticationButtonStyle.BLACK}

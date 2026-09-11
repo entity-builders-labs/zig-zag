@@ -12,6 +12,7 @@ import {
   Pressable,
 } from '@gluestack-ui/themed';
 import { Footprints, Milestone, Sparkles } from 'lucide-react-native';
+import { useRouter } from 'expo-router';
 import { Map as MapView } from '../../features/map';
 import { fetchWalkingRoute } from '../../features/map/directions';
 import {
@@ -58,6 +59,7 @@ export const CompositeStopCard = ({
   selectedComponentIds?: Set<string>;
   onToggleComponent?: (componentId: string) => void;
 }) => {
+  const router = useRouter();
   const orderedComponents = [...data.components].sort(
     (a, b) =>
       (a.order ?? Number.MAX_SAFE_INTEGER) -
@@ -160,18 +162,28 @@ export const CompositeStopCard = ({
 
       {/* Card Content */}
       <Box flex={1} pb='$4' pl='$2' pr='$2'>
-        <Box
-          bg='$white'
-          borderRadius='$2xl'
-          overflow='hidden'
-          borderWidth={1.5}
-          borderColor='$tertiary200'
-          shadowColor='$black'
-          shadowOffset={{ width: 0, height: 2 }}
-          shadowOpacity={0.06}
-          shadowRadius={6}
-          elevation={2}
+        <Pressable
+          onPress={() => {
+            if (!editable && data.experienceId) {
+              router.push(`/experiences/${data.experienceId}`);
+            }
+          }}
+          disabled={editable || !data.experienceId}
+          $active-opacity={editable ? 1 : 0.85}
+          testID={`composite-card-${data.experienceSnapshotId}`}
         >
+          <Box
+            bg='$white'
+            borderRadius='$2xl'
+            overflow='hidden'
+            borderWidth={1.5}
+            borderColor='$tertiary200'
+            shadowColor='$black'
+            shadowOffset={{ width: 0, height: 2 }}
+            shadowOpacity={0.06}
+            shadowRadius={6}
+            elevation={2}
+          >
           {/* Mini-map view for composite boundary or waypoint route */}
           <Box height={180} width='100%' position='relative' overflow='hidden' bg='$backgroundLight100'>
             {mapRegion ? (
@@ -368,6 +380,7 @@ export const CompositeStopCard = ({
 
           </VStack>
         </Box>
+        </Pressable>
       </Box>
     </HStack>
   );

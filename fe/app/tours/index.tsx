@@ -13,6 +13,7 @@ import {
 } from '@gluestack-ui/themed';
 import { FlatList } from 'react-native';
 import { Link, useLocalSearchParams, router } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import axiosInstance from '@/api/config/axios';
 import { useApi } from '@/api/hooks/useApi';
 import { PaginatedResponseTour } from '@/components/types';
@@ -43,6 +44,7 @@ export default function ToursScreen() {
     latitude?: string;
     longitude?: string;
   }>();
+  const insets = useSafeAreaInsets();
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalTours, setTotalTours] = useState<number>(0);
@@ -137,7 +139,11 @@ export default function ToursScreen() {
       <FlatList
         data={data?.tours || []}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={{ padding: 16, paddingBottom: 60 }}
+        contentContainerStyle={{
+          paddingHorizontal: 16,
+          paddingTop: insets.top + 16,
+          paddingBottom: 60
+        }}
         ListHeaderComponent={
           <VStack space='md' mb='$4'>
             <Heading

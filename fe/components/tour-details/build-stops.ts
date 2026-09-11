@@ -22,11 +22,12 @@ export function transformExperiencesToStops(experiences: Tour['experiences'], to
 
 function buildExperienceStop(snapshot: TourExperience): TourStop | null {
   const experience = snapshot.experience;
+  const experienceId = snapshot.experienceId || snapshot.experience?.id;
   const title = experience?.canonicalName || experience?.name || 'Experiencia';
   const badges = getBadges({ type: 'EXPERIENCE', metadata: { themes: experience?.themes } });
   if (snapshot.components && snapshot.components.length > 1) {
     return {
-      type: 'composite', id: snapshot.id, experienceSnapshotId: snapshot.id, title,
+      type: 'composite', id: snapshot.id, experienceId, experienceSnapshotId: snapshot.id, title,
       themeReasoning: snapshot.notes, kind: 'EXPERIENCE' as any,
       components: snapshot.components.map((component, index) => ({
         order: component.order ?? null,
@@ -34,5 +35,5 @@ function buildExperienceStop(snapshot: TourExperience): TourStop | null {
       })) as any, badges,
     };
   }
-  return { type: 'location', id: snapshot.id, title, image: getImage(experience?.mediaPresentation?.photos, 0, experience?.themes?.[0]), description: experience?.description || snapshot.notes, badges };
+  return { type: 'location', id: snapshot.id, experienceId, title, image: getImage(experience?.mediaPresentation?.photos, 0, experience?.themes?.[0]), description: experience?.description || snapshot.notes, badges };
 }

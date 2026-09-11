@@ -147,6 +147,38 @@ describe('AuthService', () => {
     });
   });
 
+  describe('loginWithApple', () => {
+    it('creates a new user on first login with Apple and issues a session', async () => {
+      mockAppleTokenService.verify.mockResolvedValue({
+        providerId: 'apple-sub-1',
+        email: 'user@example.com',
+      });
+      mockPrismaService.user.findUnique.mockResolvedValue(null);
+      mockPrismaService.user.create.mockResolvedValue({
+        ...baseUser,
+        provider: AuthProvider.APPLE,
+        providerId: 'apple-sub-1',
+        name: 'Apple User',
+      });
+
+      const result = await service.loginWithApple('identity-token', 'Apple User');
+
+      expect(result.user.email).toBe('user@example.com');
+      expect(result.accessToken).toBe('signed-token');
+      expect(result.refreshToken).toBe('signed-token');
+      expect(mockPrismaService.user.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            provider: AuthProvider.APPLE,
+            providerId: 'apple-sub-1',
+            email: 'user@example.com',
+            name: 'Apple User',
+          }),
+        }),
+      );
+    });
+  });
+
   describe('loginWithEmailCode', () => {
     it('verifies the code and upserts a user keyed by email', async () => {
       mockEmailOtpService.verifyCode.mockResolvedValue('user@example.com');

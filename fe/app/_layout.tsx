@@ -8,10 +8,14 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ErrorBoundary } from 'react-error-boundary';
 import * as SplashScreen from 'expo-splash-screen';
-import * as Notifications from 'expo-notifications';
+import type * as Notifications from 'expo-notifications';
 import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Platform } from 'react-native';
 import 'react-native-reanimated';
+
+function getNotifications(): typeof Notifications | null {
+  return null;
+}
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -36,20 +40,23 @@ function RootNavigator() {
   useEffect(() => {
     if (Platform.OS === 'web') return;
 
+    const notif = getNotifications();
+    if (!notif) return;
+
     const captureResponse = (response: Notifications.NotificationResponse) => {
       setPendingNotificationResponse(response);
     };
-    Notifications.getLastNotificationResponseAsync()
-      .then((response) => {
+    notif.getLastNotificationResponseAsync?.()
+      ?.then((response) => {
         if (response) captureResponse(response);
       })
-      .catch(() => {});
-    const subscription = Notifications.addNotificationResponseReceivedListener(
+      ?.catch(() => {});
+    const subscription = notif.addNotificationResponseReceivedListener?.(
       captureResponse,
     );
 
     return () => {
-      subscription.remove();
+      subscription?.remove?.();
     };
   }, []);
 
@@ -80,7 +87,7 @@ function RootNavigator() {
       );
     }
     setPendingNotificationResponse(null);
-    Notifications.clearLastNotificationResponseAsync().catch(() => {});
+    getNotifications()?.clearLastNotificationResponseAsync?.()?.catch(() => {});
   }, [isAuthenticated, isLoading, pendingNotificationResponse, router]);
 
   useEffect(() => {

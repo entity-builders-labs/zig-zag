@@ -52,7 +52,9 @@ export default registerAs('auth', (): AuthConfig => {
       .split(',')
       .map((id) => id.trim())
       .filter(Boolean),
-    appleClientIds: (process.env.APPLE_CLIENT_IDS || '')
+    appleClientIds: (
+      process.env.APPLE_CLIENT_IDS || 'com.entitiybuilders.zig-zag'
+    )
       .split(',')
       .map((id) => id.trim())
       .filter(Boolean),

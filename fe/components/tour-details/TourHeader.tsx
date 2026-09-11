@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Dimensions } from 'react-native';
+import { Animated, Dimensions, Platform } from 'react-native';
 import { Map as MapView } from '../../features/map';
 import { Marker as MapMarker } from '../../features/map/types';
 import { getRegionForCoordinates } from '../../features/map/utils';
@@ -22,6 +22,7 @@ import { useRouter } from 'expo-router';
 import { ArrowLeft } from 'lucide-react-native';
 import { Tour } from '../../api/tours';
 import { getImage } from './utils';
+import { TourHeaderSkeleton } from './TourHeaderSkeleton';
 import { FONT_DISPLAY } from '@/constants/typography';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
@@ -37,18 +38,57 @@ interface StopWithLocation {
   category?: string;
 }
 
-export const TourHeader = ({
-  tour,
-  expanded = false
-}: {
+interface TourHeaderProps {
   tour: Tour;
   expanded?: boolean;
-}) => {
+  isGenerating?: boolean;
+}
+
+export const TourHeader = ({
+  tour,
+  expanded = false,
+  isGenerating = false,
+}: TourHeaderProps) => {
   const router = useRouter();
   const firstExperience = tour.experiences?.[0];
   const firstComponent = firstExperience?.components?.[0];
+
+  // Search for any authentic photo: tour.coverImage first, then any experience photo
+  const authenticPhoto = React.useMemo(() => {
+    if (tour.coverImage) return tour.coverImage;
+    for (const exp of tour.experiences || []) {
+      const photos = exp.experience?.mediaPresentation?.photos;
+      if (Array.isArray(photos) && photos.length > 0) {
+        const firstPhoto = photos[0] as any;
+        const url =
+          typeof firstPhoto === 'string'
+            ? firstPhoto
+            : firstPhoto?.url || firstPhoto?.photo_reference;
+        if (url && typeof url === 'string' && url.trim() !== '') return url;
+      }
+    }
+    return null;
+  }, [tour.coverImage, tour.experiences]);
+
+  const destinationLabel =
+    tour.metadata?.generationRequest?.destination?.label || tour.name;
+
+  const fadeAnim = React.useRef(
+    new Animated.Value(tour.coverImage || (!isGenerating && authenticPhoto) ? 1 : 0),
+  ).current;
+
+  React.useEffect(() => {
+    if (tour.coverImage || (!isGenerating && authenticPhoto)) {
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 450,
+        useNativeDriver: Platform.OS !== 'web',
+      }).start();
+    }
+  }, [tour.coverImage, authenticPhoto, isGenerating, fadeAnim]);
+
   const imageUri =
-    tour.coverImage ||
+    authenticPhoto ||
     getImage(
       firstExperience?.experience?.mediaPresentation?.photos,
       0,
@@ -194,6 +234,8 @@ export const TourHeader = ({
     }
   };
 
+  const showSkeleton = !tour.coverImage && isGenerating;
+
   return (
     <Box
       height={expanded ? EXPANDED_HEIGHT : COLLAPSED_HEIGHT}
@@ -201,7 +243,7 @@ export const TourHeader = ({
       position='relative'
       bg='$backgroundDark900'
     >
-      {/* Background: Map in expanded mode, Image in collapsed mode */}
+      {/* Background: Map in expanded mode, Shimmer Skeleton while generating, Image when available */}
       {expanded && mapRegion ? (
         <MapView
           isStatic={false}
@@ -210,14 +252,22 @@ export const TourHeader = ({
           markers={mapMarkers}
           routes={routes}
         />
-      ) : (
-        <Image
-          source={{ uri: imageUri }}
-          alt={tour.name}
-          w='$full'
-          h='$full'
-          resizeMode='cover'
+      ) : showSkeleton ? (
+        <TourHeaderSkeleton
+          height={expanded ? EXPANDED_HEIGHT : COLLAPSED_HEIGHT}
+          destinationName={destinationLabel}
+          tourName={tour.name}
         />
+      ) : (
+        <Animated.View style={{ opacity: fadeAnim, width: '100%', height: '100%' }}>
+          <Image
+            source={{ uri: imageUri }}
+            alt={tour.name}
+            w='$full'
+            h='$full'
+            resizeMode='cover'
+          />
+        </Animated.View>
       )}
 
       {loadingDirections && expanded && (
@@ -238,7 +288,7 @@ export const TourHeader = ({
       )}
 
       {/* Dark gradient overlay for collapsed mode */}
-      {!expanded && (
+      {!expanded && !showSkeleton && (
         <Box
           position='absolute'
           bottom={0}
@@ -292,7 +342,7 @@ export const TourHeader = ({
       )}
 
       {/* Title & metadata in Collapsed Mode */}
-      {!expanded ? (
+      {!expanded && !showSkeleton ? (
         <VStack position='absolute' bottom={44} left={16} right={16} space='xs'>
           <HStack space='xs' flexWrap='wrap'>
             <Box
@@ -353,7 +403,7 @@ export const TourHeader = ({
             )}
           </HStack>
         </VStack>
-      ) : (
+      ) : expanded ? (
         <Box
           position='absolute'
           bottom={0}
@@ -373,7 +423,7 @@ export const TourHeader = ({
             {tour.name}
           </Heading>
         </Box>
-      )}
+      ) : null}
     </Box>
   );
 };

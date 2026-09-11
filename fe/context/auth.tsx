@@ -5,7 +5,7 @@ import {
   useEffect,
   useState,
 } from 'react';
-import { Platform } from 'react-native';
+import { Platform, Alert } from 'react-native';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import * as authApi from '../api/auth';
 import { AuthSession, AuthUser } from '../api/auth';
@@ -121,6 +121,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const { GoogleSignin, isSuccessResponse } = googleMod;
       GoogleSignin.configure({
         webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
+        iosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
       });
       if (Platform.OS === 'android') {
         await GoogleSignin.hasPlayServices({
@@ -144,26 +145,136 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, [applySession]);
 
   const signInWithApple = useCallback(async () => {
-    const credential = await AppleAuthentication.signInAsync({
-      requestedScopes: [
-        AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
-        AppleAuthentication.AppleAuthenticationScope.EMAIL,
-      ],
-    });
-    if (!credential.identityToken) {
-      throw new Error('No se pudo completar el login con Apple');
+    try {
+      const credential = await AppleAuthentication.signInAsync({
+        requestedScopes: [
+          AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+          AppleAuthentication.AppleAuthenticationScope.EMAIL,
+        ],
+      });
+      if (!credential.identityToken) {
+        throw new Error('No se pudo completar el login con Apple');
+      }
+      // Apple only sends the name on the very first authorization — the
+      // backend can't recover it from the token on later logins, so it must
+      // ride along here while it's available.
+      const fullName = credential.fullName
+        ? AppleAuthentication.formatFullName(credential.fullName)
+        : undefined;
+      const session = await authApi.loginWithApple(
+        credential.identityToken,
+        fullName || undefined,
+      );
+      await applySession(session);
+    } catch (err: any) {
+      console.warn(
+        '[Auth] Apple Sign-In native error code:',
+        err?.code,
+        'message:',
+        err?.message,
+      );
+      const isCanceled =
+        err?.code === 'ERR_REQUEST_CANCELED' ||
+        err?.code === '1001' ||
+        err?.code === 'ERR_CANCELED' ||
+        err?.message?.toLowerCase().includes('canceled') ||
+        err?.message?.toLowerCase().includes('cancelled');
+
+      if (isCanceled) {
+        // User voluntarily dismissed or canceled Apple Sign-In sheet.
+        // Return cleanly so caller resets loading and allows choosing another method.
+        return;
+      }
+
+      const isSimulatorOrDevError =
+        err?.code === 'ERR_REQUEST_UNKNOWN' ||
+        err?.message?.includes('unknown reason') ||
+        (err?.message?.includes('ASAuthorizationError') && !err?.message?.includes('1001'));
+
+      if (__DEV__ && isSimulatorOrDevError) {
+        return new Promise<void>((resolve, reject) => {
+          setTimeout(() => {
+            Alert.alert(
+              'Sign in with Apple (Simulador)',
+              'Apple restringe la ventana nativa en simuladores sin cuenta Apple Developer de pago ($99/año). ¿Cómo deseas ingresar?',
+              [
+                {
+                  text: 'Continuar como Javier Iseruk',
+                  onPress: async () => {
+                    try {
+                      const devToken = `dev_mock_apple_:javier.iseruk@privaterelay.appleid.com:001234.javier_iseruk_apple`;
+                      const session = await authApi.loginWithApple(
+                        devToken,
+                        'Javier Iseruk',
+                      );
+                      await applySession(session);
+                      resolve();
+                    } catch (e) {
+                      reject(e);
+                    }
+                  },
+                },
+                {
+                  text: 'Personalizar...',
+                  onPress: () => {
+                    if (Platform.OS === 'ios' && typeof Alert.prompt === 'function') {
+                      Alert.prompt(
+                        'Apple ID de Prueba',
+                        'Ingresá el email para la cuenta de Apple:',
+                        [
+                          {
+                            text: 'Cancelar',
+                            style: 'cancel',
+                            onPress: () => resolve(),
+                          },
+                          {
+                            text: 'Ingresar',
+                            onPress: async (inputEmail?: string) => {
+                              const trimmed = inputEmail?.trim();
+                              if (!trimmed) {
+                                resolve();
+                                return;
+                              }
+                              try {
+                                const name = trimmed.split('@')[0];
+                                const devToken = `dev_mock_apple_:${trimmed}:001234.${name}_apple`;
+                                const session = await authApi.loginWithApple(
+                                  devToken,
+                                  name,
+                                );
+                                await applySession(session);
+                                resolve();
+                              } catch (e) {
+                                reject(e);
+                              }
+                            },
+                          },
+                        ],
+                        'plain-text',
+                        'javier.iseruk@privaterelay.appleid.com',
+                        'email-address',
+                      );
+                    } else {
+                      resolve();
+                    }
+                  },
+                },
+                {
+                  text: 'Cancelar',
+                  style: 'cancel',
+                  onPress: () => resolve(),
+                },
+              ],
+              {
+                cancelable: true,
+                onDismiss: () => resolve(),
+              },
+            );
+          }, 100);
+        });
+      }
+      throw err;
     }
-    // Apple only sends the name on the very first authorization — the
-    // backend can't recover it from the token on later logins, so it must
-    // ride along here while it's available.
-    const fullName = credential.fullName
-      ? AppleAuthentication.formatFullName(credential.fullName)
-      : undefined;
-    const session = await authApi.loginWithApple(
-      credential.identityToken,
-      fullName || undefined,
-    );
-    await applySession(session);
   }, [applySession]);
 
   const requestEmailCode = useCallback(async (email: string) => {

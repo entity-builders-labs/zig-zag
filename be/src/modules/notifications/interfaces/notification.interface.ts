@@ -4,6 +4,7 @@ export interface TourNotificationPayload {
   status: string;
   progress?: number;
   message?: string;
+  coverImage?: string;
   data?: any;
 }
 

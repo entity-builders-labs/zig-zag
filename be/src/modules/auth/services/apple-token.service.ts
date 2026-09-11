@@ -12,6 +12,17 @@ export class AppleTokenService {
   constructor(private readonly configService: ConfigService) {}
 
   async verify(identityToken: string): Promise<VerifiedAppleUser> {
+    const isProduction =
+      this.configService.get<string>('nodeEnv') === 'production' ||
+      process.env.NODE_ENV === 'production';
+
+    if (!isProduction && identityToken.startsWith('dev_mock_apple_')) {
+      const parts = identityToken.split(':');
+      const email = parts[1] || 'dev.apple.user@privaterelay.appleid.com';
+      const providerId = parts[2] || '001234.dev_apple_sim_user';
+      return { providerId, email };
+    }
+
     const audience = this.configService.get<string[]>('auth.appleClientIds');
 
     try {

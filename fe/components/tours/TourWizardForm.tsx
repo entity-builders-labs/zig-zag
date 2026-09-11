@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState, useRef } from 'react';
 import {
   Box,
   Button,
@@ -33,6 +33,7 @@ import { DateRangePicker } from './DateRangePicker';
 import { DestinationInput } from './DestinationInput';
 import { TourWizardIntentStep } from './TourWizardIntentStep';
 import { TourWizardMobilityStep } from './TourWizardMobilityStep';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface TourWizardFormProps {
   onSubmit: (preferences: GenerateTourDto) => void;
@@ -75,8 +76,10 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
   initialDestination,
   initialLocation
 }) => {
-  const { setCenter } = useContext(AppContext);
+  const insets = useSafeAreaInsets();
+  const { setCenter, setAddress } = useContext(AppContext);
   const [currentStep, setCurrentStep] = useState(1);
+  const destinationChosenRef = useRef(Boolean(initialDestination && initialDestination.trim().length > 0));
   const [destination, setDestination] = useState(initialDestination || '');
   const [destinationCoords, setDestinationCoords] = useState<
     { lat: number; lng: number } | undefined
@@ -88,7 +91,7 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [days, setDays] = useState(3);
-  const [useCurrentLocation, setUseCurrentLocation] = useState(true);
+  const [useCurrentLocation, setUseCurrentLocation] = useState(!initialDestination);
   const [budgetLevel, setBudgetLevel] = useState<BudgetLevel>('low');
   const [transportationModes, setTransportationModes] = useState<
     TransportationMode[]
@@ -111,45 +114,29 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
   const [additionalPreferences, setAdditionalPreferences] = useState('');
 
   useEffect(() => {
+    let isMounted = true;
     const getInitialLocation = async () => {
-      if (initialLocation && !destinationCoords) {
+      if (initialLocation && !destinationCoords && !destinationChosenRef.current) {
         setDestinationCoords(initialLocation);
         setCenter(initialLocation);
         return;
       }
 
-      if (useCurrentLocation && !destinationCoords) {
+      if (useCurrentLocation && !destinationCoords && !destinationChosenRef.current) {
         try {
           const { status } =
             await ExpoLocation.requestForegroundPermissionsAsync();
           if (status === 'granted') {
             const location = await ExpoLocation.getCurrentPositionAsync({});
+            if (!isMounted || destinationChosenRef.current) {
+              return;
+            }
             const coords = {
               lat: location.coords.latitude,
               lng: location.coords.longitude
             };
-            // Real device geolocation is async and can take several seconds
-            // to resolve — long enough for the user to pick a destination
-            // from the autocomplete in the meantime. The `!destinationCoords`
-            // check above only ran once, at mount, so without this guard the
-            // resolved location overwrites whatever the user just chose,
-            // unconditionally, whenever it happens to arrive. Verified live:
-            // typing "Chilecito, La Rioja" and selecting it from the
-            // dropdown updated the map correctly, but by submit time the
-            // request carried the device's real (unrelated) coordinates
-            // instead. The functional updater form reads the *current*
-            // state at the moment this resolves, not the value captured by
-            // the effect's closure, so a destination chosen in the
-            // meantime is never clobbered.
-            let overwritten = true;
-            setDestinationCoords((current) => {
-              if (current) {
-                overwritten = false;
-                return current;
-              }
-              return coords;
-            });
-            if (overwritten) setCenter(coords);
+            setDestinationCoords(coords);
+            setCenter(coords);
           }
         } catch (error) {
           console.error('Error getting initial location:', error);
@@ -158,7 +145,9 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
     };
 
     getInitialLocation();
-    // This is intentionally mount-only: changing the toggle has its own handler.
+    return () => {
+      isMounted = false;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -221,6 +210,12 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
   const handleLocationToggle = async (value: boolean) => {
     setUseCurrentLocation(value);
     if (value) {
+      destinationChosenRef.current = false;
+      setDestination('');
+      setDestinationRadius(undefined);
+      setDestinationScaleHint('specific_point');
+      setDestinationIsDirty(false);
+
       try {
         const { status } =
           await ExpoLocation.requestForegroundPermissionsAsync();
@@ -256,14 +251,26 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
       if (!Number.isNaN(date.getTime())) startDates.push(date.toISOString());
     }
 
-    const latitude =
-      destinationCoords?.lat ??
-      initialLocation?.lat ??
-      DEFAULT_LOCATION.LATITUDE;
-    const longitude =
-      destinationCoords?.lng ??
-      initialLocation?.lng ??
-      DEFAULT_LOCATION.LONGITUDE;
+    let latitude: number;
+    let longitude: number;
+
+    if (!useCurrentLocation && destination) {
+      if (!destinationCoords) {
+        alert('Por favor selecciona un destino válido de la lista para obtener sus coordenadas.');
+        return;
+      }
+      latitude = destinationCoords.lat;
+      longitude = destinationCoords.lng;
+    } else {
+      latitude =
+        destinationCoords?.lat ??
+        initialLocation?.lat ??
+        DEFAULT_LOCATION.LATITUDE;
+      longitude =
+        destinationCoords?.lng ??
+        initialLocation?.lng ??
+        DEFAULT_LOCATION.LONGITUDE;
+    }
 
     onSubmit({
       destination: {
@@ -338,7 +345,14 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
         >
           {mapCoords ? (
             <Box h='$full' w='$full'>
-              <Map markers={marker} />
+              <Map
+                markers={marker}
+                focusCoordinate={
+                  mapCoords
+                    ? { latitude: mapCoords.lat, longitude: mapCoords.lng }
+                    : undefined
+                }
+              />
             </Box>
           ) : (
             <Box
@@ -360,9 +374,28 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
             value={destination}
             onDestinationChange={(label, coords, radiusMeters, scaleHint) => {
               setDestination(label);
-              if (coords) setDestinationCoords(coords);
-              setDestinationRadius(radiusMeters);
-              setDestinationScaleHint(scaleHint ?? 'specific_point');
+              if (label && label.trim().length > 0) {
+                destinationChosenRef.current = true;
+                setUseCurrentLocation(false);
+                if (coords) {
+                  setDestinationCoords(coords);
+                  setCenter(coords);
+                  setAddress({
+                    street: label,
+                    city: label.split(',')[0],
+                    country: 'Argentina',
+                    lat: coords.lat,
+                    lng: coords.lng,
+                  });
+                }
+                setDestinationRadius(radiusMeters);
+                setDestinationScaleHint(scaleHint ?? 'specific_point');
+              } else {
+                destinationChosenRef.current = false;
+                setDestinationCoords(undefined);
+                setDestinationRadius(undefined);
+                setDestinationScaleHint('specific_point');
+              }
             }}
             onDirtyChange={setDestinationIsDirty}
           />
@@ -414,7 +447,14 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
 
   return (
     <Box flex={1} bg='$backgroundLight50'>
-      <Box bg='$backgroundLight50' pt='$12' pb='$3' px='$4' borderBottomWidth={1} borderBottomColor='$borderLight100'>
+      <Box
+        bg='$backgroundLight50'
+        pb='$3'
+        px='$4'
+        borderBottomWidth={1}
+        borderBottomColor='$borderLight100'
+        style={{ paddingTop: Math.max(insets.top, 16) }}
+      >
         <HStack alignItems='center' justifyContent='space-between'>
           <HStack alignItems='center' space='md'>
             <Pressable onPress={handleBack}>
@@ -466,7 +506,7 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
       </Box>
 
       <ScrollView flex={1} showsVerticalScrollIndicator={false}>
-        <Box p='$4' pb='$24'>
+        <Box p='$4' pb='$6'>
           {currentStep === 1 && renderDestinationStep()}
           {currentStep === 2 && (
             <TourWizardMobilityStep
@@ -511,15 +551,14 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
       </ScrollView>
 
       <Box
-        position='absolute'
-        bottom='$0'
-        left='$0'
-        right='$0'
         bg='$backgroundLight50'
         borderTopWidth='$1'
         borderTopColor='$borderLight100'
-        p='$4'
-        pb='$8'
+        px='$4'
+        pt='$3'
+        style={{
+          paddingBottom: Math.max(insets.bottom, 16) + 8
+        }}
         shadowColor='$black'
         shadowOffset={{ width: 0, height: -2 }}
         shadowOpacity={0.06}
@@ -531,7 +570,7 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
           onPress={handleNext}
           bg='$primary500'
           borderRadius='$xl'
-          py='$3.5'
+          h={52}
           isDisabled={currentStep === 1 && destinationIsDirty}
           shadowColor='$primary500'
           shadowOffset={{ width: 0, height: 2 }}

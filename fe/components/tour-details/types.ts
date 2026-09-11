@@ -7,6 +7,7 @@ export interface BadgeData {
 export interface TourStopLocation {
   type: 'location';
   id: string;
+  experienceId?: string;
   title: string;
   image: string;
   description?: string;
@@ -17,6 +18,7 @@ export interface TourStopLocation {
 export interface TourStopComposite {
   type: 'composite';
   id: string;
+  experienceId?: string;
   // Immutable snapshot identity, distinct from the persisted Experience id.
   experienceSnapshotId: string;
   title: string;

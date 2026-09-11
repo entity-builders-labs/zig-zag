@@ -17,6 +17,7 @@ import {
 import { MapPin, Sparkles, Clock, Footprints, ArrowRight, Compass } from 'lucide-react-native';
 import { Link, useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { fetchMyTours, Tour } from '@/api/tours';
 import { FONT_DISPLAY } from '@/constants/typography';
 import { getImage } from '@/components/tour-details/utils';
@@ -227,6 +228,7 @@ function SavedTourCard({ tour }: { tour: Tour }) {
 
 export default function SavedScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const [tours, setTours] = useState<Tour[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -288,7 +290,7 @@ export default function SavedScreen() {
     <Box flex={1} bg='$backgroundLight100' alignItems='center'>
       <Box
         w='$full'
-        maxW={560}
+        maxWidth={560}
         flex={1}
         bg='$backgroundLight50'
         position='relative'
@@ -299,7 +301,14 @@ export default function SavedScreen() {
         elevation={4}
       >
         {/* Header Bar */}
-        <Box px='$5' pt='$5' pb='$3' bg='$white' borderBottomWidth={1} borderBottomColor='$borderLight100'>
+        <Box
+          px='$5'
+          pb='$3'
+          bg='$white'
+          borderBottomWidth={1}
+          borderBottomColor='$borderLight100'
+          style={{ paddingTop: insets.top + 16 }}
+        >
           <Heading size='xl' color='$textLight900' style={{ fontFamily: FONT_DISPLAY }}>
             Mis Recorridos
           </Heading>
@@ -367,7 +376,7 @@ export default function SavedScreen() {
         {/* Content Body */}
         {filteredTours.length === 0 ? (
           <Center flex={1} p='$6'>
-            <VStack space='md' alignItems='center' maxW={320}>
+            <VStack space='md' alignItems='center' maxWidth={320}>
               <Box
                 w={72}
                 h={72}

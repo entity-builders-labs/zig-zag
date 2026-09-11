@@ -799,6 +799,20 @@ export class ExperienceGenerationService {
           destinationResolution,
         ),
       );
+
+      // Asynchronously resolve authentic destination cover photo in background
+      void this.tourImageService
+        .resolveDestinationCoverImage(tourId, {
+          label: request.destination.label,
+          latitude: request.destination.latitude,
+          longitude: request.destination.longitude,
+        })
+        .catch((err) =>
+          this.logger.warn(
+            `Failed to resolve destination cover image for tour ${tourId}: ${err?.message}`,
+          ),
+        );
+
       const isAreaScale = destinationResolution.scale === 'area';
       const destinationScope = isAreaScale
         ? destinationResolution.boundary

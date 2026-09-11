@@ -37,6 +37,7 @@ import { AppContext, useMap } from "@/context/app";
 import { fetchNearbyExperiences } from "@/api/experiences";
 import { FONT_DISPLAY } from "@/constants/typography";
 import { useRouter } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 interface MapPlace {
   id: string;
@@ -151,7 +152,8 @@ const FILTER_TAGS = [
 
 export default function MapScreen() {
   const router = useRouter();
-  const { center, setCenter } = useMap();
+  const insets = useSafeAreaInsets();
+  const { center } = useMap();
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [places, setPlaces] = useState<MapPlace[]>(CURATED_PLACES);
@@ -159,6 +161,12 @@ export default function MapScreen() {
   const [focusCoordinate, setFocusCoordinate] = useState<{ latitude: number; longitude: number } | undefined>(
     center ? { latitude: center.lat, longitude: center.lng } : { latitude: -34.6037, longitude: -58.3816 }
   );
+
+  useEffect(() => {
+    if (center && (center.lat !== 0 || center.lng !== 0)) {
+      setFocusCoordinate({ latitude: center.lat, longitude: center.lng });
+    }
+  }, [center?.lat, center?.lng]);
 
   useEffect(() => {
     const loadBackendPlaces = async () => {
@@ -273,10 +281,10 @@ export default function MapScreen() {
       {/* Floating Top Controls (Search & Category Chips) */}
       <Box
         position="absolute"
-        top={48}
         left={16}
         right={16}
         zIndex={20}
+        style={{ top: insets.top + 12 }}
       >
         <VStack space="sm">
           {/* Search Box */}

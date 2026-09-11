@@ -67,14 +67,14 @@ export const TourMapView = ({
           if (!component || component.latitude == null || component.longitude == null) return [];
           return [{
             id: snapshot.id,
-            experienceId: snapshot.experienceId,
+            experienceId: snapshot.experienceId || snapshot.experience?.id,
             latitude: component.latitude,
             longitude: component.longitude,
             title: snapshot.experience?.canonicalName || snapshot.experience?.name || 'Experiencia',
             order: snapshot.order ?? index,
             dayNumber: snapshot.dayNumber ?? 1,
-            category: 'Experiencia',
-            image: undefined,
+            category: snapshot.experience?.themes?.[0] || 'Experiencia',
+            image: getImage(snapshot.experience?.mediaPresentation?.photos, 0, snapshot.experience?.themes?.[0]),
             travelTimeToNext: undefined,
           }];
         })

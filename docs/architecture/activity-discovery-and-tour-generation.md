@@ -1278,3 +1278,11 @@ TourExperience rows. New environments, including AWS, must run the complete
 migration chain to receive the same cutover deterministically. The backend
 typecheck is green; remaining frontend/type-test failures are tracked as
 separate migration work rather than hidden behind compatibility aliases.
+
+### Destination Cover Photo Asynchronous Resolution (2026-09-10)
+
+- **Authentic Resolution via Outbox**: A Tour's presentation asset (`coverImage`) is resolved asynchronously during/after Destination Resolution via verified providers (`WikimediaPhotoProvider` / Google Places), avoiding expensive AI image generation stalls and preventing mismatched city fallbacks (e.g. Obelisco on Salta/Bariloche tours).
+- **Direct SSE Delivery**: `TourProgressUpdated` carries the resolved `coverImage` directly in its payload over the SSE stream, allowing the client to transition without an extra HTTP round-trip, while simultaneously persisting `coverImage` to Postgres.
+- **Frontend Skeleton Shimmer Contract**: While the tour is generating and `coverImage` is pending, `TourHeader` presents an animated skeleton shimmer (`TourHeaderSkeleton`). Upon SSE receipt, it performs a smooth fade-in to the verified destination photo. Hardcoded single-city placeholders are strictly prohibited across general fallbacks.
+- **Full Spec**: See `docs/superpowers/specs/2026-09-10-destination-cover-photo-async-resolution.md`.
+

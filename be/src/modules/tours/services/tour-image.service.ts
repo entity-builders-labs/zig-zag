@@ -1,6 +1,9 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Optional } from '@nestjs/common';
+import axios from 'axios';
 import { PrismaService } from '@core/database/prisma.service';
 import { ImageGenerationService } from '@shared/ai/image-generation.service';
+import { OutboxService } from '../../outbox/services/outbox.service';
+import { WikimediaPhotoProvider } from '../../integrations/photos/providers/wikimedia-photo.provider';
 import { generateCoverImagePrompt } from '../prompts/media-generation.prompt';
 
 @Injectable()
@@ -10,6 +13,9 @@ export class TourImageService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly imageGenerationService: ImageGenerationService,
+    @Optional() private readonly outboxService?: OutboxService,
+    @Optional()
+    private readonly wikimediaPhotoProvider?: WikimediaPhotoProvider,
   ) {}
 
   /**
@@ -28,6 +34,7 @@ export class TourImageService {
     });
 
     if (!tour) return null;
+    if (tour.coverImage) return tour.coverImage;
 
     this.logger.debug(`Generating cover image for tour: ${tour.name}`);
 
@@ -104,6 +111,309 @@ export class TourImageService {
       this.logger.warn(`Failed to generate cover image: ${message}`);
       throw error;
     }
+  }
+
+  /**
+   * Resolve an authentic destination cover image asynchronously.
+   *
+   * Queries verified sources (Wikimedia Commons, Wikipedia) using the destination
+   * coordinates and label. Persists the photo as `coverImage` on the Tour and
+   * dispatches an outbox `TourProgressUpdated` event carrying `coverImage` directly
+   * so SSE clients receive it with zero round-trip delay.
+   */
+  async resolveDestinationCoverImage(
+    tourId: string,
+    destination: { label?: string; latitude?: number; longitude?: number },
+  ): Promise<string | null> {
+    const tour = await this.prisma.tour.findUnique({
+      where: { id: tourId },
+      select: {
+        id: true,
+        name: true,
+        ownerId: true,
+        coverImage: true,
+        metadata: true,
+      },
+    });
+
+    if (!tour) return null;
+    if (tour.coverImage) return tour.coverImage;
+
+    const destinationLabel = destination.label || tour.name;
+    this.logger.debug(
+      `[TourImageService] Resolving authentic destination photo for tour "${tour.name}" (${destinationLabel})...`,
+    );
+
+    try {
+      const photoUrl = await this.fetchDestinationPhoto(
+        destinationLabel,
+        destination.latitude,
+        destination.longitude,
+      );
+
+      const completedAt = new Date().toISOString();
+
+      if (photoUrl) {
+        await this.prisma.$transaction(async (tx) => {
+          await tx.tour.update({
+            where: { id: tour.id },
+            data: {
+              coverImage: photoUrl,
+              metadata: {
+                ...this.objectMetadata(tour.metadata),
+                coverImageResolution: {
+                  status: 'resolved',
+                  provider: 'wikimedia',
+                  url: photoUrl,
+                  completedAt,
+                },
+              },
+            },
+          });
+
+          if (this.outboxService) {
+            await this.outboxService.createInTx(tx, {
+              eventType: 'TourProgressUpdated',
+              payload: {
+                tourId: tour.id,
+                userId: tour.ownerId || undefined,
+                status: 'generating',
+                coverImage: photoUrl,
+                message: `Foto de ${destinationLabel} obtenida`,
+              },
+            });
+          }
+        });
+
+        this.logger.log(
+          `[TourImageService] Resolved and saved authentic destination photo for tour ${tourId}: ${photoUrl}`,
+        );
+        return photoUrl;
+      }
+
+      await this.prisma.tour.update({
+        where: { id: tour.id },
+        data: {
+          metadata: {
+            ...this.objectMetadata(tour.metadata),
+            coverImageResolution: {
+              status: 'not_resolved',
+              reasonCode: 'NO_VERIFIED_PHOTO_FOUND',
+              completedAt,
+            },
+          },
+        },
+      });
+
+      this.logger.warn(
+        `[TourImageService] No verified destination photo found for "${destinationLabel}"`,
+      );
+      return null;
+    } catch (error: any) {
+      this.logger.warn(
+        `[TourImageService] Failed to resolve destination photo for tour ${tourId}: ${error?.message ?? error}`,
+      );
+      return null;
+    }
+  }
+
+  private async fetchDestinationPhoto(
+    label?: string,
+    latitude?: number,
+    longitude?: number,
+  ): Promise<string | null> {
+    const USER_AGENT =
+      'ZigZagTravelApp/1.0 (https://zigzag.travel; contact@zigzag.travel)';
+    const headers = { 'User-Agent': USER_AGENT };
+
+    // 1. Search Wikipedia articles by destination label (prominence search).
+    // This finds the main encyclopedic city/region article with its primary landmark/skyline photo,
+    // avoiding non-iconic nearby geo-indexed places like football stadiums or local facilities.
+    if (label) {
+      const parts = label
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean);
+      const city = parts[0];
+      const country = parts.length > 1 ? parts[parts.length - 1] : '';
+      const searchQuery =
+        country && country.toLowerCase() !== city.toLowerCase()
+          ? `${city} ${country}`
+          : city;
+
+      if (searchQuery) {
+        try {
+          const res = await axios.get('https://es.wikipedia.org/w/api.php', {
+            params: {
+              action: 'query',
+              generator: 'search',
+              gsrsearch: searchQuery,
+              gsrlimit: 6,
+              prop: 'pageimages',
+              pithumbsize: 1200,
+              format: 'json',
+            },
+            headers,
+            timeout: 5000,
+          });
+
+          const pages = (
+            Object.values(res.data?.query?.pages || {}) as any[]
+          ).sort((a, b) => (a.index || 0) - (b.index || 0));
+
+          for (const p of pages) {
+            const imgUrl = p.thumbnail?.source || p.originalimage?.source;
+            if (imgUrl && this.isIconicDestinationPage(p.title, imgUrl)) {
+              return imgUrl;
+            }
+          }
+        } catch (err: any) {
+          this.logger.debug(
+            `[TourImageService] Wikipedia prominence search error for "${searchQuery}": ${err?.message}`,
+          );
+        }
+      }
+    }
+
+    // 2. Wikipedia page summary lookup by cleaned city name
+    if (label) {
+      const cleanCityName = label.split(',')[0].trim();
+      if (cleanCityName) {
+        try {
+          const res = await axios.get(
+            `https://es.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(cleanCityName)}`,
+            { headers, timeout: 5000 },
+          );
+          const candidate =
+            res.data?.originalimage?.source || res.data?.thumbnail?.source;
+          if (
+            candidate &&
+            this.isIconicDestinationPage(res.data?.title, candidate)
+          ) {
+            return candidate;
+          }
+        } catch (err: any) {
+          this.logger.debug(
+            `[TourImageService] Wikipedia summary lookup error for "${cleanCityName}": ${err?.message}`,
+          );
+        }
+      }
+    }
+
+    // 3. Geosearch around coordinates via Wikipedia API (tertiary fallback)
+    if (
+      latitude != null &&
+      longitude != null &&
+      Number.isFinite(latitude) &&
+      Number.isFinite(longitude)
+    ) {
+      try {
+        const res = await axios.get('https://es.wikipedia.org/w/api.php', {
+          params: {
+            action: 'query',
+            generator: 'geosearch',
+            ggscoord: `${latitude}|${longitude}`,
+            ggsradius: 10000,
+            prop: 'pageimages',
+            pithumbsize: 1200,
+            format: 'json',
+          },
+          headers,
+          timeout: 5000,
+        });
+
+        const pages = Object.values(res.data?.query?.pages || {}) as any[];
+        for (const p of pages) {
+          const imgUrl = p.thumbnail?.source || p.originalimage?.source;
+          if (imgUrl && this.isIconicDestinationPage(p.title, imgUrl)) {
+            return imgUrl;
+          }
+        }
+      } catch (err: any) {
+        this.logger.debug(
+          `[TourImageService] Wikimedia geosearch error: ${err?.message}`,
+        );
+      }
+    }
+
+    // 4. Fallback to WikimediaPhotoProvider if injected
+    if (this.wikimediaPhotoProvider) {
+      try {
+        const enrichment = await this.wikimediaPhotoProvider.enrichExperience({
+          name: label || 'Destino',
+          latitude,
+          longitude,
+        });
+        if (enrichment?.photos?.length) {
+          const photo = enrichment.photos.find((p: any) =>
+            this.isIconicDestinationPage(p.caption || p.title || p.url, p.url),
+          );
+          if (photo) return photo.url;
+        }
+      } catch (err: any) {
+        this.logger.debug(
+          `[TourImageService] WikimediaPhotoProvider fallback error: ${err?.message}`,
+        );
+      }
+    }
+
+    return null;
+  }
+
+  private isIconicDestinationPage(title: string, url: string): boolean {
+    if (!this.isValidPhotoUrl(url)) return false;
+    const lowerTitle = (title || '').toLowerCase();
+    const lowerUrl = (url || '').toLowerCase();
+
+    // Reject sports stadiums, football fields, clubs, non-iconic facilities
+    const excludedTerms = [
+      'estadio',
+      'stadium',
+      'cancha',
+      'arena',
+      'club_atletico',
+      'club atlético',
+      'newell',
+      'bielsa',
+      'futbol',
+      'football',
+      'soccer',
+      'cementerio',
+      'cemetery',
+      'hospital',
+      'policia',
+      'comisaria',
+      'penal',
+      'carcel',
+      'subestacion',
+      'apeadero',
+    ];
+
+    for (const term of excludedTerms) {
+      if (lowerTitle.includes(term) || lowerUrl.includes(term)) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  private isValidPhotoUrl(url: string): boolean {
+    if (!url) return false;
+    const lower = url.toLowerCase();
+    return (
+      !lower.endsWith('.svg') &&
+      !lower.includes('.svg.') &&
+      !lower.includes('.svg.png') &&
+      !lower.includes('flag_of_') &&
+      !lower.includes('bandera_de_') &&
+      !lower.includes('escudo_de_') &&
+      !lower.includes('coat_of_arms') &&
+      !lower.includes('location_map') &&
+      !lower.includes('locator_map') &&
+      !lower.includes('/logo') &&
+      !lower.includes('_logo.')
+    );
   }
 
   private objectMetadata(value: unknown): Record<string, unknown> {

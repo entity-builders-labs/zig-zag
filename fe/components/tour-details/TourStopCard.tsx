@@ -12,6 +12,7 @@ import {
   ButtonText,
   Pressable,
 } from '@gluestack-ui/themed';
+import { useRouter } from 'expo-router';
 import { TourStopLocation } from './types';
 import { FONT_DISPLAY } from '@/constants/typography';
 
@@ -24,6 +25,7 @@ export const TourStopCard = ({
   isLast: boolean;
   stopNumber?: number;
 }) => {
+  const router = useRouter();
 
   return (
     <HStack testID={`location-stop-${data.id}`}>
@@ -60,7 +62,16 @@ export const TourStopCard = ({
 
       {/* Card Content */}
       <Box flex={1} pb='$4' pl='$2' pr='$2'>
-        <Pressable>
+        <Pressable
+          onPress={() => {
+            if (data.experienceId) {
+              router.push(`/experiences/${data.experienceId}`);
+            }
+          }}
+          disabled={!data.experienceId}
+          $active-opacity={0.8}
+          testID={`tour-stop-card-${data.id}`}
+        >
           <Box
             bg='$white'
             borderRadius='$2xl'

@@ -15,6 +15,7 @@ import {
 } from '@gluestack-ui/themed';
 import { useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   Footprints,
   Compass,
@@ -35,6 +36,7 @@ import { enablePushNotifications } from '@/features/notifications/push-notificat
 
 export default function ProfileScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { user, signOut } = useAuth();
   const [tours, setTours] = useState<Tour[]>([]);
   const [loading, setLoading] = useState(true);
@@ -109,7 +111,7 @@ export default function ProfileScreen() {
     <Box flex={1} bg='$backgroundLight100' alignItems='center'>
       <Box
         w='$full'
-        maxW={560}
+        maxWidth={560}
         flex={1}
         bg='$backgroundLight50'
         position='relative'
@@ -126,11 +128,13 @@ export default function ProfileScreen() {
         >
           {/* Profile Header */}
           <Box
-            p='$6'
+            px='$6'
+            pb='$6'
             bg='$white'
             borderBottomWidth={1}
             borderBottomColor='$borderLight100'
             alignItems='center'
+            style={{ paddingTop: insets.top + 24 }}
           >
             {/* Avatar with gradient & glow */}
             <Box

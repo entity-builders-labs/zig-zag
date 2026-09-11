@@ -31,6 +31,7 @@ import { TourStopCard } from '../../components/tour-details/TourStopCard';
 import { CompositeStopCard } from '../../components/tour-details/CompositeStopCard';
 import { DayHeader } from '../../components/tour-details/DayHeader';
 import { GenerationPipeline } from '../../components/tour-details/GenerationPipeline';
+import { ItinerarySkeleton } from '../../components/tour-details/ItinerarySkeleton';
 import {
   formatGenerationBitacora,
   GenerationBitacora,
@@ -210,6 +211,12 @@ export default function TourDetailScreen() {
         if (payload.status === 'generating' || payload.status === 'pending') {
           setIsGeneratingExperiences(true);
         }
+        if (payload.coverImage) {
+          setTour((prevTour) => {
+            if (!prevTour) return prevTour;
+            return { ...prevTour, coverImage: payload.coverImage };
+          });
+        }
         scheduleReconciliation(false);
       } else if (eventName === 'tour.completed') {
         setIsGeneratingExperiences(false);
@@ -348,7 +355,7 @@ export default function TourDetailScreen() {
       <Box flex={1} bg='$backgroundLight100' alignItems='center'>
         <Box
           w='$full'
-          maxW={560}
+          maxWidth={560}
           flex={1}
           bg='$backgroundLight50'
           position='relative'
@@ -462,7 +469,11 @@ export default function TourDetailScreen() {
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={{ paddingBottom: 110 }}
               >
-                <TourHeader tour={tour} expanded={false} />
+                <TourHeader
+                  tour={tour}
+                  expanded={false}
+                  isGenerating={isGeneratingExperiences}
+                />
 
                 <Box position='relative' zIndex={10}>
                   <QuickStatsBar tour={tour} />
@@ -517,6 +528,11 @@ export default function TourDetailScreen() {
                       borderRadius='$2xl'
                       borderWidth={1}
                       borderColor='$borderLight100'
+                      shadowColor='$black'
+                      shadowOffset={{ width: 0, height: 2 }}
+                      shadowOpacity={0.06}
+                      shadowRadius={8}
+                      elevation={2}
                     >
                       <Spinner size='large' color='$primary500' mb='$4' />
                       <Heading

@@ -67,6 +67,29 @@ export const Map: React.FC<MapProps> = ({
 
   const markers = propMarkers || [];
 
+  // Geographic coordinates key: only changes if markers/routes/polygons coordinates change,
+  // NOT when a marker is simply selected or clicked.
+  const markersGeoKey = markers
+    .map(
+      (m) =>
+        `${m.id}:${m.coordinate.latitude.toFixed(6)},${m.coordinate.longitude.toFixed(6)}`
+    )
+    .join(';');
+  const routesGeoKey = (routes || [])
+    .map((r) =>
+      r.coordinates
+        .map((c) => `${c.latitude.toFixed(6)},${c.longitude.toFixed(6)}`)
+        .join(',')
+    )
+    .join(';');
+  const polygonsGeoKey = (polygons || [])
+    .map((p) =>
+      p.coordinates
+        .map((c) => `${c.latitude.toFixed(6)},${c.longitude.toFixed(6)}`)
+        .join(',')
+    )
+    .join(';');
+
   // Frame every marker and route point instead of a fixed zoom level, which
   // ignored initialRegion's delta entirely and often left the map zoomed way
   // out (or in) relative to how spread out the actual points are.
@@ -140,9 +163,9 @@ export const Map: React.FC<MapProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     mapInstance,
-    JSON.stringify(markers),
-    JSON.stringify(routes),
-    JSON.stringify(polygons),
+    markersGeoKey,
+    routesGeoKey,
+    polygonsGeoKey,
   ]);
 
   // Polylines are managed imperatively against the map instance rather than
@@ -285,8 +308,8 @@ export const Map: React.FC<MapProps> = ({
     <View style={styles.container}>
       <GoogleMap
         mapContainerStyle={styles.map}
-        center={mapCenter}
-        zoom={15}
+        center={isStatic ? mapCenter : undefined}
+        zoom={isStatic ? 15 : undefined}
         onLoad={(map) => {
           mapRef.current = map;
           setMapInstance(map);

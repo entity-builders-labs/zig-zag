@@ -15,7 +15,7 @@ describe('AppleTokenService', () => {
   let service: AppleTokenService;
 
   const mockConfigService = {
-    get: jest.fn(() => ['apple-client-id']),
+    get: jest.fn<any, [string?]>((key?: string) => ['apple-client-id']),
   };
 
   beforeEach(async () => {
@@ -50,5 +50,48 @@ describe('AppleTokenService', () => {
     await expect(service.verify('bad-token')).rejects.toThrow(
       UnauthorizedException,
     );
+  });
+
+  it('accepts dev mock token in non-production environment', async () => {
+    const originalEnv = process.env.NODE_ENV;
+    process.env.NODE_ENV = 'development';
+    mockConfigService.get.mockImplementation((key: string) => {
+      if (key === 'nodeEnv') return 'development';
+      return ['apple-client-id'];
+    });
+
+    try {
+      const result = await service.verify(
+        'dev_mock_apple_:dev.apple.user@privaterelay.appleid.com:001234.dev_apple_sim_user',
+      );
+
+      expect(result).toEqual({
+        providerId: '001234.dev_apple_sim_user',
+        email: 'dev.apple.user@privaterelay.appleid.com',
+      });
+      // Should not call real appleSignin.verifyIdToken
+      expect(mockVerifyIdToken).not.toHaveBeenCalled();
+    } finally {
+      process.env.NODE_ENV = originalEnv;
+    }
+  });
+
+  it('rejects dev mock token in production environment', async () => {
+    const originalEnv = process.env.NODE_ENV;
+    process.env.NODE_ENV = 'production';
+    mockConfigService.get.mockImplementation((key: string) => {
+      if (key === 'nodeEnv') return 'production';
+      return ['apple-client-id'];
+    });
+
+    mockVerifyIdToken.mockRejectedValue(new Error('Invalid token'));
+
+    try {
+      await expect(
+        service.verify('dev_mock_apple_:user@example.com:sim-id'),
+      ).rejects.toThrow(UnauthorizedException);
+    } finally {
+      process.env.NODE_ENV = originalEnv;
+    }
   });
 });

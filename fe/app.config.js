@@ -17,7 +17,8 @@ module.exports = {
     },
   },
   ios: {
-    bundleIdentifier: 'com.entitiybuilders.zig-zag',
+    bundleIdentifier: 'com.javieriseruk.zigzag',
+    usesAppleSignIn: false,
     infoPlist: {
       NSLocationWhenInUseUsageDescription:
         'Usamos tu ubicación para mostrar actividades cercanas a vos.',
@@ -27,6 +28,6 @@ module.exports = {
     package: 'com.juanobrach.zigzag',
     permissions: ['ACCESS_COARSE_LOCATION', 'ACCESS_FINE_LOCATION'],
   },
-  plugins: ['expo-router'],
+  plugins: ['expo-router', 'expo-apple-authentication'],
   newArchEnabled: true,
 };

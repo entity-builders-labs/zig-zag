@@ -340,9 +340,13 @@ export function TourWizardMobilityStep({
                 minValue={1000}
                 maxValue={20000}
                 step={500}
+                size='md'
+                w='$full'
+                h='$8'
+                my='$1'
               >
-                <SliderTrack>
-                  <SliderFilledTrack bg='$primary500' />
+                <SliderTrack h='$2' bg='$backgroundLight200' borderRadius='$full'>
+                  <SliderFilledTrack h='$2' bg='$primary500' borderRadius='$full' />
                 </SliderTrack>
                 <SliderThumb
                   bg='$white'
@@ -367,9 +371,13 @@ export function TourWizardMobilityStep({
                 minValue={250}
                 maxValue={maxWalkingDistancePerDayMeters}
                 step={250}
+                size='md'
+                w='$full'
+                h='$8'
+                my='$1'
               >
-                <SliderTrack>
-                  <SliderFilledTrack bg='$primary500' />
+                <SliderTrack h='$2' bg='$backgroundLight200' borderRadius='$full'>
+                  <SliderFilledTrack h='$2' bg='$primary500' borderRadius='$full' />
                 </SliderTrack>
                 <SliderThumb
                   bg='$white'
@@ -407,9 +415,13 @@ export function TourWizardMobilityStep({
           minValue={0}
           maxValue={100}
           step={1}
+          size='md'
+          w='$full'
+          h='$8'
+          my='$1'
         >
-          <SliderTrack>
-            <SliderFilledTrack bg='$primary500' />
+          <SliderTrack h='$2' bg='$backgroundLight200' borderRadius='$full'>
+            <SliderFilledTrack h='$2' bg='$primary500' borderRadius='$full' />
           </SliderTrack>
           <SliderThumb
             bg='$white'

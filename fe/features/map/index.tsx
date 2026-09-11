@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { StyleSheet, View, Text } from 'react-native';
 import MapView, {
   Region,
@@ -23,7 +23,11 @@ export const Map: React.FC<MapProps> = ({
   routes,
   polygons,
   zoomable,
+  focusCoordinate,
+  onRegionChange,
 }) => {
+  const mapRef = useRef<MapView | null>(null);
+  const [isMapReady, setIsMapReady] = useState(false);
   const { center } = useMap();
   const { address } = useAddress();
   const { radiusMeters } = useSearchRadius();
@@ -40,11 +44,84 @@ export const Map: React.FC<MapProps> = ({
   const markers = propMarkers || [];
   const interactive = zoomable ?? !isStatic;
 
+  // Key based only on coordinates so selection changes don't re-trigger camera motion
+  const markersGeoKey = markers
+    .map(
+      (m) =>
+        `${m.coordinate.latitude.toFixed(5)},${m.coordinate.longitude.toFixed(5)}`
+    )
+    .join(';');
+
+  useEffect(() => {
+    if (!mapRef.current || !isMapReady) return;
+
+    if (focusCoordinate) {
+      mapRef.current.animateToRegion(
+        {
+          latitude: focusCoordinate.latitude,
+          longitude: focusCoordinate.longitude,
+          latitudeDelta: 0.04,
+          longitudeDelta: 0.04,
+        },
+        500
+      );
+      return;
+    }
+
+    if (markers.length === 1) {
+      const coord = markers[0].coordinate;
+      mapRef.current.animateToRegion(
+        {
+          latitude: coord.latitude,
+          longitude: coord.longitude,
+          latitudeDelta: 0.04,
+          longitudeDelta: 0.04,
+        },
+        500
+      );
+      return;
+    }
+
+    if (markers.length > 1) {
+      mapRef.current.fitToCoordinates(
+        markers.map((m) => m.coordinate),
+        {
+          edgePadding: { top: 60, right: 60, bottom: 60, left: 60 },
+          animated: true,
+        }
+      );
+      return;
+    }
+
+    if (center && (center.lat !== 0 || center.lng !== 0)) {
+      mapRef.current.animateToRegion(
+        {
+          latitude: center.lat,
+          longitude: center.lng,
+          latitudeDelta: 0.0922,
+          longitudeDelta: 0.0421,
+        },
+        500
+      );
+    }
+  }, [
+    isMapReady,
+    focusCoordinate?.latitude,
+    focusCoordinate?.longitude,
+    markersGeoKey,
+    center.lat,
+    center.lng,
+  ]);
+
   return (
     <View style={styles.container}>
       <MapView
+        ref={mapRef}
+        onMapReady={() => setIsMapReady(true)}
         style={styles.map}
-        region={region}
+        initialRegion={region}
+        region={isStatic ? region : undefined}
+        onRegionChangeComplete={onRegionChange}
         customMapStyle={ZIGZAG_WARM_MAP_STYLE}
         // Mostrar la ubicación real solo como referencia, pero marcamos el centro elegido
         showsUserLocation={false}
@@ -55,7 +132,7 @@ export const Map: React.FC<MapProps> = ({
         pitchEnabled={interactive}
         rotateEnabled={interactive}
       >
-        {!isStatic && (
+        {!isStatic && markers.length === 0 && !initialRegion && (
           <>
             {/* Pin del centro seleccionado (dirección o current location) */}
             <Marker
@@ -106,6 +183,9 @@ export const Map: React.FC<MapProps> = ({
               title={marker.title}
               description={marker.description}
               onPress={marker.onPress}
+              anchor={{ x: 0.5, y: 1.0 }}
+              tracksViewChanges={false}
+              zIndex={isSelected ? 99 : 1}
             >
               <View style={styles.customPinContainer}>
                 <View style={[styles.customPinBody, isSelected && styles.customPinBodySelected]}>
@@ -151,7 +231,8 @@ const styles = StyleSheet.create({
   },
   customPinBodySelected: {
     backgroundColor: '#0F172A',
-    transform: [{ scale: 1.15 }],
+    borderColor: '#FFFFFF',
+    borderWidth: 2.5,
   },
   customPinTriangle: {
     width: 0,
