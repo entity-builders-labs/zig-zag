@@ -10,17 +10,26 @@ Canonical design: `docs/superpowers/specs/2026-09-06-multi-source-acquisition-de
   F COMPLETE · G COMPLETE.**
   **Argentina Live Smoke H NOT STARTED · Phase 7 overall NOT CLOSED**
   (H is a separate session).
-- **2026-09-10 — preference-first refactor design exists; NOT yet started, phase
-  statuses unchanged here pending sign-off (design D4).** G.1 characterization
+- **2026-09-10/11 — preference-first refactor design in review (§11 D1–D4
+  RESOLVED, D5 open); implementation NOT yet started.** G.1 characterization
   (`docs/superpowers/characterization/2026-09-10-real-catalog-selection-semantics-characterization.md`)
   proved the live selection orchestration does not respect preferences; the
   refactor design
   (`docs/superpowers/specs/2026-09-10-preference-first-selection-and-agent-convergence-design.md`,
-  + BA probe `…/characterization/2026-09-10-preference-first-buenos-aires-dry-run.md`)
+  + two BA probes `…/characterization/2026-09-10-preference-first-buenos-aires-dry-run.md`)
   replaces catalog-first geo-pool + late re-scoring with preference-first
-  per-facet retrieval + semantic classification + set-cover composition, and
-  **proposes** redefining "Phase 7 CLOSED" as "preference-first core stable".
-  Do not close Phase 7 as-is before that design is resolved.
+  per-facet retrieval + semantic classification + set-cover composition.
+  **Per D4 (RESOLVED): "Phase 7 CLOSED" now means "preference-first core stable
+  + acceptance green"** — Checkpoints A–G's building blocks (acquisition
+  planner/service, corroboration, resolver, validation, dedupe, catalog) are
+  kept; the coverage/selection orchestration they currently wire into
+  (`CoverageAnalyzer`, ranking, `selectBoundedWindow`) is superseded. This is
+  **not** a new "Phase 8" — it is Phase 7's correction and completion.
+  Checkpoint statuses below (A–G COMPLETE, H NOT STARTED) are otherwise
+  unchanged; **Phase 7 remains NOT CLOSED** — closure happens per the design's
+  §7.5 sequencing (preference-first acceptance green → merge → Argentina live
+  smoke H → Integration Gate), not before. Do not close Phase 7 on the
+  pre-refactor orchestration.
   - G (engine-quality benchmark) is complete: `2026-09-10`, starting HEAD
     `9e27c12910c10935138a00aee25bb01b6c43b628`. Design + results:
     `docs/superpowers/plans/2026-09-10-engine-quality-benchmark.md`. A NEW

@@ -571,8 +571,10 @@ operational-stop placement · Tour materialization.
 > The agent/core split, the evidence discipline (§4.3), Web = two capabilities
 > (§4), the Experience-vs-Operational-Stop invariant (§7), and "no privileged
 > global score" are all preserved. The classification LLM never establishes
-> identity or geography (still §5a-deterministic). That design also proposes
-> redefining the Integration Gate prerequisite (§16) — read it before the Gate.
+> identity or geography (still §5a-deterministic). **RESOLVED 2026-09-11:** the
+> Integration Gate prerequisite (§16) "Phase 7 CLOSED" now means
+> "preference-first core stable + acceptance green" — read that design's §7.4
+> before executing Phase 7 closure or the Gate.
 
 The LLM may still produce narrative / presentation copy afterwards. It never
 repairs or overrides a deterministic feasibility decision (PR 10 invariant:

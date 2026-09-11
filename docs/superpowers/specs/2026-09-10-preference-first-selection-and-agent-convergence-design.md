@@ -580,10 +580,10 @@ constraints, exclusions from "we already saw X", and ambiguities). This avoids
 the "duplicated Experience-domain concepts in the agent branch" that the
 Integration Gate prerequisites (target-arch spec §16) explicitly forbid.
 
-### 7.4 Redefined Integration Gate prerequisite
-The convergence roadmap's Gate requires "Phase 7 CLOSED". Preference-first
-**is** "Phase 7's live orchestration, done right" — it rewrites the parts G.1
-proved broken. Therefore:
+### 7.4 Redefined Integration Gate prerequisite (§11 D4 — RESOLVED 2026-09-11)
+The convergence roadmap's Gate requires "Phase 7 CLOSED". Preference-first is
+**not** a new phase — it is the correction and completion of Phase 7's live
+orchestration, the part that was always still open (Checkpoint H). Therefore:
 
 > **The Gate prerequisite "Phase 7 CLOSED" is redefined to "preference-first
 > core stable + acceptance green".** Phase 7 A–G's building blocks
@@ -599,13 +599,20 @@ refactor lands. The Gate action (create `feat/unified-agentic-travel-planning`
 favor Experience-Domain-V2 contracts, delete the legacy `research_gap` path)
 is unchanged in spirit — it just gates on the refactored core.
 
-### 7.5 Sequencing
+### 7.5 Sequencing (§11 D4 — RESOLVED 2026-09-11)
 1. **Refactor** on a new branch off `feat/experience-domain-v2` (preference-first
    Stages 1–11 + the unified interpreter + adapter evidence fixes + the G.1
-   defect fixes that fall out for free).
-2. **Refactor acceptance green** (§9) → merge to `feat/experience-domain-v2`.
-   This is the redefined "Phase 7 CLOSED".
-3. **Argentina live smoke** (was "Phase 7 H") against the refactored core.
+   defect fixes that fall out for free) until **preference-first acceptance is
+   green** (§9/§12).
+2. **Merge to `feat/experience-domain-v2`.** At this point "Phase 7 CLOSED" =
+   "preference-first core stable + acceptance green" — Checkpoints A–G's kept
+   building blocks (acquisition planner/service, corroboration, resolver,
+   validation, dedupe, catalog) plus the now-superseded coverage/selection
+   orchestration (`CoverageAnalyzer`, `rankCandidatesByRelevance`,
+   `selectBoundedWindow`) replaced by the preference-first flow. Phase 7 is
+   **not** renamed or renumbered "Phase 8" — this merge *is* Phase 7's closure,
+   corrected and completed.
+3. **Argentina live smoke** (Checkpoint H) against the refactored core.
 4. **Integration Gate** → `feat/unified-agentic-travel-planning`.
 5. Post-Gate: agent NL front door, reasoned budgets, conversational replanning,
    then Activities / Events / Operational Stops per the existing post-convergence
@@ -826,9 +833,16 @@ the refactor branch merges.
   retrieval-scope bias and leave the walk Experience to a later increment?
   Recommended: acquire the walk Experience in v1 — otherwise `intent:walk` is
   chronically thin for point-POI cities (probe #2).
-- **D4 — Phase renumbering.** Adopt §7.4 (redefine "Phase 7 CLOSED" as
-  "preference-first core stable"), or keep Phase 7 numbering and call
-  preference-first "Phase 8"? Recommended: §7.4.
+- ~~**D4 — Phase renumbering.**~~ **RESOLVED 2026-09-11: adopt §7.4.**
+  Preference-first is **not** "Phase 8" — it is the correction and completion
+  of Phase 7's live orchestration. `Phase 7 CLOSED` = "preference-first core
+  stable + acceptance green". Checkpoints A–G's already-built building blocks
+  (acquisition planner/service, corroboration, resolver, validation, dedupe,
+  catalog) are kept; the old coverage/selection orchestration is superseded by
+  the preference-first flow. Sequencing (§7.5): (1) preference-first acceptance
+  green, (2) merge to `feat/experience-domain-v2` — this *is* Phase 7 CLOSED,
+  (3) Argentina live smoke (Checkpoint H), (4) Integration Gate →
+  `feat/unified-agentic-travel-planning`.
 
 ---
 
@@ -851,7 +865,8 @@ the refactor branch merges.
    component (§7.3).
 8. `yarn workspace backend check` shows no new tsc/lint errors vs the documented
    baseline.
-9. Argentina live smoke (ex-"Phase 7 H") green against the refactored core.
+9. Argentina live smoke (Phase 7 Checkpoint H — unchanged name, run against the
+   refactored core per D4/§7.5) green.
 10. **No bare `AREA` / `ROUTE` `GeoEntity` in a `CompositionResult`** — every
     selected item is an `Experience` with ≥1 resolved `ExperienceComponent`
     (probe #2 Finding D), proven by a test.

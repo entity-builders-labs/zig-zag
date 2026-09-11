@@ -16,13 +16,17 @@ the spec first.
 > — replaces the catalog-first geo pool + late re-scoring with **preference-first
 > per-facet retrieval + set-cover composition**, keeping every Phase 7 building
 > block (acquisition planner, executor, corroboration, resolver, validation,
-> dedupe, catalog). **Proposed (design §7.4, pending sign-off):** the Integration
-> Gate prerequisite "Phase 7 CLOSED" is redefined to **"preference-first core
-> stable + acceptance green"**, and the canonical API the agent consumes becomes
-> `PreferenceSpec` + per-facet tools + `unmetFacets`. `feat/agentic-travel-planning`
-> is unaffected in parallel; the `AgentPolicy` loop is refactor-independent (only
-> tool internals change). Read that design before executing Phase 7 closure or
-> the Gate.
+> dedupe, catalog). **RESOLVED 2026-09-11 (design §7.4/§11 D4):** preference-first
+> is not a new phase — it is the correction and completion of Phase 7's live
+> orchestration (the still-open Checkpoint H tail). The Integration Gate
+> prerequisite "Phase 7 CLOSED" is **"preference-first core stable + acceptance
+> green"**; the canonical API the agent consumes is `PreferenceSpec` + per-facet
+> tools + `unmetFacets`. Sequencing: (1) preference-first acceptance green,
+> (2) merge to `feat/experience-domain-v2` — this *is* Phase 7 CLOSED,
+> (3) Argentina live smoke (Checkpoint H) against the refactored core,
+> (4) Integration Gate. `feat/agentic-travel-planning` is unaffected in
+> parallel; the `AgentPolicy` loop is refactor-independent (only tool internals
+> change). Read that design before executing Phase 7 closure or the Gate.
 
 > **Docs-only.** This roadmap does not start Phase 6 or Phase 7, does not merge
 > branches, does not change schemas or the agent or acquisition, and does not
