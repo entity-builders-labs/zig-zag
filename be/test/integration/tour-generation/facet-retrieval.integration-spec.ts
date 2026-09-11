@@ -5,11 +5,18 @@ import { getPrisma, resetDb, closeDb } from '../support/test-db';
 import { seedVerifiedExperience } from '../support/seed';
 
 /**
- * Task A6 integration coverage: FacetRetrievalService against real Postgres,
- * proving it reuses ExperienceCatalogService's canonical geography/hydration
- * boundary and does not lose a relevant row to arbitrary truncation.
+ * Task A6 (facet strong/weak/satisfied semantics) + Task A6.1 (PostGIS
+ * geography boundary review fix) integration coverage.
+ *
+ * The scale regressions that prove the old `FACET_RETRIEVAL_LIMIT = 2000` /
+ * bounded-global-scan boundary is gone live in
+ * `catalog-retrieval.integration-spec.ts`, directly against
+ * `ExperienceCatalogService.findVerifiedWithinForMatching` -- this file
+ * focuses on facet-matching-specific behavior (strong/weak/satisfied,
+ * embedding non-authority) wired through the real
+ * `ExperienceCatalogService` + real Postgres/PostGIS.
  */
-describe('tour-generation integration · facet retrieval (Task A6)', () => {
+describe('tour-generation integration · facet retrieval (Task A6 / A6.1)', () => {
   let catalog: ExperienceCatalogService;
   let service: FacetRetrievalService;
 
@@ -38,53 +45,6 @@ describe('tour-generation integration · facet retrieval (Task A6)', () => {
   afterAll(async () => {
     await closeDb();
   });
-
-  it('does not lose a relevant strong match among 500+ seeded Experiences to arbitrary truncation', async () => {
-    const prisma = await getPrisma();
-
-    // 500 unrelated, lower-quality filler rows clustered within ~30m of
-    // the center -- all strictly closer than the real target below, so a
-    // naive "closest N" truncation would push the target out of a small
-    // window.
-    const fillerBatchSize = 25;
-    for (let batchStart = 0; batchStart < 500; batchStart += fillerBatchSize) {
-      await Promise.all(
-        Array.from(
-          { length: Math.min(fillerBatchSize, 500 - batchStart) },
-          (_, offset) => {
-            const i = batchStart + offset;
-            return seedVerifiedExperience(prisma, {
-              canonicalName: `Filler Nightlife Spot ${i}`,
-              latitude: CENTER.latitude + (((i * 37) % 200) - 100) * 0.0000015,
-              longitude:
-                CENTER.longitude + (((i * 53) % 200) - 100) * 0.0000015,
-              themes: ['nightlife'],
-              qualityScore: 2.0,
-            });
-          },
-        ),
-      );
-    }
-
-    // The one real, relevant Experience -- placed ~2 km from center (still
-    // well within the 5 km query radius) so it ranks LAST by distance
-    // among the 501 seeded rows.
-    const strongHistoryId = await seedVerifiedExperience(prisma, {
-      canonicalName: 'Cabildo de Buenos Aires',
-      latitude: CENTER.latitude + 0.018,
-      longitude: CENTER.longitude,
-      themes: ['history'],
-      qualityScore: 4.5,
-    });
-
-    const result = await service.retrieveFacetCandidates(HISTORY_FACET, {
-      ...CENTER,
-      radiusMeters: 5000,
-    });
-
-    expect(result.strongMatches).toContain(strongHistoryId);
-    expect(result.satisfied).toBe(true);
-  }, 60000);
 
   it('marks a facet satisfied when a single strong match exists', async () => {
     const prisma = await getPrisma();
@@ -125,7 +85,7 @@ describe('tour-generation integration · facet retrieval (Task A6)', () => {
     expect(result.satisfied).toBe(false);
   });
 
-  it('never treats a bare/no-component row as a strong match, even when it thematically matches', async () => {
+  it('never returns a bare/no-component Experience at all (Task A6.1 -- the PostGIS boundary requires a real component)', async () => {
     const prisma = await getPrisma();
     const bare = await prisma.experience.create({
       data: {
@@ -143,10 +103,51 @@ describe('tour-generation integration · facet retrieval (Task A6)', () => {
       radiusMeters: 5000,
     });
 
+    // Under A6's old Experience.latitude/longitude-authoritative boundary
+    // this thematically-matching bare row would have landed in weakMatches.
+    // Under A6.1's component-grounded PostGIS boundary it is never even
+    // returned by the geography query, so it cannot be strong OR weak.
     expect(result.strongMatches).not.toContain(bare.id);
-    // Still relevant for ranking/enrichment per spec §6.1 -- a real
-    // thematic match with no resolved geography lands in weak, not strong,
-    // and not excluded entirely.
-    expect(result.weakMatches).toContain(bare.id);
+    expect(result.weakMatches).not.toContain(bare.id);
+  });
+
+  it('never lets a non-matching candidate into history strong/weak coverage, no matter how high a diagnostic/mock semantic similarity it carries', async () => {
+    const prisma = await getPrisma();
+    // A real, in-scope, high-quality, component-grounded Experience -- but
+    // themed "tango", not "history". Carries a diagnostic field shaped like
+    // a future embedding-based semanticSimilarity score of 0.99 (spec/plan:
+    // "an Experience with no history facet remains non-matching even if a
+    // later embedding similarity would be very high"). A6/A6.1 never
+    // generate or consult embeddings for coverage -- this proves nothing
+    // resembling that signal can smuggle a non-matching row into coverage.
+    const tangoId = await seedVerifiedExperience(prisma, {
+      canonicalName: 'Tango Show Venue',
+      latitude: CENTER.latitude,
+      longitude: CENTER.longitude,
+      themes: ['tango'],
+      qualityScore: 4.9,
+    });
+    await prisma.experience.update({
+      where: { id: tangoId },
+      data: {
+        metadata: {
+          source: 'seed',
+          themes: ['tango'],
+          traits: [],
+          intents: [],
+          // Diagnostic-only mock field; must never be read by matching.
+          semanticSimilarity: 0.99,
+        },
+      },
+    });
+
+    const result = await service.retrieveFacetCandidates(HISTORY_FACET, {
+      ...CENTER,
+      radiusMeters: 5000,
+    });
+
+    expect(result.strongMatches).not.toContain(tangoId);
+    expect(result.weakMatches).not.toContain(tangoId);
+    expect(result.satisfied).toBe(false);
   });
 });

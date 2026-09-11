@@ -56,7 +56,10 @@ services:
   postgres:
     profiles:
       - dev
-    image: pgvector/pgvector:pg15
+    build:
+      context: .
+      dockerfile: postgres.Dockerfile
+    image: zigzag-postgres-pgvector-postgis:pg15
     container_name: zigzag-postgres
     ports:
       - '5432:5432'

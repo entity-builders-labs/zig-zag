@@ -27,7 +27,7 @@ function row(overrides: Record<string, any> = {}) {
 describe('FacetRetrievalService', () => {
   function makeService(rows: any[]) {
     const catalog = {
-      findVerifiedWithin: jest.fn(async () => rows),
+      findVerifiedWithinForMatching: jest.fn(async () => rows),
     } as any;
     return { service: new FacetRetrievalService(catalog), catalog };
   }
@@ -73,18 +73,20 @@ describe('FacetRetrievalService', () => {
     expect(result.satisfied).toBe(false);
   });
 
-  it('requests a generously large limit from the canonical catalog boundary so a relevant row is never lost to truncation', async () => {
+  it('retrieves from the canonical PostGIS-backed catalog boundary with no result-limit argument at all', async () => {
     const { service, catalog } = makeService([]);
 
     await service.retrieveFacetCandidates(facet(), SCOPE);
 
-    expect(catalog.findVerifiedWithin).toHaveBeenCalledTimes(1);
-    const [lat, lng, radius, limit] = catalog.findVerifiedWithin.mock.calls[0];
-    expect(lat).toBe(SCOPE.latitude);
-    expect(lng).toBe(SCOPE.longitude);
-    expect(radius).toBe(SCOPE.radiusMeters);
-    expect(typeof limit).toBe('number');
-    expect(limit).toBeGreaterThanOrEqual(2000);
+    expect(catalog.findVerifiedWithinForMatching).toHaveBeenCalledTimes(1);
+    expect(catalog.findVerifiedWithinForMatching).toHaveBeenCalledWith(
+      SCOPE.latitude,
+      SCOPE.longitude,
+      SCOPE.radiusMeters,
+    );
+    // Task A6.1: no FACET_RETRIEVAL_LIMIT / no fourth (limit) argument --
+    // findVerifiedWithinForMatching itself has no correctness-visible cap.
+    expect(catalog.findVerifiedWithinForMatching.mock.calls[0]).toHaveLength(3);
   });
 
   it('passes an optional strong-match policy through to strength evaluation', async () => {

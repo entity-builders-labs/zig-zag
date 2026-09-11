@@ -40,6 +40,14 @@ import {
 const GEO_ENTITY_RECONCILIATION_RADIUS_METERS =
   REAL_WORLD_RECONCILIATION_RADIUS_METERS;
 
+/**
+ * Internal hydration page size for `findVerifiedWithinForMatching` (Task
+ * A6.1). This is a batching/performance detail only, never a
+ * correctness-visible cap: every in-scope id PostGIS returns is hydrated
+ * across however many batches it takes, in its original distance/id order.
+ */
+const HYDRATION_BATCH_SIZE = 500;
+
 export interface GeoEntityInput {
   name: string;
   kind: GeoEntityKind;
@@ -242,6 +250,100 @@ export class ExperienceCatalogService {
         void distanceSquared;
         return experience;
       });
+  }
+
+  /**
+   * Canonical geospatial catalog boundary for preference-first per-facet
+   * retrieval (Task A6.1 — `docs/superpowers/specs/2026-09-11-postgis-geospatial-catalog-boundary.md`).
+   *
+   * Unlike `findVerifiedWithin` (a bounded JS/Prisma scan-then-filter that a
+   * pre-semantic result cap can silently truncate before facet matching ever
+   * runs), this method resolves geographic scope entirely in PostgreSQL via
+   * PostGIS: it joins `experience` → `experience_component` → `geo_entity`,
+   * keeps only VERIFIED Experiences with at least one resolved component
+   * whose GeoEntity coordinates are finite and within real-world range
+   * (matching the A5 validity contract — `BETWEEN -90 AND 90` /
+   * `BETWEEN -180 AND 180` also structurally excludes NaN/Infinity, which
+   * never satisfy a Postgres `BETWEEN`), and whose nearest component lies
+   * within `radiusMeters` (`ST_DWithin`, using `geography` so the radius is
+   * real meters, not degrees). Distance for ordering is the *minimum*
+   * component distance to the query center (`MIN(...) ... GROUP BY e.id`),
+   * so a multi-component Experience is in scope if *any* component is in
+   * radius. There is no `LIMIT`/`take` of any kind on the in-scope result
+   * set — the only bound left is an internal hydration batch size, which
+   * does not drop or reorder any in-scope row.
+   *
+   * A bare Experience with no resolved component is never returned here —
+   * the inner joins require a real `ExperienceComponent` row, so top-level
+   * `Experience.latitude`/`longitude` never substitutes as a membership
+   * predicate for this boundary (per the addendum's §3).
+   *
+   * Coordinates/radius are always passed as tagged-template parameters
+   * (never string-concatenated) so Prisma binds them safely.
+   */
+  async findVerifiedWithinForMatching(
+    latitude: number,
+    longitude: number,
+    radiusMeters: number,
+  ) {
+    const scoped = await this.prisma.$queryRaw<
+      Array<{ id: string; distance_meters: number }>
+    >`
+      SELECT
+        e.id AS id,
+        MIN(
+          ST_Distance(
+            ST_SetSRID(ST_MakePoint(g.longitude, g.latitude), 4326)::geography,
+            ST_SetSRID(ST_MakePoint(${longitude}::float8, ${latitude}::float8), 4326)::geography
+          )
+        ) AS distance_meters
+      FROM "experience" e
+      JOIN "experience_component" ec ON ec."experienceId" = e.id
+      JOIN "geo_entity" g ON g.id = ec."geoEntityId"
+      WHERE e.status = 'VERIFIED'
+        AND g.latitude IS NOT NULL
+        AND g.longitude IS NOT NULL
+        AND g.latitude BETWEEN -90 AND 90
+        AND g.longitude BETWEEN -180 AND 180
+        AND ST_DWithin(
+          ST_SetSRID(ST_MakePoint(g.longitude, g.latitude), 4326)::geography,
+          ST_SetSRID(ST_MakePoint(${longitude}::float8, ${latitude}::float8), 4326)::geography,
+          ${radiusMeters}::float8
+        )
+      GROUP BY e.id
+      ORDER BY distance_meters ASC, e.id ASC
+    `;
+
+    if (scoped.length === 0) {
+      return [];
+    }
+
+    const orderedIds = scoped.map((row) => row.id);
+
+    // Hydrate in bounded internal batches (a performance/parameter-count
+    // concern only) while preserving every in-scope id and PostGIS's own
+    // distance-then-id order across the whole result set — this is not a
+    // correctness-visible truncation, unlike the old `take:N` boundary.
+    const hydratedById = new Map<
+      string,
+      ReturnType<ExperienceCatalogService['projectVerifiedExperienceRow']>
+    >();
+    for (
+      let start = 0;
+      start < orderedIds.length;
+      start += HYDRATION_BATCH_SIZE
+    ) {
+      const batch = await this.findVerifiedByIds(
+        orderedIds.slice(start, start + HYDRATION_BATCH_SIZE),
+      );
+      for (const row of batch) {
+        hydratedById.set(row.id, row);
+      }
+    }
+
+    return orderedIds
+      .map((id) => hydratedById.get(id))
+      .filter((row): row is NonNullable<typeof row> => !!row);
   }
 
   /**

@@ -1,3 +1,4 @@
+import { randomUUID } from 'crypto';
 import { PrismaService } from 'src/core/database/prisma.service';
 
 /** A "known" opening-hours block that is open every minute of every weekday. */
@@ -12,6 +13,13 @@ export const ALWAYS_OPEN = {
 };
 
 export interface SeedExperienceInput {
+  /**
+   * Explicit id override (default: Prisma's `@default(uuid())`). Used by
+   * scale-regression tests that need deterministic control over
+   * `ORDER BY ... id ASC` / a global `id`-ordered scan boundary, e.g.
+   * forcing a target row to sort after every random-UUID filler row.
+   */
+  id?: string;
   canonicalName: string;
   description?: string;
   themes?: string[];
@@ -57,6 +65,7 @@ export async function seedVerifiedExperience(
   });
   const experience = await prisma.experience.create({
     data: {
+      id: input.id,
       canonicalName: input.canonicalName,
       description: input.description,
       status: input.status ?? 'VERIFIED',
@@ -175,4 +184,85 @@ export async function seedTour(
     },
   });
   return tour.id;
+}
+
+export interface BulkSeedFillerInput {
+  count: number;
+  /** Center used to compute each filler's jittered/scattered coordinates. */
+  latitude: number;
+  longitude: number;
+  /**
+   * When set, each filler is scattered uniformly within +/- this many
+   * degrees of the center (used for "unrelated rows, some outside the
+   * query radius" scale regressions). When omitted, fillers are placed in
+   * a tight, deterministic jitter (~tens of meters) around the center so
+   * they are all closer than a real target placed farther away.
+   */
+  scatterDegrees?: number;
+  themes?: string[];
+  qualityScore?: number;
+}
+
+/**
+ * Bulk-seeds `count` VERIFIED, single-component filler Experiences via a
+ * few parameterized `INSERT ... SELECT ... FROM unnest(...)` statements
+ * instead of `count` serial round trips -- needed for the A6.1 scale
+ * regression tests (2000+ rows) to run in reasonable time. IDs are
+ * generated in JS and correlated by array position across the two inserts,
+ * so no data-modifying-CTE row-correlation trickery is needed.
+ */
+export async function bulkSeedFillerExperiences(
+  prisma: PrismaService,
+  input: BulkSeedFillerInput,
+): Promise<void> {
+  const { count, latitude, longitude, scatterDegrees } = input;
+  if (count <= 0) return;
+
+  const metadata = JSON.stringify({
+    source: 'seed',
+    themes: input.themes ?? ['nightlife'],
+    traits: [],
+    intents: [],
+  });
+  const qualityScore = input.qualityScore ?? 2.0;
+
+  const geoIds: string[] = [];
+  const expIds: string[] = [];
+  const lats: number[] = [];
+  const lngs: number[] = [];
+
+  for (let i = 0; i < count; i++) {
+    geoIds.push(randomUUID());
+    expIds.push(randomUUID());
+    if (scatterDegrees) {
+      lats.push(latitude + (Math.random() * 2 - 1) * scatterDegrees);
+      lngs.push(longitude + (Math.random() * 2 - 1) * scatterDegrees);
+    } else {
+      // Deterministic, tight (~tens of meters) jitter -- distinct
+      // coordinates without a DB round trip per row, and strictly closer
+      // to the center than a real target placed further away on purpose.
+      const latOffset = ((i * 37) % 200) - 100;
+      const lngOffset = ((i * 53) % 200) - 100;
+      lats.push(latitude + latOffset * 0.0000015);
+      lngs.push(longitude + lngOffset * 0.0000015);
+    }
+  }
+
+  await prisma.$executeRaw`
+    INSERT INTO "geo_entity" (id, name, kind, latitude, longitude, "createdAt", "updatedAt")
+    SELECT g.id, 'Filler GeoEntity', 'PLACE'::"GeoEntityKind", g.lat, g.lng, now(), now()
+    FROM unnest(${geoIds}::text[], ${lats}::float8[], ${lngs}::float8[]) AS g(id, lat, lng)
+  `;
+
+  await prisma.$executeRaw`
+    INSERT INTO "experience" (id, "canonicalName", status, "qualityScore", "durationMinutes", metadata, "createdAt", "updatedAt")
+    SELECT e.id, 'Filler Experience', 'VERIFIED'::"ExperienceStatus", ${qualityScore}::float8, 90, ${metadata}::jsonb, now(), now()
+    FROM unnest(${expIds}::text[]) AS e(id)
+  `;
+
+  await prisma.$executeRaw`
+    INSERT INTO "experience_component" (id, "experienceId", "geoEntityId", "order", role, required)
+    SELECT gen_random_uuid()::text, pair.eid, pair.gid, 0, 'venue', true
+    FROM unnest(${expIds}::text[], ${geoIds}::text[]) AS pair(eid, gid)
+  `;
 }

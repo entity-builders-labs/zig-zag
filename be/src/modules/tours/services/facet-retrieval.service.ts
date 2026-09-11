@@ -1,14 +1,21 @@
 /**
- * Per-facet catalog retrieval (spec §6, plan Task A6).
+ * Per-facet catalog retrieval (spec §6, plan Task A6; geography boundary
+ * hardened by Task A6.1 --
+ * docs/superpowers/specs/2026-09-11-postgis-geospatial-catalog-boundary.md).
  *
  * Retrieves verified canonical Experiences within a geographic scope and
  * classifies each as a strong match, a weak match, or unrelated to the
- * given facet -- reusing `ExperienceCatalogService`'s canonical geography/
- * hydration boundary rather than a second, arbitrary Prisma bounding-box
- * query. `findVerifiedWithin` already preserves deterministic order,
- * component + trait hydration and true radius filtering; this service only
- * asks it for a large enough `limit` that its own post-radius-filter
- * truncation cannot silently drop a relevant row.
+ * given facet -- reusing `ExperienceCatalogService.findVerifiedWithinForMatching`,
+ * the canonical PostGIS-backed geography/hydration boundary, rather than a
+ * second, arbitrary Prisma bounding-box query.
+ *
+ * A6 originally called `findVerifiedWithin(..., FACET_RETRIEVAL_LIMIT)`
+ * with a generously large constant (2000). That only moved the failure
+ * threshold: `findVerifiedWithin` performs a bounded JS/Prisma scan-then-
+ * filter that can still truncate a relevant row before semantic matching
+ * ever sees it. `findVerifiedWithinForMatching` resolves geographic scope
+ * entirely in PostgreSQL/PostGIS with no correctness-visible result cap, so
+ * there is no longer a limit constant to pass here at all.
  */
 import { Injectable } from '@nestjs/common';
 import { ExperienceCatalogService } from './experience-catalog.service';
@@ -29,16 +36,6 @@ export interface FacetRetrievalScope {
   longitude: number;
   radiusMeters: number;
 }
-
-/**
- * Passed as `findVerifiedWithin`'s `limit`. Generously larger than any
- * realistic per-request candidate count (spec/plan's own worked examples
- * top out around 20 for a 5-day trip; this covers a destination catalog
- * of hundreds to low thousands of rows) so a relevant row is never lost to
- * the top-N-closest truncation `findVerifiedWithin` applies after its own
- * radius filter.
- */
-const FACET_RETRIEVAL_LIMIT = 2000;
 
 interface ScoredRow {
   id: string;
@@ -63,11 +60,10 @@ export class FacetRetrievalService {
     scope: FacetRetrievalScope,
     policy: StrongMatchPolicy = {},
   ): Promise<FacetCandidates> {
-    const rows = await this.catalog.findVerifiedWithin(
+    const rows = await this.catalog.findVerifiedWithinForMatching(
       scope.latitude,
       scope.longitude,
       scope.radiusMeters,
-      FACET_RETRIEVAL_LIMIT,
     );
 
     const preferenceFacet = requestedFacetToPreferenceFacet(facet);
