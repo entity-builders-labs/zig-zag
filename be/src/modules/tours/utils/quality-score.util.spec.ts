@@ -1,4 +1,5 @@
 import { computeQualityScore, QualityScoreInput } from './quality-score.util';
+import { DEFAULT_QUALITY_FLOOR } from './preference-strong-match.util';
 
 describe('quality-score.util', () => {
   describe('computeQualityScore', () => {
@@ -86,12 +87,12 @@ describe('quality-score.util', () => {
     });
 
     describe('component-derived quality (multi-component Experience, no direct rating)', () => {
-      it('a walk with no direct rating but several high-quality grounded components clears a typical 3.0 quality floor', () => {
+      it('a walk with no direct rating but several high-quality grounded components clears the quality floor', () => {
         const result = computeQualityScore({
           componentQualityScores: [4.5, 4.7, 4.2],
         });
         expect(result).not.toBeNull();
-        expect(result as number).toBeGreaterThanOrEqual(3.0);
+        expect(result as number).toBeGreaterThanOrEqual(DEFAULT_QUALITY_FLOOR);
         expect(result).toBeCloseTo(4.467, 2);
       });
 
@@ -119,6 +120,56 @@ describe('quality-score.util', () => {
         });
         expect(result).not.toBeNull();
       });
+
+      it('direct componentQualityScores take precedence over componentNotabilitySignals -- notability never double-counts alongside valid direct scores', () => {
+        const directOnly = computeQualityScore({
+          componentQualityScores: [3.2, 3.2],
+        });
+        const directPlusNotability = computeQualityScore({
+          componentQualityScores: [3.2, 3.2],
+          // Low notability signals that would previously drag the mixed
+          // average down below the quality floor if double-counted.
+          componentNotabilitySignals: [0, 0],
+        });
+
+        expect(directOnly).not.toBeNull();
+        expect(directPlusNotability).not.toBeNull();
+        expect(directPlusNotability).toBeCloseTo(directOnly as number, 5);
+        expect(directOnly as number).toBeGreaterThanOrEqual(
+          DEFAULT_QUALITY_FLOOR,
+        );
+        expect(directPlusNotability as number).toBeGreaterThanOrEqual(
+          DEFAULT_QUALITY_FLOOR,
+        );
+      });
+
+      it('componentNotabilitySignals remains a real fallback when there is no valid direct component quality at all', () => {
+        const result = computeQualityScore({
+          componentQualityScores: [null, null],
+          componentNotabilitySignals: [50, 80],
+        });
+        expect(result).not.toBeNull();
+      });
+
+      it('malformed direct component scores do not block a valid notability fallback', () => {
+        const result = computeQualityScore({
+          componentQualityScores: ['bad', null] as any,
+          componentNotabilitySignals: [50, 80],
+        });
+        expect(result).not.toBeNull();
+      });
+
+      it('valid direct componentQualityScores take precedence even when componentNotabilitySignals would score higher -- notability neither boosts nor penalizes valid direct quality', () => {
+        const direct = computeQualityScore({
+          componentQualityScores: [3.4, 3.6],
+        });
+        const combinedInput = computeQualityScore({
+          componentQualityScores: [3.4, 3.6],
+          componentNotabilitySignals: [300, 300],
+        });
+
+        expect(combinedInput).toBe(direct);
+      });
     });
 
     describe('Geoapify-shaped input (rating/review count genuinely unavailable, not zero)', () => {
@@ -141,7 +192,7 @@ describe('quality-score.util', () => {
           componentQualityScores: [4.8, 4.6],
         });
         expect(result).not.toBeNull();
-        expect(result as number).toBeGreaterThanOrEqual(3.0);
+        expect(result as number).toBeGreaterThanOrEqual(DEFAULT_QUALITY_FLOOR);
       });
 
       it('returns null (never a penalty or a synthetic default) when there is no other usable grounded evidence', () => {

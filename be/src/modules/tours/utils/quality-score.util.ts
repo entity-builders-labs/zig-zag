@@ -16,6 +16,13 @@
  *   popularity fact" / a quality penalty.
  * - No source is individually mandatory; a missing signal must never erase
  *   a valid signal from another source (each contributes independently).
+ *   The one deliberate exception is within component-derived quality
+ *   itself: `componentNotabilitySignals` is documented as an ALTERNATIVE
+ *   representation of component quality, not a second independent stream,
+ *   so it is only ever consulted as a fallback when there is no valid
+ *   `componentQualityScores` entry at all -- mixing both together would
+ *   double-count evidence about the same components (see
+ *   `computeComponentDerivedQuality`).
  * - A multi-component Experience must never receive a flat/magic route
  *   score -- its quality tracks its actual resolved-component evidence.
  * - Zero usable grounded signals anywhere -> `null` (unknown), never a
@@ -148,25 +155,39 @@ function computeWikidataComponent(input: QualityScoreInput): number | null {
   return notabilityCountToQuality(input.wikidataSitelinkCount);
 }
 
+function mean(values: number[]): number {
+  return values.reduce((sum, value) => sum + value, 0) / values.length;
+}
+
 /**
  * Component-derived quality for a multi-component Experience with no
- * direct rating of its own. Combines whichever of `componentQualityScores`
- * (direct per-component quality) and `componentNotabilitySignals`
- * (per-component notability counts, mapped through the same notability
- * band as the standalone Wikidata signal) are present into one robust mean
- * -- never a flat magic route score. Malformed/non-numeric entries are
- * silently dropped, never thrown on and never coerced.
+ * direct rating of its own. `componentQualityScores` (direct per-component
+ * quality) is the PRIMARY representation; `componentNotabilitySignals` is
+ * documented as an ALTERNATIVE to it, not a second independent stream --
+ * so it is only ever consulted as a fallback, when there is no valid
+ * direct component quality at all. Mixing both together would double-count
+ * evidence about the same components and could pull an otherwise-valid
+ * direct-quality bundle back down (e.g. weak/absent notability entries
+ * dragging a genuinely strong direct-quality average below the quality
+ * floor) -- so once at least one valid direct score exists, notability
+ * signals contribute nothing, neither boosting nor penalizing the result.
+ * Malformed/non-numeric entries in either array are silently dropped,
+ * never thrown on and never coerced.
  */
 function computeComponentDerivedQuality(
   input: QualityScoreInput,
 ): number | null {
-  const fromScores = (
+  const directScores = (
     Array.isArray(input.componentQualityScores)
       ? input.componentQualityScores
       : []
   ).filter(isValidRating);
 
-  const fromNotability = (
+  if (directScores.length > 0) {
+    return mean(directScores);
+  }
+
+  const notabilityScores = (
     Array.isArray(input.componentNotabilitySignals)
       ? input.componentNotabilitySignals
       : []
@@ -174,10 +195,11 @@ function computeComponentDerivedQuality(
     .filter(isValidNonNegativeNumber)
     .map(notabilityCountToQuality);
 
-  const all = [...fromScores, ...fromNotability];
-  if (all.length === 0) return null;
+  if (notabilityScores.length > 0) {
+    return mean(notabilityScores);
+  }
 
-  return all.reduce((sum, value) => sum + value, 0) / all.length;
+  return null;
 }
 
 /**
