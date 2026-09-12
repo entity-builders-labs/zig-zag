@@ -1583,3 +1583,163 @@ Three issues in `computeExplicitEvidenceSignal()`'s normalization of
 
 ### Next task
 `B1 — Preserve adapter evidence` (blocked until A7, as hardened by this fix, is explicitly reviewed/approved, per the execution gate above)
+
+---
+
+## Checkpoint B — Task B1 — COMPLETE
+
+- Branch: `feat/preference-first-selection`
+- Base commit: `0d9d4e795d2d1605c30e28c2156a604ba9d1005a`
+- Implementation commit: `e0fbb6ec10c6e702b278b19f7a18db513d6db2b2`
+- Plan task: `B1 — Preserve adapter evidence`
+- Status: COMPLETE
+
+### Implemented
+Investigated all three adapters before changing anything and found the
+same pattern each time: a field was either already computed/available
+and silently dropped before reaching `SourceObservation`, or declared on
+a type but never actually requested from the provider. No new
+invariant was added or changed — the generic operational
+food/nightlife-venue admission rule in `GooglePlacesAcquisitionProvider`
+is untouched.
+
+- **OSM** (`osm-acquisition.provider.ts`): `OsmCandidate.narrativeContext`
+  already existed on the type (documented as populated "when the
+  candidate carries a `wikidata` tag and Wikidata content passes a
+  content-safety check" — that population path does not exist anywhere
+  in the codebase yet, confirmed by a repo-wide grep; out of scope for
+  B1, which is about not dropping evidence, not building new provider
+  wiring), but the acquisition provider's metadata block never forwarded
+  it even when present. Added
+  `narrativeContext: candidate.narrativeContext || undefined`. Full OSM
+  tags were already preserved via the existing `osmTags: candidate.tags`
+  — confirmed, no change needed.
+- **Wikivoyage** (`wikivoyage-acquisition.provider.ts`):
+  `entry.sectionType` and `entry.templateName` were already computed and
+  used internally to build `evidenceKey`/`evidenceType`, but discarded
+  before reaching the returned `SourceObservation`. Added
+  `metadata: { sectionType, templateName }`.
+- **Google Places** — three related fixes:
+  1. `places-api.interface.ts`: added `editorialSummary` and
+     `primaryTypeDisplayName` (`{text, languageCode?}`, matching
+     `displayName`'s existing shape) to `PlaceData`.
+  2. `google-places-api.service.ts`: `getFieldMask()` was missing
+     `places.websiteUri` entirely — `mapResponse()` already tried to map
+     `p.websiteUri`, so it was silently always `undefined` from
+     `searchNearby`/`searchText` (only the separate `getPlaceDetails`
+     call ever actually requested it). Added `places.websiteUri`,
+     `places.editorialSummary`, `places.primaryTypeDisplayName` to the
+     field mask, and mapped the latter two in `mapResponse()`.
+  3. `google-places-acquisition.provider.ts`: added `websiteUri`,
+     `priceLevel`, `businessStatus` (already on `PlaceData`, never
+     forwarded to the observation) plus `editorialSummary`/
+     `primaryTypeDisplayName` (flattened to `.text`, same convention as
+     `title` deriving from `displayName.text`) to the observation's
+     metadata. `rating`/`userRatingCount`/`types` were already preserved.
+  - Geoapify (`geoapify-places-api.service.ts`, the alternative
+    `IPlacesApiService` implementation) was deliberately **not** touched:
+    B1 names Google Places specifically, and Geoapify's current minimal
+    property parsing has no equivalent source data for the new fields —
+    they honestly stay `undefined` for that provider (never fabricated)
+    rather than inventing a Geoapify-side mapping nobody asked for.
+
+### Files changed
+- `be/src/modules/integrations/google-places/interfaces/places-api.interface.ts`
+- `be/src/modules/integrations/google-places/services/google-places-api.service.ts`
+- `be/src/modules/integrations/google-places/services/google-places-api.service.spec.ts`
+- `be/src/modules/tours/providers/google-places-acquisition.provider.ts`
+- `be/src/modules/tours/providers/google-places-acquisition.provider.spec.ts`
+- `be/src/modules/tours/providers/osm-acquisition.provider.ts`
+- `be/src/modules/tours/providers/osm-acquisition.provider.spec.ts`
+- `be/src/modules/tours/providers/wikivoyage-acquisition.provider.ts`
+- `be/src/modules/tours/providers/wikivoyage-acquisition.provider.spec.ts`
+
+### Verification
+- RED check: ran all 4 spec files before implementing → all failed for
+  the expected reasons: Wikivoyage's two pre-existing full-object
+  `toEqual` fixtures missing the new `metadata` key; the new dedicated
+  Wikivoyage/OSM tests asserting `metadata` fields that didn't exist yet
+  (`received: undefined`); Google Places API service test asserting a
+  field mask/mapped fields that weren't there; the Google Places
+  acquisition provider spec **failed to compile** (`TS2353: Object
+  literal may only specify known properties, and 'editorialSummary' does
+  not exist in type 'PlaceData'`) until the interface fields were added.
+  Implemented the fix, reran → all green.
+- `cd be && yarn test <the 4 spec files>` → PASS — **52/52** (existing
+  tests updated in place to include the newly-preserved fields, plus one
+  new dedicated test per adapter/field-group):
+  - OSM: a candidate carrying `narrativeContext` has it appear in the
+    observation's `metadata.narrativeContext`; the pre-existing
+    exact-`metadata` test (candidate with no `narrativeContext`) stays
+    green unmodified since Jest's `toEqual` treats an `undefined`-valued
+    key as equivalent to absent.
+  - Wikivoyage: both pre-existing full-`toEqual` fixtures (SEE/DO
+    entries) now include the exact expected `metadata: {sectionType,
+    templateName}`; one new dedicated test confirms this independent of
+    those broader fixtures.
+  - Google Places API service: a new test confirms the field mask sent
+    to Google contains `places.websiteUri`/`places.editorialSummary`/
+    `places.primaryTypeDisplayName`, and that a mock response containing
+    those three fields maps them onto the returned `PlaceData` correctly.
+  - Google Places acquisition provider: a new test confirms
+    `websiteUri`/`priceLevel`/`businessStatus`/`editorialSummary`/
+    `primaryTypeDisplayName` all reach the observation's metadata
+    (with the latter two flattened to `.text`); the pre-existing
+    `Object.keys(obs.metadata).sort()` exact-key-list regression test
+    (which explicitly proves "only factual metadata is carried through,
+    no semantic/preference fields leak in") was updated to include the 5
+    new keys, since `Object.keys()` — unlike `toEqual` — lists a key even
+    when its value is `undefined`.
+- `cd be && yarn typecheck` → PASS — no errors.
+- `cd be && npx eslint <all 9 files>` → PASS — 0 problems, no `--fix`
+  needed.
+- `cd be && yarn test src/modules/tours src/modules/integrations` → PASS
+  — 108 test suites / 1004 tests, no regressions.
+- `cd be && yarn test:integration` (full suite, real Postgres) → PASS —
+  12 test suites / 26 tests, unchanged, no regressions.
+
+### Deviations from plan
+- None. All three adapters' required fields are preserved exactly as
+  the plan names them (OSM `narrativeContext` + full tags; Wikivoyage
+  `sectionType` + `templateName`; Google Places
+  `editorialSummary`/`websiteUri`/`priceLevel`/`businessStatus`/
+  rating-count/types/`primaryTypeDisplayName`).
+
+### Decisions taken
+- Fixed the Google Places field-mask omission for `websiteUri` (it was
+  being "mapped" in code but never actually requested from the API, so
+  the mapping was dead code for `searchNearby`/`searchText`) as part of
+  this task rather than treating it as a separate issue — B1 explicitly
+  requires "preserve websiteUri", and preservation is meaningless if the
+  field is never fetched in the first place. This is a direct
+  consequence of the task's own stated goal, not a scope expansion.
+- Did not implement the OSM `narrativeContext` Wikidata-content-safety
+  population pipeline described in that field's own doc comment (a
+  `wikidata`-tag lookup + `filterSafeWikidataExtracts` content-safety
+  check, which exists as a utility but is wired into nothing). B1's
+  literal scope is "preserve ... as structured metadata when present" —
+  preserving a field through a mapping boundary is a different, much
+  smaller task than building the (currently entirely unbuilt) provider
+  pipeline that would populate it. Building that pipeline was not asked
+  for and would be a real architectural addition (a new Wikidata
+  dependency injected into `OsmPlacesService`, an async `toCandidate`,
+  batched content-safety calls) — flagged here rather than done
+  unilaterally.
+- Left Geoapify's `IPlacesApiService` implementation untouched (see
+  Implemented section) since B1 names Google Places specifically and
+  Geoapify has no equivalent source data for the new fields today.
+
+### Open issues / debt
+- `OsmCandidate.narrativeContext` remains structurally unpopulated by
+  any real code path (see Decisions above) — this is pre-existing debt
+  from an earlier, unrelated "Fase 3" plan, not introduced or worsened by
+  B1. The acquisition-provider-level preservation added here means that
+  whenever that pipeline is eventually built, its output will correctly
+  flow through to `SourceObservation` without a second fix.
+- Same worktree note: no concurrent commits landed on this branch while
+  this task was in progress (checked via `git log
+  <base>..fork/feat/preference-first-selection` immediately before
+  committing and again before pushing — both empty).
+
+### Next task
+`B2 — Evidence-only classifier + trait guard`
