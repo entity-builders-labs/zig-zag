@@ -3,6 +3,11 @@
 The current codebase is the source of truth. Read the relevant module README
 and inspect the implementation before proposing or applying changes.
 
+These instructions apply to every AI coding/design agent working in the repo,
+including Codex, Claude, and Antigravity. Antigravity is currently used often
+for visual/frontend work, but the frontend conventions below are shared rules,
+not tool-specific preferences.
+
 Before changing any of the following areas, read
 `docs/architecture/activity-discovery-and-tour-generation.md` completely:
 
@@ -20,6 +25,34 @@ that every component shown there is already implemented. Confirm implementation
 status in the repository and preserve the boundaries between Destination
 Resolution, Activity Discovery, Entity Resolution, Validation, and Tour
 Generation.
+
+## Frontend responsive layout convention
+
+Zig-Zag targets web, iOS, and Android from the same frontend. Preserve a
+consistent application canvas when navigating between screens.
+
+- Top-level application screens fill the available viewport: screen roots use
+  full width and `flex: 1` (or the equivalent for that surface).
+- Do not constrain an entire screen with `maxWidth`, a fixed desktop width, or
+  a centered phone-sized shell. Navigation between screens must not make the
+  whole application jump between full-width and a narrow centered column.
+- Responsive width constraints belong inside the screen, around content that
+  benefits from a readable maximum width (for example forms, long text,
+  settings panels, or dense detail sections), not around the screen root.
+- Map and other immersive surfaces normally use the full available width.
+- A full-width screen does not mean every child should stretch indefinitely on
+  desktop. Constrain individual content sections responsively where that
+  improves readability while keeping the screen/app shell itself full-width.
+- When changing a shared screen, consider web, iOS, and Android behavior. Do
+  not fix one platform by reintroducing a root-level width constraint that
+  makes another platform or web navigation visually inconsistent.
+
+In short:
+
+```text
+screen / app shell = full viewport
+content sections    = may use responsive max-width where appropriate
+```
 
 <!-- CODEGRAPH_START -->
 ## CodeGraph
