@@ -425,7 +425,31 @@ Future upstream evidence may represent neighborhood institutions, traditional
 markets, local cultural practices, community venues, “popular with locals” or
 similar grounded facts.
 
-### A7.6 Unknown semantics and sanitization
+### A7.6 Phase-7 population expectation and future agentic boundary
+
+For the current Phase-7 implementation, `prominence` is expected to be the only
+exploration signal commonly computable from existing catalog/source metadata.
+`tourismIntensity` and `localCharacter` are intentionally forward-compatible
+plumbing for the later agentic/research stage and may legitimately remain
+`value:null` for most Experiences for now.
+
+**A7 is complete even if current real catalog data can populate only
+`prominence`.** A7 does not own discovery of evidence for the other two signals
+and MUST NOT invent proxy heuristics merely to make them non-null.
+
+Later agentic/research work may gather grounded claims such as “popular with
+locals”, “traditional neighborhood institution”, “major tourist hotspot” or
+structured tourism-density evidence, normalize those claims into the explicit
+input arrays above, and then reuse A7's deterministic aggregation semantics.
+
+Keep the request side separate from Experience truth: user free text such as
+“quiero turismo local”, “joyas escondidas” or “fuera del circuito turístico” may
+express a ranking/research preference for high local character, low tourism
+intensity and/or low prominence, but it is **not evidence that any particular
+Experience has those properties**. User preference may guide later research;
+only grounded source evidence may populate the Experience-side signals.
+
+### A7.7 Unknown semantics and sanitization
 
 `value:null` means insufficient grounded evidence. `value:0` means actual
 grounded support for the low endpoint. Confidence for an unknown signal may be
@@ -435,7 +459,7 @@ Sanitize `NaN`, infinities, negative counts and out-of-range strengths
 deterministically. Known values and confidence must remain within `0..1`.
 Malformed metadata degrades to ignored/unknown rather than inventing a score.
 
-### A7.7 Exploration-style ranking projection
+### A7.8 Exploration-style ranking projection
 
 Also expose a pure canonical projection, conceptually:
 
@@ -463,7 +487,7 @@ Semantics:
 Keep weights as named deterministic constants. A7 defines this primitive but
 **does not wire it into composition yet**; C1/C2 consume it later.
 
-### A7.8 Architectural boundary
+### A7.9 Architectural boundary
 
 A7 has:
 - no provider calls;
@@ -477,7 +501,7 @@ A7 has:
 
 It is ranking context only.
 
-### A7.9 Required tests
+### A7.10 Required tests
 
 At minimum prove:
 - many reviews > few reviews for prominence, all else equal;
@@ -494,6 +518,10 @@ At minimum prove:
   `value:null`;
 - explicit grounded local evidence produces a deterministic known value and
   retains provenance;
+- A7 remains complete/valid when current metadata populates prominence while
+  tourismIntensity and localCharacter stay unknown;
+- user free text/preferences alone never populate Experience-side localCharacter
+  or tourismIntensity evidence;
 - `iconic`: higher known prominence gives higher tilt;
 - `iconic`: unknown prominence is neutral;
 - `local_deep_dive`: grounded localCharacter gives positive tilt;
@@ -1517,7 +1545,10 @@ The implementation is complete when all of the following are true:
 14. `ExplorationSignals` keeps prominence, tourismIntensity and localCharacter
     independent and evidence-backed; unknown is distinct from zero; low
     prominence never becomes localCharacter; `computeExplorationTilt` is
-    ranking-only and balanced is neutral.
+    ranking-only and balanced is neutral. A7 may complete with only prominence
+    commonly populated in Phase 7; tourismIntensity/localCharacter may remain
+    unknown until later agentic/research evidence is normalized, and user
+    preferences alone never become Experience-side evidence.
 15. `semanticSimilarity` is embedding-backed fine ranking from at most one
     request/query embedding against compatible persisted Experience vectors;
     missing/stale/incompatible vectors degrade neutrally, no per-candidate inline
