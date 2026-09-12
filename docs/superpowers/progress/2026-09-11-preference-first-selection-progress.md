@@ -1044,3 +1044,142 @@ arbitrary truncation before semantic matching. See
 
 ### Next task
 `A7 — Iconicity util` (blocked until this A6.1 review-fix is explicitly approved)
+
+---
+
+## Checkpoint A — Task A6.1 review hardening — COMPLETE
+
+- Branch: `feat/preference-first-selection`
+- Base commit: `513d523dd418446a5a10d95609c366ae3293c1d4`
+- A6.1 implementation (base for this fix): `dc951aa36a8f03c800c2a092d3555fc4b525acb7`
+- Review-fix implementation commit: `e2fca1e92b43fe530728e3f70f93018ccbb9ae7e`
+- Plan task: mini review-fix on A6.1 (two ordering/test details; PostGIS
+  architecture itself already accepted)
+- Status: COMPLETE
+
+### Implemented
+
+**1. Quality ordering fix** — `be/src/modules/tours/services/facet-retrieval.service.ts`
+
+`byStrengthThenId`'s old check (`typeof qualityScore === 'number'`) let
+`NaN`/`Infinity`/`-Infinity`/out-of-scale values (negative, or `>5`) win
+strong/weak bucket ordering over a real, valid score. Added a small local
+pure helper:
+
+```ts
+function qualityForOrdering(value: unknown): number {
+  return typeof value === 'number' &&
+    Number.isFinite(value) &&
+    value >= 0 &&
+    value <= 5
+    ? value
+    : -Infinity;
+}
+```
+
+mirroring A5's own quality-validity contract in
+`preference-strong-match.util.ts` **without touching that file** (per
+explicit instruction) -- this is a separate, intentionally-duplicated
+ordering-only check, not a shared export. Only ordering changed; strong
+vs. weak classification is untouched.
+
+**2. Nearest-component ordering test** — `be/test/integration/tour-generation/catalog-retrieval.integration-spec.ts`
+
+The old test only asserted `toContain(multiId)` -- membership, not the
+`MIN(component distance)` half of the contract. Discovered while
+verifying (see below) that the original scenario (one component 55 km
+outside the radius, one ~111 m inside) couldn't actually distinguish MIN
+from MAX: the query's own `WHERE ST_DWithin(...)` clause filters
+individual (experience, component) rows before any aggregate runs, so the
+far outside-radius component never survives to the `MIN`/`MAX` aggregate
+in the first place -- only one row (the near one) ever reaches it,
+making `MIN` and `MAX` identical for that shape. Redesigned so **both**
+components of the multi-component Experience are inside the radius, at
+two different distances (~111 m and ~1002 m), plus a comparison
+Experience at ~501 m (strictly between them). The test now asserts the
+exact relative order `[multiId, comparisonId]`, which is only correct
+under a genuine `MIN` contract.
+
+### Files changed
+- `be/src/modules/tours/services/facet-retrieval.service.ts`
+- `be/src/modules/tours/services/facet-retrieval.service.spec.ts`
+- `be/test/integration/tour-generation/catalog-retrieval.integration-spec.ts`
+
+### Verification
+- RED check (quality ordering): added the new
+  `weakMatches[0] === 'weak-valid'` assertion, ran it against the
+  pre-fix `byStrengthThenId` → FAIL — `Expected: "weak-valid", Received:
+  "weak-infinity"` (i.e. `Infinity` incorrectly won the ordering).
+  Implemented the fix, reran → PASS.
+- RED check (nearest-component ordering), two rounds:
+  - Round 1 (original one-component-outside-radius scenario): patched
+    `MIN(` → `MAX(` in a scratch copy of
+    `experience-catalog.service.ts` and reran the (still old,
+    membership-only) test → **still PASSED**, proving that scenario
+    could not actually distinguish MIN from MAX (the far component never
+    survives the row-level `WHERE ST_DWithin` filter, so only one row
+    ever reaches the aggregate). This is why the test was redesigned
+    rather than merely re-asserted.
+  - Round 2 (redesigned, both-components-in-radius scenario): reran
+    against the real `MIN`-based implementation → PASS; patched `MIN(` →
+    `MAX(` again in a scratch copy → **FAILED** as expected (`Expected:
+    [multiId, comparisonId]`, `Received: [comparisonId, multiId]`),
+    confirming the redesigned test genuinely exercises the MIN contract.
+    Restored the real implementation from a clean backup before
+    committing either time.
+- `cd be && yarn test src/modules/tours/services/facet-retrieval.service.spec.ts`
+  → PASS — 7/7 (6 pre-existing unit semantics + 1 new quality-ordering
+  hardening test).
+- `cd be && yarn test:integration --testPathPattern=catalog-retrieval` →
+  PASS — 8/8 (7 pre-existing + the redesigned nearest-component-ordering
+  test, same count since it was strengthened in place, not duplicated).
+- `cd be && yarn typecheck` → PASS — no errors.
+- `cd be && npx eslint` on the 3 files changed → PASS — 0 problems (1
+  prettier-only formatting error surfaced on first run, fixed with
+  `--fix`, re-verified tests/typecheck stayed green).
+- `cd be && yarn test src/modules/tours` → PASS — 83 test suites / 754
+  tests (up from 753 -- the one new unit test).
+- `cd be && yarn test:integration` (full suite) → PASS — 12 test suites /
+  26 tests (unchanged count from before this fix -- one existing
+  integration test strengthened in place, no new file added).
+
+### Deviations from plan
+- None from the requested scope. The nearest-component test scenario
+  itself was redesigned (not just its assertion) because the originally
+  planned scenario, verified in-session, could not actually distinguish
+  MIN from MAX -- documented above and in the implementation commit
+  message rather than silently substituted.
+
+### Decisions taken
+- Implemented `qualityForOrdering` as a small, local, intentionally
+  duplicated pure function in `facet-retrieval.service.ts` rather than
+  extracting/exporting a shared helper from A5's
+  `preference-strong-match.util.ts`, per the explicit "No cambies A5"
+  instruction. The numeric contract (finite, `0..5`) is identical by
+  design/comment cross-reference, but the two files remain independently
+  owned.
+
+### Confirmations requested
+- **Quality corrupta no gana ordering**: confirmed by the
+  RED-then-GREEN cycle above -- `Infinity`/`NaN`/`5.1`/`-1`-shaped values
+  can no longer outrank a real `4.0`; they fall back to a stable id
+  tie-break amongst themselves, and a real valid score always sorts
+  first.
+- **Nearest-component ordering probado explícitamente**: confirmed --
+  the test now asserts the exact relative order of two Experiences whose
+  correct relative position depends specifically on `MIN` (not `MAX`,
+  not "primary component only") being used for the multi-component
+  Experience's distance; verified to fail when that contract is broken.
+- **A7 NO comenzó**: no `iconicity` file/code/tests exist on this
+  branch; only the 3 files above were touched by this fix.
+
+### Open issues / debt
+- Unchanged from A6.1's own entry: `FacetRetrievalService`/
+  `findVerifiedWithinForMatching` are still not wired into any live
+  orchestration path (Checkpoint D); A6/A6.1 (as now further hardened by
+  this fix) still await explicit review approval before A7 may begin.
+- Same worktree pre-existing unrelated dirty files remain untouched,
+  unchanged since the A6.1 note.
+
+### Next task
+`A7 — Iconicity util` (blocked until A6/A6.1, as hardened by this fix, is explicitly approved)
