@@ -1229,3 +1229,203 @@ B1    ⛔ blocked until A7 review approval
 
 ### Next task
 `A7 — Evidence-Backed Exploration Signals`
+
+---
+
+## Checkpoint A — Task A7 — COMPLETE
+
+- Branch: `feat/preference-first-selection`
+- Base commit: `e75924db1ba77af4039cb845dc73a0b33b01d72b`
+- Implementation commit: `d3f7a119a631cd31e74f370b211d3cad8368fb6e`
+- Plan task: `A7 — Evidence-Backed Exploration Signals` (redefinition of the
+  original `A7 — Iconicity util`; no `computeIconicity` code was ever
+  written -- the design correction landed before implementation started)
+- Status: COMPLETE
+
+### Implemented
+Added `be/src/modules/tours/utils/exploration-signals.util.ts`, a pure
+utility with **zero imports** (no Prisma, no LLM, no embeddings, no
+provider calls -- verified structurally, see Verification):
+
+- `ExplorationSignals { prominence, tourismIntensity, localCharacter }`,
+  each an `EvidenceBackedExplorationSignal { value: number|null,
+  confidence, evidence: ExplorationSignalEvidence[], reasonCodes:
+  string[] }`. `value: null` means insufficient grounded evidence and is
+  never coerced to `0`.
+- `computeExplorationSignals(input: ExplorationSignalInput):
+  ExplorationSignals`:
+  - **prominence** combines, via named-constant weights
+    (`REVIEW_COUNT_WEIGHT=0.5`, `SITELINK_WEIGHT=0.3`,
+    `WIKIPEDIA_PRESENT_BONUS=0.1`, `WIKIVOYAGE_LISTED_BONUS=0.1`,
+    `HERITAGE_OR_LANDMARK_BONUS=0.05`) and saturating log-normalization
+    (`logSaturating`, caps `REVIEW_COUNT_SATURATION_CAP=500_000` /
+    `SITELINK_SATURATION_CAP=300`): Places review count, Wikidata
+    sitelink count, Wikipedia presence, Wikivoyage listing, heritage/
+    landmark. A 50→100-review delta moves meaningfully more than a
+    50,000→50,100 delta (same log curve, different region); heritage
+    alone cannot force a near-1 score (`HERITAGE_OR_LANDMARK_BONUS` is
+    the smallest weight); zero valid sources → `value: null`; corrupt
+    inputs (`NaN`/`Infinity`/negative) are rejected by
+    `isValidNonNegativeCount` and treated as "no evidence for that
+    source", never as an invalid/out-of-range score.
+  - **tourismIntensity** / **localCharacter** consume ONLY
+    `explicitTourismIntensityEvidence` / `explicitLocalCharacterEvidence`
+    -- arrays of `{strength, evidenceKey, source}` -- via the shared
+    `computeExplicitEvidenceSignal` helper. Never derived from
+    prominence, review count, or obscurity. Per the Phase-7 population
+    boundary (plan A7.6, confirmed by the user as intentional
+    forward-compatible plumbing for the later agentic/research stage):
+    these two legitimately stay `value: null` for most Experiences right
+    now; this task does not own discovery of that evidence and does not
+    invent a proxy to populate it.
+  - `ExplorationSignalInput` has no field for traveler free text/
+    preferences at all -- only grounded Experience-side facts can ever
+    reach these signals.
+- `computeExplorationTilt(style, signals): ExplorationTilt` -- a
+  separate pure ranking-only projection (not wired into composition yet;
+  plan says C1/C2 consume it later):
+  - `'iconic'`: known prominence contributes positively
+    (`ICONIC_PROMINENCE_TILT_WEIGHT=1.0`); unknown prominence is exactly
+    neutral (`score: 0`);
+  - `'local_deep_dive'`: known `localCharacter` contributes positively
+    (`LOCAL_DEEP_DIVE_LOCAL_CHARACTER_TILT_WEIGHT=1.0`), known
+    `tourismIntensity` penalizes/moderates
+    (`LOCAL_DEEP_DIVE_TOURISM_INTENSITY_PENALTY_WEIGHT=0.5`, negative
+    contribution); **prominence never contributes here directly** (never
+    `1 - prominence`) -- low or unknown prominence alone gives no bonus;
+  - `'balanced'`: exact neutral tilt (`score: 0`, `contributions: []`).
+- Every branch (known/unknown for each signal, and each `explorationStyle`)
+  carries a named `reasonCode` string constant for future Bitácora/trace
+  explainability, matching this codebase's existing "human-readable
+  reason, not a bare magic value" convention.
+
+### Files changed
+- `be/src/modules/tours/utils/exploration-signals.util.ts` (new)
+- `be/src/modules/tours/utils/exploration-signals.util.spec.ts` (new)
+
+### Verification
+- RED check: ran the new spec before creating
+  `exploration-signals.util.ts` → FAIL as expected —
+  `TS2307: Cannot find module './exploration-signals.util'`, 0 tests
+  executed. (One follow-up typing fix was needed after the implementation
+  existed: the spec's own `signalsWith` test fixture needed an explicit
+  `EvidenceBackedExplorationSignal` annotation to avoid `TS7018` implicit-
+  any errors -- not a RED-cycle issue with the implementation itself.)
+- `cd be && yarn test src/modules/tours/utils/exploration-signals.util.spec.ts`
+  → PASS — 20/20, covering the full A7.10 required-test list:
+  - prominence: more reviews > fewer reviews; 50,000→50,100 moves less
+    than 50→100 (saturation); more Wikidata sitelinks increases
+    prominence; Wikipedia/Wikivoyage/heritage each independently raise
+    the score and heritage alone stays `< 0.5`; no evidence at all →
+    `value: null` with `reasonCodes` containing
+    `'no_prominence_evidence'`; `NaN`/`Infinity`/negative counts sanitize
+    to `value: null` with a still-finite, in-range `confidence`.
+  - tourismIntensity: high prominence alone does not populate it
+    (`value: null`, `'no_explicit_tourism_intensity_evidence'`); explicit
+    evidence produces a deterministic known value with exact provenance
+    (`evidence` array matches `{source, key, value}` exactly) and is
+    reproducible byte-for-byte across two calls with the same input.
+  - localCharacter: an obscure/low-review candidate with no explicit
+    evidence → `value: null`; explicit evidence produces a deterministic
+    known value with exact provenance.
+  - Phase-7 boundary: only-prominence-populated input is valid/complete
+    (`tourismIntensity`/`localCharacter` stay `null`); an input object
+    with a "smuggled" `additionalPreferences`/`explorationStyle`-shaped
+    extra property (simulating a mistaken attempt to feed traveler free
+    text into Experience-side evidence) produces a byte-for-byte
+    identical result to the same input without those extra properties.
+  - tilt: `iconic` higher known prominence → higher score; `iconic`
+    unknown prominence → `score === 0` exactly; `local_deep_dive` known
+    `localCharacter` → positive score; `local_deep_dive` known high
+    `tourismIntensity` → strictly lower score than without it;
+    `local_deep_dive` low OR unknown prominence alone → `score === 0` in
+    both cases; `balanced` → `score === 0` regardless of how extreme the
+    input signals are.
+  - determinism: identical input → deep-equal `computeExplorationSignals`
+    result.
+  - architectural boundary: the module source file has **zero** lines
+    matching `^\s*import\s` -- the strongest available proof of "no
+    provider/Prisma/LLM/embedding dependency" (a regex over doc-comment
+    prose was tried first and rejected as a false-positive risk, since
+    this file's own comments legitimately say "no embeddings" in
+    English); also asserts the module's exports have no `matches` or
+    `satisfied` property.
+- `cd be && yarn typecheck` (`tsc --noEmit`) → PASS — no errors.
+- `cd be && npx eslint <the 2 new files>` → PASS — 0 problems (13
+  prettier/`no-require-imports` errors found on first run -- the test
+  file originally used inline `require('./exploration-signals.util')` /
+  `require('fs')` / `require('path')` for the architectural-boundary
+  test, which ESLint's `@typescript-eslint/no-require-imports` rejects;
+  replaced with top-of-file `import * as ...` statements instead, then
+  the remaining prettier-only errors were fixed with `--fix`; re-verified
+  tests/typecheck stayed green after both rounds).
+- `cd be && yarn test src/modules/tours` → PASS — 84 test suites / 774
+  tests (up from 83 suites / 754 tests before this task).
+- `cd be && yarn test:integration` (full suite) → PASS — 12 test suites /
+  26 tests, **unchanged** from before this task -- A7 is a pure utility
+  with no database/provider surface, so it needed no integration
+  coverage, consistent with plan A7.9's architectural boundary.
+
+### Deviations from plan
+- None. All A7.10 required test scenarios are covered, and the
+  implementation follows the corrected A7 design (Evidence-Backed
+  Exploration Signals) that replaced the original iconicity-scalar
+  wording before any code existed -- there was no legacy iconicity
+  implementation to migrate away from.
+
+### Decisions taken
+- Confirmed with the user (before starting implementation) that
+  `explicitTourismIntensityEvidence`/`explicitLocalCharacterEvidence`
+  being essentially always-empty in the current Phase-7 system (no
+  upstream source populates them yet) is intentional forward-compatible
+  plumbing for the later agentic/research stage, not a design gap A7
+  itself needs to close. Implemented exactly to that understanding: A7
+  performs no discovery of that evidence and returns `value: null`
+  whenever it is absent, per plan A7.6's explicit acceptance criterion.
+- Chose `REVIEW_COUNT_SATURATION_CAP = 500_000` (rather than, e.g.,
+  `50_000`) specifically so the "50,000 vs 50,100 moves little" required
+  test case sits meaningfully below full saturation (both values compute
+  to distinct, non-1.0 scores under the log curve) rather than both
+  trivially clamping to `1` -- a cap equal to the example count itself
+  would have made the test pass for the wrong reason (total saturation
+  rather than a genuinely gentle high-end slope).
+- Picked simple, clearly-named deterministic formulas for `confidence`
+  (source-count / total-possible-sources for prominence; valid-entry-
+  count / 3, capped at 1, for the two explicit-evidence signals) since
+  the plan specifies the general `confidence: number` contract and
+  "deterministic" requirement but not an exact formula; documented the
+  reasoning inline so a later task can adjust the constant without
+  reverse-engineering intent.
+- Included an explicit `reasonCode` entry in `ExplorationTilt.contributions`
+  even for the "unknown → neutral" cases (rather than omitting them from
+  the array), matching this codebase's broader Bitácora/trace philosophy
+  of explaining *why* a decision was neutral, not just leaving it absent.
+  This is a forward-looking choice for when C1/C2 eventually surface this
+  data in trace/Bitácora; it does not change any test-observable score.
+
+### Open issues / debt
+- `computeExplorationTilt` is defined but **not wired into composition**
+  yet, per plan A7.8 ("A7 defines this primitive but does not wire it
+  into composition yet; C1/C2 consume it later") -- this is expected,
+  not a gap.
+- `tourismIntensity`/`localCharacter` remain structurally unused in
+  practice until a later agentic/research task normalizes real evidence
+  into `explicitTourismIntensityEvidence`/`explicitLocalCharacterEvidence`
+  -- tracked as intentional forward-compatible plumbing, not A7 debt.
+- Same worktree note: this task ran concurrently with another
+  session/agent actively committing and editing unrelated frontend files
+  on this same branch (`fe/app.config.js`, `fe/app/(tabs)/map.tsx`,
+  `fe/app/tours/wizard.tsx`, `fe/components/tours/TourWizardForm.tsx`,
+  `fe/features/map/index.tsx`, `fe/features/search-by-address-input.tsx`,
+  `fe/utils/location.ts`). None of these were touched, committed, or
+  inspected further by this task -- only the 2 files listed above were
+  staged. One already-local, not-yet-pushed commit from that concurrent
+  work (`9bf3b9e feat(mobile): add multi-platform build targets, auth
+  audiences, and responsive UI`) was present in this branch's history
+  before this task began and was carried through untouched via `git
+  merge` (not rebase); it is now part of the pushed history as a
+  side effect of this task's own push, not authored or altered by this
+  task.
+
+### Next task
+`B1 — Preserve adapter evidence` (blocked until A7 is explicitly reviewed/approved, per the execution gate above)
