@@ -357,20 +357,8 @@ export default function TourDetailScreen() {
     <>
       <Stack.Screen options={{ headerShown: false }} />
 
-      <Box flex={1} bg='$backgroundLight100' alignItems='center'>
-        <Box
-          w='$full'
-          maxWidth={560}
-          flex={1}
-          bg='$backgroundLight50'
-          position='relative'
-          shadowColor='$black'
-          shadowOffset={{ width: 0, height: 4 }}
-          shadowOpacity={0.06}
-          shadowRadius={16}
-          elevation={4}
-        >
-          {/* Sticky Top Header with Safe Area, Back Button & Segmented Control */}
+      <Box flex={1} bg='$backgroundLight50'>
+        {/* Sticky Top Header with Safe Area, Back Button & Segmented Control */}
           <Box
             pt={Math.max(insets.top, 12)}
             pb='$2.5'
@@ -700,7 +688,6 @@ export default function TourDetailScreen() {
               </Box>
             </>
           )}
-        </Box>
       </Box>
     </>
   );

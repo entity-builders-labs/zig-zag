@@ -1,4 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
+import { ScrollView } from 'react-native';
 import {
   Box,
   VStack,
@@ -12,7 +13,6 @@ import {
   Pressable,
   Button,
   ButtonText,
-  ScrollView,
 } from '@gluestack-ui/themed';
 import { MapPin, Sparkles, Clock, Footprints, ArrowRight, Compass } from 'lucide-react-native';
 import { Link, useRouter } from 'expo-router';
@@ -287,21 +287,9 @@ export default function SavedScreen() {
   }
 
   return (
-    <Box flex={1} bg='$backgroundLight100' alignItems='center'>
+    <Box flex={1} bg='$backgroundLight50'>
+      {/* Header Bar */}
       <Box
-        w='$full'
-        maxWidth={560}
-        flex={1}
-        bg='$backgroundLight50'
-        position='relative'
-        shadowColor='$black'
-        shadowOffset={{ width: 0, height: 4 }}
-        shadowOpacity={0.06}
-        shadowRadius={16}
-        elevation={4}
-      >
-        {/* Header Bar */}
-        <Box
           px='$5'
           pb='$3'
           bg='$white'
@@ -416,9 +404,10 @@ export default function SavedScreen() {
           </Center>
         ) : (
           <ScrollView
-            flex={1}
+            style={{ flex: 1 }}
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ padding: 16, paddingBottom: 40 }}
+            alwaysBounceVertical={true}
+            contentContainerStyle={{ padding: 16, paddingBottom: insets.bottom + 110 }}
           >
             <VStack space='lg'>
               {filteredTours.map((tour) => (
@@ -428,6 +417,5 @@ export default function SavedScreen() {
           </ScrollView>
         )}
       </Box>
-    </Box>
   );
 }

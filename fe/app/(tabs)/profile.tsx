@@ -1,4 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
+import { ScrollView } from 'react-native';
 import {
   Box,
   VStack,
@@ -9,7 +10,6 @@ import {
   Pressable,
   Button,
   ButtonText,
-  ScrollView,
   Center,
   Spinner,
 } from '@gluestack-ui/themed';
@@ -108,38 +108,27 @@ export default function ProfileScreen() {
   const explorerLevel = tours.length >= 5 ? 3 : tours.length >= 2 ? 2 : 1;
 
   return (
-    <Box flex={1} bg='$backgroundLight100' alignItems='center'>
-      <Box
-        w='$full'
-        maxWidth={560}
-        flex={1}
-        bg='$backgroundLight50'
-        position='relative'
-        shadowColor='$black'
-        shadowOffset={{ width: 0, height: 4 }}
-        shadowOpacity={0.06}
-        shadowRadius={16}
-        elevation={4}
+    <Box flex={1} bg='$backgroundLight50'>
+      <ScrollView
+        style={{ flex: 1 }}
+        showsVerticalScrollIndicator={false}
+        alwaysBounceVertical={true}
+        contentContainerStyle={{ paddingBottom: Math.max(insets.bottom, 24) + 160 }}
       >
-        <ScrollView
-          flex={1}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 40 }}
-        >
-          {/* Profile Header */}
+        {/* Profile Header */}
           <Box
             px='$6'
-            pb='$6'
+            pb='$4'
             bg='$white'
             borderBottomWidth={1}
             borderBottomColor='$borderLight100'
             alignItems='center'
-            style={{ paddingTop: insets.top + 24 }}
+            style={{ paddingTop: Math.max(insets.top, 16) + 12 }}
           >
             {/* Avatar with gradient & glow */}
             <Box
-              w={80}
-              h={80}
+              w={76}
+              h={76}
               borderRadius='$full'
               bg='$primary600'
               alignItems='center'
@@ -151,7 +140,7 @@ export default function ProfileScreen() {
               elevation={4}
               borderWidth={3}
               borderColor='$primary100'
-              mb='$3'
+              mb='$2'
             >
               <Text
                 size='2xl'
@@ -176,7 +165,7 @@ export default function ProfileScreen() {
 
             {/* Level Badge */}
             <Box
-              mt='$3'
+              mt='$2'
               px='$3'
               py='$1'
               bg='$amber50'
@@ -194,7 +183,7 @@ export default function ProfileScreen() {
           </Box>
 
           {/* Stats Dashboard */}
-          <Box p='$4'>
+          <Box px='$4' pt='$3' pb='$2'>
             <Text
               size='2xs'
               fontWeight='$bold'
@@ -474,6 +463,5 @@ export default function ProfileScreen() {
           </VStack>
         </ScrollView>
       </Box>
-    </Box>
   );
 }

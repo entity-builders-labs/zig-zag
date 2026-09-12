@@ -10,7 +10,7 @@ AWS_PROFILE ?= $(if $(CI),,zig-zag)
 AWS_PROFILE_ENV := $(if $(AWS_PROFILE),AWS_PROFILE=$(AWS_PROFILE))
 AWS_POWER_ENV := $(AWS_PROFILE_ENV) AWS_REGION=$(AWS_REGION) AWS_PROJECT_TAG=$(AWS_PROJECT_TAG) AWS_RDS_ID=$(AWS_RDS_ID)
 
-.PHONY: help aws-start aws-stop aws-status aws-seed-secrets check-gh rollback_deploy finish_deploy dev-start dev-stop dev-build fe-web fe-web-e2e test-unit test-e2e test-e2e-headed test-e2e-watch
+.PHONY: help aws-start aws-stop aws-status aws-seed-secrets check-gh rollback_deploy finish_deploy dev-start dev-stop dev-build fe-web fe-web-e2e test-unit test-e2e test-e2e-headed test-e2e-watch metro android-prebuild android-build android-emu android-device ios-sim ios-device
 
 help: ## List the available targets
 	@echo "Available targets:"
@@ -99,3 +99,37 @@ test-e2e-headed: ## Same as test-e2e but with a visible browser
 
 test-e2e-watch: ## Same as test-e2e-headed but slowed down (E2E_SLOWMO) so you can actually watch each step
 	@cd fe && E2E_SLOWMO=1 yarn test:e2e --headed
+
+## --- Mobile development (iOS & Android) ---
+ANDROID_EMULATOR ?= Pixel7_API34
+IOS_PHYSICAL_DEVICE ?= 00008120-00060C940A78C01E
+JAVA_HOME ?= /opt/homebrew/opt/openjdk@17
+ANDROID_HOME ?= $(HOME)/Library/Android/sdk
+
+metro: ## Start Metro bundler with host LAN for iOS and Android
+	@cd fe && npx expo start --dev-client --host lan
+
+android-prebuild: ## Generate or update native Android project from Expo config
+	@export JAVA_HOME=$(JAVA_HOME) ANDROID_HOME=$(ANDROID_HOME) && cd fe && npx expo prebuild -p android --no-install
+	@if [ -f fe/android/build.gradle ] && ! grep -q 'compileSdkVersion = 35' fe/android/build.gradle; then \
+		sed -i '' 's/minSdkVersion = Integer.parseInt(findProperty("android.minSdkVersion") ?: "24")/buildToolsVersion = "35.0.0"\
+        compileSdkVersion = 35\
+        targetSdkVersion = 35\
+        minSdkVersion = Integer.parseInt(findProperty("android.minSdkVersion") ?: "24")/' fe/android/build.gradle; \
+	fi
+
+android-build: ## Build Android Debug APK with Gradle
+	@export JAVA_HOME=$(JAVA_HOME) ANDROID_HOME=$(ANDROID_HOME) && cd fe/android && ./gradlew assembleDebug
+
+android-emu: ## Run and install on Android Emulator (Pixel7_API34)
+	@export JAVA_HOME=$(JAVA_HOME) ANDROID_HOME=$(ANDROID_HOME) && cd fe && npx expo run:android -d $(ANDROID_EMULATOR) --no-bundler
+
+android-device: ## Prepare port forwarding and install on connected physical Android device
+	@export JAVA_HOME=$(JAVA_HOME) ANDROID_HOME=$(ANDROID_HOME) && adb reverse tcp:8081 tcp:8081 && adb reverse tcp:4000 tcp:4000 && cd fe && npx expo run:android --no-bundler
+
+ios-sim: ## Run and install on iOS Simulator
+	@cd fe && npx expo run:ios --no-bundler
+
+ios-device: ## Run, sign, and install on physical iPhone (Javier's iPhone)
+	@cd fe && npx expo run:ios -d $(IOS_PHYSICAL_DEVICE) --no-bundler
+

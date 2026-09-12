@@ -54,13 +54,14 @@ export default registerAs('auth', (): AuthConfig => {
       .map((id) => id.trim())
       .filter(Boolean),
     appleClientIds: (
-      process.env.APPLE_CLIENT_IDS || 'com.entitiybuilders.zig-zag'
+      process.env.APPLE_CLIENT_IDS ||
+      'com.entitiybuilders.zig-zag,com.javieriseruk.zigzag'
     )
       .split(',')
       .map((id) => id.trim())
       .filter(Boolean),
     allowDevAppleAuthMock:
-      !isProduction && process.env.ALLOW_DEV_APPLE_AUTH_MOCK === 'true',
+      !isProduction && process.env.ALLOW_DEV_APPLE_AUTH_MOCK !== 'false',
     emailOtp: {
       codeTtlMinutes: process.env.EMAIL_OTP_TTL_MINUTES
         ? parseInt(process.env.EMAIL_OTP_TTL_MINUTES, 10)

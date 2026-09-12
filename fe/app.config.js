@@ -17,7 +17,7 @@ module.exports = {
     },
   },
   ios: {
-    bundleIdentifier: 'com.entitiybuilders.zig-zag',
+    bundleIdentifier: 'com.javieriseruk.zigzag',
     usesAppleSignIn: false,
     infoPlist: {
       NSLocationWhenInUseUsageDescription:
@@ -25,7 +25,12 @@ module.exports = {
     },
   },
   android: {
-    package: 'com.juanobrach.zigzag',
+    package: 'com.entitiybuilders.zigzag',
+    config: {
+      googleMaps: {
+        apiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY,
+      },
+    },
     permissions: ['ACCESS_COARSE_LOCATION', 'ACCESS_FINE_LOCATION'],
   },
   plugins: ['expo-router', 'expo-apple-authentication'],
