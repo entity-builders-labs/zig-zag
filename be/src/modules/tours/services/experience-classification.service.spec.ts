@@ -171,6 +171,102 @@ describe('ExperienceClassificationService', () => {
     expect(result.traits).toEqual([]);
   });
 
+  it('rejects a controlled theme key surviving as a freeform trait, even if cited by evidence', async () => {
+    generateChatResponse.mockResolvedValueOnce(
+      JSON.stringify({
+        themes: [],
+        intents: [],
+        traits: ['history'],
+        reasoningEvidence: [
+          {
+            facet: 'trait:history',
+            evidenceKeys: ['ev-1'],
+            reason: 'x',
+          },
+        ],
+      }),
+    );
+
+    const result = await service.classify('X', EVIDENCE);
+
+    expect(result.traits).toEqual([]);
+  });
+
+  it('rejects a controlled intent key surviving as a freeform trait, even if cited by evidence', async () => {
+    generateChatResponse.mockResolvedValueOnce(
+      JSON.stringify({
+        themes: [],
+        intents: [],
+        traits: ['visit'],
+        reasoningEvidence: [
+          {
+            facet: 'trait:visit',
+            evidenceKeys: ['ev-1'],
+            reason: 'x',
+          },
+        ],
+      }),
+    );
+
+    const result = await service.classify('X', EVIDENCE);
+
+    expect(result.traits).toEqual([]);
+  });
+
+  it('accepts a genuinely open-ended multi-word trait when evidenced', async () => {
+    generateChatResponse.mockResolvedValueOnce(
+      JSON.stringify({
+        themes: [],
+        intents: [],
+        traits: ['craft beer'],
+        reasoningEvidence: [
+          {
+            facet: 'trait:craft beer',
+            evidenceKeys: ['ev-1'],
+            reason: 'the venue brews its own craft beer',
+          },
+        ],
+      }),
+    );
+
+    const result = await service.classify('X', EVIDENCE);
+
+    expect(result.traits).toEqual(['craft beer']);
+  });
+
+  it('degrades to empty arrays without throwing when the envelope is missing required array fields', async () => {
+    generateChatResponse.mockResolvedValueOnce(JSON.stringify({}));
+
+    const result = await service.classify('X', EVIDENCE);
+
+    expect(result.state).toBe('degraded');
+    expect(result.themes).toEqual([]);
+    expect(result.intents).toEqual([]);
+    expect(result.traits).toEqual([]);
+    expect(result.reasoningEvidence).toEqual([]);
+    expect(result.modelId).toBe('groq-classify-test');
+    expect(result.promptVersion).toBe(CURRENT_CLASSIFICATION_PROMPT_VERSION);
+  });
+
+  it('accepts a well-formed envelope with all-empty arrays as a valid classified result (not a degraded one)', async () => {
+    generateChatResponse.mockResolvedValueOnce(
+      JSON.stringify({
+        themes: [],
+        intents: [],
+        traits: [],
+        reasoningEvidence: [],
+      }),
+    );
+
+    const result = await service.classify('X', EVIDENCE);
+
+    expect(result.state).toBe('classified');
+    expect(result.themes).toEqual([]);
+    expect(result.intents).toEqual([]);
+    expect(result.traits).toEqual([]);
+    expect(result.reasoningEvidence).toEqual([]);
+  });
+
   it('degrades to empty arrays without throwing when the LLM call fails', async () => {
     generateChatResponse.mockRejectedValueOnce(new Error('groq down'));
 
@@ -194,7 +290,7 @@ describe('ExperienceClassificationService', () => {
     expect(result.themes).toEqual([]);
   });
 
-  it('calls the shared Groq transport with providerOverride/modelOverride and json_object response format (retry/backoff reused from LangChainService)', async () => {
+  it('calls the shared Groq transport with providerOverride/modelOverride, json_object response format, temperature 0 and bypassCache (retry/backoff reused from LangChainService, no classification cache per D2)', async () => {
     generateChatResponse.mockResolvedValueOnce(
       JSON.stringify({
         themes: [],
@@ -213,6 +309,8 @@ describe('ExperienceClassificationService', () => {
         providerOverride: 'groq',
         modelOverride: 'groq-classify-test',
         responseFormat: { type: 'json_object' },
+        temperature: 0,
+        bypassCache: true,
       }),
     );
   });
@@ -271,6 +369,148 @@ describe('canReuseClassification', () => {
     };
     expect(
       canReuseClassification(stale, CURRENT_CLASSIFICATION_PROMPT_VERSION),
+    ).toBe(false);
+  });
+
+  it('is false for a current, validly-shaped but degraded persisted classification', () => {
+    const degraded = {
+      classification: {
+        themes: [] as string[],
+        intents: [] as string[],
+        traits: [] as string[],
+        reasoningEvidence: [] as unknown[],
+        modelId: 'groq-classify-test',
+        promptVersion: CURRENT_CLASSIFICATION_PROMPT_VERSION,
+        state: 'degraded',
+      },
+    };
+    // A degraded result is a valid, honestly-recorded failure outcome, but
+    // it must never be treated as reusable -- Stage 6 should be retried on
+    // the next run, not silently skipped forever because a past attempt
+    // failed.
+    expect(
+      canReuseClassification(degraded, CURRENT_CLASSIFICATION_PROMPT_VERSION),
+    ).toBe(false);
+  });
+
+  it('is false when a persisted theme is outside the canonical vocabulary', () => {
+    const bad = {
+      classification: {
+        themes: ['not_a_real_theme'],
+        intents: [] as string[],
+        traits: [] as string[],
+        reasoningEvidence: [] as unknown[],
+        modelId: 'm',
+        promptVersion: CURRENT_CLASSIFICATION_PROMPT_VERSION,
+        state: 'classified',
+      },
+    };
+    expect(
+      canReuseClassification(bad, CURRENT_CLASSIFICATION_PROMPT_VERSION),
+    ).toBe(false);
+  });
+
+  it('is false when themes contains a non-string element', () => {
+    const bad = {
+      classification: {
+        themes: [42],
+        intents: [] as string[],
+        traits: [] as string[],
+        reasoningEvidence: [] as unknown[],
+        modelId: 'm',
+        promptVersion: CURRENT_CLASSIFICATION_PROMPT_VERSION,
+        state: 'classified',
+      },
+    };
+    expect(
+      canReuseClassification(bad, CURRENT_CLASSIFICATION_PROMPT_VERSION),
+    ).toBe(false);
+  });
+
+  it('is false when intents contains a non-string element', () => {
+    const bad = {
+      classification: {
+        themes: [] as string[],
+        intents: [null] as unknown[],
+        traits: [] as string[],
+        reasoningEvidence: [] as unknown[],
+        modelId: 'm',
+        promptVersion: CURRENT_CLASSIFICATION_PROMPT_VERSION,
+        state: 'classified',
+      },
+    };
+    expect(
+      canReuseClassification(bad, CURRENT_CLASSIFICATION_PROMPT_VERSION),
+    ).toBe(false);
+  });
+
+  it('is false when traits contains a non-string element', () => {
+    const bad = {
+      classification: {
+        themes: [] as string[],
+        intents: [] as string[],
+        traits: [{}],
+        reasoningEvidence: [] as unknown[],
+        modelId: 'm',
+        promptVersion: CURRENT_CLASSIFICATION_PROMPT_VERSION,
+        state: 'classified',
+      },
+    };
+    expect(
+      canReuseClassification(bad, CURRENT_CLASSIFICATION_PROMPT_VERSION),
+    ).toBe(false);
+  });
+
+  it('is false when a persisted trait is actually a controlled theme/intent key', () => {
+    const bad = {
+      classification: {
+        themes: [] as string[],
+        intents: [] as string[],
+        traits: ['history'],
+        reasoningEvidence: [] as unknown[],
+        modelId: 'm',
+        promptVersion: CURRENT_CLASSIFICATION_PROMPT_VERSION,
+        state: 'classified',
+      },
+    };
+    expect(
+      canReuseClassification(bad, CURRENT_CLASSIFICATION_PROMPT_VERSION),
+    ).toBe(false);
+  });
+
+  it('is false when reasoningEvidence contains a non-object element', () => {
+    const bad = {
+      classification: {
+        themes: [] as string[],
+        intents: [] as string[],
+        traits: [] as string[],
+        reasoningEvidence: ['garbage'],
+        modelId: 'm',
+        promptVersion: CURRENT_CLASSIFICATION_PROMPT_VERSION,
+        state: 'classified',
+      },
+    };
+    expect(
+      canReuseClassification(bad, CURRENT_CLASSIFICATION_PROMPT_VERSION),
+    ).toBe(false);
+  });
+
+  it('is false when a reasoningEvidence entry is missing a real evidenceKeys array', () => {
+    const bad = {
+      classification: {
+        themes: ['history'],
+        intents: [] as string[],
+        traits: [] as string[],
+        reasoningEvidence: [
+          { facet: 'theme:history', evidenceKeys: [] as string[], reason: 'x' },
+        ],
+        modelId: 'm',
+        promptVersion: CURRENT_CLASSIFICATION_PROMPT_VERSION,
+        state: 'classified',
+      },
+    };
+    expect(
+      canReuseClassification(bad, CURRENT_CLASSIFICATION_PROMPT_VERSION),
     ).toBe(false);
   });
 

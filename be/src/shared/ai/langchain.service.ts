@@ -442,7 +442,7 @@ export class LangChainService {
             temperature:
               responseFormat.type === 'json_schema'
                 ? 0
-                : this.config.temperature,
+                : (modelOptions.temperature ?? this.config.temperature),
             ...(groqOptions?.maxCompletionTokens
               ? {
                   max_completion_tokens: groqOptions.maxCompletionTokens,

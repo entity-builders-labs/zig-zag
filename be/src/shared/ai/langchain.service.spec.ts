@@ -124,6 +124,44 @@ describe('LangChainService', () => {
       ]);
     });
 
+    it('respects an explicit temperature override for json_object output', async () => {
+      (global.fetch as jest.Mock).mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          choices: [{ message: { content: '{}' } }],
+        }),
+      });
+
+      await service.generateChatResponse('system', 'user prompt', {}, {
+        responseFormat: { type: 'json_object' },
+        temperature: 0,
+      } as any);
+
+      const [, options] = (global.fetch as jest.Mock).mock.calls[0];
+      const body = JSON.parse(options.body);
+      expect(body.temperature).toBe(0);
+    });
+
+    it('falls back to the config default temperature for json_object output when no override is given', async () => {
+      (global.fetch as jest.Mock).mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          choices: [{ message: { content: '{}' } }],
+        }),
+      });
+
+      await service.generateChatResponse(
+        'system',
+        'user prompt',
+        {},
+        { responseFormat: { type: 'json_object' } },
+      );
+
+      const [, options] = (global.fetch as jest.Mock).mock.calls[0];
+      const body = JSON.parse(options.body);
+      expect(body.temperature).toBe(mockConfig.temperature);
+    });
+
     it('uses strict JSON Schema output deterministically when requested', async () => {
       (service as any).config.defaultModel = 'openai/gpt-oss-120b';
       (global.fetch as jest.Mock).mockResolvedValue({

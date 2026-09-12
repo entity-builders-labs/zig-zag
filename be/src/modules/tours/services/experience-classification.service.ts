@@ -30,7 +30,14 @@ import {
   CANONICAL_INTENT_KEYS,
   CANONICAL_THEME_KEYS,
 } from '../prompts/experience-semantic-classification.prompt';
-import { sanitizeClassifierTraits } from '../utils/trait-shape-guard.util';
+import {
+  isValidClassifierTraitShape,
+  sanitizeClassifierTraits,
+} from '../utils/trait-shape-guard.util';
+import {
+  canonicalizeFacetKey,
+  PREFERENCE_DIMENSIONS,
+} from '../preferences/preference-facet-vocabulary';
 
 /**
  * Bump whenever the prompt/output contract changes in a way that would
@@ -67,6 +74,39 @@ function asStringArray(value: unknown): string[] {
 
 function normalizedFacetKey(dimension: string, key: string): string {
   return `${dimension}:${key.trim().toLowerCase()}`;
+}
+
+/**
+ * True when `value` canonicalizes to a real controlled theme or intent key.
+ * Reuses the same single source of truth
+ * (`experience-candidate-facet-normalizer.util.ts` / discovery extraction
+ * repair) rather than a second local taxonomy -- a controlled theme/intent
+ * key may never remain inside `traits` (open-ended by contract).
+ */
+function isControlledVocabularyValue(value: string): boolean {
+  return (
+    !!canonicalizeFacetKey(PREFERENCE_DIMENSIONS.THEME, value) ||
+    !!canonicalizeFacetKey(PREFERENCE_DIMENSIONS.INTENT, value)
+  );
+}
+
+/**
+ * Minimal structural check on the raw LLM envelope, BEFORE any sanitizing.
+ * A response missing one of the four required arrays entirely (e.g. `{}`)
+ * is a malformed envelope, not a valid empty classification -- it must
+ * degrade rather than be silently "repaired" into `state: 'classified'`
+ * with empty arrays. A genuinely well-formed response with all four arrays
+ * present but empty is a normal, accurate, classified result.
+ */
+function hasValidClassificationEnvelopeShape(
+  value: Record<string, unknown>,
+): boolean {
+  return (
+    Array.isArray(value.themes) &&
+    Array.isArray(value.intents) &&
+    Array.isArray(value.traits) &&
+    Array.isArray(value.reasoningEvidence)
+  );
 }
 
 /**
@@ -146,6 +186,15 @@ export class ExperienceClassificationService {
           providerOverride: 'groq',
           modelOverride: this.model,
           responseFormat: { type: 'json_object' },
+          // Stage 6 classification must be deterministic (spec: "Groq
+          // qwen/qwen3.8-27b, temperature 0").
+          temperature: 0,
+          // D2: classification has no cache table of its own and must
+          // never read/write the shared AI response cache -- reuse is
+          // decided exclusively by canReuseClassification() against the
+          // persisted metadata.classification, never by an opaque
+          // prompt-keyed cache entry.
+          bypassCache: true,
         },
       );
     } catch (error: any) {
@@ -165,7 +214,13 @@ export class ExperienceClassificationService {
       return this.emptyResult('degraded');
     }
 
-    if (!isPlainObject(parsed)) {
+    if (
+      !isPlainObject(parsed) ||
+      !hasValidClassificationEnvelopeShape(parsed)
+    ) {
+      this.logger.warn(
+        `Experience classification returned a malformed envelope for "${canonicalName}"`,
+      );
       return this.emptyResult('degraded');
     }
 
@@ -191,9 +246,16 @@ export class ExperienceClassificationService {
         substantiatedFacets.has(normalizedFacetKey('intent', key)),
     );
 
-    const traits = sanitizeClassifierTraits(parsed.traits).filter((value) =>
-      substantiatedFacets.has(normalizedFacetKey('trait', value)),
-    );
+    const traits = sanitizeClassifierTraits(parsed.traits)
+      // traits is open-ended by contract -- a value that canonicalizes to
+      // a real controlled theme/intent key must never survive here, even
+      // if the shape guard and evidence citation would otherwise accept
+      // it (matches the same hard invariant already enforced for
+      // discovery extraction).
+      .filter((value) => !isControlledVocabularyValue(value))
+      .filter((value) =>
+        substantiatedFacets.has(normalizedFacetKey('trait', value)),
+      );
 
     // The returned reasoningEvidence must stay internally consistent: only
     // keep entries whose facet actually survived into the final
@@ -236,17 +298,85 @@ export function canReuseClassification(
   const classification = metadata.classification;
   if (!isPlainObject(classification)) return false;
   if (classification.promptVersion !== currentPromptVersion) return false;
+  // A degraded classification is a valid, honestly-recorded failure
+  // outcome (see ClassificationResult), but it must never be treated as
+  // reusable: Stage 6 should be retried on a future run until it actually
+  // succeeds, not silently skipped forever because a past attempt failed.
+  if (classification.state !== 'classified') return false;
   return isValidPersistedClassificationShape(classification);
 }
 
+function isNonEmptyString(value: unknown): value is string {
+  return typeof value === 'string' && value.trim().length > 0;
+}
+
+function isValidPersistedThemeList(value: unknown): boolean {
+  return (
+    Array.isArray(value) &&
+    value.every(
+      (item) => typeof item === 'string' && CANONICAL_THEME_KEYS.includes(item),
+    )
+  );
+}
+
+function isValidPersistedIntentList(value: unknown): boolean {
+  return (
+    Array.isArray(value) &&
+    value.every(
+      (item) =>
+        typeof item === 'string' && CANONICAL_INTENT_KEYS.includes(item),
+    )
+  );
+}
+
+function isValidPersistedTraitList(value: unknown): boolean {
+  return (
+    Array.isArray(value) &&
+    value.every(
+      (item) =>
+        typeof item === 'string' &&
+        isValidClassifierTraitShape(item) &&
+        !isControlledVocabularyValue(item),
+    )
+  );
+}
+
+function isValidPersistedReasoningEvidenceList(value: unknown): boolean {
+  return (
+    Array.isArray(value) &&
+    value.every((entry) => {
+      if (!isPlainObject(entry)) return false;
+      if (!isNonEmptyString(entry.facet)) return false;
+      if (!isNonEmptyString(entry.reason)) return false;
+      return (
+        Array.isArray(entry.evidenceKeys) &&
+        entry.evidenceKeys.length > 0 &&
+        entry.evidenceKeys.every((key) => isNonEmptyString(key))
+      );
+    })
+  );
+}
+
+/**
+ * Deterministic persisted-classification shape guard (D2). Every field is
+ * validated against the SAME contract `classify()` itself enforces --
+ * themes/intents must be real canonical keys, traits must pass the
+ * trait-shape guard and must not be a controlled theme/intent leaking
+ * through, and each reasoningEvidence entry must be well-formed. This does
+ * not re-check that cited evidenceKeys still exist in the DB (that belongs
+ * to the wiring/persistence layer, not this pure helper) -- only that the
+ * persisted payload itself still honestly matches the current contract.
+ */
 function isValidPersistedClassificationShape(
   value: Record<string, unknown>,
 ): boolean {
-  if (!Array.isArray(value.themes)) return false;
-  if (!Array.isArray(value.intents)) return false;
-  if (!Array.isArray(value.traits)) return false;
-  if (!Array.isArray(value.reasoningEvidence)) return false;
-  if (typeof value.modelId !== 'string' || !value.modelId) return false;
+  if (!isValidPersistedThemeList(value.themes)) return false;
+  if (!isValidPersistedIntentList(value.intents)) return false;
+  if (!isValidPersistedTraitList(value.traits)) return false;
+  if (!isValidPersistedReasoningEvidenceList(value.reasoningEvidence)) {
+    return false;
+  }
+  if (!isNonEmptyString(value.modelId)) return false;
   if (typeof value.promptVersion !== 'number') return false;
   if (value.state !== 'classified' && value.state !== 'degraded') {
     return false;
