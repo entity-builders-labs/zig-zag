@@ -2299,19 +2299,22 @@ test fixture to include a matching `reasoningEvidence` entry.
 
 ---
 
-## Checkpoint B — Task B3 — COMPLETE
+## Checkpoint B — Task B3 — COMPLETE (corrected by mini-fix below)
 
 - Branch: `feat/preference-first-selection`
 - Base commit: `e1e482413c75bf527517fd0f9c78ca124377870c` (docs: add B3
   provider-neutral quality amendment) — fast-forward merged from `fork`
   before starting (docs-only, no divergence).
-- Implementation commit: `b598c48`
+- Original implementation commit: `b598c48844e2bcd3e6f7609532ed8871db433b9e`
+  (had 1 confirmed defect, see "Mini-fix" below)
+- Mini-fix commit: `a2b14b5` (avoid double-counting component quality
+  signals; use `DEFAULT_QUALITY_FLOOR` instead of a hardcoded `3.0`)
 - Plan task: `B3 — Quality score including composite-component signals`,
   amended by `docs/superpowers/plans/2026-09-12-b3-provider-neutral-quality-scoring-amendment.md`
   and `docs/superpowers/specs/2026-09-12-provider-neutral-quality-scoring-clarification.md`
   (both landed on `fork` concurrently, merged in before implementing —
   read in full first, per the user's explicit instruction).
-- Status: COMPLETE
+- Status: COMPLETE (as of `a2b14b5`)
 
 ### Implemented
 Created `be/src/modules/tours/utils/quality-score.util.ts`, exporting
@@ -2372,8 +2375,11 @@ policy" in `mergeExperienceMetadata`). `DEFAULT_QUALITY_FLOOR` (already
 defined in `preference-strong-match.util.ts`) was deliberately **not**
 imported into the implementation file — this module only produces the
 raw score; the floor comparison stays that other module's concern, per
-the amendment's explicit scope guard. The test file does import it, to
-assert the produced scores genuinely clear the existing floor.
+the amendment's explicit scope guard. **Correction (see the mini-fix
+below):** at this point the test file still used a hardcoded `3.0`
+rather than importing `DEFAULT_QUALITY_FLOOR` — the sentence originally
+written here claiming it already imported it was inaccurate; fixed in
+the mini-fix subsection below.
 
 ### Files changed
 - `be/src/modules/tours/utils/quality-score.util.ts` (new)
@@ -2457,6 +2463,95 @@ assert the produced scores genuinely clear the existing floor.
   `git log HEAD..fork/...` and `git log fork/...HEAD` were both empty —
   local HEAD matched `fork` exactly, confirming no other commits landed
   on this branch while B3 was in progress.
+
+---
+
+### Mini-fix — avoid double-counting component quality signals (commit `a2b14b5`)
+
+- Starting HEAD: `b473a3dc4dc62efc0bc69286bab3c82a58b75a38` (the B3
+  progress-doc commit above).
+- Final HEAD: `a2b14b5` (`fix(tours): avoid double-counting component
+  quality signals`).
+- Scope: B3 only. No B4, no acquisition/persistence wiring, no agentic
+  research, no strong/weak semantics change, no Places/Wikivoyage/
+  Wikidata formula change beyond the fix below.
+
+#### Finding
+`computeComponentDerivedQuality()` merged `componentQualityScores` and
+`componentNotabilitySignals` into ONE combined mean, even though
+`componentNotabilitySignals`'s own doc comment already said "an
+alternative to a direct component quality score" — i.e. a fallback
+representation, not a second independent stream. Mixing them
+double-counted evidence about the same components and could regress an
+Experience from strong to weak by adding MORE evidence:
+
+```
+componentQualityScores: [3.2, 3.2]                    -> alone: 3.2 (clears the 3.0 floor)
++ componentNotabilitySignals: [0, 0]                   -> mixed mean: ~2.85 (drops BELOW the floor)
+```
+
+**Confirmed** — reproduced exactly via a dedicated RED test before
+fixing (received `2.85`, matching the finding's worked example).
+
+#### Fix
+Rewrote `computeComponentDerivedQuality()` to a strict precedence rule
+matching the documented contract: if there is at least one valid
+`componentQualityScores` entry, component-derived quality is computed
+**only** from those (notability contributes nothing, neither boosting
+nor penalizing); only when there is NO valid direct score at all does
+it fall back to `componentNotabilitySignals`. Extracted a small
+`mean()` helper. Updated the module's top-of-file doc comment to state
+this precedence explicitly as the one deliberate exception to "no
+source is individually mandatory." Corrected an inaccurate sentence in
+this checkpoint's own "Implemented" section above, which had claimed
+the test file already imported `DEFAULT_QUALITY_FLOOR` — it did not;
+it used a hardcoded `3.0` until this mini-fix.
+
+Also replaced both hardcoded `3.0` quality-floor assertions in
+`quality-score.util.spec.ts` with the canonical `DEFAULT_QUALITY_FLOOR`
+(imported from `preference-strong-match.util.ts`, test file only —
+`quality-score.util.ts` itself still does not import it, keeping the
+production scorer decoupled from strong-match policy).
+
+#### Tests added (RED confirmed against the unmodified code first)
+- `direct componentQualityScores take precedence over
+  componentNotabilitySignals` (adding `[0, 0]` notability to an
+  already-valid `[3.2, 3.2]` direct bundle changes nothing — the exact
+  regression case from the finding)
+- `componentNotabilitySignals remains a real fallback when there is no
+  valid direct component quality at all`
+- `malformed direct component scores do not block a valid notability
+  fallback`
+- `valid direct componentQualityScores take precedence even when
+  componentNotabilitySignals would score higher` (notability neither
+  boosts nor penalizes valid direct quality)
+
+#### Verification (real results)
+- `yarn test src/modules/tours/utils/quality-score.util.spec.ts --runInBand`
+  → PASS — **27/27** (23 + 4 new).
+- `yarn typecheck` → PASS — no errors.
+- `yarn lint:check` → PASS — 0 problems, no `--fix` needed.
+- `yarn test src/modules/tours --runInBand` → PASS — **89 suites / 916
+  tests** (912 + 4 new), no regressions.
+- `yarn test --runInBand` (full backend unit suite) → PASS — **136
+  suites / 1236 tests**, no regressions anywhere.
+
+#### Confirmations
+- Direct `componentQualityScores` take precedence over
+  `componentNotabilitySignals`.
+- `componentNotabilitySignals` are fallback-only (consulted only when
+  there is no valid direct component quality at all).
+- Adding notability signals to an already-valid direct-quality bundle
+  cannot change its component-derived score (verified: identical value
+  to 5 decimal places).
+- Malformed/absent direct quality still allows the notability fallback
+  to produce a value.
+- Tests use `DEFAULT_QUALITY_FLOOR` instead of a hardcoded `3.0`.
+- Provider-neutral Geoapify behavior is unchanged (no test in that
+  describe block was touched by this fix; all still pass unmodified).
+- **B4 was NOT started**: confirmed — only `quality-score.util.ts`,
+  `quality-score.util.spec.ts`, and this progress doc were touched in
+  this mini-fix.
 
 ### Next task
 `B4 — Order-independent metadata merge; no invented trait dimensions`
