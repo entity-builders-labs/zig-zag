@@ -338,7 +338,9 @@ describe('canReuseClassification', () => {
         themes: ['history'],
         intents: [] as string[],
         traits: [] as string[],
-        reasoningEvidence: [] as unknown[],
+        reasoningEvidence: [
+          { facet: 'theme:history', evidenceKeys: ['ev-1'], reason: 'x' },
+        ],
         modelId: 'groq-classify-test',
         promptVersion: CURRENT_CLASSIFICATION_PROMPT_VERSION,
         state: 'classified',
@@ -347,6 +349,132 @@ describe('canReuseClassification', () => {
     expect(
       canReuseClassification(valid, CURRENT_CLASSIFICATION_PROMPT_VERSION),
     ).toBe(true);
+  });
+
+  it('is true for a fully empty (no accepted themes/intents/traits, no evidence) persisted classification', () => {
+    const emptyValid = {
+      classification: {
+        themes: [] as string[],
+        intents: [] as string[],
+        traits: [] as string[],
+        reasoningEvidence: [] as unknown[],
+        modelId: 'groq-classify-test',
+        promptVersion: CURRENT_CLASSIFICATION_PROMPT_VERSION,
+        state: 'classified',
+      },
+    };
+    expect(
+      canReuseClassification(emptyValid, CURRENT_CLASSIFICATION_PROMPT_VERSION),
+    ).toBe(true);
+  });
+
+  it('is true when an accepted intent and an accepted trait each have their own matching reasoningEvidence entry', () => {
+    const valid = {
+      classification: {
+        themes: [] as string[],
+        intents: ['visit'],
+        traits: ['rooftop'],
+        reasoningEvidence: [
+          { facet: 'intent:visit', evidenceKeys: ['ev-1'], reason: 'x' },
+          { facet: 'trait:rooftop', evidenceKeys: ['ev-1'], reason: 'y' },
+        ],
+        modelId: 'groq-classify-test',
+        promptVersion: CURRENT_CLASSIFICATION_PROMPT_VERSION,
+        state: 'classified',
+      },
+    };
+    expect(
+      canReuseClassification(valid, CURRENT_CLASSIFICATION_PROMPT_VERSION),
+    ).toBe(true);
+  });
+
+  it('is false when an accepted theme has no corresponding reasoningEvidence entry at all', () => {
+    const bad = {
+      classification: {
+        themes: ['history'],
+        intents: [] as string[],
+        traits: [] as string[],
+        reasoningEvidence: [] as unknown[],
+        modelId: 'm',
+        promptVersion: CURRENT_CLASSIFICATION_PROMPT_VERSION,
+        state: 'classified',
+      },
+    };
+    expect(
+      canReuseClassification(bad, CURRENT_CLASSIFICATION_PROMPT_VERSION),
+    ).toBe(false);
+  });
+
+  it('is false when reasoningEvidence only cites a different fact than the accepted theme', () => {
+    const bad = {
+      classification: {
+        themes: ['history'],
+        intents: [] as string[],
+        traits: [] as string[],
+        reasoningEvidence: [
+          { facet: 'theme:architecture', evidenceKeys: ['ev-1'], reason: 'x' },
+        ],
+        modelId: 'm',
+        promptVersion: CURRENT_CLASSIFICATION_PROMPT_VERSION,
+        state: 'classified',
+      },
+    };
+    expect(
+      canReuseClassification(bad, CURRENT_CLASSIFICATION_PROMPT_VERSION),
+    ).toBe(false);
+  });
+
+  it('is false when reasoningEvidence has a dangling entry for a fact that was not accepted (empty themes)', () => {
+    const bad = {
+      classification: {
+        themes: [] as string[],
+        intents: [] as string[],
+        traits: [] as string[],
+        reasoningEvidence: [
+          { facet: 'theme:history', evidenceKeys: ['ev-1'], reason: 'x' },
+        ],
+        modelId: 'm',
+        promptVersion: CURRENT_CLASSIFICATION_PROMPT_VERSION,
+        state: 'classified',
+      },
+    };
+    expect(
+      canReuseClassification(bad, CURRENT_CLASSIFICATION_PROMPT_VERSION),
+    ).toBe(false);
+  });
+
+  it('is false when an accepted intent has no corresponding reasoningEvidence entry at all', () => {
+    const bad = {
+      classification: {
+        themes: [] as string[],
+        intents: ['visit'],
+        traits: [] as string[],
+        reasoningEvidence: [] as unknown[],
+        modelId: 'm',
+        promptVersion: CURRENT_CLASSIFICATION_PROMPT_VERSION,
+        state: 'classified',
+      },
+    };
+    expect(
+      canReuseClassification(bad, CURRENT_CLASSIFICATION_PROMPT_VERSION),
+    ).toBe(false);
+  });
+
+  it('is false when an accepted trait has no corresponding reasoningEvidence entry at all', () => {
+    const bad = {
+      classification: {
+        themes: [] as string[],
+        intents: [] as string[],
+        traits: ['rooftop'],
+        reasoningEvidence: [] as unknown[],
+        modelId: 'm',
+        promptVersion: CURRENT_CLASSIFICATION_PROMPT_VERSION,
+        state: 'classified',
+      },
+    };
+    expect(
+      canReuseClassification(bad, CURRENT_CLASSIFICATION_PROMPT_VERSION),
+    ).toBe(false);
   });
 
   it('is false when metadata.classification is missing', () => {

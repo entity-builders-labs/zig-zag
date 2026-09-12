@@ -358,13 +358,52 @@ function isValidPersistedReasoningEvidenceList(value: unknown): boolean {
 }
 
 /**
+ * Cross-consistency check between the accepted semantic facts
+ * (themes/intents/traits) and their reasoningEvidence trace -- the same
+ * 1:1 correspondence `classify()` itself produces (see its own
+ * `finalAcceptedFacets`/`reasoningEvidence` filtering above). A persisted
+ * classification is reusable only when EVERY accepted theme/intent/trait
+ * has at least one matching reasoningEvidence entry, AND no
+ * reasoningEvidence entry exists for a fact that isn't actually present in
+ * themes/intents/traits (a dangling trace entry). Callers must have
+ * already validated that `themes`/`intents`/`traits` are string arrays and
+ * `reasoningEvidence` is an array of `{facet: string}`-shaped entries.
+ */
+function hasConsistentAcceptedFacetEvidence(
+  themes: string[],
+  intents: string[],
+  traits: string[],
+  reasoningEvidence: Array<{ facet: string }>,
+): boolean {
+  const acceptedFacets = new Set([
+    ...themes.map((value) => normalizedFacetKey('theme', value)),
+    ...intents.map((value) => normalizedFacetKey('intent', value)),
+    ...traits.map((value) => normalizedFacetKey('trait', value)),
+  ]);
+  const evidencedFacets = new Set(
+    reasoningEvidence.map((entry) => entry.facet.trim().toLowerCase()),
+  );
+
+  for (const facet of acceptedFacets) {
+    if (!evidencedFacets.has(facet)) return false;
+  }
+  for (const facet of evidencedFacets) {
+    if (!acceptedFacets.has(facet)) return false;
+  }
+  return true;
+}
+
+/**
  * Deterministic persisted-classification shape guard (D2). Every field is
  * validated against the SAME contract `classify()` itself enforces --
  * themes/intents must be real canonical keys, traits must pass the
  * trait-shape guard and must not be a controlled theme/intent leaking
- * through, and each reasoningEvidence entry must be well-formed. This does
- * not re-check that cited evidenceKeys still exist in the DB (that belongs
- * to the wiring/persistence layer, not this pure helper) -- only that the
+ * through, each reasoningEvidence entry must be well-formed, and every
+ * accepted theme/intent/trait must have exactly the reasoningEvidence
+ * trace `classify()` would itself have produced for it (no unevidenced
+ * accepted fact, no dangling evidence entry). This does not re-check that
+ * cited evidenceKeys still exist in the DB (that belongs to the
+ * wiring/persistence layer, not this pure helper) -- only that the
  * persisted payload itself still honestly matches the current contract.
  */
 function isValidPersistedClassificationShape(
@@ -379,6 +418,16 @@ function isValidPersistedClassificationShape(
   if (!isNonEmptyString(value.modelId)) return false;
   if (typeof value.promptVersion !== 'number') return false;
   if (value.state !== 'classified' && value.state !== 'degraded') {
+    return false;
+  }
+  if (
+    !hasConsistentAcceptedFacetEvidence(
+      value.themes as string[],
+      value.intents as string[],
+      value.traits as string[],
+      value.reasoningEvidence as Array<{ facet: string }>,
+    )
+  ) {
     return false;
   }
   return true;
