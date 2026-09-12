@@ -2555,3 +2555,267 @@ production scorer decoupled from strong-match policy).
 
 ### Next task
 `B4 — Order-independent metadata merge; no invented trait dimensions`
+
+---
+
+## Checkpoint B — Task B4 — COMPLETE
+
+- Branch: `feat/preference-first-selection`
+- Base commit: `321deb8d7f503742882a3875b6313fc0b2fddcea` (docs: record
+  B3 mini-fix)
+- Implementation commit: `df77c92`
+- Plan task: `B4 — Order-independent metadata merge; no invented trait
+  dimensions`
+- Status: COMPLETE
+
+### Implemented
+Created `be/src/modules/tours/utils/experience-metadata-merge.util.ts`,
+exporting `ExperienceMetadataSnapshot`, `MergedExperienceMetadata`, and
+`mergeExperienceMetadata(a, b): MergedExperienceMetadata` — a pure,
+deterministic, commutative merge (`mergeExperienceMetadata(a, b)`
+deep-equals `mergeExperienceMetadata(b, a)` for every case below),
+replacing the existing naive `{...same, ...input}` object-spread merge
+in `ExperienceCatalogService` (pure last-write-wins, silently erasing
+richer metadata whenever the "wrong" side happened to arrive last —
+exactly what spec §8 forbids: "Provider order must not erase richer
+metadata... order-independent for union-valued semantic arrays and
+conservative for scalar facts").
+
+Canonical, field-specific policies (no generic spread anywhere):
+
+- **`themes` / `intents`** (+ legacy `archetypes` read-only fallback,
+  never re-emitted on its own) **/ `traits`**: union of both sides,
+  deduped, **sorted**. Sorting the result is itself part of the
+  order-independence guarantee — an identical *set* must produce a
+  byte-identical *array* regardless of which side contributed which
+  member, so a plain `toEqual` on the merged array is reliable in
+  tests. `traits` are normalized via the exact same
+  `normalizeClassifierTrait` (trim/collapse-whitespace/lowercase) B2
+  already established, reused rather than re-invented — `"ROOFTOP"` and
+  `"rooftop"` from two different observations dedupe to one.
+- **`dimensionedTraits`**: union of explicit `{dimension, key, label?}`
+  entries **verbatim**, deduped by `dimension:key`. **Never derived
+  from a plain `traits[]` string** — per spec §9.1 ("the classifier
+  does not return a dimension taxonomy for them in v1, so persistence
+  MUST NOT invent one"), a freeform trait `"iconic"` merging alongside
+  another observation must never produce a manufactured
+  `tourism_intensity:iconic` (or any) dimensioned entry. Malformed
+  entries (missing/non-string `dimension`/`key`) are dropped, never
+  coerced. Candidates are sorted by identity (then by label) **before**
+  dedup, so which literal entry "wins" for a shared identity never
+  depends on argument position.
+- **`classification`**: version-aware, **atomic** replacement (D2).
+  `classificationTier(metadata)` ranks each side: **2** = current
+  prompt version + genuinely reusable (delegates to the existing
+  `canReuseClassification`/`CURRENT_CLASSIFICATION_PROMPT_VERSION` from
+  B2 — including its internal fact/evidence 1:1 consistency check, no
+  duplicated logic); **1** = current prompt version, well-formed, but
+  `state: 'degraded'` (a new small **local** shape check, deliberately
+  separate from `canReuseClassification` since a degraded-but-current
+  classification is real, meaningful state per spec D1 — "mark the
+  classification state so a later reclassification job can repair it"
+  — and must not be silently dropped just because it isn't reusable);
+  **0** = absent, malformed, or a stale prompt version. The higher tier
+  always wins; a classification is **never** merged field-by-field with
+  another (that would silently break its own internal evidence
+  consistency) — the winner is always exactly one side's object,
+  verbatim. An exact tier tie is broken deterministically by content
+  (more `reasoningEvidence` entries wins; a final exact tie falls back
+  to a stable lexicographic comparison of the serialized payload) —
+  never by which argument position supplied it.
+- **`qualityScore`**: null-safe, commutative `Math.max` of two
+  already-computed scores — extracted **verbatim** from the existing
+  inline ternary in `ExperienceCatalogService` (which already
+  implemented this correctly; it was already symmetric, just
+  duplicated logic worth centralizing here for testability). Missing
+  is unknown, never `0`, and never suppresses a valid score from the
+  other side.
+- **Every other/unknown metadata key**: a generic
+  `mergeGenericValue(a, b)` policy — a non-empty value beats an
+  empty/absent one; two identical values need no tie-break; two
+  different non-empty values resolve to the "richer" (longer
+  JSON-serialized) one, with a final stable lexicographic comparison
+  on an exact tie. This means a future/unmodeled metadata key (the
+  concrete real example today is `source: string`) still converges
+  regardless of argument order, instead of silently falling back to
+  "whichever side spread last" the way the old code did for
+  everything.
+
+### Wiring into `ExperienceCatalogService`
+Replaced, in the SAME-dedupe reconciliation path (the one real call
+site in the codebase that combines two independently-sourced
+observations of the same Experience):
+- the inline `qualityScore: input.qualityScore == null ? ... : ...`
+  ternary, and
+- `metadata: this.mergeMetadata(same.metadata, input.metadata)`
+
+with one `const merged = mergeExperienceMetadata({qualityScore:
+same.qualityScore, metadata: same.metadata}, {qualityScore:
+input.qualityScore, metadata: input.metadata})`, then
+`merged.qualityScore` / `merged.metadata` (omitting `metadata` from the
+Prisma update when the merged object is empty, matching the old
+code's exact `Object.keys(...).length ? ... : undefined` behavior so
+downstream readers see no difference for the "nothing to merge" case).
+Removed the now-dead private `mergeMetadata()` method entirely — it was
+precisely the buggy code being replaced.
+
+Added one dedicated wiring test to
+`experience-catalog.service.spec.ts` (`merges the existing row and the
+new observation via mergeExperienceMetadata (Task B4)...`) proving
+themes/traits genuinely union and quality picks the max **end-to-end**
+through `persistVerifiedExperience` — a test that would have failed
+under the old spread-based merge (which would have silently dropped
+`same`'s `themes: ['history']`/`traits: ['rooftop']` the moment
+`input`'s own non-overlapping `themes`/`traits` were merged in).
+
+### Verified: no broken characterization test needed removal
+The plan's B4 text says to "Remove/replace any old characterization
+test that expected `exploration_style:iconic` to match a fabricated
+`tourism_intensity:iconic` trait." Searched and inspected both
+plausible candidates:
+- `test/characterization/catalog-roundtrip.db.characterization-spec.ts`
+  — has an `it.failing('DEFECT: a trait whose key names a structured
+  dimension value should be resolvable by that dimension after
+  persist+hydrate', ...)` test. Jest's `.failing()` inverts pass/fail:
+  this test **passes precisely because** the invented-match does NOT
+  happen — it is already correctly framed as documenting an accepted,
+  tracked, non-goal limitation (trait dimensions flatten to
+  `'general'`), not a wrongly-passing expectation.
+- `test/characterization/exploration-style-roundtrip.characterization-spec.ts`
+  — already asserts `exploration_style` matches ONLY explicit
+  dimensioned evidence via a `syntheticDimensionedExperience(...)`
+  fixture, explicitly labeled `SYNTHETIC controlled fixture`, never a
+  trait-string-derived one.
+
+Neither file needed removal or replacement — this invariant was
+already correctly protected by an earlier checkpoint (predates B4).
+Neither file was touched.
+
+### Files changed
+- `be/src/modules/tours/utils/experience-metadata-merge.util.ts` (new)
+- `be/src/modules/tours/utils/experience-metadata-merge.util.spec.ts` (new)
+- `be/src/modules/tours/services/experience-catalog.service.ts`
+  (wired `mergeExperienceMetadata` in; removed the dead `mergeMetadata`
+  private method and the inline `qualityScore` ternary)
+- `be/src/modules/tours/services/experience-catalog.service.spec.ts`
+  (added one wiring test)
+
+### Verification
+- RED confirmed first: ran the new spec against the not-yet-created
+  module → cascading `TS7018` (unresolved import). Implemented, reran
+  → **24/24 passed on the first implementation pass** (no second
+  RED/GREEN cycle needed for the pure function itself).
+- `yarn test src/modules/tours/utils/experience-metadata-merge.util.spec.ts --runInBand`
+  → PASS — **24/24**, covering: order-independence across 3 realistic
+  multi-observation scenarios (including one with only one side having
+  any metadata, and one with 3 overlapping/case-varying entries);
+  themes/intents union incl. the `archetypes` legacy-fallback-but-never-
+  re-emitted rule; trait dedup via `normalizeClassifierTrait`; malformed
+  themes/intents/traits never throw and read as absent; the "no
+  invented trait dimensions" invariant (a plain trait `"iconic"` never
+  becomes a `dimensionedTraits` entry) plus verbatim
+  `dimensionedTraits` union/dedup plus malformed-entry dropping;
+  qualityScore symmetry/null-handling; the full classification
+  tiered-precedence matrix (current-valid beats stale, current beats
+  absent, classified beats degraded, degraded beats stale/absent,
+  atomic-never-field-merged, absent when neither side qualifies); the
+  generic-scalar policy (non-empty beats empty, identical needs no
+  tie-break, different-non-empty resolves deterministically); and
+  never-throws on fully malformed/non-object snapshots.
+- `yarn test src/modules/tours/services/experience-catalog.service.spec.ts --runInBand`
+  → PASS — **34/34** (33 pre-existing + 1 new wiring test), no
+  regressions.
+- `yarn typecheck` → PASS — no errors.
+- `npx eslint --fix` on all 4 touched/created files → formatting-only
+  reflow (9 prettier issues), then plain `eslint` → 0 problems.
+- `yarn test src/modules/tours --runInBand` → PASS — **90 suites / 941
+  tests** (916 + 24 new + 1 new), no regressions.
+- `yarn test --runInBand` (full backend unit suite) → PASS — **137
+  suites / 1261 tests**, no regressions anywhere.
+
+### Order-independence proof (the central property requested)
+Every scenario above that has real semantic content (non-trivial
+themes/traits/quality/classification on both sides) is asserted via a
+shared `expectOrderIndependent(a, b)` test helper that computes both
+`mergeExperienceMetadata(a, b)` and `mergeExperienceMetadata(b, a)` and
+requires `toEqual` between them **before** asserting on the actual
+merged content — so every one of those tests is simultaneously a
+correctness test AND a symmetry test. This directly covers: mixed
+Places-observation-shaped bundles with different quality/themes/
+traits/sources; one side metadata-empty; three overlapping/case-varying
+observations; all 4 classification-tier comparisons (current vs stale,
+current vs absent, classified vs degraded, degraded vs stale);
+classification atomicity (never a field-by-field hybrid, whichever of
+the two original objects wins); and the generic-scalar policy.
+
+### No invented trait dimensions — explicit proof
+Dedicated test: merging `traits: ['iconic']` with `traits:
+['local_deep_dive']` (both real controlled-vocabulary-adjacent tokens
+that could plausibly tempt a naive implementation into "helpfully"
+promoting them into `tourism_intensity`/`exploration_style` dimensioned
+entries) produces `traits: ['iconic', 'local_deep_dive']` and
+`dimensionedTraits: undefined` — no dimension is ever manufactured.
+A separate test confirms `dimensionedTraits` union/dedup only ever
+operates on entries that were ALREADY explicitly supplied as such by
+either side, verbatim, never synthesized from `traits[]`.
+
+### Deviations from plan
+- None against the plan's explicit bullet list. One design decision
+  beyond the plan's literal wording, needed to make `qualityScore`'s
+  merge policy testable/reusable the same way as the other rules:
+  bundled it into `mergeExperienceMetadata`'s own input/output shape
+  (`{qualityScore, metadata}` in, same shape out) rather than leaving
+  it purely inline at the call site, even though `qualityScore` lives
+  in its own Prisma column, not inside the JSON `metadata` blob. The
+  plan's own bullet list names "quality keeps strongest valid signal
+  according to policy" as one of `mergeExperienceMetadata`'s rules, so
+  this reading follows the plan's literal text rather than deviating
+  from it.
+
+### Decisions taken
+- Reused `canReuseClassification`/`CURRENT_CLASSIFICATION_PROMPT_VERSION`
+  (both already exported by B2) for the classification merge's tier-2
+  (best) case, rather than re-deriving that logic — zero duplication of
+  the real, tested reuse contract (including its internal
+  fact/evidence consistency check).
+- Added one small, genuinely NEW local shape check
+  (`isWellFormedCurrentClassification`) for the tier-1 (current +
+  well-formed but `degraded`) case, since `canReuseClassification`
+  deliberately excludes `degraded` by design (it answers "may Stage 6
+  be skipped?", a different question from "is this worth keeping
+  through a merge?"). This is a different, legitimately separate
+  policy question from B2's, not a duplication of its taxonomy/vocab
+  rules (the kind of duplication earlier reviews flagged) — documented
+  inline as such.
+- Sorted every union-valued array (`themes`/`intents`/`traits`/
+  `dimensionedTraits`) in the output, rather than preserving
+  first-seen/insertion order, specifically so an identical resulting
+  *set* always produces a byte-identical *array* — this is what makes
+  the order-independence property hold at the array level (not just at
+  the set-membership level), and is what let every test use a plain
+  `toEqual` instead of an order-insensitive matcher.
+- Chose NOT to re-validate themes/intents against
+  `CANONICAL_THEME_KEYS`/`CANONICAL_INTENT_KEYS` at merge time — that
+  validation already happens upstream (discovery-extraction's
+  `normalizeExperienceCandidateFacets`, classification's own guards);
+  re-applying it here would be a second, redundant place asserting the
+  same taxonomy and was not asked for by the plan's literal "union
+  themes/intents/freeform traits" wording.
+- Verified (see above) that no old characterization test needed
+  removal per the plan's explicit instruction — documented the finding
+  rather than silently skipping that instruction.
+
+### Open issues / debt
+- None new. `mergeExperienceMetadata` is ready for whichever later
+  checkpoint eventually wires `ExperienceClassificationService.classify()`
+  output into a persisted Experience's `metadata.classification` — this
+  merge function will then immediately govern how that reconciles
+  across re-observations, without further changes.
+- Re-checked for concurrent drift immediately before staging/committing:
+  `git fetch fork feat/preference-first-selection` then
+  `git log HEAD..fork/...` and `git log fork/...HEAD` were both empty —
+  local HEAD matched `fork` exactly, confirming no other commits landed
+  on this branch while B4 was in progress.
+
+### Next task
+`B5 — Area/route walk acquisition (D5)`
