@@ -1743,3 +1743,111 @@ is untouched.
 
 ### Next task
 `B2 — Evidence-only classifier + trait guard`
+
+---
+
+## Checkpoint B — Task B1 review fix — effective Places provenance — VERIFIED (already implemented)
+
+- Branch: `feat/preference-first-selection`
+- Fix implementation commit (already on remote when this review started):
+  `b8cd292328aff727f9ac0f2c0fce299520d59239`
+- Verified against remote HEAD: `b8cd292328aff727f9ac0f2c0fce299520d59239`
+  (one commit past the reviewer's last-known
+  `1366e15c3aca55ee11bf3320f6e0bd3d6eb8c295` — an unrelated Places
+  cost-control correction chain, see
+  `docs/superpowers/progress/2026-09-12-b1-places-cost-control-correction.md`,
+  landed in between and is untouched by this review)
+- Status: **VERIFIED CORRECT, no further code change required**
+
+### Bug this fix addresses
+`GooglePlacesAcquisitionProvider` consumes the provider-neutral
+`IPlacesApiService` abstraction (which may be backed by either the real
+Google Places adapter or the Geoapify adapter), but previously
+hardcoded `provider: 'google_places'` and
+`evidenceKey: \`google_places:${placeId}\`` on every observation
+regardless of which backend actually produced the result. A
+Geoapify-sourced observation could therefore be persisted/exposed with
+`provider: 'google_places'` evidence provenance, breaking traceability.
+
+### Fix (already applied, reviewed here)
+- `experience-acquisition.interface.ts`: added `'geoapify'` to the
+  `ExperienceAcquisitionProvider` union.
+- `google-places-acquisition.provider.ts`: each search result now
+  carries its own effective `result.provenance.provider` (`'google' |
+  'geoapify'`) alongside the `PlaceData` (`PlaceWithProvider`), and a
+  small explicit lookup map
+  (`ACQUISITION_PROVIDER_BY_PLACES_PROVIDER = { google: 'google_places',
+  geoapify: 'geoapify' }`) derives the observation's `provider` and
+  `evidenceKey` prefix from that effective identity instead of a
+  hardcoded literal. No heuristics on result shape/fields — exactly the
+  "abstraction transports provider identity explicitly" approach asked
+  for.
+- New `google-places-acquisition.provider.provenance.spec.ts` (125
+  lines): Google-backed result → `provider: 'google_places'`; Geoapify-
+  backed result → `provider: 'geoapify'`, `evidenceKey` contains
+  `'geoapify'` and never `'google'`, and all B1-preserved evidence
+  fields (`rating`, `userRatingCount`, `primaryType`, `types`,
+  `openingHoursWeekdayText`, `websiteUri`, `priceLevel`,
+  `businessStatus`, `editorialSummary`, `primaryTypeDisplayName`) still
+  reach `metadata` unchanged; graceful failure (`status: 'failed'`) is
+  preserved for whichever provider is effectively backing the call.
+
+### This review's own verification
+Re-derived the bug/fix from the actual current code (not from prior
+progress docs) before trusting anything: read
+`google-places-acquisition.provider.ts`, its new provenance spec,
+`IPlacesApiService`/`PlacesProvider`/`PlaceData`, both concrete
+implementations (`google-places-api.service.ts`,
+`geoapify-places-api.service.ts`), and
+`ExperienceAcquisitionProvider`/`SourceObservation`. Confirmed the fix
+matches the described root cause and required behavior exactly.
+
+Ran (all green, no code change made — the fix was already correct):
+- `yarn test src/modules/tours/providers/google-places-acquisition.provider.provenance.spec.ts src/modules/tours/providers/google-places-acquisition.provider.spec.ts --runInBand`
+  → PASS — 20/20.
+- `yarn test src/modules/tours --runInBand` → PASS — 85 suites / 820 tests.
+- `yarn test src/modules/integrations --runInBand` → PASS — 24 suites / 187 tests.
+- `yarn test --runInBand` (entire backend unit suite) → PASS — 132
+  suites / 1138 tests.
+- `yarn test:integration` (real Postgres) → PASS — 12 suites / 26 tests.
+- `yarn test:acceptance` → PASS — 20 suites / 30 tests.
+- `yarn typecheck` → PASS — no errors.
+- `yarn lint:check` → PASS — no errors.
+- `yarn test:characterization` → **2 suites / 8 tests fail**, but for a
+  reason entirely unrelated to this fix:
+  `test/characterization/provider-order-convergence.db.characterization-spec.ts`
+  and `.../catalog-roundtrip.db.characterization-spec.ts` both call
+  `assertDisposableDatabase` (`test/support/assert-disposable-database.ts`,
+  a pre-existing, deliberate, documented safety guard — see that file's
+  own header comment and
+  `docs/superpowers/plans/2026-09-09-database-pool-hardening-and-observability.md`)
+  before their `TRUNCATE`, which throws
+  `"Refusing to TRUNCATE a database that is not provably disposable
+  (localhost:5432/zigzag)..."` because the local `.env`'s `DATABASE_URL`
+  points at a plain `zigzag` database name (not `*_test`/`*_e2e`/etc.)
+  and `ALLOW_DESTRUCTIVE_TEST_DB` is unset. This throws in test setup
+  before any provider/provenance code runs, so it fails identically
+  regardless of the Places/Geoapify fix — confirmed by inspecting the
+  guard's own source, which checks only the database name / an env
+  flag. Not touched or bypassed (setting `ALLOW_DESTRUCTIVE_TEST_DB=1`
+  is exactly the kind of destructive-action authorization this task
+  did not ask for and this guard exists specifically to prevent
+  un-authorized).
+
+### Deviations from plan
+- None. No code change was needed this session — the fix requested was
+  already implemented and pushed (by a prior session/agent) before this
+  review began, and it is correct.
+
+### Confirmations requested
+- **Concurrent changes**: yes — between the reviewer's last-known SHA
+  (`1366e15`) and this review's start, one unrelated fix chain (Places
+  provider cost-control: `fe562c2`, `75f414c`, `dadaa80`, `882f369`) plus
+  its own progress doc (`1366e15`) landed, followed by the provenance
+  fix itself (`b8cd292`). All were already on the remote before this
+  review touched anything; none were overwritten.
+- **B2 NOT started**: confirmed — only this progress doc was modified
+  by this review.
+
+### Next task
+`B2 — Evidence-only classifier + trait guard`
