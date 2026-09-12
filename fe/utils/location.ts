@@ -67,6 +67,12 @@ export async function requestAndGetCurrentLocation(options?: {
   showPromptOnDenial?: boolean;
   showPromptOnUnavailable?: boolean;
 }): Promise<LocationCoords | null> {
+  // Explicit user actions that ask to show a denial prompt should also explain
+  // an unavailable GPS fix unless the caller overrides that behavior. Silent
+  // calls (for example initial best-effort positioning) remain silent.
+  const showUnavailable =
+    options?.showPromptOnUnavailable ?? options?.showPromptOnDenial ?? false;
+
   try {
     const { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== 'granted') {
@@ -103,7 +109,7 @@ export async function requestAndGetCurrentLocation(options?: {
       console.warn('Current position lookup failed:', error);
     }
 
-    if (options?.showPromptOnUnavailable) {
+    if (showUnavailable) {
       Alert.alert(
         'Ubicación no disponible',
         'No pudimos obtener tu ubicación actual. Podés elegir un destino o intentarlo nuevamente.',
@@ -112,7 +118,7 @@ export async function requestAndGetCurrentLocation(options?: {
     return null;
   } catch (error) {
     console.warn('Unexpected error in requestAndGetCurrentLocation:', error);
-    if (options?.showPromptOnUnavailable) {
+    if (showUnavailable) {
       Alert.alert(
         'Ubicación no disponible',
         'No pudimos obtener tu ubicación actual. Podés elegir un destino o intentarlo nuevamente.',
