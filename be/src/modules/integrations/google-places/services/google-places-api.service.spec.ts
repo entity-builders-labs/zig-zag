@@ -105,7 +105,7 @@ describe('GooglePlacesApiService', () => {
     });
   });
 
-  it('requests and maps websiteUri, editorialSummary and primaryTypeDisplayName (Task B1)', async () => {
+  it('keeps optional editorialSummary mapping without requesting the paid field in baseline searches', async () => {
     mockedAxios.post.mockResolvedValueOnce({
       data: {
         places: [
@@ -129,6 +129,8 @@ describe('GooglePlacesApiService', () => {
       radius: 1000,
     });
 
+    // Keep the mapping contract so a future selective enrichment path can
+    // preserve editorialSummary when it intentionally obtains the field.
     expect(result.data[0]).toEqual(
       expect.objectContaining({
         websiteUri: 'https://museo.example.com',
@@ -140,8 +142,8 @@ describe('GooglePlacesApiService', () => {
     const [, , requestConfig] = mockedAxios.post.mock.calls[0];
     const fieldMask = (requestConfig as any).headers['X-Goog-FieldMask'];
     expect(fieldMask).toContain('places.websiteUri');
-    expect(fieldMask).toContain('places.editorialSummary');
     expect(fieldMask).toContain('places.primaryTypeDisplayName');
+    expect(fieldMask).not.toContain('places.editorialSummary');
   });
 
   it('sends a singular Text Search type with strictness and a destination rectangle', async () => {
@@ -175,6 +177,10 @@ describe('GooglePlacesApiService', () => {
       },
       expect.any(Object),
     );
+
+    const [, , requestConfig] = mockedAxios.post.mock.calls[0];
+    const fieldMask = (requestConfig as any).headers['X-Goog-FieldMask'];
+    expect(fieldMask).not.toContain('places.editorialSummary');
   });
 
   it('attaches truthful provenance to provider failures', async () => {
