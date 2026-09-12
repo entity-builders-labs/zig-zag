@@ -10,7 +10,7 @@ AWS_PROFILE ?= $(if $(CI),,zig-zag)
 AWS_PROFILE_ENV := $(if $(AWS_PROFILE),AWS_PROFILE=$(AWS_PROFILE))
 AWS_POWER_ENV := $(AWS_PROFILE_ENV) AWS_REGION=$(AWS_REGION) AWS_PROJECT_TAG=$(AWS_PROJECT_TAG) AWS_RDS_ID=$(AWS_RDS_ID)
 
-.PHONY: help aws-start aws-stop aws-status aws-seed-secrets check-gh rollback_deploy finish_deploy dev-start dev-stop dev-build fe-web fe-web-e2e test-unit test-e2e test-e2e-headed test-e2e-watch metro android-prebuild android-build android-emu android-device ios-sim ios-device
+.PHONY: help aws-start aws-stop aws-status aws-seed-secrets check-gh rollback_deploy finish_deploy dev-start dev-stop dev-build fe-web fe-web-e2e test-unit test-e2e test-e2e-headed test-e2e-watch metro android-prebuild android-build android-emu android-device ios-sim ios-device ios-device-install
 
 help: ## List the available targets
 	@echo "Available targets:"
@@ -102,7 +102,10 @@ test-e2e-watch: ## Same as test-e2e-headed but slowed down (E2E_SLOWMO) so you c
 
 ## --- Mobile development (iOS & Android) ---
 ANDROID_EMULATOR ?= Pixel7_API34
-IOS_PHYSICAL_DEVICE ?= 00008120-00060C940A78C01E
+# Keep physical-device identifiers local instead of committing a machine/user
+# specific value. Example: make ios-device IOS_PHYSICAL_DEVICE=<device-id>
+IOS_PHYSICAL_DEVICE ?=
+IOS_BUNDLE_ID ?= com.javieriseruk.zigzag
 JAVA_HOME ?= /opt/homebrew/opt/openjdk@17
 ANDROID_HOME ?= $(HOME)/Library/Android/sdk
 
@@ -121,7 +124,7 @@ android-prebuild: ## Generate or update native Android project from Expo config
 android-build: ## Build Android Debug APK with Gradle
 	@export JAVA_HOME=$(JAVA_HOME) ANDROID_HOME=$(ANDROID_HOME) && cd fe/android && ./gradlew assembleDebug
 
-android-emu: ## Run and install on Android Emulator (Pixel7_API34)
+android-emu: ## Run and install on Android Emulator (override ANDROID_EMULATOR if needed)
 	@export JAVA_HOME=$(JAVA_HOME) ANDROID_HOME=$(ANDROID_HOME) && cd fe && npx expo run:android -d $(ANDROID_EMULATOR) --no-bundler
 
 android-device: ## Prepare port forwarding and install on connected physical Android device
@@ -130,13 +133,24 @@ android-device: ## Prepare port forwarding and install on connected physical And
 ios-sim: ## Run and install on iOS Simulator
 	@cd fe && npx expo run:ios --no-bundler
 
-ios-device: ## Run, sign, and install on physical iPhone (Javier's iPhone)
-	@cd fe && npx expo run:ios -d $(IOS_PHYSICAL_DEVICE) --no-bundler || { \
-		APP_PATH=$$(find $(HOME)/Library/Developer/Xcode/DerivedData -name "zigzag.app" -path "*/Debug-iphoneos/*" 2>/dev/null | head -n 1); \
-		if [ -n "$$APP_PATH" ]; then \
-			echo "Installing via xcrun devicectl directly..."; \
-			xcrun devicectl device install app --device $(IOS_PHYSICAL_DEVICE) "$$APP_PATH" && \
-			xcrun devicectl device process launch --device $(IOS_PHYSICAL_DEVICE) com.javieriseruk.zigzag || true; \
-		fi; \
-	}
+ios-device: ## Build/run on a physical iPhone; requires IOS_PHYSICAL_DEVICE
+	@if [ -z "$(IOS_PHYSICAL_DEVICE)" ]; then \
+		echo "IOS_PHYSICAL_DEVICE is required. Example: make ios-device IOS_PHYSICAL_DEVICE=<device-id>" >&2; \
+		exit 2; \
+	fi
+	@cd fe && npx expo run:ios -d "$(IOS_PHYSICAL_DEVICE)" --no-bundler
+
+ios-device-install: ## Explicitly install the newest existing Debug-iphoneos app via devicectl
+	@if [ -z "$(IOS_PHYSICAL_DEVICE)" ]; then \
+		echo "IOS_PHYSICAL_DEVICE is required. Example: make ios-device-install IOS_PHYSICAL_DEVICE=<device-id>" >&2; \
+		exit 2; \
+	fi
+	@APP_PATH=$$(find $(HOME)/Library/Developer/Xcode/DerivedData -name "zigzag.app" -path "*/Debug-iphoneos/*" -print0 2>/dev/null | xargs -0 ls -td 2>/dev/null | head -n 1); \
+	if [ -z "$$APP_PATH" ]; then \
+		echo "No Debug-iphoneos zigzag.app found in DerivedData; build first with make ios-device." >&2; \
+		exit 1; \
+	fi; \
+	echo "Installing newest existing build: $$APP_PATH"; \
+	xcrun devicectl device install app --device "$(IOS_PHYSICAL_DEVICE)" "$$APP_PATH" && \
+	xcrun devicectl device process launch --device "$(IOS_PHYSICAL_DEVICE)" "$(IOS_BUNDLE_ID)"
 
