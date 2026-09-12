@@ -555,14 +555,47 @@ grounded local-character evidence (for example a neighborhood institution,
 traditional market, community cultural venue, local practice or explicit
 “popular with locals” evidence). Without such evidence, `value:null`.
 
-#### 10.2.4 Unknown semantics
+#### 10.2.4 Phase-7 population expectation and future agentic boundary
+
+During Phase 7, `prominence` is expected to be the only exploration signal that
+is commonly computable from existing catalog/source metadata.
+`tourismIntensity` and `localCharacter` are intentionally forward-compatible
+plumbing for the later agentic/research stage and may remain unknown for most
+Experiences without making A7 incomplete.
+
+A7 does **not** own discovery of those two evidence families and must not invent
+proxies merely to populate them. Later agentic research may collect grounded
+claims such as “popular with locals”, “traditional neighborhood institution” or
+“major tourist hotspot”, or structured tourism-density facts, normalize those
+claims into explicit evidence inputs, and reuse the deterministic signal model
+defined here.
+
+Traveler language and Experience evidence remain separate. A user saying
+“quiero turismo local”, “joyas escondidas” or “fuera del circuito turístico” is
+evidence of the **traveler's desired ranking/research direction**, not evidence
+that a particular Experience has high localCharacter, low tourismIntensity or
+low prominence. Such intent may guide future agentic research and ranking, but
+only grounded source evidence may populate the Experience-side signals.
+
+Canonical Phase-7 acceptance:
+
+```text
+prominence        commonly known when current metadata supports it
+tourismIntensity  legitimately unknown until grounded evidence exists
+localCharacter    legitimately unknown until grounded evidence exists
+```
+
+A7 is complete even when current production-like catalog rows only populate the
+first line.
+
+#### 10.2.5 Unknown semantics
 
 `value:null` means insufficient grounded evidence. `value:0` means actual
 grounded support for a low endpoint. Missing metadata is never silently coerced
 to zero. Corrupt numeric inputs are deterministically ignored/clamped according
 to policy and cannot create out-of-range values.
 
-#### 10.2.5 Exploration-style ranking projection
+#### 10.2.6 Exploration-style ranking projection
 
 A pure deterministic helper projects the traveler meta-preference over the known
 signals:
@@ -991,6 +1024,10 @@ Prove:
 - `facetSatisfied == strongCount >= 1`;
 - exploration signals preserve independent `prominence`, `tourismIntensity` and
   `localCharacter` dimensions with `unknown != zero`;
+- current Phase-7 metadata may leave tourismIntensity/localCharacter unknown
+  without making A7 incomplete;
+- traveler free text expresses request-side preference only and cannot populate
+  Experience-side localCharacter/tourismIntensity evidence by itself;
 - high prominence alone does not create tourismIntensity;
 - low prominence/obscurity alone does not create localCharacter;
 - `iconic` tilt responds to known prominence while unknown is neutral;
@@ -1156,5 +1193,13 @@ intensity is not inferred from popularity alone; `local_deep_dive` is not invers
 prominence; `balanced` is neutral. The resulting deterministic tilt may reorder
 already eligible candidates only and never participates in facet coverage,
 sufficiency, acquisition or planner hard feasibility.
+
+Phase-7 population is intentionally asymmetric: `prominence` may be commonly
+available now, while `tourismIntensity` and `localCharacter` may stay unknown
+until later agentic/research work provides normalized grounded evidence. This is
+forward-compatible plumbing, not a Phase-7 requirement to fabricate data. User
+requests for local tourism, hidden gems or off-the-beaten-path travel may guide
+that later research/ranking, but they never count as evidence about a specific
+Experience.
 
 ---
