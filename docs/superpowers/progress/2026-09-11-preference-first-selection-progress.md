@@ -1851,3 +1851,200 @@ Ran (all green, no code change made — the fix was already correct):
 
 ### Next task
 `B2 — Evidence-only classifier + trait guard`
+
+---
+
+## Checkpoint B — Task B2 — COMPLETE
+
+- Branch: `feat/preference-first-selection`
+- Base commit: `a88dad6d7a7b52bf07d0e4bd069890a3f8ed9577` (docs: split
+  image reliability fixes from media quality design)
+- Implementation commit: `284a972`
+- Plan task: `B2 — Evidence-only classifier + trait guard`
+- Status: COMPLETE
+
+### Implemented
+Three new files, matching the plan's naming exactly, plus one config
+addition:
+
+- **`trait-shape-guard.util.ts`**: `isValidClassifierTraitShape` rejects
+  non-string values outright (never coerces), multi-line strings, empty/
+  whitespace-only strings, sentence-ending punctuation (`. ! ?`), and
+  anything over 3 words. `normalizeClassifierTrait` trims/collapses
+  whitespace/lowercases. `sanitizeClassifierTraits` runs both over an
+  unknown-shaped runtime array (never throws on a non-array payload —
+  returns `[]`), dedupes by normalized value.
+- **`experience-semantic-classification.prompt.ts`**:
+  `buildClassificationSystemPrompt` states the evidence-only contract
+  explicitly — themes/intents constrained to the reused canonical
+  vocabulary (`CANONICAL_THEME_KEYS`/`CANONICAL_INTENT_KEYS`, re-exported
+  from `experience-candidate-facet-normalizer.util.ts`, not copied),
+  traits freeform/concise/never-a-sentence, no `dimensionedFacets` of any
+  kind, "substantially supported by the evidence" (never an incidental
+  word match), every accepted fact must cite real evidence keys via
+  `reasoningEvidence`, empty arrays are a normal accurate output.
+  `buildClassificationUserPrompt(canonicalName, evidence)` — exactly 2
+  parameters, no traveler-preference parameter exists on the function at
+  all (asserted structurally in the spec via `.length === 2`).
+  `buildClassificationResponseJsonSchema()` enum-constrains
+  themes/intents to the canonical vocab, leaves traits as plain strings,
+  requires `{facet, evidenceKeys, reason}` on each `reasoningEvidence`
+  entry — kept available for a future schema-enforced provider even
+  though v1 (Groq, JSON-object mode) relies on the system prompt plus the
+  service's own deterministic sanitizer.
+- **`experience-classification.service.ts`**
+  (`ExperienceClassificationService.classify(canonicalName, evidence)`):
+  - Skips the LLM call entirely when `evidence` is empty, returning a
+    valid `state: 'classified'` result with all-empty arrays (empty
+    evidence can't substantiate anything — this is a normal, accurate,
+    zero-cost outcome, not a degraded one).
+  - Otherwise calls `LangChainService.generateChatResponse(...)` directly
+    with `providerOverride: 'groq'`, `modelOverride` from the new
+    `aiConfig.classification.groq.model`, and
+    `responseFormat: { type: 'json_object' }`. Deliberately does **not**
+    reimplement retry/backoff on 429 — `LangChainService` already retries
+    a Groq 429 (bounded, `retry-after`-aware) internally, so calling it
+    directly already satisfies the plan's "sequential calls, bounded
+    retry/backoff on 429" requirement.
+  - Any thrown error from the LLM call, or a non-JSON / non-object
+    response, degrades to `state: 'degraded'` with empty arrays (real
+    `modelId`/`promptVersion` still populated) — never throws.
+  - On a well-formed response, sanitizes `reasoningEvidence` first (an
+    entry survives only when `facet`/`reason` are non-empty strings and
+    **every** cited `evidenceKey` is a real key from the evidence this
+    call was actually given — matching the "reject the whole fact if any
+    cited key is invalid" precedent already established in
+    `experience-candidate-extraction.util.ts`, not a more lenient
+    partial-trust rule), then accepts a theme only if it's in
+    `CANONICAL_THEME_KEYS` **and** has a surviving `theme:<key>`
+    evidence entry, an intent only if in `CANONICAL_INTENT_KEYS` **and**
+    evidenced, and a trait only if it passes `sanitizeClassifierTraits`
+    **and** is evidenced — then re-filters the sanitized
+    `reasoningEvidence` down to only the facets that actually survived
+    into the final themes/intents/traits, so the returned trace never
+    contains a dangling entry for a fact that was itself rejected (e.g.
+    real evidence citing an out-of-vocabulary theme, or a sentence-shaped
+    trait).
+  - `canReuseClassification(metadata, currentPromptVersion)`: the D2
+    reuse predicate. True only when `metadata.classification` exists, is
+    a plain object, `promptVersion` strictly equals the current version,
+    and passes a deterministic shape guard (all four arrays present,
+    `modelId` a non-empty string, `state` one of
+    `'classified'|'degraded'`). Deliberately does **not** implement the
+    forbidden `if (experienceId) return true` shortcut — a bare
+    `{experienceId: '...'}` with no real classification correctly
+    returns `false`. Never throws on runtime-unknown `metadata`
+    (non-object, `null`, `undefined`, or a malformed nested shape all
+    degrade to `false`).
+- **`ai.config.ts`**: added `classification: ClassificationConfig`
+  (`{ groq: { apiKey, model } }`, `GROQ_CLASSIFICATION_MODEL` env var,
+  default `qwen/qwen3.8-27b`) — Groq-only for v1, no provider selector
+  like `discoveryExtractor`'s, since cross-provider fallback for
+  classification is out of scope until the shared AI abstraction is
+  asked to support it.
+
+This is a pure primitive, exactly like A7's exploration-signal
+functions: it is not yet wired into any persistence or live
+orchestration path (no write to `Experience.metadata`, no call site
+anywhere in the acquisition/generation flow) — that wiring is a later
+checkpoint's job, not B2's.
+
+### Files changed
+- `be/src/modules/tours/utils/trait-shape-guard.util.ts` (new)
+- `be/src/modules/tours/utils/trait-shape-guard.util.spec.ts` (new)
+- `be/src/modules/tours/prompts/experience-semantic-classification.prompt.ts` (new)
+- `be/src/modules/tours/prompts/experience-semantic-classification.prompt.spec.ts` (new)
+- `be/src/modules/tours/services/experience-classification.service.ts` (new)
+- `be/src/modules/tours/services/experience-classification.service.spec.ts` (new)
+- `be/src/shared/ai/ai.config.ts` (added `classification` config
+  namespace)
+- `be/src/shared/ai/services/ai-embedding.service.spec.ts` (3 fixture
+  objects updated with the new required `classification` field, needed
+  to keep `yarn typecheck` clean after the `AiConfig` interface change)
+
+### Verification
+- RED confirmed for all three new spec files before implementing
+  (`Cannot find module`/cascading `TS7018` implicit-any errors from the
+  unresolved imports), then implemented each in turn (trait guard →
+  prompt → service) and reran.
+- One incidental, import-unrelated TS7018 fix inside
+  `experience-classification.service.spec.ts` itself: two object
+  literals (`valid`/`stale` fixtures for `canReuseClassification`) had
+  bare `themes: []`/`intents: []`/etc. properties that TypeScript infers
+  as implicit `any[]` under this repo's `noImplicitAny: true` +
+  `strictNullChecks: false` combination, regardless of whether the
+  service module resolves — added `as string[]`/`as unknown[]`
+  annotations (no behavior change) so the suite could compile at all.
+- `yarn test src/modules/tours/utils/trait-shape-guard.util.spec.ts` →
+  PASS — 21/21.
+- `yarn test src/modules/tours/prompts/experience-semantic-classification.prompt.spec.ts`
+  → PASS — 12/12.
+- `yarn test src/modules/tours/services/experience-classification.service.spec.ts`
+  → PASS — 16/16.
+- `yarn typecheck` → PASS — no errors.
+- `npx eslint --fix` on all 8 touched/created files → one prettier
+  reflow (two lines merged into one inside
+  `sanitizeReasoningEvidence`), otherwise clean; reran plain `eslint`
+  afterward to confirm 0 problems.
+- `yarn test src/modules/tours` → PASS — 88 suites / 869 tests, no
+  regressions.
+- `yarn test src/shared/ai` → PASS — 7 suites / 44 tests, no
+  regressions (confirms the `ai.config.ts` change and its
+  `ai-embedding.service.spec.ts` fixture update didn't break anything
+  else reading `AiConfig`).
+
+### Deviations from plan
+- None against the plan's explicit bullet list. One inferred (not
+  explicitly mandated) design choice: `classify()` skips the LLM call
+  entirely on empty evidence rather than calling it anyway — consistent
+  with `PreferenceInterpreterService`'s established "skip on empty
+  input" convention elsewhere in this codebase and with the spec's own
+  "empty arrays are a normal, expected, accurate output" framing, and
+  covered by its own test.
+
+### Decisions taken
+- Confirmed `LangChainService` already provides bounded Groq 429
+  retry/backoff, so B2 calls it directly rather than adding a second
+  retry loop — avoids duplicated/conflicting backoff logic.
+- Deliberately did **not** wire `ClassificationResult` into
+  `Experience.metadata.themes/intents/traits` (the flat arrays
+  `candidateMatchesPreferenceFacet` reads) — out of scope for B2, which
+  only defines the primitive; a later checkpoint owns persisting under a
+  nested `metadata.classification` key and reconciling with the flat
+  facet arrays.
+- Reused the two-pass "reject the whole fact if any cited evidence key
+  is invalid" validation rule already established for discovery
+  extraction, rather than inventing a more lenient partial-trust
+  variant, to keep the anti-hallucination convention consistent across
+  Stage 6 and Stage 7.
+
+### Open issues / debt
+- None new. `ClassificationResult`/`canReuseClassification` are ready
+  for a later checkpoint to wire into persistence and into an actual
+  reuse-vs-reclassify decision at generation time.
+
+### Concurrency note (worktree collision, resolved)
+Mid-task, the shared worktree (`.worktrees/ui-redesign`, also used by a
+concurrent agent doing unrelated frontend/mobile work) was switched to
+`fix/android-image-delivery-media-hardening` by that other agent while
+this task's changes were still uncommitted. The switch was preceded by
+a `git stash --include-untracked` (not a destructive discard) capturing
+all 6 new files plus the 2 modified files intact as `stash@{0}` ("WIP:
+preference-first semantic classification"); no commits were lost or
+overwritten (both branches pointed at the same commit, `a88dad6`, before
+and after). The user confirmed the worktree was restored to
+`feat/preference-first-selection` with the stash re-applied before work
+resumed; this checkpoint's own verification (typecheck/lint/regression
+sweep above) re-confirmed everything was intact and correct after the
+restore. No corrective action was needed beyond waiting for the
+restore and re-verifying — flagged here as a reminder that this
+worktree is genuinely shared and can be switched by the other agent at
+any time.
+- Re-checked for concurrent drift immediately before staging/committing:
+  `git fetch fork feat/preference-first-selection` then
+  `git log HEAD..fork/...` and `git log fork/...HEAD` were both empty —
+  local HEAD matched `fork` exactly (`a88dad6`), confirming no other
+  commits landed on this branch while B2 was in progress.
+
+### Next task
+`B3 — Quality score including composite-component signals`
