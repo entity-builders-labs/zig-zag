@@ -60,8 +60,10 @@ export default registerAs('auth', (): AuthConfig => {
       .split(',')
       .map((id) => id.trim())
       .filter(Boolean),
+    // Development auth bypasses must stay explicit opt-ins. Merely being in
+    // a non-production environment is not enough to enable a mock login path.
     allowDevAppleAuthMock:
-      !isProduction && process.env.ALLOW_DEV_APPLE_AUTH_MOCK !== 'false',
+      !isProduction && process.env.ALLOW_DEV_APPLE_AUTH_MOCK === 'true',
     emailOtp: {
       codeTtlMinutes: process.env.EMAIL_OTP_TTL_MINUTES
         ? parseInt(process.env.EMAIL_OTP_TTL_MINUTES, 10)
