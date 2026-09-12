@@ -967,9 +967,13 @@ export class ExperienceCatalogService {
             openingHours: input.openingHours as unknown as
               | Prisma.InputJsonValue
               | undefined,
-            metadata: Object.keys(merged.metadata).length
-              ? (merged.metadata as Prisma.InputJsonValue)
-              : undefined,
+            // Always write the canonical merge result explicitly, even
+            // when it is `{}` -- in a Prisma update, `undefined` means
+            // "leave this column untouched", which would silently keep
+            // stale/malformed metadata (e.g. a superseded classification)
+            // in the database even though mergeExperienceMetadata itself
+            // correctly decided it should not survive.
+            metadata: merged.metadata as Prisma.InputJsonValue,
             embeddingProvider: null,
             embeddingModel: null,
             embeddingDimensions: null,

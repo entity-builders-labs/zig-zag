@@ -124,7 +124,7 @@ describe('experience-metadata-merge.util', () => {
       expect(merged.metadata.dimensionedTraits).toBeUndefined();
     });
 
-    it('preserves explicit dimensionedTraits verbatim from either side (a trusted source already supplied them), unioned and deduped by dimension+key', () => {
+    it('preserves explicit dimensionedTraits from either side (a trusted source already supplied them), unioned and deduped by dimension+key', () => {
       const merged = mergeExperienceMetadata(
         {
           metadata: {
@@ -158,6 +158,118 @@ describe('experience-metadata-merge.util', () => {
         { metadata: {} },
       );
       expect(merged.metadata.dimensionedTraits).toBeUndefined();
+    });
+
+    describe('dimensionedTraits order-independence (review fix B4.1)', () => {
+      it("Case A: converges to one canonical (lowercase/trimmed) entry regardless of which side's casing arrived first", () => {
+        const a: ExperienceMetadataSnapshot = {
+          metadata: {
+            dimensionedTraits: [
+              { dimension: 'Tourism_Intensity', key: 'Iconic' },
+            ],
+          },
+        };
+        const b: ExperienceMetadataSnapshot = {
+          metadata: {
+            dimensionedTraits: [
+              { dimension: 'tourism_intensity', key: 'iconic' },
+            ],
+          },
+        };
+
+        const merged = expectOrderIndependent(a, b);
+        expect(merged.metadata.dimensionedTraits).toEqual([
+          { dimension: 'tourism_intensity', key: 'iconic' },
+        ]);
+      });
+
+      it('Case B: a richer non-empty label survives over an entry with no label at all, regardless of order', () => {
+        const a: ExperienceMetadataSnapshot = {
+          metadata: {
+            dimensionedTraits: [
+              { dimension: 'local_character', key: 'traditional' },
+            ],
+          },
+        };
+        const b: ExperienceMetadataSnapshot = {
+          metadata: {
+            dimensionedTraits: [
+              {
+                dimension: 'LOCAL_CHARACTER',
+                key: 'TRADITIONAL',
+                label: 'Traditional local institution',
+              },
+            ],
+          },
+        };
+
+        const merged = expectOrderIndependent(a, b);
+        expect(merged.metadata.dimensionedTraits).toEqual([
+          {
+            dimension: 'local_character',
+            key: 'traditional',
+            label: 'Traditional local institution',
+          },
+        ]);
+      });
+
+      it('Case C: two different non-empty labels for the same identity resolve deterministically, the same way regardless of order (richer/longer wins)', () => {
+        const a: ExperienceMetadataSnapshot = {
+          metadata: {
+            dimensionedTraits: [
+              {
+                dimension: 'local_character',
+                key: 'authentic',
+                label: 'Authentic',
+              },
+            ],
+          },
+        };
+        const b: ExperienceMetadataSnapshot = {
+          metadata: {
+            dimensionedTraits: [
+              {
+                dimension: 'local_character',
+                key: 'authentic',
+                label: 'Authentic neighborhood institution',
+              },
+            ],
+          },
+        };
+
+        const merged = expectOrderIndependent(a, b);
+        expect(merged.metadata.dimensionedTraits).toEqual([
+          {
+            dimension: 'local_character',
+            key: 'authentic',
+            label: 'Authentic neighborhood institution',
+          },
+        ]);
+      });
+
+      it('Case C2: an exact-length label tie resolves via a stable lexicographic tie-break, the same way regardless of order', () => {
+        const a: ExperienceMetadataSnapshot = {
+          metadata: {
+            dimensionedTraits: [
+              { dimension: 'local_character', key: 'authentic', label: 'Zeta' },
+            ],
+          },
+        };
+        const b: ExperienceMetadataSnapshot = {
+          metadata: {
+            dimensionedTraits: [
+              { dimension: 'local_character', key: 'authentic', label: 'Alfa' },
+            ],
+          },
+        };
+
+        const merged = expectOrderIndependent(a, b);
+        // Same length ("Zeta"/"Alfa") -- deterministic lexicographic
+        // tie-break, not "whichever came first".
+        expect(merged.metadata.dimensionedTraits).toEqual([
+          { dimension: 'local_character', key: 'authentic', label: 'Alfa' },
+        ]);
+      });
     });
   });
 
@@ -196,6 +308,56 @@ describe('experience-metadata-merge.util', () => {
         mergeExperienceMetadata({ metadata: {} }, { metadata: {} })
           .qualityScore,
       ).toBeNull();
+    });
+
+    describe('valid range is 0..5 (review fix B4.1)', () => {
+      it('ignores an out-of-range score above 5 and keeps the other valid one', () => {
+        expect(
+          mergeExperienceMetadata(
+            { qualityScore: 99, metadata: {} },
+            { qualityScore: 4.2, metadata: {} },
+          ).qualityScore,
+        ).toBe(4.2);
+      });
+
+      it('treats a negative score and a null score as both invalid -- result is null', () => {
+        expect(
+          mergeExperienceMetadata(
+            { qualityScore: -1, metadata: {} },
+            { qualityScore: null, metadata: {} },
+          ).qualityScore,
+        ).toBeNull();
+      });
+
+      it('ignores Infinity/NaN as invalid, never crashing the comparison', () => {
+        expect(
+          mergeExperienceMetadata(
+            { qualityScore: Infinity, metadata: {} },
+            { qualityScore: 3.0, metadata: {} },
+          ).qualityScore,
+        ).toBe(3.0);
+        expect(
+          mergeExperienceMetadata(
+            { qualityScore: NaN, metadata: {} },
+            { qualityScore: 3.0, metadata: {} },
+          ).qualityScore,
+        ).toBe(3.0);
+      });
+
+      it('still keeps the higher of two genuinely valid in-range scores', () => {
+        expect(
+          mergeExperienceMetadata(
+            { qualityScore: 4.1, metadata: {} },
+            { qualityScore: 3.2, metadata: {} },
+          ).qualityScore,
+        ).toBe(4.1);
+        expect(
+          mergeExperienceMetadata(
+            { metadata: {} },
+            { qualityScore: 3.8, metadata: {} },
+          ).qualityScore,
+        ).toBe(3.8);
+      });
     });
   });
 
@@ -287,6 +449,151 @@ describe('experience-metadata-merge.util', () => {
         { metadata: { classification: 'garbage' as any } },
       );
       expect(merged.metadata.classification).toBeUndefined();
+    });
+
+    describe('tier correctness for a malformed current "classified" payload (review fix B4.1)', () => {
+      // Current prompt version, state: 'classified', BUT missing modelId
+      // AND its accepted theme "history" has no corresponding
+      // reasoningEvidence entry -- canReuseClassification() correctly
+      // rejects this (fails B2's own reuse contract), so it must NOT be
+      // treated as tier 1 (degraded) either. It is tier 0: exactly as
+      // worthless as if it were absent.
+      const invalidCurrentClassified = {
+        themes: ['history'],
+        intents: [] as string[],
+        traits: [] as string[],
+        reasoningEvidence: [] as unknown[],
+        promptVersion: CURRENT_CLASSIFICATION_PROMPT_VERSION,
+        state: 'classified',
+        // modelId deliberately omitted.
+      };
+
+      it('Case A: a malformed current "classified" payload loses to a genuinely valid classification, regardless of order', () => {
+        const merged = expectOrderIndependent(
+          { metadata: { classification: invalidCurrentClassified } },
+          { metadata: { classification: currentClassified } },
+        );
+        expect(merged.metadata.classification).toEqual(currentClassified);
+      });
+
+      it('Case B: a malformed current "classified" payload must NOT beat a stale one -- neither is valid/current, so the result is absent', () => {
+        const merged = expectOrderIndependent(
+          { metadata: { classification: invalidCurrentClassified } },
+          { metadata: { classification: staleClassified } },
+        );
+        expect(merged.metadata.classification).toBeUndefined();
+      });
+
+      it('Case D: a "degraded" payload with non-empty arrays is malformed for the canonical degraded shape and is tier 0, not tier 1', () => {
+        const malformedDegraded = {
+          themes: ['history'], // INVALID for the canonical degraded shape
+          intents: [] as string[],
+          traits: [] as string[],
+          reasoningEvidence: [] as unknown[],
+          modelId: 'groq-classify-test',
+          promptVersion: CURRENT_CLASSIFICATION_PROMPT_VERSION,
+          state: 'degraded',
+        };
+        const merged = expectOrderIndependent(
+          { metadata: { classification: malformedDegraded } },
+          { metadata: { classification: staleClassified } },
+        );
+        // Both sides are tier 0 (malformed degraded, stale classified) --
+        // absent, never the malformed payload.
+        expect(merged.metadata.classification).toBeUndefined();
+      });
+    });
+  });
+
+  describe('multi-observation (3+) convergence -- commutativity AND associativity (review fix B4.1)', () => {
+    const classificationA = {
+      themes: ['history'],
+      intents: [] as string[],
+      traits: [] as string[],
+      reasoningEvidence: [
+        { facet: 'theme:history', evidenceKeys: ['ev-a'], reason: 'a' },
+      ],
+      modelId: 'model-a',
+      promptVersion: CURRENT_CLASSIFICATION_PROMPT_VERSION,
+      state: 'classified',
+    };
+    const classificationC = {
+      themes: ['food'],
+      intents: [] as string[],
+      traits: [] as string[],
+      reasoningEvidence: [
+        { facet: 'theme:food', evidenceKeys: ['ev-c'], reason: 'c' },
+      ],
+      modelId: 'model-c',
+      promptVersion: CURRENT_CLASSIFICATION_PROMPT_VERSION,
+      state: 'classified',
+    };
+
+    const A: ExperienceMetadataSnapshot = {
+      qualityScore: 3.3,
+      metadata: {
+        themes: ['history'],
+        dimensionedTraits: [
+          { dimension: 'local_character', key: 'traditional' },
+        ],
+        classification: classificationA,
+      },
+    };
+    const B: ExperienceMetadataSnapshot = {
+      qualityScore: 4.0,
+      metadata: {
+        themes: ['architecture'],
+        traits: ['rooftop'],
+        dimensionedTraits: [{ dimension: 'TOURISM_INTENSITY', key: 'ICONIC' }],
+      },
+    };
+    const C: ExperienceMetadataSnapshot = {
+      metadata: {
+        themes: ['history', 'food'],
+        traits: ['craft beer'],
+        dimensionedTraits: [
+          {
+            dimension: 'tourism_intensity',
+            key: 'iconic',
+            label: 'Iconic tourist destination',
+          },
+        ],
+        classification: classificationC,
+      },
+    };
+
+    it('merge(merge(A,B),C) == merge(A,merge(B,C)) == merge(merge(C,A),B) == merge(merge(B,C),A)', () => {
+      const abThenC = mergeExperienceMetadata(mergeExperienceMetadata(A, B), C);
+      const aThenBc = mergeExperienceMetadata(A, mergeExperienceMetadata(B, C));
+      const caThenB = mergeExperienceMetadata(mergeExperienceMetadata(C, A), B);
+      const bcThenA = mergeExperienceMetadata(mergeExperienceMetadata(B, C), A);
+
+      expect(abThenC).toEqual(aThenBc);
+      expect(abThenC).toEqual(caThenB);
+      expect(abThenC).toEqual(bcThenA);
+
+      // Sanity-check the actual converged content, not just that the four
+      // permutations agree with each other.
+      expect(abThenC.qualityScore).toBe(4.0);
+      expect(abThenC.metadata.themes).toEqual([
+        'architecture',
+        'food',
+        'history',
+      ]);
+      expect(abThenC.metadata.traits).toEqual(['craft beer', 'rooftop']);
+      expect(abThenC.metadata.dimensionedTraits).toEqual([
+        { dimension: 'local_character', key: 'traditional' },
+        {
+          dimension: 'tourism_intensity',
+          key: 'iconic',
+          label: 'Iconic tourist destination',
+        },
+      ]);
+      // Both A and C carry an equally-ranked (tier 2) classification;
+      // whichever wins must be exactly one of them, atomic, never a hybrid.
+      expect([classificationA, classificationC]).toContainEqual(
+        abThenC.metadata.classification,
+      );
     });
   });
 

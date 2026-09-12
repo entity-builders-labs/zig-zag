@@ -128,12 +128,51 @@ function isDimensionedTraitEntry(
   );
 }
 
-/** Union of explicit dimensioned-trait entries from both sides, deduped by
- *  `dimension:key`. Malformed entries are dropped, never coerced or used
- *  to manufacture a new dimension. Candidates are sorted by identity (then
- *  by label) BEFORE dedupe, so which literal entry "wins" for a given
- *  identity never depends on which side (a or b) supplied it -- only on
- *  the entries' own content. */
+/**
+ * Picks the "richest" non-empty label among candidates for the same
+ * dimensionedTraits identity: an empty/missing label never survives over a
+ * real one; between two non-empty labels the longer one wins; an exact
+ * length tie is broken by a stable lexicographic comparison. This is a
+ * fold over a total order (length, then string), so the result is the
+ * same regardless of how many labels there are or what order they're
+ * folded in -- never "whichever side supplied it".
+ */
+function pickRicherLabel(
+  labels: Array<string | undefined>,
+): string | undefined {
+  let best: string | undefined;
+  for (const raw of labels) {
+    if (typeof raw !== 'string') continue;
+    const candidate = raw.trim();
+    if (!candidate) continue;
+    if (best === undefined) {
+      best = candidate;
+      continue;
+    }
+    if (candidate.length > best.length) {
+      best = candidate;
+    } else if (candidate.length === best.length && candidate < best) {
+      best = candidate;
+    }
+  }
+  return best;
+}
+
+/**
+ * Union of explicit dimensioned-trait entries from both sides, deduped by
+ * `dimension:key`. Malformed entries are dropped, never coerced or used to
+ * manufacture a new dimension.
+ *
+ * The output `dimension`/`key` are CANONICALIZED (trim + lowercase) --
+ * this is semantic/canonical metadata, not UI copy, so two providers
+ * supplying e.g. `Tourism_Intensity`/`tourism_intensity` for the same real
+ * fact must converge to one identical entry regardless of casing or which
+ * side arrived first. The `label`, when any candidate for that identity
+ * supplied one, is chosen deterministically via `pickRicherLabel` -- a
+ * richer/non-empty label from either side always survives over an entry
+ * with no label at all; this is what makes "richer metadata is not
+ * erased" hold at the label level too, not just at the identity level.
+ */
 function mergeDimensionedTraits(
   a: unknown,
   b: unknown,
@@ -143,94 +182,135 @@ function mergeDimensionedTraits(
     ...(Array.isArray(b) ? b : []),
   ].filter(isDimensionedTraitEntry);
 
-  const withIdentity = combined
-    .map((entry) => ({
-      identity: `${entry.dimension.trim().toLowerCase()}:${entry.key.trim().toLowerCase()}`,
-      entry,
-    }))
-    .sort((x, y) => {
-      if (x.identity !== y.identity) return x.identity < y.identity ? -1 : 1;
-      const xLabel = x.entry.label ?? '';
-      const yLabel = y.entry.label ?? '';
-      return xLabel < yLabel ? -1 : xLabel > yLabel ? 1 : 0;
-    });
-
-  const byIdentity = new Map<string, DimensionedTraitEntry>();
-  for (const { identity, entry } of withIdentity) {
-    if (!byIdentity.has(identity)) {
-      byIdentity.set(identity, {
-        dimension: entry.dimension,
-        key: entry.key,
-        label: entry.label,
-      });
-    }
+  const byIdentity = new Map<
+    string,
+    { dimension: string; key: string; labels: Array<string | undefined> }
+  >();
+  for (const entry of combined) {
+    const dimension = entry.dimension.trim().toLowerCase();
+    const key = entry.key.trim().toLowerCase();
+    const identity = `${dimension}:${key}`;
+    const group = byIdentity.get(identity) ?? {
+      dimension,
+      key,
+      labels: [] as Array<string | undefined>,
+    };
+    group.labels.push(entry.label);
+    byIdentity.set(identity, group);
   }
+
   return Array.from(byIdentity.keys())
     .sort()
-    .map((identity) => byIdentity.get(identity)!);
+    .map((identity) => {
+      const group = byIdentity.get(identity)!;
+      const label = pickRicherLabel(group.labels);
+      return label !== undefined
+        ? { dimension: group.dimension, key: group.key, label }
+        : { dimension: group.dimension, key: group.key };
+    });
+}
+
+/** B3's canonical qualityScore range (`quality-score.util.ts`): `0..5 |
+ *  null`. A value outside this range is not a valid score at all -- never
+ *  coerced/clamped, just treated the same as missing. This is a small,
+ *  local range check; it does not import from `quality-score.util.ts` (no
+ *  formula/policy is duplicated here, only the same bound). */
+function isValidQualityScore(value: unknown): value is number {
+  return (
+    typeof value === 'number' &&
+    Number.isFinite(value) &&
+    value >= 0 &&
+    value <= 5
+  );
 }
 
 /** Null-safe, order-independent "strongest valid signal" quality merge
  *  (matches the policy `quality-score.util.ts` itself expects a caller to
- *  apply between two already-computed scores): a missing score never
- *  outranks a real one, and two real scores resolve via `Math.max`
- *  (commutative). */
+ *  apply between two already-computed scores): a missing OR out-of-range
+ *  score never outranks a real one, and two real scores resolve via
+ *  `Math.max` (commutative). */
 function mergeQualityScore(
   a: number | null | undefined,
   b: number | null | undefined,
 ): number | null {
-  const aValid = typeof a === 'number' && Number.isFinite(a);
-  const bValid = typeof b === 'number' && Number.isFinite(b);
+  const aValid = isValidQualityScore(a);
+  const bValid = isValidQualityScore(b);
   if (!aValid && !bValid) return null;
   if (!aValid) return b as number;
   if (!bValid) return a as number;
   return Math.max(a as number, b as number);
 }
 
-/** Minimal, LOCAL shape check for "a well-formed, current-prompt-version
- *  classification payload, in EITHER state" -- deliberately separate from
- *  `canReuseClassification` (which excludes `degraded` by design, since
- *  that predicate answers a different question: "may Stage 6 be skipped
- *  for this Experience?", not "is this worth keeping through a merge?").
- *  A current, well-formed `degraded` classification is real, meaningful
- *  state (spec D1: a marker for a later reclassification job to repair)
- *  and must not be silently dropped by a merge just because it isn't
- *  reusable. */
-function isWellFormedCurrentClassification(value: unknown): value is {
-  themes: unknown[];
-  intents: unknown[];
-  traits: unknown[];
-  reasoningEvidence: unknown[];
-  promptVersion: number;
-  state: 'classified' | 'degraded';
-} {
-  if (!isPlainObject(value)) return false;
-  if (value.promptVersion !== CURRENT_CLASSIFICATION_PROMPT_VERSION) {
-    return false;
-  }
-  if (!Array.isArray(value.themes)) return false;
-  if (!Array.isArray(value.intents)) return false;
-  if (!Array.isArray(value.traits)) return false;
-  if (!Array.isArray(value.reasoningEvidence)) return false;
-  return value.state === 'classified' || value.state === 'degraded';
+function isNonEmptyString(value: unknown): value is string {
+  return typeof value === 'string' && value.trim().length > 0;
 }
 
-/** Ranks a metadata blob's `classification` field: 2 = current + reusable
- *  (`state: 'classified'`, passes the full `canReuseClassification` shape
- *  guard including internal fact/evidence consistency); 1 = current +
- *  well-formed but `degraded`; 0 = absent, malformed, or a stale prompt
- *  version. Version-aware by construction -- never a function of which
- *  provider/call supplied it. */
+/**
+ * Minimal, LOCAL shape check for "a well-formed, CURRENT-prompt-version,
+ * `degraded` classification payload" -- deliberately separate from
+ * `canReuseClassification` (which never accepts `degraded` by design,
+ * since it answers a different question: "may Stage 6 be skipped for this
+ * Experience?", not "is this worth keeping through a merge?"). A current,
+ * well-formed `degraded` classification is real, meaningful state (spec
+ * D1: a marker for a later reclassification job to repair) and must not
+ * be silently dropped by a merge just because it isn't reusable.
+ *
+ * This does NOT duplicate B2's full shape/vocabulary validator -- it
+ * checks exactly the shape `ExperienceClassificationService.classify()`
+ * itself always produces for a degraded result: empty
+ * themes/intents/traits/reasoningEvidence, a non-empty `modelId`, and the
+ * current prompt version. A `state: 'classified'` payload is NEVER tier 1
+ * via this check -- `classificationTier` below only calls this after
+ * `canReuseClassification` has already rejected it, and this function
+ * itself requires `state === 'degraded'` explicitly.
+ */
+function isValidCurrentDegradedClassification(value: unknown): boolean {
+  return (
+    isPlainObject(value) &&
+    value.state === 'degraded' &&
+    value.promptVersion === CURRENT_CLASSIFICATION_PROMPT_VERSION &&
+    isNonEmptyString(value.modelId) &&
+    Array.isArray(value.themes) &&
+    value.themes.length === 0 &&
+    Array.isArray(value.intents) &&
+    value.intents.length === 0 &&
+    Array.isArray(value.traits) &&
+    value.traits.length === 0 &&
+    Array.isArray(value.reasoningEvidence) &&
+    value.reasoningEvidence.length === 0
+  );
+}
+
+/**
+ * Ranks a metadata blob's `classification` field:
+ *
+ * - 2 = current + genuinely reusable (`state: 'classified'`, passes the
+ *   FULL `canReuseClassification` shape guard, including canonical
+ *   vocabulary membership and internal fact/evidence 1:1 consistency --
+ *   the exact same bar B2 itself uses to decide reuse).
+ * - 1 = current + well-formed canonical `degraded` payload (see
+ *   `isValidCurrentDegradedClassification`).
+ * - 0 = everything else -- absent, malformed, a stale prompt version, OR
+ *   a `state: 'classified'` payload that FAILS `canReuseClassification`
+ *   (e.g. missing `modelId`, or an accepted fact with no matching
+ *   evidence). Such a payload is NOT given tier 1 as a consolation --
+ *   it is exactly as worthless as if it were absent, never persisted in
+ *   preference to a merely-stale or missing classification.
+ *
+ * Version-aware and validity-aware by construction -- never a function of
+ * which provider/call supplied it.
+ */
 function classificationTier(metadata: Record<string, unknown>): 0 | 1 | 2 {
+  const classification = metadata.classification;
   if (
     canReuseClassification(
-      { classification: metadata.classification },
+      { classification },
       CURRENT_CLASSIFICATION_PROMPT_VERSION,
     )
   ) {
     return 2;
   }
-  return isWellFormedCurrentClassification(metadata.classification) ? 1 : 0;
+  return isValidCurrentDegradedClassification(classification) ? 1 : 0;
 }
 
 /** Picks which side's `classification` survives the merge. Treated as one

@@ -1,6 +1,7 @@
 import { Prisma, GeoEntityKind } from '@prisma/client';
 import { ExperienceCatalogService } from './experience-catalog.service';
 import { PlacesCrawlError } from '@integrations/google-places/interfaces/places-api.interface';
+import { CURRENT_CLASSIFICATION_PROMPT_VERSION } from './experience-classification.service';
 
 describe('ExperienceCatalogService.upsertGeoEntity', () => {
   const input = {
@@ -815,6 +816,65 @@ describe('ExperienceCatalogService dedupe', () => {
         }),
       }),
     );
+  });
+
+  it('persists an explicitly EMPTY canonical metadata object ({}) rather than silently leaving stale metadata untouched (review fix B4.1)', async () => {
+    // A stale (superseded prompt version) classification -- the merge
+    // correctly decides this is worthless and the canonical result is {}.
+    const staleClassification = {
+      themes: ['history'],
+      intents: [] as string[],
+      traits: [] as string[],
+      reasoningEvidence: [
+        { facet: 'theme:history', evidenceKeys: ['ev-1'], reason: 'x' },
+      ],
+      modelId: 'stale-model',
+      promptVersion: CURRENT_CLASSIFICATION_PROMPT_VERSION - 1,
+      state: 'classified',
+    };
+    const same: any = {
+      id: 'exp-1',
+      canonicalName: 'museo central',
+      description: null,
+      durationMinutes: null,
+      price: null,
+      qualityScore: null,
+      latitude: null,
+      longitude: null,
+      metadata: { classification: staleClassification },
+      components: [{ geoEntityId: 'geo-1', role: 'venue', required: true }],
+      evidence: [],
+      traits: [],
+    };
+    const emptyInput = { ...input, metadata: {} };
+    const tx: any = {
+      $executeRaw: jest.fn(),
+      experience: {
+        findMany: jest.fn().mockResolvedValue([same]),
+        create: jest.fn(),
+        update: jest.fn().mockResolvedValue({ ...same, evidence: [] }),
+      },
+      experienceEvidence: { createMany: jest.fn() },
+      experienceTrait: { createMany: jest.fn() },
+    };
+    const prisma: any = {
+      $transaction: jest.fn((callback: any) => callback(tx)),
+    };
+    const service = new ExperienceCatalogService(prisma, {} as any);
+
+    await service.persistVerifiedExperience(emptyInput);
+
+    // The canonical merge correctly drops the stale classification --
+    // Prisma must be told to actually WRITE {}, not `undefined` (which
+    // would mean "leave the column untouched" and silently keep the
+    // stale classification in the database).
+    expect(tx.experience.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ metadata: {} }),
+      }),
+    );
+    const call = tx.experience.update.mock.calls[0][0];
+    expect(call.data.metadata).not.toBeUndefined();
   });
 
   it('serializes the identity check inside the transaction and creates NEW', async () => {
