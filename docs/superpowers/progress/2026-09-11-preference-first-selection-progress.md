@@ -2558,15 +2558,17 @@ production scorer decoupled from strong-match policy).
 
 ---
 
-## Checkpoint B — Task B4 — COMPLETE
+## Checkpoint B — Task B4 — COMPLETE (corrected by B4.1 review fix below)
 
 - Branch: `feat/preference-first-selection`
 - Base commit: `321deb8d7f503742882a3875b6313fc0b2fddcea` (docs: record
   B3 mini-fix)
-- Implementation commit: `df77c92`
+- Original implementation commit: `df77c92` (had 4 confirmed
+  correctness findings, see "Checkpoint B — Task B4.1" below)
+- Review-fix commit: `644101c`
 - Plan task: `B4 — Order-independent metadata merge; no invented trait
   dimensions`
-- Status: COMPLETE
+- Status: COMPLETE (as of `644101c`)
 
 ### Implemented
 Created `be/src/modules/tours/utils/experience-metadata-merge.util.ts`,
@@ -2594,8 +2596,12 @@ Canonical, field-specific policies (no generic spread anywhere):
   already established, reused rather than re-invented — `"ROOFTOP"` and
   `"rooftop"` from two different observations dedupe to one.
 - **`dimensionedTraits`**: union of explicit `{dimension, key, label?}`
-  entries **verbatim**, deduped by `dimension:key`. **Never derived
-  from a plain `traits[]` string** — per spec §9.1 ("the classifier
+  entries, deduped by `dimension:key`. **Corrected by the B4.1 review
+  fix below** — `dimension`/`key` are canonicalized (trim + lowercase)
+  in the output rather than kept verbatim, since casing differences
+  between providers must not survive as accidental non-convergence;
+  `label` is chosen deterministically (richer/non-empty wins). **Never
+  derived from a plain `traits[]` string** — per spec §9.1 ("the classifier
   does not return a dimension taxonomy for them in v1, so persistence
   MUST NOT invent one"), a freeform trait `"iconic"` merging alongside
   another observation must never produce a manufactured
@@ -2713,8 +2719,11 @@ Neither file was touched.
   re-emitted rule; trait dedup via `normalizeClassifierTrait`; malformed
   themes/intents/traits never throw and read as absent; the "no
   invented trait dimensions" invariant (a plain trait `"iconic"` never
-  becomes a `dimensionedTraits` entry) plus verbatim
-  `dimensionedTraits` union/dedup plus malformed-entry dropping;
+  becomes a `dimensionedTraits` entry) plus `dimensionedTraits`
+  union/dedup plus malformed-entry dropping (this original test run
+  predates the B4.1 canonicalization fix below — dimension/key were
+  still kept verbatim, not yet order-independent under casing
+  differences);
   qualityScore symmetry/null-handling; the full classification
   tiered-precedence matrix (current-valid beats stale, current beats
   absent, classified beats degraded, degraded beats stale/absent,
@@ -2816,6 +2825,165 @@ either side, verbatim, never synthesized from `traits[]`.
   `git log HEAD..fork/...` and `git log fork/...HEAD` were both empty —
   local HEAD matched `fork` exactly, confirming no other commits landed
   on this branch while B4 was in progress.
+
+---
+
+## Checkpoint B — Task B4.1 — metadata merge correctness review fix — COMPLETE
+
+- Branch: `feat/preference-first-selection`
+- Base commit: `63bef9f0898a839ccef66fa0881b9165d4155c08` (docs: record
+  Task B4 completion)
+- Implementation commit: `644101c`
+- Plan task: `B4 — Order-independent metadata merge; no invented trait
+  dimensions` (review-fix pass, scoped exclusively to B4's own
+  correctness — no B5, no acquisition, no Tavily/SerpApi, no
+  classification prompt/model change, no `computeQualityScore` formula
+  change)
+- Status: COMPLETE
+
+### Findings and fixes
+
+**1. `dimensionedTraits` was not actually order-independent.**
+`mergeDimensionedTraits()` deduped by a normalized identity
+(`dimension.trim().toLowerCase():key.trim().toLowerCase()`) but then
+kept one side's ORIGINAL, uncanonicalized `{dimension, key, label?}`
+object as the surviving entry. Two providers supplying
+`{dimension:'Tourism_Intensity', key:'Iconic'}` and
+`{dimension:'tourism_intensity', key:'iconic'}` for the exact same real
+fact could converge to two DIFFERENT byte-for-byte results depending on
+argument order — violating the checkpoint's own central property.
+**Fixed**: the output `dimension`/`key` are now themselves
+canonicalized (trim + lowercase) — this is semantic/canonical
+metadata, not UI copy, so casing must never survive as accidental
+non-convergence. `label` selection is now a genuine fold over ALL
+candidate labels sharing an identity, via a new `pickRicherLabel()`:
+non-empty beats empty/missing; between two non-empty labels the
+longer (richer) one wins; an exact-length tie resolves via a stable
+lexicographic comparison. This is a fold over a total order (length,
+then string), so it is order-independent regardless of how many
+candidates exist or what order they're folded in.
+
+**2. An invalid current `"classified"` payload could be downgraded to
+tier 1 instead of correctly failing to tier 0.**
+The old `isWellFormedCurrentClassification()` accepted
+`state === 'classified' || state === 'degraded'` with only a
+superficial shape check (arrays present, current prompt version) — so
+a current-version `classified` payload that actually FAILS
+`canReuseClassification` (e.g. missing `modelId`, or an accepted theme
+with no matching `reasoningEvidence`) was incorrectly treated as tier 1
+("as good as a real degraded marker"), letting it survive a merge over
+an equally-invalid stale/absent classification that should have won
+instead (both should read as tier 0 → absent from the result).
+**Fixed**: replaced that function with
+`isValidCurrentDegradedClassification()`, which validates EXACTLY the
+canonical shape `ExperienceClassificationService.classify()` itself
+produces for a degraded result (empty
+`themes`/`intents`/`traits`/`reasoningEvidence`, non-empty `modelId`,
+current prompt version, `state` strictly `'degraded'`) — a
+`state: 'classified'` payload can never satisfy it, by construction.
+`classificationTier()` is now exactly: **2** = `canReuseClassification()`
+true; **1** = `isValidCurrentDegradedClassification()` true; **0** =
+everything else, including a malformed `"classified"` payload — no
+special-casing was added, the tier-0 fallback simply now correctly
+catches this case too.
+
+**3. An empty canonical metadata result (`{}`) was not actually
+persisted.**
+`ExperienceCatalogService` converted an empty `merged.metadata` object
+to `undefined` before handing it to Prisma's `update` — but
+`undefined` means "leave this column untouched" in a Prisma update. So
+when the canonical merge correctly decided that stale/malformed
+metadata (e.g. a superseded classification) should not survive, the
+OLD stale value silently remained in the database, contradicting the
+canonical merge result the code had just computed. **Fixed**: always
+pass `merged.metadata` through explicitly, even when it is `{}`.
+Confirmed via the Prisma schema (`metadata Json?`) that a plain empty
+object is valid, distinct-from-NULL JSON for this column — no schema
+change, no `Prisma.JsonNull` needed.
+
+**4. `qualityScore` validity did not respect B3's `0..5` range.**
+The old check was only `typeof === 'number' && Number.isFinite(...)` —
+values like `99`/`-5` could "win" a merge against a genuinely valid
+in-range score, or be treated as valid at all. **Fixed**: added the
+same `0..5` bound `quality-score.util.ts` itself defines, as a small,
+local, standalone range check (`isValidQualityScore`) — no import from
+that file, no formula duplicated, just the same numeric bound.
+
+**5. Real 3-observation associativity, not just 2-observation
+commutativity.** Added a genuine `A`, `B`, `C` three-snapshot test
+(distinct providers/content: different themes/traits/quality/
+dimensionedTraits/classification per snapshot) asserting all 4
+pairwise-then-third permutations converge:
+`merge(merge(A,B),C) == merge(A,merge(B,C)) == merge(merge(C,A),B) ==
+merge(merge(B,C),A)`. Passed on the first run once the above blockers
+were fixed — no further associativity issue surfaced in
+`mergeGenericValue` for this scenario (nothing in section 7's scope —
+`source`/`narrativeContext`/provider-specific metadata — needed
+touching).
+
+### Preserved unchanged (explicitly re-verified)
+- Classification atomicity: the winner is always exactly one side's
+  classification object, never merged field-by-field (B2's internal
+  fact/evidence 1:1 consistency invariant) — untouched, still covered
+  by its own pre-existing test.
+- `mergeGenericValue()` (the generic unknown-scalar policy) was **not**
+  redesigned — no new provenance architecture was needed or added.
+- `computeQualityScore` (`quality-score.util.ts`), the classification
+  prompt/model (`experience-classification.service.ts`,
+  `experience-semantic-classification.prompt.ts`), Tavily/SerpApi, and
+  all acquisition/planner code were **not** touched.
+
+### Files changed
+- `be/src/modules/tours/utils/experience-metadata-merge.util.ts`
+  (`mergeDimensionedTraits`/`pickRicherLabel` rewritten;
+  `isWellFormedCurrentClassification` replaced by
+  `isValidCurrentDegradedClassification`; `isValidQualityScore` range
+  check added)
+- `be/src/modules/tours/utils/experience-metadata-merge.util.spec.ts`
+  (hardened dimensionedTraits/classification fixtures + new Cases
+  A–D/C2, quality-range tests, 3-observation associativity test)
+- `be/src/modules/tours/services/experience-catalog.service.ts` (the
+  `metadata: Object.keys(...).length ? ... : undefined` conditional
+  replaced with an unconditional explicit assignment)
+- `be/src/modules/tours/services/experience-catalog.service.spec.ts`
+  (new wiring regression test proving `{}` is actually persisted)
+- `docs/superpowers/progress/2026-09-11-preference-first-selection-progress.md`
+  (this section; corrected the original B4 checkpoint's now-inaccurate
+  "verbatim `dimensionedTraits`" claims to point here)
+
+### Verification (real results)
+- RED confirmed first for every finding: ran the hardened/new tests
+  against the unmodified code → **8 failures**, each for exactly the
+  predicted reason (dimensionedTraits Case A/B/C mismatches on casing/
+  label; quality `99`/`-1` surviving; classification Cases B/D
+  incorrectly surviving/tier-1; the 3-observation associativity test
+  failing on the same uncanonicalized-dimensionedTraits bug). Then
+  implemented and reran.
+- `yarn test src/modules/tours/utils/experience-metadata-merge.util.spec.ts --runInBand`
+  → PASS — **36/36** (24 original + 12 new/hardened).
+- `yarn test src/modules/tours/services/experience-catalog.service.spec.ts --runInBand`
+  → PASS — **35/35** (34 original + 1 new persistence regression test).
+- `yarn typecheck` → PASS — no errors.
+- `yarn lint:check` → PASS — 2 formatting-only issues, fixed via
+  `eslint --fix` scoped to the 4 touched files; rerun → 0 problems.
+- `yarn test src/modules/tours --runInBand` → PASS — **90 suites / 954
+  tests** (941 + 13 new), no regressions.
+- `yarn test --runInBand` (full backend unit suite) → PASS — **137
+  suites / 1274 tests**, no regressions anywhere.
+
+### Deviations from plan
+- None. This is a correctness review-fix of B4's own stated
+  invariants, not a change to B4's scope or the plan's rules.
+
+### Open issues / debt
+- None new. `mergeExperienceMetadata` remains ready for whichever later
+  checkpoint wires `ExperienceClassificationService.classify()` output
+  into a persisted Experience's `metadata.classification`.
+- Re-checked for concurrent drift immediately before staging/committing:
+  `git fetch fork feat/preference-first-selection` then
+  `git log HEAD..fork/...` and `git log fork/...HEAD` were both empty —
+  local HEAD matched `fork` exactly, confirming no other commits landed
+  on this branch while B4.1 was in progress.
 
 ### Next task
 `B5 — Area/route walk acquisition (D5)`
