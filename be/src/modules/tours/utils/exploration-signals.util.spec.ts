@@ -158,6 +158,184 @@ describe('exploration-signals.util', () => {
     });
   });
 
+  describe('explicit-evidence normalization hardening (review fix)', () => {
+    const FIELDS = [
+      'explicitTourismIntensityEvidence',
+      'explicitLocalCharacterEvidence',
+    ] as const;
+    const SIGNAL_KEY = {
+      explicitTourismIntensityEvidence: 'tourismIntensity',
+      explicitLocalCharacterEvidence: 'localCharacter',
+    } as const;
+
+    describe.each(FIELDS)('%s', (field) => {
+      const signalKey = SIGNAL_KEY[field];
+
+      it.each([[{}], ['bad'], [42]])(
+        'never throws on a non-array runtime payload (%p) -- degrades to unknown',
+        (malformed) => {
+          expect(() =>
+            computeExplorationSignals({
+              [field]: malformed,
+            } as unknown as ExplorationSignalInput),
+          ).not.toThrow();
+
+          const result = computeExplorationSignals({
+            [field]: malformed,
+          } as unknown as ExplorationSignalInput);
+
+          expect(result[signalKey].value).toBeNull();
+          expect(result[signalKey].confidence).toBe(0);
+          expect(result[signalKey].evidence).toEqual([]);
+        },
+      );
+
+      it.each([
+        [null],
+        [undefined],
+        [{}],
+        [{ strength: 0.8 }],
+        [{ strength: 0.8, source: '', evidenceKey: 'x' }],
+        [{ strength: 0.8, source: 'x', evidenceKey: '' }],
+        [{ strength: 0.8, source: '   ', evidenceKey: 'abc' }],
+        [{ strength: 0.8, source: 'abc', evidenceKey: '   ' }],
+      ])(
+        'ignores a malformed entry (%p) -- no provenance/shape means no evidence',
+        (entry) => {
+          const result = computeExplorationSignals({
+            [field]: [entry],
+          } as unknown as ExplorationSignalInput);
+
+          expect(result[signalKey].value).toBeNull();
+          expect(result[signalKey].evidence).toEqual([]);
+        },
+      );
+
+      it.each([[NaN], [Infinity], [-Infinity], [-0.1], [1.1]])(
+        'ignores an entry with an invalid strength (%p) without throwing or inventing a score',
+        (strength) => {
+          expect(() =>
+            computeExplorationSignals({
+              [field]: [
+                { strength, source: 'wikivoyage', evidenceKey: 'claim' },
+              ],
+            } as unknown as ExplorationSignalInput),
+          ).not.toThrow();
+
+          const result = computeExplorationSignals({
+            [field]: [{ strength, source: 'wikivoyage', evidenceKey: 'claim' }],
+          } as unknown as ExplorationSignalInput);
+
+          expect(result[signalKey].value).toBeNull();
+          expect(result[signalKey].evidence).toEqual([]);
+        },
+      );
+
+      it('trims source/evidenceKey into normalized provenance', () => {
+        const result = computeExplorationSignals({
+          [field]: [
+            {
+              strength: 0.8,
+              source: '  wikivoyage ',
+              evidenceKey: ' local_market ',
+            },
+          ],
+        } as unknown as ExplorationSignalInput);
+
+        expect(result[signalKey].evidence).toEqual([
+          { source: 'wikivoyage', key: 'local_market', value: 0.8 },
+        ]);
+      });
+
+      it('deduplicates identical (source, evidenceKey) claims into one evidence entry, not three independent ones', () => {
+        const single = computeExplorationSignals({
+          [field]: [
+            {
+              strength: 0.8,
+              source: 'wikivoyage',
+              evidenceKey: 'local_claim_1',
+            },
+          ],
+        } as unknown as ExplorationSignalInput);
+
+        const triplicated = computeExplorationSignals({
+          [field]: [
+            {
+              strength: 0.8,
+              source: 'wikivoyage',
+              evidenceKey: 'local_claim_1',
+            },
+            {
+              strength: 0.8,
+              source: 'wikivoyage',
+              evidenceKey: 'local_claim_1',
+            },
+            {
+              strength: 0.8,
+              source: 'wikivoyage',
+              evidenceKey: 'local_claim_1',
+            },
+          ],
+        } as unknown as ExplorationSignalInput);
+
+        expect(triplicated[signalKey].evidence).toHaveLength(1);
+        expect(triplicated[signalKey].evidence).toEqual(
+          single[signalKey].evidence,
+        );
+        expect(triplicated[signalKey].confidence).toBe(
+          single[signalKey].confidence,
+        );
+        expect(triplicated[signalKey].value).toBe(single[signalKey].value);
+      });
+
+      it('resolves conflicting duplicate strengths for the same claim by keeping the strongest, not averaging', () => {
+        const result = computeExplorationSignals({
+          [field]: [
+            {
+              strength: 0.3,
+              source: 'wikivoyage',
+              evidenceKey: 'local_claim_1',
+            },
+            {
+              strength: 0.9,
+              source: 'wikivoyage',
+              evidenceKey: 'local_claim_1',
+            },
+            {
+              strength: 0.5,
+              source: 'wikivoyage',
+              evidenceKey: 'local_claim_1',
+            },
+          ],
+        } as unknown as ExplorationSignalInput);
+
+        expect(result[signalKey].evidence).toEqual([
+          { source: 'wikivoyage', key: 'local_claim_1', value: 0.9 },
+        ]);
+        expect(result[signalKey].value).toBe(0.9);
+      });
+
+      it('lets genuinely distinct claims raise confidence, unlike duplicates of the same claim', () => {
+        const oneClaim = computeExplorationSignals({
+          [field]: [{ strength: 0.7, source: 'a', evidenceKey: 'claim_a' }],
+        } as unknown as ExplorationSignalInput);
+
+        const threeDistinctClaims = computeExplorationSignals({
+          [field]: [
+            { strength: 0.7, source: 'a', evidenceKey: 'claim_a' },
+            { strength: 0.7, source: 'b', evidenceKey: 'claim_b' },
+            { strength: 0.7, source: 'c', evidenceKey: 'claim_c' },
+          ],
+        } as unknown as ExplorationSignalInput);
+
+        expect(threeDistinctClaims[signalKey].evidence).toHaveLength(3);
+        expect(threeDistinctClaims[signalKey].confidence).toBeGreaterThan(
+          oneClaim[signalKey].confidence,
+        );
+      });
+    });
+  });
+
   describe('Phase-7 population boundary', () => {
     it('is complete/valid when only prominence is populated and the other two stay unknown', () => {
       const result = computeExplorationSignals({ placesReviewCount: 300 });

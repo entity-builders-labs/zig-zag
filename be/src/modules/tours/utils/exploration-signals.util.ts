@@ -230,19 +230,94 @@ function computeProminence(
 }
 
 // -- Explicit-evidence-only signals (tourismIntensity / localCharacter) ---
+//
+// Review hardening: `entries` is treated as fully runtime-unknown here, not
+// trusted to match its compile-time type -- a caller that bypasses
+// TypeScript (an `as any`/`as unknown` cast, or malformed external
+// metadata) must degrade to unknown rather than throw, and a claim with no
+// real provenance is never accepted as grounded evidence.
+
+/** A single validated, provenance-bearing explicit-evidence claim. */
+interface ValidatedExplicitEvidenceEntry {
+  source: string;
+  evidenceKey: string;
+  strength: number;
+}
+
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+/** A non-empty string after trimming, or `null` if it isn't a usable string at all. */
+function normalizeTrimmedNonEmptyString(value: unknown): string | null {
+  if (typeof value !== 'string') return null;
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : null;
+}
+
+/**
+ * Validates one raw entry against the grounded-evidence contract: a
+ * finite `strength` in `0..1`, plus non-empty (after trim) `source` and
+ * `evidenceKey`. A strength with no provenance is not grounded evidence --
+ * it is dropped, never given synthetic `"unknown"` source/key defaults.
+ */
+function normalizeExplicitEvidenceEntry(
+  raw: unknown,
+): ValidatedExplicitEvidenceEntry | null {
+  if (!isPlainObject(raw)) return null;
+  if (!isValidStrength(raw.strength)) return null;
+
+  const source = normalizeTrimmedNonEmptyString(raw.source);
+  const evidenceKey = normalizeTrimmedNonEmptyString(raw.evidenceKey);
+  if (!source || !evidenceKey) return null;
+
+  return { source, evidenceKey, strength: raw.strength };
+}
+
+/**
+ * Deduplicates by (trimmed source, trimmed evidenceKey) BEFORE any
+ * aggregate/confidence math runs: the same claim repeated N times is one
+ * piece of evidence, not N independent corroborating claims. Conflicting
+ * duplicate strengths for the same claim keep the strongest valid value
+ * (a conservative "at least this much support was found" reading) rather
+ * than averaging them as if they were independent corroboration.
+ */
+function dedupeExplicitEvidenceEntries(
+  entries: ValidatedExplicitEvidenceEntry[],
+): ValidatedExplicitEvidenceEntry[] {
+  const bySourceAndKey = new Map<string, ValidatedExplicitEvidenceEntry>();
+  for (const entry of entries) {
+    const dedupeKey = `${entry.source} ${entry.evidenceKey}`;
+    const existing = bySourceAndKey.get(dedupeKey);
+    if (!existing || entry.strength > existing.strength) {
+      bySourceAndKey.set(dedupeKey, entry);
+    }
+  }
+  return Array.from(bySourceAndKey.values());
+}
+
+/** Divisor for the explicit-evidence confidence formula (see below). */
+const EXPLICIT_EVIDENCE_CONFIDENCE_DIVISOR = 3;
 
 function computeExplicitEvidenceSignal(
-  entries:
-    | Array<{ strength: number; evidenceKey: string; source: string }>
-    | undefined,
+  entries: unknown,
   emptyReasonCode: string,
   presentReasonCode: string,
 ): EvidenceBackedExplorationSignal {
-  const validEntries = (entries ?? []).filter((entry) =>
-    isValidStrength(entry?.strength),
+  // Runtime-unknown by design: a caller (or malformed external metadata)
+  // may hand this anything at all, regardless of the public type. A
+  // non-array payload is simply "no evidence", never a throw.
+  const rawEntries = Array.isArray(entries) ? entries : [];
+
+  const deduped = dedupeExplicitEvidenceEntries(
+    rawEntries
+      .map(normalizeExplicitEvidenceEntry)
+      .filter(
+        (entry): entry is ValidatedExplicitEvidenceEntry => entry !== null,
+      ),
   );
 
-  if (validEntries.length === 0) {
+  if (deduped.length === 0) {
     return {
       value: null,
       confidence: 0,
@@ -252,16 +327,15 @@ function computeExplicitEvidenceSignal(
   }
 
   const meanStrength =
-    validEntries.reduce((sum, entry) => sum + entry.strength, 0) /
-    validEntries.length;
+    deduped.reduce((sum, entry) => sum + entry.strength, 0) / deduped.length;
 
   return {
     value: clamp01(meanStrength),
     // A single corroborating claim is already meaningful (this is explicit
     // grounded evidence, not an inferred proxy), but more independent
-    // entries raise confidence, capped at 1.
-    confidence: clamp01(validEntries.length / 3),
-    evidence: validEntries.map((entry) => ({
+    // (deduplicated) entries raise confidence, capped at 1.
+    confidence: clamp01(deduped.length / EXPLICIT_EVIDENCE_CONFIDENCE_DIVISOR),
+    evidence: deduped.map((entry) => ({
       source: entry.source,
       key: entry.evidenceKey,
       value: entry.strength,
