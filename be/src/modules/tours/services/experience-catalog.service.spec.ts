@@ -767,6 +767,56 @@ describe('ExperienceCatalogService dedupe', () => {
     expect(tx.experience.update).toHaveBeenCalled();
   });
 
+  it('merges the existing row and the new observation via mergeExperienceMetadata (Task B4) -- union themes/traits, strongest quality, never a naive last-write-wins overwrite', async () => {
+    const same: any = {
+      id: 'exp-1',
+      canonicalName: 'museo central',
+      description: null,
+      durationMinutes: null,
+      price: null,
+      qualityScore: 2.5,
+      latitude: null,
+      longitude: null,
+      metadata: { themes: ['history'], traits: ['rooftop'] },
+      components: [{ geoEntityId: 'geo-1', role: 'venue', required: true }],
+      evidence: [],
+      traits: [],
+    };
+    const enrichedInput = {
+      ...input,
+      qualityScore: 4.1,
+      metadata: { themes: ['food'], traits: ['craft beer'] },
+    };
+    const tx: any = {
+      $executeRaw: jest.fn(),
+      experience: {
+        findMany: jest.fn().mockResolvedValue([same]),
+        create: jest.fn(),
+        update: jest.fn().mockResolvedValue({ ...same, evidence: [] }),
+      },
+      experienceEvidence: { createMany: jest.fn() },
+      experienceTrait: { createMany: jest.fn() },
+    };
+    const prisma: any = {
+      $transaction: jest.fn((callback: any) => callback(tx)),
+    };
+    const service = new ExperienceCatalogService(prisma, {} as any);
+
+    await service.persistVerifiedExperience(enrichedInput);
+
+    expect(tx.experience.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          qualityScore: 4.1,
+          metadata: expect.objectContaining({
+            themes: ['food', 'history'],
+            traits: ['craft beer', 'rooftop'],
+          }),
+        }),
+      }),
+    );
+  });
+
   it('serializes the identity check inside the transaction and creates NEW', async () => {
     const tx: any = {
       $executeRaw: jest.fn(),

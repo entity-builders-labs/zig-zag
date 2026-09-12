@@ -19,6 +19,7 @@ import {
   decideExperienceDedupe,
   DedupeExperienceFingerprint,
 } from '../utils/experience-dedupe.util';
+import { mergeExperienceMetadata } from '../utils/experience-metadata-merge.util';
 
 // Two different resolution paths (a Nominatim lookup done while resolving a
 // composite's `venue` component hint, a Google Places lookup done while
@@ -942,6 +943,15 @@ export class ExperienceCatalogService {
           });
         }
 
+        // Order-independent merge (plan Task B4, spec §8): canonical
+        // per-field policies (union semantic arrays, strongest valid
+        // quality, version-aware classification replacement), not a
+        // generic object spread / arbitrary provider-order last-write-wins.
+        const merged = mergeExperienceMetadata(
+          { qualityScore: same.qualityScore, metadata: same.metadata },
+          { qualityScore: input.qualityScore, metadata: input.metadata },
+        );
+
         const updated = await tx.experience.update({
           where: { id: same.id },
           data: {
@@ -951,18 +961,15 @@ export class ExperienceCatalogService {
             ),
             durationMinutes: input.durationMinutes ?? same.durationMinutes,
             price: input.price ?? same.price,
-            qualityScore:
-              input.qualityScore == null
-                ? same.qualityScore
-                : same.qualityScore == null
-                  ? input.qualityScore
-                  : Math.max(same.qualityScore, input.qualityScore),
+            qualityScore: merged.qualityScore,
             latitude: input.latitude ?? same.latitude,
             longitude: input.longitude ?? same.longitude,
             openingHours: input.openingHours as unknown as
               | Prisma.InputJsonValue
               | undefined,
-            metadata: this.mergeMetadata(same.metadata, input.metadata),
+            metadata: Object.keys(merged.metadata).length
+              ? (merged.metadata as Prisma.InputJsonValue)
+              : undefined,
             embeddingProvider: null,
             embeddingModel: null,
             embeddingDimensions: null,
@@ -1050,18 +1057,6 @@ export class ExperienceCatalogService {
     if (!incoming?.trim()) return current;
     if (!current?.trim()) return incoming;
     return incoming.trim().length > current.trim().length ? incoming : current;
-  }
-
-  private mergeMetadata(
-    current: unknown,
-    incoming: unknown,
-  ): Prisma.InputJsonValue | undefined {
-    const left = this.objectMetadata(current);
-    const right = this.objectMetadata(incoming);
-    const merged = { ...left, ...right };
-    return Object.keys(merged).length
-      ? (merged as Prisma.InputJsonValue)
-      : undefined;
   }
 
   private objectMetadata(value: unknown): Record<string, any> {
