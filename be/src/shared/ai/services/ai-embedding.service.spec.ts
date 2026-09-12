@@ -54,6 +54,7 @@ describe('AiEmbeddingService Bedrock adapter', () => {
         },
       },
       geminiGroundedSearchModel: 'gemini-3.5-flash',
+      classification: { groq: { model: 'qwen/qwen3.8-27b' } },
     });
 
     await service.ensureInitialized();
@@ -93,6 +94,7 @@ describe('AiEmbeddingService Bedrock adapter', () => {
         },
       },
       geminiGroundedSearchModel: 'gemini-3.5-flash',
+      classification: { groq: { model: 'qwen/qwen3.8-27b' } },
     });
 
     await service.ensureInitialized();
@@ -153,6 +155,7 @@ describe('AiEmbeddingService Bedrock adapter', () => {
         },
       },
       geminiGroundedSearchModel: 'gemini-3.5-flash',
+      classification: { groq: { model: 'qwen/qwen3.8-27b' } },
     });
 
     await service.ensureInitialized();

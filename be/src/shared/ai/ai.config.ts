@@ -34,6 +34,15 @@ export interface AiConfig {
   discoveryExtractor: DiscoveryExtractorConfig;
   // Gemini's own google_search grounding, when groundedSearchProvider is 'gemini'
   geminiGroundedSearchModel: string;
+  // Evidence-only semantic classification (Stage 6 / plan Task B2). v1 is
+  // Groq-only per the canonical spec -- no provider selector like
+  // discoveryExtractor's, since a cross-provider fallback is explicitly out
+  // of scope until the existing AI abstraction is asked to support it.
+  classification: ClassificationConfig;
+}
+
+export interface ClassificationConfig {
+  groq: { apiKey?: string; model: string };
 }
 
 export type DiscoveryExtractorProvider = 'gemini' | 'groq' | 'ollama';
@@ -222,5 +231,11 @@ export default registerAs('ai', (): AiConfig => {
     },
     geminiGroundedSearchModel:
       process.env.GEMINI_GROUNDED_SEARCH_MODEL || 'gemini-3.5-flash',
+    classification: {
+      groq: {
+        apiKey: process.env.GROQ_API_KEY,
+        model: process.env.GROQ_CLASSIFICATION_MODEL || 'qwen/qwen3.8-27b',
+      },
+    },
   };
 });
