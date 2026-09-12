@@ -13,7 +13,6 @@ import {
   VStack
 } from '@gluestack-ui/themed';
 import { ArrowLeft, MapPin, Sparkles } from 'lucide-react-native';
-import * as ExpoLocation from 'expo-location';
 import { requestAndGetCurrentLocation } from '@/utils/location';
 import { GenerateTourDto } from '@/api/tours';
 import {
@@ -29,7 +28,6 @@ import {
 import { Map } from '@/features/map';
 import { AppContext } from '@/context/app';
 import { FONT_DISPLAY } from '@/constants/typography';
-import { DEFAULT_LOCATION } from '@/api/config/constants';
 import { DateRangePicker } from './DateRangePicker';
 import { DestinationInput } from './DestinationInput';
 import { TourWizardIntentStep } from './TourWizardIntentStep';
@@ -127,7 +125,14 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
       if (useCurrentLocation && !destinationCoords && !destinationChosenRef.current) {
         try {
           const coords = await requestAndGetCurrentLocation();
-          if (!isMounted || destinationChosenRef.current || !coords) {
+          if (!isMounted || destinationChosenRef.current) {
+            return;
+          }
+          if (!coords) {
+            // A failed best-effort GPS lookup is not a real destination. Turn
+            // the mode off so submit cannot silently fall back to a product
+            // default and label it as the user's current location.
+            setUseCurrentLocation(false);
             return;
           }
           setDestinationCoords(coords);
@@ -136,6 +141,7 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
           }
         } catch (error) {
           console.error('Error getting initial location:', error);
+          if (isMounted) setUseCurrentLocation(false);
         }
       }
     };
@@ -246,22 +252,23 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
     let latitude: number;
     let longitude: number;
 
-    if (!useCurrentLocation && destination) {
-      if (!destinationCoords) {
+    if (useCurrentLocation) {
+      const currentCoords = destinationCoords ?? initialLocation;
+      if (!currentCoords) {
+        alert(
+          'No pudimos obtener tu ubicación actual. Intentá nuevamente o seleccioná un destino.',
+        );
+        return;
+      }
+      latitude = currentCoords.lat;
+      longitude = currentCoords.lng;
+    } else {
+      if (!destination || !destinationCoords) {
         alert('Por favor selecciona un destino válido de la lista para obtener sus coordenadas.');
         return;
       }
       latitude = destinationCoords.lat;
       longitude = destinationCoords.lng;
-    } else {
-      latitude =
-        destinationCoords?.lat ??
-        initialLocation?.lat ??
-        DEFAULT_LOCATION.LATITUDE;
-      longitude =
-        destinationCoords?.lng ??
-        initialLocation?.lng ??
-        DEFAULT_LOCATION.LONGITUDE;
     }
 
     onSubmit({
