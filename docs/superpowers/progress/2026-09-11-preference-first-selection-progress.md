@@ -1429,3 +1429,157 @@ provider calls -- verified structurally, see Verification):
 
 ### Next task
 `B1 — Preserve adapter evidence` (blocked until A7 is explicitly reviewed/approved, per the execution gate above)
+
+---
+
+## Checkpoint A — A7 review hardening — COMPLETE
+
+- Branch: `feat/preference-first-selection`
+- Base A7 implementation: `d3f7a119a631cd31e74f370b211d3cad8368fb6e`
+- Review-fix implementation commit: `871748ad907a51bc60db1e9435ed4d55732145c7`
+- Scope: `be/src/modules/tours/utils/exploration-signals.util.ts` +
+  `.spec.ts` only, `computeExplicitEvidenceSignal()` (the function
+  backing `tourismIntensity`/`localCharacter`)
+- Status: COMPLETE
+
+### Review blocker fixed
+
+Three issues in `computeExplicitEvidenceSignal()`'s normalization of
+`explicitTourismIntensityEvidence` / `explicitLocalCharacterEvidence`:
+
+1. **Malformed runtime payload could throw.** The old code assumed
+   `entries` always matched its compile-time array type
+   (`(entries ?? []).filter(...)`). A caller bypassing TypeScript (an
+   `as any` cast, or genuinely malformed external metadata) passing
+   `{}`, `'bad'`, `42`, etc. crashed with `TypeError: ...filter is not a
+   function` -- confirmed live before the fix (see Verification).
+2. **Evidence without provenance was accepted.** `{strength: 0.9}` (no
+   `source`/`evidenceKey`), or an entry with an empty or
+   whitespace-only `source`/`evidenceKey`, was previously accepted as
+   valid grounded evidence.
+3. **Duplicate claims inflated confidence.** Three identical `(source,
+   evidenceKey)` entries counted as three independent corroborating
+   claims toward `confidence`, rather than one.
+
+### Fix
+
+- `entries` is now treated as fully runtime-unknown inside
+  `computeExplicitEvidenceSignal` (`Array.isArray(entries) ? entries :
+  []`) -- the public `ExplorationSignalInput` interface's typed array
+  fields are unchanged; only the internal parameter type became
+  `unknown`.
+- New `normalizeExplicitEvidenceEntry()`: an entry is valid grounded
+  evidence only when **all** of:
+  - `strength` is finite and in `0..1`;
+  - `source` is a string, non-empty after `.trim()`;
+  - `evidenceKey` is a string, non-empty after `.trim()`.
+  No synthetic `"unknown"` source/key is ever substituted -- missing
+  provenance means the entry is dropped entirely, not degraded-but-kept.
+  Valid entries carry their **trimmed** `source`/`evidenceKey` forward
+  into the final `evidence` output.
+- New `dedupeExplicitEvidenceEntries()`, keyed by `(trimmed source,
+  trimmed evidenceKey)`, runs **before** the aggregate value and
+  confidence are computed. **Duplicate policy (documented inline in the
+  code):** for conflicting duplicate strengths on the same claim, keep
+  the strongest valid value -- not an average, since repeated reports of
+  the same claim are not independent corroboration.
+- `EXPLICIT_EVIDENCE_CONFIDENCE_DIVISOR = 3` is now a named constant
+  (previously an inline magic `3`); the formula shape itself
+  (`deduped.length / divisor`, clamped 0..1) is unchanged.
+
+### Files changed
+- `be/src/modules/tours/utils/exploration-signals.util.ts`
+- `be/src/modules/tours/utils/exploration-signals.util.spec.ts`
+
+### Verification
+- RED check: added all new hardening tests against the pre-fix
+  implementation → **22 failures**, including a literal
+  `TypeError: (intermediate value)(intermediate value)(intermediate
+  value).filter is not a function` at
+  `computeExplicitEvidenceSignal (exploration-signals.util.ts:241:40)`
+  for the non-array-payload case -- confirming the exact crash the
+  review described, not a hypothetical. Implemented the fix, reran →
+  all green.
+- `cd be && yarn test src/modules/tours/utils/exploration-signals.util.spec.ts`
+  → PASS — **60/60** (20 pre-existing, unmodified + 40 new hardening
+  tests, parameterized via `describe.each` over both
+  `explicitTourismIntensityEvidence` and
+  `explicitLocalCharacterEvidence`):
+  - non-array payloads (`{}`, `'bad'`, `42`) never throw, degrade to
+    `value: null` / `confidence: 0` / `evidence: []`;
+  - malformed entries (`null`, `undefined`, `{}`, `{strength: 0.8}` with
+    no provenance, empty or whitespace-only `source`/`evidenceKey`) are
+    all ignored;
+  - invalid strengths (`NaN`, `Infinity`, `-Infinity`, `-0.1`, `1.1`)
+    are ignored without throwing or inventing a score;
+  - `source`/`evidenceKey` are trimmed into normalized provenance
+    (`'  wikivoyage '` / `' local_market '` → `'wikivoyage'` /
+    `'local_market'` exactly);
+  - three identical-claim duplicates collapse into exactly one evidence
+    entry, with `confidence` and `value` equal to the single-entry case;
+  - conflicting duplicate strengths (`0.3`, `0.9`, `0.5`) for the same
+    claim keep the strongest (`0.9`), not the average;
+  - three genuinely distinct claims raise `confidence` above a single
+    claim's.
+- `cd be && yarn typecheck` → PASS — no errors.
+- `cd be && npx eslint <the 2 files>` → PASS — 0 problems (16
+  prettier-only formatting errors surfaced on first run, fixed with
+  `--fix`, re-verified tests/typecheck stayed green).
+- `cd be && yarn test src/modules/tours` → PASS — 84 test suites / 814
+  tests (up from 774 -- the 40 new tests; no regressions elsewhere).
+- Real Postgres/integration was correctly NOT touched or needed for this
+  fix (pure-utility scope, per plan A7.9's architectural boundary,
+  unchanged).
+
+### Confirmations requested
+- **`unknown != zero` unchanged**: with no explicit grounded evidence,
+  `tourismIntensity.value === null` / `localCharacter.value === null`,
+  never coerced to `0` -- unchanged, still directly tested.
+- **Malformed evidence never throws**: confirmed by the RED-then-GREEN
+  cycle above, including the literal pre-fix `TypeError` this task
+  reproduced and then eliminated.
+- **No semantic change to A7's architecture**: prominence formulas
+  (`REVIEW_COUNT_WEIGHT`, `SITELINK_WEIGHT`, saturation caps, modest
+  boolean bonuses) and `computeExplorationTilt` (`iconic`/
+  `local_deep_dive`/`balanced` semantics, including "prominence never
+  contributes to `local_deep_dive`") are byte-for-byte unchanged; only
+  `computeExplicitEvidenceSignal`'s input normalization was hardened.
+  No inference of `tourismIntensity`/`localCharacter` from prominence,
+  review count, or obscurity was introduced or removed -- that
+  invariant was never in scope for this fix and remains intact.
+- **B1 NOT started**: no files outside
+  `exploration-signals.util.ts`/`.spec.ts` and this progress doc were
+  touched.
+
+### Deviations from plan
+- None. All items from the review (non-array payload safety, provenance
+  validation, trimming, deduplication with a documented conflict
+  policy) were implemented as specified.
+
+### Decisions taken
+- Chose `(trimmed source, trimmed evidenceKey)` string concatenation
+  with a space separator as the deduplication map key (both components
+  are already validated non-empty trimmed strings at that point, so no
+  ambiguous-boundary collision is possible in practice for this input
+  shape).
+- Kept `isValidStrength` (already existing, used elsewhere for
+  prominence's own internal checks is not applicable there, but the
+  function itself was already shared/exported-internally) reused as-is
+  for the per-entry strength check, rather than writing a second
+  strength validator -- one canonical strength-validity predicate.
+
+### Open issues / debt
+- None new. Same open items as A7's own entry (tilt not yet wired into
+  composition; `tourismIntensity`/`localCharacter` remain structurally
+  unused until later agentic/research evidence exists) -- unaffected by
+  this fix.
+- Same worktree note: this fix ran concurrently with the same other
+  session/agent continuing frontend/mobile work (two more local commits,
+  `3e4289c` and `36f46cb`, landed on this branch during this task,
+  entirely unrelated to `exploration-signals.util.ts`). Neither was
+  touched, inspected further, or altered -- only the 2 files above were
+  staged for this task's commit. The working tree was fully clean
+  (nothing uncommitted) by the time this task's commit was pushed.
+
+### Next task
+`B1 — Preserve adapter evidence` (blocked until A7, as hardened by this fix, is explicitly reviewed/approved, per the execution gate above)
