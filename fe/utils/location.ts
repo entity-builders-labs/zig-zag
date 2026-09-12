@@ -1,10 +1,45 @@
 import * as Location from 'expo-location';
-import { Alert, Platform } from 'react-native';
-import { DEFAULT_LOCATION } from '@/api/config/constants';
+import { Alert } from 'react-native';
 
 export interface LocationCoords {
   lat: number;
   lng: number;
+}
+
+const CURRENT_POSITION_TIMEOUT_MS = 8_000;
+
+function isValidCoordinate(value: unknown, min: number, max: number): value is number {
+  return (
+    typeof value === 'number' &&
+    Number.isFinite(value) &&
+    value >= min &&
+    value <= max
+  );
+}
+
+function toLocationCoords(
+  position: Location.LocationObject | null | undefined,
+): LocationCoords | null {
+  const latitude = position?.coords?.latitude;
+  const longitude = position?.coords?.longitude;
+
+  if (
+    !isValidCoordinate(latitude, -90, 90) ||
+    !isValidCoordinate(longitude, -180, 180)
+  ) {
+    return null;
+  }
+
+  return { lat: latitude, lng: longitude };
+}
+
+async function withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {
+  return await Promise.race([
+    promise,
+    new Promise<T>((_, reject) => {
+      setTimeout(() => reject(new Error('Location lookup timed out')), timeoutMs);
+    }),
+  ]);
 }
 
 /**
@@ -21,12 +56,16 @@ export async function checkLocationPermission(): Promise<boolean> {
 }
 
 /**
- * Requests location permission if not already granted and retrieves the device coordinates.
- * Incorporates fast path (getLastKnownPosition) and fallback to avoid hanging or throwing
- * ERR_CURRENT_LOCATION_IS_UNAVAILABLE on Android emulators or devices without immediate GPS fix.
+ * Requests foreground location permission and retrieves the device coordinates.
+ *
+ * Important: failure to obtain a real device fix returns `null`. It never falls
+ * back to the app's default map center, because callers label this result as the
+ * user's current location. A product/default center must be chosen explicitly by
+ * the caller instead of being disguised as GPS truth.
  */
 export async function requestAndGetCurrentLocation(options?: {
   showPromptOnDenial?: boolean;
+  showPromptOnUnavailable?: boolean;
 }): Promise<LocationCoords | null> {
   try {
     const { status } = await Location.requestForegroundPermissionsAsync();
@@ -34,50 +73,51 @@ export async function requestAndGetCurrentLocation(options?: {
       if (options?.showPromptOnDenial) {
         Alert.alert(
           'Permiso de Ubicación',
-          'Zig-Zag necesita acceso a tu ubicación para descubrir recorridos y actividades cercanas a vos.'
+          'Zig-Zag necesita acceso a tu ubicación para descubrir recorridos y actividades cercanas a vos.',
         );
       }
       return null;
     }
 
-    // 1. Fast path: try to get the last known position first (instant and reliable on emulators)
+    // Fast path: a last-known position is useful on emulators and devices
+    // while a fresh fix is still warming up. Latitude/longitude === 0 are
+    // valid coordinates and must not be rejected by truthiness checks.
     try {
       const lastKnown = await Location.getLastKnownPositionAsync();
-      if (lastKnown?.coords?.latitude && lastKnown?.coords?.longitude) {
-        return {
-          lat: lastKnown.coords.latitude,
-          lng: lastKnown.coords.longitude,
-        };
-      }
-    } catch (lastKnownErr) {
+      const coords = toLocationCoords(lastKnown);
+      if (coords) return coords;
+    } catch (error) {
       console.log('Last known position not available, trying current position...');
     }
 
-    // 2. Try current position with balanced accuracy
     try {
-      const current = await Location.getCurrentPositionAsync({
-        accuracy: Location.Accuracy.Balanced,
-      });
-      if (current?.coords?.latitude && current?.coords?.longitude) {
-        return {
-          lat: current.coords.latitude,
-          lng: current.coords.longitude,
-        };
-      }
-    } catch (currentPosErr) {
-      console.warn('Current position lookup failed:', currentPosErr);
+      const current = await withTimeout(
+        Location.getCurrentPositionAsync({
+          accuracy: Location.Accuracy.Balanced,
+        }),
+        CURRENT_POSITION_TIMEOUT_MS,
+      );
+      const coords = toLocationCoords(current);
+      if (coords) return coords;
+    } catch (error) {
+      console.warn('Current position lookup failed:', error);
     }
 
-    // 3. Fallback for emulators without geo fixes: return default Buenos Aires coordinates
-    return {
-      lat: DEFAULT_LOCATION.LATITUDE,
-      lng: DEFAULT_LOCATION.LONGITUDE,
-    };
+    if (options?.showPromptOnUnavailable) {
+      Alert.alert(
+        'Ubicación no disponible',
+        'No pudimos obtener tu ubicación actual. Podés elegir un destino o intentarlo nuevamente.',
+      );
+    }
+    return null;
   } catch (error) {
     console.warn('Unexpected error in requestAndGetCurrentLocation:', error);
-    return {
-      lat: DEFAULT_LOCATION.LATITUDE,
-      lng: DEFAULT_LOCATION.LONGITUDE,
-    };
+    if (options?.showPromptOnUnavailable) {
+      Alert.alert(
+        'Ubicación no disponible',
+        'No pudimos obtener tu ubicación actual. Podés elegir un destino o intentarlo nuevamente.',
+      );
+    }
+    return null;
   }
 }
