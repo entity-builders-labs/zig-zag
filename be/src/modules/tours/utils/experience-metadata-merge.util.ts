@@ -14,11 +14,12 @@
  *   `traits`: union, deduped, sorted -- never simply "whichever side came
  *   last".
  * - `dimensionedTraits`: union of explicit `{dimension, key, label?}`
- *   entries verbatim, deduped by `dimension:key`. NEVER derived from a
- *   plain `traits[]` string -- the classifier does not emit a dimension
- *   taxonomy in v1 (spec §9.1), so persistence must not invent one (e.g.
- *   a freeform trait `"iconic"` must never become a manufactured
- *   `tourism_intensity:iconic` dimensioned entry here).
+ *   entries, canonicalized by `dimension:key`, with deterministic richer-label
+ *   preservation. NEVER derived from a plain `traits[]` string -- the
+ *   classifier does not emit a dimension taxonomy in v1 (spec §9.1), so
+ *   persistence must not invent one (e.g. a freeform trait `"iconic"` must
+ *   never become a manufactured `tourism_intensity:iconic` dimensioned entry
+ *   here).
  * - `classification`: version-aware, atomic replacement (D2) -- never
  *   merged field-by-field with another classification (that would break
  *   its own internal fact/evidence 1:1 consistency, B2's invariant). A
