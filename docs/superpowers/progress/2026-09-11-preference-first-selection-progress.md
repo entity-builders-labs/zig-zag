@@ -1854,17 +1854,19 @@ Ran (all green, no code change made — the fix was already correct):
 
 ---
 
-## Checkpoint B — Task B2 — COMPLETE (corrected by review fix below)
+## Checkpoint B — Task B2 — COMPLETE (corrected by two review fixes below)
 
 - Branch: `feat/preference-first-selection`
 - Base commit: `a88dad6d7a7b52bf07d0e4bd069890a3f8ed9577` (docs: split
   image reliability fixes from media quality design)
-- Original implementation commit: `284a972` (see the "Review fix" section
-  below — this original commit had 5 confirmed defects and is superseded
-  by review-fix commit `822ca8d`)
-- Review-fix commit: `822ca8d`
+- Original implementation commit: `284a972` (see "Review fix" below —
+  this original commit had 5 confirmed defects, superseded by `822ca8d`)
+- Review-fix commit: `822ca8d` (superseded, on the reuse-guard shape
+  check, by the mini-fix below)
+- Mini-fix commit: `fda532f` (1:1 facet/evidence consistency in
+  `isValidPersistedClassificationShape`)
 - Plan task: `B2 — Evidence-only classifier + trait guard`
-- Status: COMPLETE (as of `822ca8d`)
+- Status: COMPLETE (as of `fda532f`)
 
 ### Implemented
 Three new files, matching the plan's naming exactly, plus one config
@@ -2214,6 +2216,83 @@ Added to `langchain.service.spec.ts`:
   `canonicalizeFacetKey()` — no second taxonomy.
 - **B3 not started**: confirmed — only the 4 files above plus this
   progress doc were touched in this review-fix task.
+
+---
+
+### Mini-fix — 1:1 facet/evidence consistency in the reuse guard (commit `fda532f`)
+
+- Starting HEAD: `b1ceeb1239f1dbbac3c847fe78ca93532b741aa8` (the review-fix
+  progress-doc commit above).
+- Final HEAD: `fda532f` (`fix(tours): require 1:1 facet/evidence
+  consistency in persisted classification`).
+- Scope: B2 only, same constraints as the review fix above (no B3, no
+  persistence/orchestration wiring, no other module touched).
+
+#### Finding
+`isValidPersistedClassificationShape()` (as fixed by `822ca8d`) validated
+each field's shape/vocabulary in isolation but never cross-checked
+`themes`/`intents`/`traits` against `reasoningEvidence`. A persisted
+payload like `{ themes: ['history'], intents: [], traits: [],
+reasoningEvidence: [], ... , state: 'classified' }` therefore read as
+reusable even though the accepted theme `'history'` had no
+corresponding evidence entry — violating B2's own contract that every
+accepted semantic fact must cite real evidence. **Confirmed** (the
+existing "valid" test fixture itself had exactly this bug baked in,
+asserting `true` for a payload shaped this way).
+
+#### Fix
+Added `hasConsistentAcceptedFacetEvidence(themes, intents, traits,
+reasoningEvidence)`: builds the expected facet set
+(`theme:<key>`/`intent:<key>`/`trait:<value>`) from the accepted
+arrays and the actual facet set from `reasoningEvidence[].facet`
+(trimmed/lowercased), then requires both directions of the
+correspondence — every accepted fact has ≥1 matching evidence entry,
+and no evidence entry exists for a fact that wasn't actually accepted
+(no dangling trace). This mirrors the same 1:1 correspondence
+`classify()` itself already produces via its own `finalAcceptedFacets`
+filtering (see the "Implemented" section above) — no new rule
+invented, just enforced symmetrically on the persisted-reuse side.
+Runs in `isValidPersistedClassificationShape()` after, and only after,
+the existing per-field shape/vocabulary checks pass. Fixed the "valid"
+test fixture to include a matching `reasoningEvidence` entry.
+
+#### Tests added (RED confirmed against the unmodified code before implementing)
+- `is true for a fully empty (no accepted themes/intents/traits, no
+  evidence) persisted classification`
+- `is true when an accepted intent and an accepted trait each have
+  their own matching reasoningEvidence entry` (proves the rule isn't
+  hardcoded for themes only)
+- `is false when an accepted theme has no corresponding
+  reasoningEvidence entry at all`
+- `is false when reasoningEvidence only cites a different fact than the
+  accepted theme`
+- `is false when reasoningEvidence has a dangling entry for a fact that
+  was not accepted (empty themes)`
+- `is false when an accepted intent has no corresponding
+  reasoningEvidence entry at all`
+- `is false when an accepted trait has no corresponding
+  reasoningEvidence entry at all`
+- Corrected the pre-existing `is true only for a current,
+  validly-shaped persisted classification` fixture to carry a matching
+  `reasoningEvidence` entry for its `themes: ['history']`.
+
+#### Verification (real results)
+- `yarn test src/modules/tours/services/experience-classification.service.spec.ts --runInBand`
+  → PASS — **36/36** (29 + 7 new/adjusted).
+- `yarn typecheck` → PASS — no errors.
+- `yarn lint:check` → PASS — 0 problems, no `--fix` needed this time.
+- `yarn test src/modules/tours --runInBand` → PASS — **88 suites / 889
+  tests** (882 + 7 new), no regressions.
+
+#### Confirmations
+- `canReuseClassification()` now requires a strict 1:1 correspondence
+  between every accepted theme/intent/trait and its `reasoningEvidence`
+  trace: no accepted fact without evidence, no evidence entry without a
+  corresponding accepted fact (no dangling trace either direction).
+- **B3 not started**: confirmed — only
+  `experience-classification.service.ts`,
+  `experience-classification.service.spec.ts`, and this progress doc
+  were touched in this mini-fix.
 
 ### Next task
 `B3 — Quality score including composite-component signals`
