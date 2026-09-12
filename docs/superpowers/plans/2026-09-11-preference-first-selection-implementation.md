@@ -65,6 +65,11 @@ live smoke happens after that merge and gates convergence into
     order already eligible/matching Experiences but never creates a facet match,
     changes weak→strong, satisfies coverage, stops acquisition, bypasses hard
     exclusions/geography/evidence/identity, or overrides planner feasibility.
+16. `explorationStyle` is also **ranking-only personalization**. It is projected
+    over independent evidence-backed `prominence`, `tourismIntensity` and
+    `localCharacter` signals. Low prominence is not local character, high
+    prominence is not low quality, missing evidence is `unknown` rather than
+    zero, and `local_deep_dive` is never implemented as `1 - prominence`.
 
 ---
 
@@ -76,7 +81,7 @@ live smoke happens after that merge and gates convergence into
 - `be/src/modules/tours/utils/preference-spec-builder.util.ts`
 - `be/src/modules/tours/utils/preference-sufficiency.util.ts`
 - `be/src/modules/tours/services/facet-retrieval.service.ts`
-- `be/src/modules/tours/utils/iconicity.util.ts`
+- `be/src/modules/tours/utils/exploration-signals.util.ts`
 - `be/src/modules/tours/prompts/experience-semantic-classification.prompt.ts`
 - `be/src/modules/tours/services/experience-classification.service.ts`
 - `be/src/modules/tours/utils/trait-shape-guard.util.ts`
@@ -159,7 +164,7 @@ Provide one shared `facetKey({dimension,key}) => "dimension:key"` helper.
 
 ---
 
-# Checkpoint A — PreferenceSpec, sufficiency, retrieval, iconicity
+# Checkpoint A — PreferenceSpec, sufficiency, retrieval, exploration signals
 
 Checkpoint A creates pure/canonical primitives and catalog retrieval. It does
 not wire the live generation path yet.
@@ -300,13 +305,208 @@ Integration test with real Postgres:
   embedding similarity would be very high;
 - bare/no-component rows never become strong.
 
-## A7 — Iconicity util
+## A7 — Evidence-Backed Exploration Signals
 
-Create deterministic `computeIconicity(): 0..1` from available measurable
-signals (review count, Wikidata sitelinks, Wikivoyage-listed, OSM heritage).
+`PreferenceSpec.explorationStyle` remains:
 
-This value is used only for exploration-style ranking tilt. No acquisition or
-coverage code consumes `explorationStyle` as a facet.
+```ts
+'iconic' | 'local_deep_dive' | 'balanced'
+```
+
+but it is a traveler-side meta-preference, **not** a standardized taxonomy on
+Experiences, not a facet and not a categorical property persisted on an
+Experience.
+
+Implement a pure deterministic utility, preferably:
+
+`be/src/modules/tours/utils/exploration-signals.util.ts`
+
+Detailed design rationale is retained in
+`docs/superpowers/specs/2026-09-11-exploration-signals-design.md`, but this main
+plan is sufficient to execute A7.
+
+### A7.1 Canonical signal model
+
+Model three independent evidence-backed signals:
+
+```ts
+export interface ExplorationSignalEvidence {
+  source: string;
+  key: string;
+  value?: string | number | boolean;
+}
+
+export interface EvidenceBackedExplorationSignal {
+  value: number | null; // normalized 0..1 when known
+  confidence: number;   // normalized 0..1
+  evidence: ExplorationSignalEvidence[];
+  reasonCodes: string[];
+}
+
+export interface ExplorationSignals {
+  prominence: EvidenceBackedExplorationSignal;
+  tourismIntensity: EvidenceBackedExplorationSignal;
+  localCharacter: EvidenceBackedExplorationSignal;
+}
+```
+
+Canonical rules:
+
+```text
+low prominence != local character
+high prominence != low quality
+unknown != zero
+local_deep_dive != 1 - prominence
+```
+
+No single opaque `iconicity` scalar is the canonical representation.
+
+### A7.2 Normalized input contract
+
+Do not couple the utility to Prisma or a provider service. Consume a small
+normalized grounded-fact input, conceptually:
+
+```ts
+export interface ExplorationSignalInput {
+  placesReviewCount?: number | null;
+  wikidataSitelinkCount?: number | null;
+  wikipediaPresent?: boolean | null;
+  wikivoyageListed?: boolean | null;
+  heritageOrLandmark?: boolean | null;
+
+  explicitTourismIntensityEvidence?: Array<{
+    strength: number;
+    evidenceKey: string;
+    source: string;
+  }>;
+
+  explicitLocalCharacterEvidence?: Array<{
+    strength: number;
+    evidenceKey: string;
+    source: string;
+  }>;
+}
+```
+
+Do not keyword-scan names, descriptions, snippets or raw JSON in A7. If current
+metadata cannot supply a signal, return unknown; do not fabricate it.
+
+### A7.3 Prominence
+
+Prominence may use measurable evidence such as:
+- Places review count (count, never star rating);
+- Wikidata sitelink count;
+- Wikipedia presence;
+- Wikivoyage listing;
+- heritage/landmark as a modest supporting term.
+
+Use named constants and saturating/log-like normalization for unbounded counts.
+`50_000` vs `50_100` reviews should move little compared with `50` vs `100`.
+Heritage alone must not force a near-1 score. If no meaningful prominence input
+exists, return `value:null`, not zero.
+
+### A7.4 Tourism intensity
+
+Do **not** derive `tourismIntensity` from prominence or review count alone.
+Consume only explicit normalized grounded tourism-intensity evidence. Without
+such evidence, return `value:null`.
+
+Future upstream evidence may include explicit tourist-hotspot / heavy-tourist-
+circuit / tourism-density facts, but A7 itself performs no provider or LLM call
+and no keyword classification.
+
+### A7.5 Local character
+
+Do **not** derive `localCharacter` from obscurity, low review count, missing
+Wikidata/Wikivoyage or low prominence. Consume only explicit normalized grounded
+local-character evidence. Without it, return `value:null`.
+
+Future upstream evidence may represent neighborhood institutions, traditional
+markets, local cultural practices, community venues, “popular with locals” or
+similar grounded facts.
+
+### A7.6 Unknown semantics and sanitization
+
+`value:null` means insufficient grounded evidence. `value:0` means actual
+grounded support for the low endpoint. Confidence for an unknown signal may be
+zero, but the value remains null.
+
+Sanitize `NaN`, infinities, negative counts and out-of-range strengths
+deterministically. Known values and confidence must remain within `0..1`.
+Malformed metadata degrades to ignored/unknown rather than inventing a score.
+
+### A7.7 Exploration-style ranking projection
+
+Also expose a pure canonical projection, conceptually:
+
+```ts
+export interface ExplorationTilt {
+  score: number;
+  contributions: Array<{
+    signal: 'prominence' | 'tourismIntensity' | 'localCharacter';
+    contribution: number;
+    reasonCode: string;
+  }>;
+}
+
+computeExplorationTilt(style, signals): ExplorationTilt
+```
+
+Semantics:
+- `iconic`: known prominence contributes positively; unknown prominence is
+  neutral; no signal becomes a hard filter;
+- `local_deep_dive`: known positive localCharacter contributes positively and
+  known high tourismIntensity may moderate/penalize; low or unknown prominence
+  by itself gives **no** bonus;
+- `balanced`: exact neutral tilt, preferably `0`.
+
+Keep weights as named deterministic constants. A7 defines this primitive but
+**does not wire it into composition yet**; C1/C2 consume it later.
+
+### A7.8 Architectural boundary
+
+A7 has:
+- no provider calls;
+- no LLM calls;
+- no embeddings;
+- no acquisition;
+- no PostGIS/Prisma writes;
+- no database migration;
+- no live orchestration wiring;
+- no effect on facet matching, strong/weak, sufficiency or acquisition.
+
+It is ranking context only.
+
+### A7.9 Required tests
+
+At minimum prove:
+- many reviews > few reviews for prominence, all else equal;
+- huge review counts saturate;
+- more Wikidata sitelinks increases prominence;
+- Wikipedia/Wikivoyage/heritage contribute only according to named policy;
+- no prominence evidence => `value:null`;
+- corrupt counts sanitize safely;
+- no explicit tourism evidence => tourismIntensity `value:null` even when
+  prominence is high;
+- explicit tourism evidence produces a deterministic known value and retains
+  provenance;
+- obscure/low-review candidate with no explicit local evidence => localCharacter
+  `value:null`;
+- explicit grounded local evidence produces a deterministic known value and
+  retains provenance;
+- `iconic`: higher known prominence gives higher tilt;
+- `iconic`: unknown prominence is neutral;
+- `local_deep_dive`: grounded localCharacter gives positive tilt;
+- `local_deep_dive`: grounded high tourismIntensity moderates/penalizes;
+- `local_deep_dive`: low prominence + unknown localCharacter gives no bonus;
+- `balanced`: exact neutral tilt;
+- same input repeated => deep-equal result;
+- utility has no provider/Prisma/LLM/embedding dependency and exposes no
+  `matches`/`satisfied` result.
+
+If current real metadata only supports robust `prominence` while
+`tourismIntensity` and `localCharacter` remain unknown, that is acceptable and
+preferable to absence-based heuristics.
 
 ### Checkpoint A verification
 
@@ -491,7 +691,8 @@ interface CompositionCandidate {
   componentCount: number;
   satisfiedFacets: string[];
   qualityScore: number | null;
-  iconicity: number;
+  explorationSignals: ExplorationSignals;
+  explorationTilt: number;
   semanticSimilarity: number;
   groundingStrength: number;
   matchesHardExclusion: boolean;
@@ -499,6 +700,11 @@ interface CompositionCandidate {
   isPerformanceVenue: boolean;
 }
 ```
+
+`explorationSignals` are evidence-backed factual/ranking inputs. `explorationTilt`
+is the request-specific result of
+`computeExplorationTilt(PreferenceSpec.explorationStyle, explorationSignals)`.
+Neither participates in eligibility or facet truth.
 
 `softAnchorBoost > 0` only for resolved soft venue anchors. It is a ranking
 signal, not a forced selection bit.
@@ -564,7 +770,7 @@ Within-facet strength should prioritize:
 - requested facet weight;
 - semantic similarity;
 - quality;
-- exploration-style tilt;
+- exploration-style tilt from `computeExplorationTilt`;
 - soft anchor boost;
 - diversity/stable id tie break.
 
@@ -574,14 +780,15 @@ Remainder fill and reservoir ordering use:
 weightedCoverage(c) = Σ requestedFacet.weight for each requested facet c satisfies
 ```
 
-Then similarity / quality / exploration tilt / soft-anchor boost / diversity /
-stable id.
+Then similarity / quality / evidence-backed exploration tilt / soft-anchor boost /
+diversity / stable id.
 
 Do not use raw facet count as the primary objective.
 Do not hardcode `days * 4`; call the canonical portfolio-target helper.
 Do not interpret `portfolioTarget` as a maximum final Tour size.
-Do not let semantic similarity participate in eligibility/coverage: C2 consumes
-its precomputed ranking signal only after canonical match/strongness is known.
+Do not let semantic similarity or exploration signals participate in eligibility/
+coverage: C2 consumes them as ranking signals only after canonical match/strongness
+is known. In particular, do not implement local-deep-dive as inverse prominence.
 
 Required unit cases:
 - 5 moderate days targets 20 initial candidates, not 20 per facet;
@@ -590,6 +797,11 @@ Required unit cases:
   or cover history;
 - among otherwise-comparable strong matches, higher semantic similarity wins at
   the semantic-similarity ranking position;
+- iconic style can prefer higher known prominence among otherwise-comparable
+  eligible candidates without changing coverage;
+- local-deep-dive can prefer explicit localCharacter and/or moderate known high
+  tourismIntensity, but obscure+unknown-local gets no automatic bonus;
+- balanced exploration style contributes exactly neutral tilt;
 - monothematic strongest tango-performance venue survives even if a weaker
   candidate covers 3 labels;
 - weighted two-low-priority facets do not automatically beat one high-priority
@@ -609,6 +821,8 @@ Thin service that:
 - hydrates canonical rows through catalog service / deterministic Prisma lookup;
 - computes satisfied facets only with the canonical matching primitive;
 - computes weighted preference coverage;
+- derives `ExplorationSignals` only from grounded normalized evidence and computes
+  the request-specific `explorationTilt`, with unknown signals remaining neutral;
 - obtains the one request/query embedding when applicable and attaches
   embedding-backed `semanticSimilarity` through the C1b contract without
   creating a second semantic/coverage engine;
@@ -616,8 +830,9 @@ Thin service that:
 - calls pure `composeSet`;
 - returns both the initial selected portfolio and ranked reservoir.
 
-No second semantic engine. The composition service may rank with embeddings but
-must never use them to recompute facet truth or sufficiency.
+No second semantic engine. The composition service may rank with embeddings and
+exploration tilt but must never use either to recompute facet truth or
+sufficiency.
 
 ## C4 — Planner candidate contract
 
@@ -726,6 +941,9 @@ Trace separately records:
 - basePortfolioTarget / portfolioTarget / distinctEligibleCount;
 - acquisition deficits;
 - classification reused vs classified vs degraded + evidence keys;
+- exploration-signal provenance: known/unknown prominence, tourismIntensity and
+  localCharacter, confidence/evidence/reason codes, plus request-specific tilt
+  contributions; never fabricate missing signals as zero;
 - semantic-ranking provenance without raw vectors: semanticQuery present/absent,
   query-embedding success/fallback, non-secret embedding provider/model/
   dimensions/document-version compatibility metadata, and candidate similarity
@@ -749,6 +967,8 @@ produce concise human summaries while technical details remain exact.
 Required trace tests:
 - `version === 4` for the new path;
 - `explorationStyle` is separate from facets;
+- exploration signals preserve known/unknown state and the tilt is explainable
+  from recorded contributions;
 - each facet exposes strong/weak counts and satisfaction;
 - acquisition records exact deficit/reason and sources/queries/evidence;
 - classification records reused/classified/degraded and evidence keys;
@@ -940,6 +1160,8 @@ Keep the engineering/audit information accessible but collapsed by default:
 - provider queries and source URLs;
 - evidence keys;
 - prompts/raw model responses already retained by trace policy, redacted;
+- exploration-signal values/confidence/evidence/reason codes and ranking-tilt
+  contribution breakdown;
 - semantic-similarity score and embedding contract/fallback metadata, never raw
   embedding arrays;
 - score breakdowns;
@@ -967,8 +1189,8 @@ Add focused frontend tests and/or Playwright coverage proving at least:
 - planner displays feasibility/result;
 - primary view does not require a `ruleId` or `reasonCode` to understand any
   decision;
-- expanding technical details still exposes the underlying rule ID/evidence/raw
-  debugging data without exposing raw embedding vectors;
+- expanding technical details still exposes underlying rule/evidence/exploration-
+  signal/raw debugging data without exposing raw embedding vectors;
 - product copy remains compact: no stage renders a long narrative paragraph for
   information already represented as metrics/status/decision.
 
@@ -1013,11 +1235,12 @@ Stages 1–11:
    - persist/enrich;
    - re-retrieve canonical rows;
    - recompute global sufficiency;
-8. after coverage/sufficiency is settled, compute embedding-backed
-   `semanticSimilarity` from one `PreferenceSpec.semanticQuery` query embedding
-   against compatible persisted Experience embeddings, with deterministic
-   neutral fallback; this signal MUST NOT feed back into step 5–7 coverage or
-   acquisition decisions;
+8. after coverage/sufficiency is settled, derive evidence-backed
+   `ExplorationSignals` and request-specific `explorationTilt`, then compute
+   embedding-backed `semanticSimilarity` from one `PreferenceSpec.semanticQuery`
+   query embedding against compatible persisted Experience embeddings, with
+   deterministic neutral fallback. Neither ranking signal may feed back into
+   step 5–7 coverage or acquisition decisions;
 9. compose weighted deterministic **initial** portfolio + ranked reservoir;
 10. normalize initial planner candidates with preferenceWeight/mustInclude;
 11. deterministic initial solver + feasibility;
@@ -1027,7 +1250,7 @@ Stages 1–11:
     - if reservoir is exhausted, emit structured planner-capacity deficit;
     - run bounded targeted acquisition for that concrete capacity deficit only;
     - send discoveries through corroboration/classification/persistence/
-      re-retrieval, recompute compatible semantic similarity for newly eligible
+      re-retrieval, recompute compatible ranking signals for newly eligible
       candidates without changing historical coverage truth, recompose reservoir
       and replan;
     - stop on no progress, no useful capacity or pass/provider budget;
@@ -1037,7 +1260,8 @@ Stages 1–11:
 Do not call acquisition for exploration style.
 Do not stop after “N candidates per facet”; only facet>=1 + global capacity can
 stop pre-planner acquisition.
-Do not let embedding similarity satisfy a facet or stop acquisition.
+Do not let embedding similarity or exploration tilt satisfy a facet or stop
+acquisition.
 Do not stop final planning merely because `portfolioTarget` candidates were
 initially selected; D6 backfill is authoritative for useful residual capacity.
 Do not acquire filler for tiny/awkward gaps or solely to inflate catalog size.
@@ -1057,7 +1281,14 @@ Required cases:
   satisfy history or prevent targeted history acquisition;
 - two otherwise-equivalent grounded history Experiences can reorder based on
   semanticQuery embedding similarity;
-- missing/incompatible embeddings fall back neutrally and generation succeeds;
+- iconic exploration style can reorder otherwise-comparable eligible candidates
+  using known prominence without changing coverage;
+- local-deep-dive never rewards obscurity by itself; explicit localCharacter is
+  required for positive local tilt, while known high tourismIntensity may
+  moderate it;
+- balanced exploration style is neutral;
+- missing exploration evidence and missing/incompatible embeddings both fall
+  back neutrally and generation succeeds;
 - long-duration candidates may schedule fewer rows than initial target without
   being considered incomplete solely by count;
 - short-duration candidates with useful spare capacity pull deterministic
@@ -1105,6 +1336,9 @@ from old “window size / global rank” mechanics to preference-first semantics
 - a facet delta changes selected IDs;
 - semanticQuery deltas may reorder otherwise comparable eligible candidates via
   embedding-backed similarity but never change factual facet coverage;
+- explorationStyle deltas may reorder otherwise comparable eligible candidates
+  only through evidence-backed exploration signals; unknown/low prominence is
+  never treated as local evidence and coverage remains unchanged;
 - dominance/regret is evaluated against weighted preference coverage + quality,
   not legacy global score;
 - no arbitrary database row order changes outcome.
@@ -1172,12 +1406,16 @@ Assertions:
   surfaced unmet (for provider reality failures; the expected canonical smoke
   should converge green before closure of the live-gate step);
 - exploration style never appears as a facet;
+- balanced exploration style produces a neutral exploration tilt regardless of
+  whatever exploration evidence happens to be known;
 - selected rows are grounded Experiences with components;
 - San Telmo polygon itself is not scheduled;
 - any acquired walk is multi-component and grounded;
 - classification provenance exists for newly classified Experiences;
 - embedding-backed semantic ranking, when available, uses persisted compatible
   Experience vectors and cannot alter the trace's factual coverage decision;
+- exploration signals retain evidence/unknown provenance and cannot alter factual
+  coverage decisions;
 - if the planner reports meaningful residual capacity, any reservoir/acquisition
   backfill is grounded and traceable, and convergence remains bounded;
 - the generated v4 trace can be rendered by the product Bitácora with the same
@@ -1231,6 +1469,8 @@ wired and tested:
 - any vector/embedding similarity path that acts as coverage or strong-match
   authority instead of ranking-only personalization;
 - any `exploration_style` coverage routing;
+- any single opaque `iconicity` score or inverse-prominence heuristic acting as
+  the canonical representation of exploration style;
 - any per-facet `days×pace` quota;
 - any interpretation of `days×pace` as exact/max final Tour cardinality;
 - any composition path that discards all eligible rows beyond initial target
@@ -1274,34 +1514,40 @@ The implementation is complete when all of the following are true:
     there is no `NEIGHBORHOOD_WALK` type.
 13. Composition uses one reservation per facet + weighted initial remainder fill
     and preserves a deterministic ranked reservoir beyond the initial target.
-14. `semanticSimilarity` is embedding-backed fine ranking from at most one
+14. `ExplorationSignals` keeps prominence, tourismIntensity and localCharacter
+    independent and evidence-backed; unknown is distinct from zero; low
+    prominence never becomes localCharacter; `computeExplorationTilt` is
+    ranking-only and balanced is neutral.
+15. `semanticSimilarity` is embedding-backed fine ranking from at most one
     request/query embedding against compatible persisted Experience vectors;
     missing/stale/incompatible vectors degrade neutrally, no per-candidate inline
     embedding generation occurs, and vector similarity never creates coverage or
     strongness.
-15. Planner receives raw quality once and preferenceWeight once for both initial
+16. Planner receives raw quality once and preferenceWeight once for both initial
     and promoted reservoir candidates.
-16. Duration-aware planning determines final cardinality: long Experiences may
+17. Duration-aware planning determines final cardinality: long Experiences may
     yield fewer rows than the initial target; short Experiences may trigger
     deterministic reservoir backfill and, only after reservoir exhaustion,
     bounded planner-triggered acquisition.
-17. Backfill convergence stops deterministically on no useful capacity, no
+18. Backfill convergence stops deterministically on no useful capacity, no
     progress, exhausted candidate/provider budget or pass limits and never adds
     poor filler solely to occupy every minute.
-18. Large-corpus e2e proves preference deltas change the best selected set and
-    semanticQuery deltas can refine ordering without changing factual coverage.
-19. Trace v4 explains facet coverage, global initial sufficiency, classification
-    reuse, embedding-ranking provenance without raw vectors, acquisition, anchor
-    semantics, composition reservoir, residual capacity/backfill and final
-    planner outcome.
-20. Bitácora v4 renders that trace natively as concise product decisions: a
+19. Large-corpus e2e proves preference deltas change the best selected set,
+    explorationStyle deltas refine ordering only through evidence-backed signals,
+    and semanticQuery deltas can refine ordering without changing factual
+    coverage.
+20. Trace v4 explains facet coverage, global initial sufficiency, classification
+    reuse, exploration-signal/tilt provenance, embedding-ranking provenance
+    without raw vectors, acquisition, anchor semantics, composition reservoir,
+    residual capacity/backfill and final planner outcome.
+21. Bitácora v4 renders that trace natively as concise product decisions: a
     product person can understand the flow without rule IDs, while technical
     details/evidence/raw diagnostics remain available on demand.
-21. Frontend acceptance verifies covered/uncovered facets, acquisition reason,
+22. Frontend acceptance verifies covered/uncovered facets, acquisition reason,
     anchor semantics, initial selection/reservoir, backfill, selected/unselected
     reasons and final planner feasibility in the primary Bitácora.
-22. Full backend + relevant frontend deterministic matrix is green.
-23. The merged preference-first core is recorded as Phase 7 CLOSED; Argentina
+23. Full backend + relevant frontend deterministic matrix is green.
+24. The merged preference-first core is recorded as Phase 7 CLOSED; Argentina
     live smoke then gates convergence to the unified agent branch.
 
 ---
@@ -1313,7 +1559,7 @@ Checkpoint A
   PreferenceSpec / anchors / builder
   facet>=1 + global initial portfolio sufficiency
   canonical per-facet retrieval (NO embedding coverage)
-  iconicity
+  evidence-backed exploration signals + deterministic ranking tilt
         ↓
 Checkpoint B
   evidence preservation
@@ -1323,6 +1569,7 @@ Checkpoint B
   area-walk acquisition
         ↓
 Checkpoint C
+  explorationSignals + explorationTilt (ranking only)
   embedding-backed semanticSimilarity (ranking only)
   weighted deterministic initial composition + ranked reservoir
   soft vs must anchor semantics
