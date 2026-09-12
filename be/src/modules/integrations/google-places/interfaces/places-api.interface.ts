@@ -17,6 +17,12 @@ export interface PlaceData {
   // One human-readable line per weekday (Google's own format, e.g.
   // "Monday: 9:00 AM – 6:00 PM"), when the provider exposes it.
   openingHoursWeekdayText?: string[];
+  // Google's own short editorial blurb about the place (Task B1 --
+  // preserved as evidence, never fabricated when the provider omits it).
+  editorialSummary?: { text: string; languageCode?: string };
+  // Human-readable label for `primaryType` (Task B1), e.g. "Art museum"
+  // for primaryType "art_gallery".
+  primaryTypeDisplayName?: { text: string; languageCode?: string };
 }
 
 export interface PlacesSearchNearbyParams {

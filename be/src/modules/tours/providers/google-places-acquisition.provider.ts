@@ -225,6 +225,12 @@ export class GooglePlacesAcquisitionProvider {
             primaryType: place.primaryType,
             types: place.types,
             openingHoursWeekdayText: place.openingHoursWeekdayText,
+            // Task B1 -- preserved evidence previously dropped here.
+            websiteUri: place.websiteUri,
+            priceLevel: place.priceLevel,
+            businessStatus: place.businessStatus,
+            editorialSummary: place.editorialSummary?.text,
+            primaryTypeDisplayName: place.primaryTypeDisplayName?.text,
           },
         });
       }

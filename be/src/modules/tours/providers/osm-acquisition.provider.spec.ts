@@ -25,6 +25,7 @@ describe('OsmAcquisitionProvider', () => {
       coordinates: [-58.38, -34.6],
     },
     tags: over.tags ?? {},
+    narrativeContext: over.narrativeContext,
   });
 
   // Mirror OsmPlacesService.lookupFeaturesNear's OsmFeatureLookupResult shape.
@@ -138,6 +139,33 @@ describe('OsmAcquisitionProvider', () => {
     expect((obs as any).traits).toBeUndefined();
     expect((obs as any).intents).toBeUndefined();
     expect((obs.metadata as any).themes).toBeUndefined();
+  });
+
+  it('preserves narrativeContext in metadata when the candidate carries it (Task B1)', async () => {
+    osmPlaces.lookupFeaturesNear.mockResolvedValue(
+      okLookup([
+        candidate({
+          id: 'osm:node:2',
+          osmType: 'node',
+          osmId: 2,
+          name: 'Cabildo de Buenos Aires',
+          tags: { name: 'Cabildo de Buenos Aires', tourism: 'museum' },
+          narrativeContext:
+            'A colonial-era town hall, now a museum of the May Revolution.',
+        }),
+      ]),
+    );
+
+    const result = await provider.acquire(destination, {
+      concepts: ['museum'],
+    });
+
+    expect(result.value[0].metadata).toEqual(
+      expect.objectContaining({
+        narrativeContext:
+          'A colonial-era town hall, now a museum of the May Revolution.',
+      }),
+    );
   });
 
   it('classifies evidenceType from selector semantics, not OSM element type', async () => {

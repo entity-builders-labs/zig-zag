@@ -105,6 +105,45 @@ describe('GooglePlacesApiService', () => {
     });
   });
 
+  it('requests and maps websiteUri, editorialSummary and primaryTypeDisplayName (Task B1)', async () => {
+    mockedAxios.post.mockResolvedValueOnce({
+      data: {
+        places: [
+          {
+            id: 'google-place-2',
+            displayName: { text: 'Museo de Arte' },
+            location: { latitude: 1, longitude: 2 },
+            primaryType: 'museum',
+            websiteUri: 'https://museo.example.com',
+            editorialSummary: { text: 'A landmark fine-arts museum.' },
+            primaryTypeDisplayName: { text: 'Art museum' },
+          },
+        ],
+      },
+    });
+    const service = new GooglePlacesApiService(config);
+
+    const result = await service.searchNearby({
+      latitude: 1,
+      longitude: 2,
+      radius: 1000,
+    });
+
+    expect(result.data[0]).toEqual(
+      expect.objectContaining({
+        websiteUri: 'https://museo.example.com',
+        editorialSummary: { text: 'A landmark fine-arts museum.' },
+        primaryTypeDisplayName: { text: 'Art museum' },
+      }),
+    );
+
+    const [, , requestConfig] = mockedAxios.post.mock.calls[0];
+    const fieldMask = (requestConfig as any).headers['X-Goog-FieldMask'];
+    expect(fieldMask).toContain('places.websiteUri');
+    expect(fieldMask).toContain('places.editorialSummary');
+    expect(fieldMask).toContain('places.primaryTypeDisplayName');
+  });
+
   it('sends a singular Text Search type with strictness and a destination rectangle', async () => {
     mockedAxios.post.mockResolvedValueOnce({ data: { places: [] } });
     const service = new GooglePlacesApiService(config);

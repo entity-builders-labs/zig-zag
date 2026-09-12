@@ -157,6 +157,12 @@ export class GooglePlacesApiService implements IPlacesApiService {
       'places.priceLevel',
       'places.regularOpeningHours',
       'places.businessStatus',
+      // Task B1: previously mapped in mapResponse() below but never
+      // actually requested, so it was silently always undefined from
+      // searchNearby/searchText.
+      'places.websiteUri',
+      'places.editorialSummary',
+      'places.primaryTypeDisplayName',
     ].join(',');
   }
 
@@ -328,6 +334,8 @@ export class GooglePlacesApiService implements IPlacesApiService {
       priceLevel: p.priceLevel,
       openingHoursWeekdayText: p.regularOpeningHours?.weekdayDescriptions,
       businessStatus: p.businessStatus,
+      editorialSummary: p.editorialSummary,
+      primaryTypeDisplayName: p.primaryTypeDisplayName,
     }));
   }
 }

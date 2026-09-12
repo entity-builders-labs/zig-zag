@@ -84,6 +84,13 @@ export class WikivoyageAcquisitionProvider {
             : undefined,
         evidenceType: entry.sectionType === 'DO' ? 'tourism_activity' : 'place',
         evidenceKey,
+        // Task B1 -- previously computed (used above for the evidenceKey/
+        // evidenceType derivation) but discarded before reaching the
+        // observation itself.
+        metadata: {
+          sectionType: entry.sectionType,
+          templateName: entry.templateName,
+        },
       };
     });
 

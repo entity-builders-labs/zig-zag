@@ -151,6 +151,10 @@ export class OsmAcquisitionProvider {
           osmType: candidate.osmType,
           osmTags: candidate.tags,
           matchedConcepts: uniqueSorted(matchedConcepts),
+          // Task B1 -- preserved when the candidate carries it; never
+          // fabricated here (OsmPlacesService remains the only place that
+          // may ever populate it).
+          narrativeContext: candidate.narrativeContext || undefined,
         },
       });
     }

@@ -72,6 +72,10 @@ describe('WikivoyageAcquisitionProvider', () => {
       },
       evidenceType: 'place',
       evidenceKey: 'wikivoyage:San_Telmo:see:see:Mercado_San_Telmo:1',
+      metadata: {
+        sectionType: 'SEE',
+        templateName: 'see',
+      },
     });
 
     expect(tango).toEqual({
@@ -82,6 +86,33 @@ describe('WikivoyageAcquisitionProvider', () => {
       geo: undefined,
       evidenceType: 'tourism_activity',
       evidenceKey: 'wikivoyage:San_Telmo:do:hacer:Clases_de_Tango:1',
+      metadata: {
+        sectionType: 'DO',
+        templateName: 'hacer',
+      },
+    });
+  });
+
+  it('preserves sectionType and templateName in metadata (Task B1)', async () => {
+    const mockResult: WikivoyageArticleResult = {
+      status: 'found',
+      title: 'Palermo',
+      entries: [
+        {
+          name: 'Jardín Japonés',
+          sectionType: 'SEE',
+          templateName: 'ver',
+        },
+      ],
+    };
+
+    apiService.fetchArticle.mockResolvedValueOnce(mockResult);
+
+    const result = await provider.acquire('Palermo');
+
+    expect(result.value[0].metadata).toEqual({
+      sectionType: 'SEE',
+      templateName: 'ver',
     });
   });
 

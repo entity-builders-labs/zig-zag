@@ -94,6 +94,49 @@ describe('GooglePlacesAcquisitionProvider', () => {
     });
   });
 
+  it('1b. preserves websiteUri, priceLevel, businessStatus, editorialSummary and primaryTypeDisplayName (Task B1)', async () => {
+    const mockPlace: PlaceData = {
+      id: 'ChIJ987654321',
+      displayName: { text: 'Museo de Arte Moderno' },
+      formattedAddress: 'San Telmo, Buenos Aires',
+      location: { latitude: -34.62, longitude: -58.37 },
+      primaryType: 'museum',
+      types: ['museum', 'tourist_attraction'],
+      websiteUri: 'https://mamba.example.com',
+      priceLevel: 'PRICE_LEVEL_MODERATE',
+      businessStatus: 'OPERATIONAL',
+      editorialSummary: { text: 'Contemporary art in a historic building.' },
+      primaryTypeDisplayName: { text: 'History museum' },
+    };
+
+    placesApiMock.searchNearby.mockResolvedValueOnce({
+      data: [mockPlace],
+      provenance: {
+        provider: 'google',
+        cacheStatus: 'miss-live',
+        requestedCount: 1,
+        receivedCount: 1,
+      },
+    });
+
+    const result = await provider.acquire({
+      latitude: -34.6037,
+      longitude: -58.3816,
+      radiusMeters: 5000,
+    });
+
+    const obs = result.value[0];
+    expect(obs.metadata).toEqual(
+      expect.objectContaining({
+        websiteUri: 'https://mamba.example.com',
+        priceLevel: 'PRICE_LEVEL_MODERATE',
+        businessStatus: 'OPERATIONAL',
+        editorialSummary: 'Contemporary art in a historic building.',
+        primaryTypeDisplayName: 'History museum',
+      }),
+    );
+  });
+
   it('2. rejects or omits invalid coordinates (NaN, Infinity, lat outside [-90, 90], lon outside [-180, 180])', async () => {
     const invalidCoordsPlaces: PlaceData[] = [
       {
@@ -626,11 +669,16 @@ describe('GooglePlacesAcquisitionProvider', () => {
       // Only factual metadata is carried through.
       expect(Object.keys(obs.metadata).sort()).toEqual(
         [
+          'businessStatus',
+          'editorialSummary',
           'openingHoursWeekdayText',
           'primaryType',
+          'primaryTypeDisplayName',
+          'priceLevel',
           'rating',
           'types',
           'userRatingCount',
+          'websiteUri',
         ].sort(),
       );
     });
