@@ -218,23 +218,37 @@ describe('tour-generation integration · catalog retrieval', () => {
       expect(ids).not.toContain(outsideId);
     });
 
-    it('is in scope when any component of a multi-component Experience is within radius, ordered by the nearest component', async () => {
+    it('orders a multi-component Experience by its NEAREST component, not its farthest one -- and ahead of a farther single-component Experience', async () => {
       const prisma = await getPrisma();
-      // Primary component ~55 km away (outside radius); an extra
-      // component ~110 m away (inside radius) should still bring the whole
-      // Experience into scope.
+      // Multi: BOTH components inside the radius, at two different
+      // distances -- ~111 m and ~1002 m -- so the aggregate genuinely has
+      // two candidate values to choose between (unlike a component outside
+      // the radius entirely, which the WHERE ST_DWithin clause would
+      // already filter out row-by-row before any aggregate runs, making
+      // MIN and MAX indistinguishable). MIN(distance) = ~111 m;
+      // MAX(distance) = ~1002 m.
       const multiId = await seedVerifiedExperience(prisma, {
         canonicalName: 'Multi-component Walk',
-        latitude: CENTER.latitude + 0.5,
+        latitude: CENTER.latitude + 0.009, // ~1002 m -- the primary component
         longitude: CENTER.longitude,
         themes: ['history'],
         extraComponents: [
           {
             name: 'Near Stop',
-            latitude: CENTER.latitude + 0.001,
+            latitude: CENTER.latitude + 0.001, // ~111 m
             longitude: CENTER.longitude,
           },
         ],
+      });
+
+      // Comparison: single component ~501 m away -- farther than the
+      // multi's NEAREST component (~111 m) but nearer than its FARTHEST
+      // one (~1002 m). Only the MIN-based contract puts the multi first.
+      const comparisonId = await seedVerifiedExperience(prisma, {
+        canonicalName: 'Single-component Museum',
+        latitude: CENTER.latitude + 0.0045, // ~501 m
+        longitude: CENTER.longitude,
+        themes: ['history'],
       });
 
       const found = await catalog.findVerifiedWithinForMatching(
@@ -243,7 +257,18 @@ describe('tour-generation integration · catalog retrieval', () => {
         5000,
       );
 
-      expect(found.map((experience: any) => experience.id)).toContain(multiId);
+      const relevantIds = found
+        .map((experience: any) => experience.id)
+        .filter((id: string) => id === multiId || id === comparisonId);
+
+      // Both are in scope, but MIN(distance(multi's components)) (~111 m)
+      // is less than distance(comparison) (~501 m), which in turn is less
+      // than MAX(distance(multi's components)) (~1002 m). Ordering the
+      // multi-component Experience first is only correct under a genuine
+      // MIN contract -- a MAX (or "primary component only") distance would
+      // order the comparison first instead. This is the second half of
+      // the contract that plain membership doesn't demonstrate.
+      expect(relevantIds).toEqual([multiId, comparisonId]);
     });
 
     it('breaks identical-distance ties deterministically by Experience id', async () => {

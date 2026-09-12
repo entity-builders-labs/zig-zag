@@ -115,4 +115,41 @@ describe('FacetRetrievalService', () => {
     expect(result.strongMatches).toEqual([]);
     expect(result.weakMatches).toEqual(['bare-1']);
   });
+
+  describe('quality ordering hardening (Task A6.1 review fix)', () => {
+    // All four rows lack a resolved geographic component, so every one is a
+    // weak match regardless of qualityScore -- isolating this test to
+    // ordering only, never strong/weak classification.
+    it('never lets a corrupt/invalid qualityScore outrank a real 4.0 in weakMatches ordering', async () => {
+      const valid = row({
+        id: 'weak-valid',
+        qualityScore: 4.0,
+        components: [],
+      });
+      const infinity = row({
+        id: 'weak-infinity',
+        qualityScore: Infinity,
+        components: [],
+      });
+      const nan = row({ id: 'weak-nan', qualityScore: NaN, components: [] });
+      const aboveScale = row({
+        id: 'weak-above-scale',
+        qualityScore: 5.1,
+        components: [],
+      });
+
+      const { service } = makeService([infinity, nan, aboveScale, valid]);
+
+      const result = await service.retrieveFacetCandidates(facet(), SCOPE);
+
+      expect(result.strongMatches).toEqual([]);
+      // The real, valid 4.0 must sort first...
+      expect(result.weakMatches[0]).toBe('weak-valid');
+      // ...and every corrupt value is treated as the worst possible
+      // quality, falling back to a stable id tie-break amongst themselves.
+      expect(result.weakMatches.slice(1)).toEqual(
+        ['weak-above-scale', 'weak-infinity', 'weak-nan'].sort(),
+      );
+    });
+  });
 });

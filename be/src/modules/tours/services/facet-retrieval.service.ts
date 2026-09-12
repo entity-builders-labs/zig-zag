@@ -42,12 +42,29 @@ interface ScoredRow {
   qualityScore: number | null;
 }
 
-/** Strongest-first: higher qualityScore wins; stable id tie-break. */
+/**
+ * Ordering-only quality projection. `typeof value === 'number'` alone is
+ * not enough to trust a value for ordering -- `NaN`/`Infinity`/`-Infinity`
+ * all satisfy it, and a corrupt out-of-scale value (negative, or above the
+ * canonical 0..5 ceiling) shouldn't win over a real 4.0 either. This
+ * mirrors A5's own `isStrongFacetMatch` quality-validity contract
+ * (`preference-strong-match.util.ts`, untouched by this fix) so a
+ * corrupt/invalid quality can never gain an ordering advantage -- it sorts
+ * as the worst possible value instead.
+ */
+function qualityForOrdering(value: unknown): number {
+  return typeof value === 'number' &&
+    Number.isFinite(value) &&
+    value >= 0 &&
+    value <= 5
+    ? value
+    : -Infinity;
+}
+
+/** Strongest-first: higher (valid) qualityScore wins; stable id tie-break. */
 function byStrengthThenId(a: ScoredRow, b: ScoredRow): number {
-  const aQuality =
-    typeof a.qualityScore === 'number' ? a.qualityScore : -Infinity;
-  const bQuality =
-    typeof b.qualityScore === 'number' ? b.qualityScore : -Infinity;
+  const aQuality = qualityForOrdering(a.qualityScore);
+  const bQuality = qualityForOrdering(b.qualityScore);
   return bQuality - aQuality || a.id.localeCompare(b.id);
 }
 
