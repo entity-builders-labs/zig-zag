@@ -1854,14 +1854,17 @@ Ran (all green, no code change made — the fix was already correct):
 
 ---
 
-## Checkpoint B — Task B2 — COMPLETE
+## Checkpoint B — Task B2 — COMPLETE (corrected by review fix below)
 
 - Branch: `feat/preference-first-selection`
 - Base commit: `a88dad6d7a7b52bf07d0e4bd069890a3f8ed9577` (docs: split
   image reliability fixes from media quality design)
-- Implementation commit: `284a972`
+- Original implementation commit: `284a972` (see the "Review fix" section
+  below — this original commit had 5 confirmed defects and is superseded
+  by review-fix commit `822ca8d`)
+- Review-fix commit: `822ca8d`
 - Plan task: `B2 — Evidence-only classifier + trait guard`
-- Status: COMPLETE
+- Status: COMPLETE (as of `822ca8d`)
 
 ### Implemented
 Three new files, matching the plan's naming exactly, plus one config
@@ -2045,6 +2048,172 @@ any time.
   `git log HEAD..fork/...` and `git log fork/...HEAD` were both empty —
   local HEAD matched `fork` exactly (`a88dad6`), confirming no other
   commits landed on this branch while B2 was in progress.
+
+---
+
+### Review fix — B2 corrected (commit `822ca8d`)
+
+- Starting HEAD: `4610ce4bbf79ed424aba42e2f5ba8f2e8ddf1267` (the B2
+  progress-doc commit above).
+- Final HEAD: `822ca8d0f495459375c02f9f090c3f0182068980` (`fix(tours):
+  correct B2 classification determinism, cache, and reuse semantics`).
+- Scope: B2 only. Did not start B3, did not wire classification into
+  persistence/orchestration, did not touch composition/planner/
+  acquisition/`PreferenceSpec`/ranking, did not create a new cache. The
+  only non-B2-file touched is `LangChainService`, and only the minimal
+  change needed to let one existing option (`temperature`) actually take
+  effect for Groq's `json_object` responses — no broader refactor.
+
+#### Findings from review (all confirmed, all fixed)
+1. **Not deterministic**: `classify()` never passed `temperature`, and
+   `LangChainService`'s Groq branch unconditionally used
+   `this.config.temperature` (0.7 by default) for `json_object` output —
+   only `json_schema` forced `0`. The spec requires "Groq
+   qwen/qwen3.8-27b, temperature 0" for Stage 6. **Confirmed and fixed.**
+2. **Cache violation of D2**: `classify()` called
+   `generateChatResponse()` without `bypassCache: true`, so it silently
+   read/wrote the shared `AiCacheService` file-based cache — D2 says
+   classification has no cache table of its own and reuse must depend
+   exclusively on persisted `metadata.classification` + prompt version +
+   shape guard. **Confirmed and fixed.**
+3. **Degraded treated as reusable**: `canReuseClassification()` accepted
+   `state === 'classified' || state === 'degraded'`. A degraded result
+   must be retried on a future run, never treated as a final, skippable
+   outcome. **Confirmed and fixed** — now requires `state ===
+   'classified'` explicitly.
+4. **Envelope/shape guards too weak**: a raw LLM response missing
+   `themes`/`intents`/`traits`/`reasoningEvidence` entirely (e.g. `{}`)
+   was silently "repaired" into a valid empty `classified` result instead
+   of degrading; the persisted-classification shape guard only checked
+   `Array.isArray` on each field, not element shape (e.g. `themes: [42]`,
+   `reasoningEvidence: ['garbage']` both read as valid). **Confirmed and
+   fixed** on both sides.
+5. **Controlled vocabulary leaking into traits**: a value like
+   `"history"` (a real canonical theme) or `"visit"` (a real canonical
+   intent) could survive as a freeform trait if it passed the
+   shape/evidence checks, violating the existing domain invariant already
+   enforced for discovery extraction. **Confirmed and fixed** — reuses
+   `canonicalizeFacetKey()` from `preference-facet-vocabulary.ts` (no new
+   taxonomy copy), applied both in `classify()`'s trait filtering and in
+   the persisted shape guard.
+
+#### Fixes made
+- `langchain.service.ts`: Groq branch's `temperature` now resolves as
+  `responseFormat.type === 'json_schema' ? 0 : (modelOptions.temperature
+  ?? this.config.temperature)` — an explicit per-call `temperature`
+  override in `ChatResponseOptions` now takes effect for `json_object`
+  output too. No other current caller passes `temperature`, so
+  `groq-discovery.provider.ts` and `preference-interpreter.service.ts`
+  are unaffected; the global `AI_PROVIDER`/`AI_MODEL` config default was
+  not changed.
+- `experience-classification.service.ts`:
+  - `classify()`'s `generateChatResponse()` call now passes `temperature:
+    0` and `bypassCache: true`.
+  - Added `hasValidClassificationEnvelopeShape()`: the raw parsed
+    response must have `themes`/`intents`/`traits`/`reasoningEvidence`
+    all present as arrays, or the whole response degrades — a
+    genuinely well-formed response with all four arrays present but
+    empty is still correctly `classified`.
+  - Added `isControlledVocabularyValue()` (reusing
+    `canonicalizeFacetKey(THEME|INTENT, value)`), applied as an
+    additional trait filter in `classify()` alongside the existing
+    trait-shape guard and evidence-citation check.
+  - `canReuseClassification()` now short-circuits to `false` when
+    `classification.state !== 'classified'`, before the shape guard even
+    runs.
+  - `isValidPersistedClassificationShape()` rewritten into
+    per-field validators: `themes`/`intents` must be arrays of strings
+    that are genuinely in `CANONICAL_THEME_KEYS`/`CANONICAL_INTENT_KEYS`;
+    `traits` must be arrays of strings that pass
+    `isValidClassifierTraitShape` AND are not a controlled
+    theme/intent key; `reasoningEvidence` must be an array of objects
+    each with a non-empty string `facet`, non-empty string `reason`, and
+    a non-empty array of non-empty-string `evidenceKeys`. Does not
+    re-check that cited evidence keys still exist in the DB — that
+    belongs to the future persistence/wiring layer, not this pure
+    helper.
+
+#### Tests
+Added/adjusted in `experience-classification.service.spec.ts` (RED
+confirmed for every one before implementing, by temporarily reverting
+each fix or, for the LangChainService fix, running against the
+unmodified code):
+- `rejects a controlled theme key surviving as a freeform trait, even if
+  cited by evidence` (theme `"history"`)
+- `rejects a controlled intent key surviving as a freeform trait, even
+  if cited by evidence` (intent `"visit"`)
+- `accepts a genuinely open-ended multi-word trait when evidenced`
+  (`"craft beer"`, regression guard alongside the two above)
+- `degrades to empty arrays without throwing when the envelope is
+  missing required array fields` (`{}` input)
+- `accepts a well-formed envelope with all-empty arrays as a valid
+  classified result (not a degraded one)`
+- extended `calls the shared Groq transport with providerOverride/
+  modelOverride, json_object response format, temperature 0 and
+  bypassCache` to assert `temperature: 0` and `bypassCache: true`
+- `is false for a current, validly-shaped but degraded persisted
+  classification`
+- `is false when a persisted theme is outside the canonical vocabulary`
+- `is false when themes contains a non-string element`
+- `is false when intents contains a non-string element`
+- `is false when traits contains a non-string element`
+- `is false when a persisted trait is actually a controlled
+  theme/intent key`
+- `is false when reasoningEvidence contains a non-object element`
+- `is false when a reasoningEvidence entry is missing a real
+  evidenceKeys array`
+
+Added to `langchain.service.spec.ts`:
+- `respects an explicit temperature override for json_object output`
+  (RED confirmed: received `0.7` instead of the expected `0` against the
+  unmodified code; GREEN after the fix)
+- `falls back to the config default temperature for json_object output
+  when no override is given` (regression guard)
+
+#### Verification (real results, run in this order)
+- `yarn test src/modules/tours/services/experience-classification.service.spec.ts --runInBand`
+  → PASS — **29/29**.
+- `yarn test src/modules/tours/utils/trait-shape-guard.util.spec.ts --runInBand`
+  → PASS — **21/21** (unchanged, no regressions).
+- `yarn test src/modules/tours/prompts/experience-semantic-classification.prompt.spec.ts --runInBand`
+  → PASS — **12/12** (unchanged, no regressions).
+- `yarn test src/shared/ai/langchain.service.spec.ts --runInBand` → PASS
+  — **16/16**.
+- `yarn typecheck` → PASS — no errors.
+- `yarn lint:check` → initially **6 formatting-only errors**
+  (`prettier/prettier`) across the 2 touched service/spec files, fixed
+  via `npx eslint --fix` scoped to exactly those files; rerun → PASS, 0
+  problems.
+- `yarn test src/modules/tours --runInBand` → PASS — **88 suites / 882
+  tests** (869 + 13 new B2 tests), no regressions.
+- `yarn test src/shared/ai --runInBand` → PASS — **7 suites / 46 tests**
+  (44 + 2 new temperature tests), no regressions.
+- `yarn test --runInBand` (full backend unit suite) → PASS — **135
+  suites / 1202 tests**, no regressions anywhere.
+
+#### Confirmations
+- **temperature**: `classify()` now always passes `temperature: 0`
+  explicitly; `LangChainService`'s Groq `json_object` branch resolves
+  `modelOptions.temperature ?? this.config.temperature`, so the override
+  takes effect. Confirmed by a real assertion on the outbound Groq
+  request body (`body.temperature === 0`), not just on the options object
+  passed into `generateChatResponse`.
+- **bypassCache**: `classify()` now always passes `bypassCache: true`,
+  asserted directly in the transport-options test.
+- **canReuseClassification semantics**: `true` only for
+  `state === 'classified'` + current prompt version + a persisted
+  payload whose themes/intents are real canonical keys, whose traits
+  pass the trait-shape guard and are not a controlled vocabulary leak,
+  and whose `reasoningEvidence` entries are well-formed. `degraded` is
+  always `false`, regardless of prompt version or shape.
+- **envelope validation**: a raw response missing any of the four
+  required arrays degrades; a response with all four arrays present
+  (even all empty) is a valid `classified` result.
+- **controlled vocabulary in traits**: rejected both in the live
+  `classify()` path and in the persisted-shape reuse guard, reusing
+  `canonicalizeFacetKey()` — no second taxonomy.
+- **B3 not started**: confirmed — only the 4 files above plus this
+  progress doc were touched in this review-fix task.
 
 ### Next task
 `B3 — Quality score including composite-component signals`
