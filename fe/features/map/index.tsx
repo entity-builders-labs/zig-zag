@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { StyleSheet, View, Text } from 'react-native';
+import { AppState, StyleSheet, View, Text } from 'react-native';
 import MapView, {
   Region,
   Marker,
@@ -15,7 +15,6 @@ import { Marker as MarkerType } from './types';
 import { ZIGZAG_WARM_MAP_STYLE } from '../../constants/map-style';
 import { getCategoryEmoji } from './utils';
 import { checkLocationPermission } from '../../utils/location';
-
 
 export const Map: React.FC<MapProps> = ({
   markers: propMarkers,
@@ -33,13 +32,26 @@ export const Map: React.FC<MapProps> = ({
 
   useEffect(() => {
     let isMounted = true;
-    checkLocationPermission().then((granted) => {
+
+    const refreshPermission = async () => {
+      const granted = await checkLocationPermission();
       if (isMounted) setHasLocationPermission(granted);
+    };
+
+    void refreshPermission();
+    const subscription = AppState.addEventListener('change', (state) => {
+      // Permission dialogs/settings can change foreground permission while the
+      // Map stays mounted. Re-check when the app becomes active so the blue
+      // user-location indicator does not remain stale until a remount.
+      if (state === 'active') void refreshPermission();
     });
+
     return () => {
       isMounted = false;
+      subscription.remove();
     };
   }, []);
+
   const { center } = useMap();
   const { address } = useAddress();
   const { radiusMeters } = useSearchRadius();
