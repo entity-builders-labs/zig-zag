@@ -36,6 +36,7 @@ import { Marker } from "@/features/map/types";
 import { AppContext, useMap } from "@/context/app";
 import { fetchNearbyExperiences } from "@/api/experiences";
 import { FONT_DISPLAY } from "@/constants/typography";
+import { requestAndGetCurrentLocation } from "@/utils/location";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -153,7 +154,7 @@ const FILTER_TAGS = [
 export default function MapScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { center } = useMap();
+  const { center, handleCenterChange } = useMap();
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [places, setPlaces] = useState<MapPlace[]>(CURATED_PLACES);
@@ -250,7 +251,17 @@ export default function MapScreen() {
     });
   };
 
-  const handleRecenter = () => {
+  const handleRecenter = async () => {
+    const coords = await requestAndGetCurrentLocation({ showPromptOnDenial: true });
+    if (coords) {
+      handleCenterChange(coords);
+      setFocusCoordinate({
+        latitude: coords.lat,
+        longitude: coords.lng,
+      });
+      return;
+    }
+
     const target = center
       ? { latitude: center.lat, longitude: center.lng }
       : { latitude: -34.6037, longitude: -58.3816 };

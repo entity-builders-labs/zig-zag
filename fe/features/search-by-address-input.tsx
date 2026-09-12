@@ -6,6 +6,7 @@ import {
 import { useAddress } from '../context/app';
 import { useEffect, useState } from 'react';
 import * as ExpoLocation from 'expo-location';
+import { requestAndGetCurrentLocation } from '../utils/location';
 import { PlaceSuggestion, searchPlaces, resolvePlace } from './places-autocomplete';
 
 export const SearchByAddressInput = () => {
@@ -63,19 +64,15 @@ export const SearchByAddressInput = () => {
         <Text style={{ fontWeight: '600' }}>Dirección</Text>
         <Text
           onPress={async () => {
-            try {
-              const { status } = await ExpoLocation.requestForegroundPermissionsAsync();
-              if (status !== 'granted') return;
-              const pos = await ExpoLocation.getCurrentPositionAsync({});
+            const coords = await requestAndGetCurrentLocation({ showPromptOnDenial: true });
+            if (coords) {
               setAddress({
-                lat: pos.coords.latitude,
-                lng: pos.coords.longitude,
+                lat: coords.lat,
+                lng: coords.lng,
                 street: 'Ubicación actual',
                 city: '',
                 country: '',
               });
-            } catch (e) {
-              // ignore
             }
           }}
           style={{ color: '#007AFF' }}

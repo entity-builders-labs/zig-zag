@@ -46,6 +46,21 @@ export default function TourWizardScreen() {
     router.back();
   };
 
+  const initialLocation = React.useMemo(() => {
+    if (destination) {
+      return latParam && lngParam
+        ? { lat: parseFloat(latParam), lng: parseFloat(lngParam) }
+        : undefined;
+    }
+    if (address?.lat && address?.lng) {
+      return { lat: address.lat, lng: address.lng };
+    }
+    if (latParam && lngParam) {
+      return { lat: parseFloat(latParam), lng: parseFloat(lngParam) };
+    }
+    return undefined;
+  }, [destination, latParam, lngParam, address?.lat, address?.lng]);
+
   return (
     <>
       <Stack.Screen
@@ -60,17 +75,7 @@ export default function TourWizardScreen() {
         onSubmit={handleSubmit}
         onCancel={handleCancel}
         initialDestination={destination}
-        initialLocation={
-          destination
-            ? latParam && lngParam
-              ? { lat: parseFloat(latParam), lng: parseFloat(lngParam) }
-              : undefined
-            : address?.lat && address?.lng
-              ? { lat: address.lat, lng: address.lng }
-              : latParam && lngParam
-                ? { lat: parseFloat(latParam), lng: parseFloat(lngParam) }
-                : undefined
-        }
+        initialLocation={initialLocation}
       />
     </>
   );

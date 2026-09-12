@@ -33,6 +33,16 @@ module.exports = {
     },
     permissions: ['ACCESS_COARSE_LOCATION', 'ACCESS_FINE_LOCATION'],
   },
-  plugins: ['expo-router', 'expo-apple-authentication'],
+  plugins: [
+    'expo-router',
+    'expo-apple-authentication',
+    [
+      'expo-location',
+      {
+        locationAlwaysAndWhenInUsePermission:
+          'Usamos tu ubicación para mostrarte recorridos y actividades cercanas a vos.',
+      },
+    ],
+  ],
   newArchEnabled: true,
 };

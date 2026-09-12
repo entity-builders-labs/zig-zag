@@ -14,6 +14,7 @@ import {
 } from '@gluestack-ui/themed';
 import { ArrowLeft, MapPin, Sparkles } from 'lucide-react-native';
 import * as ExpoLocation from 'expo-location';
+import { requestAndGetCurrentLocation } from '@/utils/location';
 import { GenerateTourDto } from '@/api/tours';
 import {
   BudgetLevel,
@@ -77,7 +78,7 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
   initialLocation
 }) => {
   const insets = useSafeAreaInsets();
-  const { setCenter, setAddress, address } = useContext(AppContext);
+  const { center, setCenter, setAddress, address } = useContext(AppContext);
   const initialAddressRef = useRef(address);
   const [currentStep, setCurrentStep] = useState(1);
   const destinationChosenRef = useRef(Boolean(initialDestination && initialDestination.trim().length > 0));
@@ -125,18 +126,12 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
 
       if (useCurrentLocation && !destinationCoords && !destinationChosenRef.current) {
         try {
-          const { status } =
-            await ExpoLocation.requestForegroundPermissionsAsync();
-          if (status === 'granted') {
-            const location = await ExpoLocation.getCurrentPositionAsync({});
-            if (!isMounted || destinationChosenRef.current) {
-              return;
-            }
-            const coords = {
-              lat: location.coords.latitude,
-              lng: location.coords.longitude
-            };
-            setDestinationCoords(coords);
+          const coords = await requestAndGetCurrentLocation();
+          if (!isMounted || destinationChosenRef.current || !coords) {
+            return;
+          }
+          setDestinationCoords(coords);
+          if (coords.lat !== center.lat || coords.lng !== center.lng) {
             setCenter(coords);
           }
         } catch (error) {
@@ -153,9 +148,11 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
   }, []);
 
   useEffect(() => {
-    if (destinationCoords) setCenter(destinationCoords);
-    else if (initialLocation) setCenter(initialLocation);
-  }, [destinationCoords, initialLocation, setCenter]);
+    const target = destinationCoords ?? initialLocation;
+    if (target && (target.lat !== center.lat || target.lng !== center.lng)) {
+      setCenter(target);
+    }
+  }, [destinationCoords?.lat, destinationCoords?.lng, initialLocation?.lat, initialLocation?.lng, center?.lat, center?.lng, setCenter]);
 
   const toggleInterest = (interest: string) => {
     setSelectedInterests((current) =>
@@ -217,20 +214,14 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
       setDestinationScaleHint('specific_point');
       setDestinationIsDirty(false);
 
-      try {
-        const { status } =
-          await ExpoLocation.requestForegroundPermissionsAsync();
-        if (status === 'granted') {
-          const location = await ExpoLocation.getCurrentPositionAsync({});
-          const coords = {
-            lat: location.coords.latitude,
-            lng: location.coords.longitude
-          };
-          setDestinationCoords(coords);
+      const coords = await requestAndGetCurrentLocation({ showPromptOnDenial: true });
+      if (coords) {
+        setDestinationCoords(coords);
+        if (coords.lat !== center.lat || coords.lng !== center.lng) {
           setCenter(coords);
         }
-      } catch (error) {
-        console.error('Error getting location:', error);
+      } else {
+        setUseCurrentLocation(false);
       }
       return;
     }

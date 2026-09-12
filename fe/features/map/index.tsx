@@ -14,6 +14,7 @@ import { MapProps } from './types';
 import { Marker as MarkerType } from './types';
 import { ZIGZAG_WARM_MAP_STYLE } from '../../constants/map-style';
 import { getCategoryEmoji } from './utils';
+import { checkLocationPermission } from '../../utils/location';
 
 
 export const Map: React.FC<MapProps> = ({
@@ -28,6 +29,17 @@ export const Map: React.FC<MapProps> = ({
 }) => {
   const mapRef = useRef<MapView | null>(null);
   const [isMapReady, setIsMapReady] = useState(false);
+  const [hasLocationPermission, setHasLocationPermission] = useState(false);
+
+  useEffect(() => {
+    let isMounted = true;
+    checkLocationPermission().then((granted) => {
+      if (isMounted) setHasLocationPermission(granted);
+    });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
   const { center } = useMap();
   const { address } = useAddress();
   const { radiusMeters } = useSearchRadius();
@@ -123,8 +135,7 @@ export const Map: React.FC<MapProps> = ({
         region={isStatic ? region : undefined}
         onRegionChangeComplete={onRegionChange}
         customMapStyle={ZIGZAG_WARM_MAP_STYLE}
-        // Mostrar la ubicación real solo como referencia, pero marcamos el centro elegido
-        showsUserLocation={false}
+        showsUserLocation={hasLocationPermission}
         toolbarEnabled={interactive}
         zoomControlEnabled={interactive}
         scrollEnabled={interactive}
