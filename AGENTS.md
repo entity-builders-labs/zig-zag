@@ -8,6 +8,14 @@ including Codex, Claude, and Antigravity. Antigravity is currently used often
 for visual/frontend work, but the frontend conventions below are shared rules,
 not tool-specific preferences.
 
+For Places-provider acquisition/classification work on
+`feat/preference-first-selection`, also read
+`docs/superpowers/specs/2026-09-12-places-provider-cost-control-amendment.md`.
+It supersedes the older B1 instruction to request Google
+`editorialSummary` on every baseline search: the core is provider-agnostic
+(`IPlacesApiService`, currently Google or Geoapify), and paid provider-specific
+narrative fields must remain optional/selective rather than baseline-required.
+
 Before changing any of the following areas, read
 `docs/architecture/activity-discovery-and-tour-generation.md` completely:
 
