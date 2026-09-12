@@ -145,7 +145,7 @@ ios-device-install: ## Explicitly install the newest existing Debug-iphoneos app
 		echo "IOS_PHYSICAL_DEVICE is required. Example: make ios-device-install IOS_PHYSICAL_DEVICE=<device-id>" >&2; \
 		exit 2; \
 	fi
-	@APP_PATH=$$(find $(HOME)/Library/Developer/Xcode/DerivedData -name "zigzag.app" -path "*/Debug-iphoneos/*" -print0 2>/dev/null | xargs -0 ls -td 2>/dev/null | head -n 1); \
+	@APP_PATH=$$(find $(HOME)/Library/Developer/Xcode/DerivedData -name "zigzag.app" -path "*/Debug-iphoneos/*" -exec stat -f '%m %N' {} \; 2>/dev/null | sort -nr | head -n 1 | cut -d' ' -f2-); \
 	if [ -z "$$APP_PATH" ]; then \
 		echo "No Debug-iphoneos zigzag.app found in DerivedData; build first with make ios-device." >&2; \
 		exit 1; \
