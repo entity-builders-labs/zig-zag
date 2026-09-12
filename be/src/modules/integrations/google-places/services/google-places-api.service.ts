@@ -157,12 +157,14 @@ export class GooglePlacesApiService implements IPlacesApiService {
       'places.priceLevel',
       'places.regularOpeningHours',
       'places.businessStatus',
-      // Task B1: previously mapped in mapResponse() below but never
-      // actually requested, so it was silently always undefined from
-      // searchNearby/searchText.
       'places.websiteUri',
-      'places.editorialSummary',
       'places.primaryTypeDisplayName',
+      // Cost-control boundary: do NOT request `places.editorialSummary` in
+      // baseline Nearby/Text Search. Google bills a request at the highest
+      // field tier present in the mask, and editorialSummary promotes the
+      // whole search to the more expensive Enterprise + Atmosphere tier.
+      // Keep mapResponse() support for it so a future selective enrichment
+      // path can preserve the field when it is intentionally requested.
     ].join(',');
   }
 
