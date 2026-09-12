@@ -11,6 +11,7 @@ Related:
 - `docs/superpowers/plans/2026-09-09-travel-content-agentic-planning-convergence-roadmap.md`
 - `docs/superpowers/progress/2026-09-06-multi-source-acquisition-progress.md`
 - `docs/superpowers/plans/2026-09-11-preference-first-selection-implementation.md`
+- `docs/superpowers/specs/2026-09-11-exploration-signals-design.md` (supplemental rationale for §10.2)
 
 > **This document does not authorize implementation.** It records the canonical
 > preference-first design and the decisions that the implementation plan must
@@ -92,6 +93,12 @@ never discards valid knowledge.
    matching Experiences, but it never creates a facet match, upgrades weak to
    strong, satisfies a facet, stops acquisition, bypasses exclusions/geography/
    identity/evidence, or overrides planner feasibility.
+12. **Exploration style ranks; it is not Experience truth.**
+   `PreferenceSpec.explorationStyle` is projected over independent grounded
+   `prominence`, `tourismIntensity` and `localCharacter` signals. Unknown is not
+   zero; low prominence is not local character; high prominence is not low
+   quality; and `local_deep_dive` is never represented as `1 - prominence`.
+   These signals may refine ordering only after eligibility/matching.
 
 ---
 
@@ -152,14 +159,30 @@ This is a canonical correction and must not regress.
 - never appears in `unmetFacets`;
 - never asks the classifier to emit `tourism_intensity:iconic` or similar.
 
-It is a **within-facet / remainder-fill ranking tilt** driven by deterministic
-`iconicity` and grounded local-character evidence where available:
-- `iconic` biases toward higher iconicity;
-- `local_deep_dive` biases toward lower iconicity plus explicit grounded
-  local/authentic/traditional signals;
-- `balanced` adds no tilt.
+It is a **within-facet / remainder-fill ranking preference**. It is not a
+standard tourism taxonomy and no Experience is categorically `iconic`,
+`balanced` or `local_deep_dive`.
 
-There is no valid code path `FacetRouter → acquire exploration_style`.
+The ranking projection consumes independent grounded signals defined in §10.2:
+
+```text
+prominence
+tourismIntensity
+localCharacter
+```
+
+Semantics:
+- `iconic` may positively weight **known prominence**;
+- `local_deep_dive` may positively weight **explicit known localCharacter** and
+  moderate/penalize **known high tourismIntensity**;
+- low or unknown prominence alone provides no `local_deep_dive` bonus;
+- `balanced` contributes an exactly neutral exploration tilt;
+- any unknown signal is neutral, never silently coerced to zero.
+
+There is no valid equality predicate
+`experience.explorationStyle == preference.explorationStyle`, no valid
+`localCharacter = 1 - prominence`, and no valid code path
+`FacetRouter → acquire exploration_style`.
 
 ---
 
@@ -229,11 +252,12 @@ Exact final opening-hours / routing feasibility remains Stage 10's authority.
 A weak match may still be useful for ranking or enrichment but does not by
 itself stop targeted acquisition for a missing facet.
 
-**Embedding/vector similarity is not part of this predicate.** A semantically
-similar vector cannot make an Experience match a facet and cannot make a weak
-match strong. Per-facet retrieval, coverage and sufficiency remain grounded in
-explicit classified/structured evidence plus the deterministic strong-match
-policy above.
+**Embedding/vector similarity and exploration signals are not part of this
+predicate.** Neither semantic similarity, prominence, tourismIntensity,
+localCharacter nor exploration tilt can make an Experience match a facet or make
+a weak match strong. Per-facet retrieval, coverage and sufficiency remain
+grounded in explicit classified/structured evidence plus the deterministic
+strong-match policy above.
 
 ### 6.2 Canonical sufficiency model — GLOBAL portfolio target
 
@@ -400,8 +424,9 @@ Until a closed trait-dimension taxonomy exists:
   supplied them as explicit dimensioned evidence;
 - do not use classifier traits to manufacture `exploration_style` coverage.
 
-`explorationStyle` uses the deterministic iconicity/local-character tilt from
-§3.1 instead.
+`explorationStyle` uses the independent evidence-backed exploration signals and
+deterministic ranking projection from §10.2. Freeform classifier strings are not
+silently promoted into those structured signals.
 
 ### D1 — critical-path classification — RESOLVED
 
@@ -443,7 +468,7 @@ not fatal to the tour.
 
 ---
 
-## 10. Stage 6c — quality and iconicity
+## 10. Stage 6c — quality and exploration signals
 
 ### 10.1 `qualityScore`
 
@@ -463,17 +488,105 @@ for example a robust mean/top-component blend) and combine with WV/WD signals.
 If neither the Experience nor its components have usable signals, quality is
 `null`; it remains weak rather than receiving a magic default.
 
-### 10.2 `iconicity`
+### 10.2 Evidence-backed exploration signals
 
-Separate `0..1` deterministic score used only as the exploration-style tilt.
-Possible signals:
-- log-normalized Places review count;
+A single scalar `iconicity` is **not** the canonical representation of
+`explorationStyle`. Public prominence, tourism intensity and local cultural
+character are independent concepts and may coexist in any combination.
+
+Canonical model:
+
+```ts
+interface EvidenceBackedExplorationSignal {
+  value: number | null; // normalized 0..1 when known
+  confidence: number;   // normalized 0..1
+  evidence: Array<{
+    source: string;
+    key: string;
+    value?: string | number | boolean;
+  }>;
+  reasonCodes: string[];
+}
+
+interface ExplorationSignals {
+  prominence: EvidenceBackedExplorationSignal;
+  tourismIntensity: EvidenceBackedExplorationSignal;
+  localCharacter: EvidenceBackedExplorationSignal;
+}
+```
+
+Canonical distinctions:
+
+```text
+low prominence != local character
+high prominence != low quality
+unknown != zero
+local_deep_dive != 1 - prominence
+```
+
+#### 10.2.1 Prominence
+
+Prominence captures public notability/fame using measurable evidence such as:
+- Places review count (count only; star rating belongs to quality);
 - Wikidata sitelink count;
+- Wikipedia presence;
 - Wikivoyage listing;
-- OSM heritage tag;
-- future measured appearance in multiple independent “top things to do” lists.
+- heritage/landmark evidence as a modest supporting signal.
 
-Quality and iconicity are different concepts and must not be conflated.
+Unbounded counts use deterministic saturating/log-like normalization so giant
+counts do not dominate linearly. Missing sources lower available confidence;
+they do not automatically assert a zero endpoint. With no meaningful prominence
+evidence, `value:null`.
+
+#### 10.2.2 Tourism intensity
+
+Tourism intensity is **not inferred from popularity alone**. High review count or
+high prominence does not prove mass tourism. A known value requires explicit
+normalized grounded tourism-intensity evidence (for example a source explicitly
+describing a tourist hotspot/circuit or future structured tourism-density data).
+Without such evidence, `value:null`.
+
+#### 10.2.3 Local character
+
+Local character is **not inferred from obscurity**. Low review count, missing
+Wikidata/Wikivoyage or low prominence does not establish that a place is local,
+authentic or culturally valuable. A known value requires explicit normalized
+grounded local-character evidence (for example a neighborhood institution,
+traditional market, community cultural venue, local practice or explicit
+“popular with locals” evidence). Without such evidence, `value:null`.
+
+#### 10.2.4 Unknown semantics
+
+`value:null` means insufficient grounded evidence. `value:0` means actual
+grounded support for a low endpoint. Missing metadata is never silently coerced
+to zero. Corrupt numeric inputs are deterministically ignored/clamped according
+to policy and cannot create out-of-range values.
+
+#### 10.2.5 Exploration-style ranking projection
+
+A pure deterministic helper projects the traveler meta-preference over the known
+signals:
+
+```text
+computeExplorationTilt(explorationStyle, ExplorationSignals)
+```
+
+The projection records its signal contributions/reason codes for auditability.
+
+Rules:
+- `iconic`: known prominence contributes positively; unknown prominence is
+  neutral;
+- `local_deep_dive`: known positive localCharacter contributes positively and
+  known high tourismIntensity may moderate/penalize; low/unknown prominence
+  alone gives no positive contribution;
+- `balanced`: exact neutral contribution;
+- no signal becomes a hard filter;
+- no signal or tilt enters facet matching, strong/weak, sufficiency or
+  acquisition decisions.
+
+The detailed historical rationale remains in
+`docs/superpowers/specs/2026-09-11-exploration-signals-design.md`; this section is
+the canonical design authority used by the main implementation plan.
 
 ---
 
@@ -488,8 +601,13 @@ Persistence must preserve:
 - themes/intents/traits without invented trait dimensions;
 - qualityScore;
 - component evidence and order semantics;
-- provider evidence/provenance;
+- provider evidence/provenance sufficient to derive exploration signals without
+  fabricating missing evidence;
 - idempotent canonical dedupe semantics.
+
+A7 does not require a new opaque persisted iconicity column. If exploration
+signals are ever cached/persisted later, their evidence/version provenance must
+remain reconstructable; source evidence remains authoritative.
 
 ---
 
@@ -518,8 +636,12 @@ Within-facet ordering is deterministic and considers, in order:
 2. requested facet weight;
 3. semantic similarity where applicable;
 4. quality;
-5. exploration-style iconicity/local tilt;
+5. evidence-backed exploration tilt from §10.2;
 6. diversity / stable id tie-break.
+
+Exploration tilt is computed only for already eligible candidates. It cannot
+create factual coverage. `local_deep_dive` specifically cannot reward an obscure
+candidate merely because its prominence is low or unknown.
 
 A single dominant monothematic Experience therefore cannot be displaced merely
 because another weaker Experience covers more facet labels.
@@ -588,9 +710,10 @@ preference coverage**, not raw facet count alone:
 weightedCoverage(c) = sum(weight(f) for each requested facet satisfied by c)
 ```
 
-Then use similarity, quality, exploration tilt, diversity and stable id tie
-breaks. Multi-facet Experiences are valuable because they cover more weighted
-user intent, not because “facet count” is privileged regardless of weight.
+Then use semantic similarity, quality, evidence-backed exploration tilt,
+diversity and stable id tie breaks. Multi-facet Experiences are valuable because
+they cover more weighted user intent, not because “facet count” is privileged
+regardless of weight.
 
 Composition never uses `days × 4` as a hard-coded target; it calls the one
 canonical `portfolioTarget(days, pace, reservations, mustAnchors)` helper.
@@ -696,6 +819,9 @@ Generation trace v4 is the canonical machine-auditable record. It must explain:
 - targeted acquisition reasons;
 - providers/queries/evidence;
 - classification provenance + whether reused / classified / degraded;
+- exploration-signal provenance: known/unknown prominence, tourismIntensity and
+  localCharacter; confidence/evidence/reason codes; and deterministic
+  request-specific exploration-tilt contributions;
 - embedding-backed semantic-ranking provenance: whether a semantic query existed,
   whether its query embedding was computed or neutral fallback was used, the
   non-secret provider/model/dimensions/document-version compatibility metadata,
@@ -756,6 +882,8 @@ keep the full debugging material available behind expansion, including:
 - provider queries, URLs and evidence keys;
 - prompts and raw/normalized model responses where already retained by trace
   policy, with secrets redacted;
+- exploration-signal values/confidence/evidence/reason codes and exploration-tilt
+  contribution breakdown;
 - semantic-similarity scores and embedding contract metadata, but never raw
   embedding/vector arrays;
 - score breakdowns, timings and persisted IDs.
@@ -799,8 +927,8 @@ the headline:
    found/verified/rejected counts.
 6. **Verificación y clasificación** — identity/evidence/classification outcomes,
    including reused/classified/degraded counts.
-7. **Selección de Experiences** — reservations, weighted fill, soft/must anchors,
-   initial target, reservoir and selected/unselected reasons.
+7. **Selección de Experiences** — reservations, weighted fill, exploration tilt,
+   soft/must anchors, initial target, reservoir and selected/unselected reasons.
 8. **Armado del itinerario** — days, placements, residual capacity, backfill,
    feasibility/conflicts and must placement outcome.
 9. **Resultado final** — final scheduled count, covered/unmet facets/anchors and
@@ -861,6 +989,14 @@ Existing async media/enrichment remains separate and unchanged by this refactor.
 Prove:
 - PreferenceSpec never puts exploration style in `facets`;
 - `facetSatisfied == strongCount >= 1`;
+- exploration signals preserve independent `prominence`, `tourismIntensity` and
+  `localCharacter` dimensions with `unknown != zero`;
+- high prominence alone does not create tourismIntensity;
+- low prominence/obscurity alone does not create localCharacter;
+- `iconic` tilt responds to known prominence while unknown is neutral;
+- `local_deep_dive` responds to explicit localCharacter and can moderate known
+  high tourismIntensity but does not implement inverse prominence;
+- `balanced` exploration tilt is exactly neutral;
 - a non-matching Experience with vector similarity `0.99` still cannot cover a
   requested facet, become strong, or stop acquisition;
 - among otherwise comparable canonically strong candidates, higher compatible
@@ -893,6 +1029,8 @@ Prove:
 - classify → persist → re-retrieve preserves classification, quality and traits;
 - provider-order metadata merge converges;
 - stale/missing classification reclassifies rather than incorrectly skipping;
+- grounded source metadata used by exploration-signal mapping preserves its
+  provenance and missing evidence remains unknown rather than zero;
 - persisted Experience embedding metadata is preserved/read consistently for
   composition similarity, with incompatible/stale metadata degrading to neutral
   rather than affecting coverage;
@@ -904,6 +1042,10 @@ Prove:
 Use large competing catalogs (hundreds of Experiences) and prove:
 - every requested facet has at least one strong candidate before composition;
 - initial composition size targets the global days×pace breadth, not per facet;
+- explorationStyle can reorder otherwise-comparable eligible candidates only
+  through evidence-backed exploration signals without changing facet coverage;
+- `local_deep_dive` never rewards obscurity/absence of evidence by itself;
+- balanced exploration style is neutral;
 - high vector similarity cannot rescue a non-matching/weak Experience into facet
   coverage;
 - changing free-text semantic context can reorder otherwise comparable eligible
@@ -927,8 +1069,8 @@ Use large competing catalogs (hundreds of Experiences) and prove:
 - bare AREA/ROUTE never leaks into selected Experiences;
 - route/walk acquisition uses grounded multi-component evidence;
 - Bitácora primary view exposes covered/uncovered facets, acquisition decision,
-  initial composition decision, residual capacity/backfill and final planner
-  result without requiring rule IDs;
+  exploration-ranking explanation, initial composition decision, residual
+  capacity/backfill and final planner result without requiring rule IDs;
 - rule IDs, evidence and technical payloads remain available in expanded details;
 - product-facing steps remain concise rather than duplicating raw trace prose.
 
@@ -1004,5 +1146,15 @@ incompatible embeddings degrade deterministically to neutral/unknown similarity;
 they never create coverage, strongness, acquisition sufficiency, factual truth or
 planner feasibility. Candidate embedding creation/refresh remains catalog /
 enrichment responsibility, not a per-candidate composition call.
+
+### D8 — evidence-backed exploration-style ranking
+`PreferenceSpec.explorationStyle` remains a traveler meta-preference rather than
+an Experience taxonomy. Ranking consumes independent evidence-backed
+`prominence`, `tourismIntensity` and `localCharacter` signals. Missing evidence
+is unknown, not zero; low prominence never proves local character; tourism
+intensity is not inferred from popularity alone; `local_deep_dive` is not inverse
+prominence; `balanced` is neutral. The resulting deterministic tilt may reorder
+already eligible candidates only and never participates in facet coverage,
+sufficiency, acquisition or planner hard feasibility.
 
 ---

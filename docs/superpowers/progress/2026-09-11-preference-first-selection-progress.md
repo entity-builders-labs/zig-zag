@@ -1183,3 +1183,49 @@ under a genuine `MIN` contract.
 
 ### Next task
 `A7 — Iconicity util` (blocked until A6/A6.1, as hardened by this fix, is explicitly approved)
+
+---
+
+## Checkpoint A — A7 execution gate — READY
+
+- Branch: `feat/preference-first-selection`
+- A6/A6.1 review verdict: **APPROVED**
+- Main-plan integration commit: `cb8a6386f59cd8b4a7fa9d7a0f52c35cdf9a9d15`
+- Main-spec integration commit: `6fe1674f94ca997b2fba454430627a70acc6ac06`
+- Status: READY FOR A7 IMPLEMENTATION
+
+### Current canonical navigation
+
+The historical `A7 — Iconicity util` lines above record what the plan said at
+those earlier checkpoints. They are superseded by the current canonical docs;
+do not execute them.
+
+An implementation agent should now follow this sequence:
+
+1. Read this latest progress entry and identify the NEXT task.
+2. Read `docs/superpowers/plans/2026-09-11-preference-first-selection-implementation.md`.
+3. Execute its `A7 — Evidence-Backed Exploration Signals` section.
+4. Use `docs/superpowers/specs/2026-09-10-preference-first-selection-and-agent-convergence-design.md`
+   as the canonical semantic authority.
+5. Implement **only A7**, update this progress with real implementation/test
+   SHAs, then STOP before B1.
+
+The A7-specific addendum files remain supplemental rationale/history only; the
+main plan/spec are now self-contained and authoritative for execution.
+
+### Execution gate
+
+```text
+A1    ✅
+A2    ✅
+A3    ✅
+A4    ✅
+A5    ✅
+A6    ✅
+A6.1  ✅ APPROVED
+A7    ⏭️ NEXT — Evidence-Backed Exploration Signals
+B1    ⛔ blocked until A7 review approval
+```
+
+### Next task
+`A7 — Evidence-Backed Exploration Signals`
