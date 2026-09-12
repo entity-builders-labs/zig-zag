@@ -2296,3 +2296,167 @@ test fixture to include a matching `reasoningEvidence` entry.
 
 ### Next task
 `B3 — Quality score including composite-component signals`
+
+---
+
+## Checkpoint B — Task B3 — COMPLETE
+
+- Branch: `feat/preference-first-selection`
+- Base commit: `e1e482413c75bf527517fd0f9c78ca124377870c` (docs: add B3
+  provider-neutral quality amendment) — fast-forward merged from `fork`
+  before starting (docs-only, no divergence).
+- Implementation commit: `b598c48`
+- Plan task: `B3 — Quality score including composite-component signals`,
+  amended by `docs/superpowers/plans/2026-09-12-b3-provider-neutral-quality-scoring-amendment.md`
+  and `docs/superpowers/specs/2026-09-12-provider-neutral-quality-scoring-clarification.md`
+  (both landed on `fork` concurrently, merged in before implementing —
+  read in full first, per the user's explicit instruction).
+- Status: COMPLETE
+
+### Implemented
+Created `be/src/modules/tours/utils/quality-score.util.ts`, exporting
+`QualityScoreInput` and `computeQualityScore(input): number | null` — a
+pure, deterministic, provider-neutral aggregator. It never accepts an
+`IPlacesApiService`-shaped object and never inspects `PLACES_PROVIDER`;
+it only ever reads the normalized fields of `QualityScoreInput`.
+
+Four independent signal components, each contributing only when
+actually present (a missing one never erases another's contribution):
+
+1. **Places rating + review-count confidence**
+   (`computePlacesComponent`): contributes only when `placesRating` is
+   a valid `0..5` number. When `placesReviewCount` is genuinely absent
+   (not just `0`), the raw rating is trusted as-is — review-count
+   confidence is an *optional* modifier per the amendment ("contribute
+   only when actually present"), never a mandatory input. When a
+   review count IS present, applies a Bayesian-style shrinkage toward a
+   neutral prior (`QUALITY_NEUTRAL_PRIOR = 2.5`, the scale's midpoint):
+   `confidence = logSaturating(reviewCount, cap)`;
+   `result = rating * confidence + prior * (1 - confidence)`. A rating
+   backed by few/zero reviews shrinks toward the prior; a rating backed
+   by many reviews is trusted near its raw value — this is exactly what
+   makes "same rating, many reviews" score higher than "same rating,
+   two reviews" for any rating above the prior (the realistic case for
+   anything worth recommending).
+2. **Wikivoyage listing** (`computeWikivoyageComponent`): a fixed
+   `WIKIVOYAGE_LISTED_QUALITY = 3.5` when `wikivoyageListed === true`,
+   independent of any Places data.
+3. **Wikidata sitelink count** (`computeWikidataComponent`): a
+   log-saturating count (`WIKIDATA_SITELINK_SATURATION_CAP = 300`)
+   mapped into a `2.5..4.5` quality band
+   (`notabilityCountToQuality`), independent of any Places data.
+4. **Component-derived quality** (`computeComponentDerivedQuality`),
+   for a multi-component Experience with no direct rating of its own:
+   combines `componentQualityScores` (per-component `0..5` quality;
+   `null` entries mean "no signal for that component", never treated
+   as `0`) and `componentNotabilitySignals` (per-component notability
+   counts, mapped through the same Wikidata quality band as #3) into
+   one robust mean — never a flat/magic route or walk score.
+
+`computeQualityScore` blends whichever of the four components actually
+produced a value into one weighted average
+(`PLACES_WEIGHT=1.0`/`WIKIVOYAGE_WEIGHT=0.6`/`WIKIDATA_WEIGHT=0.6`/
+`COMPONENT_DERIVED_WEIGHT=0.8`) and clamps to `0..5`. Returns `null`
+only when **none** of the four components produced a usable value —
+never a synthetic default. Never throws on a runtime-unknown/malformed
+`input` or on malformed array entries (`componentQualityScores`/
+`componentNotabilitySignals`) — invalid entries are silently dropped,
+matching this codebase's established defensive-parsing convention
+(`sanitizeClassifierTraits`, `asStringArray`, etc.).
+
+This is a pure primitive, matching the pattern already established by
+A7's exploration signals and B2's classifier: it defines the scoring
+policy and is not yet wired into acquisition/persistence/`Experience`
+rows (B4's job — "quality keeps strongest valid signal according to
+policy" in `mergeExperienceMetadata`). `DEFAULT_QUALITY_FLOOR` (already
+defined in `preference-strong-match.util.ts`) was deliberately **not**
+imported into the implementation file — this module only produces the
+raw score; the floor comparison stays that other module's concern, per
+the amendment's explicit scope guard. The test file does import it, to
+assert the produced scores genuinely clear the existing floor.
+
+### Files changed
+- `be/src/modules/tours/utils/quality-score.util.ts` (new)
+- `be/src/modules/tours/utils/quality-score.util.spec.ts` (new)
+
+### Verification
+- RED confirmed first: ran the spec file against the not-yet-created
+  module → `TS2307: Cannot find module './quality-score.util'`.
+  Implemented, reran → all green on the first implementation pass (no
+  second RED/GREEN cycle needed for this task).
+- `yarn test src/modules/tours/utils/quality-score.util.spec.ts --runInBand`
+  → PASS — **23/23**, covering (among others): same rating scores
+  higher with many reviews than two reviews (concrete values
+  `2.818`/`4.5` verified via an independent Python calculation before
+  writing the assertions); a missing rating is `null`, never `0`; an
+  out-of-range/malformed rating is ignored, never coerced; Wikivoyage
+  alone and Wikidata-sitelink-count alone each produce non-null quality
+  with zero Places data; a `null` entry in `componentQualityScores` is
+  ignored, not treated as `0`; malformed array entries never throw;
+  Geoapify-shaped input (`placesRating`/`placesReviewCount` both
+  `undefined`) combined with WV/WD or strong component evidence
+  produces non-null quality (component evidence case explicitly
+  asserted `>= 3.0`); Geoapify-shaped input with no other evidence is
+  `null`; omitting unsupported Places fields vs. passing them as
+  explicit `undefined` scores identically; an extra
+  provider-identifying field has zero effect (the util has no such
+  concept); a missing signal never erases another present signal's
+  contribution; a strong multi-component bundle scores higher than a
+  weak one (no flat magic route score).
+- `yarn typecheck` → PASS — no errors.
+- `npx eslint --fix` on both new files → formatting-only reflow, then
+  plain `eslint` on both → 0 problems.
+- `yarn test src/modules/tours --runInBand` → PASS — **89 suites / 912
+  tests** (889 + 23 new), no regressions.
+- `yarn lint:check` (full repo) → PASS — 0 problems.
+
+### Deviations from plan
+- None against the original B3 plan text. Fully implements the
+  2026-09-12 provider-neutral amendment/clarification that landed
+  concurrently (merged in, read in full, before implementing) — this
+  is a narrowing/clarification of B3's own semantics, not a deviation
+  from it.
+- `componentNotabilitySignals` (introduced by the amendment's
+  `QualityScoreInput` sketch, not present in the original plan text) is
+  implemented as an alternative/fallback representation for a
+  component's quality signal — combined into the same robust mean as
+  `componentQualityScores`, sharing the Wikidata quality-band mapping —
+  rather than as a second independently-weighted stream. This reading
+  matches the ORIGINAL B3 plan bullet's own phrasing, which already
+  paired them together as one conceptual signal group:
+  `componentQualityScores[] / component notability`.
+
+### Decisions taken
+- Chose a Bayesian-style shrinkage-toward-neutral-prior policy for
+  Places rating + review-count confidence (rather than e.g. a flat
+  additive review-count bonus) specifically because it is the simplest
+  deterministic policy that satisfies "same rating, many reviews >
+  same rating, two reviews" for the realistic case (rating above the
+  neutral prior) without any special-casing, and it degrades gracefully
+  to "trust the raw rating" when review-count data is absent entirely
+  (rather than always shrinking toward a prior even with zero
+  information about confidence).
+- Combined all four signal components via one shared weighted-average
+  policy — simpler and more uniform than treating Places as
+  categorically privileged over WV/WD/component evidence — directly
+  satisfying the spec's "no source is individually mandatory" /
+  "missing one signal must not erase valid signals from other sources"
+  invariants without extra branching.
+- Reused the same log-saturating-count → quality-band mapping
+  (`notabilityCountToQuality`) for both the standalone Wikidata
+  sitelink signal and `componentNotabilitySignals` entries, rather than
+  inventing a second unrelated formula — same underlying kind of
+  signal (a notability count), same treatment.
+
+### Open issues / debt
+- None new. `computeQualityScore` is ready for B4 to wire into
+  `mergeExperienceMetadata`'s "quality keeps strongest valid signal
+  according to policy" rule.
+- Re-checked for concurrent drift immediately before staging/committing:
+  `git fetch fork feat/preference-first-selection` then
+  `git log HEAD..fork/...` and `git log fork/...HEAD` were both empty —
+  local HEAD matched `fork` exactly, confirming no other commits landed
+  on this branch while B3 was in progress.
+
+### Next task
+`B4 — Order-independent metadata merge; no invented trait dimensions`
