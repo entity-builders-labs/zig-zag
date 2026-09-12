@@ -39,7 +39,7 @@ module.exports = {
     [
       'expo-location',
       {
-        locationAlwaysAndWhenInUsePermission:
+        locationWhenInUsePermission:
           'Usamos tu ubicación para mostrarte recorridos y actividades cercanas a vos.',
       },
     ],
