@@ -2,9 +2,11 @@ import { Injectable, Inject, Logger } from '@nestjs/common';
 import {
   IPlacesApiService,
   PlaceData,
+  PlacesProvider,
 } from '@integrations/google-places/interfaces/places-api.interface';
 import {
   AcquisitionProviderResult,
+  ExperienceAcquisitionProvider,
   SourceObservation,
   SourceObservationGeo,
 } from '../interfaces/experience-acquisition.interface';
@@ -88,6 +90,16 @@ export const DEFAULT_ALLOWED_GOOGLE_PLACES_TYPES = new Set([
   ...CONTEXTUAL_GOOGLE_PLACES_TYPES,
 ]);
 
+const ACQUISITION_PROVIDER_BY_PLACES_PROVIDER = {
+  google: 'google_places',
+  geoapify: 'geoapify',
+} satisfies Record<PlacesProvider, ExperienceAcquisitionProvider>;
+
+interface PlaceWithProvider {
+  place: PlaceData;
+  provider: PlacesProvider;
+}
+
 export interface GooglePlacesAcquireOptions {
   searchTypes?: string[];
   query?: string;
@@ -120,7 +132,7 @@ export class GooglePlacesAcquisitionProvider {
         lng >= -180 &&
         lng <= 180;
 
-      let places: PlaceData[] = [];
+      let places: PlaceWithProvider[] = [];
 
       if (hasCoordinates) {
         const radius =
@@ -133,7 +145,10 @@ export class GooglePlacesAcquisitionProvider {
           maxResultCount: options?.maxResultCount ?? 20,
           rankPreference: 'POPULARITY',
         });
-        places = result.data ?? [];
+        places = (result.data ?? []).map((place) => ({
+          place,
+          provider: result.provenance.provider,
+        }));
       } else if (options?.query || destination?.destinationName) {
         const textQuery = options?.query ?? destination?.destinationName ?? '';
         const searchTypes = options?.searchTypes?.filter(Boolean) ?? [];
@@ -146,10 +161,13 @@ export class GooglePlacesAcquisitionProvider {
             strictTypeFiltering: true,
             maxResultCount,
           });
-          places = result.data ?? [];
+          places = (result.data ?? []).map((place) => ({
+            place,
+            provider: result.provenance.provider,
+          }));
         } else if (searchTypes.length > 1) {
           const seenPlaceIds = new Set<string>();
-          const collectedPlaces: PlaceData[] = [];
+          const collectedPlaces: PlaceWithProvider[] = [];
           for (const searchType of searchTypes) {
             const result = await this.placesApi.searchText({
               textQuery,
@@ -160,7 +178,10 @@ export class GooglePlacesAcquisitionProvider {
             for (const place of result.data ?? []) {
               if (place.id && !seenPlaceIds.has(place.id)) {
                 seenPlaceIds.add(place.id);
-                collectedPlaces.push(place);
+                collectedPlaces.push({
+                  place,
+                  provider: result.provenance.provider,
+                });
                 if (collectedPlaces.length >= maxResultCount) {
                   break;
                 }
@@ -176,7 +197,10 @@ export class GooglePlacesAcquisitionProvider {
             textQuery,
             maxResultCount,
           });
-          places = result.data ?? [];
+          places = (result.data ?? []).map((place) => ({
+            place,
+            provider: result.provenance.provider,
+          }));
         }
       } else {
         return {
@@ -186,7 +210,7 @@ export class GooglePlacesAcquisitionProvider {
       }
 
       const observations: SourceObservation[] = [];
-      for (const place of places) {
+      for (const { place, provider } of places) {
         const placeId = place.id;
         if (!placeId) continue;
 
@@ -209,11 +233,13 @@ export class GooglePlacesAcquisitionProvider {
           CONTEXTUAL_GOOGLE_PLACES_TYPES.has(t),
         );
         const standaloneEligible = hasTourismType || !hasContextualType;
+        const acquisitionProvider =
+          ACQUISITION_PROVIDER_BY_PLACES_PROVIDER[provider];
 
         observations.push({
-          provider: 'google_places',
+          provider: acquisitionProvider,
           externalId: placeId,
-          evidenceKey: `google_places:${placeId}`,
+          evidenceKey: `${acquisitionProvider}:${placeId}`,
           evidenceType: 'place',
           title: place.displayName?.text ?? place.name ?? placeId,
           description: place.formattedAddress,

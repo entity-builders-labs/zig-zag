@@ -3,6 +3,7 @@ export type ExperienceAcquisitionProvider =
   | 'osm'
   | 'wikidata'
   | 'google_places'
+  | 'geoapify'
   | 'web';
 
 export type SourceEvidenceType =
