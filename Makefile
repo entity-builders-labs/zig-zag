@@ -131,5 +131,12 @@ ios-sim: ## Run and install on iOS Simulator
 	@cd fe && npx expo run:ios --no-bundler
 
 ios-device: ## Run, sign, and install on physical iPhone (Javier's iPhone)
-	@cd fe && npx expo run:ios -d $(IOS_PHYSICAL_DEVICE) --no-bundler
+	@cd fe && npx expo run:ios -d $(IOS_PHYSICAL_DEVICE) --no-bundler || { \
+		APP_PATH=$$(find $(HOME)/Library/Developer/Xcode/DerivedData -name "zigzag.app" -path "*/Debug-iphoneos/*" 2>/dev/null | head -n 1); \
+		if [ -n "$$APP_PATH" ]; then \
+			echo "Installing via xcrun devicectl directly..."; \
+			xcrun devicectl device install app --device $(IOS_PHYSICAL_DEVICE) "$$APP_PATH" && \
+			xcrun devicectl device process launch --device $(IOS_PHYSICAL_DEVICE) com.javieriseruk.zigzag || true; \
+		fi; \
+	}
 
