@@ -1,8 +1,10 @@
 # Engineering principles
 
-Status: canonical maintainability guidance for Zig-Zag backend architecture.
+Status: canonical maintainability guidance for Zig-Zag architecture and code quality.
 
-This document explains the repository-wide engineering rules enforced by `/AGENTS.md` and `be/AGENTS.md`. It is intentionally provider-agnostic and tool-agnostic: Codex, Claude, Antigravity, human contributors, and future agents should produce code that respects the same boundaries.
+This document explains the repository-wide engineering rules enforced by `/AGENTS.md`. It is intentionally tool-agnostic: Codex, Claude, Antigravity, human contributors, and future agents should produce code that respects the same boundaries.
+
+Some sections are backend-specific and some are frontend-specific; the general principles apply across the repository.
 
 ## 1. Normalize external systems at the boundary
 
@@ -279,3 +281,260 @@ Good candidates for architecture/lint tests include:
 - unsafe `any`/casts at selected domain boundaries.
 
 The goal is not maximal lint strictness. The goal is preventing known architectural regressions from depending solely on reviewer memory.
+
+# Frontend-specific principles
+
+The frontend is not a second implementation of the backend domain. It is a client of canonical backend contracts plus local presentation and interaction state.
+
+The goal is to keep screens easy to reason about, preserve cross-platform behavior, and prevent UI code from gradually becoming an alternative source of business truth.
+
+## 14. Keep remote-data access out of presentational components
+
+Presentational components should render typed props and emit user intents/events. They should not decide how to call backend endpoints.
+
+Prefer:
+
+```text
+screen / feature hook
+      ↓
+typed API layer / query hook
+      ↓
+backend
+
+screen / feature hook
+      ↓
+presentational component
+```
+
+Avoid:
+
+```text
+TourStopCard
+  ├─ axios.get(...)
+  ├─ retry policy
+  ├─ navigation
+  ├─ analytics
+  └─ rendering
+```
+
+API transport belongs in `fe/api` and feature-level data/orchestration hooks. A reusable UI component should not know endpoint URLs, auth headers, retry semantics, or backend transport details.
+
+## 15. Backend/domain truth must not be re-invented in the frontend
+
+The backend is authoritative for domain semantics such as:
+
+- Experience identity;
+- classification;
+- quality;
+- planning feasibility;
+- persisted tour state;
+- canonical geographic meaning;
+- generation status and trace semantics.
+
+The frontend may derive presentation state from canonical data, but it must not reproduce backend policies with a second, drifting implementation.
+
+### Bad
+
+```ts
+const isStrongExperience =
+  experience.qualityScore >= 3 &&
+  locallyGuessThemeMatch(experience, requestedTheme);
+```
+
+when the backend already owns strong-match semantics.
+
+### Better
+
+Render backend-provided canonical state or introduce an explicit API contract if the UI genuinely needs a derived domain fact.
+
+## 16. Typed API contracts are boundaries, not suggestions
+
+Do not compensate for unclear API contracts with widespread casts, `any`, or ad-hoc optional chaining.
+
+Prefer a typed boundary:
+
+```text
+HTTP payload
+   ↓
+typed API function / decoder
+   ↓
+frontend domain/view model
+   ↓
+components
+```
+
+If an API response shape changes, update the canonical frontend contract in one place and let type errors expose affected consumers.
+
+Do not copy backend enums/string literals independently into multiple screens. Centralize shared frontend representations or generate/share types where practical.
+
+## 17. Separate server state, interaction state, and derived presentation state
+
+These are different categories and should not be mixed indiscriminately.
+
+- **server state**: tours, Experiences, media, generation status;
+- **interaction state**: selected tab, expanded accordion, draft form values;
+- **derived presentation state**: formatted labels, display geometry mode, grouped day sections.
+
+Avoid copying server data into local component state merely to render it. That creates synchronization bugs.
+
+Prefer deriving presentation values from the current canonical data unless local editing/draft semantics require a deliberate fork.
+
+## 18. Components and hooks should have one dominant responsibility
+
+A screen can orchestrate several concerns, but large components/hooks that simultaneously own transport, domain transformation, navigation, timers, side effects, analytics, and rendering become difficult to test and evolve.
+
+When a component/hook grows, split by responsibility rather than by arbitrary line count.
+
+Typical boundaries:
+
+```text
+API/query hook       → remote state
+feature hook         → interaction/orchestration
+view-model helper    → deterministic presentation transformation
+component            → rendering + user events
+```
+
+Do not create tiny abstractions for every expression; extract when there is a meaningful responsibility or reusable policy.
+
+## 19. Side effects must be explicit and lifecycle-safe
+
+Network calls, navigation, subscriptions, timers, notifications, and persistence are side effects.
+
+Do not trigger them during render or hide them in helpers that appear pure.
+
+Effects must:
+
+- have clear ownership;
+- have correct dependency lists;
+- clean up subscriptions/timers/listeners;
+- tolerate rerenders;
+- avoid duplicate requests/actions caused by lifecycle churn.
+
+For SSE, maps, and generation-progress flows, cleanup and idempotent subscription behavior are part of correctness.
+
+## 20. Async UI states are explicit product states
+
+Remote flows should deliberately model relevant states such as:
+
+```text
+idle / loading / success / empty / degraded / error / retrying
+```
+
+Do not collapse materially different backend states into one spinner or one generic fallback if the distinction affects user behavior.
+
+Likewise, do not fabricate successful presentation data to hide missing backend state. Unknown/degraded remains visible as such when meaningful.
+
+## 21. Cross-platform behavior is a first-class constraint
+
+Zig-Zag targets web, iOS, and Android from the same frontend.
+
+A fix is incomplete if it solves one target by silently degrading another.
+
+Top-level screens retain a stable full-viewport application shell. Responsive max widths belong to suitable inner content, not around the entire screen.
+
+Platform-specific implementations (`.web.tsx`, native modules, platform APIs) are appropriate where capabilities genuinely differ. They must preserve the same user/domain semantics unless the product explicitly defines otherwise.
+
+Avoid sprinkling `Platform.OS` conditionals throughout business/UI logic when a platform-specific adapter/component boundary is clearer.
+
+## 22. Design system before local styling conventions
+
+Shared visual semantics should use canonical tokens/components rather than repeated literal styling.
+
+Prefer:
+
+- design tokens for color/spacing/typography;
+- shared primitives for recurring interaction patterns;
+- consistent states for disabled/loading/error/selected;
+- one canonical component when two surfaces mean the same thing.
+
+Avoid copy/pasted color values, spacing formulas, typography definitions, and button semantics across screens.
+
+A one-off layout may remain local; a repeated semantic pattern should become shared.
+
+## 23. Navigation is orchestration, not hidden component behavior
+
+Low-level presentational components should normally emit intents such as `onPressExperience(id)` rather than owning route construction themselves.
+
+Navigation belongs at screen/feature boundaries where route context and product flow are known.
+
+This keeps components reusable and prevents domain cards from accumulating routing assumptions.
+
+## 24. Avoid duplicated transformation logic across screens
+
+Formatting and deterministic view-model transformations that carry product meaning should have one canonical implementation.
+
+Examples:
+
+- Experience geometry presentation;
+- tour/day totals presentation;
+- media fallback selection;
+- generation-state labels;
+- component grouping/order presentation.
+
+If two screens independently reconstruct the same concept from raw API fields, extract a typed shared helper/view-model function.
+
+Pure presentational formatting that genuinely differs by surface does not need forced unification.
+
+## 25. Accessibility and interaction semantics are part of correctness
+
+Interactive elements should expose the correct semantic role and usable state across supported platforms.
+
+At minimum:
+
+- use real interactive primitives rather than clickable decorative containers where possible;
+- preserve keyboard/web interaction where relevant;
+- provide accessible labels for icon-only actions;
+- respect disabled/loading states;
+- keep touch targets practical;
+- do not encode essential meaning through color alone.
+
+Accessibility regressions are not merely visual polish issues.
+
+## 26. Performance work must follow ownership and measurement
+
+Do not add memoization, caches, duplicated local state, or bespoke virtualization preemptively everywhere.
+
+Optimize known hotspots such as large lists, maps, expensive geometry transformations, and high-frequency updates based on measured or structurally obvious cost.
+
+Prefer fixing ownership/data-flow problems before masking them with `useMemo`/`useCallback` everywhere.
+
+A rerender is not automatically a bug; unstable subscriptions, repeated network calls, expensive transformations, or poor list/map behavior are.
+
+## 27. Frontend tests should prove user-visible contracts
+
+Tests should focus on meaningful behavior and boundaries rather than implementation trivia.
+
+Good targets include:
+
+- API contract mapping;
+- feature-hook state transitions;
+- generation/loading/error/degraded flows;
+- navigation outcomes;
+- cross-platform rendering behavior where implementations differ;
+- regression cases for canonical view-model transformations.
+
+Do not preserve stale frontend tests by reintroducing removed backend fields or legacy domain concepts.
+
+If a fixture is based on an obsolete backend schema, migrate the fixture/test to current contracts.
+
+## 28. Frontend maintainability review is part of correctness
+
+Before considering a frontend milestone complete, ask:
+
+1. Is any presentational component making direct backend/API calls?
+2. Did we duplicate backend/domain truth locally?
+3. Are API contracts explicit and typed?
+4. Did `any`, unchecked casts, or generic metadata become a hidden contract?
+5. Are server state and local interaction state being unnecessarily duplicated?
+6. Does one component/hook own too many unrelated responsibilities?
+7. Are side effects explicit, idempotent, and cleaned up correctly?
+8. Are async/degraded/error states represented deliberately?
+9. Does the change behave correctly on web, iOS, and Android?
+10. Did we introduce repeated literal styles instead of using the design system?
+11. Is navigation owned at the appropriate feature/screen boundary?
+12. Did we duplicate a deterministic transformation already implemented elsewhere?
+13. Are accessibility semantics preserved?
+14. Is a performance workaround hiding a data-flow/ownership problem?
+15. Do tests exercise current product contracts rather than obsolete implementation details?
+
+As with backend work, passing typecheck/lint/tests is necessary but not sufficient if the architecture becomes harder to maintain.
