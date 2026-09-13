@@ -565,7 +565,11 @@ export class ExperienceCatalogService {
       openingHours: unknown;
       metadata: unknown;
       components: Array<{
-        geoEntity: { latitude: number | null; longitude: number | null };
+        geoEntity: {
+          kind: GeoEntityKind;
+          latitude: number | null;
+          longitude: number | null;
+        };
         [key: string]: any;
       }>;
       traits: Array<{
@@ -1272,3 +1276,13 @@ export class ExperienceCatalogService {
       : [];
   }
 }
+
+/**
+ * The real hydrated shape `findVerifiedWithinForMatching`/`findVerifiedByIds`
+ * return -- exported so callers (e.g. `ExperienceGenerationService`'s
+ * global-eligibility count) can type their own loop variables against the
+ * actual catalog contract instead of `Array<Record<string, any>>`.
+ */
+export type VerifiedExperienceRow = ReturnType<
+  ExperienceCatalogService['projectVerifiedExperienceRow']
+>;

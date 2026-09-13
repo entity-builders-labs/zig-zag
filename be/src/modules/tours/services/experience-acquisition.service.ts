@@ -8,6 +8,7 @@ import {
   SourceObservation,
 } from '../interfaces/experience-acquisition.interface';
 import { ExperienceAcquisitionPlan } from '../interfaces/experience-acquisition-plan.interface';
+import { deficitKey } from './experience-acquisition-planner.service';
 import {
   ExperienceCandidate,
   ExperienceDiscoveryExtractor,
@@ -335,7 +336,7 @@ export class ExperienceAcquisitionService {
         coverageGaps: [
           ...new Set(
             plan.deficits
-              .map((d) => d.key ?? d.reason)
+              .map((d) => deficitKey(d) ?? d.reason)
               .filter((v): v is string => !!v && v.trim().length > 0),
           ),
         ],

@@ -15,6 +15,23 @@ import { lookupSourceCapabilityRoute } from '../constants/acquisition-source-rou
 import { candidateMatchesPreferenceFacet } from '../utils/preference-facet-matching.util';
 import { AnchoredPlace } from '../interfaces/preference-spec.interface';
 
+/**
+ * `AcquisitionDeficit` is a discriminated union -- only `preference_facet`
+ * (always) and `coverage_analysis` (optionally) carry `dimension`/`key`;
+ * `global_capacity` structurally has neither (it must never masquerade as a
+ * facet deficit). These two accessors are the one place that reads across
+ * the whole union generically (routing/dedup/grouping), so every other call
+ * site stays type-safe without repeating this narrowing.
+ */
+export function deficitDimension(
+  deficit: AcquisitionDeficit,
+): string | undefined {
+  return deficit.origin === 'global_capacity' ? undefined : deficit.dimension;
+}
+export function deficitKey(deficit: AcquisitionDeficit): string | undefined {
+  return deficit.origin === 'global_capacity' ? undefined : deficit.key;
+}
+
 export interface BuildPlanInput {
   destination: ExperienceDiscoveryScope;
   breadth?: ExperienceDiscoveryBreadth;
@@ -123,7 +140,7 @@ export class ExperienceAcquisitionPlannerService {
     const seenDeficitKeys = new Set<string>();
 
     const addDeficit = (d: AcquisitionDeficit) => {
-      const k = `${d.origin}:${d.dimension ?? ''}:${d.key ?? ''}:${d.reason}`;
+      const k = `${d.origin}:${deficitDimension(d) ?? ''}:${deficitKey(d) ?? ''}:${d.reason}`;
       if (!seenDeficitKeys.has(k)) {
         seenDeficitKeys.add(k);
         deficits.push(d);
@@ -165,7 +182,10 @@ export class ExperienceAcquisitionPlannerService {
     let hasRoutableDeficit = false;
 
     for (const deficit of deficits) {
-      const route = lookupSourceCapabilityRoute(deficit.dimension, deficit.key);
+      const route = lookupSourceCapabilityRoute(
+        deficitDimension(deficit),
+        deficitKey(deficit),
+      );
 
       if (!route) {
         continue;
@@ -242,8 +262,8 @@ export class ExperienceAcquisitionPlannerService {
       // drop them all when 1+ exist.
       const isWalkOrRouteLikeDeficit = deficits.some(
         (d) =>
-          d.dimension === 'intent' &&
-          (d.key === 'walk' || d.key === 'route_like'),
+          deficitDimension(d) === 'intent' &&
+          (deficitKey(d) === 'walk' || deficitKey(d) === 'route_like'),
       );
       const relevantAnchorNames = isWalkOrRouteLikeDeficit
         ? (input.anchors ?? [])
@@ -272,8 +292,8 @@ export class ExperienceAcquisitionPlannerService {
         [
           ...new Set(
             deficits
-              .filter((d) => d.dimension === dim && d.key)
-              .map((d) => d.key as string),
+              .filter((d) => deficitDimension(d) === dim && deficitKey(d))
+              .map((d) => deficitKey(d) as string),
           ),
         ].sort();
       const webThemes = byDimension('theme');

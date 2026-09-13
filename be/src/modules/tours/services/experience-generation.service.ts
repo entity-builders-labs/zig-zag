@@ -32,7 +32,7 @@ import { selectBoundedWindow } from '../utils/candidate-window-selection.util';
 import { filterOverlappingExperienceCandidates } from '../utils/candidate-overlap-filter.util';
 import {
   buildExperienceCandidatePoolStep,
-  buildCoverageAnalysisStep,
+  buildPreferenceCoverageStep,
   buildDailyPlanningStep,
   buildAcquisitionStep,
   buildDbSearchStep,
@@ -59,10 +59,12 @@ import {
   TOUR_PLANNING_FEASIBILITY_VALIDATOR,
   TourPlanningFeasibilityValidator,
 } from '../interfaces/daily-planning.interface';
-import { ExperienceCatalogService } from './experience-catalog.service';
+import {
+  ExperienceCatalogService,
+  VerifiedExperienceRow,
+} from './experience-catalog.service';
 import { ExperienceAcquisitionService } from './experience-acquisition.service';
 import { ExperienceAcquisitionPlannerService } from './experience-acquisition-planner.service';
-import { isCoverageFatal } from '../utils/coverage-decision.util';
 import { redactTracePayload } from '../utils/trace-redaction.util';
 import { buildGenerationExecutionSummary } from '../utils/generation-execution-summary.util';
 import { PreferenceInterpreterService } from './preference-interpreter.service';
@@ -96,19 +98,9 @@ import {
   portfolioTarget,
 } from '../utils/preference-sufficiency.util';
 import {
-  FacetCandidates,
+  PreferenceCoverageResult,
   PreferenceSpec,
-  RequestedFacet,
 } from '../interfaces/preference-spec.interface';
-import {
-  CoverageAcquisitionDecision,
-  CoverageDeficit,
-  CoverageReport,
-  CoverageReportStatus,
-  IntentCoverageSummary,
-  ThemeCoverageSummary,
-  TraitCoverageSummary,
-} from '../interfaces/coverage-analysis.interface';
 import { AcquisitionDeficit } from '../interfaces/experience-acquisition-plan.interface';
 
 /**
@@ -368,43 +360,25 @@ export class ExperienceGenerationService {
   }
 
   /**
-   * M2 (preference-first live cutover) -- the canonical sufficiency/deficit
-   * authority. Replaces `CoverageAnalyzer.analyze()` (which measured
-   * relevance via `theme-matching.util.ts`'s keyword heuristic, a second,
-   * duplicate matching primitive) with `FacetRetrievalService` (real
-   * PostGIS-scoped catalog retrieval, no in-memory truncation) +
-   * `preference-sufficiency.util.ts`'s global days*pace portfolio target --
-   * reading `PreferenceSpec.facets` (the canonical requirement model)
-   * directly, never `NormalizedPreferenceIntent`/theme-matching.
+   * M2 (preference-first live cutover) -- the canonical, ONLY sufficiency/
+   * deficit authority for new generations. Reads `PreferenceSpec.facets`
+   * (the canonical requirement model) directly via `FacetRetrievalService`
+   * (real PostGIS-scoped catalog retrieval, no in-memory truncation) +
+   * `preference-sufficiency.util.ts`'s global days*pace portfolio target.
    *
-   * `CoverageAnalyzer` itself is not deleted here (that is M7's mandatory
-   * cutover gate, once every caller is confirmed gone) -- this method is
-   * simply its only call site's replacement.
-   *
-   * The returned `CoverageReport` intentionally keeps the pre-existing
-   * shape so `buildCoverageAnalysisStep`/`isCoverageFatal` and the
-   * acquisition loop's control flow are unchanged by this milestone; trace
-   * v4 (M8) is a separate, later redesign of the trace shape itself.
-   * `eligibleCandidateCount`/`analyzedCandidateCount` stay pinned to the
-   * REAL geographic pool size (never the facet-scoped subset) so
-   * `isCoverageFatal`'s "genuinely empty destination pool" check keeps its
-   * original meaning even when zero facets were requested.
+   * Returns the canonical `PreferenceCoverageResult` -- never
+   * `CoverageReport`/`CoverageDeficit`/`CoverageAcquisitionDecision`. There
+   * is no adapter back to that legacy shape anywhere in this method; trace
+   * presentation (offered-candidate count, semantic ranking, provider
+   * health) is a separate, caller-owned concern
+   * (`buildPreferenceCoverageStep`), deliberately kept out of this pure
+   * decision result so policy and presentation don't get re-conflated the
+   * way the legacy `CoverageReport` conflated them.
    */
   private async computePreferenceCoverage(
     preferenceSpec: PreferenceSpec,
     scope: FacetRetrievalScope,
-    offeredCandidateCount: number,
-    totalPoolCount: number,
-    semanticRanking: SemanticRankingOutcome,
-    providerHealth?: {
-      status: 'healthy' | 'degraded' | 'unknown';
-      reason?: string;
-    },
-  ): Promise<{
-    report: CoverageReport;
-    facetResults: FacetCandidates[];
-    acquisitionDeficits: AcquisitionDeficit[];
-  }> {
+  ): Promise<PreferenceCoverageResult> {
     const facetResults = await Promise.all(
       preferenceSpec.facets.map((facet) =>
         this.facetRetrieval.retrieveFacetCandidates(facet, scope),
@@ -436,114 +410,38 @@ export class ExperienceGenerationService {
     const sufficient =
       allFacetsSatisfied && totalDistinctEligibleExperiences >= target;
 
-    const health = providerHealth ?? { status: 'healthy' as const };
-    const status: CoverageReportStatus = sufficient
-      ? 'sufficient'
-      : health.status === 'degraded'
-        ? 'degraded'
-        : 'insufficient';
-
     // Spec SS7: targeted facet acquisition comes first. A global-capacity
     // deficit is raised ONLY once every requested facet is already
     // satisfied but the total eligible portfolio is still too thin --
-    // never alongside facet deficits, and never expressed with a
-    // dimension/key (it must not masquerade as a facet deficit).
+    // never alongside facet deficits. `GlobalCapacityDeficit` has no
+    // `dimension`/`key` field at all (invalid states unrepresentable): it
+    // is structurally impossible for it to masquerade as a facet deficit.
     const acquisitionDeficits: AcquisitionDeficit[] = allFacetsSatisfied
       ? totalDistinctEligibleExperiences < target
         ? [
             {
               origin: 'global_capacity' as const,
               reason: `Global portfolio capacity shortage: ${totalDistinctEligibleExperiences} distinct eligible Experience(s) found, need >= ${target} for ${preferenceSpec.trip.days} day(s) at ${preferenceSpec.trip.pace} pace.`,
+              currentEligibleCount: totalDistinctEligibleExperiences,
+              requiredEligibleCount: target,
             },
           ]
         : []
       : unsatisfiedFacets.map((facetCandidates) => ({
+          origin: 'preference_facet' as const,
           dimension: facetCandidates.facet.dimension,
           key: facetCandidates.facet.key,
           reason: `Preference facet [${facetCandidates.facet.dimension}:${facetCandidates.facet.key}] has no strong catalog match yet.`,
-          origin: 'preference_facet' as const,
         }));
 
-    // Legacy-shaped CoverageDeficit projection -- ONLY for
-    // buildCoverageAnalysisStep's trace display at this temporary
-    // CoverageReport/trace adapter boundary (M8 redesigns the trace shape
-    // itself). `global_capacity` maps onto the pre-existing
-    // `insufficient_usable_candidates` reason (CoverageAnalyzer's own
-    // original "not enough overall" case) -- this mapping must never leak
-    // back into the canonical `acquisitionDeficits` model above, which
-    // stays genuinely dimensionless for this origin.
-    const deficits: CoverageDeficit[] = allFacetsSatisfied
-      ? totalDistinctEligibleExperiences < target
-        ? [
-            {
-              reason: 'insufficient_usable_candidates',
-              severity: 'blocking',
-              message: `Cobertura de facets solicitados completa, pero el portafolio elegible total (${totalDistinctEligibleExperiences}) no alcanza el objetivo requerido (${target}).`,
-              expectedCount: target,
-              actualCount: totalDistinctEligibleExperiences,
-            },
-          ]
-        : []
-      : unsatisfiedFacets.map((facetCandidates) =>
-          this.facetToLegacyCoverageDeficit(facetCandidates.facet),
-        );
-
-    const decision: CoverageAcquisitionDecision = sufficient
-      ? {
-          action: 'none',
-          reason: 'coverage_sufficient',
-          requiresAdditionalDiscovery: false,
-        }
-      : {
-          action: 'needs_additional_discovery',
-          reason: 'requested_coverage_is_missing',
-          requiresAdditionalDiscovery: true,
-          deficits,
-        };
-
-    const report: CoverageReport = {
-      status,
-      analyzedCandidateCount: totalPoolCount,
-      eligibleCandidateCount: totalPoolCount,
-      relevantCandidateCount: totalDistinctEligibleExperiences,
-      offeredCandidateCount,
-      usableCandidateCount: totalDistinctEligibleExperiences,
-      requiredCandidateCount: target,
-      requestedThemeCoverage: this.facetCoverageSummary(
-        facetResults,
-        'theme',
-      ) as unknown as ThemeCoverageSummary[],
-      requestedTraitCoverage: this.facetCoverageSummary(
-        facetResults,
-        'trait',
-      ) as unknown as TraitCoverageSummary[],
-      requestedIntentCoverage: this.facetCoverageSummary(
-        facetResults,
-        'intent',
-      ) as unknown as IntentCoverageSummary[],
-      sourceCoverage: [],
-      geographicCoverage: {
-        distinctClusterCount: totalDistinctEligibleExperiences > 0 ? 1 : 0,
-        thresholdKilometers: scope.radiusMeters / 1000,
-      },
-      semanticCoverage: {
-        status: semanticRanking.status,
-        eligibleCandidateCount: semanticRanking.eligibleCandidateCount,
-        indexedCandidateCount: semanticRanking.indexedCandidateCount,
-        reason: semanticRanking.reason,
-      },
-      destinationKnowledge: {
-        status: 'discovery_supported',
-        coverageBoundary: 'catalog_and_grounded_discovery',
-        reason:
-          'Preference-first facet retrieval (cutover M2) -- FacetRetrievalService/preference-sufficiency.util.ts are the sufficiency/deficit authority.',
-      },
-      providerHealth: health,
-      deficits,
-      decision,
+    return {
+      facetResults,
+      allFacetsSatisfied,
+      totalDistinctEligibleExperiences,
+      portfolioTarget: target,
+      sufficient,
+      acquisitionDeficits,
     };
-
-    return { report, facetResults, acquisitionDeficits };
   }
 
   /**
@@ -570,83 +468,29 @@ export class ExperienceGenerationService {
     scope: FacetRetrievalScope,
     preferenceSpec: PreferenceSpec,
   ): Promise<number> {
-    const pool = await this.experienceCatalog.findVerifiedWithinForMatching(
-      scope.latitude,
-      scope.longitude,
-      scope.radiusMeters,
-    );
+    const pool: VerifiedExperienceRow[] =
+      await this.experienceCatalog.findVerifiedWithinForMatching(
+        scope.latitude,
+        scope.longitude,
+        scope.radiusMeters,
+      );
     const hardExclusions = preferenceSpec.exclusions.hard;
 
     let count = 0;
-    for (const row of pool as Array<Record<string, any>>) {
+    for (const row of pool) {
       if (
         hardExclusions.length > 0 &&
         findHardExclusionMatches(row, hardExclusions).length > 0
       ) {
         continue;
       }
-      const hasRealPlaceComponent = Array.isArray(row.components)
-        ? row.components.some(
-            (component: any) => component?.geoEntity?.kind === 'PLACE',
-          )
-        : false;
+      const hasRealPlaceComponent = row.components.some(
+        (component) => component.geoEntity?.kind === 'PLACE',
+      );
       if (!hasRealPlaceComponent) continue;
       count += 1;
     }
     return count;
-  }
-
-  /**
-   * Legacy-shaped `CoverageDeficit` projection, used ONLY for
-   * `buildCoverageAnalysisStep`'s trace display (severity/message/blocking
-   * count) -- the real acquisition routing below reads the facet's own
-   * `dimension`/`key` directly via `acquisitionDeficits`, never this
-   * mapping. `theme`/`intent` map onto their own reason; every other
-   * structured dimension (`trait`, `winery_scale`, `tourism_intensity`,
-   * `nature_type`, `local_character`, ...) maps onto the legacy `trait`
-   * deficit slot, which predates `PreferenceSpec`'s richer dimension set.
-   */
-  private facetToLegacyCoverageDeficit(facet: RequestedFacet): CoverageDeficit {
-    const message = `Preferencia solicitada sin cobertura fuerte suficiente en el catálogo: ${facet.dimension}:${facet.key}.`;
-    if (facet.dimension === 'theme') {
-      return {
-        reason: 'missing_requested_theme',
-        severity: 'blocking',
-        message,
-        theme: facet.key,
-      };
-    }
-    if (facet.dimension === 'intent') {
-      return {
-        reason: 'missing_requested_intent',
-        severity: 'blocking',
-        message,
-        intent: facet.key,
-      };
-    }
-    return {
-      reason: 'missing_requested_trait',
-      severity: 'blocking',
-      message,
-      trait: facet.key,
-    };
-  }
-
-  private facetCoverageSummary(
-    facetResults: FacetCandidates[],
-    dimension: string,
-  ): Array<Record<string, unknown>> {
-    return facetResults
-      .filter(
-        (facetCandidates) => facetCandidates.facet.dimension === dimension,
-      )
-      .map((facetCandidates) => ({
-        [dimension]: facetCandidates.facet.key,
-        matchedCandidateCount:
-          facetCandidates.strongMatches.length +
-          facetCandidates.weakMatches.length,
-        strongMatchCount: facetCandidates.strongMatches.length,
-      }));
   }
 
   private buildCandidatePoolTraceStep(
@@ -1118,18 +962,16 @@ export class ExperienceGenerationService {
           const nearbyExperiencesSample = selection.experiences;
           semanticRankingOutcome = selection.semanticRanking;
           const initialPreferenceCoverage =
-            await this.computePreferenceCoverage(
-              preferenceSpec,
-              searchArea,
-              nearbyExperiencesSample.length,
-              nearbyExperiences.length,
-              semanticRankingOutcome,
-              { status: 'healthy' },
-            );
-          const initialCoverageReport = initialPreferenceCoverage.report;
-          traceSteps.push(buildCoverageAnalysisStep(initialCoverageReport));
+            await this.computePreferenceCoverage(preferenceSpec, searchArea);
+          traceSteps.push(
+            buildPreferenceCoverageStep(initialPreferenceCoverage, {
+              offeredCandidateCount: nearbyExperiencesSample.length,
+              semanticRanking: semanticRankingOutcome,
+              providerHealth: { status: 'healthy' },
+            }),
+          );
 
-          if (initialCoverageReport.decision.action === 'none') {
+          if (initialPreferenceCoverage.sufficient) {
             await this.updateGenerationStatus(
               tourId,
               'generating',
@@ -1149,7 +991,7 @@ export class ExperienceGenerationService {
                 request,
                 nearbyExperiences.length,
                 nearbyExperiences.length,
-                initialCoverageReport.relevantCandidateCount,
+                initialPreferenceCoverage.totalDistinctEligibleExperiences,
               ),
             );
           } else {
@@ -1175,12 +1017,14 @@ export class ExperienceGenerationService {
 
             let currentPool = nearbyExperiences;
             let currentSelection = selection;
-            let currentCoverage = initialCoverageReport;
-            let currentAcquisitionDeficits =
-              initialPreferenceCoverage.acquisitionDeficits;
+            let currentPreferenceCoverage = initialPreferenceCoverage;
+            let currentProviderHealth: {
+              status: 'healthy' | 'degraded' | 'unknown';
+              reason?: string;
+            } = { status: 'healthy' };
 
             for (let pass = 1; pass <= MAX_ACQUISITION_PASSES; pass++) {
-              if (currentCoverage.decision.action === 'none') break;
+              if (currentPreferenceCoverage.sufficient) break;
 
               // M2 (preference-first live cutover): deficits are now the
               // real FacetRetrievalService-derived unsatisfied facets
@@ -1190,7 +1034,7 @@ export class ExperienceGenerationService {
               const acquisitionPlan =
                 this.experienceAcquisitionPlanner.buildAcquisitionPlan({
                   destination: acquisitionScope,
-                  deficits: currentAcquisitionDeficits,
+                  deficits: currentPreferenceCoverage.acquisitionDeficits,
                   semanticQuery: normalizedPreferences.positiveSemanticQuery,
                   breadth: 'focused',
                 });
@@ -1301,10 +1145,7 @@ export class ExperienceGenerationService {
               );
               semanticRankingOutcome = currentSelection.semanticRanking;
 
-              const providerHealth: {
-                status: 'healthy' | 'degraded' | 'unknown';
-                reason?: string;
-              } =
+              currentProviderHealth =
                 acquisitionProvidersAttempted.size > 0 &&
                 acquisitionProvidersFailed.size ===
                   acquisitionProvidersAttempted.size
@@ -1317,40 +1158,36 @@ export class ExperienceGenerationService {
                         .join(',')}`,
                     }
                   : { status: 'healthy' };
-              if (providerHealth.status === 'degraded') {
-                degradedAcquisitionReason = providerHealth.reason ?? 'degraded';
+              if (currentProviderHealth.status === 'degraded') {
+                degradedAcquisitionReason =
+                  currentProviderHealth.reason ?? 'degraded';
               }
 
-              const nextPreferenceCoverage =
-                await this.computePreferenceCoverage(
-                  preferenceSpec,
-                  searchArea,
-                  currentSelection.experiences.length,
-                  currentPool.length,
-                  semanticRankingOutcome,
-                  providerHealth,
-                );
-              currentCoverage = nextPreferenceCoverage.report;
-              currentAcquisitionDeficits =
-                nextPreferenceCoverage.acquisitionDeficits;
-              traceSteps.push(buildCoverageAnalysisStep(currentCoverage));
+              currentPreferenceCoverage = await this.computePreferenceCoverage(
+                preferenceSpec,
+                searchArea,
+              );
+              traceSteps.push(
+                buildPreferenceCoverageStep(currentPreferenceCoverage, {
+                  offeredCandidateCount: currentSelection.experiences.length,
+                  semanticRanking: semanticRankingOutcome,
+                  providerHealth: currentProviderHealth,
+                }),
+              );
             }
-
-            const finalCoverage = currentCoverage;
 
             // A requested soft theme/trait/intent still missing after catalog +
             // bounded acquisition is a real, trace-visible deficit — but per
             // invariant it must never fail the Tour on its own. Only a
-            // genuinely infeasible pool (`isCoverageFatal`) aborts here.
-            if (isCoverageFatal(finalCoverage)) {
+            // genuinely infeasible pool (currentPool is empty) aborts here.
+            if (currentPool.length === 0) {
               const coverageError = new Error(
-                `Coverage insuficiente después de catálogo y adquisición multi-fuente acotada: ${finalCoverage.deficits
-                  .filter((deficit) => deficit.severity === 'blocking')
+                `Coverage insuficiente después de catálogo y adquisición multi-fuente acotada: ${currentPreferenceCoverage.acquisitionDeficits
                   .map((deficit) => deficit.reason)
                   .join(', ')}`,
               );
               (coverageError as any).retryable =
-                finalCoverage.providerHealth.status === 'degraded';
+                currentProviderHealth.status === 'degraded';
               throw coverageError;
             }
 
@@ -1367,7 +1204,7 @@ export class ExperienceGenerationService {
                 request,
                 nearbyExperiences.length,
                 currentPool.length,
-                finalCoverage.relevantCandidateCount,
+                currentPreferenceCoverage.totalDistinctEligibleExperiences,
               ),
             );
           }
@@ -1834,9 +1671,10 @@ export class ExperienceGenerationService {
       const wrapped = new BadRequestException(
         `Failed to generate experiences: ${error.message}`,
       );
-      // Preserve an explicit retryable signal (e.g. from isCoverageFatal's
-      // throw) across this wrap — without this, classifyGenerationFailure
-      // never sees it and falls back to its whole-trace heuristic scan.
+      // Preserve an explicit retryable signal (e.g. from the genuinely
+      // empty-pool coverage throw above) across this wrap — without this,
+      // classifyGenerationFailure never sees it and falls back to its
+      // whole-trace heuristic scan.
       if (typeof error.retryable === 'boolean') {
         (wrapped as any).retryable = error.retryable;
       }

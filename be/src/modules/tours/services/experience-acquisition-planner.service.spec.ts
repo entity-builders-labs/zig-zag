@@ -183,7 +183,7 @@ describe('ExperienceAcquisitionPlannerService', () => {
           dimension: 'theme',
           key: 'wine',
           reason: 'Need wine',
-          origin: 'coverage_analysis',
+          origin: 'preference_facet',
         },
       ],
     });
@@ -285,7 +285,7 @@ describe('ExperienceAcquisitionPlannerService', () => {
           dimension: 'intent',
           key: 'walk',
           reason: 'Need walking activity',
-          origin: 'coverage_analysis',
+          origin: 'preference_facet',
         },
       ],
     });
@@ -311,13 +311,13 @@ describe('ExperienceAcquisitionPlannerService', () => {
           dimension: 'theme',
           key: 'history',
           reason: 'Need history',
-          origin: 'coverage_analysis',
+          origin: 'preference_facet',
         },
         {
           dimension: 'theme',
           key: 'food',
           reason: 'Need food',
-          origin: 'coverage_analysis',
+          origin: 'preference_facet',
         },
       ],
     });
@@ -354,13 +354,13 @@ describe('ExperienceAcquisitionPlannerService', () => {
           dimension: 'theme',
           key: 'history',
           reason: 'Need history',
-          origin: 'coverage_analysis',
+          origin: 'preference_facet',
         },
         {
           dimension: 'theme',
           key: 'food',
           reason: 'Need food',
-          origin: 'coverage_analysis',
+          origin: 'preference_facet',
         },
         {
           dimension: 'theme',
@@ -458,8 +458,10 @@ describe('ExperienceAcquisitionPlannerService', () => {
       destination: { destinationName: 'Salta' },
       deficits: [
         {
-          origin: 'coverage_analysis',
+          origin: 'global_capacity',
           reason: 'low_coverage',
+          currentEligibleCount: 1,
+          requiredEligibleCount: 4,
         },
       ],
     });
@@ -486,7 +488,7 @@ describe('ExperienceAcquisitionPlannerService', () => {
           dimension: 'intent',
           key: 'walk',
           reason: 'Need a walk candidate',
-          origin: 'coverage_analysis',
+          origin: 'preference_facet',
         },
       ],
       anchors: [
@@ -509,7 +511,7 @@ describe('ExperienceAcquisitionPlannerService', () => {
           dimension: 'theme',
           key: 'culture',
           reason: 'Need a culture candidate',
-          origin: 'coverage_analysis',
+          origin: 'preference_facet',
         },
       ],
       anchors: [{ rawName: 'San Telmo', kind: 'area', priority: 'must' }],
@@ -528,7 +530,7 @@ describe('ExperienceAcquisitionPlannerService', () => {
           dimension: 'intent',
           key: 'route_like',
           reason: 'Need a route_like candidate',
-          origin: 'coverage_analysis',
+          origin: 'preference_facet',
         },
       ],
       anchors: [{ rawName: 'MALBA', kind: 'venue', priority: 'soft' }],

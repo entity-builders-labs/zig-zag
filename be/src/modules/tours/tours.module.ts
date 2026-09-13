@@ -8,7 +8,6 @@ import { TourImageService } from './services/tour-image.service';
 import { TourLocationService } from './services/tour-location.service';
 import { DestinationResolutionService } from './services/destination-resolution.service';
 import { CatalogRefillAnchorPlanner } from './services/catalog-refill-anchor-planner.service';
-import { CoverageAnalyzer } from './services/coverage-analyzer.service';
 import { TourCompletenessValidator } from './services/tour-completeness-validator.service';
 import { GroqGroundedSearchService } from './services/groq-grounded-search.service';
 import { SerpApiGroundedSearchService } from './services/serpapi-grounded-search.service';
@@ -79,7 +78,6 @@ import { MediaModule } from '../media/media.module';
     TourLocationService,
     DestinationResolutionService,
     CatalogRefillAnchorPlanner,
-    CoverageAnalyzer,
     TourCompletenessValidator,
     GroqGroundedSearchService,
     SerpApiGroundedSearchService,

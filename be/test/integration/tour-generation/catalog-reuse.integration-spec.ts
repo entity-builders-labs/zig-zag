@@ -192,7 +192,11 @@ describe('tour-generation integration · catalog-reuse', () => {
     const coverage2 = harness
       .traceSteps(tour2Loaded.trace)
       .find((s) => s.stage === 'coverage_analysis');
-    expect(coverage2?.coverageReport?.decision?.action).toBe('none');
+    // Canonical preference-first coverage result (cutover M2 cleanup) --
+    // no legacy `coverageReport` projection is produced by the live path.
+    expect(coverage2?.coverageReport).toBeUndefined();
+    expect(coverage2?.decision?.outcome).toBe('none');
+    expect(coverage2?.outputs?.sufficient).toBe(true);
 
     // No new provider work on run 2.
     expect(harness.fakes.wikivoyage.fetchArticle).not.toHaveBeenCalled();

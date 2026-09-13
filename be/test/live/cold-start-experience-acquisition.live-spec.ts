@@ -6,7 +6,6 @@ import { PrismaService } from 'src/core/database/prisma.service';
 import { GooglePlacesAcquisitionProvider } from 'src/modules/tours/providers/google-places-acquisition.provider';
 import { OsmAcquisitionProvider } from 'src/modules/tours/providers/osm-acquisition.provider';
 import { WikivoyageAcquisitionProvider } from 'src/modules/tours/providers/wikivoyage-acquisition.provider';
-import { CoverageAnalyzer } from 'src/modules/tours/services/coverage-analyzer.service';
 import { DestinationResolutionService } from 'src/modules/tours/services/destination-resolution.service';
 import {
   ExecuteAcquisitionPlanResult,
@@ -25,6 +24,7 @@ import {
   ExperienceDiscoveryExtractor,
   ExperienceDiscoveryRequest,
 } from 'src/modules/tours/interfaces/experience-discovery.interface';
+import { AcquisitionDeficit } from 'src/modules/tours/interfaces/experience-acquisition-plan.interface';
 import {
   ExperienceGroundedSearchProvider,
   ExperienceGroundedSearchRequest,
@@ -36,6 +36,7 @@ import {
   NormalizedPreferenceIntent,
 } from 'src/modules/tours/interfaces/preference-interpretation.interface';
 import { PreferenceFacet } from 'src/modules/tours/preferences/preference-facet.interface';
+import { candidateMatchesPreferenceFacet } from 'src/modules/tours/utils/preference-facet-matching.util';
 import { canonicalizeFacetKey } from 'src/modules/tours/preferences/preference-facet-vocabulary';
 import { normalizeWizardFacet } from 'src/modules/tours/utils/preference-facet-merge.util';
 import { boundingBoxToCenterRadius } from 'src/modules/tours/utils/geometry-search-area.util';
@@ -323,6 +324,45 @@ function coverageCandidates(experiences: any[]): any[] {
   }));
 }
 
+/**
+ * Preference-first cutover (M2): purely descriptive, recorded-artifact
+ * summary of how many refreshed catalog rows match each requested
+ * theme/trait/intent -- reuses the ONE canonical facet-matching primitive
+ * (candidateMatchesPreferenceFacet). Never used for control flow in this
+ * file; CoverageAnalyzer's own quantity/sufficiency authority is gone from
+ * the live path, so this is not a replacement for it, just a readable
+ * snapshot for the human reviewing the recorded run.
+ */
+function summarizeFacetCoverage(
+  experiences: any[],
+  requestedThemes: string[],
+  requestedTraits: string[],
+  requestedIntents: string[],
+): Record<string, Record<string, number>> {
+  const summarize = (dimension: string, keys: string[]) =>
+    Object.fromEntries(
+      keys.map((key) => {
+        const facet: PreferenceFacet = {
+          dimension,
+          key,
+          importance: 1,
+          confidence: 1,
+          source: 'wizard',
+        };
+        const count = experiences.filter((experience) =>
+          candidateMatchesPreferenceFacet(experience, facet),
+        ).length;
+        return [key, count];
+      }),
+    );
+
+  return {
+    theme: summarize('theme', requestedThemes),
+    trait: summarize('trait', requestedTraits),
+    intent: summarize('intent', requestedIntents),
+  };
+}
+
 function webUnavailable(
   execution: ExecuteAcquisitionPlanResult,
 ): string | null {
@@ -438,7 +478,6 @@ function webUnavailable(
       const unavailableProviders = new Map<GroundedProviderId, string>();
 
       const catalog = moduleRef.get(ExperienceCatalogService);
-      const coverage = moduleRef.get(CoverageAnalyzer);
       const planner = moduleRef.get(ExperienceAcquisitionPlannerService);
       const extractor = moduleRef.get(GeminiDiscoveryProvider);
 
@@ -488,21 +527,32 @@ function webUnavailable(
             normalized.intent.preferredFacets,
             'intent',
           );
-          const initialCoverage = coverage.analyze({
-            candidates: [],
-            requestedThemes,
-            requestedTraits,
-            requestedIntents,
-            days: 1,
-            travelPace: 'moderate',
-            semanticCoverage: {
-              status: 'not_requested',
-              eligibleCandidateCount: 0,
-              indexedCandidateCount: 0,
-            },
-            offeredCandidateCount: 0,
-            providerHealth: { status: 'healthy' },
-          });
+          // Preference-first cutover (M2): CoverageAnalyzer is no longer the
+          // live sufficiency/deficit authority. The cold-start invariant
+          // just above (initialCatalog.length === 0) means every requested
+          // facet is trivially unsatisfied here, so the equivalent
+          // preference_facet deficits are constructed directly rather than
+          // through the deleted analyzer.
+          const initialDeficits: AcquisitionDeficit[] = [
+            ...requestedThemes.map((key) => ({
+              origin: 'preference_facet' as const,
+              dimension: 'theme',
+              key,
+              reason: `Preference facet [theme:${key}] has no strong catalog match yet.`,
+            })),
+            ...requestedTraits.map((key) => ({
+              origin: 'preference_facet' as const,
+              dimension: 'trait',
+              key,
+              reason: `Preference facet [trait:${key}] has no strong catalog match yet.`,
+            })),
+            ...requestedIntents.map((key) => ({
+              origin: 'preference_facet' as const,
+              dimension: 'intent',
+              key,
+              reason: `Preference facet [intent:${key}] has no strong catalog match yet.`,
+            })),
+          ];
           const plan = planner.buildAcquisitionPlan({
             destination: {
               destinationName: DESTINATION.name,
@@ -511,11 +561,7 @@ function webUnavailable(
               radiusMeters: searchArea.radiusMeters,
             },
             breadth: 'focused',
-            legacyDeficits: initialCoverage.deficits.filter(
-              (deficit) => deficit.severity === 'blocking',
-            ),
-            preferredFacets: normalized.intent.preferredFacets,
-            candidates: [],
+            deficits: initialDeficits,
             semanticQuery:
               normalized.intent.positiveSemanticQuery ||
               scenario.additionalPreferences,
@@ -556,21 +602,12 @@ function webUnavailable(
             searchArea.radiusMeters,
             250,
           );
-          const finalCoverage = coverage.analyze({
-            candidates: coverageCandidates(refreshed),
+          const finalCoverage = summarizeFacetCoverage(
+            coverageCandidates(refreshed),
             requestedThemes,
             requestedTraits,
             requestedIntents,
-            days: 1,
-            travelPace: 'moderate',
-            semanticCoverage: {
-              status: 'not_requested',
-              eligibleCandidateCount: refreshed.length,
-              indexedCandidateCount: 0,
-            },
-            offeredCandidateCount: refreshed.length,
-            providerHealth: { status: 'healthy' },
-          });
+          );
           const persisted = await prisma.experience.findMany({
             where: { status: 'VERIFIED' },
             include: {
@@ -618,7 +655,7 @@ function webUnavailable(
             },
             coverage: {
               initialCatalogCount: initialCatalog.length,
-              initial: initialCoverage,
+              initialDeficits,
               final: finalCoverage,
             },
             acquisitionPlan: plan,

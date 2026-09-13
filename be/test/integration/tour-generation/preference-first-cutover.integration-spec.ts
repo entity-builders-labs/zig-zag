@@ -136,12 +136,19 @@ describe('tour-generation integration · preference-first live cutover', () => {
         (step: any) => step.stage === 'coverage_analysis',
       );
       expect(coverageStep).toBeTruthy();
-      // Real per-facet retrieval, not the legacy keyword heuristic: strong
-      // match count reflects the 4 seeded rows themselves.
-      const themeCoverage = coverageStep.coverageReport.requestedThemeCoverage;
+      // Canonical preference-first coverage result (cutover M2 cleanup) --
+      // no legacy `coverageReport` projection. Real per-facet retrieval,
+      // not the legacy keyword heuristic: strong match count reflects the
+      // 4 seeded rows themselves.
+      expect(coverageStep.coverageReport).toBeUndefined();
+      const themeCoverage = coverageStep.outputs.facetResults;
       expect(themeCoverage).toEqual(
         expect.arrayContaining([
-          expect.objectContaining({ theme: 'history', strongMatchCount: 4 }),
+          expect.objectContaining({
+            dimension: 'theme',
+            key: 'history',
+            strongMatchCount: 4,
+          }),
         ]),
       );
       expect(coverageStep.decision.outcome).toBe('none');
@@ -346,7 +353,10 @@ describe('tour-generation integration · preference-first live cutover', () => {
         (step: any) => step.stage === 'coverage_analysis',
       );
       expect(coverageStep.decision.outcome).toBe('none');
-      expect(coverageStep.coverageReport.usableCandidateCount).toBe(4);
+      // Canonical preference-first coverage result (cutover M2 cleanup) --
+      // no legacy `coverageReport`/`usableCandidateCount` projection.
+      expect(coverageStep.coverageReport).toBeUndefined();
+      expect(coverageStep.outputs.totalDistinctEligibleExperiences).toBe(4);
       // Sufficient on the very first pass -- no acquisition stage at all.
       expect(steps.some((step: any) => step.stage === 'discovery')).toBe(false);
     });

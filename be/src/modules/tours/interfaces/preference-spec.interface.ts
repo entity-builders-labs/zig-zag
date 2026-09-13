@@ -11,6 +11,7 @@
  * Do not add `'exploration_style'` as a `RequestedFacet.dimension` value
  * anywhere in this codebase.
  */
+import { AcquisitionDeficit } from './experience-acquisition-plan.interface';
 
 /** A single positive preference the user requested, always soft in v1. */
 export interface RequestedFacet {
@@ -79,6 +80,24 @@ export interface PortfolioSufficiency {
   portfolioTarget: number;
   distinctEligibleCount: number;
   sufficient: boolean;
+}
+
+/**
+ * Canonical preference-first coverage result (cutover M2, spec §6.2/§7) --
+ * the ONE live sufficiency/deficit authority result shape. Replaces the
+ * legacy `CoverageReport`/`CoverageDeficit`/`CoverageAcquisitionDecision`
+ * family in the live generation path entirely: no adapter, no
+ * `coverageReport`-shaped nesting. `totalDistinctEligibleExperiences` is the
+ * GLOBAL eligible-catalog count (spec §6.2), never the union of per-facet
+ * matches -- independent of which facets were requested.
+ */
+export interface PreferenceCoverageResult {
+  facetResults: FacetCandidates[];
+  allFacetsSatisfied: boolean;
+  totalDistinctEligibleExperiences: number;
+  portfolioTarget: number;
+  sufficient: boolean;
+  acquisitionDeficits: AcquisitionDeficit[];
 }
 
 export interface UnmetAnchor {

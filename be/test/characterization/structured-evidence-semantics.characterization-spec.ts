@@ -1,7 +1,6 @@
 import { StructuredExperienceCandidateSynthesizerService } from '../../src/modules/tours/services/structured-experience-candidate-synthesizer.service';
 import { StructuredCandidateCorroborationService } from '../../src/modules/tours/services/structured-candidate-corroboration.service';
 import { evaluateExperiencePreferences } from '../../src/modules/tours/utils/experience-preference-evaluator.util';
-import { CoverageAnalyzer } from '../../src/modules/tours/services/coverage-analyzer.service';
 import {
   osmArtMuseumObservation,
   osmHistoricMonumentObservation,
@@ -107,40 +106,10 @@ describe('CHAR-1 structured evidence -> semantic preservation', () => {
     expect(evaluation.score).toBe(0);
   });
 
-  it('CoverageAnalyzer DOES count the same facet-less monument as "history" (keyword/name/JSON scan) — the two layers disagree', () => {
-    const analyzer = new CoverageAnalyzer();
-    const report = analyzer.analyze({
-      candidates: [
-        {
-          id: 'mon-1',
-          name: 'Monumento Histórico',
-          description: 'A historic monument recorded in OpenStreetMap.',
-          source: 'osm',
-          themes: [],
-          traits: [],
-          intents: [],
-          metadata: { themes: [], traits: [], intents: [] },
-        } as any,
-      ],
-      requestedThemes: ['history'],
-      requestedTraits: [],
-      requestedIntents: [],
-      days: 1,
-      travelPace: 'moderate',
-      explorationStyle: 'balanced',
-      semanticCoverage: {
-        status: 'not_requested',
-        eligibleCandidateCount: 1,
-        indexedCandidateCount: 0,
-      },
-      offeredCandidateCount: 1,
-    } as any);
-
-    const historyCoverage = report.requestedThemeCoverage.find(
-      (c) => c.theme === 'history',
-    );
-    // Coverage says covered (name contains "histór"); the preference
-    // evaluator (test above) says NOT covered. Two incompatible truths.
-    expect(historyCoverage?.strongMatchCount).toBeGreaterThanOrEqual(1);
-  });
+  // The former "CoverageAnalyzer disagrees with the preference evaluator"
+  // case (two contradictory keyword-matching primitives) was removed here:
+  // CoverageAnalyzer itself was deleted in the preference-first cutover
+  // (M2) -- FacetRetrievalService/candidateMatchesPreferenceFacet is now
+  // the ONE facet-truth primitive, so this specific contradiction no
+  // longer exists to characterize.
 });

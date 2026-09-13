@@ -60,7 +60,11 @@ describe('tour-generation integration · catalog-first', () => {
     const coverage = harness
       .traceSteps(tour.trace)
       .find((s) => s.stage === 'coverage_analysis');
-    expect(coverage?.coverageReport?.decision?.action).toBe('none');
+    // Canonical preference-first coverage result (cutover M2 cleanup) --
+    // no legacy `coverageReport` projection is produced by the live path.
+    expect(coverage?.coverageReport).toBeUndefined();
+    expect(coverage?.decision?.outcome).toBe('none');
+    expect(coverage?.outputs?.sufficient).toBe(true);
 
     // Zero external transport calls — catalog-first short-circuit.
     expect(harness.fakes.wikivoyage.fetchArticle).not.toHaveBeenCalled();

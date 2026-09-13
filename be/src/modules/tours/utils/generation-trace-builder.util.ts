@@ -22,6 +22,7 @@ import {
 } from '../interfaces/experience-resolution.interface';
 import { TourGenerationRequest } from '../interfaces/tour-generation.interface';
 import { DailyPlanningSolution } from '../interfaces/daily-planning.interface';
+import { PreferenceCoverageResult } from '../interfaces/preference-spec.interface';
 import { CandidateScoreBreakdown } from './candidate-ranking.util';
 import { matchedThemesFor } from './theme-matching.util';
 
@@ -563,6 +564,15 @@ export function buildEmbeddingsStep(
   };
 }
 
+/**
+ * Legacy `CoverageReport`-shaped 'coverage_analysis' step builder. NOT
+ * called by any new generation as of cutover M2 --
+ * `ExperienceGenerationService` builds `buildPreferenceCoverageStep`
+ * instead. Retained ONLY so already-persisted v1-v3 traces (which do carry
+ * a `coverageReport`-shaped step) remain readable/renderable historical
+ * data -- a historical-read boundary, never a new-generation runtime
+ * decision path. Do not wire this back into the live orchestrator.
+ */
 export function buildCoverageAnalysisStep(
   report: CoverageReport,
 ): GenerationTraceStep {
@@ -667,6 +677,133 @@ export function buildCoverageAnalysisStep(
     degradedReason:
       report.status === 'degraded' ? report.providerHealth.reason : undefined,
     coverageReport: report,
+  };
+}
+
+/**
+ * The canonical 'coverage_analysis' step builder for the live
+ * preference-first path (cutover M2). Consumes `PreferenceCoverageResult`
+ * directly -- no `CoverageReport`/`CoverageDeficit`/
+ * `CoverageAcquisitionDecision`, no adapter back to that legacy shape.
+ * Trace-presentation context (offered-candidate count, semantic ranking,
+ * provider health) is passed in separately by the caller, kept out of the
+ * canonical decision result itself.
+ */
+export function buildPreferenceCoverageStep(
+  result: PreferenceCoverageResult,
+  context: {
+    offeredCandidateCount: number;
+    semanticRanking: {
+      status: 'not_requested' | 'applied' | 'unavailable';
+      eligibleCandidateCount: number;
+      indexedCandidateCount: number;
+      reason?: string;
+    };
+    providerHealth: {
+      status: 'healthy' | 'degraded' | 'unknown';
+      reason?: string;
+    };
+  },
+): GenerationTraceStep {
+  const { offeredCandidateCount, semanticRanking, providerHealth } = context;
+
+  const facetSummaries = result.facetResults.map((facetCandidates) => ({
+    dimension: facetCandidates.facet.dimension,
+    key: facetCandidates.facet.key,
+    strongMatchCount: facetCandidates.strongMatches.length,
+    weakMatchCount: facetCandidates.weakMatches.length,
+    satisfied: facetCandidates.satisfied,
+  }));
+  const unsatisfiedFacetSummaries = facetSummaries.filter(
+    (facetSummary) => !facetSummary.satisfied,
+  );
+  const globalCapacityDeficit = result.acquisitionDeficits.find(
+    (deficit) => deficit.origin === 'global_capacity',
+  );
+
+  const rules: TraceRuleEvaluation[] = [
+    rule(
+      'PCOV-QUANTITY-001',
+      'Portafolio elegible global suficiente para días y ritmo solicitados',
+      result.totalDistinctEligibleExperiences >= result.portfolioTarget
+        ? 'PASS'
+        : 'FAIL',
+      `${result.totalDistinctEligibleExperiences} Experience(s) elegible(s) frente a ${result.portfolioTarget} requerida(s).`,
+      result.totalDistinctEligibleExperiences,
+      result.portfolioTarget,
+    ),
+    ...facetSummaries.map((facetSummary) =>
+      rule(
+        `PCOV-FACET-${facetSummary.dimension.toUpperCase().replace(/[^A-Z0-9]+/g, '_')}-${facetSummary.key.toUpperCase().replace(/[^A-Z0-9]+/g, '_')}`,
+        `Cobertura del facet solicitado: ${facetSummary.dimension}:${facetSummary.key}`,
+        facetSummary.satisfied ? 'PASS' : 'FAIL',
+        `${facetSummary.strongMatchCount} coincidencia(s) fuerte(s), ${facetSummary.weakMatchCount} débil(es).`,
+        facetSummary.strongMatchCount,
+        '>= 1',
+      ),
+    ),
+  ];
+
+  const decisionOutcome = result.sufficient
+    ? 'none'
+    : 'needs_additional_discovery';
+  const summary = result.sufficient
+    ? `Portafolio suficiente: ${result.totalDistinctEligibleExperiences} Experience(s) elegible(s) frente a ${result.portfolioTarget} requerida(s); todos los facets solicitados satisfechos.`
+    : unsatisfiedFacetSummaries.length > 0
+      ? `Facets sin cobertura fuerte: ${unsatisfiedFacetSummaries.map((facetSummary) => `${facetSummary.dimension}:${facetSummary.key}`).join(', ')}.`
+      : `Todos los facets solicitados están satisfechos, pero el portafolio elegible global (${result.totalDistinctEligibleExperiences}) no alcanza el objetivo (${result.portfolioTarget}).`;
+
+  return {
+    stage: 'coverage_analysis',
+    label: 'Cobertura de preferencias (facet-first)',
+    component: 'FacetRetrievalService',
+    status: result.sufficient
+      ? 'PASS'
+      : providerHealth.status === 'degraded'
+        ? 'WARN'
+        : 'FAIL',
+    summary,
+    inputs: {
+      requestedFacetCount: result.facetResults.length,
+      offeredCandidateCount,
+      providerHealth,
+    },
+    rules,
+    decision: {
+      status: result.sufficient
+        ? 'PASS'
+        : providerHealth.status === 'degraded'
+          ? 'WARN'
+          : 'FAIL',
+      outcome: decisionOutcome,
+      reason: result.sufficient
+        ? 'Todos los facets solicitados tienen cobertura fuerte y el portafolio elegible alcanza el objetivo.'
+        : summary,
+      reasonCodes: result.acquisitionDeficits.map((deficit) => deficit.origin),
+      triggeredActions:
+        decisionOutcome === 'none'
+          ? ['BUILD_CANDIDATE_POOL']
+          : ['RUN_ACQUISITION'],
+    },
+    outputs: {
+      allFacetsSatisfied: result.allFacetsSatisfied,
+      totalDistinctEligibleExperiences: result.totalDistinctEligibleExperiences,
+      portfolioTarget: result.portfolioTarget,
+      sufficient: result.sufficient,
+      facetResults: facetSummaries,
+      acquisitionDeficits: result.acquisitionDeficits,
+      globalCapacityDeficit: globalCapacityDeficit ?? null,
+    },
+    semanticRanking: {
+      status: semanticRanking.status,
+      eligibleCandidateCount: semanticRanking.eligibleCandidateCount,
+      indexedCandidateCount: semanticRanking.indexedCandidateCount,
+      offeredCandidateCount,
+      reason: semanticRanking.reason,
+    },
+    providerStatus: providerHealth.status === 'degraded' ? 'failed' : undefined,
+    degradedReason:
+      providerHealth.status === 'degraded' ? providerHealth.reason : undefined,
   };
 }
 

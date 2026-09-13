@@ -4,24 +4,57 @@ import {
 } from './experience-discovery.interface';
 import { CoverageDeficit } from './coverage-analysis.interface';
 
-export interface AcquisitionDeficit {
+/**
+ * A real, requested-facet deficit (cutover M2) -- `dimension`/`key` are
+ * REQUIRED, never optional: this variant always names the exact facet that
+ * lacks a strong catalog match.
+ */
+export interface PreferenceFacetDeficit {
+  origin: 'preference_facet';
+  dimension: string;
+  key: string;
+  reason: string;
+}
+
+/**
+ * A genuine GLOBAL portfolio-capacity shortage (cutover M2, spec SS6.2/SS7)
+ * after every requested facet is already satisfied -- the total distinct
+ * eligible catalog is still below `portfolioTarget`. Deliberately
+ * dimensionless: no `dimension`/`key` field exists on this variant at all,
+ * so it is structurally impossible for it to masquerade as a theme/trait/
+ * intent facet deficit. `lookupSourceCapabilityRoute(undefined, undefined)`
+ * already routes a dimensionless deficit to the provider-neutral
+ * `GENERIC_DEFICIT_ROUTE` (broad Wikivoyage SEE/DO/EAT + web discovery) --
+ * no planner change needed for this origin.
+ */
+export interface GlobalCapacityDeficit {
+  origin: 'global_capacity';
+  reason: string;
+  currentEligibleCount: number;
+  requiredEligibleCount: number;
+}
+
+/**
+ * Legacy `CoverageAnalyzer`-projected deficit. Not produced by the live
+ * preference-first path (cutover M2) -- retained only for
+ * `AreaRouteWalkAcquisitionService`/`experience-acquisition-planner.service
+ * .ts`'s pre-existing `legacyDeficits: CoverageDeficit[]` projection, which
+ * predates M2 and is not itself wired into the live orchestrator yet (M3's
+ * job). `legacyDeficit` is REQUIRED on this variant (never partially
+ * populated) since it is the only source of truth this projection carries.
+ */
+export interface CoverageAnalysisDeficit {
+  origin: 'coverage_analysis';
   dimension?: string;
   key?: string;
   reason: string;
-  /**
-   * `global_capacity` (cutover M2, spec SS6.2/SS7): a genuine GLOBAL portfolio
-   * shortage after every requested facet is already satisfied -- the total
-   * distinct eligible catalog is still below `portfolioTarget`. Deliberately
-   * dimensionless (`dimension`/`key` are never set for this origin): it must
-   * never masquerade as a theme/trait/intent facet deficit.
-   * `lookupSourceCapabilityRoute(undefined, undefined)` already routes a
-   * dimensionless deficit to the provider-neutral `GENERIC_DEFICIT_ROUTE`
-   * (broad Wikivoyage SEE/DO/EAT + web discovery) -- no planner change
-   * needed for this origin.
-   */
-  origin: 'coverage_analysis' | 'preference_facet' | 'global_capacity';
-  legacyDeficit?: CoverageDeficit;
+  legacyDeficit: CoverageDeficit;
 }
+
+export type AcquisitionDeficit =
+  | PreferenceFacetDeficit
+  | GlobalCapacityDeficit
+  | CoverageAnalysisDeficit;
 
 export interface WikivoyageSourcePlanPayload {
   sections: Array<'SEE' | 'DO' | 'EAT'>;
