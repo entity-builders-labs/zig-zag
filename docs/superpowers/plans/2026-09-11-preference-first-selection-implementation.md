@@ -4,6 +4,12 @@
 > `docs/superpowers/specs/2026-09-10-preference-first-selection-and-agent-convergence-design.md`.
 > If code/current tests conflict with that spec, characterize first and change
 > the implementation; do not silently reintroduce legacy semantics.
+>
+> **Current execution gate:** after B5, **do not start B6 directly**. The mandatory
+> order is the Postgres Experience-identity gate, then the pre-B6 real-world
+> tourism-research spike baseline, and only then B6. See the explicit gate
+> section between B5 and B6 below. Any older progress entry saying `Next task:
+> B6` is superseded by that gate sequence.
 
 **Goal:** Replace the live tour-generation engine's catalog-first broad pool +
 late preference scoring with preference-first per-facet retrieval, targeted
@@ -519,7 +525,7 @@ At minimum prove:
 - explicit grounded local evidence produces a deterministic known value and
   retains provenance;
 - A7 remains complete/valid when current metadata populates prominence while
-  tourismIntensity and localCharacter stay unknown;
+  tourismIntensity/localCharacter stay unknown;
 - user free text/preferences alone never populate Experience-side localCharacter
   or tourismIntensity evidence;
 - `iconic`: higher known prominence gives higher tilt;
@@ -691,7 +697,86 @@ Tests:
   facets legitimately still need acquisition. Assert specifically that the
   San-Telmo walk was reused / not reacquired.
 
+## Mandatory B5 → B6 gates — B6 is BLOCKED
+
+B5 completion does **not** authorize B6. Before changing the extraction contract,
+execute these two gates in this exact order:
+
+### Gate 1 — Experience identity / dedupe on real Postgres
+
+Canonical plan:
+
+`docs/superpowers/plans/2026-09-12-experience-identity-postgres-integration-gate.md`
+
+Prove through the real `ExperienceCatalogService` / Prisma / Postgres persistence
+boundary:
+- `SAME` converges to one canonical Experience;
+- repeated observation is idempotent;
+- provider/input order does not change the identity outcome/evidence/metadata;
+- `NEW` preserves distinct real Experiences even when area/theme/intent are the
+  same;
+- `AMBIGUOUS` creates no row and mutates no canonical row;
+- the resolver surfaces `AMBIGUOUS_DEDUPE` without persistence corruption;
+- assertions re-read committed Postgres state rather than trusting returned
+  objects or mocks.
+
+If a clearly distinct real fixture becomes `SAME`/`AMBIGUOUS`, or an ambiguous
+observation mutates canonical state, **stop and repair identity/dedupe before
+continuing**. Do not weaken the fixture merely to unblock B6.
+
+### Gate 2 — Real-world tourism-research baseline, PRE-B6
+
+Canonical plan:
+
+`docs/superpowers/plans/2026-09-12-real-world-tourism-research-spike-gate.md`
+
+After Gate 1 is green, execute all six mandatory real-provider spikes with mocks
+disabled:
+1. San Telmo AREA-scoped historical walk;
+2. San Telmo → La Boca multi-area walk;
+3. Caminito canonical geographic ROUTE;
+4. Ruta del Vino de Mendoza tourism route;
+5. at least one foreign-city walk (Montmartre or Trastevere initially);
+6. a negative anti-fabrication case where real POIs exist but no real composed
+   walk/route evidence exists.
+
+These runs must begin from the human tourism request and traverse real discovery,
+real source content, real extraction LLM, real OSM/Overpass + Nominatim + Places
+where applicable, real geographic validation, real dedupe/classification and
+real Postgres/PostGIS persistence. Do not hand-build candidates/component hints
+or edit them to make a run pass.
+
+Each run must leave enough trace/dossier to classify the outcome using the spike
+plan's verdicts. In particular:
+- `B5_OR_IDENTITY_BUG` => **fix/reverify before B6**;
+- `EXPECTED_B6_GAP` => preserve as a concrete B6 characterization/acceptance
+  example;
+- `ORCHESTRATION_GAP`/`PROVIDER_COVERAGE_GAP`/`INFRASTRUCTURE_GAP` => record
+  honestly; do not relabel them as extraction bugs.
+
+The pre-B6 spikes are characterization, so they do not all need to succeed. They
+**do all need to be actually executed** with adequate traces before B6 starts.
+After B6, rerun the exact same corpus as the post-B6 real-world acceptance gate.
+
+### B6 unlock checklist
+
+B6 may start only when:
+- B5 deterministic verification remains green;
+- the Postgres SAME/NEW/AMBIGUOUS gate is green;
+- all six real-world baseline spikes were executed with mocks disabled;
+- every spike has a diagnosable dossier/trace;
+- every `B5_OR_IDENTITY_BUG` found by those spikes was fixed and reverified;
+- the remaining extraction/composition failures are explicitly characterized as
+  `EXPECTED_B6_GAP` where applicable.
+
+Do not skip directly from B5 to B6 because B5's unit/integration suite is green.
+The purpose of these gates is to prove both that canonical identity is safe and
+that the Tourism AI Research Agent can produce/characterize real inputs from the
+open world rather than only from fixtures we constructed ourselves.
+
 ## B6 — Narrow web extraction contract
+
+**BLOCKED until the mandatory B5 → B6 gates above satisfy their exit criteria.**
 
 Update `experience-candidate-extraction.util.ts` / prompt contract:
 - entity/Experience name;
@@ -705,7 +790,9 @@ Themes/intents/traits default empty at this stage and are filled by Stage 6.
 ### Checkpoint B verification
 
 Run provider tests, classifier tests, quality tests, metadata convergence tests,
-area-walk routing tests, real-Postgres round trips, typecheck and lint.
+area-walk routing tests, real-Postgres round trips, typecheck and lint. B6 is not
+part of a valid Checkpoint-B progression until both mandatory B5 → B6 gates above
+have been executed and their exit criteria satisfied.
 
 ---
 
@@ -1597,7 +1684,17 @@ Checkpoint B
   classifier + correct reuse predicate
   quality incl. composite components
   metadata convergence without fake dimensions
-  area-walk acquisition
+  area-walk acquisition (B5)
+        ↓
+  MANDATORY EXPERIENCE IDENTITY POSTGRES GATE
+  SAME / NEW / AMBIGUOUS / idempotency / provider-order invariance
+        ↓
+  MANDATORY REAL-WORLD PRE-B6 SPIKE BASELINE
+  six real-provider cases, mocks disabled, dossiers recorded
+        ↓
+  B6 narrow web extraction contract
+        ↓
+  rerun the same spike corpus as post-B6 real-world acceptance
         ↓
 Checkpoint C
   explorationSignals + explorationTilt (ranking only)
