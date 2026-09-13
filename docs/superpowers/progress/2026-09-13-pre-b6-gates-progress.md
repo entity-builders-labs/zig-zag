@@ -23,15 +23,17 @@ The main plan now contains the same mandatory B5 → B6 gate sequence explicitly
 ## Current state
 
 ```text
-A1–A7                         COMPLETE
-B1–B4 / B4.1                  COMPLETE
-B5 + B5 review hardening      COMPLETE
-Experience Identity Gate      COMPLETE (2026-09-13)
-Spike infrastructure preflight  COMPLETE (2026-09-13)
-RW1 (San Telmo AREA walk)       EXECUTED (2026-09-13) -- verdict: ORCHESTRATION_GAP (see below)
+B5                               COMPLETE
+Experience Identity Gate         COMPLETE
+Spike Infrastructure Preflight   COMPLETE
+RW1 PRE-B6                       COMPLETE — ORCHESTRATION_GAP
 
-RW2–RW6                          NEXT (not started -- awaiting explicit authorization)
-B6                                BLOCKED on RW1–RW6 + fixing/reverifying any B5_OR_IDENTITY_BUG
+Preference-First Live Cutover     NEXT (plan written, not implemented --
+                                   docs/superpowers/plans/2026-09-13-preference-first-live-cutover.md)
+
+RW1 rerun                         BLOCKED on cutover
+RW2-RW6                           BLOCKED
+B6                                BLOCKED
 ```
 
 B5's review blockers were fixed and its deterministic/Postgres verification was
@@ -490,11 +492,39 @@ new discovery).
 **No `B5_OR_IDENTITY_BUG` found.** No fix authorized or applied. No product
 code was changed to run or interpret this spike. RW2–RW6 were NOT run.
 
+**This verdict is not authorization to patch the live flow.** Preference-first
+is the replacement architecture for tour generation, not an extension/
+special-case branch over the legacy `ExperienceGenerationService`
+orchestration. The full implementation plan for the live cutover this
+verdict requires is:
+
+`docs/superpowers/plans/2026-09-13-preference-first-live-cutover.md`
+
+RW1 must be **rerun** after that cutover (through at least its M9 milestone)
+before RW2 is authorized. RW2–RW6 remain BLOCKED until then; B6 remains
+BLOCKED.
+
 ---
 
-# NEXT — Real-World Tourism Research Spike Baseline, PRE-B6
+# NEXT — Preference-First Live Cutover
 
-RW1 above is executed and characterized. RW2–RW6 remain, pending explicit
+Read and follow
+`docs/superpowers/plans/2026-09-13-preference-first-live-cutover.md` in
+full before writing any code. It contains the verified current vs. target
+call graph, the KEEP/REFACTOR/REPLACE/DELETE/TEMPORARY-ADAPTER
+classification for every material service, the milestone sequence (M0–M10),
+and the exact tests required to prove the cutover rather than merely B5's
+isolated behavior.
+
+Do not implement without explicit new authorization, task by task, per the
+milestone sequence in that plan.
+
+---
+
+# LATER — Real-World Tourism Research Spike Baseline, PRE-B6 (RW2–RW6)
+
+RW1 above is executed and characterized; its rerun is gated on the cutover
+above. RW2–RW6 remain, pending explicit
 new authorization — execute this plan for the remaining cases:
 
 `docs/superpowers/plans/2026-09-12-real-world-tourism-research-spike-gate.md`
@@ -599,15 +629,23 @@ identity truth just to make the post-B6 run green.
 ```text
 B5 COMPLETE
     ↓
-Experience Identity Postgres Gate
-  SAME / NEW / AMBIGUOUS
-  idempotency
-  provider/input-order invariance
+Experience Identity Postgres Gate — COMPLETE
     ↓
-Real-World PRE-B6 Spike Baseline
-  RW1..RW6
-  real providers/models/DB
-  mocks disabled
+Spike Infrastructure Preflight — COMPLETE
+    ↓
+RW1 (San Telmo AREA walk) — COMPLETE, verdict ORCHESTRATION_GAP
+    ↓
+Preference-First Live Cutover  <-- WE ARE HERE
+  docs/superpowers/plans/2026-09-13-preference-first-live-cutover.md
+  (this replaces "continue straight to RW2-RW6" — RW1's verdict showed the
+  live orchestration never reaches preference-first primitives at all, so
+  running RW2-RW6 against that same unwired orchestration would just
+  rediscover the same gap per destination, not new information)
+    ↓
+RW1 RERUN (proves the cutover actually reaches the right primitive)
+    ↓
+RW2..RW6
+  real providers/models/DB, mocks disabled
     ↓
 fix/reverify every B5_OR_IDENTITY_BUG
     ↓
@@ -619,7 +657,8 @@ rerun RW1..RW6
     ↓
 Real-World POST-B6 Acceptance
     ↓
-continue Checkpoint C
+Checkpoint C is executed AS PART OF the live cutover above (composition/
+planner/trace-v4/Bitácora-v4), not as separate later work
 ```
 
 ---
@@ -629,13 +668,18 @@ continue Checkpoint C
 An implementation agent starting from this branch should:
 
 1. read this current execution pointer;
-2. read the main implementation plan's `Mandatory B5 → B6 gates` section;
-3. Identity Postgres gate and the spike infrastructure preflight are both
-   COMPLETE — next is executing the six real-world spikes (RW1–RW6)
-   themselves, per `docs/superpowers/plans/2026-09-12-real-world-tourism-research-spike-gate.md`,
-   with explicit new authorization (never start them unprompted);
-4. preserve their dossiers and classifications;
-5. only when the B6 unlock checklist (plan §15) is satisfied, begin B6.
+2. Identity Postgres gate, the spike infrastructure preflight, and RW1 are
+   all COMPLETE. RW1's verdict (`ORCHESTRATION_GAP`) is NOT authorization to
+   patch the live flow — it requires the dedicated cutover plan;
+3. next is `docs/superpowers/plans/2026-09-13-preference-first-live-cutover.md`,
+   executed milestone by milestone (M0–M10), each requiring its own explicit
+   authorization (never start implementation unprompted);
+4. only after that cutover (through at least M9), rerun RW1, then execute
+   the remaining five real-world spikes (RW2–RW6) per
+   `docs/superpowers/plans/2026-09-12-real-world-tourism-research-spike-gate.md`,
+   each requiring explicit new authorization;
+5. preserve every spike's dossier and classification;
+6. only when the B6 unlock checklist (that plan's §15) is satisfied, begin B6.
 
 Do **not** interpret the old `Next task: B6` line in the historical progress file
 as current authorization. It is explicitly superseded.

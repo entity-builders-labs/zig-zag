@@ -6,7 +6,15 @@ Amended: 2026-09-13 — infrastructure preflight (local Nominatim added; SerpAPI
 forced with no silent Tavily fallback; dedicated clean-slate spike database)
 and a hardened warm-reuse/idempotency acceptance contract. See
 `docs/superpowers/progress/2026-09-13-pre-b6-gates-progress.md` for the
-preflight completion record. RW1–RW6 themselves are still **not started**.
+preflight completion record.
+Amended again: 2026-09-13 — RW1 executed (verdict `ORCHESTRATION_GAP`; see
+its entry under §7 and the full dossier in
+`spikes/rw1-san-telmo-historical-walk/`). RW1 exposed that the live
+orchestration was never wired to preference-first primitives at all, which
+is now the subject of its own dedicated implementation plan,
+`docs/superpowers/plans/2026-09-13-preference-first-live-cutover.md`. RW1
+must be **rerun** after that cutover, before RW2–RW6 (still **not started**)
+are authorized.
 Branch: `feat/preference-first-selection`.
 
 Related:
@@ -334,13 +342,38 @@ The initial corpus contains at least the following six scenarios. Additional cit
 
 ### Spike RW1 — San Telmo AREA-scoped walk
 
-Human request:
+**Status: EXECUTED 2026-09-13 (cold + warm). Dossier:
+`spikes/rw1-san-telmo-historical-walk/`. Verdict below is authoritative;
+the rest of this entry describes the original intended purpose/shape and
+remains accurate as a spec for the eventual rerun (§11 of this document,
+required after the live cutover — see
+`docs/superpowers/plans/2026-09-13-preference-first-live-cutover.md`).**
 
 ```text
-caminata histórica por San Telmo
+Primary:    ORCHESTRATION_GAP
+Secondary:  EXPECTED_B6_GAP (composition/extraction authority)
+            classification is not universally wired into live persistence
+            destination-resolution neighborhood/suburb-scope precision gap
+No B5_OR_IDENTITY_BUG.
 ```
 
-Purpose:
+RW1 exposed a missing **live cutover**, not a B5 or identity defect.
+`PreferenceInterpreterService` correctly extracted a real, "must"-priority
+`anchoredPlaces: [{kind:"area", rawName:"San Telmo"}]` on both the cold and
+warm run (real Groq call, confirmed in the trace) — but the live
+`ExperienceGenerationService` orchestration never consumes it: zero
+invocations of `AreaRouteWalkAcquisitionService`/
+`AreaRouteAnchorResolverService` across either run's full trace. This
+matches this plan's own B5 completion record ("no live-orchestration wiring
+into `ExperienceGenerationService.generateTourExperiences()`" was an
+explicit, named non-goal of B5) — RW1 is the first live, empirical
+confirmation of that already-known gap, not a new B5 defect. See
+`spikes/rw1-san-telmo-historical-walk/assessment.md` for the complete
+cold/warm trace analysis, including confirmation that RUN 2 (warm) fits the
+disqualified "same ID after reacquisition ≠ catalog reuse" pattern this
+plan's §7a explicitly names, not genuine catalog reuse.
+
+Purpose (original, still valid for the post-cutover rerun):
 - simplest real B5 AREA case;
 - prove discovery finds evidence for an actual walk/route rather than a POI list;
 - prove real component extraction;
