@@ -130,6 +130,80 @@ unaffected (its fixtures never set `order`, so `orderConflict` is always
 `false` there — zero behavior change for anything that doesn't explicitly
 evidence a sequence).
 
+## Third fix — the second fix's remaining `nameSimilarity > 0` gap: shared generic words
+
+A second review pass approved the evidenced-order fix but flagged that
+`nameSimilarity > 0` is still not real compatible-identity evidence on its
+own. Two independently evidenced Experiences over the exact same real stops
+can share generic location/format words in their *names* too, not just their
+components — "San Telmo Historical Walk" vs. "San Telmo Food Walk" both
+truthfully contain "San Telmo" and "Walk" (nameSimilarity ≈ 0.6, non-zero)
+while describing different real tourism concepts (history vs. food). Under
+the second fix's rule, a perfect component/role match plus this kind of
+partial, generic-word-driven name overlap still forced SAME.
+
+**RED added** (`experience-identity-dedupe.integration-spec.ts`, 1 new test):
+"EXACT COMPONENT SET, SHARED GENERIC LOCATION/TYPE WORDS ONLY" — identical 4
+stops/roles, `canonicalName` "San Telmo Historical Walk" vs. "San Telmo Food
+Walk" (shares "san"/"telmo"/"walk", differs on the one concept-bearing word),
+`metadata.themes`/`intents` genuinely different (`['history']`/`['walk']` vs.
+`['food']`/`['food']`), no evidenced order conflict. Confirmed RED against
+the second fix: returned `SAME` (`nameSimilarity > 0` alone was satisfied).
+
+**Third fix** (`be/src/modules/tours/utils/experience-dedupe.util.ts` +
+`be/src/modules/tours/services/experience-catalog.service.ts`): added a
+dedicated CONCEPT-evidence signal, deliberately excluding free text (title,
+description) which is exactly the channel generic location/format words leak
+through:
+1. `DedupeExperienceFingerprint.conceptTerms?: string[]` — the curated
+   `metadata.themes` + `metadata.intents` only (never `canonicalName`, never
+   `description`). Populated by a new `ExperienceCatalogService.conceptTerms()`
+   private helper, called for both the incoming and every existing candidate
+   fingerprint.
+2. `DedupeEvidence.conceptOverlap` — `setOverlap` of the two sides'
+   `conceptTerms` token sets (same `setOverlap` primitive already used for
+   `semanticSimilarity`/`provenanceOverlap`; both-empty is vacuously `1`,
+   consistent with how every other overlap signal in this file already
+   treats an empty/empty pair — i.e. "no concept data on either side to
+   actually conflict").
+3. `exactStructure` now requires, in addition to the existing
+   `componentOverlap === 1 && roleAwareComponentOverlap === 1 &&
+   nameSimilarity > 0 && !orderConflict`: **either** the two names being
+   identical after normalization (`nameSimilarity === 1` — a strong,
+   unambiguous textual identity signal on its own) **or** real positive
+   `conceptOverlap > 0`. Neither disjunct is a tuned magic threshold:
+   identical-after-normalization is a natural (not arbitrary) floor, and
+   `conceptOverlap > 0` is the same "some real relationship, not none" floor
+   already used for `nameSimilarity`, just applied to a curated-category
+   signal instead of free text. The original Case 1 fixture (differently-
+   worded names, but identical `themes`/`intents`: `history`/`walk` on both
+   sides) satisfies the `conceptOverlap > 0` disjunct and remains SAME
+   unchanged; the "different theme label" boundary test (`architecture` vs.
+   `history`, but both `intents: ['walk']`) also remains SAME via the same
+   disjunct (a shared `intent` alone is real concept-level compatibility).
+   `nameSimilarity === 1` was NOT reintroduced as a hard requirement (that
+   was the ORIGINAL bug this gate exists to fix) — it is only one of two
+   alternative ways to satisfy compatibility, the other being
+   `conceptOverlap`.
+
+This first implementation of the third fix (requiring `conceptOverlap > 0`
+unconditionally, with no `nameSimilarity === 1` escape hatch) was caught by
+running the FULL `tours` module regression before declaring done: it broke
+a pre-existing, unrelated `experience-catalog.service.spec.ts` boundary test
+("merges the existing row and the new observation via
+`mergeExperienceMetadata`") — a single-component, byte-identical-name
+("museo central") case whose two observations intentionally carry
+completely different `themes`/`traits` (to prove the merge itself unions
+them) and legitimately expected SAME/merge, not AMBIGUOUS. Adding the
+`nameSimilarity === 1` disjunct (rather than only `conceptOverlap > 0`)
+fixed this without weakening the new adversarial test — a byte-identical
+name is real identity evidence in its own right, independent of concept.
+
+GREEN after the third fix: the 1 new regression passes (15/15 in this file),
+all 14 previously-green cases remain green, the pure unit suite remains 3/3
+unaffected, and the previously-broken `experience-catalog.service.spec.ts`
+boundary test is green again.
+
 ## Exit criteria (from the gate plan, section 11) — all satisfied
 
 - [x] Case 1 SAME is green on real Postgres (differently-worded second source).
@@ -141,15 +215,17 @@ evidence a sequence).
 - [x] Resolver surfaces `AMBIGUOUS_DEDUPE` (Case 3b) without persistence corruption.
 - [x] A perfect component/role match with a clearly conflicting name/concept/evidence is NOT SAME (review-fix regression).
 - [x] A perfect component/role/name match with an explicitly conflicting evidenced order is NOT SAME (review-fix regression).
+- [x] A perfect component/role match whose names overlap ONLY via shared generic location/type words (not real concept compatibility) is NOT SAME (third-fix regression).
 - [x] All assertions verify via a real Postgres re-read (`prisma.experience.findUnique`/`count`), never trusting only the returned object.
-- [x] Full existing integration suite remains green: 14 suites / 58 tests (was 13/44 before this file; 56 after the first fix, 58 after the review fix's 2 new tests).
+- [x] Full existing integration suite remains green: 14 suites / 59 tests (was 13/44 before this file; 56 after the first fix, 58 after the review fix's 2 new tests, 59 after the third fix's 1 new test).
 - [x] Full backend regression remains green: 141 suites / 1360 tests, no regressions.
 - [x] `yarn typecheck`, `yarn lint:check` (scoped `eslint --fix`), `yarn build` all clean.
 
 ## Files changed
 
-- `be/src/modules/tours/utils/experience-dedupe.util.ts` (`exactStructure`/`strongConsistentIdentity` fix + review fix; new `order` field + `hasConflictingEvidencedOrder`)
-- `be/test/integration/tour-generation/experience-identity-dedupe.integration-spec.ts` (14 tests total: 12 original + 2 review-fix regressions)
+- `be/src/modules/tours/utils/experience-dedupe.util.ts` (`exactStructure`/`strongConsistentIdentity` fix + review fix + third fix; new `order` field + `hasConflictingEvidencedOrder`; new `conceptTerms`/`conceptOverlap` + `conceptTokenSet`)
+- `be/src/modules/tours/services/experience-catalog.service.ts` (new `conceptTerms()` private helper, wired into both incoming and existing fingerprint construction)
+- `be/test/integration/tour-generation/experience-identity-dedupe.integration-spec.ts` (15 tests total: 12 original + 2 review-fix regressions + 1 third-fix regression)
 
 ## Deviations from the gate plan
 
