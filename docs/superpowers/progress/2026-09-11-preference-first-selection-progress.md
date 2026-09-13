@@ -2987,3 +2987,307 @@ touching).
 
 ### Next task
 `B5 — Area/route walk acquisition (D5)`
+
+## Checkpoint B — Task B5 — COMPLETE
+
+- Branch: `feat/preference-first-selection`
+- Base commit: `79502ce` (docs: add B7 day-trip implementation plan)
+- Implementation commit: (code — see this checkpoint's own commit)
+- Plan task: `B5 — Area/route walk acquisition (D5)`
+- Status: COMPLETE
+- Plan file: nine successive review rounds (a Plan-Mode session spanning
+  rounds 1–9, each round's corrections folded directly into the executed
+  design — no separate plan artifact survives in this repo; the final
+  agreed design is what's described below and in the code itself).
+
+### Context
+Spec D5: for an area/route anchor combined with `intent:walk`/`route_like`,
+check the catalog FIRST for a compatible persisted multi-component
+Experience genuinely inside/along that named area/route; only on a genuine
+miss, acquire. Nine rounds of review (summarized) progressively hardened
+this from an initial sketch into the following real design — each round
+caught a specific correctness gap in the previous one (hardcoded
+`required`, vacuous-truth SQL, a pre-existing `tryCanonicalGeometry` bug,
+`candidate.intents` as an untrustworthy policy source post-B6, a
+centroid-radius check mislabeled "corridor," a post-check that could return
+an unrelated catalog row, and a classification-convergence step that could
+not be faked between two calls).
+
+### Implemented
+
+**New shared util** — `nominatim-match.util.ts`: `normalizeGeoName`,
+`bestNominatimMatch`, `rankNominatimCandidates`, `matchOsmCandidateByName`
+extracted **verbatim** from `ExperienceProposalResolverService`'s former
+private methods (byte-identical behavior, confirmed by running the
+resolver's full pre-existing spec unchanged before/after — still 21/21,
+now 25/25 with new required-persistence tests). Reused by
+`AreaRouteAnchorResolverService` and `ExperienceCatalogService`
+(`findVerifiedTourismRouteByName`).
+
+**New route-corridor util** — `route-geometry.util.ts`:
+`distancePointToLineStringMeters(point, geometry)` — real point-to-segment
+projection (locally-flat approximation + haversine to the clamped point),
+LineString-only (the real `GeoJsonGeometry` type has no `MultiLineString`
+variant, and B5's canonical ROUTE resolution is itself LineString-only, so
+there's no real input beyond it). Returns `Infinity` for any other
+geometry, which callers treat as "cannot verify, reject."
+
+**Fix 1 — `required` persistence** (`experience-proposal-resolver.service.ts`):
+the previously-hardcoded `required: true` on every persisted component is
+now `entity.required`, computed by `dedupeResolvedEntitiesByGeoEntity` as
+the **logical OR** across every resolved entity mapping to that
+`geoEntityId`, computed BEFORE dedup collapses duplicates (so an optional
+hint's entity surviving dedup can never downgrade a place another required
+hint also pointed at).
+
+**Fix 2 — `CompositeGeographicValidationService` hardening**:
+- New `validate()` parameters: `validationScope?: ExperienceValidationScope`,
+  `validationIntent?: 'walk' | 'route_like'` (both optional; every caller
+  other than `AreaRouteWalkAcquisitionService` passes neither, so no
+  behavior change elsewhere).
+- New `rejectIfExternalScopeViolated()` — a request-level pre-persistence
+  gate that runs BEFORE `tryCanonicalGeometry`/`validateExperience`,
+  independent of whether the candidate's own componentHints include a
+  matching AREA/ROUTE hint. AREA: `geometryContainsPoint` against every
+  required component. ROUTE: real corridor membership via
+  `distancePointToLineStringMeters`, applied ONLY to required non-route
+  (venue/waypoint) components — never the canonical ROUTE entity's own
+  representative point, which is not guaranteed to lie on its own line.
+  Missing/malformed scope geometry fails CLOSED (reject) for both kinds.
+- `tryCanonicalGeometry`'s AREA shortcut now gates on the COUNT of
+  required AREA-role hints (exactly 1 → shortcut eligible; 0 or 2+ → no
+  shortcut, falls through to `validateExperience`'s multi-area/
+  destination+coherence path) and validates every OTHER required
+  component, not just the one canonical AREA entity. Its ROUTE shortcut
+  gained the same "validate every other required component" hardening.
+  Both branches now report `kind: 'EXPERIENCE'` (not the removed
+  `'NEIGHBORHOOD_WALK'` string).
+- `validateExperience()`'s `hasRouteComponent` replaced by
+  `routeScale = hasCanonicalRouteComponent || validationIntent === 'route_like'`
+  — sourced ONLY from the request-level `validationIntent`, never from
+  `candidate.intents/themes/traits` (which B6 will empty out and which are
+  not authoritative even today).
+
+**New interfaces**: `ExperienceValidationScope` (`kind`, `anchorName`,
+`geoEntityId`, `geometry` — required, not optional, per the final
+implementation-hardening note: `AreaRouteAnchorResolverService`'s
+`resolved: true` contract guarantees it) and `validationScope`/
+`validationIntent` on `ExperienceResolutionRequest`; new
+`'external_scope_mismatch'` rejection reason; new
+`GeographicValidationThresholds.route.maxComponentDistanceFromRouteMeters`
+(300m default) — a named policy value, not an inline magic number.
+
+**New `AreaRouteAnchorResolverService`**: `resolveArea` (Nominatim search →
+`bestNominatimMatch` → `lookupBoundaryById` for a way/relation match only →
+`upsertGeoEntity(kind: AREA)`) and `resolveRoute` (mirrors the resolver's
+own point-scale/area-scale street-lookup split exactly —
+`lookupStreetsNear` when `destinationPointRadius` is present, else
+`lookupStreetsWithin(destinationBoundary)`, never a synthetic `osmId:0`
+placeholder — `matchOsmCandidateByName` → `upsertGeoEntity(kind: ROUTE)`).
+Both return `{resolved:false}` as a normal outcome on any missing step,
+never inventing geometry.
+
+**New `ExperienceCatalogService` methods** (four): `findVerifiedMultiComponentCoveredByArea`
+(real PostGIS `ST_Covers`, requires ≥1 required component AND all required
+components covered AND `kind='AREA'`), `findVerifiedMultiComponentByExactComponent`
+(exact `geoEntityId` + `required:true` identity, plain Prisma),
+`findVerifiedTourismRouteByName` (strict normalized-name identity —
+composes the existing `findVerifiedWithinForMatching` circle query,
+documented as NOT a general alias resolver: "Ruta del Vino de Mendoza" vs.
+a persisted "Mendoza Wine Route" is an acknowledged v1 miss, not a bug —
+no fuzzy/embedding matching added), and `applyEvidenceClassification`
+(applies a real B2 `ClassificationResult` to an already-persisted
+Experience; the classifier's own `themes`/`intents` are made AUTHORITATIVE
+over any stale value already in `metadata` — `mergeExperienceMetadata`'s
+generic union is reused only for non-classifier-owned fields, then
+overwritten for `themes`/`intents` — otherwise a legacy
+`metadata.intents:['walk']` could survive alongside a fresh `['food']`
+verdict and falsely pass a `walk` facet check).
+
+**New `AreaRouteWalkAcquisitionService`** — the B5 primitive:
+- `acquireOrReuse()`: resolves the anchor once; a WARM check requires BOTH
+  geographic/identity compatibility AND current semantic eligibility
+  (`canReuseClassification` + `candidateMatchesPreferenceFacet`) — a
+  geographically-compatible-but-wrong-intent or degraded/unclassified row
+  is a conservative MISS, never a false match.
+- On a genuine miss, delegates to the existing acquisition pipeline
+  (anchor name(s) flowing into the web query), threading the resolved
+  anchor through as `validationScope`/`validationIntent`.
+- POST-acquisition: results are restricted to the `experienceId`s THIS
+  execution's own `materializeExecution()` call actually accepted (never
+  an unrelated, pre-existing, geographically-matching catalog row).
+  Classification runs exactly ONCE per canonical `experienceId` — grouping
+  accepted results by `experienceId` first, then taking the deduplicated
+  UNION of `evidenceKeys` cited by every accepted candidate that converged
+  to that same id (never per-candidate, which would make the final
+  semantic truth depend on iteration order; never a different candidate's
+  evidence, which would contaminate an unrelated Experience's
+  classification). The post-check then re-applies the SAME
+  geography-AND-semantic-eligibility predicate the warm check uses,
+  against the just-persisted classification — a candidate that
+  geographically accepted but classified into a different intent than
+  requested remains valid, persisted catalog knowledge, but correctly
+  produces `no_result` for THIS request.
+
+**Routing (multi-anchor preservation)**: `WebSourcePlanPayload.anchorNames?: string[]`
+(plural); `ExperienceAcquisitionPlannerService.buildAcquisitionPlan` folds
+EVERY relevant area/route anchor's name into the web query for a
+walk/route_like deficit (never one, never none when 1+ exist);
+`ExperienceGroundedSearchRequest.anchorNames?: string[]`;
+`TavilyGroundedSearchService.buildWalkQuery` joins 1+ anchor names into the
+destination phrase (`" a "` in Spanish, `" to "` otherwise — e.g. "San
+Telmo a La Boca, Buenos Aires"); `ExperienceAcquisitionService.executeWebSourcePlan`
+forwards `anchorNames` into the grounded-search call.
+
+**Module wiring**: `ExperienceClassificationService` (Task B2 — confirmed
+via grep it had ZERO production call sites anywhere before this task),
+`AreaRouteAnchorResolverService`, and `AreaRouteWalkAcquisitionService`
+registered as providers (and exported) in `tours.module.ts`. Per the
+plan's explicit non-goal, `AreaRouteWalkAcquisitionService` is NOT wired
+into `ExperienceGenerationService.generateTourExperiences()`'s live
+generation loop — it is built and fully proven standalone; that wiring is
+a distinct, smaller follow-up.
+
+### Explicit non-goals (unchanged from the agreed design)
+- No `NEIGHBORHOOD_WALK` enum/type/string anywhere in code this task
+  touched.
+- No changes to `experience-candidate-extraction.util.ts` or any
+  Groq/Gemini discovery provider (B6's territory) — B5 does not re-verify
+  that source mentions truly compose one walk/route.
+- No general rewrite of `ExperienceProposalResolverService`'s persistence
+  path to wire classification into every acquisition flow — only
+  `AreaRouteWalkAcquisitionService`'s own accepted Experiences are
+  classified, scoped to what it itself acquires.
+- No OSM route-*relation* lookup (`relation[route=...]`) — confirmed by
+  reading `osm-places.service.ts`/`overpass-query.util.ts` that
+  `lookupStreetsWithin`/`lookupStreetsNear` only ever query named highway
+  ways/streets (`tags.highway`); v1 canonical ROUTE support is documented
+  as such. A real hiking-trail relation falls through to the tourism-route
+  identity path instead (mode C), which needs no canonical ROUTE identity.
+- No fuzzy/semantic/embedding-based tourism-route alias matching.
+- No full multi-anchor GEOGRAPHIC pre-reuse check (2+ relevant anchors for
+  one deficit) — routing preserves every anchor name in the discovery
+  query (built), but `AreaRouteWalkAcquisitionService`'s single-anchor
+  primitive is simply not invoked when 2+ relevant anchors exist for one
+  deficit; documented as a follow-up.
+- No live-orchestration wiring into `ExperienceGenerationService` (above).
+
+### Files changed
+- `be/src/modules/tours/utils/nominatim-match.util.ts` (new)
+- `be/src/modules/tours/utils/nominatim-match.util.spec.ts` (new)
+- `be/src/modules/tours/utils/route-geometry.util.ts` (new)
+- `be/src/modules/tours/utils/route-geometry.util.spec.ts` (new)
+- `be/src/modules/tours/services/experience-proposal-resolver.service.ts`
+  (nominatim-match extraction; `required`-persistence/dedup fix;
+  `validationScope`/`validationIntent` forwarded into
+  `geographicValidator.validate(...)`)
+- `be/src/modules/tours/services/experience-proposal-resolver.service.spec.ts`
+  (4 new required/optional persistence regression tests; 2 existing
+  assertions updated for the new `validate()` call arity)
+- `be/src/modules/tours/services/composite-geographic-validation.service.ts`
+  (external-scope gate; AREA/ROUTE shortcut hardening; `routeScale`)
+- `be/src/modules/tours/services/composite-geographic-validation.service.spec.ts`
+  (1 existing assertion updated for `'EXPERIENCE'` vs `'NEIGHBORHOOD_WALK'`;
+  18 new tests across shortcut-hardening and external-scope-gate coverage)
+- `be/src/modules/tours/services/area-route-anchor-resolver.service.ts` (new)
+- `be/src/modules/tours/services/area-route-anchor-resolver.service.spec.ts` (new)
+- `be/src/modules/tours/services/area-route-walk-acquisition.service.ts` (new)
+- `be/src/modules/tours/services/area-route-walk-acquisition.service.spec.ts` (new)
+- `be/src/modules/tours/services/experience-catalog.service.ts` (4 new methods)
+- `be/src/modules/tours/services/experience-catalog.service.spec.ts` (10 new tests)
+- `be/src/modules/tours/services/experience-acquisition-planner.service.ts`
+  (multi-anchor preservation into the web query/`anchorNames`)
+- `be/src/modules/tours/services/experience-acquisition-planner.service.spec.ts`
+  (3 new tests)
+- `be/src/modules/tours/services/experience-acquisition.service.ts`
+  (`anchorNames` forwarded into grounded search; `validationScope`/
+  `validationIntent` forwarded into `materializeExecution`)
+- `be/src/modules/tours/services/experience-acquisition.service.spec.ts` (1 new test)
+- `be/src/modules/tours/services/tavily-grounded-search.service.ts`
+  (`buildWalkQuery` folds in 1+ anchor names)
+- `be/src/modules/tours/services/tavily-grounded-search.service.spec.ts` (4 new tests)
+- `be/src/modules/tours/interfaces/experience-acquisition-plan.interface.ts`
+  (`WebSourcePlanPayload.anchorNames?`)
+- `be/src/modules/tours/interfaces/experience-grounding.interface.ts`
+  (`ExperienceGroundedSearchRequest.anchorNames?`)
+- `be/src/modules/tours/interfaces/experience-resolution.interface.ts`
+  (`ExperienceValidationScope`, `validationScope?`/`validationIntent?`)
+- `be/src/modules/tours/interfaces/geographic-validation.interface.ts`
+  (`'external_scope_mismatch'`; `maxComponentDistanceFromRouteMeters`)
+- `be/src/modules/tours/tours.module.ts` (3 new providers: `ExperienceClassificationService`,
+  `AreaRouteAnchorResolverService`, `AreaRouteWalkAcquisitionService`)
+- `be/test/integration/tour-generation/area-route-walk-geographic-validation.integration-spec.ts` (new)
+
+### Verification (real results)
+- `yarn typecheck` → PASS, no errors (checked after every major step, not
+  just at the end).
+- `yarn lint:check` → PASS after `eslint --fix` scoped to the 25 touched
+  files (formatting-only changes; 0 problems on rerun).
+- `yarn test src/modules/tours --runInBand` → PASS — **94 suites / 1036
+  tests**, no regressions.
+- `yarn test:integration` → PASS — **13 suites / 36 tests**, no
+  regressions; the new file contributes 10 of those (all real Postgres/
+  PostGIS, no mocked SQL).
+- `yarn test --runInBand` (full backend) → PASS — **141 suites / 1356
+  tests**, no regressions anywhere in the codebase.
+- `yarn build` (`nest build`) → PASS, confirming the module wiring
+  compiles (DI graph correctness for the 3 new providers was additionally
+  cross-checked against `IntegrationsModule`/`OsmModule`'s real exports —
+  `OsmPlacesService` and the `'NominatimApiService'` token are both
+  exported and reachable).
+
+### Deviations from plan
+- **Integration test scope**: the design conversation enumerated a large
+  letter-cased list (A–Q) of integration scenarios. Rather than replicate
+  every one at the real-Postgres layer (much of that logic is already
+  fully proven at the unit level, with real Postgres adding no new
+  signal), the actual integration file focuses on the pieces that
+  **structurally require** a real Postgres/PostGIS connection to prove at
+  all: `findVerifiedMultiComponentCoveredByArea`'s real `ST_Covers` query
+  (6 cases: covered / one-outside / optional-outside-still-matches /
+  zero-required-hints / single-component / wrong-kind), the external
+  `validationScope` pre-persistence gate through the REAL resolver +
+  validator + catalog (reject-before-persist and accept-and-persist),
+  required/optional persistence through the real resolver, and a full
+  end-to-end tourism-route reuse-first cold→warm proof through
+  `AreaRouteWalkAcquisitionService` with the real resolver/validator/
+  catalog (only OSM/Nominatim transports and the LLM classifier mocked —
+  never a real LLM call in an integration test, and never Tavily/SerpApi).
+  This is a real, non-redundant scope choice, not a silently narrowed one.
+- No other deviations. B5 satisfies every completion criterion from the
+  agreed design (AREA/canonical-ROUTE/tourism-route warm+post reuse;
+  real classification convergence with no faked state; external
+  AREA/ROUTE scope gates persistence; real corridor proximity for ROUTE;
+  post-acquisition results restricted to this execution's own accepted
+  ids; `validationIntent` — never `candidate.intents` — selects
+  route-scale geography; multi-area/multi-anchor semantics; required/
+  optional survives persistence and dedup; ROUTE support documented
+  truthfully).
+
+### Open issues / debt
+- `AreaRouteWalkAcquisitionService` is not yet wired into
+  `ExperienceGenerationService.generateTourExperiences()`'s live
+  generation loop (explicit non-goal, not a defect) — a distinct,
+  smaller follow-up task.
+- Mode D (2+ relevant area/route anchors for one deficit, e.g. "San Telmo
+  to La Boca") has no geographic pre-reuse check yet — discovery query
+  construction correctly preserves every anchor name, but there is no
+  "is there already a persisted San-Telmo-to-La-Boca walk" catalog
+  lookup. Documented follow-up, not silently mishandled.
+- `findVerifiedTourismRouteByName`'s strict-normalized-name identity is a
+  real, working v1 mechanism but will MISS a genuine alias (different
+  wording for the same real route) — acknowledged, not silently patched
+  with fuzzy matching.
+- OSM route-*relations* remain unsupported for canonical ROUTE resolution
+  (named ways/streets only) — documented, not a functional gap given mode
+  C's tourism-route path covers that case anyway.
+- Re-checked for concurrent drift immediately before staging/committing:
+  `git fetch fork feat/preference-first-selection` then comparing
+  `HEAD..fork/...`/`fork/...HEAD` confirmed no other commits landed on
+  this branch while B5 was in progress (the fork had 2 docs-only commits
+  ahead at the very start of this session — B7 planning docs, no code
+  overlap — merged via fast-forward before any B5 code was written).
+
+### Next task
+`B6` — not yet started (per explicit instruction, do not begin without
+separate authorization).
