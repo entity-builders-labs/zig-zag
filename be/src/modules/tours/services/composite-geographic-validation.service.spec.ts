@@ -1633,5 +1633,139 @@ describe('CompositeGeographicValidationService', () => {
       // membership.
       expect(result.accepted).toBe(true);
     });
+
+    it('fails closed on a malformed AREA scope geometry even when there are ZERO required components to run the per-entity check on (review fix)', () => {
+      // Only an OPTIONAL hint -- requiredEntities is empty, so the old
+      // code's per-entity `.find()` would vacuously return undefined
+      // (pass) regardless of how malformed the scope geometry is.
+      const candidate = unscopedCandidate([
+        {
+          key: 'p1',
+          name: 'Plaza Dorrego',
+          role: 'venue',
+          expectedKind: 'PLACE',
+          required: false,
+          evidenceKeys: ['e'],
+        },
+      ]);
+      const result = new CompositeGeographicValidationService().validate(
+        {
+          candidate,
+          status: 'accepted',
+          resolvedEntities: [
+            {
+              hintKey: 'p1',
+              hintName: 'Plaza Dorrego',
+              provider: 'osm',
+              externalId: 'node:p1',
+              role: 'venue',
+              status: 'resolved',
+              latitude: -34.621,
+              longitude: -58.371,
+            },
+          ],
+          rejectionReasons: [],
+        },
+        boundary,
+        // A LineString where an AREA scope was declared -- a real
+        // malformed-kind mismatch, not just a missing geometry.
+        { ...areaScope, geometry: caminitoScopeGeometry },
+      );
+      expect(result.accepted).toBe(false);
+      expect(result.rejectionReasons).toContain('external_scope_mismatch');
+    });
+
+    it('fails closed on a malformed ROUTE scope geometry even when the only required hint is the route itself (no point-like entities to check)', () => {
+      const candidate: ExperienceCandidate = {
+        name: 'Caminito route',
+        themes: [],
+        traits: [],
+        evidenceKeys: ['e'],
+        shortReason: 'grounded',
+        componentHints: [
+          {
+            key: 'r',
+            name: 'Caminito',
+            role: 'route',
+            expectedKind: 'ROUTE',
+            required: true,
+            evidenceKeys: ['e'],
+          },
+        ],
+      };
+      const result = new CompositeGeographicValidationService().validate(
+        {
+          candidate,
+          status: 'accepted',
+          resolvedEntities: [
+            {
+              hintKey: 'r',
+              hintName: 'Caminito',
+              provider: 'osm',
+              externalId: 'way:1',
+              role: 'route',
+              status: 'resolved',
+              latitude: -34.6,
+              longitude: -58.42,
+              geometry: caminitoScopeGeometry,
+            },
+          ],
+          rejectionReasons: [],
+        },
+        boundary,
+        // A Polygon (or a degenerate single-point LineString) where a real
+        // usable ROUTE LineString was required.
+        { ...routeScopeObj, geometry: sanTelmoScopeGeometry },
+      );
+      expect(result.accepted).toBe(false);
+      expect(result.rejectionReasons).toContain('external_scope_mismatch');
+    });
+
+    it('fails closed on a degenerate single-point LineString ROUTE scope, no point-like entities required', () => {
+      const candidate: ExperienceCandidate = {
+        name: 'Caminito route',
+        themes: [],
+        traits: [],
+        evidenceKeys: ['e'],
+        shortReason: 'grounded',
+        componentHints: [
+          {
+            key: 'r',
+            name: 'Caminito',
+            role: 'route',
+            expectedKind: 'ROUTE',
+            required: true,
+            evidenceKeys: ['e'],
+          },
+        ],
+      };
+      const result = new CompositeGeographicValidationService().validate(
+        {
+          candidate,
+          status: 'accepted',
+          resolvedEntities: [
+            {
+              hintKey: 'r',
+              hintName: 'Caminito',
+              provider: 'osm',
+              externalId: 'way:1',
+              role: 'route',
+              status: 'resolved',
+              latitude: -34.6,
+              longitude: -58.42,
+              geometry: caminitoScopeGeometry,
+            },
+          ],
+          rejectionReasons: [],
+        },
+        boundary,
+        {
+          ...routeScopeObj,
+          geometry: { type: 'LineString', coordinates: [[-58.363, -34.638]] },
+        },
+      );
+      expect(result.accepted).toBe(false);
+      expect(result.rejectionReasons).toContain('external_scope_mismatch');
+    });
   });
 });

@@ -1329,6 +1329,102 @@ describe('ExperienceProposalResolverService', () => {
     expect(catalog.persistVerifiedExperience).not.toHaveBeenCalled();
   });
 
+  describe('candidate correlation by identity, not display name (review fix)', () => {
+    it("never lets one candidate consume a same-named sibling candidate's validation result", async () => {
+      // Two DIFFERENT real candidates that happen to share a display name
+      // (structured + web candidates are concatenated with no unique-name
+      // guarantee) -- different components, different geographic validity.
+      // Candidate A ("Place A") passes; Candidate B ("Place B") fails. A
+      // name-keyed correlation would let whichever result landed last in
+      // the Map win for BOTH candidates.
+      const candidateA = candidate('Shared Name Walk', 'Place A');
+      const candidateB = candidate('Shared Name Walk', 'Place B');
+      const osmPlaces = {
+        lookupStreetsWithin: jest
+          .fn()
+          .mockResolvedValue({ status: 'success', value: [] }),
+        lookupPoisWithin: jest.fn().mockResolvedValue({
+          status: 'success',
+          value: [
+            {
+              id: 'osm:node:1',
+              name: 'Place A',
+              osmType: 'node',
+              osmId: 1,
+              geometry: { type: 'Point', coordinates: [-58.4, -34.6] },
+              tags: {},
+            },
+            {
+              id: 'osm:node:2',
+              name: 'Place B',
+              osmType: 'node',
+              osmId: 2,
+              geometry: { type: 'Point', coordinates: [-58.41, -34.61] },
+              tags: {},
+            },
+          ],
+        }),
+      };
+      const catalog = {
+        resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        upsertGeoEntity: jest
+          .fn()
+          .mockImplementation(async (input: any) =>
+            input.externalId === 'osm:node:1'
+              ? { id: 'geo-a' }
+              : { id: 'geo-b' },
+          ),
+        persistVerifiedExperience: jest
+          .fn()
+          .mockResolvedValue({ id: 'exp-a', dedupeDecision: 'NEW' }),
+      };
+      // Distinguishes purely by the resolved entity's OWN identity, never
+      // by the shared display name -- simulates "one passes external
+      // geographic scope, one fails" without needing the real validator.
+      const geographicValidator = {
+        validate: jest.fn().mockImplementation((resolvedProposal: any) => {
+          const hintName = resolvedProposal.resolvedEntities?.[0]?.hintName;
+          const accepted = hintName === 'Place A';
+          return {
+            proposalName: resolvedProposal.candidate.name,
+            kind: 'EXPERIENCE',
+            status: accepted ? 'GEO_VERIFIED' : 'REJECTED',
+            accepted,
+            anchors: [],
+            groundedEvidenceKeys: ['ev-1'],
+            rejectionReasons: accepted ? [] : ['external_scope_mismatch'],
+            validatorVersion: 2,
+          };
+        }),
+      };
+      const service = new ExperienceProposalResolverService(
+        osmPlaces as any,
+        catalog as any,
+        geographicValidator as any,
+      );
+
+      const result = await service.resolve({
+        destinationBoundary: boundary,
+        candidates: [candidateA, candidateB],
+        evidence: [{ key: 'ev-1', source: 'test', title: 'T', snippet: 'S' }],
+      });
+
+      expect(result.acceptedCount).toBe(1);
+      expect(result.rejectedCount).toBe(1);
+      // The valid candidate (A) reached persistence with ITS OWN component.
+      expect(catalog.persistVerifiedExperience).toHaveBeenCalledTimes(1);
+      expect(catalog.persistVerifiedExperience).toHaveBeenCalledWith(
+        expect.objectContaining({
+          components: [expect.objectContaining({ geoEntityId: 'geo-a' })],
+        }),
+      );
+      // The invalid candidate (B) was rejected for the REAL reason its own
+      // validation computed, never swapped with A's.
+      const rejected = result.resolved.find((r) => r.status === 'rejected');
+      expect(rejected?.rejectionReasons).toEqual(['external_scope_mismatch']);
+    });
+  });
+
   describe('required/optional persistence (Task B5, Fix 1)', () => {
     const walkCandidate: ExperienceCandidate = {
       name: 'San Telmo Historical Walk',

@@ -149,15 +149,30 @@ export class ExperienceProposalResolverService
     const acceptedForValidation = resolvedCandidates.filter(
       (item) => item.status === 'accepted',
     ) as ResolvedExperienceCandidate[];
+    // Keyed by the candidate OBJECT itself, not `candidate.candidate.name`
+    // (proposalName) -- display names are not guaranteed unique (two
+    // structured/web candidates can legitimately share a name with
+    // different components/geography), and a name-keyed Map would let one
+    // candidate's validation result silently leak onto another, either
+    // rejecting a valid candidate or persisting an invalid one under a
+    // sibling's accepted result. Built inline with the map so a candidate
+    // is always paired with the exact result computed for IT, regardless
+    // of what any later filtering does to the result array.
+    const validationByCandidate = new Map<
+      ResolvedExperienceCandidate,
+      ReturnType<CompositeGeographicValidationService['validate']>
+    >();
     const validationResults = acceptedForValidation
-      .map((item) =>
-        this.geographicValidator.validate(
+      .map((item) => {
+        const result = this.geographicValidator.validate(
           item,
           this.validationBoundaryFor(item, boundary),
           input.validationScope,
           input.validationIntent,
-        ),
-      )
+        );
+        validationByCandidate.set(item, result);
+        return result;
+      })
       .filter(
         (
           result,
@@ -165,9 +180,6 @@ export class ExperienceProposalResolverService
           ReturnType<CompositeGeographicValidationService['validate']>
         > => result != null,
       );
-    const validationByName = new Map(
-      validationResults.map((result) => [result.proposalName, result]),
-    );
 
     // Bounded: each accepted candidate persists inside its own interactive
     // `prisma.$transaction`, holding a pooled DB connection for its lifetime —
@@ -178,7 +190,7 @@ export class ExperienceProposalResolverService
       async (candidate) => {
         if (candidate.status !== 'accepted') return candidate;
 
-        const geographicResult = validationByName.get(candidate.candidate.name);
+        const geographicResult = validationByCandidate.get(candidate);
         if (!geographicResult?.accepted) {
           return {
             ...candidate,

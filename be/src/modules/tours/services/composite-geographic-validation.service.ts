@@ -141,9 +141,20 @@ export class CompositeGeographicValidationService {
       requiredHints.some((hint) => hint.key === entity.hintKey),
     );
 
-    // A missing/malformed scope geometry fails closed for BOTH kinds —
-    // never silently skip an externally requested geographic scope.
-    if (!validationScope.geometry) {
+    // The scope geometry's own SHAPE must be usable for its declared kind,
+    // checked independently of candidate composition — a malformed/wrong-
+    // shaped geometry must fail closed even when there happen to be no
+    // required point-like entities to run through the per-entity checks
+    // below (e.g. a route_like candidate with only a route-role required
+    // hint would otherwise let `requiredPointLikeEntities` be empty,
+    // vacuously passing `.find()` on an empty array regardless of whether
+    // `validationScope.geometry` is real).
+    if (
+      !this.isUsableScopeGeometry(
+        validationScope.kind,
+        validationScope.geometry,
+      )
+    ) {
       return this.rejected(
         proposalName,
         'EXPERIENCE',
@@ -201,6 +212,32 @@ export class CompositeGeographicValidationService {
       ]);
     }
     return undefined;
+  }
+
+  /**
+   * Independent shape validity check for an `ExperienceValidationScope`'s
+   * own geometry — a malformed/wrong-kind geometry must fail closed
+   * regardless of candidate composition (see call site). AREA needs a
+   * real polygonal shape (Polygon/MultiPolygon); ROUTE needs a real
+   * LineString with enough coordinates to define a segment.
+   */
+  private isUsableScopeGeometry(
+    kind: 'AREA' | 'ROUTE',
+    geometry: GeoJsonGeometry | undefined,
+  ): boolean {
+    if (!geometry) return false;
+    if (kind === 'AREA') {
+      return (
+        (geometry.type === 'Polygon' || geometry.type === 'MultiPolygon') &&
+        Array.isArray(geometry.coordinates) &&
+        geometry.coordinates.length > 0
+      );
+    }
+    return (
+      geometry.type === 'LineString' &&
+      Array.isArray(geometry.coordinates) &&
+      geometry.coordinates.length >= 2
+    );
   }
 
   /**
