@@ -87,6 +87,7 @@ import {
   normalizeWizardFacet,
 } from '../utils/preference-facet-merge.util';
 import { buildTourExperienceCreateData } from '../utils/tour-experience-snapshot.util';
+import { buildPreferenceSpec } from '../utils/preference-spec-builder.util';
 
 /**
  * Hard bound on the canonical acquisition loop: initial catalog coverage,
@@ -750,6 +751,20 @@ export class ExperienceGenerationService {
           normalizedPreferences.positiveSemanticQuery;
       }
 
+      // M1 (preference-first live cutover) -- the canonical PreferenceSpec
+      // (spec §3, plan Task A3), built once here from the RAW interpreter
+      // output (buildPreferenceSpec does its own wizard-facet merging
+      // internally; passing the already `mergeStructuredPreferences`-merged
+      // `normalizedPreferences` would double-merge wizard facets). This is
+      // the single normalized-requirement model every later milestone reads
+      // (retrieval, sufficiency, acquisition-strategy selection,
+      // composition) instead of `NormalizedPreferenceIntent`/ad-hoc
+      // `request.intent.*` field reads.
+      const preferenceSpec = buildPreferenceSpec(
+        request,
+        preferenceInterpretation.intent,
+      );
+
       traceSteps.push({
         stage: 'preference_interpretation',
         label: 'Interpretación de preferencias',
@@ -776,7 +791,7 @@ export class ExperienceGenerationService {
           budgetLevel: request.budgetLevel,
           groupType: request.groupType,
         },
-        outputs: { intent: normalizedPreferences },
+        outputs: { intent: normalizedPreferences, preferenceSpec },
         preferenceInterpretation: {
           ...preferenceInterpretation.trace,
           parsedResponse: normalizedPreferences,
