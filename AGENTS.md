@@ -4,9 +4,25 @@ The current codebase is the source of truth. Read the relevant module README
 and inspect the implementation before proposing or applying changes.
 
 These instructions apply to every AI coding/design agent working in the repo,
-including Codex, Claude, and Antigravity. Antigravity is currently used often
-for visual/frontend work, but the frontend conventions below are shared rules,
-not tool-specific preferences.
+including Codex, Claude, Antigravity, and future agents. Tool-specific files
+must not become independent sources of architectural truth; repository-wide
+engineering rules belong here or in scoped `AGENTS.md` files.
+
+## Canonical engineering instructions
+
+`AGENTS.md` is the repository-wide cross-agent contract.
+
+Scoped instructions may extend it for a subtree. In particular, every agent
+modifying backend code under `be/` must read and obey:
+
+- `be/AGENTS.md`
+- `docs/architecture/engineering-principles.md`
+
+The scoped file is additive: it does not replace these root instructions.
+
+When an architectural rule can be checked mechanically, prefer enforcing it
+with lint/architecture tests/CI in addition to documenting it. A green test
+suite does not justify violating documented architectural boundaries.
 
 For Places-provider acquisition/classification work on
 `feat/preference-first-selection`, also read
