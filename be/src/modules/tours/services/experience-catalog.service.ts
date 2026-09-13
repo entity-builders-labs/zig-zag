@@ -20,6 +20,8 @@ import {
   DedupeExperienceFingerprint,
 } from '../utils/experience-dedupe.util';
 import { mergeExperienceMetadata } from '../utils/experience-metadata-merge.util';
+import { normalizeGeoName } from '../utils/nominatim-match.util';
+import { ClassificationResult } from './experience-classification.service';
 
 // Two different resolution paths (a Nominatim lookup done while resolving a
 // composite's `venue` component hint, a Google Places lookup done while
@@ -368,6 +370,181 @@ export class ExperienceCatalogService {
       .map((id) => byId.get(id))
       .filter((row): row is NonNullable<typeof row> => !!row)
       .map((experience) => this.projectVerifiedExperienceRow(experience));
+  }
+
+  /**
+   * Task B5 (mode A) — real reuse-first check for a single AREA anchor:
+   * every `required: true` component of the Experience must be genuinely
+   * covered by the resolved area's own polygon (`ST_Covers`, not
+   * `ST_Contains` — a component exactly on the boundary still counts),
+   * AND at least one such required component must exist (otherwise the
+   * check would be vacuously true for an Experience with no required
+   * components at all), AND the resolved scope row must genuinely be
+   * `kind = 'AREA'`.
+   */
+  async findVerifiedMultiComponentCoveredByArea(areaGeoEntityId: string) {
+    if (!areaGeoEntityId) return [];
+    const scoped = await this.prisma.$queryRaw<Array<{ id: string }>>`
+      WITH area AS (
+        SELECT ST_SetSRID(ST_GeomFromGeoJSON(geometry::text), 4326) AS geom
+        FROM "geo_entity"
+        WHERE id = ${areaGeoEntityId} AND kind = 'AREA' AND geometry IS NOT NULL
+      )
+      SELECT e.id
+      FROM "experience" e
+      WHERE e.status = 'VERIFIED'
+        AND (SELECT COUNT(*) FROM "experience_component" WHERE "experienceId" = e.id) > 1
+        AND EXISTS (
+          SELECT 1 FROM "experience_component" ec3
+          WHERE ec3."experienceId" = e.id AND ec3.required = true
+        )
+        AND EXISTS (SELECT 1 FROM area)
+        AND NOT EXISTS (
+          SELECT 1
+          FROM "experience_component" ec
+          JOIN "geo_entity" g ON g.id = ec."geoEntityId"
+          WHERE ec."experienceId" = e.id
+            AND ec.required = true
+            AND (
+              g.latitude IS NULL OR g.longitude IS NULL
+              OR NOT EXISTS (
+                SELECT 1 FROM area
+                WHERE ST_Covers(area.geom, ST_SetSRID(ST_MakePoint(g.longitude, g.latitude), 4326))
+              )
+            )
+        )
+      ORDER BY e.id ASC
+    `;
+    if (scoped.length === 0) return [];
+    return this.findVerifiedByIds(scoped.map((row) => row.id));
+  }
+
+  /**
+   * Task B5 (mode B) — real reuse-first check for a resolved canonical
+   * ROUTE anchor: an EXACT identity match (this specific `geoEntityId`,
+   * `required: true` on that specific component), never polygon/line-
+   * containment math — the ROUTE's own geometry is its identity here.
+   */
+  async findVerifiedMultiComponentByExactComponent(geoEntityId: string) {
+    if (!geoEntityId) return [];
+    const rows = await this.prisma.experience.findMany({
+      where: {
+        status: ExperienceStatus.VERIFIED,
+        components: { some: { geoEntityId, required: true } },
+      },
+      select: { id: true, _count: { select: { components: true } } },
+    });
+    const ids = rows
+      .filter((row) => row._count.components > 1)
+      .map((row) => row.id);
+    if (ids.length === 0) return [];
+    return this.findVerifiedByIds(ids);
+  }
+
+  /**
+   * Task B5 (mode C) — reuse-first for a named tourism-route Experience
+   * with NO resolved canonical ROUTE geometry (e.g. "Ruta del Vino de
+   * Mendoza"). Strict normalized-name IDENTITY only — reuses the EXISTING
+   * canonical catalog geospatial boundary (`findVerifiedWithinForMatching`,
+   * Task A6.1, no new geometry/SQL). This is intentionally NOT a general
+   * tourism-route alias resolver: an anchor whose real name the extractor
+   * happened to title differently (e.g. "Mendoza Wine Route") will
+   * correctly MISS here — a documented v1 limitation, not a bug. Do not
+   * add fuzzy/embedding/alias matching to close this gap.
+   */
+  async findVerifiedTourismRouteByName(
+    normalizedAnchorName: string,
+    destinationLatitude: number,
+    destinationLongitude: number,
+    destinationRadiusMeters: number,
+  ) {
+    if (!normalizedAnchorName) return [];
+    const pool = await this.findVerifiedWithinForMatching(
+      destinationLatitude,
+      destinationLongitude,
+      destinationRadiusMeters,
+    );
+    return pool.filter(
+      (row) =>
+        normalizeGeoName(row.canonicalName ?? '') === normalizedAnchorName &&
+        row.components.length > 1,
+    );
+  }
+
+  /**
+   * Task B5 — applies a real, evidence-only Stage-6 classification
+   * (`ExperienceClassificationService.classify()`, Task B2) to an already-
+   * persisted Experience. The classifier's `themes`/`intents` are
+   * AUTHORITATIVE over whatever stale discovery-era values may already be
+   * in `metadata` — `mergeExperienceMetadata`'s generic union (correct for
+   * reconciling two independent candidate proposals) would otherwise let a
+   * legacy `metadata.intents: ['walk']` survive alongside a fresh
+   * classifier verdict of `['food']`, silently making a wrongly-classified
+   * row pass a facet check the current classification explicitly does not
+   * support. `mergeExperienceMetadata` is still reused to preserve
+   * unrelated/richer non-classifier-owned metadata fields.
+   */
+  async applyEvidenceClassification(
+    experienceId: string,
+    classification: ClassificationResult,
+  ): Promise<void> {
+    const existing = await this.prisma.experience.findUnique({
+      where: { id: experienceId },
+      select: { metadata: true, qualityScore: true },
+    });
+    if (!existing) return;
+
+    const traitDefinitionIds = await this.resolveOrCreateTraitDefinitions(
+      classification.traits,
+    );
+
+    const merged = mergeExperienceMetadata(
+      { qualityScore: existing.qualityScore, metadata: existing.metadata },
+      {
+        qualityScore: existing.qualityScore,
+        metadata: {
+          themes: classification.themes,
+          intents: classification.intents,
+          traits: classification.traits,
+          classification: {
+            state: classification.state,
+            promptVersion: classification.promptVersion,
+            modelId: classification.modelId,
+            themes: classification.themes,
+            intents: classification.intents,
+            traits: classification.traits,
+            reasoningEvidence: classification.reasoningEvidence,
+          },
+        },
+      },
+    );
+
+    // The current classifier's verdict is authoritative for its own
+    // fields -- never a union with whatever a prior (possibly stale,
+    // possibly discovery-era) value claimed.
+    const metadata = {
+      ...(merged.metadata as Record<string, unknown>),
+      themes: classification.themes,
+      intents: classification.intents,
+    };
+
+    if (traitDefinitionIds.length) {
+      await this.prisma.experienceTrait.createMany({
+        data: traitDefinitionIds.map((traitDefinitionId) => ({
+          experienceId,
+          traitDefinitionId,
+        })),
+        skipDuplicates: true,
+      });
+    }
+
+    await this.prisma.experience.update({
+      where: { id: experienceId },
+      data: {
+        qualityScore: merged.qualityScore,
+        metadata: metadata as Prisma.InputJsonValue,
+      },
+    });
   }
 
   /**

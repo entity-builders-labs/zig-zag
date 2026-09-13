@@ -17,6 +17,13 @@ export interface ExperienceGroundedSearchRequest {
    * unchanged by its presence.
    */
   requestedIntents?: string[];
+  /**
+   * Task B5 — every relevant area/route anchor name for a walk/route_like
+   * request (e.g. ["San Telmo"] or ["San Telmo", "La Boca"]), threaded
+   * through from WebSourcePlanPayload.anchorNames. Read only by Tavily's
+   * walk-query phrasing; every other provider's behavior is unchanged.
+   */
+  anchorNames?: string[];
 }
 
 export interface ExperienceGroundingEvidence {

@@ -107,6 +107,8 @@ describe('ExperienceProposalResolverService', () => {
     expect(geographicValidator.validate).toHaveBeenCalledWith(
       expect.objectContaining({ status: 'accepted' }),
       boundary,
+      undefined,
+      undefined,
     );
     expect(result.acceptedCount).toBe(1);
     expect(result.resolved[0].experienceId).toBe('exp-10');
@@ -638,6 +640,8 @@ describe('ExperienceProposalResolverService', () => {
           validation_scope: 'grounded_destination_association',
         }),
       }),
+      undefined,
+      undefined,
     );
   });
 
@@ -1323,5 +1327,320 @@ describe('ExperienceProposalResolverService', () => {
       'GEOGRAPHIC_VALIDATION_FAILED',
     ]);
     expect(catalog.persistVerifiedExperience).not.toHaveBeenCalled();
+  });
+
+  describe('required/optional persistence (Task B5, Fix 1)', () => {
+    const walkCandidate: ExperienceCandidate = {
+      name: 'San Telmo Historical Walk',
+      themes: ['culture'],
+      traits: [],
+      intents: ['walk'],
+      componentHints: [
+        {
+          key: 'plaza',
+          name: 'Plaza Dorrego',
+          role: 'venue',
+          expectedKind: 'PLACE',
+          required: true,
+          evidenceKeys: ['ev-1'],
+        },
+        {
+          key: 'mercado',
+          name: 'Mercado de San Telmo',
+          role: 'venue',
+          expectedKind: 'PLACE',
+          required: true,
+          evidenceKeys: ['ev-1'],
+        },
+        {
+          key: 'rooftop',
+          name: 'Rooftop Viewpoint',
+          role: 'venue',
+          expectedKind: 'PLACE',
+          required: false,
+          evidenceKeys: ['ev-1'],
+        },
+      ],
+      evidenceKeys: ['ev-1'],
+      shortReason: 'A historical walk through San Telmo',
+    };
+
+    function osmPlacesFor(pois: any[]) {
+      return {
+        lookupStreetsWithin: jest
+          .fn()
+          .mockResolvedValue({ status: 'success', value: [] }),
+        lookupPoisWithin: jest
+          .fn()
+          .mockResolvedValue({ status: 'success', value: pois }),
+      };
+    }
+
+    it('persists required:[true,true,false] for 2 required + 1 optional hint (distinct places)', async () => {
+      const osmPlaces = osmPlacesFor([
+        {
+          id: 'osm:node:1',
+          name: 'Plaza Dorrego',
+          osmType: 'node',
+          osmId: 1,
+          geometry: { type: 'Point', coordinates: [-58.3731, -34.6212] },
+          tags: {},
+        },
+        {
+          id: 'osm:node:2',
+          name: 'Mercado de San Telmo',
+          osmType: 'node',
+          osmId: 2,
+          geometry: { type: 'Point', coordinates: [-58.3728, -34.6208] },
+          tags: {},
+        },
+        {
+          id: 'osm:node:3',
+          name: 'Rooftop Viewpoint',
+          osmType: 'node',
+          osmId: 3,
+          geometry: { type: 'Point', coordinates: [-58.3733, -34.6215] },
+          tags: {},
+        },
+      ]);
+      let upsertCall = 0;
+      const catalog = {
+        resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        upsertGeoEntity: jest.fn().mockImplementation(async () => {
+          upsertCall += 1;
+          return { id: `geo-${upsertCall}` };
+        }),
+        persistVerifiedExperience: jest
+          .fn()
+          .mockResolvedValue({ id: 'exp-1', dedupeDecision: 'NEW' }),
+      };
+      const geographicValidator = {
+        validate: jest
+          .fn()
+          .mockReturnValue(acceptedValidation('San Telmo Historical Walk')),
+      };
+      const service = new ExperienceProposalResolverService(
+        osmPlaces as any,
+        catalog as any,
+        geographicValidator as any,
+      );
+
+      await service.resolve({
+        destinationBoundary: boundary,
+        candidates: [walkCandidate],
+      });
+
+      expect(catalog.persistVerifiedExperience).toHaveBeenCalledWith(
+        expect.objectContaining({
+          components: [
+            expect.objectContaining({ geoEntityId: 'geo-1', required: true }),
+            expect.objectContaining({ geoEntityId: 'geo-2', required: true }),
+            expect.objectContaining({ geoEntityId: 'geo-3', required: false }),
+          ],
+        }),
+      );
+    });
+
+    it('persists required:true when an optional hint and a required hint dedupe onto the same GeoEntity (optional-then-required order)', async () => {
+      const dedupeCandidate: ExperienceCandidate = {
+        ...walkCandidate,
+        componentHints: [
+          {
+            key: 'optional-mercado',
+            name: 'Mercado de San Telmo',
+            role: 'venue',
+            expectedKind: 'PLACE',
+            required: false,
+            evidenceKeys: ['ev-1'],
+          },
+          {
+            key: 'required-mercado',
+            name: 'Mercado de San Telmo',
+            role: 'venue',
+            expectedKind: 'PLACE',
+            required: true,
+            evidenceKeys: ['ev-1'],
+          },
+        ],
+      };
+      const osmPlaces = osmPlacesFor([
+        {
+          id: 'osm:node:2',
+          name: 'Mercado de San Telmo',
+          osmType: 'node',
+          osmId: 2,
+          geometry: { type: 'Point', coordinates: [-58.3728, -34.6208] },
+          tags: {},
+        },
+      ]);
+      const catalog = {
+        resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        // Both hints reconcile onto the SAME real GeoEntity (shared place).
+        upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-shared' }),
+        persistVerifiedExperience: jest
+          .fn()
+          .mockResolvedValue({ id: 'exp-1', dedupeDecision: 'NEW' }),
+      };
+      const geographicValidator = {
+        validate: jest
+          .fn()
+          .mockReturnValue(acceptedValidation('San Telmo Historical Walk')),
+      };
+      const service = new ExperienceProposalResolverService(
+        osmPlaces as any,
+        catalog as any,
+        geographicValidator as any,
+      );
+
+      await service.resolve({
+        destinationBoundary: boundary,
+        candidates: [dedupeCandidate],
+      });
+
+      expect(catalog.persistVerifiedExperience).toHaveBeenCalledWith(
+        expect.objectContaining({
+          components: [
+            expect.objectContaining({
+              geoEntityId: 'geo-shared',
+              required: true,
+            }),
+          ],
+        }),
+      );
+    });
+
+    it('persists required:true when a required hint and an optional hint dedupe onto the same GeoEntity (required-then-optional order)', async () => {
+      const dedupeCandidate: ExperienceCandidate = {
+        ...walkCandidate,
+        componentHints: [
+          {
+            key: 'required-mercado',
+            name: 'Mercado de San Telmo',
+            role: 'venue',
+            expectedKind: 'PLACE',
+            required: true,
+            evidenceKeys: ['ev-1'],
+          },
+          {
+            key: 'optional-mercado',
+            name: 'Mercado de San Telmo',
+            role: 'venue',
+            expectedKind: 'PLACE',
+            required: false,
+            evidenceKeys: ['ev-1'],
+          },
+        ],
+      };
+      const osmPlaces = osmPlacesFor([
+        {
+          id: 'osm:node:2',
+          name: 'Mercado de San Telmo',
+          osmType: 'node',
+          osmId: 2,
+          geometry: { type: 'Point', coordinates: [-58.3728, -34.6208] },
+          tags: {},
+        },
+      ]);
+      const catalog = {
+        resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-shared' }),
+        persistVerifiedExperience: jest
+          .fn()
+          .mockResolvedValue({ id: 'exp-1', dedupeDecision: 'NEW' }),
+      };
+      const geographicValidator = {
+        validate: jest
+          .fn()
+          .mockReturnValue(acceptedValidation('San Telmo Historical Walk')),
+      };
+      const service = new ExperienceProposalResolverService(
+        osmPlaces as any,
+        catalog as any,
+        geographicValidator as any,
+      );
+
+      await service.resolve({
+        destinationBoundary: boundary,
+        candidates: [dedupeCandidate],
+      });
+
+      expect(catalog.persistVerifiedExperience).toHaveBeenCalledWith(
+        expect.objectContaining({
+          components: [
+            expect.objectContaining({
+              geoEntityId: 'geo-shared',
+              required: true,
+            }),
+          ],
+        }),
+      );
+    });
+
+    it('persists required:false when every hint deduping onto the same GeoEntity is optional', async () => {
+      const dedupeCandidate: ExperienceCandidate = {
+        ...walkCandidate,
+        componentHints: [
+          {
+            key: 'optional-a',
+            name: 'Rooftop Viewpoint',
+            role: 'venue',
+            expectedKind: 'PLACE',
+            required: false,
+            evidenceKeys: ['ev-1'],
+          },
+          {
+            key: 'optional-b',
+            name: 'Rooftop Viewpoint',
+            role: 'venue',
+            expectedKind: 'PLACE',
+            required: false,
+            evidenceKeys: ['ev-1'],
+          },
+        ],
+      };
+      const osmPlaces = osmPlacesFor([
+        {
+          id: 'osm:node:3',
+          name: 'Rooftop Viewpoint',
+          osmType: 'node',
+          osmId: 3,
+          geometry: { type: 'Point', coordinates: [-58.3733, -34.6215] },
+          tags: {},
+        },
+      ]);
+      const catalog = {
+        resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-shared' }),
+        persistVerifiedExperience: jest
+          .fn()
+          .mockResolvedValue({ id: 'exp-1', dedupeDecision: 'NEW' }),
+      };
+      const geographicValidator = {
+        validate: jest
+          .fn()
+          .mockReturnValue(acceptedValidation('San Telmo Historical Walk')),
+      };
+      const service = new ExperienceProposalResolverService(
+        osmPlaces as any,
+        catalog as any,
+        geographicValidator as any,
+      );
+
+      await service.resolve({
+        destinationBoundary: boundary,
+        candidates: [dedupeCandidate],
+      });
+
+      expect(catalog.persistVerifiedExperience).toHaveBeenCalledWith(
+        expect.objectContaining({
+          components: [
+            expect.objectContaining({
+              geoEntityId: 'geo-shared',
+              required: false,
+            }),
+          ],
+        }),
+      );
+    });
   });
 });

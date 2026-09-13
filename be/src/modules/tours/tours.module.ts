@@ -37,6 +37,9 @@ import { OsmAcquisitionProvider } from './providers/osm-acquisition.provider';
 import { StructuredExperienceCandidateSynthesizerService } from './services/structured-experience-candidate-synthesizer.service';
 import { StructuredCandidateCorroborationService } from './services/structured-candidate-corroboration.service';
 import { ExperienceAcquisitionPlannerService } from './services/experience-acquisition-planner.service';
+import { ExperienceClassificationService } from './services/experience-classification.service';
+import { AreaRouteAnchorResolverService } from './services/area-route-anchor-resolver.service';
+import { AreaRouteWalkAcquisitionService } from './services/area-route-walk-acquisition.service';
 import {
   EXPERIENCE_GROUNDED_SEARCH_PROVIDER,
   ExperienceGroundedSearchProvider,
@@ -106,6 +109,9 @@ import { MediaModule } from '../media/media.module';
     StructuredExperienceCandidateSynthesizerService,
     StructuredCandidateCorroborationService,
     ExperienceAcquisitionPlannerService,
+    ExperienceClassificationService,
+    AreaRouteAnchorResolverService,
+    AreaRouteWalkAcquisitionService,
     {
       provide: EXPERIENCE_PROPOSAL_RESOLVER,
       useExisting: ExperienceProposalResolverService,
@@ -198,6 +204,9 @@ import { MediaModule } from '../media/media.module';
     StructuredExperienceCandidateSynthesizerService,
     StructuredCandidateCorroborationService,
     ExperienceAcquisitionPlannerService,
+    ExperienceClassificationService,
+    AreaRouteAnchorResolverService,
+    AreaRouteWalkAcquisitionService,
   ],
 })
 export class ToursModule {}

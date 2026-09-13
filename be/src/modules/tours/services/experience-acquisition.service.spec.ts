@@ -770,6 +770,47 @@ describe('ExperienceAcquisitionService', () => {
       expect(result.evidence?.some((e) => e.key === 'ev-1')).toBe(true);
     });
 
+    it('forwards anchorNames from the web plan into the grounded-search call (Task B5)', async () => {
+      const search = jest.fn().mockResolvedValue(groundedResult);
+      const extractExperiences = jest.fn().mockResolvedValue({
+        candidates: [webCandidate],
+        validationErrors: [],
+        provider: 'gemini',
+        model: 'gemini-x',
+        rawOutput: '{"candidates":[]}',
+      });
+      const anchoredWebPlan: ExperienceAcquisitionPlan = {
+        ...webPlan,
+        sourcePlans: [
+          {
+            provider: 'web',
+            web: {
+              ...(webPlan.sourcePlans[0] as any).web,
+              anchorNames: ['San Telmo', 'La Boca'],
+            },
+          },
+        ],
+      };
+      const service = new ExperienceAcquisitionService(
+        {} as any,
+        {} as any,
+        { acquire: jest.fn() } as any,
+        { acquire: jest.fn() } as any,
+        new StructuredExperienceCandidateSynthesizerService(),
+        new StructuredCandidateCorroborationService(),
+        undefined,
+        { acquire: jest.fn() } as any,
+        { search } as any,
+        { extractExperiences } as any,
+      );
+
+      await service.executePlan(anchoredWebPlan);
+
+      expect(search.mock.calls[0][0]).toMatchObject({
+        anchorNames: ['San Telmo', 'La Boca'],
+      });
+    });
+
     it('isolates a web failure — structured providers still contribute', async () => {
       const wikivoyageProvider = {
         acquire: jest.fn().mockResolvedValue({

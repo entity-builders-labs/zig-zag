@@ -6,15 +6,12 @@ import {
   OsmPlacesService,
 } from '@integrations/osm/services/osm-places.service';
 import { geometryContainsPoint } from '@integrations/osm/utils/geojson-containment.util';
-import {
-  INominatimApiService,
-  NominatimResult,
-} from '@integrations/osm/interfaces/nominatim.interface';
+import { INominatimApiService } from '@integrations/osm/interfaces/nominatim.interface';
 import { IPlacesApiService } from '@integrations/google-places/interfaces/places-api.interface';
 import { ExperienceCatalogService } from './experience-catalog.service';
 import { CompositeGeographicValidationService } from './composite-geographic-validation.service';
 import { ExperienceEmbeddingIndexerService } from '@shared/ai/services/experience-embedding-indexer.service';
-import { calculateDistance, Coordinates } from '@shared/utils/distance.utils';
+import { Coordinates } from '@shared/utils/distance.utils';
 import {
   ExperienceEntityResolutionResponse,
   ExperienceProposalResolver,
@@ -23,6 +20,12 @@ import {
   ResolvedExperienceCandidate,
   ResolvedGeoEntity,
 } from '../interfaces/experience-resolution.interface';
+import {
+  bestNominatimMatch,
+  matchOsmCandidateByName,
+  normalizeGeoName,
+} from '../utils/nominatim-match.util';
+import { GeoEntityHint } from '../interfaces/experience-discovery.interface';
 
 // Loose radius for biasing a Places text search toward the destination when
 // Nominatim/OSM had no usable match — wide enough to cover a metro area's
@@ -151,6 +154,8 @@ export class ExperienceProposalResolverService
         this.geographicValidator.validate(
           item,
           this.validationBoundaryFor(item, boundary),
+          input.validationScope,
+          input.validationIntent,
         ),
       )
       .filter(
@@ -204,6 +209,7 @@ export class ExperienceProposalResolverService
               (entity: any) =>
                 entity.status === 'resolved' && entity.geoEntityId,
             ),
+            candidate.candidate.componentHints,
           ).map((entity: any, index: number) => ({
             geoEntityId: entity.geoEntityId,
             // Only a real, evidence-backed visiting sequence earns a
@@ -211,7 +217,7 @@ export class ExperienceProposalResolverService
             // not intrinsic sequence, and must persist as null.
             order: candidate.candidate.orderedByEvidence ? index + 1 : null,
             role: entity.role,
-            required: true,
+            required: entity.required,
           })),
           evidence: evidence
             .filter((item: { key?: string }) =>
@@ -324,7 +330,7 @@ export class ExperienceProposalResolverService
           : hint.expectedKind === 'AREA' || hint.role === 'area'
             ? [boundary]
             : pois;
-      const matched = this.matchCandidate(hint.name, pool);
+      const matched = matchOsmCandidateByName(hint.name, pool);
 
       if (matched) {
         entities.push(await this.persistOsmEntity(hint, matched));
@@ -483,11 +489,7 @@ export class ExperienceProposalResolverService
           ? { countryCode: destinationCountryCode }
           : undefined,
       );
-      const match = this.bestNominatimMatch(
-        hint.name,
-        results,
-        destinationPoint,
-      );
+      const match = bestNominatimMatch(hint.name, results, destinationPoint);
       if (
         !match ||
         !Number.isFinite(match.latitude) ||
@@ -650,7 +652,7 @@ export class ExperienceProposalResolverService
     evidence: ExperienceResolutionRequest['evidence'],
   ): boolean {
     if (!destinationName || !candidate?.evidenceKeys?.length) return false;
-    const destinationTokens = this.normalize(destinationName)
+    const destinationTokens = normalizeGeoName(destinationName)
       .split(' ')
       .filter((token) => token.length >= 4);
     if (destinationTokens.length === 0) return false;
@@ -659,7 +661,9 @@ export class ExperienceProposalResolverService
       candidate.evidenceKeys.includes(item.key ?? ''),
     );
     return candidateEvidence.some((item) => {
-      const text = this.normalize(`${item.title ?? ''} ${item.snippet ?? ''}`);
+      const text = normalizeGeoName(
+        `${item.title ?? ''} ${item.snippet ?? ''}`,
+      );
       return destinationTokens.some((token) => text.includes(token));
     });
   }
@@ -730,98 +734,6 @@ export class ExperienceProposalResolverService
     );
   }
 
-  private bestNominatimMatch(
-    name: string,
-    results: NominatimResult[],
-    destinationPoint?: Coordinates,
-  ): NominatimResult | undefined {
-    const needle = this.normalize(name);
-    const exact = results.filter((result) => {
-      const display = this.normalize(result.displayName);
-      return display === needle || display.startsWith(`${needle} `);
-    });
-    if (exact.length > 0) {
-      return this.rankNominatimCandidates(exact, destinationPoint);
-    }
-
-    // A real landmark's grounded-evidence name and Nominatim's own canonical
-    // name can differ by more than word order or punctuation. Argentina's
-    // OSM data names places in Spanish ("Parque Provincial Ischigualasto")
-    // while English-language grounded search evidence — and the LLM
-    // extracting from it — surfaces the English form ("Ischigualasto
-    // Provincial Park"). Requiring an exact literal prefix silently
-    // discarded a real, unambiguous, single-result Nominatim match just
-    // because "Park" never literally becomes "Parque". Fall back to
-    // significant-token overlap against only the place-name segment of
-    // displayName (never the address hierarchy after it, which would let
-    // country/region tokens produce false positives on their own), guarded
-    // by requiring at least one long/specific shared token so a merely
-    // translated generic word can never match by itself.
-    const needleTokens = needle.split(' ').filter((token) => token.length >= 4);
-    if (needleTokens.length === 0) return undefined;
-
-    const fuzzyMatches = results
-      .map((result) => {
-        const headSegment = this.normalize(
-          result.displayName.split(',')[0] ?? '',
-        );
-        const headTokens = new Set(headSegment.split(' ').filter(Boolean));
-        const matchedTokens = needleTokens.filter((token) =>
-          headTokens.has(token),
-        );
-        return { result, matchedTokens };
-      })
-      .filter(
-        (candidate) =>
-          candidate.matchedTokens.length / needleTokens.length >= 0.5 &&
-          candidate.matchedTokens.some((token) => token.length >= 5),
-      )
-      .map((candidate) => candidate.result);
-    return this.rankNominatimCandidates(fuzzyMatches, destinationPoint);
-  }
-
-  /**
-   * Nominatim's own `importance` is a global, name-driven popularity signal
-   * with no awareness of the requested destination — verified live against
-   * the real API: two real places sharing an identical name (e.g. a
-   * "Catedral San Juan Bautista" in Buenos Aires and another in San Juan
-   * province) can both survive the text-match filters above, and the wrong
-   * one (Buenos Aires, importance 0.208) outranks the right one (San Juan,
-   * importance 0.199) on importance alone. When we know where the request's
-   * destination actually is, proximity to it is a far stronger signal than
-   * global importance for choosing between same-named real places — so it
-   * takes priority whenever it can be measured. A candidate missing
-   * coordinates simply can't participate in that comparison and falls back
-   * to importance, same as before this fix existed.
-   */
-  private rankNominatimCandidates(
-    candidates: NominatimResult[],
-    destinationPoint?: Coordinates,
-  ): NominatimResult | undefined {
-    if (candidates.length === 0) return undefined;
-
-    if (destinationPoint) {
-      const measured = candidates
-        .filter(
-          (result) =>
-            Number.isFinite(result.latitude) &&
-            Number.isFinite(result.longitude),
-        )
-        .map((result) => ({
-          result,
-          distanceKm: calculateDistance(destinationPoint, {
-            latitude: result.latitude as number,
-            longitude: result.longitude as number,
-          }),
-        }));
-      if (measured.length > 0) {
-        return measured.sort((a, b) => a.distanceKm - b.distanceKm)[0].result;
-      }
-    }
-
-    return candidates.sort((a, b) => b.importance - a.importance)[0];
-  }
-
   /**
    * Two different componentHints of the *same* candidate can resolve onto
    * the *same* real GeoEntity — verified live: ExperienceCatalogService's own
@@ -837,39 +749,40 @@ export class ExperienceProposalResolverService
    * GeoEntity, aborting the whole generation. Keeps the first occurrence
    * (preserves array order for `orderedByEvidence`'s sequential numbering).
    */
-  private dedupeResolvedEntitiesByGeoEntity<T extends { geoEntityId?: string }>(
+  private dedupeResolvedEntitiesByGeoEntity<
+    T extends { geoEntityId?: string; hintKey?: string },
+  >(
     entities: T[],
-  ): T[] {
-    const seen = new Set<string>();
-    return entities.filter((entity) => {
-      if (!entity.geoEntityId || seen.has(entity.geoEntityId)) return false;
-      seen.add(entity.geoEntityId);
-      return true;
-    });
-  }
-
-  private matchCandidate(
-    name: string,
-    pool: OsmCandidate[],
-  ): OsmCandidate | undefined {
-    const needle = this.normalize(name);
-    return pool.find((candidate) => {
-      const haystack = this.normalize(candidate.name);
-      return (
-        haystack === needle ||
-        haystack.includes(needle) ||
-        needle.includes(haystack)
+    componentHints: GeoEntityHint[] = [],
+  ): (T & { required: boolean })[] {
+    // `required` must be computed as the OR across EVERY resolved entity
+    // that maps to that real place, BEFORE dedup collapses several hints'
+    // entities onto one survivor -- an optional hint's entity surviving
+    // dedup must never silently downgrade a place another (required) hint
+    // also pointed at.
+    const requiredByGeoEntityId = new Map<string, boolean>();
+    for (const entity of entities) {
+      if (!entity.geoEntityId) continue;
+      const hint = componentHints.find((item) => item.key === entity.hintKey);
+      const required = hint?.required ?? true;
+      requiredByGeoEntityId.set(
+        entity.geoEntityId,
+        (requiredByGeoEntityId.get(entity.geoEntityId) ?? false) || required,
       );
-    });
-  }
+    }
 
-  private normalize(value: string): string {
-    return value
-      .normalize('NFKD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, ' ')
-      .trim();
+    const seen = new Set<string>();
+    return entities
+      .filter((entity) => {
+        if (!entity.geoEntityId || seen.has(entity.geoEntityId)) return false;
+        seen.add(entity.geoEntityId);
+        return true;
+      })
+      .map((entity) => ({
+        ...entity,
+        required:
+          requiredByGeoEntityId.get(entity.geoEntityId as string) ?? true,
+      }));
   }
 
   private representativePoint(

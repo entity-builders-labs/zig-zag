@@ -37,6 +37,12 @@ export interface WebSourcePlanPayload {
   requestedIntents?: string[];
   preferredTraits?: string[];
   semanticQuery?: string;
+  /**
+   * Task B5 — every relevant area/route anchor name for a walk/route_like
+   * deficit, preserved in full (never collapsed to one, never dropped
+   * entirely when 1+ exist). Plural by design (correctness point 12).
+   */
+  anchorNames?: string[];
 }
 
 export interface WikivoyageSourcePlan {

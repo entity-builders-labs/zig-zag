@@ -29,6 +29,7 @@ import {
 import {
   EXPERIENCE_PROPOSAL_RESOLVER,
   ExperienceProposalResolver,
+  ExperienceValidationScope,
   FinalExperienceResolutionResponse,
 } from '../interfaces/experience-resolution.interface';
 
@@ -306,6 +307,7 @@ export class ExperienceAcquisitionService {
         requestedIntents: web.requestedIntents,
         additionalPreferences: web.semanticQuery,
         query: web.query,
+        anchorNames: web.anchorNames,
       });
 
       const base: WebAcquisitionResult = {
@@ -489,6 +491,9 @@ export class ExperienceAcquisitionService {
         longitude: number;
         radiusMeters: number;
       };
+      /** Task B5 — see ExperienceValidationScope. */
+      validationScope?: ExperienceValidationScope;
+      validationIntent?: 'walk' | 'route_like';
     },
   ): Promise<FinalExperienceResolutionResponse> {
     if (!this.proposalResolver) {
@@ -503,6 +508,8 @@ export class ExperienceAcquisitionService {
       destinationBoundary: context.destinationBoundary,
       destinationPointRadius: context.destinationPointRadius,
       evidence: execution.evidence,
+      validationScope: context.validationScope,
+      validationIntent: context.validationIntent,
     });
   }
 }

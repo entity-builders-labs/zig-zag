@@ -436,5 +436,53 @@ describe('TavilyGroundedSearchService', () => {
       'ignores the walk phrasing when requestedIntents is absent (unaffected default)',
       expectQuery(request, request.query),
     );
+
+    it(
+      'folds a single anchor name into the destination phrase (Task B5)',
+      expectQuery(
+        {
+          ...request,
+          requestedThemes: [],
+          requestedIntents: ['walk'],
+          anchorNames: ['San Telmo'],
+        },
+        '10 caminatas icónicas en San Telmo, Gualeguaychú',
+      ),
+    );
+
+    it(
+      'folds BOTH anchor names into the destination phrase, never picking one (Task B5)',
+      expectQuery(
+        {
+          ...request,
+          requestedThemes: [],
+          requestedIntents: ['walk'],
+          anchorNames: ['San Telmo', 'La Boca'],
+        },
+        '10 caminatas icónicas en San Telmo a La Boca, Gualeguaychú',
+      ),
+    );
+
+    it(
+      'joins multiple anchor names with "to" (not "a") for a non-Spanish-speaking destination',
+      expectQuery(
+        {
+          ...request,
+          destinationCountry: 'France',
+          requestedThemes: [],
+          requestedIntents: ['route_like'],
+          anchorNames: ['San Telmo', 'La Boca'],
+        },
+        '10 iconic walking routes in San Telmo to La Boca, Gualeguaychú',
+      ),
+    );
+
+    it(
+      'ignores anchorNames entirely for a non-walk/route_like request',
+      expectQuery(
+        { ...request, requestedIntents: ['visit'], anchorNames: ['San Telmo'] },
+        request.query,
+      ),
+    );
   });
 });

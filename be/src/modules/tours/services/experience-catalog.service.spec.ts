@@ -1214,3 +1214,273 @@ describe('ExperienceCatalogService.findVerifiedByIds', () => {
     expect(prisma.experience.findMany).not.toHaveBeenCalled();
   });
 });
+
+describe('ExperienceCatalogService.findVerifiedMultiComponentByExactComponent (Task B5)', () => {
+  it('finds a multi-component verified Experience with the exact required ROUTE component', async () => {
+    const prisma: any = {
+      experience: {
+        findMany: jest
+          .fn()
+          .mockResolvedValueOnce([
+            { id: 'exp-caminito', _count: { components: 3 } },
+          ])
+          .mockResolvedValueOnce([
+            {
+              id: 'exp-caminito',
+              canonicalName: 'Caminito Walk',
+              description: null,
+              price: null,
+              qualityScore: null,
+              latitude: null,
+              longitude: null,
+              durationMinutes: null,
+              openingHours: null,
+              metadata: {},
+              components: [],
+              traits: [],
+            },
+          ]),
+      },
+    };
+    const service = new ExperienceCatalogService(prisma, {} as any);
+
+    const result =
+      await service.findVerifiedMultiComponentByExactComponent('geo-caminito');
+
+    expect(prisma.experience.findMany).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({
+        where: {
+          status: 'VERIFIED',
+          components: { some: { geoEntityId: 'geo-caminito', required: true } },
+        },
+      }),
+    );
+    expect(result.map((row) => row.id)).toEqual(['exp-caminito']);
+  });
+
+  it('excludes a single-component Experience (the exact component alone does not satisfy "multi-component")', async () => {
+    const prisma: any = {
+      experience: {
+        findMany: jest
+          .fn()
+          .mockResolvedValue([{ id: 'exp-single', _count: { components: 1 } }]),
+      },
+    };
+    const service = new ExperienceCatalogService(prisma, {} as any);
+
+    const result =
+      await service.findVerifiedMultiComponentByExactComponent('geo-x');
+
+    expect(result).toEqual([]);
+  });
+
+  it('returns [] without touching Prisma for an empty geoEntityId', async () => {
+    const prisma: any = { experience: { findMany: jest.fn() } };
+    const service = new ExperienceCatalogService(prisma, {} as any);
+
+    const result = await service.findVerifiedMultiComponentByExactComponent('');
+
+    expect(result).toEqual([]);
+    expect(prisma.experience.findMany).not.toHaveBeenCalled();
+  });
+});
+
+describe('ExperienceCatalogService.findVerifiedTourismRouteByName (Task B5, Cleanup 2)', () => {
+  it('finds a multi-component Experience whose canonicalName normalizes identically to the anchor name', async () => {
+    const prisma: any = {};
+    const service = new ExperienceCatalogService(prisma, {} as any);
+    jest.spyOn(service, 'findVerifiedWithinForMatching').mockResolvedValue([
+      {
+        id: 'exp-ruta',
+        canonicalName: 'Ruta del Vino de Mendoza',
+        components: [{ geoEntity: {} }, { geoEntity: {} }],
+      } as any,
+    ]);
+
+    const result = await service.findVerifiedTourismRouteByName(
+      'ruta del vino de mendoza',
+      -32.89,
+      -68.84,
+      50_000,
+    );
+
+    expect(result.map((row) => row.id)).toEqual(['exp-ruta']);
+  });
+
+  it('does NOT match a genuinely different name for the same real route (strict identity, no fuzzy/alias matching)', async () => {
+    const prisma: any = {};
+    const service = new ExperienceCatalogService(prisma, {} as any);
+    jest.spyOn(service, 'findVerifiedWithinForMatching').mockResolvedValue([
+      {
+        id: 'exp-mendoza-wine-route',
+        canonicalName: 'Mendoza Wine Route',
+        components: [{ geoEntity: {} }, { geoEntity: {} }],
+      } as any,
+    ]);
+
+    const result = await service.findVerifiedTourismRouteByName(
+      'ruta del vino de mendoza',
+      -32.89,
+      -68.84,
+      50_000,
+    );
+
+    expect(result).toEqual([]);
+  });
+
+  it('excludes a single-component match (not a real multi-component route)', async () => {
+    const prisma: any = {};
+    const service = new ExperienceCatalogService(prisma, {} as any);
+    jest.spyOn(service, 'findVerifiedWithinForMatching').mockResolvedValue([
+      {
+        id: 'exp-single',
+        canonicalName: 'Ruta del Vino de Mendoza',
+        components: [{ geoEntity: {} }],
+      } as any,
+    ]);
+
+    const result = await service.findVerifiedTourismRouteByName(
+      'ruta del vino de mendoza',
+      -32.89,
+      -68.84,
+      50_000,
+    );
+
+    expect(result).toEqual([]);
+  });
+
+  it('returns [] without querying for an empty normalized name', async () => {
+    const prisma: any = {};
+    const service = new ExperienceCatalogService(prisma, {} as any);
+    const spy = jest
+      .spyOn(service, 'findVerifiedWithinForMatching')
+      .mockResolvedValue([]);
+
+    const result = await service.findVerifiedTourismRouteByName(
+      '',
+      -32.89,
+      -68.84,
+      50_000,
+    );
+
+    expect(result).toEqual([]);
+    expect(spy).not.toHaveBeenCalled();
+  });
+});
+
+describe('ExperienceCatalogService.applyEvidenceClassification (Task B5)', () => {
+  it('persists the classifier verdict as authoritative, not unioned with stale discovery-era metadata', async () => {
+    const prisma: any = {
+      experience: {
+        findUnique: jest.fn().mockResolvedValue({
+          metadata: {
+            intents: ['walk'],
+            themes: ['culture'],
+            source: 'grounded_experience_discovery',
+          },
+          qualityScore: 3.5,
+        }),
+        update: jest.fn().mockResolvedValue({}),
+      },
+      experienceTrait: { createMany: jest.fn().mockResolvedValue({}) },
+      traitDefinition: {
+        upsert: jest.fn().mockResolvedValue({ id: 'trait-1' }),
+      },
+    };
+    const service = new ExperienceCatalogService(prisma, {} as any);
+
+    await service.applyEvidenceClassification('exp-1', {
+      themes: [],
+      intents: ['food'],
+      traits: [],
+      reasoningEvidence: [
+        {
+          facet: 'intent:food',
+          evidenceKeys: ['ev-1'],
+          reason: 'evidence supports food',
+        },
+      ],
+      modelId: 'groq/qwen',
+      promptVersion: CURRENT_CLASSIFICATION_PROMPT_VERSION,
+      state: 'classified',
+    });
+
+    expect(prisma.experience.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: 'exp-1' },
+        data: expect.objectContaining({
+          metadata: expect.objectContaining({
+            themes: [],
+            intents: ['food'],
+            source: 'grounded_experience_discovery',
+            classification: expect.objectContaining({
+              state: 'classified',
+              promptVersion: CURRENT_CLASSIFICATION_PROMPT_VERSION,
+            }),
+          }),
+        }),
+      }),
+    );
+    // The stale 'walk' intent must never survive as authoritative -- the
+    // update's metadata.intents is exactly the classifier's own verdict.
+    const call = prisma.experience.update.mock.calls[0][0];
+    expect(call.data.metadata.intents).toEqual(['food']);
+  });
+
+  it('persists an honest degraded classification without crashing', async () => {
+    const prisma: any = {
+      experience: {
+        findUnique: jest
+          .fn()
+          .mockResolvedValue({ metadata: {}, qualityScore: null }),
+        update: jest.fn().mockResolvedValue({}),
+      },
+      experienceTrait: { createMany: jest.fn() },
+      traitDefinition: { upsert: jest.fn() },
+    };
+    const service = new ExperienceCatalogService(prisma, {} as any);
+
+    await service.applyEvidenceClassification('exp-2', {
+      themes: [],
+      intents: [],
+      traits: [],
+      reasoningEvidence: [],
+      modelId: 'groq/qwen',
+      promptVersion: CURRENT_CLASSIFICATION_PROMPT_VERSION,
+      state: 'degraded',
+    });
+
+    expect(prisma.experience.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          metadata: expect.objectContaining({
+            classification: expect.objectContaining({ state: 'degraded' }),
+          }),
+        }),
+      }),
+    );
+  });
+
+  it('is a no-op when the Experience no longer exists', async () => {
+    const prisma: any = {
+      experience: {
+        findUnique: jest.fn().mockResolvedValue(null),
+        update: jest.fn(),
+      },
+    };
+    const service = new ExperienceCatalogService(prisma, {} as any);
+
+    await service.applyEvidenceClassification('missing', {
+      themes: [],
+      intents: [],
+      traits: [],
+      reasoningEvidence: [],
+      modelId: 'groq/qwen',
+      promptVersion: CURRENT_CLASSIFICATION_PROMPT_VERSION,
+      state: 'classified',
+    });
+
+    expect(prisma.experience.update).not.toHaveBeenCalled();
+  });
+});

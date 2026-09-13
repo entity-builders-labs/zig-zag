@@ -248,9 +248,24 @@ export class TavilyGroundedSearchService implements GroundedSearchProvider {
   // (without it "caminatas" reads as senderismo/trekking in Spanish). No
   // themes -> the exact legacy phrase, unchanged.
   private buildWalkQuery(request: GroundedSearchRequest): string {
-    const destination = request.destinationName;
     const themeKeys = this.walkQueryThemeKeys(request);
     const spanish = this.isSpanishSpeakingCountry(request.destinationCountry);
+
+    // Task B5 (correctness point 12): preserve EVERY relevant anchor name
+    // -- 1 anchor keeps the round-3 phrasing ("San Telmo, Buenos Aires");
+    // 2+ anchors join deterministically ("San Telmo a La Boca, Buenos
+    // Aires" / "San Telmo to La Boca, Buenos Aires") -- never picking one
+    // arbitrarily, never dropping them all when 1+ exist.
+    const anchorNames = (request.anchorNames ?? [])
+      .map((name) => name.trim())
+      .filter(Boolean);
+    const anchorPhrase =
+      anchorNames.length > 0
+        ? anchorNames.join(spanish ? ' a ' : ' to ')
+        : undefined;
+    const destination = anchorPhrase
+      ? `${anchorPhrase}, ${request.destinationName}`
+      : request.destinationName;
 
     if (themeKeys.length === 0) {
       return spanish

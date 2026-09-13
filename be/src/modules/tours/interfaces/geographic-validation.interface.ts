@@ -23,7 +23,11 @@ export type GeographicValidationRejectionReason =
   | 'destination_mismatch'
   | 'grounded_evidence_missing'
   | 'unresolved_required_component'
-  | 'ambiguous_component';
+  | 'ambiguous_component'
+  // Task B5: a request-level (non-candidate-owned) validationScope was
+  // violated -- a required component lies outside the externally resolved
+  // AREA polygon, or outside the externally resolved ROUTE's corridor.
+  | 'external_scope_mismatch';
 
 export interface GeographicPoint {
   latitude: number;
@@ -66,6 +70,12 @@ export interface GeographicValidationThresholds {
     minAnchors: number;
     maxRadiusMeters: number;
     maxPairwiseDistanceMeters: number;
+    // Task B5: max distance (meters) a required point-like component may
+    // sit from a resolved canonical ROUTE's own LineString geometry to
+    // still count as "on/along the route" -- a real corridor-membership
+    // check, distinct from the regional destination-centroid/radius policy
+    // above (`maxRadiusMeters`/`maxPairwiseDistanceMeters`).
+    maxComponentDistanceFromRouteMeters: number;
   };
   experience: {
     minAnchors: number;
@@ -85,6 +95,11 @@ export const DEFAULT_GEOGRAPHIC_VALIDATION_THRESHOLDS: GeographicValidationThres
       minAnchors: 3,
       maxRadiusMeters: 80_000,
       maxPairwiseDistanceMeters: 160_000,
+      // A real stop genuinely "on" a walkable street-scale route sits
+      // within a couple hundred meters of it -- wide enough for a street's
+      // own width/nearby frontage, narrow enough that a stop from an
+      // unrelated part of the city cannot pass as belonging to this route.
+      maxComponentDistanceFromRouteMeters: 300,
     },
     experience: {
       minAnchors: 2,

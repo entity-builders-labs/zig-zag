@@ -1,5 +1,24 @@
 import { ExperienceCandidate } from './experience-discovery.interface';
 import { DedupeEvidence } from '../utils/experience-dedupe.util';
+import { GeoJsonGeometry } from '@integrations/osm/utils/osm-geometry.util';
+
+/**
+ * Task B5 — a request-level, non-authoritative geographic scope resolved
+ * BEFORE acquisition even runs (e.g. a real "San Telmo" AREA polygon or a
+ * real "Caminito" ROUTE LineString), threaded through to gate persistence
+ * regardless of whether the ACQUIRED candidate's own componentHints happen
+ * to include a matching AREA/ROUTE hint. `geometry` is required —
+ * `AreaRouteAnchorResolverService`'s `resolved: true` contract guarantees
+ * it is always populated when a scope is supplied at all; a caller that
+ * somehow constructs one without usable geometry gets a conservative
+ * rejection (fail closed), never a silently skipped check.
+ */
+export interface ExperienceValidationScope {
+  kind: 'AREA' | 'ROUTE';
+  anchorName: string;
+  geoEntityId: string;
+  geometry: GeoJsonGeometry;
+}
 
 export type ResolvedGeoEntityStatus = 'resolved' | 'unresolved';
 
@@ -82,6 +101,19 @@ export interface ExperienceResolutionRequest {
     title?: string;
     snippet?: string;
   }>;
+  /** Task B5 — see ExperienceValidationScope. Absent for every caller other
+   * than AreaRouteWalkAcquisitionService (ordinary generation-loop
+   * deficits, acquireNearby) — no behavior change there. */
+  validationScope?: ExperienceValidationScope;
+  /**
+   * Task B5 — the REQUEST's own acquisition intent ('walk'/'route_like'),
+   * used ONLY to select a geographic threshold policy (routeScale) inside
+   * CompositeGeographicValidationService. Never derived from anything the
+   * extractor/candidate claims, never persisted, never used to satisfy
+   * candidateMatchesPreferenceFacet, and never treated as Experience
+   * semantic truth.
+   */
+  validationIntent?: 'walk' | 'route_like';
 }
 
 export interface ExperienceGeographicValidationResult {

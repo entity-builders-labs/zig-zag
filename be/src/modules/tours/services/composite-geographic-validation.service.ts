@@ -13,6 +13,7 @@ import {
 } from '../interfaces/geographic-validation.interface';
 import {
   ExperienceGeographicValidationBatchResult,
+  ExperienceValidationScope,
   ResolvedExperienceCandidate,
   ResolvedGeoEntity,
 } from '../interfaces/experience-resolution.interface';
@@ -20,6 +21,7 @@ import {
   coherenceMetrics,
   distanceMeters,
 } from '../utils/geographic-coherence.util';
+import { distancePointToLineStringMeters } from '../utils/route-geometry.util';
 
 @Injectable()
 export class CompositeGeographicValidationService {
@@ -48,6 +50,8 @@ export class CompositeGeographicValidationService {
   validate(
     resolvedProposal: ResolvedExperienceCandidate,
     destinationBoundary: OsmCandidate,
+    validationScope?: ExperienceValidationScope,
+    validationIntent?: 'walk' | 'route_like',
   ): GeographicValidationResult {
     const { candidate, resolvedEntities } = resolvedProposal;
     const resolved = resolvedEntities.filter(
@@ -60,6 +64,13 @@ export class CompositeGeographicValidationService {
     const groundedEvidenceKeys = Array.from(new Set(candidate.evidenceKeys));
 
     const result =
+      (validationScope &&
+        this.rejectIfExternalScopeViolated(
+          resolvedProposal,
+          withCoordinates,
+          validationScope,
+          groundedEvidenceKeys,
+        )) ??
       this.tryCanonicalGeometry(
         resolvedProposal,
         withCoordinates,
@@ -71,6 +82,7 @@ export class CompositeGeographicValidationService {
         withCoordinates,
         destinationBoundary,
         groundedEvidenceKeys,
+        validationIntent,
       );
 
     this.logger.log(
@@ -89,6 +101,106 @@ export class CompositeGeographicValidationService {
       }),
     );
     return result;
+  }
+
+  /**
+   * Task B5: a request-level scope resolved BEFORE acquisition even ran
+   * (a real AREA polygon or ROUTE geometry the caller already knows about)
+   * gates persistence regardless of whether THIS candidate's own
+   * componentHints happen to include a matching AREA/ROUTE hint. Runs
+   * BEFORE `tryCanonicalGeometry`/`validateExperience` — a violation here
+   * rejects immediately, never falling through to the ordinary checks.
+   * Returns undefined (no rejection) when the scope is satisfied, letting
+   * the existing candidate-owned checks run unchanged afterward.
+   */
+  private rejectIfExternalScopeViolated(
+    resolvedProposal: ResolvedExperienceCandidate,
+    withCoordinates: ResolvedGeoEntity[],
+    validationScope: ExperienceValidationScope,
+    evidenceKeys: string[],
+  ): GeographicValidationResult | undefined {
+    const proposalName = resolvedProposal.candidate.name;
+    const requiredHints = resolvedProposal.candidate.componentHints.filter(
+      (hint) => hint.required,
+    );
+
+    const unresolvedRequired = requiredHints.some(
+      (hint) => !withCoordinates.some((entity) => entity.hintKey === hint.key),
+    );
+    if (unresolvedRequired) {
+      return this.rejected(
+        proposalName,
+        'EXPERIENCE',
+        withCoordinates,
+        evidenceKeys,
+        ['unresolved_required_component'],
+      );
+    }
+
+    const requiredEntities = withCoordinates.filter((entity) =>
+      requiredHints.some((hint) => hint.key === entity.hintKey),
+    );
+
+    // A missing/malformed scope geometry fails closed for BOTH kinds —
+    // never silently skip an externally requested geographic scope.
+    if (!validationScope.geometry) {
+      return this.rejected(
+        proposalName,
+        'EXPERIENCE',
+        requiredEntities,
+        evidenceKeys,
+        ['external_scope_mismatch'],
+      );
+    }
+
+    if (validationScope.kind === 'AREA') {
+      const outside = requiredEntities.find(
+        (entity) =>
+          !geometryContainsPoint(
+            validationScope.geometry,
+            entity.longitude as number,
+            entity.latitude as number,
+          ),
+      );
+      if (outside) {
+        return this.rejected(
+          proposalName,
+          'EXPERIENCE',
+          [outside],
+          evidenceKeys,
+          ['external_scope_mismatch'],
+        );
+      }
+      return undefined;
+    }
+
+    // ROUTE: real corridor-membership check via distancePointToLineStringMeters
+    // (NOT routeDestinationMismatch's regional destination-centroid/radius
+    // approximation — that policy still runs afterward, unchanged, as an
+    // additional regional-coherence guard once corridor membership passes).
+    // Applied ONLY to required point-like (venue/waypoint) components, NEVER
+    // to the canonical ROUTE entity itself — its own representative/centroid
+    // coordinate is not guaranteed to lie on its own LineString, and its
+    // identity is already validationScope.geoEntityId + geometry.
+    const requiredPointLikeEntities = requiredEntities.filter(
+      (entity) => entity.role !== 'route',
+    );
+    const tooFar = requiredPointLikeEntities.find(
+      (entity) =>
+        distancePointToLineStringMeters(
+          {
+            latitude: entity.latitude as number,
+            longitude: entity.longitude as number,
+          },
+          validationScope.geometry,
+        ) > this.thresholds.route.maxComponentDistanceFromRouteMeters,
+    );
+    if (tooFar) {
+      return this.rejected(proposalName, 'EXPERIENCE', [tooFar], evidenceKeys, [
+        'external_scope_mismatch',
+      ]);
+    }
+    return undefined;
   }
 
   /**
@@ -129,6 +241,42 @@ export class CompositeGeographicValidationService {
           ['destination_mismatch'],
         );
       }
+      // Task B5 (correctness point 10): validate every OTHER required
+      // component too, not just the one canonical ROUTE entity.
+      const requiredHints = resolvedProposal.candidate.componentHints.filter(
+        (hint) => hint.required,
+      );
+      const requiredNonRouteHints = requiredHints.filter(
+        (hint) => hint.role !== 'route',
+      );
+      const unresolvedRequiredNonRoute = requiredNonRouteHints.some(
+        (hint) =>
+          !withCoordinates.some((entity) => entity.hintKey === hint.key),
+      );
+      if (unresolvedRequiredNonRoute) {
+        return this.rejected(
+          proposalName,
+          'ROUTE',
+          [canonicalRoute],
+          evidenceKeys,
+          ['unresolved_required_component'],
+        );
+      }
+      const requiredNonRouteEntities = withCoordinates.filter(
+        (entity) =>
+          entity.role !== 'route' &&
+          requiredNonRouteHints.some((hint) => hint.key === entity.hintKey),
+      );
+      const fullRequiredSet = [canonicalRoute, ...requiredNonRouteEntities];
+      if (this.routeDestinationMismatch(fullRequiredSet, destinationBoundary)) {
+        return this.rejected(
+          proposalName,
+          'ROUTE',
+          fullRequiredSet,
+          evidenceKeys,
+          ['destination_mismatch'],
+        );
+      }
       return {
         proposalName,
         kind: 'ROUTE',
@@ -136,41 +284,97 @@ export class CompositeGeographicValidationService {
         accepted: true,
         strategy: 'canonical_geometry',
         canonicalEntity: canonicalRoute,
-        anchors: [canonicalRoute],
+        anchors: fullRequiredSet,
         groundedEvidenceKeys: evidenceKeys,
         rejectionReasons: [],
         validatorVersion: GEOGRAPHIC_VALIDATOR_VERSION,
       };
     }
 
-    const canonicalArea = withCoordinates.find(
-      (entity) => entity.role === 'area' && entity.geometry,
+    // Task B5 (correctness point 14): the canonical-area shortcut applies
+    // ONLY when there is EXACTLY ONE required AREA hint — zero required
+    // AREA hints means no shortcut at all; two or more means a genuine
+    // multi-area Experience that must fall through to validateExperience's
+    // destination+coherence path instead of being forced into one area's
+    // containment. An optional (non-required) AREA hint never triggers
+    // this shortcut on its own.
+    const requiredAreaHints = resolvedProposal.candidate.componentHints.filter(
+      (hint) => hint.required && hint.role === 'area',
     );
     const hasWaypointHint = resolvedProposal.candidate.componentHints.some(
       (hint) => hint.role === 'waypoint' || hint.role === 'venue',
     );
-    if (canonicalArea && hasWaypointHint) {
-      if (!this.isInsideDestination(canonicalArea, destinationBoundary)) {
-        return this.rejected(
-          proposalName,
-          'NEIGHBORHOOD_WALK',
-          [canonicalArea],
-          evidenceKeys,
-          ['destination_mismatch'],
+    if (requiredAreaHints.length === 1 && hasWaypointHint) {
+      const canonicalArea = withCoordinates.find(
+        (entity) =>
+          entity.role === 'area' &&
+          entity.hintKey === requiredAreaHints[0].key &&
+          entity.geometry,
+      );
+      if (canonicalArea) {
+        if (!this.isInsideDestination(canonicalArea, destinationBoundary)) {
+          return this.rejected(
+            proposalName,
+            'EXPERIENCE',
+            [canonicalArea],
+            evidenceKeys,
+            ['destination_mismatch'],
+          );
+        }
+        // Task B5 (correctness point 10): validate every OTHER required
+        // (non-area) component too, not just the canonical AREA entity.
+        const requiredNonAreaHints =
+          resolvedProposal.candidate.componentHints.filter(
+            (hint) => hint.required && hint.role !== 'area',
+          );
+        const unresolvedRequiredNonArea = requiredNonAreaHints.some(
+          (hint) =>
+            !withCoordinates.some((entity) => entity.hintKey === hint.key),
         );
+        if (unresolvedRequiredNonArea) {
+          return this.rejected(
+            proposalName,
+            'EXPERIENCE',
+            [canonicalArea],
+            evidenceKeys,
+            ['unresolved_required_component'],
+          );
+        }
+        const requiredNonAreaEntities = withCoordinates.filter(
+          (entity) =>
+            entity.role !== 'area' &&
+            requiredNonAreaHints.some((hint) => hint.key === entity.hintKey),
+        );
+        const outsideArea = requiredNonAreaEntities.find(
+          (entity) =>
+            !geometryContainsPoint(
+              canonicalArea.geometry as GeoJsonGeometry,
+              entity.longitude as number,
+              entity.latitude as number,
+            ),
+        );
+        if (outsideArea) {
+          return this.rejected(
+            proposalName,
+            'EXPERIENCE',
+            [canonicalArea, outsideArea],
+            evidenceKeys,
+            ['destination_mismatch'],
+          );
+        }
+        return {
+          proposalName,
+          kind: 'EXPERIENCE',
+          status: 'GEO_VERIFIED',
+          accepted: true,
+          strategy: 'canonical_area',
+          canonicalEntity: canonicalArea,
+          anchors: [canonicalArea, ...requiredNonAreaEntities],
+          groundedEvidenceKeys: evidenceKeys,
+          rejectionReasons: [],
+          validatorVersion: GEOGRAPHIC_VALIDATOR_VERSION,
+        };
       }
-      return {
-        proposalName,
-        kind: 'NEIGHBORHOOD_WALK',
-        status: 'GEO_VERIFIED',
-        accepted: true,
-        strategy: 'canonical_area',
-        canonicalEntity: canonicalArea,
-        anchors: [canonicalArea],
-        groundedEvidenceKeys: evidenceKeys,
-        rejectionReasons: [],
-        validatorVersion: GEOGRAPHIC_VALIDATOR_VERSION,
-      };
     }
 
     return undefined;
@@ -181,6 +385,7 @@ export class CompositeGeographicValidationService {
     withCoordinates: ResolvedGeoEntity[],
     destinationBoundary: OsmCandidate,
     evidenceKeys: string[],
+    validationIntent?: 'walk' | 'route_like',
   ): GeographicValidationResult {
     const proposal = resolvedProposal.candidate;
     const proposalName = proposal.name;
@@ -194,7 +399,18 @@ export class CompositeGeographicValidationService {
     const anchors = this.dedupeEntities(
       withCoordinates.filter((entity) => entity.role !== 'area'),
     );
-    const hasRouteComponent = anchors.some((entity) => entity.role === 'route');
+    const hasCanonicalRouteComponent = anchors.some(
+      (entity) => entity.role === 'route',
+    );
+    // Task B5 (correctness points 15/19): route-scale geographic policy
+    // applies to a real route_like tourism Experience with NO canonical
+    // ROUTE component too -- sourced ONLY from the request's own
+    // `validationIntent`, NEVER from `proposal.intents`/`themes`/`traits`
+    // (discovery-extraction fields that are not authoritative and, post-B6,
+    // are not even populated). This does not mean `route_like == ROUTE`;
+    // it only widens which threshold set applies below.
+    const routeScale =
+      hasCanonicalRouteComponent || validationIntent === 'route_like';
 
     if (venueCentric) {
       if (evidenceKeys.length === 0) {
@@ -239,15 +455,14 @@ export class CompositeGeographicValidationService {
       ]);
     }
     if (
-      anchors.length <
-      (hasRouteComponent ? 1 : this.thresholds.experience.minAnchors)
+      anchors.length < (routeScale ? 1 : this.thresholds.experience.minAnchors)
     ) {
       return this.rejected(proposalName, kind, anchors, evidenceKeys, [
         'insufficient_resolved_entities',
       ]);
     }
     if (
-      hasRouteComponent
+      routeScale
         ? this.routeDestinationMismatch(anchors, destinationBoundary)
         : this.destinationMismatch(anchors, destinationBoundary, false)
     ) {
@@ -258,11 +473,11 @@ export class CompositeGeographicValidationService {
     const coherence = coherenceMetrics(this.pointsOf(anchors));
     if (
       coherence.radiusMeters >
-        (hasRouteComponent
+        (routeScale
           ? this.thresholds.route.maxRadiusMeters
           : this.thresholds.experience.maxRadiusMeters) ||
       coherence.maxPairwiseDistanceMeters >
-        (hasRouteComponent
+        (routeScale
           ? this.thresholds.route.maxPairwiseDistanceMeters
           : this.thresholds.experience.maxPairwiseDistanceMeters)
     ) {

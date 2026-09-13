@@ -13,6 +13,7 @@ import {
 } from '../interfaces/experience-acquisition-plan.interface';
 import { lookupSourceCapabilityRoute } from '../constants/acquisition-source-routing';
 import { candidateMatchesPreferenceFacet } from '../utils/preference-facet-matching.util';
+import { AnchoredPlace } from '../interfaces/preference-spec.interface';
 
 export interface BuildPlanInput {
   destination: ExperienceDiscoveryScope;
@@ -22,6 +23,12 @@ export interface BuildPlanInput {
   preferredFacets?: PreferenceFacet[];
   candidates?: ExperienceCandidate[];
   semanticQuery?: string;
+  /**
+   * Task B5 — area/route anchors relevant to a walk/route_like deficit.
+   * Every relevant anchor's name is preserved into the web query (never
+   * collapsed to one, never dropped when 1+ exist — correctness point 12).
+   */
+  anchors?: AnchoredPlace[];
 }
 
 @Injectable()
@@ -229,9 +236,29 @@ export class ExperienceAcquisitionPlannerService {
       const sortedKeywords = [...webKeywords].sort();
       const queryParts = destName ? [destName] : [];
 
+      // Task B5 (correctness point 12): for a walk/route_like deficit,
+      // preserve EVERY relevant area/route anchor name in the query --
+      // never collapse "San Telmo to La Boca" down to one name, never
+      // drop them all when 1+ exist.
+      const isWalkOrRouteLikeDeficit = deficits.some(
+        (d) =>
+          d.dimension === 'intent' &&
+          (d.key === 'walk' || d.key === 'route_like'),
+      );
+      const relevantAnchorNames = isWalkOrRouteLikeDeficit
+        ? (input.anchors ?? [])
+            .filter(
+              (anchor) => anchor.kind === 'area' || anchor.kind === 'route',
+            )
+            .map((anchor) => anchor.rawName)
+        : [];
+
+      if (relevantAnchorNames.length > 0) {
+        queryParts.push(...relevantAnchorNames);
+      }
       if (sortedKeywords.length > 0) {
         queryParts.push(...sortedKeywords);
-      } else {
+      } else if (relevantAnchorNames.length === 0) {
         queryParts.push('top attractions');
       }
       if (input.semanticQuery?.trim()) {
@@ -262,6 +289,9 @@ export class ExperienceAcquisitionPlannerService {
           ...(webIntents.length ? { requestedIntents: webIntents } : {}),
           ...(webTraits.length ? { preferredTraits: webTraits } : {}),
           ...(webSemanticQuery ? { semanticQuery: webSemanticQuery } : {}),
+          ...(relevantAnchorNames.length
+            ? { anchorNames: relevantAnchorNames }
+            : {}),
         },
       });
     }

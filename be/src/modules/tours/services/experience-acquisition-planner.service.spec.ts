@@ -477,4 +477,64 @@ describe('ExperienceAcquisitionPlannerService', () => {
     expect(web?.web.query).toContain('top attractions');
     expect(web?.web.query).toContain('things to do');
   });
+
+  it('preserves BOTH anchor names for a multi-anchor walk deficit, never collapsing to one (Task B5)', () => {
+    const plan = service.buildAcquisitionPlan({
+      destination: { destinationName: 'Buenos Aires' },
+      deficits: [
+        {
+          dimension: 'intent',
+          key: 'walk',
+          reason: 'Need a walk candidate',
+          origin: 'coverage_analysis',
+        },
+      ],
+      anchors: [
+        { rawName: 'San Telmo', kind: 'area', priority: 'must' },
+        { rawName: 'La Boca', kind: 'area', priority: 'must' },
+      ],
+    });
+
+    const web = findPlan(plan, 'web');
+    expect(web?.web.anchorNames).toEqual(['San Telmo', 'La Boca']);
+    expect(web?.web.query).toContain('San Telmo');
+    expect(web?.web.query).toContain('La Boca');
+  });
+
+  it('does not inject anchor names for a non-walk/route_like deficit', () => {
+    const plan = service.buildAcquisitionPlan({
+      destination: { destinationName: 'Buenos Aires' },
+      deficits: [
+        {
+          dimension: 'theme',
+          key: 'culture',
+          reason: 'Need a culture candidate',
+          origin: 'coverage_analysis',
+        },
+      ],
+      anchors: [{ rawName: 'San Telmo', kind: 'area', priority: 'must' }],
+    });
+
+    const web = findPlan(plan, 'web');
+    expect(web?.web.anchorNames).toBeUndefined();
+    expect(web?.web.query).not.toContain('San Telmo');
+  });
+
+  it('ignores a venue/unknown-kind anchor for the walk-query anchor injection', () => {
+    const plan = service.buildAcquisitionPlan({
+      destination: { destinationName: 'Buenos Aires' },
+      deficits: [
+        {
+          dimension: 'intent',
+          key: 'route_like',
+          reason: 'Need a route_like candidate',
+          origin: 'coverage_analysis',
+        },
+      ],
+      anchors: [{ rawName: 'MALBA', kind: 'venue', priority: 'soft' }],
+    });
+
+    const web = findPlan(plan, 'web');
+    expect(web?.web.anchorNames).toBeUndefined();
+  });
 });
