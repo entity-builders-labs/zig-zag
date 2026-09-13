@@ -354,6 +354,67 @@ describe('tour-generation integration · experience identity / dedupe gate (pre-
         expect((reversed as any).id).not.toBe(forward.id);
       }
     });
+
+    it('EXACT COMPONENT SET, SHARED GENERIC LOCATION/TYPE WORDS ONLY: names that overlap merely because they share a place name and a generic type word must NOT become SAME', async () => {
+      const prisma = await getPrisma();
+      const stops = [
+        'Plaza Dorrego',
+        'Mercado de San Telmo',
+        'Pasaje Defensa',
+        'El Zanjón de Granados',
+      ];
+
+      // "San Telmo Historical Walk" vs "San Telmo Food Walk" share "san",
+      // "telmo", and "walk" -- purely because both are walks located in
+      // San Telmo, not because they describe the same tourism concept.
+      // nameSimilarity is therefore > 0 (a real, non-zero token overlap),
+      // which the OLD `exactStructure` rule treated as sufficient
+      // compatibility evidence on its own. It is not: two independently
+      // evidenced Experiences over the exact same real stops/roles, with
+      // genuinely different themes/intents (historical vs. food), must
+      // not collapse into one.
+      const historical = await catalog.persistVerifiedExperience({
+        canonicalName: 'San Telmo Historical Walk',
+        description:
+          'A historical walking tour through the heart of San Telmo, visiting Plaza Dorrego, the historic Mercado de San Telmo, and Pasaje Defensa.',
+        metadata: { themes: ['history'], intents: ['walk'] },
+        components: componentsOf(stops),
+        evidence: [{ source: 'history-guide-2' }],
+      });
+      expect((historical as any).dedupeDecision).toBe('NEW');
+      const beforeMetadata = (
+        await prisma.experience.findUnique({ where: { id: historical.id } })
+      )?.metadata;
+
+      const food = await catalog.persistVerifiedExperience({
+        canonicalName: 'San Telmo Food Walk',
+        description:
+          'A gastronomic walk through San Telmo sampling empanadas and local fare near Plaza Dorrego, Mercado de San Telmo, and Pasaje Defensa.',
+        metadata: { themes: ['food'], intents: ['food'] },
+        components: componentsOf(stops),
+        evidence: [{ source: 'food-guide-2' }],
+      });
+
+      expect((food as any).dedupeDecision).not.toBe('SAME');
+
+      const count = await prisma.experience.count({
+        where: { status: 'VERIFIED' },
+      });
+      if ((food as any).dedupeDecision === 'AMBIGUOUS') {
+        expect(count).toBe(1);
+        const persisted = await prisma.experience.findUnique({
+          where: { id: historical.id },
+          include: { evidence: true },
+        });
+        expect(persisted!.evidence.map((e) => e.source)).toEqual([
+          'history-guide-2',
+        ]);
+        expect(persisted!.metadata).toEqual(beforeMetadata);
+      } else {
+        expect(count).toBe(2);
+        expect((food as any).id).not.toBe(historical.id);
+      }
+    });
   });
 
   describe('Case 2 — NEW preserves multiple real Experiences with the same facets', () => {

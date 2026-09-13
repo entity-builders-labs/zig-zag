@@ -1045,6 +1045,7 @@ export class ExperienceCatalogService {
           input.metadata,
           [],
         ),
+        conceptTerms: this.conceptTerms(input.metadata),
         latitude: input.latitude,
         longitude: input.longitude,
         components: input.components,
@@ -1064,6 +1065,7 @@ export class ExperienceCatalogService {
               `${traitDefinition.dimension}:${traitDefinition.key}`,
             ]),
           ),
+          conceptTerms: this.conceptTerms(candidate.metadata),
           latitude: candidate.latitude,
           longitude: candidate.longitude,
           components: candidate.components,
@@ -1229,6 +1231,24 @@ export class ExperienceCatalogService {
     ].filter(
       (value): value is string => typeof value === 'string' && !!value.trim(),
     );
+  }
+
+  /**
+   * The curated tourism concept (`metadata.themes` + `metadata.intents`)
+   * ONLY -- deliberately excludes free-text `description`/`canonicalName`,
+   * which naturally share generic location/format words across
+   * genuinely different real Experiences over the same real stops. Feeds
+   * `DedupeExperienceFingerprint.conceptTerms`, the identity-dedupe gate's
+   * dedicated compatible-concept-evidence signal (never a substitute for
+   * `semanticTerms`, which still legitimately blends in description/
+   * traits for the broader `strongConsistentIdentity` path).
+   */
+  private conceptTerms(metadataValue: unknown): string[] {
+    const metadata = this.objectMetadata(metadataValue);
+    return [
+      ...this.stringList(metadata.themes),
+      ...this.stringList(metadata.intents ?? metadata.archetypes),
+    ];
   }
 
   private preferRicherText(

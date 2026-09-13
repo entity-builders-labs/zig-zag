@@ -16,6 +16,19 @@ export interface DedupeExperienceFingerprint {
   id?: string;
   canonicalName: string;
   semanticTerms?: string[];
+  /**
+   * The curated tourism CONCEPT (`metadata.themes` + `metadata.intents`),
+   * as distinct real identity evidence from `canonicalName`/`semanticTerms`.
+   * Free text (a title, a description) naturally shares generic
+   * location/type words across genuinely different real Experiences over
+   * the same real stops ("San Telmo Historical Walk" vs "San Telmo Food
+   * Walk" both legitimately contain "San Telmo" and "Walk") -- that lexical
+   * overlap reflects shared geography/format, not shared identity. Themes/
+   * intents are curated category labels naming the actual concept, so a
+   * real overlap here is compatible-identity evidence in a way raw word
+   * overlap is not.
+   */
+  conceptTerms?: string[];
   latitude?: number | null;
   longitude?: number | null;
   components: DedupeComponentFingerprint[];
@@ -29,6 +42,15 @@ export interface DedupeEvidence {
   roleAwareComponentOverlap: number;
   distanceKm: number | null;
   provenanceOverlap: number;
+  /**
+   * Overlap of curated `conceptTerms` (themes + intents) -- see
+   * `DedupeExperienceFingerprint.conceptTerms`. Real, positive overlap here
+   * is compatible-identity evidence; both sides being empty is a vacuous
+   * 1 (no concept data on either side to conflict), consistent with how
+   * every other `setOverlap`-based signal in this file already treats an
+   * empty/empty pair.
+   */
+  conceptOverlap: number;
   /**
    * True only when BOTH sides carry a real (non-null) evidenced order for
    * at least 2 of the same real components, AND those two evidenced
@@ -93,17 +115,36 @@ export function decideExperienceDedupe(
   // exact same real stops/roles while representing different tourism
   // concepts, or describe the same component set in explicitly
   // conflicting sequences. `exactStructure` therefore additionally
-  // requires: (a) at least SOME real textual/identity relationship
-  // between the two sources (nameSimilarity > 0 -- not a tuned
-  // threshold, the natural floor between "no lexical connection at all"
-  // and "some"), and (b) no explicit evidenced-order conflict. Absent
-  // that minimal compatibility, a perfect component match alone resolves
+  // requires (a) at least SOME real textual relationship between the two
+  // sources' names (nameSimilarity > 0 -- not a tuned threshold, the
+  // natural floor between "no lexical connection at all" and "some"),
+  // (b) no explicit evidenced-order conflict, AND (c) real compatible
+  // IDENTITY evidence, not merely any shared word. Partial name overlap is
+  // not, by itself, that evidence: two independently evidenced Experiences
+  // over the exact same real stops can legitimately share generic
+  // location/format words in their names ("San Telmo Historical Walk" vs
+  // "San Telmo Food Walk" both truthfully contain "San Telmo" and "Walk")
+  // while representing different real tourism concepts. Compatible
+  // identity evidence is therefore either of:
+  //   - the two names being IDENTICAL after normalization
+  //     (nameSimilarity === 1) -- on its own already a very strong,
+  //     unambiguous textual identity signal, independent of concept; or
+  //   - real, positive overlap in the curated CONCEPT the two sources
+  //     independently assign (conceptOverlap > 0 -- themes/intents, never
+  //     free text, which is exactly the channel generic words leak
+  //     through).
+  // Neither is a tuned magic threshold: identical-after-normalization is a
+  // natural (not arbitrary) floor, and conceptOverlap > 0 is the same
+  // "some real relationship, not none" floor already used for
+  // nameSimilarity, applied to a category-labeled signal instead of free
+  // text. Absent one of these, a perfect component match alone resolves
   // to AMBIGUOUS below, exactly like the partial-overlap case -- never a
   // confident NEW, never a silent SAME.
   const exactStructure =
     best.evidence.roleAwareComponentOverlap === 1 &&
     best.evidence.componentOverlap === 1 &&
     best.evidence.nameSimilarity > 0 &&
+    (best.evidence.nameSimilarity === 1 || best.evidence.conceptOverlap > 0) &&
     !best.evidence.orderConflict;
   const strongConsistentIdentity =
     best.evidence.nameSimilarity >= 0.86 &&
@@ -201,6 +242,10 @@ export function compareFingerprints(
     (existing.provenance ?? []).map(normalize),
   );
   const provenanceOverlap = setOverlap(incomingProvenance, existingProvenance);
+  const conceptOverlap = setOverlap(
+    conceptTokenSet(incoming),
+    conceptTokenSet(existing),
+  );
   const distanceKm = haversineKm(incoming, existing);
   const orderConflict = hasConflictingEvidencedOrder(
     incoming.components,
@@ -218,6 +263,7 @@ export function compareFingerprints(
   if (distanceKm != null && distanceKm <= 1.5)
     reasons.push('geographically_close');
   if (provenanceOverlap > 0) reasons.push('shared_provenance');
+  if (conceptOverlap > 0) reasons.push('shared_concept_evidence');
   if (orderConflict) reasons.push('conflicting_evidenced_order');
 
   return {
@@ -227,6 +273,7 @@ export function compareFingerprints(
     roleAwareComponentOverlap,
     distanceKm,
     provenanceOverlap,
+    conceptOverlap,
     orderConflict,
     reasons,
   };
@@ -304,6 +351,16 @@ function semanticTokenSet(
   );
 }
 
+function conceptTokenSet(
+  fingerprint: DedupeExperienceFingerprint,
+): Set<string> {
+  return new Set(
+    (fingerprint.conceptTerms ?? [])
+      .flatMap((value) => normalize(value).split(' '))
+      .filter(Boolean),
+  );
+}
+
 function tokenJaccard(left: string, right: string): number {
   const a = new Set(normalize(left).split(' ').filter(Boolean));
   const b = new Set(normalize(right).split(' ').filter(Boolean));
@@ -364,6 +421,7 @@ function emptyEvidence(reason: string): DedupeEvidence {
     roleAwareComponentOverlap: 0,
     distanceKm: null,
     provenanceOverlap: 0,
+    conceptOverlap: 0,
     orderConflict: false,
     reasons: [reason],
   };
