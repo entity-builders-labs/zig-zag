@@ -3454,20 +3454,36 @@ completion.
 
 Real Postgres integration coverage
 (`be/test/integration/tour-generation/experience-identity-dedupe.integration-spec.ts`,
-12 tests) found and fixed a real bug in `decideExperienceDedupe`
-(`experience-dedupe.util.ts`): `exactStructure` required byte-identical
-canonical names in addition to a perfect component-set match, so two
-independent sources describing the literal same real Experience with
-differently-worded titles (the realistic case, not an edge case) incorrectly
-resolved `AMBIGUOUS` instead of `SAME`. Fixed by requiring only a complete,
-role-consistent component-set match (`componentOverlap === 1 &&
-roleAwareComponentOverlap === 1`), never name equality — verified against
-both the pre-existing pure-unit suite (`experience-dedupe.util.spec.ts`,
-still 3/3, unaffected) and the new integration suite (12/12).
+14 tests) found and fixed TWO real bugs in `decideExperienceDedupe`
+(`experience-dedupe.util.ts`), in two rounds:
+
+1. `exactStructure` originally required byte-identical canonical names in
+   addition to a perfect component-set match, so two independent sources
+   describing the literal same real Experience with differently-worded
+   titles (the realistic case, not an edge case) incorrectly resolved
+   `AMBIGUOUS` instead of `SAME`. First fix: require only a complete,
+   role-consistent component-set match, never name equality.
+2. Review caught that the first fix over-corrected: a perfect component
+   match then returned SAME **unconditionally**, violating "component
+   overlap alone cannot force SAME" — two Experiences can legitimately
+   share the exact same real stops/roles under a clearly different
+   tourism concept, or in explicitly conflicting evidenced sequences.
+   Second fix: added a real evidenced-order-conflict signal
+   (`DedupeComponentFingerprint.order`, previously untyped though already
+   flowing through at runtime; `hasConflictingEvidencedOrder()`), and
+   `exactStructure` now additionally requires `nameSimilarity > 0` (the
+   natural zero/nonzero floor, not a tuned threshold) and no order
+   conflict — byte-identical names are still never required.
+
+Verified against the pre-existing pure-unit suite
+(`experience-dedupe.util.spec.ts`, still 3/3, unaffected by either fix) and
+the integration suite (14/14 after both fixes; the 2 new review-fix
+regressions confirmed genuinely RED against the over-corrected code before
+the second fix, by temporary local revert-and-restore).
 
 Verification: `yarn typecheck`/`yarn lint:check` clean; `yarn test
 src/modules/tours --runInBand` 94 suites/1040 tests; `yarn test:integration`
-14 suites/56 tests (up from 13/44); `yarn test --runInBand` (full backend)
+14 suites/58 tests (up from 13/44); `yarn test --runInBand` (full backend)
 141 suites/1360 tests; `yarn build` clean. No regressions.
 
 ### Next task

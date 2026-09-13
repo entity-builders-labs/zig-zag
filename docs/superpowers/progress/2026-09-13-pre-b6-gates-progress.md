@@ -83,6 +83,53 @@ fixture already used an identical name on both sides, so this fix is additive,
 not a behavior change for that test) and the new integration suite (12/12
 GREEN after the fix).
 
+## Review fix — the first fix over-corrected: perfect component match became unilateral SAME authority
+
+A follow-up review caught that the fix above went too far: `exactStructure`
+(`componentOverlap === 1 && roleAwareComponentOverlap === 1`) returned SAME
+**unconditionally**, with no other check at all. That violates hard invariant
+7 ("component overlap alone cannot force SAME") and gate §8's actual
+requirement ("100% role-aware component identity **+ compatible real
+name/evidence** → SAME" — two ANDed conditions, not one). Two independently
+evidenced Experiences can legitimately share the exact same real stops/roles
+while representing different tourism concepts (a historical walk and a beer
+crawl over the identical 4 stops), or describe the same component set in
+explicitly conflicting evidenced sequences — neither should collapse to SAME.
+
+**RED added** (`experience-identity-dedupe.integration-spec.ts`, 2 new
+tests): (1) exact component/role match, clearly different name/theme/
+evidence ("San Telmo Historical Walking Tour" vs "Craft Beer and Empanada
+Crawl" over the identical 4 stops) — must not be SAME; (2) exact component/
+role/name match but an explicitly evidenced REVERSE visiting sequence on
+each side — must not be SAME. Both confirmed RED against the
+over-corrected code (temporarily reverted to verify, then restored) before
+the second fix: **2/2 failed**, both `received "SAME"`, exactly the
+predicted over-correction.
+
+**Second fix**:
+1. `DedupeComponentFingerprint` gained `order?: number | null`
+   (`ExperienceComponent.order` was already flowing through at runtime via
+   `persistVerifiedExperience`'s existing fingerprint construction — only
+   the TYPE and the comparison logic were missing it).
+2. New `hasConflictingEvidencedOrder()`: true only when BOTH sides carry a
+   real (non-null) evidenced order for at least 2 of the same real
+   components AND those two induced sequences genuinely disagree — a
+   component with no evidenced order on either side never participates
+   ("no manufactured order when order is null").
+3. `exactStructure` now additionally requires `nameSimilarity > 0` (the
+   natural floor between "zero lexical connection" and "some" — not a
+   threshold tuned to fit a fixture) **and** `!orderConflict`.
+   `strongConsistentIdentity` also now requires `!orderConflict`. Byte-
+   identical names are still never required (that was the original,
+   correct Case-1 finding) — a perfect component/role match remains a very
+   strong signal, just no longer unilateral authority.
+
+GREEN after the second fix: the 2 new regressions pass, all 12 previously-
+green cases remain green (14/14 total), the pure unit suite remains 3/3
+unaffected (its fixtures never set `order`, so `orderConflict` is always
+`false` there — zero behavior change for anything that doesn't explicitly
+evidence a sequence).
+
 ## Exit criteria (from the gate plan, section 11) — all satisfied
 
 - [x] Case 1 SAME is green on real Postgres (differently-worded second source).
@@ -92,15 +139,17 @@ GREEN after the fix).
 - [x] Classification/facet equality alone cannot collapse identity (same components + different theme label => still SAME; same facets + different components => NEW).
 - [x] Case 3 AMBIGUOUS creates no new row and mutates no canonical row (metadata/evidence/components on the existing row asserted unchanged after the ambiguous submission).
 - [x] Resolver surfaces `AMBIGUOUS_DEDUPE` (Case 3b) without persistence corruption.
+- [x] A perfect component/role match with a clearly conflicting name/concept/evidence is NOT SAME (review-fix regression).
+- [x] A perfect component/role/name match with an explicitly conflicting evidenced order is NOT SAME (review-fix regression).
 - [x] All assertions verify via a real Postgres re-read (`prisma.experience.findUnique`/`count`), never trusting only the returned object.
-- [x] Full existing integration suite remains green: 14 suites / 56 tests (was 13/44 before this file).
+- [x] Full existing integration suite remains green: 14 suites / 58 tests (was 13/44 before this file; 56 after the first fix, 58 after the review fix's 2 new tests).
 - [x] Full backend regression remains green: 141 suites / 1360 tests, no regressions.
 - [x] `yarn typecheck`, `yarn lint:check` (scoped `eslint --fix`), `yarn build` all clean.
 
 ## Files changed
 
-- `be/src/modules/tours/utils/experience-dedupe.util.ts` (`exactStructure` fix)
-- `be/test/integration/tour-generation/experience-identity-dedupe.integration-spec.ts` (new, 12 tests)
+- `be/src/modules/tours/utils/experience-dedupe.util.ts` (`exactStructure`/`strongConsistentIdentity` fix + review fix; new `order` field + `hasConflictingEvidencedOrder`)
+- `be/test/integration/tour-generation/experience-identity-dedupe.integration-spec.ts` (14 tests total: 12 original + 2 review-fix regressions)
 
 ## Deviations from the gate plan
 
@@ -114,9 +163,11 @@ GREEN after the fix).
   overlap, boundary-straddling scenario is exercised separately by the
   "component overlap boundaries" AMBIGUOUS test and Case 2b (which
   explicitly accepts AMBIGUOUS as compliant, per the plan's own text).
-- No other deviations. Nothing was weakened to force a pass — the one real
-  gap found (name-similarity gating out a legitimate exact-structure SAME)
-  was fixed at the algorithm level, not worked around in the fixtures.
+- No other deviations. Nothing was weakened to force a pass — both real
+  gaps found (name-similarity originally gating out a legitimate exact-
+  structure SAME, then the corrected version over-granting unconditional
+  SAME authority to a perfect component match) were fixed at the algorithm
+  level, never worked around in the fixtures.
 
 ---
 
