@@ -44,11 +44,15 @@ export interface DedupeEvidence {
   provenanceOverlap: number;
   /**
    * Overlap of curated `conceptTerms` (themes + intents) -- see
-   * `DedupeExperienceFingerprint.conceptTerms`. Real, positive overlap here
-   * is compatible-identity evidence; both sides being empty is a vacuous
-   * 1 (no concept data on either side to conflict), consistent with how
-   * every other `setOverlap`-based signal in this file already treats an
-   * empty/empty pair.
+   * `DedupeExperienceFingerprint.conceptTerms`. Only FULL agreement
+   * (`=== 1`) is ever treated as identity-compatible evidence — a
+   * classification facet (theme/intent) is not identity, so a PARTIAL
+   * match (e.g. sharing only a generic `intent: walk` while themes
+   * differ) must never "upgrade" a structural match to SAME either;
+   * unlike every other `setOverlap`-based signal in this file, both sides
+   * being empty scores 0 here, not a vacuous 1 — themes/intents are
+   * routinely absent pre-classification, and absence of concept data on
+   * both sides is absence of evidence, never evidence of agreement.
    */
   conceptOverlap: number;
   /**
@@ -115,36 +119,49 @@ export function decideExperienceDedupe(
   // exact same real stops/roles while representing different tourism
   // concepts, or describe the same component set in explicitly
   // conflicting sequences. `exactStructure` therefore additionally
-  // requires (a) at least SOME real textual relationship between the two
-  // sources' names (nameSimilarity > 0 -- not a tuned threshold, the
-  // natural floor between "no lexical connection at all" and "some"),
-  // (b) no explicit evidenced-order conflict, AND (c) real compatible
-  // IDENTITY evidence, not merely any shared word. Partial name overlap is
-  // not, by itself, that evidence: two independently evidenced Experiences
-  // over the exact same real stops can legitimately share generic
-  // location/format words in their names ("San Telmo Historical Walk" vs
-  // "San Telmo Food Walk" both truthfully contain "San Telmo" and "Walk")
-  // while representing different real tourism concepts. Compatible
-  // identity evidence is therefore either of:
+  // requires (a) no explicit evidenced-order conflict, AND (b) real
+  // compatible IDENTITY evidence, not merely any shared word or shared
+  // classification facet. Neither partial name overlap NOR partial (or
+  // even any) concept/classification overlap is, by itself, that
+  // evidence:
+  //   - Two independently evidenced Experiences over the exact same real
+  //     stops can legitimately share generic location/format words in
+  //     their names ("San Telmo Historical Walk" vs "San Telmo Food Walk"
+  //     both truthfully contain "San Telmo" and "Walk").
+  //   - `theme`/`intent` are CLASSIFICATION facets, not identity: two
+  //     genuinely different real Experiences over the identical stops can
+  //     legitimately share an intent ("multiple distinct Experiences with
+  //     intent=walk in the same scope" is explicitly valid design) or a
+  //     theme label independently of whether they are the same physical
+  //     composition. A classification facet therefore can never be the
+  //     thing that "upgrades" a structural match to SAME, whether the
+  //     overlap is partial (one shared intent, differing theme) OR total
+  //     absence on both sides (silently treating "no one classified
+  //     either side" as agreement is not identity evidence either --
+  //     `conceptOverlap` special-cases empty/empty to 0, unlike every
+  //     other overlap signal in this file).
+  // Compatible identity evidence is therefore either of:
   //   - the two names being IDENTICAL after normalization
   //     (nameSimilarity === 1) -- on its own already a very strong,
   //     unambiguous textual identity signal, independent of concept; or
-  //   - real, positive overlap in the curated CONCEPT the two sources
-  //     independently assign (conceptOverlap > 0 -- themes/intents, never
-  //     free text, which is exactly the channel generic words leak
-  //     through).
-  // Neither is a tuned magic threshold: identical-after-normalization is a
-  // natural (not arbitrary) floor, and conceptOverlap > 0 is the same
-  // "some real relationship, not none" floor already used for
-  // nameSimilarity, applied to a category-labeled signal instead of free
-  // text. Absent one of these, a perfect component match alone resolves
-  // to AMBIGUOUS below, exactly like the partial-overlap case -- never a
-  // confident NEW, never a silent SAME.
+  //   - the two sides' curated CONCEPT being IN FULL AGREEMENT
+  //     (conceptOverlap === 1 -- every theme/intent token on one side is
+  //     matched by the other, real non-vacuous data on both sides). Full
+  //     agreement across the WHOLE curated concept is meaningfully
+  //     different from "shares one generic facet" -- it is two
+  //     independent sources converging on the SAME complete
+  //     classification, not merely both happening to be tagged `walk`.
+  // Neither is a tuned magic threshold: both are the same "===1, full
+  // agreement, not partial" pattern already required of
+  // componentOverlap/roleAwareComponentOverlap above. Absent one of
+  // these, a perfect component match alone resolves to AMBIGUOUS below,
+  // exactly like the partial-overlap case -- never a confident NEW, never
+  // a silent SAME.
   const exactStructure =
     best.evidence.roleAwareComponentOverlap === 1 &&
     best.evidence.componentOverlap === 1 &&
-    best.evidence.nameSimilarity > 0 &&
-    (best.evidence.nameSimilarity === 1 || best.evidence.conceptOverlap > 0) &&
+    (best.evidence.nameSimilarity === 1 ||
+      best.evidence.conceptOverlap === 1) &&
     !best.evidence.orderConflict;
   const strongConsistentIdentity =
     best.evidence.nameSimilarity >= 0.86 &&
@@ -242,7 +259,7 @@ export function compareFingerprints(
     (existing.provenance ?? []).map(normalize),
   );
   const provenanceOverlap = setOverlap(incomingProvenance, existingProvenance);
-  const conceptOverlap = setOverlap(
+  const conceptOverlap = conceptOverlapScore(
     conceptTokenSet(incoming),
     conceptTokenSet(existing),
   );
@@ -359,6 +376,23 @@ function conceptTokenSet(
       .flatMap((value) => normalize(value).split(' '))
       .filter(Boolean),
   );
+}
+
+/**
+ * Deliberately NOT the generic `setOverlap` convention: every other
+ * overlap signal in this file treats an empty/empty pair as vacuous full
+ * agreement (1), which is harmless for signals that are always populated
+ * in practice (components, canonicalName). `conceptTerms` is themes/
+ * intents, which are routinely EMPTY (pre-classification, e.g. before B2/
+ * B6 run) -- two totally unrelated, unclassified Experiences must not be
+ * treated as agreeing on concept merely because neither has been
+ * classified yet. Absence of concept evidence on both sides is absence
+ * of evidence, not evidence of compatibility, so it scores 0 here, never
+ * 1.
+ */
+function conceptOverlapScore(left: Set<string>, right: Set<string>): number {
+  if (!left.size && !right.size) return 0;
+  return setOverlap(left, right);
 }
 
 function tokenJaccard(left: string, right: string): number {

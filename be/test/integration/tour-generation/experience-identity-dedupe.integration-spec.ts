@@ -730,7 +730,23 @@ describe('tour-generation integration · experience identity / dedupe gate (pre-
       expect(b.id).not.toBe(a.id);
     });
 
-    it('same real structure/evidence but a different theme label is still SAME (classification does not gate identity)', async () => {
+    it('same real structure/evidence but a different theme label AND only a shared generic intent is NOT SAME (classification does not GRANT identity either — round-3 correction)', async () => {
+      // CORRECTED from an earlier version of this test that asserted SAME
+      // here. That premise directly contradicted the identity-gate's own
+      // "component overlap alone cannot force SAME" family of invariants:
+      // the only thing distinguishing the two sides below from a genuine
+      // NEW/AMBIGUOUS case is a differing `themes` label plus a SHARED
+      // GENERIC `intent` ("walk") -- exactly the pattern the design
+      // forbids from being used to authorize identity ("theme/intent/
+      // facets describe an Experience but do not establish its real-world
+      // identity... multiple distinct Experiences with intent=walk in the
+      // same scope are explicitly valid"). nameSimilarity is a real but
+      // partial 0.43 (shares "historical"/"san"/"telmo", not identical),
+      // so it does not independently clear the byte-identical-name bar
+      // either. Structural overlap alone still makes this a real,
+      // non-trivial AMBIGUOUS candidate (never a confident NEW) -- but
+      // never a silent SAME.
+      const prisma = await getPrisma();
       const a = await catalog.persistVerifiedExperience({
         canonicalName: 'San Telmo Historical Walking Tour',
         description: 'A historical walking tour through San Telmo.',
@@ -743,8 +759,11 @@ describe('tour-generation integration · experience identity / dedupe gate (pre-
         ]),
         evidence: [{ source: 'source-A' }],
       });
-      // A second source classifies the SAME real components under a
-      // DIFFERENT theme label entirely -- identity must still converge.
+      expect((a as any).dedupeDecision).toBe('NEW');
+      const beforeMetadata = (
+        await prisma.experience.findUnique({ where: { id: a.id } })
+      )?.metadata;
+
       const b = await catalog.persistVerifiedExperience({
         canonicalName: 'Historical Walk through San Telmo',
         description: 'A historical walk covering the same San Telmo stops.',
@@ -757,8 +776,134 @@ describe('tour-generation integration · experience identity / dedupe gate (pre-
         ]),
         evidence: [{ source: 'source-B' }],
       });
-      expect((b as any).dedupeDecision).toBe('SAME');
-      expect(b.id).toBe(a.id);
+
+      expect((b as any).dedupeDecision).not.toBe('SAME');
+
+      const count = await prisma.experience.count({
+        where: { status: 'VERIFIED' },
+      });
+      if ((b as any).dedupeDecision === 'AMBIGUOUS') {
+        expect(count).toBe(1);
+        const persisted = await prisma.experience.findUnique({
+          where: { id: a.id },
+          include: { evidence: true },
+        });
+        expect(persisted!.evidence.map((e) => e.source)).toEqual(['source-A']);
+        expect(persisted!.metadata).toEqual(beforeMetadata);
+      } else {
+        expect(count).toBe(2);
+        expect((b as any).id).not.toBe(a.id);
+      }
+    });
+
+    it('BLOCKER 1: exact component/role match + name overlap from generic words ONLY + NO concept evidence on either side is NOT SAME (absence of themes/intents must not be treated as concept agreement)', async () => {
+      const prisma = await getPrisma();
+      const stops = [
+        'Plaza Dorrego',
+        'Mercado de San Telmo',
+        'Pasaje Defensa',
+        'El Zanjón de Granados',
+      ];
+      // No `metadata` at all on either side -- conceptTerms is empty on
+      // BOTH sides. The generic `setOverlap` convention used everywhere
+      // else in this file treats an empty/empty pair as full agreement
+      // (1), which would let concept vacuously "pass" here purely because
+      // no one supplied any concept data at all -- absence of evidence is
+      // not evidence of compatibility.
+      const a = await catalog.persistVerifiedExperience({
+        canonicalName: 'San Telmo Morning Walk',
+        description: 'A morning walk through San Telmo.',
+        components: componentsOf(stops),
+        evidence: [{ source: 'guide-x1' }],
+      });
+      expect((a as any).dedupeDecision).toBe('NEW');
+      const beforeMetadata = (
+        await prisma.experience.findUnique({ where: { id: a.id } })
+      )?.metadata;
+
+      const b = await catalog.persistVerifiedExperience({
+        canonicalName: 'San Telmo Evening Walk',
+        description: 'An evening walk through San Telmo.',
+        components: componentsOf(stops),
+        evidence: [{ source: 'guide-x2' }],
+      });
+
+      expect((b as any).dedupeDecision).not.toBe('SAME');
+
+      const count = await prisma.experience.count({
+        where: { status: 'VERIFIED' },
+      });
+      if ((b as any).dedupeDecision === 'AMBIGUOUS') {
+        expect(count).toBe(1);
+        const persisted = await prisma.experience.findUnique({
+          where: { id: a.id },
+          include: { evidence: true },
+        });
+        expect(persisted!.evidence.map((e) => e.source)).toEqual(['guide-x1']);
+        expect(persisted!.metadata).toEqual(beforeMetadata);
+      } else {
+        expect(count).toBe(2);
+        expect((b as any).id).not.toBe(a.id);
+      }
+    });
+
+    it('BLOCKER 2: exact component/role match + a SHARED GENERIC INTENT (walk) ALONE, with different themes, is NOT SAME (a classification facet cannot authorize identity, even the "compatible" intent facet)', async () => {
+      const prisma = await getPrisma();
+      const stops = [
+        'Plaza Dorrego',
+        'Mercado de San Telmo',
+        'Pasaje Defensa',
+        'El Zanjón de Granados',
+      ];
+      const historical = await catalog.persistVerifiedExperience({
+        canonicalName: 'San Telmo Historical Walk',
+        description:
+          'A historical walk exploring colonial-era buildings and 19th-century history along Plaza Dorrego, Mercado de San Telmo, Pasaje Defensa, and El Zanjón de Granados.',
+        metadata: { themes: ['history'], intents: ['walk'] },
+        components: componentsOf(stops),
+        evidence: [{ source: 'history-guide-3' }],
+      });
+      expect((historical as any).dedupeDecision).toBe('NEW');
+      const beforeMetadata = (
+        await prisma.experience.findUnique({
+          where: { id: historical.id },
+        })
+      )?.metadata;
+
+      // Independently evidenced, genuinely different tourism concept
+      // (architecture, not history) over the identical real stops. Both
+      // are, correctly, `intent: walk` -- the design explicitly permits
+      // "multiple distinct Experiences with intent=walk in the same
+      // scope." Sharing that one generic facet must not be treated as
+      // compatible identity evidence.
+      const architecture = await catalog.persistVerifiedExperience({
+        canonicalName: 'San Telmo Architecture Walk',
+        description:
+          'A walk examining the architectural styles and facades along Plaza Dorrego, Mercado de San Telmo, Pasaje Defensa, and El Zanjón de Granados.',
+        metadata: { themes: ['architecture'], intents: ['walk'] },
+        components: componentsOf(stops),
+        evidence: [{ source: 'architecture-guide' }],
+      });
+
+      expect((architecture as any).dedupeDecision).not.toBe('SAME');
+
+      const count = await prisma.experience.count({
+        where: { status: 'VERIFIED' },
+      });
+      if ((architecture as any).dedupeDecision === 'AMBIGUOUS') {
+        expect(count).toBe(1);
+        const persisted = await prisma.experience.findUnique({
+          where: { id: historical.id },
+          include: { evidence: true },
+        });
+        expect(persisted!.evidence.map((e) => e.source)).toEqual([
+          'history-guide-3',
+        ]);
+        expect(persisted!.metadata).toEqual(beforeMetadata);
+      } else {
+        expect(count).toBe(2);
+        expect((architecture as any).id).not.toBe(historical.id);
+      }
     });
   });
 
