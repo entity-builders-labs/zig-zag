@@ -27,9 +27,10 @@ A1–A7                         COMPLETE
 B1–B4 / B4.1                  COMPLETE
 B5 + B5 review hardening      COMPLETE
 Experience Identity Gate      COMPLETE (2026-09-13)
+Spike infrastructure preflight  COMPLETE (2026-09-13 -- see below)
 
-Real-World PRE-B6 Spikes      NEXT
-B6                             BLOCKED on Real-World PRE-B6 Spikes
+RW1–RW6                         NEXT (not started)
+B6                               BLOCKED on RW1–RW6
 ```
 
 B5's review blockers were fixed and its deterministic/Postgres verification was
@@ -323,6 +324,127 @@ test) is green.
 
 ---
 
+# DONE — Real-World Spike Infrastructure Preflight
+
+Executed in full, real infrastructure (not RW1–RW6 itself, no spike request
+executed). Canonical plan amended in place:
+`docs/superpowers/plans/2026-09-12-real-world-tourism-research-spike-gate.md`
+(§5/§5a/§6a/§7a new; §9/§10/§12/§14 updated — see that file's own "Amended"
+line for the full change summary).
+
+## What was built
+
+1. **Local Nominatim** (`docker-compose.yml`, `nominatim` service on the
+   `osm-local` profile alongside `overpass`; new
+   `docs/development/local-nominatim.md`). Image pinned by digest
+   (`mediagis/nominatim:5.3@sha256:7923a8e...`), imports the same Argentina
+   Geofabrik source as `overpass`, `FREEZE=true`/no replication so the
+   snapshot stays frozen, persisted in named volumes
+   (`nominatim_argentina_data`, `nominatim_argentina_flatnode`).
+2. **Explicit spike env override** (`.env.spike.example`, new — copy to a
+   git-ignored `.env.spike`, export via `set -a; source .env.spike; set +a`
+   before `yarn start:dev`; never edits the shared `.env`/`docker-compose.yml`
+   defaults): `GROUNDED_SEARCH_PROVIDER=serpapi`, local
+   `OVERPASS_API_URL`/`NOMINATIM_API_URL`/`NOMINATIM_REVERSE_API_URL`,
+   `DATABASE_URL`/`DIRECT_URL` → `zigzag_spike_preb6`, `AI_CACHE_MODE=off`,
+   `USE_MOCK_MAPS=false`.
+3. **No-silent-Tavily-fallback proof**: 5 new permanent unit tests in
+   `be/src/shared/ai/ai.config.spec.ts` (`groundedSearchProvider — no silent
+   Tavily fallback` describe block) plus a real, gated DI-resolution test in
+   the new `be/test/live/pre-b6-spike-infrastructure-preflight.live-spec.ts`
+   (`RUN_SPIKE_PREFLIGHT=1`, boots the real `AppModule`).
+4. **Dedicated clean-slate spike database**: `zigzag_spike_preb6`, a sibling
+   database on the same local Postgres/PostGIS server/container normal dev
+   already uses — `CREATE DATABASE`, then `prisma migrate deploy` (all 16
+   migrations applied cleanly), never hand-seeded.
+5. **`.gitignore`**: added `!.env.spike.example` negation (the blanket
+   `.env*` rule would otherwise have excluded the new template).
+
+## A real incident, honestly recorded
+
+The first Nominatim import attempt filled Docker Desktop's own virtual disk
+(observed growing to ~128GB actual usage on the host via `du` on
+`Docker.raw`), which caused its internal filesystem to remount read-only and
+the VM to power itself off mid-import — Docker CLI commands hung for an
+extended period until the user manually freed host disk space and restarted
+Docker Desktop (twice; the first restart attempt itself briefly hung too).
+This is now documented as a real, load-bearing precondition in
+`docs/development/local-nominatim.md`'s "Resource notes": **disk headroom in
+Docker Desktop's own VM disk image, not just host free space, must be
+checked before a country-level Nominatim import** — the two are different
+numbers, and this repo's other existing images/volumes already occupy a
+large fraction of a typical default VM disk allocation. No data was lost
+(named volumes persist independently of the VM's crash/restart); the
+interrupted import simply had to restart from scratch. The retried,
+fully-completed import finished cleanly with `FREEZE=true` reclaiming most
+of the temporary import space back (host free disk went from a low point
+under 1GB during the incident to 155GB free after the completed import).
+
+## Verification evidence (real, not simulated)
+
+All of the following ran against the real, now-healthy local containers and
+the real production provider classes — via
+`pre-b6-spike-infrastructure-preflight.live-spec.ts`, 8/8 passing:
+
+- `EXPERIENCE_GROUNDED_SEARCH_PROVIDER` resolves to a real
+  `SerpApiGroundedSearchService` instance, confirmed NOT
+  `TavilyGroundedSearchService`.
+- `NominatimApiService.search('San Telmo, Buenos Aires', {countryCode:'ar'})`
+  → real `relation/2223069`, `addresstype: suburb`, real bounding box.
+- `NominatimApiService.reverse(-34.6212, -58.3731)` (Plaza Dorrego) → real,
+  geographically sensible result (`countryCode: AR`; settlement-level
+  `zoom=10` resolves to the containing city, by design — see the service's
+  own comments, not a bug).
+- `NominatimApiService.search('Mendoza, Argentina')` → real
+  `relation/153540`, `addresstype: state` (RW4 precondition).
+- `OsmPlacesService.lookupBoundaryById(...)` using the exact `osm_type`/
+  `osm_id` Nominatim just returned for San Telmo → `status: success`, real
+  boundary geometry from local Overpass — proving the full two-step AREA
+  resolution path (Nominatim identity → Overpass geometry) end-to-end
+  through the real classes.
+- `PrismaService` connected to `zigzag_spike_preb6` (never `zigzag`),
+  confirmed zero rows in every relevant knowledge table.
+- Raw endpoint spot-checks (outside the DI test, for the manifest): local
+  Overpass and Nominatim report the **same** OSM snapshot date
+  (`osm3s.timestamp_osm_base` / `/status?format=json`'s `data_updated`, both
+  `2026-09-12T20:15:47Z`) — coincidentally consistent this time, not
+  guaranteed to stay so on a future reimport (see `local-nominatim.md`'s
+  snapshot-consistency caveat).
+
+Full regression after all infrastructure/config/test changes: `yarn
+typecheck`, `yarn lint:check` clean; `yarn test` 141 suites / 1365 tests
+green (was 1360 before this session's ai.config.spec.ts additions); `yarn
+test:integration` 14 suites / 61 tests green (against the normal dev
+database, unaffected by the spike DB work).
+
+## Exit criteria (§14 of the verification list in the task) — status
+
+- [x] SerpAPI provider selection works (real DI proof).
+- [x] Tavily cannot be silently selected/fallen back to (5 permanent unit
+      tests + real DI proof + documented `gemini`-mode Tavily-extract
+      pitfall).
+- [x] Local Overpass responds with real Argentina data.
+- [x] Local Nominatim search responds with real Argentina data.
+- [x] Local Nominatim reverse responds.
+- [x] San Telmo lookup is sensible.
+- [x] Mendoza lookup is sensible.
+- [x] Backend reaches both local OSM services through its normal provider
+      classes (`NominatimApiService`, `OsmPlacesService` — not raw curl).
+- [x] Dedicated spike PostgreSQL/PostGIS DB is reachable.
+- [x] Migrations/schema initialization work on the clean spike DB (16/16).
+- [x] Initial tourism knowledge state is demonstrably clean (all zero).
+- [x] Mock flags demonstrably disabled (`USE_MOCK_MAPS=false`) for the
+      future run.
+- [x] Cache configuration appropriate for a genuine cold baseline
+      (`AI_CACHE_MODE=off`, not `read`/`write`).
+- [x] Existing unit/integration/backend checks remain green.
+
+**RW1 is now safe to start** (infrastructure preflight complete) — pending
+explicit authorization, per standing execution rules. RW1–RW6 themselves
+were NOT run as part of this task.
+
+---
+
 # NEXT — Real-World Tourism Research Spike Baseline, PRE-B6
 
 The identity gate above is now green — execute this plan next, in full:
@@ -460,12 +582,12 @@ An implementation agent starting from this branch should:
 
 1. read this current execution pointer;
 2. read the main implementation plan's `Mandatory B5 → B6 gates` section;
-3. execute the Experience Identity Postgres gate next;
-4. update progress with real commits/test counts and stop for review if identity
-   semantics require a code fix;
-5. after approval/green identity gate, execute all six real-world spikes;
-6. preserve their dossiers and classifications;
-7. only when the B6 unlock checklist is satisfied, begin B6.
+3. Identity Postgres gate and the spike infrastructure preflight are both
+   COMPLETE — next is executing the six real-world spikes (RW1–RW6)
+   themselves, per `docs/superpowers/plans/2026-09-12-real-world-tourism-research-spike-gate.md`,
+   with explicit new authorization (never start them unprompted);
+4. preserve their dossiers and classifications;
+5. only when the B6 unlock checklist (plan §15) is satisfied, begin B6.
 
 Do **not** interpret the old `Next task: B6` line in the historical progress file
 as current authorization. It is explicitly superseded.

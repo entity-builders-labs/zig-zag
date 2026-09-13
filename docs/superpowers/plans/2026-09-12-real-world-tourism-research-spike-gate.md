@@ -2,6 +2,11 @@
 
 Status: **required characterization + acceptance gate; planned, not automated.**
 Written: 2026-09-12.
+Amended: 2026-09-13 — infrastructure preflight (local Nominatim added; SerpAPI
+forced with no silent Tavily fallback; dedicated clean-slate spike database)
+and a hardened warm-reuse/idempotency acceptance contract. See
+`docs/superpowers/progress/2026-09-13-pre-b6-gates-progress.md` for the
+preflight completion record. RW1–RW6 themselves are still **not started**.
 Branch: `feat/preference-first-selection`.
 
 Related:
@@ -149,54 +154,91 @@ Infrastructure may be local/self-hosted instead of public as long as it is the r
 
 ---
 
-## 5. Current OSM/Nominatim topology — record this in every run
+## 5. Argentina baseline topology (RW1–RW4) — record this in every run
 
-As of this plan, the repository's `osm-local` Docker profile self-hosts **Overpass only** and imports the Argentina Geofabrik extract. It does not run a Nominatim container/index.
-
-The backend supports configurable Nominatim endpoints through:
-
-```text
-NOMINATIM_API_URL
-NOMINATIM_REVERSE_API_URL
-NOMINATIM_TIMEOUT_MS
-```
-
-When unset, `NominatimApiService` falls back to the public OpenStreetMap Nominatim service.
-
-Therefore the current reproducible Argentina topology is normally:
+The repository's `osm-local` Docker profile now self-hosts **both** Overpass
+and Nominatim, imported from the same Argentina Geofabrik source
+(`docs/development/local-overpass.md`, `docs/development/local-nominatim.md`):
 
 ```text
-Argentina OSM extract
-      ↓
-local Overpass container
-
-Nominatim search/reverse
-      ↓
-configured Nominatim endpoint
-(currently public by default)
+Argentina OSM extract (Geofabrik south-america/argentina-latest.osm.pbf)
+      ├── local Overpass  (streets, boundaries, ways/relations)
+      └── local Nominatim (name search, reverse geocoding)
 ```
 
-This is acceptable for the first characterization corpus, but every spike report must record the exact provider topology and endpoints/classes used. Do not present it as one fully local OSM snapshot when it is not.
+Both are opt-in (`docker compose --profile osm-local up -d`) and are never
+required for normal application development — only for reproducible
+composite/OSM testing and this spike corpus.
 
-### Desired reproducibility improvement
+**Snapshot consistency is real but not byte-identical.** Geofabrik's
+`-latest` URL is a moving pointer, `overpass`'s own entrypoint discards the
+raw PBF it downloaded after conversion, and `overpass` runs its own hourly
+diff-apply once started — so the two containers' actual OSM snapshots can
+differ by however much Argentina data changed between their respective
+import times, and `overpass`'s snapshot keeps moving forward afterward while
+`nominatim` (imported here with no `REPLICATION_URL`/`UPDATE_MODE`, and
+`FREEZE=true`) stays frozen at its own import time. Record the **actual**
+snapshot age from each provider's own response in every run, never assume
+byte-identity:
 
-A later infrastructure improvement may add a local Nominatim instance indexed from the same OSM extract/version as local Overpass:
+- Nominatim: `GET /status?format=json` → `data_updated`.
+- Overpass: any `/api/interpreter` response → `osm3s.timestamp_osm_base`.
+
+The full Argentina baseline for RW1–RW4 is therefore:
 
 ```text
-same OSM extract/version
-      ├── local Overpass
-      └── local Nominatim
+SerpAPI                (real web search evidence — §5a)
+real discovery/classification LLM
+local Overpass          (http://localhost:12345 / service name `overpass`)
+local Nominatim         (http://localhost:8088  / service name `nominatim`)
+real Places             (when fallback/grounding uses it — PLACES_PROVIDER)
+dedicated real Postgres/PostGIS (`zigzag_spike_preb6` — §6a)
 ```
 
-That improves snapshot consistency, offline repeatability and debugging, but it is **not a prerequisite for running the first real-world spike baseline**.
+See `.env.spike.example` at the repo root for the exact override set (never
+edit the shared `.env`/`docker-compose.yml` defaults for this — see §5a).
 
-### Foreign-city implication
+### 5a. Grounded web discovery — SerpAPI forced, Tavily excluded
 
-The current local Overpass profile contains Argentina only. Foreign-city spikes therefore must either:
-- explicitly configure a real external/public Overpass endpoint; or
-- use a future local extract/profile for that region.
+Tavily's quota is scarce for this characterization corpus and must not be
+spent. `GROUNDED_SEARCH_PROVIDER=serpapi` is set explicitly in
+`.env.spike.example` for every RW1–RW6 run of this corpus (foreign-city RW5
+included).
 
-A foreign spike must never accidentally query the Argentina-only local Overpass and interpret an empty response as a product failure.
+This is not a new fallback mechanism — it makes an already-existing
+no-fallback property explicit. Both `be/src/shared/ai/ai.config.ts`'s
+`groundedSearchProvider` resolution and the
+`EXPERIENCE_GROUNDED_SEARCH_PROVIDER` DI factory in
+`be/src/modules/tours/tours.module.ts` resolve strictly from
+`GROUNDED_SEARCH_PROVIDER` (or `serpapi` when a `SERPAPI_API_KEY` is present
+and the variable is unset, else `groq`) — there is no branch in either that
+selects `tavily` except an explicit `GROUNDED_SEARCH_PROVIDER=tavily`, and an
+unrecognized value throws rather than silently falling back to any provider.
+This is covered by a permanent regression suite
+(`be/src/shared/ai/ai.config.spec.ts`, `groundedSearchProvider — no silent
+Tavily fallback`) and by a real, gated DI-resolution proof
+(`be/test/live/pre-b6-spike-infrastructure-preflight.live-spec.ts`, real
+`Test.createTestingModule({imports:[AppModule]})` boot, asserting the
+resolved provider `instanceof SerpApiGroundedSearchService` and NOT
+`instanceof TavilyGroundedSearchService`).
+
+**One non-obvious second path to Tavily consumption**: selecting
+`GROUNDED_SEARCH_PROVIDER=gemini` for this corpus would still spend Tavily
+quota — `GeminiGroundedSearchService` internally calls
+`TavilyExtractService` to fetch page content for URLs Gemini's own search
+cites. Do not use `gemini` as the grounded-search provider for this
+baseline; `serpapi` is the only correct choice.
+
+If SerpAPI is unavailable, misconfigured, rate-limited, or exhausted during
+an actual RW1–RW6 run, the correct classification is `FAIL` /
+`INFRASTRUCTURE_GAP` (§11) — never a silent, automatic retry against
+Tavily.
+
+### Foreign-city implication (RW5)
+
+The local Overpass/Nominatim profile above is Argentina-only. RW5 must
+never accidentally query it and interpret an empty response as a product
+failure — see §7's RW5 entry and the dedicated rule restated there.
 
 ---
 
@@ -233,6 +275,56 @@ LLM joins them into a plausible walk
 unless source evidence independently proves that composed Experience.
 
 The research agent must be able to say **"I found places, but I did not find a real composed walk"** rather than inventing one.
+
+---
+
+## 6a. Dedicated clean-slate spike database
+
+The baseline must not run against the normal development tourism catalog.
+San Telmo and other corpus destinations have been used repeatedly during
+development — existing Experiences, GeoEntities, evidence, classifications,
+embeddings, or cached acquisition state could silently turn a nominal COLD
+run into a partial/warm reuse and invalidate the characterization.
+
+A dedicated real PostgreSQL/PostGIS database — `zigzag_spike_preb6`, a
+sibling database on the same local Postgres/PostGIS server normal
+development already uses (`docker-compose.yml`'s `postgres` service),
+initialized through the normal `prisma migrate deploy` path, never
+hand-seeded — is required before RW1. Postgres's own database-level
+isolation (separate schemas/tables, zero shared rows with `zigzag`) is
+sufficient; a fully separate server/container is unnecessary overkill here.
+Prefer this completely fresh database over selectively deleting "San Telmo"
+rows from the normal dev database — selective cleanup is unsafe because
+related knowledge (a `GeoEntity` an unrelated Experience also references, a
+stale classification) can survive and silently influence the run.
+
+**Provider infrastructure is NOT catalog contamination.** The real local
+Overpass/Nominatim indexes (§5) and their real OSM datasets stay populated —
+they are external geographic knowledge providers under test, not Zig-Zag's
+own living tourism knowledge base. Only the latter must start clean.
+
+Before RW1, prove the tourism knowledge state is clean — at minimum zero
+pre-existing rows in: `Experience`, `ExperienceComponent`, Experience
+evidence/observation rows, persisted classification state tied to those
+Experiences, `GeoEntity`/`GeoEntityIdentity` rows that could let component
+grounding bypass the real Nominatim/OSM resolution being characterized, and
+embeddings/other catalog-derived state tied to those rows. Record the actual
+counts (or equivalent proof) in the RW1 manifest/dossier — never secrets.
+
+**Cache state**: disable or isolate application/AI caches so RUN 1 is
+genuinely cold. `AI_CACHE_MODE=off` (not `read`/`write` — see
+`.env.spike.example`) guarantees `AiCacheService` never reads OR writes a
+cached LLM response, which matters because the shared dev `.env` normally
+runs `AI_CACHE_MODE=read`: a prior development run for the same
+prompt+options hash would otherwise be silently served for free. If some
+cache genuinely cannot be disabled for a future provider, isolate it or
+document/prove it cannot serve previous tourism research results for this
+corpus.
+
+**Lifecycle**: this clean-slate requirement applies only to the corpus's
+starting state, before its first run. Do not reset between a case's cold and
+warm runs (§7a) or between different cases in the same campaign — see
+§7a's "Cold → warm database lifecycle."
 
 ---
 
@@ -275,7 +367,9 @@ classified canonical Experience
 persisted
 ```
 
-Second-run target once live reuse wiring exists:
+Second-run target once live reuse wiring exists — see §7a for the full,
+hardened acceptance contract this must actually satisfy (same canonical ID
+alone is explicitly NOT sufficient evidence of reuse):
 
 ```text
 same request
@@ -396,6 +490,170 @@ This is a first-class successful negative result, not a failure to find content.
 
 ---
 
+## 7a. Warm-reuse / idempotency acceptance contract
+
+Reuse is already part of this gate (RW1's "repeat the request and inspect
+reuse behavior", and every other case that reaches a persisted canonical
+Experience). This section makes the acceptance criterion explicit enough
+that dedupe returning the same canonical ID after redoing all the expensive
+research is **not**, by itself, proof of reuse. This does not create a
+separate gate/architecture — it is the same reuse behavior RW1+ must
+already exhibit, stated precisely.
+
+### The critical invariant
+
+```text
+same canonical Experience ID after reacquisition
+!=
+catalog reuse
+```
+
+This is a FAIL even though the final ID is identical:
+
+```text
+same request
+  → SerpAPI called again
+  → extraction LLM called again
+  → geography re-resolved
+  → persist attempted again
+  → dedupe decides SAME
+  → same Experience ID returned
+```
+
+`decideExperienceDedupe` correctly converging to `SAME` is a real, necessary
+property (proven by the Postgres identity gate) — but it is answering "is
+this the same real Experience," not "did the system need to research it
+again." A second request that re-runs the full expensive research chain and
+merely lands back on the same row is not reuse; it is unnecessary
+rediscovery that happens not to have corrupted the catalog. The reuse
+contract below is about avoiding the rediscovery itself, not about what
+happens if it occurs anyway.
+
+### First equivalent request — COLD
+
+```text
+catalog lookup → MISS
+  ↓
+real discovery/search → extraction → real geography → validation → dedupe → classification → persistence
+  ↓
+result = acquired, canonical Experience X
+```
+
+Record whether the run invoked: SerpAPI, discovery/extraction LLM,
+Nominatim, Overpass, Places, classification LLM. Not every provider is
+required on every run — the point is making the cold/warm delta observable
+later, not mandating a fixed provider set.
+
+### Second equivalent request — WARM
+
+Same or semantically equivalent human-level request.
+
+```text
+same human request
+  → resolve request scope
+  → catalog lookup → canonical Experience X
+  → return/reuse
+```
+
+Required assertions — all of them, not just ID equality:
+
+```text
+same canonical Experience ID                     ✓
+no new canonical Experience row                  ✓
+no duplicate component rows                       ✓
+no unnecessary SerpAPI discovery                  ✓
+no unnecessary extraction LLM call                ✓
+no reacquisition merely followed by dedupe SAME   ✓
+outcome/reason explicitly indicates reuse         ✓
+no new evidence rows created by the warm run       ✓
+```
+
+If some inexpensive, request-level scope-resolution call is still
+legitimately required before the catalog lookup (e.g. resolving the
+anchor's own geometry so the lookup can be scoped at all — see B5's
+`AreaRouteWalkAcquisitionService`/`AreaRouteAnchorResolverService`), record
+it separately and do not fail the reuse test merely because that happened.
+The focus is avoiding unnecessary **rediscovery/extraction of the
+Experience itself** — SerpAPI search, the discovery/extraction LLM call,
+and a second persistence attempt — not every provider call whatsoever.
+
+### No evidence inflation from reacquisition
+
+A warm run must not create new `ExperienceEvidence` rows merely because the
+system unnecessarily repeated the same discovery cycle. If a future
+living-knowledge-base revalidation/enrichment policy intentionally
+re-researches a stale Experience on a schedule, that is a distinct feature
+with its own freshness/maintenance semantics (see
+`docs/superpowers/specs/2026-09-12-living-tourism-knowledge-base-design.md`
+§4.3) — this baseline is testing immediate warm reuse on the very next
+equivalent request, not scheduled revalidation, and must not be excused by
+appealing to that future feature.
+
+### Live orchestration caveat
+
+If the current live application path cannot reach the B5 reuse primitive
+before reacquisition, classify this honestly:
+
+```text
+research primitive correct
+live orchestration incomplete
+→ ORCHESTRATION_GAP
+```
+
+Do not patch around this to force RW1 green: do not manually call the
+catalog first from a spike harness if the actual product path does not; do
+not bypass the production request → acquisition orchestration. The real
+spike characterizes the real application path, including when that path
+does not yet route through the primitive that would make reuse possible.
+
+### Required cold-vs-warm dossier evidence
+
+For every applicable case, the dossier (§10) must answer, with real
+trace/counter evidence, not narrative claims:
+
+**COLD**: Was the catalog queried before acquisition? Was there a genuine
+MISS? Which external research providers ran? Which candidate was extracted?
+Which Experience was persisted? What canonical Experience ID resulted?
+
+**WARM**: Was the same/equivalent request issued? Was the same canonical
+Experience found? Was SerpAPI invoked? Was the extraction LLM invoked? Was
+another persistence attempt made? Was dedupe invoked only because
+reacquisition happened? Were any duplicate rows/evidence created? What
+explicit outcome/reason proves reuse?
+
+A `second-run.json` artifact (§10) must carry enough of this trace/counter
+information to distinguish **true catalog reuse** from **reacquire + dedupe
+SAME** — a bare "same ID" line is not sufficient evidence either way.
+
+### Cold → warm database lifecycle
+
+The clean-slate spike database (§6a) is required only before the FIRST run
+of a case. Do not reset or reseed the spike database between a case's cold
+and warm runs:
+
+```text
+fresh spike DB
+    ↓
+RUN 1 — COLD (this case)
+    ↓
+Experience X persisted
+    ↓
+same DB, unchanged
+    ↓
+RUN 2 — WARM (this case)
+    ↓
+Experience X reused
+```
+
+Resetting between RUN 1 and RUN 2 invalidates the reuse test entirely — RUN
+2 must observe the persisted knowledge RUN 1 actually created, not a fresh
+MISS. (A different CASE may still start from the same, now-non-empty spike
+database — the clean-slate requirement in §6a is about the corpus's overall
+starting state, not about wiping the database between every individual
+case.)
+
+---
+
 ## 8. Additional corpus expansion
 
 After the minimum six, progressively add cases that exercise:
@@ -426,22 +684,35 @@ run timestamp
 branch + commit SHA
 case id / request text
 destination
-DATABASE_URL target class (local integration/dev DB; redact credentials)
-GROUNDED_SEARCH_PROVIDER
+
+DATABASE_URL target class (spike DB identity/class -- e.g. zigzag_spike_preb6;
+  redact credentials) + Postgres/PostGIS version if useful
+
+GROUNDED_SEARCH_PROVIDER (must be serpapi for this baseline -- §5a)
+SerpAPI mode actually used (google-search / google-ai-mode)
 DISCOVERY_EXTRACTOR_PROVIDER + model id
 classification provider + model id
 PLACES_PROVIDER
+
 OVERPASS_API_URL class/value with secrets removed
 whether Overpass is local or external
 OSM extract/region when local
+Overpass response's own osm3s.timestamp_osm_base (actual snapshot age)
+
 NOMINATIM_API_URL class/value
 NOMINATIM_REVERSE_API_URL class/value
 whether Nominatim is local or public/external
-AI cache mode
-mock flags (must demonstrate mocks are disabled)
+Nominatim's own /status?format=json data_updated (actual snapshot age)
+
+AI_CACHE_MODE (must be off for a genuine cold baseline -- §6a)
+mock flags: USE_MOCK_MAPS, MOCK_MAPS_MODE (must demonstrate mocks are disabled)
 ```
 
 Never commit secrets, API keys, credentials or signed/private provider URLs.
+The dedicated `pre-b6-spike-infrastructure-preflight.live-spec.ts` (§14) can
+be run once before a campaign to produce most of this evidence in one pass;
+it is an infrastructure check, not a substitute for recording per-run
+provider identity in each case's own manifest.
 
 ---
 
@@ -465,7 +736,12 @@ spikes/<run-or-case>/
   dedupe.json
   classification.json
   persisted-experiences.json
-  second-run.json             # when reuse is applicable
+  second-run.json             # when reuse is applicable -- see §7a for the
+                               # required cold-vs-warm evidence this file
+                               # must carry (provider call counts/booleans
+                               # sufficient to distinguish true catalog
+                               # reuse from reacquire + dedupe SAME, never
+                               # just the canonical ID)
   assessment.md
 ```
 
@@ -486,7 +762,11 @@ Raw third-party content may be large, licensed or contain provider-specific fiel
 9. What was the dedupe decision and why?
 10. What classification was persisted, and which evidence keys support every accepted semantic fact?
 11. What canonical Experience was re-read from Postgres?
-12. On a second equivalent request, was it reused or reacquired? Why?
+12. On a second equivalent request, was it reused or reacquired? Why? (Per
+    §7a: reused means the second request never re-invoked SerpAPI/the
+    extraction LLM/a persistence attempt for this Experience -- a
+    reacquire-then-dedupe-SAME outcome is NOT reuse even when the ID
+    matches, and must be reported as such.)
 13. Is the result sensible to a human reviewer?
 14. Did any provider/source return surprising or wrong-country/wrong-city data?
 15. Is any observed problem B5 geography/identity, B6 extraction/composition, provider coverage, live orchestration, or a separate issue?
@@ -537,7 +817,10 @@ For positive scenarios, acceptance requires:
 - canonical identity/persistence is correct;
 - evidence-only classification is current/reusable and semantically appropriate;
 - Postgres contains the expected canonical Experience(s), not collapsed generic substitutes;
-- repeat/reuse behavior is correct once live orchestration supports it.
+- repeat/reuse behavior is correct once live orchestration supports it — per
+  §7a's contract, a matching canonical ID on the second run is not
+  sufficient by itself; the run must also show no unnecessary
+  SerpAPI/extraction-LLM/persistence-attempt calls.
 
 For the negative scenario, acceptance requires:
 - no composite Experience is minted merely from a list of individually real nearby POIs;
@@ -593,6 +876,20 @@ yarn spike:tourism-research --case negative-poi-list
 Until such a harness is implemented, run the actual application/service path manually with mocks disabled and export the existing trace/DB state into the dossier. Do not create a fake spike runner that bypasses production acquisition merely to make the command exist.
 
 These spikes should not run in ordinary CI because they depend on changing Internet content, external providers, LLM outputs, quotas/rate limits and OSM data. They are explicit characterization/acceptance runs.
+
+A narrower **infrastructure preflight** (not a spike runner, not RW1-RW6
+itself) does exist:
+`be/test/live/pre-b6-spike-infrastructure-preflight.live-spec.ts`, gated
+behind `RUN_SPIKE_PREFLIGHT=1` (never runs by accident). It boots the real
+`AppModule` and proves, through the real production provider classes: the
+grounded-search DI resolves to `SerpApiGroundedSearchService`; local
+Nominatim search/reverse and Overpass boundary lookup are reachable and
+geographically sensible for San Telmo/Mendoza; and the spike database is
+connected, identified as the spike database (not `zigzag`), and starts with
+zero rows in every relevant knowledge table. Re-run it once at the start of
+a spike campaign (and whenever the local OSM containers are reimported) to
+regenerate this evidence — it does not need to run before every individual
+case.
 
 ---
 
