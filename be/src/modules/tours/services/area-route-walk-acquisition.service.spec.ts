@@ -4,6 +4,7 @@ import {
 } from './area-route-walk-acquisition.service';
 import { CURRENT_CLASSIFICATION_PROMPT_VERSION } from './experience-classification.service';
 import { AnchoredPlace } from '../interfaces/preference-spec.interface';
+import { PreferenceFacetDeficit } from '../interfaces/experience-acquisition-plan.interface';
 
 function classifiedRow(id: string, intentKey: string) {
   return {
@@ -109,12 +110,22 @@ const tourismRouteAnchor: AnchoredPlace = {
   priority: 'must',
 };
 
+function deficitFor(intentKey: 'walk' | 'route_like'): PreferenceFacetDeficit {
+  return {
+    origin: 'preference_facet',
+    dimension: 'intent',
+    key: intentKey,
+    reason: `Preference facet [intent:${intentKey}] has no strong catalog match yet.`,
+  };
+}
+
 function baseInput(
   overrides: Partial<AreaRouteWalkAcquisitionInput> = {},
 ): AreaRouteWalkAcquisitionInput {
+  const intentKey = overrides.intentKey ?? 'walk';
   return {
     anchor: areaAnchor,
-    intentKey: 'walk',
+    intentKey,
     destination: {
       destinationName: 'Buenos Aires',
       latitude: -34.6,
@@ -122,7 +133,7 @@ function baseInput(
       radiusMeters: 20_000,
     },
     destinationBoundary: { id: 'osm:relation:1', name: 'Buenos Aires' },
-    legacyDeficits: [],
+    deficit: deficitFor(intentKey),
     ...overrides,
   };
 }

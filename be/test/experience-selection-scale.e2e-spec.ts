@@ -578,8 +578,8 @@ const scenarios: ScenarioDefinition[] = [
     },
     assertTrace(tour) {
       expect(
-        traceStep(tour, 'coverage_analysis').coverageReport
-          .analyzedCandidateCount,
+        traceStep(tour, 'coverage_analysis').outputs
+          .totalDistinctEligibleExperiences,
       ).toBeGreaterThanOrEqual(250);
       expect(
         tour.metadata.generationTrace.steps.some(
@@ -923,12 +923,12 @@ describe('Experience V2 CP8 mandatory selection scenarios at scale', () => {
       ).toBe(true);
       expect(tour.metadata.generationTrace.version).toBe(3);
       expect(
-        traceStep(tour, 'coverage_analysis').coverageReport
-          .analyzedCandidateCount,
+        traceStep(tour, 'coverage_analysis').outputs
+          .totalDistinctEligibleExperiences,
       ).toBeGreaterThanOrEqual(250);
-      expect(
-        traceStep(tour, 'coverage_analysis').coverageReport.decision.action,
-      ).toBe('none');
+      expect(traceStep(tour, 'coverage_analysis').decision.outcome).toBe(
+        'none',
+      );
       expect(traceStep(tour, 'candidate_pool').candidates).toHaveLength(15);
       expect(traceStep(tour, 'daily_planning').dailyPlanning.solver).toBe(
         'GreedyDailyPlanningSolver',

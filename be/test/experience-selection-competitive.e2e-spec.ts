@@ -187,9 +187,9 @@ describe('Experience selection — competitive engine-quality benchmark (CP-G)',
    * ---------------------------------------------------------------- */
   function assertGenericGates(tour: any): void {
     const coverage = traceStep(tour, 'coverage_analysis');
-    expect(coverage.coverageReport.decision.action).toBe('none');
+    expect(coverage.decision.outcome).toBe('none');
     expect(
-      coverage.coverageReport.analyzedCandidateCount,
+      coverage.outputs.totalDistinctEligibleExperiences,
     ).toBeGreaterThanOrEqual(250);
     expect(traceStep(tour, 'candidate_pool').candidates).toHaveLength(15);
     expect(tour.metadata.generationTrace.version).toBe(3);

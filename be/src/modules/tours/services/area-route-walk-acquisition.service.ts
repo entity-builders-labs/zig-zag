@@ -14,12 +14,8 @@ import {
   ExperienceClassificationService,
 } from './experience-classification.service';
 import { AnchoredPlace } from '../interfaces/preference-spec.interface';
-import { CoverageDeficit } from '../interfaces/coverage-analysis.interface';
-import { PreferenceFacet } from '../preferences/preference-facet.interface';
-import {
-  ExperienceCandidate,
-  ExperienceDiscoveryScope,
-} from '../interfaces/experience-discovery.interface';
+import { PreferenceFacetDeficit } from '../interfaces/experience-acquisition-plan.interface';
+import { ExperienceDiscoveryScope } from '../interfaces/experience-discovery.interface';
 import { ExperienceValidationScope } from '../interfaces/experience-resolution.interface';
 import { normalizeWizardFacet } from '../utils/preference-facet-merge.util';
 import { candidateMatchesPreferenceFacet } from '../utils/preference-facet-matching.util';
@@ -46,9 +42,9 @@ export interface AreaRouteWalkAcquisitionInput {
     longitude: number;
     radiusMeters: number;
   };
-  legacyDeficits: CoverageDeficit[];
-  preferredFacets?: PreferenceFacet[];
-  candidates?: ExperienceCandidate[];
+  /** The canonical facet deficit this call is acquiring for -- routed
+   * straight into the plan, never recomputed from a candidate pool. */
+  deficit: PreferenceFacetDeficit;
   semanticQuery?: string;
 }
 
@@ -167,9 +163,7 @@ export class AreaRouteWalkAcquisitionService {
     // validation context.
     const planInput: BuildPlanInput = {
       destination: input.destination,
-      legacyDeficits: input.legacyDeficits,
-      preferredFacets: input.preferredFacets,
-      candidates: input.candidates,
+      deficits: [input.deficit],
       semanticQuery: input.semanticQuery,
       anchors: [input.anchor],
       breadth: 'focused',

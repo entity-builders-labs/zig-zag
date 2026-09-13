@@ -366,14 +366,11 @@ export class ExperienceGenerationService {
    * (real PostGIS-scoped catalog retrieval, no in-memory truncation) +
    * `preference-sufficiency.util.ts`'s global days*pace portfolio target.
    *
-   * Returns the canonical `PreferenceCoverageResult` -- never
-   * `CoverageReport`/`CoverageDeficit`/`CoverageAcquisitionDecision`. There
-   * is no adapter back to that legacy shape anywhere in this method; trace
-   * presentation (offered-candidate count, semantic ranking, provider
-   * health) is a separate, caller-owned concern
-   * (`buildPreferenceCoverageStep`), deliberately kept out of this pure
-   * decision result so policy and presentation don't get re-conflated the
-   * way the legacy `CoverageReport` conflated them.
+   * Returns the canonical `PreferenceCoverageResult`. Trace presentation
+   * (offered-candidate count, semantic ranking, provider health) is a
+   * separate, caller-owned concern (`buildPreferenceCoverageStep`),
+   * deliberately kept out of this pure decision result so policy and
+   * presentation stay separate.
    */
   private async computePreferenceCoverage(
     preferenceSpec: PreferenceSpec,

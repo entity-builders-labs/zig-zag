@@ -1,5 +1,4 @@
 import { PlacesCrawlProvenance } from '@integrations/google-places/interfaces/places-api.interface';
-import { CoverageReport } from './coverage-analysis.interface';
 import { TourCompletenessResult } from './tour-completeness.interface';
 import { ExperienceResolutionResponse } from './experience-resolution.interface';
 import { GeographicValidationBatchResult } from './geographic-validation.interface';
@@ -138,7 +137,6 @@ export interface GenerationTraceStep {
     documentVersion?: number;
     reason?: string;
   };
-  coverageReport?: CoverageReport;
   grounding?: {
     status: 'applied' | 'unavailable' | 'failed' | 'no_usable_evidence';
     provider?: string;

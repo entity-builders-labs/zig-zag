@@ -1,5 +1,4 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { CoverageDeficit } from '../interfaces/coverage-analysis.interface';
 import { PreferenceFacet } from '../preferences/preference-facet.interface';
 import {
   ExperienceCandidate,
@@ -17,11 +16,11 @@ import { AnchoredPlace } from '../interfaces/preference-spec.interface';
 
 /**
  * `AcquisitionDeficit` is a discriminated union -- only `preference_facet`
- * (always) and `coverage_analysis` (optionally) carry `dimension`/`key`;
- * `global_capacity` structurally has neither (it must never masquerade as a
- * facet deficit). These two accessors are the one place that reads across
- * the whole union generically (routing/dedup/grouping), so every other call
- * site stays type-safe without repeating this narrowing.
+ * carries `dimension`/`key`; `global_capacity` structurally has neither (it
+ * must never masquerade as a facet deficit). These two accessors are the
+ * one place that reads across the whole union generically (routing/dedup/
+ * grouping), so every other call site stays type-safe without repeating
+ * this narrowing.
  */
 export function deficitDimension(
   deficit: AcquisitionDeficit,
@@ -36,7 +35,6 @@ export interface BuildPlanInput {
   destination: ExperienceDiscoveryScope;
   breadth?: ExperienceDiscoveryBreadth;
   deficits?: AcquisitionDeficit[];
-  legacyDeficits?: CoverageDeficit[];
   preferredFacets?: PreferenceFacet[];
   candidates?: ExperienceCandidate[];
   semanticQuery?: string;
@@ -53,38 +51,6 @@ export class ExperienceAcquisitionPlannerService {
   private readonly logger = new Logger(
     ExperienceAcquisitionPlannerService.name,
   );
-
-  /**
-   * Projects legacy CoverageDeficit items into dimension-aware AcquisitionDeficits
-   * deterministically without parsing free-text message strings.
-   */
-  projectCoverageDeficits(
-    legacyDeficits: CoverageDeficit[],
-  ): AcquisitionDeficit[] {
-    return legacyDeficits.map((d) => {
-      let dimension: string | undefined;
-      let key: string | undefined;
-
-      if (d.theme) {
-        dimension = 'theme';
-        key = d.theme;
-      } else if (d.trait) {
-        dimension = 'trait';
-        key = d.trait;
-      } else if (d.intent) {
-        dimension = 'intent';
-        key = d.intent;
-      }
-
-      return {
-        dimension,
-        key,
-        reason: d.message,
-        origin: 'coverage_analysis',
-        legacyDeficit: d,
-      };
-    });
-  }
 
   /**
    * Projects custom PreferenceFacets against a candidate pool.
@@ -149,12 +115,6 @@ export class ExperienceAcquisitionPlannerService {
 
     if (input.deficits) {
       for (const d of input.deficits) addDeficit(d);
-    }
-
-    if (input.legacyDeficits) {
-      for (const d of this.projectCoverageDeficits(input.legacyDeficits)) {
-        addDeficit(d);
-      }
     }
 
     if (input.preferredFacets && input.candidates) {

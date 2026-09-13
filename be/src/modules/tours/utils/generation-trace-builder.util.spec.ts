@@ -2,7 +2,6 @@ import {
   buildAcquisitionStep,
   buildCandidatePoolStep,
   buildCatalogMaterializationStep,
-  buildCoverageAnalysisStep,
   buildDailyPlanningStep,
   buildEmbeddingsStep,
   buildDestinationResolutionStep,
@@ -720,62 +719,6 @@ describe('buildEmbeddingsStep', () => {
       provider: 'bedrock',
       dimensions: 256,
     });
-  });
-});
-
-describe('buildCoverageAnalysisStep', () => {
-  it('reports analyzed vs eligible vs offered counts and the grounded-discovery decision without implementation-phase terminology', () => {
-    const deficit = {
-      reason: 'missing_requested_theme' as const,
-      severity: 'blocking' as const,
-      message: 'Falta cobertura para beach.',
-    };
-    const step = buildCoverageAnalysisStep({
-      status: 'insufficient',
-      analyzedCandidateCount: 15,
-      eligibleCandidateCount: 4,
-      relevantCandidateCount: 4,
-      offeredCandidateCount: 4,
-      usableCandidateCount: 4,
-      requiredCandidateCount: 8,
-      requestedThemeCoverage: [],
-      requestedTraitCoverage: [],
-      requestedIntentCoverage: [],
-      sourceCoverage: [],
-      geographicCoverage: {
-        distinctClusterCount: 1,
-        thresholdKilometers: 2,
-      },
-      semanticCoverage: {
-        status: 'unavailable',
-        eligibleCandidateCount: 4,
-        indexedCandidateCount: 0,
-        reason: 'Ollama is offline',
-      },
-      destinationKnowledge: {
-        status: 'discovery_supported',
-        coverageBoundary: 'catalog_and_grounded_discovery',
-        reason: 'El catálogo puede ampliarse mediante búsqueda grounded.',
-      },
-      providerHealth: { status: 'healthy' },
-      deficits: [deficit],
-      decision: {
-        action: 'needs_additional_discovery',
-        reason: 'requested_coverage_is_missing',
-        requiresAdditionalDiscovery: true,
-        deficits: [deficit],
-      },
-    });
-
-    expect(step.stage).toBe('coverage_analysis');
-    expect(step.summary).toContain('Analizados 15 candidatos');
-    expect(step.summary).toContain('elegibles 4');
-    expect(step.summary).toContain('ofrecidos al motor 4');
-    expect(step.summary).not.toMatch(/PR\s*\d+/);
-    expect(step.coverageReport?.decision.action).toBe(
-      'needs_additional_discovery',
-    );
-    expect(step.decision?.triggeredActions).toContain('RUN_GROUNDED_DISCOVERY');
   });
 });
 

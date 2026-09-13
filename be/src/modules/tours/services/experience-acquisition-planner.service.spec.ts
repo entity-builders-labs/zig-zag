@@ -1,6 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ExperienceAcquisitionPlannerService } from './experience-acquisition-planner.service';
-import { CoverageDeficit } from '../interfaces/coverage-analysis.interface';
 import { PreferenceFacet } from '../preferences/preference-facet.interface';
 import { ExperienceCandidate } from '../interfaces/experience-discovery.interface';
 import {
@@ -26,78 +25,6 @@ describe('ExperienceAcquisitionPlannerService', () => {
     service = module.get<ExperienceAcquisitionPlannerService>(
       ExperienceAcquisitionPlannerService,
     );
-  });
-
-  // Scenario M: Legacy deficit projection
-  it('Scenario M: projects legacy CoverageDeficit to dimension-aware AcquisitionDeficit without regex parsing', () => {
-    const legacy: CoverageDeficit[] = [
-      {
-        reason: 'missing_requested_theme',
-        severity: 'warning',
-        theme: 'history',
-        actualCount: 0,
-        expectedCount: 2,
-        message: 'Need 2 more history candidates',
-      },
-      {
-        reason: 'missing_requested_trait',
-        severity: 'warning',
-        trait: 'historic',
-        actualCount: 0,
-        expectedCount: 1,
-        message: 'Need 1 historic candidate',
-      },
-      {
-        reason: 'missing_requested_intent',
-        severity: 'warning',
-        intent: 'walk',
-        actualCount: 0,
-        expectedCount: 1,
-        message: 'Need 1 walk candidate',
-      },
-      {
-        reason: 'insufficient_usable_candidates',
-        severity: 'blocking',
-        actualCount: 1,
-        expectedCount: 5,
-        message: 'Need more general candidate pool size',
-      },
-    ];
-
-    const projected = service.projectCoverageDeficits(legacy);
-    expect(projected).toHaveLength(4);
-
-    expect(projected[0]).toEqual({
-      dimension: 'theme',
-      key: 'history',
-      reason: 'Need 2 more history candidates',
-      origin: 'coverage_analysis',
-      legacyDeficit: legacy[0],
-    });
-
-    expect(projected[1]).toEqual({
-      dimension: 'trait',
-      key: 'historic',
-      reason: 'Need 1 historic candidate',
-      origin: 'coverage_analysis',
-      legacyDeficit: legacy[1],
-    });
-
-    expect(projected[2]).toEqual({
-      dimension: 'intent',
-      key: 'walk',
-      reason: 'Need 1 walk candidate',
-      origin: 'coverage_analysis',
-      legacyDeficit: legacy[2],
-    });
-
-    expect(projected[3]).toEqual({
-      dimension: undefined,
-      key: undefined,
-      reason: 'Need more general candidate pool size',
-      origin: 'coverage_analysis',
-      legacyDeficit: legacy[3],
-    });
   });
 
   // Scenario N: Preference facet projection with canonical dimensions

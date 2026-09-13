@@ -1,10 +1,15 @@
-import { CoverageCandidate } from '../interfaces/coverage-analysis.interface';
-
-// Extracted from CoverageAnalyzer so the candidate_pool trace can tag
-// each offered candidate with the requested themes it actually matches
-// without forking a second copy — same "centralized, never diverges"
-// principle already applied to EXPERIENCE_FORMAT_ACTIVITY_KIND
-// based only on Experience traits and descriptive metadata.
+/**
+ * Minimal candidate shape the candidate_pool trace step needs in order to
+ * tag each offered candidate with the requested themes it actually matches
+ * — based only on its name/source/metadata, never on a CoverageAnalyzer-
+ * era candidate contract (that engine no longer exists).
+ */
+export interface ThemeMatchCandidate {
+  id: string;
+  name: string;
+  source?: string | null;
+  metadata?: unknown;
+}
 export const THEME_KEYWORDS: Record<string, readonly string[]> = {
   history: ['history', 'historic', 'historical', 'monument', 'museum'],
   art: ['art', 'gallery', 'museum', 'art_museum', 'art_gallery'],
@@ -16,7 +21,7 @@ export const THEME_KEYWORDS: Record<string, readonly string[]> = {
 };
 
 export function matchesThemeKeywords(
-  candidate: CoverageCandidate,
+  candidate: ThemeMatchCandidate,
   keywords: readonly string[],
 ): boolean {
   const metadataText =
@@ -30,12 +35,11 @@ export function matchesThemeKeywords(
   return keywords.some((keyword) => haystack.includes(keyword));
 }
 
-/** Requested themes this candidate actually matches, using the same keyword
- * logic CoverageAnalyzer uses for its per-theme summary — so a candidate_pool
- * trace's per-candidate coverageContribution can never diverge from what
- * CoverageAnalyzer itself counted. */
+/** Requested themes this candidate actually matches, via the same keyword
+ * logic above — the one canonical source for a candidate_pool trace's
+ * per-candidate coverageContribution. */
 export function matchedThemesFor(
-  candidate: CoverageCandidate,
+  candidate: ThemeMatchCandidate,
   requestedThemes: string[],
 ): string[] {
   return requestedThemes.filter((theme) => {

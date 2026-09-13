@@ -83,13 +83,10 @@ export interface PortfolioSufficiency {
 }
 
 /**
- * Canonical preference-first coverage result (cutover M2, spec §6.2/§7) --
- * the ONE live sufficiency/deficit authority result shape. Replaces the
- * legacy `CoverageReport`/`CoverageDeficit`/`CoverageAcquisitionDecision`
- * family in the live generation path entirely: no adapter, no
- * `coverageReport`-shaped nesting. `totalDistinctEligibleExperiences` is the
- * GLOBAL eligible-catalog count (spec §6.2), never the union of per-facet
- * matches -- independent of which facets were requested.
+ * Canonical preference-first coverage result (spec §6.2/§7) -- the ONE live
+ * sufficiency/deficit authority result shape. `totalDistinctEligibleExperiences`
+ * is the GLOBAL eligible-catalog count (spec §6.2), never the union of
+ * per-facet matches -- independent of which facets were requested.
  */
 export interface PreferenceCoverageResult {
   facetResults: FacetCandidates[];

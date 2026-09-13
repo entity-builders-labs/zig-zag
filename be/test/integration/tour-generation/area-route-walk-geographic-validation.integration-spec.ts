@@ -8,6 +8,7 @@ import { AreaRouteAnchorResolverService } from 'src/modules/tours/services/area-
 import { AreaRouteWalkAcquisitionService } from 'src/modules/tours/services/area-route-walk-acquisition.service';
 import { CURRENT_CLASSIFICATION_PROMPT_VERSION } from 'src/modules/tours/services/experience-classification.service';
 import { ExperienceCandidate } from 'src/modules/tours/interfaces/experience-discovery.interface';
+import { PreferenceFacetDeficit } from 'src/modules/tours/interfaces/experience-acquisition-plan.interface';
 import { getPrisma, resetDb, closeDb } from '../support/test-db';
 
 /**
@@ -1292,7 +1293,13 @@ describe('tour-generation integration · area/route walk geographic validation (
           radiusMeters: 20_000,
         },
         destinationBoundary: BUENOS_AIRES_BOUNDARY,
-        legacyDeficits: [] as never[],
+        deficit: {
+          origin: 'preference_facet',
+          dimension: 'intent',
+          key: 'walk',
+          reason:
+            'Preference facet [intent:walk] has no strong catalog match yet.',
+        } as PreferenceFacetDeficit,
       });
 
       expect(result.outcome).toBe('acquired');
@@ -1439,7 +1446,13 @@ describe('tour-generation integration · area/route walk geographic validation (
           radiusMeters: 50_000,
         },
         destinationBoundary: BUENOS_AIRES_BOUNDARY,
-        legacyDeficits: [] as never[],
+        deficit: {
+          origin: 'preference_facet',
+          dimension: 'intent',
+          key: 'route_like',
+          reason:
+            'Preference facet [intent:route_like] has no strong catalog match yet.',
+        } as PreferenceFacetDeficit,
       };
 
       const round1 = await service.acquireOrReuse(input);

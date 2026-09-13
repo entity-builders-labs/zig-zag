@@ -2,7 +2,6 @@ import {
   ExperienceDiscoveryBreadth,
   ExperienceDiscoveryScope,
 } from './experience-discovery.interface';
-import { CoverageDeficit } from './coverage-analysis.interface';
 
 /**
  * A real, requested-facet deficit (cutover M2) -- `dimension`/`key` are
@@ -34,27 +33,7 @@ export interface GlobalCapacityDeficit {
   requiredEligibleCount: number;
 }
 
-/**
- * Legacy `CoverageAnalyzer`-projected deficit. Not produced by the live
- * preference-first path (cutover M2) -- retained only for
- * `AreaRouteWalkAcquisitionService`/`experience-acquisition-planner.service
- * .ts`'s pre-existing `legacyDeficits: CoverageDeficit[]` projection, which
- * predates M2 and is not itself wired into the live orchestrator yet (M3's
- * job). `legacyDeficit` is REQUIRED on this variant (never partially
- * populated) since it is the only source of truth this projection carries.
- */
-export interface CoverageAnalysisDeficit {
-  origin: 'coverage_analysis';
-  dimension?: string;
-  key?: string;
-  reason: string;
-  legacyDeficit: CoverageDeficit;
-}
-
-export type AcquisitionDeficit =
-  | PreferenceFacetDeficit
-  | GlobalCapacityDeficit
-  | CoverageAnalysisDeficit;
+export type AcquisitionDeficit = PreferenceFacetDeficit | GlobalCapacityDeficit;
 
 export interface WikivoyageSourcePlanPayload {
   sections: Array<'SEE' | 'DO' | 'EAT'>;

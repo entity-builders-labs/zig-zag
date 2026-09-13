@@ -9,10 +9,6 @@ import {
   TraceRuleEvaluation,
 } from '../interfaces/generation-trace.interface';
 import {
-  CoverageCandidate,
-  CoverageReport,
-} from '../interfaces/coverage-analysis.interface';
-import {
   TourCompletenessIssue,
   TourCompletenessResult,
 } from '../interfaces/tour-completeness.interface';
@@ -24,7 +20,7 @@ import { TourGenerationRequest } from '../interfaces/tour-generation.interface';
 import { DailyPlanningSolution } from '../interfaces/daily-planning.interface';
 import { PreferenceCoverageResult } from '../interfaces/preference-spec.interface';
 import { CandidateScoreBreakdown } from './candidate-ranking.util';
-import { matchedThemesFor } from './theme-matching.util';
+import { matchedThemesFor, ThemeMatchCandidate } from './theme-matching.util';
 
 function experienceDetail(act: any): string {
   const parts: string[] = [];
@@ -565,129 +561,11 @@ export function buildEmbeddingsStep(
 }
 
 /**
- * Legacy `CoverageReport`-shaped 'coverage_analysis' step builder. NOT
- * called by any new generation as of cutover M2 --
- * `ExperienceGenerationService` builds `buildPreferenceCoverageStep`
- * instead. Retained ONLY so already-persisted v1-v3 traces (which do carry
- * a `coverageReport`-shaped step) remain readable/renderable historical
- * data -- a historical-read boundary, never a new-generation runtime
- * decision path. Do not wire this back into the live orchestrator.
- */
-export function buildCoverageAnalysisStep(
-  report: CoverageReport,
-): GenerationTraceStep {
-  const blocking = report.deficits.filter((d) => d.severity === 'blocking');
-  const warnings = report.deficits.filter((d) => d.severity === 'warning');
-  const sufficient = report.status === 'sufficient';
-  const deficitsSummary = report.deficits.length
-    ? report.deficits.map((deficit) => deficit.message).join(' ')
-    : 'Sin déficits bloqueantes.';
-  const decisionSummary = report.decision.requiresAdditionalDiscovery
-    ? `Se detectaron faltantes que requieren una búsqueda adicional: ${report.decision.action}.`
-    : `Decisión de adquisición: ${report.decision.action}.`;
-
-  const rules: TraceRuleEvaluation[] = [
-    rule(
-      'COV-QUANTITY-001',
-      'Cantidad utilizable suficiente para días y ritmo solicitados',
-      report.usableCandidateCount >= report.requiredCandidateCount
-        ? 'PASS'
-        : 'FAIL',
-      `${report.usableCandidateCount} utilizable(s) frente a ${report.requiredCandidateCount} requerido(s).`,
-      report.usableCandidateCount,
-      report.requiredCandidateCount,
-    ),
-    rule(
-      'COV-SEMANTIC-001',
-      'Cobertura semántica disponible cuando existe intención semántica',
-      report.semanticCoverage.status === 'unavailable'
-        ? 'FAIL'
-        : report.semanticCoverage.status === 'not_requested'
-          ? 'SKIPPED'
-          : report.semanticCoverage.indexedCandidateCount > 0
-            ? 'PASS'
-            : 'FAIL',
-      report.semanticCoverage.reason ??
-        `${report.semanticCoverage.indexedCandidateCount}/${report.semanticCoverage.eligibleCandidateCount} candidato(s) indexado(s).`,
-      report.semanticCoverage.indexedCandidateCount,
-      report.semanticCoverage.status === 'not_requested' ? undefined : '> 0',
-    ),
-    ...report.requestedThemeCoverage.map((theme) =>
-      rule(
-        `COV-THEME-${theme.theme.toUpperCase().replace(/[^A-Z0-9]+/g, '_')}`,
-        `Cobertura del tema solicitado: ${theme.theme}`,
-        theme.matchedCandidateCount > 0 ? 'PASS' : 'FAIL',
-        `${theme.matchedCandidateCount} candidato(s) coincidente(s), ${theme.strongMatchCount} fuerte(s).`,
-        theme.matchedCandidateCount,
-        '> 0',
-      ),
-    ),
-  ];
-
-  return {
-    stage: 'coverage_analysis',
-    label: 'Cobertura multidimensional del pool',
-    component: 'CoverageAnalyzer',
-    status: sufficient
-      ? 'PASS'
-      : report.status === 'degraded'
-        ? 'WARN'
-        : 'FAIL',
-    summary:
-      `Analizados ${report.analyzedCandidateCount} candidatos; elegibles ${report.eligibleCandidateCount}; ofrecidos al motor ${report.offeredCandidateCount}; requeridos ${report.requiredCandidateCount}. ` +
-      `Estado ${report.status}. ${decisionSummary} ${deficitsSummary}`,
-    inputs: {
-      analyzedCandidateCount: report.analyzedCandidateCount,
-      eligibleCandidateCount: report.eligibleCandidateCount,
-      offeredCandidateCount: report.offeredCandidateCount,
-      requiredCandidateCount: report.requiredCandidateCount,
-      providerHealth: report.providerHealth,
-    },
-    rules,
-    decision: {
-      status: sufficient
-        ? 'PASS'
-        : report.status === 'degraded'
-          ? 'WARN'
-          : 'FAIL',
-      outcome: report.decision.action,
-      reason: sufficient
-        ? 'No hay déficit bloqueante que justifique adquisición adicional.'
-        : blocking.map((d) => d.message).join(' ') ||
-          'La cobertura no alcanza el umbral requerido.',
-      reasonCodes: report.deficits.map((d) => d.reason),
-      triggeredActions:
-        report.decision.action === 'none'
-          ? ['BUILD_CANDIDATE_POOL']
-          : report.decision.action === 'needs_additional_discovery' ||
-              report.decision.action === 'needs_destination_discovery'
-            ? ['RUN_GROUNDED_DISCOVERY']
-            : report.decision.action === 'places_text_search' ||
-                report.decision.action === 'places_nearby_search'
-              ? ['RUN_CATALOG_REFILL']
-              : ['DEGRADE_OR_FAIL'],
-    },
-    outputs: {
-      status: report.status,
-      blockingDeficits: blocking,
-      warningDeficits: warnings,
-      acquisitionDecision: report.decision,
-    },
-    providerStatus: report.status === 'degraded' ? 'failed' : undefined,
-    degradedReason:
-      report.status === 'degraded' ? report.providerHealth.reason : undefined,
-    coverageReport: report,
-  };
-}
-
-/**
- * The canonical 'coverage_analysis' step builder for the live
- * preference-first path (cutover M2). Consumes `PreferenceCoverageResult`
- * directly -- no `CoverageReport`/`CoverageDeficit`/
- * `CoverageAcquisitionDecision`, no adapter back to that legacy shape.
- * Trace-presentation context (offered-candidate count, semantic ranking,
- * provider health) is passed in separately by the caller, kept out of the
- * canonical decision result itself.
+ * The one 'coverage_analysis' step builder for the live preference-first
+ * path. Consumes `PreferenceCoverageResult` directly. Trace-presentation
+ * context (offered-candidate count, semantic ranking, provider health) is
+ * passed in separately by the caller, kept out of the canonical decision
+ * result itself.
  */
 export function buildPreferenceCoverageStep(
   result: PreferenceCoverageResult,
@@ -1348,7 +1226,7 @@ export function buildCandidatePoolStep(params: {
   postAcquisitionCatalogCount: number;
   eligibleCount: number;
   offeredCandidates: Array<
-    CoverageCandidate & {
+    ThemeMatchCandidate & {
       traceSource: 'db' | 'google_places' | 'geoapify' | 'discovery';
       scoreBreakdown: CandidateScoreBreakdown;
     }
@@ -1455,7 +1333,7 @@ export function buildExperienceCandidatePoolStep(params: {
   postAcquisitionCatalogCount: number;
   eligibleCount: number;
   offeredCandidates: Array<
-    CoverageCandidate & {
+    ThemeMatchCandidate & {
       traceSource: 'db' | 'google_places' | 'geoapify' | 'discovery';
       scoreBreakdown: CandidateScoreBreakdown;
     }
