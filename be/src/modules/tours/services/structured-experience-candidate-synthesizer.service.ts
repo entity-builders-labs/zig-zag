@@ -58,6 +58,11 @@ export class StructuredExperienceCandidateSynthesizerService {
         evidenceKeys: [obs.evidenceKey],
         shortReason: `Structured observation from ${obs.provider}: ${obs.title}`,
         orderedByEvidence: false,
+        // B3 live wiring -- pure pass-through of the ALREADY-normalized,
+        // typed evidence the provider adapter attached (docs/architecture/
+        // engineering-principles.md §1/§3). This layer never branches on
+        // `obs.provider` and never decodes `obs.metadata`.
+        qualityEvidence: obs.qualityEvidence,
       };
 
       return {

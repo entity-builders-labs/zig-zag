@@ -7,6 +7,7 @@ import {
 import {
   AcquisitionProviderResult,
   ExperienceAcquisitionProvider,
+  QualityEvidence,
   SourceObservation,
   SourceObservationGeo,
 } from '../interfaces/experience-acquisition.interface';
@@ -245,6 +246,11 @@ export class GooglePlacesAcquisitionProvider {
           description: place.formattedAddress,
           geo,
           standaloneEligible,
+          // Normalized at the adapter boundary (docs/architecture/
+          // engineering-principles.md §1/§3) -- a missing rating is
+          // `undefined`, never a fabricated `0`. Geoapify-shaped places
+          // that lack `rating` correctly produce no rating evidence here.
+          qualityEvidence: this.qualityEvidenceFor(place),
           metadata: {
             rating: place.rating,
             userRatingCount: place.userRatingCount,
@@ -296,6 +302,29 @@ export class GooglePlacesAcquisitionProvider {
       return undefined;
     }
     return { latitude, longitude };
+  }
+
+  /**
+   * Adapter-boundary normalization (docs/architecture/
+   * engineering-principles.md §1/§3): reads `PlaceData`'s already-typed
+   * `rating`/`userRatingCount` directly -- never a `metadata` decode, never
+   * a provider-name branch. Google and Geoapify share this one method
+   * because both are `IPlacesApiService` implementations returning the
+   * SAME `PlaceData` shape; a missing rating (Geoapify's normal case) is
+   * `undefined`, never `0`.
+   */
+  private qualityEvidenceFor(place: PlaceData): QualityEvidence | undefined {
+    if (typeof place.rating !== 'number' || !Number.isFinite(place.rating)) {
+      return undefined;
+    }
+    return {
+      consumerRating: {
+        value: place.rating,
+        ...(typeof place.userRatingCount === 'number'
+          ? { reviewCount: place.userRatingCount }
+          : {}),
+      },
+    };
   }
 
   private isAdmissible(place: PlaceData, requestedTypes?: string[]): boolean {

@@ -94,6 +94,69 @@ describe('GooglePlacesAcquisitionProvider', () => {
     });
   });
 
+  describe('B3 live wiring — qualityEvidence normalized at the adapter boundary', () => {
+    it('carries the real rating AND review count', async () => {
+      placesApiMock.searchNearby.mockResolvedValueOnce({
+        data: [
+          {
+            id: 'ChIJ1',
+            displayName: { text: 'Museo Nacional' },
+            location: { latitude: -34.6, longitude: -58.38 },
+            rating: 4.8,
+            userRatingCount: 15420,
+            primaryType: 'museum',
+            types: ['museum'],
+          },
+        ],
+        provenance: {
+          provider: 'google',
+          cacheStatus: 'miss-live',
+          requestedCount: 1,
+          receivedCount: 1,
+        },
+      });
+
+      const result = await provider.acquire({
+        latitude: -34.6,
+        longitude: -58.38,
+        radiusMeters: 5000,
+      });
+
+      expect(result.value[0].qualityEvidence).toEqual({
+        consumerRating: { value: 4.8, reviewCount: 15420 },
+      });
+    });
+
+    it('never treats a Geoapify-shaped missing rating as zero -- no qualityEvidence at all', async () => {
+      placesApiMock.searchNearby.mockResolvedValueOnce({
+        data: [
+          {
+            id: 'ChIJ2',
+            displayName: { text: 'Parque Lezama' },
+            location: { latitude: -34.6, longitude: -58.38 },
+            // No rating/userRatingCount -- Geoapify's normal shape.
+            primaryType: 'park',
+            types: ['park'],
+          },
+        ],
+        provenance: {
+          provider: 'geoapify',
+          cacheStatus: 'miss-live',
+          requestedCount: 1,
+          receivedCount: 1,
+        },
+      });
+
+      const result = await provider.acquire({
+        latitude: -34.6,
+        longitude: -58.38,
+        radiusMeters: 5000,
+      });
+
+      expect(result.value[0].qualityEvidence).toBeUndefined();
+    });
+  });
+
   it('1b. preserves websiteUri, priceLevel, businessStatus, editorialSummary and primaryTypeDisplayName (Task B1)', async () => {
     const mockPlace: PlaceData = {
       id: 'ChIJ987654321',

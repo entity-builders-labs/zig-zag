@@ -1271,4 +1271,186 @@ describe('StructuredCandidateCorroborationService', () => {
       expect(result.candidates).toHaveLength(1);
     });
   });
+
+  describe('B3 live wiring — qualityEvidence merge (cutover M2)', () => {
+    it('a Wikivoyage listing + a rated Google Places result for the same place merge into one qualityEvidence bundle', () => {
+      const pWV: StructuredCandidateProposal = {
+        candidate: {
+          name: 'Teatro Colón',
+          themes: [],
+          traits: [],
+          componentHints: [
+            {
+              key: 'wikivoyage:San_Nicolas:see:see:Teatro_Colon:1:component',
+              name: 'Teatro Colón',
+              role: 'venue',
+              expectedKind: 'PLACE',
+              required: true,
+              evidenceKeys: ['wikivoyage:San_Nicolas:see:see:Teatro_Colon:1'],
+            },
+          ],
+          evidenceKeys: ['wikivoyage:San_Nicolas:see:see:Teatro_Colon:1'],
+          shortReason: 'Wikivoyage see listing',
+          qualityEvidence: { editorialListing: { listed: true } },
+        },
+        observations: [
+          {
+            provider: 'wikivoyage',
+            title: 'Teatro Colón',
+            evidenceType: 'place',
+            evidenceKey: 'wikivoyage:San_Nicolas:see:see:Teatro_Colon:1',
+            geo: { latitude: -34.601111, longitude: -58.383056 },
+          },
+        ],
+      };
+
+      const pGP: StructuredCandidateProposal = {
+        candidate: {
+          name: 'Teatro Colon',
+          themes: [],
+          traits: [],
+          componentHints: [
+            {
+              key: 'google_places:ChIJTeatroColon:component',
+              name: 'Teatro Colon',
+              role: 'venue',
+              expectedKind: 'PLACE',
+              required: true,
+              evidenceKeys: ['google_places:ChIJTeatroColon'],
+            },
+          ],
+          evidenceKeys: ['google_places:ChIJTeatroColon'],
+          shortReason: 'Structured observation from google_places',
+          qualityEvidence: {
+            consumerRating: { value: 4.8, reviewCount: 12000 },
+          },
+        },
+        observations: [
+          {
+            provider: 'google_places',
+            externalId: 'ChIJTeatroColon',
+            title: 'Teatro Colon',
+            evidenceType: 'place',
+            evidenceKey: 'google_places:ChIJTeatroColon',
+            geo: { latitude: -34.60115, longitude: -58.3831 },
+          },
+        ],
+      };
+
+      const merged = service.corroborateAndMerge([pWV, pGP]).candidates[0];
+
+      expect(merged.qualityEvidence).toEqual({
+        consumerRating: { value: 4.8, reviewCount: 12000 },
+        editorialListing: { listed: true },
+      });
+    });
+
+    it('picks the Places contributor with the higher review count when two rated observations corroborate', () => {
+      const base = (
+        suffix: string,
+        rating: number,
+        reviewCount: number,
+      ): StructuredCandidateProposal => ({
+        candidate: {
+          name: 'Museo Nacional',
+          themes: [],
+          traits: [],
+          componentHints: [
+            {
+              key: `google_places:${suffix}:component`,
+              name: 'Museo Nacional',
+              role: 'venue',
+              expectedKind: 'PLACE',
+              required: true,
+              evidenceKeys: [`google_places:${suffix}`],
+            },
+          ],
+          evidenceKeys: [`google_places:${suffix}`],
+          shortReason: 'Structured observation from google_places',
+          qualityEvidence: {
+            consumerRating: { value: rating, reviewCount },
+          },
+        },
+        observations: [
+          {
+            provider: 'google_places',
+            externalId: suffix,
+            title: 'Museo Nacional',
+            evidenceType: 'place',
+            evidenceKey: `google_places:${suffix}`,
+            geo: { latitude: -34.6, longitude: -58.38 },
+          },
+        ],
+      });
+
+      // A low-confidence 4.9 (few reviews) must not beat a well-corroborated
+      // 4.2 (many reviews) -- the merge picks the more confident signal,
+      // never an average of the two.
+      const weakButHighRating = base('weak', 4.9, 3);
+      const confidentRating = base('confident', 4.2, 5000);
+
+      const merged = service.corroborateAndMerge([
+        weakButHighRating,
+        confidentRating,
+      ]).candidates[0];
+
+      expect(merged.qualityEvidence).toEqual({
+        consumerRating: { value: 4.2, reviewCount: 5000 },
+      });
+    });
+
+    it('a cluster with no quality-bearing contributor (e.g. OSM + OSM) has no qualityEvidence at all', () => {
+      const osmA: StructuredCandidateProposal = {
+        candidate: {
+          name: 'Plaza Dorrego',
+          themes: [],
+          traits: [],
+          componentHints: [
+            {
+              key: 'osm:node:1:component',
+              name: 'Plaza Dorrego',
+              role: 'venue',
+              expectedKind: 'PLACE',
+              required: true,
+              evidenceKeys: ['osm:node:1'],
+            },
+          ],
+          evidenceKeys: ['osm:node:1'],
+          shortReason: 'Structured observation from osm',
+        },
+        observations: [
+          {
+            provider: 'osm',
+            title: 'Plaza Dorrego',
+            evidenceType: 'place',
+            evidenceKey: 'osm:node:1',
+            geo: { latitude: -34.6212, longitude: -58.373 },
+          },
+        ],
+      };
+      const osmB: StructuredCandidateProposal = JSON.parse(
+        JSON.stringify({
+          ...osmA,
+          candidate: {
+            ...osmA.candidate,
+            evidenceKeys: ['osm:node:2'],
+            componentHints: [
+              {
+                ...osmA.candidate.componentHints[0],
+                key: 'osm:node:2:component',
+                evidenceKeys: ['osm:node:2'],
+              },
+            ],
+          },
+          observations: [
+            { ...osmA.observations[0], evidenceKey: 'osm:node:2' },
+          ],
+        }),
+      );
+
+      const merged = service.corroborateAndMerge([osmA, osmB]).candidates[0];
+
+      expect(merged.qualityEvidence).toBeUndefined();
+    });
+  });
 });

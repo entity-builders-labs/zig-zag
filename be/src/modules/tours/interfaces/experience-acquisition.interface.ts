@@ -20,6 +20,44 @@ export interface SourceObservationGeo {
   geometry?: unknown;
 }
 
+/**
+ * A 0..5 star-rating-style consumer signal, when the source provides one.
+ * Evidence-typed (`consumerRating`), not provider-typed -- any provider
+ * capable of supplying an equivalent rating (Google, Geoapify, a future
+ * review aggregator) populates the SAME shape (`docs/architecture/
+ * engineering-principles.md` §3).
+ */
+export interface RatingEvidence {
+  value: number;
+  reviewCount?: number;
+}
+
+/** The source is itself a curated/editorial listing (e.g. a Wikivoyage entry). */
+export interface EditorialListingEvidence {
+  listed: true;
+}
+
+/** A notability/popularity count (e.g. Wikidata sitelinks). */
+export interface NotabilityEvidence {
+  count: number;
+}
+
+/**
+ * Normalized, provider-neutral quality evidence a single structured
+ * observation may carry. Every field is independently optional -- the
+ * ADAPTER that produced the observation (`GooglePlacesAcquisitionProvider`,
+ * `WikivoyageAcquisitionProvider`, ...) populates only what it actually has
+ * and never invents a signal it cannot supply. Downstream domain code
+ * (synthesis, corroboration, quality scoring) consumes this typed fact and
+ * must never branch on `SourceObservation.provider` or decode
+ * `SourceObservation.metadata` to reconstruct it.
+ */
+export interface QualityEvidence {
+  consumerRating?: RatingEvidence;
+  editorialListing?: EditorialListingEvidence;
+  notability?: NotabilityEvidence;
+}
+
 export interface SourceObservation {
   provider: ExperienceAcquisitionProvider;
   externalId?: string;
@@ -29,6 +67,12 @@ export interface SourceObservation {
   evidenceType: SourceEvidenceType;
   evidenceKey: string;
   metadata?: Record<string, unknown>;
+  /**
+   * Normalized quality evidence, populated by the provider adapter that
+   * produced this observation (never inferred later from `provider`/
+   * `metadata`). See `QualityEvidence`.
+   */
+  qualityEvidence?: QualityEvidence;
   /**
    * Provider-neutral: `false` marks an observation whose evidence is only
    * enough to CORROBORATE/enrich a tourism Experience found by stronger

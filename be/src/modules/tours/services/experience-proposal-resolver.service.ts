@@ -26,6 +26,7 @@ import {
   normalizeGeoName,
 } from '../utils/nominatim-match.util';
 import { GeoEntityHint } from '../interfaces/experience-discovery.interface';
+import { computeQualityScore } from '../utils/quality-score.util';
 
 // Loose radius for biasing a Places text search toward the destination when
 // Nominatim/OSM had no usable match — wide enough to cover a metro area's
@@ -205,10 +206,31 @@ export class ExperienceProposalResolverService
           await this.catalog.resolveOrCreateTraitDefinitions(
             candidate.candidate.traits,
           );
+        // B3 live wiring (cutover M2): the one deterministic, provider-
+        // neutral quality signal available at persistence time --
+        // `qualityEvidence` is only ever populated (at the adapter
+        // boundary) from real grounded signals, never invented, never
+        // LLM-authored. This is a plain 1:1 field-name adaptation from the
+        // normalized `QualityEvidence` contract onto `computeQualityScore`'s
+        // pre-existing `QualityScoreInput` shape (Task B3/B3-amendment,
+        // deliberately left unrenamed here -- see
+        // docs/architecture/engineering-principles.md) -- never a provider
+        // check. `computeQualityScore` returns `null` when no usable signal
+        // exists; `persistVerifiedExperience` treats `undefined` the same
+        // as omitting the field.
+        const qualityEvidence = candidate.candidate.qualityEvidence;
+        const qualityScore =
+          computeQualityScore({
+            placesRating: qualityEvidence?.consumerRating?.value,
+            placesReviewCount: qualityEvidence?.consumerRating?.reviewCount,
+            wikivoyageListed: qualityEvidence?.editorialListing?.listed,
+            wikidataSitelinkCount: qualityEvidence?.notability?.count,
+          }) ?? undefined;
         const experience = await this.catalog.persistVerifiedExperience({
           canonicalName: candidate.candidate.name,
           description: candidate.candidate.description,
           durationMinutes: candidate.candidate.suggestedDurationMinutes,
+          qualityScore,
           metadata: {
             themes: candidate.candidate.themes,
             traits: candidate.candidate.traits,

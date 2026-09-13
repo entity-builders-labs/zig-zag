@@ -161,6 +161,10 @@ describe('StructuredExperienceCandidateSynthesizerService', () => {
       geo: { latitude: -34.601111, longitude: -58.383056 },
       evidenceType: 'place',
       evidenceKey: 'google_places:ChIJPlace123',
+      // Already normalized at the adapter boundary
+      // (GooglePlacesAcquisitionProvider) -- this test never re-derives it
+      // from raw metadata.
+      qualityEvidence: { consumerRating: { value: 4.9 } },
       metadata: {
         rating: 4.9,
       },
@@ -193,5 +197,76 @@ describe('StructuredExperienceCandidateSynthesizerService', () => {
       evidenceKeys: ['google_places:ChIJPlace123'],
     });
     expect(proposal.observations).toEqual([observation]);
+    // B3 live wiring (cutover M2): the ALREADY-normalized qualityEvidence
+    // the adapter attached is carried onto the candidate unchanged.
+    expect(candidate.qualityEvidence).toEqual({
+      consumerRating: { value: 4.9 },
+    });
+  });
+
+  describe('B3 live wiring — qualityEvidence is a pure pass-through', () => {
+    it('carries whatever normalized qualityEvidence the observation already has', () => {
+      const observation: SourceObservation = {
+        provider: 'geoapify',
+        title: 'Museo Nacional',
+        evidenceType: 'place',
+        evidenceKey: 'geoapify:1',
+        qualityEvidence: { consumerRating: { value: 4.2, reviewCount: 830 } },
+      };
+
+      const [candidate] = service.synthesize([observation]);
+
+      expect(candidate.qualityEvidence).toEqual({
+        consumerRating: { value: 4.2, reviewCount: 830 },
+      });
+    });
+
+    it('never derives qualityEvidence from raw metadata -- only the typed field counts', () => {
+      // A Geoapify-shaped observation whose adapter found no rating (the
+      // normal case) never sets `qualityEvidence` -- even if `metadata`
+      // happens to carry rating-shaped keys, this layer must not decode
+      // them. Proves this layer never re-implements the adapter's own
+      // normalization.
+      const observation: SourceObservation = {
+        provider: 'geoapify',
+        title: 'Parque Lezama',
+        evidenceType: 'place',
+        evidenceKey: 'geoapify:2',
+        metadata: { rating: 4.2, userRatingCount: 830 },
+      };
+
+      const [candidate] = service.synthesize([observation]);
+
+      expect(candidate.qualityEvidence).toBeUndefined();
+    });
+
+    it('carries an editorial-listing evidence bundle unchanged', () => {
+      const observation: SourceObservation = {
+        provider: 'wikivoyage',
+        title: 'Manzana de las Luces',
+        evidenceType: 'place',
+        evidenceKey: 'wikivoyage:1',
+        qualityEvidence: { editorialListing: { listed: true } },
+      };
+
+      const [candidate] = service.synthesize([observation]);
+
+      expect(candidate.qualityEvidence).toEqual({
+        editorialListing: { listed: true },
+      });
+    });
+
+    it('has no qualityEvidence when the observation carries none (e.g. OSM)', () => {
+      const observation: SourceObservation = {
+        provider: 'osm',
+        title: 'Plaza Dorrego',
+        evidenceType: 'place',
+        evidenceKey: 'osm:node:1',
+      };
+
+      const [candidate] = service.synthesize([observation]);
+
+      expect(candidate.qualityEvidence).toBeUndefined();
+    });
   });
 });

@@ -1739,4 +1739,97 @@ describe('ExperienceProposalResolverService', () => {
       );
     });
   });
+
+  describe('B3 live wiring — qualityScore at persistence (cutover M2)', () => {
+    const osmPlacesForVenue = () => ({
+      lookupStreetsWithin: jest
+        .fn()
+        .mockResolvedValue({ status: 'success', value: [] }),
+      lookupPoisWithin: jest.fn().mockResolvedValue({
+        status: 'success',
+        value: [
+          {
+            id: 'osm:node:10',
+            name: 'Museum',
+            osmType: 'node',
+            osmId: 10,
+            geometry: { type: 'Point', coordinates: [-58.45, -34.55] },
+            tags: {},
+          },
+        ],
+      }),
+    });
+
+    it('computes a real qualityScore from Places rating/review evidence and persists it', async () => {
+      const rated = candidate();
+      rated.qualityEvidence = {
+        consumerRating: { value: 4.6, reviewCount: 900 },
+      };
+      const catalog = {
+        upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-10' }),
+        resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        persistVerifiedExperience: jest.fn().mockResolvedValue({
+          id: 'exp-rated',
+          dedupeDecision: 'NEW',
+        }),
+      };
+      const geographicValidator = {
+        validate: jest.fn().mockReturnValue(acceptedValidation()),
+      };
+      const service = new ExperienceProposalResolverService(
+        osmPlacesForVenue() as any,
+        catalog as any,
+        geographicValidator as any,
+      );
+
+      await service.resolve({
+        destinationBoundary: boundary,
+        candidates: [rated],
+      });
+
+      // 4.6 with 900 reviews (well past the confidence-saturation cap) is
+      // trusted near face value by computeQualityScore -- real, deterministic
+      // math, not a magic constant asserted here.
+      expect(catalog.persistVerifiedExperience).toHaveBeenCalledWith(
+        expect.objectContaining({
+          qualityScore: expect.any(Number),
+        }),
+      );
+      const persistedQualityScore = (
+        catalog.persistVerifiedExperience.mock.calls[0][0] as {
+          qualityScore: number;
+        }
+      ).qualityScore;
+      expect(persistedQualityScore).toBeGreaterThanOrEqual(3.0);
+    });
+
+    it('never fabricates a qualityScore when the candidate carries no grounded quality evidence', async () => {
+      const unrated = candidate();
+      const catalog = {
+        upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-10' }),
+        resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        persistVerifiedExperience: jest.fn().mockResolvedValue({
+          id: 'exp-unrated',
+          dedupeDecision: 'NEW',
+        }),
+      };
+      const geographicValidator = {
+        validate: jest.fn().mockReturnValue(acceptedValidation()),
+      };
+      const service = new ExperienceProposalResolverService(
+        osmPlacesForVenue() as any,
+        catalog as any,
+        geographicValidator as any,
+      );
+
+      await service.resolve({
+        destinationBoundary: boundary,
+        candidates: [unrated],
+      });
+
+      expect(catalog.persistVerifiedExperience).toHaveBeenCalledWith(
+        expect.objectContaining({ qualityScore: undefined }),
+      );
+    });
+  });
 });

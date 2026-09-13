@@ -3,7 +3,11 @@ import {
   ExperienceCandidate,
   GeoEntityHint,
 } from '../interfaces/experience-discovery.interface';
-import { SourceObservation } from '../interfaces/experience-acquisition.interface';
+import {
+  NotabilityEvidence,
+  RatingEvidence,
+  SourceObservation,
+} from '../interfaces/experience-acquisition.interface';
 import { StructuredCandidateProposal } from '../interfaces/structured-candidate-proposal.interface';
 import {
   distanceMeters,
@@ -526,6 +530,57 @@ export class StructuredCandidateCorroborationService {
       evidenceKeys,
       shortReason,
       orderedByEvidence,
+      qualityEvidence: this.mergeQualityEvidence(cluster),
+    };
+  }
+
+  /**
+   * B3 live wiring -- merges each contributor's own already-typed,
+   * already-normalized `qualityEvidence` (populated at the adapter
+   * boundary, never here) into ONE bundle for the merged candidate. Never
+   * reads `.provider` or any raw metadata -- purely composes evidence
+   * facts. Consumer rating: the contributor with the highest review count
+   * wins (most statistically confident), never averaged with a
+   * less-confident one. Editorial listing: present if ANY contributor
+   * carries one. Notability: the highest count wins. A cluster with no
+   * quality-bearing contributor returns `undefined` (never a fabricated
+   * value).
+   */
+  private mergeQualityEvidence(
+    cluster: StructuredCandidateProposal[],
+  ): ExperienceCandidate['qualityEvidence'] {
+    const ratings = cluster
+      .map((p) => p.candidate.qualityEvidence?.consumerRating)
+      .filter(
+        (rating): rating is RatingEvidence =>
+          rating != null &&
+          typeof rating.value === 'number' &&
+          Number.isFinite(rating.value),
+      )
+      .sort((a, b) => (b.reviewCount ?? 0) - (a.reviewCount ?? 0));
+    const editorialListing = cluster.some(
+      (p) => p.candidate.qualityEvidence?.editorialListing?.listed === true,
+    );
+    const notabilities = cluster
+      .map((p) => p.candidate.qualityEvidence?.notability)
+      .filter(
+        (notability): notability is NotabilityEvidence =>
+          notability != null && typeof notability.count === 'number',
+      )
+      .sort((a, b) => b.count - a.count);
+
+    if (
+      ratings.length === 0 &&
+      !editorialListing &&
+      notabilities.length === 0
+    ) {
+      return undefined;
+    }
+
+    return {
+      ...(ratings.length > 0 ? { consumerRating: ratings[0] } : {}),
+      ...(editorialListing ? { editorialListing: { listed: true } } : {}),
+      ...(notabilities.length > 0 ? { notability: notabilities[0] } : {}),
     };
   }
 }

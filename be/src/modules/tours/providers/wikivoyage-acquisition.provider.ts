@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import {
   AcquisitionProviderResult,
+  QualityEvidence,
   SourceObservation,
 } from '../interfaces/experience-acquisition.interface';
 import { WikivoyageApiService } from '../services/wikivoyage-api.service';
@@ -8,6 +9,17 @@ import { WikivoyageApiService } from '../services/wikivoyage-api.service';
 export interface WikivoyageAcquireOptions {
   sections?: ('SEE' | 'DO' | 'EAT')[];
 }
+
+/**
+ * Adapter-boundary normalization (docs/architecture/
+ * engineering-principles.md §1/§3): a Wikivoyage entry's mere existence in
+ * a real, fetched article IS the editorial-listing signal -- decided here,
+ * where the Wikivoyage-specific fetch already happened, never re-derived
+ * downstream from `provider === 'wikivoyage'`.
+ */
+const WIKIVOYAGE_QUALITY_EVIDENCE: QualityEvidence = {
+  editorialListing: { listed: true },
+};
 
 function slugify(text: string): string {
   return text
@@ -84,6 +96,7 @@ export class WikivoyageAcquisitionProvider {
             : undefined,
         evidenceType: entry.sectionType === 'DO' ? 'tourism_activity' : 'place',
         evidenceKey,
+        qualityEvidence: WIKIVOYAGE_QUALITY_EVIDENCE,
         // Task B1 -- previously computed (used above for the evidenceKey/
         // evidenceType derivation) but discarded before reaching the
         // observation itself.

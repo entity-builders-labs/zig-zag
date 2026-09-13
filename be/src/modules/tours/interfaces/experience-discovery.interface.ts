@@ -1,3 +1,5 @@
+import { QualityEvidence } from './experience-acquisition.interface';
+
 /** Provider-neutral geographic hint extracted from grounded evidence. */
 export interface GeoEntityHint {
   key: string;
@@ -50,6 +52,19 @@ export interface ExperienceCandidate {
    * never a fabricated one derived from array/resolution order.
    */
   orderedByEvidence?: boolean;
+  /**
+   * B3 live wiring (cutover M2) -- normalized, provider-neutral quality
+   * evidence carried straight from the originating structured
+   * `SourceObservation`(s) (already populated at the adapter boundary --
+   * see `QualityEvidence`), consumed by `quality-score.util.ts`'s
+   * `computeQualityScore()` at persistence time
+   * (`ExperienceProposalResolverService`). Only ever populated from REAL
+   * provider-returned signals -- never invented, never LLM-authored. A
+   * web/LLM-extractor candidate never sets this (extraction must never
+   * author a quality rating); it may still receive a real quality score if
+   * dedupe merges it with a structured candidate for the SAME real place.
+   */
+  qualityEvidence?: QualityEvidence;
 }
 
 /**

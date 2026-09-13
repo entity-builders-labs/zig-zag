@@ -72,6 +72,10 @@ describe('WikivoyageAcquisitionProvider', () => {
       },
       evidenceType: 'place',
       evidenceKey: 'wikivoyage:San_Telmo:see:see:Mercado_San_Telmo:1',
+      // B3 live wiring (cutover M2): the observation's real existence in a
+      // fetched Wikivoyage article IS the editorial-listing signal,
+      // normalized here at the adapter boundary.
+      qualityEvidence: { editorialListing: { listed: true } },
       metadata: {
         sectionType: 'SEE',
         templateName: 'see',
@@ -86,6 +90,7 @@ describe('WikivoyageAcquisitionProvider', () => {
       geo: undefined,
       evidenceType: 'tourism_activity',
       evidenceKey: 'wikivoyage:San_Telmo:do:hacer:Clases_de_Tango:1',
+      qualityEvidence: { editorialListing: { listed: true } },
       metadata: {
         sectionType: 'DO',
         templateName: 'hacer',
