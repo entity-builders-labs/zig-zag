@@ -6,6 +6,10 @@ function toRad(deg: number): number {
   return (deg * Math.PI) / 180;
 }
 
+function toDeg(rad: number): number {
+  return (rad * 180) / Math.PI;
+}
+
 function haversineMeters(
   a: { lat: number; lon: number },
   b: { lat: number; lon: number },
@@ -80,21 +84,41 @@ export function boundingBoxToCenterRadius(geometry: GeoJsonGeometry): {
   return { latitude: center.lat, longitude: center.lon, radiusMeters };
 }
 
-/** Builds a provider-neutral polygon scope for point/radius destinations. */
+/**
+ * Builds a provider-neutral polygon scope for point/radius destinations.
+ *
+ * This is an equirectangular/local-circle approximation (adequate at the
+ * city/neighborhood scale this destination-scope fallback operates at),
+ * never an exact geodesic circle -- callers needing exact geodesic
+ * containment at large radii would need a different projection.
+ *
+ * Fix (previously a real bug): `radiusMeters / EARTH_RADIUS_METERS` is an
+ * angular radius in RADIANS (the standard small-angle arc-length/radius
+ * relation). `latitude`/`longitude` are in DEGREES. Adding the two
+ * directly -- without the radians→degrees conversion below -- silently
+ * produced a polygon smaller than requested by a factor of `180/π` (~57.3x):
+ * a requested 12km radius rendered as a real-world radius of only ~209m.
+ * Every point-scale-degraded destination (this fallback's only caller) was
+ * affected. The previous unit test only checked polygon shape/closure and
+ * the center point, never the actual geodesic radius, so this went
+ * undetected -- see the new radius-verifying tests below.
+ */
 export function pointRadiusToGeometry(
   latitude: number,
   longitude: number,
   radiusMeters: number,
   segments = 32,
 ): GeoJsonGeometry {
-  const latRadius = radiusMeters / EARTH_RADIUS_METERS;
-  const lonRadius = latRadius / Math.max(Math.cos(toRad(latitude)), 0.1);
+  const angularRadiusRadians = radiusMeters / EARTH_RADIUS_METERS;
+  const latRadiusDegrees = toDeg(angularRadiusRadians);
+  const lonRadiusDegrees =
+    latRadiusDegrees / Math.max(Math.cos(toRad(latitude)), 0.1);
   const ring: [number, number][] = [];
   for (let index = 0; index <= segments; index++) {
     const angle = (index / segments) * Math.PI * 2;
     ring.push([
-      longitude + lonRadius * Math.cos(angle),
-      latitude + latRadius * Math.sin(angle),
+      longitude + lonRadiusDegrees * Math.cos(angle),
+      latitude + latRadiusDegrees * Math.sin(angle),
     ]);
   }
   return { type: 'Polygon', coordinates: [ring] };

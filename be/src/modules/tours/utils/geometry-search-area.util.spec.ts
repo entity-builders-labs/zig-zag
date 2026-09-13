@@ -146,17 +146,134 @@ describe('boundingBoxToCenterRadius', () => {
 });
 
 describe('pointRadiusToGeometry', () => {
-  it('creates a closed polygon scope around a point', () => {
+  it('creates a closed polygon scope centered on the point', () => {
     const geometry = pointRadiusToGeometry(-33.01, -58.51, 5000) as {
       type: 'Polygon';
       coordinates: [number, number][][];
     };
+    const ring = geometry.coordinates[0];
     expect(geometry.type).toBe('Polygon');
-    expect(geometry.coordinates[0]).toHaveLength(33);
+    expect(ring).toHaveLength(33);
+    expect(ring[0]).toEqual(ring[ring.length - 1]);
+
+    // The ring's OWN vertices sit `radiusMeters` away from the center (see
+    // the geodesic-radius tests below) -- a real 5km-radius polygon's first
+    // vertex is NOT "close to" the center point, only the ring's centroid
+    // is. Asserting the first vertex itself was close to center was a
+    // stale expectation from before the radians->degrees unit-conversion
+    // fix, when the polygon's real radius was ~57x too small.
+    const centroidLon =
+      ring.slice(0, -1).reduce((sum, [lon]) => sum + lon, 0) /
+      (ring.length - 1);
+    const centroidLat =
+      ring.slice(0, -1).reduce((sum, [, lat]) => sum + lat, 0) /
+      (ring.length - 1);
+    expect(centroidLon).toBeCloseTo(-58.51, 2);
+    expect(centroidLat).toBeCloseTo(-33.01, 2);
+  });
+
+  // Real-bug regression (radians→degrees unit conversion): the polygon's
+  // OWN vertices must sit at the real-world geodesic distance requested,
+  // not merely "some closed ring near the center". Distance is computed
+  // independently here (a plain Haversine formula) rather than reusing any
+  // internal helper from the module under test, so a regression in that
+  // helper cannot silently pass its own regression test.
+  const EARTH_RADIUS_METERS = 6371000;
+  function haversineMeters(
+    aLat: number,
+    aLon: number,
+    bLat: number,
+    bLon: number,
+  ): number {
+    const toRad = (deg: number) => (deg * Math.PI) / 180;
+    const dLat = toRad(bLat - aLat);
+    const dLon = toRad(bLon - aLon);
+    const h =
+      Math.sin(dLat / 2) ** 2 +
+      Math.cos(toRad(aLat)) * Math.cos(toRad(bLat)) * Math.sin(dLon / 2) ** 2;
+    return 2 * EARTH_RADIUS_METERS * Math.asin(Math.min(1, Math.sqrt(h)));
+  }
+
+  it('renders vertices at approximately the requested geodesic radius (5km, mid-latitude)', () => {
+    const latitude = -34.6;
+    const longitude = -58.4;
+    const radiusMeters = 5000;
+    const geometry = pointRadiusToGeometry(
+      latitude,
+      longitude,
+      radiusMeters,
+    ) as { type: 'Polygon'; coordinates: [number, number][][] };
+
+    // Equirectangular/local-circle approximation, not an exact geodesic
+    // circle -- a generous but real tolerance (5% of the requested radius),
+    // wide enough for the approximation, narrow enough that the ~57.3x
+    // (180/π) unit-conversion regression this guards against can never pass.
+    const tolerance = radiusMeters * 0.05;
+    for (const [lon, lat] of geometry.coordinates[0]) {
+      const distance = haversineMeters(latitude, longitude, lat, lon);
+      expect(distance).toBeGreaterThan(radiusMeters - tolerance);
+      expect(distance).toBeLessThan(radiusMeters + tolerance);
+    }
+  });
+
+  it('renders vertices at approximately the requested geodesic radius (12km)', () => {
+    const latitude = -34.6212;
+    const longitude = -58.373;
+    const radiusMeters = 12000;
+    const geometry = pointRadiusToGeometry(
+      latitude,
+      longitude,
+      radiusMeters,
+    ) as { type: 'Polygon'; coordinates: [number, number][][] };
+
+    const tolerance = radiusMeters * 0.05;
+    for (const [lon, lat] of geometry.coordinates[0]) {
+      const distance = haversineMeters(latitude, longitude, lat, lon);
+      expect(distance).toBeGreaterThan(radiusMeters - tolerance);
+      expect(distance).toBeLessThan(radiusMeters + tolerance);
+    }
+  });
+
+  it('compensates longitude spacing by latitude (a degree of longitude shrinks toward the poles)', () => {
+    // At higher |latitude|, a degree of longitude covers less real-world
+    // distance than a degree of latitude -- the polygon must still land at
+    // the same real-world radius in every direction, proving
+    // `lonRadiusDegrees`'s `cos(latitude)` compensation is real and not
+    // itself broken by the same unit bug.
+    const radiusMeters = 8000;
+    const highLatitude = 60;
+    const geometry = pointRadiusToGeometry(highLatitude, 10, radiusMeters) as {
+      type: 'Polygon';
+      coordinates: [number, number][][];
+    };
+
+    const tolerance = radiusMeters * 0.05;
+    // East point (angle = 0 -> pure longitude offset) and north point
+    // (angle = π/2 -> pure latitude offset) must both sit at ~radiusMeters.
+    const east = geometry.coordinates[0][0];
+    const north = geometry.coordinates[0][8]; // segments=32, quarter turn
+    expect(
+      haversineMeters(highLatitude, 10, highLatitude, east[0]),
+    ).toBeGreaterThan(radiusMeters - tolerance);
+    expect(
+      haversineMeters(highLatitude, 10, highLatitude, east[0]),
+    ).toBeLessThan(radiusMeters + tolerance);
+    expect(haversineMeters(highLatitude, 10, north[1], 10)).toBeGreaterThan(
+      radiusMeters - tolerance,
+    );
+    expect(haversineMeters(highLatitude, 10, north[1], 10)).toBeLessThan(
+      radiusMeters + tolerance,
+    );
+  });
+
+  it('remains a closed polygon after the unit-conversion fix', () => {
+    const geometry = pointRadiusToGeometry(10, 20, 9000) as {
+      type: 'Polygon';
+      coordinates: [number, number][][];
+    };
+    expect(geometry.type).toBe('Polygon');
     expect(geometry.coordinates[0][0]).toEqual(
       geometry.coordinates[0][geometry.coordinates[0].length - 1],
     );
-    expect(geometry.coordinates[0][0][0]).toBeCloseTo(-58.51, 2);
-    expect(geometry.coordinates[0][0][1]).toBeCloseTo(-33.01, 2);
   });
 });
