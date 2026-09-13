@@ -27,10 +27,11 @@ A1–A7                         COMPLETE
 B1–B4 / B4.1                  COMPLETE
 B5 + B5 review hardening      COMPLETE
 Experience Identity Gate      COMPLETE (2026-09-13)
-Spike infrastructure preflight  COMPLETE (2026-09-13 -- see below)
+Spike infrastructure preflight  COMPLETE (2026-09-13)
+RW1 (San Telmo AREA walk)       EXECUTED (2026-09-13) -- verdict: ORCHESTRATION_GAP (see below)
 
-RW1–RW6                         NEXT (not started)
-B6                               BLOCKED on RW1–RW6
+RW2–RW6                          NEXT (not started -- awaiting explicit authorization)
+B6                                BLOCKED on RW1–RW6 + fixing/reverifying any B5_OR_IDENTITY_BUG
 ```
 
 B5's review blockers were fixed and its deterministic/Postgres verification was
@@ -445,9 +446,56 @@ were NOT run as part of this task.
 
 ---
 
+# DONE — RW1 (San Telmo AREA-scoped walk)
+
+Executed for real against the live application/orchestration path (real
+HTTP: auth → `POST /tours/generate-tour` → outbox →
+`ExperienceGenerationService`), a separate backend process (`PORT=4001`,
+built via `yarn build`, `node dist/src/main.js`) from the shared dev
+container, connected to `zigzag_spike_preb6`, `GROUNDED_SEARCH_PROVIDER=serpapi`,
+local Overpass/Nominatim, `AI_CACHE_MODE=off`, `USE_MOCK_MAPS=false`. Full
+dossier: `spikes/rw1-san-telmo-historical-walk/` (`manifest.json`,
+`request.json`, `run1-cold.json`, `run2-warm.json`, `assessment.md`).
+
+**Verdict: `ORCHESTRATION_GAP` (primary).** `PreferenceInterpreterService`
+correctly extracted a real, "must"-priority `anchoredPlaces: [{kind:"area",
+rawName:"San Telmo"}]` on a real Groq call — but nothing downstream ever
+consumes it. Confirmed via full-trace grep: zero invocations of
+`AreaRouteWalkAcquisitionService`/`AreaRouteAnchorResolverService` in
+either run. This matches B5's own documented non-goal ("no live-
+orchestration wiring") — this is the first live, empirical confirmation of
+that already-known gap, not a new B5 defect. `destination_resolution`
+degraded San Telmo to a 25km-radius point (`no_area_candidate` — San
+Telmo's real Nominatim `addresstype` is `suburb`, not `city`/`town`/
+`village`), so no AREA boundary ever reached geographic validation. The
+final tour (5 real, correctly-grounded museums within ~1.6km of San Telmo)
+is a plausible POI itinerary, never a verified composed walk — the
+product's own `TourCompletenessValidator` flagged this independently
+(`UNMET_REQUESTED_FORMAT`, both runs).
+
+**Critical-invariant check (warm reuse) confirmed the disqualified
+pattern, not success**: RUN 2 re-invoked SerpAPI (new query/evidence),
+the extraction LLM, and re-attempted persistence for ~75 candidates:
+the same 5 canonical Experience ids were selected again only because
+ordinary provider-identity dedupe (same OSM/Google Place ids) converged
+onto the same rows — not because any Experience-level reuse check
+recognized existing knowledge. `db_search`'s catalog-first lookup DID find
+the 65 already-persisted rows, but coverage's intent (`walk`) deficit can
+never be satisfied by persisted state because classification (B2) is never
+invoked in this live path either (confirmed: 0/66 Experiences carry any
+`metadata.themes`/`intents`/`classification` — a live confirmation of the
+already-scoped-as-future-work "Checkpoint D" gap from B5's own plan, not a
+new discovery).
+
+**No `B5_OR_IDENTITY_BUG` found.** No fix authorized or applied. No product
+code was changed to run or interpret this spike. RW2–RW6 were NOT run.
+
+---
+
 # NEXT — Real-World Tourism Research Spike Baseline, PRE-B6
 
-The identity gate above is now green — execute this plan next, in full:
+RW1 above is executed and characterized. RW2–RW6 remain, pending explicit
+new authorization — execute this plan for the remaining cases:
 
 `docs/superpowers/plans/2026-09-12-real-world-tourism-research-spike-gate.md`
 
