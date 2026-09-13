@@ -225,6 +225,137 @@ describe('tour-generation integration · experience identity / dedupe gate (pre-
     });
   });
 
+  describe('Review fix — a perfect component/role match is a strong signal, never unilateral identity authority', () => {
+    it('EXACT COMPONENT SET, CONFLICTING IDENTITY: the same real stops/roles under a clearly different tourism concept/name/evidence must NOT become SAME', async () => {
+      const prisma = await getPrisma();
+      const historical = await catalog.persistVerifiedExperience({
+        canonicalName: 'San Telmo Historical Walking Tour',
+        description:
+          'A historical walking tour through the heart of San Telmo, visiting Plaza Dorrego, the historic Mercado de San Telmo, and Pasaje Defensa.',
+        metadata: { themes: ['history'], intents: ['walk'] },
+        components: componentsOf([
+          'Plaza Dorrego',
+          'Mercado de San Telmo',
+          'Pasaje Defensa',
+          'El Zanjón de Granados',
+        ]),
+        evidence: [{ source: 'history-guide' }],
+      });
+      expect((historical as any).dedupeDecision).toBe('NEW');
+      const beforeMetadata = (
+        await prisma.experience.findUnique({ where: { id: historical.id } })
+      )?.metadata;
+
+      // A genuinely different, evidence-backed tourism concept -- a craft
+      // beer and empanada crawl -- happens to stop at the EXACT same 4
+      // real places, in the same roles. Zero name/title overlap with the
+      // historical walk (a real, principled "explicit conflict" signal:
+      // no shared vocabulary at all, not merely a low similarity score).
+      const beerCrawl = await catalog.persistVerifiedExperience({
+        canonicalName: 'Craft Beer and Empanada Crawl',
+        description:
+          'A crawl through local breweries and empanada spots along Plaza Dorrego, Mercado de San Telmo, Pasaje Defensa, and El Zanjón de Granados.',
+        metadata: { themes: ['food'], intents: ['food'] },
+        components: componentsOf([
+          'Plaza Dorrego',
+          'Mercado de San Telmo',
+          'Pasaje Defensa',
+          'El Zanjón de Granados',
+        ]),
+        evidence: [{ source: 'food-guide' }],
+      });
+
+      expect((beerCrawl as any).dedupeDecision).not.toBe('SAME');
+
+      const count = await prisma.experience.count({
+        where: { status: 'VERIFIED' },
+      });
+      if ((beerCrawl as any).dedupeDecision === 'AMBIGUOUS') {
+        // No mutation of the existing canonical row from the ambiguous
+        // observation.
+        expect(count).toBe(1);
+        const persisted = await prisma.experience.findUnique({
+          where: { id: historical.id },
+          include: { evidence: true },
+        });
+        expect(persisted!.evidence.map((e) => e.source)).toEqual([
+          'history-guide',
+        ]);
+        expect(persisted!.metadata).toEqual(beforeMetadata);
+      } else {
+        // NEW would also be an acceptable outcome per the gate plan, as
+        // long as it is a genuinely separate, unmutated canonical row.
+        expect(count).toBe(2);
+        expect((beerCrawl as any).id).not.toBe(historical.id);
+      }
+    });
+
+    it('EXACT COMPONENT SET, CONFLICTING EVIDENCED ORDER: the same names/roles/components in explicitly reversed sequences must NOT become SAME', async () => {
+      const prisma = await getPrisma();
+      const stops = [
+        'Plaza Dorrego',
+        'Mercado de San Telmo',
+        'Pasaje Defensa',
+        'El Zanjón de Granados',
+      ];
+      const forward = await catalog.persistVerifiedExperience({
+        canonicalName: 'San Telmo Historical Walk',
+        description:
+          'A historical walk through San Telmo, visited in this exact order.',
+        metadata: { themes: ['history'], intents: ['walk'] },
+        components: stops.map((name, index) => ({
+          geoEntityId: geo[name].id,
+          role: 'venue',
+          required: true,
+          order: index + 1,
+        })),
+        evidence: [{ source: 'forward-guide' }],
+      });
+      expect((forward as any).dedupeDecision).toBe('NEW');
+      const beforeMetadata = (
+        await prisma.experience.findUnique({ where: { id: forward.id } })
+      )?.metadata;
+
+      // Same real stops, same roles, SAME canonicalName even -- but an
+      // explicitly evidenced REVERSE visiting sequence. Name/semantic
+      // similarity alone would otherwise force SAME; the order conflict
+      // must independently veto it.
+      const reversed = await catalog.persistVerifiedExperience({
+        canonicalName: 'San Telmo Historical Walk',
+        description:
+          'A historical walk through San Telmo, visited in this exact order.',
+        metadata: { themes: ['history'], intents: ['walk'] },
+        components: [...stops].reverse().map((name, index) => ({
+          geoEntityId: geo[name].id,
+          role: 'venue',
+          required: true,
+          order: index + 1,
+        })),
+        evidence: [{ source: 'reverse-guide' }],
+      });
+
+      expect((reversed as any).dedupeDecision).not.toBe('SAME');
+
+      const count = await prisma.experience.count({
+        where: { status: 'VERIFIED' },
+      });
+      if ((reversed as any).dedupeDecision === 'AMBIGUOUS') {
+        expect(count).toBe(1);
+        const persisted = await prisma.experience.findUnique({
+          where: { id: forward.id },
+          include: { evidence: true },
+        });
+        expect(persisted!.evidence.map((e) => e.source)).toEqual([
+          'forward-guide',
+        ]);
+        expect(persisted!.metadata).toEqual(beforeMetadata);
+      } else {
+        expect(count).toBe(2);
+        expect((reversed as any).id).not.toBe(forward.id);
+      }
+    });
+  });
+
   describe('Case 2 — NEW preserves multiple real Experiences with the same facets', () => {
     it('two distinct evidence-backed San Telmo walks sharing theme+intent+area survive as separate canonical Experiences', async () => {
       const prisma = await getPrisma();

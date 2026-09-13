@@ -2,6 +2,14 @@ export interface DedupeComponentFingerprint {
   geoEntityId: string;
   role?: string | null;
   required?: boolean | null;
+  /**
+   * `ExperienceComponent.order` — identity-relevant ONLY when real,
+   * persisted evidence establishes a genuine visiting sequence (spec: "no
+   * manufactured order when order is null"). `null`/absent means no
+   * intrinsic sequence evidence exists and must never participate in an
+   * order comparison.
+   */
+  order?: number | null;
 }
 
 export interface DedupeExperienceFingerprint {
@@ -21,6 +29,15 @@ export interface DedupeEvidence {
   roleAwareComponentOverlap: number;
   distanceKm: number | null;
   provenanceOverlap: number;
+  /**
+   * True only when BOTH sides carry a real (non-null) evidenced order for
+   * at least 2 of the same real components, AND those two evidenced
+   * sequences genuinely disagree. A perfect component/role match must
+   * never become SAME when this is true — two sources describing the
+   * same real stops in explicitly conflicting sequences are, at best, an
+   * open identity question, never an automatic match.
+   */
+  orderConflict: boolean;
   reasons: string[];
 }
 
@@ -65,24 +82,35 @@ export function decideExperienceDedupe(
   const best = ranked[0];
   // A COMPLETE, role-consistent match of the real component set (every
   // required real place, in the same role, on both sides -- not a
-  // partial/threshold overlap) is the strongest non-name identity signal
-  // available: two sources describing literally the same real physical
-  // composition. Display-name wording legitimately varies across
-  // independent sources ("San Telmo Historical Walking Tour" vs
-  // "Historical Walk through San Telmo" for the identical real stops), so
-  // name similarity must not be able to veto identity when the actual
-  // resolved structure is a perfect match -- this is categorically
-  // different from the partial-overlap case hard invariant 7 (component
-  // overlap alone cannot FORCE same) exists to guard against, which is
-  // about a high-but-incomplete overlap (e.g. 0.75), not a true 1.0 match.
+  // partial/threshold overlap) is a very strong identity signal: two
+  // sources describing literally the same real physical composition.
+  // Display-name wording legitimately varies across independent sources
+  // ("San Telmo Historical Walking Tour" vs "Historical Walk through San
+  // Telmo" for the identical real stops), so byte-identical names must
+  // never be required. But it is NOT unilateral identity authority
+  // (hard invariant 7: "component overlap alone cannot force SAME") --
+  // two independently evidenced Experiences can legitimately share the
+  // exact same real stops/roles while representing different tourism
+  // concepts, or describe the same component set in explicitly
+  // conflicting sequences. `exactStructure` therefore additionally
+  // requires: (a) at least SOME real textual/identity relationship
+  // between the two sources (nameSimilarity > 0 -- not a tuned
+  // threshold, the natural floor between "no lexical connection at all"
+  // and "some"), and (b) no explicit evidenced-order conflict. Absent
+  // that minimal compatibility, a perfect component match alone resolves
+  // to AMBIGUOUS below, exactly like the partial-overlap case -- never a
+  // confident NEW, never a silent SAME.
   const exactStructure =
     best.evidence.roleAwareComponentOverlap === 1 &&
-    best.evidence.componentOverlap === 1;
+    best.evidence.componentOverlap === 1 &&
+    best.evidence.nameSimilarity > 0 &&
+    !best.evidence.orderConflict;
   const strongConsistentIdentity =
     best.evidence.nameSimilarity >= 0.86 &&
     best.evidence.semanticSimilarity >= 0.72 &&
     best.evidence.roleAwareComponentOverlap >= 0.8 &&
-    (best.evidence.distanceKm == null || best.evidence.distanceKm <= 1.5);
+    (best.evidence.distanceKm == null || best.evidence.distanceKm <= 1.5) &&
+    !best.evidence.orderConflict;
 
   if (exactStructure || strongConsistentIdentity) {
     return {
@@ -174,6 +202,10 @@ export function compareFingerprints(
   );
   const provenanceOverlap = setOverlap(incomingProvenance, existingProvenance);
   const distanceKm = haversineKm(incoming, existing);
+  const orderConflict = hasConflictingEvidencedOrder(
+    incoming.components,
+    existing.components,
+  );
 
   const reasons: string[] = [];
   if (nameSimilarity === 1) reasons.push('same_normalized_name');
@@ -186,6 +218,7 @@ export function compareFingerprints(
   if (distanceKm != null && distanceKm <= 1.5)
     reasons.push('geographically_close');
   if (provenanceOverlap > 0) reasons.push('shared_provenance');
+  if (orderConflict) reasons.push('conflicting_evidenced_order');
 
   return {
     nameSimilarity,
@@ -194,8 +227,52 @@ export function compareFingerprints(
     roleAwareComponentOverlap,
     distanceKm,
     provenanceOverlap,
+    orderConflict,
     reasons,
   };
+}
+
+/**
+ * True only when BOTH sides carry a real, persisted evidenced order
+ * (`order != null`) for at least two of the SAME real components, and the
+ * relative sequence those two evidenced orders induce over that shared
+ * subset genuinely disagrees. A component with no evidenced order on
+ * either side never participates -- "no manufactured order when order is
+ * null" (spec §9). Two proposals sharing every real stop but describing
+ * them in explicitly conflicting sequences (A->B->C->D vs D->C->B->A) is
+ * real identity-relevant evidence AGAINST a confident SAME, independent
+ * of how similar their names/themes otherwise look.
+ */
+function hasConflictingEvidencedOrder(
+  incoming: DedupeComponentFingerprint[],
+  existing: DedupeComponentFingerprint[],
+): boolean {
+  const existingOrderById = new Map(
+    existing
+      .filter((component) => component.order != null)
+      .map((component) => [component.geoEntityId, component.order as number]),
+  );
+  const sharedOrderedIncoming = incoming
+    .filter(
+      (component) =>
+        component.order != null && existingOrderById.has(component.geoEntityId),
+    )
+    .sort((a, b) => (a.order as number) - (b.order as number));
+
+  if (sharedOrderedIncoming.length < 2) return false;
+
+  const incomingSequence = sharedOrderedIncoming.map(
+    (component) => component.geoEntityId,
+  );
+  const existingSequence = [...sharedOrderedIncoming]
+    .sort(
+      (a, b) =>
+        existingOrderById.get(a.geoEntityId)! -
+        existingOrderById.get(b.geoEntityId)!,
+    )
+    .map((component) => component.geoEntityId);
+
+  return incomingSequence.join('|') !== existingSequence.join('|');
 }
 
 function evidenceScore(evidence: DedupeEvidence): number {
@@ -287,6 +364,7 @@ function emptyEvidence(reason: string): DedupeEvidence {
     roleAwareComponentOverlap: 0,
     distanceKm: null,
     provenanceOverlap: 0,
+    orderConflict: false,
     reasons: [reason],
   };
 }
