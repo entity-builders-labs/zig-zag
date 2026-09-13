@@ -2988,7 +2988,7 @@ touching).
 ### Next task
 `B5 — Area/route walk acquisition (D5)`
 
-## Checkpoint B — Task B5 — COMPLETE
+## Checkpoint B — Task B5 — COMPLETE (corrected by B5.1 review fix below)
 
 - Branch: `feat/preference-first-selection`
 - Base commit: `79502ce` (docs: add B7 day-trip implementation plan)
@@ -3287,6 +3287,151 @@ a distinct, smaller follow-up.
   this branch while B5 was in progress (the fork had 2 docs-only commits
   ahead at the very start of this session — B7 planning docs, no code
   overlap — merged via fast-forward before any B5 code was written).
+
+### Next task
+`B6` — not yet started (per explicit instruction, do not begin without
+separate authorization).
+
+## Checkpoint B — Task B5.1 — geographic validation correlation + integration matrix review fix — COMPLETE
+
+- Branch: `feat/preference-first-selection`
+- Base commit: `d2863a9` (docs: record Task B5 completion)
+- Review-fix commit: (this checkpoint's own commit)
+- Status: COMPLETE — B5 is no longer IN PROGRESS
+
+### Context
+A post-completion review found B5's implementation "substantially correct
+but not yet safe to close": a real candidate-correlation bug in the
+resolver, an integration test (case L) that didn't actually exercise the
+regression it claimed to, and a real-but-narrow hardening gap in the
+external-scope geometry check. B5 was held IN PROGRESS until all three
+were fixed and re-verified.
+
+### Findings and fixes
+
+**1. BLOCKER — geographic validation was correlated by candidate display
+name, not identity.** `ExperienceProposalResolverService.resolve()` built
+`validationByName = new Map(validationResults.map(r => [r.proposalName, r]))`
+and retrieved by `candidate.candidate.name`. Candidate names are NOT
+guaranteed unique — `ExperienceAcquisitionService` concatenates structured
+and web candidates with no unique-name enforcement, and web candidates
+never pass through structured corroboration. Two same-named candidates
+with different components/geographic validity would collide in the Map:
+whichever result was inserted last would silently answer for BOTH,
+potentially rejecting a valid candidate or persisting an invalid one under
+a sibling's accepted result. **Fixed**: correlation now keys on the
+candidate OBJECT itself (`Map<ResolvedExperienceCandidate,
+GeographicValidationResult>`), built inline while mapping so a candidate
+is always paired with the exact result computed for it, regardless of any
+later filtering. Added a regression: two candidates sharing a display
+name, different components, one passing/one failing geographic
+validation — only the valid one reaches persistence, and the invalid one
+is rejected for its OWN real reason, never a swapped one.
+
+**2. BLOCKER — the real Postgres/PostGIS vertical acceptance matrix was
+incomplete, and case L wasn't the regression it claimed to be.** The
+prior integration file's case L left "MALBA" unresolved entirely, so it
+rejected via `unresolved_required_component` — a real but weaker
+assertion that never actually exercised the external-scope-mismatch path
+for a genuinely resolved, real, out-of-polygon point. **Fixed**: case L
+now gives MALBA a real resolved GeoEntity (via a real OSM POI mock)
+outside the San Telmo polygon, so rejection now happens for the real
+declared reason (`external_scope_mismatch`), and asserts nothing was
+persisted. **Added** the previously-missing real-Postgres cases from the
+agreed acceptance matrix: **C2** (2 required AREA hints resolved via the
+real Nominatim/`lookupBoundaryById` fallback path, multi-area
+`component_defined` acceptance, never forced into one area), **D/E**
+(canonical ROUTE accept/reject through the real resolver, using a real
+`lookupStreetsWithin` street match), **E2/O** (route-scale acceptance
+driven by `validationIntent`, real resolver end-to-end, wide real
+destination boundary), **P** (a candidate declaring `intents:['route_like']`
+itself cannot substitute for `validationIntent` — real resolver, tighter
+thresholds still reject), **N1/N2** (a real LineString corridor
+acceptance/rejection through the external ROUTE `validationScope`, real
+resolver end-to-end — N2 specifically proves a point several km from the
+line but still inside the broad destination boundary is rejected, which a
+`routeDestinationMismatch`-only check would have wrongly accepted), and
+**Q** (a pre-existing, geographically-compatible-but-semantically-unrelated
+"Food Crawl San Telmo" Experience seeded directly against real Postgres
+before acquisition runs — `AreaRouteWalkAcquisitionService`'s
+post-acquisition result is proven to be the newly-acquired walk, never the
+unrelated pre-existing row the area also covers).
+
+**3. REQUIRED HARDENING — a malformed external-scope geometry could
+vacuously pass when there were no required point-like entities to check
+it against.** `rejectIfExternalScopeViolated`'s ROUTE branch filtered
+required entities down to non-route-role ones before running the
+distance check — a route_like candidate whose only required hint IS the
+route itself would leave that filtered list empty, so `.find()` on it
+returned `undefined` regardless of whether `validationScope.geometry` was
+a real usable LineString. Symmetrically, an AREA scope with zero required
+hints at all had nothing to check per-entity either. **Fixed**: added
+`isUsableScopeGeometry(kind, geometry)`, an independent shape-validity
+check run BEFORE any per-entity logic — AREA requires a real
+Polygon/MultiPolygon with coordinates; ROUTE requires a real LineString
+with at least 2 coordinates. A missing or wrong-shaped/degenerate
+geometry now fails closed unconditionally. Added 3 regressions: a
+LineString mistakenly used for an AREA scope (zero required hints),
+a Polygon mistakenly used for a ROUTE scope (only a route-role required
+hint, no point-like entities), and a degenerate single-point "LineString"
+ROUTE scope (same starved-entity-list scenario) — all three now reject
+`external_scope_mismatch` where they previously would have vacuously
+passed.
+
+### Files changed
+- `be/src/modules/tours/services/experience-proposal-resolver.service.ts`
+  (candidate-object-keyed validation correlation, replacing the
+  name-keyed `Map`)
+- `be/src/modules/tours/services/experience-proposal-resolver.service.spec.ts`
+  (new regression: two same-named candidates, different validation
+  outcomes, no cross-contamination)
+- `be/src/modules/tours/services/composite-geographic-validation.service.ts`
+  (`isUsableScopeGeometry` — independent scope-geometry shape validity,
+  checked before any per-entity logic)
+- `be/src/modules/tours/services/composite-geographic-validation.service.spec.ts`
+  (3 new regressions: malformed AREA/ROUTE scope geometry rejected even
+  with zero point-like required entities to trigger the old per-entity
+  check)
+- `be/test/integration/tour-generation/area-route-walk-geographic-validation.integration-spec.ts`
+  (case L corrected to a genuine external-scope-mismatch regression;
+  8 new real-Postgres cases added: C2, D, E, E2/O, P, N1, N2, Q)
+
+### Verification (real results)
+- `yarn typecheck` → PASS, no errors.
+- `yarn lint:check` (via scoped `eslint --fix` on the touched files, then
+  a full-repo `eslint:check`) → PASS, 0 problems (1 unused-helper error
+  from a since-superseded case-L fixture, fixed by removing the dead
+  helper).
+- Targeted: `yarn test src/modules/tours/services/experience-proposal-resolver.service.spec.ts src/modules/tours/services/composite-geographic-validation.service.spec.ts --runInBand`
+  → PASS — **56/56** (26 + 30, including the new correlation and
+  malformed-geometry regressions).
+- `yarn test:integration test/integration/tour-generation/area-route-walk-geographic-validation.integration-spec.ts`
+  → PASS — **18/18** (up from 10 — L corrected, 8 new real-Postgres cases
+  added: C2/D/E/E2/O/P/N1/N2/Q).
+- `yarn test src/modules/tours --runInBand` → PASS — **94 suites / 1040
+  tests** (up from 1036), no regressions.
+- `yarn test:integration` (full suite) → PASS — **13 suites / 44 tests**
+  (up from 36), no regressions.
+- `yarn test --runInBand` (full backend) → PASS — **141 suites / 1360
+  tests** (up from 1356), no regressions anywhere.
+- `yarn build` (`nest build`) → PASS.
+
+### Deviations from plan
+- None. Every requested item (2 blockers + 1 required hardening) was
+  fixed and re-verified against real code/real Postgres — nothing was
+  weakened or left as unit-only coverage where a real-Postgres case was
+  requested.
+
+### Open issues / debt
+- Unchanged from B5's own checkpoint (mode-D multi-anchor pre-reuse not
+  built; `findVerifiedTourismRouteByName`'s strict-name limitation; OSM
+  route-relations unsupported; `AreaRouteWalkAcquisitionService` not yet
+  wired into the live generation loop) — all previously documented, none
+  newly introduced by this review-fix round.
+- Re-checked for concurrent drift immediately before staging/committing:
+  `git fetch fork feat/preference-first-selection` then comparing
+  `HEAD..fork/...`/`fork/...HEAD` confirmed no other commits landed on
+  this branch while this review-fix was in progress.
 
 ### Next task
 `B6` — not yet started (per explicit instruction, do not begin without
