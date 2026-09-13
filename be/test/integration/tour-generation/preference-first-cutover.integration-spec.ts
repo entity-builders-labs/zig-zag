@@ -212,4 +212,143 @@ describe('tour-generation integration · preference-first live cutover', () => {
       expect(persisted).not.toBeNull();
     });
   });
+
+  describe('M2 — global portfolio-capacity shortage (spec §6.2/§7)', () => {
+    it('all requested facets satisfied but the global eligible portfolio is below target: emits a dimensionless global_capacity deficit and still acquires', async () => {
+      // Exactly ONE strong 'history' match -- satisfies the sole requested
+      // facet -- but basePortfolioTarget(days=1, 'moderate') = 4, so the
+      // real eligible portfolio (1) is still far below target. The OLD
+      // bug: acquisitionDeficits was built only from unsatisfiedFacets, so
+      // this state produced sufficient=false with ZERO deficits -- the
+      // planner got nothing to route and the loop exited without ever
+      // acquiring, silently leaving the portfolio thin.
+      await seedVerifiedExperience(harness.prisma, {
+        canonicalName: 'Museo de Arte Moderno de San Telmo',
+        themes: ['history'],
+        intents: [],
+        latitude: DEST.latitude,
+        longitude: DEST.longitude,
+        qualityScore: 4.0,
+      });
+
+      harness.configure({
+        wikivoyage: {
+          status: 'ok',
+          title: 'San Telmo',
+          entries: [
+            {
+              name: 'Feria de San Telmo',
+              lat: DEST.latitude + 0.001,
+              long: DEST.longitude + 0.001,
+              sectionType: 'SEE',
+            },
+          ],
+        },
+        osm: {
+          pois: [
+            osmPoi(
+              'Feria de San Telmo',
+              DEST.latitude + 0.001,
+              DEST.longitude + 0.001,
+            ),
+          ],
+        },
+      });
+
+      const tourId = await seedTour(harness.prisma, {
+        destinationLabel: 'San Telmo, Buenos Aires, Argentina',
+        latitude: DEST.latitude,
+        longitude: DEST.longitude,
+        days: 1,
+        interests: ['history'],
+        intents: [],
+      });
+
+      const outcome = await harness.generate(tourId);
+      expect(outcome.error?.message ?? 'ok').toBe('ok');
+
+      const tour = await harness.loadTour(tourId);
+      const steps = harness.traceSteps(tour.trace);
+
+      // The FIRST coverage_analysis pass already sees the facet satisfied
+      // (1 strong 'history' match) yet the portfolio is thin -- decision
+      // must still call for acquisition, never "none".
+      const firstCoverage = steps.find(
+        (step: any) => step.stage === 'coverage_analysis',
+      );
+      expect(firstCoverage.decision.outcome).not.toBe('none');
+
+      const discoveryStep = steps.find(
+        (step: any) => step.stage === 'discovery',
+      );
+      expect(discoveryStep).toBeTruthy();
+      const globalCapacityDeficit = discoveryStep.inputs.deficits.find(
+        (d: any) => d.origin === 'global_capacity',
+      );
+      // The canonical representation: dimensionless, never faked as a
+      // theme/trait/intent facet deficit, and no facet deficit alongside it
+      // (the sole requested facet was already satisfied).
+      expect(globalCapacityDeficit).toBeTruthy();
+      expect(globalCapacityDeficit.dimension).toBeUndefined();
+      expect(globalCapacityDeficit.key).toBeUndefined();
+      expect(
+        discoveryStep.inputs.deficits.some(
+          (d: any) => d.origin === 'preference_facet',
+        ),
+      ).toBe(false);
+
+      // Acquisition actually ran and grew the real catalog.
+      const persisted = await harness.prisma.experience.findFirst({
+        where: { canonicalName: 'Feria de San Telmo', status: 'VERIFIED' },
+      });
+      expect(persisted).not.toBeNull();
+    });
+
+    it('zero requested facets but a sufficiently broad eligible catalog: sufficient, no acquisition', async () => {
+      // basePortfolioTarget(days=1, 'moderate') = 4 -- seed exactly that
+      // many real, distinct, non-excluded places with a real PLACE
+      // component. No theme/intent requested at all: the OLD bug made
+      // `distinctEligibleIds` trivially 0 regardless of real catalog size,
+      // so sufficiency was permanently unreachable whenever zero facets
+      // were requested.
+      const names = [
+        'Plaza Dorrego',
+        'Mercado de San Telmo',
+        'Parque Lezama',
+        'Pasaje de la Defensa',
+      ];
+      for (let i = 0; i < names.length; i++) {
+        await seedVerifiedExperience(harness.prisma, {
+          canonicalName: names[i],
+          themes: [],
+          intents: [],
+          latitude: DEST.latitude + i * 0.001,
+          longitude: DEST.longitude + i * 0.001,
+          qualityScore: 4.0,
+        });
+      }
+
+      const tourId = await seedTour(harness.prisma, {
+        destinationLabel: 'San Telmo, Buenos Aires, Argentina',
+        latitude: DEST.latitude,
+        longitude: DEST.longitude,
+        days: 1,
+        interests: [],
+        intents: [],
+      });
+
+      const outcome = await harness.generate(tourId);
+      expect(outcome.error?.message ?? 'ok').toBe('ok');
+
+      const tour = await harness.loadTour(tourId);
+      const steps = harness.traceSteps(tour.trace);
+      const coverageStep = steps.find(
+        (step: any) => step.stage === 'coverage_analysis',
+      );
+      expect(coverageStep.decision.outcome).toBe('none');
+      expect(coverageStep.coverageReport.usableCandidateCount).toBe(4);
+      // Sufficient on the very first pass -- no acquisition stage at all.
+      expect(steps.some((step: any) => step.stage === 'discovery')).toBe(false);
+    });
+  });
 });

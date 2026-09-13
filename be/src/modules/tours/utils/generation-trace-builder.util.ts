@@ -773,7 +773,12 @@ export function buildAcquisitionStep(params: {
   passNumber: number;
   plan: {
     sourcePlans: Array<{ provider: string }>;
-    deficits: Array<{ dimension?: string; key?: string; reason: string }>;
+    deficits: Array<{
+      dimension?: string;
+      key?: string;
+      reason: string;
+      origin?: string;
+    }>;
   };
   execution: {
     observations: unknown[];
@@ -836,6 +841,7 @@ export function buildAcquisitionStep(params: {
         dimension: d.dimension,
         key: d.key,
         reason: d.reason,
+        origin: d.origin,
       })),
     },
     outputs: {

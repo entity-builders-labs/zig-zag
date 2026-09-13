@@ -1,6 +1,7 @@
 import { NormalizedPreferenceIntent } from '../interfaces/preference-interpretation.interface';
 import {
   evaluateExperiencePreferences,
+  findHardExclusionMatches,
   PreferenceFacetMatch,
 } from './experience-preference-evaluator.util';
 import { normalizeWizardFacet } from './preference-facet-merge.util';
@@ -394,6 +395,57 @@ describe('evaluateExperiencePreferences', () => {
         unmatched.facetMatches.find((m) => m.dimension === 'exploration_style')
           ?.matched,
       ).toBe(false);
+    });
+  });
+
+  describe('findHardExclusionMatches — canonical hard-exclusion policy (cutover M2)', () => {
+    it('matches a real exclusion term against Experience evidence, independent of any NormalizedPreferenceIntent', () => {
+      const experience = {
+        canonicalName: 'Iglesia de San Telmo',
+        description: 'A historic church.',
+        themes: ['religion'],
+      };
+
+      expect(findHardExclusionMatches(experience, ['religion'])).toEqual([
+        'religion',
+      ]);
+      expect(findHardExclusionMatches(experience, ['vegan'])).toEqual([]);
+    });
+
+    it('deduplicates repeated exclusion terms', () => {
+      const experience = { themes: ['religion'] };
+      expect(
+        findHardExclusionMatches(experience, ['religion', 'religion']),
+      ).toEqual(['religion']);
+    });
+
+    it('returns no matches for an empty exclusion list', () => {
+      expect(findHardExclusionMatches({ themes: ['religion'] }, [])).toEqual(
+        [],
+      );
+    });
+
+    it('agrees with evaluateExperiencePreferences.exclusionMatches for the same evidence and terms', () => {
+      const experience = {
+        canonicalName: 'Parrilla El Buen Corte',
+        themes: ['food'],
+        traits: ['asado', 'carne'],
+      };
+      const intent: NormalizedPreferenceIntent = {
+        ...emptyIntent,
+        hardExclusions: ['non-vegan food'],
+      };
+
+      const viaEvaluator = evaluateExperiencePreferences(
+        experience,
+        intent,
+      ).exclusionMatches;
+      const viaHelper = findHardExclusionMatches(
+        experience,
+        intent.hardExclusions,
+      );
+
+      expect(viaHelper).toEqual(viaEvaluator);
     });
   });
 });

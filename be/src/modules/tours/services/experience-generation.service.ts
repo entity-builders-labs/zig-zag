@@ -73,6 +73,7 @@ import {
 } from '@shared/ai/interfaces/embedding-index.interface';
 import {
   evaluateExperiencePreferences,
+  findHardExclusionMatches,
   PreferenceEvaluation,
 } from '../utils/experience-preference-evaluator.util';
 import {
@@ -410,13 +411,13 @@ export class ExperienceGenerationService {
       ),
     );
 
-    const distinctEligibleIds = new Set<string>();
-    for (const facetCandidates of facetResults) {
-      facetCandidates.strongMatches.forEach((id) =>
-        distinctEligibleIds.add(id),
-      );
-      facetCandidates.weakMatches.forEach((id) => distinctEligibleIds.add(id));
-    }
+    // Spec SS6.2's `totalDistinctEligibleExperiences` is a GLOBAL quantity,
+    // independent of which facets were requested -- never the union of
+    // per-facet strong/weak matches (that undercounts whenever a real,
+    // eligible Experience matches no requested facet, and collapses to 0
+    // whenever zero facets are requested regardless of real catalog size).
+    const totalDistinctEligibleExperiences =
+      await this.computeTotalDistinctEligibleExperiences(scope, preferenceSpec);
 
     const baseTarget = basePortfolioTarget(
       preferenceSpec.trip.days,
@@ -431,8 +432,9 @@ export class ExperienceGenerationService {
     const unsatisfiedFacets = facetResults.filter(
       (facetCandidates) => !facetCandidates.satisfied,
     );
+    const allFacetsSatisfied = unsatisfiedFacets.length === 0;
     const sufficient =
-      unsatisfiedFacets.length === 0 && distinctEligibleIds.size >= target;
+      allFacetsSatisfied && totalDistinctEligibleExperiences >= target;
 
     const health = providerHealth ?? { status: 'healthy' as const };
     const status: CoverageReportStatus = sufficient
@@ -441,18 +443,50 @@ export class ExperienceGenerationService {
         ? 'degraded'
         : 'insufficient';
 
-    const deficits: CoverageDeficit[] = unsatisfiedFacets.map(
-      (facetCandidates) =>
-        this.facetToLegacyCoverageDeficit(facetCandidates.facet),
-    );
-    const acquisitionDeficits: AcquisitionDeficit[] = unsatisfiedFacets.map(
-      (facetCandidates) => ({
-        dimension: facetCandidates.facet.dimension,
-        key: facetCandidates.facet.key,
-        reason: `Preference facet [${facetCandidates.facet.dimension}:${facetCandidates.facet.key}] has no strong catalog match yet.`,
-        origin: 'preference_facet' as const,
-      }),
-    );
+    // Spec SS7: targeted facet acquisition comes first. A global-capacity
+    // deficit is raised ONLY once every requested facet is already
+    // satisfied but the total eligible portfolio is still too thin --
+    // never alongside facet deficits, and never expressed with a
+    // dimension/key (it must not masquerade as a facet deficit).
+    const acquisitionDeficits: AcquisitionDeficit[] = allFacetsSatisfied
+      ? totalDistinctEligibleExperiences < target
+        ? [
+            {
+              origin: 'global_capacity' as const,
+              reason: `Global portfolio capacity shortage: ${totalDistinctEligibleExperiences} distinct eligible Experience(s) found, need >= ${target} for ${preferenceSpec.trip.days} day(s) at ${preferenceSpec.trip.pace} pace.`,
+            },
+          ]
+        : []
+      : unsatisfiedFacets.map((facetCandidates) => ({
+          dimension: facetCandidates.facet.dimension,
+          key: facetCandidates.facet.key,
+          reason: `Preference facet [${facetCandidates.facet.dimension}:${facetCandidates.facet.key}] has no strong catalog match yet.`,
+          origin: 'preference_facet' as const,
+        }));
+
+    // Legacy-shaped CoverageDeficit projection -- ONLY for
+    // buildCoverageAnalysisStep's trace display at this temporary
+    // CoverageReport/trace adapter boundary (M8 redesigns the trace shape
+    // itself). `global_capacity` maps onto the pre-existing
+    // `insufficient_usable_candidates` reason (CoverageAnalyzer's own
+    // original "not enough overall" case) -- this mapping must never leak
+    // back into the canonical `acquisitionDeficits` model above, which
+    // stays genuinely dimensionless for this origin.
+    const deficits: CoverageDeficit[] = allFacetsSatisfied
+      ? totalDistinctEligibleExperiences < target
+        ? [
+            {
+              reason: 'insufficient_usable_candidates',
+              severity: 'blocking',
+              message: `Cobertura de facets solicitados completa, pero el portafolio elegible total (${totalDistinctEligibleExperiences}) no alcanza el objetivo requerido (${target}).`,
+              expectedCount: target,
+              actualCount: totalDistinctEligibleExperiences,
+            },
+          ]
+        : []
+      : unsatisfiedFacets.map((facetCandidates) =>
+          this.facetToLegacyCoverageDeficit(facetCandidates.facet),
+        );
 
     const decision: CoverageAcquisitionDecision = sufficient
       ? {
@@ -471,9 +505,9 @@ export class ExperienceGenerationService {
       status,
       analyzedCandidateCount: totalPoolCount,
       eligibleCandidateCount: totalPoolCount,
-      relevantCandidateCount: distinctEligibleIds.size,
+      relevantCandidateCount: totalDistinctEligibleExperiences,
       offeredCandidateCount,
-      usableCandidateCount: distinctEligibleIds.size,
+      usableCandidateCount: totalDistinctEligibleExperiences,
       requiredCandidateCount: target,
       requestedThemeCoverage: this.facetCoverageSummary(
         facetResults,
@@ -489,7 +523,7 @@ export class ExperienceGenerationService {
       ) as unknown as IntentCoverageSummary[],
       sourceCoverage: [],
       geographicCoverage: {
-        distinctClusterCount: distinctEligibleIds.size > 0 ? 1 : 0,
+        distinctClusterCount: totalDistinctEligibleExperiences > 0 ? 1 : 0,
         thresholdKilometers: scope.radiusMeters / 1000,
       },
       semanticCoverage: {
@@ -510,6 +544,56 @@ export class ExperienceGenerationService {
     };
 
     return { report, facetResults, acquisitionDeficits };
+  }
+
+  /**
+   * Spec SS6.2's GLOBAL `totalDistinctEligibleExperiences` -- independent of
+   * which facets were requested. Reuses the exact same canonical geography
+   * boundary `FacetRetrievalService` already queries
+   * (`ExperienceCatalogService.findVerifiedWithinForMatching`: real PostGIS
+   * radius, no correctness-visible LIMIT; its own JOIN already structurally
+   * excludes bare/no-component rows), then applies the two SS12.1
+   * eligibility rules that already have real, reusable primitives today:
+   * hard exclusion (`findHardExclusionMatches` -- the SAME hard-exclusion
+   * policy the legacy preference evaluator uses, fed from
+   * `PreferenceSpec.exclusions.hard` here instead of
+   * `NormalizedPreferenceIntent.hardExclusions`) and "not a bare AREA/ROUTE
+   * representation" (at least one real PLACE-kind resolved component).
+   *
+   * Full SS12.1 eligibility (destination-scope exclusion beyond the
+   * geography query, etc.) is Checkpoint C/M5 composition's job, which does
+   * not exist yet -- this is the narrowest faithful subset backed by real
+   * primitives, never a substitute count invented to make sufficiency
+   * reachable.
+   */
+  private async computeTotalDistinctEligibleExperiences(
+    scope: FacetRetrievalScope,
+    preferenceSpec: PreferenceSpec,
+  ): Promise<number> {
+    const pool = await this.experienceCatalog.findVerifiedWithinForMatching(
+      scope.latitude,
+      scope.longitude,
+      scope.radiusMeters,
+    );
+    const hardExclusions = preferenceSpec.exclusions.hard;
+
+    let count = 0;
+    for (const row of pool as Array<Record<string, any>>) {
+      if (
+        hardExclusions.length > 0 &&
+        findHardExclusionMatches(row, hardExclusions).length > 0
+      ) {
+        continue;
+      }
+      const hasRealPlaceComponent = Array.isArray(row.components)
+        ? row.components.some(
+            (component: any) => component?.geoEntity?.kind === 'PLACE',
+          )
+        : false;
+      if (!hasRealPlaceComponent) continue;
+      count += 1;
+    }
+    return count;
   }
 
   /**

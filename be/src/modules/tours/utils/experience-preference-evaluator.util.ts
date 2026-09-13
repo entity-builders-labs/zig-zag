@@ -152,9 +152,9 @@ export function evaluateExperiencePreferences(
     : 0;
 
   // 4. Hard exclusions
-  const exclusions = unique(intent.hardExclusions ?? []);
-  const exclusionMatches = exclusions.filter((term) =>
-    matchesTerm(corpus, term),
+  const exclusionMatches = findHardExclusionMatches(
+    experience,
+    intent.hardExclusions ?? [],
   );
   const exclusionPenalty = exclusionMatches.length > 0 ? 1 : 0;
 
@@ -231,6 +231,24 @@ export function buildPreferenceCorpus(experience: any): string[] {
     ...(experience?.price === 0 ? ['free'] : []),
     ...componentValues,
   ]).map(normalize);
+}
+
+/**
+ * Canonical hard-exclusion matching (spec-neutral: the caller decides where
+ * `exclusions` comes from -- `NormalizedPreferenceIntent.hardExclusions`
+ * here in the legacy evaluator, `PreferenceSpec.exclusions.hard` for
+ * preference-first eligibility, cutover M2). Returns every exclusion term
+ * that matches somewhere in the Experience's own evidence. Built from
+ * `buildPreferenceCorpus` + the same term-matching semantics as every other
+ * call in this file -- one hard-exclusion policy, never a second matcher
+ * for a second caller.
+ */
+export function findHardExclusionMatches(
+  experience: any,
+  exclusions: string[],
+): string[] {
+  const corpus = buildPreferenceCorpus(experience);
+  return unique(exclusions).filter((term) => matchesTerm(corpus, term));
 }
 
 // ALIASES keys may contain punctuation (e.g. "non-vegan food"), but every

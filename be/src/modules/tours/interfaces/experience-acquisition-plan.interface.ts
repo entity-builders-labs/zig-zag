@@ -8,7 +8,18 @@ export interface AcquisitionDeficit {
   dimension?: string;
   key?: string;
   reason: string;
-  origin: 'coverage_analysis' | 'preference_facet';
+  /**
+   * `global_capacity` (cutover M2, spec SS6.2/SS7): a genuine GLOBAL portfolio
+   * shortage after every requested facet is already satisfied -- the total
+   * distinct eligible catalog is still below `portfolioTarget`. Deliberately
+   * dimensionless (`dimension`/`key` are never set for this origin): it must
+   * never masquerade as a theme/trait/intent facet deficit.
+   * `lookupSourceCapabilityRoute(undefined, undefined)` already routes a
+   * dimensionless deficit to the provider-neutral `GENERIC_DEFICIT_ROUTE`
+   * (broad Wikivoyage SEE/DO/EAT + web discovery) -- no planner change
+   * needed for this origin.
+   */
+  origin: 'coverage_analysis' | 'preference_facet' | 'global_capacity';
   legacyDeficit?: CoverageDeficit;
 }
 
