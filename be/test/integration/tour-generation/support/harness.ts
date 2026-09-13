@@ -8,7 +8,8 @@
  * orchestration under test runs for real:
  *
  *   ExperienceGenerationService.generateTourExperiences
- *     → CoverageAnalyzer
+ *     → FacetRetrievalService / preference-sufficiency.util.ts (cutover M2 --
+ *       replaces the former CoverageAnalyzer sufficiency/deficit authority)
  *     → ExperienceAcquisitionPlannerService.buildAcquisitionPlan
  *     → ExperienceAcquisitionService.executePlan  (structured + web SourcePlan)
  *     → StructuredExperienceCandidateSynthesizerService

@@ -69,7 +69,17 @@ export async function seedVerifiedExperience(
       canonicalName: input.canonicalName,
       description: input.description,
       status: input.status ?? 'VERIFIED',
-      qualityScore: input.qualityScore ?? 0.8,
+      // Canonical scale is 0..5 (DEFAULT_QUALITY_FLOOR = 3.0,
+      // preference-strong-match.util.ts). `0.8` was a stale 0..1-scale
+      // placeholder that could be misread as "80% quality" -- it was
+      // actually just barely above nothing on the real scale, and either
+      // way must never silently pass as a strong facet match. Callers that
+      // need a genuinely strong catalog row (e.g. proving sufficiency)
+      // MUST pass an explicit qualityScore >= 3.0; this default (2.0,
+      // matching seedFillerExperiences' own convention below) is
+      // deliberately BELOW the floor for callers that don't care about
+      // quality at all.
+      qualityScore: input.qualityScore ?? 2.0,
       durationMinutes: input.durationMinutes ?? 90,
       latitude: input.latitude,
       longitude: input.longitude,

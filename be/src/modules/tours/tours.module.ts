@@ -40,6 +40,7 @@ import { ExperienceAcquisitionPlannerService } from './services/experience-acqui
 import { ExperienceClassificationService } from './services/experience-classification.service';
 import { AreaRouteAnchorResolverService } from './services/area-route-anchor-resolver.service';
 import { AreaRouteWalkAcquisitionService } from './services/area-route-walk-acquisition.service';
+import { FacetRetrievalService } from './services/facet-retrieval.service';
 import {
   EXPERIENCE_GROUNDED_SEARCH_PROVIDER,
   ExperienceGroundedSearchProvider,
@@ -112,6 +113,7 @@ import { MediaModule } from '../media/media.module';
     ExperienceClassificationService,
     AreaRouteAnchorResolverService,
     AreaRouteWalkAcquisitionService,
+    FacetRetrievalService,
     {
       provide: EXPERIENCE_PROPOSAL_RESOLVER,
       useExisting: ExperienceProposalResolverService,

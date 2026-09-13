@@ -62,8 +62,6 @@ import {
 import { ExperienceCatalogService } from './experience-catalog.service';
 import { ExperienceAcquisitionService } from './experience-acquisition.service';
 import { ExperienceAcquisitionPlannerService } from './experience-acquisition-planner.service';
-import { ExperienceCandidate } from '../interfaces/experience-discovery.interface';
-import { CoverageAnalyzer } from './coverage-analyzer.service';
 import { isCoverageFatal } from '../utils/coverage-decision.util';
 import { redactTracePayload } from '../utils/trace-redaction.util';
 import { buildGenerationExecutionSummary } from '../utils/generation-execution-summary.util';
@@ -88,6 +86,29 @@ import {
 } from '../utils/preference-facet-merge.util';
 import { buildTourExperienceCreateData } from '../utils/tour-experience-snapshot.util';
 import { buildPreferenceSpec } from '../utils/preference-spec-builder.util';
+import {
+  FacetRetrievalScope,
+  FacetRetrievalService,
+} from './facet-retrieval.service';
+import {
+  basePortfolioTarget,
+  portfolioTarget,
+} from '../utils/preference-sufficiency.util';
+import {
+  FacetCandidates,
+  PreferenceSpec,
+  RequestedFacet,
+} from '../interfaces/preference-spec.interface';
+import {
+  CoverageAcquisitionDecision,
+  CoverageDeficit,
+  CoverageReport,
+  CoverageReportStatus,
+  IntentCoverageSummary,
+  ThemeCoverageSummary,
+  TraitCoverageSummary,
+} from '../interfaces/coverage-analysis.interface';
+import { AcquisitionDeficit } from '../interfaces/experience-acquisition-plan.interface';
 
 /**
  * Hard bound on the canonical acquisition loop: initial catalog coverage,
@@ -159,7 +180,7 @@ export class ExperienceGenerationService {
     private readonly vectorStoreService: ExperienceVectorStoreService,
     private readonly tourImageService: TourImageService,
     private readonly destinationResolutionService: DestinationResolutionService,
-    private readonly coverageAnalyzer: CoverageAnalyzer,
+    private readonly facetRetrieval: FacetRetrievalService,
     private readonly experienceAcquisitionPlanner: ExperienceAcquisitionPlannerService,
     private readonly tourCompletenessValidator: TourCompletenessValidator,
     private readonly planningCandidateNormalizer: PlanningCandidateNormalizerService,
@@ -345,76 +366,203 @@ export class ExperienceGenerationService {
     return result;
   }
 
-  private buildCoverageReport(
-    experiences: any[],
-    request: TourGenerationRequest,
+  /**
+   * M2 (preference-first live cutover) -- the canonical sufficiency/deficit
+   * authority. Replaces `CoverageAnalyzer.analyze()` (which measured
+   * relevance via `theme-matching.util.ts`'s keyword heuristic, a second,
+   * duplicate matching primitive) with `FacetRetrievalService` (real
+   * PostGIS-scoped catalog retrieval, no in-memory truncation) +
+   * `preference-sufficiency.util.ts`'s global days*pace portfolio target --
+   * reading `PreferenceSpec.facets` (the canonical requirement model)
+   * directly, never `NormalizedPreferenceIntent`/theme-matching.
+   *
+   * `CoverageAnalyzer` itself is not deleted here (that is M7's mandatory
+   * cutover gate, once every caller is confirmed gone) -- this method is
+   * simply its only call site's replacement.
+   *
+   * The returned `CoverageReport` intentionally keeps the pre-existing
+   * shape so `buildCoverageAnalysisStep`/`isCoverageFatal` and the
+   * acquisition loop's control flow are unchanged by this milestone; trace
+   * v4 (M8) is a separate, later redesign of the trace shape itself.
+   * `eligibleCandidateCount`/`analyzedCandidateCount` stay pinned to the
+   * REAL geographic pool size (never the facet-scoped subset) so
+   * `isCoverageFatal`'s "genuinely empty destination pool" check keeps its
+   * original meaning even when zero facets were requested.
+   */
+  private async computePreferenceCoverage(
+    preferenceSpec: PreferenceSpec,
+    scope: FacetRetrievalScope,
     offeredCandidateCount: number,
+    totalPoolCount: number,
     semanticRanking: SemanticRankingOutcome,
     providerHealth?: {
       status: 'healthy' | 'degraded' | 'unknown';
       reason?: string;
     },
-  ) {
-    const normalized =
-      request.intent.normalizedPreferences ?? this.emptyNormalizedPreferences();
-    return this.coverageAnalyzer.analyze({
-      candidates: experiences.map((experience) => ({
-        id: experience.id,
-        name: experience.canonicalName ?? experience.name,
-        description: experience.description,
-        source:
-          experience.source ||
-          experience.sourceId ||
-          experience.metadata?.source ||
-          'db',
-        weightedScore:
-          experience.weightedScore ?? experience.qualityScore ?? null,
-        distanceKm: experience.distance,
-        durationMinutes:
-          experience.durationMinutes ??
-          (Number.isFinite(experience.duration)
-            ? experience.duration * 60
-            : undefined),
-        themes: experience.themes ?? experience.metadata?.themes ?? [],
-        traits: experience.traits ?? experience.metadata?.traits ?? [],
-        intents:
-          experience.intents ??
-          experience.metadata?.intents ??
-          experience.metadata?.archetypes ??
-          [],
-        metadata: experience.metadata,
-      })),
-      requestedThemes: Array.from(
-        new Set([
-          ...request.intent.interests,
-          ...getFacetKeysByDimension(normalized.preferredFacets, 'theme'),
-        ]),
+  ): Promise<{
+    report: CoverageReport;
+    facetResults: FacetCandidates[];
+    acquisitionDeficits: AcquisitionDeficit[];
+  }> {
+    const facetResults = await Promise.all(
+      preferenceSpec.facets.map((facet) =>
+        this.facetRetrieval.retrieveFacetCandidates(facet, scope),
       ),
-      requestedTraits: Array.from(
-        new Set([
-          ...getFacetKeysByDimension(normalized.preferredFacets, 'trait'),
-          ...normalized.dietaryPreferences,
-          ...normalized.accessibilityPreferences,
-        ]),
-      ),
-      requestedIntents: Array.from(
-        new Set([
-          ...(request.intent.intents ?? []),
-          ...getFacetKeysByDimension(normalized.preferredFacets, 'intent'),
-        ]),
-      ),
-      days: request.days,
-      explorationStyle: request.intent.explorationStyle,
-      travelPace: request.mobility.travelPace,
+    );
+
+    const distinctEligibleIds = new Set<string>();
+    for (const facetCandidates of facetResults) {
+      facetCandidates.strongMatches.forEach((id) =>
+        distinctEligibleIds.add(id),
+      );
+      facetCandidates.weakMatches.forEach((id) => distinctEligibleIds.add(id));
+    }
+
+    const baseTarget = basePortfolioTarget(
+      preferenceSpec.trip.days,
+      preferenceSpec.trip.pace,
+    );
+    // M2 does not yet wire anchor/composition reservations into the
+    // portfolio target (M3's acquisition-strategy anchors, M5's
+    // composition) -- 0 distinct reservations, 0 distinct must-anchors.
+    // `portfolioTarget` degrades to `baseTarget` alone until then.
+    const target = portfolioTarget(baseTarget, 0, 0);
+
+    const unsatisfiedFacets = facetResults.filter(
+      (facetCandidates) => !facetCandidates.satisfied,
+    );
+    const sufficient =
+      unsatisfiedFacets.length === 0 && distinctEligibleIds.size >= target;
+
+    const health = providerHealth ?? { status: 'healthy' as const };
+    const status: CoverageReportStatus = sufficient
+      ? 'sufficient'
+      : health.status === 'degraded'
+        ? 'degraded'
+        : 'insufficient';
+
+    const deficits: CoverageDeficit[] = unsatisfiedFacets.map(
+      (facetCandidates) =>
+        this.facetToLegacyCoverageDeficit(facetCandidates.facet),
+    );
+    const acquisitionDeficits: AcquisitionDeficit[] = unsatisfiedFacets.map(
+      (facetCandidates) => ({
+        dimension: facetCandidates.facet.dimension,
+        key: facetCandidates.facet.key,
+        reason: `Preference facet [${facetCandidates.facet.dimension}:${facetCandidates.facet.key}] has no strong catalog match yet.`,
+        origin: 'preference_facet' as const,
+      }),
+    );
+
+    const decision: CoverageAcquisitionDecision = sufficient
+      ? {
+          action: 'none',
+          reason: 'coverage_sufficient',
+          requiresAdditionalDiscovery: false,
+        }
+      : {
+          action: 'needs_additional_discovery',
+          reason: 'requested_coverage_is_missing',
+          requiresAdditionalDiscovery: true,
+          deficits,
+        };
+
+    const report: CoverageReport = {
+      status,
+      analyzedCandidateCount: totalPoolCount,
+      eligibleCandidateCount: totalPoolCount,
+      relevantCandidateCount: distinctEligibleIds.size,
+      offeredCandidateCount,
+      usableCandidateCount: distinctEligibleIds.size,
+      requiredCandidateCount: target,
+      requestedThemeCoverage: this.facetCoverageSummary(
+        facetResults,
+        'theme',
+      ) as unknown as ThemeCoverageSummary[],
+      requestedTraitCoverage: this.facetCoverageSummary(
+        facetResults,
+        'trait',
+      ) as unknown as TraitCoverageSummary[],
+      requestedIntentCoverage: this.facetCoverageSummary(
+        facetResults,
+        'intent',
+      ) as unknown as IntentCoverageSummary[],
+      sourceCoverage: [],
+      geographicCoverage: {
+        distinctClusterCount: distinctEligibleIds.size > 0 ? 1 : 0,
+        thresholdKilometers: scope.radiusMeters / 1000,
+      },
       semanticCoverage: {
         status: semanticRanking.status,
         eligibleCandidateCount: semanticRanking.eligibleCandidateCount,
         indexedCandidateCount: semanticRanking.indexedCandidateCount,
         reason: semanticRanking.reason,
       },
-      offeredCandidateCount,
-      providerHealth,
-    });
+      destinationKnowledge: {
+        status: 'discovery_supported',
+        coverageBoundary: 'catalog_and_grounded_discovery',
+        reason:
+          'Preference-first facet retrieval (cutover M2) -- FacetRetrievalService/preference-sufficiency.util.ts are the sufficiency/deficit authority.',
+      },
+      providerHealth: health,
+      deficits,
+      decision,
+    };
+
+    return { report, facetResults, acquisitionDeficits };
+  }
+
+  /**
+   * Legacy-shaped `CoverageDeficit` projection, used ONLY for
+   * `buildCoverageAnalysisStep`'s trace display (severity/message/blocking
+   * count) -- the real acquisition routing below reads the facet's own
+   * `dimension`/`key` directly via `acquisitionDeficits`, never this
+   * mapping. `theme`/`intent` map onto their own reason; every other
+   * structured dimension (`trait`, `winery_scale`, `tourism_intensity`,
+   * `nature_type`, `local_character`, ...) maps onto the legacy `trait`
+   * deficit slot, which predates `PreferenceSpec`'s richer dimension set.
+   */
+  private facetToLegacyCoverageDeficit(facet: RequestedFacet): CoverageDeficit {
+    const message = `Preferencia solicitada sin cobertura fuerte suficiente en el catálogo: ${facet.dimension}:${facet.key}.`;
+    if (facet.dimension === 'theme') {
+      return {
+        reason: 'missing_requested_theme',
+        severity: 'blocking',
+        message,
+        theme: facet.key,
+      };
+    }
+    if (facet.dimension === 'intent') {
+      return {
+        reason: 'missing_requested_intent',
+        severity: 'blocking',
+        message,
+        intent: facet.key,
+      };
+    }
+    return {
+      reason: 'missing_requested_trait',
+      severity: 'blocking',
+      message,
+      trait: facet.key,
+    };
+  }
+
+  private facetCoverageSummary(
+    facetResults: FacetCandidates[],
+    dimension: string,
+  ): Array<Record<string, unknown>> {
+    return facetResults
+      .filter(
+        (facetCandidates) => facetCandidates.facet.dimension === dimension,
+      )
+      .map((facetCandidates) => ({
+        [dimension]: facetCandidates.facet.key,
+        matchedCandidateCount:
+          facetCandidates.strongMatches.length +
+          facetCandidates.weakMatches.length,
+        strongMatchCount: facetCandidates.strongMatches.length,
+      }));
   }
 
   private buildCandidatePoolTraceStep(
@@ -885,13 +1033,16 @@ export class ExperienceGenerationService {
           );
           const nearbyExperiencesSample = selection.experiences;
           semanticRankingOutcome = selection.semanticRanking;
-          const initialCoverageReport = this.buildCoverageReport(
-            nearbyExperiences,
-            request,
-            nearbyExperiencesSample.length,
-            semanticRankingOutcome,
-            { status: 'healthy' },
-          );
+          const initialPreferenceCoverage =
+            await this.computePreferenceCoverage(
+              preferenceSpec,
+              searchArea,
+              nearbyExperiencesSample.length,
+              nearbyExperiences.length,
+              semanticRankingOutcome,
+              { status: 'healthy' },
+            );
+          const initialCoverageReport = initialPreferenceCoverage.report;
           traceSteps.push(buildCoverageAnalysisStep(initialCoverageReport));
 
           if (initialCoverageReport.decision.action === 'none') {
@@ -929,48 +1080,33 @@ export class ExperienceGenerationService {
             //   .buildAcquisitionPlan → ExperienceAcquisitionService.executePlan
             //   (structured providers + web discovery) → materializeExecution
             //   (ExperienceProposalResolver) → catalog re-query →
-            //   CoverageAnalyzer, bounded by MAX_ACQUISITION_PASSES.
+            //   FacetRetrievalService/preference-sufficiency, bounded by
+            //   MAX_ACQUISITION_PASSES.
             const acquisitionScope = {
               destinationName: request.destination.label,
               latitude: searchArea.latitude,
               longitude: searchArea.longitude,
               radiusMeters: searchArea.radiusMeters,
             };
-            const coverageCandidateView = (pool: any[]) =>
-              pool.map(
-                (experience) =>
-                  ({
-                    name: experience.canonicalName ?? experience.name,
-                    description: experience.description,
-                    themes:
-                      experience.themes ?? experience.metadata?.themes ?? [],
-                    traits:
-                      experience.traits ?? experience.metadata?.traits ?? [],
-                    intents:
-                      experience.intents ??
-                      experience.metadata?.intents ??
-                      experience.metadata?.archetypes ??
-                      [],
-                  }) as unknown as ExperienceCandidate,
-              );
 
             let currentPool = nearbyExperiences;
             let currentSelection = selection;
             let currentCoverage = initialCoverageReport;
+            let currentAcquisitionDeficits =
+              initialPreferenceCoverage.acquisitionDeficits;
 
             for (let pass = 1; pass <= MAX_ACQUISITION_PASSES; pass++) {
               if (currentCoverage.decision.action === 'none') break;
 
-              const blockingDeficits = currentCoverage.deficits.filter(
-                (deficit) => deficit.severity === 'blocking',
-              );
-
+              // M2 (preference-first live cutover): deficits are now the
+              // real FacetRetrievalService-derived unsatisfied facets
+              // (`origin: 'preference_facet'`), never the legacy
+              // CoverageAnalyzer/theme-matching projection -- this is the
+              // one canonical deficit source feeding acquisition routing.
               const acquisitionPlan =
                 this.experienceAcquisitionPlanner.buildAcquisitionPlan({
                   destination: acquisitionScope,
-                  legacyDeficits: blockingDeficits,
-                  preferredFacets: normalizedPreferences.preferredFacets,
-                  candidates: coverageCandidateView(currentPool),
+                  deficits: currentAcquisitionDeficits,
                   semanticQuery: normalizedPreferences.positiveSemanticQuery,
                   breadth: 'focused',
                 });
@@ -1101,13 +1237,18 @@ export class ExperienceGenerationService {
                 degradedAcquisitionReason = providerHealth.reason ?? 'degraded';
               }
 
-              currentCoverage = this.buildCoverageReport(
-                currentPool,
-                request,
-                currentSelection.experiences.length,
-                semanticRankingOutcome,
-                providerHealth,
-              );
+              const nextPreferenceCoverage =
+                await this.computePreferenceCoverage(
+                  preferenceSpec,
+                  searchArea,
+                  currentSelection.experiences.length,
+                  currentPool.length,
+                  semanticRankingOutcome,
+                  providerHealth,
+                );
+              currentCoverage = nextPreferenceCoverage.report;
+              currentAcquisitionDeficits =
+                nextPreferenceCoverage.acquisitionDeficits;
               traceSteps.push(buildCoverageAnalysisStep(currentCoverage));
             }
 

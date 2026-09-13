@@ -2,9 +2,11 @@ import { TourGenerationHarness } from './support/harness';
 import { seedTour, seedVerifiedExperience } from '../support/seed';
 
 /**
- * A sufficient VERIFIED catalog for the request => CoverageAnalyzer decides
- * `none` and the loop never runs => ZERO calls to every faked external
- * transport. Proves catalog-first is real, not a mocked branch.
+ * A sufficient VERIFIED catalog for the request => the preference-facet
+ * coverage authority (FacetRetrievalService/preference-sufficiency.util.ts,
+ * cutover M2) decides `none` and the acquisition loop never runs => ZERO
+ * calls to every faked external transport. Proves catalog-first is real,
+ * not a mocked branch.
  */
 const DEST = { latitude: -34.6037, longitude: -58.3816 };
 
@@ -31,7 +33,10 @@ describe('tour-generation integration · catalog-first', () => {
         intents: ['visit'],
         latitude: DEST.latitude + i * 0.0006,
         longitude: DEST.longitude + i * 0.0006,
-        qualityScore: 0.85,
+        // Canonical scale is 0..5 (DEFAULT_QUALITY_FLOOR = 3.0,
+        // preference-strong-match.util.ts) -- explicitly strong, not the
+        // stale 0..1-scale placeholder this fixture used to carry.
+        qualityScore: 4.5,
         durationMinutes: 75,
       });
     }
