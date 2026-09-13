@@ -371,6 +371,72 @@ services:
       - app-network
     restart: unless-stopped
 
+  # Opt-in local Nominatim instance, same `osm-local` profile as `overpass`
+  # above so `docker compose --profile osm-local up -d` brings up BOTH from
+  # the same Argentina Geofabrik source (reproducible search/reverse
+  # geocoding to go with the local Overpass streets/boundaries index). See
+  # docs/development/local-nominatim.md before enabling this profile — in
+  # particular for why this container's snapshot date can genuinely differ
+  # from `overpass`'s (Geofabrik's `-latest` URL is a moving pointer and
+  # `overpass` does not retain the exact PBF it originally imported), and
+  # why UPDATE_MODE is deliberately left at its default `none` here (no
+  # replication) so the imported snapshot stays frozen for spike
+  # reproducibility, unlike `overpass`'s own hourly diff-apply above.
+  #
+  # First run downloads + imports the Argentina extract (same PBF as
+  # `overpass`, several GB once indexed) into the named volume below; this
+  # can take a long time depending on hardware. Subsequent restarts reuse
+  # that volume and skip re-import entirely (the image's own entrypoint
+  # detects an already-initialized Postgres data directory at
+  # `/var/lib/postgresql/16/main`).
+  nominatim:
+    profiles:
+      - osm-local
+    image: mediagis/nominatim:5.3@sha256:7923a8e67197fc6d4f4ecb7c0e8bbedffeddcfdf4519596fe946e46a28f5a9f8
+    container_name: zigzag-nominatim-argentina
+    shm_size: ${NOMINATIM_SHM_SIZE:-1g}
+    ports:
+      - '8088:8080'
+    environment:
+      - PBF_URL=https://download.geofabrik.de/south-america/argentina-latest.osm.pbf
+      # No REPLICATION_URL/UPDATE_MODE on purpose -- see the block comment
+      # above. FREEZE saves disk once the one-time import is done (this
+      # container never needs to accept updates for a spike snapshot).
+      - FREEZE=true
+      # Skips the Wikipedia importance-ranking dump: faster first import,
+      # and result RANKING quality isn't what B5's resolver depends on --
+      # it only needs a correct osm_type/osm_id/geometry match, not
+      # `importance`-based tie-breaking against unrelated candidates
+      # (destination-scoped `countrycodes` already does that narrowing).
+      - IMPORT_WIKIPEDIA=false
+      - THREADS=${NOMINATIM_IMPORT_THREADS:-}
+      - NOMINATIM_PASSWORD=${NOMINATIM_PASSWORD:-zigzag_spike_dev_only}
+    volumes:
+      - nominatim_argentina_data:/var/lib/postgresql/16/main
+      - nominatim_argentina_flatnode:/nominatim/flatnode
+    networks:
+      - app-network
+    restart: unless-stopped
+    healthcheck:
+      # Nominatim's own readiness endpoint (returns "OK" once the API is up
+      # AND the import has completed) -- see
+      # https://nominatim.org/release-docs/latest/api/Status/. A long
+      # start_period because first-time import (download + osm2pgsql +
+      # indexing) can take well over an hour; this only affects `depends_on:
+      # condition: service_healthy` waiters, not the container's own import
+      # progress.
+      test: ['CMD-SHELL', 'curl -sf http://localhost:8080/status || exit 1']
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 2h
+    deploy:
+      resources:
+        limits:
+          memory: ${NOMINATIM_MEMORY_LIMIT:-4G}
+        reservations:
+          memory: ${NOMINATIM_MEMORY_RESERVATION:-2G}
+
 networks:
   app-network:
     driver: bridge
@@ -379,3 +445,5 @@ volumes:
   postgres_data:
   ollama_data:
   overpass_argentina_data:
+  nominatim_argentina_data:
+  nominatim_argentina_flatnode:

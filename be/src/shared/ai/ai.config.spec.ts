@@ -122,4 +122,46 @@ describe('aiConfig embedding index contract', () => {
 
     expect(loadConfig).toThrow('Unsupported DISCOVERY_EXTRACTOR_PROVIDER');
   });
+
+  describe('groundedSearchProvider — no silent Tavily fallback (PRE-B6 spike gate)', () => {
+    it('honors an explicit GROUNDED_SEARCH_PROVIDER=serpapi override', () => {
+      process.env.GROUNDED_SEARCH_PROVIDER = 'serpapi';
+
+      expect(loadConfig()).toEqual(
+        expect.objectContaining({ groundedSearchProvider: 'serpapi' }),
+      );
+    });
+
+    it('defaults to serpapi (never tavily) when unset but a SERPAPI_API_KEY is present', () => {
+      delete process.env.GROUNDED_SEARCH_PROVIDER;
+      process.env.SERPAPI_API_KEY = 'test-serpapi-key';
+
+      expect(loadConfig()).toEqual(
+        expect.objectContaining({ groundedSearchProvider: 'serpapi' }),
+      );
+    });
+
+    it('defaults to groq (never tavily) when both GROUNDED_SEARCH_PROVIDER and SERPAPI_API_KEY are unset', () => {
+      delete process.env.GROUNDED_SEARCH_PROVIDER;
+      delete process.env.SERPAPI_API_KEY;
+
+      expect(loadConfig()).toEqual(
+        expect.objectContaining({ groundedSearchProvider: 'groq' }),
+      );
+    });
+
+    it('only ever selects tavily via an explicit GROUNDED_SEARCH_PROVIDER=tavily -- there is no implicit/fallback path to it', () => {
+      process.env.GROUNDED_SEARCH_PROVIDER = 'tavily';
+
+      expect(loadConfig()).toEqual(
+        expect.objectContaining({ groundedSearchProvider: 'tavily' }),
+      );
+    });
+
+    it('rejects an unknown GROUNDED_SEARCH_PROVIDER instead of silently falling back to any provider', () => {
+      process.env.GROUNDED_SEARCH_PROVIDER = 'mystery-provider';
+
+      expect(loadConfig).toThrow('Unsupported GROUNDED_SEARCH_PROVIDER');
+    });
+  });
 });

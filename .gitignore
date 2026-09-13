@@ -67,9 +67,11 @@ target/
 *.map
 
 # Environment variables and secrets
-# Ignorar todos los .env* excepto .env.example
+# Ignorar todos los .env* excepto .env.example / .env.spike.example (the
+# real, operator-created .env.spike stays ignored by the blanket .env* rule)
 .env*
 !.env.example
+!.env.spike.example
 *.pem
 *.key
 secrets.*
