@@ -204,6 +204,80 @@ all 14 previously-green cases remain green, the pure unit suite remains 3/3
 unaffected, and the previously-broken `experience-catalog.service.spec.ts`
 boundary test is green again.
 
+## Fourth fix — the third fix's `conceptOverlap > 0` had two more holes
+
+A third review pass approved the evidenced-order fix but found `conceptOverlap
+> 0` itself was not sound as a compatibility signal, for two independent
+reasons:
+
+**BLOCKER 1 — empty concept evidence was scored as agreement.** `conceptOverlap`
+reused the generic `setOverlap` convention (both-empty ⇒ vacuous `1`). Two
+totally unclassified Experiences (no `themes`/`intents` on either side at all —
+the normal, common pre-classification state, e.g. before B2/B6 run) with exact
+components/roles and any nonzero name overlap could therefore become SAME
+purely because *no one had classified either side yet* — absence of concept
+data is absence of evidence, not evidence of agreement.
+
+**BLOCKER 2 — a single shared, generic classification facet was treated as
+identity evidence.** `conceptTerms` combined `themes` + `intents` into one set,
+so "San Telmo Historical Walk" (`themes: ['history']`, `intents: ['walk']`) vs.
+"San Telmo Architecture Walk" (`themes: ['architecture']`, `intents: ['walk']`)
+had `conceptOverlap = 0.5` (`> 0`, satisfying the old rule) purely because both
+happen to be tagged `walk`. This directly conflicts with the design's own
+statement that "multiple distinct Experiences with `intent=walk` in the same
+scope" are explicitly valid — a classification facet (theme OR intent) is not
+identity, whether the overlap is total absence (Blocker 1) or partial (Blocker
+2); neither should ever "upgrade" a structural match to SAME.
+
+**RED added** (`experience-identity-dedupe.integration-spec.ts`, 2 new tests):
+"BLOCKER 1" (exact 4-stop/role match, generic-word-only name overlap, **no**
+`metadata` on either side at all, no order conflict) and "BLOCKER 2" (exact
+4-stop/role match, independent evidence, `themes` genuinely differ, both sides
+`intents: ['walk']` only, no order conflict). Both confirmed RED against the
+third fix: both returned `SAME`.
+
+**A third, pre-existing test's premise was found to directly contradict
+Blocker 2's own principle** — "same real structure/evidence but a different
+theme label is still SAME (classification does not gate identity)" used
+`themes: ['history']` vs. `['architecture']` with **both sides `intents:
+['walk']`**, i.e. exactly the "shared generic intent only, themes differ"
+pattern Blocker 2 declares invalid. Its own `nameSimilarity` (≈0.43, partial)
+does not independently clear the byte-identical-name bar either. This test's
+premise could not survive a correct Blocker-2 fix by construction — flagging
+this explicitly rather than silently changing it: **the test was corrected**
+(renamed to "...is NOT SAME (classification does not GRANT identity either —
+round-3 correction)", assertions flipped to `not.toBe('SAME')` with the same
+AMBIGUOUS/no-mutation check pattern used by the adjacent regressions in this
+same `describe` block), since fixing Blocker 2 correctly requires it.
+
+**Fourth fix** (`be/src/modules/tours/utils/experience-dedupe.util.ts`):
+1. `conceptOverlapScore()` — a dedicated helper (NOT the generic `setOverlap`)
+   that scores a both-empty pair as `0`, not `1`. `conceptOverlap` is computed
+   through this helper instead of `setOverlap` directly.
+2. `exactStructure`'s compatibility disjunct tightened from `nameSimilarity ===
+   1 || conceptOverlap > 0` to `nameSimilarity === 1 || conceptOverlap === 1`
+   — **full** concept agreement (every theme/intent token on one side matched
+   by the other, on real non-vacuous data), not partial. This mirrors the same
+   "`=== 1`, full agreement, not partial" pattern already required of
+   `componentOverlap`/`roleAwareComponentOverlap` — not a new tuned threshold.
+   The base `nameSimilarity > 0` floor was dropped entirely (subsumed: it added
+   nothing once the compatibility disjunct itself requires either
+   `nameSimilarity === 1` or full concept agreement).
+
+Re-verified against all existing fixtures: Case 1 (`themes`/`intents`
+IDENTICAL on both sides: `{history, walk}` vs. `{history, walk}` ⇒
+`conceptOverlap = 1`, full agreement) remains SAME unchanged. The
+byte-identical-name ("museo central") boundary test remains SAME via
+`nameSimilarity === 1`, independent of its differing themes/traits. The
+round-3 "SHARED GENERIC LOCATION/TYPE WORDS ONLY" regression remains NOT SAME
+(`themes`/`intents` fully disjoint ⇒ `conceptOverlap = 0`).
+
+GREEN after the fourth fix: the 2 new regressions pass, the corrected
+pre-existing test passes, all 15 previously-green cases remain green (17/17 in
+this file), the pure unit suite remains 3/3 unaffected, and the full `tours`
+module regression (including the "museo central" byte-identical-name boundary
+test) is green.
+
 ## Exit criteria (from the gate plan, section 11) — all satisfied
 
 - [x] Case 1 SAME is green on real Postgres (differently-worded second source).
@@ -216,16 +290,18 @@ boundary test is green again.
 - [x] A perfect component/role match with a clearly conflicting name/concept/evidence is NOT SAME (review-fix regression).
 - [x] A perfect component/role/name match with an explicitly conflicting evidenced order is NOT SAME (review-fix regression).
 - [x] A perfect component/role match whose names overlap ONLY via shared generic location/type words (not real concept compatibility) is NOT SAME (third-fix regression).
+- [x] A perfect component/role match with NO concept evidence on either side is NOT SAME (fourth-fix Blocker 1 — absence of classification is not agreement).
+- [x] A perfect component/role match with only a shared generic `intent` (themes differing) is NOT SAME (fourth-fix Blocker 2 — a classification facet is not identity, partial or otherwise).
 - [x] All assertions verify via a real Postgres re-read (`prisma.experience.findUnique`/`count`), never trusting only the returned object.
-- [x] Full existing integration suite remains green: 14 suites / 59 tests (was 13/44 before this file; 56 after the first fix, 58 after the review fix's 2 new tests, 59 after the third fix's 1 new test).
+- [x] Full existing integration suite remains green: 14 suites / 61 tests (was 13/44 before this file; 56 after the first fix, 58 after the review fix's 2 new tests, 59 after the third fix's 1 new test, 61 after the fourth fix's 2 new tests).
 - [x] Full backend regression remains green: 141 suites / 1360 tests, no regressions.
 - [x] `yarn typecheck`, `yarn lint:check` (scoped `eslint --fix`), `yarn build` all clean.
 
 ## Files changed
 
-- `be/src/modules/tours/utils/experience-dedupe.util.ts` (`exactStructure`/`strongConsistentIdentity` fix + review fix + third fix; new `order` field + `hasConflictingEvidencedOrder`; new `conceptTerms`/`conceptOverlap` + `conceptTokenSet`)
+- `be/src/modules/tours/utils/experience-dedupe.util.ts` (`exactStructure`/`strongConsistentIdentity` fix + review fix + third fix + fourth fix; new `order` field + `hasConflictingEvidencedOrder`; new `conceptTerms`/`conceptOverlap` + `conceptTokenSet`/`conceptOverlapScore`)
 - `be/src/modules/tours/services/experience-catalog.service.ts` (new `conceptTerms()` private helper, wired into both incoming and existing fingerprint construction)
-- `be/test/integration/tour-generation/experience-identity-dedupe.integration-spec.ts` (15 tests total: 12 original + 2 review-fix regressions + 1 third-fix regression)
+- `be/test/integration/tour-generation/experience-identity-dedupe.integration-spec.ts` (17 tests total: 12 original + 2 review-fix regressions + 1 third-fix regression + 2 fourth-fix regressions; 1 pre-existing test corrected in place, see "Fourth fix")
 
 ## Deviations from the gate plan
 
