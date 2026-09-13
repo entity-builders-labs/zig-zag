@@ -63,8 +63,19 @@ export function decideExperienceDedupe(
   }
 
   const best = ranked[0];
+  // A COMPLETE, role-consistent match of the real component set (every
+  // required real place, in the same role, on both sides -- not a
+  // partial/threshold overlap) is the strongest non-name identity signal
+  // available: two sources describing literally the same real physical
+  // composition. Display-name wording legitimately varies across
+  // independent sources ("San Telmo Historical Walking Tour" vs
+  // "Historical Walk through San Telmo" for the identical real stops), so
+  // name similarity must not be able to veto identity when the actual
+  // resolved structure is a perfect match -- this is categorically
+  // different from the partial-overlap case hard invariant 7 (component
+  // overlap alone cannot FORCE same) exists to guard against, which is
+  // about a high-but-incomplete overlap (e.g. 0.75), not a true 1.0 match.
   const exactStructure =
-    best.evidence.nameSimilarity === 1 &&
     best.evidence.roleAwareComponentOverlap === 1 &&
     best.evidence.componentOverlap === 1;
   const strongConsistentIdentity =
