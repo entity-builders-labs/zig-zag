@@ -3436,3 +3436,42 @@ passed.
 ### Next task
 `B6` — not yet started (per explicit instruction, do not begin without
 separate authorization).
+
+**Superseded**: a concurrent session added two mandatory gates between B5
+and B6 (`docs/superpowers/progress/2026-09-13-pre-b6-gates-progress.md` is
+the current execution pointer — always read it, not just this file's tail,
+before resuming). See the checkpoint immediately below for the first gate's
+completion.
+
+## Checkpoint — Experience Identity / Dedupe Postgres Gate (pre-B6) — COMPLETE
+
+- Branch: `feat/preference-first-selection`
+- Plan: `docs/superpowers/plans/2026-09-12-experience-identity-postgres-integration-gate.md`
+- Status: COMPLETE — full details, the real bug found, its fix, and exit
+  criteria are recorded in
+  `docs/superpowers/progress/2026-09-13-pre-b6-gates-progress.md` (this is
+  a summary pointer, not a duplicate).
+
+Real Postgres integration coverage
+(`be/test/integration/tour-generation/experience-identity-dedupe.integration-spec.ts`,
+12 tests) found and fixed a real bug in `decideExperienceDedupe`
+(`experience-dedupe.util.ts`): `exactStructure` required byte-identical
+canonical names in addition to a perfect component-set match, so two
+independent sources describing the literal same real Experience with
+differently-worded titles (the realistic case, not an edge case) incorrectly
+resolved `AMBIGUOUS` instead of `SAME`. Fixed by requiring only a complete,
+role-consistent component-set match (`componentOverlap === 1 &&
+roleAwareComponentOverlap === 1`), never name equality — verified against
+both the pre-existing pure-unit suite (`experience-dedupe.util.spec.ts`,
+still 3/3, unaffected) and the new integration suite (12/12).
+
+Verification: `yarn typecheck`/`yarn lint:check` clean; `yarn test
+src/modules/tours --runInBand` 94 suites/1040 tests; `yarn test:integration`
+14 suites/56 tests (up from 13/44); `yarn test --runInBand` (full backend)
+141 suites/1360 tests; `yarn build` clean. No regressions.
+
+### Next task
+Real-World Tourism Research Spike Baseline (PRE-B6) — not yet started, per
+`docs/superpowers/progress/2026-09-13-pre-b6-gates-progress.md`. Do not
+begin without separate authorization. B6 itself remains blocked until both
+gates are green.
