@@ -1,0 +1,24 @@
+{
+  "destination": {
+    "label": "San Telmo, Buenos Aires, Argentina",
+    "latitude": -34.6214013,
+    "longitude": -58.37375,
+    "scaleHint": "settlement"
+  },
+  "days": 1,
+  "budgetLevel": "medium",
+  "groupType": "solo",
+  "intent": {
+    "interests": ["history"],
+    "intents": ["walk"],
+    "explorationStyle": "balanced",
+    "additionalPreferences": "caminata histórica por San Telmo"
+  },
+  "mobility": {
+    "allowedTransportationModes": ["walking"],
+    "maxWalkingDistancePerDayMeters": 5000,
+    "maxContinuousWalkingDistanceMeters": 3000,
+    "travelPace": "moderate"
+  },
+  "skipImageGeneration": true
+}
