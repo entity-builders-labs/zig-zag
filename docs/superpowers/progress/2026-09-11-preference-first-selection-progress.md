@@ -2,7 +2,9 @@
 
 Updated: 2026-09-14
 Branch: `feat/preference-first-selection`
-Implementation HEAD reviewed before this progress-only update: `e91ab40995fc577b41c4934c8773d33b9072b59d`
+Starting remote HEAD observed for this correction: `99e53abd864bfd814b5983e64b2c32033442556b` (available matching `fork/` ref; configured `origin` did not expose the feature ref).
+Implementation commit for this correction: `103c43f`
+Progress commit: recorded in the final report after this documentation commit.
 Canonical live-cutover plan: `docs/superpowers/plans/2026-09-13-preference-first-live-cutover.md`
 Canonical implementation plan: `docs/superpowers/plans/2026-09-11-preference-first-selection-implementation.md`
 Canonical design: `docs/superpowers/specs/2026-09-10-preference-first-selection-and-agent-convergence-design.md`
@@ -29,7 +31,7 @@ The implementation and verification action is complete; the next action is indep
 | M1 | COMPLETE | `PreferenceSpec` is wired into the live orchestrator; historical M1 commit is in branch history (`8905f66...`). |
 | M2 | COMPLETE | `FacetRetrievalService` + canonical sufficiency replaced legacy coverage authority; subsequent M2 cleanup removed the legacy CoverageAnalyzer architecture from the live path. Relevant commits include `7c6555e...`, `d8a8828...`, `13ee702...`, `03a4728...`. |
 | M3 | COMPLETE | `51989f321db6cb6bea7fbd6620a5714942723a91` — AcquisitionStrategySelector + AreaRouteWalk acquisition wired into the live orchestrator. |
-| M3.5 | **IMPLEMENTED — awaiting independent review** | `91ab491109b195277f264ad4bedea10c2f1d1947` normalizes JSONv2 `category` into `NominatimResult.class` and adds real-wire-shape search/reverse regressions. |
+| M3.5 | **IMPLEMENTED — awaiting independent review** | `103c43f` corrects the canonical AREA rank boundary from `16..25` to `13..25`, retaining the JSONv2 normalization from `91ab491...` and adding pure-policy plus destination consumer regressions. |
 | M4 | COMPLETE IN CODE | `8fac82d384cdbc20f54b004a2f3e428aa8285be3` — semantic classification converges at the shared materialization boundary; AreaRouteWalk local classification authority removed. |
 | M5 | **IN PROGRESS / PARTIALLY LANDED** | `09616dd1098de80fe2064977ba7aef669d89c964` adds preference-first composition; `3a7e965bcc185b7b42696fc52995813f246e8efa` adds canonical venue-anchor resolution; `a7b841...` adds venue-anchor tests/hardening and also modifies M3.5 rank policy. Do not call all of Checkpoint C complete yet. |
 | M6 | NOT COMPLETE | Planner-candidate contract/backfill remains pending. Current `PlanningCandidateNormalizerService` does not yet carry the full canonical `preferenceWeight` / `mustInclude` contract. |
@@ -97,6 +99,43 @@ Although this commit is titled `test(cutover-M5): verify canonical venue anchor 
 - tests were updated across destination/anchor/resolver call sites to carry rank evidence.
 
 The direction is sound: use provider-native numeric scale evidence instead of growing a vocabulary whitelist.
+
+## M3.5 correction — city-scale rank boundary
+
+The reviewed implementation previously accepted only ranks `16..25`. That
+artificial lower threshold rejected legitimate city/municipality-scale
+Nominatim areas below rank 16, including the required `placeRank: 15` case.
+
+Implementation commit: `103c43f`.
+
+The canonical `isAreaScaleEligible()` policy now accepts ranks `13..25`
+inclusive and continues to reject broader ranks `<= 12`, more granular ranks
+`>= 26`, bare nodes, non-administrative boundaries, missing/unknown evidence,
+and unknown classifications. Rank precedence remains `placeRank ??
+addressRank`; the `placeRank: 15, addressRank: 20` regression proves that the
+valid primary rank is not bypassed in favor of the fallback.
+
+Tests added:
+
+- explicit pure-policy boundary coverage for ranks 12, 13, 15, 16, 25, and 26;
+- explicit administrative city regression for `placeRank: 15` and
+  `addressRank: 20`;
+- destination-resolution consumer regression proving rank 15 uses AREA
+  boundary hydration and does not fall back to point-radius behavior.
+
+Fresh verification for this correction:
+
+- targeted: **6 suites passed, 115 tests passed**;
+- `yarn typecheck`: **PASS**;
+- `yarn lint:check`: **PASS**;
+- `yarn test --runInBand`: **143 suites passed, 1,438 tests passed**;
+- `yarn test:integration`: **16 suites passed, 72 tests passed**;
+- `yarn build`: **PASS**.
+
+Architecture gate: provider isolation **PASS**; typed boundary normalization
+**PASS**; single policy authority **PASS**; unknown/fail-closed semantics
+**PASS**; no destination/provider special case **PASS**; dependency direction
+**PASS**; no duplicate legacy path introduced **PASS**.
 
 ---
 
