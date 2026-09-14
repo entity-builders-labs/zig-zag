@@ -112,6 +112,21 @@ describe('PreferenceInterpreterService', () => {
     expect(result.trace.userPrompt).toBe('Quiero arquitectura tranquila');
   });
 
+  it('accepts a JSON response wrapped in a Markdown code fence', async () => {
+    const { service } = makeService(
+      '```json\n{"anchoredPlaces":[{"rawName":"San Telmo","kind":"area","priority":"must"}]}\n```',
+    );
+
+    const result = await service.interpret(
+      'sí o sí quiero una caminata histórica por San Telmo',
+    );
+
+    expect(result.trace.status).toBe('applied');
+    expect(result.intent.anchoredPlaces).toEqual([
+      { rawName: 'San Telmo', kind: 'area', priority: 'must' },
+    ]);
+  });
+
   it('uses a deterministic fallback for religion, diet and accessibility when the provider fails', async () => {
     const { service } = makeService(
       undefined,
