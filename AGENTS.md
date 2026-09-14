@@ -50,6 +50,83 @@ status in the repository and preserve the boundaries between Destination
 Resolution, Activity Discovery, Entity Resolution, Validation, and Tour
 Generation.
 
+## Mandatory engineering-principles gate
+
+This gate applies automatically to **every non-trivial implementation, refactor,
+review, migration, and milestone**. The user does not need to restate it in each
+task. Treat it as part of the definition of done, not as optional guidance.
+
+### Before implementation
+
+1. Read the applicable sections of
+   `docs/architecture/engineering-principles.md` and every architecture/spec/plan
+   document made mandatory by this file for the code being changed.
+2. Identify the engineering principles and architectural invariants that
+   constrain the task.
+3. Inspect the affected call graph, ownership boundaries, canonical policy
+   owners, and data contracts before choosing an implementation.
+4. Identify existing violations in code that the task will touch. Do not
+   silently preserve or deepen a known violation when a canonical replacement
+   is available.
+5. If the requested implementation conflicts with a canonical principle or
+   invariant, **STOP before coding and surface the conflict**. Do not choose a
+   locally convenient bypass or compatibility path.
+
+The preflight is required even when the requested change appears small if it
+changes domain behavior, provider integration, canonical data, orchestration,
+identity, ranking, composition, planning, persisted contracts, or shared
+frontend behavior.
+
+### During implementation
+
+- Do not introduce a new engineering-principles violation to complete the local
+  task.
+- When modifying a boundary that already violates a principle, fix the touched
+  violation when the canonical replacement is known and the fix is within the
+  task's natural scope. Do not use this rule as permission for unrelated broad
+  refactors.
+- Reuse the canonical policy/contract instead of adding parallel semantics.
+- Keep unknown states explicit; do not invent semantic defaults to make tests
+  or thresholds pass.
+- Green tests never override an architectural invariant.
+
+### Early-stage deletion rule
+
+Zig-Zag is still early-stage. Unless an explicit current product requirement
+says otherwise, persisted historical development data and superseded internal
+contracts are disposable.
+
+When a new architecture replaces an old one:
+
+- delete superseded legacy decision paths, adapters, DTOs, compatibility
+  projections, dead callers, and tests whose only purpose is preserving the
+  discarded contract;
+- do not retain historical read compatibility, dual authorities, or fallback
+  paths "just in case";
+- do not move obsolete code into a `legacy`/`compat` module merely to keep it;
+- preserve compatibility only when the user/product explicitly requires it.
+
+Migration checkpoints may coexist only while the replacement is genuinely
+under construction. A completed cutover has one authority.
+
+### Completion gate
+
+Before declaring a non-trivial task or milestone complete:
+
+1. Re-review the changed code against every applicable engineering principle.
+2. Report a concise **PASS/FAIL** result for the applicable categories (for
+   example provider isolation, typed boundaries, single policy authority,
+   unknown/no-magic-default semantics, dependency direction, migration
+   cutover, frontend domain ownership).
+3. Inspect for violations that tests/typecheck/lint do not detect, including
+   hidden metadata protocols, provider-name branching, unchecked boundary
+   casts, duplicate policy implementations, and obsolete paths left reachable.
+4. Run the verification required by the task/milestone.
+
+A task or milestone **MUST NOT be marked complete while any applicable
+engineering-principles check is FAIL**. Tests, typecheck, and lint being green
+are necessary evidence, but they are not sufficient for completion.
+
 ## Backend architecture and code-quality invariants
 
 These rules apply to all new and modified backend code.
