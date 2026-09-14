@@ -4,7 +4,7 @@ Updated: 2026-09-14
 Branch: `feat/preference-first-selection`
 Starting remote HEAD observed for this correction: `99e53abd864bfd814b5983e64b2c32033442556b` (available matching `fork/` ref; configured `origin` did not expose the feature ref).
 Implementation commit for this correction: `103c43f`
-Progress commit: recorded in the final report after this documentation commit.
+Progress checkpoint commit: `f67dd74f38c21275db23821661a95060bba3b8f7`.
 Canonical live-cutover plan: `docs/superpowers/plans/2026-09-13-preference-first-live-cutover.md`
 Canonical implementation plan: `docs/superpowers/plans/2026-09-11-preference-first-selection-implementation.md`
 Canonical design: `docs/superpowers/specs/2026-09-10-preference-first-selection-and-agent-convergence-design.md`
