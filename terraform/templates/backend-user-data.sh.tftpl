@@ -35,7 +35,7 @@ jq -r --arg database_url "$database_url" --arg cors_origin '${cors_origin}' --ar
     DIRECT_URL: $database_url,
     ENABLE_AI: "true",
     AI_PROVIDER: "groq",
-    AI_MODEL: "llama-3.1-8b-instant",
+    GROQ_MODEL: "llama-3.1-8b-instant",
     EMBEDDING_PROVIDER: "bedrock",
     EMBEDDINGS_MODEL: "amazon.titan-embed-text-v2:0",
     EMBEDDING_DIMENSIONS: "256",

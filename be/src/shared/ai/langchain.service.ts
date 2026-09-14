@@ -41,7 +41,7 @@ export type ChatResponseOptions = Partial<
    * extraction request actually goes.
    */
   providerOverride?: 'openai' | 'groq' | 'gemini' | 'ollama';
-  /** Force a specific model for this one call, independent of `AI_MODEL`. */
+  /** Force a specific model for this one call, independent of provider config. */
   modelOverride?: string;
   /**
    * Skip the file-based AI response cache for this one call (both read and
@@ -300,7 +300,7 @@ export class LangChainService {
     if (isEmbeddingModel) {
       throw new Error(
         `Invalid model "${model}" for chat/generation. This is an embedding model and cannot be used for chat. ` +
-          `Please set AI_MODEL to a chat model like "llama3.2", "llama3.2:1b", or "gpt-oss:20b". ` +
+          `Please set the active provider's model variable to a chat model like "llama3.2", "llama3.2:1b", or "gpt-oss:20b". ` +
           `Embedding models (like "nomic-embed-text") should only be set in EMBEDDINGS_MODEL.`,
       );
     }

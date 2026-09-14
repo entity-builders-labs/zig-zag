@@ -32,6 +32,14 @@ The primary AI service. Handles all LLM interactions:
 - **Prompt templates**: `createPromptTemplate()` + `createChain()` for reusable chains
 - **Caching**: Integrates with `AiCacheService` to avoid redundant API calls
 
+Provider ownership is capability-specific. `AI_PROVIDER` selects only the
+general chat/interpreter transport; discovery extraction uses
+`DISCOVERY_EXTRACTOR_PROVIDER` and its provider-specific discovery model,
+grounded evidence uses `GROUNDED_SEARCH_PROVIDER`, evidence-only
+classification uses its explicit Groq classification configuration, and
+embeddings use `EMBEDDING_PROVIDER`. No capability inherits a model from an
+unrelated provider.
+
 ### `VectorStoreService`
 
 Semantic similarity search over Experiences using **pgvector** — a `vector(256)` column + HNSW index on `Experience.embedding`. No separate vector database process is used.
@@ -81,9 +89,12 @@ Key environment variables:
 
 | Variable               | Default                           | Description                                                                                                  |
 | ---------------------- | --------------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| `AI_PROVIDER`          | `openai`                          | Chat/completion provider (`openai`, `groq`, or `ollama`)                                                     |
+| `AI_PROVIDER`          | `openai`                          | General chat/interpreter provider (`openai`, `groq`, `gemini`, or `ollama`)                                  |
 | `OPENAI_API_KEY`       | —                                 | OpenAI API key                                                                                               |
-| `AI_MODEL`             | `llama3.2`                        | Chat model name                                                                                              |
+| `OPENAI_MODEL`         | `gpt-4o-mini`                     | Chat model when `AI_PROVIDER=openai`                                                                         |
+| `GROQ_MODEL`           | `openai/gpt-oss-20b`              | Chat model when `AI_PROVIDER=groq`                                                                           |
+| `GEMINI_MODEL`         | `gemini-3.6-flash`               | Chat model when `AI_PROVIDER=gemini`                                                                         |
+| `OLLAMA_MODEL`         | `llama3.2`                        | Chat model when `AI_PROVIDER=ollama`                                                                         |
 | `EMBEDDING_PROVIDER`   | `ollama` (dev) / `bedrock` (prod) | Authoritative embedding provider (`openai`, `ollama`, or `bedrock`)                                          |
 | `EMBEDDINGS_MODEL`     | provider-specific                 | Titan V2 / `nomic-embed-text` / `text-embedding-3-small`                                                     |
 | `EMBEDDING_DIMENSIONS` | `256`                             | Fixed output width; any other value is rejected until a coordinated pgvector schema migration is implemented |

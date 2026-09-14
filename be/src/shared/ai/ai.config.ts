@@ -77,27 +77,25 @@ function isEmbeddingModel(model: string): boolean {
 export default registerAs('ai', (): AiConfig => {
   const provider = (process.env.AI_PROVIDER as any) || 'gemini';
 
-  // Resolve model per provider with fallback to AI_MODEL override
-  let defaultModel = process.env.AI_MODEL;
-  if (!defaultModel) {
-    switch (provider) {
-      case 'gemini':
-        defaultModel = process.env.GEMINI_MODEL || 'gemini-3.6-flash';
-        break;
-      case 'groq':
-        defaultModel = process.env.GROQ_MODEL || 'openai/gpt-oss-20b';
-        break;
-      case 'ollama':
-        defaultModel = process.env.OLLAMA_MODEL || 'llama3.2';
-        break;
-      case 'openai':
-      default:
-        defaultModel =
-          process.env.OPENAI_MODEL ||
-          process.env.OPENAI_DEFAULT_MODEL ||
-          'gpt-4o-mini';
-        break;
-    }
+  // Select the model only from the variable owned by the active provider.
+  // A global model override would let a stale model follow AI_PROVIDER across
+  // environments and make provider/model provenance ambiguous.
+  let defaultModel: string;
+  switch (provider) {
+    case 'gemini':
+      defaultModel = process.env.GEMINI_MODEL || 'gemini-3.6-flash';
+      break;
+    case 'groq':
+      defaultModel = process.env.GROQ_MODEL || 'openai/gpt-oss-20b';
+      break;
+    case 'ollama':
+      defaultModel = process.env.OLLAMA_MODEL || 'llama3.2';
+      break;
+    case 'openai':
+    default:
+      defaultModel =
+        process.env.OPENAI_MODEL || 'gpt-4o-mini';
+      break;
   }
 
   // Validate that defaultModel is not an embedding model

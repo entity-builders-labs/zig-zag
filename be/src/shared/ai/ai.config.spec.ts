@@ -42,6 +42,28 @@ describe('aiConfig embedding index contract', () => {
     );
   });
 
+  it('uses the active chat provider model and ignores the legacy global AI_MODEL', () => {
+    process.env.AI_MODEL = 'stale-model-from-another-provider';
+    process.env.AI_PROVIDER = 'gemini';
+    process.env.GEMINI_MODEL = 'gemini-chat-test';
+    process.env.GROQ_MODEL = 'groq-chat-test';
+
+    expect(loadConfig()).toEqual(
+      expect.objectContaining({
+        provider: 'gemini',
+        defaultModel: 'gemini-chat-test',
+      }),
+    );
+
+    process.env.AI_PROVIDER = 'groq';
+    expect(loadConfig()).toEqual(
+      expect.objectContaining({
+        provider: 'groq',
+        defaultModel: 'groq-chat-test',
+      }),
+    );
+  });
+
   it('rejects an unknown embedding provider instead of falling back', () => {
     process.env.EMBEDDING_PROVIDER = 'mystery-provider';
 

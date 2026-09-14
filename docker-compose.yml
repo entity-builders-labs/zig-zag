@@ -106,7 +106,6 @@ services:
       - GEOAPIFY_API_KEY=${GEOAPIFY_API_KEY}
       - PLACES_PROVIDER=${PLACES_PROVIDER:-google}
       - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - OPENAI_DEFAULT_MODEL=${OPENAI_DEFAULT_MODEL}
       - OPENAI_TEMPERATURE=${OPENAI_TEMPERATURE}
       - OPENAI_TIMEOUT=${OPENAI_TIMEOUT}
       - OLLAMA_TIMEOUT=${OLLAMA_TIMEOUT}
@@ -114,12 +113,11 @@ services:
       # AI provider flags
       - ENABLE_AI=${ENABLE_AI:-true}
       - AI_PROVIDER=${AI_PROVIDER:-groq}
-      - AI_MODEL=${AI_MODEL:-qwen/qwen3.8-27b}
       - DISCOVERY_EXTRACTOR_PROVIDER=${DISCOVERY_EXTRACTOR_PROVIDER:-groq}
       - GROQ_DISCOVERY_MODEL=${GROQ_DISCOVERY_MODEL:-qwen/qwen3.8-27b}
       - GEMINI_DISCOVERY_MODEL=${GEMINI_DISCOVERY_MODEL:-gemini-2.0-flash}
       - GEMINI_MODEL=${GEMINI_MODEL}
-      - GROQ_MODEL=${GROQ_MODEL}
+      - GROQ_MODEL=${GROQ_MODEL:-openai/gpt-oss-20b}
       - OPENAI_MODEL=${OPENAI_MODEL}
       - OLLAMA_MODEL=${OLLAMA_MODEL}
       - EMBEDDINGS_MODEL=${EMBEDDINGS_MODEL:-nomic-embed-text}
@@ -298,7 +296,7 @@ services:
       - OLLAMA_NUM_PARALLEL=${OLLAMA_NUM_PARALLEL:-1}
       # Models to download on startup
       - AI_PROVIDER=${AI_PROVIDER:-groq}
-      - AI_MODEL=${AI_MODEL:-llama3.2}
+      - OLLAMA_MODEL=${OLLAMA_MODEL:-llama3.2}
       - EMBEDDING_PROVIDER=${EMBEDDING_PROVIDER:-ollama}
       - EMBEDDINGS_MODEL=${EMBEDDINGS_MODEL:-nomic-embed-text}
     volumes:
@@ -322,7 +320,7 @@ services:
           memory: ${OLLAMA_MEMORY_RESERVATION:-2G}
     # Note: If you get "model requires more system memory" errors:
     # 1. Increase Docker Desktop memory: Settings > Resources > Memory (16GB+ recommended)
-    # 2. Use a smaller model: AI_MODEL=llama3.2:1b (instead of llama3.2)
+    # 2. Use a smaller model: OLLAMA_MODEL=llama3.2:1b (instead of llama3.2)
     # 3. Force CPU mode: OLLAMA_CPU_ONLY=1 (uses more RAM but less VRAM)
     # 4. Reduce context size: OLLAMA_NUM_CTX=2048 (instead of 4096 or higher)
     # 5. Increase OLLAMA_MEMORY_LIMIT in your .env file

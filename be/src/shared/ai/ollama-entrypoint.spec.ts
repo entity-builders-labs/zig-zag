@@ -76,7 +76,7 @@ esac
   it('pulls only the model for operations configured with Ollama', () => {
     const result = run({
       AI_PROVIDER: 'groq',
-      AI_MODEL: 'openai/gpt-oss-120b',
+      OLLAMA_MODEL: 'openai/gpt-oss-120b',
       EMBEDDING_PROVIDER: 'ollama',
       EMBEDDINGS_MODEL: 'nomic-embed-text',
     });

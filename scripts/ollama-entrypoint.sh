@@ -34,11 +34,11 @@ echo "✅ Ollama server is ready"
 # setup), so a remote provider's model name must never be pulled here.
 AI_PROVIDER=${AI_PROVIDER:-groq}
 EMBEDDING_PROVIDER=${EMBEDDING_PROVIDER:-ollama}
-AI_MODEL=${AI_MODEL:-llama3.2}
+OLLAMA_MODEL=${OLLAMA_MODEL:-llama3.2}
 EMBEDDINGS_MODEL=${EMBEDDINGS_MODEL:-nomic-embed-text}
 
 echo "📋 Checking for required models..."
-echo "   chat: ${AI_PROVIDER}/${AI_MODEL}"
+echo "   chat: ${AI_PROVIDER}/${OLLAMA_MODEL}"
 echo "   embeddings: ${EMBEDDING_PROVIDER}/${EMBEDDINGS_MODEL}"
 
 require_model() {
@@ -62,7 +62,7 @@ require_model() {
 }
 
 if [ "${AI_PROVIDER}" = "ollama" ]; then
-  require_model "${AI_MODEL}" "chat"
+  require_model "${OLLAMA_MODEL}" "chat"
 else
   echo "↪ Chat provider is ${AI_PROVIDER}; skipping Ollama chat-model pull"
 fi
