@@ -246,16 +246,6 @@ export class ExperienceGenerationService {
       ...(request.intent.intents ?? []).map((intent) =>
         normalizeWizardFacet('intent', intent),
       ),
-      // The wizard's always-present explorationStyle field: ICONIC /
-      // LOCAL_DEEP_DIVE become an exploration_style facet that influences
-      // ranking only; BALANCED normalizes to undefined (neutral, no facet).
-      // This is the single merge point where the structured field reaches
-      // NormalizedPreferenceIntent — it never touches acquisition or search
-      // queries.
-      normalizeWizardFacet(
-        'exploration_style',
-        request.intent.explorationStyle,
-      ),
     ].filter((facet): facet is PreferenceFacet => facet !== undefined);
 
     const preferredFacets = mergePreferenceFacets(
@@ -499,27 +489,28 @@ export class ExperienceGenerationService {
     postAcquisitionCatalogCount: number,
     eligibleCount: number,
   ): GenerationTraceStep {
-    const offeredCandidates = selection.initialExperiences.map(
-      (experience: any) => ({
-        id: experience.id,
-        name: experience.name,
-        metadata: {
-          ...(experience.metadata ?? {}),
-          preferenceEvaluation: selection.preferenceEvaluationById.get(
-            experience.id,
-          ),
-          hardExclusionRelaxed: selection.hardExclusionRelaxed,
-        },
-        traceSource: discoveryResolvedExperienceIds.has(experience.id)
-          ? ('discovery' as const)
-          : newlyAcquiredExperienceIds.has(experience.id)
-            ? crawlProvider === 'google'
-              ? ('google_places' as const)
-              : ('geoapify' as const)
-            : ('db' as const),
-        scoreBreakdown: selection.scoreBreakdownById.get(experience.id)!,
-      }),
-    );
+    const offeredCandidates = [
+      ...selection.initialExperiences,
+      ...selection.reservoirExperiences,
+    ].map((experience: any) => ({
+      id: experience.id,
+      name: experience.name,
+      metadata: {
+        ...(experience.metadata ?? {}),
+        preferenceEvaluation: selection.preferenceEvaluationById.get(
+          experience.id,
+        ),
+        hardExclusionRelaxed: selection.hardExclusionRelaxed,
+      },
+      traceSource: discoveryResolvedExperienceIds.has(experience.id)
+        ? ('discovery' as const)
+        : newlyAcquiredExperienceIds.has(experience.id)
+          ? crawlProvider === 'google'
+            ? ('google_places' as const)
+            : ('geoapify' as const)
+          : ('db' as const),
+      scoreBreakdown: selection.scoreBreakdownById.get(experience.id)!,
+    }));
     return buildExperienceCandidatePoolStep({
       initialCatalogCount,
       postAcquisitionCatalogCount,
@@ -1328,18 +1319,20 @@ export class ExperienceGenerationService {
       // the same split) — the solver has no way to know they're the same
       // place, so it can book a traveler into it twice on two different days.
       // Filter that overlap out of the pool itself, before normalization.
-      const overlapFilter = filterOverlappingExperienceCandidates(
-        Array.from(candidateExperiencesById.values()).map((experience) => ({
-          ...experience,
-          compositionOrderScore: offeredCompositionOrderScoreById.get(
-            experience.id,
-          ),
-          weightedPreferenceCoverage: planningPreferenceWeightById.get(
-            experience.id,
-          ),
-          mustInclude: planningMustIncludeExperienceIds.has(experience.id),
-        })),
-      );
+      const buildOverlapFilter = () =>
+        filterOverlappingExperienceCandidates(
+          Array.from(candidateExperiencesById.values()).map((experience) => ({
+            ...experience,
+            compositionOrderScore: offeredCompositionOrderScoreById.get(
+              experience.id,
+            ),
+            weightedPreferenceCoverage: planningPreferenceWeightById.get(
+              experience.id,
+            ),
+            mustInclude: planningMustIncludeExperienceIds.has(experience.id),
+          })),
+        );
+      let overlapFilter = buildOverlapFilter();
       if (overlapFilter.excluded.length > 0) {
         this.logger.log(
           `Excluded ${overlapFilter.excluded.length} candidate(s) redundant with another selected candidate covering the same real place: ${overlapFilter.excluded
@@ -1354,19 +1347,19 @@ export class ExperienceGenerationService {
         );
       }
 
-      const initialIds = new Set(
+      let initialIds = new Set(
         finalSelection.initialExperiences.map(
           (experience: any) => experience.id,
         ),
       );
-      const reservoirIds = finalSelection.reservoirExperiences.map(
+      let reservoirIds = finalSelection.reservoirExperiences.map(
         (experience: any) => experience.id,
       );
-      const candidatePool = overlapFilter.kept;
-      const initialPool = candidatePool.filter((experience) =>
+      let candidatePool = overlapFilter.kept;
+      let initialPool = candidatePool.filter((experience) =>
         initialIds.has(experience.id),
       );
-      const reservoirPool = reservoirIds
+      let reservoirPool = reservoirIds
         .map((id) => candidatePool.find((experience) => experience.id === id))
         .filter((experience): experience is any => Boolean(experience));
       const normalizePlanningPool = (experiences: any[]) =>
@@ -1378,9 +1371,9 @@ export class ExperienceGenerationService {
             mustIncludeExperienceIds: planningMustIncludeExperienceIds,
           },
         );
-      const planningCandidates = await normalizePlanningPool(initialPool);
+      let planningCandidates = await normalizePlanningPool(initialPool);
 
-      const planningInput: DailyPlanningInput = {
+      let planningInput: DailyPlanningInput = {
         destination: destinationResolution,
         requestedDays: request.days,
         candidates: planningCandidates,
@@ -1513,20 +1506,11 @@ export class ExperienceGenerationService {
         this.dailyPlanningPolicy.window,
         this.dailyPlanningPolicy.backfill.minimumUsefulResidualMinutes,
       );
-      planningSolution.metadata.convergence = {
-        stopReason: promotionStopReason,
-        promotionAttempts,
-        acquisitionPasses: 0,
-      };
       const residuals = planningSolution.metadata.residualCapacity;
-      if (
-        residuals &&
-        reservoirPool.length > 0 &&
-        promotionAttempts >= reservoirPool.length
-      ) {
-        const meaningfulResidual = residuals.find(
-          (residual) => residual.meaningful,
-        );
+      const meaningfulResidual = residuals?.find(
+        (residual) => residual.meaningful,
+      );
+      if (residuals && promotionAttempts >= reservoirPool.length) {
         planningSolution.metadata.capacityDeficits = meaningfulResidual
           ? [
               {
@@ -1543,12 +1527,170 @@ export class ExperienceGenerationService {
           : [];
       }
 
-      /*
-       * The planner owns only bounded reservoir promotion here. A later
-       * planner-capacity acquisition pass must enter through the canonical
-       * acquire→persist→requery chain; it is intentionally not synthesized
-       * from raw candidates in this boundary.
-       */
+      let acquisitionPasses = 0;
+      if (
+        meaningfulResidual &&
+        promotionAttempts >= reservoirPool.length &&
+        acquisitionPasses <
+          this.dailyPlanningPolicy.backfill.maxAcquisitionPasses
+      ) {
+        acquisitionPasses++;
+        const plannerDeficit: AcquisitionDeficit = {
+          origin: 'global_capacity',
+          reason: `Planner has ${meaningfulResidual.availableMinutes} minutes of residual capacity on day ${meaningfulResidual.dayNumber}`,
+          currentEligibleCount: allEligibleExperiencesById.size,
+          requiredEligibleCount: allEligibleExperiencesById.size + 1,
+        };
+        const plannerAcquisitionPlan =
+          this.experienceAcquisitionPlanner.buildAcquisitionPlan({
+            destination: {
+              destinationName: request.destination.label,
+              latitude: request.destination.latitude,
+              longitude: request.destination.longitude,
+              radiusMeters: request.destination.radiusMeters || 25000,
+            },
+            deficits: [plannerDeficit],
+            preferredFacets: preferenceSpec.facets.map((facet) => ({
+              dimension: facet.dimension,
+              key: facet.key,
+              importance: facet.weight,
+              confidence: 1,
+              source: facet.source === 'free_text' ? 'free_text' : 'wizard',
+            })),
+            semanticQuery: preferenceSpec.semanticQuery,
+            breadth: 'focused',
+            anchors: preferenceSpec.anchors,
+          });
+
+        if (plannerAcquisitionPlan.sourcePlans.length === 0) {
+          promotionStopReason = 'NO_PROGRESS';
+        } else {
+          const execution = await this.experienceAcquisition.executePlan(
+            plannerAcquisitionPlan,
+          );
+          for (const [provider, result] of Object.entries(
+            execution.providerResults,
+          )) {
+            acquisitionProvidersAttempted.add(provider);
+            if ((result as any)?.status === 'failed') {
+              acquisitionProvidersFailed.add(provider);
+            }
+          }
+          for (const web of execution.webResults ?? []) {
+            acquisitionProvidersAttempted.add('web');
+            if (web.status === 'failed') {
+              acquisitionProvidersFailed.add('web');
+            }
+          }
+          traceSteps.push(
+            buildAcquisitionStep({
+              passNumber: acquisitionPasses,
+              plan: plannerAcquisitionPlan,
+              execution,
+            }),
+          );
+
+          if (execution.candidates.length > 0) {
+            const resolution =
+              await this.experienceAcquisition.materializeExecution(execution, {
+                destinationName: request.destination.label,
+                destinationCountryCode: destinationResolution.countryCode,
+                destinationBoundary:
+                  destinationResolution.scale === 'area'
+                    ? destinationResolution.boundary
+                    : undefined,
+                destinationPointRadius:
+                  destinationResolution.scale === 'area'
+                    ? undefined
+                    : {
+                        latitude: request.destination.latitude,
+                        longitude: request.destination.longitude,
+                        radiusMeters: request.destination.radiusMeters || 25000,
+                      },
+              });
+            traceSteps.push(
+              buildEntityResolutionStep(resolution),
+              buildGeographicValidationStep(resolution),
+              buildCatalogMaterializationStep(resolution),
+            );
+          }
+
+          const refreshed = await this.experienceCatalog.findVerifiedWithin(
+            request.destination.latitude,
+            request.destination.longitude,
+            request.destination.radiusMeters || 25000,
+            this.CATALOG_RETRIEVAL_POOL_LIMIT,
+          );
+          refreshed.forEach((experience: any) =>
+            allEligibleExperiencesById.set(experience.id, experience),
+          );
+          const refreshedSelection = await this.composeExperiences(
+            Array.from(allEligibleExperiencesById.values()),
+            preferenceSpec,
+            planningMustIncludeExperienceIds.size > 0
+              ? [...planningMustIncludeExperienceIds]
+              : [],
+            [],
+            [],
+          );
+          finalSelection = refreshedSelection;
+          recordOfferedCandidates(refreshedSelection);
+          overlapFilter = buildOverlapFilter();
+          candidatePool = overlapFilter.kept;
+          initialIds = new Set(
+            refreshedSelection.initialExperiences.map(
+              (experience: any) => experience.id,
+            ),
+          );
+          reservoirIds = refreshedSelection.reservoirExperiences.map(
+            (experience: any) => experience.id,
+          );
+          initialPool = candidatePool.filter((experience) =>
+            initialIds.has(experience.id),
+          );
+          reservoirPool = reservoirIds
+            .map((id) =>
+              candidatePool.find((experience) => experience.id === id),
+            )
+            .filter((experience): experience is any => Boolean(experience));
+          planningCandidates = await normalizePlanningPool(initialPool);
+          planningInput = { ...planningInput, candidates: planningCandidates };
+          const replanned = await this.dailyPlanningSolver.solve(planningInput);
+          const replannedResiduals = plannerResidualCapacity(
+            replanned,
+            this.dailyPlanningPolicy.window,
+            this.dailyPlanningPolicy.backfill.minimumUsefulResidualMinutes,
+          );
+          const usefulProgress =
+            scheduledCount(replanned) > scheduledCount(planningSolution) ||
+            replanned.days.reduce(
+              (sum, day) => sum + day.utilizationMinutes,
+              0,
+            ) >
+              planningSolution.days.reduce(
+                (sum, day) => sum + day.utilizationMinutes,
+                0,
+              );
+          if (usefulProgress) {
+            planningSolution = replanned;
+            admittedPlanningCandidates = planningCandidates;
+            promotionStopReason = replannedResiduals.some(
+              (residual) => residual.meaningful,
+            )
+              ? 'NO_PROGRESS'
+              : 'CAPACITY_SATURATED_OR_TINY_GAPS';
+          } else {
+            promotionStopReason = 'NO_PROGRESS';
+          }
+        }
+      }
+
+      planningSolution.metadata.convergence = {
+        stopReason: promotionStopReason,
+        promotionAttempts,
+        acquisitionPasses,
+      };
+
       const planningInputForValidation: DailyPlanningInput = {
         ...planningInput,
         candidates: admittedPlanningCandidates,

@@ -116,12 +116,7 @@ const CF1: Counterfactual = {
       semanticQuery:
         'iconic must-see landmarks and famous historic architecture',
       expectDominantCluster: 'iconic_history_arch',
-      requestedFacetKeys: [
-        'history',
-        'architecture',
-        'walk',
-        'exploration_style:iconic',
-      ],
+      requestedFacetKeys: ['history', 'architecture', 'walk'],
     }),
     mkVariant({
       name: '1B-local',

@@ -151,9 +151,11 @@ export function queryToAxisWeights(query: string): AxisWeights {
       const style = lower.slice(lower.indexOf(':') + 1).trim();
       bump(out, STYLE_AXIS[style] ?? {});
     } else if (lower.startsWith('additional preferences:')) {
-      for (const [pattern, weights] of PHRASE_AXIS) {
-        if (pattern.test(line)) bump(out, weights);
-      }
+      // Historical structured-query compatibility. Phrase matching below is
+      // intentionally also applied to bare Preference-First semantic text.
+    }
+    for (const [pattern, weights] of PHRASE_AXIS) {
+      if (pattern.test(line)) bump(out, weights);
     }
   }
   return out;

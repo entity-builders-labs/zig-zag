@@ -76,9 +76,18 @@ export class ExperienceVectorStoreService implements OnModuleInit {
       `;
       return {
         status: 'applied',
-        scores: new Map(rows.map((row) => [row.id, 1 - row.distance])),
+        scores: new Map(
+          rows.flatMap((row) => {
+            const distance = Number(row.distance);
+            return Number.isFinite(distance)
+              ? [[row.id, 1 - distance] as [string, number]]
+              : [];
+          }),
+        ),
         requestedCandidateCount: requestedIds.length,
-        indexedCandidateCount: rows.length,
+        indexedCandidateCount: rows.filter((row) =>
+          Number.isFinite(Number(row.distance)),
+        ).length,
         identity,
       };
     } catch (error) {

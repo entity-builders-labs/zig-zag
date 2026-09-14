@@ -9,6 +9,7 @@ import {
   isStrongFacetMatch,
   preferenceWeightForExperience,
 } from '../utils/preference-strong-match.util';
+import { findHardExclusionMatches } from '../utils/experience-preference-evaluator.util';
 import {
   computeExplorationSignals,
   computeExplorationTilt,
@@ -79,16 +80,42 @@ export class ExperienceCompositionService {
         experience.metadata && typeof experience.metadata === 'object'
           ? experience.metadata
           : {};
+      const dimensionedTraits = Array.isArray(metadata.dimensionedTraits)
+        ? metadata.dimensionedTraits.filter(
+            (item: any) =>
+              item &&
+              typeof item.dimension === 'string' &&
+              typeof item.key === 'string',
+          )
+        : [];
+      const tourismIntensityEvidence = dimensionedTraits
+        .filter((item: any) => item.dimension === 'tourism_intensity')
+        .map((item: any) => ({
+          strength: item.key === 'iconic' ? 1 : 0,
+          evidenceKey: `dimensioned_trait:${item.dimension}:${item.key}`,
+          source: 'catalog_classification',
+        }));
+      const localCharacterEvidence = dimensionedTraits
+        .filter((item: any) => item.dimension === 'local_character')
+        .map((item: any) => ({
+          strength: item.key === 'authentic' ? 1 : 0,
+          evidenceKey: `dimensioned_trait:${item.dimension}:${item.key}`,
+          source: 'catalog_classification',
+        }));
       const signals = computeExplorationSignals({
         placesReviewCount: metadata.reviewCount ?? metadata.userRatingCount,
         wikidataSitelinkCount: metadata.wikidataSitelinkCount,
         wikipediaPresent: metadata.wikipediaPresent,
         wikivoyageListed: metadata.wikivoyageListed,
         heritageOrLandmark: metadata.heritageOrLandmark,
-        explicitTourismIntensityEvidence:
-          metadata.explorationEvidence?.tourismIntensity,
-        explicitLocalCharacterEvidence:
-          metadata.explorationEvidence?.localCharacter,
+        explicitTourismIntensityEvidence: [
+          ...tourismIntensityEvidence,
+          ...(metadata.explorationEvidence?.tourismIntensity ?? []),
+        ],
+        explicitLocalCharacterEvidence: [
+          ...localCharacterEvidence,
+          ...(metadata.explorationEvidence?.localCharacter ?? []),
+        ],
       });
       const softAnchorBoost = (input.resolvedVenueSoftIds ?? []).includes(
         experience.id,
@@ -113,7 +140,11 @@ export class ExperienceCompositionService {
             ? (semantic.scores.get(experience.id) ?? 0)
             : 0,
         groundingStrength: satisfiedFacets.length > 0 ? 1 : 0,
-        matchesHardExclusion: false,
+        matchesHardExclusion:
+          findHardExclusionMatches(
+            experience,
+            input.preferenceSpec.exclusions.hard,
+          ).length > 0,
         softAnchorBoost,
         isPerformanceVenue:
           Array.isArray(experience.traits) &&
