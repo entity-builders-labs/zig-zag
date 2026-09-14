@@ -410,11 +410,15 @@ has a valid typed destination scope when no area boundary exists. Acceptance
 evidence is **PASS** through the C5b integration, E2E, unit, and architecture
 matrix listed above.
 
-RW1 was rerun against a clean `zigzag_spike_preb6` with local PostgreSQL,
-SerpAPI, Nominatim, and Overpass. Its cold request remained in acquisition
-after the five-minute bounded harness limit (`TourGenerationRequested` stayed
-`PROCESSING`; no terminal `TourCompleted` event). No warm run was started
-after that failed cold boundary. Classification: **INFRASTRUCTURE_GAP / live
-provider-coverage gap**, not a competitive-selection or C5b oracle failure.
-The prior RW1 dossier remains the historical cold/warm result; this rerun is
-recorded as non-pass evidence and does not authorize RW2.
+RW1 was rerun against `zigzag_spike_preb6` with local PostgreSQL, SerpAPI,
+Nominatim, and Overpass. The five-minute cold observation was a harness
+timeout only; persisted terminal evidence shows completion after **403,767 ms**.
+All four routed providers completed, both discovery passes were `PASS`, and
+`providersFailed` was empty. The cold result did not create a composed walk:
+`AreaRouteWalkAcquisitionService` was not invoked, and the planner selected
+five independent single-component venue Experiences. Correct product verdict:
+**EXPECTED_B6_GAP**. A warm run without reset completed in **32,355 ms**, reused
+the same five individual Experience IDs, and kept the catalog identity-stable;
+it did not prove composed-walk reuse because no composed walk exists. The
+previous `INFRASTRUCTURE_GAP / provider-coverage gap` label is superseded and
+retained only as historical mistaken diagnosis. RW2 remains unauthorized.

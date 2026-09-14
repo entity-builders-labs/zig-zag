@@ -1,5 +1,59 @@
 # RW1 — San Telmo AREA-scoped walk — Assessment
 
+## Current rerun correction — 2026-09-14
+
+The five-minute cold observation was a **HARNESS OBSERVATION TIMEOUT**, not a
+provider failure. The persisted terminal record for cold tour
+`369863c8-d977-46ce-9af3-01819d11068f` is `completed`:
+
+- runtime derivable from `generatedAt`/`generationCompletedAt`: **403,767 ms**;
+- anchor: **San Telmo**, resolved as an administrative `area` boundary by
+  `DestinationResolutionService` (the trace does not persist a boundary ID);
+- acquisition: ordinary `ExperienceAcquisitionService`, two passes;
+- `AreaRouteWalkAcquisitionService`: **not invoked**;
+- attempted providers: `google_places`, `osm`, `web`, `wikivoyage`;
+- provider failures: **none**; both discovery passes are `PASS`;
+- final status: **completed**.
+
+The terminal tour contains no canonical composed historical walk. The planner
+scheduled five independent, single-component venue Experiences:
+
+| Day/order | Experience ID | Canonical name | Component ID/name |
+|---|---|---|---|
+| 1/1 | `21c8f628-f1e3-42a0-a112-cc7f224c5a80` | Baloon | `3619060d-e0c8-4a4f-8fc4-280749673ba1` / Baloon |
+| 1/2 | `37ad0f10-5b5d-457a-9690-b397eb26b36f` | Monumento Canto al Trabajo | `d1e0584e-aefc-4c76-9839-30f748329911` / Monumento Canto al Trabajo |
+| 1/3 | `2a28277b-7fa6-48e7-a623-65c9a700536a` | Museo de Arte Contemporáneo de Buenos Aires | `d55e8518-4232-46e9-b2ab-30743f03b33d` / Museo de Arte Contemporáneo de Buenos Aires |
+| 1/4 | `223bdf86-41ef-46b6-8052-5251895154c1` | Plaza 30'000 compañeros | `748f3d3f-36ee-4986-b712-5c76a191cd2e` / Plaza 30'000 compañeros |
+| 1/5 | `553538ff-127f-4b9a-adb2-42a5fe22635d` | La Hazana | `dade9905-9f49-404e-b76d-a18e65aa1e50` / La Hazana |
+
+Component count is 1 for every selected Experience. No evidence proves a
+composed walk itself; the trace records ordinary discovery, entity resolution,
+geographic validation, and catalog materialization only. The selected rows
+were geographically validated as individual proposals, not as a composed
+route, and their persisted classifications are `visit`/place-oriented or
+empty rather than `intent:walk`.
+
+The correct cold product verdict is **EXPECTED_B6_GAP**: the real acquisition
+pipeline completed successfully, but the B6 route/walk acquisition primitive
+was not reached and no grounded multi-component walk was available to plan.
+
+Warm rerun, without resetting `zigzag_spike_preb6`, produced tour
+`80ebd9c3-0bf7-428e-af85-7fa6c45243a7` in **32,355 ms**, also completed with no
+provider failures. It selected the same five Experience IDs and the catalog
+remained at 23 Experiences / 23 components. This proves identity-stable
+reuse of the individual catalog rows, but not reuse of a composed walk:
+neither cold nor warm created one, and warm again ran ordinary acquisition.
+
+Current classification:
+
+```text
+HARNESS: observation timeout at 5m
+PIPELINE: eventually completed
+PROVIDERS: no recorded failures
+RW1 PRODUCT VERDICT: EXPECTED_B6_GAP
+RW1 PERFORMANCE: cold 403,767 ms; warm 32,355 ms
+```
+
 Human request: **"caminata histórica por San Telmo"**
 Run via the real, unmodified application path: `POST /auth/email/*` → `POST
 /tours/generate-tour` → outbox(`TourGenerationRequested`) →
