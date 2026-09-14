@@ -1530,7 +1530,7 @@ export class ExperienceGenerationService {
       let acquisitionPasses = 0;
       if (
         meaningfulResidual &&
-        promotionAttempts >= reservoirPool.length &&
+        promotionStopReason === 'RESERVOIR_EXHAUSTED' &&
         acquisitionPasses <
           this.dailyPlanningPolicy.backfill.maxAcquisitionPasses
       ) {
