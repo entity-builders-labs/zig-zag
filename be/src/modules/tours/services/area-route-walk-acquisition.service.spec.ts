@@ -455,7 +455,12 @@ describe('AreaRouteWalkAcquisitionService', () => {
 
     const result = await service.acquireOrReuse(baseInput());
 
-    expect(result).toEqual({ outcome: 'no_result' });
+    expect(result).toEqual(
+      expect.objectContaining({
+        outcome: 'no_result',
+        reason: 'no_accepted_results',
+      }),
+    );
   });
 
   it('E: acquisition accepts a candidate, but the post-check geography lookup still finds nothing -> no_result', async () => {
@@ -491,7 +496,12 @@ describe('AreaRouteWalkAcquisitionService', () => {
 
     const result = await service.acquireOrReuse(baseInput());
 
-    expect(result).toEqual({ outcome: 'no_result' });
+    expect(result).toEqual(
+      expect.objectContaining({
+        outcome: 'no_result',
+        reason: 'no_semantically_eligible_result',
+      }),
+    );
   });
 
   it('F: an unsupported intentKey (facet undefined) never accidentally warm-matches, in any mode', async () => {
@@ -518,7 +528,12 @@ describe('AreaRouteWalkAcquisitionService', () => {
 
     // No plan sourcePlans -> no_result; the important assertion is that the
     // warm check never matched despite a "compatible" row existing.
-    expect(result).toEqual({ outcome: 'no_result' });
+    expect(result).toEqual(
+      expect.objectContaining({
+        outcome: 'no_result',
+        reason: 'no_source_plan',
+      }),
+    );
   });
 
   it('Q: post-check result is restricted to acceptedIds -- never an unrelated geographically-matching row', async () => {
@@ -596,7 +611,12 @@ describe('AreaRouteWalkAcquisitionService', () => {
 
     const result = await service.acquireOrReuse(baseInput());
 
-    expect(result).toEqual({ outcome: 'no_result' });
+    expect(result).toEqual(
+      expect.objectContaining({
+        outcome: 'no_result',
+        reason: 'no_semantically_eligible_result',
+      }),
+    );
   });
 
   it('S: a geographically-valid Experience classified into a DIFFERENT intent produces no_result for this request', async () => {
@@ -637,7 +657,12 @@ describe('AreaRouteWalkAcquisitionService', () => {
       baseInput({ intentKey: 'walk' }),
     );
 
-    expect(result).toEqual({ outcome: 'no_result' });
+    expect(result).toEqual(
+      expect.objectContaining({
+        outcome: 'no_result',
+        reason: 'no_semantically_eligible_result',
+      }),
+    );
   });
 
   it('T: a degraded classification never satisfies post-check OR a subsequent warm check', async () => {
@@ -674,7 +699,12 @@ describe('AreaRouteWalkAcquisitionService', () => {
     const service = buildService(mocks);
 
     const round1 = await service.acquireOrReuse(baseInput());
-    expect(round1).toEqual({ outcome: 'no_result' });
+    expect(round1).toEqual(
+      expect.objectContaining({
+        outcome: 'no_result',
+        reason: 'no_semantically_eligible_result',
+      }),
+    );
 
     // Round 2 -- geography would find it, but the degraded classification
     // must still reject it, both at the warm check AND after re-attempting

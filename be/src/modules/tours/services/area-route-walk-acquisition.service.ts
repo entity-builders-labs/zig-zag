@@ -47,7 +47,42 @@ export interface AreaRouteWalkAcquisitionInput {
 export type AreaRouteWalkAcquisitionResult =
   | { outcome: 'reused'; experienceId: string }
   | { outcome: 'acquired'; experienceId: string }
-  | { outcome: 'no_result' };
+  | {
+      outcome: 'no_result';
+      reason?:
+        | 'anchor_unresolved'
+        | 'no_source_plan'
+        | 'no_accepted_results'
+        | 'no_semantically_eligible_result';
+      diagnostics?: AreaRouteWalkAcquisitionDiagnostics;
+    };
+
+export interface AreaRouteWalkAcquisitionDiagnostics {
+  anchorResolved: boolean;
+  sourcePlanProviders: string[];
+  execution: {
+    candidateCount: number;
+    structuredCandidateCount?: number;
+    webCandidateCount?: number;
+    webResults: Array<{
+      status: string;
+      groundingStatus?: string;
+      evidenceCount: number;
+      extractorProvider?: string;
+      extractorModel?: string;
+      candidateCount: number;
+      validationErrors: string[];
+      failureReason?: string;
+    }>;
+  };
+  materialization: {
+    resolvedCount: number;
+    acceptedCount: number;
+    rejectedCount: number;
+    rejectionReasons: Record<string, number>;
+    semanticallyEligibleCount: number;
+  };
+}
 
 /**
  * Task B5 (D5) — for a single area/route anchor combined with
@@ -166,7 +201,58 @@ export class AreaRouteWalkAcquisitionService {
       breadth: 'focused',
     };
     const plan = this.acquisitionPlanner.buildAcquisitionPlan(planInput);
-    if (plan.sourcePlans.length === 0) return { outcome: 'no_result' };
+    const baseDiagnostics = (
+      execution: Parameters<
+        ExperienceAcquisitionService['materializeExecution']
+      >[0],
+      materialization: {
+        resolvedCount: number;
+        acceptedCount: number;
+        rejectedCount: number;
+        rejectionReasons: Record<string, number>;
+        semanticallyEligibleCount: number;
+      },
+    ): AreaRouteWalkAcquisitionDiagnostics => ({
+      anchorResolved: resolution.resolved,
+      sourcePlanProviders: plan.sourcePlans.map((source) => source.provider),
+      execution: {
+        candidateCount: execution.candidates.length,
+        structuredCandidateCount: execution.structuredCandidateCount,
+        webCandidateCount: execution.webCandidateCount,
+        webResults: (execution.webResults ?? []).map((web) => ({
+          status: web.status,
+          groundingStatus: web.groundingStatus,
+          evidenceCount: web.evidenceKeys.length,
+          extractorProvider: web.extractorProvider,
+          extractorModel: web.extractorModel,
+          candidateCount: web.candidateCount,
+          validationErrors: web.validationErrors,
+          failureReason: web.failureReason,
+        })),
+      },
+      materialization,
+    });
+
+    if (plan.sourcePlans.length === 0) {
+      return {
+        outcome: 'no_result',
+        reason: 'no_source_plan',
+        diagnostics: baseDiagnostics(
+          {
+            candidates: [],
+            observations: [],
+            providerResults: {},
+          },
+          {
+            resolvedCount: 0,
+            acceptedCount: 0,
+            rejectedCount: 0,
+            rejectionReasons: {},
+            semanticallyEligibleCount: 0,
+          },
+        ),
+      };
+    }
 
     const execution = await this.acquisitionService.executePlan(plan);
     const validationScope: ExperienceValidationScope | undefined =
@@ -199,7 +285,32 @@ export class AreaRouteWalkAcquisitionService {
         r.status === 'accepted' && typeof r.experienceId === 'string',
     );
     const acceptedIds = new Set(acceptedResults.map((r) => r.experienceId));
-    if (acceptedIds.size === 0) return { outcome: 'no_result' };
+    const rejectionReasons: Record<string, number> = {};
+    for (const result of materialized.resolved) {
+      if (result.status !== 'rejected') continue;
+      for (const reason of result.rejectionReasons) {
+        rejectionReasons[reason] = (rejectionReasons[reason] ?? 0) + 1;
+      }
+    }
+    const semanticallyEligible = (await geographicMatches()).filter(
+      isSemanticallyEligible,
+    );
+    const diagnostics = baseDiagnostics(execution, {
+      resolvedCount: materialized.resolved.length,
+      acceptedCount: acceptedIds.size,
+      rejectedCount: materialized.resolved.filter(
+        (result) => result.status === 'rejected',
+      ).length,
+      rejectionReasons,
+      semanticallyEligibleCount: semanticallyEligible.length,
+    });
+    if (acceptedIds.size === 0) {
+      return {
+        outcome: 'no_result',
+        reason: 'no_accepted_results',
+        diagnostics,
+      };
+    }
 
     // Cutover M4 -- classification already happened inside
     // materializeExecution() above (the shared canonical materialization
@@ -214,11 +325,13 @@ export class AreaRouteWalkAcquisitionService {
     // but classified into a DIFFERENT intent than requested remains valid,
     // persisted catalog knowledge -- it is simply not a successful result
     // for THIS request.
-    const postHit = (await geographicMatches()).find(
-      (row) => acceptedIds.has(row.id) && isSemanticallyEligible(row),
-    );
+    const postHit = semanticallyEligible.find((row) => acceptedIds.has(row.id));
     return postHit
       ? { outcome: 'acquired', experienceId: postHit.id }
-      : { outcome: 'no_result' };
+      : {
+          outcome: 'no_result',
+          reason: 'no_semantically_eligible_result',
+          diagnostics,
+        };
   }
 }
