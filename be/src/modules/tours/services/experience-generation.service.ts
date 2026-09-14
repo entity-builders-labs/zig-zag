@@ -66,6 +66,7 @@ import { PreferenceInterpreterService } from './preference-interpreter.service';
 import { EmbeddingIndexIdentity } from '@shared/ai/interfaces/embedding-index.interface';
 import { findHardExclusionMatches } from '../utils/experience-preference-evaluator.util';
 import { ExperienceCompositionService } from './experience-composition.service';
+import { VenueAnchorResolutionService } from './venue-anchor-resolution.service';
 import {
   getFacetKeysByDimension,
   NormalizedPreferenceIntent,
@@ -159,6 +160,7 @@ export class ExperienceGenerationService {
     private readonly experienceCatalog: ExperienceCatalogService,
     private readonly experienceAcquisition: ExperienceAcquisitionService,
     private readonly experienceComposition: ExperienceCompositionService,
+    private readonly venueAnchorResolution: VenueAnchorResolutionService,
     private readonly tourImageService: TourImageService,
     private readonly destinationResolutionService: DestinationResolutionService,
     private readonly facetRetrieval: FacetRetrievalService,
@@ -581,10 +583,16 @@ export class ExperienceGenerationService {
   private async composeExperiences(
     experiences: any[],
     preferenceSpec: PreferenceSpec,
+    resolvedVenueMustIds: string[] = [],
+    resolvedVenueSoftIds: string[] = [],
+    resolvedVenueMustAnchorNames: string[] = [],
   ): Promise<CandidateSelection> {
     const composition = await this.experienceComposition.compose({
       experiences,
       preferenceSpec,
+      resolvedVenueMustIds,
+      resolvedVenueSoftIds,
+      resolvedVenueMustAnchorNames,
     });
     const orderedIds = [
       ...composition.result.selected,
@@ -834,6 +842,19 @@ export class ExperienceGenerationService {
             longitude: request.destination.longitude,
             radiusMeters: request.destination.radiusMeters || 25000,
           };
+      const venueAnchorResolution = await this.venueAnchorResolution.resolve({
+        anchors: preferenceSpec.anchors,
+        destinationName: request.destination.label,
+        destinationCountryCode: destinationResolution.countryCode,
+        destinationBoundary: destinationScope,
+        destinationPointRadius: isAreaScale
+          ? undefined
+          : {
+              latitude: request.destination.latitude,
+              longitude: request.destination.longitude,
+              radiusMeters: searchArea.radiusMeters,
+            },
+      });
       if (
         Number.isFinite(request.destination.latitude) &&
         Number.isFinite(request.destination.longitude)
@@ -864,6 +885,9 @@ export class ExperienceGenerationService {
           const selection = await this.composeExperiences(
             nearbyExperiences,
             preferenceSpec,
+            venueAnchorResolution.resolvedMustIds,
+            venueAnchorResolution.resolvedSoftIds,
+            venueAnchorResolution.resolvedNames,
           );
           const nearbyExperiencesSample = selection.experiences;
           semanticRankingOutcome = selection.semanticRanking;
@@ -1118,6 +1142,9 @@ export class ExperienceGenerationService {
               currentSelection = await this.composeExperiences(
                 currentPool,
                 preferenceSpec,
+                venueAnchorResolution.resolvedMustIds,
+                venueAnchorResolution.resolvedSoftIds,
+                venueAnchorResolution.resolvedNames,
               );
               semanticRankingOutcome = currentSelection.semanticRanking;
 

@@ -41,6 +41,7 @@ import { AreaRouteAnchorResolverService } from './services/area-route-anchor-res
 import { AreaRouteWalkAcquisitionService } from './services/area-route-walk-acquisition.service';
 import { FacetRetrievalService } from './services/facet-retrieval.service';
 import { ExperienceCompositionService } from './services/experience-composition.service';
+import { VenueAnchorResolutionService } from './services/venue-anchor-resolution.service';
 import {
   EXPERIENCE_GROUNDED_SEARCH_PROVIDER,
   ExperienceGroundedSearchProvider,
@@ -114,6 +115,7 @@ import { MediaModule } from '../media/media.module';
     AreaRouteWalkAcquisitionService,
     FacetRetrievalService,
     ExperienceCompositionService,
+    VenueAnchorResolutionService,
     {
       provide: EXPERIENCE_PROPOSAL_RESOLVER,
       useExisting: ExperienceProposalResolverService,

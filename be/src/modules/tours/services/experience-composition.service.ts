@@ -22,6 +22,8 @@ export interface ExperienceCompositionInput {
   preferenceSpec: PreferenceSpec;
   /** A future venue-resolution boundary supplies these canonical IDs. */
   resolvedVenueMustIds?: string[];
+  resolvedVenueSoftIds?: string[];
+  resolvedVenueMustAnchorNames?: string[];
 }
 
 export interface ExperienceCompositionOutput {
@@ -82,13 +84,8 @@ export class ExperienceCompositionService {
         explicitLocalCharacterEvidence:
           metadata.explorationEvidence?.localCharacter,
       });
-      const softAnchorBoost = input.preferenceSpec.anchors.some(
-        (anchor) =>
-          anchor.kind === 'venue' &&
-          anchor.priority === 'soft' &&
-          typeof experience.canonicalName === 'string' &&
-          experience.canonicalName.trim().toLowerCase() ===
-            anchor.rawName.trim().toLowerCase(),
+      const softAnchorBoost = (input.resolvedVenueSoftIds ?? []).includes(
+        experience.id,
       )
         ? 1
         : 0;
@@ -122,6 +119,7 @@ export class ExperienceCompositionService {
         candidates,
         preferenceSpec: input.preferenceSpec,
         resolvedVenueMustIds: input.resolvedVenueMustIds,
+        resolvedVenueMustAnchorNames: input.resolvedVenueMustAnchorNames,
       }),
       candidatesById: deduped,
     };
