@@ -1,245 +1,497 @@
 # Travel Content + Agentic Planning — Convergence Roadmap
 
-Status: canonical roadmap. Docs-only. Branch of record: `feat/experience-domain-v2`.
-Written: 2026-09-09. HEAD when written: `adae0c0`.
+Status: **canonical roadmap, rewritten for the Preference-First branch reality**. Docs-only.  
+Originally written: 2026-09-09.  
+Canonical rewrite: 2026-09-14.  
+Current branch of record for the tour engine: `feat/preference-first-selection`.
 
-Companion to `docs/superpowers/specs/2026-09-09-travel-content-agentic-planning-target-architecture.md`
-(the "why"). This document is the executable sequence: the phases, the gate, and
-the order of work *after* the gate. It does not repeat the architecture — read
-the spec first.
+This document replaces the obsolete sequencing that treated `feat/experience-domain-v2` as the branch to merge back into before agentic convergence. Git history established the opposite: `feat/preference-first-selection` is a descendant of `feat/experience-domain-v2` and has become the active, forward-moving tour-engine line. `feat/experience-domain-v2` is now historical ancestry, not an integration target.
 
-> **AMENDMENT 2026-09-10 — preference-first refactor.** The G.1 characterization
-> (`docs/superpowers/characterization/2026-09-10-real-catalog-selection-semantics-characterization.md`)
-> proved the live selection/coverage orchestration built by Phase 7 A–G does not
-> respect user preferences (7 confirmed defects). A refactor design —
-> `docs/superpowers/specs/2026-09-10-preference-first-selection-and-agent-convergence-design.md`
-> — replaces the catalog-first geo pool + late re-scoring with **preference-first
-> per-facet retrieval + set-cover composition**, keeping every Phase 7 building
-> block (acquisition planner, executor, corroboration, resolver, validation,
-> dedupe, catalog). **RESOLVED 2026-09-11 (design §7.4/§11 D4):** preference-first
-> is not a new phase — it is the correction and completion of Phase 7's live
-> orchestration (the still-open Checkpoint H tail). The Integration Gate
-> prerequisite "Phase 7 CLOSED" is **"preference-first core stable + acceptance
-> green"**; the canonical API the agent consumes is `PreferenceSpec` + per-facet
-> tools + `unmetFacets`. Sequencing: (1) preference-first acceptance green,
-> (2) merge to `feat/experience-domain-v2` — this *is* Phase 7 CLOSED,
-> (3) Argentina live smoke (Checkpoint H) against the refactored core,
-> (4) Integration Gate. `feat/agentic-travel-planning` is unaffected in
-> parallel; the `AgentPolicy` loop is refactor-independent (only tool internals
-> change). Read that design before executing Phase 7 closure or the Gate.
+The current through-M10 implementation authority remains:
 
-> **Docs-only.** This roadmap does not start Phase 6 or Phase 7, does not merge
-> branches, does not change schemas or the agent or acquisition, and does not
-> add `Activities` / `Events` / `OperationalStop`.
+- `docs/superpowers/plans/2026-09-14-preference-first-m5-to-m10-master-implementation.md`
+- `docs/superpowers/progress/2026-09-11-preference-first-selection-progress.md`
+- `docs/superpowers/specs/2026-09-10-preference-first-selection-and-agent-convergence-design.md`
+- `docs/superpowers/plans/2026-09-12-real-world-tourism-research-spike-gate.md`
+
+This roadmap begins where that work leaves off and defines the convergence path to the autonomous product.
 
 ---
 
-## Track A — Experience Domain V2 (`feat/experience-domain-v2`)
+## 1. Branch reality and ownership
 
-### Phase 5 — OSM proactive acquisition
+### `feat/experience-domain-v2`
 
-**Status (per `docs/superpowers/progress/2026-09-06-multi-source-acquisition-progress.md`
-as of `adae0c0`):** implemented, hardened, and CLOSED — verified hardening code
-commit `f24f6f4efff270f3a08d4616f1628b619c7f1302`; previous Phase 5 code
-`54eceebbec90a1662f32b44385364d091b3be55e`. The progress doc is the source of
-truth; this roadmap does not re-decide that status.
+Historical base for the Experience-domain architecture and multi-source acquisition work.
 
-Scope delivered: `OsmAcquisitionProvider` wired into
-`ExperienceAcquisitionService.executePlan` (dormant path — not yet consumed by
-live tour generation), concept→selector registry, one bounded Overpass union
-query, deterministic output order, defensive identity/geo validation, structured
-provider provenance, food/nightlife excluded from proactive Experience
-acquisition, `winery = craft=winery` only.
+It is **not** the branch that Preference-First must merge back into. Do not create an artificial merge-back solely to satisfy the old roadmap. Its useful domain contracts already flowed forward into `feat/preference-first-selection`.
 
-### Phase 6 — Web acquisition improvements
+Treat it as:
 
-**Status: NOT started.** Do not start it from this roadmap.
-
-Scope (per `docs/superpowers/plans/2026-09-08-multi-source-acquisition-implementation.md`,
-"PHASE 6 — Tavily + explorationStyle"):
-- make the Tavily walk/route query theme-aware (still one grounded query per
-  request; no theme explosion into multiple requests);
-- keep `explorationStyle` **out** of the search query;
-- represent `explorationStyle` as a `PreferenceFacet`
-  (`{ dimension: 'exploration_style', key, importance, confidence, source }`),
-  reusing the existing `ExplorationStyle` values;
-- route it through the existing preference evaluator / ranking seam.
-
-Constraints for whoever executes Phase 6:
-- Phase 6 **may** improve Tavily query behaviour and **may** land
-  `exploration_style` as a facet per the existing plan.
-- Phase 6 does **not** need to resolve the full Search Retrieval vs Grounded
-  Research architecture (§4 of the spec).
-- Phase 6 must **not close the door** on separating Search Retrieval from
-  Grounded Research — do not collapse them into "one grounded provider" as a
-  permanent decision, and do not remove the seam that lets a future capability
-  split happen.
-
-### Phase 7 — Canonical multi-source orchestration, live
-
-**Status: NOT started.** Do not start it from this roadmap.
-
-Scope (per the implementation plan, "PHASE 7 — Final orchestration"): make the
-following real in the live tour-generation path
-(`experience-generation.service.ts`), replacing today's Google-Places-only
-`acquireNearby` refill:
-
-```
-local catalog
-  → CoverageAnalyzer
-  → deficits (dimension-classified)
-  → ExperienceAcquisitionPlanner → ExperienceAcquisitionPlan (source-capability plan)
-  → ExperienceAcquisitionService.executePlan  (Wikivoyage / OSM / Places / Web, isolated failures)
-  → structured synthesis + web candidate integration
-  → shared corroboration
-  → resolver → geographic validation → dedupe
-  → persistence + embeddings
-  → catalog re-query
-  → CoverageAnalyzer again → refill/requery if still deficient
-  → preference ranking
-  → GreedyDailyPlanningSolver → TourPlanningFeasibilityValidator
-  → Tour materialization
+```text
+historical ancestor / reference
 ```
 
-Plus: acceptance suite, live smoke verification, full tests, progress
-checkpoint, commit.
+not:
 
-**Phase 7 is the prerequisite for convergence** — it defines the canonical
-acquisition API the agent must consume.
+```text
+future canonical base
+```
 
----
+### `feat/preference-first-selection`
 
-## Track B — Agentic Travel Planning (`feat/agentic-travel-planning`)
+This is the active canonical tour-engine branch.
 
-Continues in parallel, un-merged, while Track A finishes Phases 6–7:
+It owns the live convergence of:
 
-- request interpreter (`AgentNaturalLanguageRequestInterpretation`)
-- `AgentPolicy` (`decide(state) → AgentDecision`)
-- `AgentState` + decision / tool-execution trace
-- `ToolRegistry` (`load_catalog`, `analyze_coverage`, `research_gap`, `run_planner`)
-- the bounded coverage → research → coverage → plan loop
-- deterministic planner invocation (`DAILY_PLANNING_SOLVER` +
-  `TourPlanningFeasibilityValidator`)
-- traceability
+- `PreferenceSpec`;
+- facet-first catalog retrieval;
+- sufficiency/deficits;
+- multi-source acquisition;
+- canonical resolve/validate/classify/dedupe/persist;
+- grounded multi-component Experience handling;
+- deterministic composition;
+- semantic similarity as ranking-only;
+- evidence-backed exploration ranking;
+- MUST/SOFT anchors;
+- duration-aware planner/backfill;
+- trace v4;
+- Bitácora v4;
+- single live orchestration ownership.
 
-**Constraint:** do **not** consolidate the current live `research_gap`
-(`LiveAgentResearchProvider` → `ExperienceDiscoveryPlannerService` → one
-grounded provider → extractor → resolver) as the permanent acquisition
-architecture. It is a bridge, not a destination — see the integration handoff
-(`docs/superpowers/plans/2026-09-09-agentic-acquisition-integration-handoff.md`).
+After the Preference-First acceptance and real-world gates close, this branch — or a direct descendant of its accepted HEAD — is the base for agentic convergence.
 
----
+### `feat/agentic-travel-planning`
 
-## Integration Gate
+This branch contains useful agentic work developed against an older tour-engine state. Preserve the **capabilities**, not its obsolete domain/acquisition internals.
 
-**Timing: AFTER Phase 7.** Not before, absent an extraordinary documented need.
+Known valuable concepts include:
 
-**Prerequisites** (all must hold — see the target-architecture spec §16):
+- `AgentPolicy`;
+- `AgentState` and decision/tool-execution trace;
+- request interpreter;
+- `ToolRegistry`;
+- `TravelPlanningAgent` bounded loop;
+- deterministic planner invocation concept;
+- CLI/test harnesses where still useful.
 
-| Experience Domain (Track A) | Agentic (Track B) |
-|---|---|
-| Phase 5 CLOSED | request interpreter stable |
-| Phase 6 CLOSED | `AgentPolicy` stable |
-| Phase 7 CLOSED | `ToolRegistry` stable |
-| `ExperienceAcquisitionPlanner` stable | agent state / trace stable |
-| `ExperienceAcquisitionService` stable | deterministic-planner invocation stable |
-| resolver / validation / dedupe path stable | no duplicated Experience-domain concepts in the agent branch |
-| no direct-persistence shortcuts | |
-| acceptance tests green | |
+Its old `research_gap` provider path is a bridge implementation, **not** the future acquisition architecture.
 
-**Action at the gate** (documented, not executed here):
+Do not merge the branch wholesale into the canonical tour engine and thereby reintroduce stale catalog/acquisition/provider behavior.
 
-1. create `feat/unified-agentic-travel-planning` **from `feat/experience-domain-v2`**
-   (not from the agentic branch);
-2. bring agentic functionality onto that base;
-3. resolve conflicts favouring Experience Domain V2 contracts
-   (`ExperienceCandidate`, preferences/facets, acquisition plan, resolver,
-   geographic validation, dedupe, catalog, ranking, planner contracts);
-4. adapt agent tools to the canonical acquisition APIs;
-5. remove/deprecate the old web-only `research_gap` acquisition path;
-6. preserve the useful `AgentPolicy` / `AgentState` / `ToolRegistry` loop;
-7. fixture tests → acquisition tests → real-provider characterization →
-   E2E (agent → acquisition → resolver → coverage → planner);
-8. only then stop evolving the old branches independently.
+### `feat/unified-agentic-travel-planning`
+
+As of the 2026-09-14 remote audit, this branch was not present on `fork`. If a local/worktree-only version exists, inspect it before recreating anything and preserve any unique useful agentic work.
+
+When convergence begins, create or recreate the unified branch **from the accepted Preference-First base**, not from `feat/experience-domain-v2` and not from the stale agentic branch.
 
 ---
 
-## Post-convergence capabilities
+## 2. Canonical high-level sequence
 
-Recommended order (relative order may shift with evidence/product needs;
-**none may contaminate Phase 5/6/7**):
+```text
+Preference-First implementation / M9
+        ↓
+M10 RW1 rerun
+        ↓
+RW1 real PASS + warm catalog reuse
+        ↓
+RW2–RW6 real-world corpus
+        ↓
+PREFERENCE-FIRST CORE CLOSED
+        ↓
+create/recreate unified agentic branch
+FROM accepted Preference-First HEAD
+        ↓
+port useful agent capabilities selectively
+        ↓
+adapt tools to canonical Preference-First APIs
+        ↓
+remove old agent research/acquisition authority
+        ↓
+unified Agentic E2E
+        ↓
+AUTONOMOUS PREFERENCE-FIRST TOURS
+        ↓
+post-convergence product capabilities
+```
 
-1. **Activities** provider family (guided tours, classes, tastings, tickets;
-   e.g. Viator adapter) — enters the same candidate → resolver → validation →
-   dedupe path; no privileged global score.
-2. **Events** provider family (date-bound; concerts, festivals, markets) —
-   separate temporal source; depends on trip dates / timezone / start-end /
-   availability / location; never mixed into the evergreen catalog without
-   explicit temporality.
-3. **Operational requirements** — `DailyOperationalRequirements` (meals,
-   breaks) as a *responsibility of the deterministic core after Experience
-   scheduling*. Definition of ownership, then a schema, then implementation —
-   in that order.
-4. **Operational Stop Resolver** — fills only requirements not already
-   satisfied by scheduled Experiences (§8 of the spec); Places/OSM + routing +
-   opening-hours + detour validation.
-5. **Wizard optional controls** — an optional "Meals and breaks" section
-   (`automatic` / `customize`); never a mandatory screen.
-6. **Conversational iterative replanning** — the user iterates on a generated
-   tour in dialogue; the agent turns feedback into requirement deltas and
-   re-enters the loop.
-
-These are a post-convergence roadmap, **not** numbered as "Phase 8" until both
-tracks are aligned.
+There is no required `preference-first → experience-domain-v2 → unified` detour.
 
 ---
 
-## Acceptance gates
+# 3. Gate A — finish the Preference-First implementation through M10
 
-### Phase 7 gate
-- live tour generation runs the full canonical orchestration (catalog →
-  coverage → deficits → acquisition plan → structured/web → corroboration →
-  resolver → catalog refresh → coverage → ranking → planner → materialization);
-- Google-Places-only `acquireNearby` refill is replaced;
-- no direct persistence shortcuts;
-- **Places food/nightlife admission respects the Experience vs Operational Stop
-  invariant.** A bare Places result whose only significance is `restaurant` /
-  `cafe` / `bakery` / `bar` / `night_club` must not originate a tourism
-  Experience merely because a food/nightlife preference or a
-  `acquisition-source-routing.ts` entry requested that type. Those Places
-  entities may only (1) corroborate / enrich a tourism Experience discovered
-  through stronger evidence, (2) represent a venue itself proven to be a
-  tourism Experience, or (3) resolve Operational Stops after operational
-  planning exists. The deterministic mechanism — routing changes / provider
-  admission changes / a corroboration requirement / an evidence threshold /
-  another mechanism — is **not decided here**; this gate only fixes the
-  invariant and the closure criterion. (This is **not** Phase 6 scope; Phase 6
-  is Tavily walk/route theme-awareness + `exploration_style` facet activation.
-  It belongs to Phase 7 closure because Phase 7 is when the canonical
-  multi-source acquisition path becomes live.)
-- acceptance suite + live smoke green;
-- full backend tests green; `yarn run check` shows no *new* tsc errors vs the
-  documented baseline.
+The current master implementation plan owns this work.
 
-### Integration gate
-- all §16 prerequisites hold;
-- `feat/unified-agentic-travel-planning` created from `feat/experience-domain-v2`;
-- one acquisition architecture only (no parallel `research_gap` legacy path);
-- agent tools call the canonical acquisition APIs;
-- E2E agent → acquisition → resolver → coverage → planner green.
+M10/RW1 exists to prove that the corrected live orchestration reaches the real-world research path and can persist/reuse real tourism knowledge.
 
-### Operational planning gate
-- `DailyOperationalRequirements` ownership defined and documented;
-- scheduler resolves requirements *after* Experience scheduling;
-- a scheduled Experience can satisfy an operational requirement with no extra
-  stop inserted (§8);
-- Operational Stop Resolver only fills unsatisfied requirements;
-- generic `restaurant`/`cafe`/`bar` is never promoted to an Experience.
+The desired RW1 product result is:
 
-### Agentic E2E gate
-- request interpretation → coverage → agent decision → acquisition → coverage
-  again → planner, all observable in one unified trace;
-- the agent decides "need more acquisition", never "use provider X";
-- deterministic core owns geography / dedupe / persistence / ranking /
-  feasibility throughout;
-- the canonical acceptance scenario (spec §20) produces a feasible tour.
+```text
+COLD REQUEST
+human request for a historical walk in San Telmo
+  ↓
+real preference interpretation / scope
+  ↓
+no sufficient canonical walk in catalog
+  ↓
+real acquisition planning
+  ↓
+real discovery + source evidence
+  ↓
+real extraction of a composed Experience
+  ↓
+real component grounding
+  ↓
+geographic validation
+  ↓
+canonical identity / classification / persistence
+  ↓
+canonical multi-component Experience
+  ↓
+composition + planner
+
+WARM REQUEST
+same relevant request
+  ↓
+canonical catalog retrieval
+  ↓
+same persisted Experience id
+  ↓
+no reacquisition of that walk
+  ↓
+composition + planner
+```
+
+An `ORCHESTRATION_GAP` remains a hard M10 failure.
+
+`EXPECTED_B6_GAP`, `PROVIDER_COVERAGE_GAP`, or `INFRASTRUCTURE_GAP` may still be truthful diagnostic outcomes of the M10 spike contract, but **they do not close the full Preference-First core**. Product closure requires successful real composed-Experience behavior, not merely proof that execution reached the right service.
+
+---
+
+# 4. Gate B — RW1 real PASS and warm reuse
+
+Before broadening the corpus, RW1 must prove at least one difficult area-scoped composed Experience end to end.
+
+Required closure facts:
+
+- human-level request, not hand-built candidate input;
+- real discovery/source evidence;
+- evidence proves the Experience itself exists;
+- evidence proves the real component composition;
+- every persisted real component is grounded;
+- deterministic geographic validation passes;
+- canonical dedupe/identity path runs;
+- evidence-only classification is persisted or validly reused;
+- a normal canonical Experience is re-read from the catalog before planning;
+- the final Experience has multiple real components when the source proves a composed walk;
+- cold request can use it in the tour flow;
+- warm request reuses the same canonical Experience id;
+- warm request does not reacquire that same walk;
+- no nearby-POI fabrication is accepted as a substitute.
+
+If RW1 reaches research correctly but cannot prove a real composed walk, that is valuable diagnosis but not final closure. Fix the responsible research/extraction/source problem without weakening evidence, identity or geography, then rerun RW1.
+
+---
+
+# 5. Gate C — RW2–RW6 real-world generalization
+
+After RW1 passes, execute the remaining real-world corpus defined by:
+
+`docs/superpowers/plans/2026-09-12-real-world-tourism-research-spike-gate.md`
+
+Do not replace the corpus with easier variants of RW1.
+
+The purpose of RW2–RW6 is to demonstrate generality across different failure modes, including:
+
+- multi-area / cross-neighborhood research;
+- real route-like geography;
+- destination-specific tourism structures such as wine routes;
+- a foreign-city case using the correct non-Argentina geographic providers;
+- a negative anti-fabrication case where real nearby POIs exist but source evidence does **not** prove a composed walk/route.
+
+The negative case is as important as a positive case. Zig-Zag must be able to conclude:
+
+```text
+I found real places, but I did not find evidence for a real composed Experience.
+```
+
+It must not manufacture a plausible route from proximity.
+
+### Real-world corpus acceptance
+
+Preference-First core closure requires:
+
+- positive cases can discover, ground, persist and reuse canonical Experiences when reality supports them;
+- negative cases fail safely without invented composition;
+- warm reuse is proven wherever a cold run persisted reusable knowledge;
+- provider outages/rate limits are reported truthfully;
+- no correctness invariant is weakened just to make a spike pass.
+
+---
+
+# 6. Preference-First Core CLOSED
+
+The old definition `Phase 7 CLOSED = merge back to feat/experience-domain-v2` is superseded.
+
+The new closure definition is behavioral:
+
+```text
+PREFERENCE-FIRST CORE CLOSED =
+  deterministic acceptance green
+  + DB-backed verification green
+  + single live orchestration owner
+  + legacy authority removed
+  + real RW1 PASS with warm reuse
+  + RW2–RW6 generalization/anti-fabrication gate accepted
+```
+
+At closure the engine must satisfy, at minimum:
+
+- preference-first retrieval rather than bounded geo-pool-first selection;
+- one factual facet-match authority;
+- missing knowledge drives targeted acquisition;
+- all new knowledge goes through canonical evidence → resolve → validate → classify → dedupe → persist → re-read;
+- catalog is reusable cumulative knowledge;
+- multi-component Experience existence/composition is evidence-backed;
+- embeddings only rank;
+- exploration style only ranks and is **not** a facet;
+- hard exclusions and feasibility win;
+- resolved feasible MUST anchors are protected;
+- final tour cardinality comes from planner feasibility, not a fixed candidate quota;
+- reservoir/backfill/acquisition convergence is bounded;
+- trace v4/Bitácora v4 explain the real decisions;
+- no second legacy tour-generation authority remains.
+
+### `explorationStyle` canonical correction
+
+Any older roadmap text that models `exploration_style` as a `PreferenceFacet` is obsolete.
+
+Canonical behavior:
+
+```text
+explorationStyle = request-side ranking meta-preference
+```
+
+It:
+
+- is not inserted into `PreferenceSpec.facets`;
+- does not satisfy coverage;
+- does not create acquisition deficits;
+- does not become Experience truth;
+- only projects over independent grounded exploration signals after factual eligibility/matching.
+
+---
+
+# 7. Agentic Convergence Gate
+
+Only begin unified agentic convergence after the Preference-First core is accepted.
+
+## 7.1 Base branch
+
+Create/recreate:
+
+```text
+feat/unified-agentic-travel-planning
+```
+
+from the accepted `feat/preference-first-selection` HEAD (or its direct accepted successor).
+
+Do **not** base it on `feat/experience-domain-v2`.
+
+Do **not** use `feat/agentic-travel-planning` as the merge base.
+
+## 7.2 Audit before porting
+
+Before implementation:
+
+1. inspect the remote `feat/agentic-travel-planning` unique commits;
+2. inspect any local/worktree-only `feat/unified-agentic-travel-planning` if present;
+3. classify each agentic component as `PORT`, `ADAPT`, `REWRITE`, or `DROP`;
+4. do not copy stale Experience-domain/catalog/acquisition authority just because it lives next to useful agent code.
+
+## 7.3 Capabilities to preserve
+
+Prefer selective port/adaptation of:
+
+- `AgentPolicy` bounded decision loop;
+- `AgentState`;
+- decision/tool execution trace;
+- natural-language request interpretation where it still adds value;
+- `ToolRegistry` abstraction;
+- `TravelPlanningAgent` orchestration pattern;
+- useful CLI/test harnesses.
+
+## 7.4 Capabilities that must be rewired
+
+The agent may decide **what capability is needed**. It does not decide provider implementation.
+
+Canonical conceptual tool surface may remain similar to:
+
+```text
+load/retrieve catalog
+analyze coverage
+research gap
+run planner
+```
+
+but the implementation below those tools must call the accepted Preference-First core.
+
+For example:
+
+```text
+AgentPolicy:
+"knowledge is insufficient for requested history/walk need"
+        ↓
+research_gap capability
+        ↓
+Preference-First deficit/acquisition boundary
+        ↓
+ExperienceAcquisitionPlanner / strategy selection
+        ↓
+structured/web/area-route research as appropriate
+        ↓
+canonical resolve / validate / classify / dedupe / persist
+        ↓
+canonical catalog re-retrieval
+```
+
+The agent must **not** decide:
+
+- use Tavily;
+- use Places;
+- use Wikivoyage;
+- create a route from these POIs;
+- bypass persistence because this candidate looks useful.
+
+Provider/source choice and canonicalization remain below the agent boundary.
+
+## 7.5 Old `research_gap` path
+
+The old agentic `research_gap` implementation that directly owns a web-only discovery/extraction path must not survive as a parallel acquisition architecture.
+
+Allowed outcome:
+
+```text
+research_gap = agent-facing capability name
+```
+
+Forbidden outcome:
+
+```text
+research_gap = independent acquisition stack beside Preference-First
+```
+
+Reuse the name only if its implementation delegates to the canonical core.
+
+---
+
+# 8. Unified Agentic E2E gate
+
+The unified product is accepted only when a real agent loop can do:
+
+```text
+human request
+  ↓
+agent/request interpretation
+  ↓
+canonical PreferenceSpec / trip context
+  ↓
+load/retrieve canonical knowledge
+  ↓
+coverage/sufficiency
+  ↓
+AgentPolicy decision
+  ├─ enough knowledge → plan
+  └─ missing knowledge → research capability
+                         ↓
+                    Preference-First acquisition
+                         ↓
+                    canonical persistence
+  ↓
+coverage again
+  ↓
+deterministic composition
+  ↓
+deterministic planner / feasibility
+  ↓
+final tour
+```
+
+Required invariants:
+
+- one Experience-domain/acquisition architecture;
+- no legacy research stack running in parallel;
+- agent decisions are bounded and observable;
+- deterministic core still owns geography, evidence truth, identity, dedupe, persistence, matching, ranking semantics and feasibility;
+- agent cannot fabricate Experiences;
+- warm catalog reuse still works under agent control;
+- identical canonical state + request produces deterministic deterministic-core decisions even if the high-level agent loop is responsible for deciding whether more knowledge is needed;
+- traceability links agent decisions to canonical Preference-First trace/Bitácora facts.
+
+When this gate is green, the product reaches:
+
+```text
+AUTONOMOUS PREFERENCE-FIRST TOURS
+```
+
+---
+
+# 9. Post-convergence product capabilities
+
+These come **after** unified agentic convergence unless a separate product decision reprioritizes them. They must use the same canonical domain boundaries rather than creating privileged shortcuts.
+
+Recommended sequence:
+
+1. **Activities provider family** — guided tours, tastings, classes, tickets, Viator-like sources; candidate → evidence → resolver → validation → dedupe → catalog, with temporal/availability facts where needed.
+2. **Events provider family** — explicit date/time/timezone/availability semantics; never silently treated as evergreen Experiences.
+3. **Daily operational requirements** — meals, breaks and similar needs owned by the deterministic scheduling core after Experience scheduling.
+4. **Operational Stop Resolver** — resolves only operational needs not already satisfied by scheduled Experiences; generic restaurant/cafe/bar remains an operational stop unless independently proven to be a tourism Experience.
+5. **Optional wizard controls** — e.g. meals/breaks customization; no mandatory extra screen.
+6. **Conversational iterative replanning** — user feedback becomes requirement/preference deltas and re-enters the same canonical agent/core loop.
+
+Potential later capabilities should preserve the same separation:
+
+```text
+agent understands/decides what is missing
+core proves what is real and feasible
+catalog remembers reusable knowledge
+```
+
+---
+
+# 10. Branch lifecycle after convergence
+
+After the unified branch is accepted:
+
+- stop independently evolving `feat/experience-domain-v2`;
+- stop independently evolving the stale `feat/agentic-travel-planning` implementation;
+- retain them as historical/reference branches until normal repository cleanup;
+- evolve the accepted unified line (or its normal successor/default-branch integration) as the product source of truth.
+
+Do not perform history rewrites or delete branches merely because this roadmap reclassifies them.
+
+---
+
+# 11. Current execution pointer
+
+As of this rewrite, the immediate implementation work remains the M9/M10 recovery on `feat/preference-first-selection`.
+
+Do not begin agentic convergence merely because this roadmap is now updated.
+
+Sequence from the current frontier:
+
+```text
+finish M9 prerequisites
+→ M10 RW1 rerun
+→ obtain real RW1 PASS + warm reuse
+→ authorize/run RW2–RW6
+→ close Preference-First core
+→ audit existing agentic work
+→ create/recreate unified branch from Preference-First
+→ port/adapt agent capabilities
+→ unified Agentic E2E
+```
+
+The current main progress document remains the source of truth for the exact implementation checkpoint before RW1.
