@@ -2,22 +2,22 @@
 
 Updated: 2026-09-14
 Branch: `feat/preference-first-selection`
-Implementation HEAD reviewed before this progress-only update: `a7b841c6517001184c52fbeb7722b818ec34ea65`
+Implementation HEAD reviewed before this progress-only update: `91ab491109b195277f264ad4bedea10c2f1d1947`
 Canonical live-cutover plan: `docs/superpowers/plans/2026-09-13-preference-first-live-cutover.md`
 Canonical implementation plan: `docs/superpowers/plans/2026-09-11-preference-first-selection-implementation.md`
 Canonical design: `docs/superpowers/specs/2026-09-10-preference-first-selection-and-agent-convergence-design.md`
 
 > This file is the CURRENT execution pointer. Older detailed A/B checkpoint history remains available in Git history (previous blob `5dace5f2d851ad733e8c33aaa25d9f4159b7f336`) and must not override the current cutover state below.
 >
-> Important: the cutover is NOT being executed strictly linearly. M4 has landed and substantial M5 work has landed while M3.5 still has a review blocker. Do not revert later milestone work merely because M3.5 is not yet approved.
+> Important: the cutover is NOT being executed strictly linearly. M4 has landed and substantial M5 work has landed while M3.5 is awaiting independent review. Do not revert later milestone work merely because M3.5 is not yet approved.
 
 ## Current verdict
 
-**Current gate: M3.5 review blocker.**
+**Current gate: M3.5 awaiting independent review.**
 
-M3.5 is implemented structurally, but is **NOT approved yet** because the real Nominatim JSONv2 adapter contract does not currently populate the classification field that `isAreaScaleEligible()` requires.
+M3.5 is **IMPLEMENTED — awaiting independent review**. The JSONv2 adapter contract now normalizes the provider's `category` field into the canonical internal classification consumed by `isAreaScaleEligible()`.
 
-The next implementation action is to fix that adapter contract, add a real-shape JSONv2 regression, re-run M3.5 verification, and only then mark M3.5 approved.
+The implementation and verification action is complete; the next action is independent review. Do not mark M3.5 approved from this progress update alone.
 
 ---
 
@@ -29,7 +29,7 @@ The next implementation action is to fix that adapter contract, add a real-shape
 | M1 | COMPLETE | `PreferenceSpec` is wired into the live orchestrator; historical M1 commit is in branch history (`8905f66...`). |
 | M2 | COMPLETE | `FacetRetrievalService` + canonical sufficiency replaced legacy coverage authority; subsequent M2 cleanup removed the legacy CoverageAnalyzer architecture from the live path. Relevant commits include `7c6555e...`, `d8a8828...`, `13ee702...`, `03a4728...`. |
 | M3 | COMPLETE | `51989f321db6cb6bea7fbd6620a5714942723a91` — AcquisitionStrategySelector + AreaRouteWalk acquisition wired into the live orchestrator. |
-| M3.5 | **BLOCKED IN REVIEW** | Initial implementation `dfc1b90f20dd815500fc8a4aff36f491e910f7df`; first correction `03e4ac08d484c1e5296243f80b687f3858d184ed`; later rank hardening is also present in `a7b841c6517001184c52fbeb7722b818ec34ea65`. Structural single-policy goal is present, but the JSONv2 adapter mismatch below prevents approval. |
+| M3.5 | **IMPLEMENTED — awaiting independent review** | `91ab491109b195277f264ad4bedea10c2f1d1947` normalizes JSONv2 `category` into `NominatimResult.class` and adds real-wire-shape search/reverse regressions. |
 | M4 | COMPLETE IN CODE | `8fac82d384cdbc20f54b004a2f3e428aa8285be3` — semantic classification converges at the shared materialization boundary; AreaRouteWalk local classification authority removed. |
 | M5 | **IN PROGRESS / PARTIALLY LANDED** | `09616dd1098de80fe2064977ba7aef669d89c964` adds preference-first composition; `3a7e965bcc185b7b42696fc52995813f246e8efa` adds canonical venue-anchor resolution; `a7b841...` adds venue-anchor tests/hardening and also modifies M3.5 rank policy. Do not call all of Checkpoint C complete yet. |
 | M6 | NOT COMPLETE | Planner-candidate contract/backfill remains pending. Current `PlanningCandidateNormalizerService` does not yet carry the full canonical `preferenceWeight` / `mustInclude` contract. |
@@ -166,11 +166,39 @@ Recommended extra verification: one live Nominatim contract smoke using the real
 
 ## Review verdict
 
-**❌ M3.5 NOT APPROVED at implementation HEAD `a7b841...`.**
+**Previous verdict:** M3.5 was NOT APPROVED at implementation HEAD `a7b841...` because of the JSONv2 adapter mismatch.
 
 The shared-policy architecture is materially better and the numeric-rank refinement is directionally correct, but the provider adapter does not currently honor the actual JSONv2 field contract required to feed that policy.
 
-Do not revert M4/M5 work. Fix M3.5 forward on top of the current branch.
+The blocker was fixed forward in `91ab491109b195277f264ad4bedea10c2f1d1947`. Do not revert M4/M5 work.
+
+## M3.5 verification after JSONv2 adapter correction
+
+Status: **IMPLEMENTED — awaiting independent review**
+
+Implementation commit: `91ab491109b195277f264ad4bedea10c2f1d1947`
+
+Files changed:
+
+- `be/src/modules/integrations/osm/services/nominatim-api.service.ts`
+- `be/src/modules/integrations/osm/services/nominatim-api.service.spec.ts`
+
+The adapter raw DTO now uses JSONv2's `category`, `place_rank`, and
+`address_rank` names and maps them once to `class`, `placeRank`, and
+`addressRank`. The regression fixture uses `category: 'place'` with
+`type: 'suburb'` and `place_rank: 20`; it deliberately contains no synthetic
+raw `class` field. Search and reverse both exercise the shared `mapResult()`
+normalization, with reverse coverage also asserting `address_rank` mapping.
+
+Targeted M3.5 tests: **6 suites passed, 107 tests passed**.
+
+Full backend verification rerun on this implementation:
+
+- `yarn typecheck`: **PASS**
+- `yarn lint:check`: **PASS**
+- `yarn test --runInBand`: **143 suites passed, 1,430 tests passed**
+- `yarn test:integration`: **FAIL — environment blocker**; 16 suites / 72 tests failed because PostgreSQL at `localhost:5432/zigzag` was unavailable. No adapter assertion failure was reported before the database connection failures.
+- `yarn build`: **PASS**
 
 ---
 
