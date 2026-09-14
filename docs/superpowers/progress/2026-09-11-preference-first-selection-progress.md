@@ -576,3 +576,27 @@ D2, D3, D6, and D7 are **PASS**. The formal Buenos Aires P8A live
 characterization and P9/RW1 remain **NOT RUN** by authorization boundary, so
 M9/M10 architecture debt is **NOT CLOSED**; status is **M10 READY —
 authorization required**, not RW1 executed.
+
+## 2026-09-14 M9 P8A formal gate
+
+Added the gated formal Buenos Aires P8A live spec
+(`RUN_PREFERENCE_FIRST_LIVE_GATE=1`). It uses the real production
+`ExperienceGenerationService` against the exact dedicated
+`zigzag_spike_preb6` database and records the required two-day request,
+PreferenceSpec anchors, v4 trace, area resolution, semantic-ranking trace,
+grounded components, classification provenance, and composed-walk contract.
+The disposable-DB guard now accepts only this exact documented spike database
+in addition to its existing suffix rules, with a regression test; no broad
+`zigzag_spike_*` allowlist was added.
+
+The M9 execution was intentionally stopped after real provider degradation:
+SerpAPI timed out and Groq returned HTTP 429 because the configured
+`qwen/qwen3.8-27b` organization limit was 1,000 output tokens/minute while
+requests required 1,030–1,145. This is classified as
+**INFRASTRUCTURE_GAP**, not hidden with fallback or mocks. The gate spec
+compiles, lint/typecheck pass, and remains ready for rerun when provider
+capacity is available. P9/RW1 was not run.
+
+M9 is therefore **NOT CLOSED**. M10 remains **READY — authorization
+required**, with the formal live gate's provider-capacity prerequisite still
+open.

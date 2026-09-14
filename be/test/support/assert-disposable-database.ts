@@ -23,6 +23,7 @@
  */
 
 const DISPOSABLE_SUFFIX = /(?:^|[_-])(test|integration|e2e|ci)$/i;
+const DOCUMENTED_SPIKE_DATABASE = 'zigzag_spike_preb6';
 
 function parseTarget(databaseUrl: string | undefined): {
   host: string;
@@ -52,7 +53,10 @@ export function isDisposableDatabase(
   if (!database || database.toLowerCase() === 'zigzag') {
     return false;
   }
-  return DISPOSABLE_SUFFIX.test(database);
+  return (
+    DISPOSABLE_SUFFIX.test(database) ||
+    database.toLowerCase() === DOCUMENTED_SPIKE_DATABASE
+  );
 }
 
 export function assertDisposableDatabase(

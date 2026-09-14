@@ -25,6 +25,7 @@ describe('assertDisposableDatabase', () => {
     'zigzag-test',
     'app_ci',
     'something_integration',
+    'zigzag_spike_preb6',
   ])('accepts the disposable name %s', (db) => {
     delete process.env.ALLOW_DESTRUCTIVE_TEST_DB;
     expect(isDisposableDatabase(url(db))).toBe(true);
