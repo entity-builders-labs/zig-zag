@@ -1,0 +1,407 @@
+/**
+ * Cutover M3 — AcquisitionStrategySelector + AreaRouteWalkAcquisitionService
+ * reachability from the live preference-first orchestrator.
+ *
+ * See docs/superpowers/plans/2026-09-13-preference-first-live-cutover.md §5
+ * Q5/Q10. `acquisition-strategy-selector.util.spec.ts` exhaustively proves
+ * the pure selection logic (including reference-identity of the passed-
+ * through deficit); these tests prove the LIVE orchestrator actually wires
+ * that selector to `AreaRouteWalkAcquisitionService`, and only for the
+ * facets/anchors the design specifies -- never as a special "if anchors"
+ * branch, never duplicating deficit computation.
+ */
+import * as fs from 'fs';
+import * as path from 'path';
+import { TourGenerationHarness } from './support/harness';
+import { seedTour, seedVerifiedExperience } from '../support/seed';
+import { AreaRouteWalkAcquisitionService } from 'src/modules/tours/services/area-route-walk-acquisition.service';
+import { ExperienceAcquisitionPlannerService } from 'src/modules/tours/services/experience-acquisition-planner.service';
+import { CURRENT_CLASSIFICATION_PROMPT_VERSION } from 'src/modules/tours/services/experience-classification.service';
+
+const DEST = { latitude: -34.6212, longitude: -58.373 };
+
+function interpreterResponse(overrides: Record<string, unknown>): string {
+  return JSON.stringify({
+    preferredFacets: [],
+    anchoredPlaces: [],
+    excludedThemes: [],
+    excludedTraits: [],
+    hardExclusions: [],
+    softConstraints: [],
+    ambiguities: [],
+    dietaryPreferences: [],
+    accessibilityPreferences: [],
+    budgetPreferences: [],
+    groupPreferences: [],
+    positiveSemanticQuery: '',
+    notes: [],
+    ...overrides,
+  });
+}
+
+describe('tour-generation integration · acquisition strategy routing (M3)', () => {
+  let harness: TourGenerationHarness;
+
+  beforeAll(async () => {
+    harness = await TourGenerationHarness.create();
+  });
+  afterAll(async () => {
+    await harness.close();
+  });
+  beforeEach(async () => {
+    await harness.reset();
+  });
+
+  it('1. routes an AREA anchor + intent:walk deficit to AreaRouteWalkAcquisitionService', async () => {
+    harness.fakes.langChain.generateChatResponse.mockResolvedValueOnce(
+      interpreterResponse({
+        preferredFacets: [
+          {
+            dimension: 'intent',
+            key: 'walk',
+            confidence: 0.95,
+            strength: 'strong',
+          },
+        ],
+        anchoredPlaces: [
+          { rawName: 'San Telmo', kind: 'area', priority: 'must' },
+        ],
+        positiveSemanticQuery: 'walking tour in san telmo',
+      }),
+    );
+
+    const areaRouteWalk = harness.app.get(AreaRouteWalkAcquisitionService);
+    const acquireSpy = jest
+      .spyOn(areaRouteWalk, 'acquireOrReuse')
+      .mockResolvedValue({ outcome: 'no_result' });
+    const plannerSpy = jest.spyOn(
+      harness.app.get(ExperienceAcquisitionPlannerService),
+      'buildAcquisitionPlan',
+    );
+
+    const tourId = await seedTour(harness.prisma, {
+      destinationLabel: 'San Telmo, Buenos Aires, Argentina',
+      latitude: DEST.latitude,
+      longitude: DEST.longitude,
+      radiusMeters: 12000,
+      days: 1,
+      interests: [],
+      intents: [],
+      additionalPreferences: 'caminata a pie por San Telmo',
+    });
+
+    await harness.generate(tourId);
+
+    // Bounded acquisition retries every pass while coverage stays
+    // insufficient (the mock always reports no_result) -- called at least
+    // once is what proves reachability; every call's shape is identical.
+    expect(acquireSpy).toHaveBeenCalled();
+    const call = acquireSpy.mock.calls[0][0];
+    expect(call.anchor).toEqual({
+      rawName: 'San Telmo',
+      kind: 'area',
+      priority: 'must',
+    });
+    expect(call.intentKey).toBe('walk');
+    // 5. The original canonical deficit is passed through untouched -- the
+    // exact production message format `computePreferenceCoverage` builds,
+    // never a reconstructed/placeholder deficit.
+    expect(call.deficit).toEqual({
+      origin: 'preference_facet',
+      dimension: 'intent',
+      key: 'walk',
+      reason: 'Preference facet [intent:walk] has no strong catalog match yet.',
+    });
+
+    // The generic path never receives this same deficit -- no dual
+    // ownership of the same requirement.
+    for (const plannerCall of plannerSpy.mock.calls) {
+      const deficits = plannerCall[0].deficits ?? [];
+      expect(
+        deficits.some(
+          (d: any) => d.origin === 'preference_facet' && d.key === 'walk',
+        ),
+      ).toBe(false);
+    }
+  });
+
+  it('2. routes a ROUTE anchor + intent:route_like deficit to AreaRouteWalkAcquisitionService', async () => {
+    harness.fakes.langChain.generateChatResponse.mockResolvedValueOnce(
+      interpreterResponse({
+        preferredFacets: [
+          {
+            dimension: 'intent',
+            key: 'route_like',
+            confidence: 0.95,
+            strength: 'strong',
+          },
+        ],
+        anchoredPlaces: [
+          { rawName: 'Caminito', kind: 'route', priority: 'must' },
+        ],
+        positiveSemanticQuery: 'Caminito walking route',
+      }),
+    );
+
+    const areaRouteWalk = harness.app.get(AreaRouteWalkAcquisitionService);
+    const acquireSpy = jest
+      .spyOn(areaRouteWalk, 'acquireOrReuse')
+      .mockResolvedValue({ outcome: 'no_result' });
+
+    const tourId = await seedTour(harness.prisma, {
+      destinationLabel: 'La Boca, Buenos Aires, Argentina',
+      latitude: DEST.latitude,
+      longitude: DEST.longitude,
+      radiusMeters: 12000,
+      days: 1,
+      interests: [],
+      intents: [],
+      additionalPreferences: 'caminata por Caminito',
+    });
+
+    await harness.generate(tourId);
+
+    expect(acquireSpy).toHaveBeenCalled();
+    const call = acquireSpy.mock.calls[0][0];
+    expect(call.anchor).toEqual({
+      rawName: 'Caminito',
+      kind: 'route',
+      priority: 'must',
+    });
+    expect(call.intentKey).toBe('route_like');
+    expect(call.deficit).toEqual({
+      origin: 'preference_facet',
+      dimension: 'intent',
+      key: 'route_like',
+      reason:
+        'Preference facet [intent:route_like] has no strong catalog match yet.',
+    });
+  });
+
+  it('3. never calls AreaRouteWalkAcquisitionService for an unrelated/generic deficit (no anchors)', async () => {
+    const areaRouteWalk = harness.app.get(AreaRouteWalkAcquisitionService);
+    const acquireSpy = jest.spyOn(areaRouteWalk, 'acquireOrReuse');
+
+    harness.configure({
+      groundedSearch: { evidence: [] },
+      discoveryExtractor: { candidates: [] },
+    });
+
+    const tourId = await seedTour(harness.prisma, {
+      destinationLabel: 'San Telmo, Buenos Aires, Argentina',
+      latitude: DEST.latitude,
+      longitude: DEST.longitude,
+      radiusMeters: 12000,
+      days: 1,
+      interests: ['food'],
+      intents: [],
+    });
+
+    await harness.generate(tourId);
+
+    expect(acquireSpy).not.toHaveBeenCalled();
+  });
+
+  it('4. a global_capacity deficit never routes through AreaRouteWalkAcquisitionService even with a relevant anchor present', async () => {
+    // All requested facets satisfied by ONE strong match, but the global
+    // eligible portfolio is still thin -- exactly the M2 global_capacity
+    // scenario, this time with an (irrelevant-to-capacity) AREA anchor also
+    // present on the request.
+    await seedVerifiedExperience(harness.prisma, {
+      canonicalName: 'Museo de San Telmo',
+      themes: ['history'],
+      intents: [],
+      latitude: DEST.latitude,
+      longitude: DEST.longitude,
+      qualityScore: 4.0,
+    });
+
+    harness.fakes.langChain.generateChatResponse.mockResolvedValueOnce(
+      interpreterResponse({
+        preferredFacets: [
+          {
+            dimension: 'theme',
+            key: 'history',
+            confidence: 0.9,
+            strength: 'strong',
+          },
+        ],
+        anchoredPlaces: [
+          { rawName: 'San Telmo', kind: 'area', priority: 'soft' },
+        ],
+      }),
+    );
+
+    const areaRouteWalk = harness.app.get(AreaRouteWalkAcquisitionService);
+    const acquireSpy = jest.spyOn(areaRouteWalk, 'acquireOrReuse');
+    const plannerSpy = jest.spyOn(
+      harness.app.get(ExperienceAcquisitionPlannerService),
+      'buildAcquisitionPlan',
+    );
+
+    harness.configure({
+      wikivoyage: { status: 'ok', title: 'San Telmo', entries: [] },
+    });
+
+    const tourId = await seedTour(harness.prisma, {
+      destinationLabel: 'San Telmo, Buenos Aires, Argentina',
+      latitude: DEST.latitude,
+      longitude: DEST.longitude,
+      radiusMeters: 12000,
+      days: 1,
+      interests: ['history'],
+      intents: [],
+      additionalPreferences: 'historia de San Telmo',
+    });
+
+    await harness.generate(tourId);
+
+    expect(acquireSpy).not.toHaveBeenCalled();
+    // The global_capacity deficit still reaches the GENERIC path, exactly
+    // as it did before M3.
+    const sawGlobalCapacity = plannerSpy.mock.calls.some((call) =>
+      (call[0].deficits ?? []).some((d: any) => d.origin === 'global_capacity'),
+    );
+    expect(sawGlobalCapacity).toBe(true);
+  });
+
+  it('6. warm catalog reuse (real AreaRouteWalkAcquisitionService, mode C) avoids acquisition entirely', async () => {
+    const anchorName = 'Ruta del Vino de Mendoza';
+
+    // A real, already-classified tourism-route Experience -- multi-
+    // component, real geography, quality above the floor, and a CURRENT,
+    // valid classification satisfying canReuseClassification. Real
+    // AreaRouteWalkAcquisitionService (not mocked) must find this via its
+    // mode-C strict-name catalog lookup BEFORE any acquisition call.
+    const routeExperienceId = await seedVerifiedExperience(harness.prisma, {
+      canonicalName: anchorName,
+      themes: [],
+      intents: ['route_like'],
+      latitude: DEST.latitude,
+      longitude: DEST.longitude,
+      qualityScore: 4.5,
+      extraComponents: [
+        {
+          name: 'Bodega A',
+          latitude: DEST.latitude + 0.01,
+          longitude: DEST.longitude + 0.01,
+        },
+      ],
+    });
+    await harness.prisma.experience.update({
+      where: { id: routeExperienceId },
+      data: {
+        metadata: {
+          source: 'seed',
+          themes: [],
+          traits: [],
+          intents: ['route_like'],
+          classification: {
+            state: 'classified',
+            promptVersion: CURRENT_CLASSIFICATION_PROMPT_VERSION,
+            modelId: 'groq/qwen',
+            themes: [],
+            intents: ['route_like'],
+            traits: [],
+            reasoningEvidence: [
+              {
+                facet: 'intent:route_like',
+                evidenceKeys: ['wine-1'],
+                reason: 'Real evidence describes a wine route.',
+              },
+            ],
+          },
+        } as any,
+      },
+    });
+
+    // basePortfolioTarget(days=1, 'moderate') = 4 -- 3 filler rows + the
+    // tourism-route Experience itself = 4 real, distinct eligible rows.
+    for (let i = 0; i < 3; i++) {
+      await seedVerifiedExperience(harness.prisma, {
+        canonicalName: `Mendoza filler ${i}`,
+        themes: [],
+        intents: [],
+        latitude: DEST.latitude + i * 0.002,
+        longitude: DEST.longitude + i * 0.002,
+        qualityScore: 4.0,
+      });
+    }
+
+    harness.fakes.langChain.generateChatResponse.mockResolvedValueOnce(
+      interpreterResponse({
+        preferredFacets: [
+          {
+            dimension: 'intent',
+            key: 'route_like',
+            confidence: 0.95,
+            strength: 'strong',
+          },
+        ],
+        anchoredPlaces: [
+          { rawName: anchorName, kind: 'route', priority: 'must' },
+        ],
+      }),
+    );
+
+    const tourId = await seedTour(harness.prisma, {
+      destinationLabel: 'Mendoza, Argentina',
+      latitude: DEST.latitude,
+      longitude: DEST.longitude,
+      radiusMeters: 20000,
+      days: 1,
+      interests: [],
+      intents: ['route_like'],
+      additionalPreferences: 'recorrer la Ruta del Vino de Mendoza',
+    });
+
+    const outcome = await harness.generate(tourId);
+    expect(outcome.error?.message ?? 'ok').toBe('ok');
+
+    // No cold acquisition transport was ever touched -- warm reuse
+    // short-circuited before any of them could run.
+    expect(harness.fakes.wikivoyage.fetchArticle).not.toHaveBeenCalled();
+    expect(harness.fakes.groundedSearch.search).not.toHaveBeenCalled();
+    expect(
+      harness.fakes.discoveryExtractor.extractExperiences,
+    ).not.toHaveBeenCalled();
+    expect(harness.fakes.places.searchNearby).not.toHaveBeenCalled();
+    expect(harness.fakes.places.searchText).not.toHaveBeenCalled();
+
+    const tour = await harness.loadTour(tourId);
+    const coverageSteps = harness
+      .traceSteps(tour.trace)
+      .filter((step: any) => step.stage === 'coverage_analysis');
+    expect(coverageSteps[0].decision.outcome).toBe('none');
+  });
+
+  it('7. no legacy coverage symbols remain reachable (imported/instantiated) from the live orchestrator source', () => {
+    // Strip full-line `//` comments first -- a comment may legitimately
+    // mention a deleted symbol's NAME for historical narrative (e.g. "this
+    // replaces what CoverageAnalyzer used to do"); this check is about
+    // whether the symbol is actually imported/used as live code, not prose.
+    const source = fs
+      .readFileSync(
+        path.join(
+          __dirname,
+          '../../../src/modules/tours/services/experience-generation.service.ts',
+        ),
+        'utf8',
+      )
+      .split('\n')
+      .filter((line) => !line.trim().startsWith('//'))
+      .join('\n');
+    for (const banned of [
+      'CoverageAnalyzer',
+      'CoverageReport',
+      'CoverageDeficit',
+      'CoverageAcquisitionDecision',
+      'legacyDeficits',
+      'legacyDeficit',
+      'buildCoverageAnalysisStep',
+      'projectCoverageDeficits',
+    ]) {
+      expect(source).not.toContain(banned);
+    }
+  });
+});

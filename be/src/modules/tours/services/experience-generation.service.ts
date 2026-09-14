@@ -65,6 +65,8 @@ import {
 } from './experience-catalog.service';
 import { ExperienceAcquisitionService } from './experience-acquisition.service';
 import { ExperienceAcquisitionPlannerService } from './experience-acquisition-planner.service';
+import { AreaRouteWalkAcquisitionService } from './area-route-walk-acquisition.service';
+import { partitionDeficitsByStrategy } from '../utils/acquisition-strategy-selector.util';
 import { redactTracePayload } from '../utils/trace-redaction.util';
 import { buildGenerationExecutionSummary } from '../utils/generation-execution-summary.util';
 import { PreferenceInterpreterService } from './preference-interpreter.service';
@@ -175,6 +177,7 @@ export class ExperienceGenerationService {
     private readonly destinationResolutionService: DestinationResolutionService,
     private readonly facetRetrieval: FacetRetrievalService,
     private readonly experienceAcquisitionPlanner: ExperienceAcquisitionPlannerService,
+    private readonly areaRouteWalkAcquisition: AreaRouteWalkAcquisitionService,
     private readonly tourCompletenessValidator: TourCompletenessValidator,
     private readonly planningCandidateNormalizer: PlanningCandidateNormalizerService,
     @Inject(DAILY_PLANNING_SOLVER)
@@ -1023,6 +1026,22 @@ export class ExperienceGenerationService {
             for (let pass = 1; pass <= MAX_ACQUISITION_PASSES; pass++) {
               if (currentPreferenceCoverage.sufficient) break;
 
+              // M3 (preference-first live cutover): the ONE place deficits
+              // are routed to an acquisition strategy. An area/route anchor
+              // + walk/route_like deficit goes to
+              // AreaRouteWalkAcquisitionService; every other deficit
+              // (including every global_capacity deficit, deliberately
+              // dimensionless and never anchor-routable) continues through
+              // generic acquisition exactly as before. The canonical
+              // deficit objects from FacetRetrievalService/
+              // preference-sufficiency.util.ts are passed straight through
+              // to whichever strategy handles them -- never recomputed,
+              // never reconstructed.
+              const { areaRouteWalk, generic } = partitionDeficitsByStrategy(
+                currentPreferenceCoverage.acquisitionDeficits,
+                preferenceSpec.anchors,
+              );
+
               // M2 (preference-first live cutover): deficits are now the
               // real FacetRetrievalService-derived unsatisfied facets
               // (`origin: 'preference_facet'`), never the legacy
@@ -1031,83 +1050,53 @@ export class ExperienceGenerationService {
               const acquisitionPlan =
                 this.experienceAcquisitionPlanner.buildAcquisitionPlan({
                   destination: acquisitionScope,
-                  deficits: currentPreferenceCoverage.acquisitionDeficits,
+                  deficits: generic,
                   semanticQuery: normalizedPreferences.positiveSemanticQuery,
                   breadth: 'focused',
                 });
+              const genericRoutable = acquisitionPlan.sourcePlans.length > 0;
 
-              if (acquisitionPlan.sourcePlans.length === 0) {
+              if (!genericRoutable && areaRouteWalk.length === 0) {
                 // Nothing routable — a soft-only deficit. Stop acquiring; the
                 // gap stays visible in the coverage trace, never fatal.
                 break;
               }
 
-              await this.updateGenerationStatus(
-                tourId,
-                'generating',
-                `Buscando más Experiences (fuentes: ${acquisitionPlan.sourcePlans
-                  .map((sourcePlan) => sourcePlan.provider)
-                  .join(', ')})...`,
-              );
-
-              const execution =
-                await this.experienceAcquisition.executePlan(acquisitionPlan);
-
-              for (const [provider, res] of Object.entries(
-                execution.providerResults,
-              )) {
-                acquisitionProvidersAttempted.add(provider);
-                if ((res as any)?.status === 'failed') {
-                  acquisitionProvidersFailed.add(provider);
-                }
-              }
-              for (const web of execution.webResults ?? []) {
-                acquisitionProvidersAttempted.add('web');
-                if (web.status === 'failed') {
-                  acquisitionProvidersFailed.add('web');
-                }
-              }
-
-              traceSteps.push(
-                buildAcquisitionStep({
-                  passNumber: pass,
-                  plan: acquisitionPlan,
-                  execution,
-                }),
-              );
-
-              if (execution.candidates.length > 0) {
-                const resolution =
-                  await this.experienceAcquisition.materializeExecution(
-                    execution,
-                    {
-                      destinationName: request.destination.label,
-                      destinationCountryCode: destinationResolution.countryCode,
-                      destinationBoundary: destinationScope,
-                      destinationPointRadius: isAreaScale
-                        ? undefined
-                        : {
-                            latitude: request.destination.latitude,
-                            longitude: request.destination.longitude,
-                            radiusMeters: searchArea.radiusMeters,
-                          },
-                    },
-                  );
-                traceSteps.push(
-                  buildEntityResolutionStep(resolution),
-                  buildGeographicValidationStep(resolution),
-                  buildCatalogMaterializationStep(resolution),
+              for (const routed of areaRouteWalk) {
+                await this.updateGenerationStatus(
+                  tourId,
+                  'generating',
+                  `Buscando una experiencia de tipo "${routed.intentKey}" en "${routed.anchor.rawName}"...`,
                 );
 
-                const acceptedIds = resolution.resolved
-                  .filter(
-                    (result) =>
-                      result.status === 'accepted' && result.experienceId,
-                  )
-                  .map((result) => result.experienceId as string);
-                if (acceptedIds.length > 0) {
+                const areaRouteWalkResult =
+                  await this.areaRouteWalkAcquisition.acquireOrReuse({
+                    anchor: routed.anchor,
+                    intentKey: routed.intentKey,
+                    destination: acquisitionScope,
+                    destinationCountryCode: destinationResolution.countryCode,
+                    destinationPoint: {
+                      latitude: searchArea.latitude,
+                      longitude: searchArea.longitude,
+                    },
+                    destinationBoundary: destinationScope,
+                    destinationPointRadius: isAreaScale
+                      ? undefined
+                      : {
+                          latitude: request.destination.latitude,
+                          longitude: request.destination.longitude,
+                          radiusMeters: searchArea.radiusMeters,
+                        },
+                    deficit: routed.deficit,
+                    semanticQuery: normalizedPreferences.positiveSemanticQuery,
+                  });
+
+                if (areaRouteWalkResult.outcome !== 'no_result') {
                   const persisted = await this.prisma.experience.findMany({
-                    where: { id: { in: acceptedIds }, status: 'VERIFIED' },
+                    where: {
+                      id: areaRouteWalkResult.experienceId,
+                      status: 'VERIFIED',
+                    },
                     include: {
                       components: { include: { geoEntity: true } },
                       traits: { include: { traitDefinition: true } },
@@ -1120,6 +1109,90 @@ export class ExperienceGenerationService {
                     );
                     discoveryResolvedExperienceIds.add(experience.id);
                   });
+                }
+              }
+
+              if (genericRoutable) {
+                await this.updateGenerationStatus(
+                  tourId,
+                  'generating',
+                  `Buscando más Experiences (fuentes: ${acquisitionPlan.sourcePlans
+                    .map((sourcePlan) => sourcePlan.provider)
+                    .join(', ')})...`,
+                );
+
+                const execution =
+                  await this.experienceAcquisition.executePlan(acquisitionPlan);
+
+                for (const [provider, res] of Object.entries(
+                  execution.providerResults,
+                )) {
+                  acquisitionProvidersAttempted.add(provider);
+                  if ((res as any)?.status === 'failed') {
+                    acquisitionProvidersFailed.add(provider);
+                  }
+                }
+                for (const web of execution.webResults ?? []) {
+                  acquisitionProvidersAttempted.add('web');
+                  if (web.status === 'failed') {
+                    acquisitionProvidersFailed.add('web');
+                  }
+                }
+
+                traceSteps.push(
+                  buildAcquisitionStep({
+                    passNumber: pass,
+                    plan: acquisitionPlan,
+                    execution,
+                  }),
+                );
+
+                if (execution.candidates.length > 0) {
+                  const resolution =
+                    await this.experienceAcquisition.materializeExecution(
+                      execution,
+                      {
+                        destinationName: request.destination.label,
+                        destinationCountryCode:
+                          destinationResolution.countryCode,
+                        destinationBoundary: destinationScope,
+                        destinationPointRadius: isAreaScale
+                          ? undefined
+                          : {
+                              latitude: request.destination.latitude,
+                              longitude: request.destination.longitude,
+                              radiusMeters: searchArea.radiusMeters,
+                            },
+                      },
+                    );
+                  traceSteps.push(
+                    buildEntityResolutionStep(resolution),
+                    buildGeographicValidationStep(resolution),
+                    buildCatalogMaterializationStep(resolution),
+                  );
+
+                  const acceptedIds = resolution.resolved
+                    .filter(
+                      (result) =>
+                        result.status === 'accepted' && result.experienceId,
+                    )
+                    .map((result) => result.experienceId as string);
+                  if (acceptedIds.length > 0) {
+                    const persisted = await this.prisma.experience.findMany({
+                      where: { id: { in: acceptedIds }, status: 'VERIFIED' },
+                      include: {
+                        components: { include: { geoEntity: true } },
+                        traits: { include: { traitDefinition: true } },
+                      },
+                    });
+                    persisted.forEach((experience: any) => {
+                      allEligibleExperiencesById.set(
+                        experience.id,
+                        this.hydratePersistedExperience(experience),
+                      );
+                      discoveryResolvedExperienceIds.add(experience.id);
+                    });
+                  }
                 }
               }
 
