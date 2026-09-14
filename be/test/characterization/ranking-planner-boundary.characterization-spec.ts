@@ -111,7 +111,7 @@ describe('CHAR-5 ranking priority across the planner boundary', () => {
     const a = normalized.find((n) => n.experienceId === 'A-strong-pref')!;
     expect(a).toMatchObject({
       semanticScore: 0.1,
-      qualityScore: 0,
+      qualityScore: undefined,
     });
     // No preference-derived field exists on the planner candidate at all.
     expect(Object.keys(a)).not.toContain('preferenceScore');

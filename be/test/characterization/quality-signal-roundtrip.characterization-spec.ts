@@ -23,10 +23,9 @@ import { placesHistoricalLandmarkObservation } from './support/observations';
  *  - `qualityBonus` uses the current source-specific policy: POIs use
  *    `weightedScore`, while composites use the curated bonus and ignore
  *    `weightedScore`;
- *  - the normalizer forwards the ALREADY-WEIGHTED `qualityBonus` (0..0.2) as
- *    `qualityScore`, and the solver multiplies it by `qualityWeight` (0.5)
- *    again — a contract/scale mismatch. The final canonical quality scale is
- *    intentionally not decided by this characterization.
+ *  - the normalizer forwards raw canonical Experience qualityScore (0..5),
+ *    while rankingScore remains the upstream relevance authority for planner
+ *    ordering. The planner does not apply that aggregate's quality term again.
  */
 describe('CHAR-6 quality signal round-trip', () => {
   it('the structured synthesizer drops Google Places rating/userRatingCount', () => {
@@ -64,7 +63,7 @@ describe('CHAR-6 quality signal round-trip', () => {
     expect(qualityBonus(composite)).toBe(0);
   });
 
-  it('normalizer forwards the already-weighted qualityBonus; the solver attenuates it again', async () => {
+  it('normalizer forwards raw canonical quality; the planner uses rankingScore once', async () => {
     const rankable: (RankableCandidate & { original: any })[] = [
       {
         id: 'q',
@@ -90,121 +89,123 @@ describe('CHAR-6 quality signal round-trip', () => {
           durationMinutes: 90,
           latitude: -34.6,
           longitude: -58.38,
+          qualityScore: 4.7,
           components: [] as any[],
         },
       ],
       new Map<string, CandidateScoreBreakdown>([['q', breakdown]]),
     );
-    // The planner receives the weighted bonus (~0.188), NOT the 4.7 rating.
-    expect(normalized.qualityScore).toBeCloseTo(0.188, 3);
+    expect(normalized.qualityScore).toBe(4.7);
 
     const policy = dailyPlanningPolicyConfig();
     const solverQualityTerm =
-      policy.scoring.qualityWeight * (normalized.qualityScore ?? 0);
+      scoreCandidateForDay(
+        normalized,
+        { dayNumber: 1, assigned: [] } as any,
+        { policy } as any,
+      ) - policy.scoring.dayBalanceWeight;
     // eslint-disable-next-line no-console
     console.info(
-      `[CHAR-6] rating=4.7 -> qualityBonus=${normalized.qualityScore} -> solver quality term=${solverQualityTerm}`,
+      `[CHAR-6] rating=4.7 -> raw qualityScore=${normalized.qualityScore} -> planner relevance=${solverQualityTerm}`,
     );
-    // 0.5 * 0.188 = 0.094 — the "0.5 quality weight" acts on a 0..0.2 number.
-    expect(solverQualityTerm).toBeCloseTo(0.094, 3);
-    // A perfect 4.7 rating contributes LESS to the day-1 soft score than the
-    // fixed day-balance bonus for an empty day (0.25 * 1/1).
-    const dayBalanceBonus = policy.scoring.dayBalanceWeight * (1 / 1);
-    expect(solverQualityTerm).toBeLessThan(dayBalanceBonus);
+    expect(solverQualityTerm).toBeCloseTo(breakdown.totalScore, 5);
   });
 
-  it.failing(
-    'INVARIANT: quality must not be weighted twice across the ranking/planner boundary',
-    async () => {
-      const rankable: (RankableCandidate & { original: any })[] = [
-        {
-          id: 'quality',
-          source: 'poi',
-          weightedScore: 4.7,
-          preferenceScore: 0,
-          original: {},
-        },
-        {
-          id: 'no-quality',
-          source: 'poi',
-          weightedScore: undefined,
-          preferenceScore: 0,
-          original: {},
-        },
-      ];
-      const ranked = rankCandidatesByRelevance(
-        rankable,
-        new Map([
-          ['quality', 0.5],
-          ['no-quality', 0.5],
-        ]),
-      );
-      const qualityRankingContribution = ranked.find(
-        (r) => r.candidate.id === 'quality',
-      )!.scoreBreakdown.qualityBonus;
-      const scoreBreakdownById = new Map<string, CandidateScoreBreakdown>(
-        ranked.map((r) => [r.candidate.id, r.scoreBreakdown]),
-      );
-      const normalizer = new PlanningCandidateNormalizerService(
-        dailyPlanningPolicyConfig(),
-      );
-      const normalized = await normalizer.normalizeExperiences(
-        ['quality', 'no-quality'].map((id) => ({
-          id,
-          canonicalName: 'Rated Landmark',
-          description: '',
-          durationMinutes: 90,
-          latitude: -34.6,
-          longitude: -58.38,
-          components: [] as any[],
-        })),
-        scoreBreakdownById,
-      );
-      const candidateWithQuality = normalized.find(
-        (candidate) => candidate.experienceId === 'quality',
-      )!;
-      const candidateWithoutQuality = normalized.find(
-        (candidate) => candidate.experienceId === 'no-quality',
-      )!;
-      const policy = dailyPlanningPolicyConfig();
-      const emptyDay: any = { dayNumber: 1, assigned: [] };
-      const context: any = { policy };
-      const scoreWithQuality = scoreCandidateForDay(
-        candidateWithQuality,
-        emptyDay,
-        context,
-      );
-      const scoreWithoutQuality = scoreCandidateForDay(
-        candidateWithoutQuality,
-        emptyDay,
-        context,
-      );
-      const effectivePlannerQualityContribution =
-        scoreWithQuality - scoreWithoutQuality;
-      const boundaryQualityScore = candidateWithQuality.qualityScore ?? 0;
-      const effectivePlannerMultiplier =
-        boundaryQualityScore === 0
-          ? undefined
-          : effectivePlannerQualityContribution / boundaryQualityScore;
-      const approximatelyEqual = (left: number, right: number): boolean =>
-        Math.abs(left - right) <= 0.001;
-      const boundaryCarriesAlreadyWeightedContribution = approximatelyEqual(
-        boundaryQualityScore,
-        qualityRankingContribution,
-      );
-      const plannerAppliesAnotherWeight =
-        effectivePlannerMultiplier !== undefined &&
-        !approximatelyEqual(effectivePlannerMultiplier, 1);
+  it('INVARIANT: quality must not be weighted twice across the ranking/planner boundary', async () => {
+    const rankable: (RankableCandidate & { original: any })[] = [
+      {
+        id: 'quality',
+        source: 'poi',
+        weightedScore: 4.7,
+        preferenceScore: 0,
+        original: {},
+      },
+      {
+        id: 'no-quality',
+        source: 'poi',
+        weightedScore: undefined,
+        preferenceScore: 0,
+        original: {},
+      },
+    ];
+    const ranked = rankCandidatesByRelevance(
+      rankable,
+      new Map([
+        ['quality', 0.5],
+        ['no-quality', 0.5],
+      ]),
+    );
+    const qualityRankingContribution = ranked.find(
+      (r) => r.candidate.id === 'quality',
+    )!.scoreBreakdown.qualityBonus;
+    const scoreBreakdownById = new Map<string, CandidateScoreBreakdown>(
+      ranked.map((r) => [r.candidate.id, r.scoreBreakdown]),
+    );
+    const normalizer = new PlanningCandidateNormalizerService(
+      dailyPlanningPolicyConfig(),
+    );
+    const normalized = await normalizer.normalizeExperiences(
+      ['quality', 'no-quality'].map((id) => ({
+        id,
+        canonicalName: 'Rated Landmark',
+        description: '',
+        durationMinutes: 90,
+        latitude: -34.6,
+        longitude: -58.38,
+        qualityScore: id === 'quality' ? 4.7 : undefined,
+        components: [] as any[],
+      })),
+      scoreBreakdownById,
+    );
+    const candidateWithQuality = normalized.find(
+      (candidate) => candidate.experienceId === 'quality',
+    )!;
+    const candidateWithoutQuality = normalized.find(
+      (candidate) => candidate.experienceId === 'no-quality',
+    )!;
+    const policy = dailyPlanningPolicyConfig();
+    const emptyDay: any = { dayNumber: 1, assigned: [] };
+    const context: any = { policy };
+    const scoreWithQuality = scoreCandidateForDay(
+      candidateWithQuality,
+      emptyDay,
+      context,
+    );
+    const scoreWithoutQuality = scoreCandidateForDay(
+      candidateWithoutQuality,
+      emptyDay,
+      context,
+    );
+    const effectivePlannerQualityContribution =
+      scoreWithQuality - scoreWithoutQuality;
+    const boundaryQualityScore = candidateWithQuality.qualityScore ?? 0;
+    const effectivePlannerMultiplier =
+      boundaryQualityScore === 0
+        ? undefined
+        : effectivePlannerQualityContribution / boundaryQualityScore;
+    const approximatelyEqual = (left: number, right: number): boolean =>
+      Math.abs(left - right) <= 0.001;
+    const boundaryCarriesAlreadyWeightedContribution = approximatelyEqual(
+      boundaryQualityScore,
+      qualityRankingContribution,
+    );
+    const plannerAppliesAnotherWeight =
+      effectivePlannerMultiplier !== undefined &&
+      !approximatelyEqual(effectivePlannerMultiplier, 1);
 
-      // eslint-disable-next-line no-console
-      console.info(
-        `[CHAR-6] ranking quality contribution=${qualityRankingContribution} boundary qualityScore=${boundaryQualityScore} effective planner contribution=${effectivePlannerQualityContribution} effective multiplier=${effectivePlannerMultiplier} boundary already weighted=${boundaryCarriesAlreadyWeightedContribution} second weighting detected=${plannerAppliesAnotherWeight}`,
-      );
+    // eslint-disable-next-line no-console
+    console.info(
+      `[CHAR-6] ranking quality contribution=${qualityRankingContribution} boundary qualityScore=${boundaryQualityScore} effective planner contribution=${effectivePlannerQualityContribution} effective multiplier=${effectivePlannerMultiplier} boundary already weighted=${boundaryCarriesAlreadyWeightedContribution} second weighting detected=${plannerAppliesAnotherWeight}`,
+    );
 
-      expect(
-        boundaryCarriesAlreadyWeightedContribution &&
-          plannerAppliesAnotherWeight,
-      ).toBe(false);
-    },
-  );
+      expect(boundaryCarriesAlreadyWeightedContribution).toBe(false);
+      expect(plannerAppliesAnotherWeight).toBe(true);
+      expect(effectivePlannerQualityContribution).toBeCloseTo(
+        ranked.find((r) => r.candidate.id === 'quality')!.scoreBreakdown
+          .totalScore -
+          ranked.find((r) => r.candidate.id === 'no-quality')!.scoreBreakdown
+            .totalScore,
+        5,
+      );
+  });
 });

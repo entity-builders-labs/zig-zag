@@ -1,5 +1,9 @@
-import { candidateMatchesPreferenceFacet } from './preference-facet-matching.util';
+import {
+  candidateMatchesPreferenceFacet,
+  preferenceWeightForExperience,
+} from './preference-facet-matching.util';
 import { PreferenceFacet } from '../preferences/preference-facet.interface';
+import { RequestedFacet } from '../interfaces/preference-spec.interface';
 
 describe('candidateMatchesPreferenceFacet', () => {
   const baseFacet = (
@@ -429,5 +433,49 @@ describe('candidateMatchesPreferenceFacet', () => {
         ),
       ).toBe(true);
     });
+  });
+});
+
+describe('preferenceWeightForExperience', () => {
+  const facet = (
+    dimension: string,
+    key: string,
+    weight: number,
+  ): RequestedFacet => ({
+    dimension,
+    key,
+    weight,
+    source: 'wizard',
+    required: false,
+  });
+
+  it('sums distinct canonically satisfied facets and ignores duplicate representations', () => {
+    const experience = {
+      themes: ['history'],
+      metadata: {
+        dimensionedTraits: [{ dimension: 'trait', key: 'architecture' }],
+      },
+    };
+    expect(
+      preferenceWeightForExperience(experience, [
+        facet('theme', 'history', 1.0),
+        facet('theme', 'HISTORY', 1.0),
+        facet('trait', 'architecture', 0.7),
+        facet('theme', 'food', 0.4),
+      ]),
+    ).toBe(1.7);
+  });
+
+  it('does not infer preference truth from semantic-looking text', () => {
+    const experience = {
+      canonicalName: 'Historic architecture museum',
+      description: 'A very similar history and architecture experience',
+    };
+    expect(
+      preferenceWeightForExperience(experience, [
+        facet('theme', 'history', 1),
+        facet('trait', 'architecture', 0.7),
+      ]),
+    ).toBe(0);
   });
 });

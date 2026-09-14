@@ -8,6 +8,11 @@ import {
   buildOrderedComponentFootprints,
 } from '../utils/spatial-footprint.util';
 
+export interface PlanningCandidateNormalizationContext {
+  preferenceWeightById?: ReadonlyMap<string, number>;
+  mustIncludeExperienceIds?: ReadonlySet<string>;
+}
+
 /**
  * Boundary adapter converting ranked, verified Experience records into the
  * planner's native candidate contract. It preserves every required component;
@@ -24,6 +29,7 @@ export class PlanningCandidateNormalizerService {
   async normalizeExperiences(
     experiences: any[],
     scoreBreakdownById: Map<string, CandidateScoreBreakdown>,
+    context: PlanningCandidateNormalizationContext = {},
   ): Promise<PlanningExperienceCandidate[]> {
     return experiences.map((experience) => {
       const persistedMobility =
@@ -63,7 +69,17 @@ export class PlanningCandidateNormalizerService {
         endFootprint,
         semanticScore: scoreBreakdown?.semanticSimilarity ?? 0,
         rankingScore: scoreBreakdown?.totalScore,
-        qualityScore: scoreBreakdown?.qualityBonus,
+        qualityScore:
+          typeof experience.qualityScore === 'number' &&
+          Number.isFinite(experience.qualityScore) &&
+          experience.qualityScore >= 0 &&
+          experience.qualityScore <= 5
+            ? experience.qualityScore
+            : undefined,
+        preferenceWeight: context.preferenceWeightById?.get(experience.id),
+        mustInclude: context.mustIncludeExperienceIds?.has(experience.id)
+          ? true
+          : undefined,
         mobility: persistedMobility
           ? {
               internalWalkingMinutes: persistedMobility.internalWalkingMinutes,

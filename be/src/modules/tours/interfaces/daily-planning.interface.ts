@@ -77,7 +77,12 @@ export interface PlanningExperienceCandidate {
    * planner callers may omit it and fall back to semanticScore.
    */
   rankingScore?: number;
+  /** Raw canonical Experience qualityScore on the 0..5 scale. */
   qualityScore?: number;
+  /** Sum of distinct requested facets canonically satisfied by this Experience. */
+  preferenceWeight?: number;
+  /** Transport-only marker for a resolved MUST venue anchor. */
+  mustInclude?: boolean;
   themes?: string[];
   mobility?: {
     internalWalkingMinutes?: number;

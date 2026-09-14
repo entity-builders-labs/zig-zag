@@ -6,6 +6,7 @@ import {
   facetKey,
 } from '../interfaces/preference-spec.interface';
 import { candidateMatchesPreferenceFacet } from '../utils/preference-facet-matching.util';
+import { preferenceWeightForExperience } from '../utils/preference-facet-matching.util';
 import {
   requestedFacetToPreferenceFacet,
   isStrongFacetMatch,
@@ -29,6 +30,7 @@ export interface ExperienceCompositionInput {
 export interface ExperienceCompositionOutput {
   result: CompositionSelectionResult;
   candidatesById: Map<string, any>;
+  preferenceWeightById: Map<string, number>;
 }
 
 @Injectable()
@@ -122,6 +124,15 @@ export class ExperienceCompositionService {
         resolvedVenueMustAnchorNames: input.resolvedVenueMustAnchorNames,
       }),
       candidatesById: deduped,
+      preferenceWeightById: new Map(
+        experiences.map((experience) => [
+          experience.id,
+          preferenceWeightForExperience(
+            experience,
+            input.preferenceSpec.facets,
+          ),
+        ]),
+      ),
     };
   }
 }

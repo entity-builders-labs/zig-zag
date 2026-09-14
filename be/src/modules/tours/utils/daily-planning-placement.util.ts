@@ -187,11 +187,16 @@ export function scoreCandidateForDay(
   context: PlacementContext,
 ): number {
   const { scoring } = context.policy;
-  const semantic = scoring.semanticWeight * candidate.semanticScore;
-  const quality = scoring.qualityWeight * (candidate.qualityScore ?? 0);
+  // rankingScore is the upstream catalog/composition relevance authority and
+  // already contains its quality/preference contributions. Use the explicit
+  // fields only for direct planner callers without that boundary score.
+  const relevance =
+    candidate.rankingScore ??
+    scoring.semanticWeight * candidate.semanticScore +
+      scoring.qualityWeight * (candidate.qualityScore ?? 0);
   const dayBalanceBonus =
     scoring.dayBalanceWeight * (1 / (acc.assigned.length + 1));
-  return semantic + quality + dayBalanceBonus;
+  return relevance + dayBalanceBonus;
 }
 
 export async function placeCandidates(

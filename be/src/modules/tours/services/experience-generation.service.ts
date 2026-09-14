@@ -120,6 +120,8 @@ interface CandidateSelection {
   scoreBreakdownById: Map<string, CandidateScoreBreakdown>;
   preferenceEvaluationById: Map<string, unknown>;
   hardExclusionRelaxed: boolean;
+  preferenceWeightById: Map<string, number>;
+  mustIncludeExperienceIds: Set<string>;
 }
 
 function formatExperienceForPrompt(experience: any): string {
@@ -627,6 +629,8 @@ export class ExperienceGenerationService {
         eligibleCandidateCount: experiences.length,
         indexedCandidateCount: 0,
       },
+      preferenceWeightById: composition.preferenceWeightById,
+      mustIncludeExperienceIds: new Set(resolvedVenueMustIds),
     };
   }
 
@@ -678,6 +682,8 @@ export class ExperienceGenerationService {
         string,
         CandidateScoreBreakdown
       >();
+      const planningPreferenceWeightById = new Map<string, number>();
+      const planningMustIncludeExperienceIds = new Set<string>();
       const allEligibleExperiencesById = new Map<string, any>();
       const discoveryResolvedExperienceIds = new Set<string>();
       // Canonical multi-source acquisition bookkeeping (was: placesRefillError).
@@ -688,6 +694,12 @@ export class ExperienceGenerationService {
       let degradedAcquisitionReason: string | null = null;
 
       const recordOfferedCandidates = (selection: CandidateSelection) => {
+        selection.preferenceWeightById.forEach((weight, id) =>
+          planningPreferenceWeightById.set(id, weight),
+        );
+        selection.mustIncludeExperienceIds.forEach((id) =>
+          planningMustIncludeExperienceIds.add(id),
+        );
         selection.experiences.forEach((experience: any) => {
           candidateExperienceIds.add(experience.id);
           candidateExperiencesById.set(experience.id, experience);
@@ -855,6 +867,9 @@ export class ExperienceGenerationService {
               radiusMeters: searchArea.radiusMeters,
             },
       });
+      venueAnchorResolution.resolvedMustIds.forEach((id) =>
+        planningMustIncludeExperienceIds.add(id),
+      );
       if (
         Number.isFinite(request.destination.latitude) &&
         Number.isFinite(request.destination.longitude)
@@ -1290,6 +1305,10 @@ export class ExperienceGenerationService {
         await this.planningCandidateNormalizer.normalizeExperiences(
           overlapFilter.kept,
           offeredScoreBreakdownById,
+          {
+            preferenceWeightById: planningPreferenceWeightById,
+            mustIncludeExperienceIds: planningMustIncludeExperienceIds,
+          },
         );
 
       const planningInput: DailyPlanningInput = {

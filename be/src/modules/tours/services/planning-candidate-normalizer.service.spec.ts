@@ -259,7 +259,7 @@ describe('PlanningCandidateNormalizerService', () => {
     expect(candidate.durationMinutes).toBe(120);
   });
 
-  it('carries the ranking score breakdown into planner scores', async () => {
+  it('carries raw canonical Experience quality into the planner contract', async () => {
     const [candidate] = await service.normalizeExperiences(
       [
         {
@@ -267,12 +267,51 @@ describe('PlanningCandidateNormalizerService', () => {
           canonicalName: 'Comida',
           latitude: 1,
           longitude: 2,
+          qualityScore: 4.7,
         },
       ],
       new Map([['e5', { semanticSimilarity: 0.8, qualityBonus: 0.4 } as any]]),
     );
     expect(candidate.semanticScore).toBe(0.8);
-    expect(candidate.qualityScore).toBe(0.4);
+    expect(candidate.qualityScore).toBe(4.7);
+  });
+
+  it('carries preference weight and only resolved MUST venue IDs', async () => {
+    const [must, soft, ordinary] = await service.normalizeExperiences(
+      [
+        { id: 'must', canonicalName: 'Must', latitude: 1, longitude: 2 },
+        { id: 'soft', canonicalName: 'Soft', latitude: 1, longitude: 2 },
+        {
+          id: 'ordinary',
+          canonicalName: 'Ordinary',
+          latitude: 1,
+          longitude: 2,
+        },
+      ],
+      new Map(),
+      {
+        preferenceWeightById: new Map([
+          ['must', 1.7],
+          ['soft', 0.4],
+        ]),
+        mustIncludeExperienceIds: new Set(['must']),
+      },
+    );
+
+    expect(must.preferenceWeight).toBe(1.7);
+    expect(must.mustInclude).toBe(true);
+    expect(soft).toMatchObject({ preferenceWeight: 0.4 });
+    expect(soft.mustInclude).toBeUndefined();
+    expect(ordinary.mustInclude).toBeUndefined();
+  });
+
+  it('keeps absent contract inputs neutral for direct planner callers', async () => {
+    const [candidate] = await service.normalizeExperiences(
+      [{ id: 'direct', canonicalName: 'Direct', latitude: 1, longitude: 2 }],
+      new Map(),
+    );
+    expect(candidate.preferenceWeight).toBeUndefined();
+    expect(candidate.mustInclude).toBeUndefined();
   });
 
   it('does not expose legacy structural format fields', async () => {

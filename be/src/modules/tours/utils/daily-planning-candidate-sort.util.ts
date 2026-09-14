@@ -16,6 +16,9 @@ export function sortCandidatesDeterministically(
     if (bRanking !== aRanking) {
       return bRanking - aRanking;
     }
+    if (a.rankingScore !== undefined || b.rankingScore !== undefined) {
+      return a.experienceId.localeCompare(b.experienceId);
+    }
     const aQuality = a.qualityScore ?? 0;
     const bQuality = b.qualityScore ?? 0;
     if (bQuality !== aQuality) {
