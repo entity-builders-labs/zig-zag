@@ -294,6 +294,7 @@ export class ExperienceGenerationService {
   private async computePreferenceCoverage(
     preferenceSpec: PreferenceSpec,
     scope: FacetRetrievalScope,
+    resolvedMustVenueExperienceIds: readonly string[] = [],
   ): Promise<PreferenceCoverageResult> {
     const facetResults = await Promise.all(
       preferenceSpec.facets.map((facet) =>
@@ -313,11 +314,20 @@ export class ExperienceGenerationService {
       preferenceSpec.trip.days,
       preferenceSpec.trip.pace,
     );
-    // M2 does not yet wire anchor/composition reservations into the
-    // portfolio target (M3's acquisition-strategy anchors, M5's
-    // composition) -- 0 distinct reservations, 0 distinct must-anchors.
-    // `portfolioTarget` degrades to `baseTarget` alone until then.
-    const target = portfolioTarget(baseTarget, 0, 0);
+    const mustIds = new Set(resolvedMustVenueExperienceIds);
+    const reservedStrongExperienceIds: string[] = [];
+    for (const result of facetResults) {
+      if (result.strongMatches.some((id) => mustIds.has(id))) continue;
+      const reservation = result.strongMatches.find(
+        (id) => !reservedStrongExperienceIds.includes(id),
+      );
+      if (reservation) reservedStrongExperienceIds.push(reservation);
+    }
+    const target = portfolioTarget({
+      baseTarget,
+      reservedStrongExperienceIds,
+      resolvedMustVenueExperienceIds,
+    });
 
     const unsatisfiedFacets = facetResults.filter(
       (facetCandidates) => !facetCandidates.satisfied,
@@ -860,7 +870,11 @@ export class ExperienceGenerationService {
           const nearbyExperiencesSample = selection.initialExperiences;
           semanticRankingOutcome = selection.semanticRanking;
           const initialPreferenceCoverage =
-            await this.computePreferenceCoverage(preferenceSpec, searchArea);
+            await this.computePreferenceCoverage(
+              preferenceSpec,
+              searchArea,
+              venueAnchorResolution.resolvedMustIds,
+            );
           traceSteps.push(
             buildPreferenceCoverageStep(initialPreferenceCoverage, {
               offeredCandidateCount: nearbyExperiencesSample.length,
@@ -1173,6 +1187,7 @@ export class ExperienceGenerationService {
               currentPreferenceCoverage = await this.computePreferenceCoverage(
                 preferenceSpec,
                 searchArea,
+                venueAnchorResolution.resolvedMustIds,
               );
               traceSteps.push(
                 buildPreferenceCoverageStep(currentPreferenceCoverage, {

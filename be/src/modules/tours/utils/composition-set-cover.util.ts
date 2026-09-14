@@ -83,6 +83,7 @@ export function composeSet(input: ComposeSetInput): CompositionSelectionResult {
   const selected: CompositionCandidate[] = [];
   const selectedIds = new Set<string>();
   const mustAnchorsForced: string[] = [];
+  const reservedStrongExperienceIds: string[] = [];
   const unmetAnchors = unresolvedVenueMustAnchors(
     input.preferenceSpec.anchors,
     input.resolvedVenueMustAnchorNames ?? [],
@@ -109,17 +110,18 @@ export function composeSet(input: ComposeSetInput): CompositionSelectionResult {
     if (strongest) {
       selected.push(strongest);
       selectedIds.add(strongest.id);
+      reservedStrongExperienceIds.push(strongest.id);
     }
   }
 
-  const target = portfolioTarget(
-    basePortfolioTarget(
+  const target = portfolioTarget({
+    baseTarget: basePortfolioTarget(
       input.preferenceSpec.trip.days,
       input.preferenceSpec.trip.pace,
     ),
-    selected.filter((candidate) => candidate.satisfiedFacets.length > 0).length,
-    mustAnchorsForced.length,
-  );
+    reservedStrongExperienceIds,
+    resolvedMustVenueExperienceIds: mustAnchorsForced,
+  });
   const remaining = eligible
     .filter((candidate) => !selectedIds.has(candidate.id))
     .sort((a, b) => byRemainderPriority(weights, a, b));

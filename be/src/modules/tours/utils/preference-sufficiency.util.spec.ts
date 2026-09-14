@@ -46,11 +46,11 @@ describe('preference-sufficiency.util', () => {
   describe('portfolioTarget', () => {
     it('is max(baseTarget, distinctReservations + distinctMustAnchors)', () => {
       // base bigger than reservations+anchors -> base wins.
-      expect(portfolioTarget(20, 3, 0)).toBe(20);
+      expect(portfolioTarget({ baseTarget: 20, reservedStrongExperienceIds: ['a', 'b', 'c'], resolvedMustVenueExperienceIds: [] })).toBe(20);
       // reservations+anchors bigger than base -> their sum wins.
-      expect(portfolioTarget(6, 5, 3)).toBe(8);
+      expect(portfolioTarget({ baseTarget: 6, reservedStrongExperienceIds: ['a', 'b', 'c', 'd', 'e'], resolvedMustVenueExperienceIds: ['f', 'g', 'h'] })).toBe(8);
       // exact tie.
-      expect(portfolioTarget(10, 7, 3)).toBe(10);
+      expect(portfolioTarget({ baseTarget: 10, reservedStrongExperienceIds: ['a', 'b', 'c', 'd', 'e', 'f', 'g'], resolvedMustVenueExperienceIds: ['h', 'i', 'j'] })).toBe(10);
     });
   });
 
@@ -69,11 +69,11 @@ describe('preference-sufficiency.util', () => {
 
     const distinctReservations = 3; // one reserved strong match per facet
     const distinctMustAnchors = 0;
-    const target = portfolioTarget(
-      base,
-      distinctReservations,
-      distinctMustAnchors,
-    );
+    const target = portfolioTarget({
+      baseTarget: base,
+      reservedStrongExperienceIds: ['a', 'b', 'c'].slice(0, distinctReservations),
+      resolvedMustVenueExperienceIds: ['d'].slice(0, distinctMustAnchors),
+    });
     expect(target).toBe(20);
 
     const totalDistinctEligibleExperiences = 3;
@@ -88,14 +88,22 @@ describe('preference-sufficiency.util', () => {
     expect(paceFactor.length).toBe(1); // pace only
     expect(basePortfolioTarget.length).toBe(2); // days, pace only
     expect(facetSatisfied.length).toBe(1); // strongCount only
-    expect(portfolioTarget.length).toBe(3); // baseTarget, distinctReservations, distinctMustAnchors only
+    expect(portfolioTarget.length).toBe(1); // typed target facts
 
     // Calling with identical days/pace/counts always yields an identical
     // result, regardless of which exploration style a caller might
     // otherwise have been tempted to pass alongside them.
     const base = basePortfolioTarget(5, 'moderate');
-    const target = portfolioTarget(base, 3, 0);
+    const target = portfolioTarget({
+      baseTarget: base,
+      reservedStrongExperienceIds: ['a', 'b', 'c'],
+      resolvedMustVenueExperienceIds: [],
+    });
     expect(basePortfolioTarget(5, 'moderate')).toBe(base);
-    expect(portfolioTarget(base, 3, 0)).toBe(target);
+    expect(portfolioTarget({
+      baseTarget: base,
+      reservedStrongExperienceIds: ['a', 'b', 'c'],
+      resolvedMustVenueExperienceIds: [],
+    })).toBe(target);
   });
 });

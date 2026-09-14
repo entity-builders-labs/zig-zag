@@ -20,6 +20,12 @@ import { PreferenceSpec } from '../interfaces/preference-spec.interface';
 
 type Pace = PreferenceSpec['trip']['pace'];
 
+export interface PortfolioTargetFacts {
+  baseTarget: number;
+  reservedStrongExperienceIds: readonly string[];
+  resolvedMustVenueExperienceIds: readonly string[];
+}
+
 const MIN_DAYS = 1;
 const MAX_DAYS = 14;
 
@@ -55,9 +61,11 @@ export function facetSatisfied(strongCount: number): boolean {
  * base days x pace target.
  */
 export function portfolioTarget(
-  baseTarget: number,
-  distinctReservations: number,
-  distinctMustAnchors: number,
+  facts: PortfolioTargetFacts,
 ): number {
-  return Math.max(baseTarget, distinctReservations + distinctMustAnchors);
+  const reservedIds = new Set([
+    ...facts.reservedStrongExperienceIds,
+    ...facts.resolvedMustVenueExperienceIds,
+  ]);
+  return Math.max(facts.baseTarget, reservedIds.size);
 }
