@@ -29,6 +29,54 @@ That loses semantic/quality/exploration/etc. decisions already made by compositi
 
 This task fixes that regression without restoring `rankingScore` to the planner.
 
+## Required initial inspection set
+
+Start with this set. Do not begin by exploring the whole repository.
+
+Implementation and direct boundary:
+
+- `be/src/modules/tours/services/experience-generation.service.ts`
+  - `CandidateSelection`
+  - `composeExperiences(...)`
+  - candidate-pool accumulation
+  - overlap-filter call site
+- `be/src/modules/tours/utils/candidate-overlap-filter.util.ts`
+- `be/src/modules/tours/utils/candidate-overlap-filter.util.spec.ts`
+- `be/src/modules/tours/services/experience-composition.service.ts`
+- `be/src/modules/tours/utils/composition-set-cover.util.ts`
+
+Planner regression guard only — inspect to verify the fix does not cross the boundary; do not redesign these files:
+
+- `be/src/modules/tours/interfaces/daily-planning.interface.ts`
+- `be/src/modules/tours/services/planning-candidate-normalizer.service.ts`
+- `be/src/modules/tours/utils/daily-planning-candidate-sort.util.ts`
+- `be/src/modules/tours/utils/daily-planning-placement.util.ts`
+
+Relevant tests/characterization:
+
+- existing `ExperienceGenerationService` specs covering composition/planner handoff
+- `be/test/characterization/ranking-planner-boundary.characterization-spec.ts`
+- any directly related overlap/composition test imported or referenced by the files above
+
+Expand beyond this set only if a concrete import, caller, failing test, or material dependency requires it. If expansion is necessary, report the reason in the final task summary.
+
+## Decisions already closed
+
+Do NOT reopen these decisions during implementation unless current remote code makes a material premise false. If that happens, STOP and report the mismatch rather than redesigning the task.
+
+1. `PlanningExperienceCandidate` must NOT regain `rankingScore`.
+2. `plannerRelevanceScore(...)` remains the single planner soft-relevance authority.
+3. Planner relevance remains semantic + canonical strong preference + normalized raw quality, with planner-local terms where already defined.
+4. The overlap filter needs only the already-decided composition order, not a newly recomputed weighted score.
+5. The overlap-only field is named `compositionOrderScore`, not `rankingScore`.
+6. `CandidateScoreBreakdown.totalScore` remains diagnostic/trace compatibility data and is not overlap authority.
+7. Equal-component overlap resolution preserves the ordering composition already decided; the overlap layer does not reinterpret preference/quality/semantic/exploration signals.
+8. `preferenceWeight` remains strong-match-only.
+9. raw `Experience.qualityScore` remains the planner quality signal and is applied exactly once.
+10. `mustInclude` remains transport-only in C4; pinned scheduling belongs to C5.
+11. The live composition → planner semantic-similarity handoff is a separate known follow-up and is NOT fixed here.
+12. C5, C5b, acquisition, embeddings, exploration, overlap geography/name semantics, and Git-history cleanup are out of scope.
+
 ## 2. Architectural decision
 
 There are TWO distinct concepts and they MUST remain separate.
@@ -405,11 +453,7 @@ The live composition → planner semantic-similarity handoff is a known follow-u
 
 ## 11. Execution-contract hardening
 
-Update:
-
-`docs/superpowers/contracts/preference-first-agent-execution-contract.md`
-
-under repository/remote safety with this permanent invariant:
+The execution contract should already contain these permanent invariants before implementation begins:
 
 ```text
 - `fork` is the only write target for this initiative.
@@ -418,14 +462,14 @@ under repository/remote safety with this permanent invariant:
 - Never create, update, or push `feat/preference-first-selection` to `origin`.
 ```
 
-Also make repository-root file semantics explicit:
+It must also already define repository-root semantics:
 
-- the agent must first `cd /Users/jiseruk/projects/zig-zag/.worktrees/ui-redesign`;
-- verify `git rev-parse --show-toplevel` equals that path;
-- then read `AGENTS.md` relative to that repository root;
-- never interpret `/AGENTS.md` as an absolute filesystem path for this workflow.
+- the agent first `cd /Users/jiseruk/projects/zig-zag/.worktrees/ui-redesign`;
+- verifies `git rev-parse --show-toplevel` equals that path;
+- reads `AGENTS.md` relative to that repository root;
+- never interprets `/AGENTS.md` as an absolute filesystem path for this workflow.
 
-Do not otherwise expand the execution contract with architecture-specific content.
+Do not spend implementation time redesigning or expanding the execution contract beyond any narrowly necessary synchronization with this plan.
 
 ## 12. Required verification
 
@@ -513,7 +557,7 @@ and then:
 docs(progress): record C4 overlap correction
 ```
 
-The plan itself may be committed with the implementation commit.
+The plan itself is already versioned before implementation and should not be rewritten by the implementation agent unless a factual typo blocks execution.
 
 Do not create unrelated commits.
 
