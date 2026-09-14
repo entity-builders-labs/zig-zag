@@ -14,7 +14,10 @@ import {
 import { AnchoredPlace } from '../interfaces/preference-spec.interface';
 import { PreferenceFacetDeficit } from '../interfaces/experience-acquisition-plan.interface';
 import { ExperienceDiscoveryScope } from '../interfaces/experience-discovery.interface';
-import { ExperienceValidationScope, GeographicScope } from '../interfaces/experience-resolution.interface';
+import {
+  ExperienceValidationScope,
+  GeographicScope,
+} from '../interfaces/experience-resolution.interface';
 import { normalizeWizardFacet } from '../utils/preference-facet-merge.util';
 import { candidateMatchesPreferenceFacet } from '../utils/preference-facet-matching.util';
 import { normalizeGeoName } from '../utils/nominatim-match.util';
@@ -87,12 +90,7 @@ export class AreaRouteWalkAcquisitionService {
         : input.anchor.kind === 'route'
           ? await this.anchorResolver.resolveRoute(
               input.anchor,
-              input.geographicScope.kind === 'AREA_BOUNDARY'
-                ? input.geographicScope.boundary
-                : undefined,
-              input.geographicScope.kind === 'POINT_RADIUS'
-                ? input.geographicScope
-                : undefined,
+              input.geographicScope!,
             )
           : ({ resolved: false } as const);
 

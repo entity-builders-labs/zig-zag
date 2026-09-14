@@ -60,9 +60,7 @@ export function facetSatisfied(strongCount: number): boolean {
  * facet reservations and resolved must anchors, but never less than the
  * base days x pace target.
  */
-export function portfolioTarget(
-  facts: PortfolioTargetFacts,
-): number {
+export function portfolioTarget(facts: PortfolioTargetFacts): number {
   const reservedIds = new Set([
     ...facts.reservedStrongExperienceIds,
     ...facts.resolvedMustVenueExperienceIds,

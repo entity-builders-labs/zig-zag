@@ -5,7 +5,6 @@ import {
   OsmLookupResult,
   OsmPlacesService,
 } from '@integrations/osm/services/osm-places.service';
-import { geometryContainsPoint } from '@integrations/osm/utils/geojson-containment.util';
 import { INominatimApiService } from '@integrations/osm/interfaces/nominatim.interface';
 import { IPlacesApiService } from '@integrations/google-places/interfaces/places-api.interface';
 import { ExperienceCatalogService } from './experience-catalog.service';
@@ -19,7 +18,6 @@ import {
   FinalExperienceResolutionResponse,
   ResolvedExperienceCandidate,
   ResolvedGeoEntity,
-  GeographicScope,
 } from '../interfaces/experience-resolution.interface';
 import {
   bestNominatimMatch,
@@ -102,22 +100,14 @@ export class ExperienceProposalResolverService
   ): Promise<FinalExperienceResolutionResponse> {
     const candidates = Array.isArray(input?.candidates) ? input.candidates : [];
     const evidence = input.evidence ?? [];
-    const legacy = input as Record<string, unknown>;
-    const scope = input.geographicScope ??
-      (legacy.destinationBoundary
-        ? { kind: 'AREA_BOUNDARY' as const, boundary: legacy.destinationBoundary as OsmCandidate }
-        : legacy.destinationPointRadius
-          ? ({ kind: 'POINT_RADIUS' as const, ...(legacy.destinationPointRadius as { latitude: number; longitude: number; radiusMeters: number }) })
-          : undefined);
-    if (!scope) throw new Error('Experience resolution requires a geographic scope');
-    const boundary = scope.kind === 'AREA_BOUNDARY' ? scope.boundary : undefined;
+    const scope = input.geographicScope;
+    if (!scope)
+      throw new Error('Experience resolution requires a geographic scope');
+    const boundary =
+      scope.kind === 'AREA_BOUNDARY' ? scope.boundary : undefined;
 
-    // A point-scale destination has no real OSM area/relation — boundary
-    // here is a synthetic point-radius placeholder (osmId: 0) that a real
-    // "within area" Overpass query rejects outright (verified live:
-    // relation(0) returns a hard HTTP 400, not a slow query or an empty
-    // result). Use the radius-based lookups instead whenever the caller
-    // tells us this destination degraded to point-scale.
+    // A point-scale destination has no OSM area/relation. Use radius-based
+    // lookups directly; AREA_BOUNDARY alone authorizes within-area queries.
     const [streetLookup, poiLookup] = await Promise.all([
       scope.kind === 'POINT_RADIUS'
         ? this.osmPlaces.lookupStreetsNear(
@@ -173,9 +163,10 @@ export class ExperienceProposalResolverService
       .map((item) => {
         const result = this.geographicValidator.validate(
           item,
-          this.validationBoundaryFor(item, boundary),
+          boundary,
           input.validationScope,
           input.validationIntent,
+          scope,
         );
         validationByCandidate.set(item, result);
         return result;
@@ -711,73 +702,6 @@ export class ExperienceProposalResolverService
       );
       return destinationTokens.some((token) => text.includes(token));
     });
-  }
-
-  private validationBoundaryFor(
-    candidate: ResolvedExperienceCandidate,
-    destinationBoundary: OsmCandidate | undefined,
-  ): OsmCandidate | undefined {
-    if (!destinationBoundary) return undefined;
-    if (!candidate.destinationAssociationVerified) return destinationBoundary;
-    const anchors = candidate.resolvedEntities.filter(
-      (entity) =>
-        entity.status === 'resolved' &&
-        Number.isFinite(entity.latitude) &&
-        Number.isFinite(entity.longitude),
-    );
-    if (anchors.length === 0) return destinationBoundary;
-
-    const allOutside = anchors.every(
-      (entity) => !this.isInsideBoundary(entity, destinationBoundary),
-    );
-    if (!allOutside) return destinationBoundary;
-
-    const latitudes = anchors.map((entity) => entity.latitude as number);
-    const longitudes = anchors.map((entity) => entity.longitude as number);
-    const minLat = Math.min(...latitudes);
-    const maxLat = Math.max(...latitudes);
-    const minLon = Math.min(...longitudes);
-    const maxLon = Math.max(...longitudes);
-    const margin = 0.002;
-    return {
-      id: 'synthetic:grounded-association-scope',
-      name: `Grounded association scope for ${candidate.candidate.name}`,
-      osmType: 'relation',
-      osmId: 0,
-      geometry: {
-        type: 'Polygon',
-        coordinates: [
-          [
-            [minLon - margin, minLat - margin],
-            [maxLon + margin, minLat - margin],
-            [maxLon + margin, maxLat + margin],
-            [minLon - margin, maxLat + margin],
-            [minLon - margin, minLat - margin],
-          ],
-        ],
-      },
-      tags: {
-        synthetic: 'true',
-        validation_scope: 'grounded_destination_association',
-      },
-    };
-  }
-
-  private isInsideBoundary(
-    entity: ResolvedGeoEntity,
-    boundary: OsmCandidate,
-  ): boolean {
-    if (
-      !Number.isFinite(entity.latitude) ||
-      !Number.isFinite(entity.longitude)
-    ) {
-      return false;
-    }
-    return geometryContainsPoint(
-      boundary.geometry,
-      entity.longitude as number,
-      entity.latitude as number,
-    );
   }
 
   /**

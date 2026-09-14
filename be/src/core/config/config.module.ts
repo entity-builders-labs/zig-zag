@@ -5,6 +5,7 @@ import { appConfig } from './app.config';
 import aiConfig from '../../shared/ai/ai.config';
 import authConfig from './auth.config';
 import dailyPlanningPolicyConfig from '../../modules/tours/config/daily-planning-policy.config';
+import destinationScopePolicyConfig from '../../modules/tours/config/destination-scope-policy.config';
 import * as path from 'path';
 
 const runningFromBackend = path.basename(process.cwd()) === 'be';
@@ -30,6 +31,7 @@ const backendEnvPath = runningFromBackend
         aiConfig,
         authConfig,
         dailyPlanningPolicyConfig,
+        destinationScopePolicyConfig,
       ],
     }),
   ],

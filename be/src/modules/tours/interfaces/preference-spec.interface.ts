@@ -83,7 +83,11 @@ export interface ComposableExperience {
   themes?: readonly string[];
   intents?: readonly string[];
   traits?: readonly string[];
-  dimensionedTraits?: readonly { dimension: string; key: string; label?: string }[];
+  dimensionedTraits?: readonly {
+    dimension: string;
+    key: string;
+    label?: string;
+  }[];
   explorationFacts?: ExplorationSignalInput;
 }
 

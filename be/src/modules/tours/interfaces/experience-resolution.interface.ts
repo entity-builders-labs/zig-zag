@@ -92,7 +92,6 @@ export interface ExperienceResolutionRequest {
    */
   destinationCountryCode?: string;
   geographicScope?: GeographicScope;
-  [key: string]: unknown;
   traceContext?: Record<string, unknown>;
   evidence?: Array<{
     key?: string;

@@ -1,13 +1,11 @@
 import { Inject, Injectable, Optional } from '@nestjs/common';
 import { GeoEntityKind } from '@prisma/client';
-import {
-  OsmCandidate,
-  OsmPlacesService,
-} from '@integrations/osm/services/osm-places.service';
+import { OsmPlacesService } from '@integrations/osm/services/osm-places.service';
 import { GeoJsonGeometry } from '@integrations/osm/utils/osm-geometry.util';
 import { INominatimApiService } from '@integrations/osm/interfaces/nominatim.interface';
 import { Coordinates } from '@shared/utils/distance.utils';
 import { AnchoredPlace } from '../interfaces/preference-spec.interface';
+import { GeographicScope } from '../interfaces/experience-resolution.interface';
 import { ExperienceCatalogService } from './experience-catalog.service';
 import {
   bestNominatimMatch,
@@ -135,33 +133,28 @@ export class AreaRouteAnchorResolverService {
   /**
    * Named OSM highway way/street ONLY (canonical ROUTE support, v1 — no
    * OSM route *relations*). Mirrors the resolver's own point-scale/area-
-   * scale street-lookup split EXACTLY: `destinationPointRadius` present ->
-   * `lookupStreetsNear`; otherwise -> `lookupStreetsWithin(destinationBoundary)`,
-   * NEVER on a synthetic `osmId:0` placeholder (a real "within area"
-   * Overpass query rejects that outright). Any missing step returns
+   * scale street-lookup split EXACTLY: POINT_RADIUS -> `lookupStreetsNear`;
+   * AREA_BOUNDARY -> `lookupStreetsWithin`,
+   * never on a fabricated boundary. Any missing step returns
    * {resolved:false} -- a NORMAL outcome (falls through to the tourism-
    * route-Experience identity path), never a failure.
    */
   async resolveRoute(
     anchor: AnchoredPlace,
-    destinationBoundary: OsmCandidate | undefined,
-    destinationPointRadius:
-      | { latitude: number; longitude: number; radiusMeters: number }
-      | undefined,
+    geographicScope: GeographicScope,
   ): Promise<AnchorGeometryResolution> {
     try {
-      const streets = destinationPointRadius
-        ? (
-            await this.osmPlaces.lookupStreetsNear(
-              destinationPointRadius.latitude,
-              destinationPointRadius.longitude,
-              destinationPointRadius.radiusMeters,
-            )
-          ).value
-        : destinationBoundary
-          ? (await this.osmPlaces.lookupStreetsWithin(destinationBoundary))
-              .value
-          : [];
+      const streets =
+        geographicScope.kind === 'POINT_RADIUS'
+          ? (
+              await this.osmPlaces.lookupStreetsNear(
+                geographicScope.latitude,
+                geographicScope.longitude,
+                geographicScope.radiusMeters,
+              )
+            ).value
+          : (await this.osmPlaces.lookupStreetsWithin(geographicScope.boundary))
+              .value;
       if (streets.length === 0) return { resolved: false };
 
       const matched = matchOsmCandidateByName(anchor.rawName, streets);

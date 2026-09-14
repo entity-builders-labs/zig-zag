@@ -4,7 +4,10 @@ import { StructuredCandidateCorroborationService } from './structured-candidate-
 import { ExperienceAcquisitionService } from './experience-acquisition.service';
 import { AnchoredPlace } from '../interfaces/preference-spec.interface';
 import { GeographicScope } from '../interfaces/experience-resolution.interface';
-import { AcquisitionProviderResult, SourceObservation } from '../interfaces/experience-acquisition.interface';
+import {
+  AcquisitionProviderResult,
+  SourceObservation,
+} from '../interfaces/experience-acquisition.interface';
 
 export interface VenueAnchorLookupCapability {
   acquire(

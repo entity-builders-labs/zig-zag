@@ -106,7 +106,10 @@ import { MediaModule } from '../media/media.module';
     WikivoyageApiService,
     WikivoyageAcquisitionProvider,
     GooglePlacesAcquisitionProvider,
-    { provide: 'VenueAnchorLookupCapability', useExisting: GooglePlacesAcquisitionProvider },
+    {
+      provide: 'VenueAnchorLookupCapability',
+      useExisting: GooglePlacesAcquisitionProvider,
+    },
     OsmAcquisitionProvider,
     StructuredExperienceCandidateSynthesizerService,
     StructuredCandidateCorroborationService,
