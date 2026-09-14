@@ -112,6 +112,26 @@ export interface CompositionResult {
   portfolioTarget: number;
 }
 
+/** Ranking-only facts assembled at the composition boundary. */
+export interface CompositionCandidate {
+  id: string;
+  componentCount: number;
+  satisfiedFacets: string[];
+  qualityScore: number | null;
+  explorationSignals: import('../utils/exploration-signals.util').ExplorationSignals;
+  explorationTilt: number;
+  /** Neutral zero means unavailable/unknown, never a semantic match. */
+  semanticSimilarity: number;
+  groundingStrength: number;
+  matchesHardExclusion: boolean;
+  softAnchorBoost: number;
+  isPerformanceVenue: boolean;
+}
+
+export interface CompositionSelectionResult extends CompositionResult {
+  reservoir: string[];
+}
+
 /** Formats a facet-shaped `{dimension,key}` pair as `"dimension:key"`. */
 export function facetKey(
   facet: Pick<RequestedFacet, 'dimension' | 'key'>,

@@ -1264,11 +1264,11 @@ export function buildCandidatePoolStep(params: {
 
   return {
     stage: 'candidate_pool',
-    label: 'Ranking y ventana canónica',
-    component: 'CandidateRankingEngine + selectBoundedWindow',
+    label: 'Composición de portfolio canónico',
+    component: 'ExperienceCompositionService',
     status: 'PASS',
     summary:
-      `Ventana ofrecida al selector: ${candidates.length} candidato(s) reales ` +
+      `Portfolio inicial ofrecido al planificador: ${candidates.length} candidato(s) reales ` +
       `de ${params.eligibleCount} elegibles (${bySource.catalog} del catálogo, ` +
       `${bySource.refill} de refill, ${bySource.discovery} recién resueltos ` +
       `por discovery). Cada uno conserva su ID canónico de Experience; el modelo no ` +

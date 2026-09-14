@@ -9,7 +9,6 @@ import {
 import { ConfigType } from '@nestjs/config';
 import { PrismaService } from '@core/database/prisma.service';
 import { OutboxService } from '../../outbox/services/outbox.service';
-import { ExperienceVectorStoreService } from '@shared/ai/services/experience-vector-store.service';
 import { ToursService } from './tours.service';
 import { TourImageService } from './tour-image.service';
 import { DestinationResolutionService } from './destination-resolution.service';
@@ -21,14 +20,8 @@ import {
   BudgetLevel,
   GroupType,
   TourGenerationRequest,
-  TourIntent,
 } from '../interfaces/tour-generation.interface';
-import {
-  rankCandidatesByRelevance,
-  RankableCandidate,
-  CandidateScoreBreakdown,
-} from '../utils/candidate-ranking.util';
-import { selectBoundedWindow } from '../utils/candidate-window-selection.util';
+import { CandidateScoreBreakdown } from '../utils/candidate-ranking.util';
 import { filterOverlappingExperienceCandidates } from '../utils/candidate-overlap-filter.util';
 import {
   buildExperienceCandidatePoolStep,
@@ -70,16 +63,9 @@ import { partitionDeficitsByStrategy } from '../utils/acquisition-strategy-selec
 import { redactTracePayload } from '../utils/trace-redaction.util';
 import { buildGenerationExecutionSummary } from '../utils/generation-execution-summary.util';
 import { PreferenceInterpreterService } from './preference-interpreter.service';
-import { buildSemanticTourQuery } from '../utils/semantic-tour-query-builder.util';
-import {
-  EmbeddingIndexIdentity,
-  SemanticSimilarityResult,
-} from '@shared/ai/interfaces/embedding-index.interface';
-import {
-  evaluateExperiencePreferences,
-  findHardExclusionMatches,
-  PreferenceEvaluation,
-} from '../utils/experience-preference-evaluator.util';
+import { EmbeddingIndexIdentity } from '@shared/ai/interfaces/embedding-index.interface';
+import { findHardExclusionMatches } from '../utils/experience-preference-evaluator.util';
+import { ExperienceCompositionService } from './experience-composition.service';
 import {
   getFacetKeysByDimension,
   NormalizedPreferenceIntent,
@@ -131,7 +117,7 @@ interface CandidateSelection {
   experiences: any[];
   semanticRanking: SemanticRankingOutcome;
   scoreBreakdownById: Map<string, CandidateScoreBreakdown>;
-  preferenceEvaluationById: Map<string, PreferenceEvaluation>;
+  preferenceEvaluationById: Map<string, unknown>;
   hardExclusionRelaxed: boolean;
 }
 
@@ -172,7 +158,7 @@ export class ExperienceGenerationService {
     private readonly toursService: ToursService,
     private readonly experienceCatalog: ExperienceCatalogService,
     private readonly experienceAcquisition: ExperienceAcquisitionService,
-    private readonly vectorStoreService: ExperienceVectorStoreService,
+    private readonly experienceComposition: ExperienceCompositionService,
     private readonly tourImageService: TourImageService,
     private readonly destinationResolutionService: DestinationResolutionService,
     private readonly facetRetrieval: FacetRetrievalService,
@@ -592,126 +578,46 @@ export class ExperienceGenerationService {
   }
 
   private readonly CATALOG_RETRIEVAL_POOL_LIMIT = 250;
-  private readonly ITINERARY_CANDIDATE_LIMIT = 15;
-
-  private async rankAndSliceExperiences(
+  private async composeExperiences(
     experiences: any[],
-    intent: TourIntent,
+    preferenceSpec: PreferenceSpec,
   ): Promise<CandidateSelection> {
-    const preferenceEvaluationById = new Map<string, PreferenceEvaluation>();
-    for (const experience of experiences) {
-      preferenceEvaluationById.set(
-        experience.id,
-        evaluateExperiencePreferences(experience, intent.normalizedPreferences),
-      );
+    const composition = await this.experienceComposition.compose({
+      experiences,
+      preferenceSpec,
+    });
+    const orderedIds = [
+      ...composition.result.selected,
+      ...composition.result.reservoir,
+    ];
+    const selected = composition.result.selected
+      .map((id) => composition.candidatesById.get(id))
+      .filter(Boolean);
+    const scoreBreakdownById = new Map<string, CandidateScoreBreakdown>();
+    for (const [index, id] of orderedIds.entries()) {
+      const candidate = composition.candidatesById.get(id);
+      scoreBreakdownById.set(id, {
+        semanticSimilarity: null,
+        qualityBonus:
+          typeof candidate?.qualityScore === 'number'
+            ? candidate.qualityScore
+            : 0,
+        proximityBonus: 0,
+        diversityBonus: 0,
+        totalScore: orderedIds.length - index,
+      });
     }
-
-    const hasHardExclusions =
-      (intent.normalizedPreferences?.hardExclusions.length ?? 0) > 0;
-    const strictCandidates = hasHardExclusions
-      ? experiences.filter(
-          (experience) =>
-            (preferenceEvaluationById.get(experience.id)?.exclusionMatches
-              .length ?? 0) === 0,
-        )
-      : experiences;
-    const hardExclusionRelaxed =
-      hasHardExclusions &&
-      strictCandidates.length === 0 &&
-      experiences.length > 0;
-    const candidateExperiences = hardExclusionRelaxed
-      ? experiences
-      : strictCandidates;
-
-    const semanticQuery = buildSemanticTourQuery(intent);
-    let semanticResult: SemanticSimilarityResult | null = null;
-
-    if (semanticQuery) {
-      semanticResult = await this.vectorStoreService.getSimilarityScores(
-        candidateExperiences.map((experience) => experience.id),
-        semanticQuery,
-      );
-    }
-
-    const rankable: (RankableCandidate & { original: any })[] =
-      candidateExperiences.map((experience) => ({
-        id: experience.id,
-        // A multi-component Experience (walk/route/day-trip) is a
-        // 'composite', matching candidate-ranking.util's own quality-bonus
-        // split — this used to be hardcoded 'poi' for everything, silently
-        // disabling that split and the curated-composite bonus entirely.
-        source: (experience.components?.length ?? 1) > 1 ? 'composite' : 'poi',
-        subtype:
-          experience.themes?.[0] ??
-          experience.traits?.[0] ??
-          experience.intents?.[0] ??
-          experience.metadata?.traits?.[0],
-        distanceKm: experience.distance,
-        weightedScore: experience.qualityScore,
-        isCurated: false,
-        preferenceScore:
-          preferenceEvaluationById.get(experience.id)?.score ?? 0,
-        original: experience,
-      }));
-
-    const rankedFull = rankCandidatesByRelevance(
-      rankable,
-      semanticResult?.status === 'applied' ? semanticResult.scores : null,
-    );
-    // A plain top-N score slice can starve out a real candidate for a
-    // format the user explicitly requested (walk/route_like/day_trip/...)
-    // whenever plain single-place candidates numerically dominate the pool
-    // — which they usually do. Reserve real matches for every requested
-    // intent before filling the rest by score.
-    const requestedIntents = Array.from(
-      new Set([
-        ...(intent.intents ?? []),
-        ...getFacetKeysByDimension(
-          intent.normalizedPreferences?.preferredFacets,
-          'intent',
-        ),
-      ]),
-    );
-    const window = selectBoundedWindow(
-      rankedFull,
-      (candidate) =>
-        candidate.original.intents ?? candidate.original.metadata?.intents,
-      requestedIntents,
-      this.ITINERARY_CANDIDATE_LIMIT,
-    );
-    const ranked = window.map((result) => result.candidate.original);
-    const scoreBreakdownById = new Map(
-      window.map((result) => [result.candidate.id, result.scoreBreakdown]),
-    );
-
-    if (!semanticQuery) {
-      return {
-        experiences: ranked,
-        scoreBreakdownById,
-        preferenceEvaluationById,
-        hardExclusionRelaxed,
-        semanticRanking: {
-          status: 'not_requested',
-          eligibleCandidateCount: candidateExperiences.length,
-          indexedCandidateCount:
-            await this.vectorStoreService.getCompatibleIndexCount(
-              candidateExperiences.map((experience) => experience.id),
-            ),
-        },
-      };
-    }
-
     return {
-      experiences: ranked,
+      experiences: selected,
       scoreBreakdownById,
-      preferenceEvaluationById,
-      hardExclusionRelaxed,
+      preferenceEvaluationById: new Map(),
+      hardExclusionRelaxed: false,
       semanticRanking: {
-        status: semanticResult!.status,
-        eligibleCandidateCount: semanticResult!.requestedCandidateCount,
-        indexedCandidateCount: semanticResult!.indexedCandidateCount,
-        identity: semanticResult!.identity,
-        reason: semanticResult!.reason,
+        status: preferenceSpec.semanticQuery.trim()
+          ? 'applied'
+          : 'not_requested',
+        eligibleCandidateCount: experiences.length,
+        indexedCandidateCount: 0,
       },
     };
   }
@@ -955,9 +861,9 @@ export class ExperienceGenerationService {
           nearbyExperiences.forEach((experience: any) =>
             allEligibleExperiencesById.set(experience.id, experience),
           );
-          const selection = await this.rankAndSliceExperiences(
+          const selection = await this.composeExperiences(
             nearbyExperiences,
-            request.intent,
+            preferenceSpec,
           );
           const nearbyExperiencesSample = selection.experiences;
           semanticRankingOutcome = selection.semanticRanking;
@@ -1209,9 +1115,9 @@ export class ExperienceGenerationService {
                 allEligibleExperiencesById.set(experience.id, experience),
               );
               currentPool = Array.from(allEligibleExperiencesById.values());
-              currentSelection = await this.rankAndSliceExperiences(
+              currentSelection = await this.composeExperiences(
                 currentPool,
-                request.intent,
+                preferenceSpec,
               );
               semanticRankingOutcome = currentSelection.semanticRanking;
 
