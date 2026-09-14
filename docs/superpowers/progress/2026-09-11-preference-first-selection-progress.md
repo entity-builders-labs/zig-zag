@@ -112,6 +112,45 @@ Architecture gate:
 - mustInclude transport-only: **PASS**;
 - C5/C5b untouched: **PASS**.
 
+### C4 overlap-priority correction — implementation checkpoint
+
+Starting fork HEAD for this task: `51315f64d95b148cf75504d7edaf3b8d1ebc7198`.
+
+Independent-review regression addressed: equal-component overlap filtering
+was receiving `CandidateScoreBreakdown.totalScore`, which had collapsed equal
+`preferenceWeight` candidates and could let lexical Experience ID decide the
+winner instead of the ordering already chosen by composition.
+
+Implementation commit: `610c14e` (`fix(cutover-C4): preserve composition priority through overlap filtering`).
+
+Exact fix:
+
+- `CandidateSelection` now carries `compositionOrderScoreById`, derived once
+  from `composition.result.selected` followed by `composition.result.reservoir`.
+- Orchestration carries that ordinal into overlap filtering as the transient
+  `compositionOrderScore` field; `CandidateScoreBreakdown.totalScore` is no
+  longer overlap authority.
+- The overlap tie-break now uses component count, then composition order, then
+  lexical ID. `PlanningExperienceCandidate` and planner semantics are
+  unchanged; `rankingScore` was not restored.
+
+Fresh verification for this correction (agent-executed):
+
+- targeted overlap/composition/planner suites: **6 suites passed, 48 tests passed**;
+- planner-boundary and shared-component characterization: **2 suites passed, 8 tests passed**;
+- full unit: **144 suites passed, 1,444 tests passed**;
+- integration: **16 suites passed, 72 tests passed**;
+- typecheck: **PASS**;
+- lint: **PASS**;
+- build: **PASS**.
+
+Full characterization: **7 non-DB suites passed, 32 tests passed**; **2 DB-backed
+suites failed at setup** because the disposable-database guard rejected
+`localhost:5432/zigzag`. No guard bypass was attempted.
+
+Status remains: **C4 CORRECTED — awaiting independent review**. C5 and C5b
+remain unimplemented.
+
 ---
 
 # M3.5 — final accepted state
