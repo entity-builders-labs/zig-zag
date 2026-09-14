@@ -27,6 +27,8 @@ describe('NominatimApiService', () => {
           display_name:
             'Buenos Aires, Comuna 1, Ciudad Autónoma de Buenos Aires, Argentina',
           importance: 0.783,
+          place_rank: 16,
+          address_rank: 16,
           lat: '-34.6037',
           lon: '-58.3816',
           address: {
@@ -50,6 +52,8 @@ describe('NominatimApiService', () => {
         displayName:
           'Buenos Aires, Comuna 1, Ciudad Autónoma de Buenos Aires, Argentina',
         importance: 0.783,
+        placeRank: 16,
+        addressRank: 16,
         latitude: -34.6037,
         longitude: -58.3816,
         address: {

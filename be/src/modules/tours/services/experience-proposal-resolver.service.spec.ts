@@ -1290,6 +1290,184 @@ describe('ExperienceProposalResolverService', () => {
     );
   });
 
+  it('uses the canonical AREA scale policy for a neighborhood-scale Nominatim match', async () => {
+    const osmPlaces = {
+      lookupStreetsWithin: jest
+        .fn()
+        .mockResolvedValue({ status: 'success', value: [] }),
+      lookupPoisWithin: jest
+        .fn()
+        .mockResolvedValue({ status: 'success', value: [] }),
+      lookupBoundaryById: jest.fn().mockResolvedValue({
+        status: 'success',
+        value: {
+          id: 'osm:relation:42',
+          name: 'San Telmo',
+          osmType: 'relation',
+          osmId: 42,
+          geometry: boundary.geometry,
+          tags: { place: 'suburb' },
+        },
+      }),
+    };
+    const catalog = {
+      resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+      upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-san-telmo' }),
+      persistVerifiedExperience: jest.fn().mockResolvedValue({
+        id: 'exp-san-telmo',
+        dedupeDecision: 'NEW',
+      }),
+    };
+    const geographicValidator = {
+      validate: jest.fn().mockReturnValue(acceptedValidation('San Telmo Walk')),
+    };
+    const nominatim = {
+      search: jest.fn().mockResolvedValue([
+        {
+          osmType: 'relation',
+          osmId: 42,
+          addresstype: 'suburb',
+          class: 'place',
+          type: 'suburb',
+          placeRank: 20,
+          displayName: 'San Telmo, Buenos Aires, Argentina',
+          importance: 0.3,
+          latitude: -34.62,
+          longitude: -58.37,
+        },
+      ]),
+    };
+    const service = new ExperienceProposalResolverService(
+      osmPlaces as any,
+      catalog as any,
+      geographicValidator as any,
+      undefined,
+      nominatim as any,
+    );
+
+    const areaCandidate: ExperienceCandidate = {
+      name: 'San Telmo Walk',
+      themes: ['history'],
+      traits: [],
+      intents: ['walk'],
+      evidenceKeys: ['ev-1'],
+      shortReason: 'Neighborhood walk',
+      componentHints: [
+        {
+          key: 'area',
+          name: 'San Telmo',
+          role: 'area',
+          expectedKind: 'AREA',
+          required: true,
+          evidenceKeys: ['ev-1'],
+        },
+      ],
+    };
+
+    const result = await service.resolve({
+      destinationName: 'Buenos Aires',
+      destinationBoundary: boundary,
+      candidates: [areaCandidate],
+      evidence: [
+        {
+          key: 'ev-1',
+          source: 'guide',
+          title: 'San Telmo in Buenos Aires',
+          snippet: 'Explore San Telmo in Buenos Aires.',
+        },
+      ],
+    });
+
+    expect(result.acceptedCount).toBe(1);
+    expect(osmPlaces.lookupBoundaryById).toHaveBeenCalledWith('relation', 42);
+    expect(catalog.upsertGeoEntity).toHaveBeenCalledWith(
+      expect.objectContaining({ kind: GeoEntityKind.AREA }),
+    );
+  });
+
+  it.each([
+    { addresstype: 'region', placeRank: 8 },
+    { addresstype: 'province', placeRank: 10 },
+    { addresstype: 'county', placeRank: 12 },
+  ])(
+    'rejects a too-broad AREA match through the canonical scale policy (%s)',
+    async (scale) => {
+      const osmPlaces = {
+        lookupStreetsWithin: jest
+          .fn()
+          .mockResolvedValue({ status: 'success', value: [] }),
+        lookupPoisWithin: jest
+          .fn()
+          .mockResolvedValue({ status: 'success', value: [] }),
+        lookupBoundaryById: jest.fn(),
+      };
+      const catalog = {
+        resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        upsertGeoEntity: jest.fn(),
+      };
+      const nominatim = {
+        search: jest.fn().mockResolvedValue([
+          {
+            osmType: 'relation',
+            osmId: 99,
+            addresstype: scale.addresstype,
+            class: 'boundary',
+            type: 'administrative',
+            placeRank: scale.placeRank,
+            displayName: 'Too Broad, Argentina',
+            importance: 0.9,
+            latitude: -34.6,
+            longitude: -58.4,
+          },
+        ]),
+      };
+      const service = new ExperienceProposalResolverService(
+        osmPlaces as any,
+        catalog as any,
+        { validate: jest.fn() } as any,
+        undefined,
+        nominatim as any,
+      );
+
+      const result = await service.resolve({
+        destinationName: 'Buenos Aires',
+        destinationBoundary: boundary,
+        candidates: [
+          {
+            name: 'Too Broad Walk',
+            themes: ['history'],
+            traits: [],
+            intents: ['walk'],
+            evidenceKeys: ['ev-1'],
+            shortReason: 'Invalid area scale',
+            componentHints: [
+              {
+                key: 'area',
+                name: 'Too Broad',
+                role: 'area',
+                expectedKind: 'AREA',
+                required: true,
+                evidenceKeys: ['ev-1'],
+              },
+            ],
+          },
+        ],
+        evidence: [
+          {
+            key: 'ev-1',
+            source: 'guide',
+            title: 'Too Broad in Buenos Aires',
+            snippet: 'A walk in Buenos Aires.',
+          },
+        ],
+      });
+
+      expect(result.acceptedCount).toBe(0);
+      expect(result.resolved[0].rejectionReasons).toContain('OSM_QUERY_EMPTY');
+      expect(osmPlaces.lookupBoundaryById).not.toHaveBeenCalled();
+    },
+  );
+
   it('uses GEOGRAPHIC_VALIDATION_FAILED when a resolved candidate has no validation result', async () => {
     const catalog = {
       resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),

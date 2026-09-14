@@ -19,6 +19,8 @@ interface NominatimApiResponseItem {
   osm_type: 'node' | 'way' | 'relation';
   osm_id: number;
   addresstype: string;
+  place_rank?: number;
+  address_rank?: number;
   class?: string;
   type?: string;
   display_name: string;
@@ -73,6 +75,10 @@ export class NominatimApiService implements INominatimApiService {
       osmType: item.osm_type,
       osmId: item.osm_id,
       addresstype: item.addresstype,
+      ...(item.place_rank === undefined ? {} : { placeRank: item.place_rank }),
+      ...(item.address_rank === undefined
+        ? {}
+        : { addressRank: item.address_rank }),
       class: item.class,
       type: item.type,
       displayName: item.display_name,

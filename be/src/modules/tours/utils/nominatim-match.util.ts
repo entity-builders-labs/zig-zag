@@ -111,20 +111,26 @@ export function bestNominatimMatch(
 }
 
 /**
- * Nominatim's own top-of-hierarchy address classification for a scope
- * genuinely broader than any single coherent destination/anchor area --
- * NOT an enumeration of "acceptable" narrow place types (cutover M3.5, spec
- * cutover plan SS7; engineering-principles.md SS9: generalize the bug, don't
- * hardcode examples). A country/state/continent-scale result would blow
- * out every downstream radius-bounded search (catalog retrieval, Overpass,
- * Places Nearby) if treated as a bounded area scope -- this is the only
- * reason ANY exclusion exists here.
+ * Nominatim place/address ranks are lower for broader administrative levels.
+ * Ranks 16..25 cover settlement and neighborhood-scale named areas while
+ * excluding continent/country/state/region/county-scale results. The policy
+ * intentionally uses the numeric scale signal, not an addresstype list.
  */
-const TOO_BROAD_ADDRESS_TYPES: ReadonlySet<string> = new Set([
-  'continent',
-  'country',
-  'state',
-]);
+const AREA_SCALE_MIN_RANK = 16;
+const AREA_SCALE_MAX_RANK = 25;
+
+function hasSupportedAreaScaleEvidence(result: {
+  placeRank?: number;
+  addressRank?: number;
+}): boolean {
+  const rank = result.placeRank ?? result.addressRank;
+  return (
+    rank !== undefined &&
+    Number.isInteger(rank) &&
+    rank >= AREA_SCALE_MIN_RANK &&
+    rank <= AREA_SCALE_MAX_RANK
+  );
+}
 
 /**
  * The ONE canonical "is this a usable, scale-compatible urban/
@@ -141,8 +147,10 @@ const TOO_BROAD_ADDRESS_TYPES: ReadonlySet<string> = new Set([
  *                           polygon geometry to hydrate, ever;
  *   3. urban/admin context -- see the per-class rule below; never inferred
  *                           from `addresstype` alone;
- *   4. scale compatibility -- `addresstype` must not be one of the small,
- *                           stable, too-broad top-level scales above.
+ *   4. scale compatibility -- Nominatim's numeric place/address rank must
+ *                           positively place the result in the supported
+ *                           settlement/neighborhood band; unknown rank is
+ *                           not eligible.
  *
  * Urban/admin context is NOT simply "class is boundary or place" -- the
  * two classes carry different semantics and are validated differently:
@@ -151,25 +159,22 @@ const TOO_BROAD_ADDRESS_TYPES: ReadonlySet<string> = new Set([
  *     maritime boundaries, postal code areas, ...). Only
  *     `type === 'administrative'` genuinely establishes an administrative
  *     area -- a missing/unrecognized `type` never defaults to eligible.
- *   - `class === 'place'`: every real OSM `place=*` value (city down to
- *     isolated_dwelling, hamlet up through country/continent) already
- *     denotes a genuine named/populated place at SOME granularity; no
- *     further `type` narrowing is needed here -- scale compatibility is
- *     handled uniformly by the `addresstype` exclusion above regardless of
- *     class.
+ *   - `class === 'place'`: every real OSM `place=*` value denotes a genuine
+ *     named/populated place at some granularity; the numeric rank decides
+ *     whether that granularity is usable here.
  *
- * A suburb, neighbourhood, quarter, borough, hamlet, or any other locale-
- * specific administrative/place classification Nominatim/OSM ever returns
- * is accepted uniformly here -- this function never enumerates "which
- * narrow terms count," it only excludes the handful of genuinely-too-broad
- * scales and the handful of genuinely-non-administrative boundary kinds.
- * Never a destination-name or provider-specific special case.
+ * Suburb, neighbourhood, and quarter-style places are accepted by their
+ * positive rank evidence, without blindly whitelisting those names. Never a
+ * destination-name or provider-specific special case.
  */
 export function isAreaScaleEligible<
-  T extends Pick<NominatimResult, 'osmType' | 'addresstype' | 'class' | 'type'>,
+  T extends Pick<
+    NominatimResult,
+    'osmType' | 'addresstype' | 'class' | 'type' | 'placeRank' | 'addressRank'
+  >,
 >(result: T): result is T & { osmType: 'way' | 'relation' } {
   if (result.osmType === 'node') return false;
-  if (TOO_BROAD_ADDRESS_TYPES.has(result.addresstype)) return false;
+  if (!hasSupportedAreaScaleEvidence(result)) return false;
   if (result.class === 'boundary') return result.type === 'administrative';
   return result.class === 'place';
 }

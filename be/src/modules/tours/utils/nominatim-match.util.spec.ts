@@ -17,6 +17,7 @@ function result(overrides: Partial<NominatimResult> = {}): NominatimResult {
     longitude: -58.3731,
     importance: 0.2,
     addresstype: 'square',
+    placeRank: 20,
     address: {},
     ...overrides,
   } as NominatimResult;
@@ -175,6 +176,7 @@ describe('isAreaScaleEligible', () => {
           class: 'boundary',
           type: 'administrative',
           addresstype: 'country',
+          placeRank: 4,
         }),
       ),
     ).toBe(false);
@@ -188,6 +190,7 @@ describe('isAreaScaleEligible', () => {
           class: 'boundary',
           type: 'administrative',
           addresstype: 'state',
+          placeRank: 10,
         }),
       ),
     ).toBe(false);
@@ -201,6 +204,56 @@ describe('isAreaScaleEligible', () => {
           class: 'boundary',
           type: 'administrative',
           addresstype: 'continent',
+          placeRank: 4,
+        }),
+      ),
+    ).toBe(false);
+  });
+
+  it.each([
+    ['region', 8],
+    ['province', 10],
+    ['county', 12],
+  ])(
+    'rejects an unbounded administrative scale (%s)',
+    (addresstype, placeRank) => {
+      expect(
+        isAreaScaleEligible(
+          result({
+            osmType: 'relation',
+            class: 'boundary',
+            type: 'administrative',
+            addresstype,
+            placeRank,
+          }),
+        ),
+      ).toBe(false);
+    },
+  );
+
+  it('uses address rank when place rank is unavailable', () => {
+    expect(
+      isAreaScaleEligible(
+        result({
+          osmType: 'relation',
+          class: 'place',
+          addresstype: 'quarter',
+          placeRank: undefined,
+          addressRank: 22,
+        }),
+      ),
+    ).toBe(true);
+  });
+
+  it('rejects an otherwise valid area when both scale signals are unknown', () => {
+    expect(
+      isAreaScaleEligible(
+        result({
+          osmType: 'relation',
+          class: 'place',
+          addresstype: 'suburb',
+          placeRank: undefined,
+          addressRank: undefined,
         }),
       ),
     ).toBe(false);

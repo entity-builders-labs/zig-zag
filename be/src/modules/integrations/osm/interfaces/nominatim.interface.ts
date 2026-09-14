@@ -2,10 +2,8 @@ export interface NominatimResult {
   osmType: 'node' | 'way' | 'relation';
   osmId: number;
   // Nominatim's own address-hierarchy classification (city/town/village/
-  // suburb/state/country/...). Cutover M3.5: area-scale acceptance is no
-  // longer a whitelist of specific narrow terms read from this field alone
-  // -- see `isAreaScaleEligible` (nominatim-match.util.ts), which combines
-  // this with `class`/`type` below.
+  // suburb/state/country/...). This is descriptive evidence; area-scale
+  // eligibility also requires a positive rank signal below.
   addresstype: string;
   // Nominatim's own top-level OSM tag classification for this result (e.g.
   // 'boundary', 'place', 'highway', 'building', 'amenity', 'shop',
@@ -17,9 +15,10 @@ export interface NominatimResult {
   class?: string;
   // The specific OSM tag value under `class` (e.g. 'administrative' under
   // 'boundary'; 'city'/'town'/'suburb'/'neighbourhood'/... under 'place').
-  // Retained for provenance/debugging; `isAreaScaleEligible` does not read
-  // it directly (addresstype already carries the equivalent finer-grained
-  // classification for the address-hierarchy use case).
+  // Nominatim's numeric hierarchy signals. They are normalized here so the
+  // domain policy can reason about scale without reading the raw response.
+  placeRank?: number;
+  addressRank?: number;
   type?: string;
   displayName: string;
   importance: number;

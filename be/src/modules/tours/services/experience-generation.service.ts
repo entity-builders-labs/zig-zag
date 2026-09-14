@@ -879,6 +879,17 @@ export class ExperienceGenerationService {
             10000,
             'Experience catalog search timeout',
           );
+          // Venue resolution establishes canonical IDs independently of the
+          // nearby scan. Hydrate those exact rows so a resolved must anchor is
+          // eligible for forcing even when its distance/index ordering omits it.
+          const resolvedAnchorRows =
+            await this.experienceCatalog.findVerifiedByIds([
+              ...venueAnchorResolution.resolvedMustIds,
+              ...venueAnchorResolution.resolvedSoftIds,
+            ]);
+          resolvedAnchorRows.forEach((experience: any) =>
+            allEligibleExperiencesById.set(experience.id, experience),
+          );
           nearbyExperiences.forEach((experience: any) =>
             allEligibleExperiencesById.set(experience.id, experience),
           );
