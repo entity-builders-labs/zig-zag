@@ -112,11 +112,11 @@ export function bestNominatimMatch(
 
 /**
  * Nominatim place/address ranks are lower for broader administrative levels.
- * Ranks 16..25 cover settlement and neighborhood-scale named areas while
+ * Ranks 13..25 cover settlement and neighborhood-scale named areas while
  * excluding continent/country/state/region/county-scale results. The policy
  * intentionally uses the numeric scale signal, not an addresstype list.
  */
-const AREA_SCALE_MIN_RANK = 16;
+const AREA_SCALE_MIN_RANK = 13;
 const AREA_SCALE_MAX_RANK = 25;
 
 function hasSupportedAreaScaleEvidence(result: {

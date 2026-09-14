@@ -129,6 +129,38 @@ describe('isAreaScaleEligible', () => {
     ).toBe(true);
   });
 
+  it.each([12, 13, 15, 16, 25, 26])(
+    'applies the canonical administrative AREA rank boundary: %s',
+    (placeRank) => {
+      expect(
+        isAreaScaleEligible(
+          result({
+            osmType: 'relation',
+            class: 'boundary',
+            type: 'administrative',
+            addresstype: 'city',
+            placeRank,
+          }),
+        ),
+      ).toBe(placeRank >= 13 && placeRank <= 25);
+    },
+  );
+
+  it('accepts a city boundary when place rank 15 is valid even if address rank is 20', () => {
+    expect(
+      isAreaScaleEligible(
+        result({
+          osmType: 'relation',
+          class: 'boundary',
+          type: 'administrative',
+          addresstype: 'city',
+          placeRank: 15,
+          addressRank: 20,
+        }),
+      ),
+    ).toBe(true);
+  });
+
   // The headline regression case (RW1): a neighborhood-scale urban area
   // must resolve canonically, not degrade to point+radius merely because
   // it isn't city/town/village.

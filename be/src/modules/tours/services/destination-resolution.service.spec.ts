@@ -98,6 +98,59 @@ describe('DestinationResolutionService', () => {
     });
   });
 
+  it('resolves a city/admin result at place rank 15 through AREA boundary hydration', async () => {
+    nominatimApi.search.mockResolvedValue([
+      {
+        osmType: 'relation',
+        osmId: 1501,
+        addresstype: 'city',
+        class: 'boundary',
+        type: 'administrative',
+        placeRank: 15,
+        addressRank: 20,
+        displayName: 'Rank Fifteen City',
+        importance: 0.8,
+      },
+    ]);
+    const boundary = {
+      id: 'osm:relation:1501',
+      name: 'Rank Fifteen City',
+      osmType: 'relation' as const,
+      osmId: 1501,
+      geometry: {
+        type: 'Polygon' as const,
+        coordinates: [
+          [
+            [0, 0],
+            [1, 0],
+            [1, 1],
+            [0, 0],
+          ],
+        ],
+      },
+      tags: { name: 'Rank Fifteen City', boundary: 'administrative' },
+    };
+    osmPlacesService.getBoundaryById.mockResolvedValue(boundary);
+
+    const result = await service.resolveDestination('Rank Fifteen City');
+
+    expect(result).toEqual({
+      scale: 'area',
+      boundary,
+      attemptedQueries: ['forward:Rank Fifteen City'],
+      selectedResult: {
+        osmType: 'relation',
+        osmId: 1501,
+        displayName: 'Rank Fifteen City',
+      },
+    });
+    expect(osmPlacesService.getBoundaryById).toHaveBeenCalledWith(
+      'relation',
+      1501,
+    );
+    expect(osmPlacesService.lookupDestinationBoundary).not.toHaveBeenCalled();
+  });
+
   // Cutover M3.5 -- the general scale-model fix: a neighborhood-scale urban
   // area (San Telmo is one real example, not a special case) resolves
   // canonically instead of degrading to point+radius merely because
