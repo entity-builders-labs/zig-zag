@@ -120,10 +120,20 @@ export async function bootstrapCompetitiveApp(): Promise<CompetitiveHarness> {
     expect(event?.status).toBe('PENDING');
     const publication = await outboxPublisher.processNextBatch();
     expect(publication.publishedCount).toBeGreaterThanOrEqual(1);
-    const response = await request(app.getHttpServer())
-      .get(`/tours/${tourId}`)
-      .set('Authorization', `Bearer ${token}`)
-      .expect(200);
+    let response: any;
+    for (let attempt = 0; attempt < 1000; attempt++) {
+      response = await request(app.getHttpServer())
+        .get(`/tours/${tourId}`)
+        .set('Authorization', `Bearer ${token}`)
+        .expect(200);
+      if (
+        ['completed', 'failed'].includes(
+          response.body.metadata.generationStatus,
+        )
+      )
+        break;
+      await new Promise<void>((resolve) => setTimeout(resolve, 10));
+    }
     expect(response.body.metadata.generationStatus).toBe('completed');
     return response.body;
   };
