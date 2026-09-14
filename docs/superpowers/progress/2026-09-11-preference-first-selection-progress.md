@@ -2,7 +2,7 @@
 
 Updated: 2026-09-14
 Branch: `feat/preference-first-selection`
-Implementation HEAD reviewed before this progress-only update: `91ab491109b195277f264ad4bedea10c2f1d1947`
+Implementation HEAD reviewed before this progress-only update: `e91ab40995fc577b41c4934c8773d33b9072b59d`
 Canonical live-cutover plan: `docs/superpowers/plans/2026-09-13-preference-first-live-cutover.md`
 Canonical implementation plan: `docs/superpowers/plans/2026-09-11-preference-first-selection-implementation.md`
 Canonical design: `docs/superpowers/specs/2026-09-10-preference-first-selection-and-agent-convergence-design.md`
@@ -178,10 +178,13 @@ Status: **IMPLEMENTED — awaiting independent review**
 
 Implementation commit: `91ab491109b195277f264ad4bedea10c2f1d1947`
 
+Integration-fixture commit: `e91ab40995fc577b41c4934c8773d33b9072b59d`
+
 Files changed:
 
 - `be/src/modules/integrations/osm/services/nominatim-api.service.ts`
 - `be/src/modules/integrations/osm/services/nominatim-api.service.spec.ts`
+- `be/test/integration/tour-generation/area-route-walk-geographic-validation.integration-spec.ts`
 
 The adapter raw DTO now uses JSONv2's `category`, `place_rank`, and
 `address_rank` names and maps them once to `class`, `placeRank`, and
@@ -197,7 +200,7 @@ Full backend verification rerun on this implementation:
 - `yarn typecheck`: **PASS**
 - `yarn lint:check`: **PASS**
 - `yarn test --runInBand`: **143 suites passed, 1,430 tests passed**
-- `yarn test:integration`: **FAIL — environment blocker**; 16 suites / 72 tests failed because PostgreSQL at `localhost:5432/zigzag` was unavailable. No adapter assertion failure was reported before the database connection failures.
+- `yarn test:integration`: **16 suites passed, 72 tests passed** (PostgreSQL Docker container `zigzag-postgres`, healthy and exposed on `localhost:5432`).
 - `yarn build`: **PASS**
 
 ---
