@@ -307,7 +307,11 @@ P1 is implemented in the worktree and remains **IMPLEMENTED — awaiting indepen
 
 Fresh P1 verification: targeted 6 suites / 45 tests passed; full unit 145 suites / 1,448 tests passed; integration 16 suites / 72 tests passed; typecheck, lint, and build passed. No disposable DB reset was attempted.
 
-Next gate: commit P1, then continue with P2 C5b reservoir backfill and bounded convergence.
+P2/P3 implementation checkpoint: initial and reservoir collections now remain distinct through the internal composition boundary; bounded deterministic reservoir promotion uses duration-aware residual capacity, MUST preservation, shared normalization, and no-degradation/progress checks. Planner residual capacity and planner-capacity deficits are explicit typed metadata. Preference-aware overlap now compares canonical weighted preference coverage before component count, preserves MUST candidates, and context-free callers retain the old comparator. The legacy trace helper no longer infers theme coverage from names/metadata.
+
+Fresh P2/P3 targeted verification: overlap/composition/trace 3 suites / 33 tests passed; typecheck and lint passed. Full backend unit/integration/build evidence remains green from the preceding P2 checkpoint (145 suites / 1,448 tests; 16 suites / 72 tests). P2 is **IMPLEMENTED — awaiting independent review**, with one material remaining gap: the plan requires a bounded planner-capacity acquisition pass after reservoir exhaustion; current code records the typed deficit but does not yet execute that pass.
+
+Next gate: implement the canonical planner-capacity acquisition/requery pass before treating P2 exit as green; then continue with P4 legacy deletion, trace v4, Bitácora v4, and M9 gates.
 
 M3.5 is closed. Do not reopen it unless a new regression is demonstrated.
 

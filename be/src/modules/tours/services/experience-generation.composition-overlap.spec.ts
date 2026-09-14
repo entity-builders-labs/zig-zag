@@ -61,9 +61,9 @@ describe('ExperienceGenerationService composition/overlap handoff', () => {
       preferenceSpec,
     );
 
-    expect(selection.experiences.map((candidate: any) => candidate.id)).toEqual(
-      ['B-earlier', 'A-later'],
-    );
+    expect(
+      selection.initialExperiences.map((candidate: any) => candidate.id),
+    ).toEqual(['B-earlier', 'A-later']);
     expect(selection.preferenceWeightById).toEqual(
       new Map([
         ['A-later', 1],
@@ -72,7 +72,7 @@ describe('ExperienceGenerationService composition/overlap handoff', () => {
     );
 
     const overlapResult = filterOverlappingExperienceCandidates(
-      selection.experiences.map((candidate: any) => ({
+      selection.initialExperiences.map((candidate: any) => ({
         ...candidate,
         compositionOrderScore: selection.compositionOrderScoreById.get(
           candidate.id,

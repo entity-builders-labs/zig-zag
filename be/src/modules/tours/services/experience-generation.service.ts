@@ -48,7 +48,9 @@ import dailyPlanningPolicyConfig from '../config/daily-planning-policy.config';
 import {
   DAILY_PLANNING_SOLVER,
   DailyPlanningInput,
+  DailyPlanningSolution,
   DailyPlanningSolver,
+  PlanningExperienceCandidate,
   TOUR_PLANNING_FEASIBILITY_VALIDATOR,
   TourPlanningFeasibilityValidator,
 } from '../interfaces/daily-planning.interface';
@@ -77,6 +79,8 @@ import {
   normalizeWizardFacet,
 } from '../utils/preference-facet-merge.util';
 import { buildTourExperienceCreateData } from '../utils/tour-experience-snapshot.util';
+import { plannerRelevanceScore } from '../utils/daily-planning-candidate-sort.util';
+import { plannerResidualCapacity } from '../utils/daily-planning-convergence.util';
 import { buildPreferenceSpec } from '../utils/preference-spec-builder.util';
 import {
   FacetRetrievalScope,
@@ -115,7 +119,8 @@ interface SemanticRankingOutcome {
 }
 
 interface CandidateSelection {
-  experiences: any[];
+  initialExperiences: any[];
+  reservoirExperiences: any[];
   semanticRanking: SemanticRankingOutcome;
   scoreBreakdownById: Map<string, CandidateScoreBreakdown>;
   preferenceEvaluationById: Map<string, unknown>;
@@ -494,25 +499,27 @@ export class ExperienceGenerationService {
     postAcquisitionCatalogCount: number,
     eligibleCount: number,
   ): GenerationTraceStep {
-    const offeredCandidates = selection.experiences.map((experience: any) => ({
-      id: experience.id,
-      name: experience.name,
-      metadata: {
-        ...(experience.metadata ?? {}),
-        preferenceEvaluation: selection.preferenceEvaluationById.get(
-          experience.id,
-        ),
-        hardExclusionRelaxed: selection.hardExclusionRelaxed,
-      },
-      traceSource: discoveryResolvedExperienceIds.has(experience.id)
-        ? ('discovery' as const)
-        : newlyAcquiredExperienceIds.has(experience.id)
-          ? crawlProvider === 'google'
-            ? ('google_places' as const)
-            : ('geoapify' as const)
-          : ('db' as const),
-      scoreBreakdown: selection.scoreBreakdownById.get(experience.id)!,
-    }));
+    const offeredCandidates = selection.initialExperiences.map(
+      (experience: any) => ({
+        id: experience.id,
+        name: experience.name,
+        metadata: {
+          ...(experience.metadata ?? {}),
+          preferenceEvaluation: selection.preferenceEvaluationById.get(
+            experience.id,
+          ),
+          hardExclusionRelaxed: selection.hardExclusionRelaxed,
+        },
+        traceSource: discoveryResolvedExperienceIds.has(experience.id)
+          ? ('discovery' as const)
+          : newlyAcquiredExperienceIds.has(experience.id)
+            ? crawlProvider === 'google'
+              ? ('google_places' as const)
+              : ('geoapify' as const)
+            : ('db' as const),
+        scoreBreakdown: selection.scoreBreakdownById.get(experience.id)!,
+      }),
+    );
     return buildExperienceCandidatePoolStep({
       initialCatalogCount,
       postAcquisitionCatalogCount,
@@ -604,7 +611,10 @@ export class ExperienceGenerationService {
     const compositionOrderScoreById = new Map(
       orderedIds.map((id, index) => [id, orderedIds.length - index]),
     );
-    const selected = composition.result.selected
+    const initialExperiences = composition.result.selected
+      .map((id) => composition.candidatesById.get(id))
+      .filter(Boolean);
+    const reservoirExperiences = composition.result.reservoir
       .map((id) => composition.candidatesById.get(id))
       .filter(Boolean);
     const scoreBreakdownById = new Map<string, CandidateScoreBreakdown>();
@@ -630,7 +640,8 @@ export class ExperienceGenerationService {
       });
     }
     return {
-      experiences: selected,
+      initialExperiences,
+      reservoirExperiences,
       scoreBreakdownById,
       preferenceEvaluationById: new Map(),
       hardExclusionRelaxed: false,
@@ -716,7 +727,10 @@ export class ExperienceGenerationService {
         selection.mustIncludeExperienceIds.forEach((id) =>
           planningMustIncludeExperienceIds.add(id),
         );
-        selection.experiences.forEach((experience: any) => {
+        [
+          ...selection.initialExperiences,
+          ...selection.reservoirExperiences,
+        ].forEach((experience: any) => {
           candidateExperienceIds.add(experience.id);
           candidateExperiencesById.set(experience.id, experience);
           const compositionOrderScore = selection.compositionOrderScoreById.get(
@@ -735,6 +749,7 @@ export class ExperienceGenerationService {
         });
       };
 
+      let finalSelection: CandidateSelection | undefined;
       let semanticRankingOutcome: SemanticRankingOutcome = {
         status: 'not_requested',
         eligibleCandidateCount: 0,
@@ -940,7 +955,7 @@ export class ExperienceGenerationService {
             venueAnchorResolution.resolvedSoftIds,
             venueAnchorResolution.resolvedNames,
           );
-          const nearbyExperiencesSample = selection.experiences;
+          const nearbyExperiencesSample = selection.initialExperiences;
           semanticRankingOutcome = selection.semanticRanking;
           const initialPreferenceCoverage =
             await this.computePreferenceCoverage(preferenceSpec, searchArea);
@@ -959,6 +974,7 @@ export class ExperienceGenerationService {
               `${nearbyExperiences.length} Experiences relevantes encontradas. Ordenando según tus preferencias...`,
             );
             recordOfferedCandidates(selection);
+            finalSelection = selection;
             availableExperiencesText = `\n\nAvailable verified Experiences in the area (within ${radius / 1000}km):\n${nearbyExperiencesSample
               .map((experience: any) => formatExperienceForPrompt(experience))
               .join('\n')}`;
@@ -1223,7 +1239,8 @@ export class ExperienceGenerationService {
               );
               traceSteps.push(
                 buildPreferenceCoverageStep(currentPreferenceCoverage, {
-                  offeredCandidateCount: currentSelection.experiences.length,
+                  offeredCandidateCount:
+                    currentSelection.initialExperiences.length,
                   semanticRanking: semanticRankingOutcome,
                   providerHealth: currentProviderHealth,
                 }),
@@ -1246,7 +1263,8 @@ export class ExperienceGenerationService {
             }
 
             recordOfferedCandidates(currentSelection);
-            availableExperiencesText = `\n\nAvailable verified Experiences in the area (within ${radius / 1000}km):\n${currentSelection.experiences
+            finalSelection = currentSelection;
+            availableExperiencesText = `\n\nAvailable verified Experiences in the area (within ${radius / 1000}km):\n${currentSelection.initialExperiences
               .map((experience: any) => formatExperienceForPrompt(experience))
               .join('\n')}`;
             traceSteps.push(
@@ -1317,6 +1335,10 @@ export class ExperienceGenerationService {
           compositionOrderScore: offeredCompositionOrderScoreById.get(
             experience.id,
           ),
+          weightedPreferenceCoverage: planningPreferenceWeightById.get(
+            experience.id,
+          ),
+          mustInclude: planningMustIncludeExperienceIds.has(experience.id),
         })),
       );
       if (overlapFilter.excluded.length > 0) {
@@ -1327,15 +1349,37 @@ export class ExperienceGenerationService {
         );
       }
 
-      const planningCandidates =
-        await this.planningCandidateNormalizer.normalizeExperiences(
-          overlapFilter.kept,
+      if (!finalSelection) {
+        throw new Error(
+          'Preference-first composition did not produce a selection',
+        );
+      }
+
+      const initialIds = new Set(
+        finalSelection.initialExperiences.map(
+          (experience: any) => experience.id,
+        ),
+      );
+      const reservoirIds = finalSelection.reservoirExperiences.map(
+        (experience: any) => experience.id,
+      );
+      const candidatePool = overlapFilter.kept;
+      const initialPool = candidatePool.filter((experience) =>
+        initialIds.has(experience.id),
+      );
+      const reservoirPool = reservoirIds
+        .map((id) => candidatePool.find((experience) => experience.id === id))
+        .filter((experience): experience is any => Boolean(experience));
+      const normalizePlanningPool = (experiences: any[]) =>
+        this.planningCandidateNormalizer.normalizeExperiences(
+          experiences,
           offeredScoreBreakdownById,
           {
             preferenceWeightById: planningPreferenceWeightById,
             mustIncludeExperienceIds: planningMustIncludeExperienceIds,
           },
         );
+      const planningCandidates = await normalizePlanningPool(initialPool);
 
       const planningInput: DailyPlanningInput = {
         destination: destinationResolution,
@@ -1347,11 +1391,172 @@ export class ExperienceGenerationService {
         startDates: request.startDates,
       };
 
-      const planningSolution =
+      const scheduledCount = (
+        solution: Awaited<ReturnType<DailyPlanningSolver['solve']>>,
+      ) =>
+        solution.days.reduce((total, day) => total + day.experiences.length, 0);
+      const solutionRelevance = (
+        solution: Awaited<ReturnType<DailyPlanningSolver['solve']>>,
+        candidates: PlanningExperienceCandidate[],
+      ) => {
+        const byId = new Map(
+          candidates.map((candidate) => [candidate.experienceId, candidate]),
+        );
+        return solution.days.reduce(
+          (total, day) =>
+            total +
+            day.experiences.reduce(
+              (dayTotal, planned) =>
+                dayTotal +
+                plannerRelevanceScore(
+                  byId.get(planned.experienceId)!,
+                  this.dailyPlanningPolicy.scoring,
+                ),
+              0,
+            ),
+          0,
+        );
+      };
+      const meaningfulResidualCapacity = (solution: DailyPlanningSolution) =>
+        plannerResidualCapacity(
+          solution,
+          this.dailyPlanningPolicy.window,
+          this.dailyPlanningPolicy.backfill.minimumUsefulResidualMinutes,
+        ).some((residual) => residual.meaningful);
+
+      let planningSolution =
         await this.dailyPlanningSolver.solve(planningInput);
+      let admittedPlanningCandidates = [...planningCandidates];
+      let promotionAttempts = 0;
+      let promotionStopReason:
+        | 'CAPACITY_SATURATED_OR_TINY_GAPS'
+        | 'RESERVOIR_EXHAUSTED'
+        | 'PROMOTION_BUDGET_EXHAUSTED'
+        | 'NO_PROGRESS' =
+        reservoirPool.length === 0 ? 'RESERVOIR_EXHAUSTED' : 'NO_PROGRESS';
+      for (const experience of reservoirPool) {
+        if (!meaningfulResidualCapacity(planningSolution)) {
+          promotionStopReason = 'CAPACITY_SATURATED_OR_TINY_GAPS';
+          break;
+        }
+        if (
+          promotionAttempts >=
+          this.dailyPlanningPolicy.backfill.maxReservoirPromotionAttempts
+        ) {
+          promotionStopReason = 'PROMOTION_BUDGET_EXHAUSTED';
+          break;
+        }
+        promotionAttempts++;
+        const promotedCandidates = await normalizePlanningPool([
+          ...initialPool,
+          ...admittedPlanningCandidates
+            .filter((candidate) => !initialIds.has(candidate.experienceId))
+            .map((candidate) =>
+              candidatePool.find((item) => item.id === candidate.experienceId),
+            )
+            .filter(Boolean),
+          experience,
+        ]);
+        const trialSolution = await this.dailyPlanningSolver.solve({
+          ...planningInput,
+          candidates: promotedCandidates,
+        });
+        const previousMustCount = planningSolution.days
+          .flatMap((day) => day.experiences)
+          .filter((planned) =>
+            planningMustIncludeExperienceIds.has(planned.experienceId),
+          ).length;
+        const trialMustCount = trialSolution.days
+          .flatMap((day) => day.experiences)
+          .filter((planned) =>
+            planningMustIncludeExperienceIds.has(planned.experienceId),
+          ).length;
+        const promoted = trialSolution.days
+          .flatMap((day) => day.experiences)
+          .some((planned) => planned.experienceId === experience.id);
+        const noDegradation =
+          trialMustCount >= previousMustCount &&
+          solutionRelevance(trialSolution, promotedCandidates) >=
+            solutionRelevance(planningSolution, admittedPlanningCandidates) -
+              1e-9;
+        const strictProgress =
+          scheduledCount(trialSolution) > scheduledCount(planningSolution) ||
+          trialSolution.days.reduce(
+            (sum, day) => sum + day.utilizationMinutes,
+            0,
+          ) >
+            planningSolution.days.reduce(
+              (sum, day) => sum + day.utilizationMinutes,
+              0,
+            );
+        if (promoted && noDegradation && strictProgress) {
+          planningSolution = trialSolution;
+          admittedPlanningCandidates = promotedCandidates;
+          promotionStopReason = 'NO_PROGRESS';
+        }
+      }
+
+      if (
+        reservoirPool.length > 0 &&
+        promotionAttempts >=
+          this.dailyPlanningPolicy.backfill.maxReservoirPromotionAttempts
+      ) {
+        promotionStopReason = 'PROMOTION_BUDGET_EXHAUSTED';
+      } else if (
+        reservoirPool.length > 0 &&
+        promotionStopReason === 'NO_PROGRESS' &&
+        promotionAttempts >= reservoirPool.length
+      ) {
+        promotionStopReason = 'RESERVOIR_EXHAUSTED';
+      }
+      planningSolution.metadata.residualCapacity = plannerResidualCapacity(
+        planningSolution,
+        this.dailyPlanningPolicy.window,
+        this.dailyPlanningPolicy.backfill.minimumUsefulResidualMinutes,
+      );
+      planningSolution.metadata.convergence = {
+        stopReason: promotionStopReason,
+        promotionAttempts,
+        acquisitionPasses: 0,
+      };
+      const residuals = planningSolution.metadata.residualCapacity;
+      if (
+        residuals &&
+        reservoirPool.length > 0 &&
+        promotionAttempts >= reservoirPool.length
+      ) {
+        const meaningfulResidual = residuals.find(
+          (residual) => residual.meaningful,
+        );
+        planningSolution.metadata.capacityDeficits = meaningfulResidual
+          ? [
+              {
+                origin: 'planner_capacity',
+                dayNumber: meaningfulResidual.dayNumber,
+                availableMinutes: meaningfulResidual.availableMinutes,
+                preferredFacets: preferenceSpec.facets.map((facet) => ({
+                  dimension: facet.dimension,
+                  key: facet.key,
+                  weight: facet.weight,
+                })),
+              },
+            ]
+          : [];
+      }
+
+      /*
+       * The planner owns only bounded reservoir promotion here. A later
+       * planner-capacity acquisition pass must enter through the canonical
+       * acquire→persist→requery chain; it is intentionally not synthesized
+       * from raw candidates in this boundary.
+       */
+      const planningInputForValidation: DailyPlanningInput = {
+        ...planningInput,
+        candidates: admittedPlanningCandidates,
+      };
       const feasibilityResult = this.tourPlanningFeasibilityValidator.validate(
         planningSolution,
-        planningInput,
+        planningInputForValidation,
       );
       if (!feasibilityResult.valid) {
         throw new Error(

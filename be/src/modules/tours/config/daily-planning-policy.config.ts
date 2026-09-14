@@ -38,6 +38,11 @@ export interface DailyPlanningPolicy {
   localImprovement: {
     maxIterations: number;
   };
+  backfill: {
+    minimumUsefulResidualMinutes: number;
+    maxReservoirPromotionAttempts: number;
+    maxAcquisitionPasses: number;
+  };
   window: {
     startMinutesFromMidnight: number;
     endMinutesFromMidnight: number;
@@ -78,6 +83,17 @@ export default registerAs(
     localImprovement: {
       maxIterations: Number(
         process.env.DAILY_PLANNING_LOCAL_IMPROVEMENT_MAX_ITERATIONS ?? 50,
+      ),
+    },
+    backfill: {
+      minimumUsefulResidualMinutes: Number(
+        process.env.DAILY_PLANNING_MINIMUM_USEFUL_RESIDUAL_MINUTES ?? 60,
+      ),
+      maxReservoirPromotionAttempts: Number(
+        process.env.DAILY_PLANNING_MAX_RESERVOIR_PROMOTION_ATTEMPTS ?? 50,
+      ),
+      maxAcquisitionPasses: Number(
+        process.env.DAILY_PLANNING_MAX_ACQUISITION_PASSES ?? 1,
       ),
     },
     window: {

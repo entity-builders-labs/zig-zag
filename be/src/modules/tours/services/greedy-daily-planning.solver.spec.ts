@@ -49,6 +49,11 @@ const policy: DailyPlanningPolicy = {
     dayBalanceWeight: 0.25,
   },
   localImprovement: { maxIterations: 20 },
+  backfill: {
+    minimumUsefulResidualMinutes: 60,
+    maxReservoirPromotionAttempts: 50,
+    maxAcquisitionPasses: 1,
+  },
   window: { startMinutesFromMidnight: 540, endMinutesFromMidnight: 1200 },
 };
 

@@ -170,6 +170,17 @@ export interface DailyPlanningSolution {
     solver: string;
     approximateTravel: boolean;
     iterations?: number;
+    residualCapacity?: PlannerResidualCapacity[];
+    convergence?: {
+      stopReason:
+        | 'CAPACITY_SATURATED_OR_TINY_GAPS'
+        | 'RESERVOIR_EXHAUSTED'
+        | 'PROMOTION_BUDGET_EXHAUSTED'
+        | 'NO_PROGRESS';
+      promotionAttempts: number;
+      acquisitionPasses: number;
+    };
+    capacityDeficits?: PlannerCapacityDeficit[];
     routing?: {
       externalEstimateCount: number;
       internalEstimateCount: number;
@@ -189,6 +200,23 @@ export interface DailyPlanningSolution {
       startDates: string[];
     };
   };
+}
+
+export interface PlannerResidualCapacity {
+  dayNumber: number;
+  availableMinutes: number;
+  meaningful: boolean;
+}
+
+export interface PlannerCapacityDeficit {
+  origin: 'planner_capacity';
+  dayNumber: number;
+  availableMinutes: number;
+  preferredFacets: Array<{
+    dimension: string;
+    key: string;
+    weight: number;
+  }>;
 }
 
 export const DAILY_PLANNING_SOLVER = 'DAILY_PLANNING_SOLVER';
