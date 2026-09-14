@@ -10,8 +10,37 @@ in the canonical plans/specs; this file governs agent process only.
 - Canonical remote: `fork` (`git@github.com:jiseruk/zig-zag.git`).
 - Target branch: `feat/preference-first-selection`.
 - Expected worktree: `ui-redesign`.
+- Expected worktree path: `/Users/jiseruk/projects/zig-zag/.worktrees/ui-redesign`.
+- `fork` is the only write target for this initiative.
+- All fetch/push operations for `feat/preference-first-selection` use `fork`.
+- `origin` is upstream and is out of scope for writes.
+- Never create, update, or push `feat/preference-first-selection` to `origin`.
 - Always run `git fetch fork`; the remote target branch is the source of truth.
 - Any SHA in a task is informational. Never blindly reset to an old SHA.
+
+## Worktree and repository-root semantics
+
+Before reading repository instructions or task documents:
+
+```bash
+cd /Users/jiseruk/projects/zig-zag/.worktrees/ui-redesign
+pwd
+git rev-parse --show-toplevel
+git branch --show-current
+git remote get-url fork
+git remote get-url origin
+```
+
+`git rev-parse --show-toplevel` must resolve to:
+
+`/Users/jiseruk/projects/zig-zag/.worktrees/ui-redesign`
+
+Repository-root files are referenced relative to that root. Read `AGENTS.md`
+from the worktree root. Do not interpret `/AGENTS.md` as an absolute filesystem
+path in this workflow.
+
+If the worktree, branch, or canonical `fork` remote does not match the expected
+state, STOP and report it instead of silently switching repositories/worktrees.
 
 ## Stateless execution
 
@@ -21,6 +50,10 @@ Every task begins as:
 
 Assume no chat history, summaries, or memory. Derive state from the current
 worktree, remote branch, canonical docs, implementation, and tests.
+
+A task-specific implementation plan referenced by an execution prompt MUST
+already exist on `fork/feat/preference-first-selection`. If it does not exist,
+STOP. Do not reconstruct it from chat context or invent a replacement design.
 
 ## Safety and concurrency
 
@@ -32,7 +65,7 @@ worktree, remote branch, canonical docs, implementation, and tests.
 
 ## Canonical reading order
 
-1. `/AGENTS.md`
+1. Repository-root `AGENTS.md`
 2. CURRENT MAIN PROGRESS
 3. Current milestone/task
 4. Live-cutover plan
