@@ -317,6 +317,10 @@ P5/P6 implementation checkpoint: new backend generation traces emit version 4 wh
 
 M9 remains blocked: planner-capacity acquisition is not yet executed after reservoir exhaustion; native v4 trace payloads do not yet include the full convergence/classification dossier; the complete frontend matrix and disposable-DB characterization gate remain outstanding.
 
+P7 database checkpoint: a dedicated local Postgres database `zigzag_test` was created and all 16 repository Prisma migrations were applied successfully. Fresh acceptance verification against that database passed 20 suites / 30 tests. Fresh characterization ran 8 suites / 36 tests, with 6 suites / 28 tests passing and 2 DB-backed suites / 8 tests failing during Prisma raw-SQL initialization. Fresh e2e verification reached the disposable database but failed across the DB-reset-dependent selection suites with Prisma `Invalid $executeRawUnsafe` / `$queryRawUnsafe` errors; the disposable-database guard itself passed. P7 remains **BLOCKED — implementation and DB verification incomplete** pending the canonical planner-capacity acquisition gap and DB-backed suite initialization repair.
+
+The required frontend typecheck remains blocked by pre-existing repository errors outside the modified Bitácora file. No live Buenos Aires gate or M10 RW1 run was authorized by prerequisite state; RW1 has not been run.
+
 Next gate: finish P2 acquisition convergence and complete the trace/Bitácora v4 contracts before M9 acceptance.
 
 M3.5 is closed. Do not reopen it unless a new regression is demonstrated.
