@@ -825,6 +825,7 @@ describe('buildCandidatePoolStep', () => {
         {
           id: 'poi-catalog',
           name: 'History Museum',
+          matchedThemes: ['history'],
           traceSource: 'db',
           scoreBreakdown: breakdown(),
         },
@@ -837,6 +838,7 @@ describe('buildCandidatePoolStep', () => {
         {
           id: 'walk-discovery',
           name: 'San Telmo Historic Walk',
+          matchedThemes: ['history'],
           traceSource: 'discovery',
           scoreBreakdown: breakdown(),
         },

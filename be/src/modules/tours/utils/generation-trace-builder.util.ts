@@ -20,7 +20,7 @@ import { TourGenerationRequest } from '../interfaces/tour-generation.interface';
 import { DailyPlanningSolution } from '../interfaces/daily-planning.interface';
 import { PreferenceCoverageResult } from '../interfaces/preference-spec.interface';
 import { CandidateScoreBreakdown } from './candidate-ranking.util';
-import { matchedThemesFor, ThemeMatchCandidate } from './theme-matching.util';
+import { ThemeMatchCandidate } from './theme-matching.util';
 
 function experienceDetail(act: any): string {
   const parts: string[] = [];
@@ -1243,7 +1243,7 @@ export function buildCandidatePoolStep(params: {
           ? 'discovery'
           : 'refill';
     bySource[bucket] += 1;
-    const themes = matchedThemesFor(c, params.requestedThemes);
+    const themes = c.matchedThemes ?? [];
     return {
       source: c.traceSource,
       id: c.id,
@@ -1358,7 +1358,7 @@ export function buildExperienceCandidatePoolStep(params: {
       chosen: false,
       scoreBreakdown: c.scoreBreakdown,
       coverageContribution: {
-        themes: matchedThemesFor(c, params.requestedThemes),
+        themes: c.matchedThemes ?? [],
       },
     };
   });

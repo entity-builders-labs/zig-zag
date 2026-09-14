@@ -183,4 +183,51 @@ describe('filterOverlappingExperienceCandidates', () => {
       },
     ]);
   });
+
+  it('prefers requested weighted coverage before component count', () => {
+    const broad = {
+      id: 'broad-composite',
+      weightedPreferenceCoverage: 1,
+      components: [
+        { geoEntity: { name: 'Shared Place', latitude: 1, longitude: 1 } },
+        { geoEntity: { name: 'Second Place', latitude: 1.001, longitude: 1 } },
+      ],
+    };
+    const preferred = {
+      id: 'preferred-poi',
+      weightedPreferenceCoverage: 3,
+      components: [
+        { geoEntity: { name: 'Shared Place', latitude: 1, longitude: 1 } },
+      ],
+    };
+
+    const result = filterOverlappingExperienceCandidates([broad, preferred]);
+
+    expect(result.kept.map((candidate) => candidate.id)).toEqual([
+      'preferred-poi',
+    ]);
+  });
+
+  it('preserves a resolved MUST over an overlapping ordinary candidate', () => {
+    const must = {
+      id: 'must-place',
+      mustInclude: true,
+      components: [
+        { geoEntity: { name: 'Shared Place', latitude: 1, longitude: 1 } },
+      ],
+    };
+    const ordinary = {
+      id: 'ordinary-composite',
+      components: [
+        { geoEntity: { name: 'Shared Place', latitude: 1, longitude: 1 } },
+        { geoEntity: { name: 'Another Place', latitude: 1.001, longitude: 1 } },
+      ],
+    };
+
+    const result = filterOverlappingExperienceCandidates([ordinary, must]);
+
+    expect(result.kept.map((candidate) => candidate.id)).toEqual([
+      'must-place',
+    ]);
+  });
 });

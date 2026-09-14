@@ -19,6 +19,8 @@ export interface OverlapCandidateComponent {
 export interface OverlapCandidate {
   id: string;
   compositionOrderScore?: number;
+  weightedPreferenceCoverage?: number;
+  mustInclude?: boolean;
   components?: Array<{ geoEntity?: OverlapCandidateComponent | null }> | null;
 }
 
@@ -101,6 +103,16 @@ export function filterOverlappingExperienceCandidates<
 
   const excludedIds = new Map<string, string>();
   const preferWinner = (a: T, b: T): T => {
+    if (a.mustInclude === true && b.mustInclude !== true) return a;
+    if (b.mustInclude === true && a.mustInclude !== true) return b;
+    if (
+      a.weightedPreferenceCoverage !== undefined ||
+      b.weightedPreferenceCoverage !== undefined
+    ) {
+      const aCoverage = a.weightedPreferenceCoverage ?? -Infinity;
+      const bCoverage = b.weightedPreferenceCoverage ?? -Infinity;
+      if (aCoverage !== bCoverage) return aCoverage > bCoverage ? a : b;
+    }
     const aComponentCount = componentsById.get(a.id)?.length ?? 0;
     const bComponentCount = componentsById.get(b.id)?.length ?? 0;
     if (aComponentCount !== bComponentCount) {

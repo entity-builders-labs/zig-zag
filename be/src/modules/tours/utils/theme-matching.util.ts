@@ -9,6 +9,9 @@ export interface ThemeMatchCandidate {
   name: string;
   source?: string | null;
   metadata?: unknown;
+  /** Canonical facet evaluation supplied by the caller; trace rendering does
+   * not infer factual coverage from names or metadata. */
+  matchedThemes?: string[];
 }
 export const THEME_KEYWORDS: Record<string, readonly string[]> = {
   history: ['history', 'historic', 'historical', 'monument', 'museum'],
