@@ -43,6 +43,20 @@ export interface NotabilityEvidence {
 }
 
 /**
+ * A canonical, cross-provider external identity for this observation's
+ * subject, when the adapter that produced this observation can supply one
+ * (e.g. a resolved Wikidata QID cited by a Wikivoyage entry, or a future
+ * dedicated Wikidata provider's own subject). Populated ONLY at the
+ * adapter boundary that actually resolved the identity -- domain code
+ * (corroboration, dedup) consumes this typed fact directly and must never
+ * branch on `SourceObservation.provider` or decode `externalId`/
+ * `evidenceKey` to reconstruct it.
+ */
+export interface CanonicalIdentity {
+  wikidataQid?: string;
+}
+
+/**
  * Normalized, provider-neutral quality evidence a single structured
  * observation may carry. Every field is independently optional -- the
  * ADAPTER that produced the observation (`GooglePlacesAcquisitionProvider`,
@@ -73,6 +87,19 @@ export interface SourceObservation {
    * `metadata`). See `QualityEvidence`.
    */
   qualityEvidence?: QualityEvidence;
+  /**
+   * Canonical cross-provider identity, populated by the adapter that
+   * resolved it. See `CanonicalIdentity`.
+   */
+  canonicalIdentity?: CanonicalIdentity;
+  /**
+   * The subject's own real external URL (e.g. a Google/Geoapify Places
+   * `websiteUri`), populated by the adapter that produced this observation.
+   * Downstream domain code (evidence construction, classification) reads
+   * this typed fact directly and must never decode `metadata` to
+   * reconstruct it.
+   */
+  sourceUrl?: string;
   /**
    * Provider-neutral: `false` marks an observation whose evidence is only
    * enough to CORROBORATE/enrich a tourism Experience found by stronger

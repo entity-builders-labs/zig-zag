@@ -157,7 +157,7 @@ describe('GooglePlacesAcquisitionProvider', () => {
     });
   });
 
-  it('1b. preserves websiteUri, priceLevel, businessStatus, editorialSummary and primaryTypeDisplayName (Task B1)', async () => {
+  it('1b. preserves sourceUrl, priceLevel, businessStatus, editorialSummary and primaryTypeDisplayName (Task B1)', async () => {
     const mockPlace: PlaceData = {
       id: 'ChIJ987654321',
       displayName: { text: 'Museo de Arte Moderno' },
@@ -189,9 +189,9 @@ describe('GooglePlacesAcquisitionProvider', () => {
     });
 
     const obs = result.value[0];
+    expect(obs.sourceUrl).toBe('https://mamba.example.com');
     expect(obs.metadata).toEqual(
       expect.objectContaining({
-        websiteUri: 'https://mamba.example.com',
         priceLevel: 'PRICE_LEVEL_MODERATE',
         businessStatus: 'OPERATIONAL',
         editorialSummary: 'Contemporary art in a historic building.',
@@ -729,7 +729,8 @@ describe('GooglePlacesAcquisitionProvider', () => {
       expect(obs.winery_scale).toBeUndefined();
       expect(obs.local_character).toBeUndefined();
       expect(obs.tourism_intensity).toBeUndefined();
-      // Only factual metadata is carried through.
+      // Only factual metadata is carried through -- websiteUri is a typed
+      // top-level `sourceUrl` field now, not part of the metadata bag.
       expect(Object.keys(obs.metadata).sort()).toEqual(
         [
           'businessStatus',
@@ -741,7 +742,6 @@ describe('GooglePlacesAcquisitionProvider', () => {
           'rating',
           'types',
           'userRatingCount',
-          'websiteUri',
         ].sort(),
       );
     });

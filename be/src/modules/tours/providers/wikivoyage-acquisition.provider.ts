@@ -82,8 +82,8 @@ export class WikivoyageAcquisitionProvider {
       const evidenceKey = `wikivoyage:${articleSlug}:${section}:${template}:${entrySlug}:${occurrence}`;
 
       const rawQid = entry.wikidata?.trim();
-      const normalizedQid =
-        rawQid && /^Q\d+$/i.test(rawQid) ? rawQid.toUpperCase() : rawQid;
+      const isValidQid = !!rawQid && /^Q\d+$/i.test(rawQid);
+      const normalizedQid = isValidQid ? rawQid!.toUpperCase() : rawQid;
 
       return {
         provider: 'wikivoyage',
@@ -97,6 +97,13 @@ export class WikivoyageAcquisitionProvider {
         evidenceType: entry.sectionType === 'DO' ? 'tourism_activity' : 'place',
         evidenceKey,
         qualityEvidence: WIKIVOYAGE_QUALITY_EVIDENCE,
+        // Adapter-boundary normalization: this entry cites a real,
+        // well-formed Wikidata QID -- resolved here, never re-derived
+        // downstream from `provider === 'wikivoyage'` or by decoding
+        // `externalId`/`evidenceKey`.
+        canonicalIdentity: isValidQid
+          ? { wikidataQid: normalizedQid }
+          : undefined,
         // Task B1 -- previously computed (used above for the evidenceKey/
         // evidenceType derivation) but discarded before reaching the
         // observation itself.

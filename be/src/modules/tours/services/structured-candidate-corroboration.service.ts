@@ -55,18 +55,15 @@ export interface CorroborationMergeResult {
   pairDecisions: CorroborationPairTrace[];
 }
 
+/**
+ * Reads the typed, adapter-populated `canonicalIdentity` fact directly --
+ * never branches on `SourceObservation.provider` and never decodes
+ * `externalId`/`evidenceKey` to reconstruct an identity a provider didn't
+ * explicitly resolve (see `CanonicalIdentity`).
+ */
 function canonicalExternalIdentity(obs: SourceObservation): string | undefined {
-  if (obs.provider === 'wikivoyage' || obs.provider === 'wikidata') {
-    const raw = obs.externalId?.trim();
-    if (raw && /^Q\d+$/i.test(raw)) {
-      return `wikidata:${raw.toUpperCase()}`;
-    }
-    const match = obs.evidenceKey.match(/:wikidata:(Q\d+)/i);
-    if (match) {
-      return `wikidata:${match[1].toUpperCase()}`;
-    }
-  }
-  return undefined;
+  const qid = obs.canonicalIdentity?.wikidataQid;
+  return qid ? `wikidata:${qid}` : undefined;
 }
 
 function proposalIdentifier(proposal: StructuredCandidateProposal): string {

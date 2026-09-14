@@ -251,14 +251,16 @@ export class GooglePlacesAcquisitionProvider {
           // `undefined`, never a fabricated `0`. Geoapify-shaped places
           // that lack `rating` correctly produce no rating evidence here.
           qualityEvidence: this.qualityEvidenceFor(place),
+          // Adapter-boundary normalization: the place's own real website URL
+          // is a typed fact (`SourceObservation.sourceUrl`), never left
+          // inside `metadata` for downstream code to decode.
+          sourceUrl: place.websiteUri,
           metadata: {
             rating: place.rating,
             userRatingCount: place.userRatingCount,
             primaryType: place.primaryType,
             types: place.types,
             openingHoursWeekdayText: place.openingHoursWeekdayText,
-            // Task B1 -- preserved evidence previously dropped here.
-            websiteUri: place.websiteUri,
             priceLevel: place.priceLevel,
             businessStatus: place.businessStatus,
             editorialSummary: place.editorialSummary?.text,

@@ -7,7 +7,10 @@ import {
   BuildPlanInput,
   ExperienceAcquisitionPlannerService,
 } from './experience-acquisition-planner.service';
-import { ExperienceAcquisitionService } from './experience-acquisition.service';
+import {
+  ExperienceAcquisitionService,
+  ResolverEvidenceItem,
+} from './experience-acquisition.service';
 import {
   CURRENT_CLASSIFICATION_PROMPT_VERSION,
   canReuseClassification,
@@ -232,18 +235,21 @@ export class AreaRouteWalkAcquisitionService {
       const [experience] = await this.catalog.findVerifiedByIds([experienceId]);
       if (!experience) continue;
       const evidenceKeys = Array.from(
-        new Set(
-          results.flatMap(
-            (result) => (result.candidate as any)?.evidenceKeys ?? [],
-          ),
-        ),
+        new Set(results.flatMap((result) => result.candidate.evidenceKeys)),
       ).sort();
+      // ExperienceClassificationService only accepts evidence that actually
+      // carries snippet text -- an evidence item with no snippet has
+      // nothing to substantiate a claim from, so it is dropped here rather
+      // than coerced with a cast or a fabricated placeholder.
       const candidateEvidence = evidenceKeys
         .map((key) => evidenceByKey.get(key))
-        .filter((item): item is NonNullable<typeof item> => Boolean(item));
+        .filter(
+          (item): item is ResolverEvidenceItem & { snippet: string } =>
+            typeof item?.snippet === 'string',
+        );
       const classification = await this.classifier.classify(
         experience.canonicalName,
-        candidateEvidence as any,
+        candidateEvidence,
       );
       await this.catalog.applyEvidenceClassification(
         experienceId,

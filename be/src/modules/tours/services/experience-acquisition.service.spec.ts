@@ -935,7 +935,7 @@ describe('ExperienceAcquisitionService', () => {
         title: 'Teatro Colón',
         description: 'Historic opera house in Buenos Aires',
         geo: { latitude: -34.6011, longitude: -58.3831 },
-        metadata: { websiteUri: 'https://teatrocolon.org.ar' },
+        sourceUrl: 'https://teatrocolon.org.ar',
       };
 
       catalog.acquireNearbyAsExperiences.mockResolvedValueOnce({

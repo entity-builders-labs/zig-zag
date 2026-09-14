@@ -255,10 +255,7 @@ export class ExperienceAcquisitionService {
           source: obs.provider,
           title: obs.title,
           snippet: obs.description,
-          url:
-            typeof (obs.metadata as any)?.websiteUri === 'string'
-              ? (obs.metadata as any).websiteUri
-              : undefined,
+          url: obs.sourceUrl,
         });
       }
     }
@@ -403,10 +400,7 @@ export class ExperienceAcquisitionService {
         source: obs.provider,
         title: obs.title,
         snippet: obs.description,
-        url:
-          typeof (obs.metadata as any)?.websiteUri === 'string'
-            ? (obs.metadata as any).websiteUri
-            : undefined,
+        url: obs.sourceUrl,
       }));
 
       const resolution = await this.proposalResolver!.resolve({

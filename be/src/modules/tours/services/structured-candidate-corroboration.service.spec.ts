@@ -82,6 +82,7 @@ describe('StructuredCandidateCorroborationService', () => {
         {
           provider: 'wikivoyage',
           externalId: 'Q827401',
+          canonicalIdentity: { wikidataQid: 'Q827401' },
           title: 'Teatro Colón',
           evidenceType: 'place',
           evidenceKey: 'wikivoyage:BA:wikidata:Q827401',
@@ -111,6 +112,7 @@ describe('StructuredCandidateCorroborationService', () => {
         {
           provider: 'wikidata',
           externalId: 'Q827401',
+          canonicalIdentity: { wikidataQid: 'Q827401' },
           title: 'Teatro Colon Opera House',
           evidenceType: 'place',
           evidenceKey: 'wikidata:Q827401',
@@ -771,6 +773,7 @@ describe('StructuredCandidateCorroborationService', () => {
         {
           provider: 'wikivoyage',
           externalId: 'Q123',
+          canonicalIdentity: { wikidataQid: 'Q123' },
           title: 'Mercado San Telmo',
           evidenceType: 'place',
           evidenceKey: 'wikivoyage:San_Telmo:see:see:Mercado_San_Telmo:1',
@@ -794,6 +797,7 @@ describe('StructuredCandidateCorroborationService', () => {
         {
           provider: 'wikivoyage',
           externalId: 'Q123',
+          canonicalIdentity: { wikidataQid: 'Q123' },
           title: 'Tour gastronómico Mercado San Telmo',
           evidenceType: 'tourism_activity',
           evidenceKey:
@@ -1024,6 +1028,7 @@ describe('StructuredCandidateCorroborationService', () => {
           {
             provider: 'wikivoyage',
             externalId: 'Q12345',
+            canonicalIdentity: { wikidataQid: 'Q12345' },
             title: 'Museo de Arte Moderno',
             evidenceType: 'place',
             evidenceKey: 'wikivoyage:San_Telmo:see:see:MAMBA:1',
@@ -1043,7 +1048,10 @@ describe('StructuredCandidateCorroborationService', () => {
         observations: [
           {
             provider: 'google_places',
-            // Coincidentally has Q12345 as externalId string
+            // Coincidentally has Q12345 as externalId string -- the real
+            // Google Places adapter never populates `canonicalIdentity`
+            // (it has no notion of a Wikidata QID), so this coincidental
+            // string must never be reinterpreted as one.
             externalId: 'Q12345',
             title: 'Centro Cultural Recoleta',
             evidenceType: 'place',
@@ -1053,7 +1061,9 @@ describe('StructuredCandidateCorroborationService', () => {
       };
 
       const pairDec = service.decidePair(pWV, pGP);
-      // Because google_places is not wikivoyage/wikidata, canonicalExternalIdentity does not match
+      // google_places never populates `canonicalIdentity` (an adapter-level
+      // typed fact, not inferred from `provider`), so no shared identity
+      // exists here regardless of the coincidental externalId string.
       expect(pairDec.reasons).not.toContain('same_wikidata_identity');
       expect(pairDec.decision).toBe('NEW');
 
@@ -1166,6 +1176,7 @@ describe('StructuredCandidateCorroborationService', () => {
           {
             provider: 'wikivoyage',
             externalId: 'Q12345',
+            canonicalIdentity: { wikidataQid: 'Q12345' },
             title: 'Otro Lugar',
             evidenceType: 'place',
             evidenceKey: 'wikivoyage:X:see:see:Q12345:1',

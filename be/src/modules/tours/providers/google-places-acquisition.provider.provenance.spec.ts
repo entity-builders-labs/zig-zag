@@ -91,6 +91,7 @@ describe('GooglePlacesAcquisitionProvider provenance', () => {
         standaloneEligible: true,
       }),
     );
+    expect(observation.sourceUrl).toBe('https://museum.example.com');
     expect(observation.metadata).toEqual(
       expect.objectContaining({
         rating: 4.7,
@@ -98,7 +99,6 @@ describe('GooglePlacesAcquisitionProvider provenance', () => {
         primaryType: 'museum',
         types: ['museum', 'tourist_attraction'],
         openingHoursWeekdayText: ['Monday: 10:00 AM – 6:00 PM'],
-        websiteUri: 'https://museum.example.com',
         priceLevel: 'PRICE_LEVEL_MODERATE',
         businessStatus: 'OPERATIONAL',
         editorialSummary: 'A preserved editorial summary.',

@@ -64,6 +64,10 @@ describe('WikivoyageAcquisitionProvider', () => {
     expect(mercado).toEqual({
       provider: 'wikivoyage',
       externalId: 'Q6010497',
+      // Adapter-boundary normalization: a real, well-formed Wikidata QID
+      // resolved here as the typed canonical identity fact -- never
+      // re-derived downstream from `provider`/`externalId`.
+      canonicalIdentity: { wikidataQid: 'Q6010497' },
       title: 'Mercado San Telmo',
       description: 'Mercado tradicional techado.',
       geo: {
@@ -85,6 +89,7 @@ describe('WikivoyageAcquisitionProvider', () => {
     expect(tango).toEqual({
       provider: 'wikivoyage',
       externalId: undefined,
+      canonicalIdentity: undefined,
       title: 'Clases de Tango',
       description: 'Aprender a bailar tango en la plaza.',
       geo: undefined,
@@ -180,9 +185,13 @@ describe('WikivoyageAcquisitionProvider', () => {
 
     const [seeListing, doListing] = result.value;
 
-    // Both observations retain Wikidata QID in externalId
+    // Both observations retain Wikidata QID in externalId, and both carry
+    // the same typed canonicalIdentity fact -- the ONE signal corroboration
+    // reads to recognize a shared real-world identity.
     expect(seeListing.externalId).toBe('Q6010497');
     expect(doListing.externalId).toBe('Q6010497');
+    expect(seeListing.canonicalIdentity).toEqual({ wikidataQid: 'Q6010497' });
+    expect(doListing.canonicalIdentity).toEqual({ wikidataQid: 'Q6010497' });
 
     // Evidence keys are listing-specific, distinct, and include section/template/name/occurrence
     expect(seeListing.evidenceKey).toBe(
