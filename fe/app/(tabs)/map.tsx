@@ -47,8 +47,10 @@ interface MapPlace {
   type: string;
   categoryLabel: string;
   categoryIcon: any;
-  rating: number;
-  ratingCount: number;
+  /** Unknown for a real backend Experience with no quality signal yet --
+   * never a fabricated placeholder value. Absent means "no rating to show". */
+  rating?: number;
+  ratingCount?: number;
   latitude: number;
   longitude: number;
   address: string;
@@ -191,8 +193,8 @@ export default function MapScreen() {
               type: "experience",
               categoryLabel: "Experiencia",
               categoryIcon: Landmark,
-              rating: experience.qualityScore || 4.7,
-              ratingCount: 0,
+              rating: experience.qualityScore,
+              ratingCount: undefined,
               latitude: experience.latitude ?? lat,
               longitude: experience.longitude ?? lng,
               address: "",
@@ -455,15 +457,19 @@ export default function MapScreen() {
                   {selectedPlace.name}
                 </Heading>
 
-                <HStack space="xs" alignItems="center">
-                  <Icon as={Star} size="2xs" color="$amber500" fill="#F59E0B" />
-                  <Text size="2xs" fontWeight="$bold" color="$textLight800">
-                    {selectedPlace.rating.toFixed(1)}
-                  </Text>
-                  <Text size="2xs" color="$textLight400">
-                    ({selectedPlace.ratingCount} opiniones)
-                  </Text>
-                </HStack>
+                {selectedPlace.rating != null && (
+                  <HStack space="xs" alignItems="center">
+                    <Icon as={Star} size="2xs" color="$amber500" fill="#F59E0B" />
+                    <Text size="2xs" fontWeight="$bold" color="$textLight800">
+                      {selectedPlace.rating.toFixed(1)}
+                    </Text>
+                    {selectedPlace.ratingCount != null && (
+                      <Text size="2xs" color="$textLight400">
+                        ({selectedPlace.ratingCount} opiniones)
+                      </Text>
+                    )}
+                  </HStack>
+                )}
 
                 <Text size="2xs" color="$textLight500" numberOfLines={1}>
                   📍 {selectedPlace.address}
@@ -559,11 +565,15 @@ export default function MapScreen() {
                         {place.name}
                       </Heading>
                       <HStack space="xs" alignItems="center">
-                        <Icon as={Star} size="2xs" color="$amber500" fill="#F59E0B" />
-                        <Text size="2xs" fontWeight="$bold" color="$textLight700">
-                          {place.rating.toFixed(1)}
-                        </Text>
-                        <Text size="2xs" color="$textLight400">•</Text>
+                        {place.rating != null && (
+                          <>
+                            <Icon as={Star} size="2xs" color="$amber500" fill="#F59E0B" />
+                            <Text size="2xs" fontWeight="$bold" color="$textLight700">
+                              {place.rating.toFixed(1)}
+                            </Text>
+                            <Text size="2xs" color="$textLight400">•</Text>
+                          </>
+                        )}
                         <Text size="2xs" color="$primary600" fontWeight="$medium" numberOfLines={1}>
                           {place.categoryLabel}
                         </Text>

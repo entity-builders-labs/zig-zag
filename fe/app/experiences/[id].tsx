@@ -391,12 +391,14 @@ export default function ExperienceDetailScreen() {
               </Heading>
 
               <HStack space='xs' flexWrap='wrap' mt='$1'>
-                <HStack bg='#FEF3C7' borderWidth={1} borderColor='#FDE68A' px='$2' py='$1' rounded='$lg' alignItems='center' space='xs' mb='$1'>
-                  <Star size={13} color='#B45309' fill='#B45309' />
-                  <Text color='#92400E' fontSize='$xs' fontWeight='$bold'>
-                    {experience.qualityScore ? experience.qualityScore.toFixed(1) : '4.7'}
-                  </Text>
-                </HStack>
+                {experience.qualityScore != null && (
+                  <HStack bg='#FEF3C7' borderWidth={1} borderColor='#FDE68A' px='$2' py='$1' rounded='$lg' alignItems='center' space='xs' mb='$1'>
+                    <Star size={13} color='#B45309' fill='#B45309' />
+                    <Text color='#92400E' fontSize='$xs' fontWeight='$bold'>
+                      {experience.qualityScore.toFixed(1)}
+                    </Text>
+                  </HStack>
+                )}
 
                 <HStack bg='#EFF6FF' borderWidth={1} borderColor='#DBEAFE' px='$2' py='$1' rounded='$lg' alignItems='center' mb='$1'>
                   <Text color='#1E40AF' fontSize='$xs' fontWeight='$bold'>
@@ -544,9 +546,11 @@ export default function ExperienceDetailScreen() {
                           <Text color='#0F172A' fontSize='$xs' fontWeight='$bold' numberOfLines={1}>
                             {sim.canonicalName}
                           </Text>
-                          <Text color='#64748B' fontSize='$2xs' mt='$0.5'>
-                            ⭐ {sim.qualityScore ? sim.qualityScore.toFixed(1) : '4.6'}
-                          </Text>
+                          {sim.qualityScore != null && (
+                            <Text color='#64748B' fontSize='$2xs' mt='$0.5'>
+                              ⭐ {sim.qualityScore.toFixed(1)}
+                            </Text>
+                          )}
                         </VStack>
                       </Pressable>
                     ))}

@@ -87,8 +87,6 @@ export default function ToursScreen() {
         `/tours?${params.toString()}`
       )) as PaginatedResponse;
 
-      console.log('$$$ response:', response);
-
       if (!response.data) {
         throw new Error('No data returned from API');
       }
