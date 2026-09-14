@@ -375,3 +375,46 @@ during the scale reset. P2 planner-capacity acquisition, the complete v4
 convergence/classification dossier, frontend Bitácora verification, and the
 Buenos Aires live gate remain outstanding. Status: **DB boundary repaired —
 M9 still blocked, awaiting independent review**.
+
+## 2026-09-14 M9/C5b completion evidence
+
+Starting HEAD: `675f71356c689d2c3835d9b603b1c371a254c552`.
+
+The stale competitive corpus contract was migrated in `27b5600` and the
+remaining lifecycle/C5b test and scope corrections were committed in
+`38cef45`. Competitive assertions now encode P7C directional preference,
+facet coverage, exact-fit preference over generic quality, strict hard
+exclusion, preference-delta selection change, no-strict-dominance, and
+determinism. They no longer require global 100% cluster dominance.
+
+The E2E harness now waits for generation terminal status plus relevant outbox
+quiescence and isolates the unawaited image transport with a deterministic
+test double. The dedicated `zigzag_test` verification is green:
+
+- full E2E: 4 suites / 40 tests;
+- competitive corpus: 17 tests;
+- scale corpus: 7 tests;
+- acceptance: 20 suites / 30 tests;
+- integration: 17 suites / 73 tests;
+- characterization: 8 suites / 36 tests;
+- unit: 144 suites / 1,443 tests;
+- architecture, typecheck, lint, and build: PASS.
+
+C5b implementation is **IMPLEMENTED**. The canonical path is gated by
+`RESERVOIR_EXHAUSTED` with meaningful residual capacity, then executes
+`AcquisitionDeficit(global_capacity)` → acquisition plan/execution → canonical
+materialization/persistence → catalog re-read → recomposition → replan. The
+bounded pass count and no-progress termination are persisted in convergence
+trace metadata. The point-radius resolver regression was fixed so this path
+has a valid typed destination scope when no area boundary exists. Acceptance
+evidence is **PASS** through the C5b integration, E2E, unit, and architecture
+matrix listed above.
+
+RW1 was rerun against a clean `zigzag_spike_preb6` with local PostgreSQL,
+SerpAPI, Nominatim, and Overpass. Its cold request remained in acquisition
+after the five-minute bounded harness limit (`TourGenerationRequested` stayed
+`PROCESSING`; no terminal `TourCompleted` event). No warm run was started
+after that failed cold boundary. Classification: **INFRASTRUCTURE_GAP / live
+provider-coverage gap**, not a competitive-selection or C5b oracle failure.
+The prior RW1 dossier remains the historical cold/warm result; this rerun is
+recorded as non-pass evidence and does not authorize RW2.
