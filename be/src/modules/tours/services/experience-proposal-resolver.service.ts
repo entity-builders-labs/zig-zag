@@ -19,6 +19,7 @@ import {
   FinalExperienceResolutionResponse,
   ResolvedExperienceCandidate,
   ResolvedGeoEntity,
+  GeographicScope,
 } from '../interfaces/experience-resolution.interface';
 import {
   bestNominatimMatch,
@@ -28,7 +29,6 @@ import {
 } from '../utils/nominatim-match.util';
 import { GeoEntityHint } from '../interfaces/experience-discovery.interface';
 import { computeQualityScore } from '../utils/quality-score.util';
-import { pointRadiusToGeometry } from '../utils/geometry-search-area.util';
 
 // Loose radius for biasing a Places text search toward the destination when
 // Nominatim/OSM had no usable match — wide enough to cover a metro area's
@@ -102,23 +102,15 @@ export class ExperienceProposalResolverService
   ): Promise<FinalExperienceResolutionResponse> {
     const candidates = Array.isArray(input?.candidates) ? input.candidates : [];
     const evidence = input.evidence ?? [];
-    const boundary = input?.destinationBoundary as OsmCandidate | undefined;
-    const pointRadius = input.destinationPointRadius;
-    if (!boundary && !pointRadius) {
-      throw new Error('Experience resolution requires destinationBoundary');
-    }
-    const effectiveBoundary: OsmCandidate = boundary ?? {
-      id: 'synthetic:point-radius-scope',
-      name: input.destinationName ?? 'point destination',
-      osmType: 'relation',
-      osmId: 0,
-      geometry: pointRadiusToGeometry(
-        pointRadius!.latitude,
-        pointRadius!.longitude,
-        pointRadius!.radiusMeters,
-      ),
-      tags: { synthetic: 'true', validation_scope: 'point_radius' },
-    };
+    const legacy = input as Record<string, unknown>;
+    const scope = input.geographicScope ??
+      (legacy.destinationBoundary
+        ? { kind: 'AREA_BOUNDARY' as const, boundary: legacy.destinationBoundary as OsmCandidate }
+        : legacy.destinationPointRadius
+          ? ({ kind: 'POINT_RADIUS' as const, ...(legacy.destinationPointRadius as { latitude: number; longitude: number; radiusMeters: number }) })
+          : undefined);
+    if (!scope) throw new Error('Experience resolution requires a geographic scope');
+    const boundary = scope.kind === 'AREA_BOUNDARY' ? scope.boundary : undefined;
 
     // A point-scale destination has no real OSM area/relation — boundary
     // here is a synthetic point-radius placeholder (osmId: 0) that a real
@@ -127,20 +119,20 @@ export class ExperienceProposalResolverService
     // result). Use the radius-based lookups instead whenever the caller
     // tells us this destination degraded to point-scale.
     const [streetLookup, poiLookup] = await Promise.all([
-      pointRadius
+      scope.kind === 'POINT_RADIUS'
         ? this.osmPlaces.lookupStreetsNear(
-            pointRadius.latitude,
-            pointRadius.longitude,
-            pointRadius.radiusMeters,
+            scope.latitude,
+            scope.longitude,
+            scope.radiusMeters,
           )
-        : this.osmPlaces.lookupStreetsWithin(effectiveBoundary),
-      pointRadius
+        : this.osmPlaces.lookupStreetsWithin(scope.boundary),
+      scope.kind === 'POINT_RADIUS'
         ? this.osmPlaces.lookupPoisNear(
-            pointRadius.latitude,
-            pointRadius.longitude,
-            pointRadius.radiusMeters,
+            scope.latitude,
+            scope.longitude,
+            scope.radiusMeters,
           )
-        : this.osmPlaces.lookupPoisWithin(effectiveBoundary),
+        : this.osmPlaces.lookupPoisWithin(scope.boundary),
     ]);
 
     // Bounded: each candidate can upsert a GeoEntity (its own interactive
@@ -151,7 +143,7 @@ export class ExperienceProposalResolverService
       (candidate: any) =>
         this.resolveCandidate(
           candidate,
-          effectiveBoundary,
+          boundary,
           streetLookup.value,
           poiLookup.value,
           { streets: streetLookup, pois: poiLookup },
@@ -181,7 +173,7 @@ export class ExperienceProposalResolverService
       .map((item) => {
         const result = this.geographicValidator.validate(
           item,
-          this.validationBoundaryFor(item, effectiveBoundary),
+          this.validationBoundaryFor(item, boundary),
           input.validationScope,
           input.validationIntent,
         );
@@ -352,7 +344,7 @@ export class ExperienceProposalResolverService
 
   private async resolveCandidate(
     candidate: any,
-    boundary: OsmCandidate,
+    boundary: OsmCandidate | undefined,
     streets: OsmCandidate[],
     pois: OsmCandidate[],
     osmLookups: {
@@ -376,7 +368,9 @@ export class ExperienceProposalResolverService
         hint.expectedKind === 'ROUTE' || hint.role === 'route'
           ? streets
           : hint.expectedKind === 'AREA' || hint.role === 'area'
-            ? [boundary]
+            ? boundary
+              ? [boundary]
+              : []
             : pois;
       const matched = matchOsmCandidateByName(hint.name, pool);
 
@@ -721,8 +715,9 @@ export class ExperienceProposalResolverService
 
   private validationBoundaryFor(
     candidate: ResolvedExperienceCandidate,
-    destinationBoundary: OsmCandidate,
-  ): OsmCandidate {
+    destinationBoundary: OsmCandidate | undefined,
+  ): OsmCandidate | undefined {
+    if (!destinationBoundary) return undefined;
     if (!candidate.destinationAssociationVerified) return destinationBoundary;
     const anchors = candidate.resolvedEntities.filter(
       (entity) =>

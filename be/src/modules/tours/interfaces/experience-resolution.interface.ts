@@ -1,6 +1,7 @@
 import { ExperienceCandidate } from './experience-discovery.interface';
 import { DedupeEvidence } from '../utils/experience-dedupe.util';
 import { GeoJsonGeometry } from '@integrations/osm/utils/osm-geometry.util';
+import { OsmCandidate } from '@integrations/osm/services/osm-places.service';
 
 /**
  * Task B5 — a request-level, non-authoritative geographic scope resolved
@@ -13,12 +14,28 @@ import { GeoJsonGeometry } from '@integrations/osm/utils/osm-geometry.util';
  * somehow constructs one without usable geometry gets a conservative
  * rejection (fail closed), never a silently skipped check.
  */
-export interface ExperienceValidationScope {
-  kind: 'AREA' | 'ROUTE';
-  anchorName: string;
-  geoEntityId: string;
-  geometry: GeoJsonGeometry;
-}
+export type ExperienceValidationScope =
+  | {
+      kind: 'AREA' | 'ROUTE';
+      anchorName: string;
+      geoEntityId: string;
+      geometry: GeoJsonGeometry;
+    }
+  | {
+      kind: 'POINT_RADIUS';
+      anchorName: string;
+      geometry: GeoJsonGeometry;
+    };
+
+/** The request's resolved geographic search scope. A point is never an OSM entity. */
+export type GeographicScope =
+  | { kind: 'AREA_BOUNDARY'; boundary: OsmCandidate }
+  | {
+      kind: 'POINT_RADIUS';
+      latitude: number;
+      longitude: number;
+      radiusMeters: number;
+    };
 
 export type ResolvedGeoEntityStatus = 'resolved' | 'unresolved';
 
@@ -74,25 +91,8 @@ export interface ExperienceResolutionRequest {
    * verified live against the real API (see nominatim.interface.ts).
    */
   destinationCountryCode?: string;
-  destinationBoundary?: unknown;
-  /**
-   * Present only when the destination degraded to point-scale (no real OSM
-   * area/relation was found — see DestinationResolutionService). Tells the
-   * resolver to scope its own street/POI lookups by radius
-   * (OsmPlacesService.lookupStreetsNear/lookupPoisNear) instead of "within"
-   * a boundary — destinationBoundary in that case is a synthetic
-   * point-radius placeholder (`osmId: 0`) that a real "within area" Overpass
-   * query rejects outright (verified live: `relation(0)` returns a hard
-   * HTTP 400, "only positive integers are allowed" — not a slow query or an
-   * empty result). Without this, every ROUTE/AREA componentHint for a
-   * point-scale destination was unconditionally unresolvable, since PLACE
-   * hints alone have a global Nominatim/Places fallback for exactly this gap.
-   */
-  destinationPointRadius?: {
-    latitude: number;
-    longitude: number;
-    radiusMeters: number;
-  };
+  geographicScope?: GeographicScope;
+  [key: string]: unknown;
   traceContext?: Record<string, unknown>;
   evidence?: Array<{
     key?: string;

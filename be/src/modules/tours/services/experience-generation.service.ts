@@ -14,8 +14,8 @@ import { TourImageService } from './tour-image.service';
 import { DestinationResolutionService } from './destination-resolution.service';
 import {
   boundingBoxToCenterRadius,
-  pointRadiusToGeometry,
 } from '../utils/geometry-search-area.util';
+import { GeographicScope } from '../interfaces/experience-resolution.interface';
 import {
   TourGenerationRequest,
 } from '../interfaces/tour-generation.interface';
@@ -784,19 +784,14 @@ export class ExperienceGenerationService {
         );
 
       const isAreaScale = destinationResolution.scale === 'area';
-      const destinationScope = isAreaScale
-        ? destinationResolution.boundary
+      const pointRadius = request.destination.radiusMeters || 25000;
+      const geographicScope: GeographicScope = isAreaScale
+        ? { kind: 'AREA_BOUNDARY', boundary: destinationResolution.boundary }
         : {
-            id: 'point-radius-scope',
-            name: request.destination.label ?? 'selected destination',
-            osmType: 'relation' as const,
-            osmId: 0,
-            geometry: pointRadiusToGeometry(
-              request.destination.latitude,
-              request.destination.longitude,
-              request.destination.radiusMeters || 25000,
-            ),
-            tags: {},
+            kind: 'POINT_RADIUS',
+            latitude: request.destination.latitude,
+            longitude: request.destination.longitude,
+            radiusMeters: pointRadius,
           };
 
       const searchArea = isAreaScale
@@ -804,20 +799,13 @@ export class ExperienceGenerationService {
         : {
             latitude: request.destination.latitude,
             longitude: request.destination.longitude,
-            radiusMeters: request.destination.radiusMeters || 25000,
+            radiusMeters: pointRadius,
           };
       const venueAnchorResolution = await this.venueAnchorResolution.resolve({
         anchors: preferenceSpec.anchors,
         destinationName: request.destination.label,
         destinationCountryCode: destinationResolution.countryCode,
-        destinationBoundary: destinationScope,
-        destinationPointRadius: isAreaScale
-          ? undefined
-          : {
-              latitude: request.destination.latitude,
-              longitude: request.destination.longitude,
-              radiusMeters: searchArea.radiusMeters,
-            },
+        geographicScope,
       });
       venueAnchorResolution.resolvedMustIds.forEach((id) =>
         planningMustIncludeExperienceIds.add(id),
@@ -1011,14 +999,7 @@ export class ExperienceGenerationService {
                       latitude: searchArea.latitude,
                       longitude: searchArea.longitude,
                     },
-                    destinationBoundary: destinationScope,
-                    destinationPointRadius: isAreaScale
-                      ? undefined
-                      : {
-                          latitude: request.destination.latitude,
-                          longitude: request.destination.longitude,
-                          radiusMeters: searchArea.radiusMeters,
-                        },
+                    geographicScope,
                     deficit: routed.deficit,
                     semanticQuery: preferenceSpec.semanticQuery,
                   });
@@ -1103,14 +1084,7 @@ export class ExperienceGenerationService {
                         destinationName: request.destination.label,
                         destinationCountryCode:
                           destinationResolution.countryCode,
-                        destinationBoundary: destinationScope,
-                        destinationPointRadius: isAreaScale
-                          ? undefined
-                          : {
-                              latitude: request.destination.latitude,
-                              longitude: request.destination.longitude,
-                              radiusMeters: searchArea.radiusMeters,
-                            },
+                        geographicScope,
                       },
                     );
                   traceSteps.push(
@@ -1557,18 +1531,7 @@ export class ExperienceGenerationService {
               await this.experienceAcquisition.materializeExecution(execution, {
                 destinationName: request.destination.label,
                 destinationCountryCode: destinationResolution.countryCode,
-                destinationBoundary:
-                  destinationResolution.scale === 'area'
-                    ? destinationResolution.boundary
-                    : undefined,
-                destinationPointRadius:
-                  destinationResolution.scale === 'area'
-                    ? undefined
-                    : {
-                        latitude: request.destination.latitude,
-                        longitude: request.destination.longitude,
-                        radiusMeters: request.destination.radiusMeters || 25000,
-                      },
+                geographicScope,
               });
             traceSteps.push(
               buildEntityResolutionStep(resolution),

@@ -49,7 +49,7 @@ export class CompositeGeographicValidationService {
 
   validate(
     resolvedProposal: ResolvedExperienceCandidate,
-    destinationBoundary: OsmCandidate,
+    destinationBoundary: OsmCandidate | undefined,
     validationScope?: ExperienceValidationScope,
     validationIntent?: 'walk' | 'route_like',
   ): GeographicValidationResult {
@@ -64,6 +64,14 @@ export class CompositeGeographicValidationService {
     const groundedEvidenceKeys = Array.from(new Set(candidate.evidenceKeys));
 
     const result =
+      (validationScope?.kind === 'POINT_RADIUS'
+        ? this.validatePointRadiusScope(
+            resolvedProposal,
+            withCoordinates,
+            validationScope.geometry,
+            groundedEvidenceKeys,
+          )
+        : undefined) ??
       (validationScope &&
         this.rejectIfExternalScopeViolated(
           resolvedProposal,
@@ -77,13 +85,21 @@ export class CompositeGeographicValidationService {
         destinationBoundary,
         groundedEvidenceKeys,
       ) ??
-      this.validateExperience(
+      destinationBoundary
+        ? this.validateExperience(
         resolvedProposal,
         withCoordinates,
         destinationBoundary,
         groundedEvidenceKeys,
         validationIntent,
-      );
+      )
+        : this.rejected(
+            candidate.name,
+            'EXPERIENCE',
+            withCoordinates,
+            groundedEvidenceKeys,
+            ['destination_mismatch'],
+          );
 
     this.logger.log(
       JSON.stringify({
@@ -101,6 +117,41 @@ export class CompositeGeographicValidationService {
       }),
     );
     return result;
+  }
+
+  private validatePointRadiusScope(
+    resolvedProposal: ResolvedExperienceCandidate,
+    entities: ResolvedGeoEntity[],
+    geometry: GeoJsonGeometry,
+    evidenceKeys: string[],
+  ): GeographicValidationResult {
+    const outside = entities.find(
+      (entity) =>
+        !geometryContainsPoint(
+          geometry,
+          entity.longitude as number,
+          entity.latitude as number,
+        ),
+    );
+    return outside
+      ? this.rejected(
+          resolvedProposal.candidate.name,
+          'EXPERIENCE',
+          [outside],
+          evidenceKeys,
+          ['external_scope_mismatch'],
+        )
+      : {
+          proposalName: resolvedProposal.candidate.name,
+          kind: 'EXPERIENCE',
+          status: 'AUTHORITATIVELY_VERIFIED',
+          accepted: true,
+          strategy: 'canonical_entity',
+          anchors: entities,
+          groundedEvidenceKeys: evidenceKeys,
+          rejectionReasons: [],
+          validatorVersion: GEOGRAPHIC_VALIDATOR_VERSION,
+        };
   }
 
   /**
@@ -150,10 +201,8 @@ export class CompositeGeographicValidationService {
     // vacuously passing `.find()` on an empty array regardless of whether
     // `validationScope.geometry` is real).
     if (
-      !this.isUsableScopeGeometry(
-        validationScope.kind,
-        validationScope.geometry,
-      )
+      validationScope.kind !== 'POINT_RADIUS' &&
+      !this.isUsableScopeGeometry(validationScope.kind, validationScope.geometry)
     ) {
       return this.rejected(
         proposalName,

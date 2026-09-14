@@ -1,21 +1,24 @@
-import { Injectable } from '@nestjs/common';
-import { GooglePlacesAcquisitionProvider } from '../providers/google-places-acquisition.provider';
+import { Inject, Injectable } from '@nestjs/common';
 import { StructuredExperienceCandidateSynthesizerService } from './structured-experience-candidate-synthesizer.service';
 import { StructuredCandidateCorroborationService } from './structured-candidate-corroboration.service';
 import { ExperienceAcquisitionService } from './experience-acquisition.service';
 import { AnchoredPlace } from '../interfaces/preference-spec.interface';
-import { OsmCandidate } from '@integrations/osm/services/osm-places.service';
+import { GeographicScope } from '../interfaces/experience-resolution.interface';
+import { AcquisitionProviderResult, SourceObservation } from '../interfaces/experience-acquisition.interface';
+
+export interface VenueAnchorLookupCapability {
+  acquire(
+    destination: { destinationName?: string },
+    options: { query: string; maxResultCount: number },
+  ): Promise<AcquisitionProviderResult<SourceObservation>>;
+}
 
 export interface VenueAnchorResolutionInput {
   anchors: AnchoredPlace[];
   destinationName?: string;
   destinationCountryCode?: string;
-  destinationBoundary: OsmCandidate;
-  destinationPointRadius?: {
-    latitude: number;
-    longitude: number;
-    radiusMeters: number;
-  };
+  geographicScope?: GeographicScope;
+  [key: string]: unknown;
 }
 
 export interface VenueAnchorResolution {
@@ -28,7 +31,8 @@ export interface VenueAnchorResolution {
 @Injectable()
 export class VenueAnchorResolutionService {
   constructor(
-    private readonly places: GooglePlacesAcquisitionProvider,
+    @Inject('VenueAnchorLookupCapability')
+    private readonly places: VenueAnchorLookupCapability,
     private readonly synthesizer: StructuredExperienceCandidateSynthesizerService,
     private readonly corroborator: StructuredCandidateCorroborationService,
     private readonly acquisition: ExperienceAcquisitionService,
@@ -72,8 +76,7 @@ export class VenueAnchorResolutionService {
         {
           destinationName: input.destinationName,
           destinationCountryCode: input.destinationCountryCode,
-          destinationBoundary: input.destinationBoundary,
-          destinationPointRadius: input.destinationPointRadius,
+          geographicScope: input.geographicScope,
         },
       );
       const accepted = response.resolved

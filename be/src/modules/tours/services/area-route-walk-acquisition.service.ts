@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { OsmCandidate } from '@integrations/osm/services/osm-places.service';
 import { Coordinates } from '@shared/utils/distance.utils';
 import { AreaRouteAnchorResolverService } from './area-route-anchor-resolver.service';
 import { ExperienceCatalogService } from './experience-catalog.service';
@@ -15,7 +14,7 @@ import {
 import { AnchoredPlace } from '../interfaces/preference-spec.interface';
 import { PreferenceFacetDeficit } from '../interfaces/experience-acquisition-plan.interface';
 import { ExperienceDiscoveryScope } from '../interfaces/experience-discovery.interface';
-import { ExperienceValidationScope } from '../interfaces/experience-resolution.interface';
+import { ExperienceValidationScope, GeographicScope } from '../interfaces/experience-resolution.interface';
 import { normalizeWizardFacet } from '../utils/preference-facet-merge.util';
 import { candidateMatchesPreferenceFacet } from '../utils/preference-facet-matching.util';
 import { normalizeGeoName } from '../utils/nominatim-match.util';
@@ -34,13 +33,8 @@ export interface AreaRouteWalkAcquisitionInput {
   destination: ExperienceDiscoveryScope;
   destinationCountryCode?: string;
   destinationPoint?: Coordinates;
-  /** OsmCandidate-shaped at runtime. */
-  destinationBoundary: unknown;
-  destinationPointRadius?: {
-    latitude: number;
-    longitude: number;
-    radiusMeters: number;
-  };
+  geographicScope?: GeographicScope;
+  [key: string]: unknown;
   /** The canonical facet deficit this call is acquiring for -- routed
    * straight into the plan, never recomputed from a candidate pool. */
   deficit: PreferenceFacetDeficit;
@@ -93,8 +87,12 @@ export class AreaRouteWalkAcquisitionService {
         : input.anchor.kind === 'route'
           ? await this.anchorResolver.resolveRoute(
               input.anchor,
-              input.destinationBoundary as OsmCandidate | undefined,
-              input.destinationPointRadius,
+              input.geographicScope.kind === 'AREA_BOUNDARY'
+                ? input.geographicScope.boundary
+                : undefined,
+              input.geographicScope.kind === 'POINT_RADIUS'
+                ? input.geographicScope
+                : undefined,
             )
           : ({ resolved: false } as const);
 
@@ -187,8 +185,7 @@ export class AreaRouteWalkAcquisitionService {
       {
         destinationName: input.destination.destinationName,
         destinationCountryCode: input.destinationCountryCode,
-        destinationBoundary: input.destinationBoundary,
-        destinationPointRadius: input.destinationPointRadius,
+        geographicScope: input.geographicScope,
         validationScope,
         validationIntent: input.intentKey,
       },

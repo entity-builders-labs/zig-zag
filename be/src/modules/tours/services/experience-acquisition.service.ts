@@ -31,6 +31,7 @@ import {
   EXPERIENCE_PROPOSAL_RESOLVER,
   ExperienceProposalResolver,
   ExperienceValidationScope,
+  GeographicScope,
   FinalExperienceResolutionResponse,
 } from '../interfaces/experience-resolution.interface';
 import { ExperienceClassificationService } from './experience-classification.service';
@@ -89,12 +90,8 @@ export interface AcquireNearbyInput {
   maxResultCount?: number;
   destinationName?: string;
   destinationCountryCode?: string;
-  destinationBoundary?: unknown;
-  destinationPointRadius?: {
-    latitude: number;
-    longitude: number;
-    radiusMeters: number;
-  };
+  geographicScope?: GeographicScope;
+  [key: string]: unknown;
 }
 
 /**
@@ -388,13 +385,8 @@ export class ExperienceAcquisitionService {
   async acquireNearby(input: AcquireNearbyInput) {
     const acquisition = await this.catalog.acquireNearbyAsExperiences(input);
 
-    // Resolver-backed materialization requires a real `destinationBoundary`:
-    // ExperienceProposalResolverService.resolve() throws without it.
-    // `destinationPointRadius` is supplemental point-scale context, never a
-    // substitute — a point-scale destination still passes a synthetic
-    // point-radius boundary alongside it (see ExperienceGenerationService).
     const canResolve =
-      Boolean(this.proposalResolver) && Boolean(input.destinationBoundary);
+      Boolean(this.proposalResolver) && Boolean(input.geographicScope);
 
     if (canResolve && acquisition.candidates.length > 0) {
       const resolverEvidence: ResolverEvidenceItem[] = (
@@ -411,8 +403,7 @@ export class ExperienceAcquisitionService {
         candidates: acquisition.candidates,
         destinationName: input.destinationName,
         destinationCountryCode: input.destinationCountryCode,
-        destinationBoundary: input.destinationBoundary,
-        destinationPointRadius: input.destinationPointRadius,
+        geographicScope: input.geographicScope!,
         evidence: resolverEvidence,
       });
 
@@ -484,12 +475,8 @@ export class ExperienceAcquisitionService {
     context: {
       destinationName?: string;
       destinationCountryCode?: string;
-      destinationBoundary: unknown;
-      destinationPointRadius?: {
-        latitude: number;
-        longitude: number;
-        radiusMeters: number;
-      };
+      geographicScope?: GeographicScope;
+      [key: string]: unknown;
       /** Task B5 — see ExperienceValidationScope. */
       validationScope?: ExperienceValidationScope;
       validationIntent?: 'walk' | 'route_like';
@@ -504,8 +491,7 @@ export class ExperienceAcquisitionService {
       candidates: execution.candidates,
       destinationName: context.destinationName,
       destinationCountryCode: context.destinationCountryCode,
-      destinationBoundary: context.destinationBoundary,
-      destinationPointRadius: context.destinationPointRadius,
+      geographicScope: context.geographicScope,
       evidence: execution.evidence,
       validationScope: context.validationScope,
       validationIntent: context.validationIntent,
