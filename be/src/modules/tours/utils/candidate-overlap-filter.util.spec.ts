@@ -10,7 +10,7 @@ describe('filterOverlappingExperienceCandidates', () => {
     // real plaza twice, on two different days.
     const composite = {
       id: 'composite-san-telmo-walk',
-      rankingScore: 0.7,
+      compositionOrderScore: 2,
       components: [
         {
           geoEntity: {
@@ -30,7 +30,7 @@ describe('filterOverlappingExperienceCandidates', () => {
     };
     const standalonePlazaDorrego = {
       id: 'standalone-plaza-dorrego',
-      rankingScore: 0.9, // even scored higher, it must still lose — it's a subset
+      compositionOrderScore: 5, // score cannot overcome component-count priority
       components: [
         {
           geoEntity: {
@@ -43,7 +43,7 @@ describe('filterOverlappingExperienceCandidates', () => {
     };
     const unrelated = {
       id: 'museo-moderno',
-      rankingScore: 0.5,
+      compositionOrderScore: 1,
       components: [
         {
           geoEntity: {
@@ -141,10 +141,10 @@ describe('filterOverlappingExperienceCandidates', () => {
     expect(result.excluded).toEqual([]);
   });
 
-  it('prefers the higher-scored candidate when both have the same component count', () => {
+  it('prefers the higher composition-order candidate when both have the same component count', () => {
     const lowerScore = {
       id: 'lower-score',
-      rankingScore: 0.4,
+      compositionOrderScore: 2,
       components: [
         {
           geoEntity: {
@@ -157,7 +157,7 @@ describe('filterOverlappingExperienceCandidates', () => {
     };
     const higherScore = {
       id: 'higher-score',
-      rankingScore: 0.8,
+      compositionOrderScore: 5,
       components: [
         {
           geoEntity: {

@@ -122,6 +122,7 @@ interface CandidateSelection {
   hardExclusionRelaxed: boolean;
   preferenceWeightById: Map<string, number>;
   mustIncludeExperienceIds: Set<string>;
+  compositionOrderScoreById: Map<string, number>;
 }
 
 function formatExperienceForPrompt(experience: any): string {
@@ -600,6 +601,9 @@ export class ExperienceGenerationService {
       ...composition.result.selected,
       ...composition.result.reservoir,
     ];
+    const compositionOrderScoreById = new Map(
+      orderedIds.map((id, index) => [id, orderedIds.length - index]),
+    );
     const selected = composition.result.selected
       .map((id) => composition.candidatesById.get(id))
       .filter(Boolean);
@@ -637,6 +641,7 @@ export class ExperienceGenerationService {
       },
       preferenceWeightById: composition.preferenceWeightById,
       mustIncludeExperienceIds: new Set(resolvedVenueMustIds),
+      compositionOrderScoreById,
     };
   }
 
@@ -690,6 +695,7 @@ export class ExperienceGenerationService {
       >();
       const planningPreferenceWeightById = new Map<string, number>();
       const planningMustIncludeExperienceIds = new Set<string>();
+      const offeredCompositionOrderScoreById = new Map<string, number>();
       const allEligibleExperiencesById = new Map<string, any>();
       const discoveryResolvedExperienceIds = new Set<string>();
       // Canonical multi-source acquisition bookkeeping (was: placesRefillError).
@@ -709,6 +715,15 @@ export class ExperienceGenerationService {
         selection.experiences.forEach((experience: any) => {
           candidateExperienceIds.add(experience.id);
           candidateExperiencesById.set(experience.id, experience);
+          const compositionOrderScore = selection.compositionOrderScoreById.get(
+            experience.id,
+          );
+          if (compositionOrderScore !== undefined) {
+            offeredCompositionOrderScoreById.set(
+              experience.id,
+              compositionOrderScore,
+            );
+          }
           const breakdown = selection.scoreBreakdownById.get(experience.id);
           if (breakdown) {
             offeredScoreBreakdownById.set(experience.id, breakdown);
@@ -1295,8 +1310,9 @@ export class ExperienceGenerationService {
       const overlapFilter = filterOverlappingExperienceCandidates(
         Array.from(candidateExperiencesById.values()).map((experience) => ({
           ...experience,
-          rankingScore: offeredScoreBreakdownById.get(experience.id)
-            ?.totalScore,
+          compositionOrderScore: offeredCompositionOrderScoreById.get(
+            experience.id,
+          ),
         })),
       );
       if (overlapFilter.excluded.length > 0) {

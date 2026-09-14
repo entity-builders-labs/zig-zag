@@ -18,7 +18,7 @@ export interface OverlapCandidateComponent {
 
 export interface OverlapCandidate {
   id: string;
-  rankingScore?: number;
+  compositionOrderScore?: number;
   components?: Array<{ geoEntity?: OverlapCandidateComponent | null }> | null;
 }
 
@@ -82,7 +82,7 @@ function componentsOverlap(
  * When two candidates share a component (by proximity + name, independent of
  * GeoEntity id), only one survives: prefer the one with more components (a
  * composite subsumes the plain POI it contains, not the other way around),
- * tie-broken by ranking score, then by id for determinism.
+ * tie-broken by composition order, then by id for determinism.
  */
 export function filterOverlappingExperienceCandidates<
   T extends OverlapCandidate,
@@ -106,8 +106,8 @@ export function filterOverlappingExperienceCandidates<
     if (aComponentCount !== bComponentCount) {
       return aComponentCount > bComponentCount ? a : b;
     }
-    const aScore = a.rankingScore ?? 0;
-    const bScore = b.rankingScore ?? 0;
+    const aScore = a.compositionOrderScore ?? 0;
+    const bScore = b.compositionOrderScore ?? 0;
     if (aScore !== bScore) return aScore > bScore ? a : b;
     return a.id < b.id ? a : b;
   };

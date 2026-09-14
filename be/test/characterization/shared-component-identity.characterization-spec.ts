@@ -104,12 +104,12 @@ describe('CHAR-7 shared component vs same experience', () => {
   describe('filterOverlappingExperienceCandidates', () => {
     const walk: OverlapCandidate = {
       id: 'walk',
-      rankingScore: 0.95,
+      compositionOrderScore: 2,
       components: [{ geoEntity: { ...SHARED } }, { geoEntity: { ...OTHER_A } }],
     };
     const circuit: OverlapCandidate = {
       id: 'circuit',
-      rankingScore: 0.3,
+      compositionOrderScore: 1,
       components: [
         { geoEntity: { ...SHARED } },
         {
@@ -136,7 +136,7 @@ describe('CHAR-7 shared component vs same experience', () => {
       ],
     };
 
-    it('the higher-ranked 2-stop walk is dropped in favour of the lower-ranked 4-stop circuit that shares one component', () => {
+    it('the 2-stop walk is dropped in favour of the 4-stop circuit that shares one component', () => {
       const result = filterOverlappingExperienceCandidates([walk, circuit]);
       // eslint-disable-next-line no-console
       console.info(
@@ -153,17 +153,17 @@ describe('CHAR-7 shared component vs same experience', () => {
     it('a standalone single-place Experience is subsumed by any composite containing it (documented behavior)', () => {
       const standalone: OverlapCandidate = {
         id: 'standalone',
-        rankingScore: 0.99,
+        compositionOrderScore: 3,
         components: [{ geoEntity: { ...SHARED } }],
       };
       const result = filterOverlappingExperienceCandidates([standalone, walk]);
       expect(result.kept.map((k) => k.id)).toEqual(['walk']);
     });
 
-    it('OPEN POLICY (not a settled invariant): the overlap filter currently prefers component count over user relevance', () => {
+    it('OPEN POLICY (not a settled invariant): the overlap filter currently prefers component count over composition order', () => {
       // Definite finding: `preferWinner` compares component count BEFORE
-      // rankingScore, so a rankingScore-0.30 4-stop circuit beats a
-      // rankingScore-0.95 2-stop walk that shares one component.
+      // composition order, so a composition-order-1 4-stop circuit beats a
+      // composition-order-2 2-stop walk that shares one component.
       //
       // NOT decided: whether "larger composite subsumes smaller Experience"
       // or "more user-relevant Experience wins" is the right policy. This is
@@ -171,7 +171,10 @@ describe('CHAR-7 shared component vs same experience', () => {
       // invariant.
       const result = filterOverlappingExperienceCandidates([walk, circuit]);
       expect(result.kept.map((k) => k.id)).toEqual(['circuit']);
-      expect((walk.rankingScore ?? 0) > (circuit.rankingScore ?? 0)).toBe(true);
+      expect(
+        (walk.compositionOrderScore ?? 0) >
+          (circuit.compositionOrderScore ?? 0),
+      ).toBe(true);
     });
   });
 });
