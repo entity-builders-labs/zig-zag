@@ -83,6 +83,7 @@ import {
 import {
   PreferenceCoverageResult,
   PreferenceSpec,
+  ComposableExperience,
 } from '../interfaces/preference-spec.interface';
 import { AcquisitionDeficit } from '../interfaces/experience-acquisition-plan.interface';
 
@@ -198,7 +199,7 @@ export class ExperienceGenerationService {
     };
   }
 
-  private hydratePersistedExperience(experience: any): any {
+  private hydratePersistedExperience(experience: any): ComposableExperience & Record<string, unknown> {
     const metadata =
       experience?.metadata &&
       typeof experience.metadata === 'object' &&
@@ -254,6 +255,15 @@ export class ExperienceGenerationService {
         ]),
       ),
       dimensionedTraits,
+      explorationFacts: {
+        placesReviewCount: metadata.reviewCount ?? metadata.userRatingCount,
+        wikidataSitelinkCount: metadata.wikidataSitelinkCount,
+        wikipediaPresent: metadata.wikipediaPresent,
+        wikivoyageListed: metadata.wikivoyageListed,
+        heritageOrLandmark: metadata.heritageOrLandmark,
+        explicitTourismIntensityEvidence: metadata.explorationEvidence?.tourismIntensity ?? [],
+        explicitLocalCharacterEvidence: metadata.explorationEvidence?.localCharacter ?? [],
+      },
       metadata: {
         ...metadata,
         dimensionedTraits,

@@ -12,6 +12,7 @@
  * anywhere in this codebase.
  */
 import { AcquisitionDeficit } from './experience-acquisition-plan.interface';
+import { ExplorationSignalInput } from '../utils/exploration-signals.util';
 
 /** A single positive preference the user requested, always soft in v1. */
 export interface RequestedFacet {
@@ -62,6 +63,28 @@ export interface PreferenceSpec {
     startDates: string[];
     pace: 'relaxed' | 'moderate' | 'fast';
   };
+}
+
+/** Typed catalog projection consumed by composition; persistence JSON is adapted before this boundary. */
+export interface ComposableExperience {
+  id: string;
+  canonicalName?: string;
+  description?: string | null;
+  qualityScore?: number | null;
+  components?: readonly {
+    geoEntity?: {
+      id?: string;
+      name?: string | null;
+      kind?: string;
+      latitude?: number | null;
+      longitude?: number | null;
+    };
+  }[];
+  themes?: readonly string[];
+  intents?: readonly string[];
+  traits?: readonly string[];
+  dimensionedTraits?: readonly { dimension: string; key: string; label?: string }[];
+  explorationFacts?: ExplorationSignalInput;
 }
 
 /** Per-facet retrieval result: strong/weak candidate ids, strongest-first. */

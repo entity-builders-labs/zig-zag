@@ -3,6 +3,7 @@ import {
   CompositionCandidate,
   CompositionSelectionResult,
   PreferenceSpec,
+  ComposableExperience,
   facetKey,
 } from '../interfaces/preference-spec.interface';
 import {
@@ -22,7 +23,7 @@ import {
 } from '@shared/ai/interfaces/embedding-index.interface';
 
 export interface ExperienceCompositionInput {
-  experiences: any[];
+  experiences: ComposableExperience[];
   preferenceSpec: PreferenceSpec;
   /** A future venue-resolution boundary supplies these canonical IDs. */
   resolvedVenueMustIds?: string[];
@@ -32,7 +33,7 @@ export interface ExperienceCompositionInput {
 
 export interface ExperienceCompositionOutput {
   result: CompositionSelectionResult;
-  candidatesById: Map<string, any>;
+  candidatesById: Map<string, ComposableExperience>;
   preferenceWeightById: Map<string, number>;
   semanticSimilarityById: Map<string, number>;
   semanticRanking: {
@@ -65,9 +66,7 @@ export class ExperienceCompositionService {
           )
         : null;
     const candidates: CompositionCandidate[] = experiences.map((experience) => {
-      const components = Array.isArray(experience.components)
-        ? experience.components
-        : [];
+      const components = experience.components ?? [];
       const isBareAreaOrRoute =
         components.length === 1 &&
         ['AREA', 'ROUTE'].includes(
@@ -76,18 +75,8 @@ export class ExperienceCompositionService {
       const satisfiedFacets = input.preferenceSpec.facets
         .filter((facet) => isStrongFacetMatch(experience, facet))
         .map(facetKey);
-      const metadata =
-        experience.metadata && typeof experience.metadata === 'object'
-          ? experience.metadata
-          : {};
-      const dimensionedTraits = Array.isArray(metadata.dimensionedTraits)
-        ? metadata.dimensionedTraits.filter(
-            (item: any) =>
-              item &&
-              typeof item.dimension === 'string' &&
-              typeof item.key === 'string',
-          )
-        : [];
+      const dimensionedTraits = experience.dimensionedTraits ?? [];
+      const explorationFacts = experience.explorationFacts ?? {};
       const tourismIntensityEvidence = dimensionedTraits
         .filter((item: any) => item.dimension === 'tourism_intensity')
         .map((item: any) => ({
@@ -103,18 +92,14 @@ export class ExperienceCompositionService {
           source: 'catalog_classification',
         }));
       const signals = computeExplorationSignals({
-        placesReviewCount: metadata.reviewCount ?? metadata.userRatingCount,
-        wikidataSitelinkCount: metadata.wikidataSitelinkCount,
-        wikipediaPresent: metadata.wikipediaPresent,
-        wikivoyageListed: metadata.wikivoyageListed,
-        heritageOrLandmark: metadata.heritageOrLandmark,
+        ...explorationFacts,
         explicitTourismIntensityEvidence: [
           ...tourismIntensityEvidence,
-          ...(metadata.explorationEvidence?.tourismIntensity ?? []),
+          ...(explorationFacts.explicitTourismIntensityEvidence ?? []),
         ],
         explicitLocalCharacterEvidence: [
           ...localCharacterEvidence,
-          ...(metadata.explorationEvidence?.localCharacter ?? []),
+          ...(explorationFacts.explicitLocalCharacterEvidence ?? []),
         ],
       });
       const softAnchorBoost = (input.resolvedVenueSoftIds ?? []).includes(
