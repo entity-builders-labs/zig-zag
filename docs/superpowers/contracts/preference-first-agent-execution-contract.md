@@ -42,6 +42,39 @@ path in this workflow.
 If the worktree, branch, or canonical `fork` remote does not match the expected
 state, STOP and report it instead of silently switching repositories/worktrees.
 
+## Canonical branch synchronization
+
+Before reading task-specific files or implementing anything:
+
+```bash
+git status --short --branch
+git fetch fork
+git rev-parse HEAD
+git rev-parse fork/feat/preference-first-selection
+```
+
+If the worktree has unrelated dirty changes, STOP and report them.
+
+If the local branch is clean and is only behind the canonical remote branch,
+fast-forward it explicitly:
+
+```bash
+git merge --ff-only fork/feat/preference-first-selection
+```
+
+Then verify:
+
+```bash
+git rev-parse HEAD
+git rev-parse fork/feat/preference-first-selection
+```
+
+They must match before reading the task-specific implementation plan.
+
+If local and remote histories have diverged, or the update is not a clean
+fast-forward, STOP and report the divergence. Do not reset, rebase, merge, or
+rewrite history automatically to make the task proceed.
+
 ## Stateless execution
 
 Every task begins as:
