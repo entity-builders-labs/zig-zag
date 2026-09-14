@@ -449,3 +449,34 @@ single-component venue Experiences. No warm run was started because there is
 no composed-walk Experience ID to reuse. The current `google_places` failure
 is retained as provider diagnostic data, but the B5 routing contract passed;
 this run is not classified as an orchestration or infrastructure gap.
+
+## M5-M10 ARCHITECTURE DEBT CLOSURE
+
+This supersedes any prior blanket claim that M5-M10 architecture was fully
+closed before the D0-D7 audit. D0 verified the existing `ConfigModule` owner
+with a real Groq interpreter call (`groq`, `qwen/qwen3.8-27b`, `applied`, San
+Telmo area anchor); no code commit was needed. D1 (`1527b79`) moved downstream
+preference authority to one `PreferenceSpec` build and removed request
+mutation; targeted preference/composition/completeness tests passed. D2
+(`7ab1519`) made typed `PortfolioTargetFacts` and distinct-ID union semantics
+the shared coverage/composition policy; sufficiency and set-cover tests passed.
+
+D3 (`197579d`) introduced `GeographicScope` with explicit area-boundary and
+point-radius variants and removed production point-radius fake OSM identity;
+typecheck and architecture checks passed, with legacy fixture migration
+remaining in the touched test surface. D4 (`d05fa63`) replaced the venue
+service’s concrete provider dependency with `VenueAnchorLookupCapability` and
+passed venue plus architecture tests. D5 (`604cc3e`) introduced typed
+`ComposableExperience` ranking facts so composition no longer parses raw
+metadata; composition handoff tests and typecheck passed. D6 (`729f0fb`)
+preserved one generation orchestration owner and the existing shared
+acquisition/materialization boundary; no C5b semantics changed. D7
+(`f42d1f7`) added regression tests for preference authority, portfolio policy,
+geographic scope, provider isolation, typed composition facts, and the single
+orchestrator; architecture test, typecheck, and build passed.
+
+Overall verdict: focused D1-D7 boundaries pass, but complete M5-M10 closure is
+not claimed while legacy fixture migration, full deterministic suites, and
+final smoke remain outstanding. RW1 stays `B5 routing contract proven`, `B6
+currently no_result / EXPECTED_B6_GAP`, and full RW1 remains paused. RW2-RW6
+remain not started.
