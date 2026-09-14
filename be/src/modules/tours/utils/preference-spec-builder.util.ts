@@ -151,13 +151,17 @@ export function buildPreferenceSpec(
     ...(interpreted.groupPreferences ?? []),
     ...(request.groupType === GroupType.FAMILY ? ['family friendly'] : []),
   ]);
+  const hardExclusions = unique(interpreted.hardExclusions);
+  if (dietary.some((value) => /vegan|vegano|vegana/.test(value))) {
+    hardExclusions.push('non-vegan food');
+  }
 
   return {
     facets,
     exclusions: {
       themes: unique(interpreted.excludedThemes),
       traits: unique(interpreted.excludedTraits),
-      hard: unique(interpreted.hardExclusions),
+      hard: unique(hardExclusions),
     },
     // Anchors are already normalized/validated by PreferenceInterpreterService
     // (plan Task A2) -- pass through unchanged, do not re-normalize here.

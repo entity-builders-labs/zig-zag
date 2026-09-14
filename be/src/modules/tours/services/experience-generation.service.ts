@@ -17,8 +17,6 @@ import {
   pointRadiusToGeometry,
 } from '../utils/geometry-search-area.util';
 import {
-  BudgetLevel,
-  GroupType,
   TourGenerationRequest,
 } from '../interfaces/tour-generation.interface';
 import { CandidateScoreBreakdown } from '../utils/candidate-ranking.util';
@@ -69,15 +67,7 @@ import { EmbeddingIndexIdentity } from '@shared/ai/interfaces/embedding-index.in
 import { findHardExclusionMatches } from '../utils/experience-preference-evaluator.util';
 import { ExperienceCompositionService } from './experience-composition.service';
 import { VenueAnchorResolutionService } from './venue-anchor-resolution.service';
-import {
-  getFacetKeysByDimension,
-  NormalizedPreferenceIntent,
-} from '../interfaces/preference-interpretation.interface';
-import { PreferenceFacet } from '../preferences/preference-facet.interface';
-import {
-  mergePreferenceFacets,
-  normalizeWizardFacet,
-} from '../utils/preference-facet-merge.util';
+import { NormalizedPreferenceIntent } from '../interfaces/preference-interpretation.interface';
 import { buildTourExperienceCreateData } from '../utils/tour-experience-snapshot.util';
 import { plannerRelevanceScore } from '../utils/daily-planning-candidate-sort.util';
 import { plannerResidualCapacity } from '../utils/daily-planning-convergence.util';
@@ -205,66 +195,6 @@ export class ExperienceGenerationService {
       groupPreferences: [],
       positiveSemanticQuery: '',
       notes: [],
-    };
-  }
-
-  private mergeStructuredPreferences(
-    interpreted: NormalizedPreferenceIntent,
-    request: TourGenerationRequest,
-  ): NormalizedPreferenceIntent {
-    const unique = (values: string[]) =>
-      Array.from(
-        new Set(
-          values.map((value) => value.trim().toLowerCase()).filter(Boolean),
-        ),
-      );
-    const dietary = unique([
-      ...interpreted.dietaryPreferences,
-      ...(request.dietaryRestrictions ?? []),
-    ]);
-    const accessibility = unique([
-      ...interpreted.accessibilityPreferences,
-      ...(request.mobility.accessibilityNeeds ?? []),
-    ]);
-    const hardExclusions = [...interpreted.hardExclusions];
-    if (dietary.some((value) => /vegan|vegano|vegana/.test(value))) {
-      hardExclusions.push('non-vegan food');
-    }
-    const budgetPreferences = [...interpreted.budgetPreferences];
-    if (request.budgetLevel === BudgetLevel.LOW) {
-      budgetPreferences.push('low budget');
-    }
-    const groupPreferences = [...interpreted.groupPreferences];
-    if (request.groupType === GroupType.FAMILY) {
-      groupPreferences.push('family friendly');
-    }
-
-    const wizardFacets: PreferenceFacet[] = [
-      ...(request.intent.interests ?? []).map((interest) =>
-        normalizeWizardFacet('theme', interest),
-      ),
-      ...(request.intent.intents ?? []).map((intent) =>
-        normalizeWizardFacet('intent', intent),
-      ),
-    ].filter((facet): facet is PreferenceFacet => facet !== undefined);
-
-    const preferredFacets = mergePreferenceFacets(
-      wizardFacets,
-      interpreted.preferredFacets ?? [],
-    );
-
-    return {
-      ...interpreted,
-      preferredFacets,
-      excludedThemes: unique(interpreted.excludedThemes),
-      excludedTraits: unique(interpreted.excludedTraits),
-      hardExclusions: unique(hardExclusions),
-      softConstraints: unique(interpreted.softConstraints),
-      ambiguities: unique(interpreted.ambiguities),
-      dietaryPreferences: dietary,
-      accessibilityPreferences: accessibility,
-      budgetPreferences: unique(budgetPreferences),
-      groupPreferences: unique(groupPreferences),
     };
   }
 
@@ -765,30 +695,10 @@ export class ExperienceGenerationService {
             },
           };
 
-      const normalizedPreferences = this.mergeStructuredPreferences(
-        preferenceInterpretation.intent,
-        request,
-      );
-      request.intent.normalizedPreferences = normalizedPreferences;
-      request.intent.interests = Array.from(
-        new Set([
-          ...request.intent.interests,
-          ...getFacetKeysByDimension(
-            normalizedPreferences.preferredFacets,
-            'theme',
-          ),
-        ]),
-      );
-      if (normalizedPreferences.positiveSemanticQuery) {
-        request.intent.additionalPreferences =
-          normalizedPreferences.positiveSemanticQuery;
-      }
-
       // M1 (preference-first live cutover) -- the canonical PreferenceSpec
       // (spec §3, plan Task A3), built once here from the RAW interpreter
       // output (buildPreferenceSpec does its own wizard-facet merging
-      // internally; passing the already `mergeStructuredPreferences`-merged
-      // `normalizedPreferences` would double-merge wizard facets). This is
+      // internally). This is
       // the single normalized-requirement model every later milestone reads
       // (retrieval, sufficiency, acquisition-strategy selection,
       // composition) instead of `NormalizedPreferenceIntent`/ad-hoc
@@ -797,6 +707,7 @@ export class ExperienceGenerationService {
         request,
         preferenceInterpretation.intent,
       );
+      const normalizedPreferences = preferenceInterpretation.intent;
 
       traceSteps.push({
         stage: 'preference_interpretation',
@@ -1058,7 +969,7 @@ export class ExperienceGenerationService {
                 this.experienceAcquisitionPlanner.buildAcquisitionPlan({
                   destination: acquisitionScope,
                   deficits: generic,
-                  semanticQuery: normalizedPreferences.positiveSemanticQuery,
+                  semanticQuery: preferenceSpec.semanticQuery,
                   breadth: 'focused',
                 });
               const genericRoutable = acquisitionPlan.sourcePlans.length > 0;
@@ -1095,7 +1006,7 @@ export class ExperienceGenerationService {
                           radiusMeters: searchArea.radiusMeters,
                         },
                     deficit: routed.deficit,
-                    semanticQuery: normalizedPreferences.positiveSemanticQuery,
+                    semanticQuery: preferenceSpec.semanticQuery,
                   });
                 traceSteps.push({
                   stage: 'area_route_walk_acquisition',
@@ -1762,8 +1673,9 @@ export class ExperienceGenerationService {
       );
 
       const isFoodFocusedIntent =
-        request.intent.interests.length === 1 &&
-        request.intent.interests[0] === 'food';
+        preferenceSpec.facets.length === 1 &&
+        preferenceSpec.facets[0].dimension === 'theme' &&
+        preferenceSpec.facets[0].key === 'food';
       const physicallyInfeasibleReasons = new Set<string>([
         'DAILY_TIME_CAPACITY_EXCEEDED',
         'MAX_WALKING_PER_DAY_EXCEEDED',
@@ -1784,13 +1696,11 @@ export class ExperienceGenerationService {
         planningSolution.unselected.length - infeasiblyUnselected.length;
 
       const requestedFormatIntents = Array.from(
-        new Set([
-          ...(request.intent.intents ?? []),
-          ...getFacetKeysByDimension(
-            normalizedPreferences.preferredFacets,
-            'intent',
-          ),
-        ]),
+        new Set(
+          preferenceSpec.facets
+            .filter((facet) => facet.dimension === 'intent')
+            .map((facet) => facet.key),
+        ),
       );
       const completenessInput: TourCompletenessInput = {
         requestedDays: request.days,
