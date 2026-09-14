@@ -313,7 +313,11 @@ Fresh P2/P3 targeted verification: overlap/composition/trace 3 suites / 33 tests
 
 P4 implementation checkpoint: superseded candidate-window selection and keyword theme-matching authorities were deleted; the large characterization harness now uses the direct ranking window, and a static single-orchestration-owner architecture test is present. P4 remains **IMPLEMENTED — awaiting independent review**. The canonical planner-capacity acquisition/requery pass is still not implemented, so M9/M10 remain blocked.
 
-Next gate: complete the bounded planner-capacity acquisition/requery pass, then implement native trace v4 and Bitácora v4.
+P5/P6 implementation checkpoint: new backend generation traces emit version 4 while V1/V2/V3 contracts remain readable; the frontend Bitácora recognizes v4 stage groupings and keeps technical detail/export behavior available. P5/P6 remain **IMPLEMENTED — awaiting independent review**. Backend trace targeted verification passed 3 suites / 30 tests plus typecheck, lint, and build. Frontend `tsc --noEmit` remains FAIL on pre-existing repository errors in API generics, notification typings, bottom-sheet/icon typings, and a missing `tailwind-variants` declaration; no error was reported in the modified Bitácora file.
+
+M9 remains blocked: planner-capacity acquisition is not yet executed after reservoir exhaustion; native v4 trace payloads do not yet include the full convergence/classification dossier; the complete frontend matrix and disposable-DB characterization gate remain outstanding.
+
+Next gate: finish P2 acquisition convergence and complete the trace/Bitácora v4 contracts before M9 acceptance.
 
 M3.5 is closed. Do not reopen it unless a new regression is demonstrated.
 

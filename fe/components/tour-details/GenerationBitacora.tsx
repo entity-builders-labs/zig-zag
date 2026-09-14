@@ -1,7 +1,13 @@
-import React, { useMemo, useState } from 'react';
-import { Modal, Platform, ScrollView, Share, useWindowDimensions } from 'react-native';
-import { File, Paths } from 'expo-file-system';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import React, { useMemo, useState } from "react";
+import {
+  Modal,
+  Platform,
+  ScrollView,
+  Share,
+  useWindowDimensions,
+} from "react-native";
+import { File, Paths } from "expo-file-system";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   Box,
   HStack,
@@ -9,7 +15,7 @@ import {
   Pressable,
   Text,
   VStack,
-} from '@gluestack-ui/themed';
+} from "@gluestack-ui/themed";
 import {
   AlertTriangle,
   ArrowLeft,
@@ -28,8 +34,8 @@ import {
   Terminal,
   X,
   XCircle,
-} from 'lucide-react-native';
-import { copyTextToClipboard } from '@/utils/copy-to-clipboard';
+} from "lucide-react-native";
+import { copyTextToClipboard } from "@/utils/copy-to-clipboard";
 
 interface CandidateScoreBreakdown {
   semanticSimilarity?: number | null;
@@ -42,7 +48,7 @@ interface CandidateScoreBreakdown {
 interface TraceRuleEvaluation {
   ruleId: string;
   rule: string;
-  result: 'PASS' | 'FAIL' | 'WARN' | 'SKIPPED';
+  result: "PASS" | "FAIL" | "WARN" | "SKIPPED";
   reason: string;
   inputs?: Record<string, unknown>;
   expected?: unknown;
@@ -50,7 +56,7 @@ interface TraceRuleEvaluation {
 }
 
 interface TraceDecision {
-  status: 'PASS' | 'FAIL' | 'WARN' | 'INFO';
+  status: "PASS" | "FAIL" | "WARN" | "INFO";
   outcome: string;
   reason: string;
   reasonCodes?: string[];
@@ -61,7 +67,7 @@ interface TraceCandidateDecision {
   id: string;
   name: string;
   source?: string;
-  status: 'ELIGIBLE' | 'REJECTED' | 'RANKED' | 'SELECTED' | 'UNSELECTED';
+  status: "ELIGIBLE" | "REJECTED" | "RANKED" | "SELECTED" | "UNSELECTED";
   reason?: string;
   reasonCodes?: string[];
   scoreBreakdown?: CandidateScoreBreakdown;
@@ -85,7 +91,7 @@ interface GenerationTraceStep {
   label: string;
   summary: string;
   component?: string;
-  status?: 'PASS' | 'FAIL' | 'WARN' | 'INFO';
+  status?: "PASS" | "FAIL" | "WARN" | "INFO";
   inputs?: Record<string, unknown>;
   rules?: TraceRuleEvaluation[];
   decision?: TraceDecision;
@@ -95,7 +101,7 @@ interface GenerationTraceStep {
 
   // Compatibility fields from trace V1 / rich intermediate stages.
   candidates?: LegacyTraceCandidate[];
-  providerStatus?: 'success' | 'failed';
+  providerStatus?: "success" | "failed";
   degradedReason?: string;
   coverageReport?: unknown;
   semanticRanking?: unknown;
@@ -111,19 +117,19 @@ interface GenerationTraceStep {
 interface AuditFinding {
   experienceId?: string;
   experienceName: string;
-  openingHoursCheck: 'ok' | 'possibly_closed' | 'no_data';
-  priceLevelCheck: 'ok' | 'possibly_over_budget' | 'no_data';
+  openingHoursCheck: "ok" | "possibly_closed" | "no_data";
+  priceLevelCheck: "ok" | "possibly_over_budget" | "no_data";
 }
 
 export interface GenerationTrace {
-  version?: 1 | 2;
+  version?: 1 | 2 | 3 | 4;
   steps: GenerationTraceStep[];
   aiReasoning?: string;
   hallucinatedCount: number;
   duplicateCount: number;
   auditFindings?: { perExperience: AuditFinding[] };
   executionSummary?: {
-    status: 'completed' | 'failed';
+    status: "completed" | "failed";
     steps: string[];
     narrative?: string;
     acceptedExperiences?: number;
@@ -141,25 +147,25 @@ interface GenerationBitacoraProps {
 }
 
 const COLORS = {
-  page: '#08111E',
-  shell: '#0C1726',
-  panel: '#111D2C',
-  panelStrong: '#0C1623',
-  panelSoft: '#172435',
-  border: '#26374B',
-  borderSoft: '#1D2C3E',
-  text: '#F4F7FB',
-  textMuted: '#A8B5C7',
-  textDim: '#7F8EA3',
-  blue: '#5B91F5',
-  blueSoft: '#16315F',
-  green: '#65D891',
-  greenBg: '#123B2A',
-  amber: '#F5B942',
-  amberBg: '#3A2B0B',
-  red: '#F06A6A',
-  redBg: '#3B1C20',
-  slate: '#8290A3',
+  page: "#08111E",
+  shell: "#0C1726",
+  panel: "#111D2C",
+  panelStrong: "#0C1623",
+  panelSoft: "#172435",
+  border: "#26374B",
+  borderSoft: "#1D2C3E",
+  text: "#F4F7FB",
+  textMuted: "#A8B5C7",
+  textDim: "#7F8EA3",
+  blue: "#5B91F5",
+  blueSoft: "#16315F",
+  green: "#65D891",
+  greenBg: "#123B2A",
+  amber: "#F5B942",
+  amberBg: "#3A2B0B",
+  red: "#F06A6A",
+  redBg: "#3B1C20",
+  slate: "#8290A3",
 };
 
 function safeJson(value: unknown): string {
@@ -172,33 +178,35 @@ function safeJson(value: unknown): string {
 
 function normalizeDecision(step: GenerationTraceStep): TraceDecision {
   if (step.decision) return step.decision;
-  if (step.providerStatus === 'failed') {
+  if (step.providerStatus === "failed") {
     return {
-      status: 'WARN',
-      outcome: 'LEGACY_STEP_DEGRADED',
+      status: "WARN",
+      outcome: "LEGACY_STEP_DEGRADED",
       reason: step.degradedReason || step.summary,
       reasonCodes: step.degradedReason ? [step.degradedReason] : [],
     };
   }
   return {
-    status: 'INFO',
-    outcome: 'LEGACY_TRACE_STEP',
+    status: "INFO",
+    outcome: "LEGACY_TRACE_STEP",
     reason: step.summary,
     reasonCodes: [],
   };
 }
 
-function normalizeCandidates(step: GenerationTraceStep): TraceCandidateDecision[] {
+function normalizeCandidates(
+  step: GenerationTraceStep,
+): TraceCandidateDecision[] {
   if (step.candidateDecisions?.length) return step.candidateDecisions;
   return (step.candidates ?? []).map((candidate) => ({
     id: candidate.id,
     name: candidate.name,
     source: candidate.source,
     status: candidate.chosen
-      ? 'SELECTED'
+      ? "SELECTED"
       : candidate.offered
-        ? 'ELIGIBLE'
-        : 'REJECTED',
+        ? "ELIGIBLE"
+        : "REJECTED",
     reason: candidate.detail,
     scoreBreakdown: candidate.scoreBreakdown,
   }));
@@ -206,72 +214,132 @@ function normalizeCandidates(step: GenerationTraceStep): TraceCandidateDecision[
 
 function statusVisual(status?: string) {
   switch (status) {
-    case 'PASS':
-      return { icon: CheckCircle2, color: COLORS.green, bg: COLORS.greenBg, label: 'PASS' };
-    case 'FAIL':
-      return { icon: XCircle, color: COLORS.red, bg: COLORS.redBg, label: 'FAIL' };
-    case 'WARN':
-      return { icon: AlertTriangle, color: COLORS.amber, bg: COLORS.amberBg, label: 'WARN' };
-    case 'SKIPPED':
-      return { icon: CircleHelp, color: COLORS.slate, bg: COLORS.panelSoft, label: 'SKIPPED' };
+    case "PASS":
+      return {
+        icon: CheckCircle2,
+        color: COLORS.green,
+        bg: COLORS.greenBg,
+        label: "PASS",
+      };
+    case "FAIL":
+      return {
+        icon: XCircle,
+        color: COLORS.red,
+        bg: COLORS.redBg,
+        label: "FAIL",
+      };
+    case "WARN":
+      return {
+        icon: AlertTriangle,
+        color: COLORS.amber,
+        bg: COLORS.amberBg,
+        label: "WARN",
+      };
+    case "SKIPPED":
+      return {
+        icon: CircleHelp,
+        color: COLORS.slate,
+        bg: COLORS.panelSoft,
+        label: "SKIPPED",
+      };
     default:
-      return { icon: CircleHelp, color: COLORS.blue, bg: COLORS.blueSoft, label: status || 'INFO' };
+      return {
+        icon: CircleHelp,
+        color: COLORS.blue,
+        bg: COLORS.blueSoft,
+        label: status || "INFO",
+      };
   }
 }
 
 function formatClock(value?: string): string {
-  if (!value) return '--:--:--';
+  if (!value) return "--:--:--";
   const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return '--:--:--';
+  if (Number.isNaN(date.getTime())) return "--:--:--";
   return date.toLocaleTimeString([], { hour12: false });
 }
 
 function formatDuration(durationMs?: number): string {
-  if (durationMs === undefined || durationMs === null) return '—';
+  if (durationMs === undefined || durationMs === null) return "—";
   if (durationMs < 1000) return `${Math.round(durationMs)}ms`;
   return `${(durationMs / 1000).toFixed(2)}s`;
 }
 
 function compactValue(value: unknown): string {
-  if (value === null) return 'null';
-  if (value === undefined) return '—';
-  if (Array.isArray(value)) return value.join(', ');
-  if (typeof value === 'object') return safeJson(value);
+  if (value === null) return "null";
+  if (value === undefined) return "—";
+  if (Array.isArray(value)) return value.join(", ");
+  if (typeof value === "object") return safeJson(value);
   return String(value);
 }
 
 function candidateScore(candidate: TraceCandidateDecision): string {
   const total = candidate.scoreBreakdown?.totalScore;
-  if (typeof total === 'number') return total.toFixed(2);
+  if (typeof total === "number") return total.toFixed(2);
   const semantic = candidate.scoreBreakdown?.semanticSimilarity;
-  if (typeof semantic === 'number') return semantic.toFixed(2);
-  return '—';
+  if (typeof semantic === "number") return semantic.toFixed(2);
+  return "—";
 }
 
 function semanticScore(candidate: TraceCandidateDecision): string {
   const semantic = candidate.scoreBreakdown?.semanticSimilarity;
-  return typeof semantic === 'number' ? semantic.toFixed(2) : '—';
+  return typeof semantic === "number" ? semantic.toFixed(2) : "—";
 }
 
-function getLegacyOutput(step: GenerationTraceStep): Record<string, unknown> | undefined {
+const V4_PRODUCT_GROUPS: Record<string, string> = {
+  preference_interpretation: "Qué viaje entendimos",
+  tour_intent: "Qué viaje entendimos",
+  destination_resolution: "Destino resuelto",
+  db_search: "Cobertura de preferencias",
+  coverage_analysis: "Cobertura de preferencias",
+  discovery: "Qué faltaba",
+  acquisition: "Búsqueda de nuevas opciones",
+  places_crawl: "Búsqueda de nuevas opciones",
+  entity_resolution: "Verificación y clasificación",
+  geographic_validation: "Verificación y clasificación",
+  catalog_materialization: "Verificación y clasificación",
+  candidate_pool: "Selección de Experiences",
+  embeddings: "Selección de Experiences",
+  daily_planning: "Armado del itinerario",
+  planning_initial: "Armado del itinerario",
+  planning_backfill: "Armado del itinerario",
+  finalization: "Resultado final",
+  verification: "Resultado final",
+  tour_completeness: "Resultado final",
+};
+
+function productGroupForStage(stage: string): string | undefined {
+  return V4_PRODUCT_GROUPS[stage];
+}
+
+function getLegacyOutput(
+  step: GenerationTraceStep,
+): Record<string, unknown> | undefined {
   const compatibility: Record<string, unknown> = {};
-  if (step.coverageReport !== undefined) compatibility.coverageReport = step.coverageReport;
-  if (step.semanticRanking !== undefined) compatibility.semanticRanking = step.semanticRanking;
+  if (step.coverageReport !== undefined)
+    compatibility.coverageReport = step.coverageReport;
+  if (step.semanticRanking !== undefined)
+    compatibility.semanticRanking = step.semanticRanking;
   if (step.grounding !== undefined) compatibility.grounding = step.grounding;
-  if (step.dailyPlanning !== undefined) compatibility.dailyPlanning = step.dailyPlanning;
-  if (step.tourCompleteness !== undefined) compatibility.tourCompleteness = step.tourCompleteness;
-  if (step.tourFormatCoverage !== undefined) compatibility.tourFormatCoverage = step.tourFormatCoverage;
+  if (step.dailyPlanning !== undefined)
+    compatibility.dailyPlanning = step.dailyPlanning;
+  if (step.tourCompleteness !== undefined)
+    compatibility.tourCompleteness = step.tourCompleteness;
+  if (step.tourFormatCoverage !== undefined)
+    compatibility.tourFormatCoverage = step.tourFormatCoverage;
   if (step.resolution !== undefined) compatibility.resolution = step.resolution;
-  if (step.candidatePool !== undefined) compatibility.candidatePool = step.candidatePool;
-  if (step.placesProvenance !== undefined) compatibility.placesProvenance = step.placesProvenance;
+  if (step.candidatePool !== undefined)
+    compatibility.candidatePool = step.candidatePool;
+  if (step.placesProvenance !== undefined)
+    compatibility.placesProvenance = step.placesProvenance;
   return Object.keys(compatibility).length ? compatibility : undefined;
 }
 
 function TraceBadge({ status }: { status?: string }) {
   const visual = statusVisual(status);
   return (
-    <Box px='$2' py='$1' borderRadius='$md' bg={visual.bg as any}>
-      <Text size='2xs' fontWeight='$bold' color={visual.color as any}>
+    <Box px="$2" py="$1" borderRadius="$md" bg={visual.bg as any}>
+      <Text size="2xs" fontWeight="$bold" color={visual.color as any}>
         {visual.label}
       </Text>
     </Box>
@@ -301,43 +369,56 @@ function TimelineStep({
   return (
     <Pressable onPress={onPress} testID={`bitacora-step-${step.stage}`}>
       <Box
-        p='$3'
-        borderRadius='$lg'
+        p="$3"
+        borderRadius="$lg"
         borderWidth={1}
-        borderColor={active ? COLORS.blue : 'transparent'}
-        bg={active ? '#12243D' : 'transparent'}
-        mb='$1'
+        borderColor={active ? COLORS.blue : "transparent"}
+        bg={active ? "#12243D" : "transparent"}
+        mb="$1"
       >
-        <HStack alignItems='flex-start' space='sm'>
+        <HStack alignItems="flex-start" space="sm">
           <Box
-            mt='$0.5'
+            mt="$0.5"
             w={22}
             h={22}
-            borderRadius='$sm'
+            borderRadius="$sm"
             bg={active ? COLORS.blue : visual.bg}
-            alignItems='center'
-            justifyContent='center'
+            alignItems="center"
+            justifyContent="center"
           >
-            <Text size='2xs' fontWeight='$bold' color={active ? '#FFFFFF' : visual.color}>
+            <Text
+              size="2xs"
+              fontWeight="$bold"
+              color={active ? "#FFFFFF" : visual.color}
+            >
               {index + 1}
             </Text>
           </Box>
           <VStack flex={1}>
-            <HStack justifyContent='space-between' alignItems='center' space='xs'>
-              <Text size='xs' fontWeight='$semibold' color={COLORS.text} flex={1}>
-                {step.label}
+            <HStack
+              justifyContent="space-between"
+              alignItems="center"
+              space="xs"
+            >
+              <Text
+                size="xs"
+                fontWeight="$semibold"
+                color={COLORS.text}
+                flex={1}
+              >
+                {productGroupForStage(step.stage) || step.label}
               </Text>
-              <Text size='2xs' color={COLORS.textMuted}>
+              <Text size="2xs" color={COLORS.textMuted}>
                 {formatClock(step.timing?.startedAt)}
               </Text>
-              <Icon as={StatusIcon} size='2xs' color={visual.color as any} />
+              <Icon as={StatusIcon} size="2xs" color={visual.color as any} />
             </HStack>
 
-            <Text size='2xs' color={COLORS.textMuted} mt='$0.5'>
+            <Text size="2xs" color={COLORS.textMuted} mt="$0.5">
               {step.component || step.stage}
             </Text>
             {secondary ? (
-              <Text size='2xs' color={visual.color as any} mt='$1'>
+              <Text size="2xs" color={visual.color as any} mt="$1">
                 {secondary}
               </Text>
             ) : null}
@@ -353,25 +434,27 @@ function MetricCard({ rule }: { rule: TraceRuleEvaluation }) {
     <Box
       style={{ minWidth: 160 }}
       flex={1}
-      p='$3'
+      p="$3"
       bg={COLORS.panelSoft as any}
-      borderRadius='$lg'
+      borderRadius="$lg"
       borderWidth={1}
       borderColor={COLORS.border as any}
     >
-      <HStack justifyContent='space-between' alignItems='center' space='sm'>
-        <Text size='xs' color={COLORS.text} flex={1}>
+      <HStack justifyContent="space-between" alignItems="center" space="sm">
+        <Text size="xs" color={COLORS.text} flex={1}>
           {rule.rule}
         </Text>
         <TraceBadge status={rule.result} />
       </HStack>
       {(rule.actual !== undefined || rule.expected !== undefined) && (
-        <Text size='xs' color={COLORS.textMuted} mt='$2'>
-          {rule.actual !== undefined ? compactValue(rule.actual) : '—'}
-          {rule.expected !== undefined ? ` · esperado ${compactValue(rule.expected)}` : ''}
+        <Text size="xs" color={COLORS.textMuted} mt="$2">
+          {rule.actual !== undefined ? compactValue(rule.actual) : "—"}
+          {rule.expected !== undefined
+            ? ` · esperado ${compactValue(rule.expected)}`
+            : ""}
         </Text>
       )}
-      <Text size='2xs' color={COLORS.textDim} mt='$2'>
+      <Text size="2xs" color={COLORS.textDim} mt="$2">
         {rule.reason}
       </Text>
     </Box>
@@ -380,22 +463,24 @@ function MetricCard({ rule }: { rule: TraceRuleEvaluation }) {
 
 function InputsPanel({ inputs }: { inputs?: Record<string, unknown> }) {
   return (
-    <Panel title='Inputs' icon={FileJson}>
+    <Panel title="Inputs" icon={FileJson}>
       {inputs && Object.keys(inputs).length ? (
-        <VStack space='sm'>
+        <VStack space="sm">
           {Object.entries(inputs).map(([key, value]) => (
-            <HStack key={key} space='md' alignItems='flex-start'>
-              <Text size='xs' color={COLORS.textMuted} width={125}>
+            <HStack key={key} space="md" alignItems="flex-start">
+              <Text size="xs" color={COLORS.textMuted} width={125}>
                 {key}
               </Text>
-              <Text size='xs' color={COLORS.text} flex={1}>
+              <Text size="xs" color={COLORS.text} flex={1}>
                 {compactValue(value)}
               </Text>
             </HStack>
           ))}
         </VStack>
       ) : (
-        <Text size='xs' color={COLORS.textDim}>Sin inputs registrados para esta etapa.</Text>
+        <Text size="xs" color={COLORS.textDim}>
+          Sin inputs registrados para esta etapa.
+        </Text>
       )}
     </Panel>
   );
@@ -403,33 +488,35 @@ function InputsPanel({ inputs }: { inputs?: Record<string, unknown> }) {
 
 function RulesPanel({ rules }: { rules?: TraceRuleEvaluation[] }) {
   return (
-    <Panel title='Reglas Evaluadas' icon={ShieldCheck}>
+    <Panel title="Reglas Evaluadas" icon={ShieldCheck}>
       {rules?.length ? (
         <VStack>
           {rules.map((rule, index) => (
             <Box
               key={`${rule.ruleId}-${index}`}
-              py='$2.5'
+              py="$2.5"
               borderBottomWidth={index === rules.length - 1 ? 0 : 1}
               borderBottomColor={COLORS.borderSoft as any}
             >
-              <HStack alignItems='center' space='sm'>
-                <Text size='2xs' color={COLORS.textMuted} width={118}>
+              <HStack alignItems="center" space="sm">
+                <Text size="2xs" color={COLORS.textMuted} width={118}>
                   {rule.ruleId}
                 </Text>
-                <Text size='xs' color={COLORS.text} flex={1}>
+                <Text size="xs" color={COLORS.text} flex={1}>
                   {rule.rule}
                 </Text>
                 <TraceBadge status={rule.result} />
               </HStack>
-              <Text size='2xs' color={COLORS.textDim} mt='$1.5' ml={128}>
+              <Text size="2xs" color={COLORS.textDim} mt="$1.5" ml={128}>
                 {rule.reason}
               </Text>
             </Box>
           ))}
         </VStack>
       ) : (
-        <Text size='xs' color={COLORS.textDim}>Sin reglas registradas para esta etapa.</Text>
+        <Text size="xs" color={COLORS.textDim}>
+          Sin reglas registradas para esta etapa.
+        </Text>
       )}
     </Panel>
   );
@@ -439,38 +526,54 @@ function DecisionPanel({ step }: { step: GenerationTraceStep }) {
   const decision = normalizeDecision(step);
   const visual = statusVisual(step.status ?? decision.status);
   return (
-    <Panel title='Decisión' icon={Terminal}>
-      <HStack justifyContent='space-between' alignItems='center' mb='$3'>
-        <Text size='xs' color={COLORS.textMuted}>outcome</Text>
-        <Text size='xs' fontWeight='$bold' color={visual.color as any}>
+    <Panel title="Decisión" icon={Terminal}>
+      <HStack justifyContent="space-between" alignItems="center" mb="$3">
+        <Text size="xs" color={COLORS.textMuted}>
+          outcome
+        </Text>
+        <Text size="xs" fontWeight="$bold" color={visual.color as any}>
           {decision.outcome}
         </Text>
       </HStack>
       {decision.reasonCodes?.length ? (
-        <VStack space='xs' mb='$3'>
-          <Text size='xs' color={COLORS.textMuted}>reasonCodes</Text>
+        <VStack space="xs" mb="$3">
+          <Text size="xs" color={COLORS.textMuted}>
+            reasonCodes
+          </Text>
           {decision.reasonCodes.map((code, idx) => (
-            <Text key={`${code}-${idx}`} size='xs' color={COLORS.text}>• {code}</Text>
+            <Text key={`${code}-${idx}`} size="xs" color={COLORS.text}>
+              • {code}
+            </Text>
           ))}
         </VStack>
       ) : null}
       {decision.triggeredActions?.length ? (
-        <VStack space='xs' mb='$3'>
-          <Text size='xs' color={COLORS.textMuted}>triggeredActions</Text>
+        <VStack space="xs" mb="$3">
+          <Text size="xs" color={COLORS.textMuted}>
+            triggeredActions
+          </Text>
           {decision.triggeredActions.map((action, idx) => (
-            <Text key={`${action}-${idx}`} size='xs' color={COLORS.text}>• {action}</Text>
+            <Text key={`${action}-${idx}`} size="xs" color={COLORS.text}>
+              • {action}
+            </Text>
           ))}
         </VStack>
       ) : null}
-      <Text size='xs' color={COLORS.textMuted}>Por qué</Text>
-      <Text size='xs' color={COLORS.text} mt='$1.5'>
+      <Text size="xs" color={COLORS.textMuted}>
+        Por qué
+      </Text>
+      <Text size="xs" color={COLORS.text} mt="$1.5">
         {decision.reason || step.summary}
       </Text>
     </Panel>
   );
 }
 
-function CandidatePanel({ candidates }: { candidates: TraceCandidateDecision[] }) {
+function CandidatePanel({
+  candidates,
+}: {
+  candidates: TraceCandidateDecision[];
+}) {
   const visible = candidates.slice(0, 12);
   return (
     <Panel title={`Candidatos Analizados (${candidates.length})`} icon={Search}>
@@ -479,39 +582,62 @@ function CandidatePanel({ candidates }: { candidates: TraceCandidateDecision[] }
           {visible.map((candidate, index) => (
             <Box
               key={`${candidate.id}-${index}`}
-              py='$2'
+              py="$2"
               borderBottomWidth={index === visible.length - 1 ? 0 : 1}
               borderBottomColor={COLORS.borderSoft as any}
             >
-              <HStack alignItems='center' space='sm'>
-                <Text size='2xs' color={COLORS.textDim} width={18}>{index + 1}</Text>
-                <Text size='xs' color={COLORS.text} flex={1}>{candidate.name}</Text>
-                <Text size='2xs' color={COLORS.textMuted}>Score: {candidateScore(candidate)}</Text>
-                <Text size='2xs' color={COLORS.textMuted}>Sem: {semanticScore(candidate)}</Text>
+              <HStack alignItems="center" space="sm">
+                <Text size="2xs" color={COLORS.textDim} width={18}>
+                  {index + 1}
+                </Text>
+                <Text size="xs" color={COLORS.text} flex={1}>
+                  {candidate.name}
+                </Text>
+                <Text size="2xs" color={COLORS.textMuted}>
+                  Score: {candidateScore(candidate)}
+                </Text>
+                <Text size="2xs" color={COLORS.textMuted}>
+                  Sem: {semanticScore(candidate)}
+                </Text>
               </HStack>
-              <HStack ml={28} mt='$1' alignItems='center' space='sm'>
+              <HStack ml={28} mt="$1" alignItems="center" space="sm">
                 {candidate.source ? (
-                  <Box px='$1.5' py='$0.5' borderRadius='$sm' bg={COLORS.panelStrong as any}>
-                    <Text size='2xs' color={COLORS.textDim}>{candidate.source}</Text>
+                  <Box
+                    px="$1.5"
+                    py="$0.5"
+                    borderRadius="$sm"
+                    bg={COLORS.panelStrong as any}
+                  >
+                    <Text size="2xs" color={COLORS.textDim}>
+                      {candidate.source}
+                    </Text>
                   </Box>
                 ) : null}
-                <Text size='2xs' color={statusVisual(candidate.status).color as any}>
+                <Text
+                  size="2xs"
+                  color={statusVisual(candidate.status).color as any}
+                >
                   {candidate.status}
                 </Text>
                 {candidate.reason ? (
-                  <Text size='2xs' color={COLORS.textDim} flex={1}>{candidate.reason}</Text>
+                  <Text size="2xs" color={COLORS.textDim} flex={1}>
+                    {candidate.reason}
+                  </Text>
                 ) : null}
               </HStack>
             </Box>
           ))}
           {candidates.length > visible.length ? (
-            <Text size='2xs' color={COLORS.blue} mt='$2'>
-              + {candidates.length - visible.length} candidatos adicionales en el trace
+            <Text size="2xs" color={COLORS.blue} mt="$2">
+              + {candidates.length - visible.length} candidatos adicionales en
+              el trace
             </Text>
           ) : null}
         </VStack>
       ) : (
-        <Text size='xs' color={COLORS.textDim}>Sin decisiones de candidatos para esta etapa.</Text>
+        <Text size="xs" color={COLORS.textDim}>
+          Sin decisiones de candidatos para esta etapa.
+        </Text>
       )}
     </Panel>
   );
@@ -520,10 +646,10 @@ function CandidatePanel({ candidates }: { candidates: TraceCandidateDecision[] }
 function OutputPanel({ step }: { step: GenerationTraceStep }) {
   const output = step.outputs || getLegacyOutput(step);
   return (
-    <Panel title='Output' icon={FileJson}>
-      <Box p='$3' bg={COLORS.panelStrong as any} borderRadius='$md'>
-        <Text size='2xs' color='#89D6A6' fontFamily='monospace'>
-          {output ? safeJson(output) : '// Sin output estructurado registrado'}
+    <Panel title="Output" icon={FileJson}>
+      <Box p="$3" bg={COLORS.panelStrong as any} borderRadius="$md">
+        <Text size="2xs" color="#89D6A6" fontFamily="monospace">
+          {output ? safeJson(output) : "// Sin output estructurado registrado"}
         </Text>
       </Box>
     </Panel>
@@ -546,19 +672,29 @@ function Panel({
       bg={COLORS.panel as any}
       borderWidth={1}
       borderColor={COLORS.border as any}
-      borderRadius='$lg'
-      p='$4'
+      borderRadius="$lg"
+      p="$4"
     >
-      <HStack alignItems='center' space='sm' mb='$3'>
-        <Icon as={icon} size='sm' color={COLORS.blue as any} />
-        <Text size='sm' fontWeight='$semibold' color={COLORS.text}>{title}</Text>
+      <HStack alignItems="center" space="sm" mb="$3">
+        <Icon as={icon} size="sm" color={COLORS.blue as any} />
+        <Text size="sm" fontWeight="$semibold" color={COLORS.text}>
+          {title}
+        </Text>
       </HStack>
       {children}
     </Box>
   );
 }
 
-function StageDetail({ step, index, nextStep }: { step: GenerationTraceStep; index: number; nextStep?: GenerationTraceStep }) {
+function StageDetail({
+  step,
+  index,
+  nextStep,
+}: {
+  step: GenerationTraceStep;
+  index: number;
+  nextStep?: GenerationTraceStep;
+}) {
   const decision = normalizeDecision(step);
   const visual = statusVisual(step.status ?? decision.status);
   const rules = step.rules ?? [];
@@ -566,71 +702,118 @@ function StageDetail({ step, index, nextStep }: { step: GenerationTraceStep; ind
 
   return (
     <VStack flex={1}>
-      <Box px='$5' pt='$5' pb='$4' borderBottomWidth={1} borderBottomColor={COLORS.border as any}>
-        <HStack justifyContent='space-between' alignItems='flex-start' space='lg' flexWrap='wrap'>
+      <Box
+        px="$5"
+        pt="$5"
+        pb="$4"
+        borderBottomWidth={1}
+        borderBottomColor={COLORS.border as any}
+      >
+        <HStack
+          justifyContent="space-between"
+          alignItems="flex-start"
+          space="lg"
+          flexWrap="wrap"
+        >
           <VStack flex={1} style={{ minWidth: 260 }}>
-            <HStack alignItems='center' space='sm' flexWrap='wrap'>
-              <Box w={32} h={32} borderRadius='$full' bg={COLORS.blue as any} alignItems='center' justifyContent='center'>
-                <Text size='xs' fontWeight='$bold' color='#FFFFFF'>{index + 1}</Text>
+            <HStack alignItems="center" space="sm" flexWrap="wrap">
+              <Box
+                w={32}
+                h={32}
+                borderRadius="$full"
+                bg={COLORS.blue as any}
+                alignItems="center"
+                justifyContent="center"
+              >
+                <Text size="xs" fontWeight="$bold" color="#FFFFFF">
+                  {index + 1}
+                </Text>
               </Box>
-              <Text size='lg' fontWeight='$bold' color={COLORS.text}>Paso {index + 1}</Text>
-              <Text size='lg' color={COLORS.text}>{step.label}</Text>
+              <Text size="lg" fontWeight="$bold" color={COLORS.text}>
+                Paso {index + 1}
+              </Text>
+              <Text size="lg" color={COLORS.text}>
+                {productGroupForStage(step.stage) || step.label}
+              </Text>
             </HStack>
-            <HStack mt='$2' ml={42} space='lg' flexWrap='wrap'>
-              <Text size='xs' color={COLORS.textMuted}>Responsable: <Text color={COLORS.text}>{step.component || step.stage}</Text></Text>
-              <HStack alignItems='center' space='xs'>
-                <Icon as={Clock} size='2xs' color={COLORS.textMuted as any} />
-                <Text size='xs' color={COLORS.textMuted}>Duración: <Text color={COLORS.text}>{formatDuration(step.timing?.durationMs)}</Text></Text>
+            <HStack mt="$2" ml={42} space="lg" flexWrap="wrap">
+              <Text size="xs" color={COLORS.textMuted}>
+                Responsable:{" "}
+                <Text color={COLORS.text}>{step.component || step.stage}</Text>
+              </Text>
+              <HStack alignItems="center" space="xs">
+                <Icon as={Clock} size="2xs" color={COLORS.textMuted as any} />
+                <Text size="xs" color={COLORS.textMuted}>
+                  Duración:{" "}
+                  <Text color={COLORS.text}>
+                    {formatDuration(step.timing?.durationMs)}
+                  </Text>
+                </Text>
               </HStack>
             </HStack>
           </VStack>
           <Box
             style={{ minWidth: 260, maxWidth: 380 }}
-            p='$3'
-            borderRadius='$lg'
+            p="$3"
+            borderRadius="$lg"
             borderWidth={1}
             borderColor={visual.color as any}
             bg={visual.bg as any}
           >
-            <Text size='xs' fontWeight='$bold' color={visual.color as any}>ESTADO: {decision.outcome}</Text>
-            <Text size='xs' color={COLORS.text} mt='$1'>{decision.reason || step.summary}</Text>
+            <Text size="xs" fontWeight="$bold" color={visual.color as any}>
+              ESTADO: {decision.outcome}
+            </Text>
+            <Text size="xs" color={COLORS.text} mt="$1">
+              {decision.reason || step.summary}
+            </Text>
           </Box>
         </HStack>
       </Box>
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ padding: 20, paddingBottom: 32 }}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ padding: 20, paddingBottom: 32 }}
+      >
         {rules.length ? (
-          <Box flexDirection='row' flexWrap='wrap' gap={12} mb='$4'>
-            {rules.slice(0, 6).map((rule, idx) => <MetricCard key={`${rule.ruleId}-${idx}`} rule={rule} />)}
+          <Box flexDirection="row" flexWrap="wrap" gap={12} mb="$4">
+            {rules.slice(0, 6).map((rule, idx) => (
+              <MetricCard key={`${rule.ruleId}-${idx}`} rule={rule} />
+            ))}
           </Box>
         ) : null}
 
-        <Box flexDirection='row' flexWrap='wrap' gap={12} mb='$4'>
+        <Box flexDirection="row" flexWrap="wrap" gap={12} mb="$4">
           <InputsPanel inputs={step.inputs} />
           <RulesPanel rules={rules} />
           <DecisionPanel step={step} />
         </Box>
 
-        <Box flexDirection='row' flexWrap='wrap' gap={12}>
+        <Box flexDirection="row" flexWrap="wrap" gap={12}>
           <CandidatePanel candidates={candidates} />
           <OutputPanel step={step} />
         </Box>
       </ScrollView>
 
       <HStack
-        px='$5'
-        py='$3'
-        justifyContent='space-between'
-        alignItems='center'
+        px="$5"
+        py="$3"
+        justifyContent="space-between"
+        alignItems="center"
         borderTopWidth={1}
         borderTopColor={COLORS.border as any}
         bg={COLORS.panelStrong as any}
       >
-        <HStack alignItems='center' space='sm'>
-          <Text size='xs' color={COLORS.textMuted}>Siguiente paso:</Text>
-          <Text size='xs' fontWeight='$semibold' color={COLORS.blue}>{nextStep?.component || nextStep?.label || 'Fin del pipeline'}</Text>
+        <HStack alignItems="center" space="sm">
+          <Text size="xs" color={COLORS.textMuted}>
+            Siguiente paso:
+          </Text>
+          <Text size="xs" fontWeight="$semibold" color={COLORS.blue}>
+            {nextStep?.component || nextStep?.label || "Fin del pipeline"}
+          </Text>
         </HStack>
-        <Text size='xs' color={COLORS.textMuted}>Etapa {index + 1} de {index + 1 + (nextStep ? 1 : 0)}+</Text>
+        <Text size="xs" color={COLORS.textMuted}>
+          Etapa {index + 1} de {index + 1 + (nextStep ? 1 : 0)}+
+        </Text>
       </HStack>
     </VStack>
   );
@@ -640,107 +823,140 @@ export function formatGenerationBitacora(trace: GenerationTrace): string {
   const lines = [
     `Generation Trace v${trace.version ?? 1}`,
     `Steps: ${trace.steps.length}`,
-    '',
+    "",
   ];
 
   trace.steps.forEach((step, index) => {
     const decision = normalizeDecision(step);
     lines.push(
-      `${String(index + 1).padStart(2, '0')} · ${step.stage} · ${step.status ?? decision.status}`,
+      `${String(index + 1).padStart(2, "0")} · ${step.stage} · ${step.status ?? decision.status}`,
       step.label,
-      step.component ? `Component: ${step.component}` : '',
+      step.component ? `Component: ${step.component}` : "",
       `Decision: ${decision.outcome}`,
       `Why: ${decision.reason}`,
     );
-    if (decision.reasonCodes?.length) lines.push(`Reason codes: ${decision.reasonCodes.join(', ')}`);
-    if (decision.triggeredActions?.length) lines.push(`Next: ${decision.triggeredActions.join(' -> ')}`);
+    if (decision.reasonCodes?.length)
+      lines.push(`Reason codes: ${decision.reasonCodes.join(", ")}`);
+    if (decision.triggeredActions?.length)
+      lines.push(`Next: ${decision.triggeredActions.join(" -> ")}`);
     if (step.rules?.length) {
-      lines.push('Rules:');
+      lines.push("Rules:");
       for (const item of step.rules) {
         lines.push(
           `  [${item.result}] ${item.ruleId} — ${item.rule}`,
           `    ${item.reason}`,
-          item.actual !== undefined ? `    actual=${safeJson(item.actual)}` : '',
-          item.expected !== undefined ? `    expected=${safeJson(item.expected)}` : '',
+          item.actual !== undefined
+            ? `    actual=${safeJson(item.actual)}`
+            : "",
+          item.expected !== undefined
+            ? `    expected=${safeJson(item.expected)}`
+            : "",
         );
       }
     }
     const candidates = normalizeCandidates(step);
     if (candidates.length) {
-      lines.push('Candidates:');
+      lines.push("Candidates:");
       for (const candidate of candidates) {
         lines.push(
           `  [${candidate.status}] ${candidate.name} (${candidate.id})`,
-          candidate.reason ? `    ${candidate.reason}` : '',
-          candidate.reasonCodes?.length ? `    reasons=${candidate.reasonCodes.join(', ')}` : '',
+          candidate.reason ? `    ${candidate.reason}` : "",
+          candidate.reasonCodes?.length
+            ? `    reasons=${candidate.reasonCodes.join(", ")}`
+            : "",
         );
       }
     }
-    lines.push('');
+    lines.push("");
   });
 
-  return lines.filter((line) => line !== '').join('\n');
+  return lines.filter((line) => line !== "").join("\n");
 }
 
 function renderSummaryPoints(trace: GenerationTrace) {
-  const points: { icon: any; title: string; desc: string; color: string; bg: string }[] = [];
+  const points: {
+    icon: any;
+    title: string;
+    desc: string;
+    color: string;
+    bg: string;
+  }[] = [];
 
   // 1. Preference / Intent
-  const intentStep = trace.steps.find((s) => s.stage === 'preference_interpretation' || s.stage === 'tour_intent');
+  const intentStep = trace.steps.find(
+    (s) => s.stage === "preference_interpretation" || s.stage === "tour_intent",
+  );
   if (intentStep) {
     points.push({
       icon: Sparkles,
-      title: 'Intención y Preferencias',
-      desc: intentStep.summary || 'Preferencias interpretadas y combinadas con filtros.',
+      title: "Intención y Preferencias",
+      desc:
+        intentStep.summary ||
+        "Preferencias interpretadas y combinadas con filtros.",
       color: COLORS.blue,
       bg: COLORS.blueSoft,
     });
   }
 
   // 2. Destination
-  const destStep = trace.steps.find((s) => s.stage === 'destination_resolution');
+  const destStep = trace.steps.find(
+    (s) => s.stage === "destination_resolution",
+  );
   if (destStep) {
     points.push({
       icon: MapPin,
-      title: 'Destino',
-      desc: destStep.summary || 'Límites geográficos resueltos.',
+      title: "Destino",
+      desc: destStep.summary || "Límites geográficos resueltos.",
       color: COLORS.green,
       bg: COLORS.greenBg,
     });
   }
 
   // 3. Validation / Discovery
-  const geoStep = trace.steps.find((s) => s.stage === 'geographic_validation');
-  const discoveryStep = trace.steps.find((s) => s.stage === 'experience_discovery' || s.stage === 'grounded_search');
-  if (geoStep || discoveryStep || trace.executionSummary?.acceptedExperiences != null) {
+  const geoStep = trace.steps.find((s) => s.stage === "geographic_validation");
+  const discoveryStep = trace.steps.find(
+    (s) => s.stage === "experience_discovery" || s.stage === "grounded_search",
+  );
+  if (
+    geoStep ||
+    discoveryStep ||
+    trace.executionSummary?.acceptedExperiences != null
+  ) {
     const accepted = trace.executionSummary?.acceptedExperiences ?? 0;
     const rejected = trace.executionSummary?.rejectedProposals ?? 0;
     points.push({
       icon: ShieldCheck,
-      title: 'Validación Geográfica',
-      desc: geoStep?.summary || `${accepted} experiencias verificadas con evidencia real (${rejected} descartadas).`,
+      title: "Validación Geográfica",
+      desc:
+        geoStep?.summary ||
+        `${accepted} experiencias verificadas con evidencia real (${rejected} descartadas).`,
       color: COLORS.amber,
       bg: COLORS.amberBg,
     });
   }
 
   // 4. Daily Planning / Itinerary
-  const planningStep = trace.steps.find((s) => s.stage === 'daily_planning');
+  const planningStep = trace.steps.find((s) => s.stage === "daily_planning");
   if (planningStep || trace.executionSummary?.selectedExperiences != null) {
     const selected = trace.executionSummary?.selectedExperiences ?? 0;
     points.push({
       icon: Layers,
-      title: 'Planificación de Itinerario',
-      desc: planningStep?.summary || `${selected} experiencias programadas en el itinerario diario.`,
+      title: "Planificación de Itinerario",
+      desc:
+        planningStep?.summary ||
+        `${selected} experiencias programadas en el itinerario diario.`,
       color: COLORS.blue,
       bg: COLORS.blueSoft,
     });
   }
 
   if (points.length === 0) {
-    const text = trace.executionSummary?.narrative || trace.executionSummary?.steps.join(' ') || 'Ejecución finalizada.';
+    const text =
+      trace.executionSummary?.narrative ||
+      trace.executionSummary?.steps.join(" ") ||
+      "Ejecución finalizada.";
     return (
-      <Text size='xs' color={COLORS.textMuted} lineHeight='$sm'>
+      <Text size="xs" color={COLORS.textMuted} lineHeight="$sm">
         {text}
       </Text>
     );
@@ -749,23 +965,23 @@ function renderSummaryPoints(trace: GenerationTrace) {
   return points.map((p, idx) => {
     const PointIcon = p.icon;
     return (
-      <HStack key={idx} space='sm' alignItems='flex-start' py='$1'>
+      <HStack key={idx} space="sm" alignItems="flex-start" py="$1">
         <Box
           w={22}
           h={22}
-          borderRadius='$full'
+          borderRadius="$full"
           bg={p.bg as any}
-          alignItems='center'
-          justifyContent='center'
-          mt='$0.5'
+          alignItems="center"
+          justifyContent="center"
+          mt="$0.5"
         >
-          <Icon as={PointIcon} size='xs' color={p.color as any} />
+          <Icon as={PointIcon} size="xs" color={p.color as any} />
         </Box>
         <VStack flex={1}>
-          <Text size='2xs' fontWeight='$bold' color={COLORS.text}>
+          <Text size="2xs" fontWeight="$bold" color={COLORS.text}>
             {p.title}
           </Text>
-          <Text size='xs' color={COLORS.textMuted} lineHeight='$xs'>
+          <Text size="xs" color={COLORS.textMuted} lineHeight="$xs">
             {p.desc}
           </Text>
         </VStack>
@@ -783,44 +999,52 @@ export const GenerationBitacora = ({
   const [isOpen, setIsOpen] = useState(false);
   const [isSummaryExpanded, setIsSummaryExpanded] = useState(false);
   const [selectedStep, setSelectedStep] = useState(0);
-  const [downloadState, setDownloadState] = useState<'idle' | 'done'>('idle');
+  const [downloadState, setDownloadState] = useState<"idle" | "done">("idle");
   const { width } = useWindowDimensions();
   const desktop = width >= 900;
   const insets = useSafeAreaInsets();
-  const topInset = insets.top > 0 ? insets.top : (Platform.OS === 'ios' ? 44 : 0);
-  const bottomInset = insets.bottom > 0 ? insets.bottom : (Platform.OS === 'ios' ? 20 : 0);
+  const topInset = insets.top > 0 ? insets.top : Platform.OS === "ios" ? 44 : 0;
+  const bottomInset =
+    insets.bottom > 0 ? insets.bottom : Platform.OS === "ios" ? 20 : 0;
 
   const stats = useMemo(() => {
     const rules = trace.steps.flatMap((step) => step.rules ?? []);
     return {
-      failures: rules.filter((item) => item.result === 'FAIL').length,
-      warnings: rules.filter((item) => item.result === 'WARN').length,
-      candidates: trace.steps.reduce((total, step) => total + normalizeCandidates(step).length, 0),
+      failures: rules.filter((item) => item.result === "FAIL").length,
+      warnings: rules.filter((item) => item.result === "WARN").length,
+      candidates: trace.steps.reduce(
+        (total, step) => total + normalizeCandidates(step).length,
+        0,
+      ),
     };
   }, [trace]);
 
-  const completed = !trace.steps.some((step) => (step.status ?? normalizeDecision(step).status) === 'FAIL');
-  const selected = trace.steps[Math.min(selectedStep, Math.max(trace.steps.length - 1, 0))];
-  const generatedAt = trace.steps.find((step) => step.timing?.startedAt)?.timing?.startedAt;
+  const completed = !trace.steps.some(
+    (step) => (step.status ?? normalizeDecision(step).status) === "FAIL",
+  );
+  const selected =
+    trace.steps[Math.min(selectedStep, Math.max(trace.steps.length - 1, 0))];
+  const generatedAt = trace.steps.find((step) => step.timing?.startedAt)?.timing
+    ?.startedAt;
 
   const handleDownload = async () => {
     const json = safeJson(trace);
 
     // On Web: native browser file download using Blob and anchor
-    if (Platform.OS === 'web') {
+    if (Platform.OS === "web") {
       try {
         const webDocument = (globalThis as any).document;
         const BlobCtor = (globalThis as any).Blob;
         const webUrl = (globalThis as any).URL;
         if (webDocument && BlobCtor && webUrl) {
-          const blob = new BlobCtor([json], { type: 'application/json' });
+          const blob = new BlobCtor([json], { type: "application/json" });
           const url = webUrl.createObjectURL(blob);
-          const anchor = webDocument.createElement('a');
+          const anchor = webDocument.createElement("a");
           anchor.href = url;
-          anchor.download = 'generation-trace-v2.json';
+          anchor.download = "generation-trace-v4.json";
           anchor.click();
           webUrl.revokeObjectURL(url);
-          setDownloadState('done');
+          setDownloadState("done");
           return;
         }
       } catch {
@@ -830,18 +1054,18 @@ export const GenerationBitacora = ({
 
     // On Mobile (iOS / Android): write physical file and share URI (prevents WhatsApp/messaging freeze)
     try {
-      if (Platform.OS !== 'web') {
-        const file = new File(Paths.cache, 'generation-trace-v2.json');
+      if (Platform.OS !== "web") {
+        const file = new File(Paths.cache, "generation-trace-v4.json");
         file.write(json);
         await Share.share({
           url: file.uri,
-          title: 'generation-trace-v2.json',
+          title: "generation-trace-v4.json",
         });
-        setDownloadState('done');
+        setDownloadState("done");
         return;
       }
       await copyTextToClipboard(json);
-      setDownloadState('done');
+      setDownloadState("done");
     } catch {
       // User cancelled share or file write error
     }
@@ -849,33 +1073,51 @@ export const GenerationBitacora = ({
 
   return (
     <>
-      <Pressable onPress={() => setIsOpen(true)} testID='bitacora-toggle'>
+      <Pressable onPress={() => setIsOpen(true)} testID="bitacora-toggle">
         <Box
-          my='$3'
-          p='$3.5'
+          my="$3"
+          p="$3.5"
           bg={COLORS.panelStrong as any}
-          borderRadius='$xl'
+          borderRadius="$xl"
           borderWidth={1}
           borderColor={COLORS.border as any}
         >
-          <HStack justifyContent='space-between' alignItems='center' space='sm'>
-            <HStack alignItems='center' space='sm' flex={1}>
-              <Box w={34} h={34} borderRadius='$lg' bg={COLORS.blueSoft as any} alignItems='center' justifyContent='center'>
-                <Icon as={Terminal} size='sm' color={COLORS.blue as any} />
+          <HStack justifyContent="space-between" alignItems="center" space="sm">
+            <HStack alignItems="center" space="sm" flex={1}>
+              <Box
+                w={34}
+                h={34}
+                borderRadius="$lg"
+                bg={COLORS.blueSoft as any}
+                alignItems="center"
+                justifyContent="center"
+              >
+                <Icon as={Terminal} size="sm" color={COLORS.blue as any} />
               </Box>
               <VStack flex={1}>
-                <Text size='sm' fontWeight='$bold' color={COLORS.text}>Bitácora de Generación</Text>
-                <Text size='2xs' color={COLORS.textMuted}>
-                  v{trace.version ?? 1} · {trace.steps.length} etapas · {stats.failures} fails · {stats.warnings} warnings · {stats.candidates} decisiones
+                <Text size="sm" fontWeight="$bold" color={COLORS.text}>
+                  Bitácora de Generación
+                </Text>
+                <Text size="2xs" color={COLORS.textMuted}>
+                  v{trace.version ?? 1} · {trace.steps.length} etapas ·{" "}
+                  {stats.failures} fails · {stats.warnings} warnings ·{" "}
+                  {stats.candidates} decisiones
                 </Text>
               </VStack>
             </HStack>
-            <Text size='xs' color={COLORS.blue}>Abrir</Text>
+            <Text size="xs" color={COLORS.blue}>
+              Abrir
+            </Text>
           </HStack>
         </Box>
       </Pressable>
 
-      <Modal visible={isOpen} animationType='slide' onRequestClose={() => setIsOpen(false)} statusBarTranslucent>
+      <Modal
+        visible={isOpen}
+        animationType="slide"
+        onRequestClose={() => setIsOpen(false)}
+        statusBarTranslucent
+      >
         <Box
           flex={1}
           bg={COLORS.panelStrong as any}
@@ -888,203 +1130,340 @@ export const GenerationBitacora = ({
         >
           <Box flex={1} bg={COLORS.page as any}>
             <Box
-              px={desktop ? '$5' : '$3'}
-              py='$3'
+              px={desktop ? "$5" : "$3"}
+              py="$3"
               borderBottomWidth={1}
               borderBottomColor={COLORS.border as any}
               bg={COLORS.panelStrong as any}
             >
-              <HStack justifyContent='space-between' alignItems='center' space='lg' flexWrap='wrap'>
-                <HStack alignItems='center' space='sm' flex={1} style={{ minWidth: 280 }}>
+              <HStack
+                justifyContent="space-between"
+                alignItems="center"
+                space="lg"
+                flexWrap="wrap"
+              >
+                <HStack
+                  alignItems="center"
+                  space="sm"
+                  flex={1}
+                  style={{ minWidth: 280 }}
+                >
                   <Pressable
                     onPress={() => setIsOpen(false)}
                     w={40}
                     h={40}
-                    borderRadius='$lg'
+                    borderRadius="$lg"
                     borderWidth={1}
                     borderColor={COLORS.border as any}
                     bg={COLORS.panel as any}
-                    alignItems='center'
-                    justifyContent='center'
-                    accessibilityLabel='Cerrar bitácora'
+                    alignItems="center"
+                    justifyContent="center"
+                    accessibilityLabel="Cerrar bitácora"
                     hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
                   >
-                    <Icon as={ArrowLeft} size='sm' color={COLORS.text as any} />
+                    <Icon as={ArrowLeft} size="sm" color={COLORS.text as any} />
                   </Pressable>
-                <VStack flex={1}>
-                  <HStack alignItems='center' space='sm' flexWrap='wrap'>
-                    <Text size='lg' fontWeight='$bold' color={COLORS.text}>Bitácora de Generación</Text>
-                    <Box px='$2' py='$1' borderRadius='$full' bg={completed ? COLORS.greenBg as any : COLORS.redBg as any}>
-                      <Text size='2xs' fontWeight='$bold' color={completed ? COLORS.green as any : COLORS.red as any}>
-                        {completed ? 'COMPLETADO' : 'CON ERRORES'}
+                  <VStack flex={1}>
+                    <HStack alignItems="center" space="sm" flexWrap="wrap">
+                      <Text size="lg" fontWeight="$bold" color={COLORS.text}>
+                        Bitácora de Generación
                       </Text>
-                    </Box>
-                  </HStack>
-                  <Text size='xs' color={COLORS.textMuted} mt='$0.5'>
-                    {tourName || 'Tour'}{totalDays ? ` · ${totalDays} día${totalDays === 1 ? '' : 's'}` : ''}{categories?.length ? ` · ${categories.join(', ')}` : ''}
-                  </Text>
-                </VStack>
-              </HStack>
-
-              <HStack alignItems='center' space='md'>
-                <Text size='2xs' color={COLORS.textMuted}>
-                  {generatedAt ? `Generado ${new Date(generatedAt).toLocaleString()}` : `Trace v${trace.version ?? 1}`}
-                </Text>
-                <Pressable
-                  onPress={handleDownload}
-                  px='$3'
-                  py='$2.5'
-                  borderRadius='$lg'
-                  borderWidth={1}
-                  borderColor={COLORS.border as any}
-                  bg={COLORS.panel as any}
-                >
-                  <HStack alignItems='center' space='xs'>
-                    <Icon as={Download} size='xs' color={COLORS.text as any} />
-                    <Text size='xs' color={COLORS.text}>{downloadState === 'done' ? 'JSON listo' : 'Descargar JSON'}</Text>
-                  </HStack>
-                </Pressable>
-                <Pressable
-                  onPress={() => setIsOpen(false)}
-                  w={36}
-                  h={36}
-                  borderRadius='$lg'
-                  borderWidth={1}
-                  borderColor={COLORS.border as any}
-                  bg={COLORS.panel as any}
-                  alignItems='center'
-                  justifyContent='center'
-                  accessibilityLabel='Cerrar bitácora'
-                  hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
-                >
-                  <Icon as={X} size='sm' color={COLORS.text as any} />
-                </Pressable>
-              </HStack>
-            </HStack>
-
-            {trace.executionSummary && (
-              <Box mt='$2.5'>
-                <Pressable
-                  onPress={() => setIsSummaryExpanded(!isSummaryExpanded)}
-                  p='$2.5'
-                  borderRadius='$lg'
-                  bg={COLORS.panel as any}
-                  borderWidth={1}
-                  borderColor={COLORS.borderSoft as any}
-                  accessibilityRole='button'
-                  accessibilityLabel='Alternar resumen de ejecución'
-                  testID='bitacora-summary-toggle'
-                >
-                  <HStack justifyContent='space-between' alignItems='center'>
-                    <HStack alignItems='center' space='sm' flexWrap='wrap' flex={1}>
-                      <Text size='xs' fontWeight='$bold' color={COLORS.text}>
-                        Resumen de ejecución
-                      </Text>
-                      <Box px='$2' py='$0.5' borderRadius='$full' bg={COLORS.blueSoft as any}>
-                        <Text size='2xs' color={COLORS.blue} fontWeight='$medium'>
-                          {trace.executionSummary.selectedExperiences != null
-                            ? `${trace.executionSummary.selectedExperiences} seleccionadas`
-                            : `${trace.steps.length} etapas`} · {trace.steps.length} etapas
+                      <Box
+                        px="$2"
+                        py="$1"
+                        borderRadius="$full"
+                        bg={
+                          completed
+                            ? (COLORS.greenBg as any)
+                            : (COLORS.redBg as any)
+                        }
+                      >
+                        <Text
+                          size="2xs"
+                          fontWeight="$bold"
+                          color={
+                            completed
+                              ? (COLORS.green as any)
+                              : (COLORS.red as any)
+                          }
+                        >
+                          {completed ? "COMPLETADO" : "CON ERRORES"}
                         </Text>
                       </Box>
-                      {trace.executionSummary.acceptedExperiences != null && (
-                        <Box px='$2' py='$0.5' borderRadius='$full' bg={COLORS.greenBg as any}>
-                          <Text size='2xs' color={COLORS.green} fontWeight='$medium'>
-                            {trace.executionSummary.acceptedExperiences} validadas
-                          </Text>
-                        </Box>
-                      )}
-                      {Boolean(trace.executionSummary.rejectedProposals) && (
-                        <Box px='$2' py='$0.5' borderRadius='$full' bg={COLORS.amberBg as any}>
-                          <Text size='2xs' color={COLORS.amber} fontWeight='$medium'>
-                            {trace.executionSummary.rejectedProposals} descartadas
-                          </Text>
-                        </Box>
-                      )}
                     </HStack>
-                    <HStack alignItems='center' space='xs'>
-                      <Text size='2xs' color={COLORS.blue} fontWeight='$medium'>
-                        {isSummaryExpanded ? 'Ocultar' : 'Ver detalle'}
-                      </Text>
-                      <Icon
-                        as={isSummaryExpanded ? ChevronUp : ChevronDown}
-                        size='xs'
-                        color={COLORS.blue as any}
-                      />
-                    </HStack>
-                  </HStack>
-                </Pressable>
+                    <Text size="xs" color={COLORS.textMuted} mt="$0.5">
+                      {tourName || "Tour"}
+                      {totalDays
+                        ? ` · ${totalDays} día${totalDays === 1 ? "" : "s"}`
+                        : ""}
+                      {categories?.length ? ` · ${categories.join(", ")}` : ""}
+                    </Text>
+                  </VStack>
+                </HStack>
 
-                {isSummaryExpanded && (
-                  <Box
-                    mt='$2'
-                    p='$3'
-                    borderRadius='$lg'
-                    bg={COLORS.panelStrong as any}
+                <HStack alignItems="center" space="md">
+                  <Text size="2xs" color={COLORS.textMuted}>
+                    {generatedAt
+                      ? `Generado ${new Date(generatedAt).toLocaleString()}`
+                      : `Trace v${trace.version ?? 1}`}
+                  </Text>
+                  <Pressable
+                    onPress={handleDownload}
+                    px="$3"
+                    py="$2.5"
+                    borderRadius="$lg"
                     borderWidth={1}
                     borderColor={COLORS.border as any}
-                    style={{ maxHeight: 220 }}
+                    bg={COLORS.panel as any}
                   >
-                    <ScrollView showsVerticalScrollIndicator={false}>
-                      <VStack space='xs'>
-                        {renderSummaryPoints(trace)}
-                      </VStack>
-                    </ScrollView>
-                  </Box>
-                )}
-              </Box>
-            )}
-          </Box>
+                    <HStack alignItems="center" space="xs">
+                      <Icon
+                        as={Download}
+                        size="xs"
+                        color={COLORS.text as any}
+                      />
+                      <Text size="xs" color={COLORS.text}>
+                        {downloadState === "done"
+                          ? "JSON listo"
+                          : "Descargar JSON"}
+                      </Text>
+                    </HStack>
+                  </Pressable>
+                  <Pressable
+                    onPress={() => setIsOpen(false)}
+                    w={36}
+                    h={36}
+                    borderRadius="$lg"
+                    borderWidth={1}
+                    borderColor={COLORS.border as any}
+                    bg={COLORS.panel as any}
+                    alignItems="center"
+                    justifyContent="center"
+                    accessibilityLabel="Cerrar bitácora"
+                    hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+                  >
+                    <Icon as={X} size="sm" color={COLORS.text as any} />
+                  </Pressable>
+                </HStack>
+              </HStack>
 
-          {desktop ? (
-            <HStack flex={1}>
-              <Box width={326} borderRightWidth={1} borderRightColor={COLORS.border as any} bg={COLORS.shell as any}>
-                <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ padding: 12 }}>
-                  {trace.steps.map((step, index) => (
-                    <TimelineStep
-                      key={`${step.stage}-${index}`}
-                      step={step}
-                      index={index}
-                      active={selectedStep === index}
-                      onPress={() => setSelectedStep(index)}
-                    />
-                  ))}
-                </ScrollView>
-              </Box>
-              {selected ? <StageDetail step={selected} index={selectedStep} nextStep={trace.steps[selectedStep + 1]} /> : null}
-            </HStack>
-          ) : (
-            <VStack flex={1}>
-              <Box py='$2' borderBottomWidth={1} borderBottomColor={COLORS.border as any} bg={COLORS.shell as any}>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 8 }}>
-                  <HStack space='xs'>
-                    {trace.steps.map((step, index) => (
-                      <Pressable key={`${step.stage}-${index}`} onPress={() => setSelectedStep(index)}>
+              {trace.executionSummary && (
+                <Box mt="$2.5">
+                  <Pressable
+                    onPress={() => setIsSummaryExpanded(!isSummaryExpanded)}
+                    p="$2.5"
+                    borderRadius="$lg"
+                    bg={COLORS.panel as any}
+                    borderWidth={1}
+                    borderColor={COLORS.borderSoft as any}
+                    accessibilityRole="button"
+                    accessibilityLabel="Alternar resumen de ejecución"
+                    testID="bitacora-summary-toggle"
+                  >
+                    <HStack justifyContent="space-between" alignItems="center">
+                      <HStack
+                        alignItems="center"
+                        space="sm"
+                        flexWrap="wrap"
+                        flex={1}
+                      >
+                        <Text size="xs" fontWeight="$bold" color={COLORS.text}>
+                          Resumen de ejecución
+                        </Text>
                         <Box
-                          style={{ minWidth: 150 }}
-                          p='$2.5'
-                          borderRadius='$lg'
-                          borderWidth={1}
-                          borderColor={selectedStep === index ? COLORS.blue as any : COLORS.border as any}
-                          bg={selectedStep === index ? '#12243D' as any : COLORS.panel as any}
+                          px="$2"
+                          py="$0.5"
+                          borderRadius="$full"
+                          bg={COLORS.blueSoft as any}
                         >
-                          <Text size='2xs' color={COLORS.textDim}>Paso {index + 1}</Text>
-                          <Text size='xs' fontWeight='$semibold' color={COLORS.text} numberOfLines={1}>{step.label}</Text>
-                          <Text size='2xs' color={statusVisual(step.status ?? normalizeDecision(step).status).color as any} mt='$1'>
-                            {normalizeDecision(step).outcome}
+                          <Text
+                            size="2xs"
+                            color={COLORS.blue}
+                            fontWeight="$medium"
+                          >
+                            {trace.executionSummary.selectedExperiences != null
+                              ? `${trace.executionSummary.selectedExperiences} seleccionadas`
+                              : `${trace.steps.length} etapas`}{" "}
+                            · {trace.steps.length} etapas
                           </Text>
                         </Box>
-                      </Pressable>
+                        {trace.executionSummary.acceptedExperiences != null && (
+                          <Box
+                            px="$2"
+                            py="$0.5"
+                            borderRadius="$full"
+                            bg={COLORS.greenBg as any}
+                          >
+                            <Text
+                              size="2xs"
+                              color={COLORS.green}
+                              fontWeight="$medium"
+                            >
+                              {trace.executionSummary.acceptedExperiences}{" "}
+                              validadas
+                            </Text>
+                          </Box>
+                        )}
+                        {Boolean(trace.executionSummary.rejectedProposals) && (
+                          <Box
+                            px="$2"
+                            py="$0.5"
+                            borderRadius="$full"
+                            bg={COLORS.amberBg as any}
+                          >
+                            <Text
+                              size="2xs"
+                              color={COLORS.amber}
+                              fontWeight="$medium"
+                            >
+                              {trace.executionSummary.rejectedProposals}{" "}
+                              descartadas
+                            </Text>
+                          </Box>
+                        )}
+                      </HStack>
+                      <HStack alignItems="center" space="xs">
+                        <Text
+                          size="2xs"
+                          color={COLORS.blue}
+                          fontWeight="$medium"
+                        >
+                          {isSummaryExpanded ? "Ocultar" : "Ver detalle"}
+                        </Text>
+                        <Icon
+                          as={isSummaryExpanded ? ChevronUp : ChevronDown}
+                          size="xs"
+                          color={COLORS.blue as any}
+                        />
+                      </HStack>
+                    </HStack>
+                  </Pressable>
+
+                  {isSummaryExpanded && (
+                    <Box
+                      mt="$2"
+                      p="$3"
+                      borderRadius="$lg"
+                      bg={COLORS.panelStrong as any}
+                      borderWidth={1}
+                      borderColor={COLORS.border as any}
+                      style={{ maxHeight: 220 }}
+                    >
+                      <ScrollView showsVerticalScrollIndicator={false}>
+                        <VStack space="xs">{renderSummaryPoints(trace)}</VStack>
+                      </ScrollView>
+                    </Box>
+                  )}
+                </Box>
+              )}
+            </Box>
+
+            {desktop ? (
+              <HStack flex={1}>
+                <Box
+                  width={326}
+                  borderRightWidth={1}
+                  borderRightColor={COLORS.border as any}
+                  bg={COLORS.shell as any}
+                >
+                  <ScrollView
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={{ padding: 12 }}
+                  >
+                    {trace.steps.map((step, index) => (
+                      <TimelineStep
+                        key={`${step.stage}-${index}`}
+                        step={step}
+                        index={index}
+                        active={selectedStep === index}
+                        onPress={() => setSelectedStep(index)}
+                      />
                     ))}
-                  </HStack>
-                </ScrollView>
-              </Box>
-              {selected ? <StageDetail step={selected} index={selectedStep} nextStep={trace.steps[selectedStep + 1]} /> : null}
-            </VStack>
-          )}
+                  </ScrollView>
+                </Box>
+                {selected ? (
+                  <StageDetail
+                    step={selected}
+                    index={selectedStep}
+                    nextStep={trace.steps[selectedStep + 1]}
+                  />
+                ) : null}
+              </HStack>
+            ) : (
+              <VStack flex={1}>
+                <Box
+                  py="$2"
+                  borderBottomWidth={1}
+                  borderBottomColor={COLORS.border as any}
+                  bg={COLORS.shell as any}
+                >
+                  <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={{ paddingHorizontal: 8 }}
+                  >
+                    <HStack space="xs">
+                      {trace.steps.map((step, index) => (
+                        <Pressable
+                          key={`${step.stage}-${index}`}
+                          onPress={() => setSelectedStep(index)}
+                        >
+                          <Box
+                            style={{ minWidth: 150 }}
+                            p="$2.5"
+                            borderRadius="$lg"
+                            borderWidth={1}
+                            borderColor={
+                              selectedStep === index
+                                ? (COLORS.blue as any)
+                                : (COLORS.border as any)
+                            }
+                            bg={
+                              selectedStep === index
+                                ? ("#12243D" as any)
+                                : (COLORS.panel as any)
+                            }
+                          >
+                            <Text size="2xs" color={COLORS.textDim}>
+                              Paso {index + 1}
+                            </Text>
+                            <Text
+                              size="xs"
+                              fontWeight="$semibold"
+                              color={COLORS.text}
+                              numberOfLines={1}
+                            >
+                              {productGroupForStage(step.stage) || step.label}
+                            </Text>
+                            <Text
+                              size="2xs"
+                              color={
+                                statusVisual(
+                                  step.status ?? normalizeDecision(step).status,
+                                ).color as any
+                              }
+                              mt="$1"
+                            >
+                              {normalizeDecision(step).outcome}
+                            </Text>
+                          </Box>
+                        </Pressable>
+                      ))}
+                    </HStack>
+                  </ScrollView>
+                </Box>
+                {selected ? (
+                  <StageDetail
+                    step={selected}
+                    index={selectedStep}
+                    nextStep={trace.steps[selectedStep + 1]}
+                  />
+                ) : null}
+              </VStack>
+            )}
+          </Box>
         </Box>
-      </Box>
-    </Modal>
+      </Modal>
     </>
   );
 };

@@ -234,8 +234,8 @@ export interface MaterializedTourExperienceTrace {
 }
 
 export interface GenerationTrace {
-  /** Version 1 traces omitted this field; V3 is the canonical V2-domain trace. */
-  version?: 1 | 2 | 3;
+  /** Version 1-3 traces remain readable; V4 is the native preference-first trace. */
+  version?: 1 | 2 | 3 | 4;
   /** Redacted canonical request exactly as consumed by deterministic generation. */
   canonicalRequest?: Record<string, unknown>;
   steps: GenerationTraceStep[];

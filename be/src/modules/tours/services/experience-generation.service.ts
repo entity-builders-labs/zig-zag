@@ -1718,7 +1718,7 @@ export class ExperienceGenerationService {
         });
 
       const generationTrace = redactTracePayload({
-        version: 3,
+        version: 4,
         canonicalRequest: request,
         steps: traceSteps,
         materializedTourExperiences,
@@ -1890,7 +1890,7 @@ export class ExperienceGenerationService {
                 generationTrace: redactTracePayload({
                   ...((latestTour?.metadata as any)?.generationTrace ?? {}),
                   steps: traceSteps,
-                  version: 3,
+                  version: 4,
                   canonicalRequest: redactTracePayload(
                     (latestTour?.metadata as any)?.generationRequest ??
                       metadata?.generationRequest ??
