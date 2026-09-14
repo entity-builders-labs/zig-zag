@@ -23,9 +23,8 @@ import { placesHistoricalLandmarkObservation } from './support/observations';
  *  - `qualityBonus` uses the current source-specific policy: POIs use
  *    `weightedScore`, while composites use the curated bonus and ignore
  *    `weightedScore`;
- *  - the normalizer forwards raw canonical Experience qualityScore (0..5),
- *    while rankingScore remains the upstream relevance authority for planner
- *    ordering. The planner does not apply that aggregate's quality term again.
+ *  - the normalizer forwards raw canonical Experience qualityScore (0..5);
+ *  - the planner normalizes and applies that raw signal exactly once.
  */
 describe('CHAR-6 quality signal round-trip', () => {
   it('the structured synthesizer drops Google Places rating/userRatingCount', () => {
@@ -63,7 +62,7 @@ describe('CHAR-6 quality signal round-trip', () => {
     expect(qualityBonus(composite)).toBe(0);
   });
 
-  it('normalizer forwards raw canonical quality; the planner uses rankingScore once', async () => {
+  it('normalizer forwards raw canonical quality; planner normalizes it once', async () => {
     const rankable: (RankableCandidate & { original: any })[] = [
       {
         id: 'q',
@@ -98,20 +97,26 @@ describe('CHAR-6 quality signal round-trip', () => {
     expect(normalized.qualityScore).toBe(4.7);
 
     const policy = dailyPlanningPolicyConfig();
-    const solverQualityTerm =
+    const solverQualityContribution =
       scoreCandidateForDay(
         normalized,
         { dayNumber: 1, assigned: [] } as any,
         { policy } as any,
-      ) - policy.scoring.dayBalanceWeight;
+      ) -
+      policy.scoring.dayBalanceWeight -
+      breakdown.semanticSimilarity!;
     // eslint-disable-next-line no-console
     console.info(
-      `[CHAR-6] rating=4.7 -> raw qualityScore=${normalized.qualityScore} -> planner relevance=${solverQualityTerm}`,
+      `[CHAR-6] rating=4.7 -> raw qualityScore=${normalized.qualityScore} -> planner quality contribution=${solverQualityContribution}`,
     );
-    expect(solverQualityTerm).toBeCloseTo(breakdown.totalScore, 5);
+    expect(solverQualityContribution).toBeCloseTo(
+      policy.scoring.qualityWeight * (4.7 / 5),
+      5,
+    );
+    expect('rankingScore' in normalized).toBe(false);
   });
 
-  it('INVARIANT: quality must not be weighted twice across the ranking/planner boundary', async () => {
+  it('INVARIANT: quality is weighted once from the raw canonical scale', async () => {
     const rankable: (RankableCandidate & { original: any })[] = [
       {
         id: 'quality',
@@ -135,9 +140,6 @@ describe('CHAR-6 quality signal round-trip', () => {
         ['no-quality', 0.5],
       ]),
     );
-    const qualityRankingContribution = ranked.find(
-      (r) => r.candidate.id === 'quality',
-    )!.scoreBreakdown.qualityBonus;
     const scoreBreakdownById = new Map<string, CandidateScoreBreakdown>(
       ranked.map((r) => [r.candidate.id, r.scoreBreakdown]),
     );
@@ -179,33 +181,13 @@ describe('CHAR-6 quality signal round-trip', () => {
     const effectivePlannerQualityContribution =
       scoreWithQuality - scoreWithoutQuality;
     const boundaryQualityScore = candidateWithQuality.qualityScore ?? 0;
-    const effectivePlannerMultiplier =
-      boundaryQualityScore === 0
-        ? undefined
-        : effectivePlannerQualityContribution / boundaryQualityScore;
-    const approximatelyEqual = (left: number, right: number): boolean =>
-      Math.abs(left - right) <= 0.001;
-    const boundaryCarriesAlreadyWeightedContribution = approximatelyEqual(
-      boundaryQualityScore,
-      qualityRankingContribution,
-    );
-    const plannerAppliesAnotherWeight =
-      effectivePlannerMultiplier !== undefined &&
-      !approximatelyEqual(effectivePlannerMultiplier, 1);
-
     // eslint-disable-next-line no-console
     console.info(
-      `[CHAR-6] ranking quality contribution=${qualityRankingContribution} boundary qualityScore=${boundaryQualityScore} effective planner contribution=${effectivePlannerQualityContribution} effective multiplier=${effectivePlannerMultiplier} boundary already weighted=${boundaryCarriesAlreadyWeightedContribution} second weighting detected=${plannerAppliesAnotherWeight}`,
+      `[CHAR-6] raw boundary qualityScore=${boundaryQualityScore} effective planner contribution=${effectivePlannerQualityContribution}`,
     );
-
-      expect(boundaryCarriesAlreadyWeightedContribution).toBe(false);
-      expect(plannerAppliesAnotherWeight).toBe(true);
-      expect(effectivePlannerQualityContribution).toBeCloseTo(
-        ranked.find((r) => r.candidate.id === 'quality')!.scoreBreakdown
-          .totalScore -
-          ranked.find((r) => r.candidate.id === 'no-quality')!.scoreBreakdown
-            .totalScore,
-        5,
-      );
+    expect(effectivePlannerQualityContribution).toBeCloseTo(
+      dailyPlanningPolicyConfig().scoring.qualityWeight * (4.7 / 5),
+      5,
+    );
   });
 });

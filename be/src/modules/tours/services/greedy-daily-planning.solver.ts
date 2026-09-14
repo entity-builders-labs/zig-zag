@@ -37,7 +37,10 @@ export class GreedyDailyPlanningSolver implements DailyPlanningSolver {
         ),
       ),
     );
-    const sorted = sortCandidatesDeterministically(routedCandidates);
+    const sorted = sortCandidatesDeterministically(routedCandidates, {
+      semanticWeight: this.policy.scoring.semanticWeight,
+      qualityWeight: this.policy.scoring.qualityWeight,
+    });
     const context: PlacementContext = {
       policy: this.policy,
       mobility: input.mobility,

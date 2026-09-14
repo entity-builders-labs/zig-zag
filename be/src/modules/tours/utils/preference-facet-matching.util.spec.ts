@@ -452,6 +452,8 @@ describe('preferenceWeightForExperience', () => {
   it('sums distinct canonically satisfied facets and ignores duplicate representations', () => {
     const experience = {
       themes: ['history'],
+      qualityScore: 4,
+      components: [{ geoEntity: { latitude: 1, longitude: 2 } }],
       metadata: {
         dimensionedTraits: [{ dimension: 'trait', key: 'architecture' }],
       },
@@ -464,6 +466,38 @@ describe('preferenceWeightForExperience', () => {
         facet('theme', 'food', 0.4),
       ]),
     ).toBe(1.7);
+  });
+
+  it('excludes weak semantic matches from planner preference weight', () => {
+    const facetDefinition = facet('theme', 'history', 1);
+    const strong = {
+      themes: ['history'],
+      qualityScore: 4,
+      components: [{ geoEntity: { latitude: 1, longitude: 2 } }],
+    };
+    expect(preferenceWeightForExperience(strong, [facetDefinition])).toBe(1);
+    expect(
+      preferenceWeightForExperience(
+        { themes: ['history'], qualityScore: 2, components: strong.components },
+        [facetDefinition],
+      ),
+    ).toBe(0);
+    expect(
+      preferenceWeightForExperience({ themes: ['history'], qualityScore: 4 }, [
+        facetDefinition,
+      ]),
+    ).toBe(0);
+    expect(
+      preferenceWeightForExperience(
+        {
+          themes: ['history'],
+          qualityScore: 4,
+          components: strong.components,
+          metadata: { classification: { state: 'degraded' } },
+        },
+        [facetDefinition],
+      ),
+    ).toBe(0);
   });
 
   it('does not infer preference truth from semantic-looking text', () => {

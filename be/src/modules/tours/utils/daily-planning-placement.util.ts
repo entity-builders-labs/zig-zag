@@ -11,6 +11,7 @@ import {
 } from '../interfaces/tour-generation.interface';
 import { DailyPlanningPolicy } from '../config/daily-planning-policy.config';
 import { isOpenDuring } from './normalized-opening-hours.util';
+import { plannerRelevanceScore } from './daily-planning-candidate-sort.util';
 
 const candidateIdentity = (candidate: PlanningExperienceCandidate): string =>
   candidate.experienceId;
@@ -187,13 +188,11 @@ export function scoreCandidateForDay(
   context: PlacementContext,
 ): number {
   const { scoring } = context.policy;
-  // rankingScore is the upstream catalog/composition relevance authority and
-  // already contains its quality/preference contributions. Use the explicit
-  // fields only for direct planner callers without that boundary score.
-  const relevance =
-    candidate.rankingScore ??
-    scoring.semanticWeight * candidate.semanticScore +
-      scoring.qualityWeight * (candidate.qualityScore ?? 0);
+  // This is the sole planner soft-relevance normalization path. Preference is
+  // already the sum of distinct strong requested facets; quality is raw on the
+  // canonical 0..5 scale and normalized here exactly once. Unknown quality is
+  // neutral because it has no contribution, not because it is a fake score.
+  const relevance = plannerRelevanceScore(candidate, scoring);
   const dayBalanceBonus =
     scoring.dayBalanceWeight * (1 / (acc.assigned.length + 1));
   return relevance + dayBalanceBonus;

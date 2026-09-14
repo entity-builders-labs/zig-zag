@@ -604,17 +604,23 @@ export class ExperienceGenerationService {
       .map((id) => composition.candidatesById.get(id))
       .filter(Boolean);
     const scoreBreakdownById = new Map<string, CandidateScoreBreakdown>();
-    for (const [index, id] of orderedIds.entries()) {
+    for (const id of orderedIds) {
       const candidate = composition.candidatesById.get(id);
+      const preferenceWeight = composition.preferenceWeightById.get(id) ?? 0;
       scoreBreakdownById.set(id, {
         semanticSimilarity: null,
         qualityBonus:
           typeof candidate?.qualityScore === 'number'
             ? candidate.qualityScore
             : 0,
+        preferenceScore: preferenceWeight,
+        preferenceBonus: preferenceWeight,
         proximityBonus: 0,
         diversityBonus: 0,
-        totalScore: orderedIds.length - index,
+        // Composition is set-based and has no scalar ranking score. Keep a
+        // transparent trace value for the existing contract; this value is
+        // never transported as planner rankingScore.
+        totalScore: preferenceWeight,
       });
     }
     return {

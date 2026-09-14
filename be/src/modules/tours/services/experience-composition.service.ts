@@ -5,11 +5,9 @@ import {
   PreferenceSpec,
   facetKey,
 } from '../interfaces/preference-spec.interface';
-import { candidateMatchesPreferenceFacet } from '../utils/preference-facet-matching.util';
-import { preferenceWeightForExperience } from '../utils/preference-facet-matching.util';
 import {
-  requestedFacetToPreferenceFacet,
   isStrongFacetMatch,
+  preferenceWeightForExperience,
 } from '../utils/preference-strong-match.util';
 import {
   computeExplorationSignals,
@@ -62,14 +60,7 @@ export class ExperienceCompositionService {
           String(components[0]?.geoEntity?.kind ?? '').toUpperCase(),
         );
       const satisfiedFacets = input.preferenceSpec.facets
-        .filter(
-          (facet) =>
-            isStrongFacetMatch(experience, facet) &&
-            candidateMatchesPreferenceFacet(
-              experience,
-              requestedFacetToPreferenceFacet(facet),
-            ),
-        )
+        .filter((facet) => isStrongFacetMatch(experience, facet))
         .map(facetKey);
       const metadata =
         experience.metadata && typeof experience.metadata === 'object'

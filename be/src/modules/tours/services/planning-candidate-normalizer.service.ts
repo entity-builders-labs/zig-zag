@@ -68,7 +68,6 @@ export class PlanningCandidateNormalizerService {
         startFootprint,
         endFootprint,
         semanticScore: scoreBreakdown?.semanticSimilarity ?? 0,
-        rankingScore: scoreBreakdown?.totalScore,
         qualityScore:
           typeof experience.qualityScore === 'number' &&
           Number.isFinite(experience.qualityScore) &&

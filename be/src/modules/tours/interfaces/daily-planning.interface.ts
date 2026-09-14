@@ -70,13 +70,6 @@ export interface PlanningExperienceCandidate {
   openingHours?: NormalizedOpeningHours;
   /** Raw semantic similarity remains separately observable. */
   semanticScore: number;
-  /**
-   * Deterministic relevance score produced by the catalog ranking boundary.
-   * It preserves preference, semantic, quality, proximity and diversity
-   * contributions when candidates cross into the planner. Older/direct
-   * planner callers may omit it and fall back to semanticScore.
-   */
-  rankingScore?: number;
   /** Raw canonical Experience qualityScore on the 0..5 scale. */
   qualityScore?: number;
   /** Sum of distinct requested facets canonically satisfied by this Experience. */

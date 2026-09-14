@@ -8,7 +8,7 @@ function candidate(
   id: string,
   semanticScore: number,
   qualityScore?: number,
-  rankingScore?: number,
+  preferenceWeight?: number,
 ): PlanningExperienceCandidate {
   const footprint = { type: 'POINT' as const, centroid: { lat: 0, lng: 0 } };
   return {
@@ -19,8 +19,8 @@ function candidate(
     startFootprint: footprint,
     endFootprint: footprint,
     semanticScore,
-    rankingScore,
     qualityScore,
+    preferenceWeight,
   };
 }
 
@@ -33,10 +33,10 @@ describe('sortCandidatesDeterministically', () => {
     expect(sorted.map((c) => c.experienceId)).toEqual(['high', 'low']);
   });
 
-  it('preserves the complete upstream deterministic ranking over raw semantic similarity', () => {
+  it('includes canonical preference weight in deterministic planner ordering', () => {
     const sorted = sortCandidatesDeterministically([
-      candidate('semantic-false-friend', 0.95, 4.9, 1.05),
-      candidate('preference-best-fit', 0.9, 4.4, 1.3),
+      candidate('semantic-false-friend', 0.95, 4.9),
+      candidate('preference-best-fit', 0.9, 4.4, 1),
     ]);
     expect(sorted.map((c) => c.experienceId)).toEqual([
       'preference-best-fit',

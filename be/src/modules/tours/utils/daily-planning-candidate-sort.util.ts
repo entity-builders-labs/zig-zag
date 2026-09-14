@@ -1,28 +1,36 @@
 import { PlanningExperienceCandidate } from '../interfaces/daily-planning.interface';
+import dailyPlanningPolicyConfig from '../config/daily-planning-policy.config';
+import { DailyPlanningPolicy } from '../config/daily-planning-policy.config';
+
+type PlannerSoftScoring = Pick<
+  DailyPlanningPolicy['scoring'],
+  'semanticWeight' | 'qualityWeight'
+>;
+
+export function plannerRelevanceScore(
+  candidate: PlanningExperienceCandidate,
+  scoring: PlannerSoftScoring,
+): number {
+  return (
+    scoring.semanticWeight * candidate.semanticScore +
+    (candidate.preferenceWeight ?? 0) +
+    scoring.qualityWeight * ((candidate.qualityScore ?? 0) / 5)
+  );
+}
 
 /** Deterministic initial ordering used to drive anchor seeding and the
- * greedy placement loop. The upstream catalog ranking is authoritative for
- * user relevance, so preserve its complete deterministic score when present.
- * Direct planner callers that do not cross that boundary fall back to the raw
- * semantic signal. Geographic compactness and redundancy remain day-planning
- * concerns and are not recomputed here. Never depends on DB result order or
- * object iteration order. */
+ * greedy placement loop. It uses the same explicit soft-relevance formula as
+ * placement; geographic compactness and redundancy remain day-planning
+ * concerns. Never depends on DB result order or object iteration order. */
 export function sortCandidatesDeterministically(
   candidates: PlanningExperienceCandidate[],
+  scoring: PlannerSoftScoring = dailyPlanningPolicyConfig().scoring,
 ): PlanningExperienceCandidate[] {
   return [...candidates].sort((a, b) => {
-    const aRanking = a.rankingScore ?? a.semanticScore;
-    const bRanking = b.rankingScore ?? b.semanticScore;
+    const aRanking = plannerRelevanceScore(a, scoring);
+    const bRanking = plannerRelevanceScore(b, scoring);
     if (bRanking !== aRanking) {
       return bRanking - aRanking;
-    }
-    if (a.rankingScore !== undefined || b.rankingScore !== undefined) {
-      return a.experienceId.localeCompare(b.experienceId);
-    }
-    const aQuality = a.qualityScore ?? 0;
-    const bQuality = b.qualityScore ?? 0;
-    if (bQuality !== aQuality) {
-      return bQuality - aQuality;
     }
     return a.experienceId.localeCompare(b.experienceId);
   });

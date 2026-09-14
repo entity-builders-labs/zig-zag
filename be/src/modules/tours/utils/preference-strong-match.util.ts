@@ -166,3 +166,32 @@ export function isStrongFacetMatch(
 
   return true;
 }
+
+function normalizedFacetIdentity(facet: RequestedFacet): string {
+  return `${facet.dimension.trim().toLowerCase()}:${facet.key
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim()}`;
+}
+
+/**
+ * Canonical planner preference contribution. A facet contributes only when
+ * the same strong-match policy used by composition accepts it. Duplicate
+ * normalized representations are counted once.
+ */
+export function preferenceWeightForExperience(
+  experience: unknown,
+  facets: readonly RequestedFacet[],
+): number {
+  const seen = new Set<string>();
+  let weight = 0;
+  for (const facet of facets) {
+    const identity = normalizedFacetIdentity(facet);
+    if (seen.has(identity)) continue;
+    seen.add(identity);
+    if (isStrongFacetMatch(experience, facet)) weight += facet.weight;
+  }
+  return weight;
+}

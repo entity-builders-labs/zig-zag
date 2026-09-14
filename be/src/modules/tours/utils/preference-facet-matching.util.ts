@@ -1,6 +1,9 @@
 import { PreferenceFacet } from '../preferences/preference-facet.interface';
 import { PREFERENCE_DIMENSIONS } from '../preferences/preference-facet-vocabulary';
-import { RequestedFacet } from '../interfaces/preference-spec.interface';
+// Kept as a compatibility export for existing callers. The implementation
+// lives with the canonical strong-match policy so weak matches cannot acquire
+// planner preference weight.
+export { preferenceWeightForExperience } from './preference-strong-match.util';
 
 function normalizeText(value: string): string {
   return value
@@ -152,30 +155,6 @@ export function candidateMatchesPreferenceFacet(
  * this helper only deduplicates requested facet representations and sums their
  * already-normalized weights.
  */
-export function preferenceWeightForExperience(
-  experience: unknown,
-  facets: readonly RequestedFacet[],
-): number {
-  const seen = new Set<string>();
-  let weight = 0;
-  for (const facet of facets) {
-    const key = `${facet.dimension.trim().toLowerCase()}:${normalizeText(facet.key)}`;
-    if (seen.has(key)) continue;
-    seen.add(key);
-    const matcherFacet: PreferenceFacet = {
-      dimension: facet.dimension,
-      key: facet.key,
-      importance: 1,
-      confidence: 1,
-      source: facet.source,
-    };
-    if (candidateMatchesPreferenceFacet(experience, matcherFacet)) {
-      weight += facet.weight;
-    }
-  }
-  return weight;
-}
-
 // exploration_style key -> the (dimension, key) explicit dimensioned-evidence
 // pairs a candidate must carry to count as a match. Conservative: iconic reads
 // the "well-known / heavily-visited" end of tourism_intensity; local_deep_dive
