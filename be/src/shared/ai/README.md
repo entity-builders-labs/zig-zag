@@ -36,7 +36,8 @@ Provider ownership is capability-specific. `AI_PROVIDER` selects only the
 general chat/interpreter transport; discovery extraction uses
 `DISCOVERY_EXTRACTOR_PROVIDER` and its provider-specific discovery model,
 grounded evidence uses `GROUNDED_SEARCH_PROVIDER`, evidence-only
-classification uses its explicit Groq classification configuration, and
+classification uses `CLASSIFICATION_PROVIDER` and its provider-specific
+classification model, and
 embeddings use `EMBEDDING_PROVIDER`. No capability inherits a model from an
 unrelated provider.
 

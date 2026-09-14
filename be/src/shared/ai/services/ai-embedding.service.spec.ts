@@ -54,7 +54,11 @@ describe('AiEmbeddingService Bedrock adapter', () => {
         },
       },
       geminiGroundedSearchModel: 'gemini-3.5-flash',
-      classification: { groq: { model: 'qwen/qwen3.8-27b' } },
+      classification: {
+        provider: 'groq',
+        groq: { model: 'qwen/qwen3.8-27b' },
+        gemini: { model: 'gemini-3.5-flash-lite' },
+      },
     });
 
     await service.ensureInitialized();
@@ -94,7 +98,11 @@ describe('AiEmbeddingService Bedrock adapter', () => {
         },
       },
       geminiGroundedSearchModel: 'gemini-3.5-flash',
-      classification: { groq: { model: 'qwen/qwen3.8-27b' } },
+      classification: {
+        provider: 'groq',
+        groq: { model: 'qwen/qwen3.8-27b' },
+        gemini: { model: 'gemini-3.5-flash-lite' },
+      },
     });
 
     await service.ensureInitialized();
@@ -155,7 +163,11 @@ describe('AiEmbeddingService Bedrock adapter', () => {
         },
       },
       geminiGroundedSearchModel: 'gemini-3.5-flash',
-      classification: { groq: { model: 'qwen/qwen3.8-27b' } },
+      classification: {
+        provider: 'groq',
+        groq: { model: 'qwen/qwen3.8-27b' },
+        gemini: { model: 'gemini-3.5-flash-lite' },
+      },
     });
 
     await service.ensureInitialized();

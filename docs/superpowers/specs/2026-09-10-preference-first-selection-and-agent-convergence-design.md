@@ -399,8 +399,10 @@ facts.
 
 ## 9. Stage 6 — evidence-only semantic classification
 
-Model for v1: Groq `qwen/qwen3.8-27b`, temperature 0, with Gemini grounded/model
-fallback only where the existing AI abstraction explicitly supports it.
+Original v1 model: Groq `qwen/qwen3.8-27b`, temperature 0. This provider
+choice is superseded by capability-specific `CLASSIFICATION_PROVIDER` and
+provider-owned classification models; the evidence-only contract, temperature
+0, and deterministic backend validation remain unchanged.
 
 Classification input is evidence only. It emits:
 - canonical `themes[]`;

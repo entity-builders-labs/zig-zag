@@ -396,6 +396,7 @@ export class LangChainService {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify(payload),
+            signal: AbortSignal.timeout(this.config.timeout),
           } as any,
         );
 
@@ -546,6 +547,7 @@ export class LangChainService {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify(payload),
+            signal: AbortSignal.timeout(this.config.timeout),
           } as any,
         );
 

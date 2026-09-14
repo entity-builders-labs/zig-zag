@@ -10,6 +10,11 @@ import {
 describe('ExperienceClassificationService', () => {
   let service: ExperienceClassificationService;
   let generateChatResponse: jest.Mock;
+  let classificationConfig: {
+    provider: 'groq' | 'gemini';
+    groq: { model: string };
+    gemini: { model: string };
+  };
 
   const EVIDENCE = [
     {
@@ -23,6 +28,11 @@ describe('ExperienceClassificationService', () => {
 
   beforeEach(async () => {
     generateChatResponse = jest.fn();
+    classificationConfig = {
+      provider: 'groq',
+      groq: { model: 'groq-classify-test' },
+      gemini: { model: 'gemini-classify-test' },
+    };
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ExperienceClassificationService,
@@ -30,7 +40,7 @@ describe('ExperienceClassificationService', () => {
         {
           provide: aiConfig.KEY,
           useValue: {
-            classification: { groq: { model: 'groq-classify-test' } },
+            classification: classificationConfig,
           },
         },
       ],
@@ -290,7 +300,7 @@ describe('ExperienceClassificationService', () => {
     expect(result.themes).toEqual([]);
   });
 
-  it('calls the shared Groq transport with providerOverride/modelOverride, json_object response format, temperature 0 and bypassCache (retry/backoff reused from LangChainService, no classification cache per D2)', async () => {
+  it('calls the configured classification transport with provider/model, json_object response format, temperature 0 and bypassCache', async () => {
     generateChatResponse.mockResolvedValueOnce(
       JSON.stringify({
         themes: [],
@@ -309,6 +319,30 @@ describe('ExperienceClassificationService', () => {
         providerOverride: 'groq',
         modelOverride: 'groq-classify-test',
         responseFormat: { type: 'json_object' },
+        temperature: 0,
+        bypassCache: true,
+      }),
+    );
+  });
+
+  it('routes classification to Gemini when the capability provider is Gemini', async () => {
+    classificationConfig.provider = 'gemini';
+    generateChatResponse.mockResolvedValueOnce(
+      JSON.stringify({
+        themes: [],
+        intents: [],
+        traits: [],
+        reasoningEvidence: [],
+      }),
+    );
+
+    await service.classify('X', EVIDENCE);
+
+    const [, , , options] = generateChatResponse.mock.calls[0];
+    expect(options).toEqual(
+      expect.objectContaining({
+        providerOverride: 'gemini',
+        modelOverride: 'gemini-classify-test',
         temperature: 0,
         bypassCache: true,
       }),

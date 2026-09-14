@@ -7,6 +7,11 @@ Canonical live-cutover plan: `docs/superpowers/plans/2026-09-13-preference-first
 Canonical implementation plan: `docs/superpowers/plans/2026-09-11-preference-first-selection-implementation.md`
 Canonical design: `docs/superpowers/specs/2026-09-10-preference-first-selection-and-agent-convergence-design.md`
 
+Current AI capability override: evidence-only classification is configured
+independently through `CLASSIFICATION_PROVIDER` and provider-owned model
+variables. The original Groq-only v1 claim is superseded; the evidence-only
+classification contract and deterministic validation are unchanged.
+
 > This file is the CURRENT execution pointer. Older checkpoint detail remains available in Git history and must not override the current branch state below.
 >
 > Code wins over stale progress text. The cutover has progressed non-linearly: M4 is already landed and substantial M5 work is already landed. Do not revert later milestone work merely because an earlier milestone needed a forward correction.

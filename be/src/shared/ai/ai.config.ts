@@ -34,15 +34,14 @@ export interface AiConfig {
   discoveryExtractor: DiscoveryExtractorConfig;
   // Gemini's own google_search grounding, when groundedSearchProvider is 'gemini'
   geminiGroundedSearchModel: string;
-  // Evidence-only semantic classification (Stage 6 / plan Task B2). v1 is
-  // Groq-only per the canonical spec -- no provider selector like
-  // discoveryExtractor's, since a cross-provider fallback is explicitly out
-  // of scope until the existing AI abstraction is asked to support it.
+  // Evidence-only semantic classification (Stage 6 / plan Task B2).
   classification: ClassificationConfig;
 }
 
 export interface ClassificationConfig {
+  provider: 'groq' | 'gemini';
   groq: { apiKey?: string; model: string };
+  gemini: { apiKey?: string; model: string };
 }
 
 export type DiscoveryExtractorProvider = 'gemini' | 'groq' | 'ollama';
@@ -93,8 +92,7 @@ export default registerAs('ai', (): AiConfig => {
       break;
     case 'openai':
     default:
-      defaultModel =
-        process.env.OPENAI_MODEL || 'gpt-4o-mini';
+      defaultModel = process.env.OPENAI_MODEL || 'gpt-4o-mini';
       break;
   }
 
@@ -166,6 +164,13 @@ export default registerAs('ai', (): AiConfig => {
     );
   }
 
+  const classificationProvider = process.env.CLASSIFICATION_PROVIDER || 'groq';
+  if (!['groq', 'gemini'].includes(classificationProvider)) {
+    throw new Error(
+      `Unsupported CLASSIFICATION_PROVIDER "${classificationProvider}". Expected groq or gemini.`,
+    );
+  }
+
   return {
     enableAi: process.env.ENABLE_AI !== 'false',
     provider,
@@ -230,9 +235,17 @@ export default registerAs('ai', (): AiConfig => {
     geminiGroundedSearchModel:
       process.env.GEMINI_GROUNDED_SEARCH_MODEL || 'gemini-3.5-flash',
     classification: {
+      provider: classificationProvider as ClassificationConfig['provider'],
       groq: {
         apiKey: process.env.GROQ_API_KEY,
         model: process.env.GROQ_CLASSIFICATION_MODEL || 'qwen/qwen3.8-27b',
+      },
+      gemini: {
+        apiKey: process.env.GEMINI_API_KEY,
+        model:
+          process.env.GEMINI_CLASSIFICATION_MODEL ||
+          process.env.GEMINI_MODEL ||
+          'gemini-3.5-flash-lite',
       },
     },
   };

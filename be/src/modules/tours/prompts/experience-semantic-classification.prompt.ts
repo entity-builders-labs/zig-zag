@@ -90,10 +90,8 @@ export function buildClassificationUserPrompt(
  * enum-constrained theme/intent vocabulary as the discovery extraction
  * schema (`buildDiscoveryResponseJsonSchema`), kept as a distinct artifact
  * since classification and discovery are different stages with different
- * envelopes. Groq (v1's classification provider) runs in JSON-object mode
- * and leans on the system prompt above plus the deterministic backend
- * sanitizer in `experience-classification.service.ts`; this schema remains
- * available for a future schema-enforced provider.
+ * envelopes. Providers run in JSON-object mode and the deterministic backend
+ * sanitizer in `experience-classification.service.ts` remains authoritative.
  */
 export function buildClassificationResponseJsonSchema(): Record<
   string,

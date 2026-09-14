@@ -8,11 +8,9 @@
  * intents and freeform traits that evidence substantially supports, then
  * deterministically re-validates the response before trusting any of it.
  *
- * Retry/backoff on 429 is NOT reimplemented here: `LangChainService`
- * already retries a Groq 429 response (bounded, respecting `retry-after`)
- * internally, so calling it directly already satisfies "sequential calls,
- * bounded retry/backoff on 429" (plan Task B2 / spec D1) without a second
- * retry loop.
+ * Provider and model are capability-specific configuration. The classifier
+ * remains evidence-only and deterministic regardless of whether the active
+ * provider is Groq or Gemini.
  *
  * This service does not persist anything itself. Cutover M4 wires it into
  * the live orchestration path via
@@ -150,7 +148,12 @@ export class ExperienceClassificationService {
   ) {}
 
   private get model(): string {
-    return this.config.classification.groq.model;
+    return this.config.classification[this.config.classification.provider]
+      .model;
+  }
+
+  private get provider(): 'groq' | 'gemini' {
+    return this.config.classification.provider;
   }
 
   private emptyResult(state: 'classified' | 'degraded'): ClassificationResult {
@@ -186,11 +189,10 @@ export class ExperienceClassificationService {
         buildClassificationUserPrompt(canonicalName, evidence),
         {},
         {
-          providerOverride: 'groq',
+          providerOverride: this.provider,
           modelOverride: this.model,
           responseFormat: { type: 'json_object' },
-          // Stage 6 classification must be deterministic (spec: "Groq
-          // qwen/qwen3.8-27b, temperature 0").
+          // Stage 6 classification remains deterministic across providers.
           temperature: 0,
           // D2: classification has no cache table of its own and must
           // never read/write the shared AI response cache -- reuse is

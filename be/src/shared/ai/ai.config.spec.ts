@@ -70,6 +70,22 @@ describe('aiConfig embedding index contract', () => {
     expect(loadConfig).toThrow('Unsupported EMBEDDING_PROVIDER');
   });
 
+  it('selects classification independently with provider-owned models', () => {
+    process.env.CLASSIFICATION_PROVIDER = 'gemini';
+    process.env.GEMINI_CLASSIFICATION_MODEL = 'gemini-classify-test';
+    process.env.GROQ_CLASSIFICATION_MODEL = 'groq-classify-test';
+
+    expect(loadConfig()).toEqual(
+      expect.objectContaining({
+        classification: {
+          provider: 'gemini',
+          groq: expect.objectContaining({ model: 'groq-classify-test' }),
+          gemini: expect.objectContaining({ model: 'gemini-classify-test' }),
+        },
+      }),
+    );
+  });
+
   it('rejects vector widths that do not match the pgvector schema', () => {
     process.env.EMBEDDING_PROVIDER = 'bedrock';
     process.env.EMBEDDING_DIMENSIONS = '512';
