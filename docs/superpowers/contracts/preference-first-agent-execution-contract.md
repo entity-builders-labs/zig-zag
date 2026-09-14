@@ -88,6 +88,31 @@ A task-specific implementation plan referenced by an execution prompt MUST
 already exist on `fork/feat/preference-first-selection`. If it does not exist,
 STOP. Do not reconstruct it from chat context or invent a replacement design.
 
+## Token-efficient task execution
+
+Task-specific implementation plans SHOULD contain two explicit sections:
+
+- `Required initial inspection set`: the smallest known set of implementation,
+  callers, tests, and contracts needed to validate the plan against the current
+  HEAD.
+- `Decisions already closed`: architectural/semantic decisions already made by
+  the plan that the implementation agent must not reopen merely to explore
+  alternatives.
+
+When these sections exist:
+
+1. inspect the required initial set first rather than broadly exploring the
+   repository;
+2. expand inspection only when a concrete import, caller, test failure, or
+   material dependency makes additional files necessary;
+3. do not spend task time comparing alternative designs for a closed decision;
+4. if current code proves a closed decision's material premise is stale or
+   impossible, STOP and report the exact mismatch instead of redesigning the
+   task in-session.
+
+This constraint reduces repeated discovery while preserving correctness: it is
+an inspection starting boundary, not permission to ignore real dependencies.
+
 ## Safety and concurrency
 
 - Inspect worktree, branch, and HEAD before work; stop on unrelated dirty changes.
@@ -106,6 +131,10 @@ STOP. Do not reconstruct it from chat context or invent a replacement design.
 6. Canonical design/spec
 7. Actual implementation
 8. Tests
+
+The task plan's required initial inspection set narrows the first code/test
+inspection pass after these governing documents have been read. It does not
+replace the governing documents.
 
 ## Verification semantics
 
