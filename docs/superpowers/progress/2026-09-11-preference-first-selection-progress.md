@@ -38,7 +38,7 @@ Independent reviewer verdict: **✅ APPROVED**.
 | M3.5 | **COMPLETE / APPROVED** | JSONv2 normalization landed in `91ab491...`; rank hardening/fixes culminate in canonical branch commit `a38da85a26a514674d679bf78c0d27cbd2119538` (`13..25` + boundary regressions). |
 | M4 | COMPLETE IN CODE | `8fac82d384cdbc20f54b004a2f3e428aa8285be3` — classification converges at the shared materialization boundary; AreaRouteWalk local classification authority removed. |
 | M5 | **IN PROGRESS / PARTIALLY LANDED** | `09616dd...` adds preference-first composition; `3a7e965...` adds canonical venue-anchor resolution; `a7b841...` adds venue-anchor tests/hardening. Do not call all of Checkpoint C complete yet. |
-| M6 | **C4 IMPLEMENTED — awaiting independent review** | Planner candidate contract is landed; C5 pinned must-anchor semantics and C5b duration-aware reservoir backfill remain pending. |
+| M6 | **C4 CORRECTED — awaiting independent review** | Independent review found weak-facet weighting and ignored typed planner signals; correction landed in `827b3ce`. C5 pinned must-anchor semantics and C5b duration-aware reservoir backfill remain pending. |
 | M7 | NOT COMPLETE | Superseded legacy deletion milestone not yet closed against the current checklist. |
 | M8 | NOT COMPLETE | Trace v4 + Bitácora v4. |
 | M9 | NOT COMPLETE | Full verification matrix + no-dual-pipeline architecture acceptance. |
@@ -48,16 +48,22 @@ Independent reviewer verdict: **✅ APPROVED**.
 
 # C4 — planner candidate contract
 
-Status: **C4 IMPLEMENTED — awaiting independent review**. M3.5 remains
-**COMPLETE / APPROVED**; this update does not reopen or redesign it. C5 and C5b
-remain unimplemented.
+Status: **C4 CORRECTED — awaiting independent review**. The previous C4
+implementation failed independent review on two blockers: weak matches were
+counting toward planner preference weight, and an ordinal `rankingScore` made
+the planner ignore typed preference/quality signals. M3.5 remains
+**COMPLETE / APPROVED**; this correction does not reopen or redesign it. C5
+and C5b remain unimplemented.
 
-- Starting fork HEAD: `053bdb4fc243257d2cec487133aa2be7c4c7cda9`.
-- Implementation commit: `83b5dce` (`feat(cutover-C4): wire planner preference contract`).
+- Starting remote HEAD: `d16ebf44ac2010c1fbc7cbc9db1c09cf08659b5e`.
+- Previous implementation commit: `83b5dce` (`feat(cutover-C4): wire planner preference contract`) — failed independent review.
+- Correction commit: `827b3ce` (`fix(cutover-C4): preserve canonical preference scoring`).
+- Execution-contract commit: `827b3ce`.
 - `PlanningExperienceCandidate` now carries optional `preferenceWeight`,
   `mustInclude`, and raw canonical `qualityScore` (0..5).
-- `preferenceWeight` is produced by the canonical facet matcher, summing the
-  weights of distinct canonically satisfied requested facets. Duplicate facet
+- `preferenceWeight` is produced by the shared strong-match policy, summing the
+  weights of distinct strongly satisfied requested facets. Weak quality,
+  geography, or degraded-classification matches contribute zero; duplicate
   representations count once; semantic similarity/name/description cannot
   establish facet truth.
 - `mustInclude` is true only for IDs returned by the resolved MUST venue-anchor
@@ -66,36 +72,45 @@ remain unimplemented.
   candidates.
 - `qualityScore` is read from `Experience.qualityScore`; transformed ranking
   `qualityBonus` is no longer exposed as planner quality.
-- The double-counting audit makes `rankingScore` authoritative when present;
-  the planner does not reapply its quality/preference aggregate. Direct callers
-  without `rankingScore` retain the existing semantic/quality fallback.
+- `rankingScore` is removed from the live planner candidate contract. Planner
+  sorting and placement share one explicit formula: semantic contribution plus
+  strong `preferenceWeight` plus raw canonical quality normalized from 0..5
+  exactly once. Unknown quality is neutral.
 - Initial selected candidates and the ordered reservoir use the same typed
   normalizer context/maps; no separate future-backfill candidate shape was
   introduced. Reservoir promotion itself remains C5b scope.
 
 Fresh verification for C4:
 
-- Targeted normalizer/matcher/planner suites: **4 suites passed, 59 tests passed**.
-- Targeted planner-boundary characterization suites: **2 suites passed, 9 tests passed**.
-- Full unit: **143 suites passed, 1,442 tests passed**.
+- Targeted normalizer/matcher/planner suites: **6 suites passed, 96 tests passed**.
+- Targeted planner-boundary characterization suites: **2 suites passed, 6 tests passed**.
+- Full unit: **143 suites passed, 1,443 tests passed**.
 - Integration: **16 suites passed, 72 tests passed**.
 - Typecheck: **PASS**.
 - Lint: **PASS**.
 - Build: **PASS**.
-- Full characterization command was blocked for its DB-backed suites by the
-  repository disposable-database guard because the configured target was
-  `localhost:5432/zigzag`; the two relevant non-DB suites passed as listed.
+- Full characterization: **7 non-DB suites passed, 2 DB-backed suites failed
+  at setup** because the repository disposable-database guard rejected the
+  configured target `localhost:5432/zigzag`. Exact guard message: `Refusing to
+  TRUNCATE a database that is not provably disposable (localhost:5432/zigzag).
+  Point DATABASE_URL at a dedicated test database (e.g. zigzag_test) or set
+  ALLOW_DESTRUCTIVE_TEST_DB=1.` No guard bypass was attempted.
 
 Architecture gate:
 
 - single semantic authority: **PASS**;
+- strong-vs-weak facet consistency: **PASS**;
 - no double counting: **PASS**;
+- raw canonical quality scale: **PASS**;
 - hard-feasibility isolation: **PASS**;
 - typed boundary contract: **PASS**;
 - single normalization path: **PASS**;
+- rankingScore ordinal override: **PASS — removed from planner handoff**;
 - no provider-specific planner logic: **PASS**;
 - no parallel legacy path: **PASS**;
 - deterministic behavior: **PASS**.
+- mustInclude transport-only: **PASS**;
+- C5/C5b untouched: **PASS**.
 
 ---
 
