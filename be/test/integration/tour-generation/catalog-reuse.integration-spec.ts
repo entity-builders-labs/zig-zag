@@ -94,6 +94,9 @@ describe('tour-generation integration · catalog-reuse', () => {
       days: 1,
       interests: ['history'],
       intents: [],
+      // The fixture intentionally places seven distinct real places along a
+      // 3+ km corridor; mobility is not the behavior under test here.
+      maxContinuousWalkingDistanceMeters: 6000,
     });
     const runA = await harness.generate(tourA);
     expect(runA.error?.message ?? 'ok').toBe('ok');

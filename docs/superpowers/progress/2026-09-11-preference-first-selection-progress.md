@@ -548,3 +548,31 @@ is retained as an implementation/test-harness stability item, not hidden by
 changing its assertions. E2E remains **40/40 PASS** and the real Groq smoke
 remains **PASS**. M5-M10 architecture debt remains **NOT CLOSED** until the
 integration run is deterministic and green end-to-end.
+
+## 2026-09-14 final backend pre-RW1 verification correction
+
+The integration instability was isolated to the `catalog-reuse` fixture: its
+seven-place, 3+ km corridor left the continuous-walking limit implicit at
+2,500 m even though mobility is not the behavior under test. The fixture now
+states the existing 6,000 m limit explicitly; no planner policy or assertion
+was weakened. Full integration is now **17 suites / 74 tests PASS** against
+the disposable `zigzag_test` database.
+
+The permitted no-RW1 infrastructure preflight was also rerun against the
+dedicated `zigzag_spike_preb6` database after cleaning only its application
+tables through the disposable-DB procedure: **8 tests PASS**. It confirmed
+real SerpAPI DI selection, San Telmo Nominatim AREA resolution, Overpass
+boundary lookup, Mendoza resolution, dedicated database identity, and zero
+initial knowledge rows. No acquisition or RW1 call was made.
+
+Current backend verification remains: full unit **146 suites / 1,456 tests
+PASS**; integration **17 / 74 PASS**; E2E **4 / 40 PASS**; acceptance **20 /
+30 PASS**; characterization **8 / 36 PASS**; architecture, typecheck, lint,
+build, and real Groq PreferenceInterpreter smoke **PASS** (`groq`,
+`qwen/qwen3.8-27b`, `applied`, San Telmo AREA MUST). Frontend is intentionally
+outside the D2-D7 stage and was not used for this backend verdict.
+
+D2, D3, D6, and D7 are **PASS**. The formal Buenos Aires P8A live
+characterization and P9/RW1 remain **NOT RUN** by authorization boundary, so
+M9/M10 architecture debt is **NOT CLOSED**; status is **M10 READY —
+authorization required**, not RW1 executed.
