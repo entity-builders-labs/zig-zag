@@ -695,7 +695,7 @@ describe('tour-generation integration · experience identity / dedupe gate (pre-
       };
 
       const result = await resolver.resolve({
-        destinationBoundary: boundary,
+        geographicScope: { kind: 'AREA_BOUNDARY', boundary },
         candidates: [candidate],
         evidence: [{ key: 'ev-1', source: 'test', title: 'T', snippet: 'S' }],
       });

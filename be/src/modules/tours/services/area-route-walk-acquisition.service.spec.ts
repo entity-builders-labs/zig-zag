@@ -138,7 +138,10 @@ function baseInput(
       longitude: -58.4,
       radiusMeters: 20_000,
     },
-    destinationBoundary: { id: 'osm:relation:1', name: 'Buenos Aires' },
+    geographicScope: {
+      kind: 'AREA_BOUNDARY',
+      boundary: { id: 'osm:relation:1', name: 'Buenos Aires' } as any,
+    },
     deficit: deficitFor(intentKey),
     ...overrides,
   };

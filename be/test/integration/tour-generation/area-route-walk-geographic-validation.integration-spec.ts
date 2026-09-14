@@ -348,7 +348,10 @@ describe('tour-generation integration · area/route walk geographic validation (
       ]);
 
       const result = await resolver.resolve({
-        destinationBoundary: BUENOS_AIRES_BOUNDARY,
+        geographicScope: {
+          kind: 'AREA_BOUNDARY' as const,
+          boundary: BUENOS_AIRES_BOUNDARY,
+        },
         candidates: [candidate],
         evidence: [{ key: 'ev-1', source: 'test', title: 'T', snippet: 'S' }],
         validationScope: {
@@ -423,7 +426,10 @@ describe('tour-generation integration · area/route walk geographic validation (
       ]);
 
       const result = await resolver.resolve({
-        destinationBoundary: BUENOS_AIRES_BOUNDARY,
+        geographicScope: {
+          kind: 'AREA_BOUNDARY' as const,
+          boundary: BUENOS_AIRES_BOUNDARY,
+        },
         candidates: [candidate],
         evidence: [{ key: 'ev-1', source: 'test', title: 'T', snippet: 'S' }],
         validationScope: {
@@ -525,7 +531,10 @@ describe('tour-generation integration · area/route walk geographic validation (
       };
 
       const result = await resolver.resolve({
-        destinationBoundary: BUENOS_AIRES_BOUNDARY,
+        geographicScope: {
+          kind: 'AREA_BOUNDARY' as const,
+          boundary: BUENOS_AIRES_BOUNDARY,
+        },
         candidates: [candidate],
         evidence: [{ key: 'ev-1', source: 'test', title: 'T', snippet: 'S' }],
       });
@@ -560,7 +569,7 @@ describe('tour-generation integration · area/route walk geographic validation (
       // Both AREA-role hints resolve via the real Nominatim + lookupBoundaryById
       // fallback path (`resolveTrustedGlobalHint`), which requires
       // destinationAssociationVerified evidence -- since neither area hint's
-      // name matches the single passed destinationBoundary ("Buenos Aires")
+      // name matches the single passed destination scope ("Buenos Aires")
       // by name, this is the ONLY real path that can resolve them.
       const nominatim = {
         search: jest.fn().mockImplementation(async (query: string) => {
@@ -702,7 +711,10 @@ describe('tour-generation integration · area/route walk geographic validation (
 
       const result = await resolver.resolve({
         destinationName: 'Buenos Aires',
-        destinationBoundary: BUENOS_AIRES_BOUNDARY,
+        geographicScope: {
+          kind: 'AREA_BOUNDARY' as const,
+          boundary: BUENOS_AIRES_BOUNDARY,
+        },
         candidates: [candidate],
         evidence: [
           {
@@ -801,7 +813,10 @@ describe('tour-generation integration · area/route walk geographic validation (
       );
 
       const result = await resolver.resolve({
-        destinationBoundary: BUENOS_AIRES_BOUNDARY,
+        geographicScope: {
+          kind: 'AREA_BOUNDARY',
+          boundary: BUENOS_AIRES_BOUNDARY,
+        },
         candidates: [routeCandidate()],
         evidence: [{ key: 'ev-1', source: 'test', title: 'T', snippet: 'S' }],
       });
@@ -849,7 +864,10 @@ describe('tour-generation integration · area/route walk geographic validation (
       );
 
       const result = await resolver.resolve({
-        destinationBoundary: BUENOS_AIRES_BOUNDARY,
+        geographicScope: {
+          kind: 'AREA_BOUNDARY',
+          boundary: BUENOS_AIRES_BOUNDARY,
+        },
         candidates: [routeCandidate()],
         evidence: [{ key: 'ev-1', source: 'test', title: 'T', snippet: 'S' }],
       });
@@ -953,7 +971,7 @@ describe('tour-generation integration · area/route walk geographic validation (
       );
 
       const result = await resolver.resolve({
-        destinationBoundary: WIDE_BOUNDARY,
+        geographicScope: { kind: 'AREA_BOUNDARY', boundary: WIDE_BOUNDARY },
         candidates: [wineryCandidate([])], // real B6 shape -- no intents on the candidate
         evidence: [{ key: 'ev-1', source: 'test', title: 'T', snippet: 'S' }],
         validationIntent: 'route_like',
@@ -971,7 +989,7 @@ describe('tour-generation integration · area/route walk geographic validation (
       );
 
       const result = await resolver.resolve({
-        destinationBoundary: WIDE_BOUNDARY,
+        geographicScope: { kind: 'AREA_BOUNDARY', boundary: WIDE_BOUNDARY },
         candidates: [wineryCandidate(['route_like'])], // candidate claims route_like...
         evidence: [{ key: 'ev-1', source: 'test', title: 'T', snippet: 'S' }],
         // ...but validationIntent is NOT passed -- must still reject.
@@ -1057,7 +1075,10 @@ describe('tour-generation integration · area/route walk geographic validation (
       );
 
       const result = await resolver.resolve({
-        destinationBoundary: BUENOS_AIRES_BOUNDARY,
+        geographicScope: {
+          kind: 'AREA_BOUNDARY',
+          boundary: BUENOS_AIRES_BOUNDARY,
+        },
         candidates: [candidate],
         evidence: [{ key: 'ev-1', source: 'test', title: 'T', snippet: 'S' }],
         validationScope: routeValidationScope,
@@ -1084,7 +1105,10 @@ describe('tour-generation integration · area/route walk geographic validation (
       );
 
       const result = await resolver.resolve({
-        destinationBoundary: BUENOS_AIRES_BOUNDARY,
+        geographicScope: {
+          kind: 'AREA_BOUNDARY',
+          boundary: BUENOS_AIRES_BOUNDARY,
+        },
         candidates: [candidate],
         evidence: [{ key: 'ev-1', source: 'test', title: 'T', snippet: 'S' }],
         validationScope: routeValidationScope,
@@ -1305,7 +1329,10 @@ describe('tour-generation integration · area/route walk geographic validation (
           longitude: -58.4,
           radiusMeters: 20_000,
         },
-        destinationBoundary: BUENOS_AIRES_BOUNDARY,
+        geographicScope: {
+          kind: 'AREA_BOUNDARY',
+          boundary: BUENOS_AIRES_BOUNDARY,
+        },
         deficit: {
           origin: 'preference_facet',
           dimension: 'intent',
@@ -1465,7 +1492,10 @@ describe('tour-generation integration · area/route walk geographic validation (
           longitude: -58.4,
           radiusMeters: 50_000,
         },
-        destinationBoundary: BUENOS_AIRES_BOUNDARY,
+        geographicScope: {
+          kind: 'AREA_BOUNDARY' as const,
+          boundary: BUENOS_AIRES_BOUNDARY,
+        },
         deficit: {
           origin: 'preference_facet',
           dimension: 'intent',

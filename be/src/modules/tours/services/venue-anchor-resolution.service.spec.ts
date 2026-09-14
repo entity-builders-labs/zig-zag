@@ -52,7 +52,7 @@ describe('VenueAnchorResolutionService', () => {
           { kind: 'venue', priority: 'must', rawName: 'Louvre' } as any,
         ],
         destinationName: 'Paris',
-        destinationBoundary: boundary,
+        geographicScope: { kind: 'AREA_BOUNDARY', boundary },
       }),
     ).resolves.toEqual({
       resolvedMustIds: ['exp-venue'],
@@ -66,7 +66,7 @@ describe('VenueAnchorResolutionService', () => {
     await expect(
       ambiguous.service.resolve({
         anchors: [{ kind: 'venue', priority: 'must', rawName: 'Club' } as any],
-        destinationBoundary: boundary,
+        geographicScope: { kind: 'AREA_BOUNDARY', boundary },
       }),
     ).resolves.toEqual({
       resolvedMustIds: [],
@@ -79,7 +79,7 @@ describe('VenueAnchorResolutionService', () => {
         anchors: [
           { kind: 'venue', priority: 'must', rawName: 'Nowhere' } as any,
         ],
-        destinationBoundary: boundary,
+        geographicScope: { kind: 'AREA_BOUNDARY', boundary },
       }),
     ).resolves.toEqual({
       resolvedMustIds: [],
@@ -92,7 +92,7 @@ describe('VenueAnchorResolutionService', () => {
     const { service, acquisition } = make(['exp-soft']);
     const result = await service.resolve({
       anchors: [{ kind: 'venue', priority: 'soft', rawName: 'Venue' } as any],
-      destinationBoundary: boundary,
+      geographicScope: { kind: 'AREA_BOUNDARY', boundary },
     });
     expect(result.resolvedSoftIds).toEqual(['exp-soft']);
     expect(acquisition.materializeExecution).toHaveBeenCalled();

@@ -344,7 +344,7 @@ describe('AreaRouteAnchorResolverService', () => {
       tags: { highway: 'pedestrian' },
     };
 
-    it('resolves via lookupStreetsWithin when no destinationPointRadius is given', async () => {
+    it('resolves via lookupStreetsWithin for AREA_BOUNDARY scope', async () => {
       const osmPlaces = {
         lookupStreetsWithin: jest
           .fn()
@@ -359,11 +359,10 @@ describe('AreaRouteAnchorResolverService', () => {
         catalog as any,
       );
 
-      const result = await service.resolveRoute(
-        routeAnchor,
-        { id: 'osm:relation:1', name: 'Buenos Aires' } as any,
-        undefined,
-      );
+      const result = await service.resolveRoute(routeAnchor, {
+        kind: 'AREA_BOUNDARY',
+        boundary: { id: 'osm:relation:1', name: 'Buenos Aires' },
+      } as any);
 
       expect(result).toEqual({
         resolved: true,
@@ -374,7 +373,7 @@ describe('AreaRouteAnchorResolverService', () => {
       expect(osmPlaces.lookupStreetsNear).not.toHaveBeenCalled();
     });
 
-    it('resolves via lookupStreetsNear when destinationPointRadius is present, never calling lookupStreetsWithin', async () => {
+    it('resolves via lookupStreetsNear for POINT_RADIUS scope, never calling lookupStreetsWithin', async () => {
       const osmPlaces = {
         lookupStreetsWithin: jest.fn(),
         lookupStreetsNear: jest
@@ -389,7 +388,8 @@ describe('AreaRouteAnchorResolverService', () => {
         catalog as any,
       );
 
-      const result = await service.resolveRoute(routeAnchor, undefined, {
+      const result = await service.resolveRoute(routeAnchor, {
+        kind: 'POINT_RADIUS',
         latitude: -34.6,
         longitude: -58.4,
         radiusMeters: 5000,
@@ -423,8 +423,10 @@ describe('AreaRouteAnchorResolverService', () => {
           kind: 'route',
           priority: 'must',
         },
-        { id: 'osm:relation:1', name: 'Buenos Aires' } as any,
-        undefined,
+        {
+          kind: 'AREA_BOUNDARY',
+          boundary: { id: 'osm:relation:1', name: 'Buenos Aires' },
+        } as any,
       );
 
       expect(result).toEqual({ resolved: false });
@@ -445,11 +447,10 @@ describe('AreaRouteAnchorResolverService', () => {
       );
 
       await expect(
-        service.resolveRoute(
-          routeAnchor,
-          { id: 'osm:relation:1', name: 'Buenos Aires' } as any,
-          undefined,
-        ),
+        service.resolveRoute(routeAnchor, {
+          kind: 'AREA_BOUNDARY',
+          boundary: { id: 'osm:relation:1', name: 'Buenos Aires' },
+        } as any),
       ).resolves.toEqual({ resolved: false });
     });
   });

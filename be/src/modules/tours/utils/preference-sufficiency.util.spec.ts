@@ -46,11 +46,29 @@ describe('preference-sufficiency.util', () => {
   describe('portfolioTarget', () => {
     it('is max(baseTarget, distinctReservations + distinctMustAnchors)', () => {
       // base bigger than reservations+anchors -> base wins.
-      expect(portfolioTarget({ baseTarget: 20, reservedStrongExperienceIds: ['a', 'b', 'c'], resolvedMustVenueExperienceIds: [] })).toBe(20);
+      expect(
+        portfolioTarget({
+          baseTarget: 20,
+          reservedStrongExperienceIds: ['a', 'b', 'c'],
+          resolvedMustVenueExperienceIds: [],
+        }),
+      ).toBe(20);
       // reservations+anchors bigger than base -> their sum wins.
-      expect(portfolioTarget({ baseTarget: 6, reservedStrongExperienceIds: ['a', 'b', 'c', 'd', 'e'], resolvedMustVenueExperienceIds: ['f', 'g', 'h'] })).toBe(8);
+      expect(
+        portfolioTarget({
+          baseTarget: 6,
+          reservedStrongExperienceIds: ['a', 'b', 'c', 'd', 'e'],
+          resolvedMustVenueExperienceIds: ['f', 'g', 'h'],
+        }),
+      ).toBe(8);
       // exact tie.
-      expect(portfolioTarget({ baseTarget: 10, reservedStrongExperienceIds: ['a', 'b', 'c', 'd', 'e', 'f', 'g'], resolvedMustVenueExperienceIds: ['h', 'i', 'j'] })).toBe(10);
+      expect(
+        portfolioTarget({
+          baseTarget: 10,
+          reservedStrongExperienceIds: ['a', 'b', 'c', 'd', 'e', 'f', 'g'],
+          resolvedMustVenueExperienceIds: ['h', 'i', 'j'],
+        }),
+      ).toBe(10);
     });
   });
 
@@ -71,7 +89,10 @@ describe('preference-sufficiency.util', () => {
     const distinctMustAnchors = 0;
     const target = portfolioTarget({
       baseTarget: base,
-      reservedStrongExperienceIds: ['a', 'b', 'c'].slice(0, distinctReservations),
+      reservedStrongExperienceIds: ['a', 'b', 'c'].slice(
+        0,
+        distinctReservations,
+      ),
       resolvedMustVenueExperienceIds: ['d'].slice(0, distinctMustAnchors),
     });
     expect(target).toBe(20);
@@ -100,10 +121,12 @@ describe('preference-sufficiency.util', () => {
       resolvedMustVenueExperienceIds: [],
     });
     expect(basePortfolioTarget(5, 'moderate')).toBe(base);
-    expect(portfolioTarget({
-      baseTarget: base,
-      reservedStrongExperienceIds: ['a', 'b', 'c'],
-      resolvedMustVenueExperienceIds: [],
-    })).toBe(target);
+    expect(
+      portfolioTarget({
+        baseTarget: base,
+        reservedStrongExperienceIds: ['a', 'b', 'c'],
+        resolvedMustVenueExperienceIds: [],
+      }),
+    ).toBe(target);
   });
 });

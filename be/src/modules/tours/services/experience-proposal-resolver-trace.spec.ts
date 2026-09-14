@@ -69,7 +69,7 @@ describe('ExperienceProposalResolverService trace contract', () => {
 
     const response = await service.resolve({
       destinationName: 'Buenos Aires',
-      destinationBoundary: boundary,
+      geographicScope: { kind: 'AREA_BOUNDARY', boundary },
       candidates: [
         {
           name: 'Visita Museo Real',

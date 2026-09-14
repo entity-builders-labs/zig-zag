@@ -1,7 +1,12 @@
 import { composeSet } from './composition-set-cover.util';
 import {
+  basePortfolioTarget,
+  portfolioTarget,
+} from './preference-sufficiency.util';
+import {
   CompositionCandidate,
   PreferenceSpec,
+  facetKey,
 } from '../interfaces/preference-spec.interface';
 import { ExplorationSignals } from './exploration-signals.util';
 
@@ -61,6 +66,113 @@ function candidate(
 }
 
 describe('composeSet', () => {
+  it.each([
+    {
+      name: 'one facet',
+      facets: ['theme:history'],
+      candidates: [['history', ['theme:history']] as const],
+      must: [] as string[],
+      days: 1,
+      pace: 'relaxed' as const,
+    },
+    {
+      name: 'several facets',
+      facets: ['theme:history', 'theme:food'],
+      candidates: [
+        ['history', ['theme:history']],
+        ['food', ['theme:food']],
+      ] as const,
+      must: [],
+      days: 2,
+      pace: 'moderate' as const,
+    },
+    {
+      name: 'one Experience covers several facets',
+      facets: ['theme:history', 'theme:food'],
+      candidates: [['both', ['theme:history', 'theme:food']] as const],
+      must: [],
+      days: 1,
+      pace: 'relaxed' as const,
+    },
+    {
+      name: 'MUST is separate',
+      facets: ['theme:history'],
+      candidates: [
+        ['history', ['theme:history']],
+        ['must', []],
+      ] as const,
+      must: ['must'],
+      days: 1,
+      pace: 'relaxed' as const,
+    },
+    {
+      name: 'MUST equals reserved id',
+      facets: ['theme:history'],
+      candidates: [['must-history', ['theme:history']] as const],
+      must: ['must-history'],
+      days: 1,
+      pace: 'relaxed' as const,
+    },
+    {
+      name: 'days times pace dominates',
+      facets: ['theme:history'],
+      candidates: [['history', ['theme:history']] as const],
+      must: [],
+      days: 5,
+      pace: 'moderate' as const,
+    },
+    {
+      name: 'reservations plus MUST dominate',
+      facets: ['theme:history', 'theme:food', 'theme:architecture'],
+      candidates: [
+        ['history', ['theme:history']],
+        ['food', ['theme:food']],
+        ['architecture', ['theme:architecture']],
+        ['must-a', []],
+        ['must-b', []],
+        ['must-c', []],
+      ] as const,
+      must: ['must-a', 'must-b', 'must-c'],
+      days: 1,
+      pace: 'relaxed' as const,
+    },
+  ])(
+    '$name keeps coverage and composition portfolioTarget identical',
+    ({ facets, candidates, must, days, pace }) => {
+      const matrixSpec: PreferenceSpec = {
+        ...spec,
+        facets: facets.map((facet) => {
+          const [dimension, key] = facet.split(':');
+          return {
+            dimension,
+            key,
+            weight: 1,
+            source: 'wizard' as const,
+            required: false as const,
+          };
+        }),
+        trip: { days, startDates: [], pace },
+      };
+      const compositionCandidates = candidates.map(([id, satisfiedFacets]) =>
+        candidate(id, [...satisfiedFacets]),
+      );
+      const result = composeSet({
+        candidates: compositionCandidates,
+        preferenceSpec: matrixSpec,
+        resolvedVenueMustIds: must,
+      });
+      const reserved = matrixSpec.facets
+        .map((facet) => result.perFacetCoverage[facetKey(facet)]?.[0])
+        .filter((id): id is string => !!id && !must.includes(id));
+      const coverageTarget = portfolioTarget({
+        baseTarget: basePortfolioTarget(days, pace),
+        reservedStrongExperienceIds: reserved,
+        resolvedMustVenueExperienceIds: must,
+      });
+      expect(result.portfolioTarget).toBe(coverageTarget);
+    },
+  );
+
   it('reserves strong requested facets before weighted fill and retains a reservoir', () => {
     const result = composeSet({
       candidates: [

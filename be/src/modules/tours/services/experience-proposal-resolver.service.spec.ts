@@ -61,7 +61,7 @@ describe('ExperienceProposalResolverService', () => {
     validatorVersion: 2,
   });
 
-  it('uses destinationBoundary from the canonical request object', async () => {
+  it('uses AREA_BOUNDARY from the canonical request object', async () => {
     const osmPlaces = {
       lookupStreetsWithin: jest
         .fn()
@@ -99,7 +99,7 @@ describe('ExperienceProposalResolverService', () => {
 
     const result = await service.resolve({
       destinationName: 'Buenos Aires',
-      destinationBoundary: boundary,
+      geographicScope: { kind: 'AREA_BOUNDARY', boundary },
       candidates: [candidate()],
     });
 
@@ -109,6 +109,7 @@ describe('ExperienceProposalResolverService', () => {
       boundary,
       undefined,
       undefined,
+      { kind: 'AREA_BOUNDARY', boundary },
     );
     expect(result.acceptedCount).toBe(1);
     expect(result.resolved[0].experienceId).toBe('exp-10');
@@ -118,33 +119,6 @@ describe('ExperienceProposalResolverService', () => {
   });
 
   it('uses radius-based OSM lookups for a point-scale destination instead of "within area" (real regression: Caminito/Calle Defensa)', async () => {
-    // Verified live: a point-scale destination's boundary is a synthetic
-    // placeholder (osmId: 0) — a real "within area" Overpass query
-    // (queryStreetsWithinArea/queryPoisWithinArea) rejects it outright with
-    // an HTTP 400 ("only positive integers are allowed"), not a slow query
-    // or an empty result. Every ROUTE-kind componentHint for a point-scale
-    // destination was unconditionally unresolvable because of this — PLACE
-    // hints alone have a global fallback (Nominatim/Places) that papers over
-    // the same gap.
-    const pointScaleBoundary: any = {
-      id: 'point-radius-scope',
-      name: 'La Boca, Buenos Aires',
-      osmType: 'relation',
-      osmId: 0,
-      geometry: {
-        type: 'Polygon',
-        coordinates: [
-          [
-            [-58.37, -34.64],
-            [-58.35, -34.64],
-            [-58.35, -34.62],
-            [-58.37, -34.62],
-            [-58.37, -34.64],
-          ],
-        ],
-      },
-      tags: {},
-    };
     const osmPlaces = {
       lookupStreetsWithin: jest.fn(),
       lookupPoisWithin: jest.fn(),
@@ -208,8 +182,8 @@ describe('ExperienceProposalResolverService', () => {
 
     const result = await service.resolve({
       destinationName: 'La Boca, Buenos Aires',
-      destinationBoundary: pointScaleBoundary,
-      destinationPointRadius: {
+      geographicScope: {
+        kind: 'POINT_RADIUS',
         latitude: -34.6345,
         longitude: -58.3631,
         radiusMeters: 1200,
@@ -309,7 +283,10 @@ describe('ExperienceProposalResolverService', () => {
 
     const result = await service.resolve({
       destinationName: 'Recoleta, Buenos Aires',
-      destinationBoundary: { ...boundary, name: 'Recoleta' },
+      geographicScope: {
+        kind: 'AREA_BOUNDARY',
+        boundary: { ...boundary, name: 'Recoleta' },
+      },
       candidates: [twoHintCandidate],
     });
 
@@ -363,7 +340,7 @@ describe('ExperienceProposalResolverService', () => {
     withTraits.traits = ['romantic', 'family-friendly'];
 
     await service.resolve({
-      destinationBoundary: boundary,
+      geographicScope: { kind: 'AREA_BOUNDARY', boundary },
       candidates: [withTraits],
     });
 
@@ -453,7 +430,7 @@ describe('ExperienceProposalResolverService', () => {
     };
 
     await service.resolve({
-      destinationBoundary: boundary,
+      geographicScope: { kind: 'AREA_BOUNDARY', boundary },
       candidates: [twoStopCandidate],
     });
 
@@ -544,7 +521,7 @@ describe('ExperienceProposalResolverService', () => {
     };
 
     await service.resolve({
-      destinationBoundary: boundary,
+      geographicScope: { kind: 'AREA_BOUNDARY', boundary },
       candidates: [orderedCandidate],
     });
 
@@ -609,7 +586,7 @@ describe('ExperienceProposalResolverService', () => {
 
     const result = await service.resolve({
       destinationName: 'Buenos Aires',
-      destinationBoundary: boundary,
+      geographicScope: { kind: 'AREA_BOUNDARY', boundary },
       candidates: [candidate('Tigre Delta day trip', 'Tigre', ['day_trip'])],
       evidence: [
         {
@@ -635,13 +612,10 @@ describe('ExperienceProposalResolverService', () => {
     );
     expect(geographicValidator.validate).toHaveBeenCalledWith(
       expect.anything(),
-      expect.objectContaining({
-        tags: expect.objectContaining({
-          validation_scope: 'grounded_destination_association',
-        }),
-      }),
+      boundary,
       undefined,
       undefined,
+      { kind: 'AREA_BOUNDARY', boundary },
     );
   });
 
@@ -704,7 +678,7 @@ describe('ExperienceProposalResolverService', () => {
 
     const result = await service.resolve({
       destinationName: 'San Juan, Argentina',
-      destinationBoundary: boundary,
+      geographicScope: { kind: 'AREA_BOUNDARY', boundary },
       candidates: [
         candidate(
           'Ischigualasto Provincial Park - Valle de la Luna Full-Day Tour',
@@ -786,7 +760,7 @@ describe('ExperienceProposalResolverService', () => {
     await service.resolve({
       destinationName: 'San Juan, Argentina',
       destinationCountryCode: 'AR',
-      destinationBoundary: boundary,
+      geographicScope: { kind: 'AREA_BOUNDARY', boundary },
       candidates: [candidate('Cerro Alcázar hike', 'Cerro Alcázar', ['walk'])],
       evidence: [
         {
@@ -890,7 +864,7 @@ describe('ExperienceProposalResolverService', () => {
     const result = await service.resolve({
       destinationName: 'San Juan, Argentina',
       destinationCountryCode: 'AR',
-      destinationBoundary: sanJuanBoundary,
+      geographicScope: { kind: 'AREA_BOUNDARY', boundary: sanJuanBoundary },
       candidates: [
         candidate(
           'Catedral San Juan Bautista tour',
@@ -978,7 +952,7 @@ describe('ExperienceProposalResolverService', () => {
 
     const result = await service.resolve({
       destinationName: 'San Juan, Argentina',
-      destinationBoundary: boundary,
+      geographicScope: { kind: 'AREA_BOUNDARY', boundary },
       candidates: [
         candidate(
           'Catedral San Juan Bautista tour',
@@ -1036,7 +1010,7 @@ describe('ExperienceProposalResolverService', () => {
 
     const result = await service.resolve({
       destinationName: 'San Juan, Argentina',
-      destinationBoundary: boundary,
+      geographicScope: { kind: 'AREA_BOUNDARY', boundary },
       candidates: [
         candidate('Ghost Cathedral tour', 'Ghost Cathedral', ['visit']),
       ],
@@ -1098,7 +1072,7 @@ describe('ExperienceProposalResolverService', () => {
 
     const result = await service.resolve({
       destinationName: 'San Juan, Argentina',
-      destinationBoundary: boundary,
+      geographicScope: { kind: 'AREA_BOUNDARY', boundary },
       candidates: [candidate('Visit Casa Vieja', 'Casa Vieja')],
       evidence: [
         {
@@ -1141,7 +1115,7 @@ describe('ExperienceProposalResolverService', () => {
 
     const result = await service.resolve({
       destinationName: 'Buenos Aires',
-      destinationBoundary: boundary,
+      geographicScope: { kind: 'AREA_BOUNDARY', boundary },
       candidates: [candidate('Visit Eiffel Tower', 'Eiffel Tower')],
       evidence: [
         {
@@ -1165,8 +1139,8 @@ describe('ExperienceProposalResolverService', () => {
       {} as any,
     );
     await expect(
-      service.resolve({ candidates: [], destinationBoundary: undefined }),
-    ).rejects.toThrow('Experience resolution requires destinationBoundary');
+      service.resolve({ candidates: [], geographicScope: undefined }),
+    ).rejects.toThrow('Experience resolution requires a geographic scope');
   });
 
   it('accepts the canonical point-radius scope without an OSM boundary', async () => {
@@ -1187,7 +1161,8 @@ describe('ExperienceProposalResolverService', () => {
 
     const result = await service.resolve({
       destinationName: 'Buenos Aires',
-      destinationPointRadius: {
+      geographicScope: {
+        kind: 'POINT_RADIUS',
         latitude: -34.6,
         longitude: -58.4,
         radiusMeters: 1200,
@@ -1250,7 +1225,7 @@ describe('ExperienceProposalResolverService', () => {
     );
 
     const result = await service.resolve({
-      destinationBoundary: boundary,
+      geographicScope: { kind: 'AREA_BOUNDARY', boundary },
       candidates: [candidate()],
     });
 
@@ -1305,7 +1280,7 @@ describe('ExperienceProposalResolverService', () => {
     };
 
     const result = await service.resolve({
-      destinationBoundary: boundary,
+      geographicScope: { kind: 'AREA_BOUNDARY', boundary },
       candidates: [areaCandidate],
     });
 
@@ -1395,7 +1370,7 @@ describe('ExperienceProposalResolverService', () => {
 
     const result = await service.resolve({
       destinationName: 'Buenos Aires',
-      destinationBoundary: boundary,
+      geographicScope: { kind: 'AREA_BOUNDARY', boundary },
       candidates: [areaCandidate],
       evidence: [
         {
@@ -1460,7 +1435,7 @@ describe('ExperienceProposalResolverService', () => {
 
       const result = await service.resolve({
         destinationName: 'Buenos Aires',
-        destinationBoundary: boundary,
+        geographicScope: { kind: 'AREA_BOUNDARY', boundary },
         candidates: [
           {
             name: 'Too Broad Walk',
@@ -1525,7 +1500,7 @@ describe('ExperienceProposalResolverService', () => {
     );
 
     const result = await service.resolve({
-      destinationBoundary: boundary,
+      geographicScope: { kind: 'AREA_BOUNDARY', boundary },
       candidates: [candidate()],
     });
 
@@ -1611,7 +1586,7 @@ describe('ExperienceProposalResolverService', () => {
       );
 
       const result = await service.resolve({
-        destinationBoundary: boundary,
+        geographicScope: { kind: 'AREA_BOUNDARY', boundary },
         candidates: [candidateA, candidateB],
         evidence: [{ key: 'ev-1', source: 'test', title: 'T', snippet: 'S' }],
       });
@@ -1729,7 +1704,7 @@ describe('ExperienceProposalResolverService', () => {
       );
 
       await service.resolve({
-        destinationBoundary: boundary,
+        geographicScope: { kind: 'AREA_BOUNDARY', boundary },
         candidates: [walkCandidate],
       });
 
@@ -1796,7 +1771,7 @@ describe('ExperienceProposalResolverService', () => {
       );
 
       await service.resolve({
-        destinationBoundary: boundary,
+        geographicScope: { kind: 'AREA_BOUNDARY', boundary },
         candidates: [dedupeCandidate],
       });
 
@@ -1863,7 +1838,7 @@ describe('ExperienceProposalResolverService', () => {
       );
 
       await service.resolve({
-        destinationBoundary: boundary,
+        geographicScope: { kind: 'AREA_BOUNDARY', boundary },
         candidates: [dedupeCandidate],
       });
 
@@ -1930,7 +1905,7 @@ describe('ExperienceProposalResolverService', () => {
       );
 
       await service.resolve({
-        destinationBoundary: boundary,
+        geographicScope: { kind: 'AREA_BOUNDARY', boundary },
         candidates: [dedupeCandidate],
       });
 
@@ -1990,7 +1965,7 @@ describe('ExperienceProposalResolverService', () => {
       );
 
       await service.resolve({
-        destinationBoundary: boundary,
+        geographicScope: { kind: 'AREA_BOUNDARY', boundary },
         candidates: [rated],
       });
 
@@ -2030,7 +2005,7 @@ describe('ExperienceProposalResolverService', () => {
       );
 
       await service.resolve({
-        destinationBoundary: boundary,
+        geographicScope: { kind: 'AREA_BOUNDARY', boundary },
         candidates: [unrated],
       });
 

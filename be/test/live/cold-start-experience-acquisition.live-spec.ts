@@ -591,7 +591,10 @@ function webUnavailable(
               ? await acquisition.materializeExecution(execution, {
                   destinationName: DESTINATION.name,
                   destinationCountryCode: DESTINATION.countryCode,
-                  destinationBoundary: destinationScope,
+                  geographicScope: {
+                    kind: 'AREA_BOUNDARY',
+                    boundary: destinationScope,
+                  },
                 })
               : undefined;
           const elapsedMs = Date.now() - startedAt;

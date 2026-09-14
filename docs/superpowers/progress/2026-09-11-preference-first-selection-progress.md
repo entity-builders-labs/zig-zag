@@ -480,3 +480,55 @@ not claimed while legacy fixture migration, full deterministic suites, and
 final smoke remain outstanding. RW1 stays `B5 routing contract proven`, `B6
 currently no_result / EXPECTED_B6_GAP`, and full RW1 remains paused. RW2-RW6
 remain not started.
+
+## 2026-09-14 D2-D7 implementation superseder
+
+This section supersedes the preceding D2/D3/D6/D7 claims with the actual
+implementation and verification performed from `dd5e36ed` on
+`feat/preference-first-selection`. RW1 was not run.
+
+- D2: **PASS**. Added one parametrized coverage/composition matrix covering
+  one facet, multiple facets, one Experience covering multiple facets, a
+  separate MUST, MUST equal to the reserved ID, days×pace dominance, and
+  reservations+MUST dominance. Every case asserts the same canonical
+  `portfolioTarget` facts are used by coverage and composition; no strong
+  match rule changed.
+- D3: **PASS**. All touched fixtures/callers use typed `GeographicScope`.
+  `ExperienceProposalResolverService` no longer reconstructs scope from
+  legacy fields, the compatibility index signature was removed from its
+  request type, and point-radius validation now consumes latitude,
+  longitude, and radius directly. Point lookups use `lookupStreetsNear` /
+  `lookupPoisNear`; area lookups use `within`. No synthetic point OSM identity
+  or `osmId: 0` remains in the production path. The point radius is an
+  explicit `destinationScopePolicy.pointRadiusMeters` configuration value,
+  not an orchestration fallback.
+- D6: **PASS** for the requested convergence mechanics. The live
+  `ExperienceGenerationService` remains the sole orchestration owner. Generic
+  acquisition and C5b planner-capacity acquisition share typed
+  execute/materialize/trace mechanics and catalog-refresh/recomposition
+  mechanics; strategy and policy remain caller-owned.
+- D7: **PASS** for the added architecture gates: one downstream preference
+  authority, one portfolio policy, no legacy geographic reconstruction, no
+  synthetic point scope, provider-neutral venue anchors, typed composition
+  facts, and one live orchestration owner.
+
+Verification from the final working tree:
+
+- targeted D2/D3/D6/D7 tests: **PASS**;
+- E2E: **4 suites / 40 tests PASS** (competitive, scale, lifecycle/app,
+  disposable-DB guard);
+- integration on dedicated `zigzag_test`: **16 suites / 73 tests PASS**;
+  one pre-existing/stale strategy expectation remains (`canonical_geometry`
+  versus current `component_defined`);
+- full unit: **145 suites / 1451 tests PASS**, with 5 pre-existing/stale
+  expectations in `composite-geographic-validation.service.spec.ts`;
+- typecheck with disposable `/tmp` build-info, lint, and build: **PASS**;
+- real Groq smoke: **PASS**, provider `groq`, model `qwen/qwen3.8-27b`,
+  interpreter status `applied`, anchor `San Telmo` / `area` / `must`;
+- RW1: **NOT RUN**, as required.
+
+Architecture verdict: the requested D2/D3/D6/D7 boundaries are implemented
+and their focused architecture checks pass. Full M5-M10 architecture debt is
+**NOT CLOSED** until the five stale unit expectations and one stale integration
+expectation are resolved without weakening assertions. The prior blanket
+closure claim is superseded by this evidence.

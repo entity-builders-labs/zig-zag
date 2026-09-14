@@ -917,7 +917,7 @@ describe('ExperienceAcquisitionService', () => {
       );
     });
 
-    it('B. routes candidates through proposalResolver with matching evidence when destinationBoundary is provided', async () => {
+    it('B. routes candidates through proposalResolver with matching evidence when geographic scope is provided', async () => {
       const mockCandidate = {
         candidateId: 'cand-1',
         name: 'Teatro Colón',
@@ -972,15 +972,20 @@ describe('ExperienceAcquisitionService', () => {
         radius: 3000,
         destinationName: 'Buenos Aires',
         destinationCountryCode: 'AR',
-        destinationBoundary: destinationScope,
+        geographicScope: {
+          kind: 'AREA_BOUNDARY',
+          boundary: destinationScope as any,
+        },
       });
 
       expect(proposalResolver.resolve).toHaveBeenCalledWith({
         candidates: [mockCandidate],
         destinationName: 'Buenos Aires',
         destinationCountryCode: 'AR',
-        destinationBoundary: destinationScope,
-        destinationPointRadius: undefined,
+        geographicScope: {
+          kind: 'AREA_BOUNDARY',
+          boundary: destinationScope as any,
+        },
         evidence: [
           {
             key: 'google_places:ChIJTeatroColon',
@@ -1060,7 +1065,10 @@ describe('ExperienceAcquisitionService', () => {
         radius: 3000,
         destinationName: 'Buenos Aires',
         destinationCountryCode: 'AR',
-        destinationBoundary: destinationScope,
+        geographicScope: {
+          kind: 'AREA_BOUNDARY',
+          boundary: destinationScope as any,
+        },
       });
 
       expect(proposalResolver.resolve).toHaveBeenCalledTimes(1);
@@ -1074,7 +1082,7 @@ describe('ExperienceAcquisitionService', () => {
       });
     });
 
-    it('D. does not persist when destinationBoundary is missing (legacy admin/refill path)', async () => {
+    it('D. does not persist when geographic scope is missing (admin/refill path)', async () => {
       catalog.acquireNearbyAsExperiences.mockResolvedValueOnce({
         experienceIds: [],
         experiences: [],
@@ -1099,7 +1107,13 @@ describe('ExperienceAcquisitionService', () => {
       expect(result.experiences).toEqual([]);
     });
 
-    it('16. does not call the resolver when only destinationPointRadius is present (no destinationBoundary)', async () => {
+    it('16. sends a point-radius geographic scope directly to the resolver', async () => {
+      proposalResolver.resolve.mockResolvedValueOnce({
+        totalCandidates: 1,
+        acceptedCount: 0,
+        rejectedCount: 0,
+        resolved: [],
+      });
       catalog.acquireNearbyAsExperiences.mockResolvedValueOnce({
         experienceIds: [],
         experiences: [],
@@ -1117,21 +1131,30 @@ describe('ExperienceAcquisitionService', () => {
         latitude: -34.6011,
         longitude: -58.3831,
         radius: 3000,
-        destinationPointRadius: {
+        geographicScope: {
+          kind: 'POINT_RADIUS',
           latitude: -34.6011,
           longitude: -58.3831,
           radiusMeters: 3000,
         },
       });
 
-      // pointRadius alone must never enter a resolver that requires a boundary.
-      expect(proposalResolver.resolve).not.toHaveBeenCalled();
+      expect(proposalResolver.resolve).toHaveBeenCalledWith(
+        expect.objectContaining({
+          geographicScope: {
+            kind: 'POINT_RADIUS',
+            latitude: -34.6011,
+            longitude: -58.3831,
+            radiusMeters: 3000,
+          },
+        }),
+      );
       expect(catalog.findVerifiedByIds).not.toHaveBeenCalled();
       expect(result.experienceIds).toEqual([]);
       expect(result.experiences).toEqual([]);
     });
 
-    it('17. calls the resolver for a point-scale destination that passes a synthetic boundary alongside destinationPointRadius', async () => {
+    it('17. calls the resolver for a point-scale destination using POINT_RADIUS scope', async () => {
       const pointRadius = {
         latitude: -41.13,
         longitude: -71.31,
@@ -1167,14 +1190,12 @@ describe('ExperienceAcquisitionService', () => {
         longitude: pointRadius.longitude,
         radius: 4000,
         destinationName: 'San Carlos de Bariloche',
-        destinationBoundary: destinationScope,
-        destinationPointRadius: pointRadius,
+        geographicScope: { kind: 'POINT_RADIUS', ...pointRadius },
       });
 
       expect(proposalResolver.resolve).toHaveBeenCalledWith(
         expect.objectContaining({
-          destinationBoundary: destinationScope,
-          destinationPointRadius: pointRadius,
+          geographicScope: { kind: 'POINT_RADIUS', ...pointRadius },
         }),
       );
       expect(result.experienceIds).toEqual(['exp-campanario']);
@@ -1212,7 +1233,10 @@ describe('ExperienceAcquisitionService', () => {
         longitude: -58.3831,
         radius: 3000,
         destinationName: 'Buenos Aires',
-        destinationBoundary: destinationScope,
+        geographicScope: {
+          kind: 'AREA_BOUNDARY',
+          boundary: destinationScope as any,
+        },
       });
 
       expect(catalog.findVerifiedByIds).toHaveBeenCalledWith(['exp-new']);
@@ -1292,7 +1316,12 @@ describe('ExperienceAcquisitionService', () => {
           providerResults: {},
           evidence: [{ key: 'ev-1', source: 'x', snippet: 'real evidence' }],
         } as any,
-        { destinationBoundary: { id: 'osm:relation:1' } },
+        {
+          geographicScope: {
+            kind: 'AREA_BOUNDARY',
+            boundary: { id: 'osm:relation:1' } as any,
+          },
+        },
       );
 
       expect(classifier.classify).toHaveBeenCalledTimes(1);
@@ -1343,7 +1372,12 @@ describe('ExperienceAcquisitionService', () => {
           providerResults: {},
           evidence: [{ key: 'ev-1', source: 'x', snippet: 'real evidence' }],
         } as any,
-        { destinationBoundary: { id: 'osm:relation:1' } },
+        {
+          geographicScope: {
+            kind: 'AREA_BOUNDARY',
+            boundary: { id: 'osm:relation:1' } as any,
+          },
+        },
       );
 
       expect(classifier.classify).not.toHaveBeenCalled();
@@ -1360,7 +1394,12 @@ describe('ExperienceAcquisitionService', () => {
           providerResults: {},
           evidence: [{ key: 'ev-1', source: 'x', snippet: 'real evidence' }],
         } as any,
-        { destinationBoundary: { id: 'osm:relation:1' } },
+        {
+          geographicScope: {
+            kind: 'AREA_BOUNDARY',
+            boundary: { id: 'osm:relation:1' } as any,
+          },
+        },
       );
 
       expect(classifier.classify).not.toHaveBeenCalled();
@@ -1377,7 +1416,12 @@ describe('ExperienceAcquisitionService', () => {
 
       await service.materializeExecution(
         { candidates: [], observations: [], providerResults: {} } as any,
-        { destinationBoundary: { id: 'osm:relation:1' } },
+        {
+          geographicScope: {
+            kind: 'AREA_BOUNDARY',
+            boundary: { id: 'osm:relation:1' } as any,
+          },
+        },
       );
 
       expect(classifier.classify).not.toHaveBeenCalled();

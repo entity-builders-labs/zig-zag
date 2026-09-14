@@ -161,7 +161,7 @@ describe('ExperienceProposalResolverService — bounded candidate concurrency', 
     const candidates = Array.from({ length: BATCH }, (_, i) => candidateAt(i));
     const result = await service.resolve({
       destinationName: 'Buenos Aires',
-      destinationBoundary: boundary,
+      geographicScope: { kind: 'AREA_BOUNDARY', boundary },
       candidates,
     });
 
@@ -195,7 +195,7 @@ describe('ExperienceProposalResolverService — bounded candidate concurrency', 
     const candidates = Array.from({ length: BATCH }, (_, i) => candidateAt(i));
     const result = await service.resolve({
       destinationName: 'Buenos Aires',
-      destinationBoundary: boundary,
+      geographicScope: { kind: 'AREA_BOUNDARY', boundary },
       candidates,
     });
 
@@ -224,7 +224,7 @@ describe('ExperienceProposalResolverService — bounded candidate concurrency', 
     await expect(
       service.resolve({
         destinationName: 'Buenos Aires',
-        destinationBoundary: boundary,
+        geographicScope: { kind: 'AREA_BOUNDARY', boundary },
         candidates,
       }),
     ).rejects.toThrow('persist boom');
