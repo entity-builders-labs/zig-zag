@@ -422,3 +422,30 @@ the same five individual Experience IDs, and kept the catalog identity-stable;
 it did not prove composed-walk reuse because no composed walk exists. The
 previous `INFRASTRUCTURE_GAP / provider-coverage gap` label is superseded and
 retained only as historical mistaken diagnosis. RW2 remains unauthorized.
+
+## 2026-09-14 RW1 canonical B5 rerun correction
+
+The current build was verified with runtime identity
+`811830bde0ad81656c89f9ffa807e3fcb40e597f`. The earlier live process had
+fallen back from invalid remote preference-interpreter credentials, producing
+no interpreted anchor; that was the actual reason the earlier trace showed
+`AREA_ROUTE_WALK=0`, not a defect in `buildPreferenceSpec` or the selector.
+
+With a working local Ollama interpreter on a clean dedicated spike database,
+the terminal cold trace proved:
+
+- interpreter anchor: `San Telmo`, `area`, `must`;
+- `PreferenceSpec.anchors`: the same `San Telmo` area anchor;
+- unsatisfied deficit: `preference_facet`, `intent:walk`;
+- partition: `AREA_ROUTE_WALK=1`, `GENERIC=1`, with only `theme:history` in
+  generic;
+- `AreaRouteWalkAcquisitionService.acquireOrReuse()`: invoked, outcome
+  `no_result`;
+- final generation: `completed` in **13,254 ms**.
+
+No grounded multi-component walk was established, so the correct current RW1
+verdict is **EXPECTED_B6_GAP**. The planner selected four independent
+single-component venue Experiences. No warm run was started because there is
+no composed-walk Experience ID to reuse. The current `google_places` failure
+is retained as provider diagnostic data, but the B5 routing contract passed;
+this run is not classified as an orchestration or infrastructure gap.

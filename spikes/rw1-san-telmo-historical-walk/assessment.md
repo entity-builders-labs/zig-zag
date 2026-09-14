@@ -54,6 +54,38 @@ RW1 PRODUCT VERDICT: EXPECTED_B6_GAP
 RW1 PERFORMANCE: cold 403,767 ms; warm 32,355 ms
 ```
 
+## Canonical B5 rerun — current HEAD `811830b` — 2026-09-14
+
+The current build was verified with an explicit runtime identity and a
+working local Ollama preference interpreter. The earlier remote Gemini/Groq
+credentials were invalid, causing fallback and loss of the interpreted
+anchor; no downstream anchor was fabricated.
+
+Cold tour: `c95dbc71-f727-4c94-9977-1adcbb180c5c`.
+
+```text
+runtime buildCommit: 811830bde0ad81656c89f9ffa807e3fcb40e597f
+interpreter anchor: San Telmo / area / must
+PreferenceSpec anchor: San Telmo / area / must
+facets: theme:history, intent:walk
+walk deficit: preference_facet / intent / walk
+partition: AREA_ROUTE_WALK=1, GENERIC=1 (theme:history only)
+AreaRouteWalkAcquisitionService: invoked, outcome=no_result
+generationStatus: completed
+runtime: 13,254 ms
+```
+
+The specialized primitive was reached correctly. It did not produce a
+grounded multi-component walk; the planner scheduled four independent,
+single-component venue Experiences. The current cold product verdict is
+**EXPECTED_B6_GAP**, not `ORCHESTRATION_GAP`, `INFRASTRUCTURE_GAP`, or
+`PROVIDER_COVERAGE_GAP`. The run recorded one `google_places` provider failure
+while the remaining sources continued; that diagnostic did not alter the B5
+routing result.
+
+No warm run was executed for this current cold run because there is no
+canonical composed-walk Experience ID to reuse.
+
 Human request: **"caminata histórica por San Telmo"**
 Run via the real, unmodified application path: `POST /auth/email/*` → `POST
 /tours/generate-tour` → outbox(`TourGenerationRequested`) →

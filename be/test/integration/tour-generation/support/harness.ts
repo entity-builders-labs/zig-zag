@@ -47,6 +47,8 @@ import { ExperienceEmbeddingIndexerService } from '../../../../src/shared/ai/ser
 import { EXPERIENCE_GROUNDED_SEARCH_PROVIDER } from '../../../../src/modules/tours/interfaces/experience-grounding.interface';
 import { TRAVEL_ESTIMATE_PROVIDER } from '../../../../src/modules/tours/interfaces/daily-planning.interface';
 import { DestinationResolution } from '../../../../src/modules/tours/services/destination-resolution.service';
+import { AreaRouteWalkAcquisitionService } from '../../../../src/modules/tours/services/area-route-walk-acquisition.service';
+import { TourImageService } from '../../../../src/modules/tours/services/tour-image.service';
 
 import {
   FakeDiscoveryExtractorConfig,
@@ -125,6 +127,8 @@ export class TourGenerationHarness {
     readonly generation: ExperienceGenerationService,
     readonly catalog: ExperienceCatalogService,
     readonly resolver: ExperienceProposalResolverService,
+    readonly areaRouteWalkAcquisition: AreaRouteWalkAcquisitionService,
+    readonly areaRouteWalkAcquire: jest.SpyInstance,
     readonly fakes: HarnessFakes,
     private readonly destinationRef: { value: DestinationResolution },
   ) {}
@@ -159,6 +163,10 @@ export class TourGenerationHarness {
         skippedIds: ids ?? [],
       })),
     };
+    const noopTourImage = {
+      resolveDestinationCoverImage: jest.fn(async (): Promise<null> => null),
+      generateTourCoverImage: jest.fn(async (): Promise<null> => null),
+    };
 
     const moduleRef: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
@@ -185,10 +193,18 @@ export class TourGenerationHarness {
       .useValue(fakes.langChain)
       .overrideProvider(DestinationResolutionService)
       .useValue(fakeDestinationResolution)
+      .overrideProvider(TourImageService)
+      .useValue(noopTourImage)
       .compile();
 
     const app = moduleRef.createNestApplication();
     await app.init();
+
+    const areaRouteWalkAcquisition = app.get(AreaRouteWalkAcquisitionService);
+    const areaRouteWalkAcquire = jest.spyOn(
+      areaRouteWalkAcquisition,
+      'acquireOrReuse',
+    );
 
     return new TourGenerationHarness(
       app,
@@ -196,6 +212,8 @@ export class TourGenerationHarness {
       app.get(ExperienceGenerationService),
       app.get(ExperienceCatalogService),
       app.get(ExperienceProposalResolverService),
+      areaRouteWalkAcquisition,
+      areaRouteWalkAcquire,
       fakes,
       destinationRef,
     );

@@ -1,6 +1,7 @@
 import { TourGenerationHarness } from './support/harness';
 import { osmPoi } from './support/fakes';
 import { seedTour } from '../support/seed';
+import { OsmCandidate } from 'src/modules/integrations/osm/services/osm-places.service';
 
 /**
  * The full productive path, empty catalog → materialized Tour, against real
@@ -176,5 +177,135 @@ describe('tour-generation integration · canonical orchestration', () => {
       expect(te.dayNumber).toBeGreaterThanOrEqual(1);
       expect(te.components.length).toBeGreaterThanOrEqual(1);
     }
+  });
+
+  it('routes an arbitrary area anchor plus an unsatisfied walk facet through the live B5 boundary', async () => {
+    const boundary: OsmCandidate = {
+      id: 'osm:relation:99001',
+      name: 'Historic District',
+      osmType: 'relation',
+      osmId: 99001,
+      geometry: {
+        type: 'Polygon',
+        coordinates: [
+          [
+            [DEST.longitude - 0.01, DEST.latitude - 0.01],
+            [DEST.longitude + 0.01, DEST.latitude - 0.01],
+            [DEST.longitude + 0.01, DEST.latitude + 0.01],
+            [DEST.longitude - 0.01, DEST.latitude + 0.01],
+            [DEST.longitude - 0.01, DEST.latitude - 0.01],
+          ],
+        ],
+      },
+      tags: { boundary: 'administrative' },
+    };
+    harness.configure({
+      destination: {
+        scale: 'area',
+        boundary,
+        country: 'Argentina',
+        countryCode: 'AR',
+      },
+    });
+    harness.fakes.langChain.generateChatResponse.mockResolvedValue(
+      JSON.stringify({
+        preferredFacets: [],
+        anchoredPlaces: [
+          { rawName: 'Historic District', kind: 'area', priority: 'must' },
+        ],
+        excludedThemes: [],
+        excludedTraits: [],
+        hardExclusions: [],
+        softConstraints: [],
+        ambiguities: [],
+        dietaryPreferences: [],
+        accessibilityPreferences: [],
+        budgetPreferences: [],
+        groupPreferences: [],
+        positiveSemanticQuery: '',
+        notes: [],
+      }),
+    );
+    harness.areaRouteWalkAcquire.mockResolvedValue({
+      outcome: 'no_result',
+    });
+
+    const tourId = await seedTour(harness.prisma, {
+      destinationLabel: 'Buenos Aires',
+      latitude: DEST.latitude,
+      longitude: DEST.longitude,
+      radiusMeters: 12000,
+      days: 1,
+      interests: [],
+      intents: ['walk'],
+      additionalPreferences: 'Historic District',
+    });
+
+    const outcome = await harness.generate(tourId);
+    expect(outcome.ok).toBe(false);
+    expect(outcome.error?.message).toContain('intent:walk');
+
+    const tour = await harness.loadTour(tourId);
+    const interpretation = harness
+      .traceSteps(tour.trace)
+      .find((step) => step.stage === 'preference_interpretation');
+    const coverage = harness
+      .traceSteps(tour.trace)
+      .find((step) => step.stage === 'coverage_analysis');
+    const routing = harness
+      .traceSteps(tour.trace)
+      .find((step) => step.component === 'partitionDeficitsByStrategy');
+    expect(interpretation.outputs.intent.anchoredPlaces).toEqual([
+      { rawName: 'Historic District', kind: 'area', priority: 'must' },
+    ]);
+    expect(interpretation.outputs.preferenceSpec.anchors).toEqual(
+      interpretation.outputs.intent.anchoredPlaces,
+    );
+    expect(interpretation.outputs.preferenceSpec.facets).toEqual([
+      expect.objectContaining({ dimension: 'intent', key: 'walk' }),
+    ]);
+    expect(coverage.outputs.acquisitionDeficits).toEqual([
+      expect.objectContaining({
+        origin: 'preference_facet',
+        dimension: 'intent',
+        key: 'walk',
+      }),
+    ]);
+    expect(routing.outputs.areaRouteWalk).toEqual([
+      expect.objectContaining({
+        anchor: {
+          rawName: 'Historic District',
+          kind: 'area',
+          priority: 'must',
+        },
+        intentKey: 'walk',
+        deficit: expect.objectContaining({
+          origin: 'preference_facet',
+          dimension: 'intent',
+          key: 'walk',
+        }),
+      }),
+    ]);
+    expect(routing.outputs.generic).not.toEqual([
+      expect.objectContaining({ dimension: 'intent', key: 'walk' }),
+    ]);
+    expect(harness.areaRouteWalkAcquire).toHaveBeenCalled();
+    expect(harness.areaRouteWalkAcquire.mock.calls[0][0]).toEqual(
+      expect.objectContaining({
+        anchor: {
+          rawName: 'Historic District',
+          kind: 'area',
+          priority: 'must',
+        },
+        intentKey: 'walk',
+        deficit: expect.objectContaining({
+          origin: 'preference_facet',
+          dimension: 'intent',
+          key: 'walk',
+        }),
+      }),
+    );
+    expect(harness.fakes.groundedSearch.search).not.toHaveBeenCalled();
+    expect(harness.fakes.wikivoyage.fetchArticle).not.toHaveBeenCalled();
   });
 });

@@ -1029,6 +1029,26 @@ export class ExperienceGenerationService {
                 currentPreferenceCoverage.acquisitionDeficits,
                 preferenceSpec.anchors,
               );
+              traceSteps.push({
+                stage: 'coverage_analysis',
+                label: 'Enrutamiento de déficits de adquisición',
+                summary: `AREA_ROUTE_WALK=${areaRouteWalk.length}; GENERIC=${generic.length}.`,
+                component: 'partitionDeficitsByStrategy',
+                status: 'INFO',
+                inputs: {
+                  anchors: preferenceSpec.anchors,
+                  acquisitionDeficits:
+                    currentPreferenceCoverage.acquisitionDeficits,
+                },
+                outputs: {
+                  areaRouteWalk: areaRouteWalk.map((routed) => ({
+                    anchor: routed.anchor,
+                    intentKey: routed.intentKey,
+                    deficit: routed.deficit,
+                  })),
+                  generic,
+                },
+              });
 
               // M2 (preference-first live cutover): deficits are now the
               // real FacetRetrievalService-derived unsatisfied facets
@@ -1077,6 +1097,22 @@ export class ExperienceGenerationService {
                     deficit: routed.deficit,
                     semanticQuery: normalizedPreferences.positiveSemanticQuery,
                   });
+                traceSteps.push({
+                  stage: 'area_route_walk_acquisition',
+                  label: 'Adquisición o reutilización de walk/ruta',
+                  summary: `Resultado AREA_ROUTE_WALK: ${areaRouteWalkResult.outcome}.`,
+                  component: 'AreaRouteWalkAcquisitionService',
+                  status:
+                    areaRouteWalkResult.outcome === 'no_result'
+                      ? 'WARN'
+                      : 'PASS',
+                  inputs: {
+                    anchor: routed.anchor,
+                    intentKey: routed.intentKey,
+                    deficit: routed.deficit,
+                  },
+                  outputs: areaRouteWalkResult,
+                });
 
                 if (areaRouteWalkResult.outcome !== 'no_result') {
                   const persisted = await this.prisma.experience.findMany({
@@ -1861,6 +1897,10 @@ export class ExperienceGenerationService {
 
       const generationTrace = redactTracePayload({
         version: 4,
+        runtime: {
+          buildCommit: process.env.BUILD_COMMIT ?? 'unknown',
+          buildTimestamp: process.env.BUILD_TIMESTAMP ?? 'unknown',
+        },
         canonicalRequest: request,
         steps: traceSteps,
         materializedTourExperiences,

@@ -12,6 +12,8 @@ export type TraceStage =
   | 'destination_resolution'
   | 'db_search'
   | 'coverage_analysis'
+  | 'acquisition_strategy'
+  | 'area_route_walk_acquisition'
   | 'discovery'
   | 'entity_resolution'
   | 'geographic_validation'
@@ -236,6 +238,11 @@ export interface MaterializedTourExperienceTrace {
 export interface GenerationTrace {
   /** Version 1-3 traces remain readable; V4 is the native preference-first trace. */
   version?: 1 | 2 | 3 | 4;
+  /** Non-secret build identity supplied by the deployment/run harness. */
+  runtime?: {
+    buildCommit?: string;
+    buildTimestamp?: string;
+  };
   /** Redacted canonical request exactly as consumed by deterministic generation. */
   canonicalRequest?: Record<string, unknown>;
   steps: GenerationTraceStep[];
