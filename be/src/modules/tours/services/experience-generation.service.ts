@@ -7,18 +7,15 @@ import {
   Optional,
 } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
+import destinationScopePolicyConfig from '../config/destination-scope-policy.config';
 import { PrismaService } from '@core/database/prisma.service';
 import { OutboxService } from '../../outbox/services/outbox.service';
 import { ToursService } from './tours.service';
 import { TourImageService } from './tour-image.service';
 import { DestinationResolutionService } from './destination-resolution.service';
-import {
-  boundingBoxToCenterRadius,
-} from '../utils/geometry-search-area.util';
+import { boundingBoxToCenterRadius } from '../utils/geometry-search-area.util';
 import { GeographicScope } from '../interfaces/experience-resolution.interface';
-import {
-  TourGenerationRequest,
-} from '../interfaces/tour-generation.interface';
+import { TourGenerationRequest } from '../interfaces/tour-generation.interface';
 import { CandidateScoreBreakdown } from '../utils/candidate-ranking.util';
 import { filterOverlappingExperienceCandidates } from '../utils/candidate-overlap-filter.util';
 import {
@@ -57,6 +54,7 @@ import {
   VerifiedExperienceRow,
 } from './experience-catalog.service';
 import { ExperienceAcquisitionService } from './experience-acquisition.service';
+import { ExecuteAcquisitionPlanResult } from './experience-acquisition.service';
 import { ExperienceAcquisitionPlannerService } from './experience-acquisition-planner.service';
 import { AreaRouteWalkAcquisitionService } from './area-route-walk-acquisition.service';
 import { partitionDeficitsByStrategy } from '../utils/acquisition-strategy-selector.util';
@@ -175,6 +173,10 @@ export class ExperienceGenerationService {
     private readonly dailyPlanningPolicy: ConfigType<
       typeof dailyPlanningPolicyConfig
     >,
+    @Inject(destinationScopePolicyConfig.KEY)
+    private readonly destinationScopePolicy: ConfigType<
+      typeof destinationScopePolicyConfig
+    >,
     @Optional()
     private readonly outboxService?: OutboxService,
     @Optional()
@@ -199,7 +201,9 @@ export class ExperienceGenerationService {
     };
   }
 
-  private hydratePersistedExperience(experience: any): ComposableExperience & Record<string, unknown> {
+  private hydratePersistedExperience(
+    experience: any,
+  ): ComposableExperience & Record<string, unknown> {
     const metadata =
       experience?.metadata &&
       typeof experience.metadata === 'object' &&
@@ -236,7 +240,9 @@ export class ExperienceGenerationService {
       description: experience.description,
       latitude: experience.latitude ?? firstPoint?.latitude,
       longitude: experience.longitude ?? firstPoint?.longitude,
-      duration: (experience.durationMinutes ?? 120) / 60,
+      duration:
+        (experience.durationMinutes ??
+          this.dailyPlanningPolicy.compositeDefaultDurationMinutes) / 60,
       durationMinutes: experience.durationMinutes,
       price: experience.price,
       qualityScore: experience.qualityScore,
@@ -261,8 +267,10 @@ export class ExperienceGenerationService {
         wikipediaPresent: metadata.wikipediaPresent,
         wikivoyageListed: metadata.wikivoyageListed,
         heritageOrLandmark: metadata.heritageOrLandmark,
-        explicitTourismIntensityEvidence: metadata.explorationEvidence?.tourismIntensity ?? [],
-        explicitLocalCharacterEvidence: metadata.explorationEvidence?.localCharacter ?? [],
+        explicitTourismIntensityEvidence:
+          metadata.explorationEvidence?.tourismIntensity ?? [],
+        explicitLocalCharacterEvidence:
+          metadata.explorationEvidence?.localCharacter ?? [],
       },
       metadata: {
         ...metadata,
@@ -601,6 +609,83 @@ export class ExperienceGenerationService {
     };
   }
 
+  /**
+   * Shared acquisition mechanics for both pre-planner and planner-capacity
+   * convergence. Strategy selection remains with the caller; this seam only
+   * executes the already-built plan, materializes accepted candidates, and
+   * records the canonical stage trace.
+   */
+  private async executeAndMaterializeAcquisitionPlan(
+    plan: Parameters<ExperienceAcquisitionService['executePlan']>[0],
+    passNumber: number,
+    context: {
+      destinationName?: string;
+      destinationCountryCode?: string;
+      geographicScope: GeographicScope;
+    },
+    traceSteps: GenerationTraceStep[],
+    providerState: {
+      attempted: Set<string>;
+      failed: Set<string>;
+    },
+  ): Promise<ExecuteAcquisitionPlanResult> {
+    const execution = await this.experienceAcquisition.executePlan(plan);
+    for (const [provider, result] of Object.entries(
+      execution.providerResults,
+    )) {
+      providerState.attempted.add(provider);
+      if (result?.status === 'failed') providerState.failed.add(provider);
+    }
+    for (const web of execution.webResults ?? []) {
+      providerState.attempted.add('web');
+      if (web.status === 'failed') providerState.failed.add('web');
+    }
+    traceSteps.push(buildAcquisitionStep({ passNumber, plan, execution }));
+    if (execution.candidates.length > 0) {
+      const resolution = await this.experienceAcquisition.materializeExecution(
+        execution,
+        context,
+      );
+      traceSteps.push(
+        buildEntityResolutionStep(resolution),
+        buildGeographicValidationStep(resolution),
+        buildCatalogMaterializationStep(resolution),
+      );
+    }
+    return execution;
+  }
+
+  /** Shared catalog refresh/recomposition seam after any materialization. */
+  private async refreshCatalogAndRecompose(
+    scope: { latitude: number; longitude: number; radiusMeters: number },
+    allEligibleExperiencesById: Map<string, any>,
+    preferenceSpec: PreferenceSpec,
+    venueMustIds: string[],
+    venueSoftIds: string[],
+    venueAnchorNames: string[],
+  ): Promise<{ pool: any[]; selection: CandidateSelection }> {
+    const refreshed = await this.experienceCatalog.findVerifiedWithin(
+      scope.latitude,
+      scope.longitude,
+      scope.radiusMeters,
+      this.CATALOG_RETRIEVAL_POOL_LIMIT,
+    );
+    refreshed.forEach((experience: any) =>
+      allEligibleExperiencesById.set(experience.id, experience),
+    );
+    const pool = Array.from(allEligibleExperiencesById.values());
+    return {
+      pool,
+      selection: await this.composeExperiences(
+        pool,
+        preferenceSpec,
+        venueMustIds,
+        venueSoftIds,
+        venueAnchorNames,
+      ),
+    };
+  }
+
   async generateTourExperiences(tourId: string) {
     const tour = await this.toursService.findOne(tourId);
     if (!tour) {
@@ -794,7 +879,9 @@ export class ExperienceGenerationService {
         );
 
       const isAreaScale = destinationResolution.scale === 'area';
-      const pointRadius = request.destination.radiusMeters || 25000;
+      const pointRadius =
+        request.destination.radiusMeters ??
+        this.destinationScopePolicy.pointRadiusMeters;
       const geographicScope: GeographicScope = isAreaScale
         ? { kind: 'AREA_BOUNDARY', boundary: destinationResolution.boundary }
         : {
@@ -1060,94 +1147,39 @@ export class ExperienceGenerationService {
                     .join(', ')})...`,
                 );
 
-                const execution =
-                  await this.experienceAcquisition.executePlan(acquisitionPlan);
-
-                for (const [provider, res] of Object.entries(
-                  execution.providerResults,
-                )) {
-                  acquisitionProvidersAttempted.add(provider);
-                  if ((res as any)?.status === 'failed') {
-                    acquisitionProvidersFailed.add(provider);
-                  }
-                }
-                for (const web of execution.webResults ?? []) {
-                  acquisitionProvidersAttempted.add('web');
-                  if (web.status === 'failed') {
-                    acquisitionProvidersFailed.add('web');
-                  }
-                }
-
-                traceSteps.push(
-                  buildAcquisitionStep({
-                    passNumber: pass,
-                    plan: acquisitionPlan,
-                    execution,
-                  }),
+                await this.executeAndMaterializeAcquisitionPlan(
+                  acquisitionPlan,
+                  pass,
+                  {
+                    destinationName: request.destination.label,
+                    destinationCountryCode: destinationResolution.countryCode,
+                    geographicScope,
+                  },
+                  traceSteps,
+                  {
+                    attempted: acquisitionProvidersAttempted,
+                    failed: acquisitionProvidersFailed,
+                  },
                 );
-
-                if (execution.candidates.length > 0) {
-                  const resolution =
-                    await this.experienceAcquisition.materializeExecution(
-                      execution,
-                      {
-                        destinationName: request.destination.label,
-                        destinationCountryCode:
-                          destinationResolution.countryCode,
-                        geographicScope,
-                      },
-                    );
-                  traceSteps.push(
-                    buildEntityResolutionStep(resolution),
-                    buildGeographicValidationStep(resolution),
-                    buildCatalogMaterializationStep(resolution),
-                  );
-
-                  const acceptedIds = resolution.resolved
-                    .filter(
-                      (result) =>
-                        result.status === 'accepted' && result.experienceId,
-                    )
-                    .map((result) => result.experienceId as string);
-                  if (acceptedIds.length > 0) {
-                    const persisted = await this.prisma.experience.findMany({
-                      where: { id: { in: acceptedIds }, status: 'VERIFIED' },
-                      include: {
-                        components: { include: { geoEntity: true } },
-                        traits: { include: { traitDefinition: true } },
-                      },
-                    });
-                    persisted.forEach((experience: any) => {
-                      allEligibleExperiencesById.set(
-                        experience.id,
-                        this.hydratePersistedExperience(experience),
-                      );
-                      discoveryResolvedExperienceIds.add(experience.id);
-                    });
-                  }
-                }
               }
 
               // Re-query the real catalog — the resolver may have created NEW,
               // resolved SAME, enriched an existing row, or rejected; the
               // accepted-id list alone is not the pool.
-              const refreshed = await this.experienceCatalog.findVerifiedWithin(
-                searchArea.latitude,
-                searchArea.longitude,
-                radius,
-                experienceLimit,
-              );
-              refreshed.forEach((experience: any) =>
-                allEligibleExperiencesById.set(experience.id, experience),
-              );
-              currentPool = Array.from(allEligibleExperiencesById.values());
-              currentSelection = await this.composeExperiences(
-                currentPool,
+              const refreshed = await this.refreshCatalogAndRecompose(
+                {
+                  latitude: searchArea.latitude,
+                  longitude: searchArea.longitude,
+                  radiusMeters: radius,
+                },
+                allEligibleExperiencesById,
                 preferenceSpec,
                 venueAnchorResolution.resolvedMustIds,
                 venueAnchorResolution.resolvedSoftIds,
                 venueAnchorResolution.resolvedNames,
               );
+              currentPool = refreshed.pool;
+              currentSelection = refreshed.selection;
               semanticRankingOutcome = currentSelection.semanticRanking;
 
               currentProviderHealth =
@@ -1493,7 +1525,9 @@ export class ExperienceGenerationService {
               destinationName: request.destination.label,
               latitude: request.destination.latitude,
               longitude: request.destination.longitude,
-              radiusMeters: request.destination.radiusMeters || 25000,
+              radiusMeters:
+                request.destination.radiusMeters ??
+                this.destinationScopePolicy.pointRadiusMeters,
             },
             deficits: [plannerDeficit],
             preferredFacets: preferenceSpec.facets.map((facet) => ({
@@ -1511,56 +1545,30 @@ export class ExperienceGenerationService {
         if (plannerAcquisitionPlan.sourcePlans.length === 0) {
           promotionStopReason = 'NO_PROGRESS';
         } else {
-          const execution = await this.experienceAcquisition.executePlan(
+          await this.executeAndMaterializeAcquisitionPlan(
             plannerAcquisitionPlan,
-          );
-          for (const [provider, result] of Object.entries(
-            execution.providerResults,
-          )) {
-            acquisitionProvidersAttempted.add(provider);
-            if ((result as any)?.status === 'failed') {
-              acquisitionProvidersFailed.add(provider);
-            }
-          }
-          for (const web of execution.webResults ?? []) {
-            acquisitionProvidersAttempted.add('web');
-            if (web.status === 'failed') {
-              acquisitionProvidersFailed.add('web');
-            }
-          }
-          traceSteps.push(
-            buildAcquisitionStep({
-              passNumber: acquisitionPasses,
-              plan: plannerAcquisitionPlan,
-              execution,
-            }),
+            acquisitionPasses,
+            {
+              destinationName: request.destination.label,
+              destinationCountryCode: destinationResolution.countryCode,
+              geographicScope,
+            },
+            traceSteps,
+            {
+              attempted: acquisitionProvidersAttempted,
+              failed: acquisitionProvidersFailed,
+            },
           );
 
-          if (execution.candidates.length > 0) {
-            const resolution =
-              await this.experienceAcquisition.materializeExecution(execution, {
-                destinationName: request.destination.label,
-                destinationCountryCode: destinationResolution.countryCode,
-                geographicScope,
-              });
-            traceSteps.push(
-              buildEntityResolutionStep(resolution),
-              buildGeographicValidationStep(resolution),
-              buildCatalogMaterializationStep(resolution),
-            );
-          }
-
-          const refreshed = await this.experienceCatalog.findVerifiedWithin(
-            request.destination.latitude,
-            request.destination.longitude,
-            request.destination.radiusMeters || 25000,
-            this.CATALOG_RETRIEVAL_POOL_LIMIT,
-          );
-          refreshed.forEach((experience: any) =>
-            allEligibleExperiencesById.set(experience.id, experience),
-          );
-          const refreshedSelection = await this.composeExperiences(
-            Array.from(allEligibleExperiencesById.values()),
+          const refreshed = await this.refreshCatalogAndRecompose(
+            {
+              latitude: request.destination.latitude,
+              longitude: request.destination.longitude,
+              radiusMeters:
+                request.destination.radiusMeters ??
+                this.destinationScopePolicy.pointRadiusMeters,
+            },
+            allEligibleExperiencesById,
             preferenceSpec,
             planningMustIncludeExperienceIds.size > 0
               ? [...planningMustIncludeExperienceIds]
@@ -1568,6 +1576,7 @@ export class ExperienceGenerationService {
             [],
             [],
           );
+          const refreshedSelection = refreshed.selection;
           finalSelection = refreshedSelection;
           recordOfferedCandidates(refreshedSelection);
           overlapFilter = buildOverlapFilter();
