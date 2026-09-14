@@ -79,7 +79,7 @@ function hasFacet(spec: any, dimension: string, key: string): boolean {
         interests: ['history', 'architecture', 'tango'],
         intents: ['walk', 'visit'],
         additionalPreferences:
-          'caminata histórica por San Telmo, arquitectura porteña, tango y visita al Teatro Colón',
+          'sí o sí quiero una caminata histórica por San Telmo, arquitectura porteña, tango y visita al Teatro Colón',
         maxContinuousWalkingDistanceMeters: 3000,
       });
 

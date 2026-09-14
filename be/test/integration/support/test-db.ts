@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as dotenv from 'dotenv';
 import { Prisma } from '@prisma/client';
+import { Pool } from 'pg';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from 'src/core/database/prisma.service';
 import { assertDisposableDatabase } from '../../support/assert-disposable-database';
@@ -81,24 +82,30 @@ export const RESET_TABLES = [
   'source',
 ];
 
-function quoteTable(table: string): Prisma.Sql {
-  // Every caller passes a member of a source-controlled table list. Keeping
-  // identifiers separate from values lets the statement use Prisma's tagged
-  // raw-query API while avoiding an interpolated identifier protocol.
-  return Prisma.raw(`"${table}"`);
-}
-
 export async function resetTablesWith(
   db: PrismaService,
   tables: readonly string[] = RESET_TABLES,
 ): Promise<void> {
   assertDisposableDatabase();
   if (tables.length === 0) return;
-  await db.$executeRaw(
-    Prisma.sql`TRUNCATE TABLE ${Prisma.join(
-      tables.map(quoteTable),
-    )} RESTART IDENTITY CASCADE`,
-  );
+  if (tables.some((table) => !RESET_TABLES.includes(table))) {
+    throw new Error('Refusing to reset a table outside the test allowlist.');
+  }
+  // Prisma's pg adapter rejects dynamic identifiers embedded in a tagged
+  // `$executeRaw` statement even though the resulting SQL is valid. The table
+  // names are safe here because they are restricted to RESET_TABLES above;
+  // values are never interpolated into this statement.
+  const tableList = tables.map((table) => `"${table}"`).join(', ');
+  const databaseUrl = process.env.DATABASE_URL;
+  if (!databaseUrl) {
+    throw new Error('Disposable test DB reset requires DATABASE_URL.');
+  }
+  const pool = new Pool({ connectionString: databaseUrl });
+  try {
+    await pool.query(`TRUNCATE TABLE ${tableList} RESTART IDENTITY CASCADE`);
+  } finally {
+    await pool.end();
+  }
 }
 
 export async function resetDbWith(db: PrismaService): Promise<void> {
