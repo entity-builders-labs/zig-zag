@@ -19,6 +19,8 @@ interface NominatimApiResponseItem {
   osm_type: 'node' | 'way' | 'relation';
   osm_id: number;
   addresstype: string;
+  class?: string;
+  type?: string;
   display_name: string;
   importance: number;
   lat?: string;
@@ -71,6 +73,8 @@ export class NominatimApiService implements INominatimApiService {
       osmType: item.osm_type,
       osmId: item.osm_id,
       addresstype: item.addresstype,
+      class: item.class,
+      type: item.type,
       displayName: item.display_name,
       importance: item.importance,
       latitude: item.lat === undefined ? undefined : Number(item.lat),

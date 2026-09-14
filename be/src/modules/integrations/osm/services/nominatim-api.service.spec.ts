@@ -22,6 +22,8 @@ describe('NominatimApiService', () => {
           osm_type: 'relation',
           osm_id: 1224652,
           addresstype: 'city',
+          class: 'boundary',
+          type: 'administrative',
           display_name:
             'Buenos Aires, Comuna 1, Ciudad Autónoma de Buenos Aires, Argentina',
           importance: 0.783,
@@ -43,6 +45,8 @@ describe('NominatimApiService', () => {
         osmType: 'relation',
         osmId: 1224652,
         addresstype: 'city',
+        class: 'boundary',
+        type: 'administrative',
         displayName:
           'Buenos Aires, Comuna 1, Ciudad Autónoma de Buenos Aires, Argentina',
         importance: 0.783,

@@ -57,6 +57,8 @@ describe('DestinationResolutionService', () => {
         osmType: 'relation',
         osmId: 1224652,
         addresstype: 'city',
+        class: 'boundary',
+        type: 'administrative',
         displayName: 'Buenos Aires',
         importance: 0.8,
       },
@@ -95,6 +97,95 @@ describe('DestinationResolutionService', () => {
     });
   });
 
+  // Cutover M3.5 -- the general scale-model fix: a neighborhood-scale urban
+  // area (San Telmo is one real example, not a special case) resolves
+  // canonically instead of degrading to point+radius merely because
+  // Nominatim's own addresstype isn't city/town/village. Proven for THREE
+  // distinct real-world classifications Nominatim/OSM actually use for this
+  // concept, never a single hardcoded term.
+  it.each([
+    ['suburb', 'San Telmo, Buenos Aires, Argentina'],
+    ['neighbourhood', 'Le Marais, Paris, France'],
+    ['quarter', 'Gamla Stan, Stockholm, Sweden'],
+  ])(
+    'resolves a directly-searched %s-classified real place to area-scale, never widening it into a city/point fallback',
+    async (addresstype, displayName) => {
+      nominatimApi.search.mockResolvedValue([
+        {
+          osmType: 'relation',
+          osmId: 9001,
+          addresstype,
+          class: 'place',
+          type: addresstype,
+          displayName,
+          importance: 0.3,
+        },
+      ]);
+      const boundary = {
+        id: 'osm:relation:9001',
+        name: displayName,
+        osmType: 'relation' as const,
+        osmId: 9001,
+        geometry: {
+          type: 'Polygon' as const,
+          coordinates: [
+            [
+              [0, 0],
+              [1, 0],
+              [1, 1],
+              [0, 0],
+            ],
+          ],
+        },
+        tags: { name: displayName },
+      };
+      osmPlacesService.getBoundaryById.mockResolvedValue(boundary);
+
+      const result = await service.resolveDestination(displayName);
+
+      expect(result).toEqual({
+        scale: 'area',
+        boundary,
+        attemptedQueries: [`forward:${displayName}`],
+        selectedResult: {
+          osmType: 'relation',
+          osmId: 9001,
+          displayName,
+        },
+      });
+      // Never routed through the separate settlement/containing-boundary
+      // two-step fallback -- resolved directly as its own area.
+      expect(osmPlacesService.lookupDestinationBoundary).not.toHaveBeenCalled();
+    },
+  );
+
+  it('rejects a way/relation that merely happens to be named/typed like a neighborhood but is not urban/admin-classified by the provider', async () => {
+    // Same osmType/addresstype shape as a real suburb, but `class` says
+    // this is something else entirely (e.g. a shop/building/landuse
+    // polygon) -- proves the fix reads real provider classification, not
+    // just "any way/relation with a plausible-looking addresstype".
+    nominatimApi.search.mockResolvedValue([
+      {
+        osmType: 'relation',
+        osmId: 1,
+        addresstype: 'suburb',
+        class: 'landuse',
+        type: 'residential',
+        displayName: 'Some Residential Zone',
+        importance: 0.1,
+      },
+    ]);
+
+    const result = await service.resolveDestination('Some Residential Zone');
+
+    expect(result).toEqual({
+      scale: 'point',
+      attemptedQueries: ['forward:Some Residential Zone'],
+      degradationReason: 'no_area_candidate',
+    });
+    expect(osmPlacesService.getBoundaryById).not.toHaveBeenCalled();
+  });
+
   it.each(['state', 'country'])(
     'falls back to point-scale for a %s-level Nominatim result',
     async (addresstype) => {
@@ -103,6 +194,11 @@ describe('DestinationResolutionService', () => {
           osmType: 'relation',
           osmId: 1,
           addresstype,
+          // A genuine administrative boundary (class/type say so) is still
+          // rejected -- the exclusion is scale (addresstype), never a
+          // missing/wrong `class`.
+          class: 'boundary',
+          type: 'administrative',
           displayName: 'x',
           importance: 0.9,
         },
@@ -332,6 +428,8 @@ describe('DestinationResolutionService', () => {
         osmType: 'relation',
         osmId: 1224652,
         addresstype: 'city',
+        class: 'boundary',
+        type: 'administrative',
         displayName: 'Buenos Aires',
         importance: 0.8,
       },
@@ -389,6 +487,8 @@ describe('DestinationResolutionService', () => {
         osmType: 'relation',
         osmId: 1224652,
         addresstype: 'city',
+        class: 'boundary',
+        type: 'administrative',
         displayName: 'Buenos Aires',
         importance: 0.8,
       },
@@ -414,6 +514,8 @@ describe('DestinationResolutionService', () => {
         osmType: 'relation',
         osmId: 2929054,
         addresstype: 'city',
+        class: 'boundary',
+        type: 'administrative',
         displayName: 'Montevideo, Uruguay',
         importance: 0.7,
         latitude: -34.9059,
@@ -425,6 +527,8 @@ describe('DestinationResolutionService', () => {
       osmType: 'relation',
       osmId: 2929054,
       addresstype: 'city',
+      class: 'boundary',
+      type: 'administrative',
       displayName: 'Montevideo, Uruguay',
       importance: 0.7,
       latitude: -34.9059,
@@ -497,6 +601,8 @@ describe('DestinationResolutionService', () => {
       osmType: 'relation',
       osmId: 2722832,
       addresstype: 'city',
+      class: 'boundary',
+      type: 'administrative',
       displayName: 'Salta, Capital, Salta, Argentina',
       importance: 0.7,
       latitude: -24.7892946,
@@ -561,6 +667,8 @@ describe('DestinationResolutionService', () => {
       osmType: 'relation',
       osmId: 3594027,
       addresstype: 'city',
+      class: 'boundary',
+      type: 'administrative',
       displayName: 'Rosario, Municipio de Rosario, Santa Fe, Argentina',
       importance: 0.64,
       latitude: -32.9593609,
@@ -572,6 +680,8 @@ describe('DestinationResolutionService', () => {
         osmType: 'relation',
         osmId: 3594027,
         addresstype: 'city',
+        class: 'boundary',
+        type: 'administrative',
         displayName: 'Rosario, Municipio de Rosario, Santa Fe, Argentina',
         importance: 0.64,
         latitude: -32.9593609,

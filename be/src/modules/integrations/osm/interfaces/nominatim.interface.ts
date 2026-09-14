@@ -1,12 +1,26 @@
 export interface NominatimResult {
   osmType: 'node' | 'way' | 'relation';
   osmId: number;
-  // Nominatim's own place classification — 'city'/'town'/'village' is what
-  // destination-resolution.service.ts uses to decide area-scale vs
-  // point-scale; 'state'/'country' and everything finer-grained than a
-  // settlement falls back to point-scale. See NEIGHBORHOOD_ADMIN_LEVEL note
-  // in osm-places.service.ts for why admin_level alone can't do this job.
+  // Nominatim's own address-hierarchy classification (city/town/village/
+  // suburb/state/country/...). Cutover M3.5: area-scale acceptance is no
+  // longer a whitelist of specific narrow terms read from this field alone
+  // -- see `isAreaScaleEligible` (nominatim-match.util.ts), which combines
+  // this with `class`/`type` below.
   addresstype: string;
+  // Nominatim's own top-level OSM tag classification for this result (e.g.
+  // 'boundary', 'place', 'highway', 'building', 'amenity', 'shop',
+  // 'natural'). A small, stable, provider-native vocabulary -- NOT the
+  // same thing as `addresstype`'s finer-grained hierarchy term. The one
+  // "is this a genuine administrative/populated-place concept at all"
+  // signal `isAreaScaleEligible` needs; a building/POI/street mapped as a
+  // way/relation never gets `class: 'boundary'` or `'place'`.
+  class?: string;
+  // The specific OSM tag value under `class` (e.g. 'administrative' under
+  // 'boundary'; 'city'/'town'/'suburb'/'neighbourhood'/... under 'place').
+  // Retained for provenance/debugging; `isAreaScaleEligible` does not read
+  // it directly (addresstype already carries the equivalent finer-grained
+  // classification for the address-hierarchy use case).
+  type?: string;
   displayName: string;
   importance: number;
   latitude?: number;

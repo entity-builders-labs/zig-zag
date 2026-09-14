@@ -7,14 +7,17 @@ import {
   INominatimApiService,
   NominatimResult,
 } from '@integrations/osm/interfaces/nominatim.interface';
+import { isAreaScaleEligible } from '../utils/nominatim-match.util';
 import { DestinationScaleHint } from '../interfaces/tour-generation.interface';
 
-// Nominatim's own place classification for a destination big enough to have
-// internal structure worth exploring — see docs/superpowers/specs/
-// 2026-08-21-activity-engine-design.md, "Destination resolution". Anything
-// finer-grained (a house, a specific amenity) or a state/country (out of
-// scope per the design) falls back to point-scale.
-const AREA_SCALE_ADDRESS_TYPES = new Set(['city', 'town', 'village']);
+// Used ONLY to identify a known city/town/village "settlement" anchor for
+// `resolveSettlementBoundary`'s separate containing-boundary lookup (find
+// the neighborhood-level sub-boundary CONTAINING a point near a known
+// settlement) -- not the general area-scale acceptance question, which
+// `isAreaScaleEligible` (cutover M3.5) now owns. Deliberately narrower than
+// that predicate: this specific two-step fallback only makes sense when
+// anchored to a genuine city/town/village, never a neighborhood itself.
+const SETTLEMENT_ADDRESS_TYPES = new Set(['city', 'town', 'village']);
 const MAX_DESTINATION_DISTANCE_METERS = 75_000;
 // A city boundary's representative point may be far from the coordinate the
 // user selected, especially for large municipalities. A fine-grained result
@@ -388,16 +391,13 @@ export class DestinationResolutionService {
   private isAreaCandidate(
     result: NominatimResult,
   ): result is AreaNominatimResult {
-    return (
-      AREA_SCALE_ADDRESS_TYPES.has(result.addresstype) &&
-      result.osmType !== 'node'
-    );
+    return isAreaScaleEligible(result);
   }
 
   private isSettlementCandidate(
     result: NominatimResult,
   ): result is SettlementNominatimResult {
-    return AREA_SCALE_ADDRESS_TYPES.has(result.addresstype);
+    return SETTLEMENT_ADDRESS_TYPES.has(result.addresstype);
   }
 
   private selectSettlementCandidate(

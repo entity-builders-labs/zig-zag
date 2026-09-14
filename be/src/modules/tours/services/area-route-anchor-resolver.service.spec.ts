@@ -22,6 +22,8 @@ describe('AreaRouteAnchorResolverService', () => {
             osmType: 'relation',
             osmId: 42,
             addresstype: 'suburb',
+            class: 'place',
+            type: 'suburb',
             displayName: 'San Telmo, Buenos Aires, Argentina',
             importance: 0.3,
             latitude: -34.62,
@@ -155,6 +157,8 @@ describe('AreaRouteAnchorResolverService', () => {
             osmType: 'relation',
             osmId: 42,
             addresstype: 'suburb',
+            class: 'place',
+            type: 'suburb',
             displayName: 'San Telmo, Buenos Aires, Argentina',
             importance: 0.3,
             latitude: -34.62,
@@ -194,6 +198,8 @@ describe('AreaRouteAnchorResolverService', () => {
         osmType: 'relation' as const,
         osmId: 1,
         addresstype: 'suburb',
+        class: 'place',
+        type: 'suburb',
         displayName: 'Catedral San Juan Bautista, San Juan, Argentina',
         importance: 0.199,
         latitude: -31.5375,
@@ -203,6 +209,8 @@ describe('AreaRouteAnchorResolverService', () => {
         osmType: 'relation' as const,
         osmId: 2,
         addresstype: 'suburb',
+        class: 'place',
+        type: 'suburb',
         displayName: 'Catedral San Juan Bautista, Buenos Aires, Argentina',
         importance: 0.208,
         latitude: -34.6037,
@@ -249,6 +257,48 @@ describe('AreaRouteAnchorResolverService', () => {
       );
 
       expect(osmPlaces.lookupBoundaryById).toHaveBeenCalledWith('relation', 1);
+    });
+
+    // Cutover M3.5 -- single source of policy truth: the same
+    // isAreaScaleEligible predicate DestinationResolutionService uses now
+    // also gates this resolver, so a country/state-scale (or otherwise
+    // non-urban/admin) match is rejected here too, never just for the
+    // whole-trip destination.
+    it('stays unresolved for a country-scale match even though it is a real way/relation (too broad for an anchor)', async () => {
+      const nominatim = {
+        search: jest.fn().mockResolvedValue([
+          {
+            osmType: 'relation',
+            osmId: 99,
+            addresstype: 'country',
+            class: 'boundary',
+            type: 'administrative',
+            displayName: 'Argentina',
+            importance: 0.9,
+          },
+        ]),
+        reverse: jest.fn(),
+      };
+      const osmPlaces = {
+        lookupBoundaryById: jest.fn(),
+        lookupStreetsWithin: jest.fn(),
+        lookupStreetsNear: jest.fn(),
+      };
+      const catalog = { upsertGeoEntity: jest.fn() };
+      const service = new AreaRouteAnchorResolverService(
+        osmPlaces as any,
+        catalog as any,
+        nominatim as any,
+      );
+
+      const result = await service.resolveArea(
+        { rawName: 'Argentina', kind: 'area', priority: 'must' },
+        undefined,
+        undefined,
+      );
+
+      expect(result).toEqual({ resolved: false });
+      expect(osmPlaces.lookupBoundaryById).not.toHaveBeenCalled();
     });
 
     it('never throws when Nominatim search itself rejects', async () => {

@@ -110,6 +110,57 @@ export function bestNominatimMatch(
   return rankNominatimCandidates(fuzzyMatches, destinationPoint);
 }
 
+/**
+ * Nominatim's own top-of-hierarchy address classification for a scope
+ * genuinely broader than any single coherent destination/anchor area --
+ * NOT an enumeration of "acceptable" narrow place types (cutover M3.5, spec
+ * cutover plan SS7; engineering-principles.md SS9: generalize the bug, don't
+ * hardcode examples). A country/state/continent-scale result would blow
+ * out every downstream radius-bounded search (catalog retrieval, Overpass,
+ * Places Nearby) if treated as a bounded area scope -- this is the only
+ * reason ANY exclusion exists here.
+ */
+const TOO_BROAD_ADDRESS_TYPES: ReadonlySet<string> = new Set([
+  'continent',
+  'country',
+  'state',
+]);
+
+/**
+ * The ONE canonical "is this a usable, scale-compatible urban/
+ * administrative area" predicate (cutover M3.5) -- shared by
+ * `DestinationResolutionService` (whole-trip destination scope) and
+ * `AreaRouteAnchorResolverService` (B5 area anchors), so there is exactly
+ * one scope-acceptance authority, never two independently-drifting ones.
+ *
+ * Combines FOUR real, provider-native signals, never a name whitelist:
+ *   1. provider type    -- Nominatim's own `class` (the top-level OSM tag
+ *                           category that matched: 'boundary'/'place' vs.
+ *                           'building'/'highway'/'amenity'/'shop'/...);
+ *   2. usable boundary   -- a real way/relation only; a bare node has no
+ *                           polygon geometry to hydrate, ever;
+ *   3. urban/admin context -- `class` must actually be 'boundary' (an
+ *                           administrative boundary) or 'place' (a named
+ *                           populated place), never inferred from
+ *                           `addresstype` alone;
+ *   4. scale compatibility -- `addresstype` must not be one of the small,
+ *                           stable, too-broad top-level scales above.
+ *
+ * A suburb, neighbourhood, quarter, borough, hamlet, or any other locale-
+ * specific administrative/place classification Nominatim/OSM ever returns
+ * is accepted uniformly here -- this function never enumerates "which
+ * narrow terms count," it only excludes the handful of genuinely-too-broad
+ * ones. `class`/`addresstype` missing or unrecognized never defaults to
+ * eligible (unknown is not evidence of eligibility).
+ */
+export function isAreaScaleEligible<
+  T extends Pick<NominatimResult, 'osmType' | 'addresstype' | 'class'>,
+>(result: T): result is T & { osmType: 'way' | 'relation' } {
+  if (result.osmType === 'node') return false;
+  if (TOO_BROAD_ADDRESS_TYPES.has(result.addresstype)) return false;
+  return result.class === 'boundary' || result.class === 'place';
+}
+
 export function matchOsmCandidateByName(
   name: string,
   pool: OsmCandidate[],

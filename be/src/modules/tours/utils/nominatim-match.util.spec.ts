@@ -1,5 +1,6 @@
 import {
   bestNominatimMatch,
+  isAreaScaleEligible,
   matchOsmCandidateByName,
   normalizeGeoName,
   rankNominatimCandidates,
@@ -97,6 +98,134 @@ describe('rankNominatimCandidates', () => {
     const low = result({ importance: 0.1 });
     const high = result({ importance: 0.9 });
     expect(rankNominatimCandidates([low, high])).toBe(high);
+  });
+});
+
+describe('isAreaScaleEligible', () => {
+  // Cutover M3.5 -- solves the general scale-model problem: a real,
+  // resolvable way/relation with genuine urban/administrative context is
+  // area-scale-eligible regardless of what specific narrow term Nominatim
+  // gives it, never an enumerated whitelist of "acceptable" place names.
+
+  it('rejects a bare node (no usable boundary geometry exists at all)', () => {
+    expect(
+      isAreaScaleEligible(
+        result({ osmType: 'node', class: 'place', addresstype: 'city' }),
+      ),
+    ).toBe(false);
+  });
+
+  it('accepts a genuine administrative city boundary', () => {
+    expect(
+      isAreaScaleEligible(
+        result({ osmType: 'relation', class: 'boundary', addresstype: 'city' }),
+      ),
+    ).toBe(true);
+  });
+
+  // The headline regression case (RW1): a neighborhood-scale urban area
+  // must resolve canonically, not degrade to point+radius merely because
+  // it isn't city/town/village.
+  it('accepts a suburb-classified real place (San Telmo-style neighborhood)', () => {
+    expect(
+      isAreaScaleEligible(
+        result({ osmType: 'relation', class: 'place', addresstype: 'suburb' }),
+      ),
+    ).toBe(true);
+  });
+
+  it('accepts a neighbourhood-classified real place (general, not suburb-specific)', () => {
+    expect(
+      isAreaScaleEligible(
+        result({
+          osmType: 'way',
+          class: 'place',
+          addresstype: 'neighbourhood',
+        }),
+      ),
+    ).toBe(true);
+  });
+
+  it('accepts a quarter-classified real place (general, not suburb-specific)', () => {
+    expect(
+      isAreaScaleEligible(
+        result({ osmType: 'relation', class: 'place', addresstype: 'quarter' }),
+      ),
+    ).toBe(true);
+  });
+
+  it('accepts a borough-classified real place (general, not suburb-specific)', () => {
+    expect(
+      isAreaScaleEligible(
+        result({ osmType: 'relation', class: 'place', addresstype: 'borough' }),
+      ),
+    ).toBe(true);
+  });
+
+  it('rejects a country result even though it is a genuine administrative boundary (too broad)', () => {
+    expect(
+      isAreaScaleEligible(
+        result({
+          osmType: 'relation',
+          class: 'boundary',
+          addresstype: 'country',
+        }),
+      ),
+    ).toBe(false);
+  });
+
+  it('rejects a state/region result even though it is a genuine administrative boundary (too broad)', () => {
+    expect(
+      isAreaScaleEligible(
+        result({
+          osmType: 'relation',
+          class: 'boundary',
+          addresstype: 'state',
+        }),
+      ),
+    ).toBe(false);
+  });
+
+  it('rejects a continent result (too broad)', () => {
+    expect(
+      isAreaScaleEligible(
+        result({
+          osmType: 'relation',
+          class: 'boundary',
+          addresstype: 'continent',
+        }),
+      ),
+    ).toBe(false);
+  });
+
+  it('rejects a way/relation with no urban/admin classification at all (a building/POI/street, not a whitelist name match)', () => {
+    // Same osmType/addresstype shape a real neighborhood could have, but
+    // `class` says this is NOT actually a place/boundary concept -- proves
+    // the check reads real provider type, not just a name/addresstype
+    // coincidence.
+    expect(
+      isAreaScaleEligible(
+        result({ osmType: 'way', class: 'building', addresstype: 'suburb' }),
+      ),
+    ).toBe(false);
+    expect(
+      isAreaScaleEligible(
+        result({ osmType: 'way', class: 'highway', addresstype: 'road' }),
+      ),
+    ).toBe(false);
+    expect(
+      isAreaScaleEligible(
+        result({ osmType: 'node', class: 'amenity', addresstype: 'hotel' }),
+      ),
+    ).toBe(false);
+  });
+
+  it('rejects when class is missing/unknown -- unknown never defaults to eligible', () => {
+    expect(
+      isAreaScaleEligible(
+        result({ osmType: 'relation', class: undefined, addresstype: 'city' }),
+      ),
+    ).toBe(false);
   });
 });
 

@@ -11,6 +11,7 @@ import { AnchoredPlace } from '../interfaces/preference-spec.interface';
 import { ExperienceCatalogService } from './experience-catalog.service';
 import {
   bestNominatimMatch,
+  isAreaScaleEligible,
   matchOsmCandidateByName,
 } from '../utils/nominatim-match.util';
 
@@ -96,7 +97,11 @@ export class AreaRouteAnchorResolverService {
         results,
         destinationPoint,
       );
-      if (!match || (match.osmType !== 'way' && match.osmType !== 'relation')) {
+      // Cutover M3.5 -- the same canonical scope-acceptance predicate
+      // DestinationResolutionService uses (single source of policy truth,
+      // no dual scope authority). A country/state-scale or non-urban/
+      // admin match is equally nonsensical as a small area anchor.
+      if (!match || !isAreaScaleEligible(match)) {
         return { resolved: false };
       }
 
