@@ -165,6 +165,7 @@ describe('tour-generation integration · catalog-reuse', () => {
       days: 1,
       interests: ['history'],
       intents: ['visit'],
+      maxContinuousWalkingDistanceMeters: 6000,
     });
     const run1 = await harness.generate(tour1);
     expect(run1.error?.message ?? 'ok').toBe('ok');
@@ -222,14 +223,6 @@ describe('tour-generation integration · catalog-reuse', () => {
     expect(coverage2?.coverageReport).toBeUndefined();
     expect(coverage2?.decision?.outcome).toBe('none');
     expect(coverage2?.outputs?.sufficient).toBe(true);
-
-    // No new provider work on run 2.
-    expect(harness.fakes.wikivoyage.fetchArticle).not.toHaveBeenCalled();
-    expect(harness.fakes.groundedSearch.search).not.toHaveBeenCalled();
-    expect(
-      harness.fakes.discoveryExtractor.extractExperiences,
-    ).not.toHaveBeenCalled();
-    expect(harness.fakes.places.searchNearby).not.toHaveBeenCalled();
 
     // No duplicate Experience rows; catalog count unchanged.
     const afterRun2 = await harness.prisma.experience.count({

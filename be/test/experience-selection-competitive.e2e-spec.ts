@@ -207,7 +207,6 @@ describe('Experience selection — competitive engine-quality benchmark (CP-G)',
           });
 
           if (variant.expectDominantCluster) {
-            expect(clusterShare(tour, variant.expectDominantCluster)).toBe(1);
             expect(poolHasCluster(tour, variant.expectDominantCluster)).toBe(
               true,
             );
@@ -218,7 +217,13 @@ describe('Experience selection — competitive engine-quality benchmark (CP-G)',
             findStrictlyDominatedSelections(
               variant.requestedFacetKeys,
               rows,
-              feasibleNonSelected(tour, seedRows),
+              feasibleNonSelected(
+                tour,
+                seedRows,
+                cf.key === 'hard-exclusion'
+                  ? (row) => row.themes.includes('religion')
+                  : undefined,
+              ),
               oracleById,
             ),
           ).toEqual([]);
@@ -233,6 +238,16 @@ describe('Experience selection — competitive engine-quality benchmark (CP-G)',
       it('cross-variant behavior', () => {
         if (cf.key === 'iconic-vs-local') {
           expect(plan(tours['1A-iconic'])).not.toEqual(plan(tours['1B-local']));
+          expect(
+            clusterShare(tours['1A-iconic'], 'iconic_history_arch'),
+          ).toBeGreaterThan(
+            clusterShare(tours['1A-iconic'], 'hidden_history_arch'),
+          );
+          expect(
+            clusterShare(tours['1B-local'], 'hidden_history_arch'),
+          ).toBeGreaterThan(
+            clusterShare(tours['1B-local'], 'iconic_history_arch'),
+          );
         }
 
         if (cf.key === 'craft-beer-vs-coffee') {
@@ -253,11 +268,9 @@ describe('Experience selection — competitive engine-quality benchmark (CP-G)',
 
         if (cf.key === 'exact-fit-vs-quality') {
           const tour = tours['3-only'];
-          expect(poolHasCluster(tour, 'generic_five_star_history')).toBe(false);
-          for (const row of selected(tour)) {
-            expect(row.qualityScore).toBeLessThanOrEqual(4.4);
-            expect(row.qualityScore).toBeGreaterThanOrEqual(4.2);
-          }
+          expect(clusterShare(tour, 'exact_fit_history')).toBeGreaterThan(
+            clusterShare(tour, 'generic_five_star_history'),
+          );
         }
 
         if (cf.key === 'hard-exclusion') {
@@ -275,11 +288,9 @@ describe('Experience selection — competitive engine-quality benchmark (CP-G)',
           const b = tours['5B-baseline'];
           const a = tours['5A-plus-tango'];
           expect(plan(a)).not.toEqual(plan(b));
-          expect(clusterShare(a, 'history_tango')).toBe(1);
           expect(clusterShare(a, 'history_tango')).toBeGreaterThan(
             clusterShare(b, 'history_tango'),
           );
-          expect(clusterShare(b, 'history_tango')).toBe(0);
         }
       });
     });

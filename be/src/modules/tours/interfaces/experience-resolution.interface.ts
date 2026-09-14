@@ -74,7 +74,7 @@ export interface ExperienceResolutionRequest {
    * verified live against the real API (see nominatim.interface.ts).
    */
   destinationCountryCode?: string;
-  destinationBoundary: unknown;
+  destinationBoundary?: unknown;
   /**
    * Present only when the destination degraded to point-scale (no real OSM
    * area/relation was found — see DestinationResolutionService). Tells the

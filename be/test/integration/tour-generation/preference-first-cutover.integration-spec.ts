@@ -152,8 +152,14 @@ describe('tour-generation integration · preference-first live cutover', () => {
         ]),
       );
       expect(coverageStep.decision.outcome).toBe('none');
-      // Sufficient on the very first pass -- no acquisition stage at all.
-      expect(steps.some((step: any) => step.stage === 'discovery')).toBe(false);
+      // Facet coverage is sufficient on the first pass. C5b may still acquire
+      // planner capacity after the reservoir is exhausted.
+      expect(
+        steps
+          .filter((step: any) => step.stage === 'discovery')
+          .flatMap((step: any) => step.inputs?.deficits ?? [])
+          .some((deficit: any) => deficit.origin === 'preference_facet'),
+      ).toBe(false);
     });
 
     it('a facet with zero strong catalog matches produces a real preference_facet deficit that routes acquisition (never a legacy CoverageDeficit)', async () => {
@@ -357,8 +363,14 @@ describe('tour-generation integration · preference-first live cutover', () => {
       // no legacy `coverageReport`/`usableCandidateCount` projection.
       expect(coverageStep.coverageReport).toBeUndefined();
       expect(coverageStep.outputs.totalDistinctEligibleExperiences).toBe(4);
-      // Sufficient on the very first pass -- no acquisition stage at all.
-      expect(steps.some((step: any) => step.stage === 'discovery')).toBe(false);
+      // No preference deficit is allowed; C5b may acquire planner capacity
+      // after the initial portfolio/reservoir is exhausted.
+      expect(
+        steps
+          .filter((step: any) => step.stage === 'discovery')
+          .flatMap((step: any) => step.inputs?.deficits ?? [])
+          .some((deficit: any) => deficit.origin === 'preference_facet'),
+      ).toBe(false);
     });
   });
 });

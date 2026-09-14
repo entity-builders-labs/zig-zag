@@ -8,6 +8,7 @@ import { OutboxPublisherService } from '../../../src/modules/outbox/services/out
 import { GeoapifyTravelEstimateProvider } from '../../../src/modules/tours/services/geoapify-travel-estimate.provider';
 import { LangChainService } from '../../../src/shared/ai/langchain.service';
 import { AiEmbeddingService } from '../../../src/shared/ai/services/ai-embedding.service';
+import { TourImageService } from '../../../src/modules/tours/services/tour-image.service';
 
 import { assertDisposableDatabase } from '../assert-disposable-database';
 import { resetTablesWith } from '../../integration/support/test-db';
@@ -17,6 +18,7 @@ import {
   makeFakeInterpreter,
   makeFakeRouting,
 } from './fakes';
+import { waitForTourQuiescence } from './wait-for-tour-quiescence';
 
 const RESET_TABLES_ALL = [
   'tour_experience_component',
@@ -65,6 +67,10 @@ export async function bootstrapCompetitiveApp(): Promise<CompetitiveHarness> {
   const embeddingSpies = makeFakeCompetitiveEmbeddingService();
   const { fakeLangChain, setInterpretation } = makeFakeInterpreter();
   const fakeRouting = makeFakeRouting();
+  const fakeTourImage = {
+    resolveDestinationCoverImage: jest.fn(async (): Promise<null> => null),
+    generateTourCoverImage: jest.fn(async (): Promise<null> => null),
+  };
 
   const moduleRef: TestingModule = await Test.createTestingModule({
     imports: [AppModule],
@@ -75,6 +81,8 @@ export async function bootstrapCompetitiveApp(): Promise<CompetitiveHarness> {
     .useValue(embeddingSpies.service)
     .overrideProvider(GeoapifyTravelEstimateProvider)
     .useValue(fakeRouting)
+    .overrideProvider(TourImageService)
+    .useValue(fakeTourImage)
     .compile();
 
   const app = moduleRef.createNestApplication();
@@ -121,7 +129,7 @@ export async function bootstrapCompetitiveApp(): Promise<CompetitiveHarness> {
     const publication = await outboxPublisher.processNextBatch();
     expect(publication.publishedCount).toBeGreaterThanOrEqual(1);
     let response: any;
-    for (let attempt = 0; attempt < 1000; attempt++) {
+    for (let attempt = 0; attempt < 6000; attempt++) {
       response = await request(app.getHttpServer())
         .get(`/tours/${tourId}`)
         .set('Authorization', `Bearer ${token}`)
@@ -135,6 +143,11 @@ export async function bootstrapCompetitiveApp(): Promise<CompetitiveHarness> {
       await new Promise<void>((resolve) => setTimeout(resolve, 10));
     }
     expect(response.body.metadata.generationStatus).toBe('completed');
+    await waitForTourQuiescence(prisma, outboxPublisher, tourId);
+    response = await request(app.getHttpServer())
+      .get(`/tours/${tourId}`)
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200);
     return response.body;
   };
 

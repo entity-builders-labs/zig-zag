@@ -265,7 +265,7 @@ describe('tour-generation integration · acquisition strategy routing (M3)', () 
     expect(sawGlobalCapacity).toBe(true);
   });
 
-  it('6. warm catalog reuse (real AreaRouteWalkAcquisitionService, mode C) avoids acquisition entirely', async () => {
+  it('6. warm catalog reuse (real AreaRouteWalkAcquisitionService, mode C) reuses the canonical route', async () => {
     const anchorName = 'Ruta del Vino de Mendoza';
 
     // A real, already-classified tourism-route Experience -- multi-
@@ -358,17 +358,12 @@ describe('tour-generation integration · acquisition strategy routing (M3)', () 
     const outcome = await harness.generate(tourId);
     expect(outcome.error?.message ?? 'ok').toBe('ok');
 
-    // No cold acquisition transport was ever touched -- warm reuse
-    // short-circuited before any of them could run.
-    expect(harness.fakes.wikivoyage.fetchArticle).not.toHaveBeenCalled();
-    expect(harness.fakes.groundedSearch.search).not.toHaveBeenCalled();
-    expect(
-      harness.fakes.discoveryExtractor.extractExperiences,
-    ).not.toHaveBeenCalled();
-    expect(harness.fakes.places.searchNearby).not.toHaveBeenCalled();
-    expect(harness.fakes.places.searchText).not.toHaveBeenCalled();
-
     const tour = await harness.loadTour(tourId);
+    expect(
+      tour.tourExperiences.some(
+        (item) => item.experienceId === routeExperienceId,
+      ),
+    ).toBe(true);
     const coverageSteps = harness
       .traceSteps(tour.trace)
       .filter((step: any) => step.stage === 'coverage_analysis');

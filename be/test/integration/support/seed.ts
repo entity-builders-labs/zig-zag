@@ -137,6 +137,7 @@ export interface SeedTourInput {
   intents?: string[];
   additionalPreferences?: string;
   startDates?: string[];
+  maxContinuousWalkingDistanceMeters?: number;
 }
 
 /** Seeds a Tour row with a canonical (contractVersion 1) generationRequest so
@@ -168,7 +169,8 @@ export async function seedTour(
     mobility: {
       allowedTransportationModes: ['walking', 'public_transport'],
       maxWalkingDistancePerDayMeters: 6000,
-      maxContinuousWalkingDistanceMeters: 2500,
+      maxContinuousWalkingDistanceMeters:
+        input.maxContinuousWalkingDistanceMeters ?? 2500,
       travelPace: 'moderate',
       accessibilityNeeds: [] as string[],
     },

@@ -1169,6 +1169,35 @@ describe('ExperienceProposalResolverService', () => {
     ).rejects.toThrow('Experience resolution requires destinationBoundary');
   });
 
+  it('accepts the canonical point-radius scope without an OSM boundary', async () => {
+    const service = new ExperienceProposalResolverService(
+      {
+        lookupStreetsNear: jest.fn().mockResolvedValue({
+          status: 'success',
+          value: [],
+        }),
+        lookupPoisNear: jest.fn().mockResolvedValue({
+          status: 'success',
+          value: [],
+        }),
+      } as any,
+      {} as any,
+      {} as any,
+    );
+
+    const result = await service.resolve({
+      destinationName: 'Buenos Aires',
+      destinationPointRadius: {
+        latitude: -34.6,
+        longitude: -58.4,
+        radiusMeters: 1200,
+      },
+      candidates: [],
+    });
+
+    expect(result.acceptedCount).toBe(0);
+  });
+
   it.each([
     {
       name: '429 rate limit',

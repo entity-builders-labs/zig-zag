@@ -121,7 +121,7 @@ export function findStrictlyDominatedSelections(
       const atLeastAsGood = keys.every((k) => sat(co, k) >= sat(so, k));
       const strictlyBetter = keys.some((k) => sat(co, k) > sat(so, k));
       const notWorseOnQuality =
-        (co.qualityScore ?? 0) >= (so.qualityScore ?? 0) - 0.5;
+        (co.qualityScore ?? 0) >= (so.qualityScore ?? 0);
       return atLeastAsGood && strictlyBetter && notWorseOnQuality;
     });
     if (dominators.length > 0) {

@@ -28,6 +28,7 @@ import {
 } from '../utils/nominatim-match.util';
 import { GeoEntityHint } from '../interfaces/experience-discovery.interface';
 import { computeQualityScore } from '../utils/quality-score.util';
+import { pointRadiusToGeometry } from '../utils/geometry-search-area.util';
 
 // Loose radius for biasing a Places text search toward the destination when
 // Nominatim/OSM had no usable match — wide enough to cover a metro area's
@@ -102,9 +103,22 @@ export class ExperienceProposalResolverService
     const candidates = Array.isArray(input?.candidates) ? input.candidates : [];
     const evidence = input.evidence ?? [];
     const boundary = input?.destinationBoundary as OsmCandidate | undefined;
-    if (!boundary) {
+    const pointRadius = input.destinationPointRadius;
+    if (!boundary && !pointRadius) {
       throw new Error('Experience resolution requires destinationBoundary');
     }
+    const effectiveBoundary: OsmCandidate = boundary ?? {
+      id: 'synthetic:point-radius-scope',
+      name: input.destinationName ?? 'point destination',
+      osmType: 'relation',
+      osmId: 0,
+      geometry: pointRadiusToGeometry(
+        pointRadius!.latitude,
+        pointRadius!.longitude,
+        pointRadius!.radiusMeters,
+      ),
+      tags: { synthetic: 'true', validation_scope: 'point_radius' },
+    };
 
     // A point-scale destination has no real OSM area/relation — boundary
     // here is a synthetic point-radius placeholder (osmId: 0) that a real
@@ -112,7 +126,6 @@ export class ExperienceProposalResolverService
     // relation(0) returns a hard HTTP 400, not a slow query or an empty
     // result). Use the radius-based lookups instead whenever the caller
     // tells us this destination degraded to point-scale.
-    const pointRadius = input.destinationPointRadius;
     const [streetLookup, poiLookup] = await Promise.all([
       pointRadius
         ? this.osmPlaces.lookupStreetsNear(
@@ -120,14 +133,14 @@ export class ExperienceProposalResolverService
             pointRadius.longitude,
             pointRadius.radiusMeters,
           )
-        : this.osmPlaces.lookupStreetsWithin(boundary),
+        : this.osmPlaces.lookupStreetsWithin(effectiveBoundary),
       pointRadius
         ? this.osmPlaces.lookupPoisNear(
             pointRadius.latitude,
             pointRadius.longitude,
             pointRadius.radiusMeters,
           )
-        : this.osmPlaces.lookupPoisWithin(boundary),
+        : this.osmPlaces.lookupPoisWithin(effectiveBoundary),
     ]);
 
     // Bounded: each candidate can upsert a GeoEntity (its own interactive
@@ -138,7 +151,7 @@ export class ExperienceProposalResolverService
       (candidate: any) =>
         this.resolveCandidate(
           candidate,
-          boundary,
+          effectiveBoundary,
           streetLookup.value,
           poiLookup.value,
           { streets: streetLookup, pois: poiLookup },
@@ -168,7 +181,7 @@ export class ExperienceProposalResolverService
       .map((item) => {
         const result = this.geographicValidator.validate(
           item,
-          this.validationBoundaryFor(item, boundary),
+          this.validationBoundaryFor(item, effectiveBoundary),
           input.validationScope,
           input.validationIntent,
         );

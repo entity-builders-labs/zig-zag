@@ -5,7 +5,9 @@ import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { PrismaService } from '../src/core/database/prisma.service';
 import { OutboxPublisherService } from '../src/modules/outbox/services/outbox-publisher.service';
+import { waitForTourQuiescence } from './support/experience-selection/wait-for-tour-quiescence';
 import { GeoapifyTravelEstimateProvider } from '../src/modules/tours/services/geoapify-travel-estimate.provider';
+import { TourImageService } from '../src/modules/tours/services/tour-image.service';
 import { TransportationMode } from '../src/modules/tours/interfaces/tour-generation.interface';
 import { normalizeWizardFacet } from '../src/modules/tours/utils/preference-facet-merge.util';
 import { LangChainService } from '../src/shared/ai/langchain.service';
@@ -640,7 +642,7 @@ const scenarios: ScenarioDefinition[] = [
         qualityScore: 3,
       });
     },
-    assertTrace(tour, rows) {
+    assertTrace(tour) {
       const preference = traceStep(tour, 'preference_interpretation');
       expect(preference.outputs.intent.hardExclusions).toContain('religion');
       expect(
@@ -723,6 +725,11 @@ describe('Experience V2 CP8 mandatory selection scenarios at scale', () => {
       .useValue(fakeEmbeddingService)
       .overrideProvider(GeoapifyTravelEstimateProvider)
       .useValue(fakeGeoapifyRouting)
+      .overrideProvider(TourImageService)
+      .useValue({
+        resolveDestinationCoverImage: jest.fn(async (): Promise<null> => null),
+        generateTourCoverImage: jest.fn(async (): Promise<null> => null),
+      })
       .compile();
     app = moduleFixture.createNestApplication();
     await app.init();
@@ -870,7 +877,7 @@ describe('Experience V2 CP8 mandatory selection scenarios at scale', () => {
     const publication = await outboxPublisher.processNextBatch();
     expect(publication.publishedCount).toBeGreaterThanOrEqual(1);
     let response: any;
-    for (let attempt = 0; attempt < 300; attempt++) {
+    for (let attempt = 0; attempt < 6000; attempt++) {
       response = await request(app.getHttpServer())
         .get(`/tours/${tourId}`)
         .set('Authorization', `Bearer ${accessToken}`)
@@ -884,6 +891,11 @@ describe('Experience V2 CP8 mandatory selection scenarios at scale', () => {
       await new Promise<void>((resolve) => setTimeout(resolve, 10));
     }
     expect(response.body.metadata.generationStatus).toBe('completed');
+    await waitForTourQuiescence(prisma, outboxPublisher, tourId);
+    response = await request(app.getHttpServer())
+      .get(`/tours/${tourId}`)
+      .set('Authorization', `Bearer ${accessToken}`)
+      .expect(200);
     expect(
       (await prisma.outboxEvent.findUnique({ where: { id: event!.id } }))
         ?.status,

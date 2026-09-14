@@ -50,7 +50,7 @@ export interface Variant {
   name: string;
   request: Record<string, unknown>;
   interpretation: FakeInterpretation;
-  /** The single cluster expected to fill the itinerary (share === 1). */
+  /** Optional diagnostic cluster; acceptance is directional, not exclusive. */
   expectDominantCluster?: string;
   /** Bare facet keys the profile requests — for the dominance helper. */
   requestedFacetKeys: string[];
