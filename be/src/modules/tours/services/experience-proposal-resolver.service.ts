@@ -22,6 +22,7 @@ import {
 } from '../interfaces/experience-resolution.interface';
 import {
   bestNominatimMatch,
+  isAreaScaleEligible,
   matchOsmCandidateByName,
   normalizeGeoName,
 } from '../utils/nominatim-match.util';
@@ -532,10 +533,13 @@ export class ExperienceProposalResolverService
         return undefined;
       }
 
-      if (
-        hint.expectedKind === 'AREA' &&
-        (match.osmType === 'way' || match.osmType === 'relation')
-      ) {
+      // Cutover M3.5 -- the same canonical scope-acceptance predicate
+      // DestinationResolutionService/AreaRouteAnchorResolverService use
+      // (single source of policy truth): "is this Nominatim match a
+      // usable AREA" is the same question here, not a different domain
+      // concern -- `hint.expectedKind === 'AREA'` alone already covers
+      // "should this hint even be treated as an area."
+      if (hint.expectedKind === 'AREA' && isAreaScaleEligible(match)) {
         const boundary = await this.osmPlaces.lookupBoundaryById(
           match.osmType,
           match.osmId,

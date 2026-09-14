@@ -139,26 +139,39 @@ const TOO_BROAD_ADDRESS_TYPES: ReadonlySet<string> = new Set([
  *                           'building'/'highway'/'amenity'/'shop'/...);
  *   2. usable boundary   -- a real way/relation only; a bare node has no
  *                           polygon geometry to hydrate, ever;
- *   3. urban/admin context -- `class` must actually be 'boundary' (an
- *                           administrative boundary) or 'place' (a named
- *                           populated place), never inferred from
- *                           `addresstype` alone;
+ *   3. urban/admin context -- see the per-class rule below; never inferred
+ *                           from `addresstype` alone;
  *   4. scale compatibility -- `addresstype` must not be one of the small,
  *                           stable, too-broad top-level scales above.
+ *
+ * Urban/admin context is NOT simply "class is boundary or place" -- the
+ * two classes carry different semantics and are validated differently:
+ *   - `class === 'boundary'`: Nominatim overloads this class with several
+ *     non-administrative boundary kinds (national parks, protected areas,
+ *     maritime boundaries, postal code areas, ...). Only
+ *     `type === 'administrative'` genuinely establishes an administrative
+ *     area -- a missing/unrecognized `type` never defaults to eligible.
+ *   - `class === 'place'`: every real OSM `place=*` value (city down to
+ *     isolated_dwelling, hamlet up through country/continent) already
+ *     denotes a genuine named/populated place at SOME granularity; no
+ *     further `type` narrowing is needed here -- scale compatibility is
+ *     handled uniformly by the `addresstype` exclusion above regardless of
+ *     class.
  *
  * A suburb, neighbourhood, quarter, borough, hamlet, or any other locale-
  * specific administrative/place classification Nominatim/OSM ever returns
  * is accepted uniformly here -- this function never enumerates "which
  * narrow terms count," it only excludes the handful of genuinely-too-broad
- * ones. `class`/`addresstype` missing or unrecognized never defaults to
- * eligible (unknown is not evidence of eligibility).
+ * scales and the handful of genuinely-non-administrative boundary kinds.
+ * Never a destination-name or provider-specific special case.
  */
 export function isAreaScaleEligible<
-  T extends Pick<NominatimResult, 'osmType' | 'addresstype' | 'class'>,
+  T extends Pick<NominatimResult, 'osmType' | 'addresstype' | 'class' | 'type'>,
 >(result: T): result is T & { osmType: 'way' | 'relation' } {
   if (result.osmType === 'node') return false;
   if (TOO_BROAD_ADDRESS_TYPES.has(result.addresstype)) return false;
-  return result.class === 'boundary' || result.class === 'place';
+  if (result.class === 'boundary') return result.type === 'administrative';
+  return result.class === 'place';
 }
 
 export function matchOsmCandidateByName(

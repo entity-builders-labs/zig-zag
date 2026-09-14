@@ -118,7 +118,12 @@ describe('isAreaScaleEligible', () => {
   it('accepts a genuine administrative city boundary', () => {
     expect(
       isAreaScaleEligible(
-        result({ osmType: 'relation', class: 'boundary', addresstype: 'city' }),
+        result({
+          osmType: 'relation',
+          class: 'boundary',
+          type: 'administrative',
+          addresstype: 'city',
+        }),
       ),
     ).toBe(true);
   });
@@ -168,6 +173,7 @@ describe('isAreaScaleEligible', () => {
         result({
           osmType: 'relation',
           class: 'boundary',
+          type: 'administrative',
           addresstype: 'country',
         }),
       ),
@@ -180,6 +186,7 @@ describe('isAreaScaleEligible', () => {
         result({
           osmType: 'relation',
           class: 'boundary',
+          type: 'administrative',
           addresstype: 'state',
         }),
       ),
@@ -192,7 +199,40 @@ describe('isAreaScaleEligible', () => {
         result({
           osmType: 'relation',
           class: 'boundary',
+          type: 'administrative',
           addresstype: 'continent',
+        }),
+      ),
+    ).toBe(false);
+  });
+
+  // Required regression (correction round): class === 'boundary' alone
+  // never proves administrative eligibility -- Nominatim overloads
+  // `boundary` with several genuinely non-administrative kinds.
+  it.each(['national_park', 'protected_area', 'maritime', 'postal_code'])(
+    'rejects a %s boundary -- class is "boundary" but type is not "administrative"',
+    (type) => {
+      expect(
+        isAreaScaleEligible(
+          result({
+            osmType: 'relation',
+            class: 'boundary',
+            type,
+            addresstype: 'suburb',
+          }),
+        ),
+      ).toBe(false);
+    },
+  );
+
+  it('rejects a boundary-classified result with a missing/unknown type -- unknown never proves administrative eligibility', () => {
+    expect(
+      isAreaScaleEligible(
+        result({
+          osmType: 'relation',
+          class: 'boundary',
+          type: undefined,
+          addresstype: 'city',
         }),
       ),
     ).toBe(false);
