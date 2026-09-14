@@ -33,6 +33,8 @@ import {
   ExperienceValidationScope,
   FinalExperienceResolutionResponse,
 } from '../interfaces/experience-resolution.interface';
+import { ExperienceClassificationService } from './experience-classification.service';
+import { classifyAcceptedResultsByExperience } from '../utils/experience-classification-convergence.util';
 
 export interface ResolverEvidenceItem {
   key: string;
@@ -130,6 +132,8 @@ export class ExperienceAcquisitionService {
     @Optional()
     @Inject('EXPERIENCE_DISCOVERY_PROVIDER')
     private readonly discoveryExtractor?: ExperienceDiscoveryExtractor,
+    @Optional()
+    private readonly classifier?: ExperienceClassificationService,
   ) {}
 
   async executePlan(
@@ -496,7 +500,7 @@ export class ExperienceAcquisitionService {
         'ExperienceProposalResolver is required for materialization',
       );
     }
-    return this.proposalResolver.resolve({
+    const response = await this.proposalResolver.resolve({
       candidates: execution.candidates,
       destinationName: context.destinationName,
       destinationCountryCode: context.destinationCountryCode,
@@ -506,5 +510,21 @@ export class ExperienceAcquisitionService {
       validationScope: context.validationScope,
       validationIntent: context.validationIntent,
     });
+
+    // Cutover M4 (spec cutover plan §6) -- the single place EVERY
+    // acquisition strategy's materialized output gets classified, never a
+    // per-strategy opt-in. Runs for every caller of materializeExecution
+    // (the generic acquisition loop and AreaRouteWalkAcquisitionService
+    // alike) -- classification is a property of this shared boundary now,
+    // not of any one caller.
+    if (this.classifier) {
+      await classifyAcceptedResultsByExperience(
+        response.resolved,
+        execution.evidence,
+        { catalog: this.catalog, classifier: this.classifier },
+      );
+    }
+
+    return response;
   }
 }

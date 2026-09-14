@@ -7,14 +7,10 @@ import {
   BuildPlanInput,
   ExperienceAcquisitionPlannerService,
 } from './experience-acquisition-planner.service';
-import {
-  ExperienceAcquisitionService,
-  ResolverEvidenceItem,
-} from './experience-acquisition.service';
+import { ExperienceAcquisitionService } from './experience-acquisition.service';
 import {
   CURRENT_CLASSIFICATION_PROMPT_VERSION,
   canReuseClassification,
-  ExperienceClassificationService,
 } from './experience-classification.service';
 import { AnchoredPlace } from '../interfaces/preference-spec.interface';
 import { PreferenceFacetDeficit } from '../interfaces/experience-acquisition-plan.interface';
@@ -64,8 +60,11 @@ export type AreaRouteWalkAcquisitionResult =
  * for all 3 anchor shapes this primitive supports: a single AREA, a
  * canonical geographic ROUTE, and a named tourism-route Experience with no
  * canonical ROUTE geometry (mode C) — the last of which requires a real,
- * evidence-only Stage-6 classification pass this service itself owns
- * (rounds 7-9), not a hypothetical future wiring step.
+ * evidence-only Stage-6 classification pass to converge before warm reuse
+ * works. Cutover M4: that classification pass is no longer owned here — it
+ * runs inside `ExperienceAcquisitionService.materializeExecution()`, the
+ * shared canonical materialization boundary every acquisition strategy
+ * converges on. This service holds no classification authority of its own.
  */
 @Injectable()
 export class AreaRouteWalkAcquisitionService {
@@ -74,7 +73,6 @@ export class AreaRouteWalkAcquisitionService {
     private readonly catalog: ExperienceCatalogService,
     private readonly acquisitionPlanner: ExperienceAcquisitionPlannerService,
     private readonly acquisitionService: ExperienceAcquisitionService,
-    private readonly classifier: ExperienceClassificationService,
   ) {}
 
   async acquireOrReuse(
@@ -208,60 +206,16 @@ export class AreaRouteWalkAcquisitionService {
     const acceptedIds = new Set(acceptedResults.map((r) => r.experienceId));
     if (acceptedIds.size === 0) return { outcome: 'no_result' };
 
-    // Classify exactly ONCE per CANONICAL experienceId, using the
-    // deduplicated union of evidenceKeys cited by EVERY accepted candidate
-    // that converged to that same experienceId -- never per accepted
-    // candidate (multiple accepted candidates can legitimately dedupe onto
-    // the same canonical Experience), and never a different canonical
-    // Experience's evidence. Real evidence-only convergence, using the
-    // already-built B2 classifier + B4 merge util (via
-    // applyEvidenceClassification), scoped to what THIS call accepted --
-    // never a rewrite of the resolver's general persistence path.
-    const evidenceByKey = new Map(
-      (execution.evidence ?? [])
-        .filter(
-          (item): item is typeof item & { key: string } =>
-            typeof item.key === 'string',
-        )
-        .map((item) => [item.key, item]),
-    );
-    const acceptedByExperienceId = new Map<string, typeof acceptedResults>();
-    for (const accepted of acceptedResults) {
-      const group = acceptedByExperienceId.get(accepted.experienceId) ?? [];
-      group.push(accepted);
-      acceptedByExperienceId.set(accepted.experienceId, group);
-    }
-    for (const [experienceId, results] of acceptedByExperienceId) {
-      const [experience] = await this.catalog.findVerifiedByIds([experienceId]);
-      if (!experience) continue;
-      const evidenceKeys = Array.from(
-        new Set(results.flatMap((result) => result.candidate.evidenceKeys)),
-      ).sort();
-      // ExperienceClassificationService only accepts evidence that actually
-      // carries snippet text -- an evidence item with no snippet has
-      // nothing to substantiate a claim from, so it is dropped here rather
-      // than coerced with a cast or a fabricated placeholder.
-      const candidateEvidence = evidenceKeys
-        .map((key) => evidenceByKey.get(key))
-        .filter(
-          (item): item is ResolverEvidenceItem & { snippet: string } =>
-            typeof item?.snippet === 'string',
-        );
-      const classification = await this.classifier.classify(
-        experience.canonicalName,
-        candidateEvidence,
-      );
-      await this.catalog.applyEvidenceClassification(
-        experienceId,
-        classification,
-      );
-    }
+    // Cutover M4 -- classification already happened inside
+    // materializeExecution() above (the shared canonical materialization
+    // boundary, spec cutover plan §6). This service no longer owns any
+    // classification authority of its own.
 
     // POST-acquisition check: geography/identity intersected with THIS
-    // execution's own accepted ids, AND current semantic eligibility
-    // (the same isSemanticallyEligible predicate the WARM check uses, now
-    // evaluated against the freshly persisted classification from the
-    // loop above). A candidate that geographically/structurally accepted
+    // execution's own accepted ids, AND current semantic eligibility (the
+    // same isSemanticallyEligible predicate the WARM check uses, now
+    // evaluated against the classification materializeExecution() just
+    // persisted). A candidate that geographically/structurally accepted
     // but classified into a DIFFERENT intent than requested remains valid,
     // persisted catalog knowledge -- it is simply not a successful result
     // for THIS request.

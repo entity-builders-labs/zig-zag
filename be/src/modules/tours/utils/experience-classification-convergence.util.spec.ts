@@ -1,0 +1,293 @@
+import { classifyAcceptedResultsByExperience } from './experience-classification-convergence.util';
+import { CURRENT_CLASSIFICATION_PROMPT_VERSION } from '../services/experience-classification.service';
+import { ResolvedExperienceCandidate } from '../interfaces/experience-resolution.interface';
+import { ResolverEvidenceItem } from '../services/experience-acquisition.service';
+
+function accepted(
+  experienceId: string,
+  evidenceKeys: string[],
+): ResolvedExperienceCandidate & { experienceId: string } {
+  return {
+    candidate: {
+      name: experienceId,
+      themes: [] as string[],
+      traits: [] as string[],
+      componentHints: [],
+      evidenceKeys,
+      shortReason: 'test',
+    },
+    status: 'accepted',
+    resolvedEntities: [],
+    rejectionReasons: [],
+    experienceId,
+  } as any;
+}
+
+function rejected(): ResolvedExperienceCandidate {
+  return {
+    candidate: {
+      name: 'rejected',
+      themes: [] as string[],
+      traits: [] as string[],
+      componentHints: [],
+      evidenceKeys: [],
+      shortReason: 'test',
+    },
+    status: 'rejected',
+    resolvedEntities: [],
+    rejectionReasons: ['no_match'],
+  } as any;
+}
+
+function evidenceItem(
+  key: string,
+  snippet: string | undefined = 'real evidence text',
+): ResolverEvidenceItem {
+  return { key, source: 'test', snippet };
+}
+
+function validClassificationMetadata(intents: string[] = ['walk']) {
+  return {
+    intents,
+    classification: {
+      state: 'classified' as const,
+      promptVersion: CURRENT_CLASSIFICATION_PROMPT_VERSION,
+      modelId: 'groq/qwen',
+      themes: [] as string[],
+      intents,
+      traits: [] as string[],
+      reasoningEvidence: intents.map((intent) => ({
+        facet: `intent:${intent}`,
+        evidenceKeys: ['ev-existing'],
+        reason: 'already substantiated',
+      })),
+    },
+  };
+}
+
+function buildDeps() {
+  const catalog = {
+    findVerifiedByIds: jest.fn(),
+    applyEvidenceClassification: jest.fn().mockResolvedValue(undefined),
+  };
+  const classifier = {
+    classify: jest.fn(),
+  };
+  return { catalog, classifier };
+}
+
+describe('classifyAcceptedResultsByExperience', () => {
+  it('classifies exactly once per canonical experienceId, using the deduplicated union of evidenceKeys from every candidate that converged to it', async () => {
+    const { catalog, classifier } = buildDeps();
+    catalog.findVerifiedByIds.mockResolvedValue([
+      { id: 'exp-1', canonicalName: 'Teatro Colón', metadata: {} },
+    ]);
+    classifier.classify.mockResolvedValue({
+      state: 'classified',
+      promptVersion: CURRENT_CLASSIFICATION_PROMPT_VERSION,
+      modelId: 'groq/qwen',
+      themes: [],
+      intents: ['visit'],
+      traits: [],
+      reasoningEvidence: [
+        { facet: 'intent:visit', evidenceKeys: ['a1'], reason: 'evidence' },
+      ],
+    });
+
+    const resolved = [
+      accepted('exp-1', ['a1']),
+      accepted('exp-1', ['b1']),
+      rejected(),
+    ];
+    const evidence = [
+      evidenceItem('a1'),
+      evidenceItem('b1'),
+      evidenceItem('c1'),
+    ];
+
+    await classifyAcceptedResultsByExperience(resolved, evidence, {
+      catalog: catalog as any,
+      classifier: classifier as any,
+    });
+
+    expect(classifier.classify).toHaveBeenCalledTimes(1);
+    expect(classifier.classify).toHaveBeenCalledWith('Teatro Colón', [
+      evidenceItem('a1'),
+      evidenceItem('b1'),
+    ]);
+    expect(catalog.applyEvidenceClassification).toHaveBeenCalledTimes(1);
+    expect(catalog.applyEvidenceClassification).toHaveBeenCalledWith(
+      'exp-1',
+      expect.objectContaining({ intents: ['visit'] }),
+    );
+  });
+
+  it('never crosses evidence between two distinct canonical experienceIds', async () => {
+    const { catalog, classifier } = buildDeps();
+    catalog.findVerifiedByIds.mockImplementation(async (ids: string[]) =>
+      ids.map((id) => ({ id, canonicalName: id, metadata: {} })),
+    );
+    classifier.classify.mockResolvedValue({
+      state: 'classified',
+      promptVersion: CURRENT_CLASSIFICATION_PROMPT_VERSION,
+      modelId: 'groq/qwen',
+      themes: [],
+      intents: [],
+      traits: [],
+      reasoningEvidence: [],
+    });
+
+    const resolved = [accepted('exp-1', ['a1']), accepted('exp-2', ['b1'])];
+    const evidence = [evidenceItem('a1'), evidenceItem('b1')];
+
+    await classifyAcceptedResultsByExperience(resolved, evidence, {
+      catalog: catalog as any,
+      classifier: classifier as any,
+    });
+
+    expect(classifier.classify).toHaveBeenCalledTimes(2);
+    expect(classifier.classify).toHaveBeenCalledWith('exp-1', [
+      evidenceItem('a1'),
+    ]);
+    expect(classifier.classify).toHaveBeenCalledWith('exp-2', [
+      evidenceItem('b1'),
+    ]);
+  });
+
+  // 3. valid current classification is reused
+  it('reuses a valid current classification -- never recomputes it', async () => {
+    const { catalog, classifier } = buildDeps();
+    catalog.findVerifiedByIds.mockResolvedValue([
+      {
+        id: 'exp-1',
+        canonicalName: 'Teatro Colón',
+        metadata: validClassificationMetadata(['visit']),
+      },
+    ]);
+
+    await classifyAcceptedResultsByExperience(
+      [accepted('exp-1', ['a1'])],
+      [evidenceItem('a1')],
+      { catalog: catalog as any, classifier: classifier as any },
+    );
+
+    expect(classifier.classify).not.toHaveBeenCalled();
+    expect(catalog.applyEvidenceClassification).not.toHaveBeenCalled();
+  });
+
+  // 4. stale/missing classification is recomputed
+  it('recomputes when the current classification is stale (old prompt version)', async () => {
+    const { catalog, classifier } = buildDeps();
+    catalog.findVerifiedByIds.mockResolvedValue([
+      {
+        id: 'exp-1',
+        canonicalName: 'Teatro Colón',
+        metadata: {
+          intents: ['visit'],
+          classification: {
+            ...validClassificationMetadata(['visit']).classification,
+            promptVersion: CURRENT_CLASSIFICATION_PROMPT_VERSION - 1,
+          },
+        },
+      },
+    ]);
+    classifier.classify.mockResolvedValue({
+      state: 'classified',
+      promptVersion: CURRENT_CLASSIFICATION_PROMPT_VERSION,
+      modelId: 'groq/qwen',
+      themes: [],
+      intents: ['visit'],
+      traits: [],
+      reasoningEvidence: [
+        { facet: 'intent:visit', evidenceKeys: ['a1'], reason: 'evidence' },
+      ],
+    });
+
+    await classifyAcceptedResultsByExperience(
+      [accepted('exp-1', ['a1'])],
+      [evidenceItem('a1')],
+      { catalog: catalog as any, classifier: classifier as any },
+    );
+
+    expect(classifier.classify).toHaveBeenCalledTimes(1);
+    expect(catalog.applyEvidenceClassification).toHaveBeenCalledTimes(1);
+  });
+
+  it('recomputes when there is no classification metadata at all yet', async () => {
+    const { catalog, classifier } = buildDeps();
+    catalog.findVerifiedByIds.mockResolvedValue([
+      { id: 'exp-1', canonicalName: 'Teatro Colón', metadata: {} },
+    ]);
+    classifier.classify.mockResolvedValue({
+      state: 'classified',
+      promptVersion: CURRENT_CLASSIFICATION_PROMPT_VERSION,
+      modelId: 'groq/qwen',
+      themes: [],
+      intents: [],
+      traits: [],
+      reasoningEvidence: [],
+    });
+
+    await classifyAcceptedResultsByExperience(
+      [accepted('exp-1', ['a1'])],
+      [evidenceItem('a1')],
+      { catalog: catalog as any, classifier: classifier as any },
+    );
+
+    expect(classifier.classify).toHaveBeenCalledTimes(1);
+  });
+
+  // 5. insufficient evidence does not fabricate themes/intents
+  it('drops evidence items with no snippet text before classifying -- never fabricates evidence to fill the gap', async () => {
+    const { catalog, classifier } = buildDeps();
+    catalog.findVerifiedByIds.mockResolvedValue([
+      { id: 'exp-1', canonicalName: 'Teatro Colón', metadata: {} },
+    ]);
+    classifier.classify.mockResolvedValue({
+      state: 'classified',
+      promptVersion: CURRENT_CLASSIFICATION_PROMPT_VERSION,
+      modelId: 'groq/qwen',
+      themes: [],
+      intents: [],
+      traits: [],
+      reasoningEvidence: [],
+    });
+
+    const noSnippetItem: ResolverEvidenceItem = { key: 'a1', source: 'test' };
+
+    await classifyAcceptedResultsByExperience(
+      [accepted('exp-1', ['a1', 'b1'])],
+      [noSnippetItem, evidenceItem('b1', 'real snippet')],
+      { catalog: catalog as any, classifier: classifier as any },
+    );
+
+    expect(classifier.classify).toHaveBeenCalledWith('Teatro Colón', [
+      evidenceItem('b1', 'real snippet'),
+    ]);
+  });
+
+  it('does nothing when there are no accepted results', async () => {
+    const { catalog, classifier } = buildDeps();
+
+    await classifyAcceptedResultsByExperience([rejected()], [], {
+      catalog: catalog as any,
+      classifier: classifier as any,
+    });
+
+    expect(catalog.findVerifiedByIds).not.toHaveBeenCalled();
+    expect(classifier.classify).not.toHaveBeenCalled();
+  });
+
+  it('skips an accepted result whose experienceId no longer resolves to a real VERIFIED row', async () => {
+    const { catalog, classifier } = buildDeps();
+    catalog.findVerifiedByIds.mockResolvedValue([]);
+
+    await classifyAcceptedResultsByExperience(
+      [accepted('exp-gone', ['a1'])],
+      [evidenceItem('a1')],
+      { catalog: catalog as any, classifier: classifier as any },
+    );
+
+    expect(classifier.classify).not.toHaveBeenCalled();
+  });
+});

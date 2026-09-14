@@ -6,6 +6,19 @@ import { CURRENT_CLASSIFICATION_PROMPT_VERSION } from './experience-classificati
 import { AnchoredPlace } from '../interfaces/preference-spec.interface';
 import { PreferenceFacetDeficit } from '../interfaces/experience-acquisition-plan.interface';
 
+// Cutover M4: classification (grouping-by-canonical-id, evidence-scoping,
+// reuse-vs-recompute) is no longer owned by AreaRouteWalkAcquisitionService
+// -- it runs inside ExperienceAcquisitionService.materializeExecution()
+// (the shared canonical materialization boundary), which is a plain mock
+// in this unit spec. That behavior is now exhaustively covered by
+// experience-classification-convergence.util.spec.ts. What THIS file still
+// owns and must keep proving: warm reuse (modes A/B/C), cold-miss routing,
+// the validationScope/validationIntent threaded into materializeExecution,
+// and the post-check's acceptedIds/semantic-eligibility restriction --
+// using classifiedRow()/degradedRow() fixtures to simulate what
+// materializeExecution's own classification step would have already
+// persisted, never asserting on a classifier this service no longer calls.
+
 function classifiedRow(id: string, intentKey: string) {
   return {
     id,
@@ -62,8 +75,6 @@ function buildMocks() {
     findVerifiedMultiComponentCoveredByArea: jest.fn(),
     findVerifiedMultiComponentByExactComponent: jest.fn(),
     findVerifiedTourismRouteByName: jest.fn(),
-    findVerifiedByIds: jest.fn(),
-    applyEvidenceClassification: jest.fn().mockResolvedValue(undefined),
   };
   const acquisitionPlanner = {
     buildAcquisitionPlan: jest.fn(),
@@ -72,15 +83,11 @@ function buildMocks() {
     executePlan: jest.fn(),
     materializeExecution: jest.fn(),
   };
-  const classifier = {
-    classify: jest.fn(),
-  };
   return {
     anchorResolver,
     catalog,
     acquisitionPlanner,
     acquisitionService,
-    classifier,
   };
 }
 
@@ -90,7 +97,6 @@ function buildService(mocks: ReturnType<typeof buildMocks>) {
     mocks.catalog as any,
     mocks.acquisitionPlanner as any,
     mocks.acquisitionService as any,
-    mocks.classifier as any,
   );
 }
 
@@ -298,24 +304,10 @@ describe('AreaRouteWalkAcquisitionService', () => {
         },
       ],
     });
-    mocks.catalog.findVerifiedByIds.mockResolvedValue([
-      { id: 'exp-1', canonicalName: 'San Telmo Historical Walk' },
-    ]);
-    mocks.classifier.classify.mockResolvedValue({
-      state: 'classified',
-      promptVersion: CURRENT_CLASSIFICATION_PROMPT_VERSION,
-      modelId: 'groq/qwen',
-      themes: [],
-      intents: ['walk'],
-      traits: [],
-      reasoningEvidence: [
-        { facet: 'intent:walk', evidenceKeys: ['ev-1'], reason: 'r' },
-      ],
-    });
 
     // Round 1: warm MISS -> acquire -> post-check finds the freshly-
-    // classified row (simulating what applyEvidenceClassification's real
-    // write would produce).
+    // classified row (simulating what materializeExecution's own
+    // classification step would have already persisted).
     mocks.catalog.findVerifiedMultiComponentCoveredByArea
       .mockResolvedValueOnce([]) // round 1 warm check
       .mockResolvedValueOnce([classifiedRow('exp-1', 'walk')]) // round 1 post-check
@@ -361,20 +353,6 @@ describe('AreaRouteWalkAcquisitionService', () => {
         },
       ],
     });
-    mocks.catalog.findVerifiedByIds.mockResolvedValue([
-      { id: 'exp-caminito', canonicalName: 'Caminito Route' },
-    ]);
-    mocks.classifier.classify.mockResolvedValue({
-      state: 'classified',
-      promptVersion: CURRENT_CLASSIFICATION_PROMPT_VERSION,
-      modelId: 'groq/qwen',
-      themes: [],
-      intents: ['route_like'],
-      traits: [],
-      reasoningEvidence: [
-        { facet: 'intent:route_like', evidenceKeys: ['ev-1'], reason: 'r' },
-      ],
-    });
 
     mocks.catalog.findVerifiedMultiComponentByExactComponent
       .mockResolvedValueOnce([])
@@ -396,7 +374,7 @@ describe('AreaRouteWalkAcquisitionService', () => {
     expect(mocks.acquisitionService.executePlan).toHaveBeenCalledTimes(1);
   });
 
-  it('C3: tourism-route (mode C) cold-then-warm reuse via REAL classification convergence, no faked state', async () => {
+  it('C3: tourism-route (mode C) cold-then-warm reuse without reacquiring', async () => {
     const mocks = buildMocks();
     mocks.anchorResolver.resolveRoute.mockResolvedValue({ resolved: false });
     mocks.acquisitionPlanner.buildAcquisitionPlan.mockReturnValue({
@@ -423,20 +401,6 @@ describe('AreaRouteWalkAcquisitionService', () => {
         },
       ],
     });
-    mocks.catalog.findVerifiedByIds.mockResolvedValue([
-      { id: 'exp-ruta', canonicalName: 'Ruta del Vino de Mendoza' },
-    ]);
-    mocks.classifier.classify.mockResolvedValue({
-      state: 'classified',
-      promptVersion: CURRENT_CLASSIFICATION_PROMPT_VERSION,
-      modelId: 'groq/qwen',
-      themes: [],
-      intents: ['route_like'],
-      traits: [],
-      reasoningEvidence: [
-        { facet: 'intent:route_like', evidenceKeys: ['wine-1'], reason: 'r' },
-      ],
-    });
 
     mocks.catalog.findVerifiedTourismRouteByName
       .mockResolvedValueOnce([]) // round 1 warm MISS
@@ -451,17 +415,6 @@ describe('AreaRouteWalkAcquisitionService', () => {
 
     const round1 = await service.acquireOrReuse(input);
     expect(round1).toEqual({ outcome: 'acquired', experienceId: 'exp-ruta' });
-    expect(mocks.classifier.classify).toHaveBeenCalledWith(
-      'Ruta del Vino de Mendoza',
-      expect.arrayContaining([
-        expect.objectContaining({ key: 'wine-1' }),
-        expect.objectContaining({ key: 'wine-2' }),
-      ]),
-    );
-    expect(mocks.catalog.applyEvidenceClassification).toHaveBeenCalledWith(
-      'exp-ruta',
-      expect.objectContaining({ intents: ['route_like'] }),
-    );
 
     const round2 = await service.acquireOrReuse(input);
     expect(round2).toEqual({ outcome: 'reused', experienceId: 'exp-ruta' });
@@ -470,10 +423,9 @@ describe('AreaRouteWalkAcquisitionService', () => {
       1,
     );
     expect(mocks.acquisitionService.executePlan).toHaveBeenCalledTimes(1);
-    expect(mocks.classifier.classify).toHaveBeenCalledTimes(1);
   });
 
-  it('D: insufficient evidence never persists a fake walk (zero accepted -> no_result, no classification)', async () => {
+  it('D: insufficient evidence never persists a fake walk (zero accepted -> no_result)', async () => {
     const mocks = buildMocks();
     mocks.anchorResolver.resolveArea.mockResolvedValue({
       resolved: true,
@@ -501,8 +453,6 @@ describe('AreaRouteWalkAcquisitionService', () => {
     const result = await service.acquireOrReuse(baseInput());
 
     expect(result).toEqual({ outcome: 'no_result' });
-    expect(mocks.classifier.classify).not.toHaveBeenCalled();
-    expect(mocks.catalog.applyEvidenceClassification).not.toHaveBeenCalled();
   });
 
   it('E: acquisition accepts a candidate, but the post-check geography lookup still finds nothing -> no_result', async () => {
@@ -529,20 +479,6 @@ describe('AreaRouteWalkAcquisitionService', () => {
           experienceId: 'exp-1',
           candidate: { evidenceKeys: ['ev-1'] },
         },
-      ],
-    });
-    mocks.catalog.findVerifiedByIds.mockResolvedValue([
-      { id: 'exp-1', canonicalName: 'San Telmo Historical Walk' },
-    ]);
-    mocks.classifier.classify.mockResolvedValue({
-      state: 'classified',
-      promptVersion: CURRENT_CLASSIFICATION_PROMPT_VERSION,
-      modelId: 'groq/qwen',
-      themes: [],
-      intents: ['walk'],
-      traits: [],
-      reasoningEvidence: [
-        { facet: 'intent:walk', evidenceKeys: ['ev-1'], reason: 'r' },
       ],
     });
     mocks.catalog.findVerifiedMultiComponentCoveredByArea
@@ -608,20 +544,6 @@ describe('AreaRouteWalkAcquisitionService', () => {
         },
       ],
     });
-    mocks.catalog.findVerifiedByIds.mockResolvedValue([
-      { id: 'exp-x', canonicalName: 'San Telmo Historical Walk' },
-    ]);
-    mocks.classifier.classify.mockResolvedValue({
-      state: 'classified',
-      promptVersion: CURRENT_CLASSIFICATION_PROMPT_VERSION,
-      modelId: 'groq/qwen',
-      themes: [],
-      intents: ['walk'],
-      traits: [],
-      reasoningEvidence: [
-        { facet: 'intent:walk', evidenceKeys: ['ev-1'], reason: 'r' },
-      ],
-    });
     // Pre-existing, unrelated, geographically-compatible row Y is ALSO
     // returned by the post-check's geography lookup, alongside this
     // execution's own accepted X.
@@ -664,20 +586,6 @@ describe('AreaRouteWalkAcquisitionService', () => {
         },
       ],
     });
-    mocks.catalog.findVerifiedByIds.mockResolvedValue([
-      { id: 'exp-x', canonicalName: 'San Telmo Historical Walk' },
-    ]);
-    mocks.classifier.classify.mockResolvedValue({
-      state: 'classified',
-      promptVersion: CURRENT_CLASSIFICATION_PROMPT_VERSION,
-      modelId: 'groq/qwen',
-      themes: [],
-      intents: ['walk'],
-      traits: [],
-      reasoningEvidence: [
-        { facet: 'intent:walk', evidenceKeys: ['ev-1'], reason: 'r' },
-      ],
-    });
     mocks.catalog.findVerifiedMultiComponentCoveredByArea
       .mockResolvedValueOnce([])
       .mockResolvedValueOnce([classifiedRow('exp-y', 'walk')]); // only the unrelated row
@@ -686,154 +594,6 @@ describe('AreaRouteWalkAcquisitionService', () => {
     const result = await service.acquireOrReuse(baseInput());
 
     expect(result).toEqual({ outcome: 'no_result' });
-  });
-
-  it('R1: classifies exactly ONCE per canonical experienceId when two accepted candidates converge onto it', async () => {
-    const mocks = buildMocks();
-    mocks.anchorResolver.resolveArea.mockResolvedValue({
-      resolved: true,
-      geoEntityId: 'geo-san-telmo',
-      geometry: { type: 'Polygon', coordinates: [] },
-    });
-    mocks.acquisitionPlanner.buildAcquisitionPlan.mockReturnValue({
-      destination: {},
-      deficits: [],
-      sourcePlans: [{ provider: 'web', web: { query: 'q' } }],
-      breadth: 'focused',
-    });
-    mocks.acquisitionService.executePlan.mockResolvedValue({
-      evidence: [
-        { key: 'a1', source: 'x', snippet: 's' },
-        { key: 'a2', source: 'x', snippet: 's' },
-        { key: 'b1', source: 'x', snippet: 's' },
-        { key: 'b2', source: 'x', snippet: 's' },
-      ],
-      candidates: [],
-    });
-    mocks.acquisitionService.materializeExecution.mockResolvedValue({
-      resolved: [
-        {
-          status: 'accepted',
-          experienceId: 'exp-x',
-          candidate: { evidenceKeys: ['a1', 'a2'] },
-        },
-        {
-          status: 'accepted',
-          experienceId: 'exp-x',
-          candidate: { evidenceKeys: ['b1', 'b2'] },
-        },
-      ],
-    });
-    mocks.catalog.findVerifiedByIds.mockResolvedValue([
-      { id: 'exp-x', canonicalName: 'San Telmo Historical Walk' },
-    ]);
-    mocks.classifier.classify.mockResolvedValue({
-      state: 'classified',
-      promptVersion: CURRENT_CLASSIFICATION_PROMPT_VERSION,
-      modelId: 'groq/qwen',
-      themes: [],
-      intents: ['walk'],
-      traits: [],
-      reasoningEvidence: [
-        { facet: 'intent:walk', evidenceKeys: ['a1'], reason: 'r' },
-      ],
-    });
-    mocks.catalog.findVerifiedMultiComponentCoveredByArea
-      .mockResolvedValueOnce([])
-      .mockResolvedValueOnce([classifiedRow('exp-x', 'walk')]);
-    const service = buildService(mocks);
-
-    await service.acquireOrReuse(baseInput());
-
-    expect(mocks.classifier.classify).toHaveBeenCalledTimes(1);
-    expect(mocks.classifier.classify).toHaveBeenCalledWith(
-      'San Telmo Historical Walk',
-      expect.arrayContaining([
-        expect.objectContaining({ key: 'a1' }),
-        expect.objectContaining({ key: 'a2' }),
-        expect.objectContaining({ key: 'b1' }),
-        expect.objectContaining({ key: 'b2' }),
-      ]),
-    );
-    expect(mocks.catalog.applyEvidenceClassification).toHaveBeenCalledTimes(1);
-  });
-
-  it('R2: cross-Experience evidence isolation -- no evidence crosses between two distinct accepted Experiences', async () => {
-    const mocks = buildMocks();
-    mocks.anchorResolver.resolveArea.mockResolvedValue({
-      resolved: true,
-      geoEntityId: 'geo-san-telmo',
-      geometry: { type: 'Polygon', coordinates: [] },
-    });
-    mocks.acquisitionPlanner.buildAcquisitionPlan.mockReturnValue({
-      destination: {},
-      deficits: [],
-      sourcePlans: [{ provider: 'web', web: { query: 'q' } }],
-      breadth: 'focused',
-    });
-    mocks.acquisitionService.executePlan.mockResolvedValue({
-      evidence: [
-        { key: 'a1', source: 'x', snippet: 's' },
-        { key: 'a2', source: 'x', snippet: 's' },
-        { key: 'b1', source: 'x', snippet: 's' },
-        { key: 'y1', source: 'x', snippet: 's' },
-        { key: 'y2', source: 'x', snippet: 's' },
-      ],
-      candidates: [],
-    });
-    mocks.acquisitionService.materializeExecution.mockResolvedValue({
-      resolved: [
-        {
-          status: 'accepted',
-          experienceId: 'exp-x',
-          candidate: { evidenceKeys: ['a1', 'a2'] },
-        },
-        {
-          status: 'accepted',
-          experienceId: 'exp-x',
-          candidate: { evidenceKeys: ['b1'] },
-        },
-        {
-          status: 'accepted',
-          experienceId: 'exp-y',
-          candidate: { evidenceKeys: ['y1', 'y2'] },
-        },
-      ],
-    });
-    mocks.catalog.findVerifiedByIds
-      .mockResolvedValueOnce([{ id: 'exp-x', canonicalName: 'X Walk' }])
-      .mockResolvedValueOnce([{ id: 'exp-y', canonicalName: 'Y Walk' }]);
-    mocks.classifier.classify.mockResolvedValue({
-      state: 'classified',
-      promptVersion: CURRENT_CLASSIFICATION_PROMPT_VERSION,
-      modelId: 'groq/qwen',
-      themes: [],
-      intents: ['walk'],
-      traits: [],
-      reasoningEvidence: [
-        { facet: 'intent:walk', evidenceKeys: ['a1'], reason: 'r' },
-      ],
-    });
-    mocks.catalog.findVerifiedMultiComponentCoveredByArea
-      .mockResolvedValueOnce([])
-      .mockResolvedValueOnce([classifiedRow('exp-x', 'walk')]);
-    const service = buildService(mocks);
-
-    await service.acquireOrReuse(baseInput());
-
-    expect(mocks.classifier.classify).toHaveBeenCalledTimes(2);
-    const xCall = mocks.classifier.classify.mock.calls.find(
-      (call) => call[0] === 'X Walk',
-    );
-    const yCall = mocks.classifier.classify.mock.calls.find(
-      (call) => call[0] === 'Y Walk',
-    );
-    expect(xCall?.[1].map((e: any) => e.key).sort()).toEqual([
-      'a1',
-      'a2',
-      'b1',
-    ]);
-    expect(yCall?.[1].map((e: any) => e.key).sort()).toEqual(['y1', 'y2']);
   });
 
   it('S: a geographically-valid Experience classified into a DIFFERENT intent produces no_result for this request', async () => {
@@ -862,24 +622,12 @@ describe('AreaRouteWalkAcquisitionService', () => {
         },
       ],
     });
-    mocks.catalog.findVerifiedByIds.mockResolvedValue([
-      { id: 'exp-food', canonicalName: 'San Telmo Food Crawl' },
-    ]);
-    // Evidence genuinely supports 'food', not the requested 'walk'.
-    mocks.classifier.classify.mockResolvedValue({
-      state: 'classified',
-      promptVersion: CURRENT_CLASSIFICATION_PROMPT_VERSION,
-      modelId: 'groq/qwen',
-      themes: [],
-      intents: ['food'],
-      traits: [],
-      reasoningEvidence: [
-        { facet: 'intent:food', evidenceKeys: ['ev-1'], reason: 'r' },
-      ],
-    });
+    // The materialized row was genuinely classified as 'food', not the
+    // requested 'walk' -- still valid, persisted catalog knowledge, just
+    // not a successful result for THIS request.
     mocks.catalog.findVerifiedMultiComponentCoveredByArea
       .mockResolvedValueOnce([])
-      .mockResolvedValueOnce([classifiedRow('exp-food', 'food')]); // classified, but the WRONG intent
+      .mockResolvedValueOnce([classifiedRow('exp-food', 'food')]);
     const service = buildService(mocks);
 
     const result = await service.acquireOrReuse(
@@ -887,9 +635,6 @@ describe('AreaRouteWalkAcquisitionService', () => {
     );
 
     expect(result).toEqual({ outcome: 'no_result' });
-    // The Experience was still classified and persisted -- just not a
-    // successful result for THIS request.
-    expect(mocks.catalog.applyEvidenceClassification).toHaveBeenCalled();
   });
 
   it('T: a degraded classification never satisfies post-check OR a subsequent warm check', async () => {
@@ -917,18 +662,6 @@ describe('AreaRouteWalkAcquisitionService', () => {
           candidate: { evidenceKeys: ['ev-1'] },
         },
       ],
-    });
-    mocks.catalog.findVerifiedByIds.mockResolvedValue([
-      { id: 'exp-1', canonicalName: 'San Telmo Historical Walk' },
-    ]);
-    mocks.classifier.classify.mockResolvedValue({
-      state: 'degraded',
-      promptVersion: CURRENT_CLASSIFICATION_PROMPT_VERSION,
-      modelId: 'groq/qwen',
-      themes: [],
-      intents: [],
-      traits: [],
-      reasoningEvidence: [],
     });
     mocks.catalog.findVerifiedMultiComponentCoveredByArea
       .mockResolvedValueOnce([]) // round 1 warm

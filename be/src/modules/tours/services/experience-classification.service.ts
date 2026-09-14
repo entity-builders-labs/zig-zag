@@ -14,10 +14,13 @@
  * bounded retry/backoff on 429" (plan Task B2 / spec D1) without a second
  * retry loop.
  *
- * This service does not persist anything and is not wired into any live
- * orchestration path yet -- that is Checkpoint D's job, matching how A7's
- * `computeExplorationSignals` and `computeExplorationTilt` were built as
- * pure primitives first, wired later.
+ * This service does not persist anything itself. Cutover M4 wires it into
+ * the live orchestration path via
+ * `experience-classification-convergence.util.ts`'s
+ * `classifyAcceptedResultsByExperience`, called from
+ * `ExperienceAcquisitionService.materializeExecution()` -- the ONE shared
+ * canonical materialization boundary every acquisition strategy converges
+ * on, never a per-strategy opt-in.
  */
 import { Injectable, Inject, Logger } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';

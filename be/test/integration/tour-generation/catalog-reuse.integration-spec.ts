@@ -131,6 +131,31 @@ describe('tour-generation integration · catalog-reuse', () => {
       },
       wikivoyage: { status: 'not_found' },
     });
+    // Cutover M4: every accepted candidate now converges through real
+    // evidence-only classification (ExperienceAcquisitionService
+    // .materializeExecution()) before it can satisfy a requested facet.
+    // The fake LLM must return a genuine, evidence-grounded verdict citing
+    // the real evidenceKey this request's discovery evidence carries --
+    // never a magic passthrough of the candidate's own unverified claim.
+    harness.fakes.langChain.generateChatResponse.mockResolvedValue(
+      JSON.stringify({
+        themes: ['history'],
+        intents: ['visit'],
+        traits: [],
+        reasoningEvidence: [
+          {
+            facet: 'theme:history',
+            evidenceKeys: ['web:reuse:1'],
+            reason: 'Evidence describes a historic place people visit.',
+          },
+          {
+            facet: 'intent:visit',
+            evidenceKeys: ['web:reuse:1'],
+            reason: 'Evidence describes a historic place people visit.',
+          },
+        ],
+      }),
+    );
 
     const tour1 = await seedTour(harness.prisma, {
       destinationLabel: 'Buenos Aires',

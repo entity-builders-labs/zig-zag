@@ -1202,6 +1202,11 @@ describe('tour-generation integration · area/route walk geographic validation (
       const embeddingIndexer = {
         index: jest.fn().mockResolvedValue({ status: 'unavailable' }),
       };
+      // Cutover M4: classification runs inside
+      // ExperienceAcquisitionService.materializeExecution() now (the
+      // shared canonical materialization boundary) -- the classifier is a
+      // dependency of THAT service, not of AreaRouteWalkAcquisitionService.
+      const classifier = { classify: jest.fn() };
       const acquisitionService = new ExperienceAcquisitionService(
         catalog,
         embeddingIndexer as any,
@@ -1210,6 +1215,10 @@ describe('tour-generation integration · area/route walk geographic validation (
         undefined,
         undefined,
         resolver,
+        undefined,
+        undefined,
+        undefined,
+        classifier as any,
       );
       const acquisitionPlanner = new ExperienceAcquisitionPlannerService();
       const anchorResolver = new AreaRouteAnchorResolverService(
@@ -1221,13 +1230,11 @@ describe('tour-generation integration · area/route walk geographic validation (
         geoEntityId: area.id,
         geometry: SAN_TELMO_BOUNDARY,
       });
-      const classifier = { classify: jest.fn() };
       const service = new AreaRouteWalkAcquisitionService(
         anchorResolver,
         catalog,
         acquisitionPlanner,
         acquisitionService,
-        classifier as any,
       );
 
       const walkCandidate: ExperienceCandidate = {
@@ -1329,6 +1336,11 @@ describe('tour-generation integration · area/route walk geographic validation (
       const embeddingIndexer = {
         index: jest.fn().mockResolvedValue({ status: 'unavailable' }),
       };
+      // Cutover M4: classification runs inside
+      // ExperienceAcquisitionService.materializeExecution() now (the
+      // shared canonical materialization boundary) -- the classifier is a
+      // dependency of THAT service, not of AreaRouteWalkAcquisitionService.
+      const classifier = { classify: jest.fn() };
       const acquisitionService = new ExperienceAcquisitionService(
         catalog,
         embeddingIndexer as any,
@@ -1337,19 +1349,21 @@ describe('tour-generation integration · area/route walk geographic validation (
         undefined,
         undefined,
         resolver,
+        undefined,
+        undefined,
+        undefined,
+        classifier as any,
       );
       const acquisitionPlanner = new ExperienceAcquisitionPlannerService();
       const anchorResolver = new AreaRouteAnchorResolverService(
         osmPlaces as any,
         catalog,
       );
-      const classifier = { classify: jest.fn() };
       const service = new AreaRouteWalkAcquisitionService(
         anchorResolver,
         catalog,
         acquisitionPlanner,
         acquisitionService,
-        classifier as any,
       );
 
       const rutaCandidate: ExperienceCandidate = {

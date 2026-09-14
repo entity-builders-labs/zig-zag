@@ -64,6 +64,31 @@ describe('tour-generation integration · day trip', () => {
         ],
       },
     });
+    // Cutover M4: the accepted candidate now converges through real
+    // evidence-only classification (ExperienceAcquisitionService
+    // .materializeExecution()) before its intents/themes persist. The fake
+    // LLM must return a genuine, evidence-grounded verdict citing the real
+    // evidenceKey this request's discovery evidence carries -- never a
+    // magic passthrough of the candidate's own unverified claim.
+    harness.fakes.langChain.generateChatResponse.mockResolvedValue(
+      JSON.stringify({
+        themes: ['nature'],
+        intents: ['day_trip'],
+        traits: [],
+        reasoningEvidence: [
+          {
+            facet: 'theme:nature',
+            evidenceKeys: ['web:daytrip:1'],
+            reason: 'Evidence describes a full-day nature excursion.',
+          },
+          {
+            facet: 'intent:day_trip',
+            evidenceKeys: ['web:daytrip:1'],
+            reason: 'Evidence describes a full-day excursion from the base.',
+          },
+        ],
+      }),
+    );
 
     const tourId = await seedTour(harness.prisma, {
       destinationLabel: 'Buenos Aires',

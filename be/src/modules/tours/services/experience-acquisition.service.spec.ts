@@ -1220,4 +1220,167 @@ describe('ExperienceAcquisitionService', () => {
       expect(result.experiences.map((exp: any) => exp.id)).toEqual(['exp-new']);
     });
   });
+
+  describe('materializeExecution — cutover M4 shared classification boundary', () => {
+    let catalog: any;
+    let embeddingIndexer: any;
+    let proposalResolver: any;
+    let classifier: any;
+
+    beforeEach(() => {
+      catalog = {
+        findVerifiedByIds: jest.fn().mockResolvedValue([
+          {
+            id: 'exp-1',
+            canonicalName: 'San Telmo Historical Walk',
+            metadata: {},
+          },
+        ]),
+        applyEvidenceClassification: jest.fn().mockResolvedValue(undefined),
+      };
+      embeddingIndexer = { index: jest.fn() };
+      proposalResolver = {
+        resolve: jest.fn().mockResolvedValue({
+          resolved: [
+            {
+              status: 'accepted',
+              experienceId: 'exp-1',
+              candidate: { evidenceKeys: ['ev-1'] },
+            },
+          ],
+        }),
+      };
+      classifier = {
+        classify: jest.fn().mockResolvedValue({
+          state: 'classified',
+          promptVersion: 1,
+          modelId: 'groq/qwen',
+          themes: [],
+          intents: ['walk'],
+          traits: [],
+          reasoningEvidence: [
+            { facet: 'intent:walk', evidenceKeys: ['ev-1'], reason: 'r' },
+          ],
+        }),
+      };
+    });
+
+    function buildService(withClassifier: boolean) {
+      return new ExperienceAcquisitionService(
+        catalog as any,
+        embeddingIndexer as any,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        proposalResolver as any,
+        undefined,
+        undefined,
+        undefined,
+        withClassifier ? (classifier as any) : undefined,
+      );
+    }
+
+    // 1. generic acquisition gets classified before/at canonical persistence
+    it("classifies every accepted result exactly once, using this call's own evidence, when a classifier is configured", async () => {
+      const service = buildService(true);
+
+      const response = await service.materializeExecution(
+        {
+          candidates: [],
+          observations: [],
+          providerResults: {},
+          evidence: [{ key: 'ev-1', source: 'x', snippet: 'real evidence' }],
+        } as any,
+        { destinationBoundary: { id: 'osm:relation:1' } },
+      );
+
+      expect(classifier.classify).toHaveBeenCalledTimes(1);
+      expect(classifier.classify).toHaveBeenCalledWith(
+        'San Telmo Historical Walk',
+        [{ key: 'ev-1', source: 'x', snippet: 'real evidence' }],
+      );
+      expect(catalog.applyEvidenceClassification).toHaveBeenCalledWith(
+        'exp-1',
+        expect.objectContaining({ intents: ['walk'] }),
+      );
+      // The resolver's own response is still returned unchanged.
+      expect(response.resolved).toHaveLength(1);
+    });
+
+    // 3. valid current classification is reused
+    it('reuses a valid current classification instead of recomputing it', async () => {
+      catalog.findVerifiedByIds.mockResolvedValue([
+        {
+          id: 'exp-1',
+          canonicalName: 'San Telmo Historical Walk',
+          metadata: {
+            intents: ['walk'],
+            classification: {
+              state: 'classified',
+              promptVersion: 1,
+              modelId: 'groq/qwen',
+              themes: [],
+              intents: ['walk'],
+              traits: [],
+              reasoningEvidence: [
+                {
+                  facet: 'intent:walk',
+                  evidenceKeys: ['ev-existing'],
+                  reason: 'already substantiated',
+                },
+              ],
+            },
+          },
+        },
+      ]);
+      const service = buildService(true);
+
+      await service.materializeExecution(
+        {
+          candidates: [],
+          observations: [],
+          providerResults: {},
+          evidence: [{ key: 'ev-1', source: 'x', snippet: 'real evidence' }],
+        } as any,
+        { destinationBoundary: { id: 'osm:relation:1' } },
+      );
+
+      expect(classifier.classify).not.toHaveBeenCalled();
+      expect(catalog.applyEvidenceClassification).not.toHaveBeenCalled();
+    });
+
+    it('never calls the classifier when none is configured (backward-compatible optional dependency)', async () => {
+      const service = buildService(false);
+
+      await service.materializeExecution(
+        {
+          candidates: [],
+          observations: [],
+          providerResults: {},
+          evidence: [{ key: 'ev-1', source: 'x', snippet: 'real evidence' }],
+        } as any,
+        { destinationBoundary: { id: 'osm:relation:1' } },
+      );
+
+      expect(classifier.classify).not.toHaveBeenCalled();
+      expect(catalog.applyEvidenceClassification).not.toHaveBeenCalled();
+    });
+
+    it('never calls the classifier when nothing was accepted', async () => {
+      proposalResolver.resolve.mockResolvedValue({
+        resolved: [
+          { status: 'rejected', rejectionReasons: ['geographic_incoherence'] },
+        ],
+      });
+      const service = buildService(true);
+
+      await service.materializeExecution(
+        { candidates: [], observations: [], providerResults: {} } as any,
+        { destinationBoundary: { id: 'osm:relation:1' } },
+      );
+
+      expect(classifier.classify).not.toHaveBeenCalled();
+    });
+  });
 });
