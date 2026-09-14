@@ -532,3 +532,19 @@ and their focused architecture checks pass. Full M5-M10 architecture debt is
 **NOT CLOSED** until the five stale unit expectations and one stale integration
 expectation are resolved without weakening assertions. The prior blanket
 closure claim is superseded by this evidence.
+
+## 2026-09-14 verification correction
+
+The stale expectation set was not stale test behavior: the geographic validator
+had a precedence bug that discarded the result of `tryCanonicalGeometry()` and
+re-entered the generic validator. The fix now preserves canonical route/area
+acceptance and rejection results as authoritative. Full unit verification is
+now **146 suites / 1456 tests PASS**.
+
+The full integration suite is functionally green except for one nondeterministic
+`catalog-reuse` run that can produce an infeasible continuous-walking plan from
+random persisted IDs; the same suite passes in isolation with 1/1 tests. This
+is retained as an implementation/test-harness stability item, not hidden by
+changing its assertions. E2E remains **40/40 PASS** and the real Groq smoke
+remains **PASS**. M5-M10 architecture debt remains **NOT CLOSED** until the
+integration run is deterministic and green end-to-end.

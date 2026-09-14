@@ -92,28 +92,29 @@ export class CompositeGeographicValidationService {
         groundedEvidenceKeys,
       );
     } else {
-      const hasDestinationGeometry =
-        this.tryCanonicalGeometry(
-          resolvedProposal,
-          withCoordinates,
-          destinationBoundary,
-          groundedEvidenceKeys,
-        ) ?? destinationBoundary;
-      result = hasDestinationGeometry
-        ? this.validateExperience(
-            resolvedProposal,
-            withCoordinates,
-            destinationBoundary,
-            groundedEvidenceKeys,
-            validationIntent,
-          )
-        : this.rejected(
-            candidate.name,
-            'EXPERIENCE',
-            withCoordinates,
-            groundedEvidenceKeys,
-            ['destination_mismatch'],
-          );
+      const canonicalValidation = this.tryCanonicalGeometry(
+        resolvedProposal,
+        withCoordinates,
+        destinationBoundary,
+        groundedEvidenceKeys,
+      );
+      result = canonicalValidation
+        ? canonicalValidation
+        : destinationBoundary
+          ? this.validateExperience(
+              resolvedProposal,
+              withCoordinates,
+              destinationBoundary,
+              groundedEvidenceKeys,
+              validationIntent,
+            )
+          : this.rejected(
+              candidate.name,
+              'EXPERIENCE',
+              withCoordinates,
+              groundedEvidenceKeys,
+              ['destination_mismatch'],
+            );
     }
 
     this.logger.log(
