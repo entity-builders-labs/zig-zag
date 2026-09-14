@@ -756,8 +756,14 @@ export class ExperienceProposalResolverService
   }
 
   private representativePoint(
-    candidate: OsmCandidate,
+    candidate: OsmCandidate | undefined,
   ): { latitude: number; longitude: number } | undefined {
+    // Missing boundary/geometry is an unresolved geographic fact. Do not
+    // fabricate a point or let a provider coverage gap crash the whole
+    // acquisition pass; callers already treat an absent point as an
+    // unanchored global-resolution attempt.
+    if (!candidate?.geometry) return undefined;
+
     const geometry = candidate.geometry;
     if (geometry.type === 'Point') {
       return {
