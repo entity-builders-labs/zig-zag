@@ -6,6 +6,8 @@ This document explains the repository-wide engineering rules enforced by `/AGENT
 
 Some sections are backend-specific and some are frontend-specific; the general principles apply across the repository.
 
+Operational enforcement lives in `/AGENTS.md`: its mandatory engineering-principles gate applies automatically to every non-trivial task. The principles below are architectural constraints, not optional review suggestions. This document owns rationale and examples; `/AGENTS.md` owns the required preflight, implementation discipline, and PASS/FAIL completion procedure.
+
 ## 1. Normalize external systems at the boundary
 
 External providers expose different schemas, capabilities, names, and quality signals. That variation belongs in provider adapters, not in the domain core.
@@ -193,7 +195,9 @@ required at cutover:
 new canonical authority only
 ```
 
-A completed cutover should delete or make unreachable superseded decision-making code. Compatibility code retained for historical reads must not remain an active generation fallback.
+A completed cutover deletes superseded decision-making code, contracts, adapters, compatibility projections, and tests that exist only for the discarded architecture unless an explicit current product requirement still depends on them.
+
+Zig-Zag is early-stage: persisted development data and historical internal contracts are disposable by default. Do not preserve historical-read compatibility, dual authorities, or legacy fallbacks "just in case", and do not move obsolete code into a `legacy`/`compat` module merely to keep it. Compatibility is retained only when the product/user explicitly requires it.
 
 ## 9. Generalize bugs; do not hardcode examples
 
@@ -252,7 +256,7 @@ Each layer has one reason to change.
 
 ## 12. Maintainability review is part of correctness
 
-Before a milestone is considered complete, ask:
+The checklist below is part of the mandatory completion gate in `/AGENTS.md`, not an optional retrospective. Before a milestone is considered complete, ask:
 
 1. Did provider knowledge leak beyond adapters/configuration?
 2. Did we create an implicit metadata protocol?
@@ -265,7 +269,7 @@ Before a milestone is considered complete, ask:
 9. Do tests prove the behavior they claim, using canonical persisted state?
 10. Is the dependency direction still inward toward domain contracts?
 
-Passing tests, typecheck, and lint are required. They do not override architectural violations.
+Passing tests, typecheck, and lint are required. They do not override architectural violations. Any applicable FAIL blocks completion until it is corrected or an explicit product-level exception is agreed.
 
 ## 13. Automate enforceable rules
 
