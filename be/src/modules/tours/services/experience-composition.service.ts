@@ -15,6 +15,10 @@ import {
 } from '../utils/exploration-signals.util';
 import { composeSet } from '../utils/composition-set-cover.util';
 import { ExperienceVectorStoreService } from '@shared/ai/services/experience-vector-store.service';
+import {
+  EmbeddingIndexIdentity,
+  SemanticSimilarityResult,
+} from '@shared/ai/interfaces/embedding-index.interface';
 
 export interface ExperienceCompositionInput {
   experiences: any[];
@@ -29,6 +33,14 @@ export interface ExperienceCompositionOutput {
   result: CompositionSelectionResult;
   candidatesById: Map<string, any>;
   preferenceWeightById: Map<string, number>;
+  semanticSimilarityById: Map<string, number>;
+  semanticRanking: {
+    status: 'not_requested' | 'applied' | 'unavailable';
+    requestedCandidateCount: number;
+    indexedCandidateCount: number;
+    identity?: EmbeddingIndexIdentity;
+    reason?: string;
+  };
 }
 
 @Injectable()
@@ -44,12 +56,13 @@ export class ExperienceCompositionService {
     const experiences = [...deduped.values()].sort((a, b) =>
       a.id.localeCompare(b.id),
     );
-    const semantic = input.preferenceSpec.semanticQuery.trim()
-      ? await this.vectorStore.getSimilarityScores(
-          experiences.map((experience) => experience.id),
-          input.preferenceSpec.semanticQuery,
-        )
-      : null;
+    const semantic: SemanticSimilarityResult | null =
+      input.preferenceSpec.semanticQuery.trim()
+        ? await this.vectorStore.getSimilarityScores(
+            experiences.map((experience) => experience.id),
+            input.preferenceSpec.semanticQuery,
+          )
+        : null;
     const candidates: CompositionCandidate[] = experiences.map((experience) => {
       const components = Array.isArray(experience.components)
         ? experience.components
@@ -124,6 +137,21 @@ export class ExperienceCompositionService {
           ),
         ]),
       ),
+      semanticSimilarityById:
+        semantic?.status === 'applied' ? new Map(semantic.scores) : new Map(),
+      semanticRanking: semantic
+        ? {
+            status: semantic.status,
+            requestedCandidateCount: semantic.requestedCandidateCount,
+            indexedCandidateCount: semantic.indexedCandidateCount,
+            identity: semantic.identity,
+            reason: semantic.reason,
+          }
+        : {
+            status: 'not_requested',
+            requestedCandidateCount: 0,
+            indexedCandidateCount: 0,
+          },
     };
   }
 }

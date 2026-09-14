@@ -18,6 +18,7 @@ import {
 } from '../utils/daily-planning-placement.util';
 import { runBoundedLocalImprovement } from '../utils/daily-planning-local-improvement.util';
 import { orderAndScheduleDayWithRepair } from '../utils/daily-planning-ordering.util';
+import { partitionMustIncludeCandidates } from '../utils/must-anchor-placement.util';
 
 @Injectable()
 export class GreedyDailyPlanningSolver implements DailyPlanningSolver {
@@ -41,6 +42,7 @@ export class GreedyDailyPlanningSolver implements DailyPlanningSolver {
       semanticWeight: this.policy.scoring.semanticWeight,
       qualityWeight: this.policy.scoring.qualityWeight,
     });
+    const partitioned = partitionMustIncludeCandidates(sorted);
     const context: PlacementContext = {
       policy: this.policy,
       mobility: input.mobility,
@@ -50,7 +52,7 @@ export class GreedyDailyPlanningSolver implements DailyPlanningSolver {
     };
 
     const { days, unselected } = await placeCandidates(
-      sorted,
+      [...partitioned.must, ...partitioned.regular],
       input.requestedDays,
       context,
     );

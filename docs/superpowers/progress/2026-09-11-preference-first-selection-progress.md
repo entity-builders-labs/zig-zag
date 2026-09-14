@@ -37,8 +37,8 @@ Independent reviewer verdict: **✅ APPROVED**.
 | M3 | COMPLETE | `51989f321db6cb6bea7fbd6620a5714942723a91` — strategy selector + AREA/ROUTE/WALK acquisition live. |
 | M3.5 | **COMPLETE / APPROVED** | JSONv2 normalization landed in `91ab491...`; rank hardening/fixes culminate in canonical branch commit `a38da85a26a514674d679bf78c0d27cbd2119538` (`13..25` + boundary regressions). |
 | M4 | COMPLETE IN CODE | `8fac82d384cdbc20f54b004a2f3e428aa8285be3` — classification converges at the shared materialization boundary; AreaRouteWalk local classification authority removed. |
-| M5 | **IN PROGRESS / PARTIALLY LANDED** | `09616dd...` adds preference-first composition; `3a7e965...` adds canonical venue-anchor resolution; `a7b841...` adds venue-anchor tests/hardening. Do not call all of Checkpoint C complete yet. |
-| M6 | **C4 CORRECTED — awaiting independent review** | Independent review found weak-facet weighting and ignored typed planner signals; correction landed in `827b3ce`. C5 pinned must-anchor semantics and C5b duration-aware reservoir backfill remain pending. |
+| M5 | **IN PROGRESS / PARTIALLY LANDED** | `09616dd...` adds preference-first composition; `3a7e965...` adds canonical venue-anchor resolution; `a7b841...` adds venue-anchor tests/hardening. P1 C5 semantic handoff and pinned-MUST implementation are implemented in the current worktree, awaiting package commit/review; C5b remains pending. |
+| M6 | **C4 CORRECTED — awaiting independent review** | Independent review found weak-facet weighting and ignored typed planner signals; correction landed in `827b3ce`. P1 implements C5 semantic handoff and pinned MUST lifecycle; C5b duration-aware reservoir backfill remains pending. |
 | M7 | NOT COMPLETE | Superseded legacy deletion milestone not yet closed against the current checklist. |
 | M8 | NOT COMPLETE | Trace v4 + Bitácora v4. |
 | M9 | NOT COMPLETE | Full verification matrix + no-dual-pipeline architecture acceptance. |
@@ -292,6 +292,22 @@ Never infer green execution merely because a progress file or commit message say
 ---
 
 # Current execution pointer
+
+## Master-plan continuous execution — P1 implementation checkpoint
+
+Starting local/fork HEAD: `3d1c1d4d1fe25ebd88657c6775df993f71b1ff79`.
+
+P1 is implemented in the worktree and remains **IMPLEMENTED — awaiting independent review**:
+
+- composition preserves semantic similarity scores and typed ranking provenance;
+- generation handoff keeps missing embedding scores observable as `null` while planner normalization remains neutral;
+- MUST candidates are partitioned and attempted before regular candidates;
+- local improvement cannot move or swap MUST candidates;
+- routing repair removes non-MUST candidates before MUST candidates.
+
+Fresh P1 verification: targeted 6 suites / 45 tests passed; full unit 145 suites / 1,448 tests passed; integration 16 suites / 72 tests passed; typecheck, lint, and build passed. No disposable DB reset was attempted.
+
+Next gate: commit P1, then continue with P2 C5b reservoir backfill and bounded convergence.
 
 M3.5 is closed. Do not reopen it unless a new regression is demonstrated.
 

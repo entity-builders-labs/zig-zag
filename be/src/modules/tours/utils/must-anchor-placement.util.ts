@@ -1,4 +1,19 @@
 import { UnmetAnchor } from '../interfaces/preference-spec.interface';
+import { PlanningExperienceCandidate } from '../interfaces/daily-planning.interface';
+import { sortCandidatesDeterministically } from './daily-planning-candidate-sort.util';
+
+export function partitionMustIncludeCandidates(
+  candidates: PlanningExperienceCandidate[],
+): {
+  must: PlanningExperienceCandidate[];
+  regular: PlanningExperienceCandidate[];
+} {
+  const sorted = sortCandidatesDeterministically(candidates);
+  return {
+    must: sorted.filter((candidate) => candidate.mustInclude === true),
+    regular: sorted.filter((candidate) => candidate.mustInclude !== true),
+  };
+}
 
 /**
  * C5 owns this translation: composition only forces canonically resolved

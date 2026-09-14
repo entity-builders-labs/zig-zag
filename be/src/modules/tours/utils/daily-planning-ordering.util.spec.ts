@@ -202,6 +202,25 @@ describe('orderAndScheduleDay', () => {
     ]);
   });
 
+  it('removes ordinary candidates before a MUST during repair', async () => {
+    const must = { ...candidate('must', 0, 0, 60, 0.1), mustInclude: true };
+    const ordinary = candidate('ordinary', 0, 0.001, 60, 0.9);
+    const repaired = await orderAndScheduleDayWithRepair(1, [must, ordinary], {
+      ...context(),
+      planningWindow: {
+        startMinutesFromMidnight: 540,
+        endMinutesFromMidnight: 630,
+      },
+    });
+
+    expect(repaired.day.experiences.map((item) => item.experienceId)).toEqual([
+      'must',
+    ]);
+    expect(repaired.unselected).toEqual([
+      { experienceId: 'ordinary', reasons: ['DAILY_TIME_CAPACITY_EXCEEDED'] },
+    ]);
+  });
+
   it('reports total Experience minutes independent of travel time', async () => {
     const day = await orderAndScheduleDay(
       1,

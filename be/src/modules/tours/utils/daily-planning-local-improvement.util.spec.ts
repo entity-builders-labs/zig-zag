@@ -126,6 +126,39 @@ function context(): PlacementContext {
 }
 
 describe('runBoundedLocalImprovement', () => {
+  it('does not move or swap a placed MUST candidate', async () => {
+    const must = { ...candidate('must', 0, 0), mustInclude: true };
+    const days = new Map<number, DayAccumulator>([
+      [
+        1,
+        {
+          dayNumber: 1,
+          assigned: [must, candidate('ordinary', 0, 0.001)],
+          totalExperienceMinutes: 120,
+          totalWalkingMeters: 0,
+        },
+      ],
+      [
+        2,
+        {
+          dayNumber: 2,
+          assigned: [],
+          totalExperienceMinutes: 0,
+          totalWalkingMeters: 0,
+        },
+      ],
+    ]);
+
+    await runBoundedLocalImprovement(days, context());
+
+    expect(days.get(1)!.assigned.map((item) => item.experienceId)).toContain(
+      'must',
+    );
+    expect(
+      days.get(2)!.assigned.map((item) => item.experienceId),
+    ).not.toContain('must');
+  });
+
   it('moves an activity from an overloaded day to a lighter day', async () => {
     const days = new Map<number, DayAccumulator>([
       [

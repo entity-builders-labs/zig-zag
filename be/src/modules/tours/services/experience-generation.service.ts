@@ -612,7 +612,9 @@ export class ExperienceGenerationService {
       const candidate = composition.candidatesById.get(id);
       const preferenceWeight = composition.preferenceWeightById.get(id) ?? 0;
       scoreBreakdownById.set(id, {
-        semanticSimilarity: null,
+        semanticSimilarity: composition.semanticSimilarityById.has(id)
+          ? composition.semanticSimilarityById.get(id)!
+          : null,
         qualityBonus:
           typeof candidate?.qualityScore === 'number'
             ? candidate.qualityScore
@@ -633,11 +635,13 @@ export class ExperienceGenerationService {
       preferenceEvaluationById: new Map(),
       hardExclusionRelaxed: false,
       semanticRanking: {
-        status: preferenceSpec.semanticQuery.trim()
-          ? 'applied'
-          : 'not_requested',
-        eligibleCandidateCount: experiences.length,
-        indexedCandidateCount: 0,
+        status: composition.semanticRanking.status,
+        eligibleCandidateCount:
+          composition.semanticRanking.requestedCandidateCount,
+        indexedCandidateCount:
+          composition.semanticRanking.indexedCandidateCount,
+        identity: composition.semanticRanking.identity,
+        reason: composition.semanticRanking.reason,
       },
       preferenceWeightById: composition.preferenceWeightById,
       mustIncludeExperienceIds: new Set(resolvedVenueMustIds),

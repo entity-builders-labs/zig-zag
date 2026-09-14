@@ -98,6 +98,7 @@ async function tryMove(
 ): Promise<boolean> {
   for (const [fromDay, fromAcc] of days) {
     for (const candidate of fromAcc.assigned) {
+      if (candidate.mustInclude === true) continue;
       for (const [toDay, toAcc] of days) {
         if (toDay === fromDay) continue;
         if (toAcc.assigned.length + 1 >= fromAcc.assigned.length) continue;
@@ -140,6 +141,11 @@ async function trySwap(
       if (dayB <= dayA) continue;
       for (const candidateA of accA.assigned) {
         for (const candidateB of accB.assigned) {
+          if (
+            candidateA.mustInclude === true ||
+            candidateB.mustInclude === true
+          )
+            continue;
           const centroidA = dayCentroid(accA);
           const centroidB = dayCentroid(accB);
           const currentSpread =

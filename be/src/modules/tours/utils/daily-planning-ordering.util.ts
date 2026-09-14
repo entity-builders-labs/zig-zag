@@ -265,7 +265,17 @@ export async function orderAndScheduleDayWithRepair(
       return { day: attempt.day, unselected };
     }
 
-    const removed = retained.pop()!;
+    let removableIndex = -1;
+    for (let index = retained.length - 1; index >= 0; index--) {
+      if (retained[index].mustInclude !== true) {
+        removableIndex = index;
+        break;
+      }
+    }
+    const removed = retained.splice(
+      removableIndex >= 0 ? removableIndex : retained.length - 1,
+      1,
+    )[0];
     unselected.push({
       experienceId: removed.experienceId,
       reasons: [attempt.reason],
