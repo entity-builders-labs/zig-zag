@@ -16,13 +16,8 @@ import {
  * and merges metadata with `mergeMetadata` = shallow `{ ...left, ...right }`
  * (incoming wins per top-level key).
  *
- * Characterization: the canonical Experience's final facets depend ENTIRELY
- * on persistence order —
- *   RUN 1  empty-then-rich  → rich facets survive;
- *   RUN 2  rich-then-empty  → the rich arrays are overwritten with `[]`.
- *
- * INVARIANT (RED): compatible evidence must converge to the same canonical
- * Experience regardless of the order it arrives in.
+ * Characterization: compatible evidence converges to the same canonical
+ * Experience regardless of persistence order.
  */
 
 const CANONICAL_NAME = 'Shared Landmark Guided Visit';
@@ -108,12 +103,12 @@ describe('CHAR-8 provider order convergence (real Postgres)', () => {
     // eslint-disable-next-line no-console
     console.info('[CHAR-8] RUN1 empty->rich =>', JSON.stringify(facets));
     expect(facets.count).toBe(1);
-    expect(facets.themes).toEqual(['history', 'architecture']);
+    expect(facets.themes).toEqual(['architecture', 'history']);
     expect(facets.traits).toEqual(['guided_tour']);
     expect(facets.intents).toEqual(['walk']);
   });
 
-  it('RUN 2 — rich provider then empty provider: rich facets are overwritten with []', async () => {
+  it('RUN 2 — rich provider then empty provider: rich facets remain canonical', async () => {
     await resetCharacterizationDb(prisma);
     const geoEntityId = await seedGeoEntity();
     await persist(geoEntityId, RICH_METADATA);
@@ -124,28 +119,24 @@ describe('CHAR-8 provider order convergence (real Postgres)', () => {
     // eslint-disable-next-line no-console
     console.info('[CHAR-8] RUN2 rich->empty =>', JSON.stringify(facets));
     expect(facets.count).toBe(1);
-    // The empty incoming arrays win the shallow merge.
-    expect(facets.themes).toEqual([]);
-    expect(facets.traits).toEqual([]);
-    expect(facets.intents).toEqual([]);
+    expect(facets.themes).toEqual(['architecture', 'history']);
+    expect(facets.traits).toEqual(['guided_tour']);
+    expect(facets.intents).toEqual(['walk']);
   });
 
-  it.failing(
-    'INVARIANT: the canonical Experience has the same facets regardless of provider order',
-    async () => {
-      await resetCharacterizationDb(prisma);
-      let geoEntityId = await seedGeoEntity();
-      await persist(geoEntityId, EMPTY_METADATA);
-      await persist(geoEntityId, RICH_METADATA);
-      const run1 = await finalFacets();
+  it('INVARIANT: the canonical Experience has the same facets regardless of provider order', async () => {
+    await resetCharacterizationDb(prisma);
+    let geoEntityId = await seedGeoEntity();
+    await persist(geoEntityId, EMPTY_METADATA);
+    await persist(geoEntityId, RICH_METADATA);
+    const run1 = await finalFacets();
 
-      await resetCharacterizationDb(prisma);
-      geoEntityId = await seedGeoEntity();
-      await persist(geoEntityId, RICH_METADATA);
-      await persist(geoEntityId, EMPTY_METADATA);
-      const run2 = await finalFacets();
+    await resetCharacterizationDb(prisma);
+    geoEntityId = await seedGeoEntity();
+    await persist(geoEntityId, RICH_METADATA);
+    await persist(geoEntityId, EMPTY_METADATA);
+    const run2 = await finalFacets();
 
-      expect(run2).toEqual(run1);
-    },
-  );
+    expect(run2).toEqual(run1);
+  });
 });

@@ -1,8 +1,10 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as dotenv from 'dotenv';
+import { Prisma } from '@prisma/client';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from 'src/core/database/prisma.service';
+import { assertDisposableDatabase } from '../../support/assert-disposable-database';
 
 /**
  * Loads a real DATABASE_URL for the integration suite. Prefers an explicit
@@ -45,7 +47,7 @@ export async function getPrisma(): Promise<PrismaService> {
   prisma = new PrismaService(config);
   try {
     await prisma.$connect();
-    await prisma.$queryRawUnsafe('SELECT 1');
+    await prisma.$queryRaw(Prisma.sql`SELECT 1`);
   } catch (error) {
     throw new Error(
       `test:integration could not connect to Postgres at ${url.replace(
@@ -57,8 +59,8 @@ export async function getPrisma(): Promise<PrismaService> {
   return prisma;
 }
 
-/** Tables touched by tour generation, child-first so CASCADE order is safe. */
-const RESET_TABLES = [
+/** Application tables, child-first so CASCADE order is deterministic. */
+export const RESET_TABLES = [
   'tour_experience_component',
   'tour_experience',
   'tour',
@@ -72,17 +74,39 @@ const RESET_TABLES = [
   'geo_entity',
   'trait_definition',
   'crawler_search',
+  'web_push_subscription',
+  'user_device',
+  'email_login_code',
+  'user',
+  'source',
 ];
 
-export async function resetDbWith(db: PrismaService): Promise<void> {
-  await db.$executeRawUnsafe(
-    `TRUNCATE TABLE ${RESET_TABLES.map((t) => `"${t}"`).join(
-      ', ',
+function quoteTable(table: string): Prisma.Sql {
+  // Every caller passes a member of a source-controlled table list. Keeping
+  // identifiers separate from values lets the statement use Prisma's tagged
+  // raw-query API while avoiding an interpolated identifier protocol.
+  return Prisma.raw(`"${table}"`);
+}
+
+export async function resetTablesWith(
+  db: PrismaService,
+  tables: readonly string[] = RESET_TABLES,
+): Promise<void> {
+  assertDisposableDatabase();
+  if (tables.length === 0) return;
+  await db.$executeRaw(
+    Prisma.sql`TRUNCATE TABLE ${Prisma.join(
+      tables.map(quoteTable),
     )} RESTART IDENTITY CASCADE`,
   );
 }
 
+export async function resetDbWith(db: PrismaService): Promise<void> {
+  await resetTablesWith(db);
+}
+
 export async function resetDb(): Promise<void> {
+  assertDisposableDatabase();
   await resetDbWith(await getPrisma());
 }
 

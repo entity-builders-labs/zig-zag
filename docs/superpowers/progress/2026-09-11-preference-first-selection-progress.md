@@ -342,3 +342,36 @@ The next frontier is **M5 completion / M6 planner handoff and backfill**, not M3
 ## STOP condition
 
 Do not run RW1 and do not call the full live cutover complete until the later M5–M9 gates required by the canonical live-cutover plan are satisfied.
+
+## 2026-09-14 M9 recovery — disposable database boundary
+
+Starting local/fork HEAD: `c472924b552bb03b3cbe3bca82fdc83b9520eff9`.
+
+The original DB initialization symptom was reproduced with a minimal
+`SELECT 1`: sandboxed execution returned Prisma 7.3.0 `EPERM` because local
+PostgreSQL access was denied by the execution environment. With local DB access
+enabled, the same Prisma adapter and raw-query calls succeeded; the previously
+reported DB-backed characterization failures were environment/setup failures,
+not migration or SQL failures.
+
+Recovery changes in this worktree:
+
+- the shared reset helper now uses Prisma's tagged raw-query API with a
+  source-controlled table list, and rechecks the disposable-database guard at
+  the destructive boundary;
+- E2E competitive/scale reset paths reuse the shared helper;
+- a real Postgres regression resets the same migrated `zigzag_test` twice,
+  verifies application rows are removed, confirms PostGIS and pgvector remain
+  usable, and inserts/queries again;
+- the provider-order characterization was updated from its superseded failing
+  expectation to the already-landed canonical convergence behavior.
+
+Fresh verification (agent-executed): characterization **8 suites / 36 tests
+passed**; integration **17 suites / 73 tests passed** including the reset
+regression; backend typecheck, lint, and build passed. E2E executed against
+`zigzag_test` but remains red on existing M9 cutover gaps: stale v3 trace
+assertions, large-corpus preference/planner expectations, and one deadlock
+during the scale reset. P2 planner-capacity acquisition, the complete v4
+convergence/classification dossier, frontend Bitácora verification, and the
+Buenos Aires live gate remain outstanding. Status: **DB boundary repaired —
+M9 still blocked, awaiting independent review**.

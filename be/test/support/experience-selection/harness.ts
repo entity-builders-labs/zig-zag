@@ -10,6 +10,7 @@ import { LangChainService } from '../../../src/shared/ai/langchain.service';
 import { AiEmbeddingService } from '../../../src/shared/ai/services/ai-embedding.service';
 
 import { assertDisposableDatabase } from '../assert-disposable-database';
+import { resetTablesWith } from '../../integration/support/test-db';
 import {
   FakeInterpretation,
   makeFakeCompetitiveEmbeddingService,
@@ -83,9 +84,7 @@ export async function bootstrapCompetitiveApp(): Promise<CompetitiveHarness> {
 
   const truncate = async (tables: string[]) => {
     assertDisposableDatabase();
-    await prisma.$executeRawUnsafe(
-      `TRUNCATE TABLE ${tables.map((t) => `"${t}"`).join(', ')} RESTART IDENTITY CASCADE`,
-    );
+    await resetTablesWith(prisma, tables);
   };
 
   const authenticate = async (): Promise<string> => {

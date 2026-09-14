@@ -11,6 +11,7 @@ import { normalizeWizardFacet } from '../src/modules/tours/utils/preference-face
 import { LangChainService } from '../src/shared/ai/langchain.service';
 import { AiEmbeddingService } from '../src/shared/ai/services/ai-embedding.service';
 import { assertDisposableDatabase } from './support/assert-disposable-database';
+import { resetTablesWith } from './integration/support/test-db';
 
 jest.setTimeout(240_000);
 
@@ -736,26 +737,25 @@ describe('Experience V2 CP8 mandatory selection scenarios at scale', () => {
 
   async function truncateAll() {
     assertDisposableDatabase();
-    await prisma.$executeRawUnsafe(`
-      TRUNCATE TABLE
-        "tour_experience_component", "tour_experience", "outbox_event", "tour",
-        "experience_trait", "trait_definition", "experience_evidence",
-        "experience_component", "geo_entity_identity", "geo_entity", "experience",
-        "crawler_search", "email_login_code", "user"
-      RESTART IDENTITY CASCADE
-    `);
+    await resetTablesWith(prisma);
   }
 
   async function resetScenarioData() {
     assertDisposableDatabase();
-    await prisma.$executeRawUnsafe(`
-      TRUNCATE TABLE
-        "tour_experience_component", "tour_experience", "outbox_event", "tour",
-        "experience_trait", "trait_definition", "experience_evidence",
-        "experience_component", "geo_entity_identity", "geo_entity", "experience",
-        "crawler_search"
-      RESTART IDENTITY CASCADE
-    `);
+    await resetTablesWith(prisma, [
+      'tour_experience_component',
+      'tour_experience',
+      'outbox_event',
+      'tour',
+      'experience_trait',
+      'trait_definition',
+      'experience_evidence',
+      'experience_component',
+      'geo_entity_identity',
+      'geo_entity',
+      'experience',
+      'crawler_search',
+    ]);
   }
 
   async function authenticate(): Promise<string> {
