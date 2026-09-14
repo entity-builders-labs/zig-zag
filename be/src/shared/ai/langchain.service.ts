@@ -14,6 +14,7 @@ import { HumanMessage, SystemMessage } from '@langchain/core/messages';
 import { BaseLanguageModel } from '@langchain/core/language_models/base';
 import aiConfig from './ai.config';
 import { AiCacheService } from './services/ai-cache.service';
+import { normalizeOllamaStructuredResponse } from './ollama-response.util';
 
 export type GroqResponseFormat =
   | { type: 'json_object' }
@@ -181,6 +182,8 @@ export class LangChainService {
         const ollamaConfig: any = {
           baseUrl,
           model,
+          // Keep structured-output enforcement at the Ollama boundary.
+          format: 'json',
           temperature: this.config.temperature,
           timeout: this.config.ollamaTimeout || this.config.timeout * 4,
         };
@@ -347,6 +350,8 @@ export class LangChainService {
           ? new ChatOllama({
               baseUrl: this.getOllamaBaseUrl(),
               model: modelOverride,
+              // Keep structured-output enforcement at the Ollama boundary.
+              format: 'json',
               temperature: this.config.temperature,
               timeout: this.config.ollamaTimeout || this.config.timeout * 4,
               ...(this.config.ollamaNumCtx
@@ -382,6 +387,7 @@ export class LangChainService {
                   typeof part === 'string' ? part : (part.text ?? ''),
                 )
                 .join('');
+        response = normalizeOllamaStructuredResponse(response);
       } else if (provider === 'gemini') {
         const userTmpl = PromptTemplate.fromTemplate(userPrompt);
         const userText = await userTmpl.format(variables as any);

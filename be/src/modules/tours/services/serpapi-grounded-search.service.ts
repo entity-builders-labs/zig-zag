@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { AiCacheService } from '@shared/ai/services/ai-cache.service';
 import {
   ExperienceGroundedSearchRequest as GroundedSearchRequest,
   ExperienceGroundedSearchResult as GroundedSearchResult,
@@ -49,9 +50,31 @@ export class SerpApiGroundedSearchService implements GroundedSearchProvider {
   private readonly apiUrl = 'https://serpapi.com/search.json';
   private readonly timeoutMs = 15000;
 
-  constructor(private readonly config: ConfigService) {}
+  constructor(
+    private readonly config: ConfigService,
+    private readonly aiCache: AiCacheService,
+  ) {}
 
   async search(request: GroundedSearchRequest): Promise<GroundedSearchResult> {
+    const cacheKey = this.cacheKey(request);
+    const cached = await this.aiCache.getCachedResponse(cacheKey, {
+      type: 'grounded-search',
+      provider: 'serpapi',
+    });
+    if (cached) {
+      try {
+        const parsed = JSON.parse(cached) as GroundedSearchResult;
+        if (
+          parsed.groundingStatus === 'applied' &&
+          parsed.evidence.length > 0
+        ) {
+          return parsed;
+        }
+      } catch {
+        this.logger.warn('Ignoring malformed cached SerpAPI result');
+      }
+    }
+
     const apiKey =
       this.config.get<string>('ai.serpApiKey') || process.env.SERPAPI_API_KEY;
     if (!apiKey) {
@@ -64,10 +87,25 @@ export class SerpApiGroundedSearchService implements GroundedSearchProvider {
       };
     }
 
-    if (request.query && request.query.trim()) {
-      return this.searchSemantic(request, apiKey);
+    const result =
+      request.query && request.query.trim()
+        ? await this.searchSemantic(request, apiKey)
+        : await this.searchGeneral(request, apiKey);
+    if (result.groundingStatus === 'applied' && result.evidence.length > 0) {
+      await this.aiCache.cacheResponse(cacheKey, JSON.stringify(result), {
+        type: 'grounded-search',
+        provider: 'serpapi',
+      });
     }
-    return this.searchGeneral(request, apiKey);
+    return result;
+  }
+
+  private cacheKey(request: GroundedSearchRequest): string {
+    return `serpapi-grounded-search:v1:${JSON.stringify({
+      destinationName: request.destinationName,
+      requestedThemes: [...request.requestedThemes].sort(),
+      query: request.query?.trim() || '',
+    })}`;
   }
 
   // ── Semantic path (engine=google_ai_mode) ──────────────────────────

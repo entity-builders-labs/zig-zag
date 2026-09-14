@@ -74,6 +74,7 @@ function hasFacet(spec: any, dimension: string, key: string): boolean {
     let moduleRef: TestingModule;
     let prisma: PrismaService;
     let generation: ExperienceGenerationService;
+    let activeTourId: string | undefined;
 
     beforeAll(async () => {
       const databaseUrl = requireDedicatedSpikeDatabase();
@@ -87,6 +88,21 @@ function hasFacet(spec: any, dimension: string, key: string): boolean {
       generation = moduleRef.get(ExperienceGenerationService);
       await prisma.$connect();
       await resetDbWith(prisma);
+    });
+
+    afterEach(async () => {
+      if (!prisma || !activeTourId) return;
+      const tour = await prisma.tour.findUnique({
+        where: { id: activeTourId },
+      });
+      if (!tour) return;
+      const artifactPath = join(
+        tmpdir(),
+        `preference-first-m9-last-trace-${activeTourId}.json`,
+      );
+      writeFileSync(artifactPath, JSON.stringify(traceSnapshot(tour), null, 2));
+      console.info(`M9 trace artifact: ${artifactPath}`);
+      activeTourId = undefined;
     });
 
     afterAll(async () => {
@@ -107,6 +123,7 @@ function hasFacet(spec: any, dimension: string, key: string): boolean {
           'sí o sí quiero una caminata histórica por San Telmo',
         maxContinuousWalkingDistanceMeters: 3000,
       });
+      activeTourId = tourId;
 
       let generationError: unknown;
       try {

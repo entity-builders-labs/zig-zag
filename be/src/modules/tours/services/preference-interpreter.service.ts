@@ -123,12 +123,6 @@ const EMPTY_INTENT: NormalizedPreferenceIntent = {
   notes: [],
 };
 
-function parseModelJson(raw: string): unknown {
-  const trimmed = raw.trim();
-  const fenced = trimmed.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/i);
-  return JSON.parse(fenced?.[1] ?? trimmed);
-}
-
 @Injectable()
 export class PreferenceInterpreterService {
   private readonly logger = new Logger(PreferenceInterpreterService.name);
@@ -168,7 +162,7 @@ export class PreferenceInterpreterService {
         {},
         { responseFormat: { type: 'json_object' } },
       );
-      const parsed = this.normalize(parseModelJson(rawResponse));
+      const parsed = this.normalize(JSON.parse(rawResponse));
       return {
         intent: parsed,
         trace: redactTracePayload({

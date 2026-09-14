@@ -1,18 +1,25 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
 import { SerpApiGroundedSearchService } from './serpapi-grounded-search.service';
+import { AiCacheService } from '@shared/ai/services/ai-cache.service';
 
 describe('SerpApiGroundedSearchService', () => {
   let service: SerpApiGroundedSearchService;
   let configService: { get: jest.Mock };
+  let aiCache: { getCachedResponse: jest.Mock; cacheResponse: jest.Mock };
   let fetchSpy: jest.SpyInstance;
 
   beforeEach(async () => {
     configService = { get: jest.fn() };
+    aiCache = {
+      getCachedResponse: jest.fn().mockResolvedValue(null),
+      cacheResponse: jest.fn().mockResolvedValue(undefined),
+    };
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         SerpApiGroundedSearchService,
         { provide: ConfigService, useValue: configService },
+        { provide: AiCacheService, useValue: aiCache },
       ],
     }).compile();
     service = module.get(SerpApiGroundedSearchService);
@@ -40,6 +47,28 @@ describe('SerpApiGroundedSearchService', () => {
     expect(result.groundingStatus).toBe('unavailable');
     expect(result.evidence).toEqual([]);
     expect(fetchSpy).toBeUndefined();
+  });
+
+  it('reuses an applied result from the persistent cache without calling SerpAPI', async () => {
+    configService.get.mockReturnValue('test-key');
+    aiCache.getCachedResponse.mockResolvedValue(
+      JSON.stringify({
+        provider: 'serpapi',
+        model: 'google-search',
+        groundingStatus: 'applied',
+        evidence: [{ key: 'ev-1', source: 'guide', snippet: 'San Telmo walk' }],
+      }),
+    );
+
+    const result = await service.search({
+      destinationName: 'Buenos Aires',
+      requestedThemes: ['walk'],
+      query: 'historical walk in San Telmo',
+    });
+
+    expect(result.groundingStatus).toBe('applied');
+    expect(fetchSpy).toBeUndefined();
+    expect(aiCache.cacheResponse).not.toHaveBeenCalled();
   });
 
   describe('general path (empty query — engine=google)', () => {

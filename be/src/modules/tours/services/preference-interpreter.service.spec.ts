@@ -112,9 +112,9 @@ describe('PreferenceInterpreterService', () => {
     expect(result.trace.userPrompt).toBe('Quiero arquitectura tranquila');
   });
 
-  it('accepts a JSON response wrapped in a Markdown code fence', async () => {
+  it('accepts JSON already normalized by the provider boundary', async () => {
     const { service } = makeService(
-      '```json\n{"anchoredPlaces":[{"rawName":"San Telmo","kind":"area","priority":"must"}]}\n```',
+      '{"anchoredPlaces":[{"rawName":"San Telmo","kind":"area","priority":"must"}]}',
     );
 
     const result = await service.interpret(
