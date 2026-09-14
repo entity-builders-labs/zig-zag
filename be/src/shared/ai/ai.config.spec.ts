@@ -81,7 +81,22 @@ describe('aiConfig embedding index contract', () => {
           provider: 'gemini',
           groq: expect.objectContaining({ model: 'groq-classify-test' }),
           gemini: expect.objectContaining({ model: 'gemini-classify-test' }),
+          ollama: expect.objectContaining({ model: 'qwen2.5:7b-instruct' }),
         },
+      }),
+    );
+  });
+
+  it('selects the Ollama classification model independently', () => {
+    process.env.CLASSIFICATION_PROVIDER = 'ollama';
+    process.env.OLLAMA_CLASSIFICATION_MODEL = 'llama3.2:3b';
+
+    expect(loadConfig()).toEqual(
+      expect.objectContaining({
+        classification: expect.objectContaining({
+          provider: 'ollama',
+          ollama: { model: 'llama3.2:3b' },
+        }),
       }),
     );
   });

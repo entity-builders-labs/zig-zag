@@ -11,9 +11,10 @@ describe('ExperienceClassificationService', () => {
   let service: ExperienceClassificationService;
   let generateChatResponse: jest.Mock;
   let classificationConfig: {
-    provider: 'groq' | 'gemini';
+    provider: 'groq' | 'gemini' | 'ollama';
     groq: { model: string };
     gemini: { model: string };
+    ollama: { model: string };
   };
 
   const EVIDENCE = [
@@ -32,6 +33,7 @@ describe('ExperienceClassificationService', () => {
       provider: 'groq',
       groq: { model: 'groq-classify-test' },
       gemini: { model: 'gemini-classify-test' },
+      ollama: { model: 'ollama-classify-test' },
     };
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -343,6 +345,30 @@ describe('ExperienceClassificationService', () => {
       expect.objectContaining({
         providerOverride: 'gemini',
         modelOverride: 'gemini-classify-test',
+        temperature: 0,
+        bypassCache: true,
+      }),
+    );
+  });
+
+  it('routes classification to Ollama with its provider-owned model', async () => {
+    classificationConfig.provider = 'ollama';
+    generateChatResponse.mockResolvedValueOnce(
+      JSON.stringify({
+        themes: [],
+        intents: [],
+        traits: [],
+        reasoningEvidence: [],
+      }),
+    );
+
+    await service.classify('X', EVIDENCE);
+
+    const [, , , options] = generateChatResponse.mock.calls[0];
+    expect(options).toEqual(
+      expect.objectContaining({
+        providerOverride: 'ollama',
+        modelOverride: 'ollama-classify-test',
         temperature: 0,
         bypassCache: true,
       }),

@@ -39,9 +39,10 @@ export interface AiConfig {
 }
 
 export interface ClassificationConfig {
-  provider: 'groq' | 'gemini';
+  provider: 'groq' | 'gemini' | 'ollama';
   groq: { apiKey?: string; model: string };
   gemini: { apiKey?: string; model: string };
+  ollama?: { model: string };
 }
 
 export type DiscoveryExtractorProvider = 'gemini' | 'groq' | 'ollama';
@@ -165,9 +166,9 @@ export default registerAs('ai', (): AiConfig => {
   }
 
   const classificationProvider = process.env.CLASSIFICATION_PROVIDER || 'groq';
-  if (!['groq', 'gemini'].includes(classificationProvider)) {
+  if (!['groq', 'gemini', 'ollama'].includes(classificationProvider)) {
     throw new Error(
-      `Unsupported CLASSIFICATION_PROVIDER "${classificationProvider}". Expected groq or gemini.`,
+      `Unsupported CLASSIFICATION_PROVIDER "${classificationProvider}". Expected groq, gemini or ollama.`,
     );
   }
 
@@ -246,6 +247,12 @@ export default registerAs('ai', (): AiConfig => {
           process.env.GEMINI_CLASSIFICATION_MODEL ||
           process.env.GEMINI_MODEL ||
           'gemini-3.5-flash-lite',
+      },
+      ollama: {
+        model:
+          process.env.OLLAMA_CLASSIFICATION_MODEL ||
+          process.env.OLLAMA_MODEL ||
+          'qwen2.5:7b-instruct',
       },
     },
   };

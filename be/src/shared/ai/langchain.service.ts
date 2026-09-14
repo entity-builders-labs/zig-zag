@@ -10,6 +10,7 @@ import {
 } from '@langchain/core/prompts';
 import { StringOutputParser } from '@langchain/core/output_parsers';
 import { RunnableSequence } from '@langchain/core/runnables';
+import { HumanMessage, SystemMessage } from '@langchain/core/messages';
 import { BaseLanguageModel } from '@langchain/core/language_models/base';
 import aiConfig from './ai.config';
 import { AiCacheService } from './services/ai-cache.service';
@@ -342,30 +343,45 @@ export class LangChainService {
       const provider = providerOverride ?? this.config.provider;
 
       if (provider === 'ollama') {
-        const model = this.chatModel;
+        const model = modelOverride
+          ? new ChatOllama({
+              baseUrl: this.getOllamaBaseUrl(),
+              model: modelOverride,
+              temperature: this.config.temperature,
+              timeout: this.config.ollamaTimeout || this.config.timeout * 4,
+              ...(this.config.ollamaNumCtx
+                ? { numCtx: this.config.ollamaNumCtx }
+                : {}),
+              ...(this.config.ollamaApiKey
+                ? { headers: this.getOllamaHeaders() }
+                : {}),
+            } as any)
+          : this.chatModel;
         if (!model) {
           throw new Error(
             'Ollama chat model not initialized. Please check your Ollama configuration.',
           );
         }
 
-        const chatPrompt = ChatPromptTemplate.fromMessages([
-          SystemMessagePromptTemplate.fromTemplate(systemPrompt),
-          HumanMessagePromptTemplate.fromTemplate(userPrompt),
+        // Send literal messages instead of PromptTemplate instances. Ollama
+        // must receive JSON examples such as `{facet, evidenceKeys, reason}`
+        // verbatim; treating the system prompt as a template turns those
+        // fields into phantom input variables before the model is called.
+        const userText = await PromptTemplate.fromTemplate(userPrompt).format(
+          variables as any,
+        );
+        const result = await model.invoke([
+          new SystemMessage(systemPrompt),
+          new HumanMessage(userText),
         ]);
-
-        const chain = RunnableSequence.from([
-          chatPrompt,
-          model,
-          new StringOutputParser(),
-        ]);
-
-        try {
-          response = await chain.invoke(variables);
-        } catch (error: any) {
-          // Handle errors (truncated for brevity, same as original)
-          throw error;
-        }
+        response =
+          typeof result.content === 'string'
+            ? result.content
+            : result.content
+                .map((part: any) =>
+                  typeof part === 'string' ? part : (part.text ?? ''),
+                )
+                .join('');
       } else if (provider === 'gemini') {
         const userTmpl = PromptTemplate.fromTemplate(userPrompt);
         const userText = await userTmpl.format(variables as any);

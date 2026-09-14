@@ -148,11 +148,17 @@ export class ExperienceClassificationService {
   ) {}
 
   private get model(): string {
-    return this.config.classification[this.config.classification.provider]
-      .model;
+    const providerConfig =
+      this.config.classification[this.config.classification.provider];
+    if (!providerConfig) {
+      throw new Error(
+        `Missing classification configuration for provider ${this.config.classification.provider}`,
+      );
+    }
+    return providerConfig.model;
   }
 
-  private get provider(): 'groq' | 'gemini' {
+  private get provider(): 'groq' | 'gemini' | 'ollama' {
     return this.config.classification.provider;
   }
 
