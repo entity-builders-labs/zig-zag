@@ -3,13 +3,11 @@ import {
   RankableCandidate,
   CandidateScoreBreakdown,
 } from '../../src/modules/tours/utils/candidate-ranking.util';
-import { selectBoundedWindow } from '../../src/modules/tours/utils/candidate-window-selection.util';
 import { filterOverlappingExperienceCandidates } from '../../src/modules/tours/utils/candidate-overlap-filter.util';
 import { sortCandidatesDeterministically } from '../../src/modules/tours/utils/daily-planning-candidate-sort.util';
 import { PlanningCandidateNormalizerService } from '../../src/modules/tours/services/planning-candidate-normalizer.service';
 import dailyPlanningPolicyConfig from '../../src/modules/tours/config/daily-planning-policy.config';
 import { evaluateExperiencePreferences } from '../../src/modules/tours/utils/experience-preference-evaluator.util';
-import { matchedThemesFor } from '../../src/modules/tours/utils/theme-matching.util';
 import {
   MobilityPreferences,
   TransportationMode,
@@ -43,7 +41,6 @@ import { createGreedySolver } from '../acceptance/harness/solver-factory';
  */
 
 const WINDOW = 15;
-const ITINERARY_INTENTS = ['visit', 'walk'];
 
 const wizardFacet = (dimension: string, key: string) => ({
   dimension,
@@ -273,12 +270,7 @@ async function runChain(explorationStyle: 'iconic' | 'local_deep_dive') {
 
   const similarity = new Map(catalog.map((r) => [r.id, r.similarity]));
   const ranked = rankCandidatesByRelevance(rankable, similarity);
-  const window = selectBoundedWindow(
-    ranked as any,
-    (c: any) => c.original.intents,
-    ITINERARY_INTENTS,
-    WINDOW,
-  );
+  const window = ranked.slice(0, WINDOW);
   const overlap = filterOverlappingExperienceCandidates(
     window.map((w: any) => ({
       id: w.candidate.id,
@@ -419,32 +411,6 @@ describe('CHAR-10 realistic Rosario-like selection regression', () => {
     );
     expect(local.windowIds).toEqual(iconic.windowIds);
     expect(local.selectedIds).toEqual(iconic.selectedIds);
-  });
-
-  it('E — the bitácora matched-themes signal is a JSON scan, not what the preference evaluator matched (CHAR-4)', () => {
-    const sportsThemes = matchedThemesFor(
-      { id: 's', name: 'Estadio 0', metadata: { themes: ['sports'] } } as any,
-      ['history', 'culture', 'architecture'],
-    );
-    expect(sportsThemes).toEqual([]);
-    const misleading = matchedThemesFor(
-      {
-        id: 'm',
-        name: 'Estadio 0',
-        metadata: {
-          themes: ['sports'],
-          note: 'near the historic culture and architecture district',
-        },
-      } as any,
-      ['history', 'culture', 'architecture'],
-    );
-    // eslint-disable-next-line no-console
-    console.info(
-      `[CHAR-10] misleading matchedThemesFor => ${JSON.stringify(misleading)}`,
-    );
-    expect(misleading).toEqual(
-      expect.arrayContaining(['history', 'culture', 'architecture']),
-    );
   });
 
   it('F — determinism: the whole chain (rank -> window -> overlap -> normalize -> solve) is stable across runs', async () => {

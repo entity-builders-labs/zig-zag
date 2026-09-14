@@ -20,7 +20,14 @@ import { TourGenerationRequest } from '../interfaces/tour-generation.interface';
 import { DailyPlanningSolution } from '../interfaces/daily-planning.interface';
 import { PreferenceCoverageResult } from '../interfaces/preference-spec.interface';
 import { CandidateScoreBreakdown } from './candidate-ranking.util';
-import { ThemeMatchCandidate } from './theme-matching.util';
+
+interface TraceFacetCandidate {
+  id: string;
+  name: string;
+  source?: string | null;
+  metadata?: unknown;
+  matchedThemes?: string[];
+}
 
 function experienceDetail(act: any): string {
   const parts: string[] = [];
@@ -1226,7 +1233,7 @@ export function buildCandidatePoolStep(params: {
   postAcquisitionCatalogCount: number;
   eligibleCount: number;
   offeredCandidates: Array<
-    ThemeMatchCandidate & {
+    TraceFacetCandidate & {
       traceSource: 'db' | 'google_places' | 'geoapify' | 'discovery';
       scoreBreakdown: CandidateScoreBreakdown;
     }
@@ -1333,7 +1340,7 @@ export function buildExperienceCandidatePoolStep(params: {
   postAcquisitionCatalogCount: number;
   eligibleCount: number;
   offeredCandidates: Array<
-    ThemeMatchCandidate & {
+    TraceFacetCandidate & {
       traceSource: 'db' | 'google_places' | 'geoapify' | 'discovery';
       scoreBreakdown: CandidateScoreBreakdown;
     }

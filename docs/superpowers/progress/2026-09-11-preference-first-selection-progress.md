@@ -311,7 +311,9 @@ P2/P3 implementation checkpoint: initial and reservoir collections now remain di
 
 Fresh P2/P3 targeted verification: overlap/composition/trace 3 suites / 33 tests passed; typecheck and lint passed. Full backend unit/integration/build evidence remains green from the preceding P2 checkpoint (145 suites / 1,448 tests; 16 suites / 72 tests). P2 is **IMPLEMENTED — awaiting independent review**, with one material remaining gap: the plan requires a bounded planner-capacity acquisition pass after reservoir exhaustion; current code records the typed deficit but does not yet execute that pass.
 
-Next gate: implement the canonical planner-capacity acquisition/requery pass before treating P2 exit as green; then continue with P4 legacy deletion, trace v4, Bitácora v4, and M9 gates.
+P4 implementation checkpoint: superseded candidate-window selection and keyword theme-matching authorities were deleted; the large characterization harness now uses the direct ranking window, and a static single-orchestration-owner architecture test is present. P4 remains **IMPLEMENTED — awaiting independent review**. The canonical planner-capacity acquisition/requery pass is still not implemented, so M9/M10 remain blocked.
+
+Next gate: complete the bounded planner-capacity acquisition/requery pass, then implement native trace v4 and Bitácora v4.
 
 M3.5 is closed. Do not reopen it unless a new regression is demonstrated.
 

@@ -1041,8 +1041,7 @@ export class ExperienceGenerationService {
 
               // M2 (preference-first live cutover): deficits are now the
               // real FacetRetrievalService-derived unsatisfied facets
-              // (`origin: 'preference_facet'`), never the legacy
-              // CoverageAnalyzer/theme-matching projection -- this is the
+              // (`origin: 'preference_facet'`) and are passed through as the
               // one canonical deficit source feeding acquisition routing.
               const acquisitionPlan =
                 this.experienceAcquisitionPlanner.buildAcquisitionPlan({
