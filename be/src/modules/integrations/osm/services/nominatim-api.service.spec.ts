@@ -1,6 +1,7 @@
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 import { NominatimApiService } from './nominatim-api.service';
+import { isAreaScaleEligible } from '../../../tours/utils/nominatim-match.util';
 
 jest.mock('axios');
 const mockedAxios = axios as jest.Mocked<typeof axios>;
@@ -22,7 +23,7 @@ describe('NominatimApiService', () => {
           osm_type: 'relation',
           osm_id: 1224652,
           addresstype: 'city',
-          class: 'boundary',
+          category: 'boundary',
           type: 'administrative',
           display_name:
             'Buenos Aires, Comuna 1, Ciudad Autónoma de Buenos Aires, Argentina',
@@ -72,6 +73,36 @@ describe('NominatimApiService', () => {
         },
       },
     ]);
+  });
+
+  it('normalizes the real JSONv2 category field into the AREA policy classification', async () => {
+    mockedAxios.get.mockResolvedValue({
+      data: [
+        {
+          osm_type: 'relation',
+          osm_id: 42,
+          addresstype: 'suburb',
+          category: 'place',
+          type: 'suburb',
+          place_rank: 20,
+          display_name: 'San Telmo, Buenos Aires, Argentina',
+          importance: 0.3,
+          lat: '-34.62',
+          lon: '-58.37',
+        },
+      ],
+    });
+
+    const [result] = await service.search('San Telmo');
+
+    expect(result).toMatchObject({
+      osmType: 'relation',
+      class: 'place',
+      type: 'suburb',
+      placeRank: 20,
+    });
+    expect(result).not.toHaveProperty('category');
+    expect(isAreaScaleEligible(result)).toBe(true);
   });
 
   it('sends a self-identifying User-Agent (Nominatim usage policy) and a bounded limit', async () => {
@@ -138,6 +169,10 @@ describe('NominatimApiService', () => {
         osm_type: 'relation',
         osm_id: 2929054,
         addresstype: 'city',
+        category: 'boundary',
+        type: 'administrative',
+        place_rank: 16,
+        address_rank: 16,
         display_name: 'Montevideo, Uruguay',
         importance: 0.7,
         lat: '-34.9059',
@@ -166,6 +201,10 @@ describe('NominatimApiService', () => {
     );
     expect(result).toMatchObject({
       osmId: 2929054,
+      class: 'boundary',
+      type: 'administrative',
+      placeRank: 16,
+      addressRank: 16,
       latitude: -34.9059,
       longitude: -56.1913,
       address: {
