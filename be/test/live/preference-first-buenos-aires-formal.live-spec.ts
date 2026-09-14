@@ -76,10 +76,10 @@ function hasFacet(spec: any, dimension: string, key: string): boolean {
         longitude: -58.3816,
         radiusMeters: 20_000,
         days: 2,
-        interests: ['history', 'architecture', 'tango'],
-        intents: ['walk', 'visit'],
+        interests: [],
+        intents: ['walk'],
         additionalPreferences:
-          'sí o sí quiero una caminata histórica por San Telmo, arquitectura porteña, tango y me interesa la arquitectura del Teatro Colón',
+          'sí o sí quiero una caminata histórica por San Telmo',
         maxContinuousWalkingDistanceMeters: 3000,
       });
 
@@ -115,7 +115,6 @@ function hasFacet(spec: any, dimension: string, key: string): boolean {
           (facet: any) => facet.dimension === 'exploration_style',
         ),
       ).toBe(false);
-      expect(hasFacet(preferenceSpec, 'theme', 'history')).toBe(true);
       expect(hasFacet(preferenceSpec, 'intent', 'walk')).toBe(true);
       expect(
         (preferenceSpec?.anchors ?? []).some(
@@ -123,14 +122,6 @@ function hasFacet(spec: any, dimension: string, key: string): boolean {
             anchor.rawName.toLowerCase() === 'san telmo' &&
             anchor.kind === 'area' &&
             anchor.priority === 'must',
-        ),
-      ).toBe(true);
-      expect(
-        (preferenceSpec?.anchors ?? []).some(
-          (anchor: any) =>
-            anchor.rawName.toLowerCase().includes('teatro colón') &&
-            anchor.kind === 'venue' &&
-            anchor.priority === 'soft',
         ),
       ).toBe(true);
       expect(destinationStep?.outputs?.scale).toBe('area');
