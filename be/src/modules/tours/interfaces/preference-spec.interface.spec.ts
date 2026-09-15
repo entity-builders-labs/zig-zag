@@ -6,6 +6,7 @@ import {
   FacetCandidates,
   PortfolioSufficiency,
   UnmetAnchor,
+  ResolvedAnchor,
   CompositionResult,
 } from './preference-spec.interface';
 
@@ -38,10 +39,10 @@ describe('preference-spec.interface', () => {
   it('constructs a valid AnchoredPlace literal for each kind/priority combination', () => {
     const anchor: AnchoredPlace = {
       rawName: 'Teatro Colón',
-      kind: 'venue',
+      usage: 'specific_destination',
       priority: 'must',
     };
-    expect(anchor.kind).toBe('venue');
+    expect(anchor.usage).toBe('specific_destination');
     expect(anchor.priority).toBe('must');
   });
 
@@ -126,11 +127,16 @@ describe('preference-spec.interface', () => {
   it('constructs a valid UnmetAnchor literal for each reason', () => {
     const anchor: AnchoredPlace = {
       rawName: 'Some Unresolvable Place',
-      kind: 'venue',
+      usage: 'specific_destination',
       priority: 'must',
     };
-    const unresolved: UnmetAnchor = { anchor, reason: 'UNRESOLVED' };
-    const infeasible: UnmetAnchor = { anchor, reason: 'INFEASIBLE' };
+    const unresolvedAnchor: ResolvedAnchor = {
+      ...anchor,
+      status: 'unresolved',
+      unresolvedReason: 'not found',
+    };
+    const unresolved: UnmetAnchor = { anchor: unresolvedAnchor, reason: 'UNRESOLVED' };
+    const infeasible: UnmetAnchor = { anchor: unresolvedAnchor, reason: 'INFEASIBLE' };
     expect(unresolved.reason).toBe('UNRESOLVED');
     expect(infeasible.reason).toBe('INFEASIBLE');
   });

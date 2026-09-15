@@ -118,6 +118,7 @@ const RESPONSE_SCHEMA = {
 };
 
 const EMPTY_INTENT: NormalizedPreferenceIntent = {
+  interpretationStatus: 'complete',
   preferredFacets: [],
   anchoredPlaces: [],
   excludedThemes: [],
@@ -174,6 +175,27 @@ export class PreferenceInterpreterService {
         { responseFormat: { type: 'json_object' } },
       );
       const normalized = this.normalize(JSON.parse(rawResponse));
+      const unsupported = normalized.intent.preferredFacets.filter(
+        (facet) =>
+          facet.dimension === 'local_character' &&
+          facet.key === 'traditional' &&
+          !/(tradicional|traditional|heritage|ancestral)/i.test(userPrompt),
+      );
+      if (unsupported.length > 0) {
+        normalized.intent.preferredFacets = normalized.intent.preferredFacets.filter(
+          (facet) => !unsupported.includes(facet),
+        );
+        normalized.facetNormalizationDecisions.push(
+          ...unsupported.map((facet) => ({
+            rawDimension: facet.dimension,
+            rawKey: facet.key,
+            normalizedDimension: facet.dimension,
+            normalizedKey: facet.key,
+            accepted: false,
+            reason: 'UNSUPPORTED_BY_INPUT' as const,
+          })),
+        );
+      }
       const parsed = normalized.intent;
       return {
         intent: parsed,
@@ -208,6 +230,7 @@ export class PreferenceInterpreterService {
             fallbackResult.facetNormalizationDecisions,
           validationErrors: [error.message || 'interpretation_failed'],
           status: 'fallback',
+          unresolvedFreeText: fallback.unresolvedFreeText,
           durationMs: Date.now() - startedAt,
         }),
       };
@@ -416,10 +439,6 @@ export class PreferenceInterpreterService {
         continue;
       }
 
-      // The model may emit the historical kind field, but it is deliberately
-      // discarded here. Geographic reality belongs to GeoEntity resolution.
-      const kind: AnchoredPlace['kind'] = 'unknown';
-
       const validUsages: AnchoredPlace['usage'][] = [
         'geographic_scope',
         'specific_destination',
@@ -439,7 +458,7 @@ export class PreferenceInterpreterService {
         ? rawPriority
         : 'soft';
 
-      anchors.push({ rawName, usage, kind, priority });
+      anchors.push({ rawName, usage, priority });
     }
 
     return anchors.slice(0, MAX_ANCHORED_PLACES);
@@ -523,6 +542,8 @@ export class PreferenceInterpreterService {
     return {
       intent: {
         ...EMPTY_INTENT,
+        interpretationStatus: 'failed',
+        unresolvedFreeText: text,
         preferredFacets,
         excludedThemes,
         excludedTraits,

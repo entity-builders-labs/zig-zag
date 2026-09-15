@@ -124,6 +124,11 @@ export class AreaRouteWalkAcquisitionService {
   async acquireOrReuse(
     input: AreaRouteWalkAcquisitionInput,
   ): Promise<AreaRouteWalkAcquisitionResult> {
+    const isAreaAnchor =
+      input.anchor.status === 'resolved' && input.anchor.kind === 'area';
+    const isRouteAnchor =
+      (input.anchor.status === 'resolved' && input.anchor.kind === 'route') ||
+      (input.anchor.status === 'unresolved' && input.anchor.usage === 'named_path');
     const facet = normalizeWizardFacet('intent', input.intentKey);
 
     // Resolve ONCE per call -- reused by the warm check, the
@@ -146,7 +151,7 @@ export class AreaRouteWalkAcquisitionService {
           }
         : { resolved: false as const };
 
-    if (input.anchor.status === 'unresolved' && input.anchor.kind === 'area') {
+    if (input.anchor.status === 'unresolved' && input.anchor.usage === 'geographic_scope') {
       return {
         outcome: 'no_result',
         reason: 'anchor_unresolved',
@@ -169,7 +174,7 @@ export class AreaRouteWalkAcquisitionService {
     // context. Without a canonical boundary, materialization could persist
     // an experience unrelated to the requested area. Tourism-route mode C
     // intentionally remains available for unresolved ROUTE anchors below.
-    if (input.anchor.kind === 'area' && !resolution.resolved) {
+    if (isAreaAnchor && !resolution.resolved) {
       return {
         outcome: 'no_result',
         reason: 'anchor_unresolved',
@@ -194,7 +199,7 @@ export class AreaRouteWalkAcquisitionService {
     const geographicMatches = async (): Promise<
       Array<{ id: string; metadata?: unknown }>
     > => {
-      if (input.anchor.kind === 'area') {
+      if (isAreaAnchor) {
         if (!resolution.resolved) return [];
         return this.catalog.findVerifiedMultiComponentInArea(
           resolution.geoEntityId,
@@ -203,7 +208,7 @@ export class AreaRouteWalkAcquisitionService {
             : 'AREA_CONTAINED',
         );
       }
-      if (input.anchor.kind === 'route') {
+      if (isRouteAnchor) {
         if (resolution.resolved) {
           return this.catalog.findVerifiedMultiComponentByExactComponent(
             resolution.geoEntityId,
@@ -323,7 +328,7 @@ export class AreaRouteWalkAcquisitionService {
     const validationScope: ExperienceValidationScope | undefined =
       resolution.resolved
         ? {
-            kind: input.anchor.kind === 'area' ? 'AREA' : 'ROUTE',
+            kind: input.anchor.status === 'resolved' && input.anchor.kind === 'area' ? 'AREA' : 'ROUTE',
             anchorName: input.anchor.rawName,
             geoEntityId: resolution.geoEntityId,
             geometry: resolution.geometry,

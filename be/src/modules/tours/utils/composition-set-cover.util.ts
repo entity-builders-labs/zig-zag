@@ -85,7 +85,7 @@ export function composeSet(input: ComposeSetInput): CompositionSelectionResult {
   const mustAnchorsForced: string[] = [];
   const reservedStrongExperienceIds: string[] = [];
   const unmetAnchors = unresolvedVenueMustAnchors(
-    input.preferenceSpec.anchors,
+    input.preferenceSpec.resolvedAnchors ?? [],
     input.resolvedVenueMustAnchorNames ?? [],
   );
 

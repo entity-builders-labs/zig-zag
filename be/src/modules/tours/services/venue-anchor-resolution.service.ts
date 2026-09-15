@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { StructuredExperienceCandidateSynthesizerService } from './structured-experience-candidate-synthesizer.service';
 import { StructuredCandidateCorroborationService } from './structured-candidate-corroboration.service';
 import { ExperienceAcquisitionService } from './experience-acquisition.service';
-import { AnchoredPlace } from '../interfaces/preference-spec.interface';
+import { ResolvedAnchor } from '../interfaces/preference-spec.interface';
 import { GeographicScope } from '../interfaces/experience-resolution.interface';
 import {
   AcquisitionProviderResult,
@@ -19,7 +19,7 @@ export interface VenueAnchorLookupCapability {
 }
 
 export interface VenueAnchorResolutionInput {
-  anchors: AnchoredPlace[];
+  anchors: ResolvedAnchor[];
   destinationName?: string;
   destinationCountryCode?: string;
   geographicScope?: GeographicScope;
@@ -52,7 +52,8 @@ export class VenueAnchorResolutionService {
       resolvedNames: [],
     };
     for (const anchor of input.anchors.filter(
-      (item) => item.kind === 'venue',
+      (item): item is Extract<typeof item, { status: 'resolved' }> =>
+        item.status === 'resolved' && item.kind === 'venue',
     )) {
       const query = [anchor.rawName, input.destinationName]
         .filter(Boolean)

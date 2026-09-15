@@ -174,21 +174,17 @@ export class ExperienceAcquisitionService {
     plan: ExperienceAcquisitionPlan,
     ledger?: AcquisitionExecutionLedger,
   ): Promise<ExecuteAcquisitionPlanResult> {
-    const fingerprint = acquisitionSourcePlanFingerprint(plan);
-    if (ledger?.executedSourcePlanFingerprints.has(fingerprint)) {
-      return {
-        candidates: [],
-        observations: [],
-        providerResults: {},
-        webResults: [],
-        evidence: [],
-        executionSkipped: {
-          reason: 'DUPLICATE_SOURCE_PLAN_EXECUTION',
-          fingerprint,
-        },
-      };
-    }
-    ledger?.executedSourcePlanFingerprints.add(fingerprint);
+    const sourcePlans = plan.sourcePlans.filter((sourcePlan) => {
+      const fingerprint = acquisitionSourcePlanFingerprint(
+        sourcePlan,
+        plan.destination.destinationName,
+        [],
+        [],
+      );
+      if (ledger?.executedSourcePlanFingerprints.has(fingerprint)) return false;
+      ledger?.executedSourcePlanFingerprints.add(fingerprint);
+      return true;
+    });
     const providerResults: Partial<
       Record<
         ExperienceAcquisitionProvider,
@@ -197,7 +193,7 @@ export class ExperienceAcquisitionService {
     > = {};
     const allObservations: SourceObservation[] = [];
 
-    for (const sourcePlan of plan.sourcePlans) {
+    for (const sourcePlan of sourcePlans) {
       if (sourcePlan.provider === 'wikivoyage' && this.wikivoyageProvider) {
         try {
           const res = await this.wikivoyageProvider.acquire(
@@ -250,7 +246,7 @@ export class ExperienceAcquisitionService {
     const webResults: WebAcquisitionResult[] = [];
     const webCandidates: ExperienceCandidate[] = [];
     const webEvidence: ResolverEvidenceItem[] = [];
-    for (const sourcePlan of plan.sourcePlans) {
+    for (const sourcePlan of sourcePlans) {
       if (sourcePlan.provider !== 'web') continue;
       webResults.push(
         await this.executeWebSourcePlan(plan, sourcePlan.web, {

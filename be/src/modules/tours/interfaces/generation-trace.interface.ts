@@ -285,7 +285,8 @@ export interface TraceAcquisitionContext {
   passNumber: number;
   anchor?: {
     rawName: string;
-    kind: 'venue' | 'area' | 'route' | 'unknown';
+    usage: 'geographic_scope' | 'specific_destination' | 'named_path' | 'unknown';
+    kind: 'venue' | 'area' | 'route';
     priority: 'soft' | 'must';
   };
 }

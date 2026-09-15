@@ -20,7 +20,7 @@ export type AcquisitionStrategy =
   | {
       kind: 'AREA_ROUTE_WALK';
       deficit: PreferenceFacetDeficit;
-      anchor: ResolvedAnchor;
+      anchor: Extract<ResolvedAnchor, { status: 'resolved' }>;
       /**
        * Narrowed once, here -- the ONE place that reads `deficit.key` as a
        * specific area/route intent. Callers never re-derive or cast it.
@@ -68,7 +68,9 @@ export function selectAcquisitionStrategy(
   }
 
   const relevantAnchors = anchors.filter(
-    (anchor) => anchor.kind === 'area' || anchor.kind === 'route',
+    (anchor): anchor is Extract<ResolvedAnchor, { status: 'resolved' }> =>
+      anchor.status === 'resolved' &&
+      (anchor.kind === 'area' || anchor.kind === 'route'),
   );
   if (relevantAnchors.length !== 1) {
     return { kind: 'GENERIC', deficit };
@@ -89,7 +91,7 @@ export function selectAcquisitionStrategy(
  */
 export interface AreaRouteWalkRoutedDeficit {
   deficit: PreferenceFacetDeficit;
-  anchor: ResolvedAnchor;
+  anchor: Extract<ResolvedAnchor, { status: 'resolved' }>;
   intentKey: AreaRouteWalkIntentKey;
 }
 

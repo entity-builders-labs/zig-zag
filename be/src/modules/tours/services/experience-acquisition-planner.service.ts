@@ -185,10 +185,11 @@ export class ExperienceAcquisitionPlannerService {
       ...(input.anchors ?? [])
         .filter(
           (anchor) =>
+            anchor.status === 'resolved' &&
             (anchor.kind === 'area' || anchor.kind === 'route') &&
             anchor.priority === 'must',
         )
-        .map((anchor) => anchor.rawName.trim()),
+        .map((anchor) => anchor.status === 'resolved' ? anchor.canonicalName.trim() : ''),
     ]
       .filter(Boolean)
       .filter(
@@ -240,9 +241,11 @@ export class ExperienceAcquisitionPlannerService {
       const relevantAnchorNames = isWalkOrRouteLikeDeficit
         ? (input.anchors ?? [])
             .filter(
-              (anchor) => anchor.kind === 'area' || anchor.kind === 'route',
+              (anchor) =>
+                anchor.status === 'resolved' &&
+                (anchor.kind === 'area' || anchor.kind === 'route'),
             )
-            .map((anchor) => anchor.rawName)
+            .map((anchor) => anchor.status === 'resolved' ? anchor.canonicalName : '')
         : [];
 
       if (relevantAnchorNames.length > 0) {

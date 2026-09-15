@@ -24,18 +24,20 @@ function canonical(value: unknown): unknown {
 }
 
 export function acquisitionSourcePlanFingerprint(
-  plan: ExperienceAcquisitionPlan,
+  planOrSourcePlan: ExperienceAcquisitionPlan | SourcePlan,
+  canonicalDestination?: string,
   relevantAnchorNames: string[] = [],
-  relevantDeficits: unknown[] = plan.deficits,
+  relevantDeficits: unknown[] = [],
 ): string {
+  const isPlan = 'sourcePlans' in planOrSourcePlan;
+  const plan = isPlan ? planOrSourcePlan : undefined;
+  const sourcePlan = isPlan ? undefined : planOrSourcePlan;
   return JSON.stringify(
     canonical({
-      provider: (plan.sourcePlans as SourcePlan[]).map(
-        (sourcePlan) => sourcePlan.provider,
-      ),
-      destination: plan.destination,
-      sourcePlanPayload: plan.sourcePlans,
-      evidenceRequirements: plan.evidenceRequirements,
+      provider: sourcePlan?.provider ?? plan?.sourcePlans.map((item) => item.provider),
+      destination: canonicalDestination ?? plan?.destination.destinationName,
+      sourcePlanPayload: sourcePlan ?? plan?.sourcePlans,
+      evidenceRequirements: plan?.evidenceRequirements,
       relevantAnchorNames,
       relevantDeficits,
     }),

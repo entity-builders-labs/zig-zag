@@ -30,9 +30,10 @@ export function unresolvedVenueMustAnchors(
   return anchors
     .filter(
       (anchor) =>
+        anchor.status === 'resolved' &&
         anchor.kind === 'venue' &&
         anchor.priority === 'must' &&
-        !resolved.has(anchor.rawName.trim().toLowerCase()),
+        !resolved.has(anchor.canonicalName.trim().toLowerCase()),
     )
     .map((anchor) => ({ anchor, reason: 'UNRESOLVED' }));
 }

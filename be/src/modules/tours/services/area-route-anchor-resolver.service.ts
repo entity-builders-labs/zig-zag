@@ -27,6 +27,8 @@ import {
 export type AnchorGeometryResolution =
   | {
       resolved: true;
+      status: 'match';
+      kind: 'area' | 'route';
       geoEntityId: string;
       canonicalName?: string;
       provider?: string;
@@ -35,8 +37,27 @@ export type AnchorGeometryResolution =
       // ExperienceValidationScope.geometry directly, no extra DB
       // round-trip.
       geometry: GeoJsonGeometry;
-    }
-  | { resolved: false };
+  }
+  | { resolved: false; status: 'no_match' | 'unavailable'; reason?: string };
+
+type NormalizedAnchorResolution =
+  | { status: 'match'; anchor: ResolvedAnchor }
+  | { status: 'no_match' | 'unavailable'; reason: string };
+
+function normalizePlacesProvider(provider: IPlacesApiService['provider']): string {
+  switch (provider) {
+    case 'google':
+      return 'google_places';
+    case 'geoapify':
+      return 'geoapify';
+    default:
+      return assertNever(provider);
+  }
+}
+
+function assertNever(value: never): never {
+  throw new Error(`Unsupported Places provider: ${String(value)}`);
+}
 
 function representativePoint(
   geometry: GeoJsonGeometry,
@@ -90,66 +111,39 @@ export class AreaRouteAnchorResolverService {
   ): Promise<ResolvedAnchor[]> {
     return Promise.all(
       anchors.map(async (anchor): Promise<ResolvedAnchor> => {
-        const area =
-          anchor.usage === 'specific_destination'
-            ? ({ resolved: false } as const)
-            : await this.resolveArea(
-                anchor,
-                options.destinationCountryCode,
-                options.destinationPoint,
-              );
-        if (area.resolved) {
+        // Usage is linguistic evidence only. Every plausible canonical kind
+        // remains eligible; usage may influence ranking inside provider
+        // matching, never remove a kind from consideration.
+        const outcomes = await Promise.all([
+          this.resolveArea(anchor, options.destinationCountryCode, options.destinationPoint),
+          this.resolveRoute(anchor, options.geographicScope),
+          this.resolvePlace(anchor, options.destinationCountryCode),
+        ]);
+        const match = outcomes.find((outcome) => outcome.status === 'match');
+        if (match?.status === 'match') {
+          if ('anchor' in match) return match.anchor;
           return {
-            ...anchor,
-            kind: 'area',
             status: 'resolved',
-            canonicalName: area.canonicalName ?? anchor.rawName,
-            geoEntityId: area.geoEntityId,
-            provider: area.provider ?? 'openstreetmap',
-            externalId: area.externalId,
-            geometry: area.geometry,
+            rawName: anchor.rawName,
+            usage: anchor.usage,
+            priority: anchor.priority,
+            canonicalName: match.canonicalName ?? anchor.rawName,
+            kind: match.kind,
+            geoEntityId: match.geoEntityId,
+            provider: match.provider ?? 'openstreetmap',
+            externalId: match.externalId,
+            geometry: match.geometry,
           };
         }
-
-        if (anchor.usage === 'named_path' || anchor.usage === 'unknown') {
-          const route = await this.resolveRoute(
-            anchor,
-            options.geographicScope,
-          );
-          if (route.resolved) {
-            return {
-              ...anchor,
-              kind: 'route',
-              status: 'resolved',
-              canonicalName: route.canonicalName ?? anchor.rawName,
-              geoEntityId: route.geoEntityId,
-              provider: route.provider ?? 'openstreetmap',
-              externalId: route.externalId,
-              geometry: route.geometry,
-            };
-          }
-        }
-
-        if (anchor.usage === 'named_path') {
-          return {
-            ...anchor,
-            kind: 'unknown',
-            status: 'unresolved',
-            unresolvedReason: 'NO_CONFIDENT_ROUTE_MATCH',
-          };
-        }
-
-        const place = await this.resolvePlace(
-          anchor,
-          options.destinationCountryCode,
-        );
-        if (place) return place;
-
+        const unavailable = outcomes.find((outcome) => outcome.status === 'unavailable');
         return {
-          ...anchor,
-          kind: 'unknown',
           status: 'unresolved',
-          unresolvedReason: 'NO_CONFIDENT_GEO_ENTITY_MATCH',
+          rawName: anchor.rawName,
+          usage: anchor.usage,
+          priority: anchor.priority,
+          unresolvedReason: unavailable?.status === 'unavailable'
+            ? `GEO_PROVIDER_UNAVAILABLE:${unavailable.reason}`
+            : 'NO_CONFIDENT_GEO_ENTITY_MATCH',
         };
       }),
     );
@@ -158,7 +152,7 @@ export class AreaRouteAnchorResolverService {
   private async resolvePlace(
     anchor: AnchoredPlace,
     destinationCountryCode?: string,
-  ): Promise<ResolvedAnchor | undefined> {
+  ): Promise<NormalizedAnchorResolution> {
     if (this.nominatim) {
       try {
         const results = await this.nominatim.search(
@@ -174,7 +168,7 @@ export class AreaRouteAnchorResolverService {
           !Number.isFinite(match.longitude) ||
           isAreaScaleEligible(match)
         ) {
-          return undefined;
+          return { status: 'no_match', reason: 'NO_CONFIDENT_PLACE_MATCH' };
         }
         const canonicalName =
           match.displayName.split(',')[0]?.trim() || anchor.rawName;
@@ -191,32 +185,31 @@ export class AreaRouteAnchorResolverService {
             coordinates: [match.longitude, match.latitude],
           },
         });
-        return {
-          ...anchor,
-          kind: 'venue',
+        return { status: 'match', anchor: {
+          ...anchor, kind: 'venue',
           status: 'resolved',
           canonicalName,
           geoEntityId: geo.id,
           provider: 'nominatim',
           externalId,
-        };
+        }};
       } catch {
         // Continue to the provider-neutral Places identity boundary below.
+        return { status: 'unavailable', reason: 'NOMINATIM_SEARCH_FAILED' };
       }
     }
 
-    if (!this.placesApi) return undefined;
+    if (!this.placesApi) return { status: 'no_match', reason: 'NO_PLACES_PROVIDER' };
     try {
       const result = await this.placesApi.searchText({
         textQuery: anchor.rawName,
         maxResultCount: 3,
       });
       const place = result.data[0];
-      if (!place?.location) return undefined;
+      if (!place?.location) return { status: 'no_match', reason: 'NO_CONFIDENT_PLACE_MATCH' };
       const canonicalName =
         place.displayName?.text || place.name || anchor.rawName;
-      const provider =
-        this.placesApi.provider === 'google' ? 'google_places' : 'geoapify';
+      const provider = normalizePlacesProvider(this.placesApi.provider);
       const externalId = `${provider}:${place.id}`;
       const geo = await this.catalog.upsertGeoEntity({
         name: canonicalName,
@@ -230,17 +223,16 @@ export class AreaRouteAnchorResolverService {
           coordinates: [place.location.longitude, place.location.latitude],
         },
       });
-      return {
-        ...anchor,
-        kind: 'venue',
+      return { status: 'match', anchor: {
+        ...anchor, kind: 'venue',
         status: 'resolved',
         canonicalName,
         geoEntityId: geo.id,
         provider,
         externalId,
-      };
+      }};
     } catch {
-      return undefined;
+      return { status: 'unavailable', reason: 'PLACES_SEARCH_FAILED' };
     }
   }
 
@@ -256,7 +248,7 @@ export class AreaRouteAnchorResolverService {
     destinationCountryCode: string | undefined,
     destinationPoint: Coordinates | undefined,
   ): Promise<AnchorGeometryResolution> {
-    if (!this.nominatim) return { resolved: false };
+    if (!this.nominatim) return { resolved: false, status: 'no_match' };
 
     try {
       const results = await this.nominatim.search(
@@ -275,14 +267,14 @@ export class AreaRouteAnchorResolverService {
       // no dual scope authority). A country/state-scale or non-urban/
       // admin match is equally nonsensical as a small area anchor.
       if (!match || !isAreaScaleEligible(match)) {
-        return { resolved: false };
+        return { resolved: false, status: 'no_match' };
       }
 
       const boundary = await this.osmPlaces.lookupBoundaryById(
         match.osmType,
         match.osmId,
       );
-      if (!boundary.value) return { resolved: false };
+      if (!boundary.value) return { resolved: false, status: 'no_match' };
 
       const point = representativePoint(boundary.value.geometry);
       const geo = await this.catalog.upsertGeoEntity({
@@ -297,6 +289,8 @@ export class AreaRouteAnchorResolverService {
       });
       return {
         resolved: true,
+        status: 'match',
+        kind: 'area',
         geoEntityId: geo.id,
         canonicalName: boundary.value.name,
         provider: 'openstreetmap',
@@ -304,7 +298,7 @@ export class AreaRouteAnchorResolverService {
         geometry: boundary.value.geometry,
       };
     } catch {
-      return { resolved: false };
+      return { resolved: false, status: 'unavailable', reason: 'AREA_PROVIDER_FAILED' };
     }
   }
 
@@ -333,10 +327,10 @@ export class AreaRouteAnchorResolverService {
             ).value
           : (await this.osmPlaces.lookupStreetsWithin(geographicScope.boundary))
               .value;
-      if (streets.length === 0) return { resolved: false };
+      if (streets.length === 0) return { resolved: false, status: 'no_match' };
 
       const matched = matchOsmCandidateByName(anchor.rawName, streets);
-      if (!matched) return { resolved: false };
+      if (!matched) return { resolved: false, status: 'no_match' };
 
       const point = representativePoint(matched.geometry);
       const geo = await this.catalog.upsertGeoEntity({
@@ -351,6 +345,8 @@ export class AreaRouteAnchorResolverService {
       });
       return {
         resolved: true,
+        status: 'match',
+        kind: 'route',
         geoEntityId: geo.id,
         canonicalName: matched.name,
         provider: 'openstreetmap',
@@ -358,7 +354,7 @@ export class AreaRouteAnchorResolverService {
         geometry: matched.geometry,
       };
     } catch {
-      return { resolved: false };
+      return { resolved: false, status: 'unavailable', reason: 'ROUTE_PROVIDER_FAILED' };
     }
   }
 }

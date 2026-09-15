@@ -2,6 +2,8 @@ import { PreferenceFacet } from '../preferences/preference-facet.interface';
 import { AnchoredPlace } from './preference-spec.interface';
 
 export interface NormalizedPreferenceIntent {
+  interpretationStatus?: 'complete' | 'partial' | 'failed';
+  unresolvedFreeText?: string;
   /** Canonical single positive facet collection. */
   preferredFacets: PreferenceFacet[];
 
@@ -59,6 +61,7 @@ export interface PreferenceInterpretationTrace {
   validationErrors: string[];
   status: 'applied' | 'fallback' | 'failed' | 'skipped';
   durationMs: number;
+  unresolvedFreeText?: string;
 }
 
 export interface FacetNormalizationDecision {
@@ -73,5 +76,6 @@ export interface FacetNormalizationDecision {
     | 'UNKNOWN_DIMENSION'
     | 'UNKNOWN_KEY'
     | 'AMBIGUOUS_CROSS_DIMENSION_KEY'
-    | 'DORMANT_DIMENSION';
+    | 'DORMANT_DIMENSION'
+    | 'UNSUPPORTED_BY_INPUT';
 }

@@ -2,14 +2,11 @@ import {
   OverpassElement,
   OverpassRelationMember,
 } from '../interfaces/overpass.interface';
+import { GeoJsonGeometry } from '@shared/geo/geojson-geometry';
+
+export { GeoJsonGeometry } from '@shared/geo/geojson-geometry';
 
 type LonLat = [number, number];
-
-export type GeoJsonGeometry =
-  | { type: 'Polygon'; coordinates: LonLat[][] }
-  | { type: 'MultiPolygon'; coordinates: LonLat[][][] }
-  | { type: 'LineString'; coordinates: LonLat[] }
-  | { type: 'Point'; coordinates: LonLat };
 
 const COORD_EPSILON = 1e-9;
 

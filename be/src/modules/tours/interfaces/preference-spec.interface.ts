@@ -13,7 +13,7 @@
  */
 import { AcquisitionDeficit } from './experience-acquisition-plan.interface';
 import { ExplorationSignalInput } from '../utils/exploration-signals.util';
-import { GeoJsonGeometry } from '@integrations/osm/utils/osm-geometry.util';
+import { GeoJsonGeometry } from '@shared/geo/geojson-geometry';
 
 /** A single positive preference the user requested, always soft in v1. */
 export interface RequestedFacet {
@@ -28,29 +28,43 @@ export interface RequestedFacet {
 }
 
 /** A concrete named place/area/route the user mentioned. */
-export interface AnchoredPlace {
+export type AnchorUsage =
+  | 'geographic_scope'
+  | 'specific_destination'
+  | 'named_path'
+  | 'unknown';
+export type AnchorPriority = 'soft' | 'must';
+
+/** Language interpretation only; it cannot assert geographic ontology. */
+export interface InterpretedAnchor {
   rawName: string;
-  /** Linguistic usage only; geographic kind is resolved by infrastructure. */
-  usage?:
-    | 'geographic_scope'
-    | 'specific_destination'
-    | 'named_path'
-    | 'unknown';
-  kind: 'venue' | 'area' | 'route' | 'unknown';
-  priority: 'soft' | 'must';
+  usage: AnchorUsage;
+  priority: AnchorPriority;
 }
 
-/** Canonical geographic resolution of an interpreted named anchor. */
-export interface ResolvedAnchor extends AnchoredPlace {
-  canonicalName?: string;
-  geoEntityId?: string;
-  provider?: string;
-  externalId?: string;
-  /** Boundary/route geometry established by canonical geo resolution. */
-  geometry?: GeoJsonGeometry;
-  status: 'resolved' | 'unresolved';
-  unresolvedReason?: string;
-}
+export type AnchoredPlace = InterpretedAnchor;
+
+/** Canonical geographic resolution, with unresolved kept free of fake kind/identity. */
+export type ResolvedAnchor =
+  | {
+      status: 'resolved';
+      rawName: string;
+      usage: AnchorUsage;
+      priority: AnchorPriority;
+      canonicalName: string;
+      kind: 'area' | 'route' | 'venue';
+      geoEntityId: string;
+      provider: string;
+      externalId?: string;
+      geometry?: GeoJsonGeometry;
+    }
+  | {
+      status: 'unresolved';
+      rawName: string;
+      usage: AnchorUsage;
+      priority: AnchorPriority;
+      unresolvedReason: string;
+    };
 
 export interface PreferenceSpec {
   facets: RequestedFacet[];
@@ -146,7 +160,7 @@ export interface PreferenceCoverageResult {
 }
 
 export interface UnmetAnchor {
-  anchor: AnchoredPlace;
+  anchor: ResolvedAnchor;
   reason: 'UNRESOLVED' | 'INFEASIBLE';
 }
 
