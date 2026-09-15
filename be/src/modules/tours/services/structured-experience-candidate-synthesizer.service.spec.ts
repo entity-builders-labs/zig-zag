@@ -269,7 +269,7 @@ describe('StructuredExperienceCandidateSynthesizerService', () => {
 
     it('has no qualityEvidence when the observation carries none (e.g. OSM)', () => {
       const observation: SourceObservation = {
-        provider: 'osm',
+        provider: 'osm' as any,
         title: 'Plaza Dorrego',
         evidenceType: 'place',
         originationCapabilities: ['SINGLE_PLACE', 'SINGLE_PLACE'],

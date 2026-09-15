@@ -141,7 +141,6 @@ export class ExperienceAcquisitionPlannerService {
     }
 
     const wikivoyageSections = new Set<'SEE' | 'DO' | 'EAT'>();
-    const osmConcepts = new Set<string>();
     const placesTypes = new Set<string>();
     const webKeywords = new Set<string>();
     let hasRoutableDeficit = false;
@@ -160,9 +159,6 @@ export class ExperienceAcquisitionPlannerService {
 
       if (route.wikivoyageSections) {
         for (const s of route.wikivoyageSections) wikivoyageSections.add(s);
-      }
-      if (route.osmConcepts) {
-        for (const c of route.osmConcepts) osmConcepts.add(c);
       }
       if (route.placesTypes) {
         for (const p of route.placesTypes) placesTypes.add(p);
@@ -184,6 +180,23 @@ export class ExperienceAcquisitionPlannerService {
 
     const sourcePlans: SourcePlan[] = [];
     const destName = input.destination.destinationName?.trim() || '';
+    const relevantArticleTargets = [
+      destName,
+      ...(input.anchors ?? [])
+        .filter(
+          (anchor) =>
+            (anchor.kind === 'area' || anchor.kind === 'route') &&
+            anchor.priority === 'must',
+        )
+        .map((anchor) => anchor.rawName.trim()),
+    ]
+      .filter(Boolean)
+      .filter(
+        (value, index, values) =>
+          values.findIndex(
+            (candidate) => candidate.toLowerCase() === value.toLowerCase(),
+          ) === index,
+      );
 
     // 17.1 Wikivoyage coalescing (canonical order SEE, DO, EAT)
     if (wikivoyageSections.size > 0) {
@@ -193,21 +206,14 @@ export class ExperienceAcquisitionPlannerService {
         provider: 'wikivoyage',
         wikivoyage: {
           sections: sortedSections,
+          ...(relevantArticleTargets.length > 1
+            ? { articleTargets: relevantArticleTargets }
+            : {}),
         },
       });
     }
 
-    // 17.2 OSM coalescing (sorted concepts)
-    if (osmConcepts.size > 0) {
-      sourcePlans.push({
-        provider: 'osm',
-        osm: {
-          concepts: [...osmConcepts].sort(),
-        },
-      });
-    }
-
-    // 17.3 Google Places coalescing (sorted search types, provider: 'google_places', payload key: 'places')
+    // 17.2 Google Places coalescing (sorted search types, provider: 'google_places', payload key: 'places')
     if (placesTypes.size > 0) {
       sourcePlans.push({
         provider: 'google_places',

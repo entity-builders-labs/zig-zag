@@ -1,6 +1,5 @@
 export interface SourceCapabilityRoute {
   wikivoyageSections?: Array<'SEE' | 'DO' | 'EAT'>;
-  osmConcepts?: string[];
   placesTypes?: string[];
   webKeywords?: string[];
 }
@@ -25,43 +24,36 @@ export const SOURCE_CAPABILITY_ROUTES: Record<
   // Theme routes
   'theme:history': {
     wikivoyageSections: ['SEE'],
-    osmConcepts: ['historic', 'museum'],
     placesTypes: ['museum', 'tourist_attraction'],
     webKeywords: ['history', 'historic sites'],
   },
   'theme:food': {
     wikivoyageSections: ['EAT'],
-    osmConcepts: ['restaurant', 'cafe'],
     placesTypes: ['restaurant', 'bakery', 'cafe'],
     webKeywords: ['food', 'restaurants'],
   },
   'theme:culture': {
     wikivoyageSections: ['SEE'],
-    osmConcepts: ['arts_centre', 'gallery', 'museum'],
     placesTypes: ['art_gallery', 'museum'],
     webKeywords: ['cultural attractions', 'art'],
   },
   'theme:art': {
     wikivoyageSections: ['SEE'],
-    osmConcepts: ['arts_centre', 'gallery', 'museum'],
     placesTypes: ['art_gallery', 'museum'],
     webKeywords: ['art galleries', 'art museums'],
   },
   'theme:architecture': {
     wikivoyageSections: ['SEE'],
-    osmConcepts: ['building', 'historic'],
     placesTypes: ['place_of_worship', 'tourist_attraction'],
     webKeywords: ['architecture', 'historic landmarks'],
   },
   'theme:nature': {
     wikivoyageSections: ['SEE', 'DO'],
-    osmConcepts: ['nature_reserve', 'park'],
     placesTypes: ['campground', 'park'],
     webKeywords: ['nature reserves', 'parks'],
   },
   'theme:wine': {
     wikivoyageSections: ['EAT'],
-    osmConcepts: ['vineyard', 'winery'],
     placesTypes: ['winery'],
     webKeywords: ['wineries', 'wine tasting'],
   },
@@ -69,35 +61,29 @@ export const SOURCE_CAPABILITY_ROUTES: Record<
   // Intent routes
   'intent:walk': {
     wikivoyageSections: ['DO'],
-    osmConcepts: ['footway', 'hiking', 'route'],
     webKeywords: ['walking tours', 'walks'],
   },
   'intent:route_like': {
     wikivoyageSections: ['DO'],
-    osmConcepts: ['hiking', 'route', 'scenic'],
     webKeywords: ['scenic routes', 'tours'],
   },
   'intent:day_trip': {
     wikivoyageSections: ['SEE', 'DO'],
-    osmConcepts: ['tourism'],
     placesTypes: ['tourist_attraction'],
     webKeywords: ['day trips', 'excursions'],
   },
   'intent:visit': {
     wikivoyageSections: ['SEE'],
-    osmConcepts: ['historic', 'museum', 'tourism'],
     placesTypes: ['museum', 'tourist_attraction'],
     webKeywords: ['places to visit', 'attractions'],
   },
   'intent:food': {
     wikivoyageSections: ['EAT'],
-    osmConcepts: ['cafe', 'restaurant'],
     placesTypes: ['cafe', 'restaurant'],
     webKeywords: ['food', 'dining'],
   },
   'intent:nightlife': {
     wikivoyageSections: ['DO'],
-    osmConcepts: ['bar', 'nightclub', 'pub'],
     placesTypes: ['bar', 'night_club'],
     webKeywords: ['nightlife', 'bars'],
   },
@@ -137,32 +123,26 @@ export const SOURCE_CAPABILITY_ROUTES: Record<
   // Nature type routes
   'nature_type:mountain': {
     wikivoyageSections: ['SEE', 'DO'],
-    osmConcepts: ['peak', 'volcano'],
     webKeywords: ['mountain trails', 'mountains'],
   },
   'nature_type:forest': {
     wikivoyageSections: ['SEE', 'DO'],
-    osmConcepts: ['forest', 'wood'],
     webKeywords: ['forests', 'woodland walks'],
   },
   'nature_type:coast': {
     wikivoyageSections: ['SEE', 'DO'],
-    osmConcepts: ['beach', 'coastline'],
     webKeywords: ['coastal views', 'beaches'],
   },
   'nature_type:river': {
     wikivoyageSections: ['SEE', 'DO'],
-    osmConcepts: ['river', 'waterway'],
     webKeywords: ['river walks', 'riverfront'],
   },
   'nature_type:desert': {
     wikivoyageSections: ['SEE', 'DO'],
-    osmConcepts: ['desert'],
     webKeywords: ['desert landscapes', 'dunes'],
   },
   'nature_type:park': {
     wikivoyageSections: ['SEE', 'DO'],
-    osmConcepts: ['nature_reserve', 'park'],
     placesTypes: ['park'],
     webKeywords: ['parks', 'city parks'],
   },

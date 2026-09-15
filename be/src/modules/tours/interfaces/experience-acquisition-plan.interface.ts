@@ -38,10 +38,7 @@ export type AcquisitionDeficit = PreferenceFacetDeficit | GlobalCapacityDeficit;
 
 export interface WikivoyageSourcePlanPayload {
   sections: Array<'SEE' | 'DO' | 'EAT'>;
-}
-
-export interface OsmSourcePlanPayload {
-  concepts: string[];
+  articleTargets?: string[];
 }
 
 export interface PlacesSourcePlanPayload {
@@ -74,11 +71,6 @@ export interface WikivoyageSourcePlan {
   wikivoyage: WikivoyageSourcePlanPayload;
 }
 
-export interface OsmSourcePlan {
-  provider: 'osm';
-  osm: OsmSourcePlanPayload;
-}
-
 export interface GooglePlacesSourcePlan {
   provider: 'google_places';
   places: PlacesSourcePlanPayload;
@@ -91,7 +83,6 @@ export interface WebSourcePlan {
 
 export type SourcePlan =
   | WikivoyageSourcePlan
-  | OsmSourcePlan
   | GooglePlacesSourcePlan
   | WebSourcePlan;
 

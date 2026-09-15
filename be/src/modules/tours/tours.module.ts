@@ -32,7 +32,6 @@ import { ExperienceAcquisitionService } from './services/experience-acquisition.
 import { WikivoyageApiService } from './services/wikivoyage-api.service';
 import { WikivoyageAcquisitionProvider } from './providers/wikivoyage-acquisition.provider';
 import { GooglePlacesAcquisitionProvider } from './providers/google-places-acquisition.provider';
-import { OsmAcquisitionProvider } from './providers/osm-acquisition.provider';
 import { StructuredExperienceCandidateSynthesizerService } from './services/structured-experience-candidate-synthesizer.service';
 import { StructuredCandidateCorroborationService } from './services/structured-candidate-corroboration.service';
 import { ExperienceAcquisitionPlannerService } from './services/experience-acquisition-planner.service';
@@ -110,7 +109,6 @@ import { MediaModule } from '../media/media.module';
       provide: 'VenueAnchorLookupCapability',
       useExisting: GooglePlacesAcquisitionProvider,
     },
-    OsmAcquisitionProvider,
     StructuredExperienceCandidateSynthesizerService,
     StructuredCandidateCorroborationService,
     ExperienceAcquisitionPlannerService,
@@ -208,7 +206,6 @@ import { MediaModule } from '../media/media.module';
     WikivoyageApiService,
     WikivoyageAcquisitionProvider,
     GooglePlacesAcquisitionProvider,
-    OsmAcquisitionProvider,
     StructuredExperienceCandidateSynthesizerService,
     StructuredCandidateCorroborationService,
     ExperienceAcquisitionPlannerService,

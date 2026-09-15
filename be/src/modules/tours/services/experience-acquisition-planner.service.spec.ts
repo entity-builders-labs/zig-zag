@@ -121,9 +121,6 @@ describe('ExperienceAcquisitionPlannerService', () => {
     const wv = findPlan(plan, 'wikivoyage');
     expect(wv?.wikivoyage.sections).toEqual(['EAT']);
 
-    const osm = findPlan(plan, 'osm');
-    expect(osm?.osm.concepts).toEqual(['vineyard', 'winery']);
-
     const places = findPlan(plan, 'google_places');
     expect(places?.places.searchTypes).toEqual(['winery']);
 
@@ -146,7 +143,6 @@ describe('ExperienceAcquisitionPlannerService', () => {
     });
 
     expect(findPlan(plan, 'wikivoyage')).toBeUndefined();
-    expect(findPlan(plan, 'osm')).toBeUndefined();
 
     const places = findPlan(plan, 'google_places');
     expect(places?.places.searchTypes).toEqual(['winery']);
@@ -171,9 +167,6 @@ describe('ExperienceAcquisitionPlannerService', () => {
     const wv = findPlan(plan, 'wikivoyage');
     expect(wv?.wikivoyage.sections).toEqual(['SEE', 'DO']);
 
-    const osm = findPlan(plan, 'osm');
-    expect(osm?.osm.concepts).toEqual(['nature_reserve', 'park']);
-
     const places = findPlan(plan, 'google_places');
     expect(places?.places.searchTypes).toEqual(['park']);
 
@@ -197,7 +190,6 @@ describe('ExperienceAcquisitionPlannerService', () => {
     const wv = findPlan(plan, 'wikivoyage');
     expect(wv?.wikivoyage.sections).toEqual(['SEE', 'EAT']);
 
-    expect(findPlan(plan, 'osm')).toBeUndefined();
     expect(findPlan(plan, 'google_places')).toBeUndefined();
 
     const web = findPlan(plan, 'web');
@@ -219,9 +211,6 @@ describe('ExperienceAcquisitionPlannerService', () => {
 
     const wv = findPlan(plan, 'wikivoyage');
     expect(wv?.wikivoyage.sections).toEqual(['DO']);
-
-    const osm = findPlan(plan, 'osm');
-    expect(osm?.osm.concepts).toEqual(['footway', 'hiking', 'route']);
 
     expect(findPlan(plan, 'google_places')).toBeUndefined();
 
@@ -251,14 +240,6 @@ describe('ExperienceAcquisitionPlannerService', () => {
 
     const wv = findPlan(plan, 'wikivoyage');
     expect(wv?.wikivoyage.sections).toEqual(['SEE', 'EAT']);
-
-    const osm = findPlan(plan, 'osm');
-    expect(osm?.osm.concepts).toEqual([
-      'cafe',
-      'historic',
-      'museum',
-      'restaurant',
-    ]);
 
     const places = findPlan(plan, 'google_places');
     expect(places?.places.searchTypes).toEqual([
@@ -338,7 +319,6 @@ describe('ExperienceAcquisitionPlannerService', () => {
     });
 
     expect(findPlan(plan, 'wikivoyage')).toBeUndefined();
-    expect(findPlan(plan, 'osm')).toBeUndefined();
     expect(findPlan(plan, 'google_places')).toBeUndefined();
 
     const web = findPlan(plan, 'web');
@@ -393,7 +373,6 @@ describe('ExperienceAcquisitionPlannerService', () => {
       ],
     });
 
-    expect(findPlan(plan, 'osm')).toBeUndefined();
     expect(findPlan(plan, 'google_places')).toBeUndefined();
 
     const wv = findPlan(plan, 'wikivoyage');

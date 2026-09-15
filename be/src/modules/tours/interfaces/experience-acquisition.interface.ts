@@ -2,7 +2,6 @@ import { AcquisitionEvidenceRequirement } from './acquisition-evidence-requireme
 
 export type ExperienceAcquisitionProvider =
   | 'wikivoyage'
-  | 'osm'
   | 'wikidata'
   | 'google_places'
   | 'geoapify'

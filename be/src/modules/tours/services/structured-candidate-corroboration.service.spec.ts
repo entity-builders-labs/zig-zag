@@ -199,7 +199,7 @@ describe('StructuredCandidateCorroborationService', () => {
       },
       observations: [
         {
-          provider: 'osm',
+          provider: 'osm' as any,
           title: 'Plaza Dorrego Histórica',
           evidenceType: 'place',
           originationCapabilities: ['SINGLE_PLACE'],
@@ -253,7 +253,7 @@ describe('StructuredCandidateCorroborationService', () => {
       },
       observations: [
         {
-          provider: 'osm',
+          provider: 'osm' as any,
           title: 'La Cabrera',
           evidenceType: 'place',
           originationCapabilities: ['SINGLE_PLACE'],
@@ -305,7 +305,7 @@ describe('StructuredCandidateCorroborationService', () => {
       },
       observations: [
         {
-          provider: 'osm',
+          provider: 'osm' as any,
           title: 'Bar Británico',
           evidenceType: 'place',
           originationCapabilities: ['SINGLE_PLACE'],
@@ -407,7 +407,7 @@ describe('StructuredCandidateCorroborationService', () => {
       },
       observations: [
         {
-          provider: 'osm',
+          provider: 'osm' as any,
           title: 'Paseo Caminito',
           evidenceType: 'route',
           originationCapabilities: [],
@@ -462,7 +462,7 @@ describe('StructuredCandidateCorroborationService', () => {
       },
       observations: [
         {
-          provider: 'osm',
+          provider: 'osm' as any,
           title: 'Teatro de La Boca',
           evidenceType: 'place',
           originationCapabilities: ['SINGLE_PLACE'],
@@ -535,7 +535,7 @@ describe('StructuredCandidateCorroborationService', () => {
       },
       observations: [
         {
-          provider: 'osm',
+          provider: 'osm' as any,
           title: 'Mercado San Telmo Techado',
           evidenceType: 'place',
           originationCapabilities: ['SINGLE_PLACE'],
@@ -589,7 +589,7 @@ describe('StructuredCandidateCorroborationService', () => {
       },
       observations: [
         {
-          provider: 'osm',
+          provider: 'osm' as any,
           title: 'Plaza Dorrego Centro',
           evidenceType: 'place',
           originationCapabilities: ['SINGLE_PLACE'],
@@ -667,7 +667,7 @@ describe('StructuredCandidateCorroborationService', () => {
       },
       observations: [
         {
-          provider: 'osm',
+          provider: 'osm' as any,
           title: 'Museo Historico Nacional',
           evidenceType: 'place',
           originationCapabilities: ['SINGLE_PLACE'],
@@ -729,7 +729,7 @@ describe('StructuredCandidateCorroborationService', () => {
       },
       observations: [
         {
-          provider: 'osm',
+          provider: 'osm' as any,
           title: 'San Telmo Market',
           evidenceType: 'place',
           originationCapabilities: ['SINGLE_PLACE'],
@@ -1164,7 +1164,7 @@ describe('StructuredCandidateCorroborationService', () => {
       },
       observations: [
         {
-          provider: 'osm',
+          provider: 'osm' as any,
           externalId: id,
           title: name,
           evidenceType: 'place',
@@ -1385,7 +1385,7 @@ describe('StructuredCandidateCorroborationService', () => {
           },
           observations: [
             {
-              provider: 'osm',
+              provider: 'osm' as any,
               externalId: 'osm:relation:route',
               title: 'Route relation',
               evidenceType: 'route',
@@ -1554,7 +1554,7 @@ describe('StructuredCandidateCorroborationService', () => {
         },
         observations: [
           {
-            provider: 'osm',
+            provider: 'osm' as any,
             title: 'Plaza Dorrego',
             evidenceType: 'place',
             originationCapabilities: ['SINGLE_PLACE'],

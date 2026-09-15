@@ -13,7 +13,7 @@ export function osmHistoricMonumentObservation(
   overrides: Partial<SourceObservation> = {},
 ): SourceObservation {
   return {
-    provider: 'osm',
+    provider: 'osm' as any,
     externalId: 'osm:node:111111',
     evidenceKey: 'osm:node:111111',
     title: 'Monumento Histórico',
@@ -39,7 +39,7 @@ export function osmArtMuseumObservation(
   overrides: Partial<SourceObservation> = {},
 ): SourceObservation {
   return {
-    provider: 'osm',
+    provider: 'osm' as any,
     externalId: 'osm:way:222222',
     evidenceKey: 'osm:way:222222',
     title: 'Museo de Bellas Artes',
@@ -96,7 +96,7 @@ export function placesHistoricalLandmarkObservation(
  */
 export function structuredLandmarkAObservation(): SourceObservation {
   return {
-    provider: 'osm',
+    provider: 'osm' as any,
     externalId: 'osm:node:333333',
     evidenceKey: 'osm:node:333333',
     title: 'Structured Landmark A',
@@ -121,7 +121,7 @@ export function structuredLandmarkAObservation(): SourceObservation {
 
 export function structuredPlaceBObservation(): SourceObservation {
   return {
-    provider: 'osm',
+    provider: 'osm' as any,
     externalId: 'osm:node:444444',
     evidenceKey: 'osm:node:444444',
     title: 'Structured Place B',

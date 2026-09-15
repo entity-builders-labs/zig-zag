@@ -1249,7 +1249,6 @@ describe('tour-generation integration · area/route walk geographic validation (
         resolver,
         undefined,
         undefined,
-        undefined,
         classifier as any,
       );
       const acquisitionPlanner = new ExperienceAcquisitionPlannerService();
@@ -1384,7 +1383,6 @@ describe('tour-generation integration · area/route walk geographic validation (
         undefined,
         undefined,
         resolver,
-        undefined,
         undefined,
         undefined,
         classifier as any,

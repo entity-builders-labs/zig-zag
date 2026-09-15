@@ -4,7 +4,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AppModule } from 'src/app.module';
 import { PrismaService } from 'src/core/database/prisma.service';
 import { GooglePlacesAcquisitionProvider } from 'src/modules/tours/providers/google-places-acquisition.provider';
-import { OsmAcquisitionProvider } from 'src/modules/tours/providers/osm-acquisition.provider';
 import { WikivoyageAcquisitionProvider } from 'src/modules/tours/providers/wikivoyage-acquisition.provider';
 import { DestinationResolutionService } from 'src/modules/tours/services/destination-resolution.service';
 import {
@@ -579,7 +578,6 @@ function webUnavailable(
             moduleRef.get(StructuredExperienceCandidateSynthesizerService),
             moduleRef.get(StructuredCandidateCorroborationService),
             moduleRef.get(ExperienceProposalResolverService),
-            moduleRef.get(OsmAcquisitionProvider),
             groundedRecorder,
             extractorRecorder,
           );
