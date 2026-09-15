@@ -640,16 +640,19 @@ export class ExperienceGenerationService {
       providerState.attempted.add('web');
       if (web.status === 'failed') providerState.failed.add('web');
     }
-    traceSteps.push(buildAcquisitionStep({ passNumber, plan, execution }));
+    const acquisitionContext = { strategy: 'generic' as const, passNumber };
+    traceSteps.push(
+      buildAcquisitionStep({ passNumber, plan, execution, acquisitionContext }),
+    );
     if (execution.candidates.length > 0) {
       const resolution = await this.experienceAcquisition.materializeExecution(
         execution,
         context,
       );
       traceSteps.push(
-        buildEntityResolutionStep(resolution),
-        buildGeographicValidationStep(resolution),
-        buildCatalogMaterializationStep(resolution),
+        buildEntityResolutionStep(resolution, acquisitionContext),
+        buildGeographicValidationStep(resolution, acquisitionContext),
+        buildCatalogMaterializationStep(resolution, acquisitionContext),
       );
     }
     return execution;
@@ -1100,6 +1103,11 @@ export class ExperienceGenerationService {
                     deficit: routed.deficit,
                     semanticQuery: preferenceSpec.semanticQuery,
                   });
+                const areaRouteWalkTraceResult = Object.fromEntries(
+                  Object.entries(areaRouteWalkResult).filter(
+                    ([key]) => key !== 'lifecycle',
+                  ),
+                );
                 traceSteps.push({
                   stage: 'area_route_walk_acquisition',
                   label: 'Adquisición o reutilización de walk/ruta',
@@ -1114,8 +1122,39 @@ export class ExperienceGenerationService {
                     intentKey: routed.intentKey,
                     deficit: routed.deficit,
                   },
-                  outputs: areaRouteWalkResult,
+                  outputs: areaRouteWalkTraceResult,
                 });
+
+                if (
+                  'lifecycle' in areaRouteWalkResult &&
+                  areaRouteWalkResult.lifecycle
+                ) {
+                  const lifecycleContext = {
+                    strategy: 'area_route_walk' as const,
+                    passNumber: pass,
+                    anchor: routed.anchor,
+                  };
+                  traceSteps.push(
+                    buildAcquisitionStep({
+                      passNumber: pass,
+                      plan: areaRouteWalkResult.lifecycle.plan,
+                      execution: areaRouteWalkResult.lifecycle.execution,
+                      acquisitionContext: lifecycleContext,
+                    }),
+                    buildEntityResolutionStep(
+                      areaRouteWalkResult.lifecycle.materialization,
+                      lifecycleContext,
+                    ),
+                    buildGeographicValidationStep(
+                      areaRouteWalkResult.lifecycle.materialization,
+                      lifecycleContext,
+                    ),
+                    buildCatalogMaterializationStep(
+                      areaRouteWalkResult.lifecycle.materialization,
+                      lifecycleContext,
+                    ),
+                  );
+                }
 
                 if (areaRouteWalkResult.outcome !== 'no_result') {
                   const persisted = await this.prisma.experience.findMany({

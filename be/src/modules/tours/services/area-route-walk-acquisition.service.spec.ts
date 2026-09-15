@@ -319,7 +319,10 @@ describe('AreaRouteWalkAcquisitionService', () => {
     const service = buildService(mocks);
 
     const round1 = await service.acquireOrReuse(baseInput());
-    expect(round1).toEqual({ outcome: 'acquired', experienceId: 'exp-1' });
+    expect(round1).toEqual(
+      expect.objectContaining({ outcome: 'acquired', experienceId: 'exp-1' }),
+    );
+    expect(round1).toHaveProperty('lifecycle.plan');
 
     const round2 = await service.acquireOrReuse(baseInput());
     expect(round2).toEqual({ outcome: 'reused', experienceId: 'exp-1' });
@@ -366,10 +369,12 @@ describe('AreaRouteWalkAcquisitionService', () => {
     const input = baseInput({ anchor: routeAnchor, intentKey: 'route_like' });
 
     const round1 = await service.acquireOrReuse(input);
-    expect(round1).toEqual({
-      outcome: 'acquired',
-      experienceId: 'exp-caminito',
-    });
+    expect(round1).toEqual(
+      expect.objectContaining({
+        outcome: 'acquired',
+        experienceId: 'exp-caminito',
+      }),
+    );
 
     const round2 = await service.acquireOrReuse(input);
     expect(round2).toEqual({ outcome: 'reused', experienceId: 'exp-caminito' });
@@ -417,7 +422,12 @@ describe('AreaRouteWalkAcquisitionService', () => {
     });
 
     const round1 = await service.acquireOrReuse(input);
-    expect(round1).toEqual({ outcome: 'acquired', experienceId: 'exp-ruta' });
+    expect(round1).toEqual(
+      expect.objectContaining({
+        outcome: 'acquired',
+        experienceId: 'exp-ruta',
+      }),
+    );
 
     const round2 = await service.acquireOrReuse(input);
     expect(round2).toEqual({ outcome: 'reused', experienceId: 'exp-ruta' });
@@ -575,7 +585,9 @@ describe('AreaRouteWalkAcquisitionService', () => {
 
     const result = await service.acquireOrReuse(baseInput());
 
-    expect(result).toEqual({ outcome: 'acquired', experienceId: 'exp-x' });
+    expect(result).toEqual(
+      expect.objectContaining({ outcome: 'acquired', experienceId: 'exp-x' }),
+    );
   });
 
   it('Q2: post-check returns no_result when geography only finds an unrelated row, never falling back to it', async () => {

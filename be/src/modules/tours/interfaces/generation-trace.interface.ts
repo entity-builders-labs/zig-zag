@@ -197,6 +197,7 @@ export interface TraceGeographicValidationDecision {
 
 export interface TraceAcquisitionAudit {
   passNumber: number;
+  acquisitionContext?: TraceAcquisitionContext;
   deficits: Array<{
     origin?: string;
     dimension?: string;
@@ -217,6 +218,17 @@ export interface TraceAcquisitionAudit {
     canonicalName?: string;
     persistedComponentCount?: number;
   }>;
+}
+
+/** Identifies the orchestration strategy that produced a lifecycle step. */
+export interface TraceAcquisitionContext {
+  strategy: 'generic' | 'area_route_walk';
+  passNumber: number;
+  anchor?: {
+    rawName: string;
+    kind: 'venue' | 'area' | 'route' | 'unknown';
+    priority: 'soft' | 'must';
+  };
 }
 
 /** Bounded legacy payloads retained for V1/V2/V3 trace readers. */
@@ -342,6 +354,7 @@ export interface GenerationTraceStep {
   preferenceInterpretation?: PreferenceInterpretationTrace;
   /** Native v4 acquisition audit; facts only, never a policy authority. */
   acquisition?: TraceAcquisitionAudit;
+  acquisitionContext?: TraceAcquisitionContext;
   entityResolutionAudit?: TraceEntityResolutionDecision[];
   geographicValidationAudit?: TraceGeographicValidationDecision[];
   materializationAudit?: TraceAcquisitionAudit['materialization'];

@@ -758,6 +758,7 @@ describe('buildAcquisitionStep', () => {
   it('names the real routed sources and reports structured + web candidate counts', () => {
     const step = buildAcquisitionStep({
       passNumber: 1,
+      acquisitionContext: { strategy: 'generic', passNumber: 1 },
       plan: basePlan,
       execution: {
         observations: [{}, {}],
@@ -783,6 +784,10 @@ describe('buildAcquisitionStep', () => {
     expect(step.stage).toBe('discovery');
     expect(step.status).toBe('PASS');
     expect(step.component).toBe('ExperienceAcquisitionService');
+    expect(step.acquisitionContext).toEqual({
+      strategy: 'generic',
+      passNumber: 1,
+    });
     expect(step.summary).toMatch(/wikivoyage, web/);
     expect(step.outputs).toMatchObject({
       observationCount: 2,
@@ -873,6 +878,15 @@ describe('buildAcquisitionStep', () => {
     };
     const step = buildAcquisitionStep({
       passNumber: 1,
+      acquisitionContext: {
+        strategy: 'area_route_walk',
+        passNumber: 1,
+        anchor: {
+          rawName: 'Historic District',
+          kind: 'area',
+          priority: 'must',
+        },
+      },
       plan: {
         sourcePlans: [
           { provider: 'wikivoyage', wikivoyage: { sections: ['SEE'] } },
@@ -958,6 +972,15 @@ describe('buildAcquisitionStep', () => {
         ],
       },
     });
+
+    expect(step.acquisitionContext).toEqual({
+      strategy: 'area_route_walk',
+      passNumber: 1,
+      anchor: { rawName: 'Historic District', kind: 'area', priority: 'must' },
+    });
+    expect(step.acquisition?.acquisitionContext?.strategy).toBe(
+      'area_route_walk',
+    );
 
     expect(step.acquisition?.deficits[0]).toMatchObject({
       dimension: 'intent',

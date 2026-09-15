@@ -17,7 +17,10 @@ import { ExperienceDiscoveryScope } from '../interfaces/experience-discovery.int
 import {
   ExperienceValidationScope,
   GeographicScope,
+  FinalExperienceResolutionResponse,
 } from '../interfaces/experience-resolution.interface';
+import { ExperienceAcquisitionPlan } from '../interfaces/experience-acquisition-plan.interface';
+import { ExecuteAcquisitionPlanResult } from './experience-acquisition.service';
 import { normalizeWizardFacet } from '../utils/preference-facet-merge.util';
 import { candidateMatchesPreferenceFacet } from '../utils/preference-facet-matching.util';
 import { normalizeGeoName } from '../utils/nominatim-match.util';
@@ -46,7 +49,11 @@ export interface AreaRouteWalkAcquisitionInput {
 
 export type AreaRouteWalkAcquisitionResult =
   | { outcome: 'reused'; experienceId: string }
-  | { outcome: 'acquired'; experienceId: string }
+  | {
+      outcome: 'acquired';
+      experienceId: string;
+      lifecycle: AreaRouteWalkAcquisitionLifecycle;
+    }
   | {
       outcome: 'no_result';
       reason?:
@@ -55,7 +62,14 @@ export type AreaRouteWalkAcquisitionResult =
         | 'no_accepted_results'
         | 'no_semantically_eligible_result';
       diagnostics?: AreaRouteWalkAcquisitionDiagnostics;
+      lifecycle?: AreaRouteWalkAcquisitionLifecycle;
     };
+
+export interface AreaRouteWalkAcquisitionLifecycle {
+  plan: ExperienceAcquisitionPlan;
+  execution: ExecuteAcquisitionPlanResult;
+  materialization: FinalExperienceResolutionResponse;
+}
 
 export interface AreaRouteWalkAcquisitionDiagnostics {
   anchorResolved: boolean;
@@ -309,6 +323,7 @@ export class AreaRouteWalkAcquisitionService {
         outcome: 'no_result',
         reason: 'no_accepted_results',
         diagnostics,
+        lifecycle: { plan, execution, materialization: materialized },
       };
     }
 
@@ -327,11 +342,16 @@ export class AreaRouteWalkAcquisitionService {
     // for THIS request.
     const postHit = semanticallyEligible.find((row) => acceptedIds.has(row.id));
     return postHit
-      ? { outcome: 'acquired', experienceId: postHit.id }
+      ? {
+          outcome: 'acquired',
+          experienceId: postHit.id,
+          lifecycle: { plan, execution, materialization: materialized },
+        }
       : {
           outcome: 'no_result',
           reason: 'no_semantically_eligible_result',
           diagnostics,
+          lifecycle: { plan, execution, materialization: materialized },
         };
   }
 }

@@ -18,6 +18,7 @@ import {
   TraceGeographicValidationPayload,
   TraceGeographicValidationResult,
   TraceMaterializationPayload,
+  TraceAcquisitionContext,
 } from '../interfaces/generation-trace.interface';
 import {
   TourCompletenessIssue,
@@ -1045,6 +1046,7 @@ export function buildDiscoveryStep(result: {
  */
 export function buildAcquisitionStep(params: {
   passNumber: number;
+  acquisitionContext?: TraceAcquisitionContext;
   plan: {
     sourcePlans: Array<{
       provider: string;
@@ -1098,7 +1100,7 @@ export function buildAcquisitionStep(params: {
     webCandidateCount?: number;
   };
 }): GenerationTraceStep {
-  const { passNumber, plan, execution } = params;
+  const { passNumber, plan, execution, acquisitionContext } = params;
   const providers = plan.sourcePlans.map((s) => s.provider);
   const structuredEntries = Object.entries(execution.providerResults).map(
     ([provider, res]) => ({
@@ -1256,6 +1258,7 @@ export function buildAcquisitionStep(params: {
     });
   const acquisition: TraceAcquisitionAudit = {
     passNumber,
+    acquisitionContext,
     deficits: plan.deficits.map((deficit) => ({
       origin: deficit.origin,
       dimension: deficit.dimension,
@@ -1283,6 +1286,7 @@ export function buildAcquisitionStep(params: {
         origin: d.origin,
       })),
     },
+    acquisitionContext,
     outputs: {
       observationCount: execution.observations.length,
       structuredCandidateCount: execution.structuredCandidateCount ?? 0,
@@ -1336,6 +1340,7 @@ export function buildAcquisitionStep(params: {
 
 export function buildEntityResolutionStep(
   result: ExperienceResolutionResponse,
+  acquisitionContext?: TraceAcquisitionContext,
 ): GenerationTraceStep {
   const resolution = result.entityResolution ?? result;
   const accepted = resolution.resolved.filter(
@@ -1397,6 +1402,7 @@ export function buildEntityResolutionStep(
 
   return {
     stage: 'entity_resolution',
+    acquisitionContext,
     label: 'Resolución de entidades reales',
     component: 'ExperienceProposalResolverService',
     status: accepted.length ? 'PASS' : rejected.length ? 'WARN' : 'INFO',
@@ -1486,6 +1492,7 @@ export function buildEntityResolutionStep(
 
 export function buildGeographicValidationStep(
   result: FinalExperienceResolutionResponse,
+  acquisitionContext?: TraceAcquisitionContext,
 ): GenerationTraceStep {
   const validation = result.geographicValidation;
   const accepted = validation.results.filter((entry) => entry.accepted);
@@ -1544,6 +1551,7 @@ export function buildGeographicValidationStep(
 
   return {
     stage: 'geographic_validation',
+    acquisitionContext,
     label: 'Validación geográfica independiente',
     component: 'CompositeGeographicValidationService',
     status: accepted.length ? (rejected.length ? 'WARN' : 'PASS') : 'WARN',
@@ -1638,6 +1646,7 @@ export function buildGeographicValidationStep(
 
 export function buildCatalogMaterializationStep(
   result: ExperienceResolutionResponse,
+  acquisitionContext?: TraceAcquisitionContext,
 ): GenerationTraceStep {
   const materialization = result.materialization;
   const finalResolved = materialization?.resolved ?? result.resolved;
@@ -1664,6 +1673,7 @@ export function buildCatalogMaterializationStep(
 
   return {
     stage: 'catalog_materialization',
+    acquisitionContext,
     label: 'Materialización en catálogo',
     component: 'ExperienceCatalogService',
     status: materialized.length ? (rejected.length ? 'WARN' : 'PASS') : 'WARN',
