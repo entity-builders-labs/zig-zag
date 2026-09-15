@@ -447,3 +447,31 @@ function isValidPersistedClassificationShape(
   }
   return true;
 }
+
+/** Projects an already validated persisted classification for audit only. */
+export function readPersistedClassification(
+  metadata: unknown,
+): ClassificationResult | undefined {
+  if (
+    !canReuseClassification(metadata, CURRENT_CLASSIFICATION_PROMPT_VERSION)
+  ) {
+    return undefined;
+  }
+  if (!isPlainObject(metadata) || !isPlainObject(metadata.classification)) {
+    return undefined;
+  }
+  const value = metadata.classification;
+  return {
+    themes: value.themes as string[],
+    intents: value.intents as string[],
+    traits: value.traits as string[],
+    reasoningEvidence:
+      value.reasoningEvidence as ClassificationReasoningEvidence[],
+    modelId: typeof value.modelId === 'string' ? value.modelId : '',
+    promptVersion:
+      typeof value.promptVersion === 'number'
+        ? value.promptVersion
+        : CURRENT_CLASSIFICATION_PROMPT_VERSION,
+    state: 'classified',
+  };
+}

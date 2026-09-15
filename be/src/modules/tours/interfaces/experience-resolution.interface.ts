@@ -144,6 +144,12 @@ export interface ExperienceGeographicValidationResult {
   };
   groundedEvidenceKeys: string[];
   rejectionReasons: string[];
+  /** Exact entities used by the canonical decision; trace never infers offenders. */
+  decisionEntities?: Array<{
+    geoEntityId?: string;
+    hintKey?: string;
+    relation: 'evaluated' | 'offending';
+  }>;
   validatorVersion: number;
 }
 

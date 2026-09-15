@@ -1341,6 +1341,12 @@ describe('CompositeGeographicValidationService', () => {
       );
       expect(result.accepted).toBe(false);
       expect(result.rejectionReasons).toContain('external_scope_mismatch');
+      expect(result.decisionEntities).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ hintKey: 'p1', relation: 'evaluated' }),
+          expect.objectContaining({ hintKey: 'p3', relation: 'offending' }),
+        ]),
+      );
     });
 
     it('accepts when every required component (no AREA hint on the candidate) is genuinely inside the external AREA scope', () => {

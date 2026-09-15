@@ -9,6 +9,7 @@ import {
   buildGeographicValidationStep,
   buildLlmGenerationStep,
   buildPlacesCrawlStep,
+  traceCandidateKey,
   buildTourCompletenessStep,
   buildTourIntentStep,
 } from './generation-trace-builder.util';
@@ -53,6 +54,51 @@ describe('buildTourIntentStep', () => {
     expect(step.summary).toContain('public_transport');
     expect(step.summary).toContain('Temas: history');
     expect(step.summary?.split(note)).toHaveLength(2);
+  });
+});
+
+describe('traceCandidateKey', () => {
+  const candidate = (orderedByEvidence = false) => ({
+    name: 'Historic District Walk',
+    themes: ['history'],
+    traits: [] as string[],
+    componentHints: [
+      {
+        key: 'b',
+        name: 'Stop B',
+        role: 'waypoint' as const,
+        expectedKind: 'PLACE' as const,
+        required: true,
+        evidenceKeys: ['e'],
+      },
+      {
+        key: 'a',
+        name: 'Stop A',
+        role: 'waypoint' as const,
+        expectedKind: 'PLACE' as const,
+        required: true,
+        evidenceKeys: ['e'],
+      },
+    ],
+    evidenceKeys: ['z', 'a'],
+    shortReason: 'test',
+    orderedByEvidence,
+  });
+
+  it('ignores evidence and non-semantic hint iteration order, preserving semantic order only when grounded', () => {
+    const first = candidate();
+    const second = {
+      ...candidate(),
+      evidenceKeys: ['a', 'z'],
+      componentHints: [...first.componentHints].reverse(),
+    };
+    expect(traceCandidateKey(first)).toBe(traceCandidateKey(second));
+    expect(traceCandidateKey(candidate(true))).not.toBe(
+      traceCandidateKey({
+        ...candidate(true),
+        componentHints: [...candidate(true).componentHints].reverse(),
+      }),
+    );
   });
 });
 describe('buildTourCompletenessStep', () => {
@@ -208,7 +254,16 @@ describe('buildEntityResolutionStep', () => {
           candidate: {
             ...proposal('Casa Histórica'),
             traits: [],
-            componentHints: [],
+            componentHints: [
+              {
+                key: 'hint-1',
+                name: 'Casa Histórica',
+                role: 'venue',
+                expectedKind: 'PLACE',
+                required: true,
+                evidenceKeys: [],
+              },
+            ],
           },
           status: 'accepted',
           resolvedEntities: [
@@ -243,6 +298,13 @@ describe('buildEntityResolutionStep', () => {
       'ENTITIES_READY_FOR_GEOGRAPHIC_VALIDATION',
     );
     expect(step.resolution?.acceptedCount).toBe(1);
+    expect(step.entityResolutionAudit?.[0].hints[0]).toMatchObject({
+      role: 'venue',
+      resolvedGeoEntity: { provider: 'osm' },
+    });
+    expect(
+      step.entityResolutionAudit?.[0].hints[0].resolvedGeoEntity,
+    ).not.toHaveProperty('kind');
   });
 
   it('surfaces each rejected proposal with its reasons and marks the step degraded', () => {
@@ -310,6 +372,118 @@ describe('buildGeographicValidationStep', () => {
     expect(step.status).toBe('PASS');
     expect(step.decision?.outcome).toBe('GEO_VERIFIED_PROPOSALS_READY');
     expect(step.summary).toContain('1 propuesta(s) verificadas');
+    expect(
+      step.geographicValidationAudit?.[0].components.every(
+        (component) => component.relation !== 'offending',
+      ),
+    ).toBe(true);
+  });
+
+  it('projects the canonical offending component and does not infer it from anchors', () => {
+    const candidate = {
+      name: 'Historic District Walk',
+      themes: ['history'],
+      traits: [] as string[],
+      componentHints: [
+        {
+          key: 'inside',
+          name: 'Stop Inside',
+          role: 'waypoint',
+          expectedKind: 'PLACE',
+          required: true,
+          evidenceKeys: ['ev'],
+        },
+        {
+          key: 'outside',
+          name: 'Stop Outside',
+          role: 'waypoint',
+          expectedKind: 'PLACE',
+          required: true,
+          evidenceKeys: ['ev'],
+        },
+      ],
+      evidenceKeys: ['ev'],
+      shortReason: 'test',
+    };
+    const entities = [
+      {
+        hintKey: 'inside',
+        hintName: 'Stop Inside',
+        role: 'waypoint',
+        provider: 'osm',
+        externalId: 'inside',
+        status: 'resolved',
+      },
+      {
+        hintKey: 'outside',
+        hintName: 'Stop Outside',
+        role: 'waypoint',
+        provider: 'osm',
+        externalId: 'outside',
+        status: 'resolved',
+      },
+    ];
+    const step = buildGeographicValidationStep({
+      resolved: [
+        {
+          candidate,
+          status: 'accepted',
+          resolvedEntities: entities,
+          rejectionReasons: [],
+        } as any,
+      ],
+      totalCandidates: 1,
+      acceptedCount: 0,
+      rejectedCount: 1,
+      geographicValidation: {
+        results: [
+          {
+            proposalName: candidate.name,
+            kind: 'EXPERIENCE',
+            status: 'REJECTED',
+            accepted: false,
+            validatorVersion: 1,
+            groundedEvidenceKeys: ['ev'],
+            rejectionReasons: ['external_scope_mismatch'],
+            anchors: [entities[0]] as any,
+            decisionEntities: [
+              {
+                hintKey: 'inside',
+                geoEntityId: 'inside',
+                relation: 'evaluated',
+              },
+              {
+                hintKey: 'outside',
+                geoEntityId: 'outside',
+                relation: 'offending',
+              },
+            ],
+          },
+        ],
+        acceptedCount: 0,
+        rejectedCount: 1,
+        resolved: [
+          {
+            candidate,
+            status: 'accepted',
+            resolvedEntities: entities,
+            rejectionReasons: [],
+          } as any,
+        ],
+      },
+    });
+    expect(step.geographicValidationAudit?.[0].components).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          hintName: 'Stop Inside',
+          relation: 'evaluated',
+        }),
+        expect.objectContaining({
+          hintName: 'Stop Outside',
+          relation: 'offending',
+        }),
+      ]),
+    );
   });
 });
 
@@ -503,6 +677,20 @@ describe('buildAcquisitionStep', () => {
             title: 'Stop A',
             description: 'A concise history',
             evidenceType: 'editorial',
+            geo: {
+              latitude: 1,
+              longitude: 2,
+              geometry: {
+                type: 'MultiPolygon',
+                coordinates: Array.from({ length: 1000 }, () => [
+                  [
+                    [1, 2],
+                    [3, 4],
+                    [1, 2],
+                  ],
+                ]),
+              },
+            },
           },
         ],
         candidates: [candidate],
@@ -555,10 +743,12 @@ describe('buildAcquisitionStep', () => {
     expect(step.acquisition?.sourcePlans[2].web?.evidence).toHaveLength(2);
     expect(step.acquisition?.candidates[0]).toMatchObject({
       name: 'Historic District Walk',
-      origin: 'structured',
+      origin: 'mixed',
       evidenceKeys: ['wikivoyage:stop-a', 'web:a'],
     });
     expect(step.acquisition?.candidates[0].componentHints).toHaveLength(2);
+    expect(JSON.stringify(step)).not.toContain('coordinates');
+    expect(JSON.stringify(step)).toContain('MultiPolygon');
     expect(JSON.stringify(step)).not.toContain('authorization:secret');
   });
 });

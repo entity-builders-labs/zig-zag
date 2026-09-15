@@ -51,6 +51,11 @@ export interface GeographicValidationResult {
   coherence?: GeographicCoherenceMetrics;
   groundedEvidenceKeys: string[];
   rejectionReasons: GeographicValidationRejectionReason[];
+  decisionEntities?: Array<{
+    geoEntityId?: string;
+    hintKey?: string;
+    relation: 'evaluated' | 'offending';
+  }>;
   validatorVersion: number;
 }
 

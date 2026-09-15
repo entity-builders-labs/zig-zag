@@ -46,16 +46,20 @@ function evidenceItem(
   return { key, source: 'test', snippet };
 }
 
-function validClassificationMetadata(intents: string[] = ['walk']) {
+function validClassificationMetadata(
+  intents: string[] = ['walk'],
+  themes: string[] = [],
+  traits: string[] = [],
+) {
   return {
     intents,
     classification: {
       state: 'classified' as const,
       promptVersion: CURRENT_CLASSIFICATION_PROMPT_VERSION,
       modelId: 'groq/qwen',
-      themes: [] as string[],
+      themes,
       intents,
-      traits: [] as string[],
+      traits,
       reasoningEvidence: intents.map((intent) => ({
         facet: `intent:${intent}`,
         evidenceKeys: ['ev-existing'],
@@ -72,6 +76,10 @@ function buildDeps() {
   };
   const classifier = {
     classify: jest.fn(),
+    getAuditIdentity: jest.fn().mockReturnValue({
+      provider: 'groq',
+      model: 'qwen',
+    }),
   };
   return { catalog, classifier };
 }
@@ -105,10 +113,14 @@ describe('classifyAcceptedResultsByExperience', () => {
       evidenceItem('c1'),
     ];
 
-    await classifyAcceptedResultsByExperience(resolved, evidence, {
-      catalog: catalog as any,
-      classifier: classifier as any,
-    });
+    const audit = await classifyAcceptedResultsByExperience(
+      resolved,
+      evidence,
+      {
+        catalog: catalog as any,
+        classifier: classifier as any,
+      },
+    );
 
     expect(classifier.classify).toHaveBeenCalledTimes(1);
     expect(classifier.classify).toHaveBeenCalledWith('Teatro Colón', [
@@ -120,6 +132,14 @@ describe('classifyAcceptedResultsByExperience', () => {
       'exp-1',
       expect.objectContaining({ intents: ['visit'] }),
     );
+    expect(audit[0]).toMatchObject({
+      state: 'classified',
+      provider: 'groq',
+      model: 'qwen',
+      promptVersion: CURRENT_CLASSIFICATION_PROMPT_VERSION,
+      intents: ['visit'],
+      reasoningEvidence: [{ facet: 'intent:visit' }],
+    });
   });
 
   it('never crosses evidence between two distinct canonical experienceIds', async () => {
@@ -161,11 +181,33 @@ describe('classifyAcceptedResultsByExperience', () => {
       {
         id: 'exp-1',
         canonicalName: 'Teatro Colón',
-        metadata: validClassificationMetadata(['visit']),
+        metadata: {
+          classification: {
+            ...validClassificationMetadata(['walk'], ['history'], ['guided'])
+              .classification,
+            reasoningEvidence: [
+              {
+                facet: 'theme:history',
+                evidenceKeys: ['ev-existing'],
+                reason: 'history',
+              },
+              {
+                facet: 'intent:walk',
+                evidenceKeys: ['ev-existing'],
+                reason: 'walk',
+              },
+              {
+                facet: 'trait:guided',
+                evidenceKeys: ['ev-existing'],
+                reason: 'guided',
+              },
+            ],
+          },
+        },
       },
     ]);
 
-    await classifyAcceptedResultsByExperience(
+    const audit = await classifyAcceptedResultsByExperience(
       [accepted('exp-1', ['a1'])],
       [evidenceItem('a1')],
       { catalog: catalog as any, classifier: classifier as any },
@@ -173,6 +215,19 @@ describe('classifyAcceptedResultsByExperience', () => {
 
     expect(classifier.classify).not.toHaveBeenCalled();
     expect(catalog.applyEvidenceClassification).not.toHaveBeenCalled();
+    expect(audit[0]).toMatchObject({
+      state: 'reused',
+      themes: ['history'],
+      intents: ['walk'],
+      traits: ['guided'],
+      reasoningEvidence: expect.arrayContaining([
+        expect.objectContaining({ facet: 'theme:history' }),
+        expect.objectContaining({ facet: 'intent:walk' }),
+        expect.objectContaining({ facet: 'trait:guided' }),
+      ]),
+      promptVersion: CURRENT_CLASSIFICATION_PROMPT_VERSION,
+      model: 'groq/qwen',
+    });
   });
 
   // 4. stale/missing classification is recomputed

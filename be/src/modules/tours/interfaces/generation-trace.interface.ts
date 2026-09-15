@@ -100,7 +100,11 @@ export interface TraceAcquisitionSource {
     evidenceType?: string;
     standaloneEligible?: boolean;
     externalId?: string;
-    geo?: { latitude?: number; longitude?: number; geometry?: unknown };
+    geo?: {
+      latitude?: number;
+      longitude?: number;
+      geometry?: { present: boolean; type?: string };
+    };
   }>;
   web?: {
     query: string;
@@ -143,7 +147,7 @@ export interface TraceComponentHint {
 export interface TraceAcquisitionCandidate {
   traceKey: string;
   name: string;
-  origin: 'structured' | 'web';
+  origin: 'structured' | 'web' | 'mixed';
   providers: string[];
   themes: string[];
   intents: string[];
@@ -167,8 +171,7 @@ export interface TraceEntityResolutionDecision {
         | 'externalId'
         | 'latitude'
         | 'longitude'
-        | 'geometry'
-      > & { kind?: string };
+      > & { geometry?: { present: boolean; type?: string } };
       reason?: string;
     }
   >;

@@ -101,7 +101,15 @@ function traceSnippet(value?: string): string | undefined {
 /** Correlation key only: never an Experience identity or dedupe key. */
 export function traceCandidateKey(candidate: ExperienceCandidate): string {
   const evidence = [...candidate.evidenceKeys].sort().join('|');
-  const hints = candidate.componentHints
+  const hints = (
+    candidate.orderedByEvidence
+      ? candidate.componentHints
+      : [...candidate.componentHints].sort((left, right) =>
+          `${left.key}:${left.name}`.localeCompare(
+            `${right.key}:${right.name}`,
+          ),
+        )
+  )
     .map((hint) => `${hint.key}:${hint.name}`)
     .join('|');
   return `${candidate.name.trim().toLocaleLowerCase()}:${evidence}:${hints}`;
@@ -109,12 +117,14 @@ export function traceCandidateKey(candidate: ExperienceCandidate): string {
 
 function traceHint(
   hint: ExperienceCandidate['componentHints'][number],
+  order?: number,
 ): TraceComponentHint {
   return {
     key: hint.key,
     name: hint.name,
     role: hint.role,
     required: hint.required,
+    order,
     evidenceKeys: [...hint.evidenceKeys],
   };
 }
@@ -150,7 +160,24 @@ function traceObservation(observation: SourceObservation) {
     evidenceType: observation.evidenceType,
     standaloneEligible: observation.standaloneEligible,
     externalId: observation.externalId,
-    geo: observation.geo,
+    geo: observation.geo
+      ? {
+          latitude: observation.geo.latitude,
+          longitude: observation.geo.longitude,
+          geometry: observation.geo.geometry
+            ? {
+                present: true,
+                type:
+                  typeof observation.geo.geometry === 'object' &&
+                  observation.geo.geometry !== null &&
+                  'type' in observation.geo.geometry &&
+                  typeof observation.geo.geometry.type === 'string'
+                    ? observation.geo.geometry.type
+                    : undefined,
+              }
+            : undefined,
+        }
+      : undefined,
   };
 }
 
@@ -962,6 +989,12 @@ export function buildAcquisitionStep(params: {
   const structuredEvidenceKeys = new Set(
     observations.map((item) => item.evidenceKey),
   );
+  const webEvidenceKeys = new Set(
+    evidence
+      .filter((item) => !structuredEvidenceKeys.has(item.key ?? ''))
+      .map((item) => item.key)
+      .filter((key): key is string => Boolean(key)),
+  );
   const auditSources: TraceAcquisitionSource[] = plan.sourcePlans.map(
     (sourcePlan) => {
       const result = execution.providerResults[sourcePlan.provider];
@@ -1034,22 +1067,32 @@ export function buildAcquisitionStep(params: {
         Array.isArray(candidate.evidenceKeys),
     )
     .map((candidate) => {
-      const origin: 'structured' | 'web' = candidate.evidenceKeys.some((key) =>
+      const hasStructuredEvidence = candidate.evidenceKeys.some((key) =>
         structuredEvidenceKeys.has(key),
-      )
-        ? 'structured'
-        : 'web';
+      );
+      const hasWebEvidence = candidate.evidenceKeys.some((key) =>
+        webEvidenceKeys.has(key),
+      );
+      const origin: 'structured' | 'web' | 'mixed' =
+        hasStructuredEvidence && hasWebEvidence
+          ? 'mixed'
+          : hasStructuredEvidence
+            ? 'structured'
+            : 'web';
       return {
         traceKey: traceCandidateKey(candidate),
         name: candidate.name,
         origin,
         providers: [
           ...new Set(
-            candidate.evidenceKeys.flatMap((key) =>
-              observations
+            candidate.evidenceKeys.flatMap((key) => [
+              ...observations
                 .filter((item) => item.evidenceKey === key)
                 .map((item) => item.provider),
-            ),
+              ...evidence
+                .filter((item) => item.key === key)
+                .map((item) => item.source),
+            ]),
           ),
         ],
         themes: [...candidate.themes],
@@ -1057,7 +1100,9 @@ export function buildAcquisitionStep(params: {
         evidenceKeys: [...candidate.evidenceKeys],
         suggestedDurationMinutes: candidate.suggestedDurationMinutes,
         orderedByEvidence: candidate.orderedByEvidence,
-        componentHints: candidate.componentHints.map(traceHint),
+        componentHints: candidate.componentHints.map((hint, index) =>
+          traceHint(hint, candidate.orderedByEvidence ? index + 1 : undefined),
+        ),
       };
     });
   const acquisition: TraceAcquisitionAudit = {
@@ -1191,8 +1236,18 @@ export function buildEntityResolutionStep(
                 externalId: entity.externalId,
                 latitude: entity.latitude,
                 longitude: entity.longitude,
-                geometry: entity.geometry,
-                kind: entity.role,
+                geometry: entity.geometry
+                  ? {
+                      present: true,
+                      type:
+                        typeof entity.geometry === 'object' &&
+                        entity.geometry !== null &&
+                        'type' in entity.geometry &&
+                        typeof entity.geometry.type === 'string'
+                          ? entity.geometry.type
+                          : undefined,
+                    }
+                  : undefined,
               }
             : undefined,
         reason: entity?.reason,
@@ -1307,8 +1362,11 @@ export function buildGeographicValidationStep(
     const resolvedCandidate = validation.resolved?.find(
       (candidate) => candidate.candidate.name === entry.proposalName,
     );
-    const offending = new Set(
-      entry.anchors.map((anchor) => anchor.geoEntityId),
+    const decisionEntities = new Map(
+      (entry.decisionEntities ?? []).map((decision) => [
+        decision.hintKey ?? decision.geoEntityId,
+        decision,
+      ]),
     );
     return {
       candidateTraceKey: resolvedCandidate
@@ -1338,9 +1396,9 @@ export function buildGeographicValidationStep(
         hintKey: entity.hintKey,
         role: entity.role,
         resolvedGeoEntityId: entity.geoEntityId,
-        relation: offending.has(entity.geoEntityId)
-          ? ('offending' as const)
-          : ('evaluated' as const),
+        relation:
+          decisionEntities.get(entity.hintKey ?? entity.geoEntityId)
+            ?.relation ?? 'evaluated',
       })),
     };
   });

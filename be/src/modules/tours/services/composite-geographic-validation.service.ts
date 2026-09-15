@@ -117,6 +117,14 @@ export class CompositeGeographicValidationService {
             );
     }
 
+    if (!result.decisionEntities) {
+      result.decisionEntities = withCoordinates.map((entity) => ({
+        geoEntityId: entity.geoEntityId,
+        hintKey: entity.hintKey,
+        relation: 'evaluated' as const,
+      }));
+    }
+
     this.logger.log(
       JSON.stringify({
         event: 'geographic_validation',
@@ -156,6 +164,8 @@ export class CompositeGeographicValidationService {
           [outside],
           evidenceKeys,
           ['external_scope_mismatch'],
+          undefined,
+          [outside],
         )
       : {
           proposalName: resolvedProposal.candidate.name,
@@ -193,6 +203,8 @@ export class CompositeGeographicValidationService {
           [outside],
           evidenceKeys,
           ['external_scope_mismatch'],
+          undefined,
+          [outside],
         )
       : {
           proposalName: resolvedProposal.candidate.name,
@@ -285,6 +297,9 @@ export class CompositeGeographicValidationService {
           [outside],
           evidenceKeys,
           ['external_scope_mismatch'],
+          undefined,
+          [outside],
+          requiredEntities,
         );
       }
       return undefined;
@@ -312,9 +327,15 @@ export class CompositeGeographicValidationService {
         ) > this.thresholds.route.maxComponentDistanceFromRouteMeters,
     );
     if (tooFar) {
-      return this.rejected(proposalName, 'EXPERIENCE', [tooFar], evidenceKeys, [
-        'external_scope_mismatch',
-      ]);
+      return this.rejected(
+        proposalName,
+        'EXPERIENCE',
+        [tooFar],
+        evidenceKeys,
+        ['external_scope_mismatch'],
+        undefined,
+        [tooFar],
+      );
     }
     return undefined;
   }
@@ -461,6 +482,8 @@ export class CompositeGeographicValidationService {
             [canonicalArea],
             evidenceKeys,
             ['destination_mismatch'],
+            undefined,
+            [canonicalArea],
           );
         }
         // Task B5 (correctness point 10): validate every OTHER required
@@ -502,6 +525,8 @@ export class CompositeGeographicValidationService {
             [canonicalArea, outsideArea],
             evidenceKeys,
             ['destination_mismatch'],
+            undefined,
+            [outsideArea],
           );
         }
         return {
@@ -565,9 +590,15 @@ export class CompositeGeographicValidationService {
       );
       if (venue) {
         if (!this.isInsideDestination(venue, destinationBoundary)) {
-          return this.rejected(proposalName, kind, [venue], evidenceKeys, [
-            'destination_mismatch',
-          ]);
+          return this.rejected(
+            proposalName,
+            kind,
+            [venue],
+            evidenceKeys,
+            ['destination_mismatch'],
+            undefined,
+            [venue],
+          );
         }
         return {
           proposalName,
@@ -791,6 +822,8 @@ export class CompositeGeographicValidationService {
     evidenceKeys: string[],
     rejectionReasons: GeographicValidationRejectionReason[],
     coherence?: ReturnType<typeof coherenceMetrics>,
+    offendingEntities: ResolvedGeoEntity[] = [],
+    evaluatedEntities: ResolvedGeoEntity[] = anchors,
   ): GeographicValidationResult {
     return {
       proposalName,
@@ -801,6 +834,15 @@ export class CompositeGeographicValidationService {
       coherence,
       groundedEvidenceKeys: evidenceKeys,
       rejectionReasons,
+      decisionEntities: evaluatedEntities.map((entity) => ({
+        geoEntityId: entity.geoEntityId,
+        hintKey: entity.hintKey,
+        relation: offendingEntities.some(
+          (offending) => offending.hintKey === entity.hintKey,
+        )
+          ? 'offending'
+          : 'evaluated',
+      })),
       validatorVersion: GEOGRAPHIC_VALIDATOR_VERSION,
     };
   }

@@ -18,6 +18,7 @@ import {
   CURRENT_CLASSIFICATION_PROMPT_VERSION,
   ExperienceClassificationService,
   canReuseClassification,
+  readPersistedClassification,
 } from '../services/experience-classification.service';
 import { ResolverEvidenceItem } from '../services/experience-acquisition.service';
 import { ResolvedExperienceCandidate } from '../interfaces/experience-resolution.interface';
@@ -110,13 +111,16 @@ export async function classifyAcceptedResultsByExperience(
         CURRENT_CLASSIFICATION_PROMPT_VERSION,
       )
     ) {
+      const persisted = readPersistedClassification(experience.metadata);
       audit.push({
         experienceId,
         state: 'reused',
-        themes: [],
-        intents: [],
-        traits: [],
-        reasoningEvidence: [],
+        themes: persisted?.themes ?? [],
+        intents: persisted?.intents ?? [],
+        traits: persisted?.traits ?? [],
+        reasoningEvidence: persisted?.reasoningEvidence ?? [],
+        promptVersion: persisted?.promptVersion,
+        model: persisted?.modelId || undefined,
       });
       continue;
     }
