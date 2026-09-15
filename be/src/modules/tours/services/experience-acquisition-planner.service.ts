@@ -13,6 +13,7 @@ import {
 import { lookupSourceCapabilityRoute } from '../constants/acquisition-source-routing';
 import { candidateMatchesPreferenceFacet } from '../utils/preference-facet-matching.util';
 import { AnchoredPlace } from '../interfaces/preference-spec.interface';
+import { deriveAcquisitionEvidenceRequirements } from '../utils/acquisition-evidence-requirement.util';
 
 /**
  * `AcquisitionDeficit` is a discriminated union -- only `preference_facet`
@@ -126,10 +127,14 @@ export class ExperienceAcquisitionPlannerService {
       }
     }
 
+    const evidenceRequirements =
+      deriveAcquisitionEvidenceRequirements(deficits);
+
     if (deficits.length === 0) {
       return {
         destination: input.destination,
         deficits: [],
+        evidenceRequirements: [],
         sourcePlans: [],
         breadth,
       };
@@ -171,6 +176,7 @@ export class ExperienceAcquisitionPlannerService {
       return {
         destination: input.destination,
         deficits,
+        evidenceRequirements,
         sourcePlans: [],
         breadth,
       };
@@ -283,6 +289,7 @@ export class ExperienceAcquisitionPlannerService {
     return {
       destination: input.destination,
       deficits,
+      evidenceRequirements,
       sourcePlans,
       breadth,
     };

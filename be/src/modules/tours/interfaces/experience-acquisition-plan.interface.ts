@@ -2,6 +2,7 @@ import {
   ExperienceDiscoveryBreadth,
   ExperienceDiscoveryScope,
 } from './experience-discovery.interface';
+import { AcquisitionEvidenceRequirement } from './acquisition-evidence-requirement.interface';
 
 /**
  * A real, requested-facet deficit (cutover M2) -- `dimension`/`key` are
@@ -97,6 +98,7 @@ export type SourcePlan =
 export interface ExperienceAcquisitionPlan {
   destination: ExperienceDiscoveryScope;
   deficits: AcquisitionDeficit[];
+  evidenceRequirements: AcquisitionEvidenceRequirement[];
   sourcePlans: SourcePlan[];
   breadth: ExperienceDiscoveryBreadth;
 }
