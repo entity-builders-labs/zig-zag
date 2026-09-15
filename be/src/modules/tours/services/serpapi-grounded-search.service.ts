@@ -6,6 +6,8 @@ import {
   ExperienceGroundedSearchResult as GroundedSearchResult,
   ExperienceGroundedSearchProvider as GroundedSearchProvider,
   ExperienceGroundingEvidence as GroundingEvidence,
+  GroundingNormalizationAudit,
+  GroundingNormalizationDecision,
 } from '../interfaces/experience-grounding.interface';
 type GroundedTextBlock = { text: string; evidenceKeys: string[] };
 
@@ -16,19 +18,33 @@ interface SerpApiOrganicResult {
 }
 
 interface SerpApiTextBlockItem {
+  text?: string;
   snippet?: string;
-  snippet_links?: { link?: string }[];
+  snippet_links?: SerpApiSnippetLink[];
+}
+
+interface SerpApiSnippetLink {
+  text?: string;
+  link?: string;
 }
 
 interface SerpApiTextBlock {
   type: 'paragraph' | 'heading' | 'list';
   snippet?: string;
+  snippet_links?: SerpApiSnippetLink[];
   list?: SerpApiTextBlockItem[];
 }
 
 interface SerpApiAiModeResponse {
-  search_metadata?: { google_ai_mode_url?: string };
   text_blocks?: SerpApiTextBlock[];
+  references?: SerpApiReference[];
+}
+
+interface SerpApiReference {
+  title?: string;
+  link?: string;
+  snippet?: string;
+  source?: string;
 }
 
 /**
@@ -101,7 +117,7 @@ export class SerpApiGroundedSearchService implements GroundedSearchProvider {
   }
 
   private cacheKey(request: GroundedSearchRequest): string {
-    return `serpapi-grounded-search:v1:${JSON.stringify({
+    return `serpapi-grounded-search:v2:${JSON.stringify({
       destinationName: request.destinationName,
       requestedThemes: [...request.requestedThemes].sort(),
       query: request.query?.trim() || '',
@@ -148,9 +164,11 @@ export class SerpApiGroundedSearchService implements GroundedSearchProvider {
       const rawText = await resp.text();
       let evidence: GroundingEvidence[];
       let textBlocks: GroundedTextBlock[] = [];
+      let normalizationAudit: GroundingNormalizationAudit;
       try {
         const data: SerpApiAiModeResponse = JSON.parse(rawText);
-        ({ evidence, textBlocks } = this.parseAiModeResponse(data));
+        ({ evidence, textBlocks, normalizationAudit } =
+          this.parseAiModeResponse(data));
       } catch (parseError: any) {
         // Live-confirmed: raw google_ai_mode responses aren't always strictly
         // valid JSON (a malformed backslash-escape inside a snippet field
@@ -159,7 +177,8 @@ export class SerpApiGroundedSearchService implements GroundedSearchProvider {
         this.logger.warn(
           `SerpApi google_ai_mode returned malformed JSON, attempting salvage: ${parseError.message}`,
         );
-        evidence = this.salvageEvidenceFromRawText(rawText);
+        ({ evidence, normalizationAudit } =
+          this.salvageEvidenceFromRawText(rawText));
       }
 
       return {
@@ -168,6 +187,7 @@ export class SerpApiGroundedSearchService implements GroundedSearchProvider {
         groundingStatus: evidence.length > 0 ? 'applied' : 'no_usable_evidence',
         evidence,
         textBlocks,
+        normalizationAudit,
         rawOutput: rawText,
       };
     } catch (error: any) {
@@ -210,46 +230,122 @@ export class SerpApiGroundedSearchService implements GroundedSearchProvider {
   private parseAiModeResponse(data: SerpApiAiModeResponse): {
     evidence: GroundingEvidence[];
     textBlocks: GroundedTextBlock[];
+    normalizationAudit: GroundingNormalizationAudit;
   } {
     const evidence: GroundingEvidence[] = [];
     const textBlocks: GroundedTextBlock[] = [];
+    const decisions: GroundingNormalizationDecision[] = [];
     let currentHeading: string | undefined;
     let counter = 0;
+    let order = 0;
+    const seen = new Set<string>();
+    const normalize = (value: string) =>
+      value.replace(/\s+/g, ' ').trim().toLowerCase();
+    const emit = (input: {
+      sourceLocator: string;
+      sourceKind: GroundingNormalizationDecision['sourceKind'];
+      snippet?: string;
+      source: string;
+      title?: string;
+      url?: string;
+      kind: GroundingEvidence['kind'];
+      contextHeading?: string;
+      reason: GroundingNormalizationDecision['reason'];
+    }): string | undefined => {
+      const snippet = input.snippet?.trim();
+      if (!snippet) {
+        decisions.push({
+          sourceLocator: input.sourceLocator,
+          sourceKind: input.sourceKind,
+          action: 'SKIPPED',
+          reason: 'EMPTY_SNIPPET',
+        });
+        return undefined;
+      }
+      const dedupeKey = `${normalize(snippet)}\n${normalize(input.url ?? '')}`;
+      if (seen.has(dedupeKey)) {
+        decisions.push({
+          sourceLocator: input.sourceLocator,
+          sourceKind: input.sourceKind,
+          action: 'SKIPPED',
+          reason: 'DUPLICATE_EVIDENCE',
+          preview: snippet.slice(0, 160),
+        });
+        return undefined;
+      }
+      seen.add(dedupeKey);
+      const key = `ev-${++counter}`;
+      evidence.push({
+        key,
+        source: input.source,
+        snippet,
+        title: input.title,
+        url: input.url,
+        kind: input.kind,
+        order: ++order,
+        contextHeading: input.contextHeading,
+      });
+      decisions.push({
+        sourceLocator: input.sourceLocator,
+        sourceKind: input.sourceKind,
+        action: 'EMITTED_EVIDENCE',
+        evidenceKey: key,
+        reason: input.reason,
+        preview: snippet.slice(0, 160),
+      });
+      return key;
+    };
 
-    for (const block of data.text_blocks ?? []) {
+    for (const [blockIndex, block] of (data.text_blocks ?? []).entries()) {
       if (block.type === 'heading') {
         currentHeading = block.snippet?.trim();
         textBlocks.push({ text: block.snippet ?? '', evidenceKeys: [] });
+        decisions.push({
+          sourceLocator: `text_blocks[${blockIndex}]`,
+          sourceKind: 'heading',
+          action: 'CONTEXT_ONLY',
+          reason: 'HEADING_CONTEXT_ONLY',
+          preview: currentHeading?.slice(0, 160),
+        });
         continue;
       }
       if (block.type === 'paragraph') {
-        textBlocks.push({ text: block.snippet ?? '', evidenceKeys: [] });
+        const key = emit({
+          sourceLocator: `text_blocks[${blockIndex}]`,
+          sourceKind: 'paragraph',
+          snippet: block.snippet,
+          source: currentHeading ?? 'google_ai_mode',
+          title: currentHeading,
+          url: this.preferredRealSourceLink(block.snippet_links),
+          kind: 'narrative_paragraph',
+          contextHeading: currentHeading,
+          reason: 'PARAGRAPH_EMITTED',
+        });
+        textBlocks.push({
+          text: block.snippet ?? '',
+          evidenceKeys: key ? [key] : [],
+        });
         continue;
       }
       // type === 'list'
       const blockEvidenceKeys: string[] = [];
       const itemTexts: string[] = [];
-      for (const item of block.list ?? []) {
-        const snippet = item.snippet?.trim();
-        if (!snippet) continue;
-        counter += 1;
-        const key = `ev-${counter}`;
-        evidence.push({
-          key,
+      for (const [itemIndex, item] of (block.list ?? []).entries()) {
+        const key = emit({
+          sourceLocator: `text_blocks[${blockIndex}].list[${itemIndex}]`,
+          sourceKind: 'list_item',
+          snippet: item.snippet,
           source: currentHeading || 'google_ai_mode',
-          snippet,
           title: currentHeading,
-          // Deliberately no fallback to search_metadata.google_ai_mode_url
-          // here: that URL embeds the full url-encoded query (~1500-1800
-          // chars) and isn't a real per-claim citation anyway (one URL
-          // shared by the whole response) — live-confirmed that repeating
-          // it across ~30 merged evidence items ballooned a real extraction
-          // request from ~1-2k to 24k+ tokens, tripping Groq's 8000 TPM
-          // limit. rawOutput still carries it once, for audit.
-          url: item.snippet_links?.[0]?.link,
+          url: this.preferredRealSourceLink(item.snippet_links),
+          kind: 'list_item',
+          contextHeading: currentHeading,
+          reason: 'LIST_ITEM_EMITTED',
         });
-        blockEvidenceKeys.push(key);
-        itemTexts.push(snippet);
+        if (key) {
+          blockEvidenceKeys.push(key);
+          itemTexts.push(item.snippet!.trim());
+        }
       }
       textBlocks.push({
         text: itemTexts.join(' '),
@@ -257,14 +353,45 @@ export class SerpApiGroundedSearchService implements GroundedSearchProvider {
       });
     }
 
-    return { evidence, textBlocks };
+    for (const [referenceIndex, reference] of (
+      data.references ?? []
+    ).entries()) {
+      emit({
+        sourceLocator: `references[${referenceIndex}]`,
+        sourceKind: 'reference',
+        snippet: reference.snippet,
+        source:
+          reference.source ??
+          reference.title ??
+          reference.link ??
+          'google_ai_mode',
+        title: reference.title,
+        url: reference.link,
+        kind: 'reference',
+        reason: 'REFERENCE_EMITTED',
+      });
+    }
+    return {
+      evidence,
+      textBlocks,
+      normalizationAudit: {
+        mode: 'structured',
+        rawItemCount: decisions.length,
+        emittedEvidenceCount: evidence.length,
+        decisions,
+      },
+    };
   }
 
-  private salvageEvidenceFromRawText(raw: string): GroundingEvidence[] {
+  private salvageEvidenceFromRawText(raw: string): {
+    evidence: GroundingEvidence[];
+    normalizationAudit: GroundingNormalizationAudit;
+  } {
     const snippetMatches = [
       ...raw.matchAll(/"snippet"\s*:\s*"((?:[^"\\]|\\.)*)"/g),
     ];
-    return snippetMatches
+    const decisions: GroundingNormalizationDecision[] = [];
+    const evidence = snippetMatches
       .map((match) =>
         match[1]
           .replace(/\\n/g, ' ')
@@ -273,11 +400,47 @@ export class SerpApiGroundedSearchService implements GroundedSearchProvider {
           .trim(),
       )
       .filter((snippet) => snippet.length > 0)
-      .map((snippet, index) => ({
-        key: `ev-${index + 1}`,
-        source: 'google_ai_mode',
-        snippet,
-      }));
+      .map((snippet, index) => {
+        const key = `ev-${index + 1}`;
+        decisions.push({
+          sourceLocator: `salvage.snippet[${index}]`,
+          sourceKind: 'paragraph',
+          action: 'EMITTED_EVIDENCE',
+          evidenceKey: key,
+          reason: 'PARAGRAPH_EMITTED',
+          preview: snippet.slice(0, 160),
+        });
+        return { key, source: 'google_ai_mode', snippet };
+      });
+    return {
+      evidence,
+      normalizationAudit: {
+        mode: 'salvage',
+        rawItemCount: snippetMatches.length,
+        emittedEvidenceCount: evidence.length,
+        decisions,
+      },
+    };
+  }
+
+  private preferredRealSourceLink(
+    links?: SerpApiSnippetLink[],
+  ): string | undefined {
+    const usable = (links ?? [])
+      .map((link) => link.link?.trim())
+      .filter((link): link is string => !!link && /^https?:\/\//i.test(link));
+    const real = usable.find((link) => {
+      try {
+        const url = new URL(link);
+        return (
+          !/(^|\.)google\./i.test(url.hostname) &&
+          !/\/maps\/dir|directions/i.test(url.pathname + url.search)
+        );
+      } catch {
+        return false;
+      }
+    });
+    return real ?? usable[0];
   }
 
   private semanticFailure(

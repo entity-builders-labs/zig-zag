@@ -253,28 +253,38 @@ describe('SerpApiGroundedSearchService', () => {
       });
 
       expect(result.groundingStatus).toBe('applied');
-      expect(result.evidence).toHaveLength(2);
+      expect(result.evidence).toHaveLength(3);
       expect(result.evidence[0]).toEqual({
         key: 'ev-1',
+        source: 'google_ai_mode',
+        snippet: 'Intro framing text.',
+        kind: 'narrative_paragraph',
+        order: 1,
+        contextHeading: undefined,
+        title: undefined,
+        url: undefined,
+      });
+      expect(result.evidence[1]).toMatchObject({
+        key: 'ev-2',
         source: 'Centro Histórico',
-        title: 'Centro Histórico',
         snippet: 'Plaza 9 de Julio anchors the historic core.',
+        kind: 'list_item',
         url: 'https://example.com/plaza',
       });
-      // No per-item snippet_links -> no url at all (deliberately NOT falling
-      // back to the shared google_ai_mode_url here — live-confirmed that
-      // repeating that ~1500-1800 char URL across every merged evidence
-      // item blew up a real extraction request past Groq's TPM limit).
-      expect(result.evidence[1].url).toBeUndefined();
+      expect(result.evidence[2].url).toBeUndefined();
 
       expect(result.textBlocks).toEqual([
-        { text: 'Intro framing text.', evidenceKeys: [] },
+        { text: 'Intro framing text.', evidenceKeys: ['ev-1'] },
         { text: 'Centro Histórico', evidenceKeys: [] },
         {
           text: 'Plaza 9 de Julio anchors the historic core. Cabildo de Salta, a colonial civic landmark.',
-          evidenceKeys: ['ev-1', 'ev-2'],
+          evidenceKeys: ['ev-2', 'ev-3'],
         },
       ]);
+      expect(result.normalizationAudit?.decisions).toHaveLength(4);
+      expect(result.normalizationAudit?.decisions[0].reason).toBe(
+        'PARAGRAPH_EMITTED',
+      );
     });
 
     it('does not repeat the shared google_ai_mode_url across many evidence items (prompt-bloat regression)', async () => {

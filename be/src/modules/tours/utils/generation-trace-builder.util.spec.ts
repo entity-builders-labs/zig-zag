@@ -901,7 +901,6 @@ describe('buildAcquisitionStep', () => {
       plan: {
         sourcePlans: [
           { provider: 'wikivoyage', wikivoyage: { sections: ['SEE'] } },
-          { provider: 'osm', osm: { concepts: ['historic=building'] } },
           {
             provider: 'web',
             web: {
@@ -998,12 +997,12 @@ describe('buildAcquisitionStep', () => {
       dimension: 'intent',
       key: 'walk',
     });
-    expect(step.acquisition?.sourcePlans).toHaveLength(3);
-    expect(step.acquisition?.sourcePlans[2].web).toMatchObject({
+    expect(step.acquisition?.sourcePlans).toHaveLength(2);
+    expect(step.acquisition?.sourcePlans[1].web).toMatchObject({
       query: 'Historic District walking tour',
       anchorNames: ['Historic District'],
     });
-    expect(step.acquisition?.sourcePlans[2].web?.evidence).toHaveLength(2);
+    expect(step.acquisition?.sourcePlans[1].web?.evidence).toHaveLength(2);
     expect(step.acquisition?.candidates[0]).toMatchObject({
       name: 'Historic District Walk',
       origin: 'mixed',

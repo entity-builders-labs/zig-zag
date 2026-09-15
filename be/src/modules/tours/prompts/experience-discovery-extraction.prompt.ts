@@ -63,6 +63,7 @@ export function buildDiscoveryRequestHeader(
     `Themes: ${request.requestedThemes.join(', ') || 'none'}`,
     `Requested intents: ${request.requestedIntents?.join(', ') || 'none'}`,
     `Preferences: ${(request.semanticQuery || request.preferredTraits?.join(', ')) ?? 'none'}`,
+    `Required evidence shape: ${request.evidenceRequirements?.includes('MULTI_COMPONENT_EXPERIENCE') ? 'MULTI_COMPONENT_EXPERIENCE' : request.evidenceRequirements?.length ? 'SINGLE_PLACE' : 'none'}`,
   ];
 }
 
@@ -70,6 +71,11 @@ export function buildDiscoveryRequestHeader(
  *  rules, the controlled-vs-open facet contract, day-trip and ordering rules. */
 export function buildDiscoveryInstructions(): string[] {
   return [
+    'When MULTI_COMPONENT_EXPERIENCE is requested, only emit a multi-component candidate when grounded evidence explicitly supports at least two required non-area real geographic components as belonging to that same real Experience.',
+    'Never combine independent POIs merely because they appear in adjacent paragraphs, under the same neighborhood heading, or in the same search answer.',
+    'A multi-component candidate is allowed only when the evidence itself describes one real walk, tour, itinerary, route or visiting sequence containing those components.',
+    'Generic labels such as "Official City Tour", "Private Tour", "Small Group Tour" and "Walking Tour" are not geographic ROUTE entities. Do not emit them as componentHints unless grounded evidence names a real geographic route by that name.',
+    'If evidence proves that a walk/tour exists but does not name at least two real geographic components, emit no candidate for MULTI_COMPONENT_EXPERIENCE. Never invent stops to satisfy the requested shape.',
     'componentHints[].name must be the identity of an entity the grounded evidence explicitly supports. When the evidence clearly refers to one specific real named place, you MAY normalize or translate that SAME entity to the official local-language name used by that country\'s mapping data (for Argentina and most of Latin America this is Spanish — e.g. evidence "El Leoncito National Park" becomes "Parque Nacional El Leoncito"), but ONLY when you are confident it is the same entity, so the backend can match it against a local-language map database. Never use this to introduce a different place, add an entity absent from the evidence, turn a place or business category into a concrete venue, add coordinates or provider IDs, or invent an official name you are unsure of. If you are uncertain, keep the exact name the evidence uses and let the backend geographic resolver decide the canonical identity.',
     'Return JSON with a candidates array. Each candidate must contain name, description, themes, traits, intents, suggestedDurationMinutes, componentHints, evidenceKeys, shortReason and orderedByEvidence. Each componentHints entry must contain key (a short slug), name, role (one of area, waypoint, route, venue), expectedKind (one of PLACE, AREA, ROUTE), required (boolean) and evidenceKeys (a non-empty array of the exact evidence keys that name it). Never invent other role or expectedKind values.',
     'Some evidence entries are the full text of a source article, not just a short snippet — when one describes a walk/route with multiple named stops (specific streets, plazas, landmarks, markets), enumerate EACH real stop it names as its own componentHint (role "venue" for a point, "route" for a named street/path, "area" for a district), citing the exact evidence key(s) that name it. Do not collapse a multi-stop route into a single componentHint just because it shares one candidate name.',

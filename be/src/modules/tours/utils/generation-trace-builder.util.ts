@@ -315,6 +315,9 @@ function traceEvidence(item: {
   url?: string;
   snippet?: string;
   description?: string;
+  kind?: string;
+  order?: number;
+  contextHeading?: string;
 }): TraceEvidenceReference {
   return {
     evidenceKey:
@@ -325,6 +328,9 @@ function traceEvidence(item: {
     title: item.title,
     url: item.url,
     snippet: traceSnippet(item.snippet ?? item.description),
+    kind: item.kind,
+    order: item.order,
+    contextHeading: item.contextHeading,
   };
 }
 
@@ -1067,8 +1073,7 @@ export function buildAcquisitionStep(params: {
   plan: {
     sourcePlans: Array<{
       provider: string;
-      wikivoyage?: { sections: string[] };
-      osm?: { concepts: string[] };
+      wikivoyage?: { sections: string[]; articleTargets?: string[] };
       places?: { searchTypes: string[] };
       web?: {
         query: string;
@@ -1116,6 +1121,7 @@ export function buildAcquisitionStep(params: {
       extractorModel?: string;
       groundedRawOutput?: string;
       evidenceProvenance?: unknown;
+      normalizationAudit?: unknown;
       extractorRawOutput?: string;
       validationErrors: string[];
       extractedCandidateCount?: number;
@@ -1178,6 +1184,9 @@ export function buildAcquisitionStep(params: {
           title?: string;
           snippet?: string;
           url?: string;
+          kind?: string;
+          order?: number;
+          contextHeading?: string;
         }>;
       }
     ).evidence ?? [];
@@ -1204,19 +1213,20 @@ export function buildAcquisitionStep(params: {
           : undefined;
       const configuration =
         sourcePlan.provider === 'wikivoyage'
-          ? { sections: sourcePlan.wikivoyage?.sections }
-          : sourcePlan.provider === 'osm'
-            ? { concepts: sourcePlan.osm?.concepts }
-            : sourcePlan.provider === 'google_places'
-              ? { searchTypes: sourcePlan.places?.searchTypes }
-              : {
-                  query: sourcePlan.web?.query,
-                  anchorNames: sourcePlan.web?.anchorNames,
-                  requestedThemes: sourcePlan.web?.requestedThemes,
-                  requestedIntents: sourcePlan.web?.requestedIntents,
-                  preferredTraits: sourcePlan.web?.preferredTraits,
-                  semanticQuery: sourcePlan.web?.semanticQuery,
-                };
+          ? {
+              sections: sourcePlan.wikivoyage?.sections,
+              articleTargets: sourcePlan.wikivoyage?.articleTargets,
+            }
+          : sourcePlan.provider === 'google_places'
+            ? { searchTypes: sourcePlan.places?.searchTypes }
+            : {
+                query: sourcePlan.web?.query,
+                anchorNames: sourcePlan.web?.anchorNames,
+                requestedThemes: sourcePlan.web?.requestedThemes,
+                requestedIntents: sourcePlan.web?.requestedIntents,
+                preferredTraits: sourcePlan.web?.preferredTraits,
+                semanticQuery: sourcePlan.web?.semanticQuery,
+              };
       return {
         provider: sourcePlan.provider,
         configuration,
@@ -1238,6 +1248,7 @@ export function buildAcquisitionStep(params: {
                   webResult?.groundedRawOutput,
                 ),
                 evidenceProvenance: webResult?.evidenceProvenance,
+                normalizationAudit: webResult?.normalizationAudit,
                 evidence: evidence
                   .filter((item) =>
                     (webResult?.evidenceKeys ?? []).includes(item.key ?? ''),
@@ -1385,13 +1396,20 @@ export function buildAcquisitionStep(params: {
     evidence: evidence.map(traceEvidence),
     candidates: auditCandidates,
     structuredCorroboration,
+    executionSkipped: execution.executionSkipped,
   };
 
   return {
     stage: 'discovery',
     label: `Adquisición multi-fuente (pase ${passNumber})`,
     component: 'ExperienceAcquisitionService',
-    status: allFailed ? 'FAIL' : failed.length > 0 ? 'WARN' : 'PASS',
+    status: execution.executionSkipped
+      ? 'INFO'
+      : allFailed
+        ? 'FAIL'
+        : failed.length > 0
+          ? 'WARN'
+          : 'PASS',
     summary: `Pase ${passNumber}: fuentes [${providers.join(', ') || 'ninguna'}] → ${execution.observations.length} observación(es) estructurada(s) + ${execution.candidates.length} candidate(s) (web: ${execution.webCandidateCount ?? 0}).`,
     inputs: {
       passNumber,
@@ -1409,6 +1427,7 @@ export function buildAcquisitionStep(params: {
       structuredCandidateCount: execution.structuredCandidateCount ?? 0,
       webCandidateCount: execution.webCandidateCount ?? 0,
       candidateCount: execution.candidates.length,
+      executionSkipped: execution.executionSkipped,
       structuredProviders: structuredEntries,
       webResults: (execution.webResults ?? []).map((w) => ({
         status: w.status,

@@ -103,6 +103,7 @@ describe('experience discovery extraction prompt (shared contract)', () => {
       'Themes: history, architecture',
       'Requested intents: walk',
       'Preferences: none',
+      'Required evidence shape: none',
     ]);
   });
 
@@ -130,5 +131,23 @@ describe('experience discovery extraction prompt (shared contract)', () => {
     expect(prompt).not.toMatch(/[{}]/);
     expect(prompt).toContain('Destination: Buenos Aires');
     expect(prompt).toContain('[ev-1] t: snippet');
+  });
+
+  it('states the requested-shape composition guardrails in one shared prompt', () => {
+    const prompt = buildDiscoveryUserPrompt(
+      {
+        scope: { destinationName: 'Buenos Aires' },
+        requestedThemes: ['history'],
+        requestedIntents: ['walk'],
+        evidenceRequirements: ['MULTI_COMPONENT_EXPERIENCE'],
+        breadth: 'focused',
+        maxCandidates: 8,
+      } as any,
+      [],
+    );
+    expect(prompt).toContain('MULTI_COMPONENT_EXPERIENCE');
+    expect(prompt).toMatch(/Never combine independent POIs merely because/i);
+    expect(prompt).toMatch(/generic labels.*not geographic ROUTE entities/i);
+    expect(prompt).toMatch(/at least two real geographic components/i);
   });
 });

@@ -18,10 +18,11 @@ import {
 import {
   EXPERIENCE_GROUNDED_SEARCH_PROVIDER,
   ExperienceGroundedSearchProvider,
+  GroundingNormalizationAudit,
+  ExperienceGroundingEvidenceKind,
 } from '../interfaces/experience-grounding.interface';
 import { GooglePlacesAcquisitionProvider } from '../providers/google-places-acquisition.provider';
 import { WikivoyageAcquisitionProvider } from '../providers/wikivoyage-acquisition.provider';
-import { OsmAcquisitionProvider } from '../providers/osm-acquisition.provider';
 import { StructuredExperienceCandidateSynthesizerService } from './structured-experience-candidate-synthesizer.service';
 import { StructuredCandidateCorroborationService } from './structured-candidate-corroboration.service';
 import {
@@ -32,6 +33,10 @@ import {
   FinalExperienceResolutionResponse,
 } from '../interfaces/experience-resolution.interface';
 import { ExperienceClassificationService } from './experience-classification.service';
+import {
+  AcquisitionExecutionLedger,
+  acquisitionSourcePlanFingerprint,
+} from '../utils/acquisition-source-plan-fingerprint.util';
 import { classifyAcceptedResultsByExperience } from '../utils/experience-classification-convergence.util';
 import { candidateSatisfiesEvidenceRequirement } from '../utils/acquisition-candidate-requirement.util';
 import {
@@ -46,6 +51,9 @@ export interface ResolverEvidenceItem {
   title?: string;
   snippet?: string;
   url?: string;
+  kind?: ExperienceGroundingEvidenceKind;
+  order?: number;
+  contextHeading?: string;
 }
 
 /**
@@ -62,6 +70,7 @@ export interface WebAcquisitionResult {
   groundingStatus?: string;
   evidenceKeys: string[];
   evidenceProvenance?: unknown;
+  normalizationAudit?: GroundingNormalizationAudit;
   extractorProvider?: string;
   extractorModel?: string;
   groundedRawOutput?: string;
@@ -106,6 +115,10 @@ export interface ExecuteAcquisitionPlanResult {
   structuredCandidateCount?: number;
   webCandidateCount?: number;
   evidence?: ResolverEvidenceItem[];
+  executionSkipped?: {
+    reason: 'DUPLICATE_SOURCE_PLAN_EXECUTION';
+    fingerprint: string;
+  };
 }
 
 export interface AcquireNearbyInput {
@@ -148,8 +161,6 @@ export class ExperienceAcquisitionService {
     @Inject(EXPERIENCE_PROPOSAL_RESOLVER)
     private readonly proposalResolver?: ExperienceProposalResolver,
     @Optional()
-    private readonly osmProvider?: OsmAcquisitionProvider,
-    @Optional()
     @Inject(EXPERIENCE_GROUNDED_SEARCH_PROVIDER)
     private readonly groundedSearchProvider?: ExperienceGroundedSearchProvider,
     @Optional()
@@ -161,7 +172,23 @@ export class ExperienceAcquisitionService {
 
   async executePlan(
     plan: ExperienceAcquisitionPlan,
+    ledger?: AcquisitionExecutionLedger,
   ): Promise<ExecuteAcquisitionPlanResult> {
+    const fingerprint = acquisitionSourcePlanFingerprint(plan);
+    if (ledger?.executedSourcePlanFingerprints.has(fingerprint)) {
+      return {
+        candidates: [],
+        observations: [],
+        providerResults: {},
+        webResults: [],
+        evidence: [],
+        executionSkipped: {
+          reason: 'DUPLICATE_SOURCE_PLAN_EXECUTION',
+          fingerprint,
+        },
+      };
+    }
+    ledger?.executedSourcePlanFingerprints.add(fingerprint);
     const providerResults: Partial<
       Record<
         ExperienceAcquisitionProvider,
@@ -212,26 +239,6 @@ export class ExperienceAcquisitionService {
             status: 'failed',
             value: [],
             failureReason: error?.message ?? 'Google Places acquisition failed',
-          };
-        }
-      } else if (sourcePlan.provider === 'osm' && this.osmProvider) {
-        try {
-          const res = await this.osmProvider.acquire(
-            plan.destination,
-            sourcePlan.osm,
-          );
-          providerResults.osm = res;
-          if (res.status === 'success' && res.value?.length > 0) {
-            allObservations.push(...res.value);
-          }
-        } catch (error: any) {
-          this.logger.warn(
-            `OSM acquisition threw: ${error?.message ?? String(error)}`,
-          );
-          providerResults.osm = {
-            status: 'failed',
-            value: [],
-            failureReason: error?.message ?? 'OSM acquisition failed',
           };
         }
       }
@@ -366,6 +373,7 @@ export class ExperienceAcquisitionService {
         groundingStatus: grounded.groundingStatus,
         evidenceKeys: (grounded.evidence ?? []).map((e) => e.key),
         evidenceProvenance: grounded.evidenceProvenance,
+        normalizationAudit: grounded.normalizationAudit,
         groundedRawOutput:
           grounded.rawOutput === undefined
             ? undefined
@@ -397,6 +405,7 @@ export class ExperienceAcquisitionService {
         ],
         breadth: plan.breadth,
         maxCandidates: 8,
+        evidenceRequirements: [...plan.evidenceRequirements],
       };
 
       const extracted = await this.discoveryExtractor.extractExperiences(
@@ -433,6 +442,9 @@ export class ExperienceAcquisitionService {
           title: ev.title,
           snippet: ev.snippet,
           url: ev.url,
+          kind: ev.kind,
+          order: ev.order,
+          contextHeading: ev.contextHeading,
         });
       }
 

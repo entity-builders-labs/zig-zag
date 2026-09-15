@@ -110,6 +110,7 @@ export interface ExperienceDiscoveryRequest {
   coverageGaps?: string[];
   breadth: ExperienceDiscoveryBreadth;
   maxCandidates: number;
+  evidenceRequirements?: AcquisitionEvidenceRequirement[];
 }
 
 export interface ExperienceDiscoveryQuery {
@@ -122,3 +123,4 @@ export interface ExperienceDiscoveryPlan {
   queries: ExperienceDiscoveryQuery[];
   enrichmentAllowed: boolean;
 }
+import { AcquisitionEvidenceRequirement } from './acquisition-evidence-requirement.interface';

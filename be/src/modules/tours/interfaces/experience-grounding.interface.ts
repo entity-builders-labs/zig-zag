@@ -32,6 +32,49 @@ export interface ExperienceGroundingEvidence {
   snippet: string;
   title?: string;
   url?: string;
+  kind?: ExperienceGroundingEvidenceKind;
+  order?: number;
+  contextHeading?: string;
+}
+
+export type ExperienceGroundingEvidenceKind =
+  | 'narrative_paragraph'
+  | 'list_item'
+  | 'reference'
+  | 'organic_result';
+
+export type GroundingNormalizationAction =
+  | 'EMITTED_EVIDENCE'
+  | 'CONTEXT_ONLY'
+  | 'SKIPPED';
+
+export interface GroundingNormalizationDecision {
+  sourceLocator: string;
+  sourceKind:
+    | 'heading'
+    | 'paragraph'
+    | 'list_item'
+    | 'reference'
+    | 'organic_result';
+  action: GroundingNormalizationAction;
+  evidenceKey?: string;
+  reason:
+    | 'PARAGRAPH_EMITTED'
+    | 'LIST_ITEM_EMITTED'
+    | 'REFERENCE_EMITTED'
+    | 'ORGANIC_RESULT_EMITTED'
+    | 'HEADING_CONTEXT_ONLY'
+    | 'EMPTY_SNIPPET'
+    | 'DUPLICATE_EVIDENCE'
+    | 'UNSUPPORTED_SOURCE_ITEM';
+  preview?: string;
+}
+
+export interface GroundingNormalizationAudit {
+  mode: 'structured' | 'salvage';
+  rawItemCount: number;
+  emittedEvidenceCount: number;
+  decisions: GroundingNormalizationDecision[];
 }
 
 export type ExperienceGroundingStatus =
@@ -74,6 +117,7 @@ export interface ExperienceGroundedSearchResult {
   groundingStatus: ExperienceGroundingStatus;
   evidence: ExperienceGroundingEvidence[];
   textBlocks?: Array<{ text: string; evidenceKeys: string[] }>;
+  normalizationAudit?: GroundingNormalizationAudit;
   evidenceProvenance?: ExperienceEvidenceProvenance[];
   rawOutput?: unknown;
   failureReason?: string;

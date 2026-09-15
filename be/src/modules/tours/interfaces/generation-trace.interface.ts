@@ -120,6 +120,7 @@ export interface TraceAcquisitionSource {
     groundedRawOutput?: TraceTextCapture;
     evidence: TraceEvidenceReference[];
     evidenceProvenance?: unknown;
+    normalizationAudit?: unknown;
     extractor?: {
       provider?: string;
       model?: string;
@@ -154,6 +155,9 @@ export interface TraceEvidenceReference {
   title?: string;
   url?: string;
   snippet?: string;
+  kind?: string;
+  order?: number;
+  contextHeading?: string;
 }
 
 export interface TraceComponentHint {
@@ -268,6 +272,10 @@ export interface TraceAcquisitionAudit {
     canonicalName?: string;
     persistedComponentCount?: number;
   }>;
+  executionSkipped?: {
+    reason: 'DUPLICATE_SOURCE_PLAN_EXECUTION';
+    fingerprint: string;
+  };
 }
 
 /** Identifies the orchestration strategy that produced a lifecycle step. */
