@@ -78,5 +78,6 @@ export interface FacetNormalizationDecision {
     | 'UNKNOWN_KEY'
     | 'AMBIGUOUS_CROSS_DIMENSION_KEY'
     | 'DORMANT_DIMENSION'
+    | 'MISSING_EVIDENCE'
     | 'UNSUPPORTED_BY_INPUT';
 }

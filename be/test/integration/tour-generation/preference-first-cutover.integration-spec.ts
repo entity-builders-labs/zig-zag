@@ -37,10 +37,11 @@ describe('tour-generation integration · preference-first live cutover', () => {
               key: 'history',
               confidence: 0.95,
               strength: 'strong',
+              evidence: ['histórica'],
             },
           ],
           anchoredPlaces: [
-            { rawName: 'San Telmo', kind: 'area', priority: 'must' },
+            { rawName: 'San Telmo', usage: 'unknown', priority: 'must' },
           ],
           excludedThemes: [],
           excludedTraits: [],
@@ -96,7 +97,7 @@ describe('tour-generation integration · preference-first live cutover', () => {
       ).toBe(false);
       expect(spec.explorationStyle).toBe('balanced');
       expect(spec.anchors).toEqual([
-        { rawName: 'San Telmo', kind: 'area', priority: 'must' },
+        { rawName: 'San Telmo', usage: 'unknown', priority: 'must' },
       ]);
     });
   });

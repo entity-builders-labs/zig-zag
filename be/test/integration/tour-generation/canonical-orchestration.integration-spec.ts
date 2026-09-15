@@ -207,11 +207,30 @@ describe('tour-generation integration · canonical orchestration', () => {
         countryCode: 'AR',
       },
     });
+    harness.fakes.nominatim.search.mockResolvedValue([
+      {
+        osmType: 'relation',
+        osmId: 99001,
+        addresstype: 'suburb',
+        placeRank: 20,
+        class: 'place',
+        type: 'suburb',
+        displayName: 'Historic District, Buenos Aires, Argentina',
+        importance: 0.5,
+        latitude: DEST.latitude,
+        longitude: DEST.longitude,
+      },
+    ]);
+    harness.fakes.osm.configure({ boundary });
     harness.fakes.langChain.generateChatResponse.mockResolvedValue(
       JSON.stringify({
         preferredFacets: [],
         anchoredPlaces: [
-          { rawName: 'Historic District', kind: 'area', priority: 'must' },
+          {
+            rawName: 'Historic District',
+            usage: 'geographic_scope',
+            priority: 'must',
+          },
         ],
         excludedThemes: [],
         excludedTraits: [],
@@ -256,7 +275,11 @@ describe('tour-generation integration · canonical orchestration', () => {
       .traceSteps(tour.trace)
       .find((step) => step.component === 'partitionDeficitsByStrategy');
     expect(interpretation.outputs.intent.anchoredPlaces).toEqual([
-      { rawName: 'Historic District', kind: 'area', priority: 'must' },
+      {
+        rawName: 'Historic District',
+        usage: 'geographic_scope',
+        priority: 'must',
+      },
     ]);
     expect(interpretation.outputs.preferenceSpec.anchors).toEqual(
       interpretation.outputs.intent.anchoredPlaces,
@@ -273,11 +296,14 @@ describe('tour-generation integration · canonical orchestration', () => {
     ]);
     expect(routing.outputs.areaRouteWalk).toEqual([
       expect.objectContaining({
-        anchor: {
+        anchor: expect.objectContaining({
           rawName: 'Historic District',
-          kind: 'area',
+          usage: 'geographic_scope',
           priority: 'must',
-        },
+          status: 'resolved',
+          kind: 'area',
+          canonicalName: 'Historic District',
+        }),
         intentKey: 'walk',
         deficit: expect.objectContaining({
           origin: 'preference_facet',
@@ -292,11 +318,14 @@ describe('tour-generation integration · canonical orchestration', () => {
     expect(harness.areaRouteWalkAcquire).toHaveBeenCalled();
     expect(harness.areaRouteWalkAcquire.mock.calls[0][0]).toEqual(
       expect.objectContaining({
-        anchor: {
+        anchor: expect.objectContaining({
           rawName: 'Historic District',
-          kind: 'area',
+          usage: 'geographic_scope',
           priority: 'must',
-        },
+          status: 'resolved',
+          kind: 'area',
+          canonicalName: 'Historic District',
+        }),
         intentKey: 'walk',
         deficit: expect.objectContaining({
           origin: 'preference_facet',

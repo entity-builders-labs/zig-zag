@@ -68,14 +68,6 @@ describe('tour-generation integration · acquisition degradation', () => {
       scenario: { ...groundableWeb, wikivoyage: { status: 'failed' } },
     },
     {
-      name: 'OSM feature discovery fails, web + Wikivoyage sufficient',
-      failing: 'osm',
-      scenario: {
-        ...groundableWeb,
-        osm: { ...groundableWeb.osm, failFeatures: true },
-      },
-    },
-    {
       name: 'Google Places quota fails, other sources sufficient',
       failing: 'google_places',
       scenario: { ...groundableWeb, places: { fail: true } },

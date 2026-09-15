@@ -306,6 +306,7 @@ export interface FakeOsmConfig {
   failPois?: boolean;
   failStreets?: boolean;
   failFeatures?: boolean;
+  boundary?: OsmCandidate;
 }
 
 type OsmFeatureLookupResult = OsmLookupResult<OsmCandidate[]> & {
@@ -318,6 +319,12 @@ type OsmFeatureLookupResult = OsmLookupResult<OsmCandidate[]> & {
  * `DestinationResolutionService` is faked at a higher level.
  */
 export class FakeOsmPlacesService {
+  readonly lookupBoundaryById = jest.fn(
+    async (): Promise<OsmLookupResult<OsmCandidate | undefined>> => ({
+      status: 'success',
+      value: this.config.boundary,
+    }),
+  );
   readonly lookupPoisNear = jest.fn(
     async (): Promise<OsmLookupResult<OsmCandidate[]>> =>
       this.config.failPois
@@ -381,8 +388,15 @@ export class FakeOsmPlacesService {
  * ------------------------------------------------------------------ */
 
 export class FakeNominatimApiService implements INominatimApiService {
-  readonly search = jest.fn(async (): Promise<NominatimResult[]> => []);
+  private results: NominatimResult[] = [];
+  readonly search = jest.fn(
+    async (): Promise<NominatimResult[]> => this.results,
+  );
   readonly reverse = jest.fn(async (): Promise<NominatimResult | null> => null);
+
+  configure(results: NominatimResult[] = []): void {
+    this.results = results;
+  }
 }
 
 /* ------------------------------------------------------------------ *
@@ -419,7 +433,7 @@ export class FakeWikivoyageApiService {
       return { status: 'not_found' as const };
     }
     return {
-      status: 'ok' as const,
+      status: 'found' as const,
       title: this.config.title ?? pageTitle,
       entries: (this.config.entries ?? []).map((entry) => ({
         name: entry.name,

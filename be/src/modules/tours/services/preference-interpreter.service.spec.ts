@@ -7,19 +7,11 @@ describe('PreferenceInterpreterService', () => {
         provider: 'gemini',
         model: 'gemini-test',
       })),
-      generateChatResponse: jest.fn(
-        async (_system: string, userPrompt: string) => {
-          if (error) throw error;
-          if (!response) return '{}';
-          const parsed = JSON.parse(response);
-          parsed.preferredFacets = parsed.preferredFacets?.map((facet: any) =>
-            facet.evidence === undefined
-              ? { ...facet, evidence: [userPrompt] }
-              : facet,
-          );
-          return JSON.stringify(parsed);
-        },
-      ),
+      generateChatResponse: jest.fn(async () => {
+        if (error) throw error;
+        if (!response) return '{}';
+        return response;
+      }),
     } as any;
     return {
       service: new PreferenceInterpreterService(langChain),
@@ -36,24 +28,28 @@ describe('PreferenceInterpreterService', () => {
             key: 'Arquitectura',
             confidence: 0.95,
             strength: 'strong',
+            evidence: ['arquitectura'],
           },
           {
             dimension: 'trait',
             key: 'tranquilo',
             confidence: 0.8,
             strength: 'medium',
+            evidence: ['tranquila'],
           },
           {
             dimension: 'intent',
             key: 'walking-like',
             confidence: 0.85,
             strength: 'weak',
+            evidence: ['caminata'],
           },
           {
             dimension: 'winery_scale',
             key: 'boutique',
             confidence: 0.9,
             strength: 'strong',
+            evidence: ['boutique'],
           },
           // Should be dropped because exploration_style is dormant in Phase 2
           {
@@ -61,6 +57,7 @@ describe('PreferenceInterpreterService', () => {
             key: 'relaxed',
             confidence: 0.9,
             strength: 'strong',
+            evidence: ['historia'],
           },
         ],
         excludedThemes: [],
@@ -77,7 +74,9 @@ describe('PreferenceInterpreterService', () => {
       }),
     );
 
-    const result = await service.interpret('Quiero arquitectura tranquila');
+    const result = await service.interpret(
+      'Quiero arquitectura tranquila, una caminata y una bodega boutique',
+    );
 
     expect(langChain.generateChatResponse).toHaveBeenCalledTimes(1);
 
@@ -118,7 +117,9 @@ describe('PreferenceInterpreterService', () => {
     expect(result.trace.status).toBe('applied');
     expect(result.trace.provider).toBe('gemini');
     expect(result.trace.model).toBe('gemini-test');
-    expect(result.trace.userPrompt).toBe('Quiero arquitectura tranquila');
+    expect(result.trace.userPrompt).toBe(
+      'Quiero arquitectura tranquila, una caminata y una bodega boutique',
+    );
   });
 
   it('accepts JSON already normalized by the provider boundary', async () => {
@@ -197,6 +198,7 @@ describe('PreferenceInterpreterService', () => {
             key: 'history',
             confidence: 0.9,
             strength: 'strong',
+            evidence: ['historia'],
           },
         ],
       }),
@@ -205,6 +207,70 @@ describe('PreferenceInterpreterService', () => {
     const result = await service.interpret('Quiero algo raro e historia');
     expect(result.intent.preferredFacets).toHaveLength(1);
     expect(result.intent.preferredFacets[0].key).toBe('history');
+  });
+
+  it('requires real free-text evidence for every LLM facet', async () => {
+    const { service } = makeService(
+      JSON.stringify({
+        preferredFacets: [
+          {
+            dimension: 'intent',
+            key: 'walk',
+            confidence: 0.9,
+            evidence: ['caminata'],
+          },
+          {
+            dimension: 'theme',
+            key: 'history',
+            confidence: 0.9,
+            evidence: ['histórica'],
+          },
+          {
+            dimension: 'local_character',
+            key: 'traditional',
+            confidence: 0.9,
+          },
+          {
+            dimension: 'local_character',
+            key: 'authentic',
+            confidence: 0.9,
+            evidence: [],
+          },
+          {
+            dimension: 'local_character',
+            key: 'contemporary',
+            confidence: 0.9,
+            evidence: ['tradicional'],
+          },
+        ],
+      }),
+    );
+
+    const result = await service.interpret(
+      'caminata histórica por San Telmo, no contemporánea',
+    );
+
+    expect(result.intent.preferredFacets).toEqual([
+      expect.objectContaining({ dimension: 'intent', key: 'walk' }),
+      expect.objectContaining({ dimension: 'theme', key: 'history' }),
+    ]);
+    expect(result.intent.preferredFacets).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ dimension: 'local_character' }),
+      ]),
+    );
+    expect(result.trace.facetNormalizationDecisions).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          reason: 'MISSING_EVIDENCE',
+          accepted: false,
+        }),
+        expect.objectContaining({
+          reason: 'UNSUPPORTED_BY_INPUT',
+          accepted: false,
+        }),
+      ]),
+    );
   });
 
   it('repairs uniquely mappable malformed dimensions and traces rejected facets', async () => {
@@ -216,18 +282,21 @@ describe('PreferenceInterpreterService', () => {
             key: 'history',
             confidence: 0.8,
             strength: 'strong',
+            evidence: ['histórica'],
           },
           {
             dimension: 'tourism_intensity',
             key: 'walk',
             confidence: 0.7,
             strength: 'medium',
+            evidence: ['caminata'],
           },
           {
             dimension: 'local_character',
             key: 'San Telmo',
             confidence: 0.9,
             strength: 'strong',
+            evidence: ['historia'],
           },
           {
             dimension: 'invalid_dimension',
@@ -320,6 +389,7 @@ describe('PreferenceInterpreterService', () => {
             key: 'history',
             confidence: 0.9,
             strength: 'strong',
+            evidence: ['historia'],
           },
         ],
       }),
@@ -463,6 +533,7 @@ describe('PreferenceInterpreterService', () => {
               key: 'architecture',
               confidence: 0.8,
               strength: 'medium',
+              evidence: ['arquitectura'],
             },
           ],
         }),

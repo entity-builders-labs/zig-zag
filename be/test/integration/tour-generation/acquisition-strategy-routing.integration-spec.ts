@@ -61,10 +61,11 @@ describe('tour-generation integration · acquisition strategy routing (M3)', () 
             key: 'walk',
             confidence: 0.95,
             strength: 'strong',
+            evidence: ['caminata'],
           },
         ],
         anchoredPlaces: [
-          { rawName: 'San Telmo', kind: 'area', priority: 'must' },
+          { rawName: 'San Telmo', usage: 'geographic_scope', priority: 'must' },
         ],
         positiveSemanticQuery: 'walking tour in san telmo',
       }),
@@ -78,6 +79,41 @@ describe('tour-generation integration · acquisition strategy routing (M3)', () 
       harness.app.get(ExperienceAcquisitionPlannerService),
       'buildAcquisitionPlan',
     );
+    harness.fakes.nominatim.search.mockResolvedValue([
+      {
+        osmType: 'relation',
+        osmId: 1,
+        addresstype: 'suburb',
+        placeRank: 20,
+        class: 'place',
+        type: 'suburb',
+        displayName: 'San Telmo, Buenos Aires, Argentina',
+        importance: 0.5,
+        latitude: DEST.latitude,
+        longitude: DEST.longitude,
+      },
+    ]);
+    harness.fakes.osm.configure({
+      boundary: {
+        id: 'osm:relation:1',
+        name: 'San Telmo',
+        osmType: 'relation',
+        osmId: 1,
+        geometry: {
+          type: 'Polygon',
+          coordinates: [
+            [
+              [DEST.longitude - 0.01, DEST.latitude - 0.01],
+              [DEST.longitude + 0.01, DEST.latitude - 0.01],
+              [DEST.longitude + 0.01, DEST.latitude + 0.01],
+              [DEST.longitude - 0.01, DEST.latitude + 0.01],
+              [DEST.longitude - 0.01, DEST.latitude - 0.01],
+            ],
+          ],
+        },
+        tags: { boundary: 'administrative' },
+      },
+    });
 
     const tourId = await seedTour(harness.prisma, {
       destinationLabel: 'San Telmo, Buenos Aires, Argentina',
@@ -97,11 +133,16 @@ describe('tour-generation integration · acquisition strategy routing (M3)', () 
     // once is what proves reachability; every call's shape is identical.
     expect(acquireSpy).toHaveBeenCalled();
     const call = acquireSpy.mock.calls[0][0];
-    expect(call.anchor).toEqual({
-      rawName: 'San Telmo',
-      kind: 'area',
-      priority: 'must',
-    });
+    expect(call.anchor).toEqual(
+      expect.objectContaining({
+        status: 'resolved',
+        rawName: 'San Telmo',
+        usage: 'geographic_scope',
+        kind: 'area',
+        canonicalName: 'San Telmo',
+        priority: 'must',
+      }),
+    );
     expect(call.intentKey).toBe('walk');
     // 5. The original canonical deficit is passed through untouched -- the
     // exact production message format `computePreferenceCoverage` builds,
@@ -134,10 +175,11 @@ describe('tour-generation integration · acquisition strategy routing (M3)', () 
             key: 'route_like',
             confidence: 0.95,
             strength: 'strong',
+            evidence: ['Caminito'],
           },
         ],
         anchoredPlaces: [
-          { rawName: 'Caminito', kind: 'route', priority: 'must' },
+          { rawName: 'Caminito', usage: 'named_path', priority: 'must' },
         ],
         positiveSemanticQuery: 'Caminito walking route',
       }),
@@ -147,6 +189,24 @@ describe('tour-generation integration · acquisition strategy routing (M3)', () 
     const acquireSpy = jest
       .spyOn(areaRouteWalk, 'acquireOrReuse')
       .mockResolvedValue({ outcome: 'no_result' });
+    harness.fakes.osm.configure({
+      streets: [
+        {
+          id: 'osm:way:1',
+          name: 'Caminito',
+          osmType: 'way',
+          osmId: 1,
+          geometry: {
+            type: 'LineString',
+            coordinates: [
+              [DEST.longitude, DEST.latitude],
+              [DEST.longitude + 0.001, DEST.latitude + 0.001],
+            ],
+          },
+          tags: { highway: 'pedestrian' },
+        },
+      ],
+    });
 
     const tourId = await seedTour(harness.prisma, {
       destinationLabel: 'La Boca, Buenos Aires, Argentina',
@@ -163,11 +223,16 @@ describe('tour-generation integration · acquisition strategy routing (M3)', () 
 
     expect(acquireSpy).toHaveBeenCalled();
     const call = acquireSpy.mock.calls[0][0];
-    expect(call.anchor).toEqual({
-      rawName: 'Caminito',
-      kind: 'route',
-      priority: 'must',
-    });
+    expect(call.anchor).toEqual(
+      expect.objectContaining({
+        status: 'resolved',
+        rawName: 'Caminito',
+        usage: 'named_path',
+        kind: 'route',
+        canonicalName: 'Caminito',
+        priority: 'must',
+      }),
+    );
     expect(call.intentKey).toBe('route_like');
     expect(call.deficit).toEqual({
       origin: 'preference_facet',
@@ -224,10 +289,11 @@ describe('tour-generation integration · acquisition strategy routing (M3)', () 
             key: 'history',
             confidence: 0.9,
             strength: 'strong',
+            evidence: ['history'],
           },
         ],
         anchoredPlaces: [
-          { rawName: 'San Telmo', kind: 'area', priority: 'soft' },
+          { rawName: 'San Telmo', usage: 'geographic_scope', priority: 'soft' },
         ],
       }),
     );
@@ -336,10 +402,11 @@ describe('tour-generation integration · acquisition strategy routing (M3)', () 
             key: 'route_like',
             confidence: 0.95,
             strength: 'strong',
+            evidence: ['route'],
           },
         ],
         anchoredPlaces: [
-          { rawName: anchorName, kind: 'route', priority: 'must' },
+          { rawName: anchorName, usage: 'named_path', priority: 'must' },
         ],
       }),
     );

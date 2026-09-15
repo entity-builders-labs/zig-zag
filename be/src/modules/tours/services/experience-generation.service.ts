@@ -877,6 +877,11 @@ export class ExperienceGenerationService {
           destinationResolution,
         ),
       );
+      const canonicalDestinationName =
+        destinationResolution.scale === 'area'
+          ? destinationResolution.boundary.name
+          : (destinationResolution.selectedResult?.displayName ??
+            request.destination.label);
 
       // Asynchronously resolve authentic destination cover photo in background
       void this.tourImageService
@@ -942,7 +947,7 @@ export class ExperienceGenerationService {
       });
       const venueAnchorResolution = await this.venueAnchorResolution.resolve({
         anchors: resolvedAnchors,
-        destinationName: request.destination.label,
+        destinationName: canonicalDestinationName,
         destinationCountryCode: destinationResolution.countryCode,
         geographicScope,
       });
@@ -1049,9 +1054,7 @@ export class ExperienceGenerationService {
             //   FacetRetrievalService/preference-sufficiency, bounded by
             //   MAX_ACQUISITION_PASSES.
             const acquisitionScope = {
-              destinationName:
-                destinationResolution.selectedResult?.displayName ??
-                request.destination.label,
+              destinationName: canonicalDestinationName,
               latitude: searchArea.latitude,
               longitude: searchArea.longitude,
               radiusMeters: searchArea.radiusMeters,
@@ -1234,7 +1237,7 @@ export class ExperienceGenerationService {
                   acquisitionPlan,
                   pass,
                   {
-                    destinationName: request.destination.label,
+                    destinationName: canonicalDestinationName,
                     destinationCountryCode: destinationResolution.countryCode,
                     geographicScope,
                   },
@@ -1606,9 +1609,7 @@ export class ExperienceGenerationService {
         const plannerAcquisitionPlan =
           this.experienceAcquisitionPlanner.buildAcquisitionPlan({
             destination: {
-              destinationName:
-                destinationResolution.selectedResult?.displayName ??
-                request.destination.label,
+              destinationName: canonicalDestinationName,
               latitude: request.destination.latitude,
               longitude: request.destination.longitude,
               radiusMeters:
@@ -1635,7 +1636,7 @@ export class ExperienceGenerationService {
             plannerAcquisitionPlan,
             acquisitionPasses,
             {
-              destinationName: request.destination.label,
+              destinationName: canonicalDestinationName,
               destinationCountryCode: destinationResolution.countryCode,
               geographicScope,
             },

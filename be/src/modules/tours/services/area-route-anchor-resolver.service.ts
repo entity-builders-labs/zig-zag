@@ -15,6 +15,7 @@ import {
   bestNominatimMatch,
   isAreaScaleEligible,
   matchOsmCandidateByName,
+  normalizeGeoName,
 } from '../utils/nominatim-match.util';
 
 /**
@@ -40,10 +41,6 @@ export type AnchorGeometryResolution =
     }
   | { resolved: false; status: 'no_match' | 'unavailable'; reason?: string };
 
-type NormalizedAnchorResolution =
-  | { status: 'match'; anchor: ResolvedAnchor }
-  | { status: 'no_match' | 'unavailable'; reason: string };
-
 interface AnchorGeoCandidate {
   kind: 'area' | 'route' | 'venue';
   canonicalName: string;
@@ -53,6 +50,7 @@ interface AnchorGeoCandidate {
   latitude?: number;
   longitude?: number;
   metadata?: Record<string, string>;
+  placeTypes?: string[];
 }
 
 type CandidateDiscovery =
@@ -74,6 +72,41 @@ function normalizePlacesProvider(
 
 function assertNever(value: never): never {
   throw new Error(`Unsupported Places provider: ${String(value)}`);
+}
+
+const NON_VENUE_PLACE_TYPES = new Set([
+  'administrative_area_level_1',
+  'administrative_area_level_2',
+  'administrative_area_level_3',
+  'administrative_area_level_4',
+  'administrative_area_level_5',
+  'country',
+  'locality',
+  'neighborhood',
+  'political',
+  'postal_code',
+  'premise',
+  'route',
+  'street_address',
+  'sublocality',
+  'sublocality_level_1',
+  'sublocality_level_2',
+  'sublocality_level_3',
+  'sublocality_level_4',
+  'sublocality_level_5',
+]);
+
+function hasCrediblePlaceType(place: {
+  primaryType?: string;
+  types?: string[];
+}): boolean {
+  const types = [place.primaryType, ...(place.types ?? [])]
+    .filter((type): type is string => typeof type === 'string')
+    .map((type) => type.trim().toLowerCase())
+    .filter(Boolean);
+  return (
+    types.length > 0 && types.some((type) => !NON_VENUE_PLACE_TYPES.has(type))
+  );
 }
 
 function representativePoint(
@@ -140,7 +173,7 @@ export class AreaRouteAnchorResolverService {
           this.discoverRoute(anchor, options.geographicScope),
           this.discoverPlace(anchor, options.destinationCountryCode),
         ]);
-        const match = this.selectCandidate(outcomes, anchor.usage);
+        const match = this.selectCandidate(outcomes);
         if (match?.status === 'match') {
           return this.persistCandidate(anchor, match.candidate);
         }
@@ -221,7 +254,7 @@ export class AreaRouteAnchorResolverService {
         maxResultCount: 3,
       });
       const place = result.data[0];
-      if (!place?.location)
+      if (!place?.location || !hasCrediblePlaceType(place))
         return nominatimUnavailable
           ? {
               status: 'unavailable',
@@ -245,6 +278,10 @@ export class AreaRouteAnchorResolverService {
             type: 'Point',
             coordinates: [place.location.longitude, place.location.latitude],
           },
+          placeTypes: [
+            ...(place.primaryType ? [place.primaryType] : []),
+            ...(place.types ?? []),
+          ],
         },
       };
     } catch {
@@ -259,27 +296,20 @@ export class AreaRouteAnchorResolverService {
 
   private selectCandidate(
     outcomes: CandidateDiscovery[],
-    usage: InterpretedAnchor['usage'],
   ): CandidateDiscovery | undefined {
     const matches = outcomes.filter(
       (outcome): outcome is Extract<CandidateDiscovery, { status: 'match' }> =>
         outcome.status === 'match',
     );
     if (matches.length === 0) return undefined;
-    const preferredKind =
-      usage === 'geographic_scope'
-        ? 'area'
-        : usage === 'specific_destination'
-          ? 'venue'
-          : usage === 'named_path'
-            ? 'route'
-            : undefined;
-    const rank = (candidate: AnchorGeoCandidate) =>
-      (candidate.kind === preferredKind ? 100 : 0) +
-      (candidate.kind === 'area' ? 3 : candidate.kind === 'route' ? 2 : 1);
-    return [...matches].sort(
-      (a, b) => rank(b.candidate) - rank(a.candidate),
-    )[0];
+    const identities = new Set(
+      matches.map(
+        ({ candidate }) =>
+          `${candidate.kind}:${normalizeGeoName(candidate.canonicalName)}`,
+      ),
+    );
+    if (identities.size !== 1) return undefined;
+    return matches[0];
   }
 
   private async persistCandidate(

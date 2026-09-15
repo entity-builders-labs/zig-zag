@@ -363,7 +363,7 @@ describe('tour-generation integration · area/route walk geographic validation (
           kind: 'AREA',
           anchorName: 'San Telmo',
           geoEntityId: 'geo-san-telmo',
-          geometry: SAN_TELMO_BOUNDARY,
+          geometry: SAN_TELMO_BOUNDARY as any,
         },
       } as any);
 
@@ -441,7 +441,7 @@ describe('tour-generation integration · area/route walk geographic validation (
           kind: 'AREA',
           anchorName: 'San Telmo',
           geoEntityId: 'geo-san-telmo',
-          geometry: SAN_TELMO_BOUNDARY,
+          geometry: SAN_TELMO_BOUNDARY as any,
         },
       } as any);
 
@@ -1137,6 +1137,13 @@ describe('tour-generation integration · area/route walk geographic validation (
       // ("Food Crawl San Telmo") already sits inside the same area, seeded
       // directly against real Postgres before acquisition runs.
       const prisma = await getPrisma();
+      const sanTelmoGeo = await prisma.geoEntity.create({
+        data: {
+          name: 'San Telmo',
+          kind: GeoEntityKind.AREA,
+          geometry: SAN_TELMO_BOUNDARY as any,
+        },
+      });
       const foodGeo1 = await prisma.geoEntity.create({
         data: {
           name: 'Food Stop A',
@@ -1315,9 +1322,9 @@ describe('tour-generation integration · area/route walk geographic validation (
           priority: 'must',
           status: 'resolved',
           canonicalName: 'San Telmo',
-          geoEntityId: 'geo-san-telmo',
+          geoEntityId: sanTelmoGeo.id,
           provider: 'openstreetmap',
-          geometry: { type: 'Polygon', coordinates: [] },
+          geometry: SAN_TELMO_BOUNDARY as any,
         },
         intentKey: 'walk',
         destination: {
@@ -1473,7 +1480,7 @@ describe('tour-generation integration · area/route walk geographic validation (
       const input = {
         anchor: {
           rawName: 'Ruta del Vino de Mendoza',
-          usage: 'unknown' as const,
+          usage: 'named_path' as const,
           priority: 'must' as const,
           status: 'unresolved' as const,
           unresolvedReason: 'NO_CONFIDENT_ROUTE_MATCH',

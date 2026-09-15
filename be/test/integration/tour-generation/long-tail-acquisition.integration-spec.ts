@@ -29,8 +29,18 @@ describe('tour-generation integration · long-tail acquisition', () => {
     harness.fakes.langChain.generateChatResponse.mockResolvedValue(
       JSON.stringify({
         preferredFacets: [
-          { dimension: 'trait', key: 'craft beer', strength: 'strong' },
-          { dimension: 'trait', key: 'specialty coffee', strength: 'strong' },
+          {
+            dimension: 'trait',
+            key: 'craft beer',
+            strength: 'strong',
+            evidence: ['cerveza artesanal'],
+          },
+          {
+            dimension: 'trait',
+            key: 'specialty coffee',
+            strength: 'strong',
+            evidence: ['café de especialidad'],
+          },
         ],
         excludedTraits: ['tourist trap'],
         positiveSemanticQuery:

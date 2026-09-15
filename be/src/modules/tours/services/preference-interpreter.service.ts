@@ -385,18 +385,18 @@ export class PreferenceInterpreterService {
       const compoundKey = `${normalizedDim}:${canonicalKey}`;
       const evidence = this.normalizeEvidence(item.evidence);
       const normalizedSupportingText = supportingText.toLocaleLowerCase();
-      const evidenceSupported = evidence.every((item) =>
-        normalizedSupportingText.includes(item.text.toLocaleLowerCase()),
-      );
-      if (
+      const evidenceSupported =
         supportingText.length > 0 &&
         evidence.length > 0 &&
-        !evidenceSupported
-      ) {
+        evidence.every((item) =>
+          normalizedSupportingText.includes(item.text.toLocaleLowerCase()),
+        );
+      if (!evidenceSupported) {
         decisions[decisions.length - 1] = {
           ...decisions[decisions.length - 1],
           accepted: false,
-          reason: 'UNSUPPORTED_BY_INPUT',
+          reason:
+            evidence.length === 0 ? 'MISSING_EVIDENCE' : 'UNSUPPORTED_BY_INPUT',
         };
         continue;
       }
@@ -419,11 +419,28 @@ export class PreferenceInterpreterService {
   private normalizeEvidence(value: unknown): PreferenceFacetEvidence[] {
     return Array.isArray(value)
       ? value
-          .filter((item): item is string => typeof item === 'string')
-          .map((text) => text.trim())
-          .filter(Boolean)
+          .map((item) => {
+            if (typeof item === 'string') {
+              return { source: 'user_free_text' as const, text: item };
+            }
+            if (
+              item &&
+              typeof item === 'object' &&
+              typeof (item as { text?: unknown }).text === 'string'
+            ) {
+              return {
+                source: 'user_free_text' as const,
+                text: (item as { text: string }).text,
+              };
+            }
+            return undefined;
+          })
+          .filter(
+            (item): item is PreferenceFacetEvidence =>
+              item !== undefined && item.text.trim().length > 0,
+          )
+          .map((item) => ({ ...item, text: item.text.trim() }))
           .slice(0, 3)
-          .map((text) => ({ source: 'user_free_text' as const, text }))
       : [];
   }
 

@@ -336,6 +336,143 @@ describe('AreaRouteAnchorResolverService', () => {
         service.resolveArea(areaAnchor, undefined, undefined),
       ).resolves.toMatchObject({ resolved: false, status: 'unavailable' });
     });
+
+    it.each([
+      ['Nominatim unavailable + Places match', 'places-match', 'resolved'],
+      [
+        'Nominatim unavailable + Places no-match',
+        'places-no-match',
+        'unresolved',
+      ],
+      ['all providers unavailable', 'all-unavailable', 'unresolved'],
+      ['both providers searched and no-match', 'both-no-match', 'unresolved'],
+    ])(
+      '%s keeps provider failure distinct from semantic no-match',
+      async (_label, mode, expectedStatus) => {
+        const nominatim = {
+          search:
+            mode === 'both-no-match'
+              ? jest.fn().mockResolvedValue([])
+              : jest.fn().mockRejectedValue(new Error('nominatim down')),
+          reverse: jest.fn(),
+        };
+        const osmPlaces = {
+          lookupBoundaryById: jest.fn(),
+          lookupStreetsNear:
+            mode === 'all-unavailable'
+              ? jest.fn().mockRejectedValue(new Error('overpass down'))
+              : jest.fn().mockResolvedValue({ status: 'success', value: [] }),
+          lookupStreetsWithin: jest.fn(),
+        };
+        const places = {
+          provider: 'google' as const,
+          searchText:
+            mode === 'all-unavailable'
+              ? jest.fn().mockRejectedValue(new Error('places down'))
+              : jest.fn().mockResolvedValue({
+                  data:
+                    mode === 'places-match'
+                      ? [
+                          {
+                            id: 'ChIJmuseum',
+                            displayName: { text: 'Museo Nacional' },
+                            name: 'Museo Nacional',
+                            location: { latitude: -34.6, longitude: -58.4 },
+                            primaryType: 'museum',
+                            types: ['museum', 'point_of_interest'],
+                          },
+                        ]
+                      : [],
+                }),
+        };
+        const catalog = {
+          upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-place' }),
+        };
+        const service = new AreaRouteAnchorResolverService(
+          osmPlaces as any,
+          catalog as any,
+          nominatim as any,
+          places as any,
+        );
+
+        const [result] = await service.resolveNamedAnchors([areaAnchor], {
+          geographicScope: {
+            kind: 'POINT_RADIUS',
+            latitude: -34.6,
+            longitude: -58.4,
+            radiusMeters: 10_000,
+          },
+        });
+
+        expect(result.status).toBe(expectedStatus);
+        if (mode === 'places-match') {
+          expect(result).toMatchObject({
+            status: 'resolved',
+            kind: 'venue',
+            canonicalName: 'Museo Nacional',
+          });
+        }
+        if (mode === 'both-no-match') {
+          expect(result).toMatchObject({
+            status: 'unresolved',
+            unresolvedReason: 'NO_CONFIDENT_GEO_ENTITY_MATCH',
+          });
+        }
+        if (mode === 'places-no-match' || mode === 'all-unavailable') {
+          expect(result).toMatchObject({
+            status: 'unresolved',
+            unresolvedReason: expect.stringContaining(
+              'GEO_PROVIDER_UNAVAILABLE:',
+            ),
+          });
+        }
+      },
+    );
+
+    it('does not turn a Places locality into a venue merely because it has coordinates', async () => {
+      const service = new AreaRouteAnchorResolverService(
+        {
+          lookupBoundaryById: jest.fn(),
+          lookupStreetsNear: jest
+            .fn()
+            .mockResolvedValue({ status: 'success', value: [] }),
+          lookupStreetsWithin: jest.fn(),
+        } as any,
+        { upsertGeoEntity: jest.fn() } as any,
+        {
+          search: jest.fn().mockResolvedValue([]),
+          reverse: jest.fn(),
+        } as any,
+        {
+          provider: 'google',
+          searchText: jest.fn().mockResolvedValue({
+            data: [
+              {
+                id: 'locality-1',
+                displayName: { text: 'San Telmo' },
+                location: { latitude: -34.62, longitude: -58.37 },
+                primaryType: 'locality',
+                types: ['locality', 'political'],
+              },
+            ],
+          }),
+        } as any,
+      );
+
+      const [result] = await service.resolveNamedAnchors([areaAnchor], {
+        geographicScope: {
+          kind: 'POINT_RADIUS',
+          latitude: -34.6,
+          longitude: -58.4,
+          radiusMeters: 10_000,
+        },
+      });
+
+      expect(result).toMatchObject({
+        status: 'unresolved',
+        unresolvedReason: 'NO_CONFIDENT_GEO_ENTITY_MATCH',
+      });
+    });
   });
 
   describe('resolveRoute', () => {

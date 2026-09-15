@@ -228,6 +228,7 @@ export class TourGenerationHarness {
     this.fakes.groundedSearch.configure({});
     this.fakes.discoveryExtractor.configure({});
     this.fakes.routing.configure({});
+    this.fakes.nominatim.configure([]);
     this.destinationRef.value = DEFAULT_DESTINATION;
     jest.clearAllMocks();
   }
