@@ -285,7 +285,11 @@ export interface TraceAcquisitionContext {
   passNumber: number;
   anchor?: {
     rawName: string;
-    usage: 'geographic_scope' | 'specific_destination' | 'named_path' | 'unknown';
+    usage:
+      | 'geographic_scope'
+      | 'specific_destination'
+      | 'named_path'
+      | 'unknown';
     kind: 'venue' | 'area' | 'route';
     priority: 'soft' | 'must';
   };

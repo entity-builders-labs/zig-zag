@@ -37,14 +37,16 @@ export type AnchorGeometryResolution =
       // ExperienceValidationScope.geometry directly, no extra DB
       // round-trip.
       geometry: GeoJsonGeometry;
-  }
+    }
   | { resolved: false; status: 'no_match' | 'unavailable'; reason?: string };
 
 type NormalizedAnchorResolution =
   | { status: 'match'; anchor: ResolvedAnchor }
   | { status: 'no_match' | 'unavailable'; reason: string };
 
-function normalizePlacesProvider(provider: IPlacesApiService['provider']): string {
+function normalizePlacesProvider(
+  provider: IPlacesApiService['provider'],
+): string {
   switch (provider) {
     case 'google':
       return 'google_places';
@@ -115,7 +117,11 @@ export class AreaRouteAnchorResolverService {
         // remains eligible; usage may influence ranking inside provider
         // matching, never remove a kind from consideration.
         const outcomes = await Promise.all([
-          this.resolveArea(anchor, options.destinationCountryCode, options.destinationPoint),
+          this.resolveArea(
+            anchor,
+            options.destinationCountryCode,
+            options.destinationPoint,
+          ),
           this.resolveRoute(anchor, options.geographicScope),
           this.resolvePlace(anchor, options.destinationCountryCode),
         ]);
@@ -135,15 +141,18 @@ export class AreaRouteAnchorResolverService {
             geometry: match.geometry,
           };
         }
-        const unavailable = outcomes.find((outcome) => outcome.status === 'unavailable');
+        const unavailable = outcomes.find(
+          (outcome) => outcome.status === 'unavailable',
+        );
         return {
           status: 'unresolved',
           rawName: anchor.rawName,
           usage: anchor.usage,
           priority: anchor.priority,
-          unresolvedReason: unavailable?.status === 'unavailable'
-            ? `GEO_PROVIDER_UNAVAILABLE:${unavailable.reason}`
-            : 'NO_CONFIDENT_GEO_ENTITY_MATCH',
+          unresolvedReason:
+            unavailable?.status === 'unavailable'
+              ? `GEO_PROVIDER_UNAVAILABLE:${unavailable.reason}`
+              : 'NO_CONFIDENT_GEO_ENTITY_MATCH',
         };
       }),
     );
@@ -185,28 +194,34 @@ export class AreaRouteAnchorResolverService {
             coordinates: [match.longitude, match.latitude],
           },
         });
-        return { status: 'match', anchor: {
-          ...anchor, kind: 'venue',
-          status: 'resolved',
-          canonicalName,
-          geoEntityId: geo.id,
-          provider: 'nominatim',
-          externalId,
-        }};
+        return {
+          status: 'match',
+          anchor: {
+            ...anchor,
+            kind: 'venue',
+            status: 'resolved',
+            canonicalName,
+            geoEntityId: geo.id,
+            provider: 'nominatim',
+            externalId,
+          },
+        };
       } catch {
         // Continue to the provider-neutral Places identity boundary below.
         return { status: 'unavailable', reason: 'NOMINATIM_SEARCH_FAILED' };
       }
     }
 
-    if (!this.placesApi) return { status: 'no_match', reason: 'NO_PLACES_PROVIDER' };
+    if (!this.placesApi)
+      return { status: 'no_match', reason: 'NO_PLACES_PROVIDER' };
     try {
       const result = await this.placesApi.searchText({
         textQuery: anchor.rawName,
         maxResultCount: 3,
       });
       const place = result.data[0];
-      if (!place?.location) return { status: 'no_match', reason: 'NO_CONFIDENT_PLACE_MATCH' };
+      if (!place?.location)
+        return { status: 'no_match', reason: 'NO_CONFIDENT_PLACE_MATCH' };
       const canonicalName =
         place.displayName?.text || place.name || anchor.rawName;
       const provider = normalizePlacesProvider(this.placesApi.provider);
@@ -223,14 +238,18 @@ export class AreaRouteAnchorResolverService {
           coordinates: [place.location.longitude, place.location.latitude],
         },
       });
-      return { status: 'match', anchor: {
-        ...anchor, kind: 'venue',
-        status: 'resolved',
-        canonicalName,
-        geoEntityId: geo.id,
-        provider,
-        externalId,
-      }};
+      return {
+        status: 'match',
+        anchor: {
+          ...anchor,
+          kind: 'venue',
+          status: 'resolved',
+          canonicalName,
+          geoEntityId: geo.id,
+          provider,
+          externalId,
+        },
+      };
     } catch {
       return { status: 'unavailable', reason: 'PLACES_SEARCH_FAILED' };
     }
@@ -298,7 +317,11 @@ export class AreaRouteAnchorResolverService {
         geometry: boundary.value.geometry,
       };
     } catch {
-      return { resolved: false, status: 'unavailable', reason: 'AREA_PROVIDER_FAILED' };
+      return {
+        resolved: false,
+        status: 'unavailable',
+        reason: 'AREA_PROVIDER_FAILED',
+      };
     }
   }
 
@@ -354,7 +377,11 @@ export class AreaRouteAnchorResolverService {
         geometry: matched.geometry,
       };
     } catch {
-      return { resolved: false, status: 'unavailable', reason: 'ROUTE_PROVIDER_FAILED' };
+      return {
+        resolved: false,
+        status: 'unavailable',
+        reason: 'ROUTE_PROVIDER_FAILED',
+      };
     }
   }
 }

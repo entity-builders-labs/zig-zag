@@ -894,6 +894,7 @@ describe('buildAcquisitionStep', () => {
         passNumber: 1,
         anchor: {
           rawName: 'Historic District',
+          usage: 'unknown',
           kind: 'area',
           priority: 'must',
         },
@@ -987,7 +988,12 @@ describe('buildAcquisitionStep', () => {
     expect(step.acquisitionContext).toEqual({
       strategy: 'area_route_walk',
       passNumber: 1,
-      anchor: { rawName: 'Historic District', kind: 'area', priority: 'must' },
+      anchor: {
+        rawName: 'Historic District',
+        usage: 'unknown',
+        kind: 'area',
+        priority: 'must',
+      },
     });
     expect(step.acquisition?.acquisitionContext?.strategy).toBe(
       'area_route_walk',

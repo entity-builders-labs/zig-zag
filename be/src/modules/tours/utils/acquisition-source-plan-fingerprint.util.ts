@@ -34,7 +34,8 @@ export function acquisitionSourcePlanFingerprint(
   const sourcePlan = isPlan ? undefined : planOrSourcePlan;
   return JSON.stringify(
     canonical({
-      provider: sourcePlan?.provider ?? plan?.sourcePlans.map((item) => item.provider),
+      provider:
+        sourcePlan?.provider ?? plan?.sourcePlans.map((item) => item.provider),
       destination: canonicalDestination ?? plan?.destination.destinationName,
       sourcePlanPayload: sourcePlan ?? plan?.sourcePlans,
       evidenceRequirements: plan?.evidenceRequirements,

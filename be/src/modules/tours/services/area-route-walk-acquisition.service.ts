@@ -128,7 +128,8 @@ export class AreaRouteWalkAcquisitionService {
       input.anchor.status === 'resolved' && input.anchor.kind === 'area';
     const isRouteAnchor =
       (input.anchor.status === 'resolved' && input.anchor.kind === 'route') ||
-      (input.anchor.status === 'unresolved' && input.anchor.usage === 'named_path');
+      (input.anchor.status === 'unresolved' &&
+        input.anchor.usage === 'named_path');
     const facet = normalizeWizardFacet('intent', input.intentKey);
 
     // Resolve ONCE per call -- reused by the warm check, the
@@ -151,7 +152,10 @@ export class AreaRouteWalkAcquisitionService {
           }
         : { resolved: false as const };
 
-    if (input.anchor.status === 'unresolved' && input.anchor.usage === 'geographic_scope') {
+    if (
+      input.anchor.status === 'unresolved' &&
+      input.anchor.usage === 'geographic_scope'
+    ) {
       return {
         outcome: 'no_result',
         reason: 'anchor_unresolved',
@@ -328,7 +332,10 @@ export class AreaRouteWalkAcquisitionService {
     const validationScope: ExperienceValidationScope | undefined =
       resolution.resolved
         ? {
-            kind: input.anchor.status === 'resolved' && input.anchor.kind === 'area' ? 'AREA' : 'ROUTE',
+            kind:
+              input.anchor.status === 'resolved' && input.anchor.kind === 'area'
+                ? 'AREA'
+                : 'ROUTE',
             anchorName: input.anchor.rawName,
             geoEntityId: resolution.geoEntityId,
             geometry: resolution.geometry,

@@ -400,6 +400,7 @@ describe('ExperienceAcquisitionPlannerService', () => {
       anchors: [
         {
           rawName: 'San Telmo',
+          usage: 'unknown',
           kind: 'area',
           priority: 'must',
           status: 'resolved',
@@ -409,6 +410,7 @@ describe('ExperienceAcquisitionPlannerService', () => {
         },
         {
           rawName: 'La Boca',
+          usage: 'unknown',
           kind: 'area',
           priority: 'must',
           status: 'resolved',
@@ -439,6 +441,7 @@ describe('ExperienceAcquisitionPlannerService', () => {
       anchors: [
         {
           rawName: 'San Telmo',
+          usage: 'unknown',
           kind: 'area',
           priority: 'must',
           status: 'resolved',
@@ -468,6 +471,7 @@ describe('ExperienceAcquisitionPlannerService', () => {
       anchors: [
         {
           rawName: 'MALBA',
+          usage: 'unknown',
           kind: 'venue',
           priority: 'soft',
           status: 'resolved',

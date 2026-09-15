@@ -206,7 +206,11 @@ describe('composeSet', () => {
     const mustSpec = {
       ...spec,
       anchors: [
-        { rawName: 'Venue', kind: 'venue' as const, priority: 'must' as const },
+        {
+          rawName: 'Venue',
+          usage: 'specific_destination' as const,
+          priority: 'must' as const,
+        },
       ],
     };
     const result = composeSet({

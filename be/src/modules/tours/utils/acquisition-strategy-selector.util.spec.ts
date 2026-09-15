@@ -44,6 +44,7 @@ function globalCapacityDeficit(): AcquisitionDeficit {
 
 const areaAnchor: ResolvedAnchor = {
   rawName: 'San Telmo',
+  usage: 'unknown',
   kind: 'area',
   priority: 'must',
   status: 'resolved',
@@ -54,6 +55,7 @@ const areaAnchor: ResolvedAnchor = {
 };
 const routeAnchor: ResolvedAnchor = {
   rawName: 'Caminito',
+  usage: 'unknown',
   kind: 'route',
   priority: 'must',
   status: 'resolved',
@@ -64,6 +66,7 @@ const routeAnchor: ResolvedAnchor = {
 };
 const venueAnchor: ResolvedAnchor = {
   rawName: 'Teatro Colón',
+  usage: 'unknown',
   kind: 'venue',
   priority: 'soft',
   status: 'resolved',

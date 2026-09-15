@@ -1053,7 +1053,9 @@ export class ExperienceGenerationService {
             //   FacetRetrievalService/preference-sufficiency, bounded by
             //   MAX_ACQUISITION_PASSES.
             const acquisitionScope = {
-              destinationName: request.destination.label,
+              destinationName:
+                destinationResolution.selectedResult?.displayName ??
+                request.destination.label,
               latitude: searchArea.latitude,
               longitude: searchArea.longitude,
               radiusMeters: searchArea.radiusMeters,
@@ -1608,7 +1610,9 @@ export class ExperienceGenerationService {
         const plannerAcquisitionPlan =
           this.experienceAcquisitionPlanner.buildAcquisitionPlan({
             destination: {
-              destinationName: request.destination.label,
+              destinationName:
+                destinationResolution.selectedResult?.displayName ??
+                request.destination.label,
               latitude: request.destination.latitude,
               longitude: request.destination.longitude,
               radiusMeters:

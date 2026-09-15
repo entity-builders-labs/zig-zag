@@ -55,9 +55,7 @@ describe('preference-first architecture boundaries', () => {
   it('does not let interpreted anchor kind reach routing as geographic authority', () => {
     const interpreter = source('preference-interpreter.service.ts');
     const generation = source('experience-generation.service.ts');
-    expect(interpreter).toMatch(
-      /const kind: AnchoredPlace\['kind'\] = 'unknown'/,
-    );
+    expect(interpreter).not.toMatch(/AnchoredPlace\['kind'\]/);
     expect(generation).toMatch(
       /partitionDeficitsByStrategy\([\s\S]*resolvedAnchors/,
     );

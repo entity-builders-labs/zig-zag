@@ -182,9 +182,10 @@ export class PreferenceInterpreterService {
           !/(tradicional|traditional|heritage|ancestral)/i.test(userPrompt),
       );
       if (unsupported.length > 0) {
-        normalized.intent.preferredFacets = normalized.intent.preferredFacets.filter(
-          (facet) => !unsupported.includes(facet),
-        );
+        normalized.intent.preferredFacets =
+          normalized.intent.preferredFacets.filter(
+            (facet) => !unsupported.includes(facet),
+          );
         normalized.facetNormalizationDecisions.push(
           ...unsupported.map((facet) => ({
             rawDimension: facet.dimension,

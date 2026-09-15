@@ -185,6 +185,22 @@ export class ExperienceAcquisitionService {
       ledger?.executedSourcePlanFingerprints.add(fingerprint);
       return true;
     });
+    if (sourcePlans.length === 0 && plan.sourcePlans.length > 0) {
+      return {
+        candidates: [],
+        observations: [],
+        providerResults: {},
+        webResults: [],
+        evidence: [],
+        executionSkipped: {
+          reason: 'DUPLICATE_SOURCE_PLAN_EXECUTION',
+          fingerprint: acquisitionSourcePlanFingerprint(
+            plan.sourcePlans[0],
+            plan.destination.destinationName,
+          ),
+        },
+      };
+    }
     const providerResults: Partial<
       Record<
         ExperienceAcquisitionProvider,

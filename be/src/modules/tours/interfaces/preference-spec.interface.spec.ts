@@ -135,8 +135,14 @@ describe('preference-spec.interface', () => {
       status: 'unresolved',
       unresolvedReason: 'not found',
     };
-    const unresolved: UnmetAnchor = { anchor: unresolvedAnchor, reason: 'UNRESOLVED' };
-    const infeasible: UnmetAnchor = { anchor: unresolvedAnchor, reason: 'INFEASIBLE' };
+    const unresolved: UnmetAnchor = {
+      anchor: unresolvedAnchor,
+      reason: 'UNRESOLVED',
+    };
+    const infeasible: UnmetAnchor = {
+      anchor: unresolvedAnchor,
+      reason: 'INFEASIBLE',
+    };
     expect(unresolved.reason).toBe('UNRESOLVED');
     expect(infeasible.reason).toBe('INFEASIBLE');
   });

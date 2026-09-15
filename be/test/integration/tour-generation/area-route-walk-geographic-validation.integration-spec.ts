@@ -1310,6 +1310,7 @@ describe('tour-generation integration · area/route walk geographic validation (
       const result = await service.acquireOrReuse({
         anchor: {
           rawName: 'San Telmo',
+          usage: 'unknown',
           kind: 'area',
           priority: 'must',
           status: 'resolved',
@@ -1472,7 +1473,7 @@ describe('tour-generation integration · area/route walk geographic validation (
       const input = {
         anchor: {
           rawName: 'Ruta del Vino de Mendoza',
-          kind: 'route' as const,
+          usage: 'unknown' as const,
           priority: 'must' as const,
           status: 'unresolved' as const,
           unresolvedReason: 'NO_CONFIDENT_ROUTE_MATCH',

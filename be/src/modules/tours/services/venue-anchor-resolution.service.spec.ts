@@ -49,7 +49,16 @@ describe('VenueAnchorResolutionService', () => {
     await expect(
       service.resolve({
         anchors: [
-          { kind: 'venue', priority: 'must', rawName: 'Louvre' } as any,
+          {
+            kind: 'venue',
+            status: 'resolved',
+            usage: 'specific_destination',
+            priority: 'must',
+            rawName: 'Louvre',
+            canonicalName: 'Louvre',
+            geoEntityId: 'geo-louvre',
+            provider: 'test',
+          } as any,
         ],
         destinationName: 'Paris',
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
@@ -65,7 +74,18 @@ describe('VenueAnchorResolutionService', () => {
     const ambiguous = make(['a', 'b']);
     await expect(
       ambiguous.service.resolve({
-        anchors: [{ kind: 'venue', priority: 'must', rawName: 'Club' } as any],
+        anchors: [
+          {
+            kind: 'venue',
+            status: 'resolved',
+            usage: 'specific_destination',
+            priority: 'must',
+            rawName: 'Club',
+            canonicalName: 'Club',
+            geoEntityId: 'geo-club',
+            provider: 'test',
+          } as any,
+        ],
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
       }),
     ).resolves.toEqual({
@@ -77,7 +97,16 @@ describe('VenueAnchorResolutionService', () => {
     await expect(
       missing.service.resolve({
         anchors: [
-          { kind: 'venue', priority: 'must', rawName: 'Nowhere' } as any,
+          {
+            kind: 'venue',
+            status: 'resolved',
+            usage: 'specific_destination',
+            priority: 'must',
+            rawName: 'Nowhere',
+            canonicalName: 'Nowhere',
+            geoEntityId: 'geo-nowhere',
+            provider: 'test',
+          } as any,
         ],
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
       }),
@@ -91,7 +120,18 @@ describe('VenueAnchorResolutionService', () => {
   it('uses canonical ID for soft boost resolution, never name equality', async () => {
     const { service, acquisition } = make(['exp-soft']);
     const result = await service.resolve({
-      anchors: [{ kind: 'venue', priority: 'soft', rawName: 'Venue' } as any],
+      anchors: [
+        {
+          kind: 'venue',
+          status: 'resolved',
+          usage: 'specific_destination',
+          priority: 'soft',
+          rawName: 'Venue',
+          canonicalName: 'Venue',
+          geoEntityId: 'geo-venue',
+          provider: 'test',
+        } as any,
+      ],
       geographicScope: { kind: 'AREA_BOUNDARY', boundary },
     });
     expect(result.resolvedSoftIds).toEqual(['exp-soft']);

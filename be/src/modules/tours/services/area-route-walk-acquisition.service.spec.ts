@@ -101,6 +101,7 @@ function buildService(mocks: ReturnType<typeof buildMocks>) {
 
 const areaAnchor: ResolvedAnchor = {
   rawName: 'San Telmo',
+  usage: 'geographic_scope',
   kind: 'area',
   priority: 'must',
   status: 'resolved',
@@ -111,6 +112,7 @@ const areaAnchor: ResolvedAnchor = {
 };
 const routeAnchor: ResolvedAnchor = {
   rawName: 'Caminito',
+  usage: 'unknown',
   kind: 'route',
   priority: 'must',
   status: 'resolved',
@@ -121,7 +123,7 @@ const routeAnchor: ResolvedAnchor = {
 };
 const tourismRouteAnchor: ResolvedAnchor = {
   rawName: 'Ruta del Vino de Mendoza',
-  kind: 'route',
+  usage: 'named_path',
   priority: 'must',
   status: 'unresolved',
   unresolvedReason: 'NO_CONFIDENT_ROUTE_MATCH',
@@ -162,13 +164,10 @@ describe('AreaRouteWalkAcquisitionService', () => {
   it('fails closed when an AREA anchor cannot be resolved', async () => {
     const mocks = buildMocks();
     const unresolvedArea: ResolvedAnchor = {
-      ...areaAnchor,
-      kind: 'area',
+      rawName: areaAnchor.rawName,
+      usage: areaAnchor.usage,
+      priority: areaAnchor.priority,
       status: 'unresolved',
-      canonicalName: undefined,
-      geoEntityId: undefined,
-      provider: undefined,
-      geometry: undefined,
       unresolvedReason: 'NO_CONFIDENT_GEO_ENTITY_MATCH',
     };
     const service = buildService(mocks);

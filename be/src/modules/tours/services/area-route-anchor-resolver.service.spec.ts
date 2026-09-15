@@ -5,12 +5,12 @@ import { AnchoredPlace } from '../interfaces/preference-spec.interface';
 describe('AreaRouteAnchorResolverService', () => {
   const areaAnchor: AnchoredPlace = {
     rawName: 'San Telmo',
-    kind: 'area',
+    usage: 'unknown',
     priority: 'must',
   };
   const routeAnchor: AnchoredPlace = {
     rawName: 'Caminito',
-    kind: 'route',
+    usage: 'unknown',
     priority: 'soft',
   };
 
@@ -112,7 +112,7 @@ describe('AreaRouteAnchorResolverService', () => {
         undefined,
       );
 
-      expect(result).toEqual({ resolved: false });
+      expect(result).toEqual({ resolved: false, status: 'no_match' });
       expect(catalog.upsertGeoEntity).not.toHaveBeenCalled();
     });
 
@@ -150,7 +150,7 @@ describe('AreaRouteAnchorResolverService', () => {
         undefined,
       );
 
-      expect(result).toEqual({ resolved: false });
+      expect(result).toEqual({ resolved: false, status: 'no_match' });
       expect(osmPlaces.lookupBoundaryById).not.toHaveBeenCalled();
     });
 
@@ -193,7 +193,7 @@ describe('AreaRouteAnchorResolverService', () => {
         undefined,
       );
 
-      expect(result).toEqual({ resolved: false });
+      expect(result).toEqual({ resolved: false, status: 'no_match' });
       expect(catalog.upsertGeoEntity).not.toHaveBeenCalled();
     });
 
@@ -255,7 +255,7 @@ describe('AreaRouteAnchorResolverService', () => {
       await service.resolveArea(
         {
           rawName: 'Catedral San Juan Bautista',
-          kind: 'area',
+          usage: 'unknown',
           priority: 'must',
         },
         undefined,
@@ -298,12 +298,12 @@ describe('AreaRouteAnchorResolverService', () => {
       );
 
       const result = await service.resolveArea(
-        { rawName: 'Argentina', kind: 'area', priority: 'must' },
+        { rawName: 'Argentina', usage: 'geographic_scope', priority: 'must' },
         undefined,
         undefined,
       );
 
-      expect(result).toEqual({ resolved: false });
+      expect(result).toEqual({ resolved: false, status: 'no_match' });
       expect(osmPlaces.lookupBoundaryById).not.toHaveBeenCalled();
     });
 
@@ -326,7 +326,7 @@ describe('AreaRouteAnchorResolverService', () => {
 
       await expect(
         service.resolveArea(areaAnchor, undefined, undefined),
-      ).resolves.toEqual({ resolved: false });
+      ).resolves.toMatchObject({ resolved: false, status: 'unavailable' });
     });
   });
 
@@ -424,7 +424,7 @@ describe('AreaRouteAnchorResolverService', () => {
       const result = await service.resolveRoute(
         {
           rawName: 'Ruta del Vino de Mendoza',
-          kind: 'route',
+          usage: 'unknown',
           priority: 'must',
         },
         {
@@ -433,7 +433,7 @@ describe('AreaRouteAnchorResolverService', () => {
         } as any,
       );
 
-      expect(result).toEqual({ resolved: false });
+      expect(result).toEqual({ resolved: false, status: 'no_match' });
       expect(catalog.upsertGeoEntity).not.toHaveBeenCalled();
     });
 
@@ -455,7 +455,7 @@ describe('AreaRouteAnchorResolverService', () => {
           kind: 'AREA_BOUNDARY',
           boundary: { id: 'osm:relation:1', name: 'Buenos Aires' },
         } as any),
-      ).resolves.toEqual({ resolved: false });
+      ).resolves.toMatchObject({ resolved: false, status: 'unavailable' });
     });
   });
 
@@ -555,25 +555,21 @@ describe('AreaRouteAnchorResolverService', () => {
           {
             rawName: 'San Telmo',
             usage: 'geographic_scope',
-            kind: 'unknown',
             priority: 'must',
           },
           {
             rawName: 'MALBA',
             usage: 'specific_destination',
-            kind: 'unknown',
             priority: 'soft',
           },
           {
             rawName: 'Ruta de los Siete Lagos',
             usage: 'named_path',
-            kind: 'unknown',
             priority: 'must',
           },
           {
             rawName: 'Un lugar ambiguo',
             usage: 'unknown',
-            kind: 'unknown',
             priority: 'soft',
           },
         ],
@@ -599,26 +595,23 @@ describe('AreaRouteAnchorResolverService', () => {
           rawName: 'San Telmo',
           usage: 'geographic_scope',
           priority: 'must',
-          kind: 'area',
           status: 'resolved',
           canonicalName: 'San Telmo',
         }),
         expect.objectContaining({
           rawName: 'MALBA',
           usage: 'specific_destination',
-          kind: 'venue',
           status: 'resolved',
           canonicalName: 'MALBA',
         }),
         expect.objectContaining({
           rawName: 'Ruta de los Siete Lagos',
           usage: 'named_path',
-          kind: 'route',
           status: 'resolved',
         }),
         expect.objectContaining({
           rawName: 'Un lugar ambiguo',
-          kind: 'unknown',
+          usage: 'unknown',
           status: 'unresolved',
           unresolvedReason: 'NO_CONFIDENT_GEO_ENTITY_MATCH',
         }),

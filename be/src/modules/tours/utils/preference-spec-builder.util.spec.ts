@@ -162,8 +162,12 @@ describe('preference-spec-builder.util', () => {
   it('passes anchoredPlaces through to spec.anchors unchanged', () => {
     const request = baseRequest();
     const anchors: AnchoredPlace[] = [
-      { rawName: 'Teatro Colón', kind: 'venue', priority: 'must' },
-      { rawName: 'San Telmo', kind: 'area', priority: 'soft' },
+      {
+        rawName: 'Teatro Colón',
+        usage: 'specific_destination',
+        priority: 'must',
+      },
+      { rawName: 'San Telmo', usage: 'geographic_scope', priority: 'soft' },
     ];
     const interpreted = emptyInterpreted({ anchoredPlaces: anchors });
 

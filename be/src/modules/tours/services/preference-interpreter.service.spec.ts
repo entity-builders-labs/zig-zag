@@ -126,7 +126,6 @@ describe('PreferenceInterpreterService', () => {
       {
         rawName: 'San Telmo',
         usage: 'unknown',
-        kind: 'unknown',
         priority: 'must',
       },
     ]);
@@ -255,7 +254,6 @@ describe('PreferenceInterpreterService', () => {
       {
         rawName: 'San Telmo',
         usage: 'unknown',
-        kind: 'unknown',
         priority: 'must',
       },
     ]);
@@ -356,7 +354,6 @@ describe('PreferenceInterpreterService', () => {
               {
                 rawName: 'San Telmo',
                 usage: 'geographic_scope',
-                kind: 'unknown',
                 priority: 'must',
               },
             ],
@@ -418,7 +415,6 @@ describe('PreferenceInterpreterService', () => {
         {
           rawName: 'Teatro Colón',
           usage: 'unknown',
-          kind: 'unknown',
           priority: 'must',
         },
       ]);
@@ -441,7 +437,6 @@ describe('PreferenceInterpreterService', () => {
         {
           rawName: 'Teatro Colón',
           usage: 'unknown',
-          kind: 'unknown',
           priority: 'soft',
         },
       ]);
@@ -472,7 +467,6 @@ describe('PreferenceInterpreterService', () => {
         {
           rawName: 'Teatro Colón',
           usage: 'unknown',
-          kind: 'unknown',
           priority: 'soft',
         },
       ]);
@@ -502,31 +496,26 @@ describe('PreferenceInterpreterService', () => {
         {
           rawName: 'Teatro Colón',
           usage: 'unknown',
-          kind: 'unknown',
           priority: 'must',
         },
         {
           rawName: 'Bodega Norton',
           usage: 'unknown',
-          kind: 'unknown',
           priority: 'must',
         },
         {
           rawName: 'Some Place',
           usage: 'unknown',
-          kind: 'unknown',
           priority: 'soft',
         },
         {
           rawName: 'Plain Mention',
           usage: 'unknown',
-          kind: 'unknown',
           priority: 'soft',
         },
         {
           rawName: 'No Kind Given',
           usage: 'unknown',
-          kind: 'unknown',
           priority: 'soft',
         },
       ]);
