@@ -1101,6 +1101,10 @@ export function buildAcquisitionStep(params: {
       snippet?: string;
       url?: string;
     }>;
+    executionSkipped?: {
+      reason: 'DUPLICATE_SOURCE_PLAN_EXECUTION';
+      fingerprint: string;
+    };
     providerResults: Record<
       string,
       | {
