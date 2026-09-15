@@ -605,3 +605,23 @@ capacity is available. P9/RW1 was not run.
 M9 is therefore **NOT CLOSED**. M10 remains **READY — authorization
 required**, with the formal live gate's provider-capacity prerequisite still
 open.
+
+## 2026-09-15 discovery source roles and evidence preservation
+
+Baseline: `f190bc4bcf90c05a07b1d0b535fa8d1425d896c3` on
+`feat/preference-first-selection`, clean. Implemented in commits
+`c09c682`, `9e72caa`, `d5699df`, `678eccf`, and `f51aa1c`.
+
+Implemented SerpAPI AI-mode narrative/list/reference evidence preservation,
+normalization audits, cache-v2 cutover, shared evidence-shape prompt input,
+OSM Experience-discovery removal, Wikivoyage parser/provenance diagnostics and
+bounded anchor targets, deterministic facet repair decisions, and request-scoped
+source-plan fingerprint deduplication.
+
+Independent verification: targeted discovery/acquisition suites **8 / 107
+PASS**; full backend unit **148 / 1,468 PASS**; typecheck, lint, build, and
+`git diff --check` **PASS**. Integration verification was attempted but blocked
+by the disposable-database guard (`unknown/<none>`); no guard bypass was used.
+The cold M9 live generation was not run because the required disposable DB and
+live-gate environment were unavailable. No generation ID or Trace path exists
+for this implementation run; M9 remains **NOT CLOSED** pending live validation.
