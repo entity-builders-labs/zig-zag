@@ -1,4 +1,5 @@
 import { ResolvedGeoEntity } from './experience-resolution.interface';
+import { AreaScopeMembershipAudit } from './area-scope-membership.interface';
 
 export type GeographicValidationStatus =
   | 'UNVERIFIED'
@@ -51,6 +52,7 @@ export interface GeographicValidationResult {
   coherence?: GeographicCoherenceMetrics;
   groundedEvidenceKeys: string[];
   rejectionReasons: GeographicValidationRejectionReason[];
+  areaScopeMembership?: AreaScopeMembershipAudit;
   decisionEntities?: Array<{
     geoEntityId?: string;
     hintKey?: string;

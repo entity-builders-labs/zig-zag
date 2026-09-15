@@ -1341,6 +1341,16 @@ describe('CompositeGeographicValidationService', () => {
       );
       expect(result.accepted).toBe(false);
       expect(result.rejectionReasons).toContain('external_scope_mismatch');
+      expect(result.areaScopeMembership).toMatchObject({
+        policy: 'AREA_CONTAINED',
+        routeGeometryPresent: false,
+        requiredPointCount: 3,
+        decision: {
+          routeIntersectsArea: false,
+          requiredPointInside: true,
+          passes: false,
+        },
+      });
       expect(result.decisionEntities).toEqual(
         expect.arrayContaining([
           expect.objectContaining({ hintKey: 'p1', relation: 'evaluated' }),
@@ -1418,6 +1428,16 @@ describe('CompositeGeographicValidationService', () => {
         areaScope,
       );
       expect(result.accepted).toBe(true);
+      expect(result.areaScopeMembership).toMatchObject({
+        policy: 'AREA_CONTAINED',
+        routeGeometryPresent: false,
+        requiredPointCount: 3,
+        decision: {
+          routeIntersectsArea: false,
+          requiredPointInside: true,
+          passes: true,
+        },
+      });
     });
 
     it('rejects with unresolved_required_component when a required hint is unresolved, before checking the scope geometry', () => {

@@ -1,51 +1,68 @@
 import { GeoJsonGeometry } from '@integrations/osm/utils/osm-geometry.util';
 import { geometryContainsPoint } from '@integrations/osm/utils/geojson-containment.util';
-
-export type AreaScopeMembershipPolicy =
-  | 'AREA_CONTAINED'
-  | 'AREA_ANCHORED_ROUTE';
-
-export interface AreaScopeComponentFact {
-  required: boolean;
-  role: string;
-  latitude?: number | null;
-  longitude?: number | null;
-  geometry?: unknown;
-}
+import {
+  AreaScopeComponentFact,
+  AreaScopeMembershipDecision,
+  AreaScopeMembershipPolicy,
+} from '../interfaces/area-scope-membership.interface';
 
 /**
  * Canonical area membership semantics shared by acquisition validation and
  * catalog reuse. Anchored routes need a real route/point relationship with
  * the area; they do not inherit strict containment for every component.
  */
-export function satisfiesAreaScopeMembership(
+export function evaluateAreaScopeMembership(
   areaGeometry: GeoJsonGeometry | undefined,
   components: AreaScopeComponentFact[],
   policy: AreaScopeMembershipPolicy,
-): boolean {
-  if (!isAreaGeometry(areaGeometry)) return false;
+): AreaScopeMembershipDecision {
+  if (!isAreaGeometry(areaGeometry)) {
+    return {
+      passes: false,
+      routeIntersectsArea: false,
+      requiredPointInside: false,
+    };
+  }
   const required = components.filter((component) => component.required);
-  if (required.length === 0) return false;
-
-  if (policy === 'AREA_CONTAINED') {
-    return required.every((component) =>
-      pointIsInArea(areaGeometry, component),
-    );
+  if (required.length === 0) {
+    return {
+      passes: false,
+      routeIntersectsArea: false,
+      requiredPointInside: false,
+    };
   }
 
-  const meaningful = required.filter((component) => component.role !== 'area');
-  if (meaningful.length === 0) return false;
-
-  // A canonical route entering the boundary is the strongest general fact.
-  const routeEntersArea = meaningful.some(
+  const routeIntersectsArea = required.some(
     (component) =>
       component.role === 'route' &&
       geometryHasPointInArea(component.geometry, areaGeometry),
   );
-  const meaningfulAnchorInArea = meaningful.some((component) =>
-    pointIsInArea(areaGeometry, component),
+  const requiredPointInside = required.some(
+    (component) =>
+      component.role !== 'area' && pointIsInArea(areaGeometry, component),
   );
-  return routeEntersArea || meaningfulAnchorInArea;
+
+  if (policy === 'AREA_CONTAINED') {
+    return {
+      passes: required.every((component) =>
+        pointIsInArea(areaGeometry, component),
+      ),
+      routeIntersectsArea,
+      requiredPointInside,
+    };
+  }
+
+  const meaningful = required.filter((component) => component.role !== 'area');
+  if (meaningful.length === 0) {
+    return { passes: false, routeIntersectsArea, requiredPointInside };
+  }
+
+  // A canonical route entering the boundary is the strongest general fact.
+  return {
+    passes: routeIntersectsArea || requiredPointInside,
+    routeIntersectsArea,
+    requiredPointInside,
+  };
 }
 
 function isAreaGeometry(

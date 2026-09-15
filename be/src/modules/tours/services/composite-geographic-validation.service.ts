@@ -23,10 +23,11 @@ import {
   distanceMeters,
 } from '../utils/geographic-coherence.util';
 import { distancePointToLineStringMeters } from '../utils/route-geometry.util';
+import { evaluateAreaScopeMembership } from '../utils/area-scope-membership-policy';
 import {
-  satisfiesAreaScopeMembership,
+  AreaScopeMembershipAudit,
   AreaScopeMembershipPolicy,
-} from '../utils/area-scope-membership-policy';
+} from '../interfaces/area-scope-membership.interface';
 
 @Injectable()
 export class CompositeGeographicValidationService {
@@ -79,9 +80,10 @@ export class CompositeGeographicValidationService {
         )
       : undefined;
 
+    const areaScopeMembership = externalScopeValidation?.areaScopeMembership;
     let result: GeographicValidationResult;
-    if (externalScopeValidation?.accepted === false) {
-      result = externalScopeValidation;
+    if (externalScopeValidation?.result?.accepted === false) {
+      result = externalScopeValidation.result;
     } else if (geographicScope?.kind === 'POINT_RADIUS') {
       result = this.validatePointRadiusCoordinates(
         resolvedProposal,
@@ -120,6 +122,10 @@ export class CompositeGeographicValidationService {
               groundedEvidenceKeys,
               ['destination_mismatch'],
             );
+    }
+
+    if (areaScopeMembership && !result.areaScopeMembership) {
+      result = { ...result, areaScopeMembership };
     }
 
     if (!result.decisionEntities) {
@@ -240,7 +246,10 @@ export class CompositeGeographicValidationService {
     validationScope: ExperienceValidationScope,
     evidenceKeys: string[],
     validationIntent?: 'walk' | 'route_like',
-  ): GeographicValidationResult | undefined {
+  ): {
+    result?: GeographicValidationResult;
+    areaScopeMembership?: AreaScopeMembershipAudit;
+  } {
     const proposalName = resolvedProposal.candidate.name;
     const requiredHints = resolvedProposal.candidate.componentHints.filter(
       (hint) => hint.required,
@@ -250,13 +259,15 @@ export class CompositeGeographicValidationService {
       (hint) => !withCoordinates.some((entity) => entity.hintKey === hint.key),
     );
     if (unresolvedRequired) {
-      return this.rejected(
-        proposalName,
-        'EXPERIENCE',
-        withCoordinates,
-        evidenceKeys,
-        ['unresolved_required_component'],
-      );
+      return {
+        result: this.rejected(
+          proposalName,
+          'EXPERIENCE',
+          withCoordinates,
+          evidenceKeys,
+          ['unresolved_required_component'],
+        ),
+      };
     }
 
     const requiredEntities = withCoordinates.filter((entity) =>
@@ -278,13 +289,15 @@ export class CompositeGeographicValidationService {
         validationScope.geometry,
       )
     ) {
-      return this.rejected(
-        proposalName,
-        'EXPERIENCE',
-        requiredEntities,
-        evidenceKeys,
-        ['external_scope_mismatch'],
-      );
+      return {
+        result: this.rejected(
+          proposalName,
+          'EXPERIENCE',
+          requiredEntities,
+          evidenceKeys,
+          ['external_scope_mismatch'],
+        ),
+      };
     }
 
     if (validationScope.kind === 'AREA') {
@@ -292,7 +305,7 @@ export class CompositeGeographicValidationService {
         validationIntent === 'walk' || validationIntent === 'route_like'
           ? 'AREA_ANCHORED_ROUTE'
           : 'AREA_CONTAINED';
-      const satisfied = satisfiesAreaScopeMembership(
+      const decision = evaluateAreaScopeMembership(
         validationScope.geometry,
         requiredEntities.map((entity) => ({
           required: true,
@@ -303,7 +316,15 @@ export class CompositeGeographicValidationService {
         })),
         policy,
       );
-      if (!satisfied) {
+      const areaScopeMembership: AreaScopeMembershipAudit = {
+        policy,
+        decision,
+        routeGeometryPresent: requiredEntities.some(
+          (entity) => entity.role === 'route' && entity.geometry !== undefined,
+        ),
+        requiredPointCount: requiredEntities.length,
+      };
+      if (!decision.passes) {
         const outside = requiredEntities.find(
           (entity) =>
             entity.role !== 'area' &&
@@ -313,18 +334,22 @@ export class CompositeGeographicValidationService {
               entity.latitude as number,
             ),
         );
-        return this.rejected(
-          proposalName,
-          'EXPERIENCE',
-          outside ? [outside] : requiredEntities,
-          evidenceKeys,
-          ['external_scope_mismatch'],
-          undefined,
-          outside ? [outside] : requiredEntities,
-          requiredEntities,
-        );
+        return {
+          result: this.rejected(
+            proposalName,
+            'EXPERIENCE',
+            outside ? [outside] : requiredEntities,
+            evidenceKeys,
+            ['external_scope_mismatch'],
+            undefined,
+            outside ? [outside] : requiredEntities,
+            requiredEntities,
+            areaScopeMembership,
+          ),
+          areaScopeMembership,
+        };
       }
-      return undefined;
+      return { areaScopeMembership };
     }
 
     // ROUTE: real corridor-membership check via distancePointToLineStringMeters
@@ -349,17 +374,19 @@ export class CompositeGeographicValidationService {
         ) > this.thresholds.route.maxComponentDistanceFromRouteMeters,
     );
     if (tooFar) {
-      return this.rejected(
-        proposalName,
-        'EXPERIENCE',
-        [tooFar],
-        evidenceKeys,
-        ['external_scope_mismatch'],
-        undefined,
-        [tooFar],
-      );
+      return {
+        result: this.rejected(
+          proposalName,
+          'EXPERIENCE',
+          [tooFar],
+          evidenceKeys,
+          ['external_scope_mismatch'],
+          undefined,
+          [tooFar],
+        ),
+      };
     }
-    return undefined;
+    return {};
   }
 
   /**
@@ -846,6 +873,7 @@ export class CompositeGeographicValidationService {
     coherence?: ReturnType<typeof coherenceMetrics>,
     offendingEntities: ResolvedGeoEntity[] = [],
     evaluatedEntities: ResolvedGeoEntity[] = anchors,
+    areaScopeMembership?: AreaScopeMembershipAudit,
   ): GeographicValidationResult {
     return {
       proposalName,
@@ -856,6 +884,7 @@ export class CompositeGeographicValidationService {
       coherence,
       groundedEvidenceKeys: evidenceKeys,
       rejectionReasons,
+      areaScopeMembership,
       decisionEntities: evaluatedEntities.map((entity) => ({
         geoEntityId: entity.geoEntityId,
         hintKey: entity.hintKey,

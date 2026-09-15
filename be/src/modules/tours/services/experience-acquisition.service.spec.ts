@@ -718,6 +718,7 @@ describe('ExperienceAcquisitionService', () => {
         { key: 'ev-1', source: 'timeout.com', title: 'T', snippet: 'S' },
       ],
       evidenceProvenance: [{ provider: 'tavily' }],
+      rawOutput: 'grounded raw fixture',
     };
 
     const webPlan: ExperienceAcquisitionPlan = {
@@ -789,6 +790,15 @@ describe('ExperienceAcquisitionService', () => {
         extractorProvider: 'gemini',
         candidateCount: 1,
         evidenceKeys: ['ev-1'],
+        groundedRawOutput: 'grounded raw fixture',
+        extractorRawOutput: '{"candidates":[]}',
+        extractedCandidateCount: 1,
+        candidateDecisions: [
+          expect.objectContaining({
+            accepted: true,
+            reason: 'MATCHING_EVIDENCE_REQUIREMENT',
+          }),
+        ],
       });
       expect(result.evidence?.some((e) => e.key === 'ev-1')).toBe(true);
     });

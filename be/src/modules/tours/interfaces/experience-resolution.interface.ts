@@ -2,6 +2,7 @@ import { ExperienceCandidate } from './experience-discovery.interface';
 import { DedupeEvidence } from '../utils/experience-dedupe.util';
 import { GeoJsonGeometry } from '@integrations/osm/utils/osm-geometry.util';
 import { OsmCandidate } from '@integrations/osm/services/osm-places.service';
+import { AreaScopeMembershipAudit } from './area-scope-membership.interface';
 
 /**
  * Task B5 — a request-level, non-authoritative geographic scope resolved
@@ -144,6 +145,7 @@ export interface ExperienceGeographicValidationResult {
   };
   groundedEvidenceKeys: string[];
   rejectionReasons: string[];
+  areaScopeMembership?: AreaScopeMembershipAudit;
   /** Exact entities used by the canonical decision; trace never infers offenders. */
   decisionEntities?: Array<{
     geoEntityId?: string;

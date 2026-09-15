@@ -9,6 +9,8 @@ import { GooglePlacesAcquisitionProvider } from '../providers/google-places-acqu
 import { StructuredExperienceCandidateSynthesizerService } from './structured-experience-candidate-synthesizer.service';
 import { StructuredCandidateCorroborationService } from './structured-candidate-corroboration.service';
 import { AcquisitionEvidenceRequirement } from '../interfaces/acquisition-evidence-requirement.interface';
+import { AreaScopeMembershipPolicy } from '../interfaces/area-scope-membership.interface';
+import { evaluateAreaScopeMembership } from '../utils/area-scope-membership-policy';
 
 const GENERIC_REFILL_EVIDENCE_REQUIREMENTS = [
   'SINGLE_PLACE',
@@ -28,10 +30,6 @@ import {
 import { mergeExperienceMetadata } from '../utils/experience-metadata-merge.util';
 import { normalizeGeoName } from '../utils/nominatim-match.util';
 import { ClassificationResult } from './experience-classification.service';
-import {
-  AreaScopeMembershipPolicy,
-  satisfiesAreaScopeMembership,
-} from '../utils/area-scope-membership-policy';
 import { GeoJsonGeometry } from '@integrations/osm/utils/osm-geometry.util';
 
 // Two different resolution paths (a Nominatim lookup done while resolving a
@@ -411,7 +409,7 @@ export class ExperienceCatalogService {
       .filter(
         (experience) =>
           experience.components.length > 1 &&
-          satisfiesAreaScopeMembership(
+          evaluateAreaScopeMembership(
             area.geometry as GeoJsonGeometry,
             experience.components.map((component) => ({
               required: component.required,
@@ -421,7 +419,7 @@ export class ExperienceCatalogService {
               geometry: component.geoEntity.geometry,
             })),
             policy,
-          ),
+          ).passes,
       )
       .map((experience) => this.projectVerifiedExperienceRow(experience));
   }
