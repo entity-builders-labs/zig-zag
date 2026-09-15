@@ -9,6 +9,8 @@ import {
   SourceObservation,
 } from '../interfaces/experience-acquisition.interface';
 
+const VENUE_ANCHOR_EVIDENCE_REQUIREMENTS = ['SINGLE_PLACE'] as const;
+
 export interface VenueAnchorLookupCapability {
   acquire(
     destination: { destinationName?: string },
@@ -63,6 +65,7 @@ export class VenueAnchorResolutionService {
         continue;
       const merged = this.corroborator.corroborateAndMerge(
         this.synthesizer.synthesizeProposals(acquired.value),
+        VENUE_ANCHOR_EVIDENCE_REQUIREMENTS,
       );
       const response = await this.acquisition.materializeExecution(
         {

@@ -8,6 +8,8 @@ import {
   RatingEvidence,
   SourceObservation,
 } from '../interfaces/experience-acquisition.interface';
+import { AcquisitionEvidenceRequirement } from '../interfaces/acquisition-evidence-requirement.interface';
+import { candidateSatisfiesEvidenceRequirement } from '../utils/acquisition-candidate-requirement.util';
 import { StructuredCandidateProposal } from '../interfaces/structured-candidate-proposal.interface';
 import {
   distanceMeters,
@@ -39,6 +41,7 @@ export interface CorroborationGroupTrace {
   proposalIds: string[];
   contributingProviders: string[];
   mergedEvidenceKeys: string[];
+  matchedOriginationRequirements: AcquisitionEvidenceRequirement[];
 }
 
 export interface CorroborationPairTrace {
@@ -53,6 +56,14 @@ export interface CorroborationMergeResult {
   candidates: ExperienceCandidate[];
   groups: CorroborationGroupTrace[];
   pairDecisions: CorroborationPairTrace[];
+  rejectedOriginations: Array<{
+    groupId: string;
+    proposalIds: string[];
+    requestedRequirements: AcquisitionEvidenceRequirement[];
+    observationCapabilities: AcquisitionEvidenceRequirement[];
+    candidateShapeMatches: AcquisitionEvidenceRequirement[];
+    reason: 'NO_MATCHING_ORIGINATION_REQUIREMENT';
+  }>;
 }
 
 /**
@@ -266,12 +277,14 @@ export class StructuredCandidateCorroborationService {
    */
   corroborateAndMerge(
     proposals: StructuredCandidateProposal[],
+    requirements: readonly AcquisitionEvidenceRequirement[],
   ): CorroborationMergeResult {
     if (!proposals.length) {
       return {
         candidates: [],
         groups: [],
         pairDecisions: [],
+        rejectedOriginations: [],
       };
     }
 
@@ -341,32 +354,49 @@ export class StructuredCandidateCorroborationService {
       }
     }
 
-    // Synthesize candidates from clusters. A cluster whose every observation is
-    // `standaloneEligible === false` — a generic operational venue (a plain
-    // café / bar / restaurant, admitted only because the plan requested that
-    // commercial type) that did NOT corroborate with any stronger tourism
-    // evidence — is dropped: it may enrich a real Experience but never
-    // originate one.
     const candidates: ExperienceCandidate[] = [];
     const groups: CorroborationGroupTrace[] = [];
+    const rejectedOriginations: CorroborationMergeResult['rejectedOriginations'] =
+      [];
 
     for (let i = 0; i < clusters.length; i++) {
       const cluster = clusters[i];
-      const onlyEnrichmentEligible =
-        cluster.length > 0 &&
-        cluster.every((proposal) =>
-          proposal.observations.every(
-            (obs) => obs.standaloneEligible === false,
+      const mergedCandidate = this.synthesizeMergedCandidate(cluster);
+      const matchingRequirements = requirements.filter(
+        (requirement) =>
+          cluster.some((proposal) =>
+            proposal.observations.some((observation) =>
+              observation.originationCapabilities.includes(requirement),
+            ),
+          ) &&
+          candidateSatisfiesEvidenceRequirement(mergedCandidate, requirement),
+      );
+      const groupId = `group_${i + 1}`;
+      if (matchingRequirements.length === 0) {
+        rejectedOriginations.push({
+          groupId,
+          proposalIds: cluster.map(proposalIdentifier),
+          requestedRequirements: [...requirements],
+          observationCapabilities: [
+            ...new Set(
+              cluster.flatMap((proposal) =>
+                proposal.observations.flatMap(
+                  (observation) => observation.originationCapabilities,
+                ),
+              ),
+            ),
+          ].sort(),
+          candidateShapeMatches: requirements.filter((requirement) =>
+            candidateSatisfiesEvidenceRequirement(mergedCandidate, requirement),
           ),
-        );
-      if (onlyEnrichmentEligible) {
+          reason: 'NO_MATCHING_ORIGINATION_REQUIREMENT',
+        });
         continue;
       }
-      const mergedCandidate = this.synthesizeMergedCandidate(cluster);
       candidates.push(mergedCandidate);
 
       groups.push({
-        groupId: `group_${i + 1}`,
+        groupId,
         proposalIds: cluster.map(proposalIdentifier),
         contributingProviders: [
           ...new Set(
@@ -376,6 +406,7 @@ export class StructuredCandidateCorroborationService {
         mergedEvidenceKeys: [
           ...new Set(cluster.flatMap((p) => p.candidate.evidenceKeys)),
         ].sort(),
+        matchedOriginationRequirements: [...matchingRequirements],
       });
     }
 
@@ -383,6 +414,7 @@ export class StructuredCandidateCorroborationService {
       candidates,
       groups,
       pairDecisions,
+      rejectedOriginations,
     };
   }
 

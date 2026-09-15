@@ -1,5 +1,10 @@
 import { SourceObservation } from '../../../src/modules/tours/interfaces/experience-acquisition.interface';
 
+const PLACE_ORIGINATION_CAPABILITIES = [
+  'GENERAL_TOURISM_EXPERIENCE',
+  'SINGLE_PLACE',
+] as const;
+
 /**
  * Deterministic structured-provider observations carrying OBJECTIVE factual
  * evidence (OSM tags, Google Places types) — nothing derived from any user
@@ -18,6 +23,7 @@ export function osmHistoricMonumentObservation(
     description: 'A historic monument recorded in OpenStreetMap.',
     geo: { latitude: -32.9475, longitude: -60.6284 },
     evidenceType: 'place',
+    originationCapabilities: [...PLACE_ORIGINATION_CAPABILITIES],
     metadata: {
       osmType: 'node',
       osmTags: {
@@ -43,6 +49,7 @@ export function osmArtMuseumObservation(
     description: 'A fine-arts museum recorded in OpenStreetMap.',
     geo: { latitude: -32.9333, longitude: -60.6417 },
     evidenceType: 'place',
+    originationCapabilities: [...PLACE_ORIGINATION_CAPABILITIES],
     metadata: {
       osmType: 'way',
       osmTags: {
@@ -67,7 +74,7 @@ export function placesHistoricalLandmarkObservation(
     description: 'A historical landmark returned by Google Places.',
     geo: { latitude: -32.945, longitude: -60.63 },
     evidenceType: 'place',
-    standaloneEligible: true,
+    originationCapabilities: [...PLACE_ORIGINATION_CAPABILITIES],
     metadata: {
       primaryType: 'historical_landmark',
       types: ['historical_landmark', 'tourist_attraction'],
@@ -100,6 +107,7 @@ export function structuredLandmarkAObservation(): SourceObservation {
       'A place recorded in OpenStreetMap with wikidata/wikipedia tags.',
     geo: { latitude: -32.9476, longitude: -60.6285 },
     evidenceType: 'place',
+    originationCapabilities: [...PLACE_ORIGINATION_CAPABILITIES],
     metadata: {
       osmType: 'node',
       osmTags: {
@@ -123,6 +131,7 @@ export function structuredPlaceBObservation(): SourceObservation {
     description: 'A place recorded in OpenStreetMap with a minimal tag set.',
     geo: { latitude: -32.94, longitude: -60.66 },
     evidenceType: 'place',
+    originationCapabilities: [...PLACE_ORIGINATION_CAPABILITIES],
     metadata: {
       osmType: 'node',
       osmTags: {

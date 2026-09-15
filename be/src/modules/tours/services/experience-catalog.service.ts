@@ -8,6 +8,11 @@ import {
 import { GooglePlacesAcquisitionProvider } from '../providers/google-places-acquisition.provider';
 import { StructuredExperienceCandidateSynthesizerService } from './structured-experience-candidate-synthesizer.service';
 import { StructuredCandidateCorroborationService } from './structured-candidate-corroboration.service';
+import { AcquisitionEvidenceRequirement } from '../interfaces/acquisition-evidence-requirement.interface';
+
+const GENERIC_REFILL_EVIDENCE_REQUIREMENTS = [
+  'GENERAL_TOURISM_EXPERIENCE',
+] as const satisfies readonly AcquisitionEvidenceRequirement[];
 import { NormalizedOpeningHours } from '../interfaces/daily-planning.interface';
 import {
   distanceMeters,
@@ -183,7 +188,10 @@ export class ExperienceCatalogService {
     const proposals = synthesizer.synthesizeProposals(observations);
 
     // Corroborate and merge proposals
-    const corroborationResult = corroborator.corroborateAndMerge(proposals);
+    const corroborationResult = corroborator.corroborateAndMerge(
+      proposals,
+      GENERIC_REFILL_EVIDENCE_REQUIREMENTS,
+    );
 
     // Non-persistent: Acquired candidates must flow through ExperienceProposalResolverService.resolve()
     // to preserve geographic validation, deduplication, trait resolution, and single-path persistence.

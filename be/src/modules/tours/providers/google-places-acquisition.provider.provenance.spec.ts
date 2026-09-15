@@ -88,7 +88,7 @@ describe('GooglePlacesAcquisitionProvider provenance', () => {
         title: 'Museo de prueba',
         description: 'Buenos Aires, Argentina',
         geo: { latitude: -34.6, longitude: -58.38 },
-        standaloneEligible: true,
+        originationCapabilities: ['GENERAL_TOURISM_EXPERIENCE', 'SINGLE_PLACE'],
       }),
     );
     expect(observation.sourceUrl).toBe('https://museum.example.com');

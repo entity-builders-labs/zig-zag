@@ -22,11 +22,7 @@ import { GooglePlacesAcquisitionProvider } from '../providers/google-places-acqu
 import { WikivoyageAcquisitionProvider } from '../providers/wikivoyage-acquisition.provider';
 import { OsmAcquisitionProvider } from '../providers/osm-acquisition.provider';
 import { StructuredExperienceCandidateSynthesizerService } from './structured-experience-candidate-synthesizer.service';
-import {
-  CorroborationGroupTrace,
-  CorroborationPairTrace,
-  StructuredCandidateCorroborationService,
-} from './structured-candidate-corroboration.service';
+import { StructuredCandidateCorroborationService } from './structured-candidate-corroboration.service';
 import {
   EXPERIENCE_PROPOSAL_RESOLVER,
   ExperienceProposalResolver,
@@ -36,6 +32,7 @@ import {
 } from '../interfaces/experience-resolution.interface';
 import { ExperienceClassificationService } from './experience-classification.service';
 import { classifyAcceptedResultsByExperience } from '../utils/experience-classification-convergence.util';
+import { candidateSatisfiesEvidenceRequirement } from '../utils/acquisition-candidate-requirement.util';
 
 export interface ResolverEvidenceItem {
   key: string;
@@ -233,21 +230,21 @@ export class ExperienceAcquisitionService {
     if (allObservations.length > 0) {
       const proposals = this.synthesizer
         ? this.synthesizer.synthesizeProposals(allObservations)
-        : [];
+        : (() => {
+            throw new Error(
+              'StructuredExperienceCandidateSynthesizerService is required for structured acquisition',
+            );
+          })();
 
-      const mergeResult = this.corroborationService
-        ? this.corroborationService.corroborateAndMerge(proposals)
-        : {
-            // No corroborator wired: a standalone-ineligible observation (a
-            // generic operational venue) still must not originate a candidate.
-            candidates: proposals
-              .filter((p) =>
-                p.observations.some((obs) => obs.standaloneEligible !== false),
-              )
-              .map((p) => p.candidate),
-            groups: [] as CorroborationGroupTrace[],
-            pairDecisions: [] as CorroborationPairTrace[],
-          };
+      if (!this.corroborationService) {
+        throw new Error(
+          'StructuredCandidateCorroborationService is required for structured acquisition',
+        );
+      }
+      const mergeResult = this.corroborationService.corroborateAndMerge(
+        proposals,
+        plan.evidenceRequirements,
+      );
       structuredCandidates.push(...mergeResult.candidates);
 
       for (const obs of allObservations) {
@@ -348,7 +345,12 @@ export class ExperienceAcquisitionService {
         { bypassCache: true },
       );
 
-      sink.webCandidates.push(...extracted.candidates);
+      const admissibleCandidates = extracted.candidates.filter((candidate) =>
+        plan.evidenceRequirements.some((requirement) =>
+          candidateSatisfiesEvidenceRequirement(candidate, requirement),
+        ),
+      );
+      sink.webCandidates.push(...admissibleCandidates);
       for (const ev of grounded.evidence) {
         sink.webEvidence.push({
           key: ev.key,
@@ -365,7 +367,7 @@ export class ExperienceAcquisitionService {
         extractorModel: extracted.model,
         rawOutput: extracted.rawOutput,
         validationErrors: extracted.validationErrors ?? [],
-        candidateCount: extracted.candidates.length,
+        candidateCount: admissibleCandidates.length,
       };
     } catch (error: any) {
       this.logger.warn(

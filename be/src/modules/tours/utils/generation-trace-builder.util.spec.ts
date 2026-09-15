@@ -697,6 +697,7 @@ describe('GenerationTrace v4 geometry projection', () => {
                 provider: 'web',
                 evidenceKey: 'web:walk',
                 title: 'Walk',
+                originationCapabilities: [],
                 geo: {
                   latitude: -34.6,
                   longitude: -58.4,
@@ -927,6 +928,7 @@ describe('buildAcquisitionStep', () => {
             provider: 'wikivoyage',
             evidenceKey: 'wikivoyage:stop-a',
             title: 'Stop A',
+            originationCapabilities: [],
             description: 'A concise history',
             evidenceType: 'editorial',
             geo: {

@@ -11,6 +11,7 @@ import {
   SourceObservation,
   SourceObservationGeo,
 } from '../interfaces/experience-acquisition.interface';
+import { AcquisitionEvidenceRequirement } from '../interfaces/acquisition-evidence-requirement.interface';
 import { ExperienceDiscoveryScope } from '../interfaces/experience-discovery.interface';
 
 export const DISALLOWED_GOOGLE_PLACES_TYPES = new Set([
@@ -220,20 +221,6 @@ export class GooglePlacesAcquisitionProvider {
         }
 
         const geo = this.validateCoordinates(place.location);
-        const rawTypes = [place.primaryType, ...(place.types ?? [])].filter(
-          (t): t is string => typeof t === 'string' && t.trim().length > 0,
-        );
-        // A place admitted ONLY because a contextual commercial type matched
-        // the plan's request (no safe tourism type present) is enrichment-only:
-        // it may corroborate a real tourism Experience but must not originate
-        // one. Type semantics only — never ratings or names.
-        const hasTourismType = rawTypes.some((t) =>
-          SAFE_GENERIC_TOURISM_TYPES.has(t),
-        );
-        const hasContextualType = rawTypes.some((t) =>
-          CONTEXTUAL_GOOGLE_PLACES_TYPES.has(t),
-        );
-        const standaloneEligible = hasTourismType || !hasContextualType;
         const acquisitionProvider =
           ACQUISITION_PROVIDER_BY_PLACES_PROVIDER[provider];
 
@@ -245,7 +232,10 @@ export class GooglePlacesAcquisitionProvider {
           title: place.displayName?.text ?? place.name ?? placeId,
           description: place.formattedAddress,
           geo,
-          standaloneEligible,
+          originationCapabilities: [
+            'GENERAL_TOURISM_EXPERIENCE',
+            'SINGLE_PLACE',
+          ] satisfies AcquisitionEvidenceRequirement[],
           // Normalized at the adapter boundary (docs/architecture/
           // engineering-principles.md §1/§3) -- a missing rating is
           // `undefined`, never a fabricated `0`. Geoapify-shaped places

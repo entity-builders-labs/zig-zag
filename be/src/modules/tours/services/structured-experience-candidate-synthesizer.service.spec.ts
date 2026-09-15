@@ -23,6 +23,7 @@ describe('StructuredExperienceCandidateSynthesizerService', () => {
       description: 'Complejo histórico.',
       geo: { latitude: -34.610556, longitude: -58.374444 },
       evidenceType: 'place',
+      originationCapabilities: ['GENERAL_TOURISM_EXPERIENCE', 'SINGLE_PLACE'],
       evidenceKey: 'wikivoyage:San_Telmo:Manzana_de_las_Luces',
     };
 
@@ -58,6 +59,7 @@ describe('StructuredExperienceCandidateSynthesizerService', () => {
       provider: 'wikivoyage',
       title: 'Distrito de las Artes',
       evidenceType: 'area',
+      originationCapabilities: [],
       evidenceKey: 'wikivoyage:La_Boca:Distrito_de_las_Artes',
     };
 
@@ -79,6 +81,7 @@ describe('StructuredExperienceCandidateSynthesizerService', () => {
       provider: 'wikivoyage',
       title: 'Caminito Peatonal',
       evidenceType: 'route',
+      originationCapabilities: [],
       evidenceKey: 'wikivoyage:La_Boca:Caminito_Peatonal',
     };
 
@@ -102,6 +105,7 @@ describe('StructuredExperienceCandidateSynthesizerService', () => {
       description: 'Clase de baile guiada.',
       geo: { latitude: -34.62, longitude: -58.37 },
       evidenceType: 'tourism_activity',
+      originationCapabilities: [],
       evidenceKey: 'wikivoyage:San_Telmo:Clases_de_Tango',
     };
 
@@ -120,12 +124,14 @@ describe('StructuredExperienceCandidateSynthesizerService', () => {
         provider: 'wikivoyage',
         title: 'Operador Turístico Local',
         evidenceType: 'operator',
+        originationCapabilities: [],
         evidenceKey: 'wikivoyage:test:operator',
       },
       {
         provider: 'wikivoyage',
         title: 'Artículo Editorial',
         evidenceType: 'editorial',
+        originationCapabilities: [],
         evidenceKey: 'wikivoyage:test:editorial',
       },
     ];
@@ -141,6 +147,7 @@ describe('StructuredExperienceCandidateSynthesizerService', () => {
       provider: 'wikivoyage',
       title: 'Plaza Dorrego',
       evidenceType: 'place',
+      originationCapabilities: ['GENERAL_TOURISM_EXPERIENCE', 'SINGLE_PLACE'],
       evidenceKey: 'wikivoyage:San_Telmo:see:see:Plaza_Dorrego:1',
       geo: { latitude: -34.62, longitude: -58.37 },
     };
@@ -160,6 +167,7 @@ describe('StructuredExperienceCandidateSynthesizerService', () => {
       description: 'Cerrito 628, Buenos Aires',
       geo: { latitude: -34.601111, longitude: -58.383056 },
       evidenceType: 'place',
+      originationCapabilities: ['GENERAL_TOURISM_EXPERIENCE', 'SINGLE_PLACE'],
       evidenceKey: 'google_places:ChIJPlace123',
       // Already normalized at the adapter boundary
       // (GooglePlacesAcquisitionProvider) -- this test never re-derives it
@@ -210,6 +218,7 @@ describe('StructuredExperienceCandidateSynthesizerService', () => {
         provider: 'geoapify',
         title: 'Museo Nacional',
         evidenceType: 'place',
+        originationCapabilities: ['GENERAL_TOURISM_EXPERIENCE', 'SINGLE_PLACE'],
         evidenceKey: 'geoapify:1',
         qualityEvidence: { consumerRating: { value: 4.2, reviewCount: 830 } },
       };
@@ -231,6 +240,7 @@ describe('StructuredExperienceCandidateSynthesizerService', () => {
         provider: 'geoapify',
         title: 'Parque Lezama',
         evidenceType: 'place',
+        originationCapabilities: ['GENERAL_TOURISM_EXPERIENCE', 'SINGLE_PLACE'],
         evidenceKey: 'geoapify:2',
         metadata: { rating: 4.2, userRatingCount: 830 },
       };
@@ -245,6 +255,7 @@ describe('StructuredExperienceCandidateSynthesizerService', () => {
         provider: 'wikivoyage',
         title: 'Manzana de las Luces',
         evidenceType: 'place',
+        originationCapabilities: ['GENERAL_TOURISM_EXPERIENCE', 'SINGLE_PLACE'],
         evidenceKey: 'wikivoyage:1',
         qualityEvidence: { editorialListing: { listed: true } },
       };
@@ -261,6 +272,7 @@ describe('StructuredExperienceCandidateSynthesizerService', () => {
         provider: 'osm',
         title: 'Plaza Dorrego',
         evidenceType: 'place',
+        originationCapabilities: ['GENERAL_TOURISM_EXPERIENCE', 'SINGLE_PLACE'],
         evidenceKey: 'osm:node:1',
       };
 

@@ -5,6 +5,7 @@ import { CandidateScoreBreakdown } from '../utils/candidate-ranking.util';
 import { PreferenceInterpretationTrace } from './preference-interpretation.interface';
 import { GeoEntityHint } from './experience-discovery.interface';
 import { ResolvedGeoEntity } from './experience-resolution.interface';
+import { AcquisitionEvidenceRequirement } from './acquisition-evidence-requirement.interface';
 
 export type TraceStage =
   | 'preference_interpretation'
@@ -96,7 +97,7 @@ export interface TraceAcquisitionSource {
     description?: string;
     sourceUrl?: string;
     evidenceType?: string;
-    standaloneEligible?: boolean;
+    originationCapabilities: AcquisitionEvidenceRequirement[];
     externalId?: string;
     geo?: {
       latitude?: number;

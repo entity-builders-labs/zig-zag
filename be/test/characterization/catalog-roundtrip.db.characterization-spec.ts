@@ -62,7 +62,10 @@ describe('CHAR-DB catalog round-trips', () => {
     candidateTraits: string[];
   }> {
     const [proposal] = synth.synthesizeProposals([obs]);
-    const merged = corroboration.corroborateAndMerge([proposal]);
+    const merged = corroboration.corroborateAndMerge(
+      [proposal],
+      ['GENERAL_TOURISM_EXPERIENCE'],
+    );
     const candidate = merged.candidates[0];
 
     const geo = await prisma.geoEntity.create({

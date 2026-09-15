@@ -6,7 +6,7 @@ import { seedTour } from '../support/seed';
  * A food + nightlife request routes contextual commercial types
  * (restaurant/cafe/bakery/bar/night_club) to Google Places. Those bare
  * operational venues are admitted as observations but marked
- * `standaloneEligible: false`, so corroboration drops them — they never
+ * without a matching origination capability, so corroboration drops them — they never
  * become VERIFIED tourism Experiences. Evidence-backed tourism food
  * (Wikivoyage EAT, a web-discovered parrilla) still can. The gate is domain /
  * source semantics, not a name blacklist and not a ratings threshold.

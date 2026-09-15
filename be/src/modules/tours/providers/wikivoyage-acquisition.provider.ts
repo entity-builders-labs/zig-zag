@@ -96,6 +96,10 @@ export class WikivoyageAcquisitionProvider {
             : undefined,
         evidenceType: entry.sectionType === 'DO' ? 'tourism_activity' : 'place',
         evidenceKey,
+        originationCapabilities:
+          entry.sectionType === 'DO'
+            ? []
+            : ['GENERAL_TOURISM_EXPERIENCE', 'SINGLE_PLACE'],
         qualityEvidence: WIKIVOYAGE_QUALITY_EVIDENCE,
         // Adapter-boundary normalization: this entry cites a real,
         // well-formed Wikidata QID -- resolved here, never re-derived

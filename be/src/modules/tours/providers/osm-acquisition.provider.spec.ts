@@ -207,12 +207,12 @@ describe('OsmAcquisitionProvider', () => {
     expect(byId['osm:relation:12']).toBe('route'); // hiking route relation -> route
     expect(
       result.value.find((o) => o.externalId === 'osm:way:10')
-        ?.standaloneEligible,
-    ).toBe(false);
+        ?.originationCapabilities,
+    ).toEqual([]);
     expect(
       result.value.find((o) => o.externalId === 'osm:relation:12')
-        ?.standaloneEligible,
-    ).toBe(true);
+        ?.originationCapabilities,
+    ).toEqual(['GENERAL_TOURISM_EXPERIENCE', 'CANONICAL_ROUTE']);
   });
 
   it('emits one observation per OSM element even when several concepts match it', async () => {

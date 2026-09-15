@@ -6,9 +6,11 @@ import {
 import { GeoJsonGeometry } from '@integrations/osm/utils/osm-geometry.util';
 import {
   AcquisitionProviderResult,
+  SourceEvidenceType,
   SourceObservation,
   SourceObservationGeo,
 } from '../interfaces/experience-acquisition.interface';
+import { AcquisitionEvidenceRequirement } from '../interfaces/acquisition-evidence-requirement.interface';
 import { ExperienceDiscoveryScope } from '../interfaces/experience-discovery.interface';
 import {
   OSM_ACQUISITION_CONCEPTS,
@@ -22,6 +24,7 @@ export interface OsmAcquireOptions {
 // Discovery radius used when the plan's destination scope carries no radius
 // of its own. OsmPlacesService.lookupFeaturesNear still caps this.
 const DEFAULT_DISCOVERY_RADIUS_METERS = 5000;
+type OsmEvidenceType = Extract<SourceEvidenceType, 'place' | 'area' | 'route'>;
 
 /**
  * Proactive OSM acquisition: given a `SourcePlan.osm.concepts` list, resolves
@@ -139,6 +142,7 @@ export class OsmAcquisitionProvider {
         continue;
       }
 
+      const evidenceType = this.classify(candidate, matchedConcepts);
       byExternalId.set(candidate.id, {
         provider: 'osm',
         externalId: candidate.id,
@@ -146,7 +150,7 @@ export class OsmAcquisitionProvider {
         title: candidate.name,
         description: candidate.tags.description || undefined,
         geo: centroidOfGeometry(candidate.geometry),
-        evidenceType: this.classify(candidate, matchedConcepts),
+        evidenceType,
         metadata: {
           osmType: candidate.osmType,
           osmTags: candidate.tags,
@@ -156,13 +160,10 @@ export class OsmAcquisitionProvider {
           // may ever populate it).
           narrativeContext: candidate.narrativeContext || undefined,
         },
-        // Generic footways and paths are resolution/corroboration evidence,
-        // not proof that a tourism Experience exists. An explicit named
-        // route relation may originate one under the shared contract.
-        standaloneEligible:
-          candidate.osmType === 'relation' &&
-          typeof candidate.tags.route === 'string' &&
-          candidate.tags.route.trim().length > 0,
+        originationCapabilities: this.originationCapabilitiesFor(
+          candidate,
+          evidenceType,
+        ),
       });
     }
 
@@ -184,6 +185,24 @@ export class OsmAcquisitionProvider {
         evidenceKeys: observations.map((obs) => obs.evidenceKey),
       },
     };
+  }
+
+  private originationCapabilitiesFor(
+    candidate: OsmCandidate,
+    evidenceType: 'place' | 'area' | 'route',
+  ): AcquisitionEvidenceRequirement[] {
+    if (evidenceType === 'place') {
+      return ['GENERAL_TOURISM_EXPERIENCE', 'SINGLE_PLACE'];
+    }
+    if (evidenceType === 'area') return [];
+    if (
+      candidate.osmType === 'relation' &&
+      typeof candidate.tags.route === 'string' &&
+      candidate.tags.route.trim().length > 0
+    ) {
+      return ['GENERAL_TOURISM_EXPERIENCE', 'CANONICAL_ROUTE'];
+    }
+    return [];
   }
 
   /** Requested concepts whose registry selectors actually match this element. */
@@ -215,7 +234,7 @@ export class OsmAcquisitionProvider {
   private classify(
     candidate: OsmCandidate,
     matchedConcepts: string[],
-  ): 'place' | 'area' | 'route' {
+  ): OsmEvidenceType {
     const evidenceTypes = new Set(
       matchedConcepts
         .map((concept) => OSM_ACQUISITION_CONCEPTS[concept]?.evidenceType)

@@ -127,10 +127,10 @@ Canonical design: `docs/superpowers/specs/2026-09-06-multi-source-acquisition-de
   `osmPlacesService`) are all gone. `ExperienceAcquisitionService.acquireNearby()` is
   kept (it retains test coverage and `catalog.acquireNearbyAsExperiences` is a
   standalone capability) but is no longer the live architecture.
-- **Places tourism admission** (D): `SourceObservation.standaloneEligible?: boolean`.
+- **Places tourism admission** (D): typed `SourceObservation.originationCapabilities`.
   A Google Places result admitted **only** because a contextual commercial type
   (`restaurant`/`cafe`/`bakery`/`bar`/`night_club`) matched, with no
-  `SAFE_GENERIC_TOURISM_TYPES` signal, is marked `standaloneEligible: false` — type
+  `SAFE_GENERIC_TOURISM_TYPES` signal, is marked without standalone origination capability — type
   semantics only, no ratings, no brand blacklist. `StructuredCandidateCorroborationService`
   drops any cluster whose every observation is ineligible (a bare venue that did not
   corroborate stronger tourism evidence never originates an Experience; one that DID

@@ -319,7 +319,7 @@ function traceObservation(observation: SourceObservation) {
     description: traceSnippet(observation.description),
     sourceUrl: observation.sourceUrl,
     evidenceType: observation.evidenceType,
-    standaloneEligible: observation.standaloneEligible,
+    originationCapabilities: [...observation.originationCapabilities],
     externalId: observation.externalId,
     geo: observation.geo
       ? {

@@ -2,6 +2,15 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { StructuredCandidateCorroborationService } from './structured-candidate-corroboration.service';
 import { StructuredCandidateProposal } from '../interfaces/structured-candidate-proposal.interface';
 
+const PLACE_COMPONENT_HINT = {
+  key: 'fixture:place',
+  name: 'Fixture place',
+  role: 'venue' as const,
+  expectedKind: 'PLACE' as const,
+  required: true,
+  evidenceKeys: ['fixture:place'],
+};
+
 describe('StructuredCandidateCorroborationService', () => {
   let service: StructuredCandidateCorroborationService;
 
@@ -41,6 +50,10 @@ describe('StructuredCandidateCorroborationService', () => {
           provider: 'wikivoyage',
           title: 'Plaza Dorrego',
           evidenceType: 'place',
+          originationCapabilities: [
+            'GENERAL_TOURISM_EXPERIENCE',
+            'SINGLE_PLACE',
+          ],
           evidenceKey: 'wikivoyage:San_Telmo:see:see:Plaza_Dorrego:1',
           geo: { latitude: -34.62, longitude: -58.37 },
         },
@@ -50,7 +63,10 @@ describe('StructuredCandidateCorroborationService', () => {
     // Duplicate
     const p2 = JSON.parse(JSON.stringify(p1));
 
-    const result = service.corroborateAndMerge([p1, p2]);
+    const result = service.corroborateAndMerge(
+      [p1, p2],
+      ['GENERAL_TOURISM_EXPERIENCE'],
+    );
     expect(result.candidates).toHaveLength(1);
     expect(result.candidates[0].name).toBe('Plaza Dorrego');
     expect(result.candidates[0].evidenceKeys).toEqual([
@@ -85,6 +101,10 @@ describe('StructuredCandidateCorroborationService', () => {
           canonicalIdentity: { wikidataQid: 'Q827401' },
           title: 'Teatro Colón',
           evidenceType: 'place',
+          originationCapabilities: [
+            'GENERAL_TOURISM_EXPERIENCE',
+            'SINGLE_PLACE',
+          ],
           evidenceKey: 'wikivoyage:BA:wikidata:Q827401',
         },
       ],
@@ -115,6 +135,10 @@ describe('StructuredCandidateCorroborationService', () => {
           canonicalIdentity: { wikidataQid: 'Q827401' },
           title: 'Teatro Colon Opera House',
           evidenceType: 'place',
+          originationCapabilities: [
+            'GENERAL_TOURISM_EXPERIENCE',
+            'SINGLE_PLACE',
+          ],
           evidenceKey: 'wikidata:Q827401',
         },
       ],
@@ -124,7 +148,10 @@ describe('StructuredCandidateCorroborationService', () => {
     expect(pairDec.decision).toBe('SAME');
     expect(pairDec.reasons).toContain('same_wikidata_identity');
 
-    const result = service.corroborateAndMerge([pWiki, pWikidata]);
+    const result = service.corroborateAndMerge(
+      [pWiki, pWikidata],
+      ['GENERAL_TOURISM_EXPERIENCE'],
+    );
     expect(result.candidates).toHaveLength(1);
     expect(result.candidates[0].evidenceKeys).toEqual([
       'wikidata:Q827401',
@@ -157,6 +184,10 @@ describe('StructuredCandidateCorroborationService', () => {
           provider: 'wikivoyage',
           title: 'Plaza Dorrego',
           evidenceType: 'place',
+          originationCapabilities: [
+            'GENERAL_TOURISM_EXPERIENCE',
+            'SINGLE_PLACE',
+          ],
           evidenceKey: 'wikivoyage:BA:see:see:Plaza_Dorrego:1',
           geo: { latitude: -34.62, longitude: -58.37 },
         },
@@ -186,6 +217,10 @@ describe('StructuredCandidateCorroborationService', () => {
           provider: 'osm',
           title: 'Plaza Dorrego Histórica',
           evidenceType: 'place',
+          originationCapabilities: [
+            'GENERAL_TOURISM_EXPERIENCE',
+            'SINGLE_PLACE',
+          ],
           evidenceKey: 'osm:node:12345',
           geo: { latitude: -34.62008, longitude: -58.37005 }, // ~10m away
         },
@@ -196,7 +231,10 @@ describe('StructuredCandidateCorroborationService', () => {
     expect(pairDec.decision).toBe('SAME');
     expect(pairDec.reasons).toContain('compatible_geo_and_name');
 
-    const result = service.corroborateAndMerge([p1, p2]);
+    const result = service.corroborateAndMerge(
+      [p1, p2],
+      ['GENERAL_TOURISM_EXPERIENCE'],
+    );
     expect(result.candidates).toHaveLength(1);
     expect(result.candidates[0].componentHints).toHaveLength(1);
     expect(result.candidates[0].evidenceKeys).toHaveLength(2);
@@ -209,7 +247,7 @@ describe('StructuredCandidateCorroborationService', () => {
         name: 'La Cabrera',
         themes: ['food'],
         traits: [],
-        componentHints: [],
+        componentHints: [PLACE_COMPONENT_HINT],
         evidenceKeys: ['source1:cabrera_palermo'],
         shortReason: 'La Cabrera Palermo',
       },
@@ -218,6 +256,10 @@ describe('StructuredCandidateCorroborationService', () => {
           provider: 'wikivoyage',
           title: 'La Cabrera',
           evidenceType: 'place',
+          originationCapabilities: [
+            'GENERAL_TOURISM_EXPERIENCE',
+            'SINGLE_PLACE',
+          ],
           evidenceKey: 'source1:cabrera_palermo',
           geo: { latitude: -34.588, longitude: -58.431 },
         },
@@ -229,7 +271,7 @@ describe('StructuredCandidateCorroborationService', () => {
         name: 'La Cabrera',
         themes: ['food'],
         traits: [],
-        componentHints: [],
+        componentHints: [PLACE_COMPONENT_HINT],
         evidenceKeys: ['source2:cabrera_recoleta'],
         shortReason: 'La Cabrera Recoleta',
       },
@@ -238,6 +280,10 @@ describe('StructuredCandidateCorroborationService', () => {
           provider: 'osm',
           title: 'La Cabrera',
           evidenceType: 'place',
+          originationCapabilities: [
+            'GENERAL_TOURISM_EXPERIENCE',
+            'SINGLE_PLACE',
+          ],
           evidenceKey: 'source2:cabrera_recoleta',
           geo: { latitude: -34.59, longitude: -58.385 }, // ~4.5 km away
         },
@@ -248,7 +294,10 @@ describe('StructuredCandidateCorroborationService', () => {
     expect(pairDec.decision).toBe('NEW');
     expect(pairDec.reasons).toContain('no_shared_identity_signal');
 
-    const result = service.corroborateAndMerge([p1, p2]);
+    const result = service.corroborateAndMerge(
+      [p1, p2],
+      ['GENERAL_TOURISM_EXPERIENCE'],
+    );
     expect(result.candidates).toHaveLength(2);
   });
 
@@ -259,7 +308,7 @@ describe('StructuredCandidateCorroborationService', () => {
         name: 'Café Dorrego',
         themes: ['cafe'],
         traits: [],
-        componentHints: [],
+        componentHints: [PLACE_COMPONENT_HINT],
         evidenceKeys: ['source1:cafe_dorrego'],
         shortReason: 'Café Dorrego',
       },
@@ -268,6 +317,10 @@ describe('StructuredCandidateCorroborationService', () => {
           provider: 'wikivoyage',
           title: 'Café Dorrego',
           evidenceType: 'place',
+          originationCapabilities: [
+            'GENERAL_TOURISM_EXPERIENCE',
+            'SINGLE_PLACE',
+          ],
           evidenceKey: 'source1:cafe_dorrego',
           geo: { latitude: -34.6201, longitude: -58.3701 },
         },
@@ -279,7 +332,7 @@ describe('StructuredCandidateCorroborationService', () => {
         name: 'Bar Británico',
         themes: ['bar'],
         traits: [],
-        componentHints: [],
+        componentHints: [PLACE_COMPONENT_HINT],
         evidenceKeys: ['source2:bar_britanico'],
         shortReason: 'Bar Británico',
       },
@@ -288,6 +341,10 @@ describe('StructuredCandidateCorroborationService', () => {
           provider: 'osm',
           title: 'Bar Británico',
           evidenceType: 'place',
+          originationCapabilities: [
+            'GENERAL_TOURISM_EXPERIENCE',
+            'SINGLE_PLACE',
+          ],
           evidenceKey: 'source2:bar_britanico',
           geo: { latitude: -34.6202, longitude: -58.3702 }, // ~15m away
         },
@@ -298,7 +355,10 @@ describe('StructuredCandidateCorroborationService', () => {
     expect(pairDec.decision).toBe('AMBIGUOUS');
     expect(pairDec.reasons).toContain('geographic_overlap_without_name_match');
 
-    const result = service.corroborateAndMerge([p1, p2]);
+    const result = service.corroborateAndMerge(
+      [p1, p2],
+      ['GENERAL_TOURISM_EXPERIENCE'],
+    );
     expect(result.candidates).toHaveLength(2);
   });
 
@@ -309,7 +369,7 @@ describe('StructuredCandidateCorroborationService', () => {
         name: 'El Obrero',
         themes: ['food'],
         traits: [],
-        componentHints: [],
+        componentHints: [PLACE_COMPONENT_HINT],
         evidenceKeys: ['source1:el_obrero'],
         shortReason: 'El Obrero',
       },
@@ -318,6 +378,10 @@ describe('StructuredCandidateCorroborationService', () => {
           provider: 'wikivoyage',
           title: 'El Obrero',
           evidenceType: 'place',
+          originationCapabilities: [
+            'GENERAL_TOURISM_EXPERIENCE',
+            'SINGLE_PLACE',
+          ],
           evidenceKey: 'source1:el_obrero',
         },
       ],
@@ -328,7 +392,7 @@ describe('StructuredCandidateCorroborationService', () => {
         name: 'Bodegón El Obrero',
         themes: ['food'],
         traits: [],
-        componentHints: [],
+        componentHints: [PLACE_COMPONENT_HINT],
         evidenceKeys: ['source2:el_obrero'],
         shortReason: 'Bodegón El Obrero',
       },
@@ -337,6 +401,10 @@ describe('StructuredCandidateCorroborationService', () => {
           provider: 'web',
           title: 'Bodegón El Obrero',
           evidenceType: 'place',
+          originationCapabilities: [
+            'GENERAL_TOURISM_EXPERIENCE',
+            'SINGLE_PLACE',
+          ],
           evidenceKey: 'source2:el_obrero',
         },
       ],
@@ -346,7 +414,10 @@ describe('StructuredCandidateCorroborationService', () => {
     expect(pairDec.decision).toBe('AMBIGUOUS');
     expect(pairDec.reasons).toContain('name_match_without_geography');
 
-    const result = service.corroborateAndMerge([p1, p2]);
+    const result = service.corroborateAndMerge(
+      [p1, p2],
+      ['GENERAL_TOURISM_EXPERIENCE'],
+    );
     expect(result.candidates).toHaveLength(2);
   });
 
@@ -357,7 +428,7 @@ describe('StructuredCandidateCorroborationService', () => {
         name: 'Caminito',
         themes: [],
         traits: [],
-        componentHints: [],
+        componentHints: [PLACE_COMPONENT_HINT],
         evidenceKeys: ['source1:caminito_place'],
         shortReason: 'Caminito place',
       },
@@ -366,6 +437,10 @@ describe('StructuredCandidateCorroborationService', () => {
           provider: 'wikivoyage',
           title: 'Caminito',
           evidenceType: 'place',
+          originationCapabilities: [
+            'GENERAL_TOURISM_EXPERIENCE',
+            'SINGLE_PLACE',
+          ],
           evidenceKey: 'source1:caminito_place',
           geo: { latitude: -34.639, longitude: -58.362 },
         },
@@ -377,7 +452,7 @@ describe('StructuredCandidateCorroborationService', () => {
         name: 'Paseo Caminito',
         themes: [],
         traits: [],
-        componentHints: [],
+        componentHints: [PLACE_COMPONENT_HINT],
         evidenceKeys: ['source2:caminito_route'],
         shortReason: 'Caminito route',
       },
@@ -386,6 +461,7 @@ describe('StructuredCandidateCorroborationService', () => {
           provider: 'osm',
           title: 'Paseo Caminito',
           evidenceType: 'route',
+          originationCapabilities: [],
           evidenceKey: 'source2:caminito_route',
           geo: { latitude: -34.63905, longitude: -58.36205 },
         },
@@ -396,8 +472,11 @@ describe('StructuredCandidateCorroborationService', () => {
     expect(pairDec.decision).toBe('NEW');
     expect(pairDec.reasons).toContain('incompatible_evidence_type');
 
-    const result = service.corroborateAndMerge([pPlace, pRoute]);
-    expect(result.candidates).toHaveLength(2);
+    const result = service.corroborateAndMerge(
+      [pPlace, pRoute],
+      ['GENERAL_TOURISM_EXPERIENCE'],
+    );
+    expect(result.candidates).toHaveLength(1);
   });
 
   // Scenario H: Tourism activity vs place
@@ -407,7 +486,7 @@ describe('StructuredCandidateCorroborationService', () => {
         name: 'Clases de Tango en La Boca',
         themes: [],
         traits: [],
-        componentHints: [],
+        componentHints: [PLACE_COMPONENT_HINT],
         evidenceKeys: ['source1:activity'],
         shortReason: 'Tango activity',
       },
@@ -416,6 +495,7 @@ describe('StructuredCandidateCorroborationService', () => {
           provider: 'wikivoyage',
           title: 'Clases de Tango en La Boca',
           evidenceType: 'tourism_activity',
+          originationCapabilities: [],
           evidenceKey: 'source1:activity',
           geo: { latitude: -34.639, longitude: -58.362 },
         },
@@ -427,7 +507,7 @@ describe('StructuredCandidateCorroborationService', () => {
         name: 'Teatro de La Boca',
         themes: [],
         traits: [],
-        componentHints: [],
+        componentHints: [PLACE_COMPONENT_HINT],
         evidenceKeys: ['source2:place'],
         shortReason: 'Teatro',
       },
@@ -436,6 +516,10 @@ describe('StructuredCandidateCorroborationService', () => {
           provider: 'osm',
           title: 'Teatro de La Boca',
           evidenceType: 'place',
+          originationCapabilities: [
+            'GENERAL_TOURISM_EXPERIENCE',
+            'SINGLE_PLACE',
+          ],
           evidenceKey: 'source2:place',
           geo: { latitude: -34.639, longitude: -58.362 },
         },
@@ -446,8 +530,11 @@ describe('StructuredCandidateCorroborationService', () => {
     expect(pairDec.decision).toBe('NEW');
     expect(pairDec.reasons).toContain('incompatible_evidence_type');
 
-    const result = service.corroborateAndMerge([pActivity, pPlace]);
-    expect(result.candidates).toHaveLength(2);
+    const result = service.corroborateAndMerge(
+      [pActivity, pPlace],
+      ['GENERAL_TOURISM_EXPERIENCE'],
+    );
+    expect(result.candidates).toHaveLength(1);
   });
 
   // Scenario I: Component hint merge (1 hint not 2)
@@ -475,6 +562,10 @@ describe('StructuredCandidateCorroborationService', () => {
           provider: 'wikivoyage',
           title: 'Mercado San Telmo',
           evidenceType: 'place',
+          originationCapabilities: [
+            'GENERAL_TOURISM_EXPERIENCE',
+            'SINGLE_PLACE',
+          ],
           evidenceKey: 'ev:1',
           geo: { latitude: -34.6195, longitude: -58.3728 },
         },
@@ -504,13 +595,20 @@ describe('StructuredCandidateCorroborationService', () => {
           provider: 'osm',
           title: 'Mercado San Telmo Techado',
           evidenceType: 'place',
+          originationCapabilities: [
+            'GENERAL_TOURISM_EXPERIENCE',
+            'SINGLE_PLACE',
+          ],
           evidenceKey: 'ev:2',
           geo: { latitude: -34.61955, longitude: -58.37285 },
         },
       ],
     };
 
-    const result = service.corroborateAndMerge([p1, p2]);
+    const result = service.corroborateAndMerge(
+      [p1, p2],
+      ['GENERAL_TOURISM_EXPERIENCE'],
+    );
     expect(result.candidates).toHaveLength(1);
     const candidate = result.candidates[0];
     expect(candidate.componentHints).toHaveLength(1);
@@ -526,7 +624,7 @@ describe('StructuredCandidateCorroborationService', () => {
         name: 'Plaza Dorrego',
         themes: ['square'],
         traits: [],
-        componentHints: [],
+        componentHints: [PLACE_COMPONENT_HINT],
         evidenceKeys: ['ev:A'],
         shortReason: 'A',
       },
@@ -535,6 +633,10 @@ describe('StructuredCandidateCorroborationService', () => {
           provider: 'wikivoyage',
           title: 'Plaza Dorrego',
           evidenceType: 'place',
+          originationCapabilities: [
+            'GENERAL_TOURISM_EXPERIENCE',
+            'SINGLE_PLACE',
+          ],
           evidenceKey: 'ev:A',
           geo: { latitude: -34.62, longitude: -58.37 },
         },
@@ -547,7 +649,7 @@ describe('StructuredCandidateCorroborationService', () => {
         name: 'Plaza Dorrego Centro',
         themes: ['square'],
         traits: [],
-        componentHints: [],
+        componentHints: [PLACE_COMPONENT_HINT],
         evidenceKeys: ['ev:B'],
         shortReason: 'B',
       },
@@ -556,6 +658,10 @@ describe('StructuredCandidateCorroborationService', () => {
           provider: 'osm',
           title: 'Plaza Dorrego Centro',
           evidenceType: 'place',
+          originationCapabilities: [
+            'GENERAL_TOURISM_EXPERIENCE',
+            'SINGLE_PLACE',
+          ],
           evidenceKey: 'ev:B',
           geo: { latitude: -34.62005, longitude: -58.37005 },
         },
@@ -568,7 +674,7 @@ describe('StructuredCandidateCorroborationService', () => {
         name: 'Antiguedades Feria',
         themes: ['antiques'],
         traits: [],
-        componentHints: [],
+        componentHints: [PLACE_COMPONENT_HINT],
         evidenceKeys: ['ev:C'],
         shortReason: 'C',
       },
@@ -577,6 +683,10 @@ describe('StructuredCandidateCorroborationService', () => {
           provider: 'web',
           title: 'Antiguedades Feria',
           evidenceType: 'place',
+          originationCapabilities: [
+            'GENERAL_TOURISM_EXPERIENCE',
+            'SINGLE_PLACE',
+          ],
           evidenceKey: 'ev:C',
           geo: { latitude: -34.62008, longitude: -58.37008 },
         },
@@ -590,7 +700,10 @@ describe('StructuredCandidateCorroborationService', () => {
     expect(service.decidePair(pA, pC).decision).toBe('AMBIGUOUS');
 
     // Run complete-link merge: A, B, C must NOT be in a single group
-    const result = service.corroborateAndMerge([pA, pB, pC]);
+    const result = service.corroborateAndMerge(
+      [pA, pB, pC],
+      ['GENERAL_TOURISM_EXPERIENCE'],
+    );
     expect(result.candidates.length).toBeGreaterThan(1);
     expect(result.groups.some((g) => g.proposalIds.length === 3)).toBe(false);
   });
@@ -602,7 +715,7 @@ describe('StructuredCandidateCorroborationService', () => {
         name: 'Museo Histórico Nacional',
         themes: ['museum'],
         traits: ['history'],
-        componentHints: [],
+        componentHints: [PLACE_COMPONENT_HINT],
         evidenceKeys: ['ev:1'],
         shortReason: 'p1',
       },
@@ -611,6 +724,10 @@ describe('StructuredCandidateCorroborationService', () => {
           provider: 'wikivoyage',
           title: 'Museo Histórico Nacional',
           evidenceType: 'place',
+          originationCapabilities: [
+            'GENERAL_TOURISM_EXPERIENCE',
+            'SINGLE_PLACE',
+          ],
           evidenceKey: 'ev:1',
           geo: { latitude: -34.6265, longitude: -58.3705 },
         },
@@ -622,7 +739,7 @@ describe('StructuredCandidateCorroborationService', () => {
         name: 'Museo Historico Nacional',
         themes: ['culture'],
         traits: [],
-        componentHints: [],
+        componentHints: [PLACE_COMPONENT_HINT],
         evidenceKeys: ['ev:2'],
         shortReason: 'p2',
       },
@@ -631,6 +748,10 @@ describe('StructuredCandidateCorroborationService', () => {
           provider: 'osm',
           title: 'Museo Historico Nacional',
           evidenceType: 'place',
+          originationCapabilities: [
+            'GENERAL_TOURISM_EXPERIENCE',
+            'SINGLE_PLACE',
+          ],
           evidenceKey: 'ev:2',
           geo: { latitude: -34.62655, longitude: -58.37055 },
         },
@@ -642,7 +763,7 @@ describe('StructuredCandidateCorroborationService', () => {
         name: 'Parque Lezama',
         themes: ['nature'],
         traits: ['park'],
-        componentHints: [],
+        componentHints: [PLACE_COMPONENT_HINT],
         evidenceKeys: ['ev:3'],
         shortReason: 'p3',
       },
@@ -651,15 +772,28 @@ describe('StructuredCandidateCorroborationService', () => {
           provider: 'wikivoyage',
           title: 'Parque Lezama',
           evidenceType: 'place',
+          originationCapabilities: [
+            'GENERAL_TOURISM_EXPERIENCE',
+            'SINGLE_PLACE',
+          ],
           evidenceKey: 'ev:3',
           geo: { latitude: -34.628, longitude: -58.369 },
         },
       ],
     };
 
-    const order1 = service.corroborateAndMerge([p1, p2, p3]);
-    const order2 = service.corroborateAndMerge([p3, p1, p2]);
-    const order3 = service.corroborateAndMerge([p2, p3, p1]);
+    const order1 = service.corroborateAndMerge(
+      [p1, p2, p3],
+      ['GENERAL_TOURISM_EXPERIENCE'],
+    );
+    const order2 = service.corroborateAndMerge(
+      [p3, p1, p2],
+      ['GENERAL_TOURISM_EXPERIENCE'],
+    );
+    const order3 = service.corroborateAndMerge(
+      [p2, p3, p1],
+      ['GENERAL_TOURISM_EXPERIENCE'],
+    );
 
     expect(order1.candidates).toEqual(order2.candidates);
     expect(order1.candidates).toEqual(order3.candidates);
@@ -691,6 +825,10 @@ describe('StructuredCandidateCorroborationService', () => {
           provider: 'osm',
           title: 'San Telmo Market',
           evidenceType: 'place',
+          originationCapabilities: [
+            'GENERAL_TOURISM_EXPERIENCE',
+            'SINGLE_PLACE',
+          ],
           evidenceKey: 'osm:1',
           geo: { latitude: -34.62, longitude: -58.37 },
         },
@@ -720,6 +858,10 @@ describe('StructuredCandidateCorroborationService', () => {
           provider: 'wikivoyage',
           title: 'San Telmo Market',
           evidenceType: 'place',
+          originationCapabilities: [
+            'GENERAL_TOURISM_EXPERIENCE',
+            'SINGLE_PLACE',
+          ],
           evidenceKey: 'wikivoyage:1',
           geo: { latitude: -34.62, longitude: -58.37 },
         },
@@ -732,21 +874,18 @@ describe('StructuredCandidateCorroborationService', () => {
     expect(pair.reasons).toContain('conflicting_component_expected_kind');
 
     // Corroboration merge must NOT collapse them into 1 candidate or force expectedKind PLACE
-    const result = service.corroborateAndMerge([proposalPlace, proposalArea]);
-    expect(result.candidates).toHaveLength(2);
-    expect(result.groups).toHaveLength(2);
+    const result = service.corroborateAndMerge(
+      [proposalPlace, proposalArea],
+      ['GENERAL_TOURISM_EXPERIENCE'],
+    );
+    expect(result.candidates).toHaveLength(1);
+    expect(result.groups).toHaveLength(1);
 
     const placeCandidate = result.candidates.find(
       (c) => c.componentHints[0].expectedKind === 'PLACE',
     );
-    const areaCandidate = result.candidates.find(
-      (c) => c.componentHints[0].expectedKind === 'AREA',
-    );
-
     expect(placeCandidate).toBeDefined();
-    expect(areaCandidate).toBeDefined();
     expect(placeCandidate?.componentHints[0].role).toBe('venue');
-    expect(areaCandidate?.componentHints[0].role).toBe('area');
   });
 
   // Scenario M (regression): Shared Wikidata QID across different observation kinds (place vs tourism_activity)
@@ -776,6 +915,10 @@ describe('StructuredCandidateCorroborationService', () => {
           canonicalIdentity: { wikidataQid: 'Q123' },
           title: 'Mercado San Telmo',
           evidenceType: 'place',
+          originationCapabilities: [
+            'GENERAL_TOURISM_EXPERIENCE',
+            'SINGLE_PLACE',
+          ],
           evidenceKey: 'wikivoyage:San_Telmo:see:see:Mercado_San_Telmo:1',
           geo: { latitude: -34.6195, longitude: -58.3728 },
         },
@@ -787,7 +930,7 @@ describe('StructuredCandidateCorroborationService', () => {
         name: 'Tour gastronómico Mercado San Telmo',
         themes: [],
         traits: [],
-        componentHints: [],
+        componentHints: [PLACE_COMPONENT_HINT],
         evidenceKeys: [
           'wikivoyage:San_Telmo:do:do:Tour_gastronomico_Mercado_San_Telmo:1',
         ],
@@ -800,6 +943,7 @@ describe('StructuredCandidateCorroborationService', () => {
           canonicalIdentity: { wikidataQid: 'Q123' },
           title: 'Tour gastronómico Mercado San Telmo',
           evidenceType: 'tourism_activity',
+          originationCapabilities: [],
           evidenceKey:
             'wikivoyage:San_Telmo:do:do:Tour_gastronomico_Mercado_San_Telmo:1',
           geo: { latitude: -34.6195, longitude: -58.3728 },
@@ -813,9 +957,12 @@ describe('StructuredCandidateCorroborationService', () => {
     expect(pairDec.reasons).not.toContain('same_evidence_key');
     expect(pairDec.reasons).not.toContain('same_wikidata_identity');
 
-    const result = service.corroborateAndMerge([pSeePlace, pDoActivity]);
-    expect(result.candidates).toHaveLength(2);
-    expect(result.groups).toHaveLength(2);
+    const result = service.corroborateAndMerge(
+      [pSeePlace, pDoActivity],
+      ['GENERAL_TOURISM_EXPERIENCE'],
+    );
+    expect(result.candidates).toHaveLength(1);
+    expect(result.groups).toHaveLength(1);
   });
 
   describe('Google Places cross-source corroboration (Phase 4)', () => {
@@ -844,6 +991,10 @@ describe('StructuredCandidateCorroborationService', () => {
             provider: 'wikivoyage',
             title: 'Teatro Colón',
             evidenceType: 'place',
+            originationCapabilities: [
+              'GENERAL_TOURISM_EXPERIENCE',
+              'SINGLE_PLACE',
+            ],
             evidenceKey: 'wikivoyage:San_Nicolas:see:see:Teatro_Colon:1',
             geo: { latitude: -34.601111, longitude: -58.383056 },
           },
@@ -875,6 +1026,10 @@ describe('StructuredCandidateCorroborationService', () => {
             externalId: 'ChIJTeatroColon',
             title: 'Teatro Colon',
             evidenceType: 'place',
+            originationCapabilities: [
+              'GENERAL_TOURISM_EXPERIENCE',
+              'SINGLE_PLACE',
+            ],
             evidenceKey: 'google_places:ChIJTeatroColon',
             geo: { latitude: -34.60115, longitude: -58.3831 },
           },
@@ -885,7 +1040,10 @@ describe('StructuredCandidateCorroborationService', () => {
       expect(pairDec.decision).toBe('SAME');
       expect(pairDec.reasons).toContain('compatible_geo_and_name');
 
-      const mergeResult = service.corroborateAndMerge([pWV, pGP]);
+      const mergeResult = service.corroborateAndMerge(
+        [pWV, pGP],
+        ['GENERAL_TOURISM_EXPERIENCE'],
+      );
       expect(mergeResult.candidates).toHaveLength(1);
       expect(mergeResult.groups).toHaveLength(1);
 
@@ -915,7 +1073,7 @@ describe('StructuredCandidateCorroborationService', () => {
           name: 'Café Tortoni',
           themes: [],
           traits: [],
-          componentHints: [],
+          componentHints: [PLACE_COMPONENT_HINT],
           evidenceKeys: ['wikivoyage:Monserrat:see:see:Cafe_Tortoni:1'],
           shortReason: 'Historic cafe',
         },
@@ -924,6 +1082,10 @@ describe('StructuredCandidateCorroborationService', () => {
             provider: 'wikivoyage',
             title: 'Café Tortoni',
             evidenceType: 'place',
+            originationCapabilities: [
+              'GENERAL_TOURISM_EXPERIENCE',
+              'SINGLE_PLACE',
+            ],
             evidenceKey: 'wikivoyage:Monserrat:see:see:Cafe_Tortoni:1',
             geo: { latitude: -34.6083, longitude: -58.3794 },
           },
@@ -935,7 +1097,7 @@ describe('StructuredCandidateCorroborationService', () => {
           name: 'Café Tortoni',
           themes: [],
           traits: [],
-          componentHints: [],
+          componentHints: [PLACE_COMPONENT_HINT],
           evidenceKeys: ['google_places:ChIJTortoniFar'],
           shortReason: 'Places cafe',
         },
@@ -945,6 +1107,10 @@ describe('StructuredCandidateCorroborationService', () => {
             externalId: 'ChIJTortoniFar',
             title: 'Café Tortoni',
             evidenceType: 'place',
+            originationCapabilities: [
+              'GENERAL_TOURISM_EXPERIENCE',
+              'SINGLE_PLACE',
+            ],
             evidenceKey: 'google_places:ChIJTortoniFar',
             // ~750m away
             geo: { latitude: -34.615, longitude: -58.3794 },
@@ -955,7 +1121,10 @@ describe('StructuredCandidateCorroborationService', () => {
       const pairDec = service.decidePair(pWV, pGP);
       expect(pairDec.decision).toBe('NEW');
 
-      const mergeResult = service.corroborateAndMerge([pWV, pGP]);
+      const mergeResult = service.corroborateAndMerge(
+        [pWV, pGP],
+        ['GENERAL_TOURISM_EXPERIENCE'],
+      );
       expect(mergeResult.candidates).toHaveLength(2);
       expect(mergeResult.groups).toHaveLength(2);
     });
@@ -966,7 +1135,7 @@ describe('StructuredCandidateCorroborationService', () => {
           name: 'Café Tortoni',
           themes: [],
           traits: [],
-          componentHints: [],
+          componentHints: [PLACE_COMPONENT_HINT],
           evidenceKeys: ['wikivoyage:Monserrat:see:see:Cafe_Tortoni:1'],
           shortReason: 'Historic cafe',
         },
@@ -975,6 +1144,10 @@ describe('StructuredCandidateCorroborationService', () => {
             provider: 'wikivoyage',
             title: 'Café Tortoni',
             evidenceType: 'place',
+            originationCapabilities: [
+              'GENERAL_TOURISM_EXPERIENCE',
+              'SINGLE_PLACE',
+            ],
             evidenceKey: 'wikivoyage:Monserrat:see:see:Cafe_Tortoni:1',
             geo: { latitude: -34.6083, longitude: -58.3794 },
           },
@@ -986,7 +1159,7 @@ describe('StructuredCandidateCorroborationService', () => {
           name: 'Farmacia del Águila',
           themes: [],
           traits: [],
-          componentHints: [],
+          componentHints: [PLACE_COMPONENT_HINT],
           evidenceKeys: ['google_places:ChIJPharmacy'],
           shortReason: 'Pharmacy',
         },
@@ -996,6 +1169,10 @@ describe('StructuredCandidateCorroborationService', () => {
             externalId: 'ChIJPharmacy',
             title: 'Farmacia del Águila',
             evidenceType: 'place',
+            originationCapabilities: [
+              'GENERAL_TOURISM_EXPERIENCE',
+              'SINGLE_PLACE',
+            ],
             evidenceKey: 'google_places:ChIJPharmacy',
             // ~6m away, completely different name
             geo: { latitude: -34.60835, longitude: -58.37945 },
@@ -1009,7 +1186,10 @@ describe('StructuredCandidateCorroborationService', () => {
         'geographic_overlap_without_name_match',
       );
 
-      const mergeResult = service.corroborateAndMerge([pWV, pGP]);
+      const mergeResult = service.corroborateAndMerge(
+        [pWV, pGP],
+        ['GENERAL_TOURISM_EXPERIENCE'],
+      );
       expect(mergeResult.candidates).toHaveLength(2);
       expect(mergeResult.groups).toHaveLength(2);
     });
@@ -1020,7 +1200,7 @@ describe('StructuredCandidateCorroborationService', () => {
           name: 'Museo de Arte Moderno',
           themes: [],
           traits: [],
-          componentHints: [],
+          componentHints: [PLACE_COMPONENT_HINT],
           evidenceKeys: ['wikivoyage:San_Telmo:see:see:MAMBA:1'],
           shortReason: 'Modern art museum',
         },
@@ -1031,6 +1211,10 @@ describe('StructuredCandidateCorroborationService', () => {
             canonicalIdentity: { wikidataQid: 'Q12345' },
             title: 'Museo de Arte Moderno',
             evidenceType: 'place',
+            originationCapabilities: [
+              'GENERAL_TOURISM_EXPERIENCE',
+              'SINGLE_PLACE',
+            ],
             evidenceKey: 'wikivoyage:San_Telmo:see:see:MAMBA:1',
           },
         ],
@@ -1041,7 +1225,7 @@ describe('StructuredCandidateCorroborationService', () => {
           name: 'Centro Cultural Recoleta',
           themes: [],
           traits: [],
-          componentHints: [],
+          componentHints: [PLACE_COMPONENT_HINT],
           evidenceKeys: ['google_places:Q12345'],
           shortReason: 'Cultural center',
         },
@@ -1055,6 +1239,10 @@ describe('StructuredCandidateCorroborationService', () => {
             externalId: 'Q12345',
             title: 'Centro Cultural Recoleta',
             evidenceType: 'place',
+            originationCapabilities: [
+              'GENERAL_TOURISM_EXPERIENCE',
+              'SINGLE_PLACE',
+            ],
             evidenceKey: 'google_places:Q12345',
           },
         ],
@@ -1067,7 +1255,10 @@ describe('StructuredCandidateCorroborationService', () => {
       expect(pairDec.reasons).not.toContain('same_wikidata_identity');
       expect(pairDec.decision).toBe('NEW');
 
-      const mergeResult = service.corroborateAndMerge([pWV, pGP]);
+      const mergeResult = service.corroborateAndMerge(
+        [pWV, pGP],
+        ['GENERAL_TOURISM_EXPERIENCE'],
+      );
       expect(mergeResult.candidates).toHaveLength(2);
       expect(mergeResult.groups).toHaveLength(2);
     });
@@ -1103,6 +1294,10 @@ describe('StructuredCandidateCorroborationService', () => {
           externalId: id,
           title: name,
           evidenceType: 'place',
+          originationCapabilities: [
+            'GENERAL_TOURISM_EXPERIENCE',
+            'SINGLE_PLACE',
+          ],
           evidenceKey: id,
           geo: { latitude, longitude },
           metadata: {
@@ -1143,6 +1338,10 @@ describe('StructuredCandidateCorroborationService', () => {
             provider: 'wikivoyage',
             title: 'Mercado de San Telmo',
             evidenceType: 'place',
+            originationCapabilities: [
+              'GENERAL_TOURISM_EXPERIENCE',
+              'SINGLE_PLACE',
+            ],
             evidenceKey: 'wikivoyage:San_Telmo:see:see:Mercado:1',
             geo: { latitude: -34.62085, longitude: -58.37172 },
           },
@@ -1153,7 +1352,10 @@ describe('StructuredCandidateCorroborationService', () => {
       expect(pairDec.decision).toBe('SAME');
       expect(pairDec.reasons).toContain('compatible_geo_and_name');
 
-      const mergeResult = service.corroborateAndMerge([pOSM, pWV]);
+      const mergeResult = service.corroborateAndMerge(
+        [pOSM, pWV],
+        ['GENERAL_TOURISM_EXPERIENCE'],
+      );
       expect(mergeResult.candidates).toHaveLength(1);
       expect(mergeResult.candidates[0].evidenceKeys).toEqual([
         'osm:node:1',
@@ -1168,7 +1370,7 @@ describe('StructuredCandidateCorroborationService', () => {
           name: 'Otro Lugar',
           themes: [],
           traits: [],
-          componentHints: [],
+          componentHints: [PLACE_COMPONENT_HINT],
           evidenceKeys: ['wikivoyage:X:see:see:Q12345:1'],
           shortReason: 'unrelated',
         },
@@ -1179,6 +1381,10 @@ describe('StructuredCandidateCorroborationService', () => {
             canonicalIdentity: { wikidataQid: 'Q12345' },
             title: 'Otro Lugar',
             evidenceType: 'place',
+            originationCapabilities: [
+              'GENERAL_TOURISM_EXPERIENCE',
+              'SINGLE_PLACE',
+            ],
             evidenceKey: 'wikivoyage:X:see:see:Q12345:1',
           },
         ],
@@ -1204,12 +1410,15 @@ describe('StructuredCandidateCorroborationService', () => {
         'geographic_overlap_without_name_match',
       );
 
-      const mergeResult = service.corroborateAndMerge([pOSM, pOSM2]);
+      const mergeResult = service.corroborateAndMerge(
+        [pOSM, pOSM2],
+        ['GENERAL_TOURISM_EXPERIENCE'],
+      );
       expect(mergeResult.candidates).toHaveLength(2);
     });
   });
 
-  describe('standalone eligibility (generic operational venue admission)', () => {
+  describe('origination capability (generic operational venue admission)', () => {
     const genericCafeProposal: StructuredCandidateProposal = {
       candidate: {
         name: 'Generic Café',
@@ -1235,19 +1444,22 @@ describe('StructuredCandidateCorroborationService', () => {
           externalId: 'cafe-1',
           title: 'Generic Café',
           evidenceType: 'place',
+          originationCapabilities: [],
           evidenceKey: 'google_places:cafe-1',
-          standaloneEligible: false,
           geo: { latitude: -34.6, longitude: -58.38 },
         },
       ],
     };
 
-    it('drops a cluster made only of standalone-ineligible observations', () => {
-      const result = service.corroborateAndMerge([genericCafeProposal]);
+    it('drops a cluster with no matching origination capability', () => {
+      const result = service.corroborateAndMerge(
+        [genericCafeProposal],
+        ['GENERAL_TOURISM_EXPERIENCE'],
+      );
       expect(result.candidates).toHaveLength(0);
     });
 
-    it('keeps a standalone-ineligible observation when it corroborates real tourism evidence', () => {
+    it('keeps support evidence when it corroborates real tourism evidence', () => {
       const wikivoyageEat: StructuredCandidateProposal = {
         name: 'Generic Café',
         // reuse the same candidate shape but from Wikivoyage EAT evidence
@@ -1269,16 +1481,20 @@ describe('StructuredCandidateCorroborationService', () => {
             provider: 'wikivoyage',
             title: 'Generic Café',
             evidenceType: 'place',
+            originationCapabilities: [
+              'GENERAL_TOURISM_EXPERIENCE',
+              'SINGLE_PLACE',
+            ],
             evidenceKey: 'wikivoyage:Palermo:eat:eat:Generic_Cafe:1',
             geo: { latitude: -34.6, longitude: -58.38 },
           },
         ],
       });
 
-      const result = service.corroborateAndMerge([
-        genericCafeProposal,
-        wikivoyageEat,
-      ]);
+      const result = service.corroborateAndMerge(
+        [genericCafeProposal, wikivoyageEat],
+        ['GENERAL_TOURISM_EXPERIENCE'],
+      );
       expect(result.candidates).toHaveLength(1);
     });
   });
@@ -1309,6 +1525,10 @@ describe('StructuredCandidateCorroborationService', () => {
             provider: 'wikivoyage',
             title: 'Teatro Colón',
             evidenceType: 'place',
+            originationCapabilities: [
+              'GENERAL_TOURISM_EXPERIENCE',
+              'SINGLE_PLACE',
+            ],
             evidenceKey: 'wikivoyage:San_Nicolas:see:see:Teatro_Colon:1',
             geo: { latitude: -34.601111, longitude: -58.383056 },
           },
@@ -1342,13 +1562,20 @@ describe('StructuredCandidateCorroborationService', () => {
             externalId: 'ChIJTeatroColon',
             title: 'Teatro Colon',
             evidenceType: 'place',
+            originationCapabilities: [
+              'GENERAL_TOURISM_EXPERIENCE',
+              'SINGLE_PLACE',
+            ],
             evidenceKey: 'google_places:ChIJTeatroColon',
             geo: { latitude: -34.60115, longitude: -58.3831 },
           },
         ],
       };
 
-      const merged = service.corroborateAndMerge([pWV, pGP]).candidates[0];
+      const merged = service.corroborateAndMerge(
+        [pWV, pGP],
+        ['GENERAL_TOURISM_EXPERIENCE'],
+      ).candidates[0];
 
       expect(merged.qualityEvidence).toEqual({
         consumerRating: { value: 4.8, reviewCount: 12000 },
@@ -1388,6 +1615,10 @@ describe('StructuredCandidateCorroborationService', () => {
             externalId: suffix,
             title: 'Museo Nacional',
             evidenceType: 'place',
+            originationCapabilities: [
+              'GENERAL_TOURISM_EXPERIENCE',
+              'SINGLE_PLACE',
+            ],
             evidenceKey: `google_places:${suffix}`,
             geo: { latitude: -34.6, longitude: -58.38 },
           },
@@ -1400,10 +1631,10 @@ describe('StructuredCandidateCorroborationService', () => {
       const weakButHighRating = base('weak', 4.9, 3);
       const confidentRating = base('confident', 4.2, 5000);
 
-      const merged = service.corroborateAndMerge([
-        weakButHighRating,
-        confidentRating,
-      ]).candidates[0];
+      const merged = service.corroborateAndMerge(
+        [weakButHighRating, confidentRating],
+        ['GENERAL_TOURISM_EXPERIENCE'],
+      ).candidates[0];
 
       expect(merged.qualityEvidence).toEqual({
         consumerRating: { value: 4.2, reviewCount: 5000 },
@@ -1434,6 +1665,10 @@ describe('StructuredCandidateCorroborationService', () => {
             provider: 'osm',
             title: 'Plaza Dorrego',
             evidenceType: 'place',
+            originationCapabilities: [
+              'GENERAL_TOURISM_EXPERIENCE',
+              'SINGLE_PLACE',
+            ],
             evidenceKey: 'osm:node:1',
             geo: { latitude: -34.6212, longitude: -58.373 },
           },
@@ -1459,7 +1694,10 @@ describe('StructuredCandidateCorroborationService', () => {
         }),
       );
 
-      const merged = service.corroborateAndMerge([osmA, osmB]).candidates[0];
+      const merged = service.corroborateAndMerge(
+        [osmA, osmB],
+        ['GENERAL_TOURISM_EXPERIENCE'],
+      ).candidates[0];
 
       expect(merged.qualityEvidence).toBeUndefined();
     });
