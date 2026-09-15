@@ -233,7 +233,6 @@ export class GooglePlacesAcquisitionProvider {
           description: place.formattedAddress,
           geo,
           originationCapabilities: [
-            'GENERAL_TOURISM_EXPERIENCE',
             'SINGLE_PLACE',
           ] satisfies AcquisitionEvidenceRequirement[],
           // Normalized at the adapter boundary (docs/architecture/

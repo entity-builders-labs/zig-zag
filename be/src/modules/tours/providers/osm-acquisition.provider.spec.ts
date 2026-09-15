@@ -212,7 +212,7 @@ describe('OsmAcquisitionProvider', () => {
     expect(
       result.value.find((o) => o.externalId === 'osm:relation:12')
         ?.originationCapabilities,
-    ).toEqual(['GENERAL_TOURISM_EXPERIENCE', 'CANONICAL_ROUTE']);
+    ).toEqual([]);
   });
 
   it('emits one observation per OSM element even when several concepts match it', async () => {

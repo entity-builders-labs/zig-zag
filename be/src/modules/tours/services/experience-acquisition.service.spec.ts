@@ -180,10 +180,7 @@ describe('ExperienceAcquisitionService', () => {
             provider: 'wikivoyage',
             title: 'Plaza de Mayo',
             evidenceType: 'place',
-            originationCapabilities: [
-              'GENERAL_TOURISM_EXPERIENCE',
-              'SINGLE_PLACE',
-            ],
+            originationCapabilities: ['SINGLE_PLACE'],
             evidenceKey: 'wikivoyage:Monserrat:see:see:Plaza_de_Mayo:1',
             geo: { latitude: -34.6083, longitude: -58.3719 },
           },
@@ -198,10 +195,7 @@ describe('ExperienceAcquisitionService', () => {
             externalId: 'ChIJPlazaDeMayo',
             title: 'Plaza de Mayo',
             evidenceType: 'place',
-            originationCapabilities: [
-              'GENERAL_TOURISM_EXPERIENCE',
-              'SINGLE_PLACE',
-            ],
+            originationCapabilities: ['SINGLE_PLACE'],
             evidenceKey: 'google_places:ChIJPlazaDeMayo',
             geo: { latitude: -34.60835, longitude: -58.37195 },
           },
@@ -215,7 +209,7 @@ describe('ExperienceAcquisitionService', () => {
           longitude: -58.3816,
         },
         deficits: [],
-        evidenceRequirements: ['GENERAL_TOURISM_EXPERIENCE'],
+        evidenceRequirements: ['SINGLE_PLACE'],
         breadth: 'focused',
         sourcePlans: [
           { provider: 'wikivoyage', wikivoyage: { sections: ['SEE'] } },
@@ -249,10 +243,7 @@ describe('ExperienceAcquisitionService', () => {
             provider: 'wikivoyage',
             title: 'Teatro Colón',
             evidenceType: 'place',
-            originationCapabilities: [
-              'GENERAL_TOURISM_EXPERIENCE',
-              'SINGLE_PLACE',
-            ],
+            originationCapabilities: ['SINGLE_PLACE'],
             evidenceKey: 'wikivoyage:San_Nicolas:see:see:Teatro_Colon:1',
             geo: { latitude: -34.601111, longitude: -58.383056 },
           },
@@ -267,10 +258,7 @@ describe('ExperienceAcquisitionService', () => {
             externalId: 'ChIJTeatroColon',
             title: 'Teatro Colon',
             evidenceType: 'place',
-            originationCapabilities: [
-              'GENERAL_TOURISM_EXPERIENCE',
-              'SINGLE_PLACE',
-            ],
+            originationCapabilities: ['SINGLE_PLACE'],
             evidenceKey: 'google_places:ChIJTeatroColon',
             geo: { latitude: -34.60115, longitude: -58.3831 },
           },
@@ -280,7 +268,7 @@ describe('ExperienceAcquisitionService', () => {
       const plan: ExperienceAcquisitionPlan = {
         destination: { destinationName: 'Buenos Aires' },
         deficits: [],
-        evidenceRequirements: ['GENERAL_TOURISM_EXPERIENCE'],
+        evidenceRequirements: ['SINGLE_PLACE'],
         breadth: 'focused',
         sourcePlans: [
           { provider: 'wikivoyage', wikivoyage: { sections: ['SEE'] } },
@@ -325,10 +313,7 @@ describe('ExperienceAcquisitionService', () => {
             provider: 'wikivoyage',
             title: 'Obelisco de Buenos Aires',
             evidenceType: 'place',
-            originationCapabilities: [
-              'GENERAL_TOURISM_EXPERIENCE',
-              'SINGLE_PLACE',
-            ],
+            originationCapabilities: ['SINGLE_PLACE'],
             evidenceKey: 'wikivoyage:San_Nicolas:see:see:Obelisco:1',
             geo: { latitude: -34.603722, longitude: -58.381592 },
           },
@@ -344,7 +329,7 @@ describe('ExperienceAcquisitionService', () => {
       const plan: ExperienceAcquisitionPlan = {
         destination: { destinationName: 'Buenos Aires' },
         deficits: [],
-        evidenceRequirements: ['GENERAL_TOURISM_EXPERIENCE'],
+        evidenceRequirements: ['SINGLE_PLACE'],
         breadth: 'focused',
         sourcePlans: [
           { provider: 'wikivoyage', wikivoyage: { sections: ['SEE'] } },
@@ -380,7 +365,7 @@ describe('ExperienceAcquisitionService', () => {
       const plan: ExperienceAcquisitionPlan = {
         destination: { destinationName: 'Empty Place' },
         deficits: [],
-        evidenceRequirements: ['GENERAL_TOURISM_EXPERIENCE'],
+        evidenceRequirements: ['SINGLE_PLACE'],
         breadth: 'focused',
         sourcePlans: [
           { provider: 'wikivoyage', wikivoyage: { sections: ['SEE'] } },
@@ -410,10 +395,7 @@ describe('ExperienceAcquisitionService', () => {
             externalId: 'ChIJTest',
             title: 'Test Place',
             evidenceType: 'place',
-            originationCapabilities: [
-              'GENERAL_TOURISM_EXPERIENCE',
-              'SINGLE_PLACE',
-            ],
+            originationCapabilities: ['SINGLE_PLACE'],
             evidenceKey: 'google_places:ChIJTest',
             geo: { latitude: -34.6, longitude: -58.38 },
           },
@@ -423,7 +405,7 @@ describe('ExperienceAcquisitionService', () => {
       const plan: ExperienceAcquisitionPlan = {
         destination: { destinationName: 'Test' },
         deficits: [],
-        evidenceRequirements: ['GENERAL_TOURISM_EXPERIENCE'],
+        evidenceRequirements: ['SINGLE_PLACE'],
         breadth: 'focused',
         sourcePlans: [
           { provider: 'google_places', places: { searchTypes: [] } },
@@ -450,10 +432,7 @@ describe('ExperienceAcquisitionService', () => {
             evidenceKey: 'osm:node:1',
             title: 'Museo Histórico Nacional',
             evidenceType: 'place',
-            originationCapabilities: [
-              'GENERAL_TOURISM_EXPERIENCE',
-              'SINGLE_PLACE',
-            ],
+            originationCapabilities: ['SINGLE_PLACE'],
             geo: { latitude: -34.62, longitude: -58.37 },
             metadata: {
               osmType: 'node',
@@ -471,7 +450,7 @@ describe('ExperienceAcquisitionService', () => {
           longitude: -58.3816,
         },
         deficits: [],
-        evidenceRequirements: ['GENERAL_TOURISM_EXPERIENCE'],
+        evidenceRequirements: ['SINGLE_PLACE'],
         breadth: 'focused',
         sourcePlans: [{ provider: 'osm', osm: { concepts: ['museum'] } }],
       };
@@ -496,10 +475,7 @@ describe('ExperienceAcquisitionService', () => {
             provider: 'wikivoyage',
             title: 'Obelisco de Buenos Aires',
             evidenceType: 'place',
-            originationCapabilities: [
-              'GENERAL_TOURISM_EXPERIENCE',
-              'SINGLE_PLACE',
-            ],
+            originationCapabilities: ['SINGLE_PLACE'],
             evidenceKey: 'wikivoyage:San_Nicolas:see:see:Obelisco:1',
             geo: { latitude: -34.6037, longitude: -58.3816 },
           },
@@ -518,7 +494,7 @@ describe('ExperienceAcquisitionService', () => {
           longitude: -58.3816,
         },
         deficits: [],
-        evidenceRequirements: ['GENERAL_TOURISM_EXPERIENCE'],
+        evidenceRequirements: ['SINGLE_PLACE'],
         breadth: 'focused',
         sourcePlans: [
           { provider: 'wikivoyage', wikivoyage: { sections: ['SEE'] } },
@@ -548,7 +524,7 @@ describe('ExperienceAcquisitionService', () => {
           longitude: -58.4,
         },
         deficits: [],
-        evidenceRequirements: ['GENERAL_TOURISM_EXPERIENCE'],
+        evidenceRequirements: ['SINGLE_PLACE'],
         breadth: 'focused',
         sourcePlans: [{ provider: 'osm', osm: { concepts: ['winery'] } }],
       };
@@ -573,10 +549,7 @@ describe('ExperienceAcquisitionService', () => {
             evidenceKey: 'osm:node:99',
             title: 'Mercado de San Telmo',
             evidenceType: 'place',
-            originationCapabilities: [
-              'GENERAL_TOURISM_EXPERIENCE',
-              'SINGLE_PLACE',
-            ],
+            originationCapabilities: ['SINGLE_PLACE'],
             geo: { latitude: -34.6208, longitude: -58.3717 },
             metadata: {
               osmType: 'node',
@@ -594,10 +567,7 @@ describe('ExperienceAcquisitionService', () => {
             externalId: 'ChIJMercadoSanTelmo',
             evidenceKey: 'google_places:ChIJMercadoSanTelmo',
             evidenceType: 'place',
-            originationCapabilities: [
-              'GENERAL_TOURISM_EXPERIENCE',
-              'SINGLE_PLACE',
-            ],
+            originationCapabilities: ['SINGLE_PLACE'],
             title: 'Mercado de San Telmo',
             geo: { latitude: -34.62085, longitude: -58.37172 },
           },
@@ -611,7 +581,7 @@ describe('ExperienceAcquisitionService', () => {
           longitude: -58.3816,
         },
         deficits: [],
-        evidenceRequirements: ['GENERAL_TOURISM_EXPERIENCE'],
+        evidenceRequirements: ['SINGLE_PLACE'],
         breadth: 'focused',
         sourcePlans: [
           { provider: 'osm', osm: { concepts: ['historic'] } },
@@ -658,7 +628,7 @@ describe('ExperienceAcquisitionService', () => {
           longitude: -58.3816,
         },
         deficits: [],
-        evidenceRequirements: ['GENERAL_TOURISM_EXPERIENCE'],
+        evidenceRequirements: ['SINGLE_PLACE'],
         breadth: 'focused',
         sourcePlans: [{ provider: 'osm', osm: { concepts: ['museum'] } }],
       };
@@ -675,10 +645,7 @@ describe('ExperienceAcquisitionService', () => {
             provider: 'wikivoyage',
             title: 'Obelisco',
             evidenceType: 'place',
-            originationCapabilities: [
-              'GENERAL_TOURISM_EXPERIENCE',
-              'SINGLE_PLACE',
-            ],
+            originationCapabilities: ['SINGLE_PLACE'],
             evidenceKey: 'wikivoyage:x:1',
             geo: { latitude: -34.6037, longitude: -58.3816 },
           },
@@ -704,7 +671,7 @@ describe('ExperienceAcquisitionService', () => {
           longitude: -58.3816,
         },
         deficits: [],
-        evidenceRequirements: ['GENERAL_TOURISM_EXPERIENCE'],
+        evidenceRequirements: ['SINGLE_PLACE'],
         breadth: 'focused',
         sourcePlans: [
           { provider: 'wikivoyage', wikivoyage: { sections: ['SEE'] } },
@@ -763,7 +730,7 @@ describe('ExperienceAcquisitionService', () => {
           origin: 'preference_facet',
         },
       ],
-      evidenceRequirements: ['GENERAL_TOURISM_EXPERIENCE'],
+      evidenceRequirements: ['SINGLE_PLACE'],
       breadth: 'focused',
       sourcePlans: [
         {
@@ -876,10 +843,7 @@ describe('ExperienceAcquisitionService', () => {
               provider: 'wikivoyage',
               title: 'Teatro Colón',
               evidenceType: 'place',
-              originationCapabilities: [
-                'GENERAL_TOURISM_EXPERIENCE',
-                'SINGLE_PLACE',
-              ],
+              originationCapabilities: ['SINGLE_PLACE'],
               evidenceKey: 'wikivoyage:x:see:see:Teatro:1',
               geo: { latitude: -34.6011, longitude: -58.3831 },
             },

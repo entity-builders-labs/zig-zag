@@ -583,15 +583,11 @@ describe('GooglePlacesAcquisitionProvider', () => {
       expect(result.status).toBe('success');
       expect(result.value).toHaveLength(1);
       expect(result.value[0].externalId).toBe('starbucks-1');
-      // Admitted for corroboration only — a bare café can enrich a real
-      // Experience but must never originate one.
-      expect(result.value[0].originationCapabilities).toEqual([
-        'GENERAL_TOURISM_EXPERIENCE',
-        'SINGLE_PLACE',
-      ]);
+      // Admission remains independent from structural origination capability.
+      expect(result.value[0].originationCapabilities).toEqual(['SINGLE_PLACE']);
     });
 
-    it('B2. a café that also carries a safe tourism type stays standalone-eligible', async () => {
+    it('B2. a café that also carries a safe tourism type remains a place shape', async () => {
       placesApiMock.searchNearby.mockResolvedValueOnce({
         data: [
           {
@@ -617,10 +613,7 @@ describe('GooglePlacesAcquisitionProvider', () => {
       );
 
       expect(result.value).toHaveLength(1);
-      expect(result.value[0].originationCapabilities).toEqual([
-        'GENERAL_TOURISM_EXPERIENCE',
-        'SINGLE_PLACE',
-      ]);
+      expect(result.value[0].originationCapabilities).toEqual(['SINGLE_PLACE']);
     });
 
     it('C. generic refill still admits safe generic tourism types (museum, park, tourist_attraction)', async () => {

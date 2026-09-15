@@ -1,9 +1,6 @@
 import { SourceObservation } from '../../../src/modules/tours/interfaces/experience-acquisition.interface';
 
-const PLACE_ORIGINATION_CAPABILITIES = [
-  'GENERAL_TOURISM_EXPERIENCE',
-  'SINGLE_PLACE',
-] as const;
+const PLACE_ORIGINATION_CAPABILITIES = ['SINGLE_PLACE'] as const;
 
 /**
  * Deterministic structured-provider observations carrying OBJECTIVE factual

@@ -52,7 +52,7 @@ describe('CHAR-1 structured evidence -> semantic preservation', () => {
       // (it unions facets, and the union of [] is []).
       const merged = corroboration.corroborateAndMerge(
         [proposal],
-        ['GENERAL_TOURISM_EXPERIENCE'],
+        ['SINGLE_PLACE'],
       );
       expect(merged.candidates).toHaveLength(1);
       expect(merged.candidates[0].themes).toEqual([]);

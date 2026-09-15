@@ -192,16 +192,9 @@ export class OsmAcquisitionProvider {
     evidenceType: 'place' | 'area' | 'route',
   ): AcquisitionEvidenceRequirement[] {
     if (evidenceType === 'place') {
-      return ['GENERAL_TOURISM_EXPERIENCE', 'SINGLE_PLACE'];
+      return ['SINGLE_PLACE'];
     }
     if (evidenceType === 'area') return [];
-    if (
-      candidate.osmType === 'relation' &&
-      typeof candidate.tags.route === 'string' &&
-      candidate.tags.route.trim().length > 0
-    ) {
-      return ['GENERAL_TOURISM_EXPERIENCE', 'CANONICAL_ROUTE'];
-    }
     return [];
   }
 

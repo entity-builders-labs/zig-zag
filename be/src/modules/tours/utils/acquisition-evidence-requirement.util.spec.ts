@@ -28,12 +28,7 @@ describe('deriveAcquisitionEvidenceRequirements', () => {
         deficit('trait', 'local'),
         deficit('other_supported_dimension', 'value'),
       ]),
-    ).toEqual([
-      'COMPOSITE_WALK',
-      'CANONICAL_ROUTE',
-      'SINGLE_PLACE',
-      'GENERAL_TOURISM_EXPERIENCE',
-    ]);
+    ).toEqual(['SINGLE_PLACE', 'MULTI_COMPONENT_EXPERIENCE']);
   });
 
   it('returns no requirements for zero deficits', () => {
@@ -48,6 +43,38 @@ describe('deriveAcquisitionEvidenceRequirements', () => {
           reason: 'provider:osm anchors:San Telmo semanticQuery:walk',
         },
       ]),
-    ).toEqual(['COMPOSITE_WALK']);
+    ).toEqual(['MULTI_COMPONENT_EXPERIENCE']);
+  });
+
+  it('allows semantic facets to be covered by either structural shape', () => {
+    expect(
+      deriveAcquisitionEvidenceRequirements([
+        deficit('theme', 'history'),
+        deficit('intent', 'walk'),
+      ]),
+    ).toEqual(['SINGLE_PLACE', 'MULTI_COMPONENT_EXPERIENCE']);
+  });
+
+  it.each([
+    ['global_capacity', 'capacity'],
+    ['theme', 'history'],
+    ['trait', 'local'],
+    ['intent', 'day_trip'],
+    ['intent', 'food'],
+    ['intent', 'nightlife'],
+    ['intent', 'other'],
+  ])('%s:%s permits both structural shapes', (dimension, key) => {
+    expect(
+      deriveAcquisitionEvidenceRequirements([
+        dimension === 'global_capacity'
+          ? {
+              origin: 'global_capacity',
+              reason: 'test',
+              currentEligibleCount: 0,
+              requiredEligibleCount: 1,
+            }
+          : deficit(dimension, key),
+      ]),
+    ).toEqual(['SINGLE_PLACE', 'MULTI_COMPONENT_EXPERIENCE']);
   });
 });

@@ -64,7 +64,7 @@ describe('CHAR-DB catalog round-trips', () => {
     const [proposal] = synth.synthesizeProposals([obs]);
     const merged = corroboration.corroborateAndMerge(
       [proposal],
-      ['GENERAL_TOURISM_EXPERIENCE'],
+      ['SINGLE_PLACE'],
     );
     const candidate = merged.candidates[0];
 

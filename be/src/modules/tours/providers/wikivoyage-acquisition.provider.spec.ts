@@ -75,7 +75,7 @@ describe('WikivoyageAcquisitionProvider', () => {
         longitude: -58.372832,
       },
       evidenceType: 'place',
-      originationCapabilities: ['GENERAL_TOURISM_EXPERIENCE', 'SINGLE_PLACE'],
+      originationCapabilities: ['SINGLE_PLACE'],
       evidenceKey: 'wikivoyage:San_Telmo:see:see:Mercado_San_Telmo:1',
       // B3 live wiring (cutover M2): the observation's real existence in a
       // fetched Wikivoyage article IS the editorial-listing signal,

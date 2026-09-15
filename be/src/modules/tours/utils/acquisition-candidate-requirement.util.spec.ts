@@ -32,19 +32,39 @@ const hint = (
 
 describe('candidateSatisfiesEvidenceRequirement', () => {
   it.each([
-    [candidate(hint('AREA')), 'GENERAL_TOURISM_EXPERIENCE', false],
-    [candidate(hint('PLACE')), 'GENERAL_TOURISM_EXPERIENCE', true],
+    [candidate(hint('AREA')), 'SINGLE_PLACE', false],
     [candidate(hint('PLACE')), 'SINGLE_PLACE', true],
-    [candidate(hint('AREA'), hint('PLACE')), 'COMPOSITE_WALK', false],
+    [
+      candidate(hint('AREA'), hint('PLACE')),
+      'MULTI_COMPONENT_EXPERIENCE',
+      false,
+    ],
     [
       candidate(hint('AREA'), hint('PLACE'), hint('ROUTE')),
-      'COMPOSITE_WALK',
+      'MULTI_COMPONENT_EXPERIENCE',
       true,
     ],
-    [candidate(hint('PLACE'), hint('PLACE')), 'COMPOSITE_WALK', true],
-    [candidate(hint('PLACE'), hint('PLACE', false)), 'COMPOSITE_WALK', false],
-    [candidate(hint('ROUTE')), 'CANONICAL_ROUTE', true],
-    [candidate(hint('PLACE'), hint('PLACE')), 'CANONICAL_ROUTE', false],
+    [
+      candidate(hint('PLACE'), hint('PLACE')),
+      'MULTI_COMPONENT_EXPERIENCE',
+      true,
+    ],
+    [
+      candidate(hint('PLACE'), hint('PLACE', false)),
+      'MULTI_COMPONENT_EXPERIENCE',
+      false,
+    ],
+    [candidate(hint('ROUTE')), 'MULTI_COMPONENT_EXPERIENCE', false],
+    [
+      candidate(hint('AREA'), hint('ROUTE')),
+      'MULTI_COMPONENT_EXPERIENCE',
+      false,
+    ],
+    [
+      candidate(hint('PLACE'), hint('PLACE'), hint('PLACE')),
+      'MULTI_COMPONENT_EXPERIENCE',
+      true,
+    ],
   ])('%s satisfies %s = %s', (value, requirement, expected) => {
     expect(
       candidateSatisfiesEvidenceRequirement(

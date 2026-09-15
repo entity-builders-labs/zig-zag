@@ -11,7 +11,8 @@ import { StructuredCandidateCorroborationService } from './structured-candidate-
 import { AcquisitionEvidenceRequirement } from '../interfaces/acquisition-evidence-requirement.interface';
 
 const GENERIC_REFILL_EVIDENCE_REQUIREMENTS = [
-  'GENERAL_TOURISM_EXPERIENCE',
+  'SINGLE_PLACE',
+  'MULTI_COMPONENT_EXPERIENCE',
 ] as const satisfies readonly AcquisitionEvidenceRequirement[];
 import { NormalizedOpeningHours } from '../interfaces/daily-planning.interface';
 import {

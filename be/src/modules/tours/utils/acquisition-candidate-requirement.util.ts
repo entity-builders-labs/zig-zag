@@ -13,18 +13,12 @@ export function candidateSatisfiesEvidenceRequirement(
   );
 
   switch (requirement) {
-    case 'GENERAL_TOURISM_EXPERIENCE':
-      return meaningfulRequiredHints.length >= 1;
     case 'SINGLE_PLACE':
       return (
         meaningfulRequiredHints.length === 1 &&
         meaningfulRequiredHints[0].expectedKind === 'PLACE'
       );
-    case 'COMPOSITE_WALK':
+    case 'MULTI_COMPONENT_EXPERIENCE':
       return meaningfulRequiredHints.length >= 2;
-    case 'CANONICAL_ROUTE':
-      return meaningfulRequiredHints.some(
-        (hint) => hint.expectedKind === 'ROUTE',
-      );
   }
 }
