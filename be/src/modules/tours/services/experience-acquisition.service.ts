@@ -8,6 +8,7 @@ import {
   SourceObservation,
 } from '../interfaces/experience-acquisition.interface';
 import { ExperienceAcquisitionPlan } from '../interfaces/experience-acquisition-plan.interface';
+import { AcquisitionEvidenceRequirement } from '../interfaces/acquisition-evidence-requirement.interface';
 import { deficitKey } from './experience-acquisition-planner.service';
 import {
   ExperienceCandidate,
@@ -33,6 +34,11 @@ import {
 import { ExperienceClassificationService } from './experience-classification.service';
 import { classifyAcceptedResultsByExperience } from '../utils/experience-classification-convergence.util';
 import { candidateSatisfiesEvidenceRequirement } from '../utils/acquisition-candidate-requirement.util';
+import {
+  CorroborationMergeResult,
+  CorroborationReason,
+  CorroborationGroupTrace,
+} from './structured-candidate-corroboration.service';
 
 export interface ResolverEvidenceItem {
   key: string;
@@ -58,10 +64,27 @@ export interface WebAcquisitionResult {
   evidenceProvenance?: unknown;
   extractorProvider?: string;
   extractorModel?: string;
-  rawOutput?: string;
+  groundedRawOutput?: string;
+  extractorRawOutput?: string;
   validationErrors: string[];
+  extractedCandidateCount: number;
   candidateCount: number;
+  candidateDecisions: WebCandidateAdmissionDecision[];
   failureReason?: string;
+}
+
+export interface WebCandidateAdmissionDecision {
+  candidate: ExperienceCandidate;
+  requestedRequirements: AcquisitionEvidenceRequirement[];
+  candidateShapeMatches: AcquisitionEvidenceRequirement[];
+  accepted: boolean;
+  reason: 'MATCHING_EVIDENCE_REQUIREMENT' | 'NO_MATCHING_EVIDENCE_REQUIREMENT';
+}
+
+export interface StructuredPairDecisionSummary {
+  total: number;
+  byDecision: { SAME: number; NEW: number; AMBIGUOUS: number };
+  byReason: Partial<Record<CorroborationReason, number>>;
 }
 
 export interface ExecuteAcquisitionPlanResult {
@@ -74,6 +97,12 @@ export interface ExecuteAcquisitionPlanResult {
     >
   >;
   webResults?: WebAcquisitionResult[];
+  structuredAudit?: {
+    proposalCount: number;
+    groups: CorroborationGroupTrace[];
+    rejectedOriginations: CorroborationMergeResult['rejectedOriginations'];
+    pairDecisionSummary: StructuredPairDecisionSummary;
+  };
   structuredCandidateCount?: number;
   webCandidateCount?: number;
   evidence?: ResolverEvidenceItem[];
@@ -227,6 +256,7 @@ export class ExperienceAcquisitionService {
     // Structured synthesis + corroboration only when there are observations.
     const structuredCandidates: ExperienceCandidate[] = [];
     const structuredEvidence: ResolverEvidenceItem[] = [];
+    let structuredAudit: ExecuteAcquisitionPlanResult['structuredAudit'];
     if (allObservations.length > 0) {
       const proposals = this.synthesizer
         ? this.synthesizer.synthesizeProposals(allObservations)
@@ -256,6 +286,25 @@ export class ExperienceAcquisitionService {
           url: obs.sourceUrl,
         });
       }
+
+      const pairDecisionSummary: StructuredPairDecisionSummary = {
+        total: mergeResult.pairDecisions.length,
+        byDecision: { SAME: 0, NEW: 0, AMBIGUOUS: 0 },
+        byReason: {},
+      };
+      for (const pairDecision of mergeResult.pairDecisions) {
+        pairDecisionSummary.byDecision[pairDecision.decision] += 1;
+        for (const reason of pairDecision.reasons) {
+          pairDecisionSummary.byReason[reason] =
+            (pairDecisionSummary.byReason[reason] ?? 0) + 1;
+        }
+      }
+      structuredAudit = {
+        proposalCount: proposals.length,
+        groups: mergeResult.groups,
+        rejectedOriginations: mergeResult.rejectedOriginations,
+        pairDecisionSummary,
+      };
     }
 
     // Structured + web candidates converge on the ExperienceCandidate boundary;
@@ -269,6 +318,7 @@ export class ExperienceAcquisitionService {
       structuredCandidateCount: structuredCandidates.length,
       webCandidateCount: webCandidates.length,
       evidence: [...structuredEvidence, ...webEvidence],
+      structuredAudit,
     };
   }
 
@@ -291,7 +341,9 @@ export class ExperienceAcquisitionService {
         query: web.query,
         evidenceKeys: [],
         validationErrors: [],
+        extractedCandidateCount: 0,
         candidateCount: 0,
+        candidateDecisions: [],
         failureReason: 'web discovery providers not configured',
       };
     }
@@ -314,8 +366,16 @@ export class ExperienceAcquisitionService {
         groundingStatus: grounded.groundingStatus,
         evidenceKeys: (grounded.evidence ?? []).map((e) => e.key),
         evidenceProvenance: grounded.evidenceProvenance,
+        groundedRawOutput:
+          grounded.rawOutput === undefined
+            ? undefined
+            : typeof grounded.rawOutput === 'string'
+              ? grounded.rawOutput
+              : JSON.stringify(grounded.rawOutput),
         validationErrors: [],
+        extractedCandidateCount: 0,
         candidateCount: 0,
+        candidateDecisions: [],
       };
 
       if (!grounded.evidence || grounded.evidence.length === 0) {
@@ -345,11 +405,26 @@ export class ExperienceAcquisitionService {
         { bypassCache: true },
       );
 
-      const admissibleCandidates = extracted.candidates.filter((candidate) =>
-        plan.evidenceRequirements.some((requirement) =>
-          candidateSatisfiesEvidenceRequirement(candidate, requirement),
-        ),
-      );
+      const candidateDecisions: WebCandidateAdmissionDecision[] =
+        extracted.candidates.map((candidate) => {
+          const candidateShapeMatches = plan.evidenceRequirements.filter(
+            (requirement) =>
+              candidateSatisfiesEvidenceRequirement(candidate, requirement),
+          );
+          const accepted = candidateShapeMatches.length > 0;
+          return {
+            candidate,
+            requestedRequirements: [...plan.evidenceRequirements],
+            candidateShapeMatches,
+            accepted,
+            reason: accepted
+              ? 'MATCHING_EVIDENCE_REQUIREMENT'
+              : 'NO_MATCHING_EVIDENCE_REQUIREMENT',
+          };
+        });
+      const admissibleCandidates = candidateDecisions
+        .filter((decision) => decision.accepted)
+        .map((decision) => decision.candidate);
       sink.webCandidates.push(...admissibleCandidates);
       for (const ev of grounded.evidence) {
         sink.webEvidence.push({
@@ -365,9 +440,11 @@ export class ExperienceAcquisitionService {
         ...base,
         extractorProvider: extracted.provider,
         extractorModel: extracted.model,
-        rawOutput: extracted.rawOutput,
+        extractorRawOutput: extracted.rawOutput,
         validationErrors: extracted.validationErrors ?? [],
+        extractedCandidateCount: extracted.candidates.length,
         candidateCount: admissibleCandidates.length,
+        candidateDecisions,
       };
     } catch (error: any) {
       this.logger.warn(
@@ -378,7 +455,9 @@ export class ExperienceAcquisitionService {
         query: web.query,
         evidenceKeys: [],
         validationErrors: [],
+        extractedCandidateCount: 0,
         candidateCount: 0,
+        candidateDecisions: [],
         failureReason: error?.message ?? 'Web acquisition failed',
       };
     }

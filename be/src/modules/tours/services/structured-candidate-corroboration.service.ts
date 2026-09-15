@@ -41,7 +41,15 @@ export interface CorroborationGroupTrace {
   proposalIds: string[];
   contributingProviders: string[];
   mergedEvidenceKeys: string[];
+  candidateName: string;
+  requestedRequirements: AcquisitionEvidenceRequirement[];
+  observationCapabilities: AcquisitionEvidenceRequirement[];
+  candidateShapeMatches: AcquisitionEvidenceRequirement[];
   matchedOriginationRequirements: AcquisitionEvidenceRequirement[];
+  accepted: boolean;
+  reason:
+    | 'MATCHING_ORIGINATION_REQUIREMENT'
+    | 'NO_MATCHING_ORIGINATION_REQUIREMENT';
 }
 
 export interface CorroborationPairTrace {
@@ -362,40 +370,26 @@ export class StructuredCandidateCorroborationService {
     for (let i = 0; i < clusters.length; i++) {
       const cluster = clusters[i];
       const mergedCandidate = this.synthesizeMergedCandidate(cluster);
+      const observationCapabilities = [
+        ...new Set(
+          cluster.flatMap((proposal) =>
+            proposal.observations.flatMap(
+              (observation) => observation.originationCapabilities,
+            ),
+          ),
+        ),
+      ].sort();
+      const candidateShapeMatches = requirements.filter((requirement) =>
+        candidateSatisfiesEvidenceRequirement(mergedCandidate, requirement),
+      );
       const matchingRequirements = requirements.filter(
         (requirement) =>
-          cluster.some((proposal) =>
-            proposal.observations.some((observation) =>
-              observation.originationCapabilities.includes(requirement),
-            ),
-          ) &&
-          candidateSatisfiesEvidenceRequirement(mergedCandidate, requirement),
+          observationCapabilities.includes(requirement) &&
+          candidateShapeMatches.includes(requirement),
       );
       const groupId = `group_${i + 1}`;
-      if (matchingRequirements.length === 0) {
-        rejectedOriginations.push({
-          groupId,
-          proposalIds: cluster.map(proposalIdentifier),
-          requestedRequirements: [...requirements],
-          observationCapabilities: [
-            ...new Set(
-              cluster.flatMap((proposal) =>
-                proposal.observations.flatMap(
-                  (observation) => observation.originationCapabilities,
-                ),
-              ),
-            ),
-          ].sort(),
-          candidateShapeMatches: requirements.filter((requirement) =>
-            candidateSatisfiesEvidenceRequirement(mergedCandidate, requirement),
-          ),
-          reason: 'NO_MATCHING_ORIGINATION_REQUIREMENT',
-        });
-        continue;
-      }
-      candidates.push(mergedCandidate);
-
-      groups.push({
+      const accepted = matchingRequirements.length > 0;
+      const groupTrace: CorroborationGroupTrace = {
         groupId,
         proposalIds: cluster.map(proposalIdentifier),
         contributingProviders: [
@@ -406,8 +400,29 @@ export class StructuredCandidateCorroborationService {
         mergedEvidenceKeys: [
           ...new Set(cluster.flatMap((p) => p.candidate.evidenceKeys)),
         ].sort(),
+        candidateName: mergedCandidate.name,
+        requestedRequirements: [...requirements],
+        observationCapabilities,
+        candidateShapeMatches,
         matchedOriginationRequirements: [...matchingRequirements],
-      });
+        accepted,
+        reason: accepted
+          ? 'MATCHING_ORIGINATION_REQUIREMENT'
+          : 'NO_MATCHING_ORIGINATION_REQUIREMENT',
+      };
+      groups.push(groupTrace);
+      if (!accepted) {
+        rejectedOriginations.push({
+          groupId,
+          proposalIds: cluster.map(proposalIdentifier),
+          requestedRequirements: [...requirements],
+          observationCapabilities,
+          candidateShapeMatches,
+          reason: 'NO_MATCHING_ORIGINATION_REQUIREMENT',
+        });
+        continue;
+      }
+      candidates.push(mergedCandidate);
     }
 
     return {

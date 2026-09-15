@@ -19,6 +19,7 @@ import {
   TraceGeographicValidationResult,
   TraceMaterializationPayload,
   TraceAcquisitionContext,
+  TraceTextCapture,
 } from '../interfaces/generation-trace.interface';
 import {
   TourCompletenessIssue,
@@ -34,6 +35,7 @@ import { PreferenceCoverageResult } from '../interfaces/preference-spec.interfac
 import { CandidateScoreBreakdown } from './candidate-ranking.util';
 import { SourceObservation } from '../interfaces/experience-acquisition.interface';
 import { ExperienceCandidate } from '../interfaces/experience-discovery.interface';
+import { AcquisitionEvidenceRequirement } from '../interfaces/acquisition-evidence-requirement.interface';
 
 /**
  * Trace projection only: geometry presence/type is useful audit context, but
@@ -246,16 +248,31 @@ function rule(
   return { ruleId, rule: label, result, reason, actual, expected, inputs };
 }
 
-const TRACE_SNIPPET_LIMIT = 500;
+const TRACE_SNIPPET_MAX_CHARS = 500;
+const TRACE_RAW_TEXT_MAX_CHARS = 16_384;
 
-function traceSnippet(value?: string): string | undefined {
-  if (!value) return undefined;
-  const redacted = value.replace(
+function redactTraceText(value: string): string {
+  return value.replace(
     /(authorization|api[-_ ]?key|token|cookie)\s*[:=]\s*[^\s,;]+/gi,
     '$1:[REDACTED]',
   );
-  return redacted.length > TRACE_SNIPPET_LIMIT
-    ? `${redacted.slice(0, TRACE_SNIPPET_LIMIT)}…`
+}
+
+function traceTextCapture(value?: string): TraceTextCapture | undefined {
+  if (value === undefined) return undefined;
+  const redacted = redactTraceText(value);
+  return {
+    content: redacted.slice(0, TRACE_RAW_TEXT_MAX_CHARS),
+    originalCharCount: value.length,
+    truncated: redacted.length > TRACE_RAW_TEXT_MAX_CHARS,
+  };
+}
+
+function traceSnippet(value?: string): string | undefined {
+  if (!value) return undefined;
+  const redacted = redactTraceText(value);
+  return redacted.length > TRACE_SNIPPET_MAX_CHARS
+    ? `${redacted.slice(0, TRACE_SNIPPET_MAX_CHARS)}…`
     : redacted;
 }
 
@@ -1081,7 +1098,12 @@ export function buildAcquisitionStep(params: {
     }>;
     providerResults: Record<
       string,
-      { status?: string; failureReason?: string } | undefined
+      | {
+          status?: string;
+          failureReason?: string;
+          provenance?: Record<string, unknown>;
+        }
+      | undefined
     >;
     webResults?: Array<{
       status: string;
@@ -1092,12 +1114,34 @@ export function buildAcquisitionStep(params: {
       evidenceKeys: string[];
       extractorProvider?: string;
       extractorModel?: string;
+      groundedRawOutput?: string;
+      evidenceProvenance?: unknown;
+      extractorRawOutput?: string;
       validationErrors: string[];
+      extractedCandidateCount?: number;
       candidateCount: number;
+      candidateDecisions?: Array<{
+        candidate: ExperienceCandidate;
+        requestedRequirements: AcquisitionEvidenceRequirement[];
+        candidateShapeMatches: AcquisitionEvidenceRequirement[];
+        accepted: boolean;
+        reason:
+          | 'MATCHING_EVIDENCE_REQUIREMENT'
+          | 'NO_MATCHING_EVIDENCE_REQUIREMENT';
+      }>;
       failureReason?: string;
     }>;
     structuredCandidateCount?: number;
     webCandidateCount?: number;
+    structuredAudit?: {
+      proposalCount: number;
+      groups: Array<any>;
+      pairDecisionSummary: {
+        total: number;
+        byDecision: { SAME: number; NEW: number; AMBIGUOUS: number };
+        byReason: Record<string, number>;
+      };
+    };
   };
 }): GenerationTraceStep {
   const { passNumber, plan, execution, acquisitionContext } = params;
@@ -1181,6 +1225,7 @@ export function buildAcquisitionStep(params: {
           'unknown') as TraceAcquisitionSource['status'],
         failureReason: result?.failureReason ?? webResult?.failureReason,
         observationCount: sourceObservations.length,
+        provenance: result?.provenance,
         observations: sourceObservations.map(traceObservation),
         web:
           sourcePlan.provider === 'web' && sourcePlan.web
@@ -1189,6 +1234,10 @@ export function buildAcquisitionStep(params: {
                 groundedProvider: webResult?.groundedProvider,
                 groundedModel: webResult?.groundedModel,
                 groundingStatus: webResult?.groundingStatus,
+                groundedRawOutput: traceTextCapture(
+                  webResult?.groundedRawOutput,
+                ),
+                evidenceProvenance: webResult?.evidenceProvenance,
                 evidence: evidence
                   .filter((item) =>
                     (webResult?.evidenceKeys ?? []).includes(item.key ?? ''),
@@ -1199,8 +1248,32 @@ export function buildAcquisitionStep(params: {
                       provider: webResult.extractorProvider,
                       model: webResult.extractorModel,
                       inputEvidenceKeys: webResult.evidenceKeys,
+                      rawOutput: traceTextCapture(webResult.extractorRawOutput),
                       validationErrors: webResult.validationErrors,
-                      candidateCount: webResult.candidateCount,
+                      extractedCandidateCount:
+                        webResult.extractedCandidateCount ??
+                        webResult.candidateCount,
+                      admittedCandidateCount: webResult.candidateCount,
+                      rejectedCandidateCount:
+                        (webResult.extractedCandidateCount ??
+                          webResult.candidateCount) - webResult.candidateCount,
+                      candidateDecisions: (
+                        webResult.candidateDecisions ?? []
+                      ).map((decision) => ({
+                        candidate: toTraceAcquisitionCandidate(
+                          decision.candidate,
+                          evidence,
+                          observations,
+                        ),
+                        requestedRequirements: [
+                          ...decision.requestedRequirements,
+                        ],
+                        candidateShapeMatches: [
+                          ...decision.candidateShapeMatches,
+                        ],
+                        accepted: decision.accepted,
+                        reason: decision.reason,
+                      })),
                     }
                   : undefined,
               }
@@ -1208,54 +1281,97 @@ export function buildAcquisitionStep(params: {
       };
     },
   );
-  const auditCandidates: TraceAcquisitionCandidate[] = execution.candidates
-    .filter(
-      (candidate): candidate is ExperienceCandidate =>
-        typeof candidate.name === 'string' &&
-        Array.isArray(candidate.themes) &&
-        Array.isArray(candidate.traits) &&
-        Array.isArray(candidate.componentHints) &&
-        Array.isArray(candidate.evidenceKeys),
-    )
-    .map((candidate) => {
-      const hasStructuredEvidence = candidate.evidenceKeys.some((key) =>
-        structuredEvidenceKeys.has(key),
-      );
-      const hasWebEvidence = candidate.evidenceKeys.some((key) =>
-        webEvidenceKeys.has(key),
-      );
-      const origin: 'structured' | 'web' | 'mixed' =
-        hasStructuredEvidence && hasWebEvidence
-          ? 'mixed'
-          : hasStructuredEvidence
-            ? 'structured'
-            : 'web';
-      return {
-        traceKey: traceCandidateKey(candidate),
-        name: candidate.name,
-        origin,
-        providers: [
-          ...new Set(
-            candidate.evidenceKeys.flatMap((key) => [
-              ...observations
-                .filter((item) => item.evidenceKey === key)
-                .map((item) => item.provider),
-              ...evidence
-                .filter((item) => item.key === key)
-                .map((item) => item.source),
-            ]),
-          ),
-        ],
-        themes: [...candidate.themes],
-        intents: [...(candidate.intents ?? [])],
-        evidenceKeys: [...candidate.evidenceKeys],
-        suggestedDurationMinutes: candidate.suggestedDurationMinutes,
-        orderedByEvidence: candidate.orderedByEvidence,
-        componentHints: candidate.componentHints.map((hint, index) =>
-          traceHint(hint, candidate.orderedByEvidence ? index + 1 : undefined),
+  const extractedWebCandidates = (execution.webResults ?? []).flatMap(
+    (result) =>
+      (result.candidateDecisions ?? []).map((decision) => decision.candidate),
+  );
+  const candidatePool = [
+    ...execution.candidates,
+    ...extractedWebCandidates,
+  ].filter(
+    (candidate): candidate is ExperienceCandidate =>
+      typeof candidate.name === 'string' &&
+      Array.isArray(candidate.themes) &&
+      Array.isArray(candidate.traits) &&
+      Array.isArray(candidate.componentHints) &&
+      Array.isArray(candidate.evidenceKeys),
+  );
+  const candidatesByTraceKey = new Map(
+    candidatePool.map((candidate) => [traceCandidateKey(candidate), candidate]),
+  );
+  const auditCandidates: TraceAcquisitionCandidate[] = [
+    ...candidatesByTraceKey.values(),
+  ].map((candidate) =>
+    toTraceAcquisitionCandidate(candidate, evidence, observations),
+  );
+  const structuredCorroboration = execution.structuredAudit
+    ? {
+        proposalCount: execution.structuredAudit.proposalCount,
+        groupCount: execution.structuredAudit.groups.length,
+        acceptedGroupCount: execution.structuredAudit.groups.filter(
+          (group) => group.accepted,
+        ).length,
+        rejectedGroupCount: execution.structuredAudit.groups.filter(
+          (group) => !group.accepted,
+        ).length,
+        groups: execution.structuredAudit.groups,
+        pairDecisionSummary: {
+          ...execution.structuredAudit.pairDecisionSummary,
+          byReason: {
+            ...execution.structuredAudit.pairDecisionSummary.byReason,
+          },
+        },
+      }
+    : undefined;
+  function toTraceAcquisitionCandidate(
+    candidate: ExperienceCandidate,
+    evidence: Array<{
+      key?: string;
+      source: string;
+      title?: string;
+      snippet?: string;
+      url?: string;
+    }>,
+    observations: SourceObservation[],
+  ): TraceAcquisitionCandidate {
+    const hasStructuredEvidence = candidate.evidenceKeys.some((key) =>
+      structuredEvidenceKeys.has(key),
+    );
+    const hasWebEvidence = candidate.evidenceKeys.some((key) =>
+      webEvidenceKeys.has(key),
+    );
+    const origin: 'structured' | 'web' | 'mixed' =
+      hasStructuredEvidence && hasWebEvidence
+        ? 'mixed'
+        : hasStructuredEvidence
+          ? 'structured'
+          : 'web';
+    return {
+      traceKey: traceCandidateKey(candidate),
+      name: candidate.name,
+      origin,
+      providers: [
+        ...new Set(
+          candidate.evidenceKeys.flatMap((key) => [
+            ...observations
+              .filter((item) => item.evidenceKey === key)
+              .map((item) => item.provider),
+            ...evidence
+              .filter((item) => item.key === key)
+              .map((item) => item.source),
+          ]),
         ),
-      };
-    });
+      ],
+      themes: [...candidate.themes],
+      intents: [...(candidate.intents ?? [])],
+      evidenceKeys: [...candidate.evidenceKeys],
+      suggestedDurationMinutes: candidate.suggestedDurationMinutes,
+      orderedByEvidence: candidate.orderedByEvidence,
+      componentHints: candidate.componentHints.map((hint, index) =>
+        traceHint(hint, candidate.orderedByEvidence ? index + 1 : undefined),
+      ),
+    };
+  }
   const acquisition: TraceAcquisitionAudit = {
     passNumber,
     acquisitionContext,
@@ -1268,6 +1384,7 @@ export function buildAcquisitionStep(params: {
     sourcePlans: auditSources,
     evidence: evidence.map(traceEvidence),
     candidates: auditCandidates,
+    structuredCorroboration,
   };
 
   return {
@@ -1535,6 +1652,7 @@ export function buildGeographicValidationStep(
                 : undefined,
           }
         : undefined,
+      areaScopeMembership: entry.areaScopeMembership,
       groundedEvidenceKeys: [...entry.groundedEvidenceKeys],
       rejectionReasons: [...entry.rejectionReasons],
       components: (resolvedCandidate?.resolvedEntities ?? []).map((entity) => ({
@@ -1613,6 +1731,7 @@ export function buildGeographicValidationStep(
         kind: entry.kind,
         status: entry.status,
         strategy: entry.strategy ?? null,
+        areaScopeMembership: entry.areaScopeMembership ?? null,
         anchorCount: entry.anchors.length,
         canonicalEntity: entry.canonicalEntity
           ? {

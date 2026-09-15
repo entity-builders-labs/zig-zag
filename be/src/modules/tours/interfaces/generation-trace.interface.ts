@@ -6,6 +6,7 @@ import { PreferenceInterpretationTrace } from './preference-interpretation.inter
 import { GeoEntityHint } from './experience-discovery.interface';
 import { ResolvedGeoEntity } from './experience-resolution.interface';
 import { AcquisitionEvidenceRequirement } from './acquisition-evidence-requirement.interface';
+import { AreaScopeMembershipAudit } from './area-scope-membership.interface';
 
 export type TraceStage =
   | 'preference_interpretation'
@@ -90,6 +91,7 @@ export interface TraceAcquisitionSource {
   status: 'success' | 'failed' | 'skipped' | 'unknown';
   failureReason?: string;
   observationCount: number;
+  provenance?: Record<string, unknown>;
   observations: Array<{
     evidenceKey: string;
     provider: string;
@@ -115,15 +117,35 @@ export interface TraceAcquisitionSource {
     groundedProvider?: string;
     groundedModel?: string;
     groundingStatus?: string;
+    groundedRawOutput?: TraceTextCapture;
     evidence: TraceEvidenceReference[];
+    evidenceProvenance?: unknown;
     extractor?: {
       provider?: string;
       model?: string;
       inputEvidenceKeys: string[];
       validationErrors: string[];
-      candidateCount: number;
+      rawOutput?: TraceTextCapture;
+      extractedCandidateCount: number;
+      admittedCandidateCount: number;
+      rejectedCandidateCount: number;
+      candidateDecisions: TraceWebCandidateAdmissionDecision[];
     };
   };
+}
+
+export interface TraceTextCapture {
+  content: string;
+  originalCharCount: number;
+  truncated: boolean;
+}
+
+export interface TraceWebCandidateAdmissionDecision {
+  candidate: TraceAcquisitionCandidate;
+  requestedRequirements: AcquisitionEvidenceRequirement[];
+  candidateShapeMatches: AcquisitionEvidenceRequirement[];
+  accepted: boolean;
+  reason: 'MATCHING_EVIDENCE_REQUIREMENT' | 'NO_MATCHING_EVIDENCE_REQUIREMENT';
 }
 
 export interface TraceEvidenceReference {
@@ -185,6 +207,7 @@ export interface TraceGeographicValidationDecision {
   status: string;
   strategy?: string;
   scope?: { kind: string; anchorName?: string; geoEntityId?: string };
+  areaScopeMembership?: AreaScopeMembershipAudit;
   groundedEvidenceKeys: string[];
   rejectionReasons: string[];
   components: Array<{
@@ -210,6 +233,32 @@ export interface TraceAcquisitionAudit {
   candidates: TraceAcquisitionCandidate[];
   entityResolution?: TraceEntityResolutionDecision[];
   geographicValidation?: TraceGeographicValidationDecision[];
+  structuredCorroboration?: {
+    proposalCount: number;
+    groupCount: number;
+    acceptedGroupCount: number;
+    rejectedGroupCount: number;
+    groups: Array<{
+      groupId: string;
+      proposalIds: string[];
+      candidateName: string;
+      contributingProviders: string[];
+      mergedEvidenceKeys: string[];
+      requestedRequirements: AcquisitionEvidenceRequirement[];
+      observationCapabilities: AcquisitionEvidenceRequirement[];
+      candidateShapeMatches: AcquisitionEvidenceRequirement[];
+      matchedOriginationRequirements: AcquisitionEvidenceRequirement[];
+      accepted: boolean;
+      reason:
+        | 'MATCHING_ORIGINATION_REQUIREMENT'
+        | 'NO_MATCHING_ORIGINATION_REQUIREMENT';
+    }>;
+    pairDecisionSummary: {
+      total: number;
+      byDecision: { SAME: number; NEW: number; AMBIGUOUS: number };
+      byReason: Record<string, number>;
+    };
+  };
   materialization?: Array<{
     candidateTraceKey: string;
     candidateName: string;
@@ -285,6 +334,7 @@ export interface TraceGeographicValidationResult {
   status: string;
   accepted: boolean;
   strategy?: string;
+  areaScopeMembership?: AreaScopeMembershipAudit;
   canonicalEntity?: TraceResolvedGeoEntity;
   anchors: TraceResolvedGeoEntity[];
   coherence?: {

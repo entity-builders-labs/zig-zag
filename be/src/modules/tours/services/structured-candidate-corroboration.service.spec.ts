@@ -780,7 +780,7 @@ describe('StructuredCandidateCorroborationService', () => {
       ['SINGLE_PLACE'],
     );
     expect(result.candidates).toHaveLength(1);
-    expect(result.groups).toHaveLength(1);
+    expect(result.groups).toHaveLength(2);
 
     const placeCandidate = result.candidates.find(
       (c) => c.componentHints[0].expectedKind === 'PLACE',
@@ -860,7 +860,7 @@ describe('StructuredCandidateCorroborationService', () => {
       ['SINGLE_PLACE'],
     );
     expect(result.candidates).toHaveLength(1);
-    expect(result.groups).toHaveLength(1);
+    expect(result.groups).toHaveLength(2);
   });
 
   describe('Google Places cross-source corroboration (Phase 4)', () => {
