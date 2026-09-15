@@ -156,6 +156,13 @@ export class OsmAcquisitionProvider {
           // may ever populate it).
           narrativeContext: candidate.narrativeContext || undefined,
         },
+        // Generic footways and paths are resolution/corroboration evidence,
+        // not proof that a tourism Experience exists. An explicit named
+        // route relation may originate one under the shared contract.
+        standaloneEligible:
+          candidate.osmType === 'relation' &&
+          typeof candidate.tags.route === 'string' &&
+          candidate.tags.route.trim().length > 0,
       });
     }
 

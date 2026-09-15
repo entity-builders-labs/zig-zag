@@ -205,6 +205,14 @@ describe('OsmAcquisitionProvider', () => {
     expect(byId['osm:way:10']).toBe('area'); // park + way -> area
     expect(byId['osm:node:11']).toBe('place'); // park + node -> downgraded to place
     expect(byId['osm:relation:12']).toBe('route'); // hiking route relation -> route
+    expect(
+      result.value.find((o) => o.externalId === 'osm:way:10')
+        ?.standaloneEligible,
+    ).toBe(false);
+    expect(
+      result.value.find((o) => o.externalId === 'osm:relation:12')
+        ?.standaloneEligible,
+    ).toBe(true);
   });
 
   it('emits one observation per OSM element even when several concepts match it', async () => {
