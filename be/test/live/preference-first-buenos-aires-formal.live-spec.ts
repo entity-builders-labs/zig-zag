@@ -42,23 +42,13 @@ function traceSteps(tour: { metadata: unknown }): any[] {
 
 function traceSnapshot(tour: { metadata: unknown }): Record<string, unknown> {
   const metadata = tour.metadata as any;
-  const trace = metadata?.generationTrace ?? {};
   return {
-    version: trace.version,
     generationStatus: metadata?.generationStatus,
     generationMessage: metadata?.generationMessage,
-    executionSummary: trace.executionSummary,
-    steps: traceSteps(tour).map((step) => ({
-      stage: step.stage,
-      status: step.status,
-      component: step.component,
-      label: step.label,
-      summary: step.summary,
-      outputs: step.outputs,
-      acquisition: step.acquisition,
-      dailyPlanning: step.dailyPlanning,
-      preferenceInterpretation: step.preferenceInterpretation,
-    })),
+    // The production persistence boundary already redacts and bounds this
+    // object. Preserve it exactly instead of maintaining a second snapshot
+    // contract in the live spec.
+    generationTrace: metadata?.generationTrace,
   };
 }
 
@@ -142,13 +132,14 @@ function hasFacet(spec: any, dimension: string, key: string): boolean {
           `preference-first-m9-failure-${tourId}.json`,
         );
         writeFileSync(artifactPath, JSON.stringify(snapshot, null, 2));
-        expect(snapshot.version).toBe(4);
-        expect((snapshot.steps as unknown[]).length).toBeGreaterThan(0);
-        expect((snapshot.executionSummary as any)?.status).toBe('failed');
+        const failureTrace = snapshot.generationTrace as any;
+        expect(failureTrace?.version).toBe(4);
+        expect((failureTrace?.steps as unknown[]).length).toBeGreaterThan(0);
+        expect(failureTrace?.executionSummary?.status).toBe('failed');
         throw new Error(
           `M9 generation failed after persisted trace validation. ` +
             `cause=${generationError instanceof Error ? generationError.message : String(generationError)} ` +
-            `stages=${(snapshot.steps as any[]).map((step) => `${step.stage}:${step.status ?? 'n/a'}`).join(',')} ` +
+            `stages=${(failureTrace.steps as any[]).map((step) => `${step.stage}:${step.status ?? 'n/a'}`).join(',')} ` +
             `traceArtifact=${artifactPath}`,
         );
       }
