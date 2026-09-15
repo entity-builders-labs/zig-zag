@@ -378,53 +378,6 @@ export class ExperienceCatalogService {
   }
 
   /**
-   * Task B5 (mode A) — real reuse-first check for a single AREA anchor:
-   * every `required: true` component of the Experience must be genuinely
-   * covered by the resolved area's own polygon (`ST_Covers`, not
-   * `ST_Contains` — a component exactly on the boundary still counts),
-   * AND at least one such required component must exist (otherwise the
-   * check would be vacuously true for an Experience with no required
-   * components at all), AND the resolved scope row must genuinely be
-   * `kind = 'AREA'`.
-   */
-  async findVerifiedMultiComponentCoveredByArea(areaGeoEntityId: string) {
-    if (!areaGeoEntityId) return [];
-    const scoped = await this.prisma.$queryRaw<Array<{ id: string }>>`
-      WITH area AS (
-        SELECT ST_SetSRID(ST_GeomFromGeoJSON(geometry::text), 4326) AS geom
-        FROM "geo_entity"
-        WHERE id = ${areaGeoEntityId} AND kind = 'AREA' AND geometry IS NOT NULL
-      )
-      SELECT e.id
-      FROM "experience" e
-      WHERE e.status = 'VERIFIED'
-        AND (SELECT COUNT(*) FROM "experience_component" WHERE "experienceId" = e.id) > 1
-        AND EXISTS (
-          SELECT 1 FROM "experience_component" ec3
-          WHERE ec3."experienceId" = e.id AND ec3.required = true
-        )
-        AND EXISTS (SELECT 1 FROM area)
-        AND NOT EXISTS (
-          SELECT 1
-          FROM "experience_component" ec
-          JOIN "geo_entity" g ON g.id = ec."geoEntityId"
-          WHERE ec."experienceId" = e.id
-            AND ec.required = true
-            AND (
-              g.latitude IS NULL OR g.longitude IS NULL
-              OR NOT EXISTS (
-                SELECT 1 FROM area
-                WHERE ST_Covers(area.geom, ST_SetSRID(ST_MakePoint(g.longitude, g.latitude), 4326))
-              )
-            )
-        )
-      ORDER BY e.id ASC
-    `;
-    if (scoped.length === 0) return [];
-    return this.findVerifiedByIds(scoped.map((row) => row.id));
-  }
-
-  /**
    * Warm lookup using the same canonical area membership policy as cold
    * geographic validation. Filtering is intentionally performed over the
    * hydrated canonical facts so SQL cannot grow a second interpretation.

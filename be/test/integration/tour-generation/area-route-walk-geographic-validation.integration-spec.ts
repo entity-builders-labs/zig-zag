@@ -93,7 +93,7 @@ describe('tour-generation integration · area/route walk geographic validation (
     await closeDb();
   });
 
-  describe('findVerifiedMultiComponentCoveredByArea (real ST_Covers)', () => {
+  describe('findVerifiedMultiComponentInArea (canonical policy)', () => {
     async function seedArea() {
       const prisma = await getPrisma();
       return prisma.geoEntity.create({
@@ -166,8 +166,9 @@ describe('tour-generation integration · area/route walk geographic validation (
         { name: 'Mercado de San Telmo', required: true },
       ]);
 
-      const result = await catalog.findVerifiedMultiComponentCoveredByArea(
+      const result = await catalog.findVerifiedMultiComponentInArea(
         area.id,
+        'AREA_CONTAINED',
       );
 
       expect(result.map((r) => r.id)).toContain(experience.id);
@@ -180,8 +181,9 @@ describe('tour-generation integration · area/route walk geographic validation (
         [{ name: 'MALBA', required: true }],
       );
 
-      const result = await catalog.findVerifiedMultiComponentCoveredByArea(
+      const result = await catalog.findVerifiedMultiComponentInArea(
         area.id,
+        'AREA_CONTAINED',
       );
 
       expect(result.map((r) => r.id)).not.toContain(experience.id);
@@ -197,8 +199,9 @@ describe('tour-generation integration · area/route walk geographic validation (
         [{ name: 'Rooftop Viewpoint', required: false }],
       );
 
-      const result = await catalog.findVerifiedMultiComponentCoveredByArea(
+      const result = await catalog.findVerifiedMultiComponentInArea(
         area.id,
+        'AREA_CONTAINED',
       );
 
       expect(result.map((r) => r.id)).toContain(experience.id);
@@ -211,8 +214,9 @@ describe('tour-generation integration · area/route walk geographic validation (
         { name: 'Mercado de San Telmo', required: false },
       ]);
 
-      const result = await catalog.findVerifiedMultiComponentCoveredByArea(
+      const result = await catalog.findVerifiedMultiComponentInArea(
         area.id,
+        'AREA_CONTAINED',
       );
 
       expect(result.map((r) => r.id)).not.toContain(experience.id);
@@ -242,8 +246,9 @@ describe('tour-generation integration · area/route walk geographic validation (
         },
       });
 
-      const result = await catalog.findVerifiedMultiComponentCoveredByArea(
+      const result = await catalog.findVerifiedMultiComponentInArea(
         area.id,
+        'AREA_CONTAINED',
       );
 
       expect(result.map((r) => r.id)).not.toContain(experience.id);
@@ -264,8 +269,9 @@ describe('tour-generation integration · area/route walk geographic validation (
         { name: 'Mercado de San Telmo', required: true },
       ]);
 
-      const result = await catalog.findVerifiedMultiComponentCoveredByArea(
+      const result = await catalog.findVerifiedMultiComponentInArea(
         notAnArea.id,
+        'AREA_CONTAINED',
       );
 
       expect(result).toEqual([]);
