@@ -172,6 +172,9 @@ describe('buildDailyPlanningStep', () => {
         solver: 'GreedyDailyPlanningSolver',
         approximateTravel: true,
         iterations: 3,
+        residualCapacity: [
+          { dayNumber: 1, availableMinutes: 42, meaningful: true },
+        ],
       },
     };
 
@@ -180,6 +183,12 @@ describe('buildDailyPlanningStep', () => {
     expect(step.stage).toBe('daily_planning');
     expect(step.summary).toContain('GreedyDailyPlanningSolver');
     expect(step.summary).toContain('1');
+    expect(step.outputs?.residualCapacity).toEqual(
+      solution.metadata.residualCapacity,
+    );
+    expect(step.dailyPlanning?.residualCapacity).toEqual(
+      solution.metadata.residualCapacity,
+    );
     expect(step.providerStatus).toBeUndefined();
     expect(step.degradedReason).toBeUndefined();
     expect(step.dailyPlanning).toEqual({
@@ -189,6 +198,7 @@ describe('buildDailyPlanningStep', () => {
       unselectedCount: 1,
       approximateTravel: true,
       iterations: 3,
+      residualCapacity: solution.metadata.residualCapacity,
       score: 1,
       days: [
         {

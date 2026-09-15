@@ -2025,6 +2025,7 @@ export function buildDailyPlanningStep(
       selectedCount,
       unselectedCount: solution.unselected.length,
       score: solution.score,
+      residualCapacity: solution.metadata.residualCapacity,
       days: solution.days.map((day) => ({
         dayNumber: day.dayNumber,
         experienceCount: day.experiences.length,
@@ -2044,6 +2045,7 @@ export function buildDailyPlanningStep(
       unselectedCount: solution.unselected.length,
       approximateTravel: solution.metadata.approximateTravel,
       iterations: solution.metadata.iterations,
+      residualCapacity: solution.metadata.residualCapacity,
       score: solution.score,
       routing: solution.metadata.routing,
       days: solution.days.map((day) => ({

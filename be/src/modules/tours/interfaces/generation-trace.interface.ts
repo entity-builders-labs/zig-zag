@@ -415,6 +415,11 @@ export interface GenerationTraceStep {
     unselectedCount: number;
     approximateTravel: boolean;
     iterations?: number;
+    residualCapacity?: Array<{
+      dayNumber: number;
+      availableMinutes: number;
+      meaningful: boolean;
+    }>;
     score: number;
     routing?: {
       externalEstimateCount: number;
