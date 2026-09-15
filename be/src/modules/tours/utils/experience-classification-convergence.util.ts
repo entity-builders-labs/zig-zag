@@ -27,7 +27,24 @@ export interface ClassificationConvergenceDeps {
     ExperienceCatalogService,
     'findVerifiedByIds' | 'applyEvidenceClassification'
   >;
-  classifier: Pick<ExperienceClassificationService, 'classify'>;
+  classifier: Pick<ExperienceClassificationService, 'classify'> &
+    Partial<Pick<ExperienceClassificationService, 'getAuditIdentity'>>;
+}
+
+export interface ClassificationAuditRecord {
+  experienceId: string;
+  state: 'classified' | 'degraded' | 'reused';
+  provider?: string;
+  model?: string;
+  promptVersion?: number;
+  themes: string[];
+  intents: string[];
+  traits: string[];
+  reasoningEvidence: Array<{
+    facet: string;
+    evidenceKeys: string[];
+    reason: string;
+  }>;
 }
 
 /**
@@ -56,14 +73,15 @@ export async function classifyAcceptedResultsByExperience(
   resolved: ResolvedExperienceCandidate[],
   evidence: ResolverEvidenceItem[] | undefined,
   deps: ClassificationConvergenceDeps,
-): Promise<void> {
+): Promise<ClassificationAuditRecord[]> {
   const acceptedResults = resolved.filter(
     (
       result,
     ): result is ResolvedExperienceCandidate & { experienceId: string } =>
       result.status === 'accepted' && typeof result.experienceId === 'string',
   );
-  if (acceptedResults.length === 0) return;
+  const audit: ClassificationAuditRecord[] = [];
+  if (acceptedResults.length === 0) return audit;
 
   const evidenceByKey = new Map(
     (evidence ?? [])
@@ -92,6 +110,14 @@ export async function classifyAcceptedResultsByExperience(
         CURRENT_CLASSIFICATION_PROMPT_VERSION,
       )
     ) {
+      audit.push({
+        experienceId,
+        state: 'reused',
+        themes: [],
+        intents: [],
+        traits: [],
+        reasoningEvidence: [],
+      });
       continue;
     }
 
@@ -113,5 +139,18 @@ export async function classifyAcceptedResultsByExperience(
       experienceId,
       classification,
     );
+    const identity = deps.classifier.getAuditIdentity?.();
+    audit.push({
+      experienceId,
+      state: classification.state,
+      provider: identity?.provider,
+      model: identity?.model ?? classification.modelId,
+      promptVersion: classification.promptVersion,
+      themes: classification.themes,
+      intents: classification.intents,
+      traits: classification.traits,
+      reasoningEvidence: classification.reasoningEvidence,
+    });
   }
+  return audit;
 }

@@ -5,6 +5,8 @@ import { GeographicValidationBatchResult } from './geographic-validation.interfa
 import { ExperienceGeographicValidationBatchResult } from './experience-resolution.interface';
 import { CandidateScoreBreakdown } from '../utils/candidate-ranking.util';
 import { PreferenceInterpretationTrace } from './preference-interpretation.interface';
+import { GeoEntityHint } from './experience-discovery.interface';
+import { ResolvedGeoEntity } from './experience-resolution.interface';
 
 export type TraceStage =
   | 'preference_interpretation'
@@ -82,6 +84,140 @@ export interface TraceCandidateDecision {
   order?: number;
 }
 
+/** Machine-readable forensic record for one preference-first acquisition pass. */
+export interface TraceAcquisitionSource {
+  provider: string;
+  configuration: Record<string, string | string[] | undefined>;
+  status: 'success' | 'failed' | 'skipped' | 'unknown';
+  failureReason?: string;
+  observationCount: number;
+  observations: Array<{
+    evidenceKey: string;
+    provider: string;
+    title: string;
+    description?: string;
+    sourceUrl?: string;
+    evidenceType?: string;
+    standaloneEligible?: boolean;
+    externalId?: string;
+    geo?: { latitude?: number; longitude?: number; geometry?: unknown };
+  }>;
+  web?: {
+    query: string;
+    anchorNames?: string[];
+    requestedThemes?: string[];
+    requestedIntents?: string[];
+    preferredTraits?: string[];
+    semanticQuery?: string;
+    groundedProvider?: string;
+    groundedModel?: string;
+    groundingStatus?: string;
+    evidence: TraceEvidenceReference[];
+    extractor?: {
+      provider?: string;
+      model?: string;
+      inputEvidenceKeys: string[];
+      validationErrors: string[];
+      candidateCount: number;
+    };
+  };
+}
+
+export interface TraceEvidenceReference {
+  evidenceKey: string;
+  source: string;
+  title?: string;
+  url?: string;
+  snippet?: string;
+}
+
+export interface TraceComponentHint {
+  key: string;
+  name: string;
+  role: GeoEntityHint['role'];
+  required: boolean;
+  order?: number;
+  evidenceKeys: string[];
+}
+
+export interface TraceAcquisitionCandidate {
+  traceKey: string;
+  name: string;
+  origin: 'structured' | 'web';
+  providers: string[];
+  themes: string[];
+  intents: string[];
+  evidenceKeys: string[];
+  suggestedDurationMinutes?: number;
+  orderedByEvidence?: boolean;
+  componentHints: TraceComponentHint[];
+}
+
+export interface TraceEntityResolutionDecision {
+  candidateTraceKey: string;
+  candidateName: string;
+  hints: Array<
+    TraceComponentHint & {
+      status: 'resolved' | 'unresolved' | 'ambiguous';
+      resolvedGeoEntity?: Pick<
+        ResolvedGeoEntity,
+        | 'geoEntityId'
+        | 'canonicalName'
+        | 'provider'
+        | 'externalId'
+        | 'latitude'
+        | 'longitude'
+        | 'geometry'
+      > & { kind?: string };
+      reason?: string;
+    }
+  >;
+  accepted: boolean;
+  rejectionReasons: string[];
+}
+
+export interface TraceGeographicValidationDecision {
+  candidateTraceKey: string;
+  candidateName: string;
+  accepted: boolean;
+  status: string;
+  strategy?: string;
+  scope?: { kind: string; anchorName?: string; geoEntityId?: string };
+  groundedEvidenceKeys: string[];
+  rejectionReasons: string[];
+  components: Array<{
+    hintName: string;
+    hintKey?: string;
+    role?: string;
+    resolvedGeoEntityId?: string;
+    relation?: 'accepted' | 'offending' | 'evaluated';
+  }>;
+}
+
+export interface TraceAcquisitionAudit {
+  passNumber: number;
+  deficits: Array<{
+    origin?: string;
+    dimension?: string;
+    key?: string;
+    reason: string;
+  }>;
+  sourcePlans: TraceAcquisitionSource[];
+  evidence: TraceEvidenceReference[];
+  candidates: TraceAcquisitionCandidate[];
+  entityResolution?: TraceEntityResolutionDecision[];
+  geographicValidation?: TraceGeographicValidationDecision[];
+  materialization?: Array<{
+    candidateTraceKey: string;
+    candidateName: string;
+    accepted: boolean;
+    rejectionReasons: string[];
+    experienceId?: string;
+    canonicalName?: string;
+    persistedComponentCount?: number;
+  }>;
+}
+
 export type TourCompletenessTraceResult = TourCompletenessResult & {
   retryAttempted: boolean;
 };
@@ -122,6 +258,26 @@ export interface GenerationTraceStep {
   timing?: TraceTiming;
   /** Full redacted LLM audit for preference interpretation. */
   preferenceInterpretation?: PreferenceInterpretationTrace;
+  /** Native v4 acquisition audit; facts only, never a policy authority. */
+  acquisition?: TraceAcquisitionAudit;
+  entityResolutionAudit?: TraceEntityResolutionDecision[];
+  geographicValidationAudit?: TraceGeographicValidationDecision[];
+  materializationAudit?: TraceAcquisitionAudit['materialization'];
+  classificationAudit?: Array<{
+    experienceId: string;
+    state: 'classified' | 'degraded' | 'reused';
+    provider?: string;
+    model?: string;
+    promptVersion?: number;
+    themes: string[];
+    intents: string[];
+    traits: string[];
+    reasoningEvidence: Array<{
+      facet: string;
+      evidenceKeys: string[];
+      reason: string;
+    }>;
+  }>;
 
   /** Stage-specific evidence retained for audit and UI rendering. */
   candidates?: TraceCandidate[];

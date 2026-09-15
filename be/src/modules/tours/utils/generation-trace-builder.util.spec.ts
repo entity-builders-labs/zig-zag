@@ -13,6 +13,7 @@ import {
   buildTourIntentStep,
 } from './generation-trace-builder.util';
 import { DailyPlanningSolution } from '../interfaces/daily-planning.interface';
+import { ExperienceCandidate } from '../interfaces/experience-discovery.interface';
 
 describe('buildTourIntentStep', () => {
   it('traces supplemental intent once and labels walking limits as captured, not enforced', () => {
@@ -439,6 +440,126 @@ describe('buildAcquisitionStep', () => {
     });
     expect(fail.status).toBe('FAIL');
     expect(fail.providerStatus).toBe('failed');
+  });
+
+  it('keeps the source-to-candidate forensic chain typed, bounded, and serializable', () => {
+    const candidate: Partial<ExperienceCandidate> = {
+      name: 'Historic District Walk',
+      themes: ['history'],
+      traits: [],
+      intents: ['walk'],
+      evidenceKeys: ['wikivoyage:stop-a', 'web:a'],
+      shortReason: 'grounded route',
+      componentHints: [
+        {
+          key: 'stop-a',
+          name: 'Stop A',
+          role: 'waypoint',
+          expectedKind: 'PLACE',
+          required: true,
+          evidenceKeys: ['web:a'],
+        },
+        {
+          key: 'stop-b',
+          name: 'Stop B',
+          role: 'waypoint',
+          expectedKind: 'PLACE',
+          required: true,
+          evidenceKeys: ['web:b'],
+        },
+      ],
+    };
+    const step = buildAcquisitionStep({
+      passNumber: 1,
+      plan: {
+        sourcePlans: [
+          { provider: 'wikivoyage', wikivoyage: { sections: ['SEE'] } },
+          { provider: 'osm', osm: { concepts: ['historic=building'] } },
+          {
+            provider: 'web',
+            web: {
+              query: 'Historic District walking tour',
+              anchorNames: ['Historic District'],
+              requestedThemes: ['history'],
+              requestedIntents: ['walk'],
+              semanticQuery: 'historic',
+            },
+          },
+        ],
+        deficits: [
+          {
+            origin: 'preference_facet',
+            dimension: 'intent',
+            key: 'walk',
+            reason: 'missing',
+          },
+        ],
+      },
+      execution: {
+        observations: [
+          {
+            provider: 'wikivoyage',
+            evidenceKey: 'wikivoyage:stop-a',
+            title: 'Stop A',
+            description: 'A concise history',
+            evidenceType: 'editorial',
+          },
+        ],
+        candidates: [candidate],
+        providerResults: {
+          wikivoyage: { status: 'success', failureReason: undefined },
+          osm: { status: 'success' },
+        },
+        evidence: [
+          {
+            key: 'web:a',
+            source: 'web',
+            title: 'Route article',
+            url: 'https://example.test/a',
+            snippet: 'Stop A then Stop B',
+          },
+          {
+            key: 'web:b',
+            source: 'web',
+            title: 'Stops',
+            url: 'https://example.test/b',
+            snippet: 'Historic route',
+          },
+        ],
+        webResults: [
+          {
+            status: 'success',
+            query: 'Historic District walking tour',
+            groundedProvider: 'tavily',
+            groundedModel: 'search',
+            groundingStatus: 'applied',
+            evidenceKeys: ['web:a', 'web:b'],
+            extractorProvider: 'ollama',
+            extractorModel: 'llama',
+            validationErrors: [],
+            candidateCount: 1,
+          },
+        ],
+      },
+    });
+
+    expect(step.acquisition?.deficits[0]).toMatchObject({
+      dimension: 'intent',
+      key: 'walk',
+    });
+    expect(step.acquisition?.sourcePlans).toHaveLength(3);
+    expect(step.acquisition?.sourcePlans[2].web).toMatchObject({
+      query: 'Historic District walking tour',
+      anchorNames: ['Historic District'],
+    });
+    expect(step.acquisition?.sourcePlans[2].web?.evidence).toHaveLength(2);
+    expect(step.acquisition?.candidates[0]).toMatchObject({
+      name: 'Historic District Walk',
+      origin: 'structured',
+      evidenceKeys: ['wikivoyage:stop-a', 'web:a'],
+    });
+    expect(step.acquisition?.candidates[0].componentHints).toHaveLength(2);
+    expect(JSON.stringify(step)).not.toContain('authorization:secret');
   });
 });
 

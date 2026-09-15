@@ -504,7 +504,7 @@ export class ExperienceAcquisitionService {
     // alike) -- classification is a property of this shared boundary now,
     // not of any one caller.
     if (this.classifier) {
-      await classifyAcceptedResultsByExperience(
+      response.classification = await classifyAcceptedResultsByExperience(
         response.resolved,
         execution.evidence,
         { catalog: this.catalog, classifier: this.classifier },

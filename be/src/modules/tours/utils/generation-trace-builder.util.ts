@@ -7,6 +7,11 @@ import {
   GenerationTraceStep,
   TraceCandidate,
   TraceRuleEvaluation,
+  TraceAcquisitionAudit,
+  TraceAcquisitionCandidate,
+  TraceAcquisitionSource,
+  TraceComponentHint,
+  TraceEvidenceReference,
 } from '../interfaces/generation-trace.interface';
 import {
   TourCompletenessIssue,
@@ -20,6 +25,8 @@ import { TourGenerationRequest } from '../interfaces/tour-generation.interface';
 import { DailyPlanningSolution } from '../interfaces/daily-planning.interface';
 import { PreferenceCoverageResult } from '../interfaces/preference-spec.interface';
 import { CandidateScoreBreakdown } from './candidate-ranking.util';
+import { SourceObservation } from '../interfaces/experience-acquisition.interface';
+import { ExperienceCandidate } from '../interfaces/experience-discovery.interface';
 
 interface TraceFacetCandidate {
   id: string;
@@ -76,6 +83,75 @@ function rule(
   inputs?: Record<string, unknown>,
 ): TraceRuleEvaluation {
   return { ruleId, rule: label, result, reason, actual, expected, inputs };
+}
+
+const TRACE_SNIPPET_LIMIT = 500;
+
+function traceSnippet(value?: string): string | undefined {
+  if (!value) return undefined;
+  const redacted = value.replace(
+    /(authorization|api[-_ ]?key|token|cookie)\s*[:=]\s*[^\s,;]+/gi,
+    '$1:[REDACTED]',
+  );
+  return redacted.length > TRACE_SNIPPET_LIMIT
+    ? `${redacted.slice(0, TRACE_SNIPPET_LIMIT)}…`
+    : redacted;
+}
+
+/** Correlation key only: never an Experience identity or dedupe key. */
+export function traceCandidateKey(candidate: ExperienceCandidate): string {
+  const evidence = [...candidate.evidenceKeys].sort().join('|');
+  const hints = candidate.componentHints
+    .map((hint) => `${hint.key}:${hint.name}`)
+    .join('|');
+  return `${candidate.name.trim().toLocaleLowerCase()}:${evidence}:${hints}`;
+}
+
+function traceHint(
+  hint: ExperienceCandidate['componentHints'][number],
+): TraceComponentHint {
+  return {
+    key: hint.key,
+    name: hint.name,
+    role: hint.role,
+    required: hint.required,
+    evidenceKeys: [...hint.evidenceKeys],
+  };
+}
+
+function traceEvidence(item: {
+  key?: string;
+  evidenceKey?: string;
+  source: string;
+  title?: string;
+  url?: string;
+  snippet?: string;
+  description?: string;
+}): TraceEvidenceReference {
+  return {
+    evidenceKey:
+      item.key ??
+      item.evidenceKey ??
+      `${item.source}:${item.title ?? 'untitled'}`,
+    source: item.source,
+    title: item.title,
+    url: item.url,
+    snippet: traceSnippet(item.snippet ?? item.description),
+  };
+}
+
+function traceObservation(observation: SourceObservation) {
+  return {
+    evidenceKey: observation.evidenceKey,
+    provider: observation.provider,
+    title: observation.title,
+    description: traceSnippet(observation.description),
+    sourceUrl: observation.sourceUrl,
+    evidenceType: observation.evidenceType,
+    standaloneEligible: observation.standaloneEligible,
+    externalId: observation.externalId,
+    geo: observation.geo,
+  };
 }
 
 export function buildTourIntentStep(
@@ -794,7 +870,20 @@ export function buildDiscoveryStep(result: {
 export function buildAcquisitionStep(params: {
   passNumber: number;
   plan: {
-    sourcePlans: Array<{ provider: string }>;
+    sourcePlans: Array<{
+      provider: string;
+      wikivoyage?: { sections: string[] };
+      osm?: { concepts: string[] };
+      places?: { searchTypes: string[] };
+      web?: {
+        query: string;
+        anchorNames?: string[];
+        requestedThemes?: string[];
+        requestedIntents?: string[];
+        preferredTraits?: string[];
+        semanticQuery?: string;
+      };
+    }>;
     deficits: Array<{
       dimension?: string;
       key?: string;
@@ -804,7 +893,14 @@ export function buildAcquisitionStep(params: {
   };
   execution: {
     observations: unknown[];
-    candidates: unknown[];
+    candidates: Array<Partial<ExperienceCandidate>>;
+    evidence?: Array<{
+      key?: string;
+      source: string;
+      title?: string;
+      snippet?: string;
+      url?: string;
+    }>;
     providerResults: Record<
       string,
       { status?: string; failureReason?: string } | undefined
@@ -850,6 +946,133 @@ export function buildAcquisitionStep(params: {
     structuredEntries.every((e) => e.status === 'failed') &&
     (execution.webResults ?? []).every((w) => w.status === 'failed');
 
+  const observations = execution.observations as SourceObservation[];
+  const evidence =
+    (
+      execution as typeof execution & {
+        evidence?: Array<{
+          key?: string;
+          source: string;
+          title?: string;
+          snippet?: string;
+          url?: string;
+        }>;
+      }
+    ).evidence ?? [];
+  const structuredEvidenceKeys = new Set(
+    observations.map((item) => item.evidenceKey),
+  );
+  const auditSources: TraceAcquisitionSource[] = plan.sourcePlans.map(
+    (sourcePlan) => {
+      const result = execution.providerResults[sourcePlan.provider];
+      const sourceObservations = observations.filter(
+        (item) => item.provider === sourcePlan.provider,
+      );
+      const webResult =
+        sourcePlan.provider === 'web'
+          ? (execution.webResults ?? []).find(
+              (item) => item.query === sourcePlan.web?.query,
+            )
+          : undefined;
+      const configuration =
+        sourcePlan.provider === 'wikivoyage'
+          ? { sections: sourcePlan.wikivoyage?.sections }
+          : sourcePlan.provider === 'osm'
+            ? { concepts: sourcePlan.osm?.concepts }
+            : sourcePlan.provider === 'google_places'
+              ? { searchTypes: sourcePlan.places?.searchTypes }
+              : {
+                  query: sourcePlan.web?.query,
+                  anchorNames: sourcePlan.web?.anchorNames,
+                  requestedThemes: sourcePlan.web?.requestedThemes,
+                  requestedIntents: sourcePlan.web?.requestedIntents,
+                  preferredTraits: sourcePlan.web?.preferredTraits,
+                  semanticQuery: sourcePlan.web?.semanticQuery,
+                };
+      return {
+        provider: sourcePlan.provider,
+        configuration,
+        status: (result?.status ??
+          webResult?.status ??
+          'unknown') as TraceAcquisitionSource['status'],
+        failureReason: result?.failureReason ?? webResult?.failureReason,
+        observationCount: sourceObservations.length,
+        observations: sourceObservations.map(traceObservation),
+        web:
+          sourcePlan.provider === 'web' && sourcePlan.web
+            ? {
+                ...sourcePlan.web,
+                groundedProvider: webResult?.groundedProvider,
+                groundedModel: webResult?.groundedModel,
+                groundingStatus: webResult?.groundingStatus,
+                evidence: evidence
+                  .filter((item) =>
+                    (webResult?.evidenceKeys ?? []).includes(item.key ?? ''),
+                  )
+                  .map(traceEvidence),
+                extractor: webResult
+                  ? {
+                      provider: webResult.extractorProvider,
+                      model: webResult.extractorModel,
+                      inputEvidenceKeys: webResult.evidenceKeys,
+                      validationErrors: webResult.validationErrors,
+                      candidateCount: webResult.candidateCount,
+                    }
+                  : undefined,
+              }
+            : undefined,
+      };
+    },
+  );
+  const auditCandidates: TraceAcquisitionCandidate[] = execution.candidates
+    .filter(
+      (candidate): candidate is ExperienceCandidate =>
+        typeof candidate.name === 'string' &&
+        Array.isArray(candidate.themes) &&
+        Array.isArray(candidate.traits) &&
+        Array.isArray(candidate.componentHints) &&
+        Array.isArray(candidate.evidenceKeys),
+    )
+    .map((candidate) => {
+      const origin: 'structured' | 'web' = candidate.evidenceKeys.some((key) =>
+        structuredEvidenceKeys.has(key),
+      )
+        ? 'structured'
+        : 'web';
+      return {
+        traceKey: traceCandidateKey(candidate),
+        name: candidate.name,
+        origin,
+        providers: [
+          ...new Set(
+            candidate.evidenceKeys.flatMap((key) =>
+              observations
+                .filter((item) => item.evidenceKey === key)
+                .map((item) => item.provider),
+            ),
+          ),
+        ],
+        themes: [...candidate.themes],
+        intents: [...(candidate.intents ?? [])],
+        evidenceKeys: [...candidate.evidenceKeys],
+        suggestedDurationMinutes: candidate.suggestedDurationMinutes,
+        orderedByEvidence: candidate.orderedByEvidence,
+        componentHints: candidate.componentHints.map(traceHint),
+      };
+    });
+  const acquisition: TraceAcquisitionAudit = {
+    passNumber,
+    deficits: plan.deficits.map((deficit) => ({
+      origin: deficit.origin,
+      dimension: deficit.dimension,
+      key: deficit.key,
+      reason: deficit.reason,
+    })),
+    sourcePlans: auditSources,
+    evidence: evidence.map(traceEvidence),
+    candidates: auditCandidates,
+  };
+
   return {
     stage: 'discovery',
     label: `Adquisición multi-fuente (pase ${passNumber})`,
@@ -886,6 +1109,7 @@ export function buildAcquisitionStep(params: {
         failureReason: w.failureReason,
       })),
     },
+    acquisition,
     rules: [
       rule(
         'ACQ-ROUTING-001',
@@ -948,6 +1172,35 @@ export function buildEntityResolutionStep(
     (entry) =>
       `${entry.candidate.name}: ${entry.rejectionReasons.join(', ') || 'sin motivo registrado'}`,
   );
+  const entityResolutionAudit = resolution.resolved.map((entry) => ({
+    candidateTraceKey: traceCandidateKey(entry.candidate),
+    candidateName: entry.candidate.name,
+    hints: entry.candidate.componentHints.map((hint) => {
+      const entity = entry.resolvedEntities.find(
+        (item) => item.hintKey === hint.key,
+      );
+      return {
+        ...traceHint(hint),
+        status: entity?.status ?? 'unresolved',
+        resolvedGeoEntity:
+          entity?.status === 'resolved'
+            ? {
+                geoEntityId: entity.geoEntityId,
+                canonicalName: entity.canonicalName,
+                provider: entity.provider,
+                externalId: entity.externalId,
+                latitude: entity.latitude,
+                longitude: entity.longitude,
+                geometry: entity.geometry,
+                kind: entity.role,
+              }
+            : undefined,
+        reason: entity?.reason,
+      };
+    }),
+    accepted: entry.status === 'accepted',
+    rejectionReasons: [...entry.rejectionReasons],
+  }));
 
   return {
     stage: 'entity_resolution',
@@ -1034,6 +1287,7 @@ export function buildEntityResolutionStep(
     providerStatus: accepted.length ? 'success' : 'failed',
     degradedReason: accepted.length ? undefined : 'no_proposals_resolved',
     resolution,
+    entityResolutionAudit,
   };
 }
 
@@ -1049,6 +1303,47 @@ export function buildGeographicValidationStep(
   const maxRadiusMeters = radiusValues.length
     ? Math.max(...radiusValues)
     : null;
+  const geographicValidationAudit = validation.results.map((entry) => {
+    const resolvedCandidate = validation.resolved?.find(
+      (candidate) => candidate.candidate.name === entry.proposalName,
+    );
+    const offending = new Set(
+      entry.anchors.map((anchor) => anchor.geoEntityId),
+    );
+    return {
+      candidateTraceKey: resolvedCandidate
+        ? traceCandidateKey(resolvedCandidate.candidate)
+        : entry.proposalName,
+      candidateName: entry.proposalName,
+      accepted: entry.accepted,
+      status: entry.status,
+      strategy: entry.strategy,
+      scope: result.validationScope
+        ? {
+            kind: result.validationScope.kind,
+            anchorName:
+              'anchorName' in result.validationScope
+                ? result.validationScope.anchorName
+                : undefined,
+            geoEntityId:
+              'geoEntityId' in result.validationScope
+                ? result.validationScope.geoEntityId
+                : undefined,
+          }
+        : undefined,
+      groundedEvidenceKeys: [...entry.groundedEvidenceKeys],
+      rejectionReasons: [...entry.rejectionReasons],
+      components: (resolvedCandidate?.resolvedEntities ?? []).map((entity) => ({
+        hintName: entity.hintName,
+        hintKey: entity.hintKey,
+        role: entity.role,
+        resolvedGeoEntityId: entity.geoEntityId,
+        relation: offending.has(entity.geoEntityId)
+          ? ('offending' as const)
+          : ('evaluated' as const),
+      })),
+    };
+  });
 
   return {
     stage: 'geographic_validation',
@@ -1140,6 +1435,7 @@ export function buildGeographicValidationStep(
     providerStatus: accepted.length ? 'success' : 'failed',
     degradedReason: accepted.length ? undefined : 'no_geo_verified_proposals',
     geographicValidation: validation,
+    geographicValidationAudit,
   };
 }
 
@@ -1155,6 +1451,19 @@ export function buildCatalogMaterializationStep(
   const persistedExperienceIds = materialized.map(
     (entry) => entry.experienceId as string,
   );
+  const materializationAudit = finalResolved.map((entry) => ({
+    candidateTraceKey: traceCandidateKey(entry.candidate),
+    candidateName: entry.candidate.name,
+    accepted: entry.status === 'accepted' && Boolean(entry.experienceId),
+    rejectionReasons: [...entry.rejectionReasons],
+    experienceId: entry.experienceId,
+    canonicalName: entry.experienceId ? entry.candidate.name : undefined,
+    persistedComponentCount: entry.experienceId
+      ? entry.resolvedEntities.filter(
+          (entity) => entity.status === 'resolved' && entity.geoEntityId,
+        ).length
+      : undefined,
+  }));
 
   return {
     stage: 'catalog_materialization',
@@ -1225,6 +1534,8 @@ export function buildCatalogMaterializationStep(
       ? undefined
       : 'no_experiences_materialized',
     materialization,
+    materializationAudit,
+    classificationAudit: result.classification,
   };
 }
 

@@ -330,6 +330,7 @@ export class ExperienceProposalResolverService
       entityResolution,
       geographicValidation,
       materialization: { resolved },
+      validationScope: input.validationScope,
     };
   }
 

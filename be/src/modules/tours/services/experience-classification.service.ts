@@ -162,6 +162,10 @@ export class ExperienceClassificationService {
     return this.config.classification.provider;
   }
 
+  getAuditIdentity(): { provider: string; model: string } {
+    return { provider: this.provider, model: this.model };
+  }
+
   private emptyResult(state: 'classified' | 'degraded'): ClassificationResult {
     return {
       themes: [],

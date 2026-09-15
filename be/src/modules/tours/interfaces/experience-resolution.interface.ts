@@ -178,11 +178,27 @@ export interface ExperienceResolutionResponse {
   entityResolution?: ExperienceEntityResolutionResponse;
   geographicValidation?: ExperienceGeographicValidationBatchResult;
   materialization?: ExperienceMaterializationResponse;
+  classification?: Array<{
+    experienceId: string;
+    state: 'classified' | 'degraded' | 'reused';
+    provider?: string;
+    model?: string;
+    promptVersion?: number;
+    themes: string[];
+    intents: string[];
+    traits: string[];
+    reasoningEvidence: Array<{
+      facet: string;
+      evidenceKeys: string[];
+      reason: string;
+    }>;
+  }>;
 }
 
 export interface FinalExperienceResolutionResponse
   extends ExperienceResolutionResponse {
   geographicValidation: ExperienceGeographicValidationBatchResult;
+  validationScope?: ExperienceValidationScope;
 }
 
 export interface ExperienceProposalResolver {
