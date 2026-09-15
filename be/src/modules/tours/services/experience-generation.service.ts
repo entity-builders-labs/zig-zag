@@ -911,6 +911,36 @@ export class ExperienceGenerationService {
             longitude: request.destination.longitude,
             radiusMeters: pointRadius,
           };
+
+      const resolvedAnchors =
+        await this.areaRouteAnchorResolver.resolveNamedAnchors(
+          preferenceInterpretation.intent.anchoredPlaces,
+          {
+            destinationCountryCode: destinationResolution.countryCode,
+            destinationPoint: {
+              latitude: searchArea.latitude,
+              longitude: searchArea.longitude,
+            },
+            geographicScope,
+          },
+        );
+      preferenceSpec.resolvedAnchors = resolvedAnchors;
+      // From this boundary onward PreferenceSpec.anchors is the canonical
+      // resolved projection. The earlier trace still retains the separate
+      // interpreter payload and this geo-resolution step records the handoff.
+      preferenceSpec.anchors = resolvedAnchors;
+      traceSteps.push({
+        stage: 'anchor_geo_resolution',
+        label: 'Resolución geográfica de anchors',
+        summary:
+          'La infraestructura geográfica resolvió o dejó explícitos los anchors no resueltos.',
+        component: 'AreaRouteAnchorResolverService',
+        status: resolvedAnchors.some((anchor) => anchor.status === 'unresolved')
+          ? 'WARN'
+          : 'PASS',
+        inputs: { anchors: preferenceInterpretation.intent.anchoredPlaces },
+        outputs: { anchors: resolvedAnchors },
+      });
       const venueAnchorResolution = await this.venueAnchorResolution.resolve({
         anchors: preferenceSpec.anchors,
         destinationName: request.destination.label,

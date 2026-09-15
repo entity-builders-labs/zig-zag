@@ -74,11 +74,13 @@ describe('AreaRouteAnchorResolverService', () => {
         longitude: -58.38,
       });
 
-      expect(result).toEqual({
-        resolved: true,
-        geoEntityId: 'geo-san-telmo',
-        geometry: boundaryGeometry,
-      });
+      expect(result).toEqual(
+        expect.objectContaining({
+          resolved: true,
+          geoEntityId: 'geo-san-telmo',
+          geometry: boundaryGeometry,
+        }),
+      );
       expect(catalog.upsertGeoEntity).toHaveBeenCalledWith(
         expect.objectContaining({
           kind: GeoEntityKind.AREA,
@@ -364,11 +366,13 @@ describe('AreaRouteAnchorResolverService', () => {
         boundary: { id: 'osm:relation:1', name: 'Buenos Aires' },
       } as any);
 
-      expect(result).toEqual({
-        resolved: true,
-        geoEntityId: 'geo-caminito',
-        geometry: caminitoStreet.geometry,
-      });
+      expect(result).toEqual(
+        expect.objectContaining({
+          resolved: true,
+          geoEntityId: 'geo-caminito',
+          geometry: caminitoStreet.geometry,
+        }),
+      );
       expect(osmPlaces.lookupStreetsWithin).toHaveBeenCalled();
       expect(osmPlaces.lookupStreetsNear).not.toHaveBeenCalled();
     });
@@ -452,6 +456,176 @@ describe('AreaRouteAnchorResolverService', () => {
           boundary: { id: 'osm:relation:1', name: 'Buenos Aires' },
         } as any),
       ).resolves.toEqual({ resolved: false });
+    });
+  });
+
+  describe('resolveNamedAnchors', () => {
+    it('uses linguistic usage only as context and OSM facts as canonical kind', async () => {
+      const areaGeometry = {
+        type: 'Polygon' as const,
+        coordinates: [
+          [
+            [-58.38, -34.63],
+            [-58.36, -34.63],
+            [-58.36, -34.61],
+            [-58.38, -34.61],
+            [-58.38, -34.63],
+          ],
+        ],
+      };
+      const routeGeometry = {
+        type: 'LineString' as const,
+        coordinates: [
+          [-58.36, -34.63],
+          [-58.35, -34.64],
+        ],
+      };
+      const nominatim = {
+        search: jest.fn().mockImplementation(async (name: string) => {
+          if (name === 'San Telmo')
+            return [
+              {
+                osmType: 'relation',
+                osmId: 42,
+                addresstype: 'suburb',
+                placeRank: 20,
+                class: 'place',
+                type: 'suburb',
+                displayName: 'San Telmo, Buenos Aires, Argentina',
+                importance: 0.3,
+                latitude: -34.62,
+                longitude: -58.37,
+              },
+            ];
+          if (name === 'MALBA')
+            return [
+              {
+                osmType: 'node',
+                osmId: 99,
+                addresstype: 'museum',
+                placeRank: 30,
+                class: 'tourism',
+                type: 'museum',
+                displayName: 'MALBA, Buenos Aires, Argentina',
+                importance: 0.5,
+                latitude: -34.578,
+                longitude: -58.403,
+              },
+            ];
+          return [];
+        }),
+      };
+      const osmPlaces = {
+        lookupBoundaryById: jest.fn().mockResolvedValue({
+          status: 'success',
+          value: {
+            id: 'osm:relation:42',
+            name: 'San Telmo',
+            osmType: 'relation',
+            osmId: 42,
+            geometry: areaGeometry,
+            tags: {},
+          },
+        }),
+        lookupStreetsWithin: jest.fn().mockResolvedValue({
+          status: 'success',
+          value: [
+            {
+              id: 'osm:way:7',
+              name: 'Ruta de los Siete Lagos',
+              geometry: routeGeometry,
+              tags: {},
+            },
+          ],
+        }),
+        lookupStreetsNear: jest.fn(),
+      };
+      const catalog = {
+        upsertGeoEntity: jest.fn().mockImplementation(async (input) => ({
+          id: `geo-${input.kind.toLowerCase()}`,
+        })),
+      };
+      const service = new AreaRouteAnchorResolverService(
+        osmPlaces as any,
+        catalog as any,
+        nominatim as any,
+      );
+      const resolved = await service.resolveNamedAnchors(
+        [
+          {
+            rawName: 'San Telmo',
+            usage: 'geographic_scope',
+            kind: 'unknown',
+            priority: 'must',
+          },
+          {
+            rawName: 'MALBA',
+            usage: 'specific_destination',
+            kind: 'unknown',
+            priority: 'soft',
+          },
+          {
+            rawName: 'Ruta de los Siete Lagos',
+            usage: 'named_path',
+            kind: 'unknown',
+            priority: 'must',
+          },
+          {
+            rawName: 'Un lugar ambiguo',
+            usage: 'unknown',
+            kind: 'unknown',
+            priority: 'soft',
+          },
+        ],
+        {
+          geographicScope: {
+            kind: 'AREA_BOUNDARY',
+            boundary: {
+              id: 'scope',
+              name: 'Buenos Aires',
+              osmType: 'relation',
+              osmId: 1,
+              geometry: areaGeometry,
+              tags: {},
+            } as any,
+          },
+          destinationCountryCode: 'ar',
+          destinationPoint: { latitude: -34.6, longitude: -58.38 },
+        },
+      );
+
+      expect(resolved).toEqual([
+        expect.objectContaining({
+          rawName: 'San Telmo',
+          usage: 'geographic_scope',
+          priority: 'must',
+          kind: 'area',
+          status: 'resolved',
+          canonicalName: 'San Telmo',
+        }),
+        expect.objectContaining({
+          rawName: 'MALBA',
+          usage: 'specific_destination',
+          kind: 'venue',
+          status: 'resolved',
+          canonicalName: 'MALBA',
+        }),
+        expect.objectContaining({
+          rawName: 'Ruta de los Siete Lagos',
+          usage: 'named_path',
+          kind: 'route',
+          status: 'resolved',
+        }),
+        expect.objectContaining({
+          rawName: 'Un lugar ambiguo',
+          kind: 'unknown',
+          status: 'unresolved',
+          unresolvedReason: 'NO_CONFIDENT_GEO_ENTITY_MATCH',
+        }),
+      ]);
+      expect(catalog.upsertGeoEntity).not.toHaveBeenCalledWith(
+        expect.objectContaining({ kind: 'EXPERIENCE' }),
+      );
     });
   });
 });

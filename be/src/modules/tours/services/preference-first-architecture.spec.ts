@@ -51,4 +51,16 @@ describe('preference-first architecture boundaries', () => {
       /GenerationWorkflowService|SecondTourOrchestrator|PlannerAcquisitionOrchestrator/,
     );
   });
+
+  it('does not let interpreted anchor kind reach routing as geographic authority', () => {
+    const interpreter = source('preference-interpreter.service.ts');
+    const generation = source('experience-generation.service.ts');
+    expect(interpreter).toMatch(
+      /const kind: AnchoredPlace\['kind'\] = 'unknown'/,
+    );
+    expect(generation).toMatch(
+      /partitionDeficitsByStrategy\([\s\S]*preferenceSpec\.anchors/,
+    );
+    expect(generation).toMatch(/resolveNamedAnchors\(/);
+  });
 });

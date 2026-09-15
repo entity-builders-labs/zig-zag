@@ -10,6 +10,7 @@ import { AreaScopeMembershipAudit } from './area-scope-membership.interface';
 
 export type TraceStage =
   | 'preference_interpretation'
+  | 'anchor_geo_resolution'
   | 'tour_intent'
   | 'destination_resolution'
   | 'db_search'

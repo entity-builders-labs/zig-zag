@@ -32,7 +32,7 @@ Do not invent arbitrary importance numbers; code derives importance deterministi
 Also output anchoredPlaces: concrete named places/areas/routes the user explicitly mentioned by
 name (never a generic theme). For each, output:
 - rawName: the name as mentioned by the user.
-- kind: "venue" | "area" | "route" | "unknown".
+- usage: "geographic_scope" | "specific_destination" | "named_path" | "unknown". This describes how the phrase uses the name, not what geographic entity it is.
 - priority: "must" ONLY for explicit, unambiguous named-place intent, for example
   "quiero visitar X", "incluí X", "sí o sí quiero ir a X", "no me quiero perder X".
   Anything weaker or ambiguous -- including a place mentioned only in passing while
@@ -62,10 +62,18 @@ const ANCHORED_PLACE_SCHEMA = {
   additionalProperties: false,
   properties: {
     rawName: { type: 'string' },
-    kind: { type: 'string', enum: ['venue', 'area', 'route', 'unknown'] },
+    usage: {
+      type: 'string',
+      enum: [
+        'geographic_scope',
+        'specific_destination',
+        'named_path',
+        'unknown',
+      ],
+    },
     priority: { type: 'string', enum: ['soft', 'must'] },
   },
-  required: ['rawName', 'kind', 'priority'],
+  required: ['rawName', 'usage', 'priority'],
 };
 
 const RESPONSE_SCHEMA = {
@@ -391,12 +399,6 @@ export class PreferenceInterpreterService {
       return [];
     }
 
-    const validKinds: AnchoredPlace['kind'][] = [
-      'venue',
-      'area',
-      'route',
-      'unknown',
-    ];
     const validPriorities: AnchoredPlace['priority'][] = ['soft', 'must'];
 
     const anchors: AnchoredPlace[] = [];
@@ -414,9 +416,20 @@ export class PreferenceInterpreterService {
         continue;
       }
 
-      const rawKind = (item as any).kind;
-      const kind: AnchoredPlace['kind'] = validKinds.includes(rawKind)
-        ? rawKind
+      // The model may emit the historical kind field, but it is deliberately
+      // discarded here. Geographic reality belongs to GeoEntity resolution.
+      const kind: AnchoredPlace['kind'] = 'unknown';
+
+      const validUsages: AnchoredPlace['usage'][] = [
+        'geographic_scope',
+        'specific_destination',
+        'named_path',
+        'unknown',
+      ];
+      const usage: AnchoredPlace['usage'] = validUsages.includes(
+        (item as any).usage,
+      )
+        ? (item as any).usage
         : 'unknown';
 
       const rawPriority = (item as any).priority;
@@ -426,7 +439,7 @@ export class PreferenceInterpreterService {
         ? rawPriority
         : 'soft';
 
-      anchors.push({ rawName, kind, priority });
+      anchors.push({ rawName, usage, kind, priority });
     }
 
     return anchors.slice(0, MAX_ANCHORED_PLACES);

@@ -166,6 +166,7 @@ export function buildPreferenceSpec(
     // Anchors are already normalized/validated by PreferenceInterpreterService
     // (plan Task A2) -- pass through unchanged, do not re-normalize here.
     anchors: interpreted.anchoredPlaces ?? [],
+    resolvedAnchors: [],
     semanticQuery: interpreted.positiveSemanticQuery ?? '',
     explorationStyle: mapExplorationStyle(request.intent.explorationStyle),
     softConstraints: {

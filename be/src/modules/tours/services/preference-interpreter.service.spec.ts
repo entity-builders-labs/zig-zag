@@ -123,7 +123,12 @@ describe('PreferenceInterpreterService', () => {
 
     expect(result.trace.status).toBe('applied');
     expect(result.intent.anchoredPlaces).toEqual([
-      { rawName: 'San Telmo', kind: 'area', priority: 'must' },
+      {
+        rawName: 'San Telmo',
+        usage: 'unknown',
+        kind: 'unknown',
+        priority: 'must',
+      },
     ]);
   });
 
@@ -247,7 +252,12 @@ describe('PreferenceInterpreterService', () => {
       ]),
     );
     expect(result.intent.anchoredPlaces).toEqual([
-      { rawName: 'San Telmo', kind: 'area', priority: 'must' },
+      {
+        rawName: 'San Telmo',
+        usage: 'unknown',
+        kind: 'unknown',
+        priority: 'must',
+      },
     ]);
     expect(result.trace.facetNormalizationDecisions).toEqual(
       expect.arrayContaining([
@@ -321,6 +331,40 @@ describe('PreferenceInterpreterService', () => {
   });
 
   describe('anchoredPlaces (D3)', () => {
+    it('preserves linguistic usage but never accepts the LLM geographic kind', async () => {
+      const { service } = makeService(
+        JSON.stringify({
+          anchoredPlaces: [
+            {
+              rawName: 'San Telmo',
+              usage: 'geographic_scope',
+              kind: 'venue',
+              priority: 'must',
+            },
+          ],
+        }),
+      );
+
+      await expect(
+        service.interpret(
+          'sí o sí quiero una caminata histórica por San Telmo',
+        ),
+      ).resolves.toEqual(
+        expect.objectContaining({
+          intent: expect.objectContaining({
+            anchoredPlaces: [
+              {
+                rawName: 'San Telmo',
+                usage: 'geographic_scope',
+                kind: 'unknown',
+                priority: 'must',
+              },
+            ],
+          }),
+        }),
+      );
+    });
+
     describe('prompt contract', () => {
       it('sends the conservative D3 anchor-priority rules to the LLM', async () => {
         const { service, langChain } = makeService(
@@ -371,7 +415,12 @@ describe('PreferenceInterpreterService', () => {
       );
 
       expect(result.intent.anchoredPlaces).toEqual([
-        { rawName: 'Teatro Colón', kind: 'venue', priority: 'must' },
+        {
+          rawName: 'Teatro Colón',
+          usage: 'unknown',
+          kind: 'unknown',
+          priority: 'must',
+        },
       ]);
     });
 
@@ -389,7 +438,12 @@ describe('PreferenceInterpreterService', () => {
       );
 
       expect(result.intent.anchoredPlaces).toEqual([
-        { rawName: 'Teatro Colón', kind: 'venue', priority: 'soft' },
+        {
+          rawName: 'Teatro Colón',
+          usage: 'unknown',
+          kind: 'unknown',
+          priority: 'soft',
+        },
       ]);
     });
 
@@ -415,7 +469,12 @@ describe('PreferenceInterpreterService', () => {
       );
 
       expect(result.intent.anchoredPlaces).toEqual([
-        { rawName: 'Teatro Colón', kind: 'venue', priority: 'soft' },
+        {
+          rawName: 'Teatro Colón',
+          usage: 'unknown',
+          kind: 'unknown',
+          priority: 'soft',
+        },
       ]);
     });
 
@@ -440,11 +499,36 @@ describe('PreferenceInterpreterService', () => {
       const result = await service.interpret('cualquier texto');
 
       expect(result.intent.anchoredPlaces).toEqual([
-        { rawName: 'Teatro Colón', kind: 'venue', priority: 'must' },
-        { rawName: 'Bodega Norton', kind: 'unknown', priority: 'must' },
-        { rawName: 'Some Place', kind: 'venue', priority: 'soft' },
-        { rawName: 'Plain Mention', kind: 'venue', priority: 'soft' },
-        { rawName: 'No Kind Given', kind: 'unknown', priority: 'soft' },
+        {
+          rawName: 'Teatro Colón',
+          usage: 'unknown',
+          kind: 'unknown',
+          priority: 'must',
+        },
+        {
+          rawName: 'Bodega Norton',
+          usage: 'unknown',
+          kind: 'unknown',
+          priority: 'must',
+        },
+        {
+          rawName: 'Some Place',
+          usage: 'unknown',
+          kind: 'unknown',
+          priority: 'soft',
+        },
+        {
+          rawName: 'Plain Mention',
+          usage: 'unknown',
+          kind: 'unknown',
+          priority: 'soft',
+        },
+        {
+          rawName: 'No Kind Given',
+          usage: 'unknown',
+          kind: 'unknown',
+          priority: 'soft',
+        },
       ]);
     });
 

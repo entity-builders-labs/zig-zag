@@ -29,8 +29,24 @@ export interface RequestedFacet {
 /** A concrete named place/area/route the user mentioned. */
 export interface AnchoredPlace {
   rawName: string;
+  /** Linguistic usage only; geographic kind is resolved by infrastructure. */
+  usage?:
+    | 'geographic_scope'
+    | 'specific_destination'
+    | 'named_path'
+    | 'unknown';
   kind: 'venue' | 'area' | 'route' | 'unknown';
   priority: 'soft' | 'must';
+}
+
+/** Canonical geographic resolution of an interpreted named anchor. */
+export interface ResolvedAnchor extends AnchoredPlace {
+  canonicalName?: string;
+  geoEntityId?: string;
+  provider?: string;
+  externalId?: string;
+  status: 'resolved' | 'unresolved';
+  unresolvedReason?: string;
 }
 
 export interface PreferenceSpec {
@@ -41,6 +57,8 @@ export interface PreferenceSpec {
     hard: string[];
   };
   anchors: AnchoredPlace[];
+  /** Resolved geographic authority consumed by acquisition/planning. */
+  resolvedAnchors?: ResolvedAnchor[];
   semanticQuery: string;
 
   /**
