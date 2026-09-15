@@ -1,6 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { Coordinates } from '@shared/utils/distance.utils';
-import { AreaRouteAnchorResolverService } from './area-route-anchor-resolver.service';
+import {
+  AreaRouteAnchorResolverService,
+  AnchorGeometryResolution,
+} from './area-route-anchor-resolver.service';
 import { ExperienceCatalogService } from './experience-catalog.service';
 import {
   BuildPlanInput,
@@ -40,6 +43,8 @@ export interface AreaRouteWalkAcquisitionInput {
   destinationCountryCode?: string;
   destinationPoint?: Coordinates;
   geographicScope?: GeographicScope;
+  /** Caller-owned request/generation scope resolution, when already known. */
+  resolvedAnchor?: AnchorGeometryResolution;
   [key: string]: unknown;
   /** The canonical facet deficit this call is acquiring for -- routed
    * straight into the plan, never recomputed from a candidate pool. */
@@ -129,8 +134,9 @@ export class AreaRouteWalkAcquisitionService {
     // Resolve ONCE per call -- reused by the warm check, the
     // validationScope passed into acquisition/materialization, AND the
     // post-acquisition re-check.
-    const resolution =
-      input.anchor.kind === 'area'
+    const resolution: AnchorGeometryResolution =
+      input.resolvedAnchor ??
+      (input.anchor.kind === 'area'
         ? await this.anchorResolver.resolveArea(
             input.anchor,
             input.destinationCountryCode,
@@ -141,7 +147,30 @@ export class AreaRouteWalkAcquisitionService {
               input.anchor,
               input.geographicScope!,
             )
-          : ({ resolved: false } as const);
+          : ({ resolved: false } as const));
+
+    // An AREA anchor is a request-level geographic scope, not optional
+    // context. Without a canonical boundary, materialization could persist
+    // an experience unrelated to the requested area. Tourism-route mode C
+    // intentionally remains available for unresolved ROUTE anchors below.
+    if (input.anchor.kind === 'area' && !resolution.resolved) {
+      return {
+        outcome: 'no_result',
+        reason: 'anchor_unresolved',
+        diagnostics: {
+          anchorResolved: false,
+          sourcePlanProviders: [],
+          execution: { candidateCount: 0, webResults: [] },
+          materialization: {
+            resolvedCount: 0,
+            acceptedCount: 0,
+            rejectedCount: 0,
+            rejectionReasons: {},
+            semanticallyEligibleCount: 0,
+          },
+        },
+      };
+    }
 
     // Geographic/identity lookup, SPLIT from the intent-facet/semantic
     // filter. Uniform across all 3 single-anchor modes (A/B/C) -- each has
@@ -151,8 +180,11 @@ export class AreaRouteWalkAcquisitionService {
     > => {
       if (input.anchor.kind === 'area') {
         if (!resolution.resolved) return [];
-        return this.catalog.findVerifiedMultiComponentCoveredByArea(
+        return this.catalog.findVerifiedMultiComponentInArea(
           resolution.geoEntityId,
+          input.intentKey === 'walk' || input.intentKey === 'route_like'
+            ? 'AREA_ANCHORED_ROUTE'
+            : 'AREA_CONTAINED',
         );
       }
       if (input.anchor.kind === 'route') {

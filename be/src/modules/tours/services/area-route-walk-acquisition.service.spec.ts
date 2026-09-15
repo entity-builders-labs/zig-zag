@@ -72,7 +72,7 @@ function buildMocks() {
     resolveRoute: jest.fn(),
   };
   const catalog = {
-    findVerifiedMultiComponentCoveredByArea: jest.fn(),
+    findVerifiedMultiComponentInArea: jest.fn(),
     findVerifiedMultiComponentByExactComponent: jest.fn(),
     findVerifiedTourismRouteByName: jest.fn(),
   };
@@ -148,6 +148,27 @@ function baseInput(
 }
 
 describe('AreaRouteWalkAcquisitionService', () => {
+  it('fails closed when an AREA anchor cannot be resolved', async () => {
+    const mocks = buildMocks();
+    mocks.anchorResolver.resolveArea.mockResolvedValue({ resolved: false });
+    const service = buildService(mocks);
+
+    const result = await service.acquireOrReuse(baseInput());
+
+    expect(result).toMatchObject({
+      outcome: 'no_result',
+      reason: 'anchor_unresolved',
+      diagnostics: { anchorResolved: false },
+    });
+    expect(
+      mocks.acquisitionPlanner.buildAcquisitionPlan,
+    ).not.toHaveBeenCalled();
+    expect(mocks.acquisitionService.executePlan).not.toHaveBeenCalled();
+    expect(
+      mocks.acquisitionService.materializeExecution,
+    ).not.toHaveBeenCalled();
+  });
+
   it('A1: warm AREA hit short-circuits acquisition', async () => {
     const mocks = buildMocks();
     mocks.anchorResolver.resolveArea.mockResolvedValue({
@@ -155,7 +176,7 @@ describe('AreaRouteWalkAcquisitionService', () => {
       geoEntityId: 'geo-san-telmo',
       geometry: { type: 'Polygon', coordinates: [] },
     });
-    mocks.catalog.findVerifiedMultiComponentCoveredByArea.mockResolvedValue([
+    mocks.catalog.findVerifiedMultiComponentInArea.mockResolvedValue([
       classifiedRow('exp-warm', 'walk'),
     ]);
     const service = buildService(mocks);
@@ -216,7 +237,7 @@ describe('AreaRouteWalkAcquisitionService', () => {
       geoEntityId: 'geo-san-telmo',
       geometry: { type: 'Polygon', coordinates: [] },
     });
-    mocks.catalog.findVerifiedMultiComponentCoveredByArea.mockResolvedValue([]);
+    mocks.catalog.findVerifiedMultiComponentInArea.mockResolvedValue([]);
     mocks.acquisitionPlanner.buildAcquisitionPlan.mockReturnValue({
       destination: {},
       deficits: [],
@@ -311,7 +332,7 @@ describe('AreaRouteWalkAcquisitionService', () => {
     // Round 1: warm MISS -> acquire -> post-check finds the freshly-
     // classified row (simulating what materializeExecution's own
     // classification step would have already persisted).
-    mocks.catalog.findVerifiedMultiComponentCoveredByArea
+    mocks.catalog.findVerifiedMultiComponentInArea
       .mockResolvedValueOnce([]) // round 1 warm check
       .mockResolvedValueOnce([classifiedRow('exp-1', 'walk')]) // round 1 post-check
       .mockResolvedValueOnce([classifiedRow('exp-1', 'walk')]); // round 2 warm check
@@ -445,7 +466,7 @@ describe('AreaRouteWalkAcquisitionService', () => {
       geoEntityId: 'geo-san-telmo',
       geometry: { type: 'Polygon', coordinates: [] },
     });
-    mocks.catalog.findVerifiedMultiComponentCoveredByArea.mockResolvedValue([]);
+    mocks.catalog.findVerifiedMultiComponentInArea.mockResolvedValue([]);
     mocks.acquisitionPlanner.buildAcquisitionPlan.mockReturnValue({
       destination: {},
       deficits: [],
@@ -499,7 +520,7 @@ describe('AreaRouteWalkAcquisitionService', () => {
         },
       ],
     });
-    mocks.catalog.findVerifiedMultiComponentCoveredByArea
+    mocks.catalog.findVerifiedMultiComponentInArea
       .mockResolvedValueOnce([]) // warm
       .mockResolvedValueOnce([]); // post-check -- still nothing
     const service = buildService(mocks);
@@ -521,7 +542,7 @@ describe('AreaRouteWalkAcquisitionService', () => {
       geoEntityId: 'geo-san-telmo',
       geometry: { type: 'Polygon', coordinates: [] },
     });
-    mocks.catalog.findVerifiedMultiComponentCoveredByArea.mockResolvedValue([
+    mocks.catalog.findVerifiedMultiComponentInArea.mockResolvedValue([
       classifiedRow('exp-1', 'walk'),
     ]);
     mocks.acquisitionPlanner.buildAcquisitionPlan.mockReturnValue({
@@ -575,7 +596,7 @@ describe('AreaRouteWalkAcquisitionService', () => {
     // Pre-existing, unrelated, geographically-compatible row Y is ALSO
     // returned by the post-check's geography lookup, alongside this
     // execution's own accepted X.
-    mocks.catalog.findVerifiedMultiComponentCoveredByArea
+    mocks.catalog.findVerifiedMultiComponentInArea
       .mockResolvedValueOnce([]) // warm
       .mockResolvedValueOnce([
         classifiedRow('exp-y', 'walk'),
@@ -616,7 +637,7 @@ describe('AreaRouteWalkAcquisitionService', () => {
         },
       ],
     });
-    mocks.catalog.findVerifiedMultiComponentCoveredByArea
+    mocks.catalog.findVerifiedMultiComponentInArea
       .mockResolvedValueOnce([])
       .mockResolvedValueOnce([classifiedRow('exp-y', 'walk')]); // only the unrelated row
     const service = buildService(mocks);
@@ -660,7 +681,7 @@ describe('AreaRouteWalkAcquisitionService', () => {
     // The materialized row was genuinely classified as 'food', not the
     // requested 'walk' -- still valid, persisted catalog knowledge, just
     // not a successful result for THIS request.
-    mocks.catalog.findVerifiedMultiComponentCoveredByArea
+    mocks.catalog.findVerifiedMultiComponentInArea
       .mockResolvedValueOnce([])
       .mockResolvedValueOnce([classifiedRow('exp-food', 'food')]);
     const service = buildService(mocks);
@@ -703,7 +724,7 @@ describe('AreaRouteWalkAcquisitionService', () => {
         },
       ],
     });
-    mocks.catalog.findVerifiedMultiComponentCoveredByArea
+    mocks.catalog.findVerifiedMultiComponentInArea
       .mockResolvedValueOnce([]) // round 1 warm
       .mockResolvedValueOnce([degradedRow('exp-1')]) // round 1 post-check
       .mockResolvedValueOnce([degradedRow('exp-1')]) // round 2 warm check

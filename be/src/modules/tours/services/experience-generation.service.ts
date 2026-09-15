@@ -57,6 +57,7 @@ import { ExperienceAcquisitionService } from './experience-acquisition.service';
 import { ExecuteAcquisitionPlanResult } from './experience-acquisition.service';
 import { ExperienceAcquisitionPlannerService } from './experience-acquisition-planner.service';
 import { AreaRouteWalkAcquisitionService } from './area-route-walk-acquisition.service';
+import { AreaRouteAnchorResolverService } from './area-route-anchor-resolver.service';
 import { partitionDeficitsByStrategy } from '../utils/acquisition-strategy-selector.util';
 import { redactTracePayload } from '../utils/trace-redaction.util';
 import { buildGenerationExecutionSummary } from '../utils/generation-execution-summary.util';
@@ -163,6 +164,7 @@ export class ExperienceGenerationService {
     private readonly facetRetrieval: FacetRetrievalService,
     private readonly experienceAcquisitionPlanner: ExperienceAcquisitionPlannerService,
     private readonly areaRouteWalkAcquisition: AreaRouteWalkAcquisitionService,
+    private readonly areaRouteAnchorResolver: AreaRouteAnchorResolverService,
     private readonly tourCompletenessValidator: TourCompletenessValidator,
     private readonly planningCandidateNormalizer: PlanningCandidateNormalizerService,
     @Inject(DAILY_PLANNING_SOLVER)
@@ -1019,6 +1021,14 @@ export class ExperienceGenerationService {
             let currentPool = nearbyExperiences;
             let currentSelection = selection;
             let currentPreferenceCoverage = initialPreferenceCoverage;
+            // Resolution is request-scoped: repeated acquisition passes reuse
+            // the same canonical anchor result, including a transient
+            // provider failure, instead of silently changing scope semantics.
+            const resolvedAreaRouteAnchors = new Map<
+              string,
+              | ReturnType<AreaRouteAnchorResolverService['resolveArea']>
+              | ReturnType<AreaRouteAnchorResolverService['resolveRoute']>
+            >();
             let currentProviderHealth: {
               status: 'healthy' | 'degraded' | 'unknown';
               reason?: string;
@@ -1089,6 +1099,30 @@ export class ExperienceGenerationService {
                   `Buscando una experiencia de tipo "${routed.intentKey}" en "${routed.anchor.rawName}"...`,
                 );
 
+                const anchorResolutionKey = `${routed.anchor.kind}:${routed.anchor.rawName.trim().toLowerCase()}`;
+                let resolvedAnchor =
+                  resolvedAreaRouteAnchors.get(anchorResolutionKey);
+                if (!resolvedAnchor) {
+                  resolvedAnchor =
+                    routed.anchor.kind === 'area'
+                      ? this.areaRouteAnchorResolver.resolveArea(
+                          routed.anchor,
+                          destinationResolution.countryCode,
+                          {
+                            latitude: searchArea.latitude,
+                            longitude: searchArea.longitude,
+                          },
+                        )
+                      : this.areaRouteAnchorResolver.resolveRoute(
+                          routed.anchor,
+                          geographicScope,
+                        );
+                  resolvedAreaRouteAnchors.set(
+                    anchorResolutionKey,
+                    resolvedAnchor,
+                  );
+                }
+
                 const areaRouteWalkResult =
                   await this.areaRouteWalkAcquisition.acquireOrReuse({
                     anchor: routed.anchor,
@@ -1102,6 +1136,7 @@ export class ExperienceGenerationService {
                     geographicScope,
                     deficit: routed.deficit,
                     semanticQuery: preferenceSpec.semanticQuery,
+                    resolvedAnchor: await resolvedAnchor,
                   });
                 const areaRouteWalkTraceResult = Object.fromEntries(
                   Object.entries(areaRouteWalkResult).filter(
