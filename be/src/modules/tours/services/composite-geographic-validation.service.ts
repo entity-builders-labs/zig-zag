@@ -23,6 +23,10 @@ import {
   distanceMeters,
 } from '../utils/geographic-coherence.util';
 import { distancePointToLineStringMeters } from '../utils/route-geometry.util';
+import {
+  satisfiesAreaScopeMembership,
+  AreaScopeMembershipPolicy,
+} from '../utils/area-scope-membership-policy';
 
 @Injectable()
 export class CompositeGeographicValidationService {
@@ -71,6 +75,7 @@ export class CompositeGeographicValidationService {
           withCoordinates,
           validationScope,
           groundedEvidenceKeys,
+          validationIntent,
         )
       : undefined;
 
@@ -234,6 +239,7 @@ export class CompositeGeographicValidationService {
     withCoordinates: ResolvedGeoEntity[],
     validationScope: ExperienceValidationScope,
     evidenceKeys: string[],
+    validationIntent?: 'walk' | 'route_like',
   ): GeographicValidationResult | undefined {
     const proposalName = resolvedProposal.candidate.name;
     const requiredHints = resolvedProposal.candidate.componentHints.filter(
@@ -282,23 +288,39 @@ export class CompositeGeographicValidationService {
     }
 
     if (validationScope.kind === 'AREA') {
-      const outside = requiredEntities.find(
-        (entity) =>
-          !geometryContainsPoint(
-            validationScope.geometry,
-            entity.longitude as number,
-            entity.latitude as number,
-          ),
+      const policy: AreaScopeMembershipPolicy =
+        validationIntent === 'walk' || validationIntent === 'route_like'
+          ? 'AREA_ANCHORED_ROUTE'
+          : 'AREA_CONTAINED';
+      const satisfied = satisfiesAreaScopeMembership(
+        validationScope.geometry,
+        requiredEntities.map((entity) => ({
+          required: true,
+          role: entity.role,
+          latitude: entity.latitude,
+          longitude: entity.longitude,
+          geometry: entity.geometry,
+        })),
+        policy,
       );
-      if (outside) {
+      if (!satisfied) {
+        const outside = requiredEntities.find(
+          (entity) =>
+            entity.role !== 'area' &&
+            !geometryContainsPoint(
+              validationScope.geometry,
+              entity.longitude as number,
+              entity.latitude as number,
+            ),
+        );
         return this.rejected(
           proposalName,
           'EXPERIENCE',
-          [outside],
+          outside ? [outside] : requiredEntities,
           evidenceKeys,
           ['external_scope_mismatch'],
           undefined,
-          [outside],
+          outside ? [outside] : requiredEntities,
           requiredEntities,
         );
       }

@@ -22,6 +22,11 @@ import {
 import { mergeExperienceMetadata } from '../utils/experience-metadata-merge.util';
 import { normalizeGeoName } from '../utils/nominatim-match.util';
 import { ClassificationResult } from './experience-classification.service';
+import {
+  AreaScopeMembershipPolicy,
+  satisfiesAreaScopeMembership,
+} from '../utils/area-scope-membership-policy';
+import { GeoJsonGeometry } from '@integrations/osm/utils/osm-geometry.util';
 
 // Two different resolution paths (a Nominatim lookup done while resolving a
 // composite's `venue` component hint, a Google Places lookup done while
@@ -417,6 +422,46 @@ export class ExperienceCatalogService {
     `;
     if (scoped.length === 0) return [];
     return this.findVerifiedByIds(scoped.map((row) => row.id));
+  }
+
+  /**
+   * Warm lookup using the same canonical area membership policy as cold
+   * geographic validation. Filtering is intentionally performed over the
+   * hydrated canonical facts so SQL cannot grow a second interpretation.
+   */
+  async findVerifiedMultiComponentInArea(
+    areaGeoEntityId: string,
+    policy: AreaScopeMembershipPolicy,
+  ) {
+    const area = await this.prisma.geoEntity.findUnique({
+      where: { id: areaGeoEntityId },
+      select: { kind: true, geometry: true },
+    });
+    if (!area || area.kind !== GeoEntityKind.AREA || !area.geometry) return [];
+    const rows = await this.prisma.experience.findMany({
+      where: { status: ExperienceStatus.VERIFIED },
+      include: {
+        components: { include: { geoEntity: true } },
+        traits: { include: { traitDefinition: true } },
+      },
+    });
+    return rows
+      .filter(
+        (experience) =>
+          experience.components.length > 1 &&
+          satisfiesAreaScopeMembership(
+            area.geometry as GeoJsonGeometry,
+            experience.components.map((component) => ({
+              required: component.required,
+              role: component.role,
+              latitude: component.geoEntity.latitude,
+              longitude: component.geoEntity.longitude,
+              geometry: component.geoEntity.geometry,
+            })),
+            policy,
+          ),
+      )
+      .map((experience) => this.projectVerifiedExperienceRow(experience));
   }
 
   /**
