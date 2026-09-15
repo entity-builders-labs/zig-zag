@@ -3,6 +3,7 @@ import { LangChainService } from '@shared/ai/langchain.service';
 import { redactTracePayload } from '../utils/trace-redaction.util';
 import {
   NormalizedPreferenceIntent,
+  FacetNormalizationDecision,
   PreferenceInterpretationTrace,
 } from '../interfaces/preference-interpretation.interface';
 import {
@@ -24,6 +25,7 @@ Do not turn ambiguity into a hard rule. Preserve uncertainty in ambiguities.
 For positive preferences, output preferredFacets as a list of objects with:
 - dimension: active dimension name (theme, trait, intent, winery_scale, tourism_intensity, nature_type, local_character). Do NOT output exploration_style.
 - key: CANONICAL domain key in English (e.g. "architecture" not "arquitectura", "food" not "comida", "walk" not "caminata", "history" not "historia").
+- Map history to theme and walk to intent. nature_type is only for mountain, forest, coast, river, desert, or park. local_character is only for authentic, residential, traditional, or contemporary. A named neighborhood such as San Telmo is an anchor, not local_character.
 - confidence: float between 0 and 1 indicating certainty.
 - strength: "strong" | "medium" | "weak" indicating user emphasis.
 Do not invent arbitrary importance numbers; code derives importance deterministically from strength.
@@ -148,6 +150,7 @@ export class PreferenceInterpreterService {
           userPrompt,
           responseSchema: RESPONSE_SCHEMA,
           parsedResponse: EMPTY_INTENT,
+          facetNormalizationDecisions: [],
           validationErrors: [],
           status: 'skipped',
           durationMs: 0,
@@ -162,7 +165,8 @@ export class PreferenceInterpreterService {
         {},
         { responseFormat: { type: 'json_object' } },
       );
-      const parsed = this.normalize(JSON.parse(rawResponse));
+      const normalized = this.normalize(JSON.parse(rawResponse));
+      const parsed = normalized.intent;
       return {
         intent: parsed,
         trace: redactTracePayload({
@@ -173,13 +177,15 @@ export class PreferenceInterpreterService {
           responseSchema: RESPONSE_SCHEMA,
           rawResponse,
           parsedResponse: parsed,
+          facetNormalizationDecisions: normalized.facetNormalizationDecisions,
           validationErrors: [],
           status: 'applied',
           durationMs: Date.now() - startedAt,
         }),
       };
     } catch (error: any) {
-      const fallback = this.fallback(userPrompt);
+      const fallbackResult = this.fallback(userPrompt);
+      const fallback = fallbackResult.intent;
       this.logger.warn(`Preference interpretation fallback: ${error.message}`);
       return {
         intent: fallback,
@@ -190,6 +196,8 @@ export class PreferenceInterpreterService {
           userPrompt,
           responseSchema: RESPONSE_SCHEMA,
           parsedResponse: fallback,
+          facetNormalizationDecisions:
+            fallbackResult.facetNormalizationDecisions,
           validationErrors: [error.message || 'interpretation_failed'],
           status: 'fallback',
           durationMs: Date.now() - startedAt,
@@ -198,7 +206,10 @@ export class PreferenceInterpreterService {
     }
   }
 
-  private normalize(value: any): NormalizedPreferenceIntent {
+  private normalize(value: any): {
+    intent: NormalizedPreferenceIntent;
+    facetNormalizationDecisions: FacetNormalizationDecision[];
+  } {
     const list = (v: unknown) =>
       Array.isArray(v)
         ? v
@@ -208,35 +219,64 @@ export class PreferenceInterpreterService {
             .slice(0, 20)
         : [];
 
+    const facetResult = this.normalizeFacetsWithDecisions(
+      value?.preferredFacets,
+    );
     return {
-      preferredFacets: this.normalizeFacets(value?.preferredFacets),
-      anchoredPlaces: this.normalizeAnchors(value?.anchoredPlaces),
-      excludedThemes: list(value?.excludedThemes),
-      excludedTraits: list(value?.excludedTraits),
-      hardExclusions: list(value?.hardExclusions),
-      softConstraints: list(value?.softConstraints),
-      ambiguities: list(value?.ambiguities),
-      dietaryPreferences: list(value?.dietaryPreferences),
-      accessibilityPreferences: list(value?.accessibilityPreferences),
-      budgetPreferences: list(value?.budgetPreferences),
-      groupPreferences: list(value?.groupPreferences),
-      positiveSemanticQuery:
-        typeof value?.positiveSemanticQuery === 'string'
-          ? value.positiveSemanticQuery.trim().slice(0, 500)
-          : '',
-      notes: list(value?.notes),
+      intent: {
+        preferredFacets: facetResult.facets,
+        anchoredPlaces: this.normalizeAnchors(value?.anchoredPlaces),
+        excludedThemes: list(value?.excludedThemes),
+        excludedTraits: list(value?.excludedTraits),
+        hardExclusions: list(value?.hardExclusions),
+        softConstraints: list(value?.softConstraints),
+        ambiguities: list(value?.ambiguities),
+        dietaryPreferences: list(value?.dietaryPreferences),
+        accessibilityPreferences: list(value?.accessibilityPreferences),
+        budgetPreferences: list(value?.budgetPreferences),
+        groupPreferences: list(value?.groupPreferences),
+        positiveSemanticQuery:
+          typeof value?.positiveSemanticQuery === 'string'
+            ? value.positiveSemanticQuery.trim().slice(0, 500)
+            : '',
+        notes: list(value?.notes),
+      },
+      facetNormalizationDecisions: facetResult.decisions,
     };
   }
 
   private normalizeFacets(rawFacets: unknown): PreferenceFacet[] {
+    return this.normalizeFacetsWithDecisions(rawFacets).facets;
+  }
+
+  private normalizeFacetsWithDecisions(rawFacets: unknown): {
+    facets: PreferenceFacet[];
+    decisions: FacetNormalizationDecision[];
+  } {
     if (!Array.isArray(rawFacets)) {
-      return [];
+      return { facets: [], decisions: [] };
     }
 
     const merged = new Map<string, PreferenceFacet>();
+    const decisions: FacetNormalizationDecision[] = [];
+    const inferableDimensions = [
+      'theme',
+      'intent',
+      'winery_scale',
+      'tourism_intensity',
+      'nature_type',
+      'local_character',
+    ];
 
     for (const item of rawFacets) {
       if (!item || typeof item !== 'object') {
+        decisions.push({
+          rawDimension:
+            typeof item.dimension === 'string' ? item.dimension : '',
+          rawKey: '',
+          accepted: false,
+          reason: 'UNKNOWN_DIMENSION',
+        });
         continue;
       }
 
@@ -251,19 +291,60 @@ export class PreferenceInterpreterService {
 
       // exploration_style is dormant in Phase 2
       if (rawDim === 'exploration_style') {
+        decisions.push({
+          rawDimension: rawDim,
+          rawKey:
+            typeof item.key === 'string' ? item.key.trim().toLowerCase() : '',
+          accepted: false,
+          reason: 'DORMANT_DIMENSION',
+        });
         continue;
       }
 
       const rawKey =
         typeof item.key === 'string' ? item.key.trim().toLowerCase() : '';
       if (!rawKey) {
+        decisions.push({
+          rawDimension: rawDim,
+          rawKey,
+          accepted: false,
+          reason: 'UNKNOWN_KEY',
+        });
         continue;
       }
 
-      const canonicalKey = canonicalizeFacetKey(rawDim, rawKey);
+      let normalizedDim = rawDim;
+      let canonicalKey = canonicalizeFacetKey(rawDim, rawKey);
+      let reason: FacetNormalizationDecision['reason'] = 'VALID_AS_EMITTED';
       if (!canonicalKey) {
-        continue;
+        const owners = inferableDimensions.filter((dimension) =>
+          canonicalizeFacetKey(dimension, rawKey),
+        );
+        if (owners.length === 1) {
+          normalizedDim = owners[0];
+          canonicalKey = canonicalizeFacetKey(normalizedDim, rawKey);
+          reason = 'REPAIRED_UNIQUE_VOCABULARY_MATCH';
+        } else {
+          decisions.push({
+            rawDimension: rawDim,
+            rawKey,
+            accepted: false,
+            reason:
+              owners.length > 1
+                ? 'AMBIGUOUS_CROSS_DIMENSION_KEY'
+                : 'UNKNOWN_KEY',
+          });
+          continue;
+        }
       }
+      decisions.push({
+        rawDimension: rawDim,
+        rawKey,
+        normalizedDimension: normalizedDim,
+        normalizedKey: canonicalKey,
+        accepted: true,
+        reason,
+      });
 
       const rawConfidence =
         typeof item.confidence === 'number' && !Number.isNaN(item.confidence)
@@ -280,11 +361,11 @@ export class PreferenceInterpreterService {
         validStrengths.includes(item.strength) ? item.strength : undefined;
 
       const importance = mapStrengthToImportance(strength);
-      const compoundKey = `${rawDim}:${canonicalKey}`;
+      const compoundKey = `${normalizedDim}:${canonicalKey}`;
 
       if (!merged.has(compoundKey)) {
         merged.set(compoundKey, {
-          dimension: rawDim,
+          dimension: normalizedDim,
           key: canonicalKey,
           importance,
           confidence,
@@ -293,7 +374,7 @@ export class PreferenceInterpreterService {
       }
     }
 
-    return Array.from(merged.values());
+    return { facets: Array.from(merged.values()), decisions };
   }
 
   /**
@@ -351,7 +432,10 @@ export class PreferenceInterpreterService {
     return anchors.slice(0, MAX_ANCHORED_PLACES);
   }
 
-  private fallback(text: string): NormalizedPreferenceIntent {
+  private fallback(text: string): {
+    intent: NormalizedPreferenceIntent;
+    facetNormalizationDecisions: FacetNormalizationDecision[];
+  } {
     const lower = text.toLowerCase();
     const excludedThemes: string[] = [];
     const excludedTraits: string[] = [];
@@ -416,24 +500,28 @@ export class PreferenceInterpreterService {
       }
     }
 
-    const preferredFacets = this.normalizeFacets(rawFallbackFacets);
+    const facetResult = this.normalizeFacetsWithDecisions(rawFallbackFacets);
+    const preferredFacets = facetResult.facets;
 
     const positiveSemanticQuery = text
       .replace(/\b(no quiero|sin|evitar|evito)\b[^,.!?;]*/gi, '')
       .trim();
 
     return {
-      ...EMPTY_INTENT,
-      preferredFacets,
-      excludedThemes,
-      excludedTraits,
-      hardExclusions,
-      dietaryPreferences,
-      accessibilityPreferences,
-      budgetPreferences,
-      groupPreferences,
-      positiveSemanticQuery,
-      notes: ['deterministic_fallback'],
+      intent: {
+        ...EMPTY_INTENT,
+        preferredFacets,
+        excludedThemes,
+        excludedTraits,
+        hardExclusions,
+        dietaryPreferences,
+        accessibilityPreferences,
+        budgetPreferences,
+        groupPreferences,
+        positiveSemanticQuery,
+        notes: ['deterministic_fallback'],
+      },
+      facetNormalizationDecisions: facetResult.decisions,
     };
   }
 }

@@ -194,6 +194,95 @@ describe('PreferenceInterpreterService', () => {
     expect(result.intent.preferredFacets[0].key).toBe('history');
   });
 
+  it('repairs uniquely mappable malformed dimensions and traces rejected facets', async () => {
+    const { service } = makeService(
+      JSON.stringify({
+        preferredFacets: [
+          {
+            dimension: 'nature_type',
+            key: 'history',
+            confidence: 0.8,
+            strength: 'strong',
+          },
+          {
+            dimension: 'tourism_intensity',
+            key: 'walk',
+            confidence: 0.7,
+            strength: 'medium',
+          },
+          {
+            dimension: 'local_character',
+            key: 'San Telmo',
+            confidence: 0.9,
+            strength: 'strong',
+          },
+          {
+            dimension: 'invalid_dimension',
+            key: 'food',
+            confidence: 0.5,
+            strength: 'weak',
+          },
+        ],
+        anchoredPlaces: [
+          { rawName: 'San Telmo', kind: 'area', priority: 'must' },
+        ],
+      }),
+    );
+
+    const result = await service.interpret(
+      'sí o sí quiero una caminata histórica por San Telmo',
+    );
+    expect(result.intent.preferredFacets).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ dimension: 'theme', key: 'history' }),
+        expect.objectContaining({ dimension: 'intent', key: 'walk' }),
+      ]),
+    );
+    expect(result.intent.preferredFacets).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          dimension: 'local_character',
+          key: 'san_telmo',
+        }),
+      ]),
+    );
+    expect(result.intent.anchoredPlaces).toEqual([
+      { rawName: 'San Telmo', kind: 'area', priority: 'must' },
+    ]);
+    expect(result.trace.facetNormalizationDecisions).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          rawDimension: 'nature_type',
+          rawKey: 'history',
+          normalizedDimension: 'theme',
+          normalizedKey: 'history',
+          accepted: true,
+          reason: 'REPAIRED_UNIQUE_VOCABULARY_MATCH',
+        }),
+        expect.objectContaining({
+          rawDimension: 'tourism_intensity',
+          rawKey: 'walk',
+          normalizedDimension: 'intent',
+          normalizedKey: 'walk',
+          accepted: true,
+          reason: 'REPAIRED_UNIQUE_VOCABULARY_MATCH',
+        }),
+        expect.objectContaining({
+          rawDimension: 'local_character',
+          rawKey: 'san telmo',
+          accepted: false,
+          reason: 'UNKNOWN_KEY',
+        }),
+        expect.objectContaining({
+          rawDimension: 'invalid_dimension',
+          rawKey: 'food',
+          accepted: false,
+          reason: 'AMBIGUOUS_CROSS_DIMENSION_KEY',
+        }),
+      ]),
+    );
+  });
+
   it('drops facets with missing or blank dimension in LLM response', async () => {
     const { service } = makeService(
       JSON.stringify({

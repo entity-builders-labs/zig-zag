@@ -55,7 +55,23 @@ export interface PreferenceInterpretationTrace {
   responseSchema: Record<string, unknown>;
   rawResponse?: unknown;
   parsedResponse: NormalizedPreferenceIntent;
+  facetNormalizationDecisions?: FacetNormalizationDecision[];
   validationErrors: string[];
   status: 'applied' | 'fallback' | 'failed' | 'skipped';
   durationMs: number;
+}
+
+export interface FacetNormalizationDecision {
+  rawDimension: string;
+  rawKey: string;
+  normalizedDimension?: string;
+  normalizedKey?: string;
+  accepted: boolean;
+  reason:
+    | 'VALID_AS_EMITTED'
+    | 'REPAIRED_UNIQUE_VOCABULARY_MATCH'
+    | 'UNKNOWN_DIMENSION'
+    | 'UNKNOWN_KEY'
+    | 'AMBIGUOUS_CROSS_DIMENSION_KEY'
+    | 'DORMANT_DIMENSION';
 }
