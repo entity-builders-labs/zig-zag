@@ -3,7 +3,7 @@ import {
   selectAcquisitionStrategy,
 } from './acquisition-strategy-selector.util';
 import { AcquisitionDeficit } from '../interfaces/experience-acquisition-plan.interface';
-import { AnchoredPlace } from '../interfaces/preference-spec.interface';
+import { ResolvedAnchor } from '../interfaces/preference-spec.interface';
 
 function walkDeficit(): AcquisitionDeficit {
   return {
@@ -42,20 +42,34 @@ function globalCapacityDeficit(): AcquisitionDeficit {
   };
 }
 
-const areaAnchor: AnchoredPlace = {
+const areaAnchor: ResolvedAnchor = {
   rawName: 'San Telmo',
   kind: 'area',
   priority: 'must',
+  status: 'resolved',
+  canonicalName: 'San Telmo',
+  geoEntityId: 'geo-san-telmo',
+  provider: 'openstreetmap',
+  geometry: { type: 'Polygon', coordinates: [] },
 };
-const routeAnchor: AnchoredPlace = {
+const routeAnchor: ResolvedAnchor = {
   rawName: 'Caminito',
   kind: 'route',
   priority: 'must',
+  status: 'resolved',
+  canonicalName: 'Caminito',
+  geoEntityId: 'geo-caminito',
+  provider: 'openstreetmap',
+  geometry: { type: 'LineString', coordinates: [] },
 };
-const venueAnchor: AnchoredPlace = {
+const venueAnchor: ResolvedAnchor = {
   rawName: 'Teatro Colón',
   kind: 'venue',
   priority: 'soft',
+  status: 'resolved',
+  canonicalName: 'Teatro Colón',
+  geoEntityId: 'geo-teatro-colon',
+  provider: 'google_places',
 };
 
 describe('selectAcquisitionStrategy', () => {

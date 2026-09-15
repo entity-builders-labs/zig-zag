@@ -925,10 +925,13 @@ export class ExperienceGenerationService {
           },
         );
       preferenceSpec.resolvedAnchors = resolvedAnchors;
+      // Keep the public PreferenceSpec trace projection canonical after this
+      // boundary. Acquisition consumers use resolvedAnchors explicitly so
+      // the typed resolved fact cannot be downgraded during the handoff.
+      preferenceSpec.anchors = resolvedAnchors;
       // From this boundary onward PreferenceSpec.anchors is the canonical
       // resolved projection. The earlier trace still retains the separate
       // interpreter payload and this geo-resolution step records the handoff.
-      preferenceSpec.anchors = resolvedAnchors;
       traceSteps.push({
         stage: 'anchor_geo_resolution',
         label: 'Resolución geográfica de anchors',
@@ -942,7 +945,7 @@ export class ExperienceGenerationService {
         outputs: { anchors: resolvedAnchors },
       });
       const venueAnchorResolution = await this.venueAnchorResolution.resolve({
-        anchors: preferenceSpec.anchors,
+        anchors: resolvedAnchors,
         destinationName: request.destination.label,
         destinationCountryCode: destinationResolution.countryCode,
         geographicScope,
@@ -1062,11 +1065,6 @@ export class ExperienceGenerationService {
             // Resolution is request-scoped: repeated acquisition passes reuse
             // the same canonical anchor result, including a transient
             // provider failure, instead of silently changing scope semantics.
-            const resolvedAreaRouteAnchors = new Map<
-              string,
-              | ReturnType<AreaRouteAnchorResolverService['resolveArea']>
-              | ReturnType<AreaRouteAnchorResolverService['resolveRoute']>
-            >();
             let currentProviderHealth: {
               status: 'healthy' | 'degraded' | 'unknown';
               reason?: string;
@@ -1087,7 +1085,7 @@ export class ExperienceGenerationService {
               // never reconstructed.
               const { areaRouteWalk, generic } = partitionDeficitsByStrategy(
                 currentPreferenceCoverage.acquisitionDeficits,
-                preferenceSpec.anchors,
+                resolvedAnchors,
               );
               traceSteps.push({
                 stage: 'coverage_analysis',
@@ -1096,7 +1094,7 @@ export class ExperienceGenerationService {
                 component: 'partitionDeficitsByStrategy',
                 status: 'INFO',
                 inputs: {
-                  anchors: preferenceSpec.anchors,
+                  anchors: resolvedAnchors,
                   acquisitionDeficits:
                     currentPreferenceCoverage.acquisitionDeficits,
                 },
@@ -1136,30 +1134,6 @@ export class ExperienceGenerationService {
                   `Buscando una experiencia de tipo "${routed.intentKey}" en "${routed.anchor.rawName}"...`,
                 );
 
-                const anchorResolutionKey = `${routed.anchor.kind}:${routed.anchor.rawName.trim().toLowerCase()}`;
-                let resolvedAnchor =
-                  resolvedAreaRouteAnchors.get(anchorResolutionKey);
-                if (!resolvedAnchor) {
-                  resolvedAnchor =
-                    routed.anchor.kind === 'area'
-                      ? this.areaRouteAnchorResolver.resolveArea(
-                          routed.anchor,
-                          destinationResolution.countryCode,
-                          {
-                            latitude: searchArea.latitude,
-                            longitude: searchArea.longitude,
-                          },
-                        )
-                      : this.areaRouteAnchorResolver.resolveRoute(
-                          routed.anchor,
-                          geographicScope,
-                        );
-                  resolvedAreaRouteAnchors.set(
-                    anchorResolutionKey,
-                    resolvedAnchor,
-                  );
-                }
-
                 const areaRouteWalkResult =
                   await this.areaRouteWalkAcquisition.acquireOrReuse({
                     anchor: routed.anchor,
@@ -1173,7 +1147,6 @@ export class ExperienceGenerationService {
                     geographicScope,
                     deficit: routed.deficit,
                     semanticQuery: preferenceSpec.semanticQuery,
-                    resolvedAnchor: await resolvedAnchor,
                     executionLedger: acquisitionExecutionLedger,
                   });
                 const areaRouteWalkTraceResult = Object.fromEntries(
@@ -1652,7 +1625,7 @@ export class ExperienceGenerationService {
             })),
             semanticQuery: preferenceSpec.semanticQuery,
             breadth: 'focused',
-            anchors: preferenceSpec.anchors,
+            anchors: resolvedAnchors,
           });
 
         if (plannerAcquisitionPlan.sourcePlans.length === 0) {

@@ -398,8 +398,24 @@ describe('ExperienceAcquisitionPlannerService', () => {
         },
       ],
       anchors: [
-        { rawName: 'San Telmo', kind: 'area', priority: 'must' },
-        { rawName: 'La Boca', kind: 'area', priority: 'must' },
+        {
+          rawName: 'San Telmo',
+          kind: 'area',
+          priority: 'must',
+          status: 'resolved',
+          canonicalName: 'San Telmo',
+          geoEntityId: 'geo-san-telmo',
+          provider: 'openstreetmap',
+        },
+        {
+          rawName: 'La Boca',
+          kind: 'area',
+          priority: 'must',
+          status: 'resolved',
+          canonicalName: 'La Boca',
+          geoEntityId: 'geo-la-boca',
+          provider: 'openstreetmap',
+        },
       ],
     });
 
@@ -420,7 +436,17 @@ describe('ExperienceAcquisitionPlannerService', () => {
           origin: 'preference_facet',
         },
       ],
-      anchors: [{ rawName: 'San Telmo', kind: 'area', priority: 'must' }],
+      anchors: [
+        {
+          rawName: 'San Telmo',
+          kind: 'area',
+          priority: 'must',
+          status: 'resolved',
+          canonicalName: 'San Telmo',
+          geoEntityId: 'geo-san-telmo',
+          provider: 'openstreetmap',
+        },
+      ],
     });
 
     const web = findPlan(plan, 'web');
@@ -439,7 +465,17 @@ describe('ExperienceAcquisitionPlannerService', () => {
           origin: 'preference_facet',
         },
       ],
-      anchors: [{ rawName: 'MALBA', kind: 'venue', priority: 'soft' }],
+      anchors: [
+        {
+          rawName: 'MALBA',
+          kind: 'venue',
+          priority: 'soft',
+          status: 'resolved',
+          canonicalName: 'MALBA',
+          geoEntityId: 'geo-malba',
+          provider: 'google_places',
+        },
+      ],
     });
 
     const web = findPlan(plan, 'web');

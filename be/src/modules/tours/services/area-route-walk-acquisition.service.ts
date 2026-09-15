@@ -1,9 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { Coordinates } from '@shared/utils/distance.utils';
-import {
-  AreaRouteAnchorResolverService,
-  AnchorGeometryResolution,
-} from './area-route-anchor-resolver.service';
 import { ExperienceCatalogService } from './experience-catalog.service';
 import {
   BuildPlanInput,
@@ -15,7 +11,7 @@ import {
   CURRENT_CLASSIFICATION_PROMPT_VERSION,
   canReuseClassification,
 } from './experience-classification.service';
-import { AnchoredPlace } from '../interfaces/preference-spec.interface';
+import { ResolvedAnchor } from '../interfaces/preference-spec.interface';
 import { PreferenceFacetDeficit } from '../interfaces/experience-acquisition-plan.interface';
 import { ExperienceDiscoveryScope } from '../interfaces/experience-discovery.interface';
 import {
@@ -36,7 +32,7 @@ export interface AreaRouteWalkAcquisitionInput {
    * one deficit is mode D — not handled here, see the plan's non-goals)
    * and filters out 'venue'/'unknown' anchors before calling.
    */
-  anchor: AnchoredPlace;
+  anchor: ResolvedAnchor;
   intentKey: 'walk' | 'route_like';
   /** .latitude/.longitude/.radiusMeters feed the tourism-route identity
    * check (mode C) when the canonical ROUTE does not resolve. */
@@ -44,8 +40,6 @@ export interface AreaRouteWalkAcquisitionInput {
   destinationCountryCode?: string;
   destinationPoint?: Coordinates;
   geographicScope?: GeographicScope;
-  /** Caller-owned request/generation scope resolution, when already known. */
-  resolvedAnchor?: AnchorGeometryResolution;
   executionLedger?: AcquisitionExecutionLedger;
   [key: string]: unknown;
   /** The canonical facet deficit this call is acquiring for -- routed
@@ -122,7 +116,6 @@ export interface AreaRouteWalkAcquisitionDiagnostics {
 @Injectable()
 export class AreaRouteWalkAcquisitionService {
   constructor(
-    private readonly anchorResolver: AreaRouteAnchorResolverService,
     private readonly catalog: ExperienceCatalogService,
     private readonly acquisitionPlanner: ExperienceAcquisitionPlannerService,
     private readonly acquisitionService: ExperienceAcquisitionService,
@@ -136,20 +129,41 @@ export class AreaRouteWalkAcquisitionService {
     // Resolve ONCE per call -- reused by the warm check, the
     // validationScope passed into acquisition/materialization, AND the
     // post-acquisition re-check.
-    const resolution: AnchorGeometryResolution =
-      input.resolvedAnchor ??
-      (input.anchor.kind === 'area'
-        ? await this.anchorResolver.resolveArea(
-            input.anchor,
-            input.destinationCountryCode,
-            input.destinationPoint,
-          )
-        : input.anchor.kind === 'route'
-          ? await this.anchorResolver.resolveRoute(
-              input.anchor,
-              input.geographicScope!,
-            )
-          : ({ resolved: false } as const));
+    // Geo resolution is authoritative and request-scoped. Once the planner
+    // receives a ResolvedAnchor, this stage consumes that immutable fact; it
+    // must not reinterpret rawName or ask the resolver to decide again.
+    const resolution =
+      input.anchor.status === 'resolved' &&
+      input.anchor.geoEntityId &&
+      input.anchor.geometry
+        ? {
+            resolved: true,
+            geoEntityId: input.anchor.geoEntityId,
+            canonicalName: input.anchor.canonicalName,
+            provider: input.anchor.provider,
+            externalId: input.anchor.externalId,
+            geometry: input.anchor.geometry,
+          }
+        : { resolved: false as const };
+
+    if (input.anchor.status === 'unresolved' && input.anchor.kind === 'area') {
+      return {
+        outcome: 'no_result',
+        reason: 'anchor_unresolved',
+        diagnostics: {
+          anchorResolved: false,
+          sourcePlanProviders: [],
+          execution: { candidateCount: 0, webResults: [] },
+          materialization: {
+            resolvedCount: 0,
+            acceptedCount: 0,
+            rejectedCount: 0,
+            rejectionReasons: {},
+            semanticallyEligibleCount: 0,
+          },
+        },
+      };
+    }
 
     // An AREA anchor is a request-level geographic scope, not optional
     // context. Without a canonical boundary, materialization could persist

@@ -59,7 +59,7 @@ describe('preference-first architecture boundaries', () => {
       /const kind: AnchoredPlace\['kind'\] = 'unknown'/,
     );
     expect(generation).toMatch(
-      /partitionDeficitsByStrategy\([\s\S]*preferenceSpec\.anchors/,
+      /partitionDeficitsByStrategy\([\s\S]*resolvedAnchors/,
     );
     expect(generation).toMatch(/resolveNamedAnchors\(/);
   });

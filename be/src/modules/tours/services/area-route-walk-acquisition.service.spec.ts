@@ -3,7 +3,7 @@ import {
   AreaRouteWalkAcquisitionService,
 } from './area-route-walk-acquisition.service';
 import { CURRENT_CLASSIFICATION_PROMPT_VERSION } from './experience-classification.service';
-import { AnchoredPlace } from '../interfaces/preference-spec.interface';
+import { ResolvedAnchor } from '../interfaces/preference-spec.interface';
 import { PreferenceFacetDeficit } from '../interfaces/experience-acquisition-plan.interface';
 
 // Cutover M4: classification (grouping-by-canonical-id, evidence-scoping,
@@ -93,27 +93,38 @@ function buildMocks() {
 
 function buildService(mocks: ReturnType<typeof buildMocks>) {
   return new AreaRouteWalkAcquisitionService(
-    mocks.anchorResolver as any,
     mocks.catalog as any,
     mocks.acquisitionPlanner as any,
     mocks.acquisitionService as any,
   );
 }
 
-const areaAnchor: AnchoredPlace = {
+const areaAnchor: ResolvedAnchor = {
   rawName: 'San Telmo',
   kind: 'area',
   priority: 'must',
+  status: 'resolved',
+  canonicalName: 'San Telmo',
+  geoEntityId: 'geo-san-telmo',
+  provider: 'openstreetmap',
+  geometry: { type: 'Polygon', coordinates: [] },
 };
-const routeAnchor: AnchoredPlace = {
+const routeAnchor: ResolvedAnchor = {
   rawName: 'Caminito',
   kind: 'route',
   priority: 'must',
+  status: 'resolved',
+  canonicalName: 'Caminito',
+  geoEntityId: 'geo-caminito',
+  provider: 'openstreetmap',
+  geometry: { type: 'LineString', coordinates: [] },
 };
-const tourismRouteAnchor: AnchoredPlace = {
+const tourismRouteAnchor: ResolvedAnchor = {
   rawName: 'Ruta del Vino de Mendoza',
   kind: 'route',
   priority: 'must',
+  status: 'unresolved',
+  unresolvedReason: 'NO_CONFIDENT_ROUTE_MATCH',
 };
 
 function deficitFor(intentKey: 'walk' | 'route_like'): PreferenceFacetDeficit {
@@ -150,10 +161,21 @@ function baseInput(
 describe('AreaRouteWalkAcquisitionService', () => {
   it('fails closed when an AREA anchor cannot be resolved', async () => {
     const mocks = buildMocks();
-    mocks.anchorResolver.resolveArea.mockResolvedValue({ resolved: false });
+    const unresolvedArea: ResolvedAnchor = {
+      ...areaAnchor,
+      kind: 'area',
+      status: 'unresolved',
+      canonicalName: undefined,
+      geoEntityId: undefined,
+      provider: undefined,
+      geometry: undefined,
+      unresolvedReason: 'NO_CONFIDENT_GEO_ENTITY_MATCH',
+    };
     const service = buildService(mocks);
 
-    const result = await service.acquireOrReuse(baseInput());
+    const result = await service.acquireOrReuse(
+      baseInput({ anchor: unresolvedArea }),
+    );
 
     expect(result).toMatchObject({
       outcome: 'no_result',
@@ -188,6 +210,21 @@ describe('AreaRouteWalkAcquisitionService', () => {
       mocks.acquisitionPlanner.buildAcquisitionPlan,
     ).not.toHaveBeenCalled();
     expect(mocks.acquisitionService.executePlan).not.toHaveBeenCalled();
+  });
+
+  it('consumes a resolved AREA identity without re-resolving rawName', async () => {
+    const mocks = buildMocks();
+    mocks.catalog.findVerifiedMultiComponentInArea.mockResolvedValue([
+      classifiedRow('exp-warm', 'walk'),
+    ]);
+    const service = buildService(mocks);
+
+    await expect(service.acquireOrReuse(baseInput())).resolves.toEqual({
+      outcome: 'reused',
+      experienceId: 'exp-warm',
+    });
+    expect(mocks.anchorResolver.resolveArea).not.toHaveBeenCalled();
+    expect(mocks.anchorResolver.resolveRoute).not.toHaveBeenCalled();
   });
 
   it('A2: warm canonical-ROUTE hit short-circuits acquisition', async () => {

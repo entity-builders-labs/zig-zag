@@ -2,7 +2,7 @@ import {
   AcquisitionDeficit,
   PreferenceFacetDeficit,
 } from '../interfaces/experience-acquisition-plan.interface';
-import { AnchoredPlace } from '../interfaces/preference-spec.interface';
+import { ResolvedAnchor } from '../interfaces/preference-spec.interface';
 
 /**
  * Cutover M3 (spec §5 Q5/Q10) -- the ONE place anchor-kind/facet-key
@@ -20,7 +20,7 @@ export type AcquisitionStrategy =
   | {
       kind: 'AREA_ROUTE_WALK';
       deficit: PreferenceFacetDeficit;
-      anchor: AnchoredPlace;
+      anchor: ResolvedAnchor;
       /**
        * Narrowed once, here -- the ONE place that reads `deficit.key` as a
        * specific area/route intent. Callers never re-derive or cast it.
@@ -55,7 +55,7 @@ const AREA_ROUTE_WALK_INTENT_KEYS: ReadonlySet<string> =
  */
 export function selectAcquisitionStrategy(
   deficit: AcquisitionDeficit,
-  anchors: AnchoredPlace[],
+  anchors: ResolvedAnchor[],
 ): AcquisitionStrategy {
   if (deficit.origin !== 'preference_facet') {
     return { kind: 'GENERIC', deficit };
@@ -89,13 +89,13 @@ export function selectAcquisitionStrategy(
  */
 export interface AreaRouteWalkRoutedDeficit {
   deficit: PreferenceFacetDeficit;
-  anchor: AnchoredPlace;
+  anchor: ResolvedAnchor;
   intentKey: AreaRouteWalkIntentKey;
 }
 
 export function partitionDeficitsByStrategy(
   deficits: AcquisitionDeficit[],
-  anchors: AnchoredPlace[],
+  anchors: ResolvedAnchor[],
 ): {
   areaRouteWalk: AreaRouteWalkRoutedDeficit[];
   generic: AcquisitionDeficit[];

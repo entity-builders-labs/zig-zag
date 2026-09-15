@@ -13,6 +13,7 @@
  */
 import { AcquisitionDeficit } from './experience-acquisition-plan.interface';
 import { ExplorationSignalInput } from '../utils/exploration-signals.util';
+import { GeoJsonGeometry } from '@integrations/osm/utils/osm-geometry.util';
 
 /** A single positive preference the user requested, always soft in v1. */
 export interface RequestedFacet {
@@ -45,6 +46,8 @@ export interface ResolvedAnchor extends AnchoredPlace {
   geoEntityId?: string;
   provider?: string;
   externalId?: string;
+  /** Boundary/route geometry established by canonical geo resolution. */
+  geometry?: GeoJsonGeometry;
   status: 'resolved' | 'unresolved';
   unresolvedReason?: string;
 }

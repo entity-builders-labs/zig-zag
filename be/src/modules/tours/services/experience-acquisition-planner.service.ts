@@ -12,7 +12,7 @@ import {
 } from '../interfaces/experience-acquisition-plan.interface';
 import { lookupSourceCapabilityRoute } from '../constants/acquisition-source-routing';
 import { candidateMatchesPreferenceFacet } from '../utils/preference-facet-matching.util';
-import { AnchoredPlace } from '../interfaces/preference-spec.interface';
+import { ResolvedAnchor } from '../interfaces/preference-spec.interface';
 import { deriveAcquisitionEvidenceRequirements } from '../utils/acquisition-evidence-requirement.util';
 
 /**
@@ -44,7 +44,7 @@ export interface BuildPlanInput {
    * Every relevant anchor's name is preserved into the web query (never
    * collapsed to one, never dropped when 1+ exist — correctness point 12).
    */
-  anchors?: AnchoredPlace[];
+  anchors?: ResolvedAnchor[];
 }
 
 @Injectable()

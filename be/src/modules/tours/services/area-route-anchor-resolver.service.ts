@@ -106,6 +106,8 @@ export class AreaRouteAnchorResolverService {
             canonicalName: area.canonicalName ?? anchor.rawName,
             geoEntityId: area.geoEntityId,
             provider: area.provider ?? 'openstreetmap',
+            externalId: area.externalId,
+            geometry: area.geometry,
           };
         }
 
@@ -122,6 +124,8 @@ export class AreaRouteAnchorResolverService {
               canonicalName: route.canonicalName ?? anchor.rawName,
               geoEntityId: route.geoEntityId,
               provider: route.provider ?? 'openstreetmap',
+              externalId: route.externalId,
+              geometry: route.geometry,
             };
           }
         }

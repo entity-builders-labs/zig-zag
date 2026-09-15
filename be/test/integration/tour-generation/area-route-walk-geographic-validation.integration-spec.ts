@@ -4,7 +4,6 @@ import { ExperienceProposalResolverService } from 'src/modules/tours/services/ex
 import { CompositeGeographicValidationService } from 'src/modules/tours/services/composite-geographic-validation.service';
 import { ExperienceAcquisitionService } from 'src/modules/tours/services/experience-acquisition.service';
 import { ExperienceAcquisitionPlannerService } from 'src/modules/tours/services/experience-acquisition-planner.service';
-import { AreaRouteAnchorResolverService } from 'src/modules/tours/services/area-route-anchor-resolver.service';
 import { AreaRouteWalkAcquisitionService } from 'src/modules/tours/services/area-route-walk-acquisition.service';
 import { CURRENT_CLASSIFICATION_PROMPT_VERSION } from 'src/modules/tours/services/experience-classification.service';
 import { ExperienceCandidate } from 'src/modules/tours/interfaces/experience-discovery.interface';
@@ -1138,13 +1137,6 @@ describe('tour-generation integration · area/route walk geographic validation (
       // ("Food Crawl San Telmo") already sits inside the same area, seeded
       // directly against real Postgres before acquisition runs.
       const prisma = await getPrisma();
-      const area = await prisma.geoEntity.create({
-        data: {
-          name: 'San Telmo',
-          kind: GeoEntityKind.AREA,
-          geometry: SAN_TELMO_BOUNDARY as any,
-        },
-      });
       const foodGeo1 = await prisma.geoEntity.create({
         data: {
           name: 'Food Stop A',
@@ -1252,17 +1244,7 @@ describe('tour-generation integration · area/route walk geographic validation (
         classifier as any,
       );
       const acquisitionPlanner = new ExperienceAcquisitionPlannerService();
-      const anchorResolver = new AreaRouteAnchorResolverService(
-        osmPlaces as any,
-        catalog,
-      );
-      anchorResolver.resolveArea = jest.fn().mockResolvedValue({
-        resolved: true,
-        geoEntityId: area.id,
-        geometry: SAN_TELMO_BOUNDARY,
-      });
       const service = new AreaRouteWalkAcquisitionService(
-        anchorResolver,
         catalog,
         acquisitionPlanner,
         acquisitionService,
@@ -1326,7 +1308,16 @@ describe('tour-generation integration · area/route walk geographic validation (
       });
 
       const result = await service.acquireOrReuse({
-        anchor: { rawName: 'San Telmo', kind: 'area', priority: 'must' },
+        anchor: {
+          rawName: 'San Telmo',
+          kind: 'area',
+          priority: 'must',
+          status: 'resolved',
+          canonicalName: 'San Telmo',
+          geoEntityId: 'geo-san-telmo',
+          provider: 'openstreetmap',
+          geometry: { type: 'Polygon', coordinates: [] },
+        },
         intentKey: 'walk',
         destination: {
           destinationName: 'Buenos Aires',
@@ -1388,12 +1379,7 @@ describe('tour-generation integration · area/route walk geographic validation (
         classifier as any,
       );
       const acquisitionPlanner = new ExperienceAcquisitionPlannerService();
-      const anchorResolver = new AreaRouteAnchorResolverService(
-        osmPlaces as any,
-        catalog,
-      );
       const service = new AreaRouteWalkAcquisitionService(
-        anchorResolver,
         catalog,
         acquisitionPlanner,
         acquisitionService,
@@ -1488,6 +1474,8 @@ describe('tour-generation integration · area/route walk geographic validation (
           rawName: 'Ruta del Vino de Mendoza',
           kind: 'route' as const,
           priority: 'must' as const,
+          status: 'unresolved' as const,
+          unresolvedReason: 'NO_CONFIDENT_ROUTE_MATCH',
         },
         intentKey: 'route_like' as const,
         destination: {
