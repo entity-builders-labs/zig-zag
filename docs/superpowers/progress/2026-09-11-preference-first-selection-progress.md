@@ -610,7 +610,7 @@ open.
 
 Baseline: `f190bc4bcf90c05a07b1d0b535fa8d1425d896c3` on
 `feat/preference-first-selection`, clean. Implemented in commits
-`c09c682`, `9e72caa`, `d5699df`, `678eccf`, and `f51aa1c`.
+`c09c682`, `9e72caa`, `d5699df`, `678eccf`, `f51aa1c`, and `46ed2ef`.
 
 Implemented SerpAPI AI-mode narrative/list/reference evidence preservation,
 normalization audits, cache-v2 cutover, shared evidence-shape prompt input,
