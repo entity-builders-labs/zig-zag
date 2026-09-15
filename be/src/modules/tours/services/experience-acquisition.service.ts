@@ -7,7 +7,11 @@ import {
   ExperienceAcquisitionProvider,
   SourceObservation,
 } from '../interfaces/experience-acquisition.interface';
-import { ExperienceAcquisitionPlan } from '../interfaces/experience-acquisition-plan.interface';
+import {
+  AcquisitionDeficit,
+  ExperienceAcquisitionPlan,
+  SourcePlan,
+} from '../interfaces/experience-acquisition-plan.interface';
 import { AcquisitionEvidenceRequirement } from '../interfaces/acquisition-evidence-requirement.interface';
 import { deficitKey } from './experience-acquisition-planner.service';
 import {
@@ -44,6 +48,41 @@ import {
   CorroborationReason,
   CorroborationGroupTrace,
 } from './structured-candidate-corroboration.service';
+
+function relevantDeficitsFor(
+  sourcePlan: SourcePlan,
+  deficits: AcquisitionDeficit[],
+): AcquisitionDeficit[] {
+  const payload = sourcePlan.provider === 'web' ? sourcePlan.web : undefined;
+  const keys = new Set([
+    ...(payload?.requestedThemes ?? []).map((key) => `theme:${key}`),
+    ...(payload?.requestedIntents ?? []).map((key) => `intent:${key}`),
+    ...(payload?.preferredTraits ?? []).map((key) => `trait:${key}`),
+  ]);
+  return deficits.filter(
+    (deficit) =>
+      deficit.origin === 'preference_facet' &&
+      keys.has(`${deficit.dimension}:${deficit.key}`),
+  );
+}
+
+function relevantAnchorsFor(
+  sourcePlan: SourcePlan,
+  anchors: NonNullable<ExperienceAcquisitionPlan['relevantAnchors']>,
+) {
+  const payloadNames =
+    sourcePlan.provider === 'web'
+      ? (sourcePlan.web.anchorNames ?? [])
+      : sourcePlan.provider === 'wikivoyage'
+        ? (sourcePlan.wikivoyage.articleTargets ?? [])
+        : [];
+  const names = new Set(payloadNames.map((name) => name.toLocaleLowerCase()));
+  return anchors.filter((anchor) => {
+    const name =
+      anchor.status === 'resolved' ? anchor.canonicalName : anchor.rawName;
+    return names.has(name.toLocaleLowerCase());
+  });
+}
 
 export interface ResolverEvidenceItem {
   key: string;
@@ -119,6 +158,11 @@ export interface ExecuteAcquisitionPlanResult {
     reason: 'DUPLICATE_SOURCE_PLAN_EXECUTION';
     fingerprint: string;
   };
+  executionSkippedSourcePlans?: Array<{
+    provider: ExperienceAcquisitionProvider;
+    fingerprint: string;
+    reason: 'DUPLICATE_SOURCE_PLAN_EXECUTION';
+  }>;
 }
 
 export interface AcquireNearbyInput {
@@ -174,14 +218,27 @@ export class ExperienceAcquisitionService {
     plan: ExperienceAcquisitionPlan,
     ledger?: AcquisitionExecutionLedger,
   ): Promise<ExecuteAcquisitionPlanResult> {
+    const skippedSourcePlans: NonNullable<
+      ExecuteAcquisitionPlanResult['executionSkippedSourcePlans']
+    > = [];
     const sourcePlans = plan.sourcePlans.filter((sourcePlan) => {
-      const fingerprint = acquisitionSourcePlanFingerprint(
-        sourcePlan,
-        plan.destination.destinationName,
-        [],
-        [],
-      );
-      if (ledger?.executedSourcePlanFingerprints.has(fingerprint)) return false;
+      const fingerprint = acquisitionSourcePlanFingerprint(sourcePlan, {
+        destination: plan.destination,
+        evidenceRequirements: plan.evidenceRequirements,
+        relevantDeficits: relevantDeficitsFor(sourcePlan, plan.deficits),
+        relevantAnchors: relevantAnchorsFor(
+          sourcePlan,
+          plan.relevantAnchors ?? [],
+        ),
+      });
+      if (ledger?.executedSourcePlanFingerprints.has(fingerprint)) {
+        skippedSourcePlans.push({
+          provider: sourcePlan.provider,
+          fingerprint,
+          reason: 'DUPLICATE_SOURCE_PLAN_EXECUTION',
+        });
+        return false;
+      }
       ledger?.executedSourcePlanFingerprints.add(fingerprint);
       return true;
     });
@@ -194,11 +251,20 @@ export class ExperienceAcquisitionService {
         evidence: [],
         executionSkipped: {
           reason: 'DUPLICATE_SOURCE_PLAN_EXECUTION',
-          fingerprint: acquisitionSourcePlanFingerprint(
-            plan.sourcePlans[0],
-            plan.destination.destinationName,
-          ),
+          fingerprint: acquisitionSourcePlanFingerprint(plan.sourcePlans[0], {
+            destination: plan.destination,
+            evidenceRequirements: plan.evidenceRequirements,
+            relevantDeficits: relevantDeficitsFor(
+              plan.sourcePlans[0],
+              plan.deficits,
+            ),
+            relevantAnchors: relevantAnchorsFor(
+              plan.sourcePlans[0],
+              plan.relevantAnchors ?? [],
+            ),
+          }),
         },
+        executionSkippedSourcePlans: skippedSourcePlans,
       };
     }
     const providerResults: Partial<
@@ -338,6 +404,8 @@ export class ExperienceAcquisitionService {
       webCandidateCount: webCandidates.length,
       evidence: [...structuredEvidence, ...webEvidence],
       structuredAudit,
+      executionSkippedSourcePlans:
+        skippedSourcePlans.length > 0 ? skippedSourcePlans : undefined,
     };
   }
 

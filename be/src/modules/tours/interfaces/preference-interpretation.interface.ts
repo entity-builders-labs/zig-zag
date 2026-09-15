@@ -1,5 +1,5 @@
 import { PreferenceFacet } from '../preferences/preference-facet.interface';
-import { AnchoredPlace } from './preference-spec.interface';
+import { InterpretedAnchor } from './preference-spec.interface';
 
 export interface NormalizedPreferenceIntent {
   interpretationStatus?: 'complete' | 'partial' | 'failed';
@@ -14,7 +14,7 @@ export interface NormalizedPreferenceIntent {
    * defaults to `'soft'`. A soft anchor is a strong inclusion tilt, never a
    * forced selection -- see `docs/superpowers/specs/2026-09-10-preference-first-selection-and-agent-convergence-design.md` §4.
    */
-  anchoredPlaces: AnchoredPlace[];
+  anchoredPlaces: InterpretedAnchor[];
 
   // Preserved negative and constraint fields
   excludedThemes: string[];
@@ -70,6 +70,7 @@ export interface FacetNormalizationDecision {
   normalizedDimension?: string;
   normalizedKey?: string;
   accepted: boolean;
+  evidence?: string[];
   reason:
     | 'VALID_AS_EMITTED'
     | 'REPAIRED_UNIQUE_VOCABULARY_MATCH'

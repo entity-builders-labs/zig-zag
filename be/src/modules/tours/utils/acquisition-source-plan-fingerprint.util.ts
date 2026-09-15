@@ -1,10 +1,19 @@
 import {
-  ExperienceAcquisitionPlan,
+  AcquisitionDeficit,
   SourcePlan,
 } from '../interfaces/experience-acquisition-plan.interface';
+import { AcquisitionEvidenceRequirement } from '../interfaces/acquisition-evidence-requirement.interface';
+import { ResolvedAnchor } from '../interfaces/preference-spec.interface';
 
 export interface AcquisitionExecutionLedger {
   executedSourcePlanFingerprints: Set<string>;
+}
+
+export interface SourcePlanFingerprintContext {
+  destination: unknown;
+  evidenceRequirements: AcquisitionEvidenceRequirement[];
+  relevantDeficits: AcquisitionDeficit[];
+  relevantAnchors: ResolvedAnchor[];
 }
 
 function canonical(value: unknown): unknown {
@@ -24,23 +33,17 @@ function canonical(value: unknown): unknown {
 }
 
 export function acquisitionSourcePlanFingerprint(
-  planOrSourcePlan: ExperienceAcquisitionPlan | SourcePlan,
-  canonicalDestination?: string,
-  relevantAnchorNames: string[] = [],
-  relevantDeficits: unknown[] = [],
+  sourcePlan: SourcePlan,
+  context: SourcePlanFingerprintContext,
 ): string {
-  const isPlan = 'sourcePlans' in planOrSourcePlan;
-  const plan = isPlan ? planOrSourcePlan : undefined;
-  const sourcePlan = isPlan ? undefined : planOrSourcePlan;
   return JSON.stringify(
     canonical({
-      provider:
-        sourcePlan?.provider ?? plan?.sourcePlans.map((item) => item.provider),
-      destination: canonicalDestination ?? plan?.destination.destinationName,
-      sourcePlanPayload: sourcePlan ?? plan?.sourcePlans,
-      evidenceRequirements: plan?.evidenceRequirements,
-      relevantAnchorNames,
-      relevantDeficits,
+      provider: sourcePlan.provider,
+      destination: context.destination,
+      sourcePlanPayload: sourcePlan,
+      evidenceRequirements: context.evidenceRequirements,
+      relevantDeficits: context.relevantDeficits,
+      relevantAnchors: context.relevantAnchors,
     }),
   );
 }

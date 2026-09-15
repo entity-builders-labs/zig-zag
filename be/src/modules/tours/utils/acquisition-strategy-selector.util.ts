@@ -15,12 +15,28 @@ import { ResolvedAnchor } from '../interfaces/preference-spec.interface';
  * untouched.
  */
 export type AreaRouteWalkIntentKey = 'walk' | 'route_like';
+type CanonicalAreaRouteAnchor = Extract<
+  ResolvedAnchor,
+  { status: 'resolved' }
+> & {
+  kind: 'area' | 'route';
+};
+type UnresolvedNamedPathAnchor = Extract<
+  ResolvedAnchor,
+  { status: 'unresolved' }
+> & {
+  usage: 'named_path';
+};
+export type AreaRouteWalkAnchor =
+  | { mode: 'canonical'; anchor: CanonicalAreaRouteAnchor }
+  | { mode: 'tourism_route'; anchor: UnresolvedNamedPathAnchor };
 
 export type AcquisitionStrategy =
   | {
       kind: 'AREA_ROUTE_WALK';
       deficit: PreferenceFacetDeficit;
-      anchor: Extract<ResolvedAnchor, { status: 'resolved' }>;
+      anchor: CanonicalAreaRouteAnchor | UnresolvedNamedPathAnchor;
+      anchorMode: AreaRouteWalkAnchor['mode'];
       /**
        * Narrowed once, here -- the ONE place that reads `deficit.key` as a
        * specific area/route intent. Callers never re-derive or cast it.
@@ -44,7 +60,8 @@ const AREA_ROUTE_WALK_INTENT_KEYS: ReadonlySet<string> =
  *     `intent:route_like` (never a `global_capacity` deficit -- that
  *     variant is deliberately dimensionless and must never be routed
  *     through an anchor-specific strategy), AND
- *   - `anchors` contains EXACTLY ONE anchor of kind `area`/`route` (B5's
+ *   - `anchors` contains EXACTLY ONE canonical area/route or unresolved
+ *     named_path anchor (B5's
  *     own documented single-anchor precondition -- mode D, 2+ relevant
  *     anchors for one deficit, is not handled by this primitive and falls
  *     through to generic acquisition unchanged, per the plan's own
@@ -68,9 +85,10 @@ export function selectAcquisitionStrategy(
   }
 
   const relevantAnchors = anchors.filter(
-    (anchor): anchor is Extract<ResolvedAnchor, { status: 'resolved' }> =>
-      anchor.status === 'resolved' &&
-      (anchor.kind === 'area' || anchor.kind === 'route'),
+    (anchor): anchor is CanonicalAreaRouteAnchor | UnresolvedNamedPathAnchor =>
+      (anchor.status === 'resolved' &&
+        (anchor.kind === 'area' || anchor.kind === 'route')) ||
+      (anchor.status === 'unresolved' && anchor.usage === 'named_path'),
   );
   if (relevantAnchors.length !== 1) {
     return { kind: 'GENERIC', deficit };
@@ -80,6 +98,10 @@ export function selectAcquisitionStrategy(
     kind: 'AREA_ROUTE_WALK',
     deficit,
     anchor: relevantAnchors[0],
+    anchorMode:
+      relevantAnchors[0].status === 'unresolved'
+        ? 'tourism_route'
+        : 'canonical',
     intentKey: deficit.key as AreaRouteWalkIntentKey,
   };
 }
@@ -91,7 +113,8 @@ export function selectAcquisitionStrategy(
  */
 export interface AreaRouteWalkRoutedDeficit {
   deficit: PreferenceFacetDeficit;
-  anchor: Extract<ResolvedAnchor, { status: 'resolved' }>;
+  anchor: CanonicalAreaRouteAnchor | UnresolvedNamedPathAnchor;
+  anchorMode: AreaRouteWalkAnchor['mode'];
   intentKey: AreaRouteWalkIntentKey;
 }
 
@@ -111,6 +134,7 @@ export function partitionDeficitsByStrategy(
       areaRouteWalk.push({
         deficit: strategy.deficit,
         anchor: strategy.anchor,
+        anchorMode: strategy.anchorMode,
         intentKey: strategy.intentKey,
       });
     } else {

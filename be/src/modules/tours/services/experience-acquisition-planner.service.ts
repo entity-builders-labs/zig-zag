@@ -137,6 +137,7 @@ export class ExperienceAcquisitionPlannerService {
         evidenceRequirements: [],
         sourcePlans: [],
         breadth,
+        relevantAnchors: input.anchors ?? [],
       };
     }
 
@@ -175,6 +176,7 @@ export class ExperienceAcquisitionPlannerService {
         evidenceRequirements,
         sourcePlans: [],
         breadth,
+        relevantAnchors: input.anchors ?? [],
       };
     }
 
@@ -305,6 +307,7 @@ export class ExperienceAcquisitionPlannerService {
       evidenceRequirements,
       sourcePlans,
       breadth,
+      relevantAnchors: input.anchors ?? [],
     };
   }
 }

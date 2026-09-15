@@ -11,9 +11,10 @@ import {
   mapStrengthToImportance,
   PreferenceFacet,
   PreferenceFacetStrength,
+  PreferenceFacetEvidence,
 } from '../preferences/preference-facet.interface';
 import { canonicalizeFacetKey } from '../preferences/preference-facet-vocabulary';
-import { AnchoredPlace } from '../interfaces/preference-spec.interface';
+import { InterpretedAnchor } from '../interfaces/preference-spec.interface';
 
 /** Conservative cap on extracted named anchors per request (plan Task A2). */
 const MAX_ANCHORED_PLACES = 5;
@@ -28,6 +29,8 @@ For positive preferences, output preferredFacets as a list of objects with:
 - Map history to theme and walk to intent. nature_type is only for mountain, forest, coast, river, desert, or park. local_character is only for authentic, residential, traditional, or contemporary. A named neighborhood such as San Telmo is an anchor, not local_character.
 - confidence: float between 0 and 1 indicating certainty.
 - strength: "strong" | "medium" | "weak" indicating user emphasis.
+- evidence: one or more short excerpts copied from the user's text that support
+  this facet. Never invent evidence; facets without supporting excerpts are rejected.
 Do not invent arbitrary importance numbers; code derives importance deterministically from strength.
 Also output anchoredPlaces: concrete named places/areas/routes the user explicitly mentioned by
 name (never a generic theme). For each, output:
@@ -53,6 +56,7 @@ const PREFERRED_FACET_SCHEMA = {
     key: { type: 'string' },
     confidence: { type: 'number' },
     strength: { type: 'string', enum: ['strong', 'medium', 'weak'] },
+    evidence: STRING_ARRAY,
   },
   required: ['dimension', 'key', 'confidence'],
 };
@@ -174,29 +178,7 @@ export class PreferenceInterpreterService {
         {},
         { responseFormat: { type: 'json_object' } },
       );
-      const normalized = this.normalize(JSON.parse(rawResponse));
-      const unsupported = normalized.intent.preferredFacets.filter(
-        (facet) =>
-          facet.dimension === 'local_character' &&
-          facet.key === 'traditional' &&
-          !/(tradicional|traditional|heritage|ancestral)/i.test(userPrompt),
-      );
-      if (unsupported.length > 0) {
-        normalized.intent.preferredFacets =
-          normalized.intent.preferredFacets.filter(
-            (facet) => !unsupported.includes(facet),
-          );
-        normalized.facetNormalizationDecisions.push(
-          ...unsupported.map((facet) => ({
-            rawDimension: facet.dimension,
-            rawKey: facet.key,
-            normalizedDimension: facet.dimension,
-            normalizedKey: facet.key,
-            accepted: false,
-            reason: 'UNSUPPORTED_BY_INPUT' as const,
-          })),
-        );
-      }
+      const normalized = this.normalize(JSON.parse(rawResponse), userPrompt);
       const parsed = normalized.intent;
       return {
         intent: parsed,
@@ -238,7 +220,10 @@ export class PreferenceInterpreterService {
     }
   }
 
-  private normalize(value: any): {
+  private normalize(
+    value: any,
+    supportingText = '',
+  ): {
     intent: NormalizedPreferenceIntent;
     facetNormalizationDecisions: FacetNormalizationDecision[];
   } {
@@ -253,6 +238,7 @@ export class PreferenceInterpreterService {
 
     const facetResult = this.normalizeFacetsWithDecisions(
       value?.preferredFacets,
+      supportingText,
     );
     return {
       intent: {
@@ -281,7 +267,10 @@ export class PreferenceInterpreterService {
     return this.normalizeFacetsWithDecisions(rawFacets).facets;
   }
 
-  private normalizeFacetsWithDecisions(rawFacets: unknown): {
+  private normalizeFacetsWithDecisions(
+    rawFacets: unknown,
+    supportingText = '',
+  ): {
     facets: PreferenceFacet[];
     decisions: FacetNormalizationDecision[];
   } {
@@ -394,6 +383,23 @@ export class PreferenceInterpreterService {
 
       const importance = mapStrengthToImportance(strength);
       const compoundKey = `${normalizedDim}:${canonicalKey}`;
+      const evidence = this.normalizeEvidence(item.evidence);
+      const normalizedSupportingText = supportingText.toLocaleLowerCase();
+      const evidenceSupported = evidence.every((item) =>
+        normalizedSupportingText.includes(item.text.toLocaleLowerCase()),
+      );
+      if (
+        supportingText.length > 0 &&
+        evidence.length > 0 &&
+        !evidenceSupported
+      ) {
+        decisions[decisions.length - 1] = {
+          ...decisions[decisions.length - 1],
+          accepted: false,
+          reason: 'UNSUPPORTED_BY_INPUT',
+        };
+        continue;
+      }
 
       if (!merged.has(compoundKey)) {
         merged.set(compoundKey, {
@@ -402,11 +408,23 @@ export class PreferenceInterpreterService {
           importance,
           confidence,
           source: 'free_text',
+          ...(evidence.length > 0 ? { evidence } : {}),
         });
       }
     }
 
     return { facets: Array.from(merged.values()), decisions };
+  }
+
+  private normalizeEvidence(value: unknown): PreferenceFacetEvidence[] {
+    return Array.isArray(value)
+      ? value
+          .filter((item): item is string => typeof item === 'string')
+          .map((text) => text.trim())
+          .filter(Boolean)
+          .slice(0, 3)
+          .map((text) => ({ source: 'user_free_text' as const, text }))
+      : [];
   }
 
   /**
@@ -418,14 +436,14 @@ export class PreferenceInterpreterService {
    * this method only validates/defaults it -- it never re-derives priority
    * from the raw text.
    */
-  private normalizeAnchors(rawAnchors: unknown): AnchoredPlace[] {
+  private normalizeAnchors(rawAnchors: unknown): InterpretedAnchor[] {
     if (!Array.isArray(rawAnchors)) {
       return [];
     }
 
-    const validPriorities: AnchoredPlace['priority'][] = ['soft', 'must'];
+    const validPriorities: InterpretedAnchor['priority'][] = ['soft', 'must'];
 
-    const anchors: AnchoredPlace[] = [];
+    const anchors: InterpretedAnchor[] = [];
 
     for (const item of rawAnchors) {
       if (!item || typeof item !== 'object') {
@@ -440,20 +458,20 @@ export class PreferenceInterpreterService {
         continue;
       }
 
-      const validUsages: AnchoredPlace['usage'][] = [
+      const validUsages: InterpretedAnchor['usage'][] = [
         'geographic_scope',
         'specific_destination',
         'named_path',
         'unknown',
       ];
-      const usage: AnchoredPlace['usage'] = validUsages.includes(
+      const usage: InterpretedAnchor['usage'] = validUsages.includes(
         (item as any).usage,
       )
         ? (item as any).usage
         : 'unknown';
 
       const rawPriority = (item as any).priority;
-      const priority: AnchoredPlace['priority'] = validPriorities.includes(
+      const priority: InterpretedAnchor['priority'] = validPriorities.includes(
         rawPriority,
       )
         ? rawPriority
@@ -507,6 +525,7 @@ export class PreferenceInterpreterService {
     // Free text keywords mapped into candidate InterpretedPreferenceFacet objects
     const candidateKeywords = [
       { trigger: 'arquitectura', dimension: 'theme', rawKey: 'architecture' },
+      { trigger: 'architecture', dimension: 'theme', rawKey: 'architecture' },
       { trigger: 'comida', dimension: 'theme', rawKey: 'food' },
       { trigger: 'gastronomia', dimension: 'theme', rawKey: 'gastronomy' },
       { trigger: 'gastronomía', dimension: 'theme', rawKey: 'gastronomy' },
@@ -529,11 +548,15 @@ export class PreferenceInterpreterService {
           key: kw.rawKey,
           confidence: 0.9,
           strength: 'strong',
+          evidence: [{ source: 'user_free_text', text: kw.trigger }],
         });
       }
     }
 
-    const facetResult = this.normalizeFacetsWithDecisions(rawFallbackFacets);
+    const facetResult = this.normalizeFacetsWithDecisions(
+      rawFallbackFacets,
+      text,
+    );
     const preferredFacets = facetResult.facets;
 
     const positiveSemanticQuery = text

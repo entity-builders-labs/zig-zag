@@ -7,10 +7,19 @@ describe('PreferenceInterpreterService', () => {
         provider: 'gemini',
         model: 'gemini-test',
       })),
-      generateChatResponse: jest.fn(async () => {
-        if (error) throw error;
-        return response ?? '{}';
-      }),
+      generateChatResponse: jest.fn(
+        async (_system: string, userPrompt: string) => {
+          if (error) throw error;
+          if (!response) return '{}';
+          const parsed = JSON.parse(response);
+          parsed.preferredFacets = parsed.preferredFacets?.map((facet: any) =>
+            facet.evidence === undefined
+              ? { ...facet, evidence: [userPrompt] }
+              : facet,
+          );
+          return JSON.stringify(parsed);
+        },
+      ),
     } as any;
     return {
       service: new PreferenceInterpreterService(langChain),

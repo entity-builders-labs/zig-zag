@@ -42,8 +42,6 @@ export interface InterpretedAnchor {
   priority: AnchorPriority;
 }
 
-export type AnchoredPlace = InterpretedAnchor;
-
 /** Canonical geographic resolution, with unresolved kept free of fake kind/identity. */
 export type ResolvedAnchor =
   | {
@@ -73,7 +71,7 @@ export interface PreferenceSpec {
     traits: string[];
     hard: string[];
   };
-  anchors: AnchoredPlace[];
+  anchors: InterpretedAnchor[];
   /** Resolved geographic authority consumed by acquisition/planning. */
   resolvedAnchors?: ResolvedAnchor[];
   semanticQuery: string;

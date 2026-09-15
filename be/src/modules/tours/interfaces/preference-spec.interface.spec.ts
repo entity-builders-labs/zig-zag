@@ -2,7 +2,7 @@ import {
   facetKey,
   PreferenceSpec,
   RequestedFacet,
-  AnchoredPlace,
+  InterpretedAnchor,
   FacetCandidates,
   PortfolioSufficiency,
   UnmetAnchor,
@@ -37,7 +37,7 @@ describe('preference-spec.interface', () => {
   });
 
   it('constructs a valid AnchoredPlace literal for each kind/priority combination', () => {
-    const anchor: AnchoredPlace = {
+    const anchor: InterpretedAnchor = {
       rawName: 'Teatro Colón',
       usage: 'specific_destination',
       priority: 'must',
@@ -125,7 +125,7 @@ describe('preference-spec.interface', () => {
   });
 
   it('constructs a valid UnmetAnchor literal for each reason', () => {
-    const anchor: AnchoredPlace = {
+    const anchor: InterpretedAnchor = {
       rawName: 'Some Unresolvable Place',
       usage: 'specific_destination',
       priority: 'must',

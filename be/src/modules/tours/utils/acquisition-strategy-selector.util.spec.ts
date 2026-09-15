@@ -74,6 +74,20 @@ const venueAnchor: ResolvedAnchor = {
   geoEntityId: 'geo-teatro-colon',
   provider: 'google_places',
 };
+const unresolvedNamedPathAnchor: ResolvedAnchor = {
+  status: 'unresolved',
+  rawName: 'Ruta de los Siete Lagos',
+  usage: 'named_path',
+  priority: 'must',
+  unresolvedReason: 'NO_CONFIDENT_ROUTE_MATCH',
+};
+const unresolvedIrrelevantAnchor: ResolvedAnchor = {
+  status: 'unresolved',
+  rawName: 'Unknown thing',
+  usage: 'specific_destination',
+  priority: 'soft',
+  unresolvedReason: 'NO_CONFIDENT_GEO_ENTITY_MATCH',
+};
 
 describe('selectAcquisitionStrategy', () => {
   // 1. AREA + walk deficit
@@ -84,6 +98,7 @@ describe('selectAcquisitionStrategy', () => {
       kind: 'AREA_ROUTE_WALK',
       deficit,
       anchor: areaAnchor,
+      anchorMode: 'canonical',
       intentKey: 'walk',
     });
     // Reference identity: the original object is passed through, never
@@ -101,6 +116,7 @@ describe('selectAcquisitionStrategy', () => {
       kind: 'AREA_ROUTE_WALK',
       deficit,
       anchor: routeAnchor,
+      anchorMode: 'canonical',
       intentKey: 'route_like',
     });
     expect(strategy.kind === 'AREA_ROUTE_WALK' && strategy.deficit).toBe(
@@ -125,6 +141,27 @@ describe('selectAcquisitionStrategy', () => {
     const deficit = walkDeficit();
     const strategy = selectAcquisitionStrategy(deficit, []);
     expect(strategy).toEqual({ kind: 'GENERIC', deficit });
+  });
+
+  it('routes an unresolved named_path through the explicit tourism-route mode', () => {
+    const strategy = selectAcquisitionStrategy(walkDeficit(), [
+      unresolvedNamedPathAnchor,
+    ]);
+    expect(strategy).toMatchObject({
+      kind: 'AREA_ROUTE_WALK',
+      anchor: unresolvedNamedPathAnchor,
+      anchorMode: 'tourism_route',
+    });
+  });
+
+  it('does not route an unrelated unresolved anchor', () => {
+    const deficit = walkDeficit();
+    expect(
+      selectAcquisitionStrategy(deficit, [unresolvedIrrelevantAnchor]),
+    ).toEqual({
+      kind: 'GENERIC',
+      deficit,
+    });
   });
 
   it('keeps an intent:walk deficit GENERIC when 2+ relevant area/route anchors exist (mode D, not handled by this primitive)', () => {
@@ -181,7 +218,12 @@ describe('partitionDeficitsByStrategy', () => {
     );
 
     expect(areaRouteWalk).toEqual([
-      { deficit: walk, anchor: areaAnchor, intentKey: 'walk' },
+      {
+        deficit: walk,
+        anchor: areaAnchor,
+        anchorMode: 'canonical',
+        intentKey: 'walk',
+      },
     ]);
     expect(areaRouteWalk[0].deficit).toBe(walk);
     expect(generic).toEqual([theme, capacity]);

@@ -3,6 +3,7 @@ import {
   ExperienceDiscoveryScope,
 } from './experience-discovery.interface';
 import { AcquisitionEvidenceRequirement } from './acquisition-evidence-requirement.interface';
+import { ResolvedAnchor } from './preference-spec.interface';
 
 /**
  * A real, requested-facet deficit (cutover M2) -- `dimension`/`key` are
@@ -92,4 +93,6 @@ export interface ExperienceAcquisitionPlan {
   evidenceRequirements: AcquisitionEvidenceRequirement[];
   sourcePlans: SourcePlan[];
   breadth: ExperienceDiscoveryBreadth;
+  /** Canonical anchor context used by execution identity/dedupe. */
+  relevantAnchors?: ResolvedAnchor[];
 }

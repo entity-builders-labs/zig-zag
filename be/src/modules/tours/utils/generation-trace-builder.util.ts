@@ -1105,6 +1105,11 @@ export function buildAcquisitionStep(params: {
       reason: 'DUPLICATE_SOURCE_PLAN_EXECUTION';
       fingerprint: string;
     };
+    executionSkippedSourcePlans?: Array<{
+      provider: string;
+      fingerprint: string;
+      reason: 'DUPLICATE_SOURCE_PLAN_EXECUTION';
+    }>;
     providerResults: Record<
       string,
       | {
@@ -1401,6 +1406,7 @@ export function buildAcquisitionStep(params: {
     candidates: auditCandidates,
     structuredCorroboration,
     executionSkipped: execution.executionSkipped,
+    executionSkippedSourcePlans: execution.executionSkippedSourcePlans,
   };
 
   return {
@@ -1432,6 +1438,7 @@ export function buildAcquisitionStep(params: {
       webCandidateCount: execution.webCandidateCount ?? 0,
       candidateCount: execution.candidates.length,
       executionSkipped: execution.executionSkipped,
+      executionSkippedSourcePlans: execution.executionSkippedSourcePlans,
       structuredProviders: structuredEntries,
       webResults: (execution.webResults ?? []).map((w) => ({
         status: w.status,

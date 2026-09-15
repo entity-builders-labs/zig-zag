@@ -1,7 +1,7 @@
 import { buildPreferenceSpec } from './preference-spec-builder.util';
 import { TourGenerationRequest } from '../interfaces/tour-generation.interface';
 import { NormalizedPreferenceIntent } from '../interfaces/preference-interpretation.interface';
-import { AnchoredPlace } from '../interfaces/preference-spec.interface';
+import { InterpretedAnchor } from '../interfaces/preference-spec.interface';
 
 function baseRequest(
   overrides: Partial<TourGenerationRequest> = {},
@@ -161,7 +161,7 @@ describe('preference-spec-builder.util', () => {
 
   it('passes anchoredPlaces through to spec.anchors unchanged', () => {
     const request = baseRequest();
-    const anchors: AnchoredPlace[] = [
+    const anchors: InterpretedAnchor[] = [
       {
         rawName: 'Teatro Colón',
         usage: 'specific_destination',

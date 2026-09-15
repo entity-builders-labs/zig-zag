@@ -925,13 +925,9 @@ export class ExperienceGenerationService {
           },
         );
       preferenceSpec.resolvedAnchors = resolvedAnchors;
-      // Keep the public PreferenceSpec trace projection canonical after this
-      // boundary. Acquisition consumers use resolvedAnchors explicitly so
-      // the typed resolved fact cannot be downgraded during the handoff.
-      preferenceSpec.anchors = resolvedAnchors;
-      // From this boundary onward PreferenceSpec.anchors is the canonical
-      // resolved projection. The earlier trace still retains the separate
-      // interpreter payload and this geo-resolution step records the handoff.
+      // Keep interpreted linguistic facts and canonical geographic facts in
+      // separate PreferenceSpec fields. Downstream geographic consumers must
+      // read resolvedAnchors; trace keeps both projections explicit.
       traceSteps.push({
         stage: 'anchor_geo_resolution',
         label: 'Resolución geográfica de anchors',

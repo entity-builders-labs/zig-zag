@@ -1,14 +1,14 @@
 import { GeoEntityKind } from '@prisma/client';
 import { AreaRouteAnchorResolverService } from './area-route-anchor-resolver.service';
-import { AnchoredPlace } from '../interfaces/preference-spec.interface';
+import { InterpretedAnchor } from '../interfaces/preference-spec.interface';
 
 describe('AreaRouteAnchorResolverService', () => {
-  const areaAnchor: AnchoredPlace = {
+  const areaAnchor: InterpretedAnchor = {
     rawName: 'San Telmo',
     usage: 'unknown',
     priority: 'must',
   };
-  const routeAnchor: AnchoredPlace = {
+  const routeAnchor: InterpretedAnchor = {
     rawName: 'Caminito',
     usage: 'unknown',
     priority: 'soft',
@@ -112,7 +112,9 @@ describe('AreaRouteAnchorResolverService', () => {
         undefined,
       );
 
-      expect(result).toEqual({ resolved: false, status: 'no_match' });
+      expect(result).toEqual(
+        expect.objectContaining({ resolved: false, status: 'no_match' }),
+      );
       expect(catalog.upsertGeoEntity).not.toHaveBeenCalled();
     });
 
@@ -150,7 +152,9 @@ describe('AreaRouteAnchorResolverService', () => {
         undefined,
       );
 
-      expect(result).toEqual({ resolved: false, status: 'no_match' });
+      expect(result).toEqual(
+        expect.objectContaining({ resolved: false, status: 'no_match' }),
+      );
       expect(osmPlaces.lookupBoundaryById).not.toHaveBeenCalled();
     });
 
@@ -193,7 +197,9 @@ describe('AreaRouteAnchorResolverService', () => {
         undefined,
       );
 
-      expect(result).toEqual({ resolved: false, status: 'no_match' });
+      expect(result).toEqual(
+        expect.objectContaining({ resolved: false, status: 'no_match' }),
+      );
       expect(catalog.upsertGeoEntity).not.toHaveBeenCalled();
     });
 
@@ -303,7 +309,9 @@ describe('AreaRouteAnchorResolverService', () => {
         undefined,
       );
 
-      expect(result).toEqual({ resolved: false, status: 'no_match' });
+      expect(result).toEqual(
+        expect.objectContaining({ resolved: false, status: 'no_match' }),
+      );
       expect(osmPlaces.lookupBoundaryById).not.toHaveBeenCalled();
     });
 
@@ -433,7 +441,9 @@ describe('AreaRouteAnchorResolverService', () => {
         } as any,
       );
 
-      expect(result).toEqual({ resolved: false, status: 'no_match' });
+      expect(result).toEqual(
+        expect.objectContaining({ resolved: false, status: 'no_match' }),
+      );
       expect(catalog.upsertGeoEntity).not.toHaveBeenCalled();
     });
 

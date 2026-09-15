@@ -277,6 +277,11 @@ export interface TraceAcquisitionAudit {
     reason: 'DUPLICATE_SOURCE_PLAN_EXECUTION';
     fingerprint: string;
   };
+  executionSkippedSourcePlans?: Array<{
+    provider: string;
+    fingerprint: string;
+    reason: 'DUPLICATE_SOURCE_PLAN_EXECUTION';
+  }>;
 }
 
 /** Identifies the orchestration strategy that produced a lifecycle step. */
@@ -290,7 +295,7 @@ export interface TraceAcquisitionContext {
       | 'specific_destination'
       | 'named_path'
       | 'unknown';
-    kind: 'venue' | 'area' | 'route';
+    kind?: 'venue' | 'area' | 'route';
     priority: 'soft' | 'must';
   };
 }
