@@ -85,6 +85,7 @@ import {
   ComposableExperience,
 } from '../interfaces/preference-spec.interface';
 import { AcquisitionDeficit } from '../interfaces/experience-acquisition-plan.interface';
+import { AcquisitionExecutionLedger } from '../utils/acquisition-source-plan-fingerprint.util';
 
 /**
  * Hard bound on the canonical acquisition loop: initial catalog coverage,
@@ -630,8 +631,12 @@ export class ExperienceGenerationService {
       attempted: Set<string>;
       failed: Set<string>;
     },
+    executionLedger: AcquisitionExecutionLedger,
   ): Promise<ExecuteAcquisitionPlanResult> {
-    const execution = await this.experienceAcquisition.executePlan(plan);
+    const execution = await this.experienceAcquisition.executePlan(
+      plan,
+      executionLedger,
+    );
     for (const [provider, result] of Object.entries(
       execution.providerResults,
     )) {
@@ -749,6 +754,9 @@ export class ExperienceGenerationService {
       // degraded-all-providers signal needs to survive to the failure branch.
       const acquisitionProvidersAttempted = new Set<string>();
       const acquisitionProvidersFailed = new Set<string>();
+      const acquisitionExecutionLedger: AcquisitionExecutionLedger = {
+        executedSourcePlanFingerprints: new Set(),
+      };
       let degradedAcquisitionReason: string | null = null;
 
       const recordOfferedCandidates = (selection: CandidateSelection) => {
@@ -1033,7 +1041,6 @@ export class ExperienceGenerationService {
               status: 'healthy' | 'degraded' | 'unknown';
               reason?: string;
             } = { status: 'healthy' };
-
             for (let pass = 1; pass <= MAX_ACQUISITION_PASSES; pass++) {
               if (currentPreferenceCoverage.sufficient) break;
 
@@ -1137,6 +1144,7 @@ export class ExperienceGenerationService {
                     deficit: routed.deficit,
                     semanticQuery: preferenceSpec.semanticQuery,
                     resolvedAnchor: await resolvedAnchor,
+                    executionLedger: acquisitionExecutionLedger,
                   });
                 const areaRouteWalkTraceResult = Object.fromEntries(
                   Object.entries(areaRouteWalkResult).filter(
@@ -1234,6 +1242,7 @@ export class ExperienceGenerationService {
                     attempted: acquisitionProvidersAttempted,
                     failed: acquisitionProvidersFailed,
                   },
+                  acquisitionExecutionLedger,
                 );
               }
 
@@ -1632,6 +1641,7 @@ export class ExperienceGenerationService {
               attempted: acquisitionProvidersAttempted,
               failed: acquisitionProvidersFailed,
             },
+            acquisitionExecutionLedger,
           );
 
           const refreshed = await this.refreshCatalogAndRecompose(

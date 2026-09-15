@@ -42,10 +42,33 @@ export interface WikivoyageEntry {
   templateName: string;
 }
 
+export interface WikivoyageParserDrop {
+  templateName: string;
+  reason: 'MISSING_NAME' | 'EMPTY_NAME' | 'PARSE_ERROR';
+}
+
+export interface WikivoyageParserAudit {
+  wikitextCharCount: number;
+  wikitextSha256: string;
+  tocSections: Array<{
+    index?: string;
+    level?: number;
+    line?: string;
+    anchor?: string;
+  }>;
+  recognizedTemplateCount: number;
+  parsedEntryCount: number;
+  entryCountBySection: { SEE: number; DO: number; EAT: number; OTHER: number };
+  targetTemplateCountByName: Record<string, number>;
+  unsupportedTemplateCountByName: Record<string, number>;
+  droppedEntries: WikivoyageParserDrop[];
+}
+
 export interface WikivoyageArticleResult {
   status: 'found' | 'not_found' | 'failed';
   title?: string;
   pageid?: number;
   entries: WikivoyageEntry[];
+  parserAudit?: WikivoyageParserAudit;
   failureReason?: string;
 }

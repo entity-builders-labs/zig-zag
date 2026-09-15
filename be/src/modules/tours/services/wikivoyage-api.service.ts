@@ -1,11 +1,14 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
+import { createHash } from 'crypto';
 import {
   MediaWikiParseResponse,
+  MediaWikiParseData,
   WikivoyageArticleResult,
   WikivoyageEntry,
   WikivoyageSectionType,
+  WikivoyageParserAudit,
 } from '../interfaces/wikivoyage-api.interface';
 
 const DEFAULT_WIKIVOYAGE_API_URL = 'https://es.wikivoyage.org/w/api.php';
@@ -79,13 +82,14 @@ export class WikivoyageApiService {
       }
 
       const wikitext = data.parse.wikitext || '';
-      const entries = this.parseWikitext(wikitext);
+      const parsed = this.parseWikitextWithAudit(wikitext, data.parse.tocdata);
 
       return {
         status: 'found',
         title: data.parse.title,
         pageid: data.parse.pageid,
-        entries,
+        entries: parsed.entries,
+        parserAudit: parsed.audit,
       };
     } catch (error: any) {
       this.logger.warn(
@@ -100,23 +104,74 @@ export class WikivoyageApiService {
   }
 
   parseWikitext(wikitext: string): WikivoyageEntry[] {
+    return this.parseWikitextWithAudit(wikitext).entries;
+  }
+
+  parseWikitextWithAudit(
+    wikitext: string,
+    tocdata?: MediaWikiParseData['tocdata'],
+  ): { entries: WikivoyageEntry[]; audit: WikivoyageParserAudit } {
     const rawTemplates = this.extractBalancedTemplates(wikitext);
     const entries: WikivoyageEntry[] = [];
+    const targetTemplateCountByName: Record<string, number> = {};
+    const unsupportedTemplateCountByName: Record<string, number> = {};
+    const droppedEntries: WikivoyageParserAudit['droppedEntries'] = [];
+    const entryCountBySection = { SEE: 0, DO: 0, EAT: 0, OTHER: 0 };
 
     for (const raw of rawTemplates) {
+      if (!TARGET_TEMPLATES.has(raw.templateName)) {
+        unsupportedTemplateCountByName[raw.templateName] =
+          (unsupportedTemplateCountByName[raw.templateName] ?? 0) + 1;
+        continue;
+      }
+      targetTemplateCountByName[raw.templateName] =
+        (targetTemplateCountByName[raw.templateName] ?? 0) + 1;
       try {
         const entry = this.parseSingleTemplate(raw, wikitext);
         if (entry) {
           entries.push(entry);
+          entryCountBySection[entry.sectionType] += 1;
+        } else {
+          const nameValue = raw.body.match(
+            /(?:^|\|)\s*(?:name|nombre)\s*=\s*([^|]*)/i,
+          )?.[1];
+          droppedEntries.push({
+            templateName: raw.templateName,
+            reason: nameValue === undefined ? 'MISSING_NAME' : 'EMPTY_NAME',
+          });
         }
       } catch (err: any) {
         this.logger.debug(
           `Skipping malformed Wikivoyage entry in template "${raw.templateName}": ${err.message}`,
         );
+        droppedEntries.push({
+          templateName: raw.templateName,
+          reason: 'PARSE_ERROR',
+        });
       }
     }
 
-    return entries;
+    return {
+      entries,
+      audit: {
+        wikitextCharCount: wikitext.length,
+        wikitextSha256: createHash('sha256').update(wikitext).digest('hex'),
+        tocSections: (tocdata?.sections ?? []).map((section) => ({
+          index: section.index ?? section.number,
+          level: section.tocLevel ?? section.hLevel,
+          line: section.line,
+          anchor: section.anchor,
+        })),
+        recognizedTemplateCount: rawTemplates.filter((raw) =>
+          TARGET_TEMPLATES.has(raw.templateName),
+        ).length,
+        parsedEntryCount: entries.length,
+        entryCountBySection,
+        targetTemplateCountByName,
+        unsupportedTemplateCountByName,
+        droppedEntries,
+      },
+    };
   }
 
   private extractBalancedTemplates(
@@ -142,10 +197,6 @@ export class WikivoyageApiService {
         }
 
         const templateName = nameMatch[1].toLowerCase();
-        if (!TARGET_TEMPLATES.has(templateName)) {
-          continue;
-        }
-
         let depth = 1;
         let pos = i;
 

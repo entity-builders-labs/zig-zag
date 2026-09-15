@@ -240,6 +240,47 @@ describe('WikivoyageAcquisitionProvider', () => {
     expect(result.value[0].evidenceType).toBe('tourism_activity');
   });
 
+  it('fetches each explicit article target once and keeps article-scoped evidence keys', async () => {
+    apiService.fetchArticle
+      .mockResolvedValueOnce({
+        status: 'found',
+        title: 'Buenos Aires',
+        pageid: 1,
+        entries: [{ name: 'Plaza A', sectionType: 'DO', templateName: 'do' }],
+      })
+      .mockResolvedValueOnce({
+        status: 'found',
+        title: 'San Telmo',
+        pageid: 2,
+        entries: [{ name: 'Plaza A', sectionType: 'DO', templateName: 'do' }],
+      });
+
+    const result = await provider.acquire('Buenos Aires', {
+      sections: ['DO'],
+      articleTargets: ['Buenos Aires', 'San Telmo'],
+    });
+
+    expect(apiService.fetchArticle).toHaveBeenCalledTimes(2);
+    expect(result.value.map((observation) => observation.evidenceKey)).toEqual([
+      'wikivoyage:Buenos_Aires:do:do:Plaza_A:1',
+      'wikivoyage:San_Telmo:do:do:Plaza_A:1',
+    ]);
+    expect(result.provenance).toMatchObject({
+      requestedTitle: 'Buenos Aires',
+      requestedSections: ['DO'],
+      targets: [
+        {
+          article: {
+            status: 'found',
+            resolvedTitle: 'Buenos Aires',
+            pageid: 1,
+          },
+        },
+        { article: { status: 'found', resolvedTitle: 'San Telmo', pageid: 2 } },
+      ],
+    });
+  });
+
   it('returns success with empty array when article is not found', async () => {
     apiService.fetchArticle.mockResolvedValueOnce({
       status: 'not_found',

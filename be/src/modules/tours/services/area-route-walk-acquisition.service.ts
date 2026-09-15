@@ -10,6 +10,7 @@ import {
   ExperienceAcquisitionPlannerService,
 } from './experience-acquisition-planner.service';
 import { ExperienceAcquisitionService } from './experience-acquisition.service';
+import { AcquisitionExecutionLedger } from '../utils/acquisition-source-plan-fingerprint.util';
 import {
   CURRENT_CLASSIFICATION_PROMPT_VERSION,
   canReuseClassification,
@@ -45,6 +46,7 @@ export interface AreaRouteWalkAcquisitionInput {
   geographicScope?: GeographicScope;
   /** Caller-owned request/generation scope resolution, when already known. */
   resolvedAnchor?: AnchorGeometryResolution;
+  executionLedger?: AcquisitionExecutionLedger;
   [key: string]: unknown;
   /** The canonical facet deficit this call is acquiring for -- routed
    * straight into the plan, never recomputed from a candidate pool. */
@@ -300,7 +302,10 @@ export class AreaRouteWalkAcquisitionService {
       };
     }
 
-    const execution = await this.acquisitionService.executePlan(plan);
+    const execution = await this.acquisitionService.executePlan(
+      plan,
+      input.executionLedger,
+    );
     const validationScope: ExperienceValidationScope | undefined =
       resolution.resolved
         ? {
