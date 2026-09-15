@@ -1,8 +1,6 @@
 import { PlacesCrawlProvenance } from '@integrations/google-places/interfaces/places-api.interface';
 import { TourCompletenessResult } from './tour-completeness.interface';
-import { ExperienceResolutionResponse } from './experience-resolution.interface';
-import { GeographicValidationBatchResult } from './geographic-validation.interface';
-import { ExperienceGeographicValidationBatchResult } from './experience-resolution.interface';
+import { ExperienceCandidate } from './experience-discovery.interface';
 import { CandidateScoreBreakdown } from '../utils/candidate-ranking.util';
 import { PreferenceInterpretationTrace } from './preference-interpretation.interface';
 import { GeoEntityHint } from './experience-discovery.interface';
@@ -221,6 +219,87 @@ export interface TraceAcquisitionAudit {
   }>;
 }
 
+/** Bounded legacy payloads retained for V1/V2/V3 trace readers. */
+export interface TraceResolvedGeoEntity {
+  hintKey: string;
+  hintName: string;
+  provider: string;
+  externalId?: string;
+  geoEntityId?: string;
+  canonicalName?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  geometry?: { present: boolean; type?: string };
+  role: 'area' | 'waypoint' | 'route' | 'venue';
+  expectedType?: string;
+  status: 'resolved' | 'unresolved';
+  reason?: string;
+  adminContext?: {
+    country?: string;
+    region?: string;
+    locality?: string;
+    municipality?: string;
+  };
+}
+
+export interface TraceResolvedExperienceCandidate {
+  candidate: ExperienceCandidate;
+  status: 'accepted' | 'rejected';
+  resolvedEntities: TraceResolvedGeoEntity[];
+  rejectionReasons: string[];
+  destinationAssociationVerified?: boolean;
+  experienceId?: string;
+  dedupeDecision?: 'SAME' | 'NEW' | 'AMBIGUOUS';
+  dedupeCandidates?: string[];
+}
+
+export interface TraceResolutionPayload {
+  totalCandidates: number;
+  acceptedCount: number;
+  rejectedCount: number;
+  resolved: TraceResolvedExperienceCandidate[];
+  entityResolution?: {
+    totalCandidates: number;
+    acceptedCount: number;
+    rejectedCount: number;
+    resolved: TraceResolvedExperienceCandidate[];
+  };
+}
+
+export interface TraceGeographicValidationResult {
+  proposalName: string;
+  kind: string;
+  status: string;
+  accepted: boolean;
+  strategy?: string;
+  canonicalEntity?: TraceResolvedGeoEntity;
+  anchors: TraceResolvedGeoEntity[];
+  coherence?: {
+    centroid: { latitude: number; longitude: number };
+    radiusMeters: number;
+    maxPairwiseDistanceMeters: number;
+  };
+  groundedEvidenceKeys: string[];
+  rejectionReasons: string[];
+  decisionEntities?: Array<{
+    geoEntityId?: string;
+    hintKey?: string;
+    relation: 'evaluated' | 'offending';
+  }>;
+  validatorVersion: number;
+}
+
+export interface TraceGeographicValidationPayload {
+  results: TraceGeographicValidationResult[];
+  acceptedCount: number;
+  rejectedCount: number;
+  resolved?: TraceResolvedExperienceCandidate[];
+}
+
+export interface TraceMaterializationPayload {
+  resolved: TraceResolvedExperienceCandidate[];
+}
+
 export type TourCompletenessTraceResult = TourCompletenessResult & {
   retryAttempted: boolean;
 };
@@ -306,11 +385,9 @@ export interface GenerationTraceStep {
     reason?: string;
   };
   tourCompleteness?: TourCompletenessTraceResult;
-  resolution?: ExperienceResolutionResponse;
-  geographicValidation?:
-    | GeographicValidationBatchResult
-    | ExperienceGeographicValidationBatchResult;
-  materialization?: unknown;
+  resolution?: TraceResolutionPayload;
+  geographicValidation?: TraceGeographicValidationPayload;
+  materialization?: TraceMaterializationPayload;
   candidatePool?: {
     initialCatalogCount: number;
     postAcquisitionCatalogCount: number;

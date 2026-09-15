@@ -485,6 +485,234 @@ describe('buildGeographicValidationStep', () => {
       ]),
     );
   });
+
+  it('correlates same-name candidates by the guaranteed batch order, not proposalName', () => {
+    const candidate = (suffix: 'a' | 'b') => ({
+      name: 'Historic District Walk',
+      themes: ['history'],
+      intents: ['walk'],
+      traits: [] as string[],
+      evidenceKeys: [`web:${suffix}`],
+      shortReason: 'grounded route',
+      componentHints: [
+        {
+          key: `${suffix}-1`,
+          name: `Stop ${suffix.toUpperCase()} 1`,
+          role: 'waypoint' as const,
+          expectedKind: 'PLACE' as const,
+          required: true,
+          evidenceKeys: [`web:${suffix}`],
+        },
+        {
+          key: `${suffix}-2`,
+          name: `Stop ${suffix.toUpperCase()} 2`,
+          role: 'waypoint' as const,
+          expectedKind: 'PLACE' as const,
+          required: true,
+          evidenceKeys: [`web:${suffix}`],
+        },
+      ],
+    });
+    const resolved = (suffix: 'a' | 'b') => ({
+      candidate: candidate(suffix),
+      status: 'accepted' as const,
+      resolvedEntities: [1, 2].map((number) => ({
+        hintKey: `${suffix}-${number}`,
+        hintName: `Stop ${suffix.toUpperCase()} ${number}`,
+        role: 'waypoint' as const,
+        provider: 'osm',
+        externalId: `${suffix}-${number}`,
+        geoEntityId: `${suffix}-${number}`,
+        status: 'resolved' as const,
+      })),
+      rejectionReasons: [] as string[],
+    });
+    const step = buildGeographicValidationStep({
+      resolved: [resolved('a'), resolved('b')],
+      totalCandidates: 2,
+      acceptedCount: 1,
+      rejectedCount: 1,
+      geographicValidation: {
+        results: [
+          {
+            proposalName: 'Historic District Walk',
+            kind: 'EXPERIENCE',
+            status: 'GEO_VERIFIED',
+            accepted: true,
+            validatorVersion: 1,
+            groundedEvidenceKeys: ['web:a'],
+            anchors: [resolved('a').resolvedEntities[0]],
+            rejectionReasons: [],
+          },
+          {
+            proposalName: 'Historic District Walk',
+            kind: 'EXPERIENCE',
+            status: 'REJECTED',
+            accepted: false,
+            validatorVersion: 1,
+            groundedEvidenceKeys: ['web:b'],
+            anchors: [resolved('b').resolvedEntities[0]],
+            decisionEntities: [
+              {
+                hintKey: 'b-2',
+                geoEntityId: 'b-2',
+                relation: 'offending',
+              },
+            ],
+            rejectionReasons: ['external_scope_mismatch'],
+          },
+        ],
+        acceptedCount: 1,
+        rejectedCount: 1,
+        resolved: [resolved('a'), resolved('b')],
+      },
+    });
+
+    const [first, second] = step.geographicValidationAudit!;
+    expect(first.candidateTraceKey).toBe(
+      traceCandidateKey(resolved('a').candidate),
+    );
+    expect(second.candidateTraceKey).toBe(
+      traceCandidateKey(resolved('b').candidate),
+    );
+    expect(first.candidateTraceKey).not.toBe(second.candidateTraceKey);
+    expect(first.components.map((component) => component.hintName)).toEqual([
+      'Stop A 1',
+      'Stop A 2',
+    ]);
+    expect(second.components).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          hintName: 'Stop B 2',
+          relation: 'offending',
+        }),
+      ]),
+    );
+    expect(second.rejectionReasons).toEqual(['external_scope_mismatch']);
+  });
+});
+
+describe('GenerationTrace v4 geometry projection', () => {
+  it('keeps geometry type visible while excluding full coordinate arrays from every lifecycle step', () => {
+    const largeGeometry = {
+      type: 'MultiPolygon',
+      coordinates: Array.from({ length: 1000 }, () => [
+        [
+          [1, 2],
+          [3, 4],
+          [1, 2],
+        ],
+      ]),
+    };
+    const candidate = {
+      name: 'Historic District Walk',
+      themes: ['history'],
+      traits: [] as string[],
+      intents: ['walk'],
+      evidenceKeys: ['web:walk'],
+      shortReason: 'grounded route',
+      componentHints: [
+        {
+          key: 'stop-a',
+          name: 'Stop A',
+          role: 'waypoint' as const,
+          expectedKind: 'PLACE' as const,
+          required: true,
+          evidenceKeys: ['web:walk'],
+        },
+      ],
+    };
+    const entity = {
+      hintKey: 'stop-a',
+      hintName: 'Stop A',
+      role: 'waypoint' as const,
+      provider: 'osm',
+      externalId: 'stop-a',
+      geoEntityId: 'geo-stop-a',
+      canonicalName: 'Stop A',
+      latitude: -34.6,
+      longitude: -58.4,
+      geometry: largeGeometry,
+      status: 'resolved' as const,
+    };
+    const resolvedEntry = {
+      candidate,
+      status: 'accepted' as const,
+      resolvedEntities: [entity],
+      rejectionReasons: [] as string[],
+      experienceId: 'experience-1',
+    };
+    const validation = {
+      proposalName: candidate.name,
+      kind: 'EXPERIENCE',
+      status: 'GEO_VERIFIED' as const,
+      accepted: true,
+      strategy: 'component_defined' as const,
+      validatorVersion: 1,
+      groundedEvidenceKeys: ['web:walk'],
+      anchors: [entity],
+      canonicalEntity: entity,
+      coherence: {
+        centroid: { latitude: -34.6, longitude: -58.4 },
+        radiusMeters: 10,
+        maxPairwiseDistanceMeters: 20,
+      },
+      rejectionReasons: [] as string[],
+    };
+    const resolution = {
+      resolved: [resolvedEntry],
+      totalCandidates: 1,
+      acceptedCount: 1,
+      rejectedCount: 0,
+      geographicValidation: {
+        results: [validation],
+        acceptedCount: 1,
+        rejectedCount: 0,
+        resolved: [resolvedEntry],
+      },
+      materialization: { resolved: [resolvedEntry] },
+    };
+    const trace = {
+      version: 4 as const,
+      steps: [
+        buildAcquisitionStep({
+          passNumber: 1,
+          plan: {
+            sourcePlans: [{ provider: 'web', web: { query: 'walk' } }],
+            deficits: [{ reason: 'missing' }],
+          },
+          execution: {
+            observations: [
+              {
+                provider: 'web',
+                evidenceKey: 'web:walk',
+                title: 'Walk',
+                geo: {
+                  latitude: -34.6,
+                  longitude: -58.4,
+                  geometry: largeGeometry,
+                },
+              },
+            ],
+            candidates: [candidate],
+            providerResults: { web: { status: 'success' } },
+          },
+        }),
+        buildEntityResolutionStep(resolution),
+        buildGeographicValidationStep(resolution),
+        buildCatalogMaterializationStep(resolution),
+      ],
+      hallucinatedCount: 0,
+      duplicateCount: 0,
+    };
+
+    const serialized = JSON.stringify(trace);
+    expect(serialized).not.toContain('coordinates');
+    expect(serialized).toContain('MultiPolygon');
+    expect(serialized).not.toMatch(
+      /\bcoordinates\b|\bgeometryCoordinates\b|\bpolygonCoordinates\b/,
+    );
+  });
 });
 
 describe('buildCatalogMaterializationStep', () => {

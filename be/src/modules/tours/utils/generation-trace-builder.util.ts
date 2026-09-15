@@ -12,6 +12,12 @@ import {
   TraceAcquisitionSource,
   TraceComponentHint,
   TraceEvidenceReference,
+  TraceResolvedGeoEntity,
+  TraceResolvedExperienceCandidate,
+  TraceResolutionPayload,
+  TraceGeographicValidationPayload,
+  TraceGeographicValidationResult,
+  TraceMaterializationPayload,
 } from '../interfaces/generation-trace.interface';
 import {
   TourCompletenessIssue,
@@ -27,6 +33,160 @@ import { PreferenceCoverageResult } from '../interfaces/preference-spec.interfac
 import { CandidateScoreBreakdown } from './candidate-ranking.util';
 import { SourceObservation } from '../interfaces/experience-acquisition.interface';
 import { ExperienceCandidate } from '../interfaces/experience-discovery.interface';
+
+/**
+ * Trace projection only: geometry presence/type is useful audit context, but
+ * coordinate arrays belong to the domain response and must never be persisted
+ * in GenerationTrace.
+ */
+export function traceGeometrySummary(
+  geometry: unknown,
+): { present: boolean; type?: string } | undefined {
+  if (geometry == null) return undefined;
+  const type =
+    typeof geometry === 'object' &&
+    geometry !== null &&
+    'type' in geometry &&
+    typeof geometry.type === 'string'
+      ? geometry.type
+      : undefined;
+  return { present: true, type };
+}
+
+function projectResolvedGeoEntity(entity: {
+  hintKey: string;
+  hintName: string;
+  provider: string;
+  externalId?: string;
+  geoEntityId?: string;
+  canonicalName?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  geometry?: unknown;
+  role: 'area' | 'waypoint' | 'route' | 'venue';
+  expectedType?: string;
+  status: 'resolved' | 'unresolved';
+  reason?: string;
+  adminContext?: TraceResolvedGeoEntity['adminContext'];
+}): TraceResolvedGeoEntity {
+  return {
+    hintKey: entity.hintKey,
+    hintName: entity.hintName,
+    provider: entity.provider,
+    externalId: entity.externalId,
+    geoEntityId: entity.geoEntityId,
+    canonicalName: entity.canonicalName,
+    latitude: entity.latitude,
+    longitude: entity.longitude,
+    geometry: traceGeometrySummary(entity.geometry),
+    role: entity.role,
+    expectedType: entity.expectedType,
+    status: entity.status,
+    reason: entity.reason,
+    adminContext: entity.adminContext,
+  };
+}
+
+function projectResolvedCandidate(entry: {
+  candidate: ExperienceCandidate;
+  status: 'accepted' | 'rejected';
+  resolvedEntities: Parameters<typeof projectResolvedGeoEntity>[0][];
+  rejectionReasons: string[];
+  destinationAssociationVerified?: boolean;
+  experienceId?: string;
+  dedupeDecision?: 'SAME' | 'NEW' | 'AMBIGUOUS';
+  dedupeCandidates?: string[];
+}): TraceResolvedExperienceCandidate {
+  return {
+    candidate: entry.candidate,
+    status: entry.status,
+    resolvedEntities: entry.resolvedEntities.map(projectResolvedGeoEntity),
+    rejectionReasons: [...entry.rejectionReasons],
+    destinationAssociationVerified: entry.destinationAssociationVerified,
+    experienceId: entry.experienceId,
+    dedupeDecision: entry.dedupeDecision,
+    dedupeCandidates: entry.dedupeCandidates
+      ? [...entry.dedupeCandidates]
+      : undefined,
+  };
+}
+
+function projectResolutionPayload(
+  result: ExperienceResolutionResponse,
+): TraceResolutionPayload {
+  const resolution = result.entityResolution ?? result;
+  return {
+    totalCandidates: resolution.totalCandidates,
+    acceptedCount: resolution.acceptedCount,
+    rejectedCount: resolution.rejectedCount,
+    resolved: resolution.resolved.map(projectResolvedCandidate),
+    entityResolution: result.entityResolution
+      ? {
+          totalCandidates: result.entityResolution.totalCandidates,
+          acceptedCount: result.entityResolution.acceptedCount,
+          rejectedCount: result.entityResolution.rejectedCount,
+          resolved: result.entityResolution.resolved.map(
+            projectResolvedCandidate,
+          ),
+        }
+      : undefined,
+  };
+}
+
+function projectGeographicValidationResult(entry: {
+  proposalName: string;
+  kind: string;
+  status: string;
+  accepted: boolean;
+  strategy?: string;
+  canonicalEntity?: Parameters<typeof projectResolvedGeoEntity>[0];
+  anchors: Parameters<typeof projectResolvedGeoEntity>[0][];
+  coherence?: TraceGeographicValidationResult['coherence'];
+  groundedEvidenceKeys: string[];
+  rejectionReasons: string[];
+  decisionEntities?: TraceGeographicValidationResult['decisionEntities'];
+  validatorVersion: number;
+}): TraceGeographicValidationResult {
+  return {
+    proposalName: entry.proposalName,
+    kind: entry.kind,
+    status: entry.status,
+    accepted: entry.accepted,
+    strategy: entry.strategy,
+    canonicalEntity: entry.canonicalEntity
+      ? projectResolvedGeoEntity(entry.canonicalEntity)
+      : undefined,
+    anchors: entry.anchors.map(projectResolvedGeoEntity),
+    coherence: entry.coherence,
+    groundedEvidenceKeys: [...entry.groundedEvidenceKeys],
+    rejectionReasons: [...entry.rejectionReasons],
+    decisionEntities: entry.decisionEntities?.map((decision) => ({
+      ...decision,
+    })),
+    validatorVersion: entry.validatorVersion,
+  };
+}
+
+function projectGeographicValidationPayload(
+  result: FinalExperienceResolutionResponse,
+): TraceGeographicValidationPayload {
+  const validation = result.geographicValidation;
+  return {
+    results: validation.results.map(projectGeographicValidationResult),
+    acceptedCount: validation.acceptedCount,
+    rejectedCount: validation.rejectedCount,
+    resolved: validation.resolved?.map(projectResolvedCandidate),
+  };
+}
+
+function projectMaterializationPayload(
+  result: ExperienceResolutionResponse,
+): TraceMaterializationPayload | undefined {
+  const materialization = result.materialization;
+  return materialization
+    ? { resolved: materialization.resolved.map(projectResolvedCandidate) }
+    : undefined;
+}
 
 interface TraceFacetCandidate {
   id: string;
@@ -164,18 +324,7 @@ function traceObservation(observation: SourceObservation) {
       ? {
           latitude: observation.geo.latitude,
           longitude: observation.geo.longitude,
-          geometry: observation.geo.geometry
-            ? {
-                present: true,
-                type:
-                  typeof observation.geo.geometry === 'object' &&
-                  observation.geo.geometry !== null &&
-                  'type' in observation.geo.geometry &&
-                  typeof observation.geo.geometry.type === 'string'
-                    ? observation.geo.geometry.type
-                    : undefined,
-              }
-            : undefined,
+          geometry: traceGeometrySummary(observation.geo.geometry),
         }
       : undefined,
   };
@@ -1236,18 +1385,7 @@ export function buildEntityResolutionStep(
                 externalId: entity.externalId,
                 latitude: entity.latitude,
                 longitude: entity.longitude,
-                geometry: entity.geometry
-                  ? {
-                      present: true,
-                      type:
-                        typeof entity.geometry === 'object' &&
-                        entity.geometry !== null &&
-                        'type' in entity.geometry &&
-                        typeof entity.geometry.type === 'string'
-                          ? entity.geometry.type
-                          : undefined,
-                    }
-                  : undefined,
+                geometry: traceGeometrySummary(entity.geometry),
               }
             : undefined,
         reason: entity?.reason,
@@ -1341,7 +1479,7 @@ export function buildEntityResolutionStep(
     })),
     providerStatus: accepted.length ? 'success' : 'failed',
     degradedReason: accepted.length ? undefined : 'no_proposals_resolved',
-    resolution,
+    resolution: projectResolutionPayload(result),
     entityResolutionAudit,
   };
 }
@@ -1358,10 +1496,11 @@ export function buildGeographicValidationStep(
   const maxRadiusMeters = radiusValues.length
     ? Math.max(...radiusValues)
     : null;
-  const geographicValidationAudit = validation.results.map((entry) => {
-    const resolvedCandidate = validation.resolved?.find(
-      (candidate) => candidate.candidate.name === entry.proposalName,
-    );
+  const geographicValidationAudit = validation.results.map((entry, index) => {
+    // validateBatch() creates results with resolution.resolved.map(), so the
+    // result/resolved positional relationship is the canonical correlation
+    // contract. Names remain display-only and are never used as identity.
+    const resolvedCandidate = validation.resolved?.[index];
     const decisionEntities = new Map(
       (entry.decisionEntities ?? []).map((decision) => [
         decision.hintKey ?? decision.geoEntityId,
@@ -1371,7 +1510,7 @@ export function buildGeographicValidationStep(
     return {
       candidateTraceKey: resolvedCandidate
         ? traceCandidateKey(resolvedCandidate.candidate)
-        : entry.proposalName,
+        : `unmatched-validation-result-${index}`,
       candidateName: entry.proposalName,
       accepted: entry.accepted,
       status: entry.status,
@@ -1492,7 +1631,7 @@ export function buildGeographicValidationStep(
     })),
     providerStatus: accepted.length ? 'success' : 'failed',
     degradedReason: accepted.length ? undefined : 'no_geo_verified_proposals',
-    geographicValidation: validation,
+    geographicValidation: projectGeographicValidationPayload(result),
     geographicValidationAudit,
   };
 }
@@ -1591,7 +1730,7 @@ export function buildCatalogMaterializationStep(
     degradedReason: materialized.length
       ? undefined
       : 'no_experiences_materialized',
-    materialization,
+    materialization: projectMaterializationPayload(result),
     materializationAudit,
     classificationAudit: result.classification,
   };
