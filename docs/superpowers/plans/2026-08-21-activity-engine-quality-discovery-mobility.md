@@ -1249,11 +1249,10 @@ now coerces a unit-wrapped duration string (e.g. `"2.5 hours"`, observed from
 `llama3.2`) into the plain Float hours value `TourActivity.duration` expects,
 instead of crashing persistence — Groq's strict `json_schema` mode never hit
 this, but nothing guarantees every provider honors the schema equally.
-Native Ollama on Apple Silicon also needed `OLLAMA_BASE_URL=http://host.docker.internal:11434`
-(not `http://ollama:11434`, which stays correct for the Docker Compose
-`ollama` service) to reach Metal-accelerated inference from inside the
-backend container — Docker's CPU-only `ollama` service timed out on the same
-prompt that native Ollama completed in seconds.
+Native Ollama on Apple Silicon uses `OLLAMA_BASE_URL=http://localhost:11434`
+for host-side processes. A backend container uses
+`http://host.docker.internal:11434` to reach that host-managed service; there
+is no Docker Compose `ollama` service.
 
 ---
 

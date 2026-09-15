@@ -124,6 +124,9 @@ services:
       - EMBEDDING_PROVIDER=${EMBEDDING_PROVIDER:-ollama}
       - EMBEDDING_DIMENSIONS=${EMBEDDING_DIMENSIONS:-256}
       - AWS_REGION=${AWS_REGION:-us-east-1}
+      # Ollama is host-managed; Docker Compose does not start an Ollama service.
+      # This container -> host default is intentionally different from the
+      # localhost URL used by Jest/scripts executed directly on the host.
       - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
       - OLLAMA_API_KEY=${OLLAMA_API_KEY}
       - OLLAMA_NUM_CTX=${OLLAMA_NUM_CTX}
@@ -274,66 +277,6 @@ services:
     restart: unless-stopped
     command: npx nodemon cors-proxy.js
 
-  ollama:
-    image: ollama/ollama:latest
-    container_name: zigzag-ollama
-    ports:
-      - '11434:11434'
-    profiles:
-      - local-ai
-    environment:
-      # Set context size for Ollama models (default: 4096, can be increased up to model's training context)
-      # For models trained with 131k context, set OLLAMA_NUM_CTX=131072 to utilize full capacity
-      - OLLAMA_NUM_CTX=${OLLAMA_NUM_CTX:-}
-      # Control GPU usage: set to 0 to force CPU-only mode (uses less VRAM, more RAM)
-      # Set to -1 to use all available GPUs, or a number to use specific GPU count
-      - OLLAMA_NUM_GPU=${OLLAMA_NUM_GPU:-}
-      # Force CPU mode if GPU memory is insufficient (set to "1" to enable)
-      - OLLAMA_CPU_ONLY=${OLLAMA_CPU_ONLY:-}
-      # Limit number of models loaded simultaneously (default: 1, helps reduce memory usage)
-      - OLLAMA_MAX_LOADED_MODELS=${OLLAMA_MAX_LOADED_MODELS:-1}
-      # Limit parallel requests (default: 1, helps prevent memory spikes)
-      - OLLAMA_NUM_PARALLEL=${OLLAMA_NUM_PARALLEL:-1}
-      # Models to download on startup
-      - AI_PROVIDER=${AI_PROVIDER:-groq}
-      - OLLAMA_MODEL=${OLLAMA_MODEL:-llama3.2}
-      - EMBEDDING_PROVIDER=${EMBEDDING_PROVIDER:-ollama}
-      - EMBEDDINGS_MODEL=${EMBEDDINGS_MODEL:-nomic-embed-text}
-    volumes:
-      - ollama_data:/root/.ollama
-      - ./scripts/ollama-entrypoint.sh:/usr/local/bin/ollama-entrypoint.sh:ro
-    networks:
-      - app-network
-    restart: unless-stopped
-    entrypoint: ['/bin/sh', '/usr/local/bin/ollama-entrypoint.sh']
-    # Memory and resource limits
-    # IMPORTANT: These limits must be less than Docker Desktop's total memory allocation
-    # To increase Docker Desktop memory: Settings > Resources > Memory
-    deploy:
-      resources:
-        limits:
-          # Adjust based on your model size and available memory
-          # llama3.2 needs ~2-4GB, llama3.2:1b needs ~1-2GB
-          # For larger models (7b+), increase to 8GB-16GB or more
-          memory: ${OLLAMA_MEMORY_LIMIT:-4G}
-        reservations:
-          memory: ${OLLAMA_MEMORY_RESERVATION:-2G}
-    # Note: If you get "model requires more system memory" errors:
-    # 1. Increase Docker Desktop memory: Settings > Resources > Memory (16GB+ recommended)
-    # 2. Use a smaller model: OLLAMA_MODEL=llama3.2:1b (instead of llama3.2)
-    # 3. Force CPU mode: OLLAMA_CPU_ONLY=1 (uses more RAM but less VRAM)
-    # 4. Reduce context size: OLLAMA_NUM_CTX=2048 (instead of 4096 or higher)
-    # 5. Increase OLLAMA_MEMORY_LIMIT in your .env file
-    healthcheck:
-      # Test the HTTP API endpoint to ensure it's actually ready
-      # Use ollama list instead of curl (curl not available in container)
-      # Note: Healthcheck runs after entrypoint script downloads models
-      test: ['CMD-SHELL', 'ollama list > /dev/null 2>&1 || exit 1']
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 120s
-
   # Opt-in local Overpass instance for reproducible OSM composite tests.
   # It imports only Argentina (~407 MB compressed source), never the planet, and
   # keeps the indexed database in a named volume. The initial import exits
@@ -441,7 +384,6 @@ networks:
 
 volumes:
   postgres_data:
-  ollama_data:
   overpass_argentina_data:
   nominatim_argentina_data:
   nominatim_argentina_flatnode:

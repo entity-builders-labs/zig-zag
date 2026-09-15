@@ -161,7 +161,7 @@ Removing `nominatim_argentina_data` deletes the imported database and
 requires a full re-import; removing `nominatim_argentina_flatnode` alone just
 loses the (optional, import-only) flatnode acceleration file. Do not use
 `docker compose down --volumes` for this — it removes unrelated Postgres/
-Ollama/Overpass volumes too.
+Overpass volumes too. Ollama is host-managed and has no Compose volume.
 
 ## Resource notes
 
@@ -185,9 +185,8 @@ Ollama/Overpass volumes too.
 - `shm_size` defaults to `1g` (`NOMINATIM_SHM_SIZE` to override) — the
   image's own docs recommend at least 1GB for country-level imports.
 - Memory limit/reservation default to `4G`/`2G` (`NOMINATIM_MEMORY_LIMIT`/
-  `NOMINATIM_MEMORY_RESERVATION`), matching the existing `ollama` service's
-  override pattern in `docker-compose.yml`. Increase if the first import is
-  slow/OOM-killed on a smaller machine.
+  `NOMINATIM_MEMORY_RESERVATION`). Increase if the first import is slow/OOM-killed
+  on a smaller machine.
 - `IMPORT_WIKIPEDIA=false` — skips the importance-ranking dump. This speeds
   up first import and is safe for B5's resolver, which needs a correct
   `osm_type`/`osm_id`/geometry match (narrowed by `countrycodes`), not

@@ -43,7 +43,7 @@ sigue siendo la fuente de verdad sobre qué partes ya están implementadas.
 **Infraestructura (`docker-compose.yml`)** — los componentes "de verdad" detrás de los servicios de arriba:
 
 - **PostgreSQL** (`postgres`): la única fuente de verdad relacional — `activity`, `tour`, `tour_activity`, `crawler_search`, etc. Accedida siempre vía Prisma (`PrismaService`), nunca directo. También guarda el embedding (vector numérico) de cada actividad vía la extensión `pgvector`, para poder buscar "actividades parecidas a X" por significado, no por texto exacto. La escribe/lee `VectorStoreService`.
-- **Ollama** (`ollama`, perfil `local-ai`): sirve modelos LLM localmente. Se usa para generar embeddings (`nomic-embed-text`) por defecto en desarrollo, y opcionalmente para chat si `AI_PROVIDER=ollama`.
+- **Ollama** (servicio administrado por el host): sirve modelos LLM localmente. Se usa para generar embeddings (`nomic-embed-text`) por defecto en desarrollo, y opcionalmente para chat si `AI_PROVIDER=ollama`. Docker Compose no lo administra.
 - **Groq** (API externa): proveedor de chat/LLM usado en AWS (`llama-3.1-8b-instant`). Ollama queda disponible para desarrollo local.
 - **Amazon Bedrock** (API administrada de AWS): genera embeddings con Titan Text Embeddings V2 en producción. No requiere una cuenta ni tokens de OpenAI.
 - **Places API** (Google Places como proveedor backend por defecto; Geoapify como alternativa explícita): fuente de datos reales de lugares/restaurantes/atracciones que alimenta la tabla `activity`. `USE_MOCK_MAPS=true` activa el wrapper de cache; `read` llama al proveedor real ante un miss y `strict` nunca lo hace.
@@ -57,7 +57,7 @@ flowchart LR
     CORS["cors-proxy<br/>(Express)"]
     BE["Backend<br/>(NestJS)"]
     PG[("PostgreSQL<br/>(+ pgvector)")]
-    OLLAMA["Ollama<br/>(LLM + embeddings local)"]
+    OLLAMA["Ollama host-managed<br/>(LLM + embeddings local)"]
     GROQ["Groq API<br/>(chat/LLM)"]
     BEDROCK["Amazon Bedrock<br/>(embeddings en AWS)"]
     GMAPS["Google Places API"]
@@ -272,7 +272,7 @@ sequenceDiagram
    - **PostgreSQL**: Local database (Development), with the `pgvector` extension for AI embeddings
    - **Backend**: NestJS API
    - **Frontend**: Expo/React Native server
-   - **Ollama**: Local LLM service
+   - **Ollama**: Local host-managed LLM service (Docker Compose does not start it)
 
 4. **🚀 Quick Start with Simulator** (Recommended)
 

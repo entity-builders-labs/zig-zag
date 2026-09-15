@@ -87,8 +87,8 @@ docker system df -v
 
 Removing that one named volume deletes the imported local OSM database and
 requires a full re-import next time. Do not use `docker compose down --volumes`
-for this cleanup because it can also remove unrelated PostgreSQL or Ollama
-development data.
+for this cleanup because it can also remove unrelated PostgreSQL development
+data. Ollama is host-managed and has no Compose volume.
 
 ## Production boundary
 
