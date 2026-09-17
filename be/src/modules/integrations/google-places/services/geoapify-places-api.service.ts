@@ -60,6 +60,18 @@ interface GeoapifyFeature {
   };
 }
 
+// Shape of one `results[]` entry from /v1/geocode/autocomplete — a
+// different response envelope than the /v2/places `features[]` shape
+// above (this is the Geocoding API, not the Places API), live-verified
+// against the real endpoint (2026-09-17).
+interface GeoapifyAutocompleteResult {
+  place_id: string;
+  name?: string;
+  formatted?: string;
+  lat: number;
+  lon: number;
+}
+
 @Injectable()
 export class GeoapifyPlacesApiService implements IPlacesApiService {
   readonly provider = 'geoapify' as const;
@@ -67,6 +79,8 @@ export class GeoapifyPlacesApiService implements IPlacesApiService {
   private readonly placesUrl = 'https://api.geoapify.com/v2/places';
   private readonly placeDetailsUrl =
     'https://api.geoapify.com/v2/place-details';
+  private readonly autocompleteUrl =
+    'https://api.geoapify.com/v1/geocode/autocomplete';
   private readonly requestTimeoutMs = 5_000;
 
   constructor(private readonly configService: ConfigService) {}
@@ -212,13 +226,88 @@ export class GeoapifyPlacesApiService implements IPlacesApiService {
     );
   }
 
+  private mapAutocompleteResultToPlaceData(
+    result: GeoapifyAutocompleteResult,
+    includedType: string | undefined,
+  ): PlaceData {
+    return {
+      id: result.place_id,
+      name: result.name,
+      displayName: result.name ? { text: result.name } : undefined,
+      formattedAddress: result.formatted,
+      location: { latitude: result.lat, longitude: result.lon },
+      types: includedType ? [includedType] : [],
+      rating: undefined,
+      userRatingCount: undefined,
+      priceLevel: undefined,
+      openingHoursWeekdayText: undefined,
+    };
+  }
+
+  /**
+   * Live-confirmed against the real Geoapify Autocomplete API (2026-09-17,
+   * see docs/superpowers/characterization/2026-09-15-composite-experience-adversarial-review.md
+   * Root Cause #3): Geoapify DOES support finding a specific named
+   * venue/business (`type=amenity` on /v1/geocode/autocomplete) — the
+   * previous "no descriptive Text Search capability" stub was an
+   * incomplete implementation, not a real product limitation.
+   *
+   * A hard geographic `filter` (not just a `bias`) is mandatory whenever a
+   * location is known. Live-confirmed: searching "San Ignacio Church" with
+   * only `bias=proximity` (no `filter`) ranked churches in Puerto Rico and
+   * New Mexico above the real Buenos Aires one — proximity bias only
+   * reorders global results, it does not restrict them. Adding
+   * `filter=circle:...` around the same point correctly returned the real
+   * "Parroquia San Ignacio de Loyola" first. Fail-closed: without a
+   * `locationBias` to build that hard filter from, this never searches
+   * globally — same principle already applied to the local OSM matcher.
+   */
   async searchText(
     params: PlacesSearchTextParams,
   ): Promise<PlacesApiResult<PlaceData[]>> {
-    this.logger.warn(
-      `Geoapify Places has no descriptive Text Search capability; skipped query: "${params.textQuery}"`,
-    );
-    return this.result([], params.maxResultCount || 5);
+    if (!params.locationBias) {
+      this.logger.warn(
+        `Geoapify Places text search requires a locationBias to search safely; skipped query: "${params.textQuery}"`,
+      );
+      return this.result([], params.maxResultCount || 5);
+    }
+
+    const { center, radius } = params.locationBias;
+    const maxResultCount = params.maxResultCount || 5;
+    try {
+      const apiKey = this.getApiKey();
+      const response = await axios.get(this.autocompleteUrl, {
+        params: {
+          text: params.textQuery,
+          type: 'amenity',
+          filter: `circle:${center.longitude},${center.latitude},${radius}`,
+          bias: `proximity:${center.longitude},${center.latitude}`,
+          limit: maxResultCount,
+          format: 'json',
+          apiKey,
+        },
+        timeout: this.requestTimeoutMs,
+      });
+
+      const results: GeoapifyAutocompleteResult[] =
+        response.data?.results || [];
+      return this.result(
+        results.map((r) =>
+          this.mapAutocompleteResultToPlaceData(r, params.includedType),
+        ),
+        maxResultCount,
+      );
+    } catch (error) {
+      this.logger.error(
+        `Error in Geoapify text search (query="${params.textQuery}"): ${error.message}`,
+        error.response?.data,
+      );
+      throw this.requestError(
+        `Geoapify text search failed: ${error.message}`,
+        maxResultCount,
+        error,
+      );
+    }
   }
 
   async getPlaceDetails(

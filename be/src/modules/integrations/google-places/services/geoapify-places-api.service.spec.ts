@@ -112,26 +112,140 @@ describe('GeoapifyPlacesApiService', () => {
   });
 
   describe('searchText', () => {
-    it('does not silently approximate descriptive Text Search as a category call', async () => {
-      const result = await service.searchText({
-        textQuery: 'hiking trail hiking trekking trail nature',
+    // Round 2 correction: this method used to be a documented no-op stub
+    // ("Geoapify has no descriptive Text Search capability"). Live-confirmed
+    // against the real Geoapify Autocomplete API (2026-09-17) that it DOES
+    // support named-venue search via `type=amenity` — the stub premise was
+    // wrong, not a real product limitation. See
+    // docs/superpowers/characterization/2026-09-15-composite-experience-adversarial-review.md
+    // Root Cause #3.
+    it('builds the request against the Autocomplete endpoint with text/type=amenity/a hard circle filter/proximity bias, when locationBias is provided', async () => {
+      mockedAxios.get.mockResolvedValueOnce({ data: { results: [] } });
+
+      await service.searchText({
+        textQuery: 'MALBA Museum',
+        maxResultCount: 5,
         locationBias: {
           center: { latitude: -34.6037, longitude: -58.3816 },
-          radius: 5000,
+          radius: 50000,
         },
       });
 
-      expect(result.data).toEqual([]);
-      expect(mockedAxios.get).not.toHaveBeenCalled();
+      expect(mockedAxios.get).toHaveBeenCalledWith(
+        'https://api.geoapify.com/v1/geocode/autocomplete',
+        {
+          params: {
+            text: 'MALBA Museum',
+            type: 'amenity',
+            filter: 'circle:-58.3816,-34.6037,50000',
+            bias: 'proximity:-58.3816,-34.6037',
+            limit: 5,
+            format: 'json',
+            apiKey: 'test-api-key',
+          },
+          timeout: 5000,
+        },
+      );
     });
 
-    it('returns an empty array when no keyword approximation matches', async () => {
+    it('maps a real Autocomplete result shape to PlaceData (live-captured MALBA fixture)', async () => {
+      mockedAxios.get.mockResolvedValueOnce({
+        data: {
+          results: [
+            {
+              name: 'Museo de Arte Latinoamericano de Buenos Aires (MALBA)',
+              lat: -34.5768817,
+              lon: -58.4033919,
+              formatted:
+                'Museo de Arte Latinoamericano de Buenos Aires (MALBA), Avenida Presidente Figueroa Alcorta 3415, Palermo, C1425 CLA Buenos Aires, Argentina',
+              category: 'entertainment.museum',
+              place_id: 'geoapify-malba-place-id',
+            },
+          ],
+        },
+      });
+
       const results = await service.searchText({
-        textQuery: 'something completely unrelated',
+        textQuery: 'MALBA Museum',
+        locationBias: {
+          center: { latitude: -34.6037, longitude: -58.3816 },
+          radius: 50000,
+        },
+      });
+
+      expect(results.data).toEqual([
+        {
+          id: 'geoapify-malba-place-id',
+          name: 'Museo de Arte Latinoamericano de Buenos Aires (MALBA)',
+          displayName: {
+            text: 'Museo de Arte Latinoamericano de Buenos Aires (MALBA)',
+          },
+          formattedAddress:
+            'Museo de Arte Latinoamericano de Buenos Aires (MALBA), Avenida Presidente Figueroa Alcorta 3415, Palermo, C1425 CLA Buenos Aires, Argentina',
+          location: { latitude: -34.5768817, longitude: -58.4033919 },
+          types: [],
+          rating: undefined,
+          userRatingCount: undefined,
+          priceLevel: undefined,
+          openingHoursWeekdayText: undefined,
+        },
+      ]);
+    });
+
+    it("echoes back the requested includedType, matching searchNearby's convention", async () => {
+      mockedAxios.get.mockResolvedValueOnce({
+        data: {
+          results: [
+            {
+              name: 'Some Museum',
+              lat: -34.6,
+              lon: -58.38,
+              place_id: 'geoapify-place-2',
+            },
+          ],
+        },
+      });
+
+      const results = await service.searchText({
+        textQuery: 'Some Museum',
+        includedType: 'museum',
+        locationBias: {
+          center: { latitude: -34.6037, longitude: -58.3816 },
+          radius: 50000,
+        },
+      });
+
+      expect(results.data[0].types).toEqual(['museum']);
+    });
+
+    it('fails closed — never searches globally without a locationBias (live-confirmed: an unscoped query can rank a same-named place in a different country first)', async () => {
+      const results = await service.searchText({
+        textQuery: 'San Ignacio Church',
       });
 
       expect(results.data).toEqual([]);
       expect(mockedAxios.get).not.toHaveBeenCalled();
+    });
+
+    it('reports provider provenance on request failure', async () => {
+      mockedAxios.get.mockRejectedValueOnce(new Error('network error'));
+
+      await expect(
+        service.searchText({
+          textQuery: 'MALBA Museum',
+          locationBias: {
+            center: { latitude: -34.6037, longitude: -58.3816 },
+            radius: 50000,
+          },
+        }),
+      ).rejects.toMatchObject<Partial<PlacesApiRequestError>>({
+        provenance: {
+          provider: 'geoapify',
+          cacheStatus: 'miss-live',
+          requestedCount: 5,
+          receivedCount: 0,
+        },
+      });
     });
   });
 
