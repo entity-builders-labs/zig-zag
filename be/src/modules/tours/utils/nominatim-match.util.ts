@@ -199,7 +199,10 @@ export function isAreaScaleEligible<
  * legitimately using the SAME containment logic would be indistinguishable
  * from a mistagged 1-3 letter node without this token check.
  */
-function hasSpecificNameOverlap(needle: string, haystack: string): boolean {
+export function hasSpecificNameOverlap(
+  needle: string,
+  haystack: string,
+): boolean {
   if (haystack === needle) return true;
 
   const needleTokens = needle.split(' ').filter((token) => token.length >= 4);

@@ -1,5 +1,6 @@
 import {
   bestNominatimMatch,
+  hasSpecificNameOverlap,
   isAreaScaleEligible,
   matchOsmCandidateByName,
   normalizeGeoName,
@@ -404,5 +405,18 @@ describe('matchOsmCandidateByName', () => {
       }),
     ];
     expect(matchOsmCandidateByName('MALBA', malbaPool)).toBe(malbaPool[0]);
+  });
+});
+
+describe('hasSpecificNameOverlap (exported for cross-source confirmation reuse)', () => {
+  it('is importable and behaves identically to the existing matchOsmCandidateByName guards', () => {
+    expect(hasSpecificNameOverlap('riachuelo', 'riachuelo')).toBe(true);
+    expect(hasSpecificNameOverlap('malba museum', 'b')).toBe(false);
+    expect(
+      hasSpecificNameOverlap(
+        'malba museum',
+        'museo de arte latinoamericano de buenos aires malba',
+      ),
+    ).toBe(true);
   });
 });
