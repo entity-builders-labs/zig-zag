@@ -13,18 +13,56 @@ export interface ExperienceExtractionResult {
   validationErrors: string[];
 }
 
+/**
+ * Some discovery extractor providers (confirmed live: Groq/qwen3.8-27b in
+ * `response_format: {type:'json_object'}` mode, which guarantees valid JSON
+ * but never a specific top-level shape) sometimes return a single candidate
+ * object directly instead of the documented `{"candidates":[...]}` envelope
+ * the prompt asks for. Before this fix, that shape fell through to `[]`
+ * with zero validationErrors — a real, well-evidenced multi-component
+ * candidate was silently discarded with no observable signal anywhere.
+ *
+ * This is a structural, provider-agnostic repair (bare object with the two
+ * fields every real candidate must have: `name` and `componentHints`),
+ * never a per-provider or per-candidate-name special case. The repair is
+ * always reported via `validationErrors` — never silent — so it stays
+ * visible in `WebAcquisitionResult.validationErrors` and the generation
+ * trace without any new plumbing.
+ */
+function normalizeExtractorEnvelope(raw: unknown): {
+  entries: unknown[];
+  repairNotes: string[];
+} {
+  if (Array.isArray(raw)) {
+    return { entries: raw, repairNotes: [] };
+  }
+  if (raw && typeof raw === 'object') {
+    const wrapped = (raw as Record<string, unknown>).candidates;
+    if (Array.isArray(wrapped)) {
+      return { entries: wrapped, repairNotes: [] };
+    }
+    const name = (raw as Record<string, unknown>).name;
+    const componentHints = (raw as Record<string, unknown>).componentHints;
+    if (typeof name === 'string' && Array.isArray(componentHints)) {
+      return {
+        entries: [raw],
+        repairNotes: [
+          'extractor_envelope_repaired: response was a single bare candidate object instead of {"candidates":[...]}; wrapped automatically',
+        ],
+      };
+    }
+  }
+  return { entries: [], repairNotes: [] };
+}
+
 export function extractExperienceCandidates(
   raw: unknown,
   evidenceKeys: Set<string>,
   maxCandidates: number,
 ): ExperienceExtractionResult {
-  const entries = Array.isArray(raw)
-    ? raw
-    : raw && typeof raw === 'object' && Array.isArray((raw as any).candidates)
-      ? (raw as any).candidates
-      : [];
+  const { entries, repairNotes } = normalizeExtractorEnvelope(raw);
   const candidates: ExperienceCandidate[] = [];
-  const validationErrors: string[] = [];
+  const validationErrors: string[] = [...repairNotes];
 
   for (const [index, value] of entries.slice(0, maxCandidates).entries()) {
     const candidate = value as any;

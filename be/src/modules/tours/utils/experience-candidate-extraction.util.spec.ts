@@ -161,4 +161,66 @@ describe('extractExperienceCandidates', () => {
       /unknown evidence|invalid evidence/,
     );
   });
+
+  it('recovers a candidate when the provider returns a bare object instead of {candidates:[...]} (real Groq JSON-object-mode drift, never silent)', () => {
+    // Reproduces the exact raw shape observed live from Groq
+    // (qwen/qwen3.8-27b, json_object mode, no enforced schema): a single
+    // candidate object with no top-level "candidates" wrapper.
+    const bareCandidateObject = {
+      name: 'San Telmo Colonial Walking Tour',
+      description: 'A guided walking tour through the oldest neighborhood.',
+      themes: ['history', 'culture'],
+      traits: ['guided walking tour'],
+      intents: ['walk'],
+      suggestedDurationMinutes: 120,
+      componentHints: [
+        {
+          key: 'san-telmo-market',
+          name: 'San Telmo Market',
+          role: 'venue',
+          expectedKind: 'PLACE',
+          required: true,
+          evidenceKeys: ['ev-10'],
+        },
+        {
+          key: 'lezama-park',
+          name: 'Lezama Park',
+          role: 'venue',
+          expectedKind: 'PLACE',
+          required: true,
+          evidenceKeys: ['ev-10'],
+        },
+      ],
+      evidenceKeys: ['ev-10'],
+      shortReason:
+        "Evidence explicitly describes a specific walking tour named 'San Telmo Colonial Walking Tour'.",
+      orderedByEvidence: false,
+    };
+
+    const result = extractExperienceCandidates(
+      bareCandidateObject,
+      new Set(['ev-10']),
+      8,
+    );
+
+    expect(result.candidates).toHaveLength(1);
+    expect(result.candidates[0].name).toBe('San Telmo Colonial Walking Tour');
+    expect(result.candidates[0].componentHints).toHaveLength(2);
+    // Never silent: the repair must be observable downstream (it already
+    // flows into WebAcquisitionResult.validationErrors / the generation
+    // trace unchanged, no new plumbing needed).
+    expect(result.validationErrors).toEqual([
+      expect.stringContaining('extractor_envelope_repaired'),
+    ]);
+  });
+
+  it('does not repair a raw value that is neither an array, a {candidates:[...]} envelope, nor a single-candidate-shaped object', () => {
+    const result = extractExperienceCandidates(
+      { unrelated: 'shape', foo: 'bar' },
+      new Set(['ev-1']),
+      8,
+    );
+    expect(result.candidates).toHaveLength(0);
+    expect(result.validationErrors).toEqual([]);
+  });
 });
