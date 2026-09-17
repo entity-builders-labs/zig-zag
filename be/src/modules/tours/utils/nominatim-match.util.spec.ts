@@ -406,6 +406,20 @@ describe('matchOsmCandidateByName', () => {
     ];
     expect(matchOsmCandidateByName('MALBA', malbaPool)).toBe(malbaPool[0]);
   });
+
+  it('prefers an exact match later in the pool over an earlier fuzzy match on a shared generic token (real regression: "Venue 007" matched "Venue 000" because the distinguishing digits are below the 4-char token-length floor)', () => {
+    const pool = [
+      osmCandidate({ id: 'osm:node:0', name: 'Venue 000' }),
+      osmCandidate({ id: 'osm:node:7', name: 'Venue 007' }),
+    ];
+    expect(matchOsmCandidateByName('Venue 007', pool)).toBe(pool[1]);
+    // Sanity: the fuzzy path alone (no exact match anywhere in the pool)
+    // still falls back to the first token-overlap match, unchanged.
+    const fuzzyOnlyPool = [osmCandidate({ id: 'osm:node:0', name: 'Venue X' })];
+    expect(matchOsmCandidateByName('Venue 007', fuzzyOnlyPool)).toBe(
+      fuzzyOnlyPool[0],
+    );
+  });
 });
 
 describe('hasSpecificNameOverlap (exported for cross-source confirmation reuse)', () => {

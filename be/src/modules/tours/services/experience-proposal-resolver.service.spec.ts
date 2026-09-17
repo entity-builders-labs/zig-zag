@@ -668,12 +668,29 @@ describe('ExperienceProposalResolverService', () => {
         },
       ]),
     };
+    // Task A3 (cross-source confirmation): this is a translated, non-exact
+    // name match by design (the whole point of this test) — it now needs
+    // independent corroboration the same as any other fuzzy match.
+    // Wikidata genuinely has this real park, confirming the match still
+    // resolves correctly under the stricter gate, not merely "used to".
+    const wikidata = {
+      findNearbyPlaces: jest.fn().mockResolvedValue([
+        {
+          qid: 'Q2472363',
+          label: 'Ischigualasto Provincial Park',
+          latitude: -30.0694429,
+          longitude: -67.9849624,
+        },
+      ]),
+    };
     const service = new ExperienceProposalResolverService(
       osmPlaces as any,
       catalog as any,
       geographicValidator as any,
       undefined,
       nominatim as any,
+      undefined,
+      wikidata as any,
     );
 
     const result = await service.resolve({
@@ -1516,11 +1533,26 @@ describe('ExperienceProposalResolverService', () => {
       // Two DIFFERENT real candidates that happen to share a display name
       // (structured + web candidates are concatenated with no unique-name
       // guarantee) -- different components, different geographic validity.
-      // Candidate A ("Place A") passes; Candidate B ("Place B") fails. A
-      // name-keyed correlation would let whichever result landed last in
-      // the Map win for BOTH candidates.
-      const candidateA = candidate('Shared Name Walk', 'Place A');
-      const candidateB = candidate('Shared Name Walk', 'Place B');
+      // Candidate A ("Alpha Landmark") passes; Candidate B ("Beta Monument")
+      // fails. A name-keyed correlation would let whichever result landed
+      // last in the Map win for BOTH candidates.
+      //
+      // Deliberately named with NO shared >=4-char token: "Place A"/"Place
+      // B" (used here before Task A3) both reduce, once the trailing
+      // single-letter suffix is filtered out by hasSpecificNameOverlap's
+      // >=4-char token rule, to the single significant token "place" --
+      // matchOsmCandidateByName's `.find()` then matched hint "Place B"
+      // against pool entry "Place A" (the first pool item sharing that
+      // token), silently mismatching it. Task A3's cross-source
+      // confirmation gate caught that latent mismatch (canonicalName
+      // "Place A" != hint "Place B", no Wikidata mock to confirm it), which
+      // is correct behavior -- but it broke this test's own premise, since
+      // candidate B's entity never made it past confirmation to reach the
+      // mocked geographic validator at all. Renaming here restores the
+      // test's real intent (per-object validation-result correlation)
+      // without weakening the new gate.
+      const candidateA = candidate('Shared Name Walk', 'Alpha Landmark');
+      const candidateB = candidate('Shared Name Walk', 'Beta Monument');
       const osmPlaces = {
         lookupStreetsWithin: jest
           .fn()
@@ -1530,7 +1562,7 @@ describe('ExperienceProposalResolverService', () => {
           value: [
             {
               id: 'osm:node:1',
-              name: 'Place A',
+              name: 'Alpha Landmark',
               osmType: 'node',
               osmId: 1,
               geometry: { type: 'Point', coordinates: [-58.4, -34.6] },
@@ -1538,7 +1570,7 @@ describe('ExperienceProposalResolverService', () => {
             },
             {
               id: 'osm:node:2',
-              name: 'Place B',
+              name: 'Beta Monument',
               osmType: 'node',
               osmId: 2,
               geometry: { type: 'Point', coordinates: [-58.41, -34.61] },
@@ -1566,7 +1598,7 @@ describe('ExperienceProposalResolverService', () => {
       const geographicValidator = {
         validate: jest.fn().mockImplementation((resolvedProposal: any) => {
           const hintName = resolvedProposal.resolvedEntities?.[0]?.hintName;
-          const accepted = hintName === 'Place A';
+          const accepted = hintName === 'Alpha Landmark';
           return {
             proposalName: resolvedProposal.candidate.name,
             kind: 'EXPERIENCE',
@@ -2012,6 +2044,261 @@ describe('ExperienceProposalResolverService', () => {
       expect(catalog.persistVerifiedExperience).toHaveBeenCalledWith(
         expect.objectContaining({ qualityScore: undefined }),
       );
+    });
+  });
+
+  describe('cross-source confirmation (Task A3)', () => {
+    const osmPlacesFor = (pois: any[]) => ({
+      lookupStreetsWithin: jest
+        .fn()
+        .mockResolvedValue({ status: 'success', value: [] }),
+      lookupPoisWithin: jest
+        .fn()
+        .mockResolvedValue({ status: 'success', value: pois }),
+    });
+
+    it('auto-confirms an exact local name match without calling Wikidata', async () => {
+      const wikidata = { findNearbyPlaces: jest.fn() };
+      const catalog = {
+        resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-1' }),
+        persistVerifiedExperience: jest
+          .fn()
+          .mockResolvedValue({ id: 'exp-1', dedupeDecision: 'NEW' }),
+      };
+      const geographicValidator = {
+        validate: jest.fn().mockReturnValue(acceptedValidation()),
+      };
+      const service = new ExperienceProposalResolverService(
+        osmPlacesFor([
+          {
+            id: 'osm:node:1',
+            name: 'Museum',
+            osmType: 'node',
+            osmId: 1,
+            geometry: { type: 'Point', coordinates: [-58.45, -34.55] },
+            tags: {},
+          },
+        ]) as any,
+        catalog as any,
+        geographicValidator as any,
+        undefined,
+        undefined,
+        undefined,
+        wikidata as any,
+      );
+
+      const result = await service.resolve({
+        geographicScope: { kind: 'AREA_BOUNDARY', boundary },
+        candidates: [candidate()],
+      });
+
+      expect(result.acceptedCount).toBe(1);
+      expect(wikidata.findNearbyPlaces).not.toHaveBeenCalled();
+    });
+
+    it('confirms a fuzzy (non-exact) local match when Wikidata independently has something nearby with a matching name', async () => {
+      const wikidata = {
+        findNearbyPlaces: jest.fn().mockResolvedValue([
+          {
+            qid: 'Q1808336',
+            label: 'Museum of Latin American Art of Buenos Aires',
+            latitude: -34.5771,
+            longitude: -58.4036,
+          },
+        ]),
+      };
+      const catalog = {
+        resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-1' }),
+        persistVerifiedExperience: jest
+          .fn()
+          .mockResolvedValue({ id: 'exp-1', dedupeDecision: 'NEW' }),
+      };
+      const geographicValidator = {
+        validate: jest.fn().mockReturnValue(acceptedValidation('MALBA Museum')),
+      };
+      const service = new ExperienceProposalResolverService(
+        osmPlacesFor([
+          {
+            id: 'osm:node:1',
+            name: 'Museo de Arte Latinoamericano de Buenos Aires (MALBA)',
+            osmType: 'node',
+            osmId: 1,
+            geometry: { type: 'Point', coordinates: [-58.4034, -34.5769] },
+            tags: {},
+          },
+        ]) as any,
+        catalog as any,
+        geographicValidator as any,
+        undefined,
+        undefined,
+        undefined,
+        wikidata as any,
+      );
+
+      const result = await service.resolve({
+        geographicScope: { kind: 'AREA_BOUNDARY', boundary },
+        candidates: [candidate('MALBA Museum', 'MALBA Museum')],
+      });
+
+      expect(wikidata.findNearbyPlaces).toHaveBeenCalledWith(
+        -34.5769,
+        -58.4034,
+        200,
+      );
+      expect(result.acceptedCount).toBe(1);
+    });
+
+    it('does NOT confirm — and rejects the candidate — when a fuzzy local match has no independent Wikidata corroboration nearby (real regression: "San Ignacio Church" -> "Ignacio Pirovano")', async () => {
+      const wikidata = { findNearbyPlaces: jest.fn().mockResolvedValue([]) };
+      const catalog = {
+        resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-1' }),
+        persistVerifiedExperience: jest.fn(),
+      };
+      const geographicValidator = { validate: jest.fn() };
+      const service = new ExperienceProposalResolverService(
+        osmPlacesFor([
+          {
+            id: 'osm:node:1',
+            name: 'Ignacio Pirovano',
+            osmType: 'node',
+            osmId: 1,
+            geometry: { type: 'Point', coordinates: [-58.3948, -34.5878] },
+            tags: {},
+          },
+        ]) as any,
+        catalog as any,
+        geographicValidator as any,
+        undefined,
+        undefined,
+        undefined,
+        wikidata as any,
+      );
+
+      const result = await service.resolve({
+        geographicScope: { kind: 'AREA_BOUNDARY', boundary },
+        candidates: [candidate('San Ignacio Church', 'San Ignacio Church')],
+      });
+
+      expect(result.acceptedCount).toBe(0);
+      expect(result.resolved[0].resolvedEntities[0]).toMatchObject({
+        status: 'unresolved',
+        reason: 'UNCONFIRMED_MATCH',
+      });
+      expect(catalog.persistVerifiedExperience).not.toHaveBeenCalled();
+    });
+
+    it('does not confirm (fails closed) when Wikidata itself is unavailable — never treats provider failure as confirmation', async () => {
+      const wikidata = {
+        findNearbyPlaces: jest.fn().mockRejectedValue(new Error('down')),
+      };
+      const catalog = {
+        resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-1' }),
+        persistVerifiedExperience: jest.fn(),
+      };
+      const geographicValidator = { validate: jest.fn() };
+      const service = new ExperienceProposalResolverService(
+        osmPlacesFor([
+          {
+            id: 'osm:node:1',
+            name: 'Ignacio Pirovano',
+            osmType: 'node',
+            osmId: 1,
+            geometry: { type: 'Point', coordinates: [-58.3948, -34.5878] },
+            tags: {},
+          },
+        ]) as any,
+        catalog as any,
+        geographicValidator as any,
+        undefined,
+        undefined,
+        undefined,
+        wikidata as any,
+      );
+
+      const result = await service.resolve({
+        geographicScope: { kind: 'AREA_BOUNDARY', boundary },
+        candidates: [candidate('San Ignacio Church', 'San Ignacio Church')],
+      });
+
+      expect(result.acceptedCount).toBe(0);
+      expect(result.resolved[0].resolvedEntities[0]).toMatchObject({
+        status: 'unresolved',
+        reason: 'UNCONFIRMED_MATCH',
+      });
+      expect(catalog.persistVerifiedExperience).not.toHaveBeenCalled();
+    });
+
+    it('still confirms via the global (Nominatim) path the same way, when the local pool has no match at all', async () => {
+      const wikidata = {
+        findNearbyPlaces: jest.fn().mockResolvedValue([
+          {
+            qid: 'Q1',
+            label: 'Some Real Place',
+            latitude: -34.61,
+            longitude: -58.38,
+          },
+        ]),
+      };
+      const nominatim = {
+        search: jest.fn().mockResolvedValue([
+          {
+            displayName: 'Some Real Place, Buenos Aires, Argentina',
+            osmType: 'way',
+            osmId: 42,
+            latitude: -34.6101,
+            longitude: -58.3801,
+            importance: 0.5,
+            addresstype: 'building',
+            address: {},
+          },
+        ]),
+      };
+      const catalog = {
+        resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-1' }),
+        persistVerifiedExperience: jest
+          .fn()
+          .mockResolvedValue({ id: 'exp-1', dedupeDecision: 'NEW' }),
+      };
+      const geographicValidator = {
+        validate: jest
+          .fn()
+          .mockReturnValue(acceptedValidation('Visit Some Place')),
+      };
+      const service = new ExperienceProposalResolverService(
+        osmPlacesFor([]) as any,
+        catalog as any,
+        geographicValidator as any,
+        undefined,
+        nominatim as any,
+        undefined,
+        wikidata as any,
+      );
+
+      const result = await service.resolve({
+        destinationName: 'Buenos Aires',
+        geographicScope: { kind: 'AREA_BOUNDARY', boundary },
+        candidates: [candidate('Visit Some Place', 'Some Place')],
+        evidence: [
+          {
+            key: 'ev-1',
+            source: 'guide',
+            title: 'Buenos Aires highlights',
+            snippet: 'Some Real Place is worth visiting in Buenos Aires.',
+          },
+        ],
+      });
+
+      expect(wikidata.findNearbyPlaces).toHaveBeenCalledWith(
+        -34.6101,
+        -58.3801,
+        200,
+      );
+      expect(result.acceptedCount).toBe(1);
     });
   });
 });

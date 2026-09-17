@@ -21,12 +21,24 @@ import {
 } from '../interfaces/experience-resolution.interface';
 import {
   bestNominatimMatch,
+  hasSpecificNameOverlap,
   isAreaScaleEligible,
   matchOsmCandidateByName,
   normalizeGeoName,
 } from '../utils/nominatim-match.util';
 import { GeoEntityHint } from '../interfaces/experience-discovery.interface';
 import { computeQualityScore } from '../utils/quality-score.util';
+import { IWikidataApiService } from '@integrations/wikidata/interfaces/wikidata.interface';
+
+/**
+ * Real margin above the live-validated MALBA distance (~50-80m between the
+ * OSM-derived point and Wikidata's own point for the same real place),
+ * small enough that two genuinely different nearby venues won't spuriously
+ * confirm each other. Not tuned to any specific fixture. See
+ * docs/superpowers/plans/2026-09-17-cross-source-confirmation-and-tripadvisor-volume.md
+ * Task A3.
+ */
+const CONFIRMATION_RADIUS_METERS = 200;
 
 // Loose radius for biasing a Places text search toward the destination when
 // Nominatim/OSM had no usable match — wide enough to cover a metro area's
@@ -93,6 +105,9 @@ export class ExperienceProposalResolverService
     @Optional()
     @Inject('PlacesApiService')
     private readonly placesApi?: IPlacesApiService,
+    @Optional()
+    @Inject('WikidataApiService')
+    private readonly wikidata?: IWikidataApiService,
   ) {}
 
   async resolve(
@@ -367,7 +382,12 @@ export class ExperienceProposalResolverService
       const matched = matchOsmCandidateByName(hint.name, pool);
 
       if (matched) {
-        entities.push(await this.persistOsmEntity(hint, matched));
+        const resolvedEntity = await this.persistOsmEntity(hint, matched);
+        entities.push(
+          (await this.confirmMatch(resolvedEntity, hint))
+            ? resolvedEntity
+            : this.unconfirmedEntity(hint, resolvedEntity.provider),
+        );
         continue;
       }
 
@@ -378,7 +398,11 @@ export class ExperienceProposalResolverService
           this.representativePoint(boundary),
         );
         if (globallyResolved) {
-          entities.push(globallyResolved);
+          entities.push(
+            (await this.confirmMatch(globallyResolved, hint))
+              ? globallyResolved
+              : this.unconfirmedEntity(hint, globallyResolved.provider),
+          );
           continue;
         }
       }
@@ -442,6 +466,66 @@ export class ExperienceProposalResolverService
       resolvedEntities: entities,
       destinationAssociationVerified,
       rejectionReasons: [] as string[],
+    };
+  }
+
+  /**
+   * Task A3 (2026-09-17 cross-source confirmation plan): a match is only
+   * as trustworthy as its identity evidence. Exact name equality in the
+   * correct pool is strong enough on its own — never a false positive.
+   * Anything short of that (the fuzzy token-overlap path Task 2 already
+   * requires for ANY match at all) must be independently corroborated by
+   * a genuinely separate database before it counts as resolved. A
+   * provider outage is "cannot confirm", never "confirmed absent" — the
+   * caller must treat both identically (fail closed).
+   */
+  private async confirmMatch(
+    entity: ResolvedGeoEntity,
+    hint: any,
+  ): Promise<boolean> {
+    const isExact =
+      normalizeGeoName(entity.canonicalName || '') ===
+      normalizeGeoName(hint.name);
+    if (isExact) return true;
+    if (!this.wikidata) return false;
+    if (
+      !Number.isFinite(entity.latitude) ||
+      !Number.isFinite(entity.longitude)
+    ) {
+      return false;
+    }
+    let nearby: Array<{ label: string }>;
+    try {
+      nearby = await this.wikidata.findNearbyPlaces(
+        entity.latitude as number,
+        entity.longitude as number,
+        CONFIRMATION_RADIUS_METERS,
+      );
+    } catch {
+      return false;
+    }
+    const needle = normalizeGeoName(hint.name);
+    return nearby.some((place) =>
+      hasSpecificNameOverlap(needle, normalizeGeoName(place.label)),
+    );
+  }
+
+  /**
+   * A match that failed confirmation must never carry a `geoEntityId`
+   * forward — every call site downstream (dedupeResolvedEntitiesByGeoEntity,
+   * persistVerifiedExperience's `components` mapping) already filters on
+   * `status === 'resolved'`, so degrading straight to `unresolved` here is
+   * sufficient on its own; no other call site needs to change.
+   */
+  private unconfirmedEntity(hint: any, provider: string): ResolvedGeoEntity {
+    return {
+      hintKey: hint.key,
+      hintName: hint.name,
+      provider,
+      externalId: '',
+      role: hint.role,
+      status: 'unresolved',
+      reason: 'UNCONFIRMED_MATCH',
     };
   }
 

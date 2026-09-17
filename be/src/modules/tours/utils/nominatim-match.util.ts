@@ -218,11 +218,27 @@ export function hasSpecificNameOverlap(
   );
 }
 
+/**
+ * An exact match anywhere in the pool always wins over a fuzzy (token-
+ * overlap) one, even when the fuzzy match appears earlier in pool order.
+ * Without this, a naive `.find()` over `hasSpecificNameOverlap` can return
+ * the WRONG entry: two pool candidates sharing one generic token (e.g.
+ * "Venue 000" and "Venue 007" both reduce to the single significant token
+ * "venue" once the distinguishing digits are filtered out by the <4-char
+ * token-length floor) let the first one found silently steal a hint whose
+ * exact match was a later pool entry (real regression, Task A3
+ * characterization: bulk-numbered venue names from a large candidate
+ * batch).
+ */
 export function matchOsmCandidateByName(
   name: string,
   pool: OsmCandidate[],
 ): OsmCandidate | undefined {
   const needle = normalizeGeoName(name);
+  const exact = pool.find(
+    (candidate) => normalizeGeoName(candidate.name) === needle,
+  );
+  if (exact) return exact;
   return pool.find((candidate) =>
     hasSpecificNameOverlap(needle, normalizeGeoName(candidate.name)),
   );
