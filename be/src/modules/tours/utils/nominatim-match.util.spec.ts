@@ -365,4 +365,44 @@ describe('matchOsmCandidateByName', () => {
     const pool = [osmCandidate({ name: 'Avenida de Mayo' })];
     expect(matchOsmCandidateByName('Caminito', pool)).toBeUndefined();
   });
+
+  it('rejects a short/generic candidate name that merely appears as a letter sequence inside a longer, unrelated hint (real regression: "B" matched MALBA, La Bombonera and Museo Nacional de Bellas Artes; "MO" matched "Mercado de San Telmo"; "CE" matched "Centro Científico Tecnológicos")', () => {
+    const pool = [osmCandidate({ name: 'B' })];
+    expect(matchOsmCandidateByName('MALBA Museum', pool)).toBeUndefined();
+    expect(matchOsmCandidateByName('La Bombonera', pool)).toBeUndefined();
+
+    const moPool = [osmCandidate({ name: 'MO' })];
+    expect(
+      matchOsmCandidateByName('Mercado de San Telmo', moPool),
+    ).toBeUndefined();
+
+    const cePool = [osmCandidate({ name: 'CE' })];
+    expect(
+      matchOsmCandidateByName('Centro Científico Tecnológicos', cePool),
+    ).toBeUndefined();
+  });
+
+  it('rejects a single generic category word matching only because it is one of several tokens in a longer, more specific hint (real regression: "Iglesia" matched "Iglesia San Ignacio de Loyola", ~8km from the real one)', () => {
+    const pool = [osmCandidate({ name: 'Iglesia' })];
+    expect(
+      matchOsmCandidateByName('Iglesia San Ignacio de Loyola', pool),
+    ).toBeUndefined();
+  });
+
+  it('still matches when the candidate name is a genuine, specific token shared with the hint (regression guard: must not become too strict)', () => {
+    const pool = [osmCandidate({ name: 'Riachuelo' })];
+    expect(matchOsmCandidateByName('Riachuelo', pool)).toBe(pool[0]);
+
+    const galeriaPool = [osmCandidate({ name: 'Mirador Galería Güemes' })];
+    expect(matchOsmCandidateByName('Galería Güemes', galeriaPool)).toBe(
+      galeriaPool[0],
+    );
+
+    const malbaPool = [
+      osmCandidate({
+        name: 'Museo de Arte Latinoamericano de Buenos Aires (MALBA)',
+      }),
+    ];
+    expect(matchOsmCandidateByName('MALBA', malbaPool)).toBe(malbaPool[0]);
+  });
 });

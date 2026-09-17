@@ -179,17 +179,48 @@ export function isAreaScaleEligible<
   return result.class === 'place';
 }
 
+/**
+ * Same specificity discipline `bestNominatimMatch`'s fuzzy path already
+ * applies to the global Nominatim search results (a real word overlap of
+ * at least half the hint's significant tokens, with at least one token of
+ * real length) — applied here to the LOCAL Overpass pool, which had none
+ * of these guards. Before this fix, raw bidirectional substring containment
+ * let any short/generic OSM-tagged name (a 1-3 letter node, or a single
+ * generic category word like "Iglesia"/"Church") match purely because its
+ * letters happened to appear inside a longer, completely unrelated hint —
+ * confirmed live: one mistagged node ("B") was accepted as the identity of
+ * four distinct real Buenos Aires landmarks (MALBA, La Bombonera, Museo
+ * Nacional de Bellas Artes) across one characterization run.
+ *
+ * Exact equality is always accepted regardless of length — that can never
+ * be a false positive. Anything short of exact equality must clear the
+ * same token-overlap bar `bestNominatimMatch` uses; there is no length-only
+ * shortcut, because a short-but-real hint (e.g. a 3-letter café name)
+ * legitimately using the SAME containment logic would be indistinguishable
+ * from a mistagged 1-3 letter node without this token check.
+ */
+function hasSpecificNameOverlap(needle: string, haystack: string): boolean {
+  if (haystack === needle) return true;
+
+  const needleTokens = needle.split(' ').filter((token) => token.length >= 4);
+  if (needleTokens.length === 0) return false;
+
+  const haystackTokens = new Set(haystack.split(' ').filter(Boolean));
+  const matchedTokens = needleTokens.filter((token) =>
+    haystackTokens.has(token),
+  );
+  return (
+    matchedTokens.length / needleTokens.length >= 0.5 &&
+    matchedTokens.some((token) => token.length >= 5)
+  );
+}
+
 export function matchOsmCandidateByName(
   name: string,
   pool: OsmCandidate[],
 ): OsmCandidate | undefined {
   const needle = normalizeGeoName(name);
-  return pool.find((candidate) => {
-    const haystack = normalizeGeoName(candidate.name);
-    return (
-      haystack === needle ||
-      haystack.includes(needle) ||
-      needle.includes(haystack)
-    );
-  });
+  return pool.find((candidate) =>
+    hasSpecificNameOverlap(needle, normalizeGeoName(candidate.name)),
+  );
 }
