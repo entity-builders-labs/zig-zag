@@ -18,6 +18,7 @@ describe('CachedWikidataApiService', () => {
     realService = {
       getEntitySummaries: jest.fn(),
       lookupEntitySummaries: jest.fn(),
+      findNearbyPlaces: jest.fn(),
     };
   });
 
@@ -175,5 +176,39 @@ describe('CachedWikidataApiService', () => {
     expect(fs.existsSync(path.join(tempDir, 'wikidata-cache', 'Q1.json'))).toBe(
       false,
     );
+  });
+
+  describe('findNearbyPlaces (Task A2 — deliberately uncached passthrough)', () => {
+    it('always delegates directly to the real service, even in write mode', async () => {
+      realService.findNearbyPlaces.mockResolvedValue([
+        {
+          qid: 'Q1808336',
+          label: 'Museum of Latin American Art of Buenos Aires',
+          latitude: -34.577111,
+          longitude: -58.403593,
+        },
+      ]);
+      const service = await setup('write');
+
+      const results = await service.findNearbyPlaces(
+        -34.5768817,
+        -58.4033919,
+        200,
+      );
+
+      expect(realService.findNearbyPlaces).toHaveBeenCalledWith(
+        -34.5768817,
+        -58.4033919,
+        200,
+      );
+      expect(results).toEqual([
+        {
+          qid: 'Q1808336',
+          label: 'Museum of Latin American Art of Buenos Aires',
+          latitude: -34.577111,
+          longitude: -58.403593,
+        },
+      ]);
+    });
   });
 });

@@ -196,4 +196,71 @@ describe('WikidataApiService', () => {
     expect(firstBatchIds).toHaveLength(50);
     expect(secondBatchIds).toHaveLength(1);
   });
+
+  describe('findNearbyPlaces (Task A2, cross-source confirmation)', () => {
+    it('queries the SPARQL endpoint with a wikibase:around service using lon,lat point and km radius, and maps bindings to WikidataNearbyPlace[]', async () => {
+      mockedAxios.get.mockResolvedValueOnce({
+        data: {
+          results: {
+            bindings: [
+              {
+                item: { value: 'http://www.wikidata.org/entity/Q1808336' },
+                itemLabel: {
+                  value: 'Museum of Latin American Art of Buenos Aires',
+                },
+                location: { value: 'Point(-58.403593 -34.577111)' },
+              },
+            ],
+          },
+        },
+      });
+
+      service = await setup();
+      const results = await service.findNearbyPlaces(
+        -34.5768817,
+        -58.4033919,
+        200,
+      );
+
+      expect(mockedAxios.get).toHaveBeenCalledWith(
+        'https://query.wikidata.org/sparql',
+        expect.objectContaining({
+          params: expect.objectContaining({
+            format: 'json',
+            query: expect.stringContaining('Point(-58.4033919 -34.5768817)'),
+          }),
+        }),
+      );
+      const [, config] = mockedAxios.get.mock.calls[0];
+      expect((config as any).params.query).toContain('wikibase:radius "0.2"');
+      expect(results).toEqual([
+        {
+          qid: 'Q1808336',
+          label: 'Museum of Latin American Art of Buenos Aires',
+          latitude: -34.577111,
+          longitude: -58.403593,
+        },
+      ]);
+    });
+
+    it('returns an empty array (never throws) when the SPARQL endpoint fails', async () => {
+      mockedAxios.get.mockRejectedValueOnce(new Error('network error'));
+
+      service = await setup();
+      const results = await service.findNearbyPlaces(-34.6, -58.4, 200);
+
+      expect(results).toEqual([]);
+    });
+
+    it('returns an empty array when there are no nearby bindings', async () => {
+      mockedAxios.get.mockResolvedValueOnce({
+        data: { results: { bindings: [] } },
+      });
+
+      service = await setup();
+      const results = await service.findNearbyPlaces(-34.6, -58.4, 200);
+
+      expect(results).toEqual([]);
+    });
+  });
 });

@@ -6,6 +6,7 @@ import {
   IWikidataApiService,
   WikidataEntitySummary,
   WikidataLookupOutcome,
+  WikidataNearbyPlace,
 } from '../interfaces/wikidata.interface';
 
 /**
@@ -118,5 +119,20 @@ export class CachedWikidataApiService implements IWikidataApiService {
     }
 
     return { ...freshOutcome, summaries: results };
+  }
+
+  /**
+   * Deliberately NOT cached — unlike the QID-keyed narrative lookups above,
+   * this is a real-time geographic confirmation signal (cross-source
+   * confirmation plan, 2026-09-17) and must stay fresh. Always delegates
+   * straight to the real service, in every mode (including 'strict' —
+   * there is no cache-miss concept here to enforce against).
+   */
+  async findNearbyPlaces(
+    latitude: number,
+    longitude: number,
+    radiusMeters: number,
+  ): Promise<WikidataNearbyPlace[]> {
+    return this.realService.findNearbyPlaces(latitude, longitude, radiusMeters);
   }
 }

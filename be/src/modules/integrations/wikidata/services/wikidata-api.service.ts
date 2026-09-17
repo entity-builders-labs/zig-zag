@@ -5,9 +5,11 @@ import {
   IWikidataApiService,
   WikidataEntitySummary,
   WikidataLookupOutcome,
+  WikidataNearbyPlace,
 } from '../interfaces/wikidata.interface';
 
 const DEFAULT_WIKIDATA_API_URL = 'https://www.wikidata.org/w/api.php';
+const SPARQL_API_URL = 'https://query.wikidata.org/sparql';
 const WIKIPEDIA_API_URL = 'https://en.wikipedia.org/w/api.php';
 // wbgetentities and action=query&prop=extracts both cap out at 50 ids/titles
 // per request — chunk rather than fail on a large candidate pool.
@@ -195,4 +197,68 @@ export class WikidataApiService implements IWikidataApiService {
       return new Set(titleToQid.values());
     }
   }
+
+  /**
+   * Live-validated against the real SPARQL endpoint before this was
+   * written: `wikibase:around` correctly found the real MALBA museum
+   * entity within 200m of its OSM-derived coordinate, and correctly found
+   * nothing relevant within 350m of a real known-wrong OSM match. Never
+   * throws — a provider outage returns [], which callers must treat as
+   * "cannot confirm", never as "confirmed absent".
+   */
+  async findNearbyPlaces(
+    latitude: number,
+    longitude: number,
+    radiusMeters: number,
+  ): Promise<WikidataNearbyPlace[]> {
+    const radiusKm = radiusMeters / 1000;
+    const query = `
+SELECT ?item ?itemLabel ?location WHERE {
+  SERVICE wikibase:around {
+    ?item wdt:P625 ?location.
+    bd:serviceParam wikibase:center "Point(${longitude} ${latitude})"^^geo:wktLiteral.
+    bd:serviceParam wikibase:radius "${radiusKm}".
+  }
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "en,es". }
+}
+LIMIT 30`;
+    try {
+      const response = await axios.get<WikidataSparqlResponse>(SPARQL_API_URL, {
+        params: { format: 'json', query },
+        headers: { 'User-Agent': USER_AGENT },
+        timeout: 10_000,
+      });
+      const bindings = response.data?.results?.bindings || [];
+      const places: WikidataNearbyPlace[] = [];
+      for (const binding of bindings) {
+        const pointMatch = /Point\(([-\d.]+) ([-\d.]+)\)/.exec(
+          binding.location?.value || '',
+        );
+        const qidMatch = /Q\d+$/.exec(binding.item?.value || '');
+        if (!pointMatch || !qidMatch) continue;
+        places.push({
+          qid: qidMatch[0],
+          label: binding.itemLabel?.value || '',
+          longitude: Number(pointMatch[1]),
+          latitude: Number(pointMatch[2]),
+        });
+      }
+      return places;
+    } catch (error: any) {
+      this.logger.warn(
+        `Wikidata proximity lookup failed (${latitude},${longitude},${radiusMeters}m): ${error.message}`,
+      );
+      return [];
+    }
+  }
+}
+
+interface WikidataSparqlResponse {
+  results?: {
+    bindings?: Array<{
+      item?: { value?: string };
+      itemLabel?: { value?: string };
+      location?: { value?: string };
+    }>;
+  };
 }

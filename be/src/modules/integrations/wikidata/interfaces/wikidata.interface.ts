@@ -36,6 +36,13 @@ export interface WikidataEnrichmentOutcome {
   safetyCheckFailedQids: Set<string>;
 }
 
+export interface WikidataNearbyPlace {
+  qid: string;
+  label: string;
+  latitude: number;
+  longitude: number;
+}
+
 export interface IWikidataApiService {
   lookupEntitySummaries(qids: string[]): Promise<WikidataLookupOutcome>;
 
@@ -47,4 +54,21 @@ export interface IWikidataApiService {
   getEntitySummaries(
     qids: string[],
   ): Promise<Map<string, WikidataEntitySummary>>;
+
+  /**
+   * Real, independent geographic confirmation signal (cross-source
+   * confirmation plan, 2026-09-17): given a coordinate a DIFFERENT source
+   * already claims for some named entity, ask Wikidata — a separately
+   * curated database, not merely another read of the same OpenStreetMap
+   * record most of this app's other geo providers ultimately share —
+   * whether it independently has anything nearby. Never throws: a
+   * provider outage degrades to an empty result, which the caller
+   * (ExperienceProposalResolverService) must treat as "cannot confirm" —
+   * never as "confirmed absent".
+   */
+  findNearbyPlaces(
+    latitude: number,
+    longitude: number,
+    radiusMeters: number,
+  ): Promise<WikidataNearbyPlace[]>;
 }
