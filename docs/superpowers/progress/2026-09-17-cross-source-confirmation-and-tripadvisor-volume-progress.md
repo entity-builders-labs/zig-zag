@@ -1,6 +1,10 @@
 # Cross-Source Confirmation + TripAdvisor Volume — Progress
 
-Status: **Track A: A1, A2, A3 COMPLETE. A4 (re-measure) NOT STARTED. Track B: NOT STARTED.**
+Status: **Track A: A1, A2, A3 COMPLETE. A4 (re-measure) COMPLETE — found a real
+gap in the confirmation guarantee, see below. NEW FOLLOW-UP TASK NEEDED
+(tentatively "A5") before Track A's product requirement can be considered
+met. Track B: NOT STARTED, blocked behind A5 by product priority (not by
+any technical dependency).**
 Written: 2026-09-17.
 Branch: `feat/preference-first-selection`.
 
@@ -27,7 +31,11 @@ TRACK A — cross-source confirmation (Wikidata)
   A1 — export hasSpecificNameOverlap for reuse            COMPLETE
   A2 — Wikidata geographic-proximity lookup                COMPLETE
   A3 — wire confirmation into the resolver                 COMPLETE
-  A4 — re-measure (Task 3 pattern) with confirmation live  NOT STARTED  <-- WE ARE HERE
+  A4 — re-measure (Task 3 pattern) with confirmation live  COMPLETE (found a real gap, see below)
+  A5 — NEW, not yet planned in detail: close the           <-- WE ARE HERE
+       same-token-collision confirmation hole A4 found
+       (e.g. "Recoleta Cemetery" wrongly confirmed via
+       "Hotel Urban Suites Recoleta")
 
 TRACK B — TripAdvisor as an additional volume source
   B1 — TripAdvisorGroundedSearchService                     NOT STARTED
@@ -187,29 +195,73 @@ plan's own instruction to do so, same as the Task 2/Geoapify precedent.
 
 ---
 
-# NEXT — Task A4: re-measure with confirmation live
+# DONE — Task A4: re-measure with confirmation live
 
-Read the plan's Task A4 section in full before running. In short: repeat
-the same characterization methodology used for the prior plan's Task 3
-(temporary, never-committed `characterize-composite` command; same
-provider env; same revert discipline afterward) against Buenos Aires, now
-with Task A3's confirmation gate live and a real Wikidata path wired in.
-Report:
-- How many candidates hit `UNCONFIRMED_MATCH` (fuzzy match, no independent
-  corroboration) vs. resolved cleanly (exact, or fuzzy+confirmed).
-- The new composite-Experience persistence count/rate, compared against
-  the prior plan's baseline (8 candidates generated, 1 persisted before any
-  fix; measure what Task 3's SerpAPI-timeout + Geoapify fixes alone
-  achieved, if that number isn't already recorded, then the delta from A3).
-- Whether the confirmation gate's fail-closed behavior is actually
-  starving real, correct matches (Wikidata coverage was measured at 77.9%
-  on a 95-title independent sample, not 100% — some real fuzzy matches
-  will legitimately fail to confirm and must be reported as such, not
-  treated as a bug).
+Full report: `docs/superpowers/characterization/2026-09-17-task-a4-confirmation-live-remeasure.md`.
+Ran the same 6-theme live Buenos Aires methodology (temporary,
+never-committed `characterize-composite` command — mechanism, revert
+discipline, and confirmed-clean `git status --short` afterward same as
+every prior run on this branch) with Task A3's confirmation gate live.
 
-This measurement is what should decide whether Track B (more acquisition
-volume) is worth doing before or after further Track A tuning, though the
-plan states the two tracks are independent and don't block each other.
+**Headline numbers:** 22 raw candidates, 7 composite (>=2 hints), **0
+composite persisted (0%)**, 17 unique resolved entities, 9
+`UNCONFIRMED_MATCH` hint outcomes (the new category Task A3 introduces).
+
+**The important result is not the 0% number itself** (a lower raw
+persistence count is the plan's own expected, correct trade-off of a real
+confirmation gate — see the plan's own Task A4 checklist). **The important
+result is a second, previously-unknown false-positive class Task A4's
+live spot-checking found**: two of the 17 "confirmed" entities are wrong
+identities that slipped through confirmation —
+`"Recoleta Cemetery"` → `"Hotel Urban Suites Recoleta"`, and
+`"Galería Güemes"` → `"Martín Miguel de Güemes"` (a monument, unrelated to
+the real shopping arcade). Both live-verified against the real Wikidata
+SPARQL endpoint. Root cause: `confirmMatch`'s fuzzy branch searches
+Wikidata *around the matched (possibly wrong) entity's own coordinates*
+and reuses the exact same permissive `hasSpecificNameOverlap` rule used
+for matching — so when the wrong entity happens to sit near some other
+real place sharing one generic neighborhood/historical-figure token
+("Recoleta", "Güemes" — both extremely common Argentine names), that
+unrelated nearby place gets accepted as "independent confirmation" of an
+identity it says nothing about. Confirmation here is independent of
+*provider* (OSM vs. Wikidata) but not independent of the *matched
+entity's own coordinates*, which is the actual thing needing verification.
+
+This directly matters for the user's stated non-negotiable requirement —
+as built today, Task A3 does not yet deliver "100% geographically
+confirmed" for this specific, reproducible collision class. **Track A's
+product guarantee is not yet considered met.** See the full report for:
+individually live-spot-checked `UNCONFIRMED_MATCH` cases (some are honest
+Wikidata-label-translation gaps — "MALBA"/"Paz Palace" — distinct from the
+false-positive class above; one, "San Ignacio", is the plan's own cited
+regression working as intended), and the two concrete tightening options
+proposed (stricter confirmation-only token bar, or anchoring confirmation
+to an independently-resolved area/anchor instead of the matched entity's
+own coordinates).
+
+## Deviations from the plan
+
+Task A4 itself was executed exactly as planned. What it found was NOT
+anticipated by the plan: the plan's Global Constraint said to reuse the
+existing token-specificity logic for confirmation "not invent a second,
+parallel matching policy" — this run is live evidence that reuse alone is
+insufficient for a confirmation guarantee, since the two failure classes
+(matching vs. confirming) have different risk profiles. Flagged here
+explicitly rather than silently deciding unilaterally to relax or bypass
+this constraint outside a real task/review cycle.
+
+---
+
+# NEXT — Task A5 (new, not yet detailed in the plan): close the same-token-collision confirmation hole
+
+Not yet planned at the task level (no code, no test names, no exact
+signatures decided) — this needs its own planning pass before
+implementation starts, following the same TDD process as A1-A3. Start
+from the two live-verified real cases in the A4 report
+("Recoleta Cemetery"/"Galería Güemes") as the regression fixtures, the
+same way "San Ignacio Church" → "Ignacio Pirovano" anchored Task A3's own
+tests. Do not start implementation directly from this bullet list —
+read the A4 report's "Critical finding" section in full first, then plan.
 
 ---
 
@@ -239,13 +291,26 @@ An implementation agent starting from this branch should:
    `git log --oneline fork/feat/preference-first-selection..HEAD` before
    assuming push state, don't trust a stale summary of it. Never push
    without the user's explicit confirmation for this push specifically.
-3. Next is **Task A4** (re-measure) — a real, live, costed run against
-   Groq/SerpAPI/Wikidata, not a mocked test. Read the plan's Task A4
-   section in full before running it.
-4. Track B has not been started and needs the real
+3. A4 is COMPLETE (measurement only, no code changed) — read
+   `docs/superpowers/characterization/2026-09-17-task-a4-confirmation-live-remeasure.md`
+   in full before doing anything else on this branch. It found a real,
+   live-verified false-positive class Task A3's confirmation does not yet
+   catch ("Recoleta Cemetery" → a hotel; "Galería Güemes" → an unrelated
+   monument) — this is the actual next problem, not Track B.
+4. Next is **Task A5** (not yet detailed/planned) — close that hole. Plan
+   it properly (task-level TDD steps, exact function signatures) before
+   implementing; do not start coding directly from the A4 report's
+   suggested options, they are directions, not a spec.
+5. Track B has not been started, and by product priority should wait
+   behind A5 (there is no technical dependency forcing this order, but the
+   non-negotiable confirmation requirement is not yet met, and more
+   acquisition volume before that is fixed only produces more of the same
+   unverified-identity risk).
+6. Track B, whenever it starts, needs the real
    `ExperienceGroundedSearchProvider` interface read (not assumed from the
    plan's sketch) before implementing B1.
-5. The non-negotiable product requirement driving this whole plan: every
+7. The non-negotiable product requirement driving this whole plan: every
    persisted Experience's components must be geographically confirmed —
-   never relax `confirmMatch`'s fail-closed behavior to make a fixture or
-   a characterization number look better.
+   never relax `confirmMatch`'s fail-closed behavior, and never mark this
+   requirement "met" while a known collision class (same generic token,
+   different real place) can still slip through.
