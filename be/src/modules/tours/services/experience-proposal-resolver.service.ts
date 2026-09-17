@@ -121,23 +121,33 @@ export class ExperienceProposalResolverService
     const boundary =
       scope.kind === 'AREA_BOUNDARY' ? scope.boundary : undefined;
 
+    // Task A6: entityResolutionScope narrows ONLY the local OSM pool
+    // fetch below (and, via resolveCandidate's `poolBoundary` param, the
+    // AREA-hint pool selection + trusted-global-hint fallback point) --
+    // `scope`/`boundary` above are UNCHANGED and keep flowing into
+    // geographic validation as the destination-wide boundary, further
+    // down in this method.
+    const poolScope = input.entityResolutionScope ?? scope;
+    const poolBoundary =
+      poolScope.kind === 'AREA_BOUNDARY' ? poolScope.boundary : undefined;
+
     // A point-scale destination has no OSM area/relation. Use radius-based
     // lookups directly; AREA_BOUNDARY alone authorizes within-area queries.
     const [streetLookup, poiLookup] = await Promise.all([
-      scope.kind === 'POINT_RADIUS'
+      poolScope.kind === 'POINT_RADIUS'
         ? this.osmPlaces.lookupStreetsNear(
-            scope.latitude,
-            scope.longitude,
-            scope.radiusMeters,
+            poolScope.latitude,
+            poolScope.longitude,
+            poolScope.radiusMeters,
           )
-        : this.osmPlaces.lookupStreetsWithin(scope.boundary),
-      scope.kind === 'POINT_RADIUS'
+        : this.osmPlaces.lookupStreetsWithin(poolScope.boundary),
+      poolScope.kind === 'POINT_RADIUS'
         ? this.osmPlaces.lookupPoisNear(
-            scope.latitude,
-            scope.longitude,
-            scope.radiusMeters,
+            poolScope.latitude,
+            poolScope.longitude,
+            poolScope.radiusMeters,
           )
-        : this.osmPlaces.lookupPoisWithin(scope.boundary),
+        : this.osmPlaces.lookupPoisWithin(poolScope.boundary),
     ]);
 
     // Bounded: each candidate can upsert a GeoEntity (its own interactive
@@ -148,7 +158,7 @@ export class ExperienceProposalResolverService
       (candidate: any) =>
         this.resolveCandidate(
           candidate,
-          boundary,
+          poolBoundary,
           streetLookup.value,
           poiLookup.value,
           { streets: streetLookup, pois: poiLookup },

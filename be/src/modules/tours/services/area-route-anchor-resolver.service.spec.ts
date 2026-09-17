@@ -89,6 +89,76 @@ describe('AreaRouteAnchorResolverService', () => {
       );
     });
 
+    it('carries the full OsmCandidate boundary (osmType/osmId included) forward, not just its geometry (Task A6)', async () => {
+      const nominatim = {
+        search: jest.fn().mockResolvedValue([
+          {
+            osmType: 'relation',
+            osmId: 42,
+            addresstype: 'suburb',
+            placeRank: 20,
+            class: 'place',
+            type: 'suburb',
+            displayName: 'San Telmo, Buenos Aires, Argentina',
+            importance: 0.3,
+            latitude: -34.62,
+            longitude: -58.37,
+          },
+        ]),
+        reverse: jest.fn(),
+      };
+      const boundaryGeometry = {
+        type: 'Polygon' as const,
+        coordinates: [
+          [
+            [-58.38, -34.63],
+            [-58.36, -34.63],
+            [-58.36, -34.61],
+            [-58.38, -34.61],
+            [-58.38, -34.63],
+          ],
+        ],
+      };
+      const osmBoundary = {
+        id: 'osm:relation:42',
+        name: 'San Telmo',
+        osmType: 'relation' as const,
+        osmId: 42,
+        geometry: boundaryGeometry,
+        tags: { boundary: 'administrative' },
+      };
+      const osmPlaces = {
+        lookupBoundaryById: jest
+          .fn()
+          .mockResolvedValue({ status: 'success', value: osmBoundary }),
+        lookupStreetsWithin: jest.fn(),
+        lookupStreetsNear: jest.fn(),
+      };
+      const catalog = {
+        upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-san-telmo' }),
+      };
+      const service = new AreaRouteAnchorResolverService(
+        osmPlaces as any,
+        catalog as any,
+        nominatim as any,
+      );
+
+      const resolved = await service.resolveNamedAnchors(
+        [{ rawName: 'San Telmo', usage: 'geographic_scope', priority: 'must' }],
+        {
+          destinationCountryCode: 'ar',
+          geographicScope: {
+            kind: 'AREA_BOUNDARY',
+            boundary: osmBoundary as any,
+          },
+        },
+      );
+
+      expect(resolved[0]).toEqual(
+        expect.objectContaining({ status: 'resolved', osmBoundary }),
+      );
+    });
+
     it('stays unresolved when Nominatim has no match', async () => {
       const nominatim = {
         search: jest.fn().mockResolvedValue([]),

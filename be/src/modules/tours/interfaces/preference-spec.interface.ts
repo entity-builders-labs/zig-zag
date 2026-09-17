@@ -14,6 +14,7 @@
 import { AcquisitionDeficit } from './experience-acquisition-plan.interface';
 import { ExplorationSignalInput } from '../utils/exploration-signals.util';
 import { GeoJsonGeometry } from '@shared/geo/geojson-geometry';
+import { OsmCandidate } from '@integrations/osm/services/osm-places.service';
 
 /** A single positive preference the user requested, always soft in v1. */
 export interface RequestedFacet {
@@ -55,6 +56,14 @@ export type ResolvedAnchor =
       provider: string;
       externalId?: string;
       geometry?: GeoJsonGeometry;
+      // Task A6 (2026-09-17 confirmation-collision-fix plan): only ever
+      // set for kind === 'area', when the underlying resolution came from
+      // a real OSM way/relation boundary (discoverArea, via
+      // lookupBoundaryById). Lets a caller narrow entity resolution's own
+      // local OSM pool query to this specific area instead of always the
+      // whole destination -- geometry alone is not enough for that,
+      // Overpass's "within area" query needs the real osmType/osmId.
+      osmBoundary?: OsmCandidate;
     }
   | {
       status: 'unresolved';

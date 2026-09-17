@@ -149,6 +149,7 @@ export class AreaRouteWalkAcquisitionService {
             provider: input.anchor.provider,
             externalId: input.anchor.externalId,
             geometry: input.anchor.geometry,
+            osmBoundary: input.anchor.osmBoundary,
           }
         : { resolved: false as const };
 
@@ -341,6 +342,20 @@ export class AreaRouteWalkAcquisitionService {
             geometry: resolution.geometry,
           }
         : undefined; // mode C (tourism route, unresolved) has no external geometry to gate on -- ordinary validateExperience + the tourism-route identity check alone carry it
+    // Task A6 (Root Cause #4) — only for a resolved AREA anchor with a
+    // real OSM way/relation boundary in hand: narrow entity resolution's
+    // own local OSM pool query to it, instead of the whole destination.
+    // A ROUTE anchor has no polygon to query "within" (a real Overpass
+    // area query needs a way/relation, not a LineString), so this stays
+    // undefined for every other case — resolve() then falls back to
+    // geographicScope, exactly today's behavior.
+    const entityResolutionScope: GeographicScope | undefined =
+      resolution.resolved &&
+      input.anchor.status === 'resolved' &&
+      input.anchor.kind === 'area' &&
+      resolution.osmBoundary
+        ? { kind: 'AREA_BOUNDARY', boundary: resolution.osmBoundary }
+        : undefined;
     const materialized = await this.acquisitionService.materializeExecution(
       execution,
       {
@@ -349,6 +364,7 @@ export class AreaRouteWalkAcquisitionService {
         geographicScope: input.geographicScope,
         validationScope,
         validationIntent: input.intentKey,
+        entityResolutionScope,
       },
     );
 

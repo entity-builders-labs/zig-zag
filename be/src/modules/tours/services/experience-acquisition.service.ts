@@ -653,6 +653,8 @@ export class ExperienceAcquisitionService {
       /** Task B5 — see ExperienceValidationScope. */
       validationScope?: ExperienceValidationScope;
       validationIntent?: 'walk' | 'route_like';
+      /** Task A6 — see ExperienceResolutionRequest.entityResolutionScope. */
+      entityResolutionScope?: GeographicScope;
     },
   ): Promise<FinalExperienceResolutionResponse> {
     if (!this.proposalResolver) {
@@ -668,6 +670,7 @@ export class ExperienceAcquisitionService {
       evidence: execution.evidence,
       validationScope: context.validationScope,
       validationIntent: context.validationIntent,
+      entityResolutionScope: context.entityResolutionScope,
     });
 
     // Cutover M4 (spec cutover plan §6) -- the single place EVERY

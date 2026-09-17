@@ -110,6 +110,21 @@ const areaAnchor: ResolvedAnchor = {
   provider: 'openstreetmap',
   geometry: { type: 'Polygon', coordinates: [] },
 };
+const areaAnchorOsmBoundary = {
+  id: 'osm:relation:42',
+  name: 'San Telmo',
+  osmType: 'relation' as const,
+  osmId: 42,
+  geometry: {
+    type: 'Polygon' as const,
+    coordinates: [] as [number, number][][],
+  },
+  tags: {},
+};
+const areaAnchorWithOsmBoundary: ResolvedAnchor = {
+  ...areaAnchor,
+  osmBoundary: areaAnchorOsmBoundary,
+};
 const routeAnchor: ResolvedAnchor = {
   rawName: 'Caminito',
   usage: 'unknown',
@@ -304,6 +319,64 @@ describe('AreaRouteWalkAcquisitionService', () => {
         validationIntent: 'walk',
       }),
     );
+  });
+
+  it('passes entityResolutionScope narrowed to the resolved AREA anchor’s own OSM boundary (Task A6)', async () => {
+    const mocks = buildMocks();
+    mocks.catalog.findVerifiedMultiComponentInArea.mockResolvedValue([]);
+    mocks.acquisitionPlanner.buildAcquisitionPlan.mockReturnValue({
+      destination: {},
+      deficits: [],
+      sourcePlans: [{ provider: 'web', web: { query: 'q' } }],
+      breadth: 'focused',
+    });
+    mocks.acquisitionService.executePlan.mockResolvedValue({
+      evidence: [],
+      candidates: [],
+    });
+    mocks.acquisitionService.materializeExecution.mockResolvedValue({
+      resolved: [],
+    });
+    const service = buildService(mocks);
+
+    await service.acquireOrReuse(
+      baseInput({ anchor: areaAnchorWithOsmBoundary }),
+    );
+
+    expect(mocks.acquisitionService.materializeExecution).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        entityResolutionScope: {
+          kind: 'AREA_BOUNDARY',
+          boundary: areaAnchorOsmBoundary,
+        },
+      }),
+    );
+  });
+
+  it('omits entityResolutionScope when the resolved AREA anchor has no osmBoundary (regression guard: today’s callers, unaffected)', async () => {
+    const mocks = buildMocks();
+    mocks.catalog.findVerifiedMultiComponentInArea.mockResolvedValue([]);
+    mocks.acquisitionPlanner.buildAcquisitionPlan.mockReturnValue({
+      destination: {},
+      deficits: [],
+      sourcePlans: [{ provider: 'web', web: { query: 'q' } }],
+      breadth: 'focused',
+    });
+    mocks.acquisitionService.executePlan.mockResolvedValue({
+      evidence: [],
+      candidates: [],
+    });
+    mocks.acquisitionService.materializeExecution.mockResolvedValue({
+      resolved: [],
+    });
+    const service = buildService(mocks);
+
+    await service.acquireOrReuse(baseInput());
+
+    const [, context] =
+      mocks.acquisitionService.materializeExecution.mock.calls[0];
+    expect(context.entityResolutionScope).toBeUndefined();
   });
 
   it('B2: mode C (unresolved canonical ROUTE) still passes validationIntent, but validationScope is undefined', async () => {

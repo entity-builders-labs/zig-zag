@@ -1216,6 +1216,43 @@ describe('ExperienceAcquisitionService', () => {
 
         expect(classifier.classify).not.toHaveBeenCalled();
       });
+
+      it('forwards entityResolutionScope into the resolver request (Task A6)', async () => {
+        const narrowScope = {
+          kind: 'AREA_BOUNDARY' as const,
+          boundary: {} as any,
+        };
+        proposalResolver.resolve.mockResolvedValue({
+          resolved: [],
+          acceptedCount: 0,
+          rejectedCount: 0,
+          totalCandidates: 0,
+          entityResolution: {
+            totalCandidates: 0,
+            acceptedCount: 0,
+            rejectedCount: 0,
+            resolved: [],
+          },
+          geographicValidation: {
+            results: [],
+            acceptedCount: 0,
+            rejectedCount: 0,
+          },
+        });
+        const service = buildService(false);
+
+        await service.materializeExecution(
+          { candidates: [], observations: [], providerResults: {} } as any,
+          {
+            destinationName: 'Buenos Aires',
+            entityResolutionScope: narrowScope,
+          },
+        );
+
+        expect(proposalResolver.resolve).toHaveBeenCalledWith(
+          expect.objectContaining({ entityResolutionScope: narrowScope }),
+        );
+      });
     });
   });
 });

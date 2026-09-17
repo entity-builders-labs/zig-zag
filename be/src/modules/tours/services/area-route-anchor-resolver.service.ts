@@ -1,6 +1,9 @@
 import { Inject, Injectable, Optional } from '@nestjs/common';
 import { GeoEntityKind } from '@prisma/client';
-import { OsmPlacesService } from '@integrations/osm/services/osm-places.service';
+import {
+  OsmPlacesService,
+  OsmCandidate,
+} from '@integrations/osm/services/osm-places.service';
 import { GeoJsonGeometry } from '@integrations/osm/utils/osm-geometry.util';
 import { INominatimApiService } from '@integrations/osm/interfaces/nominatim.interface';
 import { IPlacesApiService } from '@integrations/google-places/interfaces/places-api.interface';
@@ -51,6 +54,9 @@ interface AnchorGeoCandidate {
   longitude?: number;
   metadata?: Record<string, string>;
   placeTypes?: string[];
+  // Task A6 -- only set by discoverArea, for the real OSM way/relation
+  // boundary lookupBoundaryById already returned.
+  osmBoundary?: OsmCandidate;
 }
 
 type CandidateDiscovery =
@@ -342,6 +348,7 @@ export class AreaRouteAnchorResolverService {
       provider: candidate.provider,
       externalId: candidate.externalId,
       geometry: candidate.geometry,
+      osmBoundary: candidate.osmBoundary,
     };
   }
 
@@ -405,6 +412,7 @@ export class AreaRouteAnchorResolverService {
           longitude: point?.longitude,
           geometry: boundary.value.geometry,
           metadata: boundary.value.tags,
+          osmBoundary: boundary.value,
         },
       };
     } catch {

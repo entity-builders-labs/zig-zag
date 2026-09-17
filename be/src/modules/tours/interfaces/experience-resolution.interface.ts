@@ -93,6 +93,18 @@ export interface ExperienceResolutionRequest {
    */
   destinationCountryCode?: string;
   geographicScope?: GeographicScope;
+  /**
+   * Task A6 (2026-09-17 confirmation-collision-fix plan, Root Cause #4) --
+   * when a request is anchored to a specific resolved AREA (e.g. "San
+   * Telmo"), this narrows ONLY the local OSM pool fetch entity resolution
+   * queries against (lookupStreetsWithin/lookupPoisWithin) -- never
+   * geographic validation, which always keeps using `geographicScope`'s
+   * full destination boundary regardless of this field. Absent for every
+   * caller other than AreaRouteWalkAcquisitionService with a resolved AREA
+   * anchor -- falls back to `geographicScope` when omitted, byte-identical
+   * to this field never having existed.
+   */
+  entityResolutionScope?: GeographicScope;
   traceContext?: Record<string, unknown>;
   evidence?: Array<{
     key?: string;

@@ -2376,4 +2376,142 @@ describe('ExperienceProposalResolverService', () => {
       expect(result.acceptedCount).toBe(1);
     });
   });
+
+  describe('entity-resolution scope narrowing (Task A6)', () => {
+    it('queries the narrower entityResolutionScope for the local OSM pool, while still passing the wide destination boundary to geographic validation', async () => {
+      const wideBoundary = {
+        id: 'osm:relation:1',
+        name: 'Buenos Aires',
+        osmType: 'relation' as const,
+        osmId: 1,
+        geometry: {
+          type: 'Polygon' as const,
+          coordinates: [] as [number, number][][],
+        },
+        tags: {},
+      };
+      const narrowBoundary = {
+        id: 'osm:relation:42',
+        name: 'San Telmo',
+        osmType: 'relation' as const,
+        osmId: 42,
+        geometry: {
+          type: 'Polygon' as const,
+          coordinates: [] as [number, number][][],
+        },
+        tags: {},
+      };
+      const osmPlaces = {
+        lookupStreetsWithin: jest
+          .fn()
+          .mockResolvedValue({ status: 'success', value: [] }),
+        lookupPoisWithin: jest.fn().mockResolvedValue({
+          status: 'success',
+          value: [
+            {
+              id: 'osm:node:1',
+              name: 'Mercado de San Telmo',
+              osmType: 'node',
+              osmId: 1,
+              geometry: { type: 'Point', coordinates: [-58.37, -34.62] },
+              tags: {},
+            },
+          ],
+        }),
+      };
+      const catalog = {
+        resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-mercado' }),
+        persistVerifiedExperience: jest
+          .fn()
+          .mockResolvedValue({ id: 'exp-1', dedupeDecision: 'NEW' }),
+      };
+      const geographicValidator = {
+        validate: jest.fn().mockReturnValue({
+          proposalName: 'San Telmo Market Visit',
+          kind: 'EXPERIENCE',
+          status: 'GEO_VERIFIED',
+          accepted: true,
+          anchors: [],
+          groundedEvidenceKeys: ['ev-1'],
+          rejectionReasons: [],
+          validatorVersion: 2,
+        }),
+      };
+      const service = new ExperienceProposalResolverService(
+        osmPlaces as any,
+        catalog as any,
+        geographicValidator as any,
+      );
+
+      await service.resolve({
+        geographicScope: { kind: 'AREA_BOUNDARY', boundary: wideBoundary },
+        entityResolutionScope: {
+          kind: 'AREA_BOUNDARY',
+          boundary: narrowBoundary,
+        },
+        candidates: [
+          candidate('San Telmo Market Visit', 'Mercado de San Telmo'),
+        ],
+        evidence: [{ key: 'ev-1', source: 'test', title: 'T', snippet: 'S' }],
+      });
+
+      // The local pool fetch used the NARROW scope, not the wide one.
+      expect(osmPlaces.lookupPoisWithin).toHaveBeenCalledWith(narrowBoundary);
+      expect(osmPlaces.lookupStreetsWithin).toHaveBeenCalledWith(
+        narrowBoundary,
+      );
+      // Geographic validation still receives the WIDE destination boundary,
+      // unchanged -- destination_mismatch semantics must not narrow.
+      expect(geographicValidator.validate).toHaveBeenCalledWith(
+        expect.anything(),
+        wideBoundary,
+        undefined,
+        undefined,
+        expect.objectContaining({ boundary: wideBoundary }),
+      );
+    });
+
+    it('falls back to geographicScope for the local pool fetch when entityResolutionScope is absent (regression guard: every existing caller is unaffected)', async () => {
+      const boundary2 = {
+        id: 'osm:relation:1',
+        name: 'Buenos Aires',
+        osmType: 'relation' as const,
+        osmId: 1,
+        geometry: {
+          type: 'Polygon' as const,
+          coordinates: [] as [number, number][][],
+        },
+        tags: {},
+      };
+      const osmPlaces = {
+        lookupStreetsWithin: jest
+          .fn()
+          .mockResolvedValue({ status: 'success', value: [] }),
+        lookupPoisWithin: jest
+          .fn()
+          .mockResolvedValue({ status: 'success', value: [] }),
+      };
+      const catalog = {
+        resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        upsertGeoEntity: jest.fn(),
+        persistVerifiedExperience: jest.fn(),
+      };
+      const geographicValidator = { validate: jest.fn() };
+      const service = new ExperienceProposalResolverService(
+        osmPlaces as any,
+        catalog as any,
+        geographicValidator as any,
+      );
+
+      await service.resolve({
+        geographicScope: { kind: 'AREA_BOUNDARY', boundary: boundary2 },
+        candidates: [],
+        evidence: [],
+      });
+
+      expect(osmPlaces.lookupPoisWithin).toHaveBeenCalledWith(boundary2);
+      expect(osmPlaces.lookupStreetsWithin).toHaveBeenCalledWith(boundary2);
+    });
+  });
 });
