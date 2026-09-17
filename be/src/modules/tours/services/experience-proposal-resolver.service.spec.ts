@@ -2097,7 +2097,78 @@ describe('ExperienceProposalResolverService', () => {
       expect(wikidata.findNearbyPlaces).not.toHaveBeenCalled();
     });
 
+    it('does NOT confirm a fuzzy match when Wikidata only corroborates ONE of several significant tokens (Task A5 real regression: "Recoleta Cemetery" -> "Hotel Urban Suites Recoleta")', async () => {
+      const osmPlaces = {
+        lookupStreetsWithin: jest
+          .fn()
+          .mockResolvedValue({ status: 'success', value: [] }),
+        lookupPoisWithin: jest.fn().mockResolvedValue({
+          status: 'success',
+          value: [
+            {
+              id: 'osm:node:1',
+              name: 'Hotel Urban Suites Recoleta',
+              osmType: 'node',
+              osmId: 1,
+              geometry: { type: 'Point', coordinates: [-58.39, -34.59] },
+              tags: {},
+            },
+          ],
+        }),
+      };
+      const catalog = {
+        resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-hotel' }),
+        persistVerifiedExperience: jest.fn(),
+      };
+      const geographicValidator = { validate: jest.fn() };
+      const wikidata = {
+        findNearbyPlaces: jest.fn().mockResolvedValue([
+          // A real, independently-real nearby place -- but it only shares
+          // the generic neighborhood token "recoleta" with the hint, not
+          // "cemetery". Confirming on this alone is the exact bug Task A4
+          // found live. With the old >=50% bar, just "recoleta" alone (1 of 2
+          // tokens) satisfies it -- this is wrong for confirmation. The new
+          // requireAllTokens: true bar must reject it.
+          {
+            qid: 'Q1',
+            label: 'Recoleta Neighborhood Buenos Aires',
+            latitude: -34.59,
+            longitude: -58.39,
+          },
+        ]),
+      };
+      const service = new ExperienceProposalResolverService(
+        osmPlaces as any,
+        catalog as any,
+        geographicValidator as any,
+        undefined,
+        undefined,
+        undefined,
+        wikidata as any,
+      );
+
+      const result = await service.resolve({
+        geographicScope: { kind: 'AREA_BOUNDARY', boundary },
+        candidates: [candidate('Recoleta Walk', 'Recoleta Cemetery')],
+      });
+
+      const rejected = result.entityResolution.resolved[0];
+      expect(rejected.resolvedEntities[0]).toEqual(
+        expect.objectContaining({
+          hintName: 'Recoleta Cemetery',
+          status: 'unresolved',
+          reason: 'UNCONFIRMED_MATCH',
+        }),
+      );
+    });
+
     it('confirms a fuzzy (non-exact) local match when Wikidata independently has something nearby with a matching name', async () => {
+      // Task A5 fixture fix: the hint must have ALL significant tokens
+      // present in the Wikidata label for confirmation under requireAllTokens.
+      // Changed from "MALBA Museum" (only "museum" appears in the Wikidata
+      // label) to "Museum Latin American" (all three tokens appear in the
+      // Wikidata label "Museum of Latin American Art of Buenos Aires").
       const wikidata = {
         findNearbyPlaces: jest.fn().mockResolvedValue([
           {
@@ -2116,13 +2187,15 @@ describe('ExperienceProposalResolverService', () => {
           .mockResolvedValue({ id: 'exp-1', dedupeDecision: 'NEW' }),
       };
       const geographicValidator = {
-        validate: jest.fn().mockReturnValue(acceptedValidation('MALBA Museum')),
+        validate: jest
+          .fn()
+          .mockReturnValue(acceptedValidation('Museum Latin American')),
       };
       const service = new ExperienceProposalResolverService(
         osmPlacesFor([
           {
             id: 'osm:node:1',
-            name: 'Museo de Arte Latinoamericano de Buenos Aires (MALBA)',
+            name: 'Museum of Latin American Art of Buenos Aires',
             osmType: 'node',
             osmId: 1,
             geometry: { type: 'Point', coordinates: [-58.4034, -34.5769] },
@@ -2139,7 +2212,9 @@ describe('ExperienceProposalResolverService', () => {
 
       const result = await service.resolve({
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [candidate('MALBA Museum', 'MALBA Museum')],
+        candidates: [
+          candidate('Museum Latin American', 'Museum Latin American'),
+        ],
       });
 
       expect(wikidata.findNearbyPlaces).toHaveBeenCalledWith(

@@ -433,4 +433,56 @@ describe('hasSpecificNameOverlap (exported for cross-source confirmation reuse)'
       ),
     ).toBe(true);
   });
+
+  it('requireAllTokens rejects a same-generic-token collision that the default (>=50%) bar would wrongly accept (real regression, Task A4: "Recoleta Cemetery" -> "Hotel Urban Suites Recoleta"; "Galería Güemes" -> "Martín Miguel de Güemes")', () => {
+    // Default behavior (today's matching bar) is UNCHANGED and still accepts
+    // these -- that permissiveness is correct for MATCHING, not for
+    // independently confirming an identity.
+    expect(
+      hasSpecificNameOverlap(
+        'recoleta cemetery',
+        'hotel urban suites recoleta',
+      ),
+    ).toBe(true);
+    expect(
+      hasSpecificNameOverlap('galeria guemes', 'martin miguel de guemes'),
+    ).toBe(true);
+
+    // requireAllTokens: true is the stricter confirmation-only bar -- both
+    // real collisions must now be rejected.
+    expect(
+      hasSpecificNameOverlap(
+        'recoleta cemetery',
+        'hotel urban suites recoleta',
+        {
+          requireAllTokens: true,
+        },
+      ),
+    ).toBe(false);
+    expect(
+      hasSpecificNameOverlap('galeria guemes', 'martin miguel de guemes', {
+        requireAllTokens: true,
+      }),
+    ).toBe(false);
+  });
+
+  it('requireAllTokens still confirms a genuine two-token match where every significant token is present (regression guard: must not become too strict)', () => {
+    expect(
+      hasSpecificNameOverlap(
+        'museo nacional de bellas artes',
+        'museo nacional de bellas artes buenos aires',
+        { requireAllTokens: true },
+      ),
+    ).toBe(true);
+  });
+
+  it('requireAllTokens does not change single-significant-token matches (a single token at 100% is the same bar as at 50%)', () => {
+    expect(
+      hasSpecificNameOverlap(
+        'malba',
+        'museo de arte latinoamericano de buenos aires malba',
+        { requireAllTokens: true },
+      ),
+    ).toBe(true);
+  });
 });

@@ -505,8 +505,15 @@ export class ExperienceProposalResolverService
       return false;
     }
     const needle = normalizeGeoName(hint.name);
+    // Task A5: confirmation requires ALL of the hint's significant tokens
+    // to be present, not just >=50% -- matching stays permissive
+    // (unchanged, see nominatim-match.util.ts), but a same-generic-token
+    // collision (two different real places sharing one neighborhood/
+    // historical-figure word) must not count as independent confirmation.
     return nearby.some((place) =>
-      hasSpecificNameOverlap(needle, normalizeGeoName(place.label)),
+      hasSpecificNameOverlap(needle, normalizeGeoName(place.label), {
+        requireAllTokens: true,
+      }),
     );
   }
 

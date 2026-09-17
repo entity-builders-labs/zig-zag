@@ -202,6 +202,19 @@ export function isAreaScaleEligible<
 export function hasSpecificNameOverlap(
   needle: string,
   haystack: string,
+  // Task A5 (2026-09-17 confirmation-collision-fix plan): confirmation
+  // needs a stricter bar than matching. Two DIFFERENT real places sharing
+  // one common neighborhood/historical-figure word (e.g. "Recoleta",
+  // "Güemes") both legitimately clear the default >=50% bar on that one
+  // shared token alone -- fine for finding a matching CANDIDATE (matching
+  // must stay permissive for real translation/substring cases), but wrong
+  // for INDEPENDENTLY CONFIRMING one, where a false "yes" is exactly the
+  // failure this whole cross-source confirmation mechanism exists to
+  // prevent. requireAllTokens raises the bar to 100% of the needle's
+  // significant tokens for that caller only -- every existing caller
+  // (omitting this option) is completely unaffected. A single-token
+  // needle is unaffected either way: 1/1 already equals both 50% and 100%.
+  options?: { requireAllTokens?: boolean },
 ): boolean {
   if (haystack === needle) return true;
 
@@ -212,8 +225,9 @@ export function hasSpecificNameOverlap(
   const matchedTokens = needleTokens.filter((token) =>
     haystackTokens.has(token),
   );
+  const requiredRatio = options?.requireAllTokens ? 1 : 0.5;
   return (
-    matchedTokens.length / needleTokens.length >= 0.5 &&
+    matchedTokens.length / needleTokens.length >= requiredRatio &&
     matchedTokens.some((token) => token.length >= 5)
   );
 }
