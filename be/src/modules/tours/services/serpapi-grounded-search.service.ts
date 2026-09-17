@@ -64,7 +64,20 @@ interface SerpApiReference {
 export class SerpApiGroundedSearchService implements GroundedSearchProvider {
   private readonly logger = new Logger(SerpApiGroundedSearchService.name);
   private readonly apiUrl = 'https://serpapi.com/search.json';
-  private readonly timeoutMs = 15000;
+  /**
+   * Live-confirmed against the real SerpApi endpoint (2026-09-17): a fresh,
+   * never-cached `engine=google_ai_mode` query took 50.88s
+   * (`search_metadata.total_time_taken`) — this engine genuinely runs an
+   * AI-generation pass server-side, unlike the plain `engine=google` path.
+   * The previous 15000ms timeout was BELOW that real latency, so most
+   * uncached semantic-path queries were being aborted client-side right
+   * before SerpApi would have returned real evidence — not a SerpApi
+   * outage, a client timeout misconfiguration. 65000ms keeps real margin
+   * above the measured worst case, the same way the local Overpass/
+   * Nominatim services size their own timeouts against real observed
+   * provider latency rather than a guess.
+   */
+  private readonly timeoutMs = 65000;
 
   constructor(
     private readonly config: ConfigService,

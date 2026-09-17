@@ -224,6 +224,27 @@ describe('SerpApiGroundedSearchService', () => {
       expect(params.get('hl')).toBe('en');
     });
 
+    it("uses a request timeout with real margin over google_ai_mode's observed cold-query latency (live-confirmed: a fresh, never-cached query took 50.88s against the real SerpApi endpoint, 2026-09-17)", async () => {
+      configService.get.mockReturnValue('test-key');
+      mockFetchAiModeOk({ text_blocks: [] });
+      const timeoutSpy = jest.spyOn(AbortSignal, 'timeout');
+
+      await service.search({
+        destinationName: 'Buenos Aires',
+        requestedThemes: [],
+        query: 'Buenos Aires historic sites history walking tours walks',
+      });
+
+      expect(timeoutSpy).toHaveBeenCalled();
+      const usedTimeoutMs = timeoutSpy.mock.calls[0][0];
+      // Real margin above the measured 50.88s cold-query latency, not just
+      // "a bit more than 15s" — matches how the local OSM services already
+      // size their own timeouts against real observed provider latency.
+      expect(usedTimeoutMs).toBeGreaterThanOrEqual(60000);
+
+      timeoutSpy.mockRestore();
+    });
+
     it('parses a realistic text_blocks fixture into GroundingEvidence[] and GroundedTextBlock[]', async () => {
       configService.get.mockReturnValue('test-key');
       mockFetchAiModeOk({
