@@ -1,8 +1,28 @@
 # Composite Experience Acquisition — Adversarial Review + Fix Progress
 
-Status: **Task 1 COMPLETE. Task 2 COMPLETE. Task 3 (re-measure) NOT STARTED.**
+Status: **Task 1 COMPLETE. Task 2 COMPLETE. Task 3 (re-measure) run informally,
+no formal write-up — see note below. This effort's successor plan
+(cross-source confirmation) is now in progress; see
+`docs/superpowers/progress/2026-09-17-cross-source-confirmation-and-tripadvisor-volume-progress.md`
+for current state.**
 Written: 2026-09-17.
 Branch: `feat/preference-first-selection`.
+
+> **2026-09-17 update:** Task 3 was run live (SerpAPI timeout raised to
+> 65s — `c0d4dec` — and the Geoapify Places fallback implemented for
+> real — `1c19d85`) but even after both fixes, 0 composite Experiences
+> with every component geographically validated were persisted. This
+> led the user to state a hard, non-negotiable requirement — 100%
+> geographic confirmation for every persisted Experience component —
+> which is NOT satisfied by Task 1/2 alone (they remove false-positive
+> matching bugs, but never independently *confirm* a match). That
+> requirement is being implemented as Track A of
+> `docs/superpowers/plans/2026-09-17-cross-source-confirmation-and-tripadvisor-volume.md`
+> (A1/A2/A3 done as of this writing). No formal characterization
+> write-up exists for this informal Task 3 run — the numbers below are
+> the last FORMAL baseline (pre-Task 1/2/3). Do not treat Root Causes
+> #3 below as "deferred, pending decision" anymore: #3 (Geoapify) is
+> DONE (`1c19d85`); it just wasn't sufficient on its own.
 
 This is the current operational progress pointer for the composite-Experience
 adversarial review requested independently of the M5–M10 package sequence
