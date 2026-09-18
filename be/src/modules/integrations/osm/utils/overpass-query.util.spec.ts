@@ -8,6 +8,7 @@ import {
   buildAdminBoundariesWithinAreaQuery,
   buildStreetsWithinAreaQuery,
   buildPoisWithinAreaQuery,
+  buildPoisQuery,
   buildFeaturesNearQuery,
 } from './overpass-query.util';
 
@@ -182,13 +183,52 @@ describe('buildPoisWithinAreaQuery', () => {
     });
 
     expect(query).toContain('map_to_area->.a');
-    expect(query).toContain('nwr["tourism"]["name"](area.a)');
     expect(query).toContain('nwr["historic"]["name"](area.a)');
     expect(query).toContain(
       'nwr["leisure"~"^(park|square|beach_resort)$"]["name"](area.a)',
     );
     expect(query).toContain('nwr["natural"="beach"]["name"](area.a)');
     expect(query).not.toContain('around:');
+  });
+
+  it('excludes accommodation-only tourism=* subtypes (hotel/hostel/guest_house/motel/...) -- not tourist experiences, live-verified as 33-40% of the real local pool otherwise (docs/superpowers/characterization/2026-09-18-task-a8-root-cause-5-live-remeasure.md follow-up: several real false-positive collisions matched a hotel, e.g. "Recoleta Cemetery" -> "Hotel Urban Suites Recoleta")', () => {
+    const query = buildPoisWithinAreaQuery({
+      osmType: 'relation',
+      osmId: 2223069,
+    });
+
+    expect(query).toContain(
+      'nwr["tourism"]["tourism"!~"^(hotel|hostel|guest_house|motel|apartment|camp_site|caravan_site|chalet|wilderness_hut)$"]["name"](area.a)',
+    );
+  });
+});
+
+describe('buildPoisQuery', () => {
+  it('filters the same tourism/amenity/historic/leisure/natural categories as buildPoisWithinAreaQuery, around a point instead of within an area', () => {
+    const query = buildPoisQuery({
+      latitude: -34.6201,
+      longitude: -58.3715,
+      radiusMeters: 2500,
+    });
+
+    expect(query).toContain('(around:2500,-34.6201,-58.3715)');
+    expect(query).toContain('nwr["historic"]["name"]');
+    expect(query).toContain(
+      'nwr["leisure"~"^(park|square|beach_resort)$"]["name"]',
+    );
+    expect(query).toContain('nwr["natural"="beach"]["name"]');
+  });
+
+  it('excludes accommodation-only tourism=* subtypes, same exclusion as buildPoisWithinAreaQuery', () => {
+    const query = buildPoisQuery({
+      latitude: -34.6201,
+      longitude: -58.3715,
+      radiusMeters: 2500,
+    });
+
+    expect(query).toContain(
+      'nwr["tourism"]["tourism"!~"^(hotel|hostel|guest_house|motel|apartment|camp_site|caravan_site|chalet|wilderness_hut)$"]["name"]',
+    );
   });
 });
 

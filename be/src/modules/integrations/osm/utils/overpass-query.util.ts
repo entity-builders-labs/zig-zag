@@ -23,6 +23,22 @@ const OVERPASS_TAG_TOKEN = /^[A-Za-z0-9_:]+$/;
 // never aim an unbounded `around:` at a shared Overpass instance.
 const FEATURES_NEAR_MAX_RADIUS_METERS = 8000;
 
+// Zig-Zag's product scope is tourist EXPERIENCES, not businesses -- an
+// accommodation is never itself a component of one (hotels are explicitly
+// out of scope; see the 2026-09-18 product-scope clarification). OSM's
+// bare `tourism=*` wildcard used below also matches every accommodation
+// subtype, which live-verified against the real Buenos Aires local pool
+// made up fully a third of it (259/779 = 33% `tourism=hotel` alone, 40%
+// once hostels/guest_houses/apartments/motels are included) --
+// polluting the candidate pool with real, non-touristic businesses that
+// then become spurious fuzzy-match targets (e.g. a real "Recoleta
+// Cemetery" hint matching "Hotel Urban Suites Recoleta" purely because
+// both real places happen to be tagged with the shared "Recoleta" word).
+// This is a category-level exclusion grounded in OSM's own standard
+// `tourism=*` value vocabulary -- not a per-name/per-language word list.
+const NON_EXPERIENCE_TOURISM_VALUES =
+  'hotel|hostel|guest_house|motel|apartment|camp_site|caravan_site|chalet|wilderness_hut';
+
 export function sanitizeOverpassTagToken(token: string): string {
   if (typeof token !== 'string' || !OVERPASS_TAG_TOKEN.test(token)) {
     throw new Error(
@@ -104,7 +120,7 @@ export function buildPoisQuery({
   return [
     '[out:json][timeout:25];',
     '(',
-    `  nwr["tourism"]["name"]${around};`,
+    `  nwr["tourism"]["tourism"!~"^(${NON_EXPERIENCE_TOURISM_VALUES})$"]["name"]${around};`,
     `  nwr["amenity"~"^(marketplace|place_of_worship)$"]["name"]${around};`,
     `  nwr["historic"]["name"]${around};`,
     `  nwr["leisure"~"^(park|square|beach_resort)$"]["name"]${around};`,
@@ -231,7 +247,7 @@ export function buildPoisWithinAreaQuery({
     `${osmType}(${osmId});`,
     'map_to_area->.a;',
     '(',
-    '  nwr["tourism"]["name"](area.a);',
+    `  nwr["tourism"]["tourism"!~"^(${NON_EXPERIENCE_TOURISM_VALUES})$"]["name"](area.a);`,
     '  nwr["amenity"~"^(marketplace|place_of_worship)$"]["name"](area.a);',
     '  nwr["historic"]["name"](area.a);',
     '  nwr["leisure"~"^(park|square|beach_resort)$"]["name"](area.a);',
