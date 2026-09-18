@@ -668,6 +668,7 @@ export class ExperienceAcquisitionService {
       destinationCountryCode: context.destinationCountryCode,
       geographicScope: context.geographicScope,
       evidence: execution.evidence,
+      observations: execution.observations,
       validationScope: context.validationScope,
       validationIntent: context.validationIntent,
       entityResolutionScope: context.entityResolutionScope,

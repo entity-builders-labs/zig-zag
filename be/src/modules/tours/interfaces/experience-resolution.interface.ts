@@ -3,6 +3,7 @@ import { DedupeEvidence } from '../utils/experience-dedupe.util';
 import { GeoJsonGeometry } from '@integrations/osm/utils/osm-geometry.util';
 import { OsmCandidate } from '@integrations/osm/services/osm-places.service';
 import { AreaScopeMembershipAudit } from './area-scope-membership.interface';
+import { SourceObservation } from './experience-acquisition.interface';
 
 /**
  * Task B5 — a request-level, non-authoritative geographic scope resolved
@@ -51,6 +52,22 @@ export interface ResolvedGeoEntity {
   latitude?: number | null;
   longitude?: number | null;
   geometry?: unknown;
+  /**
+   * Present only for an OSM-sourced entity whose node/way/relation itself
+   * carries a `wikidata=Qxxxx` tag. A direct, provider-declared structural
+   * cross-reference — not something derived by name/proximity search — so
+   * confirmMatch trusts it over the geo-proximity fallback when present.
+   */
+  wikidataQid?: string;
+  /**
+   * Present only for an OSM-sourced entity: every other name its own tags
+   * declare (`name:xx`, `official_name`, `alt_name`, `short_name`,
+   * `loc_name`, plus the title inside a `wikipedia=xx:Title` tag).
+   * confirmMatch checks these before any network call -- a direct
+   * declaration by the same real OSM record, not an independent
+   * cross-reference lookup.
+   */
+  nameAliasCandidates?: string[];
   role: 'area' | 'waypoint' | 'route' | 'venue';
   expectedType?: string;
   status: ResolvedGeoEntityStatus;
@@ -105,6 +122,21 @@ export interface ExperienceResolutionRequest {
    * to this field never having existed.
    */
   entityResolutionScope?: GeographicScope;
+  /**
+   * The raw structured acquisition observations behind this request's
+   * candidates, when they came from a structured (non-LLM) source
+   * (Wikivoyage, Places) via `StructuredExperienceCandidateSynthesizerService`.
+   * Sibling of `candidates`, never merged into a `GeoEntityHint` itself --
+   * `GeoEntityHint`'s shape is also the LLM discovery extractor's JSON
+   * contract, and this data must never be reachable from that path.
+   * `confirmMatch` looks up a hint's own `canonicalIdentity.wikidataQid`
+   * here (by matching `evidenceKeys`) as an independent, provider-sourced
+   * identity signal alongside an OSM candidate's own `wikidata` tag --
+   * both a real cross-reference to Wikidata, never a guess. Absent for
+   * every caller that doesn't pass it, byte-identical to this field never
+   * having existed.
+   */
+  observations?: SourceObservation[];
   traceContext?: Record<string, unknown>;
   evidence?: Array<{
     key?: string;

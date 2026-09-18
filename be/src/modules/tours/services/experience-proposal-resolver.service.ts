@@ -6,11 +6,14 @@ import {
   OsmPlacesService,
 } from '@integrations/osm/services/osm-places.service';
 import { INominatimApiService } from '@integrations/osm/interfaces/nominatim.interface';
-import { IPlacesApiService } from '@integrations/google-places/interfaces/places-api.interface';
+import {
+  IPlacesApiService,
+  PlaceData,
+} from '@integrations/google-places/interfaces/places-api.interface';
 import { ExperienceCatalogService } from './experience-catalog.service';
 import { CompositeGeographicValidationService } from './composite-geographic-validation.service';
 import { ExperienceEmbeddingIndexerService } from '@shared/ai/services/experience-embedding-indexer.service';
-import { Coordinates } from '@shared/utils/distance.utils';
+import { calculateDistance, Coordinates } from '@shared/utils/distance.utils';
 import {
   ExperienceEntityResolutionResponse,
   ExperienceProposalResolver,
@@ -27,6 +30,7 @@ import {
   normalizeGeoName,
 } from '../utils/nominatim-match.util';
 import { GeoEntityHint } from '../interfaces/experience-discovery.interface';
+import { SourceObservation } from '../interfaces/experience-acquisition.interface';
 import { computeQualityScore } from '../utils/quality-score.util';
 import { IWikidataApiService } from '@integrations/wikidata/interfaces/wikidata.interface';
 
@@ -39,6 +43,113 @@ import { IWikidataApiService } from '@integrations/wikidata/interfaces/wikidata.
  * Task A3.
  */
 const CONFIRMATION_RADIUS_METERS = 200;
+
+// OSM's `wikidata` tag is normally a single QID, but real-world tagging data
+// is community-edited and occasionally holds a `;`-separated list (multiple
+// disputed/merged QIDs) or other stray text -- only trust it when it's
+// unambiguously exactly one well-formed QID; anything else degrades to "no
+// tag", same as a candidate with no wikidata tag at all.
+const OSM_WIKIDATA_QID_PATTERN = /^Q[1-9][0-9]*$/;
+
+function extractWikidataQid(
+  tags: Record<string, string> | undefined,
+): string | undefined {
+  const raw = tags?.wikidata?.trim();
+  return raw && OSM_WIKIDATA_QID_PATTERN.test(raw) ? raw : undefined;
+}
+
+const NAME_ALIAS_TAG_KEYS = new Set([
+  'official_name',
+  'alt_name',
+  'short_name',
+  'loc_name',
+]);
+
+/**
+ * Every other name the OSM candidate ITSELF already declares -- `name:xx`
+ * (any language, not just en/es), `official_name`/`alt_name`/`short_name`/
+ * `loc_name`, and the human-readable title inside a `wikipedia=xx:Title`
+ * tag. All free: this is data the candidate already carries, comparing it
+ * against the hint costs no network call and needs no independent
+ * cross-reference lookup -- it is a direct declaration by the same real
+ * OSM record the hint is being matched against, same trust tier as its own
+ * `name` tag. `alt_name` (and occasionally others) can hold a `;`-separated
+ * list -- split defensively even though most tags never do.
+ */
+function extractNameAliasCandidates(
+  tags: Record<string, string> | undefined,
+): string[] | undefined {
+  if (!tags) return undefined;
+  const candidates: string[] = [];
+  for (const [key, value] of Object.entries(tags)) {
+    if (!value) continue;
+    if (key.startsWith('name:') || NAME_ALIAS_TAG_KEYS.has(key)) {
+      for (const part of value.split(';')) {
+        const trimmed = part.trim();
+        if (trimmed) candidates.push(trimmed);
+      }
+    }
+  }
+  const wikipediaTag = tags.wikipedia?.trim();
+  if (wikipediaTag) {
+    const separatorIndex = wikipediaTag.indexOf(':');
+    const title =
+      separatorIndex > 0
+        ? wikipediaTag.slice(separatorIndex + 1).trim()
+        : wikipediaTag;
+    if (title) candidates.push(title);
+  }
+  return candidates.length > 0 ? candidates : undefined;
+}
+
+/**
+ * Picks a real candidate out of the Places top-N instead of trusting
+ * provider rank as identity -- rank-0 is often a same-category business
+ * that merely searches well for the query, not the specific place the hint
+ * names. Among results with a usable coordinate: an exact (normalized)
+ * name match wins over rank; with more than one exact match (a real
+ * chain/franchise with multiple branches, all genuinely sharing that exact
+ * name), the one closest to the destination wins -- never a guess, this is
+ * the same distance-first tie-break `bestNominatimMatch` already uses
+ * elsewhere in this module. Falls back to rank-0 only when no result's
+ * name matches the hint at all, preserving prior behavior for the fuzzy
+ * case (still independently confirmed afterward by `confirmMatch`).
+ */
+function selectBestPlaceCandidate(
+  hintName: string,
+  results: PlaceData[],
+  destinationPoint?: Coordinates,
+): PlaceData | undefined {
+  const withCoordinates = results.filter(
+    (place) =>
+      Number.isFinite(place.location?.latitude) &&
+      Number.isFinite(place.location?.longitude),
+  );
+  if (withCoordinates.length === 0) return undefined;
+
+  const needle = normalizeGeoName(hintName);
+  const exactMatches = withCoordinates.filter(
+    (place) =>
+      normalizeGeoName(place.displayName?.text || place.name || '') === needle,
+  );
+  if (exactMatches.length === 1) return exactMatches[0];
+  if (exactMatches.length > 1) {
+    if (!destinationPoint) return exactMatches[0];
+    return exactMatches.reduce((closest, candidate) =>
+      calculateDistance(destinationPoint, {
+        latitude: candidate.location!.latitude,
+        longitude: candidate.location!.longitude,
+      }) <
+      calculateDistance(destinationPoint, {
+        latitude: closest.location!.latitude,
+        longitude: closest.location!.longitude,
+      })
+        ? candidate
+        : closest,
+    );
+  }
+  return withCoordinates[0];
+}
 
 // Loose radius for biasing a Places text search toward the destination when
 // Nominatim/OSM had no usable match — wide enough to cover a metro area's
@@ -165,6 +276,7 @@ export class ExperienceProposalResolverService
           input.destinationName,
           evidence,
           input.destinationCountryCode,
+          input.observations ?? [],
         ),
     );
 
@@ -371,6 +483,7 @@ export class ExperienceProposalResolverService
     destinationName?: string,
     evidence: ExperienceResolutionRequest['evidence'] = [],
     destinationCountryCode?: string,
+    observations: SourceObservation[] = [],
   ) {
     const entities: ResolvedGeoEntity[] = [];
     const destinationAssociationVerified =
@@ -381,10 +494,11 @@ export class ExperienceProposalResolverService
       );
 
     for (const hint of candidate?.componentHints ?? []) {
+      const isAreaHint = hint.expectedKind === 'AREA' || hint.role === 'area';
       const pool =
         hint.expectedKind === 'ROUTE' || hint.role === 'route'
           ? streets
-          : hint.expectedKind === 'AREA' || hint.role === 'area'
+          : isAreaHint
             ? boundary
               ? [boundary]
               : []
@@ -394,7 +508,7 @@ export class ExperienceProposalResolverService
       if (matched) {
         const resolvedEntity = await this.persistOsmEntity(hint, matched);
         entities.push(
-          (await this.confirmMatch(resolvedEntity, hint))
+          (await this.confirmMatch(resolvedEntity, hint, observations))
             ? resolvedEntity
             : this.unconfirmedEntity(hint, resolvedEntity.provider),
         );
@@ -409,9 +523,45 @@ export class ExperienceProposalResolverService
         );
         if (globallyResolved) {
           entities.push(
-            (await this.confirmMatch(globallyResolved, hint))
+            (await this.confirmMatch(globallyResolved, hint, observations))
               ? globallyResolved
               : this.unconfirmedEntity(hint, globallyResolved.provider),
+          );
+          continue;
+        }
+      }
+
+      // Real, live-measured pattern: a discovery hint tagged role="area"
+      // (a district/neighborhood) that is actually a point-like place (a
+      // plaza, monument, square) -- neither the destination-wide boundary
+      // nor a Nominatim administrative-area search can ever match it, even
+      // though the real entity sits right there in the local POI pool.
+      // Retry once against that pool, as a venue, before giving up. Never
+      // widens what counts as a match or loosens confirmation -- the
+      // corrected entity still goes through the exact same
+      // matchOsmCandidateByName + confirmMatch gate a genuine venue hint
+      // does; this only gives the hint a second, correctly-scoped pool to
+      // be found in.
+      if (isAreaHint) {
+        const venueFallbackMatch = matchOsmCandidateByName(hint.name, pois);
+        if (venueFallbackMatch) {
+          const correctedHint = {
+            ...hint,
+            role: 'venue' as const,
+            expectedKind: 'PLACE' as const,
+          };
+          const resolvedEntity = await this.persistOsmEntity(
+            correctedHint,
+            venueFallbackMatch,
+          );
+          entities.push(
+            (await this.confirmMatch(
+              resolvedEntity,
+              correctedHint,
+              observations,
+            ))
+              ? resolvedEntity
+              : this.unconfirmedEntity(correctedHint, resolvedEntity.provider),
           );
           continue;
         }
@@ -489,15 +639,122 @@ export class ExperienceProposalResolverService
    * provider outage is "cannot confirm", never "confirmed absent" — the
    * caller must treat both identically (fail closed).
    */
+  /**
+   * Direct structural confirmation using the OSM candidate's OWN declared
+   * `wikidata=Qxxxx` tag -- a real provider cross-reference, not a
+   * name/proximity heuristic. The geo-proximity path below has to guess
+   * WHICH nearby Wikidata place corresponds to the matched entity, which
+   * lets a wrong-but-nearby match get confirmed by an unrelated real place
+   * that happens to sit close by. When the matched entity's own OSM tags
+   * already name that place unambiguously, there is nothing to guess.
+   * This also recovers a genuinely correct match that the geo-proximity
+   * path would reject purely because the hint's language differs from
+   * Wikidata's single label there -- this checks every alias Wikidata
+   * records for the entity, not just one.
+   *
+   * Returns `undefined` (not `false`) when Wikidata has no record of the
+   * QID at all, so the caller can fall back to the geo-proximity check --
+   * the same evidence situation as a candidate with no wikidata tag.
+   */
+  /**
+   * A hint's underlying structured SourceObservation(s) may already carry
+   * a provider-resolved QID (`canonicalIdentity.wikidataQid`) -- e.g. a
+   * Wikivoyage entry that cites its own Wikidata item. Correlated by
+   * `evidenceKeys`, the same correlation `hasDestinationAssociationEvidence`
+   * already uses elsewhere in this file. Never reads anything off `hint`
+   * itself beyond `evidenceKeys` -- the discovery LLM's own JSON output has
+   * no `observations` to consult, so this can never surface an
+   * LLM-invented identity.
+   */
+  private findObservationQid(
+    hint: any,
+    observations: SourceObservation[],
+  ): string | undefined {
+    for (const key of hint?.evidenceKeys ?? []) {
+      const qid = observations.find((item) => item.evidenceKey === key)
+        ?.canonicalIdentity?.wikidataQid;
+      if (qid) return qid;
+    }
+    return undefined;
+  }
+
+  private async confirmViaOwnWikidataTag(
+    qid: string,
+    hint: any,
+  ): Promise<boolean | undefined> {
+    let summaries: Map<string, { label?: string; aliases?: string[] }>;
+    try {
+      summaries = await this.wikidata!.getEntitySummaries([qid]);
+    } catch {
+      return false;
+    }
+    const summary = summaries.get(qid);
+    if (!summary) return undefined;
+
+    const needle = normalizeGeoName(hint.name);
+    const candidateLabels = [summary.label, ...(summary.aliases ?? [])].filter(
+      (label): label is string => Boolean(label),
+    );
+    return candidateLabels.some((label) =>
+      hasSpecificNameOverlap(needle, normalizeGeoName(label), {
+        requireAllTokens: true,
+      }),
+    );
+  }
+
+  private hasMatchingOwnNameTag(entity: ResolvedGeoEntity, hint: any): boolean {
+    const needle = normalizeGeoName(hint.name);
+    return (entity.nameAliasCandidates ?? []).some((alias) =>
+      hasSpecificNameOverlap(needle, normalizeGeoName(alias), {
+        requireAllTokens: true,
+      }),
+    );
+  }
+
   private async confirmMatch(
     entity: ResolvedGeoEntity,
     hint: any,
+    observations: SourceObservation[] = [],
   ): Promise<boolean> {
     const isExact =
       normalizeGeoName(entity.canonicalName || '') ===
       normalizeGeoName(hint.name);
     if (isExact) return true;
+
+    // Cheapest, most direct check: does the SAME OSM candidate already
+    // declare this name itself (a translation, an official/short/local
+    // name, or its own Wikipedia article title)? No network call, no
+    // independent cross-reference, no risk of matching an unrelated
+    // nearby place -- it is the identical real record `entity` already is,
+    // just checked against every name it carries, not only its primary one.
+    if (this.hasMatchingOwnNameTag(entity, hint)) return true;
+
     if (!this.wikidata) return false;
+
+    // A known QID is trusted from either source: the OSM candidate's own
+    // `wikidata` tag (set on the entity itself by persistOsmEntity), or a
+    // provider-resolved `canonicalIdentity.wikidataQid` on the structured
+    // SourceObservation that originated this hint (e.g. a QID Wikivoyage
+    // or Places already resolved -- never the discovery LLM, which never
+    // has access to `observations` at all). The OSM tag wins when both
+    // happen to be present, matching prior behavior exactly for every
+    // OSM-sourced entity.
+    const knownQid =
+      entity.wikidataQid ?? this.findObservationQid(hint, observations);
+    if (knownQid) {
+      const viaOwnTag = await this.confirmViaOwnWikidataTag(knownQid, hint);
+      // `undefined` means Wikidata has no record of this QID at all (a
+      // stale/miskeyed OSM tag) -- fall through to the geo-proximity check
+      // below, the same evidence situation as having no tag. `true`/`false`
+      // is a direct, unambiguous answer from the entity's OWN declared
+      // Wikidata record and is trusted as-is -- it must NOT fall through to
+      // the proximity fallback on `false`, or a wrongly-matched local
+      // candidate that happens to carry its own (internally correct)
+      // wikidata tag could still get confirmed by an unrelated nearby
+      // place, exactly the ambiguity this direct check exists to remove.
+      if (viaOwnTag !== undefined) return viaOwnTag;
+    }
+
     if (
       !Number.isFinite(entity.latitude) ||
       !Number.isFinite(entity.longitude)
@@ -606,6 +863,8 @@ export class ExperienceProposalResolverService
         geometry: matched.geometry,
         role: hint.role,
         status: 'resolved' as const,
+        wikidataQid: extractWikidataQid(matched.tags),
+        nameAliasCandidates: extractNameAliasCandidates(matched.tags),
       },
       { geoEntityId: geo.id },
     );
@@ -758,7 +1017,11 @@ export class ExperienceProposalResolverService
             }
           : undefined,
       });
-      const place = result.data[0];
+      const place = selectBestPlaceCandidate(
+        hint.name,
+        result.data,
+        destinationPoint,
+      );
       if (
         !place?.location ||
         !Number.isFinite(place.location.latitude) ||

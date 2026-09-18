@@ -27,6 +27,7 @@ interface WbGetEntitiesResponse {
       id: string;
       labels?: Record<string, { value: string }>;
       descriptions?: Record<string, { value: string }>;
+      aliases?: Record<string, Array<{ value: string }>>;
       sitelinks?: Record<string, { title: string }>;
     }
   >;
@@ -121,8 +122,13 @@ export class WikidataApiService implements IWikidataApiService {
         params: {
           action: 'wbgetentities',
           ids: qids.join('|'),
-          props: 'labels|descriptions|sitelinks',
-          languages: 'en',
+          props: 'labels|descriptions|sitelinks|aliases',
+          // `es` alongside `en`: confirming a hint against this entity's
+          // recorded names needs the Spanish primary label as a candidate
+          // too, not only genuine skos:altLabel aliases — a Spanish-only
+          // OSM/hint name legitimately has no English alias, only a
+          // Spanish primary label.
+          languages: 'en|es',
           sitefilter: 'enwiki',
           format: 'json',
         },
@@ -145,12 +151,21 @@ export class WikidataApiService implements IWikidataApiService {
       const description = entity.descriptions?.en?.value;
       const enwikiTitle = entity.sitelinks?.enwiki?.title;
 
+      const altNames = new Set<string>();
+      if (entity.labels?.es?.value) altNames.add(entity.labels.es.value);
+      for (const langAliases of Object.values(entity.aliases ?? {})) {
+        for (const alias of langAliases) {
+          if (alias.value) altNames.add(alias.value);
+        }
+      }
+      const aliases = altNames.size > 0 ? Array.from(altNames) : undefined;
+
       // Wikidata echoes back an unresolved id as just `{ id, missing: '' }`
       // with none of these fields — that's a real "no such QID", not an
       // error, so it's simply absent from the returned Map.
-      if (!label && !description && !enwikiTitle) continue;
+      if (!label && !description && !enwikiTitle && !aliases) continue;
 
-      summaries.set(qid, { qid, label, description });
+      summaries.set(qid, { qid, label, description, aliases });
       if (enwikiTitle) titleToQid.set(enwikiTitle, qid);
     }
 

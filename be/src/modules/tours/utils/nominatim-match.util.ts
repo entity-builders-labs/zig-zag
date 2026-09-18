@@ -265,7 +265,61 @@ export function matchOsmCandidateByName(
     (candidate) => normalizeGeoName(candidate.name) === needle,
   );
   if (exact) return exact;
-  return pool.find((candidate) =>
+
+  const fuzzyMatches = pool.filter((candidate) =>
     hasSpecificNameOverlap(needle, normalizeGeoName(candidate.name)),
   );
+  if (fuzzyMatches.length <= 1) return fuzzyMatches[0];
+  return bestFuzzyMatch(needle, fuzzyMatches);
+}
+
+/**
+ * Same "best in the whole pool, not first found" discipline the exact-match
+ * branch above already applies, extended to the fuzzy branch -- real
+ * regression: several real, unrelated OSM nodes sharing one generic token
+ * with the hint (e.g. bare transit-stop nodes all named "Catedral" near the
+ * real "Catedral Metropolitana" building) let the FIRST one in Overpass's
+ * arbitrary result order silently steal a hint whose better real match sat
+ * later in the same pool. Prefers, in order: more of the hint's significant
+ * tokens matched, then a candidate carrying its own `wikidata` tag (a real
+ * cross-reference, not a guess) over one without. A full tie keeps the
+ * first candidate found -- stable and deterministic, never an arbitrary
+ * reorder.
+ */
+function bestFuzzyMatch(
+  needle: string,
+  candidates: OsmCandidate[],
+): OsmCandidate {
+  const needleTokens = needle.split(' ').filter((token) => token.length >= 4);
+  let best = candidates[0];
+  let bestMatchedCount = matchedTokenCount(needleTokens, best);
+  let bestHasWikidataTag = Boolean(best.tags?.wikidata?.trim());
+
+  for (const candidate of candidates.slice(1)) {
+    const matchedCount = matchedTokenCount(needleTokens, candidate);
+    if (matchedCount > bestMatchedCount) {
+      best = candidate;
+      bestMatchedCount = matchedCount;
+      bestHasWikidataTag = Boolean(candidate.tags?.wikidata?.trim());
+      continue;
+    }
+    if (matchedCount < bestMatchedCount) continue;
+
+    const hasWikidataTag = Boolean(candidate.tags?.wikidata?.trim());
+    if (hasWikidataTag && !bestHasWikidataTag) {
+      best = candidate;
+      bestHasWikidataTag = true;
+    }
+  }
+  return best;
+}
+
+function matchedTokenCount(
+  needleTokens: string[],
+  candidate: OsmCandidate,
+): number {
+  const haystackTokens = new Set(
+    normalizeGeoName(candidate.name).split(' ').filter(Boolean),
+  );
+  return needleTokens.filter((token) => haystackTokens.has(token)).length;
 }

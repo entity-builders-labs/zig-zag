@@ -104,6 +104,70 @@ describe('WikidataApiService', () => {
     expect(mockedAxios.get).toHaveBeenCalledTimes(1);
   });
 
+  it('collects the Spanish primary label and en/es aliases into `aliases` (cross-source confirmation via OSM wikidata tag)', async () => {
+    mockedAxios.get
+      .mockResolvedValueOnce(
+        mockWbGetEntities({
+          Q1808336: {
+            id: 'Q1808336',
+            labels: {
+              en: { value: 'Museum of Latin American Art of Buenos Aires' },
+              es: { value: 'Museo de Arte Latinoamericano de Buenos Aires' },
+            },
+            aliases: {
+              en: [{ value: 'MALBA' }],
+              es: [{ value: 'MALBA' }],
+            },
+          },
+        }),
+      )
+      .mockResolvedValueOnce(mockExtracts({}));
+
+    service = await setup();
+    const result = await service.getEntitySummaries(['Q1808336']);
+
+    const summary = result.get('Q1808336');
+    expect(summary?.label).toBe('Museum of Latin American Art of Buenos Aires');
+    expect(summary?.aliases).toEqual(
+      expect.arrayContaining([
+        'Museo de Arte Latinoamericano de Buenos Aires',
+        'MALBA',
+      ]),
+    );
+    // "MALBA" appears in both language buckets — deduplicated, not doubled.
+    expect(summary?.aliases?.filter((name) => name === 'MALBA')).toHaveLength(
+      1,
+    );
+  });
+
+  it('requests aliases and the es label alongside en, in one wbgetentities call', async () => {
+    mockedAxios.get
+      .mockResolvedValueOnce(mockWbGetEntities({}))
+      .mockResolvedValueOnce(mockExtracts({}));
+
+    service = await setup();
+    await service.getEntitySummaries(['Q1']);
+
+    const [, requestConfig] = mockedAxios.get.mock.calls[0];
+    expect(requestConfig?.params?.props).toContain('aliases');
+    expect(requestConfig?.params?.languages).toBe('en|es');
+  });
+
+  it('is undefined when Wikidata has no Spanish label or any alias for the entity', async () => {
+    mockedAxios.get
+      .mockResolvedValueOnce(
+        mockWbGetEntities({
+          Q2: { id: 'Q2', labels: { en: { value: 'Plaza Dorrego' } } },
+        }),
+      )
+      .mockResolvedValueOnce(mockExtracts({}));
+
+    service = await setup();
+    const result = await service.getEntitySummaries(['Q2']);
+
+    expect(result.get('Q2')?.aliases).toBeUndefined();
+  });
+
   it('omits a nonexistent QID from the result instead of throwing', async () => {
     mockedAxios.get.mockResolvedValueOnce(
       mockWbGetEntities({

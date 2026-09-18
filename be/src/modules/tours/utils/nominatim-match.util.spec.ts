@@ -420,6 +420,39 @@ describe('matchOsmCandidateByName', () => {
       fuzzyOnlyPool[0],
     );
   });
+
+  it("among several fuzzy matches, prefers the one sharing MORE of the hint's significant tokens over the first one found in pool order", () => {
+    const pool = [
+      osmCandidate({ id: 'osm:node:1', name: 'Museo Nacional' }),
+      osmCandidate({
+        id: 'osm:node:2',
+        name: 'Museo Nacional de Bellas Artes',
+      }),
+    ];
+    expect(
+      matchOsmCandidateByName('Museo Nacional de Bellas Artes', pool),
+    ).toBe(pool[1]);
+  });
+
+  it('when several fuzzy matches share the same token-overlap count, prefers the one carrying its own wikidata tag (real regression: hint "Catedral Primada" fuzzy-matching a bare subway-platform node named "Catedral" ahead of the real "Catedral Metropolitana" building, which is independently cross-referenced by Wikidata)', () => {
+    const pool = [
+      osmCandidate({ id: 'osm:node:subway', name: 'Catedral', tags: {} }),
+      osmCandidate({
+        id: 'osm:way:cathedral',
+        name: 'Catedral Metropolitana',
+        tags: { wikidata: 'Q967929' },
+      }),
+    ];
+    expect(matchOsmCandidateByName('Catedral Primada', pool)).toBe(pool[1]);
+  });
+
+  it('keeps the first candidate found when multiple fuzzy matches are fully tied (same token-overlap count, same wikidata-tag presence) -- stable, deterministic, no arbitrary reordering', () => {
+    const pool = [
+      osmCandidate({ id: 'osm:node:1', name: 'Catedral Norte', tags: {} }),
+      osmCandidate({ id: 'osm:node:2', name: 'Catedral Sur', tags: {} }),
+    ];
+    expect(matchOsmCandidateByName('Catedral Primada', pool)).toBe(pool[0]);
+  });
 });
 
 describe('hasSpecificNameOverlap (exported for cross-source confirmation reuse)', () => {

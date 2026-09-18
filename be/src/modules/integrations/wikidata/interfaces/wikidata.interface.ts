@@ -6,6 +6,16 @@ export interface WikidataEntitySummary {
   // sitelink when one exists. Undefined when there's no English Wikipedia
   // article for this entity.
   extract?: string;
+  // Every other name Wikidata records for this entity: its Spanish primary
+  // label (when different from `label`, which stays English-only for
+  // backward compatibility with existing narrative-enrichment callers) plus
+  // en/es `skos:altLabel` aliases. Cross-source confirmation (see
+  // ExperienceProposalResolverService.confirmMatch) needs this to recognize
+  // a genuinely correct match whose hint/OSM name and Wikidata's primary
+  // label are in different languages — `findNearbyPlaces`'s single label
+  // per place cannot represent that. Undefined when Wikidata has no
+  // alternate names for this entity.
+  aliases?: string[];
 }
 
 export type WikidataLookupStatus = 'success' | 'partial' | 'failed';
