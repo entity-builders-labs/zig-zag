@@ -306,6 +306,21 @@ services:
       - OVERPASS_UPDATE_SLEEP=3600
       - OVERPASS_MAX_TIMEOUT=60
       - OVERPASS_RATE_LIMIT=2
+      # Overpass's dispatcher default (`no`) rejects a second identical
+      # query while an earlier instance of it is still recent, returning
+      # HTTP 200 with an HTML error body instead of JSON -- something the
+      # client can't distinguish from a genuinely empty result without
+      # inspecting content, and which the app's own usage pattern (the same
+      # destination-scoped "within area" POI/street query repeated across
+      # every requested theme/candidate in one acquisition run) triggers
+      # routinely. Live-verified: with the default `no`, 7/8 identical
+      # sequential requests failed this way; with `yes`, 12/12 sequential
+      # and 6/6 concurrent identical requests all succeeded. See
+      # docs/superpowers/characterization/2026-09-17-task-a4-confirmation-live-remeasure.md
+      # and the 2026-09-15 adversarial review's Root Cause #5 for the
+      # symptom this was causing (OSM_QUERY_EMPTY dominating entity-
+      # resolution losses).
+      - OVERPASS_ALLOW_DUPLICATE_QUERIES=yes
     volumes:
       - overpass_argentina_data:/db
     networks:
