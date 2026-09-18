@@ -18,7 +18,24 @@ to a real product-scope fix (`019fccd`): hotels/hostels/guest_houses/
 apartments/motels are now excluded from the local OSM candidate pool
 entirely (33-40% of the real pool was accommodation businesses, not
 tourist experiences — out of this product's stated scope regardless of
-matching correctness). Track B: NOT STARTED.**
+matching correctness). Task A9 (hotel-exclusion fix live-measured) plus 5
+targeted resolver/matching fixes (direct-QID confirmation generalized
+beyond OSM tags, Places top-N reconciliation, `role: "area"→"venue"`
+fallback, best-fuzzy-match tie-break, own-name-tag comparison) landed and
+live-measured 2026-09-18: composite persistence **8.3% → 33.3%** (same
+harness, before/after), and the "Galería Güemes" collision fixed **at its
+root** (a candidate-selection bug the confirmation gate could only mask as
+a symptom, never fix) — see
+`docs/superpowers/characterization/2026-09-18-task-a9-live-remeasure-post-fixes.md`.
+"Recoleta Cemetery" did not appear as a hint in either live run this
+session — **not re-verified**, do not assume unaffected. A full adversarial
+review of a larger proposed architecture change (provider-neutral
+gather/reconcile/verify, composition-evidence-as-a-gate, full source
+extraction) was done against the real branch state — nothing from it was
+implemented; see
+`docs/superpowers/characterization/2026-09-18-composite-materialization-architecture-review.md`
+for what's verified-real, what's stale-assumption, and the ranked
+recommendation. Track B: NOT STARTED.**
 Written: 2026-09-17, updated 2026-09-18.
 Branch: `feat/preference-first-selection`.
 
@@ -60,10 +77,18 @@ TRACK A — cross-source confirmation (Wikidata)
        the MATCHED entity, not just the hint — closed a
        SECOND real gap the final review itself found)
   A7 — re-measure with A5+A6+fix live                      COMPLETE — 2/11 composites
-       persisted, first non-zero result all session   <-- WE ARE HERE
-  Root Cause #5 (Overpass reliability under load)          NOT STARTED — now the
-       clearest remaining lever, dominated A7's losses (21
-       hint-level OSM_QUERY_EMPTY, the largest category)
+       persisted, first non-zero result all session
+  Root Cause #5 (Overpass reliability under load)          COMPLETE — see below
+  Product-scope fix: exclude hotels from local pool        COMPLETE — commit 019fccd
+  A9 — re-measure with hotel-exclusion fix live             COMPLETE — see
+       docs/superpowers/characterization/2026-09-18-task-a9-live-remeasure-post-fixes.md
+  5 targeted resolver/matching fixes (direct-QID           COMPLETE — 8.3% -> 33.3%
+       generalized, Places top-N, role=area->venue         composite persistence,
+       fallback, best-fuzzy-match tie-break, own-name-tag  "Galería Güemes" fixed
+       comparison)                                          at its root      <-- WE ARE HERE
+  Architecture review of a larger proposed refactor        COMPLETE (analysis only,
+       (gather/reconcile/verify, compositionEvidence gate) nothing implemented) — see
+                                                             docs/superpowers/characterization/2026-09-18-composite-materialization-architecture-review.md
 
 TRACK B — TripAdvisor as an additional volume source
   B1 — TripAdvisorGroundedSearchService                     NOT STARTED
@@ -550,38 +575,41 @@ An implementation agent starting from this branch should:
    assuming push state. Never push without the user's explicit
    confirmation for this push specifically.
 2. Read, in order: `docs/superpowers/characterization/2026-09-18-task-a8-root-cause-5-live-remeasure.md`,
-   then this file's "DONE — Diagnosed A8's 0/9 result by hand..." section
-   above (the hand-diagnosis that corrected A8's own "language" framing).
-   `OSM_QUERY_EMPTY` is fixed (21 -> 0) and both original collision bugs
-   are confirmed fixed with real, unmasked live traffic.
-3. **Do not assume "the confirmation gate is too strict" without
-   re-measuring first.** A8's 0/9 composite result and the "34
-   UNCONFIRMED_MATCH, mostly language" read on it are now known to be
-   substantially wrong: hand diagnosis found roughly HALF of those cases
-   were genuinely new wrong-identity collisions (a broader pattern than
-   Recoleta/Güemes — generic Spanish category words like Mercado/Museo/
-   Pasaje/Palacio/Viejo causing false local matches) the gate correctly
-   caught, and several of the wrong matches were hotels — now excluded
-   from the candidate pool entirely (commit `019fccd`, pool 779 -> 469
-   real POIs). **A live re-measurement with this fix included has NOT
-   been run yet** — that is the actual next step, not touching the
-   confirmation logic. Only after that fresh measurement, if a genuine,
-   evidence-backed translation-only gap remains, consider a
-   multilingual-alias-aware corroboration check (Wikidata has real
-   `en`/`es` aliases live-verified to exist for at least two of the
-   originally-suspected "language gap" cases — Palacio Paz/"Paz Palace",
-   MALBA/"MALBA" — that the current query never fetches, only the single
-   primary label per language). Never relax anything unilaterally; get
-   the user's explicit direction, and re-verify both real collision cases
-   never regress.
-4. Track B (TripAdvisor volume) has still not been started. Widening
-   acquisition volume before re-measuring #3 above would mostly produce
-   more noise to sort through, not more real composites — still lower
-   priority.
-5. Track B, whenever it starts, needs the real
+   then this file's "DONE — Diagnosed A8's 0/9 result by hand..." section,
+   then `docs/superpowers/characterization/2026-09-18-task-a9-live-remeasure-post-fixes.md`
+   (Task A9 + the 5 targeted resolver/matching fixes, live-measured
+   8.3% -> 33.3% composite persistence) and
+   `docs/superpowers/characterization/2026-09-18-composite-materialization-architecture-review.md`
+   (a larger proposed refactor, reviewed against real code, nothing
+   implemented from it). Check `git log --oneline` for this session's
+   exact commits — not hardcoded here since this handoff section is
+   written before those commits land; do not assume any specific hash.
+3. **The confirmation gate itself (`confirmMatch`'s core strictness) was
+   never relaxed this session** — every fix landed either gives the
+   resolver a better/additional candidate to try (Places top-N, best-fuzzy-match,
+   role=area->venue fallback) or a cheaper/additional way to confirm one
+   using data the matched entity or its originating observation already
+   declares (own name:xx/wikipedia tags, `SourceObservation.canonicalIdentity.wikidataQid`)
+   — never a loosened bar. **"Galería Güemes" is now confirmed fixed at
+   its root** (a candidate-SELECTION bug, not a confirmation-strictness
+   one — the fuzzy matcher was picking the first pool entry sharing one
+   generic token instead of the entry sharing the most tokens). **"Recoleta
+   Cemetery" did NOT appear as a hint in either of this session's two live
+   runs — it is NOT re-verified.** Do not assume it's still fixed; the next
+   agent that sees it appear in a live run must check its outcome by hand,
+   same discipline as every other collision case in this document.
+4. `role` misclassification in the OPPOSITE direction from what this
+   session fixed (a genuine neighborhood/area classified `role: "waypoint"`
+   or `"venue"` instead of `"area"`) is real and measured
+   (`docs/superpowers/characterization/2026-09-18-composite-materialization-architecture-review.md`'s
+   recommendation #2) — not yet designed or implemented.
+5. Track B (TripAdvisor volume) has still not been started. Widening
+   acquisition volume before the item above would mostly produce more
+   noise to sort through, not more real composites — still lower priority.
+6. Track B, whenever it starts, needs the real
    `ExperienceGroundedSearchProvider` interface read (not assumed from the
    plan's sketch) before implementing B1.
-6. The non-negotiable product requirement driving all of this: every
+7. The non-negotiable product requirement driving all of this: every
    persisted Experience's components must be geographically confirmed —
    never relax `confirmMatch`'s fail-closed behavior without the user's
    explicit direction, and never mark a case "fixed" without live
