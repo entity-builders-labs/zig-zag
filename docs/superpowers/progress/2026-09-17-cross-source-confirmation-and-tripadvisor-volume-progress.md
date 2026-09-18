@@ -5,13 +5,20 @@ separate follow-up plan. Root Cause #5 (Overpass reliability) FIXED and
 live-verified (Task A8) — `OSM_QUERY_EMPTY` went from 21 occurrences to 0.
 Both original collision bugs ("Recoleta Cemetery", "Galería Güemes") are
 now confirmed fixed with real, unmasked live traffic, not just unit tests.
-Composite persistence is at 0/9 this run, WORSE in raw count than A7's
-2/11 — not a regression from the Root Cause #5 fix itself, but that fix
-removing an infra failure that was silently hiding the confirmation
-gate's true honest-loss rate for legitimate translated matches. This is
-now the open question, not yet resolved: is the stacked strictness (A5 +
-final-review fix, both language-blind) over-rejecting real matches?
-Needs the user's input before touching further. Track B: NOT STARTED.**
+A one-off diagnostic script (never committed, results below) classified
+every real A8 `UNCONFIRMED_MATCH` case by hand against live Overpass/
+Wikidata and found the 0/9 composite result was NOT mainly a language
+problem: roughly half were genuinely NEW wrong-identity collisions the
+gate correctly caught (a broader pattern than Recoleta/Güemes — generic
+Spanish CATEGORY words like Mercado/Museo/Pasaje/Palacio/Viejo/Residencia,
+not just neighborhood/hero names), a real minority were genuine
+translation-only losses, one was a distinct token-ratio design quirk
+(MAFALDA), and several of the wrong local matches were HOTELS, which led
+to a real product-scope fix (`019fccd`): hotels/hostels/guest_houses/
+apartments/motels are now excluded from the local OSM candidate pool
+entirely (33-40% of the real pool was accommodation businesses, not
+tourist experiences — out of this product's stated scope regardless of
+matching correctness). Track B: NOT STARTED.**
 Written: 2026-09-17, updated 2026-09-18.
 Branch: `feat/preference-first-selection`.
 
@@ -438,6 +445,81 @@ on the two real collisions this whole plan was built around.
 
 ---
 
+# DONE — Diagnosed A8's 0/9 result by hand + fixed a real product-scope gap (not a matching bug)
+
+The user pushed back on the "language problem" framing from A8's report,
+asking for evidence rather than a plausible-sounding explanation. A
+temporary, never-committed diagnostic script (`diagnose-unconfirmed.command.ts`
+— replicated `confirmMatch`'s exact logic inline, with FULL visibility
+into what production strips for unconfirmed entities: the matched
+candidate's own name/coordinates and every Wikidata nearby-place
+corroboration attempt) was run against the real 23 distinct hints A8's
+`UNCONFIRMED_MATCH` cases covered, live against the real local Overpass
+pool and Wikidata.
+
+**Result: "it's just language" was wrong.** Categorized:
+- **~12 of 23** were genuinely NEW wrong-identity collisions the gate
+  correctly caught — a broader pattern than the plan's original two cases
+  (Recoleta/Güemes, neighborhood/hero proper nouns): generic **Spanish
+  category words** (Mercado, Museo, Pasaje, Palacio, Viejo, Residencia)
+  caused the local matcher to pick an unrelated real place sharing only
+  that one word. Concretely: "Mercado San Telmo" → "Hotel Viejo Telmo";
+  "Monumental Tower" → a hotel branded "Dazzler Tower San Martin" (this
+  independently resolves an ambiguity A4's report had left open); "Patio
+  Bullrich" → "Adolfo Bullrich" (a person, not the mall); several more.
+- **~4-5** were genuine correct matches rejected purely on translation
+  (e.g. "Russian Orthodox Church" vs. its only-Spanish Wikidata label,
+  zero shared vocabulary at all).
+- **1** ("MAFALDA!") was a distinct design quirk: the entity-check's
+  token-ratio penalizes a LONGER local name against a SHORTER
+  corroborating label, unrelated to language.
+- The rest were genuine Wikidata coverage gaps or ambiguous
+  same-name-different-referent cases.
+
+**The real, actionable finding**: several of the wrong local matches in
+that first ~12 were **hotels** — not a resolution-algorithm defect at
+all, but a **product-scope gap**. The user clarified (again, restating an
+earlier session boundary): this is a tourist-EXPERIENCE engine, not a
+business directory — hotels are explicitly out of scope, and
+restaurants/cafes belong to the not-yet-built "TourStop" concept unless
+independently iconic.
+
+**Fix, commit `019fccd`**: the local Overpass POI query's
+`nwr["tourism"]["name"]` wildcard matched every `tourism=*` subtype
+indiscriminately, including pure accommodation categories. Live-verified
+against the real Buenos Aires pool: 259/779 (33%) of ALL POIs were
+`tourism=hotel` alone; 310/779 (40%) once hostels/guest_houses/
+apartments/motels/etc. are counted. Excluded these categories from BOTH
+`buildPoisWithinAreaQuery` and `buildPoisQuery` (the area-scale and
+point-scale siblings, both had the identical wildcard).
+
+**On being a word list — addressed directly, twice, at the user's
+challenge**: this excludes by OSM's own closed, standard `tourism=*`
+**tag value** vocabulary (the same structured-tag technique the
+pre-existing `amenity~"^(marketplace|place_of_worship)$"` filter in this
+same file already used) — never by scanning the free-text `name` field
+for words in any language. Verified live this doesn't need separate
+handling for "bar"/"heladería" (ice cream)/"apart hotel": those aren't
+`tourism=*` values at all (a different OSM key, `amenity=bar|cafe|
+ice_cream`, already excluded since the `amenity` filter was never a
+wildcard); 1132 real Buenos Aires bars/cafes/restaurants/ice-cream shops
+exist and only 2 carry a secondary `tourism=attraction` tag (an
+OSM-community "this one is genuinely iconic" signal, matching the
+product's own stated exception) and would still surface as candidates.
+"Apart hotel" already maps to the already-excluded `tourism=apartment`
+(verified against real listings: "Suipacha Suites", "Icaro Suites",
+"Top Rentals").
+
+TDD: 3 new/updated tests in `overpass-query.util.spec.ts`. Full backend
+suite: 1517/1517, 148/148 suites. Typecheck/lint clean.
+
+**Not yet done**: a live re-measurement with this fix included (would be
+"Task A9" in this plan's numbering) — the pool shrank from 779 to 469
+real POIs, which should reduce false-collision candidates further, but
+this has not been empirically re-verified with a live 6-theme run yet.
+
+---
+
 ## Deferred / not started — Track B
 
 Not started. Track B (`TripAdvisorGroundedSearchService`, wired as a
@@ -459,42 +541,43 @@ An implementation agent starting from this branch should:
 1. Read this file's "Current state" block first. A1–A8 across the three
    docs (`2026-09-17-cross-source-confirmation-and-tripadvisor-volume.md`
    for A1–A4, `2026-09-17-confirmation-collision-fix-and-anchor-scope-narrowing.md`
-   for A5–A7, Root Cause #5 done ad hoc per a user question, no separate
-   plan doc) are ALL COMPLETE and committed locally
-   (`4d408a1`, `48cdf21`, `673a556`, `1f41251`, `9b1c86d`, `2c2e412`,
-   `ecba56a`, `e70f3e2`) — **not yet pushed** to `fork` as of this
-   writing; check `git log --oneline fork/feat/preference-first-selection..HEAD`
-   before assuming push state. Never push without the user's explicit
+   for A5–A7, Root Cause #5 + the tourism-filter fix done ad hoc per user
+   questions, no separate plan doc for either) are ALL COMPLETE and
+   committed locally (`4d408a1`, `48cdf21`, `673a556`, `1f41251`,
+   `9b1c86d`, `2c2e412`, `ecba56a`, `e70f3e2`, `019fccd`) — **not yet
+   pushed** to `fork` as of this writing; check
+   `git log --oneline fork/feat/preference-first-selection..HEAD` before
+   assuming push state. Never push without the user's explicit
    confirmation for this push specifically.
-2. Read `docs/superpowers/characterization/2026-09-18-task-a8-root-cause-5-live-remeasure.md`
-   in full before doing anything else — it's the current real state.
-   `OSM_QUERY_EMPTY` is fixed (21 -> 0). Both original collision bugs are
-   now confirmed fixed with real, unmasked live traffic (previously
-   `2026-09-17-task-a7-post-fix-live-remeasure.md` could not confirm the
-   "Recoleta Cemetery" case live because infra masked it every time it
-   appeared — A8 finally exercised it live, twice, both correctly
-   `UNCONFIRMED_MATCH`).
-3. **The open, unresolved question is calibration, not correctness**:
-   composite persistence is at 0/9 in A8 (worse in raw count than A7's
-   2/11) and `UNCONFIRMED_MATCH` jumped from 13 to 34 once Overpass
-   stopped silently removing candidates from the pool before they could
-   reach the confirmation gate. Spot-checking A8's `UNCONFIRMED_MATCH`
-   hints shows many that look like plausibly CORRECT matches failing
-   purely on translation/language grounds, not identity collisions — the
-   stacked strictness of A5's `requireAllTokens` (hint check) and the
-   final-review's entity-identity check (both language-blind, both now
-   required against the same Wikidata place) may be over-rejecting.
-   **Do not loosen this unilaterally.** Get the user's explicit direction
-   first — options include a multilingual-alias-aware corroboration check
-   (Wikidata `skos:altLabel`, not just the one primary label returned
-   today), or accepting the current recall cost as the correct price of
-   the non-negotiable requirement. Whatever is decided, re-verify against
-   both real collision cases ("Recoleta Cemetery", "Galería Güemes") before
-   calling it done — they must never regress.
+2. Read, in order: `docs/superpowers/characterization/2026-09-18-task-a8-root-cause-5-live-remeasure.md`,
+   then this file's "DONE — Diagnosed A8's 0/9 result by hand..." section
+   above (the hand-diagnosis that corrected A8's own "language" framing).
+   `OSM_QUERY_EMPTY` is fixed (21 -> 0) and both original collision bugs
+   are confirmed fixed with real, unmasked live traffic.
+3. **Do not assume "the confirmation gate is too strict" without
+   re-measuring first.** A8's 0/9 composite result and the "34
+   UNCONFIRMED_MATCH, mostly language" read on it are now known to be
+   substantially wrong: hand diagnosis found roughly HALF of those cases
+   were genuinely new wrong-identity collisions (a broader pattern than
+   Recoleta/Güemes — generic Spanish category words like Mercado/Museo/
+   Pasaje/Palacio/Viejo causing false local matches) the gate correctly
+   caught, and several of the wrong matches were hotels — now excluded
+   from the candidate pool entirely (commit `019fccd`, pool 779 -> 469
+   real POIs). **A live re-measurement with this fix included has NOT
+   been run yet** — that is the actual next step, not touching the
+   confirmation logic. Only after that fresh measurement, if a genuine,
+   evidence-backed translation-only gap remains, consider a
+   multilingual-alias-aware corroboration check (Wikidata has real
+   `en`/`es` aliases live-verified to exist for at least two of the
+   originally-suspected "language gap" cases — Palacio Paz/"Paz Palace",
+   MALBA/"MALBA" — that the current query never fetches, only the single
+   primary label per language). Never relax anything unilaterally; get
+   the user's explicit direction, and re-verify both real collision cases
+   never regress.
 4. Track B (TripAdvisor volume) has still not been started. Widening
-   acquisition volume before resolving the calibration question above
-   would mostly produce more `UNCONFIRMED_MATCH` noise to sort through, not
-   more real composites — still lower priority than #3.
+   acquisition volume before re-measuring #3 above would mostly produce
+   more noise to sort through, not more real composites — still lower
+   priority.
 5. Track B, whenever it starts, needs the real
    `ExperienceGroundedSearchProvider` interface read (not assumed from the
    plan's sketch) before implementing B1.
