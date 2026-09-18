@@ -1,12 +1,22 @@
 # Cross-Source Confirmation + TripAdvisor Volume — Progress
 
-Status: **Track A: A1, A2, A3 COMPLETE. A4 (re-measure) COMPLETE — found a real
-gap in the confirmation guarantee, see below. NEW FOLLOW-UP TASK NEEDED
-(tentatively "A5") before Track A's product requirement can be considered
-met. Track B: NOT STARTED, blocked behind A5 by product priority (not by
-any technical dependency).**
+Status: **Track A: A1–A4 COMPLETE (this plan). A5, A6, A7 COMPLETE under a
+separate follow-up plan — see below — which closed the real confirmation
+gap A4 found AND a second gap its own final code review found. First
+non-zero composite-persistence result of the whole session (2/11, 18.2%).
+Root Cause #5 (Overpass reliability) is now the clearest remaining lever
+and is NOT yet started. Track B: NOT STARTED, still deprioritized behind
+product-correctness work by priority (not a technical dependency).**
 Written: 2026-09-17.
 Branch: `feat/preference-first-selection`.
+
+> **Follow-up plan pointer:** Task A5/A6/A7 referenced throughout this file
+> from here on were executed under a separate, dedicated plan document —
+> `docs/superpowers/plans/2026-09-17-confirmation-collision-fix-and-anchor-scope-narrowing.md`
+> — created after A4 found the confirmation gap below. That plan has its
+> own full task-level detail (exact code, TDD steps); this file only
+> summarizes outcomes and points to it plus the two characterization
+> reports it produced.
 
 This is the current operational progress pointer for this plan. It follows
 directly from `2026-09-17-composite-experience-adversarial-review-progress.md`
@@ -31,11 +41,17 @@ TRACK A — cross-source confirmation (Wikidata)
   A1 — export hasSpecificNameOverlap for reuse            COMPLETE
   A2 — Wikidata geographic-proximity lookup                COMPLETE
   A3 — wire confirmation into the resolver                 COMPLETE
-  A4 — re-measure (Task 3 pattern) with confirmation live  COMPLETE (found a real gap, see below)
-  A5 — NEW, not yet planned in detail: close the           <-- WE ARE HERE
-       same-token-collision confirmation hole A4 found
-       (e.g. "Recoleta Cemetery" wrongly confirmed via
-       "Hotel Urban Suites Recoleta")
+  A4 — re-measure (Task 3 pattern) with confirmation live  COMPLETE (found a real gap)
+  A5 — stricter confirmation-only token bar                COMPLETE (separate plan)
+  A6 — narrow local pool to resolved AREA anchor           COMPLETE (separate plan, Root Cause #4)
+       (+ final-review fix round: tie corroboration to
+       the MATCHED entity, not just the hint — closed a
+       SECOND real gap the final review itself found)
+  A7 — re-measure with A5+A6+fix live                      COMPLETE — 2/11 composites
+       persisted, first non-zero result all session   <-- WE ARE HERE
+  Root Cause #5 (Overpass reliability under load)          NOT STARTED — now the
+       clearest remaining lever, dominated A7's losses (21
+       hint-level OSM_QUERY_EMPTY, the largest category)
 
 TRACK B — TripAdvisor as an additional volume source
   B1 — TripAdvisorGroundedSearchService                     NOT STARTED
@@ -252,16 +268,97 @@ this constraint outside a real task/review cycle.
 
 ---
 
-# NEXT — Task A5 (new, not yet detailed in the plan): close the same-token-collision confirmation hole
+# DONE — Task A5, A6, and the final-review fix round
 
-Not yet planned at the task level (no code, no test names, no exact
-signatures decided) — this needs its own planning pass before
-implementation starts, following the same TDD process as A1-A3. Start
-from the two live-verified real cases in the A4 report
-("Recoleta Cemetery"/"Galería Güemes") as the regression fixtures, the
-same way "San Ignacio Church" → "Ignacio Pirovano" anchored Task A3's own
-tests. Do not start implementation directly from this bullet list —
-read the A4 report's "Critical finding" section in full first, then plan.
+Full plan (own file, own task-level detail): `docs/superpowers/plans/2026-09-17-confirmation-collision-fix-and-anchor-scope-narrowing.md`.
+Executed via subagent-driven-development (fresh implementer + reviewer per
+task, final whole-plan review, one fix round). Commits, in order:
+
+- `1f41251` — Task A5: `hasSpecificNameOverlap` gains an opt-in
+  `requireAllTokens` mode (100% of significant tokens, not ≥50%), used only
+  by `confirmMatch`. Closes the exact collision class A4 found *in
+  principle* — but see the final-review finding below, which found the
+  fix as first written was still incomplete.
+- `9b1c86d` — Task A6 (Root Cause #4): threads a resolved AREA anchor's own
+  `OsmCandidate` boundary (already fetched during anchor resolution,
+  previously discarded) through `ResolvedAnchor` → `AreaRouteWalkAcquisitionService`
+  → `materializeExecution` → a new `entityResolutionScope` on
+  `ExperienceResolutionRequest`, narrowing ONLY the local OSM pool fetch to
+  that area — `CompositeGeographicValidationService`'s destination-wide
+  boundary is untouched everywhere (verified directly in review).
+- `2c2e412` — **Final whole-plan review fix round 1**: the review (most
+  capable model, full A5+A6 combined diff) found that `confirmMatch` still
+  only checked whether a nearby Wikidata place's label satisfied the
+  HINT's tokens — never whether it had anything to do with the entity that
+  was ACTUALLY matched. Concretely: if the wrong local match (e.g. "Hotel
+  Urban Suites Recoleta") happened to sit within 200m of the REAL correct
+  place's own real Wikidata entry (e.g. "La Recoleta Cemetery" — which
+  legitimately contains both "recoleta" and "cemetery"), the wrong match
+  would still get confirmed — and Task A6 makes this geometrically MORE
+  likely by shrinking the search radius to one small anchor area. Verified
+  by hand against the real live case before dispatching the fix. Fix:
+  `confirmMatch` now requires a SECOND, independent check — the
+  corroborating label must ALSO satisfy `hasSpecificNameOverlap(entity.canonicalName,
+  place.label)` (default, non-strict bar) — on the SAME candidate Wikidata
+  place as the hint check, not independently on any place in the array.
+  Re-reviewed clean (both findings ADDRESSED, no new breakage).
+
+Full whole-plan review also flagged two lower-priority findings, ruled and
+parked rather than fixed now (see that plan's own SDD ledger history,
+already deleted per convention once clean — the outcome is: (a) the
+strict token bar is intentionally language-blind, now documented with a
+code comment rather than "fixed", a deliberate fail-closed trade-off; (b)
+anchor `osmBoundary` duplicates `geometry` into the generation bitácora
+trace and the acquisition source-plan fingerprint hash — a real payload/
+perf concern, explicitly out of this plan's file scope, needs its own
+future task).
+
+`yarn test` from `be/`: 1512/1512 passing, 148/148 suites, throughout.
+`yarn typecheck`/`yarn lint:check` clean throughout.
+
+---
+
+# DONE — Task A7: re-measure with A5+A6+fix live
+
+Full report: `docs/superpowers/characterization/2026-09-17-task-a7-post-fix-live-remeasure.md`.
+Same 6-theme live Buenos Aires methodology as A4/Task 3.
+
+**Headline: 26 raw candidates, 11 composite (>=2 hints), 2 composite
+persisted (18.2%)** — the first non-zero composite-persistence result of
+this entire session (Task 3's re-run: 0; A4: 0/7). Both accepted
+composites spot-checked with no signs of a wrong identity — one is entirely
+exact-name matches (Casa Rosada / Catedral Metropolitana / Cabildo de
+Buenos Aires, auto-confirmed without needing Wikidata at all); the other
+includes one genuine fuzzy/translated match ("Kavanagh Building" →
+"Edificio Kavanagh") that had to pass BOTH the hint check and the new
+final-review entity-identity check against real Wikidata corroboration,
+and did — real, live, positive-path evidence the Round 1 fix doesn't
+needlessly block a legitimate translated match on a genuinely specific
+(non-generic) identifying token.
+
+**The two original real bugs, re-checked live:**
+- **"Galería Güemes" → wrong monument: CONFIRMED FIXED, consistently.**
+  Landed on `UNCONFIRMED_MATCH` in every one of the 3 theme runs where the
+  local OSM pool actually returned data — zero wrong-resolution
+  occurrences this run.
+- **"Recoleta Cemetery" → wrong hotel: INCONCLUSIVE this run, not
+  disproven.** Both occurrences hit `OSM_QUERY_EMPTY` (Root Cause #5 infra
+  flakiness) before matching/confirmation ever ran, so this specific
+  collision wasn't live-re-exercised. The fix is still verified by hand
+  against the real Wikidata endpoint and by a dedicated TDD regression
+  test (commit `2c2e412`) — but per this session's own discipline (live-
+  verify, don't just trust unit tests), this should be explicitly
+  re-attempted once Overpass reliability stops masking it, not silently
+  assumed fixed.
+
+**`OSM_QUERY_EMPTY` (21 hint-level occurrences) is now the single largest
+loss category by far** — bigger than in any prior run this session. Task
+A6's narrower per-anchor queries did not, on their own, fix Overpass's own
+reliability under sustained load (Root Cause #5, still completely
+unaddressed). This is now the clearest remaining lever for raising
+composite persistence further, ahead of Track B (volume) by the same
+"fix the funnel before widening the top of it" logic that put A5/A6 ahead
+of Track B.
 
 ---
 
@@ -283,34 +380,42 @@ claim in this plan, which was live-validated).
 
 An implementation agent starting from this branch should:
 
-1. Read this file's "Current state" block first, then the plan
-   (`docs/superpowers/plans/2026-09-17-cross-source-confirmation-and-tripadvisor-volume.md`)
-   section for whichever task is next.
-2. A1/A2/A3 are COMPLETE and committed locally (`4d408a1`, `48cdf21`,
-   `673a556`) — **not yet pushed** to `fork` as of this writing; check
+1. Read this file's "Current state" block first. A1–A7 across both plans
+   (`2026-09-17-cross-source-confirmation-and-tripadvisor-volume.md` for
+   A1–A4, `2026-09-17-confirmation-collision-fix-and-anchor-scope-narrowing.md`
+   for A5–A7) are ALL COMPLETE and committed locally
+   (`4d408a1`, `48cdf21`, `673a556`, `1f41251`, `9b1c86d`, `2c2e412`) —
+   **not yet pushed** to `fork` as of this writing; check
    `git log --oneline fork/feat/preference-first-selection..HEAD` before
    assuming push state, don't trust a stale summary of it. Never push
    without the user's explicit confirmation for this push specifically.
-3. A4 is COMPLETE (measurement only, no code changed) — read
-   `docs/superpowers/characterization/2026-09-17-task-a4-confirmation-live-remeasure.md`
-   in full before doing anything else on this branch. It found a real,
-   live-verified false-positive class Task A3's confirmation does not yet
-   catch ("Recoleta Cemetery" → a hotel; "Galería Güemes" → an unrelated
-   monument) — this is the actual next problem, not Track B.
-4. Next is **Task A5** (not yet detailed/planned) — close that hole. Plan
-   it properly (task-level TDD steps, exact function signatures) before
-   implementing; do not start coding directly from the A4 report's
-   suggested options, they are directions, not a spec.
-5. Track B has not been started, and by product priority should wait
-   behind A5 (there is no technical dependency forcing this order, but the
-   non-negotiable confirmation requirement is not yet met, and more
-   acquisition volume before that is fixed only produces more of the same
-   unverified-identity risk).
-6. Track B, whenever it starts, needs the real
+2. Read `docs/superpowers/characterization/2026-09-17-task-a7-post-fix-live-remeasure.md`
+   in full before doing anything else — it's the current real state: 2/11
+   composites persisted live, no known false-positive identity in either,
+   but one of the two original bugs ("Recoleta Cemetery") was not
+   re-exercised live this run (infra masked it) and should be explicitly
+   re-attempted once Overpass is stable, not assumed fixed just because
+   its sibling case ("Galería Güemes") was live-confirmed.
+3. **Root Cause #5 (Overpass reliability under sustained load) is now the
+   clearest, highest-priority remaining lever** — it dominated A7's losses
+   (21 of the run's hint-level failures, the largest single category,
+   larger than in any prior run this session). This was already identified
+   in the original 2026-09-15 adversarial review and has never been
+   addressed. Consider it before Track B: more acquisition volume on top
+   of an unreliable local-data provider mostly produces more
+   infra-flakiness losses, not more real composites.
+4. Track B (TripAdvisor volume) has still not been started, and by product
+   priority should keep waiting behind correctness/reliability work — there
+   is no technical dependency forcing this order, but widening the top of
+   a funnel that's currently losing the most to infra flakiness (not to
+   candidate scarcity) isn't the highest-leverage next move.
+5. Track B, whenever it starts, needs the real
    `ExperienceGroundedSearchProvider` interface read (not assumed from the
    plan's sketch) before implementing B1.
-7. The non-negotiable product requirement driving this whole plan: every
+6. The non-negotiable product requirement driving all of this: every
    persisted Experience's components must be geographically confirmed —
-   never relax `confirmMatch`'s fail-closed behavior, and never mark this
-   requirement "met" while a known collision class (same generic token,
-   different real place) can still slip through.
+   never relax `confirmMatch`'s fail-closed behavior (now two independent
+   checks: hint-tokens AND matched-entity-tokens, both against the same
+   corroborating place), and never mark this requirement "met" for a case
+   that hasn't actually been live-re-verified, even when the code fix and
+   its unit tests are solid.
