@@ -2163,6 +2163,80 @@ describe('ExperienceProposalResolverService', () => {
       );
     });
 
+    it('does NOT confirm a fuzzy match when the corroborating Wikidata place matches the HINT but not the entity actually matched (final-review fix round 1: "Recoleta Cemetery" wrongly matched to "Hotel Urban Suites Recoleta", confirmed by the REAL nearby "La Recoleta Cemetery")', async () => {
+      const osmPlaces = {
+        lookupStreetsWithin: jest
+          .fn()
+          .mockResolvedValue({ status: 'success', value: [] }),
+        lookupPoisWithin: jest.fn().mockResolvedValue({
+          status: 'success',
+          value: [
+            {
+              id: 'osm:node:1',
+              name: 'Hotel Urban Suites Recoleta',
+              osmType: 'node',
+              osmId: 1,
+              geometry: { type: 'Point', coordinates: [-58.39, -34.59] },
+              tags: {},
+            },
+          ],
+        }),
+      };
+      const catalog = {
+        resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-hotel' }),
+        persistVerifiedExperience: jest.fn(),
+      };
+      const geographicValidator = { validate: jest.fn() };
+      const wikidata = {
+        findNearbyPlaces: jest.fn().mockResolvedValue([
+          // The REAL Recoleta Cemetery, genuinely nearby the wrongly-matched
+          // hotel (a real, small neighborhood -- Task A6's own area-anchor
+          // narrowing makes this MORE likely, not less). Its label contains
+          // BOTH of the hint's significant tokens ("recoleta" AND
+          // "cemetery"), so it satisfies the existing hint-only check under
+          // `requireAllTokens: true` -- but it has nothing to do with the
+          // entity that was actually matched (the hotel). A corroboration
+          // check that only asks "does some nearby real place's name match
+          // the HINT" -- without independently checking that the SAME place
+          // also plausibly corresponds to the MATCHED entity's own name --
+          // wrongly confirms the hotel as "Recoleta Cemetery". This is the
+          // exact collision the final whole-plan review found: Task A5's
+          // hint-only check is necessary but not sufficient.
+          {
+            qid: 'Q1749586',
+            label: 'La Recoleta Cemetery',
+            latitude: -34.5875,
+            longitude: -58.3931,
+          },
+        ]),
+      };
+      const service = new ExperienceProposalResolverService(
+        osmPlaces as any,
+        catalog as any,
+        geographicValidator as any,
+        undefined,
+        undefined,
+        undefined,
+        wikidata as any,
+      );
+
+      const result = await service.resolve({
+        geographicScope: { kind: 'AREA_BOUNDARY', boundary },
+        candidates: [candidate('Recoleta Walk', 'Recoleta Cemetery')],
+      });
+
+      const rejected = result.entityResolution.resolved[0];
+      expect(rejected.resolvedEntities[0]).toEqual(
+        expect.objectContaining({
+          hintName: 'Recoleta Cemetery',
+          status: 'unresolved',
+          reason: 'UNCONFIRMED_MATCH',
+        }),
+      );
+      expect(catalog.persistVerifiedExperience).not.toHaveBeenCalled();
+    });
+
     it('confirms a fuzzy (non-exact) local match when Wikidata independently has something nearby with a matching name', async () => {
       // Task A5 fixture fix: the hint must have ALL significant tokens
       // present in the Wikidata label for confirmation under requireAllTokens.

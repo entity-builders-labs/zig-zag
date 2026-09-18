@@ -515,15 +515,42 @@ export class ExperienceProposalResolverService
       return false;
     }
     const needle = normalizeGeoName(hint.name);
-    // Task A5: confirmation requires ALL of the hint's significant tokens
-    // to be present, not just >=50% -- matching stays permissive
-    // (unchanged, see nominatim-match.util.ts), but a same-generic-token
-    // collision (two different real places sharing one neighborhood/
-    // historical-figure word) must not count as independent confirmation.
-    return nearby.some((place) =>
-      hasSpecificNameOverlap(needle, normalizeGeoName(place.label), {
-        requireAllTokens: true,
-      }),
+    const matchedName = normalizeGeoName(entity.canonicalName || '');
+    // Final-review fix (round 1, 2026-09-17): Task A5's hint-only check
+    // alone is not sufficient. It only asks "does some real place near
+    // these coordinates plausibly correspond to what the HINT asked for" --
+    // it never checks that the SAME real place has anything to do with the
+    // entity that was actually matched. That gap lets a wrong-but-nearby
+    // local match get confirmed purely because the coordinates it
+    // contributed happen to sit near the REAL place the hint meant: e.g.
+    // hint "Recoleta Cemetery" wrongly matched locally to a real OSM node
+    // "Hotel Urban Suites Recoleta" -- if that hotel is within
+    // CONFIRMATION_RADIUS_METERS of the real Recoleta Cemetery (a genuinely
+    // plausible geography in a real, small neighborhood -- and Task A6's
+    // own area-anchor narrowing makes this MORE likely, not less, since a
+    // smaller local pool raises the odds that a wrong nearby match and the
+    // right place are both inside it), Wikidata's real "La Recoleta
+    // Cemetery" entry satisfies the hint check (both "recoleta" and
+    // "cemetery" tokens present) regardless of what the matched entity is
+    // actually named, wrongly confirming the hotel as the cemetery.
+    //
+    // The fix: BOTH checks must be satisfied by the SAME candidate Wikidata
+    // place. The hint check keeps Task A5's strict `requireAllTokens: true`
+    // bar (independent confirmation of the target's identity has to be
+    // solid). The entity check intentionally uses the DEFAULT (non-strict)
+    // bar -- it only needs to establish that the corroborating place
+    // plausibly corresponds to what was actually matched, not to re-litigate
+    // the strict hint bar a second time; a legitimately-confirming fuzzy
+    // match (matched entity's real name genuinely matching the hint, just
+    // phrased differently) still passes this easily, including trivially
+    // via the exact-equality shortcut in `hasSpecificNameOverlap` when the
+    // entity's canonical name literally equals the Wikidata label.
+    return nearby.some(
+      (place) =>
+        hasSpecificNameOverlap(needle, normalizeGeoName(place.label), {
+          requireAllTokens: true,
+        }) &&
+        hasSpecificNameOverlap(matchedName, normalizeGeoName(place.label)),
     );
   }
 

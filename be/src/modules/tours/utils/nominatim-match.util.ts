@@ -214,6 +214,18 @@ export function hasSpecificNameOverlap(
   // significant tokens for that caller only -- every existing caller
   // (omitting this option) is completely unaffected. A single-token
   // needle is unaffected either way: 1/1 already equals both 50% and 100%.
+  //
+  // Known, accepted trade-off (confirmation-collision-fix plan, final
+  // review): this bar is intentionally language-blind. A genuine
+  // cross-language/translation confirmation (e.g. a Spanish OSM/Wikidata
+  // name vs. an English hint, or vice versa) sharing fewer than 100% of
+  // tokens will now correctly be refused as UNCONFIRMED_MATCH rather than
+  // confirmed -- an honest loss, not a bug. This is deliberate: the
+  // fail-closed direction is the one this whole mechanism exists to
+  // protect, and loosening this bar to recover cross-language confirmation
+  // would reopen the exact same-token collision (e.g. "Recoleta") this
+  // plan was written to close. Do not "fix" this by relaxing
+  // requireAllTokens.
   options?: { requireAllTokens?: boolean },
 ): boolean {
   if (haystack === needle) return true;
