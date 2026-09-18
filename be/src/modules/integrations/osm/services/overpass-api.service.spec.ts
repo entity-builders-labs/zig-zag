@@ -111,6 +111,47 @@ describe('OverpassApiService', () => {
     expect(result).toEqual([]);
   });
 
+  it('retries when Overpass rejects a query with HTTP 200 and an HTML error body instead of JSON (dispatcher duplicate-query rejection, live-verified against the real local instance), then succeeds on retry', async () => {
+    const htmlErrorBody =
+      '<?xml version="1.0" encoding="UTF-8"?><html><body><p><strong>Error</strong>: runtime error: open64: 0 Success /osm3s_osm_base Dispatcher_Client::request_read_and_idx::duplicate_query </p></body></html>';
+    mockedAxios.post
+      // axios does NOT throw for this response (verified live) -- Content-Type
+      // is text/html, so `response.data` is left as a raw HTML string, not
+      // parsed JSON. `response.data?.elements || []` would otherwise treat
+      // this as "zero real results" instead of "the query never ran".
+      .mockResolvedValueOnce({ data: htmlErrorBody })
+      .mockResolvedValueOnce({ data: { elements: [{ type: 'node', id: 1 }] } });
+    service = await setup({
+      OVERPASS_MAX_RETRIES: '1',
+      OVERPASS_RETRY_BASE_MS: '1',
+      OVERPASS_TOTAL_BUDGET_MS: '1000',
+    });
+
+    const result = await service.queryContainingBoundary({
+      latitude: 0,
+      longitude: 0,
+    });
+
+    expect(result).toEqual([{ type: 'node', id: 1 }]);
+    expect(mockedAxios.post).toHaveBeenCalledTimes(2);
+  });
+
+  it('stops retrying and rejects (never silently returns []) when Overpass keeps returning the HTML error body', async () => {
+    const htmlErrorBody =
+      '<?xml version="1.0" encoding="UTF-8"?><html><body><p><strong>Error</strong>: runtime error: duplicate_query</p></body></html>';
+    mockedAxios.post.mockResolvedValue({ data: htmlErrorBody });
+    service = await setup({
+      OVERPASS_MAX_RETRIES: '2',
+      OVERPASS_RETRY_BASE_MS: '1',
+      OVERPASS_TOTAL_BUDGET_MS: '1000',
+    });
+
+    await expect(
+      service.queryContainingBoundary({ latitude: 0, longitude: 0 }),
+    ).rejects.toThrow();
+    expect(mockedAxios.post).toHaveBeenCalledTimes(3);
+  });
+
   it('propagates the error when the request fails', async () => {
     mockedAxios.post.mockRejectedValue(new Error('network down'));
     service = await setup();
