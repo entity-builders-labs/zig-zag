@@ -1,13 +1,18 @@
 # Cross-Source Confirmation + TripAdvisor Volume — Progress
 
-Status: **Track A: A1–A4 COMPLETE (this plan). A5, A6, A7 COMPLETE under a
-separate follow-up plan — see below — which closed the real confirmation
-gap A4 found AND a second gap its own final code review found. First
-non-zero composite-persistence result of the whole session (2/11, 18.2%).
-Root Cause #5 (Overpass reliability) is now the clearest remaining lever
-and is NOT yet started. Track B: NOT STARTED, still deprioritized behind
-product-correctness work by priority (not a technical dependency).**
-Written: 2026-09-17.
+Status: **Track A: A1–A4 COMPLETE (this plan). A5–A7 COMPLETE under a
+separate follow-up plan. Root Cause #5 (Overpass reliability) FIXED and
+live-verified (Task A8) — `OSM_QUERY_EMPTY` went from 21 occurrences to 0.
+Both original collision bugs ("Recoleta Cemetery", "Galería Güemes") are
+now confirmed fixed with real, unmasked live traffic, not just unit tests.
+Composite persistence is at 0/9 this run, WORSE in raw count than A7's
+2/11 — not a regression from the Root Cause #5 fix itself, but that fix
+removing an infra failure that was silently hiding the confirmation
+gate's true honest-loss rate for legitimate translated matches. This is
+now the open question, not yet resolved: is the stacked strictness (A5 +
+final-review fix, both language-blind) over-rejecting real matches?
+Needs the user's input before touching further. Track B: NOT STARTED.**
+Written: 2026-09-17, updated 2026-09-18.
 Branch: `feat/preference-first-selection`.
 
 > **Follow-up plan pointer:** Task A5/A6/A7 referenced throughout this file
@@ -362,6 +367,77 @@ of Track B.
 
 ---
 
+# DONE — Root Cause #5 (Overpass reliability) + Task A8 re-measurement
+
+Live-diagnosed (not planned first — reproduced the real failure with real
+curl/axios calls against the local Overpass instance before writing any
+fix), per the user's own question about whether the observed `HTTP 200 +
+HTML error body` behavior was configurable. It was: Overpass's dispatcher
+default `OVERPASS_ALLOW_DUPLICATE_QUERIES=no` rejects a second identical
+query while an earlier instance of it is still recent — exactly this app's
+own usage pattern (the same destination-scoped "within area" query
+repeated once per requested theme/candidate in one acquisition run, made
+more likely by Task A6's own narrowing). Live-verified: with the default
+`no`, 7/8 identical sequential requests failed this way; with `yes`,
+12/12 sequential and 6/6 truly concurrent identical requests all
+succeeded.
+
+**Commits:**
+- `ecba56a` — `docker-compose.yml`: `OVERPASS_ALLOW_DUPLICATE_QUERIES=yes`
+  for the local `osm-local` dev fixture. The actual fix.
+- `e70f3e2` — `OverpassApiService.execute()`: defense-in-depth — a
+  non-JSON response body (verified via a real axios+HTTP-server test that
+  axios does NOT throw for this, it leaves `response.data` as a raw
+  string) is now thrown as a new `OverpassMalformedResponseError` and
+  routed through the existing 429/502/503/504 retry/backoff path, instead
+  of silently becoming `[]`. TDD, 2 new tests, full suite 1514/1514 green.
+
+**`docs/development/local-overpass.md` already documents this profile as
+"a reproducible development fixture, not the production deployment
+design"** — production capacity planning for a real OSM query backend
+remains separate, future, unstarted work; this only fixes the dev
+fixture's own config default.
+
+## Task A8: re-measure with Root Cause #5 fixes live
+
+Full report: `docs/superpowers/characterization/2026-09-18-task-a8-root-cause-5-live-remeasure.md`.
+Same 6-theme methodology.
+
+**`OSM_QUERY_EMPTY` dropped from 21 (A7) to 0 (A8).** Clean confirmation
+the fix works. **Both original collision bugs are now confirmed fixed with
+real, unmasked live traffic** — "Recoleta Cemetery" (2 live occurrences
+this run, both correctly `UNCONFIRMED_MATCH`, the first time this specific
+case was actually live-re-exercised rather than infra-masked) and
+"Galería Güemes" (5/5 occurrences, consistent with A7).
+
+**But composite persistence dropped to 0/9** (worse in raw count than
+A7's 2/11), and `UNCONFIRMED_MATCH` more than doubled (13 -> 34). This is
+NOT a regression the Overpass fix caused — it's the Overpass fix removing
+an infra failure that was silently hiding the confirmation gate's own true
+honest-loss rate. Spot-checking the 25 distinct `UNCONFIRMED_MATCH` hints
+this run shows a real pattern beyond the 2 known collisions and the
+already-known acronym gap (MALBA): many look like plausibly CORRECT
+matches failing to confirm purely on translation grounds (`"SAN TELMO
+MARKET"`/`"Mercado San Telmo"`, `"Miter Station"`, `"Monumental Tower"`,
+several `"San Martín ..."` variants). Likely mechanism: A5's
+`requireAllTokens` hint check and the final-review's entity-identity check
+are both independently language-blind, and now BOTH must pass on the same
+Wikidata place — stacking two lossy checks plausibly compounds the
+honest-loss rate for legitimate translated matches by more than the
+isolated final-review discussion anticipated.
+
+**Open question, explicitly not resolved:** is the stacked strictness
+correctly calibrated, or over-rejecting real matches that a
+multilingual-alias-aware corroboration check (Wikidata `skos:altLabel`,
+not just one primary label) would correctly confirm without reopening
+either collision case? This needs the user's explicit input before
+touching the confirmation logic again — the non-negotiable requirement is
+about never confirming a WRONG identity, not about maximizing recall, and
+there's no evidence yet that loosening anything would still hold the line
+on the two real collisions this whole plan was built around.
+
+---
+
 ## Deferred / not started — Track B
 
 Not started. Track B (`TripAdvisorGroundedSearchService`, wired as a
@@ -380,42 +456,50 @@ claim in this plan, which was live-validated).
 
 An implementation agent starting from this branch should:
 
-1. Read this file's "Current state" block first. A1–A7 across both plans
-   (`2026-09-17-cross-source-confirmation-and-tripadvisor-volume.md` for
-   A1–A4, `2026-09-17-confirmation-collision-fix-and-anchor-scope-narrowing.md`
-   for A5–A7) are ALL COMPLETE and committed locally
-   (`4d408a1`, `48cdf21`, `673a556`, `1f41251`, `9b1c86d`, `2c2e412`) —
-   **not yet pushed** to `fork` as of this writing; check
-   `git log --oneline fork/feat/preference-first-selection..HEAD` before
-   assuming push state, don't trust a stale summary of it. Never push
-   without the user's explicit confirmation for this push specifically.
-2. Read `docs/superpowers/characterization/2026-09-17-task-a7-post-fix-live-remeasure.md`
-   in full before doing anything else — it's the current real state: 2/11
-   composites persisted live, no known false-positive identity in either,
-   but one of the two original bugs ("Recoleta Cemetery") was not
-   re-exercised live this run (infra masked it) and should be explicitly
-   re-attempted once Overpass is stable, not assumed fixed just because
-   its sibling case ("Galería Güemes") was live-confirmed.
-3. **Root Cause #5 (Overpass reliability under sustained load) is now the
-   clearest, highest-priority remaining lever** — it dominated A7's losses
-   (21 of the run's hint-level failures, the largest single category,
-   larger than in any prior run this session). This was already identified
-   in the original 2026-09-15 adversarial review and has never been
-   addressed. Consider it before Track B: more acquisition volume on top
-   of an unreliable local-data provider mostly produces more
-   infra-flakiness losses, not more real composites.
-4. Track B (TripAdvisor volume) has still not been started, and by product
-   priority should keep waiting behind correctness/reliability work — there
-   is no technical dependency forcing this order, but widening the top of
-   a funnel that's currently losing the most to infra flakiness (not to
-   candidate scarcity) isn't the highest-leverage next move.
+1. Read this file's "Current state" block first. A1–A8 across the three
+   docs (`2026-09-17-cross-source-confirmation-and-tripadvisor-volume.md`
+   for A1–A4, `2026-09-17-confirmation-collision-fix-and-anchor-scope-narrowing.md`
+   for A5–A7, Root Cause #5 done ad hoc per a user question, no separate
+   plan doc) are ALL COMPLETE and committed locally
+   (`4d408a1`, `48cdf21`, `673a556`, `1f41251`, `9b1c86d`, `2c2e412`,
+   `ecba56a`, `e70f3e2`) — **not yet pushed** to `fork` as of this
+   writing; check `git log --oneline fork/feat/preference-first-selection..HEAD`
+   before assuming push state. Never push without the user's explicit
+   confirmation for this push specifically.
+2. Read `docs/superpowers/characterization/2026-09-18-task-a8-root-cause-5-live-remeasure.md`
+   in full before doing anything else — it's the current real state.
+   `OSM_QUERY_EMPTY` is fixed (21 -> 0). Both original collision bugs are
+   now confirmed fixed with real, unmasked live traffic (previously
+   `2026-09-17-task-a7-post-fix-live-remeasure.md` could not confirm the
+   "Recoleta Cemetery" case live because infra masked it every time it
+   appeared — A8 finally exercised it live, twice, both correctly
+   `UNCONFIRMED_MATCH`).
+3. **The open, unresolved question is calibration, not correctness**:
+   composite persistence is at 0/9 in A8 (worse in raw count than A7's
+   2/11) and `UNCONFIRMED_MATCH` jumped from 13 to 34 once Overpass
+   stopped silently removing candidates from the pool before they could
+   reach the confirmation gate. Spot-checking A8's `UNCONFIRMED_MATCH`
+   hints shows many that look like plausibly CORRECT matches failing
+   purely on translation/language grounds, not identity collisions — the
+   stacked strictness of A5's `requireAllTokens` (hint check) and the
+   final-review's entity-identity check (both language-blind, both now
+   required against the same Wikidata place) may be over-rejecting.
+   **Do not loosen this unilaterally.** Get the user's explicit direction
+   first — options include a multilingual-alias-aware corroboration check
+   (Wikidata `skos:altLabel`, not just the one primary label returned
+   today), or accepting the current recall cost as the correct price of
+   the non-negotiable requirement. Whatever is decided, re-verify against
+   both real collision cases ("Recoleta Cemetery", "Galería Güemes") before
+   calling it done — they must never regress.
+4. Track B (TripAdvisor volume) has still not been started. Widening
+   acquisition volume before resolving the calibration question above
+   would mostly produce more `UNCONFIRMED_MATCH` noise to sort through, not
+   more real composites — still lower priority than #3.
 5. Track B, whenever it starts, needs the real
    `ExperienceGroundedSearchProvider` interface read (not assumed from the
    plan's sketch) before implementing B1.
 6. The non-negotiable product requirement driving all of this: every
    persisted Experience's components must be geographically confirmed —
-   never relax `confirmMatch`'s fail-closed behavior (now two independent
-   checks: hint-tokens AND matched-entity-tokens, both against the same
-   corroborating place), and never mark this requirement "met" for a case
-   that hasn't actually been live-re-verified, even when the code fix and
-   its unit tests are solid.
+   never relax `confirmMatch`'s fail-closed behavior without the user's
+   explicit direction, and never mark a case "fixed" without live
+   re-verification, even when the code fix and its unit tests are solid.
