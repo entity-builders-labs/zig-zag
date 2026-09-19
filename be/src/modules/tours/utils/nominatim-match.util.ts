@@ -285,6 +285,23 @@ export function matchOsmCandidateByName(
  * (not strict -- street names legitimately vary by abbreviation, e.g.
  * "Av." vs "Avenida").
  */
+/**
+ * The housenumber is the LAST standalone number in the part of the
+ * address before its first comma -- real regression: a street NAME can
+ * itself contain a number (e.g. "Avenida 9 de Julio"), so taking the
+ * FIRST number in the whole string mistook "9" for the housenumber
+ * instead of the real "1234" in "Avenida 9 de Julio 1234". Stopping at
+ * the first comma also keeps a trailing postal code (e.g. "..., C1107
+ * Cdad. Autónoma de Buenos Aires") from ever being mistaken for one --
+ * Argentine addresses conventionally put the housenumber right after the
+ * street name, before any comma-separated locality/postal segment.
+ */
+function extractHousenumberToken(addressHint: string): string | undefined {
+  const streetSegment = addressHint.split(',')[0];
+  const matches = streetSegment.match(/\d{1,6}/g);
+  return matches?.[matches.length - 1];
+}
+
 export function matchesAddressHint(
   addressHint: string | undefined,
   tags: Record<string, string> | undefined,
@@ -293,7 +310,7 @@ export function matchesAddressHint(
   const street = tags['addr:street'];
   const housenumber = tags['addr:housenumber']?.trim();
   if (!street || !housenumber) return false;
-  const hintHousenumber = addressHint.match(/\d{1,6}/)?.[0];
+  const hintHousenumber = extractHousenumberToken(addressHint);
   if (!hintHousenumber || hintHousenumber !== housenumber) return false;
   return hasSpecificNameOverlap(
     normalizeGeoName(addressHint),

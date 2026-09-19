@@ -515,6 +515,39 @@ describe('matchesAddressHint', () => {
       }),
     ).toBe(true);
   });
+
+  it('extracts the housenumber at the END of the address, not the first number encountered (real bug: a street NAME containing a number, e.g. "Avenida 9 de Julio", was mistaken for the housenumber)', () => {
+    expect(
+      matchesAddressHint('Avenida 9 de Julio 1234', {
+        'addr:street': 'Avenida 9 de Julio',
+        'addr:housenumber': '1234',
+      }),
+    ).toBe(true);
+    // The street-name number ("9") must never be accepted as a housenumber
+    // match on its own, even if some unrelated candidate happened to have
+    // that as its housenumber.
+    expect(
+      matchesAddressHint('Avenida 9 de Julio 1234', {
+        'addr:street': 'Avenida 9 de Julio',
+        'addr:housenumber': '9',
+      }),
+    ).toBe(false);
+  });
+
+  it('only looks for the housenumber in the part of the address before the first comma, so a trailing postal code digit sequence is never mistaken for it', () => {
+    // Real case, live-verified this session: a nature reserve's address has
+    // no housenumber at all -- "C1107" here is a postal code, not a
+    // housenumber, and must never be extracted as one.
+    expect(
+      matchesAddressHint(
+        'Cam. de los Plumerillos, C1107 Cdad. Autónoma de Buenos Aires, Argentina',
+        {
+          'addr:street': 'Cam. de los Plumerillos',
+          'addr:housenumber': '1107',
+        },
+      ),
+    ).toBe(false);
+  });
 });
 
 describe('hasSpecificNameOverlap (exported for cross-source confirmation reuse)', () => {
