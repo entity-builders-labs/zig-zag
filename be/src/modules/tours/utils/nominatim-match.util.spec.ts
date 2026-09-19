@@ -2,6 +2,7 @@ import {
   bestNominatimMatch,
   hasSpecificNameOverlap,
   isAreaScaleEligible,
+  isPlaceScaleEligible,
   matchesAddressHint,
   matchOsmCandidateByName,
   normalizeGeoName,
@@ -353,6 +354,72 @@ describe('isAreaScaleEligible', () => {
         result({ osmType: 'relation', class: undefined, addresstype: 'city' }),
       ),
     ).toBe(false);
+  });
+});
+
+describe('isPlaceScaleEligible', () => {
+  // Only consulted once isAreaScaleEligible has already said "no" -- decides
+  // whether that non-area match can still stand in for a single point/venue,
+  // or is simply too broad/area-shaped to be anything at all.
+
+  it('accepts a genuine POI/venue class (amenity/tourism/shop/leisure), regardless of rank', () => {
+    expect(isPlaceScaleEligible(result({ class: 'amenity' }))).toBe(true);
+    expect(isPlaceScaleEligible(result({ class: 'tourism' }))).toBe(true);
+    expect(isPlaceScaleEligible(result({ class: 'shop' }))).toBe(true);
+    expect(isPlaceScaleEligible(result({ class: 'leisure' }))).toBe(true);
+  });
+
+  it('accepts a place-class match whose rank falls in the neighborhood band even though it failed isAreaScaleEligible for another reason (e.g. a bare node with no polygon)', () => {
+    const nodeNeighborhood = result({
+      osmType: 'node',
+      class: 'place',
+      addresstype: 'quarter',
+      placeRank: 19,
+    });
+    expect(isAreaScaleEligible(nodeNeighborhood)).toBe(false);
+    expect(isPlaceScaleEligible(nodeNeighborhood)).toBe(true);
+  });
+
+  it('rejects any boundary-class match -- administrative or not, a boundary is inherently area-shaped, never a single point (real regression guard: a too-broad region/province/county match must not degrade into being persisted as a venue)', () => {
+    expect(
+      isPlaceScaleEligible(
+        result({ class: 'boundary', type: 'administrative', placeRank: 8 }),
+      ),
+    ).toBe(false);
+    expect(
+      isPlaceScaleEligible(
+        result({ class: 'boundary', type: 'national_park' }),
+      ),
+    ).toBe(false);
+  });
+
+  it('rejects a place-class match at country/state/region scale (too broad for a single point)', () => {
+    expect(
+      isPlaceScaleEligible(
+        result({ class: 'place', addresstype: 'country', placeRank: 4 }),
+      ),
+    ).toBe(false);
+    expect(
+      isPlaceScaleEligible(
+        result({ class: 'place', addresstype: 'state', placeRank: 10 }),
+      ),
+    ).toBe(false);
+  });
+
+  it('accepts a place-class match when rank is unknown (unknown never proves "too broad")', () => {
+    expect(
+      isPlaceScaleEligible(
+        result({
+          class: 'place',
+          addresstype: 'quarter',
+          placeRank: undefined,
+        }),
+      ),
+    ).toBe(true);
+  });
+
+  it('accepts a match with no class at all (mocks/providers that never populate it stay treated as a point, same as before this predicate existed)', () => {
+    expect(isPlaceScaleEligible(result({ class: undefined }))).toBe(true);
   });
 });
 

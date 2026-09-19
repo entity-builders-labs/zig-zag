@@ -26,6 +26,7 @@ import {
   bestNominatimMatch,
   hasSpecificNameOverlap,
   isAreaScaleEligible,
+  isPlaceScaleEligible,
   matchesAddressHint,
   matchOsmCandidateByName,
   normalizeGeoName,
@@ -510,14 +511,28 @@ export class ExperienceProposalResolverService
         hint.addressHint,
       );
 
+      let unconfirmedLocalMatch: ResolvedGeoEntity | undefined;
       if (matched) {
         const resolvedEntity = await this.persistOsmEntity(hint, matched);
-        entities.push(
-          (await this.confirmMatch(resolvedEntity, hint, observations))
-            ? resolvedEntity
-            : this.unconfirmedEntity(hint, resolvedEntity.provider),
+        if (await this.confirmMatch(resolvedEntity, hint, observations)) {
+          entities.push(resolvedEntity);
+          continue;
+        }
+        // Real, live-verified regression: a local match that fails
+        // confirmation must not be the final word on its own. A genuinely
+        // different real entity -- one that can structurally never appear
+        // in the local pool at all (e.g. "Puerto Madero", an administrative
+        // boundary, can never show up in the venue-only local POI pool) --
+        // may still be found through the independent global (Nominatim)
+        // path below. This never loosens confirmMatch: the global
+        // candidate goes through the exact same strict gate; it only gives
+        // the hint a second, independent source to be found in. Kept
+        // (rather than discarded) so a rejected local match is still the
+        // reported outcome if the global path ALSO fails.
+        unconfirmedLocalMatch = this.unconfirmedEntity(
+          hint,
+          resolvedEntity.provider,
         );
-        continue;
       }
 
       if (destinationAssociationVerified) {
@@ -530,10 +545,16 @@ export class ExperienceProposalResolverService
           entities.push(
             (await this.confirmMatch(globallyResolved, hint, observations))
               ? globallyResolved
-              : this.unconfirmedEntity(hint, globallyResolved.provider),
+              : (unconfirmedLocalMatch ??
+                  this.unconfirmedEntity(hint, globallyResolved.provider)),
           );
           continue;
         }
+      }
+
+      if (unconfirmedLocalMatch) {
+        entities.push(unconfirmedLocalMatch);
+        continue;
       }
 
       // Real, live-measured pattern: a discovery hint tagged role="area"
@@ -1003,28 +1024,41 @@ export class ExperienceProposalResolverService
         return undefined;
       }
 
-      // Cutover M3.5 -- the same canonical scope-acceptance predicate
-      // DestinationResolutionService/AreaRouteAnchorResolverService use
-      // (single source of policy truth): "is this Nominatim match a
-      // usable AREA" is the same question here, not a different domain
-      // concern -- `hint.expectedKind === 'AREA'` alone already covers
-      // "should this hint even be treated as an area."
-      if (hint.expectedKind === 'AREA' && isAreaScaleEligible(match)) {
+      // Generalized (was: gated behind `hint.expectedKind === 'AREA'`) --
+      // the discovery LLM's expectedKind/role is only a proposal, never
+      // ground truth. Nominatim's own structural evidence
+      // (`isAreaScaleEligible`/`isPlaceScaleEligible` -- the same canonical
+      // scope-acceptance predicates DestinationResolutionService/
+      // AreaRouteAnchorResolverService use) decides whether a match is
+      // area-scale or point-scale; `hint.expectedKind` only gated whether
+      // Nominatim runs at all (ROUTE hints skip it, above). Real
+      // regression this fixes: "Puerto Madero" tagged role="venue"/
+      // expectedKind="PLACE" by discovery is a genuine neighborhood --
+      // before this generalization it could only ever be persisted as a
+      // point, never recognized as the area it structurally is.
+      if (isAreaScaleEligible(match)) {
         const boundary = await this.osmPlaces.lookupBoundaryById(
           match.osmType,
           match.osmId,
         );
-        if (boundary.value) {
-          return this.persistOsmEntity(hint, boundary.value);
-        }
-        return undefined;
+        if (!boundary.value) return undefined;
+        const correctedHint =
+          hint.expectedKind === 'AREA'
+            ? hint
+            : { ...hint, role: 'area' as const, expectedKind: 'AREA' as const };
+        return this.persistOsmEntity(correctedHint, boundary.value);
       }
 
-      if (hint.expectedKind !== 'PLACE') return undefined;
+      if (!isPlaceScaleEligible(match)) return undefined;
+
+      const correctedHint =
+        hint.expectedKind === 'PLACE'
+          ? hint
+          : { ...hint, role: 'venue' as const, expectedKind: 'PLACE' as const };
 
       const externalId = `osm:${match.osmType}:${match.osmId}`;
       const canonicalName =
-        match.displayName.split(',')[0]?.trim() || hint.name;
+        match.displayName.split(',')[0]?.trim() || correctedHint.name;
       const geometry = {
         type: 'Point' as const,
         coordinates: [match.longitude as number, match.latitude as number],
@@ -1045,15 +1079,15 @@ export class ExperienceProposalResolverService
       });
       return Object.assign(
         {
-          hintKey: hint.key,
-          hintName: hint.name,
+          hintKey: correctedHint.key,
+          hintName: correctedHint.name,
           provider: 'nominatim',
           externalId,
           canonicalName,
           latitude: match.latitude,
           longitude: match.longitude,
           geometry,
-          role: hint.role,
+          role: correctedHint.role,
           status: 'resolved' as const,
           adminContext: {
             country: match.address?.country,

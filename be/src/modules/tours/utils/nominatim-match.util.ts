@@ -180,6 +180,35 @@ export function isAreaScaleEligible<
 }
 
 /**
+ * Whether a Nominatim match that already failed `isAreaScaleEligible` can
+ * still be treated as a point-scale PLACE, instead of being discarded
+ * outright. The discovery LLM's `expectedKind`/`role` is only a proposal —
+ * this decides, from the match's own structural evidence, whether it is a
+ * genuine venue-scale point or simply too broad to be resolved at any
+ * granularity in this domain:
+ *   - any `class === 'boundary'` match (administrative or not — national
+ *     parks, postal areas, etc. are all polygons, never a single point) is
+ *     inherently area-shaped, not a point, so it is never PLACE-eligible;
+ *   - a `class === 'place'` match below the area-scale rank band (country/
+ *     state/region-scale, e.g. "region"/"province"/"county") is similarly
+ *     too broad to stand in for a single venue;
+ *   - everything else (a real POI/venue class such as amenity/tourism/
+ *     shop/leisure, or a `place`-class match whose rank simply falls
+ *     outside the area band for another reason, e.g. a node with no
+ *     polygon) is a genuine point-scale candidate.
+ */
+export function isPlaceScaleEligible<
+  T extends Pick<NominatimResult, 'class' | 'placeRank' | 'addressRank'>,
+>(result: T): boolean {
+  if (result.class === 'boundary') return false;
+  if (result.class === 'place') {
+    const rank = result.placeRank ?? result.addressRank;
+    return rank === undefined || rank >= AREA_SCALE_MIN_RANK;
+  }
+  return true;
+}
+
+/**
  * Same specificity discipline `bestNominatimMatch`'s fuzzy path already
  * applies to the global Nominatim search results (a real word overlap of
  * at least half the hint's significant tokens, with at least one token of

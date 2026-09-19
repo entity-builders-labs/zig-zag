@@ -1574,6 +1574,232 @@ describe('ExperienceProposalResolverService', () => {
     );
   });
 
+  it('resolves a PLACE-role hint as an AREA when Nominatim structurally shows it is a real neighborhood (mirror of the AREA-mistaken-for-PLACE case above: "Puerto Madero" tagged role="venue"/expectedKind="PLACE" by discovery, but it is a genuine neighborhood — the discovery LLM only proposes a kind, Nominatim\'s own scale evidence decides it)', async () => {
+    const osmPlaces = {
+      lookupStreetsWithin: jest
+        .fn()
+        .mockResolvedValue({ status: 'success', value: [] }),
+      lookupPoisWithin: jest
+        .fn()
+        .mockResolvedValue({ status: 'success', value: [] }),
+      lookupBoundaryById: jest.fn().mockResolvedValue({
+        status: 'success',
+        value: {
+          id: 'osm:relation:99',
+          name: 'Puerto Madero',
+          osmType: 'relation',
+          osmId: 99,
+          geometry: boundary.geometry,
+          tags: { place: 'quarter' },
+        },
+      }),
+    };
+    const catalog = {
+      resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+      upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-puerto-madero' }),
+      persistVerifiedExperience: jest.fn().mockResolvedValue({
+        id: 'exp-puerto-madero',
+        dedupeDecision: 'NEW',
+      }),
+    };
+    const geographicValidator = {
+      validate: jest
+        .fn()
+        .mockReturnValue(acceptedValidation('Puerto Madero Waterfront Walk')),
+    };
+    const nominatim = {
+      search: jest.fn().mockResolvedValue([
+        {
+          osmType: 'relation',
+          osmId: 99,
+          addresstype: 'quarter',
+          class: 'place',
+          type: 'quarter',
+          placeRank: 19,
+          displayName: 'Puerto Madero, Buenos Aires, Argentina',
+          importance: 0.4,
+          latitude: -34.611,
+          longitude: -58.363,
+        },
+      ]),
+    };
+    const service = new ExperienceProposalResolverService(
+      osmPlaces as any,
+      catalog as any,
+      geographicValidator as any,
+      undefined,
+      nominatim as any,
+    );
+
+    const candidateWithPlaceMisclassification: ExperienceCandidate = {
+      name: 'Puerto Madero Waterfront Walk',
+      themes: ['architecture'],
+      traits: [],
+      intents: ['walk'],
+      evidenceKeys: ['ev-1'],
+      shortReason: 'Waterfront neighborhood walk',
+      componentHints: [
+        {
+          key: 'puerto-madero',
+          name: 'Puerto Madero',
+          role: 'venue',
+          expectedKind: 'PLACE',
+          required: true,
+          evidenceKeys: ['ev-1'],
+        },
+      ],
+    };
+
+    const result = await service.resolve({
+      destinationName: 'Buenos Aires',
+      geographicScope: { kind: 'AREA_BOUNDARY', boundary },
+      candidates: [candidateWithPlaceMisclassification],
+      evidence: [
+        {
+          key: 'ev-1',
+          source: 'guide',
+          title: 'Puerto Madero Waterfront Walk in Buenos Aires',
+          snippet: 'Explore Puerto Madero in Buenos Aires.',
+        },
+      ],
+    });
+
+    expect(result.acceptedCount).toBe(1);
+    expect(osmPlaces.lookupBoundaryById).toHaveBeenCalledWith('relation', 99);
+    expect(catalog.upsertGeoEntity).toHaveBeenCalledWith(
+      expect.objectContaining({ kind: GeoEntityKind.AREA }),
+    );
+    expect(result.resolved[0].resolvedEntities[0]).toMatchObject({
+      hintKey: 'puerto-madero',
+      status: 'resolved',
+      role: 'area',
+    });
+  });
+
+  it('falls through to the global Nominatim path when a local POI-pool match is found but fails confirmation (real regression, live-verified: "Puerto Madero" fuzzy-matches an unrelated local POI, "Templo Beit Jabad Puerto Madero", a synagogue sharing both tokens; the real neighborhood is a Nominatim administrative boundary and can structurally never appear in the local POI pool at all, so once the wrong local match consumes the hint there was previously no way back to it)', async () => {
+    const osmPlaces = {
+      lookupStreetsWithin: jest
+        .fn()
+        .mockResolvedValue({ status: 'success', value: [] }),
+      lookupPoisWithin: jest.fn().mockResolvedValue({
+        status: 'success',
+        value: [
+          {
+            id: 'osm:way:710376163',
+            name: 'Templo Beit Jabad Puerto Madero',
+            osmType: 'way',
+            osmId: 710376163,
+            geometry: {
+              type: 'Point',
+              coordinates: [-58.3597218, -34.6113264],
+            },
+            tags: {
+              amenity: 'place_of_worship',
+              building: 'yes',
+              religion: 'jewish',
+              name: 'Templo Beit Jabad Puerto Madero',
+            },
+          },
+        ],
+      }),
+      lookupBoundaryById: jest.fn().mockResolvedValue({
+        status: 'success',
+        value: {
+          id: 'osm:relation:2224562',
+          name: 'Puerto Madero',
+          osmType: 'relation',
+          osmId: 2224562,
+          geometry: boundary.geometry,
+          tags: { boundary: 'administrative', admin_level: '9' },
+        },
+      }),
+    };
+    const catalog = {
+      resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+      upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-puerto-madero' }),
+      persistVerifiedExperience: jest.fn().mockResolvedValue({
+        id: 'exp-puerto-madero',
+        dedupeDecision: 'NEW',
+      }),
+    };
+    const geographicValidator = {
+      validate: jest
+        .fn()
+        .mockReturnValue(acceptedValidation('Puerto Madero Waterfront Walk')),
+    };
+    const nominatim = {
+      search: jest.fn().mockResolvedValue([
+        {
+          osmType: 'relation',
+          osmId: 2224562,
+          addresstype: 'suburb',
+          class: 'boundary',
+          type: 'administrative',
+          placeRank: 18,
+          displayName:
+            'Puerto Madero, Buenos Aires, Comuna 1, Ciudad Autónoma de Buenos Aires, Argentina',
+          importance: 0.16,
+          latitude: -34.6103764,
+          longitude: -58.3622067,
+        },
+      ]),
+    };
+    const service = new ExperienceProposalResolverService(
+      osmPlaces as any,
+      catalog as any,
+      geographicValidator as any,
+      undefined,
+      nominatim as any,
+    );
+
+    const candidateWithLocalDecoy: ExperienceCandidate = {
+      name: 'Puerto Madero Waterfront Walk',
+      themes: ['architecture'],
+      traits: [],
+      intents: ['walk'],
+      evidenceKeys: ['ev-1'],
+      shortReason: 'Waterfront neighborhood walk',
+      componentHints: [
+        {
+          key: 'puerto-madero',
+          name: 'Puerto Madero',
+          role: 'venue',
+          expectedKind: 'PLACE',
+          required: true,
+          evidenceKeys: ['ev-1'],
+        },
+      ],
+    };
+
+    const result = await service.resolve({
+      destinationName: 'Buenos Aires',
+      geographicScope: { kind: 'AREA_BOUNDARY', boundary },
+      candidates: [candidateWithLocalDecoy],
+      evidence: [
+        {
+          key: 'ev-1',
+          source: 'guide',
+          title: 'Puerto Madero Waterfront Walk in Buenos Aires',
+          snippet: 'Explore Puerto Madero in Buenos Aires.',
+        },
+      ],
+    });
+
+    expect(result.acceptedCount).toBe(1);
+    expect(osmPlaces.lookupBoundaryById).toHaveBeenCalledWith(
+      'relation',
+      2224562,
+    );
+    expect(catalog.upsertGeoEntity).toHaveBeenCalledWith(
+      expect.objectContaining({ kind: GeoEntityKind.AREA }),
+    );
+    expect(result.resolved[0].resolvedEntities[0]).toMatchObject({
+      hintKey: 'puerto-madero',
+      status: 'resolved',
+      role: 'area',
+    });
+  });
+
   it('falls back to the local POI pool when an AREA-role hint is actually a point-like place (real regression: "Plaza de Mayo" tagged role="area" by discovery, but it is a leisure=park POI, not a neighborhood — neither the destination boundary nor Nominatim-as-administrative-area can ever find it)', async () => {
     const osmPlaces = {
       lookupStreetsWithin: jest
@@ -2697,6 +2923,62 @@ describe('ExperienceProposalResolverService', () => {
         candidates: [candidate('San Ignacio Church', 'San Ignacio Church')],
       });
 
+      expect(result.acceptedCount).toBe(0);
+      expect(result.resolved[0].resolvedEntities[0]).toMatchObject({
+        status: 'unresolved',
+        reason: 'UNCONFIRMED_MATCH',
+      });
+      expect(catalog.persistVerifiedExperience).not.toHaveBeenCalled();
+    });
+
+    it('remains unresolved when a rejected local match also finds no trusted alternative through the global path (real regression, same "San Ignacio Church" -> "Ignacio Pirovano" collision, but with destinationAssociationVerified true and a real Nominatim call attempted -- unlike the local-only test above, this one actually exercises the global fallthrough and confirms it does not manufacture a false positive when nothing trustworthy exists there either)', async () => {
+      const wikidata = { findNearbyPlaces: jest.fn().mockResolvedValue([]) };
+      const nominatim = { search: jest.fn().mockResolvedValue([]) };
+      const catalog = {
+        resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-1' }),
+        persistVerifiedExperience: jest.fn(),
+      };
+      const geographicValidator = { validate: jest.fn() };
+      const service = new ExperienceProposalResolverService(
+        osmPlacesFor([
+          {
+            id: 'osm:node:1',
+            name: 'Ignacio Pirovano',
+            osmType: 'node',
+            osmId: 1,
+            geometry: { type: 'Point', coordinates: [-58.3948, -34.5878] },
+            tags: {},
+          },
+        ]) as any,
+        catalog as any,
+        geographicValidator as any,
+        undefined,
+        nominatim as any,
+        undefined,
+        wikidata as any,
+      );
+
+      const result = await service.resolve({
+        destinationName: 'Buenos Aires',
+        geographicScope: { kind: 'AREA_BOUNDARY', boundary },
+        candidates: [candidate('San Ignacio Church', 'San Ignacio Church')],
+        evidence: [
+          {
+            key: 'ev-1',
+            source: 'guide',
+            title: 'San Ignacio Church in Buenos Aires',
+            snippet: 'Visit San Ignacio Church in Buenos Aires.',
+          },
+        ],
+      });
+
+      // Proves the global path was actually attempted (not short-circuited
+      // before it, the way the local-only test above never even calls it).
+      expect(nominatim.search).toHaveBeenCalledWith(
+        'San Ignacio Church',
+        undefined,
+      );
       expect(result.acceptedCount).toBe(0);
       expect(result.resolved[0].resolvedEntities[0]).toMatchObject({
         status: 'unresolved',
