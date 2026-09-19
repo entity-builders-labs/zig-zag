@@ -162,6 +162,69 @@ describe('extractExperienceCandidates', () => {
     );
   });
 
+  it('carries a componentHint addressHint through when the raw hint sets a non-empty string', () => {
+    const result = extractExperienceCandidates(
+      {
+        candidates: [
+          {
+            name: 'Recoleta Cemetery Visit',
+            themes: ['history'],
+            traits: [],
+            intents: ['visit'],
+            componentHints: [
+              {
+                key: 'cemetery',
+                name: 'Recoleta Cemetery',
+                role: 'venue',
+                expectedKind: 'PLACE',
+                required: true,
+                evidenceKeys: ['ev-1'],
+                addressHint: 'Junín 1760',
+              },
+            ],
+            evidenceKeys: ['ev-1'],
+          },
+        ],
+      },
+      new Set(['ev-1']),
+      8,
+    );
+    expect(result.candidates[0].componentHints[0].addressHint).toBe(
+      'Junín 1760',
+    );
+  });
+
+  it('omits addressHint when the raw hint does not set one (regression guard: field must stay optional/absent, never an empty string)', () => {
+    const result = extractExperienceCandidates(
+      {
+        candidates: [
+          {
+            name: 'Teatro Colón Visit',
+            themes: ['culture'],
+            traits: [],
+            intents: ['visit'],
+            componentHints: [
+              {
+                key: 'theatre',
+                name: 'Teatro Colón',
+                role: 'venue',
+                expectedKind: 'PLACE',
+                required: true,
+                evidenceKeys: ['ev-1'],
+              },
+            ],
+            evidenceKeys: ['ev-1'],
+          },
+        ],
+      },
+      new Set(['ev-1']),
+      8,
+    );
+    expect(result.candidates[0].componentHints[0]).not.toHaveProperty(
+      'addressHint',
+    );
+  });
+
   it('recovers a candidate when the provider returns a bare object instead of {candidates:[...]} (real Groq JSON-object-mode drift, never silent)', () => {
     // Reproduces the exact raw shape observed live from Groq
     // (qwen/qwen3.8-27b, json_object mode, no enforced schema): a single

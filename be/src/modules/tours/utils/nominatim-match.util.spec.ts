@@ -2,6 +2,7 @@ import {
   bestNominatimMatch,
   hasSpecificNameOverlap,
   isAreaScaleEligible,
+  matchesAddressHint,
   matchOsmCandidateByName,
   normalizeGeoName,
   rankNominatimCandidates,
@@ -452,6 +453,67 @@ describe('matchOsmCandidateByName', () => {
       osmCandidate({ id: 'osm:node:2', name: 'Catedral Sur', tags: {} }),
     ];
     expect(matchOsmCandidateByName('Catedral Primada', pool)).toBe(pool[0]);
+  });
+
+  it('prefers a candidate whose own address tags match the hint\'s addressHint over one sharing more name tokens (real regression: "Recoleta Cemetery" at "Junín 1760" vs an unrelated "Recoleta" business sharing the same generic token but at a different address)', () => {
+    const pool = [
+      osmCandidate({
+        id: 'osm:node:wrong',
+        name: 'Hotel Boutique Recoleta',
+        tags: { 'addr:street': 'Vicente López', 'addr:housenumber': '2050' },
+      }),
+      osmCandidate({
+        id: 'osm:way:right',
+        name: 'Cementerio de la Recoleta',
+        tags: { 'addr:street': 'Junín', 'addr:housenumber': '1760' },
+      }),
+    ];
+    expect(
+      matchOsmCandidateByName('Recoleta Cemetery', pool, 'Junín 1760'),
+    ).toBe(pool[1]);
+  });
+});
+
+describe('matchesAddressHint', () => {
+  it('requires an exact housenumber match plus street-name overlap', () => {
+    expect(
+      matchesAddressHint('Junín 1760', {
+        'addr:street': 'Junín',
+        'addr:housenumber': '1760',
+      }),
+    ).toBe(true);
+  });
+
+  it('rejects when the housenumber differs, even with an identical street name', () => {
+    expect(
+      matchesAddressHint('Junín 1760', {
+        'addr:street': 'Junín',
+        'addr:housenumber': '1761',
+      }),
+    ).toBe(false);
+  });
+
+  it('rejects when the candidate has no address tags at all', () => {
+    expect(matchesAddressHint('Junín 1760', {})).toBe(false);
+    expect(matchesAddressHint('Junín 1760', undefined)).toBe(false);
+  });
+
+  it('rejects when no addressHint is given', () => {
+    expect(
+      matchesAddressHint(undefined, {
+        'addr:street': 'Junín',
+        'addr:housenumber': '1760',
+      }),
+    ).toBe(false);
+  });
+
+  it('tolerates a street-name abbreviation difference (e.g. "Av." vs "Avenida") via the default token-overlap bar', () => {
+    expect(
+      matchesAddressHint('Avenida San Martín 500', {
+        'addr:street': 'Av. San Martín',
+        'addr:housenumber': '500',
+      }),
+    ).toBe(true);
   });
 });
 

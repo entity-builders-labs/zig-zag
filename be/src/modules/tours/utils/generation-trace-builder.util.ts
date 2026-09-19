@@ -304,6 +304,7 @@ function traceHint(
     required: hint.required,
     order,
     evidenceKeys: [...hint.evidenceKeys],
+    ...(hint.addressHint ? { addressHint: hint.addressHint } : {}),
   };
 }
 

@@ -68,6 +68,15 @@ export interface ResolvedGeoEntity {
    * cross-reference lookup.
    */
   nameAliasCandidates?: string[];
+  /**
+   * True only when the hint's own `addressHint` (a street address the
+   * discovery evidence explicitly gave) matched THIS candidate's own
+   * `addr:housenumber`/`addr:street` tags exactly. Computed once at
+   * persistOsmEntity time (both the hint and the raw OSM tags are in
+   * scope there); confirmMatch trusts this outright, same tier as an
+   * exact name match -- an address either matches or it doesn't.
+   */
+  addressConfirmed?: boolean;
   role: 'area' | 'waypoint' | 'route' | 'venue';
   expectedType?: string;
   status: ResolvedGeoEntityStatus;

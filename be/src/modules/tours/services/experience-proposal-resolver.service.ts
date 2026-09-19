@@ -26,6 +26,7 @@ import {
   bestNominatimMatch,
   hasSpecificNameOverlap,
   isAreaScaleEligible,
+  matchesAddressHint,
   matchOsmCandidateByName,
   normalizeGeoName,
 } from '../utils/nominatim-match.util';
@@ -503,7 +504,11 @@ export class ExperienceProposalResolverService
               ? [boundary]
               : []
             : pois;
-      const matched = matchOsmCandidateByName(hint.name, pool);
+      const matched = matchOsmCandidateByName(
+        hint.name,
+        pool,
+        hint.addressHint,
+      );
 
       if (matched) {
         const resolvedEntity = await this.persistOsmEntity(hint, matched);
@@ -543,7 +548,11 @@ export class ExperienceProposalResolverService
       // does; this only gives the hint a second, correctly-scoped pool to
       // be found in.
       if (isAreaHint) {
-        const venueFallbackMatch = matchOsmCandidateByName(hint.name, pois);
+        const venueFallbackMatch = matchOsmCandidateByName(
+          hint.name,
+          pois,
+          hint.addressHint,
+        );
         if (venueFallbackMatch) {
           const correctedHint = {
             ...hint,
@@ -721,6 +730,13 @@ export class ExperienceProposalResolverService
       normalizeGeoName(hint.name);
     if (isExact) return true;
 
+    // A real address either matches or it doesn't -- computed once at
+    // persistOsmEntity time from the hint's own addressHint (when the
+    // discovery evidence gave one) against this exact candidate's own
+    // addr:housenumber/addr:street tags. Stronger and more specific than
+    // any name comparison, so trusted outright, same tier as isExact.
+    if (entity.addressConfirmed) return true;
+
     // Cheapest, most direct check: does the SAME OSM candidate already
     // declare this name itself (a translation, an official/short/local
     // name, or its own Wikipedia article title)? No network call, no
@@ -865,6 +881,7 @@ export class ExperienceProposalResolverService
         status: 'resolved' as const,
         wikidataQid: extractWikidataQid(matched.tags),
         nameAliasCandidates: extractNameAliasCandidates(matched.tags),
+        addressConfirmed: matchesAddressHint(hint.addressHint, matched.tags),
       },
       { geoEntityId: geo.id },
     );

@@ -168,6 +168,7 @@ export interface TraceComponentHint {
   required: boolean;
   order?: number;
   evidenceKeys: string[];
+  addressHint?: string;
 }
 
 export interface TraceAcquisitionCandidate {

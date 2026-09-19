@@ -259,6 +259,7 @@ export function hasSpecificNameOverlap(
 export function matchOsmCandidateByName(
   name: string,
   pool: OsmCandidate[],
+  addressHint?: string,
 ): OsmCandidate | undefined {
   const needle = normalizeGeoName(name);
   const exact = pool.find(
@@ -270,7 +271,34 @@ export function matchOsmCandidateByName(
     hasSpecificNameOverlap(needle, normalizeGeoName(candidate.name)),
   );
   if (fuzzyMatches.length <= 1) return fuzzyMatches[0];
-  return bestFuzzyMatch(needle, fuzzyMatches);
+  return bestFuzzyMatch(needle, fuzzyMatches, addressHint);
+}
+
+/**
+ * A real street address either matches or it doesn't -- unlike fuzzy
+ * name-token overlap, there's no "50% similar" for an exact housenumber.
+ * Only trusts a candidate's OWN `addr:housenumber`/`addr:street` tags (a
+ * direct declaration by the same real record, same trust tier as its own
+ * `name`), never a guess or a nearby address. Requires an exact
+ * housenumber match (extracted as the first standalone number in the
+ * hint) AND at least the default name-token overlap on the street name
+ * (not strict -- street names legitimately vary by abbreviation, e.g.
+ * "Av." vs "Avenida").
+ */
+export function matchesAddressHint(
+  addressHint: string | undefined,
+  tags: Record<string, string> | undefined,
+): boolean {
+  if (!addressHint || !tags) return false;
+  const street = tags['addr:street'];
+  const housenumber = tags['addr:housenumber']?.trim();
+  if (!street || !housenumber) return false;
+  const hintHousenumber = addressHint.match(/\d{1,6}/)?.[0];
+  if (!hintHousenumber || hintHousenumber !== housenumber) return false;
+  return hasSpecificNameOverlap(
+    normalizeGeoName(addressHint),
+    normalizeGeoName(street),
+  );
 }
 
 /**
@@ -280,22 +308,36 @@ export function matchOsmCandidateByName(
  * with the hint (e.g. bare transit-stop nodes all named "Catedral" near the
  * real "Catedral Metropolitana" building) let the FIRST one in Overpass's
  * arbitrary result order silently steal a hint whose better real match sat
- * later in the same pool. Prefers, in order: more of the hint's significant
- * tokens matched, then a candidate carrying its own `wikidata` tag (a real
- * cross-reference, not a guess) over one without. A full tie keeps the
- * first candidate found -- stable and deterministic, never an arbitrary
- * reorder.
+ * later in the same pool. Prefers, in order: a real address-hint match
+ * (the strongest, most specific signal available -- an address is either
+ * right or wrong, never approximately right), then more of the hint's
+ * significant tokens matched, then a candidate carrying its own
+ * `wikidata` tag (a real cross-reference, not a guess) over one without.
+ * A full tie keeps the first candidate found -- stable and deterministic,
+ * never an arbitrary reorder.
  */
 function bestFuzzyMatch(
   needle: string,
   candidates: OsmCandidate[],
+  addressHint?: string,
 ): OsmCandidate {
   const needleTokens = needle.split(' ').filter((token) => token.length >= 4);
   let best = candidates[0];
   let bestMatchedCount = matchedTokenCount(needleTokens, best);
   let bestHasWikidataTag = Boolean(best.tags?.wikidata?.trim());
+  let bestHasAddressMatch = matchesAddressHint(addressHint, best.tags);
 
   for (const candidate of candidates.slice(1)) {
+    const hasAddressMatch = matchesAddressHint(addressHint, candidate.tags);
+    if (hasAddressMatch && !bestHasAddressMatch) {
+      best = candidate;
+      bestHasAddressMatch = true;
+      bestMatchedCount = matchedTokenCount(needleTokens, candidate);
+      bestHasWikidataTag = Boolean(candidate.tags?.wikidata?.trim());
+      continue;
+    }
+    if (bestHasAddressMatch && !hasAddressMatch) continue;
+
     const matchedCount = matchedTokenCount(needleTokens, candidate);
     if (matchedCount > bestMatchedCount) {
       best = candidate;

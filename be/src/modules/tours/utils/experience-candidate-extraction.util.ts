@@ -116,6 +116,10 @@ export function extractExperienceCandidates(
           )
         )
           errors.push(`component ${hintIndex + 1} has invalid evidence`);
+        const addressHint =
+          typeof hint.addressHint === 'string' && hint.addressHint.trim()
+            ? hint.addressHint.trim()
+            : undefined;
         hints.push({
           key: String(hint.key || `component-${hintIndex + 1}`),
           name: hint.name.trim(),
@@ -123,6 +127,7 @@ export function extractExperienceCandidates(
           expectedKind: hint.expectedKind,
           required: hint.required === true,
           evidenceKeys: hint.evidenceKeys ?? [],
+          ...(addressHint ? { addressHint } : {}),
         });
       }
     }

@@ -8,6 +8,18 @@ export interface GeoEntityHint {
   expectedKind: 'PLACE' | 'AREA' | 'ROUTE';
   required: boolean;
   evidenceKeys: string[];
+  /**
+   * A street address the cited evidence explicitly gives for this hint
+   * (e.g. "Junín 1760"), when it does — never fabricated, never derived
+   * from the venue name itself. Descriptive text extracted from evidence,
+   * same tier as `name` -- not a trusted coordinate or provider ID, so it
+   * does not cross the architecture's "discovery never supplies trusted
+   * coordinates/IDs" line. Entity resolution treats a real address match
+   * against a candidate's own `addr:housenumber`/`addr:street` tags as a
+   * strong, independent, non-name-based confirmation signal -- an address
+   * either matches or it doesn't, unlike fuzzy name-token overlap.
+   */
+  addressHint?: string;
 }
 
 /**

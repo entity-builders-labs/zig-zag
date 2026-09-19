@@ -3171,6 +3171,84 @@ describe('ExperienceProposalResolverService', () => {
       expect(wikidata.findNearbyPlaces).toHaveBeenCalled();
       expect(result.acceptedCount).toBe(1);
     });
+
+    it('resolves the real "Recoleta Cemetery" case end to end -- the general mechanism (best-fuzzy-match + own-tag QID confirmation), not a case-specific rule, is what fixes it (live-verified real data: OSM way "Cementerio de la Recoleta" carries `wikidata=Q831322`, which real Wikidata labels "Recoleta Cemetery" in English -- an exact match to the hint -- while the historically-wrong "Hotel Urban Suites Recoleta" carries no wikidata tag at all and shares the same single token, so the tag-presence tiebreak picks the real cemetery)', async () => {
+      const wikidata = {
+        findNearbyPlaces: jest.fn(),
+        getEntitySummaries: jest
+          .fn()
+          .mockResolvedValue(
+            new Map([
+              ['Q831322', { qid: 'Q831322', label: 'Recoleta Cemetery' }],
+            ]),
+          ),
+      };
+      const catalog = {
+        resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        upsertGeoEntity: jest
+          .fn()
+          .mockResolvedValue({ id: 'geo-recoleta-cemetery' }),
+        persistVerifiedExperience: jest.fn().mockResolvedValue({
+          id: 'exp-recoleta-cemetery',
+          dedupeDecision: 'NEW',
+        }),
+      };
+      const geographicValidator = {
+        validate: jest
+          .fn()
+          .mockReturnValue(acceptedValidation('Recoleta Walk')),
+      };
+      const service = new ExperienceProposalResolverService(
+        osmPlacesFor([
+          {
+            id: 'osm:node:1',
+            name: 'Hotel Urban Suites Recoleta',
+            osmType: 'node',
+            osmId: 1,
+            geometry: { type: 'Point', coordinates: [-58.39, -34.59] },
+            // Real-world: hotels are rarely wikidata-cross-referenced.
+            tags: {},
+          },
+          {
+            id: 'osm:way:2',
+            name: 'Cementerio de la Recoleta',
+            osmType: 'way',
+            osmId: 2,
+            geometry: { type: 'Point', coordinates: [-58.3931, -34.5875] },
+            tags: {
+              landuse: 'cemetery',
+              tourism: 'attraction',
+              wikidata: 'Q831322',
+              wikipedia: 'es:Cementerio de la Recoleta',
+            },
+          },
+        ]) as any,
+        catalog as any,
+        geographicValidator as any,
+        undefined,
+        undefined,
+        undefined,
+        wikidata as any,
+      );
+
+      const result = await service.resolve({
+        geographicScope: { kind: 'AREA_BOUNDARY', boundary },
+        candidates: [candidate('Recoleta Walk', 'Recoleta Cemetery')],
+      });
+
+      expect(catalog.upsertGeoEntity).toHaveBeenCalledWith(
+        expect.objectContaining({
+          name: 'Cementerio de la Recoleta',
+          externalId: 'osm:way:2',
+        }),
+      );
+      expect(wikidata.getEntitySummaries).toHaveBeenCalledWith(['Q831322']);
+      expect(result.acceptedCount).toBe(1);
+      expect(result.resolved[0].resolvedEntities[0]).toMatchObject({
+        status: 'resolved',
+        canonicalName: 'Cementerio de la Recoleta',
+      });
+    });
   });
 
   describe("confirmMatch: direct confirmation via a known QID from the request's SourceObservations", () => {
@@ -3553,6 +3631,142 @@ describe('ExperienceProposalResolverService', () => {
       });
 
       expect(wikidata.findNearbyPlaces).toHaveBeenCalled();
+      expect(result.acceptedCount).toBe(1);
+    });
+  });
+
+  describe("confirmMatch: direct confirmation via the hint's own addressHint", () => {
+    const osmPlacesFor = (pois: any[]) => ({
+      lookupStreetsWithin: jest
+        .fn()
+        .mockResolvedValue({ status: 'success', value: [] }),
+      lookupPoisWithin: jest
+        .fn()
+        .mockResolvedValue({ status: 'success', value: pois }),
+    });
+
+    it('picks and confirms the candidate whose real address matches addressHint, over one sharing the same generic name token but a different address, without ever calling Wikidata', async () => {
+      const wikidata = {
+        findNearbyPlaces: jest.fn(),
+        getEntitySummaries: jest.fn(),
+      };
+      const catalog = {
+        resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        upsertGeoEntity: jest
+          .fn()
+          .mockResolvedValue({ id: 'geo-recoleta-cemetery' }),
+        persistVerifiedExperience: jest.fn().mockResolvedValue({
+          id: 'exp-recoleta-cemetery',
+          dedupeDecision: 'NEW',
+        }),
+      };
+      const geographicValidator = {
+        validate: jest
+          .fn()
+          .mockReturnValue(acceptedValidation('Recoleta Walk')),
+      };
+      const service = new ExperienceProposalResolverService(
+        osmPlacesFor([
+          {
+            id: 'osm:node:wrong',
+            name: 'Hotel Boutique Recoleta',
+            osmType: 'node',
+            osmId: 1,
+            geometry: { type: 'Point', coordinates: [-58.39, -34.59] },
+            tags: {
+              'addr:street': 'Vicente López',
+              'addr:housenumber': '2050',
+            },
+          },
+          {
+            id: 'osm:way:right',
+            name: 'Cementerio de la Recoleta',
+            osmType: 'way',
+            osmId: 2,
+            geometry: { type: 'Point', coordinates: [-58.3931, -34.5875] },
+            tags: { 'addr:street': 'Junín', 'addr:housenumber': '1760' },
+          },
+        ]) as any,
+        catalog as any,
+        geographicValidator as any,
+        undefined,
+        undefined,
+        undefined,
+        wikidata as any,
+      );
+
+      const withAddressHint: ExperienceCandidate = {
+        name: 'Recoleta Walk',
+        themes: ['history'],
+        traits: [],
+        intents: ['walk'],
+        evidenceKeys: ['ev-1'],
+        shortReason: 'Neighborhood walk',
+        componentHints: [
+          {
+            key: 'cemetery',
+            name: 'Recoleta Cemetery',
+            role: 'venue',
+            expectedKind: 'PLACE',
+            required: true,
+            evidenceKeys: ['ev-1'],
+            addressHint: 'Junín 1760',
+          },
+        ],
+      };
+
+      const result = await service.resolve({
+        geographicScope: { kind: 'AREA_BOUNDARY', boundary },
+        candidates: [withAddressHint],
+      });
+
+      expect(catalog.upsertGeoEntity).toHaveBeenCalledWith(
+        expect.objectContaining({ name: 'Cementerio de la Recoleta' }),
+      );
+      expect(wikidata.getEntitySummaries).not.toHaveBeenCalled();
+      expect(wikidata.findNearbyPlaces).not.toHaveBeenCalled();
+      expect(result.acceptedCount).toBe(1);
+    });
+
+    it('ignores addressHint entirely when absent (regression guard: every existing hint without one is unaffected)', async () => {
+      const wikidata = {
+        findNearbyPlaces: jest.fn(),
+        getEntitySummaries: jest.fn(),
+      };
+      const catalog = {
+        resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-1' }),
+        persistVerifiedExperience: jest
+          .fn()
+          .mockResolvedValue({ id: 'exp-1', dedupeDecision: 'NEW' }),
+      };
+      const geographicValidator = {
+        validate: jest.fn().mockReturnValue(acceptedValidation('Museum')),
+      };
+      const service = new ExperienceProposalResolverService(
+        osmPlacesFor([
+          {
+            id: 'osm:node:1',
+            name: 'Museum',
+            osmType: 'node',
+            osmId: 1,
+            geometry: { type: 'Point', coordinates: [-58.4, -34.6] },
+            tags: {},
+          },
+        ]) as any,
+        catalog as any,
+        geographicValidator as any,
+        undefined,
+        undefined,
+        undefined,
+        wikidata as any,
+      );
+
+      const result = await service.resolve({
+        geographicScope: { kind: 'AREA_BOUNDARY', boundary },
+        candidates: [candidate()],
+      });
+
       expect(result.acceptedCount).toBe(1);
     });
   });
