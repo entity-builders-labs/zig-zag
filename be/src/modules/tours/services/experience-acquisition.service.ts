@@ -578,6 +578,7 @@ export class ExperienceAcquisitionService {
         destinationCountryCode: input.destinationCountryCode,
         geographicScope: input.geographicScope!,
         evidence: resolverEvidence,
+        observations: acquisition.observations,
       });
 
       const acceptedIds = resolution.resolved

@@ -779,6 +779,7 @@ describe('ExperienceAcquisitionService', () => {
               url: 'https://teatrocolon.org.ar',
             },
           ],
+          observations: [mockObservation],
         });
 
         // Exact accepted-id retrieval, not a broad geographic re-query.
