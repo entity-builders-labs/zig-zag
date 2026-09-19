@@ -166,3 +166,97 @@ discipline — anyone needing to re-verify should re-run the same
 methodology (`ExperienceGenerationService.generateTourExperiences` against
 the `zigzag_spike_preb6` spike DB via a temporary live-spec), not assume
 these numbers are still current.
+
+---
+
+## Follow-up: "Recoleta Cemetery" verified with real data (not yet a fresh live run)
+
+The user pushed back on "Recoleta Cemetery did not appear as a hint,
+not re-verified" above — it's a real, major tourist attraction with
+guided tours, it should resolve, and not via a case-specific rule. Live
+Overpass query confirmed the real entity is already in the candidate pool
+today, no new tag category needed: OSM way `183842128` "Cementerio de la
+Recoleta", `landuse=cemetery`, `tourism=attraction`,
+`wikidata=Q831322`. Live Wikidata query on that exact QID: `label.en =
+"Recoleta Cemetery"` — an exact match to the hint.
+
+A new unit test
+(`experience-proposal-resolver.service.spec.ts`, `"resolves the real
+'Recoleta Cemetery' case end to end"`) reproduces this exact real data
+(the real cemetery vs. the historically-wrong "Hotel Urban Suites
+Recoleta", which carries no wikidata tag) and passes: the general
+mechanism (best-fuzzy-match tiebreak by wikidata-tag presence, then
+direct-QID confirmation) resolves it correctly with **zero case-specific
+code**. This is evidence the fix generalizes, but it is a unit test
+against real fixture data, **not** a fresh live 6-theme run that actually
+re-exercised this specific hint in production — the next live run that
+happens to surface "Recoleta Cemetery" again should still be checked by
+hand, same discipline as every other collision case in this document.
+
+A known, unhardened residual gap was flagged and left open: if the
+WRONG candidate also happened to carry its own wikidata tag (a full tie
+on every signal `bestFuzzyMatch` currently checks), selection would fall
+back to arbitrary pool order again. No evidence this happens in practice
+(hotels rarely carry wikidata tags) — not fixed, deliberately, pending
+real evidence it's needed.
+
+## Follow-up: addressHint signal added, live-measured, low yield (not a regression)
+
+Per the same conversation, a new independent, non-name-based
+confirmation signal was added: `GeoEntityHint.addressHint`, populated by
+the discovery LLM only when cited evidence explicitly states a street
+address for that exact hint (prompt already forbade putting an address
+in `name`; it was previously just discarded instead of captured
+elsewhere). Used two ways, both additive/safe: as the top-priority
+tiebreak in `matchOsmCandidateByName`'s fuzzy branch (a real address
+match beats token-count or wikidata-tag presence), and as a direct,
+network-free confirmation in `confirmMatch` (an address either matches a
+candidate's own `addr:housenumber`/`addr:street` tags or it doesn't).
+Committed `6222565`.
+
+Live-measured (6-theme Buenos Aires, run in six separate single-theme
+`npx jest` invocations due to severe, recurring host memory pressure this
+session — see below): **144 real hint opportunities, `addressHint`
+populated by the LLM exactly once.** That one case ("Reserva Ecológica
+Costanera Sur", addressHint a postal-style address with no street
+number) correctly fell through unconfirmed — the real OSM entity for a
+nature reserve has no `addr:housenumber` tag to check against, so there
+was nothing to confirm, not a false positive and not a bug.
+
+**Honest conclusion: cannot claim this improved the composite-persistence
+rate** — the sample is too small (1 real use) to say anything about
+impact. The code is safe (unit-tested for both the match and the
+full-tie-broken case) and the mechanism is sound, but **grounded web
+evidence for typical tourist attractions rarely states a street address**
+for the featured place — the practical yield of this signal is real but
+low, given today's evidence sources. Do not expect this alone to move the
+composite-persistence number; it is a genuine, safe addition, not a
+proven lever.
+
+This run's own headline numbers (144 raw, 10 composite generated, 2
+persisted = 20%) are **not evidence the fixes regressed** — composite
+generation volume from the discovery LLM varies run to run regardless of
+resolver code (136-152 raw candidates observed across three separate
+post-fix-era runs this session), and this run barely exercised the one
+new signal being measured.
+
+## Aside: severe host memory pressure this session (operational note, not a code finding)
+
+The live runs in this document were repeatedly killed by the OS for low
+system memory — four separate times across the addressHint measurement
+alone, even after reducing batch size from all 6 themes at once, to 2 at
+a time, down to 1 theme per `npx jest` invocation. Root cause was **not**
+this test suite or the app itself (Docker containers stayed under
+2.5GB combined throughout) — it was unrelated host processes (a running
+Android emulator, ~15 Firefox/Cursor renderer processes, a
+Virtualization.framework VM) competing for RAM on an already-tight
+machine. Closing the Android emulator recovered ~1.3GB and helped
+temporarily. A real, unimplemented optimization identified but not
+acted on: these live-spec runs boot the full NestJS app through
+`ts-jest`, which transpiles the entire dependency graph on the fly in
+one Node process — running against a pre-built `dist/` (via `yarn
+build` once, then a plain Node bootstrap script) would very likely use
+substantially less memory and start faster, but was not worth the
+setup cost mid-session with only a handful of measurements left to run.
+Worth doing before the next live-measurement-heavy session on this
+branch.

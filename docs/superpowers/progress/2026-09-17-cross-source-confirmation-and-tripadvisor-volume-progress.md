@@ -27,16 +27,31 @@ harness, before/after), and the "Galería Güemes" collision fixed **at its
 root** (a candidate-selection bug the confirmation gate could only mask as
 a symptom, never fix) — see
 `docs/superpowers/characterization/2026-09-18-task-a9-live-remeasure-post-fixes.md`.
-"Recoleta Cemetery" did not appear as a hint in either live run this
-session — **not re-verified**, do not assume unaffected. A full adversarial
-review of a larger proposed architecture change (provider-neutral
-gather/reconcile/verify, composition-evidence-as-a-gate, full source
-extraction) was done against the real branch state — nothing from it was
-implemented; see
+"Recoleta Cemetery" did not appear as a hint in either live run that
+session, but was separately verified with real data (real OSM tags, real
+Wikidata QID/label) in a dedicated unit test: the general mechanism
+resolves it correctly, no case-specific code — **still not re-confirmed
+by an actual fresh live run**, see the live-remeasure doc's follow-up
+section. A full adversarial review of a larger proposed architecture
+change (provider-neutral gather/reconcile/verify, composition-evidence-
+as-a-gate, full source extraction) was done against the real branch
+state — nothing from it was implemented; see
 `docs/superpowers/characterization/2026-09-18-composite-materialization-architecture-review.md`
 for what's verified-real, what's stale-assumption, and the ranked
-recommendation. Track B: NOT STARTED.**
-Written: 2026-09-17, updated 2026-09-18.
+recommendation. A 6th fix, `GeoEntityHint.addressHint` (an independent,
+non-name-based confirmation signal), was added and live-measured
+2026-09-19: used by the discovery LLM only once in 144 real hint
+opportunities — safe and correct, but not proven to move the
+persistence number given how rarely grounded web evidence states a
+street address. Two more findings verified against real code/external
+docs the same day: Wikivoyage is structurally POI-only (can never
+produce a composite, by design, at two separate points in the pipeline)
+and TripAdvisor via SerpAPI (`engine=tripadvisor`) is real and feasible
+on the already-paid account — see
+`docs/superpowers/characterization/2026-09-19-wikivoyage-poi-only-and-tripadvisor-feasibility.md`.
+All 3 commits (`1ba8c03`, `b2e52b6`, `6222565`) are **pushed** to
+`fork/feat/preference-first-selection`. Track B: NOT STARTED.**
+Written: 2026-09-17, updated 2026-09-19.
 Branch: `feat/preference-first-selection`.
 
 > **Follow-up plan pointer:** Task A5/A6/A7 referenced throughout this file
@@ -85,10 +100,23 @@ TRACK A — cross-source confirmation (Wikidata)
   5 targeted resolver/matching fixes (direct-QID           COMPLETE — 8.3% -> 33.3%
        generalized, Places top-N, role=area->venue         composite persistence,
        fallback, best-fuzzy-match tie-break, own-name-tag  "Galería Güemes" fixed
-       comparison)                                          at its root      <-- WE ARE HERE
+       comparison)                                          at its root
   Architecture review of a larger proposed refactor        COMPLETE (analysis only,
        (gather/reconcile/verify, compositionEvidence gate) nothing implemented) — see
                                                              docs/superpowers/characterization/2026-09-18-composite-materialization-architecture-review.md
+  "Recoleta Cemetery" verified with real data (unit test,  COMPLETE — general
+       not a fresh live run)                                mechanism resolves it,
+                                                             no case-specific code
+  6th fix: addressHint (independent, non-name-based        COMPLETE — safe, but
+       confirmation signal)                                 used only 1/144 times
+                                                             live; not proven to
+                                                             move the % — see
+                                                             docs/superpowers/characterization/2026-09-18-task-a9-live-remeasure-post-fixes.md
+  Wikivoyage POI-only + TripAdvisor feasibility            COMPLETE (analysis only)
+       (confirmed against real code + real SerpAPI docs)    — see
+                                                             docs/superpowers/characterization/2026-09-19-wikivoyage-poi-only-and-tripadvisor-feasibility.md
+  All 3 commits pushed to fork                             COMPLETE — 1ba8c03,
+                                                             b2e52b6, 6222565  <-- WE ARE HERE
 
 TRACK B — TripAdvisor as an additional volume source
   B1 — TripAdvisorGroundedSearchService                     NOT STARTED
@@ -563,53 +591,71 @@ claim in this plan, which was live-validated).
 
 An implementation agent starting from this branch should:
 
-1. Read this file's "Current state" block first. A1–A8 across the three
-   docs (`2026-09-17-cross-source-confirmation-and-tripadvisor-volume.md`
-   for A1–A4, `2026-09-17-confirmation-collision-fix-and-anchor-scope-narrowing.md`
-   for A5–A7, Root Cause #5 + the tourism-filter fix done ad hoc per user
-   questions, no separate plan doc for either) are ALL COMPLETE and
-   committed locally (`4d408a1`, `48cdf21`, `673a556`, `1f41251`,
-   `9b1c86d`, `2c2e412`, `ecba56a`, `e70f3e2`, `019fccd`) — **not yet
-   pushed** to `fork` as of this writing; check
-   `git log --oneline fork/feat/preference-first-selection..HEAD` before
-   assuming push state. Never push without the user's explicit
-   confirmation for this push specifically.
+1. Read this file's "Current state" block first. A1–A9 plus the 6
+   targeted resolver/matching fixes and the addressHint follow-up are
+   ALL COMPLETE and **pushed** to `fork/feat/preference-first-selection`
+   as of 2026-09-19 (`1ba8c03`, `b2e52b6`, `6222565`) — verify with
+   `git log --oneline fork/feat/preference-first-selection..HEAD`
+   (should be empty right after this) before assuming push state, since
+   later local commits may exist unpushed by the time you read this.
+   Never push without the user's explicit confirmation for that push
+   specifically, same as always.
 2. Read, in order: `docs/superpowers/characterization/2026-09-18-task-a8-root-cause-5-live-remeasure.md`,
-   then this file's "DONE — Diagnosed A8's 0/9 result by hand..." section,
-   then `docs/superpowers/characterization/2026-09-18-task-a9-live-remeasure-post-fixes.md`
-   (Task A9 + the 5 targeted resolver/matching fixes, live-measured
-   8.3% -> 33.3% composite persistence) and
+   this file's "DONE — Diagnosed A8's 0/9 result by hand..." section,
+   `docs/superpowers/characterization/2026-09-18-task-a9-live-remeasure-post-fixes.md`
+   (Task A9, the 5 resolver/matching fixes, live-measured 8.3% -> 33.3%
+   composite persistence, PLUS its own "Follow-up" sections covering the
+   Recoleta Cemetery real-data verification and the addressHint
+   live-measurement — read the whole file, not just the top),
    `docs/superpowers/characterization/2026-09-18-composite-materialization-architecture-review.md`
    (a larger proposed refactor, reviewed against real code, nothing
-   implemented from it). Check `git log --oneline` for this session's
-   exact commits — not hardcoded here since this handoff section is
-   written before those commits land; do not assume any specific hash.
+   implemented from it), and
+   `docs/superpowers/characterization/2026-09-19-wikivoyage-poi-only-and-tripadvisor-feasibility.md`
+   (Wikivoyage confirmed structurally POI-only; TripAdvisor via SerpAPI
+   confirmed feasible on the existing paid account, not yet built).
 3. **The confirmation gate itself (`confirmMatch`'s core strictness) was
    never relaxed this session** — every fix landed either gives the
-   resolver a better/additional candidate to try (Places top-N, best-fuzzy-match,
-   role=area->venue fallback) or a cheaper/additional way to confirm one
-   using data the matched entity or its originating observation already
-   declares (own name:xx/wikipedia tags, `SourceObservation.canonicalIdentity.wikidataQid`)
-   — never a loosened bar. **"Galería Güemes" is now confirmed fixed at
-   its root** (a candidate-SELECTION bug, not a confirmation-strictness
-   one — the fuzzy matcher was picking the first pool entry sharing one
-   generic token instead of the entry sharing the most tokens). **"Recoleta
-   Cemetery" did NOT appear as a hint in either of this session's two live
-   runs — it is NOT re-verified.** Do not assume it's still fixed; the next
-   agent that sees it appear in a live run must check its outcome by hand,
-   same discipline as every other collision case in this document.
+   resolver a better/additional candidate to try (Places top-N,
+   best-fuzzy-match, role=area->venue fallback) or a cheaper/additional
+   way to confirm one using data the matched entity or its originating
+   observation/evidence already declares (own name:xx/wikipedia tags,
+   `SourceObservation.canonicalIdentity.wikidataQid`, addressHint) —
+   never a loosened bar. **"Galería Güemes" is confirmed fixed at its
+   root** (a candidate-SELECTION bug, not a confirmation-strictness one).
+   **"Recoleta Cemetery" is verified with real data in a unit test (the
+   general mechanism resolves it, no case-specific code) but still has
+   NOT been re-confirmed by an actual fresh live run** — the next agent
+   that sees it appear in a live run must still check its outcome by
+   hand, same discipline as every other collision case in this document.
 4. `role` misclassification in the OPPOSITE direction from what this
    session fixed (a genuine neighborhood/area classified `role: "waypoint"`
-   or `"venue"` instead of `"area"`) is real and measured
-   (`docs/superpowers/characterization/2026-09-18-composite-materialization-architecture-review.md`'s
-   recommendation #2) — not yet designed or implemented.
-5. Track B (TripAdvisor volume) has still not been started. Widening
-   acquisition volume before the item above would mostly produce more
-   noise to sort through, not more real composites — still lower priority.
-6. Track B, whenever it starts, needs the real
-   `ExperienceGroundedSearchProvider` interface read (not assumed from the
-   plan's sketch) before implementing B1.
-7. The non-negotiable product requirement driving all of this: every
+   or `"venue"` instead of `"area"`) is real and measured — not yet
+   designed or implemented.
+5. `addressHint` (the 6th fix) is safe and correct but was live-measured
+   to be used by the discovery LLM only once in 144 real hint
+   opportunities — do not expect it to move the composite-persistence
+   number on its own; grounded web evidence for typical tourist
+   attractions rarely states a street address. Not a reason to revert it
+   (it's additive and zero-risk), just don't oversell its impact.
+6. Track B (TripAdvisor volume) has still not been started, but its
+   feasibility is now confirmed (SerpAPI `engine=tripadvisor` /
+   `engine=tripadvisor_reviews`, same paid account, structured JSON that
+   could skip the discovery LLM entirely for basic POI data). Widening
+   acquisition volume before item #4 above would mostly produce more
+   noise to sort through, not more real composites — still lower
+   priority. Whoever starts it must decide explicitly whether TripAdvisor
+   content flattens to single-POI observations (safe, same pattern as
+   Wikivoyage/Places today, but inherits Wikivoyage's own POI-only
+   limitation) or routes through a new composite-aware path — read the
+   real `ExperienceGroundedSearchProvider`/`SerpApiGroundedSearchService`
+   interfaces first, not the plan's original (pre-this-session) sketch.
+7. Severe host memory pressure repeatedly killed live-measurement runs
+   this session (four times, unrelated to this app's own resource use —
+   see the live-remeasure doc's "Aside" section). Before the next
+   live-measurement-heavy session, consider running against a pre-built
+   `dist/` instead of booting the full app through `ts-jest` each time —
+   identified as a likely large memory/time win, not yet implemented.
+8. The non-negotiable product requirement driving all of this: every
    persisted Experience's components must be geographically confirmed —
    never relax `confirmMatch`'s fail-closed behavior without the user's
    explicit direction, and never mark a case "fixed" without live
