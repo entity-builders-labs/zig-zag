@@ -711,6 +711,58 @@ export class ExperienceProposalResolverService
     );
   }
 
+  /**
+   * A QID carried on the SOURCE OBSERVATION proves
+   * `hint == QID` (the source independently resolved the hint's own
+   * identity) -- it proves NOTHING about whether the OSM candidate the
+   * local fuzzy matcher happened to pick is also that QID. Those are two
+   * different relationships. Real, live-verified collision this closes:
+   * hint "Recoleta Cemetery" (observation QID Q831322, correctly labeled
+   * "Recoleta Cemetery" in Wikidata) fuzzy-matched to the real but
+   * unrelated "Hotel Urban Suites Recoleta" -- which has no wikidata tag
+   * of its own, so nothing about the hotel itself was ever checked
+   * before this fix; the hint-only check trivially passed regardless of
+   * which local entity got matched.
+   *
+   * `confirmViaOwnWikidataTag` above needs no such extra check: there,
+   * the QID is read directly off the SAME entity's own OSM tags, a
+   * structural self-declaration ("I am this QID"), not an independent
+   * claim about the hint text. This method requires the SAME candidate
+   * Wikidata record to ALSO plausibly correspond to the MATCHED entity's
+   * own name -- the identical dual-check discipline the final-review fix
+   * already applies to the geo-proximity path below (hint check strict,
+   * matched-entity check default) -- before trusting the observation's
+   * claim about identity.
+   */
+  private async confirmViaObservationWikidataTag(
+    qid: string,
+    hint: any,
+    entity: ResolvedGeoEntity,
+  ): Promise<boolean | undefined> {
+    let summaries: Map<string, { label?: string; aliases?: string[] }>;
+    try {
+      summaries = await this.wikidata!.getEntitySummaries([qid]);
+    } catch {
+      return false;
+    }
+    const summary = summaries.get(qid);
+    if (!summary) return undefined;
+
+    const needle = normalizeGeoName(hint.name);
+    const matchedName = normalizeGeoName(entity.canonicalName || '');
+    const candidateLabels = [summary.label, ...(summary.aliases ?? [])].filter(
+      (label): label is string => Boolean(label),
+    );
+    return candidateLabels.some((label) => {
+      const normalizedLabel = normalizeGeoName(label);
+      return (
+        hasSpecificNameOverlap(needle, normalizedLabel, {
+          requireAllTokens: true,
+        }) && hasSpecificNameOverlap(matchedName, normalizedLabel)
+      );
+    });
+  }
+
   private hasMatchingOwnNameTag(entity: ResolvedGeoEntity, hint: any): boolean {
     const needle = normalizeGeoName(hint.name);
     return (entity.nameAliasCandidates ?? []).some((alias) =>
@@ -747,18 +799,16 @@ export class ExperienceProposalResolverService
 
     if (!this.wikidata) return false;
 
-    // A known QID is trusted from either source: the OSM candidate's own
-    // `wikidata` tag (set on the entity itself by persistOsmEntity), or a
-    // provider-resolved `canonicalIdentity.wikidataQid` on the structured
-    // SourceObservation that originated this hint (e.g. a QID Wikivoyage
-    // or Places already resolved -- never the discovery LLM, which never
-    // has access to `observations` at all). The OSM tag wins when both
-    // happen to be present, matching prior behavior exactly for every
-    // OSM-sourced entity.
-    const knownQid =
-      entity.wikidataQid ?? this.findObservationQid(hint, observations);
-    if (knownQid) {
-      const viaOwnTag = await this.confirmViaOwnWikidataTag(knownQid, hint);
+    // The OSM candidate's OWN `wikidata` tag is a structural
+    // self-declaration by the exact entity being confirmed -- trusted
+    // outright once its Wikidata record agrees with the hint (no need to
+    // also re-check the matched entity's name: the entity->QID link is
+    // already a direct, human-verified fact from the same OSM record).
+    if (entity.wikidataQid) {
+      const viaOwnTag = await this.confirmViaOwnWikidataTag(
+        entity.wikidataQid,
+        hint,
+      );
       // `undefined` means Wikidata has no record of this QID at all (a
       // stale/miskeyed OSM tag) -- fall through to the geo-proximity check
       // below, the same evidence situation as having no tag. `true`/`false`
@@ -769,6 +819,23 @@ export class ExperienceProposalResolverService
       // wikidata tag could still get confirmed by an unrelated nearby
       // place, exactly the ambiguity this direct check exists to remove.
       if (viaOwnTag !== undefined) return viaOwnTag;
+    } else {
+      // A QID on the source OBSERVATION is an independent claim
+      // about the HINT's identity, not a declaration by the matched
+      // entity itself -- the matcher could have picked the wrong local
+      // candidate entirely. Requires the SAME dual-check the geo-proximity
+      // path below already uses: the candidate Wikidata record must
+      // satisfy the hint (strict) AND the matched entity's own name
+      // (default), never the hint alone. See confirmViaObservationWikidataTag.
+      const observationQid = this.findObservationQid(hint, observations);
+      if (observationQid) {
+        const viaObservationQid = await this.confirmViaObservationWikidataTag(
+          observationQid,
+          hint,
+          entity,
+        );
+        if (viaObservationQid !== undefined) return viaObservationQid;
+      }
     }
 
     if (

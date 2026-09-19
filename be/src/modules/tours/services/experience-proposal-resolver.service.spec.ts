@@ -3405,6 +3405,81 @@ describe('ExperienceProposalResolverService', () => {
       expect(wikidata.getEntitySummaries).toHaveBeenCalledWith(['Q999']);
     });
 
+    it('does NOT confirm — and does not fall back to geo-proximity — when the observation QID describes the HINT but the matcher picked the WRONG local candidate (an observation QID proves hint==Q831322, never that the actually-matched OSM entity==Q831322; real case "Recoleta Cemetery" -> "Hotel Urban Suites Recoleta", where the hotel has no wikidata tag of its own)', async () => {
+      const wikidata = {
+        findNearbyPlaces: jest.fn().mockResolvedValue([]),
+        getEntitySummaries: jest.fn().mockResolvedValue(
+          new Map([
+            [
+              'Q831322',
+              {
+                qid: 'Q831322',
+                label: 'Recoleta Cemetery',
+              },
+            ],
+          ]),
+        ),
+      };
+      const catalog = {
+        resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-hotel' }),
+        persistVerifiedExperience: jest.fn(),
+      };
+      const geographicValidator = { validate: jest.fn() };
+      const service = new ExperienceProposalResolverService(
+        osmPlacesFor([
+          {
+            id: 'osm:node:hotel',
+            // The matcher's mistake: shares the "recoleta" token with the
+            // hint, no wikidata tag of its own, so this candidate has no
+            // independent identity evidence -- everything downstream has
+            // to come from the observation's QID, which describes the
+            // HINT, not this specific wrong entity.
+            name: 'Hotel Urban Suites Recoleta',
+            osmType: 'node',
+            osmId: 1,
+            geometry: { type: 'Point', coordinates: [-58.39, -34.59] },
+            tags: {},
+          },
+        ]) as any,
+        catalog as any,
+        geographicValidator as any,
+        undefined,
+        undefined,
+        undefined,
+        wikidata as any,
+      );
+
+      const recoletaCandidate = candidate('Recoleta Walk', 'Recoleta Cemetery');
+      recoletaCandidate.componentHints[0].evidenceKeys = ['wv-1'];
+
+      const result = await service.resolve({
+        geographicScope: { kind: 'AREA_BOUNDARY', boundary },
+        candidates: [recoletaCandidate],
+        observations: [
+          {
+            provider: 'wikivoyage',
+            evidenceKey: 'wv-1',
+            evidenceType: 'place',
+            title: 'Recoleta Cemetery',
+            originationCapabilities: [],
+            // Wikivoyage correctly claims the HINT "Recoleta Cemetery" is
+            // Q831322 -- true, and irrelevant to whether the WRONG local
+            // candidate the matcher actually picked is also Q831322.
+            canonicalIdentity: { wikidataQid: 'Q831322' },
+          },
+        ],
+      });
+
+      expect(result.acceptedCount).toBe(0);
+      expect(result.resolved[0].resolvedEntities[0]).toMatchObject({
+        hintName: 'Recoleta Cemetery',
+        status: 'unresolved',
+        reason: 'UNCONFIRMED_MATCH',
+      });
+      expect(catalog.persistVerifiedExperience).not.toHaveBeenCalled();
+    });
+
     it('ignores observations entirely when absent from the request (regression guard: every existing caller that does not pass `observations` is unaffected)', async () => {
       const wikidata = {
         findNearbyPlaces: jest.fn().mockResolvedValue([
