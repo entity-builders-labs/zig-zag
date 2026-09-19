@@ -95,13 +95,28 @@ Five targeted, TDD'd fixes, each independently tested and typechecked
    Places top-N reconciliation: exact-name match wins over rank; multiple
    exact matches (a real chain) tie-broken by distance to the destination;
    falls back to rank-0 only when nothing matches by name at all.
-2. `confirmMatch`'s known-QID check generalized: `entity.wikidataQid ??
-   findObservationQid(hint, observations)` — a `SourceObservation.canonicalIdentity.wikidataQid`
-   now also counts, threaded through as a new `observations?: SourceObservation[]`
-   field **sibling to** `candidates` on `ExperienceResolutionRequest`
-   (never merged into `GeoEntityHint` itself, precisely to keep the LLM's
-   own JSON contract untouched — this directly answers the plan's own
-   provenance-boundary question).
+2. `confirmMatch`'s known-QID check generalized: a
+   `SourceObservation.canonicalIdentity.wikidataQid` now also counts,
+   threaded through as a new `observations?: SourceObservation[]` field
+   **sibling to** `candidates` on `ExperienceResolutionRequest` (never
+   merged into `GeoEntityHint` itself, precisely to keep the LLM's own
+   JSON contract untouched — this directly answers the plan's own
+   provenance-boundary question). **Correction (found the day after this
+   review, by the user, before either fix was pushed):** as first
+   written, this conflated two different relationships — a QID on the
+   observation proves `hint == QID` (the source's own claim about the
+   HINT text), never that the OSM candidate the local fuzzy matcher
+   actually picked is also that QID. A wrongly-matched candidate with no
+   wikidata tag of its own (e.g. the historically-wrong "Hotel Urban
+   Suites Recoleta") got silently confirmed by an observation QID that
+   correctly described the HINT ("Recoleta Cemetery") but said nothing
+   about the entity actually matched. Fixed by requiring the same
+   dual-check the geo-proximity path already uses (hint strict, matched
+   entity's own name default) before trusting an observation QID — see
+   `confirmViaObservationWikidataTag` in the resolver. The
+   OSM-tag-sourced path needs no such check: there the QID is read
+   directly off the SAME entity's own tags, a structural
+   self-declaration, not an independent claim about a hint string.
 3. `role: "area" → venue` fallback in `resolveCandidate`: an AREA-role hint
    that fails both the boundary match and the Nominatim administrative-area
    path retries once against the local POI pool, using a corrected hint

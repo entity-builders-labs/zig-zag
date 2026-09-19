@@ -49,8 +49,24 @@ produce a composite, by design, at two separate points in the pipeline)
 and TripAdvisor via SerpAPI (`engine=tripadvisor`) is real and feasible
 on the already-paid account — see
 `docs/superpowers/characterization/2026-09-19-wikivoyage-poi-only-and-tripadvisor-feasibility.md`.
-All 3 commits (`1ba8c03`, `b2e52b6`, `6222565`) are **pushed** to
-`fork/feat/preference-first-selection`. Track B: NOT STARTED.**
+A CRITICAL gap in the 6th fix's own predecessor (the observation-QID
+generalization, part of the 5 fixes above) was found by user review and
+fixed the same day: an observation QID only proves the SOURCE correctly
+identified the HINT text, never that the OSM candidate the local
+matcher actually picked is that same QID — a wrong local candidate with
+no wikidata tag of its own could get silently confirmed. Fixed by
+requiring the same dual-check (hint + matched entity) the geo-proximity
+path already uses — see
+`docs/superpowers/characterization/2026-09-18-task-a9-live-remeasure-post-fixes.md`'s
+"Follow-up: a critical hole..." section. **This fix was never live
+(shipped and caught before push) — no production data was ever
+affected.** All 3 of the FIRST batch of commits (`1ba8c03`, `b2e52b6`,
+`6222565`) are **pushed** to `fork/feat/preference-first-selection`; 4
+more commits (docs, a housenumber-extraction bugfix, a small caller
+fix, and this critical fix) are committed **locally, NOT yet pushed**
+as of this writing — check `git log --oneline
+fork/feat/preference-first-selection..HEAD` before assuming push state.
+Track B: NOT STARTED.**
 Written: 2026-09-17, updated 2026-09-19.
 Branch: `feat/preference-first-selection`.
 
@@ -115,8 +131,24 @@ TRACK A — cross-source confirmation (Wikidata)
   Wikivoyage POI-only + TripAdvisor feasibility            COMPLETE (analysis only)
        (confirmed against real code + real SerpAPI docs)    — see
                                                              docs/superpowers/characterization/2026-09-19-wikivoyage-poi-only-and-tripadvisor-feasibility.md
-  All 3 commits pushed to fork                             COMPLETE — 1ba8c03,
-                                                             b2e52b6, 6222565  <-- WE ARE HERE
+  Small caller fix: thread observations through            COMPLETE — commit
+       acquireNearby too (currently zero production          695cdb3, zero live
+       callers, found by user review)                        impact today
+  Bug fix: extract housenumber at the END of               COMPLETE — commit
+       addressHint, not the first digit (street names        f081da6
+       like "Avenida 9 de Julio" broke the old regex,
+       found by user testing)
+  CRITICAL fix: observation QID proved hint==QID,           COMPLETE — commit
+       never that the MATCHED entity==QID -- a wrong          4f3c0a3, found
+       local candidate with no wikidata tag of its own         by user review
+       could get silently confirmed by an observation
+       QID that correctly described the HINT but said
+       nothing about what was actually matched. See
+       docs/superpowers/characterization/2026-09-18-task-a9-live-remeasure-post-fixes.md's
+       own "Follow-up: a critical hole..." section.
+  Push status: 3 commits pushed (1ba8c03, b2e52b6,
+       6222565); 4 more commits LOCAL, NOT YET PUSHED
+       (3f22626, f081da6, 695cdb3, 4f3c0a3)            <-- WE ARE HERE
 
 TRACK B — TripAdvisor as an additional volume source
   B1 — TripAdvisorGroundedSearchService                     NOT STARTED
@@ -591,15 +623,20 @@ claim in this plan, which was live-validated).
 
 An implementation agent starting from this branch should:
 
-1. Read this file's "Current state" block first. A1–A9 plus the 6
-   targeted resolver/matching fixes and the addressHint follow-up are
-   ALL COMPLETE and **pushed** to `fork/feat/preference-first-selection`
-   as of 2026-09-19 (`1ba8c03`, `b2e52b6`, `6222565`) — verify with
+1. Read this file's "Current state" block first. A1–A9, the 6 targeted
+   resolver/matching fixes, and the addressHint follow-up are all
+   COMPLETE and **pushed** to `fork/feat/preference-first-selection`
+   (`1ba8c03`, `b2e52b6`, `6222565`). Beyond those, as of 2026-09-19
+   there are 4 further commits still **local/unpushed**
+   (`3f22626` docs, `f081da6` addressHint housenumber bugfix,
+   `695cdb3` `acquireNearby` observations fix, `4f3c0a3` the critical
+   observation-QID identity fix — see item 3 below) plus a pending
+   docs-only commit for this section's own updates. Do not trust these
+   hashes as current — always verify with
    `git log --oneline fork/feat/preference-first-selection..HEAD`
-   (should be empty right after this) before assuming push state, since
-   later local commits may exist unpushed by the time you read this.
-   Never push without the user's explicit confirmation for that push
-   specifically, same as always.
+   yourself before assuming push state, since later local commits may
+   exist unpushed by the time you read this. Never push without the
+   user's explicit confirmation for that specific push, same as always.
 2. Read, in order: `docs/superpowers/characterization/2026-09-18-task-a8-root-cause-5-live-remeasure.md`,
    this file's "DONE — Diagnosed A8's 0/9 result by hand..." section,
    `docs/superpowers/characterization/2026-09-18-task-a9-live-remeasure-post-fixes.md`
@@ -627,21 +664,51 @@ An implementation agent starting from this branch should:
    NOT been re-confirmed by an actual fresh live run** — the next agent
    that sees it appear in a live run must still check its outcome by
    hand, same discipline as every other collision case in this document.
-4. `role` misclassification in the OPPOSITE direction from what this
+   **Important correction found the day after the initial 5 fixes landed
+   (by the user, before anything was pushed):** the first version of the
+   `SourceObservation.canonicalIdentity.wikidataQid` confirmation path
+   (item 2 above) had a real soundness bug, not just a missing edge case
+   — it proved `hint text == QID` (the source's own claim about the
+   HINT), but never proved the OSM candidate the local fuzzy matcher
+   actually picked was also that QID. A wrongly-matched candidate with
+   no wikidata tag of its own (the real "Recoleta Cemetery" hint
+   resolving to "Hotel Urban Suites Recoleta") could have been silently
+   confirmed this way in production. Fixed in `4f3c0a3` by adding
+   `confirmViaObservationWikidataTag`, which requires the same dual-check
+   (hint strict, matched entity's own name default) that the
+   geo-proximity path already used for an analogous reason since
+   `2c2e412` (pre-existing before this session). **This fix was never
+   live** — caught and fixed entirely within local, unpushed commits,
+   before any push, so no production data was ever affected. See
+   `docs/superpowers/characterization/2026-09-18-task-a9-live-remeasure-post-fixes.md`'s
+   "Follow-up: a critical hole in the observation-QID check, found and
+   fixed" section for the full writeup.
+4. **Lesson from the item-3 correction, for any future new
+   identity/confirmation signal added to `confirmMatch` (or anywhere in
+   the resolver):** a happy-path unit test proving the signal works when
+   everything lines up is not enough. Every new signal needs its own
+   adversarial test that deliberately mismatches the signal's source
+   from the actually-matched candidate (e.g. "the observation/tag
+   correctly describes the HINT, but the local matcher picked a
+   different, wrong real-world entity that the signal says nothing
+   about") — otherwise this exact class of conflation bug (proving A
+   implies B when it only proves A implies C) can pass review and ship.
+   Apply this before trusting any future signal, not only wikidata QIDs.
+5. `role` misclassification in the OPPOSITE direction from what this
    session fixed (a genuine neighborhood/area classified `role: "waypoint"`
    or `"venue"` instead of `"area"`) is real and measured — not yet
    designed or implemented.
-5. `addressHint` (the 6th fix) is safe and correct but was live-measured
+6. `addressHint` (the 6th fix) is safe and correct but was live-measured
    to be used by the discovery LLM only once in 144 real hint
    opportunities — do not expect it to move the composite-persistence
    number on its own; grounded web evidence for typical tourist
    attractions rarely states a street address. Not a reason to revert it
    (it's additive and zero-risk), just don't oversell its impact.
-6. Track B (TripAdvisor volume) has still not been started, but its
+7. Track B (TripAdvisor volume) has still not been started, but its
    feasibility is now confirmed (SerpAPI `engine=tripadvisor` /
    `engine=tripadvisor_reviews`, same paid account, structured JSON that
    could skip the discovery LLM entirely for basic POI data). Widening
-   acquisition volume before item #4 above would mostly produce more
+   acquisition volume before item #5 above would mostly produce more
    noise to sort through, not more real composites — still lower
    priority. Whoever starts it must decide explicitly whether TripAdvisor
    content flattens to single-POI observations (safe, same pattern as
@@ -649,13 +716,13 @@ An implementation agent starting from this branch should:
    limitation) or routes through a new composite-aware path — read the
    real `ExperienceGroundedSearchProvider`/`SerpApiGroundedSearchService`
    interfaces first, not the plan's original (pre-this-session) sketch.
-7. Severe host memory pressure repeatedly killed live-measurement runs
+8. Severe host memory pressure repeatedly killed live-measurement runs
    this session (four times, unrelated to this app's own resource use —
    see the live-remeasure doc's "Aside" section). Before the next
    live-measurement-heavy session, consider running against a pre-built
    `dist/` instead of booting the full app through `ts-jest` each time —
    identified as a likely large memory/time win, not yet implemented.
-8. The non-negotiable product requirement driving all of this: every
+9. The non-negotiable product requirement driving all of this: every
    persisted Experience's components must be geographically confirmed —
    never relax `confirmMatch`'s fail-closed behavior without the user's
    explicit direction, and never mark a case "fixed" without live

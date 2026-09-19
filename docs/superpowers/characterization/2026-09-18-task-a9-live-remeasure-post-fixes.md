@@ -77,6 +77,10 @@ doc's own section for the code-level detail):
 2. `confirmMatch`'s known-QID check generalized beyond the OSM candidate's
    own `wikidata` tag to also read `SourceObservation.canonicalIdentity.wikidataQid`
    (structured/non-LLM origin only — `GeoEntityHint` itself untouched).
+   **A serious gap in this fix as first written was found and fixed the
+   next day — see "Follow-up: a critical hole in the observation-QID
+   check" below. Do not treat the description above as safe on its own;
+   read that section.**
 3. `role: "area" → venue` fallback in `resolveCandidate`: an AREA-role hint
    that fails both the destination-boundary match and the Nominatim
    administrative-area path is retried once against the local POI pool.
@@ -260,3 +264,54 @@ substantially less memory and start faster, but was not worth the
 setup cost mid-session with only a handful of measurements left to run.
 Worth doing before the next live-measurement-heavy session on this
 branch.
+
+## Follow-up: a critical hole in the observation-QID check, found and fixed
+
+The user found a real, serious gap in Fix #2 above (the observation-QID
+generalization) the day after it shipped, before either fix had been
+pushed. Worth recording precisely, since the original description above
+undersold the risk.
+
+**The hole:** a QID on a `SourceObservation` (e.g. Wikivoyage claiming
+`title: "Recoleta Cemetery"`, `canonicalIdentity.wikidataQid: "Q831322"`)
+proves the SOURCE correctly identified the HINT text — it proves nothing
+about whether the OSM candidate the local fuzzy matcher actually picked
+is that same QID. Those are two different relationships, and
+`confirmMatch` as first written conflated them: it fetched the
+observation's QID, checked its Wikidata label against the HINT, and
+confirmed on a match — without ever checking the label against the
+entity that was actually matched. A wrong local candidate with no
+wikidata tag of its own (nothing to check independently) would sail
+through confirmed, purely because the SOURCE happened to correctly
+describe what the hint was asking for.
+
+Concretely: hint "Recoleta Cemetery" fuzzy-matches the real, unrelated
+"Hotel Urban Suites Recoleta" (shares the "recoleta" token, no wikidata
+tag of its own). The observation's QID (Q831322, genuinely "Recoleta
+Cemetery" in Wikidata) would confirm the HOTEL as the cemetery, because
+the check never looked at what was actually matched.
+
+**Why the OSM-tag-sourced path (`confirmViaOwnWikidataTag`) was never at
+risk of this:** there, the QID comes directly off the matched entity's
+own tags — a structural self-declaration by that exact record, not an
+independent claim about a hint string. There's nothing to cross-check
+against, because the entity->QID link IS the thing being trusted, made
+by a human OSM mapper on that specific node.
+
+**The fix:** `confirmViaObservationWikidataTag` now requires the same
+dual-check the geo-proximity path already uses (added by the
+final-review fix, commit `2c2e412`, for exactly this class of problem in
+a different mechanism): the candidate Wikidata record must satisfy the
+HINT (strict, all tokens) AND the MATCHED ENTITY's own name (default
+bar) — never the hint alone. A new regression test reproduces the exact
+collision with real QID/label data; the pre-existing legitimate-case
+test (correct entity, no OSM tag, observation QID) still passes
+unchanged.
+
+**Lesson for next time:** any new "known identity" signal introduced for
+`confirmMatch` needs an explicit adversarial test — hint resolves
+correctly at the source, but the LOCAL MATCHER picks the wrong
+candidate anyway — not just a happy-path test where the matched entity
+already happens to be correct. The original 3 tests for this fix all
+used a correctly-matched entity; none exercised the actual failure mode
+the fix was supposed to guard against.
