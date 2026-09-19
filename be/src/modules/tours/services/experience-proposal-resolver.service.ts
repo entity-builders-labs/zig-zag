@@ -35,6 +35,13 @@ import { GeoEntityHint } from '../interfaces/experience-discovery.interface';
 import { SourceObservation } from '../interfaces/experience-acquisition.interface';
 import { computeQualityScore } from '../utils/quality-score.util';
 import { IWikidataApiService } from '@integrations/wikidata/interfaces/wikidata.interface';
+import { geometryContainsPoint } from '@integrations/osm/utils/geojson-containment.util';
+import { findReusableObservationCandidate } from '../utils/observation-hint-correlation.util';
+import {
+  acquisitionLabelToPlacesProvider,
+  canonicalPlacesExternalId,
+  placesAcquisitionLabel,
+} from '../utils/places-external-identity.util';
 
 /**
  * Real margin above the live-validated MALBA distance (~50-80m between the
@@ -496,6 +503,26 @@ export class ExperienceProposalResolverService
       );
 
     for (const hint of candidate?.componentHints ?? []) {
+      // P2-B, Phase 1: an optional, non-terminal FIRST attempt -- if this
+      // run's structured acquisition already gathered an unambiguous,
+      // in-scope, still-live identity for this exact hint, reuse it
+      // instead of re-discovering it from scratch. Never a special
+      // confirmation path: `confirmMatch` here is the SAME call every
+      // other candidate goes through below. A `false`/`undefined` result
+      // is never terminal -- falls straight into the unchanged pipeline.
+      const reuseCandidate = await this.resolveViaTrustedObservation(
+        hint,
+        observations,
+        boundary,
+      );
+      if (
+        reuseCandidate &&
+        (await this.confirmMatch(reuseCandidate, hint, observations))
+      ) {
+        entities.push(reuseCandidate);
+        continue;
+      }
+
       const isAreaHint = hint.expectedKind === 'AREA' || hint.role === 'area';
       const pool =
         hint.expectedKind === 'ROUTE' || hint.role === 'route'
@@ -1111,6 +1138,184 @@ export class ExperienceProposalResolverService
   }
 
   /**
+   * P2-B, Phase 1: candidate ACQUISITION, not a new confirmation rule.
+   * When a web-discovered hint's name unambiguously names the same
+   * real-world thing as a structured `SourceObservation` this same
+   * acquisition run already gathered (`google_places`/`geoapify`, always
+   * `evidenceType: 'place'`), fetch that observation's own identity
+   * deterministically instead of re-discovering it from scratch via a
+   * fresh text search. Never uses `hint.evidenceKeys` -- see
+   * `findReusableObservationCandidate`'s own doc comment for why that
+   * correlation is structurally impossible for web hints.
+   *
+   * Deliberately narrow in this phase, to respect two invariants at once:
+   *   - P0.1/P0.2: a single compatible observation proves nothing about
+   *     real-world uniqueness -- ambiguity (2+ distinct compatible
+   *     observations) or an out-of-scope/unverifiable match refuses to
+   *     reuse rather than guessing. The returned candidate is NOT trusted
+   *     outright -- the caller still runs it through the exact same
+   *     `confirmMatch` gate every other candidate goes through. There is
+   *     no reuse-specific fast path into confirmation.
+   *   - P1: Places can only ever supply a POINT, never an AREA/ROUTE
+   *     polygon -- an AREA/ROUTE-tagged hint skips this attempt entirely
+   *     (never converted to PLACE just because a same-named Places
+   *     observation exists) and still gets P1's own kind-correction
+   *     treatment normally afterward, since a skip here is never terminal.
+   *
+   * A `null`/`undefined` result here is ALWAYS non-terminal: the caller
+   * falls straight through to the unchanged local-pool/global pipeline, as
+   * if this attempt had never run.
+   */
+  private async resolveViaTrustedObservation(
+    hint: any,
+    observations: SourceObservation[],
+    poolBoundary: OsmCandidate | undefined,
+  ): Promise<ResolvedGeoEntity | undefined> {
+    if (
+      hint.role === 'area' ||
+      hint.role === 'route' ||
+      hint.expectedKind === 'AREA' ||
+      hint.expectedKind === 'ROUTE'
+    ) {
+      return undefined;
+    }
+    if (!this.placesApi) return undefined;
+
+    const eligibleObservations = observations.filter(
+      (observation) =>
+        observation.evidenceType === 'place' &&
+        Boolean(observation.externalId) &&
+        acquisitionLabelToPlacesProvider(observation.provider) !== undefined,
+    );
+    const correlation = findReusableObservationCandidate(
+      hint,
+      eligibleObservations,
+    );
+    if (correlation.status !== 'unique') {
+      this.logger.debug(
+        `[P2-B] reuse ${correlation.status} for hint "${hint.name}"`,
+      );
+      return undefined;
+    }
+    const observation = correlation.observation;
+
+    // Geographic scope is a PLAUSIBILITY filter, not identity proof -- two
+    // genuinely distinct real places can share an identical name and both
+    // sit inside the same destination boundary, so this check alone never
+    // establishes that the correlated observation IS the entity the hint
+    // meant (that is `confirmMatch`'s job, below, unchanged). What this
+    // check actually rules out is name correlation alone concluding
+    // applicability with zero geographic evidence at all -- an observation
+    // whose own geo sits outside the destination isn't even a plausible
+    // candidate for it, regardless of how well its name correlated. Phase
+    // 1 only supports an AREA_BOUNDARY polygon scope; anything else (no
+    // boundary geometry, or the observation carries no geo) fails closed
+    // rather than guessing via an un-implemented radius check.
+    if (
+      !poolBoundary?.geometry ||
+      !Number.isFinite(observation.geo?.latitude) ||
+      !Number.isFinite(observation.geo?.longitude) ||
+      !geometryContainsPoint(
+        poolBoundary.geometry,
+        observation.geo!.longitude as number,
+        observation.geo!.latitude as number,
+      )
+    ) {
+      this.logger.debug(
+        `[P2-B] reuse candidate outside destination scope for hint "${hint.name}"`,
+      );
+      return undefined;
+    }
+
+    // Provider guard -- an externalId is only ever meaningful to the SAME
+    // Places backend that emitted it.
+    const requiredPlacesProvider = acquisitionLabelToPlacesProvider(
+      observation.provider,
+    );
+    if (requiredPlacesProvider !== this.placesApi.provider) {
+      this.logger.debug(
+        `[P2-B] reuse provider mismatch (observation=${observation.provider}, active=${this.placesApi.provider}) for hint "${hint.name}"`,
+      );
+      return undefined;
+    }
+
+    // Deterministic provider fetch establishes what this observation
+    // actually identifies RIGHT NOW -- the observation's own title/geo are
+    // never trusted as final. Phase 1's only additional fact requested
+    // beyond the pre-existing minimal field mask is `businessStatus`
+    // (same billing tier `searchText` already uses) -- see
+    // `GooglePlacesApiService.getPlaceDetails`. Coordinates still come
+    // from the observation itself (already real, from the original
+    // acquisition search); Phase 1 deliberately does not request
+    // `location` here to avoid an unnecessary field-mask change.
+    let details: Partial<PlaceData> | undefined;
+    try {
+      const result = await this.placesApi.getPlaceDetails(
+        observation.externalId as string,
+      );
+      details = result.data;
+    } catch (error: any) {
+      this.logger.debug(
+        `[P2-B] reuse getPlaceDetails failed for hint "${hint.name}": ${error?.message ?? error}`,
+      );
+      return undefined;
+    }
+    if (!details) return undefined;
+    if (details.businessStatus === 'CLOSED_PERMANENTLY') {
+      this.logger.debug(
+        `[P2-B] reuse candidate closed permanently for hint "${hint.name}"`,
+      );
+      return undefined;
+    }
+
+    const canonicalName =
+      details.displayName?.text || details.name || observation.title;
+    const latitude = observation.geo!.latitude as number;
+    const longitude = observation.geo!.longitude as number;
+    const providerLabel = placesAcquisitionLabel(this.placesApi.provider);
+    const externalId = canonicalPlacesExternalId(
+      this.placesApi.provider,
+      observation.externalId as string,
+    );
+    const geometry = {
+      type: 'Point' as const,
+      coordinates: [longitude, latitude],
+    };
+    const geo = await this.catalog.upsertGeoEntity({
+      name: canonicalName,
+      kind: GeoEntityKind.PLACE,
+      provider: providerLabel,
+      externalId,
+      latitude,
+      longitude,
+      geometry,
+      metadata: {
+        formattedAddress: details.formattedAddress,
+      },
+    });
+
+    this.logger.debug(
+      `[P2-B] reuse candidate acquired for hint "${hint.name}" via ${externalId}`,
+    );
+
+    return Object.assign(
+      {
+        hintKey: hint.key,
+        hintName: hint.name,
+        provider: providerLabel,
+        externalId,
+        canonicalName,
+        latitude,
+        longitude,
+        geometry,
+        role: hint.role,
+        status: 'resolved' as const,
+      },
+      { geoEntityId: geo.id },
+    );
+  }
+
+  /**
    * Fallback for a PLACE hint Nominatim/OSM couldn't resolve. Uses whichever
    * IPlacesApiService the PLACES_PROVIDER env var selects (Google or
    * Geoapify — see integrations.module.ts's createRealPlacesApiService), the
@@ -1148,10 +1353,12 @@ export class ExperienceProposalResolverService
         return undefined;
       }
 
-      const providerLabel =
-        this.placesApi.provider === 'google' ? 'google_places' : 'geoapify';
+      const providerLabel = placesAcquisitionLabel(this.placesApi.provider);
       const canonicalName = place.displayName?.text || place.name || hint.name;
-      const externalId = `${providerLabel}:${place.id}`;
+      const externalId = canonicalPlacesExternalId(
+        this.placesApi.provider,
+        place.id,
+      );
       const geometry = {
         type: 'Point' as const,
         coordinates: [place.location.longitude, place.location.latitude],

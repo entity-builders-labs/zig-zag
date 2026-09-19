@@ -1,6 +1,7 @@
 import { GeoEntityKind } from '@prisma/client';
 import { ExperienceCandidate } from '../interfaces/experience-discovery.interface';
 import { ExperienceGeographicValidationResult } from '../interfaces/experience-resolution.interface';
+import { SourceObservation } from '../interfaces/experience-acquisition.interface';
 import { ExperienceProposalResolverService } from './experience-proposal-resolver.service';
 
 describe('ExperienceProposalResolverService', () => {
@@ -4264,5 +4265,610 @@ describe('ExperienceProposalResolverService', () => {
       expect(osmPlaces.lookupPoisWithin).toHaveBeenCalledWith(boundary2);
       expect(osmPlaces.lookupStreetsWithin).toHaveBeenCalledWith(boundary2);
     });
+  });
+
+  describe('trusted-observation reuse for web-discovered hints (P2-B, Phase 1)', () => {
+    const emptyOsmPlaces = () => ({
+      lookupStreetsWithin: jest
+        .fn()
+        .mockResolvedValue({ status: 'success', value: [] }),
+      lookupPoisWithin: jest
+        .fn()
+        .mockResolvedValue({ status: 'success', value: [] }),
+      lookupBoundaryById: jest.fn(),
+    });
+
+    const zanjonObservation: SourceObservation = {
+      provider: 'google_places',
+      externalId: 'ChIJABC123',
+      title: 'El Zanjón de Granados',
+      evidenceType: 'place',
+      evidenceKey: 'google_places:ChIJABC123',
+      geo: { latitude: -34.61, longitude: -58.37 },
+      originationCapabilities: [],
+    };
+
+    it('acquires a candidate directly via a matching structured observation, skipping local/global search entirely', async () => {
+      const osmPlaces = emptyOsmPlaces();
+      const placesApi = {
+        provider: 'google' as const,
+        searchText: jest.fn(),
+        getPlaceDetails: jest.fn().mockResolvedValue({
+          data: {
+            id: 'ChIJABC123',
+            displayName: { text: 'El Zanjón de Granados' },
+            formattedAddress: 'Defensa 755, Buenos Aires',
+            businessStatus: 'OPERATIONAL',
+          },
+        }),
+      };
+      const catalog = {
+        resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-zanjon' }),
+        persistVerifiedExperience: jest.fn().mockResolvedValue({
+          id: 'exp-zanjon',
+          dedupeDecision: 'NEW',
+        }),
+      };
+      const geographicValidator = {
+        validate: jest
+          .fn()
+          .mockReturnValue(acceptedValidation('El Zanjón de Granados')),
+      };
+      const service = new ExperienceProposalResolverService(
+        osmPlaces as any,
+        catalog as any,
+        geographicValidator as any,
+        undefined,
+        undefined,
+        placesApi as any,
+      );
+
+      const webCandidate: ExperienceCandidate = {
+        name: 'El Zanjón de Granados',
+        themes: ['history'],
+        traits: [],
+        intents: ['visit'],
+        evidenceKeys: ['ev-1'],
+        shortReason: 'A historic house museum',
+        componentHints: [
+          {
+            key: 'zanjon',
+            name: 'El Zanjón de Granados',
+            role: 'venue',
+            expectedKind: 'PLACE',
+            required: true,
+            evidenceKeys: ['ev-1'],
+          },
+        ],
+      };
+
+      const result = await service.resolve({
+        geographicScope: { kind: 'AREA_BOUNDARY', boundary },
+        candidates: [webCandidate],
+        observations: [zanjonObservation],
+      });
+
+      expect(placesApi.searchText).not.toHaveBeenCalled();
+      expect(placesApi.getPlaceDetails).toHaveBeenCalledWith('ChIJABC123');
+      expect(result.acceptedCount).toBe(1);
+      expect(catalog.upsertGeoEntity).toHaveBeenCalledWith(
+        expect.objectContaining({
+          kind: GeoEntityKind.PLACE,
+          provider: 'google_places',
+          // Same canonical format resolveViaPlaces already persists --
+          // regression guard against fragmenting one real place into two
+          // GeoEntityIdentity rows.
+          externalId: 'google_places:ChIJABC123',
+        }),
+      );
+      expect(result.resolved[0].resolvedEntities[0]).toMatchObject({
+        hintKey: 'zanjon',
+        status: 'resolved',
+        role: 'venue',
+      });
+    });
+
+    it('does not bypass the normal confirmation gate (P0.1/P0.2): an acquired candidate whose fetched name is not exact still needs real confirmation, not automatic VERIFIED status', async () => {
+      const osmPlaces = emptyOsmPlaces();
+      const placesApi = {
+        provider: 'google' as const,
+        searchText: jest.fn(),
+        getPlaceDetails: jest.fn().mockResolvedValue({
+          data: {
+            id: 'ChIJABC123',
+            // Fetched canonical name carries a leading article the HINT
+            // does not -- correlation still passes (paraphrase), but
+            // confirmMatch's isExact does NOT (no wikidata configured
+            // here, so there is nothing left to confirm via -- this must
+            // fail closed, never auto-pass just because reuse found it).
+            displayName: { text: 'El Zanjón de Granados' },
+            businessStatus: 'OPERATIONAL',
+          },
+        }),
+      };
+      const catalog = {
+        resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-zanjon' }),
+        persistVerifiedExperience: jest.fn(),
+      };
+      const geographicValidator = { validate: jest.fn() };
+      const service = new ExperienceProposalResolverService(
+        osmPlaces as any,
+        catalog as any,
+        geographicValidator as any,
+        undefined,
+        undefined,
+        placesApi as any,
+        // No wikidata configured -- confirmMatch has nothing left to
+        // confirm via once isExact/addressConfirmed/own-name-tag all fail.
+      );
+
+      const webCandidate: ExperienceCandidate = {
+        name: 'Zanjón de Granados',
+        themes: ['history'],
+        traits: [],
+        intents: ['visit'],
+        evidenceKeys: ['ev-1'],
+        shortReason: 'A historic house museum',
+        componentHints: [
+          {
+            key: 'zanjon',
+            name: 'Zanjón de Granados',
+            role: 'venue',
+            expectedKind: 'PLACE',
+            required: true,
+            evidenceKeys: ['ev-1'],
+          },
+        ],
+      };
+
+      const result = await service.resolve({
+        geographicScope: { kind: 'AREA_BOUNDARY', boundary },
+        candidates: [webCandidate],
+        observations: [zanjonObservation],
+      });
+
+      // Reuse DID acquire and attempt the candidate (proves this is a
+      // confirmation-gate failure, not a correlation failure) --
+      expect(placesApi.getPlaceDetails).toHaveBeenCalledWith('ChIJABC123');
+      // -- but it was never persisted as VERIFIED.
+      expect(result.acceptedCount).toBe(0);
+      expect(catalog.persistVerifiedExperience).not.toHaveBeenCalled();
+    });
+
+    it('never treats a single acquired observation as proof of real-world uniqueness (P0.2): two DIFFERENT compatible observations stay AMBIGUOUS and skip reuse entirely, falling through to the normal resolver', async () => {
+      const osmPlaces = emptyOsmPlaces();
+      const placesApi = {
+        provider: 'google' as const,
+        searchText: jest.fn().mockResolvedValue({ data: [] }),
+        getPlaceDetails: jest.fn(),
+      };
+      const catalog = {
+        resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        upsertGeoEntity: jest.fn(),
+        persistVerifiedExperience: jest.fn(),
+      };
+      const geographicValidator = { validate: jest.fn() };
+      const service = new ExperienceProposalResolverService(
+        osmPlaces as any,
+        catalog as any,
+        geographicValidator as any,
+        undefined,
+        undefined,
+        placesApi as any,
+      );
+
+      const webCandidate: ExperienceCandidate = {
+        name: 'El Zanjón de Granados',
+        themes: ['history'],
+        traits: [],
+        intents: ['visit'],
+        evidenceKeys: ['ev-1'],
+        shortReason: 'A historic house museum',
+        componentHints: [
+          {
+            key: 'zanjon',
+            name: 'El Zanjón de Granados',
+            role: 'venue',
+            expectedKind: 'PLACE',
+            required: true,
+            evidenceKeys: ['ev-1'],
+          },
+        ],
+      };
+
+      const secondObservation = {
+        ...zanjonObservation,
+        provider: 'geoapify' as const,
+        externalId: 'geo-2',
+        evidenceKey: 'geoapify:geo-2',
+      };
+
+      const result = await service.resolve({
+        geographicScope: { kind: 'AREA_BOUNDARY', boundary },
+        candidates: [webCandidate],
+        observations: [zanjonObservation, secondObservation],
+      });
+
+      expect(placesApi.getPlaceDetails).not.toHaveBeenCalled();
+      expect(result.resolved[0].resolvedEntities[0].status).toBe('unresolved');
+    });
+
+    it('lets a failed reuse attempt continue to the normal resolver (never terminal): no compatible observation at all still resolves via the ordinary local pool match', async () => {
+      const osmPlaces = {
+        lookupStreetsWithin: jest
+          .fn()
+          .mockResolvedValue({ status: 'success', value: [] }),
+        lookupPoisWithin: jest.fn().mockResolvedValue({
+          status: 'success',
+          value: [
+            {
+              id: 'osm:node:1',
+              name: 'El Zanjón de Granados',
+              osmType: 'node',
+              osmId: 1,
+              geometry: { type: 'Point', coordinates: [-58.37, -34.61] },
+              tags: {},
+            },
+          ],
+        }),
+      };
+      const placesApi = {
+        provider: 'google' as const,
+        searchText: jest.fn(),
+        getPlaceDetails: jest.fn(),
+      };
+      const catalog = {
+        resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-zanjon' }),
+        persistVerifiedExperience: jest.fn().mockResolvedValue({
+          id: 'exp-zanjon',
+          dedupeDecision: 'NEW',
+        }),
+      };
+      const geographicValidator = {
+        validate: jest
+          .fn()
+          .mockReturnValue(acceptedValidation('El Zanjón de Granados')),
+      };
+      const service = new ExperienceProposalResolverService(
+        osmPlaces as any,
+        catalog as any,
+        geographicValidator as any,
+        undefined,
+        undefined,
+        placesApi as any,
+      );
+
+      const webCandidate: ExperienceCandidate = {
+        name: 'El Zanjón de Granados',
+        themes: ['history'],
+        traits: [],
+        intents: ['visit'],
+        evidenceKeys: ['ev-1'],
+        shortReason: 'A historic house museum',
+        componentHints: [
+          {
+            key: 'zanjon',
+            name: 'El Zanjón de Granados',
+            role: 'venue',
+            expectedKind: 'PLACE',
+            required: true,
+            evidenceKeys: ['ev-1'],
+          },
+        ],
+      };
+
+      const result = await service.resolve({
+        geographicScope: { kind: 'AREA_BOUNDARY', boundary },
+        candidates: [webCandidate],
+        observations: [],
+      });
+
+      expect(placesApi.getPlaceDetails).not.toHaveBeenCalled();
+      expect(result.acceptedCount).toBe(1);
+      expect(catalog.upsertGeoEntity).toHaveBeenCalledWith(
+        expect.objectContaining({ provider: 'openstreetmap' }),
+      );
+    });
+
+    it('rejects a correlated observation outside the destination scope (name correlation alone never proves geographic applicability) and falls through to the normal resolver', async () => {
+      const osmPlaces = emptyOsmPlaces();
+      const farAwayObservation = {
+        ...zanjonObservation,
+        // Nowhere near the Buenos Aires boundary used across this file.
+        geo: { latitude: 40.7128, longitude: -74.006 },
+      };
+      const placesApi = {
+        provider: 'google' as const,
+        searchText: jest.fn().mockResolvedValue({ data: [] }),
+        getPlaceDetails: jest.fn(),
+      };
+      const catalog = {
+        resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        upsertGeoEntity: jest.fn(),
+        persistVerifiedExperience: jest.fn(),
+      };
+      const geographicValidator = { validate: jest.fn() };
+      const service = new ExperienceProposalResolverService(
+        osmPlaces as any,
+        catalog as any,
+        geographicValidator as any,
+        undefined,
+        undefined,
+        placesApi as any,
+      );
+
+      const webCandidate: ExperienceCandidate = {
+        name: 'El Zanjón de Granados',
+        themes: ['history'],
+        traits: [],
+        intents: ['visit'],
+        evidenceKeys: ['ev-1'],
+        shortReason: 'A historic house museum',
+        componentHints: [
+          {
+            key: 'zanjon',
+            name: 'El Zanjón de Granados',
+            role: 'venue',
+            expectedKind: 'PLACE',
+            required: true,
+            evidenceKeys: ['ev-1'],
+          },
+        ],
+      };
+
+      await service.resolve({
+        geographicScope: { kind: 'AREA_BOUNDARY', boundary },
+        candidates: [webCandidate],
+        observations: [farAwayObservation],
+      });
+
+      expect(placesApi.getPlaceDetails).not.toHaveBeenCalled();
+    });
+
+    it('rejects reuse when the fetched place has closed permanently (freshness), falling through to the normal resolver', async () => {
+      const osmPlaces = emptyOsmPlaces();
+      const placesApi = {
+        provider: 'google' as const,
+        searchText: jest.fn().mockResolvedValue({ data: [] }),
+        getPlaceDetails: jest.fn().mockResolvedValue({
+          data: {
+            id: 'ChIJABC123',
+            displayName: { text: 'El Zanjón de Granados' },
+            businessStatus: 'CLOSED_PERMANENTLY',
+          },
+        }),
+      };
+      const catalog = {
+        resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        upsertGeoEntity: jest.fn(),
+        persistVerifiedExperience: jest.fn(),
+      };
+      const geographicValidator = { validate: jest.fn() };
+      const service = new ExperienceProposalResolverService(
+        osmPlaces as any,
+        catalog as any,
+        geographicValidator as any,
+        undefined,
+        undefined,
+        placesApi as any,
+      );
+
+      const webCandidate: ExperienceCandidate = {
+        name: 'El Zanjón de Granados',
+        themes: ['history'],
+        traits: [],
+        intents: ['visit'],
+        evidenceKeys: ['ev-1'],
+        shortReason: 'A historic house museum',
+        componentHints: [
+          {
+            key: 'zanjon',
+            name: 'El Zanjón de Granados',
+            role: 'venue',
+            expectedKind: 'PLACE',
+            required: true,
+            evidenceKeys: ['ev-1'],
+          },
+        ],
+      };
+
+      const result = await service.resolve({
+        geographicScope: { kind: 'AREA_BOUNDARY', boundary },
+        candidates: [webCandidate],
+        observations: [zanjonObservation],
+      });
+
+      expect(catalog.upsertGeoEntity).not.toHaveBeenCalled();
+      expect(result.acceptedCount).toBe(0);
+    });
+
+    it('never uses an externalId with a Places backend other than the one that emitted it (provider guard: an observation from geoapify must never be fetched via an active google backend, or vice versa)', async () => {
+      const osmPlaces = emptyOsmPlaces();
+      const geoapifyObservation = {
+        ...zanjonObservation,
+        provider: 'geoapify' as const,
+        externalId: 'geo-1',
+        evidenceKey: 'geoapify:geo-1',
+      };
+      const placesApi = {
+        // Active backend is google, but the observation came from geoapify.
+        provider: 'google' as const,
+        searchText: jest.fn().mockResolvedValue({ data: [] }),
+        getPlaceDetails: jest.fn(),
+      };
+      const catalog = {
+        resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        upsertGeoEntity: jest.fn(),
+        persistVerifiedExperience: jest.fn(),
+      };
+      const geographicValidator = { validate: jest.fn() };
+      const service = new ExperienceProposalResolverService(
+        osmPlaces as any,
+        catalog as any,
+        geographicValidator as any,
+        undefined,
+        undefined,
+        placesApi as any,
+      );
+
+      const webCandidate: ExperienceCandidate = {
+        name: 'El Zanjón de Granados',
+        themes: ['history'],
+        traits: [],
+        intents: ['visit'],
+        evidenceKeys: ['ev-1'],
+        shortReason: 'A historic house museum',
+        componentHints: [
+          {
+            key: 'zanjon',
+            name: 'El Zanjón de Granados',
+            role: 'venue',
+            expectedKind: 'PLACE',
+            required: true,
+            evidenceKeys: ['ev-1'],
+          },
+        ],
+      };
+
+      await service.resolve({
+        geographicScope: { kind: 'AREA_BOUNDARY', boundary },
+        candidates: [webCandidate],
+        observations: [geoapifyObservation],
+      });
+
+      expect(placesApi.getPlaceDetails).not.toHaveBeenCalled();
+    });
+
+    it('reuses correctly when the active backend is geoapify and the observation was produced by geoapify too (provider namespace mapping works for both real Places providers)', async () => {
+      const osmPlaces = emptyOsmPlaces();
+      const geoapifyObservation = {
+        ...zanjonObservation,
+        provider: 'geoapify' as const,
+        externalId: 'geo-1',
+        evidenceKey: 'geoapify:geo-1',
+      };
+      const placesApi = {
+        provider: 'geoapify' as const,
+        searchText: jest.fn(),
+        getPlaceDetails: jest.fn().mockResolvedValue({
+          data: {
+            id: 'geo-1',
+            displayName: { text: 'El Zanjón de Granados' },
+          },
+        }),
+      };
+      const catalog = {
+        resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-zanjon' }),
+        persistVerifiedExperience: jest.fn().mockResolvedValue({
+          id: 'exp-zanjon',
+          dedupeDecision: 'NEW',
+        }),
+      };
+      const geographicValidator = {
+        validate: jest
+          .fn()
+          .mockReturnValue(acceptedValidation('El Zanjón de Granados')),
+      };
+      const service = new ExperienceProposalResolverService(
+        osmPlaces as any,
+        catalog as any,
+        geographicValidator as any,
+        undefined,
+        undefined,
+        placesApi as any,
+      );
+
+      const webCandidate: ExperienceCandidate = {
+        name: 'El Zanjón de Granados',
+        themes: ['history'],
+        traits: [],
+        intents: ['visit'],
+        evidenceKeys: ['ev-1'],
+        shortReason: 'A historic house museum',
+        componentHints: [
+          {
+            key: 'zanjon',
+            name: 'El Zanjón de Granados',
+            role: 'venue',
+            expectedKind: 'PLACE',
+            required: true,
+            evidenceKeys: ['ev-1'],
+          },
+        ],
+      };
+
+      const result = await service.resolve({
+        geographicScope: { kind: 'AREA_BOUNDARY', boundary },
+        candidates: [webCandidate],
+        observations: [geoapifyObservation],
+      });
+
+      expect(placesApi.getPlaceDetails).toHaveBeenCalledWith('geo-1');
+      expect(result.acceptedCount).toBe(1);
+      expect(catalog.upsertGeoEntity).toHaveBeenCalledWith(
+        expect.objectContaining({
+          provider: 'geoapify',
+          externalId: 'geoapify:geo-1',
+        }),
+      );
+    });
+
+    it.each(['area', 'route'] as const)(
+      'never resolves a %s-role hint as PLACE just because a matching Places observation exists (P1: Places can never supply AREA/ROUTE geometry -- a skip here is never terminal, the hint still gets its normal kind-correction treatment)',
+      async (role) => {
+        const osmPlaces = emptyOsmPlaces();
+        const placesApi = {
+          provider: 'google' as const,
+          searchText: jest.fn().mockResolvedValue({ data: [] }),
+          getPlaceDetails: jest.fn(),
+        };
+        const catalog = {
+          resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+          upsertGeoEntity: jest.fn(),
+          persistVerifiedExperience: jest.fn(),
+        };
+        const geographicValidator = { validate: jest.fn() };
+        const nominatim = { search: jest.fn().mockResolvedValue([]) };
+        const service = new ExperienceProposalResolverService(
+          osmPlaces as any,
+          catalog as any,
+          geographicValidator as any,
+          undefined,
+          nominatim as any,
+          placesApi as any,
+        );
+
+        const webCandidate: ExperienceCandidate = {
+          name: 'El Zanjón de Granados',
+          themes: ['history'],
+          traits: [],
+          intents: ['visit'],
+          evidenceKeys: ['ev-1'],
+          shortReason: 'A historic walk',
+          componentHints: [
+            {
+              key: 'zanjon',
+              name: 'El Zanjón de Granados',
+              role,
+              expectedKind: role === 'area' ? 'AREA' : 'ROUTE',
+              required: true,
+              evidenceKeys: ['ev-1'],
+            },
+          ],
+        };
+
+        await service.resolve({
+          geographicScope: { kind: 'AREA_BOUNDARY', boundary },
+          candidates: [webCandidate],
+          observations: [zanjonObservation],
+        });
+
+        expect(placesApi.getPlaceDetails).not.toHaveBeenCalled();
+      },
+    );
   });
 });

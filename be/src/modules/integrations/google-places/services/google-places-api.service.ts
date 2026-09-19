@@ -287,8 +287,17 @@ export class GooglePlacesApiService implements IPlacesApiService {
     this.assertOperationAvailable('getPlaceDetails', 1);
     try {
       const apiKey = this.getApiKey();
+      // `businessStatus` added (P2-B trusted-observation reuse) so a
+      // deterministic re-fetch by a known placeId can catch a place that
+      // closed permanently since the observation that named it was
+      // acquired -- never persist a confirmed identity for a place that no
+      // longer exists. Safe to add: `searchText`'s own field mask
+      // (`getFieldMask()` above) already requests `places.businessStatus`
+      // at the SAME billing tier this endpoint already uses; only
+      // `editorialSummary`-class fields promote the tier, and none are
+      // requested here.
       const response = await axios.get(
-        `${this.baseUrl}/${placeId}?fields=id,nationalPhoneNumber,websiteUri,displayName,formattedAddress`,
+        `${this.baseUrl}/${placeId}?fields=id,nationalPhoneNumber,websiteUri,displayName,formattedAddress,businessStatus`,
         {
           headers: {
             'X-Goog-Api-Key': apiKey,
@@ -306,6 +315,7 @@ export class GooglePlacesApiService implements IPlacesApiService {
           displayName: p.displayName,
           formattedAddress: p.formattedAddress,
           name: p.displayName?.text || p.displayName,
+          businessStatus: p.businessStatus,
         },
         1,
       );

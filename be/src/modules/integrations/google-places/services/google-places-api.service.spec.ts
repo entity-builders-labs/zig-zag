@@ -265,4 +265,24 @@ describe('GooglePlacesApiService', () => {
     });
     expect(mockedAxios.post).not.toHaveBeenCalled();
   });
+
+  it('requests businessStatus in getPlaceDetails and returns it (P2-B: lets a deterministic re-fetch by known placeId catch a place that closed permanently since it was first observed)', async () => {
+    mockedAxios.get.mockResolvedValueOnce({
+      data: {
+        id: 'ChIJABC123',
+        displayName: { text: 'El Zanjón de Granados' },
+        formattedAddress: 'Defensa 755, Buenos Aires',
+        businessStatus: 'CLOSED_PERMANENTLY',
+      },
+    });
+    const service = new GooglePlacesApiService(config);
+
+    const result = await service.getPlaceDetails('ChIJABC123');
+
+    expect(mockedAxios.get).toHaveBeenCalledWith(
+      expect.stringContaining('businessStatus'),
+      expect.anything(),
+    );
+    expect(result.data?.businessStatus).toBe('CLOSED_PERMANENTLY');
+  });
 });
