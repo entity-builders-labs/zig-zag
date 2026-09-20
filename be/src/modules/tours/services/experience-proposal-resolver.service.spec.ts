@@ -1805,6 +1805,14 @@ describe('ExperienceProposalResolverService', () => {
       destinationName: 'Buenos Aires',
       geographicScope: { kind: 'AREA_BOUNDARY', boundary },
       candidates: [areaCandidate],
+      evidence: [
+        {
+          key: 'ev-1',
+          source: 'guide',
+          title: 'San Telmo in Buenos Aires',
+          snippet: 'Explore San Telmo in Buenos Aires.',
+        },
+      ],
     });
 
     expect(osmPlaces.lookupBoundaryById).toHaveBeenCalledWith('relation', 42);
@@ -4496,15 +4504,15 @@ describe('ExperienceProposalResolverService', () => {
         wikidata as any,
       );
 
-      const primaryName = 'Mercado de San Telmo';
-      const hintName = 'San Telmo Market';
       const result = await service.resolve({
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [candidate('San Telmo Market', hintName)],
+        candidates: [candidate('San Telmo Market', 'San Telmo Market')],
       });
 
       // Golden alias case 1: primary name MUST NOT equal hint.
-      expect(normalizeGeoName('Mercado de San Telmo')).not.toBe(normalizeGeoName('San Telmo Market'));
+      expect(normalizeGeoName('Mercado de San Telmo')).not.toBe(
+        normalizeGeoName('San Telmo Market'),
+      );
 
       expect(wikidata.getEntitySummaries).not.toHaveBeenCalled();
       expect(wikidata.findNearbyPlaces).not.toHaveBeenCalled();
@@ -4555,8 +4563,6 @@ describe('ExperienceProposalResolverService', () => {
         wikidata as any,
       );
 
-      const primaryName = 'Catedral Metropolitana';
-      const hintName = 'Catedral Metropolitana de Buenos Aires';
       const result = await service.resolve({
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
         candidates: [
@@ -4569,7 +4575,7 @@ describe('ExperienceProposalResolverService', () => {
 
       // Golden alias case 2: primary name MUST NOT equal hint.
       expect(normalizeGeoName('Catedral Metropolitana')).not.toBe(
-        normalizeGeoName('Catedral Metropolitana de Buenos Aires')
+        normalizeGeoName('Catedral Metropolitana de Buenos Aires'),
       );
 
       expect(wikidata.getEntitySummaries).not.toHaveBeenCalled();

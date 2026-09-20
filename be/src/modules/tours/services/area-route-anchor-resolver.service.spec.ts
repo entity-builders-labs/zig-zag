@@ -1051,7 +1051,9 @@ describe('AreaRouteAnchorResolverService', () => {
       const primaryName = 'Defensa';
       const hintName = 'Defensa Street';
       // Primary MUST NOT equal hint.
-      expect(normalizeGeoName(primaryName)).not.toBe(normalizeGeoName(hintName));
+      expect(normalizeGeoName(primaryName)).not.toBe(
+        normalizeGeoName(hintName),
+      );
 
       const result = await service.resolveRoute(
         {
@@ -1144,7 +1146,6 @@ describe('AreaRouteAnchorResolverService', () => {
       );
       expect(catalog.upsertGeoEntity).not.toHaveBeenCalled();
     });
-  });
 
     it('Case E: duplicate exact Places names → ambiguous → not persisted', async () => {
       const nominatim = {
@@ -1820,13 +1821,8 @@ describe('AreaRouteAnchorResolverService', () => {
       };
 
       // Spy on IdentityVerifier to inspect the strategy passed to verify.
-      const { IdentityVerifier } = await import(
-        './identity-verifier.service'
-      );
-      const verifySpy = jest.spyOn(
-        IdentityVerifier.prototype,
-        'verify',
-      );
+      const { IdentityVerifier } = await import('./identity-verifier.service');
+      const verifySpy = jest.spyOn(IdentityVerifier.prototype, 'verify');
 
       const service = new AreaRouteAnchorResolverService(
         osmPlaces as any,
