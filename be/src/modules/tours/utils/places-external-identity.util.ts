@@ -5,13 +5,8 @@ import { ExperienceAcquisitionProvider } from '../interfaces/experience-acquisit
  * The single canonical mapping between a Places backend
  * (`IPlacesApiService.provider`) and the `ExperienceAcquisitionProvider`
  * label a `SourceObservation` produced by that same backend carries.
- * Intentionally a separate, self-contained mapping from
- * `google-places-acquisition.provider.ts`'s own (private, forward-only)
- * `ACQUISITION_PROVIDER_BY_PLACES_PROVIDER` rather than importing it --
- * this one is consumed by the resolver, which has no reason to depend on
- * the acquisition provider module, and the two are trivially kept in sync
- * (both are exhaustive `Record`s over the same two-value `PlacesProvider`
- * union, so a missing/renamed case fails to typecheck in either file).
+ * This is the single canonical mapping, consumed by both acquisition and
+ * resolution paths.
  */
 const ACQUISITION_LABEL_BY_PLACES_PROVIDER = {
   google: 'google_places',

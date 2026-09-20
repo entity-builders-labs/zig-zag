@@ -50,9 +50,13 @@ export type IdentityEvidence =
   | { type: 'EXACT_NAME'; ambiguous: boolean }
   | { type: 'ADDRESS_MATCH' }
   | { type: 'DECLARED_ALIAS_MATCH'; ambiguous: boolean }
-  | { type: 'OWN_WIKIDATA_QID'; qid: string }
-  | { type: 'OBSERVATION_WIKIDATA_QID'; qid: string }
-  | { type: 'CANDIDATE_COORDINATES'; latitude: number; longitude: number };
+  | {
+      type: 'WIKIDATA_IDENTITY_MATCH';
+      source: 'OWN_QID' | 'OBSERVATION_QID' | 'NEARBY';
+      hintMatched: boolean;
+      candidateMatched: boolean;
+    }
+  | { type: 'WIKIDATA_UNAVAILABLE' };
 
 export type ResolutionStrategy =
   | 'TRUSTED_OBSERVATION_REUSE'
@@ -64,7 +68,7 @@ export type ResolutionStrategy =
 /** A selected candidate plus facts; deliberately not a verification verdict. */
 export interface ResolutionAttempt {
   strategy: ResolutionStrategy;
-  candidate: ResolvedGeoEntity;
+  candidate: EntityCandidate;
   evidence: IdentityEvidence[];
 }
 
@@ -74,12 +78,50 @@ export type VerificationDecision =
   | { status: 'INSUFFICIENT_EVIDENCE' }
   | { status: 'REJECTED' };
 
+/**
+ * A normalized provider candidate before canonical persistence. It may carry
+ * provider facts and a typed persistence payload, but never a GeoEntity id or
+ * a resolved status: IdentityVerifier must authorize that transition first.
+ */
+export interface EntityCandidate {
+  hintKey: string;
+  hintName: string;
+  provider: string;
+  externalId?: string;
+  canonicalName?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  geometry?: unknown;
+  role: 'area' | 'waypoint' | 'route' | 'venue';
+  expectedType?: string;
+  wikidataQid?: string;
+  nameAliasCandidates?: string[];
+  addressConfirmed?: boolean;
+  exactNameAmbiguous?: boolean;
+  adminContext?: {
+    country?: string;
+    region?: string;
+    locality?: string;
+    municipality?: string;
+  };
+  persistence: {
+    name: string;
+    kind: import('@prisma/client').GeoEntityKind;
+    provider: string;
+    externalId: string;
+    latitude?: number;
+    longitude?: number;
+    geometry?: unknown;
+    metadata?: unknown;
+  };
+}
+
 export interface ResolvedGeoEntity {
   hintKey: string;
   hintName: string;
   provider: string;
   externalId?: string;
-  /** Present when status === 'resolved' — see persistOsmEntity/resolveViaNominatim/resolveViaPlaces, each of which attaches this via Object.assign after upserting the real GeoEntity. */
+  /** Present only after the resolver persists a VERIFIED EntityCandidate. */
   geoEntityId?: string;
   canonicalName?: string | null;
   latitude?: number | null;
@@ -105,7 +147,7 @@ export interface ResolvedGeoEntity {
    * True only when the hint's own `addressHint` (a street address the
    * discovery evidence explicitly gave) matched THIS candidate's own
    * `addr:housenumber`/`addr:street` tags exactly. Computed once at
-   * persistOsmEntity time (both the hint and the raw OSM tags are in
+   * OSM-candidate construction time (both the hint and the raw OSM tags are in
    * scope there); IdentityVerifier trusts this outright, same tier as an
    * exact name match -- an address either matches or it doesn't.
    */

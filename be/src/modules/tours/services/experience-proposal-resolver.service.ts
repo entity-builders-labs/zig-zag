@@ -16,6 +16,7 @@ import { ExperienceEmbeddingIndexerService } from '@shared/ai/services/experienc
 import { calculateDistance, Coordinates } from '@shared/utils/distance.utils';
 import {
   ExperienceEntityResolutionResponse,
+  EntityCandidate,
   ExperienceProposalResolver,
   ExperienceResolutionRequest,
   FinalExperienceResolutionResponse,
@@ -24,6 +25,7 @@ import {
   ResolvedGeoEntity,
   ResolutionAttempt,
   ResolutionStrategy,
+  VerificationDecision,
 } from '../interfaces/experience-resolution.interface';
 import {
   bestNominatimMatch,
@@ -48,6 +50,7 @@ import {
   placesAcquisitionLabel,
 } from '../utils/places-external-identity.util';
 import { IdentityVerifier } from './identity-verifier.service';
+import { IdentityEvidenceCollector } from './identity-evidence-collector.service';
 
 // OSM's `wikidata` tag is normally a single QID, but real-world tagging data
 // is community-edited and occasionally holds a `;`-separated list (multiple
@@ -209,6 +212,7 @@ export class ExperienceProposalResolverService
 {
   private readonly logger = new Logger(ExperienceProposalResolverService.name);
   private readonly identityVerifier: IdentityVerifier;
+  private readonly identityEvidenceCollector: IdentityEvidenceCollector;
 
   constructor(
     private readonly osmPlaces: OsmPlacesService,
@@ -226,7 +230,8 @@ export class ExperienceProposalResolverService
     @Inject('WikidataApiService')
     private readonly wikidata?: IWikidataApiService,
   ) {
-    this.identityVerifier = new IdentityVerifier(wikidata);
+    this.identityVerifier = new IdentityVerifier();
+    this.identityEvidenceCollector = new IdentityEvidenceCollector(wikidata);
   }
 
   async resolve(
@@ -269,8 +274,7 @@ export class ExperienceProposalResolverService
         : this.osmPlaces.lookupPoisWithin(poolScope.boundary),
     ]);
 
-    // Bounded: each candidate can upsert a GeoEntity (its own interactive
-    // transaction) while resolving — see RESOLVER_CANDIDATE_CONCURRENCY.
+    // Candidates remain transient through acquisition and identity verification.
     const resolvedCandidates = await mapWithBoundedConcurrency(
       candidates,
       RESOLVER_CANDIDATE_CONCURRENCY,
@@ -514,17 +518,17 @@ export class ExperienceProposalResolverService
         observations,
         boundary,
       );
-      if (
-        reuseCandidate &&
-        (await this.isVerified(
+      if (reuseCandidate) {
+        const decision = await this.isVerified(
           'TRUSTED_OBSERVATION_REUSE',
           reuseCandidate,
           hint,
           observations,
-        ))
-      ) {
-        entities.push(reuseCandidate);
-        continue;
+        );
+        if (decision.status === 'VERIFIED') {
+          entities.push(await this.persistVerifiedCandidate(reuseCandidate));
+          continue;
+        }
       }
 
       const isAreaHint = hint.expectedKind === 'AREA' || hint.role === 'area';
@@ -547,20 +551,22 @@ export class ExperienceProposalResolverService
       if (matched) {
         const exactNameAmbiguous =
           countExactNormalizedMatches(hint.name, pool, (c) => c.name) > 1;
-        const resolvedEntity = await this.persistOsmEntity(
+        const resolvedEntity = this.buildOsmCandidate(
           hint,
           matched,
           exactNameAmbiguous,
         );
         if (
-          await this.isVerified(
-            'LOCAL_OSM_POOL',
-            resolvedEntity,
-            hint,
-            observations,
-          )
+          (
+            await this.isVerified(
+              'LOCAL_OSM_POOL',
+              resolvedEntity,
+              hint,
+              observations,
+            )
+          ).status === 'VERIFIED'
         ) {
-          entities.push(resolvedEntity);
+          entities.push(await this.persistVerifiedCandidate(resolvedEntity));
           continue;
         }
         // Real, live-verified regression: a local match that fails
@@ -588,14 +594,18 @@ export class ExperienceProposalResolverService
         );
         if (nominatimResolved) {
           if (
-            await this.isVerified(
-              'NOMINATIM',
-              nominatimResolved,
-              hint,
-              observations,
-            )
+            (
+              await this.isVerified(
+                'NOMINATIM',
+                nominatimResolved,
+                hint,
+                observations,
+              )
+            ).status === 'VERIFIED'
           ) {
-            entities.push(nominatimResolved);
+            entities.push(
+              await this.persistVerifiedCandidate(nominatimResolved),
+            );
             continue;
           }
           // A rejected global candidate is evidence that THIS attempt was
@@ -620,9 +630,16 @@ export class ExperienceProposalResolverService
         );
         if (placesResolved) {
           if (
-            await this.isVerified('PLACES', placesResolved, hint, observations)
+            (
+              await this.isVerified(
+                'PLACES',
+                placesResolved,
+                hint,
+                observations,
+              )
+            ).status === 'VERIFIED'
           ) {
-            entities.push(placesResolved);
+            entities.push(await this.persistVerifiedCandidate(placesResolved));
             continue;
           }
           unconfirmedGlobalMatch = this.unconfirmedEntity(
@@ -655,7 +672,7 @@ export class ExperienceProposalResolverService
             role: 'venue' as const,
             expectedKind: 'PLACE' as const,
           };
-          const resolvedEntity = await this.persistOsmEntity(
+          const resolvedEntity = this.buildOsmCandidate(
             correctedHint,
             venueFallbackMatch,
             countExactNormalizedMatches(
@@ -665,13 +682,15 @@ export class ExperienceProposalResolverService
             ) > 1,
           );
           entities.push(
-            (await this.isVerified(
-              'AREA_TO_PLACE_CORRECTION',
-              resolvedEntity,
-              correctedHint,
-              observations,
-            ))
-              ? resolvedEntity
+            (
+              await this.isVerified(
+                'AREA_TO_PLACE_CORRECTION',
+                resolvedEntity,
+                correctedHint,
+                observations,
+              )
+            ).status === 'VERIFIED'
+              ? await this.persistVerifiedCandidate(resolvedEntity)
               : this.unconfirmedEntity(correctedHint, resolvedEntity.provider),
           );
           continue;
@@ -749,13 +768,13 @@ export class ExperienceProposalResolverService
     };
   }
 
-  /** Builds provider-normalized identity facts; only IdentityVerifier judges them. */
+  /** Builds/acquires normalized identity facts; only IdentityVerifier judges them. */
   private async isVerified(
     strategy: ResolutionStrategy,
-    entity: ResolvedGeoEntity,
+    entity: EntityCandidate,
     hint: any,
     observations: SourceObservation[] = [],
-  ): Promise<boolean> {
+  ): Promise<VerificationDecision> {
     const evidence: IdentityEvidence[] = [];
     const ambiguous = Boolean(entity.exactNameAmbiguous);
     if (
@@ -776,33 +795,30 @@ export class ExperienceProposalResolverService
     ) {
       evidence.push({ type: 'DECLARED_ALIAS_MATCH', ambiguous });
     }
-    if (entity.wikidataQid) {
-      evidence.push({ type: 'OWN_WIKIDATA_QID', qid: entity.wikidataQid });
-    } else {
-      for (const key of hint.evidenceKeys ?? []) {
-        const qid = observations.find((item) => item.evidenceKey === key)
-          ?.canonicalIdentity?.wikidataQid;
-        if (qid) {
-          evidence.push({ type: 'OBSERVATION_WIKIDATA_QID', qid });
-          break;
-        }
-      }
-    }
-    if (Number.isFinite(entity.latitude) && Number.isFinite(entity.longitude)) {
-      evidence.push({
-        type: 'CANDIDATE_COORDINATES',
-        latitude: entity.latitude as number,
-        longitude: entity.longitude as number,
-      });
-    }
     const attempt: ResolutionAttempt = {
       strategy,
       candidate: entity,
       evidence,
     };
-    return (
-      (await this.identityVerifier.verify(hint, attempt)).status === 'VERIFIED'
+    const directDecision = this.identityVerifier.verify(hint, attempt);
+    if (directDecision.status === 'VERIFIED') return directDecision;
+    attempt.evidence.push(
+      ...(await this.identityEvidenceCollector.collect(
+        hint,
+        entity,
+        observations,
+      )),
     );
+    return this.identityVerifier.verify(hint, attempt);
+  }
+
+  private async persistVerifiedCandidate(
+    candidate: EntityCandidate,
+  ): Promise<ResolvedGeoEntity> {
+    const geo = await this.catalog.upsertGeoEntity(candidate.persistence);
+    const { persistence, ...entity } = candidate;
+    void persistence;
+    return { ...entity, status: 'resolved', geoEntityId: geo.id };
   }
 
   /**
@@ -824,11 +840,11 @@ export class ExperienceProposalResolverService
     };
   }
 
-  private async persistOsmEntity(
+  private buildOsmCandidate(
     hint: any,
     matched: OsmCandidate,
     exactNameAmbiguous: boolean,
-  ): Promise<ResolvedGeoEntity> {
+  ): EntityCandidate {
     const kind =
       hint.expectedKind === 'ROUTE'
         ? GeoEntityKind.ROUTE
@@ -836,42 +852,38 @@ export class ExperienceProposalResolverService
           ? GeoEntityKind.AREA
           : GeoEntityKind.PLACE;
     const point = this.representativePoint(matched);
-    const geo = await this.catalog.upsertGeoEntity({
-      name: matched.name,
-      kind,
+    return {
+      hintKey: hint.key,
+      hintName: hint.name,
       provider: 'openstreetmap',
       externalId: matched.id,
+      canonicalName: matched.name,
       latitude: point?.latitude,
       longitude: point?.longitude,
       geometry: matched.geometry,
-      metadata: { tags: matched.tags },
-    });
-    return Object.assign(
-      {
-        hintKey: hint.key,
-        hintName: hint.name,
+      role: hint.role,
+      wikidataQid: extractWikidataQid(matched.tags),
+      nameAliasCandidates: extractNameAliasCandidates(matched.tags),
+      addressConfirmed: matchesAddressHint(hint.addressHint, matched.tags),
+      exactNameAmbiguous,
+      persistence: {
+        name: matched.name,
+        kind,
         provider: 'openstreetmap',
         externalId: matched.id,
-        canonicalName: matched.name,
         latitude: point?.latitude,
         longitude: point?.longitude,
         geometry: matched.geometry,
-        role: hint.role,
-        status: 'resolved' as const,
-        wikidataQid: extractWikidataQid(matched.tags),
-        nameAliasCandidates: extractNameAliasCandidates(matched.tags),
-        addressConfirmed: matchesAddressHint(hint.addressHint, matched.tags),
-        exactNameAmbiguous,
+        metadata: { tags: matched.tags },
       },
-      { geoEntityId: geo.id },
-    );
+    };
   }
 
   private async resolveViaNominatim(
     hint: any,
     destinationCountryCode?: string,
     destinationPoint?: Coordinates,
-  ): Promise<ResolvedGeoEntity | undefined> {
+  ): Promise<EntityCandidate | undefined> {
     if (!this.nominatim || hint.expectedKind === 'ROUTE') return undefined;
 
     try {
@@ -914,7 +926,7 @@ export class ExperienceProposalResolverService
           hint.expectedKind === 'AREA'
             ? hint
             : { ...hint, role: 'area' as const, expectedKind: 'AREA' as const };
-        return this.persistOsmEntity(
+        return this.buildOsmCandidate(
           correctedHint,
           boundary.value,
           exactNameAmbiguous,
@@ -935,46 +947,42 @@ export class ExperienceProposalResolverService
         type: 'Point' as const,
         coordinates: [match.longitude as number, match.latitude as number],
       };
-      const geo = await this.catalog.upsertGeoEntity({
-        name: canonicalName,
-        kind: GeoEntityKind.PLACE,
+      return {
+        hintKey: correctedHint.key,
+        hintName: correctedHint.name,
         provider: 'nominatim',
         externalId,
+        canonicalName,
         latitude: match.latitude,
         longitude: match.longitude,
         geometry,
-        metadata: {
-          displayName: match.displayName,
-          addresstype: match.addresstype,
-          address: match.address,
+        role: correctedHint.role,
+        exactNameAmbiguous,
+        adminContext: {
+          country: match.address?.country,
+          region: match.address?.state,
+          locality:
+            match.address?.city ??
+            match.address?.town ??
+            match.address?.village ??
+            match.address?.municipality,
+          municipality: match.address?.municipality,
         },
-      });
-      return Object.assign(
-        {
-          hintKey: correctedHint.key,
-          hintName: correctedHint.name,
+        persistence: {
+          name: canonicalName,
+          kind: GeoEntityKind.PLACE,
           provider: 'nominatim',
           externalId,
-          canonicalName,
           latitude: match.latitude,
           longitude: match.longitude,
           geometry,
-          role: correctedHint.role,
-          status: 'resolved' as const,
-          exactNameAmbiguous,
-          adminContext: {
-            country: match.address?.country,
-            region: match.address?.state,
-            locality:
-              match.address?.city ??
-              match.address?.town ??
-              match.address?.village ??
-              match.address?.municipality,
-            municipality: match.address?.municipality,
+          metadata: {
+            displayName: match.displayName,
+            addresstype: match.addresstype,
+            address: match.address,
           },
         },
-        { geoEntityId: geo.id },
-      );
+      };
     } catch (error: any) {
       this.logger.warn(
         `Global trusted resolution failed for "${hint.name}": ${error?.message ?? error}`,
@@ -1016,7 +1024,7 @@ export class ExperienceProposalResolverService
     hint: any,
     observations: SourceObservation[],
     poolBoundary: OsmCandidate | undefined,
-  ): Promise<ResolvedGeoEntity | undefined> {
+  ): Promise<EntityCandidate | undefined> {
     if (
       hint.role === 'area' ||
       hint.role === 'route' ||
@@ -1127,42 +1135,35 @@ export class ExperienceProposalResolverService
       type: 'Point' as const,
       coordinates: [longitude, latitude],
     };
-    const geo = await this.catalog.upsertGeoEntity({
-      name: canonicalName,
-      kind: GeoEntityKind.PLACE,
-      provider: providerLabel,
-      externalId,
-      latitude,
-      longitude,
-      geometry,
-      metadata: {
-        formattedAddress: details.formattedAddress,
-      },
-    });
-
     this.logger.debug(
       `[P2-B] reuse candidate acquired for hint "${hint.name}" via ${externalId}`,
     );
 
-    return Object.assign(
-      {
-        hintKey: hint.key,
-        hintName: hint.name,
+    return {
+      hintKey: hint.key,
+      hintName: hint.name,
+      provider: providerLabel,
+      externalId,
+      canonicalName,
+      latitude,
+      longitude,
+      geometry,
+      role: hint.role,
+      // One acquisition-run observation identifies the fetched provider
+      // record, but never proves real-world uniqueness. Keep exact-name
+      // evidence ambiguous so IdentityVerifier requires independent proof.
+      exactNameAmbiguous: true,
+      persistence: {
+        name: canonicalName,
+        kind: GeoEntityKind.PLACE,
         provider: providerLabel,
         externalId,
-        canonicalName,
         latitude,
         longitude,
         geometry,
-        role: hint.role,
-        // One acquisition-run observation identifies the fetched provider
-        // record, but never proves real-world uniqueness. Keep exact-name
-        // evidence ambiguous so IdentityVerifier requires independent proof.
-        exactNameAmbiguous: true,
-        status: 'resolved' as const,
+        metadata: { formattedAddress: details.formattedAddress },
       },
-      { geoEntityId: geo.id },
-    );
+    };
   }
 
   /**
@@ -1176,7 +1177,7 @@ export class ExperienceProposalResolverService
   private async resolveViaPlaces(
     hint: any,
     destinationPoint?: Coordinates,
-  ): Promise<ResolvedGeoEntity | undefined> {
+  ): Promise<EntityCandidate | undefined> {
     if (!this.placesApi || hint.expectedKind !== 'PLACE') return undefined;
 
     try {
@@ -1219,35 +1220,31 @@ export class ExperienceProposalResolverService
         type: 'Point' as const,
         coordinates: [place.location.longitude, place.location.latitude],
       };
-      const geo = await this.catalog.upsertGeoEntity({
-        name: canonicalName,
-        kind: GeoEntityKind.PLACE,
+      return {
+        hintKey: hint.key,
+        hintName: hint.name,
         provider: providerLabel,
         externalId,
+        canonicalName,
         latitude: place.location.latitude,
         longitude: place.location.longitude,
         geometry,
-        metadata: {
-          formattedAddress: place.formattedAddress,
-          types: place.types,
-        },
-      });
-      return Object.assign(
-        {
-          hintKey: hint.key,
-          hintName: hint.name,
+        role: hint.role,
+        exactNameAmbiguous,
+        persistence: {
+          name: canonicalName,
+          kind: GeoEntityKind.PLACE,
           provider: providerLabel,
           externalId,
-          canonicalName,
           latitude: place.location.latitude,
           longitude: place.location.longitude,
           geometry,
-          role: hint.role,
-          status: 'resolved' as const,
-          exactNameAmbiguous,
+          metadata: {
+            formattedAddress: place.formattedAddress,
+            types: place.types,
+          },
         },
-        { geoEntityId: geo.id },
-      );
+      };
     } catch (error: any) {
       this.logger.warn(
         `Places fallback resolution failed for "${hint.name}": ${error?.message ?? error}`,
