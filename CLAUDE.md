@@ -1,17 +1,16 @@
 # CLAUDE.md
 
+@AGENTS.md
+
 This file contains Claude-specific repository guidance only.
 
 ## Canonical repository instructions
 
 **Do not treat this file as the repository architecture or engineering source of truth.**
 
-Before proposing, editing, reviewing, or generating code in this repository, read and obey:
+`/AGENTS.md` is imported above so Claude receives the canonical repository-wide instruction contract directly in session context. Before proposing, editing, reviewing, or generating code, also read any architecture/spec/plan documents that `AGENTS.md` marks as mandatory for the area being changed.
 
-1. `/AGENTS.md` — the single canonical repository-wide instruction contract for every coding/design agent.
-2. Any architecture/spec/plan documents that `/AGENTS.md` marks as mandatory for the area being changed.
-
-The rules in `/AGENTS.md` apply to Claude exactly as they apply to Codex, Antigravity, and other agents. They take precedence over duplicated or stale architectural descriptions in tool-specific context.
+The imported rules in `/AGENTS.md` apply to Claude exactly as they apply to Codex, Antigravity, and other agents. They take precedence over duplicated or stale architectural descriptions in tool-specific context.
 
 Do **not** copy repository-wide architecture rules into this file. If a durable engineering rule needs to change, update `/AGENTS.md` or the canonical architecture documentation instead so every agent receives the same rule.
 
