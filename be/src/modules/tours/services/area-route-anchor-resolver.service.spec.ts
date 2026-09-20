@@ -1,16 +1,13 @@
 import { GeoEntityKind } from '@prisma/client';
 import { AreaRouteAnchorResolverService } from './area-route-anchor-resolver.service';
 import { InterpretedAnchor } from '../interfaces/preference-spec.interface';
+import { normalizeGeoName } from '../utils/nominatim-match.util';
 
-// The anchor resolver now gates persistence behind the shared IdentityVerifier.
-// Tests that expect persistence must either provide Wikidata mocks or
-// mock IdentityVerifier.verify to return VERIFIED — the verifier's own
-// spec already tests its decision logic exhaustively.
-jest.mock('./identity-verifier.service', () => ({
-  IdentityVerifier: jest.fn().mockImplementation(() => ({
-    verify: jest.fn().mockReturnValue({ status: 'VERIFIED' }),
-  })),
-}));
+// No global IdentityVerifier mock. The anchor resolver integration
+// tests exercise the REAL IdentityVerifier so the selected-candidate →
+// verification → persistence path is genuinely tested. Transport/provider
+// dependencies (Nominatim, Places, OSM, Wikidata, Catalog) are still
+// mocked per-test, but the identity policy itself is real.
 
 describe('AreaRouteAnchorResolverService', () => {
   const areaAnchor: InterpretedAnchor = {
@@ -84,6 +81,7 @@ describe('AreaRouteAnchorResolverService', () => {
         longitude: -58.38,
       });
 
+      // Unique exact name match → real verifier returns VERIFIED.
       expect(result).toEqual(
         expect.objectContaining({
           resolved: true,
@@ -338,6 +336,10 @@ describe('AreaRouteAnchorResolverService', () => {
         nominatim as any,
       );
 
+      // Two Nominatim results share the same normalized name →
+      // exact-name ambiguity → real verifier requires independent corroboration.
+      // Without Wikidata, verification fails — but the proximity
+      // selection itself is still exercised.
       await service.resolveArea(
         {
           rawName: 'Catedral San Juan Bautista',
@@ -455,8 +457,10 @@ describe('AreaRouteAnchorResolverService', () => {
                       ? [
                           {
                             id: 'ChIJmuseum',
-                            displayName: { text: 'Museo Nacional' },
-                            name: 'Museo Nacional',
+                            // FIX: name must match the anchor for the real
+                            // verifier to return VERIFIED via exact-name.
+                            displayName: { text: 'San Telmo' },
+                            name: 'San Telmo',
                             location: { latitude: -34.6, longitude: -58.4 },
                             primaryType: 'museum',
                             types: ['museum', 'point_of_interest'],
@@ -489,7 +493,7 @@ describe('AreaRouteAnchorResolverService', () => {
           expect(result).toMatchObject({
             status: 'resolved',
             kind: 'venue',
-            canonicalName: 'Museo Nacional',
+            canonicalName: 'San Telmo',
           });
         }
         if (mode === 'both-no-match') {
@@ -835,6 +839,7 @@ describe('AreaRouteAnchorResolverService', () => {
           rawName: 'Ruta de los Siete Lagos',
           usage: 'named_path',
           status: 'resolved',
+          canonicalName: 'Ruta de los Siete Lagos',
         }),
         expect.objectContaining({
           rawName: 'Un lugar ambiguo',
@@ -846,6 +851,690 @@ describe('AreaRouteAnchorResolverService', () => {
       expect(catalog.upsertGeoEntity).not.toHaveBeenCalledWith(
         expect.objectContaining({ kind: 'EXPERIENCE' }),
       );
+    });
+  });
+
+  // ──────────────────────────────────────────────────────────────
+  // Exact-name ambiguity propagation in anchor resolution
+  // ──────────────────────────────────────────────────────────────
+
+  describe('exact-name ambiguity in anchor acquisition', () => {
+    it('Case C: duplicate exact Nominatim AREA names → ambiguous → not persisted', async () => {
+      // Two Nominatim results with the same normalized display name.
+      const nominatim = {
+        search: jest.fn().mockResolvedValue([
+          {
+            osmType: 'relation',
+            osmId: 10,
+            addresstype: 'suburb',
+            placeRank: 20,
+            class: 'place',
+            type: 'suburb',
+            displayName: 'San Telmo, Buenos Aires, Argentina',
+            importance: 0.3,
+            latitude: -34.62,
+            longitude: -58.37,
+          },
+          {
+            osmType: 'relation',
+            osmId: 20,
+            addresstype: 'suburb',
+            placeRank: 20,
+            class: 'place',
+            type: 'suburb',
+            displayName: 'San Telmo, La Plata, Argentina',
+            importance: 0.25,
+            latitude: -34.92,
+            longitude: -57.95,
+          },
+        ]),
+        reverse: jest.fn(),
+      };
+      const boundaryGeometry = {
+        type: 'Polygon' as const,
+        coordinates: [
+          [
+            [-58.38, -34.63],
+            [-58.36, -34.63],
+            [-58.36, -34.61],
+            [-58.38, -34.61],
+            [-58.38, -34.63],
+          ],
+        ],
+      };
+      const osmPlaces = {
+        lookupBoundaryById: jest.fn().mockResolvedValue({
+          status: 'success',
+          value: {
+            id: 'osm:relation:10',
+            name: 'San Telmo',
+            osmType: 'relation',
+            osmId: 10,
+            geometry: boundaryGeometry,
+            tags: { boundary: 'administrative' },
+          },
+        }),
+        lookupStreetsWithin: jest.fn(),
+        lookupStreetsNear: jest.fn(),
+      };
+      const catalog = {
+        upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-1' }),
+      };
+      const service = new AreaRouteAnchorResolverService(
+        osmPlaces as any,
+        catalog as any,
+        nominatim as any,
+      );
+
+      const result = await service.resolveArea(areaAnchor, 'ar', {
+        latitude: -34.6,
+        longitude: -58.38,
+      });
+
+      // 2+ exact-name identities → exactNameAmbiguous = true
+      // → real verifier cannot verify on exact-name alone → not persisted.
+      expect(result).toEqual(
+        expect.objectContaining({ resolved: false, status: 'no_match' }),
+      );
+      expect(catalog.upsertGeoEntity).not.toHaveBeenCalled();
+    });
+
+    it('Case D: duplicate exact ROUTE names → ambiguous → not persisted', async () => {
+      const osmPlaces = {
+        lookupStreetsWithin: jest.fn().mockResolvedValue({
+          status: 'success',
+          value: [
+            {
+              id: 'osm:way:1',
+              name: 'Caminito',
+              osmType: 'way' as const,
+              osmId: 1,
+              geometry: {
+                type: 'LineString' as const,
+                coordinates: [
+                  [-58.3634, -34.6382],
+                  [-58.363, -34.6376],
+                ],
+              },
+              tags: { highway: 'pedestrian' },
+            },
+            {
+              id: 'osm:way:2',
+              name: 'Caminito',
+              osmType: 'way' as const,
+              osmId: 2,
+              geometry: {
+                type: 'LineString' as const,
+                coordinates: [
+                  [-58.37, -34.64],
+                  [-58.369, -34.639],
+                ],
+              },
+              tags: { highway: 'residential' },
+            },
+          ],
+        }),
+        lookupStreetsNear: jest.fn(),
+      };
+      const catalog = {
+        upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-1' }),
+      };
+      const service = new AreaRouteAnchorResolverService(
+        osmPlaces as any,
+        catalog as any,
+      );
+
+      const result = await service.resolveRoute(routeAnchor, {
+        kind: 'AREA_BOUNDARY',
+        boundary: { id: 'osm:relation:1', name: 'Buenos Aires' },
+      } as any);
+
+      // 2+ exact-name streets → ambiguous → not persisted.
+      expect(result).toEqual(
+        expect.objectContaining({ resolved: false, status: 'no_match' }),
+      );
+      expect(catalog.upsertGeoEntity).not.toHaveBeenCalled();
+    });
+
+    it('Case E: duplicate exact Places names → ambiguous → not persisted', async () => {
+      const nominatim = {
+        search: jest.fn().mockResolvedValue([]),
+        reverse: jest.fn(),
+      };
+      const osmPlaces = {
+        lookupBoundaryById: jest.fn(),
+        lookupStreetsNear: jest.fn().mockResolvedValue({
+          status: 'success',
+          value: [],
+        }),
+        lookupStreetsWithin: jest.fn(),
+      };
+      const places = {
+        provider: 'google' as const,
+        searchText: jest.fn().mockResolvedValue({
+          data: [
+            {
+              id: 'ChIJ-place1',
+              displayName: { text: 'San Telmo' },
+              name: 'San Telmo',
+              location: { latitude: -34.62, longitude: -58.37 },
+              primaryType: 'museum',
+              types: ['museum', 'point_of_interest'],
+            },
+            {
+              id: 'ChIJ-place2',
+              displayName: { text: 'San Telmo' },
+              name: 'San Telmo',
+              location: { latitude: -34.92, longitude: -57.95 },
+              primaryType: 'museum',
+              types: ['museum', 'point_of_interest'],
+            },
+          ],
+        }),
+      };
+      const catalog = {
+        upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-1' }),
+      };
+      const service = new AreaRouteAnchorResolverService(
+        osmPlaces as any,
+        catalog as any,
+        nominatim as any,
+        places as any,
+      );
+
+      const [result] = await service.resolveNamedAnchors([areaAnchor], {
+        geographicScope: {
+          kind: 'POINT_RADIUS',
+          latitude: -34.6,
+          longitude: -58.4,
+          radiusMeters: 10_000,
+        },
+      });
+
+      // 2+ Places results with same normalized name → ambiguous.
+      expect(result).toMatchObject({
+        status: 'unresolved',
+        unresolvedReason: 'IDENTITY_NOT_VERIFIED',
+      });
+      expect(catalog.upsertGeoEntity).not.toHaveBeenCalled();
+    });
+
+    it('Case F: fuzzy candidate without corroboration → not verified', async () => {
+      // Nominatim returns a result whose name is only a fuzzy match
+      // (not exact) to the anchor hint.
+      const nominatim = {
+        search: jest.fn().mockResolvedValue([]),
+        reverse: jest.fn(),
+      };
+      const osmPlaces = {
+        lookupBoundaryById: jest.fn(),
+        lookupStreetsNear: jest.fn().mockResolvedValue({
+          status: 'success',
+          value: [],
+        }),
+        lookupStreetsWithin: jest.fn(),
+      };
+      const places = {
+        provider: 'google' as const,
+        searchText: jest.fn().mockResolvedValue({
+          data: [
+            {
+              id: 'ChIJ-fuzzy',
+              displayName: { text: 'San Telmo Bar' },
+              name: 'San Telmo Bar',
+              location: { latitude: -34.62, longitude: -58.37 },
+              primaryType: 'bar',
+              types: ['bar', 'point_of_interest'],
+            },
+          ],
+        }),
+      };
+      const catalog = {
+        upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-1' }),
+      };
+      const service = new AreaRouteAnchorResolverService(
+        osmPlaces as any,
+        catalog as any,
+        nominatim as any,
+        places as any,
+      );
+
+      // Anchor 'San Telmo' vs candidate 'San Telmo Bar' — fuzzy match
+      // only, no exact name → real verifier returns INSUFFICIENT_EVIDENCE.
+      const [result] = await service.resolveNamedAnchors(
+        [
+          {
+            rawName: 'San Telmo',
+            usage: 'specific_destination',
+            priority: 'must',
+          },
+        ],
+        {
+          geographicScope: {
+            kind: 'POINT_RADIUS',
+            latitude: -34.6,
+            longitude: -58.4,
+            radiusMeters: 10_000,
+          },
+        },
+      );
+
+      expect(result).toMatchObject({
+        status: 'unresolved',
+        unresolvedReason: 'IDENTITY_NOT_VERIFIED',
+      });
+      expect(catalog.upsertGeoEntity).not.toHaveBeenCalled();
+    });
+
+    it('Case G: Wikidata unavailable but local exact-name sufficient → resolved', async () => {
+      // Single exact-name Places candidate (not ambiguous) with
+      // Wikidata unavailable — the real verifier still returns VERIFIED
+      // because exact-name alone is sufficient when the pool has no
+      // ambiguity.
+      const nominatim = {
+        search: jest.fn().mockResolvedValue([]),
+        reverse: jest.fn(),
+      };
+      const osmPlaces = {
+        lookupBoundaryById: jest.fn(),
+        lookupStreetsNear: jest.fn().mockResolvedValue({
+          status: 'success',
+          value: [],
+        }),
+        lookupStreetsWithin: jest.fn(),
+      };
+      const places = {
+        provider: 'google' as const,
+        searchText: jest.fn().mockResolvedValue({
+          data: [
+            {
+              id: 'ChIJ-exact',
+              displayName: { text: 'San Telmo' },
+              name: 'San Telmo',
+              location: { latitude: -34.62, longitude: -58.37 },
+              primaryType: 'museum',
+              types: ['museum', 'point_of_interest'],
+            },
+          ],
+        }),
+      };
+      // Wikidata throws → WIKIDATA_UNAVAILABLE evidence.
+      const wikidata = {
+        getEntitySummaries: jest
+          .fn()
+          .mockRejectedValue(new Error('wikidata down')),
+        findNearbyPlaces: jest
+          .fn()
+          .mockRejectedValue(new Error('wikidata down')),
+      };
+      const catalog = {
+        upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-1' }),
+      };
+      const service = new AreaRouteAnchorResolverService(
+        osmPlaces as any,
+        catalog as any,
+        nominatim as any,
+        places as any,
+        wikidata as any,
+      );
+
+      const [result] = await service.resolveNamedAnchors([areaAnchor], {
+        geographicScope: {
+          kind: 'POINT_RADIUS',
+          latitude: -34.6,
+          longitude: -58.4,
+          radiusMeters: 10_000,
+        },
+      });
+
+      // Single unambiguous exact-name match → verifier returns VERIFIED
+      // on the first pass (no Wikidata needed).
+      expect(result.status).toBe('resolved');
+      expect(catalog.upsertGeoEntity).toHaveBeenCalled();
+    });
+
+    it('Case G corrected: local evidence insufficient + Wikidata unavailable → not persisted', async () => {
+      // Fuzzy-only Places result (name does not exactly match anchor).
+      const nominatim = {
+        search: jest.fn().mockResolvedValue([]),
+        reverse: jest.fn(),
+      };
+      const osmPlaces = {
+        lookupBoundaryById: jest.fn(),
+        lookupStreetsNear: jest.fn().mockResolvedValue({
+          status: 'success',
+          value: [],
+        }),
+        lookupStreetsWithin: jest.fn(),
+      };
+      const places = {
+        provider: 'google' as const,
+        searchText: jest.fn().mockResolvedValue({
+          data: [
+            {
+              id: 'ChIJ-fuzzy',
+              displayName: { text: 'San Telmo Bar' },
+              name: 'San Telmo Bar',
+              location: { latitude: -34.62, longitude: -58.37 },
+              primaryType: 'bar',
+              types: ['bar', 'point_of_interest'],
+            },
+          ],
+        }),
+      };
+      // Wikidata throws → WIKIDATA_UNAVAILABLE evidence.
+      const wikidata = {
+        getEntitySummaries: jest
+          .fn()
+          .mockRejectedValue(new Error('wikidata down')),
+        findNearbyPlaces: jest
+          .fn()
+          .mockRejectedValue(new Error('wikidata down')),
+      };
+      const catalog = {
+        upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-1' }),
+      };
+      const service = new AreaRouteAnchorResolverService(
+        osmPlaces as any,
+        catalog as any,
+        nominatim as any,
+        places as any,
+        wikidata as any,
+      );
+
+      const [result] = await service.resolveNamedAnchors([areaAnchor], {
+        geographicScope: {
+          kind: 'POINT_RADIUS',
+          latitude: -34.6,
+          longitude: -58.4,
+          radiusMeters: 10_000,
+        },
+      });
+
+      // Fuzzy-only match → no exact-name evidence → first verify()
+      // returns INSUFFICIENT_EVIDENCE. Then Wikidata unavailable →
+      // second verify() returns INSUFFICIENT_EVIDENCE.
+      expect(result).toMatchObject({
+        status: 'unresolved',
+        unresolvedReason: 'IDENTITY_NOT_VERIFIED',
+      });
+      expect(catalog.upsertGeoEntity).not.toHaveBeenCalled();
+    });
+
+    it('Case H: candidate exists + identity fails + provider unavailable → IDENTITY_NOT_VERIFIED', async () => {
+      // Nominatim unavailable, Places returns a fuzzy-only match
+      // (name mismatch), so verification fails. The unresolvedReason
+      // must be IDENTITY_NOT_VERIFIED, not GEO_PROVIDER_UNAVAILABLE.
+      const nominatim = {
+        search: jest.fn().mockRejectedValue(new Error('nominatim down')),
+        reverse: jest.fn(),
+      };
+      const osmPlaces = {
+        lookupBoundaryById: jest.fn(),
+        lookupStreetsNear: jest.fn().mockResolvedValue({
+          status: 'success',
+          value: [],
+        }),
+        lookupStreetsWithin: jest.fn(),
+      };
+      const places = {
+        provider: 'google' as const,
+        searchText: jest.fn().mockResolvedValue({
+          data: [
+            {
+              id: 'ChIJ-fuzzy',
+              displayName: { text: 'San Telmo Bar' },
+              name: 'San Telmo Bar',
+              location: { latitude: -34.62, longitude: -58.37 },
+              primaryType: 'bar',
+              types: ['bar', 'point_of_interest'],
+            },
+          ],
+        }),
+      };
+      const catalog = {
+        upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-1' }),
+      };
+      const service = new AreaRouteAnchorResolverService(
+        osmPlaces as any,
+        catalog as any,
+        nominatim as any,
+        places as any,
+      );
+
+      const [result] = await service.resolveNamedAnchors([areaAnchor], {
+        geographicScope: {
+          kind: 'POINT_RADIUS',
+          latitude: -34.6,
+          longitude: -58.4,
+          radiusMeters: 10_000,
+        },
+      });
+
+      // verification failed → IDENTITY_NOT_VERIFIED, not
+      // GEO_PROVIDER_UNAVAILABLE.
+      expect(result).toMatchObject({
+        status: 'unresolved',
+        unresolvedReason: 'IDENTITY_NOT_VERIFIED',
+      });
+      expect(catalog.upsertGeoEntity).not.toHaveBeenCalled();
+    });
+  });
+
+  // ──────────────────────────────────────────────────────────────
+  // Candidate → persistence regression test
+  // ──────────────────────────────────────────────────────────────
+
+  describe('candidate→persistence regression', () => {
+    it('persisted payload matches canonical EntityCandidate fields exactly', async () => {
+      const nominatim = {
+        search: jest.fn().mockResolvedValue([
+          {
+            osmType: 'relation',
+            osmId: 42,
+            addresstype: 'suburb',
+            placeRank: 20,
+            class: 'place',
+            type: 'suburb',
+            displayName: 'San Telmo, Buenos Aires, Argentina',
+            importance: 0.3,
+            latitude: -34.62,
+            longitude: -58.37,
+          },
+        ]),
+        reverse: jest.fn(),
+      };
+      const boundaryGeometry = {
+        type: 'Polygon' as const,
+        coordinates: [
+          [
+            [-58.38, -34.63],
+            [-58.36, -34.63],
+            [-58.36, -34.61],
+            [-58.38, -34.61],
+            [-58.38, -34.63],
+          ],
+        ],
+      };
+      const osmPlaces = {
+        lookupBoundaryById: jest.fn().mockResolvedValue({
+          status: 'success',
+          value: {
+            id: 'osm:relation:42',
+            name: 'San Telmo',
+            osmType: 'relation',
+            osmId: 42,
+            geometry: boundaryGeometry,
+            tags: { boundary: 'administrative', name: 'San Telmo' },
+          },
+        }),
+        lookupStreetsWithin: jest.fn(),
+        lookupStreetsNear: jest.fn(),
+      };
+      const catalog = {
+        upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-san-telmo' }),
+      };
+      const service = new AreaRouteAnchorResolverService(
+        osmPlaces as any,
+        catalog as any,
+        nominatim as any,
+      );
+
+      await service.resolveArea(areaAnchor, 'ar', {
+        latitude: -34.6,
+        longitude: -58.38,
+      });
+
+      // The payload passed to upsertGeoEntity MUST exactly match the
+      // canonical EntityCandidate fields — no second representation
+      // capable of diverging.
+      expect(catalog.upsertGeoEntity).toHaveBeenCalledWith({
+        name: 'San Telmo',
+        kind: GeoEntityKind.AREA,
+        provider: 'openstreetmap',
+        externalId: 'osm:relation:42',
+        latitude: expect.closeTo(-34.622, 3),
+        longitude: expect.closeTo(-58.372, 3),
+        geometry: boundaryGeometry,
+        metadata: { tags: { boundary: 'administrative', name: 'San Telmo' } },
+      });
+    });
+
+    it('Places-sourced candidate persists canonicalPlacesExternalId format', async () => {
+      const nominatim = {
+        search: jest.fn().mockResolvedValue([]),
+        reverse: jest.fn(),
+      };
+      const osmPlaces = {
+        lookupBoundaryById: jest.fn(),
+        lookupStreetsNear: jest.fn().mockResolvedValue({
+          status: 'success',
+          value: [],
+        }),
+        lookupStreetsWithin: jest.fn(),
+      };
+      const places = {
+        provider: 'google' as const,
+        searchText: jest.fn().mockResolvedValue({
+          data: [
+            {
+              id: 'ChIJmuseum123',
+              displayName: { text: 'San Telmo Museum' },
+              name: 'San Telmo Museum',
+              location: { latitude: -34.62, longitude: -58.37 },
+              primaryType: 'museum',
+              types: ['museum', 'point_of_interest'],
+            },
+          ],
+        }),
+      };
+      const catalog = {
+        upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-1' }),
+      };
+      const service = new AreaRouteAnchorResolverService(
+        osmPlaces as any,
+        catalog as any,
+        nominatim as any,
+        places as any,
+      );
+
+      // Use 'San Telmo Museum' as anchor so the name matches exactly.
+      const [result] = await service.resolveNamedAnchors(
+        [
+          {
+            rawName: 'San Telmo Museum',
+            usage: 'specific_destination',
+            priority: 'must',
+          },
+        ],
+        {
+          geographicScope: {
+            kind: 'POINT_RADIUS',
+            latitude: -34.6,
+            longitude: -58.4,
+            radiusMeters: 10_000,
+          },
+        },
+      );
+
+      expect(result).toMatchObject({ status: 'resolved' });
+      // externalId must use canonicalPlacesExternalId format.
+      expect(catalog.upsertGeoEntity).toHaveBeenCalledWith(
+        expect.objectContaining({
+          externalId: 'google_places:ChIJmuseum123',
+          provider: 'google_places',
+        }),
+      );
+    });
+  });
+
+  // ──────────────────────────────────────────────────────────────
+  // Truthful resolution strategy
+  // ──────────────────────────────────────────────────────────────
+
+  describe('resolution strategy', () => {
+    it('uses ANCHOR_RESOLUTION strategy, not LOCAL_OSM_POOL', async () => {
+      const nominatim = {
+        search: jest.fn().mockResolvedValue([]),
+        reverse: jest.fn(),
+      };
+      const osmPlaces = {
+        lookupBoundaryById: jest.fn(),
+        lookupStreetsNear: jest.fn().mockResolvedValue({
+          status: 'success',
+          value: [],
+        }),
+        lookupStreetsWithin: jest.fn(),
+      };
+      const places = {
+        provider: 'google' as const,
+        searchText: jest.fn().mockResolvedValue({
+          data: [
+            {
+              id: 'ChIJ-test',
+              displayName: { text: 'San Telmo' },
+              name: 'San Telmo',
+              location: { latitude: -34.62, longitude: -58.37 },
+              primaryType: 'museum',
+              types: ['museum', 'point_of_interest'],
+            },
+          ],
+        }),
+      };
+      const catalog = {
+        upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-1' }),
+      };
+
+      // Spy on IdentityVerifier to inspect the strategy passed to verify.
+      const { IdentityVerifier } = await import(
+        './identity-verifier.service'
+      );
+      const verifySpy = jest.spyOn(
+        IdentityVerifier.prototype,
+        'verify',
+      );
+
+      const service = new AreaRouteAnchorResolverService(
+        osmPlaces as any,
+        catalog as any,
+        nominatim as any,
+        places as any,
+      );
+
+      await service.resolveNamedAnchors([areaAnchor], {
+        geographicScope: {
+          kind: 'POINT_RADIUS',
+          latitude: -34.6,
+          longitude: -58.4,
+          radiusMeters: 10_000,
+        },
+      });
+
+      expect(verifySpy).toHaveBeenCalled();
+      const firstCall = verifySpy.mock.calls[0];
+      expect(firstCall[1].strategy).toBe('ANCHOR_RESOLUTION');
+
+      verifySpy.mockRestore();
     });
   });
 });

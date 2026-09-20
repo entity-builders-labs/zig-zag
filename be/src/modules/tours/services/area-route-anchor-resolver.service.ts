@@ -23,8 +23,13 @@ import {
   isAreaScaleEligible,
   matchOsmCandidateByName,
   normalizeGeoName,
+  countNominatimExactMatches,
+  countExactNormalizedMatches,
 } from '../utils/nominatim-match.util';
-import { placesAcquisitionLabel } from '../utils/places-external-identity.util';
+import {
+  placesAcquisitionLabel,
+  canonicalPlacesExternalId,
+} from '../utils/places-external-identity.util';
 import { buildLocalIdentityEvidence } from '../utils/identity-evidence-builder.util';
 import { IdentityVerifier } from './identity-verifier.service';
 import { IdentityEvidenceCollector } from './identity-evidence-collector.service';
@@ -57,12 +62,13 @@ interface AnchorGeoCandidate {
   kind: 'area' | 'route' | 'venue';
   canonicalName: string;
   provider: string;
-  externalId?: string;
+  externalId: string;
   geometry: GeoJsonGeometry;
   latitude?: number;
   longitude?: number;
   metadata?: Record<string, string>;
   placeTypes?: string[];
+  exactNameAmbiguous?: boolean;
   // Task A6 -- only set by discoverArea, for the real OSM way/relation
   // boundary lookupBoundaryById already returned.
   osmBoundary?: OsmCandidate;
@@ -181,6 +187,7 @@ export class AreaRouteAnchorResolverService {
           this.discoverPlace(anchor, options.destinationCountryCode),
         ]);
         const match = this.selectCandidate(outcomes);
+        let verificationFailed = false;
         if (match?.status === 'match') {
           const persisted = await this.persistCandidate(
             anchor,
@@ -188,7 +195,8 @@ export class AreaRouteAnchorResolverService {
           );
           if (persisted) return persisted;
           // Verification failed — candidate was selected but could not be
-          // confirmed. Fall through to unresolved.
+          // confirmed. This is a distinct failure from provider unavailable.
+          verificationFailed = true;
         }
         const unavailable = outcomes.find(
           (outcome) => outcome.status === 'unavailable',
@@ -198,8 +206,9 @@ export class AreaRouteAnchorResolverService {
           rawName: anchor.rawName,
           usage: anchor.usage,
           priority: anchor.priority,
-          unresolvedReason:
-            unavailable?.status === 'unavailable'
+          unresolvedReason: verificationFailed
+            ? 'IDENTITY_NOT_VERIFIED'
+            : unavailable?.status === 'unavailable'
               ? `GEO_PROVIDER_UNAVAILABLE:${unavailable.reason}`
               : 'NO_CONFIDENT_GEO_ENTITY_MATCH',
         };
@@ -230,6 +239,12 @@ export class AreaRouteAnchorResolverService {
           const canonicalName =
             match.displayName.split(',')[0]?.trim() || anchor.rawName;
           const externalId = `osm:${match.osmType}:${match.osmId}`;
+          // When multiple Nominatim results share the same normalized name,
+          // the exact-name match alone cannot confirm a unique identity.
+          const exactNameCount = countNominatimExactMatches(
+            anchor.rawName,
+            results,
+          );
           return {
             status: 'match',
             candidate: {
@@ -243,6 +258,7 @@ export class AreaRouteAnchorResolverService {
                 type: 'Point',
                 coordinates: [match.longitude, match.latitude],
               },
+              exactNameAmbiguous: exactNameCount > 1,
             },
           };
         }
@@ -277,7 +293,17 @@ export class AreaRouteAnchorResolverService {
       const canonicalName =
         place.displayName?.text || place.name || anchor.rawName;
       const provider = placesAcquisitionLabel(this.placesApi.provider);
-      const externalId = `${provider}:${place.id}`;
+      const externalId = canonicalPlacesExternalId(
+        this.placesApi.provider,
+        place.id,
+      );
+      // When multiple Places results share the same normalized name,
+      // the exact-name match alone cannot confirm a unique identity.
+      const exactNameCount = countExactNormalizedMatches(
+        anchor.rawName,
+        result.data,
+        (p) => p.displayName?.text || p.name,
+      );
       return {
         status: 'match',
         candidate: {
@@ -295,6 +321,7 @@ export class AreaRouteAnchorResolverService {
             ...(place.primaryType ? [place.primaryType] : []),
             ...(place.types ?? []),
           ],
+          exactNameAmbiguous: exactNameCount > 1,
         },
       };
     } catch {
@@ -344,13 +371,14 @@ export class AreaRouteAnchorResolverService {
       hintKey: anchor.rawName,
       hintName: anchor.rawName,
       provider: candidate.provider,
-      externalId: candidate.externalId ?? '',
+      externalId: candidate.externalId,
       canonicalName: candidate.canonicalName,
       kind,
       latitude: candidate.latitude,
       longitude: candidate.longitude,
       geometry: candidate.geometry,
       role: candidate.kind,
+      exactNameAmbiguous: candidate.exactNameAmbiguous,
       persistenceMetadata: candidate.metadata
         ? { tags: candidate.metadata }
         : undefined,
@@ -371,7 +399,7 @@ export class AreaRouteAnchorResolverService {
       entity,
     );
     const attempt = {
-      strategy: 'LOCAL_OSM_POOL' as const,
+      strategy: 'ANCHOR_RESOLUTION' as const,
       candidate: entity,
       evidence,
     };
@@ -462,6 +490,13 @@ export class AreaRouteAnchorResolverService {
         return { status: 'no_match', reason: 'NO_CONFIDENT_AREA_MATCH' };
       }
 
+      // When multiple Nominatim results share the same normalized name,
+      // the exact-name match alone cannot confirm a unique identity.
+      const exactNameCount = countNominatimExactMatches(
+        anchor.rawName,
+        results,
+      );
+
       const boundary = await this.osmPlaces.lookupBoundaryById(
         match.osmType,
         match.osmId,
@@ -488,6 +523,7 @@ export class AreaRouteAnchorResolverService {
           geometry: boundary.value.geometry,
           metadata: boundary.value.tags,
           osmBoundary: boundary.value,
+          exactNameAmbiguous: exactNameCount > 1,
         },
       };
     } catch {
@@ -562,6 +598,14 @@ export class AreaRouteAnchorResolverService {
       if (!matched)
         return { status: 'no_match', reason: 'NO_CONFIDENT_ROUTE_MATCH' };
 
+      // When multiple streets share the same normalized name, the
+      // exact-name match alone cannot confirm a unique identity.
+      const exactNameCount = countExactNormalizedMatches(
+        anchor.rawName,
+        streets,
+        (s) => s.name,
+      );
+
       const point = representativePoint(matched.geometry);
       return {
         status: 'match',
@@ -574,6 +618,7 @@ export class AreaRouteAnchorResolverService {
           longitude: point?.longitude,
           geometry: matched.geometry,
           metadata: matched.tags,
+          exactNameAmbiguous: exactNameCount > 1,
         },
       };
     } catch {
