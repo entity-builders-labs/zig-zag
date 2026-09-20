@@ -32,6 +32,7 @@ import {
   countAliasMatches,
   countExactNormalizedMatches,
   countNominatimExactMatches,
+  extractDeclaredNameAliases,
   isAreaScaleEligible,
   isPlaceScaleEligible,
   matchesAddressHint,
@@ -65,50 +66,6 @@ function extractWikidataQid(
 ): string | undefined {
   const raw = tags?.wikidata?.trim();
   return raw && OSM_WIKIDATA_QID_PATTERN.test(raw) ? raw : undefined;
-}
-
-const NAME_ALIAS_TAG_KEYS = new Set([
-  'official_name',
-  'alt_name',
-  'short_name',
-  'loc_name',
-]);
-
-/**
- * Every other name the OSM candidate ITSELF already declares -- `name:xx`
- * (any language, not just en/es), `official_name`/`alt_name`/`short_name`/
- * `loc_name`, and the human-readable title inside a `wikipedia=xx:Title`
- * tag. All free: this is data the candidate already carries, comparing it
- * against the hint costs no network call and needs no independent
- * cross-reference lookup -- it is a direct declaration by the same real
- * OSM record the hint is being matched against, same trust tier as its own
- * `name` tag. `alt_name` (and occasionally others) can hold a `;`-separated
- * list -- split defensively even though most tags never do.
- */
-function extractNameAliasCandidates(
-  tags: Record<string, string> | undefined,
-): string[] | undefined {
-  if (!tags) return undefined;
-  const candidates: string[] = [];
-  for (const [key, value] of Object.entries(tags)) {
-    if (!value) continue;
-    if (key.startsWith('name:') || NAME_ALIAS_TAG_KEYS.has(key)) {
-      for (const part of value.split(';')) {
-        const trimmed = part.trim();
-        if (trimmed) candidates.push(trimmed);
-      }
-    }
-  }
-  const wikipediaTag = tags.wikipedia?.trim();
-  if (wikipediaTag) {
-    const separatorIndex = wikipediaTag.indexOf(':');
-    const title =
-      separatorIndex > 0
-        ? wikipediaTag.slice(separatorIndex + 1).trim()
-        : wikipediaTag;
-    if (title) candidates.push(title);
-  }
-  return candidates.length > 0 ? candidates : undefined;
 }
 
 /**
@@ -907,7 +864,7 @@ export class ExperienceProposalResolverService
       geometry: matched.geometry,
       role: hint.role,
       wikidataQid: extractWikidataQid(matched.tags),
-      nameAliasCandidates: extractNameAliasCandidates(matched.tags),
+      nameAliasCandidates: extractDeclaredNameAliases(matched.tags),
       addressConfirmed: matchesAddressHint(hint.addressHint, matched.tags),
       nameEvidenceMultiplicity: nameMultiplicity,
       persistenceMetadata: { tags: matched.tags },

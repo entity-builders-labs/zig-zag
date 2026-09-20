@@ -1015,6 +1015,125 @@ describe('AreaRouteAnchorResolverService', () => {
       expect(catalog.upsertGeoEntity).not.toHaveBeenCalled();
     });
 
+    it('ROUTE + alias anti-bypass: raw OSM route way with matching alias does NOT verify without corroboration', async () => {
+      // Raw OSM route way with matching name:en alias must NOT verify
+      // via alias alone. Raw OSM ROUTE ways have UNKNOWN multiplicity
+      // for both exactName and declaredAlias.
+      const osmPlaces = {
+        lookupStreetsWithin: jest.fn().mockResolvedValue({
+          status: 'success',
+          value: [
+            {
+              id: 'osm:way:1',
+              name: 'Defensa',
+              osmType: 'way' as const,
+              osmId: 1,
+              geometry: {
+                type: 'LineString' as const,
+                coordinates: [
+                  [-58.3634, -34.6382],
+                  [-58.363, -34.6376],
+                ],
+              },
+              tags: { highway: 'pedestrian', 'name:en': 'Defensa Street' },
+            },
+          ],
+        }),
+        lookupStreetsNear: jest.fn(),
+      };
+      const catalog = {
+        upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-defensa' }),
+      };
+      const service = new AreaRouteAnchorResolverService(
+        osmPlaces as any,
+        catalog as any,
+      );
+
+      const primaryName = 'Defensa';
+      const hintName = 'Defensa Street';
+      // Primary MUST NOT equal hint.
+      expect(normalizeGeoName(primaryName)).not.toBe(normalizeGeoName(hintName));
+
+      const result = await service.resolveRoute(routeAnchor, {
+        kind: 'AREA_BOUNDARY',
+        boundary: { id: 'osm:relation:1', name: 'Buenos Aires' },
+      } as any);
+
+      // Raw OSM ROUTE: exactName = UNKNOWN, declaredAlias = UNKNOWN.
+      // DECLARED_ALIAS_MATCH / UNKNOWN -> INSUFFICIENT_EVIDENCE.
+      expect(result).toEqual(
+        expect.objectContaining({
+          resolved: false,
+          status: 'no_match',
+          reason: 'IDENTITY_NOT_VERIFIED',
+        }),
+      );
+      expect(catalog.upsertGeoEntity).not.toHaveBeenCalled();
+    });
+
+    // Two same-name raw OSM ways with alias must still be UNKNOWN/UNKNOWN.
+    it('ROUTE + alias anti-bypass: two raw OSM ways with alias still UNKNOWN/UNKNOWN', async () => {
+      const osmPlaces = {
+        lookupStreetsWithin: jest.fn().mockResolvedValue({
+          status: 'success',
+          value: [
+            {
+              id: 'osm:way:1',
+              name: 'Defensa',
+              osmType: 'way' as const,
+              osmId: 1,
+              geometry: {
+                type: 'LineString' as const,
+                coordinates: [
+                  [-58.3634, -34.6382],
+                  [-58.363, -34.6376],
+                ],
+              },
+              tags: { highway: 'pedestrian', 'name:en': 'Defensa Street' },
+            },
+            {
+              id: 'osm:way:2',
+              name: 'Defensa',
+              osmType: 'way' as const,
+              osmId: 2,
+              geometry: {
+                type: 'LineString' as const,
+                coordinates: [
+                  [-58.37, -34.64],
+                  [-58.369, -34.639],
+                ],
+              },
+              tags: { highway: 'residential', 'name:en': 'Defensa Street' },
+            },
+          ],
+        }),
+        lookupStreetsNear: jest.fn(),
+      };
+      const catalog = {
+        upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-defensa' }),
+      };
+      const service = new AreaRouteAnchorResolverService(
+        osmPlaces as any,
+        catalog as any,
+      );
+
+      const result = await service.resolveRoute(routeAnchor, {
+        kind: 'AREA_BOUNDARY',
+        boundary: { id: 'osm:relation:1', name: 'Buenos Aires' },
+      } as any);
+
+      // Two same-name ways with alias -> still UNKNOWN/UNKNOWN.
+      expect(result).toEqual(
+        expect.objectContaining({
+          resolved: false,
+          status: 'no_match',
+          reason: 'IDENTITY_NOT_VERIFIED',
+        }),
+      );
+      expect(catalog.upsertGeoEntity).not.toHaveBeenCalled();
+    });
+  });
+
     it('Case E: duplicate exact Places names → ambiguous → not persisted', async () => {
       const nominatim = {
         search: jest.fn().mockResolvedValue([]),
@@ -1341,7 +1460,171 @@ describe('AreaRouteAnchorResolverService', () => {
   });
 
   // ──────────────────────────────────────────────────────────────
-  // Candidate → persistence regression test
+  // Nominatim AREA boundary-hydration regression
+  // ──────────────────────────────────────────────────────────────
+
+  describe('Nominatim AREA boundary-hydration regression', () => {
+    it('5A: two exact AREA candidates → MULTIPLE → hydration preserves MULTIPLE → not persisted', async () => {
+      // Two exact-name Nominatim AREA candidates. The selected one
+      // hydrates its boundary, but multiplicity must remain MULTIPLE.
+      const nominatim = {
+        search: jest.fn().mockResolvedValue([
+          {
+            osmType: 'relation',
+            osmId: 10,
+            addresstype: 'suburb',
+            placeRank: 20,
+            class: 'place',
+            type: 'suburb',
+            displayName: 'San Telmo, Buenos Aires, Argentina',
+            importance: 0.3,
+            latitude: -34.62,
+            longitude: -58.37,
+          },
+          {
+            osmType: 'relation',
+            osmId: 20,
+            addresstype: 'suburb',
+            placeRank: 20,
+            class: 'place',
+            type: 'suburb',
+            displayName: 'San Telmo, La Plata, Argentina',
+            importance: 0.25,
+            latitude: -34.92,
+            longitude: -57.95,
+          },
+        ]),
+        reverse: jest.fn(),
+      };
+      const boundaryGeometry = {
+        type: 'Polygon' as const,
+        coordinates: [
+          [
+            [-58.38, -34.63],
+            [-58.36, -34.63],
+            [-58.36, -34.61],
+            [-58.38, -34.61],
+            [-58.38, -34.63],
+          ],
+        ],
+      };
+      const osmPlaces = {
+        lookupBoundaryById: jest.fn().mockResolvedValue({
+          status: 'success',
+          value: {
+            id: 'osm:relation:10',
+            name: 'San Telmo',
+            osmType: 'relation',
+            osmId: 10,
+            geometry: boundaryGeometry,
+            tags: { boundary: 'administrative' },
+          },
+        }),
+        lookupStreetsWithin: jest.fn(),
+        lookupStreetsNear: jest.fn(),
+      };
+      const catalog = {
+        upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-1' }),
+      };
+      const service = new AreaRouteAnchorResolverService(
+        osmPlaces as any,
+        catalog as any,
+        nominatim as any,
+      );
+
+      const result = await service.resolveArea(areaAnchor, 'ar', {
+        latitude: -34.6,
+        longitude: -58.38,
+      });
+
+      // Two exact-name AREA candidates -> exactName = MULTIPLE.
+      // Boundary hydration MUST preserve MULTIPLE.
+      expect(result).toEqual(
+        expect.objectContaining({ resolved: false, status: 'no_match' }),
+      );
+      expect(catalog.upsertGeoEntity).not.toHaveBeenCalled();
+      // Hydration WAS called.
+      expect(osmPlaces.lookupBoundaryById).toHaveBeenCalledWith('relation', 10);
+    });
+
+    it('5B: single exact AREA candidate → SINGLE → boundary hydrates → persisted', async () => {
+      const nominatim = {
+        search: jest.fn().mockResolvedValue([
+          {
+            osmType: 'relation',
+            osmId: 42,
+            addresstype: 'suburb',
+            placeRank: 20,
+            class: 'place',
+            type: 'suburb',
+            displayName: 'San Telmo, Buenos Aires, Argentina',
+            importance: 0.3,
+            latitude: -34.62,
+            longitude: -58.37,
+          },
+        ]),
+        reverse: jest.fn(),
+      };
+      const boundaryGeometry = {
+        type: 'Polygon' as const,
+        coordinates: [
+          [
+            [-58.38, -34.63],
+            [-58.36, -34.63],
+            [-58.36, -34.61],
+            [-58.38, -34.61],
+            [-58.38, -34.63],
+          ],
+        ],
+      };
+      const osmPlaces = {
+        lookupBoundaryById: jest.fn().mockResolvedValue({
+          status: 'success',
+          value: {
+            id: 'osm:relation:42',
+            name: 'San Telmo',
+            osmType: 'relation',
+            osmId: 42,
+            geometry: boundaryGeometry,
+            tags: { boundary: 'administrative' },
+          },
+        }),
+        lookupStreetsWithin: jest.fn(),
+        lookupStreetsNear: jest.fn(),
+      };
+      const catalog = {
+        upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-san-telmo' }),
+      };
+      const service = new AreaRouteAnchorResolverService(
+        osmPlaces as any,
+        catalog as any,
+        nominatim as any,
+      );
+
+      const result = await service.resolveArea(areaAnchor, 'ar', {
+        latitude: -34.6,
+        longitude: -58.38,
+      });
+
+      // Single exact AREA candidate -> exactName = SINGLE.
+      // Boundary hydrates and persists.
+      expect(result).toEqual(
+        expect.objectContaining({
+          resolved: true,
+          geoEntityId: 'geo-san-telmo',
+          geometry: boundaryGeometry,
+        }),
+      );
+      expect(catalog.upsertGeoEntity).toHaveBeenCalledWith(
+        expect.objectContaining({
+          kind: GeoEntityKind.AREA,
+          externalId: 'osm:relation:42',
+        }),
+      );
+      // Hydration WAS called.
+      expect(osmPlaces.lookupBoundaryById).toHaveBeenCalledWith('relation', 42);
+    });
+  });
   // ──────────────────────────────────────────────────────────────
 
   describe('candidate→persistence regression', () => {

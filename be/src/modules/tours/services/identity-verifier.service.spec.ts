@@ -9,7 +9,7 @@ const candidate = (exactName: 'SINGLE' | 'MULTIPLE' | 'UNKNOWN' = 'SINGLE', decl
   externalId: 'place-1',
   canonicalName: 'Recoleta Cemetery',
   kind: GeoEntityKind.PLACE,
-  role: 'venue',
+  role: 'venue' as const,
   nameEvidenceMultiplicity: { exactName, declaredAlias },
 });
 
@@ -18,13 +18,11 @@ const attempt = (
   evidence: ResolutionAttempt['evidence'],
   exactName: 'SINGLE' | 'MULTIPLE' | 'UNKNOWN' = 'SINGLE',
   declaredAlias: 'SINGLE' | 'MULTIPLE' | 'UNKNOWN' = 'SINGLE',
-): ResolutionAttempt =>
-  ({
-    strategy: 'PLACES',
-    candidate: candidate(exactName, declaredAlias),
-    evidence,
-    hintName,
-  }) as ResolutionAttempt;
+): ResolutionAttempt => ({
+  strategy: 'PLACES',
+  candidate: candidate(exactName, declaredAlias),
+  evidence,
+});
 
 describe('IdentityVerifier', () => {
   it('rejects a candidate that only shares half of an observation QID identity', async () => {

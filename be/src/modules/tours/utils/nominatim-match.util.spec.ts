@@ -1,7 +1,10 @@
 import {
   bestNominatimMatch,
+  candidateMatchCountToMultiplicity,
+  countAliasMatches,
   countExactNormalizedMatches,
   countNominatimExactMatches,
+  extractDeclaredNameAliases,
   hasSpecificNameOverlap,
   isAreaScaleEligible,
   isPlaceScaleEligible,
@@ -736,5 +739,82 @@ describe('hasSpecificNameOverlap (exported for cross-source confirmation reuse)'
         { requireAllTokens: true },
       ),
     ).toBe(true);
+  });
+});
+
+describe('extractDeclaredNameAliases', () => {
+  it('extracts name:en', () => {
+    expect(extractDeclaredNameAliases({ 'name:en': 'San Telmo Market' })).toEqual([
+      'San Telmo Market',
+    ]);
+  });
+
+  it('extracts official_name', () => {
+    expect(extractDeclaredNameAliases({ official_name: 'Catedral Metropolitana' })).toEqual([
+      'Catedral Metropolitana',
+    ]);
+  });
+
+  it('extracts alt_name with semicolon-separated aliases', () => {
+    expect(
+      extractDeclaredNameAliases({ alt_name: 'Alias One; Alias Two; Alias Three' }),
+    ).toEqual(['Alias One', 'Alias Two', 'Alias Three']);
+  });
+
+  it('extracts short_name', () => {
+    expect(extractDeclaredNameAliases({ short_name: 'MALBA' })).toEqual(['MALBA']);
+  });
+
+  it('extracts loc_name', () => {
+    expect(extractDeclaredNameAliases({ loc_name: 'Local Name' })).toEqual([
+      'Local Name',
+    ]);
+  });
+
+  it('extracts wikipedia title stripping language prefix', () => {
+    expect(
+      extractDeclaredNameAliases({ wikipedia: 'es:Catedral metropolitana de Buenos Aires' }),
+    ).toEqual(['Catedral metropolitana de Buenos Aires']);
+  });
+
+  it('returns [] for missing tags', () => {
+    expect(extractDeclaredNameAliases(undefined)).toEqual([]);
+    expect(extractDeclaredNameAliases({})).toEqual([]);
+  });
+});
+
+describe('countAliasMatches', () => {
+  it('returns 1 for one candidate with matching alias', () => {
+    expect(
+      countAliasMatches('Example Museum', [
+        { nameAliasCandidates: ['Example Museum'] },
+      ]),
+    ).toBe(1);
+  });
+
+  it('returns 2 for two candidates with matching aliases', () => {
+    expect(
+      countAliasMatches('Example Museum', [
+        { nameAliasCandidates: ['Example Museum'] },
+        { nameAliasCandidates: ['Example Museum'] },
+      ]),
+    ).toBe(2);
+  });
+
+  it('returns 0 when no candidate has matching alias', () => {
+    expect(
+      countAliasMatches('Example Museum', [
+        { nameAliasCandidates: ['Other Name'] },
+        { nameAliasCandidates: ['Another Name'] },
+      ]),
+    ).toBe(0);
+  });
+
+  it('extracts aliases from tags when nameAliasCandidates not present', () => {
+    expect(
+      countAliasMatches('Example Museum', [
+        { tags: { 'name:en': 'Example Museum' } },
+      ]),
+    ).toBe(1);
   });
 });

@@ -346,12 +346,6 @@ export function candidateMatchCountToMultiplicity(
 }
 
 /**
- * @deprecated Use candidateMatchCountToMultiplicity instead.
- * Kept for backward compatibility during migration.
- */
-export const exactMatchCountToMultiplicity = candidateMatchCountToMultiplicity;
-
-/**
  * Counts how many candidates in the pool have an OWN declared alias that matches
  * the hint name according to the canonical alias-match policy (hasSpecificNameOverlap
  * with requireAllTokens: true). This is the canonical way to establish alias multiplicity.
@@ -374,7 +368,7 @@ export function countAliasMatches(
   return pool.filter((candidate) => {
     // Extract aliases from tags if available, otherwise use pre-extracted nameAliasCandidates
     const aliases =
-      candidate.nameAliasCandidates ?? extractAliasesFromTags(candidate.tags);
+      candidate.nameAliasCandidates ?? extractDeclaredNameAliases(candidate.tags);
     return aliases.some((alias) =>
       hasSpecificNameOverlap(needle, normalizeGeoName(alias), {
         requireAllTokens: true,
@@ -384,10 +378,19 @@ export function countAliasMatches(
 }
 
 /**
- * Extracts alias candidates from OSM tags.
- * Uses the same logic as extractNameAliasCandidates but returns just the strings.
+ * Canonical extractor for declared name aliases from OSM tags.
+ * Used by both countAliasMatches and candidate construction.
+ *   name:*
+ *   official_name
+ *   alt_name
+ *   short_name
+ *   loc_name
+ *   wikipedia title (strips language prefix)
+ * Semicolon splitting and trimming applied.
  */
-function extractAliasesFromTags(tags?: Record<string, string>): string[] {
+export function extractDeclaredNameAliases(
+  tags?: Record<string, string>,
+): string[] {
   if (!tags) return [];
   const candidates: string[] = [];
   const NAME_ALIAS_TAG_KEYS = new Set([
@@ -415,6 +418,14 @@ function extractAliasesFromTags(tags?: Record<string, string>): string[] {
     if (title) candidates.push(title);
   }
   return candidates.length > 0 ? candidates : [];
+}
+
+/**
+ * @deprecated Use extractDeclaredNameAliases instead.
+ * Kept for internal use during migration.
+ */
+function extractAliasesFromTags(tags?: Record<string, string>): string[] {
+  return extractDeclaredNameAliases(tags);
 }
 
 export function matchOsmCandidateByName(

@@ -3,6 +3,7 @@ import { ExperienceCandidate } from '../interfaces/experience-discovery.interfac
 import { ExperienceGeographicValidationResult } from '../interfaces/experience-resolution.interface';
 import { SourceObservation } from '../interfaces/experience-acquisition.interface';
 import { ExperienceProposalResolverService } from './experience-proposal-resolver.service';
+import { normalizeGeoName } from '../utils/nominatim-match.util';
 
 describe('ExperienceProposalResolverService', () => {
   const boundary: any = {
@@ -4306,10 +4307,11 @@ describe('ExperienceProposalResolverService', () => {
         osmPlacesFor([
           {
             id: 'osm:way:1',
-            // Primary name exactly matches hint -> SINGLE multiplicity.
-            // The `name:en` alias also matches, providing DECLARED_ALIAS_MATCH
-            // with SINGLE multiplicity -> VERIFIED without Wikidata.
-            name: 'San Telmo Market',
+            // Primary name is Spanish; English alias bridges the language gap.
+            // Primary does NOT equal hint -> exactName = UNKNOWN.
+            // name:en alias matches hint -> declaredAlias = SINGLE.
+            // DECLARED_ALIAS_MATCH / SINGLE -> VERIFIED without Wikidata.
+            name: 'Mercado de San Telmo',
             osmType: 'way',
             osmId: 1,
             geometry: { type: 'Point', coordinates: [-58.38, -34.6] },
@@ -4324,10 +4326,15 @@ describe('ExperienceProposalResolverService', () => {
         wikidata as any,
       );
 
+      const primaryName = 'Mercado de San Telmo';
+      const hintName = 'San Telmo Market';
       const result = await service.resolve({
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [candidate('San Telmo Market', 'San Telmo Market')],
+        candidates: [candidate('San Telmo Market', hintName)],
       });
+
+      // Golden alias case 1: primary name MUST NOT equal hint.
+      expect(normalizeGeoName('Mercado de San Telmo')).not.toBe(normalizeGeoName('San Telmo Market'));
 
       expect(wikidata.getEntitySummaries).not.toHaveBeenCalled();
       expect(wikidata.findNearbyPlaces).not.toHaveBeenCalled();
@@ -4357,10 +4364,11 @@ describe('ExperienceProposalResolverService', () => {
         osmPlacesFor([
           {
             id: 'osm:way:1',
-            // Primary name exactly matches hint -> SINGLE multiplicity.
-            // The `wikipedia` tag also matches (after stripping language prefix),
-            // providing DECLARED_ALIAS_MATCH with SINGLE -> VERIFIED.
-            name: 'Catedral Metropolitana de Buenos Aires',
+            // Primary name is shorter; wikipedia title bridges the gap.
+            // Primary does NOT equal hint -> exactName = UNKNOWN.
+            // wikipedia title matches hint -> declaredAlias = SINGLE.
+            // DECLARED_ALIAS_MATCH / SINGLE -> VERIFIED without Wikidata.
+            name: 'Catedral Metropolitana',
             osmType: 'way',
             osmId: 1,
             geometry: { type: 'Point', coordinates: [-58.3731, -34.6083] },
@@ -4377,6 +4385,8 @@ describe('ExperienceProposalResolverService', () => {
         wikidata as any,
       );
 
+      const primaryName = 'Catedral Metropolitana';
+      const hintName = 'Catedral Metropolitana de Buenos Aires';
       const result = await service.resolve({
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
         candidates: [
@@ -4386,6 +4396,11 @@ describe('ExperienceProposalResolverService', () => {
           ),
         ],
       });
+
+      // Golden alias case 2: primary name MUST NOT equal hint.
+      expect(normalizeGeoName('Catedral Metropolitana')).not.toBe(
+        normalizeGeoName('Catedral Metropolitana de Buenos Aires')
+      );
 
       expect(wikidata.getEntitySummaries).not.toHaveBeenCalled();
       expect(wikidata.findNearbyPlaces).not.toHaveBeenCalled();
@@ -4444,6 +4459,67 @@ describe('ExperienceProposalResolverService', () => {
 
       expect(wikidata.findNearbyPlaces).toHaveBeenCalled();
       expect(result.acceptedCount).toBe(1);
+    });
+
+    it('alias MULTIPLE -> AMBIGUOUS -> not persisted: two POI candidates declare aliases matching the same hint', async () => {
+      const wikidata = {
+        findNearbyPlaces: jest.fn(),
+        getEntitySummaries: jest.fn(),
+      };
+      const catalog = {
+        resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-1' }),
+        persistVerifiedExperience: jest
+          .fn()
+          .mockResolvedValue({ id: 'exp-1', dedupeDecision: 'NEW' }),
+      };
+      const geographicValidator = {
+        validate: jest
+          .fn()
+          .mockReturnValue(acceptedValidation('Example Museum')),
+      };
+      const service = new ExperienceProposalResolverService(
+        osmPlacesFor([
+          {
+            id: 'osm:way:A',
+            // Primary does NOT equal hint.
+            name: 'Museo de Ejemplo',
+            osmType: 'way',
+            osmId: 1,
+            geometry: { type: 'Point', coordinates: [-58.38, -34.6] },
+            tags: { 'name:en': 'Example Museum' },
+          },
+          {
+            id: 'osm:way:B',
+            // Primary does NOT equal hint.
+            name: 'Museo Central',
+            osmType: 'way',
+            osmId: 2,
+            geometry: { type: 'Point', coordinates: [-58.39, -34.61] },
+            tags: { alt_name: 'Example Museum' },
+          },
+        ]) as any,
+        catalog as any,
+        geographicValidator as any,
+        undefined,
+        undefined,
+        undefined,
+        wikidata as any,
+      );
+
+      const hintName = 'Example Museum';
+      // Both primary names MUST NOT equal the hint.
+      expect(normalizeGeoName('Museo de Ejemplo')).not.toBe(normalizeGeoName('Example Museum'));
+      expect(normalizeGeoName('Museo Central')).not.toBe(normalizeGeoName('Example Museum'));
+
+      const result = await service.resolve({
+        geographicScope: { kind: 'AREA_BOUNDARY', boundary },
+        candidates: [candidate('Example Museum', 'Example Museum')],
+      });
+
+      // Two alias-matching candidates -> declaredAlias = MULTIPLE -> AMBIGUOUS.
+      expect(result.acceptedCount).toBe(0);
+      expect(catalog.upsertGeoEntity).not.toHaveBeenCalled();
     });
   });
 
@@ -5891,7 +5967,7 @@ describe('ExperienceProposalResolverService', () => {
         originationCapabilities: [],
       };
 
-      // Case A: Unverified (single observation reuse with exact name alone -> ambiguous by P2-B)
+      // Case A: Unverified (single observation reuse with exact name alone -> UNKNOWN multiplicity)
       const placesApi = {
         provider: 'google' as const,
         searchText: jest.fn(),
