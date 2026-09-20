@@ -620,7 +620,7 @@ describe('ExperienceProposalResolverService', () => {
     );
   });
 
-  it("resolves a global hint whose grounded-evidence name is a translated form of Nominatim's canonical name, not an exact literal prefix", async () => {
+  it('does not use a nearby Wikidata label to bridge a translated candidate with only partial token overlap', async () => {
     // Real-world regression: Argentina's OSM/Nominatim data names this park
     // in Spanish ("Parque Provincial Ischigualasto"), while English-language
     // grounded search evidence — and the LLM extracting from it — surfaces
@@ -669,11 +669,8 @@ describe('ExperienceProposalResolverService', () => {
         },
       ]),
     };
-    // Task A3 (cross-source confirmation): this is a translated, non-exact
-    // name match by design (the whole point of this test) — it now needs
-    // independent corroboration the same as any other fuzzy match.
-    // Wikidata genuinely has this real park, confirming the match still
-    // resolves correctly under the stricter gate, not merely "used to".
+    // The nearby label confirms the hint but only partially overlaps the
+    // selected Spanish candidate. Proximity cannot turn that into identity.
     const wikidata = {
       findNearbyPlaces: jest.fn().mockResolvedValue([
         {
@@ -718,7 +715,7 @@ describe('ExperienceProposalResolverService', () => {
       'Ischigualasto Provincial Park',
       undefined,
     );
-    expect(result.acceptedCount).toBe(1);
+    expect(result.acceptedCount).toBe(0);
     expect(catalog.upsertGeoEntity).toHaveBeenCalledWith(
       expect.objectContaining({
         latitude: -30.0694429,
@@ -4750,7 +4747,7 @@ describe('ExperienceProposalResolverService', () => {
       originationCapabilities: [],
     };
 
-    it('acquires a candidate directly via a matching structured observation, skipping local/global search entirely', async () => {
+    it('does not verify a single reused observation from exact fetched name alone, and continues through the normal resolver', async () => {
       const osmPlaces = emptyOsmPlaces();
       const placesApi = {
         provider: 'google' as const,
@@ -4811,9 +4808,8 @@ describe('ExperienceProposalResolverService', () => {
         observations: [zanjonObservation],
       });
 
-      expect(placesApi.searchText).not.toHaveBeenCalled();
       expect(placesApi.getPlaceDetails).toHaveBeenCalledWith('ChIJABC123');
-      expect(result.acceptedCount).toBe(1);
+      expect(result.acceptedCount).toBe(0);
       expect(catalog.upsertGeoEntity).toHaveBeenCalledWith(
         expect.objectContaining({
           kind: GeoEntityKind.PLACE,
@@ -4826,7 +4822,7 @@ describe('ExperienceProposalResolverService', () => {
       );
       expect(result.resolved[0].resolvedEntities[0]).toMatchObject({
         hintKey: 'zanjon',
-        status: 'resolved',
+        status: 'unresolved',
         role: 'venue',
       });
     });
@@ -5204,7 +5200,7 @@ describe('ExperienceProposalResolverService', () => {
       expect(placesApi.getPlaceDetails).not.toHaveBeenCalled();
     });
 
-    it('reuses correctly when the active backend is geoapify and the observation was produced by geoapify too (provider namespace mapping works for both real Places providers)', async () => {
+    it('keeps a Geoapify single-observation reuse fail-closed even when its provider namespace matches', async () => {
       const osmPlaces = emptyOsmPlaces();
       const geoapifyObservation = {
         ...zanjonObservation,
@@ -5270,7 +5266,7 @@ describe('ExperienceProposalResolverService', () => {
       });
 
       expect(placesApi.getPlaceDetails).toHaveBeenCalledWith('geo-1');
-      expect(result.acceptedCount).toBe(1);
+      expect(result.acceptedCount).toBe(0);
       expect(catalog.upsertGeoEntity).toHaveBeenCalledWith(
         expect.objectContaining({
           provider: 'geoapify',

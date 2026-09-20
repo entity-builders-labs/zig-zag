@@ -1155,6 +1155,10 @@ export class ExperienceProposalResolverService
         longitude,
         geometry,
         role: hint.role,
+        // One acquisition-run observation identifies the fetched provider
+        // record, but never proves real-world uniqueness. Keep exact-name
+        // evidence ambiguous so IdentityVerifier requires independent proof.
+        exactNameAmbiguous: true,
         status: 'resolved' as const,
       },
       { geoEntityId: geo.id },

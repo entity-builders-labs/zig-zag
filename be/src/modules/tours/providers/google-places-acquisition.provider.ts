@@ -6,13 +6,13 @@ import {
 } from '@integrations/google-places/interfaces/places-api.interface';
 import {
   AcquisitionProviderResult,
-  ExperienceAcquisitionProvider,
   QualityEvidence,
   SourceObservation,
   SourceObservationGeo,
 } from '../interfaces/experience-acquisition.interface';
 import { AcquisitionEvidenceRequirement } from '../interfaces/acquisition-evidence-requirement.interface';
 import { ExperienceDiscoveryScope } from '../interfaces/experience-discovery.interface';
+import { placesAcquisitionLabel } from '../utils/places-external-identity.util';
 
 export const DISALLOWED_GOOGLE_PLACES_TYPES = new Set([
   'point_of_interest',
@@ -91,11 +91,6 @@ export const DEFAULT_ALLOWED_GOOGLE_PLACES_TYPES = new Set([
   ...SAFE_GENERIC_TOURISM_TYPES,
   ...CONTEXTUAL_GOOGLE_PLACES_TYPES,
 ]);
-
-const ACQUISITION_PROVIDER_BY_PLACES_PROVIDER = {
-  google: 'google_places',
-  geoapify: 'geoapify',
-} satisfies Record<PlacesProvider, ExperienceAcquisitionProvider>;
 
 interface PlaceWithProvider {
   place: PlaceData;
@@ -221,8 +216,7 @@ export class GooglePlacesAcquisitionProvider {
         }
 
         const geo = this.validateCoordinates(place.location);
-        const acquisitionProvider =
-          ACQUISITION_PROVIDER_BY_PLACES_PROVIDER[provider];
+        const acquisitionProvider = placesAcquisitionLabel(provider);
 
         observations.push({
           provider: acquisitionProvider,

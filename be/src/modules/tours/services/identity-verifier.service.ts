@@ -10,6 +10,7 @@ import {
 } from '../interfaces/experience-resolution.interface';
 
 const CONFIRMATION_RADIUS_METERS = 200;
+type WikidataConfirmation = boolean | undefined | 'UNAVAILABLE';
 
 /**
  * The single authority for interpreting normalized identity facts. It never
@@ -39,6 +40,7 @@ export class IdentityVerifier {
       const result = await this.confirmOwnQid(ownQid.qid, hint.name);
       if (result === true) return { status: 'VERIFIED' };
       if (result === false) return { status: 'REJECTED' };
+      if (result === 'UNAVAILABLE') return { status: 'INSUFFICIENT_EVIDENCE' };
     } else {
       const observationQid = this.evidenceOf(
         evidence,
@@ -52,6 +54,8 @@ export class IdentityVerifier {
         );
         if (result === true) return { status: 'VERIFIED' };
         if (result === false) return { status: 'REJECTED' };
+        if (result === 'UNAVAILABLE')
+          return { status: 'INSUFFICIENT_EVIDENCE' };
       }
     }
 
@@ -77,12 +81,15 @@ export class IdentityVerifier {
         return (
           hasSpecificNameOverlap(needle, normalizedLabel, {
             requireAllTokens: true,
-          }) && hasSpecificNameOverlap(matchedName, normalizedLabel)
+          }) &&
+          hasSpecificNameOverlap(matchedName, normalizedLabel, {
+            requireAllTokens: true,
+          })
         );
       });
       return confirmed ? { status: 'VERIFIED' } : { status: 'REJECTED' };
     } catch {
-      return { status: 'REJECTED' };
+      return { status: 'INSUFFICIENT_EVIDENCE' };
     }
   }
 
@@ -99,12 +106,12 @@ export class IdentityVerifier {
   private async confirmOwnQid(
     qid: string,
     hintName: string,
-  ): Promise<boolean | undefined> {
+  ): Promise<WikidataConfirmation> {
     let summaries: Map<string, { label?: string; aliases?: string[] }>;
     try {
       summaries = await this.wikidata!.getEntitySummaries([qid]);
     } catch {
-      return false;
+      return 'UNAVAILABLE';
     }
     const summary = summaries.get(qid);
     if (!summary) return undefined;
@@ -122,26 +129,24 @@ export class IdentityVerifier {
     qid: string,
     hintName: string,
     candidateName: string,
-  ): Promise<boolean | undefined> {
+  ): Promise<WikidataConfirmation> {
     let summaries: Map<string, { label?: string; aliases?: string[] }>;
     try {
       summaries = await this.wikidata!.getEntitySummaries([qid]);
     } catch {
-      return false;
+      return 'UNAVAILABLE';
     }
     const summary = summaries.get(qid);
     if (!summary) return undefined;
-    const needle = normalizeGeoName(hintName);
-    const matchedName = normalizeGeoName(candidateName);
-    return [summary.label, ...(summary.aliases ?? [])]
+    const identities = [summary.label, ...(summary.aliases ?? [])]
       .filter((label): label is string => Boolean(label))
-      .some((label) => {
-        const normalized = normalizeGeoName(label);
-        return (
-          hasSpecificNameOverlap(needle, normalized, {
-            requireAllTokens: true,
-          }) && hasSpecificNameOverlap(matchedName, normalized)
-        );
-      });
+      .map(normalizeGeoName);
+    return [hintName, candidateName].every((name) =>
+      identities.some((identity) =>
+        hasSpecificNameOverlap(normalizeGeoName(name), identity, {
+          requireAllTokens: true,
+        }),
+      ),
+    );
   }
 }
