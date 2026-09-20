@@ -210,6 +210,80 @@ describe('ExperienceProposalResolverService', () => {
     expect(result.acceptedCount).toBe(0);
   });
 
+  it('fails closed when a raw OSM ROUTE alias matches but multiplicity is unknown', async () => {
+    const osmPlaces = {
+      lookupStreetsWithin: jest.fn().mockResolvedValue({
+        status: 'success',
+        value: [
+          {
+            id: 'osm:way:1',
+            name: 'Defensa',
+            osmType: 'way',
+            osmId: 1,
+            geometry: {
+              type: 'LineString',
+              coordinates: [
+                [-58.371, -34.621],
+                [-58.37, -34.62],
+              ],
+            },
+            tags: { highway: 'pedestrian', 'name:en': 'Defensa Street' },
+          },
+        ],
+      }),
+      lookupPoisWithin: jest
+        .fn()
+        .mockResolvedValue({ status: 'success', value: [] }),
+    };
+    const catalog = {
+      resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+      upsertGeoEntity: jest.fn(),
+      persistVerifiedExperience: jest.fn(),
+    };
+    const service = new ExperienceProposalResolverService(
+      osmPlaces as any,
+      catalog as any,
+      { validate: jest.fn() } as any,
+    );
+    const hintName = 'Defensa Street';
+    const primaryName = 'Defensa';
+
+    expect(normalizeGeoName(primaryName)).not.toBe(normalizeGeoName(hintName));
+
+    const result = await service.resolve({
+      geographicScope: { kind: 'AREA_BOUNDARY', boundary },
+      candidates: [
+        {
+          name: 'Walk Defensa Street',
+          themes: ['culture'],
+          traits: [],
+          intents: ['walk'],
+          evidenceKeys: ['ev-1'],
+          shortReason: 'Walk a named street',
+          componentHints: [
+            {
+              key: 'defensa',
+              name: hintName,
+              role: 'route',
+              expectedKind: 'ROUTE',
+              required: true,
+              evidenceKeys: ['ev-1'],
+            },
+          ],
+        },
+      ],
+    });
+
+    expect(result.acceptedCount).toBe(0);
+    expect(result.resolved[0].resolvedEntities[0]).toMatchObject({
+      status: 'unresolved',
+      reason: 'UNCONFIRMED_MATCH',
+      role: 'route',
+    });
+    expect(catalog.upsertGeoEntity).not.toHaveBeenCalled();
+    expect(catalog.persistVerifiedExperience).not.toHaveBeenCalled();
+  });
+
   it("dedupes components by geoEntityId before persisting (real regression: two hints of one candidate reconciled onto the same GeoEntity, crashing on ExperienceComponent's unique constraint)", async () => {
     // Verified live: a Recoleta candidate proposed an "area" hint ("Recoleta")
     // and a "venue" hint naming something inside it — cross-provider
@@ -1646,6 +1720,102 @@ describe('ExperienceProposalResolverService', () => {
     expect(catalog.upsertGeoEntity).toHaveBeenCalledWith(
       expect.objectContaining({ kind: GeoEntityKind.AREA }),
     );
+  });
+
+  it('preserves MULTIPLE through Nominatim AREA boundary hydration', async () => {
+    const osmPlaces = {
+      lookupStreetsWithin: jest
+        .fn()
+        .mockResolvedValue({ status: 'success', value: [] }),
+      lookupPoisWithin: jest
+        .fn()
+        .mockResolvedValue({ status: 'success', value: [] }),
+      lookupBoundaryById: jest.fn().mockResolvedValue({
+        status: 'success',
+        value: {
+          id: 'osm:relation:42',
+          name: 'San Telmo',
+          osmType: 'relation',
+          osmId: 42,
+          geometry: boundary.geometry,
+          tags: { place: 'suburb' },
+        },
+      }),
+    };
+    const catalog = {
+      resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+      upsertGeoEntity: jest.fn(),
+      persistVerifiedExperience: jest.fn(),
+    };
+    const nominatim = {
+      search: jest.fn().mockResolvedValue([
+        {
+          osmType: 'relation',
+          osmId: 42,
+          addresstype: 'suburb',
+          class: 'place',
+          type: 'suburb',
+          placeRank: 20,
+          displayName: 'San Telmo, Buenos Aires, Argentina',
+          importance: 0.3,
+          latitude: -34.62,
+          longitude: -58.37,
+        },
+        {
+          osmType: 'relation',
+          osmId: 43,
+          addresstype: 'suburb',
+          class: 'place',
+          type: 'suburb',
+          placeRank: 20,
+          displayName: 'San Telmo, La Plata, Argentina',
+          importance: 0.2,
+          latitude: -34.92,
+          longitude: -57.95,
+        },
+      ]),
+    };
+    const service = new ExperienceProposalResolverService(
+      osmPlaces as any,
+      catalog as any,
+      { validate: jest.fn() } as any,
+      undefined,
+      nominatim as any,
+    );
+    const areaCandidate: ExperienceCandidate = {
+      name: 'San Telmo Walk',
+      themes: ['history'],
+      traits: [],
+      intents: ['walk'],
+      evidenceKeys: ['ev-1'],
+      shortReason: 'Neighborhood walk',
+      componentHints: [
+        {
+          key: 'area',
+          name: 'San Telmo',
+          role: 'area',
+          expectedKind: 'AREA',
+          required: true,
+          evidenceKeys: ['ev-1'],
+        },
+      ],
+    };
+
+    const result = await service.resolve({
+      destinationName: 'Buenos Aires',
+      geographicScope: { kind: 'AREA_BOUNDARY', boundary },
+      candidates: [areaCandidate],
+    });
+
+    expect(osmPlaces.lookupBoundaryById).toHaveBeenCalledWith('relation', 42);
+    expect(catalog.upsertGeoEntity).not.toHaveBeenCalled();
+    expect(catalog.persistVerifiedExperience).not.toHaveBeenCalled();
+    expect(result.acceptedCount).toBe(0);
+    expect(result.resolved[0].resolvedEntities[0]).toMatchObject({
+      status: 'unresolved',
+      reason: 'UNCONFIRMED_MATCH',
+      role: 'area',
+    });
   });
 
   it('resolves a PLACE-role hint as an AREA when Nominatim structurally shows it is a real neighborhood (mirror of the AREA-mistaken-for-PLACE case above: "Puerto Madero" tagged role="venue"/expectedKind="PLACE" by discovery, but it is a genuine neighborhood — the discovery LLM only proposes a kind, Nominatim\'s own scale evidence decides it)', async () => {
@@ -4462,10 +4632,6 @@ describe('ExperienceProposalResolverService', () => {
     });
 
     it('alias MULTIPLE -> AMBIGUOUS -> not persisted: two POI candidates declare aliases matching the same hint', async () => {
-      const wikidata = {
-        findNearbyPlaces: jest.fn(),
-        getEntitySummaries: jest.fn(),
-      };
       const catalog = {
         resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
         upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-1' }),
@@ -4483,7 +4649,7 @@ describe('ExperienceProposalResolverService', () => {
           {
             id: 'osm:way:A',
             // Primary does NOT equal hint.
-            name: 'Museo de Ejemplo',
+            name: 'Example Museum Historic',
             osmType: 'way',
             osmId: 1,
             geometry: { type: 'Point', coordinates: [-58.38, -34.6] },
@@ -4492,7 +4658,7 @@ describe('ExperienceProposalResolverService', () => {
           {
             id: 'osm:way:B',
             // Primary does NOT equal hint.
-            name: 'Museo Central',
+            name: 'Example Museum Annex',
             osmType: 'way',
             osmId: 2,
             geometry: { type: 'Point', coordinates: [-58.39, -34.61] },
@@ -4501,24 +4667,28 @@ describe('ExperienceProposalResolverService', () => {
         ]) as any,
         catalog as any,
         geographicValidator as any,
-        undefined,
-        undefined,
-        undefined,
-        wikidata as any,
       );
 
       const hintName = 'Example Museum';
       // Both primary names MUST NOT equal the hint.
-      expect(normalizeGeoName('Museo de Ejemplo')).not.toBe(normalizeGeoName('Example Museum'));
-      expect(normalizeGeoName('Museo Central')).not.toBe(normalizeGeoName('Example Museum'));
+      expect(normalizeGeoName('Example Museum Historic')).not.toBe(
+        normalizeGeoName(hintName),
+      );
+      expect(normalizeGeoName('Example Museum Annex')).not.toBe(
+        normalizeGeoName(hintName),
+      );
 
       const result = await service.resolve({
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [candidate('Example Museum', 'Example Museum')],
+        candidates: [candidate('Example Museum', hintName)],
       });
 
       // Two alias-matching candidates -> declaredAlias = MULTIPLE -> AMBIGUOUS.
       expect(result.acceptedCount).toBe(0);
+      expect(result.resolved[0].resolvedEntities[0]).toMatchObject({
+        status: 'unresolved',
+        reason: 'UNCONFIRMED_MATCH',
+      });
       expect(catalog.upsertGeoEntity).not.toHaveBeenCalled();
     });
   });

@@ -140,19 +140,20 @@ describe('buildLocalIdentityEvidence', () => {
     ]);
   });
 
-  it('10B: exactName SINGLE + declaredAlias UNKNOWN -> EXACT_NAME / SINGLE + DECLARED_ALIAS_MATCH / UNKNOWN', () => {
+  it('10B: exact SINGLE does not create exact evidence when primary differs', () => {
     const evidence = buildLocalIdentityEvidence(
       { name: 'Defensa Street' },
       candidate({
-        canonicalName: 'Defensa Street',
-        nameEvidenceMultiplicity: { exactName: 'SINGLE', declaredAlias: 'UNKNOWN' },
+        canonicalName: 'Defensa',
+        nameEvidenceMultiplicity: {
+          exactName: 'SINGLE',
+          declaredAlias: 'UNKNOWN',
+        },
         nameAliasCandidates: ['Defensa Street'],
       }),
     );
-    // Primary exact match -> EXACT_NAME / SINGLE
-    // Alias matches but declaredAlias is UNKNOWN -> DECLARED_ALIAS_MATCH / UNKNOWN
+
     expect(evidence).toEqual([
-      { type: 'EXACT_NAME', identityMultiplicity: 'SINGLE' },
       { type: 'DECLARED_ALIAS_MATCH', identityMultiplicity: 'UNKNOWN' },
     ]);
   });

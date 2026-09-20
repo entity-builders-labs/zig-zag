@@ -420,14 +420,6 @@ export function extractDeclaredNameAliases(
   return candidates.length > 0 ? candidates : [];
 }
 
-/**
- * @deprecated Use extractDeclaredNameAliases instead.
- * Kept for internal use during migration.
- */
-function extractAliasesFromTags(tags?: Record<string, string>): string[] {
-  return extractDeclaredNameAliases(tags);
-}
-
 export function matchOsmCandidateByName(
   name: string,
   pool: OsmCandidate[],

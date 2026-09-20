@@ -1015,10 +1015,9 @@ describe('AreaRouteAnchorResolverService', () => {
       expect(catalog.upsertGeoEntity).not.toHaveBeenCalled();
     });
 
-    it('ROUTE + alias anti-bypass: raw OSM route way with matching alias does NOT verify without corroboration', async () => {
-      // Raw OSM route way with matching name:en alias must NOT verify
-      // via alias alone. Raw OSM ROUTE ways have UNKNOWN multiplicity
-      // for both exactName and declaredAlias.
+    it('ROUTE fuzzy match stays fail-closed for one raw OSM way', async () => {
+      // The raw route candidate is selected by existing fuzzy name matching.
+      // Raw OSM ROUTE multiplicity stays UNKNOWN/UNKNOWN and fails closed.
       const osmPlaces = {
         lookupStreetsWithin: jest.fn().mockResolvedValue({
           status: 'success',
@@ -1054,13 +1053,19 @@ describe('AreaRouteAnchorResolverService', () => {
       // Primary MUST NOT equal hint.
       expect(normalizeGeoName(primaryName)).not.toBe(normalizeGeoName(hintName));
 
-      const result = await service.resolveRoute(routeAnchor, {
-        kind: 'AREA_BOUNDARY',
-        boundary: { id: 'osm:relation:1', name: 'Buenos Aires' },
-      } as any);
+      const result = await service.resolveRoute(
+        {
+          rawName: 'Defensa Street',
+          usage: 'unknown',
+          priority: 'soft',
+        },
+        {
+          kind: 'AREA_BOUNDARY',
+          boundary: { id: 'osm:relation:1', name: 'Buenos Aires' },
+        } as any,
+      );
 
-      // Raw OSM ROUTE: exactName = UNKNOWN, declaredAlias = UNKNOWN.
-      // DECLARED_ALIAS_MATCH / UNKNOWN -> INSUFFICIENT_EVIDENCE.
+      // No raw-way count or metadata may manufacture route uniqueness.
       expect(result).toEqual(
         expect.objectContaining({
           resolved: false,
@@ -1072,7 +1077,7 @@ describe('AreaRouteAnchorResolverService', () => {
     });
 
     // Two same-name raw OSM ways with alias must still be UNKNOWN/UNKNOWN.
-    it('ROUTE + alias anti-bypass: two raw OSM ways with alias still UNKNOWN/UNKNOWN', async () => {
+    it('ROUTE fuzzy match stays fail-closed for two raw OSM ways', async () => {
       const osmPlaces = {
         lookupStreetsWithin: jest.fn().mockResolvedValue({
           status: 'success',
@@ -1117,12 +1122,19 @@ describe('AreaRouteAnchorResolverService', () => {
         catalog as any,
       );
 
-      const result = await service.resolveRoute(routeAnchor, {
-        kind: 'AREA_BOUNDARY',
-        boundary: { id: 'osm:relation:1', name: 'Buenos Aires' },
-      } as any);
+      const result = await service.resolveRoute(
+        {
+          rawName: 'Defensa Street',
+          usage: 'unknown',
+          priority: 'soft',
+        },
+        {
+          kind: 'AREA_BOUNDARY',
+          boundary: { id: 'osm:relation:1', name: 'Buenos Aires' },
+        } as any,
+      );
 
-      // Two same-name ways with alias -> still UNKNOWN/UNKNOWN.
+      // Two raw ways still do not establish route identity multiplicity.
       expect(result).toEqual(
         expect.objectContaining({
           resolved: false,

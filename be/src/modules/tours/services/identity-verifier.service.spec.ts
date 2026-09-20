@@ -1,8 +1,14 @@
-import { ResolutionAttempt } from '../interfaces/experience-resolution.interface';
+import {
+  IdentityMultiplicity,
+  ResolutionAttempt,
+} from '../interfaces/experience-resolution.interface';
 import { IdentityVerifier } from './identity-verifier.service';
 import { GeoEntityKind } from '@prisma/client';
 
-const candidate = (exactName: 'SINGLE' | 'MULTIPLE' | 'UNKNOWN' = 'SINGLE', declaredAlias: 'SINGLE' | 'MULTIPLE' | 'UNKNOWN' = 'SINGLE') => ({
+const candidate = (
+  exactName: IdentityMultiplicity = 'SINGLE',
+  declaredAlias: IdentityMultiplicity = 'SINGLE',
+) => ({
   hintKey: 'place',
   hintName: 'hint',
   provider: 'google_places',
@@ -14,10 +20,9 @@ const candidate = (exactName: 'SINGLE' | 'MULTIPLE' | 'UNKNOWN' = 'SINGLE', decl
 });
 
 const attempt = (
-  hintName: string,
   evidence: ResolutionAttempt['evidence'],
-  exactName: 'SINGLE' | 'MULTIPLE' | 'UNKNOWN' = 'SINGLE',
-  declaredAlias: 'SINGLE' | 'MULTIPLE' | 'UNKNOWN' = 'SINGLE',
+  exactName: IdentityMultiplicity = 'SINGLE',
+  declaredAlias: IdentityMultiplicity = 'SINGLE',
 ): ResolutionAttempt => ({
   strategy: 'PLACES',
   candidate: candidate(exactName, declaredAlias),
@@ -31,7 +36,7 @@ describe('IdentityVerifier', () => {
     await expect(
       verifier.verify(
         { name: 'Recoleta Cemetery' },
-        attempt('Recoleta Hotel', [
+        attempt([
           {
             type: 'WIKIDATA_IDENTITY_MATCH',
             source: 'OBSERVATION_QID',
@@ -49,7 +54,7 @@ describe('IdentityVerifier', () => {
     await expect(
       verifier.verify(
         { name: 'Recoleta Cemetery' },
-        attempt('Cementerio de la Recoleta', [
+        attempt([
           {
             type: 'WIKIDATA_IDENTITY_MATCH',
             source: 'OBSERVATION_QID',
@@ -67,7 +72,7 @@ describe('IdentityVerifier', () => {
     await expect(
       verifier.verify(
         { name: 'Recoleta Cemetery' },
-        attempt('Recoleta Cemetery', [
+        attempt([
           {
             type: 'WIKIDATA_IDENTITY_MATCH',
             source: 'OBSERVATION_QID',
@@ -85,7 +90,7 @@ describe('IdentityVerifier', () => {
     await expect(
       verifier.verify(
         { name: 'Recoleta Cemetery' },
-        attempt('Recoleta Hotel', [
+        attempt([
           {
             type: 'WIKIDATA_IDENTITY_MATCH',
             source: 'NEARBY',
@@ -103,7 +108,7 @@ describe('IdentityVerifier', () => {
     await expect(
       verifier.verify(
         { name: 'Recoleta Cemetery' },
-        attempt('Recoleta Cemetery', [{ type: 'WIKIDATA_UNAVAILABLE' }]),
+        attempt([{ type: 'WIKIDATA_UNAVAILABLE' }]),
       ),
     ).toEqual({ status: 'INSUFFICIENT_EVIDENCE' });
   });
@@ -113,7 +118,7 @@ describe('IdentityVerifier', () => {
     const verifier = new IdentityVerifier();
     const result = await verifier.verify(
       { name: 'Recoleta Cemetery' },
-      attempt('Recoleta Cemetery', [
+      attempt([
         { type: 'EXACT_NAME', identityMultiplicity: 'SINGLE' },
       ]),
     );
@@ -125,7 +130,7 @@ describe('IdentityVerifier', () => {
     const verifier = new IdentityVerifier();
     const result = await verifier.verify(
       { name: 'Recoleta Cemetery' },
-      attempt('Recoleta Cemetery', [
+      attempt([
         { type: 'EXACT_NAME', identityMultiplicity: 'MULTIPLE' },
       ]),
     );
@@ -137,7 +142,7 @@ describe('IdentityVerifier', () => {
     const verifier = new IdentityVerifier();
     const result = await verifier.verify(
       { name: 'Recoleta Cemetery' },
-      attempt('Recoleta Cemetery', [
+      attempt([
         { type: 'EXACT_NAME', identityMultiplicity: 'UNKNOWN' },
       ]),
     );
@@ -149,7 +154,7 @@ describe('IdentityVerifier', () => {
     const verifier = new IdentityVerifier();
     const result = await verifier.verify(
       { name: 'Recoleta Cemetery' },
-      attempt('Recoleta Cemetery', [
+      attempt([
         { type: 'EXACT_NAME', identityMultiplicity: 'UNKNOWN' },
         {
           type: 'WIKIDATA_IDENTITY_MATCH',
@@ -167,7 +172,7 @@ describe('IdentityVerifier', () => {
     const verifier = new IdentityVerifier();
     const result = await verifier.verify(
       { name: 'Recoleta Cemetery' },
-      attempt('Recoleta Cemetery', [
+      attempt([
         { type: 'EXACT_NAME', identityMultiplicity: 'UNKNOWN' },
         { type: 'WIKIDATA_UNAVAILABLE' },
       ]),
@@ -180,7 +185,7 @@ describe('IdentityVerifier', () => {
     const verifier = new IdentityVerifier();
     const result = await verifier.verify(
       { name: 'Defensa Street' },
-      attempt('Defensa', [
+      attempt([
         { type: 'DECLARED_ALIAS_MATCH', identityMultiplicity: 'SINGLE' },
       ]),
     );
@@ -192,7 +197,7 @@ describe('IdentityVerifier', () => {
     const verifier = new IdentityVerifier();
     const result = await verifier.verify(
       { name: 'Defensa Street' },
-      attempt('Defensa', [
+      attempt([
         { type: 'DECLARED_ALIAS_MATCH', identityMultiplicity: 'MULTIPLE' },
       ]),
     );
@@ -204,7 +209,7 @@ describe('IdentityVerifier', () => {
     const verifier = new IdentityVerifier();
     const result = await verifier.verify(
       { name: 'Defensa Street' },
-      attempt('Defensa', [
+      attempt([
         { type: 'DECLARED_ALIAS_MATCH', identityMultiplicity: 'UNKNOWN' },
       ]),
     );
@@ -216,7 +221,7 @@ describe('IdentityVerifier', () => {
     const verifier = new IdentityVerifier();
     const result = await verifier.verify(
       { name: 'Recoleta Cemetery' },
-      attempt('Recoleta Cemetery', [
+      attempt([
         { type: 'EXACT_NAME', identityMultiplicity: 'SINGLE' },
         {
           type: 'WIKIDATA_IDENTITY_MATCH',
@@ -234,7 +239,7 @@ describe('IdentityVerifier', () => {
     const verifier = new IdentityVerifier();
     const result = await verifier.verify(
       { name: 'Recoleta Hotel' },
-      attempt('Recoleta Cemetery', [
+      attempt([
         {
           type: 'WIKIDATA_IDENTITY_MATCH',
           source: 'OWN_QID',
