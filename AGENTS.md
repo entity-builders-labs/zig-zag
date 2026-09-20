@@ -261,6 +261,22 @@ Before committing a backend milestone, inspect the changed code for:
 A green test suite is necessary but not sufficient if the change violates these
 boundaries.
 
+### Commit message discipline
+
+For non-trivial fixes, refactors, migrations, and architectural milestones,
+commit messages must include a concise body, not only a subject line. The body
+must record enough durable context for a future contributor to understand:
+
+- why the change exists / which invariant or failure it addresses;
+- the key behavioral or architectural effects;
+- any intentionally preserved behavior or explicit follow-up debt when relevant;
+- the verification performed (for example targeted tests, full suite,
+  typecheck/lint, or live validation when applicable).
+
+A subject-only commit is acceptable only for genuinely trivial changes where
+the subject fully explains the change. Do not rely on chat/session history as
+the only record of architectural rationale.
+
 ## Frontend responsive layout convention
 
 Zig-Zag targets web, iOS, and Android from the same frontend. Preserve a
