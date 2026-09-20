@@ -30,6 +30,7 @@ import {
   bestNominatimMatch,
   countExactNormalizedMatches,
   countNominatimExactMatches,
+  exactMatchCountToMultiplicity,
   isAreaScaleEligible,
   isPlaceScaleEligible,
   matchesAddressHint,
@@ -548,12 +549,26 @@ export class ExperienceProposalResolverService
       let unconfirmedLocalMatch: ResolvedGeoEntity | undefined;
       let unconfirmedGlobalMatch: ResolvedGeoEntity | undefined;
       if (matched) {
-        const exactNameAmbiguous =
-          countExactNormalizedMatches(hint.name, pool, (c) => c.name) > 1;
+        let identityMultiplicity: 'SINGLE' | 'MULTIPLE' | 'UNKNOWN';
+        if (hint.expectedKind === 'ROUTE' || hint.role === 'route') {
+          // Raw OSM way multiplicity does NOT establish route identity multiplicity
+          identityMultiplicity = 'UNKNOWN';
+        } else if (isAreaHint) {
+          // Single boundary candidate
+          identityMultiplicity = 'SINGLE';
+        } else {
+          // POI pool - legitimate identity candidates
+          const exactNameCount = countExactNormalizedMatches(
+            hint.name,
+            pool,
+            (c) => c.name,
+          );
+          identityMultiplicity = exactMatchCountToMultiplicity(exactNameCount);
+        }
         const resolvedEntity = this.buildOsmCandidate(
           hint,
           matched,
-          exactNameAmbiguous,
+          identityMultiplicity,
         );
         if (
           (
@@ -671,14 +686,15 @@ export class ExperienceProposalResolverService
             role: 'venue' as const,
             expectedKind: 'PLACE' as const,
           };
+          const exactNameCount = countExactNormalizedMatches(
+            correctedHint.name,
+            pois,
+            (candidate) => candidate.name,
+          );
           const resolvedEntity = this.buildOsmCandidate(
             correctedHint,
             venueFallbackMatch,
-            countExactNormalizedMatches(
-              correctedHint.name,
-              pois,
-              (candidate) => candidate.name,
-            ) > 1,
+            exactMatchCountToMultiplicity(exactNameCount),
           );
           entities.push(
             (
@@ -721,6 +737,7 @@ export class ExperienceProposalResolverService
         provider: 'openstreetmap',
         externalId: '',
         role: hint.role,
+        identityMultiplicity: 'UNKNOWN',
         status: 'unresolved',
         reason,
       });
@@ -818,7 +835,7 @@ export class ExperienceProposalResolverService
       wikidataQid: candidate.wikidataQid,
       nameAliasCandidates: candidate.nameAliasCandidates,
       addressConfirmed: candidate.addressConfirmed,
-      exactNameAmbiguous: candidate.exactNameAmbiguous,
+      identityMultiplicity: candidate.identityMultiplicity,
       adminContext: candidate.adminContext,
       status: 'resolved',
       geoEntityId: geo.id,
@@ -839,6 +856,7 @@ export class ExperienceProposalResolverService
       provider,
       externalId: '',
       role: hint.role,
+      identityMultiplicity: 'UNKNOWN',
       status: 'unresolved',
       reason: 'UNCONFIRMED_MATCH',
     };
@@ -847,7 +865,7 @@ export class ExperienceProposalResolverService
   private buildOsmCandidate(
     hint: any,
     matched: OsmCandidate,
-    exactNameAmbiguous: boolean,
+    identityMultiplicity: 'SINGLE' | 'MULTIPLE' | 'UNKNOWN',
   ): EntityCandidate {
     const kind =
       hint.expectedKind === 'ROUTE'
@@ -870,7 +888,7 @@ export class ExperienceProposalResolverService
       wikidataQid: extractWikidataQid(matched.tags),
       nameAliasCandidates: extractNameAliasCandidates(matched.tags),
       addressConfirmed: matchesAddressHint(hint.addressHint, matched.tags),
-      exactNameAmbiguous,
+      identityMultiplicity,
       persistenceMetadata: { tags: matched.tags },
     };
   }
@@ -890,8 +908,9 @@ export class ExperienceProposalResolverService
           : undefined,
       );
       const match = bestNominatimMatch(hint.name, results, destinationPoint);
-      const exactNameAmbiguous =
-        countNominatimExactMatches(hint.name, results) > 1;
+      const exactNameCount = countNominatimExactMatches(hint.name, results);
+      const identityMultiplicity =
+        exactMatchCountToMultiplicity(exactNameCount);
       if (
         !match ||
         !Number.isFinite(match.latitude) ||
@@ -922,11 +941,8 @@ export class ExperienceProposalResolverService
           hint.expectedKind === 'AREA'
             ? hint
             : { ...hint, role: 'area' as const, expectedKind: 'AREA' as const };
-        return this.buildOsmCandidate(
-          correctedHint,
-          boundary.value,
-          exactNameAmbiguous,
-        );
+        // Single Nominatim boundary candidate
+        return this.buildOsmCandidate(correctedHint, boundary.value, 'SINGLE');
       }
 
       if (!isPlaceScaleEligible(match)) return undefined;
@@ -954,7 +970,7 @@ export class ExperienceProposalResolverService
         longitude: match.longitude,
         geometry,
         role: correctedHint.role,
-        exactNameAmbiguous,
+        identityMultiplicity,
         adminContext: {
           country: match.address?.country,
           region: match.address?.state,
@@ -1139,9 +1155,9 @@ export class ExperienceProposalResolverService
       geometry,
       role: hint.role,
       // One acquisition-run observation identifies the fetched provider
-      // record, but never proves real-world uniqueness. Keep exact-name
-      // evidence ambiguous so IdentityVerifier requires independent proof.
-      exactNameAmbiguous: true,
+      // record, but never proves real-world uniqueness. Use UNKNOWN so
+      // IdentityVerifier requires independent corroboration.
+      identityMultiplicity: 'UNKNOWN',
       persistenceMetadata: { formattedAddress: details.formattedAddress },
     };
   }
@@ -1176,12 +1192,13 @@ export class ExperienceProposalResolverService
         result.data,
         destinationPoint,
       );
-      const exactNameAmbiguous =
-        countExactNormalizedMatches(
-          hint.name,
-          result.data,
-          (candidate) => candidate.displayName?.text || candidate.name,
-        ) > 1;
+      const exactNameCount = countExactNormalizedMatches(
+        hint.name,
+        result.data,
+        (candidate) => candidate.displayName?.text || candidate.name,
+      );
+      const identityMultiplicity =
+        exactMatchCountToMultiplicity(exactNameCount);
       if (
         !place?.location ||
         !Number.isFinite(place.location.latitude) ||
@@ -1211,7 +1228,7 @@ export class ExperienceProposalResolverService
         longitude: place.location.longitude,
         geometry,
         role: hint.role,
-        exactNameAmbiguous,
+        identityMultiplicity,
         persistenceMetadata: {
           formattedAddress: place.formattedAddress,
           types: place.types,

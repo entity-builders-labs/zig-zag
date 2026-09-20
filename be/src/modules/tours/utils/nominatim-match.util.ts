@@ -328,6 +328,23 @@ export function countNominatimExactMatches(
   }).length;
 }
 
+/**
+ * Canonical mapping from exact-match count to identity multiplicity.
+ * Use this everywhere an acquisition source legitimately has an
+ * identity-capable candidate set (e.g. Nominatim results, Places results,
+ * local OSM pool for PLACE/AREA). Raw OSM ROUTE ways MUST NOT use this.
+ *   0 -> UNKNOWN
+ *   1 -> SINGLE
+ *   >1 -> MULTIPLE
+ */
+export function exactMatchCountToMultiplicity(
+  count: number,
+): 'SINGLE' | 'MULTIPLE' | 'UNKNOWN' {
+  if (count === 1) return 'SINGLE';
+  if (count > 1) return 'MULTIPLE';
+  return 'UNKNOWN';
+}
+
 export function matchOsmCandidateByName(
   name: string,
   pool: OsmCandidate[],

@@ -47,10 +47,12 @@ export type ResolvedGeoEntityStatus = 'resolved' | 'unresolved';
  * hint's real-world identity. Acquisition and ranking may produce these
  * facts, but neither may declare an entity verified.
  */
+export type IdentityMultiplicity = 'SINGLE' | 'MULTIPLE' | 'UNKNOWN';
+
 export type IdentityEvidence =
-  | { type: 'EXACT_NAME'; ambiguous: boolean }
+  | { type: 'EXACT_NAME'; identityMultiplicity: IdentityMultiplicity }
   | { type: 'ADDRESS_MATCH' }
-  | { type: 'DECLARED_ALIAS_MATCH'; ambiguous: boolean }
+  | { type: 'DECLARED_ALIAS_MATCH'; identityMultiplicity: IdentityMultiplicity }
   | {
       type: 'WIKIDATA_IDENTITY_MATCH';
       source: 'OWN_QID' | 'OBSERVATION_QID' | 'NEARBY';
@@ -103,7 +105,7 @@ export interface EntityCandidate {
   wikidataQid?: string;
   nameAliasCandidates?: string[];
   addressConfirmed?: boolean;
-  exactNameAmbiguous?: boolean;
+  identityMultiplicity: IdentityMultiplicity;
   adminContext?: {
     country?: string;
     region?: string;
@@ -151,21 +153,15 @@ export interface ResolvedGeoEntity {
    */
   addressConfirmed?: boolean;
   /**
-   * True when the SELECTION step picked this entity from among 2+
-   * candidates whose normalized name ALL exactly equal the hint's own
-   * (a real chain/franchise, or two structurally unrelated real-world
-   * features sharing one literal name -- a landmark and a transit stop
-   * both called "Plaza de Mayo" is the live-verified case). Candidate
-   * ranking (closest, first-found, highest-importance) still picks ONE of
-   * them to try -- this flag only tells `IdentityVerifier` that an exact name
-   * match alone is not sufficient evidence for THIS entity, since ranking
-   * answers "which is the best candidate to try", never "is this candidate
-   * the correct real-world identity". Absent/
-   * false means the pool this entity came from had exactly one candidate
-   * whose name exactly matched -- an exact match remains strong evidence
-   * on its own in that case, unchanged from before this field existed.
+   * Identity multiplicity established at candidate selection time. SINGLE
+   * means the source had exactly one identity-capable exact-name candidate.
+   * MULTIPLE means the source had multiple; exact-name alone cannot choose.
+   * UNKNOWN means the source cannot establish multiplicity from available facts.
+   * This is NOT a provider-record-count enum — raw record multiplicity only
+   * maps to this fact when the records are valid identity candidates for the
+   * resolution policy. For raw OSM ROUTE ways, this is always UNKNOWN.
    */
-  exactNameAmbiguous?: boolean;
+  identityMultiplicity: IdentityMultiplicity;
   role: 'area' | 'waypoint' | 'route' | 'venue';
   expectedType?: string;
   status: ResolvedGeoEntityStatus;

@@ -22,29 +22,38 @@ export function buildLocalIdentityEvidence(
   candidate: EntityCandidate,
 ): IdentityEvidence[] {
   const evidence: IdentityEvidence[] = [];
-  const ambiguous = Boolean(candidate.exactNameAmbiguous);
+  const exactNameMultiplicity = candidate.identityMultiplicity;
 
   if (
     normalizeGeoName(candidate.canonicalName ?? '') ===
     normalizeGeoName(hint.name)
   ) {
-    evidence.push({ type: 'EXACT_NAME', ambiguous });
+    evidence.push({
+      type: 'EXACT_NAME',
+      identityMultiplicity: exactNameMultiplicity,
+    });
   }
 
   if (candidate.addressConfirmed) {
     evidence.push({ type: 'ADDRESS_MATCH' });
   }
 
-  if (
-    (candidate.nameAliasCandidates ?? []).some((alias) =>
-      hasSpecificNameOverlap(
-        normalizeGeoName(hint.name),
-        normalizeGeoName(alias),
-        { requireAllTokens: true },
-      ),
-    )
-  ) {
-    evidence.push({ type: 'DECLARED_ALIAS_MATCH', ambiguous });
+  // DECLARED_ALIAS_MATCH: aliases come from the specific candidate's own
+  // OSM tags (name:xx, alt_name, wikipedia). If the candidate has at least
+  // one matching alias, that is a direct declaration by the same real record
+  // -- not a pool-level ambiguity. Treat as SINGLE.
+  const hasMatchingAlias = (candidate.nameAliasCandidates ?? []).some((alias) =>
+    hasSpecificNameOverlap(
+      normalizeGeoName(hint.name),
+      normalizeGeoName(alias),
+      { requireAllTokens: true },
+    ),
+  );
+  if (hasMatchingAlias) {
+    evidence.push({
+      type: 'DECLARED_ALIAS_MATCH',
+      identityMultiplicity: 'SINGLE',
+    });
   }
 
   return evidence;

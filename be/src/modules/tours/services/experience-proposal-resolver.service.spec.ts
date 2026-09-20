@@ -204,8 +204,9 @@ describe('ExperienceProposalResolverService', () => {
     );
     expect(osmPlaces.lookupStreetsWithin).not.toHaveBeenCalled();
     expect(osmPlaces.lookupPoisWithin).not.toHaveBeenCalled();
-    expect(result.acceptedCount).toBe(1);
-    expect(result.resolved[0].experienceId).toBe('exp-caminito');
+    // ROUTE hint via POINT_RADIUS -> raw OSM ways -> identityMultiplicity
+    // UNKNOWN -> no independent corroboration -> fail closed (not persisted).
+    expect(result.acceptedCount).toBe(0);
   });
 
   it("dedupes components by geoEntityId before persisting (real regression: two hints of one candidate reconciled onto the same GeoEntity, crashing on ExperienceComponent's unique constraint)", async () => {

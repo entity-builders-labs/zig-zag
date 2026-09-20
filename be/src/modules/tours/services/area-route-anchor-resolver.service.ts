@@ -25,6 +25,7 @@ import {
   normalizeGeoName,
   countNominatimExactMatches,
   countExactNormalizedMatches,
+  exactMatchCountToMultiplicity,
 } from '../utils/nominatim-match.util';
 import {
   placesAcquisitionLabel,
@@ -68,7 +69,7 @@ interface AnchorGeoCandidate {
   longitude?: number;
   metadata?: Record<string, string>;
   placeTypes?: string[];
-  exactNameAmbiguous?: boolean;
+  identityMultiplicity: 'SINGLE' | 'MULTIPLE' | 'UNKNOWN';
   // Task A6 -- only set by discoverArea, for the real OSM way/relation
   // boundary lookupBoundaryById already returned.
   osmBoundary?: OsmCandidate;
@@ -258,7 +259,8 @@ export class AreaRouteAnchorResolverService {
                 type: 'Point',
                 coordinates: [match.longitude, match.latitude],
               },
-              exactNameAmbiguous: exactNameCount > 1,
+              identityMultiplicity:
+                exactMatchCountToMultiplicity(exactNameCount),
             },
           };
         }
@@ -321,7 +323,7 @@ export class AreaRouteAnchorResolverService {
             ...(place.primaryType ? [place.primaryType] : []),
             ...(place.types ?? []),
           ],
-          exactNameAmbiguous: exactNameCount > 1,
+          identityMultiplicity: exactMatchCountToMultiplicity(exactNameCount),
         },
       };
     } catch {
@@ -378,7 +380,7 @@ export class AreaRouteAnchorResolverService {
       longitude: candidate.longitude,
       geometry: candidate.geometry,
       role: candidate.kind,
-      exactNameAmbiguous: candidate.exactNameAmbiguous,
+      identityMultiplicity: candidate.identityMultiplicity,
       persistenceMetadata: candidate.metadata
         ? { tags: candidate.metadata }
         : undefined,
@@ -523,7 +525,7 @@ export class AreaRouteAnchorResolverService {
           geometry: boundary.value.geometry,
           metadata: boundary.value.tags,
           osmBoundary: boundary.value,
-          exactNameAmbiguous: exactNameCount > 1,
+          identityMultiplicity: exactMatchCountToMultiplicity(exactNameCount),
         },
       };
     } catch {
@@ -610,6 +612,7 @@ export class AreaRouteAnchorResolverService {
           longitude: point?.longitude,
           geometry: matched.geometry,
           metadata: matched.tags,
+          identityMultiplicity: 'UNKNOWN',
         },
       };
     } catch {

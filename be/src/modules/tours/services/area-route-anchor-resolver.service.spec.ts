@@ -595,13 +595,16 @@ describe('AreaRouteAnchorResolverService', () => {
         boundary: { id: 'osm:relation:1', name: 'Buenos Aires' },
       } as any);
 
+      // Single OSM way -> identityMultiplicity UNKNOWN -> no independent
+      // corroboration -> fail closed (not persisted).
       expect(result).toEqual(
         expect.objectContaining({
-          resolved: true,
-          geoEntityId: 'geo-caminito',
-          geometry: caminitoStreet.geometry,
+          resolved: false,
+          status: 'no_match',
+          reason: 'IDENTITY_NOT_VERIFIED',
         }),
       );
+      expect(catalog.upsertGeoEntity).not.toHaveBeenCalled();
       expect(osmPlaces.lookupStreetsWithin).toHaveBeenCalled();
       expect(osmPlaces.lookupStreetsNear).not.toHaveBeenCalled();
     });
@@ -628,7 +631,13 @@ describe('AreaRouteAnchorResolverService', () => {
         radiusMeters: 5000,
       });
 
-      expect(result.resolved).toBe(true);
+      // Single OSM way -> identityMultiplicity UNKNOWN -> no independent
+      // corroboration -> fail closed (not persisted).
+      expect(result.resolved).toBe(false);
+      expect((result as { resolved: false; reason?: string }).reason).toBe(
+        'IDENTITY_NOT_VERIFIED',
+      );
+      expect(catalog.upsertGeoEntity).not.toHaveBeenCalled();
       expect(osmPlaces.lookupStreetsNear).toHaveBeenCalledWith(
         -34.6,
         -58.4,
@@ -838,8 +847,8 @@ describe('AreaRouteAnchorResolverService', () => {
         expect.objectContaining({
           rawName: 'Ruta de los Siete Lagos',
           usage: 'named_path',
-          status: 'resolved',
-          canonicalName: 'Ruta de los Siete Lagos',
+          status: 'unresolved',
+          unresolvedReason: 'IDENTITY_NOT_VERIFIED',
         }),
         expect.objectContaining({
           rawName: 'Un lugar ambiguo',
@@ -993,14 +1002,17 @@ describe('AreaRouteAnchorResolverService', () => {
         boundary: { id: 'osm:relation:1', name: 'Buenos Aires' },
       } as any);
 
-      // Multiple same-name ways must NOT prevent resolution.
+      // Multiple same-name ways must NOT prevent resolution, but
+      // identity multiplicity is UNKNOWN for raw OSM ways. Without
+      // independent corroboration, verification fails closed.
       expect(result).toEqual(
         expect.objectContaining({
-          resolved: true,
-          geoEntityId: 'geo-caminito',
+          resolved: false,
+          status: 'no_match',
+          reason: 'IDENTITY_NOT_VERIFIED',
         }),
       );
-      expect(catalog.upsertGeoEntity).toHaveBeenCalled();
+      expect(catalog.upsertGeoEntity).not.toHaveBeenCalled();
     });
 
     it('Case E: duplicate exact Places names → ambiguous → not persisted', async () => {

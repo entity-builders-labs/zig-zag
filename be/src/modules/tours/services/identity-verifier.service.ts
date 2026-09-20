@@ -15,14 +15,17 @@ export class IdentityVerifier {
   ): VerificationDecision {
     const evidence = attempt.evidence;
     const exactName = this.evidenceOf(evidence, 'EXACT_NAME');
-    if (exactName && !exactName.ambiguous) return { status: 'VERIFIED' };
 
+    // ADDRESS_MATCH is always VERIFIED (address either matches or it doesn't)
     if (this.evidenceOf(evidence, 'ADDRESS_MATCH'))
       return { status: 'VERIFIED' };
 
+    // DECLARED_ALIAS_MATCH can VERIFY if SINGLE
     const alias = this.evidenceOf(evidence, 'DECLARED_ALIAS_MATCH');
-    if (alias && !alias.ambiguous) return { status: 'VERIFIED' };
+    if (alias && alias.identityMultiplicity === 'SINGLE')
+      return { status: 'VERIFIED' };
 
+    // WIKIDATA_IDENTITY_MATCH with both hint and candidate matched
     const wikidataMatch = this.evidenceOf(evidence, 'WIKIDATA_IDENTITY_MATCH');
     if (wikidataMatch) {
       return wikidataMatch.hintMatched && wikidataMatch.candidateMatched
@@ -30,11 +33,27 @@ export class IdentityVerifier {
         : { status: 'REJECTED' };
     }
 
+    // Now check EXACT_NAME
+    if (exactName) {
+      if (exactName.identityMultiplicity === 'SINGLE')
+        return { status: 'VERIFIED' };
+      if (exactName.identityMultiplicity === 'MULTIPLE') {
+        // EXACT_NAME MULTIPLE falls through to check other corroborating evidence
+        // but if no other evidence VERIFIES, we return AMBIGUOUS
+      }
+      // UNKNOWN falls through
+    }
+
     if (this.evidenceOf(evidence, 'WIKIDATA_UNAVAILABLE')) {
       return { status: 'INSUFFICIENT_EVIDENCE' };
     }
 
-    return exactName?.ambiguous || alias?.ambiguous
+    // If we reach here, no VERIFIED evidence was found
+    // Return AMBIGUOUS if any local evidence had MULTIPLE, else INSUFFICIENT_EVIDENCE
+    const hasMultiple =
+      exactName?.identityMultiplicity === 'MULTIPLE' ||
+      alias?.identityMultiplicity === 'MULTIPLE';
+    return hasMultiple
       ? { status: 'AMBIGUOUS' }
       : { status: 'INSUFFICIENT_EVIDENCE' };
   }
