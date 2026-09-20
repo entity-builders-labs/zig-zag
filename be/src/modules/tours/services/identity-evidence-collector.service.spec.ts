@@ -12,7 +12,7 @@ const candidate = (
   canonicalName: 'Cementerio de la Recoleta',
   kind: GeoEntityKind.PLACE,
   role: 'venue',
-  identityMultiplicity: 'SINGLE',
+  nameEvidenceMultiplicity: { exactName: 'SINGLE', declaredAlias: 'SINGLE' },
   ...overrides,
 });
 

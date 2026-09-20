@@ -1,25 +1,27 @@
 import { ResolutionAttempt } from '../interfaces/experience-resolution.interface';
 import { IdentityVerifier } from './identity-verifier.service';
+import { GeoEntityKind } from '@prisma/client';
 
-const candidate = (identityMultiplicity: 'SINGLE' | 'MULTIPLE' | 'UNKNOWN' = 'SINGLE') => ({
+const candidate = (exactName: 'SINGLE' | 'MULTIPLE' | 'UNKNOWN' = 'SINGLE', declaredAlias: 'SINGLE' | 'MULTIPLE' | 'UNKNOWN' = 'SINGLE') => ({
   hintKey: 'place',
   hintName: 'hint',
   provider: 'google_places',
   externalId: 'place-1',
   canonicalName: 'Recoleta Cemetery',
-  kind: 'PLACE' as any,
+  kind: GeoEntityKind.PLACE,
   role: 'venue',
-  identityMultiplicity,
+  nameEvidenceMultiplicity: { exactName, declaredAlias },
 });
 
 const attempt = (
   hintName: string,
   evidence: ResolutionAttempt['evidence'],
-  identityMultiplicity: 'SINGLE' | 'MULTIPLE' | 'UNKNOWN' = 'SINGLE',
+  exactName: 'SINGLE' | 'MULTIPLE' | 'UNKNOWN' = 'SINGLE',
+  declaredAlias: 'SINGLE' | 'MULTIPLE' | 'UNKNOWN' = 'SINGLE',
 ): ResolutionAttempt =>
   ({
     strategy: 'PLACES',
-    candidate: candidate(identityMultiplicity),
+    candidate: candidate(exactName, declaredAlias),
     evidence,
     hintName,
   }) as ResolutionAttempt;

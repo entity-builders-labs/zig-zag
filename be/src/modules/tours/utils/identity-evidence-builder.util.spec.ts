@@ -4,7 +4,7 @@ import { buildLocalIdentityEvidence } from './identity-evidence-builder.util';
 
 const candidate = (overrides: {
   canonicalName?: string;
-  identityMultiplicity?: 'SINGLE' | 'MULTIPLE' | 'UNKNOWN';
+  nameEvidenceMultiplicity?: { exactName: 'SINGLE' | 'MULTIPLE' | 'UNKNOWN'; declaredAlias: 'SINGLE' | 'MULTIPLE' | 'UNKNOWN' };
   nameAliasCandidates?: string[];
   addressConfirmed?: boolean;
 } = {}): EntityCandidate => ({
@@ -15,7 +15,7 @@ const candidate = (overrides: {
   canonicalName: 'Test Place',
   kind: GeoEntityKind.PLACE,
   role: 'venue',
-  identityMultiplicity: 'SINGLE',
+  nameEvidenceMultiplicity: { exactName: 'SINGLE', declaredAlias: 'SINGLE' },
   nameAliasCandidates: [],
   addressConfirmed: false,
   ...overrides,
@@ -25,7 +25,7 @@ describe('buildLocalIdentityEvidence', () => {
   it('B1: canonicalName exact match + SINGLE -> EXACT_NAME / SINGLE', () => {
     const evidence = buildLocalIdentityEvidence(
       { name: 'Test Place' },
-      candidate({ canonicalName: 'Test Place', identityMultiplicity: 'SINGLE' }),
+      candidate({ canonicalName: 'Test Place', nameEvidenceMultiplicity: { exactName: 'SINGLE', declaredAlias: 'SINGLE' } }),
     );
     expect(evidence).toEqual([
       { type: 'EXACT_NAME', identityMultiplicity: 'SINGLE' },
@@ -35,7 +35,7 @@ describe('buildLocalIdentityEvidence', () => {
   it('B2: canonicalName exact match + MULTIPLE -> EXACT_NAME / MULTIPLE', () => {
     const evidence = buildLocalIdentityEvidence(
       { name: 'Test Place' },
-      candidate({ canonicalName: 'Test Place', identityMultiplicity: 'MULTIPLE' }),
+      candidate({ canonicalName: 'Test Place', nameEvidenceMultiplicity: { exactName: 'MULTIPLE', declaredAlias: 'SINGLE' } }),
     );
     expect(evidence).toEqual([
       { type: 'EXACT_NAME', identityMultiplicity: 'MULTIPLE' },
@@ -45,7 +45,7 @@ describe('buildLocalIdentityEvidence', () => {
   it('B3: canonicalName exact match + UNKNOWN -> EXACT_NAME / UNKNOWN', () => {
     const evidence = buildLocalIdentityEvidence(
       { name: 'Test Place' },
-      candidate({ canonicalName: 'Test Place', identityMultiplicity: 'UNKNOWN' }),
+      candidate({ canonicalName: 'Test Place', nameEvidenceMultiplicity: { exactName: 'UNKNOWN', declaredAlias: 'SINGLE' } }),
     );
     expect(evidence).toEqual([
       { type: 'EXACT_NAME', identityMultiplicity: 'UNKNOWN' },
@@ -57,7 +57,7 @@ describe('buildLocalIdentityEvidence', () => {
       { name: 'Defensa Street' },
       candidate({
         canonicalName: 'Defensa',
-        identityMultiplicity: 'UNKNOWN',
+        nameEvidenceMultiplicity: { exactName: 'UNKNOWN', declaredAlias: 'UNKNOWN' },
         nameAliasCandidates: ['Defensa Street'],
       }),
     );
@@ -71,7 +71,7 @@ describe('buildLocalIdentityEvidence', () => {
       { name: 'Defensa Street' },
       candidate({
         canonicalName: 'Defensa',
-        identityMultiplicity: 'MULTIPLE',
+        nameEvidenceMultiplicity: { exactName: 'UNKNOWN', declaredAlias: 'MULTIPLE' },
         nameAliasCandidates: ['Defensa Street'],
       }),
     );
@@ -85,7 +85,7 @@ describe('buildLocalIdentityEvidence', () => {
       { name: 'Defensa Street' },
       candidate({
         canonicalName: 'Defensa',
-        identityMultiplicity: 'SINGLE',
+        nameEvidenceMultiplicity: { exactName: 'UNKNOWN', declaredAlias: 'SINGLE' },
         nameAliasCandidates: ['Defensa Street'],
       }),
     );
@@ -97,7 +97,7 @@ describe('buildLocalIdentityEvidence', () => {
   it('addressConfirmed adds ADDRESS_MATCH regardless of multiplicity', () => {
     const evidence = buildLocalIdentityEvidence(
       { name: 'Test Place' },
-      candidate({ canonicalName: 'Test Place', identityMultiplicity: 'MULTIPLE', addressConfirmed: true }),
+      candidate({ canonicalName: 'Test Place', nameEvidenceMultiplicity: { exactName: 'MULTIPLE', declaredAlias: 'SINGLE' }, addressConfirmed: true }),
     );
     expect(evidence).toContainEqual({ type: 'ADDRESS_MATCH' });
     expect(evidence).toContainEqual({ type: 'EXACT_NAME', identityMultiplicity: 'MULTIPLE' });
@@ -111,12 +111,12 @@ describe('buildLocalIdentityEvidence', () => {
     expect(evidence).toEqual([]);
   });
 
-  it('exact name + alias both present -> both evidence types with same multiplicity', () => {
+  it('exact name + alias both present -> both evidence types with correct multiplicities', () => {
     const evidence = buildLocalIdentityEvidence(
       { name: 'Test Place' },
       candidate({
         canonicalName: 'Test Place',
-        identityMultiplicity: 'MULTIPLE',
+        nameEvidenceMultiplicity: { exactName: 'MULTIPLE', declaredAlias: 'MULTIPLE' },
         nameAliasCandidates: ['Test Place Alias'],
       }),
     );

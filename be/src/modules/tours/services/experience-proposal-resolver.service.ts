@@ -28,9 +28,10 @@ import {
 } from '../interfaces/experience-resolution.interface';
 import {
   bestNominatimMatch,
+  candidateMatchCountToMultiplicity,
+  countAliasMatches,
   countExactNormalizedMatches,
   countNominatimExactMatches,
-  exactMatchCountToMultiplicity,
   isAreaScaleEligible,
   isPlaceScaleEligible,
   matchesAddressHint,
@@ -549,13 +550,16 @@ export class ExperienceProposalResolverService
       let unconfirmedLocalMatch: ResolvedGeoEntity | undefined;
       let unconfirmedGlobalMatch: ResolvedGeoEntity | undefined;
       if (matched) {
-        let identityMultiplicity: 'SINGLE' | 'MULTIPLE' | 'UNKNOWN';
+        let nameMultiplicity: {
+          exactName: 'SINGLE' | 'MULTIPLE' | 'UNKNOWN';
+          declaredAlias: 'SINGLE' | 'MULTIPLE' | 'UNKNOWN';
+        };
         if (hint.expectedKind === 'ROUTE' || hint.role === 'route') {
           // Raw OSM way multiplicity does NOT establish route identity multiplicity
-          identityMultiplicity = 'UNKNOWN';
+          nameMultiplicity = { exactName: 'UNKNOWN', declaredAlias: 'UNKNOWN' };
         } else if (isAreaHint) {
-          // Single boundary candidate
-          identityMultiplicity = 'SINGLE';
+          // Single boundary candidate - no alias pool for boundary candidates
+          nameMultiplicity = { exactName: 'SINGLE', declaredAlias: 'UNKNOWN' };
         } else {
           // POI pool - legitimate identity candidates
           const exactNameCount = countExactNormalizedMatches(
@@ -563,12 +567,16 @@ export class ExperienceProposalResolverService
             pool,
             (c) => c.name,
           );
-          identityMultiplicity = exactMatchCountToMultiplicity(exactNameCount);
+          const aliasMatchCount = countAliasMatches(hint.name, pool);
+          nameMultiplicity = {
+            exactName: candidateMatchCountToMultiplicity(exactNameCount),
+            declaredAlias: candidateMatchCountToMultiplicity(aliasMatchCount),
+          };
         }
         const resolvedEntity = this.buildOsmCandidate(
           hint,
           matched,
-          identityMultiplicity,
+          nameMultiplicity,
         );
         if (
           (
@@ -691,10 +699,14 @@ export class ExperienceProposalResolverService
             pois,
             (candidate) => candidate.name,
           );
+          const aliasMatchCount = countAliasMatches(correctedHint.name, pois);
           const resolvedEntity = this.buildOsmCandidate(
             correctedHint,
             venueFallbackMatch,
-            exactMatchCountToMultiplicity(exactNameCount),
+            {
+              exactName: candidateMatchCountToMultiplicity(exactNameCount),
+              declaredAlias: candidateMatchCountToMultiplicity(aliasMatchCount),
+            },
           );
           entities.push(
             (
@@ -737,7 +749,10 @@ export class ExperienceProposalResolverService
         provider: 'openstreetmap',
         externalId: '',
         role: hint.role,
-        identityMultiplicity: 'UNKNOWN',
+        nameEvidenceMultiplicity: {
+          exactName: 'UNKNOWN',
+          declaredAlias: 'UNKNOWN',
+        },
         status: 'unresolved',
         reason,
       });
@@ -835,7 +850,7 @@ export class ExperienceProposalResolverService
       wikidataQid: candidate.wikidataQid,
       nameAliasCandidates: candidate.nameAliasCandidates,
       addressConfirmed: candidate.addressConfirmed,
-      identityMultiplicity: candidate.identityMultiplicity,
+      nameEvidenceMultiplicity: candidate.nameEvidenceMultiplicity,
       adminContext: candidate.adminContext,
       status: 'resolved',
       geoEntityId: geo.id,
@@ -856,7 +871,10 @@ export class ExperienceProposalResolverService
       provider,
       externalId: '',
       role: hint.role,
-      identityMultiplicity: 'UNKNOWN',
+      nameEvidenceMultiplicity: {
+        exactName: 'UNKNOWN',
+        declaredAlias: 'UNKNOWN',
+      },
       status: 'unresolved',
       reason: 'UNCONFIRMED_MATCH',
     };
@@ -865,7 +883,10 @@ export class ExperienceProposalResolverService
   private buildOsmCandidate(
     hint: any,
     matched: OsmCandidate,
-    identityMultiplicity: 'SINGLE' | 'MULTIPLE' | 'UNKNOWN',
+    nameMultiplicity: {
+      exactName: 'SINGLE' | 'MULTIPLE' | 'UNKNOWN';
+      declaredAlias: 'SINGLE' | 'MULTIPLE' | 'UNKNOWN';
+    },
   ): EntityCandidate {
     const kind =
       hint.expectedKind === 'ROUTE'
@@ -888,7 +909,7 @@ export class ExperienceProposalResolverService
       wikidataQid: extractWikidataQid(matched.tags),
       nameAliasCandidates: extractNameAliasCandidates(matched.tags),
       addressConfirmed: matchesAddressHint(hint.addressHint, matched.tags),
-      identityMultiplicity,
+      nameEvidenceMultiplicity: nameMultiplicity,
       persistenceMetadata: { tags: matched.tags },
     };
   }
@@ -909,8 +930,10 @@ export class ExperienceProposalResolverService
       );
       const match = bestNominatimMatch(hint.name, results, destinationPoint);
       const exactNameCount = countNominatimExactMatches(hint.name, results);
-      const identityMultiplicity =
-        exactMatchCountToMultiplicity(exactNameCount);
+      const nameMultiplicity = {
+        exactName: candidateMatchCountToMultiplicity(exactNameCount),
+        declaredAlias: 'UNKNOWN' as const,
+      };
       if (
         !match ||
         !Number.isFinite(match.latitude) ||
@@ -944,11 +967,10 @@ export class ExperienceProposalResolverService
         // Pass through the identity multiplicity established from the
         // Nominatim exact-match count; hydrating the boundary does not
         // change the identity multiplicity of the original candidate set.
-        return this.buildOsmCandidate(
-          correctedHint,
-          boundary.value,
-          identityMultiplicity,
-        );
+        return this.buildOsmCandidate(correctedHint, boundary.value, {
+          exactName: nameMultiplicity.exactName,
+          declaredAlias: 'UNKNOWN',
+        });
       }
 
       if (!isPlaceScaleEligible(match)) return undefined;
@@ -976,7 +998,7 @@ export class ExperienceProposalResolverService
         longitude: match.longitude,
         geometry,
         role: correctedHint.role,
-        identityMultiplicity,
+        nameEvidenceMultiplicity: nameMultiplicity,
         adminContext: {
           country: match.address?.country,
           region: match.address?.state,
@@ -1163,7 +1185,10 @@ export class ExperienceProposalResolverService
       // One acquisition-run observation identifies the fetched provider
       // record, but never proves real-world uniqueness. Use UNKNOWN so
       // IdentityVerifier requires independent corroboration.
-      identityMultiplicity: 'UNKNOWN',
+      nameEvidenceMultiplicity: {
+        exactName: 'UNKNOWN',
+        declaredAlias: 'UNKNOWN',
+      },
       persistenceMetadata: { formattedAddress: details.formattedAddress },
     };
   }
@@ -1203,8 +1228,10 @@ export class ExperienceProposalResolverService
         result.data,
         (candidate) => candidate.displayName?.text || candidate.name,
       );
-      const identityMultiplicity =
-        exactMatchCountToMultiplicity(exactNameCount);
+      const nameMultiplicity = {
+        exactName: candidateMatchCountToMultiplicity(exactNameCount),
+        declaredAlias: 'UNKNOWN' as const,
+      };
       if (
         !place?.location ||
         !Number.isFinite(place.location.latitude) ||
@@ -1234,7 +1261,7 @@ export class ExperienceProposalResolverService
         longitude: place.location.longitude,
         geometry,
         role: hint.role,
-        identityMultiplicity,
+        nameEvidenceMultiplicity: nameMultiplicity,
         persistenceMetadata: {
           formattedAddress: place.formattedAddress,
           types: place.types,

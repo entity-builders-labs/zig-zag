@@ -20,12 +20,12 @@ import {
 import { ExperienceCatalogService } from './experience-catalog.service';
 import {
   bestNominatimMatch,
+  candidateMatchCountToMultiplicity,
   isAreaScaleEligible,
   matchOsmCandidateByName,
   normalizeGeoName,
   countNominatimExactMatches,
   countExactNormalizedMatches,
-  exactMatchCountToMultiplicity,
 } from '../utils/nominatim-match.util';
 import {
   placesAcquisitionLabel,
@@ -69,7 +69,10 @@ interface AnchorGeoCandidate {
   longitude?: number;
   metadata?: Record<string, string>;
   placeTypes?: string[];
-  identityMultiplicity: 'SINGLE' | 'MULTIPLE' | 'UNKNOWN';
+  nameEvidenceMultiplicity: {
+    exactName: 'SINGLE' | 'MULTIPLE' | 'UNKNOWN';
+    declaredAlias: 'SINGLE' | 'MULTIPLE' | 'UNKNOWN';
+  };
   // Task A6 -- only set by discoverArea, for the real OSM way/relation
   // boundary lookupBoundaryById already returned.
   osmBoundary?: OsmCandidate;
@@ -259,8 +262,10 @@ export class AreaRouteAnchorResolverService {
                 type: 'Point',
                 coordinates: [match.longitude, match.latitude],
               },
-              identityMultiplicity:
-                exactMatchCountToMultiplicity(exactNameCount),
+              nameEvidenceMultiplicity: {
+                exactName: candidateMatchCountToMultiplicity(exactNameCount),
+                declaredAlias: 'UNKNOWN',
+              },
             },
           };
         }
@@ -323,7 +328,10 @@ export class AreaRouteAnchorResolverService {
             ...(place.primaryType ? [place.primaryType] : []),
             ...(place.types ?? []),
           ],
-          identityMultiplicity: exactMatchCountToMultiplicity(exactNameCount),
+          nameEvidenceMultiplicity: {
+            exactName: candidateMatchCountToMultiplicity(exactNameCount),
+            declaredAlias: 'UNKNOWN',
+          },
         },
       };
     } catch {
@@ -380,7 +388,7 @@ export class AreaRouteAnchorResolverService {
       longitude: candidate.longitude,
       geometry: candidate.geometry,
       role: candidate.kind,
-      identityMultiplicity: candidate.identityMultiplicity,
+      nameEvidenceMultiplicity: candidate.nameEvidenceMultiplicity,
       persistenceMetadata: candidate.metadata
         ? { tags: candidate.metadata }
         : undefined,
@@ -525,7 +533,10 @@ export class AreaRouteAnchorResolverService {
           geometry: boundary.value.geometry,
           metadata: boundary.value.tags,
           osmBoundary: boundary.value,
-          identityMultiplicity: exactMatchCountToMultiplicity(exactNameCount),
+          nameEvidenceMultiplicity: {
+            exactName: candidateMatchCountToMultiplicity(exactNameCount),
+            declaredAlias: 'UNKNOWN',
+          },
         },
       };
     } catch {
@@ -612,7 +623,10 @@ export class AreaRouteAnchorResolverService {
           longitude: point?.longitude,
           geometry: matched.geometry,
           metadata: matched.tags,
-          identityMultiplicity: 'UNKNOWN',
+          nameEvidenceMultiplicity: {
+            exactName: 'UNKNOWN',
+            declaredAlias: 'UNKNOWN',
+          },
         },
       };
     } catch {

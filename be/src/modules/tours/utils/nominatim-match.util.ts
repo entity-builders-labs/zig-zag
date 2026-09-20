@@ -329,7 +329,7 @@ export function countNominatimExactMatches(
 }
 
 /**
- * Canonical mapping from exact-match count to identity multiplicity.
+ * Canonical mapping from candidate-match count to identity multiplicity.
  * Use this everywhere an acquisition source legitimately has an
  * identity-capable candidate set (e.g. Nominatim results, Places results,
  * local OSM pool for PLACE/AREA). Raw OSM ROUTE ways MUST NOT use this.
@@ -337,12 +337,84 @@ export function countNominatimExactMatches(
  *   1 -> SINGLE
  *   >1 -> MULTIPLE
  */
-export function exactMatchCountToMultiplicity(
+export function candidateMatchCountToMultiplicity(
   count: number,
 ): 'SINGLE' | 'MULTIPLE' | 'UNKNOWN' {
   if (count === 1) return 'SINGLE';
   if (count > 1) return 'MULTIPLE';
   return 'UNKNOWN';
+}
+
+/**
+ * @deprecated Use candidateMatchCountToMultiplicity instead.
+ * Kept for backward compatibility during migration.
+ */
+export const exactMatchCountToMultiplicity = candidateMatchCountToMultiplicity;
+
+/**
+ * Counts how many candidates in the pool have an OWN declared alias that matches
+ * the hint name according to the canonical alias-match policy (hasSpecificNameOverlap
+ * with requireAllTokens: true). This is the canonical way to establish alias multiplicity.
+ *
+ * Use this only for legitimate identity-capable candidate pools (e.g., local OSM PLACE pool).
+ * Raw OSM ROUTE ways MUST NOT use this.
+ *   0 -> UNKNOWN
+ *   1 -> SINGLE
+ *   >1 -> MULTIPLE
+ */
+export function countAliasMatches(
+  hintName: string,
+  pool: Array<{
+    tags?: Record<string, string>;
+    nameAliasCandidates?: string[];
+  }>,
+): number {
+  const needle = normalizeGeoName(hintName);
+  if (!needle) return 0;
+  return pool.filter((candidate) => {
+    // Extract aliases from tags if available, otherwise use pre-extracted nameAliasCandidates
+    const aliases =
+      candidate.nameAliasCandidates ?? extractAliasesFromTags(candidate.tags);
+    return aliases.some((alias) =>
+      hasSpecificNameOverlap(needle, normalizeGeoName(alias), {
+        requireAllTokens: true,
+      }),
+    );
+  }).length;
+}
+
+/**
+ * Extracts alias candidates from OSM tags.
+ * Uses the same logic as extractNameAliasCandidates but returns just the strings.
+ */
+function extractAliasesFromTags(tags?: Record<string, string>): string[] {
+  if (!tags) return [];
+  const candidates: string[] = [];
+  const NAME_ALIAS_TAG_KEYS = new Set([
+    'official_name',
+    'alt_name',
+    'short_name',
+    'loc_name',
+  ]);
+  for (const [key, value] of Object.entries(tags)) {
+    if (!value) continue;
+    if (key.startsWith('name:') || NAME_ALIAS_TAG_KEYS.has(key)) {
+      for (const part of value.split(';')) {
+        const trimmed = part.trim();
+        if (trimmed) candidates.push(trimmed);
+      }
+    }
+  }
+  const wikipediaTag = tags.wikipedia?.trim();
+  if (wikipediaTag) {
+    const separatorIndex = wikipediaTag.indexOf(':');
+    const title =
+      separatorIndex > 0
+        ? wikipediaTag.slice(separatorIndex + 1).trim()
+        : wikipediaTag;
+    if (title) candidates.push(title);
+  }
+  return candidates.length > 0 ? candidates : [];
 }
 
 export function matchOsmCandidateByName(

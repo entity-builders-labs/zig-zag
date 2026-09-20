@@ -49,6 +49,16 @@ export type ResolvedGeoEntityStatus = 'resolved' | 'unresolved';
  */
 export type IdentityMultiplicity = 'SINGLE' | 'MULTIPLE' | 'UNKNOWN';
 
+/**
+ * Evidence-specific name multiplicities.
+ * EXACT_NAME and DECLARED_ALIAS_MATCH can have different multiplicities
+ * because they depend on different candidate pools and matching rules.
+ */
+export interface NameEvidenceMultiplicity {
+  exactName: IdentityMultiplicity;
+  declaredAlias: IdentityMultiplicity;
+}
+
 export type IdentityEvidence =
   | { type: 'EXACT_NAME'; identityMultiplicity: IdentityMultiplicity }
   | { type: 'ADDRESS_MATCH' }
@@ -105,7 +115,7 @@ export interface EntityCandidate {
   wikidataQid?: string;
   nameAliasCandidates?: string[];
   addressConfirmed?: boolean;
-  identityMultiplicity: IdentityMultiplicity;
+  nameEvidenceMultiplicity: NameEvidenceMultiplicity;
   adminContext?: {
     country?: string;
     region?: string;
@@ -153,15 +163,12 @@ export interface ResolvedGeoEntity {
    */
   addressConfirmed?: boolean;
   /**
-   * Identity multiplicity established at candidate selection time. SINGLE
-   * means the source had exactly one identity-capable exact-name candidate.
-   * MULTIPLE means the source had multiple; exact-name alone cannot choose.
-   * UNKNOWN means the source cannot establish multiplicity from available facts.
-   * This is NOT a provider-record-count enum — raw record multiplicity only
-   * maps to this fact when the records are valid identity candidates for the
-   * resolution policy. For raw OSM ROUTE ways, this is always UNKNOWN.
+   * Evidence-specific name multiplicities established at candidate selection time.
+   * exactName: SINGLE means the source had exactly one identity-capable exact-name candidate.
+   * declaredAlias: SINGLE means the source had exactly one identity-capable alias-matching candidate.
+   * MULTIPLE/UNKNOWN have analogous meanings. For raw OSM ROUTE ways, both are UNKNOWN.
    */
-  identityMultiplicity: IdentityMultiplicity;
+  nameEvidenceMultiplicity: NameEvidenceMultiplicity;
   role: 'area' | 'waypoint' | 'route' | 'venue';
   expectedType?: string;
   status: ResolvedGeoEntityStatus;
