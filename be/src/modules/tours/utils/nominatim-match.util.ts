@@ -294,7 +294,7 @@ export function hasSpecificNameOverlap(
  * `selectBestPlaceCandidate`, `bestNominatimMatch`) still pick ONE
  * candidate to try when this is > 1 -- this only tells the caller whether
  * that pick came from an unambiguous pool (count === 1, exact match alone
- * remains strong evidence) or an ambiguous one (count > 1, `confirmMatch`
+ * remains strong evidence) or an ambiguous one (count > 1, `IdentityVerifier`
  * must require independent evidence beyond the name match itself).
  */
 export function countExactNormalizedMatches<T>(

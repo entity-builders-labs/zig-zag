@@ -41,6 +41,39 @@ export type GeographicScope =
 
 export type ResolvedGeoEntityStatus = 'resolved' | 'unresolved';
 
+/**
+ * Provider-normalized facts used to decide whether an acquired entity is the
+ * hint's real-world identity. Acquisition and ranking may produce these
+ * facts, but neither may declare an entity verified.
+ */
+export type IdentityEvidence =
+  | { type: 'EXACT_NAME'; ambiguous: boolean }
+  | { type: 'ADDRESS_MATCH' }
+  | { type: 'DECLARED_ALIAS_MATCH'; ambiguous: boolean }
+  | { type: 'OWN_WIKIDATA_QID'; qid: string }
+  | { type: 'OBSERVATION_WIKIDATA_QID'; qid: string }
+  | { type: 'CANDIDATE_COORDINATES'; latitude: number; longitude: number };
+
+export type ResolutionStrategy =
+  | 'TRUSTED_OBSERVATION_REUSE'
+  | 'LOCAL_OSM_POOL'
+  | 'NOMINATIM'
+  | 'PLACES'
+  | 'AREA_TO_PLACE_CORRECTION';
+
+/** A selected candidate plus facts; deliberately not a verification verdict. */
+export interface ResolutionAttempt {
+  strategy: ResolutionStrategy;
+  candidate: ResolvedGeoEntity;
+  evidence: IdentityEvidence[];
+}
+
+export type VerificationDecision =
+  | { status: 'VERIFIED' }
+  | { status: 'AMBIGUOUS' }
+  | { status: 'INSUFFICIENT_EVIDENCE' }
+  | { status: 'REJECTED' };
+
 export interface ResolvedGeoEntity {
   hintKey: string;
   hintName: string;
@@ -56,14 +89,14 @@ export interface ResolvedGeoEntity {
    * Present only for an OSM-sourced entity whose node/way/relation itself
    * carries a `wikidata=Qxxxx` tag. A direct, provider-declared structural
    * cross-reference — not something derived by name/proximity search — so
-   * confirmMatch trusts it over the geo-proximity fallback when present.
+   * IdentityVerifier trusts it over the geo-proximity fallback when present.
    */
   wikidataQid?: string;
   /**
    * Present only for an OSM-sourced entity: every other name its own tags
    * declare (`name:xx`, `official_name`, `alt_name`, `short_name`,
    * `loc_name`, plus the title inside a `wikipedia=xx:Title` tag).
-   * confirmMatch checks these before any network call -- a direct
+   * IdentityVerifier checks these before any network call -- a direct
    * declaration by the same real OSM record, not an independent
    * cross-reference lookup.
    */
@@ -73,7 +106,7 @@ export interface ResolvedGeoEntity {
    * discovery evidence explicitly gave) matched THIS candidate's own
    * `addr:housenumber`/`addr:street` tags exactly. Computed once at
    * persistOsmEntity time (both the hint and the raw OSM tags are in
-   * scope there); confirmMatch trusts this outright, same tier as an
+   * scope there); IdentityVerifier trusts this outright, same tier as an
    * exact name match -- an address either matches or it doesn't.
    */
   addressConfirmed?: boolean;
@@ -84,7 +117,7 @@ export interface ResolvedGeoEntity {
    * features sharing one literal name -- a landmark and a transit stop
    * both called "Plaza de Mayo" is the live-verified case). Candidate
    * ranking (closest, first-found, highest-importance) still picks ONE of
-   * them to try -- this flag only tells `confirmMatch` that an exact name
+   * them to try -- this flag only tells `IdentityVerifier` that an exact name
    * match alone is not sufficient evidence for THIS entity, since ranking
    * answers "which is the best candidate to try", never "is this candidate
    * the correct real-world identity" (P0.2's central distinction). Absent/
@@ -154,7 +187,7 @@ export interface ExperienceResolutionRequest {
    * Sibling of `candidates`, never merged into a `GeoEntityHint` itself --
    * `GeoEntityHint`'s shape is also the LLM discovery extractor's JSON
    * contract, and this data must never be reachable from that path.
-   * `confirmMatch` looks up a hint's own `canonicalIdentity.wikidataQid`
+   * `IdentityVerifier` looks up a hint's own `canonicalIdentity.wikidataQid`
    * here (by matching `evidenceKeys`) as an independent, provider-sourced
    * identity signal alongside an OSM candidate's own `wikidata` tag --
    * both a real cross-reference to Wikidata, never a guess. Absent for

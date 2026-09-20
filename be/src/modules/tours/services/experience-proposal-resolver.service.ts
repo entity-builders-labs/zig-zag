@@ -19,8 +19,11 @@ import {
   ExperienceProposalResolver,
   ExperienceResolutionRequest,
   FinalExperienceResolutionResponse,
+  IdentityEvidence,
   ResolvedExperienceCandidate,
   ResolvedGeoEntity,
+  ResolutionAttempt,
+  ResolutionStrategy,
 } from '../interfaces/experience-resolution.interface';
 import {
   bestNominatimMatch,
@@ -44,16 +47,7 @@ import {
   canonicalPlacesExternalId,
   placesAcquisitionLabel,
 } from '../utils/places-external-identity.util';
-
-/**
- * Real margin above the live-validated MALBA distance (~50-80m between the
- * OSM-derived point and Wikidata's own point for the same real place),
- * small enough that two genuinely different nearby venues won't spuriously
- * confirm each other. Not tuned to any specific fixture. See
- * docs/superpowers/plans/2026-09-17-cross-source-confirmation-and-tripadvisor-volume.md
- * Task A3.
- */
-const CONFIRMATION_RADIUS_METERS = 200;
+import { IdentityVerifier } from './identity-verifier.service';
 
 // OSM's `wikidata` tag is normally a single QID, but real-world tagging data
 // is community-edited and occasionally holds a `;`-separated list (multiple
@@ -124,7 +118,7 @@ function extractNameAliasCandidates(
  * the same distance-first tie-break `bestNominatimMatch` already uses
  * elsewhere in this module. Falls back to rank-0 only when no result's
  * name matches the hint at all, preserving prior behavior for the fuzzy
- * case (still independently confirmed afterward by `confirmMatch`).
+ * case (still independently verified afterward by `IdentityVerifier`).
  */
 function selectBestPlaceCandidate(
   hintName: string,
@@ -214,6 +208,7 @@ export class ExperienceProposalResolverService
   implements ExperienceProposalResolver
 {
   private readonly logger = new Logger(ExperienceProposalResolverService.name);
+  private readonly identityVerifier: IdentityVerifier;
 
   constructor(
     private readonly osmPlaces: OsmPlacesService,
@@ -230,7 +225,9 @@ export class ExperienceProposalResolverService
     @Optional()
     @Inject('WikidataApiService')
     private readonly wikidata?: IWikidataApiService,
-  ) {}
+  ) {
+    this.identityVerifier = new IdentityVerifier(wikidata);
+  }
 
   async resolve(
     input: ExperienceResolutionRequest,
@@ -509,7 +506,7 @@ export class ExperienceProposalResolverService
       // run's structured acquisition already gathered an unambiguous,
       // in-scope, still-live identity for this exact hint, reuse it
       // instead of re-discovering it from scratch. Never a special
-      // confirmation path: `confirmMatch` here is the SAME call every
+      // verification path: `IdentityVerifier` here is the SAME authority every
       // other candidate goes through below. A `false`/`undefined` result
       // is never terminal -- falls straight into the unchanged pipeline.
       const reuseCandidate = await this.resolveViaTrustedObservation(
@@ -519,7 +516,12 @@ export class ExperienceProposalResolverService
       );
       if (
         reuseCandidate &&
-        (await this.confirmMatch(reuseCandidate, hint, observations))
+        (await this.isVerified(
+          'TRUSTED_OBSERVATION_REUSE',
+          reuseCandidate,
+          hint,
+          observations,
+        ))
       ) {
         entities.push(reuseCandidate);
         continue;
@@ -550,7 +552,14 @@ export class ExperienceProposalResolverService
           matched,
           exactNameAmbiguous,
         );
-        if (await this.confirmMatch(resolvedEntity, hint, observations)) {
+        if (
+          await this.isVerified(
+            'LOCAL_OSM_POOL',
+            resolvedEntity,
+            hint,
+            observations,
+          )
+        ) {
           entities.push(resolvedEntity);
           continue;
         }
@@ -560,7 +569,7 @@ export class ExperienceProposalResolverService
         // in the local pool at all (e.g. "Puerto Madero", an administrative
         // boundary, can never show up in the venue-only local POI pool) --
         // may still be found through the independent global (Nominatim)
-        // path below. This never loosens confirmMatch: the global
+        // path below. This never loosens identity verification: the global
         // candidate goes through the exact same strict gate; it only gives
         // the hint a second, independent source to be found in. Kept
         // (rather than discarded) so a rejected local match is still the
@@ -578,7 +587,14 @@ export class ExperienceProposalResolverService
           this.representativePoint(boundary),
         );
         if (nominatimResolved) {
-          if (await this.confirmMatch(nominatimResolved, hint, observations)) {
+          if (
+            await this.isVerified(
+              'NOMINATIM',
+              nominatimResolved,
+              hint,
+              observations,
+            )
+          ) {
             entities.push(nominatimResolved);
             continue;
           }
@@ -603,7 +619,9 @@ export class ExperienceProposalResolverService
           this.representativePoint(boundary),
         );
         if (placesResolved) {
-          if (await this.confirmMatch(placesResolved, hint, observations)) {
+          if (
+            await this.isVerified('PLACES', placesResolved, hint, observations)
+          ) {
             entities.push(placesResolved);
             continue;
           }
@@ -622,7 +640,7 @@ export class ExperienceProposalResolverService
       // Retry once against that pool, as a venue, before giving up. Never
       // widens what counts as a match or loosens confirmation -- the
       // corrected entity still goes through the exact same
-      // matchOsmCandidateByName + confirmMatch gate a genuine venue hint
+      // matchOsmCandidateByName + IdentityVerifier gate a genuine venue hint
       // does; this only gives the hint a second, correctly-scoped pool to
       // be found in.
       if (isAreaHint) {
@@ -647,7 +665,8 @@ export class ExperienceProposalResolverService
             ) > 1,
           );
           entities.push(
-            (await this.confirmMatch(
+            (await this.isVerified(
+              'AREA_TO_PLACE_CORRECTION',
               resolvedEntity,
               correctedHint,
               observations,
@@ -730,279 +749,59 @@ export class ExperienceProposalResolverService
     };
   }
 
-  /**
-   * Task A3 (2026-09-17 cross-source confirmation plan): a match is only
-   * as trustworthy as its identity evidence. Exact name equality in the
-   * correct pool is strong enough on its own — never a false positive.
-   * Anything short of that (the fuzzy token-overlap path Task 2 already
-   * requires for ANY match at all) must be independently corroborated by
-   * a genuinely separate database before it counts as resolved. A
-   * provider outage is "cannot confirm", never "confirmed absent" — the
-   * caller must treat both identically (fail closed).
-   */
-  /**
-   * Direct structural confirmation using the OSM candidate's OWN declared
-   * `wikidata=Qxxxx` tag -- a real provider cross-reference, not a
-   * name/proximity heuristic. The geo-proximity path below has to guess
-   * WHICH nearby Wikidata place corresponds to the matched entity, which
-   * lets a wrong-but-nearby match get confirmed by an unrelated real place
-   * that happens to sit close by. When the matched entity's own OSM tags
-   * already name that place unambiguously, there is nothing to guess.
-   * This also recovers a genuinely correct match that the geo-proximity
-   * path would reject purely because the hint's language differs from
-   * Wikidata's single label there -- this checks every alias Wikidata
-   * records for the entity, not just one.
-   *
-   * Returns `undefined` (not `false`) when Wikidata has no record of the
-   * QID at all, so the caller can fall back to the geo-proximity check --
-   * the same evidence situation as a candidate with no wikidata tag.
-   */
-  /**
-   * A hint's underlying structured SourceObservation(s) may already carry
-   * a provider-resolved QID (`canonicalIdentity.wikidataQid`) -- e.g. a
-   * Wikivoyage entry that cites its own Wikidata item. Correlated by
-   * `evidenceKeys`, the same correlation `hasDestinationAssociationEvidence`
-   * already uses elsewhere in this file. Never reads anything off `hint`
-   * itself beyond `evidenceKeys` -- the discovery LLM's own JSON output has
-   * no `observations` to consult, so this can never surface an
-   * LLM-invented identity.
-   */
-  private findObservationQid(
-    hint: any,
-    observations: SourceObservation[],
-  ): string | undefined {
-    for (const key of hint?.evidenceKeys ?? []) {
-      const qid = observations.find((item) => item.evidenceKey === key)
-        ?.canonicalIdentity?.wikidataQid;
-      if (qid) return qid;
-    }
-    return undefined;
-  }
-
-  private async confirmViaOwnWikidataTag(
-    qid: string,
-    hint: any,
-  ): Promise<boolean | undefined> {
-    let summaries: Map<string, { label?: string; aliases?: string[] }>;
-    try {
-      summaries = await this.wikidata!.getEntitySummaries([qid]);
-    } catch {
-      return false;
-    }
-    const summary = summaries.get(qid);
-    if (!summary) return undefined;
-
-    const needle = normalizeGeoName(hint.name);
-    const candidateLabels = [summary.label, ...(summary.aliases ?? [])].filter(
-      (label): label is string => Boolean(label),
-    );
-    return candidateLabels.some((label) =>
-      hasSpecificNameOverlap(needle, normalizeGeoName(label), {
-        requireAllTokens: true,
-      }),
-    );
-  }
-
-  /**
-   * A QID carried on the SOURCE OBSERVATION proves
-   * `hint == QID` (the source independently resolved the hint's own
-   * identity) -- it proves NOTHING about whether the OSM candidate the
-   * local fuzzy matcher happened to pick is also that QID. Those are two
-   * different relationships. Real, live-verified collision this closes:
-   * hint "Recoleta Cemetery" (observation QID Q831322, correctly labeled
-   * "Recoleta Cemetery" in Wikidata) fuzzy-matched to the real but
-   * unrelated "Hotel Urban Suites Recoleta" -- which has no wikidata tag
-   * of its own, so nothing about the hotel itself was ever checked
-   * before this fix; the hint-only check trivially passed regardless of
-   * which local entity got matched.
-   *
-   * `confirmViaOwnWikidataTag` above needs no such extra check: there,
-   * the QID is read directly off the SAME entity's own OSM tags, a
-   * structural self-declaration ("I am this QID"), not an independent
-   * claim about the hint text. This method requires the SAME candidate
-   * Wikidata record to ALSO plausibly correspond to the MATCHED entity's
-   * own name -- the identical dual-check discipline the final-review fix
-   * already applies to the geo-proximity path below (hint check strict,
-   * matched-entity check default) -- before trusting the observation's
-   * claim about identity.
-   */
-  private async confirmViaObservationWikidataTag(
-    qid: string,
-    hint: any,
-    entity: ResolvedGeoEntity,
-  ): Promise<boolean | undefined> {
-    let summaries: Map<string, { label?: string; aliases?: string[] }>;
-    try {
-      summaries = await this.wikidata!.getEntitySummaries([qid]);
-    } catch {
-      return false;
-    }
-    const summary = summaries.get(qid);
-    if (!summary) return undefined;
-
-    const needle = normalizeGeoName(hint.name);
-    const matchedName = normalizeGeoName(entity.canonicalName || '');
-    const candidateLabels = [summary.label, ...(summary.aliases ?? [])].filter(
-      (label): label is string => Boolean(label),
-    );
-    return candidateLabels.some((label) => {
-      const normalizedLabel = normalizeGeoName(label);
-      return (
-        hasSpecificNameOverlap(needle, normalizedLabel, {
-          requireAllTokens: true,
-        }) && hasSpecificNameOverlap(matchedName, normalizedLabel)
-      );
-    });
-  }
-
-  private hasMatchingOwnNameTag(entity: ResolvedGeoEntity, hint: any): boolean {
-    const needle = normalizeGeoName(hint.name);
-    return (entity.nameAliasCandidates ?? []).some((alias) =>
-      hasSpecificNameOverlap(needle, normalizeGeoName(alias), {
-        requireAllTokens: true,
-      }),
-    );
-  }
-
-  private async confirmMatch(
+  /** Builds provider-normalized identity facts; only IdentityVerifier judges them. */
+  private async isVerified(
+    strategy: ResolutionStrategy,
     entity: ResolvedGeoEntity,
     hint: any,
     observations: SourceObservation[] = [],
   ): Promise<boolean> {
-    const isExact =
-      normalizeGeoName(entity.canonicalName || '') ===
-      normalizeGeoName(hint.name);
-    // P0.2: an exact normalized name match is strong evidence -- but not
-    // proof of unique real-world identity when the pool this candidate was
-    // selected from held 2+ candidates whose name ALL exactly matched
-    // (real regression class: a real landmark and an unrelated transit
-    // stop both literally named "Plaza de Mayo"; a real chain/franchise
-    // with several branches). Ranking (distance/first-found/importance)
-    // already picked the best ONE to try -- `exactNameAmbiguous` only
-    // means that selection alone must not double as identity confirmation
-    // too; falls through to the same independent-evidence checks below
-    // (own tags, wikidataQid, address, geo-proximity) exactly as a fuzzy
-    // (non-exact) match already does.
-    if (isExact && !entity.exactNameAmbiguous) return true;
-
-    // A real address either matches or it doesn't -- computed once at
-    // persistOsmEntity time from the hint's own addressHint (when the
-    // discovery evidence gave one) against this exact candidate's own
-    // addr:housenumber/addr:street tags. Stronger and more specific than
-    // any name comparison, so trusted outright, same tier as isExact.
-    if (entity.addressConfirmed) return true;
-
-    // Cheapest, most direct check: does the SAME OSM candidate already
-    // declare this name itself (a translation, an official/short/local
-    // name, or its own Wikipedia article title)? No network call, no
-    // independent cross-reference, no risk of matching an unrelated
-    // nearby place -- it is the identical real record `entity` already is,
-    // just checked against every name it carries, not only its primary one.
-    // Alternate names are still name evidence from the same selected record.
-    // They can establish a translated/fuzzy match, but cannot disambiguate a
-    // pool in which this record's canonical name was already shared exactly
-    // by multiple candidates.
+    const evidence: IdentityEvidence[] = [];
+    const ambiguous = Boolean(entity.exactNameAmbiguous);
     if (
-      !entity.exactNameAmbiguous &&
-      this.hasMatchingOwnNameTag(entity, hint)
+      normalizeGeoName(entity.canonicalName ?? '') ===
+      normalizeGeoName(hint.name)
     ) {
-      return true;
+      evidence.push({ type: 'EXACT_NAME', ambiguous });
     }
-
-    if (!this.wikidata) return false;
-
-    // The OSM candidate's OWN `wikidata` tag is a structural
-    // self-declaration by the exact entity being confirmed -- trusted
-    // outright once its Wikidata record agrees with the hint (no need to
-    // also re-check the matched entity's name: the entity->QID link is
-    // already a direct, human-verified fact from the same OSM record).
+    if (entity.addressConfirmed) evidence.push({ type: 'ADDRESS_MATCH' });
+    if (
+      (entity.nameAliasCandidates ?? []).some((alias) =>
+        hasSpecificNameOverlap(
+          normalizeGeoName(hint.name),
+          normalizeGeoName(alias),
+          { requireAllTokens: true },
+        ),
+      )
+    ) {
+      evidence.push({ type: 'DECLARED_ALIAS_MATCH', ambiguous });
+    }
     if (entity.wikidataQid) {
-      const viaOwnTag = await this.confirmViaOwnWikidataTag(
-        entity.wikidataQid,
-        hint,
-      );
-      // `undefined` means Wikidata has no record of this QID at all (a
-      // stale/miskeyed OSM tag) -- fall through to the geo-proximity check
-      // below, the same evidence situation as having no tag. `true`/`false`
-      // is a direct, unambiguous answer from the entity's OWN declared
-      // Wikidata record and is trusted as-is -- it must NOT fall through to
-      // the proximity fallback on `false`, or a wrongly-matched local
-      // candidate that happens to carry its own (internally correct)
-      // wikidata tag could still get confirmed by an unrelated nearby
-      // place, exactly the ambiguity this direct check exists to remove.
-      if (viaOwnTag !== undefined) return viaOwnTag;
+      evidence.push({ type: 'OWN_WIKIDATA_QID', qid: entity.wikidataQid });
     } else {
-      // A QID on the source OBSERVATION is an independent claim
-      // about the HINT's identity, not a declaration by the matched
-      // entity itself -- the matcher could have picked the wrong local
-      // candidate entirely. Requires the SAME dual-check the geo-proximity
-      // path below already uses: the candidate Wikidata record must
-      // satisfy the hint (strict) AND the matched entity's own name
-      // (default), never the hint alone. See confirmViaObservationWikidataTag.
-      const observationQid = this.findObservationQid(hint, observations);
-      if (observationQid) {
-        const viaObservationQid = await this.confirmViaObservationWikidataTag(
-          observationQid,
-          hint,
-          entity,
-        );
-        if (viaObservationQid !== undefined) return viaObservationQid;
+      for (const key of hint.evidenceKeys ?? []) {
+        const qid = observations.find((item) => item.evidenceKey === key)
+          ?.canonicalIdentity?.wikidataQid;
+        if (qid) {
+          evidence.push({ type: 'OBSERVATION_WIKIDATA_QID', qid });
+          break;
+        }
       }
     }
-
-    if (
-      !Number.isFinite(entity.latitude) ||
-      !Number.isFinite(entity.longitude)
-    ) {
-      return false;
+    if (Number.isFinite(entity.latitude) && Number.isFinite(entity.longitude)) {
+      evidence.push({
+        type: 'CANDIDATE_COORDINATES',
+        latitude: entity.latitude as number,
+        longitude: entity.longitude as number,
+      });
     }
-    let nearby: Array<{ label: string }>;
-    try {
-      nearby = await this.wikidata.findNearbyPlaces(
-        entity.latitude as number,
-        entity.longitude as number,
-        CONFIRMATION_RADIUS_METERS,
-      );
-    } catch {
-      return false;
-    }
-    const needle = normalizeGeoName(hint.name);
-    const matchedName = normalizeGeoName(entity.canonicalName || '');
-    // Final-review fix (round 1, 2026-09-17): Task A5's hint-only check
-    // alone is not sufficient. It only asks "does some real place near
-    // these coordinates plausibly correspond to what the HINT asked for" --
-    // it never checks that the SAME real place has anything to do with the
-    // entity that was actually matched. That gap lets a wrong-but-nearby
-    // local match get confirmed purely because the coordinates it
-    // contributed happen to sit near the REAL place the hint meant: e.g.
-    // hint "Recoleta Cemetery" wrongly matched locally to a real OSM node
-    // "Hotel Urban Suites Recoleta" -- if that hotel is within
-    // CONFIRMATION_RADIUS_METERS of the real Recoleta Cemetery (a genuinely
-    // plausible geography in a real, small neighborhood -- and Task A6's
-    // own area-anchor narrowing makes this MORE likely, not less, since a
-    // smaller local pool raises the odds that a wrong nearby match and the
-    // right place are both inside it), Wikidata's real "La Recoleta
-    // Cemetery" entry satisfies the hint check (both "recoleta" and
-    // "cemetery" tokens present) regardless of what the matched entity is
-    // actually named, wrongly confirming the hotel as the cemetery.
-    //
-    // The fix: BOTH checks must be satisfied by the SAME candidate Wikidata
-    // place. The hint check keeps Task A5's strict `requireAllTokens: true`
-    // bar (independent confirmation of the target's identity has to be
-    // solid). The entity check intentionally uses the DEFAULT (non-strict)
-    // bar -- it only needs to establish that the corroborating place
-    // plausibly corresponds to what was actually matched, not to re-litigate
-    // the strict hint bar a second time; a legitimately-confirming fuzzy
-    // match (matched entity's real name genuinely matching the hint, just
-    // phrased differently) still passes this easily, including trivially
-    // via the exact-equality shortcut in `hasSpecificNameOverlap` when the
-    // entity's canonical name literally equals the Wikidata label.
-    return nearby.some(
-      (place) =>
-        hasSpecificNameOverlap(needle, normalizeGeoName(place.label), {
-          requireAllTokens: true,
-        }) &&
-        hasSpecificNameOverlap(matchedName, normalizeGeoName(place.label)),
+    const attempt: ResolutionAttempt = {
+      strategy,
+      candidate: entity,
+      evidence,
+    };
+    return (
+      (await this.identityVerifier.verify(hint, attempt)).status === 'VERIFIED'
     );
   }
 
@@ -1201,7 +1000,7 @@ export class ExperienceProposalResolverService
    *     observations) or an out-of-scope/unverifiable match refuses to
    *     reuse rather than guessing. The returned candidate is NOT trusted
    *     outright -- the caller still runs it through the exact same
-   *     `confirmMatch` gate every other candidate goes through. There is
+   *     `IdentityVerifier` gate every other candidate goes through. There is
    *     no reuse-specific fast path into confirmation.
    *   - P1: Places can only ever supply a POINT, never an AREA/ROUTE
    *     polygon -- an AREA/ROUTE-tagged hint skips this attempt entirely
@@ -1250,7 +1049,7 @@ export class ExperienceProposalResolverService
     // genuinely distinct real places can share an identical name and both
     // sit inside the same destination boundary, so this check alone never
     // establishes that the correlated observation IS the entity the hint
-    // meant (that is `confirmMatch`'s job, below, unchanged). What this
+    // meant (that is `IdentityVerifier`'s job, below, unchanged). What this
     // check actually rules out is name correlation alone concluding
     // applicability with zero geographic evidence at all -- an observation
     // whose own geo sits outside the destination isn't even a plausible

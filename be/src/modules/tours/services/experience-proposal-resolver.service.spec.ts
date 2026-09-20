@@ -1057,7 +1057,9 @@ describe('ExperienceProposalResolverService', () => {
         lookupBoundaryById: jest.fn(),
       } as any,
       catalog as any,
-      { validate: jest.fn().mockReturnValue(acceptedValidation('visit')) } as any,
+      {
+        validate: jest.fn().mockReturnValue(acceptedValidation('visit')),
+      } as any,
       undefined,
       nominatim as any,
       placesApi as any,
