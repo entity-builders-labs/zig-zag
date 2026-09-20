@@ -263,19 +263,59 @@ boundaries.
 
 ### Commit message discipline
 
-For non-trivial fixes, refactors, migrations, and architectural milestones,
-commit messages must include a concise body, not only a subject line. The body
-must record enough durable context for a future contributor to understand:
+These rules apply to every coding agent and tool that creates commits in this
+repository, including Codex, Claude, Antigravity, OpenCode, and future agents.
 
-- why the change exists / which invariant or failure it addresses;
-- the key behavioral or architectural effects;
-- any intentionally preserved behavior or explicit follow-up debt when relevant;
-- the verification performed (for example targeted tests, full suite,
-  typecheck/lint, or live validation when applicable).
+For every non-trivial fix, refactor, migration, architectural milestone, or
+behavioral change, use this exact shape:
 
-A subject-only commit is acceptable only for genuinely trivial changes where
-the subject fully explains the change. Do not rely on chat/session history as
-the only record of architectural rationale.
+```text
+<subject>
+
+- <bullet>
+- <bullet>
+- <bullet>
+```
+
+Formatting requirements:
+
+- Use Conventional Commit style for the subject when applicable.
+- Keep the subject at 72 characters or fewer.
+- Put exactly one blank line between the subject and body.
+- Write the body as compact `- ` bullets, not prose paragraphs.
+- Do not put blank lines between body bullets.
+- Wrap body lines at approximately 72 characters; indent continuation lines.
+- Subject-only commits are allowed only for genuinely trivial changes where
+  the subject fully explains the change.
+
+For non-trivial commits, the body must preserve durable context when applicable:
+
+- WHY: the problem, invariant, or failure that motivated the change.
+- WHAT: the important implementation or architectural effects.
+- BEHAVIOR: behavior intentionally changed or preserved.
+- DEBT: explicit follow-up debt intentionally left behind.
+- VALIDATION: tests, typecheck, lint, live checks, or other verification that
+  was actually executed.
+
+Never invent validation results. Mention only commands/checks that were really
+run and their real outcome. Do not rely on chat/session history as the only
+record of architectural rationale.
+
+Canonical example:
+
+```text
+refactor(tours): verify identity before persistence
+
+- Keep acquired candidates transient until identity verification.
+- Persist GeoEntities only after VERIFIED identity decisions.
+- Move Wikidata evidence acquisition outside the pure verifier policy.
+- Preserve P0.1, P0.2, P1, and P2-B fail-closed behavior.
+- Validate with the executed test suite, typecheck, lint, and diff check.
+```
+
+Before creating a non-trivial commit, review the complete message against this
+section. A technically correct change with a non-conforming commit message is
+not complete.
 
 ## Frontend responsive layout convention
 
