@@ -939,7 +939,11 @@ describe('AreaRouteAnchorResolverService', () => {
       expect(catalog.upsertGeoEntity).not.toHaveBeenCalled();
     });
 
-    it('Case D: duplicate exact ROUTE names → ambiguous → not persisted', async () => {
+    it('multiple same-name OSM ways must not by themselves create identity ambiguity', async () => {
+      // An OSM street/path can legitimately be represented by multiple
+      // way elements (split at intersections, tag changes, geometry
+      // boundaries, etc.). N same-name OSM ways != N distinct real-world
+      // identities. ROUTE resolution must still succeed.
       const osmPlaces = {
         lookupStreetsWithin: jest.fn().mockResolvedValue({
           status: 'success',
@@ -977,7 +981,7 @@ describe('AreaRouteAnchorResolverService', () => {
         lookupStreetsNear: jest.fn(),
       };
       const catalog = {
-        upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-1' }),
+        upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-caminito' }),
       };
       const service = new AreaRouteAnchorResolverService(
         osmPlaces as any,
@@ -989,11 +993,14 @@ describe('AreaRouteAnchorResolverService', () => {
         boundary: { id: 'osm:relation:1', name: 'Buenos Aires' },
       } as any);
 
-      // 2+ exact-name streets → ambiguous → not persisted.
+      // Multiple same-name ways must NOT prevent resolution.
       expect(result).toEqual(
-        expect.objectContaining({ resolved: false, status: 'no_match' }),
+        expect.objectContaining({
+          resolved: true,
+          geoEntityId: 'geo-caminito',
+        }),
       );
-      expect(catalog.upsertGeoEntity).not.toHaveBeenCalled();
+      expect(catalog.upsertGeoEntity).toHaveBeenCalled();
     });
 
     it('Case E: duplicate exact Places names → ambiguous → not persisted', async () => {

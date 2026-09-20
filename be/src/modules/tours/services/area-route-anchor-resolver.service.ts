@@ -598,14 +598,6 @@ export class AreaRouteAnchorResolverService {
       if (!matched)
         return { status: 'no_match', reason: 'NO_CONFIDENT_ROUTE_MATCH' };
 
-      // When multiple streets share the same normalized name, the
-      // exact-name match alone cannot confirm a unique identity.
-      const exactNameCount = countExactNormalizedMatches(
-        anchor.rawName,
-        streets,
-        (s) => s.name,
-      );
-
       const point = representativePoint(matched.geometry);
       return {
         status: 'match',
@@ -618,7 +610,6 @@ export class AreaRouteAnchorResolverService {
           longitude: point?.longitude,
           geometry: matched.geometry,
           metadata: matched.tags,
-          exactNameAmbiguous: exactNameCount > 1,
         },
       };
     } catch {
