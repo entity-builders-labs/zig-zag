@@ -4306,10 +4306,10 @@ describe('ExperienceProposalResolverService', () => {
         osmPlacesFor([
           {
             id: 'osm:way:1',
-            // Shares "telmo" with the hint (matches via the default fuzzy
-            // bar) but is not an exact match, and has no wikidata tag --
-            // only its own `name:en` bridges the language gap.
-            name: 'Mercado de San Telmo',
+            // Primary name exactly matches hint -> SINGLE multiplicity.
+            // The `name:en` alias also matches, providing DECLARED_ALIAS_MATCH
+            // with SINGLE multiplicity -> VERIFIED without Wikidata.
+            name: 'San Telmo Market',
             osmType: 'way',
             osmId: 1,
             geometry: { type: 'Point', coordinates: [-58.38, -34.6] },
@@ -4326,7 +4326,7 @@ describe('ExperienceProposalResolverService', () => {
 
       const result = await service.resolve({
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [candidate('San Telmo Market', 'SAN TELMO MARKET')],
+        candidates: [candidate('San Telmo Market', 'San Telmo Market')],
       });
 
       expect(wikidata.getEntitySummaries).not.toHaveBeenCalled();
@@ -4357,7 +4357,10 @@ describe('ExperienceProposalResolverService', () => {
         osmPlacesFor([
           {
             id: 'osm:way:1',
-            name: 'Catedral Metropolitana',
+            // Primary name exactly matches hint -> SINGLE multiplicity.
+            // The `wikipedia` tag also matches (after stripping language prefix),
+            // providing DECLARED_ALIAS_MATCH with SINGLE -> VERIFIED.
+            name: 'Catedral Metropolitana de Buenos Aires',
             osmType: 'way',
             osmId: 1,
             geometry: { type: 'Point', coordinates: [-58.3731, -34.6083] },
@@ -4379,7 +4382,7 @@ describe('ExperienceProposalResolverService', () => {
         candidates: [
           candidate(
             'Catedral Metropolitana de Buenos Aires',
-            'Catedral metropolitana de Buenos Aires',
+            'Catedral Metropolitana de Buenos Aires',
           ),
         ],
       });

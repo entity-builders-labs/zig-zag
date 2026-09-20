@@ -1,5 +1,6 @@
 import { EntityCandidate } from '../interfaces/experience-resolution.interface';
 import { IdentityEvidenceCollector } from './identity-evidence-collector.service';
+import { GeoEntityKind } from '@prisma/client';
 
 const candidate = (
   overrides: Partial<EntityCandidate> = {},
@@ -9,8 +10,9 @@ const candidate = (
   provider: 'openstreetmap',
   externalId: 'osm:way:1',
   canonicalName: 'Cementerio de la Recoleta',
-  kind: 'PLACE' as any,
+  kind: GeoEntityKind.PLACE,
   role: 'venue',
+  identityMultiplicity: 'SINGLE',
   ...overrides,
 });
 

@@ -1,22 +1,27 @@
 import { ResolutionAttempt } from '../interfaces/experience-resolution.interface';
 import { IdentityVerifier } from './identity-verifier.service';
 
+const candidate = (identityMultiplicity: 'SINGLE' | 'MULTIPLE' | 'UNKNOWN' = 'SINGLE') => ({
+  hintKey: 'place',
+  hintName: 'hint',
+  provider: 'google_places',
+  externalId: 'place-1',
+  canonicalName: 'Recoleta Cemetery',
+  kind: 'PLACE' as any,
+  role: 'venue',
+  identityMultiplicity,
+});
+
 const attempt = (
-  canonicalName: string,
+  hintName: string,
   evidence: ResolutionAttempt['evidence'],
+  identityMultiplicity: 'SINGLE' | 'MULTIPLE' | 'UNKNOWN' = 'SINGLE',
 ): ResolutionAttempt =>
   ({
     strategy: 'PLACES',
-    candidate: {
-      hintKey: 'place',
-      hintName: 'hint',
-      provider: 'google_places',
-      externalId: 'place-1',
-      canonicalName,
-      kind: 'PLACE' as any,
-      role: 'venue',
-    },
+    candidate: candidate(identityMultiplicity),
     evidence,
+    hintName,
   }) as ResolutionAttempt;
 
 describe('IdentityVerifier', () => {
@@ -101,5 +106,143 @@ describe('IdentityVerifier', () => {
         attempt('Recoleta Cemetery', [{ type: 'WIKIDATA_UNAVAILABLE' }]),
       ),
     ).toEqual({ status: 'INSUFFICIENT_EVIDENCE' });
+  });
+
+  // A1. EXACT_NAME + SINGLE -> VERIFIED
+  it('A1: EXACT_NAME + SINGLE -> VERIFIED', async () => {
+    const verifier = new IdentityVerifier();
+    const result = await verifier.verify(
+      { name: 'Recoleta Cemetery' },
+      attempt('Recoleta Cemetery', [
+        { type: 'EXACT_NAME', identityMultiplicity: 'SINGLE' },
+      ]),
+    );
+    expect(result).toEqual({ status: 'VERIFIED' });
+  });
+
+  // A2. EXACT_NAME + MULTIPLE -> AMBIGUOUS
+  it('A2: EXACT_NAME + MULTIPLE -> AMBIGUOUS', async () => {
+    const verifier = new IdentityVerifier();
+    const result = await verifier.verify(
+      { name: 'Recoleta Cemetery' },
+      attempt('Recoleta Cemetery', [
+        { type: 'EXACT_NAME', identityMultiplicity: 'MULTIPLE' },
+      ]),
+    );
+    expect(result).toEqual({ status: 'AMBIGUOUS' });
+  });
+
+  // A3. EXACT_NAME + UNKNOWN -> INSUFFICIENT_EVIDENCE
+  it('A3: EXACT_NAME + UNKNOWN -> INSUFFICIENT_EVIDENCE', async () => {
+    const verifier = new IdentityVerifier();
+    const result = await verifier.verify(
+      { name: 'Recoleta Cemetery' },
+      attempt('Recoleta Cemetery', [
+        { type: 'EXACT_NAME', identityMultiplicity: 'UNKNOWN' },
+      ]),
+    );
+    expect(result).toEqual({ status: 'INSUFFICIENT_EVIDENCE' });
+  });
+
+  // A4. EXACT_NAME + UNKNOWN + valid WIKIDATA_IDENTITY_MATCH -> VERIFIED
+  it('A4: EXACT_NAME + UNKNOWN + valid WIKIDATA_IDENTITY_MATCH -> VERIFIED', async () => {
+    const verifier = new IdentityVerifier();
+    const result = await verifier.verify(
+      { name: 'Recoleta Cemetery' },
+      attempt('Recoleta Cemetery', [
+        { type: 'EXACT_NAME', identityMultiplicity: 'UNKNOWN' },
+        {
+          type: 'WIKIDATA_IDENTITY_MATCH',
+          source: 'OWN_QID',
+          hintMatched: true,
+          candidateMatched: true,
+        },
+      ]),
+    );
+    expect(result).toEqual({ status: 'VERIFIED' });
+  });
+
+  // A5. EXACT_NAME + UNKNOWN + WIKIDATA_UNAVAILABLE -> INSUFFICIENT_EVIDENCE
+  it('A5: EXACT_NAME + UNKNOWN + WIKIDATA_UNAVAILABLE -> INSUFFICIENT_EVIDENCE', async () => {
+    const verifier = new IdentityVerifier();
+    const result = await verifier.verify(
+      { name: 'Recoleta Cemetery' },
+      attempt('Recoleta Cemetery', [
+        { type: 'EXACT_NAME', identityMultiplicity: 'UNKNOWN' },
+        { type: 'WIKIDATA_UNAVAILABLE' },
+      ]),
+    );
+    expect(result).toEqual({ status: 'INSUFFICIENT_EVIDENCE' });
+  });
+
+  // A6. DECLARED_ALIAS_MATCH + SINGLE -> VERIFIED
+  it('A6: DECLARED_ALIAS_MATCH + SINGLE -> VERIFIED', async () => {
+    const verifier = new IdentityVerifier();
+    const result = await verifier.verify(
+      { name: 'Defensa Street' },
+      attempt('Defensa', [
+        { type: 'DECLARED_ALIAS_MATCH', identityMultiplicity: 'SINGLE' },
+      ]),
+    );
+    expect(result).toEqual({ status: 'VERIFIED' });
+  });
+
+  // A7. DECLARED_ALIAS_MATCH + MULTIPLE -> AMBIGUOUS
+  it('A7: DECLARED_ALIAS_MATCH + MULTIPLE -> AMBIGUOUS', async () => {
+    const verifier = new IdentityVerifier();
+    const result = await verifier.verify(
+      { name: 'Defensa Street' },
+      attempt('Defensa', [
+        { type: 'DECLARED_ALIAS_MATCH', identityMultiplicity: 'MULTIPLE' },
+      ]),
+    );
+    expect(result).toEqual({ status: 'AMBIGUOUS' });
+  });
+
+  // A8. DECLARED_ALIAS_MATCH + UNKNOWN -> INSUFFICIENT_EVIDENCE
+  it('A8: DECLARED_ALIAS_MATCH + UNKNOWN -> INSUFFICIENT_EVIDENCE', async () => {
+    const verifier = new IdentityVerifier();
+    const result = await verifier.verify(
+      { name: 'Defensa Street' },
+      attempt('Defensa', [
+        { type: 'DECLARED_ALIAS_MATCH', identityMultiplicity: 'UNKNOWN' },
+      ]),
+    );
+    expect(result).toEqual({ status: 'INSUFFICIENT_EVIDENCE' });
+  });
+
+  // A9. EXACT_NAME + SINGLE + later Wikidata mismatch -> VERIFIED (local exact name sufficient before Wikidata)
+  it('A9: EXACT_NAME + SINGLE plus later Wikidata mismatch -> VERIFIED', async () => {
+    const verifier = new IdentityVerifier();
+    const result = await verifier.verify(
+      { name: 'Recoleta Cemetery' },
+      attempt('Recoleta Cemetery', [
+        { type: 'EXACT_NAME', identityMultiplicity: 'SINGLE' },
+        {
+          type: 'WIKIDATA_IDENTITY_MATCH',
+          source: 'OWN_QID',
+          hintMatched: true,
+          candidateMatched: false,
+        },
+      ]),
+    );
+    expect(result).toEqual({ status: 'VERIFIED' });
+  });
+
+  // A10. WIKIDATA mismatch without prior sufficient local proof -> REJECTED
+  it('A10: WIKIDATA mismatch without prior sufficient local proof -> REJECTED', async () => {
+    const verifier = new IdentityVerifier();
+    const result = await verifier.verify(
+      { name: 'Recoleta Hotel' },
+      attempt('Recoleta Cemetery', [
+        {
+          type: 'WIKIDATA_IDENTITY_MATCH',
+          source: 'OWN_QID',
+          hintMatched: true,
+          candidateMatched: false,
+        },
+      ]),
+    );
+    expect(result).toEqual({ status: 'REJECTED' });
   });
 });

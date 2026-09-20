@@ -41,7 +41,8 @@ export function buildLocalIdentityEvidence(
   // DECLARED_ALIAS_MATCH: aliases come from the specific candidate's own
   // OSM tags (name:xx, alt_name, wikipedia). If the candidate has at least
   // one matching alias, that is a direct declaration by the same real record
-  // -- not a pool-level ambiguity. Treat as SINGLE.
+  // -- not a pool-level ambiguity. Preserve the candidate's existing
+  // identity multiplicity; an alias match does not prove uniqueness.
   const hasMatchingAlias = (candidate.nameAliasCandidates ?? []).some((alias) =>
     hasSpecificNameOverlap(
       normalizeGeoName(hint.name),
@@ -52,7 +53,7 @@ export function buildLocalIdentityEvidence(
   if (hasMatchingAlias) {
     evidence.push({
       type: 'DECLARED_ALIAS_MATCH',
-      identityMultiplicity: 'SINGLE',
+      identityMultiplicity: candidate.identityMultiplicity,
     });
   }
 

@@ -941,8 +941,14 @@ export class ExperienceProposalResolverService
           hint.expectedKind === 'AREA'
             ? hint
             : { ...hint, role: 'area' as const, expectedKind: 'AREA' as const };
-        // Single Nominatim boundary candidate
-        return this.buildOsmCandidate(correctedHint, boundary.value, 'SINGLE');
+        // Pass through the identity multiplicity established from the
+        // Nominatim exact-match count; hydrating the boundary does not
+        // change the identity multiplicity of the original candidate set.
+        return this.buildOsmCandidate(
+          correctedHint,
+          boundary.value,
+          identityMultiplicity,
+        );
       }
 
       if (!isPlaceScaleEligible(match)) return undefined;

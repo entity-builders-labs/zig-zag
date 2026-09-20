@@ -15,17 +15,24 @@ export class IdentityVerifier {
   ): VerificationDecision {
     const evidence = attempt.evidence;
     const exactName = this.evidenceOf(evidence, 'EXACT_NAME');
-
-    // ADDRESS_MATCH is always VERIFIED (address either matches or it doesn't)
-    if (this.evidenceOf(evidence, 'ADDRESS_MATCH'))
-      return { status: 'VERIFIED' };
-
-    // DECLARED_ALIAS_MATCH can VERIFY if SINGLE
     const alias = this.evidenceOf(evidence, 'DECLARED_ALIAS_MATCH');
-    if (alias && alias.identityMultiplicity === 'SINGLE')
-      return { status: 'VERIFIED' };
 
-    // WIKIDATA_IDENTITY_MATCH with both hint and candidate matched
+    // 1. EXACT_NAME + SINGLE -> VERIFIED immediately
+    if (exactName && exactName.identityMultiplicity === 'SINGLE') {
+      return { status: 'VERIFIED' };
+    }
+
+    // 2. ADDRESS_MATCH -> VERIFIED
+    if (this.evidenceOf(evidence, 'ADDRESS_MATCH')) {
+      return { status: 'VERIFIED' };
+    }
+
+    // 3. DECLARED_ALIAS_MATCH + SINGLE -> VERIFIED
+    if (alias && alias.identityMultiplicity === 'SINGLE') {
+      return { status: 'VERIFIED' };
+    }
+
+    // 4. WIKIDATA_IDENTITY_MATCH
     const wikidataMatch = this.evidenceOf(evidence, 'WIKIDATA_IDENTITY_MATCH');
     if (wikidataMatch) {
       return wikidataMatch.hintMatched && wikidataMatch.candidateMatched
@@ -33,29 +40,30 @@ export class IdentityVerifier {
         : { status: 'REJECTED' };
     }
 
-    // Now check EXACT_NAME
-    if (exactName) {
-      if (exactName.identityMultiplicity === 'SINGLE')
-        return { status: 'VERIFIED' };
-      if (exactName.identityMultiplicity === 'MULTIPLE') {
-        // EXACT_NAME MULTIPLE falls through to check other corroborating evidence
-        // but if no other evidence VERIFIES, we return AMBIGUOUS
-      }
-      // UNKNOWN falls through
-    }
-
+    // 5. Fallback based on multiplicity
     if (this.evidenceOf(evidence, 'WIKIDATA_UNAVAILABLE')) {
       return { status: 'INSUFFICIENT_EVIDENCE' };
     }
 
     // If we reach here, no VERIFIED evidence was found
-    // Return AMBIGUOUS if any local evidence had MULTIPLE, else INSUFFICIENT_EVIDENCE
-    const hasMultiple =
-      exactName?.identityMultiplicity === 'MULTIPLE' ||
-      alias?.identityMultiplicity === 'MULTIPLE';
-    return hasMultiple
-      ? { status: 'AMBIGUOUS' }
-      : { status: 'INSUFFICIENT_EVIDENCE' };
+    // EXACT_NAME MULTIPLE -> AMBIGUOUS
+    if (exactName && exactName.identityMultiplicity === 'MULTIPLE') {
+      return { status: 'AMBIGUOUS' };
+    }
+    // DECLARED_ALIAS_MATCH MULTIPLE -> AMBIGUOUS
+    if (alias && alias.identityMultiplicity === 'MULTIPLE') {
+      return { status: 'AMBIGUOUS' };
+    }
+    // EXACT_NAME UNKNOWN -> INSUFFICIENT_EVIDENCE
+    if (exactName && exactName.identityMultiplicity === 'UNKNOWN') {
+      return { status: 'INSUFFICIENT_EVIDENCE' };
+    }
+    // DECLARED_ALIAS_MATCH UNKNOWN -> INSUFFICIENT_EVIDENCE
+    if (alias && alias.identityMultiplicity === 'UNKNOWN') {
+      return { status: 'INSUFFICIENT_EVIDENCE' };
+    }
+    // No local name evidence at all
+    return { status: 'INSUFFICIENT_EVIDENCE' };
   }
 
   private evidenceOf<T extends IdentityEvidence['type']>(
