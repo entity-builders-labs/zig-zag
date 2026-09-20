@@ -24,6 +24,8 @@ import {
 } from '../interfaces/experience-resolution.interface';
 import {
   bestNominatimMatch,
+  countExactNormalizedMatches,
+  countNominatimExactMatches,
   hasSpecificNameOverlap,
   isAreaScaleEligible,
   isPlaceScaleEligible,
@@ -539,8 +541,15 @@ export class ExperienceProposalResolverService
       );
 
       let unconfirmedLocalMatch: ResolvedGeoEntity | undefined;
+      let unconfirmedGlobalMatch: ResolvedGeoEntity | undefined;
       if (matched) {
-        const resolvedEntity = await this.persistOsmEntity(hint, matched);
+        const exactNameAmbiguous =
+          countExactNormalizedMatches(hint.name, pool, (c) => c.name) > 1;
+        const resolvedEntity = await this.persistOsmEntity(
+          hint,
+          matched,
+          exactNameAmbiguous,
+        );
         if (await this.confirmMatch(resolvedEntity, hint, observations)) {
           entities.push(resolvedEntity);
           continue;
@@ -563,25 +572,46 @@ export class ExperienceProposalResolverService
       }
 
       if (destinationAssociationVerified) {
-        const globallyResolved = await this.resolveTrustedGlobalHint(
+        const nominatimResolved = await this.resolveViaNominatim(
           hint,
           destinationCountryCode,
           this.representativePoint(boundary),
         );
-        if (globallyResolved) {
-          entities.push(
-            (await this.confirmMatch(globallyResolved, hint, observations))
-              ? globallyResolved
-              : (unconfirmedLocalMatch ??
-                  this.unconfirmedEntity(hint, globallyResolved.provider)),
+        if (nominatimResolved) {
+          if (await this.confirmMatch(nominatimResolved, hint, observations)) {
+            entities.push(nominatimResolved);
+            continue;
+          }
+          // A rejected global candidate is evidence that THIS attempt was
+          // insufficient, not that the hint has no resolvable entity. In
+          // particular, an AREA proposal can still be a real PLACE found by
+          // the bounded local kind-correction below. Preserve the failed
+          // result only as the final diagnostic if every later strategy also
+          // fails; never make it terminal.
+          unconfirmedGlobalMatch = this.unconfirmedEntity(
+            hint,
+            nominatimResolved.provider,
           );
-          continue;
         }
-      }
 
-      if (unconfirmedLocalMatch) {
-        entities.push(unconfirmedLocalMatch);
-        continue;
+        // A Nominatim result that failed identity verification is a failed
+        // attempt, not evidence that the independently allowed PLACE lookup
+        // cannot succeed. Keep this ordering explicit: acquire, verify, then
+        // continue to the next strategy on any non-verified decision.
+        const placesResolved = await this.resolveViaPlaces(
+          hint,
+          this.representativePoint(boundary),
+        );
+        if (placesResolved) {
+          if (await this.confirmMatch(placesResolved, hint, observations)) {
+            entities.push(placesResolved);
+            continue;
+          }
+          unconfirmedGlobalMatch = this.unconfirmedEntity(
+            hint,
+            placesResolved.provider,
+          );
+        }
       }
 
       // Real, live-measured pattern: a discovery hint tagged role="area"
@@ -610,6 +640,11 @@ export class ExperienceProposalResolverService
           const resolvedEntity = await this.persistOsmEntity(
             correctedHint,
             venueFallbackMatch,
+            countExactNormalizedMatches(
+              correctedHint.name,
+              pois,
+              (candidate) => candidate.name,
+            ) > 1,
           );
           entities.push(
             (await this.confirmMatch(
@@ -622,6 +657,15 @@ export class ExperienceProposalResolverService
           );
           continue;
         }
+      }
+
+      if (unconfirmedLocalMatch) {
+        entities.push(unconfirmedLocalMatch);
+        continue;
+      }
+      if (unconfirmedGlobalMatch) {
+        entities.push(unconfirmedGlobalMatch);
+        continue;
       }
 
       const lookup =
@@ -828,7 +872,18 @@ export class ExperienceProposalResolverService
     const isExact =
       normalizeGeoName(entity.canonicalName || '') ===
       normalizeGeoName(hint.name);
-    if (isExact) return true;
+    // P0.2: an exact normalized name match is strong evidence -- but not
+    // proof of unique real-world identity when the pool this candidate was
+    // selected from held 2+ candidates whose name ALL exactly matched
+    // (real regression class: a real landmark and an unrelated transit
+    // stop both literally named "Plaza de Mayo"; a real chain/franchise
+    // with several branches). Ranking (distance/first-found/importance)
+    // already picked the best ONE to try -- `exactNameAmbiguous` only
+    // means that selection alone must not double as identity confirmation
+    // too; falls through to the same independent-evidence checks below
+    // (own tags, wikidataQid, address, geo-proximity) exactly as a fuzzy
+    // (non-exact) match already does.
+    if (isExact && !entity.exactNameAmbiguous) return true;
 
     // A real address either matches or it doesn't -- computed once at
     // persistOsmEntity time from the hint's own addressHint (when the
@@ -843,7 +898,16 @@ export class ExperienceProposalResolverService
     // independent cross-reference, no risk of matching an unrelated
     // nearby place -- it is the identical real record `entity` already is,
     // just checked against every name it carries, not only its primary one.
-    if (this.hasMatchingOwnNameTag(entity, hint)) return true;
+    // Alternate names are still name evidence from the same selected record.
+    // They can establish a translated/fuzzy match, but cannot disambiguate a
+    // pool in which this record's canonical name was already shared exactly
+    // by multiple candidates.
+    if (
+      !entity.exactNameAmbiguous &&
+      this.hasMatchingOwnNameTag(entity, hint)
+    ) {
+      return true;
+    }
 
     if (!this.wikidata) return false;
 
@@ -964,6 +1028,7 @@ export class ExperienceProposalResolverService
   private async persistOsmEntity(
     hint: any,
     matched: OsmCandidate,
+    exactNameAmbiguous: boolean,
   ): Promise<ResolvedGeoEntity> {
     const kind =
       hint.expectedKind === 'ROUTE'
@@ -997,35 +1062,10 @@ export class ExperienceProposalResolverService
         wikidataQid: extractWikidataQid(matched.tags),
         nameAliasCandidates: extractNameAliasCandidates(matched.tags),
         addressConfirmed: matchesAddressHint(hint.addressHint, matched.tags),
+        exactNameAmbiguous,
       },
       { geoEntityId: geo.id },
     );
-  }
-
-  private async resolveTrustedGlobalHint(
-    hint: any,
-    destinationCountryCode?: string,
-    destinationPoint?: Coordinates,
-  ): Promise<ResolvedGeoEntity | undefined> {
-    const resolved = await this.resolveViaNominatim(
-      hint,
-      destinationCountryCode,
-      destinationPoint,
-    );
-    if (resolved) return resolved;
-
-    // Nominatim/OSM has real coverage gaps for small, well-known urban
-    // landmarks — verified live: a real cathedral in San Juan capital
-    // (confirmed on Google Maps) has no name tag at all in OpenStreetMap at
-    // its real coordinates, just an anonymous "house" node. Google Places
-    // (or whichever provider PLACES_PROVIDER selects — Geoapify's own
-    // searchText is a documented no-op stub, so this only ever helps when
-    // Google is the active provider, never regresses when it isn't) covers
-    // exactly this class of real, commercially/institutionally documented
-    // place that OSM's community tagging often misses. Only PLACE hints —
-    // AREA/ROUTE stay OSM-only, same restriction the Nominatim path itself
-    // already applies.
-    return this.resolveViaPlaces(hint, destinationPoint);
   }
 
   private async resolveViaNominatim(
@@ -1043,6 +1083,8 @@ export class ExperienceProposalResolverService
           : undefined,
       );
       const match = bestNominatimMatch(hint.name, results, destinationPoint);
+      const exactNameAmbiguous =
+        countNominatimExactMatches(hint.name, results) > 1;
       if (
         !match ||
         !Number.isFinite(match.latitude) ||
@@ -1073,7 +1115,11 @@ export class ExperienceProposalResolverService
           hint.expectedKind === 'AREA'
             ? hint
             : { ...hint, role: 'area' as const, expectedKind: 'AREA' as const };
-        return this.persistOsmEntity(correctedHint, boundary.value);
+        return this.persistOsmEntity(
+          correctedHint,
+          boundary.value,
+          exactNameAmbiguous,
+        );
       }
 
       if (!isPlaceScaleEligible(match)) return undefined;
@@ -1116,6 +1162,7 @@ export class ExperienceProposalResolverService
           geometry,
           role: correctedHint.role,
           status: 'resolved' as const,
+          exactNameAmbiguous,
           adminContext: {
             country: match.address?.country,
             region: match.address?.state,
@@ -1345,6 +1392,12 @@ export class ExperienceProposalResolverService
         result.data,
         destinationPoint,
       );
+      const exactNameAmbiguous =
+        countExactNormalizedMatches(
+          hint.name,
+          result.data,
+          (candidate) => candidate.displayName?.text || candidate.name,
+        ) > 1;
       if (
         !place?.location ||
         !Number.isFinite(place.location.latitude) ||
@@ -1388,6 +1441,7 @@ export class ExperienceProposalResolverService
           geometry,
           role: hint.role,
           status: 'resolved' as const,
+          exactNameAmbiguous,
         },
         { geoEntityId: geo.id },
       );

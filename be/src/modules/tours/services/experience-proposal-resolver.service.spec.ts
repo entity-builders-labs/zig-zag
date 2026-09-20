@@ -795,7 +795,7 @@ describe('ExperienceProposalResolverService', () => {
     });
   });
 
-  it('prefers the Nominatim match closest to the destination over one with higher importance (same-country name collision)', async () => {
+  it('ranks the Nominatim match closest to the destination over one with higher importance, but does not treat that ranking as identity confirmation (same-country name collision)', async () => {
     // Real-world regression, verified live against the real Nominatim API:
     // two real places share the exact name "Catedral San Juan Bautista" —
     // one in Buenos Aires (importance 0.208), one in San Juan capital
@@ -903,9 +903,13 @@ describe('ExperienceProposalResolverService', () => {
     expect(catalog.upsertGeoEntity).toHaveBeenCalledWith(
       expect.objectContaining({ latitude: -31.537, longitude: -68.529 }),
     );
+    // Proximity correctly selects the San Juan candidate to TRY, but two
+    // exact same-name global identities remain ambiguous without independent
+    // confirmation. Ranking and identity verification are separate policies.
+    expect(result.acceptedCount).toBe(0);
     expect(result.resolved[0].resolvedEntities[0]).toMatchObject({
-      latitude: -31.537,
-      longitude: -68.529,
+      status: 'unresolved',
+      reason: 'UNCONFIRMED_MATCH',
     });
   });
 
@@ -1004,6 +1008,83 @@ describe('ExperienceProposalResolverService', () => {
       canonicalName: 'Catedral San Juan Bautista',
       latitude: -31.5370714,
       longitude: -68.5286788,
+    });
+  });
+
+  it('continues from a rejected Nominatim candidate to an independently verified Places candidate for a PLACE hint (P1)', async () => {
+    const nominatim = {
+      search: jest.fn().mockResolvedValue([
+        {
+          displayName: 'Café Tortoni Annex, Buenos Aires, Argentina',
+          osmType: 'node',
+          osmId: 99,
+          latitude: -34.6084,
+          longitude: -58.3813,
+          importance: 0.5,
+          class: 'amenity',
+          address: {},
+        },
+      ]),
+    };
+    const placesApi = {
+      provider: 'google' as const,
+      searchText: jest.fn().mockResolvedValue({
+        data: [
+          {
+            id: 'ChIJtortoni',
+            displayName: { text: 'Café Tortoni' },
+            location: { latitude: -34.6084, longitude: -58.3813 },
+          },
+        ],
+      }),
+    };
+    const catalog = {
+      resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+      upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-tortoni' }),
+      persistVerifiedExperience: jest.fn().mockResolvedValue({
+        id: 'exp-tortoni',
+        dedupeDecision: 'NEW',
+      }),
+    };
+    const service = new ExperienceProposalResolverService(
+      {
+        lookupStreetsWithin: jest
+          .fn()
+          .mockResolvedValue({ status: 'success', value: [] }),
+        lookupPoisWithin: jest
+          .fn()
+          .mockResolvedValue({ status: 'success', value: [] }),
+        lookupBoundaryById: jest.fn(),
+      } as any,
+      catalog as any,
+      { validate: jest.fn().mockReturnValue(acceptedValidation('visit')) } as any,
+      undefined,
+      nominatim as any,
+      placesApi as any,
+    );
+
+    const result = await service.resolve({
+      destinationName: 'Buenos Aires, Argentina',
+      geographicScope: { kind: 'AREA_BOUNDARY', boundary },
+      candidates: [candidate('Café Tortoni visit', 'Café Tortoni', ['visit'])],
+      evidence: [
+        {
+          key: 'ev-1',
+          source: 'tourism-guide',
+          title: 'Café Tortoni in Buenos Aires',
+          snippet: 'A historic café in Buenos Aires.',
+        },
+      ],
+    });
+
+    expect(nominatim.search).toHaveBeenCalled();
+    expect(placesApi.searchText).toHaveBeenCalledWith(
+      expect.objectContaining({ textQuery: 'Café Tortoni' }),
+    );
+    expect(result.acceptedCount).toBe(1);
+    expect(result.resolved[0].resolvedEntities[0]).toMatchObject({
+      provider: 'google_places',
+      canonicalName: 'Café Tortoni',
     });
   });
 
@@ -3098,6 +3179,385 @@ describe('ExperienceProposalResolverService', () => {
       );
       expect(result.acceptedCount).toBe(1);
     });
+  });
+
+  describe('confirmMatch: exact name match alone is not sufficient when the candidate pool had multiple exact matches (P0.2)', () => {
+    it('does NOT auto-confirm via isExact when the local OSM pool has TWO exact same-name candidates with no corroborating evidence (real-world class: a landmark and an unrelated transit stop both literally named "Plaza de Mayo") -- falls closed to UNCONFIRMED, never picks the first one and trusts it', async () => {
+      const osmPlaces = {
+        lookupStreetsWithin: jest
+          .fn()
+          .mockResolvedValue({ status: 'success', value: [] }),
+        lookupPoisWithin: jest.fn().mockResolvedValue({
+          status: 'success',
+          value: [
+            {
+              id: 'osm:way:1',
+              name: 'Plaza de Mayo',
+              osmType: 'way',
+              osmId: 1,
+              geometry: { type: 'Point', coordinates: [-58.3712, -34.6083] },
+              tags: { leisure: 'park' },
+            },
+            {
+              id: 'osm:node:2',
+              name: 'Plaza de Mayo',
+              osmType: 'node',
+              osmId: 2,
+              geometry: { type: 'Point', coordinates: [-58.3715, -34.6085] },
+              tags: { public_transport: 'stop_position' },
+            },
+          ],
+        }),
+      };
+      const catalog = {
+        resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-1' }),
+        persistVerifiedExperience: jest.fn(),
+      };
+      const geographicValidator = { validate: jest.fn() };
+      const service = new ExperienceProposalResolverService(
+        osmPlaces as any,
+        catalog as any,
+        geographicValidator as any,
+      );
+
+      const result = await service.resolve({
+        geographicScope: { kind: 'AREA_BOUNDARY', boundary },
+        candidates: [candidate('Visit Plaza de Mayo', 'Plaza de Mayo')],
+      });
+
+      expect(result.acceptedCount).toBe(0);
+      expect(result.resolved[0].resolvedEntities[0]).toMatchObject({
+        status: 'unresolved',
+        reason: 'UNCONFIRMED_MATCH',
+      });
+      expect(catalog.persistVerifiedExperience).not.toHaveBeenCalled();
+    });
+
+    it('still resolves normally when the local OSM pool has exactly ONE exact same-name candidate (regression guard: a unique exact match remains strong evidence on its own)', async () => {
+      const osmPlaces = {
+        lookupStreetsWithin: jest
+          .fn()
+          .mockResolvedValue({ status: 'success', value: [] }),
+        lookupPoisWithin: jest.fn().mockResolvedValue({
+          status: 'success',
+          value: [
+            {
+              id: 'osm:way:1',
+              name: 'Plaza de Mayo',
+              osmType: 'way',
+              osmId: 1,
+              geometry: { type: 'Point', coordinates: [-58.3712, -34.6083] },
+              tags: { leisure: 'park' },
+            },
+          ],
+        }),
+      };
+      const catalog = {
+        resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-1' }),
+        persistVerifiedExperience: jest
+          .fn()
+          .mockResolvedValue({ id: 'exp-1', dedupeDecision: 'NEW' }),
+      };
+      const geographicValidator = {
+        validate: jest
+          .fn()
+          .mockReturnValue(acceptedValidation('Visit Plaza de Mayo')),
+      };
+      const service = new ExperienceProposalResolverService(
+        osmPlaces as any,
+        catalog as any,
+        geographicValidator as any,
+      );
+
+      const result = await service.resolve({
+        geographicScope: { kind: 'AREA_BOUNDARY', boundary },
+        candidates: [candidate('Visit Plaza de Mayo', 'Plaza de Mayo')],
+      });
+
+      expect(result.acceptedCount).toBe(1);
+    });
+
+    it('resolves the ambiguous OSM case when independent evidence disambiguates one of the two exact candidates (own wikidata tag on that specific candidate)', async () => {
+      const wikidata = {
+        getEntitySummaries: jest
+          .fn()
+          .mockResolvedValue(new Map([['Q123', { label: 'Plaza de Mayo' }]])),
+      };
+      const osmPlaces = {
+        lookupStreetsWithin: jest
+          .fn()
+          .mockResolvedValue({ status: 'success', value: [] }),
+        lookupPoisWithin: jest.fn().mockResolvedValue({
+          status: 'success',
+          value: [
+            {
+              id: 'osm:way:1',
+              name: 'Plaza de Mayo',
+              osmType: 'way',
+              osmId: 1,
+              geometry: { type: 'Point', coordinates: [-58.3712, -34.6083] },
+              tags: { leisure: 'park', wikidata: 'Q123' },
+            },
+            {
+              id: 'osm:node:2',
+              name: 'Plaza de Mayo',
+              osmType: 'node',
+              osmId: 2,
+              geometry: { type: 'Point', coordinates: [-58.3715, -34.6085] },
+              tags: { public_transport: 'stop_position' },
+            },
+          ],
+        }),
+      };
+      const catalog = {
+        resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-1' }),
+        persistVerifiedExperience: jest
+          .fn()
+          .mockResolvedValue({ id: 'exp-1', dedupeDecision: 'NEW' }),
+      };
+      const geographicValidator = {
+        validate: jest
+          .fn()
+          .mockReturnValue(acceptedValidation('Visit Plaza de Mayo')),
+      };
+      const service = new ExperienceProposalResolverService(
+        osmPlaces as any,
+        catalog as any,
+        geographicValidator as any,
+        undefined,
+        undefined,
+        undefined,
+        wikidata as any,
+      );
+
+      const result = await service.resolve({
+        geographicScope: { kind: 'AREA_BOUNDARY', boundary },
+        candidates: [candidate('Visit Plaza de Mayo', 'Plaza de Mayo')],
+      });
+
+      // matchOsmCandidateByName's exact branch picks the FIRST exact match
+      // (pool order) -- that first candidate happens to be the one WITH the
+      // wikidata tag here, so it can be independently confirmed even though
+      // the pool was ambiguous.
+      expect(result.acceptedCount).toBe(1);
+      expect(catalog.upsertGeoEntity).toHaveBeenCalledWith(
+        expect.objectContaining({ externalId: 'osm:way:1' }),
+      );
+    });
+
+    it('does NOT auto-confirm an exact Nominatim result when its global result set contains two exact same-name entities', async () => {
+      const osmPlaces = {
+        lookupStreetsWithin: jest
+          .fn()
+          .mockResolvedValue({ status: 'success', value: [] }),
+        lookupPoisWithin: jest
+          .fn()
+          .mockResolvedValue({ status: 'success', value: [] }),
+      };
+      const nominatim = {
+        search: jest.fn().mockResolvedValue([
+          {
+            displayName: 'Plaza de Mayo, Buenos Aires, Argentina',
+            osmType: 'way',
+            osmId: 1,
+            latitude: -34.6083,
+            longitude: -58.3712,
+            importance: 0.5,
+            class: 'leisure',
+            address: {},
+          },
+          {
+            displayName: 'Plaza de Mayo, Other Place, Argentina',
+            osmType: 'node',
+            osmId: 2,
+            latitude: -34.6085,
+            longitude: -58.3715,
+            importance: 0.4,
+            class: 'leisure',
+            address: {},
+          },
+        ]),
+      };
+      const catalog = {
+        resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-1' }),
+        persistVerifiedExperience: jest.fn(),
+      };
+      const service = new ExperienceProposalResolverService(
+        osmPlaces as any,
+        catalog as any,
+        { validate: jest.fn() } as any,
+        undefined,
+        nominatim as any,
+      );
+
+      const result = await service.resolve({
+        destinationName: 'Buenos Aires',
+        geographicScope: { kind: 'AREA_BOUNDARY', boundary },
+        candidates: [candidate('Visit Plaza de Mayo', 'Plaza de Mayo')],
+        evidence: [
+          {
+            key: 'ev-1',
+            source: 'guide',
+            title: 'Buenos Aires guide',
+            snippet: 'Visit Plaza de Mayo in Buenos Aires.',
+          },
+        ],
+      });
+
+      expect(result.acceptedCount).toBe(0);
+      expect(result.resolved[0].resolvedEntities[0]).toMatchObject({
+        status: 'unresolved',
+        reason: 'UNCONFIRMED_MATCH',
+      });
+    });
+
+    it('does NOT auto-confirm an exact Places result when its global result set contains two exact same-name entities', async () => {
+      const osmPlaces = {
+        lookupStreetsWithin: jest
+          .fn()
+          .mockResolvedValue({ status: 'success', value: [] }),
+        lookupPoisWithin: jest
+          .fn()
+          .mockResolvedValue({ status: 'success', value: [] }),
+      };
+      const placesApi = {
+        provider: 'google' as const,
+        searchText: jest.fn().mockResolvedValue({
+          data: [
+            {
+              id: 'place-1',
+              displayName: { text: 'Plaza de Mayo' },
+              location: { latitude: -34.6083, longitude: -58.3712 },
+            },
+            {
+              id: 'place-2',
+              displayName: { text: 'Plaza de Mayo' },
+              location: { latitude: -34.6085, longitude: -58.3715 },
+            },
+          ],
+        }),
+      };
+      const catalog = {
+        resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-1' }),
+        persistVerifiedExperience: jest.fn(),
+      };
+      const service = new ExperienceProposalResolverService(
+        osmPlaces as any,
+        catalog as any,
+        { validate: jest.fn() } as any,
+        undefined,
+        undefined,
+        placesApi as any,
+      );
+
+      const result = await service.resolve({
+        destinationName: 'Buenos Aires',
+        geographicScope: { kind: 'AREA_BOUNDARY', boundary },
+        candidates: [candidate('Visit Plaza de Mayo', 'Plaza de Mayo')],
+        evidence: [
+          {
+            key: 'ev-1',
+            source: 'guide',
+            title: 'Buenos Aires guide',
+            snippet: 'Visit Plaza de Mayo in Buenos Aires.',
+          },
+        ],
+      });
+
+      expect(result.acceptedCount).toBe(0);
+      expect(result.resolved[0].resolvedEntities[0]).toMatchObject({
+        status: 'unresolved',
+        reason: 'UNCONFIRMED_MATCH',
+      });
+    });
+  });
+
+  it('continues to local AREA-to-PLACE correction when the global candidate is rejected (P1)', async () => {
+    const osmPlaces = {
+      lookupStreetsWithin: jest
+        .fn()
+        .mockResolvedValue({ status: 'success', value: [] }),
+      lookupPoisWithin: jest.fn().mockResolvedValue({
+        status: 'success',
+        value: [
+          {
+            id: 'osm:way:1',
+            name: 'Plaza de Mayo',
+            osmType: 'way',
+            osmId: 1,
+            geometry: { type: 'Point', coordinates: [-58.3712, -34.6083] },
+            tags: { leisure: 'park' },
+          },
+        ],
+      }),
+    };
+    const nominatim = {
+      search: jest.fn().mockResolvedValue([
+        {
+          displayName: 'Plaza Mayo, Buenos Aires, Argentina',
+          osmType: 'node',
+          osmId: 2,
+          latitude: -34.6083,
+          longitude: -58.3712,
+          importance: 0.5,
+          class: 'leisure',
+          address: {},
+        },
+      ]),
+    };
+    const catalog = {
+      resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+      upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-1' }),
+      persistVerifiedExperience: jest
+        .fn()
+        .mockResolvedValue({ id: 'exp-1', dedupeDecision: 'NEW' }),
+    };
+    const geographicValidator = {
+      validate: jest
+        .fn()
+        .mockReturnValue(acceptedValidation('Visit Plaza de Mayo')),
+    };
+    const service = new ExperienceProposalResolverService(
+      osmPlaces as any,
+      catalog as any,
+      geographicValidator as any,
+      undefined,
+      nominatim as any,
+    );
+    const areaCandidate = candidate('Visit Plaza de Mayo', 'Plaza de Mayo');
+    areaCandidate.componentHints[0] = {
+      ...areaCandidate.componentHints[0],
+      role: 'area',
+      expectedKind: 'AREA',
+    };
+
+    const result = await service.resolve({
+      destinationName: 'Buenos Aires',
+      geographicScope: { kind: 'AREA_BOUNDARY', boundary },
+      candidates: [areaCandidate],
+      evidence: [
+        {
+          key: 'ev-1',
+          source: 'guide',
+          title: 'Buenos Aires guide',
+          snippet: 'Visit Plaza de Mayo in Buenos Aires.',
+        },
+      ],
+    });
+
+    expect(nominatim.search).toHaveBeenCalled();
+    expect(result.acceptedCount).toBe(1);
+    expect(catalog.upsertGeoEntity).toHaveBeenCalledWith(
+      expect.objectContaining({
+        externalId: 'osm:way:1',
+        kind: GeoEntityKind.PLACE,
+      }),
+    );
   });
 
   describe("confirmMatch: direct confirmation via the OSM candidate's own wikidata tag", () => {

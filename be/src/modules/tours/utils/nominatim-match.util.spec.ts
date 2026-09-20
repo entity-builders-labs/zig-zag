@@ -1,5 +1,7 @@
 import {
   bestNominatimMatch,
+  countExactNormalizedMatches,
+  countNominatimExactMatches,
   hasSpecificNameOverlap,
   isAreaScaleEligible,
   isPlaceScaleEligible,
@@ -420,6 +422,61 @@ describe('isPlaceScaleEligible', () => {
 
   it('accepts a match with no class at all (mocks/providers that never populate it stay treated as a point, same as before this predicate existed)', () => {
     expect(isPlaceScaleEligible(result({ class: undefined }))).toBe(true);
+  });
+});
+
+describe('countExactNormalizedMatches (P0.2)', () => {
+  it('returns 1 for a single exact match', () => {
+    expect(
+      countExactNormalizedMatches(
+        'Plaza de Mayo',
+        [{ name: 'Plaza de Mayo' }],
+        (i) => i.name,
+      ),
+    ).toBe(1);
+  });
+
+  it('returns 2 for two candidates whose names both exactly normalize to the same thing (real regression class: a landmark and an unrelated transit stop both literally named "Plaza de Mayo")', () => {
+    expect(
+      countExactNormalizedMatches(
+        'Plaza de Mayo',
+        [{ name: 'Plaza de Mayo' }, { name: 'Plaza de Mayo' }],
+        (i) => i.name,
+      ),
+    ).toBe(2);
+  });
+
+  it('returns 0 when nothing matches exactly, even if something matches fuzzily', () => {
+    expect(
+      countExactNormalizedMatches(
+        'Plaza de Mayo',
+        [{ name: 'Plaza de Mayo (Historic Square)' }],
+        (i) => i.name,
+      ),
+    ).toBe(0);
+  });
+});
+
+describe('countNominatimExactMatches (P0.2)', () => {
+  it('uses the SAME broader exact definition bestNominatimMatch itself uses (whole displayName equals or starts with needle + space, not just the first segment)', () => {
+    expect(
+      countNominatimExactMatches('Puerto Madero', [
+        result({ displayName: 'Puerto Madero, Buenos Aires, Argentina' }),
+      ]),
+    ).toBe(1);
+  });
+
+  it('counts two same-country same-name results as ambiguous', () => {
+    expect(
+      countNominatimExactMatches('Catedral San Juan Bautista', [
+        result({
+          displayName: 'Catedral San Juan Bautista, Buenos Aires, Argentina',
+        }),
+        result({
+          displayName: 'Catedral San Juan Bautista, San Juan, Argentina',
+        }),
+      ]),
+    ).toBe(2);
   });
 });
 

@@ -77,6 +77,22 @@ export interface ResolvedGeoEntity {
    * exact name match -- an address either matches or it doesn't.
    */
   addressConfirmed?: boolean;
+  /**
+   * P0.2: true when the SELECTION step picked this entity from among 2+
+   * candidates whose normalized name ALL exactly equal the hint's own
+   * (a real chain/franchise, or two structurally unrelated real-world
+   * features sharing one literal name -- a landmark and a transit stop
+   * both called "Plaza de Mayo" is the live-verified case). Candidate
+   * ranking (closest, first-found, highest-importance) still picks ONE of
+   * them to try -- this flag only tells `confirmMatch` that an exact name
+   * match alone is not sufficient evidence for THIS entity, since ranking
+   * answers "which is the best candidate to try", never "is this candidate
+   * the correct real-world identity" (P0.2's central distinction). Absent/
+   * false means the pool this entity came from had exactly one candidate
+   * whose name exactly matched -- an exact match remains strong evidence
+   * on its own in that case, unchanged from before this field existed.
+   */
+  exactNameAmbiguous?: boolean;
   role: 'area' | 'waypoint' | 'route' | 'venue';
   expectedType?: string;
   status: ResolvedGeoEntityStatus;

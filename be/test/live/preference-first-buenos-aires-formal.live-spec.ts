@@ -179,8 +179,17 @@ function hasFacet(spec: any, dimension: string, key: string): boolean {
         (preferenceSpec?.anchors ?? []).some(
           (anchor: any) =>
             anchor.rawName.toLowerCase() === 'san telmo' &&
-            anchor.kind === 'area' &&
+            anchor.usage === 'geographic_scope' &&
             anchor.priority === 'must',
+        ),
+      ).toBe(true);
+      expect(
+        (preferenceSpec?.resolvedAnchors ?? []).some(
+          (anchor: any) =>
+            anchor.rawName.toLowerCase() === 'san telmo' &&
+            anchor.status === 'resolved' &&
+            anchor.canonicalName === 'San Telmo' &&
+            anchor.kind === 'area',
         ),
       ).toBe(true);
       expect(destinationStep?.outputs?.scale).toBe('area');

@@ -285,6 +285,49 @@ export function hasSpecificNameOverlap(
  * characterization: bulk-numbered venue names from a large candidate
  * batch).
  */
+/**
+ * P0.2: how many items in `items` have a name that EXACTLY equals `name`
+ * once normalized -- the same "is there real ambiguity in this pool"
+ * question for every source (OSM pool / Nominatim results / Places
+ * results), each with its own exactness definition passed in as
+ * `getName`. Selection functions (`matchOsmCandidateByName`,
+ * `selectBestPlaceCandidate`, `bestNominatimMatch`) still pick ONE
+ * candidate to try when this is > 1 -- this only tells the caller whether
+ * that pick came from an unambiguous pool (count === 1, exact match alone
+ * remains strong evidence) or an ambiguous one (count > 1, `confirmMatch`
+ * must require independent evidence beyond the name match itself).
+ */
+export function countExactNormalizedMatches<T>(
+  name: string,
+  items: readonly T[],
+  getName: (item: T) => string | undefined,
+): number {
+  const needle = normalizeGeoName(name);
+  if (!needle) return 0;
+  return items.filter(
+    (item) => normalizeGeoName(getName(item) ?? '') === needle,
+  ).length;
+}
+
+/**
+ * Same as `countExactNormalizedMatches`, using the SAME broader "exact"
+ * definition `bestNominatimMatch`'s own exact bucket uses (the whole
+ * normalized `displayName` equals or starts with `needle + ' '`, not just
+ * its first comma-separated segment) -- so this count never diverges from
+ * what `bestNominatimMatch` itself actually considered exact.
+ */
+export function countNominatimExactMatches(
+  name: string,
+  results: readonly NominatimResult[],
+): number {
+  const needle = normalizeGeoName(name);
+  if (!needle) return 0;
+  return results.filter((result) => {
+    const display = normalizeGeoName(result.displayName);
+    return display === needle || display.startsWith(`${needle} `);
+  }).length;
+}
+
 export function matchOsmCandidateByName(
   name: string,
   pool: OsmCandidate[],
