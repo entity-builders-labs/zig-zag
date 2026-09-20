@@ -12,7 +12,11 @@ import {
   InterpretedAnchor,
   ResolvedAnchor,
 } from '../interfaces/preference-spec.interface';
-import { GeographicScope } from '../interfaces/experience-resolution.interface';
+import {
+  EntityCandidate,
+  GeographicScope,
+  VerificationDecision,
+} from '../interfaces/experience-resolution.interface';
 import { ExperienceCatalogService } from './experience-catalog.service';
 import {
   bestNominatimMatch,
@@ -20,6 +24,11 @@ import {
   matchOsmCandidateByName,
   normalizeGeoName,
 } from '../utils/nominatim-match.util';
+import { placesAcquisitionLabel } from '../utils/places-external-identity.util';
+import { buildLocalIdentityEvidence } from '../utils/identity-evidence-builder.util';
+import { IdentityVerifier } from './identity-verifier.service';
+import { IdentityEvidenceCollector } from './identity-evidence-collector.service';
+import { IWikidataApiService } from '@integrations/wikidata/interfaces/wikidata.interface';
 
 /**
  * Task B5 — resolves a single AREA/ROUTE anchor to a real, persisted
@@ -62,23 +71,6 @@ interface AnchorGeoCandidate {
 type CandidateDiscovery =
   | { status: 'match'; candidate: AnchorGeoCandidate }
   | { status: 'no_match' | 'unavailable'; reason: string };
-
-function normalizePlacesProvider(
-  provider: IPlacesApiService['provider'],
-): string {
-  switch (provider) {
-    case 'google':
-      return 'google_places';
-    case 'geoapify':
-      return 'geoapify';
-    default:
-      return assertNever(provider);
-  }
-}
-
-function assertNever(value: never): never {
-  throw new Error(`Unsupported Places provider: ${String(value)}`);
-}
 
 const NON_VENUE_PLACE_TYPES = new Set([
   'administrative_area_level_1',
@@ -145,6 +137,9 @@ function representativePoint(
 
 @Injectable()
 export class AreaRouteAnchorResolverService {
+  private readonly identityVerifier: IdentityVerifier;
+  private readonly identityEvidenceCollector: IdentityEvidenceCollector;
+
   constructor(
     private readonly osmPlaces: OsmPlacesService,
     private readonly catalog: ExperienceCatalogService,
@@ -154,7 +149,13 @@ export class AreaRouteAnchorResolverService {
     @Optional()
     @Inject('PlacesApiService')
     private readonly placesApi?: IPlacesApiService,
-  ) {}
+    @Optional()
+    @Inject('WikidataApiService')
+    private readonly wikidata?: IWikidataApiService,
+  ) {
+    this.identityVerifier = new IdentityVerifier();
+    this.identityEvidenceCollector = new IdentityEvidenceCollector(wikidata);
+  }
 
   /** Resolve interpreted names to canonical GeoEntity kinds. */
   async resolveNamedAnchors(
@@ -181,7 +182,13 @@ export class AreaRouteAnchorResolverService {
         ]);
         const match = this.selectCandidate(outcomes);
         if (match?.status === 'match') {
-          return this.persistCandidate(anchor, match.candidate);
+          const persisted = await this.persistCandidate(
+            anchor,
+            match.candidate,
+          );
+          if (persisted) return persisted;
+          // Verification failed — candidate was selected but could not be
+          // confirmed. Fall through to unresolved.
         }
         const unavailable = outcomes.find(
           (outcome) => outcome.status === 'unavailable',
@@ -269,7 +276,7 @@ export class AreaRouteAnchorResolverService {
           : { status: 'no_match', reason: 'NO_CONFIDENT_PLACE_MATCH' };
       const canonicalName =
         place.displayName?.text || place.name || anchor.rawName;
-      const provider = normalizePlacesProvider(this.placesApi.provider);
+      const provider = placesAcquisitionLabel(this.placesApi.provider);
       const externalId = `${provider}:${place.id}`;
       return {
         status: 'match',
@@ -318,24 +325,92 @@ export class AreaRouteAnchorResolverService {
     return matches[0];
   }
 
-  private async persistCandidate(
+  /**
+   * Converts an internal AnchorGeoCandidate into a transient EntityCandidate
+   * suitable for the shared IdentityVerifier. The EntityCandidate carries
+   * every fact needed to verify AND persist — single source of truth.
+   */
+  private toEntityCandidate(
     anchor: InterpretedAnchor,
     candidate: AnchorGeoCandidate,
-  ): Promise<ResolvedAnchor> {
-    const geo = await this.catalog.upsertGeoEntity({
-      name: candidate.canonicalName,
-      kind:
-        candidate.kind === 'area'
-          ? GeoEntityKind.AREA
-          : candidate.kind === 'route'
-            ? GeoEntityKind.ROUTE
-            : GeoEntityKind.PLACE,
+  ): EntityCandidate {
+    const kind =
+      candidate.kind === 'area'
+        ? GeoEntityKind.AREA
+        : candidate.kind === 'route'
+          ? GeoEntityKind.ROUTE
+          : GeoEntityKind.PLACE;
+    return {
+      hintKey: anchor.rawName,
+      hintName: anchor.rawName,
       provider: candidate.provider,
-      externalId: candidate.externalId,
+      externalId: candidate.externalId ?? '',
+      canonicalName: candidate.canonicalName,
+      kind,
       latitude: candidate.latitude,
       longitude: candidate.longitude,
       geometry: candidate.geometry,
-      ...(candidate.metadata ? { metadata: { tags: candidate.metadata } } : {}),
+      role: candidate.kind,
+      persistenceMetadata: candidate.metadata
+        ? { tags: candidate.metadata }
+        : undefined,
+    };
+  }
+
+  /**
+   * Runs the shared identity verification gate on an anchor candidate
+   * before it may be persisted. Same IdentityVerifier, same evidence
+   * construction as ExperienceProposalResolverService — single identity
+   * authority.
+   */
+  private async verifyAnchorCandidate(
+    entity: EntityCandidate,
+  ): Promise<VerificationDecision> {
+    const evidence = buildLocalIdentityEvidence(
+      { name: entity.hintName },
+      entity,
+    );
+    const attempt = {
+      strategy: 'LOCAL_OSM_POOL' as const,
+      candidate: entity,
+      evidence,
+    };
+    const directDecision = this.identityVerifier.verify(
+      { name: entity.hintName },
+      attempt,
+    );
+    if (directDecision.status === 'VERIFIED') return directDecision;
+    attempt.evidence.push(
+      ...(await this.identityEvidenceCollector.collect(
+        { name: entity.hintName },
+        entity,
+      )),
+    );
+    return this.identityVerifier.verify({ name: entity.hintName }, attempt);
+  }
+
+  /**
+   * Verifies an anchor candidate's identity before persisting. Returns
+   * null when verification fails — callers must not persist unverified
+   * anchor candidates.
+   */
+  private async persistCandidate(
+    anchor: InterpretedAnchor,
+    candidate: AnchorGeoCandidate,
+  ): Promise<ResolvedAnchor | null> {
+    const entity = this.toEntityCandidate(anchor, candidate);
+    const decision = await this.verifyAnchorCandidate(entity);
+    if (decision.status !== 'VERIFIED') return null;
+
+    const geo = await this.catalog.upsertGeoEntity({
+      name: entity.canonicalName,
+      kind: entity.kind,
+      provider: entity.provider,
+      externalId: entity.externalId,
+      latitude: entity.latitude,
+      longitude: entity.longitude,
+      geometry: entity.geometry,
+      metadata: entity.persistenceMetadata,
     });
     return {
       status: 'resolved',
@@ -436,8 +511,12 @@ export class AreaRouteAnchorResolverService {
         : { resolved: false, status: 'no_match', reason: outcome.reason };
     }
     const persisted = await this.persistCandidate(anchor, outcome.candidate);
-    if (persisted.status !== 'resolved') {
-      throw new Error('Selected area candidate did not resolve');
+    if (!persisted || persisted.status !== 'resolved') {
+      return {
+        resolved: false,
+        status: 'no_match',
+        reason: 'IDENTITY_NOT_VERIFIED',
+      };
     }
     return {
       resolved: true,
@@ -513,8 +592,12 @@ export class AreaRouteAnchorResolverService {
         : { resolved: false, status: 'no_match', reason: outcome.reason };
     }
     const persisted = await this.persistCandidate(anchor, outcome.candidate);
-    if (persisted.status !== 'resolved') {
-      throw new Error('Selected route candidate did not resolve');
+    if (!persisted || persisted.status !== 'resolved') {
+      return {
+        resolved: false,
+        status: 'no_match',
+        reason: 'IDENTITY_NOT_VERIFIED',
+      };
     }
     return {
       resolved: true,

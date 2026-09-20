@@ -2,6 +2,16 @@ import { GeoEntityKind } from '@prisma/client';
 import { AreaRouteAnchorResolverService } from './area-route-anchor-resolver.service';
 import { InterpretedAnchor } from '../interfaces/preference-spec.interface';
 
+// The anchor resolver now gates persistence behind the shared IdentityVerifier.
+// Tests that expect persistence must either provide Wikidata mocks or
+// mock IdentityVerifier.verify to return VERIFIED — the verifier's own
+// spec already tests its decision logic exhaustively.
+jest.mock('./identity-verifier.service', () => ({
+  IdentityVerifier: jest.fn().mockImplementation(() => ({
+    verify: jest.fn().mockReturnValue({ status: 'VERIFIED' }),
+  })),
+}));
+
 describe('AreaRouteAnchorResolverService', () => {
   const areaAnchor: InterpretedAnchor = {
     rawName: 'San Telmo',
