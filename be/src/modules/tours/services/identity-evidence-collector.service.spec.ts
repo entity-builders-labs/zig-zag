@@ -9,13 +9,8 @@ const candidate = (
   provider: 'openstreetmap',
   externalId: 'osm:way:1',
   canonicalName: 'Cementerio de la Recoleta',
+  kind: 'PLACE' as any,
   role: 'venue',
-  persistence: {
-    name: 'Cementerio de la Recoleta',
-    kind: 'PLACE' as any,
-    provider: 'openstreetmap',
-    externalId: 'osm:way:1',
-  },
   ...overrides,
 });
 

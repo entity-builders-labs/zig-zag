@@ -20,7 +20,6 @@ import {
   ExperienceProposalResolver,
   ExperienceResolutionRequest,
   FinalExperienceResolutionResponse,
-  IdentityEvidence,
   ResolvedExperienceCandidate,
   ResolvedGeoEntity,
   ResolutionAttempt,
@@ -31,7 +30,6 @@ import {
   bestNominatimMatch,
   countExactNormalizedMatches,
   countNominatimExactMatches,
-  hasSpecificNameOverlap,
   isAreaScaleEligible,
   isPlaceScaleEligible,
   matchesAddressHint,
@@ -49,6 +47,7 @@ import {
   canonicalPlacesExternalId,
   placesAcquisitionLabel,
 } from '../utils/places-external-identity.util';
+import { buildLocalIdentityEvidence } from '../utils/identity-evidence-builder.util';
 import { IdentityVerifier } from './identity-verifier.service';
 import { IdentityEvidenceCollector } from './identity-evidence-collector.service';
 
@@ -775,26 +774,7 @@ export class ExperienceProposalResolverService
     hint: any,
     observations: SourceObservation[] = [],
   ): Promise<VerificationDecision> {
-    const evidence: IdentityEvidence[] = [];
-    const ambiguous = Boolean(entity.exactNameAmbiguous);
-    if (
-      normalizeGeoName(entity.canonicalName ?? '') ===
-      normalizeGeoName(hint.name)
-    ) {
-      evidence.push({ type: 'EXACT_NAME', ambiguous });
-    }
-    if (entity.addressConfirmed) evidence.push({ type: 'ADDRESS_MATCH' });
-    if (
-      (entity.nameAliasCandidates ?? []).some((alias) =>
-        hasSpecificNameOverlap(
-          normalizeGeoName(hint.name),
-          normalizeGeoName(alias),
-          { requireAllTokens: true },
-        ),
-      )
-    ) {
-      evidence.push({ type: 'DECLARED_ALIAS_MATCH', ambiguous });
-    }
+    const evidence = buildLocalIdentityEvidence(hint, entity);
     const attempt: ResolutionAttempt = {
       strategy,
       candidate: entity,
@@ -815,10 +795,34 @@ export class ExperienceProposalResolverService
   private async persistVerifiedCandidate(
     candidate: EntityCandidate,
   ): Promise<ResolvedGeoEntity> {
-    const geo = await this.catalog.upsertGeoEntity(candidate.persistence);
-    const { persistence, ...entity } = candidate;
-    void persistence;
-    return { ...entity, status: 'resolved', geoEntityId: geo.id };
+    const geo = await this.catalog.upsertGeoEntity({
+      name: candidate.canonicalName,
+      kind: candidate.kind,
+      provider: candidate.provider,
+      externalId: candidate.externalId,
+      latitude: candidate.latitude ?? undefined,
+      longitude: candidate.longitude ?? undefined,
+      geometry: candidate.geometry,
+      metadata: candidate.persistenceMetadata,
+    });
+    return {
+      hintKey: candidate.hintKey,
+      hintName: candidate.hintName,
+      provider: candidate.provider,
+      externalId: candidate.externalId,
+      canonicalName: candidate.canonicalName,
+      latitude: candidate.latitude,
+      longitude: candidate.longitude,
+      geometry: candidate.geometry,
+      role: candidate.role,
+      wikidataQid: candidate.wikidataQid,
+      nameAliasCandidates: candidate.nameAliasCandidates,
+      addressConfirmed: candidate.addressConfirmed,
+      exactNameAmbiguous: candidate.exactNameAmbiguous,
+      adminContext: candidate.adminContext,
+      status: 'resolved',
+      geoEntityId: geo.id,
+    };
   }
 
   /**
@@ -858,6 +862,7 @@ export class ExperienceProposalResolverService
       provider: 'openstreetmap',
       externalId: matched.id,
       canonicalName: matched.name,
+      kind,
       latitude: point?.latitude,
       longitude: point?.longitude,
       geometry: matched.geometry,
@@ -866,16 +871,7 @@ export class ExperienceProposalResolverService
       nameAliasCandidates: extractNameAliasCandidates(matched.tags),
       addressConfirmed: matchesAddressHint(hint.addressHint, matched.tags),
       exactNameAmbiguous,
-      persistence: {
-        name: matched.name,
-        kind,
-        provider: 'openstreetmap',
-        externalId: matched.id,
-        latitude: point?.latitude,
-        longitude: point?.longitude,
-        geometry: matched.geometry,
-        metadata: { tags: matched.tags },
-      },
+      persistenceMetadata: { tags: matched.tags },
     };
   }
 
@@ -953,6 +949,7 @@ export class ExperienceProposalResolverService
         provider: 'nominatim',
         externalId,
         canonicalName,
+        kind: GeoEntityKind.PLACE,
         latitude: match.latitude,
         longitude: match.longitude,
         geometry,
@@ -968,19 +965,10 @@ export class ExperienceProposalResolverService
             match.address?.municipality,
           municipality: match.address?.municipality,
         },
-        persistence: {
-          name: canonicalName,
-          kind: GeoEntityKind.PLACE,
-          provider: 'nominatim',
-          externalId,
-          latitude: match.latitude,
-          longitude: match.longitude,
-          geometry,
-          metadata: {
-            displayName: match.displayName,
-            addresstype: match.addresstype,
-            address: match.address,
-          },
+        persistenceMetadata: {
+          displayName: match.displayName,
+          addresstype: match.addresstype,
+          address: match.address,
         },
       };
     } catch (error: any) {
@@ -1145,6 +1133,7 @@ export class ExperienceProposalResolverService
       provider: providerLabel,
       externalId,
       canonicalName,
+      kind: GeoEntityKind.PLACE,
       latitude,
       longitude,
       geometry,
@@ -1153,16 +1142,7 @@ export class ExperienceProposalResolverService
       // record, but never proves real-world uniqueness. Keep exact-name
       // evidence ambiguous so IdentityVerifier requires independent proof.
       exactNameAmbiguous: true,
-      persistence: {
-        name: canonicalName,
-        kind: GeoEntityKind.PLACE,
-        provider: providerLabel,
-        externalId,
-        latitude,
-        longitude,
-        geometry,
-        metadata: { formattedAddress: details.formattedAddress },
-      },
+      persistenceMetadata: { formattedAddress: details.formattedAddress },
     };
   }
 
@@ -1226,23 +1206,15 @@ export class ExperienceProposalResolverService
         provider: providerLabel,
         externalId,
         canonicalName,
+        kind: GeoEntityKind.PLACE,
         latitude: place.location.latitude,
         longitude: place.location.longitude,
         geometry,
         role: hint.role,
         exactNameAmbiguous,
-        persistence: {
-          name: canonicalName,
-          kind: GeoEntityKind.PLACE,
-          provider: providerLabel,
-          externalId,
-          latitude: place.location.latitude,
-          longitude: place.location.longitude,
-          geometry,
-          metadata: {
-            formattedAddress: place.formattedAddress,
-            types: place.types,
-          },
+        persistenceMetadata: {
+          formattedAddress: place.formattedAddress,
+          types: place.types,
         },
       };
     } catch (error: any) {

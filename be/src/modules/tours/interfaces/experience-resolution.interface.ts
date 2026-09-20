@@ -1,3 +1,4 @@
+import { GeoEntityKind } from '@prisma/client';
 import { ExperienceCandidate } from './experience-discovery.interface';
 import { DedupeEvidence } from '../utils/experience-dedupe.util';
 import { GeoJsonGeometry } from '@integrations/osm/utils/osm-geometry.util';
@@ -79,16 +80,20 @@ export type VerificationDecision =
   | { status: 'REJECTED' };
 
 /**
- * A normalized provider candidate before canonical persistence. It may carry
- * provider facts and a typed persistence payload, but never a GeoEntity id or
- * a resolved status: IdentityVerifier must authorize that transition first.
+ * A normalized provider candidate before canonical persistence. It carries
+ * every fact needed to verify identity AND persist the entity — there is
+ * exactly one representation of provider, externalId, canonicalName,
+ * coordinates, and kind, so verified facts are identical to persisted facts
+ * by construction. Never carries a GeoEntity id or resolved status:
+ * IdentityVerifier must authorize that transition first.
  */
 export interface EntityCandidate {
   hintKey: string;
   hintName: string;
   provider: string;
-  externalId?: string;
-  canonicalName?: string | null;
+  externalId: string;
+  canonicalName: string;
+  kind: GeoEntityKind;
   latitude?: number | null;
   longitude?: number | null;
   geometry?: unknown;
@@ -104,16 +109,8 @@ export interface EntityCandidate {
     locality?: string;
     municipality?: string;
   };
-  persistence: {
-    name: string;
-    kind: import('@prisma/client').GeoEntityKind;
-    provider: string;
-    externalId: string;
-    latitude?: number;
-    longitude?: number;
-    geometry?: unknown;
-    metadata?: unknown;
-  };
+  /** Provider-specific metadata carried through to persistence (tags, etc). */
+  persistenceMetadata?: unknown;
 }
 
 export interface ResolvedGeoEntity {

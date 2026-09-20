@@ -11,14 +11,10 @@ const attempt = (
       hintKey: 'place',
       hintName: 'hint',
       provider: 'google_places',
+      externalId: 'place-1',
       canonicalName,
+      kind: 'PLACE' as any,
       role: 'venue',
-      persistence: {
-        name: canonicalName,
-        kind: 'PLACE' as any,
-        provider: 'google_places',
-        externalId: 'place-1',
-      },
     },
     evidence,
   }) as ResolutionAttempt;
