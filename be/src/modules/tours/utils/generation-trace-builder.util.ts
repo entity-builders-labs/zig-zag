@@ -1683,18 +1683,25 @@ export function buildGeographicValidationStep(
                 : undefined,
           }
         : undefined,
+      validationIntent: result.validationIntent,
+      destinationBoundary: result.destinationBoundary,
       areaScopeMembership: entry.areaScopeMembership,
       groundedEvidenceKeys: [...entry.groundedEvidenceKeys],
       rejectionReasons: [...entry.rejectionReasons],
-      components: (resolvedCandidate?.resolvedEntities ?? []).map((entity) => ({
-        hintName: entity.hintName,
-        hintKey: entity.hintKey,
-        role: entity.role,
-        resolvedGeoEntityId: entity.geoEntityId,
-        relation:
-          decisionEntities.get(entity.hintKey ?? entity.geoEntityId)
-            ?.relation ?? 'evaluated',
-      })),
+      components: (resolvedCandidate?.resolvedEntities ?? []).map((entity) => {
+        const decision = decisionEntities.get(
+          entity.hintKey ?? entity.geoEntityId,
+        );
+        return {
+          hintName: entity.hintName,
+          hintKey: entity.hintKey,
+          role: entity.role,
+          resolvedGeoEntityId: entity.geoEntityId,
+          relation: decision?.relation ?? 'evaluated',
+          decisionReason: decision?.decisionReason,
+          distanceToBoundaryMeters: decision?.distanceToBoundaryMeters,
+        };
+      }),
     };
   });
 

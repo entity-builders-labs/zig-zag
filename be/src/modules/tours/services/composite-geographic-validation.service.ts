@@ -191,6 +191,7 @@ export class CompositeGeographicValidationService {
           entities,
           undefined,
           'EXTERNAL_AREA_SCOPE_MISMATCH',
+          geometry,
         )
       : {
           proposalName: resolvedProposal.candidate.name,
@@ -232,7 +233,8 @@ export class CompositeGeographicValidationService {
           outside,
           entities,
           undefined,
-          'EXTERNAL_AREA_SCOPE_MISMATCH',
+          'OUTSIDE_POINT_RADIUS_SCOPE',
+          { type: 'Point', coordinates: [scope.longitude, scope.latitude] },
         )
       : {
           proposalName: resolvedProposal.candidate.name,
@@ -371,6 +373,7 @@ export class CompositeGeographicValidationService {
             requiredEntities,
             areaScopeMembership,
             'EXTERNAL_AREA_SCOPE_MISMATCH',
+            validationScope.geometry,
           ),
           areaScopeMembership,
         };
@@ -487,7 +490,7 @@ export class CompositeGeographicValidationService {
           [canonicalRoute],
           undefined,
           routeMismatch.reason,
-          destinationBoundary,
+          destinationBoundary.geometry,
         );
       }
       // Task B5 (correctness point 10): validate every OTHER required
@@ -536,7 +539,7 @@ export class CompositeGeographicValidationService {
           fullRequiredSet,
           undefined,
           fullMismatch.reason,
-          destinationBoundary,
+          destinationBoundary.geometry,
         );
       }
       return {
@@ -586,7 +589,7 @@ export class CompositeGeographicValidationService {
             [canonicalArea],
             undefined,
             'OUTSIDE_DESTINATION_BOUNDARY',
-            destinationBoundary,
+            destinationBoundary.geometry,
           );
         }
         // Task B5 (correctness point 10): validate every OTHER required
@@ -637,8 +640,8 @@ export class CompositeGeographicValidationService {
             outsideArea,
             [canonicalArea, ...outsideArea],
             undefined,
-            'OUTSIDE_DESTINATION_BOUNDARY',
-            canonicalArea as unknown as OsmCandidate, // Use canonicalArea geometry for distance calculation
+            'OUTSIDE_CANONICAL_AREA_BOUNDARY',
+            canonicalArea.geometry as GeoJsonGeometry,
           );
         }
         return {
@@ -720,7 +723,7 @@ export class CompositeGeographicValidationService {
             [venue],
             undefined,
             'OUTSIDE_DESTINATION_BOUNDARY',
-            destinationBoundary,
+            destinationBoundary.geometry,
           );
         }
         return {
@@ -771,14 +774,10 @@ export class CompositeGeographicValidationService {
         anchors,
       );
     }
-    if (
-      routeScale
-        ? this.routeDestinationMismatch(anchors, destinationBoundary).mismatch
-        : this.destinationMismatch(anchors, destinationBoundary, false).mismatch
-    ) {
-      const mismatch = routeScale
-        ? this.routeDestinationMismatch(anchors, destinationBoundary)
-        : this.destinationMismatch(anchors, destinationBoundary, false);
+    const mismatch = routeScale
+      ? this.routeDestinationMismatch(anchors, destinationBoundary)
+      : this.destinationMismatch(anchors, destinationBoundary, false);
+    if (mismatch.mismatch) {
       return this.rejected(
         proposalName,
         kind,
@@ -790,7 +789,7 @@ export class CompositeGeographicValidationService {
         anchors,
         undefined,
         mismatch.reason,
-        destinationBoundary,
+        destinationBoundary.geometry,
       );
     }
     const coherence = coherenceMetrics(this.pointsOf(anchors));
@@ -1026,7 +1025,7 @@ export class CompositeGeographicValidationService {
     evaluatedEntities: ResolvedGeoEntity[] = anchors,
     areaScopeMembership?: AreaScopeMembershipAudit,
     mismatchReason?: GeographicDecisionReason,
-    destinationBoundary?: OsmCandidate,
+    distanceBoundaryGeometry?: GeoJsonGeometry,
   ): GeographicValidationResult {
     const decisionEntities: GeographicValidationDecisionEntity[] =
       evaluatedEntities.map((entity) => {
@@ -1039,17 +1038,17 @@ export class CompositeGeographicValidationService {
           relation: isOffending ? 'offending' : 'evaluated',
         };
 
-        if (isOffending && mismatchReason) {
+        if (isOffending && mismatchReason && distanceBoundaryGeometry) {
           baseEntity.decisionReason = mismatchReason;
           if (
-            mismatchReason === 'OUTSIDE_DESTINATION_BOUNDARY' &&
-            destinationBoundary &&
+            (mismatchReason === 'OUTSIDE_DESTINATION_BOUNDARY' ||
+              mismatchReason === 'OUTSIDE_CANONICAL_AREA_BOUNDARY') &&
             Number.isFinite(entity.latitude) &&
             Number.isFinite(entity.longitude)
           ) {
             baseEntity.distanceToBoundaryMeters =
               distancePointToPolygonBoundaryMeters(
-                destinationBoundary.geometry,
+                distanceBoundaryGeometry,
                 entity.longitude as number,
                 entity.latitude as number,
               );

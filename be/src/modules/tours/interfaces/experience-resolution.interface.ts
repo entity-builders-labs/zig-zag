@@ -5,6 +5,7 @@ import { GeoJsonGeometry } from '@integrations/osm/utils/osm-geometry.util';
 import { OsmCandidate } from '@integrations/osm/services/osm-places.service';
 import { AreaScopeMembershipAudit } from './area-scope-membership.interface';
 import { SourceObservation } from './experience-acquisition.interface';
+import { GeographicValidationDecisionEntity } from './geographic-validation.interface';
 
 /**
  * Task B5 — a request-level, non-authoritative geographic scope resolved
@@ -292,11 +293,7 @@ export interface ExperienceGeographicValidationResult {
   rejectionReasons: string[];
   areaScopeMembership?: AreaScopeMembershipAudit;
   /** Exact entities used by the canonical decision; trace never infers offenders. */
-  decisionEntities?: Array<{
-    geoEntityId?: string;
-    hintKey?: string;
-    relation: 'evaluated' | 'offending';
-  }>;
+  decisionEntities?: GeographicValidationDecisionEntity[];
   validatorVersion: number;
 }
 
@@ -352,6 +349,22 @@ export interface FinalExperienceResolutionResponse
   extends ExperienceResolutionResponse {
   geographicValidation: ExperienceGeographicValidationBatchResult;
   validationScope?: ExperienceValidationScope;
+  /**
+   * The request's acquisition intent ('walk'/'route_like'), used ONLY to select
+   * a geographic threshold policy inside CompositeGeographicValidationService.
+   * Never derived from anything the extractor/candidate claims.
+   */
+  validationIntent?: 'walk' | 'route_like';
+  /**
+   * Non-geometry summary of the destination boundary used for geographic
+   * validation. Populated from the actual runtime value used by the validator.
+   * Enables forensic trace to answer "outside which destination boundary?"
+   * without storing raw geometry.
+   */
+  destinationBoundary?: {
+    name?: string;
+    externalId?: string;
+  };
 }
 
 export interface ExperienceProposalResolver {

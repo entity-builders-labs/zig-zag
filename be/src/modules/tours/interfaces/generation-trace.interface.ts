@@ -7,6 +7,7 @@ import { GeoEntityHint } from './experience-discovery.interface';
 import { ResolvedGeoEntity } from './experience-resolution.interface';
 import { AcquisitionEvidenceRequirement } from './acquisition-evidence-requirement.interface';
 import { AreaScopeMembershipAudit } from './area-scope-membership.interface';
+import { GeographicDecisionReason } from './geographic-validation.interface';
 
 export type TraceStage =
   | 'preference_interpretation'
@@ -216,6 +217,20 @@ export interface TraceGeographicValidationDecision {
   areaScopeMembership?: AreaScopeMembershipAudit;
   groundedEvidenceKeys: string[];
   rejectionReasons: string[];
+  /**
+   * The request's acquisition intent ('walk'/'route_like'), used ONLY to select
+   * a geographic threshold policy inside CompositeGeographicValidationService.
+   */
+  validationIntent?: 'walk' | 'route_like';
+  /**
+   * Non-geometry summary of the destination boundary used for geographic
+   * validation. Enables forensic trace to answer "outside which destination
+   * boundary?" without storing raw geometry.
+   */
+  destinationBoundary?: {
+    name?: string;
+    externalId?: string;
+  };
   components: Array<{
     hintName: string;
     hintKey?: string;
@@ -226,10 +241,10 @@ export interface TraceGeographicValidationDecision {
      * Machine-readable reason for the component's role in the decision.
      * Present for 'offending' components; may be present for 'evaluated' if useful.
      */
-    decisionReason?: string;
+    decisionReason?: GeographicDecisionReason;
     /**
      * Shortest distance in meters from the resolved point to the destination boundary.
-     * Only populated for OUTSIDE_DESTINATION_BOUNDARY rejections.
+     * Only populated for OUTSIDE_DESTINATION_BOUNDARY / OUTSIDE_CANONICAL_AREA_BOUNDARY rejections.
      * Absent when unknown or not applicable.
      */
     distanceToBoundaryMeters?: number;
@@ -383,10 +398,10 @@ export interface TraceGeographicValidationResult {
      * Machine-readable reason for the entity's role in the decision.
      * Present for 'offending' entities; may be present for 'evaluated' if useful.
      */
-    decisionReason?: string;
+    decisionReason?: GeographicDecisionReason;
     /**
      * Shortest distance in meters from the resolved point to the destination boundary.
-     * Only populated for OUTSIDE_DESTINATION_BOUNDARY rejections.
+     * Only populated for OUTSIDE_DESTINATION_BOUNDARY / OUTSIDE_CANONICAL_AREA_BOUNDARY rejections.
      * Absent when unknown or not applicable.
      */
     distanceToBoundaryMeters?: number;

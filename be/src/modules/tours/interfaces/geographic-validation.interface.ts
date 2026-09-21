@@ -37,6 +37,8 @@ export type GeographicValidationRejectionReason =
  */
 export type GeographicDecisionReason =
   | 'OUTSIDE_DESTINATION_BOUNDARY'
+  | 'OUTSIDE_CANONICAL_AREA_BOUNDARY'
+  | 'OUTSIDE_POINT_RADIUS_SCOPE'
   | 'COUNTRY_CONFLICT'
   | 'REGION_CONFLICT'
   | 'LOCALITY_CONFLICT'

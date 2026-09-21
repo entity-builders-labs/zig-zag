@@ -465,6 +465,13 @@ export class ExperienceProposalResolverService
       geographicValidation,
       materialization: { resolved },
       validationScope: input.validationScope,
+      validationIntent: input.validationIntent,
+      destinationBoundary: boundary
+        ? {
+            name: boundary.name,
+            externalId: boundary.id,
+          }
+        : undefined,
     };
   }
 
