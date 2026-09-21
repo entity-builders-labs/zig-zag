@@ -30,6 +30,20 @@ export type GeographicValidationRejectionReason =
   // AREA polygon, or outside the externally resolved ROUTE's corridor.
   | 'external_scope_mismatch';
 
+/**
+ * Machine-readable reason for a geographic mismatch decision.
+ * These correspond to actual branches in the validator and are stable
+ * forensic identifiers — do not use prose as policy.
+ */
+export type GeographicDecisionReason =
+  | 'OUTSIDE_DESTINATION_BOUNDARY'
+  | 'COUNTRY_CONFLICT'
+  | 'REGION_CONFLICT'
+  | 'LOCALITY_CONFLICT'
+  | 'OUTSIDE_ROUTE_DESTINATION_RADIUS'
+  | 'EXTERNAL_AREA_SCOPE_MISMATCH'
+  | 'EXTERNAL_ROUTE_SCOPE_MISMATCH';
+
 export interface GeographicPoint {
   latitude: number;
   longitude: number;
@@ -39,6 +53,23 @@ export interface GeographicCoherenceMetrics {
   centroid: GeographicPoint;
   radiusMeters: number;
   maxPairwiseDistanceMeters: number;
+}
+
+export interface GeographicValidationDecisionEntity {
+  geoEntityId?: string;
+  hintKey?: string;
+  relation: 'evaluated' | 'offending';
+  /**
+   * Machine-readable reason for the entity's role in the decision.
+   * Present for 'offending' entities; may be present for 'evaluated' if useful.
+   */
+  decisionReason?: GeographicDecisionReason;
+  /**
+   * Shortest distance in meters from the resolved point to the destination boundary.
+   * Only populated for OUTSIDE_DESTINATION_BOUNDARY rejections.
+   * Absent when unknown or not applicable.
+   */
+  distanceToBoundaryMeters?: number;
 }
 
 export interface GeographicValidationResult {
@@ -53,11 +84,7 @@ export interface GeographicValidationResult {
   groundedEvidenceKeys: string[];
   rejectionReasons: GeographicValidationRejectionReason[];
   areaScopeMembership?: AreaScopeMembershipAudit;
-  decisionEntities?: Array<{
-    geoEntityId?: string;
-    hintKey?: string;
-    relation: 'evaluated' | 'offending';
-  }>;
+  decisionEntities?: GeographicValidationDecisionEntity[];
   validatorVersion: number;
 }
 

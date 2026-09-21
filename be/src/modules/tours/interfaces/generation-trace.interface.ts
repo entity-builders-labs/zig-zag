@@ -222,6 +222,17 @@ export interface TraceGeographicValidationDecision {
     role?: string;
     resolvedGeoEntityId?: string;
     relation?: 'accepted' | 'offending' | 'evaluated';
+    /**
+     * Machine-readable reason for the component's role in the decision.
+     * Present for 'offending' components; may be present for 'evaluated' if useful.
+     */
+    decisionReason?: string;
+    /**
+     * Shortest distance in meters from the resolved point to the destination boundary.
+     * Only populated for OUTSIDE_DESTINATION_BOUNDARY rejections.
+     * Absent when unknown or not applicable.
+     */
+    distanceToBoundaryMeters?: number;
   }>;
 }
 
@@ -368,6 +379,17 @@ export interface TraceGeographicValidationResult {
     geoEntityId?: string;
     hintKey?: string;
     relation: 'evaluated' | 'offending';
+    /**
+     * Machine-readable reason for the entity's role in the decision.
+     * Present for 'offending' entities; may be present for 'evaluated' if useful.
+     */
+    decisionReason?: string;
+    /**
+     * Shortest distance in meters from the resolved point to the destination boundary.
+     * Only populated for OUTSIDE_DESTINATION_BOUNDARY rejections.
+     * Absent when unknown or not applicable.
+     */
+    distanceToBoundaryMeters?: number;
   }>;
   validatorVersion: number;
 }
