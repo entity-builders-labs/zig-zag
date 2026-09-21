@@ -171,18 +171,18 @@ export class WikidataApiService implements IWikidataApiService {
 
       // Wikidata echoes back an unresolved id as just `{ id, missing: '' }`
       // with none of these fields — that's a real "no such QID", not an
-      // error, so it's simply absent from the returned Map. A real
-      // sitelinkCount > 0 is itself qualifying evidence of a genuine
-      // entity even in the (rare) case it somehow carries no en/es
-      // label/description/alias, so it must not be swallowed by this gate.
-      if (
-        !label &&
-        !description &&
-        !enwikiTitle &&
-        !aliases &&
-        sitelinkCount === 0
-      )
-        continue;
+      // error, so it's simply absent from the returned Map. This gate is
+      // IDENTITY admission (a textually identifiable entity), deliberately
+      // unchanged by sitelinkCount: IdentityEvidenceCollector treats any
+      // returned summary as a Wikidata identity attempt
+      // (WIKIDATA_IDENTITY_MATCH, hintMatched/candidateMatched derived from
+      // label/aliases), so admitting a sitelink-only entity with no usable
+      // textual identity here would turn "has sitelinks" into a spurious
+      // identity claim and could get a real candidate wrongly REJECTED
+      // instead of falling through to the nearby-Wikidata path. sitelinkCount
+      // itself is QUALITY/notability evidence on an already-valid summary,
+      // never what makes a summary valid.
+      if (!label && !description && !enwikiTitle && !aliases) continue;
 
       summaries.set(qid, { qid, label, description, aliases, sitelinkCount });
       if (enwikiTitle) titleToQid.set(enwikiTitle, qid);

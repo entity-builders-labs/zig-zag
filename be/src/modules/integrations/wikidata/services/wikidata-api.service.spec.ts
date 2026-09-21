@@ -342,22 +342,64 @@ describe('WikidataApiService', () => {
       expect((requestConfig as any)?.params?.props).toContain('sitelinks');
     });
 
-    it('includes a real sitelink-only entity even when it has no label/description/alias at all', async () => {
+    it('is absent from the returned summaries when the entity has sitelinks but no label/description/alias/enwiki title at all (identity admission is unchanged by sitelinkCount — regression)', async () => {
+      // Real sitelinks exist (dewiki/frwiki) but none of them is `enwiki`,
+      // and there is no label/description/alias either -- no usable
+      // textual identity for IdentityEvidenceCollector to reason about.
+      // sitelinkCount is quality/notability evidence on an ALREADY-valid
+      // summary, never what makes a summary valid in the first place --
+      // admitting this would let IdentityEvidenceCollector treat "a
+      // summary merely exists" as a Wikidata identity attempt
+      // (hintMatched=false, candidateMatched=true), wrongly REJECTing a
+      // real candidate instead of falling through to the nearby-Wikidata
+      // path.
+      mockedAxios.get.mockResolvedValueOnce(
+        mockWbGetEntities({
+          Q1: {
+            id: 'Q1',
+            sitelinks: {
+              dewiki: { title: 'Etwas' },
+              frwiki: { title: 'Quelque chose' },
+            },
+          },
+        }),
+      );
+
+      service = await setup();
+      const result = await service.getEntitySummaries(['Q1']);
+
+      expect(result.has('Q1')).toBe(false);
+      // No enwiki sitelink among the (real, non-empty) sitelinks means
+      // there's nothing to look up extracts for either.
+      expect(mockedAxios.get).toHaveBeenCalledTimes(1);
+    });
+
+    it('still reports the full real sitelinkCount for a normal, textually-identifiable entity with multiple sitelinks', async () => {
       mockedAxios.get
         .mockResolvedValueOnce(
           mockWbGetEntities({
             Q1: {
               id: 'Q1',
-              sitelinks: { enwiki: { title: 'Something' } },
+              labels: { en: { value: 'Plaza Dorrego' } },
+              sitelinks: {
+                enwiki: { title: 'Plaza Dorrego' },
+                eswiki: { title: 'Plaza Dorrego' },
+                dewiki: { title: 'Plaza Dorrego' },
+              },
             },
           }),
         )
-        .mockResolvedValueOnce(mockExtracts({}));
+        .mockResolvedValueOnce(
+          mockExtracts({
+            '1': { title: 'Plaza Dorrego', extract: 'Plaza Dorrego is...' },
+          }),
+        );
 
       service = await setup();
       const result = await service.getEntitySummaries(['Q1']);
 
-      expect(result.get('Q1')?.sitelinkCount).toBe(1);
+      expect(result.get('Q1')?.sitelinkCount).toBe(3);
+      expect(result.get('Q1')?.extract).toBe('Plaza Dorrego is...');
     });
   });
 
