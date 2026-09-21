@@ -273,6 +273,19 @@ export class ExperienceProposalResolverService
         > => result != null,
       );
 
+    // Component-quality wiring: batch-fetch real Wikidata sitelink counts
+    // ONCE for every distinct verified component QID across every candidate
+    // that will actually be persisted in this call -- never one HTTP
+    // round-trip per component. Computed here (before the per-candidate
+    // loop below) using the exact same geographic-acceptance predicate that
+    // loop re-checks per candidate, so it only ever fetches for candidates
+    // that will genuinely reach persistence.
+    const componentNotabilityByQid = await this.fetchComponentNotabilityByQid(
+      acceptedForValidation.filter(
+        (candidate) => validationByCandidate.get(candidate)?.accepted,
+      ),
+    );
+
     // Bounded: each accepted candidate persists inside its own interactive
     // `prisma.$transaction`, holding a pooled DB connection for its lifetime —
     // an unbounded fan-out here exhausted the pool on cold-start cities.
@@ -310,12 +323,45 @@ export class ExperienceProposalResolverService
         // exists; `persistVerifiedExperience` treats `undefined` the same
         // as omitting the field.
         const qualityEvidence = candidate.candidate.qualityEvidence;
+        // Computed ONCE and reused for both component-quality derivation
+        // and the `components` mapping below, so the two representations
+        // of "this candidate's real deduped component set" can never
+        // diverge (spec cutover requirement).
+        const dedupedComponents = this.dedupeResolvedEntitiesByGeoEntity(
+          candidate.resolvedEntities.filter(
+            (entity: any) => entity.status === 'resolved' && entity.geoEntityId,
+          ),
+          candidate.candidate.componentHints,
+        );
+        // A Wikidata QID is IDENTITY evidence (already established by
+        // IdentityVerifier), never quality evidence by itself. The
+        // grounded QUALITY signal is the real sitelink count fetched above
+        // for that same verified QID -- only ever populated for a genuine
+        // multi-component Experience (>= 2 distinct resolved components);
+        // a single venue must not acquire component-derived quality merely
+        // because it happens to carry a QID.
+        const componentNotabilitySignals =
+          dedupedComponents.length >= 2
+            ? dedupedComponents
+                .map((entity: any) =>
+                  entity.wikidataQid
+                    ? componentNotabilityByQid.get(entity.wikidataQid)
+                    : undefined,
+                )
+                .filter(
+                  (count: unknown): count is number =>
+                    typeof count === 'number',
+                )
+            : undefined;
         const qualityScore =
           computeQualityScore({
             placesRating: qualityEvidence?.consumerRating?.value,
             placesReviewCount: qualityEvidence?.consumerRating?.reviewCount,
             wikivoyageListed: qualityEvidence?.editorialListing?.listed,
             wikidataSitelinkCount: qualityEvidence?.notability?.count,
+            ...(componentNotabilitySignals
+              ? { componentNotabilitySignals }
+              : {}),
           }) ?? undefined;
         const experience = await this.catalog.persistVerifiedExperience({
           canonicalName: candidate.candidate.name,
@@ -329,13 +375,7 @@ export class ExperienceProposalResolverService
             source: 'grounded_experience_discovery',
           },
           traitDefinitionIds,
-          components: this.dedupeResolvedEntitiesByGeoEntity(
-            candidate.resolvedEntities.filter(
-              (entity: any) =>
-                entity.status === 'resolved' && entity.geoEntityId,
-            ),
-            candidate.candidate.componentHints,
-          ).map((entity: any, index: number) => ({
+          components: dedupedComponents.map((entity: any, index: number) => ({
             geoEntityId: entity.geoEntityId,
             // Only a real, evidence-backed visiting sequence earns a
             // concrete order — otherwise this is resolution/array order,
@@ -1256,6 +1296,63 @@ export class ExperienceProposalResolverService
    * GeoEntity, aborting the whole generation. Keeps the first occurrence
    * (preserves array order for `orderedByEvidence`'s sequential numbering).
    */
+  /**
+   * Batch-collects real Wikidata sitelink counts for every distinct
+   * VERIFIED resolved component across the given (already
+   * geographically-accepted) candidates -- ONE `getEntitySummaries` call
+   * for the whole set, never per-component/per-candidate (B3 amendment,
+   * component-quality wiring). Only a `ResolvedGeoEntity` with
+   * `status === 'resolved'`, a persisted `geoEntityId`, and its own
+   * `wikidataQid` (identity already confirmed by `IdentityVerifier` along
+   * the normal resolution path) contributes a QID -- never an unresolved
+   * hint, a nearby-proximity guess, or an unconfirmed match.
+   *
+   * Fails open: no Wikidata client, zero QIDs, or a provider failure all
+   * degrade to an empty map. A QID absent from the returned map is UNKNOWN
+   * to the caller, never a fabricated 0 -- `computeQualityScore`'s
+   * `componentNotabilitySignals` only ever receives counts this method
+   * actually found.
+   */
+  private async fetchComponentNotabilityByQid(
+    candidates: ResolvedExperienceCandidate[],
+  ): Promise<Map<string, number>> {
+    if (!this.wikidata) return new Map();
+
+    const qids = new Set<string>();
+    for (const candidate of candidates) {
+      for (const entity of candidate.resolvedEntities) {
+        if (
+          entity.status === 'resolved' &&
+          entity.geoEntityId &&
+          entity.wikidataQid
+        ) {
+          qids.add(entity.wikidataQid);
+        }
+      }
+    }
+    if (qids.size === 0) return new Map();
+
+    try {
+      const summaries = await this.wikidata.getEntitySummaries([...qids]);
+      const notabilityByQid = new Map<string, number>();
+      for (const [qid, summary] of summaries) {
+        if (
+          typeof summary.sitelinkCount === 'number' &&
+          Number.isFinite(summary.sitelinkCount) &&
+          summary.sitelinkCount >= 0
+        ) {
+          notabilityByQid.set(qid, summary.sitelinkCount);
+        }
+      }
+      return notabilityByQid;
+    } catch (error: any) {
+      this.logger.warn(
+        `Component notability lookup failed (${qids.size} QID(s)): ${error?.message ?? error}`,
+      );
+      return new Map();
+    }
+  }
+
   private dedupeResolvedEntitiesByGeoEntity<
     T extends { geoEntityId?: string; hintKey?: string },
   >(

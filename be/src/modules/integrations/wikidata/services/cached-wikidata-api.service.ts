@@ -54,6 +54,23 @@ export class CachedWikidataApiService implements IWikidataApiService {
     return JSON.parse(fs.readFileSync(cachePath, 'utf-8'));
   }
 
+  /**
+   * A cached JSON file is untyped at read time (`JSON.parse` returns
+   * whatever bytes were actually on disk) -- a legacy entry written before
+   * `sitelinkCount` existed on `WikidataEntitySummary` parses successfully
+   * but silently lacks it. Treating that as a valid hit would let the
+   * component-notability quality path stay permanently broken after
+   * deployment for every previously-cached QID. `sitelinkCount: 0` is a
+   * real, valid count and must not be confused with a missing/invalid one.
+   */
+  private hasValidSitelinkCount(summary: WikidataEntitySummary): boolean {
+    return (
+      typeof summary.sitelinkCount === 'number' &&
+      Number.isFinite(summary.sitelinkCount) &&
+      summary.sitelinkCount >= 0
+    );
+  }
+
   private writeCached(summary: WikidataEntitySummary): void {
     try {
       fs.writeFileSync(
@@ -78,10 +95,15 @@ export class CachedWikidataApiService implements IWikidataApiService {
 
     for (const qid of uniqueQids) {
       const cached = this.readCached(qid);
-      if (cached) {
+      if (cached && this.hasValidSitelinkCount(cached)) {
         this.logger.log(`[CachedWikidataApiService] Cache hit for ${qid}`);
         results.set(qid, cached);
       } else {
+        if (cached) {
+          this.logger.log(
+            `[CachedWikidataApiService] Stale cache entry for ${qid} (missing sitelinkCount contract) — refetching`,
+          );
+        }
         missingQids.push(qid);
       }
     }

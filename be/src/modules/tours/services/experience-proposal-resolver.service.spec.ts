@@ -4,6 +4,7 @@ import { ExperienceGeographicValidationResult } from '../interfaces/experience-r
 import { SourceObservation } from '../interfaces/experience-acquisition.interface';
 import { ExperienceProposalResolverService } from './experience-proposal-resolver.service';
 import { normalizeGeoName } from '../utils/nominatim-match.util';
+import { computeQualityScore } from '../utils/quality-score.util';
 
 describe('ExperienceProposalResolverService', () => {
   const boundary: any = {
@@ -2883,6 +2884,417 @@ describe('ExperienceProposalResolverService', () => {
       await service.resolve({
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
         candidates: [unrated],
+      });
+
+      expect(catalog.persistVerifiedExperience).toHaveBeenCalledWith(
+        expect.objectContaining({ qualityScore: undefined }),
+      );
+    });
+  });
+
+  describe('component-derived quality from real Wikidata notability (composite-quality wiring)', () => {
+    function osmPlacesFor(pois: any[]) {
+      return {
+        lookupStreetsWithin: jest
+          .fn()
+          .mockResolvedValue({ status: 'success', value: [] }),
+        lookupPoisWithin: jest
+          .fn()
+          .mockResolvedValue({ status: 'success', value: pois }),
+      };
+    }
+
+    function catalogWithSequentialGeoIds() {
+      let upsertCall = 0;
+      return {
+        resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        upsertGeoEntity: jest.fn().mockImplementation(async () => {
+          upsertCall += 1;
+          return { id: `geo-${upsertCall}` };
+        }),
+        persistVerifiedExperience: jest
+          .fn()
+          .mockResolvedValue({ id: 'exp-walk', dedupeDecision: 'NEW' }),
+      };
+    }
+
+    const threeComponentWalk: ExperienceCandidate = {
+      name: 'Colonial History Walk',
+      themes: ['history'],
+      traits: [],
+      intents: ['walk'],
+      componentHints: [
+        {
+          key: 'plaza',
+          name: 'Plaza Dorrego',
+          role: 'venue',
+          expectedKind: 'PLACE',
+          required: true,
+          evidenceKeys: ['ev-1'],
+        },
+        {
+          key: 'mercado',
+          name: 'Mercado de San Telmo',
+          role: 'venue',
+          expectedKind: 'PLACE',
+          required: true,
+          evidenceKeys: ['ev-1'],
+        },
+        {
+          key: 'parque',
+          name: 'Parque Lezama',
+          role: 'venue',
+          expectedKind: 'PLACE',
+          required: true,
+          evidenceKeys: ['ev-1'],
+        },
+      ],
+      evidenceKeys: ['ev-1'],
+      shortReason: 'A historical walk through San Telmo',
+    };
+
+    const threeComponentPois = (qids: Record<string, string | undefined>) => [
+      {
+        id: 'osm:node:1',
+        name: 'Plaza Dorrego',
+        osmType: 'node',
+        osmId: 1,
+        geometry: { type: 'Point', coordinates: [-58.3731, -34.6212] },
+        tags: qids.plaza ? { wikidata: qids.plaza } : {},
+      },
+      {
+        id: 'osm:node:2',
+        name: 'Mercado de San Telmo',
+        osmType: 'node',
+        osmId: 2,
+        geometry: { type: 'Point', coordinates: [-58.3728, -34.6208] },
+        tags: qids.mercado ? { wikidata: qids.mercado } : {},
+      },
+      {
+        id: 'osm:node:3',
+        name: 'Parque Lezama',
+        osmType: 'node',
+        osmId: 3,
+        geometry: { type: 'Point', coordinates: [-58.3696, -34.6271] },
+        tags: qids.parque ? { wikidata: qids.parque } : {},
+      },
+    ];
+
+    it('derives non-null quality from real per-component Wikidata sitelink counts, fetched in ONE batched call, matching the canonical computeQualityScore output exactly (Task 13 TDD)', async () => {
+      const osmPlaces = osmPlacesFor(
+        threeComponentPois({
+          plaza: 'Q100',
+          mercado: 'Q200',
+          parque: 'Q300',
+        }),
+      );
+      const catalog = catalogWithSequentialGeoIds();
+      const geographicValidator = {
+        validate: jest
+          .fn()
+          .mockReturnValue(acceptedValidation('Colonial History Walk')),
+      };
+      const wikidata = {
+        getEntitySummaries: jest.fn().mockResolvedValue(
+          new Map([
+            ['Q100', { qid: 'Q100', sitelinkCount: 30 }],
+            ['Q200', { qid: 'Q200', sitelinkCount: 20 }],
+            ['Q300', { qid: 'Q300', sitelinkCount: 10 }],
+          ]),
+        ),
+      };
+      const service = new ExperienceProposalResolverService(
+        osmPlaces as any,
+        catalog as any,
+        geographicValidator as any,
+        undefined,
+        undefined,
+        undefined,
+        wikidata as any,
+      );
+
+      await service.resolve({
+        geographicScope: { kind: 'AREA_BOUNDARY', boundary },
+        candidates: [threeComponentWalk],
+      });
+
+      // Batched: exactly one call, for the unique QIDs -- never one
+      // network round-trip per component.
+      expect(wikidata.getEntitySummaries).toHaveBeenCalledTimes(1);
+      const requestedQids = wikidata.getEntitySummaries.mock.calls[0][0];
+      expect(new Set(requestedQids)).toEqual(new Set(['Q100', 'Q200', 'Q300']));
+
+      // Expected value computed via the canonical utility itself -- never
+      // hardcoded independently of the one deterministic scoring authority.
+      const expectedQualityScore = computeQualityScore({
+        componentNotabilitySignals: [30, 20, 10],
+      });
+      expect(expectedQualityScore).not.toBeNull();
+      expect(expectedQualityScore as number).toBeGreaterThanOrEqual(3.0);
+
+      expect(catalog.persistVerifiedExperience).toHaveBeenCalledWith(
+        expect.objectContaining({ qualityScore: expectedQualityScore }),
+      );
+    });
+
+    it('(14.C) multi-component candidate with no component QIDs at all leaves quality determined only by other real signals (here: none -> undefined)', async () => {
+      const osmPlaces = osmPlacesFor(threeComponentPois({}));
+      const catalog = catalogWithSequentialGeoIds();
+      const geographicValidator = {
+        validate: jest
+          .fn()
+          .mockReturnValue(acceptedValidation('Colonial History Walk')),
+      };
+      const wikidata = { getEntitySummaries: jest.fn() };
+      const service = new ExperienceProposalResolverService(
+        osmPlaces as any,
+        catalog as any,
+        geographicValidator as any,
+        undefined,
+        undefined,
+        undefined,
+        wikidata as any,
+      );
+
+      await service.resolve({
+        geographicScope: { kind: 'AREA_BOUNDARY', boundary },
+        candidates: [threeComponentWalk],
+      });
+
+      // Zero real QIDs collected -> never even calls the Wikidata API.
+      expect(wikidata.getEntitySummaries).not.toHaveBeenCalled();
+      expect(catalog.persistVerifiedExperience).toHaveBeenCalledWith(
+        expect.objectContaining({ qualityScore: undefined }),
+      );
+    });
+
+    it('(14.D) Wikidata unavailable: the Experience still persists, with no synthetic component quality', async () => {
+      const osmPlaces = osmPlacesFor(
+        threeComponentPois({
+          plaza: 'Q100',
+          mercado: 'Q200',
+          parque: 'Q300',
+        }),
+      );
+      const catalog = catalogWithSequentialGeoIds();
+      const geographicValidator = {
+        validate: jest
+          .fn()
+          .mockReturnValue(acceptedValidation('Colonial History Walk')),
+      };
+      const wikidata = {
+        getEntitySummaries: jest
+          .fn()
+          .mockRejectedValue(new Error('wikidata down')),
+      };
+      const service = new ExperienceProposalResolverService(
+        osmPlaces as any,
+        catalog as any,
+        geographicValidator as any,
+        undefined,
+        undefined,
+        undefined,
+        wikidata as any,
+      );
+
+      const result = await service.resolve({
+        geographicScope: { kind: 'AREA_BOUNDARY', boundary },
+        candidates: [threeComponentWalk],
+      });
+
+      expect(result.acceptedCount).toBe(1);
+      expect(catalog.persistVerifiedExperience).toHaveBeenCalledWith(
+        expect.objectContaining({ qualityScore: undefined }),
+      );
+    });
+
+    it('(14.E) partial component evidence: two components have real counts, one has no QID -> only the two real counts are used, the missing one is never treated as 0', async () => {
+      const osmPlaces = osmPlacesFor(
+        threeComponentPois({ plaza: 'Q100', mercado: 'Q200' }),
+      );
+      const catalog = catalogWithSequentialGeoIds();
+      const geographicValidator = {
+        validate: jest
+          .fn()
+          .mockReturnValue(acceptedValidation('Colonial History Walk')),
+      };
+      const wikidata = {
+        getEntitySummaries: jest.fn().mockResolvedValue(
+          new Map([
+            ['Q100', { qid: 'Q100', sitelinkCount: 30 }],
+            ['Q200', { qid: 'Q200', sitelinkCount: 20 }],
+          ]),
+        ),
+      };
+      const service = new ExperienceProposalResolverService(
+        osmPlaces as any,
+        catalog as any,
+        geographicValidator as any,
+        undefined,
+        undefined,
+        undefined,
+        wikidata as any,
+      );
+
+      await service.resolve({
+        geographicScope: { kind: 'AREA_BOUNDARY', boundary },
+        candidates: [threeComponentWalk],
+      });
+
+      const expectedQualityScore = computeQualityScore({
+        componentNotabilitySignals: [30, 20],
+      });
+      expect(catalog.persistVerifiedExperience).toHaveBeenCalledWith(
+        expect.objectContaining({ qualityScore: expectedQualityScore }),
+      );
+    });
+
+    it('(14.F) two hints resolving onto the SAME real GeoEntity contribute its notability only once, not twice', async () => {
+      // "plaza" and "mercado" hints both resolve onto the very same real
+      // POI (osm:node:1) -- e.g. two component hints that turned out to
+      // name the same real place. "parque" resolves to a distinct real
+      // place, so the deduped component count is 2, not 3.
+      const osmPlaces = osmPlacesFor([
+        {
+          id: 'osm:node:1',
+          name: 'Plaza Dorrego',
+          osmType: 'node',
+          osmId: 1,
+          geometry: { type: 'Point', coordinates: [-58.3731, -34.6212] },
+          tags: { wikidata: 'Q100' },
+        },
+        {
+          id: 'osm:node:3',
+          name: 'Parque Lezama',
+          osmType: 'node',
+          osmId: 3,
+          geometry: { type: 'Point', coordinates: [-58.3696, -34.6271] },
+          tags: { wikidata: 'Q300' },
+        },
+      ]);
+      const sameEntityCandidate: ExperienceCandidate = {
+        ...threeComponentWalk,
+        componentHints: [
+          threeComponentWalk.componentHints![0],
+          {
+            key: 'mercado',
+            // Deliberately the SAME real name as "plaza" so both hints
+            // resolve onto osm:node:1 -- the same real GeoEntity.
+            name: 'Plaza Dorrego',
+            role: 'venue',
+            expectedKind: 'PLACE',
+            required: true,
+            evidenceKeys: ['ev-1'],
+          },
+          threeComponentWalk.componentHints![2],
+        ],
+      };
+      // Real `upsertGeoEntity` is keyed by (provider, externalId) and
+      // returns the SAME geoEntityId for the same real place -- unlike
+      // `catalogWithSequentialGeoIds()`, which hands out a fresh id per
+      // call and would defeat this exact test (two calls for the same
+      // externalId must dedupe to one geoEntityId).
+      const geoIdsByExternalId = new Map<string, string>();
+      let nextGeoId = 0;
+      const catalog = {
+        resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        upsertGeoEntity: jest.fn().mockImplementation(async (input: any) => {
+          const existing = geoIdsByExternalId.get(input.externalId);
+          if (existing) return { id: existing };
+          nextGeoId += 1;
+          const id = `geo-${nextGeoId}`;
+          geoIdsByExternalId.set(input.externalId, id);
+          return { id };
+        }),
+        persistVerifiedExperience: jest
+          .fn()
+          .mockResolvedValue({ id: 'exp-walk', dedupeDecision: 'NEW' }),
+      };
+      const geographicValidator = {
+        validate: jest
+          .fn()
+          .mockReturnValue(acceptedValidation('Colonial History Walk')),
+      };
+      const wikidata = {
+        getEntitySummaries: jest.fn().mockResolvedValue(
+          new Map([
+            ['Q100', { qid: 'Q100', sitelinkCount: 30 }],
+            ['Q300', { qid: 'Q300', sitelinkCount: 10 }],
+          ]),
+        ),
+      };
+      const service = new ExperienceProposalResolverService(
+        osmPlaces as any,
+        catalog as any,
+        geographicValidator as any,
+        undefined,
+        undefined,
+        undefined,
+        wikidata as any,
+      );
+
+      await service.resolve({
+        geographicScope: { kind: 'AREA_BOUNDARY', boundary },
+        candidates: [sameEntityCandidate],
+      });
+
+      // Only 2 distinct real components -> Q100's count contributes once.
+      const expectedQualityScore = computeQualityScore({
+        componentNotabilitySignals: [30, 10],
+      });
+      expect(catalog.persistVerifiedExperience).toHaveBeenCalledWith(
+        expect.objectContaining({
+          qualityScore: expectedQualityScore,
+          components: expect.arrayContaining([
+            expect.objectContaining({ geoEntityId: 'geo-1' }),
+          ]),
+        }),
+      );
+      const persistedComponents = (
+        catalog.persistVerifiedExperience.mock.calls[0][0] as {
+          components: unknown[];
+        }
+      ).components;
+      expect(persistedComponents).toHaveLength(2);
+    });
+
+    it('(14.G) a single-component Experience with a QID does NOT receive the composite component-derived quality path', async () => {
+      const osmPlaces = osmPlacesFor([
+        {
+          id: 'osm:node:1',
+          name: 'Museum',
+          osmType: 'node',
+          osmId: 1,
+          geometry: { type: 'Point', coordinates: [-58.45, -34.55] },
+          tags: { wikidata: 'Q100' },
+        },
+      ]);
+      const catalog = catalogWithSequentialGeoIds();
+      const geographicValidator = {
+        validate: jest.fn().mockReturnValue(acceptedValidation()),
+      };
+      // Even a very high real sitelink count must never leak into a
+      // single-venue Experience's quality via the composite path.
+      const wikidata = {
+        getEntitySummaries: jest
+          .fn()
+          .mockResolvedValue(
+            new Map([['Q100', { qid: 'Q100', sitelinkCount: 200 }]]),
+          ),
+      };
+      const service = new ExperienceProposalResolverService(
+        osmPlaces as any,
+        catalog as any,
+        geographicValidator as any,
+        undefined,
+        undefined,
+        undefined,
+        wikidata as any,
+      );
+
+      await service.resolve({
+        geographicScope: { kind: 'AREA_BOUNDARY', boundary },
+        candidates: [candidate()],
       });
 
       expect(catalog.persistVerifiedExperience).toHaveBeenCalledWith(

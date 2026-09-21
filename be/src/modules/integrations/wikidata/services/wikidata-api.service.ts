@@ -129,7 +129,11 @@ export class WikidataApiService implements IWikidataApiService {
           // OSM/hint name legitimately has no English alias, only a
           // Spanish primary label.
           languages: 'en|es',
-          sitefilter: 'enwiki',
+          // No `sitefilter` -- restricting to enwiki would also restrict
+          // the sitelinks map used to count `sitelinkCount` below to at
+          // most 1, silently destroying the real notability signal. The
+          // enwiki-specific extract flow just below still reads
+          // `entity.sitelinks.enwiki` out of the now-unfiltered map.
           format: 'json',
         },
         headers: { 'User-Agent': USER_AGENT },
@@ -150,6 +154,11 @@ export class WikidataApiService implements IWikidataApiService {
       const label = entity.labels?.en?.value;
       const description = entity.descriptions?.en?.value;
       const enwikiTitle = entity.sitelinks?.enwiki?.title;
+      // Real count of every sitelink Wikidata returned (enwiki, eswiki,
+      // commonswiki, ...), never restricted to enwiki -- see the request's
+      // own comment for why `sitefilter` was removed. 0 is a real, valid
+      // count (a resolved entity with no sitelinks), not "unknown".
+      const sitelinkCount = Object.keys(entity.sitelinks ?? {}).length;
 
       const altNames = new Set<string>();
       if (entity.labels?.es?.value) altNames.add(entity.labels.es.value);
@@ -162,10 +171,20 @@ export class WikidataApiService implements IWikidataApiService {
 
       // Wikidata echoes back an unresolved id as just `{ id, missing: '' }`
       // with none of these fields — that's a real "no such QID", not an
-      // error, so it's simply absent from the returned Map.
-      if (!label && !description && !enwikiTitle && !aliases) continue;
+      // error, so it's simply absent from the returned Map. A real
+      // sitelinkCount > 0 is itself qualifying evidence of a genuine
+      // entity even in the (rare) case it somehow carries no en/es
+      // label/description/alias, so it must not be swallowed by this gate.
+      if (
+        !label &&
+        !description &&
+        !enwikiTitle &&
+        !aliases &&
+        sitelinkCount === 0
+      )
+        continue;
 
-      summaries.set(qid, { qid, label, description, aliases });
+      summaries.set(qid, { qid, label, description, aliases, sitelinkCount });
       if (enwikiTitle) titleToQid.set(enwikiTitle, qid);
     }
 

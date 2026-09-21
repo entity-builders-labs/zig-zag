@@ -51,6 +51,7 @@ describe('CachedWikidataApiService', () => {
   const summary = (qid: string): WikidataEntitySummary => ({
     qid,
     label: `Label for ${qid}`,
+    sitelinkCount: 0,
   });
 
   const successfulLookup = (summaries: Map<string, WikidataEntitySummary>) => ({
@@ -176,6 +177,103 @@ describe('CachedWikidataApiService', () => {
     expect(fs.existsSync(path.join(tempDir, 'wikidata-cache', 'Q1.json'))).toBe(
       false,
     );
+  });
+
+  describe('sitelinkCount cache-staleness contract', () => {
+    it('caches and round-trips a real, non-zero sitelinkCount on a fresh fetch', async () => {
+      realService.lookupEntitySummaries.mockResolvedValue(
+        successfulLookup(
+          new Map([['Q1', { qid: 'Q1', label: 'X', sitelinkCount: 12 }]]),
+        ),
+      );
+      const writer = await setup('write');
+      await writer.getEntitySummaries(['Q1']);
+
+      const persisted = JSON.parse(
+        fs.readFileSync(
+          path.join(tempDir, 'wikidata-cache', 'Q1.json'),
+          'utf-8',
+        ),
+      );
+      expect(persisted.sitelinkCount).toBe(12);
+
+      realService.lookupEntitySummaries.mockClear();
+      const reader = await setup('read');
+      const result = await reader.getEntitySummaries(['Q1']);
+
+      expect(result.get('Q1')?.sitelinkCount).toBe(12);
+      expect(realService.lookupEntitySummaries).not.toHaveBeenCalled();
+    });
+
+    it('treats a cached sitelinkCount of 0 as a valid, real cache hit — never re-fetched as if missing', async () => {
+      realService.lookupEntitySummaries.mockResolvedValue(
+        successfulLookup(
+          new Map([['Q1', { qid: 'Q1', label: 'X', sitelinkCount: 0 }]]),
+        ),
+      );
+      const writer = await setup('write');
+      await writer.getEntitySummaries(['Q1']);
+
+      realService.lookupEntitySummaries.mockClear();
+      const reader = await setup('read');
+      const result = await reader.getEntitySummaries(['Q1']);
+
+      expect(result.get('Q1')?.sitelinkCount).toBe(0);
+      expect(realService.lookupEntitySummaries).not.toHaveBeenCalled();
+    });
+
+    it('treats a legacy cached entry with no sitelinkCount as stale and refetches it from the real service in normal (read) mode', async () => {
+      // Simulate a cache file written before sitelinkCount existed.
+      fs.mkdirSync(path.join(tempDir, 'wikidata-cache'), { recursive: true });
+      fs.writeFileSync(
+        path.join(tempDir, 'wikidata-cache', 'Q1.json'),
+        JSON.stringify({ qid: 'Q1', label: 'Legacy label' }),
+      );
+      realService.lookupEntitySummaries.mockResolvedValue(
+        successfulLookup(
+          new Map([
+            ['Q1', { qid: 'Q1', label: 'Legacy label', sitelinkCount: 7 }],
+          ]),
+        ),
+      );
+
+      const reader = await setup('read');
+      const result = await reader.getEntitySummaries(['Q1']);
+
+      expect(realService.lookupEntitySummaries).toHaveBeenCalledWith(['Q1']);
+      expect(result.get('Q1')?.sitelinkCount).toBe(7);
+    });
+
+    it('never invents/backfills a synthetic sitelinkCount onto stale cache data — the refreshed value always comes from the real service', async () => {
+      fs.mkdirSync(path.join(tempDir, 'wikidata-cache'), { recursive: true });
+      fs.writeFileSync(
+        path.join(tempDir, 'wikidata-cache', 'Q1.json'),
+        JSON.stringify({ qid: 'Q1', label: 'Legacy label' }),
+      );
+      realService.lookupEntitySummaries.mockResolvedValue(
+        successfulLookup(new Map()), // real service found nothing for Q1 this time
+      );
+
+      const reader = await setup('read');
+      const result = await reader.getEntitySummaries(['Q1']);
+
+      expect(realService.lookupEntitySummaries).toHaveBeenCalledWith(['Q1']);
+      expect(result.has('Q1')).toBe(false);
+    });
+
+    it('a stale legacy entry in strict mode surfaces as the normal strict-mode cache-miss error, not a silent hit', async () => {
+      fs.mkdirSync(path.join(tempDir, 'wikidata-cache'), { recursive: true });
+      fs.writeFileSync(
+        path.join(tempDir, 'wikidata-cache', 'Q1.json'),
+        JSON.stringify({ qid: 'Q1', label: 'Legacy label' }),
+      );
+      const service = await setup('strict');
+
+      await expect(service.getEntitySummaries(['Q1'])).rejects.toThrow(
+        /Strict mode/,
+      );
+      expect(realService.lookupEntitySummaries).not.toHaveBeenCalled();
+    });
   });
 
   describe('findNearbyPlaces (Task A2 — deliberately uncached passthrough)', () => {

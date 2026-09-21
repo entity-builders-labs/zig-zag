@@ -16,6 +16,17 @@ export interface WikidataEntitySummary {
   // per place cannot represent that. Undefined when Wikidata has no
   // alternate names for this entity.
   aliases?: string[];
+  // The real number of Wikidata sitelinks (interwiki article links, e.g.
+  // enwiki/eswiki/commonswiki/...) this entity has, counted from the FULL
+  // sitelinks map -- never restricted to enwiki. A grounded, provider-
+  // neutral notability signal for `computeQualityScore`'s
+  // `componentNotabilitySignals` (quality-score.util.ts): more independent
+  // encyclopedic coverage is real evidence of notability, unlike the mere
+  // presence of a QID (identity, not quality). Always a finite
+  // non-negative integer when the entity was resolved at all -- 0 is a
+  // real, valid count (no sitelinks), never omitted or confused with
+  // "unknown"/absent.
+  sitelinkCount: number;
 }
 
 export type WikidataLookupStatus = 'success' | 'partial' | 'failed';

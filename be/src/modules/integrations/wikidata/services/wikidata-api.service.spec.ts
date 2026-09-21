@@ -261,6 +261,106 @@ describe('WikidataApiService', () => {
     expect(secondBatchIds).toHaveLength(1);
   });
 
+  describe('sitelinkCount (component-quality notability signal)', () => {
+    it('counts every sitelink Wikidata returns, not just enwiki', async () => {
+      mockedAxios.get
+        .mockResolvedValueOnce(
+          mockWbGetEntities({
+            Q1: {
+              id: 'Q1',
+              labels: { en: { value: 'Plaza Dorrego' } },
+              sitelinks: {
+                enwiki: { title: 'Plaza Dorrego' },
+                eswiki: { title: 'Plaza Dorrego' },
+                frwiki: { title: 'Plaza Dorrego' },
+                commonswiki: { title: 'Category:Plaza Dorrego' },
+              },
+            },
+          }),
+        )
+        .mockResolvedValueOnce(mockExtracts({}));
+
+      service = await setup();
+      const result = await service.getEntitySummaries(['Q1']);
+
+      expect(result.get('Q1')?.sitelinkCount).toBe(4);
+    });
+
+    it('the enwiki extract flow still works once the request is no longer filtered to enwiki-only sitelinks', async () => {
+      mockedAxios.get
+        .mockResolvedValueOnce(
+          mockWbGetEntities({
+            Q1: {
+              id: 'Q1',
+              labels: { en: { value: 'Plaza Dorrego' } },
+              sitelinks: {
+                enwiki: { title: 'Plaza Dorrego' },
+                eswiki: { title: 'Plaza Dorrego' },
+              },
+            },
+          }),
+        )
+        .mockResolvedValueOnce(
+          mockExtracts({
+            '1': { title: 'Plaza Dorrego', extract: 'Plaza Dorrego is...' },
+          }),
+        );
+
+      service = await setup();
+      const result = await service.getEntitySummaries(['Q1']);
+
+      expect(result.get('Q1')?.extract).toBe('Plaza Dorrego is...');
+      expect(result.get('Q1')?.sitelinkCount).toBe(2);
+    });
+
+    it('reports sitelinkCount 0, not undefined, for a resolved entity with no sitelinks', async () => {
+      mockedAxios.get
+        .mockResolvedValueOnce(
+          mockWbGetEntities({
+            Q2: { id: 'Q2', labels: { en: { value: 'Plaza Dorrego' } } },
+          }),
+        )
+        .mockResolvedValueOnce(mockExtracts({}));
+
+      service = await setup();
+      const result = await service.getEntitySummaries(['Q2']);
+
+      expect(result.get('Q2')?.sitelinkCount).toBe(0);
+      expect(result.get('Q2')?.sitelinkCount).not.toBeUndefined();
+    });
+
+    it('no longer sends a sitefilter param, so the API returns the full sitelinks map', async () => {
+      mockedAxios.get
+        .mockResolvedValueOnce(mockWbGetEntities({}))
+        .mockResolvedValueOnce(mockExtracts({}));
+
+      service = await setup();
+      await service.getEntitySummaries(['Q1']);
+
+      const [, requestConfig] = mockedAxios.get.mock.calls[0];
+      expect((requestConfig as any)?.params?.sitefilter).toBeUndefined();
+      expect((requestConfig as any)?.params?.props).toContain('sitelinks');
+    });
+
+    it('includes a real sitelink-only entity even when it has no label/description/alias at all', async () => {
+      mockedAxios.get
+        .mockResolvedValueOnce(
+          mockWbGetEntities({
+            Q1: {
+              id: 'Q1',
+              sitelinks: { enwiki: { title: 'Something' } },
+            },
+          }),
+        )
+        .mockResolvedValueOnce(mockExtracts({}));
+
+      service = await setup();
+      const result = await service.getEntitySummaries(['Q1']);
+
+      expect(result.get('Q1')?.sitelinkCount).toBe(1);
+    });
+  });
+
   describe('findNearbyPlaces (Task A2, cross-source confirmation)', () => {
     it('queries the SPARQL endpoint with a wikibase:around service using lon,lat point and km radius, and maps bindings to WikidataNearbyPlace[]', async () => {
       mockedAxios.get.mockResolvedValueOnce({
