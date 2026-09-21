@@ -745,4 +745,137 @@ describe('GooglePlacesAcquisitionProvider', () => {
       );
     });
   });
+
+  describe('nameless Places observation regression', () => {
+    it('A. skips a nameless admissible Places result instead of using place id as SourceObservation title', async () => {
+      const namelessPlace: PlaceData = {
+        id: '519ae3816d69354dc059294b636a015e000000',
+        // No displayName, no name
+        formattedAddress: 'Some real address, Buenos Aires',
+        primaryType: 'museum',
+        types: ['museum'],
+        location: { latitude: -34.6037, longitude: -58.3816 },
+      };
+
+      placesApiMock.searchNearby.mockResolvedValueOnce({
+        data: [namelessPlace],
+        provenance: {
+          provider: 'geoapify',
+          cacheStatus: 'miss-live',
+          requestedCount: 1,
+          receivedCount: 1,
+        },
+      });
+
+      const result = await provider.acquire({
+        latitude: -34.6037,
+        longitude: -58.3816,
+        radiusMeters: 5000,
+      });
+
+      expect(result.status).toBe('success');
+      expect(result.value).toHaveLength(0);
+    });
+
+    it('B. mixed valid named + nameless results: only the named place survives', async () => {
+      const validNamedPlace: PlaceData = {
+        id: 'valid-named-museum',
+        displayName: { text: 'Museo Histórico' },
+        primaryType: 'museum',
+        types: ['museum'],
+        location: { latitude: -34.6037, longitude: -58.3816 },
+      };
+
+      const namelessPlace: PlaceData = {
+        id: 'nameless-admissible-museum',
+        // No displayName, no name
+        formattedAddress: 'Some real address, Buenos Aires',
+        primaryType: 'museum',
+        types: ['museum'],
+        location: { latitude: -34.61, longitude: -58.39 },
+      };
+
+      placesApiMock.searchNearby.mockResolvedValueOnce({
+        data: [validNamedPlace, namelessPlace],
+        provenance: {
+          provider: 'geoapify',
+          cacheStatus: 'miss-live',
+          requestedCount: 2,
+          receivedCount: 2,
+        },
+      });
+
+      const result = await provider.acquire({
+        latitude: -34.6037,
+        longitude: -58.3816,
+        radiusMeters: 5000,
+      });
+
+      expect(result.status).toBe('success');
+      expect(result.value).toHaveLength(1);
+      expect(result.value[0].externalId).toBe('valid-named-museum');
+      expect(result.value[0].title).toBe('Museo Histórico');
+    });
+
+    it('C. whitespace displayName falls back to a real name field', async () => {
+      const placeWithFallbackName: PlaceData = {
+        id: 'valid-fallback',
+        displayName: { text: '   ' }, // whitespace only
+        name: 'Museo Real',
+        primaryType: 'museum',
+        types: ['museum'],
+        location: { latitude: -34.6037, longitude: -58.3816 },
+      };
+
+      placesApiMock.searchNearby.mockResolvedValueOnce({
+        data: [placeWithFallbackName],
+        provenance: {
+          provider: 'geoapify',
+          cacheStatus: 'miss-live',
+          requestedCount: 1,
+          receivedCount: 1,
+        },
+      });
+
+      const result = await provider.acquire({
+        latitude: -34.6037,
+        longitude: -58.3816,
+        radiusMeters: 5000,
+      });
+
+      expect(result.status).toBe('success');
+      expect(result.value).toHaveLength(1);
+      expect(result.value[0].title).toBe('Museo Real');
+    });
+
+    it('D. neither address nor provider ID becomes title for nameless result', async () => {
+      const namelessPlace: PlaceData = {
+        id: '519ae3816d69354dc059294b636a015e000000',
+        // No displayName, no name
+        formattedAddress: 'Defensa 123, Buenos Aires',
+        primaryType: 'museum',
+        types: ['museum'],
+        location: { latitude: -34.6037, longitude: -58.3816 },
+      };
+
+      placesApiMock.searchNearby.mockResolvedValueOnce({
+        data: [namelessPlace],
+        provenance: {
+          provider: 'geoapify',
+          cacheStatus: 'miss-live',
+          requestedCount: 1,
+          receivedCount: 1,
+        },
+      });
+
+      const result = await provider.acquire({
+        latitude: -34.6037,
+        longitude: -58.3816,
+        radiusMeters: 5000,
+      });
+
+      expect(result.status).toBe('success');
+      expect(result.value).toHaveLength(0);
+    });
+  });
 });

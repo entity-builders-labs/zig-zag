@@ -215,6 +215,18 @@ export class GooglePlacesAcquisitionProvider {
           continue;
         }
 
+        const displayName = place.displayName?.text?.trim();
+        const name = place.name?.trim();
+        const title =
+          displayName && displayName.length > 0
+            ? displayName
+            : name && name.length > 0
+              ? name
+              : undefined;
+        if (!title) {
+          continue;
+        }
+
         const geo = this.validateCoordinates(place.location);
         const acquisitionProvider = placesAcquisitionLabel(provider);
 
@@ -223,7 +235,7 @@ export class GooglePlacesAcquisitionProvider {
           externalId: placeId,
           evidenceKey: `${acquisitionProvider}:${placeId}`,
           evidenceType: 'place',
-          title: place.displayName?.text ?? place.name ?? placeId,
+          title,
           description: place.formattedAddress,
           geo,
           originationCapabilities: [
