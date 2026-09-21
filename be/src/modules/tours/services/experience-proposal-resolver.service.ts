@@ -33,6 +33,7 @@ import {
   countExactNormalizedMatches,
   countNominatimExactMatches,
   extractDeclaredNameAliases,
+  extractWikidataQid,
   isAreaScaleEligible,
   isPlaceScaleEligible,
   matchesAddressHint,
@@ -53,20 +54,6 @@ import {
 import { buildLocalIdentityEvidence } from '../utils/identity-evidence-builder.util';
 import { IdentityVerifier } from './identity-verifier.service';
 import { IdentityEvidenceCollector } from './identity-evidence-collector.service';
-
-// OSM's `wikidata` tag is normally a single QID, but real-world tagging data
-// is community-edited and occasionally holds a `;`-separated list (multiple
-// disputed/merged QIDs) or other stray text -- only trust it when it's
-// unambiguously exactly one well-formed QID; anything else degrades to "no
-// tag", same as a candidate with no wikidata tag at all.
-const OSM_WIKIDATA_QID_PATTERN = /^Q[1-9][0-9]*$/;
-
-function extractWikidataQid(
-  tags: Record<string, string> | undefined,
-): string | undefined {
-  const raw = tags?.wikidata?.trim();
-  return raw && OSM_WIKIDATA_QID_PATTERN.test(raw) ? raw : undefined;
-}
 
 /**
  * Picks a real candidate out of the Places top-N instead of trusting

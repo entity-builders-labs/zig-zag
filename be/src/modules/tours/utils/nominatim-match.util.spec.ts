@@ -1,10 +1,10 @@
 import {
   bestNominatimMatch,
-  candidateMatchCountToMultiplicity,
   countAliasMatches,
   countExactNormalizedMatches,
   countNominatimExactMatches,
   extractDeclaredNameAliases,
+  extractWikidataQid,
   hasSpecificNameOverlap,
   isAreaScaleEligible,
   isPlaceScaleEligible,
@@ -744,25 +744,29 @@ describe('hasSpecificNameOverlap (exported for cross-source confirmation reuse)'
 
 describe('extractDeclaredNameAliases', () => {
   it('extracts name:en', () => {
-    expect(extractDeclaredNameAliases({ 'name:en': 'San Telmo Market' })).toEqual([
-      'San Telmo Market',
-    ]);
+    expect(
+      extractDeclaredNameAliases({ 'name:en': 'San Telmo Market' }),
+    ).toEqual(['San Telmo Market']);
   });
 
   it('extracts official_name', () => {
-    expect(extractDeclaredNameAliases({ official_name: 'Catedral Metropolitana' })).toEqual([
-      'Catedral Metropolitana',
-    ]);
+    expect(
+      extractDeclaredNameAliases({ official_name: 'Catedral Metropolitana' }),
+    ).toEqual(['Catedral Metropolitana']);
   });
 
   it('extracts alt_name with semicolon-separated aliases', () => {
     expect(
-      extractDeclaredNameAliases({ alt_name: 'Alias One; Alias Two; Alias Three' }),
+      extractDeclaredNameAliases({
+        alt_name: 'Alias One; Alias Two; Alias Three',
+      }),
     ).toEqual(['Alias One', 'Alias Two', 'Alias Three']);
   });
 
   it('extracts short_name', () => {
-    expect(extractDeclaredNameAliases({ short_name: 'MALBA' })).toEqual(['MALBA']);
+    expect(extractDeclaredNameAliases({ short_name: 'MALBA' })).toEqual([
+      'MALBA',
+    ]);
   });
 
   it('extracts loc_name', () => {
@@ -773,7 +777,9 @@ describe('extractDeclaredNameAliases', () => {
 
   it('extracts wikipedia title stripping language prefix', () => {
     expect(
-      extractDeclaredNameAliases({ wikipedia: 'es:Catedral metropolitana de Buenos Aires' }),
+      extractDeclaredNameAliases({
+        wikipedia: 'es:Catedral metropolitana de Buenos Aires',
+      }),
     ).toEqual(['Catedral metropolitana de Buenos Aires']);
   });
 
@@ -816,5 +822,47 @@ describe('countAliasMatches', () => {
         { tags: { 'name:en': 'Example Museum' } },
       ]),
     ).toBe(1);
+  });
+});
+
+describe('extractWikidataQid', () => {
+  it('returns valid QID when tags contain a well-formed Wikidata ID', () => {
+    expect(extractWikidataQid({ wikidata: 'Q1026688' })).toBe('Q1026688');
+  });
+
+  it('trims whitespace and returns valid QID', () => {
+    expect(extractWikidataQid({ wikidata: ' Q1026688 ' })).toBe('Q1026688');
+  });
+
+  it('returns undefined for multiple QIDs separated by semicolon', () => {
+    expect(extractWikidataQid({ wikidata: 'Q123;Q456' })).toBeUndefined();
+  });
+
+  it('returns undefined for lowercase q prefix', () => {
+    expect(extractWikidataQid({ wikidata: 'q123' })).toBeUndefined();
+  });
+
+  it('returns undefined for Q0 (zero not allowed)', () => {
+    expect(extractWikidataQid({ wikidata: 'Q0' })).toBeUndefined();
+  });
+
+  it('returns undefined for empty string', () => {
+    expect(extractWikidataQid({ wikidata: '' })).toBeUndefined();
+  });
+
+  it('returns undefined for whitespace only', () => {
+    expect(extractWikidataQid({ wikidata: '   ' })).toBeUndefined();
+  });
+
+  it('returns undefined for missing wikidata tag', () => {
+    expect(extractWikidataQid({})).toBeUndefined();
+  });
+
+  it('returns undefined for undefined tags', () => {
+    expect(extractWikidataQid(undefined)).toBeUndefined();
+  });
+
+  it('returns undefined for QID without Q prefix', () => {
+    expect(extractWikidataQid({ wikidata: '1026688' })).toBeUndefined();
   });
 });

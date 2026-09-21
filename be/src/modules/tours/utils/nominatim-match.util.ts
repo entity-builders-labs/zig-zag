@@ -368,7 +368,8 @@ export function countAliasMatches(
   return pool.filter((candidate) => {
     // Extract aliases from tags if available, otherwise use pre-extracted nameAliasCandidates
     const aliases =
-      candidate.nameAliasCandidates ?? extractDeclaredNameAliases(candidate.tags);
+      candidate.nameAliasCandidates ??
+      extractDeclaredNameAliases(candidate.tags);
     return aliases.some((alias) =>
       hasSpecificNameOverlap(needle, normalizeGeoName(alias), {
         requireAllTokens: true,
@@ -545,4 +546,37 @@ function matchedTokenCount(
     normalizeGeoName(candidate.name).split(' ').filter(Boolean),
   );
   return needleTokens.filter((token) => haystackTokens.has(token)).length;
+}
+
+// OSM's `wikidata` tag is normally a single QID, but real-world tagging data
+// is community-edited and occasionally holds a `;`-separated list (multiple
+// disputed/merged QIDs) or other stray text -- only trust it when it's
+// unambiguously exactly one well-formed QID; anything else degrades to "no
+// tag", same as a candidate with no wikidata tag at all.
+const OSM_WIKIDATA_QID_PATTERN = /^Q[1-9][0-9]*$/;
+
+/**
+ * Canonical extractor for the Wikidata QID from OSM tags.
+ * Single source of truth for OSM wikidata-tag parsing across all services.
+ *
+ * VALID (returns the QID):
+ *   - "Q1026688"
+ *   - "Q1"
+ *   - "Q999999"
+ *
+ * INVALID (returns undefined):
+ *   - "" (empty string)
+ *   - "   " (whitespace only)
+ *   - "1026688" (missing Q prefix)
+ *   - "q1026688" (lowercase q)
+ *   - "Q0" (zero not allowed)
+ *   - "Q123;Q456" (multiple QIDs)
+ *   - "Q123 Q456" (space-separated)
+ *   - arbitrary text
+ */
+export function extractWikidataQid(
+  tags: Record<string, string> | undefined,
+): string | undefined {
+  const raw = tags?.wikidata?.trim();
+  return raw && OSM_WIKIDATA_QID_PATTERN.test(raw) ? raw : undefined;
 }

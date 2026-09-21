@@ -1847,4 +1847,210 @@ describe('AreaRouteAnchorResolverService', () => {
       verifySpy.mockRestore();
     });
   });
+
+  // ──────────────────────────────────────────────────────────────
+  // OSM Wikidata evidence propagation (regression: IDENTITY_EVIDENCE_PROPAGATION_GAP)
+  // ──────────────────────────────────────────────────────────────
+
+  describe('OSM Wikidata QID propagation into EntityCandidate', () => {
+    it('resolves ambiguous exact-name AREA anchor when OSM boundary carries valid Wikidata QID', async () => {
+      // Reproduces the live RW1 "caminata histórica por San Telmo" failure:
+      // - Two Nominatim results with same normalized exact name "San Telmo"
+      //   → exactName multiplicity = MULTIPLE
+      // - The selected boundary (osm:relation:2223069) has tags.wikidata = "Q1026688"
+      // - Before fix: wikidataQid never reaches EntityCandidate → IdentityVerifier
+      //   falls back to NEARBY → REJECTED → anchor unresolved
+      // - After fix: wikidataQid propagates → IdentityVerifier VERIFIED via OWN_QID
+      const nominatim = {
+        search: jest.fn().mockResolvedValue([
+          {
+            osmType: 'relation',
+            osmId: 2223069,
+            addresstype: 'suburb',
+            placeRank: 20,
+            class: 'place',
+            type: 'suburb',
+            displayName: 'San Telmo, Buenos Aires, Argentina',
+            importance: 0.3,
+            latitude: -34.62,
+            longitude: -58.37,
+          },
+          {
+            osmType: 'relation',
+            osmId: 999999,
+            addresstype: 'suburb',
+            placeRank: 20,
+            class: 'place',
+            type: 'suburb',
+            displayName: 'San Telmo, La Plata, Argentina',
+            importance: 0.25,
+            latitude: -34.92,
+            longitude: -57.95,
+          },
+        ]),
+        reverse: jest.fn(),
+      };
+      const boundaryGeometry = {
+        type: 'Polygon' as const,
+        coordinates: [
+          [
+            [-58.38, -34.63],
+            [-58.36, -34.63],
+            [-58.36, -34.61],
+            [-58.38, -34.61],
+            [-58.38, -34.63],
+          ],
+        ],
+      };
+      const osmPlaces = {
+        lookupBoundaryById: jest.fn().mockResolvedValue({
+          status: 'success',
+          value: {
+            id: 'osm:relation:2223069',
+            name: 'San Telmo',
+            osmType: 'relation',
+            osmId: 2223069,
+            geometry: boundaryGeometry,
+            tags: { boundary: 'administrative', wikidata: 'Q1026688' },
+          },
+        }),
+        lookupStreetsWithin: jest.fn(),
+        lookupStreetsNear: jest.fn(),
+      };
+      const catalog = {
+        upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-san-telmo' }),
+      };
+      // Wikidata must be available and return the entity summary for Q1026688
+      // confirming the San Telmo identity.
+      // getEntitySummaries returns a Map<qid, WikidataEntitySummary>
+      const wikidata = {
+        getEntitySummaries: jest
+          .fn()
+          .mockResolvedValue(
+            new Map([
+              [
+                'Q1026688',
+                { qid: 'Q1026688', label: 'San Telmo', aliases: [] },
+              ],
+            ]),
+          ),
+        findNearbyPlaces: jest.fn().mockResolvedValue([]),
+      };
+      const service = new AreaRouteAnchorResolverService(
+        osmPlaces as any,
+        catalog as any,
+        nominatim as any,
+        undefined,
+        wikidata as any,
+      );
+
+      const result = await service.resolveArea(areaAnchor, 'ar', {
+        latitude: -34.6,
+        longitude: -58.38,
+      });
+
+      // AFTER FIX: should be resolved and persisted
+      expect(result).toEqual(
+        expect.objectContaining({
+          resolved: true,
+          status: 'match',
+          geoEntityId: 'geo-san-telmo',
+          kind: 'area',
+          externalId: 'osm:relation:2223069',
+        }),
+      );
+      expect(catalog.upsertGeoEntity).toHaveBeenCalled();
+
+      // Wikidata.getEntitySummaries must be called with the QID from the OSM tags
+      expect(wikidata.getEntitySummaries).toHaveBeenCalledWith(['Q1026688']);
+      // NEARBY fallback must NOT be called (proves OWN_QID path was used)
+      expect(wikidata.findNearbyPlaces).not.toHaveBeenCalled();
+    });
+
+    it('stays unresolved when OSM boundary has malformed/multi-QID wikidata tag', async () => {
+      // Multiple QIDs in the tag must NOT verify (fail-closed)
+      const nominatim = {
+        search: jest.fn().mockResolvedValue([
+          {
+            osmType: 'relation',
+            osmId: 2223069,
+            addresstype: 'suburb',
+            placeRank: 20,
+            class: 'place',
+            type: 'suburb',
+            displayName: 'San Telmo, Buenos Aires, Argentina',
+            importance: 0.3,
+            latitude: -34.62,
+            longitude: -58.37,
+          },
+          {
+            osmType: 'relation',
+            osmId: 999999,
+            addresstype: 'suburb',
+            placeRank: 20,
+            class: 'place',
+            type: 'suburb',
+            displayName: 'San Telmo, La Plata, Argentina',
+            importance: 0.25,
+            latitude: -34.92,
+            longitude: -57.95,
+          },
+        ]),
+        reverse: jest.fn(),
+      };
+      const boundaryGeometry = {
+        type: 'Polygon' as const,
+        coordinates: [
+          [
+            [-58.38, -34.63],
+            [-58.36, -34.63],
+            [-58.36, -34.61],
+            [-58.38, -34.61],
+            [-58.38, -34.63],
+          ],
+        ],
+      };
+      const osmPlaces = {
+        lookupBoundaryById: jest.fn().mockResolvedValue({
+          status: 'success',
+          value: {
+            id: 'osm:relation:2223069',
+            name: 'San Telmo',
+            osmType: 'relation',
+            osmId: 2223069,
+            geometry: boundaryGeometry,
+            tags: { boundary: 'administrative', wikidata: 'Q123;Q456' },
+          },
+        }),
+        lookupStreetsWithin: jest.fn(),
+        lookupStreetsNear: jest.fn(),
+      };
+      const catalog = {
+        upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-san-telmo' }),
+      };
+      const wikidata = {
+        getEntitySummaries: jest.fn().mockResolvedValue([]),
+        findNearbyPlaces: jest.fn().mockResolvedValue([]),
+      };
+      const service = new AreaRouteAnchorResolverService(
+        osmPlaces as any,
+        catalog as any,
+        nominatim as any,
+        undefined,
+        wikidata as any,
+      );
+
+      const result = await service.resolveArea(areaAnchor, 'ar', {
+        latitude: -34.6,
+        longitude: -58.38,
+      });
+
+      // Malformed QID → no wikidataQid → NEARBY fallback attempted → still fails
+      // because NEARBY doesn't match both hint + candidate
+      expect(result).toEqual(
+        expect.objectContaining({ resolved: false, status: 'no_match' }),
+      );
+      expect(catalog.upsertGeoEntity).not.toHaveBeenCalled();
+    });
+  });
 });

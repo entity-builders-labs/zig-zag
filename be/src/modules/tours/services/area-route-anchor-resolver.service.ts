@@ -21,10 +21,11 @@ import { ExperienceCatalogService } from './experience-catalog.service';
 import {
   bestNominatimMatch,
   candidateMatchCountToMultiplicity,
+  countNominatimExactMatches,
+  extractWikidataQid,
   isAreaScaleEligible,
   matchOsmCandidateByName,
   normalizeGeoName,
-  countNominatimExactMatches,
   countExactNormalizedMatches,
 } from '../utils/nominatim-match.util';
 import {
@@ -388,6 +389,7 @@ export class AreaRouteAnchorResolverService {
       longitude: candidate.longitude,
       geometry: candidate.geometry,
       role: candidate.kind,
+      wikidataQid: extractWikidataQid(candidate.metadata),
       nameEvidenceMultiplicity: candidate.nameEvidenceMultiplicity,
       persistenceMetadata: candidate.metadata
         ? { tags: candidate.metadata }
