@@ -54,8 +54,9 @@ describe('GenerationTrace V2 decision audit coverage', () => {
                 attempts: [
                   {
                     strategy: 'LOCAL_OSM_POOL',
+                    executionStatus: 'completed',
                     provider: 'openstreetmap',
-                    resultCount: 1,
+                    poolCandidateCount: 1,
                     candidateAcquired: true,
                     selectedCandidate: {
                       canonicalName: 'Farmacia la Estrella',
@@ -67,6 +68,7 @@ describe('GenerationTrace V2 decision audit coverage', () => {
                   },
                   {
                     strategy: 'NOMINATIM',
+                    executionStatus: 'completed',
                     provider: 'nominatim',
                     candidateAcquired: false,
                     identityEvidence: [],
@@ -81,6 +83,7 @@ describe('GenerationTrace V2 decision audit coverage', () => {
       ],
       forensicAudit: [
         {
+          candidateTraceKey: 'candidate:farmacia-la-estrella',
           candidateName: 'Farmacia la Estrella',
           candidateEvidenceKeys: ['e1'],
           candidateHintKeys: ['h1'],
@@ -95,8 +98,9 @@ describe('GenerationTrace V2 decision audit coverage', () => {
               attempts: [
                 {
                   strategy: 'LOCAL_OSM_POOL',
+                  executionStatus: 'completed',
                   provider: 'openstreetmap',
-                  resultCount: 1,
+                  poolCandidateCount: 1,
                   candidateAcquired: true,
                   selectedCandidate: {
                     canonicalName: 'Farmacia la Estrella',
@@ -108,6 +112,7 @@ describe('GenerationTrace V2 decision audit coverage', () => {
                 },
                 {
                   strategy: 'NOMINATIM',
+                  executionStatus: 'completed',
                   provider: 'nominatim',
                   candidateAcquired: false,
                   identityEvidence: [],
@@ -121,6 +126,14 @@ describe('GenerationTrace V2 decision audit coverage', () => {
       ],
     };
 
+    result.entityResolution = {
+      totalCandidates: result.totalCandidates,
+      acceptedCount: result.acceptedCount,
+      rejectedCount: result.rejectedCount,
+      resolved: result.resolved,
+      forensicAudit: result.forensicAudit,
+    };
+    delete result.forensicAudit;
     const step = buildEntityResolutionStep(result);
     const hint = step.entityResolutionAudit?.[0].hints[0];
     expect(hint?.attempts).toHaveLength(2);

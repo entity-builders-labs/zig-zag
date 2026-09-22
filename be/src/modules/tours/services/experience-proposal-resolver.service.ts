@@ -57,6 +57,34 @@ import {
 import { buildLocalIdentityEvidence } from '../utils/identity-evidence-builder.util';
 import { IdentityVerifier } from './identity-verifier.service';
 import { IdentityEvidenceCollector } from './identity-evidence-collector.service';
+import { traceCandidateKey } from '../utils/generation-trace-builder.util';
+
+type StrategyAcquisitionResult =
+  | { status: 'not_applicable' }
+  | {
+      status: 'no_candidate';
+      provider: string;
+      query: string;
+      providerResultCount?: number;
+    }
+  | {
+      status: 'candidate';
+      provider: string;
+      query: string;
+      providerResultCount?: number;
+      candidate: EntityCandidate;
+    }
+  | {
+      status: 'failed';
+      provider: string;
+      query: string;
+      failureReason: string;
+    };
+
+type ResolvedCandidateWithAudit = {
+  resolved: ResolvedExperienceCandidate;
+  audit: CandidateResolutionAudit;
+};
 
 /**
  * Picks a real candidate out of the Places top-N instead of trusting
@@ -223,7 +251,7 @@ export class ExperienceProposalResolverService
     ]);
 
     // Candidates remain transient through acquisition and identity verification.
-    const resolvedCandidates = await mapWithBoundedConcurrency(
+    const resolutionResults = await mapWithBoundedConcurrency(
       candidates,
       RESOLVER_CANDIDATE_CONCURRENCY,
       (candidate: any) =>
@@ -240,6 +268,10 @@ export class ExperienceProposalResolverService
         ),
     );
 
+    const resolvedCandidates = resolutionResults.map(
+      (result) => result.resolved,
+    );
+    const forensicAudit = resolutionResults.map((result) => result.audit);
     const acceptedForValidation = resolvedCandidates.filter(
       (item) => item.status === 'accepted',
     ) as ResolvedExperienceCandidate[];
@@ -288,7 +320,6 @@ export class ExperienceProposalResolverService
         (candidate) => validationByCandidate.get(candidate)?.accepted,
       ),
     );
-
     // Bounded: each accepted candidate persists inside its own interactive
     // `prisma.$transaction`, holding a pooled DB connection for its lifetime —
     // an unbounded fan-out here exhausted the pool on cold-start cities.
@@ -449,9 +480,7 @@ export class ExperienceProposalResolverService
       acceptedCount: acceptedForValidation.length,
       rejectedCount: resolvedCandidates.length - acceptedForValidation.length,
       resolved: resolvedCandidates,
-      forensicAudit: resolvedCandidates.flatMap((entry) =>
-        entry.forensicAudit ? [entry.forensicAudit] : [],
-      ),
+      forensicAudit,
     };
     const geographicValidation = {
       results: validationResults,
@@ -470,9 +499,6 @@ export class ExperienceProposalResolverService
       entityResolution,
       geographicValidation,
       materialization: { resolved },
-      forensicAudit: resolvedCandidates.flatMap((entry) =>
-        entry.forensicAudit ? [entry.forensicAudit] : [],
-      ),
       validationScope: input.validationScope,
       validationIntent: input.validationIntent,
       destinationBoundary: boundary
@@ -497,7 +523,7 @@ export class ExperienceProposalResolverService
     evidence: ExperienceResolutionRequest['evidence'] = [],
     destinationCountryCode?: string,
     observations: SourceObservation[] = [],
-  ) {
+  ): Promise<ResolvedCandidateWithAudit> {
     const entities: ResolvedGeoEntity[] = [];
     const componentAudits: CandidateResolutionAudit['componentAudits'] = [];
     const destinationAssociationVerified =
@@ -511,22 +537,34 @@ export class ExperienceProposalResolverService
       const attempts: ResolutionAttemptAudit[] = [];
       const recordAttempt = (
         strategy: ResolutionStrategy,
-        provider: string | undefined,
-        entity: EntityCandidate | undefined,
+        acquisition: {
+          status: 'completed' | 'failed' | 'no_candidate';
+          provider?: string;
+          query?: string;
+          providerResultCount?: number;
+          poolCandidateCount?: number;
+          matchingCandidateCount?: number;
+          entity?: EntityCandidate;
+          failureReason?: string;
+        },
         verification: VerificationResult | undefined,
-        resultCount?: number,
       ): void => {
         attempts.push({
           strategy,
-          provider,
-          query: hint.name,
-          resultCount,
-          candidateAcquired: Boolean(entity),
-          selectedCandidate: entity
+          executionStatus:
+            acquisition.status === 'failed' ? 'failed' : 'completed',
+          provider: acquisition.provider,
+          query: acquisition.query ?? hint.name,
+          providerResultCount: acquisition.providerResultCount,
+          poolCandidateCount: acquisition.poolCandidateCount,
+          matchingCandidateCount: acquisition.matchingCandidateCount,
+          candidateAcquired: Boolean(acquisition.entity),
+          failureReason: acquisition.failureReason,
+          selectedCandidate: acquisition.entity
             ? {
-                canonicalName: entity.canonicalName,
-                externalId: entity.externalId,
-                kind: entity.kind,
+                canonicalName: acquisition.entity.canonicalName,
+                externalId: acquisition.entity.externalId,
+                kind: acquisition.entity.kind,
               }
             : undefined,
           identityEvidence: verification?.evidence ?? [],
@@ -568,34 +606,39 @@ export class ExperienceProposalResolverService
         observations,
         boundary,
       );
-      if (reuseCandidate) {
+      if (reuseCandidate.status === 'candidate') {
         const verification = await this.isVerified(
           'TRUSTED_OBSERVATION_REUSE',
-          reuseCandidate,
+          reuseCandidate.candidate,
           hint,
           observations,
         );
         recordAttempt(
           'TRUSTED_OBSERVATION_REUSE',
-          reuseCandidate.provider,
-          reuseCandidate,
+          {
+            status: 'completed',
+            provider: reuseCandidate.provider,
+            query: reuseCandidate.query,
+            entity: reuseCandidate.candidate,
+          },
           verification,
-          1,
         );
         if (verification.decision.status === 'VERIFIED') {
-          const resolved = await this.persistVerifiedCandidate(reuseCandidate);
+          const resolved = await this.persistVerifiedCandidate(
+            reuseCandidate.candidate,
+          );
           entities.push(resolved);
           finishAudit(resolved);
           continue;
         }
-      } else {
+      } else if (reuseCandidate.status === 'no_candidate') {
         recordAttempt(
           'TRUSTED_OBSERVATION_REUSE',
+          { ...reuseCandidate, status: 'no_candidate' },
           undefined,
-          undefined,
-          undefined,
-          0,
         );
+      } else if (reuseCandidate.status === 'failed') {
+        recordAttempt('TRUSTED_OBSERVATION_REUSE', reuseCandidate, undefined);
       }
 
       const isAreaHint = hint.expectedKind === 'AREA' || hint.role === 'area';
@@ -652,10 +695,13 @@ export class ExperienceProposalResolverService
         );
         recordAttempt(
           'LOCAL_OSM_POOL',
-          resolvedEntity.provider,
-          resolvedEntity,
+          {
+            status: 'completed',
+            provider: resolvedEntity.provider,
+            entity: resolvedEntity,
+            poolCandidateCount: pool.length,
+          },
           verification,
-          pool.length,
         );
         if (verification.decision.status === 'VERIFIED') {
           const resolved = await this.persistVerifiedCandidate(resolvedEntity);
@@ -681,10 +727,12 @@ export class ExperienceProposalResolverService
       } else {
         recordAttempt(
           'LOCAL_OSM_POOL',
-          'openstreetmap',
+          {
+            status: 'completed',
+            provider: 'openstreetmap',
+            poolCandidateCount: pool.length,
+          },
           undefined,
-          undefined,
-          pool.length,
         );
       }
 
@@ -694,23 +742,28 @@ export class ExperienceProposalResolverService
           destinationCountryCode,
           this.representativePoint(boundary),
         );
-        if (nominatimResolved) {
+        if (nominatimResolved.status === 'candidate') {
           const verification = await this.isVerified(
             'NOMINATIM',
-            nominatimResolved,
+            nominatimResolved.candidate,
             hint,
             observations,
           );
           recordAttempt(
             'NOMINATIM',
-            nominatimResolved.provider,
-            nominatimResolved,
+            {
+              status: 'completed',
+              provider: nominatimResolved.provider,
+              query: nominatimResolved.query,
+              providerResultCount: nominatimResolved.providerResultCount,
+              entity: nominatimResolved.candidate,
+            },
             verification,
-            1,
           );
           if (verification.decision.status === 'VERIFIED') {
-            const resolved =
-              await this.persistVerifiedCandidate(nominatimResolved);
+            const resolved = await this.persistVerifiedCandidate(
+              nominatimResolved.candidate,
+            );
             entities.push(resolved);
             finishAudit(resolved);
             continue;
@@ -725,7 +778,15 @@ export class ExperienceProposalResolverService
             hint,
             nominatimResolved.provider,
           );
-        } else recordAttempt('NOMINATIM', 'nominatim', undefined, undefined);
+        } else if (nominatimResolved.status === 'no_candidate') {
+          recordAttempt(
+            'NOMINATIM',
+            { ...nominatimResolved, status: 'no_candidate' },
+            undefined,
+          );
+        } else if (nominatimResolved.status === 'failed') {
+          recordAttempt('NOMINATIM', nominatimResolved, undefined);
+        }
 
         // A Nominatim result that failed identity verification is a failed
         // attempt, not evidence that the independently allowed PLACE lookup
@@ -735,23 +796,28 @@ export class ExperienceProposalResolverService
           hint,
           this.representativePoint(boundary),
         );
-        if (placesResolved) {
+        if (placesResolved.status === 'candidate') {
           const verification = await this.isVerified(
             'PLACES',
-            placesResolved,
+            placesResolved.candidate,
             hint,
             observations,
           );
           recordAttempt(
             'PLACES',
-            placesResolved.provider,
-            placesResolved,
+            {
+              status: 'completed',
+              provider: placesResolved.provider,
+              query: placesResolved.query,
+              providerResultCount: placesResolved.providerResultCount,
+              entity: placesResolved.candidate,
+            },
             verification,
-            1,
           );
           if (verification.decision.status === 'VERIFIED') {
-            const resolved =
-              await this.persistVerifiedCandidate(placesResolved);
+            const resolved = await this.persistVerifiedCandidate(
+              placesResolved.candidate,
+            );
             entities.push(resolved);
             finishAudit(resolved);
             continue;
@@ -760,13 +826,14 @@ export class ExperienceProposalResolverService
             hint,
             placesResolved.provider,
           );
-        } else if (this.placesApi && hint.expectedKind === 'PLACE') {
+        } else if (
+          placesResolved.status === 'no_candidate' ||
+          placesResolved.status === 'failed'
+        ) {
           recordAttempt(
             'PLACES',
-            placesAcquisitionLabel(this.placesApi.provider),
+            { ...placesResolved, status: placesResolved.status },
             undefined,
-            undefined,
-            0,
           );
         }
       }
@@ -816,10 +883,13 @@ export class ExperienceProposalResolverService
           );
           recordAttempt(
             'AREA_TO_PLACE_CORRECTION',
-            resolvedEntity.provider,
-            resolvedEntity,
+            {
+              status: 'completed',
+              provider: resolvedEntity.provider,
+              entity: resolvedEntity,
+              poolCandidateCount: pois.length,
+            },
             verification,
-            1,
           );
           entities.push(
             verification.decision.status === 'VERIFIED'
@@ -831,10 +901,12 @@ export class ExperienceProposalResolverService
         } else if (isAreaHint) {
           recordAttempt(
             'AREA_TO_PLACE_CORRECTION',
-            'openstreetmap',
+            {
+              status: 'completed',
+              provider: 'openstreetmap',
+              poolCandidateCount: pois.length,
+            },
             undefined,
-            undefined,
-            0,
           );
         }
       }
@@ -893,10 +965,25 @@ export class ExperienceProposalResolverService
 
     if (resolvedEntities.length === 0 || unresolvedRequired) {
       return {
-        candidate,
-        status: 'rejected' as const,
-        resolvedEntities: entities,
-        forensicAudit: {
+        resolved: {
+          candidate,
+          status: 'rejected' as const,
+          resolvedEntities: entities,
+          destinationAssociationVerified,
+          rejectionReasons: [
+            resolvedEntities.length === 0
+              ? entities.some(
+                  (entity) => entity.reason === 'OSM_PROVIDER_FAILED',
+                )
+                ? 'OSM_PROVIDER_FAILED'
+                : entities.some((entity) => entity.reason === 'OSM_QUERY_EMPTY')
+                  ? 'OSM_QUERY_EMPTY'
+                  : 'NO_OSM_MATCH'
+              : 'UNRESOLVED_REQUIRED_COMPONENT',
+          ],
+        },
+        audit: {
+          candidateTraceKey: traceCandidateKey(candidate),
           candidateName: candidate.name,
           candidateEvidenceKeys: [...candidate.evidenceKeys],
           candidateHintKeys: candidate.componentHints.map(
@@ -904,24 +991,19 @@ export class ExperienceProposalResolverService
           ),
           componentAudits,
         },
-        destinationAssociationVerified,
-        rejectionReasons: [
-          resolvedEntities.length === 0
-            ? entities.some((entity) => entity.reason === 'OSM_PROVIDER_FAILED')
-              ? 'OSM_PROVIDER_FAILED'
-              : entities.some((entity) => entity.reason === 'OSM_QUERY_EMPTY')
-                ? 'OSM_QUERY_EMPTY'
-                : 'NO_OSM_MATCH'
-            : 'UNRESOLVED_REQUIRED_COMPONENT',
-        ],
       };
     }
 
     return {
-      candidate,
-      status: 'accepted' as const,
-      resolvedEntities: entities,
-      forensicAudit: {
+      resolved: {
+        candidate,
+        status: 'accepted' as const,
+        resolvedEntities: entities,
+        destinationAssociationVerified,
+        rejectionReasons: [],
+      },
+      audit: {
+        candidateTraceKey: traceCandidateKey(candidate),
         candidateName: candidate.name,
         candidateEvidenceKeys: [...candidate.evidenceKeys],
         candidateHintKeys: candidate.componentHints.map(
@@ -929,8 +1011,6 @@ export class ExperienceProposalResolverService
         ),
         componentAudits,
       },
-      destinationAssociationVerified,
-      rejectionReasons: [] as string[],
     };
   }
 
@@ -1058,8 +1138,10 @@ export class ExperienceProposalResolverService
     hint: any,
     destinationCountryCode?: string,
     destinationPoint?: Coordinates,
-  ): Promise<EntityCandidate | undefined> {
-    if (!this.nominatim || hint.expectedKind === 'ROUTE') return undefined;
+  ): Promise<StrategyAcquisitionResult> {
+    if (!this.nominatim || hint.expectedKind === 'ROUTE') {
+      return { status: 'not_applicable' };
+    }
 
     try {
       const results = await this.nominatim.search(
@@ -1079,7 +1161,12 @@ export class ExperienceProposalResolverService
         !Number.isFinite(match.latitude) ||
         !Number.isFinite(match.longitude)
       ) {
-        return undefined;
+        return {
+          status: 'no_candidate',
+          provider: 'nominatim',
+          query: hint.name,
+          providerResultCount: results.length,
+        };
       }
 
       // Generalized (was: gated behind `hint.expectedKind === 'AREA'`) --
@@ -1099,7 +1186,14 @@ export class ExperienceProposalResolverService
           match.osmType,
           match.osmId,
         );
-        if (!boundary.value) return undefined;
+        if (!boundary.value) {
+          return {
+            status: 'no_candidate',
+            provider: 'nominatim',
+            query: hint.name,
+            providerResultCount: results.length,
+          };
+        }
         const correctedHint =
           hint.expectedKind === 'AREA'
             ? hint
@@ -1107,13 +1201,26 @@ export class ExperienceProposalResolverService
         // Pass through the identity multiplicity established from the
         // Nominatim exact-match count; hydrating the boundary does not
         // change the identity multiplicity of the original candidate set.
-        return this.buildOsmCandidate(correctedHint, boundary.value, {
-          exactName: nameMultiplicity.exactName,
-          declaredAlias: 'UNKNOWN',
-        });
+        return {
+          status: 'candidate',
+          provider: 'nominatim',
+          query: hint.name,
+          providerResultCount: results.length,
+          candidate: this.buildOsmCandidate(correctedHint, boundary.value, {
+            exactName: nameMultiplicity.exactName,
+            declaredAlias: 'UNKNOWN',
+          }),
+        };
       }
 
-      if (!isPlaceScaleEligible(match)) return undefined;
+      if (!isPlaceScaleEligible(match)) {
+        return {
+          status: 'no_candidate',
+          provider: 'nominatim',
+          query: hint.name,
+          providerResultCount: results.length,
+        };
+      }
 
       const correctedHint =
         hint.expectedKind === 'PLACE'
@@ -1128,38 +1235,49 @@ export class ExperienceProposalResolverService
         coordinates: [match.longitude as number, match.latitude as number],
       };
       return {
-        hintKey: correctedHint.key,
-        hintName: correctedHint.name,
+        status: 'candidate',
         provider: 'nominatim',
-        externalId,
-        canonicalName,
-        kind: GeoEntityKind.PLACE,
-        latitude: match.latitude,
-        longitude: match.longitude,
-        geometry,
-        role: correctedHint.role,
-        nameEvidenceMultiplicity: nameMultiplicity,
-        adminContext: {
-          country: match.address?.country,
-          region: match.address?.state,
-          locality:
-            match.address?.city ??
-            match.address?.town ??
-            match.address?.village ??
-            match.address?.municipality,
-          municipality: match.address?.municipality,
-        },
-        persistenceMetadata: {
-          displayName: match.displayName,
-          addresstype: match.addresstype,
-          address: match.address,
+        query: hint.name,
+        providerResultCount: results.length,
+        candidate: {
+          hintKey: correctedHint.key,
+          hintName: correctedHint.name,
+          provider: 'nominatim',
+          externalId,
+          canonicalName,
+          kind: GeoEntityKind.PLACE,
+          latitude: match.latitude,
+          longitude: match.longitude,
+          geometry,
+          role: correctedHint.role,
+          nameEvidenceMultiplicity: nameMultiplicity,
+          adminContext: {
+            country: match.address?.country,
+            region: match.address?.state,
+            locality:
+              match.address?.city ??
+              match.address?.town ??
+              match.address?.village ??
+              match.address?.municipality,
+            municipality: match.address?.municipality,
+          },
+          persistenceMetadata: {
+            displayName: match.displayName,
+            addresstype: match.addresstype,
+            address: match.address,
+          },
         },
       };
     } catch (error: any) {
       this.logger.warn(
         `Global trusted resolution failed for "${hint.name}": ${error?.message ?? error}`,
       );
-      return undefined;
+      return {
+        status: 'failed',
+        provider: 'nominatim',
+        query: hint.name,
+        failureReason: error?.message ?? String(error),
+      };
     }
   }
 
@@ -1196,16 +1314,16 @@ export class ExperienceProposalResolverService
     hint: any,
     observations: SourceObservation[],
     poolBoundary: OsmCandidate | undefined,
-  ): Promise<EntityCandidate | undefined> {
+  ): Promise<StrategyAcquisitionResult> {
     if (
       hint.role === 'area' ||
       hint.role === 'route' ||
       hint.expectedKind === 'AREA' ||
       hint.expectedKind === 'ROUTE'
     ) {
-      return undefined;
+      return { status: 'not_applicable' };
     }
-    if (!this.placesApi) return undefined;
+    if (!this.placesApi) return { status: 'not_applicable' };
 
     const eligibleObservations = observations.filter(
       (observation) =>
@@ -1221,7 +1339,11 @@ export class ExperienceProposalResolverService
       this.logger.debug(
         `[P2-B] reuse ${correlation.status} for hint "${hint.name}"`,
       );
-      return undefined;
+      return {
+        status: 'no_candidate',
+        provider: 'trusted_observation',
+        query: hint.name,
+      };
     }
     const observation = correlation.observation;
 
@@ -1250,7 +1372,11 @@ export class ExperienceProposalResolverService
       this.logger.debug(
         `[P2-B] reuse candidate outside destination scope for hint "${hint.name}"`,
       );
-      return undefined;
+      return {
+        status: 'no_candidate',
+        provider: 'trusted_observation',
+        query: hint.name,
+      };
     }
 
     // Provider guard -- an externalId is only ever meaningful to the SAME
@@ -1262,7 +1388,11 @@ export class ExperienceProposalResolverService
       this.logger.debug(
         `[P2-B] reuse provider mismatch (observation=${observation.provider}, active=${this.placesApi.provider}) for hint "${hint.name}"`,
       );
-      return undefined;
+      return {
+        status: 'no_candidate',
+        provider: placesAcquisitionLabel(this.placesApi.provider),
+        query: hint.name,
+      };
     }
 
     // Deterministic provider fetch establishes what this observation
@@ -1284,14 +1414,30 @@ export class ExperienceProposalResolverService
       this.logger.debug(
         `[P2-B] reuse getPlaceDetails failed for hint "${hint.name}": ${error?.message ?? error}`,
       );
-      return undefined;
+      return {
+        status: 'failed',
+        provider: placesAcquisitionLabel(this.placesApi.provider),
+        query: hint.name,
+        failureReason: error?.message ?? String(error),
+      };
     }
-    if (!details) return undefined;
+    if (!details) {
+      return {
+        status: 'failed',
+        provider: placesAcquisitionLabel(this.placesApi.provider),
+        query: hint.name,
+        failureReason: 'PLACE_DETAILS_EMPTY',
+      };
+    }
     if (details.businessStatus === 'CLOSED_PERMANENTLY') {
       this.logger.debug(
         `[P2-B] reuse candidate closed permanently for hint "${hint.name}"`,
       );
-      return undefined;
+      return {
+        status: 'no_candidate',
+        provider: placesAcquisitionLabel(this.placesApi.provider),
+        query: hint.name,
+      };
     }
 
     const canonicalName =
@@ -1312,24 +1458,29 @@ export class ExperienceProposalResolverService
     );
 
     return {
-      hintKey: hint.key,
-      hintName: hint.name,
+      status: 'candidate',
       provider: providerLabel,
-      externalId,
-      canonicalName,
-      kind: GeoEntityKind.PLACE,
-      latitude,
-      longitude,
-      geometry,
-      role: hint.role,
-      // One acquisition-run observation identifies the fetched provider
-      // record, but never proves real-world uniqueness. Use UNKNOWN so
-      // IdentityVerifier requires independent corroboration.
-      nameEvidenceMultiplicity: {
-        exactName: 'UNKNOWN',
-        declaredAlias: 'UNKNOWN',
+      query: hint.name,
+      candidate: {
+        hintKey: hint.key,
+        hintName: hint.name,
+        provider: providerLabel,
+        externalId,
+        canonicalName,
+        kind: GeoEntityKind.PLACE,
+        latitude,
+        longitude,
+        geometry,
+        role: hint.role,
+        // One acquisition-run observation identifies the fetched provider
+        // record, but never proves real-world uniqueness. Use UNKNOWN so
+        // IdentityVerifier requires independent corroboration.
+        nameEvidenceMultiplicity: {
+          exactName: 'UNKNOWN',
+          declaredAlias: 'UNKNOWN',
+        },
+        persistenceMetadata: { formattedAddress: details.formattedAddress },
       },
-      persistenceMetadata: { formattedAddress: details.formattedAddress },
     };
   }
 
@@ -1344,8 +1495,10 @@ export class ExperienceProposalResolverService
   private async resolveViaPlaces(
     hint: any,
     destinationPoint?: Coordinates,
-  ): Promise<EntityCandidate | undefined> {
-    if (!this.placesApi || hint.expectedKind !== 'PLACE') return undefined;
+  ): Promise<StrategyAcquisitionResult> {
+    if (!this.placesApi || hint.expectedKind !== 'PLACE') {
+      return { status: 'not_applicable' };
+    }
 
     try {
       const result = await this.placesApi.searchText({
@@ -1377,7 +1530,12 @@ export class ExperienceProposalResolverService
         !Number.isFinite(place.location.latitude) ||
         !Number.isFinite(place.location.longitude)
       ) {
-        return undefined;
+        return {
+          status: 'no_candidate',
+          provider: placesAcquisitionLabel(this.placesApi.provider),
+          query: hint.name,
+          providerResultCount: result.data.length,
+        };
       }
 
       const providerLabel = placesAcquisitionLabel(this.placesApi.provider);
@@ -1391,27 +1549,38 @@ export class ExperienceProposalResolverService
         coordinates: [place.location.longitude, place.location.latitude],
       };
       return {
-        hintKey: hint.key,
-        hintName: hint.name,
+        status: 'candidate',
         provider: providerLabel,
-        externalId,
-        canonicalName,
-        kind: GeoEntityKind.PLACE,
-        latitude: place.location.latitude,
-        longitude: place.location.longitude,
-        geometry,
-        role: hint.role,
-        nameEvidenceMultiplicity: nameMultiplicity,
-        persistenceMetadata: {
-          formattedAddress: place.formattedAddress,
-          types: place.types,
+        query: hint.name,
+        providerResultCount: result.data.length,
+        candidate: {
+          hintKey: hint.key,
+          hintName: hint.name,
+          provider: providerLabel,
+          externalId,
+          canonicalName,
+          kind: GeoEntityKind.PLACE,
+          latitude: place.location.latitude,
+          longitude: place.location.longitude,
+          geometry,
+          role: hint.role,
+          nameEvidenceMultiplicity: nameMultiplicity,
+          persistenceMetadata: {
+            formattedAddress: place.formattedAddress,
+            types: place.types,
+          },
         },
       };
     } catch (error: any) {
       this.logger.warn(
         `Places fallback resolution failed for "${hint.name}": ${error?.message ?? error}`,
       );
-      return undefined;
+      return {
+        status: 'failed',
+        provider: placesAcquisitionLabel(this.placesApi.provider),
+        query: hint.name,
+        failureReason: error?.message ?? String(error),
+      };
     }
   }
 

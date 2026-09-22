@@ -209,6 +209,16 @@ describe('ExperienceProposalResolverService', () => {
     // ROUTE hint via POINT_RADIUS -> raw OSM ways -> identityMultiplicity
     // UNKNOWN -> no independent corroboration -> fail closed (not persisted).
     expect(result.acceptedCount).toBe(0);
+    const routeAttempts =
+      result.entityResolution.forensicAudit[0].componentAudits[0].attempts;
+    expect(routeAttempts.map((attempt) => attempt.strategy)).toEqual([
+      'LOCAL_OSM_POOL',
+    ]);
+    expect(routeAttempts[0]).toMatchObject({
+      executionStatus: 'completed',
+      candidateAcquired: true,
+      poolCandidateCount: 1,
+    });
   });
 
   it('fails closed when a raw OSM ROUTE alias matches but multiplicity is unknown', async () => {

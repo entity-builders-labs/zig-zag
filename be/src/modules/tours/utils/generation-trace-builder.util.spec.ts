@@ -259,7 +259,7 @@ describe('buildEntityResolutionStep', () => {
   });
 
   it('reports accepted proposals with resolved entities ready for geographic validation', () => {
-    const step = buildEntityResolutionStep({
+    const resolution: any = {
       resolved: [
         {
           candidate: {
@@ -285,6 +285,10 @@ describe('buildEntityResolutionStep', () => {
               expectedType: 'museum',
               provider: 'osm',
               canonicalName: 'Casa Histórica',
+              nameEvidenceMultiplicity: {
+                exactName: 'UNKNOWN',
+                declaredAlias: 'UNKNOWN',
+              } as const,
               status: 'resolved',
               latitude: -34.62,
               longitude: -58.37,
@@ -292,7 +296,16 @@ describe('buildEntityResolutionStep', () => {
           ],
           rejectionReasons: [],
           experienceId: 'experience-1',
-          forensicAudit: {
+        },
+      ],
+      entityResolution: {
+        totalCandidates: 1,
+        acceptedCount: 1,
+        rejectedCount: 0,
+        resolved: [],
+        forensicAudit: [
+          {
+            candidateTraceKey: 'trace-casa-historica',
             candidateName: 'Casa Histórica',
             candidateEvidenceKeys: [],
             candidateHintKeys: ['hint-1'],
@@ -307,8 +320,9 @@ describe('buildEntityResolutionStep', () => {
                 attempts: [
                   {
                     strategy: 'LOCAL_OSM_POOL',
+                    executionStatus: 'completed',
                     provider: 'openstreetmap',
-                    resultCount: 1,
+                    poolCandidateCount: 1,
                     candidateAcquired: true,
                     selectedCandidate: {
                       canonicalName: 'Casa Histórica',
@@ -331,12 +345,64 @@ describe('buildEntityResolutionStep', () => {
               },
             ],
           },
-        },
-      ],
+        ],
+      },
       totalCandidates: 1,
       acceptedCount: 1,
       rejectedCount: 0,
-    });
+    };
+    resolution.entityResolution = {
+      totalCandidates: 1,
+      acceptedCount: 1,
+      rejectedCount: 0,
+      resolved: resolution.resolved,
+      forensicAudit: [
+        {
+          candidateTraceKey: traceCandidateKey(
+            resolution.resolved[0].candidate,
+          ),
+          candidateName: 'Casa Histórica',
+          candidateEvidenceKeys: [],
+          candidateHintKeys: ['hint-1'],
+          componentAudits: [
+            {
+              hintKey: 'hint-1',
+              hintName: 'Casa Histórica',
+              role: 'venue',
+              expectedKind: 'PLACE',
+              required: true,
+              evidenceKeys: [],
+              attempts: [
+                {
+                  strategy: 'LOCAL_OSM_POOL',
+                  executionStatus: 'completed',
+                  provider: 'openstreetmap',
+                  poolCandidateCount: 1,
+                  candidateAcquired: true,
+                  selectedCandidate: {
+                    canonicalName: 'Casa Histórica',
+                    externalId: 'osm:1',
+                    kind: 'PLACE',
+                  },
+                  identityEvidence: [
+                    { type: 'EXACT_NAME', identityMultiplicity: 'SINGLE' },
+                  ],
+                  verificationDecision: 'VERIFIED',
+                },
+              ],
+              finalStatus: 'resolved',
+              resolvedGeoEntity: {
+                provider: 'osm',
+                canonicalName: 'Casa Histórica',
+                externalId: 'osm:1',
+                geoEntityId: 'geo-1',
+              },
+            },
+          ],
+        },
+      ],
+    };
+    const step = buildEntityResolutionStep(resolution);
 
     expect(step.stage).toBe('entity_resolution');
     expect(step.providerStatus).toBe('success');
@@ -406,6 +472,10 @@ describe('buildGeographicValidationStep', () => {
                 expectedType: 'square',
                 provider: 'osm',
                 externalId: 'w1',
+                nameEvidenceMultiplicity: {
+                  exactName: 'UNKNOWN',
+                  declaredAlias: 'UNKNOWN',
+                } as const,
                 status: 'resolved',
               },
             ],
@@ -461,6 +531,10 @@ describe('buildGeographicValidationStep', () => {
         role: 'waypoint',
         provider: 'osm',
         externalId: 'inside',
+        nameEvidenceMultiplicity: {
+          exactName: 'UNKNOWN',
+          declaredAlias: 'UNKNOWN',
+        } as const,
         status: 'resolved',
       },
       {
@@ -469,6 +543,10 @@ describe('buildGeographicValidationStep', () => {
         role: 'waypoint',
         provider: 'osm',
         externalId: 'outside',
+        nameEvidenceMultiplicity: {
+          exactName: 'UNKNOWN',
+          declaredAlias: 'UNKNOWN',
+        } as const,
         status: 'resolved',
       },
     ];
@@ -572,6 +650,10 @@ describe('buildGeographicValidationStep', () => {
         provider: 'osm',
         externalId: `${suffix}-${number}`,
         geoEntityId: `${suffix}-${number}`,
+        nameEvidenceMultiplicity: {
+          exactName: 'UNKNOWN',
+          declaredAlias: 'UNKNOWN',
+        } as const,
         status: 'resolved' as const,
       })),
       rejectionReasons: [] as string[],
@@ -676,6 +758,10 @@ describe('buildGeographicValidationStep native audit projection', () => {
         provider: 'osm',
         externalId: 'v1',
         geoEntityId: 'geo-v1',
+        nameEvidenceMultiplicity: {
+          exactName: 'UNKNOWN',
+          declaredAlias: 'UNKNOWN',
+        } as const,
         status: 'resolved' as const,
       },
       {
@@ -685,6 +771,10 @@ describe('buildGeographicValidationStep native audit projection', () => {
         provider: 'osm',
         externalId: 'v2',
         geoEntityId: 'geo-v2',
+        nameEvidenceMultiplicity: {
+          exactName: 'UNKNOWN',
+          declaredAlias: 'UNKNOWN',
+        } as const,
         status: 'resolved' as const,
       },
     ];
@@ -817,6 +907,10 @@ describe('GenerationTrace v4 geometry projection', () => {
       latitude: -34.6,
       longitude: -58.4,
       geometry: largeGeometry,
+      nameEvidenceMultiplicity: {
+        exactName: 'UNKNOWN',
+        declaredAlias: 'UNKNOWN',
+      } as const,
       status: 'resolved' as const,
     };
     const resolvedEntry = {

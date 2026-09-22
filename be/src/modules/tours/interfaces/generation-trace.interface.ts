@@ -202,10 +202,14 @@ export interface TraceEntityResolutionDecision {
 
 export interface TraceEntityResolutionAttempt {
   strategy: ResolutionStrategy;
+  executionStatus: 'completed' | 'failed';
   provider?: string;
   query?: string;
-  resultCount?: number;
+  providerResultCount?: number;
+  poolCandidateCount?: number;
+  matchingCandidateCount?: number;
   candidateAcquired: boolean;
+  failureReason?: string;
   selectedCandidate?: {
     canonicalName: string;
     externalId: string;

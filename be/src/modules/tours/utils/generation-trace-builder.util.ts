@@ -1459,64 +1459,40 @@ export function buildEntityResolutionStep(
     })),
     providerStatus: accepted.length ? 'success' : 'failed',
     degradedReason: accepted.length ? undefined : 'no_proposals_resolved',
-    entityResolutionAudit: (
-      result.forensicAudit ??
-      resolution.forensicAudit ??
-      resolution.resolved.flatMap((entry) =>
-        entry.forensicAudit ? [entry.forensicAudit] : [],
-      )
-    ).map((audit) => ({
-      candidateTraceKey: (() => {
-        const candidate = resolution.resolved.find(
-          (entry) =>
-            entry.forensicAudit?.candidateName === audit.candidateName &&
-            [...entry.candidate.evidenceKeys].sort().join('|') ===
-              [...audit.candidateEvidenceKeys].sort().join('|') &&
-            entry.candidate.componentHints.map((hint) => hint.key).join('|') ===
-              audit.candidateHintKeys.join('|'),
-        )?.candidate;
-        return candidate
-          ? traceCandidateKey(candidate)
-          : `unmatched:${audit.candidateName}`;
-      })(),
-      candidateName: audit.candidateName,
-      hints: audit.componentAudits.map((component) => ({
-        key: component.hintKey,
-        name: component.hintName,
-        role: component.role,
-        expectedKind: component.expectedKind,
-        required: component.required,
-        evidenceKeys: [...component.evidenceKeys],
-        ...(component.addressHint
-          ? { addressHint: component.addressHint }
-          : {}),
-        status:
-          component.finalStatus === 'resolved'
-            ? ('resolved' as const)
-            : ('unresolved' as const),
-        resolvedGeoEntity: component.resolvedGeoEntity,
-        reason: component.finalReason,
-        attempts: component.attempts,
-      })),
-      accepted:
-        resolution.resolved.find(
-          (entry) =>
-            entry.forensicAudit?.candidateName === audit.candidateName &&
-            [...entry.candidate.evidenceKeys].sort().join('|') ===
-              [...audit.candidateEvidenceKeys].sort().join('|') &&
-            entry.candidate.componentHints.map((hint) => hint.key).join('|') ===
-              audit.candidateHintKeys.join('|'),
-        )?.status === 'accepted',
-      rejectionReasons:
-        resolution.resolved.find(
-          (entry) =>
-            entry.forensicAudit?.candidateName === audit.candidateName &&
-            [...entry.candidate.evidenceKeys].sort().join('|') ===
-              [...audit.candidateEvidenceKeys].sort().join('|') &&
-            entry.candidate.componentHints.map((hint) => hint.key).join('|') ===
-              audit.candidateHintKeys.join('|'),
-        )?.rejectionReasons ?? [],
-    })),
+    entityResolutionAudit: (result.entityResolution?.forensicAudit ?? []).map(
+      (audit) => ({
+        candidateTraceKey: audit.candidateTraceKey,
+        candidateName: audit.candidateName,
+        hints: audit.componentAudits.map((component) => ({
+          key: component.hintKey,
+          name: component.hintName,
+          role: component.role,
+          expectedKind: component.expectedKind,
+          required: component.required,
+          evidenceKeys: [...component.evidenceKeys],
+          ...(component.addressHint
+            ? { addressHint: component.addressHint }
+            : {}),
+          status:
+            component.finalStatus === 'resolved'
+              ? ('resolved' as const)
+              : ('unresolved' as const),
+          resolvedGeoEntity: component.resolvedGeoEntity,
+          reason: component.finalReason,
+          attempts: component.attempts,
+        })),
+        accepted:
+          resolution.resolved.find(
+            (entry) =>
+              traceCandidateKey(entry.candidate) === audit.candidateTraceKey,
+          )?.status === 'accepted',
+        rejectionReasons:
+          resolution.resolved.find(
+            (entry) =>
+              traceCandidateKey(entry.candidate) === audit.candidateTraceKey,
+          )?.rejectionReasons ?? [],
+      }),
+    ),
   };
 }
 

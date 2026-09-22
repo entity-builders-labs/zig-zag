@@ -35,6 +35,133 @@ async function expectNoNoiseStrings(page: import('@playwright/test').Page) {
   }
 }
 
+test("entity-resolution forensic audit renders execution facts and identity evidence", async ({
+  page,
+  request,
+}) => {
+  const session = await apiLogin(request);
+  const tourId = await createTourWithTrace(
+    request,
+    session.accessToken,
+    "Bitacora entity resolution audit",
+    [
+      {
+        stage: "entity_resolution",
+        label: "Resolución de entidades reales",
+        summary: "Auditoría de resolución.",
+        entityResolutionAudit: [
+          {
+            candidateTraceKey: "candidate-farmacia",
+            candidateName: "Farmacia la Estrella",
+            accepted: false,
+            rejectionReasons: ["UNRESOLVED_REQUIRED_COMPONENT"],
+            hints: [
+              {
+                key: "farmacia",
+                name: "Farmacia la Estrella",
+                role: "venue",
+                required: true,
+                evidenceKeys: ["ev-1"],
+                status: "unresolved",
+                reason: "NO_OSM_MATCH",
+                attempts: [
+                  {
+                    strategy: "LOCAL_OSM_POOL",
+                    executionStatus: "completed",
+                    provider: "openstreetmap",
+                    poolCandidateCount: 3,
+                    candidateAcquired: false,
+                    identityEvidence: [],
+                  },
+                  {
+                    strategy: "PLACES",
+                    executionStatus: "failed",
+                    provider: "google_places",
+                    query: "Farmacia la Estrella",
+                    failureReason: "timeout",
+                    candidateAcquired: false,
+                    identityEvidence: [],
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            candidateTraceKey: "candidate-museum",
+            candidateName: "Museo de Arte",
+            accepted: true,
+            rejectionReasons: [],
+            hints: [
+              {
+                key: "museum",
+                name: "Museo de Arte",
+                role: "venue",
+                required: true,
+                evidenceKeys: ["ev-2"],
+                status: "resolved",
+                resolvedGeoEntity: {
+                  geoEntityId: "geo-museum",
+                  canonicalName: "Museo de Arte",
+                  provider: "google_places",
+                  externalId: "google_places:place-1",
+                },
+                attempts: [
+                  {
+                    strategy: "PLACES",
+                    executionStatus: "completed",
+                    provider: "google_places",
+                    query: "Museo de Arte",
+                    providerResultCount: 2,
+                    candidateAcquired: true,
+                    selectedCandidate: {
+                      canonicalName: "Museo de Arte",
+                      externalId: "google_places:place-1",
+                      kind: "PLACE",
+                    },
+                    identityEvidence: [
+                      { type: "EXACT_NAME", identityMultiplicity: "MULTIPLE" },
+                      {
+                        type: "WIKIDATA_IDENTITY_MATCH",
+                        source: "OWN_QID",
+                        hintMatched: true,
+                        candidateMatched: true,
+                      },
+                    ],
+                    verificationDecision: "VERIFIED",
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  );
+
+  await seedAuthSession(page, session);
+  await page.goto(`/tours/${tourId}`);
+  await page.getByTestId("bitacora-toggle").first().click();
+
+  await expect(page.getByText("Farmacia la Estrella").first()).toBeVisible();
+  await expect(page.getByText("Museo de Arte").first()).toBeVisible();
+  await expect(page.getByText("LOCAL_OSM_POOL").first()).toBeVisible();
+  await expect(page.getByText("PLACES").first()).toHaveCount(2);
+  await expect(page.getByText("poolCandidateCount=3").first()).toBeVisible();
+  await expect(page.getByText("execution failed").first()).toBeVisible();
+  await expect(
+    page.getByText("EXACT_NAME multiplicity=MULTIPLE").first(),
+  ).toBeVisible();
+  await expect(
+    page
+      .getByText(
+        "WIKIDATA_IDENTITY_MATCH source=OWN_QID hintMatched=true candidateMatched=true",
+      )
+      .first(),
+  ).toBeVisible();
+  await expect(page.getByText("geoEntityId=geo-museum").first()).toBeVisible();
+  await expectNoNoiseStrings(page);
+});
+
 test('rejected destination-boundary mismatch surfaces the offending component and distance', async ({
   page,
   request,

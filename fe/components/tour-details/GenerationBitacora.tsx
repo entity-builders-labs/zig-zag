@@ -281,6 +281,23 @@ function getLegacyOutput(
   return Object.keys(compatibility).length ? compatibility : undefined;
 }
 
+function identityEvidenceLabel(
+  evidence: TraceEntityResolutionAttempt["identityEvidence"][number],
+): string {
+  switch (evidence.type) {
+    case "EXACT_NAME":
+      return `EXACT_NAME multiplicity=${evidence.identityMultiplicity}`;
+    case "DECLARED_ALIAS_MATCH":
+      return `DECLARED_ALIAS_MATCH multiplicity=${evidence.identityMultiplicity}`;
+    case "ADDRESS_MATCH":
+      return "ADDRESS_MATCH";
+    case "WIKIDATA_IDENTITY_MATCH":
+      return `WIKIDATA_IDENTITY_MATCH source=${evidence.source} hintMatched=${String(evidence.hintMatched)} candidateMatched=${String(evidence.candidateMatched)}`;
+    case "WIKIDATA_UNAVAILABLE":
+      return "WIKIDATA_UNAVAILABLE";
+  }
+}
+
 function TraceBadge({ status }: { status?: string }) {
   const visual = statusVisual(status);
   return (
@@ -908,15 +925,29 @@ function EntityResolutionAuditPanel({
                               : COLORS.textDim
                           }
                         >
-                          {attempt.candidateAcquired
-                            ? "candidate acquired"
-                            : "no candidate"}
+                          {attempt.executionStatus === "failed"
+                            ? "execution failed"
+                            : attempt.candidateAcquired
+                              ? "candidate acquired"
+                              : "no candidate"}
                         </Text>
                       </HStack>
                       <Text size="2xs" color={COLORS.textDim}>
-                        {attempt.provider ?? "provider unknown"}
-                        {attempt.resultCount !== undefined
-                          ? ` · results=${attempt.resultCount}`
+                        {attempt.provider
+                          ? `provider=${attempt.provider}`
+                          : "provider=UNKNOWN"}
+                        {attempt.query ? ` · query=${attempt.query}` : ""}
+                        {attempt.providerResultCount !== undefined
+                          ? ` · providerResultCount=${attempt.providerResultCount}`
+                          : ""}
+                        {attempt.poolCandidateCount !== undefined
+                          ? ` · poolCandidateCount=${attempt.poolCandidateCount}`
+                          : ""}
+                        {attempt.matchingCandidateCount !== undefined
+                          ? ` · matchingCandidateCount=${attempt.matchingCandidateCount}`
+                          : ""}
+                        {attempt.failureReason
+                          ? ` · failureReason=${attempt.failureReason}`
                           : ""}
                         {attempt.verificationDecision
                           ? ` · ${attempt.verificationDecision}`
@@ -930,12 +961,19 @@ function EntityResolutionAuditPanel({
                         </Text>
                       ) : null}
                       {attempt.identityEvidence.length ? (
-                        <Text size="2xs" color={COLORS.textMuted}>
-                          evidence:{" "}
-                          {attempt.identityEvidence
-                            .map((evidence) => evidence.type)
-                            .join(", ")}
-                        </Text>
+                        <VStack mt="$1">
+                          {attempt.identityEvidence.map(
+                            (evidence, evidenceIndex) => (
+                              <Text
+                                key={`${evidence.type}-${evidenceIndex}`}
+                                size="2xs"
+                                color={COLORS.textMuted}
+                              >
+                                evidence: {identityEvidenceLabel(evidence)}
+                              </Text>
+                            ),
+                          )}
+                        </VStack>
                       ) : null}
                     </Box>
                   ),
@@ -948,6 +986,16 @@ function EntityResolutionAuditPanel({
                   final: {hint.status}
                   {hint.reason ? ` · ${hint.reason}` : ""}
                 </Text>
+                {hint.resolvedGeoEntity ? (
+                  <Text size="2xs" color={COLORS.green} mt="$1">
+                    geoEntityId=
+                    {hint.resolvedGeoEntity.geoEntityId ?? "UNKNOWN"} ·
+                    canonicalName=
+                    {hint.resolvedGeoEntity.canonicalName ?? "UNKNOWN"} ·
+                    provider={hint.resolvedGeoEntity.provider ?? "UNKNOWN"} ·
+                    externalId={hint.resolvedGeoEntity.externalId ?? "UNKNOWN"}
+                  </Text>
+                ) : null}
               </Box>
             ))}
           </Box>

@@ -90,10 +90,14 @@ export type VerificationDecision =
 
 export interface TraceEntityResolutionAttempt {
   strategy: ResolutionStrategy;
+  executionStatus: "completed" | "failed";
   provider?: string;
   query?: string;
-  resultCount?: number;
+  providerResultCount?: number;
+  poolCandidateCount?: number;
+  matchingCandidateCount?: number;
   candidateAcquired: boolean;
+  failureReason?: string;
   selectedCandidate?: {
     canonicalName: string;
     externalId: string;
@@ -173,7 +177,13 @@ export interface GenerationTraceStep {
   candidates?: TraceCandidate[];
   providerStatus?: "success" | "failed";
   degradedReason?: string;
-  [key: string]: unknown;
+  coverageReport?: Record<string, unknown>;
+  semanticRanking?: Record<string, unknown>;
+  grounding?: Record<string, unknown>;
+  dailyPlanning?: Record<string, unknown>;
+  tourCompleteness?: Record<string, unknown>;
+  tourFormatCoverage?: Record<string, unknown>;
+  candidatePool?: Record<string, unknown>;
 }
 
 export interface GenerationTrace {

@@ -102,10 +102,17 @@ export interface VerificationResult {
 /** Bounded, provider-neutral forensic facts for one executed strategy. */
 export interface ResolutionAttemptAudit {
   strategy: ResolutionStrategy;
+  executionStatus: 'completed' | 'failed';
   provider?: string;
   query?: string;
-  resultCount?: number;
+  /** Count returned by the provider search, when the provider exposes it. */
+  providerResultCount?: number;
+  /** Number of local OSM candidates evaluated by the strategy. */
+  poolCandidateCount?: number;
+  /** Number of local candidates matching the hint before verification. */
+  matchingCandidateCount?: number;
   candidateAcquired: boolean;
+  failureReason?: string;
   selectedCandidate?: {
     canonicalName: string;
     externalId: string;
@@ -133,6 +140,8 @@ export interface ComponentResolutionAudit {
 }
 
 export interface CandidateResolutionAudit {
+  /** Stable identity generated while the candidate and audit are co-created. */
+  candidateTraceKey: string;
   candidateName: string;
   candidateEvidenceKeys: string[];
   candidateHintKeys: string[];
@@ -215,7 +224,7 @@ export interface ResolvedGeoEntity {
    * declaredAlias: SINGLE means the source had exactly one identity-capable alias-matching candidate.
    * MULTIPLE/UNKNOWN have analogous meanings. For raw OSM ROUTE ways, both are UNKNOWN.
    */
-  nameEvidenceMultiplicity?: NameEvidenceMultiplicity;
+  nameEvidenceMultiplicity: NameEvidenceMultiplicity;
   role: 'area' | 'waypoint' | 'route' | 'venue';
   expectedType?: string;
   status: ResolvedGeoEntityStatus;
@@ -245,7 +254,6 @@ export interface ResolvedExperienceCandidate {
   dedupeDecision?: 'SAME' | 'NEW' | 'AMBIGUOUS';
   dedupeEvidence?: DedupeEvidence;
   dedupeCandidates?: string[];
-  forensicAudit?: CandidateResolutionAudit;
 }
 
 export interface ExperienceResolutionRequest {
@@ -360,7 +368,7 @@ export interface ExperienceEntityResolutionResponse {
   acceptedCount: number;
   rejectedCount: number;
   resolved: ResolvedExperienceCandidate[];
-  forensicAudit?: CandidateResolutionAudit[];
+  forensicAudit: CandidateResolutionAudit[];
 }
 
 /**
@@ -391,7 +399,6 @@ export interface ExperienceResolutionResponse {
       reason: string;
     }>;
   }>;
-  forensicAudit?: CandidateResolutionAudit[];
 }
 
 export interface FinalExperienceResolutionResponse
