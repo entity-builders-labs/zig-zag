@@ -1,0 +1,50 @@
+{
+  "campaign": "RW1 forensic rerun 2026-09-22",
+  "requestFile": "request.json",
+  "humanRequest": "caminata histórica por San Telmo",
+  "startingRemoteHead": "774cf60c7473befe1f5ae43b52f08fbe90d9d5dd",
+  "branch": "feat/preference-first-selection",
+  "commitShaAtRuns": "774cf60c7473befe1f5ae43b52f08fbe90d9d5dd",
+  "runTypes": {
+    "cold": {
+      "count": 3,
+      "databases": [
+        "zigzag_rw1_forensic_cold1",
+        "zigzag_rw1_forensic_cold2",
+        "zigzag_rw1_forensic_cold3"
+      ],
+      "independentFreshMigrationInitialized": true
+    },
+    "warm": {
+      "parentCold": 3,
+      "database": "zigzag_rw1_forensic_cold3",
+      "databaseResetBetweenColdAndWarm": false
+    }
+  },
+  "runtimePath": "POST /auth/email/request-code -> POST /auth/email/verify -> POST /tours/generate-tour -> outbox TourGenerationRequested -> TourGenerationProcessorService -> ExperienceGenerationService.generateTourExperiences",
+  "providerConfiguration": {
+    "GROUNDED_SEARCH_PROVIDER": "serpapi",
+    "PLACES_PROVIDER": "google",
+    "AI_CACHE_MODE": "off",
+    "USE_MOCK_MAPS": false,
+    "MOCK_MAPS_MODE": "strict",
+    "OVERPASS": "local http://localhost:12345/api/interpreter",
+    "NOMINATIM": "local http://localhost:8088/search"
+  },
+  "observationTimeoutPolicy": "15 minute harness observation; persisted terminal state captured if timeout; no observation timeout occurred in corrected campaign",
+  "temporaryDiagnosticInstrumentation": {
+    "enabledDuringRuns": true,
+    "scope": "shared ExperienceAcquisitionService web extraction boundary",
+    "capturedInMemoryFields": [
+      "acquisitionContext",
+      "passNumber",
+      "query",
+      "evidenceRequirements",
+      "grounded evidence",
+      "extractor prompts/raw output/validation errors/normalized candidates/admission decisions"
+    ],
+    "revertedBeforeCommit": true
+  },
+  "historicalDossierUntouched": true,
+  "secretsRedacted": true
+}
