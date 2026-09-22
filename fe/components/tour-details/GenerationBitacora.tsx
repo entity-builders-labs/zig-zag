@@ -98,6 +98,7 @@ interface GenerationTraceStep {
   outputs?: Record<string, unknown>;
   candidateDecisions?: TraceCandidateDecision[];
   timing?: { startedAt?: string; durationMs?: number };
+  geographicValidationAudit?: TraceGeographicValidationDecision[];
 
   // Compatibility fields from trace V1 / rich intermediate stages.
   candidates?: LegacyTraceCandidate[];
@@ -112,6 +113,47 @@ interface GenerationTraceStep {
   resolution?: unknown;
   candidatePool?: unknown;
   placesProvenance?: unknown;
+}
+
+type GeographicDecisionReason =
+  | "OUTSIDE_DESTINATION_BOUNDARY"
+  | "OUTSIDE_CANONICAL_AREA_BOUNDARY"
+  | "OUTSIDE_POINT_RADIUS_SCOPE"
+  | "COUNTRY_CONFLICT"
+  | "REGION_CONFLICT"
+  | "LOCALITY_CONFLICT"
+  | "OUTSIDE_ROUTE_DESTINATION_RADIUS"
+  | "EXTERNAL_AREA_SCOPE_MISMATCH"
+  | "EXTERNAL_ROUTE_SCOPE_MISMATCH";
+
+interface TraceGeographicComponent {
+  hintName: string;
+  hintKey?: string;
+  role?: string;
+  resolvedGeoEntityId?: string;
+  relation?: "accepted" | "offending" | "evaluated";
+  decisionReason?: GeographicDecisionReason;
+  distanceToBoundaryMeters?: number;
+}
+
+interface TraceGeographicValidationDecision {
+  candidateTraceKey: string;
+  candidateName: string;
+  accepted: boolean;
+  status: string;
+  strategy?: string;
+  scope?: {
+    kind: string;
+    anchorName?: string;
+    geoEntityId?: string;
+  };
+  validationIntent?: "walk" | "route_like";
+  destinationBoundary?: {
+    name?: string;
+    externalId?: string;
+  };
+  rejectionReasons: string[];
+  components: TraceGeographicComponent[];
 }
 
 interface AuditFinding {
@@ -263,6 +305,33 @@ function formatDuration(durationMs?: number): string {
   if (durationMs === undefined || durationMs === null) return "—";
   if (durationMs < 1000) return `${Math.round(durationMs)}ms`;
   return `${(durationMs / 1000).toFixed(2)}s`;
+}
+
+const GEOGRAPHIC_REASON_LABELS: Record<GeographicDecisionReason, string> = {
+  OUTSIDE_DESTINATION_BOUNDARY: "Fuera del límite del destino",
+  OUTSIDE_CANONICAL_AREA_BOUNDARY: "Fuera del área canónica de la experiencia",
+  OUTSIDE_POINT_RADIUS_SCOPE: "Fuera del radio permitido",
+  COUNTRY_CONFLICT: "Conflicto de país",
+  REGION_CONFLICT: "Conflicto de región",
+  LOCALITY_CONFLICT: "Conflicto de localidad",
+  OUTSIDE_ROUTE_DESTINATION_RADIUS: "Fuera del radio regional de la ruta",
+  EXTERNAL_AREA_SCOPE_MISMATCH: "Fuera del área solicitada",
+  EXTERNAL_ROUTE_SCOPE_MISMATCH: "Fuera del corredor de la ruta",
+};
+
+function humanGeographicReason(
+  reason?: string,
+): string | undefined {
+  if (!reason) return undefined;
+  return GEOGRAPHIC_REASON_LABELS[reason as GeographicDecisionReason];
+}
+
+function formatDistanceMeters(value?: number): string | undefined {
+  if (value === undefined || value === null || !Number.isFinite(value)) {
+    return undefined;
+  }
+  if (value < 1000) return `${Math.round(value)} m`;
+  return `${(value / 1000).toFixed(1)} km`;
 }
 
 function compactValue(value: unknown): string {
@@ -643,6 +712,238 @@ function CandidatePanel({
   );
 }
 
+function relationVisual(relation?: "accepted" | "offending" | "evaluated") {
+  switch (relation) {
+    case "accepted":
+      return { label: "Aceptado", color: COLORS.green };
+    case "offending":
+      return { label: "Ofensivo", color: COLORS.red };
+    case "evaluated":
+      return { label: "Evaluado", color: COLORS.textMuted };
+    default:
+      return { label: relation ?? "—", color: COLORS.textDim };
+  }
+}
+
+function GeographicComponentRow({
+  component,
+}: {
+  component: TraceGeographicComponent;
+}) {
+  const visual = relationVisual(component.relation);
+  const distance = formatDistanceMeters(component.distanceToBoundaryMeters);
+  const humanReason = humanGeographicReason(component.decisionReason);
+
+  return (
+    <Box
+      py="$2"
+      borderBottomWidth={1}
+      borderBottomColor={COLORS.borderSoft as any}
+    >
+      <HStack alignItems="center" space="sm" flexWrap="wrap">
+        <Text size="xs" fontWeight="$semibold" color={COLORS.text} flex={1}>
+          {component.hintName}
+        </Text>
+        {component.role ? (
+          <Text size="2xs" color={COLORS.textDim}>
+            {component.role}
+          </Text>
+        ) : null}
+        <Text size="2xs" fontWeight="$bold" color={visual.color as any}>
+          {visual.label}
+        </Text>
+      </HStack>
+
+      {component.decisionReason ? (
+        <VStack mt="$1" space="xs">
+          <Text
+            size="2xs"
+            color={COLORS.textDim}
+            style={{ fontFamily: "monospace" }}
+          >
+            {component.decisionReason}
+          </Text>
+          {humanReason ? (
+            <Text size="xs" color={COLORS.text}>
+              {humanReason}
+            </Text>
+          ) : null}
+        </VStack>
+      ) : component.relation === "evaluated" ? (
+        <Text size="2xs" color={COLORS.textDim} mt="$1">
+          evaluado
+        </Text>
+      ) : null}
+
+      {distance ? (
+        <Text size="2xs" color={COLORS.amber} mt="$1">
+          {distance}
+        </Text>
+      ) : null}
+    </Box>
+  );
+}
+
+function GeographicCandidateCard({
+  decision,
+}: {
+  decision: TraceGeographicValidationDecision;
+}) {
+  const accepted = decision.accepted;
+  return (
+    <Box
+      p="$3"
+      mb="$3"
+      borderRadius="$lg"
+      borderWidth={1}
+      borderColor={(accepted ? COLORS.green : COLORS.red) as any}
+      bg={COLORS.panelSoft as any}
+    >
+      <HStack
+        justifyContent="space-between"
+        alignItems="flex-start"
+        space="sm"
+        flexWrap="wrap"
+      >
+        <Text size="sm" fontWeight="$bold" color={COLORS.text} flex={1}>
+          {decision.candidateName}
+        </Text>
+        <Box
+          px="$2"
+          py="$1"
+          borderRadius="$md"
+          bg={(accepted ? COLORS.greenBg : COLORS.redBg) as any}
+        >
+          <Text
+            size="2xs"
+            fontWeight="$bold"
+            color={(accepted ? COLORS.green : COLORS.red) as any}
+          >
+            {accepted ? "ACEPTADA" : "RECHAZADA"}
+          </Text>
+        </Box>
+      </HStack>
+
+      <VStack mt="$1.5" space="xs">
+        <Text size="2xs" color={COLORS.textDim}>
+          status: <Text color={COLORS.textMuted as any}>{decision.status}</Text>
+        </Text>
+        {decision.strategy ? (
+          <Text size="2xs" color={COLORS.textDim}>
+            Estrategia:{" "}
+            <Text color={COLORS.textMuted as any}>{decision.strategy}</Text>
+          </Text>
+        ) : null}
+        {decision.validationIntent ? (
+          <Text size="2xs" color={COLORS.textDim}>
+            Intent de validación:{" "}
+            <Text color={COLORS.textMuted as any}>
+              {decision.validationIntent}
+            </Text>
+          </Text>
+        ) : null}
+      </VStack>
+
+      {decision.destinationBoundary?.name ||
+      decision.destinationBoundary?.externalId ? (
+        <Box mt="$2">
+          <Text size="2xs" color={COLORS.textDim}>
+            Destino validado
+          </Text>
+          <Text size="xs" color={COLORS.text}>
+            {[
+              decision.destinationBoundary.name,
+              decision.destinationBoundary.externalId,
+            ]
+              .filter(Boolean)
+              .join(" · ")}
+          </Text>
+        </Box>
+      ) : null}
+
+      {decision.scope ? (
+        <Box mt="$2">
+          <Text size="2xs" color={COLORS.textDim}>
+            Scope externo
+          </Text>
+          <Text size="xs" color={COLORS.text}>
+            {[
+              decision.scope.kind,
+              decision.scope.anchorName,
+              decision.scope.geoEntityId,
+            ]
+              .filter(Boolean)
+              .join(" · ")}
+          </Text>
+        </Box>
+      ) : null}
+
+      {decision.rejectionReasons?.length ? (
+        <Box mt="$2">
+          <Text size="2xs" color={COLORS.textDim} mb="$1">
+            Motivos de rechazo
+          </Text>
+          {decision.rejectionReasons.map((reason, idx) => (
+            <HStack
+              key={`${reason}-${idx}`}
+              space="xs"
+              alignItems="center"
+              mt="$0.5"
+              flexWrap="wrap"
+            >
+              <Text
+                size="2xs"
+                color={COLORS.red as any}
+                style={{ fontFamily: "monospace" }}
+              >
+                {reason}
+              </Text>
+              {humanGeographicReason(reason) ? (
+                <Text size="xs" color={COLORS.text}>
+                  {humanGeographicReason(reason)}
+                </Text>
+              ) : null}
+            </HStack>
+          ))}
+        </Box>
+      ) : null}
+
+      {decision.components?.length ? (
+        <Box mt="$3">
+          <Text size="2xs" color={COLORS.textDim} mb="$1">
+            Componentes evaluados
+          </Text>
+          {decision.components.map((component, idx) => (
+            <GeographicComponentRow
+              key={`${component.hintKey ?? component.hintName}-${idx}`}
+              component={component}
+            />
+          ))}
+        </Box>
+      ) : null}
+    </Box>
+  );
+}
+
+function GeographicAuditPanel({
+  decisions,
+}: {
+  decisions: TraceGeographicValidationDecision[];
+}) {
+  return (
+    <Panel title="Auditoría geográfica" icon={MapPin}>
+      <VStack>
+        {decisions.map((decision, idx) => (
+          <GeographicCandidateCard
+            key={`${decision.candidateTraceKey}-${idx}`}
+            decision={decision}
+          />
+        ))}
+      </VStack>
+    </Panel>
+  );
+}
+
 function OutputPanel({ step }: { step: GenerationTraceStep }) {
   const output = step.outputs || getLegacyOutput(step);
   return (
@@ -787,6 +1088,15 @@ function StageDetail({
           <RulesPanel rules={rules} />
           <DecisionPanel step={step} />
         </Box>
+
+        {step.stage === "geographic_validation" &&
+        step.geographicValidationAudit?.length ? (
+          <Box flexDirection="row" flexWrap="wrap" gap={12} mb="$4">
+            <GeographicAuditPanel
+              decisions={step.geographicValidationAudit}
+            />
+          </Box>
+        ) : null}
 
         <Box flexDirection="row" flexWrap="wrap" gap={12}>
           <CandidatePanel candidates={candidates} />
