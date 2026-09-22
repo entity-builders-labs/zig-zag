@@ -132,7 +132,9 @@ interface TraceGeographicComponent {
   role?: string;
   resolvedGeoEntityId?: string;
   relation?: "accepted" | "offending" | "evaluated";
-  decisionReason?: GeographicDecisionReason;
+  // Keep this open for forward-compatible persisted traces. The raw code is
+  // always rendered even when this UI has not learned a Spanish label yet.
+  decisionReason?: string;
   distanceToBoundaryMeters?: number;
 }
 
@@ -754,6 +756,22 @@ function GeographicComponentRow({
         </Text>
       </HStack>
 
+      <VStack mt="$1" space="xs">
+        {component.hintKey ? (
+          <Text size="2xs" color={COLORS.textDim}>
+            Clave: <Text color={COLORS.textMuted as any}>{component.hintKey}</Text>
+          </Text>
+        ) : null}
+        {component.resolvedGeoEntityId ? (
+          <Text size="2xs" color={COLORS.textDim}>
+            GeoEntity: {" "}
+            <Text color={COLORS.textMuted as any}>
+              {component.resolvedGeoEntityId}
+            </Text>
+          </Text>
+        ) : null}
+      </VStack>
+
       {component.decisionReason ? (
         <VStack mt="$1" space="xs">
           <Text
@@ -825,6 +843,12 @@ function GeographicCandidateCard({
       </HStack>
 
       <VStack mt="$1.5" space="xs">
+        <Text size="2xs" color={COLORS.textDim}>
+          Clave del candidato:{" "}
+          <Text color={COLORS.textMuted as any}>
+            {decision.candidateTraceKey}
+          </Text>
+        </Text>
         <Text size="2xs" color={COLORS.textDim}>
           status: <Text color={COLORS.textMuted as any}>{decision.status}</Text>
         </Text>

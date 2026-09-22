@@ -59,12 +59,14 @@ test('rejected destination-boundary mismatch surfaces the offending component an
             {
               hintName: 'Plaza Dorrego',
               hintKey: 'h1',
+              resolvedGeoEntityId: 'geo-plaza-dorrego',
               role: 'venue',
               relation: 'evaluated',
             },
             {
               hintName: 'Parque Lezama',
               hintKey: 'h2',
+              resolvedGeoEntityId: 'geo-parque-lezama',
               role: 'venue',
               relation: 'offending',
               decisionReason: 'OUTSIDE_DESTINATION_BOUNDARY',
@@ -87,6 +89,9 @@ test('rejected destination-boundary mismatch surfaces the offending component an
   await expect(page.getByText('83 m').first()).toBeVisible();
   await expect(page.getByText('San Telmo').first()).toBeVisible();
   await expect(page.getByText('walk').first()).toBeVisible();
+  await expect(page.getByText('candidate-1').first()).toBeVisible();
+  await expect(page.getByText('h2').first()).toBeVisible();
+  await expect(page.getByText('geo-parque-lezama').first()).toBeVisible();
 });
 
 test('multiple offending components are all rendered, not collapsed to one', async ({ page, request }) => {
@@ -170,6 +175,61 @@ test('rejection without a distance renders the reason but no placeholder noise t
   await expectNoNoiseStrings(page);
 });
 
+test('destination boundary and external scope are shown as separate contexts', async ({
+  page,
+  request,
+}) => {
+  const session = await apiLogin(request);
+  const tourId = await createTourWithTrace(
+    request,
+    session.accessToken,
+    'Bitacora geo audit — separate scopes',
+    [
+      {
+        stage: 'geographic_validation',
+        label: 'Validación geográfica',
+        summary: 'Validación geográfica de candidatos frente al destino.',
+        geographicValidationAudit: [
+          {
+            candidateTraceKey: 'candidate-scope-1',
+            candidateName: 'Circuito de prueba',
+            accepted: false,
+            status: 'REJECTED',
+            strategy: 'scope_check',
+            scope: {
+              kind: 'AREA',
+              anchorName: 'Barrio solicitado',
+              geoEntityId: 'geo-area-requested',
+            },
+            destinationBoundary: {
+              name: 'Buenos Aires',
+              externalId: 'osm:relation:city',
+            },
+            rejectionReasons: ['EXTERNAL_AREA_SCOPE_MISMATCH'],
+            components: [
+              {
+                hintName: 'Punto fuera del área',
+                relation: 'offending',
+                decisionReason: 'EXTERNAL_AREA_SCOPE_MISMATCH',
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  );
+
+  await seedAuthSession(page, session);
+  await page.goto(`/tours/${tourId}`);
+  await page.getByTestId('bitacora-toggle').first().click();
+
+  await expect(page.getByText('Destino validado').first()).toBeVisible();
+  await expect(page.getByText('Buenos Aires').first()).toBeVisible();
+  await expect(page.getByText('Scope externo').first()).toBeVisible();
+  await expect(page.getByText('Barrio solicitado').first()).toBeVisible();
+  await expect(page.getByText('geo-area-requested').first()).toBeVisible();
+});
+
 test('accepted candidate renders without fabricated rejection details', async ({ page, request }) => {
   const session = await apiLogin(request);
   const tourId = await createTourWithTrace(request, session.accessToken, 'Bitacora geo audit — accepted', [
@@ -205,6 +265,39 @@ test('accepted candidate renders without fabricated rejection details', async ({
   await expect(page.getByText('Dique 3').first()).toBeVisible();
   await expect(page.getByText('OUTSIDE_DESTINATION_BOUNDARY')).toHaveCount(0);
   await expectNoNoiseStrings(page);
+});
+
+test('unknown decision reasons remain visible as raw codes', async ({ page, request }) => {
+  const session = await apiLogin(request);
+  const tourId = await createTourWithTrace(request, session.accessToken, 'Bitacora geo audit — unknown reason', [
+    {
+      stage: 'geographic_validation',
+      label: 'Validación geográfica',
+      summary: 'Validación geográfica de candidatos frente al destino.',
+      geographicValidationAudit: [
+        {
+          candidateTraceKey: 'candidate-unknown',
+          candidateName: 'Candidato futuro',
+          accepted: false,
+          status: 'REJECTED',
+          rejectionReasons: ['FUTURE_GEOGRAPHIC_REASON'],
+          components: [
+            {
+              hintName: 'Componente futuro',
+              relation: 'offending',
+              decisionReason: 'FUTURE_GEOGRAPHIC_REASON',
+            },
+          ],
+        },
+      ],
+    },
+  ]);
+
+  await seedAuthSession(page, session);
+  await page.goto(`/tours/${tourId}`);
+  await page.getByTestId('bitacora-toggle').first().click();
+
+  await expect(page.getByText('FUTURE_GEOGRAPHIC_REASON').first()).toBeVisible();
 });
 
 test('non-geographic stage does not render the geographic audit panel', async ({ page, request }) => {
