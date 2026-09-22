@@ -2,12 +2,17 @@ import { EntityCandidate } from '../interfaces/experience-resolution.interface';
 import { GeoEntityKind } from '@prisma/client';
 import { buildLocalIdentityEvidence } from './identity-evidence-builder.util';
 
-const candidate = (overrides: {
-  canonicalName?: string;
-  nameEvidenceMultiplicity?: { exactName: 'SINGLE' | 'MULTIPLE' | 'UNKNOWN'; declaredAlias: 'SINGLE' | 'MULTIPLE' | 'UNKNOWN' };
-  nameAliasCandidates?: string[];
-  addressConfirmed?: boolean;
-} = {}): EntityCandidate => ({
+const candidate = (
+  overrides: {
+    canonicalName?: string;
+    nameEvidenceMultiplicity?: {
+      exactName: 'SINGLE' | 'MULTIPLE' | 'UNKNOWN';
+      declaredAlias: 'SINGLE' | 'MULTIPLE' | 'UNKNOWN';
+    };
+    nameAliasCandidates?: string[];
+    addressConfirmed?: boolean;
+  } = {},
+): EntityCandidate => ({
   hintKey: 'test',
   hintName: 'Test Place',
   provider: 'openstreetmap',
@@ -25,7 +30,13 @@ describe('buildLocalIdentityEvidence', () => {
   it('B1: canonicalName exact match + SINGLE -> EXACT_NAME / SINGLE', () => {
     const evidence = buildLocalIdentityEvidence(
       { name: 'Test Place' },
-      candidate({ canonicalName: 'Test Place', nameEvidenceMultiplicity: { exactName: 'SINGLE', declaredAlias: 'SINGLE' } }),
+      candidate({
+        canonicalName: 'Test Place',
+        nameEvidenceMultiplicity: {
+          exactName: 'SINGLE',
+          declaredAlias: 'SINGLE',
+        },
+      }),
     );
     expect(evidence).toEqual([
       { type: 'EXACT_NAME', identityMultiplicity: 'SINGLE' },
@@ -35,7 +46,13 @@ describe('buildLocalIdentityEvidence', () => {
   it('B2: canonicalName exact match + MULTIPLE -> EXACT_NAME / MULTIPLE', () => {
     const evidence = buildLocalIdentityEvidence(
       { name: 'Test Place' },
-      candidate({ canonicalName: 'Test Place', nameEvidenceMultiplicity: { exactName: 'MULTIPLE', declaredAlias: 'SINGLE' } }),
+      candidate({
+        canonicalName: 'Test Place',
+        nameEvidenceMultiplicity: {
+          exactName: 'MULTIPLE',
+          declaredAlias: 'SINGLE',
+        },
+      }),
     );
     expect(evidence).toEqual([
       { type: 'EXACT_NAME', identityMultiplicity: 'MULTIPLE' },
@@ -45,7 +62,13 @@ describe('buildLocalIdentityEvidence', () => {
   it('B3: canonicalName exact match + UNKNOWN -> EXACT_NAME / UNKNOWN', () => {
     const evidence = buildLocalIdentityEvidence(
       { name: 'Test Place' },
-      candidate({ canonicalName: 'Test Place', nameEvidenceMultiplicity: { exactName: 'UNKNOWN', declaredAlias: 'SINGLE' } }),
+      candidate({
+        canonicalName: 'Test Place',
+        nameEvidenceMultiplicity: {
+          exactName: 'UNKNOWN',
+          declaredAlias: 'SINGLE',
+        },
+      }),
     );
     expect(evidence).toEqual([
       { type: 'EXACT_NAME', identityMultiplicity: 'UNKNOWN' },
@@ -57,7 +80,10 @@ describe('buildLocalIdentityEvidence', () => {
       { name: 'Defensa Street' },
       candidate({
         canonicalName: 'Defensa',
-        nameEvidenceMultiplicity: { exactName: 'UNKNOWN', declaredAlias: 'UNKNOWN' },
+        nameEvidenceMultiplicity: {
+          exactName: 'UNKNOWN',
+          declaredAlias: 'UNKNOWN',
+        },
         nameAliasCandidates: ['Defensa Street'],
       }),
     );
@@ -71,7 +97,10 @@ describe('buildLocalIdentityEvidence', () => {
       { name: 'Defensa Street' },
       candidate({
         canonicalName: 'Defensa',
-        nameEvidenceMultiplicity: { exactName: 'UNKNOWN', declaredAlias: 'MULTIPLE' },
+        nameEvidenceMultiplicity: {
+          exactName: 'UNKNOWN',
+          declaredAlias: 'MULTIPLE',
+        },
         nameAliasCandidates: ['Defensa Street'],
       }),
     );
@@ -85,7 +114,10 @@ describe('buildLocalIdentityEvidence', () => {
       { name: 'Defensa Street' },
       candidate({
         canonicalName: 'Defensa',
-        nameEvidenceMultiplicity: { exactName: 'UNKNOWN', declaredAlias: 'SINGLE' },
+        nameEvidenceMultiplicity: {
+          exactName: 'UNKNOWN',
+          declaredAlias: 'SINGLE',
+        },
         nameAliasCandidates: ['Defensa Street'],
       }),
     );
@@ -97,16 +129,29 @@ describe('buildLocalIdentityEvidence', () => {
   it('addressConfirmed adds ADDRESS_MATCH regardless of multiplicity', () => {
     const evidence = buildLocalIdentityEvidence(
       { name: 'Test Place' },
-      candidate({ canonicalName: 'Test Place', nameEvidenceMultiplicity: { exactName: 'MULTIPLE', declaredAlias: 'SINGLE' }, addressConfirmed: true }),
+      candidate({
+        canonicalName: 'Test Place',
+        nameEvidenceMultiplicity: {
+          exactName: 'MULTIPLE',
+          declaredAlias: 'SINGLE',
+        },
+        addressConfirmed: true,
+      }),
     );
     expect(evidence).toContainEqual({ type: 'ADDRESS_MATCH' });
-    expect(evidence).toContainEqual({ type: 'EXACT_NAME', identityMultiplicity: 'MULTIPLE' });
+    expect(evidence).toContainEqual({
+      type: 'EXACT_NAME',
+      identityMultiplicity: 'MULTIPLE',
+    });
   });
 
   it('no exact name and no alias match -> empty evidence', () => {
     const evidence = buildLocalIdentityEvidence(
       { name: 'Different Name' },
-      candidate({ canonicalName: 'Test Place', nameAliasCandidates: ['Other Alias'] }),
+      candidate({
+        canonicalName: 'Test Place',
+        nameAliasCandidates: ['Other Alias'],
+      }),
     );
     expect(evidence).toEqual([]);
   });
@@ -116,7 +161,10 @@ describe('buildLocalIdentityEvidence', () => {
       { name: 'Test Place' },
       candidate({
         canonicalName: 'Test Place',
-        nameEvidenceMultiplicity: { exactName: 'MULTIPLE', declaredAlias: 'MULTIPLE' },
+        nameEvidenceMultiplicity: {
+          exactName: 'MULTIPLE',
+          declaredAlias: 'MULTIPLE',
+        },
         nameAliasCandidates: ['Test Place Alias'],
       }),
     );
@@ -131,7 +179,10 @@ describe('buildLocalIdentityEvidence', () => {
       { name: 'Defensa Street' },
       candidate({
         canonicalName: 'Defensa',
-        nameEvidenceMultiplicity: { exactName: 'UNKNOWN', declaredAlias: 'SINGLE' },
+        nameEvidenceMultiplicity: {
+          exactName: 'UNKNOWN',
+          declaredAlias: 'SINGLE',
+        },
         nameAliasCandidates: ['Defensa Street'],
       }),
     );

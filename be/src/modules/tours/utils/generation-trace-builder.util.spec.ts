@@ -15,6 +15,7 @@ import {
 } from './generation-trace-builder.util';
 import { DailyPlanningSolution } from '../interfaces/daily-planning.interface';
 import { ExperienceCandidate } from '../interfaces/experience-discovery.interface';
+import { GeographicValidationStatus } from '../interfaces/geographic-validation.interface';
 
 describe('buildTourIntentStep', () => {
   it('traces supplemental intent once and labels walking limits as captured, not enforced', () => {
@@ -450,7 +451,7 @@ describe('buildGeographicValidationStep', () => {
           {
             proposalName: candidate.name,
             kind: 'EXPERIENCE',
-            status: 'REJECTED',
+            status: 'REJECTED' as GeographicValidationStatus,
             accepted: false,
             validatorVersion: 1,
             groundedEvidenceKeys: ['ev'],

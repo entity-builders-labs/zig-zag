@@ -2,8 +2,14 @@ import {
   buildDiscoveryStep,
   buildEntityResolutionStep,
   buildTourCompletenessStep,
+  buildGeographicValidationStep,
 } from './generation-trace-builder.util';
 import { ExperienceResolutionResponse } from '../interfaces/experience-resolution.interface';
+import { ExperienceCandidate } from '../interfaces/experience-discovery.interface';
+import {
+  GeographicValidationStatus,
+  GeographicDecisionReason,
+} from '../interfaces/geographic-validation.interface';
 
 describe('GenerationTrace V2 decision audit coverage', () => {
   it('records grounded discovery provenance and the resolution handoff', () => {
@@ -129,5 +135,142 @@ describe('GenerationTrace V2 decision audit coverage', () => {
     expect(
       step.rules?.find((rule) => rule.ruleId === 'COMP-DAY-USAGE-001')?.result,
     ).toBe('WARN');
+  });
+
+  it('preserves forensic geographic decision evidence in trace contract', () => {
+    const candidate: ExperienceCandidate = {
+      name: 'Historic Walk',
+      themes: ['history'],
+      traits: [],
+      evidenceKeys: ['ev'],
+      shortReason: 'test',
+      componentHints: [
+        {
+          key: 'v1',
+          name: 'Venue 1',
+          role: 'venue',
+          expectedKind: 'PLACE',
+          required: true,
+          evidenceKeys: ['ev'],
+        },
+        {
+          key: 'v2',
+          name: 'Venue 2',
+          role: 'venue',
+          expectedKind: 'PLACE',
+          required: true,
+          evidenceKeys: ['ev'],
+        },
+      ],
+    };
+    const entities = [
+      {
+        hintKey: 'v1',
+        hintName: 'Venue 1',
+        role: 'venue',
+        provider: 'osm',
+        externalId: 'v1',
+        geoEntityId: 'geo-v1',
+        status: 'resolved',
+      },
+      {
+        hintKey: 'v2',
+        hintName: 'Venue 2',
+        role: 'venue',
+        provider: 'osm',
+        externalId: 'v2',
+        geoEntityId: 'geo-v2',
+        status: 'resolved',
+      },
+    ];
+    const validation = {
+      proposalName: candidate.name,
+      kind: 'EXPERIENCE',
+      status: 'REJECTED' as GeographicValidationStatus,
+      accepted: false,
+      validatorVersion: 1,
+      groundedEvidenceKeys: ['ev'],
+      rejectionReasons: ['destination_mismatch'],
+      anchors: [entities[0]] as any,
+      decisionEntities: [
+        {
+          hintKey: 'v1',
+          geoEntityId: 'geo-v1',
+          relation: 'evaluated' as const,
+        },
+        {
+          hintKey: 'v2',
+          geoEntityId: 'geo-v2',
+          relation: 'offending' as const,
+          decisionReason:
+            'OUTSIDE_DESTINATION_BOUNDARY' as GeographicDecisionReason,
+          distanceToBoundaryMeters: 83.4,
+        },
+      ],
+    };
+    const resolution = {
+      resolved: [
+        {
+          candidate,
+          status: 'accepted',
+          resolvedEntities: entities,
+          rejectionReasons: [],
+        } as any,
+      ],
+      totalCandidates: 1,
+      acceptedCount: 0,
+      rejectedCount: 1,
+      geographicValidation: {
+        results: [validation],
+        acceptedCount: 0,
+        rejectedCount: 1,
+        resolved: [
+          {
+            candidate,
+            status: 'accepted',
+            resolvedEntities: entities,
+            rejectionReasons: [],
+          } as any,
+        ],
+        validationIntent: 'walk' as const,
+        destinationBoundary: {
+          name: 'San Telmo',
+          externalId: 'osm:relation:2223069',
+        },
+      },
+      validationIntent: 'walk' as const,
+      destinationBoundary: {
+        name: 'San Telmo',
+        externalId: 'osm:relation:2223069',
+      },
+    };
+
+    const step = buildGeographicValidationStep(resolution);
+
+    // Native audit preserves forensic fields
+    const audit = step.geographicValidationAudit![0];
+    expect(audit.validationIntent).toBe('walk');
+    expect(audit.destinationBoundary).toEqual({
+      name: 'San Telmo',
+      externalId: 'osm:relation:2223069',
+    });
+
+    const offending = audit.components.find((c) => c.relation === 'offending');
+    expect(offending).toBeDefined();
+    expect(offending!.decisionReason).toBe('OUTSIDE_DESTINATION_BOUNDARY');
+    expect(offending!.distanceToBoundaryMeters).toBe(83.4);
+
+    // Raw geographicValidation preserves the fields
+    const rawResult = step.geographicValidation!.results[0];
+    const rawDecision = rawResult.decisionEntities!.find(
+      (d) => d.relation === 'offending',
+    );
+    expect(rawDecision).toBeDefined();
+    expect(rawDecision!.decisionReason).toBe('OUTSIDE_DESTINATION_BOUNDARY');
+    expect(rawDecision!.distanceToBoundaryMeters).toBe(83.4);
+
+    // Trace must not contain raw boundary geometry
+    const serialized = JSON.stringify(step);
+    expect(serialized).not.toContain('coordinates');
   });
 });

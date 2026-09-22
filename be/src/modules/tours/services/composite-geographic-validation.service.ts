@@ -234,7 +234,6 @@ export class CompositeGeographicValidationService {
           entities,
           undefined,
           'OUTSIDE_POINT_RADIUS_SCOPE',
-          { type: 'Point', coordinates: [scope.longitude, scope.latitude] },
         )
       : {
           proposalName: resolvedProposal.candidate.name,
@@ -311,6 +310,10 @@ export class CompositeGeographicValidationService {
         validationScope.geometry,
       )
     ) {
+      const reason =
+        validationScope.kind === 'ROUTE'
+          ? 'EXTERNAL_ROUTE_SCOPE_MISMATCH'
+          : 'EXTERNAL_AREA_SCOPE_MISMATCH';
       return {
         result: this.rejected(
           proposalName,
@@ -322,7 +325,7 @@ export class CompositeGeographicValidationService {
           requiredEntities,
           requiredEntities,
           undefined,
-          'EXTERNAL_AREA_SCOPE_MISMATCH',
+          reason,
         ),
       };
     }
@@ -1038,20 +1041,23 @@ export class CompositeGeographicValidationService {
           relation: isOffending ? 'offending' : 'evaluated',
         };
 
-        if (isOffending && mismatchReason && distanceBoundaryGeometry) {
+        if (isOffending && mismatchReason) {
           baseEntity.decisionReason = mismatchReason;
           if (
+            distanceBoundaryGeometry &&
             (mismatchReason === 'OUTSIDE_DESTINATION_BOUNDARY' ||
               mismatchReason === 'OUTSIDE_CANONICAL_AREA_BOUNDARY') &&
             Number.isFinite(entity.latitude) &&
             Number.isFinite(entity.longitude)
           ) {
-            baseEntity.distanceToBoundaryMeters =
-              distancePointToPolygonBoundaryMeters(
-                distanceBoundaryGeometry,
-                entity.longitude as number,
-                entity.latitude as number,
-              );
+            const distance = distancePointToPolygonBoundaryMeters(
+              distanceBoundaryGeometry,
+              entity.longitude as number,
+              entity.latitude as number,
+            );
+            if (Number.isFinite(distance)) {
+              baseEntity.distanceToBoundaryMeters = distance;
+            }
           }
         }
         return baseEntity;

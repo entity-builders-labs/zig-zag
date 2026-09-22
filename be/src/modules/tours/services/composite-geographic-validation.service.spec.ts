@@ -1,6 +1,10 @@
 import { ExperienceCandidate } from '../interfaces/experience-discovery.interface';
 import { CompositeGeographicValidationService } from './composite-geographic-validation.service';
 import { GeoJsonGeometry } from '@integrations/osm/utils/osm-geometry.util';
+import {
+  GeographicScope,
+  ExperienceValidationScope,
+} from '../interfaces/experience-resolution.interface';
 
 describe('CompositeGeographicValidationService', () => {
   const boundary: any = {
@@ -1793,5 +1797,613 @@ describe('CompositeGeographicValidationService', () => {
       expect(result.accepted).toBe(false);
       expect(result.rejectionReasons).toContain('external_scope_mismatch');
     });
+  });
+});
+
+describe('Regression tests for forensic geographic trace evidence', () => {
+  const destinationBoundary: any = {
+    geometry: {
+      type: 'Polygon',
+      coordinates: [
+        [
+          [-58.5, -34.7],
+          [-58.3, -34.7],
+          [-58.3, -34.5],
+          [-58.5, -34.5],
+          [-58.5, -34.7],
+        ],
+      ],
+    },
+  };
+
+  const sanTelmoArea = {
+    hintKey: 'a',
+    hintName: 'San Telmo',
+    provider: 'osm',
+    externalId: 'relation:1',
+    role: 'area' as const,
+    status: 'resolved' as const,
+    latitude: -34.62,
+    longitude: -58.37,
+    geometry: {
+      type: 'Polygon' as const,
+      coordinates: [
+        [
+          [-58.38, -34.63],
+          [-58.36, -34.63],
+          [-58.36, -34.61],
+          [-58.38, -34.61],
+          [-58.38, -34.63],
+        ],
+      ],
+    },
+    nameEvidenceMultiplicity: { exactName: 'SINGLE', declaredAlias: 'UNKNOWN' },
+  };
+
+  it('CASE A — destination boundary mismatch: one inside, one outside', () => {
+    const candidate: ExperienceCandidate = {
+      name: 'Two component walk',
+      themes: ['culture'],
+      traits: [],
+      evidenceKeys: ['e1', 'e2'],
+      shortReason: 'grounded composite',
+      componentHints: [
+        {
+          key: 'inside',
+          name: 'Inside Place',
+          role: 'waypoint',
+          expectedKind: 'PLACE',
+          required: true,
+          evidenceKeys: ['e1'],
+        },
+        {
+          key: 'outside',
+          name: 'Outside Place',
+          role: 'venue',
+          expectedKind: 'PLACE',
+          required: true,
+          evidenceKeys: ['e2'],
+        },
+      ],
+    };
+
+    const result = new CompositeGeographicValidationService().validate(
+      {
+        candidate,
+        status: 'accepted',
+        resolvedEntities: [
+          {
+            hintKey: 'inside',
+            hintName: 'Inside Place',
+            provider: 'osm',
+            externalId: 'node:inside',
+            role: 'waypoint',
+            status: 'resolved',
+            latitude: -34.6,
+            longitude: -58.4,
+          },
+          {
+            hintKey: 'outside',
+            hintName: 'Outside Place',
+            provider: 'osm',
+            externalId: 'node:outside',
+            role: 'venue',
+            status: 'resolved',
+            latitude: -35.0,
+            longitude: -59.0,
+          },
+        ],
+        rejectionReasons: [],
+      },
+      destinationBoundary,
+    );
+
+    expect(result.accepted).toBe(false);
+    expect(result.rejectionReasons).toContain('destination_mismatch');
+
+    const outsideEntity = result.decisionEntities!.find(
+      (e) => e.hintKey === 'outside',
+    );
+    expect(outsideEntity).toBeDefined();
+    expect(outsideEntity!.relation).toBe('offending');
+    expect(outsideEntity!.decisionReason).toBe('OUTSIDE_DESTINATION_BOUNDARY');
+    expect(outsideEntity!.distanceToBoundaryMeters).toBeDefined();
+    expect(Number.isFinite(outsideEntity!.distanceToBoundaryMeters!)).toBe(
+      true,
+    );
+    expect(outsideEntity!.distanceToBoundaryMeters! > 0).toBe(true);
+
+    const insideEntity = result.decisionEntities!.find(
+      (e) => e.hintKey === 'inside',
+    );
+    expect(insideEntity).toBeDefined();
+    expect(insideEntity!.relation).not.toBe('offending');
+  });
+
+  it('CASE B — multiple components outside destination boundary', () => {
+    const candidate: ExperienceCandidate = {
+      name: 'Three outside places',
+      themes: ['culture'],
+      traits: [],
+      evidenceKeys: ['e1', 'e2', 'e3'],
+      shortReason: 'grounded composite',
+      componentHints: [
+        {
+          key: 'o1',
+          name: 'Outside 1',
+          role: 'waypoint',
+          expectedKind: 'PLACE',
+          required: true,
+          evidenceKeys: ['e1'],
+        },
+        {
+          key: 'o2',
+          name: 'Outside 2',
+          role: 'venue',
+          expectedKind: 'PLACE',
+          required: true,
+          evidenceKeys: ['e2'],
+        },
+        {
+          key: 'o3',
+          name: 'Outside 3',
+          role: 'venue',
+          expectedKind: 'PLACE',
+          required: true,
+          evidenceKeys: ['e3'],
+        },
+      ],
+    };
+
+    const result = new CompositeGeographicValidationService().validate(
+      {
+        candidate,
+        status: 'accepted',
+        resolvedEntities: [
+          {
+            hintKey: 'o1',
+            hintName: 'Outside 1',
+            provider: 'osm',
+            externalId: 'node:o1',
+            role: 'waypoint',
+            status: 'resolved',
+            latitude: -35.0,
+            longitude: -59.0,
+          },
+          {
+            hintKey: 'o2',
+            hintName: 'Outside 2',
+            provider: 'osm',
+            externalId: 'node:o2',
+            role: 'venue',
+            status: 'resolved',
+            latitude: -35.1,
+            longitude: -59.1,
+          },
+          {
+            hintKey: 'o3',
+            hintName: 'Outside 3',
+            provider: 'osm',
+            externalId: 'node:o3',
+            role: 'venue',
+            status: 'resolved',
+            latitude: -35.2,
+            longitude: -59.2,
+          },
+        ],
+        rejectionReasons: [],
+      },
+      destinationBoundary,
+    );
+
+    expect(result.accepted).toBe(false);
+    expect(result.rejectionReasons).toContain('destination_mismatch');
+
+    const offendingEntities = result.decisionEntities!.filter(
+      (e) => e.relation === 'offending',
+    );
+    expect(offendingEntities.length).toBe(3);
+    for (const entity of offendingEntities) {
+      expect(entity.decisionReason).toBe('OUTSIDE_DESTINATION_BOUNDARY');
+      expect(entity.distanceToBoundaryMeters).toBeDefined();
+      expect(Number.isFinite(entity.distanceToBoundaryMeters!)).toBe(true);
+      expect(entity.distanceToBoundaryMeters! > 0).toBe(true);
+    }
+  });
+
+  it('CASE C — canonical AREA mismatch with distinct reason', () => {
+    const candidate: ExperienceCandidate = {
+      name: 'San Telmo walk',
+      themes: ['culture'],
+      traits: [],
+      evidenceKeys: ['e'],
+      shortReason: 'grounded',
+      componentHints: [
+        {
+          key: 'a',
+          name: 'San Telmo',
+          role: 'area',
+          expectedKind: 'AREA',
+          required: true,
+          evidenceKeys: ['e'],
+        },
+        {
+          key: 'w',
+          name: 'MALBA',
+          role: 'waypoint',
+          expectedKind: 'PLACE',
+          required: true,
+          evidenceKeys: ['e'],
+        },
+      ],
+    };
+
+    const result = new CompositeGeographicValidationService().validate(
+      {
+        candidate,
+        status: 'accepted',
+        resolvedEntities: [
+          sanTelmoArea,
+          {
+            hintKey: 'w',
+            hintName: 'MALBA',
+            provider: 'osm',
+            externalId: 'node:malba',
+            role: 'waypoint',
+            status: 'resolved',
+            latitude: -34.58,
+            longitude: -58.4,
+          },
+        ],
+        rejectionReasons: [],
+      },
+      destinationBoundary,
+    );
+
+    expect(result.accepted).toBe(false);
+    expect(result.rejectionReasons).toContain('destination_mismatch');
+
+    const outsideEntity = result.decisionEntities!.find(
+      (e) => e.hintKey === 'w',
+    );
+    expect(outsideEntity).toBeDefined();
+    expect(outsideEntity!.relation).toBe('offending');
+    expect(outsideEntity!.decisionReason).toBe(
+      'OUTSIDE_CANONICAL_AREA_BOUNDARY',
+    );
+    expect(outsideEntity!.decisionReason).not.toBe(
+      'OUTSIDE_DESTINATION_BOUNDARY',
+    );
+    expect(outsideEntity!.distanceToBoundaryMeters).toBeDefined();
+    expect(Number.isFinite(outsideEntity!.distanceToBoundaryMeters!)).toBe(
+      true,
+    );
+    expect(outsideEntity!.distanceToBoundaryMeters! > 0).toBe(true);
+  });
+
+  it('CASE D — POINT_RADIUS mismatch has correct reason and no distance', () => {
+    const candidate: ExperienceCandidate = {
+      name: 'Point radius walk',
+      themes: ['culture'],
+      traits: [],
+      evidenceKeys: ['e'],
+      shortReason: 'grounded',
+      componentHints: [
+        {
+          key: 'v',
+          name: 'Far Place',
+          role: 'venue',
+          expectedKind: 'PLACE',
+          required: true,
+          evidenceKeys: ['e'],
+        },
+      ],
+    };
+
+    const pointRadiusScope: GeographicScope = {
+      kind: 'POINT_RADIUS',
+      latitude: -34.6,
+      longitude: -58.4,
+      radiusMeters: 1000,
+    };
+
+    const result = new CompositeGeographicValidationService().validate(
+      {
+        candidate,
+        status: 'accepted',
+        resolvedEntities: [
+          {
+            hintKey: 'v',
+            hintName: 'Far Place',
+            provider: 'osm',
+            externalId: 'node:far',
+            role: 'venue',
+            status: 'resolved',
+            latitude: -35.0,
+            longitude: -59.0,
+          },
+        ],
+        rejectionReasons: [],
+      },
+      undefined,
+      undefined,
+      pointRadiusScope,
+    );
+
+    expect(result.accepted).toBe(false);
+    expect(result.rejectionReasons).toContain('external_scope_mismatch');
+
+    const outsideEntity = result.decisionEntities!.find(
+      (e) => e.hintKey === 'v',
+    );
+    expect(outsideEntity).toBeDefined();
+    expect(outsideEntity!.relation).toBe('offending');
+    expect(outsideEntity!.decisionReason).toBe('OUTSIDE_POINT_RADIUS_SCOPE');
+    expect(outsideEntity!.decisionReason).not.toBe(
+      'EXTERNAL_AREA_SCOPE_MISMATCH',
+    );
+    expect(outsideEntity!.distanceToBoundaryMeters).toBeUndefined();
+  });
+
+  it('CASE E — invalid ROUTE scope uses EXTERNAL_ROUTE_SCOPE_MISMATCH', () => {
+    const candidate: ExperienceCandidate = {
+      name: 'Route scope test',
+      themes: ['culture'],
+      traits: [],
+      evidenceKeys: ['e'],
+      shortReason: 'grounded',
+      componentHints: [
+        {
+          key: 'p1',
+          name: 'Place',
+          role: 'venue',
+          expectedKind: 'PLACE',
+          required: true,
+          evidenceKeys: ['e'],
+        },
+      ],
+    };
+
+    const invalidRouteScope: ExperienceValidationScope = {
+      kind: 'ROUTE',
+      anchorName: 'Caminito',
+      geoEntityId: 'geo-caminito',
+      geometry: { type: 'Point', coordinates: [-58.363, -34.638] },
+    };
+
+    const result = new CompositeGeographicValidationService().validate(
+      {
+        candidate,
+        status: 'accepted',
+        resolvedEntities: [
+          {
+            hintKey: 'p1',
+            hintName: 'Place',
+            provider: 'osm',
+            externalId: 'node:p1',
+            role: 'venue',
+            status: 'resolved',
+            latitude: -34.621,
+            longitude: -58.371,
+          },
+        ],
+        rejectionReasons: [],
+      },
+      destinationBoundary,
+      invalidRouteScope,
+    );
+
+    expect(result.accepted).toBe(false);
+    expect(result.rejectionReasons).toContain('external_scope_mismatch');
+
+    const offendingEntity = result.decisionEntities!.find(
+      (e) => e.relation === 'offending',
+    );
+    expect(offendingEntity).toBeDefined();
+    expect(offendingEntity!.decisionReason).toBe(
+      'EXTERNAL_ROUTE_SCOPE_MISMATCH',
+    );
+    expect(offendingEntity!.decisionReason).not.toBe(
+      'EXTERNAL_AREA_SCOPE_MISMATCH',
+    );
+  });
+
+  it('CASE F — route corridor rejection preserves reason without distance', () => {
+    const caminitoScopeGeometry: GeoJsonGeometry = {
+      type: 'LineString',
+      coordinates: [
+        [-58.3634, -34.6382],
+        [-58.363, -34.6376],
+      ],
+    };
+    const routeScopeObj = {
+      kind: 'ROUTE' as const,
+      anchorName: 'Caminito',
+      geoEntityId: 'geo-caminito',
+      geometry: caminitoScopeGeometry,
+    };
+
+    const candidate: ExperienceCandidate = {
+      name: 'Caminito Area Walk',
+      themes: [],
+      traits: [],
+      evidenceKeys: ['e'],
+      shortReason: 'grounded',
+      componentHints: [
+        {
+          key: 'p1',
+          name: 'Far Stop',
+          role: 'venue',
+          expectedKind: 'PLACE',
+          required: true,
+          evidenceKeys: ['e'],
+        },
+      ],
+    };
+
+    const result = new CompositeGeographicValidationService().validate(
+      {
+        candidate,
+        status: 'accepted',
+        resolvedEntities: [
+          {
+            hintKey: 'p1',
+            hintName: 'Far Stop',
+            provider: 'osm',
+            externalId: 'node:p1',
+            role: 'venue',
+            status: 'resolved',
+            latitude: -34.6,
+            longitude: -58.42,
+          },
+        ],
+        rejectionReasons: [],
+      },
+      destinationBoundary,
+      routeScopeObj,
+    );
+
+    expect(result.accepted).toBe(false);
+    expect(result.rejectionReasons).toContain('external_scope_mismatch');
+
+    const offendingEntity = result.decisionEntities!.find(
+      (e) => e.relation === 'offending',
+    );
+    expect(offendingEntity).toBeDefined();
+    expect(offendingEntity!.decisionReason).toBe(
+      'EXTERNAL_ROUTE_SCOPE_MISMATCH',
+    );
+    expect(offendingEntity!.distanceToBoundaryMeters).toBeUndefined();
+  });
+
+  it('CASE G — non-finite distance is never stored', () => {
+    const degenerateBoundary: any = {
+      geometry: {
+        type: 'Polygon',
+        coordinates: [
+          [
+            [0, 0],
+            [0, 0],
+            [0, 0],
+            [0, 0],
+          ],
+        ],
+      },
+    };
+
+    const candidate: ExperienceCandidate = {
+      name: 'Degenerate test',
+      themes: ['culture'],
+      traits: [],
+      evidenceKeys: ['e'],
+      shortReason: 'grounded',
+      componentHints: [
+        {
+          key: 'v',
+          name: 'Venue',
+          role: 'venue',
+          expectedKind: 'PLACE',
+          required: true,
+          evidenceKeys: ['e'],
+        },
+      ],
+    };
+
+    const result = new CompositeGeographicValidationService().validate(
+      {
+        candidate,
+        status: 'accepted',
+        resolvedEntities: [
+          {
+            hintKey: 'v',
+            hintName: 'Venue',
+            provider: 'osm',
+            externalId: 'node:v',
+            role: 'venue',
+            status: 'resolved',
+            latitude: 1,
+            longitude: 1,
+          },
+        ],
+        rejectionReasons: [],
+      },
+      degenerateBoundary,
+    );
+
+    expect(result.accepted).toBe(false);
+
+    const offendingEntity = result.decisionEntities!.find(
+      (e) => e.relation === 'offending',
+    );
+    expect(offendingEntity).toBeDefined();
+    expect(offendingEntity!.distanceToBoundaryMeters).toBeUndefined();
+  });
+
+  it('CASE H — accepted candidate has no bogus offending evidence', () => {
+    const candidate: ExperienceCandidate = {
+      name: 'Accepted walk',
+      themes: ['culture'],
+      traits: [],
+      evidenceKeys: ['e1', 'e2'],
+      shortReason: 'grounded composite',
+      componentHints: [
+        {
+          key: 'a',
+          name: 'Plaza A',
+          role: 'waypoint',
+          expectedKind: 'PLACE',
+          required: true,
+          evidenceKeys: ['e1'],
+        },
+        {
+          key: 'b',
+          name: 'Museum B',
+          role: 'venue',
+          expectedKind: 'PLACE',
+          required: true,
+          evidenceKeys: ['e2'],
+        },
+      ],
+    };
+
+    const result = new CompositeGeographicValidationService().validate(
+      {
+        candidate,
+        status: 'accepted',
+        resolvedEntities: [
+          {
+            hintKey: 'a',
+            hintName: 'Plaza A',
+            provider: 'osm',
+            externalId: 'node:a',
+            role: 'waypoint',
+            status: 'resolved',
+            latitude: -34.6,
+            longitude: -58.4,
+          },
+          {
+            hintKey: 'b',
+            hintName: 'Museum B',
+            provider: 'osm',
+            externalId: 'node:b',
+            role: 'venue',
+            status: 'resolved',
+            latitude: -34.601,
+            longitude: -58.401,
+          },
+        ],
+        rejectionReasons: [],
+      },
+      destinationBoundary,
+    );
+
+    expect(result.accepted).toBe(true);
+    expect(result.rejectionReasons).toHaveLength(0);
+
+    for (const entity of result.decisionEntities!) {
+      expect(entity.relation).not.toBe('offending');
+      expect(entity.decisionReason).toBeUndefined();
+      expect(entity.distanceToBoundaryMeters).toBeUndefined();
+    }
   });
 });

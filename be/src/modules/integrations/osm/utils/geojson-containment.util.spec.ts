@@ -1,4 +1,7 @@
-import { geometryContainsPoint, distancePointToPolygonBoundaryMeters } from './geojson-containment.util';
+import {
+  geometryContainsPoint,
+  distancePointToPolygonBoundaryMeters,
+} from './geojson-containment.util';
 import { GeoJsonGeometry } from './osm-geometry.util';
 
 describe('geometryContainsPoint', () => {
@@ -158,22 +161,42 @@ describe('distancePointToPolygonBoundaryMeters', () => {
     };
 
     // Point in hole: outside the polygon, distance to hole boundary
-    const holeDistance = distancePointToPolygonBoundaryMeters(polygonWithHole, 5, 5);
+    const holeDistance = distancePointToPolygonBoundaryMeters(
+      polygonWithHole,
+      5,
+      5,
+    );
     expect(holeDistance).toBeGreaterThan(0);
 
     // Point inside outer ring but outside hole: inside polygon
     expect(distancePointToPolygonBoundaryMeters(polygonWithHole, 2, 2)).toBe(0);
 
     // Point outside outer ring
-    const outerDistance = distancePointToPolygonBoundaryMeters(polygonWithHole, 15, 5);
+    const outerDistance = distancePointToPolygonBoundaryMeters(
+      polygonWithHole,
+      15,
+      5,
+    );
     expect(outerDistance).toBeGreaterThan(0);
   });
 
   it('returns Infinity for non-polygon geometries', () => {
-    expect(distancePointToPolygonBoundaryMeters({ type: 'Point', coordinates: [1, 2] }, 1, 2)).toBe(Infinity);
     expect(
       distancePointToPolygonBoundaryMeters(
-        { type: 'LineString', coordinates: [[0, 0], [1, 1]] },
+        { type: 'Point', coordinates: [1, 2] },
+        1,
+        2,
+      ),
+    ).toBe(Infinity);
+    expect(
+      distancePointToPolygonBoundaryMeters(
+        {
+          type: 'LineString',
+          coordinates: [
+            [0, 0],
+            [1, 1],
+          ],
+        },
         0.5,
         0.5,
       ),

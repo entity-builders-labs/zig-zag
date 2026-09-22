@@ -118,9 +118,7 @@ describe('IdentityVerifier', () => {
     const verifier = new IdentityVerifier();
     const result = await verifier.verify(
       { name: 'Recoleta Cemetery' },
-      attempt([
-        { type: 'EXACT_NAME', identityMultiplicity: 'SINGLE' },
-      ]),
+      attempt([{ type: 'EXACT_NAME', identityMultiplicity: 'SINGLE' }]),
     );
     expect(result).toEqual({ status: 'VERIFIED' });
   });
@@ -130,9 +128,7 @@ describe('IdentityVerifier', () => {
     const verifier = new IdentityVerifier();
     const result = await verifier.verify(
       { name: 'Recoleta Cemetery' },
-      attempt([
-        { type: 'EXACT_NAME', identityMultiplicity: 'MULTIPLE' },
-      ]),
+      attempt([{ type: 'EXACT_NAME', identityMultiplicity: 'MULTIPLE' }]),
     );
     expect(result).toEqual({ status: 'AMBIGUOUS' });
   });
@@ -142,9 +138,7 @@ describe('IdentityVerifier', () => {
     const verifier = new IdentityVerifier();
     const result = await verifier.verify(
       { name: 'Recoleta Cemetery' },
-      attempt([
-        { type: 'EXACT_NAME', identityMultiplicity: 'UNKNOWN' },
-      ]),
+      attempt([{ type: 'EXACT_NAME', identityMultiplicity: 'UNKNOWN' }]),
     );
     expect(result).toEqual({ status: 'INSUFFICIENT_EVIDENCE' });
   });
