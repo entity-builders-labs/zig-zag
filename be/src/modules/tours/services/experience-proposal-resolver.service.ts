@@ -25,6 +25,9 @@ import {
   ResolutionAttempt,
   ResolutionStrategy,
   VerificationDecision,
+  VerificationResult,
+  CandidateResolutionAudit,
+  ResolutionAttemptAudit,
 } from '../interfaces/experience-resolution.interface';
 import {
   bestNominatimMatch,
@@ -446,6 +449,9 @@ export class ExperienceProposalResolverService
       acceptedCount: acceptedForValidation.length,
       rejectedCount: resolvedCandidates.length - acceptedForValidation.length,
       resolved: resolvedCandidates,
+      forensicAudit: resolvedCandidates.flatMap((entry) =>
+        entry.forensicAudit ? [entry.forensicAudit] : [],
+      ),
     };
     const geographicValidation = {
       results: validationResults,
@@ -464,6 +470,9 @@ export class ExperienceProposalResolverService
       entityResolution,
       geographicValidation,
       materialization: { resolved },
+      forensicAudit: resolvedCandidates.flatMap((entry) =>
+        entry.forensicAudit ? [entry.forensicAudit] : [],
+      ),
       validationScope: input.validationScope,
       validationIntent: input.validationIntent,
       destinationBoundary: boundary
@@ -490,6 +499,7 @@ export class ExperienceProposalResolverService
     observations: SourceObservation[] = [],
   ) {
     const entities: ResolvedGeoEntity[] = [];
+    const componentAudits: CandidateResolutionAudit['componentAudits'] = [];
     const destinationAssociationVerified =
       this.hasDestinationAssociationEvidence(
         candidate,
@@ -498,6 +508,54 @@ export class ExperienceProposalResolverService
       );
 
     for (const hint of candidate?.componentHints ?? []) {
+      const attempts: ResolutionAttemptAudit[] = [];
+      const recordAttempt = (
+        strategy: ResolutionStrategy,
+        provider: string | undefined,
+        entity: EntityCandidate | undefined,
+        verification: VerificationResult | undefined,
+        resultCount?: number,
+      ): void => {
+        attempts.push({
+          strategy,
+          provider,
+          query: hint.name,
+          resultCount,
+          candidateAcquired: Boolean(entity),
+          selectedCandidate: entity
+            ? {
+                canonicalName: entity.canonicalName,
+                externalId: entity.externalId,
+                kind: entity.kind,
+              }
+            : undefined,
+          identityEvidence: verification?.evidence ?? [],
+          verificationDecision: verification?.decision.status,
+        });
+      };
+      const finishAudit = (entity: ResolvedGeoEntity): void => {
+        componentAudits.push({
+          hintKey: hint.key,
+          hintName: hint.name,
+          role: hint.role,
+          expectedKind: hint.expectedKind,
+          required: hint.required,
+          evidenceKeys: [...hint.evidenceKeys],
+          addressHint: hint.addressHint,
+          attempts,
+          finalStatus: entity.status,
+          finalReason: entity.reason,
+          resolvedGeoEntity:
+            entity.status === 'resolved'
+              ? {
+                  geoEntityId: entity.geoEntityId,
+                  canonicalName: entity.canonicalName,
+                  provider: entity.provider,
+                  externalId: entity.externalId,
+                }
+              : undefined,
+        });
+      };
       // P2-B, Phase 1: an optional, non-terminal FIRST attempt -- if this
       // run's structured acquisition already gathered an unambiguous,
       // in-scope, still-live identity for this exact hint, reuse it
@@ -511,16 +569,33 @@ export class ExperienceProposalResolverService
         boundary,
       );
       if (reuseCandidate) {
-        const decision = await this.isVerified(
+        const verification = await this.isVerified(
           'TRUSTED_OBSERVATION_REUSE',
           reuseCandidate,
           hint,
           observations,
         );
-        if (decision.status === 'VERIFIED') {
-          entities.push(await this.persistVerifiedCandidate(reuseCandidate));
+        recordAttempt(
+          'TRUSTED_OBSERVATION_REUSE',
+          reuseCandidate.provider,
+          reuseCandidate,
+          verification,
+          1,
+        );
+        if (verification.decision.status === 'VERIFIED') {
+          const resolved = await this.persistVerifiedCandidate(reuseCandidate);
+          entities.push(resolved);
+          finishAudit(resolved);
           continue;
         }
+      } else {
+        recordAttempt(
+          'TRUSTED_OBSERVATION_REUSE',
+          undefined,
+          undefined,
+          undefined,
+          0,
+        );
       }
 
       const isAreaHint = hint.expectedKind === 'AREA' || hint.role === 'area';
@@ -569,17 +644,23 @@ export class ExperienceProposalResolverService
           matched,
           nameMultiplicity,
         );
-        if (
-          (
-            await this.isVerified(
-              'LOCAL_OSM_POOL',
-              resolvedEntity,
-              hint,
-              observations,
-            )
-          ).status === 'VERIFIED'
-        ) {
-          entities.push(await this.persistVerifiedCandidate(resolvedEntity));
+        const verification = await this.isVerified(
+          'LOCAL_OSM_POOL',
+          resolvedEntity,
+          hint,
+          observations,
+        );
+        recordAttempt(
+          'LOCAL_OSM_POOL',
+          resolvedEntity.provider,
+          resolvedEntity,
+          verification,
+          pool.length,
+        );
+        if (verification.decision.status === 'VERIFIED') {
+          const resolved = await this.persistVerifiedCandidate(resolvedEntity);
+          entities.push(resolved);
+          finishAudit(resolved);
           continue;
         }
         // Real, live-verified regression: a local match that fails
@@ -597,6 +678,14 @@ export class ExperienceProposalResolverService
           hint,
           resolvedEntity.provider,
         );
+      } else {
+        recordAttempt(
+          'LOCAL_OSM_POOL',
+          'openstreetmap',
+          undefined,
+          undefined,
+          pool.length,
+        );
       }
 
       if (destinationAssociationVerified) {
@@ -606,19 +695,24 @@ export class ExperienceProposalResolverService
           this.representativePoint(boundary),
         );
         if (nominatimResolved) {
-          if (
-            (
-              await this.isVerified(
-                'NOMINATIM',
-                nominatimResolved,
-                hint,
-                observations,
-              )
-            ).status === 'VERIFIED'
-          ) {
-            entities.push(
-              await this.persistVerifiedCandidate(nominatimResolved),
-            );
+          const verification = await this.isVerified(
+            'NOMINATIM',
+            nominatimResolved,
+            hint,
+            observations,
+          );
+          recordAttempt(
+            'NOMINATIM',
+            nominatimResolved.provider,
+            nominatimResolved,
+            verification,
+            1,
+          );
+          if (verification.decision.status === 'VERIFIED') {
+            const resolved =
+              await this.persistVerifiedCandidate(nominatimResolved);
+            entities.push(resolved);
+            finishAudit(resolved);
             continue;
           }
           // A rejected global candidate is evidence that THIS attempt was
@@ -631,7 +725,7 @@ export class ExperienceProposalResolverService
             hint,
             nominatimResolved.provider,
           );
-        }
+        } else recordAttempt('NOMINATIM', 'nominatim', undefined, undefined);
 
         // A Nominatim result that failed identity verification is a failed
         // attempt, not evidence that the independently allowed PLACE lookup
@@ -642,22 +736,37 @@ export class ExperienceProposalResolverService
           this.representativePoint(boundary),
         );
         if (placesResolved) {
-          if (
-            (
-              await this.isVerified(
-                'PLACES',
-                placesResolved,
-                hint,
-                observations,
-              )
-            ).status === 'VERIFIED'
-          ) {
-            entities.push(await this.persistVerifiedCandidate(placesResolved));
+          const verification = await this.isVerified(
+            'PLACES',
+            placesResolved,
+            hint,
+            observations,
+          );
+          recordAttempt(
+            'PLACES',
+            placesResolved.provider,
+            placesResolved,
+            verification,
+            1,
+          );
+          if (verification.decision.status === 'VERIFIED') {
+            const resolved =
+              await this.persistVerifiedCandidate(placesResolved);
+            entities.push(resolved);
+            finishAudit(resolved);
             continue;
           }
           unconfirmedGlobalMatch = this.unconfirmedEntity(
             hint,
             placesResolved.provider,
+          );
+        } else if (this.placesApi && hint.expectedKind === 'PLACE') {
+          recordAttempt(
+            'PLACES',
+            placesAcquisitionLabel(this.placesApi.provider),
+            undefined,
+            undefined,
+            0,
           );
         }
       }
@@ -699,28 +808,45 @@ export class ExperienceProposalResolverService
               declaredAlias: candidateMatchCountToMultiplicity(aliasMatchCount),
             },
           );
+          const verification = await this.isVerified(
+            'AREA_TO_PLACE_CORRECTION',
+            resolvedEntity,
+            correctedHint,
+            observations,
+          );
+          recordAttempt(
+            'AREA_TO_PLACE_CORRECTION',
+            resolvedEntity.provider,
+            resolvedEntity,
+            verification,
+            1,
+          );
           entities.push(
-            (
-              await this.isVerified(
-                'AREA_TO_PLACE_CORRECTION',
-                resolvedEntity,
-                correctedHint,
-                observations,
-              )
-            ).status === 'VERIFIED'
+            verification.decision.status === 'VERIFIED'
               ? await this.persistVerifiedCandidate(resolvedEntity)
               : this.unconfirmedEntity(correctedHint, resolvedEntity.provider),
           );
+          finishAudit(entities[entities.length - 1]);
           continue;
+        } else if (isAreaHint) {
+          recordAttempt(
+            'AREA_TO_PLACE_CORRECTION',
+            'openstreetmap',
+            undefined,
+            undefined,
+            0,
+          );
         }
       }
 
       if (unconfirmedLocalMatch) {
         entities.push(unconfirmedLocalMatch);
+        finishAudit(unconfirmedLocalMatch);
         continue;
       }
       if (unconfirmedGlobalMatch) {
         entities.push(unconfirmedGlobalMatch);
+        finishAudit(unconfirmedGlobalMatch);
         continue;
       }
 
@@ -747,6 +873,8 @@ export class ExperienceProposalResolverService
         status: 'unresolved',
         reason,
       });
+
+      finishAudit(entities[entities.length - 1]);
     }
 
     const required = (candidate?.componentHints ?? []).filter(
@@ -768,6 +896,14 @@ export class ExperienceProposalResolverService
         candidate,
         status: 'rejected' as const,
         resolvedEntities: entities,
+        forensicAudit: {
+          candidateName: candidate.name,
+          candidateEvidenceKeys: [...candidate.evidenceKeys],
+          candidateHintKeys: candidate.componentHints.map(
+            (hint: any) => hint.key,
+          ),
+          componentAudits,
+        },
         destinationAssociationVerified,
         rejectionReasons: [
           resolvedEntities.length === 0
@@ -785,6 +921,14 @@ export class ExperienceProposalResolverService
       candidate,
       status: 'accepted' as const,
       resolvedEntities: entities,
+      forensicAudit: {
+        candidateName: candidate.name,
+        candidateEvidenceKeys: [...candidate.evidenceKeys],
+        candidateHintKeys: candidate.componentHints.map(
+          (hint: any) => hint.key,
+        ),
+        componentAudits,
+      },
       destinationAssociationVerified,
       rejectionReasons: [] as string[],
     };
@@ -796,7 +940,7 @@ export class ExperienceProposalResolverService
     entity: EntityCandidate,
     hint: any,
     observations: SourceObservation[] = [],
-  ): Promise<VerificationDecision> {
+  ): Promise<VerificationResult> {
     const evidence = buildLocalIdentityEvidence(hint, entity);
     const attempt: ResolutionAttempt = {
       strategy,
@@ -804,7 +948,9 @@ export class ExperienceProposalResolverService
       evidence,
     };
     const directDecision = this.identityVerifier.verify(hint, attempt);
-    if (directDecision.status === 'VERIFIED') return directDecision;
+    if (directDecision.status === 'VERIFIED') {
+      return { decision: directDecision, evidence: [...attempt.evidence] };
+    }
     attempt.evidence.push(
       ...(await this.identityEvidenceCollector.collect(
         hint,
@@ -812,7 +958,10 @@ export class ExperienceProposalResolverService
         observations,
       )),
     );
-    return this.identityVerifier.verify(hint, attempt);
+    return {
+      decision: this.identityVerifier.verify(hint, attempt),
+      evidence: [...attempt.evidence],
+    };
   }
 
   private async persistVerifiedCandidate(

@@ -36,84 +36,21 @@ import {
   XCircle,
 } from "lucide-react-native";
 import { copyTextToClipboard } from "@/utils/copy-to-clipboard";
+import type {
+  CandidateScoreBreakdown,
+  GenerationTrace,
+  GenerationTraceStep,
+  TraceCandidate,
+  TraceCandidateDecision,
+  TraceDecision,
+  TraceEntityResolutionAttempt,
+  TraceEntityResolutionDecision,
+  TraceGeographicComponent,
+  TraceGeographicValidationDecision,
+  TraceRuleEvaluation,
+} from "@/api/generation-trace-contract";
 
-interface CandidateScoreBreakdown {
-  semanticSimilarity?: number | null;
-  qualityBonus?: number;
-  proximityBonus?: number;
-  diversityBonus?: number;
-  totalScore?: number;
-}
-
-interface TraceRuleEvaluation {
-  ruleId: string;
-  rule: string;
-  result: "PASS" | "FAIL" | "WARN" | "SKIPPED";
-  reason: string;
-  inputs?: Record<string, unknown>;
-  expected?: unknown;
-  actual?: unknown;
-}
-
-interface TraceDecision {
-  status: "PASS" | "FAIL" | "WARN" | "INFO";
-  outcome: string;
-  reason: string;
-  reasonCodes?: string[];
-  triggeredActions?: string[];
-}
-
-interface TraceCandidateDecision {
-  id: string;
-  name: string;
-  source?: string;
-  status: "ELIGIBLE" | "REJECTED" | "RANKED" | "SELECTED" | "UNSELECTED";
-  reason?: string;
-  reasonCodes?: string[];
-  scoreBreakdown?: CandidateScoreBreakdown;
-  rules?: TraceRuleEvaluation[];
-  dayNumber?: number;
-  order?: number;
-}
-
-interface LegacyTraceCandidate {
-  source: string;
-  id: string;
-  name: string;
-  detail?: string;
-  offered: boolean;
-  chosen: boolean;
-  scoreBreakdown?: CandidateScoreBreakdown;
-}
-
-interface GenerationTraceStep {
-  stage: string;
-  label: string;
-  summary: string;
-  component?: string;
-  status?: "PASS" | "FAIL" | "WARN" | "INFO";
-  inputs?: Record<string, unknown>;
-  rules?: TraceRuleEvaluation[];
-  decision?: TraceDecision;
-  outputs?: Record<string, unknown>;
-  candidateDecisions?: TraceCandidateDecision[];
-  timing?: { startedAt?: string; durationMs?: number };
-  geographicValidationAudit?: TraceGeographicValidationDecision[];
-
-  // Compatibility fields from trace V1 / rich intermediate stages.
-  candidates?: LegacyTraceCandidate[];
-  providerStatus?: "success" | "failed";
-  degradedReason?: string;
-  coverageReport?: unknown;
-  semanticRanking?: unknown;
-  grounding?: unknown;
-  dailyPlanning?: unknown;
-  tourCompleteness?: unknown;
-  tourFormatCoverage?: unknown;
-  resolution?: unknown;
-  candidatePool?: unknown;
-  placesProvenance?: unknown;
-}
+export type { GenerationTrace } from "@/api/generation-trace-contract";
 
 type GeographicDecisionReason =
   | "OUTSIDE_DESTINATION_BOUNDARY"
@@ -125,63 +62,6 @@ type GeographicDecisionReason =
   | "OUTSIDE_ROUTE_DESTINATION_RADIUS"
   | "EXTERNAL_AREA_SCOPE_MISMATCH"
   | "EXTERNAL_ROUTE_SCOPE_MISMATCH";
-
-interface TraceGeographicComponent {
-  hintName: string;
-  hintKey?: string;
-  role?: string;
-  resolvedGeoEntityId?: string;
-  relation?: "accepted" | "offending" | "evaluated";
-  // Keep this open for forward-compatible persisted traces. The raw code is
-  // always rendered even when this UI has not learned a Spanish label yet.
-  decisionReason?: string;
-  distanceToBoundaryMeters?: number;
-}
-
-interface TraceGeographicValidationDecision {
-  candidateTraceKey: string;
-  candidateName: string;
-  accepted: boolean;
-  status: string;
-  strategy?: string;
-  scope?: {
-    kind: string;
-    anchorName?: string;
-    geoEntityId?: string;
-  };
-  validationIntent?: "walk" | "route_like";
-  destinationBoundary?: {
-    name?: string;
-    externalId?: string;
-  };
-  rejectionReasons: string[];
-  components: TraceGeographicComponent[];
-}
-
-interface AuditFinding {
-  experienceId?: string;
-  experienceName: string;
-  openingHoursCheck: "ok" | "possibly_closed" | "no_data";
-  priceLevelCheck: "ok" | "possibly_over_budget" | "no_data";
-}
-
-export interface GenerationTrace {
-  version?: 1 | 2 | 3 | 4;
-  steps: GenerationTraceStep[];
-  aiReasoning?: string;
-  hallucinatedCount: number;
-  duplicateCount: number;
-  auditFindings?: { perExperience: AuditFinding[] };
-  executionSummary?: {
-    status: "completed" | "failed";
-    steps: string[];
-    narrative?: string;
-    acceptedExperiences?: number;
-    rejectedProposals?: number;
-    selectedExperiences?: number;
-    failure?: string;
-  };
-}
 
 interface GenerationBitacoraProps {
   trace: GenerationTrace;
@@ -321,9 +201,7 @@ const GEOGRAPHIC_REASON_LABELS: Record<GeographicDecisionReason, string> = {
   EXTERNAL_ROUTE_SCOPE_MISMATCH: "Fuera del corredor de la ruta",
 };
 
-function humanGeographicReason(
-  reason?: string,
-): string | undefined {
+function humanGeographicReason(reason?: string): string | undefined {
   if (!reason) return undefined;
   return GEOGRAPHIC_REASON_LABELS[reason as GeographicDecisionReason];
 }
@@ -398,11 +276,8 @@ function getLegacyOutput(
     compatibility.tourCompleteness = step.tourCompleteness;
   if (step.tourFormatCoverage !== undefined)
     compatibility.tourFormatCoverage = step.tourFormatCoverage;
-  if (step.resolution !== undefined) compatibility.resolution = step.resolution;
   if (step.candidatePool !== undefined)
     compatibility.candidatePool = step.candidatePool;
-  if (step.placesProvenance !== undefined)
-    compatibility.placesProvenance = step.placesProvenance;
   return Object.keys(compatibility).length ? compatibility : undefined;
 }
 
@@ -759,12 +634,13 @@ function GeographicComponentRow({
       <VStack mt="$1" space="xs">
         {component.hintKey ? (
           <Text size="2xs" color={COLORS.textDim}>
-            Clave: <Text color={COLORS.textMuted as any}>{component.hintKey}</Text>
+            Clave:{" "}
+            <Text color={COLORS.textMuted as any}>{component.hintKey}</Text>
           </Text>
         ) : null}
         {component.resolvedGeoEntityId ? (
           <Text size="2xs" color={COLORS.textDim}>
-            GeoEntity: {" "}
+            GeoEntity:{" "}
             <Text color={COLORS.textMuted as any}>
               {component.resolvedGeoEntityId}
             </Text>
@@ -968,6 +844,119 @@ function GeographicAuditPanel({
   );
 }
 
+function EntityResolutionAuditPanel({
+  decisions,
+}: {
+  decisions: TraceEntityResolutionDecision[];
+}) {
+  return (
+    <Panel title="Auditoría de resolución de entidades" icon={Search}>
+      <VStack>
+        {decisions.map((decision, candidateIndex) => (
+          <Box key={`${decision.candidateTraceKey}-${candidateIndex}`} mb="$3">
+            <Text size="xs" fontWeight="$bold" color={COLORS.text}>
+              {decision.candidateName}
+            </Text>
+            <Text
+              size="2xs"
+              color={decision.accepted ? COLORS.green : COLORS.red}
+            >
+              {decision.accepted ? "ACCEPTED" : "UNRESOLVED"}
+              {decision.rejectionReasons.length
+                ? ` · ${decision.rejectionReasons.join(", ")}`
+                : ""}
+            </Text>
+            {decision.hints.map((hint) => (
+              <Box
+                key={hint.key}
+                mt="$2"
+                p="$2"
+                bg={COLORS.panelSoft as any}
+                borderRadius="$md"
+              >
+                <HStack justifyContent="space-between" flexWrap="wrap">
+                  <Text size="xs" color={COLORS.text}>
+                    {hint.name}
+                  </Text>
+                  <Text size="2xs" color={COLORS.textMuted}>
+                    {hint.role} · {hint.required ? "required" : "optional"}
+                  </Text>
+                </HStack>
+                {hint.evidenceKeys.length ? (
+                  <Text size="2xs" color={COLORS.textDim} mt="$1">
+                    evidence: {hint.evidenceKeys.join(", ")}
+                  </Text>
+                ) : null}
+                {hint.attempts?.map(
+                  (attempt: TraceEntityResolutionAttempt, attemptIndex) => (
+                    <Box
+                      key={`${attempt.strategy}-${attemptIndex}`}
+                      mt="$2"
+                      pl="$2"
+                      borderLeftWidth={2}
+                      borderLeftColor={COLORS.border as any}
+                    >
+                      <HStack justifyContent="space-between" flexWrap="wrap">
+                        <Text size="2xs" color={COLORS.blue}>
+                          {attempt.strategy}
+                        </Text>
+                        <Text
+                          size="2xs"
+                          color={
+                            attempt.candidateAcquired
+                              ? COLORS.green
+                              : COLORS.textDim
+                          }
+                        >
+                          {attempt.candidateAcquired
+                            ? "candidate acquired"
+                            : "no candidate"}
+                        </Text>
+                      </HStack>
+                      <Text size="2xs" color={COLORS.textDim}>
+                        {attempt.provider ?? "provider unknown"}
+                        {attempt.resultCount !== undefined
+                          ? ` · results=${attempt.resultCount}`
+                          : ""}
+                        {attempt.verificationDecision
+                          ? ` · ${attempt.verificationDecision}`
+                          : ""}
+                      </Text>
+                      {attempt.selectedCandidate ? (
+                        <Text size="2xs" color={COLORS.textMuted}>
+                          {attempt.selectedCandidate.canonicalName} ·{" "}
+                          {attempt.selectedCandidate.externalId} ·{" "}
+                          {attempt.selectedCandidate.kind}
+                        </Text>
+                      ) : null}
+                      {attempt.identityEvidence.length ? (
+                        <Text size="2xs" color={COLORS.textMuted}>
+                          evidence:{" "}
+                          {attempt.identityEvidence
+                            .map((evidence) => evidence.type)
+                            .join(", ")}
+                        </Text>
+                      ) : null}
+                    </Box>
+                  ),
+                )}
+                <Text
+                  size="2xs"
+                  color={hint.status === "resolved" ? COLORS.green : COLORS.red}
+                  mt="$2"
+                >
+                  final: {hint.status}
+                  {hint.reason ? ` · ${hint.reason}` : ""}
+                </Text>
+              </Box>
+            ))}
+          </Box>
+        ))}
+      </VStack>
+    </Panel>
+  );
+}
+
 function OutputPanel({ step }: { step: GenerationTraceStep }) {
   const output = step.outputs || getLegacyOutput(step);
   return (
@@ -1116,8 +1105,15 @@ function StageDetail({
         {step.stage === "geographic_validation" &&
         step.geographicValidationAudit?.length ? (
           <Box flexDirection="row" flexWrap="wrap" gap={12} mb="$4">
-            <GeographicAuditPanel
-              decisions={step.geographicValidationAudit}
+            <GeographicAuditPanel decisions={step.geographicValidationAudit} />
+          </Box>
+        ) : null}
+
+        {step.stage === "entity_resolution" &&
+        step.entityResolutionAudit?.length ? (
+          <Box flexDirection="row" flexWrap="wrap" gap={12} mb="$4">
+            <EntityResolutionAuditPanel
+              decisions={step.entityResolutionAudit}
             />
           </Box>
         ) : null}
@@ -1286,9 +1282,9 @@ function renderSummaryPoints(trace: GenerationTrace) {
 
   if (points.length === 0) {
     const text =
-      trace.executionSummary?.narrative ||
-      trace.executionSummary?.steps.join(" ") ||
-      "Ejecución finalizada.";
+      trace.executionSummary?.orderedStages
+        ?.map((stage) => String(stage.summary ?? ""))
+        .join(" ") || "Ejecución finalizada.";
     return (
       <Text size="xs" color={COLORS.textMuted} lineHeight="$sm">
         {text}

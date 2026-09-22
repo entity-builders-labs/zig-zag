@@ -292,6 +292,45 @@ describe('buildEntityResolutionStep', () => {
           ],
           rejectionReasons: [],
           experienceId: 'experience-1',
+          forensicAudit: {
+            candidateName: 'Casa Histórica',
+            candidateEvidenceKeys: [],
+            candidateHintKeys: ['hint-1'],
+            componentAudits: [
+              {
+                hintKey: 'hint-1',
+                hintName: 'Casa Histórica',
+                role: 'venue',
+                expectedKind: 'PLACE',
+                required: true,
+                evidenceKeys: [],
+                attempts: [
+                  {
+                    strategy: 'LOCAL_OSM_POOL',
+                    provider: 'openstreetmap',
+                    resultCount: 1,
+                    candidateAcquired: true,
+                    selectedCandidate: {
+                      canonicalName: 'Casa Histórica',
+                      externalId: 'osm:1',
+                      kind: 'PLACE',
+                    },
+                    identityEvidence: [
+                      { type: 'EXACT_NAME', identityMultiplicity: 'SINGLE' },
+                    ],
+                    verificationDecision: 'VERIFIED',
+                  },
+                ],
+                finalStatus: 'resolved',
+                resolvedGeoEntity: {
+                  provider: 'osm',
+                  canonicalName: 'Casa Histórica',
+                  externalId: 'osm:1',
+                  geoEntityId: 'geo-1',
+                },
+              },
+            ],
+          },
         },
       ],
       totalCandidates: 1,
@@ -308,7 +347,6 @@ describe('buildEntityResolutionStep', () => {
     expect(step.decision?.outcome).toBe(
       'ENTITIES_READY_FOR_GEOGRAPHIC_VALIDATION',
     );
-    expect(step.resolution?.acceptedCount).toBe(1);
     expect(step.entityResolutionAudit?.[0].hints[0]).toMatchObject({
       role: 'venue',
       resolvedGeoEntity: { provider: 'osm' },
@@ -731,15 +769,6 @@ describe('buildGeographicValidationStep native audit projection', () => {
     expect(inside).toBeDefined();
     expect(inside!.decisionReason).toBeUndefined();
     expect(inside!.distanceToBoundaryMeters).toBeUndefined();
-
-    // Raw geographicValidation preserves the fields
-    const rawResult = step.geographicValidation!.results[0];
-    const rawDecision = rawResult.decisionEntities!.find(
-      (d) => d.relation === 'offending',
-    );
-    expect(rawDecision).toBeDefined();
-    expect(rawDecision!.decisionReason).toBe('OUTSIDE_DESTINATION_BOUNDARY');
-    expect(rawDecision!.distanceToBoundaryMeters).toBe(83.4);
 
     // Trace must not contain raw boundary geometry
     const serialized = JSON.stringify(step);
@@ -1182,7 +1211,11 @@ describe('buildPlacesCrawlStep', () => {
     expect(step.label).not.toContain('Google');
     expect(step.summary).toContain('cache hit');
     expect(step.candidates?.[0].source).toBe('geoapify');
-    expect(step.placesProvenance?.acceptedCount).toBe(1);
+    expect(step.outputs).toMatchObject({
+      receivedCount: 4,
+      persistedCount: 1,
+      rejectedCount: 0,
+    });
   });
 
   it('surfaces rejected candidates by name, not just an aggregate count', () => {

@@ -1,10 +1,13 @@
-import { PlacesCrawlProvenance } from '@integrations/google-places/interfaces/places-api.interface';
 import { TourCompletenessResult } from './tour-completeness.interface';
-import { ExperienceCandidate } from './experience-discovery.interface';
 import { CandidateScoreBreakdown } from '../utils/candidate-ranking.util';
 import { PreferenceInterpretationTrace } from './preference-interpretation.interface';
 import { GeoEntityHint } from './experience-discovery.interface';
-import { ResolvedGeoEntity } from './experience-resolution.interface';
+import {
+  ResolvedGeoEntity,
+  IdentityEvidence,
+  ResolutionStrategy,
+  VerificationDecision,
+} from './experience-resolution.interface';
 import { AcquisitionEvidenceRequirement } from './acquisition-evidence-requirement.interface';
 import { AreaScopeMembershipAudit } from './area-scope-membership.interface';
 import { GeographicDecisionReason } from './geographic-validation.interface';
@@ -93,7 +96,6 @@ export interface TraceAcquisitionSource {
   status: 'success' | 'failed' | 'skipped' | 'unknown';
   failureReason?: string;
   observationCount: number;
-  provenance?: Record<string, unknown>;
   observations: Array<{
     evidenceKey: string;
     provider: string;
@@ -119,28 +121,18 @@ export interface TraceAcquisitionSource {
     groundedProvider?: string;
     groundedModel?: string;
     groundingStatus?: string;
-    groundedRawOutput?: TraceTextCapture;
     evidence: TraceEvidenceReference[];
-    evidenceProvenance?: unknown;
-    normalizationAudit?: unknown;
     extractor?: {
       provider?: string;
       model?: string;
       inputEvidenceKeys: string[];
       validationErrors: string[];
-      rawOutput?: TraceTextCapture;
       extractedCandidateCount: number;
       admittedCandidateCount: number;
       rejectedCandidateCount: number;
       candidateDecisions: TraceWebCandidateAdmissionDecision[];
     };
   };
-}
-
-export interface TraceTextCapture {
-  content: string;
-  originalCharCount: number;
-  truncated: boolean;
 }
 
 export interface TraceWebCandidateAdmissionDecision {
@@ -201,10 +193,26 @@ export interface TraceEntityResolutionDecision {
         | 'longitude'
       > & { geometry?: { present: boolean; type?: string } };
       reason?: string;
+      attempts?: TraceEntityResolutionAttempt[];
     }
   >;
   accepted: boolean;
   rejectionReasons: string[];
+}
+
+export interface TraceEntityResolutionAttempt {
+  strategy: ResolutionStrategy;
+  provider?: string;
+  query?: string;
+  resultCount?: number;
+  candidateAcquired: boolean;
+  selectedCandidate?: {
+    canonicalName: string;
+    externalId: string;
+    kind: string;
+  };
+  identityEvidence: IdentityEvidence[];
+  verificationDecision?: VerificationDecision['status'];
 }
 
 export interface TraceGeographicValidationDecision {
@@ -327,99 +335,6 @@ export interface TraceAcquisitionContext {
   };
 }
 
-/** Bounded legacy payloads retained for V1/V2/V3 trace readers. */
-export interface TraceResolvedGeoEntity {
-  hintKey: string;
-  hintName: string;
-  provider: string;
-  externalId?: string;
-  geoEntityId?: string;
-  canonicalName?: string | null;
-  latitude?: number | null;
-  longitude?: number | null;
-  geometry?: { present: boolean; type?: string };
-  role: 'area' | 'waypoint' | 'route' | 'venue';
-  expectedType?: string;
-  status: 'resolved' | 'unresolved';
-  reason?: string;
-  adminContext?: {
-    country?: string;
-    region?: string;
-    locality?: string;
-    municipality?: string;
-  };
-}
-
-export interface TraceResolvedExperienceCandidate {
-  candidate: ExperienceCandidate;
-  status: 'accepted' | 'rejected';
-  resolvedEntities: TraceResolvedGeoEntity[];
-  rejectionReasons: string[];
-  destinationAssociationVerified?: boolean;
-  experienceId?: string;
-  dedupeDecision?: 'SAME' | 'NEW' | 'AMBIGUOUS';
-  dedupeCandidates?: string[];
-}
-
-export interface TraceResolutionPayload {
-  totalCandidates: number;
-  acceptedCount: number;
-  rejectedCount: number;
-  resolved: TraceResolvedExperienceCandidate[];
-  entityResolution?: {
-    totalCandidates: number;
-    acceptedCount: number;
-    rejectedCount: number;
-    resolved: TraceResolvedExperienceCandidate[];
-  };
-}
-
-export interface TraceGeographicValidationResult {
-  proposalName: string;
-  kind: string;
-  status: string;
-  accepted: boolean;
-  strategy?: string;
-  areaScopeMembership?: AreaScopeMembershipAudit;
-  canonicalEntity?: TraceResolvedGeoEntity;
-  anchors: TraceResolvedGeoEntity[];
-  coherence?: {
-    centroid: { latitude: number; longitude: number };
-    radiusMeters: number;
-    maxPairwiseDistanceMeters: number;
-  };
-  groundedEvidenceKeys: string[];
-  rejectionReasons: string[];
-  decisionEntities?: Array<{
-    geoEntityId?: string;
-    hintKey?: string;
-    relation: 'evaluated' | 'offending';
-    /**
-     * Machine-readable reason for the entity's role in the decision.
-     * Present for 'offending' entities; may be present for 'evaluated' if useful.
-     */
-    decisionReason?: GeographicDecisionReason;
-    /**
-     * Shortest distance in meters from the resolved point to the destination boundary.
-     * Only populated for OUTSIDE_DESTINATION_BOUNDARY / OUTSIDE_CANONICAL_AREA_BOUNDARY rejections.
-     * Absent when unknown or not applicable.
-     */
-    distanceToBoundaryMeters?: number;
-  }>;
-  validatorVersion: number;
-}
-
-export interface TraceGeographicValidationPayload {
-  results: TraceGeographicValidationResult[];
-  acceptedCount: number;
-  rejectedCount: number;
-  resolved?: TraceResolvedExperienceCandidate[];
-}
-
-export interface TraceMaterializationPayload {
-  resolved: TraceResolvedExperienceCandidate[];
-}
-
 export type TourCompletenessTraceResult = TourCompletenessResult & {
   retryAttempted: boolean;
 };
@@ -484,7 +399,6 @@ export interface GenerationTraceStep {
 
   /** Stage-specific evidence retained for audit and UI rendering. */
   candidates?: TraceCandidate[];
-  placesProvenance?: PlacesCrawlProvenance;
   providerStatus?: 'success' | 'failed';
   degradedReason?: string;
   semanticRanking?: {
@@ -506,9 +420,6 @@ export interface GenerationTraceStep {
     reason?: string;
   };
   tourCompleteness?: TourCompletenessTraceResult;
-  resolution?: TraceResolutionPayload;
-  geographicValidation?: TraceGeographicValidationPayload;
-  materialization?: TraceMaterializationPayload;
   candidatePool?: {
     initialCatalogCount: number;
     postAcquisitionCatalogCount: number;
@@ -573,9 +484,6 @@ export interface GenerationTraceExecutionSummary {
   status: 'completed' | 'failed';
   /** Ordered machine-readable reconstruction of the complete run. */
   orderedStages: GenerationExecutionStageSummary[];
-  /** Compatibility text retained for existing Bitácora UI versions. */
-  steps: string[];
-  narrative?: string;
   acceptedExperiences?: number;
   rejectedProposals?: number;
   selectedExperiences?: number;

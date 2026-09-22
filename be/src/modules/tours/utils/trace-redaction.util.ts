@@ -17,6 +17,22 @@ function redact(value: unknown, seen: WeakSet<object>): unknown {
   if (seen.has(value)) return '[Circular]';
   seen.add(value);
 
+  if (!Array.isArray(value)) {
+    const geometryType =
+      typeof (value as { type?: unknown }).type === 'string'
+        ? (value as { type: string }).type
+        : undefined;
+    if (geometryType === 'Polygon' || geometryType === 'MultiPolygon') {
+      const output: Record<string, unknown> = {};
+      for (const [key, entry] of Object.entries(value)) {
+        if (key === 'coordinates') continue;
+        output[key] = redact(entry, seen);
+      }
+      seen.delete(value);
+      return output;
+    }
+  }
+
   if (Array.isArray(value)) {
     const output = value.map((entry) => redact(entry, seen));
     seen.delete(value);

@@ -1,6 +1,38 @@
 import { redactTracePayload } from './trace-redaction.util';
 
 describe('redactTracePayload', () => {
+  it('removes Polygon and MultiPolygon coordinate arrays at every nesting level', () => {
+    const trace = redactTracePayload({
+      steps: [
+        {
+          inputs: {
+            boundary: {
+              type: 'Polygon',
+              coordinates: [[[1, 2]]],
+            },
+          },
+          outputs: [
+            {
+              geometry: {
+                type: 'MultiPolygon',
+                coordinates: [[[[3, 4]]]],
+              },
+            },
+          ],
+        },
+      ],
+    });
+
+    const serialized = JSON.stringify(trace);
+    expect(serialized).not.toContain('coordinates');
+    expect((trace as any).steps[0].inputs.boundary).toEqual({
+      type: 'Polygon',
+    });
+    expect((trace as any).steps[0].outputs[0].geometry).toEqual({
+      type: 'MultiPolygon',
+    });
+  });
+
   it('redacts sensitive keys recursively while preserving useful trace data', () => {
     const result = redactTracePayload({
       provider: 'tavily',

@@ -56,8 +56,6 @@ export function buildGenerationExecutionSummary(
     });
   }
 
-  const summaries = orderedStages.map((stage) => stage.summary);
-
   // Roll up the canonical multi-source acquisition loop from its steps
   // (component === 'ExperienceAcquisitionService', emitted once per pass).
   const acquisitionSteps = input.steps.filter(
@@ -102,10 +100,6 @@ export function buildGenerationExecutionSummary(
   return {
     status: input.status,
     orderedStages,
-    steps: summaries,
-    narrative: orderedStages
-      .map((stage) => `${stage.ordinal}. ${stage.summary}`)
-      .join('\n'),
     acceptedExperiences: input.acceptedExperiences,
     rejectedProposals: input.rejectedProposals,
     selectedExperiences: materialized.length,

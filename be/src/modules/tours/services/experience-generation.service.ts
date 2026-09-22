@@ -1987,7 +1987,10 @@ export class ExperienceGenerationService {
           .filter((step: any) => step.stage === 'entity_resolution')
           .reduce(
             (sum: number, step: any) =>
-              sum + Number((step.resolution as any)?.acceptedCount ?? 0),
+              sum +
+              (step.entityResolutionAudit ?? []).filter(
+                (audit: { accepted: boolean }) => audit.accepted,
+              ).length,
             0,
           ),
       );
@@ -1995,7 +1998,10 @@ export class ExperienceGenerationService {
         .filter((step: any) => step.stage === 'entity_resolution')
         .reduce(
           (sum: number, step: any) =>
-            sum + Number((step.resolution as any)?.rejectedCount ?? 0),
+            sum +
+            (step.entityResolutionAudit ?? []).filter(
+              (audit: { accepted: boolean }) => !audit.accepted,
+            ).length,
           0,
         );
       const executionSummary = buildGenerationExecutionSummary({
@@ -2014,7 +2020,6 @@ export class ExperienceGenerationService {
           data: {
             metadata: {
               ...withoutGenerationFailure(effectiveMetadata),
-              executionSummary,
               generationTrace: {
                 ...(generationTrace as any),
                 executionSummary,

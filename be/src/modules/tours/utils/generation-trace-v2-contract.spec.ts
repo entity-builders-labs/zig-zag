@@ -12,6 +12,128 @@ import {
 } from '../interfaces/geographic-validation.interface';
 
 describe('GenerationTrace V2 decision audit coverage', () => {
+  it('projects the actual entity-resolution attempt chain without fabricated strategies', () => {
+    const result: any = {
+      totalCandidates: 1,
+      acceptedCount: 0,
+      rejectedCount: 1,
+      resolved: [
+        {
+          candidate: {
+            name: 'Farmacia la Estrella',
+            themes: [],
+            traits: [],
+            evidenceKeys: ['e1'],
+            shortReason: 'test',
+            componentHints: [
+              {
+                key: 'h1',
+                name: 'Farmacia la Estrella',
+                role: 'venue',
+                expectedKind: 'PLACE',
+                required: true,
+                evidenceKeys: ['e1'],
+              },
+            ],
+          },
+          status: 'rejected',
+          resolvedEntities: [],
+          rejectionReasons: ['UNRESOLVED_REQUIRED_COMPONENT'],
+          forensicAudit: {
+            candidateName: 'Farmacia la Estrella',
+            candidateEvidenceKeys: ['e1'],
+            candidateHintKeys: ['h1'],
+            componentAudits: [
+              {
+                hintKey: 'h1',
+                hintName: 'Farmacia la Estrella',
+                role: 'venue',
+                expectedKind: 'PLACE',
+                required: true,
+                evidenceKeys: ['e1'],
+                attempts: [
+                  {
+                    strategy: 'LOCAL_OSM_POOL',
+                    provider: 'openstreetmap',
+                    resultCount: 1,
+                    candidateAcquired: true,
+                    selectedCandidate: {
+                      canonicalName: 'Farmacia la Estrella',
+                      externalId: 'osm:node:1',
+                      kind: 'PLACE',
+                    },
+                    identityEvidence: [{ type: 'WIKIDATA_UNAVAILABLE' }],
+                    verificationDecision: 'INSUFFICIENT_EVIDENCE',
+                  },
+                  {
+                    strategy: 'NOMINATIM',
+                    provider: 'nominatim',
+                    candidateAcquired: false,
+                    identityEvidence: [],
+                  },
+                ],
+                finalStatus: 'unresolved',
+                finalReason: 'UNCONFIRMED_MATCH',
+              },
+            ],
+          },
+        },
+      ],
+      forensicAudit: [
+        {
+          candidateName: 'Farmacia la Estrella',
+          candidateEvidenceKeys: ['e1'],
+          candidateHintKeys: ['h1'],
+          componentAudits: [
+            {
+              hintKey: 'h1',
+              hintName: 'Farmacia la Estrella',
+              role: 'venue',
+              expectedKind: 'PLACE',
+              required: true,
+              evidenceKeys: ['e1'],
+              attempts: [
+                {
+                  strategy: 'LOCAL_OSM_POOL',
+                  provider: 'openstreetmap',
+                  resultCount: 1,
+                  candidateAcquired: true,
+                  selectedCandidate: {
+                    canonicalName: 'Farmacia la Estrella',
+                    externalId: 'osm:node:1',
+                    kind: 'PLACE',
+                  },
+                  identityEvidence: [{ type: 'WIKIDATA_UNAVAILABLE' }],
+                  verificationDecision: 'INSUFFICIENT_EVIDENCE',
+                },
+                {
+                  strategy: 'NOMINATIM',
+                  provider: 'nominatim',
+                  candidateAcquired: false,
+                  identityEvidence: [],
+                },
+              ],
+              finalStatus: 'unresolved',
+              finalReason: 'UNCONFIRMED_MATCH',
+            },
+          ],
+        },
+      ],
+    };
+
+    const step = buildEntityResolutionStep(result);
+    const hint = step.entityResolutionAudit?.[0].hints[0];
+    expect(hint?.attempts).toHaveLength(2);
+    expect(hint?.attempts?.[0].verificationDecision).toBe(
+      'INSUFFICIENT_EVIDENCE',
+    );
+    expect(hint?.attempts?.[0].candidateAcquired).toBe(true);
+    expect(hint?.attempts?.[1].candidateAcquired).toBe(false);
+    expect(
+      hint?.attempts?.some((attempt) => attempt.strategy === 'PLACES'),
+    ).toBe(false);
+  });
+
   it('records grounded discovery provenance and the resolution handoff', () => {
     const result: any = {
       candidates: [
@@ -259,15 +381,6 @@ describe('GenerationTrace V2 decision audit coverage', () => {
     expect(offending).toBeDefined();
     expect(offending!.decisionReason).toBe('OUTSIDE_DESTINATION_BOUNDARY');
     expect(offending!.distanceToBoundaryMeters).toBe(83.4);
-
-    // Raw geographicValidation preserves the fields
-    const rawResult = step.geographicValidation!.results[0];
-    const rawDecision = rawResult.decisionEntities!.find(
-      (d) => d.relation === 'offending',
-    );
-    expect(rawDecision).toBeDefined();
-    expect(rawDecision!.decisionReason).toBe('OUTSIDE_DESTINATION_BOUNDARY');
-    expect(rawDecision!.distanceToBoundaryMeters).toBe(83.4);
 
     // Trace must not contain raw boundary geometry
     const serialized = JSON.stringify(step);

@@ -93,6 +93,52 @@ export type VerificationDecision =
   | { status: 'INSUFFICIENT_EVIDENCE' }
   | { status: 'REJECTED' };
 
+/** The exact evidence and verdict returned by the canonical verification path. */
+export interface VerificationResult {
+  decision: VerificationDecision;
+  evidence: IdentityEvidence[];
+}
+
+/** Bounded, provider-neutral forensic facts for one executed strategy. */
+export interface ResolutionAttemptAudit {
+  strategy: ResolutionStrategy;
+  provider?: string;
+  query?: string;
+  resultCount?: number;
+  candidateAcquired: boolean;
+  selectedCandidate?: {
+    canonicalName: string;
+    externalId: string;
+    kind: GeoEntityKind;
+  };
+  identityEvidence: IdentityEvidence[];
+  verificationDecision?: VerificationDecision['status'];
+}
+
+export interface ComponentResolutionAudit {
+  hintKey: string;
+  hintName: string;
+  role: 'area' | 'waypoint' | 'route' | 'venue';
+  expectedKind?: string;
+  required: boolean;
+  evidenceKeys: string[];
+  addressHint?: string;
+  attempts: ResolutionAttemptAudit[];
+  finalStatus: ResolvedGeoEntityStatus;
+  finalReason?: string;
+  resolvedGeoEntity?: Pick<
+    ResolvedGeoEntity,
+    'geoEntityId' | 'canonicalName' | 'provider' | 'externalId'
+  >;
+}
+
+export interface CandidateResolutionAudit {
+  candidateName: string;
+  candidateEvidenceKeys: string[];
+  candidateHintKeys: string[];
+  componentAudits: ComponentResolutionAudit[];
+}
+
 /**
  * A normalized provider candidate before canonical persistence. It carries
  * every fact needed to verify identity AND persist the entity — there is
@@ -169,7 +215,7 @@ export interface ResolvedGeoEntity {
    * declaredAlias: SINGLE means the source had exactly one identity-capable alias-matching candidate.
    * MULTIPLE/UNKNOWN have analogous meanings. For raw OSM ROUTE ways, both are UNKNOWN.
    */
-  nameEvidenceMultiplicity: NameEvidenceMultiplicity;
+  nameEvidenceMultiplicity?: NameEvidenceMultiplicity;
   role: 'area' | 'waypoint' | 'route' | 'venue';
   expectedType?: string;
   status: ResolvedGeoEntityStatus;
@@ -199,6 +245,7 @@ export interface ResolvedExperienceCandidate {
   dedupeDecision?: 'SAME' | 'NEW' | 'AMBIGUOUS';
   dedupeEvidence?: DedupeEvidence;
   dedupeCandidates?: string[];
+  forensicAudit?: CandidateResolutionAudit;
 }
 
 export interface ExperienceResolutionRequest {
@@ -313,6 +360,7 @@ export interface ExperienceEntityResolutionResponse {
   acceptedCount: number;
   rejectedCount: number;
   resolved: ResolvedExperienceCandidate[];
+  forensicAudit?: CandidateResolutionAudit[];
 }
 
 /**
@@ -343,6 +391,7 @@ export interface ExperienceResolutionResponse {
       reason: string;
     }>;
   }>;
+  forensicAudit?: CandidateResolutionAudit[];
 }
 
 export interface FinalExperienceResolutionResponse

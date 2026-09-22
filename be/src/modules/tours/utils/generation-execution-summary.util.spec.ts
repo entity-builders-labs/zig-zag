@@ -62,7 +62,9 @@ describe('buildGenerationExecutionSummary', () => {
       componentSnapshots: 3,
     });
     expect(result.selectedExperiences).toBe(2);
-    expect(result.narrative).toContain('4. 2 TourExperience snapshot');
+    expect(result.orderedStages[3].summary).toContain(
+      '2 TourExperience snapshot',
+    );
   });
 
   it('records geographic validation as its own ordered execution stage', () => {
@@ -95,7 +97,7 @@ describe('buildGenerationExecutionSummary', () => {
         },
       }),
     );
-    expect(result.narrative).toContain('2. geography validated');
+    expect(result.orderedStages[1].summary).toBe('geography validated');
   });
 
   it('keeps failed executions structured without inventing materialization', () => {

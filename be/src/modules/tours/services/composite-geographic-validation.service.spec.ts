@@ -1837,7 +1837,10 @@ describe('Regression tests for forensic geographic trace evidence', () => {
         ],
       ],
     },
-    nameEvidenceMultiplicity: { exactName: 'SINGLE', declaredAlias: 'UNKNOWN' },
+    nameEvidenceMultiplicity: {
+      exactName: 'SINGLE',
+      declaredAlias: 'UNKNOWN',
+    } as const,
   };
 
   it('rejects when one component is inside and another is outside the destination polygon', () => {
