@@ -2295,8 +2295,8 @@ describe('Regression tests for forensic geographic trace evidence', () => {
         {
           key: 'v',
           name: 'Venue',
-          role: 'venue',
-          expectedKind: 'PLACE',
+          role: 'venue' as const,
+          expectedKind: 'PLACE' as const,
           required: true,
           evidenceKeys: ['e'],
         },
@@ -2330,7 +2330,18 @@ describe('Regression tests for forensic geographic trace evidence', () => {
       (e) => e.relation === 'offending',
     );
     expect(offendingEntity).toBeDefined();
+    // The rejection should be for destination boundary mismatch
+    expect(offendingEntity!.decisionReason).toBe(
+      'OUTSIDE_DESTINATION_BOUNDARY',
+    );
+    // Non-finite distance must be omitted (undefined), not serialized as null/0/Infinity/NaN
     expect(offendingEntity!.distanceToBoundaryMeters).toBeUndefined();
+
+    // JSON serialization must not silently turn non-finite into null or include Infinity/NaN
+    const serialized = JSON.stringify(result);
+    expect(serialized).not.toContain('"distanceToBoundaryMeters":null');
+    expect(serialized).not.toContain('Infinity');
+    expect(serialized).not.toContain('NaN');
   });
 
   it('accepted candidate has no bogus offending evidence', () => {

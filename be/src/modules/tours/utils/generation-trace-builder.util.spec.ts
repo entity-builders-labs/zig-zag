@@ -605,7 +605,7 @@ describe('buildGeographicValidationStep', () => {
 
 describe('buildGeographicValidationStep native audit projection', () => {
   it('preserves validationIntent, destinationBoundary, decisionReason, and distanceToBoundaryMeters in native audit and raw projection', () => {
-    const candidate = {
+    const candidate: ExperienceCandidate = {
       name: 'Historic Walk',
       themes: ['history'],
       traits: [] as string[],
@@ -615,16 +615,16 @@ describe('buildGeographicValidationStep native audit projection', () => {
         {
           key: 'inside',
           name: 'Venue 1',
-          role: 'venue',
-          expectedKind: 'PLACE',
+          role: 'venue' as const,
+          expectedKind: 'PLACE' as const,
           required: true,
           evidenceKeys: ['ev'],
         },
         {
           key: 'outside',
           name: 'Venue 2',
-          role: 'venue',
-          expectedKind: 'PLACE',
+          role: 'venue' as const,
+          expectedKind: 'PLACE' as const,
           required: true,
           evidenceKeys: ['ev'],
         },
