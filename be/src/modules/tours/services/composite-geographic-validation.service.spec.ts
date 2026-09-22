@@ -1840,7 +1840,7 @@ describe('Regression tests for forensic geographic trace evidence', () => {
     nameEvidenceMultiplicity: { exactName: 'SINGLE', declaredAlias: 'UNKNOWN' },
   };
 
-  it('CASE A — destination boundary mismatch: one inside, one outside', () => {
+  it('rejects when one component is inside and another is outside the destination polygon', () => {
     const candidate: ExperienceCandidate = {
       name: 'Two component walk',
       themes: ['culture'],
@@ -1920,7 +1920,7 @@ describe('Regression tests for forensic geographic trace evidence', () => {
     expect(insideEntity!.relation).not.toBe('offending');
   });
 
-  it('CASE B — multiple components outside destination boundary', () => {
+  it('marks all multiple outside components as offending with distinct distances', () => {
     const candidate: ExperienceCandidate = {
       name: 'Three outside places',
       themes: ['culture'],
@@ -2011,7 +2011,7 @@ describe('Regression tests for forensic geographic trace evidence', () => {
     }
   });
 
-  it('CASE C — canonical AREA mismatch with distinct reason', () => {
+  it('uses OUTSIDE_CANONICAL_AREA_BOUNDARY (not OUTSIDE_DESTINATION_BOUNDARY) when component is outside canonical area', () => {
     const candidate: ExperienceCandidate = {
       name: 'San Telmo walk',
       themes: ['culture'],
@@ -2081,7 +2081,7 @@ describe('Regression tests for forensic geographic trace evidence', () => {
     expect(outsideEntity!.distanceToBoundaryMeters! > 0).toBe(true);
   });
 
-  it('CASE D — POINT_RADIUS mismatch has correct reason and no distance', () => {
+  it('uses OUTSIDE_POINT_RADIUS_SCOPE (not EXTERNAL_AREA_SCOPE_MISMATCH) and has no distance for point radius rejection', () => {
     const candidate: ExperienceCandidate = {
       name: 'Point radius walk',
       themes: ['culture'],
@@ -2145,7 +2145,7 @@ describe('Regression tests for forensic geographic trace evidence', () => {
     expect(outsideEntity!.distanceToBoundaryMeters).toBeUndefined();
   });
 
-  it('CASE E — invalid ROUTE scope uses EXTERNAL_ROUTE_SCOPE_MISMATCH', () => {
+  it('uses EXTERNAL_ROUTE_SCOPE_MISMATCH (not EXTERNAL_AREA_SCOPE_MISMATCH) for invalid route scope geometry', () => {
     const candidate: ExperienceCandidate = {
       name: 'Route scope test',
       themes: ['culture'],
@@ -2208,7 +2208,7 @@ describe('Regression tests for forensic geographic trace evidence', () => {
     );
   });
 
-  it('CASE F — route corridor rejection preserves reason without distance', () => {
+  it('preserves EXTERNAL_ROUTE_SCOPE_MISMATCH reason without distance for route corridor rejection', () => {
     const caminitoScopeGeometry: GeoJsonGeometry = {
       type: 'LineString',
       coordinates: [
@@ -2276,7 +2276,7 @@ describe('Regression tests for forensic geographic trace evidence', () => {
     expect(offendingEntity!.distanceToBoundaryMeters).toBeUndefined();
   });
 
-  it('CASE G — non-finite distance is never stored', () => {
+  it('never stores non-finite distance for degenerate polygon', () => {
     const degenerateBoundary: any = {
       geometry: {
         type: 'Polygon',
@@ -2339,7 +2339,7 @@ describe('Regression tests for forensic geographic trace evidence', () => {
     expect(offendingEntity!.distanceToBoundaryMeters).toBeUndefined();
   });
 
-  it('CASE H — accepted candidate has no bogus offending evidence', () => {
+  it('accepted candidate has no bogus offending evidence', () => {
     const candidate: ExperienceCandidate = {
       name: 'Accepted walk',
       themes: ['culture'],
