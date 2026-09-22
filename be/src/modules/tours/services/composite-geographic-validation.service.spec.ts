@@ -2127,6 +2127,7 @@ describe('Regression tests for forensic geographic trace evidence', () => {
       },
       undefined,
       undefined,
+      undefined,
       pointRadiusScope,
     );
 
@@ -2280,14 +2281,7 @@ describe('Regression tests for forensic geographic trace evidence', () => {
     const degenerateBoundary: any = {
       geometry: {
         type: 'Polygon',
-        coordinates: [
-          [
-            [0, 0],
-            [0, 0],
-            [0, 0],
-            [0, 0],
-          ],
-        ],
+        coordinates: [],
       },
     };
 
