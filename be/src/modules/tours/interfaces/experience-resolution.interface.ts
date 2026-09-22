@@ -109,10 +109,10 @@ export interface ResolutionAttemptAudit {
   providerResultCount?: number;
   /** Number of local OSM candidates evaluated by the strategy. */
   poolCandidateCount?: number;
-  /** Number of local candidates matching the hint before verification. */
-  matchingCandidateCount?: number;
   candidateAcquired: boolean;
   failureReason?: string;
+  failureStage?: 'provider_search' | 'boundary_hydration';
+  candidateFoundBeforeFailure?: boolean;
   selectedCandidate?: {
     canonicalName: string;
     externalId: string;

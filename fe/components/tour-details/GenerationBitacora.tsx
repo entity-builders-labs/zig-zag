@@ -943,8 +943,11 @@ function EntityResolutionAuditPanel({
                         {attempt.poolCandidateCount !== undefined
                           ? ` · poolCandidateCount=${attempt.poolCandidateCount}`
                           : ""}
-                        {attempt.matchingCandidateCount !== undefined
-                          ? ` · matchingCandidateCount=${attempt.matchingCandidateCount}`
+                        {attempt.failureStage
+                          ? ` · failureStage=${attempt.failureStage}`
+                          : ""}
+                        {attempt.candidateFoundBeforeFailure !== undefined
+                          ? ` · candidateFoundBeforeFailure=${attempt.candidateFoundBeforeFailure}`
                           : ""}
                         {attempt.failureReason
                           ? ` · failureReason=${attempt.failureReason}`

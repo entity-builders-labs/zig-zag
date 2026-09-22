@@ -95,9 +95,10 @@ export interface TraceEntityResolutionAttempt {
   query?: string;
   providerResultCount?: number;
   poolCandidateCount?: number;
-  matchingCandidateCount?: number;
   candidateAcquired: boolean;
   failureReason?: string;
+  failureStage?: "provider_search" | "boundary_hydration";
+  candidateFoundBeforeFailure?: boolean;
   selectedCandidate?: {
     canonicalName: string;
     externalId: string;

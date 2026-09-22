@@ -1575,7 +1575,225 @@ describe('ExperienceProposalResolverService', () => {
 
     expect(result.acceptedCount).toBe(0);
     expect(result.resolved[0].rejectionReasons).toContain(expected);
+    const attempt =
+      result.entityResolution.forensicAudit[0].componentAudits[0].attempts[0];
+    expect(attempt).toMatchObject({
+      strategy: 'LOCAL_OSM_POOL',
+      executionStatus: lookup.status === 'failed' ? 'failed' : 'completed',
+      candidateAcquired: false,
+    });
+    if (lookup.status === 'failed') {
+      expect(attempt).toMatchObject({
+        failureReason: lookup.failureReason,
+      });
+      expect(attempt.poolCandidateCount).toBeUndefined();
+    } else {
+      expect(attempt.poolCandidateCount).toBe(lookup.value.length);
+    }
   });
+
+  it('records a failed street lookup as a failed ROUTE attempt', async () => {
+    const service = new ExperienceProposalResolverService(
+      {
+        lookupStreetsWithin: jest.fn().mockResolvedValue({
+          status: 'failed',
+          value: [],
+          failureReason: 'Overpass timeout',
+        }),
+        lookupPoisWithin: jest
+          .fn()
+          .mockResolvedValue({ status: 'success', value: [] }),
+      } as any,
+      {} as any,
+      { validate: jest.fn() } as any,
+    );
+
+    const result = await service.resolve({
+      geographicScope: { kind: 'AREA_BOUNDARY', boundary },
+      candidates: [
+        {
+          ...candidate('Defensa Walk', 'Defensa'),
+          componentHints: [
+            {
+              key: 'street',
+              name: 'Defensa',
+              role: 'route',
+              expectedKind: 'ROUTE',
+              required: true,
+              evidenceKeys: ['ev-1'],
+            },
+          ],
+        },
+      ],
+    });
+
+    const attempts =
+      result.entityResolution.forensicAudit[0].componentAudits[0].attempts;
+    expect(attempts).toHaveLength(1);
+    expect(attempts[0]).toMatchObject({
+      strategy: 'LOCAL_OSM_POOL',
+      executionStatus: 'failed',
+      provider: 'openstreetmap',
+      candidateAcquired: false,
+      failureReason: 'Overpass timeout',
+    });
+    expect(result.resolved[0].rejectionReasons).toContain(
+      'OSM_PROVIDER_FAILED',
+    );
+  });
+
+  it('records AREA_TO_PLACE_CORRECTION failure from the POI lookup', async () => {
+    const service = new ExperienceProposalResolverService(
+      {
+        lookupStreetsWithin: jest
+          .fn()
+          .mockResolvedValue({ status: 'success', value: [] }),
+        lookupPoisWithin: jest.fn().mockResolvedValue({
+          status: 'failed',
+          value: [],
+          failureReason: 'Overpass 429',
+        }),
+      } as any,
+      {} as any,
+      { validate: jest.fn() } as any,
+    );
+
+    const result = await service.resolve({
+      geographicScope: { kind: 'AREA_BOUNDARY', boundary },
+      candidates: [
+        {
+          ...candidate('Museum Walk', 'Museum'),
+          componentHints: [
+            {
+              key: 'area',
+              name: 'Museum',
+              role: 'area',
+              expectedKind: 'AREA',
+              required: true,
+              evidenceKeys: ['ev-1'],
+            },
+          ],
+        },
+      ],
+    });
+
+    const attempts =
+      result.entityResolution.forensicAudit[0].componentAudits[0].attempts;
+    expect(
+      attempts.find(
+        (attempt) => attempt.strategy === 'AREA_TO_PLACE_CORRECTION',
+      ),
+    ).toMatchObject({
+      executionStatus: 'failed',
+      provider: 'openstreetmap',
+      candidateAcquired: false,
+      failureReason: 'Overpass 429',
+    });
+  });
+
+  it.each([
+    {
+      name: 'failed boundary hydration',
+      boundaryLookup: {
+        status: 'failed',
+        value: null,
+        failureReason: 'Overpass 429',
+      },
+      expected: {
+        executionStatus: 'failed',
+        failureStage: 'boundary_hydration',
+        candidateFoundBeforeFailure: true,
+        failureReason: 'Overpass 429',
+      },
+    },
+    {
+      name: 'successful empty boundary hydration',
+      boundaryLookup: { status: 'success', value: null },
+      expected: {
+        executionStatus: 'completed',
+        candidateAcquired: false,
+      },
+    },
+  ])(
+    'preserves Nominatim AREA hydration outcome: $name',
+    async ({ boundaryLookup, expected }) => {
+      const nominatim = {
+        search: jest.fn().mockResolvedValue([
+          {
+            osmType: 'relation',
+            osmId: 42,
+            addresstype: 'suburb',
+            class: 'place',
+            type: 'suburb',
+            placeRank: 20,
+            displayName: 'San Telmo, Buenos Aires, Argentina',
+            importance: 0.3,
+            latitude: -34.62,
+            longitude: -58.37,
+          },
+        ]),
+      };
+      const service = new ExperienceProposalResolverService(
+        {
+          lookupStreetsWithin: jest
+            .fn()
+            .mockResolvedValue({ status: 'success', value: [] }),
+          lookupPoisWithin: jest
+            .fn()
+            .mockResolvedValue({ status: 'success', value: [] }),
+          lookupBoundaryById: jest.fn().mockResolvedValue(boundaryLookup),
+        } as any,
+        {} as any,
+        { validate: jest.fn() } as any,
+        undefined,
+        nominatim as any,
+      );
+
+      const result = await service.resolve({
+        destinationName: 'Buenos Aires',
+        geographicScope: { kind: 'AREA_BOUNDARY', boundary },
+        candidates: [
+          {
+            ...candidate('San Telmo Walk', 'San Telmo'),
+            componentHints: [
+              {
+                key: 'area',
+                name: 'San Telmo',
+                role: 'area',
+                expectedKind: 'AREA',
+                required: true,
+                evidenceKeys: ['ev-1'],
+              },
+            ],
+          },
+        ],
+        evidence: [
+          {
+            key: 'ev-1',
+            source: 'guide',
+            title: 'San Telmo in Buenos Aires',
+            snippet: 'Explore San Telmo in Buenos Aires.',
+          },
+        ],
+      });
+
+      const attempts =
+        result.entityResolution.forensicAudit[0].componentAudits[0].attempts;
+      const nominatimAttempt = attempts.find(
+        (attempt) => attempt.strategy === 'NOMINATIM',
+      );
+      expect(nominatimAttempt).toMatchObject(expected);
+      expect(nominatimAttempt).toMatchObject({
+        provider: 'nominatim',
+        providerResultCount: 1,
+        candidateAcquired: false,
+      });
+      if (boundaryLookup.status === 'success') {
+        expect(nominatimAttempt.failureStage).toBeUndefined();
+        expect(nominatimAttempt.failureReason).toBeUndefined();
+      }
+    },
+  );
 
   it('resolves AREA components against the canonical destination boundary and persists an AREA GeoEntity', async () => {
     const catalog = {

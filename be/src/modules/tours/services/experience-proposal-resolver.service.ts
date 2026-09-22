@@ -78,7 +78,10 @@ type StrategyAcquisitionResult =
       status: 'failed';
       provider: string;
       query: string;
+      providerResultCount?: number;
       failureReason: string;
+      failureStage?: 'provider_search' | 'boundary_hydration';
+      candidateFoundBeforeFailure?: boolean;
     };
 
 type ResolvedCandidateWithAudit = {
@@ -543,9 +546,10 @@ export class ExperienceProposalResolverService
           query?: string;
           providerResultCount?: number;
           poolCandidateCount?: number;
-          matchingCandidateCount?: number;
           entity?: EntityCandidate;
           failureReason?: string;
+          failureStage?: 'provider_search' | 'boundary_hydration';
+          candidateFoundBeforeFailure?: boolean;
         },
         verification: VerificationResult | undefined,
       ): void => {
@@ -557,16 +561,19 @@ export class ExperienceProposalResolverService
           query: acquisition.query ?? hint.name,
           providerResultCount: acquisition.providerResultCount,
           poolCandidateCount: acquisition.poolCandidateCount,
-          matchingCandidateCount: acquisition.matchingCandidateCount,
-          candidateAcquired: Boolean(acquisition.entity),
+          candidateAcquired:
+            acquisition.status !== 'failed' && Boolean(acquisition.entity),
           failureReason: acquisition.failureReason,
-          selectedCandidate: acquisition.entity
-            ? {
-                canonicalName: acquisition.entity.canonicalName,
-                externalId: acquisition.entity.externalId,
-                kind: acquisition.entity.kind,
-              }
-            : undefined,
+          failureStage: acquisition.failureStage,
+          candidateFoundBeforeFailure: acquisition.candidateFoundBeforeFailure,
+          selectedCandidate:
+            acquisition.status !== 'failed' && acquisition.entity
+              ? {
+                  canonicalName: acquisition.entity.canonicalName,
+                  externalId: acquisition.entity.externalId,
+                  kind: acquisition.entity.kind,
+                }
+              : undefined,
           identityEvidence: verification?.evidence ?? [],
           verificationDecision: verification?.decision.status,
         });
@@ -650,6 +657,19 @@ export class ExperienceProposalResolverService
               ? [boundary]
               : []
             : pois;
+      const localLookup =
+        hint.expectedKind === 'ROUTE' || hint.role === 'route'
+          ? osmLookups.streets
+          : isAreaHint
+            ? undefined
+            : osmLookups.pois;
+      const localOsmFacts = localLookup
+        ? this.localOsmAuditFacts(localLookup)
+        : {
+            status: 'completed' as const,
+            provider: 'openstreetmap',
+            poolCandidateCount: pool.length,
+          };
       const matched = matchOsmCandidateByName(
         hint.name,
         pool,
@@ -696,10 +716,9 @@ export class ExperienceProposalResolverService
         recordAttempt(
           'LOCAL_OSM_POOL',
           {
-            status: 'completed',
+            ...localOsmFacts,
             provider: resolvedEntity.provider,
             entity: resolvedEntity,
-            poolCandidateCount: pool.length,
           },
           verification,
         );
@@ -728,9 +747,7 @@ export class ExperienceProposalResolverService
         recordAttempt(
           'LOCAL_OSM_POOL',
           {
-            status: 'completed',
-            provider: 'openstreetmap',
-            poolCandidateCount: pool.length,
+            ...localOsmFacts,
           },
           undefined,
         );
@@ -884,10 +901,9 @@ export class ExperienceProposalResolverService
           recordAttempt(
             'AREA_TO_PLACE_CORRECTION',
             {
-              status: 'completed',
+              ...this.localOsmAuditFacts(osmLookups.pois),
               provider: resolvedEntity.provider,
               entity: resolvedEntity,
-              poolCandidateCount: pois.length,
             },
             verification,
           );
@@ -902,9 +918,7 @@ export class ExperienceProposalResolverService
           recordAttempt(
             'AREA_TO_PLACE_CORRECTION',
             {
-              status: 'completed',
-              provider: 'openstreetmap',
-              poolCandidateCount: pois.length,
+              ...this.localOsmAuditFacts(osmLookups.pois),
             },
             undefined,
           );
@@ -1134,6 +1148,27 @@ export class ExperienceProposalResolverService
     };
   }
 
+  private localOsmAuditFacts(lookup: OsmLookupResult<OsmCandidate[]>): {
+    status: 'completed' | 'failed';
+    provider: 'openstreetmap';
+    poolCandidateCount?: number;
+    failureReason?: string;
+  } {
+    if (lookup.status === 'failed') {
+      return {
+        status: 'failed',
+        provider: 'openstreetmap',
+        failureReason: lookup.failureReason,
+      };
+    }
+
+    return {
+      status: 'completed',
+      provider: 'openstreetmap',
+      poolCandidateCount: lookup.value.length,
+    };
+  }
+
   private async resolveViaNominatim(
     hint: any,
     destinationCountryCode?: string,
@@ -1187,6 +1222,18 @@ export class ExperienceProposalResolverService
           match.osmId,
         );
         if (!boundary.value) {
+          if (boundary.status === 'failed') {
+            return {
+              status: 'failed',
+              provider: 'nominatim',
+              query: hint.name,
+              providerResultCount: results.length,
+              failureReason:
+                boundary.failureReason ?? 'OSM boundary hydration failed',
+              failureStage: 'boundary_hydration',
+              candidateFoundBeforeFailure: true,
+            };
+          }
           return {
             status: 'no_candidate',
             provider: 'nominatim',
