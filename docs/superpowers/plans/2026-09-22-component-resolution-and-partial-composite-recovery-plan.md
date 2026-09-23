@@ -38,7 +38,7 @@ implements the stage. Do not mark a stage DONE without real validation.
 | Stage | Status | Starting HEAD | Completed commit | Validation | Key findings / next gate |
 | --- | --- | --- | --- | --- | --- |
 | 1. Characterization lock | DONE | `286c85930eeff59c97e8c02918c3620ab203a44c` | *(this commit — a commit cannot literally contain its own resulting SHA; see the pushed commit's hash on `feat/preference-first-selection`)* | jest (5 spec files, 187 tests) + tsc --noEmit + eslint (touched files) all green | 9 RW1-derived characterization cases frozen; `required` blast radius inventoried; several defects found that were previously undocumented (see below). Stage 2 unblocked. |
-| 2. Source-grounded contract cutover | BLOCKED | — | — | — | Starts only after Stage 1 fixtures are trustworthy. |
+| 2. Source-grounded contract cutover | READY | `a0b6c75b50bf37807ab6c2450f94c8e81c9fc9d2` | — | — | Stage 1 characterization passed; source-grounded contract cutover may begin. |
 | 3. Catalog-first identity resolution | BLOCKED | — | — | — | Starts only after Stage 2 source authority is live. |
 | 4. Geographic + partial-composite cutover | BLOCKED | — | — | — | Starts after identity outcomes are explicit/stable. |
 | 5. Trace + RW1 verification | BLOCKED | — | — | — | Final milestone validation; thresholds only from observed evidence. |
@@ -324,9 +324,9 @@ Create deterministic fixtures/tests from the RW1 evidence for:
 8. **NO_OSM_MATCH fidelity**
    - candidate acquired + identity rejected is distinguishable from no
      candidate acquired.
-9. **Solar de French cross-run stability**
-   - the same hint can select different real OSM identities across cold runs;
-   - preserve this as a temporal/cross-run stability fixture.
+9. **Solar de French catalog-memory baseline**
+   - Stage 1 disproved the earlier cross-cold-run identity-oscillation hypothesis: the same `LOCAL_OSM_POOL` hint resolves the same real `osm:node:6903962986` in the cold runs;
+   - preserve instead the actual gap: each empty cold DB persists a fresh Experience because no catalog-first read-side lookup exists yet, while the warm evidence also shows a within-run node-vs-relation divergence worth retaining for later correlation tests.
 
 Also inventory every behaviorally meaningful read of:
 
@@ -540,8 +540,9 @@ Stage 3 is DONE only when:
 - an unambiguous canonical GeoEntity avoids unnecessary external identity calls;
 - ambiguous catalog matches fail closed into bounded external resolution;
 - candidate correlation and IdentityVerifier remain separate authorities;
-- Solar de French cannot silently oscillate when canonical prior knowledge
-  already establishes the entity, while genuine conflict stays explicit;
+- Solar de French reuses sufficiently established canonical prior knowledge
+  instead of re-resolving from a blank slate, while the observed within-run
+  node-vs-relation divergence stays explicit for correlation/ambiguity handling;
 - El Zanjón is re-tested before any corroboration relaxation is accepted;
 - Progress records tests, performance/query evidence, and any remaining
   identity deficit.
