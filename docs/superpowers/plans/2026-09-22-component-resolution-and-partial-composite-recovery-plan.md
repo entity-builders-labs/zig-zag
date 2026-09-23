@@ -951,6 +951,254 @@ the Stage 2 entry — unrelated to this change, not modified here.
 - no destination-specific production hacks: **PASS** (all San
   Telmo/Solar-de-French/Buenos-Aires values are test fixtures only).
 
+
+### Cross-cutting product-shape note — simple, composite, and mixed Tour requests (2026-09-23)
+
+The current milestone is intentionally focused on making multi-component
+Experiences trustworthy, but **single-place Experiences remain a first-class
+product shape**. Simple and composite Experiences are not separate Tour
+engines: a single Tour request may require either shape or both, and all
+verified Experiences converge into the same catalog, composition, and planner
+pipeline.
+
+#### Canonical Experience shapes
+
+For acquisition/admission purposes the existing canonical requirements remain:
+
+```text
+SINGLE_PLACE
+= exactly one distinct, source-backed, meaningful non-area component
+  whose expectedKind is PLACE
+
+MULTI_COMPONENT_EXPERIENCE
+= at least two distinct, source-backed, meaningful non-area components
+```
+
+These describe the **structure of an Experience**, not a Tour type. A Tour may
+legitimately contain any sequence such as:
+
+```text
+SIMPLE
+SIMPLE
+COMPOSITE
+SIMPLE
+COMPOSITE
+```
+
+The deterministic daily planner remains downstream of Experience selection and
+should continue to plan every selected Experience against the request-specific
+dates, opening hours, start point, travel time, pace, and other temporal/spatial
+constraints.
+
+#### Natural source responsibilities
+
+The source hierarchy is intentionally different for discovering simple POIs
+versus discovering authored multi-component activities/routes.
+
+For a simple request such as:
+
+```text
+Buenos Aires
+intent: visit
+theme: art
+```
+
+the intended discovery responsibility is:
+
+```text
+Experience catalog
+    ↓ coverage deficit
+Places-style structured POI discovery
+    ↓
+Wikivoyage / grounded Web as complementary tourism/editorial evidence
+    ↓
+ExperienceCandidate(SINGLE_PLACE)
+    ↓
+component identity/geography resolution:
+GeoEntity catalog
+→ same-run structured observation reuse
+→ local OSM
+→ Nominatim
+→ Places identity fallback
+```
+
+Places is the natural primary cold-discovery source for ordinary physical POIs
+because it provides structured place/category/location facts and tourism-quality
+signals. OSM/Nominatim are primarily identity/geography authorities in this
+flow, not the primary answer to "which art places should a tourist visit?".
+Wikivoyage and grounded Web can add tourism/editorial relevance and cover places
+that a structured POI query misses. TripAdvisor-like sources, if integrated
+later, belong in this discovery/quality layer rather than becoming canonical
+geographic identity authorities.
+
+For a composite request such as a wine route, historic walk, gallery circuit,
+or other authored multi-stop activity, the intended discovery responsibility is:
+
+```text
+Experience catalog
+    ↓ coverage deficit
+grounded Web / Wikivoyage
+    ↓
+source-backed multi-component composition
+    ↓
+per-component resolution
+    ↓
+GeoEntity catalog first
+→ bounded external identity/geography only for unknown components
+```
+
+Places can supply or corroborate individual physical components, but it must not
+silently invent the semantic composition of a route merely because several POIs
+exist near one another.
+
+#### Mixed request semantics
+
+A request can explicitly require both forms. Example:
+
+```text
+Destination: Mendoza
+theme: wine
+intent: route_like   # "ruta del vino"
+intent: visit        # "conocer lugares"
+```
+
+Conceptually this means two acquisition obligations coexist:
+
+```text
+obligation A
+facets: theme:wine + intent:route_like
+shape: MULTI_COMPONENT_EXPERIENCE
+
+obligation B
+facets: theme:wine + intent:visit
+shape: SINGLE_PLACE
+```
+
+Both obligations contribute Experiences to one common verified catalog/pool;
+there are not two independent Tours. Composition should then select a useful mix
+and the planner should schedule that mix normally.
+
+Example target portfolio:
+
+```text
+COMPOSITE
+"Ruta del vino de Luján de Cuyo"
+  - Bodega A
+  - Bodega B
+  - Bodega C
+
+SIMPLE
+"Visitar Museo del Vino"
+
+SIMPLE
+"Visitar otra bodega / attraction"
+```
+
+#### What current code already does
+
+The current preference/acquisition path already has partial support for this
+model:
+
+- `deriveAcquisitionEvidenceRequirements()` maps `intent:visit` to
+  `SINGLE_PLACE`;
+- `intent:walk` / `intent:route_like` map to
+  `MULTI_COMPONENT_EXPERIENCE`;
+- therefore a mixed `visit + route_like` request produces **both** acquisition
+  evidence requirements;
+- `candidateSatisfiesEvidenceRequirement()` keeps the simple/composite
+  admission rules source-grounded and deterministic;
+- `composeSet()` reserves coverage for requested preference facets before
+  filling the remainder of the portfolio, so `intent:visit` and
+  `intent:route_like` can both influence selection.
+
+#### Known current gaps — measure before redesign
+
+Two current-code limitations are explicitly documented here so the upcoming
+spikes can decide whether they require production changes.
+
+**1. Provider coalescing can lose facet conjunction/context.**
+
+`ExperienceAcquisitionPlannerService` currently unions provider capabilities
+across deficits. For the Mendoza example:
+
+```text
+theme:wine        → Places: winery
+intent:visit      → Places: museum, tourist_attraction
+intent:route_like → Web/Wikivoyage route-oriented discovery
+```
+
+The coalesced Places plan can therefore become approximately:
+
+```text
+[winery, museum, tourist_attraction]
+```
+
+without preserving that the simple-place obligation was specifically
+`wine + visit`. That can over-broaden discovery (for example, any unrelated
+museum in Mendoza rather than wine-related places).
+
+Future direction, only if spike evidence justifies it: preserve an explicit
+acquisition-obligation/context boundary so provider queries retain the facet
+combination and requested Experience shape that caused them.
+
+**2. Final composition covers facets, but does not yet enforce facet × shape.**
+
+`composeSet()` knows that `intent:visit` and `intent:route_like` are
+requested facets, but the final selection contract does not currently require:
+
+```text
+intent:visit      → covered by at least one SINGLE_PLACE
+intent:route_like → covered by at least one MULTI_COMPONENT_EXPERIENCE
+```
+
+A sufficiently multi-tagged composite Experience could theoretically satisfy
+both facets and leave no standalone place even though the user asked for both
+forms. Do not add a new selection rule preemptively; first characterize the
+real behavior in mixed spikes.
+
+A related future portfolio concern is **subsumption/redundancy**, not identity
+dedupe. If a selected composite wine route already contains Catena and Norton,
+automatically adding a simple "Visit Catena" Experience in the same Tour may be
+redundant unless that standalone Experience represents independently useful
+tourism semantics. The two Experiences are not identity-equal; this is a
+composition-quality decision to characterize later.
+
+#### Spike gate for simple/composite/mixed behavior
+
+Before broadening Stage 3 implementation, run the real generation path with at
+least these three profiles:
+
+```text
+SIMPLE
+Buenos Aires + theme:art + intent:visit
+
+COMPOSITE
+Mendoza + theme:wine + intent:route_like
+
+MIXED
+Mendoza + theme:wine + intent:route_like + intent:visit
+```
+
+Run cold/warm variants where useful. Record:
+
+- whether the Tour materializes;
+- simple vs multi-component Experiences offered/selected;
+- which acquisition sources produced each shape;
+- catalog Experience reuse;
+- component-level `CATALOG_REUSE`;
+- external-call reduction on warm runs;
+- whether the mixed request actually selects both Experience forms;
+- whether provider coalescing produces off-theme simple places;
+- whether simple Experiences duplicate physical content already subsumed by a
+  selected composite Experience.
+
+These observations are **not Stage 3 completion blockers by themselves**. They
+are an early product checkpoint intended to determine whether the existing
+acquisition/composition semantics are already good enough for large-scale
+catalog-population spikes or whether one contained shape-mix fix is needed
+first.
+
+
 For each completed stage also record, directly below the table:
 
 - tests/commands actually executed and their real outcome;
