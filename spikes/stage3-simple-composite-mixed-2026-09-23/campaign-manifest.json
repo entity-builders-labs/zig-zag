@@ -1,0 +1,47 @@
+{
+  "campaign": "Stage 3 SIMPLE / COMPOSITE / MIXED real-world spike",
+  "date": "2026-09-23",
+  "branch": "feat/preference-first-selection",
+  "startingRemoteHead": "26f2f30842129f01c855e44fcdbb4863dedac7ee",
+  "commitShaAtRuns": "26f2f30842129f01c855e44fcdbb4863dedac7ee",
+  "remoteVerifiedUnmoved": true,
+  "runtimePath": "POST /auth/email/request-code -> POST /auth/email/verify -> POST /tours/generate-tour -> outbox TourGenerationRequested -> TourGenerationProcessorService -> ExperienceGenerationService.generateTourExperiences",
+  "orchestration": "spikes/stage3-simple-composite-mixed-2026-09-23/run-campaign.mjs (spike-only; drives only the real HTTP path above, never lower-level acquisition/resolution services directly)",
+  "providerConfiguration": {
+    "GROUNDED_SEARCH_PROVIDER": "serpapi",
+    "PLACES_PROVIDER": "google",
+    "AI_CACHE_MODE": "off",
+    "USE_MOCK_MAPS": false,
+    "MOCK_MAPS_MODE": "strict",
+    "OVERPASS_API_URL": "local http://localhost:12345/api/interpreter",
+    "NOMINATIM_API_URL": "local http://localhost:8088/search"
+  },
+  "preflight": {
+    "ran": true,
+    "command": "RUN_SPIKE_PREFLIGHT=1 yarn test:live:discovery --testPathPattern=pre-b6-spike-infrastructure-preflight",
+    "note": "task instructions named the script 'yarn test:live'; the real script in be/package.json is 'test:live:discovery' (jest --config ./test/jest-live.json) -- used the real one",
+    "result": "8/8 passed: SerpAPI selected (not Tavily), local Nominatim + Overpass reachable via real DI classes, dedicated DB confirmed (not 'zigzag'), all 7 knowledge tables started at 0"
+  },
+  "databases": {
+    "simple": {
+      "name": "zigzag_spike_stage3_simple",
+      "backendPort": 3000,
+      "migratedFresh": true,
+      "initialCounts": "all 7 knowledge tables = 0 (verified via preflight + catalog-counts.sh)"
+    },
+    "composite": {
+      "name": "zigzag_spike_stage3_composite",
+      "backendPort": 3001,
+      "migratedFresh": true,
+      "initialCounts": "all 7 knowledge tables = 0 (verified via catalog-counts.sh)"
+    },
+    "mixed": {
+      "name": "zigzag_spike_stage3_mixed",
+      "backendPort": 3002,
+      "migratedFresh": true,
+      "initialCounts": "all 7 knowledge tables = 0 (verified via catalog-counts.sh)"
+    }
+  },
+  "parallelExecutionNote": "SIMPLE and COMPOSITE ran on separate backend processes (ports 3000/3001) with overlapping wall-clock time to save spike duration; MIXED ran afterward on a third process (port 3002), fully sequential relative to the other two. Each campaign targets its own dedicated database, so there is no data cross-contamination, but running 3 Node/Nest processes concurrently against the same shared Groq API key did cause one observed Groq 429 (output-tokens-per-minute) rate limit during MIXED COLD's preference_interpretation step, which fell back to deterministic parsing -- flagged as a possible confound of this spike's parallelization, not necessarily representative of a single isolated production request.",
+  "secretsRedacted": true
+}

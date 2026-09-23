@@ -1,0 +1,1797 @@
+{
+  "steps": [
+    {
+      "label": "Interpretación de preferencias",
+      "stage": "preference_interpretation",
+      "inputs": {
+        "intents": [
+          "route_like",
+          "visit"
+        ],
+        "groupType": "solo",
+        "budgetLevel": "medium",
+        "accessibilityNeeds": [],
+        "dietaryRestrictions": [],
+        "hasAdditionalPreferences": true
+      },
+      "status": "PASS",
+      "timing": {
+        "durationMs": 1129
+      },
+      "outputs": {
+        "intent": {
+          "notes": [],
+          "ambiguities": [],
+          "anchoredPlaces": [],
+          "excludedThemes": [],
+          "excludedTraits": [],
+          "hardExclusions": [],
+          "preferredFacets": [
+            {
+              "key": "wine",
+              "source": "free_text",
+              "evidence": [
+                {
+                  "text": "hacer una ruta del vino",
+                  "source": "user_free_text"
+                },
+                {
+                  "text": "conocer bodegas",
+                  "source": "user_free_text"
+                },
+                {
+                  "text": "lugares relacionados con el vino",
+                  "source": "user_free_text"
+                }
+              ],
+              "dimension": "theme",
+              "confidence": 0.95,
+              "importance": 1
+            }
+          ],
+          "softConstraints": [],
+          "groupPreferences": [],
+          "budgetPreferences": [],
+          "dietaryPreferences": [],
+          "positiveSemanticQuery": "wine route, wineries, wine-related places",
+          "accessibilityPreferences": []
+        },
+        "preferenceSpec": {
+          "trip": {
+            "days": 1,
+            "pace": "moderate",
+            "startDates": []
+          },
+          "facets": [
+            {
+              "key": "wine",
+              "source": "wizard",
+              "weight": 1,
+              "required": false,
+              "dimension": "theme"
+            },
+            {
+              "key": "route_like",
+              "source": "wizard",
+              "weight": 1,
+              "required": false,
+              "dimension": "intent"
+            },
+            {
+              "key": "visit",
+              "source": "wizard",
+              "weight": 1,
+              "required": false,
+              "dimension": "intent"
+            }
+          ],
+          "anchors": [],
+          "exclusions": {
+            "hard": [],
+            "themes": [],
+            "traits": []
+          },
+          "semanticQuery": "wine route, wineries, wine-related places",
+          "resolvedAnchors": [],
+          "softConstraints": {
+            "group": [],
+            "budget": [],
+            "dietary": [],
+            "accessibility": []
+          },
+          "explorationStyle": "balanced"
+        }
+      },
+      "summary": "Preferencias libres normalizadas y combinadas con filtros.",
+      "component": "PreferenceInterpreterService",
+      "preferenceInterpretation": {
+        "model": "qwen/qwen3.8-27b",
+        "stage": "preference_interpretation",
+        "status": "applied",
+        "provider": "groq",
+        "durationMs": 1129,
+        "userPrompt": "quiero hacer una ruta del vino y también conocer bodegas y lugares relacionados con el vino",
+        "rawResponse": "{\n  \"preferredFacets\": [\n    {\n      \"dimension\": \"theme\",\n      \"key\": \"wine\",\n      \"confidence\": 0.95,\n      \"strength\": \"strong\",\n      \"evidence\": [\n        \"hacer una ruta del vino\",\n        \"conocer bodegas\",\n        \"lugares relacionados con el vino\"\n      ]\n    },\n    {\n      \"dimension\": \"intent\",\n      \"key\": \"tour\",\n      \"confidence\": 0.8,\n      \"strength\": \"medium\",\n      \"evidence\": [\n        \"hacer una ruta\"\n      ]\n    }\n  ],\n  \"anchoredPlaces\": [],\n  \"excludedThemes\": [],\n  \"excludedTraits\": [],\n  \"hardExclusions\": [],\n  \"softConstraints\": [],\n  \"ambiguities\": [],\n  \"dietaryPreferences\": [],\n  \"accessibilityPreferences\": [],\n  \"budgetPreferences\": [],\n  \"groupPreferences\": [],\n  \"positiveSemanticQuery\": \"wine route, wineries, wine-related places\",\n  \"notes\": \"User explicitly requests a wine route and visit to wineries/wine-related locations.\"\n}",
+        "systemPrompt": "Interpret the user's supplemental tourism preferences into normalized intent.\nReturn JSON only. You interpret language; deterministic code enforces the result.\nNever invent geographic entities, provider IDs, coordinates, or evidence.\nDo not turn ambiguity into a hard rule. Preserve uncertainty in ambiguities.\nFor positive preferences, output preferredFacets as a list of objects with:\n- dimension: active dimension name (theme, trait, intent, winery_scale, tourism_intensity, nature_type, local_character). Do NOT output exploration_style.\n- key: CANONICAL domain key in English (e.g. \"architecture\" not \"arquitectura\", \"food\" not \"comida\", \"walk\" not \"caminata\", \"history\" not \"historia\").\n- Map history to theme and walk to intent. nature_type is only for mountain, forest, coast, river, desert, or park. local_character is only for authentic, residential, traditional, or contemporary. A named neighborhood such as San Telmo is an anchor, not local_character.\n- confidence: float between 0 and 1 indicating certainty.\n- strength: \"strong\" | \"medium\" | \"weak\" indicating user emphasis.\n- evidence: one or more short excerpts copied from the user's text that support\n  this facet. Never invent evidence; facets without supporting excerpts are rejected.\nDo not invent arbitrary importance numbers; code derives importance deterministically from strength.\nAlso output anchoredPlaces: concrete named places/areas/routes the user explicitly mentioned by\nname (never a generic theme). For each, output:\n- rawName: the name as mentioned by the user.\n- usage: \"geographic_scope\" | \"specific_destination\" | \"named_path\" | \"unknown\". This describes how the phrase uses the name, not what geographic entity it is.\n- priority: \"must\" ONLY for explicit, unambiguous named-place intent, for example\n  \"quiero visitar X\", \"incluí X\", \"sí o sí quiero ir a X\", \"no me quiero perder X\".\n  Anything weaker or ambiguous -- including a place mentioned only in passing while\n  describing a theme, e.g. \"me interesa la arquitectura de X\" -- is priority \"soft\".\nExtract anchors conservatively: when in doubt about the name or the intent, omit the anchor\nrather than guessing. Do not invent named places that were not mentioned.\nOther fields: excludedThemes, excludedTraits, hardExclusions, softConstraints, ambiguities,\ndietaryPreferences, accessibilityPreferences, budgetPreferences, groupPreferences,\npositiveSemanticQuery, notes. Use short lowercase phrases.",
+        "parsedResponse": {
+          "notes": [],
+          "ambiguities": [],
+          "anchoredPlaces": [],
+          "excludedThemes": [],
+          "excludedTraits": [],
+          "hardExclusions": [],
+          "preferredFacets": [
+            {
+              "key": "wine",
+              "source": "free_text",
+              "evidence": [
+                {
+                  "text": "hacer una ruta del vino",
+                  "source": "user_free_text"
+                },
+                {
+                  "text": "conocer bodegas",
+                  "source": "user_free_text"
+                },
+                {
+                  "text": "lugares relacionados con el vino",
+                  "source": "user_free_text"
+                }
+              ],
+              "dimension": "theme",
+              "confidence": 0.95,
+              "importance": 1
+            }
+          ],
+          "softConstraints": [],
+          "groupPreferences": [],
+          "budgetPreferences": [],
+          "dietaryPreferences": [],
+          "positiveSemanticQuery": "wine route, wineries, wine-related places",
+          "accessibilityPreferences": []
+        },
+        "responseSchema": {
+          "type": "object",
+          "required": [
+            "preferredFacets",
+            "anchoredPlaces",
+            "excludedThemes",
+            "excludedTraits",
+            "hardExclusions",
+            "softConstraints",
+            "ambiguities",
+            "dietaryPreferences",
+            "accessibilityPreferences",
+            "budgetPreferences",
+            "groupPreferences",
+            "positiveSemanticQuery",
+            "notes"
+          ],
+          "properties": {
+            "notes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "ambiguities": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "anchoredPlaces": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "rawName",
+                  "usage",
+                  "priority"
+                ],
+                "properties": {
+                  "usage": {
+                    "enum": [
+                      "geographic_scope",
+                      "specific_destination",
+                      "named_path",
+                      "unknown"
+                    ],
+                    "type": "string"
+                  },
+                  "rawName": {
+                    "type": "string"
+                  },
+                  "priority": {
+                    "enum": [
+                      "soft",
+                      "must"
+                    ],
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "excludedThemes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "excludedTraits": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "hardExclusions": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "preferredFacets": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "dimension",
+                  "key",
+                  "confidence"
+                ],
+                "properties": {
+                  "key": {
+                    "type": "string"
+                  },
+                  "evidence": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "strength": {
+                    "enum": [
+                      "strong",
+                      "medium",
+                      "weak"
+                    ],
+                    "type": "string"
+                  },
+                  "dimension": {
+                    "type": "string"
+                  },
+                  "confidence": {
+                    "type": "number"
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "softConstraints": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "groupPreferences": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "budgetPreferences": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "dietaryPreferences": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "positiveSemanticQuery": {
+              "type": "string"
+            },
+            "accessibilityPreferences": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "validationErrors": [],
+        "facetNormalizationDecisions": [
+          {
+            "rawKey": "wine",
+            "reason": "VALID_AS_EMITTED",
+            "accepted": true,
+            "rawDimension": "theme",
+            "normalizedKey": "wine",
+            "normalizedDimension": "theme"
+          },
+          {
+            "rawKey": "tour",
+            "reason": "UNKNOWN_KEY",
+            "accepted": false,
+            "rawDimension": "intent"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Intención y movilidad solicitadas",
+      "rules": [
+        {
+          "rule": "Usar el wizard canónico como fuente de restricciones explícitas",
+          "actual": 1,
+          "reason": "La generación parte de TourGenerationRequest contractVersion=1.",
+          "result": "PASS",
+          "ruleId": "INTENT-CANONICAL-001",
+          "expected": 1
+        },
+        {
+          "rule": "Conservar preferencias adicionales como intención suplementaria",
+          "actual": "quiero hacer una ruta del vino y también conocer bodegas y lugares relacionados con el vino",
+          "reason": "Hay texto adicional disponible para búsqueda/ranking semántico.",
+          "result": "PASS",
+          "ruleId": "INTENT-FREETEXT-001"
+        }
+      ],
+      "stage": "tour_intent",
+      "inputs": {
+        "days": 1,
+        "themes": [
+          "wine"
+        ],
+        "travelPace": "moderate",
+        "destination": "Luján de Cuyo, Mendoza, Argentina",
+        "explorationStyle": "balanced",
+        "accessibilityNeeds": [],
+        "additionalPreferences": "quiero hacer una ruta del vino y también conocer bodegas y lugares relacionados con el vino",
+        "allowedTransportationModes": [
+          "driving"
+        ],
+        "maxWalkingDistancePerDayMeters": 6000,
+        "maxContinuousWalkingDistanceMeters": 3000
+      },
+      "outputs": {
+        "requestedDays": 1,
+        "requestedThemes": [
+          "wine"
+        ]
+      },
+      "summary": "Temas: wine. Estilo: balanced. Modos: driving. Ritmo: moderate. Preferencias adicionales capturadas: \"quiero hacer una ruta del vino y también conocer bodegas y lugares relacionados con el vino\".",
+      "decision": {
+        "reason": "La solicitud contiene el contrato canónico requerido por el motor.",
+        "status": "INFO",
+        "outcome": "INTENT_ACCEPTED",
+        "reasonCodes": [
+          "CANONICAL_REQUEST_AVAILABLE"
+        ],
+        "triggeredActions": [
+          "RESOLVE_DESTINATION"
+        ]
+      },
+      "component": "TourGenerationRequest"
+    },
+    {
+      "label": "Resolución del destino",
+      "rules": [
+        {
+          "rule": "Determinar si el destino puede usar boundary real o debe degradar a punto",
+          "actual": "area",
+          "reason": "Se obtuvo boundary administrativo utilizable.",
+          "result": "PASS",
+          "ruleId": "DEST-SCALE-001"
+        }
+      ],
+      "stage": "destination_resolution",
+      "inputs": {
+        "destinationText": "Luján de Cuyo, Mendoza, Argentina",
+        "attemptedQueries": [
+          "forward:Luján de Cuyo, Mendoza, Argentina",
+          "reverse:-33.039100,-68.879600",
+          "forward:Distrito Ciudad de Luján de Cuyo, Argentina",
+          "containing-boundary:-33.039100,-68.879600"
+        ]
+      },
+      "status": "PASS",
+      "outputs": {
+        "scale": "area",
+        "boundaryName": "Departamento Luján de Cuyo"
+      },
+      "summary": "\"Luján de Cuyo, Mendoza, Argentina\" se identificó como Distrito Ciudad de Luján de Cuyo, Departamento Luján de Cuyo, Mendoza, Argentina y se validó con el límite administrativo contenedor Departamento Luján de Cuyo. Se usa ese límite real en vez de un único punto+radio. Intentos: forward:Luján de Cuyo, Mendoza, Argentina → reverse:-33.039100,-68.879600 → forward:Distrito Ciudad de Luján de Cuyo, Argentina → containing-boundary:-33.039100,-68.879600.",
+      "decision": {
+        "reason": "El boundary real es más preciso que un radio artificial para recuperación local.",
+        "status": "PASS",
+        "outcome": "USE_ADMINISTRATIVE_BOUNDARY",
+        "reasonCodes": [
+          "AREA_BOUNDARY_RESOLVED"
+        ],
+        "triggeredActions": [
+          "RETRIEVE_CATALOG"
+        ]
+      },
+      "component": "DestinationResolutionService"
+    },
+    {
+      "label": "Resolución geográfica de anchors",
+      "stage": "anchor_geo_resolution",
+      "inputs": {
+        "anchors": []
+      },
+      "status": "PASS",
+      "outputs": {
+        "anchors": []
+      },
+      "summary": "La infraestructura geográfica resolvió o dejó explícitos los anchors no resueltos.",
+      "component": "AreaRouteAnchorResolverService"
+    },
+    {
+      "label": "Cobertura de preferencias (facet-first)",
+      "rules": [
+        {
+          "rule": "Portafolio elegible global suficiente para días y ritmo solicitados",
+          "actual": 0,
+          "reason": "0 Experience(s) elegible(s) frente a 4 requerida(s).",
+          "result": "FAIL",
+          "ruleId": "PCOV-QUANTITY-001",
+          "expected": 4
+        },
+        {
+          "rule": "Cobertura del facet solicitado: theme:wine",
+          "actual": 0,
+          "reason": "0 coincidencia(s) fuerte(s), 0 débil(es).",
+          "result": "FAIL",
+          "ruleId": "PCOV-FACET-THEME-WINE",
+          "expected": ">= 1"
+        },
+        {
+          "rule": "Cobertura del facet solicitado: intent:route_like",
+          "actual": 0,
+          "reason": "0 coincidencia(s) fuerte(s), 0 débil(es).",
+          "result": "FAIL",
+          "ruleId": "PCOV-FACET-INTENT-ROUTE_LIKE",
+          "expected": ">= 1"
+        },
+        {
+          "rule": "Cobertura del facet solicitado: intent:visit",
+          "actual": 0,
+          "reason": "0 coincidencia(s) fuerte(s), 0 débil(es).",
+          "result": "FAIL",
+          "ruleId": "PCOV-FACET-INTENT-VISIT",
+          "expected": ">= 1"
+        }
+      ],
+      "stage": "coverage_analysis",
+      "inputs": {
+        "providerHealth": {
+          "status": "healthy"
+        },
+        "requestedFacetCount": 3,
+        "offeredCandidateCount": 0
+      },
+      "status": "FAIL",
+      "outputs": {
+        "sufficient": false,
+        "facetResults": [
+          {
+            "key": "wine",
+            "dimension": "theme",
+            "satisfied": false,
+            "weakMatchCount": 0,
+            "strongMatchCount": 0
+          },
+          {
+            "key": "route_like",
+            "dimension": "intent",
+            "satisfied": false,
+            "weakMatchCount": 0,
+            "strongMatchCount": 0
+          },
+          {
+            "key": "visit",
+            "dimension": "intent",
+            "satisfied": false,
+            "weakMatchCount": 0,
+            "strongMatchCount": 0
+          }
+        ],
+        "portfolioTarget": 4,
+        "allFacetsSatisfied": false,
+        "acquisitionDeficits": [
+          {
+            "key": "wine",
+            "origin": "preference_facet",
+            "reason": "Preference facet [theme:wine] has no strong catalog match yet.",
+            "dimension": "theme"
+          },
+          {
+            "key": "route_like",
+            "origin": "preference_facet",
+            "reason": "Preference facet [intent:route_like] has no strong catalog match yet.",
+            "dimension": "intent"
+          },
+          {
+            "key": "visit",
+            "origin": "preference_facet",
+            "reason": "Preference facet [intent:visit] has no strong catalog match yet.",
+            "dimension": "intent"
+          }
+        ],
+        "globalCapacityDeficit": null,
+        "totalDistinctEligibleExperiences": 0
+      },
+      "summary": "Facets sin cobertura fuerte: theme:wine, intent:route_like, intent:visit.",
+      "decision": {
+        "reason": "Facets sin cobertura fuerte: theme:wine, intent:route_like, intent:visit.",
+        "status": "FAIL",
+        "outcome": "needs_additional_discovery",
+        "reasonCodes": [
+          "preference_facet",
+          "preference_facet",
+          "preference_facet"
+        ],
+        "triggeredActions": [
+          "RUN_ACQUISITION"
+        ]
+      },
+      "component": "FacetRetrievalService",
+      "semanticRanking": {
+        "status": "applied",
+        "indexedCandidateCount": 0,
+        "offeredCandidateCount": 0,
+        "eligibleCandidateCount": 0
+      }
+    },
+    {
+      "label": "Recuperación inicial del catálogo",
+      "rules": [
+        {
+          "rule": "Recuperar candidatos reales persistidos antes de adquirir nuevos",
+          "actual": 0,
+          "reason": "El catálogo no aportó candidatos; la cobertura decidirá si adquirir nuevos.",
+          "result": "WARN",
+          "ruleId": "CATALOG-RETRIEVAL-001"
+        }
+      ],
+      "stage": "db_search",
+      "inputs": {
+        "radiusKm": 81.46959033883434
+      },
+      "status": "WARN",
+      "outputs": {
+        "candidateCount": 0
+      },
+      "summary": "No se recuperaron actividades del catálogo en el alcance inicial.",
+      "decision": {
+        "reason": "No hay candidatos persistidos para este alcance.",
+        "status": "WARN",
+        "outcome": "CATALOG_POOL_EMPTY",
+        "triggeredActions": [
+          "ANALYZE_COVERAGE"
+        ]
+      },
+      "component": "ExperienceCatalog.findVerifiedWithin",
+      "candidates": [],
+      "candidateDecisions": []
+    },
+    {
+      "label": "Enrutamiento de déficits de adquisición",
+      "stage": "coverage_analysis",
+      "inputs": {
+        "anchors": [],
+        "acquisitionDeficits": [
+          {
+            "key": "wine",
+            "origin": "preference_facet",
+            "reason": "Preference facet [theme:wine] has no strong catalog match yet.",
+            "dimension": "theme"
+          },
+          {
+            "key": "route_like",
+            "origin": "preference_facet",
+            "reason": "Preference facet [intent:route_like] has no strong catalog match yet.",
+            "dimension": "intent"
+          },
+          {
+            "key": "visit",
+            "origin": "preference_facet",
+            "reason": "Preference facet [intent:visit] has no strong catalog match yet.",
+            "dimension": "intent"
+          }
+        ]
+      },
+      "status": "INFO",
+      "outputs": {
+        "generic": [
+          {
+            "key": "wine",
+            "origin": "preference_facet",
+            "reason": "Preference facet [theme:wine] has no strong catalog match yet.",
+            "dimension": "theme"
+          },
+          {
+            "key": "route_like",
+            "origin": "preference_facet",
+            "reason": "Preference facet [intent:route_like] has no strong catalog match yet.",
+            "dimension": "intent"
+          },
+          {
+            "key": "visit",
+            "origin": "preference_facet",
+            "reason": "Preference facet [intent:visit] has no strong catalog match yet.",
+            "dimension": "intent"
+          }
+        ],
+        "areaRouteWalk": []
+      },
+      "summary": "AREA_ROUTE_WALK=0; GENERIC=3.",
+      "component": "partitionDeficitsByStrategy"
+    },
+    {
+      "label": "Adquisición multi-fuente (pase 1)",
+      "rules": [
+        {
+          "rule": "Los deficits se enrutan a fuentes por la tabla de capacidad, no por reglas ad hoc",
+          "reason": "Fuentes enrutadas: wikivoyage, google_places, web.",
+          "result": "PASS",
+          "ruleId": "ACQ-ROUTING-001"
+        },
+        {
+          "rule": "Una fuente que falla no aborta la adquisición",
+          "reason": "Fuentes con fallo aisladas: google_places.",
+          "result": "WARN",
+          "ruleId": "ACQ-ISOLATION-001"
+        },
+        {
+          "rule": "Estructurados y web convergen en el boundary ExperienceCandidate antes del resolver",
+          "reason": "Los candidates quedan pendientes de entity resolution / validación geográfica.",
+          "result": "PASS",
+          "ruleId": "ACQ-CANDIDATE-001"
+        }
+      ],
+      "stage": "discovery",
+      "inputs": {
+        "deficits": [
+          {
+            "key": "wine",
+            "origin": "preference_facet",
+            "reason": "Preference facet [theme:wine] has no strong catalog match yet.",
+            "dimension": "theme"
+          },
+          {
+            "key": "route_like",
+            "origin": "preference_facet",
+            "reason": "Preference facet [intent:route_like] has no strong catalog match yet.",
+            "dimension": "intent"
+          },
+          {
+            "key": "visit",
+            "origin": "preference_facet",
+            "reason": "Preference facet [intent:visit] has no strong catalog match yet.",
+            "dimension": "intent"
+          }
+        ],
+        "passNumber": 1,
+        "routedProviders": [
+          "wikivoyage",
+          "google_places",
+          "web"
+        ]
+      },
+      "status": "WARN",
+      "outputs": {
+        "webResults": [
+          {
+            "query": "Departamento Luján de Cuyo attractions places to visit scenic routes tours wine tasting wineries wine route, wineries, wine-related places",
+            "status": "success",
+            "evidenceCount": 16,
+            "groundedModel": "google-ai-mode",
+            "candidateCount": 0,
+            "extractorModel": "qwen/qwen3.8-27b",
+            "groundingStatus": "applied",
+            "groundedProvider": "serpapi",
+            "validationErrors": [],
+            "extractorProvider": "groq"
+          }
+        ],
+        "candidateCount": 0,
+        "observationCount": 0,
+        "webCandidateCount": 0,
+        "structuredProviders": [
+          {
+            "status": "success",
+            "provider": "wikivoyage"
+          },
+          {
+            "status": "failed",
+            "provider": "google_places",
+            "failureReason": "Google Places searchNearby failed: Request failed with status code 400"
+          }
+        ],
+        "structuredCandidateCount": 0
+      },
+      "summary": "Pase 1: fuentes [wikivoyage, google_places, web] → 0 observación(es) estructurada(s) + 0 candidate(s) (web: 0).",
+      "component": "ExperienceAcquisitionService",
+      "acquisition": {
+        "deficits": [
+          {
+            "key": "wine",
+            "origin": "preference_facet",
+            "reason": "Preference facet [theme:wine] has no strong catalog match yet.",
+            "dimension": "theme"
+          },
+          {
+            "key": "route_like",
+            "origin": "preference_facet",
+            "reason": "Preference facet [intent:route_like] has no strong catalog match yet.",
+            "dimension": "intent"
+          },
+          {
+            "key": "visit",
+            "origin": "preference_facet",
+            "reason": "Preference facet [intent:visit] has no strong catalog match yet.",
+            "dimension": "intent"
+          }
+        ],
+        "evidence": [
+          {
+            "kind": "narrative_paragraph",
+            "order": 1,
+            "source": "google_ai_mode",
+            "snippet": "Known globally as the \"Land of Malbec,\" Luján de Cuyo in Mendoza, Argentina, is a premier destination for wine lovers, epicureans, and mountain-scenery chasers. Situated right at the foothills of the Andes, it anchors the historic \"First Zone\" of Argentine winemaking.",
+            "evidenceKey": "ev-1"
+          },
+          {
+            "kind": "narrative_paragraph",
+            "order": 2,
+            "title": "Top Wineries & Wine Tasting Experiences",
+            "source": "Top Wineries & Wine Tasting Experiences",
+            "snippet": "CallDirectionsWebsiteLocated in the stunning micro-region of Las Compuertas, this family-run estate features centuried vineyards and an acclaimed restaurant (5 Suelos). It is celebrated internationally for organic and sustainable winemaking.",
+            "evidenceKey": "ev-2",
+            "contextHeading": "Top Wineries & Wine Tasting Experiences"
+          },
+          {
+            "kind": "narrative_paragraph",
+            "order": 3,
+            "title": "Top Wineries & Wine Tasting Experiences",
+            "source": "Top Wineries & Wine Tasting Experiences",
+            "snippet": "CallDirectionsWebsiteFeatures a striking architecture inspired by the Tuscan countryside, paired with high-end wine tastings and multi-course pairing menus overlooking the open Andes.",
+            "evidenceKey": "ev-3",
+            "contextHeading": "Top Wineries & Wine Tasting Experiences"
+          },
+          {
+            "kind": "narrative_paragraph",
+            "order": 4,
+            "title": "Top Wineries & Wine Tasting Experiences",
+            "source": "Top Wineries & Wine Tasting Experiences",
+            "snippet": "CallDirectionsWebsiteThe go-to destination in Perdriel if you want to pivot from reds to exceptional, traditional-method sparkling wine tours and tastings.",
+            "evidenceKey": "ev-4",
+            "contextHeading": "Top Wineries & Wine Tasting Experiences"
+          },
+          {
+            "kind": "narrative_paragraph",
+            "order": 5,
+            "title": "Top Wineries & Wine Tasting Experiences",
+            "source": "Top Wineries & Wine Tasting Experiences",
+            "snippet": "CallDirectionsWebsiteSet in Alto Agrelo, this boutique estate offers sleek, modern lines, personalized educational tours, and exquisite single-varietal block tastings.",
+            "evidenceKey": "ev-5",
+            "contextHeading": "Top Wineries & Wine Tasting Experiences"
+          },
+          {
+            "kind": "narrative_paragraph",
+            "order": 6,
+            "title": "Top Wineries & Wine Tasting Experiences",
+            "source": "Top Wineries & Wine Tasting Experiences",
+            "snippet": "CallDirectionsWebsiteOperating since 1931, this historic family winery provides a charming, traditional contrast with old cellars and intimate cheese-and-wine pairings.",
+            "evidenceKey": "ev-6",
+            "contextHeading": "Top Wineries & Wine Tasting Experiences"
+          },
+          {
+            "kind": "narrative_paragraph",
+            "order": 7,
+            "title": "Top Wineries & Wine Tasting Experiences",
+            "source": "Top Wineries & Wine Tasting Experiences",
+            "snippet": "Depending on availability and advance booking, other world-renowned neighbors include Catena Zapata, Susana Balbo Wines, and Chandon. (Note: Most top wineries require reservations well in advance!)",
+            "evidenceKey": "ev-7",
+            "contextHeading": "Top Wineries & Wine Tasting Experiences"
+          },
+          {
+            "kind": "list_item",
+            "order": 8,
+            "title": "Scenic Routes & Non-Wine Attractions",
+            "source": "Scenic Routes & Non-Wine Attractions",
+            "snippet": "Chacras de Coria: A historic, leafy, bohemian town right in Luján de Cuyo. It’s famous for its central square, artisanal craft markets, tree-lined avenues, and incredible local pubs and bistros.",
+            "evidenceKey": "ev-8",
+            "contextHeading": "Scenic Routes & Non-Wine Attractions"
+          },
+          {
+            "kind": "list_item",
+            "order": 9,
+            "title": "Scenic Routes & Non-Wine Attractions",
+            "source": "Scenic Routes & Non-Wine Attractions",
+            "snippet": "Ruta Provincial 86 & Ruta Provincial 89 (The Wine Routes): Driving or cycling through Agrelo and Vistalba offers breathtaking scenic stretches where endless rows of green vines frame the snow-capped backdrop of the Cordillera de los Andes.",
+            "evidenceKey": "ev-9",
+            "contextHeading": "Scenic Routes & Non-Wine Attractions"
+          },
+          {
+            "kind": "list_item",
+            "order": 10,
+            "title": "Scenic Routes & Non-Wine Attractions",
+            "source": "Scenic Routes & Non-Wine Attractions",
+            "snippet": "Potrerillos Dam & Lake (Ruta Nacional 7): Head slightly west up the canyon along RN7 into the Andean foothills. The brilliant turquoise waters of the Potrerillos reservoir framed by massive peaks make for an incredible half-day scenic drive or outdoor adventure spot (rafting, zip-lining).",
+            "evidenceKey": "ev-10",
+            "contextHeading": "Scenic Routes & Non-Wine Attractions"
+          },
+          {
+            "kind": "list_item",
+            "order": 11,
+            "title": "Scenic Routes & Non-Wine Attractions",
+            "source": "Scenic Routes & Non-Wine Attractions",
+            "snippet": "Wine and Bike Tours: Renting a bike or joining a guided cycling tour (like Wine and Ride Lujan de Cuyo) allows you to safely pedal from one vineyard to the next down quiet country lanes.",
+            "evidenceKey": "ev-11",
+            "contextHeading": "Scenic Routes & Non-Wine Attractions"
+          },
+          {
+            "kind": "narrative_paragraph",
+            "order": 12,
+            "title": "Scenic Routes & Non-Wine Attractions",
+            "source": "Scenic Routes & Non-Wine Attractions",
+            "snippet": "To help you plan the ideal itinerary, let me know:",
+            "evidenceKey": "ev-12",
+            "contextHeading": "Scenic Routes & Non-Wine Attractions"
+          },
+          {
+            "kind": "list_item",
+            "order": 13,
+            "title": "Scenic Routes & Non-Wine Attractions",
+            "source": "Scenic Routes & Non-Wine Attractions",
+            "snippet": "Are you looking to book self-driven routes, or would you prefer recommendations for private guided day-tours?",
+            "evidenceKey": "ev-13",
+            "contextHeading": "Scenic Routes & Non-Wine Attractions"
+          },
+          {
+            "kind": "list_item",
+            "order": 14,
+            "title": "Scenic Routes & Non-Wine Attractions",
+            "source": "Scenic Routes & Non-Wine Attractions",
+            "snippet": "Do you want recommendations focused more on winery lunches/restaurants or tastings only?",
+            "evidenceKey": "ev-14",
+            "contextHeading": "Scenic Routes & Non-Wine Attractions"
+          },
+          {
+            "url": "https://www.google.com/searchviewer/10?svid=CAwSHRIbCgNwdnESFENnMHZaeTh4TVdnM2RuRnJOVEp0GAo",
+            "kind": "reference",
+            "order": 15,
+            "title": "DURIGUTTI FAMILY WINEMAKERS - FINCA VICTORIA",
+            "source": "Google",
+            "snippet": "DURIGUTTI FAMILY WINEMAKERS – FINCA VICTORIA: #11 Top 50 World’s Best Vineyards 2025.\\n5 SUELOS – COCINA DE FINCA – restaurante rec...",
+            "evidenceKey": "ev-15"
+          },
+          {
+            "url": "https://www.google.com/searchviewer/10?svid=CAwSGxIZCgNwdnESEkNnc3ZaeTh4ZEdSZk5tUXlYdxgK",
+            "kind": "reference",
+            "order": 16,
+            "title": "Bodega Tierras Altas",
+            "source": "Google",
+            "snippet": "BODEGAS Y VIEÑDOS - MALBEC - DISTRIBUCIÓN - VISITAS GUIADAS - TURISMO - DEGUSTACION- VINO",
+            "evidenceKey": "ev-16"
+          }
+        ],
+        "candidates": [],
+        "passNumber": 1,
+        "sourcePlans": [
+          {
+            "status": "success",
+            "provider": "wikivoyage",
+            "observations": [],
+            "configuration": {
+              "sections": [
+                "SEE",
+                "DO",
+                "EAT"
+              ]
+            },
+            "observationCount": 0
+          },
+          {
+            "status": "failed",
+            "provider": "google_places",
+            "observations": [],
+            "configuration": {
+              "searchTypes": [
+                "museum",
+                "tourist_attraction",
+                "winery"
+              ]
+            },
+            "failureReason": "Google Places searchNearby failed: Request failed with status code 400",
+            "observationCount": 0
+          },
+          {
+            "web": {
+              "query": "Departamento Luján de Cuyo attractions places to visit scenic routes tours wine tasting wineries wine route, wineries, wine-related places",
+              "evidence": [
+                {
+                  "kind": "narrative_paragraph",
+                  "order": 1,
+                  "source": "google_ai_mode",
+                  "snippet": "Known globally as the \"Land of Malbec,\" Luján de Cuyo in Mendoza, Argentina, is a premier destination for wine lovers, epicureans, and mountain-scenery chasers. Situated right at the foothills of the Andes, it anchors the historic \"First Zone\" of Argentine winemaking.",
+                  "evidenceKey": "ev-1"
+                },
+                {
+                  "kind": "narrative_paragraph",
+                  "order": 2,
+                  "title": "Top Wineries & Wine Tasting Experiences",
+                  "source": "Top Wineries & Wine Tasting Experiences",
+                  "snippet": "CallDirectionsWebsiteLocated in the stunning micro-region of Las Compuertas, this family-run estate features centuried vineyards and an acclaimed restaurant (5 Suelos). It is celebrated internationally for organic and sustainable winemaking.",
+                  "evidenceKey": "ev-2",
+                  "contextHeading": "Top Wineries & Wine Tasting Experiences"
+                },
+                {
+                  "kind": "narrative_paragraph",
+                  "order": 3,
+                  "title": "Top Wineries & Wine Tasting Experiences",
+                  "source": "Top Wineries & Wine Tasting Experiences",
+                  "snippet": "CallDirectionsWebsiteFeatures a striking architecture inspired by the Tuscan countryside, paired with high-end wine tastings and multi-course pairing menus overlooking the open Andes.",
+                  "evidenceKey": "ev-3",
+                  "contextHeading": "Top Wineries & Wine Tasting Experiences"
+                },
+                {
+                  "kind": "narrative_paragraph",
+                  "order": 4,
+                  "title": "Top Wineries & Wine Tasting Experiences",
+                  "source": "Top Wineries & Wine Tasting Experiences",
+                  "snippet": "CallDirectionsWebsiteThe go-to destination in Perdriel if you want to pivot from reds to exceptional, traditional-method sparkling wine tours and tastings.",
+                  "evidenceKey": "ev-4",
+                  "contextHeading": "Top Wineries & Wine Tasting Experiences"
+                },
+                {
+                  "kind": "narrative_paragraph",
+                  "order": 5,
+                  "title": "Top Wineries & Wine Tasting Experiences",
+                  "source": "Top Wineries & Wine Tasting Experiences",
+                  "snippet": "CallDirectionsWebsiteSet in Alto Agrelo, this boutique estate offers sleek, modern lines, personalized educational tours, and exquisite single-varietal block tastings.",
+                  "evidenceKey": "ev-5",
+                  "contextHeading": "Top Wineries & Wine Tasting Experiences"
+                },
+                {
+                  "kind": "narrative_paragraph",
+                  "order": 6,
+                  "title": "Top Wineries & Wine Tasting Experiences",
+                  "source": "Top Wineries & Wine Tasting Experiences",
+                  "snippet": "CallDirectionsWebsiteOperating since 1931, this historic family winery provides a charming, traditional contrast with old cellars and intimate cheese-and-wine pairings.",
+                  "evidenceKey": "ev-6",
+                  "contextHeading": "Top Wineries & Wine Tasting Experiences"
+                },
+                {
+                  "kind": "narrative_paragraph",
+                  "order": 7,
+                  "title": "Top Wineries & Wine Tasting Experiences",
+                  "source": "Top Wineries & Wine Tasting Experiences",
+                  "snippet": "Depending on availability and advance booking, other world-renowned neighbors include Catena Zapata, Susana Balbo Wines, and Chandon. (Note: Most top wineries require reservations well in advance!)",
+                  "evidenceKey": "ev-7",
+                  "contextHeading": "Top Wineries & Wine Tasting Experiences"
+                },
+                {
+                  "kind": "list_item",
+                  "order": 8,
+                  "title": "Scenic Routes & Non-Wine Attractions",
+                  "source": "Scenic Routes & Non-Wine Attractions",
+                  "snippet": "Chacras de Coria: A historic, leafy, bohemian town right in Luján de Cuyo. It’s famous for its central square, artisanal craft markets, tree-lined avenues, and incredible local pubs and bistros.",
+                  "evidenceKey": "ev-8",
+                  "contextHeading": "Scenic Routes & Non-Wine Attractions"
+                },
+                {
+                  "kind": "list_item",
+                  "order": 9,
+                  "title": "Scenic Routes & Non-Wine Attractions",
+                  "source": "Scenic Routes & Non-Wine Attractions",
+                  "snippet": "Ruta Provincial 86 & Ruta Provincial 89 (The Wine Routes): Driving or cycling through Agrelo and Vistalba offers breathtaking scenic stretches where endless rows of green vines frame the snow-capped backdrop of the Cordillera de los Andes.",
+                  "evidenceKey": "ev-9",
+                  "contextHeading": "Scenic Routes & Non-Wine Attractions"
+                },
+                {
+                  "kind": "list_item",
+                  "order": 10,
+                  "title": "Scenic Routes & Non-Wine Attractions",
+                  "source": "Scenic Routes & Non-Wine Attractions",
+                  "snippet": "Potrerillos Dam & Lake (Ruta Nacional 7): Head slightly west up the canyon along RN7 into the Andean foothills. The brilliant turquoise waters of the Potrerillos reservoir framed by massive peaks make for an incredible half-day scenic drive or outdoor adventure spot (rafting, zip-lining).",
+                  "evidenceKey": "ev-10",
+                  "contextHeading": "Scenic Routes & Non-Wine Attractions"
+                },
+                {
+                  "kind": "list_item",
+                  "order": 11,
+                  "title": "Scenic Routes & Non-Wine Attractions",
+                  "source": "Scenic Routes & Non-Wine Attractions",
+                  "snippet": "Wine and Bike Tours: Renting a bike or joining a guided cycling tour (like Wine and Ride Lujan de Cuyo) allows you to safely pedal from one vineyard to the next down quiet country lanes.",
+                  "evidenceKey": "ev-11",
+                  "contextHeading": "Scenic Routes & Non-Wine Attractions"
+                },
+                {
+                  "kind": "narrative_paragraph",
+                  "order": 12,
+                  "title": "Scenic Routes & Non-Wine Attractions",
+                  "source": "Scenic Routes & Non-Wine Attractions",
+                  "snippet": "To help you plan the ideal itinerary, let me know:",
+                  "evidenceKey": "ev-12",
+                  "contextHeading": "Scenic Routes & Non-Wine Attractions"
+                },
+                {
+                  "kind": "list_item",
+                  "order": 13,
+                  "title": "Scenic Routes & Non-Wine Attractions",
+                  "source": "Scenic Routes & Non-Wine Attractions",
+                  "snippet": "Are you looking to book self-driven routes, or would you prefer recommendations for private guided day-tours?",
+                  "evidenceKey": "ev-13",
+                  "contextHeading": "Scenic Routes & Non-Wine Attractions"
+                },
+                {
+                  "kind": "list_item",
+                  "order": 14,
+                  "title": "Scenic Routes & Non-Wine Attractions",
+                  "source": "Scenic Routes & Non-Wine Attractions",
+                  "snippet": "Do you want recommendations focused more on winery lunches/restaurants or tastings only?",
+                  "evidenceKey": "ev-14",
+                  "contextHeading": "Scenic Routes & Non-Wine Attractions"
+                },
+                {
+                  "url": "https://www.google.com/searchviewer/10?svid=CAwSHRIbCgNwdnESFENnMHZaeTh4TVdnM2RuRnJOVEp0GAo",
+                  "kind": "reference",
+                  "order": 15,
+                  "title": "DURIGUTTI FAMILY WINEMAKERS - FINCA VICTORIA",
+                  "source": "Google",
+                  "snippet": "DURIGUTTI FAMILY WINEMAKERS – FINCA VICTORIA: #11 Top 50 World’s Best Vineyards 2025.\\n5 SUELOS – COCINA DE FINCA – restaurante rec...",
+                  "evidenceKey": "ev-15"
+                },
+                {
+                  "url": "https://www.google.com/searchviewer/10?svid=CAwSGxIZCgNwdnESEkNnc3ZaeTh4ZEdSZk5tUXlYdxgK",
+                  "kind": "reference",
+                  "order": 16,
+                  "title": "Bodega Tierras Altas",
+                  "source": "Google",
+                  "snippet": "BODEGAS Y VIEÑDOS - MALBEC - DISTRIBUCIÓN - VISITAS GUIADAS - TURISMO - DEGUSTACION- VINO",
+                  "evidenceKey": "ev-16"
+                }
+              ],
+              "extractor": {
+                "model": "qwen/qwen3.8-27b",
+                "provider": "groq",
+                "validationErrors": [],
+                "inputEvidenceKeys": [
+                  "ev-1",
+                  "ev-2",
+                  "ev-3",
+                  "ev-4",
+                  "ev-5",
+                  "ev-6",
+                  "ev-7",
+                  "ev-8",
+                  "ev-9",
+                  "ev-10",
+                  "ev-11",
+                  "ev-12",
+                  "ev-13",
+                  "ev-14",
+                  "ev-15",
+                  "ev-16"
+                ],
+                "candidateDecisions": [],
+                "sourceSupportAudits": [],
+                "admittedCandidateCount": 0,
+                "rejectedCandidateCount": 0,
+                "extractedCandidateCount": 0
+              },
+              "groundedModel": "google-ai-mode",
+              "semanticQuery": "wine route, wineries, wine-related places",
+              "groundingStatus": "applied",
+              "requestedThemes": [
+                "wine"
+              ],
+              "groundedProvider": "serpapi",
+              "requestedIntents": [
+                "route_like",
+                "visit"
+              ]
+            },
+            "status": "success",
+            "provider": "web",
+            "observations": [],
+            "configuration": {
+              "query": "Departamento Luján de Cuyo attractions places to visit scenic routes tours wine tasting wineries wine route, wineries, wine-related places",
+              "semanticQuery": "wine route, wineries, wine-related places",
+              "requestedThemes": [
+                "wine"
+              ],
+              "requestedIntents": [
+                "route_like",
+                "visit"
+              ]
+            },
+            "observationCount": 0
+          }
+        ],
+        "acquisitionContext": {
+          "strategy": "generic",
+          "passNumber": 1
+        }
+      },
+      "degradedReason": "providers_failed_google_places",
+      "providerStatus": "success",
+      "acquisitionContext": {
+        "strategy": "generic",
+        "passNumber": 1
+      }
+    },
+    {
+      "label": "Cobertura de preferencias (facet-first)",
+      "rules": [
+        {
+          "rule": "Portafolio elegible global suficiente para días y ritmo solicitados",
+          "actual": 0,
+          "reason": "0 Experience(s) elegible(s) frente a 4 requerida(s).",
+          "result": "FAIL",
+          "ruleId": "PCOV-QUANTITY-001",
+          "expected": 4
+        },
+        {
+          "rule": "Cobertura del facet solicitado: theme:wine",
+          "actual": 0,
+          "reason": "0 coincidencia(s) fuerte(s), 0 débil(es).",
+          "result": "FAIL",
+          "ruleId": "PCOV-FACET-THEME-WINE",
+          "expected": ">= 1"
+        },
+        {
+          "rule": "Cobertura del facet solicitado: intent:route_like",
+          "actual": 0,
+          "reason": "0 coincidencia(s) fuerte(s), 0 débil(es).",
+          "result": "FAIL",
+          "ruleId": "PCOV-FACET-INTENT-ROUTE_LIKE",
+          "expected": ">= 1"
+        },
+        {
+          "rule": "Cobertura del facet solicitado: intent:visit",
+          "actual": 0,
+          "reason": "0 coincidencia(s) fuerte(s), 0 débil(es).",
+          "result": "FAIL",
+          "ruleId": "PCOV-FACET-INTENT-VISIT",
+          "expected": ">= 1"
+        }
+      ],
+      "stage": "coverage_analysis",
+      "inputs": {
+        "providerHealth": {
+          "status": "healthy"
+        },
+        "requestedFacetCount": 3,
+        "offeredCandidateCount": 0
+      },
+      "status": "FAIL",
+      "outputs": {
+        "sufficient": false,
+        "facetResults": [
+          {
+            "key": "wine",
+            "dimension": "theme",
+            "satisfied": false,
+            "weakMatchCount": 0,
+            "strongMatchCount": 0
+          },
+          {
+            "key": "route_like",
+            "dimension": "intent",
+            "satisfied": false,
+            "weakMatchCount": 0,
+            "strongMatchCount": 0
+          },
+          {
+            "key": "visit",
+            "dimension": "intent",
+            "satisfied": false,
+            "weakMatchCount": 0,
+            "strongMatchCount": 0
+          }
+        ],
+        "portfolioTarget": 4,
+        "allFacetsSatisfied": false,
+        "acquisitionDeficits": [
+          {
+            "key": "wine",
+            "origin": "preference_facet",
+            "reason": "Preference facet [theme:wine] has no strong catalog match yet.",
+            "dimension": "theme"
+          },
+          {
+            "key": "route_like",
+            "origin": "preference_facet",
+            "reason": "Preference facet [intent:route_like] has no strong catalog match yet.",
+            "dimension": "intent"
+          },
+          {
+            "key": "visit",
+            "origin": "preference_facet",
+            "reason": "Preference facet [intent:visit] has no strong catalog match yet.",
+            "dimension": "intent"
+          }
+        ],
+        "globalCapacityDeficit": null,
+        "totalDistinctEligibleExperiences": 0
+      },
+      "summary": "Facets sin cobertura fuerte: theme:wine, intent:route_like, intent:visit.",
+      "decision": {
+        "reason": "Facets sin cobertura fuerte: theme:wine, intent:route_like, intent:visit.",
+        "status": "FAIL",
+        "outcome": "needs_additional_discovery",
+        "reasonCodes": [
+          "preference_facet",
+          "preference_facet",
+          "preference_facet"
+        ],
+        "triggeredActions": [
+          "RUN_ACQUISITION"
+        ]
+      },
+      "component": "FacetRetrievalService",
+      "semanticRanking": {
+        "status": "applied",
+        "indexedCandidateCount": 0,
+        "offeredCandidateCount": 0,
+        "eligibleCandidateCount": 0
+      }
+    },
+    {
+      "label": "Enrutamiento de déficits de adquisición",
+      "stage": "coverage_analysis",
+      "inputs": {
+        "anchors": [],
+        "acquisitionDeficits": [
+          {
+            "key": "wine",
+            "origin": "preference_facet",
+            "reason": "Preference facet [theme:wine] has no strong catalog match yet.",
+            "dimension": "theme"
+          },
+          {
+            "key": "route_like",
+            "origin": "preference_facet",
+            "reason": "Preference facet [intent:route_like] has no strong catalog match yet.",
+            "dimension": "intent"
+          },
+          {
+            "key": "visit",
+            "origin": "preference_facet",
+            "reason": "Preference facet [intent:visit] has no strong catalog match yet.",
+            "dimension": "intent"
+          }
+        ]
+      },
+      "status": "INFO",
+      "outputs": {
+        "generic": [
+          {
+            "key": "wine",
+            "origin": "preference_facet",
+            "reason": "Preference facet [theme:wine] has no strong catalog match yet.",
+            "dimension": "theme"
+          },
+          {
+            "key": "route_like",
+            "origin": "preference_facet",
+            "reason": "Preference facet [intent:route_like] has no strong catalog match yet.",
+            "dimension": "intent"
+          },
+          {
+            "key": "visit",
+            "origin": "preference_facet",
+            "reason": "Preference facet [intent:visit] has no strong catalog match yet.",
+            "dimension": "intent"
+          }
+        ],
+        "areaRouteWalk": []
+      },
+      "summary": "AREA_ROUTE_WALK=0; GENERIC=3.",
+      "component": "partitionDeficitsByStrategy"
+    },
+    {
+      "label": "Adquisición multi-fuente (pase 2)",
+      "rules": [
+        {
+          "rule": "Los deficits se enrutan a fuentes por la tabla de capacidad, no por reglas ad hoc",
+          "reason": "Fuentes enrutadas: wikivoyage, google_places, web.",
+          "result": "PASS",
+          "ruleId": "ACQ-ROUTING-001"
+        },
+        {
+          "rule": "Una fuente que falla no aborta la adquisición",
+          "reason": "Todas las fuentes atendidas respondieron.",
+          "result": "PASS",
+          "ruleId": "ACQ-ISOLATION-001"
+        },
+        {
+          "rule": "Estructurados y web convergen en el boundary ExperienceCandidate antes del resolver",
+          "reason": "Los candidates quedan pendientes de entity resolution / validación geográfica.",
+          "result": "PASS",
+          "ruleId": "ACQ-CANDIDATE-001"
+        }
+      ],
+      "stage": "discovery",
+      "inputs": {
+        "deficits": [
+          {
+            "key": "wine",
+            "origin": "preference_facet",
+            "reason": "Preference facet [theme:wine] has no strong catalog match yet.",
+            "dimension": "theme"
+          },
+          {
+            "key": "route_like",
+            "origin": "preference_facet",
+            "reason": "Preference facet [intent:route_like] has no strong catalog match yet.",
+            "dimension": "intent"
+          },
+          {
+            "key": "visit",
+            "origin": "preference_facet",
+            "reason": "Preference facet [intent:visit] has no strong catalog match yet.",
+            "dimension": "intent"
+          }
+        ],
+        "passNumber": 2,
+        "routedProviders": [
+          "wikivoyage",
+          "google_places",
+          "web"
+        ]
+      },
+      "status": "INFO",
+      "outputs": {
+        "webResults": [],
+        "candidateCount": 0,
+        "executionSkipped": {
+          "reason": "DUPLICATE_SOURCE_PLAN_EXECUTION",
+          "fingerprint": "{\"destination\":{\"destinationName\":\"Departamento Luján de Cuyo\",\"latitude\":-33.00847615,\"longitude\":-69.35591235,\"radiusMeters\":81469.59033883434},\"evidenceRequirements\":[\"MULTI_COMPONENT_EXPERIENCE\",\"SINGLE_PLACE\"],\"provider\":\"wikivoyage\",\"relevantAnchors\":[],\"relevantDeficits\":[],\"sourcePlanPayload\":{\"provider\":\"wikivoyage\",\"wikivoyage\":{\"sections\":[\"DO\",\"EAT\",\"SEE\"]}}}"
+        },
+        "observationCount": 0,
+        "webCandidateCount": 0,
+        "structuredProviders": [],
+        "structuredCandidateCount": 0,
+        "executionSkippedSourcePlans": [
+          {
+            "reason": "DUPLICATE_SOURCE_PLAN_EXECUTION",
+            "provider": "wikivoyage",
+            "fingerprint": "{\"destination\":{\"destinationName\":\"Departamento Luján de Cuyo\",\"latitude\":-33.00847615,\"longitude\":-69.35591235,\"radiusMeters\":81469.59033883434},\"evidenceRequirements\":[\"MULTI_COMPONENT_EXPERIENCE\",\"SINGLE_PLACE\"],\"provider\":\"wikivoyage\",\"relevantAnchors\":[],\"relevantDeficits\":[],\"sourcePlanPayload\":{\"provider\":\"wikivoyage\",\"wikivoyage\":{\"sections\":[\"DO\",\"EAT\",\"SEE\"]}}}"
+          },
+          {
+            "reason": "DUPLICATE_SOURCE_PLAN_EXECUTION",
+            "provider": "google_places",
+            "fingerprint": "{\"destination\":{\"destinationName\":\"Departamento Luján de Cuyo\",\"latitude\":-33.00847615,\"longitude\":-69.35591235,\"radiusMeters\":81469.59033883434},\"evidenceRequirements\":[\"MULTI_COMPONENT_EXPERIENCE\",\"SINGLE_PLACE\"],\"provider\":\"google_places\",\"relevantAnchors\":[],\"relevantDeficits\":[],\"sourcePlanPayload\":{\"places\":{\"searchTypes\":[\"museum\",\"tourist_attraction\",\"winery\"]},\"provider\":\"google_places\"}}"
+          },
+          {
+            "reason": "DUPLICATE_SOURCE_PLAN_EXECUTION",
+            "provider": "web",
+            "fingerprint": "{\"destination\":{\"destinationName\":\"Departamento Luján de Cuyo\",\"latitude\":-33.00847615,\"longitude\":-69.35591235,\"radiusMeters\":81469.59033883434},\"evidenceRequirements\":[\"MULTI_COMPONENT_EXPERIENCE\",\"SINGLE_PLACE\"],\"provider\":\"web\",\"relevantAnchors\":[],\"relevantDeficits\":[{\"dimension\":\"intent\",\"key\":\"route_like\",\"origin\":\"preference_facet\",\"reason\":\"Preference facet [intent:route_like] has no strong catalog match yet.\"},{\"dimension\":\"intent\",\"key\":\"visit\",\"origin\":\"preference_facet\",\"reason\":\"Preference facet [intent:visit] has no strong catalog match yet.\"},{\"dimension\":\"theme\",\"key\":\"wine\",\"origin\":\"preference_facet\",\"reason\":\"Preference facet [theme:wine] has no strong catalog match yet.\"}],\"sourcePlanPayload\":{\"provider\":\"web\",\"web\":{\"query\":\"Departamento Luján de Cuyo attractions places to visit scenic routes tours wine tasting wineries wine route, wineries, wine-related places\",\"requestedIntents\":[\"route_like\",\"visit\"],\"requestedThemes\":[\"wine\"],\"semanticQuery\":\"wine route, wineries, wine-related places\"}}}"
+          }
+        ]
+      },
+      "summary": "Pase 2: fuentes [wikivoyage, google_places, web] → 0 observación(es) estructurada(s) + 0 candidate(s) (web: 0).",
+      "component": "ExperienceAcquisitionService",
+      "acquisition": {
+        "deficits": [
+          {
+            "key": "wine",
+            "origin": "preference_facet",
+            "reason": "Preference facet [theme:wine] has no strong catalog match yet.",
+            "dimension": "theme"
+          },
+          {
+            "key": "route_like",
+            "origin": "preference_facet",
+            "reason": "Preference facet [intent:route_like] has no strong catalog match yet.",
+            "dimension": "intent"
+          },
+          {
+            "key": "visit",
+            "origin": "preference_facet",
+            "reason": "Preference facet [intent:visit] has no strong catalog match yet.",
+            "dimension": "intent"
+          }
+        ],
+        "evidence": [],
+        "candidates": [],
+        "passNumber": 2,
+        "sourcePlans": [
+          {
+            "status": "unknown",
+            "provider": "wikivoyage",
+            "observations": [],
+            "configuration": {
+              "sections": [
+                "SEE",
+                "DO",
+                "EAT"
+              ]
+            },
+            "observationCount": 0
+          },
+          {
+            "status": "unknown",
+            "provider": "google_places",
+            "observations": [],
+            "configuration": {
+              "searchTypes": [
+                "museum",
+                "tourist_attraction",
+                "winery"
+              ]
+            },
+            "observationCount": 0
+          },
+          {
+            "web": {
+              "query": "Departamento Luján de Cuyo attractions places to visit scenic routes tours wine tasting wineries wine route, wineries, wine-related places",
+              "evidence": [],
+              "semanticQuery": "wine route, wineries, wine-related places",
+              "requestedThemes": [
+                "wine"
+              ],
+              "requestedIntents": [
+                "route_like",
+                "visit"
+              ]
+            },
+            "status": "unknown",
+            "provider": "web",
+            "observations": [],
+            "configuration": {
+              "query": "Departamento Luján de Cuyo attractions places to visit scenic routes tours wine tasting wineries wine route, wineries, wine-related places",
+              "semanticQuery": "wine route, wineries, wine-related places",
+              "requestedThemes": [
+                "wine"
+              ],
+              "requestedIntents": [
+                "route_like",
+                "visit"
+              ]
+            },
+            "observationCount": 0
+          }
+        ],
+        "executionSkipped": {
+          "reason": "DUPLICATE_SOURCE_PLAN_EXECUTION",
+          "fingerprint": "{\"destination\":{\"destinationName\":\"Departamento Luján de Cuyo\",\"latitude\":-33.00847615,\"longitude\":-69.35591235,\"radiusMeters\":81469.59033883434},\"evidenceRequirements\":[\"MULTI_COMPONENT_EXPERIENCE\",\"SINGLE_PLACE\"],\"provider\":\"wikivoyage\",\"relevantAnchors\":[],\"relevantDeficits\":[],\"sourcePlanPayload\":{\"provider\":\"wikivoyage\",\"wikivoyage\":{\"sections\":[\"DO\",\"EAT\",\"SEE\"]}}}"
+        },
+        "acquisitionContext": {
+          "strategy": "generic",
+          "passNumber": 2
+        },
+        "executionSkippedSourcePlans": [
+          {
+            "reason": "DUPLICATE_SOURCE_PLAN_EXECUTION",
+            "provider": "wikivoyage",
+            "fingerprint": "{\"destination\":{\"destinationName\":\"Departamento Luján de Cuyo\",\"latitude\":-33.00847615,\"longitude\":-69.35591235,\"radiusMeters\":81469.59033883434},\"evidenceRequirements\":[\"MULTI_COMPONENT_EXPERIENCE\",\"SINGLE_PLACE\"],\"provider\":\"wikivoyage\",\"relevantAnchors\":[],\"relevantDeficits\":[],\"sourcePlanPayload\":{\"provider\":\"wikivoyage\",\"wikivoyage\":{\"sections\":[\"DO\",\"EAT\",\"SEE\"]}}}"
+          },
+          {
+            "reason": "DUPLICATE_SOURCE_PLAN_EXECUTION",
+            "provider": "google_places",
+            "fingerprint": "{\"destination\":{\"destinationName\":\"Departamento Luján de Cuyo\",\"latitude\":-33.00847615,\"longitude\":-69.35591235,\"radiusMeters\":81469.59033883434},\"evidenceRequirements\":[\"MULTI_COMPONENT_EXPERIENCE\",\"SINGLE_PLACE\"],\"provider\":\"google_places\",\"relevantAnchors\":[],\"relevantDeficits\":[],\"sourcePlanPayload\":{\"places\":{\"searchTypes\":[\"museum\",\"tourist_attraction\",\"winery\"]},\"provider\":\"google_places\"}}"
+          },
+          {
+            "reason": "DUPLICATE_SOURCE_PLAN_EXECUTION",
+            "provider": "web",
+            "fingerprint": "{\"destination\":{\"destinationName\":\"Departamento Luján de Cuyo\",\"latitude\":-33.00847615,\"longitude\":-69.35591235,\"radiusMeters\":81469.59033883434},\"evidenceRequirements\":[\"MULTI_COMPONENT_EXPERIENCE\",\"SINGLE_PLACE\"],\"provider\":\"web\",\"relevantAnchors\":[],\"relevantDeficits\":[{\"dimension\":\"intent\",\"key\":\"route_like\",\"origin\":\"preference_facet\",\"reason\":\"Preference facet [intent:route_like] has no strong catalog match yet.\"},{\"dimension\":\"intent\",\"key\":\"visit\",\"origin\":\"preference_facet\",\"reason\":\"Preference facet [intent:visit] has no strong catalog match yet.\"},{\"dimension\":\"theme\",\"key\":\"wine\",\"origin\":\"preference_facet\",\"reason\":\"Preference facet [theme:wine] has no strong catalog match yet.\"}],\"sourcePlanPayload\":{\"provider\":\"web\",\"web\":{\"query\":\"Departamento Luján de Cuyo attractions places to visit scenic routes tours wine tasting wineries wine route, wineries, wine-related places\",\"requestedIntents\":[\"route_like\",\"visit\"],\"requestedThemes\":[\"wine\"],\"semanticQuery\":\"wine route, wineries, wine-related places\"}}}"
+          }
+        ]
+      },
+      "providerStatus": "success",
+      "acquisitionContext": {
+        "strategy": "generic",
+        "passNumber": 2
+      }
+    },
+    {
+      "label": "Cobertura de preferencias (facet-first)",
+      "rules": [
+        {
+          "rule": "Portafolio elegible global suficiente para días y ritmo solicitados",
+          "actual": 0,
+          "reason": "0 Experience(s) elegible(s) frente a 4 requerida(s).",
+          "result": "FAIL",
+          "ruleId": "PCOV-QUANTITY-001",
+          "expected": 4
+        },
+        {
+          "rule": "Cobertura del facet solicitado: theme:wine",
+          "actual": 0,
+          "reason": "0 coincidencia(s) fuerte(s), 0 débil(es).",
+          "result": "FAIL",
+          "ruleId": "PCOV-FACET-THEME-WINE",
+          "expected": ">= 1"
+        },
+        {
+          "rule": "Cobertura del facet solicitado: intent:route_like",
+          "actual": 0,
+          "reason": "0 coincidencia(s) fuerte(s), 0 débil(es).",
+          "result": "FAIL",
+          "ruleId": "PCOV-FACET-INTENT-ROUTE_LIKE",
+          "expected": ">= 1"
+        },
+        {
+          "rule": "Cobertura del facet solicitado: intent:visit",
+          "actual": 0,
+          "reason": "0 coincidencia(s) fuerte(s), 0 débil(es).",
+          "result": "FAIL",
+          "ruleId": "PCOV-FACET-INTENT-VISIT",
+          "expected": ">= 1"
+        }
+      ],
+      "stage": "coverage_analysis",
+      "inputs": {
+        "providerHealth": {
+          "status": "healthy"
+        },
+        "requestedFacetCount": 3,
+        "offeredCandidateCount": 0
+      },
+      "status": "FAIL",
+      "outputs": {
+        "sufficient": false,
+        "facetResults": [
+          {
+            "key": "wine",
+            "dimension": "theme",
+            "satisfied": false,
+            "weakMatchCount": 0,
+            "strongMatchCount": 0
+          },
+          {
+            "key": "route_like",
+            "dimension": "intent",
+            "satisfied": false,
+            "weakMatchCount": 0,
+            "strongMatchCount": 0
+          },
+          {
+            "key": "visit",
+            "dimension": "intent",
+            "satisfied": false,
+            "weakMatchCount": 0,
+            "strongMatchCount": 0
+          }
+        ],
+        "portfolioTarget": 4,
+        "allFacetsSatisfied": false,
+        "acquisitionDeficits": [
+          {
+            "key": "wine",
+            "origin": "preference_facet",
+            "reason": "Preference facet [theme:wine] has no strong catalog match yet.",
+            "dimension": "theme"
+          },
+          {
+            "key": "route_like",
+            "origin": "preference_facet",
+            "reason": "Preference facet [intent:route_like] has no strong catalog match yet.",
+            "dimension": "intent"
+          },
+          {
+            "key": "visit",
+            "origin": "preference_facet",
+            "reason": "Preference facet [intent:visit] has no strong catalog match yet.",
+            "dimension": "intent"
+          }
+        ],
+        "globalCapacityDeficit": null,
+        "totalDistinctEligibleExperiences": 0
+      },
+      "summary": "Facets sin cobertura fuerte: theme:wine, intent:route_like, intent:visit.",
+      "decision": {
+        "reason": "Facets sin cobertura fuerte: theme:wine, intent:route_like, intent:visit.",
+        "status": "FAIL",
+        "outcome": "needs_additional_discovery",
+        "reasonCodes": [
+          "preference_facet",
+          "preference_facet",
+          "preference_facet"
+        ],
+        "triggeredActions": [
+          "RUN_ACQUISITION"
+        ]
+      },
+      "component": "FacetRetrievalService",
+      "semanticRanking": {
+        "status": "applied",
+        "indexedCandidateCount": 0,
+        "offeredCandidateCount": 0,
+        "eligibleCandidateCount": 0
+      }
+    }
+  ],
+  "version": 4,
+  "canonicalRequest": {
+    "days": 1,
+    "intent": {
+      "intents": [
+        "route_like",
+        "visit"
+      ],
+      "interests": [
+        "wine"
+      ],
+      "explorationStyle": "balanced",
+      "additionalPreferences": "quiero hacer una ruta del vino y también conocer bodegas y lugares relacionados con el vino"
+    },
+    "mobility": {
+      "travelPace": "moderate",
+      "accessibilityNeeds": [],
+      "allowedTransportationModes": [
+        "driving"
+      ],
+      "maxWalkingDistancePerDayMeters": 6000,
+      "maxContinuousWalkingDistanceMeters": 3000
+    },
+    "groupType": "solo",
+    "categories": [],
+    "startDates": [],
+    "budgetLevel": "medium",
+    "destination": {
+      "label": "Luján de Cuyo, Mendoza, Argentina",
+      "latitude": -33.0391,
+      "longitude": -68.8796,
+      "scaleHint": "settlement"
+    },
+    "excludeTours": [],
+    "contractVersion": 1,
+    "dietaryRestrictions": [],
+    "skipImageGeneration": true,
+    "includeExistingExperiences": true
+  },
+  "executionSummary": {
+    "status": "failed",
+    "failure": "Coverage insuficiente después de catálogo y adquisición multi-fuente acotada: Preference facet [theme:wine] has no strong catalog match yet., Preference facet [intent:route_like] has no strong catalog match yet., Preference facet [intent:visit] has no strong catalog match yet.",
+    "acquisition": {
+      "passes": 2,
+      "providersFailed": [
+        "google_places"
+      ],
+      "observationCount": 0,
+      "webCandidateCount": 0,
+      "providersAttempted": [
+        "google_places",
+        "web",
+        "wikivoyage"
+      ],
+      "structuredCandidateCount": 0
+    },
+    "orderedStages": [
+      {
+        "stage": "preference_interpretation",
+        "status": "PASS",
+        "ordinal": 1,
+        "summary": "Preferencias libres normalizadas y combinadas con filtros.",
+        "component": "PreferenceInterpreterService"
+      },
+      {
+        "stage": "tour_intent",
+        "counts": {
+          "requestedDays": 1
+        },
+        "status": "INFO",
+        "ordinal": 2,
+        "outcome": "INTENT_ACCEPTED",
+        "summary": "Temas: wine. Estilo: balanced. Modos: driving. Ritmo: moderate. Preferencias adicionales capturadas: \"quiero hacer una ruta del vino y también conocer bodegas y lugares relacionados con el vino\".",
+        "component": "TourGenerationRequest"
+      },
+      {
+        "stage": "destination_resolution",
+        "status": "PASS",
+        "ordinal": 3,
+        "outcome": "USE_ADMINISTRATIVE_BOUNDARY",
+        "summary": "\"Luján de Cuyo, Mendoza, Argentina\" se identificó como Distrito Ciudad de Luján de Cuyo, Departamento Luján de Cuyo, Mendoza, Argentina y se validó con el límite administrativo contenedor Departamento Luján de Cuyo. Se usa ese límite real en vez de un único punto+radio. Intentos: forward:Luján de Cuyo, Mendoza, Argentina → reverse:-33.039100,-68.879600 → forward:Distrito Ciudad de Luján de Cuyo, Argentina → containing-boundary:-33.039100,-68.879600.",
+        "component": "DestinationResolutionService"
+      },
+      {
+        "stage": "anchor_geo_resolution",
+        "status": "PASS",
+        "ordinal": 4,
+        "summary": "La infraestructura geográfica resolvió o dejó explícitos los anchors no resueltos.",
+        "component": "AreaRouteAnchorResolverService"
+      },
+      {
+        "stage": "coverage_analysis",
+        "counts": {
+          "portfolioTarget": 4,
+          "totalDistinctEligibleExperiences": 0
+        },
+        "status": "FAIL",
+        "ordinal": 5,
+        "outcome": "needs_additional_discovery",
+        "summary": "Facets sin cobertura fuerte: theme:wine, intent:route_like, intent:visit.",
+        "component": "FacetRetrievalService"
+      },
+      {
+        "stage": "db_search",
+        "counts": {
+          "candidateCount": 0
+        },
+        "status": "WARN",
+        "ordinal": 6,
+        "outcome": "CATALOG_POOL_EMPTY",
+        "summary": "No se recuperaron actividades del catálogo en el alcance inicial.",
+        "component": "ExperienceCatalog.findVerifiedWithin"
+      },
+      {
+        "stage": "coverage_analysis",
+        "status": "INFO",
+        "ordinal": 7,
+        "summary": "AREA_ROUTE_WALK=0; GENERIC=3.",
+        "component": "partitionDeficitsByStrategy"
+      },
+      {
+        "stage": "discovery",
+        "counts": {
+          "candidateCount": 0,
+          "observationCount": 0,
+          "webCandidateCount": 0,
+          "structuredCandidateCount": 0
+        },
+        "status": "WARN",
+        "ordinal": 8,
+        "summary": "Pase 1: fuentes [wikivoyage, google_places, web] → 0 observación(es) estructurada(s) + 0 candidate(s) (web: 0).",
+        "component": "ExperienceAcquisitionService"
+      },
+      {
+        "stage": "coverage_analysis",
+        "counts": {
+          "portfolioTarget": 4,
+          "totalDistinctEligibleExperiences": 0
+        },
+        "status": "FAIL",
+        "ordinal": 9,
+        "outcome": "needs_additional_discovery",
+        "summary": "Facets sin cobertura fuerte: theme:wine, intent:route_like, intent:visit.",
+        "component": "FacetRetrievalService"
+      },
+      {
+        "stage": "coverage_analysis",
+        "status": "INFO",
+        "ordinal": 10,
+        "summary": "AREA_ROUTE_WALK=0; GENERIC=3.",
+        "component": "partitionDeficitsByStrategy"
+      },
+      {
+        "stage": "discovery",
+        "counts": {
+          "candidateCount": 0,
+          "observationCount": 0,
+          "webCandidateCount": 0,
+          "structuredCandidateCount": 0
+        },
+        "status": "INFO",
+        "ordinal": 11,
+        "summary": "Pase 2: fuentes [wikivoyage, google_places, web] → 0 observación(es) estructurada(s) + 0 candidate(s) (web: 0).",
+        "component": "ExperienceAcquisitionService"
+      },
+      {
+        "stage": "coverage_analysis",
+        "counts": {
+          "portfolioTarget": 4,
+          "totalDistinctEligibleExperiences": 0
+        },
+        "status": "FAIL",
+        "ordinal": 12,
+        "outcome": "needs_additional_discovery",
+        "summary": "Facets sin cobertura fuerte: theme:wine, intent:route_like, intent:visit.",
+        "component": "FacetRetrievalService"
+      }
+    ],
+    "selectedExperiences": 0
+  }
+}
