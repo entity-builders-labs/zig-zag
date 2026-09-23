@@ -1,0 +1,32 @@
+{
+  "label": "Recuperación inicial del catálogo",
+  "rules": [
+    {
+      "rule": "Recuperar candidatos reales persistidos antes de adquirir nuevos",
+      "actual": 0,
+      "reason": "El catálogo no aportó candidatos; la cobertura decidirá si adquirir nuevos.",
+      "result": "WARN",
+      "ruleId": "CATALOG-RETRIEVAL-001"
+    }
+  ],
+  "stage": "db_search",
+  "inputs": {
+    "radiusKm": 1.012179374902135
+  },
+  "status": "WARN",
+  "outputs": {
+    "candidateCount": 0
+  },
+  "summary": "No se recuperaron actividades del catálogo en el alcance inicial.",
+  "decision": {
+    "reason": "No hay candidatos persistidos para este alcance.",
+    "status": "WARN",
+    "outcome": "CATALOG_POOL_EMPTY",
+    "triggeredActions": [
+      "ANALYZE_COVERAGE"
+    ]
+  },
+  "component": "ExperienceCatalog.findVerifiedWithin",
+  "candidates": [],
+  "candidateDecisions": []
+}

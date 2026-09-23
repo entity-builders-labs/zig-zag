@@ -1,0 +1,598 @@
+{
+  "label": "Validación geográfica independiente",
+  "rules": [
+    {
+      "rule": "Grounded text por sí solo no prueba existencia geográfica",
+      "reason": "La aceptación requiere entidades resueltas independientemente del LLM.",
+      "result": "PASS",
+      "ruleId": "GEO-INDEPENDENT-001"
+    },
+    {
+      "rule": "Las composites pueden validarse por componentes reales sin exact-name global",
+      "reason": "ROUTE/EXPERIENCE/WALK pueden usar anchors/componentes según su estrategia.",
+      "result": "PASS",
+      "ruleId": "GEO-COMPONENTS-001"
+    },
+    {
+      "rule": "Conservar razones machine-readable para cada rechazo",
+      "reason": "No hubo rechazos geográficos.",
+      "result": "PASS",
+      "ruleId": "GEO-RESULT-001"
+    }
+  ],
+  "stage": "geographic_validation",
+  "inputs": {
+    "proposalCount": 11,
+    "validatorVersions": [
+      1
+    ]
+  },
+  "status": "PASS",
+  "outputs": {
+    "results": [
+      {
+        "kind": "EXPERIENCE",
+        "status": "GEO_VERIFIED",
+        "strategy": "venue_centric",
+        "coherence": null,
+        "anchorCount": 1,
+        "proposalName": "Solar French",
+        "canonicalEntity": {
+          "name": "Solar French",
+          "provider": "openstreetmap",
+          "externalId": "osm:node:6903962986"
+        },
+        "rejectionReasons": [],
+        "areaScopeMembership": null
+      },
+      {
+        "kind": "EXPERIENCE",
+        "status": "GEO_VERIFIED",
+        "strategy": "venue_centric",
+        "coherence": null,
+        "anchorCount": 1,
+        "proposalName": "Museo de las Escuelas",
+        "canonicalEntity": {
+          "name": "Museo de las Escuelas",
+          "provider": "openstreetmap",
+          "externalId": "osm:node:6437125104"
+        },
+        "rejectionReasons": [],
+        "areaScopeMembership": null
+      },
+      {
+        "kind": "EXPERIENCE",
+        "status": "GEO_VERIFIED",
+        "strategy": "venue_centric",
+        "coherence": null,
+        "anchorCount": 1,
+        "proposalName": "Monumento a Pedro de Mendoza",
+        "canonicalEntity": {
+          "name": "Monumento a Pedro de Mendoza",
+          "provider": "openstreetmap",
+          "externalId": "osm:node:1376764723"
+        },
+        "rejectionReasons": [],
+        "areaScopeMembership": null
+      },
+      {
+        "kind": "EXPERIENCE",
+        "status": "GEO_VERIFIED",
+        "strategy": "venue_centric",
+        "coherence": null,
+        "anchorCount": 1,
+        "proposalName": "El Zanjón de Granados (historic ruins)",
+        "canonicalEntity": {
+          "name": "El Zanjón de Granados (historic ruins)",
+          "provider": "openstreetmap",
+          "externalId": "osm:node:9953027884"
+        },
+        "rejectionReasons": [],
+        "areaScopeMembership": null
+      },
+      {
+        "kind": "EXPERIENCE",
+        "status": "GEO_VERIFIED",
+        "strategy": "venue_centric",
+        "coherence": null,
+        "anchorCount": 1,
+        "proposalName": "Monumento Canto al Trabajo",
+        "canonicalEntity": {
+          "name": "Monumento Canto al Trabajo",
+          "provider": "openstreetmap",
+          "externalId": "osm:node:1493476686"
+        },
+        "rejectionReasons": [],
+        "areaScopeMembership": null
+      },
+      {
+        "kind": "EXPERIENCE",
+        "status": "GEO_VERIFIED",
+        "strategy": "venue_centric",
+        "coherence": null,
+        "anchorCount": 1,
+        "proposalName": "Museo Histórico Nacional",
+        "canonicalEntity": {
+          "name": "Museo Histórico Nacional",
+          "provider": "geoapify",
+          "externalId": "geoapify:51a401655e702f4dc05915d4f7ad3f5041c0f00102f901a75e5407000000009203194d7573656f2048697374c3b37269636f204e6163696f6e616c"
+        },
+        "rejectionReasons": [],
+        "areaScopeMembership": null
+      },
+      {
+        "kind": "EXPERIENCE",
+        "status": "GEO_VERIFIED",
+        "strategy": "venue_centric",
+        "coherence": null,
+        "anchorCount": 1,
+        "proposalName": "Carnavales de la Calle Defensa",
+        "canonicalEntity": {
+          "name": "Carnavales de la Calle Defensa",
+          "provider": "openstreetmap",
+          "externalId": "osm:node:5410557722"
+        },
+        "rejectionReasons": [],
+        "areaScopeMembership": null
+      },
+      {
+        "kind": "EXPERIENCE",
+        "status": "GEO_VERIFIED",
+        "strategy": "venue_centric",
+        "coherence": null,
+        "anchorCount": 1,
+        "proposalName": "Casa Mínima",
+        "canonicalEntity": {
+          "name": "Casa Mínima",
+          "provider": "openstreetmap",
+          "externalId": "osm:node:4440588689"
+        },
+        "rejectionReasons": [],
+        "areaScopeMembership": null
+      },
+      {
+        "kind": "EXPERIENCE",
+        "status": "GEO_VERIFIED",
+        "strategy": "venue_centric",
+        "coherence": null,
+        "anchorCount": 1,
+        "proposalName": "Plaza 30'000 compañeros",
+        "canonicalEntity": {
+          "name": "Plaza 30'000 compañeros",
+          "provider": "openstreetmap",
+          "externalId": "osm:node:5290138422"
+        },
+        "rejectionReasons": [],
+        "areaScopeMembership": null
+      },
+      {
+        "kind": "EXPERIENCE",
+        "status": "GEO_VERIFIED",
+        "strategy": "venue_centric",
+        "coherence": null,
+        "anchorCount": 1,
+        "proposalName": "Mercado San Telmo",
+        "canonicalEntity": {
+          "name": "Mercado de San Telmo",
+          "provider": "openstreetmap",
+          "externalId": "osm:way:158893271"
+        },
+        "rejectionReasons": [],
+        "areaScopeMembership": null
+      },
+      {
+        "kind": "EXPERIENCE",
+        "status": "GEO_VERIFIED",
+        "strategy": "venue_centric",
+        "coherence": null,
+        "anchorCount": 1,
+        "proposalName": "Plaza Dorrego",
+        "canonicalEntity": {
+          "name": "Plaza Dorrego",
+          "provider": "openstreetmap",
+          "externalId": "osm:way:31364659"
+        },
+        "rejectionReasons": [],
+        "areaScopeMembership": null
+      }
+    ],
+    "rejectedCount": 0,
+    "geoVerifiedCount": 11,
+    "maxComputedRadiusMeters": null
+  },
+  "summary": "Validación geográfica: 11 propuesta(s) verificadas y 0 descartadas por coherencia espacial o falta de entidad real.",
+  "decision": {
+    "reason": "Solo las propuestas GEO_VERIFIED pueden avanzar a materialización.",
+    "status": "PASS",
+    "outcome": "GEO_VERIFIED_PROPOSALS_READY",
+    "reasonCodes": [],
+    "triggeredActions": [
+      "MATERIALIZE_VERIFIED_EXPERIENCES"
+    ]
+  },
+  "component": "CompositeGeographicValidationService",
+  "providerStatus": "success",
+  "acquisitionContext": {
+    "strategy": "generic",
+    "passNumber": 1
+  },
+  "candidateDecisions": [
+    {
+      "id": "Solar French",
+      "name": "Solar French",
+      "reason": "GEO_VERIFIED mediante venue_centric con 1 anchor(s).",
+      "source": "discovery",
+      "status": "ELIGIBLE",
+      "reasonCodes": [
+        "GEO_VERIFIED"
+      ]
+    },
+    {
+      "id": "Museo de las Escuelas",
+      "name": "Museo de las Escuelas",
+      "reason": "GEO_VERIFIED mediante venue_centric con 1 anchor(s).",
+      "source": "discovery",
+      "status": "ELIGIBLE",
+      "reasonCodes": [
+        "GEO_VERIFIED"
+      ]
+    },
+    {
+      "id": "Monumento a Pedro de Mendoza",
+      "name": "Monumento a Pedro de Mendoza",
+      "reason": "GEO_VERIFIED mediante venue_centric con 1 anchor(s).",
+      "source": "discovery",
+      "status": "ELIGIBLE",
+      "reasonCodes": [
+        "GEO_VERIFIED"
+      ]
+    },
+    {
+      "id": "El Zanjón de Granados (historic ruins)",
+      "name": "El Zanjón de Granados (historic ruins)",
+      "reason": "GEO_VERIFIED mediante venue_centric con 1 anchor(s).",
+      "source": "discovery",
+      "status": "ELIGIBLE",
+      "reasonCodes": [
+        "GEO_VERIFIED"
+      ]
+    },
+    {
+      "id": "Monumento Canto al Trabajo",
+      "name": "Monumento Canto al Trabajo",
+      "reason": "GEO_VERIFIED mediante venue_centric con 1 anchor(s).",
+      "source": "discovery",
+      "status": "ELIGIBLE",
+      "reasonCodes": [
+        "GEO_VERIFIED"
+      ]
+    },
+    {
+      "id": "Museo Histórico Nacional",
+      "name": "Museo Histórico Nacional",
+      "reason": "GEO_VERIFIED mediante venue_centric con 1 anchor(s).",
+      "source": "discovery",
+      "status": "ELIGIBLE",
+      "reasonCodes": [
+        "GEO_VERIFIED"
+      ]
+    },
+    {
+      "id": "Carnavales de la Calle Defensa",
+      "name": "Carnavales de la Calle Defensa",
+      "reason": "GEO_VERIFIED mediante venue_centric con 1 anchor(s).",
+      "source": "discovery",
+      "status": "ELIGIBLE",
+      "reasonCodes": [
+        "GEO_VERIFIED"
+      ]
+    },
+    {
+      "id": "Casa Mínima",
+      "name": "Casa Mínima",
+      "reason": "GEO_VERIFIED mediante venue_centric con 1 anchor(s).",
+      "source": "discovery",
+      "status": "ELIGIBLE",
+      "reasonCodes": [
+        "GEO_VERIFIED"
+      ]
+    },
+    {
+      "id": "Plaza 30'000 compañeros",
+      "name": "Plaza 30'000 compañeros",
+      "reason": "GEO_VERIFIED mediante venue_centric con 1 anchor(s).",
+      "source": "discovery",
+      "status": "ELIGIBLE",
+      "reasonCodes": [
+        "GEO_VERIFIED"
+      ]
+    },
+    {
+      "id": "Mercado San Telmo",
+      "name": "Mercado San Telmo",
+      "reason": "GEO_VERIFIED mediante venue_centric con 1 anchor(s).",
+      "source": "discovery",
+      "status": "ELIGIBLE",
+      "reasonCodes": [
+        "GEO_VERIFIED"
+      ]
+    },
+    {
+      "id": "Plaza Dorrego",
+      "name": "Plaza Dorrego",
+      "reason": "GEO_VERIFIED mediante venue_centric con 1 anchor(s).",
+      "source": "discovery",
+      "status": "ELIGIBLE",
+      "reasonCodes": [
+        "GEO_VERIFIED"
+      ]
+    }
+  ],
+  "geographicValidationAudit": [
+    {
+      "status": "GEO_VERIFIED",
+      "accepted": true,
+      "strategy": "venue_centric",
+      "components": [
+        {
+          "role": "venue",
+          "hintKey": "geoapify:511a9cd20b882f4dc059f7e406e8634f41c0f00103f9016a1d829b0100000092030c536f6c6172204672656e6368:component",
+          "hintName": "Solar French",
+          "relation": "evaluated",
+          "resolvedGeoEntityId": "6dc49ee8-2a18-4a91-a598-f801cd883ca1"
+        }
+      ],
+      "candidateName": "Solar French",
+      "rejectionReasons": [],
+      "candidateTraceKey": "solar french:geoapify:511a9cd20b882f4dc059f7e406e8634f41c0f00103f9016a1d829b0100000092030c536f6c6172204672656e6368:geoapify:511a9cd20b882f4dc059f7e406e8634f41c0f00103f9016a1d829b0100000092030c536f6c6172204672656e6368:component:Solar French",
+      "destinationBoundary": {
+        "name": "San Telmo",
+        "externalId": "osm:relation:2223069"
+      },
+      "groundedEvidenceKeys": [
+        "geoapify:511a9cd20b882f4dc059f7e406e8634f41c0f00103f9016a1d829b0100000092030c536f6c6172204672656e6368"
+      ]
+    },
+    {
+      "status": "GEO_VERIFIED",
+      "accepted": true,
+      "strategy": "venue_centric",
+      "components": [
+        {
+          "role": "venue",
+          "hintKey": "geoapify:5131cad875142f4dc05931838cdbc34f41c0f00103f901f0bbae7f010000009203154d7573656f206465206c61732045736375656c6173:component",
+          "hintName": "Museo de las Escuelas",
+          "relation": "evaluated",
+          "resolvedGeoEntityId": "f6acc1a3-bab2-458d-a643-57f55a895d1a"
+        }
+      ],
+      "candidateName": "Museo de las Escuelas",
+      "rejectionReasons": [],
+      "candidateTraceKey": "museo de las escuelas:geoapify:5131cad875142f4dc05931838cdbc34f41c0f00103f901f0bbae7f010000009203154d7573656f206465206c61732045736375656c6173:geoapify:5131cad875142f4dc05931838cdbc34f41c0f00103f901f0bbae7f010000009203154d7573656f206465206c61732045736375656c6173:component:Museo de las Escuelas",
+      "destinationBoundary": {
+        "name": "San Telmo",
+        "externalId": "osm:relation:2223069"
+      },
+      "groundedEvidenceKeys": [
+        "geoapify:5131cad875142f4dc05931838cdbc34f41c0f00103f901f0bbae7f010000009203154d7573656f206465206c61732045736375656c6173"
+      ]
+    },
+    {
+      "status": "GEO_VERIFIED",
+      "accepted": true,
+      "strategy": "venue_centric",
+      "components": [
+        {
+          "role": "venue",
+          "hintKey": "geoapify:514415fe0c6f2f4dc059ca260a3e175041c0f00103f90133c30f520000000092031c4d6f6e756d656e746f206120506564726f206465204d656e646f7a61:component",
+          "hintName": "Monumento a Pedro de Mendoza",
+          "relation": "evaluated",
+          "resolvedGeoEntityId": "af21e5d6-7195-4778-a29b-1b148c9caeef"
+        }
+      ],
+      "candidateName": "Monumento a Pedro de Mendoza",
+      "rejectionReasons": [],
+      "candidateTraceKey": "monumento a pedro de mendoza:geoapify:514415fe0c6f2f4dc059ca260a3e175041c0f00103f90133c30f520000000092031c4d6f6e756d656e746f206120506564726f206465204d656e646f7a61:geoapify:514415fe0c6f2f4dc059ca260a3e175041c0f00103f90133c30f520000000092031c4d6f6e756d656e746f206120506564726f206465204d656e646f7a61:component:Monumento a Pedro de Mendoza",
+      "destinationBoundary": {
+        "name": "San Telmo",
+        "externalId": "osm:relation:2223069"
+      },
+      "groundedEvidenceKeys": [
+        "geoapify:514415fe0c6f2f4dc059ca260a3e175041c0f00103f90133c30f520000000092031c4d6f6e756d656e746f206120506564726f206465204d656e646f7a61"
+      ]
+    },
+    {
+      "status": "GEO_VERIFIED",
+      "accepted": true,
+      "strategy": "venue_centric",
+      "components": [
+        {
+          "role": "venue",
+          "hintKey": "geoapify:51485ff70c972f4dc059a9f17794ef4e41c0f00103f9012c273f5102000000920327456c205a616e6ac3b36e206465204772616e61646f732028686973746f726963207275696e7329:component",
+          "hintName": "El Zanjón de Granados (historic ruins)",
+          "relation": "evaluated",
+          "resolvedGeoEntityId": "7f0b2a85-ba8f-4873-9a5c-5e0f2647fa38"
+        }
+      ],
+      "candidateName": "El Zanjón de Granados (historic ruins)",
+      "rejectionReasons": [],
+      "candidateTraceKey": "el zanjón de granados (historic ruins):geoapify:51485ff70c972f4dc059a9f17794ef4e41c0f00103f9012c273f5102000000920327456c205a616e6ac3b36e206465204772616e61646f732028686973746f726963207275696e7329:geoapify:51485ff70c972f4dc059a9f17794ef4e41c0f00103f9012c273f5102000000920327456c205a616e6ac3b36e206465204772616e61646f732028686973746f726963207275696e7329:component:El Zanjón de Granados (historic ruins)",
+      "destinationBoundary": {
+        "name": "San Telmo",
+        "externalId": "osm:relation:2223069"
+      },
+      "groundedEvidenceKeys": [
+        "geoapify:51485ff70c972f4dc059a9f17794ef4e41c0f00103f9012c273f5102000000920327456c205a616e6ac3b36e206465204772616e61646f732028686973746f726963207275696e7329"
+      ]
+    },
+    {
+      "status": "GEO_VERIFIED",
+      "accepted": true,
+      "strategy": "venue_centric",
+      "components": [
+        {
+          "role": "venue",
+          "hintKey": "geoapify:518049850c3f2f4dc0599d3e4c0c134f41c0f00103f9014ea504590000000092031a4d6f6e756d656e746f2043616e746f20616c2054726162616a6f:component",
+          "hintName": "Monumento Canto al Trabajo",
+          "relation": "evaluated",
+          "resolvedGeoEntityId": "8bc2c212-7a11-421d-bc8d-1ab36b8a5809"
+        }
+      ],
+      "candidateName": "Monumento Canto al Trabajo",
+      "rejectionReasons": [],
+      "candidateTraceKey": "monumento canto al trabajo:geoapify:518049850c3f2f4dc0599d3e4c0c134f41c0f00103f9014ea504590000000092031a4d6f6e756d656e746f2043616e746f20616c2054726162616a6f:geoapify:518049850c3f2f4dc0599d3e4c0c134f41c0f00103f9014ea504590000000092031a4d6f6e756d656e746f2043616e746f20616c2054726162616a6f:component:Monumento Canto al Trabajo",
+      "destinationBoundary": {
+        "name": "San Telmo",
+        "externalId": "osm:relation:2223069"
+      },
+      "groundedEvidenceKeys": [
+        "geoapify:518049850c3f2f4dc0599d3e4c0c134f41c0f00103f9014ea504590000000092031a4d6f6e756d656e746f2043616e746f20616c2054726162616a6f"
+      ]
+    },
+    {
+      "status": "GEO_VERIFIED",
+      "accepted": true,
+      "strategy": "venue_centric",
+      "components": [
+        {
+          "role": "venue",
+          "hintKey": "geoapify:51a401655e702f4dc05915d4f7ad3f5041c0f00102f901a75e5407000000009203194d7573656f2048697374c3b37269636f204e6163696f6e616c:component",
+          "hintName": "Museo Histórico Nacional",
+          "relation": "evaluated",
+          "resolvedGeoEntityId": "3b29157b-025f-47fe-b14a-f49d898285da"
+        }
+      ],
+      "candidateName": "Museo Histórico Nacional",
+      "rejectionReasons": [],
+      "candidateTraceKey": "museo histórico nacional:geoapify:51a401655e702f4dc05915d4f7ad3f5041c0f00102f901a75e5407000000009203194d7573656f2048697374c3b37269636f204e6163696f6e616c|wikivoyage:San_Telmo:see:see:Museo_Historico_Nacional:1:geoapify:51a401655e702f4dc05915d4f7ad3f5041c0f00102f901a75e5407000000009203194d7573656f2048697374c3b37269636f204e6163696f6e616c:component:Museo Histórico Nacional",
+      "destinationBoundary": {
+        "name": "San Telmo",
+        "externalId": "osm:relation:2223069"
+      },
+      "groundedEvidenceKeys": [
+        "geoapify:51a401655e702f4dc05915d4f7ad3f5041c0f00102f901a75e5407000000009203194d7573656f2048697374c3b37269636f204e6163696f6e616c",
+        "wikivoyage:San_Telmo:see:see:Museo_Historico_Nacional:1"
+      ]
+    },
+    {
+      "status": "GEO_VERIFIED",
+      "accepted": true,
+      "strategy": "venue_centric",
+      "components": [
+        {
+          "role": "venue",
+          "hintKey": "geoapify:51aed4b320942f4dc059ede9341ce04e41c0f00103f9011a8f7e420100000092031e4361726e6176616c6573206465206c612043616c6c6520446566656e7361:component",
+          "hintName": "Carnavales de la Calle Defensa",
+          "relation": "evaluated",
+          "resolvedGeoEntityId": "e08dd2a9-5564-4f27-9300-49c7480d450f"
+        }
+      ],
+      "candidateName": "Carnavales de la Calle Defensa",
+      "rejectionReasons": [],
+      "candidateTraceKey": "carnavales de la calle defensa:geoapify:51aed4b320942f4dc059ede9341ce04e41c0f00103f9011a8f7e420100000092031e4361726e6176616c6573206465206c612043616c6c6520446566656e7361:geoapify:51aed4b320942f4dc059ede9341ce04e41c0f00103f9011a8f7e420100000092031e4361726e6176616c6573206465206c612043616c6c6520446566656e7361:component:Carnavales de la Calle Defensa",
+      "destinationBoundary": {
+        "name": "San Telmo",
+        "externalId": "osm:relation:2223069"
+      },
+      "groundedEvidenceKeys": [
+        "geoapify:51aed4b320942f4dc059ede9341ce04e41c0f00103f9011a8f7e420100000092031e4361726e6176616c6573206465206c612043616c6c6520446566656e7361"
+      ]
+    },
+    {
+      "status": "GEO_VERIFIED",
+      "accepted": true,
+      "strategy": "venue_centric",
+      "components": [
+        {
+          "role": "venue",
+          "hintKey": "geoapify:51c0f4ac5a882f4dc05966101fd8f14e41c0f00103f9019101ae080100000092030c43617361204dc3ad6e696d61:component",
+          "hintName": "Casa Mínima",
+          "relation": "evaluated",
+          "resolvedGeoEntityId": "e33827d4-f828-4b00-b7f9-63712ef282e4"
+        }
+      ],
+      "candidateName": "Casa Mínima",
+      "rejectionReasons": [],
+      "candidateTraceKey": "casa mínima:geoapify:51c0f4ac5a882f4dc05966101fd8f14e41c0f00103f9019101ae080100000092030c43617361204dc3ad6e696d61:geoapify:51c0f4ac5a882f4dc05966101fd8f14e41c0f00103f9019101ae080100000092030c43617361204dc3ad6e696d61:component:Casa Mínima",
+      "destinationBoundary": {
+        "name": "San Telmo",
+        "externalId": "osm:relation:2223069"
+      },
+      "groundedEvidenceKeys": [
+        "geoapify:51c0f4ac5a882f4dc05966101fd8f14e41c0f00103f9019101ae080100000092030c43617361204dc3ad6e696d61"
+      ]
+    },
+    {
+      "status": "GEO_VERIFIED",
+      "accepted": true,
+      "strategy": "venue_centric",
+      "components": [
+        {
+          "role": "venue",
+          "hintKey": "geoapify:51d9c4138b292f4dc05907825bd2ac4f41c0f00103f901361b513b01000000920318506c617a612033302730303020636f6d7061c3b165726f73:component",
+          "hintName": "Plaza 30'000 compañeros",
+          "relation": "evaluated",
+          "resolvedGeoEntityId": "b84f6b41-6505-43ff-bc17-1524a9088943"
+        }
+      ],
+      "candidateName": "Plaza 30'000 compañeros",
+      "rejectionReasons": [],
+      "candidateTraceKey": "plaza 30'000 compañeros:geoapify:51d9c4138b292f4dc05907825bd2ac4f41c0f00103f901361b513b01000000920318506c617a612033302730303020636f6d7061c3b165726f73:geoapify:51d9c4138b292f4dc05907825bd2ac4f41c0f00103f901361b513b01000000920318506c617a612033302730303020636f6d7061c3b165726f73:component:Plaza 30'000 compañeros",
+      "destinationBoundary": {
+        "name": "San Telmo",
+        "externalId": "osm:relation:2223069"
+      },
+      "groundedEvidenceKeys": [
+        "geoapify:51d9c4138b292f4dc05907825bd2ac4f41c0f00103f901361b513b01000000920318506c617a612033302730303020636f6d7061c3b165726f73"
+      ]
+    },
+    {
+      "status": "GEO_VERIFIED",
+      "accepted": true,
+      "strategy": "venue_centric",
+      "components": [
+        {
+          "role": "venue",
+          "hintKey": "wikivoyage:San_Telmo:see:see:Mercado_San_Telmo:1:component",
+          "hintName": "Mercado San Telmo",
+          "relation": "evaluated",
+          "resolvedGeoEntityId": "1180fa3c-19ef-4bfc-9dc0-7405b39de155"
+        }
+      ],
+      "candidateName": "Mercado San Telmo",
+      "rejectionReasons": [],
+      "candidateTraceKey": "mercado san telmo:wikivoyage:San_Telmo:see:see:Mercado_San_Telmo:1:wikivoyage:San_Telmo:see:see:Mercado_San_Telmo:1:component:Mercado San Telmo",
+      "destinationBoundary": {
+        "name": "San Telmo",
+        "externalId": "osm:relation:2223069"
+      },
+      "groundedEvidenceKeys": [
+        "wikivoyage:San_Telmo:see:see:Mercado_San_Telmo:1"
+      ]
+    },
+    {
+      "status": "GEO_VERIFIED",
+      "accepted": true,
+      "strategy": "venue_centric",
+      "components": [
+        {
+          "role": "venue",
+          "hintKey": "wikivoyage:San_Telmo:see:see:Plaza_Dorrego:1:component",
+          "hintName": "Plaza Dorrego",
+          "relation": "evaluated",
+          "resolvedGeoEntityId": "8a7d6541-b194-4cd3-a7fd-26330406112f"
+        }
+      ],
+      "candidateName": "Plaza Dorrego",
+      "rejectionReasons": [],
+      "candidateTraceKey": "plaza dorrego:wikivoyage:San_Telmo:see:see:Plaza_Dorrego:1:wikivoyage:San_Telmo:see:see:Plaza_Dorrego:1:component:Plaza Dorrego",
+      "destinationBoundary": {
+        "name": "San Telmo",
+        "externalId": "osm:relation:2223069"
+      },
+      "groundedEvidenceKeys": [
+        "wikivoyage:San_Telmo:see:see:Plaza_Dorrego:1"
+      ]
+    }
+  ]
+}

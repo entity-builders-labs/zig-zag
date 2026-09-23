@@ -1,0 +1,78 @@
+{
+  "campaign": "Stage 3 COMPOSITE control -- San Telmo historical/cultural walk, Geoapify Places provider",
+  "purpose": "Re-run the same positive-control fixture used by spikes/stage3-santelmo-composite-control-2026-09-23 (Google Places) with PLACES_PROVIDER=geoapify, now that the generation Bitácora's provider-mislabel bug is fixed, to (a) prove the Bitácora reports the real runtime Places provider under Geoapify and (b) compare current Stage 3 behavior across the two providers.",
+  "date": "2026-09-23",
+  "branch": "feat/preference-first-selection",
+  "gitState": {
+    "startingRemoteHeadBeforeFix": "a6cf37265b38c623fd4b9aa4a17d4c19ad1622a0",
+    "bitacoraFixCommit": "03046fd45f4c8acd4c83b17efb9d40a28477cd4b",
+    "remoteHeadAfterFixPush": "03046fd45f4c8acd4c83b17efb9d40a28477cd4b",
+    "remoteHeadVerifiedUnmovedBeforeSpike": true,
+    "worktree": ".worktrees/ui-redesign"
+  },
+  "humanRequest": "caminata histórica por San Telmo",
+  "requestFile": "request.json (copied verbatim from spikes/rw1-san-telmo-historical-walk/request.json, unmodified)",
+  "runtimePath": "POST /auth/email/request-code -> POST /auth/email/verify -> POST /tours/generate-tour -> outbox TourGenerationRequested -> TourGenerationProcessorService -> ExperienceGenerationService.generateTourExperiences",
+  "orchestration": "spikes/stage3-simple-composite-mixed-2026-09-23/run-campaign.mjs (same pre-existing spike-only orchestrator reused verbatim by the Google control spike; drives only the real HTTP path above)",
+  "backendProcess": {
+    "note": "Separate process from the shared dev zigzag-backend Docker container (left untouched). Built via `yarn build`, run as `node dist/src/main.js`, PORT=4011.",
+    "envLayering": "Repo-root .env sourced first, then .env.spike.stage3-santelmo-geoapify-control overrides applied on top (GROUNDED_SEARCH_PROVIDER=serpapi, local Overpass/Nominatim, DATABASE_URL=zigzag_spike_stage3_santelmo_geoapify_control, AI_CACHE_MODE=off, USE_MOCK_MAPS=false, PLACES_PROVIDER=geoapify)."
+  },
+  "preflight": {
+    "ran": true,
+    "command": "RUN_SPIKE_PREFLIGHT=1 yarn test:live:discovery --testPathPattern=pre-b6-spike-infrastructure-preflight",
+    "result": "8/8 passed: SerpAPI selected (not Tavily), local Nominatim + Overpass reachable via real DI classes, dedicated DB confirmed (current_database=zigzag_spike_stage3_santelmo_geoapify_control, not 'zigzag'), all 7 knowledge tables started at 0"
+  },
+  "database": {
+    "name": "zigzag_spike_stage3_santelmo_geoapify_control",
+    "dedicatedFreshDatabase": true,
+    "migratedFresh": true,
+    "confirmedEmptyBeforeCold": true,
+    "confirmedNotSharedDevDb": true,
+    "rowCountsBeforeCold": {
+      "experience": 0, "experience_component": 0, "experience_evidence": 0,
+      "experience_trait": 0, "geo_entity": 0, "geo_entity_identity": 0, "trait_definition": 0
+    },
+    "rowCountsAfterCold": {
+      "experience": 11, "experience_component": 11, "experience_evidence": 12,
+      "experience_trait": 14, "geo_entity": 15, "geo_entity_identity": 15, "trait_definition": 13
+    },
+    "rowCountsAfterWarm": {
+      "experience": 11, "experience_component": 11, "experience_evidence": 12,
+      "experience_trait": 14, "geo_entity": 15, "geo_entity_identity": 15, "trait_definition": 13
+    },
+    "newRowsCreatedInWarm": 0
+  },
+  "providers": {
+    "configuredPlacesProvider": "geoapify",
+    "observedRuntimePlacesProvider": "geoapify",
+    "observedRuntimePlacesProviderEvidence": [
+      "Backend startup log: '[IntegrationsModule] Places provider: Geoapify; available=true; cache=disabled'",
+      "cold/steps/12-discovery-PASS.json -> acquisition.sourcePlans[1] = {provider: 'google_places' (historical capability discriminator, unchanged by the fix), runtimeProviders: ['geoapify'], observationCount: 16} -- produced by THIS spike's own bitácora fix (be/src/modules/tours/utils/generation-trace-builder.util.ts), proven live here, not only in unit tests",
+      "Every persisted Experience's evidenceKeys carry a 'geoapify:<id>' prefix (e.g. 'geoapify:51a401655e702f4dc05915d4f7ad3f5041c0f00102f901a75e5407000000009203194d7573656f2048697374c3b37269636f204e6163696f6e616c' for Museo Histórico Nacional)",
+      "entityResolutionAudit PLACES-strategy attempts show 'provider: geoapify' explicitly (e.g. hint 'El Zanjón de Granados', 'Basílica de San Francisco')",
+      "No 'provider: google'/'google_places' runtime evidence anywhere in either run's trace or log -- GOOGLE_PLACES_API_KEY was never called"
+    ],
+    "GROUNDED_SEARCH_PROVIDER": "serpapi",
+    "groundedSearchProviderObservedInTrace": "serpapi (SerpApiGroundedSearchService), groundingStatus: applied",
+    "DISCOVERY_EXTRACTOR_PROVIDER": "groq (qwen/qwen3.8-27b), observed in both COLD area_route_walk_acquisition attempts",
+    "preferenceInterpretationProvider": "groq (qwen/qwen3.8-27b)",
+    "OVERPASS_API_URL": "http://localhost:12345/api/interpreter (local)",
+    "NOMINATIM_API_URL": "http://localhost:8088/search (local)",
+    "tavilyUsed": false
+  },
+  "tours": {
+    "coldTourId": "1cef2587-b62f-45c9-a91f-d950e57956c1",
+    "coldRuntimeMs": 419728,
+    "warmTourId": "ed3d70b9-ad27-494a-99c3-e9471d246b89",
+    "warmRuntimeMs": 32468
+  },
+  "secondaryAnomaliesObserved": [
+    "SerpApi rejected the raw location string 'San Telmo' on every grounded-search call (both COLD attempts and the WARM attempt), falling back to a location-less query automatically each time -- identical behavior to the Google control spike, so this is a shared/provider-independent grounding-precision issue, not Geoapify-specific.",
+    "Geoapify-specific: 'GeoapifyPlacesApiService: Geoapify Places text search requires a locationBias to search safely; skipped query: \"San Telmo\"' logged once per run -- Geoapify's own text-search safety guard skipped a plain-text query the Google backend would have attempted; this did not block the run (the NEARBY-shaped GENERIC acquisition still produced 16 real observations).",
+    "Wikidata proximity lookups failed repeatedly (mix of HTTP 429 and 10s timeouts) throughout COLD; best-effort per architecture, did not block generation -- same pattern as the Google spike.",
+    "Groq rate-limited one extraction call (429, output-token-per-minute limit) during COLD; self-healed via existing retry/backoff -- same pattern as the Google spike.",
+    "No Geoapify quota/rate-limit failures observed in either run (unlike the Google spike, which exhausted its Google Places SearchTextRequest daily quota mid-COLD-run)."
+  ],
+  "secretsRedacted": true
+}

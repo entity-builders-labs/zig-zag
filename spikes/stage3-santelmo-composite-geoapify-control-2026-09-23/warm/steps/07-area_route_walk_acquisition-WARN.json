@@ -1,0 +1,83 @@
+{
+  "label": "Adquisición o reutilización de walk/ruta",
+  "stage": "area_route_walk_acquisition",
+  "inputs": {
+    "anchor": {
+      "kind": "area",
+      "usage": "named_path",
+      "status": "resolved",
+      "rawName": "San Telmo",
+      "geometry": {
+        "type": "Polygon"
+      },
+      "priority": "soft",
+      "provider": "openstreetmap",
+      "externalId": "osm:relation:2223069",
+      "geoEntityId": "6d3c9fce-3a6f-4ff6-bca7-d5d29233612b",
+      "osmBoundary": {
+        "id": "osm:relation:2223069",
+        "name": "San Telmo",
+        "tags": {
+          "name": "San Telmo",
+          "type": "boundary",
+          "boundary": "administrative",
+          "wikidata": "Q1026688",
+          "wikipedia": "es:San Telmo (Buenos Aires)",
+          "admin_level": "9"
+        },
+        "osmId": 2223069,
+        "osmType": "relation",
+        "geometry": {
+          "type": "Polygon"
+        }
+      },
+      "canonicalName": "San Telmo"
+    },
+    "deficit": {
+      "key": "walk",
+      "origin": "preference_facet",
+      "reason": "Preference facet [intent:walk] has no strong catalog match yet.",
+      "dimension": "intent"
+    },
+    "intentKey": "walk"
+  },
+  "status": "WARN",
+  "outputs": {
+    "reason": "no_accepted_results",
+    "outcome": "no_result",
+    "diagnostics": {
+      "execution": {
+        "webResults": [
+          {
+            "status": "success",
+            "evidenceCount": 18,
+            "candidateCount": 0,
+            "extractorModel": "qwen/qwen3.8-27b",
+            "groundingStatus": "applied",
+            "validationErrors": [
+              "Candidate 1: SOURCE_CONTRACT_VIOLATION: component 7 (Casa Ezeiza) unsupported: SPAN_NOT_FOUND_IN_CITED_EVIDENCE"
+            ],
+            "extractorProvider": "groq"
+          }
+        ],
+        "candidateCount": 0,
+        "webCandidateCount": 0,
+        "structuredCandidateCount": 0
+      },
+      "anchorResolved": true,
+      "materialization": {
+        "acceptedCount": 0,
+        "rejectedCount": 0,
+        "resolvedCount": 0,
+        "rejectionReasons": {},
+        "semanticallyEligibleCount": 0
+      },
+      "sourcePlanProviders": [
+        "wikivoyage",
+        "web"
+      ]
+    }
+  },
+  "summary": "Resultado AREA_ROUTE_WALK: no_result.",
+  "component": "AreaRouteWalkAcquisitionService"
+}

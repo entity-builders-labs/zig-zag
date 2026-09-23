@@ -1,0 +1,37 @@
+{
+  "label": "Resolución del destino",
+  "rules": [
+    {
+      "rule": "Determinar si el destino puede usar boundary real o debe degradar a punto",
+      "actual": "area",
+      "reason": "Se obtuvo boundary administrativo utilizable.",
+      "result": "PASS",
+      "ruleId": "DEST-SCALE-001"
+    }
+  ],
+  "stage": "destination_resolution",
+  "inputs": {
+    "destinationText": "San Telmo, Buenos Aires, Argentina",
+    "attemptedQueries": [
+      "forward:San Telmo, Buenos Aires, Argentina"
+    ]
+  },
+  "status": "PASS",
+  "outputs": {
+    "scale": "area",
+    "boundaryName": "San Telmo"
+  },
+  "summary": "\"San Telmo, Buenos Aires, Argentina\" resolvió a un límite real de ciudad: San Telmo. Se usa ese límite real para acotar la recuperación y adquisición de candidatos en vez de un único punto+radio. Intentos: forward:San Telmo, Buenos Aires, Argentina.",
+  "decision": {
+    "reason": "El boundary real es más preciso que un radio artificial para recuperación local.",
+    "status": "PASS",
+    "outcome": "USE_ADMINISTRATIVE_BOUNDARY",
+    "reasonCodes": [
+      "AREA_BOUNDARY_RESOLVED"
+    ],
+    "triggeredActions": [
+      "RETRIEVE_CATALOG"
+    ]
+  },
+  "component": "DestinationResolutionService"
+}

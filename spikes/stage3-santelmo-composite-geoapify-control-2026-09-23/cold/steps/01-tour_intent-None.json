@@ -1,0 +1,56 @@
+{
+  "label": "Intención y movilidad solicitadas",
+  "rules": [
+    {
+      "rule": "Usar el wizard canónico como fuente de restricciones explícitas",
+      "actual": 1,
+      "reason": "La generación parte de TourGenerationRequest contractVersion=1.",
+      "result": "PASS",
+      "ruleId": "INTENT-CANONICAL-001",
+      "expected": 1
+    },
+    {
+      "rule": "Conservar preferencias adicionales como intención suplementaria",
+      "actual": "caminata histórica por San Telmo",
+      "reason": "Hay texto adicional disponible para búsqueda/ranking semántico.",
+      "result": "PASS",
+      "ruleId": "INTENT-FREETEXT-001"
+    }
+  ],
+  "stage": "tour_intent",
+  "inputs": {
+    "days": 1,
+    "themes": [
+      "history"
+    ],
+    "travelPace": "moderate",
+    "destination": "San Telmo, Buenos Aires, Argentina",
+    "explorationStyle": "balanced",
+    "accessibilityNeeds": [],
+    "additionalPreferences": "caminata histórica por San Telmo",
+    "allowedTransportationModes": [
+      "walking"
+    ],
+    "maxWalkingDistancePerDayMeters": 5000,
+    "maxContinuousWalkingDistanceMeters": 3000
+  },
+  "outputs": {
+    "requestedDays": 1,
+    "requestedThemes": [
+      "history"
+    ]
+  },
+  "summary": "Temas: history. Estilo: balanced. Modos: walking. Ritmo: moderate. Preferencias adicionales capturadas: \"caminata histórica por San Telmo\".",
+  "decision": {
+    "reason": "La solicitud contiene el contrato canónico requerido por el motor.",
+    "status": "INFO",
+    "outcome": "INTENT_ACCEPTED",
+    "reasonCodes": [
+      "CANONICAL_REQUEST_AVAILABLE"
+    ],
+    "triggeredActions": [
+      "RESOLVE_DESTINATION"
+    ]
+  },
+  "component": "TourGenerationRequest"
+}
