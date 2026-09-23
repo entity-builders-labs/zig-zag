@@ -1,8 +1,13 @@
 import { extractExperienceCandidates } from './experience-candidate-extraction.util';
 
 /** Evidence whose text trivially contains `supportSpan`, for tests whose
- * concern is unrelated to source-support verification itself. */
-const ev = (key: string, text: string) => ({ key, text });
+ * concern is unrelated to source-support verification itself. `title` is
+ * optional, matching the real evidence shape (ExperienceGroundingEvidence). */
+const ev = (key: string, text: string, title?: string) => ({
+  key,
+  text,
+  title,
+});
 
 describe('extractExperienceCandidates', () => {
   it('accepts evidence-backed candidates without structural kinds', () => {
@@ -588,6 +593,45 @@ describe('extractExperienceCandidates', () => {
     expect(result.candidates).toHaveLength(1);
     expect(result.candidates[0].componentHints[0].name).toBe(
       'Parque Nacional El Leoncito',
+    );
+  });
+
+  it('accepts a componentHint whose supportSpan is found only in the cited evidence record TITLE, not its snippet -- the extractor is shown "[key] title: snippet", so real support may live in either half', () => {
+    const result = extractExperienceCandidates(
+      {
+        candidates: [
+          {
+            name: 'San Telmo Antiques Walk',
+            themes: ['history'],
+            traits: [],
+            intents: ['walk'],
+            componentHints: [
+              {
+                key: 'plaza-dorrego',
+                name: 'Plaza Dorrego',
+                role: 'venue',
+                expectedKind: 'PLACE',
+                evidenceKeys: ['ev-1'],
+                supportSpan: 'Plaza Dorrego: Antiques and Tango',
+              },
+            ],
+            evidenceKeys: ['ev-1'],
+            shortReason: 'main square',
+          },
+        ],
+      },
+      [
+        ev(
+          'ev-1',
+          'A popular Sunday destination in San Telmo.',
+          'Plaza Dorrego: Antiques and Tango',
+        ),
+      ],
+      8,
+    );
+    expect(result.candidates).toHaveLength(1);
+    expect(result.candidates[0].componentHints.map((hint) => hint.key)).toEqual(
+      ['plaza-dorrego'],
     );
   });
 });

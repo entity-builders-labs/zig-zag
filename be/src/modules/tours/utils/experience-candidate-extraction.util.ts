@@ -9,12 +9,16 @@ const ROLES = new Set(['area', 'waypoint', 'route', 'venue']);
 const KINDS = new Set(['PLACE', 'AREA', 'ROUTE']);
 const MAX_HINTS = 8;
 
-/** One evidence record's key and its real captured text, used only for the
- * deterministic source-support gate (see component-source-support.util.ts).
- * `key` must match `ExperienceGroundingEvidence.key`; `text` is that
- * record's own snippet, never a different record's text. */
+/** One evidence record's key and its real captured title/snippet text, used
+ * only for the deterministic source-support gate (see
+ * component-source-support.util.ts). `key` must match
+ * `ExperienceGroundingEvidence.key`; `title`/`text` are that same record's
+ * own title and snippet, never a different record's text -- the extractor
+ * is shown both halves (`buildDiscoveryEvidenceBlock`: "[key] title: text"),
+ * so a real supportSpan may legitimately come from either. */
 export interface DiscoveryEvidenceRecord {
   key: string;
+  title?: string;
   text: string;
 }
 
@@ -71,8 +75,8 @@ export function extractExperienceCandidates(
   maxCandidates: number,
 ): ExperienceExtractionResult {
   const evidenceKeys = new Set(evidence.map((item) => item.key));
-  const evidenceTextByKey = new Map(
-    evidence.map((item) => [item.key, item.text]),
+  const evidenceByKey = new Map(
+    evidence.map((item) => [item.key, { title: item.title, text: item.text }]),
   );
   const { entries, repairNotes } = normalizeExtractorEnvelope(raw);
   const candidates: ExperienceCandidate[] = [];
@@ -149,7 +153,7 @@ export function extractExperienceCandidates(
           const support = verifyTextualComponentSourceSupport(
             typeof hint.supportSpan === 'string' ? hint.supportSpan : undefined,
             hintEvidenceKeys,
-            evidenceTextByKey,
+            evidenceByKey,
           );
           if (support.supported === false) {
             droppedHintNotes.push(

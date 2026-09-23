@@ -280,7 +280,22 @@ Two integration spec files (`area-route-walk-geographic-validation.integration-s
 `ALLOW_DESTRUCTIVE_TEST_DB` was NOT set against the current DB to prevent data loss. Integration tests require a dedicated disposable `zigzag_test` database; fixtures typecheck but runtime integration execution was intentionally skipped for database safety. This is a validation-environment limitation, not a Stage 2 code blocker.
 
 **Production contracts changed:**
-- `GeoEntityHint`: removed `required` boolean property. Added optional `supportSpan` string property.
+- `GeoEntityHint`: removed `required` boolean property. `GeoEntityHint` itself
+  gained NO `supportSpan` field (this was misstated in an earlier revision of
+  this Progress entry and corrected 2026-09-23 -- see the corrective addendum
+  below). The real contract:
+  ```
+  raw extraction shape (LLM output, has supportSpan)
+          |
+          v
+  deterministic source-support gate (verifyTextualComponentSourceSupport)
+          |
+          v
+  canonical GeoEntityHint (no supportSpan)
+  ```
+  `supportSpan` exists only on the raw, pre-canonical componentHint shape the
+  extractor emits; the source-support gate consumes and verifies it, and the
+  canonical `GeoEntityHint` produced afterward never carries it.
 - `experience-discovery-extraction.prompt.ts`: removed `required` from extraction instructions and componentHints JSON Schema.
 - Provider adapters (`gemini-discovery.provider.ts`, `groq-discovery.provider.ts`, `ollama-discovery.provider.ts`): schemas synchronized to eliminate `required`.
 - Source support admission:
@@ -334,6 +349,85 @@ Stage 2 does NOT silently claim this is resolved; this authority belongs to Stag
 - deletion/cutover discipline: PASS (obsolete `required` paths cleaned up).
 
 **Stage 3 unblocked:** YES.
+
+### Stage 2 corrective addendum (2026-09-23)
+
+A review of the Stage 2 cutover found two remaining source-grounding gaps.
+Both are fixed here; nothing else about Stage 2's scope changed.
+
+**1. Title+snippet source-support verification.**
+The extractor is shown each evidence record as `[key] title-or-source:
+snippet` (`buildDiscoveryEvidenceBlock`), but `verifyTextualComponentSourceSupport`
+and its callers (`groq-discovery.provider.ts`, `ollama-discovery.provider.ts`,
+`gemini-discovery.provider.ts`) previously threaded through only the snippet
+half. A component whose real support text lived in the cited record's title
+was incorrectly rejected.
+- `DiscoveryEvidenceRecord` (`experience-candidate-extraction.util.ts`) now
+  carries `title?` alongside `text` (the snippet).
+- `verifyTextualComponentSourceSupport` (`component-source-support.util.ts`)
+  now checks both the title and the snippet/text of each cited evidence
+  record, same-record only -- no cross-record rescue, no fuzzy/alias/semantic
+  matching, no geography/provider lookup, no metadata side-channel.
+- `supportSpan` still never becomes part of the canonical `GeoEntityHint` --
+  see the corrected contract above.
+
+**2. Distinct-component counting for MULTI_COMPONENT_EXPERIENCE.**
+`candidateSatisfiesEvidenceRequirement` previously counted
+`componentHints.filter(role !== 'area').length`, so the same obvious
+component duplicated twice (even under a different hint `key`/
+`evidenceKeys`) could satisfy `MULTI_COMPONENT_EXPERIENCE` on its own.
+- `acquisition-candidate-requirement.util.ts` now collapses componentHints by
+  a deterministic, provider-neutral fingerprint (normalized component name +
+  structural role + `expectedKind`; case/diacritics/punctuation/whitespace
+  normalization only) before counting for both `SINGLE_PLACE` and
+  `MULTI_COMPONENT_EXPERIENCE`. No fuzzy matching, aliases, semantic
+  similarity, coordinates, provider identity, or Stage 3 canonical-identity
+  logic was introduced -- names that could later prove to be aliases of the
+  same real place remain distinct here; identity resolution stays Stage 3's
+  job.
+
+**Embedding decision (unchanged scope, documented rationale):**
+`EXPERIENCE_EMBEDDING_DOCUMENT_VERSION` stays at 3. No cron, job, CLI
+command, HTTP endpoint, or startup reindex was added for bulk migration of
+stale-version embeddings, and `ExperienceEmbeddingIndexerService`'s existing
+test proving stale document versions are selectable for reindexing is
+unchanged. Rationale:
+- the current development database/catalog is disposable (see AGENTS.md's
+  early-stage deletion rule); rebuilding the DB produces v3 embeddings
+  directly, with no migration needed.
+- a production bulk-reindex mechanism only becomes relevant once a
+  persistent catalog must survive a future semantic-document version change
+  without a rebuild -- that is not the current situation.
+- individual Experience updates already go through the existing normal flow
+  unaffected by this decision: dedupe `NEW` generates an embedding; dedupe
+  `SAME` invalidates the existing embedding via the current persistence path,
+  and the resolver indexes that Experience again. `semanticDocumentChanged`
+  behavior on the `SAME` path (currently conservative -- always `true`, even
+  when the semantic document may be unchanged) is unchanged by this fix; it
+  is separate future optimization/debt, not Stage 2 scope.
+
+**Validation executed for this addendum:**
+```
+cd be && npx tsc --noEmit -p .
+cd be && npx eslint <changed files>
+cd be && yarn test
+```
+See the corrective commit for exact output. The pre-existing
+`preference-first-architecture.spec.ts` failure (documented above, unrelated
+production line untouched since starting HEAD) is unaffected by this
+addendum.
+
+**isMigrationRequiredHint:** untouched -- remains the explicit, typed,
+temporary Stage-4 migration seam described above.
+
+**Scope discipline:** no catalog-first GeoEntity lookup, El Zanjón
+corroboration semantics, Plaza acquisition continuation, Nuestra Señora de
+Belén IdentityVerifier precedence, NO_OSM_MATCH fidelity, component
+geographic relations, CompositeGeographicValidation redesign,
+spatial-footprint `required` behavior, partial-composite persistence, or
+Tourism Researcher work was touched. Those remain Stage 3/4 scope.
+
+**Stage 3 unblocked:** YES (unchanged).
 
 
 For each completed stage also record, directly below the table:

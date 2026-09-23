@@ -67,7 +67,11 @@ export class GroqDiscoveryProvider {
     return {
       ...extractExperienceCandidates(
         parsed,
-        evidence.map((item) => ({ key: item.key, text: item.snippet })),
+        evidence.map((item) => ({
+          key: item.key,
+          title: item.title,
+          text: item.snippet,
+        })),
         request.maxCandidates,
       ),
       provider: 'groq',

@@ -17,6 +17,12 @@
  * captured text of that specific cited evidence record -- never a fuzzy
  * name match, never checked against evidence the component did not cite.
  *
+ * The extractor is shown each evidence record as `[key] title-or-source:
+ * snippet` (buildDiscoveryEvidenceBlock), so a real, verbatim supportSpan
+ * may legitimately come from either half of that line. Checking only the
+ * snippet half would reject a valid componentHint whose only real supporting
+ * text happens to be the record's title.
+ *
  * A structured-source componentHint (`StructuredExperienceCandidateSynthesizerService`)
  * does not go through this function at all: its componentHints are built
  * mechanically 1:1 from the originating `SourceObservation`'s own `title`,
@@ -33,20 +39,27 @@ export type ComponentSourceSupportResult =
   | { supported: true }
   | { supported: false; reason: ComponentSourceSupportReason };
 
+/** The real captured title/snippet text of one cited evidence record. */
+export interface EvidenceSupportText {
+  title?: string;
+  text: string;
+}
+
 function normalize(value: string): string {
   return value.toLowerCase().replace(/\s+/g, ' ').trim();
 }
 
 /**
  * Verifies a textual componentHint's `supportSpan` against the real
- * captured text of ITS OWN cited evidence keys only -- a span that is real
- * text from a different, uncited evidence record does not count (this is
- * exactly the "support points to wrong evidence record" failure mode).
+ * captured title/snippet text of ITS OWN cited evidence keys only -- a span
+ * that is real text from a different, uncited evidence record does not
+ * count (this is exactly the "support points to wrong evidence record"
+ * failure mode), and neither does a fuzzy/alias/semantic match.
  */
 export function verifyTextualComponentSourceSupport(
   supportSpan: string | undefined,
   evidenceKeys: string[],
-  evidenceTextByKey: ReadonlyMap<string, string>,
+  evidenceByKey: ReadonlyMap<string, EvidenceSupportText>,
 ): ComponentSourceSupportResult {
   const trimmedSpan = typeof supportSpan === 'string' ? supportSpan.trim() : '';
   if (!trimmedSpan) {
@@ -56,11 +69,14 @@ export function verifyTextualComponentSourceSupport(
   const normalizedSpan = normalize(trimmedSpan);
   let sawEvidenceText = false;
   for (const key of evidenceKeys) {
-    const text = evidenceTextByKey.get(key);
-    if (typeof text !== 'string' || !text.trim()) continue;
-    sawEvidenceText = true;
-    if (normalize(text).includes(normalizedSpan)) {
-      return { supported: true };
+    const record = evidenceByKey.get(key);
+    if (!record) continue;
+    for (const candidate of [record.title, record.text]) {
+      if (typeof candidate !== 'string' || !candidate.trim()) continue;
+      sawEvidenceText = true;
+      if (normalize(candidate).includes(normalizedSpan)) {
+        return { supported: true };
+      }
     }
   }
 
