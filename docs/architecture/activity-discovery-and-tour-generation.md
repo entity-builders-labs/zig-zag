@@ -1431,3 +1431,37 @@ document because the current document serializes `required/optional`.
 The cutover therefore requires an embedding document-version bump and reindex
 of stale VERIFIED Experiences.
 
+### Experience Domain V2 — source grounding and deficit classification refinement (2026-09-22)
+
+Catalog-first reuse does not weaken source authority. Before any component hint
+can enter identity resolution, its cited SourceObservation must contain
+verifiable support for the component (a structured source item or a bounded
+textual support span that can be checked against the captured evidence). A
+nearby real GeoEntity cannot retroactively justify an extractor hallucination.
+
+The RW1 cold-2 `Basílica de Santa Mónica` / `ev-11` case is the regression
+fixture: the component must fail at source-support admission, not later only
+because no provider happened to return a matching POI.
+
+Candidate correlation is a distinct provider-neutral stage before final
+IdentityVerifier judgment:
+
+```text
+catalog candidate + provider observations
+        ↓
+deterministic canonical-object correlation
+        ↓
+candidate cluster(s) + typed evidence
+        ↓
+IdentityVerifier
+```
+
+Correlation owns grouping only. IdentityVerifier remains the single authority
+for "does this candidate/cluster satisfy the hint?". Provider count is never a
+vote.
+
+Finally, only genuine world-knowledge ambiguity may become a Tourism Researcher
+deficit. Provider/operational failure, premature acquisition termination,
+source-contract violation or a misleading aggregate rejection reason are
+system defects and stay outside the research-agent loop.
+

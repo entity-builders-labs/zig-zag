@@ -59,7 +59,26 @@ Create deterministic fixtures from real RW1 failure shapes, including:
 5. divergent-provider case:
    two candidate clusters that cannot be safely correlated remain AMBIGUOUS.
 6. extractor hallucination:
-   an entity absent from cited source evidence cannot become a component.
+   reproduce cold-2's `Basílica de Santa Mónica` / `ev-11` shape and prove
+   that a component unsupported by its cited source is rejected **before**
+   geographic acquisition, even if a real similarly named POI exists.
+7. summary-reason fidelity:
+   reproduce "candidate(s) acquired but identity rejected" and prove the
+   proposal-level reason cannot degrade to `NO_OSM_MATCH`.
+8. Plaza de Mayo acquisition:
+   characterize why the observed RW1 path stopped after the wrong Plaza
+   Dorrego candidate instead of continuing through every *applicable,
+   policy-permitted* acquisition strategy.
+
+For each RW1 failure fixture, classify the observed failure before changing
+behavior:
+
+- genuine `KNOWLEDGE_DEFICIT`;
+- provider/operational failure;
+- resolver/acquisition defect;
+- source-contract violation.
+
+Only genuine knowledge deficits are eligible for the future Researcher.
 
 Tests must prove the old behavior first where practical.
 
@@ -74,6 +93,18 @@ to the same evidenced Experience.
 
 Structured-source synthesis must use the same resulting domain contract; do not
 retain a hidden second meaning of `required`.
+
+At the same extraction/normalization boundary, add a hard **source-support
+admission gate**. Every component must point to verifiable support in its cited
+SourceObservation (structured item or bounded textual support span). If a
+support span is emitted by the extractor, validate that it is actually present
+in the cited evidence record. Do not implement this as a naive fuzzy
+name-token overlap rule: aliases/translations belong to identity resolution,
+while this gate answers only "did this source actually originate this
+component?".
+
+Phase 3 identity-leniency changes are blocked until this gate has
+characterization coverage, including the Santa Mónica regression.
 
 Delete superseded tests/compatibility code under the early-stage deletion rule.
 
@@ -124,8 +155,23 @@ facts required to explain:
 - coordinates/geometry;
 - outcome.
 
-Add a provider-neutral correlation step that groups observations believed to
-represent the same real-world entity.
+Add one canonical provider-neutral **candidate-correlation stage** adjacent to
+the resolver. Its job is normalization/grouping of observations, not final
+hint verification. It may deterministically collapse observations when they
+share a canonical identity key/cross-reference (for example the same OSM
+object or an existing GeoEntity identity). The existing IdentityVerifier
+remains the one authority that decides whether the resulting candidate/cluster
+actually satisfies the component hint.
+
+Do not create a second fuzzy identity engine inside correlation. If grouping
+requires uncertain name/address/coordinate inference, surface the competing
+clusters/evidence to IdentityVerifier instead of silently merging them.
+
+Define bounded acquisition continuation explicitly. Providers do **not** all
+need to run on every hint (cost policy still applies), but "first candidate was
+identity-rejected" must not silently terminate further applicable strategies
+unless a canonical stop/budget rule says so. Trace the stop reason. Characterize
+the Plaza de Mayo RW1 path as part of this work.
 
 It must not implement vote counts such as "two providers beat one".
 
@@ -144,8 +190,14 @@ Required distinctions:
 Review the 2026-09-17 Wikidata gate. A failed/non-matching nearby Wikidata
 lookup must not automatically become positive contradiction.
 
-A unique strong candidate may verify without Wikidata when the canonical
-identity policy has sufficient evidence.
+This phase runs only after catalog-first reuse/candidate correlation and the
+source-support gate are characterized. Re-test El Zanjón first: if exact
+canonical-object correlation already resolves it, do not weaken unrelated
+identity cases merely to reproduce that success.
+
+A remaining unique strong candidate may verify without Wikidata only when the
+canonical IdentityVerifier has sufficient positive evidence after ambiguity
+and contradiction checks. "One source can be enough" is not a blanket bypass.
 
 Do not introduce destination exceptions or an open-ended fuzzy-score magic
 threshold merely to accept El Zanjón.
@@ -153,6 +205,18 @@ threshold merely to accept El Zanjón.
 ## Phase 4 — Component geographic relation
 
 Evolve the existing area-scope membership policy as the single authority.
+
+This phase has an explicit dependency on Phase 1: the current
+`AreaScopeComponentFact.required` filter/zero-required behavior must be
+removed/redefined. The replacement rule is structural and resolution-based:
+
+- every evidence-backed component contributes to coverage/research state;
+- every **resolved** physical component participates in component-geographic
+  relation evaluation;
+- unresolved/ambiguous components remain deficits rather than being converted
+  into implicit geographic failures;
+- AREA/ROUTE/venue strategy selection is driven by canonical structural
+  roles/kinds and available geometry, not an LLM-authored required bit.
 
 For AREA scopes, expose typed relation facts equivalent to:
 
@@ -166,7 +230,9 @@ Implementation names may differ.
 Rules:
 
 - PLACE membership uses polygon containment and boundary distance;
-- ROUTE membership uses actual geometry/intersection/corridor semantics;
+- ROUTE membership reuses the existing LineString/polygon segment-intersection
+  mechanics and exposes the result as typed relation evidence; do not
+  reimplement geometry math in a parallel policy;
 - POINT_RADIUS keeps center/radius semantics;
 - NEAR is evidence, not standalone acceptance;
 - the area centroid is not the main membership primitive for real AREA scopes.
@@ -201,6 +267,19 @@ research result may be enough for the first characterization rerun.
 Update `CompositeGeographicValidationService` so it consumes resolved component
 facts rather than LLM `required` flags.
 
+Treat this as a strategy redesign, not a mechanical field deletion. Today
+`required` influences multiple paths, including external-scope rejection,
+canonical geometry shortcuts and generic/venue-centric Experience validation
+(`rejectIfExternalScopeViolated`, `tryCanonicalGeometry`,
+`validateExperience`). Characterize and cut over each branch so no hidden
+`required` authority survives.
+
+Strategy selection after cutover must be based on canonical structural facts
+(AREA/ROUTE/PLACE roles/kinds, canonical geometry, source-backed sequence) plus
+resolved component outcomes. Unresolved components remain explicit research
+deficits and may limit planner eligibility, but they no longer choose the
+geographic strategy by virtue of an LLM boolean.
+
 Preserve its role as the single authority for set-level spatial coherence.
 
 It should reason about:
@@ -229,6 +308,10 @@ Update trace contracts/rendering to expose, per component:
 - research deficit.
 
 At composite level expose counts, ratio and set-level geographic outcome.
+
+Fix summary-reason fidelity in the same cutover: "no provider candidate" and
+"candidate acquired but identity rejected/unconfirmed" are distinct outcomes.
+The RW1 `NO_OSM_MATCH` mis-summary must have a regression test.
 
 Geometry payload-size invariants remain unchanged.
 
@@ -261,8 +344,10 @@ Required analysis:
 - how many real source-backed composites are extracted;
 - per-component resolution matrices;
 - El Zanjón outcome;
-- Plaza de Mayo AREA relation;
-- Calle Defensa ROUTE relation;
+- Plaza de Mayo acquisition/fan-out outcome;
+- a deterministic **resolved** outside-but-near AREA fixture for the Plaza-de-
+  Mayo-style design scenario;
+- Calle Defensa typed ROUTE/AREA relation using the existing intersection math;
 - how many composites reach Composite Geographic Validation;
 - composite acceptance/rejection reasons;
 - false-positive identity cases;
@@ -272,7 +357,9 @@ Only after this rerun propose:
 
 - partial-resolution ratio X;
 - minimum component count Y;
-- any generic NEAR threshold not already owned by a canonical primitive.
+- any generic AREA-boundary NEAR threshold not already owned by a canonical
+  primitive. Do not reuse Wikidata's existing 200m confirmation-search radius
+  merely because the number exists.
 
 The proposal must use observed distributions and counterexamples, not one
 successful fixture.
@@ -290,8 +377,14 @@ openResearchDeficit
 → verified / exhausted / manual-review
 ```
 
-Examples include unresolved aliases, address confirmation, official-site
-identity, provider ambiguity and missing composition facts.
+Only `KNOWLEDGE_DEFICIT` outcomes may enter this loop. Provider failures,
+resolver/acquisition defects, source-support violations and misleading summary
+reasons are deterministic/engineering repair work, not "research".
+
+Examples of legitimate research include unresolved aliases after normal
+resolution succeeds, genuine same-name ambiguity, address/official-site
+identity confirmation, competing plausible candidate clusters and missing
+composition facts.
 
 The LLM may decide what to investigate; it never declares geographic identity
 truth.
@@ -305,11 +398,13 @@ cutover.
 Before declaring this milestone complete, report PASS/FAIL for:
 
 - source/composition authority;
+- source-support admission gate blocks unsupported extracted components;
+- RW1 failures classified as knowledge deficits vs provider/resolver/source defects;
 - catalog-first GeoEntity reuse before external re-resolution;
 - no automatic component → standalone Experience promotion;
 - provider isolation;
 - typed canonical facts;
-- single identity policy authority;
+- single candidate-correlation owner and single IdentityVerifier decision authority;
 - single geographic policy authority;
 - no LLM-owned geographic truth;
 - no magic thresholds;
@@ -318,7 +413,7 @@ Before declaring this milestone complete, report PASS/FAIL for:
 - no provider voting;
 - no new semantic taxonomy;
 - partial state cannot reach planner;
-- trace explainability;
+- trace explainability, including no false NO_OSM_MATCH summary after identity rejection;
 - RW1 cold/warm evidence;
 - tests/typecheck/lint actually executed.
 

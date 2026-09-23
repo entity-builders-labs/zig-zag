@@ -81,6 +81,33 @@ hardening:
 Partial resolution is worth preserving only after the Experience/composition
 has legitimate evidence authority.
 
+
+The forensic corpus contains a concrete counterexample that makes this gate
+non-optional: cold-2 extraction emitted **"Basílica de Santa Mónica"** while
+citing `ev-11`, whose captured snippet does not mention that basilica or a
+semantically equivalent entity. The current pipeline only avoided persistence
+because later geographic acquisition failed to find a matching real entity.
+That is accidental defense, not source authority.
+
+Before component identity resolution, every extracted component therefore needs
+**verifiable source support** tied to the cited observation. The exact wire
+contract remains an implementation decision, but the backend must be able to
+prove one of the following without trusting a new LLM assertion:
+
+- the cited structured source item explicitly names the component; or
+- the cited textual evidence contains a bounded supporting span/claim that
+  actually originated the component hint.
+
+If an extractor returns a supporting text span, the backend must verify that
+the span is present in the cited evidence record. Identity resolution may later
+map that source name to aliases/translations/canonical names; source grounding
+must not be implemented as a naive global fuzzy-name gate or as geographic
+proximity.
+
+This source-support gate is a **precondition** for any later relaxation of
+identity corroboration. A real nearby POI must never rescue a component that
+the cited Experience evidence did not contain.
+
 ---
 
 ## 3. Remove LLM-owned `required` from geographic truth
@@ -245,6 +272,19 @@ Exact policy for which identity-evidence combinations are sufficient belongs to
 the canonical IdentityVerifier and must be characterized by generic tests. Do
 not add destination-specific exceptions.
 
+
+Implementation order matters: candidate correlation / canonical-object reuse
+must be characterized **before** broadening single-source verification. El
+Zanjón demonstrates why. Correlating multiple acquisition paths that point to
+the exact same canonical object may resolve the case without weakening the
+general corroboration threshold at all. Only cases that remain genuinely
+uncertain after catalog reuse/correlation should exercise revised
+`NOT_CORROBORATED` semantics.
+
+"One strong source may be sufficient" is therefore not a blanket bypass. It is
+a bounded outcome of the canonical identity policy after source grounding,
+catalog reuse/candidate correlation, ambiguity checks and contradiction checks.
+
 ---
 
 ## 7. No new closed tourism-type taxonomy for identity
@@ -294,8 +334,11 @@ Important rules:
 - a PLACE outside the polygon may be near the area boundary; measure against
   the boundary, not the area's centroid.
 - `NEAR` alone never authorizes inclusion in a composite.
-- ROUTE + AREA: evaluate real LineString/geometry intersection/corridor
-  semantics. Do not reduce the route to one representative point.
+- ROUTE + AREA: preserve and expose the real LineString/polygon intersection
+  behavior already present in the existing area-scope membership policy. The
+  missing capability is primarily a typed relation/result (for example
+  INTERSECTS vs OUTSIDE) and removal of `required` gating, not invention of
+  segment-intersection math from scratch.
 - POINT_RADIUS remains a legitimate center+radius scope and is not replaced by
   AREA semantics.
 
@@ -338,20 +381,32 @@ source-backed component
 If providers produce genuinely incompatible candidate clusters, the result is
 AMBIGUOUS / NEEDS_RESEARCH, never silent majority voting.
 
-### Plaza de Mayo
+### Plaza de Mayo — design scenario, not the observed RW1 geo failure
 
-A real source-backed San Telmo walk may start near Plaza de Mayo and then enter
-San Telmo via Calle Defensa.
+Plaza de Mayo remains a useful **architectural test case** for AREA semantics:
+a source-backed San Telmo walk can legitimately start near Plaza de Mayo and
+then enter San Telmo via Calle Defensa.
 
 ```text
-Plaza de Mayo: outside San Telmo polygon but plausibly NEAR
+resolved Plaza de Mayo: outside San Telmo polygon but plausibly NEAR
 Calle Defensa: route geometry INTERSECTS / connects into San Telmo
 later stops: INSIDE
 ```
 
-Strict "every point inside San Telmo" would be a false rejection. `NEAR`
-still requires composite evidence/coherence; it does not make arbitrary nearby
-places valid.
+However, the 2026-09-22 RW1 baseline did **not** reach this geographic decision.
+In the observed runs the Plaza de Mayo hint acquired the wrong local OSM
+candidate (Plaza Dorrego), which IdentityVerifier correctly rejected; no
+correctly resolved Plaza de Mayo geometry reached AREA relation evaluation.
+
+Therefore Plaza de Mayo must not be cited as evidence that current geographic
+containment rejected a valid point. It exposes a separate acquisition/resolver
+coverage question first. The NEAR scenario should be tested with a deterministic
+resolved fixture (and later a live source-backed case) independently of that
+RW1 acquisition defect.
+
+Strict "every resolved point inside San Telmo" is still architecturally too
+strong, but that claim comes from the domain model/source-backed route scenario,
+not from a successful Plaza-de-Mayo component resolution in RW1.
 
 ### Calle Defensa
 
@@ -394,6 +449,23 @@ status names. The implementation must preserve the distinction between:
 
 Partial research state must never become planner-eligible merely because it
 crosses an arbitrary percentage.
+
+Before a deficit can enter that loop, distinguish **knowledge deficits** from
+system/acquisition defects:
+
+- `KNOWLEDGE_DEFICIT`: the pipeline ran as designed but identity/composition
+  remains genuinely ambiguous or insufficient (for example a common-name
+  ambiguity);
+- provider/operational failure: an applicable provider could not be queried or
+  completed;
+- resolver/acquisition defect: the pipeline stopped or summarized the case
+  incorrectly despite available evidence;
+- source-contract violation: the extracted component was not actually grounded
+  in its cited source.
+
+Only the first class belongs to the Tourism Researcher. Operational failures,
+resolver defects and extraction-contract violations belong to deterministic
+repair/engineering paths and must not be disguised as "research".
 
 The future Researcher loop should target the precise deficits instead of
 restarting broad discovery:
@@ -456,7 +528,10 @@ yet**.
 
 Likewise, no generic `NEAR` meter threshold is introduced by this amendment
 unless an existing canonical geographic primitive already provides the exact
-semantics required.
+semantics required. The existing `CONFIRMATION_RADIUS_METERS = 200` used by
+Wikidata nearby confirmation is a **different policy** (corroboration-search
+radius), not an AREA-boundary NEAR threshold and must not be silently reused as
+one.
 
 RW1 must be rerun after observability and component/composite separation exist.
 Only then should thresholds be proposed from evidence.
@@ -477,6 +552,13 @@ answer:
 - component geographic relation to the request scope;
 - final component status;
 - unresolved research question, if any.
+
+At proposal level, summary reasons must faithfully aggregate component outcomes.
+The RW1 corpus contains a concrete defect where a candidate with real OSM/
+Nominatim matches was summarized as `NO_OSM_MATCH` after identity rejection.
+A summary must distinguish "no candidate acquired" from "candidate acquired but
+identity not confirmed/rejected"; otherwise the Researcher and engineers are
+sent toward the wrong problem.
 
 At proposal level it should show:
 

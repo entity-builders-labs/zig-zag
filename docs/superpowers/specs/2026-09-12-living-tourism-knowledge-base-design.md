@@ -402,3 +402,18 @@ Planner capacity repair also remains catalog-first: reuse verified Experiences
 and the ranked reservoir before external acquisition. Nearby/proximity may help
 find candidates, but cannot establish membership in a source-backed composite.
 
+### Research deficits are not system defects
+
+A Living KB should remember uncertainty, but it must not convert every failed
+resolution into "knowledge that needs research".
+
+Only a genuine unresolved fact after the normal deterministic acquisition /
+resolution contract completes is a research deficit. Provider outages,
+premature acquisition stop, misleading aggregate reason codes and components
+unsupported by their cited source are operational/engineering/source-contract
+failures. They must be repaired at those boundaries rather than handed to the
+Tourism Researcher.
+
+This distinction keeps the future agent focused on unknown facts in the world
+instead of compensating for bugs in Zig-Zag.
+
