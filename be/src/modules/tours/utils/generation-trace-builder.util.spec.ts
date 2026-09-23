@@ -1116,6 +1116,89 @@ describe('buildAcquisitionStep', () => {
     expect(fail.providerStatus).toBe('failed');
   });
 
+  /**
+   * Source-composition-authority correction: the per-component source-
+   * support audit must be inspectable in the trace's extractor block,
+   * distinct from candidateDecisions (which only ever sees canonical
+   * candidates that already passed the source-support gate).
+   */
+  it('surfaces sourceSupportAudits in the web extractor trace block', () => {
+    const plan = {
+      sourcePlans: [
+        {
+          provider: 'web',
+          web: { query: 'San Telmo history' },
+        },
+      ],
+      deficits: [] as { reason: string }[],
+    };
+    const step = buildAcquisitionStep({
+      passNumber: 1,
+      plan,
+      execution: {
+        observations: [],
+        candidates: [],
+        providerResults: {},
+        webResults: [
+          {
+            status: 'success',
+            query: 'San Telmo history',
+            evidenceKeys: ['ev-11'],
+            extractorProvider: 'gemini',
+            validationErrors: [
+              'Candidate 1: SOURCE_CONTRACT_VIOLATION: component 1 (Basílica de Santa Mónica) unsupported: SPAN_NOT_FOUND_IN_CITED_EVIDENCE',
+            ],
+            extractedCandidateCount: 0,
+            candidateCount: 0,
+            candidateDecisions: [],
+            sourceSupportAudits: [
+              {
+                candidateName: 'San Telmo Historic Walk',
+                status: 'SOURCE_CONTRACT_VIOLATION',
+                emittedComponentCount: 1,
+                supportedComponentCount: 0,
+                unsupportedComponentCount: 1,
+                components: [
+                  {
+                    index: 0,
+                    key: 'basilica-santa-monica',
+                    name: 'Basílica de Santa Mónica',
+                    role: 'waypoint',
+                    expectedKind: 'PLACE',
+                    evidenceKeys: ['ev-11'],
+                    status: 'UNSUPPORTED',
+                    reason: 'SPAN_NOT_FOUND_IN_CITED_EVIDENCE',
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    });
+
+    const webSource = step.acquisition?.sourcePlans.find(
+      (source) => source.provider === 'web',
+    );
+    expect(webSource?.web?.extractor?.sourceSupportAudits).toEqual([
+      expect.objectContaining({
+        candidateName: 'San Telmo Historic Walk',
+        status: 'SOURCE_CONTRACT_VIOLATION',
+        unsupportedComponentCount: 1,
+      }),
+    ]);
+    expect(
+      webSource?.web?.extractor?.sourceSupportAudits[0].components[0],
+    ).toMatchObject({
+      key: 'basilica-santa-monica',
+      status: 'UNSUPPORTED',
+      reason: 'SPAN_NOT_FOUND_IN_CITED_EVIDENCE',
+    });
+    // Never present in candidateDecisions -- it never reached identity
+    // acquisition.
+    expect(webSource?.web?.extractor?.candidateDecisions).toEqual([]);
+  });
+
   it('keeps the source-to-candidate forensic chain typed, bounded, and serializable', () => {
     const candidate: Partial<ExperienceCandidate> = {
       name: 'Historic District Walk',

@@ -659,6 +659,81 @@ describe('ExperienceAcquisitionService', () => {
         });
         expect(result.candidates).toHaveLength(0);
       });
+
+      /**
+       * Source-composition-authority correction seam test: a raw extracted
+       * candidate that fails the deterministic source-support gate never
+       * becomes a canonical `ExperienceCandidate` (see
+       * experience-candidate-extraction.util.ts). This proves the wiring at
+       * this service boundary: such a candidate must not reach
+       * `candidateDecisions` (which only evaluates canonical candidates
+       * against evidence requirements) nor `execution.candidates` (which
+       * feeds `ExperienceProposalResolver`/materialization) -- it is only
+       * observable via `webResults[].sourceSupportAudits`.
+       */
+      it('never threads a SOURCE_CONTRACT_VIOLATION raw candidate into candidateDecisions or execution.candidates, only into sourceSupportAudits', async () => {
+        const search = jest.fn().mockResolvedValue(groundedResult);
+        const extractExperiences = jest.fn().mockResolvedValue({
+          // The extractor itself already rejected the raw candidate at
+          // extraction time -- no canonical ExperienceCandidate is emitted.
+          candidates: [],
+          validationErrors: [
+            'Candidate 1: SOURCE_CONTRACT_VIOLATION: component 1 (Basílica de Santa Mónica) unsupported: SPAN_NOT_FOUND_IN_CITED_EVIDENCE',
+          ],
+          sourceSupportAudits: [
+            {
+              candidateName: 'San Telmo Historic Walk',
+              status: 'SOURCE_CONTRACT_VIOLATION',
+              emittedComponentCount: 1,
+              supportedComponentCount: 0,
+              unsupportedComponentCount: 1,
+              components: [
+                {
+                  index: 0,
+                  key: 'basilica-santa-monica',
+                  name: 'Basílica de Santa Mónica',
+                  role: 'waypoint',
+                  expectedKind: 'PLACE',
+                  evidenceKeys: ['ev-11'],
+                  status: 'UNSUPPORTED',
+                  reason: 'SPAN_NOT_FOUND_IN_CITED_EVIDENCE',
+                },
+              ],
+            },
+          ],
+          provider: 'gemini',
+          model: 'gemini-x',
+          rawOutput: '{"candidates":[]}',
+        });
+        const service = new ExperienceAcquisitionService(
+          {} as any,
+          {} as any,
+          { acquire: jest.fn() } as any,
+          { acquire: jest.fn() } as any,
+          new StructuredExperienceCandidateSynthesizerService(),
+          new StructuredCandidateCorroborationService(),
+          undefined,
+          { search } as any,
+          { extractExperiences } as any,
+        );
+
+        const result = await service.executePlan(webPlan);
+
+        expect(result.candidates).toHaveLength(0);
+        expect(result.webResults?.[0]?.candidateDecisions).toEqual([]);
+        expect(result.webResults?.[0]?.extractedCandidateCount).toBe(0);
+        expect(result.webResults?.[0]?.candidateCount).toBe(0);
+        expect(result.webResults?.[0]?.sourceSupportAudits).toEqual([
+          expect.objectContaining({
+            candidateName: 'San Telmo Historic Walk',
+            status: 'SOURCE_CONTRACT_VIOLATION',
+            unsupportedComponentCount: 1,
+          }),
+        ]);
+        expect(result.webResults?.[0]?.validationErrors.join(' ')).toContain(
+          'SOURCE_CONTRACT_VIOLATION',
+        );
+      });
     });
 
     describe('acquireNearby with ExperienceProposalResolver', () => {

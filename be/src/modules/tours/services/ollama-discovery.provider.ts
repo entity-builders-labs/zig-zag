@@ -106,6 +106,7 @@ export class OllamaDiscoveryProvider {
       return {
         candidates: [],
         validationErrors: ['Failed to parse JSON response'],
+        sourceSupportAudits: [],
         provider: 'ollama',
         model,
         rawOutput: raw,

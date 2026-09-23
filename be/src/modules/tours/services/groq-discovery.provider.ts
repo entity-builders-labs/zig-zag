@@ -59,6 +59,7 @@ export class GroqDiscoveryProvider {
       return {
         candidates: [],
         validationErrors: ['Failed to parse JSON response'],
+        sourceSupportAudits: [],
         provider: 'groq',
         model: this.model,
         rawOutput: raw,

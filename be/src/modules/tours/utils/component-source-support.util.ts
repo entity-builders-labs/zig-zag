@@ -39,6 +39,18 @@ export type ComponentSourceSupportResult =
   | { supported: true }
   | { supported: false; reason: ComponentSourceSupportReason };
 
+/**
+ * Explicit type-predicate narrowing helper. This repo's tsconfig sets
+ * `strictNullChecks: false`, under which plain `if (result.supported)`
+ * control-flow narrowing of this discriminated union is unreliable; an
+ * explicit type-predicate function narrows correctly regardless.
+ */
+export function isUnsupportedComponentSourceSupportResult(
+  result: ComponentSourceSupportResult,
+): result is { supported: false; reason: ComponentSourceSupportReason } {
+  return result.supported === false;
+}
+
 /** The real captured title/snippet text of one cited evidence record. */
 export interface EvidenceSupportText {
   title?: string;

@@ -28,6 +28,7 @@ import { PreferenceCoverageResult } from '../interfaces/preference-spec.interfac
 import { CandidateScoreBreakdown } from './candidate-ranking.util';
 import { SourceObservation } from '../interfaces/experience-acquisition.interface';
 import { ExperienceCandidate } from '../interfaces/experience-discovery.interface';
+import { CandidateSourceSupportAudit } from './experience-candidate-extraction.util';
 import { isMigrationRequiredHint } from './geo-entity-hint-required-migration.util';
 import { AcquisitionEvidenceRequirement } from '../interfaces/acquisition-evidence-requirement.interface';
 import type { CorroborationGroupTrace } from '../services/structured-candidate-corroboration.service';
@@ -1013,6 +1014,7 @@ export function buildAcquisitionStep(params: {
           | 'MATCHING_EVIDENCE_REQUIREMENT'
           | 'NO_MATCHING_EVIDENCE_REQUIREMENT';
       }>;
+      sourceSupportAudits?: CandidateSourceSupportAudit[];
       failureReason?: string;
     }>;
     structuredCandidateCount?: number;
@@ -1152,6 +1154,7 @@ export function buildAcquisitionStep(params: {
                         accepted: decision.accepted,
                         reason: decision.reason,
                       })),
+                      sourceSupportAudits: webResult.sourceSupportAudits ?? [],
                     }
                   : undefined,
               }

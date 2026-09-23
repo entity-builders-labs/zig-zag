@@ -73,6 +73,7 @@ export class GeminiDiscoveryProvider {
       return {
         candidates: [],
         validationErrors: ['Missing Gemini API key'],
+        sourceSupportAudits: [],
         provider: 'gemini',
         model: this.model,
       };
@@ -86,6 +87,7 @@ export class GeminiDiscoveryProvider {
       return {
         candidates: [],
         validationErrors: ['Failed to parse JSON response'],
+        sourceSupportAudits: [],
         provider: 'gemini',
         model: this.model,
         rawOutput: raw,

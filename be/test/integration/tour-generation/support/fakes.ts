@@ -185,6 +185,7 @@ export class FakeDiscoveryExtractorImpl
       return {
         candidates,
         validationErrors: this.config.validationErrors ?? [],
+        sourceSupportAudits: [],
         provider: this.config.provider ?? 'fake-discovery-extractor',
         model: this.config.model ?? 'fake-extractor-model',
         rawOutput: JSON.stringify({ candidates: raw }),

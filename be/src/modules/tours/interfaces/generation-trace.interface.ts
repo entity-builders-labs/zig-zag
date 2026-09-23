@@ -11,6 +11,7 @@ import {
 import { AcquisitionEvidenceRequirement } from './acquisition-evidence-requirement.interface';
 import { AreaScopeMembershipAudit } from './area-scope-membership.interface';
 import { GeographicDecisionReason } from './geographic-validation.interface';
+import { CandidateSourceSupportAudit } from '../utils/experience-candidate-extraction.util';
 
 export type TraceStage =
   | 'preference_interpretation'
@@ -131,6 +132,14 @@ export interface TraceAcquisitionSource {
       admittedCandidateCount: number;
       rejectedCandidateCount: number;
       candidateDecisions: TraceWebCandidateAdmissionDecision[];
+      /**
+       * Source-composition-authority audit per raw extracted candidate (see
+       * `CandidateSourceSupportAudit`). A SOURCE_CONTRACT_VIOLATION entry
+       * here never reached `candidateDecisions` -- it is not an identity
+       * rejection (never `NO_OSM_MATCH`/`KNOWLEDGE_DEFICIT`, since it never
+       * reached identity acquisition at all).
+       */
+      sourceSupportAudits: CandidateSourceSupportAudit[];
     };
   };
 }

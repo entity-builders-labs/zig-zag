@@ -429,6 +429,176 @@ Tourism Researcher work was touched. Those remain Stage 3/4 scope.
 
 **Stage 3 unblocked:** YES (unchanged).
 
+### Stage 2 corrective addendum — source-composition authority (2026-09-23)
+
+Adversarial Astra/Terra review found a remaining Stage 2 gap: the extraction
+normalizer's own comment said "an unsupported hint does NOT invalidate the
+whole candidate: it is dropped, and sibling hints with genuine source
+support survive" -- this silently let the extractor rewrite raw source
+composition (raw `A-B-C`, `C` unsupported) into a smaller canonical
+candidate (`A-B`), which is exactly the authority Stage 2 was supposed to
+deny it. This addendum fixes that, and only that.
+
+**Two failure classes, kept explicitly separate (do not conflate in any
+future stage):**
+
+```text
+SOURCE_CONTRACT_VIOLATION
+  -- the extractor cited evidence that does not actually support a
+     component it emitted. A source-contract failure on ANY declared
+     component invalidates the WHOLE raw candidate -- it never authorizes
+     a reduced Experience variant. Decided here, at extraction time, before
+     any identity/geographic work begins.
+
+source-backed but identity/geography unresolved
+  -- a component whose citation DID pass the source-support gate, but whose
+     real-world identity or geographic relation could not later be
+     resolved/verified (Stage 3/4 concern: catalog-first resolution,
+     IdentityVerifier, CompositeGeographicValidation). This is the
+     deliberate partial-composite characterization case the architecture
+     wants to preserve and measure -- Stage 2 does NOT reject it, does NOT
+     touch it, and this fix does not change its handling in any way.
+```
+
+**Production contract changed:**
+- `experience-candidate-extraction.util.ts`: removed the buggy
+  "drop the unsupported hint, keep the candidate" branch. For each raw
+  candidate, every structurally-valid declared `componentHint` is now run
+  through the existing `verifyTextualComponentSourceSupport` gate (title+
+  snippet verification itself is UNCHANGED -- see the prior addendum above)
+  and recorded in a new typed audit. If ANY declared component is
+  `UNSUPPORTED`, the whole raw candidate is marked
+  `SOURCE_CONTRACT_VIOLATION`: no canonical `ExperienceCandidate` is
+  emitted, and a deterministic validation error containing
+  `SOURCE_CONTRACT_VIOLATION` is recorded. Only when ALL structurally-valid
+  declared components are `SUPPORTED` does the canonical candidate get
+  built and emitted, unchanged from before.
+- New typed contract (`experience-candidate-extraction.util.ts`):
+  `ComponentSourceSupportStatus`, `ComponentSourceSupportAudit` (per
+  component: index/key/name/role/expectedKind/evidenceKeys/status/reason),
+  `CandidateSourceSupportAudit` (per raw candidate:
+  candidateName/status/emittedComponentCount/supportedComponentCount/
+  unsupportedComponentCount/components). No metadata bag, no LLM-authored
+  truth, no persistence schema, no new Experience lifecycle state, no
+  percentage threshold -- typed facts only.
+  `component-source-support.util.ts` gained one additive export,
+  `isUnsupportedComponentSourceSupportResult` (a type-predicate function):
+  this repo's `tsconfig.json` sets `strictNullChecks: false`, under which
+  plain `if (result.supported)` control-flow narrowing of the existing
+  `ComponentSourceSupportResult` discriminated union is unreliable in this
+  TypeScript version (confirmed via isolated repro); an explicit type
+  predicate narrows correctly regardless. The verification logic itself
+  (`verifyTextualComponentSourceSupport`) is byte-for-byte unchanged.
+- `ExperienceExtractionResult` gained `sourceSupportAudits:
+  CandidateSourceSupportAudit[]` (always populated, one entry per raw
+  candidate that had at least one structurally-valid componentHint).
+- `WebAcquisitionResult` (`experience-acquisition.service.ts`) gained
+  `sourceSupportAudits?: CandidateSourceSupportAudit[]`, threaded straight
+  from the extractor's result. `candidateDecisions` is untouched and still
+  only ever evaluates canonical `ExperienceCandidate`s that already passed
+  this gate -- a `SOURCE_CONTRACT_VIOLATION` raw candidate never reaches
+  `candidateDecisions`, `execution.candidates`,
+  `candidateSatisfiesEvidenceRequirement`, or
+  `ExperienceProposalResolver`/materialization. Proven directly at the
+  `ExperienceAcquisitionService.executePlan` seam (new test: "never threads
+  a SOURCE_CONTRACT_VIOLATION raw candidate into candidateDecisions or
+  execution.candidates, only into sourceSupportAudits").
+- `generation-trace.interface.ts` / `generation-trace-builder.util.ts`:
+  `TraceAcquisitionSource.web.extractor` gained
+  `sourceSupportAudits: CandidateSourceSupportAudit[]`, populated in
+  `buildAcquisitionStep()` from `webResult.sourceSupportAudits`. No new
+  trace stage, no new rejection classification -- a source-contract
+  violation is never labeled `NO_OSM_MATCH` or `KNOWLEDGE_DEFICIT` anywhere
+  in the trace, because it never reached identity acquisition.
+- No frontend change. This is internal pipeline state; the interactive
+  Tour generation UX (`generationStatus`/`generationMessage`/completion
+  rules) is unaffected -- a source-contract-invalid candidate simply never
+  becomes planner-eligible, the same as any other candidate that fails to
+  reach admission today.
+
+**Santa Mónica regression re-verified under the corrected contract:**
+Raw candidate `Basílica de Santa Mónica (unsupported) + Plaza Dorrego
+(supported) + Calle Defensa (supported)` now produces ZERO canonical
+candidates (previously, before Stage 1, it accepted all three; the buggy
+Stage 2 interim behavior this addendum removes would have shrunk it to
+`Plaza Dorrego + Calle Defensa`). The per-component audit still preserves
+all three facts (`Santa Mónica: UNSUPPORTED /
+SPAN_NOT_FOUND_IN_CITED_EVIDENCE`, the other two: `SUPPORTED`) for
+observability.
+
+**Tests:** `experience-candidate-extraction.util.spec.ts` -- replaced the
+test that locked the old "drops only the unsupported hint" behavior with a
+dedicated `describe('source-composition-authority correction
+(SOURCE_CONTRACT_VIOLATION)')` block (13 tests): whole-candidate rejection
+on first/middle/last/multiple unsupported components with the per-component
+audit preserved; unchanged emission when all components are supported; all
+three `ComponentSourceSupportReason` values preserved
+(`NO_SUPPORT_SPAN`/`MISSING_EVIDENCE_TEXT`/`SPAN_NOT_FOUND_IN_CITED_EVIDENCE`);
+title-only and snippet-only support still pass; support cited from the
+wrong `evidenceKey` still fails; Santa Mónica confirmed blocked before any
+identity/provider acquisition. The pre-existing Case G test (Santa Mónica,
+single unsupported component) was updated to assert the new
+`SOURCE_CONTRACT_VIOLATION` message/audit instead of the retired "no
+source-supported componentHints remain" message -- the underlying
+behavioral assertion (0 candidates emitted) is unchanged. Also added:
+`experience-acquisition.service.spec.ts` (acquisition-seam wiring test
+above) and `generation-trace-builder.util.spec.ts` ("surfaces
+sourceSupportAudits in the web extractor trace block").
+
+**Validation executed for this addendum:**
+```
+cd be && npx tsc --noEmit -p .        # clean, 0 errors
+cd be && npx eslint <all 12 changed files>   # 0 problems after --fix
+                                              # (prettier-only formatting)
+cd be && yarn test
+# Test Suites: 1 failed, 153 passed, 154 total.
+# Tests: 1 failed, 1772 passed, 1773 total.
+```
+The single failing test is the same pre-existing, documented
+`preference-first-architecture.spec.ts:25` failure recorded in the original
+Stage 2 entry above (offending line `experience-proposal-resolver.service.
+ts:507`, predates this addendum and every prior Stage 2 commit). It was not
+modified or weakened to force a green total.
+
+**Partial-resolution boundary explicitly preserved (unchanged by this
+addendum):**
+- source-backed components that remain unresolved/ambiguous at
+  identity/geography time are NOT treated as source violations -- they are
+  a completely separate, later concern (Stage 3 `IdentityVerifier`
+  outcomes, Stage 4 `CompositeGeographicValidationService`,
+  `isMigrationRequiredHint`).
+- no partial-resolution acceptance threshold (no `resolutionRatio >= X AND
+  resolvedComponentCount >= Y` or equivalent) was chosen or implied by this
+  fix. That decision belongs to Stage 5's RW1-grounded characterization,
+  once the Stage 4 component matrix exists.
+- Stage 3 catalog-first identity resolution, Stage 4 geographic/
+  partial-composite cutover, `CompositeGeographicValidationService`,
+  `AREA` membership, persisted `required`, planner spatial footprint, Tour
+  snapshots, and the Tourism Researcher loop are all untouched.
+
+**Architecture deviation:** NONE.
+
+**Engineering-principles gate:**
+- provider isolation: PASS (no provider-name branching added).
+- typed canonical facts: PASS (`ComponentSourceSupportAudit`/
+  `CandidateSourceSupportAudit` are explicit typed contracts, no metadata
+  bag, no untyped side-channel).
+- source authority: PASS -- this fix is precisely the correction of a prior
+  source-authority leak (the extractor could previously narrow real source
+  composition unilaterally).
+- single admission policy: PASS (still `component-source-support.util.ts`
+  + `acquisition-candidate-requirement.util.ts`; no parallel gate added).
+- no magic semantic defaults: PASS (no threshold, no invented ratio).
+- no premature Stage 3/4 redesign: PASS (catalog-first identity resolution,
+  geographic strategy selection, and partial-composite persistence are
+  completely untouched).
+- deletion/cutover discipline: PASS (the buggy "drop hint, keep candidate"
+  branch and its locking test were fully removed, not left reachable
+  behind a flag).
+
+**Stage 3 unblocked:** YES (unchanged; Stage 3 itself was NOT started by
+this commit).
+
 
 For each completed stage also record, directly below the table:
 

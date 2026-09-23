@@ -3,7 +3,11 @@ import {
   GeoEntityHint,
 } from '../interfaces/experience-discovery.interface';
 import { normalizeExperienceCandidateFacets } from './experience-candidate-facet-normalizer.util';
-import { verifyTextualComponentSourceSupport } from './component-source-support.util';
+import {
+  ComponentSourceSupportReason,
+  isUnsupportedComponentSourceSupportResult,
+  verifyTextualComponentSourceSupport,
+} from './component-source-support.util';
 
 const ROLES = new Set(['area', 'waypoint', 'route', 'venue']);
 const KINDS = new Set(['PLACE', 'AREA', 'ROUTE']);
@@ -22,9 +26,54 @@ export interface DiscoveryEvidenceRecord {
   text: string;
 }
 
+export type ComponentSourceSupportStatus = 'SUPPORTED' | 'UNSUPPORTED';
+
+/**
+ * Per-component fact from the deterministic source-support gate: did THIS
+ * declared componentHint's own cited evidence actually support it? This is
+ * an extractor/source-authority question, orthogonal to identity/geography
+ * (Stage 3/4 concerns) -- a component may be SUPPORTED here and still fail
+ * identity resolution later, or vice versa is impossible (an UNSUPPORTED
+ * component never reaches identity resolution at all; see
+ * CandidateSourceSupportAudit).
+ */
+export interface ComponentSourceSupportAudit {
+  index: number;
+  key: string;
+  name: string;
+  role: GeoEntityHint['role'];
+  expectedKind: GeoEntityHint['expectedKind'];
+  evidenceKeys: string[];
+  status: ComponentSourceSupportStatus;
+  reason?: ComponentSourceSupportReason;
+}
+
+/**
+ * Source-composition-authority audit for one raw extracted candidate
+ * (component-resolution-and-partial-composite-recovery-plan.md, final Stage
+ * 2 corrective fix). Answers a narrower, prior question than identity/
+ * geography resolution: did the extractor's own cited evidence actually
+ * support the composition it emitted? An extractor MUST NOT be granted
+ * authority to silently rewrite raw source composition A-B-C into a smaller
+ * canonical candidate A-B merely because C failed source support -- that is
+ * a SOURCE_CONTRACT_VIOLATION on the whole raw candidate, not proof that the
+ * source only ever supported A-B. This is unrelated to, and preserved
+ * separately from, later source-backed-but-identity/geography-unresolved
+ * partial-composite characterization (Stage 4/5).
+ */
+export interface CandidateSourceSupportAudit {
+  candidateName: string;
+  status: 'SUPPORTED' | 'SOURCE_CONTRACT_VIOLATION';
+  emittedComponentCount: number;
+  supportedComponentCount: number;
+  unsupportedComponentCount: number;
+  components: ComponentSourceSupportAudit[];
+}
+
 export interface ExperienceExtractionResult {
   candidates: ExperienceCandidate[];
   validationErrors: string[];
+  sourceSupportAudits: CandidateSourceSupportAudit[];
 }
 
 /**
@@ -81,6 +130,7 @@ export function extractExperienceCandidates(
   const { entries, repairNotes } = normalizeExtractorEnvelope(raw);
   const candidates: ExperienceCandidate[] = [];
   const validationErrors: string[] = [...repairNotes];
+  const sourceSupportAudits: CandidateSourceSupportAudit[] = [];
 
   for (const [index, value] of entries.slice(0, maxCandidates).entries()) {
     const candidate = value as any;
@@ -115,8 +165,10 @@ export function extractExperienceCandidates(
     )
       errors.push('candidate references unknown evidence');
 
+    const candidateName =
+      typeof candidate?.name === 'string' ? candidate.name.trim() : '';
     const hints: GeoEntityHint[] = [];
-    const droppedHintNotes: string[] = [];
+    const componentAudits: ComponentSourceSupportAudit[] = [];
     if (Array.isArray(candidate?.componentHints)) {
       for (const [hintIndex, hint] of candidate.componentHints
         .slice(0, MAX_HINTS)
@@ -141,35 +193,57 @@ export function extractExperienceCandidates(
         )
           errors.push(`component ${hintIndex + 1} has invalid evidence`);
 
-        // Deterministic source-support admission gate (Stage 2 cutover):
-        // only meaningful once the hint's own evidenceKeys are structurally
+        // Only meaningful once the hint's own evidenceKeys are structurally
         // valid -- there is nothing to verify a supportSpan against
         // otherwise, and that case is already a hard candidate-level error
-        // above. Unlike the structural checks above, an unsupported hint
-        // does NOT invalidate the whole candidate: it is dropped, and
-        // sibling hints with genuine source support still survive (amendment
-        // §2/§4; "Every evidence-backed component is attempted").
-        if (hasValidStructure) {
-          const support = verifyTextualComponentSourceSupport(
-            typeof hint.supportSpan === 'string' ? hint.supportSpan : undefined,
-            hintEvidenceKeys,
-            evidenceByKey,
-          );
-          if (support.supported === false) {
-            droppedHintNotes.push(
-              `component ${hintIndex + 1} (${hint.name.trim()}) dropped: source-support ${support.reason}`,
-            );
-            continue;
-          }
+        // above.
+        if (!hasValidStructure) continue;
+
+        // Deterministic source-support admission gate. Source-composition-
+        // authority correction: an UNSUPPORTED sibling is NOT simply dropped
+        // while the rest of the raw candidate silently proceeds as a smaller
+        // canonical composition -- that would grant the extractor authority
+        // to rewrite source composition (raw A-B-C, C unsupported, MUST NOT
+        // become canonical A-B). It is recorded in the source-support audit
+        // and turns the WHOLE raw candidate into a SOURCE_CONTRACT_VIOLATION
+        // below; no canonical candidate is emitted for it.
+        const support = verifyTextualComponentSourceSupport(
+          typeof hint.supportSpan === 'string' ? hint.supportSpan : undefined,
+          hintEvidenceKeys,
+          evidenceByKey,
+        );
+        const key = String(hint.key || `component-${hintIndex + 1}`);
+        const name = hint.name.trim();
+        if (isUnsupportedComponentSourceSupportResult(support)) {
+          componentAudits.push({
+            index: hintIndex,
+            key,
+            name,
+            role: hint.role,
+            expectedKind: hint.expectedKind,
+            evidenceKeys: hintEvidenceKeys,
+            status: 'UNSUPPORTED',
+            reason: support.reason,
+          });
+          continue;
         }
+        componentAudits.push({
+          index: hintIndex,
+          key,
+          name,
+          role: hint.role,
+          expectedKind: hint.expectedKind,
+          evidenceKeys: hintEvidenceKeys,
+          status: 'SUPPORTED',
+        });
 
         const addressHint =
           typeof hint.addressHint === 'string' && hint.addressHint.trim()
             ? hint.addressHint.trim()
             : undefined;
         hints.push({
-          key: String(hint.key || `component-${hintIndex + 1}`),
-          name: hint.name.trim(),
+          key,
+          name,
           role: hint.role,
           expectedKind: hint.expectedKind,
           evidenceKeys: hintEvidenceKeys,
@@ -177,19 +251,37 @@ export function extractExperienceCandidates(
         });
       }
     }
-    if (hints.length === 0 && !errors.length) {
-      errors.push('no source-supported componentHints remain');
+
+    const unsupportedAudits = componentAudits.filter(
+      (audit) => audit.status === 'UNSUPPORTED',
+    );
+    const hasSourceContractViolation = unsupportedAudits.length > 0;
+    if (componentAudits.length > 0) {
+      sourceSupportAudits.push({
+        candidateName,
+        status: hasSourceContractViolation
+          ? 'SOURCE_CONTRACT_VIOLATION'
+          : 'SUPPORTED',
+        emittedComponentCount: componentAudits.length,
+        supportedComponentCount:
+          componentAudits.length - unsupportedAudits.length,
+        unsupportedComponentCount: unsupportedAudits.length,
+        components: componentAudits,
+      });
+    }
+    if (hasSourceContractViolation) {
+      errors.push(
+        `SOURCE_CONTRACT_VIOLATION: ${unsupportedAudits
+          .map(
+            (audit) =>
+              `component ${audit.index + 1} (${audit.name}) unsupported: ${audit.reason}`,
+          )
+          .join('; ')}`,
+      );
     }
     if (errors.length) {
-      validationErrors.push(
-        `Candidate ${index + 1}: ${[...errors, ...droppedHintNotes].join('; ')}`,
-      );
+      validationErrors.push(`Candidate ${index + 1}: ${errors.join('; ')}`);
       continue;
-    }
-    if (droppedHintNotes.length) {
-      validationErrors.push(
-        `Candidate ${index + 1}: ${droppedHintNotes.join('; ')}`,
-      );
     }
     // Deterministic, provider-neutral repair of the semantic facets: themes and
     // intents are controlled vocabularies, traits is open-ended, and a
@@ -224,5 +316,5 @@ export function extractExperienceCandidates(
       orderedByEvidence: candidate.orderedByEvidence === true,
     });
   }
-  return { candidates, validationErrors };
+  return { candidates, validationErrors, sourceSupportAudits };
 }

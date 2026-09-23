@@ -357,75 +357,463 @@ describe('extractExperienceCandidates', () => {
       8,
     );
 
-    // Rejected entirely: the only component fails source-support and no
-    // other component exists to keep the candidate alive.
+    // Rejected entirely: the only component fails source-support, which is
+    // a SOURCE_CONTRACT_VIOLATION on the whole raw candidate (source-
+    // composition-authority correction), not an "empty componentHints"
+    // condition.
     expect(result.candidates).toHaveLength(0);
     expect(result.validationErrors.join(' ')).toMatch(
-      /no source-supported componentHints remain/,
+      /SOURCE_CONTRACT_VIOLATION/,
     );
+    expect(result.sourceSupportAudits).toEqual([
+      expect.objectContaining({
+        candidateName: 'San Telmo Historic Walk',
+        status: 'SOURCE_CONTRACT_VIOLATION',
+        emittedComponentCount: 1,
+        supportedComponentCount: 0,
+        unsupportedComponentCount: 1,
+      }),
+    ]);
     expect(ev11Snippet).not.toContain('Santa Mónica');
   });
 
-  it('drops only the unsupported componentHint while a sibling with genuine source support survives in the same candidate', () => {
-    const result = extractExperienceCandidates(
-      {
-        candidates: [
-          {
-            name: 'San Telmo Historic Walk',
-            themes: ['history'],
-            traits: [],
-            intents: ['walk'],
-            componentHints: [
-              {
-                key: 'basilica-santa-monica',
-                name: 'Basílica de Santa Mónica',
-                role: 'waypoint',
-                expectedKind: 'PLACE',
-                evidenceKeys: ['ev-11'],
-                supportSpan: 'Basílica de Santa Mónica, a colonial-era church',
-              },
-              {
-                key: 'plaza-dorrego',
-                name: 'Plaza Dorrego',
-                role: 'venue',
-                expectedKind: 'PLACE',
-                evidenceKeys: ['ev-12'],
-                supportSpan: 'Plaza Dorrego hosts a Sunday antiques fair',
-              },
-              {
-                key: 'defensa-street',
-                name: 'Calle Defensa',
-                role: 'route',
-                expectedKind: 'ROUTE',
-                evidenceKeys: ['ev-12'],
-                supportSpan: 'Calle Defensa runs the length of the walk',
-              },
-            ],
-            evidenceKeys: ['ev-11', 'ev-12'],
-            shortReason: 'walk with one unsupported stop',
-          },
-        ],
-      },
-      [
-        ev(
-          'ev-11',
-          'Commissioned by the Jesuits, this church gave the neighborhood its name.',
-        ),
-        ev(
-          'ev-12',
-          'Plaza Dorrego hosts a Sunday antiques fair, and Calle Defensa runs the length of the walk.',
-        ),
+  /**
+   * Source-composition-authority correction (final Stage 2 corrective fix,
+   * discovered by the adversarial Astra/Terra review): an extractor MUST
+   * NOT be granted authority to silently rewrite raw source composition
+   * A-B-C into canonical A-B merely because C failed source support. This
+   * replaces the old (buggy) "drops only the unsupported componentHint
+   * while a sibling with genuine source support survives" behavior.
+   */
+  describe('source-composition-authority correction (SOURCE_CONTRACT_VIOLATION)', () => {
+    const santaMonicaWalk = (
+      overrideHints?: any[],
+      overrideEvidenceKeys?: string[],
+    ) => ({
+      candidates: [
+        {
+          name: 'San Telmo Historic Walk',
+          themes: ['history'],
+          traits: [] as string[],
+          intents: ['walk'],
+          componentHints: overrideHints ?? [
+            {
+              key: 'basilica-santa-monica',
+              name: 'Basílica de Santa Mónica',
+              role: 'waypoint',
+              expectedKind: 'PLACE',
+              evidenceKeys: ['ev-11'],
+              supportSpan: 'Basílica de Santa Mónica, a colonial-era church',
+            },
+            {
+              key: 'plaza-dorrego',
+              name: 'Plaza Dorrego',
+              role: 'venue',
+              expectedKind: 'PLACE',
+              evidenceKeys: ['ev-12'],
+              supportSpan: 'Plaza Dorrego hosts a Sunday antiques fair',
+            },
+            {
+              key: 'defensa-street',
+              name: 'Calle Defensa',
+              role: 'route',
+              expectedKind: 'ROUTE',
+              evidenceKeys: ['ev-12'],
+              supportSpan: 'Calle Defensa runs the length of the walk',
+            },
+          ],
+          evidenceKeys: overrideEvidenceKeys ?? ['ev-11', 'ev-12'],
+          shortReason: 'walk with one unsupported stop',
+        },
       ],
-      8,
-    );
+    });
 
-    expect(result.candidates).toHaveLength(1);
-    expect(result.candidates[0].componentHints.map((hint) => hint.key)).toEqual(
-      ['plaza-dorrego', 'defensa-street'],
-    );
-    expect(result.validationErrors.join(' ')).toMatch(
-      /Basílica de Santa Mónica.*dropped: source-support/,
-    );
+    const santaMonicaEvidence = [
+      ev(
+        'ev-11',
+        'Commissioned by the Jesuits, this church gave the neighborhood its name.',
+      ),
+      ev(
+        'ev-12',
+        'Plaza Dorrego hosts a Sunday antiques fair, and Calle Defensa runs the length of the walk.',
+      ),
+    ];
+
+    it('rejects the whole raw candidate (A-B-C -> NOT canonical A-B) when one declared component is unsupported, and preserves the per-component audit', () => {
+      const result = extractExperienceCandidates(
+        santaMonicaWalk(),
+        santaMonicaEvidence,
+        8,
+      );
+
+      // Critical invariant: raw A-B-C, C unsupported, MUST NOT produce
+      // canonical A-B.
+      expect(result.candidates).toHaveLength(0);
+      expect(result.validationErrors.join(' ')).toContain(
+        'SOURCE_CONTRACT_VIOLATION',
+      );
+
+      expect(result.sourceSupportAudits).toHaveLength(1);
+      const audit = result.sourceSupportAudits[0];
+      expect(audit).toMatchObject({
+        candidateName: 'San Telmo Historic Walk',
+        status: 'SOURCE_CONTRACT_VIOLATION',
+        emittedComponentCount: 3,
+        supportedComponentCount: 2,
+        unsupportedComponentCount: 1,
+      });
+      expect(audit.components).toEqual([
+        expect.objectContaining({
+          key: 'basilica-santa-monica',
+          name: 'Basílica de Santa Mónica',
+          status: 'UNSUPPORTED',
+          reason: 'SPAN_NOT_FOUND_IN_CITED_EVIDENCE',
+        }),
+        expect.objectContaining({
+          key: 'plaza-dorrego',
+          name: 'Plaza Dorrego',
+          status: 'SUPPORTED',
+        }),
+        expect.objectContaining({
+          key: 'defensa-street',
+          name: 'Calle Defensa',
+          status: 'SUPPORTED',
+        }),
+      ]);
+      expect(audit.components[1]).not.toHaveProperty('reason');
+      expect(audit.components[2]).not.toHaveProperty('reason');
+    });
+
+    it('emits the canonical candidate unchanged when all declared components are source-supported', () => {
+      const result = extractExperienceCandidates(
+        santaMonicaWalk([
+          {
+            key: 'plaza-dorrego',
+            name: 'Plaza Dorrego',
+            role: 'venue',
+            expectedKind: 'PLACE',
+            evidenceKeys: ['ev-12'],
+            supportSpan: 'Plaza Dorrego hosts a Sunday antiques fair',
+          },
+          {
+            key: 'defensa-street',
+            name: 'Calle Defensa',
+            role: 'route',
+            expectedKind: 'ROUTE',
+            evidenceKeys: ['ev-12'],
+            supportSpan: 'Calle Defensa runs the length of the walk',
+          },
+        ]),
+        santaMonicaEvidence,
+        8,
+      );
+
+      expect(result.candidates).toHaveLength(1);
+      expect(
+        result.candidates[0].componentHints.map((hint) => hint.key),
+      ).toEqual(['plaza-dorrego', 'defensa-street']);
+      expect(result.sourceSupportAudits).toEqual([
+        expect.objectContaining({
+          status: 'SUPPORTED',
+          emittedComponentCount: 2,
+          supportedComponentCount: 2,
+          unsupportedComponentCount: 0,
+        }),
+      ]);
+      expect(
+        result.validationErrors.some((message) =>
+          message.includes('SOURCE_CONTRACT_VIOLATION'),
+        ),
+      ).toBe(false);
+    });
+
+    it('rejects the whole raw candidate when the FIRST declared component is unsupported', () => {
+      const result = extractExperienceCandidates(
+        santaMonicaWalk(),
+        santaMonicaEvidence,
+        8,
+      );
+      // basilica-santa-monica is first in santaMonicaWalk()'s default hints.
+      expect(result.candidates).toHaveLength(0);
+      expect(result.sourceSupportAudits[0].components[0]).toMatchObject({
+        key: 'basilica-santa-monica',
+        status: 'UNSUPPORTED',
+      });
+    });
+
+    it('rejects the whole raw candidate when a MIDDLE declared component is unsupported', () => {
+      const result = extractExperienceCandidates(
+        santaMonicaWalk([
+          {
+            key: 'plaza-dorrego',
+            name: 'Plaza Dorrego',
+            role: 'venue',
+            expectedKind: 'PLACE',
+            evidenceKeys: ['ev-12'],
+            supportSpan: 'Plaza Dorrego hosts a Sunday antiques fair',
+          },
+          {
+            key: 'basilica-santa-monica',
+            name: 'Basílica de Santa Mónica',
+            role: 'waypoint',
+            expectedKind: 'PLACE',
+            evidenceKeys: ['ev-11'],
+            supportSpan: 'Basílica de Santa Mónica, a colonial-era church',
+          },
+          {
+            key: 'defensa-street',
+            name: 'Calle Defensa',
+            role: 'route',
+            expectedKind: 'ROUTE',
+            evidenceKeys: ['ev-12'],
+            supportSpan: 'Calle Defensa runs the length of the walk',
+          },
+        ]),
+        santaMonicaEvidence,
+        8,
+      );
+      expect(result.candidates).toHaveLength(0);
+      expect(result.sourceSupportAudits[0].components[1]).toMatchObject({
+        key: 'basilica-santa-monica',
+        status: 'UNSUPPORTED',
+      });
+    });
+
+    it('rejects the whole raw candidate when the LAST declared component is unsupported', () => {
+      const result = extractExperienceCandidates(
+        santaMonicaWalk([
+          {
+            key: 'plaza-dorrego',
+            name: 'Plaza Dorrego',
+            role: 'venue',
+            expectedKind: 'PLACE',
+            evidenceKeys: ['ev-12'],
+            supportSpan: 'Plaza Dorrego hosts a Sunday antiques fair',
+          },
+          {
+            key: 'defensa-street',
+            name: 'Calle Defensa',
+            role: 'route',
+            expectedKind: 'ROUTE',
+            evidenceKeys: ['ev-12'],
+            supportSpan: 'Calle Defensa runs the length of the walk',
+          },
+          {
+            key: 'basilica-santa-monica',
+            name: 'Basílica de Santa Mónica',
+            role: 'waypoint',
+            expectedKind: 'PLACE',
+            evidenceKeys: ['ev-11'],
+            supportSpan: 'Basílica de Santa Mónica, a colonial-era church',
+          },
+        ]),
+        santaMonicaEvidence,
+        8,
+      );
+      expect(result.candidates).toHaveLength(0);
+      expect(result.sourceSupportAudits[0].components[2]).toMatchObject({
+        key: 'basilica-santa-monica',
+        status: 'UNSUPPORTED',
+      });
+    });
+
+    it('preserves an audit entry per unsupported component when MULTIPLE declared components are unsupported', () => {
+      const result = extractExperienceCandidates(
+        santaMonicaWalk([
+          {
+            key: 'basilica-santa-monica',
+            name: 'Basílica de Santa Mónica',
+            role: 'waypoint',
+            expectedKind: 'PLACE',
+            evidenceKeys: ['ev-11'],
+            supportSpan: 'Basílica de Santa Mónica, a colonial-era church',
+          },
+          {
+            key: 'ghost-venue',
+            name: 'Ghost Venue',
+            role: 'venue',
+            expectedKind: 'PLACE',
+            evidenceKeys: ['ev-12'],
+            supportSpan: 'Ghost Venue is a hidden speakeasy',
+          },
+          {
+            key: 'defensa-street',
+            name: 'Calle Defensa',
+            role: 'route',
+            expectedKind: 'ROUTE',
+            evidenceKeys: ['ev-12'],
+            supportSpan: 'Calle Defensa runs the length of the walk',
+          },
+        ]),
+        santaMonicaEvidence,
+        8,
+      );
+      expect(result.candidates).toHaveLength(0);
+      const audit = result.sourceSupportAudits[0];
+      expect(audit.status).toBe('SOURCE_CONTRACT_VIOLATION');
+      expect(audit.unsupportedComponentCount).toBe(2);
+      expect(
+        audit.components
+          .filter((c) => c.status === 'UNSUPPORTED')
+          .map((c) => c.key),
+      ).toEqual(['basilica-santa-monica', 'ghost-venue']);
+    });
+
+    it('preserves the specific support-failure reason per component: NO_SUPPORT_SPAN', () => {
+      const result = extractExperienceCandidates(
+        santaMonicaWalk([
+          {
+            key: 'plaza-dorrego',
+            name: 'Plaza Dorrego',
+            role: 'venue',
+            expectedKind: 'PLACE',
+            evidenceKeys: ['ev-12'],
+            // no supportSpan at all
+          },
+        ]),
+        santaMonicaEvidence,
+        8,
+      );
+      expect(result.sourceSupportAudits[0].components[0]).toMatchObject({
+        status: 'UNSUPPORTED',
+        reason: 'NO_SUPPORT_SPAN',
+      });
+    });
+
+    it('preserves the specific support-failure reason per component: MISSING_EVIDENCE_TEXT', () => {
+      const result = extractExperienceCandidates(
+        santaMonicaWalk(
+          [
+            {
+              key: 'empty-record',
+              name: 'Empty Record Venue',
+              role: 'venue',
+              expectedKind: 'PLACE',
+              evidenceKeys: ['ev-empty'],
+              supportSpan: 'anything',
+            },
+          ],
+          ['ev-empty'],
+        ),
+        [ev('ev-empty', '')],
+        8,
+      );
+      expect(result.sourceSupportAudits[0].components[0]).toMatchObject({
+        status: 'UNSUPPORTED',
+        reason: 'MISSING_EVIDENCE_TEXT',
+      });
+    });
+
+    it('preserves the specific support-failure reason per component: SPAN_NOT_FOUND_IN_CITED_EVIDENCE', () => {
+      const result = extractExperienceCandidates(
+        santaMonicaWalk(),
+        santaMonicaEvidence,
+        8,
+      );
+      expect(result.sourceSupportAudits[0].components[0]).toMatchObject({
+        key: 'basilica-santa-monica',
+        status: 'UNSUPPORTED',
+        reason: 'SPAN_NOT_FOUND_IN_CITED_EVIDENCE',
+      });
+    });
+
+    it('records title-only source support as SUPPORTED in the audit', () => {
+      const result = extractExperienceCandidates(
+        santaMonicaWalk(
+          [
+            {
+              key: 'plaza-dorrego',
+              name: 'Plaza Dorrego',
+              role: 'venue',
+              expectedKind: 'PLACE',
+              evidenceKeys: ['ev-title'],
+              supportSpan: 'Plaza Dorrego: Antiques and Tango',
+            },
+          ],
+          ['ev-title'],
+        ),
+        [
+          ev(
+            'ev-title',
+            'A popular Sunday destination.',
+            'Plaza Dorrego: Antiques and Tango',
+          ),
+        ],
+        8,
+      );
+      expect(result.candidates).toHaveLength(1);
+      expect(result.sourceSupportAudits[0]).toMatchObject({
+        status: 'SUPPORTED',
+        supportedComponentCount: 1,
+        unsupportedComponentCount: 0,
+      });
+    });
+
+    it('records snippet-only source support as SUPPORTED in the audit', () => {
+      const result = extractExperienceCandidates(
+        santaMonicaWalk(
+          [
+            {
+              key: 'plaza-dorrego',
+              name: 'Plaza Dorrego',
+              role: 'venue',
+              expectedKind: 'PLACE',
+              evidenceKeys: ['ev-snippet'],
+              supportSpan: 'A popular Sunday destination in San Telmo',
+            },
+          ],
+          ['ev-snippet'],
+        ),
+        [ev('ev-snippet', 'A popular Sunday destination in San Telmo.')],
+        8,
+      );
+      expect(result.candidates).toHaveLength(1);
+      expect(result.sourceSupportAudits[0]).toMatchObject({
+        status: 'SUPPORTED',
+        supportedComponentCount: 1,
+      });
+    });
+
+    it('marks support from the WRONG cited evidenceKey as UNSUPPORTED', () => {
+      const result = extractExperienceCandidates(
+        santaMonicaWalk(
+          [
+            {
+              key: 'wrong-record-venue',
+              name: 'Wrong Record Venue',
+              role: 'venue',
+              expectedKind: 'PLACE',
+              evidenceKeys: ['ev-a'],
+              supportSpan: 'Lezama Park anchors the southern end',
+            },
+          ],
+          ['ev-a', 'ev-b'],
+        ),
+        [
+          ev('ev-a', 'This street is known for its colonial architecture.'),
+          ev('ev-b', 'Lezama Park anchors the southern end of the walk.'),
+        ],
+        8,
+      );
+      expect(result.sourceSupportAudits[0].components[0]).toMatchObject({
+        status: 'UNSUPPORTED',
+        reason: 'SPAN_NOT_FOUND_IN_CITED_EVIDENCE',
+      });
+    });
+
+    it('Santa Mónica remains blocked before any identity/provider acquisition (no candidate reaches componentHints downstream)', () => {
+      const result = extractExperienceCandidates(
+        santaMonicaWalk(),
+        santaMonicaEvidence,
+        8,
+      );
+      expect(result.candidates).toHaveLength(0);
+      expect(
+        result.candidates.some((c) =>
+          c.componentHints.some((h) => h.name === 'Basílica de Santa Mónica'),
+        ),
+      ).toBe(false);
+    });
   });
 
   it('rejects a componentHint whose evidenceKeys reference a key not present in the evidence set', () => {

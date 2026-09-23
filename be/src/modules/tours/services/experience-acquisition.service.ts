@@ -19,6 +19,7 @@ import {
   ExperienceDiscoveryExtractor,
   ExperienceDiscoveryRequest,
 } from '../interfaces/experience-discovery.interface';
+import { CandidateSourceSupportAudit } from '../utils/experience-candidate-extraction.util';
 import {
   EXPERIENCE_GROUNDED_SEARCH_PROVIDER,
   ExperienceGroundedSearchProvider,
@@ -118,6 +119,16 @@ export interface WebAcquisitionResult {
   extractedCandidateCount: number;
   candidateCount: number;
   candidateDecisions: WebCandidateAdmissionDecision[];
+  /**
+   * Source-composition-authority audit per raw extracted candidate (see
+   * `CandidateSourceSupportAudit`). Distinct from `candidateDecisions`:
+   * those operate on canonical `ExperienceCandidate`s that already passed
+   * the source-support gate and reached evidence-requirement admission. A
+   * SOURCE_CONTRACT_VIOLATION candidate never becomes a canonical
+   * `ExperienceCandidate` and so never appears in `candidateDecisions` --
+   * it is only observable here.
+   */
+  sourceSupportAudits?: CandidateSourceSupportAudit[];
   failureReason?: string;
 }
 
@@ -537,6 +548,7 @@ export class ExperienceAcquisitionService {
         extractedCandidateCount: extracted.candidates.length,
         candidateCount: admissibleCandidates.length,
         candidateDecisions,
+        sourceSupportAudits: extracted.sourceSupportAudits,
       };
     } catch (error: any) {
       this.logger.warn(
