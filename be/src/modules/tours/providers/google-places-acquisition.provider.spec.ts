@@ -288,6 +288,26 @@ describe('GooglePlacesAcquisitionProvider', () => {
     );
   });
 
+  it('4b. never hardcodes Google in the fallback failureReason when the configured backend is Geoapify', async () => {
+    (placesApiMock as any).provider = 'geoapify';
+    // A rejection with no `.message` (e.g. a thrown plain value) exercises
+    // the adapter's own fallback failureReason string, not the real error
+    // message -- that fallback must reflect the actually configured
+    // IPlacesApiService backend (`this.placesApi.provider`), never assume
+    // Google just because this provider's historical class name is
+    // GooglePlacesAcquisitionProvider.
+    placesApiMock.searchNearby.mockRejectedValueOnce('boom');
+
+    const result = await provider.acquire({
+      latitude: -34.6037,
+      longitude: -58.3816,
+    });
+
+    expect(result.status).toBe('failed');
+    expect(result.failureReason).not.toMatch(/google/i);
+    expect(result.failureReason).toMatch(/geoapify/i);
+  });
+
   it('5. does not infer themes/traits/intents or structured facets', async () => {
     const wineryPlace: PlaceData = {
       id: 'place_winery_1',

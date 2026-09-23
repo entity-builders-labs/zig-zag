@@ -33,6 +33,7 @@ import { isMigrationRequiredHint } from './geo-entity-hint-required-migration.ut
 import { AcquisitionEvidenceRequirement } from '../interfaces/acquisition-evidence-requirement.interface';
 import type { CorroborationGroupTrace } from '../services/structured-candidate-corroboration.service';
 import type { StructuredPairDecisionSummary } from '../services/experience-acquisition.service';
+import { PLACES_ACQUISITION_PROVIDER_LABELS } from './places-external-identity.util';
 
 /**
  * Trace projection only: geometry presence/type is useful audit context, but
@@ -228,6 +229,26 @@ function traceObservation(observation: SourceObservation) {
         }
       : undefined,
   };
+}
+
+/**
+ * The real runtime `SourceObservation.provider` label(s) a given source-plan
+ * discriminator can legitimately produce. The historical `google_places`
+ * discriminator names the Places CAPABILITY the planner routed a deficit to,
+ * not the specific `IPlacesApiService` backend that ends up serving it — that
+ * backend is configurable (Google or Geoapify) and only known at execution
+ * time. Every other discriminator today maps 1:1 onto its own runtime label.
+ * Never associate observations to a source plan via literal string equality
+ * on `provider` — a Geoapify observation must not be dropped from the audit
+ * just because the capability that requested it is historically named
+ * `google_places`.
+ */
+function runtimeProviderLabelsForSourcePlan(
+  sourcePlanProvider: string,
+): string[] {
+  return sourcePlanProvider === 'google_places'
+    ? PLACES_ACQUISITION_PROVIDER_LABELS
+    : [sourcePlanProvider];
 }
 
 export function buildTourIntentStep(
@@ -1078,9 +1099,15 @@ export function buildAcquisitionStep(params: {
   const auditSources: TraceAcquisitionSource[] = plan.sourcePlans.map(
     (sourcePlan) => {
       const result = execution.providerResults[sourcePlan.provider];
-      const sourceObservations = observations.filter(
-        (item) => item.provider === sourcePlan.provider,
+      const runtimeProviderLabels = runtimeProviderLabelsForSourcePlan(
+        sourcePlan.provider,
       );
+      const sourceObservations = observations.filter((item) =>
+        runtimeProviderLabels.includes(item.provider),
+      );
+      const runtimeProviders = [
+        ...new Set(sourceObservations.map((item) => item.provider)),
+      ];
       const webResult =
         sourcePlan.provider === 'web'
           ? (execution.webResults ?? []).find(
@@ -1111,6 +1138,7 @@ export function buildAcquisitionStep(params: {
           'unknown') as TraceAcquisitionSource['status'],
         failureReason: result?.failureReason ?? webResult?.failureReason,
         observationCount: sourceObservations.length,
+        runtimeProviders,
         observations: sourceObservations.map(traceObservation),
         web:
           sourcePlan.provider === 'web' && sourcePlan.web

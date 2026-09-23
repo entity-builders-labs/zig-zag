@@ -1356,6 +1356,107 @@ describe('buildAcquisitionStep', () => {
     expect(JSON.stringify(step)).toContain('MultiPolygon');
     expect(JSON.stringify(step)).not.toContain('authorization:secret');
   });
+
+  /**
+   * Regression coverage: the historical `google_places` SourcePlan
+   * discriminator names the Places CAPABILITY that was routed, not which
+   * IPlacesApiService backend actually served it. The Bitácora must report
+   * the real runtime provider from SourceObservation.provider (populated by
+   * the adapter from `result.provenance.provider`), never assume Google just
+   * because the capability is historically named `google_places`.
+   */
+  describe('runtime Places provider reporting (Geoapify/Google)', () => {
+    const placesPlan = {
+      sourcePlans: [
+        { provider: 'google_places', places: { searchTypes: ['museum'] } },
+      ],
+      deficits: [{ dimension: 'theme', key: 'history', reason: 'r' }],
+    };
+
+    it('associates a Geoapify observation with the google_places source plan and reports geoapify as the runtime provider', () => {
+      const step = buildAcquisitionStep({
+        passNumber: 1,
+        plan: placesPlan,
+        execution: {
+          observations: [
+            {
+              provider: 'geoapify',
+              evidenceKey: 'geoapify:123',
+              title: 'Museo Histórico',
+              originationCapabilities: [],
+              evidenceType: 'place',
+            },
+          ],
+          candidates: [],
+          providerResults: { google_places: { status: 'success' } },
+        },
+      });
+
+      const placesSource = step.acquisition?.sourcePlans[0];
+      expect(placesSource?.provider).toBe('google_places');
+      // The observation must not disappear from the audit just because the
+      // source plan is historically named `google_places`.
+      expect(placesSource?.observationCount).toBe(1);
+      expect(placesSource?.observations[0]?.evidenceKey).toBe('geoapify:123');
+      expect(placesSource?.observations[0]?.provider).toBe('geoapify');
+      // Real runtime provider, distinct from the logical capability label.
+      expect((placesSource as any)?.runtimeProviders).toEqual(['geoapify']);
+    });
+
+    it('reports google_places as the runtime provider when Google actually served the request', () => {
+      const step = buildAcquisitionStep({
+        passNumber: 1,
+        plan: placesPlan,
+        execution: {
+          observations: [
+            {
+              provider: 'google_places',
+              evidenceKey: 'google_places:abc',
+              title: 'Museo Histórico',
+              originationCapabilities: [],
+              evidenceType: 'place',
+            },
+          ],
+          candidates: [],
+          providerResults: { google_places: { status: 'success' } },
+        },
+      });
+
+      const placesSource = step.acquisition?.sourcePlans[0];
+      expect(placesSource?.observationCount).toBe(1);
+      expect((placesSource as any)?.runtimeProviders).toEqual([
+        'google_places',
+      ]);
+    });
+
+    it('never claims Google as the runtime provider when only Geoapify observations exist', () => {
+      const step = buildAcquisitionStep({
+        passNumber: 1,
+        plan: placesPlan,
+        execution: {
+          observations: [
+            {
+              provider: 'geoapify',
+              evidenceKey: 'geoapify:456',
+              title: 'Zanjón',
+              originationCapabilities: [],
+              evidenceType: 'place',
+            },
+          ],
+          candidates: [],
+          providerResults: { google_places: { status: 'success' } },
+        },
+      });
+
+      const placesSource = step.acquisition?.sourcePlans[0];
+      expect((placesSource as any)?.runtimeProviders).not.toContain(
+        'google_places',
+      );
+      expect(JSON.stringify(step.acquisition)).not.toMatch(
+        /runtimeProviders["\s:]+\[\s*"google_places"/,
+      );
+    });
+  });
 });
 
 describe('buildPlacesCrawlStep', () => {

@@ -3,6 +3,7 @@ import {
   IPlacesApiService,
   PlaceData,
   PlacesProvider,
+  placesProviderLabel,
 } from '@integrations/google-places/interfaces/places-api.interface';
 import {
   AcquisitionProviderResult,
@@ -269,13 +270,18 @@ export class GooglePlacesAcquisitionProvider {
         value: observations,
       };
     } catch (error: any) {
+      // `this.placesApi.provider` is the real configured backend (Google or
+      // Geoapify) -- known synchronously even when the call threw before
+      // returning provenance, so this diagnostic must name it instead of
+      // assuming Google from this class's historical name.
+      const providerLabel = placesProviderLabel(this.placesApi.provider);
       this.logger.warn(
-        `Google Places acquisition failed: ${error?.message ?? String(error)}`,
+        `${providerLabel} acquisition failed: ${error?.message ?? String(error)}`,
       );
       return {
         status: 'failed',
         value: [],
-        failureReason: error?.message ?? 'Google Places acquisition failed',
+        failureReason: error?.message ?? `${providerLabel} acquisition failed`,
       };
     }
   }

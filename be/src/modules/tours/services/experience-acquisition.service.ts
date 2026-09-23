@@ -321,13 +321,17 @@ export class ExperienceAcquisitionService {
             allObservations.push(...res.value);
           }
         } catch (error: any) {
+          // `sourcePlan.provider === 'google_places'` names the Places
+          // CAPABILITY that was routed, not necessarily the Google backend
+          // (the configured `IPlacesApiService` may be Google or Geoapify) —
+          // this message and failureReason must stay provider-neutral.
           this.logger.warn(
-            `Google Places acquisition threw: ${error?.message ?? String(error)}`,
+            `Places acquisition threw: ${error?.message ?? String(error)}`,
           );
           providerResults.google_places = {
             status: 'failed',
             value: [],
-            failureReason: error?.message ?? 'Google Places acquisition failed',
+            failureReason: error?.message ?? 'Places acquisition failed',
           };
         }
       }

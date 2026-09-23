@@ -92,11 +92,26 @@ export interface TraceCandidateDecision {
 
 /** Machine-readable forensic record for one preference-first acquisition pass. */
 export interface TraceAcquisitionSource {
+  /**
+   * Logical source-plan/capability discriminator the planner routed this
+   * deficit to (e.g. `google_places` names the Places CAPABILITY route, not
+   * necessarily the Google backend). Never treat this as proof of which real
+   * `IPlacesApiService` backend answered the request — see `runtimeProviders`.
+   */
   provider: string;
   configuration: Record<string, string | string[] | undefined>;
   status: 'success' | 'failed' | 'skipped' | 'unknown';
   failureReason?: string;
   observationCount: number;
+  /**
+   * The real runtime provider(s) that actually produced this source's
+   * observations, taken from each `SourceObservation.provider` (itself
+   * sourced from `result.provenance.provider` at the adapter boundary) —
+   * never inferred from the logical `provider` discriminator above. For a
+   * Places capability this distinguishes an actual Google response from an
+   * actual Geoapify response, which `provider` alone cannot.
+   */
+  runtimeProviders: string[];
   observations: Array<{
     evidenceKey: string;
     provider: string;

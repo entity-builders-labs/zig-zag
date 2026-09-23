@@ -31,6 +31,20 @@ export function placesAcquisitionLabel(
 }
 
 /**
+ * Every real runtime `SourceObservation.provider` label the Places
+ * CAPABILITY can produce, regardless of which `IPlacesApiService` backend
+ * (`PlacesApiConfig.PLACES_PROVIDER`) is actually configured. The historical
+ * `google_places` `SourcePlan`/capability discriminator names "route this
+ * deficit to Places", not "Google specifically served it" — a plan routed to
+ * that capability may be fulfilled by Google OR Geoapify. Callers that need
+ * to associate observations back to the capability that requested them (e.g.
+ * the generation Bitácora) must match against this set, never against the
+ * literal `SourcePlan.provider` string.
+ */
+export const PLACES_ACQUISITION_PROVIDER_LABELS: ExperienceAcquisitionProvider[] =
+  Object.values(ACQUISITION_LABEL_BY_PLACES_PROVIDER);
+
+/**
  * The Places backend that must have produced a `SourceObservation` carrying
  * this acquisition provider label, or `undefined` when the label does not
  * name a Places backend at all (e.g. `'wikivoyage'`, `'wikidata'`, `'web'`)
