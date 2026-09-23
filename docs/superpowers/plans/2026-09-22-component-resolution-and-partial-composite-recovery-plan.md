@@ -1,7 +1,8 @@
 # Component Resolution + Partial Composite Recovery — Implementation Plan
 
-Status: **proposed implementation plan; docs-only; not authorization to implement.**
+Status: **architecture reviewed; ready for staged implementation.**
 Written: 2026-09-22.
+Execution plan compacted: 2026-09-23.
 Branch: `feat/preference-first-selection`.
 
 Canonical design amendment:
@@ -24,12 +25,38 @@ an auditable component-resolution pipeline that:
 - leaves planner eligibility fail-closed until the Experience is fully admitted
   by the canonical policy.
 
-No production work should begin until the amendment and this plan have received
-independent architectural review.
+The architecture has already received independent adversarial review. This plan
+is intentionally organized into **five implementation stages**. Do not split it
+into a long sequence of micro-phases unless a concrete blocker requires a new
+checkpoint.
+
+## Progress
+
+Every implementation stage MUST update this section in the same commit that
+implements the stage. Do not mark a stage DONE without real validation.
+
+| Stage | Status | Starting HEAD | Completed commit | Validation | Key findings / next gate |
+| --- | --- | --- | --- | --- | --- |
+| 1. Characterization lock | TODO | `7b52367f9da49b965fc503909f855167e54bbda6` | — | — | Freeze current failure shapes before behavior changes. |
+| 2. Source-grounded contract cutover | BLOCKED | — | — | — | Starts only after Stage 1 fixtures are trustworthy. |
+| 3. Catalog-first identity resolution | BLOCKED | — | — | — | Starts only after Stage 2 source authority is live. |
+| 4. Geographic + partial-composite cutover | BLOCKED | — | — | — | Starts after identity outcomes are explicit/stable. |
+| 5. Trace + RW1 verification | BLOCKED | — | — | — | Final milestone validation; thresholds only from observed evidence. |
+
+For each completed stage also record, directly below the table:
+
+- tests/commands actually executed and their real outcome;
+- any production behavior discovered that contradicted the plan;
+- any architecture deviation (must be `NONE` or explicitly justified);
+- whether the next stage is unblocked.
+
+A coding agent must not silently redesign a later stage while executing the
+current one. If current code contradicts a canonical invariant, stop and report
+the contradiction before broadening scope.
 
 ## Constraints
 
-- no San-Telmo-specific code;
+- no San-Telmo-specific production code;
 - no provider-majority voting;
 - no provider-name branching in domain policy;
 - no new closed tourism semantic-type taxonomy;
@@ -39,258 +66,312 @@ independent architectural review.
 - evolve existing canonical identity/geographic policies rather than adding
   parallel versions;
 - preserve provider cost-control rules;
-- component resolution may create/reuse GeoEntities but never auto-promotes them into standalone Experiences;
-- planner backfill may add independent Experiences to a Tour but never mutates source-backed composite membership.
+- component resolution may create/reuse GeoEntities but never auto-promotes
+  them into standalone Experiences;
+- planner backfill may add independent Experiences to a Tour but never mutates
+  source-backed composite membership;
+- catalog-first retrieval must be bounded/index-backed and must never load or
+  scan the full `GeoEntity` table for application-side name matching.
 
-## Phase 0 — Characterization tests before behavior changes
+---
 
-Create deterministic fixtures from real RW1 failure shapes, including:
+## Stage 1 — Characterization lock
 
-1. El Zanjón:
-   hint `El Zanjón de Granados`; OSM/Nominatim/Places paths converge to the
-   same canonical OSM object; Wikidata does not fully corroborate.
-2. Plaza de Mayo:
-   evidence-backed route component outside the San Telmo polygon but near its
-   boundary and connected by the walk.
-3. Calle Defensa:
-   ROUTE LineString intersects the San Telmo AREA.
-4. Pasaje San Lorenzo:
-   unresolved/weak route identity remains an explicit deficit.
-5. divergent-provider case:
-   two candidate clusters that cannot be safely correlated remain AMBIGUOUS.
-6. extractor hallucination:
-   reproduce cold-2's `Basílica de Santa Mónica` / `ev-11` shape and prove
-   that a component unsupported by its cited source is rejected **before**
-   geographic acquisition, even if a real similarly named POI exists.
-7. summary-reason fidelity:
-   reproduce "candidate(s) acquired but identity rejected" and prove the
-   proposal-level reason cannot degrade to `NO_OSM_MATCH`.
-8. Plaza de Mayo acquisition:
-   characterize why the observed RW1 path stopped after the wrong Plaza
-   Dorrego candidate instead of continuing through every *applicable,
-   policy-permitted* acquisition strategy.
-9. Solar de French cross-run stability:
-   replay the same component hint against the cold-run evidence where
-   `EXACT_NAME+SINGLE` selected different real OSM identities across runs.
-   Characterize this as temporal/cross-run identity instability, prove that
-   canonical prior GeoEntity knowledge is reused when sufficiently established,
-   and prove that conflicting new evidence produces ambiguity/research rather
-   than silently oscillating the canonical identity.
+### Goal
 
-For each RW1 failure fixture, classify the observed failure before changing
-behavior:
+Freeze the important current behaviors and failure shapes **before** changing
+production semantics. This stage is tests/fixtures/diagnostics only unless a
+test harness defect makes a minimal non-behavioral production change necessary.
 
-- genuine `KNOWLEDGE_DEFICIT`;
+### Required characterization
+
+Create deterministic fixtures/tests from the RW1 evidence for:
+
+1. **El Zanjón de Granados**
+   - multiple acquisition paths converge on the same canonical OSM object;
+   - current Wikidata semantics can still reject one path.
+2. **Plaza de Mayo acquisition**
+   - wrong local candidate is acquired and rejected;
+   - characterize why later applicable strategies do or do not run.
+3. **Plaza de Mayo geographic design fixture**
+   - separate deterministic fixture with a correctly resolved point outside
+     the San Telmo polygon but near/connected to the route;
+   - do not misrepresent this as the observed RW1 failure.
+4. **Calle Defensa**
+   - existing ROUTE LineString/polygon intersection behavior.
+5. **Pasaje San Lorenzo**
+   - unresolved/weak route identity remains explicit.
+6. **Divergent candidate clusters**
+   - incompatible candidate clusters remain ambiguous.
+7. **Basílica de Santa Mónica / ev-11**
+   - unsupported extractor component is reproducible as a source-contract
+     regression case.
+8. **NO_OSM_MATCH fidelity**
+   - candidate acquired + identity rejected is distinguishable from no
+     candidate acquired.
+9. **Solar de French cross-run stability**
+   - the same hint can select different real OSM identities across cold runs;
+   - preserve this as a temporal/cross-run stability fixture.
+
+Also inventory every behaviorally meaningful read of:
+
+- `GeoEntityHint.required`;
+- `ExperienceComponent.required`;
+- `AreaScopeComponentFact.required`;
+- unresolved-required decisions;
+- required-driven geographic strategy selection;
+- semantic-document `required/optional` serialization.
+
+Group the inventory by **policy behavior**, not merely by filename.
+
+### Failure classification
+
+For every RW1 fixture classify the observed condition as one of:
+
+- `KNOWLEDGE_DEFICIT`;
 - provider/operational failure;
 - resolver/acquisition defect;
 - source-contract violation.
 
-Only genuine knowledge deficits are eligible for the future Researcher.
+Only the first class may later be handed to the Tourism Researcher.
 
-Tests must prove the old behavior first where practical.
+### Exit gate
 
-## Phase 1 — Remove LLM-owned `required`
+Stage 1 is DONE only when:
 
-Change the discovery contract, prompt, JSON schema, normalizer and fixtures so
-`GeoEntityHint` no longer contains `required`.
+- characterization tests pass and accurately reproduce the intended baseline;
+- the `required` blast radius is documented in tests/plan notes;
+- no production behavior has been intentionally changed;
+- Progress is updated with the exact test commands and findings.
+
+---
+
+## Stage 2 — Source-grounded contract cutover
+
+### Goal
+
+Remove LLM-owned `required` from discovery/source authority and make source
+support deterministic before identity resolution.
+
+### Scope
+
+Change the discovery contract, prompt, JSON schema, normalizer, structured
+source synthesis and fixtures so `GeoEntityHint` no longer contains
+`required`.
 
 Redefine `MULTI_COMPONENT_EXPERIENCE` admission using source-backed
 composition: at least two meaningful non-area geographic components belonging
 to the same evidenced Experience.
 
-Structured-source synthesis must use the same resulting domain contract; do not
-retain a hidden second meaning of `required`.
+Add the hard **source-support admission gate**:
 
-At the same extraction/normalization boundary, add a hard **source-support
-admission gate**. Every component must point to verifiable support in its cited
-SourceObservation (structured item or bounded textual support span). If a
-support span is emitted by the extractor, validate that it is actually present
-in the cited evidence record. Do not implement this as a naive fuzzy
-name-token overlap rule: aliases/translations belong to identity resolution,
-while this gate answers only "did this source actually originate this
-component?".
+- a structured source item explicitly supports/names the component; or
+- textual evidence contains a bounded supporting span/claim;
+- if the extractor emits a support span, backend code verifies that the span
+  actually exists in the cited SourceObservation;
+- aliases/translations are identity concerns later, not a reason to weaken
+  source grounding.
 
-Phase 3 identity-leniency changes are blocked until this gate has
-characterization coverage, including the Santa Mónica regression.
+The Santa Mónica fixture must be rejected **before geographic/provider
+acquisition**, even if a real similarly named POI exists.
 
-Delete superseded tests/compatibility code under the early-stage deletion rule.
+### Embedding migration in the same cutover
 
+Because the Experience semantic document currently serializes component
+`required/optional` state:
 
-Because `buildExperienceSemanticDocument()` currently serializes component
-`required/optional` state, this contract removal is also an embedding-index
-migration:
+- remove those semantic tokens;
+- bump `EXPERIENCE_EMBEDDING_DOCUMENT_VERSION` from the current v2 to the
+  next version;
+- prove stale v2 VERIFIED rows are selected for reindex;
+- use the existing version-aware indexer;
+- do not add GeoEntity embeddings or a second vector store.
 
-- remove those tokens from the canonical Experience semantic document;
-- bump `EXPERIENCE_EMBEDDING_DOCUMENT_VERSION` (current implementation: v2)
-  to a new version;
-- add tests proving stale v2 rows are selected for reindex;
-- reindex VERIFIED Experiences through the existing version-aware indexer;
-- do not add a second vector store or GeoEntity embedding table for this fix.
+### Exit gate
 
-## Phase 2 — Catalog-first GeoEntity resolution + candidate observations
+Stage 2 is DONE only when:
 
-Before external provider acquisition, add one canonical provider-neutral lookup
-against accumulated GeoEntity knowledge.
+- no LLM-owned `required` remains in the discovery/source contract;
+- source-support admission is deterministic and Santa Mónica is blocked;
+- semantic-document versioning/reindex behavior is covered;
+- obsolete compatibility paths/tests are deleted under the early-stage rule;
+- Progress records validation and confirms Stage 3 is unblocked.
 
-Concrete ownership:
+---
 
-- `ExperienceProposalResolverService` orchestrates catalog-first lookup at the
-  start of component resolution and decides whether external acquisition is
-  still required;
-- `ExperienceCatalogService` exposes one provider-neutral read-side method
-  conceptually equivalent to `findGeoEntityCandidatesForHint(...)`;
-- that catalog method returns candidate facts only and MUST NOT make the final
-  hint-identity decision;
-- candidate correlation groups exact/canonical identity observations;
-- `IdentityVerifier` remains the one final authority for whether a candidate
-  cluster satisfies the hint.
+## Stage 3 — Catalog-first identity resolution
 
-Reuse existing schema facts before adding schema:
+### Goal
 
-- `GeoEntity.kind` already exists as typed `GeoEntityKind`
-  (`PLACE | AREA | ROUTE`);
-- `name`, `address`, coordinates and geometry are first-class;
-- `GeoEntityIdentity(provider, externalId)` already owns persisted exact
-  provider identities.
+Make canonical GeoEntity knowledge the first identity-resolution boundary,
+then use external providers only for unresolved/ambiguous deficits.
 
-Do not introduce another typed kind in metadata or a migration for it.
-A dedicated alias model is not a prerequisite for the first fail-closed
-catalog-first implementation: ambiguous name-only matches continue to external
-resolution. Characterization must justify any future alias schema.
+### Ownership
 
-Also preserve the distinction between existing write-time reconciliation and
-the new read-time reuse path. `upsertGeoEntity()` /
-`findNearbyMatchingGeoEntity()` already reduce duplicate rows **after a
-provider candidate has been verified and has coordinates**. They cannot replace
-catalog-first lookup for a hint that is being resolved before those provider
-facts exist.
+```text
+ExperienceProposalResolverService
+        ↓
+ExperienceCatalogService.findGeoEntityCandidatesForHint(...)
+        ↓
+candidate correlation
+        ↓
+IdentityVerifier
+        ↓
+bounded external acquisition only if still needed
+```
 
-Implementation constraint: catalog-first retrieval must use a bounded,
-index-backed candidate query and MUST NOT load/scan the full `GeoEntity` table
-for application-side name matching. The exact SQL/index/schema strategy is an
-implementation decision for Phase 2 and should be justified from the existing
-schema and query plan rather than prescribed here.
+Responsibilities:
 
-For each component hint:
+- `ExperienceProposalResolverService`: orchestration and continuation;
+- `ExperienceCatalogService`: provider-neutral catalog candidate retrieval;
+- candidate correlation: deterministic grouping of exact/canonical identity
+  observations;
+- `IdentityVerifier`: the single final authority for whether a
+  candidate/cluster satisfies the hint.
 
-1. attempt to match an existing canonical GeoEntity using the same identity
-   facts/policies that make external candidates comparable;
-2. reuse it when identity is unambiguous, structurally compatible and not
-   positively contradicted;
-3. when catalog knowledge is insufficient/ambiguous/stale, open a precise
-   deficit and continue with bounded external acquisition;
-4. correlate external observations with the existing canonical candidate rather
-   than treating the request as a blank-slate identity problem;
-5. persist/reconcile the final GeoEntity through the existing catalog boundary.
+Catalog retrieval/correlation must not become a second fuzzy identity engine.
 
-Catalog reuse is not a provider vote and must not become "name looks similar,
-therefore trust DB".
+### Catalog-first behavior
 
-Resolving a component in this phase creates/reuses a GeoEntity only. It must
-not synthesize a standalone Experience unless acquisition/discovery separately
-originated that Experience from tourism evidence.
+A sufficiently unambiguous match to an already canonical GeoEntity is terminal
+success for **component identity resolution**. Do not call OSM/Nominatim/Places/
+Wikidata merely to re-prove identity already established in the catalog.
 
-Extend the canonical resolution contract so each component can retain the typed
-facts required to explain:
+External resolution opens only when catalog knowledge is:
 
-- acquisition strategy;
-- provider identity/external id;
-- canonical cross-reference when available;
-- selected candidate;
-- name/alias/address evidence;
-- coordinates/geometry;
-- outcome.
+- absent;
+- ambiguous;
+- positively contradicted;
+- missing a fact actually required by the current decision.
 
-Add one canonical provider-neutral **candidate-correlation stage** adjacent to
-the resolver. Its job is normalization/grouping of observations, not final
-hint verification. It may deterministically collapse observations when they
-share a canonical identity key/cross-reference (for example the same OSM
-object or an existing GeoEntity identity). The existing IdentityVerifier
-remains the one authority that decides whether the resulting candidate/cluster
-actually satisfies the component hint.
+Reuse the existing schema before inventing new schema:
 
-Do not create a second fuzzy identity engine inside correlation. If grouping
-requires uncertain name/address/coordinate inference, surface the competing
-clusters/evidence to IdentityVerifier instead of silently merging them.
+- `GeoEntity.kind: GeoEntityKind` already exists;
+- name/address/coordinates/geometry are first-class;
+- `GeoEntityIdentity(provider, externalId)` owns exact persisted identities.
 
-Define bounded acquisition continuation explicitly. Providers do **not** all
-need to run on every hint (cost policy still applies), but "first candidate was
-identity-rejected" must not silently terminate further applicable strategies
-unless a canonical stop/budget rule says so. Trace the stop reason. Characterize
-the Plaza de Mayo RW1 path as part of this work.
+Do not add a duplicate kind field. A dedicated alias model is not required
+unless characterization proves it necessary.
 
-It must not implement vote counts such as "two providers beat one".
+### Query constraint
 
-## Phase 3 — Correct identity corroboration semantics
+Catalog retrieval must use a bounded, index-backed candidate query. It MUST NOT
+load/scan the full `GeoEntity` table for application-side matching.
 
-Evolve the single canonical IdentityVerifier/evidence contracts.
+The exact SQL/index/schema strategy is an implementation decision. If a schema
+or index change is proposed, justify it from the actual query shape and query
+plan rather than adding it speculatively.
 
-Required distinctions:
+### Candidate correlation
 
-- sufficient positive identity evidence;
+Correlation may deterministically group observations when they expose the same
+canonical identity fact, for example:
+
+- exact persisted provider/external id;
+- the same OSM object surfaced through different paths;
+- a provider cross-reference to an existing `GeoEntityIdentity`.
+
+When grouping itself is uncertain, keep competing clusters explicit and let
+`IdentityVerifier` decide. Never implement provider voting.
+
+### Bounded acquisition continuation
+
+A rejected first candidate is **not** an automatic stop.
+
+Continue through further applicable strategies only while permitted by canonical
+cost/budget/stop policy. Do not fan out blindly to every provider. Trace the
+reason when acquisition stops.
+
+The Plaza de Mayo fixture must characterize this behavior.
+
+### Wikidata / corroboration sequencing
+
+Do not begin by weakening IdentityVerifier.
+
+First land:
+
+1. source grounding from Stage 2;
+2. catalog-first reuse;
+3. candidate correlation;
+4. bounded continuation.
+
+Then re-test El Zanjón.
+
+Only if genuine unresolved cases remain should this same stage evolve
+IdentityVerifier to distinguish:
+
+- sufficient positive evidence;
 - corroborated;
 - not corroborated / insufficient;
 - positively contradicted;
-- ambiguous competing candidate clusters.
+- ambiguous clusters.
 
-Review the 2026-09-17 Wikidata gate. A failed/non-matching nearby Wikidata
-lookup must not automatically become positive contradiction.
+Do not add destination exceptions or a fuzzy magic threshold.
 
-This phase runs only after catalog-first reuse/candidate correlation and the
-source-support gate are characterized. Re-test El Zanjón first: if exact
-canonical-object correlation already resolves it, do not weaken unrelated
-identity cases merely to reproduce that success.
+### Persistence boundary
 
-A remaining unique strong candidate may verify without Wikidata only when the
-canonical IdentityVerifier has sufficient positive evidence after ambiguity
-and contradiction checks. "One source can be enough" is not a blanket bypass.
+Resolving a component creates/reuses a GeoEntity only.
 
-Do not introduce destination exceptions or an open-ended fuzzy-score magic
-threshold merely to accept El Zanjón.
+It MUST NOT automatically create a standalone Experience. Existing
+`upsertGeoEntity()` / `findNearbyMatchingGeoEntity()` remain the write-time
+persistence/reconciliation boundary after identity verification; catalog-first
+is the new read-time reuse boundary before provider research.
 
-## Phase 4 — Component geographic relation
+### Exit gate
+
+Stage 3 is DONE only when:
+
+- catalog reuse works without full-table scan;
+- an unambiguous canonical GeoEntity avoids unnecessary external identity calls;
+- ambiguous catalog matches fail closed into bounded external resolution;
+- candidate correlation and IdentityVerifier remain separate authorities;
+- Solar de French cannot silently oscillate when canonical prior knowledge
+  already establishes the entity, while genuine conflict stays explicit;
+- El Zanjón is re-tested before any corroboration relaxation is accepted;
+- Progress records tests, performance/query evidence, and any remaining
+  identity deficit.
+
+---
+
+## Stage 4 — Geographic + partial-composite cutover
+
+### Goal
+
+Remove `required` as geographic authority and preserve per-component truth
+without silently materializing trimmed Experiences.
+
+### Component geography
 
 Evolve the existing area-scope membership policy as the single authority.
 
-This phase has an explicit dependency on Phase 1: the current
-`AreaScopeComponentFact.required` filter/zero-required behavior must be
-removed/redefined. The replacement rule is structural and resolution-based:
+Every evidence-backed component contributes to coverage/research state.
 
-- every evidence-backed component contributes to coverage/research state;
-- every **resolved** physical component participates in component-geographic
-  relation evaluation;
-- unresolved/ambiguous components remain deficits rather than being converted
-  into implicit geographic failures;
-- AREA/ROUTE/venue strategy selection is driven by canonical structural
-  roles/kinds and available geometry, not an LLM-authored required bit.
+Every **resolved** physical component receives a geographic relation.
 
-For AREA scopes, expose typed relation facts equivalent to:
+Unresolved/ambiguous components remain explicit deficits rather than implicit
+geographic failures.
 
-- inside;
-- intersects;
-- near boundary;
-- outside.
+AREA/ROUTE/PLACE strategy selection is based on:
 
-Implementation names may differ.
+- structural role/kind;
+- actual canonical geometry;
+- resolution outcome;
+- source-backed order/sequence;
+- request scope.
 
-Rules:
+For AREA semantics expose typed relations equivalent to:
 
-- PLACE membership uses polygon containment and boundary distance;
-- ROUTE membership reuses the existing LineString/polygon segment-intersection
-  mechanics and exposes the result as typed relation evidence; do not
-  reimplement geometry math in a parallel policy;
-- POINT_RADIUS keeps center/radius semantics;
-- NEAR is evidence, not standalone acceptance;
-- the area centroid is not the main membership primitive for real AREA scopes.
+- INSIDE;
+- INTERSECTS;
+- NEAR;
+- OUTSIDE.
 
-Record component geographic facts in the forensic trace.
+Reuse the existing ROUTE LineString/polygon segment-intersection mechanics. Do
+not build a second geometry engine.
 
-## Phase 5 — Resolution coverage result
+### Resolution coverage
 
-Replace proposal-level "one unresolved required component kills everything"
-with a component matrix.
-
-At minimum produce:
+Produce an auditable component matrix including at least:
 
 - totalComponents;
 - identityResolvedComponents;
@@ -300,168 +381,190 @@ At minimum produce:
 - resolutionRatio;
 - openResearchDeficits.
 
-Do not define canonical X/Y thresholds in this phase.
+Do not define canonical X/Y acceptance thresholds yet.
 
-Define clearly which result is research-only versus planner-eligible.
+### Composite Geographic Validation
 
-If persistence of partial research state requires a new DB model, stop and
-write the schema/lifecycle design before migrating. A transient/trace-level
-research result may be enough for the first characterization rerun.
+Cut over `CompositeGeographicValidationService` from `required`-driven
+strategy selection to resolved structural facts.
 
-## Phase 6 — Composite Geographic Validation without `required`
+Characterize and migrate all affected branches, including:
 
-Update `CompositeGeographicValidationService` so it consumes resolved component
-facts rather than LLM `required` flags.
+- `rejectIfExternalScopeViolated`;
+- `tryCanonicalGeometry`;
+- `validateExperience`.
 
-Treat this as a strategy redesign, not a mechanical field deletion. Today
-`required` influences multiple paths, including external-scope rejection,
-canonical geometry shortcuts and generic/venue-centric Experience validation
-(`rejectIfExternalScopeViolated`, `tryCanonicalGeometry`,
-`validateExperience`). Characterize and cut over each branch so no hidden
-`required` authority survives.
+Treat this as a strategy redesign, not a mechanical field deletion.
 
-Strategy selection after cutover must be based on canonical structural facts
-(AREA/ROUTE/PLACE roles/kinds, canonical geometry, source-backed sequence) plus
-resolved component outcomes. Unresolved components remain explicit research
-deficits and may limit planner eligibility, but they no longer choose the
-geographic strategy by virtue of an LLM boolean.
+### Partial-composite invariant
 
-Preserve its role as the single authority for set-level spatial coherence.
+If source evidence says A-B-C-D-E-F and C/E remain unresolved, do NOT silently
+persist A-B-D-F as the same Experience.
 
-It should reason about:
+A reduced variant requires independent source authority.
 
-- area anchoring;
-- route geometry/corridor;
-- component coherence;
-- evidence-backed sequence where applicable;
-- outside-but-near components only when the composite relation justifies them.
+Coverage ratio is observability/research-priority evidence only, not
+composition authority.
 
-Remove obsolete `unresolved_required_component` semantics after cutover; do not
-leave two decision paths.
+If durable partial-research persistence needs a new lifecycle/schema, stop and
+write that design before migrating. A transient/trace-level partial result is
+acceptable for this milestone if sufficient for characterization.
 
-## Phase 7 — Bitácora
+### Exit gate
 
-Update trace contracts/rendering to expose, per component:
+Stage 4 is DONE only when:
+
+- no hidden `required` authority remains in component/composite geography;
+- Calle Defensa uses the existing route-intersection authority;
+- component relations and composite coherence are separate decisions;
+- partial/unresolved state cannot become planner-eligible accidentally;
+- no automatic component → standalone Experience promotion exists;
+- Progress records validation and remaining research-only deficits.
+
+---
+
+## Stage 5 — Trace + RW1 verification
+
+### Goal
+
+Make the new behavior observable and prove the milestone against the same
+real-world corpus before choosing thresholds.
+
+### Bitácora
+
+Per component expose:
 
 - evidence key/source;
-- attempts;
-- candidate identities;
+- catalog lookup/reuse outcome;
+- acquisition attempts;
+- candidate identities/clusters;
 - canonical convergence/divergence;
 - decisive identity evidence;
 - not-corroborated vs contradicted;
 - component geographic relation;
 - final component status;
-- research deficit.
+- research deficit classification.
 
-At composite level expose counts, ratio and set-level geographic outcome.
+At composite level expose:
 
-Fix summary-reason fidelity in the same cutover: "no provider candidate" and
-"candidate acquired but identity rejected/unconfirmed" are distinct outcomes.
-The RW1 `NO_OSM_MATCH` mis-summary must have a regression test.
+- total/resolved/geo-accepted counts;
+- resolution ratio;
+- set-level geographic decision;
+- planner-eligible vs research-only state.
 
-Geometry payload-size invariants remain unchanged.
+Fix summary fidelity:
 
-## Cross-cutting planner/backfill boundary
+- no candidate acquired;
+- provider failed;
+- candidate acquired but identity rejected/unconfirmed;
+- ambiguous clusters;
 
-This milestone must preserve the distinction between composite membership and
-Tour completion:
+must remain distinct. The RW1 false `NO_OSM_MATCH` summary requires a
+regression test.
 
-- geographic proximity / Nearby may help discover or resolve candidates;
-- it never proves that a new stop belongs to an existing composite;
-- after planning, meaningful residual capacity first consumes the verified
-  catalog/ranked reservoir;
-- if that is insufficient, bounded targeted acquisition may produce additional
-  independent Experiences;
-- any new Experience follows the full evidence/resolution/validation/catalog
-  path before replanning;
-- planner scheduling must not rewrite the source-backed membership of a
-  composite.
+### RW1 rerun
 
-Whether future Tour execution may interleave a standalone Experience between
-components of another Experience while preserving precedence/continuity is a
-separate planner-model decision and is not implemented by this milestone.
-
-## Phase 8 — Rerun RW1 before setting thresholds
-
-Run the same forensic corpus with fresh cold databases and a warm rerun.
+Run fresh cold databases plus a warm rerun of the forensic corpus.
 
 Required analysis:
 
-- how many real source-backed composites are extracted;
+- number of source-backed composites extracted;
 - per-component resolution matrices;
 - El Zanjón outcome;
-- Plaza de Mayo acquisition/fan-out outcome;
-- a deterministic **resolved** outside-but-near AREA fixture for the Plaza-de-
-  Mayo-style design scenario;
-- Calle Defensa typed ROUTE/AREA relation using the existing intersection math;
-- how many composites reach Composite Geographic Validation;
+- Plaza de Mayo acquisition continuation;
+- deterministic resolved outside-but-near AREA fixture;
+- Calle Defensa typed ROUTE/AREA relation;
+- Solar de French cross-run stability;
+- composites reaching Composite Geographic Validation;
 - composite acceptance/rejection reasons;
 - false-positive identity cases;
-- unresolved deficits.
+- genuine unresolved knowledge deficits.
 
-Only after this rerun propose:
+Only after this evidence may the team propose:
 
 - partial-resolution ratio X;
 - minimum component count Y;
-- any generic AREA-boundary NEAR threshold not already owned by a canonical
-  primitive. Do not reuse Wikidata's existing 200m confirmation-search radius
-  merely because the number exists.
+- any generic AREA-boundary NEAR threshold.
 
-The proposal must use observed distributions and counterexamples, not one
-successful fixture.
+Do not reuse Wikidata's existing 200m corroboration-search radius merely because
+the number exists.
 
-## Phase 9 — Targeted research repair loop
+### Exit gate
 
-Only after Phases 0–8 are characterized, add the Tourism Researcher repair loop:
+Stage 5 is DONE only when:
+
+- RW1 cold/warm evidence is captured and reviewed;
+- trace reasons faithfully describe what happened;
+- no threshold is selected without observed distributions/counterexamples;
+- completion-gate PASS/FAIL is recorded;
+- Progress contains the final commit SHA and validation evidence.
+
+---
+
+## Cross-cutting planner/backfill boundary
+
+This milestone preserves the existing separation between composite membership
+and Tour completion:
+
+- geographic proximity / Nearby may help discover or resolve candidates;
+- it never proves that a new stop belongs to an existing composite;
+- planner residual capacity consumes verified catalog/ranked reservoir first;
+- bounded targeted acquisition may create additional independent Experiences;
+- every new Experience follows the normal evidence/resolution/validation/
+  catalog path;
+- planner scheduling must not rewrite source-backed composite membership.
+
+Whether a future Tour execution model may interleave an independent Experience
+between components of another Experience is a separate planner-model decision
+and is not implemented here.
+
+## Explicitly outside this milestone
+
+The Tourism Researcher repair loop is **not Stage 6** of this implementation.
+
+After this milestone is verified, a separate follow-up may consume only genuine
+`KNOWLEDGE_DEFICIT` outcomes:
 
 ```text
 openResearchDeficit
-→ choose bounded next research action
-→ collect source/provider observation
-→ append evidence
+→ bounded research action
+→ append observations
 → deterministic re-evaluation
-→ verified / exhausted / manual-review
+→ verified / exhausted / manual review
 ```
 
-Only `KNOWLEDGE_DEFICIT` outcomes may enter this loop. Provider failures,
-resolver/acquisition defects, source-support violations and misleading summary
-reasons are deterministic/engineering repair work, not "research".
+Provider failures, resolver/acquisition defects, source-contract violations and
+misleading summary reasons remain engineering/operational work, not Researcher
+tasks.
 
-Examples of legitimate research include unresolved aliases after normal
-resolution succeeds, genuine same-name ambiguity, address/official-site
-identity confirmation, competing plausible candidate clusters and missing
-composition facts.
-
-The LLM may decide what to investigate; it never declares geographic identity
-truth.
-
-TripAdvisor can enter as a source-aware composite evidence capability under the
-same authority model, but is not required to complete the component-resolution
-cutover.
+TripAdvisor/source expansion and planner interleaving also remain follow-up
+work unless separately authorized.
 
 ## Completion gate
 
-Before declaring this milestone complete, report PASS/FAIL for:
+Before declaring the milestone complete, report PASS/FAIL for:
 
 - source/composition authority;
-- source-support admission gate blocks unsupported extracted components;
-- RW1 failures classified as knowledge deficits vs provider/resolver/source defects;
+- source-support admission blocks unsupported extracted components;
+- failure classification separates knowledge deficits from system/source defects;
 - catalog-first GeoEntity reuse before external re-resolution;
+- bounded/index-backed catalog retrieval;
 - no automatic component → standalone Experience promotion;
 - provider isolation;
 - typed canonical facts;
-- single candidate-correlation owner and single IdentityVerifier decision authority;
+- single candidate-correlation owner;
+- single IdentityVerifier decision authority;
 - single geographic policy authority;
 - no LLM-owned geographic truth;
 - no magic thresholds;
 - embedding semantic-document version bumped/reindexed after `required` removal;
-- semantic similarity remains ranking-only, never identity/coverage authority;
+- semantic similarity remains ranking-only;
 - no provider voting;
 - no new semantic taxonomy;
 - partial state cannot reach planner;
-- trace explainability, including no false NO_OSM_MATCH summary after identity rejection;
+- trace explainability, including no false `NO_OSM_MATCH`;
 - RW1 cold/warm evidence;
 - tests/typecheck/lint actually executed.
 
-A green test suite is not sufficient if any applicable architecture check is
-FAIL.
+A green test suite is necessary but not sufficient if any applicable
+architecture check is FAIL.
