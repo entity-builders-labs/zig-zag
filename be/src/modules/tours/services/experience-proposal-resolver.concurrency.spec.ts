@@ -120,6 +120,9 @@ function buildService(overrides?: { persist?: jest.Mock; upsert?: jest.Mock }) {
   };
   const catalog = {
     resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+    findGeoEntityCandidatesForHint: jest
+      .fn()
+      .mockResolvedValue({ candidates: [] }),
     upsertGeoEntity:
       overrides?.upsert ??
       jest.fn(async (input: any) => ({ id: `geo-${input.externalId}` })),

@@ -42,6 +42,9 @@ describe('ExperienceProposalResolverService trace contract', () => {
     const catalog: any = {
       upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-10' }),
       resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+      findGeoEntityCandidatesForHint: jest
+        .fn()
+        .mockResolvedValue({ candidates: [] }),
       persistVerifiedExperience: jest.fn().mockResolvedValue({
         id: 'experience-10',
         dedupeDecision: 'NEW',
@@ -156,6 +159,9 @@ describe('ExperienceProposalResolverService trace contract', () => {
     const catalog: any = {
       upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-10' }),
       resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+      findGeoEntityCandidatesForHint: jest
+        .fn()
+        .mockResolvedValue({ candidates: [] }),
       persistVerifiedExperience: jest.fn().mockResolvedValue({
         id: 'experience-10',
         dedupeDecision: 'NEW',

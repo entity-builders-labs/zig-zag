@@ -84,6 +84,9 @@ describe('ExperienceProposalResolverService', () => {
     };
     const catalog = {
       resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+      findGeoEntityCandidatesForHint: jest
+        .fn()
+        .mockResolvedValue({ candidates: [] }),
       upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-10' }),
       persistVerifiedExperience: jest.fn().mockResolvedValue({
         id: 'exp-10',
@@ -166,6 +169,9 @@ describe('ExperienceProposalResolverService', () => {
     };
     const catalog = {
       resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+      findGeoEntityCandidatesForHint: jest
+        .fn()
+        .mockResolvedValue({ candidates: [] }),
       upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-caminito' }),
       persistVerifiedExperience: jest.fn().mockResolvedValue({
         id: 'exp-caminito',
@@ -197,11 +203,9 @@ describe('ExperienceProposalResolverService', () => {
       -58.3631,
       1200,
     );
-    expect(osmPlaces.lookupPoisNear).toHaveBeenCalledWith(
-      -34.6345,
-      -58.3631,
-      1200,
-    );
+    // Stage 3: OSM pools are lazy -- this candidate has only a ROUTE hint,
+    // so the POI pool is never needed and lookupPoisNear is never invoked.
+    expect(osmPlaces.lookupPoisNear).not.toHaveBeenCalled();
     expect(osmPlaces.lookupStreetsWithin).not.toHaveBeenCalled();
     expect(osmPlaces.lookupPoisWithin).not.toHaveBeenCalled();
     // ROUTE hint via POINT_RADIUS -> raw OSM ways -> identityMultiplicity
@@ -210,9 +214,14 @@ describe('ExperienceProposalResolverService', () => {
     const routeAttempts =
       result.entityResolution.forensicAudit[0].componentAudits[0].attempts;
     expect(routeAttempts.map((attempt) => attempt.strategy)).toEqual([
+      'CATALOG_REUSE',
       'LOCAL_OSM_POOL',
     ]);
     expect(routeAttempts[0]).toMatchObject({
+      executionStatus: 'completed',
+      candidateAcquired: false,
+    });
+    expect(routeAttempts[1]).toMatchObject({
       executionStatus: 'completed',
       candidateAcquired: true,
       poolCandidateCount: 1,
@@ -246,6 +255,9 @@ describe('ExperienceProposalResolverService', () => {
     };
     const catalog = {
       resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+      findGeoEntityCandidatesForHint: jest
+        .fn()
+        .mockResolvedValue({ candidates: [] }),
       upsertGeoEntity: jest.fn(),
       persistVerifiedExperience: jest.fn(),
     };
@@ -345,6 +357,9 @@ describe('ExperienceProposalResolverService', () => {
     };
     const catalog = {
       resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+      findGeoEntityCandidatesForHint: jest
+        .fn()
+        .mockResolvedValue({ candidates: [] }),
       // Both hints reconcile onto the same real place, exactly like
       // ExperienceCatalogService.upsertGeoEntity's own proximity+name
       // reconciliation now does across candidates — here simulated within
@@ -405,6 +420,9 @@ describe('ExperienceProposalResolverService', () => {
       resolveOrCreateTraitDefinitions: jest
         .fn()
         .mockResolvedValue(['trait-romantic', 'trait-family-friendly']),
+      findGeoEntityCandidatesForHint: jest
+        .fn()
+        .mockResolvedValue({ candidates: [] }),
       persistVerifiedExperience: jest.fn().mockResolvedValue({
         id: 'exp-traits',
         dedupeDecision: 'NEW',
@@ -441,6 +459,9 @@ describe('ExperienceProposalResolverService', () => {
   it('persists component order as null when the candidate has no order evidence (CP3-2)', async () => {
     const catalog = {
       resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+      findGeoEntityCandidatesForHint: jest
+        .fn()
+        .mockResolvedValue({ candidates: [] }),
       upsertGeoEntity: jest
         .fn()
         .mockResolvedValueOnce({ id: 'geo-a' })
@@ -528,6 +549,9 @@ describe('ExperienceProposalResolverService', () => {
   it('persists sequential component order when the candidate has real order evidence (CP3-2)', async () => {
     const catalog = {
       resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+      findGeoEntityCandidatesForHint: jest
+        .fn()
+        .mockResolvedValue({ candidates: [] }),
       upsertGeoEntity: jest
         .fn()
         .mockResolvedValueOnce({ id: 'geo-a' })
@@ -626,6 +650,9 @@ describe('ExperienceProposalResolverService', () => {
     };
     const catalog = {
       resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+      findGeoEntityCandidatesForHint: jest
+        .fn()
+        .mockResolvedValue({ candidates: [] }),
       upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-tigre' }),
       persistVerifiedExperience: jest.fn().mockResolvedValue({
         id: 'exp-tigre',
@@ -717,6 +744,9 @@ describe('ExperienceProposalResolverService', () => {
     };
     const catalog = {
       resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+      findGeoEntityCandidatesForHint: jest
+        .fn()
+        .mockResolvedValue({ candidates: [] }),
       upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-ischigualasto' }),
       persistVerifiedExperience: jest.fn().mockResolvedValue({
         id: 'exp-ischigualasto',
@@ -814,6 +844,9 @@ describe('ExperienceProposalResolverService', () => {
     };
     const catalog = {
       resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+      findGeoEntityCandidatesForHint: jest
+        .fn()
+        .mockResolvedValue({ candidates: [] }),
       upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-alcazar' }),
       persistVerifiedExperience: jest.fn().mockResolvedValue({
         id: 'exp-alcazar',
@@ -904,6 +937,9 @@ describe('ExperienceProposalResolverService', () => {
     };
     const catalog = {
       resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+      findGeoEntityCandidatesForHint: jest
+        .fn()
+        .mockResolvedValue({ candidates: [] }),
       upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-cathedral' }),
       persistVerifiedExperience: jest.fn().mockResolvedValue({
         id: 'exp-cathedral',
@@ -1012,6 +1048,9 @@ describe('ExperienceProposalResolverService', () => {
     };
     const catalog = {
       resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+      findGeoEntityCandidatesForHint: jest
+        .fn()
+        .mockResolvedValue({ candidates: [] }),
       upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-cathedral' }),
       persistVerifiedExperience: jest.fn().mockResolvedValue({
         id: 'exp-cathedral',
@@ -1108,6 +1147,9 @@ describe('ExperienceProposalResolverService', () => {
     };
     const catalog = {
       resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+      findGeoEntityCandidatesForHint: jest
+        .fn()
+        .mockResolvedValue({ candidates: [] }),
       upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-tortoni' }),
       persistVerifiedExperience: jest.fn().mockResolvedValue({
         id: 'exp-tortoni',
@@ -1190,6 +1232,9 @@ describe('ExperienceProposalResolverService', () => {
     };
     const catalog = {
       resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+      findGeoEntityCandidatesForHint: jest
+        .fn()
+        .mockResolvedValue({ candidates: [] }),
       upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-tortoni' }),
       persistVerifiedExperience: jest.fn().mockResolvedValue({
         id: 'exp-tortoni',
@@ -1270,6 +1315,9 @@ describe('ExperienceProposalResolverService', () => {
     };
     const catalog = {
       resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+      findGeoEntityCandidatesForHint: jest
+        .fn()
+        .mockResolvedValue({ candidates: [] }),
       upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-tortoni' }),
       persistVerifiedExperience: jest.fn().mockResolvedValue({
         id: 'exp-tortoni',
@@ -1336,7 +1384,11 @@ describe('ExperienceProposalResolverService', () => {
           .mockResolvedValue({ status: 'success', value: [] }),
         lookupBoundaryById: jest.fn(),
       } as any,
-      {} as any,
+      {
+        findGeoEntityCandidatesForHint: jest
+          .fn()
+          .mockResolvedValue({ candidates: [] }),
+      } as any,
       { validate: jest.fn() } as any,
       undefined,
       nominatim as any,
@@ -1399,7 +1451,11 @@ describe('ExperienceProposalResolverService', () => {
           ],
         }),
       } as any,
-      {} as any,
+      {
+        findGeoEntityCandidatesForHint: jest
+          .fn()
+          .mockResolvedValue({ candidates: [] }),
+      } as any,
       { validate: jest.fn() } as any,
       undefined,
       nominatim as any,
@@ -1442,7 +1498,11 @@ describe('ExperienceProposalResolverService', () => {
           ],
         }),
       } as any,
-      {} as any,
+      {
+        findGeoEntityCandidatesForHint: jest
+          .fn()
+          .mockResolvedValue({ candidates: [] }),
+      } as any,
       { validate: jest.fn() } as any,
       undefined,
       nominatim as any,
@@ -1555,7 +1615,11 @@ describe('ExperienceProposalResolverService', () => {
           .mockResolvedValue({ status: 'success', value: [] }),
         lookupPoisWithin: jest.fn().mockResolvedValue(lookup),
       } as any,
-      {} as any,
+      {
+        findGeoEntityCandidatesForHint: jest
+          .fn()
+          .mockResolvedValue({ candidates: [] }),
+      } as any,
       { validate: jest.fn() } as any,
     );
 
@@ -1567,7 +1631,7 @@ describe('ExperienceProposalResolverService', () => {
     expect(result.acceptedCount).toBe(0);
     expect(result.resolved[0].rejectionReasons).toContain(expected);
     const attempt =
-      result.entityResolution.forensicAudit[0].componentAudits[0].attempts[0];
+      result.entityResolution.forensicAudit[0].componentAudits[0].attempts[1];
     expect(attempt).toMatchObject({
       strategy: 'LOCAL_OSM_POOL',
       executionStatus: lookup.status === 'failed' ? 'failed' : 'completed',
@@ -1595,7 +1659,11 @@ describe('ExperienceProposalResolverService', () => {
           .fn()
           .mockResolvedValue({ status: 'success', value: [] }),
       } as any,
-      {} as any,
+      {
+        findGeoEntityCandidatesForHint: jest
+          .fn()
+          .mockResolvedValue({ candidates: [] }),
+      } as any,
       { validate: jest.fn() } as any,
     );
 
@@ -1619,8 +1687,9 @@ describe('ExperienceProposalResolverService', () => {
 
     const attempts =
       result.entityResolution.forensicAudit[0].componentAudits[0].attempts;
-    expect(attempts).toHaveLength(1);
-    expect(attempts[0]).toMatchObject({
+    expect(attempts).toHaveLength(2);
+    expect(attempts[0].strategy).toBe('CATALOG_REUSE');
+    expect(attempts[1]).toMatchObject({
       strategy: 'LOCAL_OSM_POOL',
       executionStatus: 'failed',
       provider: 'openstreetmap',
@@ -1644,7 +1713,11 @@ describe('ExperienceProposalResolverService', () => {
           failureReason: 'Overpass 429',
         }),
       } as any,
-      {} as any,
+      {
+        findGeoEntityCandidatesForHint: jest
+          .fn()
+          .mockResolvedValue({ candidates: [] }),
+      } as any,
       { validate: jest.fn() } as any,
     );
 
@@ -1732,7 +1805,11 @@ describe('ExperienceProposalResolverService', () => {
             .mockResolvedValue({ status: 'success', value: [] }),
           lookupBoundaryById: jest.fn().mockResolvedValue(boundaryLookup),
         } as any,
-        {} as any,
+        {
+          findGeoEntityCandidatesForHint: jest
+            .fn()
+            .mockResolvedValue({ candidates: [] }),
+        } as any,
         { validate: jest.fn() } as any,
         undefined,
         nominatim as any,
@@ -1786,6 +1863,9 @@ describe('ExperienceProposalResolverService', () => {
   it('resolves AREA components against the canonical destination boundary and persists an AREA GeoEntity', async () => {
     const catalog = {
       resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+      findGeoEntityCandidatesForHint: jest
+        .fn()
+        .mockResolvedValue({ candidates: [] }),
       upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-area-1' }),
       persistVerifiedExperience: jest.fn().mockResolvedValue({
         id: 'exp-area-1',
@@ -1865,6 +1945,9 @@ describe('ExperienceProposalResolverService', () => {
     };
     const catalog = {
       resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+      findGeoEntityCandidatesForHint: jest
+        .fn()
+        .mockResolvedValue({ candidates: [] }),
       upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-san-telmo' }),
       persistVerifiedExperience: jest.fn().mockResolvedValue({
         id: 'exp-san-telmo',
@@ -1959,6 +2042,9 @@ describe('ExperienceProposalResolverService', () => {
     };
     const catalog = {
       resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+      findGeoEntityCandidatesForHint: jest
+        .fn()
+        .mockResolvedValue({ candidates: [] }),
       upsertGeoEntity: jest.fn(),
       persistVerifiedExperience: jest.fn(),
     };
@@ -2062,6 +2148,9 @@ describe('ExperienceProposalResolverService', () => {
     };
     const catalog = {
       resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+      findGeoEntityCandidatesForHint: jest
+        .fn()
+        .mockResolvedValue({ candidates: [] }),
       upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-puerto-madero' }),
       persistVerifiedExperience: jest.fn().mockResolvedValue({
         id: 'exp-puerto-madero',
@@ -2181,6 +2270,9 @@ describe('ExperienceProposalResolverService', () => {
     };
     const catalog = {
       resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+      findGeoEntityCandidatesForHint: jest
+        .fn()
+        .mockResolvedValue({ candidates: [] }),
       upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-puerto-madero' }),
       persistVerifiedExperience: jest.fn().mockResolvedValue({
         id: 'exp-puerto-madero',
@@ -2285,6 +2377,9 @@ describe('ExperienceProposalResolverService', () => {
     };
     const catalog = {
       resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+      findGeoEntityCandidatesForHint: jest
+        .fn()
+        .mockResolvedValue({ candidates: [] }),
       upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-plaza-de-mayo' }),
       persistVerifiedExperience: jest.fn().mockResolvedValue({
         id: 'exp-plaza-de-mayo',
@@ -2388,6 +2483,9 @@ describe('ExperienceProposalResolverService', () => {
     };
     const catalog = {
       resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+      findGeoEntityCandidatesForHint: jest
+        .fn()
+        .mockResolvedValue({ candidates: [] }),
       upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-san-telmo' }),
       persistVerifiedExperience: jest.fn().mockResolvedValue({
         id: 'exp-san-telmo',
@@ -2478,6 +2576,9 @@ describe('ExperienceProposalResolverService', () => {
       };
       const catalog = {
         resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        findGeoEntityCandidatesForHint: jest
+          .fn()
+          .mockResolvedValue({ candidates: [] }),
         upsertGeoEntity: jest.fn(),
       };
       const nominatim = {
@@ -2545,6 +2646,9 @@ describe('ExperienceProposalResolverService', () => {
   it('uses GEOGRAPHIC_VALIDATION_FAILED when a resolved candidate has no validation result', async () => {
     const catalog = {
       resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+      findGeoEntityCandidatesForHint: jest
+        .fn()
+        .mockResolvedValue({ candidates: [] }),
       upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-10' }),
       persistVerifiedExperience: jest.fn(),
     };
@@ -2634,6 +2738,9 @@ describe('ExperienceProposalResolverService', () => {
       };
       const catalog = {
         resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        findGeoEntityCandidatesForHint: jest
+          .fn()
+          .mockResolvedValue({ candidates: [] }),
         upsertGeoEntity: jest
           .fn()
           .mockImplementation(async (input: any) =>
@@ -2774,6 +2881,9 @@ describe('ExperienceProposalResolverService', () => {
       let upsertCall = 0;
       const catalog = {
         resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        findGeoEntityCandidatesForHint: jest
+          .fn()
+          .mockResolvedValue({ candidates: [] }),
         upsertGeoEntity: jest.fn().mockImplementation(async () => {
           upsertCall += 1;
           return { id: `geo-${upsertCall}` };
@@ -2841,6 +2951,9 @@ describe('ExperienceProposalResolverService', () => {
       ]);
       const catalog = {
         resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        findGeoEntityCandidatesForHint: jest
+          .fn()
+          .mockResolvedValue({ candidates: [] }),
         // Both hints reconcile onto the SAME real GeoEntity (shared place).
         upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-shared' }),
         persistVerifiedExperience: jest
@@ -2907,6 +3020,9 @@ describe('ExperienceProposalResolverService', () => {
       ]);
       const catalog = {
         resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        findGeoEntityCandidatesForHint: jest
+          .fn()
+          .mockResolvedValue({ candidates: [] }),
         upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-shared' }),
         persistVerifiedExperience: jest
           .fn()
@@ -2972,6 +3088,9 @@ describe('ExperienceProposalResolverService', () => {
       ]);
       const catalog = {
         resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        findGeoEntityCandidatesForHint: jest
+          .fn()
+          .mockResolvedValue({ candidates: [] }),
         upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-shared' }),
         persistVerifiedExperience: jest
           .fn()
@@ -3034,6 +3153,9 @@ describe('ExperienceProposalResolverService', () => {
       const catalog = {
         upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-10' }),
         resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        findGeoEntityCandidatesForHint: jest
+          .fn()
+          .mockResolvedValue({ candidates: [] }),
         persistVerifiedExperience: jest.fn().mockResolvedValue({
           id: 'exp-rated',
           dedupeDecision: 'NEW',
@@ -3074,6 +3196,9 @@ describe('ExperienceProposalResolverService', () => {
       const catalog = {
         upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-10' }),
         resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        findGeoEntityCandidatesForHint: jest
+          .fn()
+          .mockResolvedValue({ candidates: [] }),
         persistVerifiedExperience: jest.fn().mockResolvedValue({
           id: 'exp-unrated',
           dedupeDecision: 'NEW',
@@ -3115,6 +3240,9 @@ describe('ExperienceProposalResolverService', () => {
       let upsertCall = 0;
       return {
         resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        findGeoEntityCandidatesForHint: jest
+          .fn()
+          .mockResolvedValue({ candidates: [] }),
         upsertGeoEntity: jest.fn().mockImplementation(async () => {
           upsertCall += 1;
           return { id: `geo-${upsertCall}` };
@@ -3401,6 +3529,9 @@ describe('ExperienceProposalResolverService', () => {
       let nextGeoId = 0;
       const catalog = {
         resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        findGeoEntityCandidatesForHint: jest
+          .fn()
+          .mockResolvedValue({ candidates: [] }),
         upsertGeoEntity: jest.fn().mockImplementation(async (input: any) => {
           const existing = geoIdsByExternalId.get(input.externalId);
           if (existing) return { id: existing };
@@ -3520,6 +3651,9 @@ describe('ExperienceProposalResolverService', () => {
       const wikidata = { findNearbyPlaces: jest.fn() };
       const catalog = {
         resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        findGeoEntityCandidatesForHint: jest
+          .fn()
+          .mockResolvedValue({ candidates: [] }),
         upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-1' }),
         persistVerifiedExperience: jest
           .fn()
@@ -3577,6 +3711,9 @@ describe('ExperienceProposalResolverService', () => {
       };
       const catalog = {
         resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        findGeoEntityCandidatesForHint: jest
+          .fn()
+          .mockResolvedValue({ candidates: [] }),
         upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-hotel' }),
         persistVerifiedExperience: jest.fn(),
       };
@@ -3643,6 +3780,9 @@ describe('ExperienceProposalResolverService', () => {
       };
       const catalog = {
         resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        findGeoEntityCandidatesForHint: jest
+          .fn()
+          .mockResolvedValue({ candidates: [] }),
         upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-hotel' }),
         persistVerifiedExperience: jest.fn(),
       };
@@ -3714,6 +3854,9 @@ describe('ExperienceProposalResolverService', () => {
       };
       const catalog = {
         resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        findGeoEntityCandidatesForHint: jest
+          .fn()
+          .mockResolvedValue({ candidates: [] }),
         upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-1' }),
         persistVerifiedExperience: jest
           .fn()
@@ -3762,6 +3905,9 @@ describe('ExperienceProposalResolverService', () => {
       const wikidata = { findNearbyPlaces: jest.fn().mockResolvedValue([]) };
       const catalog = {
         resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        findGeoEntityCandidatesForHint: jest
+          .fn()
+          .mockResolvedValue({ candidates: [] }),
         upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-1' }),
         persistVerifiedExperience: jest.fn(),
       };
@@ -3803,6 +3949,9 @@ describe('ExperienceProposalResolverService', () => {
       const nominatim = { search: jest.fn().mockResolvedValue([]) };
       const catalog = {
         resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        findGeoEntityCandidatesForHint: jest
+          .fn()
+          .mockResolvedValue({ candidates: [] }),
         upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-1' }),
         persistVerifiedExperience: jest.fn(),
       };
@@ -3860,6 +4009,9 @@ describe('ExperienceProposalResolverService', () => {
       };
       const catalog = {
         resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        findGeoEntityCandidatesForHint: jest
+          .fn()
+          .mockResolvedValue({ candidates: [] }),
         upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-1' }),
         persistVerifiedExperience: jest.fn(),
       };
@@ -3923,6 +4075,9 @@ describe('ExperienceProposalResolverService', () => {
       };
       const catalog = {
         resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        findGeoEntityCandidatesForHint: jest
+          .fn()
+          .mockResolvedValue({ candidates: [] }),
         upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-1' }),
         persistVerifiedExperience: jest
           .fn()
@@ -3996,6 +4151,9 @@ describe('ExperienceProposalResolverService', () => {
       };
       const catalog = {
         resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        findGeoEntityCandidatesForHint: jest
+          .fn()
+          .mockResolvedValue({ candidates: [] }),
         upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-1' }),
         persistVerifiedExperience: jest.fn(),
       };
@@ -4040,6 +4198,9 @@ describe('ExperienceProposalResolverService', () => {
       };
       const catalog = {
         resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        findGeoEntityCandidatesForHint: jest
+          .fn()
+          .mockResolvedValue({ candidates: [] }),
         upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-1' }),
         persistVerifiedExperience: jest
           .fn()
@@ -4098,6 +4259,9 @@ describe('ExperienceProposalResolverService', () => {
       };
       const catalog = {
         resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        findGeoEntityCandidatesForHint: jest
+          .fn()
+          .mockResolvedValue({ candidates: [] }),
         upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-1' }),
         persistVerifiedExperience: jest
           .fn()
@@ -4168,6 +4332,9 @@ describe('ExperienceProposalResolverService', () => {
       };
       const catalog = {
         resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        findGeoEntityCandidatesForHint: jest
+          .fn()
+          .mockResolvedValue({ candidates: [] }),
         upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-1' }),
         persistVerifiedExperience: jest.fn(),
       };
@@ -4228,6 +4395,9 @@ describe('ExperienceProposalResolverService', () => {
       };
       const catalog = {
         resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        findGeoEntityCandidatesForHint: jest
+          .fn()
+          .mockResolvedValue({ candidates: [] }),
         upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-1' }),
         persistVerifiedExperience: jest.fn(),
       };
@@ -4297,6 +4467,9 @@ describe('ExperienceProposalResolverService', () => {
     };
     const catalog = {
       resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+      findGeoEntityCandidatesForHint: jest
+        .fn()
+        .mockResolvedValue({ candidates: [] }),
       upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-1' }),
       persistVerifiedExperience: jest
         .fn()
@@ -4372,6 +4545,9 @@ describe('ExperienceProposalResolverService', () => {
       };
       const catalog = {
         resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        findGeoEntityCandidatesForHint: jest
+          .fn()
+          .mockResolvedValue({ candidates: [] }),
         upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-1' }),
         persistVerifiedExperience: jest
           .fn()
@@ -4437,6 +4613,9 @@ describe('ExperienceProposalResolverService', () => {
       };
       const catalog = {
         resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        findGeoEntityCandidatesForHint: jest
+          .fn()
+          .mockResolvedValue({ candidates: [] }),
         upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-1' }),
         persistVerifiedExperience: jest
           .fn()
@@ -4505,6 +4684,9 @@ describe('ExperienceProposalResolverService', () => {
       };
       const catalog = {
         resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        findGeoEntityCandidatesForHint: jest
+          .fn()
+          .mockResolvedValue({ candidates: [] }),
         upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-hotel' }),
         persistVerifiedExperience: jest.fn(),
       };
@@ -4560,6 +4742,9 @@ describe('ExperienceProposalResolverService', () => {
       };
       const catalog = {
         resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        findGeoEntityCandidatesForHint: jest
+          .fn()
+          .mockResolvedValue({ candidates: [] }),
         upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-1' }),
         persistVerifiedExperience: jest
           .fn()
@@ -4608,6 +4793,9 @@ describe('ExperienceProposalResolverService', () => {
       };
       const catalog = {
         resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        findGeoEntityCandidatesForHint: jest
+          .fn()
+          .mockResolvedValue({ candidates: [] }),
         upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-1' }),
         persistVerifiedExperience: jest.fn(),
       };
@@ -4657,6 +4845,9 @@ describe('ExperienceProposalResolverService', () => {
       };
       const catalog = {
         resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        findGeoEntityCandidatesForHint: jest
+          .fn()
+          .mockResolvedValue({ candidates: [] }),
         upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-1' }),
         persistVerifiedExperience: jest
           .fn()
@@ -4713,6 +4904,9 @@ describe('ExperienceProposalResolverService', () => {
       };
       const catalog = {
         resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        findGeoEntityCandidatesForHint: jest
+          .fn()
+          .mockResolvedValue({ candidates: [] }),
         upsertGeoEntity: jest
           .fn()
           .mockResolvedValue({ id: 'geo-recoleta-cemetery' }),
@@ -4806,6 +5000,9 @@ describe('ExperienceProposalResolverService', () => {
       };
       const catalog = {
         resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        findGeoEntityCandidatesForHint: jest
+          .fn()
+          .mockResolvedValue({ candidates: [] }),
         upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-1' }),
         persistVerifiedExperience: jest
           .fn()
@@ -4880,6 +5077,9 @@ describe('ExperienceProposalResolverService', () => {
       };
       const catalog = {
         resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        findGeoEntityCandidatesForHint: jest
+          .fn()
+          .mockResolvedValue({ candidates: [] }),
         upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-1' }),
         persistVerifiedExperience: jest
           .fn()
@@ -4950,6 +5150,9 @@ describe('ExperienceProposalResolverService', () => {
       };
       const catalog = {
         resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        findGeoEntityCandidatesForHint: jest
+          .fn()
+          .mockResolvedValue({ candidates: [] }),
         upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-hotel' }),
         persistVerifiedExperience: jest.fn(),
       };
@@ -5022,6 +5225,9 @@ describe('ExperienceProposalResolverService', () => {
       };
       const catalog = {
         resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        findGeoEntityCandidatesForHint: jest
+          .fn()
+          .mockResolvedValue({ candidates: [] }),
         upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-1' }),
         persistVerifiedExperience: jest
           .fn()
@@ -5086,6 +5292,9 @@ describe('ExperienceProposalResolverService', () => {
       };
       const catalog = {
         resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        findGeoEntityCandidatesForHint: jest
+          .fn()
+          .mockResolvedValue({ candidates: [] }),
         upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-1' }),
         persistVerifiedExperience: jest
           .fn()
@@ -5141,6 +5350,9 @@ describe('ExperienceProposalResolverService', () => {
       };
       const catalog = {
         resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        findGeoEntityCandidatesForHint: jest
+          .fn()
+          .mockResolvedValue({ candidates: [] }),
         upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-1' }),
         persistVerifiedExperience: jest
           .fn()
@@ -5212,6 +5424,9 @@ describe('ExperienceProposalResolverService', () => {
       };
       const catalog = {
         resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        findGeoEntityCandidatesForHint: jest
+          .fn()
+          .mockResolvedValue({ candidates: [] }),
         upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-1' }),
         persistVerifiedExperience: jest
           .fn()
@@ -5255,6 +5470,9 @@ describe('ExperienceProposalResolverService', () => {
     it('alias MULTIPLE -> AMBIGUOUS -> not persisted: two POI candidates declare aliases matching the same hint', async () => {
       const catalog = {
         resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        findGeoEntityCandidatesForHint: jest
+          .fn()
+          .mockResolvedValue({ candidates: [] }),
         upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-1' }),
         persistVerifiedExperience: jest
           .fn()
@@ -5331,6 +5549,9 @@ describe('ExperienceProposalResolverService', () => {
       };
       const catalog = {
         resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        findGeoEntityCandidatesForHint: jest
+          .fn()
+          .mockResolvedValue({ candidates: [] }),
         upsertGeoEntity: jest
           .fn()
           .mockResolvedValue({ id: 'geo-recoleta-cemetery' }),
@@ -5413,6 +5634,9 @@ describe('ExperienceProposalResolverService', () => {
       };
       const catalog = {
         resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        findGeoEntityCandidatesForHint: jest
+          .fn()
+          .mockResolvedValue({ candidates: [] }),
         upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-1' }),
         persistVerifiedExperience: jest
           .fn()
@@ -5493,6 +5717,9 @@ describe('ExperienceProposalResolverService', () => {
       };
       const catalog = {
         resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        findGeoEntityCandidatesForHint: jest
+          .fn()
+          .mockResolvedValue({ candidates: [] }),
         upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-mercado' }),
         persistVerifiedExperience: jest
           .fn()
@@ -5530,9 +5757,9 @@ describe('ExperienceProposalResolverService', () => {
 
       // The local pool fetch used the NARROW scope, not the wide one.
       expect(osmPlaces.lookupPoisWithin).toHaveBeenCalledWith(narrowBoundary);
-      expect(osmPlaces.lookupStreetsWithin).toHaveBeenCalledWith(
-        narrowBoundary,
-      );
+      // Stage 3: OSM pools are lazy -- this candidate has only a venue
+      // (PLACE) hint, so the street pool is never needed at all.
+      expect(osmPlaces.lookupStreetsWithin).not.toHaveBeenCalled();
       // Geographic validation still receives the WIDE destination boundary,
       // unchanged -- destination_mismatch semantics must not narrow.
       expect(geographicValidator.validate).toHaveBeenCalledWith(
@@ -5566,6 +5793,9 @@ describe('ExperienceProposalResolverService', () => {
       };
       const catalog = {
         resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        findGeoEntityCandidatesForHint: jest
+          .fn()
+          .mockResolvedValue({ candidates: [] }),
         upsertGeoEntity: jest.fn(),
         persistVerifiedExperience: jest.fn(),
       };
@@ -5576,9 +5806,38 @@ describe('ExperienceProposalResolverService', () => {
         geographicValidator as any,
       );
 
+      // Stage 3: OSM pools are lazy, so a real hint of each pool-needing
+      // kind (venue -> pois, route -> streets) is required to actually
+      // exercise the fetch this test characterizes -- an empty candidate
+      // list would never touch either lookup at all.
       await service.resolve({
         geographicScope: { kind: 'AREA_BOUNDARY', boundary: boundary2 },
-        candidates: [],
+        candidates: [
+          {
+            name: 'Mixed Walk',
+            themes: ['culture'],
+            traits: [],
+            intents: ['walk'],
+            componentHints: [
+              {
+                key: 'venue',
+                name: 'Some Place',
+                role: 'venue',
+                expectedKind: 'PLACE',
+                evidenceKeys: ['ev-1'],
+              },
+              {
+                key: 'street',
+                name: 'Some Street',
+                role: 'route',
+                expectedKind: 'ROUTE',
+                evidenceKeys: ['ev-1'],
+              },
+            ],
+            evidenceKeys: ['ev-1'],
+            shortReason: 'Mixed venue + route hints',
+          },
+        ],
         evidence: [],
       });
 
@@ -5624,6 +5883,9 @@ describe('ExperienceProposalResolverService', () => {
       };
       const catalog = {
         resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        findGeoEntityCandidatesForHint: jest
+          .fn()
+          .mockResolvedValue({ candidates: [] }),
         upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-zanjon' }),
         persistVerifiedExperience: jest.fn().mockResolvedValue({
           id: 'exp-zanjon',
@@ -5698,6 +5960,9 @@ describe('ExperienceProposalResolverService', () => {
       };
       const catalog = {
         resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        findGeoEntityCandidatesForHint: jest
+          .fn()
+          .mockResolvedValue({ candidates: [] }),
         upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-zanjon' }),
         persistVerifiedExperience: jest.fn(),
       };
@@ -5754,6 +6019,9 @@ describe('ExperienceProposalResolverService', () => {
       };
       const catalog = {
         resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        findGeoEntityCandidatesForHint: jest
+          .fn()
+          .mockResolvedValue({ candidates: [] }),
         upsertGeoEntity: jest.fn(),
         persistVerifiedExperience: jest.fn(),
       };
@@ -5828,6 +6096,9 @@ describe('ExperienceProposalResolverService', () => {
       };
       const catalog = {
         resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        findGeoEntityCandidatesForHint: jest
+          .fn()
+          .mockResolvedValue({ candidates: [] }),
         upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-zanjon' }),
         persistVerifiedExperience: jest.fn().mockResolvedValue({
           id: 'exp-zanjon',
@@ -5893,6 +6164,9 @@ describe('ExperienceProposalResolverService', () => {
       };
       const catalog = {
         resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        findGeoEntityCandidatesForHint: jest
+          .fn()
+          .mockResolvedValue({ candidates: [] }),
         upsertGeoEntity: jest.fn(),
         persistVerifiedExperience: jest.fn(),
       };
@@ -5948,6 +6222,9 @@ describe('ExperienceProposalResolverService', () => {
       };
       const catalog = {
         resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        findGeoEntityCandidatesForHint: jest
+          .fn()
+          .mockResolvedValue({ candidates: [] }),
         upsertGeoEntity: jest.fn(),
         persistVerifiedExperience: jest.fn(),
       };
@@ -6005,6 +6282,9 @@ describe('ExperienceProposalResolverService', () => {
       };
       const catalog = {
         resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        findGeoEntityCandidatesForHint: jest
+          .fn()
+          .mockResolvedValue({ candidates: [] }),
         upsertGeoEntity: jest.fn(),
         persistVerifiedExperience: jest.fn(),
       };
@@ -6065,6 +6345,9 @@ describe('ExperienceProposalResolverService', () => {
       };
       const catalog = {
         resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        findGeoEntityCandidatesForHint: jest
+          .fn()
+          .mockResolvedValue({ candidates: [] }),
         upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-zanjon' }),
         persistVerifiedExperience: jest.fn().mockResolvedValue({
           id: 'exp-zanjon',
@@ -6125,6 +6408,9 @@ describe('ExperienceProposalResolverService', () => {
         };
         const catalog = {
           resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+          findGeoEntityCandidatesForHint: jest
+            .fn()
+            .mockResolvedValue({ candidates: [] }),
           upsertGeoEntity: jest.fn(),
           persistVerifiedExperience: jest.fn(),
         };
@@ -6202,6 +6488,9 @@ describe('ExperienceProposalResolverService', () => {
       };
       const catalog = {
         resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        findGeoEntityCandidatesForHint: jest
+          .fn()
+          .mockResolvedValue({ candidates: [] }),
         upsertGeoEntity: jest.fn(),
         persistVerifiedExperience: jest.fn(),
       };
@@ -6266,6 +6555,9 @@ describe('ExperienceProposalResolverService', () => {
       };
       const catalog = {
         resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        findGeoEntityCandidatesForHint: jest
+          .fn()
+          .mockResolvedValue({ candidates: [] }),
         upsertGeoEntity: jest.fn(),
         persistVerifiedExperience: jest.fn(),
       };
@@ -6326,6 +6618,9 @@ describe('ExperienceProposalResolverService', () => {
       };
       const catalog = {
         resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        findGeoEntityCandidatesForHint: jest
+          .fn()
+          .mockResolvedValue({ candidates: [] }),
         upsertGeoEntity: jest.fn(),
         persistVerifiedExperience: jest.fn(),
       };
@@ -6380,6 +6675,9 @@ describe('ExperienceProposalResolverService', () => {
       };
       const catalog = {
         resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        findGeoEntityCandidatesForHint: jest
+          .fn()
+          .mockResolvedValue({ candidates: [] }),
         upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-colon' }),
         persistVerifiedExperience: jest.fn().mockResolvedValue({
           id: 'exp-colon',
@@ -6419,6 +6717,9 @@ describe('ExperienceProposalResolverService', () => {
     it('persists via persistVerifiedCandidate on VERIFIED and never on unverified for OSM strategy', async () => {
       const catalog = {
         resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        findGeoEntityCandidatesForHint: jest
+          .fn()
+          .mockResolvedValue({ candidates: [] }),
         upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-osm' }),
         persistVerifiedExperience: jest.fn().mockResolvedValue({
           id: 'exp-osm',
@@ -6496,6 +6797,9 @@ describe('ExperienceProposalResolverService', () => {
     it('persists via persistVerifiedCandidate on VERIFIED and never on unverified for Nominatim strategy', async () => {
       const catalog = {
         resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        findGeoEntityCandidatesForHint: jest
+          .fn()
+          .mockResolvedValue({ candidates: [] }),
         upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-nom' }),
         persistVerifiedExperience: jest.fn().mockResolvedValue({
           id: 'exp-nom',
@@ -6607,6 +6911,9 @@ describe('ExperienceProposalResolverService', () => {
     it('persists via persistVerifiedCandidate on VERIFIED and never on unverified for Places strategy', async () => {
       const catalog = {
         resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        findGeoEntityCandidatesForHint: jest
+          .fn()
+          .mockResolvedValue({ candidates: [] }),
         upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-places' }),
         persistVerifiedExperience: jest.fn().mockResolvedValue({
           id: 'exp-places',
@@ -6719,6 +7026,9 @@ describe('ExperienceProposalResolverService', () => {
     it('persists via persistVerifiedCandidate on VERIFIED and never on unverified for trusted-observation reuse strategy', async () => {
       const catalog = {
         resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        findGeoEntityCandidatesForHint: jest
+          .fn()
+          .mockResolvedValue({ candidates: [] }),
         upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-reuse' }),
         persistVerifiedExperience: jest.fn().mockResolvedValue({
           id: 'exp-reuse',
@@ -6881,6 +7191,9 @@ describe('ExperienceProposalResolverService', () => {
       };
       const catalog = {
         resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        findGeoEntityCandidatesForHint: jest
+          .fn()
+          .mockResolvedValue({ candidates: [] }),
         upsertGeoEntity: jest.fn(),
         persistVerifiedExperience: jest.fn(),
       };
@@ -6951,9 +7264,13 @@ describe('ExperienceProposalResolverService', () => {
       );
 
       // Case B: the wrong real local candidate is acquired and rejected —
-      // exactly one bounded attempt, never silently escalated.
-      expect(plazaAudit?.attempts).toHaveLength(1);
-      expect(plazaAudit?.attempts[0]).toMatchObject({
+      // exactly one bounded LOCAL_OSM_POOL attempt, never silently
+      // escalated. Stage 3 prepends a CATALOG_REUSE attempt for every
+      // hint (a bounded, no-network catalog miss here, since the catalog
+      // is empty), so the bounded pool attempt is now the second entry.
+      expect(plazaAudit?.attempts).toHaveLength(2);
+      expect(plazaAudit?.attempts[0].strategy).toBe('CATALOG_REUSE');
+      expect(plazaAudit?.attempts[1]).toMatchObject({
         strategy: 'LOCAL_OSM_POOL',
         candidateAcquired: true,
         selectedCandidate: expect.objectContaining({
@@ -6966,8 +7283,9 @@ describe('ExperienceProposalResolverService', () => {
 
       // Case E: a genuinely weak/wrong ROUTE identity stays an explicit
       // unresolved deficit — never force-resolved onto "San Lorenzo".
-      expect(pasajeAudit?.attempts).toHaveLength(1);
-      expect(pasajeAudit?.attempts[0]).toMatchObject({
+      expect(pasajeAudit?.attempts).toHaveLength(2);
+      expect(pasajeAudit?.attempts[0].strategy).toBe('CATALOG_REUSE');
+      expect(pasajeAudit?.attempts[1]).toMatchObject({
         strategy: 'LOCAL_OSM_POOL',
         candidateAcquired: true,
         selectedCandidate: expect.objectContaining({
@@ -7048,6 +7366,9 @@ describe('ExperienceProposalResolverService', () => {
       };
       const catalog = {
         resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        findGeoEntityCandidatesForHint: jest
+          .fn()
+          .mockResolvedValue({ candidates: [] }),
         upsertGeoEntity: jest.fn(),
         persistVerifiedExperience: jest.fn(),
       };
@@ -7112,6 +7433,458 @@ describe('ExperienceProposalResolverService', () => {
 
       expect(catalog.upsertGeoEntity).not.toHaveBeenCalled();
       expect(result.resolved[0].status).toBe('rejected');
+    });
+  });
+
+  /**
+   * Stage 3 checkpoint (component-resolution-and-partial-composite-
+   * recovery-plan.md, "Catalog-first identity resolution"): the resolver's
+   * own no-network proof. `ExperienceCatalogService.findGeoEntityCandidatesForHint`
+   * itself is unit-tested in experience-catalog.service.spec.ts; these
+   * tests prove the ORCHESTRATION invariant that method exists to unlock —
+   * a hint resolved from already-canonical catalog knowledge never
+   * triggers OSM/Nominatim/Places/Wikidata acquisition, and the OSM street/
+   * POI pools stay genuinely lazy (fetched at most once per `resolve()`
+   * call, and only when some hint's resolution path actually needs them).
+   */
+  describe('Stage 3 — catalog-first identity resolution', () => {
+    const areaBoundary = {
+      id: 'osm:relation:1',
+      name: 'Buenos Aires',
+      osmType: 'relation' as const,
+      osmId: 1,
+      geometry: {
+        type: 'Polygon' as const,
+        coordinates: [
+          [
+            [-58.55, -34.7],
+            [-58.3, -34.7],
+            [-58.3, -34.45],
+            [-58.55, -34.45],
+            [-58.55, -34.7],
+          ],
+        ] as [number, number][][],
+      },
+      tags: { boundary: 'administrative' },
+    };
+
+    function neverCalledOsmPlaces() {
+      return {
+        lookupStreetsNear: jest.fn(),
+        lookupPoisNear: jest.fn(),
+        lookupStreetsWithin: jest.fn(),
+        lookupPoisWithin: jest.fn(),
+      };
+    }
+
+    function catalogHitFor(
+      matches: Record<
+        string,
+        { geoEntityId: string; provider: string; externalId: string }
+      >,
+    ) {
+      return jest.fn().mockImplementation(async ({ hintName }) => {
+        const match = matches[hintName];
+        if (!match) return { candidates: [] };
+        return {
+          candidates: [
+            {
+              geoEntityId: match.geoEntityId,
+              name: hintName,
+              kind: GeoEntityKind.PLACE,
+              latitude: -34.6,
+              longitude: -58.4,
+              geometry: { type: 'Point', coordinates: [-58.4, -34.6] },
+              address: null,
+              identities: [
+                { provider: match.provider, externalId: match.externalId },
+              ],
+            },
+          ],
+        };
+      });
+    }
+
+    it('all-catalog-hit: makes zero OSM/Nominatim/Places/Wikidata calls and reuses the existing GeoEntity id directly (no upsertGeoEntity)', async () => {
+      const osmPlaces = neverCalledOsmPlaces();
+      const nominatim = { search: jest.fn() };
+      const placesApiSpy = {
+        getPlaceDetails: jest.fn(),
+        searchText: jest.fn(),
+      };
+      const wikidata = { getEntitySummaries: jest.fn() };
+      const findGeoEntityCandidatesForHint = catalogHitFor({
+        'Museo Real': {
+          geoEntityId: 'geo-museo-real',
+          provider: 'openstreetmap',
+          externalId: 'osm:node:10',
+        },
+        Caminito: {
+          geoEntityId: 'geo-caminito',
+          provider: 'openstreetmap',
+          externalId: 'osm:way:1',
+        },
+      });
+      const catalog = {
+        resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        findGeoEntityCandidatesForHint,
+        upsertGeoEntity: jest.fn(),
+        persistVerifiedExperience: jest.fn().mockResolvedValue({
+          id: 'exp-all-catalog-hit',
+          dedupeDecision: 'NEW',
+        }),
+      };
+      const geographicValidator = {
+        validate: jest.fn().mockReturnValue(acceptedValidation('Real Walk')),
+      };
+      const service = new ExperienceProposalResolverService(
+        osmPlaces as any,
+        catalog as any,
+        geographicValidator as any,
+        undefined,
+        nominatim as any,
+        placesApiSpy as any,
+        wikidata as any,
+      );
+
+      const result = await service.resolve({
+        destinationName: 'Buenos Aires',
+        geographicScope: { kind: 'AREA_BOUNDARY', boundary: areaBoundary },
+        candidates: [
+          {
+            name: 'Real Walk',
+            themes: ['culture'],
+            traits: [],
+            intents: ['walk'],
+            componentHints: [
+              {
+                key: 'venue',
+                name: 'Museo Real',
+                role: 'venue',
+                expectedKind: 'PLACE',
+                evidenceKeys: ['ev-1'],
+              },
+              {
+                key: 'street',
+                name: 'Caminito',
+                role: 'route',
+                expectedKind: 'ROUTE',
+                evidenceKeys: ['ev-1'],
+              },
+            ],
+            evidenceKeys: ['ev-1'],
+            shortReason: 'Both components already canonical in the catalog',
+          },
+        ],
+      });
+
+      // No-network proof (checkpoint §10).
+      expect(osmPlaces.lookupStreetsNear).not.toHaveBeenCalled();
+      expect(osmPlaces.lookupStreetsWithin).not.toHaveBeenCalled();
+      expect(osmPlaces.lookupPoisNear).not.toHaveBeenCalled();
+      expect(osmPlaces.lookupPoisWithin).not.toHaveBeenCalled();
+      expect(nominatim.search).not.toHaveBeenCalled();
+      expect(placesApiSpy.getPlaceDetails).not.toHaveBeenCalled();
+      expect(placesApiSpy.searchText).not.toHaveBeenCalled();
+      expect(wikidata.getEntitySummaries).not.toHaveBeenCalled();
+
+      // Existing GeoEntity ids reused directly -- never a duplicate write.
+      expect(catalog.upsertGeoEntity).not.toHaveBeenCalled();
+      expect(result.acceptedCount).toBe(1);
+      const resolvedEntities = result.resolved[0].resolvedEntities;
+      expect(
+        resolvedEntities.find((e) => e.hintKey === 'venue')?.geoEntityId,
+      ).toBe('geo-museo-real');
+      expect(
+        resolvedEntities.find((e) => e.hintKey === 'street')?.geoEntityId,
+      ).toBe('geo-caminito');
+
+      // CATALOG_REUSE attempts visible in the forensic audit for both hints.
+      // No real network call happens for either -- a configured Places
+      // provider still attempts P2-B's own TRUSTED_OBSERVATION_REUSE
+      // pre-check for venue hints (skipped entirely for ROUTE/AREA), but it
+      // returns `no_candidate` locally (no `observations` were supplied)
+      // WITHOUT ever calling `getPlaceDetails`, exactly the assertion above
+      // already proves.
+      const componentAudits =
+        result.entityResolution.forensicAudit[0].componentAudits;
+      const venueAudit = componentAudits.find((a) => a.hintKey === 'venue');
+      const streetAudit = componentAudits.find((a) => a.hintKey === 'street');
+      expect(venueAudit?.attempts.map((a) => a.strategy)).toEqual([
+        'TRUSTED_OBSERVATION_REUSE',
+        'CATALOG_REUSE',
+      ]);
+      expect(streetAudit?.attempts.map((a) => a.strategy)).toEqual([
+        'CATALOG_REUSE',
+      ]);
+      const catalogAttempt = (audits: typeof venueAudit) =>
+        audits?.attempts.find((a) => a.strategy === 'CATALOG_REUSE');
+      expect(catalogAttempt(venueAudit)?.verificationDecision).toBe('VERIFIED');
+      expect(catalogAttempt(streetAudit)?.verificationDecision).toBe(
+        'VERIFIED',
+      );
+    });
+
+    it('mixed hit/miss: only the missing component externalizes, and the shared OSM pool is fetched at most once', async () => {
+      const lookupPoisWithin = jest.fn().mockResolvedValue({
+        status: 'success',
+        value: [
+          {
+            id: 'osm:node:b',
+            name: 'Component B',
+            osmType: 'node',
+            osmId: 2,
+            geometry: { type: 'Point', coordinates: [-58.4, -34.6] },
+            tags: {},
+          },
+        ],
+      });
+      const osmPlaces = {
+        ...neverCalledOsmPlaces(),
+        lookupPoisWithin,
+      };
+      const findGeoEntityCandidatesForHint = catalogHitFor({
+        'Component A': {
+          geoEntityId: 'geo-a',
+          provider: 'openstreetmap',
+          externalId: 'osm:node:a',
+        },
+        'Component C': {
+          geoEntityId: 'geo-c',
+          provider: 'openstreetmap',
+          externalId: 'osm:node:c',
+        },
+      });
+      const catalog = {
+        resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        findGeoEntityCandidatesForHint,
+        upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-b' }),
+        persistVerifiedExperience: jest.fn().mockResolvedValue({
+          id: 'exp-mixed',
+          dedupeDecision: 'NEW',
+        }),
+      };
+      const geographicValidator = {
+        validate: jest.fn().mockReturnValue(acceptedValidation('Mixed Walk')),
+      };
+      const service = new ExperienceProposalResolverService(
+        osmPlaces as any,
+        catalog as any,
+        geographicValidator as any,
+      );
+
+      const result = await service.resolve({
+        destinationName: 'Buenos Aires',
+        geographicScope: { kind: 'AREA_BOUNDARY', boundary: areaBoundary },
+        candidates: [
+          {
+            name: 'Mixed Walk',
+            themes: ['culture'],
+            traits: [],
+            intents: ['walk'],
+            componentHints: [
+              {
+                key: 'a',
+                name: 'Component A',
+                role: 'venue',
+                expectedKind: 'PLACE',
+                evidenceKeys: ['ev-1'],
+              },
+              {
+                key: 'b',
+                name: 'Component B',
+                role: 'venue',
+                expectedKind: 'PLACE',
+                evidenceKeys: ['ev-1'],
+              },
+              {
+                key: 'c',
+                name: 'Component C',
+                role: 'venue',
+                expectedKind: 'PLACE',
+                evidenceKeys: ['ev-1'],
+              },
+            ],
+            evidenceKeys: ['ev-1'],
+            shortReason: 'A and C already canonical; B is genuinely new',
+          },
+        ],
+      });
+
+      // The shared POI pool is fetched only because B needs it, and only once.
+      expect(lookupPoisWithin).toHaveBeenCalledTimes(1);
+      expect(lookupPoisWithin).toHaveBeenCalledWith(areaBoundary);
+
+      const componentAudits =
+        result.entityResolution.forensicAudit[0].componentAudits;
+      const auditFor = (key: string) =>
+        componentAudits.find((a) => a.hintKey === key);
+
+      // A and C were never re-proved externally merely because B missed.
+      expect(auditFor('a')?.attempts.map((a) => a.strategy)).toEqual([
+        'CATALOG_REUSE',
+      ]);
+      expect(auditFor('c')?.attempts.map((a) => a.strategy)).toEqual([
+        'CATALOG_REUSE',
+      ]);
+      // B genuinely externalized through the existing pipeline.
+      expect(auditFor('b')?.attempts.map((a) => a.strategy)).toEqual([
+        'CATALOG_REUSE',
+        'LOCAL_OSM_POOL',
+      ]);
+      expect(auditFor('b')?.resolvedGeoEntity?.geoEntityId).toBe('geo-b');
+      expect(catalog.upsertGeoEntity).toHaveBeenCalledTimes(1);
+
+      expect(result.acceptedCount).toBe(1);
+    });
+
+    it('ambiguous catalog match: never picks a winner and falls through to the existing external pipeline', async () => {
+      const lookupPoisWithin = jest.fn().mockResolvedValue({
+        status: 'success',
+        value: [
+          {
+            id: 'osm:node:winner',
+            name: 'Plaza Ambigua',
+            osmType: 'node',
+            osmId: 3,
+            geometry: { type: 'Point', coordinates: [-58.4, -34.6] },
+            tags: {},
+          },
+        ],
+      });
+      const osmPlaces = {
+        ...neverCalledOsmPlaces(),
+        lookupPoisWithin,
+      };
+      const findGeoEntityCandidatesForHint = jest.fn().mockResolvedValue({
+        candidates: [
+          {
+            geoEntityId: 'geo-ambiguous-1',
+            name: 'Plaza Ambigua',
+            kind: GeoEntityKind.PLACE,
+            latitude: -34.6,
+            longitude: -58.4,
+            geometry: null,
+            address: null,
+            identities: [
+              { provider: 'openstreetmap', externalId: 'osm:node:x' },
+            ],
+          },
+          {
+            geoEntityId: 'geo-ambiguous-2',
+            name: 'Plaza Ambigua',
+            kind: GeoEntityKind.PLACE,
+            latitude: -34.61,
+            longitude: -58.41,
+            geometry: null,
+            address: null,
+            identities: [
+              { provider: 'openstreetmap', externalId: 'osm:node:y' },
+            ],
+          },
+        ],
+      });
+      const catalog = {
+        resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        findGeoEntityCandidatesForHint,
+        upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-node-winner' }),
+        persistVerifiedExperience: jest.fn().mockResolvedValue({
+          id: 'exp-ambiguous',
+          dedupeDecision: 'NEW',
+        }),
+      };
+      const geographicValidator = {
+        validate: jest
+          .fn()
+          .mockReturnValue(acceptedValidation('Ambiguous Visit')),
+      };
+      const service = new ExperienceProposalResolverService(
+        osmPlaces as any,
+        catalog as any,
+        geographicValidator as any,
+      );
+
+      const result = await service.resolve({
+        destinationName: 'Buenos Aires',
+        geographicScope: { kind: 'AREA_BOUNDARY', boundary: areaBoundary },
+        candidates: [candidate('Ambiguous Visit', 'Plaza Ambigua')],
+      });
+
+      const componentAudits =
+        result.entityResolution.forensicAudit[0].componentAudits;
+      const catalogAttempt = componentAudits[0].attempts.find(
+        (a) => a.strategy === 'CATALOG_REUSE',
+      );
+      // No arbitrary winner, no nearest-wins, no provider vote -- the
+      // catalog attempt itself never reaches a VERIFIED/REJECTED decision.
+      expect(catalogAttempt?.verificationDecision).toBeUndefined();
+      expect(catalogAttempt?.candidateAcquired).toBe(false);
+      expect(catalogAttempt?.poolCandidateCount).toBe(2);
+
+      // Resolution continues through the unchanged external pipeline and
+      // genuinely resolves via LOCAL_OSM_POOL instead.
+      const localOsmAttempt = componentAudits[0].attempts.find(
+        (a) => a.strategy === 'LOCAL_OSM_POOL',
+      );
+      expect(localOsmAttempt?.verificationDecision).toBe('VERIFIED');
+      expect(catalog.upsertGeoEntity).toHaveBeenCalledTimes(1);
+      expect(result.acceptedCount).toBe(1);
+    });
+
+    it('wires the hint expectedKind and the entityResolutionScope (not the wide destination scope) into the bounded catalog lookup', async () => {
+      const osmPlaces = neverCalledOsmPlaces();
+      const findGeoEntityCandidatesForHint = jest
+        .fn()
+        .mockResolvedValue({ candidates: [] });
+      const catalog = {
+        resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        findGeoEntityCandidatesForHint,
+        upsertGeoEntity: jest.fn(),
+        persistVerifiedExperience: jest.fn(),
+      };
+      const narrowScope = {
+        kind: 'POINT_RADIUS' as const,
+        latitude: -34.62,
+        longitude: -58.37,
+        radiusMeters: 300,
+      };
+      // Give the fallback OSM pool something to consume so `resolve()`
+      // completes normally after the catalog miss.
+      osmPlaces.lookupPoisNear.mockResolvedValue({
+        status: 'success',
+        value: [],
+      });
+      const service = new ExperienceProposalResolverService(
+        osmPlaces as any,
+        catalog as any,
+        { validate: jest.fn() } as any,
+      );
+
+      await service.resolve({
+        destinationName: 'Buenos Aires',
+        geographicScope: { kind: 'AREA_BOUNDARY', boundary: areaBoundary },
+        entityResolutionScope: narrowScope,
+        candidates: [
+          {
+            ...candidate('San Telmo Walk', 'San Telmo'),
+            componentHints: [
+              {
+                key: 'area',
+                name: 'San Telmo',
+                role: 'area',
+                expectedKind: 'AREA',
+                evidenceKeys: ['ev-1'],
+              },
+            ],
+          },
+        ],
+      });
+
+      expect(findGeoEntityCandidatesForHint).toHaveBeenCalledWith({
+        hintName: 'San Telmo',
+        expectedKind: GeoEntityKind.AREA,
+        scope: narrowScope,
+      });
     });
   });
 });

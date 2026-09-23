@@ -27,6 +27,7 @@ import {
   VerificationResult,
   CandidateResolutionAudit,
   ResolutionAttemptAudit,
+  GeographicScope,
 } from '../interfaces/experience-resolution.interface';
 import {
   bestNominatimMatch,
@@ -88,6 +89,34 @@ type ResolvedCandidateWithAudit = {
   resolved: ResolvedExperienceCandidate;
   audit: CandidateResolutionAudit;
 };
+
+/**
+ * Stage 3 catalog-first lookup result. Deliberately a separate shape from
+ * `StrategyAcquisitionResult`: an `ambiguous` bounded catalog match is not
+ * an acquisition failure/success the way every other strategy's result is,
+ * and `candidate` here always carries `geoEntityId` alongside the
+ * pre-verification `EntityCandidate` -- the canonical id a catalog hit
+ * reuses directly (never through `upsertGeoEntity`) once IdentityVerifier
+ * accepts it, kept outside `EntityCandidate` itself so that type's own
+ * "no canonical id before verification" invariant is not weakened for
+ * every other strategy.
+ */
+type CatalogAcquisitionResult =
+  | { status: 'not_applicable' }
+  | { status: 'no_candidate'; provider: string; query: string }
+  | {
+      status: 'ambiguous';
+      provider: string;
+      query: string;
+      poolCandidateCount: number;
+    }
+  | {
+      status: 'candidate';
+      provider: string;
+      query: string;
+      candidate: EntityCandidate;
+      geoEntityId: string;
+    };
 
 /**
  * Picks a real candidate out of the Places top-N instead of trusting
@@ -234,24 +263,47 @@ export class ExperienceProposalResolverService
     const poolBoundary =
       poolScope.kind === 'AREA_BOUNDARY' ? poolScope.boundary : undefined;
 
-    // A point-scale destination has no OSM area/relation. Use radius-based
-    // lookups directly; AREA_BOUNDARY alone authorizes within-area queries.
-    const [streetLookup, poiLookup] = await Promise.all([
-      poolScope.kind === 'POINT_RADIUS'
-        ? this.osmPlaces.lookupStreetsNear(
-            poolScope.latitude,
-            poolScope.longitude,
-            poolScope.radiusMeters,
-          )
-        : this.osmPlaces.lookupStreetsWithin(poolScope.boundary),
-      poolScope.kind === 'POINT_RADIUS'
-        ? this.osmPlaces.lookupPoisNear(
-            poolScope.latitude,
-            poolScope.longitude,
-            poolScope.radiusMeters,
-          )
-        : this.osmPlaces.lookupPoisWithin(poolScope.boundary),
-    ]);
+    // Stage 3 (component-resolution-and-partial-composite-recovery-plan.md):
+    // a point-scale destination has no OSM area/relation, and AREA_BOUNDARY
+    // alone authorizes within-area queries -- but neither fetch runs at all
+    // unless some hint's resolution path actually reaches it below. These
+    // memoized, request-scoped getters replace the old eager
+    // `Promise.all` fetch: each real lookup executes at most once per
+    // `resolve()` call, shared by every candidate concurrently resolved via
+    // `mapWithBoundedConcurrency` below (a plain synchronous check-then-set
+    // on first call, so two concurrent hints racing for the same pool still
+    // only trigger one real Overpass call). When every hint in this call
+    // resolves via CATALOG_REUSE, these are never invoked at all.
+    let streetLookupPromise:
+      | Promise<OsmLookupResult<OsmCandidate[]>>
+      | undefined;
+    const getStreetLookup = (): Promise<OsmLookupResult<OsmCandidate[]>> => {
+      if (!streetLookupPromise) {
+        streetLookupPromise =
+          poolScope.kind === 'POINT_RADIUS'
+            ? this.osmPlaces.lookupStreetsNear(
+                poolScope.latitude,
+                poolScope.longitude,
+                poolScope.radiusMeters,
+              )
+            : this.osmPlaces.lookupStreetsWithin(poolScope.boundary);
+      }
+      return streetLookupPromise;
+    };
+    let poiLookupPromise: Promise<OsmLookupResult<OsmCandidate[]>> | undefined;
+    const getPoiLookup = (): Promise<OsmLookupResult<OsmCandidate[]>> => {
+      if (!poiLookupPromise) {
+        poiLookupPromise =
+          poolScope.kind === 'POINT_RADIUS'
+            ? this.osmPlaces.lookupPoisNear(
+                poolScope.latitude,
+                poolScope.longitude,
+                poolScope.radiusMeters,
+              )
+            : this.osmPlaces.lookupPoisWithin(poolScope.boundary);
+      }
+      return poiLookupPromise;
+    };
 
     // Candidates remain transient through acquisition and identity verification.
     const resolutionResults = await mapWithBoundedConcurrency(
@@ -261,9 +313,9 @@ export class ExperienceProposalResolverService
         this.resolveCandidate(
           candidate,
           poolBoundary,
-          streetLookup.value,
-          poiLookup.value,
-          { streets: streetLookup, pois: poiLookup },
+          getStreetLookup,
+          getPoiLookup,
+          poolScope,
           input.destinationName,
           evidence,
           input.destinationCountryCode,
@@ -516,12 +568,9 @@ export class ExperienceProposalResolverService
   private async resolveCandidate(
     candidate: any,
     boundary: OsmCandidate | undefined,
-    streets: OsmCandidate[],
-    pois: OsmCandidate[],
-    osmLookups: {
-      streets: OsmLookupResult<OsmCandidate[]>;
-      pois: OsmLookupResult<OsmCandidate[]>;
-    },
+    getStreetLookup: () => Promise<OsmLookupResult<OsmCandidate[]>>,
+    getPoiLookup: () => Promise<OsmLookupResult<OsmCandidate[]>>,
+    entityResolutionScope: GeographicScope,
     destinationName?: string,
     evidence: ExperienceResolutionRequest['evidence'] = [],
     destinationCountryCode?: string,
@@ -649,21 +698,99 @@ export class ExperienceProposalResolverService
         recordAttempt('TRUSTED_OBSERVATION_REUSE', reuseCandidate, undefined);
       }
 
+      let unconfirmedCatalogMatch: ResolvedGeoEntity | undefined;
+      // Stage 3 (component-resolution-and-partial-composite-recovery-plan.md,
+      // "Catalog-first identity resolution"): a sufficiently unambiguous
+      // match against already-canonical GeoEntity knowledge is terminal
+      // success for this component -- no OSM/Nominatim/Places/Wikidata call
+      // is made to re-prove an identity the catalog already established.
+      // Ownership stays split exactly as the checkpoint requires: the
+      // catalog service (`findGeoEntityCandidatesForHint`) returns bounded
+      // candidates/facts only, `resolveViaCatalog` below never picks a
+      // winner out of an ambiguous set, and `IdentityVerifier` (via the
+      // same `isVerified` every other strategy already uses) remains the
+      // sole authority that declares VERIFIED.
+      const catalogResult = await this.resolveViaCatalog(
+        hint,
+        entityResolutionScope,
+      );
+      if (catalogResult.status === 'candidate') {
+        const verification = await this.isVerified(
+          'CATALOG_REUSE',
+          catalogResult.candidate,
+          hint,
+          observations,
+        );
+        recordAttempt(
+          'CATALOG_REUSE',
+          {
+            status: 'completed',
+            provider: catalogResult.provider,
+            query: catalogResult.query,
+            entity: catalogResult.candidate,
+          },
+          verification,
+        );
+        if (verification.decision.status === 'VERIFIED') {
+          // Reuses the existing canonical GeoEntity id directly -- never
+          // `upsertGeoEntity` again, which would be a pointless duplicate
+          // write for an identity the catalog already persisted.
+          const resolved = this.reuseCatalogGeoEntity(
+            catalogResult.candidate,
+            catalogResult.geoEntityId,
+          );
+          entities.push(resolved);
+          finishAudit(resolved);
+          continue;
+        }
+        unconfirmedCatalogMatch = this.unconfirmedEntity(
+          hint,
+          catalogResult.provider,
+        );
+      } else if (catalogResult.status === 'ambiguous') {
+        // 2+ bounded, same-kind, strictly name-matching GeoEntity rows.
+        // Never an arbitrary winner, nearest-wins, or provider vote here --
+        // fail closed into the existing external resolution pipeline below,
+        // exactly like a catalog miss.
+        recordAttempt(
+          'CATALOG_REUSE',
+          {
+            status: 'completed',
+            provider: catalogResult.provider,
+            query: catalogResult.query,
+            poolCandidateCount: catalogResult.poolCandidateCount,
+          },
+          undefined,
+        );
+      } else if (catalogResult.status === 'no_candidate') {
+        recordAttempt(
+          'CATALOG_REUSE',
+          { ...catalogResult, status: 'no_candidate' },
+          undefined,
+        );
+      }
+
       const isAreaHint = hint.expectedKind === 'AREA' || hint.role === 'area';
-      const pool =
-        hint.expectedKind === 'ROUTE' || hint.role === 'route'
-          ? streets
-          : isAreaHint
-            ? boundary
-              ? [boundary]
-              : []
-            : pois;
-      const localLookup =
-        hint.expectedKind === 'ROUTE' || hint.role === 'route'
-          ? osmLookups.streets
-          : isAreaHint
-            ? undefined
-            : osmLookups.pois;
+      const isRouteHint =
+        hint.expectedKind === 'ROUTE' || hint.role === 'route';
+      // Each of these is lazily fetched (memoized per `resolve()` call, see
+      // getStreetLookup/getPoiLookup above) -- an AREA hint never touches
+      // either, a ROUTE hint only ever touches streets, and a venue hint
+      // only ever touches pois. A hint fully resolved above via
+      // TRUSTED_OBSERVATION_REUSE/CATALOG_REUSE never reaches this line at
+      // all (both `continue` before it).
+      let pool: OsmCandidate[];
+      let localLookup: OsmLookupResult<OsmCandidate[]> | undefined;
+      if (isRouteHint) {
+        localLookup = await getStreetLookup();
+        pool = localLookup.value;
+      } else if (isAreaHint) {
+        pool = boundary ? [boundary] : [];
+        localLookup = undefined;
+      } else {
+        localLookup = await getPoiLookup();
+        pool = localLookup.value;
+      }
       const localOsmFacts = localLookup
         ? this.localOsmAuditFacts(localLookup)
         : {
@@ -868,9 +995,10 @@ export class ExperienceProposalResolverService
       // does; this only gives the hint a second, correctly-scoped pool to
       // be found in.
       if (isAreaHint) {
+        const poiLookup = await getPoiLookup();
         const venueFallbackMatch = matchOsmCandidateByName(
           hint.name,
-          pois,
+          poiLookup.value,
           hint.addressHint,
         );
         if (venueFallbackMatch) {
@@ -881,10 +1009,13 @@ export class ExperienceProposalResolverService
           };
           const exactNameCount = countExactNormalizedMatches(
             correctedHint.name,
-            pois,
+            poiLookup.value,
             (candidate) => candidate.name,
           );
-          const aliasMatchCount = countAliasMatches(correctedHint.name, pois);
+          const aliasMatchCount = countAliasMatches(
+            correctedHint.name,
+            poiLookup.value,
+          );
           const resolvedEntity = this.buildOsmCandidate(
             correctedHint,
             venueFallbackMatch,
@@ -902,7 +1033,7 @@ export class ExperienceProposalResolverService
           recordAttempt(
             'AREA_TO_PLACE_CORRECTION',
             {
-              ...this.localOsmAuditFacts(osmLookups.pois),
+              ...this.localOsmAuditFacts(poiLookup),
               provider: resolvedEntity.provider,
               entity: resolvedEntity,
             },
@@ -919,13 +1050,18 @@ export class ExperienceProposalResolverService
           recordAttempt(
             'AREA_TO_PLACE_CORRECTION',
             {
-              ...this.localOsmAuditFacts(osmLookups.pois),
+              ...this.localOsmAuditFacts(poiLookup),
             },
             undefined,
           );
         }
       }
 
+      if (unconfirmedCatalogMatch) {
+        entities.push(unconfirmedCatalogMatch);
+        finishAudit(unconfirmedCatalogMatch);
+        continue;
+      }
       if (unconfirmedLocalMatch) {
         entities.push(unconfirmedLocalMatch);
         finishAudit(unconfirmedLocalMatch);
@@ -937,10 +1073,9 @@ export class ExperienceProposalResolverService
         continue;
       }
 
-      const lookup =
-        hint.expectedKind === 'ROUTE' || hint.role === 'route'
-          ? osmLookups.streets
-          : osmLookups.pois;
+      const lookup = isRouteHint
+        ? await getStreetLookup()
+        : await getPoiLookup();
       const reason =
         lookup.status === 'failed'
           ? 'OSM_PROVIDER_FAILED'
@@ -1090,6 +1225,38 @@ export class ExperienceProposalResolverService
       adminContext: candidate.adminContext,
       status: 'resolved',
       geoEntityId: geo.id,
+    };
+  }
+
+  /**
+   * Stage 3 catalog-first counterpart to `persistVerifiedCandidate`: the
+   * canonical GeoEntity was already established by an earlier acquisition
+   * (this run or a prior one) and IdentityVerifier just accepted it again
+   * for this hint, so this reuses `geoEntityId` directly rather than
+   * calling `upsertGeoEntity` -- there is no new provider fact to
+   * reconcile and no duplicate write to make.
+   */
+  private reuseCatalogGeoEntity(
+    candidate: EntityCandidate,
+    geoEntityId: string,
+  ): ResolvedGeoEntity {
+    return {
+      hintKey: candidate.hintKey,
+      hintName: candidate.hintName,
+      provider: candidate.provider,
+      externalId: candidate.externalId,
+      canonicalName: candidate.canonicalName,
+      latitude: candidate.latitude,
+      longitude: candidate.longitude,
+      geometry: candidate.geometry,
+      role: candidate.role,
+      wikidataQid: candidate.wikidataQid,
+      nameAliasCandidates: candidate.nameAliasCandidates,
+      addressConfirmed: candidate.addressConfirmed,
+      nameEvidenceMultiplicity: candidate.nameEvidenceMultiplicity,
+      adminContext: candidate.adminContext,
+      status: 'resolved',
+      geoEntityId,
     };
   }
 
@@ -1328,6 +1495,98 @@ export class ExperienceProposalResolverService
         failureReason: error?.message ?? String(error),
       };
     }
+  }
+
+  /**
+   * Stage 3 (component-resolution-and-partial-composite-recovery-plan.md,
+   * "Catalog-first identity resolution"): bounded read-side reuse of
+   * already-canonical GeoEntity knowledge, tried before any external
+   * identity acquisition for this hint.
+   *
+   * Ownership stays split: `ExperienceCatalogService
+   * .findGeoEntityCandidatesForHint` performs only a bounded, kind-filtered,
+   * strictly-name-matched read and returns candidates/facts -- it never
+   * picks a winner. This method turns that candidate list into the typed
+   * acquisition-result shape `resolveCandidate` already understands:
+   *
+   *  - 0 candidates -> `no_candidate` (a genuine catalog miss; the caller
+   *    falls through to the unchanged external pipeline unchanged);
+   *  - 1 candidate -> `candidate`, carrying an `EntityCandidate` built from
+   *    the GeoEntity's own canonical facts plus one deterministically
+   *    chosen persisted `GeoEntityIdentity` (oldest first) as provenance --
+   *    `EntityCandidate` itself never carries a canonical id before
+   *    verification, so `geoEntityId` travels alongside it on this result
+   *    instead, reused directly by the caller only after IdentityVerifier
+   *    accepts it (see `reuseCatalogGeoEntity`);
+   *  - 2+ candidates -> `ambiguous`; the caller must not arbitrarily pick a
+   *    winner and falls through to the external pipeline exactly like a
+   *    miss (candidate correlation across catalog rows is explicitly
+   *    out of scope for this checkpoint).
+   *
+   * A GeoEntity with no persisted `GeoEntityIdentity` at all has no
+   * deterministic provenance to build an `EntityCandidate` from, so it is
+   * treated as `no_candidate` (fail closed) rather than fabricating one.
+   */
+  private async resolveViaCatalog(
+    hint: any,
+    scope: GeographicScope,
+  ): Promise<CatalogAcquisitionResult> {
+    const { candidates } = await this.catalog.findGeoEntityCandidatesForHint({
+      hintName: hint.name,
+      // GeoEntityHint.expectedKind is exactly 'PLACE' | 'AREA' | 'ROUTE',
+      // the same literal union GeoEntityKind is defined over.
+      expectedKind: hint.expectedKind as GeoEntityKind,
+      scope,
+    });
+
+    if (candidates.length === 0) {
+      return { status: 'no_candidate', provider: 'catalog', query: hint.name };
+    }
+    if (candidates.length > 1) {
+      return {
+        status: 'ambiguous',
+        provider: 'catalog',
+        query: hint.name,
+        poolCandidateCount: candidates.length,
+      };
+    }
+
+    const match = candidates[0];
+    const identity = match.identities[0];
+    if (!identity) {
+      return { status: 'no_candidate', provider: 'catalog', query: hint.name };
+    }
+
+    const entityCandidate: EntityCandidate = {
+      hintKey: hint.key,
+      hintName: hint.name,
+      provider: identity.provider,
+      externalId: identity.externalId,
+      canonicalName: match.name,
+      kind: match.kind,
+      latitude: match.latitude,
+      longitude: match.longitude,
+      geometry: match.geometry,
+      role: hint.role,
+      expectedType: hint.expectedKind,
+      // Strict normalized-name equality already established exactly one
+      // compatible catalog candidate -- SINGLE, the same signal
+      // `buildLocalIdentityEvidence` turns into EXACT_NAME/SINGLE, which
+      // IdentityVerifier treats as immediately VERIFIED with no further
+      // (network) corroboration needed.
+      nameEvidenceMultiplicity: {
+        exactName: 'SINGLE',
+        declaredAlias: 'UNKNOWN',
+      },
+    };
+
+    return {
+      status: 'candidate',
+      provider: 'catalog',
+      query: hint.name,
+      candidate: entityCandidate,
+      geoEntityId: match.geoEntityId,
+    };
   }
 
   /**

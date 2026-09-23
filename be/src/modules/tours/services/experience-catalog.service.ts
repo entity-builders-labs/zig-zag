@@ -31,6 +31,8 @@ import { mergeExperienceMetadata } from '../utils/experience-metadata-merge.util
 import { normalizeGeoName } from '../utils/nominatim-match.util';
 import { ClassificationResult } from './experience-classification.service';
 import { GeoJsonGeometry } from '@integrations/osm/utils/osm-geometry.util';
+import { boundingBoxToCenterRadius } from '../utils/geometry-search-area.util';
+import { GeographicScope } from '../interfaces/experience-resolution.interface';
 
 // Two different resolution paths (a Nominatim lookup done while resolving a
 // composite's `venue` component hint, a Google Places lookup done while
@@ -70,6 +72,38 @@ export interface GeoEntityInput {
   geometry?: unknown;
   address?: string;
   metadata?: unknown;
+}
+
+/**
+ * Stage 3 — bounded, provider-neutral catalog read for one component hint.
+ * Never a fuzzy identity engine: this is a plain (kind + geographic bound +
+ * strict normalized-name equality) retrieval. The catalog service returns
+ * candidates/facts only; it never declares identity truth (that stays
+ * IdentityVerifier's job at the resolver seam).
+ */
+export interface FindGeoEntityCandidatesForHintRequest {
+  hintName: string;
+  expectedKind: GeoEntityKind;
+  /** Reuses the resolver's own request-scoped GeographicScope — no second
+   * geographic authority is introduced here. */
+  scope: GeographicScope;
+}
+
+export interface CatalogGeoEntityCandidate {
+  geoEntityId: string;
+  name: string;
+  kind: GeoEntityKind;
+  latitude: number | null;
+  longitude: number | null;
+  geometry: unknown;
+  address: string | null;
+  /** Deterministically ordered (createdAt asc) so a caller that needs to
+   * pick one persisted identity for provenance does so deterministically. */
+  identities: Array<{ provider: string; externalId: string }>;
+}
+
+export interface FindGeoEntityCandidatesForHintResult {
+  candidates: CatalogGeoEntityCandidate[];
 }
 
 export interface VerifiedExperienceInput {
@@ -954,10 +988,11 @@ export class ExperienceCatalogService {
     if (input.latitude == null || input.longitude == null) return undefined;
 
     const radiusMeters = GEO_ENTITY_RECONCILIATION_RADIUS_METERS;
-    const latDeltaDegrees = radiusMeters / 111_320;
-    const lonDeltaDegrees =
-      radiusMeters /
-      (111_320 * Math.max(Math.cos((input.latitude * Math.PI) / 180), 0.01));
+    const { latDeltaDegrees, lonDeltaDegrees } =
+      ExperienceCatalogService.boundingBoxDegreeDeltas(
+        input.latitude,
+        radiusMeters,
+      );
 
     const candidates = await tx.geoEntity.findMany({
       where: {
@@ -990,6 +1025,126 @@ export class ExperienceCatalogService {
     }
 
     return best ? { id: best.id } : undefined;
+  }
+
+  /**
+   * Degree-scale lat/lon deltas covering `radiusMeters` around `latitude`,
+   * reusing the existing `[latitude, longitude]` index for a bounding-box
+   * prefilter — the same formula `findNearbyMatchingGeoEntity` already used
+   * inline, extracted so `findGeoEntityCandidatesForHint` (Stage 3) shares
+   * it instead of re-deriving a second geographic-bounding formula.
+   */
+  private static boundingBoxDegreeDeltas(
+    latitude: number,
+    radiusMeters: number,
+  ): { latDeltaDegrees: number; lonDeltaDegrees: number } {
+    return {
+      latDeltaDegrees: radiusMeters / 111_320,
+      lonDeltaDegrees:
+        radiusMeters /
+        (111_320 * Math.max(Math.cos((latitude * Math.PI) / 180), 0.01)),
+    };
+  }
+
+  /**
+   * Reduces a resolver GeographicScope to a center+radius the way
+   * `findNearbyMatchingGeoEntity`'s own bounding-box prefilter already
+   * works. `POINT_RADIUS` carries this directly; `AREA_BOUNDARY` reuses the
+   * existing `boundingBoxToCenterRadius` (already used elsewhere to derive
+   * a center+radius that fully covers a resolved boundary's own geometry)
+   * instead of inventing a second geometry-envelope algorithm. Returns
+   * `undefined` when the scope carries no usable geometry — the caller
+   * fails closed into "no catalog candidates" rather than performing an
+   * unbounded query.
+   */
+  private static centerRadiusFromScope(
+    scope: GeographicScope,
+  ): { latitude: number; longitude: number; radiusMeters: number } | undefined {
+    if (scope.kind === 'POINT_RADIUS') {
+      return {
+        latitude: scope.latitude,
+        longitude: scope.longitude,
+        radiusMeters: scope.radiusMeters,
+      };
+    }
+    if (!scope.boundary.geometry) return undefined;
+    return boundingBoxToCenterRadius(
+      scope.boundary.geometry as GeoJsonGeometry,
+    );
+  }
+
+  /**
+   * Stage 3 catalog-first identity resolution — bounded, provider-neutral
+   * read of already-canonical GeoEntity knowledge for one component hint.
+   * Ownership: this method returns candidates/facts only; it never chooses
+   * a winner or declares identity truth (that decision belongs to
+   * IdentityVerifier at the resolver seam — see
+   * ExperienceProposalResolverService.resolveViaCatalog).
+   *
+   * Bounded by construction:
+   *  - kind filter at the SQL/Prisma `where` (reuses the `[kind]` index);
+   *  - a lat/lon bounding box derived from `scope` (reuses the
+   *    `[latitude, longitude]` index) — never an unbounded table scan;
+   *  - a GeoEntity with no usable coordinates is fail-closed excluded
+   *    (Prisma's `gte`/`lte` range filters never match a NULL column).
+   *
+   * Matching policy (deliberately conservative for this checkpoint): among
+   * the bounded, same-kind pool, only strict normalized-name equality
+   * (`countExactNormalizedMatches`'s own definition, the same one the
+   * resolver already uses for its local OSM pool) counts as a candidate.
+   * No fuzzy score, no substring/alias matching, no geographic-nearest-
+   * wins, no provider voting. 0 candidates is a catalog miss; 1 is handed
+   * to IdentityVerifier by the caller; 2+ is ambiguous catalog knowledge —
+   * the caller must not arbitrarily pick a winner.
+   */
+  async findGeoEntityCandidatesForHint(
+    request: FindGeoEntityCandidatesForHintRequest,
+  ): Promise<FindGeoEntityCandidatesForHintResult> {
+    const centerRadius = ExperienceCatalogService.centerRadiusFromScope(
+      request.scope,
+    );
+    if (!centerRadius) return { candidates: [] };
+
+    const { latitude, longitude, radiusMeters } = centerRadius;
+    const { latDeltaDegrees, lonDeltaDegrees } =
+      ExperienceCatalogService.boundingBoxDegreeDeltas(latitude, radiusMeters);
+
+    const rows = await this.prisma.geoEntity.findMany({
+      where: {
+        kind: request.expectedKind,
+        latitude: {
+          gte: latitude - latDeltaDegrees,
+          lte: latitude + latDeltaDegrees,
+        },
+        longitude: {
+          gte: longitude - lonDeltaDegrees,
+          lte: longitude + lonDeltaDegrees,
+        },
+      },
+      include: {
+        identities: {
+          select: { provider: true, externalId: true },
+          orderBy: { createdAt: 'asc' },
+        },
+      },
+    });
+
+    const needle = normalizeGeoName(request.hintName);
+    if (!needle) return { candidates: [] };
+    const matches = rows.filter((row) => normalizeGeoName(row.name) === needle);
+
+    return {
+      candidates: matches.map((row) => ({
+        geoEntityId: row.id,
+        name: row.name,
+        kind: row.kind,
+        latitude: row.latitude,
+        longitude: row.longitude,
+        geometry: row.geometry,
+        address: row.address,
+        identities: row.identities,
+      })),
+    };
   }
 
   private normalizeGeoEntityName(value: string): string {

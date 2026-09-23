@@ -39,7 +39,7 @@ implements the stage. Do not mark a stage DONE without real validation.
 | --- | --- | --- | --- | --- | --- |
 | 1. Characterization lock | DONE | `286c85930eeff59c97e8c02918c3620ab203a44c` | `a0b6c75b50bf37807ab6c2450f94c8e81c9fc9d2` | jest (5 spec files, 187 tests) + tsc --noEmit + eslint (touched files) all green | 9 RW1-derived characterization cases frozen; `required` blast radius inventoried; several defects found that were previously undocumented (see below). Stage 2 unblocked. |
 | 2. Source-grounded contract cutover | DONE | `a7df3b579282cee6b57fef8a914080d507e47fac` | *(this commit)* | jest (152/153 suites, 1746/1747 tests; 1 pre-existing arch failure) + tsc (clean) + eslint (clean) | LLM-owned `required` eliminated from discovery contract; deterministic source-support admission gate implemented; Santa Mónica blocked; semantic document bumped to v3; Stage 3 unblocked. |
-| 3. Catalog-first identity resolution | READY | *(this commit)* | — | — | Starts now that Stage 2 source authority is live. |
+| 3. Catalog-first identity resolution | IN PROGRESS — checkpoint: CATALOG-FIRST WARM-REUSE READY FOR SPIKES | `8060782ed22ff80d5d1f00ac21a134a36f8a3ed7` | *(this commit)* | jest (154/154 suites, 1786/1787 tests; 1 pre-existing arch failure, same as Stage 2) + tsc --noEmit (clean) + eslint (clean) | First value checkpoint landed: catalog-first GeoEntity reuse + lazy OSM pools, no-network proof, Solar de French warm-reuse. Stopping here for real cold/warm spikes before continuing the rest of Stage 3 (see checkpoint entry below). Stage 4 remains BLOCKED. |
 | 4. Geographic + partial-composite cutover | BLOCKED | — | — | — | Starts after identity outcomes are explicit/stable. |
 | 5. Trace + RW1 verification | BLOCKED | — | — | — | Final milestone validation; thresholds only from observed evidence. |
 
@@ -599,6 +599,291 @@ addendum):**
 **Stage 3 unblocked:** YES (unchanged; Stage 3 itself was NOT started by
 this commit).
 
+### Stage 3 — Catalog-first identity resolution: first checkpoint (2026-09-23)
+
+**Scope.** The first value checkpoint inside Stage 3 only (per the
+checkpoint brief that authorized this commit) — catalog-first
+`GeoEntity` reuse plus lazy OSM pool acquisition, wired into the
+resolver, with a no-network proof and the Solar de French warm-reuse
+characterization. Candidate correlation across catalog rows, the
+remaining bounded-continuation characterization, El Zanjón re-testing,
+and any further `IdentityVerifier` evolution are explicitly **not**
+attempted here — see "Remaining Stage 3 work" below. Stage 4 remains
+untouched and BLOCKED.
+
+**Repository.**
+- Starting HEAD: `8060782ed22ff80d5d1f00ac21a134a36f8a3ed7`.
+- Checkpoint commit: *(this commit)*.
+- Remote HEAD after push: *(recorded after push, below)*.
+
+**Catalog lookup — `ExperienceCatalogService.findGeoEntityCandidatesForHint`**
+(`be/src/modules/tours/services/experience-catalog.service.ts`):
+- Exact query shape: `prisma.geoEntity.findMany({ where: { kind,
+  latitude: { gte, lte }, longitude: { gte, lte } }, include: {
+  identities: { select: { provider, externalId }, orderBy: { createdAt:
+  'asc' } } } })`, followed by an in-process strict
+  `normalizeGeoName(row.name) === normalizeGeoName(hintName)` filter —
+  the same normalization/exact-match primitives
+  (`normalizeGeoName`/`countExactNormalizedMatches`'s own definition)
+  the resolver's existing local-OSM-pool matching already uses, so no
+  second identity-matching primitive was introduced.
+- Geographic bound: a lat/lon bounding box, reusing the exact
+  degree-delta formula `findNearbyMatchingGeoEntity` already used
+  inline (now extracted into a shared
+  `ExperienceCatalogService.boundingBoxDegreeDeltas`), derived from
+  `POINT_RADIUS` directly or from `AREA_BOUNDARY` via the existing
+  `boundingBoxToCenterRadius` helper (`geometry-search-area.util.ts`) —
+  no second geographic-envelope algorithm. An `AREA_BOUNDARY` scope with
+  no usable geometry fails closed to `{ candidates: [] }` with **zero**
+  `findMany` calls (test: "fails closed — no query at all").
+- Kind filter: `where.kind = request.expectedKind` (`GeoEntity.kind`,
+  the existing enum — `GeoEntityHint.expectedKind` is already the exact
+  same `'PLACE' | 'AREA' | 'ROUTE'` literal union).
+- Matching rule: strict normalized-name equality only inside the
+  bounded, same-kind pool. No fuzzy score, no substring/alias matching,
+  no geographic-nearest-wins, no provider voting. 0 matches → catalog
+  miss; 1 → returned as the sole candidate; 2+ → all returned (the
+  service never picks a winner — see "candidate correlation" gate
+  below).
+- Existing indexes used: `geo_entity_kind_idx` (`@@index([kind])`) and
+  `geo_entity_latitude_longitude_idx` (`@@index([latitude, longitude])`,
+  from `prisma/schema.prisma`). No migration was added.
+- `EXPLAIN (ANALYZE, BUFFERS)` result (read-only, run against the local
+  dev Postgres container `zigzag-postgres`, 101 `geo_entity` rows —
+  disposable dev data per `AGENTS.md`'s early-stage rule, no write
+  performed):
+  ```
+  Bitmap Heap Scan on geo_entity (actual time=0.432..0.435 rows=5 loops=1)
+    Recheck Cond: (latitude BETWEEN ... AND longitude BETWEEN ...)
+    Filter: (kind = 'PLACE'::"GeoEntityKind")
+    Heap Blocks: exact=5
+    ->  Bitmap Index Scan on geo_entity_latitude_longitude_idx
+          Index Cond: (latitude BETWEEN ... AND longitude BETWEEN ...)
+  Planning Time: 1.091 ms
+  Execution Time: 0.475 ms
+  ```
+  The planner uses the existing `[latitude, longitude]` btree index for
+  the bounded box and applies `kind` as a cheap residual filter on the
+  small (5-row) bitmap result — confirms the existing indexes are
+  sufficient for this bounded lookup at the current data volume, so no
+  new index was introduced per §17's instruction. (The table also
+  already carries an unrelated `geo_entity_location_gist_idx` geography
+  GIST index from a prior migration, available as headroom if a future
+  stage needs true radial `ST_DWithin` — not required or used here.)
+
+**Resolver behavior** (`experience-proposal-resolver.service.ts`):
+- Catalog-first ordering: for every component hint, `resolveViaCatalog`
+  runs immediately after the existing `TRUSTED_OBSERVATION_REUSE`
+  pre-check and before any pool selection — a `VERIFIED` catalog match
+  `continue`s to the next hint before the old OSM-pool code is ever
+  reached.
+- Lazy OSM implementation: the old eager `Promise.all([lookupStreets*,
+  lookupPois*])` at the top of `resolve()` was replaced with two
+  request-scoped memoized getters (`getStreetLookup`/`getPoiLookup`,
+  plain synchronous check-then-set — safe under
+  `mapWithBoundedConcurrency`'s concurrent candidates since neither
+  getter awaits before caching its promise). Each is invoked only at the
+  exact point a hint's own resolution path needs that pool (ROUTE →
+  streets only, PLACE/venue → pois only, AREA → neither, unless its
+  `AREA_TO_PLACE_CORRECTION` fallback needs pois) and is cached for the
+  rest of that `resolve()` call.
+- How the existing GeoEntity id is reused: a new
+  `reuseCatalogGeoEntity(candidate, geoEntityId)` builds the
+  `ResolvedGeoEntity` directly from the catalog's own canonical facts —
+  it never calls `upsertGeoEntity`. `EntityCandidate` itself was **not**
+  changed to carry a canonical id (preserving its "no id before
+  verification" invariant for every other strategy); the catalog's
+  `geoEntityId` travels alongside it on a separate
+  `CatalogAcquisitionResult` type used only at this seam.
+- IdentityVerifier path: unchanged and unweakened. A unique catalog
+  match becomes an `EntityCandidate` with `canonicalName` = the
+  GeoEntity's own name and `nameEvidenceMultiplicity.exactName =
+  'SINGLE'`; the existing `buildLocalIdentityEvidence` (unmodified)
+  detects the exact-name match and emits `EXACT_NAME/SINGLE`, which the
+  existing `IdentityVerifier.verify` (byte-for-byte unmodified) already
+  treats as immediately `VERIFIED` — no new identity logic anywhere. An
+  ambiguous (2+) catalog match is deliberately **not** run through
+  `IdentityVerifier` at all (there is no well-formed single-candidate
+  representation for a genuinely competing pool); it is recorded as an
+  observability-only `CATALOG_REUSE` attempt
+  (`poolCandidateCount` = match count, no verification decision) and
+  falls through unchanged to the existing external pipeline.
+
+**No-network proof** (`experience-proposal-resolver.service.spec.ts`,
+describe block "Stage 3 — catalog-first identity resolution", test
+"all-catalog-hit"): for a two-component candidate (one venue, one
+route) whose every component resolves from the catalog —
+- street OSM calls: 0 (`lookupStreetsNear`/`lookupStreetsWithin` never
+  called);
+- POI OSM calls: 0 (`lookupPoisNear`/`lookupPoisWithin` never called);
+- Nominatim calls: 0 (`nominatim.search` never called);
+- Places calls: 0 (`placesApi.getPlaceDetails`/`searchText` never
+  called — a configured Places provider still runs the pre-existing
+  P2-B `TRUSTED_OBSERVATION_REUSE` local check for the venue hint, but
+  it returns `no_candidate` without ever reaching a real HTTP call,
+  since no `observations` were supplied; a route hint skips that check
+  entirely as before);
+- Wikidata calls: 0 (`wikidata.getEntitySummaries` never called — the
+  catalog match's `EXACT_NAME/SINGLE` evidence is `VERIFIED` by
+  `IdentityVerifier` directly, so `IdentityEvidenceCollector.collect`'s
+  network branch is never reached);
+- `catalog.upsertGeoEntity`: 0 calls (both resolved `geoEntityId`s are
+  the catalog's own, reused directly).
+
+**Mixed fixture** (same describe block, test "mixed hit/miss"): three
+components A/B/C on one candidate, A and C hit the catalog, B misses —
+- catalog-hit components: A, C — each shows exactly one
+  `CATALOG_REUSE` attempt, `VERIFIED`, and are never re-proved
+  externally merely because B missed;
+- externalized component: B — shows `['CATALOG_REUSE',
+  'LOCAL_OSM_POOL']`, resolves via the existing pipeline
+  (`upsertGeoEntity` called exactly once, for B only);
+- shared pool invocation count: `lookupPoisWithin` called exactly
+  **once** for the whole candidate (memoized), even though it is
+  consulted only because B needed it.
+
+An **ambiguous-catalog** test (same describe block) additionally proves
+a 2-candidate bounded catalog match is never arbitrarily resolved: the
+`CATALOG_REUSE` attempt records `poolCandidateCount: 2` with no
+verification decision, and resolution falls through and genuinely
+succeeds via `LOCAL_OSM_POOL` instead (`upsertGeoEntity` called once,
+for the OSM-resolved entity — never for either ambiguous catalog row).
+A kind/scope-wiring test proves `findGeoEntityCandidatesForHint` is
+called with the hint's own `expectedKind` and the resolver's
+`entityResolutionScope` (not the wider destination `geographicScope`)
+when both are present.
+
+**Solar de French** (`experience-catalog.service.spec.ts`, describe
+block "ExperienceCatalogService — Solar de French warm-reuse (Stage
+3)", reusing the Stage 1 `osm:node:6903962986` characterization
+baseline):
+- previous GeoEntity id: a simulated prior-cold-run row,
+  `geo-solar-french-cold-1` (provider `openstreetmap`, externalId
+  `osm:node:6903962986`);
+- warm GeoEntity id: the SAME `geo-solar-french-cold-1` — a later
+  compatible hint's `findGeoEntityCandidatesForHint` call returns it as
+  the sole candidate;
+- external calls implied by this read: none (this is the catalog READ
+  the resolver's own no-network tests above prove is sufficient to
+  avoid re-acquisition once persisted);
+- ambiguity: a second test in the same block proves the SEPARATE,
+  genuinely divergent within-run node-vs-relation cluster the Stage 1
+  corpus also observed (`osm:node:6903962986` vs `osm:relation:9314953`,
+  both named "Solar de French") is **not** hidden — the bounded catalog
+  pool returns both rows as 2 candidates, preserved as explicit
+  ambiguity for later Stage-3 correlation work, exactly as the
+  checkpoint brief required.
+
+**Validation.**
+```
+cd be && npx tsc --noEmit -p .
+# Clean, 0 errors.
+
+cd be && npx eslint <all 7 changed files>
+# 0 problems after --fix (prettier-only formatting; no logic changes).
+
+cd be && yarn test
+# Test Suites: 1 failed, 153 passed, 154 total.
+# Tests: 1 failed, 1786 passed, 1787 total.
+```
+The single failing test is the same pre-existing, already-documented
+`preference-first-architecture.spec.ts:25` failure recorded in the
+Stage 2 entry above (offending line
+`experience-proposal-resolver.service.ts:507`'s `destinationBoundary`
+field, predates this commit and every prior Stage 2/2-addendum
+commit). It was not modified or weakened to force a green total.
+Integration specs (`test/integration/**`) were not executed for the
+same DB-safety reason documented in Stage 2 (no disposable
+`zigzag_test` database configured); they typecheck cleanly against the
+real `ExperienceCatalogService`, which now has this method for real —
+no mock-completeness gap exists there since those tests use the
+concrete class, not hand-rolled mocks.
+
+**Test-mock migration note.** Adding a new call inside the existing,
+heavily-mocked `resolveCandidate` hint loop meant every hand-rolled
+`catalog` test double across
+`experience-proposal-resolver.service.spec.ts` (84 object-literal
+mocks + 7 bare `{} as any` stand-ins that are actually reached by a
+componentHint-bearing candidate),
+`experience-proposal-resolver-trace.spec.ts` (2), and
+`experience-proposal-resolver.concurrency.spec.ts` (1) needed a
+`findGeoEntityCandidatesForHint` stub (default: catalog miss,
+`{ candidates: [] }`, which byte-for-byte preserves every pre-existing
+test's resolution behavior). This is stale-fixture maintenance, not a
+production compatibility shim — no `?.()` optional-chaining guard was
+added to `resolveViaCatalog`'s real call site, since `catalog` is a
+required, always-real constructor dependency in production. Roughly 10
+pre-existing assertions on `componentAudits[*].attempts` (order/length/
+strategy) were updated to account for the new leading `CATALOG_REUSE`
+attempt or the now-lazy OSM pool calls — each change is a mechanical
+consequence of the new call ordering, not a weakened invariant; a few
+`.find(a => a.strategy === X)`-based assertions needed no change at all
+since they were already order-independent.
+
+**Stage.**
+- Stage 3: IN PROGRESS.
+- Spike checkpoint: **READY** (CATALOG-FIRST WARM-REUSE READY FOR
+  SPIKES).
+- Stage 4: BLOCKED (untouched — no `isMigrationRequiredHint`,
+  `ExperienceComponent.required`, `CompositeGeographicValidationService`,
+  partial-composite, planner, or Researcher semantics were touched).
+
+**Remaining Stage 3 work** (deliberately not attempted in this
+checkpoint):
+- deterministic candidate correlation across catalog rows (same
+  `(provider, externalId)`, same OSM object surfaced through different
+  acquisition paths, provider cross-reference to an existing
+  `GeoEntityIdentity`) — today, ambiguous catalog rows are only ever
+  left explicit, never correlated/grouped;
+- full bounded-continuation characterization for a catalog-miss hint
+  through the rest of the strategy ladder under Stage 3's new ordering
+  (Plaza de Mayo/Pasaje San Lorenzo-style cases, now with `CATALOG_REUSE`
+  as the new first attempt);
+- El Zanjón de Granados re-test under catalog-first + bounded
+  continuation, per §"Wikidata / corroboration sequencing" (only after
+  which `IdentityVerifier` corroboration semantics may be revisited, and
+  only if still necessary);
+- final Stage-3 exit gate (Progress must record Solar de French AND El
+  Zanjón outcomes together, plus query/performance evidence at
+  realistic data volume, before Stage 3 can be marked DONE).
+
+**Architecture deviation:** NONE.
+
+**Engineering-principles / checkpoint architecture gate (§21):**
+- catalog lookup is bounded: **PASS** (kind + lat/lon box at the
+  Prisma `where`, `EXPLAIN` confirms the existing btree index is used).
+- no full GeoEntity scan: **PASS**.
+- catalog service does not declare identity truth: **PASS**
+  (`findGeoEntityCandidatesForHint` returns candidates/facts only;
+  `IdentityVerifier` remains the sole VERIFIED/AMBIGUOUS/REJECTED
+  authority).
+- IdentityVerifier remains final authority: **PASS** (byte-for-byte
+  unmodified; no `if (catalogHit) return VERIFIED` shortcut anywhere).
+- catalog is not represented as provider voting: **PASS** (`provider:
+  'catalog'` appears only as a diagnostic trace label, the same
+  convention `'trusted_observation'` already uses — never as a
+  persisted `GeoEntityIdentity.provider` or an input to any voting
+  logic).
+- catalog hit reuses existing GeoEntity id: **PASS**
+  (`reuseCatalogGeoEntity`).
+- catalog hit avoids upsertGeoEntity: **PASS** (asserted directly in
+  the no-network test).
+- all-catalog-hit avoids OSM pool fetch: **PASS**.
+- all-catalog-hit avoids Nominatim: **PASS**.
+- all-catalog-hit avoids Places: **PASS**.
+- all-catalog-hit avoids Wikidata network lookup: **PASS**.
+- mixed hit/miss only externalizes the misses: **PASS**.
+- lazy OSM loaders execute at most once per resolver call: **PASS**
+  (memoized getters, asserted via `toHaveBeenCalledTimes(1)` in the
+  mixed fixture).
+- no standalone Experience auto-created from component reuse: **PASS**
+  (component resolution still only ever produces/reuses a `GeoEntity`;
+  `persistVerifiedExperience` is unchanged and still the only Experience
+  write path, reached the same way as before).
+- no Stage-4 required/partial semantics changed: **PASS**
+  (`isMigrationRequiredHint` and every Stage-4-owned file untouched).
+- no destination-specific production hacks: **PASS** (all San
+  Telmo/Solar-de-French/Buenos-Aires values are test fixtures only).
 
 For each completed stage also record, directly below the table:
 

@@ -2,6 +2,7 @@ import { Prisma, GeoEntityKind } from '@prisma/client';
 import { ExperienceCatalogService } from './experience-catalog.service';
 import { PlacesCrawlError } from '@integrations/google-places/interfaces/places-api.interface';
 import { CURRENT_CLASSIFICATION_PROMPT_VERSION } from './experience-classification.service';
+import { GeographicScope } from '../interfaces/experience-resolution.interface';
 
 describe('ExperienceCatalogService.upsertGeoEntity', () => {
   const input = {
@@ -1486,42 +1487,400 @@ describe('ExperienceCatalogService.applyEvidenceClassification (Task B5)', () =>
 });
 
 /**
- * Stage 1 characterization lock (component-resolution-and-partial-
- * composite-recovery-plan.md, Case I). Real RW1 finding, from
- * spikes/rw1-san-telmo-historical-walk/forensic-rerun-2026-09-22/{cold-1,
- * cold-2,cold-3,warm}/{entity_resolution audit,catalog-after.json}:
+ * Stage 3 checkpoint (component-resolution-and-partial-composite-recovery-
+ * plan.md, "Catalog-first identity resolution"). Supersedes the Stage 1
+ * lock this file used to carry (Case I, which only froze that
+ * `findGeoEntityCandidatesForHint` did not exist yet) — the exact same
+ * relationship Stage 2's own "source-composition-authority correction"
+ * addendum used when it replaced a Stage-1 locking test with real
+ * corrected behavior.
  *
- * The "Solar French" geoapify-keyed componentHint resolved via
- * LOCAL_OSM_POOL to the exact same real OSM object in every one of the
- * three independent cold runs -- externalId osm:node:6903962986,
- * identityEvidence EXACT_NAME/SINGLE, verificationDecision VERIFIED, every
- * time. Provider-side identity resolution for this hint is NOT what varies
- * across runs. What varies is that each cold run starts from an EMPTY
- * catalog and therefore mints a brand-new Experience row for that same real
- * node every time (cold-1: experienceId 7fbaa38f-..., cold-2: 6346baae-...,
- * cold-3: 13f5b76e-...) -- three different internal canonical identities
- * for one unchanging real-world entity, because nothing today re-uses
- * already-established knowledge across requests/runs before re-running
- * acquisition. (Separately, the warm run's differently-keyed LLM-authored
- * "solar-de-french" hint shows real EXTERNAL identity ambiguity too: its
- * attempts return BOTH osm:node:6903962986, "Solar French", via
- * LOCAL_OSM_POOL AND osm:relation:9314953, "Galería Solar de French" -- a
- * different real building -- via NOMINATIM, both ultimately REJECTED. This
- * is a genuine divergent-candidate case, distinct from the cross-run
- * instability above.)
- *
- * This is exactly the gap the amendment's "catalog-first component
- * resolution" section (§15) and the plan's Stage 3 target
- * (`ExperienceCatalogService.findGeoEntityCandidatesForHint`) are meant to
- * close. Stage 1 only freezes that this reuse boundary does not exist yet.
+ * Ownership under test here: this method is a bounded, provider-neutral
+ * READ only. It returns candidates/facts and never chooses a winner or
+ * declares identity truth — that split is enforced at the resolver seam
+ * (`ExperienceProposalResolverService.resolveViaCatalog` +
+ * `IdentityVerifier`), not here.
  */
-describe('ExperienceCatalogService — RW1 characterization (Stage 1)', () => {
-  it("Case I: has no catalog-first GeoEntity candidate lookup yet — component resolution cannot reuse a prior run's already-established identity", () => {
-    const service = new ExperienceCatalogService({} as any, {} as any);
+describe('ExperienceCatalogService.findGeoEntityCandidatesForHint (Stage 3)', () => {
+  const pointScope: GeographicScope = {
+    kind: 'POINT_RADIUS',
+    latitude: -34.62,
+    longitude: -58.37,
+    radiusMeters: 500,
+  };
 
-    expect(
-      (service as unknown as Record<string, unknown>)
-        .findGeoEntityCandidatesForHint,
-    ).toBeUndefined();
+  function prismaWithRows(rows: unknown[]) {
+    const findMany = jest.fn().mockResolvedValue(rows);
+    return { prisma: { geoEntity: { findMany } } as any, findMany };
+  }
+
+  it('issues one bounded, kind-filtered, index-backed query for a POINT_RADIUS scope — never an unbounded table scan', async () => {
+    const { prisma, findMany } = prismaWithRows([]);
+    const service = new ExperienceCatalogService(prisma, {} as any);
+
+    await service.findGeoEntityCandidatesForHint({
+      hintName: 'Solar French',
+      expectedKind: GeoEntityKind.PLACE,
+      scope: pointScope,
+    });
+
+    expect(findMany).toHaveBeenCalledTimes(1);
+    const call = findMany.mock.calls[0][0];
+    // Bounded: a lat/lon range (reusing the existing [latitude, longitude]
+    // index), never an unfiltered `findMany({})`.
+    expect(call.where.kind).toBe(GeoEntityKind.PLACE);
+    expect(call.where.latitude.gte).toBeLessThan(pointScope.latitude);
+    expect(call.where.latitude.lte).toBeGreaterThan(pointScope.latitude);
+    expect(call.where.longitude.gte).toBeLessThan(pointScope.longitude);
+    expect(call.where.longitude.lte).toBeGreaterThan(pointScope.longitude);
+    // Persisted GeoEntityIdentity records are read alongside the row,
+    // deterministically ordered (oldest first) — the "existing schema,
+    // no alias table" contract, with a deterministic choice available to
+    // the caller.
+    expect(call.include.identities.orderBy).toEqual({ createdAt: 'asc' });
+  });
+
+  it("derives a bounded box from an AREA_BOUNDARY scope's own resolved boundary geometry, not a second geographic authority", async () => {
+    const { prisma, findMany } = prismaWithRows([]);
+    const service = new ExperienceCatalogService(prisma, {} as any);
+    const areaScope: GeographicScope = {
+      kind: 'AREA_BOUNDARY',
+      boundary: {
+        id: 'osm:relation:1',
+        name: 'San Telmo',
+        osmType: 'relation',
+        osmId: 1,
+        geometry: {
+          type: 'Polygon',
+          coordinates: [
+            [
+              [-58.38, -34.63],
+              [-58.36, -34.63],
+              [-58.36, -34.61],
+              [-58.38, -34.61],
+              [-58.38, -34.63],
+            ],
+          ],
+        },
+        tags: {},
+      } as any,
+    };
+
+    await service.findGeoEntityCandidatesForHint({
+      hintName: 'Mercado de San Telmo',
+      expectedKind: GeoEntityKind.PLACE,
+      scope: areaScope,
+    });
+
+    expect(findMany).toHaveBeenCalledTimes(1);
+    const call = findMany.mock.calls[0][0];
+    // The boundary spans roughly -58.38..-58.36 / -34.63..-34.61 — the
+    // derived box must cover it (center-radius reuses the existing
+    // boundingBoxToCenterRadius helper, never a second envelope algorithm).
+    expect(call.where.latitude.gte).toBeLessThanOrEqual(-34.63);
+    expect(call.where.latitude.lte).toBeGreaterThanOrEqual(-34.61);
+    expect(call.where.longitude.gte).toBeLessThanOrEqual(-58.38);
+    expect(call.where.longitude.lte).toBeGreaterThanOrEqual(-58.36);
+  });
+
+  it('fails closed — no query at all — when an AREA_BOUNDARY scope has no usable geometry', async () => {
+    const { prisma, findMany } = prismaWithRows([]);
+    const service = new ExperienceCatalogService(prisma, {} as any);
+
+    const result = await service.findGeoEntityCandidatesForHint({
+      hintName: 'Anything',
+      expectedKind: GeoEntityKind.PLACE,
+      scope: {
+        kind: 'AREA_BOUNDARY',
+        boundary: {
+          id: 'osm:relation:1',
+          name: 'No geometry',
+          osmType: 'relation',
+          osmId: 1,
+          geometry: undefined,
+          tags: {},
+        } as any,
+      },
+    });
+
+    expect(result.candidates).toEqual([]);
+    expect(findMany).not.toHaveBeenCalled();
+  });
+
+  it('returns zero candidates (catalog miss) when nothing in the bounded pool matches the hint name', async () => {
+    const { prisma } = prismaWithRows([
+      {
+        id: 'geo-1',
+        name: 'Completely Different Place',
+        kind: GeoEntityKind.PLACE,
+        latitude: -34.62,
+        longitude: -58.37,
+        geometry: null,
+        address: null,
+        identities: [],
+      },
+    ]);
+    const service = new ExperienceCatalogService(prisma, {} as any);
+
+    const result = await service.findGeoEntityCandidatesForHint({
+      hintName: 'Solar French',
+      expectedKind: GeoEntityKind.PLACE,
+      scope: pointScope,
+    });
+
+    expect(result.candidates).toEqual([]);
+  });
+
+  it('returns exactly one candidate for a unique strict normalized-name match, carrying its persisted GeoEntityIdentity as provenance', async () => {
+    const { prisma } = prismaWithRows([
+      {
+        id: 'geo-solar-french',
+        name: 'Solar French',
+        kind: GeoEntityKind.PLACE,
+        latitude: -34.62,
+        longitude: -58.37,
+        geometry: { type: 'Point', coordinates: [-58.37, -34.62] },
+        address: null,
+        identities: [
+          { provider: 'openstreetmap', externalId: 'osm:node:6903962986' },
+        ],
+      },
+    ]);
+    const service = new ExperienceCatalogService(prisma, {} as any);
+
+    // Diacritics/case/whitespace normalization only -- strict equality, no
+    // substring/fuzzy match: "SOLAR   french" still matches "Solar French".
+    const result = await service.findGeoEntityCandidatesForHint({
+      hintName: 'SOLAR   french',
+      expectedKind: GeoEntityKind.PLACE,
+      scope: pointScope,
+    });
+
+    expect(result.candidates).toEqual([
+      expect.objectContaining({
+        geoEntityId: 'geo-solar-french',
+        name: 'Solar French',
+        kind: GeoEntityKind.PLACE,
+        identities: [
+          { provider: 'openstreetmap', externalId: 'osm:node:6903962986' },
+        ],
+      }),
+    ]);
+  });
+
+  it('does not narrow a substring/partial name match to a candidate (strict equality only)', async () => {
+    const { prisma } = prismaWithRows([
+      {
+        id: 'geo-annex',
+        name: 'Solar French Annex',
+        kind: GeoEntityKind.PLACE,
+        latitude: -34.62,
+        longitude: -58.37,
+        geometry: null,
+        address: null,
+        identities: [{ provider: 'openstreetmap', externalId: 'osm:node:1' }],
+      },
+    ]);
+    const service = new ExperienceCatalogService(prisma, {} as any);
+
+    const result = await service.findGeoEntityCandidatesForHint({
+      hintName: 'Solar French',
+      expectedKind: GeoEntityKind.PLACE,
+      scope: pointScope,
+    });
+
+    expect(result.candidates).toEqual([]);
+  });
+
+  it('returns ALL strictly-matching candidates when the bounded pool is genuinely ambiguous — never picks a winner itself', async () => {
+    const { prisma } = prismaWithRows([
+      {
+        id: 'geo-node',
+        name: 'Solar de French',
+        kind: GeoEntityKind.PLACE,
+        latitude: -34.62,
+        longitude: -58.37,
+        geometry: null,
+        address: null,
+        identities: [
+          { provider: 'openstreetmap', externalId: 'osm:node:6903962986' },
+        ],
+      },
+      {
+        id: 'geo-relation',
+        name: 'Solar de French',
+        kind: GeoEntityKind.PLACE,
+        latitude: -34.6201,
+        longitude: -58.3701,
+        geometry: null,
+        address: null,
+        identities: [
+          { provider: 'openstreetmap', externalId: 'osm:relation:9314953' },
+        ],
+      },
+    ]);
+    const service = new ExperienceCatalogService(prisma, {} as any);
+
+    const result = await service.findGeoEntityCandidatesForHint({
+      hintName: 'Solar de French',
+      expectedKind: GeoEntityKind.PLACE,
+      scope: pointScope,
+    });
+
+    expect(result.candidates).toHaveLength(2);
+    expect(result.candidates.map((c) => c.geoEntityId).sort()).toEqual([
+      'geo-node',
+      'geo-relation',
+    ]);
+  });
+
+  it('filters by the requested GeoEntityKind at query time — a same-name row of a different kind is never eligible', async () => {
+    const { prisma, findMany } = prismaWithRows([]);
+    const service = new ExperienceCatalogService(prisma, {} as any);
+
+    await service.findGeoEntityCandidatesForHint({
+      hintName: 'San Telmo',
+      expectedKind: GeoEntityKind.AREA,
+      scope: pointScope,
+    });
+
+    expect(findMany.mock.calls[0][0].where.kind).toBe(GeoEntityKind.AREA);
+  });
+
+  it('is fail-closed for a GeoEntity with no persisted GeoEntityIdentity at all (no deterministic provenance to build from)', async () => {
+    const { prisma } = prismaWithRows([
+      {
+        id: 'geo-orphan',
+        name: 'Solar French',
+        kind: GeoEntityKind.PLACE,
+        latitude: -34.62,
+        longitude: -58.37,
+        geometry: null,
+        address: null,
+        identities: [],
+      },
+    ]);
+    const service = new ExperienceCatalogService(prisma, {} as any);
+
+    // The catalog itself still reports this row as a bounded, name-matching
+    // candidate (identity provenance is the RESOLVER's fail-closed concern
+    // via resolveViaCatalog, not a fact this read-only method should hide).
+    const result = await service.findGeoEntityCandidatesForHint({
+      hintName: 'Solar French',
+      expectedKind: GeoEntityKind.PLACE,
+      scope: pointScope,
+    });
+
+    expect(result.candidates).toEqual([
+      expect.objectContaining({ geoEntityId: 'geo-orphan', identities: [] }),
+    ]);
+  });
+});
+
+/**
+ * Stage 3 checkpoint — Solar de French warm-reuse characterization.
+ * Reuses the Stage 1 characterization baseline (this file's former Case I,
+ * `experience-catalog.service.spec.ts`): three independent cold runs each
+ * re-derived and re-persisted a fresh canonical identity for the exact same
+ * real OSM object (`osm:node:6903962986`) because no catalog-first read
+ * existed. This proves the read side of the fix: a later compatible hint,
+ * once a canonical GeoEntity for this place already exists, reuses that
+ * same `geoEntityId` via `findGeoEntityCandidatesForHint` instead of a
+ * blank-slate re-resolution — while the SEPARATE, genuinely divergent
+ * node-vs-relation warm-run cluster (also observed in the Stage 1 corpus)
+ * stays explicit as ambiguous, not silently collapsed.
+ */
+describe('ExperienceCatalogService — Solar de French warm-reuse (Stage 3)', () => {
+  const warmScope: GeographicScope = {
+    kind: 'POINT_RADIUS',
+    latitude: -34.62,
+    longitude: -58.37,
+    radiusMeters: 500,
+  };
+
+  it('reuses the same canonical GeoEntity id a prior cold run already persisted for this real place', async () => {
+    // Simulates the state left behind by an earlier (cold-1) run: Solar
+    // French was verified via LOCAL_OSM_POOL and persisted once.
+    const previousGeoEntityId = 'geo-solar-french-cold-1';
+    const findMany = jest.fn().mockResolvedValue([
+      {
+        id: previousGeoEntityId,
+        name: 'Solar French',
+        kind: GeoEntityKind.PLACE,
+        latitude: -34.62,
+        longitude: -58.37,
+        geometry: { type: 'Point', coordinates: [-58.37, -34.62] },
+        address: null,
+        identities: [
+          { provider: 'openstreetmap', externalId: 'osm:node:6903962986' },
+        ],
+      },
+    ]);
+    const service = new ExperienceCatalogService(
+      { geoEntity: { findMany } } as any,
+      {} as any,
+    );
+
+    // A later request's real componentHint for the same place.
+    const warmResult = await service.findGeoEntityCandidatesForHint({
+      hintName: 'Solar French',
+      expectedKind: GeoEntityKind.PLACE,
+      scope: warmScope,
+    });
+
+    expect(warmResult.candidates).toHaveLength(1);
+    expect(warmResult.candidates[0].geoEntityId).toBe(previousGeoEntityId);
+    expect(warmResult.candidates[0].identities).toEqual([
+      { provider: 'openstreetmap', externalId: 'osm:node:6903962986' },
+    ]);
+    // No new external identity acquisition is implied by this read — the
+    // resolver seam (experience-proposal-resolver.service.spec.ts's own
+    // Stage 3 no-network describe block) proves the OSM/Nominatim/Places/
+    // Wikidata call count directly; this test proves the catalog fact this
+    // reuse decision is built from.
+  });
+
+  it('keeps a genuinely competing node-vs-relation cluster explicit instead of collapsing it to the older row', async () => {
+    // The SEPARATE warm-run divergence the Stage 1 corpus also observed:
+    // a differently-keyed hint's bounded pool contains two structurally
+    // different real OSM objects sharing the same name.
+    const findMany = jest.fn().mockResolvedValue([
+      {
+        id: 'geo-solar-french-node',
+        name: 'Solar de French',
+        kind: GeoEntityKind.PLACE,
+        latitude: -34.62,
+        longitude: -58.37,
+        geometry: null,
+        address: null,
+        identities: [
+          { provider: 'openstreetmap', externalId: 'osm:node:6903962986' },
+        ],
+      },
+      {
+        id: 'geo-solar-french-relation',
+        name: 'Solar de French',
+        kind: GeoEntityKind.PLACE,
+        latitude: -34.6202,
+        longitude: -58.3702,
+        geometry: null,
+        address: null,
+        identities: [
+          { provider: 'openstreetmap', externalId: 'osm:relation:9314953' },
+        ],
+      },
+    ]);
+    const service = new ExperienceCatalogService(
+      { geoEntity: { findMany } } as any,
+      {} as any,
+    );
+
+    const result = await service.findGeoEntityCandidatesForHint({
+      hintName: 'Solar de French',
+      expectedKind: GeoEntityKind.PLACE,
+      scope: warmScope,
+    });
+
+    expect(result.candidates).toHaveLength(2);
   });
 });

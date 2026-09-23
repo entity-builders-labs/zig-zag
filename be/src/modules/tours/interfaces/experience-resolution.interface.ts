@@ -73,6 +73,7 @@ export type IdentityEvidence =
   | { type: 'WIKIDATA_UNAVAILABLE' };
 
 export type ResolutionStrategy =
+  | 'CATALOG_REUSE'
   | 'TRUSTED_OBSERVATION_REUSE'
   | 'LOCAL_OSM_POOL'
   | 'NOMINATIM'
