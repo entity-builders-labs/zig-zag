@@ -1431,6 +1431,29 @@ document because the current document serializes `required/optional`.
 The cutover therefore requires an embedding document-version bump and reindex
 of stale VERIFIED Experiences.
 
+### Experience Domain V2 — catalog-first ownership refinement (2026-09-23)
+
+Catalog-first component reuse is a read-side resolution boundary, not a new
+identity authority:
+
+```text
+ExperienceProposalResolverService
+→ ExperienceCatalogService.findGeoEntityCandidatesForHint(...)
+→ candidate correlation
+→ IdentityVerifier
+```
+
+The catalog service retrieves canonical candidates; correlation groups
+observations that share exact/canonical identity facts; `IdentityVerifier`
+alone decides whether a candidate/cluster satisfies the component hint.
+
+The schema already has typed `GeoEntity.kind: GeoEntityKind`
+(`PLACE | AREA | ROUTE`), first-class name/address/geography, and
+`GeoEntityIdentity(provider, externalId)`. Do not add a duplicate kind field or
+migration. Existing `upsertGeoEntity` nearby reconciliation is write-time
+dedupe after provider resolution; catalog-first is read-time knowledge reuse
+before provider calls. A dedicated alias model remains optional until
+characterization proves it necessary.
 ### Experience Domain V2 — source grounding and deficit classification refinement (2026-09-22)
 
 Catalog-first reuse does not weaken source authority. Before any component hint

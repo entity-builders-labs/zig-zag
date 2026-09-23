@@ -231,6 +231,39 @@ A provider divergence may mean:
 
 Only the last case is contradictory evidence.
 
+### 5.1 Correlation groups observations; IdentityVerifier decides identity
+
+Candidate correlation and identity verification are deliberately different
+authorities.
+
+```text
+catalog candidate + provider observations
+        ↓
+candidate correlation
+        ↓
+one or more candidate clusters
+        ↓
+IdentityVerifier
+        ↓
+does a cluster satisfy this component hint?
+```
+
+Correlation may deterministically group observations that expose the same
+canonical identity fact, for example:
+
+- the same `(provider, externalId)`;
+- the same OSM object surfaced through different acquisition paths;
+- a provider cross-reference that points to an already-known
+  `GeoEntityIdentity`.
+
+Correlation must **not** decide that a fuzzy name/address/coordinate match is
+the requested component. When grouping itself is uncertain, preserve competing
+clusters and their evidence. The canonical `IdentityVerifier` remains the
+single authority that decides whether any cluster actually satisfies the hint.
+
+This split prevents a second hidden identity engine from emerging inside
+catalog reuse or provider normalization.
+
 ---
 
 ## 6. Corroboration is additive; absence is not contradiction
@@ -407,6 +440,13 @@ RW1 acquisition defect.
 Strict "every resolved point inside San Telmo" is still architecturally too
 strong, but that claim comes from the domain model/source-backed route scenario,
 not from a successful Plaza-de-Mayo component resolution in RW1.
+
+The implementation safeguard for the observed acquisition failure is the
+Phase-2 **bounded acquisition continuation** rule: an identity-rejected first
+candidate must not silently terminate other applicable, policy-permitted
+resolution strategies. This does **not** mean fan out to every provider; cost,
+budget and canonical stop rules remain authoritative and the stop reason must
+be traceable.
 
 ### Calle Defensa
 
@@ -653,6 +693,48 @@ same OSM/Nominatim/Places/Wikidata investigation again.
 Implementation must centralize this lookup/reuse policy. Do not scatter
 ad-hoc "find by similar name" catalog checks across providers or resolver
 strategies.
+
+The concrete ownership boundary is:
+
+```text
+ExperienceProposalResolverService
+        ↓
+ExperienceCatalogService.findGeoEntityCandidatesForHint(...)
+        ↓
+candidate correlation
+        ↓
+IdentityVerifier
+```
+
+`ExperienceProposalResolverService` owns orchestration: it asks the catalog
+first and decides whether external acquisition still needs to run.
+`ExperienceCatalogService` owns the provider-neutral read of canonical
+GeoEntity knowledge. It returns candidate facts; it does not declare the
+identity match. `IdentityVerifier` remains the final identity authority.
+
+The existing schema already provides useful deterministic facts:
+
+- `GeoEntity.kind` is a typed `GeoEntityKind` (`PLACE | AREA | ROUTE`);
+- `GeoEntity.name`, `address`, coordinates and geometry are first-class
+  columns;
+- `GeoEntityIdentity(provider, externalId)` provides exact persisted provider
+  identities.
+
+Do **not** add a second structural-kind field in metadata and do not plan a
+migration merely to make `kind` typed; it already is.
+
+The current write path also already reconciles duplicates after verification:
+`upsertGeoEntity()` checks exact provider identity and then same-kind nearby
+real-world-name matches before creating a row. Catalog-first adds a different
+capability: **read-time knowledge reuse before provider research**, reducing
+repeat calls, latency and provider-induced cross-run instability. It is not a
+replacement for write-time reconciliation.
+
+The schema does not currently expose a dedicated alias relation. That does not
+block a fail-closed first implementation: exact known identities and
+unambiguous name/kind/scope matches may be reused; anything uncertain falls
+through to external resolution. Add an alias model only if characterization
+shows that safe catalog reuse materially requires one.
 
 ---
 

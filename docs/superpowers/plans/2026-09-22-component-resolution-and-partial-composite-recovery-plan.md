@@ -69,6 +69,13 @@ Create deterministic fixtures from real RW1 failure shapes, including:
    characterize why the observed RW1 path stopped after the wrong Plaza
    Dorrego candidate instead of continuing through every *applicable,
    policy-permitted* acquisition strategy.
+9. Solar de French cross-run stability:
+   replay the same component hint against the cold-run evidence where
+   `EXACT_NAME+SINGLE` selected different real OSM identities across runs.
+   Characterize this as temporal/cross-run identity instability, prove that
+   canonical prior GeoEntity knowledge is reused when sufficiently established,
+   and prove that conflicting new evidence produces ambiguity/research rather
+   than silently oscillating the canonical identity.
 
 For each RW1 failure fixture, classify the observed failure before changing
 behavior:
@@ -124,6 +131,39 @@ migration:
 
 Before external provider acquisition, add one canonical provider-neutral lookup
 against accumulated GeoEntity knowledge.
+
+Concrete ownership:
+
+- `ExperienceProposalResolverService` orchestrates catalog-first lookup at the
+  start of component resolution and decides whether external acquisition is
+  still required;
+- `ExperienceCatalogService` exposes one provider-neutral read-side method
+  conceptually equivalent to `findGeoEntityCandidatesForHint(...)`;
+- that catalog method returns candidate facts only and MUST NOT make the final
+  hint-identity decision;
+- candidate correlation groups exact/canonical identity observations;
+- `IdentityVerifier` remains the one final authority for whether a candidate
+  cluster satisfies the hint.
+
+Reuse existing schema facts before adding schema:
+
+- `GeoEntity.kind` already exists as typed `GeoEntityKind`
+  (`PLACE | AREA | ROUTE`);
+- `name`, `address`, coordinates and geometry are first-class;
+- `GeoEntityIdentity(provider, externalId)` already owns persisted exact
+  provider identities.
+
+Do not introduce another typed kind in metadata or a migration for it.
+A dedicated alias model is not a prerequisite for the first fail-closed
+catalog-first implementation: ambiguous name-only matches continue to external
+resolution. Characterization must justify any future alias schema.
+
+Also preserve the distinction between existing write-time reconciliation and
+the new read-time reuse path. `upsertGeoEntity()` /
+`findNearbyMatchingGeoEntity()` already reduce duplicate rows **after a
+provider candidate has been verified and has coordinates**. They cannot replace
+catalog-first lookup for a hint that is being resolved before those provider
+facts exist.
 
 For each component hint:
 
