@@ -118,9 +118,7 @@ describe('IdentityVerifier', () => {
     const verifier = new IdentityVerifier();
     const result = await verifier.verify(
       { name: 'Recoleta Cemetery' },
-      attempt([
-        { type: 'EXACT_NAME', identityMultiplicity: 'SINGLE' },
-      ]),
+      attempt([{ type: 'EXACT_NAME', identityMultiplicity: 'SINGLE' }]),
     );
     expect(result).toEqual({ status: 'VERIFIED' });
   });
@@ -130,9 +128,7 @@ describe('IdentityVerifier', () => {
     const verifier = new IdentityVerifier();
     const result = await verifier.verify(
       { name: 'Recoleta Cemetery' },
-      attempt([
-        { type: 'EXACT_NAME', identityMultiplicity: 'MULTIPLE' },
-      ]),
+      attempt([{ type: 'EXACT_NAME', identityMultiplicity: 'MULTIPLE' }]),
     );
     expect(result).toEqual({ status: 'AMBIGUOUS' });
   });
@@ -142,9 +138,7 @@ describe('IdentityVerifier', () => {
     const verifier = new IdentityVerifier();
     const result = await verifier.verify(
       { name: 'Recoleta Cemetery' },
-      attempt([
-        { type: 'EXACT_NAME', identityMultiplicity: 'UNKNOWN' },
-      ]),
+      attempt([{ type: 'EXACT_NAME', identityMultiplicity: 'UNKNOWN' }]),
     );
     expect(result).toEqual({ status: 'INSUFFICIENT_EVIDENCE' });
   });
@@ -249,5 +243,128 @@ describe('IdentityVerifier', () => {
       ]),
     );
     expect(result).toEqual({ status: 'REJECTED' });
+  });
+
+  /**
+   * Stage 1 characterization lock (component-resolution-and-partial-
+   * composite-recovery-plan.md). These cases freeze CURRENT IdentityVerifier
+   * behavior against real evidence shapes recorded in
+   * spikes/rw1-san-telmo-historical-walk/forensic-rerun-2026-09-22/
+   * (cold-1/cold-2/cold-3 entity_resolution audits). They intentionally do
+   * NOT change production semantics -- Stage 3/6 may revisit these outcomes.
+   */
+  describe('RW1 forensic-rerun-2026-09-22 characterization (Stage 1)', () => {
+    // Case A - El Zanjón de Granados: three independent acquisition paths
+    // (LOCAL_OSM_POOL, NOMINATIM, geoapify PLACES) all resolved the "El
+    // Zanjón de Granados" hint onto the exact same canonical OSM object
+    // (osm:node:9953027884, canonicalName "El Zanjón de Granados (historic
+    // ruins)") in every cold run. Every one of the three attempts carried
+    // the identical WIKIDATA_IDENTITY_MATCH(source: NEARBY, hintMatched:
+    // true, candidateMatched: false) evidence -- the corroboration search
+    // found a nearby Wikidata entity matching the HINT text but not the
+    // (differently-worded) resolved candidate's own canonical name -- and
+    // IdentityVerifier rejected all three. This is the exact baseline the
+    // amendment's "candidate convergence is evidence; provider voting is
+    // not policy" section (§5) and "corroboration is additive; absence is
+    // not contradiction" section (§6) are written against. Freezing it here
+    // does not imply the REJECTED outcome is correct.
+    it('Case A: El Zanjón de Granados — real acquisition-path convergence on osm:node:9953027884 still REJECTED by a non-corroborating Wikidata NEARBY match', async () => {
+      const verifier = new IdentityVerifier();
+      const zanjonHint = { name: 'El Zanjón de Granados' };
+      const nonCorroboratingNearbyMatch: ResolutionAttempt['evidence'] = [
+        {
+          type: 'WIKIDATA_IDENTITY_MATCH',
+          source: 'NEARBY',
+          hintMatched: true,
+          candidateMatched: false,
+        },
+      ];
+
+      // Same real externalId (osm:node:9953027884), three independent
+      // acquisition strategies, three identical rejections.
+      for (const strategy of [
+        'LOCAL_OSM_POOL',
+        'NOMINATIM',
+        'PLACES',
+      ] as const) {
+        const result = await verifier.verify(zanjonHint, {
+          strategy,
+          candidate: {
+            ...candidate(),
+            externalId: 'osm:node:9953027884',
+            canonicalName: 'El Zanjón de Granados (historic ruins)',
+          },
+          evidence: nonCorroboratingNearbyMatch,
+        });
+        expect(result).toEqual({ status: 'REJECTED' });
+      }
+    });
+
+    // The SAME real object, reached through a differently-worded hint that
+    // happens to equal the candidate's own canonical name exactly, verifies
+    // immediately on local EXACT_NAME evidence alone -- confirming the
+    // convergence is real (same externalId) even though only one of the
+    // two hint phrasings for it ever reaches VERIFIED today.
+    it('Case A: the same osm:node:9953027884 verifies immediately when the hint text matches the candidate canonical name exactly', async () => {
+      const verifier = new IdentityVerifier();
+      const result = await verifier.verify(
+        { name: 'El Zanjón de Granados (historic ruins)' },
+        attempt([{ type: 'EXACT_NAME', identityMultiplicity: 'SINGLE' }]),
+      );
+      expect(result).toEqual({ status: 'VERIFIED' });
+    });
+
+    // Case F - divergent candidate clusters: "Nuestra Señora de Belén" is a
+    // genuinely common devotional name. The real warm-run trace recorded
+    // Nominatim returning 4 results (EXACT_NAME identityMultiplicity:
+    // MULTIPLE) while a separate geoapify Places attempt resolved a
+    // DIFFERENT real entity ("Capilla Nuestra Señora de Belén", a chapel
+    // building) for the same hint -- two structurally different real
+    // candidate clusters that cannot be safely correlated. The amendment
+    // says this should conceptually resolve as AMBIGUOUS, never provider-
+    // majority voting. Current code has an AMBIGUOUS status (A2/A7 above)
+    // for a bare EXACT_NAME/DECLARED_ALIAS_MATCH MULTIPLE signal, but rule 4
+    // (WIKIDATA_IDENTITY_MATCH) is checked BEFORE that fallback and returns
+    // REJECTED whenever a non-corroborating Wikidata match is present --
+    // even one carrying MULTIPLE name evidence alongside it. This freezes
+    // that precedence: today a MULTIPLE-candidate name ambiguity co-occurring
+    // with a rejected Wikidata NEARBY check collapses to REJECTED, not
+    // AMBIGUOUS, silently losing the "this was genuinely ambiguous, not
+    // simply wrong" signal Stage 3+ needs to preserve.
+    it('Case F: EXACT_NAME MULTIPLE (real divergent clusters) collapses to REJECTED, not AMBIGUOUS, once Wikidata NEARBY evidence is present', async () => {
+      const verifier = new IdentityVerifier();
+      const result = await verifier.verify(
+        { name: 'Nuestra Señora de Belén' },
+        attempt(
+          [
+            { type: 'EXACT_NAME', identityMultiplicity: 'MULTIPLE' },
+            {
+              type: 'WIKIDATA_IDENTITY_MATCH',
+              source: 'NEARBY',
+              hintMatched: false,
+              candidateMatched: false,
+            },
+          ],
+          'MULTIPLE',
+        ),
+      );
+      // Documented CURRENT behavior (not the desired target): without the
+      // WIKIDATA evidence, A2 above shows this same MULTIPLE signal alone
+      // already yields AMBIGUOUS.
+      expect(result).toEqual({ status: 'REJECTED' });
+    });
+
+    // Without any Wikidata evidence at all, the bare EXACT_NAME MULTIPLE
+    // signal from the same real Nuestra Señora de Belén case already
+    // resolves to AMBIGUOUS (identical to A2) -- included here so the
+    // precedence contrast above is explicit and self-contained.
+    it('Case F: the same MULTIPLE signal alone (no Wikidata evidence) is AMBIGUOUS today', async () => {
+      const verifier = new IdentityVerifier();
+      const result = await verifier.verify(
+        { name: 'Nuestra Señora de Belén' },
+        attempt([{ type: 'EXACT_NAME', identityMultiplicity: 'MULTIPLE' }]),
+      );
+      expect(result).toEqual({ status: 'AMBIGUOUS' });
+    });
   });
 });

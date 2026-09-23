@@ -37,11 +37,226 @@ implements the stage. Do not mark a stage DONE without real validation.
 
 | Stage | Status | Starting HEAD | Completed commit | Validation | Key findings / next gate |
 | --- | --- | --- | --- | --- | --- |
-| 1. Characterization lock | TODO | `7b52367f9da49b965fc503909f855167e54bbda6` | — | — | Freeze current failure shapes before behavior changes. |
+| 1. Characterization lock | DONE | `286c85930eeff59c97e8c02918c3620ab203a44c` | *(this commit — a commit cannot literally contain its own resulting SHA; see the pushed commit's hash on `feat/preference-first-selection`)* | jest (5 spec files, 187 tests) + tsc --noEmit + eslint (touched files) all green | 9 RW1-derived characterization cases frozen; `required` blast radius inventoried; several defects found that were previously undocumented (see below). Stage 2 unblocked. |
 | 2. Source-grounded contract cutover | BLOCKED | — | — | — | Starts only after Stage 1 fixtures are trustworthy. |
 | 3. Catalog-first identity resolution | BLOCKED | — | — | — | Starts only after Stage 2 source authority is live. |
 | 4. Geographic + partial-composite cutover | BLOCKED | — | — | — | Starts after identity outcomes are explicit/stable. |
 | 5. Trace + RW1 verification | BLOCKED | — | — | — | Final milestone validation; thresholds only from observed evidence. |
+
+### Stage 1 — Characterization lock (2026-09-23)
+
+**Scope.** Tests/fixtures only. No production file was changed (`git diff
+--stat` against the starting commit touches exactly five `*.spec.ts` files,
+zero production `.ts` files).
+
+**Commands executed and real outcome:**
+
+```
+cd be && yarn jest \
+  src/modules/tours/services/identity-verifier.service.spec.ts \
+  src/modules/tours/utils/area-scope-membership-policy.spec.ts \
+  src/modules/tours/services/experience-proposal-resolver.service.spec.ts \
+  src/modules/tours/utils/experience-candidate-extraction.util.spec.ts \
+  src/modules/tours/services/experience-catalog.service.spec.ts
+# Test Suites: 5 passed, 5 total. Tests: 187 passed, 187 total.
+
+cd be && yarn typecheck        # tsc --noEmit — clean, no errors
+cd be && npx eslint <the same five files>   # 0 problems after --fix
+                                             # (10 prettier-only formatting
+                                             # fixes; no logic changes)
+```
+
+The full repo-wide `be` test/lint suite was not re-run in full; only the
+five touched spec files plus `tsc --noEmit` (whole-project) were executed,
+proportionate to a tests-only change with zero production-file diff.
+
+**Characterization added (9 required cases), by file:**
+
+- `identity-verifier.service.spec.ts` — Case A (El Zanjón de Granados:
+  three real acquisition paths converging on `osm:node:9953027884`, all
+  REJECTED by a non-corroborating `WIKIDATA_IDENTITY_MATCH(NEARBY)`; the
+  differently-worded hint matching the candidate's own canonical name
+  exactly still verifies) and Case F (Nuestra Señora de Belén: real
+  `EXACT_NAME MULTIPLE` + non-corroborating Wikidata collapses to
+  `REJECTED`, not `AMBIGUOUS`, even though the bare `MULTIPLE` signal alone
+  already yields `AMBIGUOUS` today).
+- `area-scope-membership-policy.spec.ts` — Case D (a real Calle-Defensa-
+  shaped `ROUTE` entering a San Telmo-shaped `AREA` polygon, proving the
+  existing `geometryHasPointInArea`/`segmentsIntersect` LineString×polygon
+  logic already exists) and Case C (an explicitly-labeled DESIGN fixture —
+  a resolved point outside the area connected by an intersecting route —
+  clearly distinguished in comments from the observed RW1 Plaza de Mayo
+  acquisition failure).
+- `experience-proposal-resolver.service.spec.ts` — Cases B, E and H in one
+  fixture built from the real cold-2 "San Telmo Historic Self-Guided Route"
+  candidate (real `ev-10` text, real componentHints): the destination-
+  association gate bounds acquisition to exactly one `LOCAL_OSM_POOL`
+  attempt per hint for the whole candidate (not just the affected hint);
+  "Plaza de Mayo" and "Pasaje San Lorenzo" both acquire-then-reject the
+  wrong real local candidate and stay explicit `unresolved`/
+  `UNCONFIRMED_MATCH`; the proposal-level `rejectionReasons` still defaults
+  to `NO_OSM_MATCH` even though both components had a real candidate
+  acquired and rejected. A second fixture reproduces Case A at the
+  resolver level (`LOCAL_OSM_POOL` + `NOMINATIM` both resolving
+  `osm:node:9953027884`, both `REJECTED`).
+- `experience-candidate-extraction.util.spec.ts` — Case G (Basílica de
+  Santa Mónica / `ev-11`: the real ev-11 snippet text never mentions the
+  basilica; `extractExperienceCandidates` accepts the hint anyway because
+  it only ever receives the evidence-KEY set, never the evidence TEXT).
+- `experience-catalog.service.spec.ts` — Case I (Solar de French: the same
+  `LOCAL_OSM_POOL` hint resolves the identical real `osm:node:6903962986`
+  in every cold run — provider identity is stable — but three different
+  `Experience` UUIDs get persisted, one per empty cold DB, because no
+  catalog-first lookup exists yet; test asserts
+  `ExperienceCatalogService.findGeoEntityCandidatesForHint` does not exist).
+
+**`required` blast-radius inventory** (grouped by policy meaning; file:line
+references are against commit `286c859`):
+
+- discovery/source admission — `GeoEntityHint.required`
+  (`experience-discovery.interface.ts:9`); the LLM JSON schema/prompt that
+  asks for it (`experience-discovery-extraction.prompt.ts:136,145`, plus
+  unrelated JSON-Schema-meta `required:[...]` keys at :159,174 — a naming
+  collision, not the same field); the normalizer boundary
+  (`experience-candidate-extraction.util.ts:128`, defaults non-`true` to
+  `false`); structured (non-LLM) source synthesis, which always hardcodes
+  `required:true` (`structured-experience-candidate-synthesizer.service.ts:
+  28,37,46`); structured-source corroboration/merging, which OR-aggregates
+  `required` across merged hints (`structured-candidate-corroboration.
+  service.ts:538`); and the `MULTI_COMPONENT_EXPERIENCE`/`SINGLE_PLACE`
+  admission gate that literally counts LLM-authored `required:true`
+  non-area hints (`acquisition-candidate-requirement.util.ts:8-22` — the
+  exact target of amendment §3's replacement).
+- component-resolution behavior — the all-or-nothing
+  `unresolvedRequired` gate and the `rejectionReasons` NO_OSM_MATCH-
+  fidelity defect (`experience-proposal-resolver.service.ts:966-1008`,
+  see Case H); the OR-across-every-resolved-entity `required` recompute
+  after geoEntityId dedup (`experience-proposal-resolver.service.ts:
+  1733-1760`).
+- area-scope membership — `AreaScopeComponentFact.required`
+  (`area-scope-membership.interface.ts:19`) and the canonical
+  `evaluateAreaScopeMembership` primitive that filters to required
+  components before applying `AREA_CONTAINED`/`AREA_ANCHORED_ROUTE`
+  (`area-scope-membership-policy.ts:26-65`, see Cases C/D).
+- composite geographic strategy — ~10 call sites across
+  `rejectIfExternalScopeViolated`, `tryCanonicalGeometry` (canonical-route
+  handling) and the area-anchored-waypoint/single-venue branches in
+  `composite-geographic-validation.service.ts` (lines ~272-760) —
+  `required` currently drives which validation strategy runs at all; this
+  is Stage 4's explicit target, not touched here.
+- persistence — `ExperienceComponent.required` / `TourExperienceComponent.
+  required` (`prisma/schema.prisma:89,290`, both `@default(true)`),
+  forwarded into the frozen tour snapshot by
+  `tour-experience-snapshot.util.ts:16,68`.
+- **planner/read behavior (not listed in the plan's own inventory
+  prompt — found by inspection):** `spatial-footprint.util.ts:104,129`
+  (`buildOrderedComponentFootprints`/`buildExperienceFootprint`) filters
+  OUT any persisted component with `required === false` when computing a
+  composite Experience's planner-facing centroid/bounds/ordered-footprint
+  geometry. This means a persisted *optional* component is invisible to
+  the deterministic daily planner's spatial reasoning today — a real
+  behavioral fork Stage 2/3/4 must account for, since it survives even
+  after `GeoEntityHint.required` stops being LLM-authored (the schema
+  field itself is untouched by this milestone).
+  `planning-candidate-normalizer.service.ts:18` only *describes* preserving
+  required components in a comment; it has no actual `.required` field
+  read — confirms the planner's selection/normalization step itself does
+  not branch on `required`, only the footprint geometry helper above does.
+- trace/forensics — `ComponentResolutionAudit.required`
+  (`experience-resolution.interface.ts:130`) and its serialization in
+  `generation-trace-builder.util.ts:176,1471` — this is the exact shape
+  read directly from the RW1 `generation-trace.json` files above.
+- embedding document — `experience-semantic-document.util.ts:19,63`
+  (serializes the `required`/`optional` token into the canonical semantic
+  document text) and `experience-embedding-indexer.service.ts:83` (feeds
+  `ExperienceComponent.required` into that document builder at index
+  time) — amendment §18's explicit Stage 2 target (remove the token, bump
+  `EXPERIENCE_EMBEDDING_DOCUMENT_VERSION`, reindex).
+- tests/fixtures only / type-declared-but-unread — `experience-dedupe.
+  util.ts:4` declares a `required?: boolean | null` type and references
+  "required" only in prose comments; no mechanical `.required` read exists
+  in that file today (the dedupe comparison filters by role, not by this
+  field) — a minor documentation/code-drift, not a live behavioral fork.
+- **excluded as unrelated naming collisions** (same word, different
+  concept — noted so a future grep isn't misled): `auth`/`apple-login`
+  dto "required" fields; `preference-spec.interface.ts`/
+  `preference-interpreter.service.ts`/`preference-spec-builder.util.ts`/
+  `preference-sufficiency.util.ts` (facet-preference "required" concept,
+  unrelated to `GeoEntityHint`); `experience-generation.service.ts`'s
+  `requiredEligibleCount` (coverage/capacity target count);
+  `experience-classification.service.ts` and
+  `experience-semantic-classification.prompt.ts` (a different LLM call —
+  semantic classification, not discovery — plus more JSON-Schema-meta
+  `required:[...]` keys); `groq-grounded-search.service.ts`'s
+  `tool_choice: 'required'` (an unrelated Groq/OpenAI tool-calling API
+  parameter); `daily-planning.interface.ts`/`tour-completeness.
+  interface.ts` (English-prose "required" in comments only).
+
+**Failure classification** (per amendment §10/§12, task item 5):
+
+- El Zanjón de Granados: **resolver/acquisition defect** — genuine
+  multi-path identity convergence on one real object exists; the current
+  policy rejects it anyway (this is a policy-gap defect in the code, not
+  a genuine world-knowledge ambiguity).
+- Plaza de Mayo (RW1 observed failure): **resolver/acquisition defect** —
+  the `hasDestinationAssociationEvidence` gate and the fuzzy name-overlap
+  matcher jointly acquire the wrong real candidate for an entirely
+  unambiguous, world-famous real square; not a knowledge deficit.
+- Pasaje San Lorenzo: **resolver/acquisition defect**, same mechanism as
+  Plaza de Mayo (bounded to one attempt, wrong fuzzy match) — the pipeline
+  correctly leaves it `unresolved` rather than force-resolving, which is
+  the one part of this case that is NOT a defect.
+- NO_OSM_MATCH false summary: **resolver/acquisition defect** — a plain
+  code bug in the rejection-reason aggregation
+  (`experience-proposal-resolver.service.ts:980-997`), not a system/
+  provider limitation.
+- Basílica de Santa Mónica / `ev-11`: **source-contract violation** — the
+  extractor cited evidence that does not support the emitted component;
+  the pipeline currently only avoids persisting it by accident (no real
+  POI exists), which is a separate, unrelated resolver outcome.
+- Nuestra Señora de Belén: **KNOWLEDGE_DEFICIT** — a genuinely common
+  devotional name with multiple real, structurally different candidates
+  (a plain node and a distinct "Capilla ..." building); this is the kind
+  of case the future Tourism Researcher loop should target, once Stage
+  2-5 land. *Mixed note:* the IdentityVerifier precedence defect found in
+  Case F (WIKIDATA_IDENTITY_MATCH always short-circuiting before the
+  EXACT_NAME MULTIPLE → AMBIGUOUS fallback) is itself a **resolver
+  defect** layered on top of this genuine knowledge deficit — the
+  classification is not purely one or the other.
+- Solar de French: **spans two concerns, not one label.** Provider-side
+  identity resolution for the stable geoapify-keyed hint is NOT a defect
+  (it is correctly, repeatedly VERIFIED against the same real
+  `osm:node:6903962986`). The cross-run instability is a **resolver/
+  acquisition defect of omission** — no catalog-first reuse exists yet, so
+  each empty cold run re-derives and re-persists a new canonical identity
+  for the same real place (exactly Stage 3's target). Separately, the
+  warm run's differently-keyed LLM-authored "solar-de-french" hint
+  surfacing two structurally different real OSM objects (a node and a
+  relation) for the same name is a genuine **KNOWLEDGE_DEFICIT**-shaped
+  divergent-cluster case, distinct from the cross-run-stability finding.
+
+**Architecture deviation:** NONE. No production semantics were changed;
+Stage 2-5 are unaffected and remain BLOCKED.
+
+**Engineering-principles gate (applicable categories only, since this
+stage is tests-only):**
+
+- provider isolation: PASS (no provider-name branching added).
+- typed canonical facts: PASS (fixtures use the existing typed
+  `GeoEntityHint`/`IdentityEvidence`/`AreaScopeComponentFact` contracts,
+  no ad-hoc metadata bags).
+- single identity authority: PASS (no new identity logic added;
+  `IdentityVerifier` remains the sole authority exercised).
+- single geographic authority: PASS (`evaluateAreaScopeMembership`
+  remains the sole authority exercised; Case C/D fixtures reuse it, do
+  not reimplement it).
+- no provider voting: PASS (not applicable — no new logic).
+- no destination hacks: PASS (no San-Telmo-specific production code; all
+  San Telmo/Buenos Aires values are test fixtures only).
+- no production behavior change during characterization: PASS (`git diff
+  --stat` touches only five `*.spec.ts` files).
+
+**Stage 2 unblocked:** YES.
 
 For each completed stage also record, directly below the table:
 

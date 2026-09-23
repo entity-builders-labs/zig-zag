@@ -6843,4 +6843,313 @@ describe('ExperienceProposalResolverService', () => {
       });
     });
   });
+
+  /**
+   * Stage 1 characterization lock (component-resolution-and-partial-
+   * composite-recovery-plan.md). These freeze CURRENT ExperienceProposal-
+   * ResolverService behavior against real fixture values derived from
+   * spikes/rw1-san-telmo-historical-walk/forensic-rerun-2026-09-22/
+   * cold-2/{web-extraction,generation-trace}.json — the real componentHints,
+   * real ev-10 evidence text, and real OSM identities (osm:way:31364659
+   * "Plaza Dorrego", osm:way:22697007 "San Lorenzo", osm:node:9953027884
+   * "El Zanjón de Granados (historic ruins)") that pipeline actually
+   * acquired. Do NOT change production semantics here — Stage 2/3/4 own the
+   * fixes these tests document the need for.
+   */
+  describe('RW1 forensic-rerun-2026-09-22 characterization (Stage 1)', () => {
+    // Cases B + E + H: the real cold-2 "San Telmo Historic Self-Guided
+    // Route" candidate cited one evidence item (ev-10) whose own title/
+    // snippet never literally mentions "San Telmo" (the destination-
+    // association text is only in the candidate's LLM-authored description,
+    // not the cited SourceObservation). `hasDestinationAssociationEvidence`
+    // therefore returns false for the WHOLE candidate, which — per current
+    // code — restricts EVERY one of its componentHints to a single
+    // LOCAL_OSM_POOL attempt; NOMINATIM/PLACES never run for any of them,
+    // not just the affected hint. Within that single bounded pool:
+    //  - "Plaza de Mayo" fuzzy-matches the wrong real local candidate,
+    //    "Plaza Dorrego" (shared token "plaza"), and is rejected (Case B).
+    //  - "Pasaje San Lorenzo" fuzzy-matches the wrong real local street,
+    //    "San Lorenzo" (shared token "lorenzo"), and is rejected (Case E,
+    //    stays an explicit `unresolved`/`UNCONFIRMED_MATCH`, never
+    //    force-resolved).
+    // Because every required hint ends up unresolved, `resolvedEntities`
+    // is empty and the current proposal-level rejection-reason aggregation
+    // (experience-proposal-resolver.service.ts, the `resolvedEntities.length
+    // === 0` branch) defaults straight to `NO_OSM_MATCH` — even though both
+    // components actually had a real candidate ACQUIRED and REJECTED
+    // (`UNCONFIRMED_MATCH`), never merely "no match found" (Case H).
+    it('Case B/E/H: destination-association gate bounds acquisition to one attempt per hint, wrong local candidates are acquired-then-rejected, and the proposal-level reason still collapses to NO_OSM_MATCH', async () => {
+      const nominatim = { search: jest.fn() };
+      const osmPlaces = {
+        lookupPoisWithin: jest.fn().mockResolvedValue({
+          status: 'success',
+          value: [
+            {
+              id: 'osm:way:31364659',
+              name: 'Plaza Dorrego',
+              osmType: 'way',
+              osmId: 31364659,
+              geometry: { type: 'Point', coordinates: [-58.3717, -34.6208] },
+              tags: {},
+            },
+          ],
+        }),
+        lookupStreetsWithin: jest.fn().mockResolvedValue({
+          status: 'success',
+          value: [
+            {
+              id: 'osm:way:22697007',
+              name: 'San Lorenzo',
+              osmType: 'way',
+              osmId: 22697007,
+              geometry: {
+                type: 'LineString',
+                coordinates: [
+                  [-58.372, -34.621],
+                  [-58.371, -34.62],
+                ],
+              },
+              tags: { highway: 'residential' },
+            },
+          ],
+        }),
+      };
+      const catalog = {
+        resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        upsertGeoEntity: jest.fn(),
+        persistVerifiedExperience: jest.fn(),
+      };
+      const service = new ExperienceProposalResolverService(
+        osmPlaces as any,
+        catalog as any,
+        { validate: jest.fn() } as any,
+        undefined,
+        nominatim as any,
+      );
+
+      const selfGuidedRoute: ExperienceCandidate = {
+        name: 'San Telmo Historic Self-Guided Route',
+        themes: ['history', 'architecture', 'culture'],
+        traits: ['self-guided'],
+        intents: ['walk', 'route_like'],
+        suggestedDurationMinutes: 120,
+        componentHints: [
+          {
+            key: 'plaza-de-mayo',
+            name: 'Plaza de Mayo',
+            role: 'waypoint',
+            expectedKind: 'PLACE',
+            required: true,
+            evidenceKeys: ['ev-10'],
+          },
+          {
+            key: 'pasaje-san-lorenzo',
+            name: 'Pasaje San Lorenzo',
+            role: 'route',
+            expectedKind: 'ROUTE',
+            required: true,
+            evidenceKeys: ['ev-10'],
+          },
+        ],
+        evidenceKeys: ['ev-10'],
+        shortReason:
+          'Evidence explicitly describes a self-guided route with a specific visiting sequence',
+      };
+
+      const result = await service.resolve({
+        destinationName: 'San Telmo, Buenos Aires, Argentina',
+        geographicScope: { kind: 'AREA_BOUNDARY', boundary },
+        candidates: [selfGuidedRoute],
+        evidence: [
+          {
+            key: 'ev-10',
+            source: 'Booking & Exploration Options',
+            title: 'Booking & Exploration Options',
+            snippet:
+              'Self-Guided Route: Start near Plaza de Mayo / Basílica de San Francisco, ' +
+              'head south down Calle Defensa toward Plaza Dorrego, detour into Pasaje San ' +
+              'Lorenzo to see Casa Mínima, and finish at Parque Lezama.',
+          },
+        ],
+      });
+
+      // Bounded acquisition continuation: no destination-association
+      // evidence for THIS candidate means Nominatim/Places never run for
+      // either hint, not merely the affected one.
+      expect(nominatim.search).not.toHaveBeenCalled();
+
+      const componentAudits =
+        result.entityResolution.forensicAudit[0].componentAudits;
+      const plazaAudit = componentAudits.find(
+        (audit) => audit.hintKey === 'plaza-de-mayo',
+      );
+      const pasajeAudit = componentAudits.find(
+        (audit) => audit.hintKey === 'pasaje-san-lorenzo',
+      );
+
+      // Case B: the wrong real local candidate is acquired and rejected —
+      // exactly one bounded attempt, never silently escalated.
+      expect(plazaAudit?.attempts).toHaveLength(1);
+      expect(plazaAudit?.attempts[0]).toMatchObject({
+        strategy: 'LOCAL_OSM_POOL',
+        candidateAcquired: true,
+        selectedCandidate: expect.objectContaining({
+          externalId: 'osm:way:31364659',
+          canonicalName: 'Plaza Dorrego',
+        }),
+      });
+      expect(plazaAudit?.finalStatus).toBe('unresolved');
+      expect(plazaAudit?.finalReason).toBe('UNCONFIRMED_MATCH');
+
+      // Case E: a genuinely weak/wrong ROUTE identity stays an explicit
+      // unresolved deficit — never force-resolved onto "San Lorenzo".
+      expect(pasajeAudit?.attempts).toHaveLength(1);
+      expect(pasajeAudit?.attempts[0]).toMatchObject({
+        strategy: 'LOCAL_OSM_POOL',
+        candidateAcquired: true,
+        selectedCandidate: expect.objectContaining({
+          externalId: 'osm:way:22697007',
+          canonicalName: 'San Lorenzo',
+        }),
+      });
+      expect(pasajeAudit?.finalStatus).toBe('unresolved');
+      expect(pasajeAudit?.finalReason).toBe('UNCONFIRMED_MATCH');
+
+      // Case H: the proposal-level summary still says NO_OSM_MATCH even
+      // though both components actually had a real candidate ACQUIRED and
+      // REJECTED, not "no candidate found" — the documented RW1 fidelity
+      // defect (amendment §13). This assertion freezes today's buggy
+      // aggregation; it is NOT the desired target behavior.
+      expect(result.resolved[0].status).toBe('rejected');
+      expect(result.resolved[0].rejectionReasons).toEqual(['NO_OSM_MATCH']);
+    });
+
+    // Case A (resolver-level): two independent, real acquisition strategies
+    // (LOCAL_OSM_POOL and NOMINATIM) converge on the exact same canonical
+    // OSM object (osm:node:9953027884) for the "El Zanjón de Granados"
+    // hint, exactly as recorded in cold-1/cold-2/cold-3's real
+    // entityResolutionAudit. A non-corroborating Wikidata NEARBY match
+    // (hintMatched: true, candidateMatched: false — the search found a
+    // nearby entity matching the HINT's plain text but not the resolved
+    // candidate's longer canonical name) rejects both, even though both
+    // paths agree on one real physical object. See identity-verifier.
+    // service.spec.ts for the corresponding unit-level freeze of the
+    // underlying REJECTED decision.
+    it('Case A: LOCAL_OSM_POOL and NOMINATIM independently converge on osm:node:9953027884 for "El Zanjón de Granados", both rejected by the same non-corroborating Wikidata match', async () => {
+      const zanjonOsmNode = {
+        id: 'osm:node:9953027884',
+        name: 'El Zanjón de Granados (historic ruins)',
+        osmType: 'node',
+        osmId: 9953027884,
+        geometry: { type: 'Point', coordinates: [-58.371, -34.621] },
+        tags: {},
+      };
+      const osmPlaces = {
+        lookupPoisWithin: jest
+          .fn()
+          .mockResolvedValue({ status: 'success', value: [zanjonOsmNode] }),
+        lookupStreetsWithin: jest
+          .fn()
+          .mockResolvedValue({ status: 'success', value: [] }),
+      };
+      const nominatim = {
+        search: jest.fn().mockResolvedValue([
+          {
+            osmType: 'node',
+            osmId: 9953027884,
+            addresstype: 'tourism',
+            displayName:
+              'El Zanjón de Granados (historic ruins), San Telmo, Buenos Aires, Argentina',
+            importance: 0.4,
+            latitude: -34.621,
+            longitude: -58.371,
+            address: {},
+          },
+        ]),
+      };
+      // The real corroboration search finds a nearby Wikidata entity whose
+      // label matches the HINT text ("El Zanjón de Granados") but not the
+      // longer resolved candidate name ("... (historic ruins)") —
+      // hintMatched: true, candidateMatched: false, the exact real evidence
+      // shape captured in the forensic corpus.
+      const wikidata = {
+        findNearbyPlaces: jest.fn().mockResolvedValue([
+          {
+            qid: 'Q0',
+            label: 'El Zanjón de Granados',
+            latitude: -34.621,
+            longitude: -58.371,
+          },
+        ]),
+        getEntitySummaries: jest.fn().mockResolvedValue(new Map()),
+      };
+      const catalog = {
+        resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        upsertGeoEntity: jest.fn(),
+        persistVerifiedExperience: jest.fn(),
+      };
+      const service = new ExperienceProposalResolverService(
+        osmPlaces as any,
+        catalog as any,
+        { validate: jest.fn() } as any,
+        undefined,
+        nominatim as any,
+        undefined,
+        wikidata as any,
+      );
+
+      const zanjonProposal: ExperienceCandidate = {
+        name: 'El Zanjón de Granados',
+        themes: ['history'],
+        traits: [],
+        intents: ['visit'],
+        componentHints: [
+          {
+            key: 'el-zanjon',
+            name: 'El Zanjón de Granados',
+            role: 'venue',
+            expectedKind: 'PLACE',
+            required: true,
+            evidenceKeys: ['ev-4'],
+          },
+        ],
+        evidenceKeys: ['ev-4'],
+        shortReason: 'Real place named in Wikivoyage "see" listing',
+      };
+
+      const result = await service.resolve({
+        destinationName: 'San Telmo, Buenos Aires, Argentina',
+        geographicScope: { kind: 'AREA_BOUNDARY', boundary },
+        candidates: [zanjonProposal],
+        evidence: [
+          {
+            key: 'ev-4',
+            source: 'wikivoyage',
+            title: 'San Telmo — See',
+            snippet:
+              'El Zanjón de Granados, a network of historic tunnels in San Telmo.',
+          },
+        ],
+      });
+
+      const attempts =
+        result.entityResolution.forensicAudit[0].componentAudits[0].attempts;
+      const localOsmAttempt = attempts.find(
+        (a) => a.strategy === 'LOCAL_OSM_POOL',
+      );
+      const nominatimAttempt = attempts.find((a) => a.strategy === 'NOMINATIM');
+
+      expect(localOsmAttempt?.selectedCandidate?.externalId).toBe(
+        'osm:node:9953027884',
+      );
+      expect(localOsmAttempt?.verificationDecision).toBe('REJECTED');
+      expect(nominatimAttempt?.selectedCandidate?.externalId).toBe(
+        'osm:node:9953027884',
+      );
+      expect(nominatimAttempt?.verificationDecision).toBe('REJECTED');
+
+      expect(catalog.upsertGeoEntity).not.toHaveBeenCalled();
+      expect(result.resolved[0].status).toBe('rejected');
+    });
+  });
 });

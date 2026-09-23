@@ -286,4 +286,74 @@ describe('extractExperienceCandidates', () => {
     expect(result.candidates).toHaveLength(0);
     expect(result.validationErrors).toEqual([]);
   });
+
+  /**
+   * Stage 1 characterization lock (component-resolution-and-partial-
+   * composite-recovery-plan.md, Case G). Real RW1 fixture: cold-2 pass 1's
+   * extractor emitted a "Basílica de Santa Mónica" componentHint citing
+   * ev-11, whose actual captured snippet ("Commissioned by the Jesuits...
+   * this church gave the neighborhood its modern name [St. Peter Gonzalez
+   * Telmo]...") never names that basilica or an equivalent entity —
+   * confirmed against
+   * spikes/rw1-san-telmo-historical-walk/forensic-rerun-2026-09-22/cold-2/
+   * web-extraction.json. The amendment (§2, §13) requires this to fail at
+   * source-support admission, before geographic/provider acquisition ever
+   * runs; today it is only ever caught downstream, accidentally, because no
+   * real "Basílica de Santa Mónica" exists for the resolver to find
+   * (experience-proposal-resolver.service.spec.ts's NO_OSM_MATCH cases).
+   */
+  it('Case G: accepts a componentHint whose cited evidence key exists but does not check the evidence TEXT actually supports the named component (RW1 Santa Mónica/ev-11)', () => {
+    // The real ev-11 SourceObservation text — it never mentions "Basílica
+    // de Santa Mónica" or anything semantically equivalent to it.
+    const ev11Snippet =
+      'Commissioned by the Jesuits in the mid-18th century and completed in 1876, ' +
+      'this church gave the neighborhood its modern name (named after Saint Peter ' +
+      'Gonzalez Telmo, patron saint of sailors).';
+
+    const result = extractExperienceCandidates(
+      {
+        candidates: [
+          {
+            name: 'San Telmo Historic Walk',
+            themes: ['history'],
+            traits: [],
+            intents: ['walk'],
+            componentHints: [
+              {
+                key: 'basilica-santa-monica',
+                name: 'Basílica de Santa Mónica',
+                role: 'waypoint',
+                expectedKind: 'PLACE',
+                required: true,
+                evidenceKeys: ['ev-11'],
+              },
+            ],
+            evidenceKeys: ['ev-11'],
+            shortReason: 'Historic church on the route',
+          },
+        ],
+      },
+      // extractExperienceCandidates only ever receives the set of KNOWN
+      // evidence KEYS, never the observations' own text content -- so no
+      // amount of internal logic here could check `ev11Snippet` against
+      // the hint name even if it tried to. This is itself part of the
+      // Stage 1 freeze: the source-support gate the amendment requires
+      // cannot be implemented inside this function's current signature.
+      new Set(['ev-11']),
+      8,
+    );
+
+    expect(result.validationErrors).toEqual([]);
+    expect(result.candidates).toHaveLength(1);
+    expect(result.candidates[0].componentHints).toEqual([
+      expect.objectContaining({
+        key: 'basilica-santa-monica',
+        name: 'Basílica de Santa Mónica',
+        evidenceKeys: ['ev-11'],
+      }),
+    ]);
+    // Documents the gap, not a claim about ev11Snippet's content being
+    // consulted anywhere in this call.
+    expect(ev11Snippet).not.toContain('Santa Mónica');
+  });
 });

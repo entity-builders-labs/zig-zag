@@ -1484,3 +1484,44 @@ describe('ExperienceCatalogService.applyEvidenceClassification (Task B5)', () =>
     expect(prisma.experience.update).not.toHaveBeenCalled();
   });
 });
+
+/**
+ * Stage 1 characterization lock (component-resolution-and-partial-
+ * composite-recovery-plan.md, Case I). Real RW1 finding, from
+ * spikes/rw1-san-telmo-historical-walk/forensic-rerun-2026-09-22/{cold-1,
+ * cold-2,cold-3,warm}/{entity_resolution audit,catalog-after.json}:
+ *
+ * The "Solar French" geoapify-keyed componentHint resolved via
+ * LOCAL_OSM_POOL to the exact same real OSM object in every one of the
+ * three independent cold runs -- externalId osm:node:6903962986,
+ * identityEvidence EXACT_NAME/SINGLE, verificationDecision VERIFIED, every
+ * time. Provider-side identity resolution for this hint is NOT what varies
+ * across runs. What varies is that each cold run starts from an EMPTY
+ * catalog and therefore mints a brand-new Experience row for that same real
+ * node every time (cold-1: experienceId 7fbaa38f-..., cold-2: 6346baae-...,
+ * cold-3: 13f5b76e-...) -- three different internal canonical identities
+ * for one unchanging real-world entity, because nothing today re-uses
+ * already-established knowledge across requests/runs before re-running
+ * acquisition. (Separately, the warm run's differently-keyed LLM-authored
+ * "solar-de-french" hint shows real EXTERNAL identity ambiguity too: its
+ * attempts return BOTH osm:node:6903962986, "Solar French", via
+ * LOCAL_OSM_POOL AND osm:relation:9314953, "Galería Solar de French" -- a
+ * different real building -- via NOMINATIM, both ultimately REJECTED. This
+ * is a genuine divergent-candidate case, distinct from the cross-run
+ * instability above.)
+ *
+ * This is exactly the gap the amendment's "catalog-first component
+ * resolution" section (§15) and the plan's Stage 3 target
+ * (`ExperienceCatalogService.findGeoEntityCandidatesForHint`) are meant to
+ * close. Stage 1 only freezes that this reuse boundary does not exist yet.
+ */
+describe('ExperienceCatalogService — RW1 characterization (Stage 1)', () => {
+  it("Case I: has no catalog-first GeoEntity candidate lookup yet — component resolution cannot reuse a prior run's already-established identity", () => {
+    const service = new ExperienceCatalogService({} as any, {} as any);
+
+    expect(
+      (service as unknown as Record<string, unknown>)
+        .findGeoEntityCandidatesForHint,
+    ).toBeUndefined();
+  });
+});
