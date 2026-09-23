@@ -16,6 +16,7 @@ Replace the current LLM-owned `required` / all-or-nothing composite gate with
 an auditable component-resolution pipeline that:
 
 - attempts every evidence-backed component;
+- reuses canonical catalog GeoEntities before opening external resolution work;
 - preserves provider/canonical-candidate evidence;
 - performs component-level geographic relation checks;
 - separates per-component truth from composite geographic coherence;
@@ -37,7 +38,9 @@ independent architectural review.
 - no partial research object becomes planner-eligible accidentally;
 - evolve existing canonical identity/geographic policies rather than adding
   parallel versions;
-- preserve provider cost-control rules.
+- preserve provider cost-control rules;
+- component resolution may create/reuse GeoEntities but never auto-promotes them into standalone Experiences;
+- planner backfill may add independent Experiences to a Tour but never mutates source-backed composite membership.
 
 ## Phase 0 — Characterization tests before behavior changes
 
@@ -74,7 +77,41 @@ retain a hidden second meaning of `required`.
 
 Delete superseded tests/compatibility code under the early-stage deletion rule.
 
-## Phase 2 — Preserve candidate observations and canonical convergence
+
+Because `buildExperienceSemanticDocument()` currently serializes component
+`required/optional` state, this contract removal is also an embedding-index
+migration:
+
+- remove those tokens from the canonical Experience semantic document;
+- bump `EXPERIENCE_EMBEDDING_DOCUMENT_VERSION` (current implementation: v2)
+  to a new version;
+- add tests proving stale v2 rows are selected for reindex;
+- reindex VERIFIED Experiences through the existing version-aware indexer;
+- do not add a second vector store or GeoEntity embedding table for this fix.
+
+## Phase 2 — Catalog-first GeoEntity resolution + candidate observations
+
+Before external provider acquisition, add one canonical provider-neutral lookup
+against accumulated GeoEntity knowledge.
+
+For each component hint:
+
+1. attempt to match an existing canonical GeoEntity using the same identity
+   facts/policies that make external candidates comparable;
+2. reuse it when identity is unambiguous, structurally compatible and not
+   positively contradicted;
+3. when catalog knowledge is insufficient/ambiguous/stale, open a precise
+   deficit and continue with bounded external acquisition;
+4. correlate external observations with the existing canonical candidate rather
+   than treating the request as a blank-slate identity problem;
+5. persist/reconcile the final GeoEntity through the existing catalog boundary.
+
+Catalog reuse is not a provider vote and must not become "name looks similar,
+therefore trust DB".
+
+Resolving a component in this phase creates/reuses a GeoEntity only. It must
+not synthesize a standalone Experience unless acquisition/discovery separately
+originated that Experience from tourism evidence.
 
 Extend the canonical resolution contract so each component can retain the typed
 facts required to explain:
@@ -195,6 +232,26 @@ At composite level expose counts, ratio and set-level geographic outcome.
 
 Geometry payload-size invariants remain unchanged.
 
+## Cross-cutting planner/backfill boundary
+
+This milestone must preserve the distinction between composite membership and
+Tour completion:
+
+- geographic proximity / Nearby may help discover or resolve candidates;
+- it never proves that a new stop belongs to an existing composite;
+- after planning, meaningful residual capacity first consumes the verified
+  catalog/ranked reservoir;
+- if that is insufficient, bounded targeted acquisition may produce additional
+  independent Experiences;
+- any new Experience follows the full evidence/resolution/validation/catalog
+  path before replanning;
+- planner scheduling must not rewrite the source-backed membership of a
+  composite.
+
+Whether future Tour execution may interleave a standalone Experience between
+components of another Experience while preserving precedence/continuity is a
+separate planner-model decision and is not implemented by this milestone.
+
 ## Phase 8 — Rerun RW1 before setting thresholds
 
 Run the same forensic corpus with fresh cold databases and a warm rerun.
@@ -248,12 +305,16 @@ cutover.
 Before declaring this milestone complete, report PASS/FAIL for:
 
 - source/composition authority;
+- catalog-first GeoEntity reuse before external re-resolution;
+- no automatic component → standalone Experience promotion;
 - provider isolation;
 - typed canonical facts;
 - single identity policy authority;
 - single geographic policy authority;
 - no LLM-owned geographic truth;
 - no magic thresholds;
+- embedding semantic-document version bumped/reindexed after `required` removal;
+- semantic similarity remains ranking-only, never identity/coverage authority;
 - no provider voting;
 - no new semantic taxonomy;
 - partial state cannot reach planner;

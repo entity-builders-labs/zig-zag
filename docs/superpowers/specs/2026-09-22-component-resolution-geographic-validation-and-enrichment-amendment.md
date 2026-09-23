@@ -508,3 +508,243 @@ Not decided by this amendment:
 
 Those decisions require either further characterization or a dedicated design.
 
+---
+
+## 15. Catalog-first component resolution
+
+The Living Tourism Knowledge Base is not merely the place where resolution
+results are written after external research. It is the **first reusable
+resolution boundary** for component identity.
+
+For every source-backed component hint, the target order is:
+
+```text
+component hint
+        ↓
+canonical catalog / GeoEntity lookup
+        ↓
+   sufficient, unambiguous,
+   structurally compatible?
+      ┌───────────┴───────────┐
+     yes                      no
+      ↓                        ↓
+reuse canonical          bounded external acquisition
+GeoEntity                OSM / Nominatim / Places /
+      │                   other applicable evidence
+      │                        ↓
+      │                  correlate new observations
+      │                  with canonical knowledge
+      └───────────┬────────────┘
+                  ↓
+          identity decision
+                  ↓
+       persist/reconcile GeoEntity
+                  ↓
+      component geographic relation
+```
+
+This is **catalog-first**, not **catalog-always-wins**.
+
+A reusable catalog match must still be:
+
+- unambiguous for the requested hint/context;
+- structurally compatible with the physical kind required by the component;
+- free of known positive contradiction;
+- sufficiently current for the facts being reused.
+
+If the catalog is ambiguous, stale for the relevant fact, internally
+conflicted, or simply lacks the entity, resolution opens a precise external
+research deficit. External providers then add observations to the same
+canonical identity problem; they do not reset knowledge as if Zig-Zag had
+never seen the entity before.
+
+The catalog is not another provider vote. It is the system's canonical
+accumulated conclusion backed by historical observations/provenance.
+
+A later request therefore must not re-prove an already established GeoEntity
+from scratch merely because the same place appears as a component of a new
+Experience. This is especially relevant to the RW1 El Zanjón shape: once the
+canonical GeoEntity and its provider identities are established, a later
+component hint should first attempt to reuse that knowledge before opening the
+same OSM/Nominatim/Places/Wikidata investigation again.
+
+Implementation must centralize this lookup/reuse policy. Do not scatter
+ad-hoc "find by similar name" catalog checks across providers or resolver
+strategies.
+
+---
+
+## 16. GeoEntity and Experience remain different catalog identities
+
+The catalog has two related but distinct reusable concepts:
+
+```text
+GeoEntity
+= canonical physical/geographic reality
+
+Experience
+= source-backed tourism unit that can be offered/scheduled
+```
+
+A single- or multi-component Experience continues to use:
+
+```text
+Experience
+  → ExperienceComponent
+  → GeoEntity
+```
+
+A multi-component Experience does **not** become a tree of child Experiences.
+
+When discovery originates a source-backed composite and component resolution
+succeeds:
+
+- reuse an existing canonical GeoEntity when possible;
+- otherwise create/reconcile the new GeoEntity after identity verification;
+- do **not** automatically create a standalone Experience for that component.
+
+Standalone Experience persistence requires independent Experience origination
+authority: acquisition/discovery must itself produce evidence that the entity
+is a tourism unit worth offering independently.
+
+Example:
+
+```text
+walk discovery
+→ "San Telmo City Tour"
+→ Plaza Dorrego + Calle Defensa + Mercado + ...
+
+component resolution
+→ canonical GeoEntities are reused/created
+
+NO automatic side effect:
+→ Experience("Plaza Dorrego")
+→ Experience("Calle Defensa")
+→ Experience("Mercado")
+```
+
+If the same request or a later request independently discovers
+"Visit Plaza Dorrego" as a valid Experience, that standalone Experience may
+then be persisted and point to the **same** Plaza Dorrego GeoEntity.
+
+Therefore:
+
+```text
+GeoEntity existence != Experience existence
+component membership != standalone Experience authority
+```
+
+This prevents catalog pollution while still allowing the Knowledge Base to
+compound over time.
+
+---
+
+## 17. Composite membership is not planner augmentation
+
+Geographic proximity can discover or help resolve entities. It cannot establish
+membership in a composite Experience.
+
+Canonical invariant:
+
+> **Composite membership requires tourism-source evidence. Nearby/proximity
+> never creates, replaces or inserts a component into canonical composition.**
+
+Planner backfill is a separate concern.
+
+After a verified Experience portfolio reaches the deterministic planner, the
+planner may discover meaningful residual capacity for a concrete day. The
+correct sequence is:
+
+```text
+planner residual-capacity gap
+        ↓
+existing verified catalog / ranked reservoir first
+        ↓
+still insufficient?
+        ↓
+bounded targeted acquisition
+        ↓
+normal evidence → resolution → validation → persistence
+        ↓
+recompose + replan
+```
+
+A newly acquired standalone Experience may be scheduled geographically between
+stops/components of another Experience in a future execution model **without
+becoming a component of that Experience**. Canonical membership and Tour
+execution order are different facts.
+
+However, source-backed order/continuity constraints of the composite must be
+preserved. The current component-resolution milestone does not authorize an
+unbounded planner rewrite or invent a new interleaving schema. If planner
+interleaving requires new Tour-step representation, precedence/adjacency facts
+or snapshot semantics, that is a separate planner design.
+
+---
+
+## 18. Embeddings personalize verified Experiences; they never validate reality
+
+Embeddings operate on canonical Experiences, not on GeoEntity identity.
+
+Target semantic pipeline:
+
+```text
+verified Experience
+        ↓
+canonical semantic document
+(name, description, themes, intents, traits, component GeoEntity facts, ...)
+        ↓
+Experience.embedding in pgvector
+
+PreferenceSpec.semanticQuery
+        ↓
+query embedding
+        ↓
+cosine similarity against compatible Experience embeddings
+        ↓
+semanticSimilarity
+        ↓
+deterministic composition / ranked reservoir
+        ↓
+planner soft relevance
+```
+
+The current pgvector query uses cosine distance (`<=>`) and converts it to
+similarity as `1 - distance`.
+
+Semantic similarity is useful twice:
+
+1. **composition/ranking** — among already eligible Experiences, to prefer
+   candidates closer to the user's free-text intent;
+2. **daily planning soft relevance** — the same raw semantic score may
+   contribute alongside explicit preference weight and quality.
+
+It never:
+
+- proves Experience existence;
+- proves component membership;
+- validates a GeoEntity;
+- creates a strong facet match;
+- satisfies coverage by itself;
+- bypasses geography, source evidence, hard exclusions, opening hours or
+  mobility feasibility.
+
+The semantic document currently serializes component `required/optional`
+state. Removing the LLM-owned `required` contract therefore changes the
+canonical embedding document materially.
+
+The implementation cutover MUST:
+
+- remove `required/optional` tokens from the Experience semantic document;
+- bump `EXPERIENCE_EMBEDDING_DOCUMENT_VERSION` from the current v2 contract
+  to a new version;
+- reindex stale VERIFIED Experiences through the existing versioned embedding
+  indexer;
+- keep candidate/query embedding identity compatibility checks intact;
+- never synchronously invent missing candidate embeddings in Tour generation.
+
+Partial research objects that are not planner-eligible canonical Experiences
+must not gain semantic-ranking authority merely because some components are
+known.
+
+

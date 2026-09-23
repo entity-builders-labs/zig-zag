@@ -367,7 +367,7 @@ When an `area`/`route` anchor is combined with `intent:walk` or `route_like`:
    whose components/geography belong to that scope;
 2. if absent, acquire evidence for a real walk/route Experience;
 3. represent it as a normal `Experience` with normal `ExperienceComponent`s;
-4. resolve every component through the normal Places/OSM resolver path;
+4. resolve every component through catalog-first canonical GeoEntity reuse; only unresolved, ambiguous, contradicted or stale identity deficits continue to the applicable Places/OSM/Nominatim/provider research path;
 5. never invent stops or coordinates;
 6. `ExperienceComponent.order` is non-null only when cited evidence explicitly
    establishes the visiting sequence; otherwise it stays `null`;
@@ -384,8 +384,13 @@ walk/route is high priority; the AREA/ROUTE itself is still never scheduled.
 
 ## 8. Stage 5 — identity and corroboration
 
-Unchanged in authority: corroboration, resolver, geographic validation and
-dedupe decide real-world identity before semantic classification.
+Corroboration, resolver, geographic validation and dedupe remain the authority
+for real-world identity before semantic classification. The resolver is now
+explicitly **catalog-first** at the canonical GeoEntity boundary: an already
+known, unambiguous and structurally compatible GeoEntity is reused before
+opening fresh provider work. Ambiguous/stale/conflicted/missing catalog facts
+become targeted external-resolution deficits; external observations are then
+correlated back into the same canonical identity problem.
 
 Evidence from multiple providers is merged into one provider-neutral bundle.
 If it maps to an existing Experience, the existing row is enriched instead of
@@ -727,6 +732,15 @@ This preserves the boundary: structured/evidence-backed semantics answer
 answer “among valid candidates, which one is closer to what this traveler
 actually described?”.
 
+
+**2026-09-22 semantic-document migration note.** The current Experience semantic
+document includes component `required/optional` tokens. The component-resolution
+cutover removes LLM-owned `required`, so the canonical semantic document must
+remove those tokens, bump `EXPERIENCE_EMBEDDING_DOCUMENT_VERSION` from the
+current v2 contract, and rebuild stale VERIFIED Experience embeddings through
+the existing version-aware indexer. This is an Experience-index migration only;
+it does not add GeoEntity embeddings.
+
 ### 12.3 Anchors
 
 - resolved venue `must` → add to selected set and mark `mustInclude`;
@@ -841,6 +855,14 @@ The convergence loop MUST terminate deterministically on at least one of:
 - configured maximum backfill/acquisition passes reached.
 
 This makes final cardinality an output of feasibility rather than an input quota.
+
+
+Planner-capacity backfill does not modify source-backed composite membership.
+The planner may consume additional independently verified Experiences from the
+catalog/reservoir (and, when necessary, bounded acquisition followed by normal
+validation), but geographic proximity alone cannot turn one of those
+Experiences into a component of another composite. Canonical Experience
+membership and Tour execution order remain distinct facts.
 
 ---
 

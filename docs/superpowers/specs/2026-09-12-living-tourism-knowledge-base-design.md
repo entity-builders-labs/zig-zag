@@ -355,3 +355,50 @@ Every future milestone should answer:
 > **What new research capability does the Tourism AI Research Agent gain?**
 
 If the only answer is "another internal abstraction" and the agent does not become better at discovering, validating, remembering, refreshing or applying real tourism knowledge, the milestone should be challenged before implementation.
+
+## 2026-09-22 refinement — the catalog is the first research memory
+
+The Living Tourism Knowledge Base must be reused before repeating external
+identity research.
+
+For a component of a newly discovered Experience:
+
+```text
+component hint
+→ look for canonical GeoEntity already known by Zig-Zag
+→ reuse when identity/context are sufficient
+→ otherwise research only the missing/ambiguous fact externally
+→ reconcile new observations into the canonical GeoEntity
+```
+
+This is not blind trust in cached rows. A stale, ambiguous or contradicted
+canonical fact opens a targeted research deficit. The key invariant is that
+each Tour request does not restart world knowledge from zero.
+
+The two catalog identities remain separate:
+
+```text
+GeoEntity = physical reality
+Experience = source-backed tourism/scheduling unit
+```
+
+Resolving a composite component grows/reuses GeoEntity knowledge. It does not
+automatically create a standalone Experience. A standalone Experience appears
+only when acquisition/discovery independently supplies tourism evidence for
+that Experience, even if it references a GeoEntity that was already learned as
+part of another composite.
+
+The same GeoEntity may therefore support many independently discovered
+Experiences over time.
+
+Semantic embeddings belong to canonical Experiences after verification. They
+personalize composition/planning against `PreferenceSpec.semanticQuery`; they
+are not identity or geographic evidence. When the canonical Experience semantic
+document changes materially — including removal of component
+`required/optional` tokens — its document version must change and stale
+embeddings must be rebuilt.
+
+Planner capacity repair also remains catalog-first: reuse verified Experiences
+and the ranked reservoir before external acquisition. Nearby/proximity may help
+find candidates, but cannot establish membership in a source-backed composite.
+

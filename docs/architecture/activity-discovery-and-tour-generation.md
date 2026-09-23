@@ -1347,3 +1347,87 @@ introduce a second closed tourism semantic-type taxonomy for identity.
 Full rationale and open decisions:
 `docs/superpowers/specs/2026-09-22-component-resolution-geographic-validation-and-enrichment-amendment.md`.
 
+## Experience Domain V2 — catalog-first identity reuse and semantic ranking refinement (2026-09-22)
+
+The component-resolution amendment is refined by one additional boundary:
+**Zig-Zag's canonical catalog is the first identity-memory lookup for a
+component, not merely the final write destination.**
+
+Target V2 flow:
+
+```text
+source-backed Experience evidence
+        ↓
+component hints
+        ↓
+canonical GeoEntity lookup
+        ↓
+reuse sufficient known identity
+OR
+open precise external resolution deficit
+        ↓
+correlate provider observations + canonical knowledge
+        ↓
+component identity + geographic relation
+        ↓
+composite geographic validation
+        ↓
+persist/reuse canonical Experience
+        ↓
+Experience semantic embedding / versioned index
+        ↓
+preference composition + cosine similarity
+        ↓
+deterministic planner
+        ↓
+planner residual-capacity backfill
+  catalog/reservoir first
+  external acquisition only if still insufficient
+```
+
+### Catalog-first does not mean cache-trust
+
+A catalog candidate is reusable only when the canonical identity facts are
+sufficient, structurally compatible and not positively contradicted in the
+current context. Otherwise the resolver researches the missing fact through
+the applicable providers and reconciles the new observations with existing
+knowledge.
+
+External providers are therefore **deficit repair**, not mandatory
+reconfirmation of every already-known physical entity on every request.
+
+### Component resolution does not create standalone Experiences
+
+`ExperienceComponent` continues to reference `GeoEntity`.
+
+A component verified while resolving a composite may create/reuse that
+GeoEntity, but it does not create a standalone Experience as a side effect.
+Standalone Experiences require their own source-backed acquisition/discovery
+authority. The same GeoEntity can later be shared by the composite and any
+independently discovered standalone Experience.
+
+### Nearby/planner boundary
+
+Geographic proximity never proves composite membership. Planner backfill may
+schedule independent verified Experiences to use residual daily capacity, but
+it must not rewrite the canonical component set of a source-backed Experience.
+
+Catalog/ranked-reservoir reuse comes before external acquisition. Any acquired
+Experience must pass the normal evidence → resolution → validation →
+persistence path before replanning.
+
+### Embedding boundary
+
+Embeddings are generated for canonical Experiences and compared with the
+positive `PreferenceSpec.semanticQuery` through pgvector cosine similarity.
+They affect deterministic composition/reservoir order and planner soft
+relevance only after canonical eligibility.
+
+They never establish GeoEntity identity, Experience existence, component
+membership, geographic validity or facet coverage.
+
+Removing LLM-owned component `required` changes the canonical semantic
+document because the current document serializes `required/optional`.
+The cutover therefore requires an embedding document-version bump and reindex
+of stale VERIFIED Experiences.
+
