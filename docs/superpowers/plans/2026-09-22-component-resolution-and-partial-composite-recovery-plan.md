@@ -37,9 +37,9 @@ implements the stage. Do not mark a stage DONE without real validation.
 
 | Stage | Status | Starting HEAD | Completed commit | Validation | Key findings / next gate |
 | --- | --- | --- | --- | --- | --- |
-| 1. Characterization lock | DONE | `286c85930eeff59c97e8c02918c3620ab203a44c` | *(this commit — a commit cannot literally contain its own resulting SHA; see the pushed commit's hash on `feat/preference-first-selection`)* | jest (5 spec files, 187 tests) + tsc --noEmit + eslint (touched files) all green | 9 RW1-derived characterization cases frozen; `required` blast radius inventoried; several defects found that were previously undocumented (see below). Stage 2 unblocked. |
-| 2. Source-grounded contract cutover | READY | `a0b6c75b50bf37807ab6c2450f94c8e81c9fc9d2` | — | — | Stage 1 characterization passed; source-grounded contract cutover may begin. |
-| 3. Catalog-first identity resolution | BLOCKED | — | — | — | Starts only after Stage 2 source authority is live. |
+| 1. Characterization lock | DONE | `286c85930eeff59c97e8c02918c3620ab203a44c` | `a0b6c75b50bf37807ab6c2450f94c8e81c9fc9d2` | jest (5 spec files, 187 tests) + tsc --noEmit + eslint (touched files) all green | 9 RW1-derived characterization cases frozen; `required` blast radius inventoried; several defects found that were previously undocumented (see below). Stage 2 unblocked. |
+| 2. Source-grounded contract cutover | DONE | `a7df3b579282cee6b57fef8a914080d507e47fac` | *(this commit)* | jest (152/153 suites, 1746/1747 tests; 1 pre-existing arch failure) + tsc (clean) + eslint (clean) | LLM-owned `required` eliminated from discovery contract; deterministic source-support admission gate implemented; Santa Mónica blocked; semantic document bumped to v3; Stage 3 unblocked. |
+| 3. Catalog-first identity resolution | READY | *(this commit)* | — | — | Starts now that Stage 2 source authority is live. |
 | 4. Geographic + partial-composite cutover | BLOCKED | — | — | — | Starts after identity outcomes are explicit/stable. |
 | 5. Trace + RW1 verification | BLOCKED | — | — | — | Final milestone validation; thresholds only from observed evidence. |
 
@@ -257,6 +257,84 @@ stage is tests-only):**
   --stat` touches only five `*.spec.ts` files).
 
 **Stage 2 unblocked:** YES.
+
+### Stage 2 — Source-grounded contract cutover (2026-09-23)
+
+**Scope.** Discovery contract, extraction prompts, LLM schemas, candidate extraction normalizer, structured source synthesis, candidate corroboration, multi-component admission, and semantic document versioning.
+
+**Commands executed and real outcome:**
+
+```
+cd be && npx tsc --noEmit -p .   # Clean, 0 errors
+cd be && yarn lint               # Clean, 0 problems (after prettier-only fixes)
+cd be && yarn test               # Test Suites: 152 passed, 1 failed, 153 total. Tests: 1746 passed, 1 failed, 1747 total.
+```
+
+The single failing test is `preference-first-architecture.spec.ts:25`.
+- Offending production line: `experience-proposal-resolver.service.ts:507` (added in earlier commit `02fc6918` as a forensic output summary `destinationBoundary: boundary ? ... : undefined`).
+- This line already existed at starting HEAD `a7df3b5` and was untouched by Stage 2.
+- Production code and the architecture test were NOT modified or weakened merely to force 1747/1747; this is accurately recorded as a known pre-existing repository failure.
+
+**Integration-test safety guard:**
+Two integration spec files (`area-route-walk-geographic-validation.integration-spec.ts` and `experience-identity-dedupe.integration-spec.ts`) were updated and typecheck successfully, but were NOT executed at runtime because the configured `DATABASE_URL` points to the live Zig-Zag database and the harness refuses destructive `TRUNCATE` without an explicitly disposable test DB.
+`ALLOW_DESTRUCTIVE_TEST_DB` was NOT set against the current DB to prevent data loss. Integration tests require a dedicated disposable `zigzag_test` database; fixtures typecheck but runtime integration execution was intentionally skipped for database safety. This is a validation-environment limitation, not a Stage 2 code blocker.
+
+**Production contracts changed:**
+- `GeoEntityHint`: removed `required` boolean property. Added optional `supportSpan` string property.
+- `experience-discovery-extraction.prompt.ts`: removed `required` from extraction instructions and componentHints JSON Schema.
+- Provider adapters (`gemini-discovery.provider.ts`, `groq-discovery.provider.ts`, `ollama-discovery.provider.ts`): schemas synchronized to eliminate `required`.
+- Source support admission:
+  - Extracted textual componentHints must supply `supportSpan` that exists verbatim (case/whitespace-normalized) in cited `SourceObservation` text.
+  - Implemented `verifyTextualComponentSourceSupport` in `component-source-support.util.ts`.
+  - Normalizer in `experience-candidate-extraction.util.ts` deterministically drops unsupported components before any entity or geographic resolution.
+- `StructuredExperienceCandidateSynthesizerService`: componentHints are built 1:1 from source observation titles and treated as supported by construction; removed hardcoded `required: true`.
+- `acquisition-candidate-requirement.util.ts`: redefined `MULTI_COMPONENT_EXPERIENCE` admission to require at least two distinct source-supported non-area components.
+- `experience-semantic-document.util.ts`: removed `required`/`optional` tokens from canonical semantic document.
+- `embedding-index.interface.ts`: bumped `EXPERIENCE_EMBEDDING_DOCUMENT_VERSION` from 2 to 3.
+
+**Deleted obsolete paths:**
+- Removed `hint.required` filtering and assignment throughout `experience-candidate-extraction.util.ts`.
+- Removed `required` merging logic in `structured-candidate-corroboration.service.ts`.
+- Removed `required`/`optional` token emission in `experience-semantic-document.util.ts`.
+- Removed legacy contract assertions expecting `required` in `gemini-discovery.contract-spec.ts` and `groq-discovery.contract-spec.ts`.
+
+**Migration seams intentionally left for Stage 4:**
+- `geo-entity-hint-required-migration.util.ts`: introduced `isMigrationRequiredHint(_hint: GeoEntityHint): true` as a typed, explicit interim seam.
+- Used in:
+  - `ExperienceProposalResolverService` (candidate-level admission gate and geoEntityId dedup).
+  - `CompositeGeographicValidationService` (interim filter for geographic strategy evaluation).
+- These remaining `required` usages are NOT LLM-authored and do not represent canonical semantic truth. They remain strictly because Stage 4 owns geographic and planner semantic cutover, and are documented as temporary Stage-4 debt.
+
+**Planner finding:**
+Stage 1 proved that `spatial-footprint.util.ts` still has behavior tied to persisted `required`.
+Stage 2 does NOT silently claim this is resolved; this authority belongs to Stage 4.
+
+**Embedding version change:**
+- `EXPERIENCE_EMBEDDING_DOCUMENT_VERSION` bumped 2 -> 3.
+- `ExperienceEmbeddingIndexerService` tested and verified to select stale v2 rows for reindexing.
+- No GeoEntity embeddings or second vector store added.
+
+**Santa Mónica regression verification:**
+- Basílica de Santa Mónica (`ev-11`) is now deterministically rejected at candidate extraction time with `SPAN_NOT_FOUND_IN_CITED_EVIDENCE`.
+- No external provider acquisition (OSM, Nominatim, Places, Wikidata) is invoked.
+
+**Unexpected findings:** NONE.
+
+**Architecture deviation:** NONE. All canonical principles and provider isolation invariants preserved.
+
+**Engineering-principles gate:**
+- provider isolation: PASS (no provider-name branching added).
+- typed canonical facts: PASS (contracts use typed `GeoEntityHint` with `supportSpan`, no untyped bags).
+- source authority: PASS (deterministic verification against cited SourceObservation text).
+- single admission policy: PASS (`component-source-support.util.ts` and `acquisition-candidate-requirement.util.ts` are canonical).
+- no hidden metadata protocol: PASS (no untyped side-channels or magic flags).
+- no magic semantic defaults: PASS (explicit fail-closed seam `isMigrationRequiredHint` documented for Stage 4 removal).
+- no premature Stage-4 redesign: PASS (Stage 4 geographic/partial-composite redesign untouched).
+- embedding ranking-only authority: PASS (version bumped, ranking only).
+- deletion/cutover discipline: PASS (obsolete `required` paths cleaned up).
+
+**Stage 3 unblocked:** YES.
+
 
 For each completed stage also record, directly below the table:
 

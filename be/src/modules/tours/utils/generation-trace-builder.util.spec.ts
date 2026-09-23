@@ -69,7 +69,6 @@ describe('traceCandidateKey', () => {
         name: 'Stop B',
         role: 'waypoint' as const,
         expectedKind: 'PLACE' as const,
-        required: true,
         evidenceKeys: ['e'],
       },
       {
@@ -77,7 +76,6 @@ describe('traceCandidateKey', () => {
         name: 'Stop A',
         role: 'waypoint' as const,
         expectedKind: 'PLACE' as const,
-        required: true,
         evidenceKeys: ['e'],
       },
     ],
@@ -271,7 +269,6 @@ describe('buildEntityResolutionStep', () => {
                 name: 'Casa Histórica',
                 role: 'venue',
                 expectedKind: 'PLACE',
-                required: true,
                 evidenceKeys: [],
               },
             ],
@@ -315,7 +312,6 @@ describe('buildEntityResolutionStep', () => {
                 hintName: 'Casa Histórica',
                 role: 'venue',
                 expectedKind: 'PLACE',
-                required: true,
                 evidenceKeys: [],
                 attempts: [
                   {
@@ -370,7 +366,6 @@ describe('buildEntityResolutionStep', () => {
               hintName: 'Casa Histórica',
               role: 'venue',
               expectedKind: 'PLACE',
-              required: true,
               evidenceKeys: [],
               attempts: [
                 {
@@ -509,7 +504,6 @@ describe('buildGeographicValidationStep', () => {
           name: 'Stop Inside',
           role: 'waypoint',
           expectedKind: 'PLACE',
-          required: true,
           evidenceKeys: ['ev'],
         },
         {
@@ -517,7 +511,6 @@ describe('buildGeographicValidationStep', () => {
           name: 'Stop Outside',
           role: 'waypoint',
           expectedKind: 'PLACE',
-          required: true,
           evidenceKeys: ['ev'],
         },
       ],
@@ -627,7 +620,6 @@ describe('buildGeographicValidationStep', () => {
           name: `Stop ${suffix.toUpperCase()} 1`,
           role: 'waypoint' as const,
           expectedKind: 'PLACE' as const,
-          required: true,
           evidenceKeys: [`web:${suffix}`],
         },
         {
@@ -635,7 +627,6 @@ describe('buildGeographicValidationStep', () => {
           name: `Stop ${suffix.toUpperCase()} 2`,
           role: 'waypoint' as const,
           expectedKind: 'PLACE' as const,
-          required: true,
           evidenceKeys: [`web:${suffix}`],
         },
       ],
@@ -737,7 +728,6 @@ describe('buildGeographicValidationStep native audit projection', () => {
           name: 'Venue 1',
           role: 'venue' as const,
           expectedKind: 'PLACE' as const,
-          required: true,
           evidenceKeys: ['ev'],
         },
         {
@@ -745,7 +735,6 @@ describe('buildGeographicValidationStep native audit projection', () => {
           name: 'Venue 2',
           role: 'venue' as const,
           expectedKind: 'PLACE' as const,
-          required: true,
           evidenceKeys: ['ev'],
         },
       ],
@@ -891,7 +880,6 @@ describe('GenerationTrace v4 geometry projection', () => {
           name: 'Stop A',
           role: 'waypoint' as const,
           expectedKind: 'PLACE' as const,
-          required: true,
           evidenceKeys: ['web:walk'],
         },
       ],
@@ -1142,7 +1130,6 @@ describe('buildAcquisitionStep', () => {
           name: 'Stop A',
           role: 'waypoint',
           expectedKind: 'PLACE',
-          required: true,
           evidenceKeys: ['web:a'],
         },
         {
@@ -1150,7 +1137,6 @@ describe('buildAcquisitionStep', () => {
           name: 'Stop B',
           role: 'waypoint',
           expectedKind: 'PLACE',
-          required: true,
           evidenceKeys: ['web:b'],
         },
       ],

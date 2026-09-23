@@ -535,7 +535,6 @@ export class StructuredCandidateCorroborationService {
         }
 
         if (role) {
-          const required = allHints.some((h) => h.required);
           const hintEvidenceKeys = [
             ...new Set(allHints.flatMap((h) => h.evidenceKeys)),
           ].sort();
@@ -546,7 +545,6 @@ export class StructuredCandidateCorroborationService {
               name: chosenName,
               role,
               expectedKind,
-              required,
               evidenceKeys: hintEvidenceKeys,
             },
           ];

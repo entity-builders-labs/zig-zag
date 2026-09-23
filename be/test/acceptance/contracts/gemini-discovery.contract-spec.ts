@@ -1,7 +1,12 @@
 import { extractExperienceCandidates } from 'src/modules/tours/utils/experience-candidate-extraction.util';
 
 describe('Provider Contract: Gemini ExperienceCandidate envelope', () => {
-  const evidence = new Set(['ev-1']);
+  const evidence = [
+    {
+      key: 'ev-1',
+      text: 'El Barrio San Telmo conserva su arquitectura colonial.',
+    },
+  ];
   const valid = {
     candidates: [
       {
@@ -19,8 +24,9 @@ describe('Provider Contract: Gemini ExperienceCandidate envelope', () => {
             name: 'Barrio San Telmo',
             role: 'area',
             expectedKind: 'AREA',
-            required: true,
             evidenceKeys: ['ev-1'],
+            supportSpan:
+              'El Barrio San Telmo conserva su arquitectura colonial',
           },
         ],
       },

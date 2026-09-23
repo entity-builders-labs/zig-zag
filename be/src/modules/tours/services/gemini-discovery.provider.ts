@@ -93,7 +93,7 @@ export class GeminiDiscoveryProvider {
     }
     const extracted = extractExperienceCandidates(
       parsed,
-      new Set(evidence.map((item) => item.key)),
+      evidence.map((item) => ({ key: item.key, text: item.snippet })),
       request.maxCandidates,
     );
     return {

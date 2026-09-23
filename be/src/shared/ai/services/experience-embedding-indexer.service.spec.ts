@@ -1,4 +1,5 @@
 import { ExperienceEmbeddingIndexerService } from './experience-embedding-indexer.service';
+import { EXPERIENCE_EMBEDDING_DOCUMENT_VERSION } from '../interfaces/embedding-index.interface';
 
 function experience(id: string, overrides: Record<string, unknown> = {}) {
   return {
@@ -12,7 +13,6 @@ function experience(id: string, overrides: Record<string, unknown> = {}) {
       {
         id: `component-${id}`,
         role: 'venue',
-        required: true,
         geoEntity: {
           name: `Venue ${id}`,
           kind: 'PLACE',
@@ -38,7 +38,7 @@ function identity() {
     provider: 'ollama',
     model: 'nomic',
     dimensions: 2,
-    documentVersion: 2,
+    documentVersion: EXPERIENCE_EMBEDDING_DOCUMENT_VERSION,
   };
 }
 
@@ -166,5 +166,48 @@ describe('ExperienceEmbeddingIndexerService', () => {
     expect(result.status).toBe('unavailable');
     expect(result.reason).toMatch(/expected 2/i);
     expect(prisma.$executeRaw).not.toHaveBeenCalled();
+  });
+
+  /**
+   * Stage 2 cutover (component-resolution-and-partial-composite-recovery-
+   * plan.md, embedding migration): removing the `required`/`optional`
+   * component token bumped EXPERIENCE_EMBEDDING_DOCUMENT_VERSION. A stale
+   * VERIFIED row indexed under the previous document version must be
+   * selected for reindex through this same existing version-aware query --
+   * no new indexing path was introduced.
+   */
+  it('selects stale VERIFIED rows carrying a previous embeddingDocumentVersion for reindex', async () => {
+    const prisma: any = {
+      experience: {
+        findMany: jest.fn().mockResolvedValue([experience('exp-stale-v2')]),
+      },
+      $executeRaw: jest.fn(),
+    };
+    const embeddings: any = {
+      getIndexIdentity: identity,
+      getEmbeddings: () => ({
+        embedDocuments: jest.fn().mockResolvedValue([[0.1, 0.2]]),
+      }),
+    };
+
+    const result = await new ExperienceEmbeddingIndexerService(
+      prisma,
+      embeddings,
+    ).index();
+
+    const whereClause = prisma.experience.findMany.mock.calls[0][0].where;
+    expect(whereClause.status).toBe('VERIFIED');
+    expect(whereClause.OR).toEqual(
+      expect.arrayContaining([
+        { embeddingDocumentVersion: null },
+        {
+          embeddingDocumentVersion: {
+            not: EXPERIENCE_EMBEDDING_DOCUMENT_VERSION,
+          },
+        },
+      ]),
+    );
+    expect(result.status).toBe('indexed');
+    expect(result.indexedIds).toEqual(['exp-stale-v2']);
   });
 });

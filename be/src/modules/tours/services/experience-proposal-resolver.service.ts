@@ -24,7 +24,6 @@ import {
   ResolvedGeoEntity,
   ResolutionAttempt,
   ResolutionStrategy,
-  VerificationDecision,
   VerificationResult,
   CandidateResolutionAudit,
   ResolutionAttemptAudit,
@@ -43,6 +42,7 @@ import {
   matchOsmCandidateByName,
   normalizeGeoName,
 } from '../utils/nominatim-match.util';
+import { isMigrationRequiredHint } from '../utils/geo-entity-hint-required-migration.util';
 import { GeoEntityHint } from '../interfaces/experience-discovery.interface';
 import { SourceObservation } from '../interfaces/experience-acquisition.interface';
 import { computeQualityScore } from '../utils/quality-score.util';
@@ -584,7 +584,8 @@ export class ExperienceProposalResolverService
           hintName: hint.name,
           role: hint.role,
           expectedKind: hint.expectedKind,
-          required: hint.required,
+          // Stage-2 migration seam; see geo-entity-hint-required-migration.util.ts.
+          required: isMigrationRequiredHint(hint),
           evidenceKeys: [...hint.evidenceKeys],
           addressHint: hint.addressHint,
           attempts,
@@ -963,8 +964,9 @@ export class ExperienceProposalResolverService
       finishAudit(entities[entities.length - 1]);
     }
 
-    const required = (candidate?.componentHints ?? []).filter(
-      (hint: any) => hint.required,
+    // Stage-2 migration seam; see geo-entity-hint-required-migration.util.ts.
+    const required = (candidate?.componentHints ?? []).filter((hint: any) =>
+      isMigrationRequiredHint(hint),
     );
     const unresolvedRequired = required.some(
       (hint: any) =>
@@ -1740,7 +1742,8 @@ export class ExperienceProposalResolverService
     for (const entity of entities) {
       if (!entity.geoEntityId) continue;
       const hint = componentHints.find((item) => item.key === entity.hintKey);
-      const required = hint?.required ?? true;
+      // Stage-2 migration seam; see geo-entity-hint-required-migration.util.ts.
+      const required = hint ? isMigrationRequiredHint(hint) : true;
       requiredByGeoEntityId.set(
         entity.geoEntityId,
         (requiredByGeoEntityId.get(entity.geoEntityId) ?? false) || required,

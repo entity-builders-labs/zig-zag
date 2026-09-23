@@ -80,7 +80,6 @@ export class ExperienceEmbeddingIndexerService {
         })),
         components: experience.components.map((component) => ({
           role: component.role,
-          required: component.required,
           geoEntity: {
             name: component.geoEntity.name,
             kind: component.geoEntity.kind,

@@ -109,7 +109,7 @@ describe('OllamaDiscoveryProvider', () => {
     chatMock.mockResolvedValue({
       message: {
         content:
-          '<think>the user wants history</think>{"candidates":[{"name":"Paseo","themes":["history"],"traits":[],"intents":["walk"],"componentHints":[{"key":"a","name":"Plaza de Mayo","role":"venue","expectedKind":"PLACE","required":true,"evidenceKeys":["ev-1"]}],"evidenceKeys":["ev-1"],"shortReason":"x"}]}',
+          '<think>the user wants history</think>{"candidates":[{"name":"Paseo","themes":["history"],"traits":[],"intents":["walk"],"componentHints":[{"key":"a","name":"Plaza de Mayo","role":"venue","expectedKind":"PLACE","evidenceKeys":["ev-1"],"supportSpan":"Historic barrio"}],"evidenceKeys":["ev-1"],"shortReason":"x"}]}',
       },
     });
     const provider = await makeProvider();
@@ -135,8 +135,8 @@ describe('OllamaDiscoveryProvider', () => {
                   name: 'Plaza de Mayo',
                   role: 'venue',
                   expectedKind: 'PLACE',
-                  required: true,
                   evidenceKeys: ['ev-1'],
+                  supportSpan: 'Historic barrio',
                 },
               ],
               evidenceKeys: ['ev-1'],

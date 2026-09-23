@@ -52,7 +52,6 @@ const candidateAt = (index: number): ExperienceCandidate => ({
       name: `Venue ${pad(index)}`,
       role: 'venue',
       expectedKind: 'PLACE',
-      required: true,
       evidenceKeys: ['ev-1'],
     },
   ],

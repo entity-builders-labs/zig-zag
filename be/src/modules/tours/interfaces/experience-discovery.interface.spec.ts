@@ -15,7 +15,6 @@ describe('Experience discovery V2 contracts', () => {
           name: 'MALBA',
           role: 'venue',
           expectedKind: 'PLACE',
-          required: true,
           evidenceKeys: ['e1'],
         },
       ],

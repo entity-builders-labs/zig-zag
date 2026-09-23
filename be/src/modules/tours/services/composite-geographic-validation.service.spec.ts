@@ -35,7 +35,6 @@ describe('CompositeGeographicValidationService', () => {
           name: 'Museum',
           role: 'venue',
           expectedKind: 'PLACE',
-          required: true,
           evidenceKeys: ['e'],
         },
       ],
@@ -83,7 +82,6 @@ describe('CompositeGeographicValidationService', () => {
           name: 'Costanera',
           role: 'route',
           expectedKind: 'ROUTE',
-          required: true,
           evidenceKeys: ['e'],
         },
       ],
@@ -139,7 +137,6 @@ describe('CompositeGeographicValidationService', () => {
           name: 'Faraway',
           role: 'route',
           expectedKind: 'ROUTE',
-          required: true,
           evidenceKeys: ['e'],
         },
       ],
@@ -193,7 +190,6 @@ describe('CompositeGeographicValidationService', () => {
           name: 'San Telmo',
           role: 'area',
           expectedKind: 'AREA',
-          required: true,
           evidenceKeys: ['e'],
         },
         {
@@ -201,7 +197,6 @@ describe('CompositeGeographicValidationService', () => {
           name: 'Plaza Dorrego',
           role: 'waypoint',
           expectedKind: 'PLACE',
-          required: true,
           evidenceKeys: ['e'],
         },
       ],
@@ -279,7 +274,6 @@ describe('CompositeGeographicValidationService', () => {
           name: 'San Telmo',
           role: 'area',
           expectedKind: 'AREA',
-          required: true,
           evidenceKeys: ['e'],
         },
       ],
@@ -337,7 +331,6 @@ describe('CompositeGeographicValidationService', () => {
           name: 'Plaza A',
           role: 'waypoint',
           expectedKind: 'PLACE',
-          required: true,
           evidenceKeys: ['e1'],
         },
         {
@@ -345,7 +338,6 @@ describe('CompositeGeographicValidationService', () => {
           name: 'Museum B',
           role: 'venue',
           expectedKind: 'PLACE',
-          required: true,
           evidenceKeys: ['e2'],
         },
       ],
@@ -408,7 +400,6 @@ describe('CompositeGeographicValidationService', () => {
           name: 'Plaza A',
           role: 'waypoint',
           expectedKind: 'PLACE',
-          required: true,
           evidenceKeys: ['e1'],
         },
         {
@@ -416,7 +407,6 @@ describe('CompositeGeographicValidationService', () => {
           name: 'Museum B',
           role: 'venue',
           expectedKind: 'PLACE',
-          required: true,
           evidenceKeys: ['e2'],
         },
       ],
@@ -477,7 +467,6 @@ describe('CompositeGeographicValidationService', () => {
           name: 'Place A',
           role: 'waypoint',
           expectedKind: 'PLACE',
-          required: true,
           evidenceKeys: ['e1'],
         },
         {
@@ -485,7 +474,6 @@ describe('CompositeGeographicValidationService', () => {
           name: 'Place B',
           role: 'venue',
           expectedKind: 'PLACE',
-          required: true,
           evidenceKeys: ['e2'],
         },
       ],
@@ -563,7 +551,6 @@ describe('CompositeGeographicValidationService', () => {
           name: 'Venue',
           role: 'venue',
           expectedKind: 'PLACE',
-          required: true,
           evidenceKeys: ['e'],
         },
       ],
@@ -644,7 +631,6 @@ describe('CompositeGeographicValidationService', () => {
           name: 'San Telmo',
           role: 'area',
           expectedKind: 'AREA',
-          required: true,
           evidenceKeys: ['e'],
         },
         {
@@ -652,7 +638,6 @@ describe('CompositeGeographicValidationService', () => {
           name: 'MALBA',
           role: 'waypoint',
           expectedKind: 'PLACE',
-          required: true,
           evidenceKeys: ['e'],
         },
       ]);
@@ -692,7 +677,6 @@ describe('CompositeGeographicValidationService', () => {
           name: 'San Telmo',
           role: 'area',
           expectedKind: 'AREA',
-          required: true,
           evidenceKeys: ['e'],
         },
         {
@@ -700,7 +684,6 @@ describe('CompositeGeographicValidationService', () => {
           name: 'Mercado de San Telmo',
           role: 'waypoint',
           expectedKind: 'PLACE',
-          required: true,
           evidenceKeys: ['e'],
         },
       ]);
@@ -752,7 +735,6 @@ describe('CompositeGeographicValidationService', () => {
           name: 'San Telmo',
           role: 'area',
           expectedKind: 'AREA',
-          required: true,
           evidenceKeys: ['e'],
         },
         {
@@ -760,7 +742,6 @@ describe('CompositeGeographicValidationService', () => {
           name: 'La Boca',
           role: 'area',
           expectedKind: 'AREA',
-          required: true,
           evidenceKeys: ['e'],
         },
         {
@@ -768,7 +749,6 @@ describe('CompositeGeographicValidationService', () => {
           name: 'Plaza Dorrego',
           role: 'waypoint',
           expectedKind: 'PLACE',
-          required: true,
           evidenceKeys: ['e'],
         },
         {
@@ -776,7 +756,6 @@ describe('CompositeGeographicValidationService', () => {
           name: 'Caminito',
           role: 'waypoint',
           expectedKind: 'PLACE',
-          required: true,
           evidenceKeys: ['e'],
         },
       ]);
@@ -828,14 +807,19 @@ describe('CompositeGeographicValidationService', () => {
       expect(result.strategy).toBe('component_defined');
     });
 
-    it('does not trigger the canonical-area shortcut for an optional (non-required) AREA hint', () => {
+    // Stage 2 migration seam (geo-entity-hint-required-migration.util.ts):
+    // `GeoEntityHint.required` is no longer LLM-authored -- there is no more
+    // "optional (non-required) AREA hint" to construct. A single AREA hint
+    // alongside waypoint hints is now unconditionally treated as required,
+    // so the canonical-area shortcut DOES trigger here (Stage 4 owns the
+    // real per-component-outcome redesign of this strategy selection).
+    it('triggers the canonical-area shortcut for a single AREA hint (no more optional/required distinction pre-Stage-4)', () => {
       const candidate = areaCandidate([
         {
           key: 'a',
           name: 'San Telmo',
           role: 'area',
           expectedKind: 'AREA',
-          required: false,
           evidenceKeys: ['e'],
         },
         {
@@ -843,7 +827,6 @@ describe('CompositeGeographicValidationService', () => {
           name: 'Plaza Dorrego',
           role: 'waypoint',
           expectedKind: 'PLACE',
-          required: true,
           evidenceKeys: ['e'],
         },
         {
@@ -851,7 +834,6 @@ describe('CompositeGeographicValidationService', () => {
           name: 'Parque Lezama',
           role: 'waypoint',
           expectedKind: 'PLACE',
-          required: true,
           evidenceKeys: ['e'],
         },
       ]);
@@ -894,7 +876,7 @@ describe('CompositeGeographicValidationService', () => {
         },
         boundary,
       );
-      expect(result.strategy).not.toBe('canonical_area');
+      expect(result.strategy).toBe('canonical_area');
     });
 
     function routeCandidate(
@@ -939,7 +921,6 @@ describe('CompositeGeographicValidationService', () => {
           name: 'Caminito',
           role: 'route',
           expectedKind: 'ROUTE',
-          required: true,
           evidenceKeys: ['e'],
         },
         {
@@ -947,7 +928,6 @@ describe('CompositeGeographicValidationService', () => {
           name: 'Far waypoint',
           role: 'waypoint',
           expectedKind: 'PLACE',
-          required: true,
           evidenceKeys: ['e'],
         },
       ]);
@@ -987,7 +967,6 @@ describe('CompositeGeographicValidationService', () => {
           name: 'Caminito',
           role: 'route',
           expectedKind: 'ROUTE',
-          required: true,
           evidenceKeys: ['e'],
         },
         {
@@ -995,7 +974,6 @@ describe('CompositeGeographicValidationService', () => {
           name: 'Missing waypoint',
           role: 'waypoint',
           expectedKind: 'PLACE',
-          required: true,
           evidenceKeys: ['e'],
         },
       ]);
@@ -1021,7 +999,6 @@ describe('CompositeGeographicValidationService', () => {
           name: 'Caminito',
           role: 'route',
           expectedKind: 'ROUTE',
-          required: true,
           evidenceKeys: ['e'],
         },
         {
@@ -1029,7 +1006,6 @@ describe('CompositeGeographicValidationService', () => {
           name: 'Fundación Proa',
           role: 'waypoint',
           expectedKind: 'PLACE',
-          required: true,
           evidenceKeys: ['e'],
         },
       ]);
@@ -1125,7 +1101,6 @@ describe('CompositeGeographicValidationService', () => {
             name: 'Winery A',
             role: 'venue',
             expectedKind: 'PLACE',
-            required: true,
             evidenceKeys: ['e'],
           },
           {
@@ -1133,7 +1108,6 @@ describe('CompositeGeographicValidationService', () => {
             name: 'Winery B',
             role: 'venue',
             expectedKind: 'PLACE',
-            required: true,
             evidenceKeys: ['e'],
           },
         ],
@@ -1187,7 +1161,6 @@ describe('CompositeGeographicValidationService', () => {
             name: 'Winery A',
             role: 'venue',
             expectedKind: 'PLACE',
-            required: true,
             evidenceKeys: ['e'],
           },
           {
@@ -1195,7 +1168,6 @@ describe('CompositeGeographicValidationService', () => {
             name: 'Winery B',
             role: 'venue',
             expectedKind: 'PLACE',
-            required: true,
             evidenceKeys: ['e'],
           },
         ],
@@ -1230,7 +1202,6 @@ describe('CompositeGeographicValidationService', () => {
             name: 'Winery A',
             role: 'venue',
             expectedKind: 'PLACE',
-            required: true,
             evidenceKeys: ['e'],
           },
           {
@@ -1238,7 +1209,6 @@ describe('CompositeGeographicValidationService', () => {
             name: 'Far winery',
             role: 'venue',
             expectedKind: 'PLACE',
-            required: true,
             evidenceKeys: ['e'],
           },
         ],
@@ -1302,7 +1272,6 @@ describe('CompositeGeographicValidationService', () => {
             name: 'Plaza Dorrego',
             role: 'waypoint',
             expectedKind: 'PLACE',
-            required: true,
             evidenceKeys: ['e'],
           },
           {
@@ -1310,7 +1279,6 @@ describe('CompositeGeographicValidationService', () => {
             name: 'Caminito',
             role: 'waypoint',
             expectedKind: 'PLACE',
-            required: true,
             evidenceKeys: ['e'],
           },
         ],
@@ -1398,7 +1366,6 @@ describe('CompositeGeographicValidationService', () => {
           name: 'Plaza Dorrego',
           role: 'venue',
           expectedKind: 'PLACE',
-          required: true,
           evidenceKeys: ['e'],
         },
         {
@@ -1406,7 +1373,6 @@ describe('CompositeGeographicValidationService', () => {
           name: 'Mercado de San Telmo',
           role: 'venue',
           expectedKind: 'PLACE',
-          required: true,
           evidenceKeys: ['e'],
         },
         {
@@ -1414,7 +1380,6 @@ describe('CompositeGeographicValidationService', () => {
           name: 'MALBA',
           role: 'venue',
           expectedKind: 'PLACE',
-          required: true,
           evidenceKeys: ['e'],
         },
       ]);
@@ -1498,7 +1463,6 @@ describe('CompositeGeographicValidationService', () => {
           name: 'Plaza Dorrego',
           role: 'venue',
           expectedKind: 'PLACE',
-          required: true,
           evidenceKeys: ['e'],
         },
         {
@@ -1506,7 +1470,6 @@ describe('CompositeGeographicValidationService', () => {
           name: 'Mercado de San Telmo',
           role: 'venue',
           expectedKind: 'PLACE',
-          required: true,
           evidenceKeys: ['e'],
         },
         {
@@ -1514,7 +1477,6 @@ describe('CompositeGeographicValidationService', () => {
           name: 'Pasaje Defensa',
           role: 'venue',
           expectedKind: 'PLACE',
-          required: true,
           evidenceKeys: ['e'],
         },
       ]);
@@ -1591,7 +1553,6 @@ describe('CompositeGeographicValidationService', () => {
           name: 'Plaza Dorrego',
           role: 'venue',
           expectedKind: 'PLACE',
-          required: true,
           evidenceKeys: ['e'],
         },
       ]);
@@ -1618,7 +1579,6 @@ describe('CompositeGeographicValidationService', () => {
           name: 'Plaza Dorrego',
           role: 'venue',
           expectedKind: 'PLACE',
-          required: true,
           evidenceKeys: ['e'],
         },
       ]);
@@ -1672,7 +1632,6 @@ describe('CompositeGeographicValidationService', () => {
           name: 'Some other stop',
           role: 'venue',
           expectedKind: 'PLACE',
-          required: true,
           evidenceKeys: ['e'],
         },
       ]);
@@ -1717,7 +1676,6 @@ describe('CompositeGeographicValidationService', () => {
           name: 'Fundación Proa',
           role: 'venue',
           expectedKind: 'PLACE',
-          required: true,
           evidenceKeys: ['e'],
         },
       ]);
@@ -1762,7 +1720,6 @@ describe('CompositeGeographicValidationService', () => {
             name: 'Caminito',
             role: 'route',
             expectedKind: 'ROUTE',
-            required: true,
             evidenceKeys: ['e'],
           },
           {
@@ -1770,7 +1727,6 @@ describe('CompositeGeographicValidationService', () => {
             name: 'Fundación Proa',
             role: 'venue',
             expectedKind: 'PLACE',
-            required: true,
             evidenceKeys: ['e'],
           },
         ],
@@ -1824,17 +1780,18 @@ describe('CompositeGeographicValidationService', () => {
       expect(result.accepted).toBe(true);
     });
 
-    it('fails closed on a malformed AREA scope geometry even when there are ZERO required components to run the per-entity check on (review fix)', () => {
-      // Only an OPTIONAL hint -- requiredEntities is empty, so the old
-      // code's per-entity `.find()` would vacuously return undefined
-      // (pass) regardless of how malformed the scope geometry is.
+    it('fails closed on a malformed AREA scope geometry regardless of required-entity count (review fix; Stage 2: every hint is now required, so this exercises the count=1 case, not count=0)', () => {
+      // The scope-geometry-usability check runs unconditionally, BEFORE any
+      // per-entity distance check that would depend on `requiredEntities`
+      // -- so it must fail closed here whether the required-entity count is
+      // 0 (pre-Stage-2, with an LLM-authored optional hint) or 1 (Stage 2:
+      // no more optional hints, see geo-entity-hint-required-migration.util.ts).
       const candidate = unscopedCandidate([
         {
           key: 'p1',
           name: 'Plaza Dorrego',
           role: 'venue',
           expectedKind: 'PLACE',
-          required: false,
           evidenceKeys: ['e'],
         },
       ]);
@@ -1882,7 +1839,6 @@ describe('CompositeGeographicValidationService', () => {
             name: 'Caminito',
             role: 'route',
             expectedKind: 'ROUTE',
-            required: true,
             evidenceKeys: ['e'],
           },
         ],
@@ -1932,7 +1888,6 @@ describe('CompositeGeographicValidationService', () => {
             name: 'Caminito',
             role: 'route',
             expectedKind: 'ROUTE',
-            required: true,
             evidenceKeys: ['e'],
           },
         ],
@@ -2028,7 +1983,6 @@ describe('Regression tests for forensic geographic trace evidence', () => {
           name: 'Inside Place',
           role: 'waypoint',
           expectedKind: 'PLACE',
-          required: true,
           evidenceKeys: ['e1'],
         },
         {
@@ -2036,7 +1990,6 @@ describe('Regression tests for forensic geographic trace evidence', () => {
           name: 'Outside Place',
           role: 'venue',
           expectedKind: 'PLACE',
-          required: true,
           evidenceKeys: ['e2'],
         },
       ],
@@ -2116,7 +2069,6 @@ describe('Regression tests for forensic geographic trace evidence', () => {
           name: 'Outside 1',
           role: 'waypoint',
           expectedKind: 'PLACE',
-          required: true,
           evidenceKeys: ['e1'],
         },
         {
@@ -2124,7 +2076,6 @@ describe('Regression tests for forensic geographic trace evidence', () => {
           name: 'Outside 2',
           role: 'venue',
           expectedKind: 'PLACE',
-          required: true,
           evidenceKeys: ['e2'],
         },
         {
@@ -2132,7 +2083,6 @@ describe('Regression tests for forensic geographic trace evidence', () => {
           name: 'Outside 3',
           role: 'venue',
           expectedKind: 'PLACE',
-          required: true,
           evidenceKeys: ['e3'],
         },
       ],
@@ -2219,7 +2169,6 @@ describe('Regression tests for forensic geographic trace evidence', () => {
           name: 'San Telmo',
           role: 'area',
           expectedKind: 'AREA',
-          required: true,
           evidenceKeys: ['e'],
         },
         {
@@ -2227,7 +2176,6 @@ describe('Regression tests for forensic geographic trace evidence', () => {
           name: 'MALBA',
           role: 'waypoint',
           expectedKind: 'PLACE',
-          required: true,
           evidenceKeys: ['e'],
         },
       ],
@@ -2293,7 +2241,6 @@ describe('Regression tests for forensic geographic trace evidence', () => {
           name: 'Far Place',
           role: 'venue',
           expectedKind: 'PLACE',
-          required: true,
           evidenceKeys: ['e'],
         },
       ],
@@ -2362,7 +2309,6 @@ describe('Regression tests for forensic geographic trace evidence', () => {
           name: 'Place',
           role: 'venue',
           expectedKind: 'PLACE',
-          required: true,
           evidenceKeys: ['e'],
         },
       ],
@@ -2443,7 +2389,6 @@ describe('Regression tests for forensic geographic trace evidence', () => {
           name: 'Far Stop',
           role: 'venue',
           expectedKind: 'PLACE',
-          required: true,
           evidenceKeys: ['e'],
         },
       ],
@@ -2508,7 +2453,6 @@ describe('Regression tests for forensic geographic trace evidence', () => {
           name: 'Venue',
           role: 'venue' as const,
           expectedKind: 'PLACE' as const,
-          required: true,
           evidenceKeys: ['e'],
         },
       ],
@@ -2572,7 +2516,6 @@ describe('Regression tests for forensic geographic trace evidence', () => {
           name: 'Plaza A',
           role: 'waypoint',
           expectedKind: 'PLACE',
-          required: true,
           evidenceKeys: ['e1'],
         },
         {
@@ -2580,7 +2523,6 @@ describe('Regression tests for forensic geographic trace evidence', () => {
           name: 'Museum B',
           role: 'venue',
           expectedKind: 'PLACE',
-          required: true,
           evidenceKeys: ['e2'],
         },
       ],

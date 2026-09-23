@@ -19,13 +19,19 @@ export class StructuredExperienceCandidateSynthesizerService {
       // area -> area/AREA
       // route -> route/ROUTE
       // tourism_activity, operator, editorial -> componentHints: []
+      //
+      // No source-support gate runs here (component-source-support.util.ts):
+      // the componentHint's `name` is `obs.title` itself and its only cited
+      // evidence key is `obs.evidenceKey` -- the cited SourceObservation IS
+      // the component by construction, which is exactly "structured source
+      // support" (amendment §4). There is no LLM-authored `required` either;
+      // see GeoEntityHint's Stage 2 doc comment.
       if (obs.evidenceType === 'place') {
         componentHints.push({
           key: `${obs.evidenceKey}:component`,
           name: obs.title,
           role: 'venue',
           expectedKind: 'PLACE',
-          required: true,
           evidenceKeys: [obs.evidenceKey],
         });
       } else if (obs.evidenceType === 'area') {
@@ -34,7 +40,6 @@ export class StructuredExperienceCandidateSynthesizerService {
           name: obs.title,
           role: 'area',
           expectedKind: 'AREA',
-          required: true,
           evidenceKeys: [obs.evidenceKey],
         });
       } else if (obs.evidenceType === 'route') {
@@ -43,7 +48,6 @@ export class StructuredExperienceCandidateSynthesizerService {
           name: obs.title,
           role: 'route',
           expectedKind: 'ROUTE',
-          required: true,
           evidenceKeys: [obs.evidenceKey],
         });
       }

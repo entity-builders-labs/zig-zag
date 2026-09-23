@@ -339,7 +339,6 @@ describe('tour-generation integration · area/route walk geographic validation (
           name: 'Plaza Dorrego',
           role: 'venue',
           expectedKind: 'PLACE',
-          required: true,
           evidenceKeys: ['ev-1'],
         },
         {
@@ -347,7 +346,6 @@ describe('tour-generation integration · area/route walk geographic validation (
           name: 'MALBA',
           role: 'venue',
           expectedKind: 'PLACE',
-          required: true,
           evidenceKeys: ['ev-1'],
         },
       ]);
@@ -417,7 +415,6 @@ describe('tour-generation integration · area/route walk geographic validation (
           name: 'Plaza Dorrego',
           role: 'venue',
           expectedKind: 'PLACE',
-          required: true,
           evidenceKeys: ['ev-1'],
         },
         {
@@ -425,7 +422,6 @@ describe('tour-generation integration · area/route walk geographic validation (
           name: 'Mercado de San Telmo',
           role: 'venue',
           expectedKind: 'PLACE',
-          required: true,
           evidenceKeys: ['ev-1'],
         },
       ]);
@@ -459,7 +455,7 @@ describe('tour-generation integration · area/route walk geographic validation (
   });
 
   describe('required/optional persistence via the real resolver + catalog (I, I2)', () => {
-    it('I: persists required:[true,true,false] for 2 required + 1 optional hint, all inside a real AREA', async () => {
+    it('I: persists required:[true,true,true] for 3 hints all inside a real AREA (Stage 2: no more LLM-authored optional hint)', async () => {
       const osmPlaces = {
         lookupStreetsWithin: jest
           .fn()
@@ -513,7 +509,6 @@ describe('tour-generation integration · area/route walk geographic validation (
             name: 'Plaza Dorrego',
             role: 'venue',
             expectedKind: 'PLACE',
-            required: true,
             evidenceKeys: ['ev-1'],
           },
           {
@@ -521,7 +516,6 @@ describe('tour-generation integration · area/route walk geographic validation (
             name: 'Mercado de San Telmo',
             role: 'venue',
             expectedKind: 'PLACE',
-            required: true,
             evidenceKeys: ['ev-1'],
           },
           {
@@ -529,7 +523,6 @@ describe('tour-generation integration · area/route walk geographic validation (
             name: 'Rooftop Viewpoint',
             role: 'venue',
             expectedKind: 'PLACE',
-            required: false,
             evidenceKeys: ['ev-1'],
           },
         ],
@@ -552,7 +545,12 @@ describe('tour-generation integration · area/route walk geographic validation (
         include: { components: true },
       });
       const requiredFlags = persisted!.components.map((c) => c.required).sort();
-      expect(requiredFlags).toEqual([false, true, true]);
+      // Stage 2 migration seam (geo-entity-hint-required-migration.util.ts):
+      // `GeoEntityHint.required` is no longer LLM-authored, so every
+      // component hint is treated as required until Stage 4 redesigns
+      // per-component admission around real resolution outcomes. There is
+      // no more "optional hint" input to construct here.
+      expect(requiredFlags).toEqual([true, true, true]);
     });
   });
 
@@ -684,7 +682,6 @@ describe('tour-generation integration · area/route walk geographic validation (
             name: 'San Telmo',
             role: 'area',
             expectedKind: 'AREA',
-            required: true,
             evidenceKeys: ['ev-1'],
           },
           {
@@ -692,7 +689,6 @@ describe('tour-generation integration · area/route walk geographic validation (
             name: 'La Boca',
             role: 'area',
             expectedKind: 'AREA',
-            required: true,
             evidenceKeys: ['ev-1'],
           },
           {
@@ -700,7 +696,6 @@ describe('tour-generation integration · area/route walk geographic validation (
             name: 'Plaza Dorrego',
             role: 'waypoint',
             expectedKind: 'PLACE',
-            required: true,
             evidenceKeys: ['ev-1'],
           },
           {
@@ -708,7 +703,6 @@ describe('tour-generation integration · area/route walk geographic validation (
             name: 'Caminito',
             role: 'waypoint',
             expectedKind: 'PLACE',
-            required: true,
             evidenceKeys: ['ev-1'],
           },
         ],
@@ -776,7 +770,6 @@ describe('tour-generation integration · area/route walk geographic validation (
             name: 'Caminito',
             role: 'route',
             expectedKind: 'ROUTE',
-            required: true,
             evidenceKeys: ['ev-1'],
           },
           {
@@ -784,7 +777,6 @@ describe('tour-generation integration · area/route walk geographic validation (
             name: 'Fundación Proa',
             role: 'waypoint',
             expectedKind: 'PLACE',
-            required: true,
             evidenceKeys: ['ev-1'],
           },
         ],
@@ -901,7 +893,6 @@ describe('tour-generation integration · area/route walk geographic validation (
             name: 'Winery A',
             role: 'venue',
             expectedKind: 'PLACE',
-            required: true,
             evidenceKeys: ['ev-1'],
           },
           {
@@ -909,7 +900,6 @@ describe('tour-generation integration · area/route walk geographic validation (
             name: 'Winery B',
             role: 'venue',
             expectedKind: 'PLACE',
-            required: true,
             evidenceKeys: ['ev-1'],
           },
         ],
@@ -1041,7 +1031,6 @@ describe('tour-generation integration · area/route walk geographic validation (
             name,
             role: 'venue',
             expectedKind: 'PLACE',
-            required: true,
             evidenceKeys: ['ev-1'],
           },
         ],
@@ -1270,7 +1259,6 @@ describe('tour-generation integration · area/route walk geographic validation (
             name: 'Plaza Dorrego',
             role: 'venue',
             expectedKind: 'PLACE',
-            required: true,
             evidenceKeys: ['w1'],
           },
           {
@@ -1278,7 +1266,6 @@ describe('tour-generation integration · area/route walk geographic validation (
             name: 'Mercado de San Telmo',
             role: 'venue',
             expectedKind: 'PLACE',
-            required: true,
             evidenceKeys: ['w2'],
           },
         ],
@@ -1406,7 +1393,6 @@ describe('tour-generation integration · area/route walk geographic validation (
             name: 'Bodega A',
             role: 'venue',
             expectedKind: 'PLACE',
-            required: true,
             evidenceKeys: ['wine-1'],
           },
           {
@@ -1414,7 +1400,6 @@ describe('tour-generation integration · area/route walk geographic validation (
             name: 'Bodega B',
             role: 'venue',
             expectedKind: 'PLACE',
-            required: true,
             evidenceKeys: ['wine-2'],
           },
         ],

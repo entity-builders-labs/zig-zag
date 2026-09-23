@@ -645,7 +645,6 @@ describe('tour-generation integration · experience identity / dedupe gate (pre-
             name: 'Plaza Dorrego',
             role: 'venue',
             expectedKind: 'PLACE',
-            required: true,
             evidenceKeys: ['ev-1'],
           },
           {
@@ -653,7 +652,6 @@ describe('tour-generation integration · experience identity / dedupe gate (pre-
             name: 'Mercado de San Telmo',
             role: 'venue',
             expectedKind: 'PLACE',
-            required: true,
             evidenceKeys: ['ev-1'],
           },
           {
@@ -661,7 +659,6 @@ describe('tour-generation integration · experience identity / dedupe gate (pre-
             name: 'Pasaje Defensa',
             role: 'venue',
             expectedKind: 'PLACE',
-            required: true,
             evidenceKeys: ['ev-1'],
           },
           {
@@ -669,7 +666,6 @@ describe('tour-generation integration · experience identity / dedupe gate (pre-
             name: 'Parque Lezama',
             role: 'venue',
             expectedKind: 'PLACE',
-            required: true,
             evidenceKeys: ['ev-1'],
           },
         ],

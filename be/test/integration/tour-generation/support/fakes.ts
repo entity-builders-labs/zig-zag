@@ -137,7 +137,6 @@ export function venueHint(name: string, evidenceKeys: string[]): GeoEntityHint {
     name,
     role: 'venue',
     expectedKind: 'PLACE',
-    required: true,
     evidenceKeys,
   };
 }

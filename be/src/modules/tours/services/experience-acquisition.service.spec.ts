@@ -456,7 +456,6 @@ describe('ExperienceAcquisitionService', () => {
             name: 'Strange Brewing',
             role: 'venue',
             expectedKind: 'PLACE',
-            required: true,
             evidenceKeys: ['ev-1'],
           },
         ],

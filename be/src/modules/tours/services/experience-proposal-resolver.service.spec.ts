@@ -42,7 +42,6 @@ describe('ExperienceProposalResolverService', () => {
         name: componentName,
         role: 'venue',
         expectedKind: 'PLACE',
-        required: true,
         evidenceKeys: ['ev-1'],
       },
     ],
@@ -159,7 +158,6 @@ describe('ExperienceProposalResolverService', () => {
           name: 'Caminito',
           role: 'route',
           expectedKind: 'ROUTE',
-          required: true,
           evidenceKeys: ['ev-1'],
         },
       ],
@@ -277,7 +275,6 @@ describe('ExperienceProposalResolverService', () => {
               name: hintName,
               role: 'route',
               expectedKind: 'ROUTE',
-              required: true,
               evidenceKeys: ['ev-1'],
             },
           ],
@@ -333,7 +330,6 @@ describe('ExperienceProposalResolverService', () => {
           name: 'Recoleta',
           role: 'area',
           expectedKind: 'AREA',
-          required: true,
           evidenceKeys: ['ev-1'],
         },
         {
@@ -341,7 +337,6 @@ describe('ExperienceProposalResolverService', () => {
           name: 'Recoleta Cultural Center',
           role: 'venue',
           expectedKind: 'PLACE',
-          required: true,
           evidenceKeys: ['ev-1'],
         },
       ],
@@ -503,7 +498,6 @@ describe('ExperienceProposalResolverService', () => {
           name: 'Stop A',
           role: 'waypoint',
           expectedKind: 'PLACE',
-          required: true,
           evidenceKeys: ['ev-1'],
         },
         {
@@ -511,7 +505,6 @@ describe('ExperienceProposalResolverService', () => {
           name: 'Stop B',
           role: 'waypoint',
           expectedKind: 'PLACE',
-          required: true,
           evidenceKeys: ['ev-1'],
         },
       ],
@@ -594,7 +587,6 @@ describe('ExperienceProposalResolverService', () => {
           name: 'Stop A',
           role: 'waypoint',
           expectedKind: 'PLACE',
-          required: true,
           evidenceKeys: ['ev-1'],
         },
         {
@@ -602,7 +594,6 @@ describe('ExperienceProposalResolverService', () => {
           name: 'Stop B',
           role: 'waypoint',
           expectedKind: 'PLACE',
-          required: true,
           evidenceKeys: ['ev-1'],
         },
       ],
@@ -1619,7 +1610,6 @@ describe('ExperienceProposalResolverService', () => {
               name: 'Defensa',
               role: 'route',
               expectedKind: 'ROUTE',
-              required: true,
               evidenceKeys: ['ev-1'],
             },
           ],
@@ -1669,7 +1659,6 @@ describe('ExperienceProposalResolverService', () => {
               name: 'Museum',
               role: 'area',
               expectedKind: 'AREA',
-              required: true,
               evidenceKeys: ['ev-1'],
             },
           ],
@@ -1761,7 +1750,6 @@ describe('ExperienceProposalResolverService', () => {
                 name: 'San Telmo',
                 role: 'area',
                 expectedKind: 'AREA',
-                required: true,
                 evidenceKeys: ['ev-1'],
               },
             ],
@@ -1835,7 +1823,6 @@ describe('ExperienceProposalResolverService', () => {
           name: 'Buenos Aires',
           role: 'area',
           expectedKind: 'AREA',
-          required: true,
           evidenceKeys: ['ev-1'],
         },
       ],
@@ -1924,7 +1911,6 @@ describe('ExperienceProposalResolverService', () => {
           name: 'San Telmo',
           role: 'area',
           expectedKind: 'AREA',
-          required: true,
           evidenceKeys: ['ev-1'],
         },
       ],
@@ -2024,7 +2010,6 @@ describe('ExperienceProposalResolverService', () => {
           name: 'San Telmo',
           role: 'area',
           expectedKind: 'AREA',
-          required: true,
           evidenceKeys: ['ev-1'],
         },
       ],
@@ -2125,7 +2110,6 @@ describe('ExperienceProposalResolverService', () => {
           name: 'Puerto Madero',
           role: 'venue',
           expectedKind: 'PLACE',
-          required: true,
           evidenceKeys: ['ev-1'],
         },
       ],
@@ -2246,7 +2230,6 @@ describe('ExperienceProposalResolverService', () => {
           name: 'Puerto Madero',
           role: 'venue',
           expectedKind: 'PLACE',
-          required: true,
           evidenceKeys: ['ev-1'],
         },
       ],
@@ -2337,7 +2320,6 @@ describe('ExperienceProposalResolverService', () => {
           name: 'Plaza de Mayo',
           role: 'area',
           expectedKind: 'AREA',
-          required: true,
           evidenceKeys: ['ev-1'],
         },
       ],
@@ -2452,7 +2434,6 @@ describe('ExperienceProposalResolverService', () => {
           name: 'San Telmo',
           role: 'area',
           expectedKind: 'AREA',
-          required: true,
           evidenceKeys: ['ev-1'],
         },
       ],
@@ -2540,7 +2521,6 @@ describe('ExperienceProposalResolverService', () => {
                 name: 'Too Broad',
                 role: 'area',
                 expectedKind: 'AREA',
-                required: true,
                 evidenceKeys: ['ev-1'],
               },
             ],
@@ -2712,7 +2692,15 @@ describe('ExperienceProposalResolverService', () => {
     });
   });
 
-  describe('required/optional persistence (Task B5, Fix 1)', () => {
+  // Stage 2 migration seam (geo-entity-hint-required-migration.util.ts):
+  // `GeoEntityHint.required` is no longer LLM-authored, so there is no more
+  // "optional hint" to construct -- every component hint is now
+  // unconditionally treated as required until Stage 4 redesigns admission
+  // around real per-component resolution outcomes. This describe block
+  // (originally Task B5, Fix 1) is kept to prove the persisted
+  // `required` column still comes out `true` in the same shapes/orderings,
+  // now uniformly rather than selectively.
+  describe('required persistence post-Stage-2 (was required/optional persistence, Task B5 Fix 1)', () => {
     const walkCandidate: ExperienceCandidate = {
       name: 'San Telmo Historical Walk',
       themes: ['culture'],
@@ -2724,7 +2712,6 @@ describe('ExperienceProposalResolverService', () => {
           name: 'Plaza Dorrego',
           role: 'venue',
           expectedKind: 'PLACE',
-          required: true,
           evidenceKeys: ['ev-1'],
         },
         {
@@ -2732,7 +2719,6 @@ describe('ExperienceProposalResolverService', () => {
           name: 'Mercado de San Telmo',
           role: 'venue',
           expectedKind: 'PLACE',
-          required: true,
           evidenceKeys: ['ev-1'],
         },
         {
@@ -2740,7 +2726,6 @@ describe('ExperienceProposalResolverService', () => {
           name: 'Rooftop Viewpoint',
           role: 'venue',
           expectedKind: 'PLACE',
-          required: false,
           evidenceKeys: ['ev-1'],
         },
       ],
@@ -2759,7 +2744,7 @@ describe('ExperienceProposalResolverService', () => {
       };
     }
 
-    it('persists required:[true,true,false] for 2 required + 1 optional hint (distinct places)', async () => {
+    it('persists required:[true,true,true] for 3 evidence-backed hints (distinct places)', async () => {
       const osmPlaces = osmPlacesFor([
         {
           id: 'osm:node:1',
@@ -2818,30 +2803,28 @@ describe('ExperienceProposalResolverService', () => {
           components: [
             expect.objectContaining({ geoEntityId: 'geo-1', required: true }),
             expect.objectContaining({ geoEntityId: 'geo-2', required: true }),
-            expect.objectContaining({ geoEntityId: 'geo-3', required: false }),
+            expect.objectContaining({ geoEntityId: 'geo-3', required: true }),
           ],
         }),
       );
     });
 
-    it('persists required:true when an optional hint and a required hint dedupe onto the same GeoEntity (optional-then-required order)', async () => {
+    it('persists required:true when two hints dedupe onto the same GeoEntity (order A)', async () => {
       const dedupeCandidate: ExperienceCandidate = {
         ...walkCandidate,
         componentHints: [
           {
-            key: 'optional-mercado',
+            key: 'mercado-1',
             name: 'Mercado de San Telmo',
             role: 'venue',
             expectedKind: 'PLACE',
-            required: false,
             evidenceKeys: ['ev-1'],
           },
           {
-            key: 'required-mercado',
+            key: 'mercado-2',
             name: 'Mercado de San Telmo',
             role: 'venue',
             expectedKind: 'PLACE',
-            required: true,
             evidenceKeys: ['ev-1'],
           },
         ],
@@ -2892,24 +2875,22 @@ describe('ExperienceProposalResolverService', () => {
       );
     });
 
-    it('persists required:true when a required hint and an optional hint dedupe onto the same GeoEntity (required-then-optional order)', async () => {
+    it('persists required:true when two hints dedupe onto the same GeoEntity (order B)', async () => {
       const dedupeCandidate: ExperienceCandidate = {
         ...walkCandidate,
         componentHints: [
           {
-            key: 'required-mercado',
+            key: 'mercado-2',
             name: 'Mercado de San Telmo',
             role: 'venue',
             expectedKind: 'PLACE',
-            required: true,
             evidenceKeys: ['ev-1'],
           },
           {
-            key: 'optional-mercado',
+            key: 'mercado-1',
             name: 'Mercado de San Telmo',
             role: 'venue',
             expectedKind: 'PLACE',
-            required: false,
             evidenceKeys: ['ev-1'],
           },
         ],
@@ -2959,24 +2940,22 @@ describe('ExperienceProposalResolverService', () => {
       );
     });
 
-    it('persists required:false when every hint deduping onto the same GeoEntity is optional', async () => {
+    it('persists required:true when every hint deduping onto the same GeoEntity is evidence-backed (Stage 2: no optional hint left to construct)', async () => {
       const dedupeCandidate: ExperienceCandidate = {
         ...walkCandidate,
         componentHints: [
           {
-            key: 'optional-a',
+            key: 'a',
             name: 'Rooftop Viewpoint',
             role: 'venue',
             expectedKind: 'PLACE',
-            required: false,
             evidenceKeys: ['ev-1'],
           },
           {
-            key: 'optional-b',
+            key: 'b',
             name: 'Rooftop Viewpoint',
             role: 'venue',
             expectedKind: 'PLACE',
-            required: false,
             evidenceKeys: ['ev-1'],
           },
         ],
@@ -3019,7 +2998,7 @@ describe('ExperienceProposalResolverService', () => {
           components: [
             expect.objectContaining({
               geoEntityId: 'geo-shared',
-              required: false,
+              required: true,
             }),
           ],
         }),
@@ -3157,7 +3136,6 @@ describe('ExperienceProposalResolverService', () => {
           name: 'Plaza Dorrego',
           role: 'venue',
           expectedKind: 'PLACE',
-          required: true,
           evidenceKeys: ['ev-1'],
         },
         {
@@ -3165,7 +3143,6 @@ describe('ExperienceProposalResolverService', () => {
           name: 'Mercado de San Telmo',
           role: 'venue',
           expectedKind: 'PLACE',
-          required: true,
           evidenceKeys: ['ev-1'],
         },
         {
@@ -3173,7 +3150,6 @@ describe('ExperienceProposalResolverService', () => {
           name: 'Parque Lezama',
           role: 'venue',
           expectedKind: 'PLACE',
-          required: true,
           evidenceKeys: ['ev-1'],
         },
       ],
@@ -3411,7 +3387,6 @@ describe('ExperienceProposalResolverService', () => {
             name: 'Plaza Dorrego',
             role: 'venue',
             expectedKind: 'PLACE',
-            required: true,
             evidenceKeys: ['ev-1'],
           },
           threeComponentWalk.componentHints![2],
@@ -5412,7 +5387,6 @@ describe('ExperienceProposalResolverService', () => {
             name: 'Recoleta Cemetery',
             role: 'venue',
             expectedKind: 'PLACE',
-            required: true,
             evidenceKeys: ['ev-1'],
             addressHint: 'Junín 1760',
           },
@@ -5683,7 +5657,6 @@ describe('ExperienceProposalResolverService', () => {
             name: 'El Zanjón de Granados',
             role: 'venue',
             expectedKind: 'PLACE',
-            required: true,
             evidenceKeys: ['ev-1'],
           },
         ],
@@ -5753,7 +5726,6 @@ describe('ExperienceProposalResolverService', () => {
             name: 'Zanjón de Granados',
             role: 'venue',
             expectedKind: 'PLACE',
-            required: true,
             evidenceKeys: ['ev-1'],
           },
         ],
@@ -5808,7 +5780,6 @@ describe('ExperienceProposalResolverService', () => {
             name: 'El Zanjón de Granados',
             role: 'venue',
             expectedKind: 'PLACE',
-            required: true,
             evidenceKeys: ['ev-1'],
           },
         ],
@@ -5890,7 +5861,6 @@ describe('ExperienceProposalResolverService', () => {
             name: 'El Zanjón de Granados',
             role: 'venue',
             expectedKind: 'PLACE',
-            required: true,
             evidenceKeys: ['ev-1'],
           },
         ],
@@ -5949,7 +5919,6 @@ describe('ExperienceProposalResolverService', () => {
             name: 'El Zanjón de Granados',
             role: 'venue',
             expectedKind: 'PLACE',
-            required: true,
             evidenceKeys: ['ev-1'],
           },
         ],
@@ -6005,7 +5974,6 @@ describe('ExperienceProposalResolverService', () => {
             name: 'El Zanjón de Granados',
             role: 'venue',
             expectedKind: 'PLACE',
-            required: true,
             evidenceKeys: ['ev-1'],
           },
         ],
@@ -6063,7 +6031,6 @@ describe('ExperienceProposalResolverService', () => {
             name: 'El Zanjón de Granados',
             role: 'venue',
             expectedKind: 'PLACE',
-            required: true,
             evidenceKeys: ['ev-1'],
           },
         ],
@@ -6131,7 +6098,6 @@ describe('ExperienceProposalResolverService', () => {
             name: 'El Zanjón de Granados',
             role: 'venue',
             expectedKind: 'PLACE',
-            required: true,
             evidenceKeys: ['ev-1'],
           },
         ],
@@ -6186,7 +6152,6 @@ describe('ExperienceProposalResolverService', () => {
               name: 'El Zanjón de Granados',
               role,
               expectedKind: role === 'area' ? 'AREA' : 'ROUTE',
-              required: true,
               evidenceKeys: ['ev-1'],
             },
           ],
@@ -6939,7 +6904,6 @@ describe('ExperienceProposalResolverService', () => {
             name: 'Plaza de Mayo',
             role: 'waypoint',
             expectedKind: 'PLACE',
-            required: true,
             evidenceKeys: ['ev-10'],
           },
           {
@@ -6947,7 +6911,6 @@ describe('ExperienceProposalResolverService', () => {
             name: 'Pasaje San Lorenzo',
             role: 'route',
             expectedKind: 'ROUTE',
-            required: true,
             evidenceKeys: ['ev-10'],
           },
         ],
@@ -7109,7 +7072,6 @@ describe('ExperienceProposalResolverService', () => {
             name: 'El Zanjón de Granados',
             role: 'venue',
             expectedKind: 'PLACE',
-            required: true,
             evidenceKeys: ['ev-4'],
           },
         ],

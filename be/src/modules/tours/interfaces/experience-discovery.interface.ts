@@ -1,12 +1,24 @@
 import { QualityEvidence } from './experience-acquisition.interface';
 
-/** Provider-neutral geographic hint extracted from grounded evidence. */
+/**
+ * Provider-neutral geographic hint extracted from grounded evidence.
+ *
+ * Stage 2 cutover (docs/superpowers/plans/2026-09-22-component-resolution-
+ * and-partial-composite-recovery-plan.md): this type intentionally has no
+ * `required` field. The extraction LLM must never decide which component is
+ * allowed to kill a real Experience (see the amendment, "Remove LLM-owned
+ * `required` from geographic truth"). Every hint that reaches this type has
+ * already passed the deterministic source-support admission gate (see
+ * `experience-candidate-extraction.util.ts`'s
+ * `verifyTextualComponentSourceSupport`); composite admission is decided
+ * from source-backed composition (`acquisition-candidate-requirement.util.ts`),
+ * not from a per-component authored flag.
+ */
 export interface GeoEntityHint {
   key: string;
   name: string;
   role: 'area' | 'waypoint' | 'route' | 'venue';
   expectedKind: 'PLACE' | 'AREA' | 'ROUTE';
-  required: boolean;
   evidenceKeys: string[];
   /**
    * A street address the cited evidence explicitly gives for this hint

@@ -16,7 +16,6 @@ export interface ExperienceSemanticDocumentInput {
   intents?: string[];
   components?: Array<{
     role?: string | null;
-    required?: boolean | null;
     geoEntity?: {
       name: string;
       kind?: string | null;
@@ -60,7 +59,6 @@ export function buildExperienceSemanticDocument(
         entity.kind ? `kind=${entity.kind}` : undefined,
         entity.name,
         entity.address,
-        component.required === false ? 'optional' : 'required',
       ]).join(' | ');
     });
 

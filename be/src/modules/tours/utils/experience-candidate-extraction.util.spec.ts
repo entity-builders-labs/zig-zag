@@ -1,5 +1,9 @@
 import { extractExperienceCandidates } from './experience-candidate-extraction.util';
 
+/** Evidence whose text trivially contains `supportSpan`, for tests whose
+ * concern is unrelated to source-support verification itself. */
+const ev = (key: string, text: string) => ({ key, text });
+
 describe('extractExperienceCandidates', () => {
   it('accepts evidence-backed candidates without structural kinds', () => {
     const result = extractExperienceCandidates(
@@ -16,8 +20,8 @@ describe('extractExperienceCandidates', () => {
                 name: 'Costanera Norte',
                 role: 'route',
                 expectedKind: 'ROUTE',
-                required: true,
                 evidenceKeys: ['ev-1'],
+                supportSpan: 'Costanera Norte is a riverside avenue',
               },
             ],
             evidenceKeys: ['ev-1'],
@@ -25,7 +29,7 @@ describe('extractExperienceCandidates', () => {
           },
         ],
       },
-      new Set(['ev-1']),
+      [ev('ev-1', 'Costanera Norte is a riverside avenue popular for walks.')],
       8,
     );
     expect(result.candidates).toHaveLength(1);
@@ -48,8 +52,8 @@ describe('extractExperienceCandidates', () => {
                 name: 'Plaza',
                 role: 'waypoint',
                 expectedKind: 'PLACE',
-                required: true,
                 evidenceKeys: ['ev-1'],
+                supportSpan: 'the Plaza is the main square',
               },
             ],
             evidenceKeys: ['ev-1'],
@@ -57,7 +61,7 @@ describe('extractExperienceCandidates', () => {
           },
         ],
       },
-      new Set(['ev-1']),
+      [ev('ev-1', 'Visitors gather at the Plaza is the main square in town.')],
       8,
     );
     expect(result.candidates[0].orderedByEvidence).toBe(false);
@@ -78,8 +82,8 @@ describe('extractExperienceCandidates', () => {
                 name: 'Plaza',
                 role: 'waypoint',
                 expectedKind: 'PLACE',
-                required: true,
                 evidenceKeys: ['ev-1'],
+                supportSpan: 'start at the Plaza then walk south',
               },
             ],
             evidenceKeys: ['ev-1'],
@@ -88,7 +92,12 @@ describe('extractExperienceCandidates', () => {
           },
         ],
       },
-      new Set(['ev-1']),
+      [
+        ev(
+          'ev-1',
+          'The route: start at the Plaza then walk south to the river.',
+        ),
+      ],
       8,
     );
     expect(result.candidates[0].orderedByEvidence).toBe(true);
@@ -111,8 +120,8 @@ describe('extractExperienceCandidates', () => {
                 name: 'Bar',
                 role: 'venue',
                 expectedKind: 'PLACE',
-                required: true,
                 evidenceKeys: ['ev-1'],
+                supportSpan: 'The Bar is a local favorite',
               },
             ],
             evidenceKeys: ['ev-1'],
@@ -120,7 +129,7 @@ describe('extractExperienceCandidates', () => {
           },
         ],
       },
-      new Set(['ev-1']),
+      [ev('ev-1', 'The Bar is a local favorite among craft beer fans.')],
       8,
     );
     expect(result.candidates).toHaveLength(1);
@@ -145,15 +154,15 @@ describe('extractExperienceCandidates', () => {
                 name: 'Unknown',
                 role: 'venue',
                 expectedKind: 'PLACE',
-                required: true,
                 evidenceKeys: ['ev-9'],
+                supportSpan: 'irrelevant',
               },
             ],
             evidenceKeys: ['ev-9'],
           },
         ],
       },
-      new Set(['ev-1']),
+      [ev('ev-1', 'unrelated evidence text')],
       8,
     );
     expect(result.candidates).toHaveLength(0);
@@ -177,8 +186,8 @@ describe('extractExperienceCandidates', () => {
                 name: 'Recoleta Cemetery',
                 role: 'venue',
                 expectedKind: 'PLACE',
-                required: true,
                 evidenceKeys: ['ev-1'],
+                supportSpan: 'Recoleta Cemetery is located at Junín 1760',
                 addressHint: 'Junín 1760',
               },
             ],
@@ -186,7 +195,7 @@ describe('extractExperienceCandidates', () => {
           },
         ],
       },
-      new Set(['ev-1']),
+      [ev('ev-1', 'Recoleta Cemetery is located at Junín 1760, Buenos Aires.')],
       8,
     );
     expect(result.candidates[0].componentHints[0].addressHint).toBe(
@@ -209,15 +218,15 @@ describe('extractExperienceCandidates', () => {
                 name: 'Teatro Colón',
                 role: 'venue',
                 expectedKind: 'PLACE',
-                required: true,
                 evidenceKeys: ['ev-1'],
+                supportSpan: 'Teatro Colón is the opera house',
               },
             ],
             evidenceKeys: ['ev-1'],
           },
         ],
       },
-      new Set(['ev-1']),
+      [ev('ev-1', 'Teatro Colón is the opera house downtown.')],
       8,
     );
     expect(result.candidates[0].componentHints[0]).not.toHaveProperty(
@@ -242,16 +251,16 @@ describe('extractExperienceCandidates', () => {
           name: 'San Telmo Market',
           role: 'venue',
           expectedKind: 'PLACE',
-          required: true,
           evidenceKeys: ['ev-10'],
+          supportSpan: 'the San Telmo Market draws antique collectors',
         },
         {
           key: 'lezama-park',
           name: 'Lezama Park',
           role: 'venue',
           expectedKind: 'PLACE',
-          required: true,
           evidenceKeys: ['ev-10'],
+          supportSpan: 'Lezama Park anchors the southern end of the walk',
         },
       ],
       evidenceKeys: ['ev-10'],
@@ -262,7 +271,12 @@ describe('extractExperienceCandidates', () => {
 
     const result = extractExperienceCandidates(
       bareCandidateObject,
-      new Set(['ev-10']),
+      [
+        ev(
+          'ev-10',
+          'On Sundays the San Telmo Market draws antique collectors, and Lezama Park anchors the southern end of the walk.',
+        ),
+      ],
       8,
     );
 
@@ -280,7 +294,7 @@ describe('extractExperienceCandidates', () => {
   it('does not repair a raw value that is neither an array, a {candidates:[...]} envelope, nor a single-candidate-shaped object', () => {
     const result = extractExperienceCandidates(
       { unrelated: 'shape', foo: 'bar' },
-      new Set(['ev-1']),
+      [ev('ev-1', 'irrelevant')],
       8,
     );
     expect(result.candidates).toHaveLength(0);
@@ -288,21 +302,18 @@ describe('extractExperienceCandidates', () => {
   });
 
   /**
-   * Stage 1 characterization lock (component-resolution-and-partial-
-   * composite-recovery-plan.md, Case G). Real RW1 fixture: cold-2 pass 1's
-   * extractor emitted a "Basílica de Santa Mónica" componentHint citing
-   * ev-11, whose actual captured snippet ("Commissioned by the Jesuits...
-   * this church gave the neighborhood its modern name [St. Peter Gonzalez
-   * Telmo]...") never names that basilica or an equivalent entity —
-   * confirmed against
+   * Stage 2 cutover (component-resolution-and-partial-composite-recovery-
+   * plan.md): flips the Stage 1 characterization (Case G) from "accepted"
+   * to "rejected before geographic/provider acquisition ever runs". Real
+   * RW1 fixture: cold-2 pass 1's extractor emitted a "Basílica de Santa
+   * Mónica" componentHint citing ev-11, whose actual captured snippet
+   * ("Commissioned by the Jesuits... this church gave the neighborhood its
+   * modern name [St. Peter Gonzalez Telmo]...") never names that basilica
+   * or an equivalent entity -- confirmed against
    * spikes/rw1-san-telmo-historical-walk/forensic-rerun-2026-09-22/cold-2/
-   * web-extraction.json. The amendment (§2, §13) requires this to fail at
-   * source-support admission, before geographic/provider acquisition ever
-   * runs; today it is only ever caught downstream, accidentally, because no
-   * real "Basílica de Santa Mónica" exists for the resolver to find
-   * (experience-proposal-resolver.service.spec.ts's NO_OSM_MATCH cases).
+   * web-extraction.json.
    */
-  it('Case G: accepts a componentHint whose cited evidence key exists but does not check the evidence TEXT actually supports the named component (RW1 Santa Mónica/ev-11)', () => {
+  it('Case G (Stage 2): rejects a componentHint whose cited evidence key exists but whose text never supports the named component (RW1 Santa Mónica/ev-11), before any geographic/provider acquisition', () => {
     // The real ev-11 SourceObservation text — it never mentions "Basílica
     // de Santa Mónica" or anything semantically equivalent to it.
     const ev11Snippet =
@@ -324,8 +335,12 @@ describe('extractExperienceCandidates', () => {
                 name: 'Basílica de Santa Mónica',
                 role: 'waypoint',
                 expectedKind: 'PLACE',
-                required: true,
                 evidenceKeys: ['ev-11'],
+                // A hallucinating extractor cannot quote real text mentioning
+                // the basilica from ev-11 (it does not exist there), so any
+                // supportSpan it fabricates is either absent or not a real
+                // substring of the cited evidence -- both are rejected.
+                supportSpan: 'Basílica de Santa Mónica, a colonial-era church',
               },
             ],
             evidenceKeys: ['ev-11'],
@@ -333,27 +348,246 @@ describe('extractExperienceCandidates', () => {
           },
         ],
       },
-      // extractExperienceCandidates only ever receives the set of KNOWN
-      // evidence KEYS, never the observations' own text content -- so no
-      // amount of internal logic here could check `ev11Snippet` against
-      // the hint name even if it tried to. This is itself part of the
-      // Stage 1 freeze: the source-support gate the amendment requires
-      // cannot be implemented inside this function's current signature.
-      new Set(['ev-11']),
+      [ev('ev-11', ev11Snippet)],
       8,
     );
 
-    expect(result.validationErrors).toEqual([]);
-    expect(result.candidates).toHaveLength(1);
-    expect(result.candidates[0].componentHints).toEqual([
-      expect.objectContaining({
-        key: 'basilica-santa-monica',
-        name: 'Basílica de Santa Mónica',
-        evidenceKeys: ['ev-11'],
-      }),
-    ]);
-    // Documents the gap, not a claim about ev11Snippet's content being
-    // consulted anywhere in this call.
+    // Rejected entirely: the only component fails source-support and no
+    // other component exists to keep the candidate alive.
+    expect(result.candidates).toHaveLength(0);
+    expect(result.validationErrors.join(' ')).toMatch(
+      /no source-supported componentHints remain/,
+    );
     expect(ev11Snippet).not.toContain('Santa Mónica');
+  });
+
+  it('drops only the unsupported componentHint while a sibling with genuine source support survives in the same candidate', () => {
+    const result = extractExperienceCandidates(
+      {
+        candidates: [
+          {
+            name: 'San Telmo Historic Walk',
+            themes: ['history'],
+            traits: [],
+            intents: ['walk'],
+            componentHints: [
+              {
+                key: 'basilica-santa-monica',
+                name: 'Basílica de Santa Mónica',
+                role: 'waypoint',
+                expectedKind: 'PLACE',
+                evidenceKeys: ['ev-11'],
+                supportSpan: 'Basílica de Santa Mónica, a colonial-era church',
+              },
+              {
+                key: 'plaza-dorrego',
+                name: 'Plaza Dorrego',
+                role: 'venue',
+                expectedKind: 'PLACE',
+                evidenceKeys: ['ev-12'],
+                supportSpan: 'Plaza Dorrego hosts a Sunday antiques fair',
+              },
+              {
+                key: 'defensa-street',
+                name: 'Calle Defensa',
+                role: 'route',
+                expectedKind: 'ROUTE',
+                evidenceKeys: ['ev-12'],
+                supportSpan: 'Calle Defensa runs the length of the walk',
+              },
+            ],
+            evidenceKeys: ['ev-11', 'ev-12'],
+            shortReason: 'walk with one unsupported stop',
+          },
+        ],
+      },
+      [
+        ev(
+          'ev-11',
+          'Commissioned by the Jesuits, this church gave the neighborhood its name.',
+        ),
+        ev(
+          'ev-12',
+          'Plaza Dorrego hosts a Sunday antiques fair, and Calle Defensa runs the length of the walk.',
+        ),
+      ],
+      8,
+    );
+
+    expect(result.candidates).toHaveLength(1);
+    expect(result.candidates[0].componentHints.map((hint) => hint.key)).toEqual(
+      ['plaza-dorrego', 'defensa-street'],
+    );
+    expect(result.validationErrors.join(' ')).toMatch(
+      /Basílica de Santa Mónica.*dropped: source-support/,
+    );
+  });
+
+  it('rejects a componentHint whose evidenceKeys reference a key not present in the evidence set', () => {
+    const result = extractExperienceCandidates(
+      {
+        candidates: [
+          {
+            name: 'Walk',
+            themes: [],
+            traits: [],
+            intents: [],
+            componentHints: [
+              {
+                key: 'a',
+                name: 'Plaza',
+                role: 'venue',
+                expectedKind: 'PLACE',
+                evidenceKeys: ['ev-missing'],
+                supportSpan: 'the Plaza',
+              },
+            ],
+            evidenceKeys: ['ev-1'],
+          },
+        ],
+      },
+      [ev('ev-1', 'irrelevant text mentioning the Plaza')],
+      8,
+    );
+    expect(result.candidates).toHaveLength(0);
+    expect(result.validationErrors.join(' ')).toMatch(/invalid evidence/);
+  });
+
+  it('drops a componentHint that cites a real evidence key whose text does not contain the claimed supportSpan', () => {
+    const result = extractExperienceCandidates(
+      {
+        candidates: [
+          {
+            name: 'Walk',
+            themes: [],
+            traits: [],
+            intents: [],
+            componentHints: [
+              {
+                key: 'a',
+                name: 'Ghost Venue',
+                role: 'venue',
+                expectedKind: 'PLACE',
+                evidenceKeys: ['ev-1'],
+                supportSpan: 'Ghost Venue is a hidden speakeasy',
+              },
+            ],
+            evidenceKeys: ['ev-1'],
+          },
+        ],
+      },
+      [ev('ev-1', 'This street is known for its colonial architecture.')],
+      8,
+    );
+    expect(result.candidates).toHaveLength(0);
+    expect(result.validationErrors.join(' ')).toMatch(
+      /SPAN_NOT_FOUND_IN_CITED_EVIDENCE/,
+    );
+  });
+
+  it('drops a componentHint whose supportSpan is real text but taken from a DIFFERENT evidence record than the one it cites', () => {
+    const result = extractExperienceCandidates(
+      {
+        candidates: [
+          {
+            name: 'Walk',
+            themes: [],
+            traits: [],
+            intents: [],
+            componentHints: [
+              {
+                key: 'a',
+                name: 'Wrong Record Venue',
+                role: 'venue',
+                expectedKind: 'PLACE',
+                // cites ev-1, but the supportSpan is only real text from ev-2
+                evidenceKeys: ['ev-1'],
+                supportSpan: 'Lezama Park anchors the southern end',
+              },
+            ],
+            evidenceKeys: ['ev-1', 'ev-2'],
+          },
+        ],
+      },
+      [
+        ev('ev-1', 'This street is known for its colonial architecture.'),
+        ev('ev-2', 'Lezama Park anchors the southern end of the walk.'),
+      ],
+      8,
+    );
+    expect(result.candidates).toHaveLength(0);
+    expect(result.validationErrors.join(' ')).toMatch(
+      /SPAN_NOT_FOUND_IN_CITED_EVIDENCE/,
+    );
+  });
+
+  it('drops a componentHint with no supportSpan at all', () => {
+    const result = extractExperienceCandidates(
+      {
+        candidates: [
+          {
+            name: 'Walk',
+            themes: [],
+            traits: [],
+            intents: [],
+            componentHints: [
+              {
+                key: 'a',
+                name: 'Plaza',
+                role: 'venue',
+                expectedKind: 'PLACE',
+                evidenceKeys: ['ev-1'],
+              },
+            ],
+            evidenceKeys: ['ev-1'],
+          },
+        ],
+      },
+      [ev('ev-1', 'The Plaza is the main square.')],
+      8,
+    );
+    expect(result.candidates).toHaveLength(0);
+    expect(result.validationErrors.join(' ')).toMatch(/NO_SUPPORT_SPAN/);
+  });
+
+  it('accepts a translated/localized name whose supportSpan quotes the evidence in its ORIGINAL wording (alias/translation is not required to solve identity here)', () => {
+    const result = extractExperienceCandidates(
+      {
+        candidates: [
+          {
+            name: 'Day trip',
+            themes: ['nature'],
+            traits: [],
+            intents: ['visit'],
+            componentHints: [
+              {
+                key: 'park',
+                // The LLM is allowed to translate the entity name to the
+                // canonical local-language form; the evidence itself was
+                // only ever in English.
+                name: 'Parque Nacional El Leoncito',
+                role: 'area',
+                expectedKind: 'AREA',
+                evidenceKeys: ['ev-1'],
+                supportSpan:
+                  'El Leoncito National Park is known for its dark skies',
+              },
+            ],
+            evidenceKeys: ['ev-1'],
+          },
+        ],
+      },
+      [
+        ev(
+          'ev-1',
+          'El Leoncito National Park is known for its dark skies and observatories.',
+        ),
+      ],
+      8,
+    );
+    expect(result.candidates).toHaveLength(1);
+    expect(result.candidates[0].componentHints[0].name).toBe(
+      'Parque Nacional El Leoncito',
+    );
   });
 });

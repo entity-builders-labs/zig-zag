@@ -33,6 +33,7 @@ import {
   AreaScopeMembershipAudit,
   AreaScopeMembershipPolicy,
 } from '../interfaces/area-scope-membership.interface';
+import { isMigrationRequiredHint } from '../utils/geo-entity-hint-required-migration.util';
 
 @Injectable()
 export class CompositeGeographicValidationService {
@@ -269,8 +270,9 @@ export class CompositeGeographicValidationService {
     areaScopeMembership?: AreaScopeMembershipAudit;
   } {
     const proposalName = resolvedProposal.candidate.name;
+    // Stage-2 migration seam; see geo-entity-hint-required-migration.util.ts.
     const requiredHints = resolvedProposal.candidate.componentHints.filter(
-      (hint) => hint.required,
+      (hint) => isMigrationRequiredHint(hint),
     );
 
     const unresolvedRequired = requiredHints.some(
@@ -498,8 +500,9 @@ export class CompositeGeographicValidationService {
       }
       // Task B5 (correctness point 10): validate every OTHER required
       // component too, not just the one canonical ROUTE entity.
+      // Stage-2 migration seam; see geo-entity-hint-required-migration.util.ts.
       const requiredHints = resolvedProposal.candidate.componentHints.filter(
-        (hint) => hint.required,
+        (hint) => isMigrationRequiredHint(hint),
       );
       const requiredNonRouteHints = requiredHints.filter(
         (hint) => hint.role !== 'route',
@@ -566,8 +569,9 @@ export class CompositeGeographicValidationService {
     // destination+coherence path instead of being forced into one area's
     // containment. An optional (non-required) AREA hint never triggers
     // this shortcut on its own.
+    // Stage-2 migration seam; see geo-entity-hint-required-migration.util.ts.
     const requiredAreaHints = resolvedProposal.candidate.componentHints.filter(
-      (hint) => hint.required && hint.role === 'area',
+      (hint) => isMigrationRequiredHint(hint) && hint.role === 'area',
     );
     const hasWaypointHint = resolvedProposal.candidate.componentHints.some(
       (hint) => hint.role === 'waypoint' || hint.role === 'venue',
@@ -597,9 +601,10 @@ export class CompositeGeographicValidationService {
         }
         // Task B5 (correctness point 10): validate every OTHER required
         // (non-area) component too, not just the canonical AREA entity.
+        // Stage-2 migration seam; see geo-entity-hint-required-migration.util.ts.
         const requiredNonAreaHints =
           resolvedProposal.candidate.componentHints.filter(
-            (hint) => hint.required && hint.role !== 'area',
+            (hint) => isMigrationRequiredHint(hint) && hint.role !== 'area',
           );
         const unresolvedRequiredNonArea = requiredNonAreaHints.some(
           (hint) =>
@@ -675,8 +680,9 @@ export class CompositeGeographicValidationService {
     const proposal = resolvedProposal.candidate;
     const proposalName = proposal.name;
     const kind = 'EXPERIENCE';
-    const requiredConcreteHints = proposal.componentHints.filter(
-      (hint) => hint.required,
+    // Stage-2 migration seam; see geo-entity-hint-required-migration.util.ts.
+    const requiredConcreteHints = proposal.componentHints.filter((hint) =>
+      isMigrationRequiredHint(hint),
     );
     const venueCentric =
       requiredConcreteHints.length === 1 &&

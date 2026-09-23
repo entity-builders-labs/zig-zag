@@ -19,7 +19,6 @@ describe('buildExperienceSemanticDocument', () => {
       components: [
         {
           role: 'winery',
-          required: true,
           geoEntity: {
             name: 'Bodega A',
             kind: 'PLACE',
@@ -28,7 +27,6 @@ describe('buildExperienceSemanticDocument', () => {
         },
         {
           role: 'area',
-          required: true,
           geoEntity: {
             name: 'Luján de Cuyo',
             kind: 'AREA',
@@ -46,5 +44,25 @@ describe('buildExperienceSemanticDocument', () => {
       'component: role=winery | kind=PLACE | Bodega A',
     );
     expect(document).not.toContain('{"');
+  });
+
+  /**
+   * Stage 2 cutover (component-resolution-and-partial-composite-recovery-
+   * plan.md, embedding migration): `required` is no longer an LLM-authored
+   * geographic-truth fact, so it must not leak into the canonical semantic
+   * document either -- see amendment §18 and EXPERIENCE_EMBEDDING_DOCUMENT_VERSION.
+   */
+  it('never serializes a required/optional component token (Stage 2 embedding cutover)', () => {
+    const document = buildExperienceSemanticDocument({
+      canonicalName: 'San Telmo Historic Walk',
+      components: [
+        { role: 'venue', geoEntity: { name: 'Plaza Dorrego', kind: 'PLACE' } },
+        { role: 'route', geoEntity: { name: 'Calle Defensa', kind: 'ROUTE' } },
+      ],
+    });
+
+    expect(document).toContain('component: role=venue | kind=PLACE');
+    expect(document).not.toMatch(/\brequired\b/);
+    expect(document).not.toMatch(/\boptional\b/);
   });
 });

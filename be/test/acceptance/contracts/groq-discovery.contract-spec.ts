@@ -20,14 +20,19 @@ describe('Provider Contract: Groq ExperienceCandidate envelope', () => {
                 name: 'Teatro Colón',
                 role: 'venue',
                 expectedKind: 'PLACE',
-                required: true,
                 evidenceKeys: ['ev-2'],
+                supportSpan: 'El Teatro Colón es un ícono arquitectónico',
               },
             ],
           },
         ],
       },
-      new Set(['ev-2']),
+      [
+        {
+          key: 'ev-2',
+          text: 'El Teatro Colón es un ícono arquitectónico de Buenos Aires.',
+        },
+      ],
       8,
     );
     expect(result.validationErrors).toHaveLength(0);
@@ -49,14 +54,14 @@ describe('Provider Contract: Groq ExperienceCandidate envelope', () => {
                 name: 'Lugar',
                 role: 'venue',
                 expectedKind: 'INVALID',
-                required: true,
                 evidenceKeys: ['ev-1'],
+                supportSpan: 'el Lugar',
               },
             ],
           },
         ],
       },
-      new Set(['ev-1']),
+      [{ key: 'ev-1', text: 'texto sobre el Lugar' }],
       8,
     );
     expect(result.candidates).toHaveLength(0);

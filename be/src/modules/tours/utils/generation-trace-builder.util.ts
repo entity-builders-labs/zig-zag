@@ -28,6 +28,7 @@ import { PreferenceCoverageResult } from '../interfaces/preference-spec.interfac
 import { CandidateScoreBreakdown } from './candidate-ranking.util';
 import { SourceObservation } from '../interfaces/experience-acquisition.interface';
 import { ExperienceCandidate } from '../interfaces/experience-discovery.interface';
+import { isMigrationRequiredHint } from './geo-entity-hint-required-migration.util';
 import { AcquisitionEvidenceRequirement } from '../interfaces/acquisition-evidence-requirement.interface';
 import type { CorroborationGroupTrace } from '../services/structured-candidate-corroboration.service';
 import type { StructuredPairDecisionSummary } from '../services/experience-acquisition.service';
@@ -173,7 +174,8 @@ function traceHint(
     key: hint.key,
     name: hint.name,
     role: hint.role,
-    required: hint.required,
+    // Stage-2 migration seam; see geo-entity-hint-required-migration.util.ts.
+    required: isMigrationRequiredHint(hint),
     order,
     evidenceKeys: [...hint.evidenceKeys],
     ...(hint.addressHint ? { addressHint: hint.addressHint } : {}),

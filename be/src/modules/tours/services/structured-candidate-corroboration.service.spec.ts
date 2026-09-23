@@ -7,7 +7,6 @@ const PLACE_COMPONENT_HINT = {
   name: 'Fixture place',
   role: 'venue' as const,
   expectedKind: 'PLACE' as const,
-  required: true,
   evidenceKeys: ['fixture:place'],
 };
 
@@ -38,7 +37,6 @@ describe('StructuredCandidateCorroborationService', () => {
             name: 'Plaza Dorrego',
             role: 'venue',
             expectedKind: 'PLACE',
-            required: true,
             evidenceKeys: ['wikivoyage:San_Telmo:see:see:Plaza_Dorrego:1'],
           },
         ],
@@ -81,7 +79,6 @@ describe('StructuredCandidateCorroborationService', () => {
             name: 'Teatro Colón',
             role: 'venue',
             expectedKind: 'PLACE',
-            required: true,
             evidenceKeys: ['wikivoyage:BA:wikidata:Q827401'],
           },
         ],
@@ -112,7 +109,6 @@ describe('StructuredCandidateCorroborationService', () => {
             name: 'Teatro Colon Opera House',
             role: 'venue',
             expectedKind: 'PLACE',
-            required: true,
             evidenceKeys: ['wikidata:Q827401'],
           },
         ],
@@ -160,7 +156,6 @@ describe('StructuredCandidateCorroborationService', () => {
             name: 'Plaza Dorrego',
             role: 'venue',
             expectedKind: 'PLACE',
-            required: true,
             evidenceKeys: ['wikivoyage:BA:see:see:Plaza_Dorrego:1'],
           },
         ],
@@ -190,7 +185,6 @@ describe('StructuredCandidateCorroborationService', () => {
             name: 'Plaza Dorrego Histórica',
             role: 'venue',
             expectedKind: 'PLACE',
-            required: true,
             evidenceKeys: ['osm:node:12345'],
           },
         ],
@@ -496,7 +490,6 @@ describe('StructuredCandidateCorroborationService', () => {
             name: 'Mercado San Telmo',
             role: 'venue',
             expectedKind: 'PLACE',
-            required: true,
             evidenceKeys: ['ev:1'],
           },
         ],
@@ -526,7 +519,6 @@ describe('StructuredCandidateCorroborationService', () => {
             name: 'Mercado San Telmo Techado',
             role: 'venue',
             expectedKind: 'PLACE',
-            required: false,
             evidenceKeys: ['ev:2'],
           },
         ],
@@ -549,7 +541,10 @@ describe('StructuredCandidateCorroborationService', () => {
     expect(result.candidates).toHaveLength(1);
     const candidate = result.candidates[0];
     expect(candidate.componentHints).toHaveLength(1);
-    expect(candidate.componentHints[0].required).toBe(true);
+    // Stage 2 cutover: `required` no longer exists on GeoEntityHint (was an
+    // OR-merge across LLM-authored required flags); the merged hint simply
+    // has no such field anymore.
+    expect(candidate.componentHints[0]).not.toHaveProperty('required');
     expect(candidate.componentHints[0].evidenceKeys).toEqual(['ev:1', 'ev:2']);
   });
 
@@ -720,7 +715,6 @@ describe('StructuredCandidateCorroborationService', () => {
             name: 'San Telmo Market',
             role: 'venue',
             expectedKind: 'PLACE',
-            required: true,
             evidenceKeys: ['osm:1'],
           },
         ],
@@ -750,7 +744,6 @@ describe('StructuredCandidateCorroborationService', () => {
             name: 'San Telmo Market',
             role: 'area',
             expectedKind: 'AREA',
-            required: true,
             evidenceKeys: ['wikivoyage:1'],
           },
         ],
@@ -802,7 +795,6 @@ describe('StructuredCandidateCorroborationService', () => {
             name: 'Mercado San Telmo',
             role: 'venue',
             expectedKind: 'PLACE',
-            required: true,
             evidenceKeys: ['wikivoyage:San_Telmo:see:see:Mercado_San_Telmo:1'],
           },
         ],
@@ -877,7 +869,6 @@ describe('StructuredCandidateCorroborationService', () => {
               name: 'Teatro Colón',
               role: 'venue',
               expectedKind: 'PLACE',
-              required: true,
               evidenceKeys: ['wikivoyage:San_Nicolas:see:see:Teatro_Colon:1'],
             },
           ],
@@ -908,7 +899,6 @@ describe('StructuredCandidateCorroborationService', () => {
               name: 'Teatro Colon',
               role: 'venue',
               expectedKind: 'PLACE',
-              required: true,
               evidenceKeys: ['google_places:ChIJTeatroColon'],
             },
           ],
@@ -951,7 +941,6 @@ describe('StructuredCandidateCorroborationService', () => {
         name: 'Teatro Colon',
         role: 'venue',
         expectedKind: 'PLACE',
-        required: true,
         evidenceKeys: [
           'google_places:ChIJTeatroColon',
           'wikivoyage:San_Nicolas:see:see:Teatro_Colon:1',
@@ -1155,7 +1144,6 @@ describe('StructuredCandidateCorroborationService', () => {
             name,
             role: 'venue',
             expectedKind: 'PLACE',
-            required: true,
             evidenceKeys: [id],
           },
         ],
@@ -1197,7 +1185,6 @@ describe('StructuredCandidateCorroborationService', () => {
               name: 'Mercado de San Telmo',
               role: 'venue',
               expectedKind: 'PLACE',
-              required: true,
               evidenceKeys: ['wikivoyage:San_Telmo:see:see:Mercado:1'],
             },
           ],
@@ -1296,7 +1283,6 @@ describe('StructuredCandidateCorroborationService', () => {
             name: 'Generic Café',
             role: 'venue',
             expectedKind: 'PLACE',
-            required: true,
             evidenceKeys: ['google_places:cafe-1'],
           },
         ],
@@ -1376,7 +1362,6 @@ describe('StructuredCandidateCorroborationService', () => {
                 name: 'Route relation',
                 role: 'route',
                 expectedKind: 'ROUTE',
-                required: true,
                 evidenceKeys: ['osm:relation:route'],
               },
             ],
@@ -1415,7 +1400,6 @@ describe('StructuredCandidateCorroborationService', () => {
               name: 'Teatro Colón',
               role: 'venue',
               expectedKind: 'PLACE',
-              required: true,
               evidenceKeys: ['wikivoyage:San_Nicolas:see:see:Teatro_Colon:1'],
             },
           ],
@@ -1446,7 +1430,6 @@ describe('StructuredCandidateCorroborationService', () => {
               name: 'Teatro Colon',
               role: 'venue',
               expectedKind: 'PLACE',
-              required: true,
               evidenceKeys: ['google_places:ChIJTeatroColon'],
             },
           ],
@@ -1494,7 +1477,6 @@ describe('StructuredCandidateCorroborationService', () => {
               name: 'Museo Nacional',
               role: 'venue',
               expectedKind: 'PLACE',
-              required: true,
               evidenceKeys: [`google_places:${suffix}`],
             },
           ],
@@ -1545,7 +1527,6 @@ describe('StructuredCandidateCorroborationService', () => {
               name: 'Plaza Dorrego',
               role: 'venue',
               expectedKind: 'PLACE',
-              required: true,
               evidenceKeys: ['osm:node:1'],
             },
           ],

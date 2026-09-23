@@ -3,10 +3,20 @@ import {
   GeoEntityHint,
 } from '../interfaces/experience-discovery.interface';
 import { normalizeExperienceCandidateFacets } from './experience-candidate-facet-normalizer.util';
+import { verifyTextualComponentSourceSupport } from './component-source-support.util';
 
 const ROLES = new Set(['area', 'waypoint', 'route', 'venue']);
 const KINDS = new Set(['PLACE', 'AREA', 'ROUTE']);
 const MAX_HINTS = 8;
+
+/** One evidence record's key and its real captured text, used only for the
+ * deterministic source-support gate (see component-source-support.util.ts).
+ * `key` must match `ExperienceGroundingEvidence.key`; `text` is that
+ * record's own snippet, never a different record's text. */
+export interface DiscoveryEvidenceRecord {
+  key: string;
+  text: string;
+}
 
 export interface ExperienceExtractionResult {
   candidates: ExperienceCandidate[];
@@ -57,9 +67,13 @@ function normalizeExtractorEnvelope(raw: unknown): {
 
 export function extractExperienceCandidates(
   raw: unknown,
-  evidenceKeys: Set<string>,
+  evidence: DiscoveryEvidenceRecord[],
   maxCandidates: number,
 ): ExperienceExtractionResult {
+  const evidenceKeys = new Set(evidence.map((item) => item.key));
+  const evidenceTextByKey = new Map(
+    evidence.map((item) => [item.key, item.text]),
+  );
   const { entries, repairNotes } = normalizeExtractorEnvelope(raw);
   const candidates: ExperienceCandidate[] = [];
   const validationErrors: string[] = [...repairNotes];
@@ -98,6 +112,7 @@ export function extractExperienceCandidates(
       errors.push('candidate references unknown evidence');
 
     const hints: GeoEntityHint[] = [];
+    const droppedHintNotes: string[] = [];
     if (Array.isArray(candidate?.componentHints)) {
       for (const [hintIndex, hint] of candidate.componentHints
         .slice(0, MAX_HINTS)
@@ -106,16 +121,44 @@ export function extractExperienceCandidates(
           errors.push(`component ${hintIndex + 1} name is required`);
           continue;
         }
+        const hintEvidenceKeys: string[] = Array.isArray(hint.evidenceKeys)
+          ? hint.evidenceKeys.map(String)
+          : [];
+        const hasValidStructure =
+          ROLES.has(hint.role) &&
+          KINDS.has(hint.expectedKind) &&
+          hintEvidenceKeys.length > 0 &&
+          hintEvidenceKeys.every((key) => evidenceKeys.has(key));
         if (!ROLES.has(hint.role) || !KINDS.has(hint.expectedKind))
           errors.push(`component ${hintIndex + 1} has invalid role/kind`);
         if (
-          !Array.isArray(hint.evidenceKeys) ||
-          hint.evidenceKeys.length === 0 ||
-          hint.evidenceKeys.some(
-            (key: unknown) => !evidenceKeys.has(String(key)),
-          )
+          hintEvidenceKeys.length === 0 ||
+          hintEvidenceKeys.some((key) => !evidenceKeys.has(key))
         )
           errors.push(`component ${hintIndex + 1} has invalid evidence`);
+
+        // Deterministic source-support admission gate (Stage 2 cutover):
+        // only meaningful once the hint's own evidenceKeys are structurally
+        // valid -- there is nothing to verify a supportSpan against
+        // otherwise, and that case is already a hard candidate-level error
+        // above. Unlike the structural checks above, an unsupported hint
+        // does NOT invalidate the whole candidate: it is dropped, and
+        // sibling hints with genuine source support still survive (amendment
+        // §2/§4; "Every evidence-backed component is attempted").
+        if (hasValidStructure) {
+          const support = verifyTextualComponentSourceSupport(
+            typeof hint.supportSpan === 'string' ? hint.supportSpan : undefined,
+            hintEvidenceKeys,
+            evidenceTextByKey,
+          );
+          if (support.supported === false) {
+            droppedHintNotes.push(
+              `component ${hintIndex + 1} (${hint.name.trim()}) dropped: source-support ${support.reason}`,
+            );
+            continue;
+          }
+        }
+
         const addressHint =
           typeof hint.addressHint === 'string' && hint.addressHint.trim()
             ? hint.addressHint.trim()
@@ -125,15 +168,24 @@ export function extractExperienceCandidates(
           name: hint.name.trim(),
           role: hint.role,
           expectedKind: hint.expectedKind,
-          required: hint.required === true,
-          evidenceKeys: hint.evidenceKeys ?? [],
+          evidenceKeys: hintEvidenceKeys,
           ...(addressHint ? { addressHint } : {}),
         });
       }
     }
+    if (hints.length === 0 && !errors.length) {
+      errors.push('no source-supported componentHints remain');
+    }
     if (errors.length) {
-      validationErrors.push(`Candidate ${index + 1}: ${errors.join('; ')}`);
+      validationErrors.push(
+        `Candidate ${index + 1}: ${[...errors, ...droppedHintNotes].join('; ')}`,
+      );
       continue;
+    }
+    if (droppedHintNotes.length) {
+      validationErrors.push(
+        `Candidate ${index + 1}: ${droppedHintNotes.join('; ')}`,
+      );
     }
     // Deterministic, provider-neutral repair of the semantic facets: themes and
     // intents are controlled vocabularies, traits is open-ended, and a

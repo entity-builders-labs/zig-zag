@@ -15,7 +15,6 @@ const candidate = (
 });
 const hint = (
   expectedKind: 'PLACE' | 'AREA' | 'ROUTE',
-  required = true,
 ): ExperienceCandidate['componentHints'][number] => ({
   key: expectedKind,
   name: expectedKind,
@@ -26,7 +25,6 @@ const hint = (
         ? 'area'
         : 'route',
   expectedKind,
-  required,
   evidenceKeys: ['evidence'],
 });
 
@@ -50,9 +48,13 @@ describe('candidateSatisfiesEvidenceRequirement', () => {
       true,
     ],
     [
-      candidate(hint('PLACE'), hint('PLACE', false)),
+      // Stage 2 cutover: `required` is no longer LLM-authored, so any two
+      // non-area hints always count toward MULTI_COMPONENT_EXPERIENCE (see
+      // acquisition-candidate-requirement.util.ts doc comment) -- there is
+      // no more "optional hint that doesn't count" case to construct.
+      candidate(hint('PLACE'), hint('ROUTE')),
       'MULTI_COMPONENT_EXPERIENCE',
-      false,
+      true,
     ],
     [candidate(hint('ROUTE')), 'MULTI_COMPONENT_EXPERIENCE', false],
     [

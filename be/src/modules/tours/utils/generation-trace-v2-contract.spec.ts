@@ -285,7 +285,6 @@ describe('GenerationTrace V2 decision audit coverage', () => {
           name: 'Venue 1',
           role: 'venue',
           expectedKind: 'PLACE',
-          required: true,
           evidenceKeys: ['ev'],
         },
         {
@@ -293,7 +292,6 @@ describe('GenerationTrace V2 decision audit coverage', () => {
           name: 'Venue 2',
           role: 'venue',
           expectedKind: 'PLACE',
-          required: true,
           evidenceKeys: ['ev'],
         },
       ],

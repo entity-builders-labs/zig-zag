@@ -49,7 +49,6 @@ describe('StructuredExperienceCandidateSynthesizerService', () => {
       name: 'Manzana de las Luces',
       role: 'venue',
       expectedKind: 'PLACE',
-      required: true,
       evidenceKeys: ['wikivoyage:San_Telmo:Manzana_de_las_Luces'],
     });
   });
@@ -71,7 +70,6 @@ describe('StructuredExperienceCandidateSynthesizerService', () => {
       name: 'Distrito de las Artes',
       role: 'area',
       expectedKind: 'AREA',
-      required: true,
       evidenceKeys: ['wikivoyage:La_Boca:Distrito_de_las_Artes'],
     });
   });
@@ -93,7 +91,6 @@ describe('StructuredExperienceCandidateSynthesizerService', () => {
       name: 'Caminito Peatonal',
       role: 'route',
       expectedKind: 'ROUTE',
-      required: true,
       evidenceKeys: ['wikivoyage:La_Boca:Caminito_Peatonal'],
     });
   });
@@ -201,7 +198,6 @@ describe('StructuredExperienceCandidateSynthesizerService', () => {
       name: 'Teatro Colón',
       role: 'venue',
       expectedKind: 'PLACE',
-      required: true,
       evidenceKeys: ['google_places:ChIJPlace123'],
     });
     expect(proposal.observations).toEqual([observation]);
