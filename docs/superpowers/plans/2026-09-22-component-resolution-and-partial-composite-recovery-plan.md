@@ -339,7 +339,7 @@ Stage 2 does NOT silently claim this is resolved; this authority belongs to Stag
 
 **Engineering-principles gate:**
 - provider isolation: PASS (no provider-name branching added).
-- typed canonical facts: PASS (contracts use typed `GeoEntityHint` with `supportSpan`, no untyped bags).
+- typed canonical facts: PASS (`supportSpan` exists only on the raw extraction shape; canonical `GeoEntityHint` remains typed and contains no `supportSpan`, with no untyped bags).
 - source authority: PASS (deterministic verification against cited SourceObservation text).
 - single admission policy: PASS (`component-source-support.util.ts` and `acquisition-candidate-requirement.util.ts` are canonical).
 - no hidden metadata protocol: PASS (no untyped side-channels or magic flags).
